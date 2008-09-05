@@ -150,12 +150,6 @@ class Column : public AbstractColumn
 		void clear();
 		//! This must be called before the column is replaced by another
 		void notifyReplacement(AbstractColumn* replacement);
-		//! Return the input filter (for string -> data type conversion)
-		/**
-		 * This method is mainly used to get a filter that can convert
-		 * user input (strings) to the column's data type.
-		 */
-		AbstractSimpleFilter * inputFilter() const;
 		//! Return the output filter (for data type -> string  conversion)
 		/**
 		 * This method is mainly used to get a filter that can convert
@@ -318,6 +312,8 @@ class Column : public AbstractColumn
 		//! Pointer to the private data object
 		Private * d_column_private;
 		ColumnStringIO * d_string_io;
+		
+		friend class ColumnStringIO;
 };
 
 //! String-IO interface of Column.
@@ -331,19 +327,8 @@ class ColumnStringIO : public AbstractColumn
 		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
 		virtual SciDAVis::PlotDesignation plotDesignation() const { return d_owner->plotDesignation(); }
 		virtual int rowCount() const { return d_owner->rowCount(); }
-		virtual QString textAt(int row) const {
-			if (d_setting)
-				return d_to_set;
-			else
-				return d_owner->outputFilter()->output(0)->textAt(row);
-		}
-		virtual void setTextAt(int row, const QString &value) {
-			d_setting = true;
-			d_to_set = value;
-			d_owner->copy(d_owner->inputFilter()->output(0), 0, row, 1);
-			d_setting = false;
-			d_to_set.clear();
-		}
+		virtual QString textAt(int row) const;
+		virtual void setTextAt(int row, const QString &value);
 		virtual bool isInvalid(int row) const {
 			if (d_setting)
 				return false;

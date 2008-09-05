@@ -262,7 +262,7 @@ int MatrixView::lastSelectedColumn(bool full)
 	for(int i=cols-1; i>=0; i--)
 		if(isColumnSelected(i, full)) return i;
 
-	return -1;
+	return -2;
 }
 
 int MatrixView::firstSelectedRow(bool full)
@@ -282,7 +282,7 @@ int MatrixView::lastSelectedRow(bool full)
 	for(int i=rows-1; i>=0; i--)
 		if(isRowSelected(i, full)) return i;
 
-	return -1;
+	return -2;
 }
 
 bool MatrixView::isCellSelected(int row, int col)

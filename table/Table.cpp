@@ -326,11 +326,11 @@ void Table::copySelection()
 	int first_col = d_view->firstSelectedColumn(false);
 	if(first_col == -1) return;
 	int last_col = d_view->lastSelectedColumn(false);
-	if(last_col == -1) return;
+	if(last_col == -2) return;
 	int first_row = d_view->firstSelectedRow(false);
 	if(first_row == -1)	return;
 	int last_row = d_view->lastSelectedRow(false);
-	if(last_row == -1) return;
+	if(last_row == -2) return;
 	int cols = last_col - first_col +1;
 	int rows = last_row - first_row +1;
 	
@@ -433,7 +433,6 @@ void Table::pasteIntoSelection()
 
 		rows = last_row - first_row + 1;
 		cols = last_col - first_col + 1;
-		Column * temp = new Column("temp", QStringList(QString()));
 		for(int r=0; r<rows && r<input_row_count; r++)
 		{
 			for(int c=0; c<cols && c<input_col_count; c++)
@@ -446,17 +445,10 @@ void Table::pasteIntoSelection()
 						col_ptr->setFormula(first_row + r, cell_texts.at(r).at(c));  
 					}
 					else
-					{
-						AbstractSimpleFilter * in_fltr = col_ptr->inputFilter();
-						temp->setTextAt(0, cell_texts.at(r).at(c));
-						in_fltr->input(0, temp);
-						col_ptr->copy(in_fltr->output(0), 0, first_row+r, 1);  
-						in_fltr->input(0,0);
-					}
+						col_ptr->asStringColumn()->setTextAt(first_row+r, cell_texts.at(r).at(c));
 				}
 			}
 		}
-		delete temp;
 	}
 	endMacro();
 	RESET_CURSOR;
@@ -526,21 +518,13 @@ void Table::fillSelectedCellsWithRowNumbers()
 	WAIT_CURSOR;
 	beginMacro(tr("%1: fill cells with row numbers").arg(name()));
 	QList<Column*> list = d_view->selectedColumns();
-	Column * temp = new Column("temp", QStringList(QString()));
 	foreach(Column * col_ptr, list)
 	{
-		AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
-		in_fltr->input(0, temp);
 		int col = columnIndex(col_ptr);
 		for(int row=first; row<=last; row++)
 			if(d_view->isCellSelected(row, col)) 
-			{
-				temp->setTextAt(0, QString::number(row+1));
-				col_ptr->copy(in_fltr->output(0), 0, row, 1);  
-			}
-		in_fltr->input(0, 0);
+				col_ptr->asStringColumn()->setTextAt(row, QString::number(row+1));
 	}
-	delete temp;
 	endMacro();
 	RESET_CURSOR;
 }
@@ -780,7 +764,6 @@ void Table::clearSelectedRows()
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: clear selected rows(s)").arg(name()));
 	QList<Column*> list = d_view->selectedColumns();
-	Column * temp = new Column("temp", QStringList(QString()));
 	foreach(Column * col_ptr, list)
 	{
 		if (d_view->formulaModeActive())
@@ -793,20 +776,16 @@ void Table::clearSelectedRows()
 		}
 		else
 		{
-			AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
-			in_fltr->input(0, temp);
 			for(int row=last; row>=first; row--)
 				if(d_view->isRowSelected(row, false))
 				{
 					if(row == (col_ptr->rowCount()-1) )
 						col_ptr->removeRows(row,1);
 					else if(row < col_ptr->rowCount())
-						col_ptr->copy(in_fltr->output(0), 0, row, 1);  
+						col_ptr->asStringColumn()->setTextAt(row, "");
 				}
-			in_fltr->input(0, 0);
 		}
 	}
-	delete temp;
 	endMacro();
 	RESET_CURSOR;
 }
@@ -844,7 +823,6 @@ void Table::clearSelectedCells()
 	WAIT_CURSOR;
 	beginMacro(tr("%1: clear selected cell(s)").arg(name()));
 	QList<Column*> list = d_view->selectedColumns();
-	Column * temp = new Column("temp", QStringList(QString()));
 	foreach(Column * col_ptr, list)
 	{
 		if (d_view->formulaModeActive())
@@ -858,8 +836,6 @@ void Table::clearSelectedCells()
 		}
 		else
 		{
-			AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
-			in_fltr->input(0, temp);
 			int col = columnIndex(col_ptr);
 			for(int row=last; row>=first; row--)
 				if(d_view->isCellSelected(row, col))
@@ -867,12 +843,10 @@ void Table::clearSelectedCells()
 					if(row == (col_ptr->rowCount()-1) )
 						col_ptr->removeRows(row,1);
 					else if(row < col_ptr->rowCount())
-						col_ptr->copy(in_fltr->output(0), 0, row, 1);  
+						col_ptr->asStringColumn()->setTextAt(row, "");
 				}
-			in_fltr->input(0, 0);
 		}
 	}
-	delete temp;
 	endMacro();
 	RESET_CURSOR;
 }

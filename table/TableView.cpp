@@ -599,7 +599,7 @@ int TableView::lastSelectedColumn(bool full)
 	for(int i=cols-1; i>=0; i--)
 		if(isColumnSelected(i, full)) return i;
 
-	return -1;
+	return -2;
 }
 
 int TableView::firstSelectedRow(bool full)
@@ -619,7 +619,7 @@ int TableView::lastSelectedRow(bool full)
 	for(int i=rows-1; i>=0; i--)
 		if(isRowSelected(i, full)) return i;
 
-	return -1;
+	return -2;
 }
 
 bool TableView::isCellSelected(int row, int col)

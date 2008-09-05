@@ -40,10 +40,10 @@ Column::Column(const QString& name, SciDAVis::ColumnMode mode)
 {
 	d_column_private = new Private(this, mode);
 	d_string_io = new ColumnStringIO(this);
-	inputFilter()->input(0,d_string_io);
-	outputFilter()->input(0,this);
-	addChild(inputFilter());
-	addChild(outputFilter());
+	d_column_private->inputFilter()->input(0,d_string_io);
+	d_column_private->outputFilter()->input(0,this);
+	addChild(d_column_private->inputFilter());
+	addChild(d_column_private->outputFilter());
 }
 
 Column::Column(const QString& name, QVector<double> data, IntervalAttribute<bool> validity)
@@ -52,10 +52,10 @@ Column::Column(const QString& name, QVector<double> data, IntervalAttribute<bool
 	d_column_private = new Private(this, SciDAVis::TypeDouble, 
 		SciDAVis::Numeric, new QVector<double>(data), validity);
 	d_string_io = new ColumnStringIO(this);
-	inputFilter()->input(0,d_string_io);
-	outputFilter()->input(0,this);
-	addChild(inputFilter());
-	addChild(outputFilter());
+	d_column_private->inputFilter()->input(0,d_string_io);
+	d_column_private->outputFilter()->input(0,this);
+	addChild(d_column_private->inputFilter());
+	addChild(d_column_private->outputFilter());
 }
 
 Column::Column(const QString& name, QStringList data, IntervalAttribute<bool> validity)
@@ -64,10 +64,10 @@ Column::Column(const QString& name, QStringList data, IntervalAttribute<bool> va
 	d_column_private = new Private(this, SciDAVis::TypeQString,
 		SciDAVis::Text, new QStringList(data), validity);
 	d_string_io = new ColumnStringIO(this);
-	inputFilter()->input(0,d_string_io);
-	outputFilter()->input(0,this);
-	addChild(inputFilter());
-	addChild(outputFilter());
+	d_column_private->inputFilter()->input(0,d_string_io);
+	d_column_private->outputFilter()->input(0,this);
+	addChild(d_column_private->inputFilter());
+	addChild(d_column_private->outputFilter());
 }
 
 Column::Column(const QString& name, QList<QDateTime> data, IntervalAttribute<bool> validity)
@@ -76,10 +76,10 @@ Column::Column(const QString& name, QList<QDateTime> data, IntervalAttribute<boo
 	d_column_private = new Private(this, SciDAVis::TypeQDateTime, 
 		SciDAVis::DateTime, new QList<QDateTime>(data), validity);
 	d_string_io = new ColumnStringIO(this);
-	inputFilter()->input(0,d_string_io);
-	outputFilter()->input(0,this);
-	addChild(inputFilter());
-	addChild(outputFilter());
+	d_column_private->inputFilter()->input(0,d_string_io);
+	d_column_private->outputFilter()->input(0,this);
+	addChild(d_column_private->inputFilter());
+	addChild(d_column_private->outputFilter());
 }
 
 Column::~Column()
@@ -91,20 +91,20 @@ void Column::setColumnMode(SciDAVis::ColumnMode mode)
 {
 	if(mode == columnMode()) return;
 	beginMacro(QObject::tr("%1: change column type").arg(name()));
-	AbstractSimpleFilter * old_input_filter = inputFilter();
-	AbstractSimpleFilter * old_output_filter = outputFilter();
+	AbstractSimpleFilter * old_input_filter = d_column_private->inputFilter();
+	AbstractSimpleFilter * old_output_filter = d_column_private->outputFilter();
 	exec(new ColumnSetModeCmd(d_column_private, mode));
-	if (inputFilter() != old_input_filter) 
+	if (d_column_private->inputFilter() != old_input_filter) 
 	{
 		removeChild(old_input_filter);
-		addChild(inputFilter());
-		inputFilter()->input(0,d_string_io);
+		addChild(d_column_private->inputFilter());
+		d_column_private->inputFilter()->input(0,d_string_io);
 	}
-	if (outputFilter() != old_output_filter) 
+	if (d_column_private->outputFilter() != old_output_filter) 
 	{
 		removeChild(old_output_filter);
-		addChild(outputFilter());
-		outputFilter()->input(0, this);
+		addChild(d_column_private->outputFilter());
+		d_column_private->outputFilter()->input(0, this);
 	}
 	endMacro();
 }
@@ -287,10 +287,10 @@ void Column::save(QXmlStreamWriter * writer) const
 	writer->writeAttribute("plot_designation", SciDAVis::enumValueToString(plotDesignation(), "PlotDesignation"));
 	writeCommentElement(writer);
 	writer->writeStartElement("input_filter");
-	inputFilter()->save(writer);
+	d_column_private->inputFilter()->save(writer);
 	writer->writeEndElement();
 	writer->writeStartElement("output_filter");
-	outputFilter()->save(writer);
+	d_column_private->outputFilter()->save(writer);
 	writer->writeEndElement();
 	QList< Interval<int> > masks = maskedIntervals();
 	foreach(Interval<int> interval, masks)
@@ -465,7 +465,7 @@ bool Column::XmlReadInputFilter(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "input_filter");
 	if (!reader->skipToNextTag()) return false;
-	if (!inputFilter()->load(reader)) return false;
+	if (!d_column_private->inputFilter()->load(reader)) return false;
 	if (!reader->skipToNextTag()) return false;
 	Q_ASSERT(reader->isEndElement() && reader->name() == "input_filter");
 	return true;
@@ -475,7 +475,7 @@ bool Column::XmlReadOutputFilter(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "output_filter");
 	if (!reader->skipToNextTag()) return false;
-	if (!outputFilter()->load(reader)) return false;
+	if (!d_column_private->outputFilter()->load(reader)) return false;
 	if (!reader->skipToNextTag()) return false;
 	Q_ASSERT(reader->isEndElement() && reader->name() == "output_filter");
 	return true;
@@ -591,11 +591,6 @@ SciDAVis::PlotDesignation Column::plotDesignation() const
 	return d_column_private->plotDesignation(); 
 }
 
-AbstractSimpleFilter * Column::inputFilter() const 
-{ 
-	return d_column_private->inputFilter(); 
-}
-
 AbstractSimpleFilter * Column::outputFilter() const 
 { 
 	return d_column_private->outputFilter(); 
@@ -647,3 +642,19 @@ void Column::notifyDisplayChange()
 	emit aspectDescriptionChanged(this); // the icon for the type changed
 }
 
+void ColumnStringIO::setTextAt(int row, const QString &value)
+{
+	d_setting = true;
+	d_to_set = value;
+	d_owner->copy(d_owner->d_column_private->inputFilter()->output(0), 0, row, 1);
+	d_setting = false;
+	d_to_set.clear();
+}
+
+QString ColumnStringIO::textAt(int row) const
+{
+	if (d_setting)
+		return d_to_set;
+	else
+		return d_owner->d_column_private->outputFilter()->output(0)->textAt(row);
+}

@@ -193,11 +193,11 @@ void Matrix::copySelection()
 	int first_col = d_view->firstSelectedColumn(false);
 	if(first_col == -1) return;
 	int last_col = d_view->lastSelectedColumn(false);
-	if(last_col == -1) return;
+	if(last_col == -2) return;
 	int first_row = d_view->firstSelectedRow(false);
 	if(first_row == -1)	return;
 	int last_row = d_view->lastSelectedRow(false);
-	if(last_row == -1) return;
+	if(last_row == -2) return;
 	int cols = last_col - first_col +1;
 	int rows = last_row - first_row +1;
 	
