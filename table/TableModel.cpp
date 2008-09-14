@@ -90,7 +90,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 				if(col_ptr->isMasked(row))
 					postfix = " " + tr("(masked)");
 				if(col_ptr->isInvalid(row))
-					return QVariant(tr("invalid cell","tooltip string for invalid rows") + postfix);
+					return QVariant(tr("invalid cell (ignored in all operations)","tooltip string for invalid rows") + postfix);
 		case Qt::EditRole:
 				if(!d_formula_mode && col_ptr->isInvalid(row))
 					return QVariant();
@@ -99,7 +99,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 				if(d_formula_mode)
 					return QVariant(col_ptr->formula(row));
 				if(col_ptr->isInvalid(row))
-					return QVariant(tr("invalid","string for invalid rows"));
+					return QVariant(tr("-","string for invalid rows"));
 				
 				return QVariant(col_ptr->asStringColumn()->textAt(row) + postfix);
 			}

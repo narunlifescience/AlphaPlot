@@ -567,7 +567,8 @@ int Column::Private::rowCount() const
 
 void Column::Private::resizeTo(int new_size)
 {
-	if(new_size == rowCount()) return;
+	int old_size = rowCount();
+	if(new_size == old_size) return;
 
 	switch(d_data_type)
 	{
@@ -576,7 +577,7 @@ void Column::Private::resizeTo(int new_size)
 			break;
 		case SciDAVis::TypeQDateTime:
 			{
-				int new_rows = new_size - rowCount();
+				int new_rows = new_size - old_size;
 				if(new_rows > 0)
 				{
 					for(int i=0; i<new_rows; i++)
@@ -591,7 +592,7 @@ void Column::Private::resizeTo(int new_size)
 			}
 		case SciDAVis::TypeQString:
 			{
-				int new_rows = new_size - rowCount();
+				int new_rows = new_size - old_size;
 				if(new_rows > 0)
 				{
 					for(int i=0; i<new_rows; i++)
@@ -605,6 +606,8 @@ void Column::Private::resizeTo(int new_size)
 				break;
 			}
 	}
+	if (new_size > old_size)
+		setInvalid(Interval<int>(old_size, new_size-1));
 }
 
 void Column::Private::insertRows(int before, int count)
