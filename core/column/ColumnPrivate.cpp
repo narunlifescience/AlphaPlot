@@ -153,7 +153,7 @@ Column::Private::Private(Column * owner, SciDAVis::ColumnDataType type, SciDAVis
 
 Column::Private::~Private()
 {
-	if(!d_data) return;
+	if (!d_data) return;
 
 	switch(d_data_type)
 	{
@@ -173,7 +173,7 @@ Column::Private::~Private()
 
 void Column::Private::setColumnMode(SciDAVis::ColumnMode mode)
 {
-	if(mode == d_column_mode) return;
+	if (mode == d_column_mode) return;
 
 	void * old_data = d_data;
 	// remark: the deletion of the old data will be done in the dtor of a command
@@ -269,9 +269,9 @@ void Column::Private::setColumnMode(SciDAVis::ColumnMode mode)
 					d_data_type = SciDAVis::TypeQString;
 					break;
 				case SciDAVis::Numeric:
-					if(d_column_mode == SciDAVis::Month)
+					if (d_column_mode == SciDAVis::Month)
 						filter = new Month2DoubleFilter();
-					else if(d_column_mode == SciDAVis::Day)
+					else if (d_column_mode == SciDAVis::Day)
 						filter = new DayOfWeek2DoubleFilter();
 					else
 						filter = new DateTime2DoubleFilter();
@@ -330,7 +330,7 @@ void Column::Private::setColumnMode(SciDAVis::ColumnMode mode)
 	d_input_filter = new_in_filter;
 	d_output_filter = new_out_filter;
 
-	if(temp_col) // if temp_col == 0, only the input/output filters need to be changed
+	if (temp_col) // if temp_col == 0, only the input/output filters need to be changed
 	{
 		// copy the filtered, i.e. converted, column
 		filter->input(0, temp_col);
@@ -400,7 +400,7 @@ void Column::Private::replaceData(void * data, IntervalAttribute<bool> validity)
 
 bool Column::Private::copy(const AbstractColumn * other)
 {
-	if(other->dataType() != dataType()) return false;
+	if (other->dataType() != dataType()) return false;
 	int num_rows = other->rowCount();
 
 	emit d_owner->dataAboutToChange(d_owner);
@@ -439,11 +439,13 @@ bool Column::Private::copy(const AbstractColumn * other)
 
 bool Column::Private::copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows)
 {
-	if(source->dataType() != dataType()) return false;
-	if(num_rows == 0) return true;
+	if (source->dataType() != dataType()) return false;
+	if (num_rows == 0) return true;
 
 	emit d_owner->dataAboutToChange(d_owner);
-	if(dest_start + num_rows > rowCount())
+	if (dest_start+1-rowCount() > 1)
+		d_validity.setValue(Interval<int>(rowCount(), dest_start-1), true);
+	if (dest_start + num_rows > rowCount())
 		resizeTo(dest_start + num_rows); 
 
 	// copy the data
@@ -476,7 +478,7 @@ bool Column::Private::copy(const AbstractColumn * source, int source_start, int 
 
 bool Column::Private::copy(const Private * other)
 {
-	if(other->dataType() != dataType()) return false;
+	if (other->dataType() != dataType()) return false;
 	int num_rows = other->rowCount();
 
 	emit d_owner->dataAboutToChange(d_owner);
@@ -515,11 +517,13 @@ bool Column::Private::copy(const Private * other)
 
 bool Column::Private::copy(const Private * source, int source_start, int dest_start, int num_rows)
 {
-	if(source->dataType() != dataType()) return false;
-	if(num_rows == 0) return true;
+	if (source->dataType() != dataType()) return false;
+	if (num_rows == 0) return true;
 
 	emit d_owner->dataAboutToChange(d_owner);
-	if(dest_start + num_rows > rowCount())
+	if (dest_start+1-rowCount() > 1)
+		d_validity.setValue(Interval<int>(rowCount(), dest_start-1), true);
+	if (dest_start + num_rows > rowCount())
 		resizeTo(dest_start + num_rows); 
 
 	// copy the data
@@ -568,7 +572,7 @@ int Column::Private::rowCount() const
 void Column::Private::resizeTo(int new_size)
 {
 	int old_size = rowCount();
-	if(new_size == old_size) return;
+	if (new_size == old_size) return;
 
 	switch(d_data_type)
 	{
@@ -578,7 +582,7 @@ void Column::Private::resizeTo(int new_size)
 		case SciDAVis::TypeQDateTime:
 			{
 				int new_rows = new_size - old_size;
-				if(new_rows > 0)
+				if (new_rows > 0)
 				{
 					for(int i=0; i<new_rows; i++)
 						static_cast< QList<QDateTime>* >(d_data)->append(QDateTime());
@@ -593,7 +597,7 @@ void Column::Private::resizeTo(int new_size)
 		case SciDAVis::TypeQString:
 			{
 				int new_rows = new_size - old_size;
-				if(new_rows > 0)
+				if (new_rows > 0)
 				{
 					for(int i=0; i<new_rows; i++)
 						static_cast< QStringList* >(d_data)->append(QString());
@@ -606,21 +610,20 @@ void Column::Private::resizeTo(int new_size)
 				break;
 			}
 	}
-	if (new_size > old_size)
-		setInvalid(Interval<int>(old_size, new_size-1));
 }
 
 void Column::Private::insertRows(int before, int count)
 {
-	if(count == 0) return;
+	if (count == 0) return;
 
 	emit d_owner->rowsAboutToBeInserted(d_owner, before, count);
 	d_validity.insertRows(before, count);
 	d_masking.insertRows(before, count);
 	d_formulas.insertRows(before, count);
 
-	if(before <= rowCount()) 
+	if (before <= rowCount()) 
 	{
+		d_validity.setValue(Interval<int>(before, before+count-1), true);
 		switch(d_data_type)
 		{
 			case SciDAVis::TypeDouble:
@@ -641,17 +644,17 @@ void Column::Private::insertRows(int before, int count)
 
 void Column::Private::removeRows(int first, int count)
 {
-	if(count == 0) return;
+	if (count == 0) return;
 
 	emit d_owner->rowsAboutToBeRemoved(d_owner, first, count);
 	d_validity.removeRows(first, count);
 	d_masking.removeRows(first, count);
 	d_formulas.removeRows(first, count);
 
-	if(first < rowCount()) 
+	if (first < rowCount()) 
 	{
 		int corrected_count = count;
-		if(first + count > rowCount()) 
+		if (first + count > rowCount()) 
 			corrected_count = rowCount() - first;
 
 		switch(d_data_type)
@@ -739,7 +742,7 @@ void Column::Private::clearFormulas()
 
 QString Column::Private::textAt(int row) const
 {
-	if(d_data_type != SciDAVis::TypeQString) return QString();
+	if (d_data_type != SciDAVis::TypeQString) return QString();
 	return static_cast< QStringList* >(d_data)->value(row);
 }
 
@@ -755,106 +758,130 @@ QTime Column::Private::timeAt(int row) const
 
 QDateTime Column::Private::dateTimeAt(int row) const
 {
-	if(d_data_type != SciDAVis::TypeQDateTime) return QDateTime();
+	if (d_data_type != SciDAVis::TypeQDateTime) return QDateTime();
 	return static_cast< QList<QDateTime>* >(d_data)->value(row);
 }
 
 double Column::Private::valueAt(int row) const
 {
-	if(d_data_type != SciDAVis::TypeDouble) return 0.0;
+	if (d_data_type != SciDAVis::TypeDouble) return 0.0;
 	return static_cast< QVector<double>* >(d_data)->value(row);
 }
 
 void Column::Private::setTextAt(int row, const QString& new_value)
 {
-	if(d_data_type != SciDAVis::TypeQString) return;
+	if (d_data_type != SciDAVis::TypeQString) return;
 
 	emit d_owner->dataAboutToChange(d_owner);
-	if(row >= rowCount())
+	if (row >= rowCount())
+	{	
+		if (row+1-rowCount() > 1) // we are adding more than one row in resizeTo()
+			d_validity.setValue(Interval<int>(rowCount(), row-1), true);
 		resizeTo(row+1); 
+	}
 
 	static_cast< QStringList* >(d_data)->replace(row, new_value);
+	d_validity.setValue(Interval<int>(row, row), false);
 	emit d_owner->dataChanged(d_owner);
 }
 
 void Column::Private::replaceTexts(int first, const QStringList& new_values)
 {
-	if(d_data_type != SciDAVis::TypeQString) return;
+	if (d_data_type != SciDAVis::TypeQString) return;
 	
 	emit d_owner->dataAboutToChange(d_owner);
 	int num_rows = new_values.size();
+	if (first+1-rowCount() > 1)
+		d_validity.setValue(Interval<int>(rowCount(), first-1), true);
 	if (first + num_rows > rowCount())
 		resizeTo(first + num_rows);
 
 	for(int i=0; i<num_rows; i++)
 		static_cast< QStringList* >(d_data)->replace(first+i, new_values.at(i));
+	d_validity.setValue(Interval<int>(first, first+num_rows-1), false);
 	emit d_owner->dataChanged(d_owner);
 }
 
 void Column::Private::setDateAt(int row, const QDate& new_value)
 {
-	if(d_data_type != SciDAVis::TypeQDateTime) return;
+	if (d_data_type != SciDAVis::TypeQDateTime) return;
 
 	setDateTimeAt(row, QDateTime(new_value, timeAt(row)));
 }
 
 void Column::Private::setTimeAt(int row, const QTime& new_value)
 {
-	if(d_data_type != SciDAVis::TypeQDateTime) return;
+	if (d_data_type != SciDAVis::TypeQDateTime) return;
 	
 	setDateTimeAt(row, QDateTime(dateAt(row), new_value));
 }
 
 void Column::Private::setDateTimeAt(int row, const QDateTime& new_value)
 {
-	if(d_data_type != SciDAVis::TypeQDateTime) return;
+	if (d_data_type != SciDAVis::TypeQDateTime) return;
 
 	emit d_owner->dataAboutToChange(d_owner);
-	if(row >= rowCount())
+	if (row >= rowCount())
+	{	
+		if (row+1-rowCount() > 1) // we are adding more than one row in resizeTo()
+			d_validity.setValue(Interval<int>(rowCount(), row-1), true);
 		resizeTo(row+1); 
+	}
 
 	static_cast< QList<QDateTime>* >(d_data)->replace(row, new_value);
+	d_validity.setValue(Interval<int>(row, row), false);
 	emit d_owner->dataChanged(d_owner);
 }
 
 void Column::Private::replaceDateTimes(int first, const QList<QDateTime>& new_values)
 {
-	if(d_data_type != SciDAVis::TypeQDateTime) return;
+	if (d_data_type != SciDAVis::TypeQDateTime) return;
 	
 	emit d_owner->dataAboutToChange(d_owner);
 	int num_rows = new_values.size();
+	if (first+1-rowCount() > 1)
+		d_validity.setValue(Interval<int>(rowCount(), first-1), true);
 	if (first + num_rows > rowCount())
 		resizeTo(first + num_rows);
 
 	for(int i=0; i<num_rows; i++)
 		static_cast< QList<QDateTime>* >(d_data)->replace(first+i, new_values.at(i));
+	d_validity.setValue(Interval<int>(first, first+num_rows-1), false);
 	emit d_owner->dataChanged(d_owner);
 }
 
 void Column::Private::setValueAt(int row, double new_value)
 {
-	if(d_data_type != SciDAVis::TypeDouble) return;
+	if (d_data_type != SciDAVis::TypeDouble) return;
 
 	emit d_owner->dataAboutToChange(d_owner);
-	if(row >= rowCount())
+	if (row >= rowCount())
+	{	
+		if (row+1-rowCount() > 1) // we are adding more than one row in resizeTo()
+			d_validity.setValue(Interval<int>(rowCount(), row-1), true);
 		resizeTo(row+1); 
+	}
 
 	static_cast< QVector<double>* >(d_data)->replace(row, new_value);
+	d_validity.setValue(Interval<int>(row, row), false);
 	emit d_owner->dataChanged(d_owner);
 }
 
 void Column::Private::replaceValues(int first, const QVector<double>& new_values)
 {
-	if(d_data_type != SciDAVis::TypeDouble) return;
+	if (d_data_type != SciDAVis::TypeDouble) return;
 	
 	emit d_owner->dataAboutToChange(d_owner);
 	int num_rows = new_values.size();
+	if (first+1-rowCount() > 1)
+		d_validity.setValue(Interval<int>(rowCount(), first-1), true);
 	if (first + num_rows > rowCount())
 		resizeTo(first + num_rows);
 
 	double * ptr = static_cast< QVector<double>* >(d_data)->data();
 	for(int i=0; i<num_rows; i++)
 		ptr[first+i] = new_values.at(i);
+	d_validity.setValue(Interval<int>(first, first+num_rows-1), false);
 	emit d_owner->dataChanged(d_owner);
 }
 

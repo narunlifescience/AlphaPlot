@@ -596,6 +596,7 @@ void ColumnSetTextCmd::redo()
 {
 	d_old_value = d_col->textAt(d_row);
 	d_row_count = d_col->rowCount();
+	d_validity = d_col->validityAttribute();
 	d_col->setTextAt(d_row, d_new_value);
 }
 
@@ -603,6 +604,7 @@ void ColumnSetTextCmd::undo()
 {
 	d_col->setTextAt(d_row, d_old_value);
 	d_col->resizeTo(d_row_count);
+	d_col->replaceData(d_col->dataPointer(), d_validity);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -626,6 +628,7 @@ void ColumnSetValueCmd::redo()
 {
 	d_old_value = d_col->valueAt(d_row);
 	d_row_count = d_col->rowCount();
+	d_validity = d_col->validityAttribute();
 	d_col->setValueAt(d_row, d_new_value);
 }
 
@@ -633,6 +636,7 @@ void ColumnSetValueCmd::undo()
 {
 	d_col->setValueAt(d_row, d_old_value);
 	d_col->resizeTo(d_row_count);
+	d_col->replaceData(d_col->dataPointer(), d_validity);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -656,6 +660,7 @@ void ColumnSetDateTimeCmd::redo()
 {
 	d_old_value = d_col->dateTimeAt(d_row);
 	d_row_count = d_col->rowCount();
+	d_validity = d_col->validityAttribute();
 	d_col->setDateTimeAt(d_row, d_new_value);
 }
 
@@ -663,6 +668,7 @@ void ColumnSetDateTimeCmd::undo()
 {
 	d_col->setDateTimeAt(d_row, d_old_value);
 	d_col->resizeTo(d_row_count);
+	d_col->replaceData(d_col->dataPointer(), d_validity);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -689,6 +695,7 @@ void ColumnReplaceTextsCmd::redo()
 	{
 		d_old_values = static_cast< QStringList* >(d_col->dataPointer())->mid(d_first, d_new_values.count());
 		d_row_count = d_col->rowCount();
+		d_validity = d_col->validityAttribute();
 		d_copied = true;
 	}
 	d_col->replaceTexts(d_first, d_new_values);
@@ -698,6 +705,7 @@ void ColumnReplaceTextsCmd::undo()
 {
 	d_col->replaceTexts(d_first, d_old_values);
 	d_col->resizeTo(d_row_count);
+	d_col->replaceData(d_col->dataPointer(), d_validity);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -724,6 +732,7 @@ void ColumnReplaceValuesCmd::redo()
 	{
 		d_old_values = static_cast< QVector<double>* >(d_col->dataPointer())->mid(d_first, d_new_values.count());
 		d_row_count = d_col->rowCount();
+		d_validity = d_col->validityAttribute();
 		d_copied = true;
 	}
 	d_col->replaceValues(d_first, d_new_values);
@@ -733,6 +742,7 @@ void ColumnReplaceValuesCmd::undo()
 {
 	d_col->replaceValues(d_first, d_old_values);
 	d_col->resizeTo(d_row_count);
+	d_col->replaceData(d_col->dataPointer(), d_validity);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -759,6 +769,7 @@ void ColumnReplaceDateTimesCmd::redo()
 	{
 		d_old_values = static_cast< QList<QDateTime>* >(d_col->dataPointer())->mid(d_first, d_new_values.count());
 		d_row_count = d_col->rowCount();
+		d_validity = d_col->validityAttribute();
 		d_copied = true;
 	}
 	d_col->replaceDateTimes(d_first, d_new_values);
@@ -767,6 +778,7 @@ void ColumnReplaceDateTimesCmd::redo()
 void ColumnReplaceDateTimesCmd::undo()
 {
 	d_col->replaceDateTimes(d_first, d_old_values);
+	d_col->replaceData(d_col->dataPointer(), d_validity);
 	d_col->resizeTo(d_row_count);
 }
 

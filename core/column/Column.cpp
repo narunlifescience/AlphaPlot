@@ -206,7 +206,8 @@ void Column::setTextAt(int row, const QString& new_value)
 
 void Column::replaceTexts(int first, const QStringList& new_values)
 {
-	exec(new ColumnReplaceTextsCmd(d_column_private, first, new_values));
+	if (!new_values.isEmpty())
+		exec(new ColumnReplaceTextsCmd(d_column_private, first, new_values));
 }
 
 void Column::setDateAt(int row, const QDate& new_value)
@@ -226,7 +227,8 @@ void Column::setDateTimeAt(int row, const QDateTime& new_value)
 
 void Column::replaceDateTimes(int first, const QList<QDateTime>& new_values)
 {
-	exec(new ColumnReplaceDateTimesCmd(d_column_private, first, new_values));
+	if (!new_values.isEmpty())
+		exec(new ColumnReplaceDateTimesCmd(d_column_private, first, new_values));
 }
 
 void Column::setValueAt(int row, double new_value)
@@ -236,7 +238,8 @@ void Column::setValueAt(int row, double new_value)
 
 void Column::replaceValues(int first, const QVector<double>& new_values)
 {
-	exec(new ColumnReplaceValuesCmd(d_column_private, first, new_values));
+	if (!new_values.isEmpty())
+		exec(new ColumnReplaceValuesCmd(d_column_private, first, new_values));
 }
 
 QString Column::textAt(int row) const
