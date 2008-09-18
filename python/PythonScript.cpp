@@ -42,21 +42,21 @@
 PythonScript::PythonScript(PythonScriptingEngine *engine, const QString &code, QObject *context, const QString &name)
 : AbstractScript(engine, code, context, name)
 {
-	d_py_code = NULL;
-	d_local_dict = PyDict_New();
-	setQObject(d_context, "self");
+	m_py_code = NULL;
+	m_local_dict = PyDict_New();
+	setQObject(m_context, "self");
 }
 
 PythonScript::~PythonScript()
 {
-	Py_DECREF(d_local_dict);
-	Py_XDECREF(d_py_code);
+	Py_DECREF(m_local_dict);
+	Py_XDECREF(m_py_code);
 }
 
 void PythonScript::setContext(QObject *context)
 {
 	AbstractScript::setContext(context);
-	setQObject(d_context, "self");
+	setQObject(m_context, "self");
 }
 
 bool PythonScript::compile(bool for_eval)
@@ -64,9 +64,9 @@ bool PythonScript::compile(bool for_eval)
 	// Support for the convenient col() and cell() functions.
 	// This can't be done anywhere else, because we need access to the local
 	// variables self, i and j.
-	if(d_context->inherits("Table")) {
+	if(m_context->inherits("Table")) {
 		// A bit of a hack, but we need either IndexError or len() from __builtins__.
-		PyDict_SetItemString(d_local_dict, "__builtins__",
+		PyDict_SetItemString(m_local_dict, "__builtins__",
 				PyDict_GetItemString(engine()->globalDict(), "__builtins__"));
 		PyObject *ret = PyRun_String(
 				"def col(c,*arg):\n"
@@ -79,36 +79,36 @@ bool PythonScript::compile(bool for_eval)
 				"def _meth_table_col_(t,c):\n"
 				"\treturn t.cell(c,i)\n"
 				"self.__class__.col = _meth_table_col_",
-				Py_file_input, d_local_dict, d_local_dict);
+				Py_file_input, m_local_dict, m_local_dict);
 		if (ret)
 			Py_DECREF(ret);
 		else
 			PyErr_Print();
-	} else if(d_context->inherits("Matrix")) {
+	} else if(m_context->inherits("Matrix")) {
 		// A bit of a hack, but we need either IndexError or len() from __builtins__.
-		PyDict_SetItemString(d_local_dict, "__builtins__",
+		PyDict_SetItemString(m_local_dict, "__builtins__",
 				PyDict_GetItemString(engine()->globalDict(), "__builtins__"));
 		PyObject *ret = PyRun_String(
 				"def cell(*arg):\n"
 				"\ttry: return self.cell(arg[0],arg[1])\n"
 				"\texcept(IndexError): return self.cell(i,j)\n",
-				Py_file_input, d_local_dict, d_local_dict);
+				Py_file_input, m_local_dict, m_local_dict);
 		if (ret)
 			Py_DECREF(ret);
 		else
 			PyErr_Print();
 	}
 	bool success=false;
-	Py_XDECREF(d_py_code);
+	Py_XDECREF(m_py_code);
 	// Simplest case: Code is a single expression
-	d_py_code = Py_CompileString(d_code.toAscii(), d_name.toAscii(), Py_eval_input);
-	if (d_py_code) {
+	m_py_code = Py_CompileString(m_code.toAscii(), m_name.toAscii(), Py_eval_input);
+	if (m_py_code) {
 		success = true;
 	} else if (for_eval) {
 		// Code contains statements (or errors) and we want to get a return
 		// value from it.
 		// So we wrap the code into a function definition,
-		// execute that (as Py_file_input) and store the function object in d_py_code.
+		// execute that (as Py_file_input) and store the function object in m_py_code.
 		// See http://mail.python.org/pipermail/python-bugs-list/2001-June/005534.html
 		// and http://mail.python.org/pipermail/python-list/2001-June/087605.html
 		// for why there isn't an easier way to do this in Python.
@@ -120,53 +120,53 @@ bool PythonScript::compile(bool for_eval)
 		int i=0;
 #endif
 		QString signature = "";
-		while(PyDict_Next(d_local_dict, &i, &key, &value))
+		while(PyDict_Next(m_local_dict, &i, &key, &value))
 			signature.append(PyString_AsString(key)).append(",");
 		signature.truncate(signature.length()-1);
 		QString fdef = "def __doit__("+signature+"):\n";
-		fdef.append(d_code);
+		fdef.append(m_code);
 		fdef.replace('\n',"\n\t");
-		d_py_code = Py_CompileString(fdef.toAscii(), d_name.toAscii(), Py_file_input);
-		if (d_py_code)
+		m_py_code = Py_CompileString(fdef.toAscii(), m_name.toAscii(), Py_file_input);
+		if (m_py_code)
 		{
 			PyObject *tmp = PyDict_New();
-			Py_XDECREF(PyEval_EvalCode((PyCodeObject*)d_py_code, engine()->globalDict(), tmp));
-			Py_DECREF(d_py_code);
-			d_py_code = PyDict_GetItemString(tmp,"__doit__");
-			Py_XINCREF(d_py_code);
+			Py_XDECREF(PyEval_EvalCode((PyCodeObject*)m_py_code, engine()->globalDict(), tmp));
+			Py_DECREF(m_py_code);
+			m_py_code = PyDict_GetItemString(tmp,"__doit__");
+			Py_XINCREF(m_py_code);
 			Py_DECREF(tmp);
 		}
-		success = d_py_code != NULL;
+		success = m_py_code != NULL;
 	} else {
 		// Code contains statements (or errors), but we do not need to get
 		// a return value.
 		PyErr_Clear(); // silently ignore errors
-		d_py_code = Py_CompileString(d_code.toAscii(), d_name.toAscii(), Py_file_input);
-		success = d_py_code != NULL;
+		m_py_code = Py_CompileString(m_code.toAscii(), m_name.toAscii(), Py_file_input);
+		success = m_py_code != NULL;
 	}
-	d_compiled_for_eval = for_eval;
+	m_compiled_for_eval = for_eval;
 	if (!success)
 	{
-		d_compiled = compileErr;
+		m_compiled = compileErr;
 		emit_error(engine()->errorMsg(), 0);
 	} else
-		d_compiled = isCompiled;
+		m_compiled = isCompiled;
 	return success;
 }
 
 QVariant PythonScript::eval()
 {
-	if ((d_compiled != isCompiled || !d_compiled_for_eval) && !compile(true))
+	if ((m_compiled != isCompiled || !m_compiled_for_eval) && !compile(true))
 		return QVariant();
 	PyObject *pyret;
 	beginStdoutRedirect();
-	if (PyCallable_Check(d_py_code))
+	if (PyCallable_Check(m_py_code))
 	{
 		PyObject *empty_tuple = PyTuple_New(0);
-		pyret = PyObject_Call(d_py_code, empty_tuple, d_local_dict);
+		pyret = PyObject_Call(m_py_code, empty_tuple, m_local_dict);
 		Py_DECREF(empty_tuple);
 	} else
-		pyret = PyEval_EvalCode((PyCodeObject*)d_py_code, engine()->globalDict(), d_local_dict);
+		pyret = PyEval_EvalCode((PyCodeObject*)m_py_code, engine()->globalDict(), m_local_dict);
 	endStdoutRedirect();
 	if (!pyret)
 	{
@@ -223,21 +223,21 @@ QVariant PythonScript::eval()
 
 bool PythonScript::exec()
 {
-	if ((d_compiled != isCompiled || d_compiled_for_eval) && !compile(false))
+	if ((m_compiled != isCompiled || m_compiled_for_eval) && !compile(false))
 		return false;
 	PyObject *pyret;
 	beginStdoutRedirect();
-	if (PyCallable_Check(d_py_code))
+	if (PyCallable_Check(m_py_code))
 	{
 		PyObject *empty_tuple = PyTuple_New(0);
 		if (!empty_tuple) {
 			emit_error(engine()->errorMsg(), 0);
 			return false;
 		}
-		pyret = PyObject_Call(d_py_code,empty_tuple,d_local_dict);
+		pyret = PyObject_Call(m_py_code,empty_tuple,m_local_dict);
 		Py_DECREF(empty_tuple);
 	} else
-		pyret = PyEval_EvalCode((PyCodeObject*)d_py_code, engine()->globalDict(), d_local_dict);
+		pyret = PyEval_EvalCode((PyCodeObject*)m_py_code, engine()->globalDict(), m_local_dict);
 	endStdoutRedirect();
 	if (pyret) {
 		Py_DECREF(pyret);
@@ -249,43 +249,43 @@ bool PythonScript::exec()
 
 void PythonScript::beginStdoutRedirect()
 {
-	d_stdout_save = PyDict_GetItemString(engine()->sysDict(), "stdout");
-	Py_XINCREF(d_stdout_save);
-	d_stderr_save = PyDict_GetItemString(engine()->sysDict(), "stderr");
-	Py_XINCREF(d_stderr_save);
+	m_stdout_save = PyDict_GetItemString(engine()->sysDict(), "stdout");
+	Py_XINCREF(m_stdout_save);
+	m_stderr_save = PyDict_GetItemString(engine()->sysDict(), "stderr");
+	Py_XINCREF(m_stderr_save);
 	engine()->setQObject(this, "stdout", engine()->sysDict());
 	engine()->setQObject(this, "stderr", engine()->sysDict());
 }
 
 void PythonScript::endStdoutRedirect()
 {
-	PyDict_SetItemString(engine()->sysDict(), "stdout", d_stdout_save);
-	Py_XDECREF(d_stdout_save);
-	PyDict_SetItemString(engine()->sysDict(), "stderr", d_stderr_save);
-	Py_XDECREF(d_stderr_save);
+	PyDict_SetItemString(engine()->sysDict(), "stdout", m_stdout_save);
+	Py_XDECREF(m_stdout_save);
+	PyDict_SetItemString(engine()->sysDict(), "stderr", m_stderr_save);
+	Py_XDECREF(m_stderr_save);
 }
 
 bool PythonScript::setQObject(QObject *val, const char *name)
 {
-	if (!PyDict_Contains(d_local_dict, PyString_FromString(name)))
-		d_compiled = notCompiled;
-	return engine()->setQObject(val, name, d_local_dict);
+	if (!PyDict_Contains(m_local_dict, PyString_FromString(name)))
+		m_compiled = notCompiled;
+	return engine()->setQObject(val, name, m_local_dict);
 }
 
 bool PythonScript::setInt(int val, const char *name)
 {
-	if (!PyDict_Contains(d_local_dict, PyString_FromString(name)))
-		d_compiled = notCompiled;
-	return engine()->setInt(val, name, d_local_dict);
+	if (!PyDict_Contains(m_local_dict, PyString_FromString(name)))
+		m_compiled = notCompiled;
+	return engine()->setInt(val, name, m_local_dict);
 }
 
 bool PythonScript::setDouble(double val, const char *name)
 {
-	if (!PyDict_Contains(d_local_dict, PyString_FromString(name)))
-		d_compiled = notCompiled;
-	return engine()->setDouble(val, name, d_local_dict);
+	if (!PyDict_Contains(m_local_dict, PyString_FromString(name)))
+		m_compiled = notCompiled;
+	return engine()->setDouble(val, name, m_local_dict);
 }
 
 PythonScriptingEngine* PythonScript::engine() {
-	return static_cast<PythonScriptingEngine*>(d_engine);
+	return static_cast<PythonScriptingEngine*>(m_engine);
 }

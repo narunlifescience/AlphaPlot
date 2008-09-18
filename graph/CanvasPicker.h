@@ -47,7 +47,7 @@ public:
 	 void selectPoints(int n);
 	 void selectPeak(const QPoint& p);
 
-	 //! Disable editing of #d_editing_marker on a TAB-key event.
+	 //! Disable editing of #m_editing_marker on a TAB-key event.
 	 /*!\brief Called by Layer::focusNextPrevChild ()
 	 */
 	void disableEditing();
@@ -89,9 +89,9 @@ private:
 	bool pointSelected;
 	/*!\brief The marker that is currently being edited, or NULL.
 	 * Editing does explicitly _not_ inlude moving and resizing, which are being
-	 * handled by SelectionMoveResizer (see Layer::d_markers_selector).
+	 * handled by SelectionMoveResizer (see Layer::m_markers_selector).
 	 * Currently, only LineEnrichment provides any other form of editing, but this really
 	 * should be generalized. See ImageEnrichment for details.
 	 */
-	LineEnrichment *d_editing_marker;
+	LineEnrichment *m_editing_marker;
 };

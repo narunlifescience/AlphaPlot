@@ -61,32 +61,32 @@ XmlStreamReader::XmlStreamReader(const char * data)
 
 void XmlStreamReader::init()
 {
-	d_error_prefix = QObject::tr("XML reader error: ","prefix for XML error messages");
-	d_error_postfix = QObject::tr(" (loading failed)", "postfix for XML error messages");
-	d_warning_prefix = QObject::tr("XML reader warning: ","prefix for XML warning messages");
-	d_warning_postfix = QObject::tr("", "postfix for XML warning messages");
+	m_error_prefix = QObject::tr("XML reader error: ","prefix for XML error messages");
+	m_error_postfix = QObject::tr(" (loading failed)", "postfix for XML error messages");
+	m_warning_prefix = QObject::tr("XML reader warning: ","prefix for XML warning messages");
+	m_warning_postfix = QObject::tr("", "postfix for XML warning messages");
 }
 
 QStringList XmlStreamReader::warningStrings() const
 {
-	return d_warnings;
+	return m_warnings;
 }
 
 bool XmlStreamReader::hasWarnings() const
 {
-	return !(d_warnings.isEmpty());
+	return !(m_warnings.isEmpty());
 }
 
 void XmlStreamReader::raiseError(const QString & message)
 {
 	QString prefix2 = QString(QObject::tr("line %1, column %2: ").arg(lineNumber()).arg(columnNumber()));
-	QXmlStreamReader::raiseError(d_error_prefix+prefix2+message+d_error_postfix);
+	QXmlStreamReader::raiseError(m_error_prefix+prefix2+message+m_error_postfix);
 }
 
 void XmlStreamReader::raiseWarning(const QString & message)
 {
 	QString prefix2 = QString(QObject::tr("line %1, column %2: ").arg(lineNumber()).arg(columnNumber()));
-	d_warnings.append(d_warning_prefix+prefix2+message+d_warning_postfix);
+	m_warnings.append(m_warning_prefix+prefix2+message+m_warning_postfix);
 }
 
 bool XmlStreamReader::skipToNextTag()

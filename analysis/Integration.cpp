@@ -61,9 +61,9 @@ Integration::Integration(ApplicationWindow *parent, Layer *layer, const QString&
 void Integration::init()
 {
 	setName(tr("Integration"));
-	d_method = 1;
-    d_max_iterations = 40;
-    d_sort_data = true;
+	m_method = 1;
+    m_max_iterations = 40;
+    m_sort_data = true;
 }
 
 QString Integration::logInfo()
@@ -72,19 +72,19 @@ QString Integration::logInfo()
 	gsl_interp_accel *acc = gsl_interp_accel_alloc();
 	const gsl_interp_type *method;
 	// The method for interpolation is chosen based on the number of points
-	if(d_n>3)
+	if(m_n>3)
 		method=gsl_interp_linear;
-	else if(d_n>4)
+	else if(m_n>4)
 		method=gsl_interp_cspline;
-	else if(d_n>5)
+	else if(m_n>5)
 		method=gsl_interp_akima;
 
 	// If we have enough points use GSL libraries for interpolation, else use the polint algorithm
 	gsl_spline *interp ;
-	if(d_n>3)
+	if(m_n>3)
 	{
-		interp = gsl_spline_alloc (method, d_n);
-		gsl_spline_init (interp, d_x, d_y, d_n);
+		interp = gsl_spline_alloc (method, m_n);
+		gsl_spline_init (interp, m_x, m_y, m_n);
 	}
 
 	// Using Numerical Recipes
@@ -92,80 +92,80 @@ QString Integration::logInfo()
 	// This method uses the Nevilles' algorithm for interpollation;
 	double yup, ylow;
 	double xx,tnm,sum,del,ss,dss,error,tsum;
-	if(d_n > 3)
+	if(m_n > 3)
 	{
-		yup = gsl_spline_eval (interp, d_to, acc);
-		ylow = gsl_spline_eval (interp, d_from, acc);
+		yup = gsl_spline_eval (interp, m_to, acc);
+		ylow = gsl_spline_eval (interp, m_from, acc);
 	}
-	else if (d_n<=3)
+	else if (m_n<=3)
 	{
-		polint(d_x,d_y,d_n,d_to,&yup,&dss);
-		polint(d_x,d_y,d_n,d_from,&ylow,&dss);
+		polint(m_x,m_y,m_n,m_to,&yup,&dss);
+		polint(m_x,m_y,m_n,m_from,&ylow,&dss);
 	}
 
-	double *S = new double[d_max_iterations];
-	double *h = new double[d_max_iterations];
+	double *S = new double[m_max_iterations];
+	double *h = new double[m_max_iterations];
 	int j,it,l;
 	bool success = false;
 	h[0]=1.0;
-	for(j=0; j < d_max_iterations; j++)
+	for(j=0; j < m_max_iterations; j++)
 	{//Trapezoid Rule
 		if(j==0)
-			S[0]=0.5*(d_to-d_from)*(ylow+yup);
+			S[0]=0.5*(m_to-m_from)*(ylow+yup);
 		else
 		{
 			for(it=1,l=1;l<j-1;l++)it<<=1;
 			tnm=it;
-			del=(d_to-d_from)/tnm;
-			xx=d_from+0.5*del;
+			del=(m_to-m_from)/tnm;
+			xx=m_from+0.5*del;
 			for(sum=0.0,l=1;l<=it;l++)
 			{
-				if(d_n>3)
+				if(m_n>3)
 					sum+=gsl_spline_eval (interp,xx, acc);
-				else if(d_n<=3)
+				else if(m_n<=3)
 				{
-					polint(d_x,d_y,d_n,xx,&tsum,&dss);
+					polint(m_x,m_y,m_n,xx,&tsum,&dss);
 					sum+=tsum;
 				}
 				xx+=del;
 			}
-			S[j]=0.5*(S[j-1]+(d_to-d_from)*sum/tnm);
+			S[j]=0.5*(S[j-1]+(m_to-m_from)*sum/tnm);
 
 		}
-		if(j>=d_method)
+		if(j>=m_method)
 		{
-			polint(&h[j-d_method],&S[j-d_method],d_method,0,&ss,&dss);
+			polint(&h[j-m_method],&S[j-m_method],m_method,0,&ss,&dss);
 			S[j]=ss;
 		}
 		h[j+1]=0.25*h[j];
 		S[j+1]=S[j];
 		error=fabs(S[j]-S[j-1]);
-		if(error<=d_tolerance) success = true;
+		if(error<=m_tolerance) success = true;
 		if(success) break;
 	}
 
-	QString logInfo = "[" + QDateTime::currentDateTime().toString(Qt::LocalDate) + "\t" + tr("Plot")+ ": ''" + d_layer->parentPlotName() + "'']\n";
-	logInfo += "\n" + tr("Numerical integration of") + ": " + d_curve->title().text() + " " + tr("using a %1 order method").arg(d_method)+"\n";
+	QString logInfo = "[" + QDateTime::currentDateTime().toString(Qt::LocalDate) + "\t" + tr("Plot")+ ": ''" + m_layer->parentPlotName() + "'']\n";
+	logInfo += "\n" + tr("Numerical integration of") + ": " + m_curve->title().text() + " " + tr("using a %1 order method").arg(m_method)+"\n";
 	if(success)
 		logInfo += tr("Iterations") + ": " + QString::number(j)+"\n";
 	if(!success)
 		logInfo += tr("Iterations") + ": " + QString::number(j-1)+"\n";
 
     ApplicationWindow *app = (ApplicationWindow *)parent();
-    int prec = app->d_decimal_digits;
-	logInfo += tr("Tolerance") + "(" + tr("max") + " = " + QLocale().toString(d_tolerance, 'g', prec)+"): " + QString::number(error)+ "\n";
-	logInfo += tr("Points") + ": "+QString::number(d_n) + " " + tr("from") + " x = " +QLocale().toString(d_from, 'g', prec) + " ";
-    logInfo += tr("to") + " x = " + QLocale().toString(d_to, 'g', prec) + "\n";
+    int prec = app->m_decimal_digits;
+	logInfo += tr("Tolerance") + "(" + tr("max") + " = " + QLocale().toString(m_tolerance, 'g', prec)+"): " + QString::number(error)+ "\n";
+	logInfo += tr("Points") + ": "+QString::number(m_n) + " " + tr("from") + " x = " +QLocale().toString(m_from, 'g', prec) + " ";
+    logInfo += tr("to") + " x = " + QLocale().toString(m_to, 'g', prec) + "\n";
 
     // using GSL to find maximum value of data set
-    gsl_vector *aux = gsl_vector_alloc(d_n);
-    for(int i=0; i < d_n; i++)
-        gsl_vector_set (aux, i, d_y[i]);
+    gsl_vector *aux = gsl_vector_alloc(m_n);
+    for(int i=0; i < m_n; i++)
+        gsl_vector_set (aux, i, m_y[i]);
     int maxID=gsl_vector_max_index (aux);
     gsl_vector_free (aux);
 
-    logInfo += tr("Peak at") + " x = " + QLocale().toString(d_x[maxID], 'g', prec)+"\t";
-	logInfo += "y = " + QLocale().toString(d_y[maxID], 'g', prec)+"\n";
+    logInfo += tr("Peak at") + " x = " + QLocale().toString(m_x[maxID], 'g', prec)+"\t";
+	logInfo += "y = " + QLocale().toString(m_y[maxID], 'g', prec)+"\n";
 
 	logInfo += tr("Area") + "=";
 	if(success)
@@ -174,7 +174,7 @@ QString Integration::logInfo()
 		logInfo += QLocale().toString(S[j-1], 'g', prec);
 	logInfo += "\n-------------------------------------------------------------\n";
 
-	if(d_n>3)
+	if(m_n>3)
 		gsl_spline_free (interp);
 
 	gsl_interp_accel_free (acc);
@@ -192,5 +192,5 @@ if (n < 1 || n > 5)
         return;
     }
 
-d_method = n;
+m_method = n;
 }

@@ -38,15 +38,15 @@ class PlotCurve: public QwtPlotCurve
 {
 
 public:
-	PlotCurve(const char *name = 0): QwtPlotCurve(name), d_type(0){};
+	PlotCurve(const char *name = 0): QwtPlotCurve(name), m_type(0){};
 
-	int type(){return d_type;};
-	void setType(int t){d_type = t;};
+	int type(){return m_type;};
+	void setType(int t){m_type = t;};
 
 	QwtDoubleRect boundingRect() const;
 
 protected:
-	int d_type;
+	int m_type;
 };
 
 class DataCurve: public PlotCurve
@@ -55,16 +55,16 @@ class DataCurve: public PlotCurve
 public:
 	DataCurve(Table *t, const QString& xColName, const char *name, int startRow = 0, int endRow = -1);
 
-	QString xColumnName(){return d_x_column;};
-	void setXColumnName(const QString& name){d_x_column = name;};
+	QString xColumnName(){return m_x_column;};
+	void setXColumnName(const QString& name){m_x_column = name;};
 
 	QString yColumnName() { return title().text(); }
 	void setYColumnName(const QString& name) { setTitle(name); }
 
-	Table* table(){return d_table;};
+	Table* table(){return m_table;};
 
-	int startRow(){return d_start_row;};
-	int endRow(){return d_end_row;};
+	int startRow(){return m_start_row;};
+	int endRow(){return m_end_row;};
 	void setRowRange(int startRow, int endRow);
 
 	bool isFullRange();
@@ -94,9 +94,9 @@ public:
 	virtual void updateColumnNames(const QString& oldName, const QString& newName, bool updateTableName);
 
 	//! The list of attached error bars.
-	QList<DataCurve *> errorBarsList(){return d_error_bars;};
+	QList<DataCurve *> errorBarsList(){return m_error_bars;};
 	//! Adds a single error bars curve to the list of attached error bars.
-	void addErrorBars(DataCurve *c){if (c) d_error_bars << c;};
+	void addErrorBars(DataCurve *c){if (c) m_error_bars << c;};
 	//! Remove a single error bars curve from the list of attached error bars.
 	void removeErrorBars(DataCurve *c);
 	//! Clears the list of attached error bars.
@@ -106,16 +106,16 @@ public:
 
 protected:
 	//! List of the error bar curves associated to this curve.
-	QList <DataCurve *> d_error_bars;
+	QList <DataCurve *> m_error_bars;
 	//! The data source table.
-	Table *d_table;
+	Table *m_table;
 	//!\brief The name of the column used for abscissae values.
 	/*
 	 *The column name used for Y values is stored in title().text().
 	 */
-	QString d_x_column;
+	QString m_x_column;
 
-	int d_start_row;
-	int d_end_row;
+	int m_start_row;
+	int m_end_row;
 };
 #endif

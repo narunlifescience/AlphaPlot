@@ -60,7 +60,7 @@ public slots:
 	void filter();
 
 private:
-	Layer *d_layer;
+	Layer *m_layer;
 	int filter_type;
 };
 

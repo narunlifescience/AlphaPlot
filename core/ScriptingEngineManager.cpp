@@ -43,26 +43,26 @@ ScriptingEngineManager::ScriptingEngineManager()
 {
 	foreach(QObject * plugin, QPluginLoader::staticInstances()) {
 		AbstractScriptingEngine * engine = qobject_cast<AbstractScriptingEngine*>(plugin);
-		if (engine) d_engines << engine;
+		if (engine) m_engines << engine;
 	}
 }
 
 ScriptingEngineManager::~ScriptingEngineManager()
 {
-	qDeleteAll(d_engines);
+	qDeleteAll(m_engines);
 }
 
 QStringList ScriptingEngineManager::engineNames() const
 {
 	QStringList result;
-	foreach(AbstractScriptingEngine * engine, d_engines)
+	foreach(AbstractScriptingEngine * engine, m_engines)
 		result << engine->objectName();
 	return result;
 }
 
 AbstractScriptingEngine * ScriptingEngineManager::engine(const QString &name)
 {
-	foreach(AbstractScriptingEngine * engine, d_engines)
+	foreach(AbstractScriptingEngine * engine, m_engines)
 		if (engine->objectName() == name) {
 			if (!engine->initialized())
 				engine->initialize();

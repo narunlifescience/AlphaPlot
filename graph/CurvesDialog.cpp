@@ -165,7 +165,7 @@ CurvesDialog::CurvesDialog( QWidget* parent, Qt::WFlags fl )
 
 void CurvesDialog::showCurveBtn(int)
 {
-	QwtPlotItem *it = d_layer->plotItem(contents->currentRow());
+	QwtPlotItem *it = m_layer->plotItem(contents->currentRow());
 	if (!it)
 		return;
 
@@ -202,7 +202,7 @@ void CurvesDialog::showCurveRangeDialog()
     ApplicationWindow *app = (ApplicationWindow *)this->parent();
     if (app)
     {
-        CurveRangeDialog *crd = app->showCurveRangeDialog(d_layer, curve);
+        CurveRangeDialog *crd = app->showCurveRangeDialog(m_layer, curve);
         connect((QObject *)crd, SIGNAL(destroyed()), this, SLOT(updateCurveRange()));
     }
 }
@@ -227,7 +227,7 @@ void CurvesDialog::showFunctionDialog()
     close();
 
     if (app)
-        app->showFunctionDialog(d_layer, currentRow);
+        app->showFunctionDialog(m_layer, currentRow);
 }
 
 QSize CurvesDialog::sizeHint() const
@@ -270,7 +270,7 @@ void CurvesDialog::init()
 {
     ApplicationWindow *app = (ApplicationWindow *)this->parent();
     if (app){
-		bool currentFolderOnly = app->d_show_current_folder;
+		bool currentFolderOnly = app->m_show_current_folder;
         boxShowCurrentFolder->setChecked(currentFolderOnly);
 		showCurrentFolder(currentFolderOnly);
 
@@ -309,8 +309,8 @@ void CurvesDialog::init()
 
 void CurvesDialog::setLayer(Layer *layer)
 {
-	d_layer = layer;
-	contents->addItems(d_layer->plotItemsList());
+	m_layer = layer;
+	contents->addItems(m_layer->plotItemsList());
 	enableRemoveBtn();
 	enableAddBtn();
 }
@@ -326,7 +326,7 @@ void CurvesDialog::addCurves()
 				emptyColumns << text;
 			}
     }
-	d_layer->updatePlot();
+	m_layer->updatePlot();
 	Layer::showPlotErrorMessage(this, emptyColumns);
 
 	showCurveRange(boxShowRange->isChecked());
@@ -348,13 +348,13 @@ bool CurvesDialog::addCurve(const QString& name)
         switch (boxMatrixStyle->currentIndex())
         {
             case 0:
-                d_layer->plotSpectrogram(m, Layer::ColorMap);
+                m_layer->plotSpectrogram(m, Layer::ColorMap);
             break;
             case 1:
-                d_layer->plotSpectrogram(m, Layer::ContourMap);
+                m_layer->plotSpectrogram(m, Layer::ContourMap);
             break;
             case 2:
-                d_layer->plotSpectrogram(m, Layer::GrayMap);
+                m_layer->plotSpectrogram(m, Layer::GrayMap);
             break;
         }
 
@@ -364,11 +364,11 @@ bool CurvesDialog::addCurve(const QString& name)
 
 	int style = curveStyle();
 	Table* t = app->table(name);
-	if (t && d_layer->insertCurve(t, name, style))
+	if (t && m_layer->insertCurve(t, name, style))
 	{
 		CurveLayout cl = Layer::initCurveLayout();
 		int color, symbol;
-		d_layer->guessUniqueCurveLayout(color, symbol);
+		m_layer->guessUniqueCurveLayout(color, symbol);
 
 		cl.lCol = color;
 		cl.symCol = color;
@@ -402,7 +402,7 @@ bool CurvesDialog::addCurve(const QString& name)
 		else if (style == Layer::Spline)
 			cl.connectType=5;
 
-		d_layer->updateCurveLayout(d_layer->curveCount() - 1, &cl);
+		m_layer->updateCurveLayout(m_layer->curveCount() - 1, &cl);
 
 		contents->addItem(name);
 		return true;
@@ -420,11 +420,11 @@ void CurvesDialog::removeCurves()
             QStringList lst = s.split("[");
             s = lst[0];
         }
-        d_layer->removeCurve(s);
+        m_layer->removeCurve(s);
     }
 
 	showCurveRange(boxShowRange->isChecked());
-	d_layer->updatePlot();
+	m_layer->updatePlot();
 }
 
 void CurvesDialog::enableAddBtn()
@@ -483,9 +483,9 @@ void CurvesDialog::showCurveRange(bool on )
     if (on)
     {
         QStringList lst = QStringList();
-        for (int i=0; i<d_layer->curveCount(); i++)
+        for (int i=0; i<m_layer->curveCount(); i++)
         {
-            QwtPlotItem *it = d_layer->plotItem(i);
+            QwtPlotItem *it = m_layer->plotItem(i);
             if (!it)
                 continue;
 
@@ -500,7 +500,7 @@ void CurvesDialog::showCurveRange(bool on )
         contents->addItems(lst);
     }
     else
-        contents->addItems(d_layer->plotItemsList());
+        contents->addItems(m_layer->plotItemsList());
 
     contents->setCurrentRow(row);
     enableRemoveBtn();
@@ -517,7 +517,7 @@ void CurvesDialog::showCurrentFolder(bool currentFolder)
 	if (!app)
 		return;
 
-	app->d_show_current_folder = currentFolder;
+	app->m_show_current_folder = currentFolder;
 	available->clear();
 
     if (currentFolder){
@@ -545,7 +545,7 @@ void CurvesDialog::closeEvent(QCloseEvent* e)
 {
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	if (app)
-		app->d_add_curves_dialog_size = this->size();
+		app->m_add_curves_dialog_size = this->size();
 
 	e->accept();
 }

@@ -306,17 +306,17 @@ void ApplicationWindow::init()
 	connect(lv, SIGNAL(deleteSelection()), this, SLOT(deleteSelectedItems()));
 	connect(lv, SIGNAL(itemRenamed(Q3ListViewItem *, int, const QString &)),
 			this, SLOT(renameWindow(Q3ListViewItem *, int, const QString &)));
-	// TODO: This will cause a crash when d_scripting_engine == 0; a proper error message should be
+	// TODO: This will cause a crash when m_scripting_engine == 0; a proper error message should be
 	// displayed if no scripting engine is found
-	connect(d_scripting_engine, SIGNAL(error(const QString&,const QString&,int)),
+	connect(m_scripting_engine, SIGNAL(error(const QString&,const QString&,int)),
 			this, SLOT(scriptError(const QString&,const QString&,int)));
-	connect(d_scripting_engine, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
+	connect(m_scripting_engine, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
 
 	connect(recent, SIGNAL(activated(int)), this, SLOT(openRecentProject(int)));
 	connect(&d->http, SIGNAL(done(bool)), this, SLOT(receivedVersionFile(bool)));
 
-	// this has to be done after connecting d_scripting_engine
-	d_scripting_engine->initialize();
+	// this has to be done after connecting m_scripting_engine
+	m_scripting_engine->initialize();
 }
 
 void ApplicationWindow::initGlobalConstants()
@@ -619,14 +619,14 @@ void ApplicationWindow::initToolBars()
 	table_tools->hide();
 	plot_tools->hide();
 
-	d_status_info = new QLabel( this  );
-	d_status_info->setFrameStyle( QFrame::Sunken | QFrame::StyledPanel );
-	d_status_info->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ); 
-	d_status_info->setContextMenuPolicy( Qt::CustomContextMenu );
-	connect(d_status_info, SIGNAL(customContextMenuRequested(const QPoint &)), 
+	m_status_info = new QLabel( this  );
+	m_status_info->setFrameStyle( QFrame::Sunken | QFrame::StyledPanel );
+	m_status_info->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ); 
+	m_status_info->setContextMenuPolicy( Qt::CustomContextMenu );
+	connect(m_status_info, SIGNAL(customContextMenuRequested(const QPoint &)), 
 		this, SLOT(showStatusBarContextMenu(const QPoint &)) );
 
-	statusBar()->addWidget( d_status_info, 1 );
+	statusBar()->addWidget( m_status_info, 1 );
 
 	matrix_plot_tools = new QToolBar( tr( "Matrix Plot" ), this);
 	matrix_plot_tools->setObjectName("matrix_plot_tools");
@@ -736,10 +736,10 @@ void ApplicationWindow::initMainMenu()
 	file->addAction(actionSaveTemplate);
 	file->addSeparator();
 
-	d_export_graph_menu = new QMenu(this);
-	d_export_graph_menu->addAction(d_export_layer_action);
-	d_export_graph_menu->addAction(d_export_graph_action);
-	exportID=file->insertItem(tr("&Export Graph"), d_export_graph_menu);
+	m_export_graph_menu = new QMenu(this);
+	m_export_graph_menu->addAction(m_export_layer_action);
+	m_export_graph_menu->addAction(m_export_graph_action);
+	exportID=file->insertItem(tr("&Export Graph"), m_export_graph_menu);
 
 	file->addAction(actionPrint);
 	file->addAction(actionPrintAllPlots);
@@ -890,35 +890,35 @@ void ApplicationWindow::initMainMenu()
 	calcul->addAction(actionFFT);
 	calcul->addSeparator();
 
-	d_quick_fit_menu = new QMenu(this);
-	d_quick_fit_menu->setTitle(tr("&Quick Fit"));
+	m_quick_fit_menu = new QMenu(this);
+	m_quick_fit_menu->setTitle(tr("&Quick Fit"));
 
-	d_quick_fit_menu->addAction(actionFitLinear);
-	d_quick_fit_menu->addAction(actionShowFitPolynomDialog);
+	m_quick_fit_menu->addAction(actionFitLinear);
+	m_quick_fit_menu->addAction(actionShowFitPolynomDialog);
 
-	d_quick_fit_menu->addSeparator();
+	m_quick_fit_menu->addSeparator();
 
 	decay = new QMenu(this);
 	decay->setFont(appFont);
 	decay->addAction(actionShowExpDecayDialog);
 	decay->addAction(actionShowTwoExpDecayDialog);
 	decay->addAction(actionShowExpDecay3Dialog);
-	fitExpMenuID = d_quick_fit_menu->insertItem(tr("Fit E&xponential Decay"), decay);
+	fitExpMenuID = m_quick_fit_menu->insertItem(tr("Fit E&xponential Decay"), decay);
 
-	d_quick_fit_menu->addAction(actionFitExpGrowth);
-	d_quick_fit_menu->addAction(actionFitSigmoidal);
-	d_quick_fit_menu->addAction(actionFitGauss);
-	d_quick_fit_menu->addAction(actionFitLorentz);
+	m_quick_fit_menu->addAction(actionFitExpGrowth);
+	m_quick_fit_menu->addAction(actionFitSigmoidal);
+	m_quick_fit_menu->addAction(actionFitGauss);
+	m_quick_fit_menu->addAction(actionFitLorentz);
 
 	multiPeakMenu = new QMenu(this);
 	multiPeakMenu->setFont(appFont);
 	multiPeakMenu->addAction(actionMultiPeakGauss);
 	multiPeakMenu->addAction(actionMultiPeakLorentz);
-	multiPeakMenuID = d_quick_fit_menu->insertItem(tr("Fit &Multi-peak"), multiPeakMenu);
+	multiPeakMenuID = m_quick_fit_menu->insertItem(tr("Fit &Multi-peak"), multiPeakMenu);
 
-	d_quick_fit_menu->addSeparator();
+	m_quick_fit_menu->addSeparator();
 
-	calcul->addMenu(d_quick_fit_menu);
+	calcul->addMenu(m_quick_fit_menu);
 	calcul->addAction(actionShowFitDialog);
 
 	format = new QMenu(this);
@@ -1263,9 +1263,9 @@ void ApplicationWindow::customToolBars(QWidget* w)
 			if (layer && layer->curveCount() > 0) {
 				plot_tools->setEnabled(true);
 				QwtPlotCurve *c = layer->curve(layer->curveCount()-1);
-				// plot tools managed by d_plot_mapper
+				// plot tools managed by m_plot_mapper
 				for (int i=0; i<=(int)Layer::VerticalSteps; i++) {
-					QAction *a = static_cast<QAction*>(d_plot_mapper->mapping(i));
+					QAction *a = static_cast<QAction*>(m_plot_mapper->mapping(i));
 					if (a)
 						a->setEnabled(Layer::canConvertTo(c, (Layer::CurveType)i));
 				}
@@ -1293,9 +1293,9 @@ void ApplicationWindow::customToolBars(QWidget* w)
 			matrix_plot_tools->setEnabled (false);
 
 			plot_tools->setEnabled(true);
-			// plot tools managed by d_plot_mapper
+			// plot tools managed by m_plot_mapper
 			for (int i=0; i<=(int)Layer::VerticalSteps; i++) {
-				QAction *a = static_cast<QAction*>(d_plot_mapper->mapping(i));
+				QAction *a = static_cast<QAction*>(m_plot_mapper->mapping(i));
 				if (a)
 					a->setEnabled(true);
 			}
@@ -2371,8 +2371,8 @@ void ApplicationWindow::initMultilayerPlot(Graph* g, const QString& name)
 	g->setWindowTitle(label);
 	g->setName(label);
 	g->setIcon(QPixmap(":/graph.xpm"));
-	g->setScaleLayersOnPrint(d_scale_plots_on_print);
-	g->printCropmarks(d_print_cropmarks);
+	g->setScaleLayersOnPrint(m_scale_plots_on_print);
+	g->printCropmarks(m_print_cropmarks);
 	g->show();
 	g->setFocus();
 
@@ -2387,7 +2387,7 @@ void ApplicationWindow::customizeTables(const QColor& bgColor,const QColor& text
 	tableHeaderColor = headerColor;
 	tableTextFont = textFont;
 	tableHeaderFont = headerFont;
-	d_show_table_comments = showComments;
+	m_show_table_comments = showComments;
 
 	QWidgetList *windows = windowsList();
 	foreach(QWidget *w, *windows)
@@ -2408,8 +2408,8 @@ void ApplicationWindow::customTable(Table* w)
 	w->setHeaderColor (tableHeaderColor);
 	w->setTextFont(tableTextFont);
 	w->setHeaderFont(tableHeaderFont);
-	w->showComments(d_show_table_comments);
-	w->setNumericPrecision(d_decimal_digits);
+	w->showComments(m_show_table_comments);
+	w->setNumericPrecision(m_decimal_digits);
 }
 
 void ApplicationWindow::setPreferences(Layer* layer)
@@ -2469,7 +2469,7 @@ Table* ApplicationWindow::newTable(const QString& fname, const QString &sep,
 		bool simplifySpaces)
 {
 	/*
-	Table* w = new Table(d_scripting_engine, fname, sep, lines, renameCols, stripSpaces,
+	Table* w = new Table(m_scripting_engine, fname, sep, lines, renameCols, stripSpaces,
 			simplifySpaces, fname, ws, 0, 0);
 	if (w)
 	{
@@ -2486,7 +2486,7 @@ Table* ApplicationWindow::newTable(const QString& fname, const QString &sep,
  */
 Table* ApplicationWindow::newTable()
 {
-	Table* w = new Table(d_scripting_engine, 30, 2, "", ws, 0);
+	Table* w = new Table(m_scripting_engine, 30, 2, "", ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	initTable(w, generateUniqueName(tr("Table")));
 	w->showNormal();
@@ -2498,7 +2498,7 @@ Table* ApplicationWindow::newTable()
  */
 Table* ApplicationWindow::newTable(const QString& caption, int r, int c)
 {
-	Table* w = new Table(d_scripting_engine, r, c, "", ws, 0);
+	Table* w = new Table(m_scripting_engine, r, c, "", ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	initTable(w, caption);
 	if (w->name() != caption)//the table was renamed
@@ -2514,7 +2514,7 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c)
 
 Table* ApplicationWindow::newTable(int r, int c, const QString& name, const QString& legend)
 {
-	Table* w = new Table(d_scripting_engine, r, c, legend, ws, 0);
+	Table* w = new Table(m_scripting_engine, r, c, legend, ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	initTable(w, name);
 	return w;
@@ -2527,7 +2527,7 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c, const Q
     if (lst.count() == 2)
         legend = lst[1];
 
-	Table* w = new Table(d_scripting_engine, r, c, legend, ws, 0);
+	Table* w = new Table(m_scripting_engine, r, c, legend, ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 
 	QStringList rows = text.split("\n", QString::SkipEmptyParts);
@@ -2550,7 +2550,7 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c, const Q
 
 Table* ApplicationWindow::newHiddenTable(const QString& name, const QString& label, int r, int c, const QString& text)
 {
-	Table* w = new Table(d_scripting_engine, r, c, label, 0, 0);
+	Table* w = new Table(m_scripting_engine, r, c, label, 0, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 
 	if (!text.isEmpty()) {
@@ -2602,7 +2602,7 @@ void ApplicationWindow::initTable(Table* table, const QString& caption)
  */
 TableStatistics *ApplicationWindow::newTableStatistics(Table *base, int type, QList<int> target, const QString &caption)
 {
-	TableStatistics* s = new TableStatistics(d_scripting_engine, ws, base, (TableStatistics::Type) type, target);
+	TableStatistics* s = new TableStatistics(m_scripting_engine, ws, base, (TableStatistics::Type) type, target);
 	if (caption.isEmpty())
 		initTable(s, s->name());
 	else
@@ -2619,7 +2619,7 @@ TableStatistics *ApplicationWindow::newTableStatistics(Table *base, int type, QL
  */
 Note* ApplicationWindow::newNote(const QString& caption)
 {
-	Note* m = new Note(d_scripting_engine, "", ws);
+	Note* m = new Note(m_scripting_engine, "", ws);
 	if (caption.isEmpty())
 		initNote(m, generateUniqueName(tr("Notes")));
 	else
@@ -2657,7 +2657,7 @@ void ApplicationWindow::initNote(Note* m, const QString& caption)
 
 Matrix* ApplicationWindow::newMatrix(int rows, int columns)
 {
-	Matrix* m = new Matrix(d_scripting_engine, rows, columns, "", ws, 0);
+	Matrix* m = new Matrix(m_scripting_engine, rows, columns, "", ws, 0);
 	m->setAttribute(Qt::WA_DeleteOnClose);
 	QString caption = generateUniqueName(tr("Matrix"));
 	initMatrix(m, caption);
@@ -2667,7 +2667,7 @@ Matrix* ApplicationWindow::newMatrix(int rows, int columns)
 
 Matrix* ApplicationWindow::newMatrix(const QString& caption, int r, int c)
 {
-	Matrix* w = new Matrix(d_scripting_engine, r, c, "", ws,0);
+	Matrix* w = new Matrix(m_scripting_engine, r, c, "", ws,0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	initMatrix(w, caption);
 	if (w->name() != caption)//the matrix was renamed
@@ -2725,7 +2725,7 @@ Table* ApplicationWindow::convertMatrixToTable()
 	int rows = m->rowCount();
 	int cols = m->columnCount();
 
-	Table* w = new Table(d_scripting_engine, rows, cols, "", ws, 0);
+	Table* w = new Table(m_scripting_engine, rows, cols, "", ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	for (int i = 0; i<rows; i++)
 	{
@@ -2753,7 +2753,7 @@ void ApplicationWindow::initMatrix(Matrix* m, const QString& caption)
 	m->setName(name);
 	m->setIcon( QPixmap(":/matrix.xpm") );
 	m->askOnCloseEvent(confirmCloseMatrix);
-	m->setNumericPrecision(d_decimal_digits);
+	m->setNumericPrecision(m_decimal_digits);
 	m->setFolder(current_folder);
 
 	current_folder->addWindow(m);
@@ -2782,7 +2782,7 @@ Matrix* ApplicationWindow::convertTableToMatrix()
 	int rows = m->rowCount();
 	int cols = m->columnCount();
 
-	Matrix* w = new Matrix(d_scripting_engine, rows, cols, "", ws, 0);
+	Matrix* w = new Matrix(m_scripting_engine, rows, cols, "", ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	for (int i = 0; i<rows; i++)
 	{
@@ -3142,7 +3142,7 @@ void ApplicationWindow::updateAppFonts()
 	decay->setFont(appFont);
 	plotDataMenu->setFont(appFont);
 	tableMenu->setFont(appFont);
-	d_export_graph_menu->setFont(appFont);
+	m_export_graph_menu->setFont(appFont);
 	normMenu->setFont(appFont);
 	translateMenu->setFont(appFont);
 	fillMenu->setFont(appFont);
@@ -3315,9 +3315,9 @@ ApplicationWindow * ApplicationWindow::plotFile(const QString& fn)
 
 void ApplicationWindow::importASCII()
 {
-	ImportTableDialog *import_dialog = new ImportTableDialog(ws->activeWindow() && ws->activeWindow()->inherits("Table"), this, d_extended_import_ASCII_dialog);
+	ImportTableDialog *import_dialog = new ImportTableDialog(ws->activeWindow() && ws->activeWindow()->inherits("Table"), this, m_extended_import_ASCII_dialog);
 	import_dialog->setDir(asciiDirPath);
-	import_dialog->selectFilter(d_ASCII_file_filter);
+	import_dialog->selectFilter(m_ASCII_file_filter);
 	if (import_dialog->exec() != QDialog::Accepted)
 		return;
 
@@ -3328,8 +3328,8 @@ void ApplicationWindow::importASCII()
 		renameColumns = import_dialog->renameColumns();
 		strip_spaces = import_dialog->stripSpaces();
 		simplify_spaces = import_dialog->simplifySpaces();
-		d_ASCII_import_locale = import_dialog->decimalSeparators();
-		d_use_custom_locale = import_dialog->useCustomLocale();
+		m_ASCII_import_locale = import_dialog->decimalSeparators();
+		m_use_custom_locale = import_dialog->useCustomLocale();
 		saveSettings();
 	}
 
@@ -3419,7 +3419,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 
 void ApplicationWindow::open()
 {
-	OpenProjectDialog *open_dialog = new OpenProjectDialog(this, d_extended_open_dialog);
+	OpenProjectDialog *open_dialog = new OpenProjectDialog(this, m_extended_open_dialog);
 	open_dialog->setDirectory(workingDir);
 	if (open_dialog->exec() != QDialog::Accepted || open_dialog->selectedFiles().isEmpty())
 		return;
@@ -3522,15 +3522,15 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
     QStringList vl = list[1].split(".", QString::SkipEmptyParts);
 	if(fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) )
 	{
-	    d_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
-		if(d_file_version > 90)
+	    m_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
+		if(m_file_version > 90)
 		{
                 QMessageBox::critical(this, tr("File opening error"),  tr("SciDAVis does not support QtiPlot project files from versions later than 0.9.0.").arg(fn));
 				return 0;
 		}
 	}
 	else 
-		d_file_version = ((vl[0]).toInt() << 16) + ((vl[1]).toInt() << 8) + (vl[2]).toInt();
+		m_file_version = ((vl[0]).toInt() << 16) + ((vl[1]).toInt() << 8) + (vl[2]).toInt();
 
 	ApplicationWindow* app = openProject(fname);
 
@@ -3593,7 +3593,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	ApplicationWindow *app = new ApplicationWindow();
 	app->applyUserSettings();
 	app->projectname = fn;
-	app->d_file_version = d_file_version;
+	app->m_file_version = m_file_version;
 	app->setWindowTitle(tr("SciDAVis") + " - " + fn);
 
 	QFile f(fn);
@@ -3605,7 +3605,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	QString baseName = fi.fileName();
 
 	t.readLine();
-	if (d_file_version < 73)
+	if (m_file_version < 73)
 		t.readLine();
 
 	QString s = t.readLine();
@@ -3617,7 +3617,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 					tr("The file \"%1\" was created using \"%2\" as scripting language.\n\n"\
 						"Initializing support for this language FAILED; I'm using \"%3\" instead.\n"\
 						"Various parts of this file may not be displayed as expected.")\
-					.arg(fn).arg(list[1]).arg(d_scripting_engine->name()));
+					.arg(fn).arg(list[1]).arg(m_scripting_engine->name()));
 
 		s = t.readLine();
 		list=s.split("\t", QString::SkipEmptyParts);
@@ -3771,14 +3771,14 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 			restoreWindowGeometry(app, plot, t.readLine());
 			plot->blockSignals(true);
 
-			if (d_file_version > 71)
+			if (m_file_version > 71)
 			{
 				QStringList lst=t.readLine().split("\t");
 				plot->setWindowLabel(lst[1]);
 				app->setListViewLabel(plot->name(),lst[1]);
 				plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
 			}
-			if (d_file_version > 83)
+			if (m_file_version > 83)
 			{
 				QStringList lst=t.readLine().split("\t", QString::SkipEmptyParts);
 				plot->setMargins(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
@@ -3893,7 +3893,7 @@ void ApplicationWindow::scriptPrint(const QString &text)
 
 bool ApplicationWindow::setScriptingLang(const QString &lang, bool force)
 {
-	if (!force && lang == d_scripting_engine->name()) return true;
+	if (!force && lang == m_scripting_engine->name()) return true;
 	if (lang.isEmpty()) return false;
 
 	AbstractScriptingEngine *new_engine = AbstractScriptingEngine::create(lang, this);
@@ -3922,18 +3922,18 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force)
 
 void ApplicationWindow::showScriptingLangDialog()
 {
-	ScriptingLangDialog* d = new ScriptingLangDialog(d_scripting_engine,this);
+	ScriptingLangDialog* d = new ScriptingLangDialog(m_scripting_engine,this);
 	d->showNormal();
 	d->setActiveWindow();
 }
 
 void ApplicationWindow::restartScriptingEnv()
 {
-	if (setScriptingLang(d_scripting_engine->name(), true))
+	if (setScriptingLang(m_scripting_engine->name(), true))
 		executeNotes();
 	else
 		QMessageBox::critical(this, tr("Scripting Error"),
-				tr("Scripting language \"%1\" failed to initialize.").arg(d_scripting_engine->name()));
+				tr("Scripting language \"%1\" failed to initialize.").arg(m_scripting_engine->name()));
 }
 
 //TODO: rewrite the template system
@@ -3973,15 +3973,15 @@ void ApplicationWindow::openTemplate()
 			QStringList vl = l[1].split(".", QString::SkipEmptyParts);
 			if( fileType == "QtiPlot" )
 			{
-				d_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
-				if(d_file_version > 90)
+				m_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
+				if(m_file_version > 90)
 				{
 					QMessageBox::critical(this, tr("File opening error"),  tr("SciDAVis does not support QtiPlot template files from versions later than 0.9.0.").arg(fn));
 					return;
 				}
 			}
 			else 
-				d_file_version = ((vl[0]).toInt() << 16) + ((vl[1]).toInt() << 8) + (vl[2]).toInt();
+				m_file_version = ((vl[0]).toInt() << 16) + ((vl[1]).toInt() << 8) + (vl[2]).toInt();
 
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 			MyWidget *w = 0;
@@ -4013,7 +4013,7 @@ void ApplicationWindow::openTemplate()
 						((Graph*)w)->setCols(cols);
 						((Graph*)w)->setRows(rows);
 						restoreWindowGeometry(this, w, geometry);
-						if (d_file_version > 83)
+						if (m_file_version > 83)
 						{
 							QStringList lst=t.readLine().split("\t", QString::SkipEmptyParts);
 							((Graph*)w)->setMargins(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
@@ -4117,7 +4117,7 @@ void ApplicationWindow::readSettings()
 		temp_locale.setNumberOptions(temp_locale.numberOptions() | QLocale::OmitGroupSeparator);
 	QLocale::setDefault(temp_locale);
 
-	d_decimal_digits = settings.value("/DecimalDigits", 14).toInt();
+	m_decimal_digits = settings.value("/DecimalDigits", 14).toInt();
 
 	//restore dock windows and tool bars
 	restoreState(settings.value("/DockWindows").toByteArray());
@@ -4128,15 +4128,15 @@ void ApplicationWindow::readSettings()
 		appFont=QFont (applicationFont[0],applicationFont[1].toInt(),applicationFont[2].toInt(),applicationFont[3].toInt());
 
 	settings.beginGroup("/Dialogs");
-	d_extended_open_dialog = settings.value("/ExtendedOpenDialog", true).toBool();
-	d_extended_export_dialog = settings.value("/ExtendedExportTableDialog", true).toBool();
-	d_extended_import_ASCII_dialog = settings.value("/ExtendedImportAsciiDialog", true).toBool();
-	d_extended_plot_dialog = settings.value("/ExtendedPlotDialog", true).toBool();//used by PlotDialog
+	m_extended_open_dialog = settings.value("/ExtendedOpenDialog", true).toBool();
+	m_extended_export_dialog = settings.value("/ExtendedExportTableDialog", true).toBool();
+	m_extended_import_ASCII_dialog = settings.value("/ExtendedImportAsciiDialog", true).toBool();
+	m_extended_plot_dialog = settings.value("/ExtendedPlotDialog", true).toBool();//used by PlotDialog
 
 	settings.beginGroup("/AddRemoveCurves");
-	d_add_curves_dialog_size = QSize(settings.value("/Width", 700).toInt(),
+	m_add_curves_dialog_size = QSize(settings.value("/Width", 700).toInt(),
 									settings.value("/Height", 400).toInt());
-	d_show_current_folder = settings.value("/ShowCurrentFolder", false).toBool();
+	m_show_current_folder = settings.value("/ShowCurrentFolder", false).toBool();
 	settings.endGroup(); // AddRemoveCurves Dialog
 	settings.endGroup(); // Dialogs
 
@@ -4204,7 +4204,7 @@ void ApplicationWindow::readSettings()
 
 	/* ---------------- group Tables --------------- */
 	settings.beginGroup("/Tables");
-	d_show_table_comments = settings.value("/DisplayComments", false).toBool();
+	m_show_table_comments = settings.value("/DisplayComments", false).toBool();
 	QStringList tableFonts = settings.value("/Fonts").toStringList();
 	if (tableFonts.size() == 8)
 	{
@@ -4234,8 +4234,8 @@ void ApplicationWindow::readSettings()
 	autoScaleFonts = settings.value("/AutoScaleFonts", true).toBool();
 	autoResizeLayers = settings.value("/AutoResizeLayers", true).toBool();
 	antialiasing2DPlots = settings.value("/Antialiasing", true).toBool();
-	d_scale_plots_on_print = settings.value("/ScaleLayersOnPrint", false).toBool();
-	d_print_cropmarks = settings.value("/PrintCropmarks", false).toBool();
+	m_scale_plots_on_print = settings.value("/ScaleLayersOnPrint", false).toBool();
+	m_print_cropmarks = settings.value("/PrintCropmarks", false).toBool();
 
 	QStringList graphFonts = settings.value("/Fonts").toStringList();
 	if (graphFonts.size() == 16)
@@ -4318,7 +4318,7 @@ void ApplicationWindow::readSettings()
 	generatePeakCurves = settings.value("/GeneratePeakCurves", true).toBool();
 	peakCurvesColor = settings.value("/PeaksColor", 2).toInt();//green color
 	fit_scale_errors = settings.value("/ScaleErrors", false).toBool();
-	d_2_linear_fit_points = settings.value("/TwoPointsLinearFit", true).toBool();
+	m_2_linear_fit_points = settings.value("/TwoPointsLinearFit", true).toBool();
 	settings.endGroup(); // Fitting
 
 	settings.beginGroup("/ImportASCII");
@@ -4328,19 +4328,19 @@ void ApplicationWindow::readSettings()
 	renameColumns = settings.value("/RenameColumns", true).toBool();
 	strip_spaces = settings.value("/StripSpaces", false).toBool();
 	simplify_spaces = settings.value("/SimplifySpaces", false).toBool();
-	d_ASCII_file_filter = settings.value("/AsciiFileTypeFilter", "*").toString();
-	d_ASCII_import_locale = settings.value("/AsciiImportLocale", QLocale::system().name()).toString();
-	d_use_custom_locale = settings.value("/UseCustomLocale", true).toBool();
+	m_ASCII_file_filter = settings.value("/AsciiFileTypeFilter", "*").toString();
+	m_ASCII_import_locale = settings.value("/AsciiImportLocale", QLocale::system().name()).toString();
+	m_use_custom_locale = settings.value("/UseCustomLocale", true).toBool();
 	settings.endGroup(); // Import ASCII
 
     settings.beginGroup("/ExportImage");
-	d_image_export_filter = settings.value("/ImageFileTypeFilter", ".png").toString();
-	d_export_transparency = settings.value("/ExportTransparency", false).toBool();
-	d_export_quality = settings.value("/ImageQuality", 100).toInt();
-	d_export_resolution = settings.value("/Resolution", QPrinter().resolution()).toInt();
-	d_export_color = settings.value("/ExportColor", true).toBool();
-	d_export_vector_size = settings.value("/ExportPageSize", QPrinter::Custom).toInt();
-	d_keep_plot_aspect = settings.value("/KeepAspect", true).toBool();
+	m_image_export_filter = settings.value("/ImageFileTypeFilter", ".png").toString();
+	m_export_transparency = settings.value("/ExportTransparency", false).toBool();
+	m_export_quality = settings.value("/ImageQuality", 100).toInt();
+	m_export_resolution = settings.value("/Resolution", QPrinter().resolution()).toInt();
+	m_export_color = settings.value("/ExportColor", true).toBool();
+	m_export_vector_size = settings.value("/ExportPageSize", QPrinter::Custom).toInt();
+	m_keep_plot_aspect = settings.value("/KeepAspect", true).toBool();
 	settings.endGroup(); // ExportImage
 }
 
@@ -4365,7 +4365,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/ScriptingLang", defaultScriptingLang);
 	settings.setValue("/Locale", QLocale().name());
 	settings.setValue("/LocaleUseGroupSeparator", bool(!(QLocale().numberOptions() & QLocale::OmitGroupSeparator)));
-	settings.setValue("/DecimalDigits", d_decimal_digits);
+	settings.setValue("/DecimalDigits", m_decimal_digits);
 
 	settings.setValue("/DockWindows", saveState());
 	settings.setValue("/ExplorerSplitter", explorerSplitter->saveState());
@@ -4378,14 +4378,14 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/Font", applicationFont);
 
 	settings.beginGroup("/Dialogs");
-	settings.setValue("/ExtendedOpenDialog", d_extended_open_dialog);
-	settings.setValue("/ExtendedExportTableDialog", d_extended_export_dialog);
-	settings.setValue("/ExtendedImportAsciiDialog", d_extended_import_ASCII_dialog);
-	settings.setValue("/ExtendedPlotDialog", d_extended_plot_dialog);
+	settings.setValue("/ExtendedOpenDialog", m_extended_open_dialog);
+	settings.setValue("/ExtendedExportTableDialog", m_extended_export_dialog);
+	settings.setValue("/ExtendedImportAsciiDialog", m_extended_import_ASCII_dialog);
+	settings.setValue("/ExtendedPlotDialog", m_extended_plot_dialog);
 	settings.beginGroup("/AddRemoveCurves");
-	settings.setValue("/Width", d_add_curves_dialog_size.width());
-	settings.setValue("/Height", d_add_curves_dialog_size.height());
-	settings.setValue("/ShowCurrentFolder", d_show_current_folder);
+	settings.setValue("/Width", m_add_curves_dialog_size.width());
+	settings.setValue("/Height", m_add_curves_dialog_size.height());
+	settings.setValue("/ShowCurrentFolder", m_show_current_folder);
 	settings.endGroup(); // AddRemoveCurves Dialog
 	settings.endGroup(); // Dialogs
 
@@ -4426,7 +4426,7 @@ void ApplicationWindow::saveSettings()
 
 	/* ----------------- group Tables -------------- */
 	settings.beginGroup("/Tables");
-	settings.setValue("/DisplayComments", d_show_table_comments);
+	settings.setValue("/DisplayComments", m_show_table_comments);
 	QStringList tableFonts;
 	tableFonts<<tableTextFont.family();
 	tableFonts<<QString::number(tableTextFont.pointSize());
@@ -4460,8 +4460,8 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/AutoScaleFonts", autoScaleFonts);
 	settings.setValue("/AutoResizeLayers", autoResizeLayers);
 	settings.setValue("/Antialiasing", antialiasing2DPlots);
-	settings.setValue("/ScaleLayersOnPrint", d_scale_plots_on_print);
-	settings.setValue("/PrintCropmarks", d_print_cropmarks);
+	settings.setValue("/ScaleLayersOnPrint", m_scale_plots_on_print);
+	settings.setValue("/PrintCropmarks", m_print_cropmarks);
 
 	QStringList graphFonts;
 	graphFonts<<plotAxesFont.family();
@@ -4560,7 +4560,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/GeneratePeakCurves", generatePeakCurves);
 	settings.setValue("/PeaksColor", peakCurvesColor);
 	settings.setValue("/ScaleErrors", fit_scale_errors);
-	settings.setValue("/TwoPointsLinearFit", d_2_linear_fit_points);
+	settings.setValue("/TwoPointsLinearFit", m_2_linear_fit_points);
 	settings.endGroup(); // Fitting
 
 	settings.beginGroup("/ImportASCII");
@@ -4570,19 +4570,19 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/RenameColumns", renameColumns);
 	settings.setValue("/StripSpaces", strip_spaces);
 	settings.setValue("/SimplifySpaces", simplify_spaces);
-    settings.setValue("/AsciiFileTypeFilter", d_ASCII_file_filter);
-	settings.setValue("/AsciiImportLocale", d_ASCII_import_locale.name());
-	settings.setValue("/UseCustomLocale", d_use_custom_locale);
+    settings.setValue("/AsciiFileTypeFilter", m_ASCII_file_filter);
+	settings.setValue("/AsciiImportLocale", m_ASCII_import_locale.name());
+	settings.setValue("/UseCustomLocale", m_use_custom_locale);
 	settings.endGroup(); // ImportASCII
 
     settings.beginGroup("/ExportImage");
-	settings.setValue("/ImageFileTypeFilter", d_image_export_filter);
-	settings.setValue("/ExportTransparency", d_export_transparency);
-	settings.setValue("/ImageQuality", d_export_quality);
-	settings.setValue("/Resolution", d_export_resolution);
-	settings.setValue("/ExportColor", d_export_color);
-	settings.setValue("/ExportPageSize", d_export_vector_size);
-	settings.setValue("/KeepAspect", d_keep_plot_aspect);
+	settings.setValue("/ImageFileTypeFilter", m_image_export_filter);
+	settings.setValue("/ExportTransparency", m_export_transparency);
+	settings.setValue("/ImageQuality", m_export_quality);
+	settings.setValue("/Resolution", m_export_resolution);
+	settings.setValue("/ExportColor", m_export_color);
+	settings.setValue("/ExportPageSize", m_export_vector_size);
+	settings.setValue("/KeepAspect", m_keep_plot_aspect);
 	settings.endGroup(); // ExportImage
 }
 
@@ -4609,29 +4609,29 @@ void ApplicationWindow::exportGraph()
 	else
 		return;
 
-	ImageExportDialog *ied = new ImageExportDialog(this, plot2D!=NULL, d_extended_export_dialog);
+	ImageExportDialog *ied = new ImageExportDialog(this, plot2D!=NULL, m_extended_export_dialog);
 
 	ied->setDir(workingDir);
-	ied->selectFilter(d_image_export_filter);
-	ied->setResolution(d_export_resolution);
-	ied->setColorEnabled(d_export_color);
-	ied->setPageSize(d_export_vector_size);
-	ied->setKeepAspect(d_keep_plot_aspect);
-	ied->setQuality(d_export_quality);
-	ied->setTransparency(d_export_transparency);
+	ied->selectFilter(m_image_export_filter);
+	ied->setResolution(m_export_resolution);
+	ied->setColorEnabled(m_export_color);
+	ied->setPageSize(m_export_vector_size);
+	ied->setKeepAspect(m_keep_plot_aspect);
+	ied->setQuality(m_export_quality);
+	ied->setTransparency(m_export_transparency);
 
 	if ( ied->exec() != QDialog::Accepted )
 		return;
 
-	d_extended_export_dialog = ied->isExtended();
+	m_extended_export_dialog = ied->isExtended();
 	workingDir = ied->directory().path();
-	d_image_export_filter = ied->selectedFilter();
-	d_export_resolution = ied->resolution();
-	d_export_color = ied->colorEnabled();
-	d_export_vector_size = ied->pageSize();
-	d_keep_plot_aspect = ied->keepAspect();
-	d_export_quality = ied->quality();
-	d_export_transparency = ied->transparency();
+	m_image_export_filter = ied->selectedFilter();
+	m_export_resolution = ied->resolution();
+	m_export_color = ied->colorEnabled();
+	m_export_vector_size = ied->pageSize();
+	m_keep_plot_aspect = ied->keepAspect();
+	m_export_quality = ied->quality();
+	m_export_transparency = ied->transparency();
 
 	if (ied->selectedFiles().isEmpty())
 		return;
@@ -4682,29 +4682,29 @@ void ApplicationWindow::exportLayer()
 	if (!layer)
 		return;
 
-	ImageExportDialog *ied = new ImageExportDialog(this, layer!=NULL, d_extended_export_dialog);
+	ImageExportDialog *ied = new ImageExportDialog(this, layer!=NULL, m_extended_export_dialog);
 
 	ied->setDir(workingDir);
-	ied->selectFilter(d_image_export_filter);
-	ied->setResolution(d_export_resolution);
-	ied->setColorEnabled(d_export_color);
-	ied->setPageSize(d_export_vector_size);
-	ied->setKeepAspect(d_keep_plot_aspect);
-	ied->setQuality(d_export_quality);
-	ied->setTransparency(d_export_transparency);
+	ied->selectFilter(m_image_export_filter);
+	ied->setResolution(m_export_resolution);
+	ied->setColorEnabled(m_export_color);
+	ied->setPageSize(m_export_vector_size);
+	ied->setKeepAspect(m_keep_plot_aspect);
+	ied->setQuality(m_export_quality);
+	ied->setTransparency(m_export_transparency);
 
 	if ( ied->exec() != QDialog::Accepted )
 		return;
 
-	d_extended_export_dialog = ied->isExtended();
+	m_extended_export_dialog = ied->isExtended();
 	workingDir = ied->directory().path();
-	d_image_export_filter = ied->selectedFilter();
-	d_export_resolution = ied->resolution();
-	d_export_color = ied->colorEnabled();
-	d_export_vector_size = ied->pageSize();
-	d_keep_plot_aspect = ied->keepAspect();
-	d_export_quality = ied->quality();
-	d_export_transparency = ied->transparency();
+	m_image_export_filter = ied->selectedFilter();
+	m_export_resolution = ied->resolution();
+	m_export_color = ied->colorEnabled();
+	m_export_vector_size = ied->pageSize();
+	m_keep_plot_aspect = ied->keepAspect();
+	m_export_quality = ied->quality();
+	m_export_transparency = ied->transparency();
 
 	if (ied->selectedFiles().isEmpty())
 		return;
@@ -4737,7 +4737,7 @@ void ApplicationWindow::exportLayer()
 
 void ApplicationWindow::exportAllGraphs()
 {
-	ImageExportDialog *ied = new ImageExportDialog(this, true, d_extended_export_dialog);
+	ImageExportDialog *ied = new ImageExportDialog(this, true, m_extended_export_dialog);
 	ied->setWindowTitle(tr("Choose a directory to export the graphs to"));
 	QStringList tmp = ied->filters();
 	ied->setFileMode(QFileDialog::Directory);
@@ -4746,26 +4746,26 @@ void ApplicationWindow::exportAllGraphs()
 	ied->setLabelText(QFileDialog::FileName, tr("Directory:"));
 
 	ied->setDir(workingDir);
-	ied->selectFilter(d_image_export_filter);
-	ied->setResolution(d_export_resolution);
-	ied->setColorEnabled(d_export_color);
-	ied->setPageSize(d_export_vector_size);
-	ied->setKeepAspect(d_keep_plot_aspect);
-	ied->setQuality(d_export_quality);
-	ied->setTransparency(d_export_transparency);
+	ied->selectFilter(m_image_export_filter);
+	ied->setResolution(m_export_resolution);
+	ied->setColorEnabled(m_export_color);
+	ied->setPageSize(m_export_vector_size);
+	ied->setKeepAspect(m_keep_plot_aspect);
+	ied->setQuality(m_export_quality);
+	ied->setTransparency(m_export_transparency);
 
 	if ( ied->exec() != QDialog::Accepted )
 		return;
 
-	d_extended_export_dialog = ied->isExtended();
+	m_extended_export_dialog = ied->isExtended();
 	workingDir = ied->directory().path();
-	d_image_export_filter = ied->selectedFilter();
-	d_export_resolution = ied->resolution();
-	d_export_color = ied->colorEnabled();
-	d_export_vector_size = ied->pageSize();
-	d_keep_plot_aspect = ied->keepAspect();
-	d_export_quality = ied->quality();
-	d_export_transparency = ied->transparency();
+	m_image_export_filter = ied->selectedFilter();
+	m_export_resolution = ied->resolution();
+	m_export_color = ied->colorEnabled();
+	m_export_vector_size = ied->pageSize();
+	m_keep_plot_aspect = ied->keepAspect();
+	m_export_quality = ied->quality();
+	m_export_transparency = ied->transparency();
 
 	if (ied->selectedFiles().isEmpty())
 		return;
@@ -5203,7 +5203,7 @@ void ApplicationWindow::showCurvesDialog()
 		CurvesDialog* crvDialog = new CurvesDialog(this);
 		crvDialog->setAttribute(Qt::WA_DeleteOnClose);
 		crvDialog->setLayer(layer);
-		crvDialog->resize(d_add_curves_dialog_size);
+		crvDialog->resize(m_add_curves_dialog_size);
 		crvDialog->show();
 	}
 }
@@ -5511,7 +5511,7 @@ void ApplicationWindow::showColumnValuesDialog()
 		if(w->columnCount() == 0) return;
 		if ( w->selectedColumnCount()>0 )
 		{
-			SetColValuesDialog* vd= new SetColValuesDialog(d_scripting_engine,this);
+			SetColValuesDialog* vd= new SetColValuesDialog(m_scripting_engine,this);
 			vd->setAttribute(Qt::WA_DeleteOnClose);
 			vd->setTable(w);
 			vd->exec();
@@ -5959,7 +5959,7 @@ void ApplicationWindow::showMatrixValuesDialog()
 {
 	if ( ws->activeWindow() && ws->activeWindow()->inherits("Matrix"))
 	{
-		MatrixValuesDialog* md = new MatrixValuesDialog(d_scripting_engine, this);
+		MatrixValuesDialog* md = new MatrixValuesDialog(m_scripting_engine, this);
 		md->setAttribute(Qt::WA_DeleteOnClose);
 		md->setMatrix((Matrix*)ws->activeWindow());
 		md->exec();
@@ -6227,7 +6227,7 @@ void ApplicationWindow::showPlotDialog(int curveKey)
 
 	if (w->inherits("Graph"))
 	{
-		PlotDialog* pd = new PlotDialog(d_extended_plot_dialog, this);
+		PlotDialog* pd = new PlotDialog(m_extended_plot_dialog, this);
         pd->setAttribute(Qt::WA_DeleteOnClose);
         pd->setGraph((Graph*)w);
         if (curveKey >= 0)
@@ -6237,7 +6237,7 @@ void ApplicationWindow::showPlotDialog(int curveKey)
             	pd->selectCurve(g->curveIndex(curveKey));
 		}
         pd->initFonts(plotTitleFont, plotAxesFont, plotNumbersFont, plotLegendFont);
-		pd->showAll(d_extended_plot_dialog);
+		pd->showAll(m_extended_plot_dialog);
         pd->show();
 	}
 }
@@ -6506,7 +6506,7 @@ void ApplicationWindow::removePoints()
 					tr("Continue"),tr("Cancel"),0,1))
 		{
 			case 0:
-				g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Remove, d_status_info, SLOT(setText(const QString&))));
+				g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Remove, m_status_info, SLOT(setText(const QString&))));
 				break;
 
 			case 1:
@@ -6549,7 +6549,7 @@ void ApplicationWindow::movePoints()
 		{
 			case 0:
 				if (g){
-					g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Move, d_status_info, SLOT(setText(const QString&))));
+					g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Move, m_status_info, SLOT(setText(const QString&))));
 				}
 				break;
 
@@ -6954,7 +6954,7 @@ void ApplicationWindow::showScreenReader()
 	}
 
 	foreach(Layer *layer, plot->layers())
-		layer->setActiveTool(new ScreenPickerTool(layer, d_status_info, SLOT(setText(const QString&))));
+		layer->setActiveTool(new ScreenPickerTool(layer, m_status_info, SLOT(setText(const QString&))));
 
 }
 
@@ -6991,7 +6991,7 @@ void ApplicationWindow::showRangeSelectors()
 		return;
 	}
 
-	layer->enableRangeSelectors(d_status_info, SLOT(setText(const QString&)));
+	layer->enableRangeSelectors(m_status_info, SLOT(setText(const QString&)));
 }
 
 void ApplicationWindow::showCursor()
@@ -7020,7 +7020,7 @@ void ApplicationWindow::showCursor()
 
 	foreach(Layer *layer, plot->layers())
 		if (!layer->isPiePlot() && layer->validCurvesDataSize())
-			layer->setActiveTool(new DataPickerTool(layer, this, DataPickerTool::Display, d_status_info, SLOT(setText(const QString&))));
+			layer->setActiveTool(new DataPickerTool(layer, this, DataPickerTool::Display, m_status_info, SLOT(setText(const QString&))));
 
 }
 
@@ -8010,7 +8010,7 @@ void ApplicationWindow::dropEvent( QDropEvent* e )
 		}
 
 		importASCII(asciiFiles, ImportTableDialog::NewTables, columnSeparator, ignoredLines, renameColumns,
-				strip_spaces, simplify_spaces, d_use_custom_locale, d_ASCII_import_locale);
+				strip_spaces, simplify_spaces, m_use_custom_locale, m_ASCII_import_locale);
 	}
 }
 
@@ -8066,7 +8066,7 @@ void ApplicationWindow::customEvent(QEvent *e)
 	if (e->type() == SCRIPTING_CHANGE_EVENT)
 	{
 		scriptingChangeEvent((ScriptingChangeEvent*)e);
-		connect(d_scripting_engine,SIGNAL(error(const QString&,const QString&,int)),this,SLOT(scriptError(const QString&,const QString&,int)));
+		connect(m_scripting_engine,SIGNAL(error(const QString&,const QString&,int)),this,SLOT(scriptError(const QString&,const QString&,int)));
 	}
 }
 
@@ -9515,7 +9515,7 @@ Matrix* ApplicationWindow::importImage(const QString& fileName)
 	progress.setLabelText(fileName);
 	progress.setActiveWindow();
 
-	Matrix* m = new Matrix(d_scripting_engine, rows, cols, "", ws);
+	Matrix* m = new Matrix(m_scripting_engine, rows, cols, "", ws);
 	m->setAttribute(Qt::WA_DeleteOnClose);
 	m->table()->blockSignals(true);
 
@@ -9649,11 +9649,11 @@ Matrix* ApplicationWindow::openMatrix(ApplicationWindow* app, const QStringList 
 				w->setTextFormat('f', fields[2].toInt());
 			else
 				w->setTextFormat('e', fields[2].toInt());
-		} else if (fields[0] == "WindowLabel") { // d_file_version > 71
+		} else if (fields[0] == "WindowLabel") { // m_file_version > 71
 			w->setWindowLabel(fields[1]);
 			w->setCaptionPolicy((MyWidget::CaptionPolicy)fields[2].toInt());
 			app->setListViewLabel(w->name(), fields[1]);
-		} else if (fields[0] == "Coordinates") { // d_file_version > 81
+		} else if (fields[0] == "Coordinates") { // m_file_version > 81
 			w->setCoordinates(fields[1].toDouble(), fields[2].toDouble(), fields[3].toDouble(), fields[4].toDouble());
 		} else // <data> or values
 			break;
@@ -9672,9 +9672,9 @@ Matrix* ApplicationWindow::openMatrix(ApplicationWindow* app, const QStringList 
 		    if (cell.isEmpty())
                 continue;
 
-		    if (d_file_version < 90)
+		    if (m_file_version < 90)
                 w->setCell(row, col, QLocale::c().toDouble(cell));
-		    else if (d_file_version >= 0x000100)
+		    else if (m_file_version >= 0x000100)
                 w->setCell(row, col, cell.toDouble());
             else
                 w->setText(row, col, cell);
@@ -9706,7 +9706,7 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 			restoreWindowGeometry(app, w, *line);
 		} else if (fields[0] == "header") {
 			fields.pop_front();
-			if (d_file_version >= 78)
+			if (m_file_version >= 78)
 				w->loadHeader(fields);
 			else
 			{
@@ -9729,13 +9729,13 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 				formula.truncate(formula.length()-1);
 				w->setCommand(col,formula);
 			}
-		} else if (fields[0] == "ColType") { // d_file_version > 65
+		} else if (fields[0] == "ColType") { // m_file_version > 65
 			fields.pop_front();
 			w->setColumnTypes(fields);
-		} else if (fields[0] == "Comments") { // d_file_version > 71
+		} else if (fields[0] == "Comments") { // m_file_version > 71
 			fields.pop_front();
 			w->setColComments(fields);
-		} else if (fields[0] == "WindowLabel") { // d_file_version > 71
+		} else if (fields[0] == "WindowLabel") { // m_file_version > 71
 			w->setWindowLabel(fields[1]);
 			w->setCaptionPolicy((MyWidget::CaptionPolicy)fields[2].toInt());
 			app->setListViewLabel(w->name(), fields[1]);
@@ -9756,9 +9756,9 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 		        if (cell.isEmpty())
                     continue;
 
-		        if (d_file_version < 90 && w->columnType(col) == SciDAVis::Numeric)
+		        if (m_file_version < 90 && w->columnType(col) == SciDAVis::Numeric)
                     w->setCell(row, col, QLocale::c().toDouble(cell.replace(",", ".")));
-		        else if (d_file_version >= 0x000100 && w->columnType(col) == SciDAVis::Numeric)
+		        else if (m_file_version >= 0x000100 && w->columnType(col) == SciDAVis::Numeric)
                     w->setCell(row, col, cell.toDouble());
 		        else
                     w->setText(row, col, cell);
@@ -9796,7 +9796,7 @@ TableStatistics* ApplicationWindow::openTableStatistics(const QStringList &flist
 			restoreWindowGeometry(this, w, *line);}
 		else if (fields[0] == "header") {
 			fields.pop_front();
-			if (d_file_version >= 78)
+			if (m_file_version >= 78)
 				w->loadHeader(fields);
 			else
 			{
@@ -9819,13 +9819,13 @@ TableStatistics* ApplicationWindow::openTableStatistics(const QStringList &flist
 				formula.truncate(formula.length()-1);
 				w->setCommand(col,formula);
 			}
-		} else if (fields[0] == "ColType") { // d_file_version > 65
+		} else if (fields[0] == "ColType") { // m_file_version > 65
 			fields.pop_front();
 			w->setColumnTypes(fields);
-		} else if (fields[0] == "Comments") { // d_file_version > 71
+		} else if (fields[0] == "Comments") { // m_file_version > 71
 			fields.pop_front();
 			w->setColComments(fields);
-		} else if (fields[0] == "WindowLabel") { // d_file_version > 71
+		} else if (fields[0] == "WindowLabel") { // m_file_version > 71
 			w->setWindowLabel(fields[1]);
 			w->setCaptionPolicy((MyWidget::CaptionPolicy)fields[2].toInt());
 			setListViewLabel(w->name(), fields[1]);
@@ -9971,14 +9971,14 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 				int endRow = table->rowCount() - 1;
 				int first_color = curve[7].toInt();
 				bool visible = true;
-				if (d_file_version >= 90)
+				if (m_file_version >= 90)
 				{
 					startRow = curve[8].toInt();
 					endRow = curve[9].toInt();
 					visible = ((curve.last() == "1") ? true : false);
 				}
 
-				if (d_file_version <= 89)
+				if (m_file_version <= 89)
 					first_color = convertOldToNewColorIndex(first_color);
 
 				ag->plotPie(table, curve[1], pen, curve[5].toInt(),
@@ -10003,32 +10003,32 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 			CurveLayout cl;
 			cl.connectType=curve[4].toInt();
 			cl.lCol=curve[5].toInt();
-			if (d_file_version <= 89)
+			if (m_file_version <= 89)
 				cl.lCol = convertOldToNewColorIndex(cl.lCol);
 			cl.lStyle=curve[6].toInt();
 			cl.lWidth=curve[7].toInt();
 			cl.sSize=curve[8].toInt();
-			if (d_file_version <= 78)
+			if (m_file_version <= 78)
 				cl.sType=Layer::obsoleteSymbolStyle(curve[9].toInt());
 			else
 				cl.sType=curve[9].toInt();
 
 			cl.symCol=curve[10].toInt();
-			if (d_file_version <= 89)
+			if (m_file_version <= 89)
 				cl.symCol = convertOldToNewColorIndex(cl.symCol);
 			cl.fillCol=curve[11].toInt();
-			if (d_file_version <= 89)
+			if (m_file_version <= 89)
 				cl.fillCol = convertOldToNewColorIndex(cl.fillCol);
 			cl.filledArea=curve[12].toInt();
 			cl.aCol=curve[13].toInt();
-			if (d_file_version <= 89)
+			if (m_file_version <= 89)
 				cl.aCol = convertOldToNewColorIndex(cl.aCol);
 			cl.aStyle=curve[14].toInt();
 			if(curve.count() < 16)
 				cl.penWidth = cl.lWidth;
-			else if ((d_file_version >= 79) && (curve[3].toInt() == Layer::Box))
+			else if ((m_file_version >= 79) && (curve[3].toInt() == Layer::Box))
 				cl.penWidth = curve[15].toInt();
-			else if ((d_file_version >= 78) && (curve[3].toInt() <= Layer::LineSymbols))
+			else if ((m_file_version >= 78) && (curve[3].toInt() <= Layer::LineSymbols))
 				cl.penWidth = curve[15].toInt();
 			else
 				cl.penWidth = cl.lWidth;
@@ -10041,14 +10041,14 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 				{
 					QStringList colsList;
 					colsList<<curve[2]; colsList<<curve[20]; colsList<<curve[21];
-					if (d_file_version < 72)
+					if (m_file_version < 72)
 						colsList.prepend(w->colName(curve[1].toInt()));
 					else
                         colsList.prepend(curve[1]);
 
 					int startRow = 0;
 					int endRow = -1;
-					if (d_file_version >= 90)
+					if (m_file_version >= 90)
 					{
 						startRow = curve[curve.count()-3].toInt();
 						endRow = curve[curve.count()-2].toInt();
@@ -10056,7 +10056,7 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 
 					ag->plotVectorCurve(w, colsList, plotType, startRow, endRow);
 
-					if (d_file_version <= 77)
+					if (m_file_version <= 77)
 					{
 						int temp_index = convertOldToNewColorIndex(curve[15].toInt());
 						ag->updateVectorsLayout(curveID, ColorBox::color(temp_index), curve[16].toInt(), curve[17].toInt(),
@@ -10073,12 +10073,12 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 					}
 				}
 				else if(plotType == Layer::Box)
-					ag->openBoxDiagram(w, curve, d_file_version);
+					ag->openBoxDiagram(w, curve, m_file_version);
 				else
 				{
-					if (d_file_version < 72)
+					if (m_file_version < 72)
 						ag->insertCurve(w, curve[1].toInt(), curve[2], plotType);
-					else if (d_file_version < 90)
+					else if (m_file_version < 90)
 						ag->insertCurve(w, curve[1], curve[2], plotType);
 					else
 					{
@@ -10091,7 +10091,7 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 				if(plotType == Layer::Histogram)
 				{
 				    HistogramCurve *h = (HistogramCurve *)ag->curve(curveID);
-					if (d_file_version <= 76)
+					if (m_file_version <= 76)
                         h->setBinning(curve[16].toInt(),curve[17].toDouble(),curve[18].toDouble(),curve[19].toDouble());
 					else
 						h->setBinning(curve[17].toInt(),curve[18].toDouble(),curve[19].toDouble(),curve[20].toDouble());
@@ -10101,18 +10101,18 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 				if(plotType == Layer::VerticalBars || plotType == Layer::HorizontalBars ||
 						plotType == Layer::Histogram)
 				{
-					if (d_file_version <= 76)
+					if (m_file_version <= 76)
 						ag->setBarsGap(curveID, curve[15].toInt(), 0);
 					else
 						ag->setBarsGap(curveID, curve[15].toInt(), curve[16].toInt());
 				}
 				ag->updateCurveLayout(curveID, &cl);
-				if (d_file_version >= 88)
+				if (m_file_version >= 88)
 				{
 					QwtPlotCurve *c = ag->curve(curveID);
 					if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve)
 					{
-						if (d_file_version < 90)
+						if (m_file_version < 90)
 							c->setAxis(curve[curve.count()-2].toInt(), curve[curve.count()-1].toInt());
 						else
 						{
@@ -10142,12 +10142,12 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 			int current_index = 17;
 			if(curve.count() < 16)
 				cl.penWidth = cl.lWidth;
-			else if ((d_file_version >= 79) && (curve[5].toInt() == Layer::Box))
+			else if ((m_file_version >= 79) && (curve[5].toInt() == Layer::Box))
 				{
 					cl.penWidth = curve[17].toInt();
 					current_index++;
 				}
-			else if ((d_file_version >= 78) && (curve[5].toInt() <= Layer::LineSymbols))
+			else if ((m_file_version >= 78) && (curve[5].toInt() <= Layer::LineSymbols))
 				{
 					cl.penWidth = curve[17].toInt();
 					current_index++;
@@ -10155,17 +10155,17 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 			else
 				cl.penWidth = cl.lWidth;
 
-			ag->insertFunctionCurve(curve[1], curve[2].toInt(), d_file_version);
+			ag->insertFunctionCurve(curve[1], curve[2].toInt(), m_file_version);
 			ag->setCurveType(curveID, (Layer::CurveType)curve[5].toInt(), false);
 			ag->updateCurveLayout(curveID, &cl);
-			if (d_file_version >= 88)
+			if (m_file_version >= 88)
 			{
 				QwtPlotCurve *c = ag->curve(curveID);
 				if (c)
 				{
 					if(current_index+1 < curve.size())
 						c->setAxis(curve[current_index].toInt(), curve[current_index+1].toInt());
-					if(d_file_version >= 90 && current_index+2 < curve.size())
+					if(m_file_version >= 90 && current_index+2 < curve.size())
 						c->setVisible(curve.last().toInt());
 					else
 						c->setVisible(true);
@@ -10203,7 +10203,7 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 		{
 			QStringList scl = s.split("\t");
 			scl.pop_front();
-			if (d_file_version < 88)
+			if (m_file_version < 88)
 			{
 				double step = scl[2].toDouble();
 				if (scl[5] == "0")
@@ -10333,37 +10333,37 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 		else if (s.contains ("Legend"))
 		{// version <= 0.8.9
 			QStringList fList=QStringList::split ("\t",s, true);
-			ag->insertLegend(fList, d_file_version);
+			ag->insertLegend(fList, m_file_version);
 		}
 		else if (s.startsWith ("<legend>") && s.endsWith ("</legend>"))
 		{
 			QStringList fList=QStringList::split ("\t", s.remove("</legend>"), true);
-			ag->insertLegend(fList, d_file_version);
+			ag->insertLegend(fList, m_file_version);
 		}
 		else if (s.contains ("textMarker"))
 		{// version <= 0.8.9
 			QStringList fList=QStringList::split ("\t",s, true);
-			ag->insertTextMarker(fList, d_file_version);
+			ag->insertTextMarker(fList, m_file_version);
 		}
 		else if (s.startsWith ("<text>") && s.endsWith ("</text>"))
 		{
 			QStringList fList=QStringList::split ("\t", s.remove("</text>"), true);
-			ag->insertTextMarker(fList, d_file_version);
+			ag->insertTextMarker(fList, m_file_version);
 		}
 		else if (s.contains ("lineMarker"))
 		{// version <= 0.8.9
 			QStringList fList=s.split("\t");
-			ag->addArrow(fList, d_file_version);
+			ag->addArrow(fList, m_file_version);
 		}
 		else if (s.startsWith ("<line>") && s.endsWith ("</line>"))
 		{
 			QStringList fList=s.remove("</line>").split("\t");
-			ag->addArrow(fList, d_file_version);
+			ag->addArrow(fList, m_file_version);
 		}
 		else if (s.contains ("ImageEnrichment") || (s.startsWith ("<image>") && s.endsWith ("</image>")))
 		{
 			QStringList fList=s.remove("</image>").split("\t");
-			ag->insertImageEnrichment(fList, d_file_version);
+			ag->insertImageEnrichment(fList, m_file_version);
 		}
 		else if (s.contains("AxisType"))
 		{
@@ -10385,7 +10385,7 @@ Layer* ApplicationWindow::openLayer(ApplicationWindow* app, Graph *plot,
 				}
 			}
 		}
-		else if (d_file_version < 69 && s.contains ("AxesTickLabelsCol"))
+		else if (m_file_version < 69 && s.contains ("AxesTickLabelsCol"))
 		{
 			QStringList fList = s.split("\t");
 			QList<int> axesTypes = ag->axesType();
@@ -10498,7 +10498,7 @@ Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStrin
 	fList=lst[19].split("\t", QString::SkipEmptyParts);
 	plot->setMeshLineWidth(fList[1].toInt());
 
-	if (d_file_version > 71)
+	if (m_file_version > 71)
 	{
 		fList=lst[20].split("\t"); // using QString::SkipEmptyParts here causes a crash for empty window labels
 		plot->setWindowLabel(fList[1]);
@@ -10506,7 +10506,7 @@ Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStrin
 		app->setListViewLabel(plot->name(),fList[1]);
 	}
 
-	if (d_file_version >= 88)
+	if (m_file_version >= 88)
 	{
 		fList=lst[21].split("\t", QString::SkipEmptyParts);
 		plot->setOrtho(fList[1].toInt());
@@ -10571,7 +10571,7 @@ void ApplicationWindow::analyzeCurve(Layer *g, const QString& whichFit, const QS
             fitter->scaleErrors(fit_scale_errors);
             fitter->setOutputPrecision(fit_output_precision);
 
-            if (whichFit == "fitLinear" && d_2_linear_fit_points)
+            if (whichFit == "fitLinear" && m_2_linear_fit_points)
                 fitter->generateFunction(generateUniformFitPoints, 2);
             else
                 fitter->generateFunction(generateUniformFitPoints, fitPoints);
@@ -10693,7 +10693,7 @@ void ApplicationWindow::connectMultilayerPlot(Graph *g)
 	connect (g,SIGNAL(closedWindow(MyWidget*)),this, SLOT(closeWindow(MyWidget*)));
 	connect (g,SIGNAL(hiddenWindow(MyWidget*)),this, SLOT(hideWindow(MyWidget*)));
 	connect (g,SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
-	connect (g,SIGNAL(cursorInfo(const QString&)),d_status_info,SLOT(setText(const QString&)));
+	connect (g,SIGNAL(cursorInfo(const QString&)),m_status_info,SLOT(setText(const QString&)));
 	connect (g,SIGNAL(showImageEnrichmentDialog()),this,SLOT(showImageEnrichmentDialog()));
 	connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
 			this,SLOT(newTable(const QString&,int,int,const QString&)));
@@ -10882,13 +10882,13 @@ void ApplicationWindow::createActions()
 	actionAutomaticLayout = new QAction(QIcon(QPixmap(":/auto_layout.xpm")), tr("Automatic Layout"), this);
 	connect(actionAutomaticLayout, SIGNAL(activated()), this, SLOT(autoArrangeLayers()));
 
-	d_export_layer_action = new QAction(tr("&Current"), this);
-	d_export_layer_action->setShortcut( tr("Alt+G") );
-	connect(d_export_layer_action, SIGNAL(activated()), this, SLOT(exportGraph()));
+	m_export_layer_action = new QAction(tr("&Current"), this);
+	m_export_layer_action->setShortcut( tr("Alt+G") );
+	connect(m_export_layer_action, SIGNAL(activated()), this, SLOT(exportGraph()));
 
-	d_export_graph_action = new QAction(tr("&All"), this);
-	d_export_graph_action->setShortcut( tr("Alt+X") );
-	connect(d_export_graph_action, SIGNAL(activated()), this, SLOT(exportAllGraphs()));
+	m_export_graph_action = new QAction(tr("&All"), this);
+	m_export_graph_action->setShortcut( tr("Alt+X") );
+	connect(m_export_graph_action, SIGNAL(activated()), this, SLOT(exportAllGraphs()));
 
     actionExportPDF = new QAction(QIcon(QPixmap(":/pdf.xpm")), tr("&Export PDF"), this);
 	actionExportPDF->setShortcut( tr("Ctrl+Alt+P") );
@@ -10949,48 +10949,48 @@ void ApplicationWindow::createActions()
 	actionAddImage->setShortcut( tr("ALT+I") );
 	connect(actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
 
-	d_plot_mapper = new QSignalMapper;
-	connect(d_plot_mapper, SIGNAL(mapped(int)), this, SLOT(selectPlotType(int)));
+	m_plot_mapper = new QSignalMapper;
+	connect(m_plot_mapper, SIGNAL(mapped(int)), this, SLOT(selectPlotType(int)));
 
 	actionPlotL = new QAction(QIcon(QPixmap(":/lPlot.xpm")), tr("&Line"), this);
-	connect(actionPlotL, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionPlotL, Layer::Line);
+	connect(actionPlotL, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionPlotL, Layer::Line);
 
 	actionPlotP = new QAction(QIcon(QPixmap(":/pPlot.xpm")), tr("&Scatter"), this);
-	connect(actionPlotP, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionPlotP, Layer::Scatter);
+	connect(actionPlotP, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionPlotP, Layer::Scatter);
 
 	actionPlotLP = new QAction(QIcon(QPixmap(":/lpPlot.xpm")), tr("Line + S&ymbol"), this);
-	connect(actionPlotLP, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionPlotLP, Layer::LineSymbols);
+	connect(actionPlotLP, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionPlotLP, Layer::LineSymbols);
 
 	actionPlotVerticalDropLines = new QAction(QIcon(QPixmap(":/dropLines.xpm")), tr("Vertical &Drop Lines"), this);
-	connect(actionPlotVerticalDropLines, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionPlotVerticalDropLines, Layer::VerticalDropLines);
+	connect(actionPlotVerticalDropLines, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionPlotVerticalDropLines, Layer::VerticalDropLines);
 
 	actionPlotSpline = new QAction(QIcon(QPixmap(":/spline.xpm")), tr("&Spline"), this);
-	connect(actionPlotSpline, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionPlotSpline, Layer::Spline);
+	connect(actionPlotSpline, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionPlotSpline, Layer::Spline);
 
 	actionPlotHorSteps = new QAction(QPixmap(":/hor_steps.xpm"), tr("&Horizontal Steps"), this);
-	connect(actionPlotHorSteps, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionPlotHorSteps, Layer::HorizontalSteps);
+	connect(actionPlotHorSteps, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionPlotHorSteps, Layer::HorizontalSteps);
 
 	actionPlotVertSteps = new QAction(QIcon(QPixmap(":/vert_steps.xpm")), tr("&Vertical Steps"), this);
-	connect(actionPlotVertSteps, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionPlotVertSteps, Layer::VerticalSteps);
+	connect(actionPlotVertSteps, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionPlotVertSteps, Layer::VerticalSteps);
 
 	actionPlotVerticalBars = new QAction(QIcon(QPixmap(":/vertBars.xpm")), tr("&Vertical Bars"), this);
-	connect(actionPlotVerticalBars, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionPlotVerticalBars, Layer::VerticalBars);
+	connect(actionPlotVerticalBars, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionPlotVerticalBars, Layer::VerticalBars);
 
 	actionPlotHorizontalBars = new QAction(QIcon(QPixmap(":/hBars.xpm")), tr("&Horizontal Bars"), this);
-	connect(actionPlotHorizontalBars, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionPlotHorizontalBars, Layer::HorizontalBars);
+	connect(actionPlotHorizontalBars, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionPlotHorizontalBars, Layer::HorizontalBars);
 
 	actionPlotArea = new QAction(QIcon(QPixmap(":/area.xpm")), tr("&Area"), this);
-	connect(actionPlotArea, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionPlotArea, Layer::Area);
+	connect(actionPlotArea, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionPlotArea, Layer::Area);
 
 	actionPlotPie = new QAction(QIcon(QPixmap(":/pie.xpm")), tr("&Pie"), this);
 	connect(actionPlotPie, SIGNAL(activated()), this, SLOT(plotPie()));
@@ -11002,8 +11002,8 @@ void ApplicationWindow::createActions()
 	connect(actionPlotVectXYXY, SIGNAL(activated()), this, SLOT(plotVectXYXY()));
 
 	actionPlotHistogram = new QAction(QIcon(QPixmap(":/histogram.xpm")), tr("&Histogram"), this);
-	connect(actionPlotHistogram, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionPlotHistogram, Layer::Histogram);
+	connect(actionPlotHistogram, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionPlotHistogram, Layer::Histogram);
 
 	actionPlotStackedHistograms = new QAction(QIcon(QPixmap(":/stacked_hist.xpm")), tr("&Stacked Histogram"), this);
 	connect(actionPlotStackedHistograms, SIGNAL(activated()), this, SLOT(plotStackedHistograms()));
@@ -11315,8 +11315,8 @@ void ApplicationWindow::createActions()
 	connect(actionDisregardCol, SIGNAL(activated()), this, SLOT(disregardCol()));
 
 	actionBoxPlot = new QAction(QIcon(QPixmap(":/boxPlot.xpm")),tr("&Box Plot"), this);
-	connect(actionBoxPlot, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-	d_plot_mapper->setMapping(actionBoxPlot, Layer::Box);
+	connect(actionBoxPlot, SIGNAL(activated()), m_plot_mapper, SLOT(map()));
+	m_plot_mapper->setMapping(actionBoxPlot, Layer::Box);
 
 	actionMultiPeakGauss = new QAction(tr("&Gaussian..."), this);
 	connect(actionMultiPeakGauss, SIGNAL(activated()), this, SLOT(fitMultiPeakGauss()));
@@ -11506,13 +11506,13 @@ void ApplicationWindow::translateActionsStrings()
 	actionAutomaticLayout->setMenuText(tr("Automatic Layout"));
 	actionAutomaticLayout->setToolTip(tr("Automatic Layout"));
 
-	d_export_layer_action->setMenuText(tr("&Current"));
-	d_export_layer_action->setShortcut(tr("Alt+G"));
-	d_export_layer_action->setToolTip(tr("Export current graph"));
+	m_export_layer_action->setMenuText(tr("&Current"));
+	m_export_layer_action->setShortcut(tr("Alt+G"));
+	m_export_layer_action->setToolTip(tr("Export current graph"));
 
-	d_export_graph_action->setMenuText(tr("&All"));
-	d_export_graph_action->setShortcut(tr("Alt+X"));
-	d_export_graph_action->setToolTip(tr("Export all graphs"));
+	m_export_graph_action->setMenuText(tr("&All"));
+	m_export_graph_action->setShortcut(tr("Alt+X"));
+	m_export_graph_action->setToolTip(tr("Export all graphs"));
 
     actionExportPDF->setMenuText(tr("&Export PDF"));
 	actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
@@ -12142,7 +12142,7 @@ void ApplicationWindow::translateCurveHor()
 	else if (g->validCurvesDataSize())
 	{
 		btnPointer->setChecked(true);
-		g->setActiveTool(new TranslateCurveTool(g, this, TranslateCurveTool::Horizontal, d_status_info, SLOT(setText(const QString&))));
+		g->setActiveTool(new TranslateCurveTool(g, this, TranslateCurveTool::Horizontal, m_status_info, SLOT(setText(const QString&))));
 	}
 }
 
@@ -12177,7 +12177,7 @@ void ApplicationWindow::translateCurveVert()
 	else if (g->validCurvesDataSize())
 	{
 		btnPointer->setChecked(true);
-		g->setActiveTool(new TranslateCurveTool(g, this, TranslateCurveTool::Vertical, d_status_info, SLOT(setText(const QString&))));
+		g->setActiveTool(new TranslateCurveTool(g, this, TranslateCurveTool::Vertical, m_status_info, SLOT(setText(const QString&))));
 	}
 }
 
@@ -12288,7 +12288,7 @@ void ApplicationWindow::fitMultiPeak(int profile)
 				tr("Peaks"), 2, 2, 1000000, 1, &ok, this);
 		if (ok && peaks)
 		{
-			g->setActiveTool(new MultiPeakFitTool(g, this, (MultiPeakFit::PeakProfile)profile, peaks, d_status_info, SLOT(setText(const QString&))));
+			g->setActiveTool(new MultiPeakFitTool(g, this, (MultiPeakFit::PeakProfile)profile, peaks, m_status_info, SLOT(setText(const QString&))));
 		}
 	}
 }
@@ -12631,12 +12631,12 @@ void ApplicationWindow::appendProject(const QString& fn)
 		QString version = lst[1];
 		lst = version.split(".", QString::SkipEmptyParts);
 		if(fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) )
-			d_file_version = 100*(lst[0]).toInt()+10*(lst[1]).toInt()+(lst[2]).toInt();
+			m_file_version = 100*(lst[0]).toInt()+10*(lst[1]).toInt()+(lst[2]).toInt();
 		else 
-			d_file_version = ((lst[0]).toInt() << 16) + ((lst[1]).toInt() << 8) + (lst[2]).toInt();
+			m_file_version = ((lst[0]).toInt() << 16) + ((lst[1]).toInt() << 8) + (lst[2]).toInt();
 
 		t.readLine();
-		if (d_file_version < 73)
+		if (m_file_version < 73)
 			t.readLine();
 
 		//process tables and matrix information
@@ -12734,7 +12734,7 @@ void ApplicationWindow::appendProject(const QString& fn)
 
 				restoreWindowGeometry(this, plot, t.readLine());
 
-				if (d_file_version > 71)
+				if (m_file_version > 71)
 				{
 					QStringList lst=t.readLine().split("\t");
 					plot->setWindowLabel(lst[1]);
@@ -12742,7 +12742,7 @@ void ApplicationWindow::appendProject(const QString& fn)
 					plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
 				}
 
-				if (d_file_version > 83)
+				if (m_file_version > 83)
 				{
 					QStringList lst=t.readLine().split("\t", QString::SkipEmptyParts);
 					plot->setMargins(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
@@ -12882,7 +12882,7 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 	}
 	text += "<log>\n"+logInfo+"</log>";
 	text.prepend("<windows>\t"+QString::number(windows)+"\n");
-	text.prepend("<scripting-lang>\t"+QString(d_scripting_engine->name())+"\n");
+	text.prepend("<scripting-lang>\t"+QString(m_scripting_engine->name())+"\n");
 	text.prepend(SciDAVis::versionString() + " project file\n");
 
 	QTextStream t( &f );
@@ -13991,14 +13991,14 @@ QMenu * ApplicationWindow::createToolbarsMenu()
 
 void ApplicationWindow::copyStatusBarText()
 {
-	QApplication::clipboard()->setText(d_status_info->text());
+	QApplication::clipboard()->setText(m_status_info->text());
 }
 
 void ApplicationWindow::showStatusBarContextMenu( const QPoint & pos )
 {
 	QMenu cm(this);
 	cm.addAction(actionCopyStatusBarText);
-	cm.exec(d_status_info->mapToGlobal(pos));
+	cm.exec(m_status_info->mapToGlobal(pos));
 }
 
 void ApplicationWindow::showWindowMenu(MyWidget * widget)

@@ -55,12 +55,12 @@ UserFunctionFit::UserFunctionFit(ApplicationWindow *parent, Layer *layer, const 
 void UserFunctionFit::init()
 {
 	setName(tr("UserFunction"));
-	d_formula = QString::null;
-	d_f = user_f;
-	d_df = user_df;
-	d_fdf = user_fdf;
-	d_fsimplex = user_d;
-	d_explanation = tr("Non-linear");
+	m_formula = QString::null;
+	m_f = user_f;
+	m_df = user_df;
+	m_fdf = user_fdf;
+	m_fsimplex = user_d;
+	m_explanation = tr("Non-linear");
 }
 
 void UserFunctionFit::setFormula(const QString& s)
@@ -69,31 +69,31 @@ void UserFunctionFit::setFormula(const QString& s)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(),  tr("Input function error"),
 				tr("Please enter a valid non-empty expression! Operation aborted!"));
-		d_init_err = true;
+		m_init_err = true;
 		return;
 	}
 
-	if (!d_p)
+	if (!m_p)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("Fit Error"),
 				tr("There are no parameters specified for this fit operation. Please define a list of parameters first!"));
-		d_init_err = true;
+		m_init_err = true;
 		return;
 	}
 
-	if (d_formula == s)
+	if (m_formula == s)
 		return;
 
 	try
 	{
-		double *param = new double[d_p];
+		double *param = new double[m_p];
 		MyParser parser;
 		double xvar;
 		parser.DefineVar("x", &xvar);
-		for (int k=0; k<(int)d_p; k++)
+		for (int k=0; k<(int)m_p; k++)
 		{
-			param[k]=gsl_vector_get(d_param_init, k);
-			parser.DefineVar(d_param_names[k].toAscii().constData(), &param[k]);
+			param[k]=gsl_vector_get(m_param_init, k);
+			parser.DefineVar(m_param_names[k].toAscii().constData(), &param[k]);
 		}
 		parser.SetExpr(s.toAscii().constData());
 		parser.Eval() ;
@@ -102,12 +102,12 @@ void UserFunctionFit::setFormula(const QString& s)
 	catch(mu::ParserError &e)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(),  tr("Input function error"), QString::fromStdString(e.GetMsg()));
-		d_init_err = true;
+		m_init_err = true;
 		return;
 	}
 
-	d_init_err = false;
-	d_formula = s;
+	m_init_err = false;
+	m_formula = s;
 }
 
 void UserFunctionFit::setParametersList(const QStringList& lst)
@@ -116,47 +116,47 @@ void UserFunctionFit::setParametersList(const QStringList& lst)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("Fit Error"),
 				tr("You must provide a list containing at least one parameter for this type of fit. Operation aborted!"));
-		d_init_err = true;
+		m_init_err = true;
 		return;
 	}
 
-	d_init_err = false;
-	d_param_names = lst;
+	m_init_err = false;
+	m_param_names = lst;
 
-	if (d_p > 0)
+	if (m_p > 0)
 	{//free previously allocated memory
-		gsl_vector_free(d_param_init);
+		gsl_vector_free(m_param_init);
 		gsl_matrix_free (covar);
-		delete[] d_results;
+		delete[] m_results;
 	}
 
-	d_p = (int)lst.count();
-    d_min_points = d_p;
-	d_param_init = gsl_vector_alloc(d_p);
-	gsl_vector_set_all (d_param_init, 1.0);
+	m_p = (int)lst.count();
+    m_min_points = m_p;
+	m_param_init = gsl_vector_alloc(m_p);
+	gsl_vector_set_all (m_param_init, 1.0);
 
-	covar = gsl_matrix_alloc (d_p, d_p);
-	d_results = new double[d_p];
+	covar = gsl_matrix_alloc (m_p, m_p);
+	m_results = new double[m_p];
 
-	for (int i=0; i<d_p; i++)
-		d_param_explain << "";
+	for (int i=0; i<m_p; i++)
+		m_param_explain << "";
 }
 
 void UserFunctionFit::calculateFitCurveData(double *par, double *X, double *Y)
 {
 	MyParser parser;
-	for (int i=0; i<d_p; i++)
-		parser.DefineVar(d_param_names[i].toAscii().constData(), &par[i]);
+	for (int i=0; i<m_p; i++)
+		parser.DefineVar(m_param_names[i].toAscii().constData(), &par[i]);
 
 	double xvar;
 	parser.DefineVar("x", &xvar);
-	parser.SetExpr(d_formula.toAscii().constData());
+	parser.SetExpr(m_formula.toAscii().constData());
 
-	if (d_gen_function)
+	if (m_gen_function)
 	{
-		double X0 = d_x[0];
-		double step = (d_x[d_n-1]-X0)/(d_points-1);
-		for (int i=0; i<d_points; i++)
+		double X0 = m_x[0];
+		double step = (m_x[m_n-1]-X0)/(m_points-1);
+		for (int i=0; i<m_points; i++)
 		{
 			X[i] = X0+i*step;
 			xvar = X[i];
@@ -165,9 +165,9 @@ void UserFunctionFit::calculateFitCurveData(double *par, double *X, double *Y)
 	}
 	else
 	{
-		for (int i=0; i<d_points; i++)
+		for (int i=0; i<m_points; i++)
 		{
-			X[i] = d_x[i];
+			X[i] = m_x[i];
 			xvar = X[i];
 			Y[i] = parser.Eval();
 		}

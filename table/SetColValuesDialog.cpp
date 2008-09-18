@@ -116,7 +116,7 @@ SetColValuesDialog::SetColValuesDialog(AbstractScriptingEngine *engine, QWidget*
 	gl2->addLayout(hbox3, 0, 1);
 	gl2->addWidget(gb, 1, 1);
 
-	commands = new ScriptEdit( d_scripting_engine);
+	commands = new ScriptEdit( m_scripting_engine);
 
 	QVBoxLayout *vbox2 = new QVBoxLayout(); 
 	btnOk = new QPushButton(tr( "&OK" ));
@@ -159,32 +159,32 @@ SetColValuesDialog::SetColValuesDialog(AbstractScriptingEngine *engine, QWidget*
 
 void SetColValuesDialog::prevColumn()
 {
-	int sc = d_table->selectedColumn();
+	int sc = m_table->selectedColumn();
 	updateColumn(--sc);
 }
 
 void SetColValuesDialog::nextColumn()
 {
-	int sc = d_table->selectedColumn();
+	int sc = m_table->selectedColumn();
 	updateColumn(++sc);
 }
 
 void SetColValuesDialog::updateColumn(int sc)
 {
-	if(sc <0) sc = d_table->columnCount() -1;
-	if(sc >= d_table->columnCount()) sc = 0;
+	if(sc <0) sc = m_table->columnCount() -1;
+	if(sc >= m_table->columnCount()) sc = 0;
 
 	boxSelectColumn->setCurrentIndex(sc);
 
-	d_table->setSelectedCol(sc);
+	m_table->setSelectedCol(sc);
 	// TODO replace the commented out lines (###)
 	// acessing TableView from outside Table is absolutely forbidden
-	//### d_table->table()->clearSelection();
-	//### d_table->table()->selectColumn(sc);
-	colNameLabel->setText("col(\""+d_table->columnLabel(sc)+"\")= ");
+	//### m_table->table()->clearSelection();
+	//### m_table->table()->selectColumn(sc);
+	colNameLabel->setText("col(\""+m_table->columnLabel(sc)+"\")= ");
 
 	// TODO
-	//### QStringList com = d_table->getCommands();
+	//### QStringList com = m_table->getCommands();
 	QStringList com;
 	commands->setText(com[sc]);
 	QTextCursor cursor = commands->textCursor();
@@ -211,25 +211,25 @@ void SetColValuesDialog::accept()
 bool SetColValuesDialog::apply()
 {
 	// TODO replace the commented out lines (###)
-	int col = d_table->selectedColumn();
+	int col = m_table->selectedColumn();
 	QString formula = commands->text();
-	QString oldFormula; //### = d_table->getCommands()[col];
+	QString oldFormula; //### = m_table->getCommands()[col];
 
-	//### d_table->setCommand(col,formula);
-	//### if(d_table->calculate(col,start->value()-1,end->value()-1))
+	//### m_table->setCommand(col,formula);
+	//### if(m_table->calculate(col,start->value()-1,end->value()-1))
 	//### 	return true;
-	//### d_table->setCommand(col,oldFormula);
+	//### m_table->setCommand(col,oldFormula);
 	return false;
 }
 
 void SetColValuesDialog::setFunctions()
 {
-	functions->insertStringList(d_scripting_engine->mathFunctions(), -1);
+	functions->insertStringList(m_scripting_engine->mathFunctions(), -1);
 }
 
 void SetColValuesDialog::insertExplain(int index)
 {
-	explain->setText(d_scripting_engine->mathFunctionDoc(functions->text(index)));
+	explain->setText(m_scripting_engine->mathFunctionDoc(functions->text(index)));
 }
 
 void SetColValuesDialog::insertFunction()
@@ -250,7 +250,7 @@ void SetColValuesDialog::insertCell()
 
 void SetColValuesDialog::setTable(Table* w)
 {
-	d_table=w;
+	m_table=w;
 	QStringList colNames=w->colNames();
 	int cols = w->columnCount();
 	for (int i=0; i<cols; i++)

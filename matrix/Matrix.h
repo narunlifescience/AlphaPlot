@@ -282,7 +282,7 @@ class Matrix : public AbstractPart, public scripted
 		bool readRowHeightElement(XmlStreamReader * reader);
 		bool readColumnWidthElement(XmlStreamReader * reader);
 
-		QMenu * d_plot_menu;
+		QMenu * m_plot_menu;
 
 		//! \name selection related actions
 		//@{
@@ -323,8 +323,8 @@ class Matrix : public AbstractPart, public scripted
 		QAction * action_add_rows;
 		//@}
 
-		MatrixView *d_view;
-		Private *d_matrix_private;
+		MatrixView *m_view;
+		Private *m_matrix_private;
 };
 
 /**
@@ -375,10 +375,10 @@ class Matrix::Private
 		 */
 		void removeRows(int first, int count);
 		//! Return the number of columns in the table
-		int columnCount() const { return d_column_count; }
+		int columnCount() const { return m_column_count; }
 		//! Return the number of rows in the table
-		int rowCount() const { return d_row_count; }
-		QString name() const { return d_owner->name(); }
+		int rowCount() const { return m_row_count; }
+		QString name() const { return m_owner->name(); }
 		//! Return the value in the given cell
 		double cell(int row, int col) const;
 		//! Set the value in the given cell
@@ -391,10 +391,10 @@ class Matrix::Private
 		QVector<double> rowCells(int row, int first_column, int last_column);
 		//! Set the values in the given cells from a double vector
 		void setRowCells(int row, int first_column, int last_column, const QVector<double> & values);
-		char numericFormat() const { return d_numeric_format; }
-		void setNumericFormat(char format) { d_numeric_format = format; emit d_owner->formatChanged(); }
-		int displayedDigits()  const { return d_displayed_digits; }
-		void setDisplayedDigits(int digits) { d_displayed_digits = digits;  emit d_owner->formatChanged(); }
+		char numericFormat() const { return m_numeric_format; }
+		void setNumericFormat(char format) { m_numeric_format = format; emit m_owner->formatChanged(); }
+		int displayedDigits()  const { return m_displayed_digits; }
+		void setDisplayedDigits(int digits) { m_displayed_digits = digits;  emit m_owner->formatChanged(); }
 		//! Fill column with zeroes
 		void clearColumn(int col);
 		double xStart() const;
@@ -407,51 +407,51 @@ class Matrix::Private
 		void setXEnd(double x);
 		void setYStart(double y);
 		void setYEnd(double y);
-		void setRowHeight(int row, int height) { d_row_heights[row] = height; }
-		void setColumnWidth(int col, int width) { d_column_widths[col] = width; }
-		int rowHeight(int row) const { return d_row_heights.at(row); }
-		int columnWidth(int col) const { return d_column_widths.at(col); }
+		void setRowHeight(int row, int height) { m_row_heights[row] = height; }
+		void setColumnWidth(int col, int width) { m_column_widths[col] = width; }
+		int rowHeight(int row) const { return m_row_heights.at(row); }
+		int columnWidth(int col) const { return m_column_widths.at(col); }
 		//! Enable/disable the emission of dataChanged signals.
 		/** This can be used to suppress the emission of dataChanged signals
 		 * temporally. It does not suppress any other signals however.
 		 * Typical code:
 		 * <code>
-		 * d_matrix_private->blockChangeSignals(true);
+		 * m_matrix_private->blockChangeSignals(true);
 		 * for (...)
 		 *     for(...)
 		 *         setCell(...);
-		 * d_matrix_private->blockChangeSignals(false);
+		 * m_matrix_private->blockChangeSignals(false);
 		 * emit dataChanged(0, 0, rowCount()-1, columnCount()-1);
 		 * </code>
 		 */
-		void blockChangeSignals(bool block) { d_block_change_signals = block; }
+		void blockChangeSignals(bool block) { m_block_change_signals = block; }
 		//! Access to the dataChanged signal for commands
-		void emitDataChanged(int top, int left, int bottom, int right) { emit d_owner->dataChanged(top, left, bottom, right); }
+		void emitDataChanged(int top, int left, int bottom, int right) { emit m_owner->dataChanged(top, left, bottom, right); }
 		
 	private:
 		//! The owner aspect
-		Matrix *d_owner;
+		Matrix *m_owner;
 		//! The number of columns
-		int d_column_count;
+		int m_column_count;
 		//! The number of rows
-		int d_row_count;
+		int m_row_count;
 		//! The matrix data
-		QVector< QVector<double> > d_data;	
+		QVector< QVector<double> > m_data;	
 		//! Row widths
-		QList<int> d_row_heights;
+		QList<int> m_row_heights;
 		//! Columns widths
-		QList<int> d_column_widths;
+		QList<int> m_column_widths;
 		//! Last formula used to calculate cell values
-		QString d_formula; // TODO: should we support interval/rectangle based formulas?
+		QString m_formula; // TODO: should we support interval/rectangle based formulas?
 		//! Format code for displaying numbers
-		char d_numeric_format;
+		char m_numeric_format;
 		//! Number of significant digits
-		int d_displayed_digits;
-		double d_x_start, //!< X value corresponding to column 1
-			   d_x_end,  //!< X value corresponding to the last column
-			   d_y_start,  //!< Y value corresponding to row 1
-			   d_y_end;  //!< Y value corresponding to the last row
-		bool d_block_change_signals;
+		int m_displayed_digits;
+		double m_x_start, //!< X value corresponding to column 1
+			   m_x_end,  //!< X value corresponding to the last column
+			   m_y_start,  //!< Y value corresponding to row 1
+			   m_y_end;  //!< Y value corresponding to the last row
+		bool m_block_change_signals;
 
 };
 

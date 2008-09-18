@@ -21,7 +21,7 @@
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *   You should have received a copy of the GNU General Public License     *
- *   along with d_intervals program; if not, write to the Free Software    *
+ *   along with m_intervals program; if not, write to the Free Software    *
  *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
@@ -41,38 +41,38 @@ template<class T> class IntervalAttribute
 		{
 			// first: subtract the new interval from all others
 			QList< Interval<int> > temp_list;
-			for(int c=0; c<d_intervals.size(); c++)
+			for(int c=0; c<m_intervals.size(); c++)
 			{
-				temp_list = Interval<int>::subtract(d_intervals.at(c), i);
+				temp_list = Interval<int>::subtract(m_intervals.at(c), i);
 				if(temp_list.isEmpty())
 				{
-					d_intervals.removeAt(c);
-					d_values.removeAt(c--);
+					m_intervals.removeAt(c);
+					m_values.removeAt(c--);
 				}
 				else 
 				{
-					d_intervals.replace(c, temp_list.at(0));
+					m_intervals.replace(c, temp_list.at(0));
 					if(temp_list.size()>1)
 					{
-						d_intervals.insert(c, temp_list.at(1));
-						d_values.insert(c, d_values.at(c));
+						m_intervals.insert(c, temp_list.at(1));
+						m_values.insert(c, m_values.at(c));
 					}
 				}
 			}
 
 			// second: try to merge the new interval with an old one 
-			for(int c=0; c<d_intervals.size(); c++)
+			for(int c=0; c<m_intervals.size(); c++)
 			{
-				if( d_intervals.at(c).touches(i) &&
-						d_values.at(c) == value )
+				if( m_intervals.at(c).touches(i) &&
+						m_values.at(c) == value )
 				{
-					d_intervals.replace(c, Interval<int>::merge(d_intervals.at(c), i));
+					m_intervals.replace(c, Interval<int>::merge(m_intervals.at(c), i));
 					return;
 				}
 			}
 			// if it could not be merged, just append it
-			d_intervals.append(i);
-			d_values.append(value);
+			m_intervals.append(i);
+			m_values.append(value);
 		}
 
 		// overloaded for convenience
@@ -83,10 +83,10 @@ template<class T> class IntervalAttribute
 
 		T value(int row) const 
 		{
-			for(int c=d_intervals.size()-1; c>=0; c--)
+			for(int c=m_intervals.size()-1; c>=0; c--)
 			{
-				if(d_intervals.at(c).contains(row))
-					return d_values.at(c);
+				if(m_intervals.at(c).contains(row))
+					return m_values.at(c);
 			}
 			return T(); 
 		}
@@ -95,26 +95,26 @@ template<class T> class IntervalAttribute
 		{
 			QList< Interval<int> > temp_list;
 			// first: split all intervals that contain 'before'
-			for(int c=0; c<d_intervals.size(); c++)
+			for(int c=0; c<m_intervals.size(); c++)
 			{
-				if(d_intervals.at(c).contains(before))
+				if(m_intervals.at(c).contains(before))
 				{
-					temp_list = Interval<int>::split(d_intervals.at(c), before);
-					d_intervals.replace(c, temp_list.at(0));
+					temp_list = Interval<int>::split(m_intervals.at(c), before);
+					m_intervals.replace(c, temp_list.at(0));
 					if(temp_list.size()>1)
 					{
-						d_intervals.insert(c, temp_list.at(1));
-						d_values.insert(c, d_values.at(c));
+						m_intervals.insert(c, temp_list.at(1));
+						m_values.insert(c, m_values.at(c));
 						c++;
 					}
 					
 				}
 			}
 			// second: translate all intervals that start at 'before' or later
-			for(int c=0; c<d_intervals.size(); c++)
+			for(int c=0; c<m_intervals.size(); c++)
 			{
-				if(d_intervals.at(c).start() >= before)
-					d_intervals[c].translate(count);
+				if(m_intervals.at(c).start() >= before)
+					m_intervals[c].translate(count);
 			}
 			
 		}
@@ -124,73 +124,73 @@ template<class T> class IntervalAttribute
 			QList< Interval<int> > temp_list;
 			Interval<int> i(first, first+count-1);
 			// first: remove the relevant rows from all intervals
-			for(int c=0; c<d_intervals.size(); c++)
+			for(int c=0; c<m_intervals.size(); c++)
 			{
-				temp_list = Interval<int>::subtract(d_intervals.at(c), i);
+				temp_list = Interval<int>::subtract(m_intervals.at(c), i);
 				if(temp_list.isEmpty())
 				{
-					d_intervals.removeAt(c);
-					d_values.removeAt(c--);
+					m_intervals.removeAt(c);
+					m_values.removeAt(c--);
 				}
 				else 
 				{
-					d_intervals.replace(c, temp_list.at(0));
+					m_intervals.replace(c, temp_list.at(0));
 					if(temp_list.size()>1)
 					{
-						d_intervals.insert(c, temp_list.at(1));
-						d_values.insert(c, d_values.at(c));
+						m_intervals.insert(c, temp_list.at(1));
+						m_values.insert(c, m_values.at(c));
 						c++;
 					}
 				}
 			}
 			// second: translate all intervals that start at 'first+count' or later
-			for(int c=0; c<d_intervals.size(); c++)
+			for(int c=0; c<m_intervals.size(); c++)
 			{
-				if(d_intervals.at(c).start() >= first+count)
-					d_intervals[c].translate(-count);
+				if(m_intervals.at(c).start() >= first+count)
+					m_intervals[c].translate(-count);
 			}
 			// third: merge as many intervals as possible
-			QList<T> values_copy = d_values;
-			QList< Interval<int> > intervals_copy = d_intervals;
-			d_values.clear();
-			d_intervals.clear();
+			QList<T> values_copy = m_values;
+			QList< Interval<int> > intervals_copy = m_intervals;
+			m_values.clear();
+			m_intervals.clear();
 			for(int c=0; c<intervals_copy.size(); c++)
 			{
 				i = intervals_copy.at(c);
 				T value = values_copy.at(c);
-				for(int cc=0; cc<d_intervals.size(); cc++)
+				for(int cc=0; cc<m_intervals.size(); cc++)
 				{
-					if( d_intervals.at(cc).touches(i) &&
-							d_values.at(cc) == value )
+					if( m_intervals.at(cc).touches(i) &&
+							m_values.at(cc) == value )
 					{
-						d_intervals.replace(cc, Interval<int>::merge(d_intervals.at(cc),i));
+						m_intervals.replace(cc, Interval<int>::merge(m_intervals.at(cc),i));
 						return;
 					}
 				}
 				// if it could not be merged, just append it
-				d_intervals.append(i);
-				d_values.append(value);
+				m_intervals.append(i);
+				m_values.append(value);
 			}
 		}
 
-		void clear() { d_values.clear(); d_intervals.clear(); }
+		void clear() { m_values.clear(); m_intervals.clear(); }
 
-		QList< Interval<int> > intervals() const { return d_intervals; }
-		QList<T> values() const { return d_values; }
+		QList< Interval<int> > intervals() const { return m_intervals; }
+		QList<T> values() const { return m_values; }
 		IntervalAttribute<T>& operator=(const IntervalAttribute<T>& other) 
 		{
-			d_intervals.clear();
-			d_values.clear();
+			m_intervals.clear();
+			m_values.clear();
 			foreach( Interval<int> iv, other.intervals())
-				d_intervals.append(iv);
+				m_intervals.append(iv);
 			foreach( T value, other.values())
-				d_values.append(value);
+				m_values.append(value);
 			return *this;
 		}
 
 	private:
-		QList<T> d_values;
-		QList< Interval<int> > d_intervals;
+		QList<T> m_values;
+		QList< Interval<int> > m_intervals;
 };
 
 //! A class representing an interval-based attribute (bool version)
@@ -198,12 +198,12 @@ template<> class IntervalAttribute<bool>
 {
 	public:
 		IntervalAttribute<bool>() {}
-		IntervalAttribute<bool>(QList< Interval<int> > intervals) : d_intervals(intervals) {}
+		IntervalAttribute<bool>(QList< Interval<int> > intervals) : m_intervals(intervals) {}
 		IntervalAttribute<bool>& operator=(const IntervalAttribute<bool>& other) 
 		{
-			d_intervals.clear();
+			m_intervals.clear();
 			foreach( Interval<int> iv, other.intervals())
-				d_intervals.append(iv);
+				m_intervals.append(iv);
 			return *this;
 		}
 
@@ -211,13 +211,13 @@ template<> class IntervalAttribute<bool>
 		{
 			if(value) 
 			{
-				foreach(Interval<int> iv, d_intervals)
+				foreach(Interval<int> iv, m_intervals)
 					if(iv.contains(i)) 
 						return;
 
-				Interval<int>::mergeIntervalIntoList(&d_intervals, i);
+				Interval<int>::mergeIntervalIntoList(&m_intervals, i);
 			} else { // unset
-				Interval<int>::subtractIntervalFromList(&d_intervals, i);
+				Interval<int>::subtractIntervalFromList(&m_intervals, i);
 			}
 		}
 
@@ -228,7 +228,7 @@ template<> class IntervalAttribute<bool>
 
 		bool isSet(int row) const 
 		{
-			foreach(Interval<int> iv, d_intervals)
+			foreach(Interval<int> iv, m_intervals)
 				if(iv.contains(row))
 					return true;
 			return false;
@@ -236,7 +236,7 @@ template<> class IntervalAttribute<bool>
 
 		bool isSet(Interval<int> i) const 
 		{
-			foreach(Interval<int> iv, d_intervals)
+			foreach(Interval<int> iv, m_intervals)
 				if(iv.contains(i))
 					return true;
 			return false;
@@ -247,22 +247,22 @@ template<> class IntervalAttribute<bool>
 			QList< Interval<int> > temp_list;
 			int c;
 			// first: split all intervals that contain 'before'
-			for(c=0; c<d_intervals.size(); c++)
+			for(c=0; c<m_intervals.size(); c++)
 			{
-				if(d_intervals.at(c).contains(before))
+				if(m_intervals.at(c).contains(before))
 				{
-					temp_list = Interval<int>::split(d_intervals.at(c), before);
-					d_intervals.replace(c, temp_list.at(0));
+					temp_list = Interval<int>::split(m_intervals.at(c), before);
+					m_intervals.replace(c, temp_list.at(0));
 					if(temp_list.size()>1)
-						d_intervals.insert(c++, temp_list.at(1));
+						m_intervals.insert(c++, temp_list.at(1));
 					
 				}
 			}
 			// second: translate all intervals that start at 'before' or later
-			for(c=0; c<d_intervals.size(); c++)
+			for(c=0; c<m_intervals.size(); c++)
 			{
-				if(d_intervals.at(c).start() >= before)
-					d_intervals[c].translate(count);
+				if(m_intervals.at(c).start() >= before)
+					m_intervals[c].translate(count);
 			}
 			
 		}
@@ -271,30 +271,30 @@ template<> class IntervalAttribute<bool>
 		{
 			int c;
 			// first: remove the relevant rows from all intervals
-			Interval<int>::subtractIntervalFromList(&d_intervals, Interval<int>(first, first+count-1));
+			Interval<int>::subtractIntervalFromList(&m_intervals, Interval<int>(first, first+count-1));
 			// second: translate all intervals that start at 'first+count' or later
-			for(c=0; c<d_intervals.size(); c++)
+			for(c=0; c<m_intervals.size(); c++)
 			{
-				if(d_intervals.at(c).start() >= first+count)
-					d_intervals[c].translate(-count);
+				if(m_intervals.at(c).start() >= first+count)
+					m_intervals[c].translate(-count);
 			}
 			// third: merge as many intervals as possible
-			for(c=d_intervals.size()-1; c>=0; c--)
+			for(c=m_intervals.size()-1; c>=0; c--)
 			{
-				Interval<int> iv = d_intervals.takeAt(c);
-				int size_before = d_intervals.size();
-				Interval<int>::mergeIntervalIntoList(&d_intervals, iv);
-				if(size_before == d_intervals.size()) // merge successful
+				Interval<int> iv = m_intervals.takeAt(c);
+				int size_before = m_intervals.size();
+				Interval<int>::mergeIntervalIntoList(&m_intervals, iv);
+				if(size_before == m_intervals.size()) // merge successful
 					c--;
 			}
 		}
 
-		QList< Interval<int> > intervals() const { return d_intervals; }
+		QList< Interval<int> > intervals() const { return m_intervals; }
 
-		void clear() { d_intervals.clear(); }
+		void clear() { m_intervals.clear(); }
 
 	private:
-		QList< Interval<int> > d_intervals;
+		QList< Interval<int> > m_intervals;
 };
 
 #endif

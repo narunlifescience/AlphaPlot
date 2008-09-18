@@ -40,9 +40,9 @@ public:
 
 	void setDataFromTable(Table *t, const QString& signalColName, const QString& responseColName);
 	//! Returns the size of the signal data set
-	int signalDataSize(){return d_n_signal;};
+	int signalDataSize(){return m_n_signal;};
 	//! Returns the size of the response data set
-	int responseDataSize(){return d_n_response;};
+	int responseDataSize(){return m_n_response;};
 
 protected:
 	//! Handles the graphical output
@@ -53,9 +53,9 @@ protected:
 private:
     virtual void output();
 	//! Size of the signal data set
-	int d_n_signal;
+	int m_n_signal;
 	//! Size of the response data set
-	int d_n_response;
+	int m_n_response;
 };
 
 class Deconvolution : public Convolution

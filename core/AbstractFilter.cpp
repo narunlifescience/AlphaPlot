@@ -32,8 +32,8 @@ bool AbstractFilter::input(int port, const AbstractColumn* source)
 {
 	if (port<0 || (inputCount()>=0 && port>=inputCount())) return false;
 	if (source && !inputAcceptable(port, source)) return false;
-	if (port >= d_inputs.size()) d_inputs.resize(port+1);
-	const AbstractColumn* old_input = d_inputs.value(port);
+	if (port >= m_inputs.size()) m_inputs.resize(port+1);
+	const AbstractColumn* old_input = m_inputs.value(port);
 	if (source == old_input) return true;
 	if (old_input) 
 	{
@@ -48,7 +48,7 @@ bool AbstractFilter::input(int port, const AbstractColumn* source)
 	}
 	if (!source)
 		inputAboutToBeDisconnected(old_input);
-	d_inputs[port] = source;
+	m_inputs[port] = source;
 	if (source) { // we have a new source
 		if(old_input && source->columnMode() != old_input->columnMode())
 			inputModeAboutToChange(source);
@@ -94,14 +94,14 @@ bool AbstractFilter::input(int port, const AbstractColumn* source)
 		QObject::connect(source, SIGNAL(aboutToBeDestroyed(const AbstractColumn *)),
 				this, SLOT(inputAboutToBeDestroyed(const AbstractColumn *)));
 	} else { // source==0, that is, the input port has been disconnected
-		// try to shrink d_inputs
-		int num_connected_inputs = d_inputs.size();
-		while ( d_inputs.at(num_connected_inputs-1) == 0 )
+		// try to shrink m_inputs
+		int num_connected_inputs = m_inputs.size();
+		while ( m_inputs.at(num_connected_inputs-1) == 0 )
 		{
 			num_connected_inputs--;
 			if(!num_connected_inputs) break;
 		}
-		d_inputs.resize(num_connected_inputs);
+		m_inputs.resize(num_connected_inputs);
 	}
 	return true;
 }

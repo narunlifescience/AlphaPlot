@@ -57,27 +57,27 @@ void Interpolation::init(int m)
     {
         QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
         tr("Unknown interpolation method. Valid values are: 0 - Linear, 1 - Cubic, 2 - Akima."));
-        d_init_err = true;
+        m_init_err = true;
         return;
     }
-    d_method = m;
-	switch(d_method)
+    m_method = m;
+	switch(m_method)
 	{
 		case 0:
 			setName(tr("Linear") + tr("Int"));
-			d_explanation = tr("Linear") + " " + tr("Interpolation");
+			m_explanation = tr("Linear") + " " + tr("Interpolation");
 			break;
 		case 1:
 			setName(tr("Cubic") + tr("Int"));
-			d_explanation = tr("Cubic") + " " + tr("Interpolation");
+			m_explanation = tr("Cubic") + " " + tr("Interpolation");
 			break;
 		case 2:
 			setName(tr("Akima") + tr("Int"));
-			d_explanation = tr("Akima") + " " + tr("Interpolation");
+			m_explanation = tr("Akima") + " " + tr("Interpolation");
 			break;
 	}
-    d_sort_data = true;
-    d_min_points = d_method + 3;
+    m_sort_data = true;
+    m_min_points = m_method + 3;
 }
 
 
@@ -87,26 +87,26 @@ if (m < 0 || m > 2)
     {
         QMessageBox::critical((ApplicationWindow *)parent(), tr("Error"),
         tr("Unknown interpolation method, valid values are: 0 - Linear, 1 - Cubic, 2 - Akima."));
-        d_init_err = true;
+        m_init_err = true;
         return;
     }
 int min_points = m + 3;
-if (d_n < min_points)
+if (m_n < min_points)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("You need at least %1 points in order to perform this operation!").arg(min_points));
-        d_init_err = true;
+        m_init_err = true;
         return;
 	}
-d_method = m;
-d_min_points = min_points;
+m_method = m;
+m_min_points = min_points;
 }
 
 void Interpolation::calculateOutputData(double *x, double *y)
 {
 	gsl_interp_accel *acc = gsl_interp_accel_alloc ();
 	const gsl_interp_type *method;
-	switch(d_method)
+	switch(m_method)
 	{
 		case 0:
 			method = gsl_interp_linear;
@@ -119,13 +119,13 @@ void Interpolation::calculateOutputData(double *x, double *y)
 			break;
 	}
 
-	gsl_spline *interp = gsl_spline_alloc (method, d_n);
-	gsl_spline_init (interp, d_x, d_y, d_n);
+	gsl_spline *interp = gsl_spline_alloc (method, m_n);
+	gsl_spline_init (interp, m_x, m_y, m_n);
 
-    double step = (d_to - d_from)/(double)(d_points - 1);
-    for (int j = 0; j < d_points; j++)
+    double step = (m_to - m_from)/(double)(m_points - 1);
+    for (int j = 0; j < m_points; j++)
 	{
-	   x[j] = d_from + j*step;
+	   x[j] = m_from + j*step;
 	   y[j] = gsl_spline_eval (interp, x[j], acc);
 	}
 

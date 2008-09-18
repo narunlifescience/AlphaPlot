@@ -84,7 +84,7 @@ class AspectTreeModel : public QAbstractItemModel
 
 
 	private:
-		AbstractAspect* d_root;
+		AbstractAspect* m_root;
 };
 
 #endif // ifndef ASPECT_TREE_MODEL_H

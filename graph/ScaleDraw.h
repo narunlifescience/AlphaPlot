@@ -51,28 +51,28 @@ public:
 
 	virtual QwtText label(double value) const
 	{
-	return QwtText(QLocale().toString(transformValue(value), d_fmt, d_prec));
+	return QwtText(QLocale().toString(transformValue(value), m_fmt, m_prec));
 	};
 
 	void labelFormat(char &f, int &prec) const;
 	void setLabelFormat(char f, int prec);
 
-	int labelNumericPrecision(){return d_prec;};
+	int labelNumericPrecision(){return m_prec;};
 
-	int majorTicksStyle(){return d_majTicks;};
-	void setMajorTicksStyle(TicksStyle type){d_majTicks = type;};
+	int majorTicksStyle(){return m_majTicks;};
+	void setMajorTicksStyle(TicksStyle type){m_majTicks = type;};
 
-	int minorTicksStyle(){return d_minTicks;};
-	void setMinorTicksStyle(TicksStyle type){d_minTicks = type;};
+	int minorTicksStyle(){return m_minTicks;};
+	void setMinorTicksStyle(TicksStyle type){m_minTicks = type;};
 
 protected:
 	void drawTick(QPainter *p, double value, int len) const;
 
 private:
 	QString formula_string;
-	char d_fmt;
-    int d_prec;
-	int d_minTicks, d_majTicks;
+	char m_fmt;
+    int m_prec;
+	int m_minTicks, m_majTicks;
 };
 
 class QwtTextScaleDraw: public ScaleDraw
@@ -128,11 +128,11 @@ public:
 	WeekDayScaleDraw(NameFormat format = ShortName);
 	~WeekDayScaleDraw(){};
 
-	NameFormat format() {return d_format;};
+	NameFormat format() {return m_format;};
 	QwtText label(double value) const;
 
 private:
-	NameFormat d_format;
+	NameFormat m_format;
 };
 
 class MonthScaleDraw: public ScaleDraw
@@ -143,11 +143,11 @@ public:
 	MonthScaleDraw(NameFormat format = ShortName);
 	~MonthScaleDraw(){};
 
-	NameFormat format() {return d_format;};
+	NameFormat format() {return m_format;};
 	QwtText label(double value) const;
 
 private:
-	NameFormat d_format;
+	NameFormat m_format;
 };
 
 class QwtSupersciptsScaleDraw: public ScaleDraw

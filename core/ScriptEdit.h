@@ -77,7 +77,7 @@ class ScriptEdit: public QTextEdit, public scripted
     virtual void keyPressEvent(QKeyEvent *e);
 
   private:
-    AbstractScript *d_script;
+    AbstractScript *m_script;
     QAction *actionExecute, *actionExecuteAll, *actionEval, *actionPrint, *actionImport, *actionExport;
     QMenu *functionsMenu;
     QTextCursor printCursor;

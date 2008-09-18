@@ -49,9 +49,9 @@ ScriptEdit::ScriptEdit(AbstractScriptingEngine *engine, QWidget *parent, const c
 {
 	setObjectName(name);
 
-	d_script = d_scripting_engine->makeScript("", this, name);
-	connect(d_script, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
-	connect(d_script, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
+	m_script = m_scripting_engine->makeScript("", this, name);
+	connect(m_script, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
+	connect(m_script, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
 
 	setLineWrapMode(NoWrap);
 	setAcceptRichText(false);
@@ -90,10 +90,10 @@ void ScriptEdit::customEvent(QEvent *e)
 	if (e->type() == SCRIPTING_CHANGE_EVENT)
 	{
 		scriptingChangeEvent((ScriptingChangeEvent*)e);
-		delete d_script;
-		d_script = d_scripting_engine->makeScript("", this, objectName());
-		connect(d_script, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
-		connect(d_script, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
+		delete m_script;
+		m_script = m_scripting_engine->makeScript("", this, objectName());
+		connect(m_script, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
+		connect(m_script, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
 	}
 }
 
@@ -132,7 +132,7 @@ void ScriptEdit::contextMenuEvent(QContextMenuEvent *e)
 
 	functionsMenu->clear();
 	functionsMenu->setTearOffEnabled(true);
-	QStringList flist = d_scripting_engine->mathFunctions();
+	QStringList flist = m_scripting_engine->mathFunctions();
 	QMenu *submenu=NULL;
 	for (int i=0; i<flist.size(); i++)
 	{
@@ -155,7 +155,7 @@ void ScriptEdit::contextMenuEvent(QContextMenuEvent *e)
 		} else
 			newAction = functionsMenu->addAction(flist[i]);
 		newAction->setData(i);
-		newAction->setWhatsThis(d_scripting_engine->mathFunctionDoc(flist[i]));
+		newAction->setWhatsThis(m_scripting_engine->mathFunctionDoc(flist[i]));
 	}
 	functionsMenu->setTitle(tr("&Functions"));
 	menu->addMenu(functionsMenu);
@@ -199,7 +199,7 @@ void ScriptEdit::insertFunction(const QString &fname)
 
 void ScriptEdit::insertFunction(QAction *action)
 {
-	insertFunction(d_scripting_engine->mathFunctions()[action->data().toInt()]);
+	insertFunction(m_scripting_engine->mathFunctions()[action->data().toInt()]);
 }
 
 int ScriptEdit::lineNumber(int pos) const
@@ -221,21 +221,21 @@ void ScriptEdit::execute()
 	}
 	fname = fname.arg(lineNumber(codeCursor.selectionStart()));
 
-	d_script->setName(fname);
-	d_script->setCode(codeCursor.selectedText().replace(QChar::ParagraphSeparator,"\n"));
+	m_script->setName(fname);
+	m_script->setCode(codeCursor.selectedText().replace(QChar::ParagraphSeparator,"\n"));
 	printCursor.setPosition(codeCursor.selectionEnd(), QTextCursor::MoveAnchor);
 	printCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
-	d_script->exec();
+	m_script->exec();
 }
 
 void ScriptEdit::executeAll()
 {
 	QString fname = "<%1>";
 	fname = fname.arg(objectName());
-	d_script->setName(fname);
-	d_script->setCode(toPlainText());
+	m_script->setName(fname);
+	m_script->setCode(toPlainText());
 	printCursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
-	d_script->exec();
+	m_script->exec();
 }
 
 void ScriptEdit::evaluate()
@@ -249,11 +249,11 @@ void ScriptEdit::evaluate()
 	}
 	fname = fname.arg(lineNumber(codeCursor.selectionStart()));
 
-	d_script->setName(fname);
-	d_script->setCode(codeCursor.selectedText().replace(QChar::ParagraphSeparator,"\n"));
+	m_script->setName(fname);
+	m_script->setCode(codeCursor.selectedText().replace(QChar::ParagraphSeparator,"\n"));
 	printCursor.setPosition(codeCursor.selectionEnd(), QTextCursor::MoveAnchor);
 	printCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
-	QVariant res = d_script->eval();
+	QVariant res = m_script->eval();
 	if (res.isValid())
 		if (!res.isNull() && res.canConvert(QVariant::String)){
 			QString strVal = res.toString();
@@ -293,7 +293,7 @@ QString ScriptEdit::importASCII(const QString &filename)
 {
 	QStringList filters;
 	filters << tr("Text") + " (*.txt *.TXT)";
-	filters << d_scripting_engine->nameAndPatterns();
+	filters << m_scripting_engine->nameAndPatterns();
 	filters << tr("All Files") + " (*)";
 
 	QString f;
@@ -318,7 +318,7 @@ QString ScriptEdit::exportASCII(const QString &filename)
 {
 	QStringList filters;
 	filters << tr("Text") + " (*.txt *.TXT)";
-	filters << d_scripting_engine->nameAndPatterns();
+	filters << m_scripting_engine->nameAndPatterns();
 	filters << tr("All Files") + " (*)";
 
 	QString selectedFilter;
@@ -354,7 +354,7 @@ QString ScriptEdit::exportASCII(const QString &filename)
 
 void ScriptEdit::setContext(QObject *context)
 {
-	d_script->setContext(context);
+	m_script->setContext(context);
 }
 
 void ScriptEdit::updateIndentation()

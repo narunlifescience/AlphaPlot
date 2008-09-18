@@ -38,20 +38,20 @@ void DateTime2StringFilter::setFormat(const QString& format)
 }
 
 DateTime2StringFilterSetFormatCmd::DateTime2StringFilterSetFormatCmd(DateTime2StringFilter* target, const QString &new_format)
-	: d_target(target), d_other_format(new_format) 
+	: m_target(target), m_other_format(new_format) 
 {
-	if(d_target->parentAspect())
-		setText(QObject::tr("%1: set date-time format to %2").arg(d_target->parentAspect()->name()).arg(new_format));
+	if(m_target->parentAspect())
+		setText(QObject::tr("%1: set date-time format to %2").arg(m_target->parentAspect()->name()).arg(new_format));
 	else
 		setText(QObject::tr("set date-time format to %1").arg(new_format));
 }
 
 void DateTime2StringFilterSetFormatCmd::redo() 
 {
-	QString tmp = d_target->d_format;
-	d_target->d_format = d_other_format;
-	d_other_format = tmp;
-	emit d_target->formatChanged();
+	QString tmp = m_target->m_format;
+	m_target->m_format = m_other_format;
+	m_other_format = tmp;
+	emit m_target->formatChanged();
 }
 
 void DateTime2StringFilterSetFormatCmd::undo() 

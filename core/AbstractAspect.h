@@ -125,7 +125,7 @@ class AbstractAspect : public QObject
 		//! Change the positon of a child in my list of children.
 		void moveChild(int from, int to);
 		//! Move a child to another aspect and transfer ownership.
-		void reparentChild(AbstractAspect *new_parent, AbstractAspect *child, int d_new_index);
+		void reparentChild(AbstractAspect *new_parent, AbstractAspect *child, int new_index);
 		//! Move a child to another aspect and transfer ownership.
 		void reparentChild(AbstractAspect *new_parent, AbstractAspect *child);
 		//! Get all descendents that inherit the given class
@@ -287,7 +287,7 @@ class AbstractAspect : public QObject
 		void info(const QString &text) { emit statusInfo(text); }
 
 	private:
-		Private * d_aspect_private;
+		Private * m_aspect_private;
 };
 
 #endif // ifndef ABSTRACT_ASPECT_H

@@ -39,9 +39,9 @@
 // class TableInsertColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
 TableInsertColumnsCmd::TableInsertColumnsCmd( Table::Private * private_obj, int before, QList<Column*> cols, QUndoCommand * parent)
- : QUndoCommand( parent ), d_private_obj(private_obj), d_before(before), d_cols(cols)
+ : QUndoCommand( parent ), m_private_obj(private_obj), m_before(before), m_cols(cols)
 {
-	setText(QObject::tr("%1: insert %2 column(s)").arg(d_private_obj->name()).arg(d_cols.size()));
+	setText(QObject::tr("%1: insert %2 column(s)").arg(m_private_obj->name()).arg(m_cols.size()));
 }
 
 TableInsertColumnsCmd::~TableInsertColumnsCmd()
@@ -50,14 +50,14 @@ TableInsertColumnsCmd::~TableInsertColumnsCmd()
 
 void TableInsertColumnsCmd::redo()
 {
-	d_rows_before = d_private_obj->rowCount();
-	d_private_obj->insertColumns(d_before, d_cols);
+	m_rows_before = m_private_obj->rowCount();
+	m_private_obj->insertColumns(m_before, m_cols);
 }
 
 void TableInsertColumnsCmd::undo()
 {
-	d_private_obj->removeColumns(d_before, d_cols.size());
-	d_private_obj->setRowCount(d_rows_before);
+	m_private_obj->removeColumns(m_before, m_cols.size());
+	m_private_obj->setRowCount(m_rows_before);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -68,9 +68,9 @@ void TableInsertColumnsCmd::undo()
 // class TableSetNumberOfRowsCmd
 ///////////////////////////////////////////////////////////////////////////
 TableSetNumberOfRowsCmd::TableSetNumberOfRowsCmd( Table::Private * private_obj, int rows, QUndoCommand * parent )
- : QUndoCommand( parent ), d_private_obj(private_obj), d_rows(rows)
+ : QUndoCommand( parent ), m_private_obj(private_obj), m_rows(rows)
 {
-	setText(QObject::tr("%1: set the number of rows to %2").arg(d_private_obj->name()).arg(rows));
+	setText(QObject::tr("%1: set the number of rows to %2").arg(m_private_obj->name()).arg(rows));
 }
 
 TableSetNumberOfRowsCmd::~TableSetNumberOfRowsCmd()
@@ -79,13 +79,13 @@ TableSetNumberOfRowsCmd::~TableSetNumberOfRowsCmd()
 
 void TableSetNumberOfRowsCmd::redo()
 {
-	d_old_rows = d_private_obj->rowCount();
-	d_private_obj->setRowCount(d_rows);
+	m_old_rows = m_private_obj->rowCount();
+	m_private_obj->setRowCount(m_rows);
 }
 
 void TableSetNumberOfRowsCmd::undo()
 {
-	d_private_obj->setRowCount(d_old_rows);
+	m_private_obj->setRowCount(m_old_rows);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -96,9 +96,9 @@ void TableSetNumberOfRowsCmd::undo()
 // class TableRemoveColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
 TableRemoveColumnsCmd::TableRemoveColumnsCmd( Table::Private * private_obj, int first, int count, QList<Column*> cols, QUndoCommand * parent )
- : QUndoCommand( parent ), d_private_obj(private_obj), d_first(first), d_count(count), d_old_cols(cols)
+ : QUndoCommand( parent ), m_private_obj(private_obj), m_first(first), m_count(count), m_old_cols(cols)
 {
-	setText(QObject::tr("%1: remove %2 column(s)").arg(d_private_obj->name()).arg(count));
+	setText(QObject::tr("%1: remove %2 column(s)").arg(m_private_obj->name()).arg(count));
 }
 
 TableRemoveColumnsCmd::~TableRemoveColumnsCmd()
@@ -107,12 +107,12 @@ TableRemoveColumnsCmd::~TableRemoveColumnsCmd()
 
 void TableRemoveColumnsCmd::redo()
 {
-	d_private_obj->removeColumns(d_first, d_count);
+	m_private_obj->removeColumns(m_first, m_count);
 }
 
 void TableRemoveColumnsCmd::undo()
 {
-	d_private_obj->insertColumns(d_first, d_old_cols);
+	m_private_obj->insertColumns(m_first, m_old_cols);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -123,12 +123,12 @@ void TableRemoveColumnsCmd::undo()
 // class TableMoveColumnCmd
 ///////////////////////////////////////////////////////////////////////////
 TableMoveColumnCmd::TableMoveColumnCmd( Table::Private * private_obj, int from, int to, QUndoCommand * parent )
- : QUndoCommand( parent ), d_private_obj(private_obj), d_from(from), d_to(to)
+ : QUndoCommand( parent ), m_private_obj(private_obj), m_from(from), m_to(to)
 {
 	setText(QObject::tr("%1: move column %2 from position %3 to %4")
-			.arg(d_private_obj->name())
-			.arg(d_private_obj->column(from)->name())
-			.arg(d_from+1).arg(d_to+1));
+			.arg(m_private_obj->name())
+			.arg(m_private_obj->column(from)->name())
+			.arg(m_from+1).arg(m_to+1));
 }
 
 TableMoveColumnCmd::~TableMoveColumnCmd()
@@ -137,12 +137,12 @@ TableMoveColumnCmd::~TableMoveColumnCmd()
 
 void TableMoveColumnCmd::redo()
 {
-	d_private_obj->moveColumn(d_from, d_to);
+	m_private_obj->moveColumn(m_from, m_to);
 }
 
 void TableMoveColumnCmd::undo()
 {
-	d_private_obj->moveColumn(d_to, d_from);
+	m_private_obj->moveColumn(m_to, m_from);
 }
 
 ///////////////////////////////////////////////////////////////////////////

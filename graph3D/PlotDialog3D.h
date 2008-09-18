@@ -127,7 +127,7 @@ public slots:
 	void showGeneralTab();
 
     void pickDataColorMap();
-    void setPlot(Graph3D *plot){d_plot = plot;};
+    void setPlot(Graph3D *plot){m_plot = plot;};
     
 signals:
 	void showWorksheet();
@@ -159,7 +159,7 @@ private:
 	void initColorsPage();
 	void initGeneralPage();
 
-    Graph3D *d_plot;
+    Graph3D *m_plot;
 	QFont titleFont, xAxisFont,yAxisFont,zAxisFont, numbersFont;
 	QStringList labels, scales, tickLengths;
 	QColor titleColor,meshColor,bgColor, axesColor, numColor,labelColor, gridColor;

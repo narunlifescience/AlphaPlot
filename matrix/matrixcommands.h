@@ -48,11 +48,11 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 	//! Column to insert before
-	int d_before;
+	int m_before;
 	//! The number of new columns
-	int d_count;
+	int m_count;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -74,11 +74,11 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 	//! Row to insert before
-	int d_before;
+	int m_before;
 	//! The number of new rows
-	int d_count;
+	int m_count;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -100,13 +100,13 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 	//! First column to remove
-	int d_first;
+	int m_first;
 	//! The number of columns to remove
-	int d_count;
+	int m_count;
 	//! Backups of the removed columns
-	QVector< QVector<double> > d_backups;
+	QVector< QVector<double> > m_backups;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -128,13 +128,13 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 	//! First row to remove
-	int d_first;
+	int m_first;
 	//! The number of rows to remove
-	int d_count;
+	int m_count;
 	//! Backups of the removed rows
-	QVector< QVector<double> > d_backups;
+	QVector< QVector<double> > m_backups;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -156,9 +156,9 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 	//! Backups of the cleared cells
-	QVector< QVector<double> > d_backups;
+	QVector< QVector<double> > m_backups;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -180,11 +180,11 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 	//! The index of the column
-	int d_col;
+	int m_col;
 	//! Backup of the cleared column
-	QVector<double> d_backup;
+	QVector<double> m_backup;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -206,15 +206,15 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 	//! The index of the row
-	int d_row;
+	int m_row;
 	//! The index of the column
-	int d_col;
+	int m_col;
 	//! New cell value
-	double d_value;
+	double m_value;
 	//! Backup of the changed value
-	double d_old_value;
+	double m_old_value;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -236,15 +236,15 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
-	double d_new_x1;
-	double d_new_x2;
-	double d_new_y1;
-	double d_new_y2;
-	double d_old_x1;
-	double d_old_x2;
-	double d_old_y1;
-	double d_old_y2;
+	Matrix::Private * m_private_obj;
+	double m_new_x1;
+	double m_new_x2;
+	double m_new_y1;
+	double m_new_y2;
+	double m_old_x1;
+	double m_old_x2;
+	double m_old_y1;
+	double m_old_y2;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -265,8 +265,8 @@ class MatrixSetFormatCmd : public QUndoCommand
 
 	private:
 		//! The private object to modify
-		Matrix::Private * d_private_obj;
-		char d_other_format;
+		Matrix::Private * m_private_obj;
+		char m_other_format;
 };
 ///////////////////////////////////////////////////////////////////////////
 // end of class MatrixSetFormatCmd
@@ -286,8 +286,8 @@ class MatrixSetDigitsCmd : public QUndoCommand
 
 	private:
 		//! The private object to modify
-		Matrix::Private * d_private_obj;
-		int d_other_digits;
+		Matrix::Private * m_private_obj;
+		int m_other_digits;
 };
 ///////////////////////////////////////////////////////////////////////////
 // end of class MatrixSetDigitsCmd
@@ -307,8 +307,8 @@ class MatrixSetFormulaCmd : public QUndoCommand
 
 	private:
 		//! The private object to modify
-		Matrix::Private * d_private_obj;
-		QString d_other_formula;
+		Matrix::Private * m_private_obj;
+		QString m_other_formula;
 };
 ///////////////////////////////////////////////////////////////////////////
 // end of class MatrixSetFormulaCmd
@@ -329,17 +329,17 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 	//! The index of the column
-	int d_col;
+	int m_col;
 	//! The index of the first row
-	int d_first_row;
+	int m_first_row;
 	//! The index of the last row
-	int d_last_row;
+	int m_last_row;
 	//! New cell values
-	QVector<double> d_values;
+	QVector<double> m_values;
 	//! Backup of the changed values
-	QVector<double> d_old_values;
+	QVector<double> m_old_values;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -361,17 +361,17 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 	//! The index of the row
-	int d_row;
+	int m_row;
 	//! The index of the first column
-	int d_first_column;
+	int m_first_column;
 	//! The index of the last column
-	int d_last_column;
+	int m_last_column;
 	//! New cell values
-	QVector<double> d_values;
+	QVector<double> m_values;
 	//! Backup of the changed values
-	QVector<double> d_old_values;
+	QVector<double> m_old_values;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -393,7 +393,7 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -415,7 +415,7 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -437,7 +437,7 @@ public:
 
 private:
 	//! The private object to modify
-	Matrix::Private * d_private_obj;
+	Matrix::Private * m_private_obj;
 };
 
 ///////////////////////////////////////////////////////////////////////////

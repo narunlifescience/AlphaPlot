@@ -49,11 +49,11 @@ class AsciiTableImportFilter : public AbstractImportFilter
 
 	public:
 		AsciiTableImportFilter() :
-			d_ignored_lines(0),
-			d_separator("\t"),
-			d_first_row_names_columns(true),
-			d_trim_whitespace(false),
-			d_simplify_whitespace(false) {}
+			m_ignored_lines(0),
+			m_separator("\t"),
+			m_first_row_names_columns(true),
+			m_trim_whitespace(false),
+			m_simplify_whitespace(false) {}
 		virtual AbstractAspect * importAspect(QIODevice * input);
 		virtual QStringList fileExtensions() const;
 		virtual QString name() const { return QObject::tr("ASCII table"); }
@@ -61,8 +61,8 @@ class AsciiTableImportFilter : public AbstractImportFilter
 		ACCESSOR(int, ignored_lines);
 		Q_PROPERTY(int ignored_lines READ ignored_lines WRITE set_ignored_lines);
 
-		QString separator() const { QString result = d_separator; return result.replace("\t", "\\t"); }
-		void set_separator(const QString &value) { d_separator = value; d_separator.replace("\\t","\t"); }
+		QString separator() const { QString result = m_separator; return result.replace("\t", "\\t"); }
+		void set_separator(const QString &value) { m_separator = value; m_separator.replace("\\t","\t"); }
 		Q_PROPERTY(QString separator READ separator WRITE set_separator);
 
 		ACCESSOR(bool, first_row_names_columns);
@@ -75,11 +75,11 @@ class AsciiTableImportFilter : public AbstractImportFilter
 		Q_PROPERTY(bool simplify_whitespace READ simplify_whitespace WRITE set_simplify_whitespace);
 
 	private:
-		int d_ignored_lines;
-		QString d_separator;
-		bool d_first_row_names_columns;
-		bool d_trim_whitespace;
-		bool d_simplify_whitespace;
+		int m_ignored_lines;
+		QString m_separator;
+		bool m_first_row_names_columns;
+		bool m_trim_whitespace;
+		bool m_simplify_whitespace;
 };
 
 #endif // ifndef ASCII_TABLE_IMPORT_FILTER_H

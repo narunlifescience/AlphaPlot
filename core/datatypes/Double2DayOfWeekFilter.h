@@ -41,10 +41,10 @@ class Double2DayOfWeekFilter : public AbstractSimpleFilter
 	Q_OBJECT
 	public:
 		virtual QDate dateAt(int row) const {
-			if (!d_inputs.value(0)) return QDate();
+			if (!m_inputs.value(0)) return QDate();
 			// Don't use Julian days here since support for years < 1 is bad
 			// Use 1900-01-01 instead (a Monday)
-			return QDate(1900,1,1).addDays(qRound(d_inputs.value(0)->valueAt(row) - 1.0));
+			return QDate(1900,1,1).addDays(qRound(m_inputs.value(0)->valueAt(row) - 1.0));
 		}
 		virtual QTime timeAt(int row) const {
 			Q_UNUSED(row)

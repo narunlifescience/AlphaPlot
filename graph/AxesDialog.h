@@ -233,7 +233,7 @@ protected:
 	bool xAxisOn,yAxisOn,topAxisOn,rightAxisOn;
 	int xBottomLabelsRotation, xTopLabelsRotation;
 
-	Layer* d_layer;
+	Layer* m_layer;
 	//! Last selected tab
   	QWidget* lastPage;
 };

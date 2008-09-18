@@ -56,7 +56,7 @@ class PartMdiView : public QMdiSubWindow
 		virtual ~PartMdiView();
 
 		//! Returns the part that owns the view
-		AbstractPart *part() const { return d_part; }
+		AbstractPart *part() const { return m_part; }
 
 		enum SubWindowStatus 
 		{ 
@@ -65,7 +65,7 @@ class PartMdiView : public QMdiSubWindow
 			Visible
 		};
 
-		SubWindowStatus status() const { return d_status; }
+		SubWindowStatus status() const { return m_status; }
 	
 	signals:
 		void statusChanged(PartMdiView *view, PartMdiView::SubWindowStatus from, PartMdiView::SubWindowStatus to);
@@ -90,17 +90,17 @@ class PartMdiView : public QMdiSubWindow
 
 	private:
 		//! The aspect that owns the view
-		AbstractPart *d_part;
+		AbstractPart *m_part;
 		//! Whether I'm just being closed.
 		/**
 		 * Depending on whether an Aspect is removed programatically or by closing its
 		 * default view (held by me), either aspectAboutToBeRemoved() generates a close
-		 * event for me or closeEvent() removes #d_part from its parent. Before one causes
-		 * the other to be called, #d_closing is set to true so as to avoid infinite
+		 * event for me or closeEvent() removes #m_part from its parent. Before one causes
+		 * the other to be called, #m_closing is set to true so as to avoid infinite
 		 * recursion.
 		 */
-		bool d_closing;
-		SubWindowStatus d_status;
+		bool m_closing;
+		SubWindowStatus m_status;
 };
 
 #endif // ifndef ASPECT_VIEW_H

@@ -54,9 +54,9 @@ class String2DayOfWeekFilter : public AbstractSimpleFilter
 
 		virtual QDateTime dateTimeAt(int row) const
 		{
-			if (!d_inputs.value(0)) return QDateTime();
+			if (!m_inputs.value(0)) return QDateTime();
 
-			QString input_value = d_inputs.value(0)->textAt(row);
+			QString input_value = m_inputs.value(0)->textAt(row);
 			bool ok;
 			int day_value = input_value.toInt(&ok);
 			if(!ok)

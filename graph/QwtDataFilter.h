@@ -41,10 +41,10 @@
 class QwtDataFilter : public QwtData, public AbstractFilter
 {
 	public:
-		QwtDataFilter() { d_data[0] = d_data[1] = 0; }
+		QwtDataFilter() { m_data[0] = m_data[1] = 0; }
 		virtual ~QwtDataFilter() {
-			if(d_data[0]) delete d_data[0];
-			if(d_data[1]) delete d_data[1];
+			if(m_data[0]) delete m_data[0];
+			if(m_data[1]) delete m_data[1];
 		}
 
 		//! \name Reimplemented from AbstractFilter
@@ -60,35 +60,35 @@ class QwtDataFilter : public QwtData, public AbstractFilter
 		//! \name Reimplemented from QwtData
 		//@{
 		virtual friend QwtData *copy() const {
-			if(!d_inputs.value(0) || !d_inputs.value(1)) return 0;
+			if(!m_inputs.value(0) || !m_inputs.value(1)) return 0;
 			QwtDataFilter *result = new QwtDataFilter();
 
-			result->d_data[0] = new DoubleColumnData(d_inputs.at(0)->rowCount());
-			result->d_data[0]->copy(d_inputs.at(0));
-			result->input(0, result->d_data[0]);
+			result->m_data[0] = new DoubleColumnData(m_inputs.at(0)->rowCount());
+			result->m_data[0]->copy(m_inputs.at(0));
+			result->input(0, result->m_data[0]);
 
-			result->d_data[1] = new DoubleColumnData(d_inputs.at(1)->rowCount());
-			result->d_data[1]->copy(d_inputs.at(1));
-			result->input(1, result->d_data[1]);
+			result->m_data[1] = new DoubleColumnData(m_inputs.at(1)->rowCount());
+			result->m_data[1]->copy(m_inputs.at(1));
+			result->input(1, result->m_data[1]);
 
 			return result;
 		}
 		virtual size_t size() const {
-			return (d_inputs.value(0) && d_inputs.value(1)) ?
-				qMin(d_inputs.at(0)->rowCount(), d_inputs.at(1)->rowCount()) :
+			return (m_inputs.value(0) && m_inputs.value(1)) ?
+				qMin(m_inputs.at(0)->rowCount(), m_inputs.at(1)->rowCount()) :
 				0;
 		}
 		virtual double x(size_t i) const {
-			return d_inputs.value(0) ? d_inputs.at(0)->valueAt(i) : 0;
+			return m_inputs.value(0) ? m_inputs.at(0)->valueAt(i) : 0;
 		}
 		virtual double y(size_t i) const {
-			return d_inputs.value(1) ? d_inputs.at(1)->valueAt(i) : 0;
+			return m_inputs.value(1) ? m_inputs.at(1)->valueAt(i) : 0;
 		}
 		//@}
 
 	private:
 		//! Only used as a result of calling copy().
-		DoubleColumnData *d_data[2];
+		DoubleColumnData *m_data[2];
 };
 
 #endif // ifndef QWT_DATA_FILTER_H

@@ -38,73 +38,73 @@
 Column::Column(const QString& name, SciDAVis::ColumnMode mode)
  : AbstractColumn(name)
 {
-	d_column_private = new Private(this, mode);
-	d_string_io = new ColumnStringIO(this);
-	d_column_private->inputFilter()->input(0,d_string_io);
-	d_column_private->outputFilter()->input(0,this);
-	addChild(d_column_private->inputFilter());
-	addChild(d_column_private->outputFilter());
+	m_column_private = new Private(this, mode);
+	m_string_io = new ColumnStringIO(this);
+	m_column_private->inputFilter()->input(0,m_string_io);
+	m_column_private->outputFilter()->input(0,this);
+	addChild(m_column_private->inputFilter());
+	addChild(m_column_private->outputFilter());
 }
 
 Column::Column(const QString& name, QVector<double> data, IntervalAttribute<bool> validity)
  : AbstractColumn(name)
 {
-	d_column_private = new Private(this, SciDAVis::TypeDouble, 
+	m_column_private = new Private(this, SciDAVis::TypeDouble, 
 		SciDAVis::Numeric, new QVector<double>(data), validity);
-	d_string_io = new ColumnStringIO(this);
-	d_column_private->inputFilter()->input(0,d_string_io);
-	d_column_private->outputFilter()->input(0,this);
-	addChild(d_column_private->inputFilter());
-	addChild(d_column_private->outputFilter());
+	m_string_io = new ColumnStringIO(this);
+	m_column_private->inputFilter()->input(0,m_string_io);
+	m_column_private->outputFilter()->input(0,this);
+	addChild(m_column_private->inputFilter());
+	addChild(m_column_private->outputFilter());
 }
 
 Column::Column(const QString& name, QStringList data, IntervalAttribute<bool> validity)
  : AbstractColumn(name)
 {
-	d_column_private = new Private(this, SciDAVis::TypeQString,
+	m_column_private = new Private(this, SciDAVis::TypeQString,
 		SciDAVis::Text, new QStringList(data), validity);
-	d_string_io = new ColumnStringIO(this);
-	d_column_private->inputFilter()->input(0,d_string_io);
-	d_column_private->outputFilter()->input(0,this);
-	addChild(d_column_private->inputFilter());
-	addChild(d_column_private->outputFilter());
+	m_string_io = new ColumnStringIO(this);
+	m_column_private->inputFilter()->input(0,m_string_io);
+	m_column_private->outputFilter()->input(0,this);
+	addChild(m_column_private->inputFilter());
+	addChild(m_column_private->outputFilter());
 }
 
 Column::Column(const QString& name, QList<QDateTime> data, IntervalAttribute<bool> validity)
  : AbstractColumn(name)
 {
-	d_column_private = new Private(this, SciDAVis::TypeQDateTime, 
+	m_column_private = new Private(this, SciDAVis::TypeQDateTime, 
 		SciDAVis::DateTime, new QList<QDateTime>(data), validity);
-	d_string_io = new ColumnStringIO(this);
-	d_column_private->inputFilter()->input(0,d_string_io);
-	d_column_private->outputFilter()->input(0,this);
-	addChild(d_column_private->inputFilter());
-	addChild(d_column_private->outputFilter());
+	m_string_io = new ColumnStringIO(this);
+	m_column_private->inputFilter()->input(0,m_string_io);
+	m_column_private->outputFilter()->input(0,this);
+	addChild(m_column_private->inputFilter());
+	addChild(m_column_private->outputFilter());
 }
 
 Column::~Column()
 {
-	delete d_column_private;
+	delete m_column_private;
 }
 
 void Column::setColumnMode(SciDAVis::ColumnMode mode)
 {
 	if(mode == columnMode()) return;
 	beginMacro(QObject::tr("%1: change column type").arg(name()));
-	AbstractSimpleFilter * old_input_filter = d_column_private->inputFilter();
-	AbstractSimpleFilter * old_output_filter = d_column_private->outputFilter();
-	exec(new ColumnSetModeCmd(d_column_private, mode));
-	if (d_column_private->inputFilter() != old_input_filter) 
+	AbstractSimpleFilter * old_input_filter = m_column_private->inputFilter();
+	AbstractSimpleFilter * old_output_filter = m_column_private->outputFilter();
+	exec(new ColumnSetModeCmd(m_column_private, mode));
+	if (m_column_private->inputFilter() != old_input_filter) 
 	{
 		removeChild(old_input_filter);
-		addChild(d_column_private->inputFilter());
-		d_column_private->inputFilter()->input(0,d_string_io);
+		addChild(m_column_private->inputFilter());
+		m_column_private->inputFilter()->input(0,m_string_io);
 	}
-	if (d_column_private->outputFilter() != old_output_filter) 
+	if (m_column_private->outputFilter() != old_output_filter) 
 	{
 		removeChild(old_output_filter);
-		addChild(d_column_private->outputFilter());
-		d_column_private->outputFilter()->input(0, this);
+		addChild(m_column_private->outputFilter());
+		m_column_private->outputFilter()->input(0, this);
 	}
 	endMacro();
 }
@@ -114,7 +114,7 @@ bool Column::copy(const AbstractColumn * other)
 {
 	Q_CHECK_PTR(other);
 	if(other->dataType() != dataType()) return false;
-	exec(new ColumnFullCopyCmd(d_column_private, other));
+	exec(new ColumnFullCopyCmd(m_column_private, other));
 	return true;
 }
 
@@ -122,31 +122,31 @@ bool Column::copy(const AbstractColumn * source, int source_start, int dest_star
 {
 	Q_CHECK_PTR(source);
 	if(source->dataType() != dataType()) return false;
-	exec(new ColumnPartialCopyCmd(d_column_private, source, source_start, dest_start, num_rows));
+	exec(new ColumnPartialCopyCmd(m_column_private, source, source_start, dest_start, num_rows));
 	return true;
 }
 
 void Column::insertRows(int before, int count)
 {
 	if(count > 0)
-		exec(new ColumnInsertEmptyRowsCmd(d_column_private, before, count));
+		exec(new ColumnInsertEmptyRowsCmd(m_column_private, before, count));
 }
 
 void Column::removeRows(int first, int count)
 {
 	if(count > 0)
-		exec(new ColumnRemoveRowsCmd(d_column_private, first, count));
+		exec(new ColumnRemoveRowsCmd(m_column_private, first, count));
 }
 
 void Column::setPlotDesignation(SciDAVis::PlotDesignation pd)
 {
 	if(pd != plotDesignation())
-		exec(new ColumnSetPlotDesignationCmd(d_column_private, pd));
+		exec(new ColumnSetPlotDesignationCmd(m_column_private, pd));
 }
 
 void Column::clear()
 {
-	exec(new ColumnClearCmd(d_column_private));
+	exec(new ColumnClearCmd(m_column_private));
 }
 
 void Column::notifyReplacement(AbstractColumn* replacement)
@@ -156,17 +156,17 @@ void Column::notifyReplacement(AbstractColumn* replacement)
 
 void Column::clearValidity()
 {
-	exec(new ColumnClearValidityCmd(d_column_private));
+	exec(new ColumnClearValidityCmd(m_column_private));
 }
 
 void Column::clearMasks()
 {
-	exec(new ColumnClearMasksCmd(d_column_private));
+	exec(new ColumnClearMasksCmd(m_column_private));
 }
 
 void Column::setInvalid(Interval<int> i, bool invalid)
 {
-	exec(new ColumnSetInvalidCmd(d_column_private, i, invalid));
+	exec(new ColumnSetInvalidCmd(m_column_private, i, invalid));
 }
 
 void Column::setInvalid(int row, bool invalid)
@@ -176,7 +176,7 @@ void Column::setInvalid(int row, bool invalid)
 
 void Column::setMasked(Interval<int> i, bool mask)
 {
-	exec(new ColumnSetMaskedCmd(d_column_private, i, mask));
+	exec(new ColumnSetMaskedCmd(m_column_private, i, mask));
 }
 
 void Column::setMasked(int row, bool mask)
@@ -186,7 +186,7 @@ void Column::setMasked(int row, bool mask)
 
 void Column::setFormula(Interval<int> i, QString formula)
 {
-	exec(new ColumnSetFormulaCmd(d_column_private, i, formula));
+	exec(new ColumnSetFormulaCmd(m_column_private, i, formula));
 }
 
 void Column::setFormula(int row, QString formula)
@@ -196,18 +196,18 @@ void Column::setFormula(int row, QString formula)
 
 void Column::clearFormulas()
 {
-	exec(new ColumnClearFormulasCmd(d_column_private));
+	exec(new ColumnClearFormulasCmd(m_column_private));
 }
 
 void Column::setTextAt(int row, const QString& new_value)
 {
-	exec(new ColumnSetTextCmd(d_column_private, row, new_value));
+	exec(new ColumnSetTextCmd(m_column_private, row, new_value));
 }
 
 void Column::replaceTexts(int first, const QStringList& new_values)
 {
 	if (!new_values.isEmpty())
-		exec(new ColumnReplaceTextsCmd(d_column_private, first, new_values));
+		exec(new ColumnReplaceTextsCmd(m_column_private, first, new_values));
 }
 
 void Column::setDateAt(int row, const QDate& new_value)
@@ -222,49 +222,49 @@ void Column::setTimeAt(int row,const QTime& new_value)
 
 void Column::setDateTimeAt(int row, const QDateTime& new_value)
 {
-	exec(new ColumnSetDateTimeCmd(d_column_private, row, new_value));
+	exec(new ColumnSetDateTimeCmd(m_column_private, row, new_value));
 }
 
 void Column::replaceDateTimes(int first, const QList<QDateTime>& new_values)
 {
 	if (!new_values.isEmpty())
-		exec(new ColumnReplaceDateTimesCmd(d_column_private, first, new_values));
+		exec(new ColumnReplaceDateTimesCmd(m_column_private, first, new_values));
 }
 
 void Column::setValueAt(int row, double new_value)
 {
-	exec(new ColumnSetValueCmd(d_column_private, row, new_value));
+	exec(new ColumnSetValueCmd(m_column_private, row, new_value));
 }
 
 void Column::replaceValues(int first, const QVector<double>& new_values)
 {
 	if (!new_values.isEmpty())
-		exec(new ColumnReplaceValuesCmd(d_column_private, first, new_values));
+		exec(new ColumnReplaceValuesCmd(m_column_private, first, new_values));
 }
 
 QString Column::textAt(int row) const
 {
-	return d_column_private->textAt(row);
+	return m_column_private->textAt(row);
 }
 
 QDate Column::dateAt(int row) const
 {
-	return d_column_private->dateAt(row);
+	return m_column_private->dateAt(row);
 }
 
 QTime Column::timeAt(int row) const
 {
-	return d_column_private->timeAt(row);
+	return m_column_private->timeAt(row);
 }
 
 QDateTime Column::dateTimeAt(int row) const
 {
-	return d_column_private->dateTimeAt(row);
+	return m_column_private->dateTimeAt(row);
 }
 
 double Column::valueAt(int row) const
 {
-	return d_column_private->valueAt(row);
+	return m_column_private->valueAt(row);
 }
 
 QIcon Column::icon() const
@@ -290,10 +290,10 @@ void Column::save(QXmlStreamWriter * writer) const
 	writer->writeAttribute("plot_designation", SciDAVis::enumValueToString(plotDesignation(), "PlotDesignation"));
 	writeCommentElement(writer);
 	writer->writeStartElement("input_filter");
-	d_column_private->inputFilter()->save(writer);
+	m_column_private->inputFilter()->save(writer);
 	writer->writeEndElement();
 	writer->writeStartElement("output_filter");
-	d_column_private->outputFilter()->save(writer);
+	m_column_private->outputFilter()->save(writer);
 	writer->writeEndElement();
 	QList< Interval<int> > masks = maskedIntervals();
 	foreach(Interval<int> interval, masks)
@@ -468,7 +468,7 @@ bool Column::XmlReadInputFilter(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "input_filter");
 	if (!reader->skipToNextTag()) return false;
-	if (!d_column_private->inputFilter()->load(reader)) return false;
+	if (!m_column_private->inputFilter()->load(reader)) return false;
 	if (!reader->skipToNextTag()) return false;
 	Q_ASSERT(reader->isEndElement() && reader->name() == "input_filter");
 	return true;
@@ -478,7 +478,7 @@ bool Column::XmlReadOutputFilter(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "output_filter");
 	if (!reader->skipToNextTag()) return false;
-	if (!d_column_private->outputFilter()->load(reader)) return false;
+	if (!m_column_private->outputFilter()->load(reader)) return false;
 	if (!reader->skipToNextTag()) return false;
 	Q_ASSERT(reader->isEndElement() && reader->name() == "output_filter");
 	return true;
@@ -577,66 +577,66 @@ bool Column::XmlReadRow(XmlStreamReader * reader)
 }
 SciDAVis::ColumnDataType Column::dataType() const 
 { 
-	return d_column_private->dataType(); 
+	return m_column_private->dataType(); 
 }
 
 SciDAVis::ColumnMode Column::columnMode() const 
 { 
-	return d_column_private->columnMode(); 
+	return m_column_private->columnMode(); 
 }
 int Column::rowCount() const 
 { 
-	return d_column_private->rowCount(); 
+	return m_column_private->rowCount(); 
 }
 
 SciDAVis::PlotDesignation Column::plotDesignation() const
 { 
-	return d_column_private->plotDesignation(); 
+	return m_column_private->plotDesignation(); 
 }
 
 AbstractSimpleFilter * Column::outputFilter() const 
 { 
-	return d_column_private->outputFilter(); 
+	return m_column_private->outputFilter(); 
 }
 
 bool Column::isInvalid(int row) const 
 { 
-	return d_column_private->isInvalid(row); 
+	return m_column_private->isInvalid(row); 
 }
 
 bool Column::isInvalid(Interval<int> i) const 
 { 
-	return d_column_private->isInvalid(i); 
+	return m_column_private->isInvalid(i); 
 }
 
 QList< Interval<int> > Column::invalidIntervals() const 
 { 
-	return d_column_private->invalidIntervals(); 
+	return m_column_private->invalidIntervals(); 
 }
 
 bool Column::isMasked(int row) const 
 { 
-	return d_column_private->isMasked(row); 
+	return m_column_private->isMasked(row); 
 }
 
 bool Column::isMasked(Interval<int> i) const 
 { 
-	return d_column_private->isMasked(i); 
+	return m_column_private->isMasked(i); 
 }
 
 QList< Interval<int> > Column::maskedIntervals() const 
 { 
-	return d_column_private->maskedIntervals(); 
+	return m_column_private->maskedIntervals(); 
 }
 
 QString Column::formula(int row) const 
 { 
-	return d_column_private->formula(row); 
+	return m_column_private->formula(row); 
 }
 
 QList< Interval<int> > Column::formulaIntervals() const 
 { 
-	return d_column_private->formulaIntervals(); 
+	return m_column_private->formulaIntervals(); 
 }
 
 void Column::notifyDisplayChange()
@@ -647,17 +647,17 @@ void Column::notifyDisplayChange()
 
 void ColumnStringIO::setTextAt(int row, const QString &value)
 {
-	d_setting = true;
-	d_to_set = value;
-	d_owner->copy(d_owner->d_column_private->inputFilter()->output(0), 0, row, 1);
-	d_setting = false;
-	d_to_set.clear();
+	m_setting = true;
+	m_to_set = value;
+	m_owner->copy(m_owner->m_column_private->inputFilter()->output(0), 0, row, 1);
+	m_setting = false;
+	m_to_set.clear();
 }
 
 QString ColumnStringIO::textAt(int row) const
 {
-	if (d_setting)
-		return d_to_set;
+	if (m_setting)
+		return m_to_set;
 	else
-		return d_owner->d_column_private->outputFilter()->output(0)->textAt(row);
+		return m_owner->m_column_private->outputFilter()->output(0)->textAt(row);
 }

@@ -139,7 +139,7 @@ class ProjectWindow : public QMainWindow
 		void handleAspectAddedInternal(AbstractAspect *aspect);
 
 	private:
-		Project * d_project;
+		Project * m_project;
 
 		class Private;
 		Private *d;
@@ -148,7 +148,7 @@ class ProjectWindow : public QMainWindow
 		QToolBar 
 			*file,
 			*edit;
-		} d_toolbars;
+		} m_toolbars;
 
 		struct {
 		QMenu 
@@ -162,7 +162,7 @@ class ProjectWindow : public QMainWindow
 			*windows,
 			*help,
 			*win_policy_menu;
-		} d_menus;
+		} m_menus;
 		
 		struct {
 		QAction 
@@ -198,21 +198,21 @@ class ProjectWindow : public QMainWindow
 			*show_history,
 			*undo,
 			*redo;
-		} d_actions;
+		} m_actions;
 
-		QList<QAction*> d_part_makers;
-		QSignalMapper *d_part_maker_map;
+		QList<QAction*> m_part_makers;
+		QSignalMapper *m_part_maker_map;
 
 		struct {
 		QToolButton 
 			*new_aspect;
-		} d_buttons;
+		} m_buttons;
 		
-		QDockWidget * d_project_explorer_dock;
-		ProjectExplorer * d_project_explorer;
-		QMdiArea * d_mdi_area;
-		AbstractAspect * d_current_aspect;
-		Folder * d_current_folder;
+		QDockWidget * m_project_explorer_dock;
+		ProjectExplorer * m_project_explorer;
+		QMdiArea * m_mdi_area;
+		AbstractAspect * m_current_aspect;
+		Folder * m_current_folder;
 
 		static ActionManager * action_manager;
 };

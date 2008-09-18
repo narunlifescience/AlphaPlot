@@ -56,8 +56,8 @@ class ShortcutsDialog : public QDialog
 		~ShortcutsDialog();
 
 	private:
-		RecordShortcutDelegate * d_delegate;
-		QTreeView * d_tree_view;
+		RecordShortcutDelegate * m_delegate;
+		QTreeView * m_tree_view;
 
 	private slots:
 		void resizeColumns(const QModelIndex & index);

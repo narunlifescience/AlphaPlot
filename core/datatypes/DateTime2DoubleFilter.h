@@ -44,8 +44,8 @@ class DateTime2DoubleFilter : public AbstractSimpleFilter
 
 	public:
 		virtual double valueAt(int row) const {
-			if (!d_inputs.value(0)) return 0;
-			QDateTime input_value = d_inputs.value(0)->dateTimeAt(row);
+			if (!m_inputs.value(0)) return 0;
+			QDateTime input_value = m_inputs.value(0)->dateTimeAt(row);
 			return double(input_value.date().toJulianDay()) +
 				double( -input_value.time().msecsTo(QTime(12,0,0,0)) ) / 86400000.0;
 		}

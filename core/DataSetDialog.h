@@ -67,7 +67,7 @@ signals:
 private:
 	QString operation;
 	QString windowTitle;
-	Layer *d_layer;
+	Layer *m_layer;
 };
 
 #endif

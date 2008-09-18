@@ -51,10 +51,10 @@ class XmlStreamReader : public QXmlStreamReader
 		bool hasWarnings() const;
 		void raiseWarning(const QString & message = QString());
 		void raiseError(const QString & message = QString());
-		CLASS_ACCESSOR(QString, d_error_prefix, errorPrefix, ErrorPrefix);
-		CLASS_ACCESSOR(QString, d_error_postfix, errorPostfix, ErrorPostfix);
-		CLASS_ACCESSOR(QString, d_warning_prefix, warningPrefix, WarningPrefix);
-		CLASS_ACCESSOR(QString, d_warning_postfix, warningPostfix, WarningPostfix);
+		CLASS_ACCESSOR(QString, m_error_prefix, errorPrefix, ErrorPrefix);
+		CLASS_ACCESSOR(QString, m_error_postfix, errorPostfix, ErrorPostfix);
+		CLASS_ACCESSOR(QString, m_warning_prefix, warningPrefix, WarningPrefix);
+		CLASS_ACCESSOR(QString, m_warning_postfix, warningPostfix, WarningPostfix);
 
 		//! Go to the next start or end element tag
 		/**
@@ -80,11 +80,11 @@ class XmlStreamReader : public QXmlStreamReader
 		int readAttributeInt(const QString & name, bool * ok);
 
 	private:
-		QStringList d_warnings;
-		QString d_error_prefix;
-		QString d_error_postfix;
-		QString d_warning_prefix;
-		QString d_warning_postfix;
+		QStringList m_warnings;
+		QString m_error_prefix;
+		QString m_error_postfix;
+		QString m_warning_prefix;
+		QString m_warning_postfix;
 
 		void init();
 };

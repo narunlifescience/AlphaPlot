@@ -58,22 +58,22 @@ TableDoubleHeaderView::TableDoubleHeaderView(QWidget * parent)
 : QHeaderView(Qt::Horizontal, parent)
 { 
 	setDefaultAlignment(Qt::AlignLeft | Qt::AlignTop);
-	d_slave = new TableCommentsHeaderView(this); 
-	d_slave->setDefaultAlignment(Qt::AlignLeft | Qt::AlignTop);
-	d_show_comments = true;
+	m_slave = new TableCommentsHeaderView(this); 
+	m_slave->setDefaultAlignment(Qt::AlignLeft | Qt::AlignTop);
+	m_show_comments = true;
 }
 
 TableDoubleHeaderView::~TableDoubleHeaderView()
 {
-	delete d_slave;
+	delete m_slave;
 }
 
 QSize TableDoubleHeaderView::sizeHint() const
 {
 	QSize master_size, slave_size;
 	master_size = QHeaderView::sizeHint();
-	slave_size = d_slave->sizeHint();
-	if(d_show_comments)
+	slave_size = m_slave->sizeHint();
+	if(m_show_comments)
 		master_size.setHeight(master_size.height() + slave_size.height());
 	return master_size;
 }
@@ -81,7 +81,7 @@ QSize TableDoubleHeaderView::sizeHint() const
 void TableDoubleHeaderView::setModel(QAbstractItemModel * model)
 {
 	Q_ASSERT(model->inherits("TableModel"));
-	d_slave->setModel(model);
+	m_slave->setModel(model);
 	QHeaderView::setModel(model);
 	connect(model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
 }
@@ -89,33 +89,33 @@ void TableDoubleHeaderView::setModel(QAbstractItemModel * model)
 void TableDoubleHeaderView::paintSection ( QPainter * painter, const QRect & rect, int logicalIndex ) const
 {
 	QRect master_rect = rect;
-	if(d_show_comments)
-		master_rect = rect.adjusted(0, 0, 0, -d_slave->sizeHint().height());
+	if(m_show_comments)
+		master_rect = rect.adjusted(0, 0, 0, -m_slave->sizeHint().height());
 	QHeaderView::paintSection(painter, master_rect, logicalIndex);
-	if(d_show_comments && rect.height() > QHeaderView::sizeHint().height()) 
+	if(m_show_comments && rect.height() > QHeaderView::sizeHint().height()) 
 	{
 		QRect slave_rect = rect.adjusted(0, QHeaderView::sizeHint().height(), 0, 0);
-		d_slave->paintSection(painter, slave_rect, logicalIndex);
+		m_slave->paintSection(painter, slave_rect, logicalIndex);
 	}
 }
 
 bool TableDoubleHeaderView::areCommentsShown() const
 {
-	return d_show_comments;
+	return m_show_comments;
 }
 
 void TableDoubleHeaderView::showComments(bool on)
 {
-	d_show_comments = on;
+	m_show_comments = on;
 	refresh();
 }
 
 void TableDoubleHeaderView::refresh()
 {
 	// adjust geometry and repaint header (still looking for a more elegant solution)
-	d_slave->setStretchLastSection(true);  // ugly hack (flaw in Qt? Does anyone know a better way?)
-	d_slave->updateGeometry();
-	d_slave->setStretchLastSection(false); // ugly hack part 2
+	m_slave->setStretchLastSection(true);  // ugly hack (flaw in Qt? Does anyone know a better way?)
+	m_slave->updateGeometry();
+	m_slave->setStretchLastSection(false); // ugly hack part 2
 	setStretchLastSection(true);  // ugly hack (flaw in Qt? Does anyone know a better way?)
 	updateGeometry();
 	setStretchLastSection(false); // ugly hack part 2
@@ -132,8 +132,8 @@ void TableDoubleHeaderView::headerDataChanged(Qt::Orientation orientation, int l
 		
 void TableDoubleHeaderView::sectionsInserted(const QModelIndex & parent, int logicalFirst, int logicalLast )
 {
-	d_slave->sectionsInserted(parent, logicalFirst, logicalLast);
+	m_slave->sectionsInserted(parent, logicalFirst, logicalLast);
 	QHeaderView::sectionsInserted(parent, logicalFirst, logicalLast);
-	Q_ASSERT(d_slave->count() == QHeaderView::count());
+	Q_ASSERT(m_slave->count() == QHeaderView::count());
 }
 		

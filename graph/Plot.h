@@ -49,20 +49,20 @@ public:
 
 	enum LabelFormat{Automatic, Decimal, Scientific, Superscripts};
 
-	QwtPlotGrid *grid(){return (QwtPlotGrid *)d_grid;};
-	QList<int> curveKeys(){return d_curves.keys();};
-	QList<QwtPlotItem *> curvesList(){return d_curves.values();};
+	QwtPlotGrid *grid(){return (QwtPlotGrid *)m_grid;};
+	QList<int> curveKeys(){return m_curves.keys();};
+	QList<QwtPlotItem *> curvesList(){return m_curves.values();};
 	
 	int insertCurve(QwtPlotItem *c);
 	void removeCurve(int index);
 
 	int closestCurve(int xpos, int ypos, int &dist, int &point);
 	QwtPlotCurve* curve(int index);
-	QwtPlotItem* plotItem(int index){return d_curves.value(index);};
-	QMap<int, QwtPlotItem*> curves(){return d_curves;};
+	QwtPlotItem* plotItem(int index){return m_curves.value(index);};
+	QMap<int, QwtPlotItem*> curves(){return m_curves;};
 
-	QwtPlotMarker* marker(int index){return d_markers.value(index);};
-	QList<int> markerKeys(){return d_markers.keys();};
+	QwtPlotMarker* marker(int index){return m_markers.value(index);};
+	QList<int> markerKeys(){return m_markers.keys();};
 	int insertMarker(QwtPlotMarker *m);
 	void removeMarker(int index);
 
@@ -102,9 +102,9 @@ protected:
 
 	void drawInwardTicks(QPainter *painter, const QRect &rect,
 							const QwtScaleMap&map, int axis, bool min, bool maj) const;
-	Grid *d_grid;
-	QMap<int, QwtPlotItem*> d_curves;
-	QMap<int, QwtPlotMarker*> d_markers;
+	Grid *m_grid;
+	QMap<int, QwtPlotItem*> m_curves;
+	QMap<int, QwtPlotMarker*> m_markers;
 
 	int minTickLength, majTickLength;
 	int marker_key;

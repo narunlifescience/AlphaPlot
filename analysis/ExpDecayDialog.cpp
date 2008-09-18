@@ -158,7 +158,7 @@ void ExpDecayDialog::setLayer(Layer *layer)
 
 void ExpDecayDialog::activateCurve(const QString& curveName)
 {
-	QwtPlotCurve *c = d_layer->curve(curveName);
+	QwtPlotCurve *c = m_layer->curve(curveName);
 	if (!c)
 		return;
 
@@ -168,7 +168,7 @@ void ExpDecayDialog::activateCurve(const QString& curveName)
 
 	int precision = app->fit_output_precision;
 	double start, end;
-	d_layer->range(d_layer->curveIndex(curveName), &start, &end);
+	m_layer->range(m_layer->curveIndex(curveName), &start, &end);
 	boxStart->setText(QString::number(QMIN(start, end)));
 	boxYOffset->setText(QString::number(c->minYValue(), 'g', precision));
 	if (slopes < 2)
@@ -178,16 +178,16 @@ void ExpDecayDialog::activateCurve(const QString& curveName)
 
 void ExpDecayDialog::changeDataRange()
 {
-double start = d_layer->selectedXStartValue();
-double end = d_layer->selectedXEndValue();
+double start = m_layer->selectedXStartValue();
+double end = m_layer->selectedXEndValue();
 boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
 }
 
 void ExpDecayDialog::fit()
 {
 	QString curve = boxName->currentText();
-	QwtPlotCurve *c = d_layer->curve(curve);
-	QStringList curvesList = d_layer->analysableCurvesList();
+	QwtPlotCurve *c = m_layer->curve(curve);
+	QStringList curvesList = m_layer->analysableCurvesList();
 	if (!c || !curvesList.contains(curve))
 	{
 		QMessageBox::critical(this,tr("Warning"),
@@ -210,20 +210,20 @@ void ExpDecayDialog::fit()
 	{
 		double x_init[7] = {1.0, boxFirst->text().toDouble(), 1.0, boxSecond->text().toDouble(),
 			1.0, boxThird->text().toDouble(), boxYOffset->text().toDouble()};
-		fitter = new ThreeExpFit(app, d_layer);
+		fitter = new ThreeExpFit(app, m_layer);
 		fitter->setInitialGuesses(x_init);
 	}
 	else if (slopes == 2)
 	{
 		double x_init[5] = {1.0, boxFirst->text().toDouble(), 1.0, boxSecond->text().toDouble(),
 			boxYOffset->text().toDouble()};
-		fitter = new TwoExpFit(app, d_layer);
+		fitter = new TwoExpFit(app, m_layer);
 		fitter->setInitialGuesses(x_init);
 	}
 	else if (slopes == 1 || slopes == -1)
 	{
 		double x_init[3] = {boxAmplitude->text().toDouble(), slopes/boxFirst->text().toDouble(), boxYOffset->text().toDouble()};
-		fitter = new ExponentialFit(app, d_layer, slopes == -1);
+		fitter = new ExponentialFit(app, m_layer, slopes == -1);
 		fitter->setInitialGuesses(x_init);
 	}
 

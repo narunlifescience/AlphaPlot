@@ -36,16 +36,16 @@
 
 TableStatistics::TableStatistics(AbstractScriptingEngine *engine, QWidget *parent, Table *base, Type t, QList<int> targets)
 	: Table(engine, 1, 1, "", parent, ""),
-	d_base(base), d_type(t), d_targets(targets)
+	m_base(base), m_type(t), m_targets(targets)
 {
 	// FIXME: Haven't found a set read-only method in Qt4 yet
-	// d_table->setReadOnly(true);
+	// m_table->setReadOnly(true);
 	setCaptionPolicy(MyWidget::Both);
-	if (d_type == row)
+	if (m_type == row)
 	{
-		setName(QString(d_base->name())+"-"+tr("RowStats"));
+		setName(QString(m_base->name())+"-"+tr("RowStats"));
 		setWindowLabel(tr("Row Statistics of %1").arg(base->name()));
-		setRowCount(d_targets.size());
+		setRowCount(m_targets.size());
 		setColumnCount(9);
 		setColName(0, tr("Row"));
 		setColName(1, tr("Cols"));
@@ -61,15 +61,15 @@ TableStatistics::TableStatistics(AbstractScriptingEngine *engine, QWidget *paren
 		//for (int i=0; i < 9; i++)
 		//	setColumnType(i, Text);
 
-		for (int i=0; i < d_targets.size(); i++)
-			setText(i, 0, QString::number(d_targets[i]+1));
-		update(d_base, QString::null);
+		for (int i=0; i < m_targets.size(); i++)
+			setText(i, 0, QString::number(m_targets[i]+1));
+		update(m_base, QString::null);
 	}
-	else if (d_type == column)
+	else if (m_type == column)
 	{
-		setName(QString(d_base->name())+"-"+tr("ColStats"));
+		setName(QString(m_base->name())+"-"+tr("ColStats"));
 		setWindowLabel(tr("Column Statistics of %1").arg(base->name()));
-		setRowCount(d_targets.size());
+		setRowCount(m_targets.size());
 		setColumnCount(11);
 		setColName(0, tr("Col"));
 		setColName(1, tr("Rows"));
@@ -87,18 +87,18 @@ TableStatistics::TableStatistics(AbstractScriptingEngine *engine, QWidget *paren
 		//for (int i=0; i < 11; i++)
 		//	setColumnType(i, Text);
 
-		for (int i=0; i < d_targets.size(); i++)
+		for (int i=0; i < m_targets.size(); i++)
 		{
-			setText(i, 0, d_base->colLabel(d_targets[i]));
-			update(d_base, d_base->colName(d_targets[i]));
+			setText(i, 0, m_base->colLabel(m_targets[i]));
+			update(m_base, m_base->colName(m_targets[i]));
 		}
 	}
-	int w=9*(d_table_view->horizontalHeader())->sectionSize(0);
+	int w=9*(m_table_view->horizontalHeader())->sectionSize(0);
 	int h;
 	if (rowCount()>11)
-		h=11*(d_table_view->verticalHeader())->sectionSize(0);
+		h=11*(m_table_view->verticalHeader())->sectionSize(0);
 	else
-		h=(rowCount()+1)*(d_table_view->verticalHeader())->sectionSize(0);
+		h=(rowCount()+1)*(m_table_view->verticalHeader())->sectionSize(0);
 	setGeometry(50,50,w + 45, h + 45);
 
 	setColPlotDesignation(0, SciDAVis::X);
@@ -108,17 +108,17 @@ TableStatistics::TableStatistics(AbstractScriptingEngine *engine, QWidget *paren
 
 void TableStatistics::update(Table *t, const QString& colName)
 {
-	if (t != d_base) return;
+	if (t != m_base) return;
 
 	int j;
-	if (d_type == row)
-		for (int r=0; r < d_targets.size(); r++)
+	if (m_type == row)
+		for (int r=0; r < m_targets.size(); r++)
 		{
-			int cols=d_base->columnCount();
-			int i = d_targets[r];
+			int cols=m_base->columnCount();
+			int i = m_targets[r];
 			int m = 0;
 			for (j = 0; j < cols; j++)
-				if (!d_base->text(i, j).isEmpty() && d_base->columnType(j) == SciDAVis::Numeric)
+				if (!m_base->text(i, j).isEmpty() && m_base->columnType(j) == SciDAVis::Numeric)
 					m++;
 
 			if (!m)
@@ -134,10 +134,10 @@ void TableStatistics::update(Table *t, const QString& colName)
 				int aux = 0;
 				for (j = 0; j<cols; j++)
 				{
-					QString text = d_base->text(i,j);
-					if (!text.isEmpty() && d_base->columnType(j) == SciDAVis::Numeric)
+					QString text = m_base->text(i,j);
+					if (!text.isEmpty() && m_base->columnType(j) == SciDAVis::Numeric)
 					{					
-						double val = d_base->cell(i,j);
+						double val = m_base->cell(i,j);
 						gsl_vector_set (y, aux, val);
 						dat[aux] = val;
 						aux++;
@@ -147,7 +147,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 				double min, max;
 				gsl_vector_minmax (y, &min, &max);
 
-				setText(r, 1, QString::number(d_base->columnCount()));
+				setText(r, 1, QString::number(m_base->columnCount()));
 				setText(r, 2, QString::number(mean));
 				setText(r, 3, QString::number(gsl_stats_sd(dat, 1, m)));
 				setText(r, 4, QString::number(gsl_stats_variance(dat, 1, m)));
@@ -160,17 +160,17 @@ void TableStatistics::update(Table *t, const QString& colName)
 				delete[] dat;
 			}
 		}
-	else if (d_type == column)
-		for (int c=0; c < d_targets.size(); c++)
-			if (colName == QString(d_base->name())+"_"+text(c, 0))
+	else if (m_type == column)
+		for (int c=0; c < m_targets.size(); c++)
+			if (colName == QString(m_base->name())+"_"+text(c, 0))
 			{
-				int i = d_base->colIndex(colName);
-				if (d_base->columnType(i) != SciDAVis::Numeric) return;
+				int i = m_base->colIndex(colName);
+				if (m_base->columnType(i) != SciDAVis::Numeric) return;
 
-				int rows = d_base->rowCount();
+				int rows = m_base->rowCount();
 				int start = -1, m = 0;
 				for (j=0; j<rows; j++)
-					if (!d_base->text(j,i).isEmpty())
+					if (!m_base->text(j,i).isEmpty())
 					{
 						m++;
 						if (start<0) start=j;
@@ -189,16 +189,16 @@ void TableStatistics::update(Table *t, const QString& colName)
 				gsl_vector *y = gsl_vector_alloc (m);
 
 				int aux = 0, min_index = start, max_index = start;
-				double val = d_base->cell(start, i);
+				double val = m_base->cell(start, i);
 				gsl_vector_set (y, 0, val);
 				dat[0] = val;
 				double min = val, max = val;
 				for (j = start + 1; j<rows; j++)
 				{
-					if (!d_base->text(j, i).isEmpty())
+					if (!m_base->text(j, i).isEmpty())
 					{
 						aux++;
-						val = d_base->cell(j, i);
+						val = m_base->cell(j, i);
 						gsl_vector_set (y, aux, val);
 						dat[aux] = val;
 						if (val < min)
@@ -239,9 +239,9 @@ void TableStatistics::update(Table *t, const QString& colName)
 
 void TableStatistics::renameCol(const QString &from, const QString &to)
 {
-	if (d_type == row) return;
-	for (int c=0; c < d_targets.size(); c++)
-		if (from == QString(d_base->name())+"_"+text(c, 0))
+	if (m_type == row) return;
+	for (int c=0; c < m_targets.size(); c++)
+		if (from == QString(m_base->name())+"_"+text(c, 0))
 		{
 			setText(c, 0, to.section('_', 1, 1));
 			return;
@@ -251,16 +251,16 @@ void TableStatistics::renameCol(const QString &from, const QString &to)
 void TableStatistics::removeCol(const QString &col)
 {
 	/* TODO
-	if (d_type == row)
+	if (m_type == row)
 	{
-		update(d_base, col);
+		update(m_base, col);
 		return;
 	}
-	for (int c=0; c < d_targets.size(); c++)
-		if (col == QString(d_base->name())+"_"+text(c, 0))
+	for (int c=0; c < m_targets.size(); c++)
+		if (col == QString(m_base->name())+"_"+text(c, 0))
 		{
-			d_targets.remove(d_targets.at(c));
-			d_table->removeRow(c);
+			m_targets.remove(m_targets.at(c));
+			m_table->removeRow(c);
 			return;
 		}
 	*/
@@ -271,11 +271,11 @@ QString TableStatistics::saveToString(const QString &geometry)
 	/* TODO
 	QString s = "<TableStatistics>\n";
 	s += QString(name())+"\t";
-	s += QString(d_base->name())+"\t";
-	s += QString(d_type == row ? "row" : "col") + "\t";
+	s += QString(m_base->name())+"\t";
+	s += QString(m_type == row ? "row" : "col") + "\t";
 	s += birthDate()+"\n";
 	s += "Targets";
-	for (QList<int>::iterator i=d_targets.begin(); i!=d_targets.end(); ++i)
+	for (QList<int>::iterator i=m_targets.begin(); i!=m_targets.end(); ++i)
 		s += "\t" + QString::number(*i);
 	s += "\n";
 	s += geometry;

@@ -31,8 +31,8 @@
 AbstractScriptingEngine::AbstractScriptingEngine(const char *lang_name)
 {
 	setObjectName(lang_name);
-	d_initialized=false;
-	d_refcount=0;
+	m_initialized=false;
+	m_refcount=0;
 }
 
 const QString AbstractScriptingEngine::nameAndPatterns() const
@@ -46,13 +46,13 @@ const QString AbstractScriptingEngine::nameAndPatterns() const
 
 void AbstractScriptingEngine::incref()
 {
-	d_refcount++;
+	m_refcount++;
 }
 
 void AbstractScriptingEngine::decref()
 {
-	d_refcount--;
-	if (d_refcount==0)
+	m_refcount--;
+	if (m_refcount==0)
 		delete this;
 }
 
@@ -64,18 +64,18 @@ scripted::scripted(AbstractScriptingEngine *engine)
 {
 	if (engine)
 		engine->incref();
-	d_scripting_engine = engine;
+	m_scripting_engine = engine;
 }
 
 scripted::~scripted()
 {
-	if (d_scripting_engine)
-		d_scripting_engine->decref();
+	if (m_scripting_engine)
+		m_scripting_engine->decref();
 }
 
 void scripted::scriptingChangeEvent(ScriptingChangeEvent *sce)
 {
-	d_scripting_engine->decref();
+	m_scripting_engine->decref();
 	sce->scriptingEngine()->incref();
-	d_scripting_engine = sce->scriptingEngine();
+	m_scripting_engine = sce->scriptingEngine();
 }

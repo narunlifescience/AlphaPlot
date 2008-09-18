@@ -89,14 +89,14 @@ public slots:
 	void insertParamFunctionsList(const QStringList& xList, const QStringList& yList);
 	void insertPolarFunctionsList(const QStringList& rList, const QStringList& thetaList);
 	void clearList();
-	void setLayer(Layer *layer){d_layer = layer;};
+	void setLayer(Layer *layer){m_layer = layer;};
 
 signals:
 	void clearParamFunctionsList();
 	void clearPolarFunctionsList();
 
 private:
-	Layer *d_layer;
+	Layer *m_layer;
 	int curveID;
 };
 

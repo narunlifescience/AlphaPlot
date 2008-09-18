@@ -45,7 +45,7 @@ CanvasPicker::CanvasPicker(Layer *layer):
 	QObject(layer)
 {
 	pointSelected = false;
-	d_editing_marker = 0;
+	m_editing_marker = 0;
 
 	plotWidget=layer->plotWidget();
 
@@ -97,9 +97,9 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					return true;
 				}
 
-				if (d_editing_marker) {
-					d_editing_marker->setEditable(false);
-					d_editing_marker = 0;
+				if (m_editing_marker) {
+					m_editing_marker->setEditable(false);
+					m_editing_marker = 0;
 				}
 
 				if(layer()->markerSelected())
@@ -111,8 +111,8 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 
 		case QEvent::MouseButtonDblClick:
 			{
-				if (d_editing_marker) {
-					return d_editing_marker->eventFilter(plotWidget->canvas(), e);
+				if (m_editing_marker) {
+					return m_editing_marker->eventFilter(plotWidget->canvas(), e);
 				} else if (layer()->selectedMarkerKey() >= 0) {
 					if (texts.contains(layer()->selectedMarkerKey()))
 					{
@@ -226,9 +226,9 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 
 void CanvasPicker::disableEditing()
 {
-	if (d_editing_marker) {
-		d_editing_marker->setEditable(false);
-		d_editing_marker = 0;
+	if (m_editing_marker) {
+		m_editing_marker->setEditable(false);
+		m_editing_marker = 0;
 	}
 }
 
@@ -276,9 +276,9 @@ bool CanvasPicker::selectMarker(const QMouseEvent *e)
 		TextEnrichment *m = (TextEnrichment*)plotWidget->marker(i);
 		if (!m) return false;
 		if (m->rect().contains(point)) {
-			if (d_editing_marker) {
-				d_editing_marker->setEditable(false);
-				d_editing_marker = 0;
+			if (m_editing_marker) {
+				m_editing_marker->setEditable(false);
+				m_editing_marker = 0;
 			}
 			layer()->setSelectedMarker(i, e->modifiers() & Qt::ShiftModifier);
 			return true;
@@ -288,9 +288,9 @@ bool CanvasPicker::selectMarker(const QMouseEvent *e)
 		ImageEnrichment* m=(ImageEnrichment*)plotWidget->marker(i);
 		if (!m) return false;
 		if (m->rect().contains(point)) {
-			if (d_editing_marker) {
-				d_editing_marker->setEditable(false);
-				d_editing_marker = 0;
+			if (m_editing_marker) {
+				m_editing_marker->setEditable(false);
+				m_editing_marker = 0;
 			}
 			layer()->setSelectedMarker(i, e->modifiers() & Qt::ShiftModifier);
 			return true;
@@ -304,9 +304,9 @@ bool CanvasPicker::selectMarker(const QMouseEvent *e)
 		double dist=mrkL->dist(point.x(),point.y());
 		if (dist <= d)
 		{
-			if (d_editing_marker) {
-				d_editing_marker->setEditable(false);
-				d_editing_marker = 0;
+			if (m_editing_marker) {
+				m_editing_marker->setEditable(false);
+				m_editing_marker = 0;
 			}
 			if (e->modifiers() & Qt::ShiftModifier) {
 				layer()->setSelectedMarker(i, true);
@@ -318,7 +318,7 @@ bool CanvasPicker::selectMarker(const QMouseEvent *e)
 			}
 			layer()->deselectMarker();
 			mrkL->setEditable(true);
-			d_editing_marker = mrkL;
+			m_editing_marker = mrkL;
 			return true;
 		}
 	}

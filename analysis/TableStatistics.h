@@ -46,9 +46,9 @@ class TableStatistics : public Table
 		enum Type { row, column };
 		TableStatistics(AbstractScriptingEngine *engine, QWidget *parent, Table *base, Type, QList<int> targets);
 		//! return the type of statistics
-		Type type() const { return d_type; }
+		Type type() const { return m_type; }
 		//! return the base table of which statistics are displayed
-		Table *base() const { return d_base; }
+		Table *base() const { return m_base; }
 		// saving
 		virtual QString saveToString(const QString &geometry);
 
@@ -61,9 +61,9 @@ class TableStatistics : public Table
 		void removeCol(const QString&);
 
 	private:
-		Table *d_base;
-		Type d_type;
-		QList<int> d_targets;
+		Table *m_base;
+		Type m_type;
+		QList<int> m_targets;
 };
 
 #endif

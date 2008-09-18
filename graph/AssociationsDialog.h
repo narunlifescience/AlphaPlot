@@ -67,7 +67,7 @@ private:
 
 	QWidgetList* tables;
 	Table *active_table;
-	Layer *d_layer;
+	Layer *m_layer;
 	QStringList plotAssociationsList;
 
     QLabel* tableCaptionLabel;

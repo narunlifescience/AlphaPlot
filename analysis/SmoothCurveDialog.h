@@ -58,7 +58,7 @@ public slots:
 	void activateCurve(const QString& curveName);
 
 private:
-	Layer *d_layer;
+	Layer *m_layer;
 	int smooth_method;
 };
 

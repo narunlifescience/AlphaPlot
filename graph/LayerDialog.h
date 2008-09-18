@@ -52,7 +52,7 @@ protected slots:
 	void enableLayoutOptions(bool ok);
 
 private:
-	Graph *d_graph;
+	Graph *m_graph;
 
 	QPushButton* buttonOk;
 	QPushButton* buttonCancel;

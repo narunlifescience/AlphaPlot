@@ -55,35 +55,35 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The previous mode
-	SciDAVis::ColumnMode d_old_mode;	
+	SciDAVis::ColumnMode m_old_mode;	
 	//! The new mode
-	SciDAVis::ColumnMode d_mode;
+	SciDAVis::ColumnMode m_mode;
 	//! The old data type
-	SciDAVis::ColumnDataType d_old_type;
+	SciDAVis::ColumnDataType m_old_type;
 	//! The new data type
-	SciDAVis::ColumnDataType d_new_type;
+	SciDAVis::ColumnDataType m_new_type;
 	//! Pointer to old data
-	void * d_old_data;
+	void * m_old_data;
 	//! Pointer to new data
-	void * d_new_data;
+	void * m_new_data;
 	//! The new input filter
-	AbstractSimpleFilter* d_new_in_filter;
+	AbstractSimpleFilter* m_new_in_filter;
 	//! The new output filter
-	AbstractSimpleFilter* d_new_out_filter;
+	AbstractSimpleFilter* m_new_out_filter;
 	//! The old input filter
-	AbstractSimpleFilter* d_old_in_filter;
+	AbstractSimpleFilter* m_old_in_filter;
 	//! The old output filter
-	AbstractSimpleFilter* d_old_out_filter;
+	AbstractSimpleFilter* m_old_out_filter;
 	//! The old validity information
-	IntervalAttribute<bool> d_old_validity;
+	IntervalAttribute<bool> m_old_validity;
 	//! The new validity information
-	IntervalAttribute<bool> d_new_validity;
+	IntervalAttribute<bool> m_new_validity;
 	//! A status flag
-	bool d_undone;
+	bool m_undone;
 	//! A status flag
-	bool d_executed;
+	bool m_executed;
 };
 ///////////////////////////////////////////////////////////////////////////
 // end of class ColumnSetModeCmd
@@ -109,18 +109,18 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The column to copy
-	const AbstractColumn * d_src;
+	const AbstractColumn * m_src;
 	//! A backup column
-	Column::Private * d_backup;
+	Column::Private * m_backup;
 	//! A dummy owner for the backup column
 	/**
 	 * This is needed because a Column::Private must have an owner. We want access
 	 * to the Column::Private object to access its data pointer for fast data
 	 * replacement without too much copying.
 	 */
-	Column * d_backup_owner;
+	Column * m_backup_owner;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -146,35 +146,35 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The column to copy
-	const AbstractColumn * d_src;
+	const AbstractColumn * m_src;
 	//! A backup of the orig. column
-	Column::Private * d_col_backup;
+	Column::Private * m_col_backup;
 	//! A backup of the source column
-	Column::Private * d_src_backup;
+	Column::Private * m_src_backup;
 	//! A dummy owner for the backup column
 	/**
 	 * This is needed because a Column::Private must have an owner and
 	 * we must have a Column::Private object as backup.
 	 * Using a Column object as backup would lead to an inifinite loop.
 	 */
-	Column * d_col_backup_owner;
+	Column * m_col_backup_owner;
 	//! A dummy owner for the source backup column
 	/**
 	 * This is needed because a Column::Private must have an owner and
 	 * we must have a Column::Private object as backup.
 	 * Using a Column object as backup would lead to an inifinite loop.
 	 */
-	Column * d_src_backup_owner;
+	Column * m_src_backup_owner;
 	//! Start index in source column
-	int d_src_start;
+	int m_src_start;
 	//! Start index in destination column
-	int d_dest_start;
+	int m_dest_start;
 	//! Number of rows to copy
-	int d_num_rows;
+	int m_num_rows;
 	//! Previous number of rows in the destination column
-	int d_old_row_count;
+	int m_old_row_count;
 	
 
 };
@@ -202,11 +202,11 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! Row to insert before
-	int d_before;
+	int m_before;
 	//! Number of rows
-	int d_count;
+	int m_count;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -232,28 +232,28 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The first row
-	int d_first;
+	int m_first;
 	//! The number of rows to be removed
-	int d_count;
+	int m_count;
 	//! Number of removed rows actually containing data
-	int d_data_row_count;
+	int m_data_row_count;
 	//! The number of rows before the removal
-	int d_old_size;
+	int m_old_size;
 	//! Column saving the removed rows
-	Column::Private * d_backup;
+	Column::Private * m_backup;
 	//! A dummy owner for the backup column
 	/**
 	 * This is needed because a Column::Private must have an owner. We want access
 	 * to the Column::Private object to access its data pointer for fast data
 	 * replacement without too much copying.
 	 */
-	Column * d_backup_owner;
+	Column * m_backup_owner;
 	//! Backup of the masking attribute
-	IntervalAttribute<bool> d_masking;
+	IntervalAttribute<bool> m_masking;
 	//! Backup of the formula attribute
-	IntervalAttribute<QString> d_formulas;
+	IntervalAttribute<QString> m_formulas;
 };
 ///////////////////////////////////////////////////////////////////////////
 // end of class ColumnRemoveRowsCmd
@@ -278,11 +278,11 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! New plot designation
-	SciDAVis::PlotDesignation d_new_pd;
+	SciDAVis::PlotDesignation m_new_pd;
 	//! Old plot designation
-	SciDAVis::PlotDesignation d_old_pd;
+	SciDAVis::PlotDesignation m_old_pd;
 };
 ///////////////////////////////////////////////////////////////////////////
 // end of class ColumnSetPlotDesignationCmd
@@ -308,17 +308,17 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The column's data type
-	SciDAVis::ColumnDataType d_type;
+	SciDAVis::ColumnDataType m_type;
 	//! Pointer to the old data pointer
-	void * d_data;
+	void * m_data;
 	//! Pointer to an empty data vector
-	void * d_empty_data;
+	void * m_empty_data;
 	//! The old validity
-	IntervalAttribute<bool> d_validity;
+	IntervalAttribute<bool> m_validity;
 	//! Status flag
-	bool d_undone;
+	bool m_undone;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -345,11 +345,11 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The old validity
-	IntervalAttribute<bool> d_validity;
+	IntervalAttribute<bool> m_validity;
 	//! A status flag
-	bool d_copied;
+	bool m_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -375,11 +375,11 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The old masks
-	IntervalAttribute<bool> d_masking;
+	IntervalAttribute<bool> m_masking;
 	//! A status flag
-	bool d_copied;
+	bool m_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -405,15 +405,15 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The interval
-	Interval<int> d_interval;
+	Interval<int> m_interval;
 	//! Valid/invalid flag
-	bool d_invalid;
+	bool m_invalid;
 	//! Interval attribute backup
-	IntervalAttribute<bool> d_validity;
+	IntervalAttribute<bool> m_validity;
 	//! A status flag
-	bool d_copied;
+	bool m_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -439,15 +439,15 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The interval
-	Interval<int> d_interval;
+	Interval<int> m_interval;
 	//! Mask/unmask flag
-	bool d_masked;
+	bool m_masked;
 	//! Interval attribute backup
-	IntervalAttribute<bool> d_masking;
+	IntervalAttribute<bool> m_masking;
 	//! A status flag
-	bool d_copied;
+	bool m_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -473,15 +473,15 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The interval
-	Interval<int> d_interval;
+	Interval<int> m_interval;
 	//! The new formula
-	QString d_formula;
+	QString m_formula;
 	//! Interval attribute backup
-	IntervalAttribute<QString> d_formulas;
+	IntervalAttribute<QString> m_formulas;
 	//! A status flag
-	bool d_copied;
+	bool m_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -507,11 +507,11 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The old formulas
-	IntervalAttribute<QString> d_formulas;
+	IntervalAttribute<QString> m_formulas;
 	//! A status flag
-	bool d_copied;
+	bool m_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -537,17 +537,17 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The row to modify
-	int d_row;
+	int m_row;
 	//! The new value
-	QString d_new_value;
+	QString m_new_value;
 	//! The old value
-	QString d_old_value;
+	QString m_old_value;
 	//! The old number of rows
-	int d_row_count;
+	int m_row_count;
 	//! The old validity
-	IntervalAttribute<bool> d_validity;
+	IntervalAttribute<bool> m_validity;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -573,17 +573,17 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The row to modify
-	int d_row;
+	int m_row;
 	//! The new value
-	double d_new_value;
+	double m_new_value;
 	//! The old value
-	double d_old_value;
+	double m_old_value;
 	//! The old number of rows
-	int d_row_count;
+	int m_row_count;
 	//! The old validity
-	IntervalAttribute<bool> d_validity;
+	IntervalAttribute<bool> m_validity;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -609,17 +609,17 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The row to modify
-	int d_row;
+	int m_row;
 	//! The new value
-	QDateTime d_new_value;
+	QDateTime m_new_value;
 	//! The old value
-	QDateTime d_old_value;
+	QDateTime m_old_value;
 	//! The old number of rows
-	int d_row_count;
+	int m_row_count;
 	//! The old validity
-	IntervalAttribute<bool> d_validity;
+	IntervalAttribute<bool> m_validity;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -645,19 +645,19 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The first row to replace
-	int d_first;
+	int m_first;
 	//! The new values
-	QStringList d_new_values;
+	QStringList m_new_values;
 	//! The old values
-	QStringList d_old_values;
+	QStringList m_old_values;
 	//! Status flag
-	bool d_copied;
+	bool m_copied;
 	//! The old number of rows
-	int d_row_count;
+	int m_row_count;
 	//! The old validity
-	IntervalAttribute<bool> d_validity;
+	IntervalAttribute<bool> m_validity;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -683,19 +683,19 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The first row to replace
-	int d_first;
+	int m_first;
 	//! The new values
-	QVector<double> d_new_values;
+	QVector<double> m_new_values;
 	//! The old values
-	QVector<double> d_old_values;
+	QVector<double> m_old_values;
 	//! Status flag
-	bool d_copied;
+	bool m_copied;
 	//! The old number of rows
-	int d_row_count;
+	int m_row_count;
 	//! The old validity
-	IntervalAttribute<bool> d_validity;
+	IntervalAttribute<bool> m_validity;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -721,19 +721,19 @@ public:
 
 private:
 	//! The private column data to modify
-	Column::Private * d_col;
+	Column::Private * m_col;
 	//! The first row to replace
-	int d_first;
+	int m_first;
 	//! The new values
-	QList<QDateTime> d_new_values;
+	QList<QDateTime> m_new_values;
 	//! The old values
-	QList<QDateTime> d_old_values;
+	QList<QDateTime> m_old_values;
 	//! Status flag
-	bool d_copied;
+	bool m_copied;
 	//! The old number of rows
-	int d_row_count;
+	int m_row_count;
 	//! The old validity
-	IntervalAttribute<bool> d_validity;
+	IntervalAttribute<bool> m_validity;
 
 };
 ///////////////////////////////////////////////////////////////////////////

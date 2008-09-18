@@ -64,9 +64,9 @@ public slots:
 	void accept();
 
 private:
-	Layer *d_layer;
-	Table *d_table;
-	int d_type;
+	Layer *m_layer;
+	Table *m_table;
+	int m_type;
 };
 
 #endif

@@ -55,7 +55,7 @@ class SortDialog : public QDialog
 		void sort(Column *leading, QList<Column*> cols, bool ascending);
 
 	private:
-		QList<Column*> d_columns_list;
+		QList<Column*> m_columns_list;
 		struct {
 		QPushButton* button_ok;
 		QPushButton* button_cancel;

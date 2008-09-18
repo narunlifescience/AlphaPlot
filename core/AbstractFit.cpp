@@ -37,43 +37,43 @@ class FitSetAlgorithmCmd : public QUndoCommand
 {
 	public:
 		FitSetAlgorithCmd(AbstractFit *target, AbstractFit::Algorithm algo)
-			: d_target(target), d_other_algo(algo) {
-				setText(QObject::tr("%1: change fit algorithm to %2.").arg(d_target->name()).arg(AbstractFit::nameOf(d_algo)));
+			: m_target(target), m_other_algo(algo) {
+				setText(QObject::tr("%1: change fit algorithm to %2.").arg(m_target->name()).arg(AbstractFit::nameOf(m_algo)));
 			}
 
 		virtual void undo() {
-			AbstractFit::Algorithm tmp = d_target->d_algorithm;
-			d_target->d_algorithm = d_other_algo;
-			d_other_algo = tmp;
+			AbstractFit::Algorithm tmp = m_target->m_algorithm;
+			m_target->m_algorithm = m_other_algo;
+			m_other_algo = tmp;
 		}
 
 		virtual void redo() { undo(); }
 
 	private:
-		AbstractFit *d_target;
-		AbstractFit::Algorithm d_other_algo;
+		AbstractFit *m_target;
+		AbstractFit::Algorithm m_other_algo;
 };
 
 class FitSetAutoRefitCmd : public QUndoCommand
 {
 	public:
 		FitSetAutoRefitCmd(AbstractFit *target, bool refit)
-			: d_target(target), d_backup(refit) {
+			: m_target(target), m_backup(refit) {
 				setText((refit ?
 							QObject::tr("%1: switch auto-refit on.", "label of AbstractFit's undo action") :
 							QObject::tr("%1: switch auto-refit off.", "label of AbstractFit's undo action")).
-						arg(d_target->name()));
+						arg(m_target->name()));
 			}
 
 		virtual void undo() {
-			bool tmp = d_target->d_auto_refit;
-			d_target->d_auto_refit = d_backup;
-			d_backup = tmp;
+			bool tmp = m_target->m_auto_refit;
+			m_target->m_auto_refit = m_backup;
+			m_backup = tmp;
 		}
 
 		virtual void redo() { undo(); }
 
 	private:
-		AbstractFit *d_target;
-		bool d_backup;
+		AbstractFit *m_target;
+		bool m_backup;
 };

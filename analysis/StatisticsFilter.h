@@ -58,11 +58,11 @@ class StatisticsFilter : public AbstractFilter {
 		virtual bool inputAcceptable(int, AbstractDataSource *source) {
 			return source->inherits("AbstractDoubleDataSource");
 		}
-		virtual void inputDescriptionAboutToChange(AbstractDataSource*) { d_strings[0]->dataAboutToChange(d_doubles[0]); }
-		virtual void inputDescriptionChanged(AbstractDataSource*) { d_strings[0]->dataChanged(d_doubles[0]); }
+		virtual void inputDescriptionAboutToChange(AbstractDataSource*) { m_strings[0]->dataAboutToChange(m_doubles[0]); }
+		virtual void inputDescriptionChanged(AbstractDataSource*) { m_strings[0]->dataChanged(m_doubles[0]); }
 		virtual void inputDataAboutToChange(AbstractDataSource*);
 		virtual void inputAboutToBeDisconnected(AbstractDataSource*);
-		//! This is where the magic happens: data changes on an input port cause the corresponding entry in #d_s to be recomputed.
+		//! This is where the magic happens: data changes on an input port cause the corresponding entry in #m_s to be recomputed.
 		virtual void inputDataChanged(int port);
 	private:
 		//! The values being cached for each input column provided.
@@ -75,34 +75,34 @@ class StatisticsFilter : public AbstractFilter {
 		//! Implements the double-typed output ports.
 		class DoubleStatisticsColumn : public AbstractDoubleDataSource {
 			public:
-				DoubleStatisticsColumn(const StatisticsFilter *parent, StatItem item) : d_parent(parent), d_item(item) {}
-				virtual int rowCount() const { return d_parent->rowCount(); }
+				DoubleStatisticsColumn(const StatisticsFilter *parent, StatItem item) : m_parent(parent), m_item(item) {}
+				virtual int rowCount() const { return m_parent->rowCount(); }
 				virtual double valueAt(int row) const;
 				virtual QString label() const; 
 				virtual SciDAVis::PlotDesignation plotDesignation() const { return SciDAVis::noDesignation; }
 			private:
 				friend class StatisticsFilter;
-				const StatisticsFilter *d_parent;
-				StatItem d_item;
+				const StatisticsFilter *m_parent;
+				StatItem m_item;
 		};
 
 		//! Implements the string-typed output ports.
 		class StringStatisticsColumn : public AbstractStringDataSource {
 			public:
-				StringStatisticsColumn(const StatisticsFilter *parent, StatItem item) : d_parent(parent), d_item(item) {}
-				virtual int rowCount() const { return d_parent->rowCount(); }
+				StringStatisticsColumn(const StatisticsFilter *parent, StatItem item) : m_parent(parent), m_item(item) {}
+				virtual int rowCount() const { return m_parent->rowCount(); }
 				virtual QString textAt(int row) const;
 				virtual QString label() const;
 				virtual SciDAVis::PlotDesignation plotDesignation() const { return SciDAVis::noDesignation; }
 			private:
 				friend class StatisticsFilter;
-				const StatisticsFilter *d_parent;
-				StatItem d_item;
+				const StatisticsFilter *m_parent;
+				StatItem m_item;
 		};
 
-		QVector<Statistics> d_s;
-		StringStatisticsColumn* d_strings[2];
-		DoubleStatisticsColumn* d_doubles[9];
+		QVector<Statistics> m_s;
+		StringStatisticsColumn* m_strings[2];
+		DoubleStatisticsColumn* m_doubles[9];
 };
 
 #endif // ifndef STATISTICS_FILTER_H

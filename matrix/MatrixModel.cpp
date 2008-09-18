@@ -34,29 +34,29 @@
 #include <QColor>
 
 MatrixModel::MatrixModel(Matrix * matrix)
-	: QAbstractItemModel(0), d_matrix(matrix)
+	: QAbstractItemModel(0), m_matrix(matrix)
 {
-	connect(d_matrix, SIGNAL(columnsAboutToBeInserted(int, int)),
+	connect(m_matrix, SIGNAL(columnsAboutToBeInserted(int, int)),
 			this, SLOT(handleColumnsAboutToBeInserted(int, int)));
-	connect(d_matrix, SIGNAL(columnsInserted(int, int)),
+	connect(m_matrix, SIGNAL(columnsInserted(int, int)),
 			this, SLOT(handleColumnsInserted(int, int)));
-	connect(d_matrix, SIGNAL(columnsAboutToBeRemoved(int, int)),
+	connect(m_matrix, SIGNAL(columnsAboutToBeRemoved(int, int)),
 			this, SLOT(handleColumnsAboutToBeRemoved(int, int)));
-	connect(d_matrix, SIGNAL(columnsRemoved(int, int)),
+	connect(m_matrix, SIGNAL(columnsRemoved(int, int)),
 			this, SLOT(handleColumnsRemoved(int, int)));
-	connect(d_matrix, SIGNAL(rowsAboutToBeInserted(int, int)),
+	connect(m_matrix, SIGNAL(rowsAboutToBeInserted(int, int)),
 			this, SLOT(handleRowsAboutToBeInserted(int, int)));
-	connect(d_matrix, SIGNAL(rowsInserted(int, int)),
+	connect(m_matrix, SIGNAL(rowsInserted(int, int)),
 			this, SLOT(handleRowsInserted(int, int)));
-	connect(d_matrix, SIGNAL(rowsAboutToBeRemoved(int, int)),
+	connect(m_matrix, SIGNAL(rowsAboutToBeRemoved(int, int)),
 			this, SLOT(handleRowsAboutToBeRemoved(int, int)));
-	connect(d_matrix, SIGNAL(rowsRemoved(int, int)),
+	connect(m_matrix, SIGNAL(rowsRemoved(int, int)),
 			this, SLOT(handleRowsRemoved(int, int)));
-	connect(d_matrix, SIGNAL(dataChanged(int, int, int, int)),
+	connect(m_matrix, SIGNAL(dataChanged(int, int, int, int)),
 			this, SLOT(handleDataChanged(int, int, int, int)));
-	connect(d_matrix, SIGNAL(coordinatesChanged()),
+	connect(m_matrix, SIGNAL(coordinatesChanged()),
 			this, SLOT(handleCoordinatesChanged()));
-	connect(d_matrix, SIGNAL(formatChanged()),
+	connect(m_matrix, SIGNAL(formatChanged()),
 			this, SLOT(handleFormatChanged()));
 }
 
@@ -85,7 +85,7 @@ QVariant MatrixModel::data(const QModelIndex &index, int role) const
 		case Qt::ToolTipRole:
 		case Qt::EditRole:
 		case Qt::DisplayRole:
-			return QVariant(d_matrix->text(row, col));
+			return QVariant(m_matrix->text(row, col));
 		case Qt::BackgroundRole:
 			return QVariant(QBrush(QColor(0xff,0xff,0x77))); // yellow color to distinguish a matrix from a table
 	}
@@ -104,12 +104,12 @@ QVariant MatrixModel::headerData(int section, Qt::Orientation orientation, int r
 				case Qt::DisplayRole:
 				case Qt::ToolTipRole:
 					result += QString::number(section+1) + QString(" (");
-					double diff = d_matrix->xEnd() - d_matrix->xStart();
+					double diff = m_matrix->xEnd() - m_matrix->xStart();
 					double step = 0.0;
-					if (d_matrix->columnCount() > 1)
-						step = diff/double(d_matrix->columnCount()-1);
-					result += QLocale().toString(d_matrix->xStart()+double(section)*step, 
-							d_matrix->numericFormat(), d_matrix->displayedDigits());
+					if (m_matrix->columnCount() > 1)
+						step = diff/double(m_matrix->columnCount()-1);
+					result += QLocale().toString(m_matrix->xStart()+double(section)*step, 
+							m_matrix->numericFormat(), m_matrix->displayedDigits());
 
 					result += QString(")");
 					return QVariant(result);
@@ -120,17 +120,17 @@ QVariant MatrixModel::headerData(int section, Qt::Orientation orientation, int r
 				case Qt::DisplayRole:
 				case Qt::ToolTipRole:
 					result += QString::number(section+1) + QString(" (");
-					double diff = d_matrix->yEnd() - d_matrix->yStart();
+					double diff = m_matrix->yEnd() - m_matrix->yStart();
 					double step = 0.0;
-					if (d_matrix->rowCount() > 1)
-						step = diff/double(d_matrix->rowCount()-1);
+					if (m_matrix->rowCount() > 1)
+						step = diff/double(m_matrix->rowCount()-1);
 					// TODO: implement decent double == 0 check
 					if (diff < 1e-10)
-						result += QLocale().toString(d_matrix->yStart(), 
-								d_matrix->numericFormat(), d_matrix->displayedDigits());
+						result += QLocale().toString(m_matrix->yStart(), 
+								m_matrix->numericFormat(), m_matrix->displayedDigits());
 					else
-						result += QLocale().toString(d_matrix->yStart()+double(section)*step, 
-								d_matrix->numericFormat(), d_matrix->displayedDigits());
+						result += QLocale().toString(m_matrix->yStart()+double(section)*step, 
+								m_matrix->numericFormat(), m_matrix->displayedDigits());
 
 					result += QString(")");
 					return QVariant(result);
@@ -142,13 +142,13 @@ QVariant MatrixModel::headerData(int section, Qt::Orientation orientation, int r
 int MatrixModel::rowCount(const QModelIndex &parent) const
 {
 	Q_UNUSED(parent)
-	return d_matrix->rowCount();
+	return m_matrix->rowCount();
 }
 
 int MatrixModel::columnCount(const QModelIndex & parent) const
 {
 	Q_UNUSED(parent)
-	return d_matrix->columnCount();
+	return m_matrix->columnCount();
 }
 
 bool MatrixModel::setData(const QModelIndex & index, const QVariant & value, int role)
@@ -161,7 +161,7 @@ bool MatrixModel::setData(const QModelIndex & index, const QVariant & value, int
 
 	if(role ==  Qt::EditRole)
 	{
-			d_matrix->setCell(row, column, value.toDouble());
+			m_matrix->setCell(row, column, value.toDouble());
 			return true;
 	}
 	return false;

@@ -80,14 +80,14 @@ CurveRangeDialog::CurveRangeDialog(QWidget* parent, Qt::WFlags fl )
 
 void CurveRangeDialog::accept()
 {
-	if (!d_curve)
+	if (!m_curve)
 		return;
 
 	int start = boxStart->value() - 1;
 	int end = boxEnd->value() - 1;
-	d_curve->setRowRange(QMIN(start, end), QMAX(start, end));
-	d_layer->updatePlot();
-	d_layer->notifyChanges();
+	m_curve->setRowRange(QMIN(start, end), QMAX(start, end));
+	m_layer->updatePlot();
+	m_layer->notifyChanges();
 	close();
 }
 
@@ -96,19 +96,19 @@ void CurveRangeDialog::setCurveToModify(Layer *layer, int curve)
 	if (!layer)
 		return;
 
-	d_layer = layer;
-	d_curve = (DataCurve *)d_layer->curve(curve);
-	if (!d_curve)
+	m_layer = layer;
+	m_curve = (DataCurve *)m_layer->curve(curve);
+	if (!m_curve)
 		return;
 
-    Table *t = d_curve->table();
+    Table *t = m_curve->table();
 	if (t)
 	{
 		boxStart->setMaxValue(t->rowCount());
 		boxEnd->setMaxValue(t->rowCount());
 	}
 
-	boxName->setText(d_curve->title().text());
-	boxStart->setValue(d_curve->startRow() + 1);
-	boxEnd->setValue(d_curve->endRow() + 1);
+	boxName->setText(m_curve->title().text());
+	boxStart->setValue(m_curve->startRow() + 1);
+	boxEnd->setValue(m_curve->endRow() + 1);
 }

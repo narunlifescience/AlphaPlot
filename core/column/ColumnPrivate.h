@@ -52,7 +52,7 @@ class Column::Private
 				void * data, IntervalAttribute<bool> validity);
 
 		//! Return the data type of the column
-		SciDAVis::ColumnDataType dataType() const { return d_data_type; };
+		SciDAVis::ColumnDataType dataType() const { return m_data_type; };
 		//! Return whether the object is read-only
 		bool isReadOnly() const { return false; };
 		//! Return the column mode
@@ -61,7 +61,7 @@ class Column::Private
 		 * by plots. The column mode specifies how to interpret 
 		 * the values in the column additional to the data type.
 		 */ 
-		SciDAVis::ColumnMode columnMode() const { return d_column_mode; };
+		SciDAVis::ColumnMode columnMode() const { return m_column_mode; };
 		//! Set the column mode
 		/**
 		 * This sets the column mode and, if
@@ -135,17 +135,17 @@ class Column::Private
 		//! Return the column comment
 		QString comment() const;
 		//! Return the column plot designation
-		SciDAVis::PlotDesignation plotDesignation() const { return d_plot_designation; };
+		SciDAVis::PlotDesignation plotDesignation() const { return m_plot_designation; };
 		//! Set the column plot designation
 		void setPlotDesignation(SciDAVis::PlotDesignation pd);
 		//! Clear the whole column
 		void clear();
 		//! Return the data pointer
-		void * dataPointer() const { return d_data; }
+		void * dataPointer() const { return m_data; }
 		//! Return the input filter (for string -> data type conversion)
-		AbstractSimpleFilter* inputFilter() const { return d_input_filter; }
+		AbstractSimpleFilter* inputFilter() const { return m_input_filter; }
 		//! Return the output filter (for data type -> string  conversion)
-		AbstractSimpleFilter* outputFilter() const { return d_output_filter; }
+		AbstractSimpleFilter* outputFilter() const { return m_output_filter; }
 		//! Replace all mode related members
 		/** 
 		 * Replace column mode, data type, data pointer, validity and filters directly 
@@ -155,30 +155,30 @@ class Column::Private
 		//! Replace data pointer and validity
 		void replaceData(void * data, IntervalAttribute<bool> validity);
 		//! Return the validity interval attribute
-		IntervalAttribute<bool> validityAttribute() { return d_validity; }
+		IntervalAttribute<bool> validityAttribute() { return m_validity; }
 		//! Return the masking interval attribute
-		IntervalAttribute<bool> maskingAttribute() { return d_masking; }
+		IntervalAttribute<bool> maskingAttribute() { return m_masking; }
 		//! Replace the list of intervals of masked rows
 		void replaceMasking(IntervalAttribute<bool> masking); 
 		//! Return the interval attribute representing the formula strings
-		IntervalAttribute<QString> formulaAttribute() { return d_formulas; }
+		IntervalAttribute<QString> formulaAttribute() { return m_formulas; }
 		//! Replace the interval attribute for the formula strings
 		void replaceFormulas(IntervalAttribute<QString> formulas); 
 
 		//! \name IntervalAttribute related functions
 		//@{
 		//! Return whether a certain row contains an invalid value 	 
-		bool isInvalid(int row) const { return d_validity.isSet(row); } 	 
+		bool isInvalid(int row) const { return m_validity.isSet(row); } 	 
 		//! Return whether a certain interval of rows contains only invalid values 	 
-		bool isInvalid(Interval<int> i) const { return d_validity.isSet(i); } 	 
+		bool isInvalid(Interval<int> i) const { return m_validity.isSet(i); } 	 
 		//! Return all intervals of invalid rows
-		QList< Interval<int> > invalidIntervals() const { return d_validity.intervals(); } 	 
+		QList< Interval<int> > invalidIntervals() const { return m_validity.intervals(); } 	 
 		//! Return whether a certain row is masked 	 
-		bool isMasked(int row) const { return d_masking.isSet(row); } 	 
+		bool isMasked(int row) const { return m_masking.isSet(row); } 	 
 		//! Return whether a certain interval of rows rows is fully masked 	 
-		bool isMasked(Interval<int> i) const { return d_masking.isSet(i); }
+		bool isMasked(Interval<int> i) const { return m_masking.isSet(i); }
 		//! Return all intervals of masked rows
-		QList< Interval<int> > maskedIntervals() const { return d_masking.intervals(); } 	 
+		QList< Interval<int> > maskedIntervals() const { return m_masking.intervals(); } 	 
 		//! Clear all validity information
 		void clearValidity();
 		//! Clear all masking information
@@ -204,7 +204,7 @@ class Column::Private
 		//! \name Formula related functions
 		//@{
 		//! Return the formula associated with row 'row' 	 
-		QString formula(int row) const { return d_formulas.value(row); }
+		QString formula(int row) const { return m_formulas.value(row); }
 		//! Return the intervals that have associated formulas
 		/**
 		 * This can be used to make a list of formulas with their intervals.
@@ -217,7 +217,7 @@ class Column::Private
 		 * 	list << QString(interval.toString() + ": " + my_column.formula(interval.start()));
 		 * \endcode
 		 */
-		QList< Interval<int> > formulaIntervals() const { return d_formulas.intervals(); }
+		QList< Interval<int> > formulaIntervals() const { return m_formulas.intervals(); }
 		//! Set a formula string for an interval of rows
 		void setFormula(Interval<int> i, QString formula);
 		//! Overloaded function for convenience
@@ -299,30 +299,30 @@ class Column::Private
 		/**
 		 * double, QString, or QDateTime
 		 */ 
-		SciDAVis::ColumnDataType d_data_type;
+		SciDAVis::ColumnDataType m_data_type;
 		//! The column mode
 		/**
 		 * The column mode specifies how to interpret 
 		 * the values in the column additional to the data type.
 		 */
-		SciDAVis::ColumnMode d_column_mode;
+		SciDAVis::ColumnMode m_column_mode;
 		//! Pointer to the data vector
 		/**
 		 * This will point to a QVector<double>, QStringList or
 		 * QList<QDateTime> depending on the stored data type.
 		 */
-		void * d_data;
+		void * m_data;
 		//! The input filter (for string -> data type conversion)
-		AbstractSimpleFilter* d_input_filter;
+		AbstractSimpleFilter* m_input_filter;
 		//! The output filter (for data type -> string conversion)
-		AbstractSimpleFilter* d_output_filter;
-		IntervalAttribute<bool> d_validity;
-		IntervalAttribute<bool> d_masking;
-		IntervalAttribute<QString> d_formulas;
+		AbstractSimpleFilter* m_output_filter;
+		IntervalAttribute<bool> m_validity;
+		IntervalAttribute<bool> m_masking;
+		IntervalAttribute<QString> m_formulas;
 		//! The plot designation
-		SciDAVis::PlotDesignation d_plot_designation;
+		SciDAVis::PlotDesignation m_plot_designation;
 		//! The owner column
-		Column * d_owner;
+		Column * m_owner;
 		//@}
 		
 };

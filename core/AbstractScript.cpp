@@ -30,13 +30,13 @@
 #include "AbstractScriptingEngine.h"
 
 AbstractScript::AbstractScript(AbstractScriptingEngine *engine, const QString &code, QObject *context, const QString &name)
-	: d_engine(engine), d_code(code), d_name(name), d_compiled(notCompiled), d_context(context), d_emit_errors(true)
+	: m_engine(engine), m_code(code), m_name(name), m_compiled(notCompiled), m_context(context), m_emit_errors(true)
 {
-	d_engine->incref();
+	m_engine->incref();
 }
 
 AbstractScript::~AbstractScript()
 {
-	d_engine->decref();
+	m_engine->decref();
 }
 

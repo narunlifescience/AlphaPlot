@@ -41,22 +41,22 @@ template<class T> class Interval;
 template<class T> class IntervalBase
 {
 	public:
-		IntervalBase() : d_start(-1), d_end(-1){}
+		IntervalBase() : m_start(-1), m_end(-1){}
 		IntervalBase(const IntervalBase<T>& other) {
-			d_start = other.start();
-			d_end = other.end();
+			m_start = other.start();
+			m_end = other.end();
 		}
 		IntervalBase(T start, T end) {
-			d_start = start;
-			d_end = end;
+			m_start = start;
+			m_end = end;
 		}
 		virtual ~IntervalBase() {}
-		T start() const { return d_start; }
-		T end() const { return d_end; }
-		void setStart(T start) { d_start = start; }
-		void setEnd(T end) { d_end = end; }
-		bool contains(const Interval<T>& other) const { return ( d_start <= other.start() && d_end >= other.end() ); }
-		bool contains(T value) const { return ( d_start <= value && d_end >= value ); }
+		T start() const { return m_start; }
+		T end() const { return m_end; }
+		void setStart(T start) { m_start = start; }
+		void setEnd(T end) { m_end = end; }
+		bool contains(const Interval<T>& other) const { return ( m_start <= other.start() && m_end >= other.end() ); }
+		bool contains(T value) const { return ( m_start <= value && m_end >= value ); }
 		bool intersects(const Interval<T>& other) const { return ( contains(other.start()) || contains(other.end()) ); }
 		//! Return the intersection of two intervals
 		/**
@@ -66,11 +66,11 @@ template<class T> class IntervalBase
 		{ 
 			return Interval<T>( qMax(first.start(), second.start()), qMin(first.end(), second.end()) ); 
 		}
-		void translate(T offset) { d_start += offset; d_end += offset; }
-		bool operator==(const Interval<T>& other) const { return ( d_start == other.start() && d_end == other.end() ); }
+		void translate(T offset) { m_start += offset; m_end += offset; }
+		bool operator==(const Interval<T>& other) const { return ( m_start == other.start() && m_end == other.end() ); }
 		Interval<T>& operator=(const Interval<T>& other) {
-			d_start = other.start();
-			d_end = other.end();
+			m_start = other.start();
+			m_end = other.end();
 			return *this;
 		}
 		//! Returns true if no gap is between two intervals.
@@ -188,14 +188,14 @@ template<class T> class IntervalBase
 		}
 	//! Return a string in the format '[start,end]'
 	QString toString() const {
-		return "[" + QString::number(d_start) + "," + QString::number(d_end) + "]";
+		return "[" + QString::number(m_start) + "," + QString::number(m_end) + "]";
 	}
 
 	protected:
 		//! Interval start
-		T d_start;
+		T m_start;
 		//! Interval end
-		T d_end;
+		T m_end;
 };
 
 //! Auxiliary class for interval based data
@@ -214,15 +214,15 @@ template<class T> class Interval : public IntervalBase<T>
 		Interval(T start, T end) : IntervalBase<T>(start, end) {}
 		Interval(const Interval<T>& other) : IntervalBase<T>(other) {}
 		T size() const {
-			return IntervalBase<T>::d_end - IntervalBase<T>::d_start + 1;
+			return IntervalBase<T>::m_end - IntervalBase<T>::m_start + 1;
 		}
 		bool isValid() const {
-			return ( IntervalBase<T>::d_start >= 0 && IntervalBase<T>::d_end >= 0 &&
-					IntervalBase<T>::d_start <= IntervalBase<T>::d_end );
+			return ( IntervalBase<T>::m_start >= 0 && IntervalBase<T>::m_end >= 0 &&
+					IntervalBase<T>::m_start <= IntervalBase<T>::m_end );
 		}
 		bool touches(const Interval<T>& other) const {
-			return ( (other.end() == IntervalBase<T>::d_start-1) ||
-					(other.start() == IntervalBase<T>::d_end+1) );
+			return ( (other.end() == IntervalBase<T>::m_start-1) ||
+					(other.start() == IntervalBase<T>::m_end+1) );
 		}
 };
 
@@ -230,11 +230,11 @@ template<> class Interval<float> : public IntervalBase<float> {
 		Interval() {}
 		Interval(float start, float end) : IntervalBase<float>(start, end) {}
 		Interval(const Interval<float>& other) : IntervalBase<float>(other) {}
-		float size() const { return IntervalBase<float>::d_end - IntervalBase<float>::d_start; }
-		bool isValid() const { return ( IntervalBase<float>::d_start <= IntervalBase<float>::d_end ); }
+		float size() const { return IntervalBase<float>::m_end - IntervalBase<float>::m_start; }
+		bool isValid() const { return ( IntervalBase<float>::m_start <= IntervalBase<float>::m_end ); }
 		bool touches(const Interval<float>& other) const {
-			return ( (other.end() == IntervalBase<float>::d_start) ||
-					(other.start() == IntervalBase<float>::d_end) );
+			return ( (other.end() == IntervalBase<float>::m_start) ||
+					(other.start() == IntervalBase<float>::m_end) );
 		}
 };
 
@@ -242,11 +242,11 @@ template<> class Interval<double> : public IntervalBase<double> {
 		Interval() {}
 		Interval(double start, double end) : IntervalBase<double>(start, end) {}
 		Interval(const Interval<double>& other) : IntervalBase<double>(other) {}
-		double size() const { return IntervalBase<double>::d_end - IntervalBase<double>::d_start; }
-		bool isValid() const { return ( IntervalBase<double>::d_start <= IntervalBase<double>::d_end ); }
+		double size() const { return IntervalBase<double>::m_end - IntervalBase<double>::m_start; }
+		bool isValid() const { return ( IntervalBase<double>::m_start <= IntervalBase<double>::m_end ); }
 		bool touches(const Interval<double>& other) const {
-			return ( (other.end() == IntervalBase<double>::d_start) ||
-					(other.start() == IntervalBase<double>::d_end) );
+			return ( (other.end() == IntervalBase<double>::m_start) ||
+					(other.start() == IntervalBase<double>::m_end) );
 		}
 };
 
@@ -254,11 +254,11 @@ template<> class Interval<long double> : public IntervalBase<long double> {
 		Interval() {}
 		Interval(long double start, long double end) : IntervalBase<long double>(start, end) {}
 		Interval(const Interval<long double>& other) : IntervalBase<long double>(other) {}
-		long double size() const { return IntervalBase<long double>::d_end - IntervalBase<long double>::d_start; }
-		bool isValid() const { return ( IntervalBase<long double>::d_start <= IntervalBase<long double>::d_end ); }
+		long double size() const { return IntervalBase<long double>::m_end - IntervalBase<long double>::m_start; }
+		bool isValid() const { return ( IntervalBase<long double>::m_start <= IntervalBase<long double>::m_end ); }
 		bool touches(const Interval<long double>& other) const {
-			return ( (other.end() == IntervalBase<long double>::d_start) ||
-					(other.start() == IntervalBase<long double>::d_end) );
+			return ( (other.end() == IntervalBase<long double>::m_start) ||
+					(other.start() == IntervalBase<long double>::m_end) );
 		}
 };
 

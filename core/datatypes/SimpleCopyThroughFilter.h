@@ -52,13 +52,13 @@ class SimpleCopyThroughFilter : public AbstractSimpleFilter
 		//!\name Masking
 		//@{
 		//! Return whether a certain row is masked
-		virtual bool isMasked(int row) const { return d_inputs.value(0) ? d_inputs.at(0)->isMasked(row) : false; }
+		virtual bool isMasked(int row) const { return m_inputs.value(0) ? m_inputs.at(0)->isMasked(row) : false; }
 		//! Return whether a certain interval of rows rows is fully masked
-		virtual bool isMasked(Interval<int> i) const { return d_inputs.value(0) ? d_inputs.at(0)->isMasked(i) : false; }
+		virtual bool isMasked(Interval<int> i) const { return m_inputs.value(0) ? m_inputs.at(0)->isMasked(i) : false; }
 		//! Return all intervals of masked rows
 		virtual QList< Interval<int> > maskedIntervals() const 
 		{
-			return d_inputs.value(0) ? d_inputs.at(0)->maskedIntervals() : QList< Interval<int> >(); 
+			return m_inputs.value(0) ? m_inputs.at(0)->maskedIntervals() : QList< Interval<int> >(); 
 		}
 		//@}
 
@@ -73,11 +73,11 @@ class SimpleCopyThroughFilter : public AbstractSimpleFilter
 		//@{
 		virtual void inputMaskingAboutToChange(AbstractColumn*) 
 		{ 
-			emit d_output_column->maskingAboutToChange(d_output_column); 
+			emit m_output_column->maskingAboutToChange(m_output_column); 
 		}
 		virtual void inputMaskingChanged(AbstractColumn*) 
 		{ 
-			emit d_output_column->maskingChanged(d_output_column); 
+			emit m_output_column->maskingChanged(m_output_column); 
 		}
 		//@}
 };

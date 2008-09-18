@@ -65,8 +65,8 @@ ImageExportDialog::ImageExportDialog(QWidget * parent, bool vector_options, bool
 	setFileMode( QFileDialog::AnyFile );
 
 	initAdvancedOptions();
-	d_vector_options->setEnabled(vector_options);
-	setExtensionWidget(d_advanced_options);
+	m_vector_options->setEnabled(vector_options);
+	setExtensionWidget(m_advanced_options);
 
 #if QT_VERSION >= 0x040300
 	connect(this, SIGNAL(filterSelected ( const QString & )),
@@ -82,24 +82,24 @@ ImageExportDialog::ImageExportDialog(QWidget * parent, bool vector_options, bool
 
 void ImageExportDialog::initAdvancedOptions()
 {
-	d_advanced_options = new QStackedWidget();
+	m_advanced_options = new QStackedWidget();
 
-	d_vector_options = new QGroupBox();
-	QGridLayout *vector_layout = new QGridLayout(d_vector_options);
-	d_advanced_options->addWidget(d_vector_options);
+	m_vector_options = new QGroupBox();
+	QGridLayout *vector_layout = new QGridLayout(m_vector_options);
+	m_advanced_options->addWidget(m_vector_options);
 
 	vector_layout->addWidget(new QLabel(tr("Resolution (DPI)")), 1, 0);
-	d_resolution = new QSpinBox();
-	d_resolution->setRange(0, 1000);
-	vector_layout->addWidget(d_resolution, 1, 1);
+	m_resolution = new QSpinBox();
+	m_resolution->setRange(0, 1000);
+	vector_layout->addWidget(m_resolution, 1, 1);
 
-	d_color = new QCheckBox();
-	d_color->setText(tr("Export in &color"));
-	vector_layout->addWidget(d_color, 2, 0, 1, 2);
+	m_color = new QCheckBox();
+	m_color->setText(tr("Export in &color"));
+	vector_layout->addWidget(m_color, 2, 0, 1, 2);
 
-    d_standard_page = new QCheckBox();
-	d_standard_page->setText(tr("Export to &standard page size"));
-	vector_layout->addWidget(d_standard_page, 3, 0, 1, 2);
+    m_standard_page = new QCheckBox();
+	m_standard_page->setText(tr("Export to &standard page size"));
+	vector_layout->addWidget(m_standard_page, 3, 0, 1, 2);
 
 	boxPageSize = new QComboBox();
 	boxPageSize->addItem("A0 - 841 x 1189 mm");
@@ -125,45 +125,45 @@ void ImageExportDialog::initAdvancedOptions()
 
 	vector_layout->addWidget(boxPageSize, 3, 1, 1, 2);
 
-    connect(d_standard_page, SIGNAL(toggled(bool)), boxPageSize, SLOT(setEnabled(bool)));
+    connect(m_standard_page, SIGNAL(toggled(bool)), boxPageSize, SLOT(setEnabled(bool)));
 
-	d_keep_aspect = new QCheckBox();
-	d_keep_aspect->setText(tr("&Keep aspect ratio"));
-	vector_layout->addWidget(d_keep_aspect, 4, 0, 1, 2);
+	m_keep_aspect = new QCheckBox();
+	m_keep_aspect->setText(tr("&Keep aspect ratio"));
+	vector_layout->addWidget(m_keep_aspect, 4, 0, 1, 2);
 
-	d_raster_options = new QGroupBox();
-	QGridLayout *raster_layout = new QGridLayout(d_raster_options);
-	d_advanced_options->addWidget(d_raster_options);
+	m_raster_options = new QGroupBox();
+	QGridLayout *raster_layout = new QGridLayout(m_raster_options);
+	m_advanced_options->addWidget(m_raster_options);
 
 	raster_layout->addWidget(new QLabel(tr("Image quality")), 1, 0);
-	d_quality = new QSpinBox();
-	d_quality->setRange(1, 100);
-	raster_layout->addWidget(d_quality, 1, 1);
+	m_quality = new QSpinBox();
+	m_quality->setRange(1, 100);
+	raster_layout->addWidget(m_quality, 1, 1);
 
-	d_transparency = new QCheckBox();
-	d_transparency->setText(tr("Save transparency"));
-	raster_layout->addWidget(d_transparency, 2, 0, 1, 2);
+	m_transparency = new QCheckBox();
+	m_transparency->setText(tr("Save transparency"));
+	raster_layout->addWidget(m_transparency, 2, 0, 1, 2);
 }
 
 void ImageExportDialog::updateAdvancedOptions (const QString & filter)
 {
 	if (filter.contains("*.svg")) {
-		d_extension_toggle->setChecked(false);
-		d_extension_toggle->setEnabled(false);
+		m_extension_toggle->setChecked(false);
+		m_extension_toggle->setEnabled(false);
 		return;
 	}
-	d_extension_toggle->setEnabled(true);
+	m_extension_toggle->setEnabled(true);
 	if (filter.contains("*.eps") || filter.contains("*.ps") || filter.contains("*.pdf"))
-		d_advanced_options->setCurrentIndex(0);
+		m_advanced_options->setCurrentIndex(0);
 	else {
-		d_advanced_options->setCurrentIndex(1);
-		d_transparency->setEnabled(filter.contains("*.tif") || filter.contains("*.tiff") || filter.contains("*.png") || filter.contains("*.xpm"));
+		m_advanced_options->setCurrentIndex(1);
+		m_transparency->setEnabled(filter.contains("*.tif") || filter.contains("*.tiff") || filter.contains("*.png") || filter.contains("*.xpm"));
 	}
 }
 
 QPrinter::PageSize ImageExportDialog::pageSize() const
 {
-if (!d_standard_page->isChecked())
+if (!m_standard_page->isChecked())
     return QPrinter::Custom;
 
 QPrinter::PageSize size;
@@ -254,7 +254,7 @@ return size;
 
 void ImageExportDialog::setPageSize(int size)
 {
-	d_standard_page->setChecked(size != QPrinter::Custom);
+	m_standard_page->setChecked(size != QPrinter::Custom);
 	boxPageSize->setEnabled(size != QPrinter::Custom);
 if (size == QPrinter::Custom)
     return;

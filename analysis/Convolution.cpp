@@ -47,84 +47,84 @@ Convolution::Convolution(ApplicationWindow *parent, Table *t, const QString& sig
 
 void Convolution::setDataFromTable(Table *t, const QString& signalColName, const QString& responseColName)
 {
-    if (t && d_table != t)
-        d_table = t;
+    if (t && m_table != t)
+        m_table = t;
 
-    int signal_col = d_table->colIndex(signalColName);
-	int response_col = d_table->colIndex(responseColName);
+    int signal_col = m_table->colIndex(signalColName);
+	int response_col = m_table->colIndex(responseColName);
 
 	if (signal_col < 0)
 	{
 		QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 		tr("The signal data set %1 does not exist!").arg(signalColName));
-		d_init_err = true;
+		m_init_err = true;
 		return;
 	}
 	else if (response_col < 0)
 	{
 		QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 		tr("The response data set %1 does not exist!").arg(responseColName));
-		d_init_err = true;
+		m_init_err = true;
 		return;
 	}
 
-    if (d_n > 0)
+    if (m_n > 0)
 	{//delete previously allocated memory
-		delete[] d_x;
-		delete[] d_y;
+		delete[] m_x;
+		delete[] m_y;
 	}
 
-	d_n_response = 0;
-	int rows = d_table->rowCount();
+	m_n_response = 0;
+	int rows = m_table->rowCount();
 	for (int i=0; i<rows; i++)
 	{
-		if (!d_table->text(i, response_col).isEmpty())
-			d_n_response++;
+		if (!m_table->text(i, response_col).isEmpty())
+			m_n_response++;
 	}
-	if (d_n_response >= rows/2)
+	if (m_n_response >= rows/2)
 	{
 		QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 		tr("The response dataset '%1' must be less then half the size of the signal dataset '%2'!").arg(responseColName).arg(signalColName));
-		d_init_err = true;
+		m_init_err = true;
 		return;
 	}
-	else if (d_n_response%2 == 0)
+	else if (m_n_response%2 == 0)
 	{
 		QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 		tr("The response dataset '%1' must contain an odd number of points!").arg(responseColName));
-		d_init_err = true;
+		m_init_err = true;
 		return;
 	}
 
-	d_n = rows;
+	m_n = rows;
 
-	d_n_signal = 16;// tmp number of points
-	while (d_n_signal < d_n + d_n_response/2)
-		d_n_signal *= 2;
+	m_n_signal = 16;// tmp number of points
+	while (m_n_signal < m_n + m_n_response/2)
+		m_n_signal *= 2;
 
-    d_x = new double[d_n_signal]; //signal
-	d_y = new double[d_n_response]; //response
+    m_x = new double[m_n_signal]; //signal
+	m_y = new double[m_n_response]; //response
 
-    if(d_y && d_x)
+    if(m_y && m_x)
 	{
-		memset( d_x, 0, d_n_signal * sizeof( double ) );// zero-pad signal data array
-		for(int i=0; i<d_n; i++)
-			d_x[i] = d_table->cell(i, signal_col);
-		for(int i=0; i<d_n_response; i++)
-			d_y[i] = d_table->cell(i, response_col);
+		memset( m_x, 0, m_n_signal * sizeof( double ) );// zero-pad signal data array
+		for(int i=0; i<m_n; i++)
+			m_x[i] = m_table->cell(i, signal_col);
+		for(int i=0; i<m_n_response; i++)
+			m_y[i] = m_table->cell(i, response_col);
 	}
 	else
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
                         tr("Could not allocate memory, operation aborted!"));
-        d_init_err = true;
-		d_n = 0;
+        m_init_err = true;
+		m_n = 0;
 	}
 }
 
 void Convolution::output()
 {
-	convlv(d_x, d_n_signal, d_y, d_n_response, 1);
+	convlv(m_x, m_n_signal, m_y, m_n_response, 1);
 	addResultCurve();
 }
 
@@ -134,38 +134,38 @@ void Convolution::addResultCurve()
     if (!app)
         return;
 
-	int cols = d_table->columnCount();
+	int cols = m_table->columnCount();
 	int cols2 = cols+1;
 
-	d_table->addCol();
-	d_table->addCol();
-	double x_temp[d_n];
-	for (int i = 0; i<d_n; i++)
+	m_table->addCol();
+	m_table->addCol();
+	double x_temp[m_n];
+	for (int i = 0; i<m_n; i++)
 	{
 		double x = i+1;
 		x_temp[i] = x;
 
-		d_table->setText(i, cols, QString::number(x));
-		d_table->setText(i, cols2, QLocale().toString(d_x[i], 'g', app->d_decimal_digits));
+		m_table->setText(i, cols, QString::number(x));
+		m_table->setText(i, cols2, QLocale().toString(m_x[i], 'g', app->m_decimal_digits));
 	}
 
-	QStringList l = d_table->colNames().grep(tr("Index"));
+	QStringList l = m_table->colNames().grep(tr("Index"));
 	QString id = QString::number((int)l.size()+1);
 	QString label = name() + id;
 
-	d_table->setColName(cols, tr("Index") + id);
-	d_table->setColName(cols2, label);
-	d_table->setColPlotDesignation(cols, SciDAVis::X);
+	m_table->setColName(cols, tr("Index") + id);
+	m_table->setColName(cols2, label);
+	m_table->setColPlotDesignation(cols, SciDAVis::X);
 	// TODO
-	//d_table->setHeaderColType();
+	//m_table->setHeaderColType();
 
 	Graph *graph = app->newGraph(name() + tr("Plot"));
 	if (!graph)
         return;
 
-    DataCurve *c = new DataCurve(d_table, d_table->colName(cols), d_table->colName(cols2));
-	c->setData(x_temp, d_x, d_n);
-	c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
+    DataCurve *c = new DataCurve(m_table, m_table->colName(cols), m_table->colName(cols2));
+	c->setData(x_temp, m_x, m_n);
+	c->setPen(QPen(ColorBox::color(m_curveColorIndex), 1));
 	graph->activeLayer()->insertPlotItem(c, Layer::Line);
 	graph->activeLayer()->updatePlot();
 }
@@ -235,6 +235,6 @@ Deconvolution::Deconvolution(ApplicationWindow *parent, Table *t, const QString&
 
 void Deconvolution::output()
 {
-	convlv(d_x, signalDataSize(), d_y, responseDataSize(), -1);
+	convlv(m_x, signalDataSize(), m_y, responseDataSize(), -1);
 	addResultCurve();
 }

@@ -69,7 +69,7 @@ signals:
 	void integrate(int,int,int,double,double,double);
 
 private:
-	Layer *d_layer;
+	Layer *m_layer;
 };
 
 #endif

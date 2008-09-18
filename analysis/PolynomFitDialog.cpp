@@ -111,7 +111,7 @@ PolynomFitDialog::PolynomFitDialog( QWidget* parent, Qt::WFlags fl )
 void PolynomFitDialog::fit()
 {
 	QString curveName = boxName->currentText();
-	QStringList curvesList = d_layer->analysableCurvesList();
+	QStringList curvesList = m_layer->analysableCurvesList();
 	if (!curvesList.contains(curveName))
 	{
 		QMessageBox::critical(this, tr("Warning"),
@@ -122,7 +122,7 @@ void PolynomFitDialog::fit()
 	}
 
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-    PolynomialFit *fitter = new PolynomialFit(app, d_layer, boxOrder->value(), boxShowFormula->isChecked());
+    PolynomialFit *fitter = new PolynomialFit(app, m_layer, boxOrder->value(), boxShowFormula->isChecked());
     if (fitter->setDataFromCurve(curveName, boxStart->text().toDouble(), boxEnd->text().toDouble()))
     {
         fitter->setColor(boxColor->currentItem());
@@ -136,10 +136,10 @@ void PolynomFitDialog::fit()
 
 void PolynomFitDialog::setLayer(Layer *layer)
 {
-	d_layer = layer;
-	boxName->addItems (d_layer->analysableCurvesList());
+	m_layer = layer;
+	boxName->addItems (m_layer->analysableCurvesList());
 
-	QString selectedCurve = d_layer->selectedCurveTitle();
+	QString selectedCurve = m_layer->selectedCurveTitle();
 	if (!selectedCurve.isEmpty())
 	{
 	    int index = boxName->findText (selectedCurve);
@@ -147,14 +147,14 @@ void PolynomFitDialog::setLayer(Layer *layer)
 	}
     activateCurve(boxName->currentText());
 
-	connect (d_layer, SIGNAL(closed()), this, SLOT(close()));
-	connect (d_layer, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
+	connect (m_layer, SIGNAL(closed()), this, SLOT(close()));
+	connect (m_layer, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
 void PolynomFitDialog::activateCurve(const QString& curveName)
 {
 	double start, end;
-	int n_points = d_layer->range(d_layer->curveIndex(curveName), &start, &end);
+	int n_points = m_layer->range(m_layer->curveIndex(curveName), &start, &end);
 
 	boxStart->setText(QString::number(start, 'g', 15));
 	boxEnd->setText(QString::number(end, 'g', 15));
@@ -163,8 +163,8 @@ void PolynomFitDialog::activateCurve(const QString& curveName)
 
 void PolynomFitDialog::changeDataRange()
 {
-	double start = d_layer->selectedXStartValue();
-	double end = d_layer->selectedXEndValue();
+	double start = m_layer->selectedXStartValue();
+	double end = m_layer->selectedXEndValue();
 	boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
 	boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
 }

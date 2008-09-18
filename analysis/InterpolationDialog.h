@@ -63,7 +63,7 @@ public slots:
 	void changeDataRange();
 
 private:
-	Layer *d_layer;
+	Layer *m_layer;
 };
 
 #endif

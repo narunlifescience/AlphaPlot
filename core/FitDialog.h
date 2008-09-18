@@ -147,12 +147,12 @@ signals:
 	void saveFunctionsList(const QStringList&);
 
 private:
-    Fit *d_fitter;
-	Layer *d_layer;
-	QStringList d_user_functions, d_user_function_names, d_user_function_params;
-	QStringList d_built_in_function_names, d_built_in_functions;
-	QStringList d_plugin_function_names, d_plugin_functions, d_plugin_files_list, d_plugin_params;
-	QWidgetList *d_src_table;
+    Fit *m_fitter;
+	Layer *m_layer;
+	QStringList m_user_functions, m_user_function_names, m_user_function_params;
+	QStringList m_built_in_function_names, m_built_in_functions;
+	QStringList m_plugin_function_names, m_plugin_functions, m_plugin_files_list, m_plugin_params;
+	QWidgetList *m_src_table;
 
     QCheckBox* boxUseBuiltIn;
 	QStackedWidget* tw;

@@ -43,7 +43,7 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 
 	public:
 		//! Standard constructor.
-		explicit DateTime2StringFilter(QString format="yyyy-MM-dd hh:mm:ss.zzz") : d_format(format) {}
+		explicit DateTime2StringFilter(QString format="yyyy-MM-dd hh:mm:ss.zzz") : m_format(format) {}
 		//! Set the format string to be used for conversion.
 		void setFormat(const QString& format);
 
@@ -52,7 +52,7 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 		 * The default format string is "yyyy-MM-dd hh:mm:ss.zzz".
 		 * \sa QDate::toString()
 		 */
-		QString format() const { return d_format; }
+		QString format() const { return m_format; }
 
 		//! Return the data type of the column
 		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
@@ -63,18 +63,18 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 	private:
 		friend class DateTime2StringFilterSetFormatCmd;
 		//! The format string.
-		QString d_format;
+		QString m_format;
 
 	public:
 		virtual QString textAt(int row) const {
-			if (!d_inputs.value(0)) return QString();
-			QDateTime input_value = d_inputs.value(0)->dateTimeAt(row);
+			if (!m_inputs.value(0)) return QString();
+			QDateTime input_value = m_inputs.value(0)->dateTimeAt(row);
 			if(!input_value.date().isValid() && input_value.time().isValid())
 				input_value.setDate(QDate(1900,1,1));
 #if QT_VERSION < 0x040302 // the bug seems to be fixed in Qt 4.3.2
 			// QDate::toString produces shortened year numbers for "yyyy"
 			// in violation of ISO 8601 and ambiguous with respect to "yy" format
-			QString format(d_format);
+			QString format(m_format);
 			format.replace("yyyy","YYYYyyyyYYYY");
 			QString result = input_value.toString(format);
 			result.replace(QRegExp("YYYY(-)?(\\d\\d\\d\\d)YYYY"), "\\1\\2");
@@ -83,7 +83,7 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 			result.replace(QRegExp("YYYY(-)?(\\d)YYYY"), "\\1000\\2");
 			return result;
 #else
-			return input_value.toString(d_format);
+			return input_value.toString(m_format);
 #endif
 		}
 
@@ -109,8 +109,8 @@ class DateTime2StringFilterSetFormatCmd : public QUndoCommand
 		virtual void undo();
 
 	private:
-		DateTime2StringFilter* d_target;
-		QString d_other_format;
+		DateTime2StringFilter* m_target;
+		QString m_other_format;
 };
 
 #endif // ifndef DATE_TIME2STRING_FILTER_H

@@ -105,13 +105,13 @@ class SelectionMoveResizer : public QWidget
 		 */
 		virtual bool eventFilter(QObject *o, QEvent *e);
 		//! Returns true if w is one of targets, false else.
-		bool contains(QWidget *w) const { return d_widgets.contains(w); };
+		bool contains(QWidget *w) const { return m_widgets.contains(w); };
 		//! Returns true if m is one of targets, false else.
-		bool contains(TextEnrichment *m) const { return d_legend_markers.contains(m); };
+		bool contains(TextEnrichment *m) const { return m_legend_markers.contains(m); };
 		//! Returns true if m is one of targets, false else.
-		bool contains(LineEnrichment *m) const { return d_line_markers.contains(m); };
+		bool contains(LineEnrichment *m) const { return m_line_markers.contains(m); };
 		//! Returns true if m is one of targets, false else.
-		bool contains(ImageEnrichment *m) const { return d_image_markers.contains(m); };
+		bool contains(ImageEnrichment *m) const { return m_image_markers.contains(m); };
 
 	public slots:
 		//! Add target to the list of items to be moved/resized together.
@@ -130,7 +130,7 @@ class SelectionMoveResizer : public QWidget
 		int removeAll(ImageEnrichment *target);
 		//! Remove target from the list of items to be moved/resized together and returns the number of occurences removed.
 		int removeAll(QWidget *target);
-		//! Calculate #d_bounding_rect based on the bounding rectangles of all targets.
+		//! Calculate #m_bounding_rect based on the bounding rectangles of all targets.
 		void recalcBoundingRect();
 
 	signals:
@@ -149,7 +149,7 @@ class SelectionMoveResizer : public QWidget
 		virtual void paintEvent(QPaintEvent *e);
 		/*!\brief Mouse button presses start move/resize operations.
 		 *
-		 * Clicks outside of #d_bounding_rect or with anything else than the left button
+		 * Clicks outside of #m_bounding_rect or with anything else than the left button
 		 * are propagated to the parent as usual.
 		 */
 		virtual void mousePressEvent(QMouseEvent *e);
@@ -177,9 +177,9 @@ class SelectionMoveResizer : public QWidget
 		static const int handler_size = 10;
 		//! Return one of the rectangles to be filled for starting resize operations.
 		static const QRect handlerRect(QRect rect, Operation op);
-		//! Apply operation specified by #d_op and #d_op_dp to in.
+		//! Apply operation specified by #m_op and #m_op_dp to in.
 		QRect operateOn(const QRect in);
-		//! Apply operation specified by #d_op and #d_op_dp to all targets.
+		//! Apply operation specified by #m_op and #m_op_dp to all targets.
 		void operateOnTargets();
 		//! The initialization part common to all constructors.
 		void init();
@@ -187,21 +187,21 @@ class SelectionMoveResizer : public QWidget
 		QRect boundingRectOf(QwtPlotMarker *target) const;
 
 		//! Target markers I'm handling.
-		QList <TextEnrichment *> d_legend_markers;
+		QList <TextEnrichment *> m_legend_markers;
 		//! Target markers I'm handling.
-		QList <LineEnrichment *> d_line_markers;
+		QList <LineEnrichment *> m_line_markers;
 		//! Target markers I'm handling.
-		QList <ImageEnrichment *> d_image_markers;
+		QList <ImageEnrichment *> m_image_markers;
 		//! Target widgets I'm handling.
-		QList <QWidget *> d_widgets;
+		QList <QWidget *> m_widgets;
 		//! Bounding rectangle of all targets taken together, in drawing coordinates.
-		QRect d_bounding_rect;
+		QRect m_bounding_rect;
 		//! The type of operation currently in progress.
-		Operation d_op;
+		Operation m_op;
 		//! Mouse position where an operation started; (-1,-1) means started by keyboard.
-		QPoint d_op_start;
+		QPoint m_op_start;
 		//! Difference between current and start position during operation.
-		QPoint d_op_dp;
+		QPoint m_op_dp;
 
 	private slots:
 		//! A non-typesafe version of remvoveAll(QWidget*) needed for QObject::destroyed().

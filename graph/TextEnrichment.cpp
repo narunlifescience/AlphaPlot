@@ -44,17 +44,17 @@
 #include <qwt_symbol.h>
 
 TextEnrichment::TextEnrichment(Plot *plot):
-	d_plot(plot),
-	d_frame (0),
-	d_angle(0)
+	m_plot(plot),
+	m_frame (0),
+	m_angle(0)
 {
-	d_text = new QwtText(QString::null, QwtText::RichText);
-	d_text->setFont(QFont("Arial",12, QFont::Normal, FALSE));
-	d_text->setRenderFlags(Qt::AlignTop|Qt::AlignLeft);
-	d_text->setBackgroundBrush(QBrush(Qt::NoBrush));
-	d_text->setColor(Qt::black);
-	d_text->setBackgroundPen (QPen(Qt::NoPen));
-	d_text->setPaintAttribute(QwtText::PaintBackground);
+	m_text = new QwtText(QString::null, QwtText::RichText);
+	m_text->setFont(QFont("Arial",12, QFont::Normal, FALSE));
+	m_text->setRenderFlags(Qt::AlignTop|Qt::AlignLeft);
+	m_text->setBackgroundBrush(QBrush(Qt::NoBrush));
+	m_text->setColor(Qt::black);
+	m_text->setBackgroundPen (QPen(Qt::NoPen));
+	m_text->setPaintAttribute(QwtText::PaintBackground);
 
 	hspace = 30;
 	left_margin = 10;
@@ -73,36 +73,36 @@ void TextEnrichment::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMa
 
 	QRect rs = QRect(QPoint(x, y), QSize(width, height));
 
-	drawFrame(p, d_frame, rs);
+	drawFrame(p, m_frame, rs);
 	drawSymbols(p, rs, heights, symbolLineLength);
 	drawTextEnrichments(p, rs, heights, symbolLineLength);
 }
 
 void TextEnrichment::setText(const QString& s)
 {
-	d_text->setText(s);
+	m_text->setText(s);
 }
 
 void TextEnrichment::setFrameStyle(int style)
 {
-	if (d_frame == style)
+	if (m_frame == style)
 		return;
 
-	d_frame = style;
+	m_frame = style;
 }
 
 void TextEnrichment::setBackgroundColor(const QColor& c)
 {
-	if (d_text->backgroundBrush().color() == c)
+	if (m_text->backgroundBrush().color() == c)
 		return;
 
-	d_text->setBackgroundBrush(QBrush(c));
+	m_text->setBackgroundBrush(QBrush(c));
 }
 
 QRect TextEnrichment::rect() const
 {
-	const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-	const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+	const QwtScaleMap &xMap = m_plot->canvasMap(xAxis());
+	const QwtScaleMap &yMap = m_plot->canvasMap(yAxis());
 
 	const int x = xMap.transform(xValue());
 	const int y = yMap.transform(yValue());
@@ -116,8 +116,8 @@ QRect TextEnrichment::rect() const
 QwtDoubleRect TextEnrichment::boundingRect() const
 {
 	QRect bounding_rect = rect();
-	const QwtScaleMap &x_map = d_plot->canvasMap(xAxis());
-	const QwtScaleMap &y_map = d_plot->canvasMap(yAxis());
+	const QwtScaleMap &x_map = m_plot->canvasMap(xAxis());
+	const QwtScaleMap &y_map = m_plot->canvasMap(yAxis());
 
 	double left = x_map.invTransform(bounding_rect.left());
 	double right = x_map.invTransform(bounding_rect.right());
@@ -129,18 +129,18 @@ QwtDoubleRect TextEnrichment::boundingRect() const
 
 void TextEnrichment::setTextColor(const QColor& c)
 {
-	if ( c == d_text->color() )
+	if ( c == m_text->color() )
 		return;
 
-	d_text->setColor(c);
+	m_text->setColor(c);
 }
 
 void TextEnrichment::setOrigin( const QPoint & p )
 {
-	d_pos = p;
+	m_pos = p;
 
-	const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-	const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+	const QwtScaleMap &xMap = m_plot->canvasMap(xAxis());
+	const QwtScaleMap &yMap = m_plot->canvasMap(yAxis());
 
 	setXValue (xMap.invTransform(p.x()));
 	setYValue (yMap.invTransform(p.y()));
@@ -148,19 +148,19 @@ void TextEnrichment::setOrigin( const QPoint & p )
 
 void TextEnrichment::updateOrigin()
 {
-	if (!d_plot)
+	if (!m_plot)
 		return;
 
-	const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-	const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+	const QwtScaleMap &xMap = m_plot->canvasMap(xAxis());
+	const QwtScaleMap &yMap = m_plot->canvasMap(yAxis());
 
-	const QwtScaleDiv *xScDiv = d_plot->axisScaleDiv (xAxis());
-	double xVal = xMap.invTransform(d_pos.x());
+	const QwtScaleDiv *xScDiv = m_plot->axisScaleDiv (xAxis());
+	double xVal = xMap.invTransform(m_pos.x());
   	if (!xScDiv->contains(xVal))
   	        return;
 
-  	const QwtScaleDiv *yScDiv = d_plot->axisScaleDiv (yAxis());
-  	double yVal = yMap.invTransform(d_pos.y());
+  	const QwtScaleDiv *yScDiv = m_plot->axisScaleDiv (yAxis());
+  	double yVal = yMap.invTransform(m_pos.y());
   	if (!yScDiv->contains(yVal))
   	        return;
 
@@ -176,18 +176,18 @@ void TextEnrichment::setOriginCoord(double x, double y)
 	setXValue(x);
 	setYValue(y);
 
-	const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-	const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+	const QwtScaleMap &xMap = m_plot->canvasMap(xAxis());
+	const QwtScaleMap &yMap = m_plot->canvasMap(yAxis());
 
-	d_pos = QPoint(xMap.transform(x), yMap.transform(y));
+	m_pos = QPoint(xMap.transform(x), yMap.transform(y));
 }
 
 void TextEnrichment::setFont(const QFont& font)
 {
-	if ( font == d_text->font() )
+	if ( font == m_text->font() )
 		return;
 
-	d_text->setFont(font);
+	m_text->setFont(font);
 }
 
 void TextEnrichment::drawFrame(QPainter *p, int type, const QRect& rect) const
@@ -195,11 +195,11 @@ void TextEnrichment::drawFrame(QPainter *p, int type, const QRect& rect) const
 	p->save();
 	p->setPen(QPen(Qt::black, 1, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
 	if (type == None)
-		p->fillRect (rect, d_text->backgroundBrush());
+		p->fillRect (rect, m_text->backgroundBrush());
 
 	if (type == Line)
 	{
-		p->setBrush(d_text->backgroundBrush());
+		p->setBrush(m_text->backgroundBrush());
 		QwtPainter::drawRect(p, rect);
 	}
 	else if (type == Shadow)
@@ -210,7 +210,7 @@ void TextEnrichment::drawFrame(QPainter *p, int type, const QRect& rect) const
 		p->drawRect(shadow_right);
 		p->drawRect(shadow_bottom);
 
-		p->setBrush(d_text->backgroundBrush());
+		p->setBrush(m_text->backgroundBrush());
 		QwtPainter::drawRect(p,rect);
 	}
 	p->restore();
@@ -218,7 +218,7 @@ void TextEnrichment::drawFrame(QPainter *p, int type, const QRect& rect) const
 
 void TextEnrichment::drawVector(QPainter *p, int x, int y, int l, int curveIndex) const
 {
-	Layer *g = (Layer *)d_plot->parent();
+	Layer *g = (Layer *)m_plot->parent();
 	if (!g)
 		return;
 
@@ -253,12 +253,12 @@ void TextEnrichment::drawVector(QPainter *p, int x, int y, int l, int curveIndex
 void TextEnrichment::drawSymbols(QPainter *p, const QRect& rect,
 		QwtArray<long> height, int symbolLineLength) const
 {
-	Layer *g = (Layer *) d_plot->parent();
+	Layer *g = (Layer *) m_plot->parent();
 
 	int w = rect.x() + 10;
 	int l = symbolLineLength + 20;
 
-	QString text = d_text->text().trimmed();
+	QString text = m_text->text().trimmed();
 	QStringList titles = text.split("\n", QString::KeepEmptyParts);
 
 	for (int i=0;i<(int)titles.count();i++)
@@ -327,10 +327,10 @@ void TextEnrichment::drawSymbols(QPainter *p, const QRect& rect,
 
 			int id=aux.toInt();
 
-			Layer* g=(Layer*)d_plot->parent();
+			Layer* g=(Layer*)m_plot->parent();
 			if (g->isPiePlot())
 			{
-				PieCurve *curve = (PieCurve *)d_plot->curve(1);
+				PieCurve *curve = (PieCurve *)m_plot->curve(1);
 				if (curve)
 				{
 					const QBrush br=QBrush(curve->color(id-1), curve->pattern());
@@ -353,7 +353,7 @@ void TextEnrichment::drawTextEnrichments(QPainter *p, const QRect& rect,
 {
 	int w = rect.x() + left_margin;
 
-	QString text = d_text->text().trimmed();
+	QString text = m_text->text().trimmed();
 	QStringList titles=text.split("\n", QString::KeepEmptyParts);
 
 	for (int i=0; i<(int)titles.count(); i++)
@@ -364,8 +364,8 @@ void TextEnrichment::drawTextEnrichments(QPainter *p, const QRect& rect,
 			x += symbolLineLength + hspace;
 
 		QwtText aux(parse(str));
-		aux.setFont(d_text->font());
-		aux.setColor(d_text->color());
+		aux.setFont(m_text->font());
+		aux.setColor(m_text->color());
 
 		QSize size = aux.textSize();
 
@@ -381,7 +381,7 @@ QwtArray<long> TextEnrichment::itemsHeight(int y, int symbolLineLength, int &wid
 	width = 0;
 	height = 0;
 
-	QString text = d_text->text().trimmed();
+	QString text = m_text->text().trimmed();
 	QStringList titles = text.split("\n", QString::KeepEmptyParts);
 	int n=(int)titles.count();
 	QwtArray<long> heights(n);
@@ -396,7 +396,7 @@ QwtArray<long> TextEnrichment::itemsHeight(int y, int symbolLineLength, int &wid
 			textL = symbolLineLength + hspace;
 
 		QwtText aux(parse(str));
-		QSize size = aux.textSize(d_text->font());
+		QSize size = aux.textSize(m_text->font());
 		textL += size.width();
 		if (textL > maxL)
 			maxL = textL;
@@ -416,10 +416,10 @@ QwtArray<long> TextEnrichment::itemsHeight(int y, int symbolLineLength, int &wid
 
 int TextEnrichment::symbolsMaxLineLength() const
 {
-	QList<int> cvs = d_plot->curveKeys();
+	QList<int> cvs = m_plot->curveKeys();
 
 	int maxL=0;
-	QString text = d_text->text().trimmed();
+	QString text = m_text->text().trimmed();
 	QStringList titles = text.split("\n", QString::KeepEmptyParts);
 	for (int i=0;i<(int)titles.count();i++){
 		if (titles[i].contains("\\c{") && (int)cvs.size()>0){
@@ -438,7 +438,7 @@ int TextEnrichment::symbolsMaxLineLength() const
 			if (cv < 0 || cv >= cvs.count())
 				continue;
 
-			const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(cvs[cv]);
+			const QwtPlotCurve *c = (QwtPlotCurve *)m_plot->curve(cvs[cv]);
 			if (c && c->rtti() != QwtPlotItem::Rtti_PlotSpectrogram) {
 				int l=c->symbol().size().width();
 				if (l < 3)
@@ -471,7 +471,7 @@ QString TextEnrichment::parse(const QString& str) const
         int pos2 = s.find(")",pos);
         int cv = s.mid(pos+2, pos2-pos-2).toInt() - 1;
         if (cv >= 0){
-			Layer *g = (Layer *)d_plot->parent();
+			Layer *g = (Layer *)m_plot->parent();
 			if (g){
             	const QwtPlotCurve *c = (QwtPlotCurve *)g->curve(cv);
             	if (c)
@@ -484,5 +484,5 @@ QString TextEnrichment::parse(const QString& str) const
 
 TextEnrichment::~TextEnrichment()
 {
-	delete d_text;
+	delete m_text;
 }

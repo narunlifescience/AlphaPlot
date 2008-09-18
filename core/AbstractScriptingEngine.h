@@ -66,12 +66,12 @@ class AbstractScriptingEngine : public QObject
     AbstractScriptingEngine(const char *lang_name);
     //! Initialize the scripting environment.
 	 /**
-	  * Don't forget to set d_initialized to true in implemenations after a successfull
+	  * Don't forget to set m_initialized to true in implemenations after a successfull
 	  * initialization.
 	  */
     virtual void initialize() = 0;
     //! initialization of the interpreter may fail; or there could be other errors setting up the environment
-    bool initialized() const { return d_initialized; }
+    bool initialized() const { return m_initialized; }
     //! whether asynchronuous execution is enabled (if supported by the implementation)
     virtual bool isRunning() const { return false; }
     
@@ -130,11 +130,11 @@ class AbstractScriptingEngine : public QObject
     
   protected:
     //! whether the interpreter has been successfully initialized
-    bool d_initialized;
+    bool m_initialized;
 
   private:
     //! the reference counter
-    int d_refcount;
+    int m_refcount;
 };
 
 Q_DECLARE_INTERFACE(AbstractScriptingEngine, "net.sf.scidavis.scriptingengine/0.1")
@@ -147,11 +147,11 @@ Q_DECLARE_INTERFACE(AbstractScriptingEngine, "net.sf.scidavis.scriptingengine/0.
 class ScriptingChangeEvent : public QEvent
 {
   public:
-    ScriptingChangeEvent(AbstractScriptingEngine *engine) : QEvent(SCRIPTING_CHANGE_EVENT), d_scripting_engine(engine) {}
-    AbstractScriptingEngine *scriptingEngine() const { return d_scripting_engine; }
+    ScriptingChangeEvent(AbstractScriptingEngine *engine) : QEvent(SCRIPTING_CHANGE_EVENT), m_scripting_engine(engine) {}
+    AbstractScriptingEngine *scriptingEngine() const { return m_scripting_engine; }
     Type type() const { return SCRIPTING_CHANGE_EVENT; }
   private:
-    AbstractScriptingEngine *d_scripting_engine;
+    AbstractScriptingEngine *m_scripting_engine;
 };
 
 //! Interface for maintaining a reference to the current AbstractScriptingEngine
@@ -167,7 +167,7 @@ class scripted
    ~scripted();
    void scriptingChangeEvent(ScriptingChangeEvent*);
   protected:
-    AbstractScriptingEngine *d_scripting_engine;
+    AbstractScriptingEngine *m_scripting_engine;
 };
 
 #endif // ifndef ABSTRACT_SCRIPTING_ENGINE_H

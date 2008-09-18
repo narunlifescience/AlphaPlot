@@ -72,89 +72,89 @@
 #include <QMenuBar>
 
 TableView::TableView(Table *table)
- : d_plot_menu(0), d_table(table)
+ : m_plot_menu(0), m_table(table)
 {
-	d_model = new TableModel(table);
+	m_model = new TableModel(table);
 	init();
 }
 
 TableView::~TableView() 
 {
-	delete d_model;
+	delete m_model;
 }
 
 void TableView::init()
 {
 	createActions();
 
-	d_main_layout = new QHBoxLayout(this);
-	d_main_layout->setSpacing(0);
-	d_main_layout->setContentsMargins(0, 0, 0, 0);
+	m_main_layout = new QHBoxLayout(this);
+	m_main_layout->setSpacing(0);
+	m_main_layout->setContentsMargins(0, 0, 0, 0);
 	
-	d_view_widget = new TableViewWidget(this);
-	d_view_widget->setModel(d_model);
-	connect(d_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
-	d_main_layout->addWidget(d_view_widget);
+	m_view_widget = new TableViewWidget(this);
+	m_view_widget->setModel(m_model);
+	connect(m_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
+	m_main_layout->addWidget(m_view_widget);
 	
-	d_horizontal_header = new TableDoubleHeaderView();
-    d_horizontal_header->setClickable(true);
-    d_horizontal_header->setHighlightSections(true);
-	d_view_widget->setHorizontalHeader(d_horizontal_header);
+	m_horizontal_header = new TableDoubleHeaderView();
+    m_horizontal_header->setClickable(true);
+    m_horizontal_header->setHighlightSections(true);
+	m_view_widget->setHorizontalHeader(m_horizontal_header);
 
-	d_hide_button = new QToolButton();
-	d_hide_button->setArrowType(Qt::RightArrow);
-	d_hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
-	d_hide_button->setCheckable(false);
-	d_main_layout->addWidget(d_hide_button);
-	connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
-	d_control_tabs = new QWidget();
-    ui.setupUi(d_control_tabs);
-	d_main_layout->addWidget(d_control_tabs);
+	m_hide_button = new QToolButton();
+	m_hide_button->setArrowType(Qt::RightArrow);
+	m_hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
+	m_hide_button->setCheckable(false);
+	m_main_layout->addWidget(m_hide_button);
+	connect(m_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
+	m_control_tabs = new QWidget();
+    ui.setupUi(m_control_tabs);
+	m_main_layout->addWidget(m_control_tabs);
 
-	d_delegate = new TableItemDelegate(d_view_widget);
-	d_view_widget->setItemDelegate(d_delegate);
+	m_delegate = new TableItemDelegate(m_view_widget);
+	m_view_widget->setItemDelegate(m_delegate);
 	
-	d_view_widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
-	d_main_layout->setStretchFactor(d_view_widget, 1);
+	m_view_widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
+	m_main_layout->setStretchFactor(m_view_widget, 1);
 
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 
-	d_view_widget->setFocusPolicy(Qt::StrongFocus);
+	m_view_widget->setFocusPolicy(Qt::StrongFocus);
 	setFocusPolicy(Qt::StrongFocus);
 	setFocus();
 #if QT_VERSION >= 0x040300
-	d_view_widget->setCornerButtonEnabled(true);
+	m_view_widget->setCornerButtonEnabled(true);
 #endif
 
-	d_view_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	m_view_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-	QHeaderView * v_header = d_view_widget->verticalHeader();
+	QHeaderView * v_header = m_view_widget->verticalHeader();
 	// Remark: ResizeToContents works in Qt 4.2.3 but is broken in 4.3.0
 	// Should be fixed in 4.3.1 though, see:
 	// http://trolltech.com/developer/task-tracker/index_html?method=entry&id=165567
 	v_header->setResizeMode(QHeaderView::ResizeToContents);
 	v_header->setMovable(false);
-	d_horizontal_header->setResizeMode(QHeaderView::Interactive);
-	d_horizontal_header->setMovable(true);
-	connect(d_horizontal_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(handleHorizontalSectionMoved(int,int,int)));
-	connect(d_horizontal_header, SIGNAL(sectionDoubleClicked(int)), this, SLOT(handleHorizontalHeaderDoubleClicked(int)));
+	m_horizontal_header->setResizeMode(QHeaderView::Interactive);
+	m_horizontal_header->setMovable(true);
+	connect(m_horizontal_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(handleHorizontalSectionMoved(int,int,int)));
+	connect(m_horizontal_header, SIGNAL(sectionDoubleClicked(int)), this, SLOT(handleHorizontalHeaderDoubleClicked(int)));
 	
-	d_horizontal_header->setDefaultSectionSize(defaultColumnWidth());
+	m_horizontal_header->setDefaultSectionSize(defaultColumnWidth());
 
 	v_header->installEventFilter(this);
-	d_horizontal_header->installEventFilter(this);
-	d_view_widget->installEventFilter(this);
+	m_horizontal_header->installEventFilter(this);
+	m_view_widget->installEventFilter(this);
 
-	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), d_view_widget, 
+	connect(m_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), m_view_widget, 
 		SLOT(updateHeaderGeometry(Qt::Orientation,int,int)) ); 
-	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), this, 
+	connect(m_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), this, 
 		SLOT(handleHeaderDataChanged(Qt::Orientation,int,int)) ); 
 
 	rereadSectionSizes();
 	
 	// keyboard shortcuts
-	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Table: select all")), d_view_widget);
-	connect(sel_all, SIGNAL(activated()), d_view_widget, SLOT(selectAll()));
+	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Table: select all")), m_view_widget);
+	connect(sel_all, SIGNAL(activated()), m_view_widget, SLOT(selectAll()));
 
 	connect(ui.type_box, SIGNAL(currentIndexChanged(int)), this, SLOT(updateFormatBox()));
 	connect(ui.format_box, SIGNAL(currentIndexChanged(int)), this, SLOT(updateTypeInfo()));
@@ -163,7 +163,7 @@ void TableView::init()
 	connect(ui.next_column_button, SIGNAL(clicked()), this, SLOT(goToNextColumn()));
 	retranslateStrings();
 
-	QItemSelectionModel * sel_model = d_view_widget->selectionModel();
+	QItemSelectionModel * sel_model = m_view_widget->selectionModel();
 
 	connect(sel_model, SIGNAL(currentColumnChanged(const QModelIndex&, const QModelIndex&)), 
 		this, SLOT(currentColumnChanged(const QModelIndex&, const QModelIndex&)));
@@ -180,44 +180,44 @@ void TableView::init()
 
 TableView::TableView()
 {
-	d_model = NULL;
+	m_model = NULL;
 	createActions();
 }
 
 
 void TableView::rereadSectionSizes()
 {
-	disconnect(d_horizontal_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleHorizontalSectionResized(int, int, int)));
+	disconnect(m_horizontal_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleHorizontalSectionResized(int, int, int)));
 
-	int cols = d_table->columnCount();
+	int cols = m_table->columnCount();
 	for (int i=0; i<cols; i++)
-		d_horizontal_header->resizeSection(i, d_table->columnWidth(i));
+		m_horizontal_header->resizeSection(i, m_table->columnWidth(i));
 		
-	connect(d_horizontal_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleHorizontalSectionResized(int, int, int)));
+	connect(m_horizontal_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleHorizontalSectionResized(int, int, int)));
 }
 
 void TableView::setColumnWidth(int col, int width) 
 { 
-	d_horizontal_header->resizeSection(col, width);
+	m_horizontal_header->resizeSection(col, width);
 }
 
 int TableView::columnWidth(int col) const 
 { 
-	return d_horizontal_header->sectionSize(col);
+	return m_horizontal_header->sectionSize(col);
 }
 
 void TableView::handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize)
 {	
 	Q_UNUSED(oldSize);
 	static bool inside = false;
-	d_table->setColumnWidth(logicalIndex, newSize);
+	m_table->setColumnWidth(logicalIndex, newSize);
 	if (inside) return;
 	inside = true;
 
-	int cols = d_table->columnCount();
+	int cols = m_table->columnCount();
 	for (int i=0; i<cols; i++)
 		if (isColumnSelected(i, true)) 
-			d_horizontal_header->resizeSection(i, newSize);
+			m_horizontal_header->resizeSection(i, newSize);
 
 	inside = false;
 }
@@ -231,8 +231,8 @@ void TableView::changeEvent(QEvent * event)
 
 void TableView::retranslateStrings()
 {
-	d_hide_button->setToolTip(tr("Show/hide control tabs"));
-    ui.retranslateUi(d_control_tabs);
+	m_hide_button->setToolTip(tr("Show/hide control tabs"));
+    ui.retranslateUi(m_control_tabs);
 
 	ui.type_box->clear();
 	ui.type_box->addItem(tr("Numeric"), QVariant(int(SciDAVis::Numeric)));
@@ -249,39 +249,39 @@ void TableView::retranslateStrings()
 	
 void TableView::advanceCell()
 {
-	QModelIndex idx = d_view_widget->currentIndex();
-    if (idx.row()+1 >= d_table->rowCount())
+	QModelIndex idx = m_view_widget->currentIndex();
+    if (idx.row()+1 >= m_table->rowCount())
 	{
-		int new_size = d_table->rowCount()+1;
-		d_table->setRowCount(new_size);
+		int new_size = m_table->rowCount()+1;
+		m_table->setRowCount(new_size);
 	}
-	d_view_widget->setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
+	m_view_widget->setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
 }
 
 void TableView::goToCell(int row, int col)
 {
-	QModelIndex index = d_model->index(row, col);
-	d_view_widget->scrollTo(index);
-	d_view_widget->setCurrentIndex(index);
+	QModelIndex index = m_model->index(row, col);
+	m_view_widget->scrollTo(index);
+	m_view_widget->setCurrentIndex(index);
 }
 
 void TableView::selectAll()
 {
-	d_view_widget->selectAll();
+	m_view_widget->selectAll();
 }
 
 void TableView::deselectAll()
 {
-	d_view_widget->clearSelection();
+	m_view_widget->clearSelection();
 }
 
 void TableView::toggleControlTabBar() 
 { 
-	d_control_tabs->setVisible(!d_control_tabs->isVisible());
-	if (d_control_tabs->isVisible())
-		d_hide_button->setArrowType(Qt::RightArrow);
+	m_control_tabs->setVisible(!m_control_tabs->isVisible());
+	if (m_control_tabs->isVisible())
+		m_hide_button->setArrowType(Qt::RightArrow);
 	else
-		d_hide_button->setArrowType(Qt::LeftArrow);
+		m_hide_button->setArrowType(Qt::LeftArrow);
 }
 
 void TableView::handleHorizontalSectionMoved(int index, int from, int to)
@@ -292,9 +292,9 @@ void TableView::handleHorizontalSectionMoved(int index, int from, int to)
 	Q_ASSERT(index == from);
 
 	inside = true;
-	d_view_widget->horizontalHeader()->moveSection(to, from);
+	m_view_widget->horizontalHeader()->moveSection(to, from);
 	inside = false;
-	d_table->moveColumn(from, to);
+	m_table->moveColumn(from, to);
 }
 
 void TableView::handleHorizontalHeaderDoubleClicked(int index)
@@ -305,7 +305,7 @@ void TableView::handleHorizontalHeaderDoubleClicked(int index)
 
 bool TableView::areCommentsShown() const
 {
-	return d_horizontal_header->areCommentsShown();
+	return m_horizontal_header->areCommentsShown();
 }
 
 void TableView::toggleComments()
@@ -315,21 +315,21 @@ void TableView::toggleComments()
 
 void TableView::showComments(bool on)
 {
-	d_horizontal_header->showComments(on);
+	m_horizontal_header->showComments(on);
 }
 
 void TableView::currentColumnChanged(const QModelIndex & current, const QModelIndex & previous)
 {
 	Q_UNUSED(previous);
 	int col = current.column();	
-	if (col < 0 || col >= d_table->columnCount()) return;
+	if (col < 0 || col >= m_table->columnCount()) return;
 	setColumnForDescriptionTab(col);
 }
 
 void TableView::setColumnForDescriptionTab(int col)
 {
-	if (col < 0 || col >= d_table->columnCount()) return;
-	Column *col_ptr = d_table->column(col);
+	if (col < 0 || col >= m_table->columnCount()) return;
+	Column *col_ptr = m_table->column(col);
 
 	QString str = QString(tr("Current column:\nName: %1\nPosition: %2"))\
 		.arg(col_ptr->name()).arg(col+1);
@@ -473,33 +473,33 @@ void TableView::updateTypeInfo()
 
 void TableView::showControlDescriptionTab()
 {
-	d_control_tabs->setVisible(true);
-	d_hide_button->setArrowType(Qt::RightArrow);
+	m_control_tabs->setVisible(true);
+	m_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(0);
 }
 
 void TableView::showControlTypeTab()
 {
-	d_control_tabs->setVisible(true);
-	d_hide_button->setArrowType(Qt::RightArrow);
+	m_control_tabs->setVisible(true);
+	m_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(1);
 }
 
 void TableView::showControlFormulaTab()
 {
-	d_control_tabs->setVisible(true);
-	d_hide_button->setArrowType(Qt::RightArrow);
+	m_control_tabs->setVisible(true);
+	m_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(2);
 }
 
 void TableView::applyDescription()
 {
-	QItemSelectionModel * sel_model = d_view_widget->selectionModel();
+	QItemSelectionModel * sel_model = m_view_widget->selectionModel();
 	int index = sel_model->currentIndex().column();
 	if (index >= 0)
 	{
-		d_table->column(index)->setName(ui.name_edit->text());
-		d_table->column(index)->setComment(ui.comment_box->document()->toPlainText());
+		m_table->column(index)->setName(ui.name_edit->text());
+		m_table->column(index)->setComment(ui.comment_box->document()->toPlainText());
 	}
 }
 
@@ -521,7 +521,7 @@ void TableView::applyType()
 				filter->setNumericFormat(ui.format_box->itemData(format_index).toChar().toLatin1());
 				filter->setNumDigits(ui.digits_box->value());
 				// TODO: make sure this is done by a signal from the filter to the column on to the table
-	//			d_model->emitColumnChanged(col); 
+	//			m_model->emitColumnChanged(col); 
 				}
 			break;
 		case SciDAVis::Text:
@@ -537,7 +537,7 @@ void TableView::applyType()
 				DateTime2StringFilter * filter = static_cast<DateTime2StringFilter*>(col->outputFilter());
 				filter->setFormat(ui.format_box->itemData(format_index).toString());
 				// TODO: make sure this is done by a signal from the filter to the column on to the table
-	//			d_model->emitColumnChanged(col); 
+	//			m_model->emitColumnChanged(col); 
 			}
 			break;
 	}
@@ -547,7 +547,7 @@ void TableView::handleHeaderDataChanged(Qt::Orientation orientation, int first, 
 {
 	if (orientation != Qt::Horizontal) return;
 
-	QItemSelectionModel * sel_model = d_view_widget->selectionModel();
+	QItemSelectionModel * sel_model = m_view_widget->selectionModel();
 
 	int col = sel_model->currentIndex().column();
 	if (col < first || col > last) return;
@@ -557,7 +557,7 @@ void TableView::handleHeaderDataChanged(Qt::Orientation orientation, int first, 
 int TableView::selectedColumnCount(bool full)
 {
 	int count = 0;
-	int cols = d_table->columnCount();
+	int cols = m_table->columnCount();
 	for (int i=0; i<cols; i++)
 		if (isColumnSelected(i, full)) count++;
 	return count;
@@ -566,9 +566,9 @@ int TableView::selectedColumnCount(bool full)
 int TableView::selectedColumnCount(SciDAVis::PlotDesignation pd)
 {
 	int count = 0;
-	int cols = d_table->columnCount();
+	int cols = m_table->columnCount();
 	for (int i=0; i<cols; i++)
-		if ( isColumnSelected(i, false) && (d_table->column(i)->plotDesignation() == pd) ) count++;
+		if ( isColumnSelected(i, false) && (m_table->column(i)->plotDesignation() == pd) ) count++;
 
 	return count;
 }
@@ -576,17 +576,17 @@ int TableView::selectedColumnCount(SciDAVis::PlotDesignation pd)
 bool TableView::isColumnSelected(int col, bool full)
 {
 	if (full)
-		return d_view_widget->selectionModel()->isColumnSelected(col, QModelIndex());
+		return m_view_widget->selectionModel()->isColumnSelected(col, QModelIndex());
 	else
-		return d_view_widget->selectionModel()->columnIntersectsSelection(col, QModelIndex());
+		return m_view_widget->selectionModel()->columnIntersectsSelection(col, QModelIndex());
 }
 
 QList<Column*> TableView::selectedColumns(bool full)
 {
 	QList<Column*> list;
-	int cols = d_table->columnCount();
+	int cols = m_table->columnCount();
 	for (int i=0; i<cols; i++)
-		if (isColumnSelected(i, full)) list << d_table->column(i);
+		if (isColumnSelected(i, full)) list << m_table->column(i);
 
 	return list;
 }
@@ -594,7 +594,7 @@ QList<Column*> TableView::selectedColumns(bool full)
 int TableView::selectedRowCount(bool full)
 {
 	int count = 0;
-	int rows = d_table->rowCount();
+	int rows = m_table->rowCount();
 	for (int i=0; i<rows; i++)
 		if (isRowSelected(i, full)) count++;
 	return count;
@@ -603,14 +603,14 @@ int TableView::selectedRowCount(bool full)
 bool TableView::isRowSelected(int row, bool full)
 {
 	if (full)
-		return d_view_widget->selectionModel()->isRowSelected(row, QModelIndex());
+		return m_view_widget->selectionModel()->isRowSelected(row, QModelIndex());
 	else
-		return d_view_widget->selectionModel()->rowIntersectsSelection(row, QModelIndex());
+		return m_view_widget->selectionModel()->rowIntersectsSelection(row, QModelIndex());
 }
 
 int TableView::firstSelectedColumn(bool full)
 {
-	int cols = d_table->columnCount();
+	int cols = m_table->columnCount();
 	for (int i=0; i<cols; i++)
 	{
 		if (isColumnSelected(i, full))
@@ -621,7 +621,7 @@ int TableView::firstSelectedColumn(bool full)
 
 int TableView::lastSelectedColumn(bool full)
 {
-	int cols = d_table->columnCount();
+	int cols = m_table->columnCount();
 	for (int i=cols-1; i>=0; i--)
 		if (isColumnSelected(i, full)) return i;
 
@@ -630,7 +630,7 @@ int TableView::lastSelectedColumn(bool full)
 
 int TableView::firstSelectedRow(bool full)
 {
-	int rows = d_table->rowCount();
+	int rows = m_table->rowCount();
 	for (int i=0; i<rows; i++)
 	{
 		if (isRowSelected(i, full))
@@ -641,7 +641,7 @@ int TableView::firstSelectedRow(bool full)
 
 int TableView::lastSelectedRow(bool full)
 {
-	int rows = d_table->rowCount();
+	int rows = m_table->rowCount();
 	for (int i=rows-1; i>=0; i--)
 		if (isRowSelected(i, full)) return i;
 
@@ -650,28 +650,28 @@ int TableView::lastSelectedRow(bool full)
 
 bool TableView::isCellSelected(int row, int col)
 {
-	if (row < 0 || col < 0 || row >= d_table->rowCount() || col >= d_table->columnCount()) return false;
+	if (row < 0 || col < 0 || row >= m_table->rowCount() || col >= m_table->columnCount()) return false;
 
-	return d_view_widget->selectionModel()->isSelected(d_model->index(row, col));
+	return m_view_widget->selectionModel()->isSelected(m_model->index(row, col));
 }
 
 void TableView::setCellSelected(int row, int col, bool select)
 {
-	 d_view_widget->selectionModel()->select(d_model->index(row, col), 
+	 m_view_widget->selectionModel()->select(m_model->index(row, col), 
 			 select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
 }
 
 void TableView::setCellsSelected(int first_row, int first_col, int last_row, int last_col, bool select)
 {
-	QModelIndex top_left = d_model->index(first_row, first_col);
-	QModelIndex bottom_right = d_model->index(last_row, last_col);
-	d_view_widget->selectionModel()->select(QItemSelection(top_left, bottom_right), 
+	QModelIndex top_left = m_model->index(first_row, first_col);
+	QModelIndex bottom_right = m_model->index(last_row, last_col);
+	m_view_widget->selectionModel()->select(QItemSelection(top_left, bottom_right), 
 			select ? QItemSelectionModel::SelectCurrent : QItemSelectionModel::Deselect);
 }
 
 void TableView::getCurrentCell(int * row, int * col)
 {
-	QModelIndex index = d_view_widget->selectionModel()->currentIndex();
+	QModelIndex index = m_view_widget->selectionModel()->currentIndex();
 	if (index.isValid()) 
 	{
 		*row = index.row();
@@ -686,7 +686,7 @@ void TableView::getCurrentCell(int * row, int * col)
 
 bool TableView::eventFilter(QObject * watched, QEvent * event)
 {
-	QHeaderView * v_header = d_view_widget->verticalHeader();
+	QHeaderView * v_header = m_view_widget->verticalHeader();
 
 	if (event->type() == QEvent::ContextMenu) 
 	{
@@ -694,9 +694,9 @@ bool TableView::eventFilter(QObject * watched, QEvent * event)
 		QPoint global_pos = cm_event->globalPos();
 		if (watched == v_header)	
 			showTableViewRowContextMenu(global_pos);
-		else if (watched == d_horizontal_header)
+		else if (watched == m_horizontal_header)
 			showTableViewColumnContextMenu(global_pos);
-		else if (watched == d_view_widget)
+		else if (watched == m_view_widget)
 			showTableViewContextMenu(global_pos);
 		else
 			return QWidget::eventFilter(watched, event);
@@ -709,34 +709,34 @@ bool TableView::eventFilter(QObject * watched, QEvent * event)
 
 bool TableView::formulaModeActive() const 
 { 
-	return d_model->formulaModeActive(); 
+	return m_model->formulaModeActive(); 
 }
 
 void TableView::activateFormulaMode(bool on) 
 { 
-	d_model->activateFormulaMode(on); 
+	m_model->activateFormulaMode(on); 
 }
 
 void TableView::goToNextColumn()
 {
-	if (d_table->columnCount() == 0) return;
+	if (m_table->columnCount() == 0) return;
 
-	QModelIndex idx = d_view_widget->currentIndex();
+	QModelIndex idx = m_view_widget->currentIndex();
 	int col = idx.column()+1;
-    if (col >= d_table->columnCount())
+    if (col >= m_table->columnCount())
 		col = 0;
-	d_view_widget->setCurrentIndex(idx.sibling(idx.row(), col));
+	m_view_widget->setCurrentIndex(idx.sibling(idx.row(), col));
 }
 
 void TableView::goToPreviousColumn()
 {
-	if (d_table->columnCount() == 0) return;
+	if (m_table->columnCount() == 0) return;
 
-	QModelIndex idx = d_view_widget->currentIndex();
+	QModelIndex idx = m_view_widget->currentIndex();
 	int col = idx.column()-1;
     if (col < 0)
-		col = d_table->columnCount()-1;
-	d_view_widget->setCurrentIndex(idx.sibling(idx.row(), col));
+		col = m_table->columnCount()-1;
+	m_view_widget->setCurrentIndex(idx.sibling(idx.row(), col));
 }
 
 QMenu * TableView::createSelectionMenu(QMenu * append_to)
@@ -854,10 +854,10 @@ void TableView::cutSelection()
 	if ( first < 0 ) return;
 
 	WAIT_CURSOR;
-	d_table->beginMacro(tr("%1: cut selected cell(s)").arg(d_table->name()));
+	m_table->beginMacro(tr("%1: cut selected cell(s)").arg(m_table->name()));
 	copySelection();
 	clearSelectedCells();
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
@@ -881,7 +881,7 @@ void TableView::copySelection()
 	{
 		for (int c=0; c<cols; c++)
 		{	
-			Column *col_ptr = d_table->column(first_col + c);
+			Column *col_ptr = m_table->column(first_col + c);
 			if (isCellSelected(first_row + r, first_col + c))
 			{
 				if (formulaModeActive())
@@ -896,7 +896,7 @@ void TableView::copySelection()
 				}
 				else
 				{
-					output_str += d_table->text(first_row + r, first_col + c);
+					output_str += m_table->text(first_row + r, first_col + c);
 				}
 			}
 			if (c < cols-1)
@@ -911,10 +911,10 @@ void TableView::copySelection()
 
 void TableView::pasteIntoSelection()
 {
-	if (d_table->columnCount() < 1 || d_table->rowCount() < 1) return;
+	if (m_table->columnCount() < 1 || m_table->rowCount() < 1) return;
 
 	WAIT_CURSOR;
-	d_table->beginMacro(tr("%1: paste from clipboard").arg(d_table->name()));
+	m_table->beginMacro(tr("%1: paste from clipboard").arg(m_table->name()));
 	const QMimeData * mime_data = QApplication::clipboard()->mimeData();
 
 	int first_col = firstSelectedColumn(false);
@@ -953,19 +953,19 @@ void TableView::pasteIntoSelection()
 			last_row = first_row + input_row_count -1;
 			last_col = first_col + input_col_count -1;
 			// resize the table if necessary
-			if (last_col >= d_table->columnCount())
+			if (last_col >= m_table->columnCount())
 			{
 				QList<Column*> cols;
-				for (int i=0; i<last_col+1-d_table->columnCount(); i++)
+				for (int i=0; i<last_col+1-m_table->columnCount(); i++)
 				{
 					Column * new_col = new Column(QString::number(i+1), SciDAVis::Text);
 					new_col->setPlotDesignation(SciDAVis::Y);
 					cols << new_col;
 				}
-				d_table->appendColumns(cols);
+				m_table->appendColumns(cols);
 			}
-			if (last_row >= d_table->rowCount())
-				d_table->appendRows(last_row+1-d_table->rowCount());
+			if (last_row >= m_table->rowCount())
+				m_table->appendRows(last_row+1-m_table->rowCount());
 			// select the rectangle to be pasted in
 			setCellsSelected(first_row, first_col, last_row, last_col);
 		}
@@ -978,7 +978,7 @@ void TableView::pasteIntoSelection()
 			{
 				if (isCellSelected(first_row + r, first_col + c) && (c < cell_texts.at(r).count()) )
 				{
-					Column * col_ptr = d_table->column(first_col + c);
+					Column * col_ptr = m_table->column(first_col + c);
 					if (formulaModeActive())
 					{
 						col_ptr->setFormula(first_row + r, cell_texts.at(r).at(c));  
@@ -989,7 +989,7 @@ void TableView::pasteIntoSelection()
 			}
 		}
 	}
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
@@ -1000,15 +1000,15 @@ void TableView::maskSelection()
 	if ( first < 0 ) return;
 
 	WAIT_CURSOR;
-	d_table->beginMacro(tr("%1: mask selected cell(s)").arg(d_table->name()));
+	m_table->beginMacro(tr("%1: mask selected cell(s)").arg(m_table->name()));
 	QList<Column*> list = selectedColumns();
 	foreach(Column * col_ptr, list)
 	{
-		int col = d_table->columnIndex(col_ptr);
+		int col = m_table->columnIndex(col_ptr);
 		for (int row=first; row<=last; row++)
 			if (isCellSelected(row, col)) col_ptr->setMasked(row);  
 	}
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
@@ -1019,15 +1019,15 @@ void TableView::unmaskSelection()
 	if ( first < 0 ) return;
 
 	WAIT_CURSOR;
-	d_table->beginMacro(tr("%1: unmask selected cell(s)").arg(d_table->name()));
+	m_table->beginMacro(tr("%1: unmask selected cell(s)").arg(m_table->name()));
 	QList<Column*> list = selectedColumns();
 	foreach(Column * col_ptr, list)
 	{
-		int col = d_table->columnIndex(col_ptr);
+		int col = m_table->columnIndex(col_ptr);
 		for (int row=first; row<=last; row++)
 			if (isCellSelected(row, col)) col_ptr->setMasked(row, false);  
 	}
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
@@ -1050,16 +1050,16 @@ void TableView::fillSelectedCellsWithRowNumbers()
 	if ( first < 0 ) return;
 	
 	WAIT_CURSOR;
-	d_table->beginMacro(tr("%1: fill cells with row numbers").arg(d_table->name()));
+	m_table->beginMacro(tr("%1: fill cells with row numbers").arg(m_table->name()));
 	QList<Column*> list = selectedColumns();
 	foreach(Column * col_ptr, list)
 	{
-		int col = d_table->columnIndex(col_ptr);
+		int col = m_table->columnIndex(col_ptr);
 		for (int row=first; row<=last; row++)
 			if (isCellSelected(row, col)) 
 				col_ptr->asStringColumn()->setTextAt(row, QString::number(row+1));
 	}
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
@@ -1071,12 +1071,12 @@ void TableView::fillSelectedCellsWithRandomNumbers()
 	if ( first < 0 ) return;
 	
 	WAIT_CURSOR;
-	d_table->beginMacro(tr("%1: fill cells with random values").arg(d_table->name()));
+	m_table->beginMacro(tr("%1: fill cells with random values").arg(m_table->name()));
 	qsrand(QTime::currentTime().msec());
 	QList<Column*> list = selectedColumns();
 	foreach(Column * col_ptr, list)
 	{
-		int col = d_table->columnIndex(col_ptr);
+		int col = m_table->columnIndex(col_ptr);
 		for (int row=first; row<=last; row++)
 			if (isCellSelected(row, col)) 
 			{
@@ -1094,7 +1094,7 @@ void TableView::fillSelectedCellsWithRandomNumbers()
 					col_ptr->setTextAt(row, QString::number(double(qrand())/double(RAND_MAX)));
 			}
 	}
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
@@ -1102,8 +1102,8 @@ void TableView::sortTable()
 {
 	QList<Column*> cols;
 	
-	for (int i=0; i<d_table->columnCount(); i++)
-		cols.append(d_table->column(i));
+	for (int i=0; i<m_table->columnCount(); i++)
+		cols.append(m_table->column(i));
 
 	sortDialog(cols);
 }
@@ -1117,7 +1117,7 @@ void TableView::insertEmptyColumns()
 	QList<Column*> cols;
 
 	WAIT_CURSOR;
-	d_table->beginMacro(QObject::tr("%1: insert empty column(s)").arg(d_table->name()));
+	m_table->beginMacro(QObject::tr("%1: insert empty column(s)").arg(m_table->name()));
 	while( current <= last )
 	{
 		current = first+1;
@@ -1129,34 +1129,34 @@ void TableView::insertEmptyColumns()
 			new_col->setPlotDesignation(SciDAVis::Y);
 			cols << new_col;
 		}
-		d_table->insertColumns(first, cols);
+		m_table->insertColumns(first, cols);
 		cols.clear();
 		current += count;
 		last += count;
 		while( current <= last && !isColumnSelected(current) ) current++;
 		first = current;
 	}
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
 void TableView::removeSelectedColumns()
 {
 	WAIT_CURSOR;
-	d_table->beginMacro(QObject::tr("%1: remove selected column(s)").arg(d_table->name()));
+	m_table->beginMacro(QObject::tr("%1: remove selected column(s)").arg(m_table->name()));
 
 	QList< Column* > list = selectedColumns();
 	foreach(Column* ptr, list)
-		d_table->removeColumn(ptr);
+		m_table->removeColumn(ptr);
 
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
 void TableView::clearSelectedColumns()
 {
 	WAIT_CURSOR;
-	d_table->beginMacro(QObject::tr("%1: clear selected column(s)").arg(d_table->name()));
+	m_table->beginMacro(QObject::tr("%1: clear selected column(s)").arg(m_table->name()));
 
 	QList< Column* > list = selectedColumns();
 	if (formulaModeActive())
@@ -1170,20 +1170,20 @@ void TableView::clearSelectedColumns()
 			ptr->clear();
 	}
 
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
 void TableView::setSelectionAs(SciDAVis::PlotDesignation pd)
 {
 	WAIT_CURSOR;
-	d_table->beginMacro(QObject::tr("%1: set plot designation(s)").arg(d_table->name()));
+	m_table->beginMacro(QObject::tr("%1: set plot designation(s)").arg(m_table->name()));
 
 	QList< Column* > list = selectedColumns();
 	foreach(Column* ptr, list)
 		ptr->setPlotDesignation(pd);
 
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
@@ -1250,19 +1250,19 @@ void TableView::insertEmptyRows()
 	if ( first < 0 ) return;
 
 	WAIT_CURSOR;
-	d_table->beginMacro(QObject::tr("%1: insert empty rows(s)").arg(d_table->name()));
+	m_table->beginMacro(QObject::tr("%1: insert empty rows(s)").arg(m_table->name()));
 	while( current <= last )
 	{
 		current = first+1;
 		while( current <= last && isRowSelected(current) ) current++;
 		count = current-first;
-		d_table->insertRows(first, count);
+		m_table->insertRows(first, count);
 		current += count;
 		last += count;
 		while( current <= last && !isRowSelected(current) ) current++;
 		first = current;
 	}
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
@@ -1273,10 +1273,10 @@ void TableView::removeSelectedRows()
 	if ( first < 0 ) return;
 
 	WAIT_CURSOR;
-	d_table->beginMacro(QObject::tr("%1: remove selected rows(s)").arg(d_table->name()));
+	m_table->beginMacro(QObject::tr("%1: remove selected rows(s)").arg(m_table->name()));
 	for (int i=last; i>=first; i--)
-		if (isRowSelected(i, false)) d_table->removeRows(i, 1);
-	d_table->endMacro();
+		if (isRowSelected(i, false)) m_table->removeRows(i, 1);
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
@@ -1287,7 +1287,7 @@ void TableView::clearSelectedRows()
 	if ( first < 0 ) return;
 
 	WAIT_CURSOR;
-	d_table->beginMacro(QObject::tr("%1: clear selected rows(s)").arg(d_table->name()));
+	m_table->beginMacro(QObject::tr("%1: clear selected rows(s)").arg(m_table->name()));
 	QList<Column*> list = selectedColumns();
 	foreach(Column * col_ptr, list)
 	{
@@ -1311,7 +1311,7 @@ void TableView::clearSelectedRows()
 				}
 		}
 	}
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
@@ -1332,13 +1332,13 @@ void TableView::clearSelectedCells()
 	if ( first < 0 ) return;
 
 	WAIT_CURSOR;
-	d_table->beginMacro(tr("%1: clear selected cell(s)").arg(d_table->name()));
+	m_table->beginMacro(tr("%1: clear selected cell(s)").arg(m_table->name()));
 	QList<Column*> list = selectedColumns();
 	foreach(Column * col_ptr, list)
 	{
 		if (formulaModeActive())
 		{
-			int col = d_table->columnIndex(col_ptr);
+			int col = m_table->columnIndex(col_ptr);
 			for (int row=last; row>=first; row--)
 				if (isCellSelected(row, col))
 				{
@@ -1347,7 +1347,7 @@ void TableView::clearSelectedCells()
 		}
 		else
 		{
-			int col = d_table->columnIndex(col_ptr);
+			int col = m_table->columnIndex(col_ptr);
 			for (int row=last; row>=first; row--)
 				if (isCellSelected(row, col))
 				{
@@ -1358,7 +1358,7 @@ void TableView::clearSelectedCells()
 				}
 		}
 	}
-	d_table->endMacro();
+	m_table->endMacro();
 	RESET_CURSOR;
 }
 
@@ -1640,9 +1640,9 @@ void TableView::connectActions()
 	connect(action_fill_row_numbers, SIGNAL(triggered()), this, SLOT(fillSelectedCellsWithRowNumbers()));
 	connect(action_fill_random, SIGNAL(triggered()), this, SLOT(fillSelectedCellsWithRandomNumbers()));
 	connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
-	connect(action_add_column, SIGNAL(triggered()), d_table, SLOT(addColumn()));
-	connect(action_clear_table, SIGNAL(triggered()), d_table, SLOT(clear()));
-	connect(action_clear_masks, SIGNAL(triggered()), d_table, SLOT(clearMasks()));
+	connect(action_add_column, SIGNAL(triggered()), m_table, SLOT(addColumn()));
+	connect(action_clear_table, SIGNAL(triggered()), m_table, SLOT(clear()));
+	connect(action_clear_masks, SIGNAL(triggered()), m_table, SLOT(clearMasks()));
 	connect(action_sort_table, SIGNAL(triggered()), this, SLOT(sortTable()));
 	connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
 	connect(action_dimensions_dialog, SIGNAL(triggered()), this, SLOT(dimensionsDialog()));
@@ -1743,9 +1743,9 @@ void TableView::showTableViewColumnContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
-	if (d_plot_menu)
+	if (m_plot_menu)
 	{
-		context_menu.addMenu(d_plot_menu);
+		context_menu.addMenu(m_plot_menu);
 		context_menu.addSeparator();
 	}
 
@@ -1769,11 +1769,11 @@ void TableView::goToCell()
 	bool ok;
 
 	int col = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter column"),
-			1, 1, d_table->columnCount(), 1, &ok);
+			1, 1, m_table->columnCount(), 1, &ok);
 	if ( !ok ) return;
 
 	int row = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter row"),
-			1, 1, d_table->rowCount(), 1, &ok);
+			1, 1, m_table->rowCount(), 1, &ok);
 	if ( !ok ) return;
 
 	goToCell(row-1, col-1);
@@ -1784,20 +1784,20 @@ void TableView::dimensionsDialog()
 	bool ok;
 
 	int cols = QInputDialog::getInteger(0, tr("Set Table Dimensions"), tr("Enter number of columns"),
-			d_table->columnCount(), 1, 1e9, 1, &ok);
+			m_table->columnCount(), 1, 1e9, 1, &ok);
 	if ( !ok ) return;
 
 	int rows = QInputDialog::getInteger(0, tr("Set Table Dimensions"), tr("Enter number of rows"),
-			d_table->rowCount(), 1, 1e9, 1, &ok);
+			m_table->rowCount(), 1, 1e9, 1, &ok);
 	if ( !ok ) return;
 	
-	d_table->setColumnCount(cols);
-	d_table->setRowCount(rows);
+	m_table->setColumnCount(cols);
+	m_table->setRowCount(rows);
 }
 
 void TableView::setPlotMenu(QMenu * menu)
 {
-	d_plot_menu = menu;
+	m_plot_menu = menu;
 }
 
 void TableView::sortDialog(QList<Column*> cols)
@@ -1813,12 +1813,12 @@ void TableView::sortDialog(QList<Column*> cols)
 
 void TableView::addColumns()
 {
-	d_table->addColumns(selectedColumnCount(false));
+	m_table->addColumns(selectedColumnCount(false));
 }
 
 void TableView::addRows()
 {
-	d_table->addColumns(selectedRowCount(false));
+	m_table->addColumns(selectedRowCount(false));
 }
 
 

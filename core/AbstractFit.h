@@ -79,11 +79,11 @@ class AbstractFit : public AbstractFilter
 				case Dataset: return tr("user-supplied");
 			}
 		}
-		AbstractFit() : d_algorithm(ScaledLevenbergMarquardt), d_tolerance(1e-8), d_maxiter(1000), d_auto_refit(false), d_outdated(true) {}
+		AbstractFit() : m_algorithm(ScaledLevenbergMarquardt), m_tolerance(1e-8), m_maxiter(1000), m_auto_refit(false), m_outdated(true) {}
 		virtual ~AbstractFit() {}
-		bool isOutdated() const { return d_outdated; }
-		void setAlgorithm(Algorithm a) { d_algorithm = a; }
-		void setAutoRefit(bool auto_refit = true) { d_auto_refit = auto_refit; }
+		bool isOutdated() const { return m_outdated; }
+		void setAlgorithm(Algorithm a) { m_algorithm = a; }
+		void setAutoRefit(bool auto_refit = true) { m_auto_refit = auto_refit; }
 
 		//!\name Handling of fit parameters
 		//@{
@@ -111,17 +111,17 @@ class AbstractFit : public AbstractFilter
 
 	private:
 		//! Fit algorithm to use.
-		Algorithm d_algorithm;
+		Algorithm m_algorithm;
 		//! Where to take weights from.
-		WeightingMethod d_weighting;
+		WeightingMethod m_weighting;
 		//! The tolerance ("epsilon") to be used for deciding when the fit was successful.
-		double d_tolerance;
+		double m_tolerance;
 		//! The maximum number of iterations to do before declaring the fit to have failed.
-		int d_maxiter;
+		int m_maxiter;
 		//! Whether to redo the fit each time input data changes.
-		bool d_auto_refit;
-		//! If #d_auto_refit is false, this is true when the input data has changed since the last fit.
-		bool d_outdated;
+		bool m_auto_refit;
+		//! If #m_auto_refit is false, this is true when the input data has changed since the last fit.
+		bool m_outdated;
 
 	friend class FitSetAlgorithmCmd;
 };

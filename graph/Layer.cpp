@@ -98,7 +98,7 @@ Layer::Layer(QWidget* parent, const char* name, Qt::WFlags f)
 		setObjectName( name );
 
 	n_curves=0;
-	d_active_tool = NULL;
+	m_active_tool = NULL;
 	widthLine=1;mrkX=-1;mrkY=-1;;
 	selectedMarker=-1;
 	drawTextOn=false;
@@ -108,9 +108,9 @@ Layer::Layer(QWidget* parent, const char* name, Qt::WFlags f)
 	drawAxesBackbone = true;
 	autoscale = true;
 	autoScaleFonts = false;
-	d_antialiasing = true;
-	d_scale_on_print = true;
-	d_print_cropmarks = false;
+	m_antialiasing = true;
+	m_scale_on_print = true;
+	m_print_cropmarks = false;
 
 	defaultArrowLineWidth = 1;
 	defaultArrowColor = QColor(Qt::black);
@@ -124,32 +124,32 @@ Layer::Layer(QWidget* parent, const char* name, Qt::WFlags f)
 	defaultTextMarkerColor = QColor(Qt::black);
 	defaultTextMarkerBackground = QColor(Qt::white);
 
-	d_user_step = QVector<double>(QwtPlot::axisCnt);
+	m_user_step = QVector<double>(QwtPlot::axisCnt);
 	for (int i=0; i<QwtPlot::axisCnt; i++)
 	{
 		axisType << Numeric;
 		axesFormatInfo << QString::null;
 		axesFormulas << QString::null;
-		d_user_step[i] = 0.0;
+		m_user_step[i] = 0.0;
 	}
 
-	d_plot = new Plot(this);
+	m_plot = new Plot(this);
 	cp = new CanvasPicker(this);
 
-	titlePicker = new TitlePicker(d_plot);
-	scalePicker = new ScalePicker(d_plot);
+	titlePicker = new TitlePicker(m_plot);
+	scalePicker = new ScalePicker(m_plot);
 
-	d_zoomer[0]= new QwtPlotZoomer(QwtPlot::xBottom, QwtPlot::yLeft,
-			QwtPicker::DragSelection | QwtPicker::CornerToCorner, QwtPicker::AlwaysOff, d_plot->canvas());
-	d_zoomer[0]->setRubberBandPen(QPen(Qt::black));
-	d_zoomer[1] = new QwtPlotZoomer(QwtPlot::xTop, QwtPlot::yRight,
+	m_zoomer[0]= new QwtPlotZoomer(QwtPlot::xBottom, QwtPlot::yLeft,
+			QwtPicker::DragSelection | QwtPicker::CornerToCorner, QwtPicker::AlwaysOff, m_plot->canvas());
+	m_zoomer[0]->setRubberBandPen(QPen(Qt::black));
+	m_zoomer[1] = new QwtPlotZoomer(QwtPlot::xTop, QwtPlot::yRight,
 			QwtPicker::DragSelection | QwtPicker::CornerToCorner,
-			QwtPicker::AlwaysOff, d_plot->canvas());
+			QwtPicker::AlwaysOff, m_plot->canvas());
 	zoom(false);
 
 	setGeometry(0, 0, 500, 400);
 	setFocusPolicy(Qt::StrongFocus);
-	setFocusProxy(d_plot);
+	setFocusProxy(m_plot);
 	setMouseTracking(true );
 
 	grid.majorOnX=0;
@@ -169,7 +169,7 @@ Layer::Layer(QWidget* parent, const char* name, Qt::WFlags f)
 	grid.yAxis = QwtPlot::yLeft;
 
 	legendMarkerID = -1; // no legend for an empty graph
-	d_texts = QVector<int>();
+	m_texts = QVector<int>();
 	c_type = QVector<int>();
 	c_keys = QVector<int>();
 
@@ -197,7 +197,7 @@ Layer::Layer(QWidget* parent, const char* name, Qt::WFlags f)
 	connect (scalePicker,SIGNAL(rightAxisTitleDblClicked()),this,SIGNAL(rightAxisTitleDblClicked()));
 	connect (scalePicker,SIGNAL(topAxisTitleDblClicked()),this,SIGNAL(topAxisTitleDblClicked()));
 
-	connect (d_zoomer[0],SIGNAL(zoomed (const QwtDoubleRect &)),this,SLOT(zoomed (const QwtDoubleRect &)));
+	connect (m_zoomer[0],SIGNAL(zoomed (const QwtDoubleRect &)),this,SLOT(zoomed (const QwtDoubleRect &)));
 }
 
 void Layer::notifyChanges()
@@ -214,8 +214,8 @@ void Layer::activate()
 void Layer::deselectMarker()
 {
 	selectedMarker = -1;
-	if (d_markers_selector)
-		delete d_markers_selector;
+	if (m_markers_selector)
+		delete m_markers_selector;
 }
 
 long Layer::selectedMarkerKey()
@@ -225,56 +225,56 @@ long Layer::selectedMarkerKey()
 
 QwtPlotMarker* Layer::selectedMarkerPtr()
 {
-	return d_plot->marker(selectedMarker);
+	return m_plot->marker(selectedMarker);
 }
 
 void Layer::setSelectedMarker(long mrk, bool add)
 {
 	selectedMarker = mrk;
 	if (add) {
-		if (d_markers_selector) {
-			if (d_texts.contains(mrk))
-				d_markers_selector->add((TextEnrichment*)d_plot->marker(mrk));
-			else if (d_lines.contains(mrk))
-				d_markers_selector->add((LineEnrichment*)d_plot->marker(mrk));
-			else if (d_images.contains(mrk))
-				d_markers_selector->add((ImageEnrichment*)d_plot->marker(mrk));
+		if (m_markers_selector) {
+			if (m_texts.contains(mrk))
+				m_markers_selector->add((TextEnrichment*)m_plot->marker(mrk));
+			else if (m_lines.contains(mrk))
+				m_markers_selector->add((LineEnrichment*)m_plot->marker(mrk));
+			else if (m_images.contains(mrk))
+				m_markers_selector->add((ImageEnrichment*)m_plot->marker(mrk));
 		} else {
-			if (d_texts.contains(mrk))
-				d_markers_selector = new SelectionMoveResizer((TextEnrichment*)d_plot->marker(mrk));
-			else if (d_lines.contains(mrk))
-				d_markers_selector = new SelectionMoveResizer((LineEnrichment*)d_plot->marker(mrk));
-			else if (d_images.contains(mrk))
-				d_markers_selector = new SelectionMoveResizer((ImageEnrichment*)d_plot->marker(mrk));
+			if (m_texts.contains(mrk))
+				m_markers_selector = new SelectionMoveResizer((TextEnrichment*)m_plot->marker(mrk));
+			else if (m_lines.contains(mrk))
+				m_markers_selector = new SelectionMoveResizer((LineEnrichment*)m_plot->marker(mrk));
+			else if (m_images.contains(mrk))
+				m_markers_selector = new SelectionMoveResizer((ImageEnrichment*)m_plot->marker(mrk));
 			else
 				return;
-			connect(d_markers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modified()));
+			connect(m_markers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modified()));
 		}
 	} else {
-		if (d_texts.contains(mrk)) {
-			if (d_markers_selector) {
-				if (d_markers_selector->contains((TextEnrichment*)d_plot->marker(mrk)))
+		if (m_texts.contains(mrk)) {
+			if (m_markers_selector) {
+				if (m_markers_selector->contains((TextEnrichment*)m_plot->marker(mrk)))
 					return;
-				delete d_markers_selector;
+				delete m_markers_selector;
 			}
-			d_markers_selector = new SelectionMoveResizer((TextEnrichment*)d_plot->marker(mrk));
-		} else if (d_lines.contains(mrk)) {
-			if (d_markers_selector) {
-				if (d_markers_selector->contains((LineEnrichment*)d_plot->marker(mrk)))
+			m_markers_selector = new SelectionMoveResizer((TextEnrichment*)m_plot->marker(mrk));
+		} else if (m_lines.contains(mrk)) {
+			if (m_markers_selector) {
+				if (m_markers_selector->contains((LineEnrichment*)m_plot->marker(mrk)))
 					return;
-				delete d_markers_selector;
+				delete m_markers_selector;
 			}
-			d_markers_selector = new SelectionMoveResizer((LineEnrichment*)d_plot->marker(mrk));
-		} else if (d_images.contains(mrk)) {
-			if (d_markers_selector) {
-				if (d_markers_selector->contains((ImageEnrichment*)d_plot->marker(mrk)))
+			m_markers_selector = new SelectionMoveResizer((LineEnrichment*)m_plot->marker(mrk));
+		} else if (m_images.contains(mrk)) {
+			if (m_markers_selector) {
+				if (m_markers_selector->contains((ImageEnrichment*)m_plot->marker(mrk)))
 					return;
-				delete d_markers_selector;
+				delete m_markers_selector;
 			}
-			d_markers_selector = new SelectionMoveResizer((ImageEnrichment*)d_plot->marker(mrk));
+			m_markers_selector = new SelectionMoveResizer((ImageEnrichment*)m_plot->marker(mrk));
 		} else
 			return;
-		connect(d_markers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modified()));
+		connect(m_markers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modified()));
 	}
 }
 
@@ -282,29 +282,29 @@ void Layer::initFonts(const QFont &scaleTitleFnt, const QFont &numbersFnt)
 {
 	for (int i = 0;i<QwtPlot::axisCnt;i++)
 	{
-		d_plot->setAxisFont (i,numbersFnt);
-		QwtText t = d_plot->axisTitle (i);
+		m_plot->setAxisFont (i,numbersFnt);
+		QwtText t = m_plot->axisTitle (i);
 		t.setFont (scaleTitleFnt);
-		d_plot->setAxisTitle(i, t);
+		m_plot->setAxisTitle(i, t);
 	}
 }
 
 void Layer::setAxisFont(int axis,const QFont &fnt)
 {
-	d_plot->setAxisFont (axis, fnt);
-	d_plot->replot();
+	m_plot->setAxisFont (axis, fnt);
+	m_plot->replot();
 	emit modified();
 }
 
 QFont Layer::axisFont(int axis)
 {
-	return d_plot->axisFont (axis);
+	return m_plot->axisFont (axis);
 }
 
 void Layer::enableAxis(int axis, bool on)
 {
-	d_plot->enableAxis(axis, on);
-	QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(axis);
+	m_plot->enableAxis(axis, on);
+	QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(axis);
 	if (scale)
 		scale->setMargin(0);
 
@@ -317,12 +317,12 @@ void Layer::enableAxes(const QStringList& list)
 	for (i = 0;i<QwtPlot::axisCnt;i++)
 	{
 		bool ok=list[i+1].toInt();
-		d_plot->enableAxis(i,ok);
+		m_plot->enableAxis(i,ok);
 	}
 
 	for (i = 0;i<QwtPlot::axisCnt;i++)
 	{
-		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+		QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
 		if (scale)
 			scale->setMargin(0);
 	}
@@ -332,11 +332,11 @@ void Layer::enableAxes(const QStringList& list)
 void Layer::enableAxes(QVector<bool> axesOn)
 {
 	for (int i = 0; i<QwtPlot::axisCnt; i++)
-		d_plot->enableAxis(i, axesOn[i]);
+		m_plot->enableAxis(i, axesOn[i]);
 
 	for (int i = 0;i<QwtPlot::axisCnt;i++)
 	{
-		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+		QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
 		if (scale)
 			scale->setMargin(0);
 	}
@@ -347,7 +347,7 @@ QVector<bool> Layer::enabledAxes()
 {
 	QVector<bool> axesOn(4);
 	for (int i = 0; i<QwtPlot::axisCnt; i++)
-		axesOn[i]=d_plot->axisEnabled (i);
+		axesOn[i]=m_plot->axisEnabled (i);
 	return axesOn;
 }
 
@@ -356,7 +356,7 @@ QList<int> Layer::axesBaseline()
 	QList<int> baselineDist;
 	for (int i = 0; i<QwtPlot::axisCnt; i++)
 	{
-		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+		QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
 		if (scale)
 			baselineDist << scale->margin();
 		else
@@ -369,7 +369,7 @@ void Layer::setAxesBaseline(const QList<int> &lst)
 {
 	for (int i = 0; i<QwtPlot::axisCnt; i++)
 	{
-		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+		QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
 		if (scale)
 			scale->setMargin(lst[i]);
 	}
@@ -380,7 +380,7 @@ void Layer::setAxesBaseline(QStringList &lst)
 	lst.remove(lst.first());
 	for (int i = 0; i<QwtPlot::axisCnt; i++)
 	{
-		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+		QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
 		if (scale)
 			scale->setMargin((lst[i]).toInt());
 	}
@@ -396,14 +396,14 @@ void Layer::setLabelsNumericFormat(int axis, int format, int prec, const QString
 	axisType[axis] = Numeric;
 	axesFormulas[axis] = formula;
 
-	ScaleDraw *sd_old = (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	ScaleDraw *sd_old = (ScaleDraw *)m_plot->axisScaleDraw (axis);
 	const QwtScaleDiv div = sd_old->scaleDiv ();
 
 	if (format == Plot::Superscripts){
 		QwtSupersciptsScaleDraw *sd = new QwtSupersciptsScaleDraw(formula.toAscii().constData());
 		sd->setLabelFormat('s', prec);
 		sd->setScaleDiv(div);
-		d_plot->setAxisScaleDraw (axis, sd);
+		m_plot->setAxisScaleDraw (axis, sd);
 	} else {
 		ScaleDraw *sd = new ScaleDraw(formula.toAscii().constData());
 		sd->setScaleDiv(div);
@@ -415,13 +415,13 @@ void Layer::setLabelsNumericFormat(int axis, int format, int prec, const QString
 		else if (format == Plot::Decimal)
 			sd->setLabelFormat ('f', prec);
 
-		d_plot->setAxisScaleDraw (axis, sd);
+		m_plot->setAxisScaleDraw (axis, sd);
 	}
 }
 
 void Layer::setLabelsNumericFormat(int axis, const QStringList& l)
 {
-	QwtScaleDraw *sd = d_plot->axisScaleDraw (axis);
+	QwtScaleDraw *sd = m_plot->axisScaleDraw (axis);
 	if (!sd->hasComponent(QwtAbstractScaleDraw::Labels) ||
 			axisType[axis] != Numeric)	return;
 
@@ -459,14 +459,14 @@ QString Layer::saveAxesLabelsType()
 
 QString Layer::saveTicksType()
 {
-	QList<int> ticksTypeList=d_plot->getMajorTicksType();
+	QList<int> ticksTypeList=m_plot->getMajorTicksType();
 	QString s="MajorTicks\t";
 	int i;
 	for (i=0; i<4; i++)
 		s+=QString::number(ticksTypeList[i])+"\t";
 	s += "\n";
 
-	ticksTypeList=d_plot->getMinorTicksType();
+	ticksTypeList=m_plot->getMinorTicksType();
 	s += "MinorTicks\t";
 	for (i=0; i<4; i++)
 		s+=QString::number(ticksTypeList[i])+"\t";
@@ -479,7 +479,7 @@ QStringList Layer::enabledTickLabels()
 	QStringList lst;
 	for (int axis=0; axis<QwtPlot::axisCnt; axis++)
 	{
-		const QwtScaleDraw *sd = d_plot->axisScaleDraw (axis);
+		const QwtScaleDraw *sd = m_plot->axisScaleDraw (axis);
 		lst << QString::number(sd->hasComponent(QwtAbstractScaleDraw::Labels));
 	}
 	return lst;
@@ -490,7 +490,7 @@ QString Layer::saveEnabledTickLabels()
 	QString s="EnabledTickLabels\t";
 	for (int axis=0; axis<QwtPlot::axisCnt; axis++)
 	{
-		const QwtScaleDraw *sd = d_plot->axisScaleDraw (axis);
+		const QwtScaleDraw *sd = m_plot->axisScaleDraw (axis);
 		s += QString::number(sd->hasComponent(QwtAbstractScaleDraw::Labels))+"\t";
 	}
 	return s+"\n";
@@ -501,8 +501,8 @@ QString Layer::saveLabelsFormat()
 	QString s="LabelsFormat\t";
 	for (int axis=0; axis<QwtPlot::axisCnt; axis++)
 	{
-		s += QString::number(d_plot->axisLabelFormat(axis))+"\t";
-		s += QString::number(d_plot->axisLabelPrecision(axis))+"\t";
+		s += QString::number(m_plot->axisLabelFormat(axis))+"\t";
+		s += QString::number(m_plot->axisLabelPrecision(axis))+"\t";
 	}
 	return s+"\n";
 }
@@ -512,7 +512,7 @@ QString Layer::saveAxesBaseline()
 	QString s="AxesBaseline\t";
 	for (int i = 0; i<QwtPlot::axisCnt; i++)
 	{
-		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+		QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
 		if (scale)
 			s+= QString::number(scale->margin()) + "\t";
 		else
@@ -533,10 +533,10 @@ void Layer::setEnabledTickLabels(const QStringList& labelsOn)
 {
 	for (int axis=0; axis<QwtPlot::axisCnt; axis++)
 	{
-		QwtScaleWidget *sc = d_plot->axisWidget(axis);
+		QwtScaleWidget *sc = m_plot->axisWidget(axis);
 		if (sc)
 		{
-			QwtScaleDraw *sd = d_plot->axisScaleDraw (axis);
+			QwtScaleDraw *sd = m_plot->axisScaleDraw (axis);
 			sd->enableComponent (QwtAbstractScaleDraw::Labels, labelsOn[axis] == "1");
 		}
 	}
@@ -544,20 +544,20 @@ void Layer::setEnabledTickLabels(const QStringList& labelsOn)
 
 void Layer::setMajorTicksType(const QList<int>& lst)
 {
-	if (d_plot->getMajorTicksType() == lst)
+	if (m_plot->getMajorTicksType() == lst)
 		return;
 
 	for (int i=0;i<(int)lst.count();i++)
 	{
-		ScaleDraw *sd = (ScaleDraw *)d_plot->axisScaleDraw (i);
+		ScaleDraw *sd = (ScaleDraw *)m_plot->axisScaleDraw (i);
 		if (lst[i]==ScaleDraw::None || lst[i]==ScaleDraw::In)
 			sd->enableComponent (QwtAbstractScaleDraw::Ticks, false);
 		else
 		{
 			sd->enableComponent (QwtAbstractScaleDraw::Ticks);
-			sd->setTickLength  	(QwtScaleDiv::MinorTick, d_plot->minorTickLength());
-			sd->setTickLength  	(QwtScaleDiv::MediumTick, d_plot->minorTickLength());
-			sd->setTickLength  	(QwtScaleDiv::MajorTick, d_plot->majorTickLength());
+			sd->setTickLength  	(QwtScaleDiv::MinorTick, m_plot->minorTickLength());
+			sd->setTickLength  	(QwtScaleDiv::MediumTick, m_plot->minorTickLength());
+			sd->setTickLength  	(QwtScaleDiv::MajorTick, m_plot->majorTickLength());
 		}
 		sd->setMajorTicksStyle((ScaleDraw::TicksStyle)lst[i]);
 	}
@@ -566,44 +566,44 @@ void Layer::setMajorTicksType(const QList<int>& lst)
 void Layer::setMajorTicksType(const QStringList& lst)
 {
 	for (int i=0; i<(int)lst.count(); i++)
-		d_plot->setMajorTicksType(i, lst[i].toInt());
+		m_plot->setMajorTicksType(i, lst[i].toInt());
 }
 
 void Layer::setMinorTicksType(const QList<int>& lst)
 {
-	if (d_plot->getMinorTicksType() == lst)
+	if (m_plot->getMinorTicksType() == lst)
 		return;
 
 	for (int i=0;i<(int)lst.count();i++)
-		d_plot->setMinorTicksType(i, lst[i]);
+		m_plot->setMinorTicksType(i, lst[i]);
 }
 
 void Layer::setMinorTicksType(const QStringList& lst)
 {
 	for (int i=0;i<(int)lst.count();i++)
-		d_plot->setMinorTicksType(i,lst[i].toInt());
+		m_plot->setMinorTicksType(i,lst[i].toInt());
 }
 
 int Layer::minorTickLength()
 {
-	return d_plot->minorTickLength();
+	return m_plot->minorTickLength();
 }
 
 int Layer::majorTickLength()
 {
-	return d_plot->majorTickLength();
+	return m_plot->majorTickLength();
 }
 
 void Layer::setAxisTicksLength(int axis, int majTicksType, int minTicksType,
 		int minLength, int majLength)
 {
-	QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(axis);
+	QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(axis);
 	if (!scale)
 		return;
 
-	d_plot->setTickLength(minLength, majLength);
+	m_plot->setTickLength(minLength, majLength);
 
-	ScaleDraw *sd = (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	ScaleDraw *sd = (ScaleDraw *)m_plot->axisScaleDraw (axis);
 	sd->setMajorTicksStyle((ScaleDraw::TicksStyle)majTicksType);
 	sd->setMinorTicksStyle((ScaleDraw::TicksStyle)minTicksType);
 
@@ -624,8 +624,8 @@ void Layer::setAxisTicksLength(int axis, int majTicksType, int minTicksType,
 
 void Layer::setTicksLength(int minLength, int majLength)
 {
-	QList<int> majTicksType = d_plot->getMajorTicksType();
-	QList<int> minTicksType = d_plot->getMinorTicksType();
+	QList<int> majTicksType = m_plot->getMajorTicksType();
+	QList<int> minTicksType = m_plot->getMinorTicksType();
 
 	for (int i=0; i<4; i++)
 		setAxisTicksLength (i, majTicksType[i], minTicksType[i], minLength, majLength);
@@ -633,23 +633,23 @@ void Layer::setTicksLength(int minLength, int majLength)
 
 void Layer::changeTicksLength(int minLength, int majLength)
 {
-	if (d_plot->minorTickLength() == minLength &&
-			d_plot->majorTickLength() == majLength)
+	if (m_plot->minorTickLength() == minLength &&
+			m_plot->majorTickLength() == majLength)
 		return;
 
 	setTicksLength(minLength, majLength);
 
-	d_plot->hide();
+	m_plot->hide();
 	for (int i=0; i<4; i++)
 	{
-		if (d_plot->axisEnabled(i))
+		if (m_plot->axisEnabled(i))
 		{
-			d_plot->enableAxis (i,false);
-			d_plot->enableAxis (i,true);
+			m_plot->enableAxis (i,false);
+			m_plot->enableAxis (i,true);
 		}
 	}
-	d_plot->replot();
-	d_plot->show();
+	m_plot->replot();
+	m_plot->show();
 
 	emit modified();
 }
@@ -659,23 +659,23 @@ void Layer::showAxis(int axis, int type, const QString& formatInfo, Table *table
 		const QColor& c,  int format, int prec, int rotation, int baselineDist,
 		const QString& formula, const QColor& labelsColor)
 {
-	d_plot->enableAxis(axis, axisOn);
+	m_plot->enableAxis(axis, axisOn);
 	if (!axisOn)
 		return;
 
-	QList<int> majTicksTypeList = d_plot->getMajorTicksType();
-	QList<int> minTicksTypeList = d_plot->getMinorTicksType();
+	QList<int> majTicksTypeList = m_plot->getMajorTicksType();
+	QList<int> minTicksTypeList = m_plot->getMinorTicksType();
 
-	QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(axis);
-	ScaleDraw *sclDraw = (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(axis);
+	ScaleDraw *sclDraw = (ScaleDraw *)m_plot->axisScaleDraw (axis);
 
-	if (d_plot->axisEnabled (axis) == axisOn &&
+	if (m_plot->axisEnabled (axis) == axisOn &&
 			majTicksTypeList[axis] == majTicksType &&
 			minTicksTypeList[axis] == minTicksType &&
 			axesColors()[axis] == c.name() &&
             axesNumColors()[axis] == labelsColor.name() &&
-			prec == d_plot->axisLabelPrecision (axis) &&
-			format == d_plot->axisLabelFormat (axis) &&
+			prec == m_plot->axisLabelPrecision (axis) &&
+			format == m_plot->axisLabelFormat (axis) &&
 			labelsRotation(axis) == rotation &&
 			axisType[axis] == type &&
 			axesFormatInfo[axis] == formatInfo &&
@@ -710,19 +710,19 @@ void Layer::showAxis(int axis, int type, const QString& formatInfo, Table *table
 		setAxisLabelRotation(axis, rotation);
 	}
 
-	sclDraw = (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	sclDraw = (ScaleDraw *)m_plot->axisScaleDraw (axis);
 	sclDraw->enableComponent(QwtAbstractScaleDraw::Backbone, drawAxesBackbone);
 
 	setAxisTicksLength(axis, majTicksType, minTicksType,
-			d_plot->minorTickLength(), d_plot->majorTickLength());
+			m_plot->minorTickLength(), m_plot->majorTickLength());
 
 	if (axisOn && (axis == QwtPlot::xTop || axis == QwtPlot::yRight))
 		updateSecondaryAxis(axis);//synchronize scale divisions
 
 	scalePicker->refresh();
-	d_plot->updateLayout();	//This is necessary in order to enable/disable tick labels
+	m_plot->updateLayout();	//This is necessary in order to enable/disable tick labels
 	scale->repaint();
-	d_plot->replot();
+	m_plot->replot();
 	emit modified();
 }
 
@@ -731,12 +731,12 @@ void Layer::setLabelsDayFormat(int axis, int format)
 	axisType[axis] = Day;
 	axesFormatInfo[axis] = QString::number(format);
 
-	ScaleDraw *sd_old = (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	ScaleDraw *sd_old = (ScaleDraw *)m_plot->axisScaleDraw (axis);
 	const QwtScaleDiv div = sd_old->scaleDiv ();
 
 	WeekDayScaleDraw *sd = new WeekDayScaleDraw((WeekDayScaleDraw::NameFormat)format);
 	sd->setScaleDiv(div);
-	d_plot->setAxisScaleDraw (axis, sd);
+	m_plot->setAxisScaleDraw (axis, sd);
 }
 
 void Layer::setLabelsMonthFormat(int axis, int format)
@@ -744,12 +744,12 @@ void Layer::setLabelsMonthFormat(int axis, int format)
 	axisType[axis] = Month;
 	axesFormatInfo[axis] = QString::number(format);
 
-	ScaleDraw *sd_old = (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	ScaleDraw *sd_old = (ScaleDraw *)m_plot->axisScaleDraw (axis);
 	const QwtScaleDiv div = sd_old->scaleDiv ();
 
 	MonthScaleDraw *sd = new MonthScaleDraw((MonthScaleDraw::NameFormat)format);
 	sd->setScaleDiv(div);
-	d_plot->setAxisScaleDraw (axis, sd);
+	m_plot->setAxisScaleDraw (axis, sd);
 }
 
 void Layer::setLabelsTextFormat(int axis, int type, const QString& name, const QStringList& lst)
@@ -758,7 +758,7 @@ void Layer::setLabelsTextFormat(int axis, int type, const QString& name, const Q
 		return;
 
     axesFormatInfo[axis] = name;
-	d_plot->setAxisScaleDraw (axis, new QwtTextScaleDraw(lst));
+	m_plot->setAxisScaleDraw (axis, new QwtTextScaleDraw(lst));
 	axisType[axis] = type;
 }
 
@@ -792,7 +792,7 @@ void Layer::setLabelsTextFormat(int axis, int type, const QString& labelsColName
 				list<<table->colLabel(i);
 		}
 	}
-	d_plot->setAxisScaleDraw (axis, new QwtTextScaleDraw(list));
+	m_plot->setAxisScaleDraw (axis, new QwtTextScaleDraw(list));
 	axisType[axis] = type;
 }
 
@@ -817,13 +817,13 @@ void Layer::setLabelsDateTimeFormat(int axis, int type, const QString& formatInf
 	{
 		TimeScaleDraw *sd = new TimeScaleDraw (QTime::fromString (list[0]), list[1]);
 		sd->enableComponent (QwtAbstractScaleDraw::Backbone, drawAxesBackbone);
-		d_plot->setAxisScaleDraw (axis, sd);
+		m_plot->setAxisScaleDraw (axis, sd);
 	}
 	else if (type == Date)
 	{
 		DateScaleDraw *sd = new DateScaleDraw (QDate::fromString (list[0], Qt::ISODate), list[1]);
 		sd->enableComponent (QwtAbstractScaleDraw::Backbone, drawAxesBackbone);
-		d_plot->setAxisScaleDraw (axis, sd);
+		m_plot->setAxisScaleDraw (axis, sd);
 	}
 
 	axisType[axis] = type;
@@ -835,84 +835,84 @@ void Layer::setAxisLabelRotation(int axis, int rotation)
 	if (axis==QwtPlot::xBottom)
 	{
 		if (rotation > 0)
-			d_plot->setAxisLabelAlignment(axis, Qt::AlignRight|Qt::AlignVCenter);
+			m_plot->setAxisLabelAlignment(axis, Qt::AlignRight|Qt::AlignVCenter);
 		else if (rotation < 0)
-			d_plot->setAxisLabelAlignment(axis, Qt::AlignLeft|Qt::AlignVCenter);
+			m_plot->setAxisLabelAlignment(axis, Qt::AlignLeft|Qt::AlignVCenter);
 		else if (rotation == 0)
-			d_plot->setAxisLabelAlignment(axis, Qt::AlignHCenter|Qt::AlignBottom);
+			m_plot->setAxisLabelAlignment(axis, Qt::AlignHCenter|Qt::AlignBottom);
 	}
 	else if (axis==QwtPlot::xTop)
 	{
 		if (rotation > 0)
-			d_plot->setAxisLabelAlignment(axis, Qt::AlignLeft|Qt::AlignVCenter);
+			m_plot->setAxisLabelAlignment(axis, Qt::AlignLeft|Qt::AlignVCenter);
 		else if (rotation < 0)
-			d_plot->setAxisLabelAlignment(axis, Qt::AlignRight|Qt::AlignVCenter);
+			m_plot->setAxisLabelAlignment(axis, Qt::AlignRight|Qt::AlignVCenter);
 		else if (rotation == 0)
-			d_plot->setAxisLabelAlignment(axis, Qt::AlignHCenter|Qt::AlignTop);
+			m_plot->setAxisLabelAlignment(axis, Qt::AlignHCenter|Qt::AlignTop);
 	}
-	d_plot->setAxisLabelRotation (axis, (double)rotation);
+	m_plot->setAxisLabelRotation (axis, (double)rotation);
 }
 
 int Layer::labelsRotation(int axis)
 {
-	ScaleDraw *sclDraw = (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	ScaleDraw *sclDraw = (ScaleDraw *)m_plot->axisScaleDraw (axis);
 	return (int)sclDraw->labelRotation();
 }
 
 void Layer::setYAxisTitleFont(const QFont &fnt)
 {
-	QwtText t = d_plot->axisTitle (QwtPlot::yLeft);
+	QwtText t = m_plot->axisTitle (QwtPlot::yLeft);
 	t.setFont (fnt);
-	d_plot->setAxisTitle (QwtPlot::yLeft, t);
-	d_plot->replot();
+	m_plot->setAxisTitle (QwtPlot::yLeft, t);
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setXAxisTitleFont(const QFont &fnt)
 {
-	QwtText t = d_plot->axisTitle (QwtPlot::xBottom);
+	QwtText t = m_plot->axisTitle (QwtPlot::xBottom);
 	t.setFont (fnt);
-	d_plot->setAxisTitle (QwtPlot::xBottom, t);
-	d_plot->replot();
+	m_plot->setAxisTitle (QwtPlot::xBottom, t);
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setRightAxisTitleFont(const QFont &fnt)
 {
-	QwtText t = d_plot->axisTitle (QwtPlot::yRight);
+	QwtText t = m_plot->axisTitle (QwtPlot::yRight);
 	t.setFont (fnt);
-	d_plot->setAxisTitle (QwtPlot::yRight, t);
-	d_plot->replot();
+	m_plot->setAxisTitle (QwtPlot::yRight, t);
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setTopAxisTitleFont(const QFont &fnt)
 {
-	QwtText t = d_plot->axisTitle (QwtPlot::xTop);
+	QwtText t = m_plot->axisTitle (QwtPlot::xTop);
 	t.setFont (fnt);
-	d_plot->setAxisTitle (QwtPlot::xTop, t);
-	d_plot->replot();
+	m_plot->setAxisTitle (QwtPlot::xTop, t);
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setAxisTitleFont(int axis,const QFont &fnt)
 {
-	QwtText t = d_plot->axisTitle (axis);
+	QwtText t = m_plot->axisTitle (axis);
 	t.setFont (fnt);
-	d_plot->setAxisTitle(axis, t);
-	d_plot->replot();
+	m_plot->setAxisTitle(axis, t);
+	m_plot->replot();
 	emit modified();
 }
 
 QFont Layer::axisTitleFont(int axis)
 {
-	return d_plot->axisTitle(axis).font();
+	return m_plot->axisTitle(axis).font();
 }
 
 QColor Layer::axisTitleColor(int axis)
 {
 	QColor c;
-	QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(axis);
+	QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(axis);
 	if (scale)
 		c = scale->title().color();
 	return c;
@@ -922,7 +922,7 @@ void Layer::setAxesNumColors(const QStringList& colors)
 {
   	for (int i=0;i<4;i++)
   	{
-  	     QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+  	     QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
   	     if (scale)
   	     {
   	         QPalette pal = scale->palette();
@@ -936,7 +936,7 @@ void Layer::setAxesColors(const QStringList& colors)
 {
 	for (int i=0;i<4;i++)
 	{
-		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+		QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
 		if (scale)
 		{
 			QPalette pal =scale->palette();
@@ -960,7 +960,7 @@ QString Layer::saveAxesColors()
 
 	for (i=0;i<4;i++)
 	{
-		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+		QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
 		if (scale)
 		{
 			pal=scale->palette();
@@ -983,7 +983,7 @@ QStringList Layer::axesColors()
 
 	for (i=0;i<4;i++)
 	{
-		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+		QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
 		if (scale)
 		{
 			pal=scale->palette();
@@ -995,7 +995,7 @@ QStringList Layer::axesColors()
 
 QColor Layer::axisColor(int axis)
 {
-    QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(axis);
+    QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(axis);
     if (scale)
   	     return scale->palette().color(QPalette::Active, QPalette::WindowText);
   	else
@@ -1004,7 +1004,7 @@ QColor Layer::axisColor(int axis)
 
 QColor Layer::axisNumbersColor(int axis)
 {
-    QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(axis);
+    QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(axis);
  	if (scale)
   	     return scale->palette().color(QPalette::Active, QPalette::Text);
   	else
@@ -1021,7 +1021,7 @@ QStringList Layer::axesNumColors()
 
   	for (i=0;i<4;i++)
   	{
-  	     QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+  	     QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
   	     if (scale)
   	     {
   	         pal=scale->palette();
@@ -1033,110 +1033,110 @@ QStringList Layer::axesNumColors()
 
 void Layer::setTitleColor(const QColor & c)
 {
-	QwtText t = d_plot->title();
+	QwtText t = m_plot->title();
 	t.setColor(c);
-	d_plot->setTitle (t);
-	d_plot->replot();
+	m_plot->setTitle (t);
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setTitleAlignment(int align)
 {
-	QwtText t = d_plot->title();
+	QwtText t = m_plot->title();
 	t.setRenderFlags(align);
-	d_plot->setTitle (t);
-	d_plot->replot();
+	m_plot->setTitle (t);
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setTitleFont(const QFont &fnt)
 {
-	QwtText t = d_plot->title();
+	QwtText t = m_plot->title();
 	t.setFont(fnt);
-	d_plot->setTitle (t);
-	d_plot->replot();
+	m_plot->setTitle (t);
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setYAxisTitle(const QString& text)
 {
-	d_plot->setAxisTitle(0,text);
-	d_plot->replot();
+	m_plot->setAxisTitle(0,text);
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setXAxisTitle(const QString& text)
 {
-	d_plot->setAxisTitle(2,text);
-	d_plot->replot();
+	m_plot->setAxisTitle(2,text);
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setRightAxisTitle(const QString& text)
 {
-	d_plot->setAxisTitle(1,text);
-	d_plot->replot();
+	m_plot->setAxisTitle(1,text);
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setTopAxisTitle(const QString& text)
 {
-	d_plot->setAxisTitle(3,text);
-	d_plot->replot();
+	m_plot->setAxisTitle(3,text);
+	m_plot->replot();
 	emit modified();
 }
 
 int Layer::axisTitleAlignment (int axis)
 {
-	return d_plot->axisTitle(axis).renderFlags();
+	return m_plot->axisTitle(axis).renderFlags();
 }
 
 void Layer::setAxesTitlesAlignment(const QStringList& align)
 {
 	for (int i=0;i<4;i++)
 	{
-		QwtText t = d_plot->axisTitle(i);
+		QwtText t = m_plot->axisTitle(i);
 		t.setRenderFlags(align[i+1].toInt());
-		d_plot->setAxisTitle (i, t);
+		m_plot->setAxisTitle (i, t);
 	}
 }
 
 void Layer::setXAxisTitleAlignment(int align)
 {
-	QwtText t = d_plot->axisTitle(QwtPlot::xBottom);
+	QwtText t = m_plot->axisTitle(QwtPlot::xBottom);
 	t.setRenderFlags(align);
-	d_plot->setAxisTitle (QwtPlot::xBottom, t);
+	m_plot->setAxisTitle (QwtPlot::xBottom, t);
 
-	d_plot->replot();
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setYAxisTitleAlignment(int align)
 {
-	QwtText t = d_plot->axisTitle(QwtPlot::yLeft);
+	QwtText t = m_plot->axisTitle(QwtPlot::yLeft);
 	t.setRenderFlags(align);
-	d_plot->setAxisTitle (QwtPlot::yLeft, t);
+	m_plot->setAxisTitle (QwtPlot::yLeft, t);
 
-	d_plot->replot();
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setTopAxisTitleAlignment(int align)
 {
-	QwtText t = d_plot->axisTitle(QwtPlot::xTop);
+	QwtText t = m_plot->axisTitle(QwtPlot::xTop);
 	t.setRenderFlags(align);
-	d_plot->setAxisTitle (QwtPlot::xTop, t);
-	d_plot->replot();
+	m_plot->setAxisTitle (QwtPlot::xTop, t);
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::setRightAxisTitleAlignment(int align)
 {
-	QwtText t = d_plot->axisTitle(QwtPlot::yRight);
+	QwtText t = m_plot->axisTitle(QwtPlot::yRight);
 	t.setRenderFlags(align);
-	d_plot->setAxisTitle (QwtPlot::yRight, t);
+	m_plot->setAxisTitle (QwtPlot::yRight, t);
 
-	d_plot->replot();
+	m_plot->replot();
 	emit modified();
 }
 
@@ -1158,8 +1158,8 @@ void Layer::setAxisTitle(int axis, const QString& text)
 			a=1;
         break;
 	}
-	d_plot->setAxisTitle(a, text);
-	d_plot->replot();
+	m_plot->setAxisTitle(a, text);
+	m_plot->replot();
 	emit modified();
 }
 
@@ -1182,29 +1182,29 @@ void Layer::setGridOptions(const GridOptions& o)
 	Qt::PenStyle minStyle = getPenStyle(grid.minorStyle);
 
 	QPen majPen=QPen (majColor,grid.majorWidth,majStyle);
-	d_plot->grid()->setMajPen (majPen);
+	m_plot->grid()->setMajPen (majPen);
 
 	QPen minPen=QPen (minColor,grid.minorWidth,minStyle);
-	d_plot->grid()->setMinPen(minPen);
+	m_plot->grid()->setMinPen(minPen);
 
-	if (grid.majorOnX) d_plot->grid()->enableX (true);
-	else if (grid.majorOnX==0) d_plot->grid()->enableX (false);
+	if (grid.majorOnX) m_plot->grid()->enableX (true);
+	else if (grid.majorOnX==0) m_plot->grid()->enableX (false);
 
-	if (grid.minorOnX) d_plot->grid()->enableXMin (true);
-	else if (grid.minorOnX==0) d_plot->grid()->enableXMin (false);
+	if (grid.minorOnX) m_plot->grid()->enableXMin (true);
+	else if (grid.minorOnX==0) m_plot->grid()->enableXMin (false);
 
-	if (grid.majorOnY) d_plot->grid()->enableY (true);
-	else if (grid.majorOnY==0) d_plot->grid()->enableY (false);
+	if (grid.majorOnY) m_plot->grid()->enableY (true);
+	else if (grid.majorOnY==0) m_plot->grid()->enableY (false);
 
-	if (grid.minorOnY) d_plot->grid()->enableYMin (true);
-	else d_plot->grid()->enableYMin (false);
+	if (grid.minorOnY) m_plot->grid()->enableYMin (true);
+	else m_plot->grid()->enableYMin (false);
 
-	d_plot->grid()->setAxis(grid.xAxis, grid.yAxis);
+	m_plot->grid()->setAxis(grid.xAxis, grid.yAxis);
 
 	if (mrkX<0 && grid.xZeroOn)
 	{
 		QwtPlotMarker *m = new QwtPlotMarker();
-		mrkX = d_plot->insertMarker(m);
+		mrkX = m_plot->insertMarker(m);
 		m->setAxis(grid.xAxis, grid.yAxis);
 		m->setLineStyle(QwtPlotMarker::VLine);
 		m->setValue(0.0,0.0);
@@ -1212,14 +1212,14 @@ void Layer::setGridOptions(const GridOptions& o)
 	}
 	else if (mrkX>=0 && !grid.xZeroOn)
 	{
-		d_plot->removeMarker(mrkX);
+		m_plot->removeMarker(mrkX);
 		mrkX=-1;
 	}
 
 	if (mrkY<0 && grid.yZeroOn)
 	{
 		QwtPlotMarker *m = new QwtPlotMarker();
-		mrkY = d_plot->insertMarker(m);
+		mrkY = m_plot->insertMarker(m);
 		m->setAxis(grid.xAxis, grid.yAxis);
 		m->setLineStyle(QwtPlotMarker::HLine);
 		m->setValue(0.0,0.0);
@@ -1227,7 +1227,7 @@ void Layer::setGridOptions(const GridOptions& o)
 	}
 	else if (mrkY>=0 && !grid.yZeroOn)
 	{
-		d_plot->removeMarker(mrkY);
+		m_plot->removeMarker(mrkY);
 		mrkY=-1;
 	}
 
@@ -1244,22 +1244,22 @@ QStringList Layer::scalesTitles()
 		{
 			case 0:
 				axis=2;
-				scaleTitles<<d_plot->axisTitle(axis).text();
+				scaleTitles<<m_plot->axisTitle(axis).text();
 				break;
 
 			case 1:
 				axis=0;
-				scaleTitles<<d_plot->axisTitle(axis).text();
+				scaleTitles<<m_plot->axisTitle(axis).text();
 				break;
 
 			case 2:
 				axis=3;
-				scaleTitles<<d_plot->axisTitle(axis).text();
+				scaleTitles<<m_plot->axisTitle(axis).text();
 				break;
 
 			case 3:
 				axis=1;
-				scaleTitles<<d_plot->axisTitle(axis).text();
+				scaleTitles<<m_plot->axisTitle(axis).text();
 				break;
 		}
 	}
@@ -1290,11 +1290,11 @@ void Layer::updateSecondaryAxis(int axis)
 	if (axis == QwtPlot::yRight)
 		a = QwtPlot::yLeft;
 
-	if (!d_plot->axisEnabled(a))
+	if (!m_plot->axisEnabled(a))
 		return;
 
-	QwtScaleEngine *se = d_plot->axisScaleEngine(a);
-	const QwtScaleDiv *sd = d_plot->axisScaleDiv(a);
+	QwtScaleEngine *se = m_plot->axisScaleEngine(a);
+	const QwtScaleDiv *sd = m_plot->axisScaleDiv(a);
 
 	QwtScaleEngine *sc_engine = 0;
 	if (se->transformation()->type() == QwtScaleTransformation::Log10)
@@ -1305,27 +1305,27 @@ void Layer::updateSecondaryAxis(int axis)
 	if (se->testAttribute(QwtScaleEngine::Inverted))
 		sc_engine->setAttribute(QwtScaleEngine::Inverted);
 
-	d_plot->setAxisScaleEngine (axis, sc_engine);
-	d_plot->setAxisScaleDiv (axis, *sd);
+	m_plot->setAxisScaleEngine (axis, sc_engine);
+	m_plot->setAxisScaleDiv (axis, *sd);
 
-	d_user_step[axis] = d_user_step[a];
+	m_user_step[axis] = m_user_step[a];
 
-	QwtScaleWidget *scale = d_plot->axisWidget(a);
+	QwtScaleWidget *scale = m_plot->axisWidget(a);
 	int start = scale->startBorderDist();
 	int end = scale->endBorderDist();
 
-	scale = d_plot->axisWidget(axis);
+	scale = m_plot->axisWidget(axis);
 	scale->setMinBorderDist (start, end);
 }
 
 void Layer::setAutoScale()
 {
 	for (int i = 0; i < QwtPlot::axisCnt; i++)
-		d_plot->setAxisAutoScale(i);
+		m_plot->setAxisAutoScale(i);
 
-	d_plot->replot();
-	d_zoomer[0]->setZoomBase();
-	d_zoomer[1]->setZoomBase();
+	m_plot->replot();
+	m_zoomer[0]->setZoomBase();
+	m_zoomer[1]->setZoomBase();
 	updateScale();
 
 	emit modified();
@@ -1346,40 +1346,40 @@ void Layer::setScale(int axis, double start, double end, double step, int majorT
 		max_min_intervals = minorTicks + 1;
 
 	QwtScaleDiv div = sc_engine->divideScale (qMin(start, end), qMax(start, end), majorTicks, max_min_intervals, step);
-	d_plot->setAxisMaxMajor (axis, majorTicks);
-	d_plot->setAxisMaxMinor (axis, minorTicks);
+	m_plot->setAxisMaxMajor (axis, majorTicks);
+	m_plot->setAxisMaxMinor (axis, minorTicks);
 
 	if (inverted){
 		sc_engine->setAttribute(QwtScaleEngine::Inverted);
 		div.invert();
 	}
 
-	d_plot->setAxisScaleEngine (axis, sc_engine);
-	d_plot->setAxisScaleDiv (axis, div);
+	m_plot->setAxisScaleEngine (axis, sc_engine);
+	m_plot->setAxisScaleDiv (axis, div);
 
-	d_zoomer[0]->setZoomBase();
-	d_zoomer[1]->setZoomBase();
+	m_zoomer[0]->setZoomBase();
+	m_zoomer[1]->setZoomBase();
 
-	d_user_step[axis] = step;
+	m_user_step[axis] = step;
 
 	if (axis == QwtPlot::xBottom || axis == QwtPlot::yLeft){
   		updateSecondaryAxis(QwtPlot::xTop);
   	    updateSecondaryAxis(QwtPlot::yRight);
   	}
 
-	d_plot->replot();
+	m_plot->replot();
 	//keep markers on canvas area
 	updateMarkersBoundingRect();
-	d_plot->replot();
+	m_plot->replot();
 }
 
 QStringList Layer::analysableCurvesList()
 {
 	QStringList cList;
-	QList<int> keys = d_plot->curveKeys();
+	QList<int> keys = m_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotCurve *c = d_plot->curve(keys[i]);
+		QwtPlotCurve *c = m_plot->curve(keys[i]);
   	    if (c && c_type[i] != ErrorBars)
   	        cList << c->title().text();
   	 }
@@ -1389,10 +1389,10 @@ return cList;
 QStringList Layer::curvesList()
 {
 	QStringList cList;
-	QList<int> keys = d_plot->curveKeys();
+	QList<int> keys = m_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotCurve *c = d_plot->curve(keys[i]);
+		QwtPlotCurve *c = m_plot->curve(keys[i]);
   	    if (c)
   	        cList << c->title().text();
   	 }
@@ -1402,10 +1402,10 @@ return cList;
 QStringList Layer::plotItemsList()
 {
   	QStringList cList;
-  	QList<int> keys = d_plot->curveKeys();
+  	QList<int> keys = m_plot->curveKeys();
   	for (int i=0; i<(int)keys.count(); i++)
   	{
-  		QwtPlotItem *it = d_plot->plotItem(keys[i]);
+  		QwtPlotItem *it = m_plot->plotItem(keys[i]);
 		if (it)
 			cList << it->title().text();
 	}
@@ -1497,13 +1497,13 @@ void Layer::exportVector(const QString& fileName, int res, bool color, bool keep
 	else
 		printer.setColorMode(QPrinter::GrayScale);
 
-    QRect plotRect = d_plot->rect();
+    QRect plotRect = m_plot->rect();
     if (pageSize == QPrinter::Custom)
         printer.setPageSize(minPageSize(printer, plotRect));
     else
         printer.setPageSize(pageSize);
 
-    double plot_aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());
+    double plot_aspect = double(m_plot->frameGeometry().width())/double(m_plot->frameGeometry().height());
 	if (plot_aspect < 1)
 		printer.setOrientation(QPrinter::Portrait);
 	else
@@ -1533,7 +1533,7 @@ void Layer::exportVector(const QString& fileName, int res, bool color, bool keep
 	}
 
     QPainter paint(&printer);
-	d_plot->print(&paint, plotRect);
+	m_plot->print(&paint, plotRect);
 }
 
 void Layer::print()
@@ -1543,7 +1543,7 @@ void Layer::print()
 	printer.setFullPage(true);
 
 	//printing should preserve plot aspect ratio, if possible
-	double aspect = double(d_plot->width())/double(d_plot->height());
+	double aspect = double(m_plot->width())/double(m_plot->height());
 	if (aspect < 1)
 		printer.setOrientation(QPrinter::Portrait);
 	else
@@ -1552,9 +1552,9 @@ void Layer::print()
 	QPrintDialog printDialog(&printer);
     if (printDialog.exec() == QDialog::Accepted)
 	{
-		QRect plotRect = d_plot->rect();
+		QRect plotRect = m_plot->rect();
 		QRect paperRect = printer.paperRect();
-		if (d_scale_on_print)
+		if (m_scale_on_print)
 		{
 			int dpiy = printer.logicalDpiY();
 			int margin = (int) ((2/2.54)*dpiy ); // 2 cm margins
@@ -1577,7 +1577,7 @@ void Layer::print()
 		}
 
         QPainter paint(&printer);
-        if (d_print_cropmarks)
+        if (m_print_cropmarks)
         {
 			QRect cr = plotRect; // cropmarks rectangle
 			cr.addCoords(-1, -1, 2, 2);
@@ -1590,7 +1590,7 @@ void Layer::print()
             paint.restore();
         }
 
-		d_plot->print(&paint, plotRect);
+		m_plot->print(&paint, plotRect);
 	}
 }
 
@@ -1599,26 +1599,26 @@ void Layer::exportSVG(const QString& fname)
 	#if QT_VERSION >= 0x040300
 		QSvgGenerator svg;
         svg.setFileName(fname);
-        svg.setSize(d_plot->size());
+        svg.setSize(m_plot->size());
 
 		QPainter p(&svg);
-		d_plot->print(&p, d_plot->rect());
+		m_plot->print(&p, m_plot->rect());
 		p.end();
 	#endif
 }
 
 int Layer::selectedCurveID()
 {
-	if (d_range_selector)
-		return curveKey(curveIndex(d_range_selector->selectedCurve()));
+	if (m_range_selector)
+		return curveKey(curveIndex(m_range_selector->selectedCurve()));
 	else
 		return -1;
 }
 
 QString Layer::selectedCurveTitle()
 {
-	if (d_range_selector)
-		return d_range_selector->selectedCurve()->title().text();
+	if (m_range_selector)
+		return m_range_selector->selectedCurve()->title().text();
 	else
 		return QString::null;
 }
@@ -1632,44 +1632,44 @@ void Layer::removeMarker()
 {
 	if (selectedMarker>=0)
 	{
-		if (d_markers_selector) {
-			if (d_texts.contains(selectedMarker))
-				d_markers_selector->removeAll((TextEnrichment*)d_plot->marker(selectedMarker));
-			else if (d_lines.contains(selectedMarker))
-				d_markers_selector->removeAll((LineEnrichment*)d_plot->marker(selectedMarker));
-			else if (d_images.contains(selectedMarker))
-				d_markers_selector->removeAll((ImageEnrichment*)d_plot->marker(selectedMarker));
+		if (m_markers_selector) {
+			if (m_texts.contains(selectedMarker))
+				m_markers_selector->removeAll((TextEnrichment*)m_plot->marker(selectedMarker));
+			else if (m_lines.contains(selectedMarker))
+				m_markers_selector->removeAll((LineEnrichment*)m_plot->marker(selectedMarker));
+			else if (m_images.contains(selectedMarker))
+				m_markers_selector->removeAll((ImageEnrichment*)m_plot->marker(selectedMarker));
 		}
-		d_plot->removeMarker(selectedMarker);
-		d_plot->replot();
+		m_plot->removeMarker(selectedMarker);
+		m_plot->replot();
 		emit modified();
 
 		if (selectedMarker==legendMarkerID)
 			legendMarkerID=-1;
 
-		if (d_lines.contains(selectedMarker)>0)
+		if (m_lines.contains(selectedMarker)>0)
 		{
-			int index = d_lines.indexOf(selectedMarker);
-            int last_line_marker = (int)d_lines.size() - 1;
+			int index = m_lines.indexOf(selectedMarker);
+            int last_line_marker = (int)m_lines.size() - 1;
 			for (int i=index; i < last_line_marker; i++)
-				d_lines[i]=d_lines[i+1];
-			d_lines.resize(last_line_marker);
+				m_lines[i]=m_lines[i+1];
+			m_lines.resize(last_line_marker);
 		}
-		else if(d_texts.contains(selectedMarker)>0)
+		else if(m_texts.contains(selectedMarker)>0)
 		{
-			int index=d_texts.indexOf(selectedMarker);
-			int last_text_marker = d_texts.size() - 1;
+			int index=m_texts.indexOf(selectedMarker);
+			int last_text_marker = m_texts.size() - 1;
 			for (int i=index; i < last_text_marker; i++)
-				d_texts[i]=d_texts[i+1];
-			d_texts.resize(last_text_marker);
+				m_texts[i]=m_texts[i+1];
+			m_texts.resize(last_text_marker);
 		}
-		else if(d_images.contains(selectedMarker)>0)
+		else if(m_images.contains(selectedMarker)>0)
 		{
-			int index=d_images.indexOf(selectedMarker);
-			int last_image_marker = d_images.size() - 1;
+			int index=m_images.indexOf(selectedMarker);
+			int last_image_marker = m_images.size() - 1;
 			for (int i=index; i < last_image_marker; i++)
-				d_images[i]=d_images[i+1];
-			d_images.resize(last_image_marker);
+				m_images[i]=m_images[i+1];
+			m_images.resize(last_image_marker);
 		}
 		selectedMarker=-1;
 	}
@@ -1683,12 +1683,12 @@ void Layer::cutMarker()
 
 bool Layer::arrowMarkerSelected()
 {
-	return (d_lines.contains(selectedMarker));
+	return (m_lines.contains(selectedMarker));
 }
 
 bool Layer::imageMarkerSelected()
 {
-	return (d_images.contains(selectedMarker));
+	return (m_images.contains(selectedMarker));
 }
 
 void Layer::copyMarker()
@@ -1698,13 +1698,13 @@ void Layer::copyMarker()
 		return ;
 	}
 
-	if (d_lines.contains(selectedMarker)){
-		LineEnrichment* mrkL=(LineEnrichment*) d_plot->marker(selectedMarker);
+	if (m_lines.contains(selectedMarker)){
+		LineEnrichment* mrkL=(LineEnrichment*) m_plot->marker(selectedMarker);
 		auxMrkStart=mrkL->startPoint();
 		auxMrkEnd=mrkL->endPoint();
 		selectedMarkerType = Arrow;
-	} else if (d_images.contains(selectedMarker)){
-		ImageEnrichment* mrkI=(ImageEnrichment*) d_plot->marker(selectedMarker);
+	} else if (m_images.contains(selectedMarker)){
+		ImageEnrichment* mrkI=(ImageEnrichment*) m_plot->marker(selectedMarker);
 		auxMrkStart=mrkI->origin();
 		QRect rect=mrkI->rect();
 		auxMrkEnd=rect.bottomRight();
@@ -1718,9 +1718,9 @@ void Layer::pasteMarker()
 {
 	if (selectedMarkerType == Arrow){
 		LineEnrichment* mrkL = new LineEnrichment();
-        int linesOnPlot = (int)d_lines.size();
-  	    d_lines.resize(++linesOnPlot);
-  	    d_lines[linesOnPlot-1] = d_plot->insertMarker(mrkL);
+        int linesOnPlot = (int)m_lines.size();
+  	    m_lines.resize(++linesOnPlot);
+  	    m_lines[linesOnPlot-1] = m_plot->insertMarker(mrkL);
 
 		mrkL->setColor(auxMrkColor);
 		mrkL->setWidth(auxMrkWidth);
@@ -1734,23 +1734,23 @@ void Layer::pasteMarker()
 		mrkL->fillArrowHead(auxFilledArrowHead);
 	} else if (selectedMarkerType==Image){
 		ImageEnrichment* mrk = new ImageEnrichment(auxMrkFileName);
-		int imagesOnPlot=d_images.size();
-  	    d_images.resize(++imagesOnPlot);
-  	    d_images[imagesOnPlot-1] = d_plot->insertMarker(mrk);
+		int imagesOnPlot=m_images.size();
+  	    m_images.resize(++imagesOnPlot);
+  	    m_images[imagesOnPlot-1] = m_plot->insertMarker(mrk);
 
-		QPoint o = d_plot->canvas()->mapFromGlobal(QCursor::pos());
-		if (!d_plot->canvas()->contentsRect().contains(o))
+		QPoint o = m_plot->canvas()->mapFromGlobal(QCursor::pos());
+		if (!m_plot->canvas()->contentsRect().contains(o))
 			o = QPoint(auxMrkStart.x()+20, auxMrkStart.y()+20);
 		mrk->setOrigin(o);
 		mrk->setSize(QRect(auxMrkStart,auxMrkEnd).size());
 	} else {
-		TextEnrichment* mrk=new TextEnrichment(d_plot);
-        int texts = d_texts.size();
-  	    d_texts.resize(++texts);
-  	    d_texts[texts-1] = d_plot->insertMarker(mrk);
+		TextEnrichment* mrk=new TextEnrichment(m_plot);
+        int texts = m_texts.size();
+  	    m_texts.resize(++texts);
+  	    m_texts[texts-1] = m_plot->insertMarker(mrk);
 
-		QPoint o=d_plot->canvas()->mapFromGlobal(QCursor::pos());
-		if (!d_plot->canvas()->contentsRect().contains(o))
+		QPoint o=m_plot->canvas()->mapFromGlobal(QCursor::pos());
+		if (!m_plot->canvas()->contentsRect().contains(o))
 			o=QPoint(auxMrkStart.x()+20,auxMrkStart.y()+20);
 		mrk->setOrigin(o);
 		mrk->setAngle(auxMrkAngle);
@@ -1761,7 +1761,7 @@ void Layer::pasteMarker()
 		mrk->setBackgroundColor(auxMrkBkgColor);
 	}
 	
-	d_plot->replot();
+	m_plot->replot();
 	deselectMarker();
 }
 
@@ -1797,15 +1797,15 @@ void Layer::setCopiedArrowOptions(int width, Qt::PenStyle style, const QColor& c
 
 bool Layer::titleSelected()
 {
-	return d_plot->titleLabel()->hasFocus();
+	return m_plot->titleLabel()->hasFocus();
 }
 
 void Layer::selectTitle()
 {
-	if (!d_plot->hasFocus())
+	if (!m_plot->hasFocus())
 	{
 		emit selected(this);
-		QwtTextLabel *title = d_plot->titleLabel();
+		QwtTextLabel *title = m_plot->titleLabel();
 		title->setFocus();
 	}
 
@@ -1814,15 +1814,15 @@ void Layer::selectTitle()
 
 void Layer::setTitle(const QString& t)
 {
-	d_plot->setTitle (t);
+	m_plot->setTitle (t);
 	emit modified();
 }
 
 void Layer::removeTitle()
 {
-	if (d_plot->titleLabel()->hasFocus())
+	if (m_plot->titleLabel()->hasFocus())
 	{
-		d_plot->setTitle(" ");
+		m_plot->setTitle(" ");
 		emit modified();
 	}
 }
@@ -1831,10 +1831,10 @@ void Layer::initTitle(bool on, const QFont& fnt)
 {
 	if (on)
 	{
-		QwtText t = d_plot->title();
+		QwtText t = m_plot->title();
 		t.setFont(fnt);
 		t.setText(tr("Title"));
-		d_plot->setTitle (t);
+		m_plot->setTitle (t);
 	}
 }
 
@@ -1842,29 +1842,29 @@ void Layer::removeLegend()
 {
 	if (legendMarkerID >= 0)
 	{
-		int index = d_texts.indexOf(legendMarkerID);
-		int texts = d_texts.size();
+		int index = m_texts.indexOf(legendMarkerID);
+		int texts = m_texts.size();
 		for (int i=index; i<texts; i++)
-			d_texts[i]=d_texts[i+1];
-		d_texts.resize(--texts);
+			m_texts[i]=m_texts[i+1];
+		m_texts.resize(--texts);
 
-		d_plot->removeMarker(legendMarkerID);
+		m_plot->removeMarker(legendMarkerID);
 		legendMarkerID=-1;
 	}
 }
 
 void Layer::updateImageEnrichment(int x, int y, int w, int h)
 {
-	ImageEnrichment* mrk =(ImageEnrichment*) d_plot->marker(selectedMarker);
+	ImageEnrichment* mrk =(ImageEnrichment*) m_plot->marker(selectedMarker);
 	mrk->setRect(x, y, w, h);
-	d_plot->replot();
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::updateTextMarker(const QString& text,int angle, int bkg,const QFont& fnt,
 		const QColor& textColor, const QColor& backgroundColor)
 {
-	TextEnrichment* mrkL=(TextEnrichment*) d_plot->marker(selectedMarker);
+	TextEnrichment* mrkL=(TextEnrichment*) m_plot->marker(selectedMarker);
 	mrkL->setText(text);
 	mrkL->setAngle(angle);
 	mrkL->setTextColor(textColor);
@@ -1872,14 +1872,14 @@ void Layer::updateTextMarker(const QString& text,int angle, int bkg,const QFont&
 	mrkL->setFont(fnt);
 	mrkL->setFrameStyle(bkg);
 
-	d_plot->replot();
+	m_plot->replot();
 	emit modified();
 }
 
 TextEnrichment* Layer::legend()
 {
 	if (legendMarkerID >=0 )
-		return (TextEnrichment*) d_plot->marker(legendMarkerID);
+		return (TextEnrichment*) m_plot->marker(legendMarkerID);
 	else
 		return 0;
 }
@@ -1905,8 +1905,8 @@ QString Layer::legendText()
 QString Layer::pieLegendText()
 {
 	QString text="";
-	QList<int> keys= d_plot->curveKeys();
-	const QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(keys[0]);
+	QList<int> keys= m_plot->curveKeys();
+	const QwtPlotCurve *curve = (QwtPlotCurve *)m_plot->curve(keys[0]);
 	if (curve)
 	{
 		for (int i=0;i<int(curve->dataSize());i++)
@@ -1923,11 +1923,11 @@ QString Layer::pieLegendText()
 
 void Layer::updateCurvesData(Table* w, const QString& yColName)
 {
-    QList<int> keys = d_plot->curveKeys();
+    QList<int> keys = m_plot->curveKeys();
     int updated_curves = 0;
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotItem *it = d_plot->plotItem(keys[i]);
+		QwtPlotItem *it = m_plot->plotItem(keys[i]);
 		if (!it)
             continue;
         if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
@@ -1946,7 +1946,7 @@ QString Layer::saveEnabledAxes()
 {
 	QString list="EnabledAxes\t";
 	for (int i = 0;i<QwtPlot::axisCnt;i++)
-		list+=QString::number(d_plot->axisEnabled (i))+"\t";
+		list+=QString::number(m_plot->axisEnabled (i))+"\t";
 
 	list+="\n";
 	return list;
@@ -1956,7 +1956,7 @@ bool Layer::framed()
 {
 	bool frameOn=false;
 
-	QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();
+	QwtPlotCanvas* canvas=(QwtPlotCanvas*) m_plot->canvas();
 	if (canvas->lineWidth()>0)
 		frameOn=true;
 
@@ -1965,20 +1965,20 @@ bool Layer::framed()
 
 QColor Layer::canvasFrameColor()
 {
-	QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();
+	QwtPlotCanvas* canvas=(QwtPlotCanvas*) m_plot->canvas();
 	QPalette pal =canvas->palette();
 	return pal.color(QPalette::Active, QPalette::WindowText);
 }
 
 int Layer::canvasFrameWidth()
 {
-	QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();
+	QwtPlotCanvas* canvas=(QwtPlotCanvas*) m_plot->canvas();
 	return canvas->lineWidth();
 }
 
 void Layer::drawCanvasFrame(const QStringList& frame)
 {
-	QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();
+	QwtPlotCanvas* canvas=(QwtPlotCanvas*) m_plot->canvas();
 	canvas->setLineWidth((frame[1]).toInt());
 
 	QPalette pal = canvas->palette();
@@ -1988,7 +1988,7 @@ void Layer::drawCanvasFrame(const QStringList& frame)
 
 void Layer::drawCanvasFrame(bool frameOn, int width, const QColor& color)
 {
-	QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();
+	QwtPlotCanvas* canvas=(QwtPlotCanvas*) m_plot->canvas();
 	QPalette pal = canvas->palette();
 
 	if (frameOn && canvas->lineWidth() == width &&
@@ -2014,7 +2014,7 @@ void Layer::drawCanvasFrame(bool frameOn, int width)
 {
 	if (frameOn)
 	{
-		QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();
+		QwtPlotCanvas* canvas=(QwtPlotCanvas*) m_plot->canvas();
 		canvas->setLineWidth(width);
 	}
 }
@@ -2028,16 +2028,16 @@ void Layer::drawAxesBackbones(bool yes)
 
 	for (int i=0; i<QwtPlot::axisCnt; i++)
 	{
-		QwtScaleWidget *scale=(QwtScaleWidget*) d_plot->axisWidget(i);
+		QwtScaleWidget *scale=(QwtScaleWidget*) m_plot->axisWidget(i);
 		if (scale)
 		{
-			ScaleDraw *sclDraw = (ScaleDraw *)d_plot->axisScaleDraw (i);
+			ScaleDraw *sclDraw = (ScaleDraw *)m_plot->axisScaleDraw (i);
 			sclDraw->enableComponent (QwtAbstractScaleDraw::Backbone, yes);
 			scale->repaint();
 		}
 	}
 
-	d_plot->replot();
+	m_plot->replot();
 	emit modified();
 }
 
@@ -2050,10 +2050,10 @@ void Layer::loadAxesOptions(const QString& s)
 
 	for (int i=0; i<QwtPlot::axisCnt; i++)
 	{
-		QwtScaleWidget *scale=(QwtScaleWidget*) d_plot->axisWidget(i);
+		QwtScaleWidget *scale=(QwtScaleWidget*) m_plot->axisWidget(i);
 		if (scale)
 		{
-			ScaleDraw *sclDraw = (ScaleDraw *)d_plot->axisScaleDraw (i);
+			ScaleDraw *sclDraw = (ScaleDraw *)m_plot->axisScaleDraw (i);
 			sclDraw->enableComponent (QwtAbstractScaleDraw::Backbone, false);
 			scale->repaint();
 		}
@@ -2062,14 +2062,14 @@ void Layer::loadAxesOptions(const QString& s)
 
 void Layer::setAxesLinewidth(int width)
 {
-	if (d_plot->axesLinewidth() == width)
+	if (m_plot->axesLinewidth() == width)
 		return;
 
-	d_plot->setAxesLinewidth(width);
+	m_plot->setAxesLinewidth(width);
 
 	for (int i=0; i<QwtPlot::axisCnt; i++)
 	{
-		QwtScaleWidget *scale=(QwtScaleWidget*) d_plot->axisWidget(i);
+		QwtScaleWidget *scale=(QwtScaleWidget*) m_plot->axisWidget(i);
 		if (scale)
 		{
 			scale->setPenWidth(width);
@@ -2077,26 +2077,26 @@ void Layer::setAxesLinewidth(int width)
 		}
 	}
 
-	d_plot->replot();
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::loadAxesLinewidth(int width)
 {
-	d_plot->setAxesLinewidth(width);
+	m_plot->setAxesLinewidth(width);
 }
 
 QString Layer::saveCanvas()
 {
 	QString s="";
-	int w = d_plot->canvas()->lineWidth();
+	int w = m_plot->canvas()->lineWidth();
 	if (w>0)
 	{
 		s += "CanvasFrame\t" + QString::number(w)+"\t";
 		s += canvasFrameColor().name()+"\n";
 	}
-	s += "CanvasBackground\t" + d_plot->canvasBackground().name()+"\t";
-	s += QString::number(d_plot->canvasBackground().alpha())+"\n";
+	s += "CanvasBackground\t" + m_plot->canvasBackground().name()+"\t";
+	s += QString::number(m_plot->canvasBackground().alpha())+"\n";
 	return s;
 }
 
@@ -2107,7 +2107,7 @@ QString Layer::saveFonts()
 	QStringList list,axesList;
 	QFont f;
 	list<<"TitleFont";
-	f=d_plot->title().font();
+	f=m_plot->title().font();
 	list<<f.family();
 	list<<QString::number(f.pointSize());
 	list<<QString::number(f.weight());
@@ -2116,9 +2116,9 @@ QString Layer::saveFonts()
 	list<<QString::number(f.strikeOut());
 	s=list.join ("\t")+"\n";
 
-	for (i=0;i<d_plot->axisCnt;i++)
+	for (i=0;i<m_plot->axisCnt;i++)
 	{
-		f=d_plot->axisTitle(i).font();
+		f=m_plot->axisTitle(i).font();
 		list[0]="ScaleFont"+QString::number(i);
 		list[1]=f.family();
 		list[2]=QString::number(f.pointSize());
@@ -2129,9 +2129,9 @@ QString Layer::saveFonts()
 		s+=list.join ("\t")+"\n";
 	}
 
-	for (i=0;i<d_plot->axisCnt;i++)
+	for (i=0;i<m_plot->axisCnt;i++)
 	{
-		f=d_plot->axisFont(i);
+		f=m_plot->axisFont(i);
 		list[0]="AxisFont"+QString::number(i);
 		list[1]=f.family();
 		list[2]=QString::number(f.pointSize());
@@ -2164,16 +2164,16 @@ QString Layer::saveScale()
 	{
 		s += "scale\t" + QString::number(i)+"\t";
 
-		const QwtScaleDiv *scDiv=d_plot->axisScaleDiv(i);
+		const QwtScaleDiv *scDiv=m_plot->axisScaleDiv(i);
 		QwtValueList lst = scDiv->ticks (QwtScaleDiv::MajorTick);
 
 		s += QString::number(qMin(scDiv->lBound(), scDiv->hBound()), 'g', 15)+"\t";
 		s += QString::number(qMax(scDiv->lBound(), scDiv->hBound()), 'g', 15)+"\t";
-		s += QString::number(d_user_step[i], 'g', 15)+"\t";
-		s += QString::number(d_plot->axisMaxMajor(i))+"\t";
-		s += QString::number(d_plot->axisMaxMinor(i))+"\t";
+		s += QString::number(m_user_step[i], 'g', 15)+"\t";
+		s += QString::number(m_plot->axisMaxMajor(i))+"\t";
+		s += QString::number(m_plot->axisMaxMinor(i))+"\t";
 
-		const QwtScaleEngine *sc_eng = d_plot->axisScaleEngine(i);
+		const QwtScaleEngine *sc_eng = m_plot->axisScaleEngine(i);
 		QwtScaleTransformation *tr = sc_eng->transformation();
 		s += QString::number((int)tr->type())+"\t";
 		s += QString::number(sc_eng->testAttribute(QwtScaleEngine::Inverted))+"\n";
@@ -2183,7 +2183,7 @@ QString Layer::saveScale()
 
 void Layer::setXAxisTitleColor(const QColor& c)
 {
-	QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(QwtPlot::xBottom);
+	QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(QwtPlot::xBottom);
 	if (scale)
 	{
 		QwtText t = scale->title();
@@ -2195,7 +2195,7 @@ void Layer::setXAxisTitleColor(const QColor& c)
 
 void Layer::setYAxisTitleColor(const QColor& c)
 {
-	QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(QwtPlot::yLeft);
+	QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(QwtPlot::yLeft);
 	if (scale)
 	{
 		QwtText t = scale->title();
@@ -2207,7 +2207,7 @@ void Layer::setYAxisTitleColor(const QColor& c)
 
 void Layer::setRightAxisTitleColor(const QColor& c)
 {
-	QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(QwtPlot::yRight);
+	QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(QwtPlot::yRight);
 	if (scale)
 	{
 		QwtText t = scale->title();
@@ -2219,7 +2219,7 @@ void Layer::setRightAxisTitleColor(const QColor& c)
 
 void Layer::setTopAxisTitleColor(const QColor& c)
 {
-	QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(QwtPlot::xTop);
+	QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(QwtPlot::xTop);
 	if (scale)
 	{
 		QwtText t = scale->title();
@@ -2233,7 +2233,7 @@ void Layer::setAxesTitleColor(QStringList l)
 {
 	for (int i=0;i<int(l.count()-1);i++)
 	{
-		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+		QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
 		if (scale)
 		{
   	        QwtText title = scale->title();
@@ -2248,7 +2248,7 @@ QString Layer::saveAxesTitleColors()
 	QString s="AxesTitleColors\t";
 	for (int i=0;i<4;i++)
 	{
-		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+		QwtScaleWidget *scale = (QwtScaleWidget *)m_plot->axisWidget(i);
 		QColor c;
 		if (scale)
 			c=scale->title().color();
@@ -2263,9 +2263,9 @@ QString Layer::saveAxesTitleColors()
 QString Layer::saveTitle()
 {
 	QString s="PlotTitle\t";
-	s += d_plot->title().text().replace("\n", "<br>")+"\t";
-	s += d_plot->title().color().name()+"\t";
-	s += QString::number(d_plot->title().renderFlags())+"\n";
+	s += m_plot->title().text().replace("\n", "<br>")+"\t";
+	s += m_plot->title().color().name()+"\t";
+	s += QString::number(m_plot->title().renderFlags())+"\n";
 	return s;
 }
 
@@ -2290,7 +2290,7 @@ QString Layer::saveScaleTitles()
 				a=1;
             break;
 		}
-		QString title = d_plot->axisTitle(a).text();
+		QString title = m_plot->axisTitle(a).text();
 		if (!title.isEmpty())
             s += title.replace("\n", "<br>")+"\t";
         else
@@ -2310,8 +2310,8 @@ QString Layer::saveAxesTitleAlignement()
 	for (i=0;i<4;i++)
 	{
 
-		if (d_plot->axisEnabled(i))
-			axes[i]=QString::number(d_plot->axisTitle(i).renderFlags());
+		if (m_plot->axisEnabled(i))
+			axes[i]=QString::number(m_plot->axisTitle(i).renderFlags());
 	}
 
 	s+=axes.join("\t")+"\n";
@@ -2531,7 +2531,7 @@ QString Layer::saveGridOptions()
 
 TextEnrichment* Layer::newLegend()
 {
-	TextEnrichment* mrk = new TextEnrichment(d_plot);
+	TextEnrichment* mrk = new TextEnrichment(m_plot);
 	mrk->setOrigin(QPoint(10, 10));
 
 	if (isPiePlot())
@@ -2544,34 +2544,34 @@ TextEnrichment* Layer::newLegend()
 	mrk->setTextColor(defaultTextMarkerColor);
 	mrk->setBackgroundColor(defaultTextMarkerBackground);
 
-	legendMarkerID = d_plot->insertMarker(mrk);
-	int texts = d_texts.size();
-	d_texts.resize(++texts);
-	d_texts[texts-1] = legendMarkerID;
+	legendMarkerID = m_plot->insertMarker(mrk);
+	int texts = m_texts.size();
+	m_texts.resize(++texts);
+	m_texts[texts-1] = legendMarkerID;
 
 	emit modified();
-	d_plot->replot();
+	m_plot->replot();
 	return mrk;
 }
 
 void Layer::addTimeStamp()
 {
 	TextEnrichment* mrk= newLegend(QDateTime::currentDateTime().toString(Qt::LocalDate));
-	mrk->setOrigin(QPoint(d_plot->canvas()->width()/2, 10));
+	mrk->setOrigin(QPoint(m_plot->canvas()->width()/2, 10));
 	emit modified();
-	d_plot->replot();
+	m_plot->replot();
 }
 
 TextEnrichment* Layer::newLegend(const QString& text)
 {
-	TextEnrichment* mrk = new TextEnrichment(d_plot);
-	selectedMarker = d_plot->insertMarker(mrk);
-	if(d_markers_selector)
-		delete d_markers_selector;
+	TextEnrichment* mrk = new TextEnrichment(m_plot);
+	selectedMarker = m_plot->insertMarker(mrk);
+	if(m_markers_selector)
+		delete m_markers_selector;
 
-	int texts = d_texts.size();
-	d_texts.resize(++texts);
-	d_texts[texts-1] = selectedMarker;
+	int texts = m_texts.size();
+	m_texts.resize(++texts);
+	m_texts[texts-1] = selectedMarker;
 
 	mrk->setOrigin(QPoint(5,5));
 	mrk->setText(text);
@@ -2590,12 +2590,12 @@ void Layer::insertLegend(const QStringList& lst, int fileVersion)
 long Layer::insertTextMarker(const QStringList& list, int fileVersion)
 {
 	QStringList fList=list;
-	TextEnrichment* mrk = new TextEnrichment(d_plot);
-	long key = d_plot->insertMarker(mrk);
+	TextEnrichment* mrk = new TextEnrichment(m_plot);
+	long key = m_plot->insertMarker(mrk);
 
-	int texts = d_texts.size();
-	d_texts.resize(++texts);
-	d_texts[texts-1] = key;
+	int texts = m_texts.size();
+	m_texts.resize(++texts);
+	m_texts[texts-1] = key;
 
 	if (fileVersion < 86)
 		mrk->setOrigin(QPoint(fList[1].toInt(),fList[2].toInt()));
@@ -2659,10 +2659,10 @@ long Layer::insertTextMarker(const QStringList& list, int fileVersion)
 void Layer::addArrow(QStringList list, int fileVersion)
 {
 	LineEnrichment* mrk= new LineEnrichment();
-	long mrkID=d_plot->insertMarker(mrk);
-    int linesOnPlot = (int)d_lines.size();
-	d_lines.resize(++linesOnPlot);
-	d_lines[linesOnPlot-1]=mrkID;
+	long mrkID=m_plot->insertMarker(mrk);
+    int linesOnPlot = (int)m_lines.size();
+	m_lines.resize(++linesOnPlot);
+	m_lines[linesOnPlot-1]=mrkID;
 
 	if (fileVersion < 86)
 	{
@@ -2689,9 +2689,9 @@ void Layer::addArrow(QStringList list, int fileVersion)
 void Layer::addArrow(LineEnrichment* mrk)
 {
 	LineEnrichment* aux= new LineEnrichment();
-    int linesOnPlot = (int)d_lines.size();
-	d_lines.resize(++linesOnPlot);
-	d_lines[linesOnPlot-1] = d_plot->insertMarker(aux);
+    int linesOnPlot = (int)m_lines.size();
+	m_lines.resize(++linesOnPlot);
+	m_lines[linesOnPlot-1] = m_plot->insertMarker(aux);
 
 	aux->setBoundingRect(mrk->startPointCoord().x(), mrk->startPointCoord().y(),
 						 mrk->endPointCoord().x(), mrk->endPointCoord().y());
@@ -2707,29 +2707,29 @@ void Layer::addArrow(LineEnrichment* mrk)
 
 LineEnrichment* Layer::arrow(long id)
 {
-	return (LineEnrichment*)d_plot->marker(id);
+	return (LineEnrichment*)m_plot->marker(id);
 }
 
 ImageEnrichment* Layer::imageMarker(long id)
 {
-	return (ImageEnrichment*)d_plot->marker(id);
+	return (ImageEnrichment*)m_plot->marker(id);
 }
 
 TextEnrichment* Layer::textMarker(long id)
 {
-	return (TextEnrichment*)d_plot->marker(id);
+	return (TextEnrichment*)m_plot->marker(id);
 }
 
 long Layer::insertTextMarker(TextEnrichment* mrk)
 {
-	TextEnrichment* aux = new TextEnrichment(d_plot);
-	selectedMarker = d_plot->insertMarker(aux);
-	if(d_markers_selector)
-		delete d_markers_selector;
+	TextEnrichment* aux = new TextEnrichment(m_plot);
+	selectedMarker = m_plot->insertMarker(aux);
+	if(m_markers_selector)
+		delete m_markers_selector;
 
-	int texts = d_texts.size();
-	d_texts.resize(++texts);
-	d_texts[texts-1] = selectedMarker;
+	int texts = m_texts.size();
+	m_texts.resize(++texts);
+	m_texts[texts-1] = selectedMarker;
 
 	aux->setTextColor(mrk->textColor());
 	aux->setBackgroundColor(mrk->backgroundColor());
@@ -2744,10 +2744,10 @@ long Layer::insertTextMarker(TextEnrichment* mrk)
 QString Layer::saveMarkers()
 {
 	QString s;
-	int t = d_texts.size(), l = d_lines.size(), im = d_images.size();
+	int t = m_texts.size(), l = m_lines.size(), im = m_images.size();
 	for (int i=0; i<im; i++)
 	{
-		ImageEnrichment* mrkI=(ImageEnrichment*) d_plot->marker(d_images[i]);
+		ImageEnrichment* mrkI=(ImageEnrichment*) m_plot->marker(m_images[i]);
 		s += "<image>\t";
 		s += mrkI->fileName()+"\t";
 		s += QString::number(mrkI->xValue(), 'g', 15)+"\t";
@@ -2758,7 +2758,7 @@ QString Layer::saveMarkers()
 
 	for (int i=0; i<l; i++)
 	{
-		LineEnrichment* mrkL=(LineEnrichment*) d_plot->marker(d_lines[i]);
+		LineEnrichment* mrkL=(LineEnrichment*) m_plot->marker(m_lines[i]);
 		s+="<line>\t";
 
 		QwtDoublePoint sp = mrkL->startPointCoord();
@@ -2781,8 +2781,8 @@ QString Layer::saveMarkers()
 
 	for (int i=0; i<t; i++)
 	{
-		TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(d_texts[i]);
-		if (d_texts[i] != legendMarkerID)
+		TextEnrichment* mrk=(TextEnrichment*) m_plot->marker(m_texts[i]);
+		if (m_texts[i] != legendMarkerID)
 			s+="<text>\t";
 		else
 			s+="<legend>\t";
@@ -2805,7 +2805,7 @@ QString Layer::saveMarkers()
 
 		QStringList textList=mrk->text().split("\n", QString::KeepEmptyParts);
 		s+=textList.join ("\t");
-		if (d_texts[i]!=legendMarkerID)
+		if (m_texts[i]!=legendMarkerID)
   	        s+="</text>\n";
   	    else
   	        s+="</legend>\n";
@@ -2815,16 +2815,16 @@ QString Layer::saveMarkers()
 
 double Layer::selectedXStartValue()
 {
-	if (d_range_selector)
-		return d_range_selector->minXValue();
+	if (m_range_selector)
+		return m_range_selector->minXValue();
 	else
 		return 0;
 }
 
 double Layer::selectedXEndValue()
 {
-	if (d_range_selector)
-		return d_range_selector->maxXValue();
+	if (m_range_selector)
+		return m_range_selector->maxXValue();
 	else
 		return 0;
 }
@@ -2834,14 +2834,14 @@ QwtPlotItem* Layer::plotItem(int index)
     if (!n_curves || index >= n_curves || index < 0)
 		return 0;
 
-	return d_plot->plotItem(c_keys[index]);
+	return m_plot->plotItem(c_keys[index]);
 }
 
 int Layer::plotItemIndex(QwtPlotItem *it) const
 {
 	for (int i = 0; i < n_curves; i++)
 	{
-		if (d_plot->plotItem(c_keys[i]) == it)
+		if (m_plot->plotItem(c_keys[i]) == it)
 			return i;
 	}
 	return -1;
@@ -2852,7 +2852,7 @@ QwtPlotCurve *Layer::curve(int index)
 	if (!n_curves || index >= n_curves || index < 0)
 		return 0;
 
-	return d_plot->curve(c_keys[index]);
+	return m_plot->curve(c_keys[index]);
 }
 
 int Layer::curveIndex(QwtPlotCurve *c) const
@@ -2862,10 +2862,10 @@ int Layer::curveIndex(QwtPlotCurve *c) const
 
 int Layer::range(int index, double *start, double *end)
 {
-	if (d_range_selector && d_range_selector->selectedCurve() == curve(index)) {
-		*start = d_range_selector->minXValue();
-		*end = d_range_selector->maxXValue();
-		return d_range_selector->dataSize();
+	if (m_range_selector && m_range_selector->selectedCurve() == curve(index)) {
+		*start = m_range_selector->minXValue();
+		*end = m_range_selector->maxXValue();
+		return m_range_selector->dataSize();
 	} else {
 		QwtPlotCurve *c = curve(index);
 		if (!c)
@@ -3052,17 +3052,17 @@ void Layer::updateErrorBars(ErrorCurve *er, bool xErr, int width, int cap, const
 	er->drawPlusSide(plus);
 	er->drawMinusSide(minus);
 
-	d_plot->replot();
+	m_plot->replot();
 	emit modified();
 }
 
 bool Layer::addErrorBars(const QString& yColName, Table *errTable, const QString& errColName,
 		int type, int width, int cap, const QColor& color, bool through, bool minus, bool plus)
 {
-	QList<int> keys = d_plot->curveKeys();
+	QList<int> keys = m_plot->curveKeys();
 	for (int i = 0; i<n_curves; i++ )
 	{
-		DataCurve *c = (DataCurve *)d_plot->curve(keys[i]);
+		DataCurve *c = (DataCurve *)m_plot->curve(keys[i]);
 		if (c && c->title().text() == yColName && c_type[i] != ErrorBars)
 		{
 			return addErrorBars(c->xColumnName(), yColName, errTable, errColName,
@@ -3093,7 +3093,7 @@ bool Layer::addErrorBars(const QString& xColName, const QString& yColName,
 	c_type[n_curves-1] = ErrorBars;
 
 	c_keys.resize(n_curves);
-	c_keys[n_curves-1] = d_plot->insertCurve(er);
+	c_keys[n_curves-1] = m_plot->insertCurve(er);
 
 	updatePlot();
 	return true;
@@ -3114,7 +3114,7 @@ void Layer::plotPie(Table* w, const QString& name, const QPen& pen, int brush,
 	pieCurve->setVisible(visible);
 
 	c_keys.resize(++n_curves);
-	c_keys[n_curves-1] = d_plot->insertCurve(pieCurve);
+	c_keys[n_curves-1] = m_plot->insertCurve(pieCurve);
 
 	c_type.resize(n_curves);
 	c_type[n_curves-1] = Pie;
@@ -3130,12 +3130,12 @@ void Layer::plotPie(Table* w, const QString& name, int startRow, int endRow)
 		endRow = w->rowCount() - 1;
 
 	for (int i=0; i<QwtPlot::axisCnt; i++)
-		d_plot->enableAxis(i, false);
+		m_plot->enableAxis(i, false);
 	scalePicker->refresh();
 
-	d_plot->setTitle(QString::null);
+	m_plot->setTitle(QString::null);
 
-	static_cast<QwtPlotCanvas*>(d_plot->canvas())->setLineWidth(1);
+	static_cast<QwtPlotCanvas*>(m_plot->canvas())->setLineWidth(1);
 
 	QVarLengthArray<double> Y(abs(endRow - startRow) + 1);
 	for (int i = startRow; i<= endRow; i++){
@@ -3157,13 +3157,13 @@ void Layer::plotPie(Table* w, const QString& name, int startRow, int endRow)
 	pieCurve->setData(Y.data(), Y.data(), size);
 
 	c_keys.resize(++n_curves);
-	c_keys[n_curves-1] = d_plot->insertCurve(pieCurve);
+	c_keys[n_curves-1] = m_plot->insertCurve(pieCurve);
 
 	c_type.resize(n_curves);
 	c_type[n_curves-1] = Pie;
 
 	// This has to be synced with PieCurve::drawPie() for now... until we have a clean solution.
-	QRect canvas_rect = d_plot->plotLayout()->canvasRect();
+	QRect canvas_rect = m_plot->plotLayout()->canvasRect();
 	float radius = 0.45*qMin(canvas_rect.width(), canvas_rect.height());
 
 	double PI = 4*atan(1.0);
@@ -3173,13 +3173,13 @@ void Layer::plotPie(Table* w, const QString& name, int startRow, int endRow)
 		const double value = Y[i]/sum*360;
 		double alabel = (angle - value*0.5)*PI/180.0;
 
-		TextEnrichment* aux = new TextEnrichment(d_plot);
+		TextEnrichment* aux = new TextEnrichment(m_plot);
 		aux->setFrameStyle(0);
 		aux->setText(QString::number(Y[i]/sum*100,'g',2)+"%");
 
-		int texts = d_texts.size();
-		d_texts.resize(++texts);
-		d_texts[texts-1] = d_plot->insertMarker(aux);
+		int texts = m_texts.size();
+		m_texts.resize(++texts);
+		m_texts[texts-1] = m_plot->insertMarker(aux);
 
 		aux->setOrigin(canvas_rect.center() +
 				QPoint(radius*cos(alabel) - 0.5*aux->rect().width(),
@@ -3189,7 +3189,7 @@ void Layer::plotPie(Table* w, const QString& name, int startRow, int endRow)
 	}
 
 	if (legendMarkerID>=0){
-		TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
+		TextEnrichment* mrk=(TextEnrichment*) m_plot->marker(legendMarkerID);
 		if (mrk){
 			QString text="";
 			for (int i=0; i<size; i++){
@@ -3203,7 +3203,7 @@ void Layer::plotPie(Table* w, const QString& name, int startRow, int endRow)
 		}
 	}
 
-	d_plot->replot();
+	m_plot->replot();
 	updateScale();
 }
 
@@ -3213,7 +3213,7 @@ void Layer::insertPlotItem(QwtPlotItem *i, int type)
 	c_type[n_curves-1] = type;
 
 	c_keys.resize(n_curves);
-	c_keys[n_curves-1] = d_plot->insertCurve(i);
+	c_keys[n_curves-1] = m_plot->insertCurve(i);
 
 	if (i->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
   		addLegendItem(i->title().text());
@@ -3399,7 +3399,7 @@ bool Layer::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	c_type.resize(++n_curves);
 	c_type[n_curves-1] = style;
 	c_keys.resize(n_curves);
-	c_keys[n_curves-1] = d_plot->insertCurve(c);
+	c_keys[n_curves-1] = m_plot->insertCurve(c);
 
 	c->setPen(QPen(Qt::black,widthLine));
 
@@ -3413,13 +3413,13 @@ bool Layer::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			axesFormatInfo[QwtPlot::yLeft] = xColName;
 			axesFormatInfo[QwtPlot::yRight] = xColName;
 			axisType[QwtPlot::yLeft] = Txt;
-			d_plot->setAxisScaleDraw (QwtPlot::yLeft, new QwtTextScaleDraw(xLabels));
+			m_plot->setAxisScaleDraw (QwtPlot::yLeft, new QwtTextScaleDraw(xLabels));
 		}
 		else{
 			axesFormatInfo[QwtPlot::xBottom] = xColName;
 			axesFormatInfo[QwtPlot::xTop] = xColName;
 			axisType[QwtPlot::xBottom] = Txt;
-			d_plot->setAxisScaleDraw (QwtPlot::xBottom, new QwtTextScaleDraw(xLabels));
+			m_plot->setAxisScaleDraw (QwtPlot::xBottom, new QwtTextScaleDraw(xLabels));
 		}
 	}
 	else if (xColType == SciDAVis::Time){
@@ -3441,7 +3441,7 @@ bool Layer::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 		axesFormatInfo[QwtPlot::yLeft] = yColName;
 		axesFormatInfo[QwtPlot::yRight] = yColName;
 		axisType[QwtPlot::yLeft] = Txt;
-		d_plot->setAxisScaleDraw (QwtPlot::yLeft, new QwtTextScaleDraw(yLabels));
+		m_plot->setAxisScaleDraw (QwtPlot::yLeft, new QwtTextScaleDraw(yLabels));
 	}
 
 	addLegendItem(yColName);
@@ -3474,7 +3474,7 @@ void Layer::plotVectorCurve(Table* w, const QStringList& colList, int style, int
 	c_type[n_curves-1] = style;
 
 	c_keys.resize(n_curves);
-	c_keys[n_curves-1] = d_plot->insertCurve(v);
+	c_keys[n_curves-1] = m_plot->insertCurve(v);
 
 	addLegendItem(colList[1]);
 	updatePlot();
@@ -3498,18 +3498,18 @@ void Layer::updateVectorsLayout(int curve, const QColor& color, int width,
 	if (!xEndColName.isEmpty() && !yEndColName.isEmpty())
 		vect->setVectorEnd(xEndColName, yEndColName);
 
-	d_plot->replot();
+	m_plot->replot();
 	emit modified();
 }
 
 void Layer::updatePlot()
 {
-	if (autoscale && !zoomOn() && d_active_tool==NULL)	{
+	if (autoscale && !zoomOn() && m_active_tool==NULL)	{
 		for (int i = 0; i < QwtPlot::axisCnt; i++)
-			d_plot->setAxisAutoScale(i);
+			m_plot->setAxisAutoScale(i);
 	}
 
-	d_plot->replot();
+	m_plot->replot();
     updateMarkersBoundingRect();
 	updateSecondaryAxis(QwtPlot::xTop);
 	updateSecondaryAxis(QwtPlot::yRight);
@@ -3519,35 +3519,35 @@ void Layer::updatePlot()
         c->updateBoundingRect();
     }
 
-    d_plot->replot();
-	d_zoomer[0]->setZoomBase();
-	d_zoomer[1]->setZoomBase();
+    m_plot->replot();
+	m_zoomer[0]->setZoomBase();
+	m_zoomer[1]->setZoomBase();
 }
 
 void Layer::updateScale()
 {
-	const QwtScaleDiv *scDiv=d_plot->axisScaleDiv(QwtPlot::xBottom);
+	const QwtScaleDiv *scDiv=m_plot->axisScaleDiv(QwtPlot::xBottom);
 	QwtValueList lst = scDiv->ticks (QwtScaleDiv::MajorTick);
 
 	double step = fabs(lst[1]-lst[0]);
 
 	if (!autoscale)
-		d_plot->setAxisScale (QwtPlot::xBottom, scDiv->lBound(), scDiv->hBound(), step);
+		m_plot->setAxisScale (QwtPlot::xBottom, scDiv->lBound(), scDiv->hBound(), step);
 
-	scDiv=d_plot->axisScaleDiv(QwtPlot::yLeft);
+	scDiv=m_plot->axisScaleDiv(QwtPlot::yLeft);
 	lst = scDiv->ticks (QwtScaleDiv::MajorTick);
 
 	step = fabs(lst[1]-lst[0]);
 
 	if (!autoscale)
-		d_plot->setAxisScale (QwtPlot::yLeft, scDiv->lBound(), scDiv->hBound(), step);
+		m_plot->setAxisScale (QwtPlot::yLeft, scDiv->lBound(), scDiv->hBound(), step);
 
-	d_plot->replot();
+	m_plot->replot();
 	updateMarkersBoundingRect();
 	updateSecondaryAxis(QwtPlot::xTop);
 	updateSecondaryAxis(QwtPlot::yRight);
 
-	d_plot->replot();//TODO: avoid 2nd replot!
+	m_plot->replot();//TODO: avoid 2nd replot!
 }
 
 void Layer::setBarsGap(int curve, int gapPercent, int offset)
@@ -3567,13 +3567,13 @@ void Layer::removePie()
 {
 	if (legendMarkerID>=0)
 	{
-		TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
+		TextEnrichment* mrk=(TextEnrichment*) m_plot->marker(legendMarkerID);
 		if (mrk)
 			mrk->setText(QString::null);
 	}
 
-	d_plot->removeCurve(c_keys[0]);
-	d_plot->replot();
+	m_plot->removeCurve(c_keys[0]);
+	m_plot->replot();
 
 	c_keys.resize(0);
 	c_type.resize(0);
@@ -3583,10 +3583,10 @@ void Layer::removePie()
 
 void Layer::removeCurves(const QString& s)
 {
-    QList<int> keys = d_plot->curveKeys();
+    QList<int> keys = m_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotItem *it = d_plot->plotItem(keys[i]);
+		QwtPlotItem *it = m_plot->plotItem(keys[i]);
 		if (!it)
             continue;
 
@@ -3604,7 +3604,7 @@ void Layer::removeCurves(const QString& s)
         if(((DataCurve *)it)->plotAssociation().contains(s))
             removeCurve(i);
 	}
-	d_plot->replot();
+	m_plot->replot();
 }
 
 void Layer::removeCurve(const QString& s)
@@ -3630,25 +3630,25 @@ void Layer::removeCurve(int index)
 		else if (((PlotCurve *)it)->type() != Function)
 			((DataCurve *)it)->clearErrorBars();
 
-		if (d_fit_curves.contains((QwtPlotCurve *)it))
+		if (m_fit_curves.contains((QwtPlotCurve *)it))
 		{
-			int i = d_fit_curves.indexOf((QwtPlotCurve *)it);
-			if (i >= 0 && i < d_fit_curves.size())
-				d_fit_curves.removeAt(i);
+			int i = m_fit_curves.indexOf((QwtPlotCurve *)it);
+			if (i >= 0 && i < m_fit_curves.size())
+				m_fit_curves.removeAt(i);
 		}
 	}
 
-    if (d_range_selector && curve(index) == d_range_selector->selectedCurve())
+    if (m_range_selector && curve(index) == m_range_selector->selectedCurve())
     {
         if (n_curves > 1 && (index - 1) >= 0)
-            d_range_selector->setSelectedCurve(curve(index - 1));
+            m_range_selector->setSelectedCurve(curve(index - 1));
         else if (n_curves > 1 && index + 1 < n_curves)
-            d_range_selector->setSelectedCurve(curve(index + 1));
+            m_range_selector->setSelectedCurve(curve(index + 1));
         else
-            delete d_range_selector;
+            delete m_range_selector;
     }
 
-	d_plot->removeCurve(c_keys[index]);
+	m_plot->removeCurve(c_keys[index]);
 	n_curves--;
 
 	for (int i=index; i<n_curves; i++)
@@ -3666,7 +3666,7 @@ void Layer::removeLegendItem(int index)
 	if (legendMarkerID<0 || c_type[index] == ErrorBars)
 		return;
 
-	TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
+	TextEnrichment* mrk=(TextEnrichment*) m_plot->marker(legendMarkerID);
 	if (!mrk)
 		return;
 
@@ -3703,7 +3703,7 @@ void Layer::removeLegendItem(int index)
 void Layer::addLegendItem(const QString& colName)
 {
 	if (legendMarkerID >= 0 ){
-		TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
+		TextEnrichment* mrk=(TextEnrichment*) m_plot->marker(legendMarkerID);
 		if (mrk){
 			QString text = mrk->text();
 			if (text.endsWith ( "\n", true ) )
@@ -3723,10 +3723,10 @@ void Layer::contextMenuEvent(QContextMenuEvent *e)
 		return;
 	}
 
-	QPoint pos = d_plot->canvas()->mapFrom(d_plot, e->pos());
+	QPoint pos = m_plot->canvas()->mapFrom(m_plot, e->pos());
 	int dist, point;
-	const long curve = d_plot->closestCurve(pos.x(), pos.y(), dist, point);
-	const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(curve);
+	const long curve = m_plot->closestCurve(pos.x(), pos.y(), dist, point);
+	const QwtPlotCurve *c = (QwtPlotCurve *)m_plot->curve(curve);
 
 	if (c && dist < 10)//10 pixels tolerance
 		emit showCurveContextMenu(curve);
@@ -3745,7 +3745,7 @@ void Layer::closeEvent(QCloseEvent *e)
 
 bool Layer::zoomOn()
 {
-	return (d_zoomer[0]->isEnabled() || d_zoomer[1]->isEnabled());
+	return (m_zoomer[0]->isEnabled() || m_zoomer[1]->isEnabled());
 }
 
 void Layer::zoomed (const QwtDoubleRect &)
@@ -3755,31 +3755,31 @@ void Layer::zoomed (const QwtDoubleRect &)
 
 void Layer::zoom(bool on)
 {
-	d_zoomer[0]->setEnabled(on);
-	d_zoomer[1]->setEnabled(on);
+	m_zoomer[0]->setEnabled(on);
+	m_zoomer[1]->setEnabled(on);
 	for (int i=0; i<n_curves; i++)
   	{
   		Spectrogram *sp = (Spectrogram *)this->curve(i);
   	    if (sp && sp->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
   	    {
   	     	if (sp->colorScaleAxis() == QwtPlot::xBottom || sp->colorScaleAxis() == QwtPlot::yLeft)
-  	        	d_zoomer[0]->setEnabled(false);
+  	        	m_zoomer[0]->setEnabled(false);
   	        else
-  	        	d_zoomer[1]->setEnabled(false);
+  	        	m_zoomer[1]->setEnabled(false);
   	    }
   	}
 
 	QCursor cursor=QCursor (QPixmap(":/lens.xpm"),-1,-1);
 	if (on)
-		d_plot->canvas()->setCursor(cursor);
+		m_plot->canvas()->setCursor(cursor);
 	else
-		d_plot->canvas()->setCursor(Qt::ArrowCursor);
+		m_plot->canvas()->setCursor(Qt::ArrowCursor);
 }
 
 void Layer::zoomOut()
 {
-	d_zoomer[0]->zoom(-1);
-	d_zoomer[1]->zoom(-1);
+	m_zoomer[0]->zoom(-1);
+	m_zoomer[1]->zoom(-1);
 
 	updateSecondaryAxis(QwtPlot::xTop);
   	updateSecondaryAxis(QwtPlot::yRight);
@@ -3789,9 +3789,9 @@ void Layer::drawText(bool on)
 {
 	QCursor c=QCursor(Qt::IBeamCursor);
 	if (on)
-		d_plot->canvas()->setCursor(c);
+		m_plot->canvas()->setCursor(c);
 	else
-		d_plot->canvas()->setCursor(Qt::ArrowCursor);
+		m_plot->canvas()->setCursor(Qt::ArrowCursor);
 
 	drawTextOn=on;
 }
@@ -3803,9 +3803,9 @@ ImageEnrichment* Layer::addImage(ImageEnrichment* mrk)
 	
 	ImageEnrichment* mrk2 = new ImageEnrichment(mrk->fileName());
 
-	int imagesOnPlot = d_images.size();
-	d_images.resize(++imagesOnPlot);
-	d_images[imagesOnPlot-1]=d_plot->insertMarker(mrk2);
+	int imagesOnPlot = m_images.size();
+	m_images.resize(++imagesOnPlot);
+	m_images[imagesOnPlot-1]=m_plot->insertMarker(mrk2);
 
 	mrk2->setBoundingRect(mrk->xValue(), mrk->yValue(), mrk->right(), mrk->bottom());
 	return mrk;
@@ -3820,21 +3820,21 @@ ImageEnrichment* Layer::addImage(const QString& fileName)
 	}
 	
 	ImageEnrichment* mrk = new ImageEnrichment(fileName);
-	int imagesOnPlot = d_images.size();
-	d_images.resize(++imagesOnPlot);
-	d_images[imagesOnPlot-1] = d_plot->insertMarker(mrk);
+	int imagesOnPlot = m_images.size();
+	m_images.resize(++imagesOnPlot);
+	m_images[imagesOnPlot-1] = m_plot->insertMarker(mrk);
 
 	QSize picSize = mrk->pixmap().size();
-	int w = d_plot->canvas()->width();
+	int w = m_plot->canvas()->width();
 	if (picSize.width()>w)
 		picSize.setWidth(w);
 	
-	int h=d_plot->canvas()->height();
+	int h=m_plot->canvas()->height();
 	if (picSize.height()>h)
 		picSize.setHeight(h);
 
 	mrk->setSize(picSize);
-	d_plot->replot();
+	m_plot->replot();
 
 	emit modified();
 	return mrk;
@@ -3851,9 +3851,9 @@ void Layer::insertImageEnrichment(const QStringList& lst, int fileVersion)
 		if (!mrk)
 			return;
 		
-        int imagesOnPlot = d_images.size();
-		d_images.resize(++imagesOnPlot);
-		d_images[imagesOnPlot-1] = d_plot->insertMarker(mrk);
+        int imagesOnPlot = m_images.size();
+		m_images.resize(++imagesOnPlot);
+		m_images[imagesOnPlot-1] = m_plot->insertMarker(mrk);
 
 		if (fileVersion < 86){
 			mrk->setOrigin(QPoint(lst[2].toInt(), lst[3].toInt()));
@@ -3902,7 +3902,7 @@ void Layer::modifyFunctionCurve(int curve, int type, const QStringList &formulas
 
 	if (legendMarkerID >= 0)
 	{//update the legend marker
-		TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
+		TextEnrichment* mrk=(TextEnrichment*) m_plot->marker(legendMarkerID);
 		if (mrk)
 		{
 			QString text = (mrk->text()).replace(oldLegend, c->legend());
@@ -3954,7 +3954,7 @@ void Layer::addFunctionCurve(int type, const QStringList &formulas, const QStrin
 	c_type[n_curves-1] = Line;
 
 	c_keys.resize(n_curves);
-	c_keys[n_curves-1] = d_plot->insertCurve(c);
+	c_keys[n_curves-1] = m_plot->insertCurve(c);
 
 	addLegendItem(c->legend());
 	updatePlot();
@@ -4060,11 +4060,11 @@ QString Layer::saveToString(bool saveAsTemplate)
 	s+=QString::number(this->frameGeometry().width())+"\t";
 	s+=QString::number(this->frameGeometry().height())+"\n";
 	s+=saveTitle();
-	s+="<Antialiasing>" + QString::number(d_antialiasing) + "</Antialiasing>\n";
-	s+="Background\t" + d_plot->paletteBackgroundColor().name() + "\t";
-	s+=QString::number(d_plot->paletteBackgroundColor().alpha()) + "\n";
-	s+="Margin\t"+QString::number(d_plot->margin())+"\n";
-	s+="Border\t"+QString::number(d_plot->lineWidth())+"\t"+d_plot->frameColor().name()+"\n";
+	s+="<Antialiasing>" + QString::number(m_antialiasing) + "</Antialiasing>\n";
+	s+="Background\t" + m_plot->paletteBackgroundColor().name() + "\t";
+	s+=QString::number(m_plot->paletteBackgroundColor().alpha()) + "\n";
+	s+="Margin\t"+QString::number(m_plot->margin())+"\n";
+	s+="Border\t"+QString::number(m_plot->lineWidth())+"\t"+m_plot->frameColor().name()+"\n";
 	s+=saveGridOptions();
 	s+=saveEnabledAxes();
 	s+="AxesTitles\t"+saveScaleTitles();
@@ -4086,7 +4086,7 @@ QString Layer::saveToString(bool saveAsTemplate)
 	s+=saveTicksType();
 	s+="TicksLength\t"+QString::number(minorTickLength())+"\t"+QString::number(majorTickLength())+"\n";
 	s+="DrawAxesBackbone\t"+QString::number(drawAxesBackbone)+"\n";
-	s+="AxesLineWidth\t"+QString::number(d_plot->axesLinewidth())+"\n";
+	s+="AxesLineWidth\t"+QString::number(m_plot->axesLinewidth())+"\n";
 	s+=saveLabelsRotation();
 	s+=saveMarkers();
 	s+="</graph>\n";
@@ -4095,7 +4095,7 @@ QString Layer::saveToString(bool saveAsTemplate)
 
 void Layer::showIntensityTable()
 {
-	ImageEnrichment* mrk=(ImageEnrichment*) d_plot->marker(selectedMarker);
+	ImageEnrichment* mrk=(ImageEnrichment*) m_plot->marker(selectedMarker);
 	if (!mrk)
 		return;
 
@@ -4104,22 +4104,22 @@ void Layer::showIntensityTable()
 
 void Layer::updateMarkersBoundingRect()
 {
-	for (int i=0;i<(int)d_lines.size();i++)
+	for (int i=0;i<(int)m_lines.size();i++)
 	{
-		LineEnrichment* mrkL = (LineEnrichment*)d_plot->marker(d_lines[i]);
+		LineEnrichment* mrkL = (LineEnrichment*)m_plot->marker(m_lines[i]);
 		if (mrkL)
 			mrkL->updateBoundingRect();
 	}
-	for (int i=0; i<(int)d_texts.size(); i++)
+	for (int i=0; i<(int)m_texts.size(); i++)
 	{
-		TextEnrichment* mrkT = (TextEnrichment*) d_plot->marker(d_texts[i]);
+		TextEnrichment* mrkT = (TextEnrichment*) m_plot->marker(m_texts[i]);
 		if (mrkT)
 			mrkT->updateOrigin();
 	}
 
-	for (int i=0;i<(int)d_images.size();i++)
+	for (int i=0;i<(int)m_images.size();i++)
 	{
-		ImageEnrichment* mrk = (ImageEnrichment*) d_plot->marker(d_images[i]);
+		ImageEnrichment* mrk = (ImageEnrichment*) m_plot->marker(m_images[i]);
 		if (mrk)
 			mrk->updateBoundingRect();
 	}
@@ -4139,14 +4139,14 @@ void Layer::resizeEvent ( QResizeEvent *e )
 		scaleFonts(ratio);
 	}
 
-	d_plot->resize(e->size());
+	m_plot->resize(e->size());
 }
 
 void Layer::scaleFonts(double factor)
 {
-	for (int i=0;i<(int)d_texts.size();i++)
+	for (int i=0;i<(int)m_texts.size();i++)
 	{
-		TextEnrichment* mrk = (TextEnrichment*) d_plot->marker(d_texts[i]);
+		TextEnrichment* mrk = (TextEnrichment*) m_plot->marker(m_texts[i]);
 		QFont font = mrk->font();
 		font.setPointSizeF(factor*font.pointSizeFloat());
 		mrk->setFont(font);
@@ -4155,59 +4155,59 @@ void Layer::scaleFonts(double factor)
 	{
 		QFont font = axisFont(i);
 		font.setPointSizeF(factor*font.pointSizeFloat());
-		d_plot->setAxisFont(i, font);
+		m_plot->setAxisFont(i, font);
 
-		QwtText title = d_plot->axisTitle(i);
+		QwtText title = m_plot->axisTitle(i);
 		font = title.font();
 		font.setPointSizeF(factor*font.pointSizeFloat());
 		title.setFont(font);
-		d_plot->setAxisTitle(i, title);
+		m_plot->setAxisTitle(i, title);
 	}
 
-	QwtText title = d_plot->title();
+	QwtText title = m_plot->title();
 	QFont font = title.font();
 	font.setPointSizeF(factor*font.pointSizeFloat());
 	title.setFont(font);
-	d_plot->setTitle(title);
+	m_plot->setTitle(title);
 
-	d_plot->replot();
+	m_plot->replot();
 }
 
 void Layer::setMargin (int d)
 {
-	if (d_plot->margin() == d)
+	if (m_plot->margin() == d)
 		return;
 
-	d_plot->setMargin(d);
+	m_plot->setMargin(d);
 	emit modified();
 }
 
 void Layer::setFrame (int width, const QColor& color)
 {
-	if (d_plot->frameColor() == color && width == d_plot->lineWidth())
+	if (m_plot->frameColor() == color && width == m_plot->lineWidth())
 		return;
 
-	QPalette pal = d_plot->palette();
+	QPalette pal = m_plot->palette();
 	pal.setColor(QPalette::WindowText, color);
-	d_plot->setPalette(pal);
+	m_plot->setPalette(pal);
 
-	d_plot->setLineWidth(width);
+	m_plot->setLineWidth(width);
 }
 
 void Layer::setBackgroundColor(const QColor& color)
 {
     QColorGroup cg;
-	QPalette p = d_plot->palette();
+	QPalette p = m_plot->palette();
 	p.setColor(QPalette::Window, color);
-    d_plot->setPalette(p);
+    m_plot->setPalette(p);
 
-    d_plot->setAutoFillBackground(true);
+    m_plot->setAutoFillBackground(true);
 	emit modified();
 }
 
 void Layer::setCanvasBackground(const QColor& color)
 {
-	d_plot->setCanvasBackground(color);
+	m_plot->setCanvasBackground(color);
 	emit modified();
 }
 
@@ -4366,21 +4366,21 @@ void Layer::showTitleContextMenu()
 
 void Layer::cutTitle()
 {
-	QApplication::clipboard()->setText(d_plot->title().text(), QClipboard::Clipboard);
+	QApplication::clipboard()->setText(m_plot->title().text(), QClipboard::Clipboard);
 	removeTitle();
 }
 
 void Layer::copyTitle()
 {
-	QApplication::clipboard()->setText(d_plot->title().text(), QClipboard::Clipboard);
+	QApplication::clipboard()->setText(m_plot->title().text(), QClipboard::Clipboard);
 }
 
 void Layer::removeAxisTitle()
 {
 	int axis = (selectedAxis + 2)%4;//unconsistent notation in Qwt enumerations between
   	//QwtScaleDraw::alignement and QwtPlot::Axis
-  	d_plot->setAxisTitle(axis, QString::null);
-	d_plot->replot();
+  	m_plot->setAxisTitle(axis, QString::null);
+	m_plot->replot();
 	emit modified();
 }
 
@@ -4394,7 +4394,7 @@ void Layer::copyAxisTitle()
 {
 	int axis = (selectedAxis + 2)%4;//unconsistent notation in Qwt enumerations between
   	//QwtScaleDraw::alignement and QwtPlot::Axis
-  	QApplication::clipboard()->setText(d_plot->axisTitle(axis).text(), QClipboard::Clipboard);
+  	QApplication::clipboard()->setText(m_plot->axisTitle(axis).text(), QClipboard::Clipboard);
 	}
 
 void Layer::showAxisTitleMenu(int axis)
@@ -4471,7 +4471,7 @@ void Layer::hideSelectedAxis()
 	else
 		axis = selectedAxis + 2;
 
-	d_plot->enableAxis(axis, false);
+	m_plot->enableAxis(axis, false);
 	scalePicker->refresh();
 	emit modified();
 }
@@ -4491,18 +4491,18 @@ void Layer::showGrid(int axis)
 {
 	if (axis == QwtScaleDraw::LeftScale || axis == QwtScaleDraw::RightScale){
 		grid.majorOnY = 1 - grid.majorOnY;
-		d_plot->grid()->enableY(grid.majorOnY);
+		m_plot->grid()->enableY(grid.majorOnY);
 		grid.minorOnY = 1 - grid.minorOnY;
-		d_plot->grid()->enableYMin(grid.minorOnY);
+		m_plot->grid()->enableYMin(grid.minorOnY);
 	} else if (axis == QwtScaleDraw::BottomScale || axis == QwtScaleDraw::TopScale){
 		grid.majorOnX = 1 - grid.majorOnX;
-		d_plot->grid()->enableX(grid.majorOnX);
+		m_plot->grid()->enableX(grid.majorOnX);
 		grid.minorOnX = 1 - grid.minorOnX;
-		d_plot->grid()->enableXMin(grid.minorOnX);
+		m_plot->grid()->enableXMin(grid.minorOnX);
 	} else
 		return;
 
-	d_plot->replot();
+	m_plot->replot();
 	emit modified();
 }
 
@@ -4510,7 +4510,7 @@ void Layer::copy(Layer* g)
 {
 	int i;
 	Plot *plot = g->plotWidget();
-	d_plot->setMargin(plot->margin());
+	m_plot->setMargin(plot->margin());
 
 	setAntialiasing(g->antialiasing());
 
@@ -4525,7 +4525,7 @@ void Layer::copy(Layer* g)
 
 	setGridOptions(g->gridOptions());
 
-	d_plot->setTitle (g->plotWidget()->title());
+	m_plot->setTitle (g->plotWidget()->title());
 
 	drawCanvasFrame(g->framed(),g->canvasFrameWidth(), g->canvasFrameColor());
 
@@ -4627,7 +4627,7 @@ void Layer::copy(Layer* g)
 				c = new DataCurve(cv->table(), cv->xColumnName(), cv->title().text(), cv->startRow(), cv->endRow());
 
 			c_keys.resize(++n_curves);
-			c_keys[i] = d_plot->insertCurve(c);
+			c_keys[i] = m_plot->insertCurve(c);
 
 			c_type.resize(n_curves);
 			c_type[i] = g->curveType(i);
@@ -4650,13 +4650,13 @@ void Layer::copy(Layer* g)
 
 			QList<QwtPlotCurve *>lst = g->fitCurvesList();
 			if (lst.contains((QwtPlotCurve *)it))
-				d_fit_curves << c;
+				m_fit_curves << c;
 		}
 		else if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
   	    	{
   	     	Spectrogram *sp = ((Spectrogram *)it)->copy();
   	        c_keys.resize(++n_curves);
-  	        c_keys[i] = d_plot->insertCurve(sp);
+  	        c_keys[i] = m_plot->insertCurve(sp);
 
   	        sp->showColorScale(((Spectrogram *)it)->colorScaleAxis(), ((Spectrogram *)it)->hasColorScale());
   	        sp->setColorBarWidth(((Spectrogram *)it)->colorBarWidth());
@@ -4692,12 +4692,12 @@ void Layer::copy(Layer* g)
 			else
 			{
 				QwtTextScaleDraw *sd = (QwtTextScaleDraw *)plot->axisScaleDraw (i);
-				d_plot->setAxisScaleDraw(i, new QwtTextScaleDraw(sd->labelsList()));
+				m_plot->setAxisScaleDraw(i, new QwtTextScaleDraw(sd->labelsList()));
 			}
 		}
 		else
 		{
-			sd = d_plot->axisScaleDraw (i);
+			sd = m_plot->axisScaleDraw (i);
 			sd->enableComponent (QwtAbstractScaleDraw::Labels, false);
 		}
 	}
@@ -4715,16 +4715,16 @@ void Layer::copy(Layer* g)
 
 		int majorTicks = plot->axisMaxMajor(i);
   	    int minorTicks = plot->axisMaxMinor(i);
-  	    d_plot->setAxisMaxMajor (i, majorTicks);
-  	    d_plot->setAxisMaxMinor (i, minorTicks);
+  	    m_plot->setAxisMaxMajor (i, majorTicks);
+  	    m_plot->setAxisMaxMinor (i, minorTicks);
 
 		const QwtScaleDiv *sd = plot->axisScaleDiv(i);
 		QwtValueList lst = sd->ticks (QwtScaleDiv::MajorTick);
 
-		d_user_step[i] = g->axisStep(i);
+		m_user_step[i] = g->axisStep(i);
 
 		QwtScaleDiv div = sc_engine->divideScale (qMin(sd->lBound(), sd->hBound()),
-				qMax(sd->lBound(), sd->hBound()), majorTicks, minorTicks, d_user_step[i]);
+				qMax(sd->lBound(), sd->hBound()), majorTicks, minorTicks, m_user_step[i]);
 
 		if (se->testAttribute(QwtScaleEngine::Inverted))
 		{
@@ -4732,8 +4732,8 @@ void Layer::copy(Layer* g)
 			div.invert();
 		}
 
-		d_plot->setAxisScaleEngine (i, sc_engine);
-		d_plot->setAxisScaleDiv (i, div);
+		m_plot->setAxisScaleEngine (i, sc_engine);
+		m_plot->setAxisScaleDiv (i, div);
 	}
 
 	drawAxesBackbones(g->drawAxesBackbone);
@@ -4766,7 +4766,7 @@ void Layer::copy(Layer* g)
 		if (lmrk)
 			addArrow(lmrk);
 	}
-	d_plot->replot();
+	m_plot->replot();
 
     if (isPiePlot()){
         PieCurve *c = (PieCurve *)curve(0);
@@ -4785,7 +4785,7 @@ void Layer::plotBoxDiagram(Table *w, const QStringList& names, int startRow, int
         c->loadData();
 
         c_keys.resize(++n_curves);
-        c_keys[n_curves-1] = d_plot->insertCurve(c);
+        c_keys[n_curves-1] = m_plot->insertCurve(c);
         c_type.resize(n_curves);
         c_type[n_curves-1] = Box;
 
@@ -4793,19 +4793,19 @@ void Layer::plotBoxDiagram(Table *w, const QStringList& names, int startRow, int
         c->setSymbol(QwtSymbol(QwtSymbol::NoSymbol, QBrush(), QPen(ColorBox::color(j), 1), QSize(7,7)));
 	}
 
-	TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
+	TextEnrichment* mrk=(TextEnrichment*) m_plot->marker(legendMarkerID);
 	if (mrk)
 		mrk->setText(legendText());
 
 	axisType[QwtPlot::xBottom] = ColHeader;
-	d_plot->setAxisScaleDraw (QwtPlot::xBottom, new QwtTextScaleDraw(w->selectedYLabels()));
-	d_plot->setAxisMaxMajor(QwtPlot::xBottom, names.count()+1);
-	d_plot->setAxisMaxMinor(QwtPlot::xBottom, 0);
+	m_plot->setAxisScaleDraw (QwtPlot::xBottom, new QwtTextScaleDraw(w->selectedYLabels()));
+	m_plot->setAxisMaxMajor(QwtPlot::xBottom, names.count()+1);
+	m_plot->setAxisMaxMinor(QwtPlot::xBottom, 0);
 
 	axisType[QwtPlot::xTop] = ColHeader;
-	d_plot->setAxisScaleDraw (QwtPlot::xTop, new QwtTextScaleDraw(w->selectedYLabels()));
-	d_plot->setAxisMaxMajor(QwtPlot::xTop, names.count()+1);
-	d_plot->setAxisMaxMinor(QwtPlot::xTop, 0);
+	m_plot->setAxisScaleDraw (QwtPlot::xTop, new QwtTextScaleDraw(w->selectedYLabels()));
+	m_plot->setAxisMaxMajor(QwtPlot::xTop, names.count()+1);
+	m_plot->setAxisMaxMinor(QwtPlot::xTop, 0);
 
 	axesFormatInfo[QwtPlot::xBottom] = w->name();
 	axesFormatInfo[QwtPlot::xTop] = w->name();
@@ -4885,7 +4885,7 @@ void Layer::openBoxDiagram(Table *w, const QStringList& l, int fileVersion)
 	c->loadData();
 
 	c_keys.resize(++n_curves);
-	c_keys[n_curves-1] = d_plot->insertCurve(c);
+	c_keys[n_curves-1] = m_plot->insertCurve(c);
 	c_type.resize(n_curves);
 	c_type[n_curves-1] = Box;
 
@@ -4908,16 +4908,16 @@ void Layer::disableTools()
 	if (drawLineActive())
 		drawLine(false);
 	setActiveTool(NULL);
-	if (d_range_selector)
-		delete d_range_selector;
+	if (m_range_selector)
+		delete m_range_selector;
 }
 
 bool Layer::enableRangeSelectors(const QObject *status_target, const char *status_slot)
 {
-	if (d_range_selector)
-		delete d_range_selector;
-	d_range_selector = new RangeSelectorTool(this, status_target, status_slot);
-	connect(d_range_selector, SIGNAL(changed()), this, SIGNAL(dataRangeChanged()));
+	if (m_range_selector)
+		delete m_range_selector;
+	m_range_selector = new RangeSelectorTool(this, status_target, status_slot);
+	connect(m_range_selector, SIGNAL(changed()), this, SIGNAL(dataRangeChanged()));
 	return true;
 }
 
@@ -4955,7 +4955,7 @@ void Layer::guessUniqueCurveLayout(int& colorIndex, int& symbolIndex)
 	int curve_index = n_curves - 1;
 	if (curve_index >= 0 && c_type[curve_index] == ErrorBars)
 	{// find out the pen color of the master curve
-		ErrorCurve *er = (ErrorCurve *)d_plot->curve(c_keys[curve_index]);
+		ErrorCurve *er = (ErrorCurve *)m_plot->curve(c_keys[curve_index]);
 		DataCurve *master_curve = er->masterCurve();
 		if (master_curve)
 		{
@@ -4992,16 +4992,16 @@ void Layer::guessUniqueCurveLayout(int& colorIndex, int& symbolIndex)
 void Layer::addFitCurve(QwtPlotCurve *c)
 {
 	if (c)
-		d_fit_curves << c;
+		m_fit_curves << c;
 }
 
 void Layer::deleteFitCurves()
 {
-	QList<int> keys = d_plot->curveKeys();
-	foreach(QwtPlotCurve *c, d_fit_curves)
+	QList<int> keys = m_plot->curveKeys();
+	foreach(QwtPlotCurve *c, m_fit_curves)
 		removeCurve(curveIndex(c));
 
-	d_plot->replot();
+	m_plot->replot();
 }
 
 void Layer::plotSpectrogram(Matrix *m, CurveType type)
@@ -5009,39 +5009,39 @@ void Layer::plotSpectrogram(Matrix *m, CurveType type)
 	if (type != GrayMap && type != ColorMap && type != ContourMap)
   		return;
 
-  	Spectrogram *d_spectrogram = new Spectrogram(m);
+  	Spectrogram *m_spectrogram = new Spectrogram(m);
   	if (type == GrayMap)
-  		d_spectrogram->setGrayScale();
+  		m_spectrogram->setGrayScale();
   	else if (type == ContourMap)
   		{
-  	    d_spectrogram->setDisplayMode(QwtPlotSpectrogram::ImageMode, false);
-  	    d_spectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, true);
+  	    m_spectrogram->setDisplayMode(QwtPlotSpectrogram::ImageMode, false);
+  	    m_spectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, true);
   	    }
   	else if (type == ColorMap)
   	    {
-  	    d_spectrogram->setDefaultColorMap();
-  	    d_spectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, true);
+  	    m_spectrogram->setDefaultColorMap();
+  	    m_spectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, true);
   	    }
 
   	c_keys.resize(++n_curves);
-  	c_keys[n_curves-1] = d_plot->insertCurve(d_spectrogram);
+  	c_keys[n_curves-1] = m_plot->insertCurve(m_spectrogram);
 
   	c_type.resize(n_curves);
   	c_type[n_curves-1] = type;
 
-  	QwtScaleWidget *rightAxis = d_plot->axisWidget(QwtPlot::yRight);
+  	QwtScaleWidget *rightAxis = m_plot->axisWidget(QwtPlot::yRight);
   	rightAxis->setColorBarEnabled(type != ContourMap);
-  	rightAxis->setColorMap(d_spectrogram->data().range(), d_spectrogram->colorMap());
+  	rightAxis->setColorMap(m_spectrogram->data().range(), m_spectrogram->colorMap());
 
-  	d_plot->setAxisScale(QwtPlot::xBottom, m->xStart(), m->xEnd());
-  	d_plot->setAxisScale(QwtPlot::yLeft, m->yStart(), m->yEnd());
+  	m_plot->setAxisScale(QwtPlot::xBottom, m->xStart(), m->xEnd());
+  	m_plot->setAxisScale(QwtPlot::yLeft, m->yStart(), m->yEnd());
 
-  	d_plot->setAxisScale(QwtPlot::yRight,
-  	d_spectrogram->data().range().minValue(),
-  	d_spectrogram->data().range().maxValue());
-  	d_plot->enableAxis(QwtPlot::yRight, type != ContourMap);
+  	m_plot->setAxisScale(QwtPlot::yRight,
+  	m_spectrogram->data().range().minValue(),
+  	m_spectrogram->data().range().maxValue());
+  	m_plot->enableAxis(QwtPlot::yRight, type != ContourMap);
 
-  	d_plot->replot();
+  	m_plot->replot();
 }
 
 void Layer::restoreSpectrogram(ApplicationWindow *app, const QStringList& lst)
@@ -5058,7 +5058,7 @@ void Layer::restoreSpectrogram(ApplicationWindow *app, const QStringList& lst)
 	c_type.resize(++n_curves);
 	c_type[n_curves-1] = Layer::ColorMap;
 	c_keys.resize(n_curves);
-	c_keys[n_curves-1] = d_plot->insertCurve(sp);
+	c_keys[n_curves-1] = m_plot->insertCurve(sp);
 
   	for (line++; line != lst.end(); line++)
     {
@@ -5132,7 +5132,7 @@ void Layer::restoreSpectrogram(ApplicationWindow *app, const QStringList& lst)
             s = *(++line);
             int width = s.remove("<width>").remove("</width>").trimmed().toInt();
 
-            QwtScaleWidget *colorAxis = d_plot->axisWidget(color_axis);
+            QwtScaleWidget *colorAxis = m_plot->axisWidget(color_axis);
             if (colorAxis)
             {
                 colorAxis->setColorBarWidth(width);
@@ -5176,44 +5176,44 @@ bool Layer::validCurvesDataSize()
 Layer::~Layer()
 {
 	setActiveTool(NULL);
-	if (d_range_selector)
-		delete d_range_selector;
+	if (m_range_selector)
+		delete m_range_selector;
 	delete titlePicker;
 	delete scalePicker;
 	delete cp;
-	delete d_plot;
+	delete m_plot;
 }
 
 void Layer::setAntialiasing(bool on, bool update)
 {
-	if (d_antialiasing == on)
+	if (m_antialiasing == on)
 		return;
 
-	d_antialiasing = on;
+	m_antialiasing = on;
 
 	if (update)
 	{
-		QList<int> curve_keys = d_plot->curveKeys();
+		QList<int> curve_keys = m_plot->curveKeys();
   		for (int i=0; i<(int)curve_keys.count(); i++)
   		{
-  			QwtPlotItem *c = d_plot->curve(curve_keys[i]);
+  			QwtPlotItem *c = m_plot->curve(curve_keys[i]);
 			if (c)
-				c->setRenderHint(QwtPlotItem::RenderAntialiased, d_antialiasing);
+				c->setRenderHint(QwtPlotItem::RenderAntialiased, m_antialiasing);
 		}
-		QList<int> marker_keys = d_plot->markerKeys();
+		QList<int> marker_keys = m_plot->markerKeys();
   		for (int i=0; i<(int)marker_keys.count(); i++)
   		{
-  			QwtPlotMarker *m = d_plot->marker(marker_keys[i]);
+  			QwtPlotMarker *m = m_plot->marker(marker_keys[i]);
 			if (m)
-				m->setRenderHint(QwtPlotItem::RenderAntialiased, d_antialiasing);
+				m->setRenderHint(QwtPlotItem::RenderAntialiased, m_antialiasing);
 		}
-		d_plot->replot();
+		m_plot->replot();
 	}
 }
 
 bool Layer::focusNextPrevChild ( bool )
 {
-	QList<int> mrkKeys = d_plot->markerKeys();
+	QList<int> mrkKeys = m_plot->markerKeys();
 	int n = mrkKeys.size();
 	if (n < 2)
 		return false;
@@ -5253,9 +5253,9 @@ QString Layer::axisFormatInfo(int axis)
 void Layer::updateCurveNames(const QString& oldName, const QString& newName, bool updateTableName)
 {
     //update plotted curves list
-	QList<int> keys = d_plot->curveKeys();
+	QList<int> keys = m_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++){
-		QwtPlotItem *it = d_plot->plotItem(keys[i]);
+		QwtPlotItem *it = m_plot->plotItem(keys[i]);
 		if (!it)
             continue;
         if (it->rtti() != QwtPlotItem::Rtti_PlotCurve)
@@ -5268,13 +5268,13 @@ void Layer::updateCurveNames(const QString& oldName, const QString& newName, boo
 
     if (legendMarkerID >= 0 )
 	{//update legend
-		TextEnrichment * mrk = (TextEnrichment*) d_plot->marker(legendMarkerID);
+		TextEnrichment * mrk = (TextEnrichment*) m_plot->marker(legendMarkerID);
 		if (mrk)
 		{
             QStringList lst = mrk->text().split("\n", QString::SkipEmptyParts);
             lst.replaceInStrings(oldName, newName);
 			mrk->setText(lst.join("\n"));
-			d_plot->replot();
+			m_plot->replot();
 		}
 	}
 }
@@ -5292,10 +5292,10 @@ void Layer::setCurveFullRange(int curveIndex)
 
 DataCurve* Layer::masterCurve(ErrorCurve *er)
 {
-	QList<int> keys = d_plot->curveKeys();
+	QList<int> keys = m_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotItem *it = d_plot->plotItem(keys[i]);
+		QwtPlotItem *it = m_plot->plotItem(keys[i]);
 		if (!it)
             continue;
         if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
@@ -5312,10 +5312,10 @@ DataCurve* Layer::masterCurve(ErrorCurve *er)
 DataCurve* Layer::masterCurve(const QString& xColName, const QString& yColName)
 {
 	QString master_curve = xColName + "(X)," + yColName + "(Y)";
-	QList<int> keys = d_plot->curveKeys();
+	QList<int> keys = m_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotItem *it = d_plot->plotItem(keys[i]);
+		QwtPlotItem *it = m_plot->plotItem(keys[i]);
 		if (!it)
             continue;
         if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
@@ -5341,10 +5341,10 @@ void Layer::showCurve(int index, bool visible)
 int Layer::visibleCurves()
 {
     int c = 0;
-	QList<int> keys = d_plot->curveKeys();
+	QList<int> keys = m_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotItem *it = d_plot->plotItem(keys[i]);
+		QwtPlotItem *it = m_plot->plotItem(keys[i]);
 		if (it && it->isVisible())
             c++;
 	}

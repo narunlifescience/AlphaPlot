@@ -212,7 +212,7 @@ void PreferencesDialog::initTablesPage()
 	bottomLayout->addWidget( buttonHeaderFont );
 
 	boxTableComments = new QCheckBox();
-	boxTableComments->setChecked(app->d_show_table_comments);
+	boxTableComments->setChecked(app->m_show_table_comments);
 
 	QVBoxLayout * tablesPageLayout = new QVBoxLayout( tables );
 	tablesPageLayout->addWidget(boxTableComments);
@@ -364,11 +364,11 @@ void PreferencesDialog::initPlotsPage()
 	QVBoxLayout *printLayout = new QVBoxLayout( plotPrint );
 
 	boxScaleLayersOnPrint = new QCheckBox();
-	boxScaleLayersOnPrint->setChecked(app->d_scale_plots_on_print);
+	boxScaleLayersOnPrint->setChecked(app->m_scale_plots_on_print);
 	printLayout->addWidget( boxScaleLayersOnPrint );
 
 	boxPrintCropmarks = new QCheckBox();
-	boxPrintCropmarks->setChecked(app->d_print_cropmarks);
+	boxPrintCropmarks->setChecked(app->m_print_cropmarks);
 	printLayout->addWidget( boxPrintCropmarks );
 	printLayout->addStretch();
 	plotsTabWidget->addTab(plotPrint, QString());
@@ -589,7 +589,7 @@ void PreferencesDialog::initAppPage()
 	numericFormatLayout->addWidget(lblAppPrecision, 0, 0);
 	boxAppPrecision = new QSpinBox();
 	boxAppPrecision->setRange(0, 16);
-	boxAppPrecision->setValue(app->d_decimal_digits);
+	boxAppPrecision->setValue(app->m_decimal_digits);
 	numericFormatLayout->addWidget(boxAppPrecision, 0, 1);
 
     lblDecimalSeparator = new QLabel();
@@ -647,7 +647,7 @@ void PreferencesDialog::initFittingPage()
 	fittingCurveLayout->addWidget(generatePointsBox, 0, 2);
 
     linearFit2PointsBox = new QCheckBox();
-    linearFit2PointsBox->setChecked(app->d_2_linear_fit_points);
+    linearFit2PointsBox->setChecked(app->m_2_linear_fit_points);
     fittingCurveLayout->addWidget(linearFit2PointsBox, 0, 3);
 
 	showPointsBox(!app->generateUniformFitPoints);
@@ -1055,8 +1055,8 @@ void PreferencesDialog::apply()
 	app->plotLegendFont=legendFont;
 	app->plotTitleFont=titleFont;
 	// 2D plots page: print tab
-	app->d_print_cropmarks = boxPrintCropmarks->isChecked();
-	app->d_scale_plots_on_print = boxScaleLayersOnPrint->isChecked();
+	app->m_print_cropmarks = boxPrintCropmarks->isChecked();
+	app->m_scale_plots_on_print = boxScaleLayersOnPrint->isChecked();
 	QWidgetList *windows = app->windowsList();
 	foreach(QWidget *w, *windows)
 	{
@@ -1076,7 +1076,7 @@ void PreferencesDialog::apply()
 	app->defaultScriptingLang = boxScriptingLanguage->currentText();
 
 	// general page: numeric format tab
-	app->d_decimal_digits = boxAppPrecision->value();
+	app->m_decimal_digits = boxAppPrecision->value();
     QLocale locale;
     switch (boxDecimalSeparator->currentIndex())
 	{
@@ -1147,7 +1147,7 @@ void PreferencesDialog::apply()
 	app->generatePeakCurves = groupBoxMultiPeak->isChecked();
 	app->peakCurvesColor = boxPeaksColor->currentIndex();
 	app->fit_scale_errors = scaleErrorsBox->isChecked();
-	app->d_2_linear_fit_points = linearFit2PointsBox->isChecked();
+	app->m_2_linear_fit_points = linearFit2PointsBox->isChecked();
 	app->saveSettings();
 
 	// calculate a sensible width for the items list

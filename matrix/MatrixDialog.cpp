@@ -39,7 +39,7 @@
 
 MatrixDialog::MatrixDialog( Matrix *matrix, QWidget *parent, Qt::WFlags fl )
     : QDialog( parent, fl ),
-    d_matrix(matrix)
+    m_matrix(matrix)
 {
     setWindowTitle( tr( "Matrix Properties" ) );
 
@@ -81,7 +81,7 @@ MatrixDialog::MatrixDialog( Matrix *matrix, QWidget *parent, Qt::WFlags fl )
 	mainLayout->addLayout(topLayout);
 	mainLayout->addLayout(bottomLayout);
 
-	d_initial_col_width = matrix->columnsWidth();
+	m_initial_col_width = matrix->columnsWidth();
     boxColWidth->setValue(matrix->columnsWidth());
 
     if (matrix->textFormat() == 'f')
@@ -94,7 +94,7 @@ MatrixDialog::MatrixDialog( Matrix *matrix, QWidget *parent, Qt::WFlags fl )
     matrix->saveCellsToMemory();
 	
 	// signals and slots connections
-    connect(boxColWidth, SIGNAL(valueChanged(int)), d_matrix, SLOT(setColumnsWidth(int)));
+    connect(boxColWidth, SIGNAL(valueChanged(int)), m_matrix, SLOT(setColumnsWidth(int)));
 	connect( buttonApply, SIGNAL( clicked() ), this, SLOT( apply() ) );
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( cancel() ) );
@@ -103,21 +103,21 @@ MatrixDialog::MatrixDialog( Matrix *matrix, QWidget *parent, Qt::WFlags fl )
 void MatrixDialog::changePrecision(int precision)
 {
     if (boxFormat->currentIndex() == 1)
-		d_matrix->setNumericFormat('e', precision);
+		m_matrix->setNumericFormat('e', precision);
 	else
-		d_matrix->setNumericFormat('f', precision);
+		m_matrix->setNumericFormat('f', precision);
 }
 
 void MatrixDialog::apply()
 {
-	d_matrix->setColumnsWidth(boxColWidth->value());
+	m_matrix->setColumnsWidth(boxColWidth->value());
     changePrecision(boxPrecision->value());
-	d_initial_col_width = d_matrix->columnsWidth();
+	m_initial_col_width = m_matrix->columnsWidth();
 }
 
 void MatrixDialog::cancel()
 {
-    d_matrix->setColumnsWidth(d_initial_col_width);
+    m_matrix->setColumnsWidth(m_initial_col_width);
 	close();
 }
 
@@ -129,6 +129,6 @@ void MatrixDialog::accept()
 
 void MatrixDialog::closeEvent(QCloseEvent* e)
 {
-    d_matrix->forgetSavedCells();
+    m_matrix->forgetSavedCells();
     e->accept();
 }

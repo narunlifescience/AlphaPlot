@@ -41,7 +41,7 @@ public:
 
     enum SmoothMethod{SavitzkyGolay = 1, FFT = 2, Average = 3};
 
-    int method(){return (int)d_method;};
+    int method(){return (int)m_method;};
     void setMethod(int m);
 	void setMethod(SmoothMethod m){setMethod((int)m);};
 
@@ -57,16 +57,16 @@ private:
     void smoothSavGol(double *x, double *y);
 
     //! The smooth method.
-    SmoothMethod d_method;
+    SmoothMethod m_method;
 
     //! The number of adjacents points used to smooth the data set.
-    int d_smooth_points;
+    int m_smooth_points;
 
     //! The number of left adjacents points used by the Savitky-Golay algorithm.
-    int d_sav_gol_points;
+    int m_sav_gol_points;
 
     //! Polynomial order in the Savitky-Golay algorithm (see Numerical Receipes in C for details).
-    int d_polynom_order;
+    int m_polynom_order;
 };
 
 #endif

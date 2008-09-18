@@ -31,19 +31,19 @@
 #include "TableCommentsHeaderModel.h"
 
 TableCommentsHeaderModel::TableCommentsHeaderModel( TableModel * table_model, QObject * parent )
-	: QAbstractTableModel( parent ), d_table_model(table_model)
+	: QAbstractTableModel( parent ), m_table_model(table_model)
 {
-	connect(d_table_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
+	connect(m_table_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
 		this, SIGNAL(headerDataChanged(Qt::Orientation,int,int)));
-	connect(d_table_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
+	connect(m_table_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
 		this, SIGNAL(headerDataChanged(Qt::Orientation,int,int)));
-	connect(d_table_model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
+	connect(m_table_model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
 		this, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)));
-	connect(d_table_model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
+	connect(m_table_model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
 		this, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)));
-	connect(d_table_model, SIGNAL(columnsInserted(const QModelIndex&,int,int)),
+	connect(m_table_model, SIGNAL(columnsInserted(const QModelIndex&,int,int)),
 		this, SIGNAL(columnsInserted(const QModelIndex&,int,int)));
-	connect(d_table_model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
+	connect(m_table_model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
 		this, SIGNAL(columnsRemoved(const QModelIndex&,int,int)));
 }
 
@@ -73,18 +73,18 @@ QVariant TableCommentsHeaderModel::headerData(int section, Qt::Orientation orien
 	if( orientation != Qt::Horizontal || role != Qt::DisplayRole || section < 0 || section >= columnCount())
 		return QVariant();
 
-	return QVariant(d_table_model->headerData(section, Qt::Horizontal, TableModel::CommentRole));
+	return QVariant(m_table_model->headerData(section, Qt::Horizontal, TableModel::CommentRole));
 }
 
 int TableCommentsHeaderModel::rowCount(const QModelIndex &parent) const
 {
 	Q_UNUSED(parent)
-	return d_table_model->rowCount();
+	return m_table_model->rowCount();
 }
 
 int TableCommentsHeaderModel::columnCount(const QModelIndex & parent) const
 {
 	Q_UNUSED(parent)
-	return d_table_model->columnCount();
+	return m_table_model->columnCount();
 }
 

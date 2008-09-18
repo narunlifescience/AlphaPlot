@@ -47,24 +47,24 @@ class ImageExportDialog: public ExtensibleFileDialog
 	Q_OBJECT
 
 private:
-	//! Create #d_advanced_options and everything it contains.
+	//! Create #m_advanced_options and everything it contains.
 	void initAdvancedOptions();
 
 	//! Container widget for all advanced options.
-	QStackedWidget *d_advanced_options;
+	QStackedWidget *m_advanced_options;
 	// vector format options
 	//! Container widget for all options available for vector formats.
-	QGroupBox *d_vector_options;
-	QSpinBox *d_resolution;
-	QCheckBox *d_color;
-	QCheckBox *d_keep_aspect;
-	QCheckBox *d_standard_page;
+	QGroupBox *m_vector_options;
+	QSpinBox *m_resolution;
+	QCheckBox *m_color;
+	QCheckBox *m_keep_aspect;
+	QCheckBox *m_standard_page;
 	QComboBox *boxPageSize;
 	// raster format options
 	//! Container widget for all options available for raster formats.
-	QGroupBox *d_raster_options;
-	QSpinBox *d_quality;
-	QCheckBox *d_transparency;
+	QGroupBox *m_raster_options;
+	QSpinBox *m_quality;
+	QCheckBox *m_transparency;
 
 public:
 	//! Constructor
@@ -76,28 +76,28 @@ public:
 	 */
 	ImageExportDialog(QWidget * parent = 0, bool vector_options = true, bool extended = true, Qt::WFlags flags = 0 );
 	//! For vector formats: returns the output resolution the user selected, defaulting to the screen resolution.
-	int resolution() const { return d_resolution->value(); }
+	int resolution() const { return m_resolution->value(); }
 	//! For vector formats: sets the output resolution the user selected.
-	void setResolution(int value) { d_resolution->setValue(value); }
+	void setResolution(int value) { m_resolution->setValue(value); }
 	//! For vector formats: returns whether colors should be enabled for ouput (default: true).
-	bool colorEnabled() const { return d_color->isChecked(); }
+	bool colorEnabled() const { return m_color->isChecked(); }
 	//! For vector formats: sets whether colors should be enabled for ouput (default: true).
-	void setColorEnabled(bool value) { d_color->setChecked(value); }
+	void setColorEnabled(bool value) { m_color->setChecked(value); }
 	//! For vector formats: returns whether the output should preserve aspect ratio of the plot (default: true).
-	bool keepAspect() const { return d_keep_aspect->isChecked(); }
+	bool keepAspect() const { return m_keep_aspect->isChecked(); }
 	//! For vector formats: sets whether the output should preserve aspect ratio of the plot (default: true).
-	void setKeepAspect(bool value) { d_keep_aspect->setChecked(value); }
+	void setKeepAspect(bool value) { m_keep_aspect->setChecked(value); }
 	//! For vector formats: returns a standard output page size (default: QPrinter::Custom).
 	QPrinter::PageSize pageSize() const;
 	void setPageSize(int size);
 	//! Return the quality (in percent) the user selected for export to raster formats.
-	int quality() const { return d_quality->value(); }
+	int quality() const { return m_quality->value(); }
 	//! Preset the quality (in percent) for export to raster formats.
-	void setQuality(int value) { d_quality->setValue(value); }
+	void setQuality(int value) { m_quality->setValue(value); }
 	//! Return whether the output's background should be transparent.
-	bool transparency() const { return d_transparency->isChecked(); }
+	bool transparency() const { return m_transparency->isChecked(); }
 	//! Preset whether the output's background should be transparent.
-	void setTransparency(bool value) { d_transparency->setChecked(value); }
+	void setTransparency(bool value) { m_transparency->setChecked(value); }
 
 	void selectFilter(const QString & filter);
 	

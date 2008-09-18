@@ -39,10 +39,10 @@ public:
     FFT(ApplicationWindow *parent, Table *t, const QString& realColName, const QString& imagColName = QString());
 	FFT(ApplicationWindow *parent, Layer *layer, const QString& curveTitle);
 
-    void setInverseFFT(bool inverse = true){d_inverse = inverse;};
-    void setSampling(double sampling){d_sampling = sampling;};
-    void normalizeAmplitudes(bool norm = true){d_normalize = norm;};
-    void shiftFrequencies(bool shift = true){d_shift_order = shift;};
+    void setInverseFFT(bool inverse = true){m_inverse = inverse;};
+    void setSampling(double sampling){m_sampling = sampling;};
+    void normalizeAmplitudes(bool norm = true){m_normalize = norm;};
+    void shiftFrequencies(bool shift = true){m_shift_order = shift;};
 
 private:
     void init();
@@ -54,15 +54,15 @@ private:
 
     void setDataFromTable(Table *t, const QString& realColName, const QString& imagColName = QString());
 
-    double d_sampling;
+    double m_sampling;
     //! Flag telling if an inverse FFT must be performed.
-    bool d_inverse;
+    bool m_inverse;
     //! Flag telling if the amplitudes in the output spectrum must be normalized.
-    bool d_normalize;
+    bool m_normalize;
     //! Flag telling if the output frequencies must be shifted in order to have a zero-centered spectrum.
-    bool d_shift_order;
+    bool m_shift_order;
 
-    int d_real_col, d_imag_col;
+    int m_real_col, m_imag_col;
 };
 
 #endif

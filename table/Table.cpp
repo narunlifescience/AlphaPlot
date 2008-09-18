@@ -64,7 +64,7 @@
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
 	: AbstractPart(name), scripted(engine)
 {
-	d_table_private = new Private(this);
+	m_table_private = new Private(this);
 
 	// set initial number of rows and columns
 	QList<Column*> cols;
@@ -77,7 +77,7 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QStri
 	appendColumns(cols);
 	setRowCount(rows);
 
-	d_view = NULL; 
+	m_view = NULL; 
 }
 
 Table::~Table()
@@ -86,15 +86,15 @@ Table::~Table()
 
 Column * Table::column(int index) const
 { 
-	return d_table_private->column(index); 
+	return m_table_private->column(index); 
 }
 
 Column * Table::column(const QString & name) const
 { 
 	for (int i=0; i<columnCount(); i++)
 	{
-		if (d_table_private->column(i)->name() == name)
-			return d_table_private->column(i);
+		if (m_table_private->column(i)->name() == name)
+			return m_table_private->column(i);
 	}
 
 	return NULL;
@@ -102,11 +102,11 @@ Column * Table::column(const QString & name) const
 
 QWidget *Table::view()
 {
-	if (!d_view)
+	if (!m_view)
 	{
-		d_view = new TableView(this); 
+		m_view = new TableView(this); 
 	}
-	return d_view;
+	return m_view;
 }
 
 void Table::insertColumns(int before, QList<Column*> new_cols)
@@ -129,7 +129,7 @@ void Table::removeColumns(int first, int count)
 	beginMacro(QObject::tr("%1: remove %2 column(s)").arg(name()).arg(count));
 	QList<Column*> cols;
 	for(int i=first; i<(first+count); i++)
-		cols.append(d_table_private->column(i));
+		cols.append(m_table_private->column(i));
 	// remark:  the TableRemoveColumnsCmd will be created in prepareAspectRemoval()
 	foreach(Column* col, cols)
 		removeChild(col);
@@ -147,10 +147,10 @@ void Table::removeRows(int first, int count)
 	if( count < 1 || first < 0 || first+count > rowCount()) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: remove %2 row(s)").arg(name()).arg(count));
-	int end = d_table_private->columnCount();
+	int end = m_table_private->columnCount();
 	for(int col=0; col<end; col++)
-		d_table_private->column(col)->removeRows(first, count);
-	exec(new TableSetNumberOfRowsCmd(d_table_private, d_table_private->rowCount()-count));
+		m_table_private->column(col)->removeRows(first, count);
+	exec(new TableSetNumberOfRowsCmd(m_table_private, m_table_private->rowCount()-count));
 	endMacro();
 	RESET_CURSOR;
 }
@@ -161,9 +161,9 @@ void Table::insertRows(int before, int count)
 	WAIT_CURSOR;
 	int new_row_count = rowCount() + count;
 	beginMacro(QObject::tr("%1: insert %2 row(s)").arg(name()).arg(count));
-	int end = d_table_private->columnCount();
+	int end = m_table_private->columnCount();
 	for(int col=0; col<end; col++)
-		d_table_private->column(col)->insertRows(before, count);
+		m_table_private->column(col)->insertRows(before, count);
 	setRowCount(new_row_count);
 	endMacro();
 	RESET_CURSOR;
@@ -171,32 +171,32 @@ void Table::insertRows(int before, int count)
 
 void Table::setRowCount(int new_size)
 {
-	if( (new_size < 0) || (new_size == d_table_private->rowCount()) ) return;
+	if( (new_size < 0) || (new_size == m_table_private->rowCount()) ) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: set the number of rows to %2").arg(name()).arg(new_size));
-	if (new_size < d_table_private->rowCount())
+	if (new_size < m_table_private->rowCount())
 	{
-		int end = d_table_private->columnCount();
+		int end = m_table_private->columnCount();
 		for(int col=0; col<end; col++)
 		{	
-			Column *col_ptr = d_table_private->column(col);
+			Column *col_ptr = m_table_private->column(col);
 			if (col_ptr->rowCount() > new_size)
 				col_ptr->removeRows(new_size, col_ptr->rowCount() - new_size);
 		}
 	}
-	exec(new TableSetNumberOfRowsCmd(d_table_private, new_size));
+	exec(new TableSetNumberOfRowsCmd(m_table_private, new_size));
 	endMacro();
 	RESET_CURSOR;
 }
 
 int Table::columnCount() const
 {
-	return d_table_private->columnCount();
+	return m_table_private->columnCount();
 }
 
 int Table::rowCount() const
 {
-	return d_table_private->rowCount();
+	return m_table_private->rowCount();
 }
 
 int Table::columnCount(SciDAVis::PlotDesignation pd) const
@@ -234,7 +234,7 @@ void Table::setColumnCount(int new_size)
 		
 int Table::columnIndex(const Column * col) const 
 { 
-	return d_table_private->columnIndex(col); 
+	return m_table_private->columnIndex(col); 
 }
 
 void Table::clear()
@@ -281,7 +281,7 @@ void Table::addRows(int count)
 {
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: add %2 rows(s)").arg(name()).arg(count));
-	exec(new TableSetNumberOfRowsCmd(d_table_private, rowCount() + count));
+	exec(new TableSetNumberOfRowsCmd(m_table_private, rowCount() + count));
 	endMacro();
 	RESET_CURSOR;
 }
@@ -311,9 +311,9 @@ bool Table::fillProjectMenu(QMenu * menu)
 		
 void Table::moveColumn(int from, int to)
 {
-	beginMacro(tr("%1: move column %2 from position %3 to %4.").arg(name()).arg(d_table_private->column(from)->name()).arg(from+1).arg(to+1));
+	beginMacro(tr("%1: move column %2 from position %3 to %4.").arg(name()).arg(m_table_private->column(from)->name()).arg(from+1).arg(to+1));
 	moveChild(from, to);
-	exec(new TableMoveColumnCmd(d_table_private, from, to));	
+	exec(new TableMoveColumnCmd(m_table_private, from, to));	
 	endMacro();
 }
 
@@ -343,7 +343,7 @@ void Table::copy(Table * other)
 	setComment(other->comment());
 	for (int i=0; i<columnCount(); i++)
 		setColumnWidth(i, other->columnWidth(i));
-	if (d_view) d_view->rereadSectionSizes();
+	if (m_view) m_view->rereadSectionSizes();
 
 	endMacro();
 	RESET_CURSOR;
@@ -641,21 +641,21 @@ void Table::handleModeChange(const AbstractColumn * col)
 {
 	int index = columnIndex(static_cast<const Column *>(col));
 	if(index != -1)
-		d_table_private->updateHorizontalHeader(index, index);
+		m_table_private->updateHorizontalHeader(index, index);
 }
 
 void Table::handleDescriptionChange(const AbstractAspect * aspect)
 {
 	int index = columnIndex(static_cast<const Column *>(aspect));
 	if(index != -1)
-		d_table_private->updateHorizontalHeader(index, index);
+		m_table_private->updateHorizontalHeader(index, index);
 }
 
 void Table::handlePlotDesignationChange(const AbstractColumn * col)
 {
 	int index = columnIndex(static_cast<const Column *>(col));
 	if(index != -1)
-		d_table_private->updateHorizontalHeader(index, columnCount()-1);
+		m_table_private->updateHorizontalHeader(index, columnCount()-1);
 }
 
 void Table::handleDataChange(const AbstractColumn * col)
@@ -729,7 +729,7 @@ void Table::disconnectColumn(const Column* col)
 
 QVariant Table::headerData(int section, Qt::Orientation orientation,int role) const
 {
-	return d_table_private->headerData(section, orientation, role);
+	return m_table_private->headerData(section, orientation, role);
 }
 
 void Table::completeAspectInsertion(AbstractAspect * aspect, int index)
@@ -738,7 +738,7 @@ void Table::completeAspectInsertion(AbstractAspect * aspect, int index)
 	if (!column) return;
 	QList<Column*> cols;
 	cols.append(column);
-	exec(new TableInsertColumnsCmd(d_table_private, index, cols));
+	exec(new TableInsertColumnsCmd(m_table_private, index, cols));
 }
 
 void Table::prepareAspectRemoval(AbstractAspect * aspect)
@@ -748,7 +748,7 @@ void Table::prepareAspectRemoval(AbstractAspect * aspect)
 	int first = columnIndex(column);
 	QList<Column*> cols;
 	cols.append(column);
-	exec(new TableRemoveColumnsCmd(d_table_private, first, 1, cols));
+	exec(new TableRemoveColumnsCmd(m_table_private, first, 1, cols));
 }
 
 /* ========== loading and saving ============ */
@@ -859,8 +859,8 @@ bool Table::readColumnWidthElement(XmlStreamReader * reader)
 		reader->raiseError(tr("invalid column width"));
 		return false;
 	}
-	if (d_view)
-		d_view->setColumnWidth(col, value);
+	if (m_view)
+		m_view->setColumnWidth(col, value);
 	else
 		setColumnWidth(col, value);
 	return true;
@@ -870,12 +870,12 @@ bool Table::readColumnWidthElement(XmlStreamReader * reader)
 
 void Table::setColumnWidth(int col, int width) 
 { 
-	d_table_private->setColumnWidth(col, width); 
+	m_table_private->setColumnWidth(col, width); 
 }
 
 int Table::columnWidth(int col) const 
 { 
-	return d_table_private->columnWidth(col); 
+	return m_table_private->columnWidth(col); 
 }
 
 
@@ -883,38 +883,38 @@ int Table::columnWidth(int col) const
 
 Column * Table::Private::column(int index) const		
 { 
-	return d_columns.value(index); 
+	return m_columns.value(index); 
 }
 
 void Table::Private::replaceColumns(int first, QList<Column*> new_cols)
 {
-	if( (first < 0) || (first + new_cols.size() > d_column_count) )
+	if( (first < 0) || (first + new_cols.size() > m_column_count) )
 		return;
 
 	int count = new_cols.size();
-	emit d_owner->columnsAboutToBeReplaced(first, new_cols.count());
+	emit m_owner->columnsAboutToBeReplaced(first, new_cols.count());
 	for(int i=0; i<count; i++)
 	{
 		int rows = new_cols.at(i)->rowCount();
-		if(rows > d_row_count)
+		if(rows > m_row_count)
 			setRowCount(rows); 
 
-		if(d_columns.at(first+i))
-			d_columns.at(first+i)->notifyReplacement(new_cols.at(i));
+		if(m_columns.at(first+i))
+			m_columns.at(first+i)->notifyReplacement(new_cols.at(i));
 
-		d_columns[first+i] = new_cols.at(i);
-		d_owner->connectColumn(new_cols.at(i));
+		m_columns[first+i] = new_cols.at(i);
+		m_owner->connectColumn(new_cols.at(i));
 	}
 	updateHorizontalHeader(first, first+count-1);
-	emit d_owner->columnsReplaced(first, new_cols.count());
-	emit d_owner->dataChanged(0, first, d_row_count-1, first+count-1);
+	emit m_owner->columnsReplaced(first, new_cols.count());
+	emit m_owner->dataChanged(0, first, m_row_count-1, first+count-1);
 }
 
 void Table::Private::insertColumns(int before, QList<Column*> cols)
 {
 	int count = cols.count();
 
-	if( (count < 1) || (before > d_column_count) )
+	if( (count < 1) || (before > m_column_count) )
 		return;
 
 	Q_ASSERT(before >= 0);
@@ -923,80 +923,80 @@ void Table::Private::insertColumns(int before, QList<Column*> cols)
 	for(i=0; i<count; i++)
 	{
 		rows = cols.at(i)->rowCount();
-		if(rows > d_row_count)
+		if(rows > m_row_count)
 			setRowCount(rows); 
 	}
 
-	emit d_owner->columnsAboutToBeInserted(before, cols);
+	emit m_owner->columnsAboutToBeInserted(before, cols);
 	for(int i=count-1; i>=0; i--)
 	{
-		d_columns.insert(before, cols.at(i));
-		d_owner->connectColumn(cols.at(i));
-		d_column_widths.insert(before, Table::global("default_column_width").toInt());
+		m_columns.insert(before, cols.at(i));
+		m_owner->connectColumn(cols.at(i));
+		m_column_widths.insert(before, Table::global("default_column_width").toInt());
 	}
-	d_column_count += count;
+	m_column_count += count;
 	updateHorizontalHeader(before, before+count-1);
-	emit d_owner->columnsInserted(before, cols.count());
+	emit m_owner->columnsInserted(before, cols.count());
 }
 
 void Table::Private::removeColumns(int first, int count)
 {
-	if( (count < 1) || (first >= d_column_count) )
+	if( (count < 1) || (first >= m_column_count) )
 		return;
 
 	Q_ASSERT(first >= 0);
 
-	Q_ASSERT(first+count <= d_column_count);
+	Q_ASSERT(first+count <= m_column_count);
 
-	emit d_owner->columnsAboutToBeRemoved(first, count);
+	emit m_owner->columnsAboutToBeRemoved(first, count);
 	for(int i=count-1; i>=0; i--)
 	{
-		d_owner->disconnectColumn(d_columns.at(first));
-		d_columns.removeAt(first);
-		d_column_widths.removeAt(first);
+		m_owner->disconnectColumn(m_columns.at(first));
+		m_columns.removeAt(first);
+		m_column_widths.removeAt(first);
 	}
-	d_column_count -= count;
-	emit d_owner->columnsRemoved(first, count);
-	updateHorizontalHeader(first, d_column_count-1);
+	m_column_count -= count;
+	emit m_owner->columnsRemoved(first, count);
+	updateHorizontalHeader(first, m_column_count-1);
 }
 
 void Table::Private::appendColumns(QList<Column*> cols)
 {
-	insertColumns(d_column_count, cols);
+	insertColumns(m_column_count, cols);
 }
 
 void Table::Private::moveColumn(int from, int to)
 {
-	if( from < 0 || from >= d_column_count) return;
-	if( to < 0 || to >= d_column_count) return;
+	if( from < 0 || from >= m_column_count) return;
+	if( to < 0 || to >= m_column_count) return;
 	
-	d_columns.move(from, to);
-	d_column_widths.move(from, to);
+	m_columns.move(from, to);
+	m_column_widths.move(from, to);
 	updateHorizontalHeader(qMin(from, to), qMax(from, to));
-	emit d_owner->dataChanged(0, from, d_row_count-1, from);
-	emit d_owner->dataChanged(0, to, d_row_count-1, to);
-	if (d_owner->d_view) d_owner->d_view->rereadSectionSizes();
+	emit m_owner->dataChanged(0, from, m_row_count-1, from);
+	emit m_owner->dataChanged(0, to, m_row_count-1, to);
+	if (m_owner->m_view) m_owner->m_view->rereadSectionSizes();
 }
 
 void Table::Private::setRowCount(int rows)
 {
-	int diff = rows - d_row_count;
-	int old_row_count = d_row_count;
+	int diff = rows - m_row_count;
+	int old_row_count = m_row_count;
 	if(diff == 0) 
 		return;
 
 	if(diff > 0)
 	{
-		emit d_owner->rowsAboutToBeInserted(d_row_count, diff);
-		d_row_count = rows;
-		updateVerticalHeader(d_row_count - diff);
-		emit d_owner->rowsInserted(old_row_count, diff);
+		emit m_owner->rowsAboutToBeInserted(m_row_count, diff);
+		m_row_count = rows;
+		updateVerticalHeader(m_row_count - diff);
+		emit m_owner->rowsInserted(old_row_count, diff);
 	}
 	else
 	{
-		emit d_owner->rowsAboutToBeRemoved(rows, -diff);
-		d_row_count = rows;
-		emit d_owner->rowsRemoved(rows, -diff);
+		emit m_owner->rowsAboutToBeRemoved(rows, -diff);
+		m_row_count = rows;
+		emit m_owner->rowsRemoved(rows, -diff);
 	}
 }
 
@@ -1009,8 +1009,8 @@ int Table::Private::numColsWithPD(SciDAVis::PlotDesignation pd)
 {
 	int count = 0;
 	
-	for (int i=0; i<d_column_count; i++)
-		if(d_columns.at(i)->plotDesignation() == pd)
+	for (int i=0; i<m_column_count; i++)
+		if(m_columns.at(i)->plotDesignation() == pd)
 			count++;
 	
 	return count;
@@ -1018,87 +1018,87 @@ int Table::Private::numColsWithPD(SciDAVis::PlotDesignation pd)
 
 void Table::Private::updateVerticalHeader(int start_row)
 {
-	int current_size = d_vertical_header_data.size(), i;
+	int current_size = m_vertical_header_data.size(), i;
 	for(i=start_row; i<current_size; i++)
-		d_vertical_header_data.replace(i, QString::number(i+1));
-	for(; i<d_row_count; i++)
-		d_vertical_header_data << QString::number(i+1);
-	emit d_owner->headerDataChanged(Qt::Vertical, start_row, d_row_count -1);	
+		m_vertical_header_data.replace(i, QString::number(i+1));
+	for(; i<m_row_count; i++)
+		m_vertical_header_data << QString::number(i+1);
+	emit m_owner->headerDataChanged(Qt::Vertical, start_row, m_row_count -1);	
 }
 
 void Table::Private::updateHorizontalHeader(int start_col, int end_col)
 {
 	if (start_col > end_col) return;
 
-	while(d_horizontal_header_data.size() < d_column_count)
-		d_horizontal_header_data << QString();
+	while(m_horizontal_header_data.size() < m_column_count)
+		m_horizontal_header_data << QString();
 
 	if(numColsWithPD(SciDAVis::X)>1)
 	{
 		int x_cols = 0;
-		for (int i=0; i<d_column_count; i++)
+		for (int i=0; i<m_column_count; i++)
 		{
-			if (d_columns.at(i)->plotDesignation() == SciDAVis::X)
-				composeColumnHeader(i, d_columns.at(i)->name()+"[X" + QString::number(++x_cols) +"]");
-			else if (d_columns.at(i)->plotDesignation() == SciDAVis::Y)
+			if (m_columns.at(i)->plotDesignation() == SciDAVis::X)
+				composeColumnHeader(i, m_columns.at(i)->name()+"[X" + QString::number(++x_cols) +"]");
+			else if (m_columns.at(i)->plotDesignation() == SciDAVis::Y)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, d_columns.at(i)->name()+"[Y"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, m_columns.at(i)->name()+"[Y"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, d_columns.at(i)->name()+"[Y]");
+					composeColumnHeader(i, m_columns.at(i)->name()+"[Y]");
 			}
-			else if (d_columns.at(i)->plotDesignation() == SciDAVis::Z)
+			else if (m_columns.at(i)->plotDesignation() == SciDAVis::Z)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, d_columns.at(i)->name()+"[Z"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, m_columns.at(i)->name()+"[Z"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, d_columns.at(i)->name()+"[Z]");
+					composeColumnHeader(i, m_columns.at(i)->name()+"[Z]");
 			}
-			else if (d_columns.at(i)->plotDesignation() == SciDAVis::xErr)
+			else if (m_columns.at(i)->plotDesignation() == SciDAVis::xErr)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, d_columns.at(i)->name()+"[xEr"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, m_columns.at(i)->name()+"[xEr"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, d_columns.at(i)->name()+"[xEr]");
+					composeColumnHeader(i, m_columns.at(i)->name()+"[xEr]");
 			}
-			else if (d_columns.at(i)->plotDesignation() == SciDAVis::yErr)
+			else if (m_columns.at(i)->plotDesignation() == SciDAVis::yErr)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, d_columns.at(i)->name()+"[yEr"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, m_columns.at(i)->name()+"[yEr"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, d_columns.at(i)->name()+"[yEr]");
+					composeColumnHeader(i, m_columns.at(i)->name()+"[yEr]");
 			}
 			else
-				composeColumnHeader(i, d_columns.at(i)->name());
+				composeColumnHeader(i, m_columns.at(i)->name());
 		}
 	}
 	else
 	{
-		for (int i=0; i<d_column_count; i++)
+		for (int i=0; i<m_column_count; i++)
 		{
-			if (d_columns.at(i)->plotDesignation() == SciDAVis::X)
-				composeColumnHeader(i, d_columns.at(i)->name()+"[X]");
-			else if(d_columns.at(i)->plotDesignation() == SciDAVis::Y)
-				composeColumnHeader(i, d_columns.at(i)->name()+"[Y]");
-			else if(d_columns.at(i)->plotDesignation() == SciDAVis::Z)
-				composeColumnHeader(i, d_columns.at(i)->name()+"[Z]");
-			else if(d_columns.at(i)->plotDesignation() == SciDAVis::xErr)
-				composeColumnHeader(i, d_columns.at(i)->name()+"[xEr]");
-			else if(d_columns.at(i)->plotDesignation() == SciDAVis::yErr)
-				composeColumnHeader(i, d_columns.at(i)->name()+"[yEr]");
+			if (m_columns.at(i)->plotDesignation() == SciDAVis::X)
+				composeColumnHeader(i, m_columns.at(i)->name()+"[X]");
+			else if(m_columns.at(i)->plotDesignation() == SciDAVis::Y)
+				composeColumnHeader(i, m_columns.at(i)->name()+"[Y]");
+			else if(m_columns.at(i)->plotDesignation() == SciDAVis::Z)
+				composeColumnHeader(i, m_columns.at(i)->name()+"[Z]");
+			else if(m_columns.at(i)->plotDesignation() == SciDAVis::xErr)
+				composeColumnHeader(i, m_columns.at(i)->name()+"[xEr]");
+			else if(m_columns.at(i)->plotDesignation() == SciDAVis::yErr)
+				composeColumnHeader(i, m_columns.at(i)->name()+"[yEr]");
 			else
-				composeColumnHeader(i, d_columns.at(i)->name());
+				composeColumnHeader(i, m_columns.at(i)->name());
 		}
 	}
-	emit d_owner->headerDataChanged(Qt::Horizontal, start_col, end_col);	
+	emit m_owner->headerDataChanged(Qt::Horizontal, start_col, end_col);	
 }
 
 void Table::Private::composeColumnHeader(int col, const QString& label)
 {
-	if (col >= d_horizontal_header_data.size())
-		d_horizontal_header_data << label;
+	if (col >= m_horizontal_header_data.size())
+		m_horizontal_header_data << label;
 	else
-		d_horizontal_header_data.replace(col, label);
+		m_horizontal_header_data.replace(col, label);
 }
 
 QVariant Table::Private::headerData(int section, Qt::Orientation orientation, int role) const
@@ -1109,17 +1109,17 @@ QVariant Table::Private::headerData(int section, Qt::Orientation orientation, in
 				case Qt::DisplayRole:
 				case Qt::ToolTipRole:
 				case Qt::EditRole:
-					return d_horizontal_header_data.at(section);
+					return m_horizontal_header_data.at(section);
 				case Qt::DecorationRole:
-					return d_columns.at(section)->icon();
+					return m_columns.at(section)->icon();
 				case TableModel::CommentRole:
-					return d_columns.at(section)->comment();
+					return m_columns.at(section)->comment();
 			}
 		case Qt::Vertical:
 			switch(role) {
 				case Qt::DisplayRole:
 				case Qt::ToolTipRole:
-					return d_vertical_header_data.at(section);
+					return m_vertical_header_data.at(section);
 			}
 	}
 	return QVariant();

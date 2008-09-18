@@ -45,9 +45,9 @@ class CopyThroughFilter : public AbstractFilter
 	//! Accept any number of inputs.
 	virtual int inputCount() const { return -1; }
 	//! Provide as many output ports as inputs have been connected.
-	virtual int outputCount() const { return d_inputs.size(); }
+	virtual int outputCount() const { return m_inputs.size(); }
 	//! When asked for an output port, just return the corresponding input port.
-	virtual AbstractColumn* output(int port) const { return d_inputs.value(port); }
+	virtual AbstractColumn* output(int port) const { return m_inputs.value(port); }
 };
 
 #endif // ifndef COPY_THROUGH_FILTER_H

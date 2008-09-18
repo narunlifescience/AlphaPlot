@@ -67,15 +67,15 @@ class Fit : public Filter
 
 		void setDataCurve(int curve, double start, double end);
 
-		QString formula(){return d_formula;};
-		int numParameters() {return d_p;}
+		QString formula(){return m_formula;};
+		int numParameters() {return m_p;}
 
-		void setInitialGuess(int parIndex, double val){gsl_vector_set(d_param_init, parIndex, val);};
+		void setInitialGuess(int parIndex, double val){gsl_vector_set(m_param_init, parIndex, val);};
 		void setInitialGuesses(double *x_init);
 
 		virtual void guessInitialValues(){};
 
-		void setAlgorithm(Algorithm s){d_solver = s;};
+		void setAlgorithm(Algorithm s){m_solver = s;};
 
 		//! Specifies weather the result of the fit is a function curve
 		void generateFunction(bool yes, int points = 100);
@@ -84,7 +84,7 @@ class Fit : public Filter
 		virtual QString legendInfo();
 
 		//! Returns a vector with the fit results
-		double* results(){return d_results;};
+		double* results(){return m_results;};
 
 		//! Returns a vector with the standard deviations of the results
 		double* errors();
@@ -96,7 +96,7 @@ class Fit : public Filter
 		double rSquare();
 
 		//! Specifies wheather the errors must be scaled with sqrt(chi_2/dof)
-		void scaleErrors(bool yes = true){d_scale_errors = yes;};
+		void scaleErrors(bool yes = true){m_scale_errors = yes;};
 
 		Table* parametersTable(const QString& tableName);
 		Matrix* covarianceMatrix(const QString& matrixName);
@@ -112,7 +112,7 @@ class Fit : public Filter
 		virtual void storeCustomFitResults(double *par);
 
 	protected:
-		//! Adds the result curve as a FunctionCurve to the plot, if d_gen_function = true
+		//! Adds the result curve as a FunctionCurve to the plot, if m_gen_function = true
 		void insertFitFunctionCurve(const QString& name, double *x, double *y, int penWidth = 1);
 
 		//! Adds the result curve to the plot
@@ -124,16 +124,16 @@ class Fit : public Filter
 		//! Output string added to the result log
 		virtual QString logFitInfo(double *par, int iterations, int status, const QString& plotName);
 
-		fit_function d_f;
-		fit_function_df d_df;
-		fit_function_fdf d_fdf;
-		fit_function_simplex d_fsimplex;
+		fit_function m_f;
+		fit_function_df m_df;
+		fit_function_fdf m_fdf;
+		fit_function_simplex m_fsimplex;
 
 		//! Number of fit parameters
-		int d_p;
+		int m_p;
 
 		//! Initial guesses for the fit parameters 
-		gsl_vector *d_param_init;
+		gsl_vector *m_param_init;
 
 		/*! \brief Tells whether the fitter uses non-linear/simplex fitting 
 		 * with an initial parameters set, that must be freed in the destructor.
@@ -141,43 +141,43 @@ class Fit : public Filter
 		bool is_non_linear;
 
 		//! weighting data set used for the fit
-		double *d_w;
+		double *m_w;
 
 		//! Names of the fit parameters
-		QStringList d_param_names;
+		QStringList m_param_names;
 
 		//! Stores a list of short explanations for the significance of the fit parameters
-		QStringList d_param_explain;
+		QStringList m_param_explain;
 
 		//! Specifies weather the result curve is a FunctionCurve or a normal curve with the same x values as the fit data
-		bool d_gen_function;
+		bool m_gen_function;
 
 		//! Algorithm type
-		Algorithm d_solver;
+		Algorithm m_solver;
 
 		//! The fit formula
-		QString d_formula;
+		QString m_formula;
 
 		//! Covariance matrix
 		gsl_matrix *covar;
 
 		//! The kind of weighting to be performed on the data
-		WeightingMethod d_weihting;
+		WeightingMethod m_weihting;
 
 		//! The name of the weighting dataset
 		QString weighting_dataset;
 
 		//! Stores the result parameters
-		double *d_results;
+		double *m_results;
 
 		//! Stores standard deviations of the result parameters
-		double *d_errors;
+		double *m_errors;
 
 		//! The sum of squares of the residuals from the best-fit line
 		double chi_2;
 
 		//! Specifies wheather the errors must be scaled with sqrt(chi_2/dof)
-		bool d_scale_errors;
+		bool m_scale_errors;
 };
 
 #endif

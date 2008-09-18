@@ -53,10 +53,10 @@ void SmoothFilter::init (int m)
 {
     setName(tr("Smoothed"));
     setMethod(m);
-    d_points = d_n;
-    d_smooth_points = 2;
-    d_sav_gol_points = 2;
-    d_polynom_order = 2;
+    m_points = m_n;
+    m_smooth_points = 2;
+    m_sav_gol_points = 2;
+    m_polynom_order = 2;
 }
 
 
@@ -66,32 +66,32 @@ if (m < 1 || m > 3)
     {
         QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
         tr("Unknown smooth filter. Valid values are: 1 - Savitky-Golay, 2 - FFT, 3 - Moving Window Average."));
-        d_init_err = true;
+        m_init_err = true;
         return;
     }
-d_method = (SmoothMethod)m;
+m_method = (SmoothMethod)m;
 }
 
 void SmoothFilter::calculateOutputData(double *x, double *y)
 {
-    for (int i = 0; i < d_points; i++)
+    for (int i = 0; i < m_points; i++)
 	{
-	   x[i] = d_x[i];
-	   y[i] = d_y[i];//filtering frequencies
+	   x[i] = m_x[i];
+	   y[i] = m_y[i];//filtering frequencies
 	}
 
-	switch((int)d_method)
+	switch((int)m_method)
 	{
 		case 1:
-            d_explanation = QString::number(d_smooth_points) + " " + tr("points") + " " + tr("Savitzky-Golay smoothing");
+            m_explanation = QString::number(m_smooth_points) + " " + tr("points") + " " + tr("Savitzky-Golay smoothing");
             smoothSavGol(x, y);
 			break;
 		case 2:
-            d_explanation = QString::number(d_smooth_points) + " " + tr("points") + " " + tr("FFT smoothing");
+            m_explanation = QString::number(m_smooth_points) + " " + tr("points") + " " + tr("FFT smoothing");
     		smoothFFT(x, y);
 			break;
 		case 3:
-            d_explanation = QString::number(d_smooth_points) + " " + tr("points") + " " + tr("average smoothing");
+            m_explanation = QString::number(m_smooth_points) + " " + tr("points") + " " + tr("average smoothing");
     		smoothAverage(x, y);
 			break;
 	}
@@ -99,33 +99,33 @@ void SmoothFilter::calculateOutputData(double *x, double *y)
 
 void SmoothFilter::smoothFFT(double *x, double *y)
 {
-	gsl_fft_real_workspace *work = gsl_fft_real_workspace_alloc(d_n);
-	gsl_fft_real_wavetable *real = gsl_fft_real_wavetable_alloc(d_n);
-	gsl_fft_real_transform (y, 1, d_n, real, work);//FFT forward
+	gsl_fft_real_workspace *work = gsl_fft_real_workspace_alloc(m_n);
+	gsl_fft_real_wavetable *real = gsl_fft_real_wavetable_alloc(m_n);
+	gsl_fft_real_transform (y, 1, m_n, real, work);//FFT forward
 	gsl_fft_real_wavetable_free (real);
 
 	double df = 1.0/(double)(x[1] - x[0]);
-	double lf = df/(double)d_smooth_points;//frequency cutoff
-	df = 0.5*df/(double)d_n;
+	double lf = df/(double)m_smooth_points;//frequency cutoff
+	df = 0.5*df/(double)m_n;
 
-    for (int i = 0; i < d_n; i++)
+    for (int i = 0; i < m_n; i++)
 	{
-	   x[i] = d_x[i];
+	   x[i] = m_x[i];
 	   y[i] = i*df > lf ? 0 : y[i];//filtering frequencies
 	}
 
-	gsl_fft_halfcomplex_wavetable *hc = gsl_fft_halfcomplex_wavetable_alloc (d_n);
-	gsl_fft_halfcomplex_inverse (y, 1, d_n, hc, work);//FFT inverse
+	gsl_fft_halfcomplex_wavetable *hc = gsl_fft_halfcomplex_wavetable_alloc (m_n);
+	gsl_fft_halfcomplex_inverse (y, 1, m_n, hc, work);//FFT inverse
 	gsl_fft_halfcomplex_wavetable_free (hc);
 	gsl_fft_real_workspace_free (work);
 }
 
 void SmoothFilter::smoothAverage(double *, double *y)
 {
-	int p2 = d_smooth_points/2;
+	int p2 = m_smooth_points/2;
 	double m = double(2*p2+1);
 	double aux = 0.0;
-    double *s = new double[d_n];
+    double *s = new double[m_n];
 
 	s[0] = y[0];
 	for (int i=1; i<p2; i++)
@@ -136,7 +136,7 @@ void SmoothFilter::smoothAverage(double *, double *y)
 
 		s[i] = aux/(double)(2*i+1);
 	}
-	for (int i=p2; i<d_n-p2; i++)
+	for (int i=p2; i<m_n-p2; i++)
 	{
 		aux = 0.0;
 		for (int j=-p2; j<=p2; j++)
@@ -144,17 +144,17 @@ void SmoothFilter::smoothAverage(double *, double *y)
 
 		s[i] = aux/m;
 	}
-	for (int i=d_n-p2; i<d_n-1; i++)
+	for (int i=m_n-p2; i<m_n-1; i++)
 	{
 		aux = 0.0;
-		for (int j=d_n-i-1; j>=i-d_n+1; j--)
+		for (int j=m_n-i-1; j>=i-m_n+1; j--)
 			aux += y[i+j];
 
-		s[i] = aux/(double)(2*(d_n-i-1)+1);
+		s[i] = aux/(double)(2*(m_n-i-1)+1);
 	}
-	s[d_n-1] = y[d_n-1];
+	s[m_n-1] = y[m_n-1];
 
-    for (int i = 0; i<d_n; i++)
+    for (int i = 0; i<m_n; i++)
         y[i] = s[i];
 
     delete[] s;
@@ -162,9 +162,9 @@ void SmoothFilter::smoothAverage(double *, double *y)
 
 void SmoothFilter::smoothSavGol(double *, double *y)
 {
-	double *s = new double[d_n];
-    int nl = d_smooth_points;
-    int nr = d_sav_gol_points;
+	double *s = new double[m_n];
+    int nl = m_smooth_points;
+    int nr = m_sav_gol_points;
 	int np = nl+nr+1;
 	double *c = vector(1, np);
 
@@ -185,20 +185,20 @@ void SmoothFilter::smoothSavGol(double *, double *y)
 	}
 
 	//calculate Savitzky-Golay filter coefficients.
-	savgol(c, np, nl, nr, 0, d_polynom_order);
+	savgol(c, np, nl, nr, 0, m_polynom_order);
 
-	for (i=0; i<d_n; i++)
+	for (i=0; i<m_n; i++)
 	{// Apply filter to input data.
 		s[i]=0.0;
 		for (j=1; j<=np; j++)
 		{
 			int it = i+index[j];
-			if (it >=0 && it < d_n)//skip left points that do not exist.
+			if (it >=0 && it < m_n)//skip left points that do not exist.
 				s[i] += c[j]*y[i+index[j]];
 		}
 	}
 
-    for (i = 0; i<d_n; i++)
+    for (i = 0; i<m_n; i++)
         y[i] = s[i];
 
 	delete[] s;
@@ -212,36 +212,36 @@ void SmoothFilter::setSmoothPoints(int points, int left_points)
     {
         QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("The number of points must be positive!"));
-		d_init_err = true;
+		m_init_err = true;
 		return;
     }
-    else if (d_polynom_order > points + left_points)
+    else if (m_polynom_order > points + left_points)
     {
         QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("The polynomial order must be lower than the number of left points plus the number of right points!"));
-		d_init_err = true;
+		m_init_err = true;
 		return;
     }
 
-    d_smooth_points = points;
-    d_sav_gol_points = left_points;
+    m_smooth_points = points;
+    m_sav_gol_points = left_points;
 }
 
 void SmoothFilter::setPolynomOrder(int order)
 {
-	if (d_method != SavitzkyGolay)
+	if (m_method != SavitzkyGolay)
     {
         QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("Setting polynomial order is only available for Savitzky-Golay smooth filters! Ignored option!"));
 		return;
     }
 	
-    if (order > d_smooth_points + d_sav_gol_points)
+    if (order > m_smooth_points + m_sav_gol_points)
     {
         QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("The polynomial order must be lower than the number of left points plus the number of right points!"));
-		d_init_err = true;
+		m_init_err = true;
 		return;
     }
-    d_polynom_order = order;
+    m_polynom_order = order;
 }

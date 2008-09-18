@@ -50,9 +50,9 @@ FFTDialog::FFTDialog(int type, QWidget* parent, Qt::WFlags fl )
 {
 	setWindowTitle(tr("FFT Options"));
 
-	d_table = 0;
-	d_layer = 0;
-	d_type = type;
+	m_table = 0;
+	m_layer = 0;
+	m_type = type;
 
 	forwardBtn = new QRadioButton(tr("&Forward"));
 	forwardBtn->setChecked( true );
@@ -66,7 +66,7 @@ FFTDialog::FFTDialog(int type, QWidget* parent, Qt::WFlags fl )
     gb1->setLayout(hbox1);
 
 	QGridLayout *gl1 = new QGridLayout();
-	if (d_type == onGraph)
+	if (m_type == onGraph)
 	    gl1->addWidget(new QLabel(tr("Curve")), 0, 0);
 	else
 		gl1->addWidget(new QLabel(tr("Sampling")), 0, 0);
@@ -75,7 +75,7 @@ FFTDialog::FFTDialog(int type, QWidget* parent, Qt::WFlags fl )
 	gl1->addWidget(boxName, 0, 1);
 
     boxSampling = new QLineEdit();
-	if (d_type == onTable)
+	if (m_type == onTable)
        {
 		gl1->addWidget(new QLabel(tr("Real")), 1, 0);
 		boxReal = new QComboBox();
@@ -148,17 +148,17 @@ void FFTDialog::accept()
 
 	ApplicationWindow *app = (ApplicationWindow *)parent();
 	FFT *fft = 0;
-	if (d_layer)
+	if (m_layer)
 	{
-        fft = new FFT(app, d_layer, boxName->currentText());
-	} else if (d_table) {
+        fft = new FFT(app, m_layer, boxName->currentText());
+	} else if (m_table) {
 		if (boxReal->currentText().isEmpty())
 		{
 			QMessageBox::critical(this, tr("Error"), tr("Please choose a column for the real part of the data!"));
 			boxReal->setFocus();
 			return;
 		}
-        fft = new FFT(app, d_table, boxReal->currentText(), boxImaginary->currentText());
+        fft = new FFT(app, m_table, boxReal->currentText(), boxImaginary->currentText());
 	}
 	if (!fft) {
 		close();
@@ -175,33 +175,33 @@ void FFTDialog::accept()
 
 void FFTDialog::setLayer(Layer *layer)
 {
-	d_layer = layer;
+	m_layer = layer;
 	boxName->insertStringList (layer->analysableCurvesList());
 	activateCurve(boxName->currentText());
 };
 
 void FFTDialog::activateCurve(const QString& curveName)
 {
-	if (d_layer)
+	if (m_layer)
 	{
-		QwtPlotCurve *c = d_layer->curve(curveName);
+		QwtPlotCurve *c = m_layer->curve(curveName);
 		if (!c)
 			return;
 
 		boxSampling->setText(QString::number(c->x(1) - c->x(0)));
 	}
-	else if (d_table)
+	else if (m_table)
 	{
-	    int col = d_table->colIndex(curveName);
-		double x0 = d_table->text(0, col).toDouble();
-		double x1 = d_table->text(1, col).toDouble();
+	    int col = m_table->colIndex(curveName);
+		double x0 = m_table->text(0, col).toDouble();
+		double x1 = m_table->text(1, col).toDouble();
 		boxSampling->setText(QString::number(x1 - x0));
 	}
 };
 
 void FFTDialog::setTable(Table *t)
 {
-	d_table = t;
+	m_table = t;
 	QStringList l = t->columnsList();
 	boxName->insertStringList (l);
 	boxReal->insertStringList (l);

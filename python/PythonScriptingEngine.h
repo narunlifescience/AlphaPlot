@@ -89,15 +89,15 @@ class PythonScriptingEngine: public AbstractScriptingEngine
 		const QString mathFunctionDoc (const QString &name) const;
 		const QStringList fileExtensions() const;
 
-		PyObject *globalDict() { return d_globals; }
-		PyObject *sysDict() { return d_sys; }
+		PyObject *globalDict() { return m_globals; }
+		PyObject *sysDict() { return m_sys; }
 
 	private:
 		bool loadInitFile(const QString &path);
 
-		PyObject *d_globals;  // PyDict of global environment
-		PyObject *d_math;     // PyDict of math functions
-		PyObject *d_sys;      // PyDict of sys module
+		PyObject *m_globals;  // PyDict of global environment
+		PyObject *m_math;     // PyDict of math functions
+		PyObject *m_sys;      // PyDict of sys module
 };
 
 #endif

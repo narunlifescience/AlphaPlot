@@ -72,7 +72,7 @@ class TableDoubleHeaderView : public QHeaderView
 	Q_OBJECT
 
 	private:
-		TableCommentsHeaderView * d_slave;
+		TableCommentsHeaderView * m_slave;
 
 	public:
 		TableDoubleHeaderView(QWidget * parent = 0);
@@ -98,7 +98,7 @@ class TableDoubleHeaderView : public QHeaderView
 		virtual void paintSection(QPainter * painter, const QRect & rect, int logicalIndex) const;
 	
 		//! Flag: show/high column comments
-		bool d_show_comments;
+		bool m_show_comments;
 };
 
 

@@ -63,14 +63,14 @@ private slots:
 private:
     void closeEvent(QCloseEvent*);
 
-    Matrix *d_matrix;
+    Matrix *m_matrix;
     QPushButton* buttonOk;
 	QPushButton* buttonCancel, *buttonApply;
 	QSpinBox* boxColWidth, *boxPrecision;
 	QComboBox *boxFormat;
 
 	//! saves the initial column width
-	int d_initial_col_width;
+	int m_initial_col_width;
 };
 
 #endif // MATRIXDIALOG_H

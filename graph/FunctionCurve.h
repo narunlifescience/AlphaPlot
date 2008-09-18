@@ -40,21 +40,21 @@ public:
 	FunctionCurve(const FunctionType& t, const char *name=0);
 	FunctionCurve(const char *name=0);
 
-	double startRange(){return d_from;};
-	double endRange(){return d_to;};
+	double startRange(){return m_from;};
+	double endRange(){return m_to;};
 	void setRange(double from, double to);
 
-	QStringList formulas(){return d_formulas;};
-	void setFormulas(const QStringList& lst){d_formulas = lst;};
+	QStringList formulas(){return m_formulas;};
+	void setFormulas(const QStringList& lst){m_formulas = lst;};
 
 	//! Provided for convenience when dealing with normal functions
-	void setFormula(const QString& s){d_formulas = QStringList() << s;};
+	void setFormula(const QString& s){m_formulas = QStringList() << s;};
 
-	QString variable(){return d_variable;};
-	void setVariable(const QString& s){d_variable = s;};
+	QString variable(){return m_variable;};
+	void setVariable(const QString& s){m_variable = s;};
 
-	FunctionType functionType(){return d_function_type;};
-	void setFunctionType(const FunctionType& t){d_function_type = t;};
+	FunctionType functionType(){return m_function_type;};
+	void setFunctionType(const FunctionType& t){m_function_type = t;};
 
 	void copy(FunctionCurve *f);
 
@@ -67,10 +67,10 @@ public:
 	void loadData(int points = 0);
 
 private:
-	FunctionType d_function_type;
-	QString d_variable;
-	QStringList d_formulas;
-	double d_from, d_to;
+	FunctionType m_function_type;
+	QString m_variable;
+	QStringList m_formulas;
+	double m_from, m_to;
 };
 
 #endif

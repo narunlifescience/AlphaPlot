@@ -157,7 +157,7 @@ class Column : public AbstractColumn
 		 */
 		AbstractSimpleFilter * outputFilter() const;
 		//! Return a wrapper column object used for String I/O.
-		ColumnStringIO * asStringColumn() const { return d_string_io; }
+		ColumnStringIO * asStringColumn() const { return m_string_io; }
 
 		//! \name IntervalAttribute related functions
 		//@{
@@ -310,8 +310,8 @@ class Column : public AbstractColumn
 
 	private:
 		//! Pointer to the private data object
-		Private * d_column_private;
-		ColumnStringIO * d_string_io;
+		Private * m_column_private;
+		ColumnStringIO * m_string_io;
 		
 		friend class ColumnStringIO;
 };
@@ -322,24 +322,24 @@ class ColumnStringIO : public AbstractColumn
 	Q_OBJECT
 	
 	public:
-		ColumnStringIO(Column * owner) : AbstractColumn(tr("as string")), d_owner(owner), d_setting(false) {}
+		ColumnStringIO(Column * owner) : AbstractColumn(tr("as string")), m_owner(owner), m_setting(false) {}
 		virtual SciDAVis::ColumnMode columnMode() const { return SciDAVis::Text; }
 		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
-		virtual SciDAVis::PlotDesignation plotDesignation() const { return d_owner->plotDesignation(); }
-		virtual int rowCount() const { return d_owner->rowCount(); }
+		virtual SciDAVis::PlotDesignation plotDesignation() const { return m_owner->plotDesignation(); }
+		virtual int rowCount() const { return m_owner->rowCount(); }
 		virtual QString textAt(int row) const;
 		virtual void setTextAt(int row, const QString &value);
 		virtual bool isInvalid(int row) const {
-			if (d_setting)
+			if (m_setting)
 				return false;
 			else
-				return d_owner->isInvalid(row);
+				return m_owner->isInvalid(row);
 		}
 
 	private:
-		Column * d_owner;
-		bool d_setting;
-		QString d_to_set;
+		Column * m_owner;
+		bool m_setting;
+		QString m_to_set;
 };
 
 #endif

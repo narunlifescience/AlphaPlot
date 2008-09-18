@@ -117,7 +117,7 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, Qt::WFlags fl 
 
 void SmoothCurveDialog::smooth()
 {
-    SmoothFilter *sf = new SmoothFilter((ApplicationWindow *)this->parent(), d_layer,
+    SmoothFilter *sf = new SmoothFilter((ApplicationWindow *)this->parent(), m_layer,
                                         boxName->currentText(), smooth_method);
     if (smooth_method == SmoothFilter::SavitzkyGolay)
     {
@@ -134,8 +134,8 @@ void SmoothCurveDialog::smooth()
 
 void SmoothCurveDialog::setLayer(Layer *layer)
 {
-    d_layer = layer;
-    boxName->addItems (d_layer->analysableCurvesList());
+    m_layer = layer;
+    boxName->addItems (m_layer->analysableCurvesList());
     activateCurve(boxName->currentText());
 }
 
@@ -143,7 +143,7 @@ void SmoothCurveDialog::activateCurve(const QString& curveName)
 {
     if (smooth_method == SmoothFilter::Average)
 	{
-	QwtPlotCurve *c = d_layer->curve(curveName);
+	QwtPlotCurve *c = m_layer->curve(curveName);
 	if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
 		return;
 

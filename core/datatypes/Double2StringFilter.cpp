@@ -72,20 +72,20 @@ void Double2StringFilter::setNumDigits(int digits)
 }
 
 Double2StringFilterSetFormatCmd::Double2StringFilterSetFormatCmd(Double2StringFilter* target, char new_format)
-	: d_target(target), d_other_format(new_format) 
+	: m_target(target), m_other_format(new_format) 
 {
-	if(d_target->parentAspect())
-		setText(QObject::tr("%1: set numeric format to '%2'").arg(d_target->parentAspect()->name()).arg(new_format));
+	if(m_target->parentAspect())
+		setText(QObject::tr("%1: set numeric format to '%2'").arg(m_target->parentAspect()->name()).arg(new_format));
 	else
 		setText(QObject::tr("set numeric format to '%1'").arg(new_format));
 }
 
 void Double2StringFilterSetFormatCmd::redo() 
 {
-	char tmp = d_target->d_format;
-	d_target->d_format = d_other_format;
-	d_other_format = tmp;
-	emit d_target->formatChanged();
+	char tmp = m_target->m_format;
+	m_target->m_format = m_other_format;
+	m_other_format = tmp;
+	emit m_target->formatChanged();
 }
 
 void Double2StringFilterSetFormatCmd::undo() 
@@ -94,20 +94,20 @@ void Double2StringFilterSetFormatCmd::undo()
 }
 
 Double2StringFilterSetDigitsCmd::Double2StringFilterSetDigitsCmd(Double2StringFilter* target, int new_digits)
-	: d_target(target), d_other_digits(new_digits) 
+	: m_target(target), m_other_digits(new_digits) 
 {
-	if(d_target->parentAspect())
-		setText(QObject::tr("%1: set decimal digits to %2").arg(d_target->parentAspect()->name()).arg(new_digits));
+	if(m_target->parentAspect())
+		setText(QObject::tr("%1: set decimal digits to %2").arg(m_target->parentAspect()->name()).arg(new_digits));
 	else
 		setText(QObject::tr("set decimal digits to %1").arg(new_digits));
 }
 
 void Double2StringFilterSetDigitsCmd::redo() 
 {
-	int tmp = d_target->d_digits;
-	d_target->d_digits = d_other_digits;
-	d_other_digits = tmp;
-	emit d_target->formatChanged();
+	int tmp = m_target->m_digits;
+	m_target->m_digits = m_other_digits;
+	m_other_digits = tmp;
+	emit m_target->formatChanged();
 }
 
 void Double2StringFilterSetDigitsCmd::undo() 

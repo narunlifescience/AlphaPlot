@@ -39,7 +39,7 @@ class QIODevice;
 // This works just like attr_reader in Ruby (except that you also have to declare the member
 // variable), i.e. it declares a get method for a (private) member variable.
 #define READER(type, name) \
-	type name() const { return d_ ## name; }
+	type name() const { return m_ ## name; }
 
 // This works just like attr_accessor in Ruby (except that you also have to declare the member
 // variable), i.e. it declares get and set methods for a (private) member variable.
@@ -48,8 +48,8 @@ class QIODevice;
 // doc/coding.dox. Maybe we should add a special rule for accessor methods. Unless someone knows how
 // to let the preprocessor do case conversion.
 #define ACCESSOR(type, name) \
-	type name() const { return d_ ## name; }; \
-	void set_ ## name(const type value) { d_ ## name = value; }
+	type name() const { return m_ ## name; }; \
+	void set_ ## name(const type value) { m_ ## name = value; }
 
 //! Interface for import operations.
 /**

@@ -51,23 +51,23 @@ AbstractAspect * AsciiTableImportFilter::importAspect(QIODevice * input)
 	QList< IntervalAttribute<bool> > invalid_cells;
 
 	// skip ignored lines
-	for (i=0; i<d_ignored_lines; i++)
+	for (i=0; i<m_ignored_lines; i++)
 		stream.readLine();
 
 	// read first row
-	if (d_simplify_whitespace)
-		row = stream.readLine().simplified().split(d_separator);
-	else if (d_trim_whitespace)
-		row = stream.readLine().trimmed().split(d_separator);
+	if (m_simplify_whitespace)
+		row = stream.readLine().simplified().split(m_separator);
+	else if (m_trim_whitespace)
+		row = stream.readLine().trimmed().split(m_separator);
 	else
-		row = stream.readLine().split(d_separator);
+		row = stream.readLine().split(m_separator);
 
 	// initialize data and determine column names
 	for (int i=0; i<row.size(); i++) {
 		data << QStringList();
 		invalid_cells << IntervalAttribute<bool>();
 	}
-	if (d_first_row_names_columns)
+	if (m_first_row_names_columns)
 		column_names = row;
 	else
 		for (i=0; i<row.size(); ++i) {
@@ -77,12 +77,12 @@ AbstractAspect * AsciiTableImportFilter::importAspect(QIODevice * input)
 
 	// read rest of data
 	while (!stream.atEnd()) {
-		if (d_simplify_whitespace)
-			row = stream.readLine().simplified().split(d_separator);
-		else if (d_trim_whitespace)
-			row = stream.readLine().trimmed().split(d_separator);
+		if (m_simplify_whitespace)
+			row = stream.readLine().simplified().split(m_separator);
+		else if (m_trim_whitespace)
+			row = stream.readLine().trimmed().split(m_separator);
 		else
-			row = stream.readLine().split(d_separator);
+			row = stream.readLine().split(m_separator);
 
 		for (i=0; i<row.size() && i<data.size(); ++i)
 			data[i] << row[i];

@@ -45,7 +45,7 @@ class AbstractPart : public AbstractAspect
 
 	public:
 		//! Constructor.
-		AbstractPart(const QString &name) : AbstractAspect(name), d_mdi_window(0) {}
+		AbstractPart(const QString &name) : AbstractAspect(name), m_mdi_window(0) {}
 		//! Construct a primary view on me.
 		/**
 		 * The caller recieves ownership of the view.
@@ -78,7 +78,7 @@ class AbstractPart : public AbstractAspect
 
 	private:
 		//! The MDI sub-window that is wrapped around my primary view.
-		PartMdiView *d_mdi_window;
+		PartMdiView *m_mdi_window;
 };
 
 #endif // ifndef ABSTRACT_PART_H

@@ -36,27 +36,27 @@
 #include <QPixmap>
 
 TableModel::TableModel(Table * table)
-	: QAbstractItemModel(0), d_table(table), d_formula_mode(false)
+	: QAbstractItemModel(0), m_table(table), m_formula_mode(false)
 {
-	connect(d_table, SIGNAL(columnsAboutToBeInserted(int, QList<Column *>)),
+	connect(m_table, SIGNAL(columnsAboutToBeInserted(int, QList<Column *>)),
 			this, SLOT(handleColumnsAboutToBeInserted(int, QList<Column *>)));
-	connect(d_table, SIGNAL(columnsInserted(int, int)),
+	connect(m_table, SIGNAL(columnsInserted(int, int)),
 			this, SLOT(handleColumnsInserted(int, int)));
-	connect(d_table, SIGNAL(columnsAboutToBeRemoved(int, int)),
+	connect(m_table, SIGNAL(columnsAboutToBeRemoved(int, int)),
 			this, SLOT(handleColumnsAboutToBeRemoved(int, int)));
-	connect(d_table, SIGNAL(columnsRemoved(int, int)),
+	connect(m_table, SIGNAL(columnsRemoved(int, int)),
 			this, SLOT(handleColumnsRemoved(int, int)));
-	connect(d_table, SIGNAL(rowsAboutToBeInserted(int, int)),
+	connect(m_table, SIGNAL(rowsAboutToBeInserted(int, int)),
 			this, SLOT(handleRowsAboutToBeInserted(int, int)));
-	connect(d_table, SIGNAL(rowsInserted(int, int)),
+	connect(m_table, SIGNAL(rowsInserted(int, int)),
 			this, SLOT(handleRowsInserted(int, int)));
-	connect(d_table, SIGNAL(rowsAboutToBeRemoved(int, int)),
+	connect(m_table, SIGNAL(rowsAboutToBeRemoved(int, int)),
 			this, SLOT(handleRowsAboutToBeRemoved(int, int)));
-	connect(d_table, SIGNAL(rowsRemoved(int, int)),
+	connect(m_table, SIGNAL(rowsRemoved(int, int)),
 			this, SLOT(handleRowsRemoved(int, int)));
-	connect(d_table, SIGNAL(dataChanged(int, int, int, int)),
+	connect(m_table, SIGNAL(dataChanged(int, int, int, int)),
 			this, SLOT(handleDataChanged(int, int, int, int)));
-	connect(d_table, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
+	connect(m_table, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
 			this, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
 }
 
@@ -79,7 +79,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 	
 	int row = index.row();
 	int col = index.column();
-	Column * col_ptr = d_table->column(col);
+	Column * col_ptr = m_table->column(col);
 	if(!col_ptr)
 		return QVariant();
 
@@ -92,11 +92,11 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 				if(col_ptr->isInvalid(row))
 					return QVariant(tr("invalid cell (ignored in all operations)","tooltip string for invalid rows") + postfix);
 		case Qt::EditRole:
-				if(!d_formula_mode && col_ptr->isInvalid(row))
+				if(!m_formula_mode && col_ptr->isInvalid(row))
 					return QVariant();
 		case Qt::DisplayRole:
 			{
-				if(d_formula_mode)
+				if(m_formula_mode)
 					return QVariant(col_ptr->formula(row));
 				if(col_ptr->isInvalid(row))
 					return QVariant(tr("-","string for invalid rows"));
@@ -115,7 +115,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 		case FormulaRole:
 			return QVariant(col_ptr->formula(row));
 		case Qt::DecorationRole:
-			if(d_formula_mode)
+			if(m_formula_mode)
 				return QIcon(QPixmap(":/equals.png"));
 			break;
 	}
@@ -125,19 +125,19 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 
 QVariant TableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	return d_table->headerData(section, orientation, role);
+	return m_table->headerData(section, orientation, role);
 }
 
 int TableModel::rowCount(const QModelIndex &parent) const
 {
 	Q_UNUSED(parent)
-	return d_table->rowCount();
+	return m_table->rowCount();
 }
 
 int TableModel::columnCount(const QModelIndex & parent) const
 {
 	Q_UNUSED(parent)
-	return d_table->columnCount();
+	return m_table->columnCount();
 }
 
 bool TableModel::setData(const QModelIndex & index, const QVariant & value, int role)
@@ -151,9 +151,9 @@ bool TableModel::setData(const QModelIndex & index, const QVariant & value, int 
 	{  
 		case Qt::EditRole:
 			{
-				Column* col_ptr = d_table->column(index.column());
+				Column* col_ptr = m_table->column(index.column());
 				// remark: the validity of the cell is determined by the input filter
-				if (d_formula_mode)
+				if (m_formula_mode)
 					col_ptr->setFormula(row, value.toString());
 				else
 					col_ptr->asStringColumn()->setTextAt(row, value.toString());
@@ -161,12 +161,12 @@ bool TableModel::setData(const QModelIndex & index, const QVariant & value, int 
 			}
 		case MaskingRole:
 			{
-				d_table->column(index.column())->setMasked(row, value.toBool());  
+				m_table->column(index.column())->setMasked(row, value.toBool());  
 				return true;
 			}
 		case FormulaRole:
 			{
-				d_table->column(index.column())->setFormula(row, value.toString());  
+				m_table->column(index.column())->setFormula(row, value.toString());  
 				return true;
 			}
 	}
@@ -243,5 +243,5 @@ void TableModel::handleDataChanged(int top, int left, int bottom, int right)
 
 Column * TableModel::column(int index)
 {
-	return d_table->column(index);
+	return m_table->column(index);
 }

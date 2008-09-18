@@ -70,7 +70,7 @@ private:
 	void contextMenuEvent(QContextMenuEvent *);
 
 	int defaultCurveLineWidth, defaultSymbolSize;
-	Layer *d_layer;
+	Layer *m_layer;
 
 	QPushButton* btnAdd;
 	QPushButton* btnRemove;

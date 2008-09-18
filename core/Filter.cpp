@@ -45,76 +45,76 @@ Filter::Filter( ApplicationWindow *parent, Layer *g, const char * name)
 : QObject( parent, name)
 {
 	init();
-	d_layer = g;
+	m_layer = g;
 }
 
 Filter::Filter( ApplicationWindow *parent, Table *t, const char * name)
 : QObject( parent, name)
 {
 	init();
-	d_table = t;
+	m_table = t;
 }
 
 void Filter::init()
 {
-	d_n = 0;
-	d_curveColorIndex = 1;
-	d_tolerance = 1e-4;
-	d_points = 100;
-	d_max_iterations = 1000;
-	d_curve = 0;
-	d_prec = ((ApplicationWindow *)parent())->fit_output_precision;
-	d_init_err = false;
-    d_sort_data = false;
-    d_min_points = 2;
-    d_explanation = QString(name());
-    d_layer = 0;
-    d_table = 0;
+	m_n = 0;
+	m_curveColorIndex = 1;
+	m_tolerance = 1e-4;
+	m_points = 100;
+	m_max_iterations = 1000;
+	m_curve = 0;
+	m_prec = ((ApplicationWindow *)parent())->fit_output_precision;
+	m_init_err = false;
+    m_sort_data = false;
+    m_min_points = 2;
+    m_explanation = QString(name());
+    m_layer = 0;
+    m_table = 0;
 }
 
 void Filter::setInterval(double from, double to)
 {
-	if (!d_curve)
+	if (!m_curve)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("Please assign a curve first!"));
 		return;
 	}
-	setDataFromCurve (d_curve->title().text(), from, to);
+	setDataFromCurve (m_curve->title().text(), from, to);
 }
 
 void Filter::setDataCurve(int curve, double start, double end)
 {
-	if (d_n > 0)
+	if (m_n > 0)
 	{//delete previousely allocated memory
-		delete[] d_x;
-		delete[] d_y;
+		delete[] m_x;
+		delete[] m_y;
 	}
 
-	d_init_err = false;
-	d_curve = d_layer->curve(curve);
-    if (d_sort_data)
-        d_n = sortedCurveData(d_curve, start, end, &d_x, &d_y);
+	m_init_err = false;
+	m_curve = m_layer->curve(curve);
+    if (m_sort_data)
+        m_n = sortedCurveData(m_curve, start, end, &m_x, &m_y);
     else
-    	d_n = curveData(d_curve, start, end, &d_x, &d_y);
+    	m_n = curveData(m_curve, start, end, &m_x, &m_y);
 
-	if (d_n == -1)
+	if (m_n == -1)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("Several data points have the same x value causing divisions by zero, operation aborted!"));
-		d_init_err = true;
+		m_init_err = true;
         return;
 	}
-    else if (d_n < d_min_points)
+    else if (m_n < m_min_points)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
-				tr("You need at least %1 points in order to perform this operation!").arg(d_min_points));
-		d_init_err = true;
+				tr("You need at least %1 points in order to perform this operation!").arg(m_min_points));
+		m_init_err = true;
         return;
 	}
 
-    d_from = start;
-    d_to = end;
+    m_from = start;
+    m_to = end;
 }
 
 int Filter::curveIndex(const QString& curveTitle, Layer *g)
@@ -123,20 +123,20 @@ int Filter::curveIndex(const QString& curveTitle, Layer *g)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("Filter Error"),
 				tr("Please enter a valid curve name!"));
-		d_init_err = true;
+		m_init_err = true;
 		return -1;
 	}
 
 	if (g)
-		d_layer = g;
+		m_layer = g;
 
-	if (!d_layer)
+	if (!m_layer)
 	{
-		d_init_err = true;
+		m_init_err = true;
 		return -1;
 	}
 
-	return d_layer->curveIndex(curveTitle);
+	return m_layer->curveIndex(curveTitle);
 }
 
 bool Filter::setDataFromCurve(const QString& curveTitle, Layer *g)
@@ -144,12 +144,12 @@ bool Filter::setDataFromCurve(const QString& curveTitle, Layer *g)
 	int index = curveIndex(curveTitle, g);
 	if (index < 0)
 	{
-		d_init_err = true;
+		m_init_err = true;
 		return false;
 	}
 
-  	d_layer->range(index, &d_from, &d_to);
-    setDataCurve(index, d_from, d_to);
+  	m_layer->range(index, &m_from, &m_to);
+    setDataCurve(index, m_from, m_to);
 	return true;
 }
 
@@ -158,7 +158,7 @@ bool Filter::setDataFromCurve(const QString& curveTitle, double from, double to,
 	int index = curveIndex(curveTitle, g);
 	if (index < 0)
 	{
-		d_init_err = true;
+		m_init_err = true;
 		return false;
 	}
 
@@ -177,31 +177,31 @@ void Filter::setColor(const QString& colorName)
     {
         QMessageBox::critical((ApplicationWindow *)parent(), tr("Color Name Error"),
 				tr("The color name '%1' is not valid, a default color (red) will be used instead!").arg(colorName));
-        d_curveColorIndex = 1;
+        m_curveColorIndex = 1;
         return;
     }
 
-	d_curveColorIndex = ColorBox::colorIndex(c);
+	m_curveColorIndex = ColorBox::colorIndex(c);
 }
 
 void Filter::showLegend()
 {
-	TextEnrichment* mrk = d_layer->newLegend(legendInfo());
-	if (d_layer->hasLegend())
+	TextEnrichment* mrk = m_layer->newLegend(legendInfo());
+	if (m_layer->hasLegend())
 	{
-		TextEnrichment* legend = d_layer->legend();
+		TextEnrichment* legend = m_layer->legend();
 		QPoint p = legend->rect().bottomLeft();
 		mrk->setOrigin(QPoint(p.x(), p.y()+20));
 	}
-	d_layer->replot();
+	m_layer->replot();
 }
 
 bool Filter::run()
 {
-	if (d_init_err)
+	if (m_init_err)
 		return false;
 
-	if (d_n < 0)
+	if (m_n < 0)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("You didn't specify a valid data set for this operation!"));
@@ -219,8 +219,8 @@ bool Filter::run()
 
 void Filter::output()
 {
-    double *X = new double[d_points];
-    double *Y = new double[d_points];
+    double *X = new double[m_points];
+    double *Y = new double[m_points];
 
     //do the data analysis
     calculateOutputData(X, Y);
@@ -306,18 +306,18 @@ QwtPlotCurve* Filter::addResultCurve(double *x, double *y)
 {
     ApplicationWindow *app = (ApplicationWindow *)parent();
     const QString tableName = app->generateUniqueName(QString(this->name()));
-    Table *t = app->newHiddenTable(tableName, d_explanation + " " + tr("of") + " " + d_curve->title().text(), d_points, 2);
-	for (int i=0; i<d_points; i++)
+    Table *t = app->newHiddenTable(tableName, m_explanation + " " + tr("of") + " " + m_curve->title().text(), m_points, 2);
+	for (int i=0; i<m_points; i++)
 	{
-		t->setText(i, 0, QLocale().toString(x[i], 'g', app->d_decimal_digits));
-		t->setText(i, 1, QLocale().toString(y[i], 'g', app->d_decimal_digits));
+		t->setText(i, 0, QLocale().toString(x[i], 'g', app->m_decimal_digits));
+		t->setText(i, 1, QLocale().toString(y[i], 'g', app->m_decimal_digits));
 	}
 
 	DataCurve *c = new DataCurve(t, tableName + "_1", tableName + "_2");
-	c->setData(x, y, d_points);
-    c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
-	d_layer->insertPlotItem(c, Layer::Line);
-    d_layer->updatePlot();
+	c->setData(x, y, m_points);
+    c->setPen(QPen(ColorBox::color(m_curveColorIndex), 1));
+	m_layer->insertPlotItem(c, Layer::Line);
+    m_layer->updatePlot();
 
     delete[] x;
 	delete[] y;
@@ -326,9 +326,9 @@ QwtPlotCurve* Filter::addResultCurve(double *x, double *y)
 
 Filter::~Filter()
 {
-	if (d_n > 0)
+	if (m_n > 0)
 	{//delete the memory allocated for the data
-		delete[] d_x;
-		delete[] d_y;
+		delete[] m_x;
+		delete[] m_y;
 	}
 }

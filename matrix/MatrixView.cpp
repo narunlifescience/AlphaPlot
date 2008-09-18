@@ -54,36 +54,36 @@
 #include <QtDebug>
 
 MatrixView::MatrixView(Matrix *matrix)
- : d_matrix(matrix) 
+ : m_matrix(matrix) 
 {
-	d_model = new MatrixModel(matrix);
+	m_model = new MatrixModel(matrix);
 	init();
 }
 
 MatrixView::~MatrixView() 
 {
-	delete d_model;
+	delete m_model;
 }
 
 void MatrixView::init()
 {
-	d_main_layout = new QHBoxLayout(this);
-	d_main_layout->setSpacing(0);
-	d_main_layout->setContentsMargins(0, 0, 0, 0);
+	m_main_layout = new QHBoxLayout(this);
+	m_main_layout->setSpacing(0);
+	m_main_layout->setContentsMargins(0, 0, 0, 0);
 	
-	d_view_widget = new MatrixViewWidget(this);
-	d_view_widget->setModel(d_model);
-	connect(d_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
-	d_main_layout->addWidget(d_view_widget);
+	m_view_widget = new MatrixViewWidget(this);
+	m_view_widget->setModel(m_model);
+	connect(m_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
+	m_main_layout->addWidget(m_view_widget);
 	
-	d_hide_button = new QToolButton();
-	d_hide_button->setArrowType(Qt::RightArrow);
-	d_hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
-	d_hide_button->setCheckable(false);
-	d_main_layout->addWidget(d_hide_button);
-	connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
-	d_control_tabs = new QWidget();
-    ui.setupUi(d_control_tabs);
+	m_hide_button = new QToolButton();
+	m_hide_button->setArrowType(Qt::RightArrow);
+	m_hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
+	m_hide_button->setCheckable(false);
+	m_main_layout->addWidget(m_hide_button);
+	connect(m_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
+	m_control_tabs = new QWidget();
+    ui.setupUi(m_control_tabs);
 	ui.first_row_spinbox->setMaximum(std::numeric_limits<double>::max());
 	ui.first_row_spinbox->setMinimum(std::numeric_limits<double>::min());
 	ui.first_col_spinbox->setMaximum(std::numeric_limits<double>::max());
@@ -95,24 +95,24 @@ void MatrixView::init()
 	updateCoordinatesTab();
 	updateFormulaTab();
 	updateFormatTab();
-	d_main_layout->addWidget(d_control_tabs);
+	m_main_layout->addWidget(m_control_tabs);
 
-	d_view_widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
-	d_main_layout->setStretchFactor(d_view_widget, 1);
+	m_view_widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
+	m_main_layout->setStretchFactor(m_view_widget, 1);
 
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 
-	d_view_widget->setFocusPolicy(Qt::StrongFocus);
+	m_view_widget->setFocusPolicy(Qt::StrongFocus);
 	setFocusPolicy(Qt::StrongFocus);
 	setFocus();
 #if QT_VERSION >= 0x040300
-	d_view_widget->setCornerButtonEnabled(true);
+	m_view_widget->setCornerButtonEnabled(true);
 #endif
 
-	d_view_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	m_view_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-	QHeaderView * h_header = d_view_widget->horizontalHeader();
-	QHeaderView * v_header = d_view_widget->verticalHeader();
+	QHeaderView * h_header = m_view_widget->horizontalHeader();
+	QHeaderView * v_header = m_view_widget->verticalHeader();
 	v_header->setResizeMode(QHeaderView::Interactive);
 	h_header->setResizeMode(QHeaderView::Interactive);
 	v_header->setMovable(false);
@@ -122,13 +122,13 @@ void MatrixView::init()
 
 	v_header->installEventFilter(this);
 	h_header->installEventFilter(this);
-	d_view_widget->installEventFilter(this);
+	m_view_widget->installEventFilter(this);
 
 	rereadSectionSizes();
 
 	// keyboard shortcuts
-	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Matrix: select all")), d_view_widget);
-	connect(sel_all, SIGNAL(activated()), d_view_widget, SLOT(selectAll()));
+	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Matrix: select all")), m_view_widget);
+	connect(sel_all, SIGNAL(activated()), m_view_widget, SLOT(selectAll()));
 
 	connect(ui.button_set_coordinates, SIGNAL(pressed()), 
 		this, SLOT(applyCoordinates()));
@@ -139,27 +139,27 @@ void MatrixView::init()
 	connect(ui.format_box, SIGNAL(currentIndexChanged(int)), this, SLOT(updateTypeInfo()));
 	connect(ui.digits_box, SIGNAL(valueChanged(int)), this, SLOT(updateTypeInfo()));
 
-	connect(d_matrix, SIGNAL(coordinatesChanged()), this, SLOT(updateCoordinatesTab()));
-	connect(d_matrix, SIGNAL(formulaChanged()), this, SLOT(updateFormulaTab()));
-	connect(d_matrix, SIGNAL(formatChanged()), this, SLOT(updateFormatTab()));
+	connect(m_matrix, SIGNAL(coordinatesChanged()), this, SLOT(updateCoordinatesTab()));
+	connect(m_matrix, SIGNAL(formulaChanged()), this, SLOT(updateFormulaTab()));
+	connect(m_matrix, SIGNAL(formatChanged()), this, SLOT(updateFormatTab()));
 
 	retranslateStrings();
 }
 
 void MatrixView::rereadSectionSizes()
 {
-	QHeaderView * h_header = d_view_widget->horizontalHeader();
-	QHeaderView * v_header = d_view_widget->verticalHeader();
+	QHeaderView * h_header = m_view_widget->horizontalHeader();
+	QHeaderView * v_header = m_view_widget->verticalHeader();
 
 	disconnect(v_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleVerticalSectionResized(int, int, int)));
 	disconnect(h_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleHorizontalSectionResized(int, int, int)));
 
-	int cols = d_matrix->columnCount();
+	int cols = m_matrix->columnCount();
 	for (int i=0; i<cols; i++)
-		h_header->resizeSection(i, d_matrix->columnWidth(i));
-	int rows = d_matrix->rowCount();
+		h_header->resizeSection(i, m_matrix->columnWidth(i));
+	int rows = m_matrix->rowCount();
 	for (int i=0; i<rows; i++)
-		v_header->resizeSection(i, d_matrix->rowHeight(i));
+		v_header->resizeSection(i, m_matrix->rowHeight(i));
 		
 	connect(v_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleVerticalSectionResized(int, int, int)));
 	connect(h_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleHorizontalSectionResized(int, int, int)));
@@ -174,8 +174,8 @@ void MatrixView::changeEvent(QEvent * event)
 
 void MatrixView::retranslateStrings()
 {
-	d_hide_button->setToolTip(tr("Show/hide control tabs"));
-    ui.retranslateUi(d_control_tabs);
+	m_hide_button->setToolTip(tr("Show/hide control tabs"));
+    ui.retranslateUi(m_control_tabs);
 	ui.format_box->clear();
 	ui.format_box->addItem(tr("Decimal"), QVariant('f'));
 	ui.format_box->addItem(tr("Scientific (e)"), QVariant('e'));
@@ -184,37 +184,37 @@ void MatrixView::retranslateStrings()
 	
 void MatrixView::advanceCell()
 {
-	QModelIndex idx = d_view_widget->currentIndex();
-    if(idx.row()+1 < d_matrix->rowCount())
-		d_view_widget->setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
+	QModelIndex idx = m_view_widget->currentIndex();
+    if(idx.row()+1 < m_matrix->rowCount())
+		m_view_widget->setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
 }
 
 void MatrixView::goToCell(int row, int col)
 {
-	QModelIndex index = d_model->index(row, col);
-	d_view_widget->scrollTo(index);
-	d_view_widget->setCurrentIndex(index);
+	QModelIndex index = m_model->index(row, col);
+	m_view_widget->scrollTo(index);
+	m_view_widget->setCurrentIndex(index);
 }
 
 void MatrixView::selectAll()
 {
-	d_view_widget->selectAll();
+	m_view_widget->selectAll();
 }
 
 void MatrixView::toggleControlTabBar() 
 { 
-	d_control_tabs->setVisible(!d_control_tabs->isVisible());
-	if(d_control_tabs->isVisible())
-		d_hide_button->setArrowType(Qt::RightArrow);
+	m_control_tabs->setVisible(!m_control_tabs->isVisible());
+	if(m_control_tabs->isVisible())
+		m_hide_button->setArrowType(Qt::RightArrow);
 	else
-		d_hide_button->setArrowType(Qt::LeftArrow);
-	emit controlTabBarStatusChanged(d_control_tabs->isVisible());
+		m_hide_button->setArrowType(Qt::LeftArrow);
+	emit controlTabBarStatusChanged(m_control_tabs->isVisible());
 }
 
 int MatrixView::selectedColumnCount(bool full)
 {
 	int count = 0;
-	int cols = d_matrix->columnCount();
+	int cols = m_matrix->columnCount();
 	for (int i=0; i<cols; i++)
 		if(isColumnSelected(i, full)) count++;
 	return count;
@@ -223,15 +223,15 @@ int MatrixView::selectedColumnCount(bool full)
 bool MatrixView::isColumnSelected(int col, bool full)
 {
 	if(full)
-		return d_view_widget->selectionModel()->isColumnSelected(col, QModelIndex());
+		return m_view_widget->selectionModel()->isColumnSelected(col, QModelIndex());
 	else
-		return d_view_widget->selectionModel()->columnIntersectsSelection(col, QModelIndex());
+		return m_view_widget->selectionModel()->columnIntersectsSelection(col, QModelIndex());
 }
 
 int MatrixView::selectedRowCount(bool full)
 {
 	int count = 0;
-	int rows = d_matrix->rowCount();
+	int rows = m_matrix->rowCount();
 	for (int i=0; i<rows; i++)
 		if(isRowSelected(i, full)) count++;
 	return count;
@@ -240,14 +240,14 @@ int MatrixView::selectedRowCount(bool full)
 bool MatrixView::isRowSelected(int row, bool full)
 {
 	if(full)
-		return d_view_widget->selectionModel()->isRowSelected(row, QModelIndex());
+		return m_view_widget->selectionModel()->isRowSelected(row, QModelIndex());
 	else
-		return d_view_widget->selectionModel()->rowIntersectsSelection(row, QModelIndex());
+		return m_view_widget->selectionModel()->rowIntersectsSelection(row, QModelIndex());
 }
 
 int MatrixView::firstSelectedColumn(bool full)
 {
-	int cols = d_matrix->columnCount();
+	int cols = m_matrix->columnCount();
 	for (int i=0; i<cols; i++)
 	{
 		if(isColumnSelected(i, full))
@@ -258,7 +258,7 @@ int MatrixView::firstSelectedColumn(bool full)
 
 int MatrixView::lastSelectedColumn(bool full)
 {
-	int cols = d_matrix->columnCount();
+	int cols = m_matrix->columnCount();
 	for(int i=cols-1; i>=0; i--)
 		if(isColumnSelected(i, full)) return i;
 
@@ -267,7 +267,7 @@ int MatrixView::lastSelectedColumn(bool full)
 
 int MatrixView::firstSelectedRow(bool full)
 {
-	int rows = d_matrix->rowCount();
+	int rows = m_matrix->rowCount();
 	for (int i=0; i<rows; i++)
 	{
 		if(isRowSelected(i, full))
@@ -278,7 +278,7 @@ int MatrixView::firstSelectedRow(bool full)
 
 int MatrixView::lastSelectedRow(bool full)
 {
-	int rows = d_matrix->rowCount();
+	int rows = m_matrix->rowCount();
 	for(int i=rows-1; i>=0; i--)
 		if(isRowSelected(i, full)) return i;
 
@@ -287,26 +287,26 @@ int MatrixView::lastSelectedRow(bool full)
 
 bool MatrixView::isCellSelected(int row, int col)
 {
-	if(row < 0 || col < 0 || row >= d_matrix->rowCount() || col >= d_matrix->columnCount()) return false;
+	if(row < 0 || col < 0 || row >= m_matrix->rowCount() || col >= m_matrix->columnCount()) return false;
 
-	return d_view_widget->selectionModel()->isSelected(d_model->index(row, col));
+	return m_view_widget->selectionModel()->isSelected(m_model->index(row, col));
 }
 
 void MatrixView::setCellSelected(int row, int col)
 {
-	 d_view_widget->selectionModel()->select(d_model->index(row, col), QItemSelectionModel::Select);
+	 m_view_widget->selectionModel()->select(m_model->index(row, col), QItemSelectionModel::Select);
 }
 
 void MatrixView::setCellsSelected(int first_row, int first_col, int last_row, int last_col)
 {
-	QModelIndex top_left = d_model->index(first_row, first_col);
-	QModelIndex bottom_right = d_model->index(last_row, last_col);
-	d_view_widget->selectionModel()->select(QItemSelection(top_left, bottom_right), QItemSelectionModel::SelectCurrent);
+	QModelIndex top_left = m_model->index(first_row, first_col);
+	QModelIndex bottom_right = m_model->index(last_row, last_col);
+	m_view_widget->selectionModel()->select(QItemSelection(top_left, bottom_right), QItemSelectionModel::SelectCurrent);
 }
 
 void MatrixView::getCurrentCell(int * row, int * col)
 {
-	QModelIndex index = d_view_widget->selectionModel()->currentIndex();
+	QModelIndex index = m_view_widget->selectionModel()->currentIndex();
 	if(index.isValid()) 
 	{
 		*row = index.row();
@@ -321,19 +321,19 @@ void MatrixView::getCurrentCell(int * row, int * col)
 
 bool MatrixView::eventFilter(QObject * watched, QEvent * event)
 {
-	QHeaderView * v_header = d_view_widget->verticalHeader();
-	QHeaderView * h_header = d_view_widget->horizontalHeader();
+	QHeaderView * v_header = m_view_widget->verticalHeader();
+	QHeaderView * h_header = m_view_widget->horizontalHeader();
 
 	if (event->type() == QEvent::ContextMenu) 
 	{
 		QContextMenuEvent *cm_event = static_cast<QContextMenuEvent *>(event);
 		QPoint global_pos = cm_event->globalPos();
 		if(watched == v_header)	
-			d_matrix->showMatrixViewRowContextMenu(global_pos);
+			m_matrix->showMatrixViewRowContextMenu(global_pos);
 		else if(watched == h_header)
-			d_matrix->showMatrixViewColumnContextMenu(global_pos);
-		else if(watched == d_view_widget)
-			d_matrix->showMatrixViewContextMenu(global_pos);
+			m_matrix->showMatrixViewColumnContextMenu(global_pos);
+		else if(watched == m_view_widget)
+			m_matrix->showMatrixViewContextMenu(global_pos);
 		else
 			return QWidget::eventFilter(watched, event);
 
@@ -345,56 +345,56 @@ bool MatrixView::eventFilter(QObject * watched, QEvent * event)
 	
 void MatrixView::showControlCoordinatesTab()
 {
-	d_control_tabs->setVisible(true);
-	d_hide_button->setArrowType(Qt::RightArrow);
+	m_control_tabs->setVisible(true);
+	m_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(0);
-	emit controlTabBarStatusChanged(d_control_tabs->isVisible());
+	emit controlTabBarStatusChanged(m_control_tabs->isVisible());
 }
 
 void MatrixView::showControlFormatTab()
 {
-	d_control_tabs->setVisible(true);
-	d_hide_button->setArrowType(Qt::RightArrow);
+	m_control_tabs->setVisible(true);
+	m_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(1);
-	emit controlTabBarStatusChanged(d_control_tabs->isVisible());
+	emit controlTabBarStatusChanged(m_control_tabs->isVisible());
 }
 
 void MatrixView::showControlFormulaTab()
 {
-	d_control_tabs->setVisible(true);
-	d_hide_button->setArrowType(Qt::RightArrow);
+	m_control_tabs->setVisible(true);
+	m_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(2);
-	emit controlTabBarStatusChanged(d_control_tabs->isVisible());
+	emit controlTabBarStatusChanged(m_control_tabs->isVisible());
 }
 
 void MatrixView::applyCoordinates()
 {
-	d_matrix->setCoordinates(ui.first_col_spinbox->value(), ui.last_col_spinbox->value(), 
+	m_matrix->setCoordinates(ui.first_col_spinbox->value(), ui.last_col_spinbox->value(), 
 			ui.first_row_spinbox->value(), ui.last_row_spinbox->value());
 }
 
 void MatrixView::updateCoordinatesTab()
 {
-	ui.first_col_spinbox->setValue(d_matrix->xStart());
-	ui.last_col_spinbox->setValue(d_matrix->xEnd());
-	ui.first_row_spinbox->setValue(d_matrix->yStart());
-	ui.last_row_spinbox->setValue(d_matrix->yEnd());
+	ui.first_col_spinbox->setValue(m_matrix->xStart());
+	ui.last_col_spinbox->setValue(m_matrix->xEnd());
+	ui.first_row_spinbox->setValue(m_matrix->yStart());
+	ui.last_row_spinbox->setValue(m_matrix->yEnd());
 }
 
 void MatrixView::updateFormulaTab()
 {
-	ui.formula_box->setPlainText(d_matrix->formula());
+	ui.formula_box->setPlainText(m_matrix->formula());
 }
 
 void MatrixView::applyFormula()
 {
-	d_matrix->setFormula(ui.formula_box->toPlainText());
+	m_matrix->setFormula(ui.formula_box->toPlainText());
 }
 
 void MatrixView::updateFormatTab()
 {
-	ui.digits_box->setValue(d_matrix->displayedDigits());
-	int format_index = ui.format_box->findData(d_matrix->numericFormat());
+	ui.digits_box->setValue(m_matrix->displayedDigits());
+	int format_index = ui.format_box->findData(m_matrix->numericFormat());
 	ui.format_box->setCurrentIndex(format_index);
 }
 
@@ -405,20 +405,20 @@ void MatrixView::applyFormat()
 	if (format_index >= 0)
 	{
 		char format = ui.format_box->itemData(format_index).toChar().toLatin1();
-		d_matrix->setNumericFormat(format);
+		m_matrix->setNumericFormat(format);
 	}
-	d_matrix->setDisplayedDigits(digits);
+	m_matrix->setDisplayedDigits(digits);
 }
 
 void MatrixView::handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize)
 {
 	static bool inside = false;
-	d_matrix->setColumnWidth(logicalIndex, newSize);
+	m_matrix->setColumnWidth(logicalIndex, newSize);
 	if (inside) return;
 	inside = true;
 
-	QHeaderView * h_header = d_view_widget->horizontalHeader();
-	int cols = d_matrix->columnCount();
+	QHeaderView * h_header = m_view_widget->horizontalHeader();
+	int cols = m_matrix->columnCount();
 	for (int i=0; i<cols; i++)
 		if(isColumnSelected(i, true)) 
 			h_header->resizeSection(i, newSize);
@@ -429,12 +429,12 @@ void MatrixView::handleHorizontalSectionResized(int logicalIndex, int oldSize, i
 void MatrixView::handleVerticalSectionResized(int logicalIndex, int oldSize, int newSize)
 {
 	static bool inside = false;
-	d_matrix->setRowHeight(logicalIndex, newSize);
+	m_matrix->setRowHeight(logicalIndex, newSize);
 	if (inside) return;
 	inside = true;
 
-	QHeaderView * v_header = d_view_widget->verticalHeader();
-	int rows = d_matrix->rowCount();
+	QHeaderView * v_header = m_view_widget->verticalHeader();
+	int rows = m_matrix->rowCount();
 	for (int i=0; i<rows; i++)
 		if(isRowSelected(i, true)) 
 			v_header->resizeSection(i, newSize);
@@ -444,25 +444,25 @@ void MatrixView::handleVerticalSectionResized(int logicalIndex, int oldSize, int
 
 void MatrixView::setRowHeight(int row, int height) 
 { 
-	QHeaderView * v_header = d_view_widget->verticalHeader();
+	QHeaderView * v_header = m_view_widget->verticalHeader();
 	v_header->resizeSection(row, height);
 }
 
 void MatrixView::setColumnWidth(int col, int width) 
 { 
-	QHeaderView * h_header = d_view_widget->horizontalHeader();
+	QHeaderView * h_header = m_view_widget->horizontalHeader();
 	h_header->resizeSection(col, width);
 }
 
 int MatrixView::rowHeight(int row) const 
 { 
-	QHeaderView * v_header = d_view_widget->verticalHeader();
+	QHeaderView * v_header = m_view_widget->verticalHeader();
 	return v_header->sectionSize(row);
 }
 
 int MatrixView::columnWidth(int col) const 
 { 
-	QHeaderView * h_header = d_view_widget->horizontalHeader();
+	QHeaderView * h_header = m_view_widget->horizontalHeader();
 	return h_header->sectionSize(col);
 }
 

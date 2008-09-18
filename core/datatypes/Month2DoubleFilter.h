@@ -46,8 +46,8 @@ class Month2DoubleFilter : public AbstractSimpleFilter
 
 	public:
 		virtual double valueAt(int row) const {
-			if (!d_inputs.value(0)) return 0;
-			return double(d_inputs.value(0)->dateAt(row).month());
+			if (!m_inputs.value(0)) return 0;
+			return double(m_inputs.value(0)->dateAt(row).month());
 		}
 
 		//! Return the data type of the column

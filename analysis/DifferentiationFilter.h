@@ -51,7 +51,7 @@ class DifferentiationFilter : public AbstractDoubleDataSource, public AbstractFi
 		virtual int outputCount() const { return 2; }
 		virtual const AbstractDataSource* output(int port) const {
 			switch(port) {
-				case 0: return &d_x_truncator;
+				case 0: return &m_x_truncator;
 				case 1: return this;
 				default: return 0;
 			}
@@ -70,39 +70,39 @@ class DifferentiationFilter : public AbstractDoubleDataSource, public AbstractFi
 		virtual void inputDataAboutToChange(AbstractDataSource*) { emit dataAboutToChange(this); }
 		virtual void inputDataChanged(AbstractDataSource* source) {
 			emit dataChanged(this);
-			d_x_truncator.setNumRows(rowCount());
-			if (d_inputs.indexOf(source) == 1) return;
-			d_x_truncator.input(0, source);
-			d_x_truncator.setStartSkip(1);
+			m_x_truncator.setNumRows(rowCount());
+			if (m_inputs.indexOf(source) == 1) return;
+			m_x_truncator.input(0, source);
+			m_x_truncator.setStartSkip(1);
 		}
 
 // DataSource interface
 	public:
 		virtual int rowCount() const {
-			if (!d_inputs.value(0) || !d_inputs.value(1)) return 0;
-			return qMin(d_inputs[0]->rowCount(), d_inputs[1]->rowCount()) - 2;
+			if (!m_inputs.value(0) || !m_inputs.value(1)) return 0;
+			return qMin(m_inputs[0]->rowCount(), m_inputs[1]->rowCount()) - 2;
 		}
 		virtual double valueAt(int row) const {
 			if (row<0 || row>=rowCount()) return 0;
-			AbstractDoubleDataSource *x = static_cast<AbstractDoubleDataSource*>(d_inputs[0]);
-			AbstractDoubleDataSource *y = static_cast<AbstractDoubleDataSource*>(d_inputs[1]);
+			AbstractDoubleDataSource *x = static_cast<AbstractDoubleDataSource*>(m_inputs[0]);
+			AbstractDoubleDataSource *y = static_cast<AbstractDoubleDataSource*>(m_inputs[1]);
 			double d1 = (y->valueAt(row+1)-y->valueAt(row))   / (x->valueAt(row+1)-x->valueAt(row));
 			double d2 = (y->valueAt(row+2)-y->valueAt(row+1)) / (x->valueAt(row+2)-x->valueAt(row+1));
 			return 0.5*(d1 + d2);
 		}
 		virtual QString label() const {
-			return d_inputs.value(0) && d_inputs.value(1) ?
-				QString("d(%1)/d(%2)").arg(d_inputs[1]->label()).arg(d_inputs[0]->label()) :
+			return m_inputs.value(0) && m_inputs.value(1) ?
+				QString("d(%1)/d(%2)").arg(m_inputs[1]->label()).arg(m_inputs[0]->label()) :
 				QString();
 		}
 		virtual QString comment() const {
-			return d_inputs.value(1) ? tr("Derivative of %1").arg(d_inputs[1]->label()) :
+			return m_inputs.value(1) ? tr("Derivative of %1").arg(m_inputs[1]->label()) :
 				QString(); }
 		virtual SciDAVis::PlotDesignation plotDesignation() const { return SciDAVis::Y; }
 
 // specific to this class
 	private:
-		TruncationFilter<double> d_x_truncator;
+		TruncationFilter<double> m_x_truncator;
 };
 
 #endif // ifndef DIFFERENTIATION_FILTER_H

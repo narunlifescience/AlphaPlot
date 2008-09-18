@@ -68,7 +68,7 @@
 
 PlotDialog::PlotDialog(bool showExtended, QWidget* parent, Qt::WFlags fl )
 : QDialog(parent, fl),
-  d_graph(0)
+  m_graph(0)
 {
 	setWindowTitle( tr( "Plot details" ) );
 
@@ -1025,9 +1025,9 @@ void PlotDialog::setGraph(Graph *ml)
     if (!ml)
         return;
 
-    d_graph = ml;
-	boxScaleLayers->setChecked(d_graph->scaleLayersOnPrint());
-	boxPrintCrops->setChecked(d_graph->printCropmarksEnabled());
+    m_graph = ml;
+	boxScaleLayers->setChecked(m_graph->scaleLayersOnPrint());
+	boxPrintCrops->setChecked(m_graph->printCropmarksEnabled());
 
     QTreeWidgetItem *item = new QTreeWidgetItem(listBox, QStringList(ml->name()));
     item->setIcon(0, QIcon(":/folder_open.xpm"));
@@ -1753,13 +1753,13 @@ bool PlotDialog::acceptParams()
 {
     if (privateTabWidget->currentWidget() == fontsPage)
     {
-		d_graph->setFonts(titleFont, axesFont, numbersFont, legendFont);
+		m_graph->setFonts(titleFont, axesFont, numbersFont, legendFont);
 		return true;
     }
 	else if (privateTabWidget->currentWidget() == printPage)
     {
-		d_graph->setScaleLayersOnPrint(boxScaleLayers->isChecked());
-		d_graph->printCropmarks(boxPrintCrops->isChecked());
+		m_graph->setScaleLayersOnPrint(boxScaleLayers->isChecked());
+		m_graph->printCropmarks(boxPrintCrops->isChecked());
 		return true;
     }
     else if (privateTabWidget->currentWidget() == layerPage)
@@ -1767,7 +1767,7 @@ bool PlotDialog::acceptParams()
 		if (!boxAll->isChecked())
 			return true;
 
-		foreach(Layer *layer, d_graph->layers()) {
+		foreach(Layer *layer, m_graph->layers()) {
 			if (!layer) continue;
 			layer->setFrame(boxBorderWidth->value(), boxBorderColor->color());
 			layer->setMargin(boxMargin->value());
@@ -2280,7 +2280,7 @@ void PlotDialog::updateBackgroundTransparency(int alpha)
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_graph->layers()) {
+		foreach(Layer *layer, m_graph->layers()) {
 			if(!layer) continue;
 			layer->setBackgroundColor(c);
 		}
@@ -2300,7 +2300,7 @@ void PlotDialog::updateCanvasTransparency(int alpha)
 	c.setAlpha(boxCanvasTransparency->value());
 
 	if (boxAll->isChecked()) {
-		foreach(Layer *layer, d_graph->layers()) {
+		foreach(Layer *layer, m_graph->layers()) {
 			if (!layer) continue;
 			layer->setCanvasBackground(c);
 		}
@@ -2324,7 +2324,7 @@ void PlotDialog::pickCanvasColor()
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_graph->layers()) {
+		foreach(Layer *layer, m_graph->layers()) {
 			if(!layer) continue;
 			layer->setCanvasBackground(c);
 			layer->replot();
@@ -2350,7 +2350,7 @@ void PlotDialog::pickBackgroundColor()
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_graph->layers()) {
+		foreach(Layer *layer, m_graph->layers()) {
 			if(!layer) continue;
 			layer->setBackgroundColor(c);
 			layer->replot();
@@ -2375,7 +2375,7 @@ void PlotDialog::pickBorderColor()
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_graph->layers()) {
+		foreach(Layer *layer, m_graph->layers()) {
 			if (!layer) continue;
 			layer->setFrame(boxBorderWidth->value(), c);
 		}
@@ -2386,7 +2386,7 @@ void PlotDialog::pickBorderColor()
 		if (!layer) return;
 		layer->setFrame(boxBorderWidth->value(), c);
 	}
-	d_graph->notifyChanges();
+	m_graph->notifyChanges();
 }
 
 void PlotDialog::updateAntialiasing(bool on)
@@ -2396,7 +2396,7 @@ void PlotDialog::updateAntialiasing(bool on)
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_graph->layers()) {
+		foreach(Layer *layer, m_graph->layers()) {
 			if (!layer) continue;
 			layer->setAntialiasing(on);
 		}
@@ -2416,7 +2416,7 @@ void PlotDialog::updateBorder(int width)
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_graph->layers()) {
+		foreach(Layer *layer, m_graph->layers()) {
 			if (!layer) continue;
 			layer->setFrame(width, boxBorderColor->color());
 		}
@@ -2427,7 +2427,7 @@ void PlotDialog::updateBorder(int width)
 		if (!layer) return;
 		layer->setFrame(width, boxBorderColor->color());
 	}
-	d_graph->notifyChanges();
+	m_graph->notifyChanges();
 }
 
 void PlotDialog::changeMargin(int width)
@@ -2437,7 +2437,7 @@ void PlotDialog::changeMargin(int width)
 
     if (boxAll->isChecked())
     {
-		foreach(Layer *layer, d_graph->layers()) {
+		foreach(Layer *layer, m_graph->layers()) {
 			if (!layer) continue;
 			layer->setMargin(width);
 		}
@@ -2506,7 +2506,7 @@ void PlotDialog::closeEvent(QCloseEvent* e)
 {
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	if (app)
-		app->d_extended_plot_dialog = btnMore->isChecked ();
+		app->m_extended_plot_dialog = btnMore->isChecked ();
 
 	e->accept();
 }
@@ -2519,7 +2519,7 @@ void PlotDialog::closeEvent(QCloseEvent* e)
 
 LayerItem::LayerItem(Layer *g, QTreeWidgetItem *parent, const QString& s)
     : QTreeWidgetItem( parent, QStringList(s), LayerTreeItem ),
-      d_layer(g)
+      m_layer(g)
 {
     setIcon(0, QPixmap(":/layer_disabled.xpm"));
     if (g)
@@ -2536,10 +2536,10 @@ void LayerItem::setActive(bool on)
 
 void LayerItem::insertCurvesList()
 {
-	for (int i=0; i<d_layer->curveCount(); i++)
+	for (int i=0; i<m_layer->curveCount(); i++)
 	{
         QString plotAssociation = QString();
-        const QwtPlotItem *it = (QwtPlotItem *)d_layer->plotItem(i);
+        const QwtPlotItem *it = (QwtPlotItem *)m_layer->plotItem(i);
         if (!it)
             continue;
 
@@ -2570,7 +2570,7 @@ void LayerItem::insertCurvesList()
 
 CurveTreeItem::CurveTreeItem(const QwtPlotItem *curve, LayerItem *parent, const QString& s)
     : QTreeWidgetItem( parent, QStringList(s), PlotCurveTreeItem ),
-      d_curve(curve)
+      m_curve(curve)
 {
     setIcon(0, QPixmap(":/graph_disabled.xpm"));
 }
@@ -2589,7 +2589,7 @@ Layer *g = layer();
 if (!g)
     return -1;
 
-return g->plotItemIndex((QwtPlotItem *)d_curve);
+return g->plotItemIndex((QwtPlotItem *)m_curve);
 }
 
 int CurveTreeItem::plotItemType()
@@ -2598,6 +2598,6 @@ Layer *g = layer();
 if (!g)
     return -1;
 
-int index = g->plotItemIndex((QwtPlotItem *)d_curve);
+int index = g->plotItemIndex((QwtPlotItem *)m_curve);
 return g->curveType(index);
 }

@@ -4,7 +4,7 @@ old code should be adapted as well.
 
 - Files use Unix-style line endings ("\n"); C++ source files are given the extension .cpp.
 - Class names start with a capital letter, object/variable names with a lower case letter.
-- Methods and functions are named likeThis(), variables like_this and instance variables are prefixed with "d_".
+- Methods and functions are named likeThis(), variables like_this and instance variables are prefixed with "m_".
 - Property access methods use Qt style: property() and setProperty().
 - Private and really short classes only used by one other class (like LayerButton) are included in this classe's source
   files. Undo commands belonging to a class MyClass are gathered in separate files named myclasscommands.cpp and myclasscommands.h.

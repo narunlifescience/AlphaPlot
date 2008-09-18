@@ -40,7 +40,7 @@
 #include <QComboBox>
 
 ImportDialog::ImportDialog(QMap<QString, AbstractImportFilter*> filter_map, QWidget *parent)
-	: ExtensibleFileDialog(parent), d_filter_map(filter_map), d_options_ui(0)
+	: ExtensibleFileDialog(parent), m_filter_map(filter_map), m_options_ui(0)
 {
 	setWindowTitle(tr("Import File(s)"));
 	setFileMode( QFileDialog::ExistingFiles );
@@ -49,14 +49,14 @@ ImportDialog::ImportDialog(QMap<QString, AbstractImportFilter*> filter_map, QWid
 	QGridLayout * extension_layout = new QGridLayout();
 	extension_widget->setLayout(extension_layout);
 	extension_layout->addWidget(new QLabel(tr("Destination:")), 0, 0);
-	d_destination = new QComboBox(extension_widget);
+	m_destination = new QComboBox(extension_widget);
 	// IMPORTANT: keep this in sync with enum Destination
-	d_destination->addItem(tr("Current project"));
-	d_destination->addItem(tr("New project(s)"));
-	extension_layout->addWidget(d_destination, 0, 1);
+	m_destination->addItem(tr("Current project"));
+	m_destination->addItem(tr("New project(s)"));
+	extension_layout->addWidget(m_destination, 0, 1);
 	setExtensionWidget(extension_widget);
 
-	setFilters(d_filter_map.keys());
+	setFilters(m_filter_map.keys());
 	filterChanged(selectedFilter());
 
 	connect(this, SIGNAL(filterSelected(const QString&)),
@@ -64,59 +64,59 @@ ImportDialog::ImportDialog(QMap<QString, AbstractImportFilter*> filter_map, QWid
 }
 
 void ImportDialog::filterChanged(const QString& filter_name) {
-	d_filter = d_filter_map[filter_name];
-	if (!d_filter) {
-		if (d_options_ui) delete d_options_ui;
-		d_options_ui = 0;
+	m_filter = m_filter_map[filter_name];
+	if (!m_filter) {
+		if (m_options_ui) delete m_options_ui;
+		m_options_ui = 0;
 		return;
 	}
-	if (!QMetaObject::invokeMethod(d_filter, "makeOptionsGui", Qt::DirectConnection,
-			Q_RETURN_ARG(QWidget*, d_options_ui)))
-		d_options_ui = generateOptionsGUI();
-	static_cast<QGridLayout*>(extensionWidget()->layout())->addWidget(d_options_ui, 1, 0, 1, 2);
+	if (!QMetaObject::invokeMethod(m_filter, "makeOptionsGui", Qt::DirectConnection,
+			Q_RETURN_ARG(QWidget*, m_options_ui)))
+		m_options_ui = generateOptionsGUI();
+	static_cast<QGridLayout*>(extensionWidget()->layout())->addWidget(m_options_ui, 1, 0, 1, 2);
 };
 
 QWidget * ImportDialog::generateOptionsGUI() {
-	qDeleteAll(d_settings_map);
-	d_settings_map.clear();
+	qDeleteAll(m_settings_map);
+	m_settings_map.clear();
 
 	QWidget * settings = new QWidget();
 	QGridLayout * layout = new QGridLayout();
 	settings->setLayout(layout);
-	int offset = d_filter->metaObject()->propertyOffset();
+	int offset = m_filter->metaObject()->propertyOffset();
 	// don't include properties of QObject
-	int prop_count = d_filter->metaObject()->propertyCount() - offset;
+	int prop_count = m_filter->metaObject()->propertyCount() - offset;
 	for (int i=0; i<prop_count; i++) {
-		QMetaProperty * prop = new QMetaProperty(d_filter->metaObject()->property(offset+i));
+		QMetaProperty * prop = new QMetaProperty(m_filter->metaObject()->property(offset+i));
 		layout->addWidget(new QLabel(QString(prop->name()).replace("_", " "), settings), i/2, 2*(i%2));
 		switch(prop->type()) {
 			case QVariant::Int:
 				{
 					QSpinBox * box = new QSpinBox(settings);
-					box->setValue(prop->read(d_filter).toInt());
+					box->setValue(prop->read(m_filter).toInt());
 					connect(box, SIGNAL(valueChanged(int)),
 							this, SLOT(intValueChanged(int)));
-					d_settings_map[static_cast<QObject*>(box)] = prop;
+					m_settings_map[static_cast<QObject*>(box)] = prop;
 					layout->addWidget(box, i/2, 2*(i%2)+1);
 					break;
 				}
 			case QVariant::Bool:
 				{
 					QCheckBox * box = new QCheckBox(settings);
-					box->setCheckState(prop->read(d_filter).toBool() ? Qt::Checked : Qt::Unchecked);
+					box->setCheckState(prop->read(m_filter).toBool() ? Qt::Checked : Qt::Unchecked);
 					connect(box, SIGNAL(stateChanged(int)),
 							this, SLOT(boolValueChanged(int)));
-					d_settings_map[static_cast<QObject*>(box)] = prop;
+					m_settings_map[static_cast<QObject*>(box)] = prop;
 					layout->addWidget(box, i/2, 2*(i%2)+1);
 					break;
 				}
 			case QVariant::String:
 				{
 					QLineEdit * edit = new QLineEdit(settings);
-					edit->setText(prop->read(d_filter).toString());
+					edit->setText(prop->read(m_filter).toString());
 					connect(edit, SIGNAL(textChanged(const QString&)),
 							this, SLOT(stringValueChanged(const QString&)));
-					d_settings_map[static_cast<QObject*>(edit)] = prop;
+					m_settings_map[static_cast<QObject*>(edit)] = prop;
 					layout->addWidget(edit, i/2, 2*(i%2)+1);
 					break;
 				}
@@ -130,27 +130,27 @@ QWidget * ImportDialog::generateOptionsGUI() {
 
 ImportDialog::Destination ImportDialog::destination() const
 {
-	return (Destination) d_destination->currentIndex();
+	return (Destination) m_destination->currentIndex();
 }
 
 void ImportDialog::intValueChanged(int value)
 {
-	d_settings_map[sender()]->write(d_filter, QVariant(value));
+	m_settings_map[sender()]->write(m_filter, QVariant(value));
 }
 
 void ImportDialog::boolValueChanged(int state)
 {
 	switch (state) {
 		case Qt::Checked:
-			d_settings_map[sender()]->write(d_filter, QVariant(true));
+			m_settings_map[sender()]->write(m_filter, QVariant(true));
 			break;
 		case Qt::Unchecked:
-			d_settings_map[sender()]->write(d_filter, QVariant(false));
+			m_settings_map[sender()]->write(m_filter, QVariant(false));
 			break;
 	}
 }
 
 void ImportDialog::stringValueChanged(const QString &value)
 {
-	d_settings_map[sender()]->write(d_filter, QVariant(value));
+	m_settings_map[sender()]->write(m_filter, QVariant(value));
 }

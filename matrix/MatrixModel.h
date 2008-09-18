@@ -84,7 +84,7 @@ class MatrixModel : public QAbstractItemModel
 		//@}
 
 	private:
-		Matrix * d_matrix;
+		Matrix * m_matrix;
 }; 
 
 #endif

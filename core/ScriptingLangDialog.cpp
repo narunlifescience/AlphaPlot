@@ -65,7 +65,7 @@ void ScriptingLangDialog::updateLangList()
 {
 	langList->clear();
 	langList->insertItems(0, AbstractScriptingEngine::engineNames());
-	QListWidgetItem *current = langList->findItems(d_scripting_engine->name(), Qt::MatchExactly).first();
+	QListWidgetItem *current = langList->findItems(m_scripting_engine->name(), Qt::MatchExactly).first();
 	if (current)
 		langList->setCurrentItem(current);
 }

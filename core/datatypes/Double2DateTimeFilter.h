@@ -44,12 +44,12 @@ class Double2DateTimeFilter : public AbstractSimpleFilter
 
 	public:
 		virtual QDate dateAt(int row) const {
-			if (!d_inputs.value(0)) return QDate();
-			return QDate::fromJulianDay(qRound(d_inputs.value(0)->valueAt(row)));
+			if (!m_inputs.value(0)) return QDate();
+			return QDate::fromJulianDay(qRound(m_inputs.value(0)->valueAt(row)));
 		}
 		virtual QTime timeAt(int row) const {
-			if (!d_inputs.value(0)) return QTime();
-			double input_value = d_inputs.value(0)->valueAt(row);
+			if (!m_inputs.value(0)) return QTime();
+			double input_value = m_inputs.value(0)->valueAt(row);
 			// we only want the digits behind the dot and 
 			// convert them from fraction of day to milliseconds
 			return QTime(12,0,0,0).addMSecs(int( (input_value - int(input_value)) * 86400000.0 ));

@@ -79,7 +79,7 @@ public:
 	void updateDecimalSeparators(const QLocale& oldSeparators);
 
 public slots:
-	MyTable* table(){return d_table;};
+	MyTable* table(){return m_table;};
 	void copy(Table *m);
 	int numRows();
 	int numCols();
@@ -244,8 +244,8 @@ public slots:
 	int selectedColumn(){return selectedCol;};
 	int firstSelectedColumn();
 	int numSelectedRows();
-	bool isRowSelected(int row, bool full=false) { return d_table->isRowSelected(row, full); }
-	bool isColumnSelected(int col, bool full=false) { return d_table->isColumnSelected(col, full); }
+	bool isRowSelected(int row, bool full=false) { return m_table->isRowSelected(row, full); }
+	bool isColumnSelected(int col, bool full=false) { return m_table->isColumnSelected(col, full); }
 	//! Scroll to cell 
 	void goToCell(int row, int col);
 
@@ -258,7 +258,7 @@ public slots:
 	void setColumnTypes(const QStringList& ctl);
 	void setColumnType(int col, ColType val) { colTypes[col] = val; }
 
-    void saveToMemory(double **cells){d_saved_cells = cells;};
+    void saveToMemory(double **cells){m_saved_cells = cells;};
 	void saveToMemory();
 	void freeMemory();
 
@@ -312,14 +312,14 @@ public slots:
 	void setTextFont(const QFont& fnt);
 	void setHeaderFont(const QFont& fnt);
 
-	int verticalHeaderWidth(){return d_table->verticalHeader()->width();};
+	int verticalHeaderWidth(){return m_table->verticalHeader()->width();};
 
 	QString colComment(int col){return comments[col];};
 	void setColComment(int col, const QString& s);
 	QStringList colComments(){return comments;};
 	void setColComments(const QStringList& lst){comments = lst;};
 	void showComments(bool on = true);
-	bool commentsEnabled(){return d_show_comments;}
+	bool commentsEnabled(){return m_show_comments;}
 
 	QString saveAsTemplate(const QString& geometryInfo);
 	void restore(const QStringList& lst);
@@ -341,16 +341,16 @@ signals:
 	void createTable(const QString&,int,int,const QString&);
 
 protected:
-	MyTable *d_table;
+	MyTable *m_table;
 
 private:
-	bool d_show_comments;
+	bool m_show_comments;
 	QString specifications, newSpecifications;
 	QStringList commands, col_format, comments, col_label;
 	QList<int> colTypes, col_plot_type;
 	int selectedCol;
-	int d_numeric_precision;
-	double **d_saved_cells;
+	int m_numeric_precision;
+	double **m_saved_cells;
 
 	//! Internal function to change the column header
 	void setColumnHeader(int index, const QString& label);

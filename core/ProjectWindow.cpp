@@ -87,7 +87,7 @@ class ProjectWindow::Private
 }
 ;
 ProjectWindow::ProjectWindow(Project* project)
-	: d_project(project), d(new Private())
+	: m_project(project), d(new Private())
 {
 	init();
 }
@@ -102,32 +102,32 @@ void ProjectWindow::init()
 
 	action_manager->setTitle(tr("global", "global/ProjectWindow keyboard shortcuts"));
 
-	d_mdi_area = new QMdiArea();
-	setCentralWidget(d_mdi_area);
-	connect(d_mdi_area, SIGNAL(subWindowActivated(QMdiSubWindow*)),
+	m_mdi_area = new QMdiArea();
+	setCentralWidget(m_mdi_area);
+	connect(m_mdi_area, SIGNAL(subWindowActivated(QMdiSubWindow*)),
 			this, SLOT(handleCurrentSubWindowChanged(QMdiSubWindow*)));
-	d_current_aspect = d_project;
-	d_current_folder = d_project;
+	m_current_aspect = m_project;
+	m_current_folder = m_project;
 
 	initDockWidgets();
 	initActions();
 	initToolBars();
 	initMenus();
-	d_buttons.new_aspect->setMenu(d_menus.new_aspect);
+	m_buttons.new_aspect->setMenu(m_menus.new_aspect);
 	// TODO: move all strings to one method to be called on a language change
 	
-	connect(d_project, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), 
+	connect(m_project, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), 
 		this, SLOT(handleAspectDescriptionChanged(const AbstractAspect *)));
-	connect(d_project, SIGNAL(aspectAdded(const AbstractAspect *, int)), 
+	connect(m_project, SIGNAL(aspectAdded(const AbstractAspect *, int)), 
 		this, SLOT(handleAspectAdded(const AbstractAspect *, int)));
-	connect(d_project, SIGNAL(aspectRemoved(const AbstractAspect *, int)), 
+	connect(m_project, SIGNAL(aspectRemoved(const AbstractAspect *, int)), 
 		this, SLOT(handleAspectRemoved(const AbstractAspect *, int)));
-	connect(d_project, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)), 
+	connect(m_project, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)), 
 		this, SLOT(handleAspectAboutToBeRemoved(const AbstractAspect *, int)));
-	connect(d_project, SIGNAL(statusInfo(const QString&)),
+	connect(m_project, SIGNAL(statusInfo(const QString&)),
 			statusBar(), SLOT(showMessage(const QString&)));
 
-	handleAspectDescriptionChanged(d_project);
+	handleAspectDescriptionChanged(m_project);
 
 	// init action managers
 	foreach(QObject *plugin, QPluginLoader::staticInstances()) 
@@ -141,20 +141,20 @@ void ProjectWindow::init()
 
 ProjectWindow::~ProjectWindow()
 {
-	disconnect(d_project, 0, this, 0);
+	disconnect(m_project, 0, this, 0);
 }
 
 void ProjectWindow::handleAspectDescriptionChanged(const AbstractAspect *aspect)
 {
-	if (aspect != static_cast<AbstractAspect *>(d_project)) return;
-	setWindowTitle(d_project->caption() + " - SciDAVis");
+	if (aspect != static_cast<AbstractAspect *>(m_project)) return;
+	setWindowTitle(m_project->caption() + " - SciDAVis");
 }
 
 void ProjectWindow::handleAspectAdded(const AbstractAspect *parent, int index)
 {
 	handleAspectAddedInternal(parent->child(index));
 	updateMdiWindowVisibility();
-	handleCurrentSubWindowChanged(d_mdi_area->currentSubWindow());
+	handleCurrentSubWindowChanged(m_mdi_area->currentSubWindow());
 }
 
 void ProjectWindow::handleAspectAddedInternal(AbstractAspect * aspect)
@@ -168,7 +168,7 @@ void ProjectWindow::handleAspectAddedInternal(AbstractAspect * aspect)
 	{
 		PartMdiView *win = part->mdiSubWindow();
 		Q_ASSERT(win);
-		d_mdi_area->addSubWindow(win);
+		m_mdi_area->addSubWindow(win);
 		connect(win, SIGNAL(statusChanged(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)), 
 				this, SLOT(handleSubWindowStatusChange(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)));
 	}
@@ -182,300 +182,300 @@ void ProjectWindow::handleAspectAboutToBeRemoved(const AbstractAspect *parent, i
 	Q_ASSERT(win);
 	disconnect(win, SIGNAL(statusChanged(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)), 
 		this, SLOT(handleSubWindowStatusChange(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)));
-	d_mdi_area->removeSubWindow(win);
-	if (d_mdi_area->currentSubWindow() == 0)
+	m_mdi_area->removeSubWindow(win);
+	if (m_mdi_area->currentSubWindow() == 0)
 	{
-		d_menus.part->clear();
-		d_menus.part->setEnabled(false);
+		m_menus.part->clear();
+		m_menus.part->setEnabled(false);
 	}
 }
 
 void ProjectWindow::handleAspectRemoved(const AbstractAspect *parent, int index)
 {
 	Q_UNUSED(index);
-	d_project_explorer->setCurrentAspect(parent);
+	m_project_explorer->setCurrentAspect(parent);
 }
 
 void ProjectWindow::initDockWidgets()
 {
 	// project explorer
-	d_project_explorer_dock = new QDockWidget(this);
-	d_project_explorer_dock->setWindowTitle(tr("Project Explorer"));
-	d_project_explorer = new ProjectExplorer(d_project_explorer_dock);
-	d_project_explorer->setModel(new AspectTreeModel(d_project, this));
-	d_project_explorer_dock->setWidget(d_project_explorer);
-	addDockWidget(Qt::BottomDockWidgetArea, d_project_explorer_dock);
-	connect(d_project_explorer, SIGNAL(currentAspectChanged(AbstractAspect *)),
+	m_project_explorer_dock = new QDockWidget(this);
+	m_project_explorer_dock->setWindowTitle(tr("Project Explorer"));
+	m_project_explorer = new ProjectExplorer(m_project_explorer_dock);
+	m_project_explorer->setModel(new AspectTreeModel(m_project, this));
+	m_project_explorer_dock->setWidget(m_project_explorer);
+	addDockWidget(Qt::BottomDockWidgetArea, m_project_explorer_dock);
+	connect(m_project_explorer, SIGNAL(currentAspectChanged(AbstractAspect *)),
 		this, SLOT(handleCurrentAspectChanged(AbstractAspect *)));
-	d_project_explorer->setCurrentAspect(d_project);
+	m_project_explorer->setCurrentAspect(m_project);
 }
 
 void ProjectWindow::initActions()
 {
-	d_actions.quit = new QAction(tr("&Quit"), this);
-	d_actions.quit->setIcon(QIcon(QPixmap(":/quit.xpm")));
-	d_actions.quit->setShortcut(tr("Ctrl+Q"));
-	action_manager->addAction(d_actions.quit, "quit");
-	connect(d_actions.quit, SIGNAL(triggered(bool)), qApp, SLOT(closeAllWindows()));
+	m_actions.quit = new QAction(tr("&Quit"), this);
+	m_actions.quit->setIcon(QIcon(QPixmap(":/quit.xpm")));
+	m_actions.quit->setShortcut(tr("Ctrl+Q"));
+	action_manager->addAction(m_actions.quit, "quit");
+	connect(m_actions.quit, SIGNAL(triggered(bool)), qApp, SLOT(closeAllWindows()));
 	
-	d_actions.open_project = new QAction(tr("&Open Project"), this);
-	d_actions.open_project->setIcon(QIcon(QPixmap(":/fileopen.xpm")));
-	d_actions.open_project->setShortcut(tr("Ctrl+O"));
-	action_manager->addAction(d_actions.open_project, "open_project");
-	connect(d_actions.open_project, SIGNAL(triggered(bool)), this, SLOT(openProject()));
+	m_actions.open_project = new QAction(tr("&Open Project"), this);
+	m_actions.open_project->setIcon(QIcon(QPixmap(":/fileopen.xpm")));
+	m_actions.open_project->setShortcut(tr("Ctrl+O"));
+	action_manager->addAction(m_actions.open_project, "open_project");
+	connect(m_actions.open_project, SIGNAL(triggered(bool)), this, SLOT(openProject()));
 
-	d_actions.save_project = new QAction(tr("&Save Project"), this);
-	d_actions.save_project->setIcon(QIcon(QPixmap(":/filesave.xpm")));
-	d_actions.save_project->setShortcut(tr("Ctrl+S"));
-	action_manager->addAction(d_actions.save_project, "save_project");
-	connect(d_actions.save_project, SIGNAL(triggered(bool)), this, SLOT(saveProject()));
+	m_actions.save_project = new QAction(tr("&Save Project"), this);
+	m_actions.save_project->setIcon(QIcon(QPixmap(":/filesave.xpm")));
+	m_actions.save_project->setShortcut(tr("Ctrl+S"));
+	action_manager->addAction(m_actions.save_project, "save_project");
+	connect(m_actions.save_project, SIGNAL(triggered(bool)), this, SLOT(saveProject()));
 
-	d_actions.save_project_as = new QAction(tr("Save Project &As"), this);
-	action_manager->addAction(d_actions.save_project_as, "save_project_as");
-	connect(d_actions.save_project_as, SIGNAL(triggered(bool)), this, SLOT(saveProjectAs()));
+	m_actions.save_project_as = new QAction(tr("Save Project &As"), this);
+	action_manager->addAction(m_actions.save_project_as, "save_project_as");
+	connect(m_actions.save_project_as, SIGNAL(triggered(bool)), this, SLOT(saveProjectAs()));
 
-	d_actions.new_folder = new QAction(tr("New F&older"), this);
-	action_manager->addAction(d_actions.new_folder, "new_folder");
-	d_actions.new_folder->setIcon(QIcon(QPixmap(":/folder_closed.xpm")));
-	connect(d_actions.new_folder, SIGNAL(triggered(bool)), this, SLOT(addNewFolder()));
+	m_actions.new_folder = new QAction(tr("New F&older"), this);
+	action_manager->addAction(m_actions.new_folder, "new_folder");
+	m_actions.new_folder->setIcon(QIcon(QPixmap(":/folder_closed.xpm")));
+	connect(m_actions.new_folder, SIGNAL(triggered(bool)), this, SLOT(addNewFolder()));
 
-	d_actions.new_project = new QAction(tr("New &Project"), this);
-	d_actions.new_project->setShortcut(tr("Ctrl+N"));
-	action_manager->addAction(d_actions.new_project, "new_project");
-	d_actions.new_project->setIcon(QIcon(QPixmap(":/new.xpm")));
-	connect(d_actions.new_project, SIGNAL(triggered(bool)), this, SLOT(newProject()));
+	m_actions.new_project = new QAction(tr("New &Project"), this);
+	m_actions.new_project->setShortcut(tr("Ctrl+N"));
+	action_manager->addAction(m_actions.new_project, "new_project");
+	m_actions.new_project->setIcon(QIcon(QPixmap(":/new.xpm")));
+	connect(m_actions.new_project, SIGNAL(triggered(bool)), this, SLOT(newProject()));
 
-	d_actions.close_project = new QAction(tr("&Close Project"), this);
-	action_manager->addAction(d_actions.close_project, "close_project");
-	d_actions.close_project->setIcon(QIcon(QPixmap(":/close.xpm")));
-	connect(d_actions.close_project, SIGNAL(triggered(bool)), this, SLOT(close())); // TODO: capture closeEvent for saving
+	m_actions.close_project = new QAction(tr("&Close Project"), this);
+	action_manager->addAction(m_actions.close_project, "close_project");
+	m_actions.close_project->setIcon(QIcon(QPixmap(":/close.xpm")));
+	connect(m_actions.close_project, SIGNAL(triggered(bool)), this, SLOT(close())); // TODO: capture closeEvent for saving
 
-	d_actions.keyboard_shortcuts_dialog = new QAction(tr("&Keyboard Shortcuts"), this);
-	action_manager->addAction(d_actions.keyboard_shortcuts_dialog, "keyboard_shortcuts_dialog");
-	connect(d_actions.keyboard_shortcuts_dialog, SIGNAL(triggered(bool)), this, SLOT(showKeyboardShortcutsDialog()));
+	m_actions.keyboard_shortcuts_dialog = new QAction(tr("&Keyboard Shortcuts"), this);
+	action_manager->addAction(m_actions.keyboard_shortcuts_dialog, "keyboard_shortcuts_dialog");
+	connect(m_actions.keyboard_shortcuts_dialog, SIGNAL(triggered(bool)), this, SLOT(showKeyboardShortcutsDialog()));
 
-	d_actions.preferences_dialog = new QAction(tr("&Preferences"), this);
-	action_manager->addAction(d_actions.preferences_dialog, "preferences_dialog");
-	connect(d_actions.preferences_dialog, SIGNAL(triggered(bool)), this, SLOT(showPreferencesDialog()));
+	m_actions.preferences_dialog = new QAction(tr("&Preferences"), this);
+	action_manager->addAction(m_actions.preferences_dialog, "preferences_dialog");
+	connect(m_actions.preferences_dialog, SIGNAL(triggered(bool)), this, SLOT(showPreferencesDialog()));
 
-	d_actions.show_history = new QAction(tr("Undo/Redo &History"), this);
-	action_manager->addAction(d_actions.show_history, "show_history");
-	connect(d_actions.show_history, SIGNAL(triggered(bool)), this, SLOT(showHistory()));
+	m_actions.show_history = new QAction(tr("Undo/Redo &History"), this);
+	action_manager->addAction(m_actions.show_history, "show_history");
+	connect(m_actions.show_history, SIGNAL(triggered(bool)), this, SLOT(showHistory()));
 
-	d_part_maker_map = new QSignalMapper(this);
-	connect(d_part_maker_map, SIGNAL(mapped(QObject*)), this, SLOT(addNewAspect(QObject*)));
+	m_part_maker_map = new QSignalMapper(this);
+	connect(m_part_maker_map, SIGNAL(mapped(QObject*)), this, SLOT(addNewAspect(QObject*)));
 	foreach(QObject *plugin, QPluginLoader::staticInstances()) {
 		PartMaker *maker = qobject_cast<PartMaker*>(plugin);
 		if (maker) {
 			QAction *make = maker->makeAction(this);
-			connect(make, SIGNAL(triggered()), d_part_maker_map, SLOT(map()));
-			d_part_maker_map->setMapping(make, plugin);
-			d_part_makers << make;
+			connect(make, SIGNAL(triggered()), m_part_maker_map, SLOT(map()));
+			m_part_maker_map->setMapping(make, plugin);
+			m_part_makers << make;
 		}
 	}
 
-	d_actions.import_aspect = new QAction(tr("&Import"), this);
-	action_manager->addAction(d_actions.import_aspect, "import_aspect");
+	m_actions.import_aspect = new QAction(tr("&Import"), this);
+	action_manager->addAction(m_actions.import_aspect, "import_aspect");
 	// TODO: we need a new icon for generic imports
-	d_actions.import_aspect->setIcon(QIcon(QPixmap(":/fileopen.xpm")));
-	connect(d_actions.import_aspect, SIGNAL(triggered()), this, SLOT(importAspect()));
+	m_actions.import_aspect->setIcon(QIcon(QPixmap(":/fileopen.xpm")));
+	connect(m_actions.import_aspect, SIGNAL(triggered()), this, SLOT(importAspect()));
 
-	d_actions.cascade_windows = new QAction(tr("&Cascade"), this);
-	action_manager->addAction(d_actions.cascade_windows, "cascade_windows");
-	connect(d_actions.cascade_windows, SIGNAL(triggered()), d_mdi_area, SLOT(cascadeSubWindows()));
+	m_actions.cascade_windows = new QAction(tr("&Cascade"), this);
+	action_manager->addAction(m_actions.cascade_windows, "cascade_windows");
+	connect(m_actions.cascade_windows, SIGNAL(triggered()), m_mdi_area, SLOT(cascadeSubWindows()));
 	
-	d_actions.tile_windows = new QAction(tr("&Tile"), this);
-	action_manager->addAction(d_actions.tile_windows, "tile_windows");
-	connect(d_actions.tile_windows, SIGNAL(triggered()), d_mdi_area, SLOT(tileSubWindows()));
+	m_actions.tile_windows = new QAction(tr("&Tile"), this);
+	action_manager->addAction(m_actions.tile_windows, "tile_windows");
+	connect(m_actions.tile_windows, SIGNAL(triggered()), m_mdi_area, SLOT(tileSubWindows()));
 
-	d_actions.choose_folder = new QAction(tr("Select &Folder"), this);
-	d_actions.choose_folder->setIcon(QIcon(QPixmap(":/folder_closed.xpm")));
-	action_manager->addAction(d_actions.choose_folder, "choose_folder");
-	connect(d_actions.choose_folder, SIGNAL(triggered()), this, SLOT(chooseFolder()));
+	m_actions.choose_folder = new QAction(tr("Select &Folder"), this);
+	m_actions.choose_folder->setIcon(QIcon(QPixmap(":/folder_closed.xpm")));
+	action_manager->addAction(m_actions.choose_folder, "choose_folder");
+	connect(m_actions.choose_folder, SIGNAL(triggered()), this, SLOT(chooseFolder()));
 
-	d_actions.next_subwindow = new QAction(tr("&Next","next window"), this);
-	d_actions.next_subwindow->setIcon(QIcon(QPixmap(":/next.xpm")));
-	d_actions.next_subwindow->setShortcut(tr("F5","next window shortcut"));
-	action_manager->addAction(d_actions.next_subwindow, "next_subwindow");
-	connect(d_actions.next_subwindow, SIGNAL(triggered()), d_mdi_area, SLOT(activateNextSubWindow()));
+	m_actions.next_subwindow = new QAction(tr("&Next","next window"), this);
+	m_actions.next_subwindow->setIcon(QIcon(QPixmap(":/next.xpm")));
+	m_actions.next_subwindow->setShortcut(tr("F5","next window shortcut"));
+	action_manager->addAction(m_actions.next_subwindow, "next_subwindow");
+	connect(m_actions.next_subwindow, SIGNAL(triggered()), m_mdi_area, SLOT(activateNextSubWindow()));
 
-	d_actions.previous_subwindow = new QAction(tr("&Previous","previous window"), this);
-	d_actions.previous_subwindow->setIcon(QIcon(QPixmap(":/prev.xpm")));
-	d_actions.previous_subwindow->setShortcut(tr("F6", "previous window shortcut"));
-	action_manager->addAction(d_actions.previous_subwindow, "previous_subwindow");
-	connect(d_actions.previous_subwindow, SIGNAL(triggered()), d_mdi_area, SLOT(activatePreviousSubWindow()));
+	m_actions.previous_subwindow = new QAction(tr("&Previous","previous window"), this);
+	m_actions.previous_subwindow->setIcon(QIcon(QPixmap(":/prev.xpm")));
+	m_actions.previous_subwindow->setShortcut(tr("F6", "previous window shortcut"));
+	action_manager->addAction(m_actions.previous_subwindow, "previous_subwindow");
+	connect(m_actions.previous_subwindow, SIGNAL(triggered()), m_mdi_area, SLOT(activatePreviousSubWindow()));
 
-	d_actions.close_current_window = new QAction(tr("Close &Window"), this);
-	d_actions.close_current_window->setIcon(QIcon(QPixmap(":/close.xpm")));
-	d_actions.close_current_window->setShortcut(tr("Ctrl+W", "close window shortcut"));
-	action_manager->addAction(d_actions.close_current_window, "close_current_window");
-	connect(d_actions.close_current_window, SIGNAL(triggered()), d_mdi_area, SLOT(closeActiveSubWindow()));
+	m_actions.close_current_window = new QAction(tr("Close &Window"), this);
+	m_actions.close_current_window->setIcon(QIcon(QPixmap(":/close.xpm")));
+	m_actions.close_current_window->setShortcut(tr("Ctrl+W", "close window shortcut"));
+	action_manager->addAction(m_actions.close_current_window, "close_current_window");
+	connect(m_actions.close_current_window, SIGNAL(triggered()), m_mdi_area, SLOT(closeActiveSubWindow()));
 
-	d_actions.close_all_windows = new QAction(tr("Close &All Windows"), this);
-	action_manager->addAction(d_actions.close_all_windows, "close_all_windows");
-	connect(d_actions.close_all_windows, SIGNAL(triggered()), d_mdi_area, SLOT(closeAllSubWindows()));
+	m_actions.close_all_windows = new QAction(tr("Close &All Windows"), this);
+	action_manager->addAction(m_actions.close_all_windows, "close_all_windows");
+	connect(m_actions.close_all_windows, SIGNAL(triggered()), m_mdi_area, SLOT(closeAllSubWindows()));
 
 	// TODO: duplicate action (or maybe in the part menu?)
 	
-	d_actions.about = new QAction(tr("&About SciDAVis"), this);
-	d_actions.about->setShortcut( tr("Shift+F1") );
-	action_manager->addAction(d_actions.about, "about");
-	connect(d_actions.about, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
+	m_actions.about = new QAction(tr("&About SciDAVis"), this);
+	m_actions.about->setShortcut( tr("Shift+F1") );
+	action_manager->addAction(m_actions.about, "about");
+	connect(m_actions.about, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
 
-	d_actions.show_manual = new QAction(tr("&Help"), this);
-	d_actions.show_manual->setShortcut( tr("F1") );
-	action_manager->addAction(d_actions.show_manual, "show_manual");
-	connect(d_actions.show_manual, SIGNAL(triggered()), this, SLOT(showHelp()));
+	m_actions.show_manual = new QAction(tr("&Help"), this);
+	m_actions.show_manual->setShortcut( tr("F1") );
+	action_manager->addAction(m_actions.show_manual, "show_manual");
+	connect(m_actions.show_manual, SIGNAL(triggered()), this, SLOT(showHelp()));
 
-	d_actions.select_manual_folder = new QAction(tr("&Choose Help Folder..."), this);
-	action_manager->addAction(d_actions.select_manual_folder, "select_manual_folder");
-	connect(d_actions.select_manual_folder, SIGNAL(triggered()), this, SLOT(chooseHelpFolder()));
+	m_actions.select_manual_folder = new QAction(tr("&Choose Help Folder..."), this);
+	action_manager->addAction(m_actions.select_manual_folder, "select_manual_folder");
+	connect(m_actions.select_manual_folder, SIGNAL(triggered()), this, SLOT(chooseHelpFolder()));
 
-	d_actions.show_homepage = new QAction(tr("&SciDAVis Homepage"), this);
-	action_manager->addAction(d_actions.show_homepage, "show_homepage");
-	connect(d_actions.show_homepage, SIGNAL(triggered()), this, SLOT(showHomePage()));
+	m_actions.show_homepage = new QAction(tr("&SciDAVis Homepage"), this);
+	action_manager->addAction(m_actions.show_homepage, "show_homepage");
+	connect(m_actions.show_homepage, SIGNAL(triggered()), this, SLOT(showHomePage()));
 
-	d_actions.show_forums = new QAction(tr("SciDAVis &Forums"), this);
-	action_manager->addAction(d_actions.show_forums, "show_forums");
-	connect(d_actions.show_forums, SIGNAL(triggered()), this, SLOT(showForums()));
+	m_actions.show_forums = new QAction(tr("SciDAVis &Forums"), this);
+	action_manager->addAction(m_actions.show_forums, "show_forums");
+	connect(m_actions.show_forums, SIGNAL(triggered()), this, SLOT(showForums()));
 
-	d_actions.show_bugtracker = new QAction(tr("Report a &Bug"), this);
-	action_manager->addAction(d_actions.show_bugtracker, "show_bugtracker");
-	connect(d_actions.show_bugtracker, SIGNAL(triggered()), this, SLOT(showBugTracker()));
+	m_actions.show_bugtracker = new QAction(tr("Report a &Bug"), this);
+	action_manager->addAction(m_actions.show_bugtracker, "show_bugtracker");
+	connect(m_actions.show_bugtracker, SIGNAL(triggered()), this, SLOT(showBugTracker()));
 
-	d_actions.download_manual = new QAction(tr("Download &Manual"), this);
-	action_manager->addAction(d_actions.download_manual, "download_manual");
-	connect(d_actions.download_manual, SIGNAL(triggered()), this, SLOT(downloadManual()));
+	m_actions.download_manual = new QAction(tr("Download &Manual"), this);
+	action_manager->addAction(m_actions.download_manual, "download_manual");
+	connect(m_actions.download_manual, SIGNAL(triggered()), this, SLOT(downloadManual()));
 
-	d_actions.download_translations = new QAction(tr("Download &Translations"), this);
-	action_manager->addAction(d_actions.download_translations, "download_translations");
-	connect(d_actions.download_translations, SIGNAL(triggered()), this, SLOT(downloadTranslation()));
+	m_actions.download_translations = new QAction(tr("Download &Translations"), this);
+	action_manager->addAction(m_actions.download_translations, "download_translations");
+	connect(m_actions.download_translations, SIGNAL(triggered()), this, SLOT(downloadTranslation()));
 
-	d_actions.check_updates = new QAction(tr("Search for &Updates"), this);
-	action_manager->addAction(d_actions.check_updates, "check_updates");
-	connect(d_actions.check_updates, SIGNAL(triggered()), this, SLOT(searchForUpdates()));
+	m_actions.check_updates = new QAction(tr("Search for &Updates"), this);
+	action_manager->addAction(m_actions.check_updates, "check_updates");
+	connect(m_actions.check_updates, SIGNAL(triggered()), this, SLOT(searchForUpdates()));
 
-	Q_ASSERT(d_project->undoStack());
-	d_actions.undo = new QAction(tr("&Undo"), this);
-	action_manager->addAction(d_actions.undo, "undo");
-	d_actions.undo->setIcon(QIcon(QPixmap(":/undo.xpm")));
-	d_actions.undo->setShortcut(tr("Ctrl+Z"));
-	d_actions.undo->setEnabled(d_project->undoStack()->canUndo());
-	connect(d_actions.undo, SIGNAL(triggered()), this, SLOT(undo()));
-	connect(d_project->undoStack(), SIGNAL(canUndoChanged(bool)), d_actions.undo, SLOT(setEnabled(bool)));
+	Q_ASSERT(m_project->undoStack());
+	m_actions.undo = new QAction(tr("&Undo"), this);
+	action_manager->addAction(m_actions.undo, "undo");
+	m_actions.undo->setIcon(QIcon(QPixmap(":/undo.xpm")));
+	m_actions.undo->setShortcut(tr("Ctrl+Z"));
+	m_actions.undo->setEnabled(m_project->undoStack()->canUndo());
+	connect(m_actions.undo, SIGNAL(triggered()), this, SLOT(undo()));
+	connect(m_project->undoStack(), SIGNAL(canUndoChanged(bool)), m_actions.undo, SLOT(setEnabled(bool)));
 
-	d_actions.redo = new QAction(tr("&Redo"), this);
-	action_manager->addAction(d_actions.redo, "redo");
-	d_actions.redo->setIcon(QIcon(QPixmap(":/redo.xpm")));
-	d_actions.redo->setShortcut(tr("Ctrl+Y"));
-	d_actions.redo->setEnabled(d_project->undoStack()->canRedo());
-	connect(d_actions.redo, SIGNAL(triggered()), this, SLOT(redo()));
-	connect(d_project->undoStack(), SIGNAL(canRedoChanged(bool)), d_actions.redo, SLOT(setEnabled(bool)));
+	m_actions.redo = new QAction(tr("&Redo"), this);
+	action_manager->addAction(m_actions.redo, "redo");
+	m_actions.redo->setIcon(QIcon(QPixmap(":/redo.xpm")));
+	m_actions.redo->setShortcut(tr("Ctrl+Y"));
+	m_actions.redo->setEnabled(m_project->undoStack()->canRedo());
+	connect(m_actions.redo, SIGNAL(triggered()), this, SLOT(redo()));
+	connect(m_project->undoStack(), SIGNAL(canRedoChanged(bool)), m_actions.redo, SLOT(setEnabled(bool)));
 }
 
 void ProjectWindow::initMenus()
 {
-	d_menus.file = menuBar()->addMenu(tr("&File"));
-	d_menus.new_aspect = d_menus.file->addMenu(tr("&New"));
-	d_menus.new_aspect->addAction(d_actions.new_project);
-	d_menus.new_aspect->addAction(d_actions.new_folder);
-	foreach(QAction *a, d_part_makers)
-		d_menus.new_aspect->addAction(a);
+	m_menus.file = menuBar()->addMenu(tr("&File"));
+	m_menus.new_aspect = m_menus.file->addMenu(tr("&New"));
+	m_menus.new_aspect->addAction(m_actions.new_project);
+	m_menus.new_aspect->addAction(m_actions.new_folder);
+	foreach(QAction *a, m_part_makers)
+		m_menus.new_aspect->addAction(a);
 
-	d_menus.file->addAction(d_actions.open_project);
-	d_menus.file->addAction(d_actions.save_project);
-	d_menus.file->addAction(d_actions.save_project_as);
-	d_menus.file->addAction(d_actions.close_project);
-	d_menus.file->addSeparator();
-	d_menus.file->addAction(d_actions.quit);
+	m_menus.file->addAction(m_actions.open_project);
+	m_menus.file->addAction(m_actions.save_project);
+	m_menus.file->addAction(m_actions.save_project_as);
+	m_menus.file->addAction(m_actions.close_project);
+	m_menus.file->addSeparator();
+	m_menus.file->addAction(m_actions.quit);
 
-	d_menus.edit = menuBar()->addMenu(tr("&Edit"));
-	d_menus.edit->addAction(d_actions.undo);
-	d_menus.edit->addAction(d_actions.redo);
-	connect(d_menus.edit, SIGNAL(aboutToShow()), this, SLOT(nameUndoRedo()));
-	connect(d_menus.edit, SIGNAL(aboutToHide()), this, SLOT(renameUndoRedo()));
-	d_menus.edit->addAction(d_actions.show_history);
-	d_menus.edit->addSeparator();
-	d_menus.edit->addAction(d_actions.keyboard_shortcuts_dialog);
-	d_menus.edit->addAction(d_actions.preferences_dialog);
+	m_menus.edit = menuBar()->addMenu(tr("&Edit"));
+	m_menus.edit->addAction(m_actions.undo);
+	m_menus.edit->addAction(m_actions.redo);
+	connect(m_menus.edit, SIGNAL(aboutToShow()), this, SLOT(nameUndoRedo()));
+	connect(m_menus.edit, SIGNAL(aboutToHide()), this, SLOT(renameUndoRedo()));
+	m_menus.edit->addAction(m_actions.show_history);
+	m_menus.edit->addSeparator();
+	m_menus.edit->addAction(m_actions.keyboard_shortcuts_dialog);
+	m_menus.edit->addAction(m_actions.preferences_dialog);
 
-	d_menus.view = menuBar()->addMenu(tr("&View"));
+	m_menus.view = menuBar()->addMenu(tr("&View"));
 
-	d_menus.toolbars = createToolbarsMenu();
-	if(!d_menus.toolbars) d_menus.toolbars = new QMenu(this);
-	d_menus.toolbars->setTitle(tr("Toolbars"));
+	m_menus.toolbars = createToolbarsMenu();
+	if(!m_menus.toolbars) m_menus.toolbars = new QMenu(this);
+	m_menus.toolbars->setTitle(tr("Toolbars"));
 	
-	d_menus.dockwidgets = createDockWidgetsMenu();
-	if(!d_menus.dockwidgets) d_menus.dockwidgets = new QMenu(this);
-	d_menus.dockwidgets->setTitle(tr("Dock Widgets"));
+	m_menus.dockwidgets = createDockWidgetsMenu();
+	if(!m_menus.dockwidgets) m_menus.dockwidgets = new QMenu(this);
+	m_menus.dockwidgets->setTitle(tr("Dock Widgets"));
 
-	d_menus.view->addMenu(d_menus.toolbars);
-	d_menus.view->addMenu(d_menus.dockwidgets);
-	d_menus.view->addSeparator();
+	m_menus.view->addMenu(m_menus.toolbars);
+	m_menus.view->addMenu(m_menus.dockwidgets);
+	m_menus.view->addSeparator();
 
-	d_menus.part = menuBar()->addMenu(QString());
-	d_menus.part->hide();
+	m_menus.part = menuBar()->addMenu(QString());
+	m_menus.part->hide();
 
-	d_menus.windows = menuBar()->addMenu(tr("&Windows"));
-	connect( d_menus.windows, SIGNAL(aboutToShow()), this, SLOT(handleWindowsMenuAboutToShow()) );
+	m_menus.windows = menuBar()->addMenu(tr("&Windows"));
+	connect( m_menus.windows, SIGNAL(aboutToShow()), this, SLOT(handleWindowsMenuAboutToShow()) );
 	
-	d_menus.win_policy_menu = new QMenu(tr("Show &Windows"));
-	QActionGroup * policy_action_group = new QActionGroup(d_menus.win_policy_menu);
+	m_menus.win_policy_menu = new QMenu(tr("Show &Windows"));
+	QActionGroup * policy_action_group = new QActionGroup(m_menus.win_policy_menu);
 	policy_action_group->setExclusive(true);
 
-	d_actions.visibility_folder = new QAction(tr("Current &Folder Only"), policy_action_group);
-	action_manager->addAction(d_actions.visibility_folder, "visibility_folder");
-	d_actions.visibility_folder->setCheckable(true);
-	d_actions.visibility_folder->setData(Project::folderOnly);
-	d_actions.visibility_subfolders = new QAction(tr("Current Folder and &Subfolders"), policy_action_group);
-	action_manager->addAction(d_actions.visibility_subfolders, "visibility_subfolders");
-	d_actions.visibility_subfolders->setCheckable(true);
-	d_actions.visibility_subfolders->setData(Project::folderAndSubfolders);
-	d_actions.visibility_all = new QAction(tr("&All"), policy_action_group);
-	action_manager->addAction(d_actions.visibility_all, "visibility_all");
-	d_actions.visibility_all->setCheckable(true);
-	d_actions.visibility_all->setData(Project::allMdiWindows);
+	m_actions.visibility_folder = new QAction(tr("Current &Folder Only"), policy_action_group);
+	action_manager->addAction(m_actions.visibility_folder, "visibility_folder");
+	m_actions.visibility_folder->setCheckable(true);
+	m_actions.visibility_folder->setData(Project::folderOnly);
+	m_actions.visibility_subfolders = new QAction(tr("Current Folder and &Subfolders"), policy_action_group);
+	action_manager->addAction(m_actions.visibility_subfolders, "visibility_subfolders");
+	m_actions.visibility_subfolders->setCheckable(true);
+	m_actions.visibility_subfolders->setData(Project::folderAndSubfolders);
+	m_actions.visibility_all = new QAction(tr("&All"), policy_action_group);
+	action_manager->addAction(m_actions.visibility_all, "visibility_all");
+	m_actions.visibility_all->setCheckable(true);
+	m_actions.visibility_all->setData(Project::allMdiWindows);
 	connect(policy_action_group, SIGNAL(triggered(QAction*)), this, SLOT(setMdiWindowVisibility(QAction*)));
-	d_menus.win_policy_menu->addActions(policy_action_group->actions());
-	connect( d_menus.win_policy_menu, SIGNAL(aboutToShow()), this, SLOT(handleWindowsPolicyMenuAboutToShow()) );
+	m_menus.win_policy_menu->addActions(policy_action_group->actions());
+	connect( m_menus.win_policy_menu, SIGNAL(aboutToShow()), this, SLOT(handleWindowsPolicyMenuAboutToShow()) );
 	
-	d_menus.view->addMenu(d_menus.win_policy_menu);
+	m_menus.view->addMenu(m_menus.win_policy_menu);
 
-	d_menus.help = menuBar()->addMenu(tr("&Help"));
-	d_menus.help->addAction(d_actions.show_manual);
-	d_menus.help->addAction(d_actions.select_manual_folder);
-	d_menus.help->addSeparator();
-	d_menus.help->addAction(d_actions.show_homepage);
-	d_menus.help->addAction(d_actions.check_updates);
-	d_menus.help->addAction(d_actions.download_manual);
-	d_menus.help->addAction(d_actions.download_translations);
-	d_menus.help->addSeparator();
-	d_menus.help->addAction(d_actions.show_forums);
-	d_menus.help->addAction(d_actions.show_bugtracker);
-	d_menus.help->addSeparator();
-	d_menus.help->addAction(d_actions.about);
+	m_menus.help = menuBar()->addMenu(tr("&Help"));
+	m_menus.help->addAction(m_actions.show_manual);
+	m_menus.help->addAction(m_actions.select_manual_folder);
+	m_menus.help->addSeparator();
+	m_menus.help->addAction(m_actions.show_homepage);
+	m_menus.help->addAction(m_actions.check_updates);
+	m_menus.help->addAction(m_actions.download_manual);
+	m_menus.help->addAction(m_actions.download_translations);
+	m_menus.help->addSeparator();
+	m_menus.help->addAction(m_actions.show_forums);
+	m_menus.help->addAction(m_actions.show_bugtracker);
+	m_menus.help->addSeparator();
+	m_menus.help->addAction(m_actions.about);
 }
 
 void ProjectWindow::initToolBars()
 {
-	d_toolbars.file = new QToolBar( tr( "File" ), this );
-	d_toolbars.file->setObjectName("file_toolbar"); // this is needed for QMainWindow::restoreState()
-	addToolBar( Qt::TopToolBarArea, d_toolbars.file );
+	m_toolbars.file = new QToolBar( tr( "File" ), this );
+	m_toolbars.file->setObjectName("file_toolbar"); // this is needed for QMainWindow::restoreState()
+	addToolBar( Qt::TopToolBarArea, m_toolbars.file );
 	
-	d_buttons.new_aspect = new QToolButton(this);
-	d_buttons.new_aspect->setPopupMode(QToolButton::InstantPopup);
-	d_buttons.new_aspect->setIcon(QPixmap(":/new_aspect.xpm"));
-	d_buttons.new_aspect->setToolTip(tr("New Aspect"));
-	d_toolbars.file->addWidget(d_buttons.new_aspect);
+	m_buttons.new_aspect = new QToolButton(this);
+	m_buttons.new_aspect->setPopupMode(QToolButton::InstantPopup);
+	m_buttons.new_aspect->setIcon(QPixmap(":/new_aspect.xpm"));
+	m_buttons.new_aspect->setToolTip(tr("New Aspect"));
+	m_toolbars.file->addWidget(m_buttons.new_aspect);
 
-	d_toolbars.file->addAction(d_actions.import_aspect);
+	m_toolbars.file->addAction(m_actions.import_aspect);
 
-	d_toolbars.edit = new QToolBar( tr("Edit"), this);
-	d_toolbars.edit->setObjectName("edit_toolbar");
-	addToolBar(Qt::TopToolBarArea, d_toolbars.edit);
+	m_toolbars.edit = new QToolBar( tr("Edit"), this);
+	m_toolbars.edit->setObjectName("edit_toolbar");
+	addToolBar(Qt::TopToolBarArea, m_toolbars.edit);
 
-	d_toolbars.edit->addAction(d_actions.undo);
-	d_toolbars.edit->addAction(d_actions.redo);
+	m_toolbars.edit->addAction(m_actions.undo);
+	m_toolbars.edit->addAction(m_actions.redo);
 }
 
 void ProjectWindow::addNewFolder()
@@ -539,21 +539,21 @@ void ProjectWindow::openProject()
 
 void ProjectWindow::saveProject()
 {
-	if (d_project->fileName().isEmpty())
+	if (m_project->fileName().isEmpty())
 		saveProjectAs();
 	else
 	{
-		QFile file(d_project->fileName());
+		QFile file(m_project->fileName());
 		if (!file.open(QIODevice::WriteOnly)) 
 		{
-			QString msg_text = tr("Could not open file \"%1\".").arg(d_project->fileName());
+			QString msg_text = tr("Could not open file \"%1\".").arg(m_project->fileName());
 			QMessageBox::critical(this, tr("Error saving project"), msg_text);
 			statusBar()->showMessage(msg_text);
 			return;
 		}
 		QXmlStreamWriter writer(&file);
-		d_project->save(&writer);
-		d_project->undoStack()->clear();
+		m_project->save(&writer);
+		m_project->undoStack()->clear();
 		file.close();
 	}
 }
@@ -566,10 +566,10 @@ void ProjectWindow::saveProjectAs()
 	QString working_dir = qApp->applicationDirPath();
 	QString selected_filter;
 	QString path;
-	if (!d_project->fileName().isEmpty())
-		path = d_project->fileName();
+	if (!m_project->fileName().isEmpty())
+		path = m_project->fileName();
 	else
-		path = working_dir + QString("/") + d_project->name() + ".sciprj";
+		path = working_dir + QString("/") + m_project->name() + ".sciprj";
 	QString fn = QFileDialog::getSaveFileName(this, tr("Save project as"), path, filter, &selected_filter);
 	if ( !fn.isEmpty() )
 	{
@@ -588,7 +588,7 @@ void ProjectWindow::saveProjectAs()
 			compress = true;
 		}
 		
-		d_project->setFileName(fn);
+		m_project->setFileName(fn);
 		saveProject();
 		// TODO: activate this code later
 //		if (selected_filter.contains(".gz") || compress)
@@ -636,10 +636,10 @@ void ProjectWindow::addNewAspect(QObject* obj)
 		if (!maker) return;
 		aspect = maker->makePart();
 	}
-	QModelIndex index = d_project_explorer->currentIndex();
+	QModelIndex index = m_project_explorer->currentIndex();
 
 	if(!index.isValid()) 
-		d_project->addChild(aspect);
+		m_project->addChild(aspect);
 	else
 	{
 		AbstractAspect * parent_aspect = static_cast<AbstractAspect *>(index.internalPointer());
@@ -650,50 +650,50 @@ void ProjectWindow::addNewAspect(QObject* obj)
 
 void ProjectWindow::handleCurrentAspectChanged(AbstractAspect *aspect)
 {
-	if(!aspect) aspect = d_project; // should never happen, just in case
-	if(aspect->folder() != d_current_folder)
+	if(!aspect) aspect = m_project; // should never happen, just in case
+	if(aspect->folder() != m_current_folder)
 	{
-		d_current_folder = aspect->folder();
+		m_current_folder = aspect->folder();
 		updateMdiWindowVisibility();
 	}
-	if(aspect != d_current_aspect)
+	if(aspect != m_current_aspect)
 	{
 		AbstractPart * part = qobject_cast<AbstractPart*>(aspect);
 		if (part)
-			d_mdi_area->setActiveSubWindow(part->mdiSubWindow());
+			m_mdi_area->setActiveSubWindow(part->mdiSubWindow());
 	}
-	d_current_aspect = aspect;
+	m_current_aspect = aspect;
 }
 
 void ProjectWindow::handleCurrentSubWindowChanged(QMdiSubWindow* win) 
 {
 	PartMdiView *view = qobject_cast<PartMdiView*>(win);
-	d_menus.part->clear();
-	d_menus.part->setEnabled(false);
+	m_menus.part->clear();
+	m_menus.part->setEnabled(false);
 	if (!view) return;
 	emit partActivated(view->part());
 	if (view->status() == PartMdiView::Visible)
-		d_menus.part->setEnabled(view->part()->fillProjectMenu(d_menus.part)); 
-	d_project_explorer->setCurrentAspect(view->part());
+		m_menus.part->setEnabled(view->part()->fillProjectMenu(m_menus.part)); 
+	m_project_explorer->setCurrentAspect(view->part());
 }
 
 void ProjectWindow::handleSubWindowStatusChange(PartMdiView * view, PartMdiView::SubWindowStatus from, PartMdiView::SubWindowStatus to) 
 {
-	if (view == d_mdi_area->currentSubWindow())
+	if (view == m_mdi_area->currentSubWindow())
 	{
-		d_menus.part->clear();
+		m_menus.part->clear();
 		if (from == PartMdiView::Hidden && to == PartMdiView::Visible)
-			d_menus.part->setEnabled(view->part()->fillProjectMenu(d_menus.part)); 
+			m_menus.part->setEnabled(view->part()->fillProjectMenu(m_menus.part)); 
 		else if (to == PartMdiView::Hidden && from == PartMdiView::Visible)
-			d_menus.part->setEnabled(false);
+			m_menus.part->setEnabled(false);
 	}
 }
 
 void ProjectWindow::updateMdiWindowVisibility()
 {
-	QList<QMdiSubWindow *> windows = d_mdi_area->subWindowList();
+	QList<QMdiSubWindow *> windows = m_mdi_area->subWindowList();
 	PartMdiView * part_view;
-	switch(d_project->mdiWindowVisibility()) 
+	switch(m_project->mdiWindowVisibility()) 
 	{
 		case Project::allMdiWindows:
 			foreach(QMdiSubWindow *window, windows) 
@@ -708,7 +708,7 @@ void ProjectWindow::updateMdiWindowVisibility()
 			{
 				part_view = qobject_cast<PartMdiView *>(window);
 				Q_ASSERT(part_view);
-				if(part_view->part()->folder() == d_current_folder)
+				if(part_view->part()->folder() == m_current_folder)
 					part_view->show();
 				else
 					part_view->hide();
@@ -718,7 +718,7 @@ void ProjectWindow::updateMdiWindowVisibility()
 			foreach(QMdiSubWindow *window, windows) 
 			{
 				part_view = qobject_cast<PartMdiView *>(window);
-				if(part_view->part()->isDescendantOf(d_current_folder))
+				if(part_view->part()->isDescendantOf(m_current_folder))
 					part_view->show();
 				else
 					part_view->hide();
@@ -848,7 +848,7 @@ void ProjectWindow::showPreferencesDialog()
 
 void ProjectWindow::showHistory()
 {
-	if (!d_project->undoStack()) return;
+	if (!m_project->undoStack()) return;
 	QDialog dialog;
 	QVBoxLayout layout(&dialog);
 
@@ -858,8 +858,8 @@ void ProjectWindow::showHistory()
     QObject::connect(&button_box, SIGNAL(accepted()), &dialog, SLOT(accept()));
     QObject::connect(&button_box, SIGNAL(rejected()), &dialog, SLOT(reject()));
 
-	int index = d_project->undoStack()->index();
-	QUndoView undo_view(d_project->undoStack());
+	int index = m_project->undoStack()->index();
+	QUndoView undo_view(m_project->undoStack());
 
 	layout.addWidget(&undo_view);
 	layout.addWidget(&button_box);
@@ -868,56 +868,56 @@ void ProjectWindow::showHistory()
 	if (dialog.exec() == QDialog::Accepted)
 		return;
 
-	d_project->undoStack()->setIndex(index);
+	m_project->undoStack()->setIndex(index);
 }
 
 
 void ProjectWindow::handleWindowsMenuAboutToShow()
 {
-	d_menus.windows->clear();
-	d_menus.windows->addAction(d_actions.cascade_windows);
-	d_menus.windows->addAction(d_actions.tile_windows);
-	d_menus.windows->addSeparator();
-	d_menus.windows->addAction(d_actions.next_subwindow);
-	d_menus.windows->addAction(d_actions.previous_subwindow);
-	d_menus.windows->addSeparator();
-	d_menus.windows->addAction(d_actions.close_current_window);
-	d_menus.windows->addAction(d_actions.close_all_windows);
-	d_menus.windows->addSeparator();
-	d_menus.windows->addAction(d_actions.choose_folder);
-	d_menus.windows->addSeparator();
+	m_menus.windows->clear();
+	m_menus.windows->addAction(m_actions.cascade_windows);
+	m_menus.windows->addAction(m_actions.tile_windows);
+	m_menus.windows->addSeparator();
+	m_menus.windows->addAction(m_actions.next_subwindow);
+	m_menus.windows->addAction(m_actions.previous_subwindow);
+	m_menus.windows->addSeparator();
+	m_menus.windows->addAction(m_actions.close_current_window);
+	m_menus.windows->addAction(m_actions.close_all_windows);
+	m_menus.windows->addSeparator();
+	m_menus.windows->addAction(m_actions.choose_folder);
+	m_menus.windows->addSeparator();
 
-	d_actions.close_current_window->setEnabled(d_mdi_area->currentSubWindow() != 0 && d_mdi_area->currentSubWindow()->isVisible());
+	m_actions.close_current_window->setEnabled(m_mdi_area->currentSubWindow() != 0 && m_mdi_area->currentSubWindow()->isVisible());
 
-	QList<QMdiSubWindow *> windows = d_mdi_area->subWindowList();
+	QList<QMdiSubWindow *> windows = m_mdi_area->subWindowList();
 	foreach(QMdiSubWindow *win, windows)
 		if (!win->isVisible()) windows.removeAll(win);
 
 	foreach(QMdiSubWindow *win, windows)
 	{
-		QAction * action = d_menus.windows->addAction(win->windowTitle());
+		QAction * action = m_menus.windows->addAction(win->windowTitle());
 		connect(action, SIGNAL(triggered()), win, SLOT(setFocus()));
 		action->setCheckable(true);
-		action->setChecked( d_mdi_area->activeSubWindow() == win );
+		action->setChecked( m_mdi_area->activeSubWindow() == win );
 	}
 }
 
 void ProjectWindow::handleWindowsPolicyMenuAboutToShow()
 {
-	if (d_project->mdiWindowVisibility() == Project::folderOnly) 
-		d_actions.visibility_folder->setChecked(true);
-	else if (d_project->mdiWindowVisibility() == Project::folderAndSubfolders) 
-		d_actions.visibility_subfolders->setChecked(true);
+	if (m_project->mdiWindowVisibility() == Project::folderOnly) 
+		m_actions.visibility_folder->setChecked(true);
+	else if (m_project->mdiWindowVisibility() == Project::folderAndSubfolders) 
+		m_actions.visibility_subfolders->setChecked(true);
 	else
-		d_actions.visibility_all->setChecked(true);
+		m_actions.visibility_all->setChecked(true);
 }
 
 QMenu *ProjectWindow::createContextMenu() const
 {
 	QMenu * menu = new QMenu(); // no remove action from AbstractAspect in the project context menu
 
-	menu->addMenu(d_menus.new_aspect);
-	menu->addMenu(d_menus.win_policy_menu);
+	menu->addMenu(m_menus.new_aspect);
+	menu->addMenu(m_menus.win_policy_menu);
 	menu->addSeparator();
 
 	// TODO:
@@ -936,15 +936,15 @@ QMenu *ProjectWindow::createFolderContextMenu(const Folder * folder) const
 	Q_ASSERT(menu);
 	menu->addSeparator();
 
-	menu->addMenu(d_menus.new_aspect);
+	menu->addMenu(m_menus.new_aspect);
 
-	if (d_project->mdiWindowVisibility() == Project::folderOnly) 
-		d_actions.visibility_folder->setChecked(true);
-	else if (d_project->mdiWindowVisibility() == Project::folderAndSubfolders) 
-		d_actions.visibility_subfolders->setChecked(true);
+	if (m_project->mdiWindowVisibility() == Project::folderOnly) 
+		m_actions.visibility_folder->setChecked(true);
+	else if (m_project->mdiWindowVisibility() == Project::folderAndSubfolders) 
+		m_actions.visibility_subfolders->setChecked(true);
 	else
-		d_actions.visibility_all->setChecked(true);
-	menu->addMenu(d_menus.win_policy_menu);
+		m_actions.visibility_all->setChecked(true);
+	menu->addMenu(m_menus.win_policy_menu);
 	menu->addSeparator();
 
 	return menu;
@@ -952,12 +952,12 @@ QMenu *ProjectWindow::createFolderContextMenu(const Folder * folder) const
 
 void ProjectWindow::setMdiWindowVisibility(QAction * action) 
 {
-	d_project->setMdiWindowVisibility((Project::MdiWindowVisibility)(action->data().toInt()));
+	m_project->setMdiWindowVisibility((Project::MdiWindowVisibility)(action->data().toInt()));
 }
 		
 void ProjectWindow::chooseFolder()
 {
-	QList<AbstractAspect *> list = d_project->descendantsThatInherit("Folder");
+	QList<AbstractAspect *> list = m_project->descendantsThatInherit("Folder");
 	if (list.isEmpty()) return;
 	
 	// TODO: make a nicer dialog
@@ -983,7 +983,7 @@ void ProjectWindow::chooseFolder()
 		return;
 	int index = selection.currentIndex();
 	if (index >= 0 && index < list.size())
-		d_project_explorer->setCurrentAspect(list.at(index));
+		m_project_explorer->setCurrentAspect(list.at(index));
 }
 
 void ProjectWindow::showAboutDialog()
@@ -1132,27 +1132,27 @@ void ProjectWindow::receivedVersionFile(bool error)
 
 void ProjectWindow::nameUndoRedo()
 {
-	d_actions.undo->setText(tr("&Undo") + " " + d_project->undoStack()->undoText());
-	d_actions.redo->setText(tr("&Redo") + " " + d_project->undoStack()->redoText());
+	m_actions.undo->setText(tr("&Undo") + " " + m_project->undoStack()->undoText());
+	m_actions.redo->setText(tr("&Redo") + " " + m_project->undoStack()->redoText());
 }
 
 void ProjectWindow::renameUndoRedo()
 {
-	d_actions.undo->setText(tr("&Undo"));
-	d_actions.redo->setText(tr("&Redo"));
+	m_actions.undo->setText(tr("&Undo"));
+	m_actions.redo->setText(tr("&Redo"));
 }
 
 void ProjectWindow::undo()
 {
 	WAIT_CURSOR;
-	d_project->undoStack()->undo();
+	m_project->undoStack()->undo();
 	RESET_CURSOR;
 }
 
 void ProjectWindow::redo()
 {
 	WAIT_CURSOR;
-	d_project->undoStack()->redo();
+	m_project->undoStack()->redo();
 	RESET_CURSOR;
 }
 

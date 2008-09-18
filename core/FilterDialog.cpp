@@ -165,7 +165,7 @@ if (filter_type >= FFTFilter::BandPass)
 		}
 	}
 
-FFTFilter *f = new FFTFilter((ApplicationWindow *)this->parent(), d_layer, boxName->currentText(), filter_type);
+FFTFilter *f = new FFTFilter((ApplicationWindow *)this->parent(), m_layer, boxName->currentText(), filter_type);
 if (filter_type == FFTFilter::BandPass)
     {
     f->setBand(from, to);

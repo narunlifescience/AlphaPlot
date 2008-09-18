@@ -38,82 +38,82 @@
 
 MultiPeakFitTool::MultiPeakFitTool(Layer *layer, ApplicationWindow *app, MultiPeakFit::PeakProfile profile, int num_peaks, const QObject *status_target, const char *status_slot)
 	: AbstractGraphTool(layer),
-	d_profile(profile),
-	d_num_peaks(num_peaks)
+	m_profile(profile),
+	m_num_peaks(num_peaks)
 {
-	d_selected_peaks = 0;
-	d_curve = 0;
+	m_selected_peaks = 0;
+	m_curve = 0;
 
-	d_fit = new MultiPeakFit(app, d_layer, d_profile, d_num_peaks);
-	d_fit->enablePeakCurves(app->generatePeakCurves);
-	d_fit->setPeakCurvesColor(app->peakCurvesColor);
-	d_fit->generateFunction(app->generateUniformFitPoints, app->fitPoints);
+	m_fit = new MultiPeakFit(app, m_layer, m_profile, m_num_peaks);
+	m_fit->enablePeakCurves(app->generatePeakCurves);
+	m_fit->setPeakCurvesColor(app->peakCurvesColor);
+	m_fit->generateFunction(app->generateUniformFitPoints, app->fitPoints);
 
 	if (status_target)
 		connect(this, SIGNAL(statusText(const QString&)), status_target, status_slot);
-	d_picker_tool = new DataPickerTool(d_layer, app, DataPickerTool::Display, this, SIGNAL(statusText(const QString&)));
-	connect(d_picker_tool, SIGNAL(selected(QwtPlotCurve*,int)), this, SLOT(selectPeak(QwtPlotCurve*,int)));
-	d_layer->plotWidget()->canvas()->grabMouse();
+	m_picker_tool = new DataPickerTool(m_layer, app, DataPickerTool::Display, this, SIGNAL(statusText(const QString&)));
+	connect(m_picker_tool, SIGNAL(selected(QwtPlotCurve*,int)), this, SLOT(selectPeak(QwtPlotCurve*,int)));
+	m_layer->plotWidget()->canvas()->grabMouse();
 	emit statusText(tr("Move cursor and click to select a point and double-click/press 'Enter' to set the position of a peak!"));
 }
 
 MultiPeakFitTool::~MultiPeakFitTool()
 {
-	if (d_picker_tool)
-		delete d_picker_tool;
-	if (d_fit)
-		delete d_fit;
-	d_layer->plotWidget()->canvas()->unsetCursor();
+	if (m_picker_tool)
+		delete m_picker_tool;
+	if (m_fit)
+		delete m_fit;
+	m_layer->plotWidget()->canvas()->unsetCursor();
 }
 
 void MultiPeakFitTool::selectPeak(QwtPlotCurve *curve, int point_index)
 {
 	// TODO: warn user
-	if (!curve || (d_curve && d_curve != curve))
+	if (!curve || (m_curve && m_curve != curve))
 		return;
-	d_curve = curve;
+	m_curve = curve;
 
-	d_fit->setInitialGuess(3*d_selected_peaks, curve->y(point_index));
-	d_fit->setInitialGuess(3*d_selected_peaks+1, curve->x(point_index));
+	m_fit->setInitialGuess(3*m_selected_peaks, curve->y(point_index));
+	m_fit->setInitialGuess(3*m_selected_peaks+1, curve->x(point_index));
 
 	QwtPlotMarker *m = new QwtPlotMarker();
 	m->setLineStyle(QwtPlotMarker::VLine);
 	m->setLinePen(QPen(Qt::green, 2, Qt::DashLine));
 	m->setXValue(curve->x(point_index));
-	d_layer->plotWidget()->insertMarker(m);
-	d_layer->plotWidget()->replot();
+	m_layer->plotWidget()->insertMarker(m);
+	m_layer->plotWidget()->replot();
 
-	d_selected_peaks++;
-	if (d_selected_peaks == d_num_peaks)
+	m_selected_peaks++;
+	if (m_selected_peaks == m_num_peaks)
 		finalize();
 	else
 		emit statusText(
 				tr("Peak %1 selected! Click to select a point and double-click/press 'Enter' to set the position of the next peak!")
-				.arg(QString::number(d_selected_peaks)));
+				.arg(QString::number(m_selected_peaks)));
 }
 
 void MultiPeakFitTool::finalize()
 {
-	delete d_picker_tool; d_picker_tool = NULL;
-	d_layer->plotWidget()->canvas()->releaseMouse();
+	delete m_picker_tool; m_picker_tool = NULL;
+	m_layer->plotWidget()->canvas()->releaseMouse();
 
-	if (d_fit->setDataFromCurve(d_curve->title().text()))
+	if (m_fit->setDataFromCurve(m_curve->title().text()))
 	{
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		d_fit->fit();
-		delete d_fit; d_fit = NULL;
+		m_fit->fit();
+		delete m_fit; m_fit = NULL;
 		QApplication::restoreOverrideCursor();
 	}
 
 	//remove peak line markers
-	QList<int>mrks = d_layer->plotWidget()->markerKeys();
+	QList<int>mrks = m_layer->plotWidget()->markerKeys();
 	int n=(int)mrks.count();
-	for (int i=0; i<d_num_peaks; i++)
-		d_layer->plotWidget()->removeMarker(mrks[n-i-1]);
+	for (int i=0; i<m_num_peaks; i++)
+		m_layer->plotWidget()->removeMarker(mrks[n-i-1]);
 
-	d_layer->plotWidget()->replot();
+	m_layer->plotWidget()->replot();
 
-	d_layer->setActiveTool(NULL);
+	m_layer->setActiveTool(NULL);
 	// attention: I'm now deleted. Maybe there is a cleaner solution...
 }
 

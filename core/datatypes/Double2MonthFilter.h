@@ -48,8 +48,8 @@ class Double2MonthFilter : public AbstractSimpleFilter
 			return dateTimeAt(row).time();
 		}
 		virtual QDateTime dateTimeAt(int row) const {
-			if (!d_inputs.value(0)) return QDateTime();
-			double input_value = d_inputs.value(0)->valueAt(row);
+			if (!m_inputs.value(0)) return QDateTime();
+			double input_value = m_inputs.value(0)->valueAt(row);
 			// Don't use Julian days here since support for years < 1 is bad
 			// Use 1900-01-01 instead
 			QDate result_date = QDate(1900,1,1).addMonths(qRound(input_value - 1.0));

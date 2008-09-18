@@ -56,16 +56,16 @@ class ExtensibleFileDialog : public QFileDialog
 		//! Set the extension widget to be displayed when the user presses the toggle button.
 		void setExtensionWidget(QWidget *extension);
 		//! Get the extension widget.
-		QWidget * extensionWidget() const { return d_extension; }
+		QWidget * extensionWidget() const { return m_extension; }
 	
 		//! Tells weather the dialog has a valid extension widget
-		bool isExtendable(){return d_extension != NULL;};
-		bool isExtended(){return d_extension_toggle->isChecked();};
-		void setExtended(bool extended){ d_extension_toggle->setChecked(extended);};
+		bool isExtendable(){return m_extension != NULL;};
+		bool isExtended(){return m_extension_toggle->isChecked();};
+		void setExtended(bool extended){ m_extension_toggle->setChecked(extended);};
 		
 	protected:
 		//! Button for toggling display of extension on/off.
-		QPushButton *d_extension_toggle;
+		QPushButton *m_extension_toggle;
 
 	private slots:
 		//! Resize to make/take space for the extension widget.
@@ -73,9 +73,9 @@ class ExtensibleFileDialog : public QFileDialog
 
 	private:
 		//! The extension widget
-		QWidget *d_extension;
+		QWidget *m_extension;
 		//! The layout row (of the assumed QGridLayout) used for extensions
-		int d_extension_row;
+		int m_extension_row;
 };
 
 #endif // ifndef EXTENSIBLE_FILE_DIALOG_H

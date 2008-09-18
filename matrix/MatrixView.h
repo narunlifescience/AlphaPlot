@@ -83,7 +83,7 @@ class MatrixView : public QWidget
 		MatrixView(Matrix *matrix);
 		//! Destructor
 		virtual ~MatrixView();
-		bool isControlTabBarVisible() { return d_control_tabs->isVisible(); }
+		bool isControlTabBarVisible() { return m_control_tabs->isVisible(); }
 
 		//! \name selection related functions
 		//@{
@@ -178,7 +178,7 @@ class MatrixView : public QWidget
 
 	protected:
 		//! Pointer to the current underlying model
-		MatrixModel * d_model;
+		MatrixModel * m_model;
 
 		virtual void changeEvent(QEvent * event);
 		void retranslateStrings();
@@ -188,13 +188,13 @@ class MatrixView : public QWidget
 	private:
 		Ui::MatrixControlTabs ui;
 		//! The matrix view (first part of the UI)
-		MatrixViewWidget * d_view_widget;
+		MatrixViewWidget * m_view_widget;
 		//! Widget that contains the control tabs UI from #ui
-		QWidget * d_control_tabs;
-		//! Button to toogle the visibility of #d_tool_box
-		QToolButton * d_hide_button;
-		QHBoxLayout * d_main_layout;
-		Matrix * d_matrix;
+		QWidget * m_control_tabs;
+		//! Button to toogle the visibility of #m_tool_box
+		QToolButton * m_hide_button;
+		QHBoxLayout * m_main_layout;
+		Matrix * m_matrix;
 
 		//! Initialization
 		void init();

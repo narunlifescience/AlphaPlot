@@ -107,7 +107,7 @@ class Graph3D: public AbstractPart
 				double yr,double zl,double zr);
 		void insertNewData(Table* table, const QString& colName);
 
-		Matrix * matrix(){return d_matrix;};
+		Matrix * matrix(){return m_matrix;};
 		void addMatrixData(Matrix* m);//used to plot matrixes
 		void addMatrixData(Matrix* m,double xl,double xr,double yl,double yr,double zl,double zr);
 		void updateMatrixData(Matrix* m);
@@ -366,19 +366,19 @@ class Graph3D: public AbstractPart
 		void setPointOptions(double size, bool s);
 		//@}
 
-		Table* getTable(){return d_table;};
+		Table* getTable(){return m_table;};
 		void showWorksheet();
 		void setSmoothMesh(bool smooth);
 
 		//! Used for the animation: rotates the scene with 1/360 degrees
 		void rotate();
 		void animate(bool on = true);
-		bool isAnimated(){return d_timer->isActive();};
+		bool isAnimated(){return m_timer->isActive();};
 
 		void findBestLayout();
-		bool autoscale(){return d_autoscale;};
+		bool autoscale(){return m_autoscale;};
 		//! Enables/Disables autoscaling using findBestLayout().
-		void setAutoscale(bool on = true){d_autoscale = on;};
+		void setAutoscale(bool on = true){m_autoscale = on;};
 
 		void plot3DWireframe();
 		void plot3DHiddenLine();
@@ -417,7 +417,7 @@ class Graph3D: public AbstractPart
 		//! File name of the color map used for the data (if any)
 		QString color_map;
 
-		QTimer *d_timer;
+		QTimer *m_timer;
 		QString title;
 		
 		struct {
@@ -439,7 +439,7 @@ class Graph3D: public AbstractPart
 
 		QStringList labels;
 		QFont titleFnt;
-		bool legendOn, smoothMesh, d_autoscale;
+		bool legendOn, smoothMesh, m_autoscale;
 		QVector<int> scaleType;
 		QColor axesCol,labelsCol,titleCol,meshCol,bgCol,numCol,gridCol;
 		//! Custom data colors.
@@ -453,12 +453,12 @@ class Graph3D: public AbstractPart
 		bool crossHairSmooth, crossHairBoxed;
 		int conesQuality;
 		PointStyle pointStyle;
-		Table *d_table;
-		Matrix *d_matrix;
+		Table *m_table;
+		Matrix *m_matrix;
 		Qwt3D::PLOTSTYLE style_;
-		QWidget *d_view;
-		QWidget *d_view_widget;
-		QVBoxLayout * d_main_layout;
+		QWidget *m_view;
+		QWidget *m_view_widget;
+		QVBoxLayout * m_main_layout;
 
 		QAction * action_plot_wire_frame;
 		QAction * action_plot_hidden_line;

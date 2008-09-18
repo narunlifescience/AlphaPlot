@@ -54,7 +54,7 @@
 
 void PluginFit::init()
 {
-	d_explanation = tr("Plugin Fit");
+	m_explanation = tr("Plugin Fit");
 }
 
 bool PluginFit::load(const QString& pluginName)
@@ -70,32 +70,32 @@ bool PluginFit::load(const QString& pluginName)
 	QLibrary lib(pluginName);
 	lib.setAutoUnload(false);
 
-	d_fsimplex = (fit_function_simplex) lib.resolve( "function_d" );
-	if (!d_fsimplex)
+	m_fsimplex = (fit_function_simplex) lib.resolve( "function_d" );
+	if (!m_fsimplex)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("Plugin Error"),
 				tr("The plugin does not implement a %1 method necessary for simplex fitting.").arg("function_d"));
 		return false;
 	}
 
-	d_f = (fit_function) lib.resolve( "function_f" );
-	if (!d_f)
+	m_f = (fit_function) lib.resolve( "function_f" );
+	if (!m_f)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("Plugin Error"),
 				tr("The plugin does not implement a %1 method necessary for Levenberg-Marquardt fitting.").arg("function_f"));
 		return false;
 	}
 
-	d_df = (fit_function_df) lib.resolve( "function_df" );
-	if (!d_df)
+	m_df = (fit_function_df) lib.resolve( "function_df" );
+	if (!m_df)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("Plugin Error"),
 				tr("The plugin does not implement a %1 method necessary for Levenberg-Marquardt fitting.").arg("function_df"));
 		return false;
 	}
 
-	d_fdf = (fit_function_fdf) lib.resolve( "function_fdf" );
-	if (!d_fdf)
+	m_fdf = (fit_function_fdf) lib.resolve( "function_fdf" );
+	if (!m_fdf)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("Plugin Error"),
 				tr("The plugin does not implement a %1 method necessary for Levenberg-Marquardt fitting.").arg("function_fdf"));
@@ -110,29 +110,29 @@ bool PluginFit::load(const QString& pluginName)
 	fitFunc fitFunction = (fitFunc) lib.resolve("parameters");
 	if (fitFunction)
 	{
-		d_param_names = QString(fitFunction()).split(",", QString::SkipEmptyParts);
-		d_p = (int)d_param_names.count();
-        d_min_points = d_p;
-		d_param_init = gsl_vector_alloc(d_p);
-		covar = gsl_matrix_alloc (d_p, d_p);
-		d_results = new double[d_p];
+		m_param_names = QString(fitFunction()).split(",", QString::SkipEmptyParts);
+		m_p = (int)m_param_names.count();
+        m_min_points = m_p;
+		m_param_init = gsl_vector_alloc(m_p);
+		covar = gsl_matrix_alloc (m_p, m_p);
+		m_results = new double[m_p];
 	}
 	else
 		return false;
 
 	fitFunc fitExplain = (fitFunc) lib.resolve("explanations");
 	if (fitExplain)
-		d_param_explain = QString(fitExplain()).split(",", QString::SkipEmptyParts);
+		m_param_explain = QString(fitExplain()).split(",", QString::SkipEmptyParts);
 	else
-		for (int i=0; i<d_p; i++)
-			d_param_explain << "";
+		for (int i=0; i<m_p; i++)
+			m_param_explain << "";
 
 	fitFunction = (fitFunc) lib.resolve( "name" );
 	setName(QString(fitFunction()));
 
 	fitFunction = (fitFunc) lib.resolve( "function" );
 	if (fitFunction)
-		d_formula = QString(fitFunction());
+		m_formula = QString(fitFunction());
 	else
 		return false;
 
@@ -141,11 +141,11 @@ bool PluginFit::load(const QString& pluginName)
 
 void PluginFit::calculateFitCurveData(double *par, double *X, double *Y)
 {
-	if (d_gen_function)
+	if (m_gen_function)
 	{
-		double X0 = d_x[0];
-		double step = (d_x[d_n-1]-X0)/(d_points-1);
-		for (int i=0; i<d_points; i++)
+		double X0 = m_x[0];
+		double step = (m_x[m_n-1]-X0)/(m_points-1);
+		for (int i=0; i<m_points; i++)
 		{
 			X[i] = X0+i*step;
 			Y[i]= f_eval(X[i], par);
@@ -153,9 +153,9 @@ void PluginFit::calculateFitCurveData(double *par, double *X, double *Y)
 	}
 	else
 	{
-		for (int i=0; i<d_points; i++)
+		for (int i=0; i<m_points; i++)
 		{
-			X[i] = d_x[i];
+			X[i] = m_x[i];
 			Y[i]= f_eval(X[i], par);
 		}
 	}

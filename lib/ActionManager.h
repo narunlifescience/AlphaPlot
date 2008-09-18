@@ -93,17 +93,17 @@ class ActionManager : public QObject
 		void setShortcuts(const QString& internal_name, const QList<QKeySequence>& sequences);
 		QString actionText(const QString& internal_name) const;
 		QList<QString> internalNames() const;
-		CLASS_ACCESSOR(QString, d_title, title, Title);
+		CLASS_ACCESSOR(QString, m_title, title, Title);
 
 	public slots:
 		void removeAction(QAction * action);
 		void removeAction(QObject * action);
 	
 	private:
-		QMap< QString, QList<QAction *> * > d_action_registry;
-		QMap< QString, QList<QKeySequence> > d_action_shortcuts;
-		QMap< QString, QString > d_action_texts;
-		QString d_title;
+		QMap< QString, QList<QAction *> * > m_action_registry;
+		QMap< QString, QList<QKeySequence> > m_action_shortcuts;
+		QMap< QString, QString > m_action_texts;
+		QString m_title;
 };
 
 #endif // ACTIONMANAGER_H

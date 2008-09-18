@@ -40,13 +40,13 @@
 #include <QXmlStreamWriter>
 
 AbstractAspect::AbstractAspect(const QString &name)
-	: d_aspect_private(new Private(this, name))
+	: m_aspect_private(new Private(this, name))
 {
 }
 
 AbstractAspect::~AbstractAspect()
 {
-	delete d_aspect_private;
+	delete m_aspect_private;
 }
 
 void AbstractAspect::writeCommentElement(QXmlStreamWriter * writer) const
@@ -109,33 +109,33 @@ bool AbstractAspect::readBasicAttributes(XmlStreamReader * reader)
 
 AbstractAspect * AbstractAspect::parentAspect() const
 {
-	return d_aspect_private->parent();
+	return m_aspect_private->parent();
 }
 
 void AbstractAspect::addChild(AbstractAspect* child)
 {
 	Q_CHECK_PTR(child);
-	QString new_name = d_aspect_private->uniqueNameFor(child->name());
+	QString new_name = m_aspect_private->uniqueNameFor(child->name());
 	beginMacro(tr("%1: add %2.").arg(name()).arg(new_name));
 	if (new_name != child->name()) {
 		info(tr("Renaming \"%1\" to \"%2\" in order to avoid name collision.").arg(child->name()).arg(new_name));
 		child->setName(new_name);
 	}
-	exec(new AspectChildAddCmd(d_aspect_private, child, d_aspect_private->childCount()));
-	completeAspectInsertion(child, d_aspect_private->childCount()-1);
+	exec(new AspectChildAddCmd(m_aspect_private, child, m_aspect_private->childCount()));
+	completeAspectInsertion(child, m_aspect_private->childCount()-1);
 	endMacro();
 }
 
 void AbstractAspect::insertChild(AbstractAspect* child, int index)
 {
 	Q_CHECK_PTR(child);
-	QString new_name = d_aspect_private->uniqueNameFor(child->name());
+	QString new_name = m_aspect_private->uniqueNameFor(child->name());
 	beginMacro(tr("%1: insert %2 at position %3.").arg(name()).arg(new_name).arg(index+1));
 	if (new_name != child->name()) {
 		info(tr("Renaming \"%1\" to \"%2\" in order to avoid name collision.").arg(child->name()).arg(new_name));
 		child->setName(new_name);
 	}
-	exec(new AspectChildAddCmd(d_aspect_private, child, index));
+	exec(new AspectChildAddCmd(m_aspect_private, child, index));
 	completeAspectInsertion(child, index);
 	endMacro();
 }
@@ -145,7 +145,7 @@ void AbstractAspect::removeChild(AbstractAspect* child)
 	Q_ASSERT(indexOfChild(child) != -1);
 	beginMacro(tr("%1: remove %2.").arg(name()).arg(child->name()));
 	prepareAspectRemoval(child);
-	exec(new AspectChildRemoveCmd(d_aspect_private, child));
+	exec(new AspectChildRemoveCmd(m_aspect_private, child));
 	endMacro();
 }
 
@@ -162,7 +162,7 @@ void AbstractAspect::reparentChild(AbstractAspect *new_parent, AbstractAspect *c
 	Q_ASSERT(new_parent != NULL);
 	beginMacro(tr("%1: move %2 to %3.").arg(name()).arg(child->name()).arg(new_parent->name()));
 	prepareAspectRemoval(child);
-	exec(new AspectChildReparentCmd(d_aspect_private, new_parent->d_aspect_private, child, new_index));
+	exec(new AspectChildReparentCmd(m_aspect_private, new_parent->m_aspect_private, child, new_index));
 	new_parent->completeAspectInsertion(child, new_index);
 	endMacro();
 }
@@ -170,30 +170,30 @@ void AbstractAspect::reparentChild(AbstractAspect *new_parent, AbstractAspect *c
 void AbstractAspect::removeChild(int index)
 {
 	Q_ASSERT(index >= 0 && index <= childCount());
-	removeChild(d_aspect_private->child(index));
+	removeChild(m_aspect_private->child(index));
 }
 
 AbstractAspect* AbstractAspect::child(int index) const
 {
 	Q_ASSERT(index >= 0 && index <= childCount());
-	return d_aspect_private->child(index);
+	return m_aspect_private->child(index);
 }
 
 int AbstractAspect::childCount() const
 {
-	return d_aspect_private->childCount();
+	return m_aspect_private->childCount();
 }
 
 int AbstractAspect::indexOfChild(const AbstractAspect *child) const
 {
-	return d_aspect_private->indexOfChild(child);
+	return m_aspect_private->indexOfChild(child);
 }
 
 void AbstractAspect::moveChild(int from, int to)
 {
-	Q_ASSERT(0 <= from && from < d_aspect_private->childCount());
-	Q_ASSERT(0 <= to   && to   < d_aspect_private->childCount());
-	exec(new AspectChildMoveCmd(d_aspect_private, from, to));
+	Q_ASSERT(0 <= from && from < m_aspect_private->childCount());
+	Q_ASSERT(0 <= to   && to   < m_aspect_private->childCount());
+	exec(new AspectChildMoveCmd(m_aspect_private, from, to));
 }
 
 void AbstractAspect::exec(QUndoCommand *cmd)
@@ -224,57 +224,57 @@ void AbstractAspect::endMacro()
 
 QString AbstractAspect::name() const
 {
-	return d_aspect_private->name();
+	return m_aspect_private->name();
 }
 
 void AbstractAspect::setName(const QString &value)
 {
-	if (value == d_aspect_private->name()) return;
-	if (d_aspect_private->parent()) {
-		QString new_name = d_aspect_private->parent()->uniqueNameFor(value);
+	if (value == m_aspect_private->name()) return;
+	if (m_aspect_private->parent()) {
+		QString new_name = m_aspect_private->parent()->uniqueNameFor(value);
 		if (new_name != value)
 			info(tr("Intended name \"%1\" diverted to \"%2\" in order to avoid name collision.").arg(value).arg(new_name));
-		exec(new AspectNameChangeCmd(d_aspect_private, new_name));
+		exec(new AspectNameChangeCmd(m_aspect_private, new_name));
 	} else
-		exec(new AspectNameChangeCmd(d_aspect_private, value));
+		exec(new AspectNameChangeCmd(m_aspect_private, value));
 }
 
 QString AbstractAspect::comment() const
 {
-	return d_aspect_private->comment();
+	return m_aspect_private->comment();
 }
 
 void AbstractAspect::setComment(const QString &value)
 {
-	if (value == d_aspect_private->comment()) return;
-	exec(new AspectCommentChangeCmd(d_aspect_private, value));
+	if (value == m_aspect_private->comment()) return;
+	exec(new AspectCommentChangeCmd(m_aspect_private, value));
 }
 
 QString AbstractAspect::captionSpec() const
 {
-	return d_aspect_private->captionSpec();
+	return m_aspect_private->captionSpec();
 }
 
 void AbstractAspect::setCaptionSpec(const QString &value)
 {
-	if (value == d_aspect_private->captionSpec()) return;
-	exec(new AspectCaptionSpecChangeCmd(d_aspect_private, value));
+	if (value == m_aspect_private->captionSpec()) return;
+	exec(new AspectCaptionSpecChangeCmd(m_aspect_private, value));
 }
 
 void AbstractAspect::setCreationTime(const QDateTime& time)
 {
-	if (time == d_aspect_private->creationTime()) return;
-	exec(new AspectCreationTimeChangeCmd(d_aspect_private, time));
+	if (time == m_aspect_private->creationTime()) return;
+	exec(new AspectCreationTimeChangeCmd(m_aspect_private, time));
 }
 
 QDateTime AbstractAspect::creationTime() const
 {
-	return d_aspect_private->creationTime();
+	return m_aspect_private->creationTime();
 }
 
 QString AbstractAspect::caption() const
 {
-	return d_aspect_private->caption();
+	return m_aspect_private->caption();
 }
 
 QIcon AbstractAspect::icon() const
@@ -318,7 +318,7 @@ bool AbstractAspect::isDescendantOf(AbstractAspect *other)
 
 QString AbstractAspect::uniqueNameFor(const QString &current_name) const
 {
-	return d_aspect_private->uniqueNameFor(current_name);
+	return m_aspect_private->uniqueNameFor(current_name);
 }
 
 QList<AbstractAspect *> AbstractAspect::descendantsThatInherit(const char * class_name)

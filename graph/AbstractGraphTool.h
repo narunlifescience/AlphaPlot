@@ -39,12 +39,12 @@ class Layer;
  * (like TranslateCurveTool); the basic concept is quite similar.
  * The main point in managing plot tools as subclasses of this class (as opposed to using void pointers)
  * is the virtual destructor that allows tools to clean up after themselves.
- * Additionally, a pointer to the parent Layer (#d_layer) is managed.
+ * Additionally, a pointer to the parent Layer (#m_layer) is managed.
  * In the future, this class may provide other generic tool functionality.
  *
  * %Note that zooming and range selection are somewhat special in that they can be active in addition
  * to other tools. These are handled as special cases, while all other tools are rendered mutually exclusive
- * by having Layer manage a pointer to the currently active tool (Layer::d_active_tool).
+ * by having Layer manage a pointer to the currently active tool (Layer::m_active_tool).
  *
  * It would be nice for some of the plot tools (like TranslateCurveTool or MultiPeakFitTool) to send a signal
  * when they are finished and to generalize the statusText signal provided by most tools, but having
@@ -59,10 +59,10 @@ class Layer;
 class AbstractGraphTool
 {
 	public:
-		AbstractGraphTool(Layer *layer) { d_layer = layer; }
+		AbstractGraphTool(Layer *layer) { m_layer = layer; }
 		virtual ~AbstractGraphTool() {};
 	protected:
-		Layer *d_layer;
+		Layer *m_layer;
 };
 
 #endif // ifndef ABSTRACT_GRAPH_TOOL_H

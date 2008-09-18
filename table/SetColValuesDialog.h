@@ -87,7 +87,7 @@ public slots:
 	void updateColumn(int sc);
 
 private:
-	Table* d_table;
+	Table* m_table;
 };
 
 #endif //

@@ -54,29 +54,29 @@
 void SigmoidalFit::init()
 {
 	setName("Boltzmann");
-	d_f = boltzmann_f;
-	d_df = boltzmann_df;
-	d_fdf = boltzmann_fdf;
-	d_fsimplex = boltzmann_d;
-	d_p = 4;
-    d_min_points = d_p;
-	d_param_init = gsl_vector_alloc(d_p);
-	gsl_vector_set_all (d_param_init, 1.0);
-	covar = gsl_matrix_alloc (d_p, d_p);
-	d_results = new double[d_p];
-	d_param_explain << tr("(init value)") << tr("(final value)") << tr("(center)") << tr("(time constant)");
-	d_param_names << "A1" << "A2" << "x0" << "dx";
-	d_explanation = tr("Boltzmann (Sigmoidal) Fit");
-	d_formula = "(A1-A2)/(1+exp((x-x0)/dx))+A2";
+	m_f = boltzmann_f;
+	m_df = boltzmann_df;
+	m_fdf = boltzmann_fdf;
+	m_fsimplex = boltzmann_d;
+	m_p = 4;
+    m_min_points = m_p;
+	m_param_init = gsl_vector_alloc(m_p);
+	gsl_vector_set_all (m_param_init, 1.0);
+	covar = gsl_matrix_alloc (m_p, m_p);
+	m_results = new double[m_p];
+	m_param_explain << tr("(init value)") << tr("(final value)") << tr("(center)") << tr("(time constant)");
+	m_param_names << "A1" << "A2" << "x0" << "dx";
+	m_explanation = tr("Boltzmann (Sigmoidal) Fit");
+	m_formula = "(A1-A2)/(1+exp((x-x0)/dx))+A2";
 }
 
 void SigmoidalFit::calculateFitCurveData(double *par, double *X, double *Y)
 {
-	if (d_gen_function)
+	if (m_gen_function)
 	{
-		double X0 = d_x[0];
-		double step = (d_x[d_n-1]-X0)/(d_points-1);
-		for (int i=0; i<d_points; i++)
+		double X0 = m_x[0];
+		double step = (m_x[m_n-1]-X0)/(m_points-1);
+		for (int i=0; i<m_points; i++)
 		{
 			X[i] = X0+i*step;
 			Y[i] = (par[0]-par[1])/(1+exp((X[i]-par[2])/par[3]))+par[1];
@@ -84,9 +84,9 @@ void SigmoidalFit::calculateFitCurveData(double *par, double *X, double *Y)
 	}
 	else
 	{
-		for (int i=0; i<d_points; i++)
+		for (int i=0; i<m_points; i++)
 		{
-			X[i] = d_x[i];
+			X[i] = m_x[i];
 			Y[i] = (par[0]-par[1])/(1+exp((X[i]-par[2])/par[3]))+par[1];
 		}
 	}
@@ -95,15 +95,15 @@ void SigmoidalFit::calculateFitCurveData(double *par, double *X, double *Y)
 
 void SigmoidalFit::guessInitialValues()
 {
-	gsl_vector_view x = gsl_vector_view_array (d_x, d_n);
-	gsl_vector_view y = gsl_vector_view_array (d_y, d_n);
+	gsl_vector_view x = gsl_vector_view_array (m_x, m_n);
+	gsl_vector_view y = gsl_vector_view_array (m_y, m_n);
 
 	double min_out, max_out;
 	gsl_vector_minmax (&y.vector, &min_out, &max_out);
 
-	gsl_vector_set(d_param_init, 0, min_out);
-	gsl_vector_set(d_param_init, 1, max_out);
-	gsl_vector_set(d_param_init, 2, gsl_vector_get (&x.vector, d_n/2));
-	gsl_vector_set(d_param_init, 3, 1.0);
+	gsl_vector_set(m_param_init, 0, min_out);
+	gsl_vector_set(m_param_init, 1, max_out);
+	gsl_vector_set(m_param_init, 2, gsl_vector_get (&x.vector, m_n/2));
+	gsl_vector_set(m_param_init, 3, 1.0);
 }
 

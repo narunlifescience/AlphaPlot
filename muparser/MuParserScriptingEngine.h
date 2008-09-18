@@ -46,7 +46,7 @@ class MuParserScriptingEngine: public AbstractScriptingEngine
 
   public:
     static const char *g_lang_name;
-    MuParserScriptingEngine(ApplicationWindow *parent) : AbstractScriptingEngine(parent, g_lang_name) { d_initialized=true; }
+    MuParserScriptingEngine(ApplicationWindow *parent) : AbstractScriptingEngine(parent, g_lang_name) { m_initialized=true; }
     static AbstractScriptingEngine *constructor(ApplicationWindow *parent) { return new MuParserScriptingEngine(parent); }
 
     bool isRunning() const { return true; }

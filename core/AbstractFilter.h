@@ -100,7 +100,7 @@ class AbstractFilter : public AbstractAspect
 		 * not necessarily sequential. In conjunction with input(int), this method can be used to
 		 * traverse the connected inputs.
 		 */
-		int highestConnectedInput() const { return d_inputs.count() - 1; }
+		int highestConnectedInput() const { return m_inputs.count() - 1; }
 		/**
 		 * \brief Connect the provided data source to the specified input port.
 		 * \param port the port number to which to connect
@@ -109,13 +109,13 @@ class AbstractFilter : public AbstractAspect
 		 *
 		 * The port number is checked for validity against inputCount() and both port number and data
 		 * source are passed to inputAcceptable() for review. If both checks succeed,the
-		 * source is recorded in #d_inputs.
+		 * source is recorded in #m_inputs.
 		 * If applicable, the previously connected data source is disconnected before replacing it.
 		 *
 		 * You can also use this method to disconnect an input without replacing it with a new one by
 		 * calling it with source=0.
 		 *
-		 * \sa inputAcceptable(), #d_inputs
+		 * \sa inputAcceptable(), #m_inputs
 		 */
 		bool input(int port, const AbstractColumn* source);
 		/**
@@ -126,7 +126,7 @@ class AbstractFilter : public AbstractAspect
 		 */
 		bool input(const AbstractFilter* sources);
 		//! Return the input currently connected to the specified port, or 0.
-		const AbstractColumn *input(int port) const { return d_inputs.value(port); }
+		const AbstractColumn *input(int port) const { return m_inputs.value(port); }
 		/**
 		 * \brief Return the label associated to the given input port.
 		 *
@@ -149,8 +149,8 @@ class AbstractFilter : public AbstractAspect
 		//! Return the input port to which the column is connected or -1 if it's not connected
 		int portIndexOf(const AbstractColumn * column)
 		{
-			for(int i=0; i<d_inputs.size(); i++)
-				if(d_inputs.at(i) == column) return i;
+			for(int i=0; i<m_inputs.size(); i++)
+				if(m_inputs.at(i) == column) return i;
 			return -1;
 		}
 
@@ -194,7 +194,7 @@ class AbstractFilter : public AbstractAspect
 		virtual void inputDescriptionChanged(const AbstractColumn * source) { Q_UNUSED(source); }
 		void inputDescriptionChanged(const AbstractAspect * aspect) {
 			const AbstractColumn * col = qobject_cast<const AbstractColumn*>(aspect);
-			if (col && d_inputs.contains(col)) inputDescriptionChanged(col);
+			if (col && m_inputs.contains(col)) inputDescriptionChanged(col);
 		}
 		/**
 		 * \brief The plot designation of an input is about to change.
@@ -272,7 +272,7 @@ class AbstractFilter : public AbstractAspect
 
 	protected:
 		//! The data sources connected to my input ports.
-		QVector<const AbstractColumn*> d_inputs;
+		QVector<const AbstractColumn*> m_inputs;
 };
 
 #endif // ifndef ABSTRACT_FILTER_H

@@ -58,11 +58,11 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended, Qt::WFlags 
 	QHBoxLayout *advanced_layout = new QHBoxLayout();
 	advanced_options->setLayout(advanced_layout);
 	advanced_layout->addWidget(new QLabel(tr("Open As")));
-	d_open_mode = new QComboBox();
+	m_open_mode = new QComboBox();
 	// Important: Keep this is sync with enum OpenMode.
-	d_open_mode->addItem(tr("New Project Window"));
-	d_open_mode->addItem(tr("New Folder"));
-	advanced_layout->addWidget(d_open_mode);
+	m_open_mode->addItem(tr("New Project Window"));
+	m_open_mode->addItem(tr("New Folder"));
+	advanced_layout->addWidget(m_open_mode);
 	setExtensionWidget(advanced_options);
 
 #if QT_VERSION >= 0x040300
@@ -80,11 +80,11 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended, Qt::WFlags 
 void OpenProjectDialog::updateAdvancedOptions (const QString & filter)
 {
 	if (filter.contains("*.ogm") || filter.contains("*.ogw")) {
-		d_extension_toggle->setChecked(false);
-		d_extension_toggle->setEnabled(false);
+		m_extension_toggle->setChecked(false);
+		m_extension_toggle->setEnabled(false);
 		return;
 	}
-	d_extension_toggle->setEnabled(true);
+	m_extension_toggle->setEnabled(true);
 }
 
 void OpenProjectDialog::closeEvent(QCloseEvent* e)
@@ -92,7 +92,7 @@ void OpenProjectDialog::closeEvent(QCloseEvent* e)
 	if (isExtendable()){
 		ApplicationWindow *app = (ApplicationWindow *)this->parent();
 		if (app)
-			app->d_extended_open_dialog = this->isExtended();
+			app->m_extended_open_dialog = this->isExtended();
 	}
 
 	e->accept();

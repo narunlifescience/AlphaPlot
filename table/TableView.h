@@ -91,7 +91,7 @@ class TableView : public QWidget
 		TableView(Table *table);
 		//! Destructor
 		virtual ~TableView();
-		bool isControlTabBarVisible() { return d_control_tabs->isVisible(); }
+		bool isControlTabBarVisible() { return m_control_tabs->isVisible(); }
 		//! Show or hide (if on = false) the column comments
 		void showComments(bool on = true);
 		//! Return whether comments are show currently
@@ -319,9 +319,9 @@ class TableView : public QWidget
 
 	protected:
 		//! Pointer to the item delegate
-		TableItemDelegate * d_delegate;
+		TableItemDelegate * m_delegate;
 		//! Pointer to the current underlying model
-		TableModel * d_model;
+		TableModel * m_model;
 
 		virtual void changeEvent(QEvent * event);
 		void retranslateStrings();
@@ -332,14 +332,14 @@ class TableView : public QWidget
 		//! UI with options tabs (description, format, formula etc.)
 		Ui::ControlTabs ui;
 		//! The table view (first part of the UI)
-		TableViewWidget * d_view_widget;
+		TableViewWidget * m_view_widget;
 		//! Widget that contains the control tabs UI from #ui
-		QWidget * d_control_tabs;
-		//! Button to toogle the visibility of #d_tool_box
-		QToolButton * d_hide_button;
-		QHBoxLayout * d_main_layout;
-		TableDoubleHeaderView * d_horizontal_header;
-		Table * d_table;
+		QWidget * m_control_tabs;
+		//! Button to toogle the visibility of #m_tool_box
+		QToolButton * m_hide_button;
+		QHBoxLayout * m_main_layout;
+		TableDoubleHeaderView * m_horizontal_header;
+		Table * m_table;
 
 		//! Initialization
 		void init();
@@ -397,7 +397,7 @@ class TableView : public QWidget
 		QAction * action_statistics_rows;
 		//@}
 
-		QMenu * d_plot_menu;
+		QMenu * m_plot_menu;
 };
 
 

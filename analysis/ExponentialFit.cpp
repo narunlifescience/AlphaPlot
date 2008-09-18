@@ -61,53 +61,53 @@ ExponentialFit::ExponentialFit(ApplicationWindow *parent, Layer *g,
 
 void ExponentialFit::init()
 {
-	d_f = exp_f;
-	d_df = exp_df;
-	d_fdf = exp_fdf;
-	d_fsimplex = exp_d;
-	d_p = 3;
-    d_min_points = d_p;
-	d_param_init = gsl_vector_alloc(d_p);
-	gsl_vector_set_all (d_param_init, 1.0);
+	m_f = exp_f;
+	m_df = exp_df;
+	m_fdf = exp_fdf;
+	m_fsimplex = exp_d;
+	m_p = 3;
+    m_min_points = m_p;
+	m_param_init = gsl_vector_alloc(m_p);
+	gsl_vector_set_all (m_param_init, 1.0);
 
-	covar = gsl_matrix_alloc (d_p, d_p);
-	d_results = new double[d_p];
-	d_param_names << "A" << "t" << "y0";
+	covar = gsl_matrix_alloc (m_p, m_p);
+	m_results = new double[m_p];
+	m_param_names << "A" << "t" << "y0";
 
 	if (is_exp_growth)
 	{
 		setName("ExpGrowth");
-		d_explanation = tr("Exponential growth");
-		d_formula = "y0+A*exp(x/t)";
-		d_param_explain << "(amplitude)" << "(lifetime)" << "(offset)";
+		m_explanation = tr("Exponential growth");
+		m_formula = "y0+A*exp(x/t)";
+		m_param_explain << "(amplitude)" << "(lifetime)" << "(offset)";
 	}
 	else
 	{
 		setName("ExpDecay");
-		d_explanation = tr("Exponential decay");
-		d_formula = "y0+A*exp(-x/t)";
-		d_param_explain << "(amplitude)" << "(e-folding time)" << "(offset)";
+		m_explanation = tr("Exponential decay");
+		m_formula = "y0+A*exp(-x/t)";
+		m_param_explain << "(amplitude)" << "(e-folding time)" << "(offset)";
 	}
 }
 
 void ExponentialFit::storeCustomFitResults(double *par)
 {
-	for (int i=0; i<d_p; i++)
-		d_results[i] = par[i];
+	for (int i=0; i<m_p; i++)
+		m_results[i] = par[i];
 
 	if (is_exp_growth)
-		d_results[1]=-1.0/d_results[1];
+		m_results[1]=-1.0/m_results[1];
 	else
-		d_results[1]=1.0/d_results[1];
+		m_results[1]=1.0/m_results[1];
 }
 
 void ExponentialFit::calculateFitCurveData(double *par, double *X, double *Y)
 {
-	if (d_gen_function)
+	if (m_gen_function)
 	{
-		double X0 = d_x[0];
-		double step = (d_x[d_n-1]-X0)/(d_points-1);
-		for (int i=0; i<d_points; i++)
+		double X0 = m_x[0];
+		double step = (m_x[m_n-1]-X0)/(m_points-1);
+		for (int i=0; i<m_points; i++)
 		{
 			X[i] = X0+i*step;
 			Y[i] = par[0]*exp(-par[1]*X[i])+par[2];
@@ -115,9 +115,9 @@ void ExponentialFit::calculateFitCurveData(double *par, double *X, double *Y)
 	}
 	else
 	{
-		for (int i=0; i<d_points; i++)
+		for (int i=0; i<m_points; i++)
 		{
-			X[i] = d_x[i];
+			X[i] = m_x[i];
 			Y[i] = par[0]*exp(-par[1]*X[i])+par[2];
 		}
 	}
@@ -153,38 +153,38 @@ void ExponentialFit::calculateFitCurveData(double *par, double *X, double *Y)
 void TwoExpFit::init()
 {
 	setName("ExpDecay");
-	d_f = expd2_f;
-	d_df = expd2_df;
-	d_fdf = expd2_fdf;
-	d_fsimplex = expd2_d;
-	d_p = 5;
-    d_min_points = d_p;
-	d_param_init = gsl_vector_alloc(d_p);
-	gsl_vector_set_all (d_param_init, 1.0);
-	covar = gsl_matrix_alloc (d_p, d_p);
-	d_results = new double[d_p];
-	d_param_names << "A1" << "t1" << "A2" << "t2" << "y0";
-	d_explanation = tr("Exponential decay");
-	d_formula = "A1*exp(-x/t1)+A2*exp(-x/t2)+y0";
-	d_param_explain << "(first amplitude)" << "(first lifetime)" << "(second amplitude)" << "(second lifetime)" << "(offset)";
+	m_f = expd2_f;
+	m_df = expd2_df;
+	m_fdf = expd2_fdf;
+	m_fsimplex = expd2_d;
+	m_p = 5;
+    m_min_points = m_p;
+	m_param_init = gsl_vector_alloc(m_p);
+	gsl_vector_set_all (m_param_init, 1.0);
+	covar = gsl_matrix_alloc (m_p, m_p);
+	m_results = new double[m_p];
+	m_param_names << "A1" << "t1" << "A2" << "t2" << "y0";
+	m_explanation = tr("Exponential decay");
+	m_formula = "A1*exp(-x/t1)+A2*exp(-x/t2)+y0";
+	m_param_explain << "(first amplitude)" << "(first lifetime)" << "(second amplitude)" << "(second lifetime)" << "(offset)";
 }
 
 void TwoExpFit::storeCustomFitResults(double *par)
 {
-	for (int i=0; i<d_p; i++)
-		d_results[i] = par[i];
+	for (int i=0; i<m_p; i++)
+		m_results[i] = par[i];
 
-	d_results[1]=1.0/d_results[1];
-	d_results[3]=1.0/d_results[3];
+	m_results[1]=1.0/m_results[1];
+	m_results[3]=1.0/m_results[3];
 }
 
 void TwoExpFit::calculateFitCurveData(double *par, double *X, double *Y)
 {
-	if (d_gen_function)
+	if (m_gen_function)
 	{
-		double X0 = d_x[0];
-		double step = (d_x[d_n-1]-X0)/(d_points-1);
-		for (int i=0; i<d_points; i++)
+		double X0 = m_x[0];
+		double step = (m_x[m_n-1]-X0)/(m_points-1);
+		for (int i=0; i<m_points; i++)
 		{
 			X[i] = X0+i*step;
 			Y[i] = par[0]*exp(-par[1]*X[i])+par[2]*exp(-par[3]*X[i])+par[4];
@@ -192,9 +192,9 @@ void TwoExpFit::calculateFitCurveData(double *par, double *X, double *Y)
 	}
 	else
 	{
-		for (int i=0; i<d_points; i++)
+		for (int i=0; i<m_points; i++)
 		{
-			X[i] = d_x[i];
+			X[i] = m_x[i];
 			Y[i] = par[0]*exp(-par[1]*X[i])+par[2]*exp(-par[3]*X[i])+par[4];
 		}
 	}
@@ -230,39 +230,39 @@ void TwoExpFit::calculateFitCurveData(double *par, double *X, double *Y)
 void ThreeExpFit::init()
 {
 	setName("ExpDecay");
-	d_f = expd3_f;
-	d_df = expd3_df;
-	d_fdf = expd3_fdf;
-	d_fsimplex = expd3_d;
-	d_p = 7;
-    d_min_points = d_p;
-	d_param_init = gsl_vector_alloc(d_p);
-	gsl_vector_set_all (d_param_init, 1.0);
-	covar = gsl_matrix_alloc (d_p, d_p);
-	d_results = new double[d_p];
-	d_param_names << "A1" << "t1" << "A2" << "t2" << "A3" << "t3" << "y0";
-	d_explanation = tr("Exponential decay");
-	d_formula = "A1*exp(-x/t1)+A2*exp(-x/t2)+A3*exp(-x/t3)+y0";
-	d_param_explain << "(first amplitude)" << "(first lifetime)" << "(second amplitude)" << "(second lifetime)" << "(third amplitude)" << "(third lifetime)" << "(offset)";
+	m_f = expd3_f;
+	m_df = expd3_df;
+	m_fdf = expd3_fdf;
+	m_fsimplex = expd3_d;
+	m_p = 7;
+    m_min_points = m_p;
+	m_param_init = gsl_vector_alloc(m_p);
+	gsl_vector_set_all (m_param_init, 1.0);
+	covar = gsl_matrix_alloc (m_p, m_p);
+	m_results = new double[m_p];
+	m_param_names << "A1" << "t1" << "A2" << "t2" << "A3" << "t3" << "y0";
+	m_explanation = tr("Exponential decay");
+	m_formula = "A1*exp(-x/t1)+A2*exp(-x/t2)+A3*exp(-x/t3)+y0";
+	m_param_explain << "(first amplitude)" << "(first lifetime)" << "(second amplitude)" << "(second lifetime)" << "(third amplitude)" << "(third lifetime)" << "(offset)";
 }
 
 void ThreeExpFit::storeCustomFitResults(double *par)
 {
-	for (int i=0; i<d_p; i++)
-		d_results[i] = par[i];
+	for (int i=0; i<m_p; i++)
+		m_results[i] = par[i];
 
-	d_results[1]=1.0/d_results[1];
-	d_results[3]=1.0/d_results[3];
-	d_results[5]=1.0/d_results[5];
+	m_results[1]=1.0/m_results[1];
+	m_results[3]=1.0/m_results[3];
+	m_results[5]=1.0/m_results[5];
 }
 
 void ThreeExpFit::calculateFitCurveData(double *par, double *X, double *Y)
 {
-	if (d_gen_function)
+	if (m_gen_function)
 	{
-		double X0 = d_x[0];
-		double step = (d_x[d_n-1]-X0)/(d_points-1);
-		for (int i=0; i<d_points; i++)
+		double X0 = m_x[0];
+		double step = (m_x[m_n-1]-X0)/(m_points-1);
+		for (int i=0; i<m_points; i++)
 		{
 			X[i]=X0+i*step;
 			Y[i]=par[0]*exp(-X[i]*par[1])+par[2]*exp(-X[i]*par[3])+par[4]*exp(-X[i]*par[5])+par[6];
@@ -270,9 +270,9 @@ void ThreeExpFit::calculateFitCurveData(double *par, double *X, double *Y)
 	}
 	else
 	{
-		for (int i=0; i<d_points; i++)
+		for (int i=0; i<m_points; i++)
 		{
-			X[i]=d_x[i];
+			X[i]=m_x[i];
 			Y[i]=par[0]*exp(-X[i]*par[1])+par[2]*exp(-X[i]*par[3])+par[4]*exp(-X[i]*par[5])+par[6];
 		}
 	}

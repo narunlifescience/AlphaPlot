@@ -40,9 +40,9 @@
  * in a column appear contiguous.
  *
  * The mappings are stored in two integer lists. For
- * each index j in d_source_rows and d_dest_rows the
- * the row number d_source_rows.at(j) in the
- * input column will appear as row d_dest_rows.at(j)
+ * each index j in m_source_rows and m_dest_rows the
+ * the row number m_source_rows.at(j) in the
+ * input column will appear as row m_dest_rows.at(j)
  * in the output column.
  */
 class SimpleMappingFilter : public SimpleCopyThroughFilter
@@ -248,8 +248,8 @@ class SimpleMappingFilter : public SimpleCopyThroughFilter
 		//@}
 
 	private:
-		QList<int> d_source_rows;
-		QList<int> d_dest_rows;
+		QList<int> m_source_rows;
+		QList<int> m_dest_rows;
 };
 
 #endif // #ifndef SIMPLEMAPPINGFILTER_H

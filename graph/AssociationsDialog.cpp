@@ -104,21 +104,21 @@ close();
 
 void AssociationsDialog::updateCurves()
 {
-	if (!d_layer)
+	if (!m_layer)
 		return;
 
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
 	for (int i = 0; i < associations->count(); i++)
 		changePlotAssociation(i, plotAssociation(associations->item(i)->text()));
-	d_layer->updatePlot();
+	m_layer->updatePlot();
 
 	QApplication::restoreOverrideCursor();
 }
 
 void AssociationsDialog::changePlotAssociation(int curve, const QString& text)
 {
-	DataCurve *c = (DataCurve *)d_layer->curve(curve); //c_keys[curve]);
+	DataCurve *c = (DataCurve *)m_layer->curve(curve); //c_keys[curve]);
 	if (!c)
         return;
 
@@ -138,7 +138,7 @@ void AssociationsDialog::changePlotAssociation(int curve, const QString& text)
 		QString xColName = lst[0].remove("(X)");
 		QString yColName = lst[1].remove("(Y)");
 		QString erColName = lst[2].remove("(xErr)").remove("(yErr)");
-		DataCurve *master_curve = d_layer->masterCurve(xColName, yColName);
+		DataCurve *master_curve = m_layer->masterCurve(xColName, yColName);
 		if (!master_curve)
 			return;
 
@@ -165,7 +165,7 @@ void AssociationsDialog::changePlotAssociation(int curve, const QString& text)
 		else
 			v->loadData();
 	}
-	d_layer->notifyChanges();
+	m_layer->notifyChanges();
 }
 
 QString AssociationsDialog::plotAssociation(const QString& text)
@@ -354,11 +354,11 @@ for (int i=0; i < table->rowCount(); i++ )
 
 void AssociationsDialog::setLayer(Layer *g)
 {
-d_layer = g;
+m_layer = g;
 
-for (int i=0; i<d_layer->curveCount(); i++)
+for (int i=0; i<m_layer->curveCount(); i++)
 	{
-    const QwtPlotItem *it = (QwtPlotItem *)d_layer->plotItem(i);
+    const QwtPlotItem *it = (QwtPlotItem *)m_layer->plotItem(i);
     if (!it)
         continue;
     if (it->rtti() != QwtPlotItem::Rtti_PlotCurve)

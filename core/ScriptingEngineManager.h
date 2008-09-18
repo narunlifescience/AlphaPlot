@@ -42,7 +42,7 @@ class ScriptingEngineManager
 		ScriptingEngineManager();
 		ScriptingEngineManager(const ScriptingEngineManager&) {}
 
-		QList<AbstractScriptingEngine*> d_engines;
+		QList<AbstractScriptingEngine*> m_engines;
 
 	public:
 		static ScriptingEngineManager * instance();

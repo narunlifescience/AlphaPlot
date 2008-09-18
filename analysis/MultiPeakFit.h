@@ -39,11 +39,11 @@ class MultiPeakFit : public Fit
 		enum PeakProfile{Gauss, Lorentz};
 		MultiPeakFit(ApplicationWindow *parent, Layer *layer = 0, PeakProfile profile = Gauss, int peaks = 1);
 
-		int peaks(){return d_peaks;};
+		int peaks(){return m_peaks;};
 		void setNumPeaks(int n);
 
 		void enablePeakCurves(bool on){generate_peak_curves = on;};
-		void setPeakCurvesColor(int colorIndex){d_peaks_color = colorIndex;};
+		void setPeakCurvesColor(int colorIndex){m_peaks_color = colorIndex;};
 
 		static QString generateFormula(int order, PeakProfile profile);
 		static QStringList generateParameterList(int order);
@@ -61,16 +61,16 @@ class MultiPeakFit : public Fit
 		void guessInitialValues();
 
 		//! Number of peaks
-		int d_peaks;
+		int m_peaks;
 
 		//! Tells weather the peak curves should be displayed together with the best line fit.
 		bool generate_peak_curves;
 
 		//! Color index for the peak curves
-		int d_peaks_color;
+		int m_peaks_color;
 
 		//! The peak profile
-		PeakProfile d_profile;
+		PeakProfile m_profile;
 };
 
 class LorentzFit : public MultiPeakFit

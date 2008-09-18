@@ -30,16 +30,16 @@
 #include "AbstractEnrichment.h"
 
 AbstractEnrichment::AbstractEnrichment():
-	d_x_right(0),
-    d_y_bottom(0),
-    d_pos(QPoint()),
-    d_size(QSize())
+	m_x_right(0),
+    m_y_bottom(0),
+    m_pos(QPoint()),
+    m_size(QSize())
 {
 }
 
 void AbstractEnrichment::setOrigin(const QPoint& p)
 {
-    d_pos = p;
+    m_pos = p;
 
     if (!plot())
         return;
@@ -47,23 +47,23 @@ void AbstractEnrichment::setOrigin(const QPoint& p)
     setXValue(plot()->invTransform(xAxis(), p.x()));
     setYValue(plot()->invTransform(yAxis(), p.y()));
 
-    d_size = calculatePaintingRect().size();
+    m_size = calculatePaintingRect().size();
     updateBoundingRect();
 }
 
 void AbstractEnrichment::setBoundingRect(double left, double top, double right, double bottom)
 {
-    if (xValue() == left && yValue() == top && d_x_right == right && d_y_bottom == bottom)
+    if (xValue() == left && yValue() == top && m_x_right == right && m_y_bottom == bottom)
         return;
 
     setXValue(left);
     setYValue(top);
-    d_x_right = right;
-    d_y_bottom = bottom;
+    m_x_right = right;
+    m_y_bottom = bottom;
 
     QRect r = calculatePaintingRect();
-    d_pos = r.topLeft();
-    d_size = r.size();
+    m_pos = r.topLeft();
+    m_size = r.size();
 }
 
 void AbstractEnrichment::updateBoundingRect()
@@ -71,25 +71,25 @@ void AbstractEnrichment::updateBoundingRect()
     if (!plot())
         return;
 
-    setXValue(plot()->invTransform(xAxis(), d_pos.x()));
-    d_x_right = plot()->invTransform(xAxis(), d_pos.x() + d_size.width());
+    setXValue(plot()->invTransform(xAxis(), m_pos.x()));
+    m_x_right = plot()->invTransform(xAxis(), m_pos.x() + m_size.width());
 
-    setYValue(plot()->invTransform(yAxis(), d_pos.y()));
-    d_y_bottom = plot()->invTransform(yAxis(), d_pos.y() + d_size.height());
+    setYValue(plot()->invTransform(yAxis(), m_pos.y()));
+    m_y_bottom = plot()->invTransform(yAxis(), m_pos.y() + m_size.height());
 }
 
 QwtDoubleRect AbstractEnrichment::boundingRect() const
 {
-    return QwtDoubleRect(xValue(), yValue(), qAbs(d_x_right - xValue()), qAbs(d_y_bottom - yValue()));
+    return QwtDoubleRect(xValue(), yValue(), qAbs(m_x_right - xValue()), qAbs(m_y_bottom - yValue()));
 }
 
 void AbstractEnrichment::setRect(int x, int y, int w, int h)
 {
-    if (d_pos == QPoint(x, y) && d_size == QSize(w, h))
+    if (m_pos == QPoint(x, y) && m_size == QSize(w, h))
         return;
 
-    d_pos = QPoint(x, y);
-    d_size = QSize(w, h);
+    m_pos = QPoint(x, y);
+    m_size = QSize(w, h);
     updateBoundingRect();
 }
 
@@ -105,8 +105,8 @@ QRect AbstractEnrichment::calculatePaintingRect()
 
     const int x0 = xMap.transform(xValue());
     const int y0 = yMap.transform(yValue());
-    const int x1 = xMap.transform(d_x_right);
-    const int y1 = yMap.transform(d_y_bottom);
+    const int x1 = xMap.transform(m_x_right);
+    const int y1 = yMap.transform(m_y_bottom);
 
     return QRect(x0, y0, abs(x1 - x0), abs(y1 - y0));
 }

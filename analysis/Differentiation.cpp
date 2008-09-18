@@ -56,23 +56,23 @@ Differentiation::Differentiation(ApplicationWindow *parent, Layer *layer, const 
 void Differentiation::init()
 {
 	setName(tr("Derivative"));
-    d_min_points = 4;
+    m_min_points = 4;
 }
 
 void Differentiation::output()
 {
-    double *result = new double[d_n-1];
-	for (int i = 1; i < d_n-1; i++)
-		result[i]=0.5*((d_y[i+1]-d_y[i])/(d_x[i+1]-d_x[i]) + (d_y[i]-d_y[i-1])/(d_x[i]-d_x[i-1]));
+    double *result = new double[m_n-1];
+	for (int i = 1; i < m_n-1; i++)
+		result[i]=0.5*((m_y[i+1]-m_y[i])/(m_x[i+1]-m_x[i]) + (m_y[i]-m_y[i-1])/(m_x[i]-m_x[i-1]));
 
     ApplicationWindow *app = (ApplicationWindow *)parent();
     QString tableName = app->generateUniqueName(QString(name()));
-    QString curveTitle = d_curve->title().text();
-    Table *t = app->newHiddenTable(tableName, tr("Derivative") + " " + tr("of","Derivative of")  + " " + curveTitle, d_n-2, 2);
-	for (int i = 1; i < d_n-1; i++)
+    QString curveTitle = m_curve->title().text();
+    Table *t = app->newHiddenTable(tableName, tr("Derivative") + " " + tr("of","Derivative of")  + " " + curveTitle, m_n-2, 2);
+	for (int i = 1; i < m_n-1; i++)
 	{
-		t->setText(i-1, 0, QLocale().toString(d_x[i], 'g', app->d_decimal_digits));
-		t->setText(i-1, 1, QLocale().toString(result[i], 'g', app->d_decimal_digits));
+		t->setText(i-1, 0, QLocale().toString(m_x[i], 'g', app->m_decimal_digits));
+		t->setText(i-1, 1, QLocale().toString(result[i], 'g', app->m_decimal_digits));
 	}
     delete[] result;
 

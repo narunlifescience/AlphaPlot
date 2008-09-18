@@ -62,11 +62,11 @@ const char * String2DateTimeFilter::time_formats[] = {
 
 QDateTime String2DateTimeFilter::dateTimeAt(int row) const
 {
-	if (!d_inputs.value(0)) return QDateTime();
-	QString input_value = d_inputs.value(0)->textAt(row);
+	if (!m_inputs.value(0)) return QDateTime();
+	QString input_value = m_inputs.value(0)->textAt(row);
 
-	// first try the selected format string d_format
-	QDateTime result = QDateTime::fromString(input_value, d_format);
+	// first try the selected format string m_format
+	QDateTime result = QDateTime::fromString(input_value, m_format);
 	if(result.date().isValid() || result.time().isValid())
 		return result;
 
@@ -132,20 +132,20 @@ void String2DateTimeFilter::setFormat(const QString& format)
 }
 
 String2DateTimeFilterSetFormatCmd::String2DateTimeFilterSetFormatCmd(String2DateTimeFilter* target, const QString &new_format)
-	: d_target(target), d_other_format(new_format) 
+	: m_target(target), m_other_format(new_format) 
 {
-	if(d_target->parentAspect())
-		setText(QObject::tr("%1: set date-time format to %2").arg(d_target->parentAspect()->name()).arg(new_format));
+	if(m_target->parentAspect())
+		setText(QObject::tr("%1: set date-time format to %2").arg(m_target->parentAspect()->name()).arg(new_format));
 	else
 		setText(QObject::tr("set date-time format to %1").arg(new_format));
 }
 
 void String2DateTimeFilterSetFormatCmd::redo() 
 {
-	QString tmp = d_target->d_format;
-	d_target->d_format = d_other_format;
-	d_other_format = tmp;
-	emit d_target->formatChanged();
+	QString tmp = m_target->m_format;
+	m_target->m_format = m_other_format;
+	m_other_format = tmp;
+	emit m_target->formatChanged();
 }
 
 void String2DateTimeFilterSetFormatCmd::undo() 

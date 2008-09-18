@@ -157,7 +157,7 @@ class PlotDialog : public QDialog
 
 		QFont titleFont, legendFont, axesFont, numbersFont;
 
-		Graph *d_graph;
+		Graph *m_graph;
 		QStringList columnNames;
 
 		QPushButton *btnTitle, *btnAxesLabels, *btnAxesNumbers, *btnLegend;
@@ -236,12 +236,12 @@ class LayerItem : public QTreeWidgetItem
 		enum {LayerTreeItem = 1001};
 		LayerItem(Layer *g, QTreeWidgetItem *parent, const QString& s);
 
-		Layer *layer() { return d_layer; };
+		Layer *layer() { return m_layer; };
 		void setActive(bool select);
 
 	protected:
 		void insertCurvesList();
-		Layer *d_layer;
+		Layer *m_layer;
 };
 
 /*****************************************************************************
@@ -259,12 +259,12 @@ class CurveTreeItem : public QTreeWidgetItem
 		Layer* layer(){return ((LayerItem *)parent())->layer();};
 		void setActive(bool on);
 
-		const QwtPlotItem *plotItem() { return d_curve; };
+		const QwtPlotItem *plotItem() { return m_curve; };
 		int plotItemType();
 		int plotItemIndex();
 
 	protected:
-		const QwtPlotItem *d_curve;
+		const QwtPlotItem *m_curve;
 };
 
 #endif

@@ -48,7 +48,7 @@ class ImportTableDialog: public ExtensibleFileDialog
 public:
 	//! Possible destinations for the imported data.
 	/**
-	 * Important: Keep this in sync with the initialization of #d_import_mode in initAdvancedOptions().
+	 * Important: Keep this in sync with the initialization of #m_import_mode in initAdvancedOptions().
 	 */
 	enum ImportMode {
 		NewTables, //!< create a new table for each file (default)
@@ -70,19 +70,19 @@ public:
 	/**
 	 * \sa ImportMode
 	 */
-	ImportMode importMode() const { return (ImportMode) d_import_mode->currentIndex(); }
+	ImportMode importMode() const { return (ImportMode) m_import_mode->currentIndex(); }
 	//! Return the selected column separator.
 	const QString columnSeparator() const;
 	//! Return the number of lines to be skipped at the start of each file.
-	int ignoredLines() const { return d_ignored_lines->value(); }
+	int ignoredLines() const { return m_ignored_lines->value(); }
 	//! Whether to rename columns based on the first (non-skipped) line.
-	bool renameColumns() const { return d_rename_columns->isChecked(); }
+	bool renameColumns() const { return m_rename_columns->isChecked(); }
 	//! Whether to replace sequences of whitespace charecters with a single space.
-	bool simplifySpaces() const { return d_simplify_spaces->isChecked(); }
+	bool simplifySpaces() const { return m_simplify_spaces->isChecked(); }
 	//! Whether to remove whitespace from beginning and end of lines.
-	bool stripSpaces() const { return d_strip_spaces->isChecked(); }
+	bool stripSpaces() const { return m_strip_spaces->isChecked(); }
 	//! Whether the user wants the import options to be saved.
-	bool rememberOptions() const { return d_remember_options->isChecked(); }
+	bool rememberOptions() const { return m_remember_options->isChecked(); }
 
 	//! Set the selected columns separator.
 	void setColumnSeparator(const QString &sep);
@@ -90,7 +90,7 @@ public:
 	//! Returns the locale chosen for the import by the user
 	QLocale decimalSeparators();
 	//! Returns whether a custom locale should be used
-	bool useCustomLocale() const { return d_use_custom_locale->isChecked(); };
+	bool useCustomLocale() const { return m_use_custom_locale->isChecked(); };
 		
 private slots:
 	//! Display help for advanced options.
@@ -100,17 +100,17 @@ private slots:
 
 private:
 	void closeEvent(QCloseEvent*);
-	//! Initialise #d_advanced_options and everything it contains.
+	//! Initialise #m_advanced_options and everything it contains.
 	void initAdvancedOptions();
 
 	//! Container widget for all advanced options.
-	QGroupBox *d_advanced_options;
-	QCheckBox *d_remember_options, *d_use_custom_locale;
-	QPushButton *d_help_button;
+	QGroupBox *m_advanced_options;
+	QCheckBox *m_remember_options, *m_use_custom_locale;
+	QPushButton *m_help_button;
 	// the actual options
-	QComboBox *d_import_mode, *d_column_separator, *boxDecimalSeparator;
-	QSpinBox *d_ignored_lines;
-	QCheckBox *d_rename_columns, *d_simplify_spaces, *d_strip_spaces;
+	QComboBox *m_import_mode, *m_column_separator, *boxDecimalSeparator;
+	QSpinBox *m_ignored_lines;
+	QCheckBox *m_rename_columns, *m_simplify_spaces, *m_strip_spaces;
 };
 
 #endif // ifndef IMPORT_TABLE_DIALOG_H

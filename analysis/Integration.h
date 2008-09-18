@@ -40,7 +40,7 @@ public:
 	Integration(ApplicationWindow *parent, Layer *layer, const QString& curveTitle);
 	Integration(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end);
 
-    int method(){return d_method;};
+    int method(){return m_method;};
     void setMethodOrder(int n);
 
 private:
@@ -50,7 +50,7 @@ private:
     void output(){};
 
     //! the integration method: 1 = trapezoidal, max = 5!
-    int d_method;
+    int m_method;
 };
 
 #endif

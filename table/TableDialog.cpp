@@ -45,7 +45,7 @@
 
 TableDialog::TableDialog(Table *t, QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl ),
-    d_table(t)
+    m_table(t)
 {
     setWindowTitle( tr( "Column options" ) );
     setSizeGripEnabled(true);
@@ -61,10 +61,10 @@ TableDialog::TableDialog(Table *t, QWidget* parent, Qt::WFlags fl )
 	buttonPrev->setAutoDefault(false);
 
 	boxSelectColumn = new QComboBox();
-	QStringList colNames = d_table->colNames();
+	QStringList colNames = m_table->colNames();
 	for (int i=0; i<colNames.size(); i++)
 		boxSelectColumn->addItem(colNames[i]); 
-	boxSelectColumn->setCurrentIndex(d_table->selectedColumn());
+	boxSelectColumn->setCurrentIndex(m_table->selectedColumn());
 
 	buttonNext = new QPushButton(tr("Next &>>","next column"));
 	buttonNext->setAutoDefault(false);
@@ -161,7 +161,7 @@ TableDialog::TableDialog(Table *t, QWidget* parent, Qt::WFlags fl )
 	comments = new QTextEdit();
 	boxShowTableComments = new QCheckBox(tr("&Display Comments in Header"));
 	// TODO
-	//boxShowTableComments->setChecked(d_table->commentsEnabled());
+	//boxShowTableComments->setChecked(m_table->commentsEnabled());
 
 	QVBoxLayout* vbox4 = new QVBoxLayout();
 	vbox4->addLayout(hbox1);
@@ -174,7 +174,7 @@ TableDialog::TableDialog(Table *t, QWidget* parent, Qt::WFlags fl )
 	setLayout(vbox4);
 	setFocusProxy (colName);
 
-	updateColumn(d_table->selectedColumn());
+	updateColumn(m_table->selectedColumn());
 	resize(minimumSize());
 
 	// signals and slots connections
@@ -189,7 +189,7 @@ TableDialog::TableDialog(Table *t, QWidget* parent, Qt::WFlags fl )
 	connect(buttonNext, SIGNAL(clicked()), this, SLOT(nextColumn()));
 	connect(formatBox, SIGNAL(activated(int)), this, SLOT(enablePrecision(int)) );
 	connect(precisionBox, SIGNAL(valueChanged(int)), this, SLOT(updatePrecision(int)));
-	connect(boxShowTableComments, SIGNAL(toggled(bool)), d_table, SLOT(showComments(bool)));
+	connect(boxShowTableComments, SIGNAL(toggled(bool)), m_table, SLOT(showComments(bool)));
 }
 
 void TableDialog::enablePrecision(int f)
@@ -208,14 +208,14 @@ void TableDialog::accept()
 
 void TableDialog::prevColumn()
 {
-	int sc = d_table->selectedColumn();
+	int sc = m_table->selectedColumn();
 	apply();
 	updateColumn(--sc);
 }
 
 void TableDialog::nextColumn()
 {
-	int sc = d_table->selectedColumn();
+	int sc = m_table->selectedColumn();
 	apply();
 	updateColumn(++sc);
 }
@@ -228,35 +228,35 @@ void TableDialog::selectColumn(int sc)
 
 void TableDialog::updateColumn(int sc)
 {
-	if(sc <0) sc = d_table->columnCount() -1;
-	if(sc >= d_table->columnCount()) sc = 0;
+	if(sc <0) sc = m_table->columnCount() -1;
+	if(sc >= m_table->columnCount()) sc = 0;
 
-	int colType = d_table->columnType(sc);
+	int colType = m_table->columnType(sc);
 
 	// TODO replace the commented out lines (###)
 	// acessing TableView from outside Table is absolutely forbidden
-	d_table->setSelectedCol(sc);
-	//### d_table->table()->clearSelection ();
-	//### d_table->table()->selectColumn(sc);
-	columnsBox->setCurrentIndex(d_table->colPlotDesignation(sc));
+	m_table->setSelectedCol(sc);
+	//### m_table->table()->clearSelection ();
+	//### m_table->table()->selectColumn(sc);
+	columnsBox->setCurrentIndex(m_table->colPlotDesignation(sc));
 
-	QString colLabel = d_table->colLabel(sc);
+	QString colLabel = m_table->colLabel(sc);
 	colName->setText(colLabel);
 	colName->selectAll();
 
-	comments->setText(d_table->colComment(sc));
-	colWidth->setValue(d_table->columnWidth(sc));
+	comments->setText(m_table->colComment(sc));
+	colWidth->setValue(m_table->columnWidth(sc));
 
 	displayBox->setCurrentIndex(colType);
 	updateDisplay(colType);
 
 	// TODO not implemented yet in the new Table
-	//### d_table->saveToMemory();
+	//### m_table->saveToMemory();
 
 	if (colType == SciDAVis::Numeric)
 	{
 		int f, prec;
-		d_table->columnNumericFormat(sc, &f, &prec);
+		m_table->columnNumericFormat(sc, &f, &prec);
 
 		formatBox->setCurrentIndex(f);
 		precisionBox->setValue(prec);
@@ -264,7 +264,7 @@ void TableDialog::updateColumn(int sc)
 	}
 	else if (colType == SciDAVis::Time || colType == SciDAVis::Date)
 	{
-		QString format = d_table->columnFormat(sc);
+		QString format = m_table->columnFormat(sc);
 		if (formatBox->findText(format) < 0)
 			formatBox->insertItem(0, format);
 
@@ -272,7 +272,7 @@ void TableDialog::updateColumn(int sc)
 	}
 	else if (colType == SciDAVis::Day)
 	{
-		QString format = d_table->columnFormat(sc);
+		QString format = m_table->columnFormat(sc);
 		if (format == "ddd")
 			formatBox->setCurrentIndex(0);
 		else if (format == "dddd")
@@ -282,7 +282,7 @@ void TableDialog::updateColumn(int sc)
 	}
 	else if (colType == SciDAVis::Month)
 	{
-		QString format = d_table->columnFormat(sc);
+		QString format = m_table->columnFormat(sc);
 		if (format == "MMM")
 			formatBox->setCurrentIndex(0);
 		else if (format == "MMMM")
@@ -294,9 +294,9 @@ void TableDialog::updateColumn(int sc)
 
 void TableDialog::changeColWidth(int width)
 {
-	d_table->changeColWidth(width, applyToAllBox->isChecked());
+	m_table->changeColWidth(width, applyToAllBox->isChecked());
 	// TODO
-	//d_table->setHeaderColType();
+	//m_table->setHeaderColType();
 }
 
 void TableDialog::apply()
@@ -312,15 +312,15 @@ void TableDialog::apply()
 				tr("The column names must only contain letters and digits!"));
 		name.remove(QRegExp("\\W"));
 	}
-	d_table->changeColWidth(colWidth->value(), applyToAllBox->isChecked());
+	m_table->changeColWidth(colWidth->value(), applyToAllBox->isChecked());
 	// FIXME: allowing line breaks in comments may brake the file format
-	// old code: d_table->setColComment(d_table->selectedColumn(), comments->text().replace("\n", " ").replace("\t", " "));
-	d_table->setColComment(d_table->selectedColumn(), comments->text().replace("\t", " "));
+	// old code: m_table->setColComment(m_table->selectedColumn(), comments->text().replace("\n", " ").replace("\t", " "));
+	m_table->setColComment(m_table->selectedColumn(), comments->text().replace("\t", " "));
 
-	d_table->changeColName(name.replace("_", "-"));
-	d_table->enumerateRightCols(enumerateAllBox->isChecked());
+	m_table->changeColName(name.replace("_", "-"));
+	m_table->enumerateRightCols(enumerateAllBox->isChecked());
 	enumerateAllBox->setChecked(false);
-	colName->setText(d_table->colNames().at(d_table->selectedColumn()));
+	colName->setText(m_table->colNames().at(m_table->selectedColumn()));
 
 	int format = formatBox->currentIndex();
 	int colType = displayBox->currentIndex();
@@ -362,18 +362,18 @@ void TableDialog::apply()
 	}
 
 	boxSelectColumn->disconnect();
-	QStringList colNames = d_table->colNames();
+	QStringList colNames = m_table->colNames();
 	boxSelectColumn->clear();
 	for (int i=0; i<colNames.size(); i++)
 		boxSelectColumn->addItem(colNames[i]); 
-	boxSelectColumn->setCurrentIndex(d_table->selectedColumn());
+	boxSelectColumn->setCurrentIndex(m_table->selectedColumn());
 	connect(boxSelectColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(selectColumn(int)));
 }
 
 void TableDialog::closeEvent( QCloseEvent* ce )
 {
 	// TODO not implemented yet in the new Table
-	//d_table->freeMemory();
+	//m_table->freeMemory();
 	ce->accept();
 }
 
@@ -382,27 +382,27 @@ void TableDialog::setPlotDesignation(int i)
 	switch(i)
 	{
 		case 0:
-			d_table->setPlotDesignation(SciDAVis::noDesignation);
+			m_table->setPlotDesignation(SciDAVis::noDesignation);
 			break;
 
 		case 1:
-			d_table->setPlotDesignation(SciDAVis::X);
+			m_table->setPlotDesignation(SciDAVis::X);
 			break;
 
 		case 2:
-			d_table->setPlotDesignation(SciDAVis::Y);
+			m_table->setPlotDesignation(SciDAVis::Y);
 			break;
 
 		case 3:
-			d_table->setPlotDesignation(SciDAVis::Z);
+			m_table->setPlotDesignation(SciDAVis::Z);
 			break;
 
 		case 4:
-			d_table->setPlotDesignation(SciDAVis::xErr);
+			m_table->setPlotDesignation(SciDAVis::xErr);
 			break;
 
 		case 5:
-			d_table->setPlotDesignation(SciDAVis::yErr);
+			m_table->setPlotDesignation(SciDAVis::yErr);
 			break;
 	}
 }
@@ -518,21 +518,21 @@ void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRig
 	/*
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	bool ok = false;
-	int sc = d_table->selectedColumn();
+	int sc = m_table->selectedColumn();
 	if (allRightColumns){
-		for (int i = sc; i<d_table->columnCount(); i++){
+		for (int i = sc; i<m_table->columnCount(); i++){
 			if (type == SciDAVis::Date)
-				ok = d_table->setDateFormat(format, i);
+				ok = m_table->setDateFormat(format, i);
 			else if (type == SciDAVis::Time)
-				ok = d_table->setTimeFormat(format, i);
+				ok = m_table->setTimeFormat(format, i);
 			if (!ok)
 				break;
 		}
 	}
 	else if (type == SciDAVis::Date)
-		ok = d_table->setDateFormat(format, sc);
+		ok = m_table->setDateFormat(format, sc);
 	else if (type == SciDAVis::Time)
-		ok = d_table->setTimeFormat(format, sc);
+		ok = m_table->setTimeFormat(format, sc);
 
 	QApplication::restoreOverrideCursor();
 
@@ -546,7 +546,7 @@ void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRig
 		formatBox->insertItem(0, format);
 		formatBox->setCurrentText(format);
 	}
-	d_table->notifyChanges();
+	m_table->notifyChanges();
 	*/
 }
 
@@ -555,58 +555,58 @@ void TableDialog::setNumericFormat(int type, int prec, bool allRightColumns)
 	// TODO
 	/*
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	int sc = d_table->selectedColumn();
+	int sc = m_table->selectedColumn();
 	if (allRightColumns)
 	{
-		for (int i = sc; i<d_table->columnCount(); i++)
-			d_table->setColNumericFormat(type, prec, i);
+		for (int i = sc; i<m_table->columnCount(); i++)
+			m_table->setColNumericFormat(type, prec, i);
 	}
 	else
-		d_table->setColNumericFormat(type, prec, sc);
+		m_table->setColNumericFormat(type, prec, sc);
 
-	d_table->notifyChanges();
+	m_table->notifyChanges();
 	QApplication::restoreOverrideCursor();
 	*/
 }
 
 void TableDialog::setTextFormat(bool allRightColumns)
 {
-	int sc = d_table->selectedColumn();
+	int sc = m_table->selectedColumn();
 // TODO
 /*	if (allRightColumns){
-		for (int i = sc; i<d_table->columnCount(); i++)
-			d_table->setTextFormat(i);
+		for (int i = sc; i<m_table->columnCount(); i++)
+			m_table->setTextFormat(i);
 	}
 	else*/
-		d_table->setTextFormat(sc);
+		m_table->setTextFormat(sc);
 }
 
 void TableDialog::setDayFormat(const QString& format, bool allRightColumns)
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	int sc = d_table->selectedColumn();
+	int sc = m_table->selectedColumn();
 	if (allRightColumns){
-		for (int i = sc; i<d_table->columnCount(); i++)
-			d_table->setDayFormat(format, i);
+		for (int i = sc; i<m_table->columnCount(); i++)
+			m_table->setDayFormat(format, i);
 	}
 	else
-		d_table->setDayFormat(format, sc);
+		m_table->setDayFormat(format, sc);
 
 	QApplication::restoreOverrideCursor();
-	d_table->notifyChanges();
+	m_table->notifyChanges();
 }
 
 void TableDialog::setMonthFormat(const QString& format, bool allRightColumns)
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	int sc = d_table->selectedColumn();
+	int sc = m_table->selectedColumn();
 	if (allRightColumns){
-		for (int i = sc; i<d_table->columnCount(); i++)
-			d_table->setMonthFormat(format, i);
+		for (int i = sc; i<m_table->columnCount(); i++)
+			m_table->setMonthFormat(format, i);
 	}
 	else
-		d_table->setMonthFormat(format, sc);
+		m_table->setMonthFormat(format, sc);
 
 	QApplication::restoreOverrideCursor();
-	d_table->notifyChanges();
+	m_table->notifyChanges();
 }

@@ -73,8 +73,8 @@ class SimpleFilterColumn;
  * 09		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeDouble; }
  * 10
  * 11		virtual double valueAt(int row) const {
- * 12			if (!d_inputs.value(0)) return 0.0;
- * 13			double input_value = d_inputs.value(0)->valueAt(row);
+ * 12			if (!m_inputs.value(0)) return 0.0;
+ * 13			double input_value = m_inputs.value(0)->valueAt(row);
  * 14			return input_value * input_value;
  * 15		}
  * 16 };
@@ -84,7 +84,7 @@ class SimpleFilterColumn;
  * Reimplementing inputAcceptable() makes sure that the data source really is of type
  * double (lines 5 to 7). Otherwise, the source will be rejected by AbstractFilter::input().
  * The output type is repoted by reimplementing dataType() (line 09).
- * Before you actually use d_inputs.value(0), make sure that the input port has
+ * Before you actually use m_inputs.value(0), make sure that the input port has
  * been connected to a data source (line 12).
  * Otherwise line 13 would result in a crash. That's it, we've already written a
  * fully-functional filter!
@@ -120,8 +120,8 @@ class SimpleFilterColumn;
  * \code
  * 10	public:
  * 11 	virtual double valueAt(int row) const {
- * 12		if (!d_inputs.value(0)) return 0.0;
- * 13		return d_inputs.value(0)->valueAt(2*row + 1);
+ * 12		if (!m_inputs.value(0)) return 0.0;
+ * 13		return m_inputs.value(0)->valueAt(2*row + 1);
  * 14 	}
  * \endcode
  */
@@ -136,22 +136,22 @@ class AbstractSimpleFilter : public AbstractFilter
 		virtual int inputCount() const { return 1; }
 		//! We manage only one output port (don't override unless you really know what you are doing).
 		virtual int outputCount() const { return 1; }
-		//! Return a pointer to #d_output_column on port 0 (don't override unless you really know what you are doing).
+		//! Return a pointer to #m_output_column on port 0 (don't override unless you really know what you are doing).
 		virtual AbstractColumn* output(int port);
 		virtual const AbstractColumn * output(int port) const;
 		//! Copy plot designation of input port 0.
 		virtual SciDAVis::PlotDesignation plotDesignation() const {
-			return d_inputs.value(0) ?
-				d_inputs.at(0)->plotDesignation() :
+			return m_inputs.value(0) ?
+				m_inputs.at(0)->plotDesignation() :
 				SciDAVis::noDesignation;
 		}
 		//! Return the data type of the input
 		virtual SciDAVis::ColumnDataType dataType() const
 		{
-			// calling this function while d_input is empty is a sign of very bad code
+			// calling this function while m_input is empty is a sign of very bad code
 			// nevertheless it will return some rather meaningless value to
 			// avoid crashes
-			return d_inputs.value(0) ? d_inputs.at(0)->dataType() : SciDAVis::TypeQString;
+			return m_inputs.value(0) ? m_inputs.at(0)->dataType() : SciDAVis::TypeQString;
 		}
 		//! Return the column mode
 		/**
@@ -161,10 +161,10 @@ class AbstractSimpleFilter : public AbstractFilter
 		 */ 
 		virtual SciDAVis::ColumnMode columnMode() const
 		{
-			// calling this function while d_input is empty is a sign of very bad code
+			// calling this function while m_input is empty is a sign of very bad code
 			// nevertheless it will return some rather meaningless value to
 			// avoid crashes
-			return d_inputs.value(0) ? d_inputs.at(0)->columnMode() : SciDAVis::Text;
+			return m_inputs.value(0) ? m_inputs.at(0)->columnMode() : SciDAVis::Text;
 		}
 		//! Return the content of row 'row'.
 		/**
@@ -172,7 +172,7 @@ class AbstractSimpleFilter : public AbstractFilter
 		 */
 		virtual QString textAt(int row) const
 		{
-			return d_inputs.value(0) ? d_inputs.at(0)->textAt(row) : QString();
+			return m_inputs.value(0) ? m_inputs.at(0)->textAt(row) : QString();
 		}
 		//! Return the date part of row 'row'
 		/**
@@ -180,7 +180,7 @@ class AbstractSimpleFilter : public AbstractFilter
 		 */
 		virtual QDate dateAt(int row) const
 		{
-			return d_inputs.value(0) ? d_inputs.at(0)->dateAt(row) : QDate();
+			return m_inputs.value(0) ? m_inputs.at(0)->dateAt(row) : QDate();
 		}
 		//! Return the time part of row 'row'
 		/**
@@ -188,7 +188,7 @@ class AbstractSimpleFilter : public AbstractFilter
 		 */
 		virtual QTime timeAt(int row) const
 		{
-			return d_inputs.value(0) ? d_inputs.at(0)->timeAt(row) : QTime();
+			return m_inputs.value(0) ? m_inputs.at(0)->timeAt(row) : QTime();
 		}
 		//! Set the content of row 'row'
 		/**
@@ -196,7 +196,7 @@ class AbstractSimpleFilter : public AbstractFilter
 		 */
 		virtual QDateTime dateTimeAt(int row) const
 		{
-			return d_inputs.value(0) ? d_inputs.at(0)->dateTimeAt(row) : QDateTime();
+			return m_inputs.value(0) ? m_inputs.at(0)->dateTimeAt(row) : QDateTime();
 		}
 		//! Return the double value in row 'row'
 		/**
@@ -204,13 +204,13 @@ class AbstractSimpleFilter : public AbstractFilter
 		 */
 		virtual double valueAt(int row) const
 		{
-			return d_inputs.value(0) ? d_inputs.at(0)->valueAt(row) : 0.0;
+			return m_inputs.value(0) ? m_inputs.at(0)->valueAt(row) : 0.0;
 		}
 
 		//!\name assuming a 1:1 correspondence between input and output rows
 		//@{
 		virtual int rowCount() const {
-			return d_inputs.value(0) ? d_inputs.at(0)->rowCount() : 0;
+			return m_inputs.value(0) ? m_inputs.at(0)->rowCount() : 0;
 		}
 		virtual QList< Interval<int> > dependentRows(Interval<int> input_range) const { return QList< Interval<int> >() << input_range; }
 		//@}
@@ -218,11 +218,11 @@ class AbstractSimpleFilter : public AbstractFilter
 		//!\name Masking
 		//@{
 		//! Return whether a certain row is masked
-		virtual bool isMasked(int row) const { return d_masking.isSet(row); }
+		virtual bool isMasked(int row) const { return m_masking.isSet(row); }
 		//! Return whether a certain interval of rows rows is fully masked
-		virtual bool isMasked(Interval<int> i) const { return d_masking.isSet(i); }
+		virtual bool isMasked(Interval<int> i) const { return m_masking.isSet(i); }
 		//! Return all intervals of masked rows
-		virtual QList< Interval<int> > maskedIntervals() const { return d_masking.intervals(); }
+		virtual QList< Interval<int> > maskedIntervals() const { return m_masking.intervals(); }
 		//! Clear all masking information
 		virtual void clearMasks();
 		//! Set an interval masked
@@ -236,13 +236,13 @@ class AbstractSimpleFilter : public AbstractFilter
 		//@}
 
 		//! Return whether a certain row contains an invalid value 	 
-		virtual bool isInvalid(int row) const { return d_inputs.value(0) ? d_inputs.at(0)->isInvalid(row) : false; }
+		virtual bool isInvalid(int row) const { return m_inputs.value(0) ? m_inputs.at(0)->isInvalid(row) : false; }
 		//! Return whether a certain interval of rows contains only invalid values 	 
-		virtual bool isInvalid(Interval<int> i) const { return d_inputs.value(0) ? d_inputs.at(0)->isInvalid(i) : false; }
+		virtual bool isInvalid(Interval<int> i) const { return m_inputs.value(0) ? m_inputs.at(0)->isInvalid(i) : false; }
 		//! Return all intervals of invalid rows
 		virtual QList< Interval<int> > invalidIntervals() const 
 		{
-			return d_inputs.value(0) ? d_inputs.at(0)->maskedIntervals() : QList< Interval<int> >(); 
+			return m_inputs.value(0) ? m_inputs.at(0)->maskedIntervals() : QList< Interval<int> >(); 
 		}
 
 		//! \name XML related functions
@@ -256,7 +256,7 @@ class AbstractSimpleFilter : public AbstractFilter
 		//@}
 
 	protected:
-		IntervalAttribute<bool> d_masking;
+		IntervalAttribute<bool> m_masking;
 
 		//!\name signal handlers
 		//@{
@@ -273,7 +273,7 @@ class AbstractSimpleFilter : public AbstractFilter
 		virtual void inputRowsRemoved(const AbstractColumn * source, int first, int count);
 		//@}
 		
-		SimpleFilterColumn *d_output_column;
+		SimpleFilterColumn *m_output_column;
 };
 
 class SimpleFilterColumn : public AbstractColumn
@@ -281,27 +281,27 @@ class SimpleFilterColumn : public AbstractColumn
 	Q_OBJECT
 
 	public:
-		SimpleFilterColumn(AbstractSimpleFilter *owner) : AbstractColumn(owner->name()), d_owner(owner) {}
+		SimpleFilterColumn(AbstractSimpleFilter *owner) : AbstractColumn(owner->name()), m_owner(owner) {}
 
-		virtual SciDAVis::ColumnDataType dataType() const { return d_owner->dataType(); }
-		virtual SciDAVis::ColumnMode columnMode() const { return d_owner->columnMode(); }
-		virtual int rowCount() const { return d_owner->rowCount(); }
-		virtual SciDAVis::PlotDesignation plotDesignation() const { return d_owner->plotDesignation(); }
-		virtual bool isInvalid(int row) const { return d_owner->isInvalid(row); }
-		virtual bool isInvalid(Interval<int> i) const { return d_owner->isInvalid(i); }
-		virtual QList< Interval<int> > invalidIntervals() const { return d_owner->invalidIntervals(); }
-		virtual bool isMasked(int row) const { return d_owner->isMasked(row); }
-		virtual bool isMasked(Interval<int> i) const { return d_owner->isMasked(i); }
-		virtual QList< Interval<int> > maskedIntervals() const { return d_owner->maskedIntervals(); }
-		virtual void clearMasks() { d_owner->clearMasks(); }
-		virtual QString textAt(int row) const { return d_owner->textAt(row); }
-		virtual QDate dateAt(int row) const { return d_owner->dateAt(row); }
-		virtual QTime timeAt(int row) const { return d_owner->timeAt(row); }
-		virtual QDateTime dateTimeAt(int row) const { return d_owner->dateTimeAt(row); }
-		virtual double valueAt(int row) const { return d_owner->valueAt(row); }
+		virtual SciDAVis::ColumnDataType dataType() const { return m_owner->dataType(); }
+		virtual SciDAVis::ColumnMode columnMode() const { return m_owner->columnMode(); }
+		virtual int rowCount() const { return m_owner->rowCount(); }
+		virtual SciDAVis::PlotDesignation plotDesignation() const { return m_owner->plotDesignation(); }
+		virtual bool isInvalid(int row) const { return m_owner->isInvalid(row); }
+		virtual bool isInvalid(Interval<int> i) const { return m_owner->isInvalid(i); }
+		virtual QList< Interval<int> > invalidIntervals() const { return m_owner->invalidIntervals(); }
+		virtual bool isMasked(int row) const { return m_owner->isMasked(row); }
+		virtual bool isMasked(Interval<int> i) const { return m_owner->isMasked(i); }
+		virtual QList< Interval<int> > maskedIntervals() const { return m_owner->maskedIntervals(); }
+		virtual void clearMasks() { m_owner->clearMasks(); }
+		virtual QString textAt(int row) const { return m_owner->textAt(row); }
+		virtual QDate dateAt(int row) const { return m_owner->dateAt(row); }
+		virtual QTime timeAt(int row) const { return m_owner->timeAt(row); }
+		virtual QDateTime dateTimeAt(int row) const { return m_owner->dateTimeAt(row); }
+		virtual double valueAt(int row) const { return m_owner->valueAt(row); }
 
 	private:
-		AbstractSimpleFilter *d_owner;
+		AbstractSimpleFilter *m_owner;
 
 	friend class AbstractSimpleFilter;
 };

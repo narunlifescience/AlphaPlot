@@ -61,8 +61,8 @@ class AbstractAspect::Private
 		void setCreationTime(const QDateTime& time);
 
 		QString caption() const;
-		AbstractAspect * owner() { return d_owner; }
-		AbstractAspect * parent() { return d_parent; }
+		AbstractAspect * owner() { return m_owner; }
+		AbstractAspect * parent() { return m_parent; }
 
 		QString uniqueNameFor(const QString &current_name) const;
 
@@ -71,11 +71,11 @@ class AbstractAspect::Private
 	
 	private:
 		static int indexOfMatchingBrace(const QString &str, int start);
-		QList< AbstractAspect* > d_children;
-		QString d_name, d_comment, d_caption_spec;
-		QDateTime d_creation_time;
-		AbstractAspect * d_owner;
-		AbstractAspect * d_parent;
+		QList< AbstractAspect* > m_children;
+		QString m_name, m_comment, m_caption_spec;
+		QDateTime m_creation_time;
+		AbstractAspect * m_owner;
+		AbstractAspect * m_parent;
 };
 
 #endif // ifndef ASPECT_PRIVATE_H

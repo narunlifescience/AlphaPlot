@@ -33,23 +33,23 @@
 #include <QMenu>
 
 AspectTreeModel::AspectTreeModel(AbstractAspect* root, QObject *parent)
-	: QAbstractItemModel(parent), d_root(root)
+	: QAbstractItemModel(parent), m_root(root)
 {
-	connect(d_root, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), 
+	connect(m_root, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), 
 		this, SLOT(aspectDescriptionChanged(const AbstractAspect *)));
-	connect(d_root, SIGNAL(aspectAboutToBeAdded(const AbstractAspect *, int)), 
+	connect(m_root, SIGNAL(aspectAboutToBeAdded(const AbstractAspect *, int)), 
 		this, SLOT(aspectAboutToBeAdded(const AbstractAspect *, int)));
-	connect(d_root, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)), 
+	connect(m_root, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)), 
 		this, SLOT(aspectAboutToBeRemoved(const AbstractAspect *, int)));
-	connect(d_root, SIGNAL(aspectAdded(const AbstractAspect *, int)), 
+	connect(m_root, SIGNAL(aspectAdded(const AbstractAspect *, int)), 
 		this, SLOT(aspectAdded(const AbstractAspect *, int)));
-	connect(d_root, SIGNAL(aspectRemoved(const AbstractAspect *, int)), 
+	connect(m_root, SIGNAL(aspectRemoved(const AbstractAspect *, int)), 
 		this, SLOT(aspectRemoved(const AbstractAspect *, int)));
 }
 
 AspectTreeModel::~AspectTreeModel()
 {
-	disconnect(d_root,0,this,0);
+	disconnect(m_root,0,this,0);
 }
 
 QModelIndex AspectTreeModel::index(int row, int column, const QModelIndex &parent) const
@@ -58,7 +58,7 @@ QModelIndex AspectTreeModel::index(int row, int column, const QModelIndex &paren
 	if(!parent.isValid())
 	{
 		if(row != 0) return QModelIndex();
-		return createIndex(row, column, d_root);
+		return createIndex(row, column, m_root);
 	}
 	AbstractAspect *parent_aspect = static_cast<AbstractAspect*>(parent.internalPointer());
 	AbstractAspect *child_aspect = parent_aspect->child(row);

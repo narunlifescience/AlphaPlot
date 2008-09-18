@@ -232,8 +232,8 @@ class Table : public AbstractPart, public scripted
 
 	private:
 
-		TableView *d_view;
-		Private *d_table_private;
+		TableView *m_view;
+		Private *m_table_private;
 };
 
 /**
@@ -257,7 +257,7 @@ class Table : public AbstractPart, public scripted
   the correct string representation to display in a table.
 
   The number of columns in the Table will always be equal to
-  d_columns.size(). The number of rows is generally indepenent
+  m_columns.size(). The number of rows is generally indepenent
   of the number of rows in the wrapped columns. It is however
   always adjusted to be large enough to display the longest column. 
   When columns are inserted, resized etc., the table is resized 
@@ -266,7 +266,7 @@ class Table : public AbstractPart, public scripted
 class Table::Private
 {
 	public:
-		Private(Table *owner) : d_owner(owner), d_column_count(0), d_row_count(0) {}
+		Private(Table *owner) : m_owner(owner), m_column_count(0), m_row_count(0) {}
 		//! Replace columns completely
 		/**
 		 * \param first the first column to be replaced
@@ -298,9 +298,9 @@ class Table::Private
 		//! Move a column to another position
 		void moveColumn(int from, int to);
 		//! Return the number of columns in the table
-		int columnCount() const { return d_column_count; }
+		int columnCount() const { return m_column_count; }
 		//! Return the number of rows in the table
-		int rowCount() const { return d_row_count; }
+		int rowCount() const { return m_row_count; }
 		//! Set the number of rows of the table
 		void setRowCount(int count);
 		//! Return the full column header string
@@ -315,11 +315,11 @@ class Table::Private
 		 */
 		int columnIndex(const Column * col) const 
 		{ 
-			for(int i=0; i<d_columns.size(); i++)
-				if(d_columns.at(i) == col) return i;
+			for(int i=0; i<m_columns.size(); i++)
+				if(m_columns.at(i) == col) return i;
 			return -1;
 		}
-		QString name() const { return d_owner->name(); }
+		QString name() const { return m_owner->name(); }
 		QVariant headerData(int section, Qt::Orientation orientation,int role) const;
 
 		//! Update the vertical header labels
@@ -338,29 +338,29 @@ class Table::Private
 		 * \param end_col last column that needs to be updated
 		 */
 		void updateHorizontalHeader(int start_col, int end_col);
-		void setColumnWidth(int col, int width) { d_column_widths[col] = width; }
-		int columnWidth(int col) const { return d_column_widths.at(col); }
+		void setColumnWidth(int col, int width) { m_column_widths[col] = width; }
+		int columnWidth(int col) const { return m_column_widths.at(col); }
 
 	private:
 		//! The owner aspect
-		Table *d_owner;
+		Table *m_owner;
 		//! The number of columns
-		int d_column_count;
+		int m_column_count;
 		//! The maximum number of rows of all columns
-		int d_row_count;
+		int m_row_count;
 		//! Vertical header data
-		QStringList d_vertical_header_data;
+		QStringList m_vertical_header_data;
 		//! Horizontal header data
-		QStringList d_horizontal_header_data;
+		QStringList m_horizontal_header_data;
 		//! List of pointers to the column data vectors
-		QList<Column *> d_columns;	
+		QList<Column *> m_columns;	
 		//! Internal function to put together the column header
 		/**
 		 * Don't use this outside updateHorizontalHeader()
 		 */
 		void composeColumnHeader(int col, const QString& label);
 		//! Columns widths
-		QList<int> d_column_widths;
+		QList<int> m_column_widths;
 };
 
 #endif

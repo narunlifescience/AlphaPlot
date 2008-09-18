@@ -609,7 +609,7 @@ void AxesDialog::changeMinorTicksLength (int minLength)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-    d_layer->changeTicksLength(minLength, boxMajorTicksLength->value());
+    m_layer->changeTicksLength(minLength, boxMajorTicksLength->value());
 	boxMajorTicksLength->setMinimum(minLength);
 }
 
@@ -618,7 +618,7 @@ void AxesDialog::changeMajorTicksLength (int majLength)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-    d_layer->changeTicksLength(boxMinorTicksLength->value(), majLength);
+    m_layer->changeTicksLength(boxMinorTicksLength->value(), majLength);
 	boxMinorTicksLength->setMaxValue(majLength);
 }
 
@@ -627,7 +627,7 @@ void AxesDialog::drawAxesBackbones(bool draw)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-	d_layer->drawAxesBackbones(draw);
+	m_layer->drawAxesBackbones(draw);
 }
 
 void AxesDialog::changeAxesLinewidth(int width)
@@ -635,7 +635,7 @@ void AxesDialog::changeAxesLinewidth(int width)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-    d_layer->setAxesLinewidth(width);
+    m_layer->setAxesLinewidth(width);
 }
 
 void AxesDialog::drawFrame(bool framed)
@@ -643,7 +643,7 @@ void AxesDialog::drawFrame(bool framed)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-	d_layer->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
+	m_layer->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
 }
 
 void AxesDialog::updateFrame(int width)
@@ -651,7 +651,7 @@ void AxesDialog::updateFrame(int width)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-    d_layer->drawCanvasFrame(boxFramed->isChecked(), width, boxFrameColor->color());
+    m_layer->drawCanvasFrame(boxFramed->isChecked(), width, boxFrameColor->color());
 }
 
 void AxesDialog::pickCanvasFrameColor()
@@ -661,7 +661,7 @@ void AxesDialog::pickCanvasFrameColor()
 			return;
 
 	boxFrameColor->setColor ( c ) ;
-	d_layer->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), c);
+	m_layer->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), c);
 }
 
 void AxesDialog::showAxisFormatOptions(int format)
@@ -690,7 +690,7 @@ void AxesDialog::showAxisFormatOptions(int format)
 			boxFormat->insertItem(tr( "Decimal: 100.0" ) );
 			boxFormat->insertItem(tr( "Scientific: 1e2" ) );
 			boxFormat->insertItem(tr( "Scientific: 10^2" ) );
-			boxFormat->setCurrentIndex(d_layer->plotWidget()->axisLabelFormat(axis));
+			boxFormat->setCurrentIndex(m_layer->plotWidget()->axisLabelFormat(axis));
 
 			label3->show();
 			boxPrecision->show();
@@ -1012,8 +1012,8 @@ void AxesDialog::majorGridEnabled(bool on)
 
 	if (generalDialog->currentWidget()==gridPage)
 		{
-		d_layer->setGridOptions(getGridOptions());
-		d_layer->replot();
+		m_layer->setGridOptions(getGridOptions());
+		m_layer->replot();
 		}
 }
 
@@ -1025,8 +1025,8 @@ void AxesDialog::minorGridEnabled(bool on)
 
 	if (generalDialog->currentWidget()==gridPage)
 		{
-		d_layer->setGridOptions(getGridOptions());
-	    d_layer->replot();
+		m_layer->setGridOptions(getGridOptions());
+	    m_layer->replot();
 		}
 }
 
@@ -1119,8 +1119,8 @@ GridOptions AxesDialog::getGridOptions()
 void AxesDialog::updateAxisColor(int)
 {
 	int a = mapToQwtAxisId();
-    boxAxisColor->setColor(d_layer->axisColor(a));
-    boxAxisNumColor->setColor(d_layer->axisNumbersColor(a));
+    boxAxisColor->setColor(m_layer->axisColor(a));
+    boxAxisNumColor->setColor(m_layer->axisNumbersColor(a));
 }
 
 void AxesDialog::changeBaselineDist(int baseline)
@@ -1229,14 +1229,14 @@ bool AxesDialog::updatePlot()
 	             }
           }
 
-		d_layer->setScale(a, start, end, stp, boxMajorValue->value(), boxMinorValue->currentText().toInt(),
+		m_layer->setScale(a, start, end, stp, boxMajorValue->value(), boxMinorValue->currentText().toInt(),
                              boxScaleType->currentIndex(), btnInvert->isChecked());
-		d_layer->notifyChanges();
+		m_layer->notifyChanges();
 	}
 	else if (generalDialog->currentWidget()==gridPage)
 	{
-		d_layer->setGridOptions(getGridOptions());
-		d_layer->replot();
+		m_layer->setGridOptions(getGridOptions());
+		m_layer->replot();
 	}
 	else if (generalDialog->currentWidget()==(QWidget*)axesPage)
 	{
@@ -1308,10 +1308,10 @@ bool AxesDialog::updatePlot()
 	}
 	else if (generalDialog->currentWidget()==(QWidget*)frame)
 	{
-		d_layer->setAxesLinewidth(boxAxesLinewidth->value());
-        d_layer->changeTicksLength(boxMinorTicksLength->value(), boxMajorTicksLength->value());
-        d_layer->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), boxFrameColor->color());
-        d_layer->drawAxesBackbones(boxBackbones->isChecked());
+		m_layer->setAxesLinewidth(boxAxesLinewidth->value());
+        m_layer->changeTicksLength(boxMinorTicksLength->value(), boxMajorTicksLength->value());
+        m_layer->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), boxFrameColor->color());
+        m_layer->drawAxesBackbones(boxBackbones->isChecked());
 	}
 
 	return true;
@@ -1322,15 +1322,15 @@ void AxesDialog::setLayer(Layer *g)
 	if (!g)
         return;
 
-	d_layer = g;
-	Plot *p = d_layer->plotWidget();
+	m_layer = g;
+	Plot *p = m_layer->plotWidget();
 
 	boxAxesLinewidth->setValue(p->axesLinewidth());
-    boxBackbones->setChecked (d_layer->axesBackbones());
+    boxBackbones->setChecked (m_layer->axesBackbones());
 
-	boxFramed->setChecked(d_layer->framed());
-	boxFrameColor->setColor(d_layer->canvasFrameColor());
-	boxFrameWidth->setValue(d_layer->canvasFrameWidth());
+	boxFramed->setChecked(m_layer->framed());
+	boxFrameColor->setColor(m_layer->canvasFrameColor());
+	boxFrameWidth->setValue(m_layer->canvasFrameWidth());
 
 	boxMinorTicksLength->setValue(p->minorTickLength());
 	boxMajorTicksLength->setValue(p->majorTickLength());
@@ -1372,14 +1372,14 @@ boxStep->clear();
 boxUnit->hide();
 boxUnit->clear();
 
-Plot *d_plot = d_layer->plotWidget();
+Plot *m_plot = m_layer->plotWidget();
 int a = mapToQwtAxis(axis);
-const QwtScaleDiv *scDiv=d_plot->axisScaleDiv(a);
+const QwtScaleDiv *scDiv=m_plot->axisScaleDiv(a);
 boxStart->setText(QString::number(QMIN(scDiv->lBound(), scDiv->hBound())));
 boxEnd->setText(QString::number(QMAX(scDiv->lBound(), scDiv->hBound())));
 
 QwtValueList lst = scDiv->ticks (QwtScaleDiv::MajorTick);
-boxStep->setText(QString::number(d_layer->axisStep(a)));
+boxStep->setText(QString::number(m_layer->axisStep(a)));
 boxMajorValue->setValue(lst.count());
 
 if (axesType[a] == Layer::Time)
@@ -1397,7 +1397,7 @@ else if (axesType[a] == Layer::Date)
 	boxUnit->insertItem(tr("weeks"));
 	}
 
-if (d_layer->axisStep(a) != 0.0)
+if (m_layer->axisStep(a) != 0.0)
 	{
 	btnStep->setChecked(true);
 	boxStep->setEnabled(true);
@@ -1415,7 +1415,7 @@ else
 	boxMajorValue->setEnabled(true);
 	}
 
-const QwtScaleEngine *sc_eng = d_plot->axisScaleEngine(a);
+const QwtScaleEngine *sc_eng = m_plot->axisScaleEngine(a);
 btnInvert->setChecked(sc_eng->testAttribute(QwtScaleEngine::Inverted));
 
 QwtScaleTransformation *tr = sc_eng->transformation();
@@ -1427,7 +1427,7 @@ if (tr->type())//log scale
 else
 	boxMinorValue->addItems(QStringList()<<"0"<<"1"<<"4"<<"9"<<"14"<<"19");
 
-boxMinorValue->setEditText(QString::number(d_plot->axisMaxMinor(a)));
+boxMinorValue->setEditText(QString::number(m_plot->axisMaxMinor(a)));
 }
 
 void AxesDialog::updateTitleBox(int axis)
@@ -1637,8 +1637,8 @@ void AxesDialog::updateGrid(int)
 {
 	if (generalDialog->currentWidget()==gridPage)
 	{
-		d_layer->setGridOptions(getGridOptions());
-			d_layer->replot();
+		m_layer->setGridOptions(getGridOptions());
+			m_layer->replot();
 	}
 }
 
@@ -1649,7 +1649,7 @@ void AxesDialog::setLabelsNumericFormat(int)
 	int prec = boxPrecision->value();
 	int format = boxFormat->currentIndex();
 
-	Plot *plot = d_layer->plotWidget();
+	Plot *plot = m_layer->plotWidget();
 
 	if (type == Layer::Numeric)
 	{
@@ -1686,7 +1686,7 @@ void AxesDialog::setLabelsNumericFormat(int)
 
 void AxesDialog::showAxisFormula(int axis)
 {
-	QStringList l = d_layer->getAxesFormulas();
+	QStringList l = m_layer->getAxesFormulas();
 		QString formula = l[axis];
 		if (!formula.isEmpty())
 		{
@@ -1708,16 +1708,16 @@ void AxesDialog::updateLabelsFormat(int)
         	return;
 
 		int a = mapToQwtAxisId();
-		int format = d_layer->plotWidget()->axisLabelFormat(a);
+		int format = m_layer->plotWidget()->axisLabelFormat(a);
         boxFormat->setCurrentIndex(format);
-		boxPrecision->setValue(d_layer->plotWidget()->axisLabelPrecision(a));
+		boxPrecision->setValue(m_layer->plotWidget()->axisLabelPrecision(a));
 
         if (format == 0)
         	boxPrecision->setEnabled(false);
         else
         	boxPrecision->setEnabled(true);
 
-        QStringList l = d_layer->getAxesFormulas();
+        QStringList l = m_layer->getAxesFormulas();
         QString formula = l[a];
         if (!formula.isEmpty())
         {
@@ -1756,10 +1756,10 @@ void AxesDialog::customAxisLabelFont()
 {
 	int axis = mapToQwtAxisId();
 		bool okF;
-		QFont oldFont = d_layer->axisTitleFont(axis);
+		QFont oldFont = m_layer->axisTitleFont(axis);
 	QFont fnt = QFontDialog::getFont( &okF, oldFont,this);
 	if (okF && fnt != oldFont)
-		d_layer->setAxisTitleFont(axis, fnt);
+		m_layer->setAxisTitleFont(axis, fnt);
 }
 
 void AxesDialog::pageChanged ( QWidget *page )
@@ -1798,5 +1798,5 @@ void AxesDialog::updateMinorTicksList(int scaleType)
 		boxMinorValue->addItems(QStringList()<<"0"<<"1"<<"4"<<"9"<<"14"<<"19");
 
 	int a = mapToQwtAxis(axesList->currentRow());
-	boxMinorValue->setEditText(QString::number(d_layer->plotWidget()->axisMaxMinor(a)));
+	boxMinorValue->setEditText(QString::number(m_layer->plotWidget()->axisMaxMinor(a)));
 }

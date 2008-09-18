@@ -97,7 +97,7 @@ MatrixValuesDialog::MatrixValuesDialog(AbstractScriptingEngine *engine, QWidget*
 	QHBoxLayout *hbox3 = new QHBoxLayout();
 	hbox3->addWidget(new QLabel(tr( "Cell(i,j)=" )));
 
-	commands = new ScriptEdit( d_scripting_engine);
+	commands = new ScriptEdit( m_scripting_engine);
 	commands->setFocus();
 	hbox3->addWidget(commands);
 
@@ -193,12 +193,12 @@ void MatrixValuesDialog::setMatrix(Matrix* m)
 
 void MatrixValuesDialog::setFunctions()
 {
-	functions->insertStringList(d_scripting_engine->mathFunctions(), -1);
+	functions->insertStringList(m_scripting_engine->mathFunctions(), -1);
 }
 
 void MatrixValuesDialog::insertExplain(int index)
 {
-	explain->setText(d_scripting_engine->mathFunctionDoc(functions->text(index)));
+	explain->setText(m_scripting_engine->mathFunctionDoc(functions->text(index)));
 }
 
 void MatrixValuesDialog::insertFunction()

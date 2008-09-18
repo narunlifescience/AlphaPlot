@@ -50,7 +50,7 @@ class PolynomialFit : public Fit
 		void init();
 		void calculateFitCurveData(double *par, double *X, double *Y);
 
-		int d_order;
+		int m_order;
 		bool show_legend;
 };
 

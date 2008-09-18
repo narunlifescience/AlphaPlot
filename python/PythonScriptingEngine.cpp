@@ -87,7 +87,7 @@ PyObject *PythonScriptingEngine::eval(const QString &code, PyObject *argDict, co
 	PyObject *co = Py_CompileString(code.toAscii().constData(), name, Py_eval_input);
 	if (co)
 	{
-		ret = PyEval_EvalCode((PyCodeObject*)co, d_globals, args);
+		ret = PyEval_EvalCode((PyCodeObject*)co, m_globals, args);
 		Py_DECREF(co);
 	}
 	Py_DECREF(args);
@@ -107,7 +107,7 @@ bool PythonScriptingEngine::exec (const QString &code, PyObject *argDict, const 
 	PyObject *co = Py_CompileString(code.toAscii().constData(), name, Py_file_input);
 	if (co)
 	{
-		tmp = PyEval_EvalCode((PyCodeObject*)co, d_globals, args);
+		tmp = PyEval_EvalCode((PyCodeObject*)co, m_globals, args);
 		Py_DECREF(co);
 	}
 	Py_DECREF(args);
@@ -173,9 +173,9 @@ QString PythonScriptingEngine::errorMsg()
 PythonScriptingEngine::PythonScriptingEngine()
 	: AbstractScriptingEngine(g_lang_name)
 {
-	d_globals = 0;
-	d_math = 0;
-	d_sys = 0;
+	m_globals = 0;
+	m_math = 0;
+	m_sys = 0;
 }
 
 void PythonScriptingEngine::initialize()
@@ -191,7 +191,7 @@ void PythonScriptingEngine::initialize()
 //			PyEval_ReleaseLock();
 			return;
 		}
-		d_globals = PyModule_GetDict(mainmod);
+		m_globals = PyModule_GetDict(mainmod);
 		Py_DECREF(mainmod);
 	} else {
 //		PyEval_InitThreads ();
@@ -207,19 +207,19 @@ void PythonScriptingEngine::initialize()
 			PyErr_Print();
 			return;
 		}
-		d_globals = PyModule_GetDict(mainmod);
+		m_globals = PyModule_GetDict(mainmod);
 	}
 
-	if (!d_globals)
+	if (!m_globals)
 	{
 		PyErr_Print();
 //		PyEval_ReleaseLock();
 		return;
 	}
-	Py_INCREF(d_globals);
+	Py_INCREF(m_globals);
 
-	d_math = PyDict_New();
-	if (!d_math)
+	m_math = PyDict_New();
+	if (!m_math)
 		PyErr_Print();
 
 	/* TODO
@@ -228,7 +228,7 @@ void PythonScriptingEngine::initialize()
 	{
 		PyDict_SetItemString(globals, "scidavis", scidavismod);
 		PyObject *scidavisDict = PyModule_GetDict(scidavismod);
-		setQObject(d_parent, "app", scidavisDict);
+		setQObject(m_parent, "app", scidavisDict);
 		PyDict_SetItemString(scidavisDict, "mathFunctions", math);
 		Py_DECREF(scidavismod);
 	} else
@@ -238,16 +238,16 @@ void PythonScriptingEngine::initialize()
 	sysmod = PyImport_ImportModule("sys");
 	if (sysmod)
 	{
-		d_sys = PyModule_GetDict(sysmod);
-		Py_INCREF(d_sys);
+		m_sys = PyModule_GetDict(sysmod);
+		Py_INCREF(m_sys);
 	} else
 		PyErr_Print();
 
 	// Redirect output to the print(const QString&) signal.
 	// Also see method write(const QString&) and Python documentation on
 	// sys.stdout and sys.stderr.
-	setQObject(this, "stdout", d_sys);
-	setQObject(this, "stderr", d_sys);
+	setQObject(this, "stdout", m_sys);
+	setQObject(this, "stderr", m_sys);
 
 #ifdef Q_WS_WIN
 	loadInitFile(QDir::homePath()+"/scidavisrc") ||
@@ -258,16 +258,16 @@ void PythonScriptingEngine::initialize()
 #endif
 		loadInitFile("scidavisrc");
 
-	d_initialized = true;
+	m_initialized = true;
 
 //	PyEval_ReleaseLock();
 }
 
 PythonScriptingEngine::~PythonScriptingEngine()
 {
-	Py_XDECREF(d_globals);
-	Py_XDECREF(d_math);
-	Py_XDECREF(d_sys);
+	Py_XDECREF(m_globals);
+	Py_XDECREF(m_math);
+	Py_XDECREF(m_sys);
 }
 
 bool PythonScriptingEngine::loadInitFile(const QString &path)
@@ -359,7 +359,7 @@ bool PythonScriptingEngine::setQObject(QObject *val, const char *name, PyObject 
 	if (dict)
 		PyDict_SetItemString(dict, name, pyobj);
 	else
-		PyDict_SetItemString(d_globals, name, pyobj);
+		PyDict_SetItemString(m_globals, name, pyobj);
 	Py_DECREF(pyobj);
 	return true;
 }
@@ -371,7 +371,7 @@ bool PythonScriptingEngine::setInt(int val, const char *name, PyObject *dict)
 	if (dict)
 		PyDict_SetItemString(dict, name, pyobj);
 	else
-		PyDict_SetItemString(d_globals, name, pyobj);
+		PyDict_SetItemString(m_globals, name, pyobj);
 	Py_DECREF(pyobj);
 	return true;
 }
@@ -383,7 +383,7 @@ bool PythonScriptingEngine::setDouble(double val, const char *name, PyObject *di
 	if (dict)
 		PyDict_SetItemString(dict, name, pyobj);
 	else
-		PyDict_SetItemString(d_globals, name, pyobj);
+		PyDict_SetItemString(m_globals, name, pyobj);
 	Py_DECREF(pyobj);
 	return true;
 }
@@ -397,7 +397,7 @@ const QStringList PythonScriptingEngine::mathFunctions() const
 #else
 	int i=0;
 #endif
-	while(PyDict_Next(d_math, &i, &key, &value))
+	while(PyDict_Next(m_math, &i, &key, &value))
 		if (PyCallable_Check(value))
 			flist << PyString_AsString(key);
 	flist.sort();
@@ -406,7 +406,7 @@ const QStringList PythonScriptingEngine::mathFunctions() const
 
 const QString PythonScriptingEngine::mathFunctionDoc(const QString &name) const
 {
-	PyObject *mathf = PyDict_GetItemString(d_math, name.toAscii()); // borrowed
+	PyObject *mathf = PyDict_GetItemString(m_math, name.toAscii()); // borrowed
 	if (!mathf) return "";
 	PyObject *pydocstr = PyObject_GetAttrString(mathf, "__doc__"); // new
 	QString qdocstr = PyString_AsString(pydocstr);

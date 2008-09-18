@@ -70,7 +70,7 @@ class ReadOnlyTableModel : public QAbstractItemModel, public AbstractFilter
 
 	private:
 	//! Filters used for converting the data received to QString.
-	QList<AbstractFilter*> d_output_filters;
+	QList<AbstractFilter*> m_output_filters;
 	//! Constructs a <type of source> -> QString filter and connects its first input to source.
 	AbstractFilter *newOutputFilterFor(AbstractDataSource *source);
 };

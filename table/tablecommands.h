@@ -58,13 +58,13 @@ public:
 
 private:
 	//! The private object to modify
-	Table::Private * d_private_obj;
+	Table::Private * m_private_obj;
 	//! Column to insert before
-	int d_before;
+	int m_before;
 	//! The new columns
-	QList<Column*> d_cols;
+	QList<Column*> m_cols;
 	//! Row count before the command
-	int d_rows_before;
+	int m_rows_before;
 
 };
 
@@ -87,11 +87,11 @@ public:
 
 private:
 	//! The private object to modify
-	Table::Private * d_private_obj;
+	Table::Private * m_private_obj;
 	//! Number of rows
-	int d_rows;
+	int m_rows;
 	//! Number of rows before
-	int d_old_rows;
+	int m_old_rows;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -113,13 +113,13 @@ public:
 
 private:
 	//! The private object to modify
-	Table::Private * d_private_obj;
+	Table::Private * m_private_obj;
 	//! The first column
-	int d_first;
+	int m_first;
 	//! The number of columns to be removed
-	int d_count;
+	int m_count;
 	//! The removed columns
-	QList<Column*> d_old_cols;
+	QList<Column*> m_old_cols;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -141,11 +141,11 @@ public:
 
 private:
 	//! The private object to modify
-	Table::Private * d_private_obj;
+	Table::Private * m_private_obj;
 	//! The old column index
-	int d_from;
+	int m_from;
 	//! The new column index
-	int d_to;
+	int m_to;
 };
 
 ///////////////////////////////////////////////////////////////////////////

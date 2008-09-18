@@ -80,8 +80,8 @@ typedef struct{
  * Other parts of the code also call them "plots", regardless of the fact that there's also a class Plot.
  * Within the user interface, they are quite consistently called "layers".
  *
- * Each graph owns a Plot called #d_plot, which handles parts of the curve, axis and marker management (similarly to QwtPlot),
- * as well as the pickers #d_zoomer (a QwtPlotZoomer), #titlePicker (a TitlePicker), #scalePicker (a ScalePicker) and #cp (a CanvasPicker),
+ * Each graph owns a Plot called #m_plot, which handles parts of the curve, axis and marker management (similarly to QwtPlot),
+ * as well as the pickers #m_zoomer (a QwtPlotZoomer), #titlePicker (a TitlePicker), #scalePicker (a ScalePicker) and #cp (a CanvasPicker),
  * which handle various parts of the user interaction.
  *
  * Layer contains support for various curve types (see #CurveType),
@@ -116,8 +116,8 @@ class Layer: public QWidget
 			Spline, HorizontalSteps, Histogram, HorizontalBars, VectXYXY, ErrorBars,
 			Box, VectXYAM, VerticalSteps, ColorMap, GrayMap, ContourMap, Function};
 
-		Plot *d_plot;
-		QwtPlotZoomer *d_zoomer[2];
+		Plot *m_plot;
+		QwtPlotZoomer *m_zoomer[2];
 		TitlePicker *titlePicker;
 		ScalePicker *scalePicker;
 		CanvasPicker* cp;
@@ -126,13 +126,13 @@ class Layer: public QWidget
 		QString parentPlotName();
 
 		//! Change the active tool, deleting the old one if it exists.
-		void setActiveTool(AbstractGraphTool *tool) { if(d_active_tool) delete d_active_tool; d_active_tool=tool; }
+		void setActiveTool(AbstractGraphTool *tool) { if(m_active_tool) delete m_active_tool; m_active_tool=tool; }
 		//! Return the active tool, or NULL if none is active.
-		AbstractGraphTool* activeTool() const { return d_active_tool; }
+		AbstractGraphTool* activeTool() const { return m_active_tool; }
 
 	public slots:
-		//! Accessor method for #d_plot.
-		Plot* plotWidget(){return d_plot;};
+		//! Accessor method for #m_plot.
+		Plot* plotWidget(){return m_plot;};
 		void copy(Layer* g);
 
 		//! \name Pie Curves
@@ -213,8 +213,8 @@ class Layer: public QWidget
 		//! \name Output: Copy/Export/Print
 		//@{
 		void print();
-		void setScaleOnPrint(bool on){d_scale_on_print = on;};
-		void printCropmarks(bool on){d_print_cropmarks = on;};
+		void setScaleOnPrint(bool on){m_scale_on_print = on;};
+		void printCropmarks(bool on){m_print_cropmarks = on;};
 
 		void copyImage();
 		QPixmap graphPixmap();
@@ -226,7 +226,7 @@ class Layer: public QWidget
 		void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
 		//@}
 
-		void replot(){d_plot->replot();};
+		void replot(){m_plot->replot();};
 		void updatePlot();
 
 		//! \name Error Bars
@@ -257,7 +257,7 @@ class Layer: public QWidget
 		//! Set axis scale
 		void setScale(int axis, double start, double end, double step = 0.0,
 				int majorTicks = 5, int minorTicks = 5, int type = 0, bool inverted = false);
-		double axisStep(int axis){return d_user_step[axis];};
+		double axisStep(int axis){return m_user_step[axis];};
 
 		//! \name Curves Layout
 		//@{
@@ -333,7 +333,7 @@ class Layer: public QWidget
 				bool start, bool end, int headLength, int headAngle, bool filledHead);
 		void setCopiedImageName(const QString& fn){auxMrkFileName=fn;};
 		QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
-		QVector<int> textMarkerKeys(){return d_texts;};
+		QVector<int> textMarkerKeys(){return m_texts;};
 		TextEnrichment* textMarker(long id);
 
 		void addTimeStamp();
@@ -358,7 +358,7 @@ class Layer: public QWidget
 
 		//! Used when opening a project file
 		void addArrow(QStringList list, int fileVersion);
-		QVector<int> lineMarkerKeys(){return d_lines;};
+		QVector<int> lineMarkerKeys(){return m_lines;};
 
 		//!Draws a line/arrow depending on the value of "arrow"
 		void drawLine(bool on, bool arrow = FALSE);
@@ -380,7 +380,7 @@ class Layer: public QWidget
 		//! \name Image Markers
 		//@{
 		ImageEnrichment* imageMarker(long id);
-		QVector<int> imageMarkerKeys(){return d_images;};
+		QVector<int> imageMarkerKeys(){return m_images;};
 		ImageEnrichment* addImage(ImageEnrichment* mrk);
 		ImageEnrichment* addImage(const QString& fileName);
 
@@ -403,7 +403,7 @@ class Layer: public QWidget
 		 * \param mrk key of the marker to be selected.
 		 * \param add whether the marker is to be added to an existing selection.
 		 * If <i>add</i> is false (the default) or there is no existing selection, a new SelectionMoveResizer is
-		 * created and stored in #d_markers_selector.
+		 * created and stored in #m_markers_selector.
 		 */
 		void setSelectedMarker(long mrk, bool add=false);
 		QwtPlotMarker* selectedMarkerPtr();
@@ -568,7 +568,7 @@ class Layer: public QWidget
 
 		void addFitCurve(QwtPlotCurve *c);
 		void deleteFitCurves();
-		QList<QwtPlotCurve *> fitCurvesList(){return d_fit_curves;};
+		QList<QwtPlotCurve *> fitCurvesList(){return m_fit_curves;};
 		/*! Set start and end to selected X range of curve index or, if there's no selection, to the curve's total range.
 		 *
 		 * \return the number of selected or total points
@@ -666,7 +666,7 @@ class Layer: public QWidget
 		//! Restores a spectrogram. Used when opening a project file.
   		void restoreSpectrogram(ApplicationWindow *app, const QStringList& lst);
 
-		bool antialiasing(){return d_antialiasing;};
+		bool antialiasing(){return m_antialiasing;};
 		//! Enables/Disables antialiasing of plot items.
 		void setAntialiasing(bool on = true, bool update = true);
 
@@ -704,11 +704,11 @@ signals:
 
 	private:
 		//! List storing pointers to the curves resulting after a fit session, in case the user wants to delete them later on.
-		QList<QwtPlotCurve *>d_fit_curves;
+		QList<QwtPlotCurve *>m_fit_curves;
 		//! Render hint for plot items.
-		bool d_antialiasing;
+		bool m_antialiasing;
 		bool autoScaleFonts;
-		bool d_scale_on_print, d_print_cropmarks;
+		bool m_scale_on_print, m_print_cropmarks;
 		int selectedAxis;
 		QStringList axesFormulas;
 		//! Stores columns used for axes with text labels or time/date format info
@@ -720,17 +720,17 @@ signals:
 		QwtPlotMarker::LineStyle mrklStyle;
 
 		//! Stores the step the user specified for the four scale. If step = 0.0, the step will be calculated automatically by the Qwt scale engine.
-		QVector<double> d_user_step;
+		QVector<double> m_user_step;
 		//! Curve types
 		QVector<int> c_type;
 		//! Curves on plot keys
 		QVector<int> c_keys;
 		//! Arrows/lines on plot keys
-		QVector<int> d_lines;
+		QVector<int> m_lines;
 		//! Images on plot keys
-		QVector<int> d_images;
+		QVector<int> m_images;
 		//! Stores the identifiers (keys) of the text objects on the plot
-		QVector<int> d_texts;
+		QVector<int> m_texts;
 
 		QPen mrkLinePen;
 		QFont auxMrkFont, defaultMarkerFont;
@@ -757,10 +757,10 @@ signals:
 		Qt::PenStyle defaultArrowLineStyle;
 
 		//! The markers selected for move/resize operations or NULL if none are selected.
-		QPointer<SelectionMoveResizer> d_markers_selector;
+		QPointer<SelectionMoveResizer> m_markers_selector;
 		//! The current curve selection, or NULL if none is active.
-		QPointer<RangeSelectorTool> d_range_selector;
+		QPointer<RangeSelectorTool> m_range_selector;
 		//! The currently active tool, or NULL for default (pointer).
-		AbstractGraphTool *d_active_tool;
+		AbstractGraphTool *m_active_tool;
 };
 #endif // LAYER_H

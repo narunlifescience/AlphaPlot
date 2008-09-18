@@ -103,8 +103,8 @@ IntDialog::IntDialog( QWidget* parent, Qt::WFlags fl )
 void IntDialog::accept()
 {
 QString curveName = boxName->currentText();
-QwtPlotCurve *c = d_layer->curve(curveName);
-QStringList curvesList = d_layer->analysableCurvesList();
+QwtPlotCurve *c = m_layer->curve(curveName);
+QStringList curvesList = m_layer->analysableCurvesList();
 if (!c || !curvesList.contains(curveName))
 	{
 	QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") +" - "+ tr("Warning"),
@@ -226,7 +226,7 @@ else
 		}
 	}
 
-Integration *i = new Integration((ApplicationWindow *)this->parent(), d_layer, curveName,
+Integration *i = new Integration((ApplicationWindow *)this->parent(), m_layer, curveName,
                                  boxStart->text().toDouble(), boxEnd->text().toDouble());
 i->setTolerance(boxTol->text().toDouble());
 i->setMaximumIterations(boxSteps->value());
@@ -237,10 +237,10 @@ delete i;
 
 void IntDialog::setLayer(Layer *layer)
 {
-	d_layer = layer;
-	boxName->insertStringList (d_layer->analysableCurvesList());
+	m_layer = layer;
+	boxName->insertStringList (m_layer->analysableCurvesList());
 
-	QString selectedCurve = d_layer->selectedCurveTitle();
+	QString selectedCurve = m_layer->selectedCurveTitle();
 	if(!selectedCurve.isEmpty())
 	{
 		int index = boxName->findText(selectedCurve);
@@ -248,8 +248,8 @@ void IntDialog::setLayer(Layer *layer)
 	}
 	activateCurve(boxName->currentText());
 
-	connect (d_layer, SIGNAL(closed()), this, SLOT(close()));
-	connect (d_layer, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
+	connect (m_layer, SIGNAL(closed()), this, SLOT(close()));
+	connect (m_layer, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 }
 
 void IntDialog::activateCurve(const QString& curveName)
@@ -258,14 +258,14 @@ void IntDialog::activateCurve(const QString& curveName)
     if(!app)
         return;
 
-	QwtPlotCurve *c = d_layer->curve(curveName);
+	QwtPlotCurve *c = m_layer->curve(curveName);
 	if (!c)
 		return;
 
 	double start, end;
-	d_layer->range(d_layer->curveIndex(curveName), &start, &end);
-	boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
-	boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
+	m_layer->range(m_layer->curveIndex(curveName), &start, &end);
+	boxStart->setText(QString::number(QMIN(start, end), 'g', app->m_decimal_digits));
+	boxEnd->setText(QString::number(QMAX(start, end), 'g', app->m_decimal_digits));
 };
 
 void IntDialog::changeDataRange()
@@ -274,10 +274,10 @@ ApplicationWindow *app = (ApplicationWindow *)parent();
 if(!app)
     return;
 
-double start = d_layer->selectedXStartValue();
-double end = d_layer->selectedXEndValue();
-boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
-boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
+double start = m_layer->selectedXStartValue();
+double end = m_layer->selectedXEndValue();
+boxStart->setText(QString::number(QMIN(start, end), 'g', app->m_decimal_digits));
+boxEnd->setText(QString::number(QMAX(start, end), 'g', app->m_decimal_digits));
 }
 
 void IntDialog::help()

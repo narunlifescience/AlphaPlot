@@ -40,15 +40,15 @@ class Double2StringFilter : public AbstractSimpleFilter
 
 	public:
 		//! Standard constructor.
-		explicit Double2StringFilter(char format='e', int digits=6) : d_format(format), d_digits(digits) {}
+		explicit Double2StringFilter(char format='e', int digits=6) : m_format(format), m_digits(digits) {}
 		//! Set format character as in QString::number
 		void setNumericFormat(char format);
 		//! Set number of displayed digits
 		void setNumDigits(int digits);
 		//! Get format character as in QString::number
-		char numericFormat() const { return d_format; }
+		char numericFormat() const { return m_format; }
 		//! Get number of displayed digits
-		int numDigits() const { return d_digits; }
+		int numDigits() const { return m_digits; }
 
 		//! Return the data type of the column
 		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
@@ -60,9 +60,9 @@ class Double2StringFilter : public AbstractSimpleFilter
 		friend class Double2StringFilterSetFormatCmd;
 		friend class Double2StringFilterSetDigitsCmd;
 		//! Format character as in QString::number 
-		char d_format;
+		char m_format;
 		//! Display digits or precision as in QString::number  
-		int d_digits;
+		int m_digits;
 
 
 		//! \name XML related functions
@@ -73,9 +73,9 @@ class Double2StringFilter : public AbstractSimpleFilter
 
 	public:
 		virtual QString textAt(int row) const {
-			if (!d_inputs.value(0)) return QString();
-			if (d_inputs.value(0)->rowCount() <= row) return QString();
-			return QLocale().toString(d_inputs.value(0)->valueAt(row), d_format, d_digits);
+			if (!m_inputs.value(0)) return QString();
+			if (m_inputs.value(0)->rowCount() <= row) return QString();
+			return QLocale().toString(m_inputs.value(0)->valueAt(row), m_format, m_digits);
 		}
 
 	protected:
@@ -94,8 +94,8 @@ class Double2StringFilterSetFormatCmd : public QUndoCommand
 		virtual void undo();
 
 	private:
-		Double2StringFilter* d_target;
-		char d_other_format;
+		Double2StringFilter* m_target;
+		char m_other_format;
 };
 
 class Double2StringFilterSetDigitsCmd : public QUndoCommand
@@ -107,8 +107,8 @@ class Double2StringFilterSetDigitsCmd : public QUndoCommand
 		virtual void undo();
 
 	private:
-		Double2StringFilter* d_target;
-		int d_other_digits;
+		Double2StringFilter* m_target;
+		int m_other_digits;
 };
 
 

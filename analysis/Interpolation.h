@@ -42,7 +42,7 @@ public:
 	Interpolation(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, int m = 0);
 	Interpolation(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end, int m = 0);
 
-    int method(){return d_method;};
+    int method(){return m_method;};
     void setMethod(int m);
 	void setMethod(InterpolationMethod m){setMethod((int)m);};
 
@@ -52,7 +52,7 @@ private:
     int sortedCurveData(QwtPlotCurve *c, double start, double end, double **x, double **y);
 
     //! the interpolation method
-    int d_method;
+    int m_method;
 };
 
 #endif

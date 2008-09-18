@@ -54,8 +54,8 @@ public:
 	AbstractEnrichment();
 
 	//! Return bounding rectangle in paint coordinates.
-	virtual QRect rect() const {return QRect(d_pos, d_size);};
-	//! Set value (position) and #d_size, giving everything in paint coordinates.
+	virtual QRect rect() const {return QRect(m_pos, m_size);};
+	//! Set value (position) and #m_size, giving everything in paint coordinates.
 	virtual void setRect(int x, int y, int w, int h);
 
 	//! Return bounding rectangle in plot coordinates.
@@ -63,17 +63,17 @@ public:
 	//! Set position (xValue() and yValue()), right and bottom values giving everything in plot coordinates.
 	virtual void setBoundingRect(double left, double top, double right, double bottom);
 
-	double right(){return d_x_right;};
-	double bottom(){return d_y_bottom;};
+	double right(){return m_x_right;};
+	double bottom(){return m_y_bottom;};
 
 	//! Return position in paint coordinates.
-	QPoint origin() const { return d_pos; };
+	QPoint origin() const { return m_pos; };
 	//! Set QwtPlotMarker::value() in paint coordinates.
 	void setOrigin(const QPoint &p);
 
-    //! Return #d_size.
-	QSize size() {return d_size;};
-	//! Set #d_size.
+    //! Return #m_size.
+	QSize size() {return m_size;};
+	//! Set #m_size.
 	void setSize(const QSize& size);
 
 	virtual void updateBoundingRect();
@@ -81,13 +81,13 @@ public:
 private:
     QRect calculatePaintingRect();
 	//! The right side position in scale coordinates.
-	double d_x_right;
+	double m_x_right;
     //! The bottom side position in scale coordinates.
-    double d_y_bottom;
+    double m_y_bottom;
     //! The position in paint coordiantes.
-	QPoint d_pos;
+	QPoint m_pos;
 	//! The size (in paint coordinates).
-	QSize d_size;
+	QSize m_size;
 };
 
 #endif // ifndef ABSTRACT_ENRICHMENT_H

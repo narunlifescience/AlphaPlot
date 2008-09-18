@@ -75,7 +75,7 @@ private:
 	void setTextFormat(bool allRightColumns);
     void closeEvent( QCloseEvent *);
 
-    Table * d_table;
+    Table * m_table;
 
     QPushButton* buttonOk;
     QPushButton* buttonCancel;

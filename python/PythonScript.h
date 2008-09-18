@@ -61,8 +61,8 @@ class PythonScript : public AbstractScript
 		void beginStdoutRedirect();
 		void endStdoutRedirect();
 
-		PyObject *d_py_code, *d_local_dict, *d_stdout_save, *d_stderr_save;
-		bool d_compiled_for_eval;
+		PyObject *m_py_code, *m_local_dict, *m_stdout_save, *m_stderr_save;
+		bool m_compiled_for_eval;
 };
 
 

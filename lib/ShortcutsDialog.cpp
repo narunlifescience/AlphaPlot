@@ -41,23 +41,23 @@ ShortcutsDialog::ShortcutsDialog(QList<ActionManager *> action_managers, QWidget
 	: QDialog(parent)
 {
 	QVBoxLayout * main_layout = new QVBoxLayout(this);
-	d_tree_view = new QTreeView();
-	d_tree_view->setModel(new ShortcutsDialogModel(action_managers, d_tree_view));
-	d_tree_view->setSelectionBehavior(QAbstractItemView::SelectItems);
-	d_tree_view->setAlternatingRowColors(true);
-	d_delegate = new RecordShortcutDelegate();
-	d_tree_view->setItemDelegate(d_delegate);
-	d_tree_view->resizeColumnToContents(0);
-	d_tree_view->resizeColumnToContents(1);
-	d_tree_view->resizeColumnToContents(2);
-	d_tree_view->header()->setMovable(false);
-	main_layout->addWidget(d_tree_view);
+	m_tree_view = new QTreeView();
+	m_tree_view->setModel(new ShortcutsDialogModel(action_managers, m_tree_view));
+	m_tree_view->setSelectionBehavior(QAbstractItemView::SelectItems);
+	m_tree_view->setAlternatingRowColors(true);
+	m_delegate = new RecordShortcutDelegate();
+	m_tree_view->setItemDelegate(m_delegate);
+	m_tree_view->resizeColumnToContents(0);
+	m_tree_view->resizeColumnToContents(1);
+	m_tree_view->resizeColumnToContents(2);
+	m_tree_view->header()->setMovable(false);
+	main_layout->addWidget(m_tree_view);
 	QPushButton * close_button = new QPushButton(tr("&Close"));
 	main_layout->addWidget(close_button);
 	connect(close_button, SIGNAL(clicked()), this, SLOT(close()));
-	connect(d_tree_view, SIGNAL(expanded(const QModelIndex &)), this, SLOT(resizeColumns(const QModelIndex &)));
-	connect(d_tree_view, SIGNAL(collapsed(const QModelIndex &)), this, SLOT(resizeColumns(const QModelIndex &)));
-	connect(d_tree_view->model(), SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)), 
+	connect(m_tree_view, SIGNAL(expanded(const QModelIndex &)), this, SLOT(resizeColumns(const QModelIndex &)));
+	connect(m_tree_view, SIGNAL(collapsed(const QModelIndex &)), this, SLOT(resizeColumns(const QModelIndex &)));
+	connect(m_tree_view->model(), SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)), 
 		this, SLOT(resizeColumns(const QModelIndex &, const QModelIndex &)));
 }
 
@@ -65,9 +65,9 @@ void ShortcutsDialog::resizeColumns(const QModelIndex & index)
 {
 	if(!index.isValid())
 		return;
-	d_tree_view->resizeColumnToContents(0);
-	d_tree_view->resizeColumnToContents(1);
-	d_tree_view->resizeColumnToContents(2);
+	m_tree_view->resizeColumnToContents(0);
+	m_tree_view->resizeColumnToContents(1);
+	m_tree_view->resizeColumnToContents(2);
 }
 
 void ShortcutsDialog::resizeColumns(const QModelIndex & top_left, const QModelIndex & bottom_right)
@@ -75,11 +75,11 @@ void ShortcutsDialog::resizeColumns(const QModelIndex & top_left, const QModelIn
 	if(!top_left.isValid() || !bottom_right.isValid())
 		return;
 	for (int i=top_left.column(); i<=bottom_right.column(); i++)
-		d_tree_view->resizeColumnToContents(i);
+		m_tree_view->resizeColumnToContents(i);
 }
 
 ShortcutsDialog::~ShortcutsDialog()
 {
-	delete d_delegate;
+	delete m_delegate;
 }
 

@@ -60,7 +60,7 @@ public:
 	//! The kinds of frame a TextEnrichment can draw around the Text.
 	enum FrameStyle{None = 0, Line = 1, Shadow=2};
 
-	QString text(){return d_text->text();};
+	QString text(){return m_text->text();};
 	void setText(const QString& s);
 
 	//! Bounding rectangle in paint coordinates.
@@ -76,20 +76,20 @@ public:
 	//! Keep the markers on screen each time the scales are modified by adding/removing curves
 	void updateOrigin();
 
-	QColor textColor(){return d_text->color();};
+	QColor textColor(){return m_text->color();};
 	void setTextColor(const QColor& c);
 
-	QColor backgroundColor(){return d_text->backgroundBrush().color();};
+	QColor backgroundColor(){return m_text->backgroundBrush().color();};
 	void setBackgroundColor(const QColor& c);
 
-	int frameStyle(){return d_frame;};
+	int frameStyle(){return m_frame;};
 	void setFrameStyle(int style);
 
-	QFont font(){return d_text->font();};
+	QFont font(){return m_text->font();};
 	void setFont(const QFont& font);
 
-	int angle(){return d_angle;};
-	void setAngle(int ang){d_angle=ang;};
+	int angle(){return m_angle;};
+	void setAngle(int ang){m_angle=ang;};
 
 private:
 	void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
@@ -107,19 +107,19 @@ private:
 
 protected:
 	//! Parent plot
-	Plot *d_plot;
+	Plot *m_plot;
 
 	//! Frame type
-	int d_frame;
+	int m_frame;
 
 	//! Rotation angle: not implemented yet
-	int d_angle;
+	int m_angle;
 
 	//! Pointer to the QwtText object
-	QwtText* d_text;
+	QwtText* m_text;
 
 	//! TopLeft position in pixels
-	QPoint d_pos;
+	QPoint m_pos;
 
 	//!Distance between symbols and legend text
 	int hspace;

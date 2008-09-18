@@ -58,12 +58,12 @@ Plot::Plot(QWidget *parent, const char *)
 	setAxisTitle(QwtPlot::xBottom, tr("X Axis Title"));
 
 	// grid
-	d_grid = new Grid;
-	d_grid->enableX(false);
-	d_grid->enableY(false);
-	d_grid->setMajPen(QPen(Qt::blue, 0, Qt::SolidLine));
-	d_grid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
-	d_grid->attach(this);
+	m_grid = new Grid;
+	m_grid->enableX(false);
+	m_grid->enableY(false);
+	m_grid->setMajPen(QPen(Qt::blue, 0, Qt::SolidLine));
+	m_grid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
+	m_grid->attach(this);
 
 	//custom scale
 	for (int i= 0; i<QwtPlot::axisCnt; i++)
@@ -407,7 +407,7 @@ void Plot::print(QPainter *painter, const QRect &plotRect, const QwtPlotPrintFil
 
 QwtPlotCurve* Plot::curve(int index)
 {
-    QwtPlotItem *it = d_curves.value(index);
+    QwtPlotItem *it = m_curves.value(index);
     if (it && it->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
         return (QwtPlotCurve*)it;
     else
@@ -422,7 +422,7 @@ int Plot::closestCurve(int xpos, int ypos, int &dist, int &point)
 
 	double dmin = 1.0e10;
 	int key = -1;
-	for (QMap<int, QwtPlotItem *>::iterator iter = d_curves.begin(); iter != d_curves.end(); ++iter )
+	for (QMap<int, QwtPlotItem *>::iterator iter = m_curves.begin(); iter != m_curves.end(); ++iter )
 	{
 		QwtPlotItem *item = (QwtPlotItem *)iter.data();
 		if (!item)
@@ -451,18 +451,18 @@ int Plot::closestCurve(int xpos, int ypos, int &dist, int &point)
 
 void Plot::removeMarker(int index)
 {
-	QwtPlotMarker *m = d_markers[index];
+	QwtPlotMarker *m = m_markers[index];
 	if(!m)
 		return;
 	m->detach();
-	d_markers.remove (index);
+	m_markers.remove (index);
 }
 
 int Plot::insertMarker(QwtPlotMarker *m)
 {
 	marker_key++;
-	if (!d_markers.contains(marker_key))
-		d_markers.insert (marker_key, m);
+	if (!m_markers.contains(marker_key))
+		m_markers.insert (marker_key, m);
 	m->setRenderHint(QwtPlotItem::RenderAntialiased, ((Layer *)parent())->antialiasing());
 	m->attach(((QwtPlot *)this));
 	return marker_key;
@@ -471,8 +471,8 @@ int Plot::insertMarker(QwtPlotMarker *m)
 int Plot::insertCurve(QwtPlotItem *c)
 {
 	curve_key++;
-	if (!d_curves.contains(curve_key))
-		d_curves.insert (curve_key, c);
+	if (!m_curves.contains(curve_key))
+		m_curves.insert (curve_key, c);
 	if (c->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
 		((QwtPlotCurve *)c)->setPaintAttribute(QwtPlotCurve::PaintFiltered);
 
@@ -483,7 +483,7 @@ int Plot::insertCurve(QwtPlotItem *c)
 
 void Plot::removeCurve(int index)
 {
-	QwtPlotItem *c = d_curves[index];
+	QwtPlotItem *c = m_curves[index];
   	if (!c)
   		return;
 
@@ -496,7 +496,7 @@ void Plot::removeCurve(int index)
   	}
 
 	c->detach();
-	d_curves.remove (index);
+	m_curves.remove (index);
 }
 
 QList<int> Plot::getMajorTicksType()

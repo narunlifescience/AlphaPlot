@@ -56,7 +56,7 @@ class TableCommentsHeaderModel : public QAbstractTableModel
 		//@}
 
 	private:
-		TableModel * d_table_model;
+		TableModel * m_table_model;
 };
 
 #endif

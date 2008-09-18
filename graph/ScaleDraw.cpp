@@ -36,11 +36,11 @@
 #include <qwt_text.h>
 
 ScaleDraw::ScaleDraw(const QString& s):
-	d_fmt('g'),
-    d_prec(4),
+	m_fmt('g'),
+    m_prec(4),
 	formula_string (s),
-	d_majTicks(Out),
-	d_minTicks(Out)
+	m_majTicks(Out),
+	m_minTicks(Out)
 	{};
 
 double ScaleDraw::transformValue(double value) const
@@ -84,8 +84,8 @@ double ScaleDraw::transformValue(double value) const
 */
 void ScaleDraw::setLabelFormat(char f, int prec)
 {
-d_fmt = f;
-d_prec = prec;
+m_fmt = f;
+m_prec = prec;
 }
 
 /*!
@@ -102,23 +102,23 @@ d_prec = prec;
 */
 void ScaleDraw::labelFormat(char &f, int &prec) const
 {
-    f = d_fmt;
-    prec = d_prec;
+    f = m_fmt;
+    prec = m_prec;
 }
 
 void ScaleDraw::drawTick(QPainter *p, double value, int len) const
 {
 QwtScaleDiv scDiv = scaleDiv();
 QwtValueList majTicks = scDiv.ticks(QwtScaleDiv::MajorTick);
-if (majTicks.contains(value) && (d_majTicks == In || d_majTicks == None))
+if (majTicks.contains(value) && (m_majTicks == In || m_majTicks == None))
 	return;
 
 QwtValueList medTicks = scDiv.ticks(QwtScaleDiv::MediumTick);
-if (medTicks.contains(value) && (d_minTicks == In || d_minTicks == None))
+if (medTicks.contains(value) && (m_minTicks == In || m_minTicks == None))
 	return;
 
 QwtValueList minTicks = scDiv.ticks(QwtScaleDiv::MinorTick);
-if (minTicks.contains(value) && (d_minTicks == In || d_minTicks == None))
+if (minTicks.contains(value) && (m_minTicks == In || m_minTicks == None))
 	return;
 
 QwtScaleDraw::drawTick(p, value, len);
@@ -202,7 +202,7 @@ return QwtText(t.toString ( t_format ));
  *****************************************************************************/
 
 WeekDayScaleDraw:: WeekDayScaleDraw(NameFormat format):
-				d_format(format)
+				m_format(format)
 {}
 
 QwtText WeekDayScaleDraw::label(double value) const
@@ -215,7 +215,7 @@ else if (val == 0)
 	val = 7;
 
 QString day;
-switch(d_format)
+switch(m_format)
 	{
 	case  ShortName:
 		day = QDate::shortDayName (val);
@@ -239,7 +239,7 @@ return QwtText(day);
  *****************************************************************************/
 
 MonthScaleDraw::MonthScaleDraw(NameFormat format):
-		d_format(format)
+		m_format(format)
 {};
 
 QwtText MonthScaleDraw::label(double value) const
@@ -252,7 +252,7 @@ else if (val == 0)
 	val = 12;
 
 QString day;
-switch(d_format)
+switch(m_format)
 	{
 	case  ShortName:
 		day = QDate::shortMonthName (val);

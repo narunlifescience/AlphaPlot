@@ -104,7 +104,7 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, Qt::WFlags fl )
 void InterpolationDialog::interpolate()
 {
 QString curve = boxName->currentText();
-QStringList curvesList = d_layer->analysableCurvesList();
+QStringList curvesList = m_layer->analysableCurvesList();
 if (!curvesList.contains(curve))
 	{
 	QMessageBox::critical(this,tr("Warning"),
@@ -148,7 +148,7 @@ if (from >= to)
 	return;
 	}
 
-Interpolation *i = new Interpolation((ApplicationWindow *)this->parent(), d_layer, curve,
+Interpolation *i = new Interpolation((ApplicationWindow *)this->parent(), m_layer, curve,
                                       from, to, boxMethod->currentIndex());
 i->setOutputPoints(boxPoints->value());
 i->setColor(boxColor->currentIndex());
@@ -158,10 +158,10 @@ delete i;
 
 void InterpolationDialog::setLayer(Layer *layer)
 {
-	d_layer = layer;
-	boxName->addItems(d_layer->analysableCurvesList());
+	m_layer = layer;
+	boxName->addItems(m_layer->analysableCurvesList());
 
-	QString selectedCurve = d_layer->selectedCurveTitle();
+	QString selectedCurve = m_layer->selectedCurveTitle();
 	if (!selectedCurve.isEmpty())
 	{
 		int index = boxName->findText (selectedCurve);
@@ -170,13 +170,13 @@ void InterpolationDialog::setLayer(Layer *layer)
 
 	activateCurve(boxName->currentText());
 
-	connect (d_layer, SIGNAL(closed()), this, SLOT(close()));
-	connect (d_layer, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
+	connect (m_layer, SIGNAL(closed()), this, SLOT(close()));
+	connect (m_layer, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
 void InterpolationDialog::activateCurve(const QString& curveName)
 {
-	QwtPlotCurve *c = d_layer->curve(curveName);
+	QwtPlotCurve *c = m_layer->curve(curveName);
 	if (!c)
 		return;
 
@@ -185,9 +185,9 @@ void InterpolationDialog::activateCurve(const QString& curveName)
         return;
 
 	double start, end;
-	d_layer->range(d_layer->curveIndex(curveName), &start, &end);
-	boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
-	boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
+	m_layer->range(m_layer->curveIndex(curveName), &start, &end);
+	boxStart->setText(QString::number(QMIN(start, end), 'g', app->m_decimal_digits));
+	boxEnd->setText(QString::number(QMAX(start, end), 'g', app->m_decimal_digits));
 };
 
 void InterpolationDialog::changeDataRange()
@@ -196,8 +196,8 @@ ApplicationWindow *app = (ApplicationWindow *)parent();
 if(!app)
     return;
 
-double start = d_layer->selectedXStartValue();
-double end = d_layer->selectedXEndValue();
-boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
-boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
+double start = m_layer->selectedXStartValue();
+double end = m_layer->selectedXEndValue();
+boxStart->setText(QString::number(QMIN(start, end), 'g', app->m_decimal_digits));
+boxEnd->setText(QString::number(QMAX(start, end), 'g', app->m_decimal_digits));
 }

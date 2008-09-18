@@ -65,7 +65,7 @@ private:
     void closeEvent (QCloseEvent *);
 
     Fit *fitter;
-	Layer *d_layer;
+	Layer *m_layer;
 	int slopes;
 
 	QPushButton* buttonFit;

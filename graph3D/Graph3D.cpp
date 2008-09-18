@@ -111,18 +111,18 @@ UserFunction::~UserFunction()
 Graph3D::Graph3D(const QString & name)
 	: AbstractPart(name)
 {
-	d_view_widget = new Graph3DWidget();	
-	d_view = new QWidget();
-	d_main_layout = new QVBoxLayout(d_view);
-	d_main_layout->addWidget(d_view_widget);
-	d_main_layout->setSpacing(0);
-	d_main_layout->setContentsMargins(0, 0, 0, 0);
+	m_view_widget = new Graph3DWidget();	
+	m_view = new QWidget();
+	m_main_layout = new QVBoxLayout(m_view);
+	m_main_layout->addWidget(m_view_widget);
+	m_main_layout->setSpacing(0);
+	m_main_layout->setContentsMargins(0, 0, 0, 0);
 	
 	initPlot();
 	createActions();
 	connectActions();
-	d_view_widget->installEventFilter(this);
-	d_view_widget->setMinimumSize(10, 10);
+	m_view_widget->installEventFilter(this);
+	m_view_widget->setMinimumSize(10, 10);
 }
 
 Graph3D::Graph3D()
@@ -135,7 +135,7 @@ Graph3D::Graph3D()
 
 QWidget * Graph3D::view()
 { 
-	return d_view; 
+	return m_view; 
 }
 
 void Graph3D::createActions()
@@ -172,25 +172,25 @@ void Graph3D::connectActions()
 	connect(action_plot_polygons, SIGNAL(triggered()), this, SLOT(plot3DPolygons()));
 	connect(action_plot_wire_surface, SIGNAL(triggered()), this, SLOT(plot3DWireSurface()));
 
-	d_view->addAction(action_plot_wire_frame);
-	d_view->addAction(action_plot_hidden_line);
-	d_view->addAction(action_plot_polygons);
-	d_view->addAction(action_plot_wire_surface);
+	m_view->addAction(action_plot_wire_frame);
+	m_view->addAction(action_plot_hidden_line);
+	m_view->addAction(action_plot_polygons);
+	m_view->addAction(action_plot_wire_surface);
 }
 
 void Graph3D::initPlot()
 {
-	d_table = 0;
-	d_matrix = 0;
+	m_table = 0;
+	m_matrix = 0;
     clearPlotAssociation();
 
     color_map = QString::null;
     animation_redraw_wait = 50;
-    d_timer = new QTimer(this);
-    connect(d_timer, SIGNAL(timeout()), this, SLOT(rotate()) );
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(rotate()) );
 	ignoreFonts = false;
 
-	sp = new SurfacePlot(d_view_widget);
+	sp = new SurfacePlot(m_view_widget);
 	sp->resize(500,400);
 	sp->installEventFilter(this);
 	sp->setRotation(30,0,15);
@@ -202,7 +202,7 @@ void Graph3D::initPlot()
 	smoothMesh = true;
 	sp->setSmoothMesh(smoothMesh);
 
-	d_autoscale = true;
+	m_autoscale = true;
 
 	title = QString();
 	sp->setTitle(title);
@@ -295,7 +295,7 @@ void Graph3D::addFunction(const QString& s,double xl,double xr,double yl,
 		double yr,double zl,double zr)
 {
 	sp->makeCurrent();
-	sp->resize(d_view_widget->size());
+	sp->resize(m_view_widget->size());
 
 	func= new UserFunction(s, *sp);
 
@@ -326,7 +326,7 @@ void Graph3D::insertFunction(const QString& s,double xl,double xr,double yl,
 
 void Graph3D::addData(Table* table, int xcol, int ycol)
 {
-	d_table = table;
+	m_table = table;
 	
 	Column *x_col = table->column(xcol);
 	Column *y_col = table->column(ycol);
@@ -383,7 +383,7 @@ void Graph3D::addData(Table* table, int xcol, int ycol)
 	sp->legend()->setLimits(gsl_vector_min(y),maxy);
 	sp->loadFromData(data, xmesh, ymesh, gsl_vector_min(x),gsl_vector_max(x),0,maxz);
 
-	if (d_autoscale)
+	if (m_autoscale)
 		findBestLayout();
 
 	gsl_vector_free (x);
@@ -423,7 +423,7 @@ void Graph3D::addData(Table* table,const QString& xColName,const QString& yColNa
 
 void Graph3D::changeMatrix(Matrix* m)
 {
-	if (d_matrix == m)
+	if (m_matrix == m)
 		return;
 
 	addMatrixData(m);
@@ -431,14 +431,14 @@ void Graph3D::changeMatrix(Matrix* m)
 
 void Graph3D::addMatrixData(Matrix* m)
 {
-	if (d_matrix == m)
+	if (m_matrix == m)
 		return;
 
 	bool first_time = false;
-	if(!d_matrix)
+	if(!m_matrix)
 		first_time = true;
 
-	d_matrix = m;
+	m_matrix = m;
 	clearPlotAssociation();
 	plotAssociation.matrix = m;
 
@@ -462,7 +462,7 @@ void Graph3D::addMatrixData(Matrix* m)
 
 	freeMatrixData(data_matrix, rows);
 
-	if (d_autoscale || first_time)
+	if (m_autoscale || first_time)
 		findBestLayout();
 	update();
 }
@@ -470,7 +470,7 @@ void Graph3D::addMatrixData(Matrix* m)
 void Graph3D::addMatrixData(Matrix* m, double xl, double xr,
 		double yl, double yr, double zl, double zr)
 {
-	d_matrix = m;
+	m_matrix = m;
 	clearPlotAssociation();
 	plotAssociation.matrix = m;
 
@@ -480,7 +480,7 @@ void Graph3D::addMatrixData(Matrix* m, double xl, double xr,
 void Graph3D::addData(Table* table,const QString& xColName,const QString& yColName,
 		double xl, double xr, double yl, double yr, double zl, double zr)
 {
-	d_table=table;
+	m_table=table;
 
 	Column *x_col = table->column(xColName);
 	Column *y_col = table->column(yColName);
@@ -587,13 +587,13 @@ void Graph3D::changeDataColumn(Table* table, const QString& colName)
 	plotAssociation.z_index = zCol;
 
 	updateDataXYZ(table, xCol, yCol, zCol);
-	if (d_autoscale)
+	if (m_autoscale)
 		findBestLayout();
 }
 
 void Graph3D::addData(Table* table, int xCol,int yCol,int zCol, int type)
 {
-	d_table=table;
+	m_table=table;
 	int r = qMin(table->column(xCol)->rowCount(), qMin(table->column(yCol)->rowCount(), table->column(zCol)->rowCount()));
 
 	clearPlotAssociation();
@@ -671,7 +671,7 @@ void Graph3D::addData(Table* table, int xCol,int yCol,int zCol, int type)
 		style_ = Qwt3D::USER;
 	}
 
-	if (d_autoscale)
+	if (m_autoscale)
 		findBestLayout();
 	deleteData(data,columns);
 }
@@ -679,7 +679,7 @@ void Graph3D::addData(Table* table, int xCol,int yCol,int zCol, int type)
 void Graph3D::addData(Table* table, int xCol,int yCol,int zCol,
 		double xl, double xr, double yl, double yr, double zl, double zr)
 {
-	d_table=table;
+	m_table=table;
 	int r = qMin(table->column(xCol)->rowCount(), qMin(table->column(yCol)->rowCount(), table->column(zCol)->rowCount()));
 
 	clearPlotAssociation();
@@ -776,7 +776,7 @@ void Graph3D::updateData(Table* table)
 	else
 		updateDataXY(table, xCol, yCol);
 
-	if (d_autoscale)
+	if (m_autoscale)
 		findBestLayout();
 	update();
 }
@@ -948,7 +948,7 @@ void Graph3D::updateMatrixData(Matrix* m)
 	sp->legend()->setMajors(legendMajorTicks);
 
 	freeMatrixData(data, rows);
-	if (d_autoscale)
+	if (m_autoscale)
 		findBestLayout();
 	update();
 }
@@ -1600,7 +1600,7 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	if (d_matrix)
+	if (m_matrix)
 		updateScalesFromMatrix(xl, xr, yl, yr, zl, zr);
 	else
 	{
@@ -1623,21 +1623,21 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl
 void Graph3D::updateScalesFromMatrix(double xl, double xr, double yl,
 		double yr, double zl, double zr)
 {
-	double dx = (d_matrix->xEnd() - d_matrix->xStart())/(d_matrix->columnCount()-1);
-	double dy = (d_matrix->yEnd() - d_matrix->yStart())/(d_matrix->rowCount()-1);
+	double dx = (m_matrix->xEnd() - m_matrix->xStart())/(m_matrix->columnCount()-1);
+	double dy = (m_matrix->yEnd() - m_matrix->yStart())/(m_matrix->rowCount()-1);
 
 	int nc = int((xr - xl)/dx)+1;
 	int nr = int((yr - yl)/dy)+1;
 
-	int start_row = int((yl - d_matrix->yStart())/dy);
-	int start_col = int((xl - d_matrix->xStart())/dx);
+	int start_row = int((yl - m_matrix->yStart())/dy);
+	int start_col = int((xl - m_matrix->xStart())/dx);
 
 	double **data_matrix = allocateMatrixData(nc, nr);
 	for (int j = 0; j < nr; j++)
 	{
 		for (int i = 0; i < nc; i++)
 		{
-			double val = d_matrix->cell(j + start_row, i + start_col);
+			double val = m_matrix->cell(j + start_row, i + start_col);
 			if (val > zr)
 				data_matrix[i][j] = zr;
 			else if (val < zl)
@@ -1658,7 +1658,7 @@ void Graph3D::updateScalesFromMatrix(double xl, double xr, double yl,
 void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl, double zr,
 		int xcol, int ycol)
 {
-	int r = qMin(d_table->column(xcol)->rowCount(), d_table->column(ycol)->rowCount());
+	int r = qMin(m_table->column(xcol)->rowCount(), m_table->column(ycol)->rowCount());
 	int i, j, xmesh=0, ymesh=2;
 	double xv, yv;
 
@@ -1666,14 +1666,14 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl,
 	{
 // old code:
 /*
-		if (!d_table->text(i,xcol).isEmpty() && !d_table->text(i,ycol).isEmpty())
+		if (!m_table->text(i,xcol).isEmpty() && !m_table->text(i,ycol).isEmpty())
 		{
-			xv=d_table->cell(i,xcol);
+			xv=m_table->cell(i,xcol);
 			if (xv >= xl && xv <= xr)
 				xmesh++;
 		}
 */
-		xv = d_table->column(xcol)->valueAt(i);
+		xv = m_table->column(xcol)->valueAt(i);
 		if (xv >= xl && xv <= xr)
 			xmesh++;
 	}
@@ -1690,12 +1690,12 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl,
 		{
 // old code:
 /*
-			if (!d_table->text(i,xcol).isEmpty() && !d_table->text(i,ycol).isEmpty())
+			if (!m_table->text(i,xcol).isEmpty() && !m_table->text(i,ycol).isEmpty())
 			{
-				xv=d_table->cell(i,xcol);
+				xv=m_table->cell(i,xcol);
 				if (xv >= xl && xv <= xr)
 				{
-					yv=d_table->cell(i,ycol);
+					yv=m_table->cell(i,ycol);
 					if (yv > zr)
 						data[k][j] = zr;
 					else if (yv < zl)
@@ -1706,10 +1706,10 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl,
 				}
 			}
 */
-			xv = d_table->column(xcol)->valueAt(i);
+			xv = m_table->column(xcol)->valueAt(i);
 			if (xv >= xl && xv <= xr)
 			{
-				yv = d_table->column(ycol)->valueAt(i);
+				yv = m_table->column(ycol)->valueAt(i);
 				if (yv > zr)
 					data[k][j] = zr;
 				else if (yv < zl)
@@ -1729,23 +1729,23 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl,
 void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl, double zr,
 		int xCol, int yCol, int zCol)
 {
-	int r = qMin(d_table->column(xCol)->rowCount(), qMin(d_table->column(yCol)->rowCount(), d_table->column(zCol)->rowCount()));
+	int r = qMin(m_table->column(xCol)->rowCount(), qMin(m_table->column(yCol)->rowCount(), m_table->column(zCol)->rowCount()));
 	int i,j,columns=0;
 	double xv, yv, zv;
 	for ( i = 0; i < r; i++)
 	{
 // old code:
 /*
-		if (!d_table->text(i,xCol).isEmpty() && !d_table->text(i,yCol).isEmpty() && !d_table->text(i,zCol).isEmpty())
+		if (!m_table->text(i,xCol).isEmpty() && !m_table->text(i,yCol).isEmpty() && !m_table->text(i,zCol).isEmpty())
 		{
-			xv=d_table->cell(i,xCol);
-			yv=d_table->cell(i,yCol);
+			xv=m_table->cell(i,xCol);
+			yv=m_table->cell(i,yCol);
 			if (xv >= xl && xv <= xr && yv >= yl && yv <= yr)
 				columns++;
 		}
 */
-		xv = d_table->column(xCol)->valueAt(i);
-		yv = d_table->column(yCol)->valueAt(i);
+		xv = m_table->column(xCol)->valueAt(i);
+		yv = m_table->column(yCol)->valueAt(i);
 		if (xv >= xl && xv <= xr && yv >= yl && yv <= yr)
 			columns++;
 	}
@@ -1761,13 +1761,13 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl
 		{
 // old code:
 /*
-			if (!d_table->text(i,xCol).isEmpty() && !d_table->text(i,yCol).isEmpty() && !d_table->text(i,zCol).isEmpty())
+			if (!m_table->text(i,xCol).isEmpty() && !m_table->text(i,yCol).isEmpty() && !m_table->text(i,zCol).isEmpty())
 			{
-				xv=d_table->cell(i,xCol);
-				yv=d_table->cell(i,yCol);
+				xv=m_table->cell(i,xCol);
+				yv=m_table->cell(i,yCol);
 				if (xv >= xl && xv <= xr && yv >= yl && yv <= yr )
 				{
-					zv=d_table->cell(i,zCol);
+					zv=m_table->cell(i,zCol);
 					if (zv > zr)
 						data[k][j] = Triple(xv,yv,zr);
 					else if (zv < zl)
@@ -1778,11 +1778,11 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl
 				}
 			}
 */
-			xv = d_table->column(xCol)->valueAt(i);
-			yv = d_table->column(yCol)->valueAt(i);
+			xv = m_table->column(xCol)->valueAt(i);
+			yv = m_table->column(yCol)->valueAt(i);
 			if (xv >= xl && xv <= xr && yv >= yl && yv <= yr )
 			{
-				zv = d_table->column(zCol)->valueAt(i);
+				zv = m_table->column(zCol)->valueAt(i);
 				if (zv > zr)
 					data[k][j] = Triple(xv,yv,zr);
 				else if (zv < zl)
@@ -2024,7 +2024,7 @@ void Graph3D::resizeEvent ( QResizeEvent *e)
 	sp->makeCurrent();
 	sp->resize(size);
 
-	if (!ignoreFonts && d_view->isVisible())
+	if (!ignoreFonts && m_view->isVisible())
 	{
 		QSize oldSize=e->oldSize();
 		double ratio=(double)size.height()/(double)oldSize.height();
@@ -2178,10 +2178,10 @@ void Graph3D::setCrossMesh()
 
 void Graph3D::clearData()
 {
-	if (d_matrix)
-		d_matrix = 0;
-	else if (d_table)
-		d_table = 0;
+	if (m_matrix)
+		m_matrix = 0;
+	else if (m_table)
+		m_table = 0;
 	else if (func)
 	{
 		delete func;
@@ -2419,7 +2419,7 @@ bool Graph3D::eventFilter(QObject *object, QEvent *e)
 		emit showOptionsDialog();
 		return true;
 	}
-	if (e->type() == QEvent::Resize && object == (QObject *)d_view_widget)
+	if (e->type() == QEvent::Resize && object == (QObject *)m_view_widget)
 	{
 		resizeEvent(static_cast<QResizeEvent *>(e));
 		return false; // don't stop the event handling here
@@ -2478,7 +2478,7 @@ void Graph3D::updatePoints(double size, bool sm)
 
 	update();
 	emit modified();
-	emit custom3DActions(d_view);
+	emit custom3DActions(m_view);
 }
 
 void Graph3D::updateCones(double rad, int quality)
@@ -2492,7 +2492,7 @@ void Graph3D::updateCones(double rad, int quality)
 	sp->setPlotStyle(Cone3D(conesRad,conesQuality));
 	update();
 	emit modified();
-	emit custom3DActions(d_view);
+	emit custom3DActions(m_view);
 }
 
 void Graph3D::setConesOptions(double rad, int quality)
@@ -2517,7 +2517,7 @@ void Graph3D::updateCross(double rad, double linewidth, bool smooth, bool boxed)
 	sp->setPlotStyle(CrossHair(rad,linewidth, smooth, boxed));
 	update();
 	emit modified();
-	emit custom3DActions(d_view);
+	emit custom3DActions(m_view);
 }
 
 void Graph3D::setCrossOptions(double rad, double linewidth, bool smooth, bool boxed)
@@ -3150,10 +3150,10 @@ void Graph3D::showWorksheet()
 {
 // TODO
 /*
-	if (d_table)
-		d_table->showMaximized();
-	else if (d_matrix)
-		d_matrix->showMaximized();
+	if (m_table)
+		m_table->showMaximized();
+	else if (m_matrix)
+		m_matrix->showMaximized();
 */
 }
 
@@ -3185,9 +3185,9 @@ Turns 3D animation on or off
 void Graph3D::animate(bool on)
 {
 if ( on )
-   d_timer->start( animation_redraw_wait ); // Wait this many msecs before redraw
+   m_timer->start( animation_redraw_wait ); // Wait this many msecs before redraw
 else
-    d_timer->stop();
+    m_timer->stop();
 }
 
 void Graph3D::rotate()
@@ -3481,7 +3481,7 @@ void Graph3D::plot3DMatrix(int style)
 
 	sp->makeCurrent();
 	sp->updateGL();
-	d_view->update();
+	m_view->update();
 
 	RESET_CURSOR;
 }

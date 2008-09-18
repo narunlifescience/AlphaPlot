@@ -35,7 +35,7 @@
 TableItemDelegate::TableItemDelegate(QObject * parent)
  : QItemDelegate(parent)
 {
-	d_masking_color = QColor(0xff,0,0);
+	m_masking_color = QColor(0xff,0,0);
 }
 
 void TableItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -46,7 +46,7 @@ void TableItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 		return;
 	painter->save();
 	// masked cells are displayed as hatched
-	painter->fillRect(option.rect, QBrush(d_masking_color, Qt::BDiagPattern));
+	painter->fillRect(option.rect, QBrush(m_masking_color, Qt::BDiagPattern));
 	painter->restore();
 }
 

@@ -31,48 +31,48 @@
 
 ShortcutsDialogModelItem::ShortcutsDialogModelItem(ActionManager * manager, int depth, int row, ShortcutsDialogModelItem *parent)
 {
-	d_action_manager = manager;
-    d_parent_item = parent;
-    d_depth = depth;
-	d_row = row;
+	m_action_manager = manager;
+    m_parent_item = parent;
+    m_depth = depth;
+	m_row = row;
 	if (parent)
 		parent->addChild(this);
 }
 
 ShortcutsDialogModelItem::~ShortcutsDialogModelItem()
 {
-    qDeleteAll(d_child_items);
+    qDeleteAll(m_child_items);
 }
 
 ShortcutsDialogModelItem *ShortcutsDialogModelItem::child(int number)
 {
-    return d_child_items.value(number);
+    return m_child_items.value(number);
 }
 
 int ShortcutsDialogModelItem::childCount() const
 {
-    return d_child_items.count();
+    return m_child_items.count();
 }
 
 void ShortcutsDialogModelItem::addChild(ShortcutsDialogModelItem * child)
 {
-	d_child_items.append(child);
+	m_child_items.append(child);
 }
 
 ShortcutsDialogModelItem *ShortcutsDialogModelItem::parent()
 {
-    return d_parent_item;
+    return m_parent_item;
 }
 
 ShortcutsDialogModel::ShortcutsDialogModel(QList<ActionManager *> action_managers, QObject * parent)
 	: QAbstractItemModel(parent)
 {
-	d_root_item = new ShortcutsDialogModelItem(0, 0, 0, 0);
+	m_root_item = new ShortcutsDialogModelItem(0, 0, 0, 0);
 
 	int row = 0;
 	foreach(ActionManager *manager, action_managers)
 	{
-		ShortcutsDialogModelItem * first_level_item = new ShortcutsDialogModelItem(manager, 1, row++, d_root_item);
+		ShortcutsDialogModelItem * first_level_item = new ShortcutsDialogModelItem(manager, 1, row++, m_root_item);
 		first_level_item->setText(manager->title());
 
 		QList<QString> list = manager->internalNames();
@@ -88,7 +88,7 @@ ShortcutsDialogModel::ShortcutsDialogModel(QList<ActionManager *> action_manager
 
 ShortcutsDialogModel::~ShortcutsDialogModel()
 {
-	delete d_root_item;
+	delete m_root_item;
 }
 
 ShortcutsDialogModelItem * ShortcutsDialogModel::getItem(const QModelIndex & index) const
@@ -99,7 +99,7 @@ ShortcutsDialogModelItem * ShortcutsDialogModel::getItem(const QModelIndex & ind
         if (item) 
 			return item;
     }
-    return d_root_item;
+    return m_root_item;
 }
 
 QModelIndex ShortcutsDialogModel::index(int row, int column, const QModelIndex & parent) const
@@ -126,7 +126,7 @@ QModelIndex ShortcutsDialogModel::parent(const QModelIndex & index) const
     ShortcutsDialogModelItem * child_item = getItem(index);
     ShortcutsDialogModelItem * parent_item = child_item->parent();
 
-    if (parent_item == d_root_item)
+    if (parent_item == m_root_item)
         return QModelIndex();
 
     return createIndex(parent_item->row(), 0, parent_item);

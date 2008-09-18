@@ -85,14 +85,14 @@ void SortDialog::accept()
 {
 	Column* leading;
 	if(ui.box_type->currentIndex() == Together) 
-		leading = d_columns_list.at(ui.columns_list->currentIndex());
-	emit sort(leading, d_columns_list, ui.box_order->currentIndex() == Ascending );
+		leading = m_columns_list.at(ui.columns_list->currentIndex());
+	emit sort(leading, m_columns_list, ui.box_order->currentIndex() == Ascending );
 	//close();
 }
 
 void SortDialog::setColumnsList(QList<Column*> list)
 {
-	d_columns_list = list;
+	m_columns_list = list;
 
 	for(int i=0; i<list.size(); i++)
 		ui.columns_list->addItem( list.at(i)->name() );

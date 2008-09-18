@@ -58,22 +58,22 @@ class Filter : public QObject
 		void setInterval(double from, double to);
 
 		//! Sets the tolerance used by the GSL routines
-		void setTolerance(double eps){d_tolerance = eps;};
+		void setTolerance(double eps){m_tolerance = eps;};
 
 		//! Sets the color of the output fit curve.
-		void setColor(int colorId){d_curveColorIndex = colorId;};
+		void setColor(int colorId){m_curveColorIndex = colorId;};
 
         //! Sets the color of the output fit curve. Provided for convenience. To be used in scripts only!
         void setColor(const QString& colorName);
 
         //! Sets the number of points in the output curve
-        void setOutputPoints(int points){d_points = points;};
+        void setOutputPoints(int points){m_points = points;};
 
         //! Sets the precision used for the output
-		void setOutputPrecision(int digits){d_prec = digits;};
+		void setOutputPrecision(int digits){m_prec = digits;};
 
 		//! Sets the maximum number of iterations to be performed during an iterative session
-		void setMaximumIterations(int iter){d_max_iterations = iter;};
+		void setMaximumIterations(int iter){m_max_iterations = iter;};
 
 		//! Adds a new legend to the plot. Calls virtual legendInfo()
 		virtual void showLegend();
@@ -82,9 +82,9 @@ class Filter : public QObject
 		virtual QString legendInfo(){return QString();};
 
 		//! Returns the size of the fitted data set
-		int dataSize(){return d_n;};
+		int dataSize(){return m_n;};
 
-        bool error(){return d_init_err;};
+        bool error(){return m_init_err;};
 
 	protected:
         void init();
@@ -111,52 +111,52 @@ class Filter : public QObject
 		virtual void calculateOutputData(double *X, double *Y) { Q_UNUSED(X) Q_UNUSED(Y) };
 
 		//! The graph where the result curve should be displayed
-		Layer *d_layer;
+		Layer *m_layer;
 
         //! A table source of data
-		Table *d_table;
+		Table *m_table;
 
 		//! Size of the data arrays
-		int d_n;
+		int m_n;
 
 		//! x data set to be analysed
-		double *d_x;
+		double *m_x;
 
 		//! y data set to be analysed
-		double *d_y;
+		double *m_y;
 
 		//! GSL Tolerance, if ever needed...
-		double d_tolerance;
+		double m_tolerance;
 
 		//! Number of result points to de calculated and displayed in the output curve
-		int d_points;
+		int m_points;
 
 		//! Color index of the result curve
-		int d_curveColorIndex;
+		int m_curveColorIndex;
 
 		//! Maximum number of iterations per fit
-		int d_max_iterations;
+		int m_max_iterations;
 
 		//! The curve to be analysed
-		QwtPlotCurve *d_curve;
+		QwtPlotCurve *m_curve;
 
 		//! Precision (number of significant digits) used for the results output
-		int d_prec;
+		int m_prec;
 
 		//! Error flag telling if something went wrong during the initialization phase.
-		bool d_init_err;
+		bool m_init_err;
 
         //! Data interval
-        double d_from, d_to;
+        double m_from, m_to;
 
         //! Specifies if the filter needs sorted data as input
-        bool d_sort_data;
+        bool m_sort_data;
 
         //! Minimum number of data points necessary to perform the operation
-        int d_min_points;
+        int m_min_points;
 
         //! String explaining the operation in the comment of the result table and in the project explorer
-        QString d_explanation;
+        QString m_explanation;
 };
 
 #endif

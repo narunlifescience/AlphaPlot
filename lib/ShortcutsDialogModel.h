@@ -57,23 +57,23 @@ class ShortcutsDialogModelItem
 		ShortcutsDialogModelItem * parent();
 		ShortcutsDialogModelItem * child(int number);
 		int childCount() const;
-		int depth() const { return d_depth; };
-		int row() const { return d_row; };
-		ActionManager * actionManager() const { return d_action_manager; }
-		CLASS_ACCESSOR(QString, d_text, text, Text);
-		CLASS_ACCESSOR(QString, d_action_name, actionName, ActionName);
+		int depth() const { return m_depth; };
+		int row() const { return m_row; };
+		ActionManager * actionManager() const { return m_action_manager; }
+		CLASS_ACCESSOR(QString, m_text, text, Text);
+		CLASS_ACCESSOR(QString, m_action_name, actionName, ActionName);
 		void addChild(ShortcutsDialogModelItem *child);
 
 	private:
 		//! List of child items
-		QList<ShortcutsDialogModelItem*> d_child_items;
+		QList<ShortcutsDialogModelItem*> m_child_items;
 		//! Depth value
 		/**
 		 * 0: root item, 1: action manager: 2: an action key (internal name in ActionManager)
 		 */
-		int d_depth;
+		int m_depth;
 		//! row in the list of children of the parent item
-		int d_row;
+		int m_row;
 		//! The text displayed in column 0 of the model
 		/** 
 		 * The meaning of this depends on depth()
@@ -81,13 +81,13 @@ class ShortcutsDialogModelItem
 		 * 1: ActionManager title
 		 * 2: action text/description
 		 */
-		QString d_text;
+		QString m_text;
 		//! The key/internal name of the corresponding actioin (only valid if depth() == 2)
-		QString d_action_name;
+		QString m_action_name;
 		//! The parent item
-		ShortcutsDialogModelItem * d_parent_item;
+		ShortcutsDialogModelItem * m_parent_item;
 		//! The corresponding ActionManager (only valid for depth() >= 1)
-		ActionManager * d_action_manager;
+		ActionManager * m_action_manager;
 };
 
 //! Model for ShortcutsDialog
@@ -115,7 +115,7 @@ class ShortcutsDialogModel : public QAbstractItemModel
 		Qt::ItemFlags flags(const QModelIndex & index) const;
 
 	private:
-		ShortcutsDialogModelItem * d_root_item;
+		ShortcutsDialogModelItem * m_root_item;
 		ShortcutsDialogModelItem * getItem(const QModelIndex & index) const;
 };
 

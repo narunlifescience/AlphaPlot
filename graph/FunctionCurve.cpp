@@ -35,41 +35,41 @@
 FunctionCurve::FunctionCurve(const char *name):
 	PlotCurve(name)
 {
-	d_variable = "x";
+	m_variable = "x";
 	setType(Layer::Function);
 }
 
 FunctionCurve::FunctionCurve(const FunctionType& t, const char *name):
 	PlotCurve(name),
-	d_function_type(t)
+	m_function_type(t)
 {
-	d_variable = "x";
+	m_variable = "x";
 	setType(Layer::Function);
 }
 
 void FunctionCurve::setRange(double from, double to)
 {
-	d_from = from;
-	d_to = to;
+	m_from = from;
+	m_to = to;
 }
 
 void FunctionCurve::copy(FunctionCurve* f)
 {
-	d_function_type = f->functionType();
-	d_variable = f->variable();
-	d_formulas = f->formulas();
-	d_from = f->startRange();
-	d_to = f->endRange();
+	m_function_type = f->functionType();
+	m_variable = f->variable();
+	m_formulas = f->formulas();
+	m_from = f->startRange();
+	m_to = f->endRange();
 }
 
 QString FunctionCurve::saveToString()
 {
 	QString s = "FunctionCurve\t";
-	s += QString::number(d_function_type) + ",";
+	s += QString::number(m_function_type) + ",";
 	s += title().text() + ",";
-	s += d_formulas.join(",") + "," + d_variable + ",";
-	s += QString::number(d_from,'g',15)+",";
-	s += QString::number(d_to,'g',15)+"\t";
+	s += m_formulas.join(",") + "," + m_variable + ",";
+	s += QString::number(m_from,'g',15)+",";
+	s += QString::number(m_to,'g',15)+"\t";
 	s += QString::number(dataSize())+"\t\t\t";
 	//the 2 last tabs are legacy code, kept for compatibility with old project files
 	return s;
@@ -78,17 +78,17 @@ QString FunctionCurve::saveToString()
 QString FunctionCurve::legend()
 {
 	QString label = title().text() + ": ";
-	if (d_function_type == Normal)
-		label += d_formulas[0];
-	else if (d_function_type == Parametric)
+	if (m_function_type == Normal)
+		label += m_formulas[0];
+	else if (m_function_type == Parametric)
 	{
-		label += "X(" + d_variable + ")=" + d_formulas[0];
-		label += ", Y(" + d_variable + ")=" + d_formulas[1];
+		label += "X(" + m_variable + ")=" + m_formulas[0];
+		label += ", Y(" + m_variable + ")=" + m_formulas[1];
 	}
-	else if (d_function_type == Polar)
+	else if (m_function_type == Polar)
 	{
-		label += "R(" + d_variable + ")=" + d_formulas[0];
-		label += ", Theta(" + d_variable + ")=" + d_formulas[1];
+		label += "R(" + m_variable + ")=" + m_formulas[0];
+		label += ", Theta(" + m_variable + ")=" + m_formulas[1];
 	}
 	return label;
 }
@@ -99,19 +99,19 @@ void FunctionCurve::loadData(int points)
         points = dataSize();
 
     double X[points], Y[points];
-    double step = (d_to - d_from)/(double)(points - 1);
+    double step = (m_to - m_from)/(double)(points - 1);
     bool error = false;
 
-	if (d_function_type == Normal)
+	if (m_function_type == Normal)
 	{
 		MyParser parser;
 		double x;
 		try
 		{
-			parser.DefineVar(d_variable.toAscii().constData(), &x);
-			parser.SetExpr(d_formulas[0].toAscii().constData());
+			parser.DefineVar(m_variable.toAscii().constData(), &x);
+			parser.SetExpr(m_formulas[0].toAscii().constData());
 
-			X[0] = d_from; x = d_from; Y[0]=parser.Eval();
+			X[0] = m_from; x = m_from; Y[0]=parser.Eval();
 			for (int i = 1; i<points; i++ )
 			{
 				x += step;
@@ -124,13 +124,13 @@ void FunctionCurve::loadData(int points)
 			error = true;
 		}
 	}
-	else if (d_function_type == Parametric || d_function_type == Polar)
+	else if (m_function_type == Parametric || m_function_type == Polar)
 	{
-		QStringList aux = d_formulas;
+		QStringList aux = m_formulas;
 		MyParser xparser;
 		MyParser yparser;
 		double par;
-		if (d_function_type == Polar)
+		if (m_function_type == Polar)
 		{
 			QString swap=aux[0];
 			aux[0]="("+swap+")*cos("+aux[1]+")";
@@ -138,11 +138,11 @@ void FunctionCurve::loadData(int points)
 		}
 		try
 		{
-			xparser.DefineVar(d_variable.toAscii().constData(), &par);
-			yparser.DefineVar(d_variable.toAscii().constData(), &par);
+			xparser.DefineVar(m_variable.toAscii().constData(), &par);
+			yparser.DefineVar(m_variable.toAscii().constData(), &par);
 			xparser.SetExpr(aux[0].toAscii().constData());
 			yparser.SetExpr(aux[1].toAscii().constData());
-			par = d_from;
+			par = m_from;
 			for (int i = 0; i<points; i++ )
 			{
 				X[i]=xparser.Eval();

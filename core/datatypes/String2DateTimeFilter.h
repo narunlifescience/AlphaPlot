@@ -50,7 +50,7 @@ class String2DateTimeFilter : public AbstractSimpleFilter
 
 	public:
 		//! Standard constructor.
-		explicit String2DateTimeFilter(QString format="yyyy-MM-dd hh:mm:ss.zzz") : d_format(format) {}
+		explicit String2DateTimeFilter(QString format="yyyy-MM-dd hh:mm:ss.zzz") : m_format(format) {}
 		//! Set the format string to be used for conversion.
 		void setFormat(const QString& format);
 		//! Return the format string
@@ -58,7 +58,7 @@ class String2DateTimeFilter : public AbstractSimpleFilter
 		 * The default format string is "yyyy-MM-dd hh:mm:ss.zzz".
 		 * \sa QDate::toString()
 		 */
-		QString format() const { return d_format; }
+		QString format() const { return m_format; }
 
 		//! Return the data type of the column
 		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQDateTime; }
@@ -75,7 +75,7 @@ class String2DateTimeFilter : public AbstractSimpleFilter
 	private:
 		friend class String2DateTimeFilterSetFormatCmd;
 		//! The format string.
-		QString d_format;
+		QString m_format;
 
 		static const char * date_formats[];
 		static const char * time_formats[];
@@ -101,8 +101,8 @@ class String2DateTimeFilterSetFormatCmd : public QUndoCommand
 		virtual void undo();
 
 	private:
-		String2DateTimeFilter* d_target;
-		QString d_other_format;
+		String2DateTimeFilter* m_target;
+		QString m_other_format;
 };
 
 #endif // ifndef STRING2DATE_TIME_FILTER_H

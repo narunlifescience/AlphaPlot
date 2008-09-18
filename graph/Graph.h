@@ -82,7 +82,7 @@ class Graph : public AbstractPart
 		void connectActions();
 		void addActionsToView();
 
-		GraphView *d_view;
+		GraphView *m_view;
 };
 
 
@@ -129,7 +129,7 @@ class Graph: public MyWidget
 
 public:
 	Graph (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
-	QList<Layer*> layers() {return d_layer_list;};
+	QList<Layer*> layers() {return m_layer_list;};
 	Layer *layer(int num);
 	LayerButton* addLayerButton();
 	void copy(Graph* ml);
@@ -150,13 +150,13 @@ public:
 	bool focusNextPrevChild ( bool next );
 	//@}
 
-	void setOpenMaximized(){d_open_maximized = 1;};
+	void setOpenMaximized(){m_open_maximized = 1;};
 
-	bool scaleLayersOnPrint(){return d_scale_on_print;};
-	void setScaleLayersOnPrint(bool on){d_scale_on_print = on;};
+	bool scaleLayersOnPrint(){return m_scale_on_print;};
+	void setScaleLayersOnPrint(bool on){m_scale_on_print = on;};
 
-	bool printCropmarksEnabled(){return d_print_cropmarks;};
-	void printCropmarks(bool on){d_print_cropmarks = on;};
+	bool printCropmarksEnabled(){return m_print_cropmarks;};
+	void printCropmarks(bool on){m_print_cropmarks = on;};
 
 	void setHidden();
 
@@ -185,7 +185,7 @@ public slots:
 	 */
 	void addTextLayer(const QPoint& pos);
 
-	Layer* activeLayer(){return d_active_layer;};
+	Layer* activeLayer(){return m_active_layer;};
 	void setActiveLayer(Layer* g);
 	void activateLayer(LayerButton* button);
 
@@ -220,7 +220,7 @@ public slots:
 	int verticalAlignement(){return vert_align;};
 	void setAlignement (int ha, int va);
 
-	int layerCount() { return d_layer_count; };
+	int layerCount() { return m_layer_count; };
 
 	//! \name Print and Export
 	//@{
@@ -278,30 +278,30 @@ private:
 	void resizeLayers (const QResizeEvent *re);
 	void resizeLayers (const QSize& size, const QSize& oldSize, bool scaleFonts);
 
-	Layer* d_active_layer;
+	Layer* m_active_layer;
 	//! Used for resizing of layers.
-	int d_layer_count, cols, rows, d_layer_default_width, d_layer_default_height, colsSpace, rowsSpace;
+	int m_layer_count, cols, rows, m_layer_default_width, m_layer_default_height, colsSpace, rowsSpace;
 	int left_margin, right_margin, top_margin, bottom_margin;
 	int l_canvas_width, l_canvas_height, hor_align, vert_align;
 	bool addTextOn;
-	bool d_scale_on_print, d_print_cropmarks;
+	bool m_scale_on_print, m_print_cropmarks;
 
 	//! Used when adding text markers on new layers
 	int defaultTextMarkerFrame;
 	QFont defaultTextMarkerFont;
 	QColor defaultTextMarkerColor, defaultTextMarkerBackground;
 
-	QWidgetList d_button_list;
-	QList<Layer*> d_layer_list;
+	QWidgetList m_button_list;
+	QList<Layer*> m_layer_list;
 	QHBoxLayout *layerButtonsBox;
 	QWidget *canvas;
 
-	QPointer<SelectionMoveResizer> d_layers_selector;
-	int d_open_maximized;
+	QPointer<SelectionMoveResizer> m_layers_selector;
+	int m_open_maximized;
 	//! Stores the size of the widget in the Qt::WindowMaximized state.
-	QSize d_max_size;
+	QSize m_max_size;
 	//! Stores the size of the widget in Qt::WindowNoState (normal state).
-	QSize d_normal_size;
+	QSize m_normal_size;
 };
 
 
