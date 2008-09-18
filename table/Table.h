@@ -81,11 +81,17 @@ class Table : public AbstractPart, public scripted
 
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
+		//! Fill the part specific menu for the main window including setting the title
+		/**
+		 * \return true on success, otherwise false (e.g. part has no actions).
+		 */
+		virtual bool fillProjectMenu(QMenu * menu);
 		//! Return a new context menu.
 		/**
 		 * The caller takes ownership of the menu.
 		 */
-		virtual QMenu *createContextMenu() const;
+		virtual QMenu *createContextMenu();
+
 		//! Construct a primary view on me.
 		/**
 		 * This method may be called multiple times during the life time of an Aspect, or it might not get
@@ -135,58 +141,12 @@ class Table : public AbstractPart, public scripted
 		void setColumnCount(int new_size);
 		QVariant headerData(int section, Qt::Orientation orientation,int role) const;
 
-		//! Create a menu with selection related operations
-		/**
-		 * \param append_to if a pointer to a QMenu is passed
-		 * to the function, the actions are appended to
-		 * it instead of the creation of a new menu.
-		 */
-		QMenu * createSelectionMenu(QMenu * append_to = 0);
-		//! Create a menu with column related operations
-		/**
-		 * \param append_to if a pointer to a QMenu is passed
-		 * to the function, the actions are appended to
-		 * it instead of the creation of a new menu.
-		 */
-		QMenu * createColumnMenu(QMenu * append_to = 0);
-		//! Create a menu with row related operations
-		/**
-		 * \param append_to if a pointer to a QMenu is passed
-		 * to the function, the actions are appended to
-		 * it instead of the creation of a new menu.
-		 */
-		QMenu * createRowMenu(QMenu * append_to = 0);
-		//! Create a menu with table related operations
-		/**
-		 * \param append_to if a pointer to a QMenu is passed
-		 * to the function, the actions are appended to
-		 * it instead of the creation of a new menu.
-		 */
-		QMenu * createTableMenu(QMenu * append_to = 0);
-		//! Fill the part specific menu for the main window including setting the title
-		/**
-		 * \return true on success, otherwise false (e.g. part has no actions).
-		 */
-		virtual bool fillProjectMenu(QMenu * menu);
-
 		//! Determine the corresponding X column
 		int colX(int col);
 		//! Determine the corresponding Y column
 		int colY(int col);
-		//! Set a plot menu 
-		/**
-		 * The table takes ownership of the menu.
-		 */
-		void setPlotMenu(QMenu * menu);
-		//! Open the sort dialog for the given columns
-		void sortDialog(QList<Column*> cols);
-		//! Set default for comment visibility for table views
-		static void setDefaultCommentVisibility(bool visible) { d_default_comment_visibility = visible; }
-		//! Return the default for comment visibility for table views
-		static bool defaultCommentVisibility() { return d_default_comment_visibility; }
 		//! Return the text displayed in the given cell
 		QString text(int row, int col);
-		void setSelectionAs(SciDAVis::PlotDesignation pd);
 		void copy(Table * other);
 
 		//! \name serialize/deserialize
@@ -198,18 +158,6 @@ class Table : public AbstractPart, public scripted
 		bool readColumnWidthElement(XmlStreamReader * reader);
 		//@}
 		
-	public:
-		static ActionManager * actionManager();
-		static void initActionManager();
-		static int defaultColumnWidth() { return default_column_width; }
-		static void setDefaultColumnWidth(int width) { default_column_width = width; }
-	private:
-		static ActionManager * action_manager;
-		// TODO: the default sizes are to be controlled by the global Table settings
-		static int default_column_width;
-		//! Private ctor for initActionManager() only
-		Table();
-
 	public slots:
 		//! Clear the whole table
 		void clear();
@@ -218,66 +166,14 @@ class Table : public AbstractPart, public scripted
 
 		//! Append one column
 		void addColumn();
-		//! Append as many columns as are selected
-		void addColumns();
-		//! Append as many rows as are selected
-		void addRows();
-		void cutSelection();
-		void copySelection();
-		void pasteIntoSelection();
-		void clearSelectedCells();
-		void goToCell();
-		void maskSelection();
-		void unmaskSelection();
-		void setFormulaForSelection();
-		void recalculateSelectedCells();
-		void fillSelectedCellsWithRowNumbers();
-		void fillSelectedCellsWithRandomNumbers();
-		//! Open the sort dialog for all columns
-		void sortTable();
-		//! Insert columns depending on the selection
-		void insertEmptyColumns();
-		void removeSelectedColumns();
-		void clearSelectedColumns();
-		void clearSelectedRows();
-		void setSelectedColumnsAsX();
-		void setSelectedColumnsAsY();
-		void setSelectedColumnsAsZ();
-		void setSelectedColumnsAsXError();
-		void setSelectedColumnsAsYError();
-		void setSelectedColumnsAsNone();
-		void normalizeSelectedColumns();
-		void sortSelectedColumns();
-		void statisticsOnSelectedColumns();
-		void statisticsOnSelectedRows();
-		//! Insert rows depending on the selection
-		void insertEmptyRows();
-		void removeSelectedRows();
-		void selectAll();
-		void dimensionsDialog();
-		void editTypeAndFormatOfSelectedColumns();
-		void editDescriptionOfCurrentColumn();
+		void addColumns(int count);
+		void addRows(int count);
 		void moveColumn(int from, int to);
 		//! Sort the given list of column
 		/*
 		 * If 'leading' is a null pointer, each column is sorted separately.
 		 */
 		void sortColumns(Column * leading, QList<Column*> cols, bool ascending);
-		//! Show a context menu for the selected cells
-		/**
-		 * \param pos global position of the event 
-		*/
-		void showTableViewContextMenu(const QPoint& pos);
-		//! Show a context menu for the selected columns
-		/**
-		 * \param pos global position of the event 
-		*/
-		void showTableViewColumnContextMenu(const QPoint& pos);
-		//! Show a context menu for the selected rows
-		/**
-		 * \param pos global position of the event 
-		*/
-		void showTableViewRowContextMenu(const QPoint& pos);
 
 	protected:
 		//! Called after a new child has been inserted or added.
@@ -335,64 +231,6 @@ class Table : public AbstractPart, public scripted
 		void headerDataChanged(Qt::Orientation orientation, int first, int last);
 
 	private:
-		void createActions();
-		void connectActions();
-		void addActionsToView();
-		QMenu * d_plot_menu;
-		static bool d_default_comment_visibility;
-
-		//! \name selection related actions
-		//@{
-		QAction * action_cut_selection;
-		QAction * action_copy_selection;
-		QAction * action_paste_into_selection;
-		QAction * action_mask_selection;
-		QAction * action_unmask_selection;
-		QAction * action_set_formula;
-		QAction * action_clear_selection;
-		QAction * action_recalculate;
-		QAction * action_fill_row_numbers;
-		QAction * action_fill_random;
-		//@}
-		//! \name table related actions
-		//@{
-		QAction * action_toggle_comments;
-		QAction * action_toggle_tabbar;
-		QAction * action_select_all;
-		QAction * action_add_column;
-		QAction * action_clear_table;
-		QAction * action_clear_masks;
-		QAction * action_sort_table;
-		QAction * action_go_to_cell;
-		QAction * action_dimensions_dialog;
-		QAction * action_formula_mode;
-		//@}
-		//! \name column related actions
-		//@{
-		QAction * action_insert_columns;
-		QAction * action_remove_columns;
-		QAction * action_clear_columns;
-		QAction * action_add_columns;
-		QAction * action_set_as_x;
-		QAction * action_set_as_y;
-		QAction * action_set_as_z;
-		QAction * action_set_as_xerr;
-		QAction * action_set_as_yerr;
-		QAction * action_set_as_none;
-		QAction * action_normalize_columns;
-		QAction * action_sort_columns;
-		QAction * action_statistics_columns;
-		QAction * action_type_format;
-		QAction * action_edit_description;
-		//@}
-		//! \name row related actions
-		//@{
-		QAction * action_insert_rows;
-		QAction * action_remove_rows;
-		QAction * action_clear_rows;
-		QAction * action_add_rows;
-		QAction * action_statistics_rows;
-		//@}
 
 		TableView *d_view;
 		Private *d_table_private;

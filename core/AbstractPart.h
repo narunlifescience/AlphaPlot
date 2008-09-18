@@ -61,7 +61,7 @@ class AbstractPart : public AbstractAspect
 		 */
 		PartMdiView * mdiSubWindow();
 		//! Return AbstractAspect::createContextMenu() plus operations on the primary view.
-		virtual QMenu * createContextMenu() const;
+		virtual QMenu * createContextMenu();
 		//! Fill the part specific menu for the main window including setting the title
 		/**
 		 * \return true on success, otherwise false (e.g. part has no actions).

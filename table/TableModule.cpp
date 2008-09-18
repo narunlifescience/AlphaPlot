@@ -29,6 +29,7 @@
 #include "TableModule.h"
 
 #include "table/Table.h"
+#include "table/TableView.h"
 #include "table/AsciiTableImportFilter.h"
 #include "core/Project.h"
 #include "core/ProjectWindow.h"
@@ -65,7 +66,7 @@ QAction * TableModule::makeAction(QObject *parent)
 	QAction *new_table = new QAction(tr("New &Table"), parent);
 	new_table->setShortcut(tr("Ctrl+T", "new table shortcut"));
 	new_table->setIcon(QIcon(QPixmap(":/table.xpm")));
-	Table::actionManager()->addAction(new_table, "new_table");
+	TableView::actionManager()->addAction(new_table, "new_table");
 	return new_table;
 }
 
@@ -82,7 +83,7 @@ AbstractExportFilter * TableModule::makeExportFilter()
 
 void TableModule::initActionManager()
 {
-	Table::initActionManager();
+	TableView::initActionManager();
 }
 
 ConfigPageWidget * TableModule::makeConfigPage()
@@ -134,6 +135,12 @@ AbstractAspect * TableModule::createAspectFromXml(XmlStreamReader * reader)
 	}
 	else
 		return table;
+}
+
+void TableModule::staticInit()
+{
+	Table::setGlobalDefault("default_comment_visibility", false);
+	Table::setGlobalDefault("default_column_width", 120);
 }
 
 Q_EXPORT_PLUGIN2(scidavis_table, TableModule)

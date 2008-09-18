@@ -39,7 +39,7 @@ PartMdiView* AbstractPart::mdiSubWindow()
 	return d_mdi_window;
 }
 
-QMenu* AbstractPart::createContextMenu() const
+QMenu* AbstractPart::createContextMenu()
 {
 	QMenu * menu = AbstractAspect::createContextMenu();
 	Q_ASSERT(menu);

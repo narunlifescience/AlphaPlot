@@ -31,20 +31,21 @@
 
 #include "core/interfaces.h"
 #include "table/Table.h"
+#include "table/TableView.h"
 #include <QMenu>
 
 class TableModule : public QObject, public PartMaker, public FileFormat, public ActionManagerOwner, public ConfigPageMaker, 
-	public XmlElementAspectMaker
+	public XmlElementAspectMaker, public NeedsStaticInit
 {
 	Q_OBJECT
-	Q_INTERFACES(PartMaker FileFormat ActionManagerOwner ConfigPageMaker XmlElementAspectMaker)
+	Q_INTERFACES(PartMaker FileFormat ActionManagerOwner ConfigPageMaker XmlElementAspectMaker NeedsStaticInit)
 
 	public:
 		virtual AbstractPart * makePart();
 		virtual QAction * makeAction(QObject *parent);
 		virtual AbstractImportFilter * makeImportFilter();
 		virtual AbstractExportFilter * makeExportFilter();
-		virtual ActionManager * actionManager() { return Table::actionManager(); }
+		virtual ActionManager * actionManager() { return TableView::actionManager(); }
 		virtual void initActionManager();
 		virtual ConfigPageWidget * makeConfigPage();
 		virtual QString configPageLabel();
@@ -52,6 +53,7 @@ class TableModule : public QObject, public PartMaker, public FileFormat, public 
 		virtual void saveSettings();
 		virtual bool canCreate(const QString & element_name);
 		virtual AbstractAspect * createAspectFromXml(XmlStreamReader * reader);
+		virtual void staticInit();
 };
 
 class Ui_TableConfigPage;

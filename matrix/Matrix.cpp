@@ -423,7 +423,7 @@ void Matrix::clearSelectedCells()
 	RESET_CURSOR;
 }
 
-QMenu *Matrix::createContextMenu() const
+QMenu *Matrix::createContextMenu()
 {
 	QMenu *menu = AbstractPart::createContextMenu();
 	Q_ASSERT(menu);

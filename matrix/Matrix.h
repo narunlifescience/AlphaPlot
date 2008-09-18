@@ -72,7 +72,7 @@ class Matrix : public AbstractPart, public scripted
 		/**
 		 * The caller takes ownership of the menu.
 		 */
-		virtual QMenu *createContextMenu() const;
+		virtual QMenu *createContextMenu();
 		//! Construct a primary view on me.
 		/**
 		 * This method may be called multiple times during the life time of an Aspect, or it might not get

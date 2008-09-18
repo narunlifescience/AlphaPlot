@@ -164,3 +164,7 @@ win32: python_shared.path = $$INSTALLBASE
 
 }
 
+################################################################################
+DEFINES += ACTIVATE_SCIDAVIS_SPECIFIC_CODE
+
+

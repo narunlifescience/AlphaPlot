@@ -3374,7 +3374,7 @@ void Graph3D::freeMatrixData(double **data, int rows)
 	delete [] data;
 }
 
-QMenu *Graph3D::createContextMenu() const
+QMenu *Graph3D::createContextMenu()
 {
 	QMenu *menu = AbstractPart::createContextMenu();
 	Q_ASSERT(menu);

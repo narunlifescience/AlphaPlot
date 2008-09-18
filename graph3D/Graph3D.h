@@ -88,7 +88,7 @@ class Graph3D: public AbstractPart
 		/**
 		 * The caller takes ownership of the menu.
 		 */
-		virtual QMenu *createContextMenu() const;
+		virtual QMenu *createContextMenu();
 		//! Fill the part specific menu for the main window including setting the title
 		/**
 		 * \return true on success, otherwise false (e.g. part has no actions).

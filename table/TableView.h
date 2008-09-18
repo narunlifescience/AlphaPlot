@@ -56,6 +56,7 @@ class Table;
 class TableModel;
 class TableItemDelegate;
 class TableDoubleHeaderView;
+class ActionManager;
 
 //! Helper class for TableView
 class TableViewWidget : public QTableView
@@ -164,9 +165,125 @@ class TableView : public QWidget
 		void getCurrentCell(int * row, int * col);
 		//@}
 
+		//! Fill the part specific menu for the main window including setting the title
+		/**
+		 * \return true on success, otherwise false (e.g. part has no actions).
+		 */
+		virtual bool fillProjectMenu(QMenu * menu);
+		//! Create a menu with selection related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createSelectionMenu(QMenu * append_to = 0);
+		//! Create a menu with column related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createColumnMenu(QMenu * append_to = 0);
+		//! Create a menu with row related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createRowMenu(QMenu * append_to = 0);
+		//! Create a menu with table related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createTableMenu(QMenu * append_to = 0);
+		//! Set a plot menu 
+		/**
+		 * The table takes ownership of the menu.
+		 */
+		void setPlotMenu(QMenu * menu);
+		
+	public slots:
+		void setSelectionAs(SciDAVis::PlotDesignation pd);
+		void cutSelection();
+		void copySelection();
+		void pasteIntoSelection();
+		void clearSelectedCells();
+		void maskSelection();
+		void unmaskSelection();
+		void setFormulaForSelection();
+		void recalculateSelectedCells();
+		void fillSelectedCellsWithRowNumbers();
+		void fillSelectedCellsWithRandomNumbers();
+		//! Insert columns depending on the selection
+		void insertEmptyColumns();
+		void removeSelectedColumns();
+		void clearSelectedColumns();
+		void clearSelectedRows();
+		void setSelectedColumnsAsX();
+		void setSelectedColumnsAsY();
+		void setSelectedColumnsAsZ();
+		void setSelectedColumnsAsXError();
+		void setSelectedColumnsAsYError();
+		void setSelectedColumnsAsNone();
+		void normalizeSelectedColumns();
+		void sortSelectedColumns();
+		void statisticsOnSelectedColumns();
+		void statisticsOnSelectedRows();
+		//! Insert rows depending on the selection
+		void insertEmptyRows();
+		void removeSelectedRows();
+		void editTypeAndFormatOfSelectedColumns();
+		void editDescriptionOfCurrentColumn();
+		//! Append as many columns as are selected
+		void addColumns();
+		//! Append as many rows as are selected
+		void addRows();
+		//! Show a context menu for the selected cells
+		/**
+		 * \param pos global position of the event 
+		*/
+		void showTableViewContextMenu(const QPoint& pos);
+		//! Show a context menu for the selected columns
+		/**
+		 * \param pos global position of the event 
+		*/
+		void showTableViewColumnContextMenu(const QPoint& pos);
+		//! Show a context menu for the selected rows
+		/**
+		 * \param pos global position of the event 
+		*/
+		void showTableViewRowContextMenu(const QPoint& pos);
+		void createActions();
+		void connectActions();
+
 		void setColumnWidth(int col, int width);
 		int columnWidth(int col) const;
 		bool formulaModeActive() const;
+
+		//! Return a new context menu.
+		/**
+		 * The caller takes ownership of the menu.
+		 */
+		void createContextMenu(QMenu * menu);
+		//! Open the sort dialog for the given columns
+		void sortDialog(QList<Column*> cols);
+
+	public:
+		static int defaultColumnWidth();
+		static void setDefaultColumnWidth(int width);
+		//! Set default for comment visibility for table views
+		static void setDefaultCommentVisibility(bool visible);
+		//! Return the default for comment visibility for table views
+		static bool defaultCommentVisibility();
+		static ActionManager * actionManager();
+		static void initActionManager();
+	private:
+		static ActionManager * action_manager;
+		//! Private ctor for initActionManager() only
+		TableView();
+
 
 	public slots:
 		void activateFormulaMode(bool on);
@@ -182,6 +299,10 @@ class TableView : public QWidget
 		void handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize); 
 		void goToNextColumn();
 		void goToPreviousColumn();
+		void dimensionsDialog();
+		//! Open the sort dialog for all columns
+		void sortTable();
+		void goToCell();
 
 	protected slots:
 		//! Advance current cell after [Return] or [Enter] was pressed
@@ -208,7 +329,6 @@ class TableView : public QWidget
 
 		bool eventFilter( QObject * watched, QEvent * event);
 
-	private:
 		//! UI with options tabs (description, format, formula etc.)
 		Ui::ControlTabs ui;
 		//! The table view (first part of the UI)
@@ -223,6 +343,61 @@ class TableView : public QWidget
 
 		//! Initialization
 		void init();
+
+		//! \name selection related actions
+		//@{
+		QAction * action_cut_selection;
+		QAction * action_copy_selection;
+		QAction * action_paste_into_selection;
+		QAction * action_mask_selection;
+		QAction * action_unmask_selection;
+		QAction * action_set_formula;
+		QAction * action_clear_selection;
+		QAction * action_recalculate;
+		QAction * action_fill_row_numbers;
+		QAction * action_fill_random;
+		//@}
+		//! \name table related actions
+		//@{
+		QAction * action_toggle_comments;
+		QAction * action_toggle_tabbar;
+		QAction * action_select_all;
+		QAction * action_add_column;
+		QAction * action_clear_table;
+		QAction * action_clear_masks;
+		QAction * action_sort_table;
+		QAction * action_go_to_cell;
+		QAction * action_dimensions_dialog;
+		QAction * action_formula_mode;
+		//@}
+		//! \name column related actions
+		//@{
+		QAction * action_insert_columns;
+		QAction * action_remove_columns;
+		QAction * action_clear_columns;
+		QAction * action_add_columns;
+		QAction * action_set_as_x;
+		QAction * action_set_as_y;
+		QAction * action_set_as_z;
+		QAction * action_set_as_xerr;
+		QAction * action_set_as_yerr;
+		QAction * action_set_as_none;
+		QAction * action_normalize_columns;
+		QAction * action_sort_columns;
+		QAction * action_statistics_columns;
+		QAction * action_type_format;
+		QAction * action_edit_description;
+		//@}
+		//! \name row related actions
+		//@{
+		QAction * action_insert_rows;
+		QAction * action_remove_rows;
+		QAction * action_clear_rows;
+		QAction * action_add_rows;
+		QAction * action_statistics_rows;
+		//@}
+
+		QMenu * d_plot_menu;
 };
 
 

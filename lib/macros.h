@@ -38,4 +38,8 @@
 	type method() const { return var; }; \
 	void set ## Method(const type & value) { var = value; }
 
+#define WAIT_CURSOR QApplication::setOverrideCursor(QCursor(Qt::WaitCursor))
+#define RESET_CURSOR QApplication::restoreOverrideCursor()
+
+
 #endif // MACROS_H

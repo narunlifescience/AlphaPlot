@@ -27,14 +27,17 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "Table.h"
-#include "TableView.h"
-#include "TableModel.h"
-#include "TableItemDelegate.h"
-#include "tablecommands.h"
-#include "TableDoubleHeaderView.h"
+#include "table/Table.h"
+#include "table/TableView.h"
+#include "table/TableModel.h"
+#include "table/TableItemDelegate.h"
+#include "table/tablecommands.h"
+#include "table/TableDoubleHeaderView.h"
+#include "lib/ActionManager.h"
+#include "lib/macros.h"
+#include "table/SortDialog.h"
 
-#include "Column.h"
+#include "core/column/Column.h"
 #include "core/AbstractFilter.h"
 #include "core/datatypes/SimpleCopyThroughFilter.h"
 #include "core/datatypes/Double2StringFilter.h"
@@ -57,9 +60,19 @@
 #include <QGridLayout>
 #include <QScrollArea>
 #include <QMenu>
+#include <QClipboard>
+#include <QMenu>
+#include <QItemSelection>
+#include <QContextMenuEvent>
+#include <QModelIndex>
+#include <QModelIndexList>
+#include <QMapIterator>
+#include <QDialog>
+#include <QInputDialog>
+#include <QMenuBar>
 
 TableView::TableView(Table *table)
- : d_table(table) 
+ : d_plot_menu(0), d_table(table)
 {
 	d_model = new TableModel(table);
 	init();
@@ -72,6 +85,8 @@ TableView::~TableView()
 
 void TableView::init()
 {
+	createActions();
+
 	d_main_layout = new QHBoxLayout(this);
 	d_main_layout->setSpacing(0);
 	d_main_layout->setContentsMargins(0, 0, 0, 0);
@@ -124,7 +139,7 @@ void TableView::init()
 	connect(d_horizontal_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(handleHorizontalSectionMoved(int,int,int)));
 	connect(d_horizontal_header, SIGNAL(sectionDoubleClicked(int)), this, SLOT(handleHorizontalHeaderDoubleClicked(int)));
 	
-	d_horizontal_header->setDefaultSectionSize(Table::defaultColumnWidth());
+	d_horizontal_header->setDefaultSectionSize(defaultColumnWidth());
 
 	v_header->installEventFilter(this);
 	d_horizontal_header->installEventFilter(this);
@@ -158,7 +173,17 @@ void TableView::init()
 		this, SLOT(applyDescription()));
 	connect(ui.button_set_type, SIGNAL(pressed()),
 		this, SLOT(applyType()));
+	
+	connectActions();
+	showComments(defaultCommentVisibility());
 }
+
+TableView::TableView()
+{
+	d_model = NULL;
+	createActions();
+}
+
 
 void TableView::rereadSectionSizes()
 {
@@ -182,7 +207,8 @@ int TableView::columnWidth(int col) const
 }
 
 void TableView::handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize)
-{
+{	
+	Q_UNUSED(oldSize);
 	static bool inside = false;
 	d_table->setColumnWidth(logicalIndex, newSize);
 	if (inside) return;
@@ -190,7 +216,7 @@ void TableView::handleHorizontalSectionResized(int logicalIndex, int oldSize, in
 
 	int cols = d_table->columnCount();
 	for (int i=0; i<cols; i++)
-		if(isColumnSelected(i, true)) 
+		if (isColumnSelected(i, true)) 
 			d_horizontal_header->resizeSection(i, newSize);
 
 	inside = false;
@@ -224,7 +250,7 @@ void TableView::retranslateStrings()
 void TableView::advanceCell()
 {
 	QModelIndex idx = d_view_widget->currentIndex();
-    if(idx.row()+1 >= d_table->rowCount())
+    if (idx.row()+1 >= d_table->rowCount())
 	{
 		int new_size = d_table->rowCount()+1;
 		d_table->setRowCount(new_size);
@@ -252,7 +278,7 @@ void TableView::deselectAll()
 void TableView::toggleControlTabBar() 
 { 
 	d_control_tabs->setVisible(!d_control_tabs->isVisible());
-	if(d_control_tabs->isVisible())
+	if (d_control_tabs->isVisible())
 		d_hide_button->setArrowType(Qt::RightArrow);
 	else
 		d_hide_button->setArrowType(Qt::LeftArrow);
@@ -261,7 +287,7 @@ void TableView::toggleControlTabBar()
 void TableView::handleHorizontalSectionMoved(int index, int from, int to)
 {
 	static bool inside = false;
-	if(inside) return;
+	if (inside) return;
 
 	Q_ASSERT(index == from);
 
@@ -296,13 +322,13 @@ void TableView::currentColumnChanged(const QModelIndex & current, const QModelIn
 {
 	Q_UNUSED(previous);
 	int col = current.column();	
-	if(col < 0 || col >= d_table->columnCount()) return;
+	if (col < 0 || col >= d_table->columnCount()) return;
 	setColumnForDescriptionTab(col);
 }
 
 void TableView::setColumnForDescriptionTab(int col)
 {
-	if(col < 0 || col >= d_table->columnCount()) return;
+	if (col < 0 || col >= d_table->columnCount()) return;
 	Column *col_ptr = d_table->column(col);
 
 	QString str = QString(tr("Current column:\nName: %1\nPosition: %2"))\
@@ -323,7 +349,7 @@ void TableView::selectionChanged(const QItemSelection & selected, const QItemSel
 void TableView::updateFormatBox()
 {
 	int type_index = ui.type_box->currentIndex();
-	if(type_index < 0) return; // should never happen
+	if (type_index < 0) return; // should never happen
 	ui.format_box->clear();
 	ui.digits_box->setEnabled(false);
 	switch(ui.type_box->itemData(type_index).toInt())
@@ -378,12 +404,12 @@ void TableView::updateFormatBox()
 					0
 				};
 				int j,i;
-				for(i=0; date_strings[i] != 0; i++)
+				for (i=0; date_strings[i] != 0; i++)
 					ui.format_box->addItem(QString(date_strings[i]), QVariant(date_strings[i]));
-				for(j=0; time_strings[j] != 0; j++)
+				for (j=0; time_strings[j] != 0; j++)
 					ui.format_box->addItem(QString(time_strings[j]), QVariant(time_strings[j]));
-				for(i=0; date_strings[i] != 0; i++)
-					for(j=0; time_strings[j] != 0; j++)
+				for (i=0; date_strings[i] != 0; i++)
+					for (j=0; time_strings[j] != 0; j++)
 						ui.format_box->addItem(QString("%1 %2").arg(date_strings[i]).arg(time_strings[j]), 
 							QVariant(QString(date_strings[i]) + " " + QString(time_strings[j])));
 				break;
@@ -400,7 +426,7 @@ void TableView::updateTypeInfo()
 	int type_index = ui.type_box->currentIndex();
 
 	QString str = tr("Selected column type:\n");
-	if(format_index >= 0 && type_index >= 0)
+	if (format_index >= 0 && type_index >= 0)
 	{
 		int type = ui.type_box->itemData(type_index).toInt();
 		switch(type)
@@ -470,7 +496,7 @@ void TableView::applyDescription()
 {
 	QItemSelectionModel * sel_model = d_view_widget->selectionModel();
 	int index = sel_model->currentIndex().column();
-	if(index >= 0)
+	if (index >= 0)
 	{
 		d_table->column(index)->setName(ui.name_edit->text());
 		d_table->column(index)->setComment(ui.comment_box->document()->toPlainText());
@@ -481,7 +507,7 @@ void TableView::applyType()
 {
 	int format_index = ui.format_box->currentIndex();
 	int type_index = ui.type_box->currentIndex();
-	if(format_index < 0 && type_index < 0) return;
+	if (format_index < 0 && type_index < 0) return;
 
 	SciDAVis::ColumnMode mode = (SciDAVis::ColumnMode)ui.type_box->itemData(type_index).toInt();
 	QList<Column*> list = selectedColumns();
@@ -519,12 +545,12 @@ void TableView::applyType()
 		
 void TableView::handleHeaderDataChanged(Qt::Orientation orientation, int first, int last)
 {
-	if(orientation != Qt::Horizontal) return;
+	if (orientation != Qt::Horizontal) return;
 
 	QItemSelectionModel * sel_model = d_view_widget->selectionModel();
 
 	int col = sel_model->currentIndex().column();
-	if(col < first || col > last) return;
+	if (col < first || col > last) return;
 	setColumnForDescriptionTab(col);
 }
 
@@ -533,7 +559,7 @@ int TableView::selectedColumnCount(bool full)
 	int count = 0;
 	int cols = d_table->columnCount();
 	for (int i=0; i<cols; i++)
-		if(isColumnSelected(i, full)) count++;
+		if (isColumnSelected(i, full)) count++;
 	return count;
 }
 
@@ -541,15 +567,15 @@ int TableView::selectedColumnCount(SciDAVis::PlotDesignation pd)
 {
 	int count = 0;
 	int cols = d_table->columnCount();
-	for(int i=0; i<cols; i++)
-		if( isColumnSelected(i, false) && (d_table->column(i)->plotDesignation() == pd) ) count++;
+	for (int i=0; i<cols; i++)
+		if ( isColumnSelected(i, false) && (d_table->column(i)->plotDesignation() == pd) ) count++;
 
 	return count;
 }
 
 bool TableView::isColumnSelected(int col, bool full)
 {
-	if(full)
+	if (full)
 		return d_view_widget->selectionModel()->isColumnSelected(col, QModelIndex());
 	else
 		return d_view_widget->selectionModel()->columnIntersectsSelection(col, QModelIndex());
@@ -560,7 +586,7 @@ QList<Column*> TableView::selectedColumns(bool full)
 	QList<Column*> list;
 	int cols = d_table->columnCount();
 	for (int i=0; i<cols; i++)
-		if(isColumnSelected(i, full)) list << d_table->column(i);
+		if (isColumnSelected(i, full)) list << d_table->column(i);
 
 	return list;
 }
@@ -570,13 +596,13 @@ int TableView::selectedRowCount(bool full)
 	int count = 0;
 	int rows = d_table->rowCount();
 	for (int i=0; i<rows; i++)
-		if(isRowSelected(i, full)) count++;
+		if (isRowSelected(i, full)) count++;
 	return count;
 }
 
 bool TableView::isRowSelected(int row, bool full)
 {
-	if(full)
+	if (full)
 		return d_view_widget->selectionModel()->isRowSelected(row, QModelIndex());
 	else
 		return d_view_widget->selectionModel()->rowIntersectsSelection(row, QModelIndex());
@@ -587,7 +613,7 @@ int TableView::firstSelectedColumn(bool full)
 	int cols = d_table->columnCount();
 	for (int i=0; i<cols; i++)
 	{
-		if(isColumnSelected(i, full))
+		if (isColumnSelected(i, full))
 			return i;
 	}
 	return -1;
@@ -596,8 +622,8 @@ int TableView::firstSelectedColumn(bool full)
 int TableView::lastSelectedColumn(bool full)
 {
 	int cols = d_table->columnCount();
-	for(int i=cols-1; i>=0; i--)
-		if(isColumnSelected(i, full)) return i;
+	for (int i=cols-1; i>=0; i--)
+		if (isColumnSelected(i, full)) return i;
 
 	return -2;
 }
@@ -607,7 +633,7 @@ int TableView::firstSelectedRow(bool full)
 	int rows = d_table->rowCount();
 	for (int i=0; i<rows; i++)
 	{
-		if(isRowSelected(i, full))
+		if (isRowSelected(i, full))
 			return i;
 	}
 	return -1;
@@ -616,15 +642,15 @@ int TableView::firstSelectedRow(bool full)
 int TableView::lastSelectedRow(bool full)
 {
 	int rows = d_table->rowCount();
-	for(int i=rows-1; i>=0; i--)
-		if(isRowSelected(i, full)) return i;
+	for (int i=rows-1; i>=0; i--)
+		if (isRowSelected(i, full)) return i;
 
 	return -2;
 }
 
 bool TableView::isCellSelected(int row, int col)
 {
-	if(row < 0 || col < 0 || row >= d_table->rowCount() || col >= d_table->columnCount()) return false;
+	if (row < 0 || col < 0 || row >= d_table->rowCount() || col >= d_table->columnCount()) return false;
 
 	return d_view_widget->selectionModel()->isSelected(d_model->index(row, col));
 }
@@ -646,7 +672,7 @@ void TableView::setCellsSelected(int first_row, int first_col, int last_row, int
 void TableView::getCurrentCell(int * row, int * col)
 {
 	QModelIndex index = d_view_widget->selectionModel()->currentIndex();
-	if(index.isValid()) 
+	if (index.isValid()) 
 	{
 		*row = index.row();
 		*col = index.column();
@@ -666,12 +692,12 @@ bool TableView::eventFilter(QObject * watched, QEvent * event)
 	{
 		QContextMenuEvent *cm_event = static_cast<QContextMenuEvent *>(event);
 		QPoint global_pos = cm_event->globalPos();
-		if(watched == v_header)	
-			d_table->showTableViewRowContextMenu(global_pos);
-		else if(watched == d_horizontal_header)
-			d_table->showTableViewColumnContextMenu(global_pos);
-		else if(watched == d_view_widget)
-			d_table->showTableViewContextMenu(global_pos);
+		if (watched == v_header)	
+			showTableViewRowContextMenu(global_pos);
+		else if (watched == d_horizontal_header)
+			showTableViewColumnContextMenu(global_pos);
+		else if (watched == d_view_widget)
+			showTableViewContextMenu(global_pos);
 		else
 			return QWidget::eventFilter(watched, event);
 
@@ -713,6 +739,1130 @@ void TableView::goToPreviousColumn()
 	d_view_widget->setCurrentIndex(idx.sibling(idx.row(), col));
 }
 
+QMenu * TableView::createSelectionMenu(QMenu * append_to)
+{
+	QMenu * menu = append_to;
+	if (!menu)
+		menu = new QMenu();
+
+	menu->addAction(action_cut_selection);
+	menu->addAction(action_copy_selection);
+	menu->addAction(action_paste_into_selection);
+	menu->addAction(action_clear_selection);
+	menu->addSeparator();
+	menu->addAction(action_mask_selection);
+	menu->addAction(action_unmask_selection);
+	menu->addSeparator();
+	menu->addAction(action_set_formula);
+	menu->addAction(action_recalculate);
+	menu->addSeparator();
+
+	QMenu * submenu = new QMenu("Fi&ll with");
+	submenu->addAction(action_fill_row_numbers);
+	submenu->addAction(action_fill_random);
+	menu->addMenu(submenu);
+
+	return menu;
+}
+
+
+QMenu * TableView::createColumnMenu(QMenu * append_to)
+{
+	QMenu * menu = append_to;
+	if (!menu)
+		menu = new QMenu();
+
+	menu->addAction(action_insert_columns);
+	menu->addAction(action_remove_columns);
+	menu->addAction(action_clear_columns);
+	menu->addAction(action_add_columns);
+	menu->addSeparator();
+	
+	QMenu * submenu = new QMenu("S&et As");
+
+	submenu->addAction(action_set_as_x);
+	submenu->addAction(action_set_as_y);
+	submenu->addAction(action_set_as_z);
+	submenu->addAction(action_set_as_xerr);
+	submenu->addAction(action_set_as_yerr);
+	submenu->addAction(action_set_as_none);
+	menu->addMenu(submenu);
+	menu->addSeparator();
+	submenu = new QMenu("Fi&ll with");
+	submenu->addAction(action_fill_row_numbers);
+	submenu->addAction(action_fill_random);
+	menu->addMenu(submenu);
+	menu->addSeparator();
+	menu->addAction(action_edit_description);
+	menu->addAction(action_type_format);
+	menu->addSeparator();
+
+	menu->addAction(action_normalize_columns);
+	menu->addAction(action_sort_columns);
+	menu->addSeparator();
+	menu->addAction(action_statistics_columns);
+
+	return menu;
+}
+
+QMenu * TableView::createTableMenu(QMenu * append_to) 
+{
+	QMenu * menu = append_to;
+	if (!menu)
+		menu = new QMenu();
+
+	menu->addAction(action_toggle_comments);
+	menu->addAction(action_toggle_tabbar);
+	menu->addAction(action_formula_mode);
+	menu->addSeparator();
+	menu->addAction(action_select_all);
+	menu->addAction(action_clear_table);
+	menu->addAction(action_clear_masks);
+	menu->addAction(action_sort_table);
+	menu->addSeparator();
+	menu->addAction(action_add_column);
+	menu->addSeparator();
+	menu->addAction(action_go_to_cell);
+
+	return menu;
+}
+
+QMenu * TableView::createRowMenu(QMenu * append_to) 
+{
+	QMenu * menu = append_to;
+	if (!menu)
+		menu = new QMenu();
+
+	menu->addAction(action_insert_rows);
+	menu->addAction(action_remove_rows);
+	menu->addAction(action_clear_rows);
+	menu->addAction(action_add_rows);
+	menu->addSeparator();
+	QMenu *submenu = new QMenu("Fi&ll with");
+	submenu->addAction(action_fill_row_numbers);
+	submenu->addAction(action_fill_random);
+	menu->addMenu(submenu);
+	menu->addSeparator();
+	menu->addAction(action_statistics_rows);
+
+	return menu;
+}
+
+void TableView::cutSelection()
+{
+	int first = firstSelectedRow();
+	if ( first < 0 ) return;
+
+	WAIT_CURSOR;
+	d_table->beginMacro(tr("%1: cut selected cell(s)").arg(d_table->name()));
+	copySelection();
+	clearSelectedCells();
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::copySelection()
+{
+	int first_col = firstSelectedColumn(false);
+	if (first_col == -1) return;
+	int last_col = lastSelectedColumn(false);
+	if (last_col == -2) return;
+	int first_row = firstSelectedRow(false);
+	if (first_row == -1)	return;
+	int last_row = lastSelectedRow(false);
+	if (last_row == -2) return;
+	int cols = last_col - first_col +1;
+	int rows = last_row - first_row +1;
+	
+	WAIT_CURSOR;
+	QString output_str;
+
+	for (int r=0; r<rows; r++)
+	{
+		for (int c=0; c<cols; c++)
+		{	
+			Column *col_ptr = d_table->column(first_col + c);
+			if (isCellSelected(first_row + r, first_col + c))
+			{
+				if (formulaModeActive())
+				{
+					output_str += col_ptr->formula(first_row + r);
+				}
+				else if (col_ptr->dataType() == SciDAVis::TypeDouble)
+				{
+					Double2StringFilter * out_fltr = static_cast<Double2StringFilter *>(col_ptr->outputFilter());
+					output_str += QLocale().toString(col_ptr->valueAt(first_row + r), 
+							out_fltr->numericFormat(), 16); // copy with max. precision
+				}
+				else
+				{
+					output_str += d_table->text(first_row + r, first_col + c);
+				}
+			}
+			if (c < cols-1)
+				output_str += "\t";
+		}
+		if (r < rows-1)
+			output_str += "\n";
+	}
+	QApplication::clipboard()->setText(output_str);
+	RESET_CURSOR;
+}
+
+void TableView::pasteIntoSelection()
+{
+	if (d_table->columnCount() < 1 || d_table->rowCount() < 1) return;
+
+	WAIT_CURSOR;
+	d_table->beginMacro(tr("%1: paste from clipboard").arg(d_table->name()));
+	const QMimeData * mime_data = QApplication::clipboard()->mimeData();
+
+	int first_col = firstSelectedColumn(false);
+	int last_col = lastSelectedColumn(false);
+	int first_row = firstSelectedRow(false);
+	int last_row = lastSelectedRow(false);
+	int input_row_count = 0;
+	int input_col_count = 0;
+	int rows, cols;
+
+	if (mime_data->hasFormat("text/plain"))
+	{
+		QString input_str = QString(mime_data->data("text/plain"));
+		QList< QStringList > cell_texts;
+		QStringList input_rows(input_str.split("\n"));
+		input_row_count = input_rows.count();
+		input_col_count = 0;
+		for (int i=0; i<input_row_count; i++)
+		{
+			cell_texts.append(input_rows.at(i).split("\t"));
+			if (cell_texts.at(i).count() > input_col_count) input_col_count = cell_texts.at(i).count();
+		}
+
+		if ( (first_col == -1 || first_row == -1) ||
+			(last_row == first_row && last_col == first_col) )
+		// if the is no selection or only one cell selected, the
+		// selection will be expanded to the needed size from the current cell
+		{
+			int current_row, current_col;
+			getCurrentCell(&current_row, &current_col);
+			if (current_row == -1) current_row = 0;
+			if (current_col == -1) current_col = 0;
+			setCellSelected(current_row, current_col);
+			first_col = current_col;
+			first_row = current_row;
+			last_row = first_row + input_row_count -1;
+			last_col = first_col + input_col_count -1;
+			// resize the table if necessary
+			if (last_col >= d_table->columnCount())
+			{
+				QList<Column*> cols;
+				for (int i=0; i<last_col+1-d_table->columnCount(); i++)
+				{
+					Column * new_col = new Column(QString::number(i+1), SciDAVis::Text);
+					new_col->setPlotDesignation(SciDAVis::Y);
+					cols << new_col;
+				}
+				d_table->appendColumns(cols);
+			}
+			if (last_row >= d_table->rowCount())
+				d_table->appendRows(last_row+1-d_table->rowCount());
+			// select the rectangle to be pasted in
+			setCellsSelected(first_row, first_col, last_row, last_col);
+		}
+
+		rows = last_row - first_row + 1;
+		cols = last_col - first_col + 1;
+		for (int r=0; r<rows && r<input_row_count; r++)
+		{
+			for (int c=0; c<cols && c<input_col_count; c++)
+			{
+				if (isCellSelected(first_row + r, first_col + c) && (c < cell_texts.at(r).count()) )
+				{
+					Column * col_ptr = d_table->column(first_col + c);
+					if (formulaModeActive())
+					{
+						col_ptr->setFormula(first_row + r, cell_texts.at(r).at(c));  
+					}
+					else
+						col_ptr->asStringColumn()->setTextAt(first_row+r, cell_texts.at(r).at(c));
+				}
+			}
+		}
+	}
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::maskSelection()
+{
+	int first = firstSelectedRow();
+	int last = lastSelectedRow();
+	if ( first < 0 ) return;
+
+	WAIT_CURSOR;
+	d_table->beginMacro(tr("%1: mask selected cell(s)").arg(d_table->name()));
+	QList<Column*> list = selectedColumns();
+	foreach(Column * col_ptr, list)
+	{
+		int col = d_table->columnIndex(col_ptr);
+		for (int row=first; row<=last; row++)
+			if (isCellSelected(row, col)) col_ptr->setMasked(row);  
+	}
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::unmaskSelection()
+{
+	int first = firstSelectedRow();
+	int last = lastSelectedRow();
+	if ( first < 0 ) return;
+
+	WAIT_CURSOR;
+	d_table->beginMacro(tr("%1: unmask selected cell(s)").arg(d_table->name()));
+	QList<Column*> list = selectedColumns();
+	foreach(Column * col_ptr, list)
+	{
+		int col = d_table->columnIndex(col_ptr);
+		for (int row=first; row<=last; row++)
+			if (isCellSelected(row, col)) col_ptr->setMasked(row, false);  
+	}
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::setFormulaForSelection()
+{
+	showControlFormulaTab();
+}
+
+void TableView::recalculateSelectedCells()
+{
+	// TODO
+	QMessageBox::information(0, "info", "not yet implemented");
+}
+
+void TableView::fillSelectedCellsWithRowNumbers()
+{
+	if (selectedColumnCount() < 1) return;
+	int first = firstSelectedRow();
+	int last = lastSelectedRow();
+	if ( first < 0 ) return;
+	
+	WAIT_CURSOR;
+	d_table->beginMacro(tr("%1: fill cells with row numbers").arg(d_table->name()));
+	QList<Column*> list = selectedColumns();
+	foreach(Column * col_ptr, list)
+	{
+		int col = d_table->columnIndex(col_ptr);
+		for (int row=first; row<=last; row++)
+			if (isCellSelected(row, col)) 
+				col_ptr->asStringColumn()->setTextAt(row, QString::number(row+1));
+	}
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::fillSelectedCellsWithRandomNumbers()
+{
+	if (selectedColumnCount() < 1) return;
+	int first = firstSelectedRow();
+	int last = lastSelectedRow();
+	if ( first < 0 ) return;
+	
+	WAIT_CURSOR;
+	d_table->beginMacro(tr("%1: fill cells with random values").arg(d_table->name()));
+	qsrand(QTime::currentTime().msec());
+	QList<Column*> list = selectedColumns();
+	foreach(Column * col_ptr, list)
+	{
+		int col = d_table->columnIndex(col_ptr);
+		for (int row=first; row<=last; row++)
+			if (isCellSelected(row, col)) 
+			{
+				if (col_ptr->columnMode() == SciDAVis::Numeric)
+					col_ptr->setValueAt(row, double(qrand())/double(RAND_MAX));
+				else if (col_ptr->dataType() == SciDAVis::TypeQDateTime)
+				{
+					QDate date(1,1,1);
+					QTime time(0,0,0,0);
+					int days = (int)( (double)date.daysTo(QDate(2999,12,31)) * double(qrand())/double(RAND_MAX) );
+					qint64 msecs = (qint64)(double(qrand())/double(RAND_MAX) * 1000.0 * 60.0 * 60.0 * 24.0);
+					col_ptr->setDateTimeAt(row, QDateTime(date.addDays(days), time.addMSecs(msecs)));
+				}
+				else
+					col_ptr->setTextAt(row, QString::number(double(qrand())/double(RAND_MAX)));
+			}
+	}
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::sortTable()
+{
+	QList<Column*> cols;
+	
+	for (int i=0; i<d_table->columnCount(); i++)
+		cols.append(d_table->column(i));
+
+	sortDialog(cols);
+}
+
+void TableView::insertEmptyColumns()
+{
+	int first = firstSelectedColumn();
+	int last = lastSelectedColumn();
+	if ( first < 0 ) return;
+	int count, current = first;
+	QList<Column*> cols;
+
+	WAIT_CURSOR;
+	d_table->beginMacro(QObject::tr("%1: insert empty column(s)").arg(d_table->name()));
+	while( current <= last )
+	{
+		current = first+1;
+		while( current <= last && isColumnSelected(current) ) current++;
+		count = current-first;
+		for (int i=0; i<count; i++)
+		{
+			Column * new_col = new Column(QString::number(i+1), SciDAVis::Numeric);
+			new_col->setPlotDesignation(SciDAVis::Y);
+			cols << new_col;
+		}
+		d_table->insertColumns(first, cols);
+		cols.clear();
+		current += count;
+		last += count;
+		while( current <= last && !isColumnSelected(current) ) current++;
+		first = current;
+	}
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::removeSelectedColumns()
+{
+	WAIT_CURSOR;
+	d_table->beginMacro(QObject::tr("%1: remove selected column(s)").arg(d_table->name()));
+
+	QList< Column* > list = selectedColumns();
+	foreach(Column* ptr, list)
+		d_table->removeColumn(ptr);
+
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::clearSelectedColumns()
+{
+	WAIT_CURSOR;
+	d_table->beginMacro(QObject::tr("%1: clear selected column(s)").arg(d_table->name()));
+
+	QList< Column* > list = selectedColumns();
+	if (formulaModeActive())
+	{
+		foreach(Column* ptr, list)
+			ptr->clearFormulas();
+	}
+	else
+	{
+		foreach(Column* ptr, list)
+			ptr->clear();
+	}
+
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::setSelectionAs(SciDAVis::PlotDesignation pd)
+{
+	WAIT_CURSOR;
+	d_table->beginMacro(QObject::tr("%1: set plot designation(s)").arg(d_table->name()));
+
+	QList< Column* > list = selectedColumns();
+	foreach(Column* ptr, list)
+		ptr->setPlotDesignation(pd);
+
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::setSelectedColumnsAsX()
+{
+	setSelectionAs(SciDAVis::X);
+}
+
+void TableView::setSelectedColumnsAsY()
+{
+	setSelectionAs(SciDAVis::Y);
+}
+
+void TableView::setSelectedColumnsAsZ()
+{
+	setSelectionAs(SciDAVis::Z);
+}
+
+void TableView::setSelectedColumnsAsYError()
+{
+	setSelectionAs(SciDAVis::yErr);
+}
+
+void TableView::setSelectedColumnsAsXError()
+{
+	setSelectionAs(SciDAVis::xErr);
+}
+
+void TableView::setSelectedColumnsAsNone()
+{
+	setSelectionAs(SciDAVis::noDesignation);
+}
+
+void TableView::normalizeSelectedColumns()
+{
+	// TODO
+	QMessageBox::information(0, "info", "not yet implemented");
+}
+
+void TableView::sortSelectedColumns()
+{
+	QList< Column* > cols = selectedColumns();
+	sortDialog(cols);
+}
+
+void TableView::statisticsOnSelectedColumns()
+{
+	// TODO
+	QMessageBox::information(0, "info", "not yet implemented");
+}
+
+void TableView::statisticsOnSelectedRows()
+{
+	// TODO
+	QMessageBox::information(0, "info", "not yet implemented");
+}
+
+void TableView::insertEmptyRows()
+{
+	int first = firstSelectedRow();
+	int last = lastSelectedRow();
+	int count, current = first;
+
+	if ( first < 0 ) return;
+
+	WAIT_CURSOR;
+	d_table->beginMacro(QObject::tr("%1: insert empty rows(s)").arg(d_table->name()));
+	while( current <= last )
+	{
+		current = first+1;
+		while( current <= last && isRowSelected(current) ) current++;
+		count = current-first;
+		d_table->insertRows(first, count);
+		current += count;
+		last += count;
+		while( current <= last && !isRowSelected(current) ) current++;
+		first = current;
+	}
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::removeSelectedRows()
+{
+	int first = firstSelectedRow();
+	int last = lastSelectedRow();
+	if ( first < 0 ) return;
+
+	WAIT_CURSOR;
+	d_table->beginMacro(QObject::tr("%1: remove selected rows(s)").arg(d_table->name()));
+	for (int i=last; i>=first; i--)
+		if (isRowSelected(i, false)) d_table->removeRows(i, 1);
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::clearSelectedRows()
+{
+	int first = firstSelectedRow();
+	int last = lastSelectedRow();
+	if ( first < 0 ) return;
+
+	WAIT_CURSOR;
+	d_table->beginMacro(QObject::tr("%1: clear selected rows(s)").arg(d_table->name()));
+	QList<Column*> list = selectedColumns();
+	foreach(Column * col_ptr, list)
+	{
+		if (formulaModeActive())
+		{
+			for (int row=last; row>=first; row--)
+				if (isRowSelected(row, false))
+				{
+					col_ptr->setFormula(row, "");  
+				}
+		}
+		else
+		{
+			for (int row=last; row>=first; row--)
+				if (isRowSelected(row, false))
+				{
+					if (row == (col_ptr->rowCount()-1) )
+						col_ptr->removeRows(row,1);
+					else if (row < col_ptr->rowCount())
+						col_ptr->asStringColumn()->setTextAt(row, "");
+				}
+		}
+	}
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::editTypeAndFormatOfSelectedColumns()
+{
+	showControlTypeTab();
+}
+
+void TableView::editDescriptionOfCurrentColumn()
+{
+	showControlDescriptionTab();
+}
+
+void TableView::clearSelectedCells()
+{
+	int first = firstSelectedRow();
+	int last = lastSelectedRow();
+	if ( first < 0 ) return;
+
+	WAIT_CURSOR;
+	d_table->beginMacro(tr("%1: clear selected cell(s)").arg(d_table->name()));
+	QList<Column*> list = selectedColumns();
+	foreach(Column * col_ptr, list)
+	{
+		if (formulaModeActive())
+		{
+			int col = d_table->columnIndex(col_ptr);
+			for (int row=last; row>=first; row--)
+				if (isCellSelected(row, col))
+				{
+					col_ptr->setFormula(row, "");  
+				}
+		}
+		else
+		{
+			int col = d_table->columnIndex(col_ptr);
+			for (int row=last; row>=first; row--)
+				if (isCellSelected(row, col))
+				{
+					if (row == (col_ptr->rowCount()-1) )
+						col_ptr->removeRows(row,1);
+					else if (row < col_ptr->rowCount())
+						col_ptr->asStringColumn()->setTextAt(row, "");
+				}
+		}
+	}
+	d_table->endMacro();
+	RESET_CURSOR;
+}
+
+bool TableView::fillProjectMenu(QMenu * menu)
+{
+	menu->setTitle(tr("&Table"));
+
+	menu->addAction(action_toggle_comments);
+	menu->addAction(action_toggle_tabbar);
+	menu->addAction(action_formula_mode);
+	menu->addSeparator();
+	menu->addAction(action_clear_table);
+	menu->addAction(action_clear_masks);
+	menu->addAction(action_sort_table);
+	menu->addSeparator();
+	menu->addAction(action_add_column);
+	menu->addAction(action_dimensions_dialog);
+	menu->addSeparator();
+	menu->addAction(action_go_to_cell);
+
+	return true;
+
+	// TODO:
+	// Convert to Matrix
+	// Export 
+}
+
+void TableView::createContextMenu(QMenu * menu)
+{
+	menu->addSeparator();
+	
+	// TODO
+	// Export to ASCII
+	// Print --> maybe should go to AbstractPart::createContextMenu()
+	// ----
+	// Rename --> AbstractAspect::createContextMenu(); maybe call this "Properties" and include changing comment/caption spec
+	// Duplicate --> AbstractPart::createContextMenu()
+	// Hide/Show --> Do we need hiding of views (in addition to minimizing)? How do we avoid confusion with hiding of Aspects?
+	// Activate ?
+	// Resize --> AbstractPart::createContextMenu()
+}
+
+void TableView::createActions()
+{
+	QIcon * icon_temp;
+
+	// selection related actions
+	action_cut_selection = new QAction(QIcon(QPixmap(":/cut.xpm")), tr("Cu&t"), this);
+	actionManager()->addAction(action_cut_selection, "cut_selection");
+
+	action_copy_selection = new QAction(QIcon(QPixmap(":/copy.xpm")), tr("&Copy"), this);
+	actionManager()->addAction(action_copy_selection, "copy_selection");
+
+	action_paste_into_selection = new QAction(QIcon(QPixmap(":/paste.xpm")), tr("Past&e"), this);
+	actionManager()->addAction(action_paste_into_selection, "paste_into_selection"); 
+
+	action_mask_selection = new QAction(QIcon(QPixmap(":/mask.xpm")), tr("&Mask","mask selection"), this);
+	actionManager()->addAction(action_mask_selection, "mask_selection"); 
+
+	action_unmask_selection = new QAction(QIcon(QPixmap(":/unmask.xpm")), tr("&Unmask","unmask selection"), this);
+	actionManager()->addAction(action_unmask_selection, "unmask_selection"); 
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/fx.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/fx.png"));
+	action_set_formula = new QAction(*icon_temp, tr("Assign &Formula"), this);
+	actionManager()->addAction(action_set_formula, "set_formula"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/clear.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear.png"));
+	action_clear_selection = new QAction(*icon_temp, tr("Clea&r","clear selection"), this);
+	actionManager()->addAction(action_clear_selection, "clear_selection"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/recalculate.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/recalculate.png"));
+	action_recalculate = new QAction(*icon_temp, tr("Recalculate"), this);
+	actionManager()->addAction(action_recalculate, "recalculate"); 
+	delete icon_temp;
+
+	action_fill_row_numbers = new QAction(QIcon(QPixmap(":/rowNumbers.xpm")), tr("Row Numbers"), this);
+	actionManager()->addAction(action_fill_row_numbers, "fill_row_numbers"); 
+
+	action_fill_random = new QAction(QIcon(QPixmap(":/randomNumbers.xpm")), tr("Random Values"), this);
+	actionManager()->addAction(action_fill_random, "fill_random"); 
+	
+	//table related actions
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/table_header.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/table_header.png"));
+	action_toggle_comments = new QAction(*icon_temp, QString("Show/Hide comments"), this); // show/hide column comments
+	actionManager()->addAction(action_toggle_comments, "toggle_comments"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/table_options.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/table_options.png"));
+	action_toggle_tabbar = new QAction(*icon_temp, QString("Show/Hide Controls"), this); // show/hide control tabs
+	actionManager()->addAction(action_toggle_tabbar, "toggle_tabbar"); 
+	delete icon_temp;
+
+	action_formula_mode = new QAction(tr("Formula Edit Mode"), this);
+	action_formula_mode->setCheckable(true);
+	actionManager()->addAction(action_formula_mode, "formula_mode"); 
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/select_all.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/select_all.png"));
+	action_select_all = new QAction(*icon_temp, tr("Select All"), this);
+	actionManager()->addAction(action_select_all, "select_all"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/add_column.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/add_column.png"));
+	action_add_column = new QAction(*icon_temp, tr("&Add Column"), this);
+	actionManager()->addAction(action_add_column, "add_column"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/clear_table.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear_table.png"));
+	action_clear_table = new QAction(*icon_temp, tr("Clear Table"), this);
+	actionManager()->addAction(action_clear_table, "clear_table"); 
+	delete icon_temp;
+
+	action_clear_masks = new QAction(QIcon(QPixmap(":/unmask.xpm")), tr("Clear Masks"), this);
+	actionManager()->addAction(action_clear_masks, "clear_masks"); 
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/sort.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/sort.png"));
+	action_sort_table = new QAction(*icon_temp, tr("&Sort Table"), this);
+	actionManager()->addAction(action_sort_table, "sort_table"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/go_to_cell.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/go_to_cell.png"));
+	action_go_to_cell = new QAction(*icon_temp, tr("&Go to Cell"), this);
+	actionManager()->addAction(action_go_to_cell, "go_to_cell"); 
+	delete icon_temp;
+
+	action_dimensions_dialog = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("&Dimensions", "table size"), this);
+	actionManager()->addAction(action_dimensions_dialog, "dimensions_dialog"); 
+
+	// column related actions
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/insert_column.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/insert_column.png"));
+	action_insert_columns = new QAction(*icon_temp, tr("&Insert Empty Columns"), this);
+	actionManager()->addAction(action_insert_columns, "insert_columns"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/remove_column.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/remove_column.png"));
+	action_remove_columns = new QAction(*icon_temp, tr("Remo&ve Columns"), this);
+	actionManager()->addAction(action_remove_columns, "remove_columns"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/clear_column.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear_column.png"));
+	action_clear_columns = new QAction(*icon_temp, tr("Clea&r Columns"), this);
+	actionManager()->addAction(action_clear_columns, "clear_columns"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/add_columns.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/add_columns.png"));
+	action_add_columns = new QAction(*icon_temp, tr("&Add Columns"), this);
+	actionManager()->addAction(action_add_columns, "add_columns"); 
+	delete icon_temp;
+
+	action_set_as_x = new QAction(QIcon(QPixmap()), tr("X","plot designation"), this);
+	actionManager()->addAction(action_set_as_x, "set_as_x"); 
+
+	action_set_as_y = new QAction(QIcon(QPixmap()), tr("Y","plot designation"), this);
+	actionManager()->addAction(action_set_as_y, "set_as_y"); 
+
+	action_set_as_z = new QAction(QIcon(QPixmap()), tr("Z","plot designation"), this);
+	actionManager()->addAction(action_set_as_z, "set_as_z"); 
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/x_error.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/x_error.png"));
+	action_set_as_xerr = new QAction(*icon_temp, tr("X Error","plot designation"), this);
+	actionManager()->addAction(action_set_as_xerr, "set_as_xerr"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/y_error.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/y_error.png"));
+	action_set_as_yerr = new QAction(*icon_temp, tr("Y Error","plot designation"), this);
+	actionManager()->addAction(action_set_as_yerr, "set_as_yerr"); 
+	delete icon_temp;
+
+	action_set_as_none = new QAction(QIcon(QPixmap()), tr("None","plot designation"), this);
+	actionManager()->addAction(action_set_as_none, "set_as_none"); 
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/normalize.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/normalize.png"));
+	action_normalize_columns = new QAction(*icon_temp, tr("&Normalize Columns"), this);
+	actionManager()->addAction(action_normalize_columns, "normalize_columns"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/sort.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/sort.png"));
+	action_sort_columns = new QAction(*icon_temp, tr("&Sort Columns"), this);
+	actionManager()->addAction(action_sort_columns, "sort_columns"); 
+	delete icon_temp;
+
+	action_statistics_columns = new QAction(QIcon(QPixmap(":/col_stat.xpm")), tr("Column Statisti&cs"), this);
+	actionManager()->addAction(action_statistics_columns, "statistics_columns"); 
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/column_format_type.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/column_format_type.png"));
+	action_type_format = new QAction(*icon_temp, tr("Change &Type && Format"), this);
+	actionManager()->addAction(action_type_format, "type_format"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/column_description.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/column_description.png"));
+	action_edit_description = new QAction(*icon_temp, tr("Edit Column &Description"), this);
+	actionManager()->addAction(action_edit_description, "edit_description"); 
+	delete icon_temp;
+
+	// row related actions
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/insert_row.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/insert_row.png"));
+	action_insert_rows = new QAction(*icon_temp ,tr("&Insert Empty Rows"), this);
+	actionManager()->addAction(action_insert_rows, "insert_rows"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/remove_row.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/remove_row.png"));
+	action_remove_rows = new QAction(*icon_temp, tr("Remo&ve Rows"), this);
+	actionManager()->addAction(action_remove_rows, "remove_rows"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/clear_row.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear_row.png"));
+	action_clear_rows = new QAction(*icon_temp, tr("Clea&r Rows"), this);
+	actionManager()->addAction(action_clear_rows, "clear_rows"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/add_rows.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/add_rows.png"));
+	action_add_rows = new QAction(*icon_temp, tr("&Add Rows"), this);
+	actionManager()->addAction(action_add_rows, "add_rows"); 
+	delete icon_temp;
+
+	action_statistics_rows = new QAction(QIcon(QPixmap(":/stat_rows.xpm")), tr("Row Statisti&cs"), this);
+	actionManager()->addAction(action_statistics_rows, "statistics_rows"); 
+}
+
+void TableView::connectActions()
+{
+	connect(action_cut_selection, SIGNAL(triggered()), this, SLOT(cutSelection()));
+	connect(action_copy_selection, SIGNAL(triggered()), this, SLOT(copySelection()));
+	connect(action_paste_into_selection, SIGNAL(triggered()), this, SLOT(pasteIntoSelection()));
+	connect(action_mask_selection, SIGNAL(triggered()), this, SLOT(maskSelection()));
+	connect(action_unmask_selection, SIGNAL(triggered()), this, SLOT(unmaskSelection()));
+	connect(action_set_formula, SIGNAL(triggered()), this, SLOT(setFormulaForSelection()));
+	connect(action_clear_selection, SIGNAL(triggered()), this, SLOT(clearSelectedCells()));
+	connect(action_recalculate, SIGNAL(triggered()), this, SLOT(recalculateSelectedCells()));
+	connect(action_fill_row_numbers, SIGNAL(triggered()), this, SLOT(fillSelectedCellsWithRowNumbers()));
+	connect(action_fill_random, SIGNAL(triggered()), this, SLOT(fillSelectedCellsWithRandomNumbers()));
+	connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
+	connect(action_add_column, SIGNAL(triggered()), d_table, SLOT(addColumn()));
+	connect(action_clear_table, SIGNAL(triggered()), d_table, SLOT(clear()));
+	connect(action_clear_masks, SIGNAL(triggered()), d_table, SLOT(clearMasks()));
+	connect(action_sort_table, SIGNAL(triggered()), this, SLOT(sortTable()));
+	connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
+	connect(action_dimensions_dialog, SIGNAL(triggered()), this, SLOT(dimensionsDialog()));
+	connect(action_insert_columns, SIGNAL(triggered()), this, SLOT(insertEmptyColumns()));
+	connect(action_remove_columns, SIGNAL(triggered()), this, SLOT(removeSelectedColumns()));
+	connect(action_clear_columns, SIGNAL(triggered()), this, SLOT(clearSelectedColumns()));
+	connect(action_add_columns, SIGNAL(triggered()), this, SLOT(addColumns()));
+	connect(action_set_as_x, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsX()));
+	connect(action_set_as_y, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsY()));
+	connect(action_set_as_z, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsZ()));
+	connect(action_set_as_xerr, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsXError()));
+	connect(action_set_as_yerr, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsYError()));
+	connect(action_set_as_none, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsNone()));
+	connect(action_normalize_columns, SIGNAL(triggered()), this, SLOT(normalizeSelectedColumns()));
+	connect(action_sort_columns, SIGNAL(triggered()), this, SLOT(sortSelectedColumns()));
+	connect(action_statistics_columns, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedColumns()));
+	connect(action_type_format, SIGNAL(triggered()), this, SLOT(editTypeAndFormatOfSelectedColumns()));
+	connect(action_edit_description, SIGNAL(triggered()), this, SLOT(editDescriptionOfCurrentColumn()));
+	connect(action_insert_rows, SIGNAL(triggered()), this, SLOT(insertEmptyRows()));
+	connect(action_remove_rows, SIGNAL(triggered()), this, SLOT(removeSelectedRows()));
+	connect(action_clear_rows, SIGNAL(triggered()), this, SLOT(clearSelectedRows()));
+	connect(action_add_rows, SIGNAL(triggered()), this, SLOT(addRows()));
+	connect(action_statistics_rows, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedRows()));
+	connect(action_toggle_comments, SIGNAL(triggered()), this, SLOT(toggleComments()));
+	connect(action_toggle_tabbar, SIGNAL(triggered()), this, SLOT(toggleControlTabBar()));
+	connect(action_formula_mode, SIGNAL(toggled(bool)), this, SLOT(activateFormulaMode(bool)));
+
+#if 0
+	addAction(action_cut_selection);
+	addAction(action_copy_selection);
+	addAction(action_paste_into_selection);
+	addAction(action_mask_selection);
+	addAction(action_unmask_selection);
+	addAction(action_set_formula);
+	addAction(action_clear_selection);
+	addAction(action_recalculate);
+	addAction(action_fill_row_numbers);
+	addAction(action_fill_random);
+	addAction(action_toggle_comments);
+	addAction(action_toggle_tabbar);
+	addAction(action_formula_mode);
+	addAction(action_select_all);
+	addAction(action_add_column);
+	addAction(action_clear_table);
+	addAction(action_clear_masks);
+	addAction(action_sort_table);
+	addAction(action_go_to_cell);
+	addAction(action_dimensions_dialog);
+	addAction(action_insert_columns);
+	addAction(action_remove_columns);
+	addAction(action_clear_columns);
+	addAction(action_add_columns);
+	addAction(action_set_as_x);
+	addAction(action_set_as_y);
+	addAction(action_set_as_z);
+	addAction(action_set_as_xerr);
+	addAction(action_set_as_yerr);
+	addAction(action_set_as_none);
+	addAction(action_normalize_columns);
+	addAction(action_sort_columns);
+	addAction(action_statistics_columns);
+	addAction(action_type_format);
+	addAction(action_edit_description);
+	addAction(action_insert_rows);
+	addAction(action_remove_rows);
+	addAction(action_clear_rows);
+	addAction(action_add_rows);
+	addAction(action_statistics_rows);
+#endif
+}
+
+void TableView::showTableViewContextMenu(const QPoint& pos)
+{
+	QMenu context_menu;
+	
+	createSelectionMenu(&context_menu);
+	context_menu.addSeparator();
+	createTableMenu(&context_menu);
+	context_menu.addSeparator();
+
+	QString action_name;
+	if (areCommentsShown()) 
+		action_name = tr("Hide Comments");
+	else
+		action_name = tr("Show Comments");
+	action_toggle_comments->setText(action_name);
+
+	if (isControlTabBarVisible()) 
+		action_name = tr("Hide Controls");
+	else
+		action_name = tr("Show Controls");
+	action_toggle_tabbar->setText(action_name);
+
+	context_menu.exec(pos);
+}
+
+void TableView::showTableViewColumnContextMenu(const QPoint& pos)
+{
+	QMenu context_menu;
+	
+	if (d_plot_menu)
+	{
+		context_menu.addMenu(d_plot_menu);
+		context_menu.addSeparator();
+	}
+
+	createColumnMenu(&context_menu);
+	context_menu.addSeparator();
+
+	context_menu.exec(pos);
+}
+
+void TableView::showTableViewRowContextMenu(const QPoint& pos)
+{
+	QMenu context_menu;
+	
+	createRowMenu(&context_menu);
+
+	context_menu.exec(pos);
+}
+
+void TableView::goToCell()
+{
+	bool ok;
+
+	int col = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter column"),
+			1, 1, d_table->columnCount(), 1, &ok);
+	if ( !ok ) return;
+
+	int row = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter row"),
+			1, 1, d_table->rowCount(), 1, &ok);
+	if ( !ok ) return;
+
+	goToCell(row-1, col-1);
+}
+
+void TableView::dimensionsDialog()
+{
+	bool ok;
+
+	int cols = QInputDialog::getInteger(0, tr("Set Table Dimensions"), tr("Enter number of columns"),
+			d_table->columnCount(), 1, 1e9, 1, &ok);
+	if ( !ok ) return;
+
+	int rows = QInputDialog::getInteger(0, tr("Set Table Dimensions"), tr("Enter number of rows"),
+			d_table->rowCount(), 1, 1e9, 1, &ok);
+	if ( !ok ) return;
+	
+	d_table->setColumnCount(cols);
+	d_table->setRowCount(rows);
+}
+
+void TableView::setPlotMenu(QMenu * menu)
+{
+	d_plot_menu = menu;
+}
+
+void TableView::sortDialog(QList<Column*> cols)
+{
+	if (cols.isEmpty()) return;
+
+	SortDialog *sortd = new SortDialog();
+	sortd->setAttribute(Qt::WA_DeleteOnClose);
+	connect(sortd, SIGNAL(sort(Column*,QList<Column*>,bool)), this, SLOT(sortColumns(Column*,QList<Column*>,bool)));
+	sortd->setColumnsList(cols);
+	sortd->exec();
+}
+
+void TableView::addColumns()
+{
+	d_table->addColumns(selectedColumnCount(false));
+}
+
+void TableView::addRows()
+{
+	d_table->addColumns(selectedRowCount(false));
+}
+
+
+
+/* ========================= static methods ======================= */
+ActionManager * TableView::action_manager = 0;
+
+ActionManager * TableView::actionManager()
+{
+	if (!action_manager)
+		initActionManager();
+	
+	return action_manager;
+}
+
+void TableView::initActionManager()
+{
+	if (!action_manager)
+		action_manager = new ActionManager();
+
+	action_manager->setTitle(tr("Table"));
+	volatile TableView * action_creator = new TableView(); // initialize the action texts
+	delete action_creator;
+}
+
+int TableView::defaultColumnWidth() 
+{ 
+	return Table::global("default_column_width").toInt(); 
+}
+
+void TableView::setDefaultColumnWidth(int width) 
+{ 
+	Table::setGlobal("default_column_width", width); 
+}
+
+void TableView::setDefaultCommentVisibility(bool visible) 
+{ 
+	Table::setGlobal("default_comment_visibility", visible); 
+}
+
+bool TableView::defaultCommentVisibility() 
+{ 
+	return Table::global("default_comment_visibility").toBool(); 
+}
 
 /* ================== TableViewWidget ================ */
 
@@ -729,7 +1879,7 @@ void TableViewWidget::updateHeaderGeometry(Qt::Orientation o, int first, int las
 {
 	Q_UNUSED(first)
 	Q_UNUSED(last)
-	if(o != Qt::Horizontal) return;
+	if (o != Qt::Horizontal) return;
 	horizontalHeader()->setStretchLastSection(true);  // ugly hack (flaw in Qt? Does anyone know a better way?)
 	horizontalHeader()->updateGeometry();
 	horizontalHeader()->setStretchLastSection(false); // ugly hack part 2
@@ -737,7 +1887,7 @@ void TableViewWidget::updateHeaderGeometry(Qt::Orientation o, int first, int las
 
 void TableViewWidget::keyPressEvent(QKeyEvent * event)
 {
-    if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
 		emit advanceCell();
 	QTableView::keyPressEvent(event);
 }
