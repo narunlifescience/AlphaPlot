@@ -59,8 +59,6 @@
 #include <climits> // for RAND_MAX
 #include <QClipboard>
 
-// TODO: move as much UI independent functionality back here form TableView
-
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
 	: AbstractPart(name), scripted(engine)
 {
@@ -104,7 +102,10 @@ QWidget *Table::view()
 {
 	if (!m_view)
 	{
-		m_view = new TableView(this); 
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
+		m_view = new TableView(this);
+#else
+#endif
 	}
 	return m_view;
 }
@@ -291,8 +292,7 @@ QMenu *Table::createContextMenu()
 #ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 	QMenu *menu = AbstractPart::createContextMenu();
 	Q_ASSERT(menu);
-	static_cast<TableView *>(view())->createContextMenu(menu);
-	
+	emit requestProjectContextMenu(menu);
 	return menu;
 #else
 	return NULL;
@@ -302,7 +302,9 @@ QMenu *Table::createContextMenu()
 bool Table::fillProjectMenu(QMenu * menu)
 {
 #ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
-	return static_cast<TableView *>(view())->fillProjectMenu(menu);
+	bool rc = false;
+	emit requestProjectMenu(menu, &rc);
+	return rc;
 #else
 	return false;
 #endif
@@ -343,7 +345,7 @@ void Table::copy(Table * other)
 	setComment(other->comment());
 	for (int i=0; i<columnCount(); i++)
 		setColumnWidth(i, other->columnWidth(i));
-	if (m_view) m_view->rereadSectionSizes();
+	emit sectionSizesChanged();
 
 	endMacro();
 	RESET_CURSOR;
@@ -835,6 +837,7 @@ bool Table::load(XmlStreamReader * reader)
 		}
 		if (cols != columnCount())
 			reader->raiseWarning(tr("columns attribute and number of read columns do not match"));
+		emit sectionSizesChanged();
 	}
 	else // no table element
 		reader->raiseError(tr("no table element found"));
@@ -859,10 +862,7 @@ bool Table::readColumnWidthElement(XmlStreamReader * reader)
 		reader->raiseError(tr("invalid column width"));
 		return false;
 	}
-	if (m_view)
-		m_view->setColumnWidth(col, value);
-	else
-		setColumnWidth(col, value);
+	setColumnWidth(col, value);
 	return true;
 }
 
@@ -975,7 +975,7 @@ void Table::Private::moveColumn(int from, int to)
 	updateHorizontalHeader(qMin(from, to), qMax(from, to));
 	emit m_owner->dataChanged(0, from, m_row_count-1, from);
 	emit m_owner->dataChanged(0, to, m_row_count-1, to);
-	if (m_owner->m_view) m_owner->m_view->rereadSectionSizes();
+	emit m_owner->sectionSizesChanged();
 }
 
 void Table::Private::setRowCount(int rows)

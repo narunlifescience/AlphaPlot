@@ -59,14 +59,14 @@ Pointers to columns can be passed around an manipulated directly. The owner Tabl
 of the Column objects) will be notified by emission of signals and react accordingly. 
 All public methods of Table and Column are undo aware. 
 
-Table also manages its main view of class TableView. Table and TableView can call each others
-API in both directions. User interaction ist party handled in TableView and translated into 
+Table also stores a pointer to its primary view of class TableView. TableView calls the Table
+API but Table only notifies TableView by signals without calling its API directly. This ensures a
+maximum independence of UI and backend. TableView can be easily replaced by a different class.
+User interaction is completely handled in TableView and translated into 
 Table API calls (e.g., when a user edits a cell this will be handled by the delegate of
-TableView and Table will not know whether a script or a user changed the data.). Other parts 
-of the user interaction are handled by actions provides by Table, e.g., via a context menu.
-
-Selections are handled by TableView and can be queried by Table. All selection based functions
-do nothing unless the view exists. The view is created by the first call to view();
+TableView and Table will not know whether a script or a user changed the data.). All actions, 
+menus etc. for the user interaction are handled TableView, e.g., via a context menu.
+Selections are also handled by TableView. The view itself is created by the first call to view();
 */
 class Table : public AbstractPart, public scripted
 {
@@ -229,10 +229,15 @@ class Table : public AbstractPart, public scripted
 		void rowsRemoved(int first, int count);
 		void dataChanged(int top, int left, int bottom, int right);
 		void headerDataChanged(Qt::Orientation orientation, int first, int last);
+		void sectionSizesChanged();
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
+		void requestProjectMenu(QMenu *menu, bool *rc);
+		void requestProjectContextMenu(QMenu *menu);
+#endif
 
 	private:
 
-		TableView *m_view;
+		QWidget *m_view;
 		Private *m_table_private;
 };
 

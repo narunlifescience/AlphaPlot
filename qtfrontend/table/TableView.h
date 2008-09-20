@@ -167,9 +167,10 @@ class TableView : public QWidget
 
 		//! Fill the part specific menu for the main window including setting the title
 		/**
-		 * \return true on success, otherwise false (e.g. part has no actions).
+		 * \param menu the menu to append the actions to
+		 * \param rc return code: true on success, otherwise false (e.g. part has no actions).
 		 */
-		virtual bool fillProjectMenu(QMenu * menu);
+		virtual void fillProjectMenu(QMenu * menu, bool * rc);
 		//! Create a menu with selection related operations
 		/**
 		 * \param append_to if a pointer to a QMenu is passed

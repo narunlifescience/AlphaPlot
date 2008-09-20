@@ -176,6 +176,10 @@ void TableView::init()
 	
 	connectActions();
 	showComments(defaultCommentVisibility());
+
+	connect(m_table, SIGNAL(sectionSizesChanged()), this, SLOT(rereadSectionSizes()));
+	connect(m_table, SIGNAL(requestProjectMenu(QMenu*,bool*)), this, SLOT(fillProjectMenu(QMenu*,bool*)));
+	connect(m_table, SIGNAL(requestProjectContextMenu(QMenu*)), this, SLOT(createContextMenu(QMenu*)));
 }
 
 TableView::TableView()
@@ -1362,7 +1366,7 @@ void TableView::clearSelectedCells()
 	RESET_CURSOR;
 }
 
-bool TableView::fillProjectMenu(QMenu * menu)
+void TableView::fillProjectMenu(QMenu * menu, bool * rc)
 {
 	menu->setTitle(tr("&Table"));
 
@@ -1379,7 +1383,7 @@ bool TableView::fillProjectMenu(QMenu * menu)
 	menu->addSeparator();
 	menu->addAction(action_go_to_cell);
 
-	return true;
+	if (rc) *rc = true;
 
 	// TODO:
 	// Convert to Matrix
@@ -1669,49 +1673,6 @@ void TableView::connectActions()
 	connect(action_toggle_comments, SIGNAL(triggered()), this, SLOT(toggleComments()));
 	connect(action_toggle_tabbar, SIGNAL(triggered()), this, SLOT(toggleControlTabBar()));
 	connect(action_formula_mode, SIGNAL(toggled(bool)), this, SLOT(activateFormulaMode(bool)));
-
-#if 0
-	addAction(action_cut_selection);
-	addAction(action_copy_selection);
-	addAction(action_paste_into_selection);
-	addAction(action_mask_selection);
-	addAction(action_unmask_selection);
-	addAction(action_set_formula);
-	addAction(action_clear_selection);
-	addAction(action_recalculate);
-	addAction(action_fill_row_numbers);
-	addAction(action_fill_random);
-	addAction(action_toggle_comments);
-	addAction(action_toggle_tabbar);
-	addAction(action_formula_mode);
-	addAction(action_select_all);
-	addAction(action_add_column);
-	addAction(action_clear_table);
-	addAction(action_clear_masks);
-	addAction(action_sort_table);
-	addAction(action_go_to_cell);
-	addAction(action_dimensions_dialog);
-	addAction(action_insert_columns);
-	addAction(action_remove_columns);
-	addAction(action_clear_columns);
-	addAction(action_add_columns);
-	addAction(action_set_as_x);
-	addAction(action_set_as_y);
-	addAction(action_set_as_z);
-	addAction(action_set_as_xerr);
-	addAction(action_set_as_yerr);
-	addAction(action_set_as_none);
-	addAction(action_normalize_columns);
-	addAction(action_sort_columns);
-	addAction(action_statistics_columns);
-	addAction(action_type_format);
-	addAction(action_edit_description);
-	addAction(action_insert_rows);
-	addAction(action_remove_rows);
-	addAction(action_clear_rows);
-	addAction(action_add_rows);
-	addAction(action_statistics_rows);
-#endif
 }
 
 void TableView::showTableViewContextMenu(const QPoint& pos)
