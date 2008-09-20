@@ -29,9 +29,9 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "ScriptEdit.h"
-#include "AbstractScriptingEngine.h"
-#include "AbstractScript.h"
+#include "core/ScriptEdit.h"
+#include "core/AbstractScriptingEngine.h"
+#include "core/AbstractScript.h"
 
 #include <QAction>
 #include <QMenu>

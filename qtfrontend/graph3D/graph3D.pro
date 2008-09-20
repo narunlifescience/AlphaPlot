@@ -1,8 +1,8 @@
 include(../config.pri)
 TEMPLATE = lib
 CONFIG += plugin static opengl
-INCLUDEPATH += .. ../core ../core/column ../lib ../core/datatypes
-DEPENDPATH += .. ../core ../core/column ../lib ../core/datatypes
+INCLUDEPATH += .. ../../backend
+DEPENDPATH += . .. ../../backend ../../backend/graph3D ../../backend/core ../core ../lib ../../backend/lib
 TARGET = ../$$qtLibraryTarget(scidavis_graph3D)
 QT += xml opengl
 

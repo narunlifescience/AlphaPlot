@@ -27,9 +27,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "Column.h"
-#include "Table.h"
-#include "TableModel.h"
+#include "core/column/Column.h"
+#include "table/Table.h"
+#include "table/TableModel.h"
 #include <QString>
 #include <QBrush>
 #include <QIcon>
@@ -244,4 +244,14 @@ void TableModel::handleDataChanged(int top, int left, int bottom, int right)
 Column * TableModel::column(int index)
 {
 	return m_table->column(index);
+}
+		
+void TableModel::activateFormulaMode(bool on)
+{
+	if (m_formula_mode == on) return;
+	m_formula_mode = on;
+	int rows = m_table->rowCount();
+	int cols = m_table->columnCount();
+	if (rows > 0 && cols > 0)
+		handleDataChanged(0, 0, rows-1, cols-1);
 }

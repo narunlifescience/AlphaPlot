@@ -1,8 +1,8 @@
 include(../config.pri)
 TEMPLATE = app
 TARGET = ../scidavis
-DEPENDPATH += .. ../lib datatypes column filters
-INCLUDEPATH += .. ../lib datatypes column filters
+DEPENDPATH += . .. ../../backend ../../backend/core ../../backend/core/column  ../../backend/core/datatypes ../../backend/core/filters
+INCLUDEPATH += .. ../../backend
 QT += xml network
 CONFIG += assistant
 

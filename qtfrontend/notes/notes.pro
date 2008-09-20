@@ -1,7 +1,8 @@
 include(../config.pri)
 TEMPLATE = lib
 CONFIG += plugin static
-INCLUDEPATH += .. ../core
+DEPENDPATH += . .. ../../backend/notes .. ../../backend ../core ../../backend/core
+INCLUDEPATH += .. ../../backend
 TARGET = ../$$qtLibraryTarget(scidavis_notes)
 QT += xml
 

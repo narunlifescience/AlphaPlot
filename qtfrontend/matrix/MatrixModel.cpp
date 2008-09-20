@@ -27,8 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "Matrix.h"
-#include "MatrixModel.h"
+#include "matrix/Matrix.h"
+#include "matrix/MatrixModel.h"
 #include <QString>
 #include <QBrush>
 #include <QColor>

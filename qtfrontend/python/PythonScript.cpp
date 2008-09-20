@@ -32,9 +32,9 @@
 #endif
 #include <Python.h>
 
-#include "PythonScript.h"
-#include "PythonScriptingEngine.h"
-#include "../core/ApplicationWindow.h"
+#include "python/PythonScript.h"
+#include "python/PythonScriptingEngine.h"
+///////#include "../core/ApplicationWindow.h"
 
 #include <QObject>
 #include <QVariant>

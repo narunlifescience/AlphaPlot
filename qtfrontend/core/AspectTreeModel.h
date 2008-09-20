@@ -31,7 +31,7 @@
 #define ASPECT_TREE_MODEL_H
 
 #include <QAbstractItemModel>
-#include "AbstractAspect.h"
+#include "core/AbstractAspect.h"
 
 //! Represents a tree of AbstractAspect objects as a Qt item model.
 /**

@@ -29,10 +29,10 @@
 
 #include <limits>
 
-#include "Matrix.h"
-#include "MatrixView.h"
-#include "MatrixModel.h"
-#include "matrixcommands.h"
+#include "matrix/Matrix.h"
+#include "matrix/MatrixView.h"
+#include "matrix/MatrixModel.h"
+#include "matrix/matrixcommands.h"
 
 #include "core/AbstractFilter.h"
 

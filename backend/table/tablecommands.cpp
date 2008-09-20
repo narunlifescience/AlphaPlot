@@ -27,11 +27,11 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "tablecommands.h"
-#include "Table.h"
-#include "Column.h"
-#include "Interval.h"
-#include "Double2StringFilter.h"
+#include "table/tablecommands.h"
+#include "table/Table.h"
+#include "core/column/Column.h"
+#include "lib/Interval.h"
+#include "core/datatypes/Double2StringFilter.h"
 #include <QObject>
 #include <QtDebug>
 

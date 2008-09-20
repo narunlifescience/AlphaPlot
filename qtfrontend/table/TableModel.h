@@ -81,7 +81,7 @@ class TableModel : public QAbstractItemModel
 
 		Column * column(int index); // this is needed for the comment header view
 
-		void activateFormulaMode(bool on) { m_formula_mode = on; }
+		void activateFormulaMode(bool on);
 		bool formulaModeActive() const { return m_formula_mode; }
 
 	private slots:

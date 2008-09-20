@@ -27,10 +27,10 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "AsciiTableImportFilter.h"
-#include "Table.h"
-#include "IntervalAttribute.h"
-#include "Column.h"
+#include "table/AsciiTableImportFilter.h"
+#include "table/Table.h"
+#include "lib/IntervalAttribute.h"
+#include "core/column/Column.h"
 
 #include <QTextStream>
 #include <QStringList>

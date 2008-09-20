@@ -34,11 +34,11 @@
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QItemSelection>
-#include "Column.h"
-#include "ColumnPrivate.h"
-#include "Table.h"
-#include "AbstractFilter.h"
-#include "IntervalAttribute.h"
+#include "core/column/Column.h"
+#include "core/column/ColumnPrivate.h"
+#include "table/Table.h"
+#include "core/AbstractFilter.h"
+#include "lib/IntervalAttribute.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // class TableInsertColumnsCmd

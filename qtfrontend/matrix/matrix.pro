@@ -1,8 +1,8 @@
 include(../config.pri)
 TEMPLATE = lib
 CONFIG += plugin static
-INCLUDEPATH += .. ../core ../lib ../core/datatypes
-DEPENDPATH += .. ../core ../lib
+DEPENDPATH += . .. ../../backend ../../backend/matrix ../core ../../backend/core
+INCLUDEPATH += .. ../../backend
 TARGET = ../$$qtLibraryTarget(scidavis_matrix)
 QT += xml svg
 

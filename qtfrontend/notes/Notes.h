@@ -1,7 +1,7 @@
 #ifndef NOTES_H
 #define NOTES_H
 
-#include "AbstractPart.h"
+#include "core/AbstractPart.h"
 
 class ActionManager;
 

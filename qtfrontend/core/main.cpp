@@ -31,8 +31,8 @@
 #include <QSplashScreen>
 #include <QTimer>
 #include <QPluginLoader>
-#include "Project.h"
-#include "ProjectWindow.h"
+#include "core/Project.h"
+#include "core/ProjectWindow.h"
 
 // The following stuff is for the doxygen title page
 /*!  \mainpage SciDAVis - Scientific Data Analysis and Visualization - API documentation

@@ -33,7 +33,7 @@
 #define PROJECT_EXPLORER_H
 
 #include <QTreeView>
-#include "AbstractAspect.h"
+#include "core/AbstractAspect.h"
 
 //! A tree view for displaying and editing an AspectTreeModel.
 /**

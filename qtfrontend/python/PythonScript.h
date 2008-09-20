@@ -29,7 +29,7 @@
 #ifndef PYTHON_SCRIPT_H
 #define PYTHON_SCRIPT_H
 
-#include "../core/AbstractScript.h"
+#include "core/AbstractScript.h"
 
 class QString;
 class QObject;

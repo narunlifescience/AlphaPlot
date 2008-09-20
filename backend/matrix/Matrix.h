@@ -33,7 +33,7 @@
 
 #include "core/AbstractScriptingEngine.h"
 #include "core/AbstractPart.h"
-#include "MatrixView.h"
+#include "matrix/MatrixView.h"
 #include "lib/macros.h"
 
 class QContextMenuEvent;

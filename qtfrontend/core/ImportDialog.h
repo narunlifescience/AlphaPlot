@@ -30,7 +30,7 @@
 #ifndef IMPORT_DIALOG_H
 #define IMPORT_DIALOG_H
 
-#include "ExtensibleFileDialog.h"
+#include "lib/ExtensibleFileDialog.h"
 #include <QMap>
 
 class AbstractImportFilter;

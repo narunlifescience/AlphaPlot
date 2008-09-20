@@ -31,9 +31,9 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include "AbstractPart.h"
-#include "AbstractScriptingEngine.h"
-#include "globals.h"
+#include "core/AbstractPart.h"
+#include "core/AbstractScriptingEngine.h"
+#include "core/globals.h"
 #include <QList>
 
 class TableView;

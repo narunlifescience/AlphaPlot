@@ -49,7 +49,7 @@
 #include <QScrollArea>
 #include "ui_controltabs.h"
 #include <QtDebug>
-#include "globals.h"
+#include "core/globals.h"
 
 class Column;
 class Table;

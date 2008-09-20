@@ -1,7 +1,8 @@
 include(../config.pri)
 TEMPLATE = lib
 CONFIG += plugin static
-INCLUDEPATH += .. ../core $$SIP_DIR
+DEPENDPATH += . .. ../core ../../backend ../../backend/core ../../backend/python $$SIP_DIR
+INCLUDEPATH += .. ../../backend $$SIP_DIR
 TARGET = ../$$qtLibraryTarget(scidavis_python)
 
 debug {

@@ -47,7 +47,7 @@
 #include <QComboBox>
 #include <QSpinBox> 
 #include <QScrollArea>
-#include "globals.h"
+#include "core/globals.h"
 #include "ui_matrixcontroltabs.h"
 
 class Matrix;

@@ -29,8 +29,8 @@
 #ifndef PYTHON_SCRIPTING_H
 #define PYTHON_SCRIPTING_H
 
-#include "../core/AbstractScriptingEngine.h"
-#include "PythonScript.h"
+#include "core/AbstractScriptingEngine.h"
+#include "python/PythonScript.h"
 
 class QObject;
 class QString;

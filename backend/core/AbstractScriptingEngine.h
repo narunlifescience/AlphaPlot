@@ -38,7 +38,7 @@
 #include <QtPlugin>
 #include <QStringList>
 
-#include "customevents.h"
+#include "core/customevents.h"
 
 class AbstractScript;
 class QString;

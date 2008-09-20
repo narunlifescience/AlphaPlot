@@ -31,7 +31,7 @@
 #define MATRIX_MODULE_H
 
 #include "core/interfaces.h"
-#include "Matrix.h"
+#include "matrix/Matrix.h"
 #include <QMenu>
 
 //! Module providing the matrix Part and support classes.

@@ -1,8 +1,8 @@
 include(../config.pri)
 TEMPLATE = lib
 CONFIG += plugin static
-INCLUDEPATH += .. ../core ../core/column ../lib ../core/datatypes
-DEPENDPATH += .. ../core ../core/column ../lib ../core/datatypes
+DEPENDPATH += . .. ../../backend ../../backend/table ../core ../../backend/core
+INCLUDEPATH += .. ../../backend
 TARGET = ../$$qtLibraryTarget(scidavis_table)
 QT += xml
 

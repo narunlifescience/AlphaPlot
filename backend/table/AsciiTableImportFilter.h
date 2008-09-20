@@ -30,7 +30,7 @@
 #ifndef ASCII_TABLE_IMPORT_FILTER_H
 #define ASCII_TABLE_IMPORT_FILTER_H
 
-#include "AbstractImportFilter.h"
+#include "core/AbstractImportFilter.h"
 
 //! Import an ASCII file as Table.
 /**

@@ -27,8 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "ImportDialog.h"
-#include "AbstractImportFilter.h"
+#include "core/ImportDialog.h"
+#include "core/AbstractImportFilter.h"
 #include <QGridLayout>
 #include <QSpinBox>
 #include <QCheckBox>

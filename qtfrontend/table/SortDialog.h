@@ -29,7 +29,7 @@
 #ifndef SORTDIALOG_H
 #define SORTDIALOG_H
 
-#include "Column.h"
+#include "core/column/Column.h"
 #include <QDialog>
 
 class QPushButton;

@@ -34,7 +34,7 @@
 #define SCRIPTEDIT_H
 
 #include <QTextEdit>
-#include "AbstractScriptingEngine.h"
+#include "core/AbstractScriptingEngine.h"
 
 class AbstractScript;
 
