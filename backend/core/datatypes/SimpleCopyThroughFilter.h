@@ -64,18 +64,18 @@ class SimpleCopyThroughFilter : public AbstractSimpleFilter
 
 	protected:
 		//! All types are accepted.
-		virtual bool inputAcceptable(int, AbstractColumn *) 
+		virtual bool inputAcceptable(int, const AbstractColumn *) 
 		{
 			return true;
 		}
 
 		//!\name signal handlers
 		//@{
-		virtual void inputMaskingAboutToChange(AbstractColumn*) 
+		virtual void inputMaskingAboutToChange(const AbstractColumn*) 
 		{ 
 			emit m_output_column->maskingAboutToChange(m_output_column); 
 		}
-		virtual void inputMaskingChanged(AbstractColumn*) 
+		virtual void inputMaskingChanged(const AbstractColumn*) 
 		{ 
 			emit m_output_column->maskingChanged(m_output_column); 
 		}

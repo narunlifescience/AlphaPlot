@@ -749,6 +749,12 @@ QMenu * TableView::createSelectionMenu(QMenu * append_to)
 	if (!menu)
 		menu = new QMenu();
 
+	QMenu * submenu = new QMenu("Fi&ll Selection with");
+	submenu->addAction(action_fill_row_numbers);
+	submenu->addAction(action_fill_random);
+	menu->addMenu(submenu);
+	menu->addSeparator();
+
 	menu->addAction(action_cut_selection);
 	menu->addAction(action_copy_selection);
 	menu->addAction(action_paste_into_selection);
@@ -757,14 +763,11 @@ QMenu * TableView::createSelectionMenu(QMenu * append_to)
 	menu->addAction(action_mask_selection);
 	menu->addAction(action_unmask_selection);
 	menu->addSeparator();
+	menu->addAction(action_normalize_selection);
+	menu->addSeparator();
 	menu->addAction(action_set_formula);
 	menu->addAction(action_recalculate);
 	menu->addSeparator();
-
-	QMenu * submenu = new QMenu("Fi&ll with");
-	submenu->addAction(action_fill_row_numbers);
-	submenu->addAction(action_fill_random);
-	menu->addMenu(submenu);
 
 	return menu;
 }
@@ -776,34 +779,43 @@ QMenu * TableView::createColumnMenu(QMenu * append_to)
 	if (!menu)
 		menu = new QMenu();
 
+
+	QMenu * submenu = new QMenu(tr("S&et Column(s) As"));
+	submenu->addAction(action_set_as_x);
+	submenu->addAction(action_set_as_y);
+	submenu->addAction(action_set_as_z);
+	submenu->addSeparator();
+	submenu->addAction(action_set_as_xerr);
+	submenu->addAction(action_set_as_yerr);
+	submenu->addSeparator();
+	submenu->addAction(action_set_as_none);
+	menu->addMenu(submenu);
+	menu->addSeparator();
+
+	submenu = new QMenu("Fi&ll Selection with");
+	submenu->addAction(action_fill_row_numbers);
+	submenu->addAction(action_fill_random);
+	menu->addMenu(submenu);
+	menu->addSeparator();
+
 	menu->addAction(action_insert_columns);
 	menu->addAction(action_remove_columns);
 	menu->addAction(action_clear_columns);
 	menu->addAction(action_add_columns);
 	menu->addSeparator();
 	
-	QMenu * submenu = new QMenu("S&et As");
+	menu->addAction(action_normalize_columns);
+	menu->addAction(action_sort_columns);
+	menu->addSeparator();
 
-	submenu->addAction(action_set_as_x);
-	submenu->addAction(action_set_as_y);
-	submenu->addAction(action_set_as_z);
-	submenu->addAction(action_set_as_xerr);
-	submenu->addAction(action_set_as_yerr);
-	submenu->addAction(action_set_as_none);
-	menu->addMenu(submenu);
-	menu->addSeparator();
-	submenu = new QMenu("Fi&ll with");
-	submenu->addAction(action_fill_row_numbers);
-	submenu->addAction(action_fill_random);
-	menu->addMenu(submenu);
-	menu->addSeparator();
 	menu->addAction(action_edit_description);
 	menu->addAction(action_type_format);
 	menu->addSeparator();
 
-	menu->addAction(action_normalize_columns);
-	menu->addAction(action_sort_columns);
+	connect(menu, SIGNAL(aboutToShow()), this, SLOT(adjustActionNames()));
+	menu->addAction(action_toggle_comments);
 	menu->addSeparator();
+
 	menu->addAction(action_statistics_columns);
 
 	return menu;
@@ -815,6 +827,7 @@ QMenu * TableView::createTableMenu(QMenu * append_to)
 	if (!menu)
 		menu = new QMenu();
 
+	connect(menu, SIGNAL(aboutToShow()), this, SLOT(adjustActionNames()));
 	menu->addAction(action_toggle_comments);
 	menu->addAction(action_toggle_tabbar);
 	menu->addAction(action_formula_mode);
@@ -842,7 +855,7 @@ QMenu * TableView::createRowMenu(QMenu * append_to)
 	menu->addAction(action_clear_rows);
 	menu->addAction(action_add_rows);
 	menu->addSeparator();
-	QMenu *submenu = new QMenu("Fi&ll with");
+	QMenu *submenu = new QMenu("Fi&ll Selection with");
 	submenu->addAction(action_fill_row_numbers);
 	submenu->addAction(action_fill_random);
 	menu->addMenu(submenu);
@@ -1223,8 +1236,53 @@ void TableView::setSelectedColumnsAsNone()
 
 void TableView::normalizeSelectedColumns()
 {
-	// TODO
-	QMessageBox::information(0, "info", "not yet implemented");
+	WAIT_CURSOR;
+	m_table->beginMacro(QObject::tr("%1: normalize column(s)").arg(m_table->name()));
+	QList< Column* > cols = selectedColumns();
+	foreach(Column * col, cols)
+	{
+		if (col->dataType() == SciDAVis::TypeDouble)
+		{
+			double max = 0.0;
+			for (int row=0; row<col->rowCount(); row++)
+			{
+				if (col->valueAt(row) > max)
+					max = col->valueAt(row);
+			}
+			if (max != 0.0) // avoid division by zero
+				for (int row=0; row<col->rowCount(); row++)
+					col->setValueAt(row, col->valueAt(row) / max);
+		}
+	}
+	m_table->endMacro();
+	RESET_CURSOR;
+}
+
+void TableView::normalizeSelection()
+{
+	WAIT_CURSOR;
+	m_table->beginMacro(QObject::tr("%1: normalize selection").arg(m_table->name()));
+	double max = 0.0;
+	for (int col=firstSelectedColumn(); col<=lastSelectedColumn(); col++)
+		if (m_table->column(col)->dataType() == SciDAVis::TypeDouble)
+			for (int row=0; row<m_table->rowCount(); row++)
+			{
+				if (isCellSelected(row, col) && m_table->column(col)->valueAt(row) > max)
+					max = m_table->column(col)->valueAt(row);
+			}
+
+	if (max != 0.0) // avoid division by zero
+	{
+		for (int col=firstSelectedColumn(); col<=lastSelectedColumn(); col++)
+			if (m_table->column(col)->dataType() == SciDAVis::TypeDouble)
+				for (int row=0; row<m_table->rowCount(); row++)
+				{
+					if (isCellSelected(row, col))
+						m_table->column(col)->setValueAt(row, m_table->column(col)->valueAt(row) / max);
+				}
+	}
+	m_table->endMacro();
+	RESET_CURSOR;
 }
 
 void TableView::sortSelectedColumns()
@@ -1370,16 +1428,43 @@ void TableView::fillProjectMenu(QMenu * menu, bool * rc)
 {
 	menu->setTitle(tr("&Table"));
 
+	QMenu * submenu = new QMenu(tr("S&et Column(s) As"));
+	submenu->addAction(action_set_as_x);
+	submenu->addAction(action_set_as_y);
+	submenu->addAction(action_set_as_z);
+	submenu->addSeparator();
+	submenu->addAction(action_set_as_xerr);
+	submenu->addAction(action_set_as_yerr);
+	submenu->addSeparator();
+	submenu->addAction(action_set_as_none);
+	menu->addMenu(submenu);
+	menu->addSeparator();
+
+	submenu = new QMenu("Fi&ll Selection with");
+	submenu->addAction(action_fill_row_numbers);
+	submenu->addAction(action_fill_random);
+	menu->addMenu(submenu);
+	menu->addSeparator();
+
+	connect(menu, SIGNAL(aboutToShow()), this, SLOT(adjustActionNames()));
 	menu->addAction(action_toggle_comments);
 	menu->addAction(action_toggle_tabbar);
 	menu->addAction(action_formula_mode);
 	menu->addSeparator();
 	menu->addAction(action_clear_table);
+#ifndef LEGACY_CODE_0_2_x
 	menu->addAction(action_clear_masks);
+#endif
 	menu->addAction(action_sort_table);
+	menu->addSeparator();
+	menu->addAction(action_set_formula);
+	menu->addAction(action_recalculate);
 	menu->addSeparator();
 	menu->addAction(action_add_column);
 	menu->addAction(action_dimensions_dialog);
+	menu->addSeparator();
+	menu->addAction(action_edit_description);
+	menu->addAction(action_type_format);
 	menu->addSeparator();
 	menu->addAction(action_go_to_cell);
 
@@ -1575,6 +1660,13 @@ void TableView::createActions()
 	delete icon_temp;
 
 	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/normalize.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/normalize.png"));
+	action_normalize_selection = new QAction(*icon_temp, tr("&Normalize Selection"), this);
+	actionManager()->addAction(action_normalize_selection, "normalize_selection"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
 	icon_temp->addPixmap(QPixmap(":/16x16/sort.png"));
 	icon_temp->addPixmap(QPixmap(":/32x32/sort.png"));
 	action_sort_columns = new QAction(*icon_temp, tr("&Sort Columns"), this);
@@ -1661,6 +1753,7 @@ void TableView::connectActions()
 	connect(action_set_as_yerr, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsYError()));
 	connect(action_set_as_none, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsNone()));
 	connect(action_normalize_columns, SIGNAL(triggered()), this, SLOT(normalizeSelectedColumns()));
+	connect(action_normalize_selection, SIGNAL(triggered()), this, SLOT(normalizeSelection()));
 	connect(action_sort_columns, SIGNAL(triggered()), this, SLOT(sortSelectedColumns()));
 	connect(action_statistics_columns, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedColumns()));
 	connect(action_type_format, SIGNAL(triggered()), this, SLOT(editTypeAndFormatOfSelectedColumns()));
@@ -1679,23 +1772,16 @@ void TableView::showTableViewContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
+	if (m_plot_menu)
+	{
+		context_menu.addMenu(m_plot_menu);
+		context_menu.addSeparator();
+	}
+
 	createSelectionMenu(&context_menu);
 	context_menu.addSeparator();
 	createTableMenu(&context_menu);
 	context_menu.addSeparator();
-
-	QString action_name;
-	if (areCommentsShown()) 
-		action_name = tr("Hide Comments");
-	else
-		action_name = tr("Show Comments");
-	action_toggle_comments->setText(action_name);
-
-	if (isControlTabBarVisible()) 
-		action_name = tr("Hide Controls");
-	else
-		action_name = tr("Show Controls");
-	action_toggle_tabbar->setText(action_name);
 
 	context_menu.exec(pos);
 }
@@ -1742,6 +1828,7 @@ void TableView::goToCell()
 
 void TableView::dimensionsDialog()
 {
+	// TODO: Design a nicer dialog for this
 	bool ok;
 
 	int cols = QInputDialog::getInteger(0, tr("Set Table Dimensions"), tr("Enter number of columns"),
@@ -1782,6 +1869,21 @@ void TableView::addRows()
 	m_table->addColumns(selectedRowCount(false));
 }
 
+void TableView::adjustActionNames()
+{
+	QString action_name;
+	if(areCommentsShown()) 
+		action_name = tr("Hide Comments");
+	else
+		action_name = tr("Show Comments");
+	action_toggle_comments->setText(action_name);
+
+	if(isControlTabBarVisible()) 
+		action_name = tr("Hide Controls");
+	else
+		action_name = tr("Show Controls");
+	action_toggle_tabbar->setText(action_name);
+}
 
 
 /* ========================= static methods ======================= */

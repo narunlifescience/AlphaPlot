@@ -165,12 +165,6 @@ class TableView : public QWidget
 		void getCurrentCell(int * row, int * col);
 		//@}
 
-		//! Fill the part specific menu for the main window including setting the title
-		/**
-		 * \param menu the menu to append the actions to
-		 * \param rc return code: true on success, otherwise false (e.g. part has no actions).
-		 */
-		virtual void fillProjectMenu(QMenu * menu, bool * rc);
 		//! Create a menu with selection related operations
 		/**
 		 * \param append_to if a pointer to a QMenu is passed
@@ -229,6 +223,7 @@ class TableView : public QWidget
 		void setSelectedColumnsAsYError();
 		void setSelectedColumnsAsNone();
 		void normalizeSelectedColumns();
+		void normalizeSelection();
 		void sortSelectedColumns();
 		void statisticsOnSelectedColumns();
 		void statisticsOnSelectedRows();
@@ -268,6 +263,12 @@ class TableView : public QWidget
 		 * The caller takes ownership of the menu.
 		 */
 		void createContextMenu(QMenu * menu);
+		//! Fill the part specific menu for the main window including setting the title
+		/**
+		 * \param menu the menu to append the actions to
+		 * \param rc return code: true on success, otherwise false (e.g. part has no actions).
+		 */
+		void fillProjectMenu(QMenu * menu, bool * rc);
 		//! Open the sort dialog for the given columns
 		void sortDialog(QList<Column*> cols);
 
@@ -317,6 +318,7 @@ class TableView : public QWidget
 		void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 		void applyDescription();
 		void applyType();
+		void adjustActionNames();
 
 	protected:
 		//! Pointer to the item delegate
@@ -384,6 +386,7 @@ class TableView : public QWidget
 		QAction * action_set_as_yerr;
 		QAction * action_set_as_none;
 		QAction * action_normalize_columns;
+		QAction * action_normalize_selection;
 		QAction * action_sort_columns;
 		QAction * action_statistics_columns;
 		QAction * action_type_format;

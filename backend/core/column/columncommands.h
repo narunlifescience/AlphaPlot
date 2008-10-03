@@ -175,8 +175,8 @@ private:
 	int m_num_rows;
 	//! Previous number of rows in the destination column
 	int m_old_row_count;
-	
-
+	//! The old validity information
+	IntervalAttribute<bool> m_old_validity;
 };
 ///////////////////////////////////////////////////////////////////////////
 // end of class ColumnPartialCopyCmd

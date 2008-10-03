@@ -3,7 +3,7 @@
     Project              : SciDAVis
     Description          : Represents a SciDAVis project.
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 Tilman Benkert (thzs*gmx.net)
+    Copyright            : (C) 2007-2008 Tilman Benkert (thzs*gmx.net)
     Copyright            : (C) 2007 Knut Franke (knut.franke*gmx.de)
                            (replace * with @ in the email addresses) 
 
@@ -32,11 +32,32 @@
 
 #include "core/Folder.h"
 #include "core/interfaces.h"
+#include "lib/macros.h"
 
 class QString;
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 class ProjectWindow;
+#else
+class MainWin;
+#endif
 class QAction;
 class AbstractScriptingEngine;
+
+
+/* remarks by thzs about the Labplot/SciDAVis integration of class Project:
+
+- save/open: the stream based XML reading and writing is faster than using DOM.
+  If you want, you can of course use DOM instead.
+- QString m_filename: now d->file_name
+- int m_version: now d->version
+- QString m_labPlot: now d->labPlot
+- QString m_title: use AbstractAspect::name()
+- QString m_author: now d->author
+- QDateTime m_created: use AbstractAspect::creationTime()
+- QDateTime m_modified: now d->modification_time
+- QString m_notes: use AbstractAspect::comment()
+- bool m_changed: now d->changed
+*/
 
 //! Represents a SciDAVis project.
 /**
@@ -57,7 +78,11 @@ class Project : public Folder
 		};
 
 	public:
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 		Project();
+#else
+		Project(MainWin * mainWin);
+#endif
 		~Project();
 
 		//!\name Reimplemented from AbstractAspect
@@ -66,20 +91,28 @@ class Project : public Folder
 		virtual Project *project() { return this; }
 		virtual QUndoStack *undoStack() const;
 		virtual QString path() const { return name(); }
-		virtual ProjectWindow *view();
-		virtual QMenu *createContextMenu() const;
+		virtual QWidget *view();
+		virtual QMenu *createContextMenu();
 		//@}
-		virtual QMenu *createFolderContextMenu(const Folder * folder) const;
+		virtual QMenu *createFolderContextMenu(const Folder * folder);
 
 		AbstractScriptingEngine * scriptingEngine() const;
 
 		void setMdiWindowVisibility(MdiWindowVisibility visibility);
 		MdiWindowVisibility mdiWindowVisibility() const;
-		void setFileName(const QString & file_name);
-		QString fileName() const;
+		CLASS_D_ACCESSOR_DECL(QString, fileName, FileName)
+		BASIC_D_ACCESSOR_DECL(int, version, Version)
+#ifndef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
+		CLASS_D_ACCESSOR_DECL(QString, labPlot, LabPlot)
+#endif
+		CLASS_D_ACCESSOR_DECL(QString, author, Author)  
+		CLASS_D_ACCESSOR_DECL(QDateTime, modificationTime, ModificationTime)
+		FLAG_D_ACCESSOR_DECL(Changed)
 	
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 		static ConfigPageWidget * makeConfigPage();
 		static QString configPageLabel();
+#endif
 		static void staticInit();
 	
 		//! \name serialize/deserialize
@@ -90,11 +123,19 @@ class Project : public Folder
 		virtual bool load(XmlStreamReader *);
 		//@}
 
+	signals:
+		void requestProjectContextMenu(QMenu*);
+		void requestFolderContextMenu(const Folder * folder, QMenu * menu);
+		void mdiWindowVisibilityChanged();
+
 	private:
 		class Private;
 		Private *d;
+		bool readProjectAttributes(XmlStreamReader * reader);
 
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 		friend class ProjectConfigPage;
+#endif
 };
 
 #endif // ifndef PROJECT_H

@@ -46,6 +46,7 @@ class AbstractPart : public AbstractAspect
 	public:
 		//! Constructor.
 		AbstractPart(const QString &name) : AbstractAspect(name), m_mdi_window(0) {}
+		virtual ~AbstractPart() {}
 		//! Construct a primary view on me.
 		/**
 		 * The caller recieves ownership of the view.
@@ -70,11 +71,11 @@ class AbstractPart : public AbstractAspect
 
 	public slots:
 		//! Copy current selection.
-		virtual void copy() {};
+		virtual void editCopy() {};
 		//! Cut current selection.
-		virtual void cut() {};
+		virtual void editCut() {};
 		//! Paste at the current location or into the current selection.
-		virtual void paste() {};
+		virtual void editPaste() {};
 
 	private:
 		//! The MDI sub-window that is wrapped around my primary view.

@@ -34,7 +34,11 @@
 #include "core/AbstractScript.h"
 #include "core/AspectPrivate.h"
 #include "table/TableModel.h"
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 #include "table/TableView.h"
+#else
+#include "Spreadsheet.h"
+#endif
 #include "table/tablecommands.h"
 #include "core/column/Column.h"
 #include "core/AbstractFilter.h"
@@ -105,6 +109,7 @@ QWidget *Table::view()
 #ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 		m_view = new TableView(this);
 #else
+		m_view = new Spreadsheet(this);
 #endif
 	}
 	return m_view;
@@ -1038,56 +1043,88 @@ void Table::Private::updateHorizontalHeader(int start_col, int end_col)
 		int x_cols = 0;
 		for (int i=0; i<m_column_count; i++)
 		{
+			QString middleSection;
+#ifndef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
+			switch(m_columns.at(i)->dataType())
+			{
+				case SciDAVis::TypeDouble:
+					middleSection = " {double} ";
+					break;
+				case SciDAVis::TypeQString:
+					middleSection = " {text} ";
+					break;
+				case SciDAVis::TypeQDateTime:
+					middleSection = " {datetime} ";
+					break;
+			}
+#endif
+	
 			if (m_columns.at(i)->plotDesignation() == SciDAVis::X)
-				composeColumnHeader(i, m_columns.at(i)->name()+"[X" + QString::number(++x_cols) +"]");
+				composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[X" + QString::number(++x_cols) +"]");
 			else if (m_columns.at(i)->plotDesignation() == SciDAVis::Y)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, m_columns.at(i)->name()+"[Y"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[Y"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, m_columns.at(i)->name()+"[Y]");
+					composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[Y]");
 			}
 			else if (m_columns.at(i)->plotDesignation() == SciDAVis::Z)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, m_columns.at(i)->name()+"[Z"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[Z"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, m_columns.at(i)->name()+"[Z]");
+					composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[Z]");
 			}
 			else if (m_columns.at(i)->plotDesignation() == SciDAVis::xErr)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, m_columns.at(i)->name()+"[xEr"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[xEr"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, m_columns.at(i)->name()+"[xEr]");
+					composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[xEr]");
 			}
 			else if (m_columns.at(i)->plotDesignation() == SciDAVis::yErr)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, m_columns.at(i)->name()+"[yEr"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[yEr"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, m_columns.at(i)->name()+"[yEr]");
+					composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[yEr]");
 			}
 			else
-				composeColumnHeader(i, m_columns.at(i)->name());
+				composeColumnHeader(i, m_columns.at(i)->name()+middleSection);
 		}
 	}
 	else
 	{
 		for (int i=0; i<m_column_count; i++)
 		{
+			QString middleSection;
+#ifndef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
+			switch(m_columns.at(i)->dataType())
+			{
+				case SciDAVis::TypeDouble:
+					middleSection = " {double} ";
+					break;
+				case SciDAVis::TypeQString:
+					middleSection = " {text} ";
+					break;
+				case SciDAVis::TypeQDateTime:
+					middleSection = " {datetime} ";
+					break;
+			}
+#endif
+	
 			if (m_columns.at(i)->plotDesignation() == SciDAVis::X)
-				composeColumnHeader(i, m_columns.at(i)->name()+"[X]");
+				composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[X]");
 			else if(m_columns.at(i)->plotDesignation() == SciDAVis::Y)
-				composeColumnHeader(i, m_columns.at(i)->name()+"[Y]");
+				composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[Y]");
 			else if(m_columns.at(i)->plotDesignation() == SciDAVis::Z)
-				composeColumnHeader(i, m_columns.at(i)->name()+"[Z]");
+				composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[Z]");
 			else if(m_columns.at(i)->plotDesignation() == SciDAVis::xErr)
-				composeColumnHeader(i, m_columns.at(i)->name()+"[xEr]");
+				composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[xEr]");
 			else if(m_columns.at(i)->plotDesignation() == SciDAVis::yErr)
-				composeColumnHeader(i, m_columns.at(i)->name()+"[yEr]");
+				composeColumnHeader(i, m_columns.at(i)->name()+middleSection+"[yEr]");
 			else
-				composeColumnHeader(i, m_columns.at(i)->name());
+				composeColumnHeader(i, m_columns.at(i)->name()+middleSection);
 		}
 	}
 	emit m_owner->headerDataChanged(Qt::Horizontal, start_col, end_col);	
@@ -1110,8 +1147,10 @@ QVariant Table::Private::headerData(int section, Qt::Orientation orientation, in
 				case Qt::ToolTipRole:
 				case Qt::EditRole:
 					return m_horizontal_header_data.at(section);
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 				case Qt::DecorationRole:
 					return m_columns.at(section)->icon();
+#endif
 				case TableModel::CommentRole:
 					return m_columns.at(section)->comment();
 			}

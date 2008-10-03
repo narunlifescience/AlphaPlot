@@ -146,7 +146,7 @@ class AbstractAspect : public QObject
 		/**
 		 * The caller takes ownership of the menu.
 		 */
-		virtual QMenu *createContextMenu() const;
+		virtual QMenu *createContextMenu();
 
 		QString name() const;
 		QString comment() const;

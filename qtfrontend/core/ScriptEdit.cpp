@@ -363,7 +363,7 @@ void ScriptEdit::updateIndentation()
 	QTextBlock para = cursor.block();
 	QString prev = para.previous().text();
 	int i;
-	for (i=0; prev[i].isSpace(); i++);
+	for (i=0; prev[i].isSpace(); i++) {}
 	QString indent = prev.mid(0, i);
 	cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
 	cursor.insertText(indent);

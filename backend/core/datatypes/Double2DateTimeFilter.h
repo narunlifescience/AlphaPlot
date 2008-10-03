@@ -63,7 +63,7 @@ class Double2DateTimeFilter : public AbstractSimpleFilter
 
 	protected:
 		//! Using typed ports: only double inputs are accepted.
-		virtual bool inputAcceptable(int, AbstractColumn *source) {
+		virtual bool inputAcceptable(int, const AbstractColumn *source) {
 			return source->dataType() == SciDAVis::TypeDouble;
 		}
 };

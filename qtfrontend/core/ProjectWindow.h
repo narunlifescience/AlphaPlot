@@ -59,10 +59,10 @@ class ProjectWindow : public QMainWindow
 		ProjectWindow(Project* project);
 		~ProjectWindow();
 
-		QMenu *createContextMenu() const;
-		QMenu *createFolderContextMenu(const Folder * folder) const;
-
 	public slots:
+		void createContextMenu(QMenu * menu) const;
+		void createFolderContextMenu(const Folder * folder, QMenu * menu) const;
+
 		//! Add a new Part in the current folder.
 		/**
 		 * The argument object can be either a PartMaker or an AbstractAspect.
@@ -89,7 +89,7 @@ class ProjectWindow : public QMainWindow
 	public slots:
 		void addNewFolder();
 		void newProject();
-		//! Show hide mdi windows depending on the currend folder
+		//! Show/hide mdi windows depending on the currend folder
 		void updateMdiWindowVisibility();
 		void importAspect();
 		void chooseFolder();

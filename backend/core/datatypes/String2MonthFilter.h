@@ -81,7 +81,7 @@ class String2MonthFilter : public AbstractSimpleFilter
 		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQDateTime; }
 
 	protected:
-		virtual bool inputAcceptable(int, AbstractColumn *source) {
+		virtual bool inputAcceptable(int, const AbstractColumn *source) {
 			return source->dataType() == SciDAVis::TypeQString;
 		}
 };

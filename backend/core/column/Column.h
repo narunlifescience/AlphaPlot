@@ -149,7 +149,7 @@ class Column : public AbstractColumn
 		//! Clear the whole column
 		void clear();
 		//! This must be called before the column is replaced by another
-		void notifyReplacement(AbstractColumn* replacement);
+		void notifyReplacement(const AbstractColumn* replacement);
 		//! Return the output filter (for data type -> string  conversion)
 		/**
 		 * This method is mainly used to get a filter that can convert

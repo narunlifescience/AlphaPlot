@@ -137,6 +137,10 @@ void ProjectWindow::init()
 			manager_owner->initActionManager();
 	}
 	connect(&d->http, SIGNAL(done(bool)), this, SLOT(receivedVersionFile(bool)));
+
+	connect(m_project, SIGNAL(requestProjectContextMenu(QMenu*)), this, SLOT(createContextMenu(QMenu*)));
+	connect(m_project, SIGNAL(requestFolderContextMenu(const Folder*,QMenu*)), this, SLOT(createFolderContextMenu(const Folder*,QMenu*)));
+	connect(m_project, SIGNAL(mdiWindowVisibilityChanged()), this, SLOT(updateMdiWindowVisibility()));
 }
 
 ProjectWindow::~ProjectWindow()
@@ -517,19 +521,20 @@ void ProjectWindow::openProject()
 	prj->view(); // ensure the view (ProjectWindow) is created
 	if (prj->load(&reader) == false)
 	{
-			QString msg_text = reader.errorString();
-			QMessageBox::critical(this, tr("Error opening project"), msg_text);
-			statusBar()->showMessage(msg_text);
-			delete prj;
-			return;
+		QString msg_text = reader.errorString();
+		QMessageBox::critical(this, tr("Error opening project"), msg_text);
+		statusBar()->showMessage(msg_text);
+		delete prj;
+		return;
 	}
 	if (reader.hasWarnings())
 	{
-			QString msg_text = tr("The following problems occured when loading the project:\n");
-			QStringList warnings = reader.warningStrings();
-			foreach(QString str, warnings)
-				msg_text += str + "\n";
-			QMessageBox::warning(this, tr("Project loading partly failed"), msg_text);
+		QString msg_text = tr("The following problems occured when loading the project:\n");
+		QStringList warnings = reader.warningStrings();
+		foreach(QString str, warnings)
+			msg_text += str + "\n";
+		QMessageBox::warning(this, tr("Project loading partly failed"), msg_text);
+		statusBar()->showMessage(msg_text);
 	}
 	file.close();
 	prj->undoStack()->clear();
@@ -912,10 +917,8 @@ void ProjectWindow::handleWindowsPolicyMenuAboutToShow()
 		m_actions.visibility_all->setChecked(true);
 }
 
-QMenu *ProjectWindow::createContextMenu() const
+void ProjectWindow::createContextMenu(QMenu * menu) const
 {
-	QMenu * menu = new QMenu(); // no remove action from AbstractAspect in the project context menu
-
 	menu->addMenu(m_menus.new_aspect);
 	menu->addMenu(m_menus.win_policy_menu);
 	menu->addSeparator();
@@ -926,14 +929,11 @@ QMenu *ProjectWindow::createContextMenu() const
 	// Append Project
 	// Save Project As
 	// ----
-	
-	return menu;
 }
 
-QMenu *ProjectWindow::createFolderContextMenu(const Folder * folder) const
+void ProjectWindow::createFolderContextMenu(const Folder * folder, QMenu * menu) const
 {
-	QMenu * menu = folder->AbstractAspect::createContextMenu();
-	Q_ASSERT(menu);
+	Q_UNUSED(folder)
 	menu->addSeparator();
 
 	menu->addMenu(m_menus.new_aspect);
@@ -946,8 +946,6 @@ QMenu *ProjectWindow::createFolderContextMenu(const Folder * folder) const
 		m_actions.visibility_all->setChecked(true);
 	menu->addMenu(m_menus.win_policy_menu);
 	menu->addSeparator();
-
-	return menu;
 }
 
 void ProjectWindow::setMdiWindowVisibility(QAction * action) 

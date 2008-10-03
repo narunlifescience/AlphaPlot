@@ -88,6 +88,7 @@ class FileFormat
 
 Q_DECLARE_INTERFACE(FileFormat, "net.sf.scidavis.fileformat/0.1")
 
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 //! A module (typically a PartMaker) that has an ActionManager
 class ActionManagerOwner
 {
@@ -110,6 +111,7 @@ class ConfigPageMaker {
 };
 
 Q_DECLARE_INTERFACE(ConfigPageMaker, "net.sf.scidavis.configpagemaker/0.1")
+#endif
 
 //! Factory that creates an aspect out of an XML element.
 class XmlElementAspectMaker
@@ -128,6 +130,7 @@ Q_DECLARE_INTERFACE(XmlElementAspectMaker, "net.sf.scidavis.xmlelementaspectmake
 class NeedsStaticInit
 {
 	public:
+		virtual ~NeedsStaticInit() {}
 		virtual void staticInit() = 0;
 };
 

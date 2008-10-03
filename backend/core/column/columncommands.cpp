@@ -189,6 +189,7 @@ void ColumnPartialCopyCmd::redo()
 		m_col_backup = new Column::Private(m_col_backup_owner, m_col->columnMode());
 		m_col_backup->copy(m_col, m_dest_start, 0, m_num_rows);
 		m_old_row_count = m_col->rowCount();
+		m_old_validity = m_col->validityAttribute();
 	}
 	m_col->copy(m_src_backup, 0, m_dest_start, m_num_rows);
 }
@@ -197,6 +198,7 @@ void ColumnPartialCopyCmd::undo()
 {
 	m_col->copy(m_col_backup, 0, m_dest_start, m_num_rows);
 	m_col->resizeTo(m_old_row_count);
+	m_col->replaceData(m_col->dataPointer(), m_old_validity);
 }
 
 ///////////////////////////////////////////////////////////////////////////

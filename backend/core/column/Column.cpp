@@ -149,7 +149,7 @@ void Column::clear()
 	exec(new ColumnClearCmd(m_column_private));
 }
 
-void Column::notifyReplacement(AbstractColumn* replacement)
+void Column::notifyReplacement(const AbstractColumn* replacement)
 {
 	emit aboutToBeReplaced(this, replacement); 
 }

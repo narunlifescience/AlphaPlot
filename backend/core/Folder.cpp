@@ -36,7 +36,12 @@
 #include <QApplication>
 #include <QStyle>
 #include <QXmlStreamWriter>
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 #include <QPluginLoader>
+#else
+#include "table/Table.h"
+#include <klocalizedstring.h>
+#endif
 #include <QtDebug>
 
 Folder::Folder(const QString &name)
@@ -56,7 +61,7 @@ QIcon Folder::icon() const
 	return result;
 }
 
-QMenu *Folder::createContextMenu() const
+QMenu *Folder::createContextMenu()
 {
 	if (project())
 		return project()->createFolderContextMenu(this);
@@ -151,6 +156,7 @@ bool Folder::readChildAspectElement(XmlStreamReader * reader)
 		addChild(column);
 		loaded = true;
 	}
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 	else
 	{
 		foreach(QObject * plugin, QPluginLoader::staticInstances()) 
@@ -178,6 +184,24 @@ bool Folder::readChildAspectElement(XmlStreamReader * reader)
 		reader->raiseWarning(tr("no plugin to load element '%1' found").arg(element_name));
 		if (!reader->skipToEndElement()) return false;
 	}
+#else
+	else if (element_name == "table")
+	{
+		Table * table = new Table(0, 0, 0, tr("Table %1").arg(1));
+		if (!table->load(reader))
+		{
+			delete table;
+			return false;
+		}
+		addChild(table);
+		loaded = true;
+	}
+	if (!loaded)
+	{
+		reader->raiseWarning(i18n("unknown element '%1' found").arg(element_name));
+		if (!reader->skipToEndElement()) return false;
+	}
+#endif
 	if (!reader->skipToNextTag()) return false;
 	Q_ASSERT(reader->isEndElement() && reader->name() == "child_aspect");
 	return !reader->hasError();

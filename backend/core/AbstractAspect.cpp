@@ -30,6 +30,7 @@
 #include "core/AspectPrivate.h"
 #include "core/aspectcommands.h"
 #include "core/Folder.h"
+#include "core/Project.h"
 #include "lib/XmlStreamReader.h"
 
 #include <QIcon>
@@ -206,6 +207,8 @@ void AbstractAspect::exec(QUndoCommand *cmd)
 		cmd->redo();
 		delete cmd;
 	}
+	if (project())
+		project()->setChanged(true);
 }
 
 void AbstractAspect::beginMacro(const QString& text)
@@ -282,7 +285,7 @@ QIcon AbstractAspect::icon() const
 	return QIcon();
 }
 
-QMenu *AbstractAspect::createContextMenu() const
+QMenu *AbstractAspect::createContextMenu()
 {
 	QMenu * menu = new QMenu();
     

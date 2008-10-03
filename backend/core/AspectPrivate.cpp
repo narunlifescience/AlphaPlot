@@ -26,16 +26,21 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "AbstractAspect.h"
-#include "AspectPrivate.h"
+#include "core/AbstractAspect.h"
+#include "core/AspectPrivate.h"
 #include <QRegExp>
 #include <QStringList>
 
 QSettings * AbstractAspect::Private::g_settings =
+#ifdef ACTIVATE_SCIDAVIS_SPECIFIC_CODE
 #ifdef Q_OS_MAC
 	new QSettings(QSettings::IniFormat, QSettings::UserScope, "SciDAVis", "SciDAVis");
 #else
 	new QSettings(QSettings::NativeFormat, QSettings::UserScope, "SciDAVis", "SciDAVis");
+#endif
+#else
+// TODO ! add labplot/KDE specific config saving here
+	new QSettings(QSettings::NativeFormat, QSettings::UserScope, "LabPlot", "LabPlot");
 #endif
 QHash<QString, QVariant> AbstractAspect::Private::g_defaults;
 

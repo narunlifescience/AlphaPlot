@@ -38,6 +38,59 @@
 	type method() const { return var; }; \
 	void set ## Method(const type & value) { var = value; }
 
+#define BASIC_D_ACCESSOR_DECL(type, method, Method) \
+	type method() const; \
+	void set ## Method(const type value);
+
+#define BASIC_D_ACCESSOR_IMPL(classname, type, method, Method, var) \
+	void classname::set ## Method(const type value) \
+	{ \
+		d->var = value; \
+	} \
+	type classname::method() const \
+	{ \
+		return d->var; \
+	}
+
+#define CLASS_D_ACCESSOR_DECL(type, method, Method) \
+	type method() const; \
+	void set ## Method(const type & value);
+
+#define CLASS_D_ACCESSOR_IMPL(classname, type, method, Method, var) \
+	void classname::set ## Method(const type & value) \
+	{ \
+		d->var = value; \
+	} \
+	type classname::method() const \
+	{ \
+		return d->var; \
+	}
+
+#define FLAG_D_ACCESSOR_DECL(Method) \
+	bool is ## Method() const; \
+	bool has ## Method() const; \
+	void set ## Method(const bool value=true); \
+	void enable ## Method(const bool value=true);
+
+#define FLAG_D_ACCESSOR_IMPL(classname, Method, var) \
+	void classname::set ## Method(const bool value) \
+	{ \
+		d->var = value; \
+	} \
+	void classname::enable ## Method(const bool value) \
+	{ \
+		d->var = value; \
+	} \
+	bool classname::is ## Method() const \
+	{ \
+		return d->var; \
+	} \
+	bool classname::has ## Method() const \
+	{ \
+		return d->var; \
+	}
+
+
 #define WAIT_CURSOR QApplication::setOverrideCursor(QCursor(Qt::WaitCursor))
 #define RESET_CURSOR QApplication::restoreOverrideCursor()
 

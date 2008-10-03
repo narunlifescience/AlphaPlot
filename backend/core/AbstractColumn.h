@@ -39,7 +39,6 @@
 #include "core/globals.h"
 #include "core/AbstractAspect.h"
 
-class Column;
 class AbstractSimpleFilter;
 class QStringList;
 
@@ -382,3 +381,4 @@ class AbstractColumn : public AbstractAspect
 };
 
 #endif
+

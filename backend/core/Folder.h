@@ -47,7 +47,7 @@ class Folder : public AbstractAspect
 		/**
 		 * The caller takes ownership of the menu.
 		 */
-		virtual QMenu *createContextMenu() const;
+		virtual QMenu *createContextMenu();
 
 		//! \name serialize/deserialize
 		//@{
