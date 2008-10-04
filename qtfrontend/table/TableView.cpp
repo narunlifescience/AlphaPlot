@@ -45,6 +45,8 @@
 #include "core/datatypes/DateTime2StringFilter.h"
 #include "core/datatypes/String2DateTimeFilter.h"
 
+#include "ui_DimensionsDialog.h"
+
 #include <QKeyEvent>
 #include <QtDebug>
 #include <QHeaderView>
@@ -810,8 +812,6 @@ QMenu * TableView::createColumnMenu(QMenu * append_to)
 
 	menu->addAction(action_edit_description);
 	menu->addAction(action_type_format);
-	menu->addSeparator();
-
 	connect(menu, SIGNAL(aboutToShow()), this, SLOT(adjustActionNames()));
 	menu->addAction(action_toggle_comments);
 	menu->addSeparator();
@@ -1450,6 +1450,8 @@ void TableView::fillProjectMenu(QMenu * menu, bool * rc)
 	menu->addAction(action_toggle_comments);
 	menu->addAction(action_toggle_tabbar);
 	menu->addAction(action_formula_mode);
+	menu->addAction(action_edit_description);
+	menu->addAction(action_type_format);
 	menu->addSeparator();
 	menu->addAction(action_clear_table);
 #ifndef LEGACY_CODE_0_2_x
@@ -1462,9 +1464,6 @@ void TableView::fillProjectMenu(QMenu * menu, bool * rc)
 	menu->addSeparator();
 	menu->addAction(action_add_column);
 	menu->addAction(action_dimensions_dialog);
-	menu->addSeparator();
-	menu->addAction(action_edit_description);
-	menu->addAction(action_type_format);
 	menu->addSeparator();
 	menu->addAction(action_go_to_cell);
 
@@ -1805,7 +1804,7 @@ void TableView::showTableViewColumnContextMenu(const QPoint& pos)
 void TableView::showTableViewRowContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
-	
+
 	createRowMenu(&context_menu);
 
 	context_menu.exec(pos);
@@ -1828,19 +1827,20 @@ void TableView::goToCell()
 
 void TableView::dimensionsDialog()
 {
-	// TODO: Design a nicer dialog for this
-	bool ok;
+	Ui::DimensionsDialog ui;
+	QDialog dialog;
+	ui.setupUi(&dialog);
+	dialog.setWindowTitle(tr("Set Table Dimensions"));
+	ui.columnsSpinBox->setValue(m_table->columnCount());
+	ui.rowsSpinBox->setValue(m_table->rowCount());
+	connect(ui.buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+	connect(ui.buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
 
-	int cols = QInputDialog::getInteger(0, tr("Set Table Dimensions"), tr("Enter number of columns"),
-			m_table->columnCount(), 1, 1e9, 1, &ok);
-	if ( !ok ) return;
-
-	int rows = QInputDialog::getInteger(0, tr("Set Table Dimensions"), tr("Enter number of rows"),
-			m_table->rowCount(), 1, 1e9, 1, &ok);
-	if ( !ok ) return;
-	
-	m_table->setColumnCount(cols);
-	m_table->setRowCount(rows);
+	if (dialog.exec())
+	{
+		m_table->setColumnCount(ui.columnsSpinBox->value());
+		m_table->setRowCount(ui.rowsSpinBox->value());
+	}
 }
 
 void TableView::setPlotMenu(QMenu * menu)

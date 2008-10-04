@@ -13,6 +13,7 @@ debug {
 
 FORMS += controltabs.ui \
 	TableConfigPage.ui \
+	DimensionsDialog.ui \
 
 HEADERS += \
 	TableModule.h \

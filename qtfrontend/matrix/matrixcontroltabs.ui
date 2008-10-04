@@ -53,8 +53,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>256</width>
-        <height>203</height>
+        <width>252</width>
+        <height>198</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -83,11 +83,35 @@
           </item>
           <item row="0" column="1" >
            <widget class="QDoubleSpinBox" name="first_col_spinbox" >
+            <property name="enabled" >
+             <bool>true</bool>
+            </property>
             <property name="minimumSize" >
              <size>
               <width>80</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="decimals" >
+             <number>15</number>
+            </property>
+            <property name="minimum" >
+             <double>-999999999.990000009536743</double>
+            </property>
+            <property name="maximum" >
+             <double>999999999.990000009536743</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.100000000000000</double>
+            </property>
+            <property name="value" >
+             <double>0.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -122,6 +146,24 @@
               <height>0</height>
              </size>
             </property>
+            <property name="maximumSize" >
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="decimals" >
+             <number>15</number>
+            </property>
+            <property name="minimum" >
+             <double>-999999999.990000009536743</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.100000000000000</double>
+            </property>
+            <property name="value" >
+             <double>1.000000000000000</double>
+            </property>
            </widget>
           </item>
           <item row="1" column="2" >
@@ -155,6 +197,24 @@
               <height>0</height>
              </size>
             </property>
+            <property name="maximumSize" >
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="decimals" >
+             <number>15</number>
+            </property>
+            <property name="minimum" >
+             <double>-999999999.990000009536743</double>
+            </property>
+            <property name="maximum" >
+             <double>999999999.990000009536743</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.100000000000000</double>
+            </property>
            </widget>
           </item>
           <item row="2" column="2" >
@@ -187,6 +247,27 @@
               <width>80</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="maximumSize" >
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="decimals" >
+             <number>15</number>
+            </property>
+            <property name="minimum" >
+             <double>-999999999.990000009536743</double>
+            </property>
+            <property name="maximum" >
+             <double>999999999.990000009536743</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.100000000000000</double>
+            </property>
+            <property name="value" >
+             <double>1.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -252,8 +333,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>256</width>
-        <height>203</height>
+        <width>252</width>
+        <height>198</height>
        </rect>
       </property>
       <attribute name="title" >
@@ -412,8 +493,8 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>256</width>
-        <height>203</height>
+        <width>252</width>
+        <height>198</height>
        </rect>
       </property>
       <attribute name="title" >
