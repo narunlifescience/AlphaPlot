@@ -12,7 +12,7 @@ class Notes : public AbstractPart
 	public:
 		Notes(const QString &name);
 		~Notes();
-		QWidget *view();
+		QWidget *view() const;
 		QIcon icon() const;
 
 		//! \name serialize/deserialize

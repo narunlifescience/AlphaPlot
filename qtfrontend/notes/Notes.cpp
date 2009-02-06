@@ -27,7 +27,7 @@ Notes::~Notes()
 	delete d;
 }
 
-QWidget *Notes::view()
+QWidget *Notes::view() const
 {
 	QTextEdit *editor = new QTextEdit();
 	editor->setDocument(&d->model);

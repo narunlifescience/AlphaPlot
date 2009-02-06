@@ -133,7 +133,7 @@ Graph3D::Graph3D()
 	createActions();
 }
 
-QWidget * Graph3D::view()
+QWidget * Graph3D::view() const
 { 
 	return m_view; 
 }
@@ -393,9 +393,9 @@ void Graph3D::addData(Table* table, int xcol, int ycol)
 
 void Graph3D::addData(Table* table,const QString& colName)
 {
-	Column *y_col = table->column(colName);
+	Column *y_col = table->child<Column>(colName);
 	if (y_col == NULL) return;
-	int y_index = table->columnIndex(y_col);
+	int y_index = table->indexOfChild<Column>(y_col);
 	int x_index = table->colX(y_index);
 	if (x_index == -1) return;
 	clearPlotAssociation();
@@ -408,11 +408,11 @@ void Graph3D::addData(Table* table,const QString& colName)
 
 void Graph3D::addData(Table* table,const QString& xColName,const QString& yColName)
 {
-	Column *x_col = table->column(xColName);
-	Column *y_col = table->column(yColName);
+	Column *x_col = table->child<Column>(xColName);
+	Column *y_col = table->child<Column>(yColName);
 	if (y_col == NULL || x_col == NULL) return;
-	int y_index = table->columnIndex(y_col);
-	int x_index = table->columnIndex(x_col);
+	int y_index = table->indexOfChild<Column>(y_col);
+	int x_index = table->indexOfChild<Column>(x_col);
 	
 	clearPlotAssociation();
 	plotAssociation.table = table;
@@ -482,12 +482,12 @@ void Graph3D::addData(Table* table,const QString& xColName,const QString& yColNa
 {
 	m_table=table;
 
-	Column *x_col = table->column(xColName);
-	Column *y_col = table->column(yColName);
+	Column *x_col = table->child<Column>(xColName);
+	Column *y_col = table->child<Column>(yColName);
 	if (y_col == NULL || x_col == NULL) return;
 	int r = qMin(x_col->rowCount(), y_col->rowCount());
-	int xcol = table->columnIndex(y_col);
-	int ycol = table->columnIndex(x_col);
+	int xcol = table->indexOfChild<Column>(y_col);
+	int ycol = table->indexOfChild<Column>(x_col);
 
 	clearPlotAssociation();
 	plotAssociation.table = table;
@@ -565,8 +565,8 @@ void Graph3D::addData(Table* table,const QString& xColName,const QString& yColNa
 
 void Graph3D::insertNewData(Table* table, const QString& colName)
 {
-	Column * z_col = table->column(colName);
-	int zCol = table->columnIndex(z_col);
+	Column * z_col = table->child<Column>(colName);
+	int zCol = table->indexOfChild<Column>(z_col);
 	int yCol = table->colY(zCol);
 	int xCol = table->colX(zCol);
 
@@ -576,7 +576,7 @@ void Graph3D::insertNewData(Table* table, const QString& colName)
 
 void Graph3D::changeDataColumn(Table* table, const QString& colName)
 {
-	int zCol=table->columnIndex(table->column(colName));
+	int zCol=table->indexOfChild<Column>(table->child<Column>(colName));
 	int yCol=table->colY(zCol);
 	int xCol=table->colX(zCol);
 
@@ -3490,8 +3490,8 @@ Matrix * Graph3D::selectMatrix()
 {
 	Project * prj = project();
 	if (!prj) return 0;
-	
-	QList<AbstractAspect *> list = prj->descendantsThatInherit("Matrix");
+
+	QList<Matrix*> list = prj->children<Matrix>(Recursive);
 	if (list.isEmpty()) return 0;
 	
 	// TODO: make a nicer dialog
@@ -3517,7 +3517,7 @@ Matrix * Graph3D::selectMatrix()
 		return 0;
 	int index = selection.currentIndex();
 	if (index >= 0 && index < list.size())
-		return static_cast<Matrix *>(list.at(index));
+		return list.at(index);
 	else
 		return 0;
 }

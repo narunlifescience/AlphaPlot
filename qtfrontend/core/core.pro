@@ -78,6 +78,9 @@ HEADERS += \
 	AbstractExportFilter.h \
 	ImportDialog.h \
 	ProjectConfigPage.h \
+	AbstractFit.h \
+	AbstractLinearFit.h \
+	AbstractNonlinearFit.h \
 	# TODO: port or delete the following files
 	#ApplicationWindow.h \
 	#PreferencesDialog.h \
@@ -123,6 +126,9 @@ SOURCES += \
 	Double2StringFilter.cpp \
 	ImportDialog.cpp \
 	ProjectConfigPage.cpp \
+	AbstractFit.cpp \
+	AbstractLinearFit.cpp \
+	AbstractNonlinearFit.cpp \
 	# TODO: port or delete the following files
 	#ApplicationWindow.cpp \
 	#PreferencesDialog.cpp \

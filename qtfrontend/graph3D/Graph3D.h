@@ -83,7 +83,7 @@ class Graph3D: public AbstractPart
 		 * This method may be called multiple times during the life time of a Part, or it might not get
 		 * called at all. Parts must not depend on the existence of a view for their operation.
 		 */
-		virtual QWidget * view();
+		virtual QWidget * view() const;
 		//! Return a new context menu.
 		/**
 		 * The caller takes ownership of the menu.
@@ -420,6 +420,7 @@ class Graph3D: public AbstractPart
 		QTimer *m_timer;
 		QString title;
 		
+		// FIXME: is it really a good idea to use indices instead of AbstractColumn*?
 		struct {
 			Table * table;
 			int x_index;
@@ -456,7 +457,7 @@ class Graph3D: public AbstractPart
 		Table *m_table;
 		Matrix *m_matrix;
 		Qwt3D::PLOTSTYLE style_;
-		QWidget *m_view;
+		mutable QWidget *m_view;
 		QWidget *m_view_widget;
 		QVBoxLayout * m_main_layout;
 

@@ -72,16 +72,19 @@ class AspectTreeModel : public QAbstractItemModel
 		//! Convenience wrapper around QAbstractItemModel::createIndex().
 		QModelIndex modelIndexOfAspect(const AbstractAspect *aspect, int column=0) const 
 		{
-			return createIndex(aspect->index(), column, const_cast<AbstractAspect*>(aspect));
+			AbstractAspect * parent = aspect->parentAspect();
+			return createIndex(parent ? parent->indexOfChild<AbstractAspect>(aspect) : 0,
+							   column, const_cast<AbstractAspect*>(aspect));
 		}
 
-	public slots:
+	private slots:
 		void aspectDescriptionChanged(const AbstractAspect *aspect);
-		void aspectAboutToBeAdded(const AbstractAspect *parent, int index);
-		void aspectAdded(const AbstractAspect *parent, int index);
-		void aspectAboutToBeRemoved(const AbstractAspect *parent, int index);
-		void aspectRemoved(const AbstractAspect *parent, int index);
-
+		void aspectAboutToBeAdded(const AbstractAspect *parent, const AbstractAspect *before, const AbstractAspect *child);
+		void aspectAdded(const AbstractAspect *parent);
+		void aspectAboutToBeRemoved(const AbstractAspect *aspect);
+		void aspectRemoved();
+		void aspectHiddenAboutToChange(const AbstractAspect * aspect);
+		void aspectHiddenChanged(const AbstractAspect *aspect);
 
 	private:
 		AbstractAspect* m_root;

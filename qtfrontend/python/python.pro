@@ -17,6 +17,8 @@ HEADERS += PythonScript.h PythonScriptingEngine.h
 SOURCES += PythonScript.cpp PythonScriptingEngine.cpp
 
 # TODO: port SIP stuff
+sip.target = $${SIP_DIR}/sipscidaviscmodule.cpp
+sip.depends = scidavis.sip
 
 unix {
 INCLUDEPATH += $$system(python python-includepath.py)
@@ -24,6 +26,7 @@ LIBS        += $$system(python -c "\"from distutils import sysconfig; print '-lp
 LIBS        += -lm
 #system(mkdir -p $${SIP_DIR})
 #system($$system(python python-sipcmd.py) -c $${SIP_DIR} scidavis.sip)
+sip.commands = $system(python python-sipcmd.py) -c ${SIP_DIR} scidavis.sip
 }
 
 win32 {
@@ -32,6 +35,7 @@ LIBS        += $$system(call python-libs-win.py)
 # TODO: fix the command below (only really necessary if SIP_DIR != MOC/OBJECTS_DIR)
 #system(md $${SIP_DIR})
 #system($$system(call python-sipcmd.py) -c $${SIP_DIR} scidavis.sip)
+sip.commands = $system(call python-sipcmd.py) -c ${SIP_DIR} scidavis.sip
 }
 
 ##################### SIP generated files #####################

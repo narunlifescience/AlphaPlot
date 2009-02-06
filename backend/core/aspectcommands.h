@@ -117,6 +117,25 @@ class AspectCreationTimeChangeCmd : public QUndoCommand
 		QDateTime m_other_creation_time;
 };
 
+class AspectHiddenChangeCmd : public QUndoCommand
+{
+    public:
+	AspectHiddenChangeCmd(AbstractAspect::Private *target, bool new_status)
+		: m_target(target), m_other_status(new_status) {
+	    setText(QObject::tr("%1: change hidden status").arg(m_target->name()));
+	}
+	virtual void redo() {
+	    bool tmp = m_target->hidden();
+	    m_target->setHidden(m_other_status);
+	    m_other_status = tmp;
+	}
+	virtual void undo() { redo(); }
+
+    private:
+	AbstractAspect::Private * m_target;
+	bool m_other_status;
+};
+
 
 class AspectChildRemoveCmd : public QUndoCommand
 {
@@ -162,33 +181,6 @@ class AspectChildAddCmd : public AspectChildRemoveCmd
 		virtual void redo() { AspectChildRemoveCmd::undo(); }
 
 		virtual void undo() { AspectChildRemoveCmd::redo(); }
-};
-
-class AspectChildMoveCmd : public QUndoCommand
-{
-	public:
-		AspectChildMoveCmd(AbstractAspect::Private * target, int from, int to)
-			: m_target(target), m_from(from), m_to(to) {
-				setText(QObject::tr("%1: move child from position %2 to %3.").arg(m_target->name()).arg(m_from+1).arg(m_to+1));
-			}
-
-		virtual void redo() {
-			// Moving in one go confuses QTreeView, so we would need another two signals
-			// to be mapped to QAbstractItemModel::layoutAboutToBeChanged() and ::layoutChanged().
-			AbstractAspect * child = m_target->child(m_from);
-			m_target->removeChild(child);
-			m_target->insertChild(m_to, child);
-		}
-
-		virtual void undo() {
-			AbstractAspect * child = m_target->child(m_to);
-			m_target->removeChild(child);
-			m_target->insertChild(m_from, child);
-		}
-
-	private:
-		AbstractAspect::Private *m_target;
-		int m_from, m_to;
 };
 
 class AspectChildReparentCmd : public QUndoCommand
