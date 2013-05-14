@@ -1,0 +1,37 @@
+Here's how to build the Windows installer for SciDAVis:
+
+1) Build everything as described in INSTALL.html
+
+2) Execute "make install" in the top-level directory
+
+3) Download and install Nsis from  http://nsis.sourceforge.net/Download
+
+4) Copy the following files into the "output" folder (where make install should
+   have placed some other files during step 2):
+
+	- from this directory -
+   CHANGES.txt (rename CHANGES and convert to DOS format)
+   README.txt (rename README and convert to DOS format)
+
+	- from <Python directory>\Lib\site-packages
+	sip.pyd
+   PyQt4\__init__.py
+   PyQt4\__init__.pyc
+   PyQt4\Qt.pyd
+   PyQt4\QtAssistant.pyd
+   PyQt4\QtCore.pyd
+   PyQt4\QtDesigner.pyd
+   PyQt4\QtGui.pyd
+   PyQt4\QtHelp.pyd
+   PyQt4\QtNetwork.pyd
+   PyQt4\QtOpenGL.pyd
+   PyQt4\QtScript.pyd
+   PyQt4\QtSql.pyd
+   PyQt4\QtSvg.pyd
+   PyQt4\QtTest.pyd
+   PyQt4\QtWebKit.pyd
+   PyQt4\QtXml.pyd
+   PyQt4\QtXmlPatterns.pyd
+
+4) Right click on scidavisScriptInstall.nsi and select compile.
+

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=MimeType
+MimeType=application/x-sciprj
+Icon=scidavis
+Patterns=*.sciprj;*.sciprj.gz;
+Comment=SciDAVis project
+Comment[de]=SciDAVis-Projekt
+Comment[fr]=Projet Scidavis
+Comment[pt_BR]=Projeto do SciDAVis
+

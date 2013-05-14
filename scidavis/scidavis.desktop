@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=SciDAVis
+Comment=Application for scientific data analysis and visualization
+Comment[de]=Programm zur wissenschaftlichen Datenauswertung und Visualisierung
+Comment[fr]=Outil d'analyse scientifique de données
+Comment[pt_BR]=Programa para visualização e análise da dados científico
+Icon=scidavis
+Exec=scidavis
+Terminal=false
+MimeType=application/x-sciprj;
+Categories=Qt;Science;Physics;Math;Graphics;
+X-KDE-SubstituteUID=false
+X-KDE-Username=
