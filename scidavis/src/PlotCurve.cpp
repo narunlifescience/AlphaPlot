@@ -92,11 +92,11 @@ void DataCurve::updateColumnNames(const QString& oldName, const QString& newName
     {
         QString s = title().text();
         QStringList lst = s.split("_", QString::SkipEmptyParts);
-        if (lst[0] == oldName)
-            setTitle(newName + "_" + lst[1]);
+        if (lst.size()>1 &&lst[0] == oldName)
+          setTitle(newName + "_" + lst[1]);
 
         lst = d_x_column.split("_", QString::SkipEmptyParts);
-        if (lst[0] == oldName)
+        if (lst.size()>1 && lst[0] == oldName)
             d_x_column = newName + "_" + lst[1];
     }
     else

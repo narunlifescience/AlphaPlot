@@ -20,6 +20,9 @@
 ### versions on startup).
 ### 
 
+### do qmake DEBUG=1 to build a debug version
+
+
 ################################################################################
 ### Choose between common configurations                                       #
 ###                                                                            #
