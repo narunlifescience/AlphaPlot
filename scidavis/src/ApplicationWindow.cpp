@@ -142,7 +142,7 @@
 #include <QVarLengthArray>
 #include <QList>
 #include <QUrl>
-#include <QAssistantClient>
+#include <QtAssistant/QAssistantClient>
 #include <QStatusBar>
 #include <QToolButton>
 #include <QSignalMapper>
@@ -4970,7 +4970,18 @@ bool ApplicationWindow::saveProject()
 		return false;
 	}
 
-	saveFolder(projectFolder(), projectname);
+	bool compress = false;
+	QString fn = projectname;
+	if (fn.endsWith(".gz"))
+	{
+		fn = fn.left(fn.length() -3);
+		compress = true;
+	}
+
+	saveFolder(projectFolder(), fn);
+
+	if (compress)
+		file_compress((char *)fn.toAscii().constData(), "wb9");
 
 	setWindowTitle("SciDAVis - " + projectname);
 	savedProject();
@@ -5009,8 +5020,7 @@ void ApplicationWindow::saveProjectAs()
 				fn.append(".gz");
 		}
 		projectname = fn;
-		if (projectname.endsWith(".gz"))
-			projectname = projectname.left(projectname.length() -3);
+
 		if (saveProject())
 		{
 			recentProjects.remove(fn);
@@ -5022,11 +5032,6 @@ void ApplicationWindow::saveProjectAs()
 			FolderListItem *item = (FolderListItem *)folders->firstChild();
 			item->setText(0, baseName);
 			item->folder()->setName(baseName);
-			if (fn.endsWith(".gz"))
-			{
-				fn = fn.left(fn.size() - 3);
-				file_compress((char *)fn.toAscii().constData(), "wb9");
-			}
 		}
 	}
 }

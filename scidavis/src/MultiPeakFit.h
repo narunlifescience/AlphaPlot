@@ -58,8 +58,9 @@ class MultiPeakFit : public Fit
 		void storeCustomFitResults(double *par);
 
 		//! Used by the GaussFit and LorentzFit derived classes to calculate initial values for the parameters 
+protected:
 		void guessInitialValues();
-
+private:
 		//! Number of peaks
 		int d_peaks;
 
