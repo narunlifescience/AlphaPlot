@@ -301,7 +301,7 @@ void DataPickerTool::removePoint()
 	if ( !d_selected_curve )
 		return;
 	if (((PlotCurve *)d_selected_curve)->type() == Graph::Function){
-		QMessageBox::critical(d_graph, tr("Remove point error"),
+          QMessageBox::critical(const_cast<Graph*>(d_graph), tr("Remove point error"),
 				tr("Sorry, but removing points of a function is not possible."));
 		return;
 	}
@@ -317,7 +317,7 @@ void DataPickerTool::removePoint()
 		t->column(col)->setInvalid(((DataCurve *)d_selected_curve)->tableRow(d_selected_point), true);
 	}
 	else {
-		QMessageBox::warning(d_graph, tr("Warning"),
+          QMessageBox::warning(const_cast<Graph*>(d_graph), tr("Warning"),
 					tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 	}
 

@@ -453,7 +453,7 @@ bool Table::recalculate(int col, bool only_selected_rows)
 		switch (col_ptr->columnMode()) {
 			case SciDAVis::Numeric:
 				{
-					QVector<double> results(end_row-start_row+1);
+					QVector<qreal> results(end_row-start_row+1);
 					for (int i=start_row; i<=end_row; i++) {
 						colscript->setInt(i+1,"i");
 						ret = colscript->eval();

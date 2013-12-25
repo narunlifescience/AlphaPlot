@@ -145,7 +145,7 @@ class Graph: public QWidget
 
 	public slots:
 		//! Accessor method for #d_plot.
-		Plot* plotWidget(){return d_plot;};
+		Plot* plotWidget() const {return d_plot;};
 		void copy(ApplicationWindow *parent, Graph* g);
 
 		//! \name Pie Curves
@@ -184,7 +184,7 @@ class Graph: public QWidget
 		void updateCurvesData(Table* w, const QString& yColName);
 
 		int curves() const {return n_curves;};
-		bool validCurvesDataSize();
+		bool validCurvesDataSize() const;
 		double selectedXStartValue();
 		double selectedXEndValue();
 

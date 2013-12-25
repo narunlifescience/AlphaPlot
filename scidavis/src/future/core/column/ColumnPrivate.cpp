@@ -225,7 +225,7 @@ void Column::Private::setColumnMode(SciDAVis::ColumnMode mode, AbstractFilter *f
 					if (!filter) {
 						filter = outputFilter(); filter_is_temporary = false;
 					}
-					temp_col = new Column("temp_col", *(static_cast< QVector<double>* >(old_data)), d_validity);
+					temp_col = new Column("temp_col", *(static_cast< QVector<qreal>* >(old_data)), d_validity);
 					d_data = new QStringList();
 					d_data_type = SciDAVis::TypeQString;
 					break;
@@ -233,7 +233,7 @@ void Column::Private::setColumnMode(SciDAVis::ColumnMode mode, AbstractFilter *f
 					if (!filter) {
 						filter = new Double2DateTimeFilter(); filter_is_temporary = true;
 					}
-					temp_col = new Column("temp_col", *(static_cast< QVector<double>* >(old_data)), d_validity);
+					temp_col = new Column("temp_col", *(static_cast< QVector<qreal>* >(old_data)), d_validity);
 					d_data = new QList<QDateTime>();
 					d_data_type = SciDAVis::TypeQDateTime;
 					break;
@@ -241,7 +241,7 @@ void Column::Private::setColumnMode(SciDAVis::ColumnMode mode, AbstractFilter *f
 					if (!filter) {
 						filter = new Double2MonthFilter(); filter_is_temporary = true;
 					}
-					temp_col = new Column("temp_col", *(static_cast< QVector<double>* >(old_data)), d_validity);
+					temp_col = new Column("temp_col", *(static_cast< QVector<qreal>* >(old_data)), d_validity);
 					d_data = new QList<QDateTime>();
 					d_data_type = SciDAVis::TypeQDateTime;
 					break;
@@ -249,7 +249,7 @@ void Column::Private::setColumnMode(SciDAVis::ColumnMode mode, AbstractFilter *f
 					if (!filter) {
 						filter = new Double2DayOfWeekFilter(); filter_is_temporary = true;
 					}
-					temp_col = new Column("temp_col", *(static_cast< QVector<double>* >(old_data)), d_validity);
+					temp_col = new Column("temp_col", *(static_cast< QVector<qreal>* >(old_data)), d_validity);
 					d_data = new QList<QDateTime>();
 					d_data_type = SciDAVis::TypeQDateTime;
 					break;
@@ -931,7 +931,7 @@ void Column::Private::setValueAt(int row, double new_value)
 	emit d_owner->dataChanged(d_owner);
 }
 
-void Column::Private::replaceValues(int first, const QVector<double>& new_values)
+void Column::Private::replaceValues(int first, const QVector<qreal>& new_values)
 {
 	if (d_data_type != SciDAVis::TypeDouble) return;
 	

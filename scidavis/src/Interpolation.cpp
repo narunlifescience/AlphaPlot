@@ -103,7 +103,7 @@ d_min_points = min_points;
 void Interpolation::calculateOutputData(double *x, double *y)
 {
 	gsl_interp_accel *acc = gsl_interp_accel_alloc ();
-	const gsl_interp_type *method;
+	const gsl_interp_type *method=NULL;
 	switch(d_method)
 	{
 		case 0:

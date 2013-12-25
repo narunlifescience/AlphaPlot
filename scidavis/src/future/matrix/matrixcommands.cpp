@@ -359,7 +359,7 @@ void MatrixSetFormulaCmd::undo()
 // class MatrixSetColumnCellsCmd
 ///////////////////////////////////////////////////////////////////////////
 MatrixSetColumnCellsCmd::MatrixSetColumnCellsCmd( future::Matrix::Private * private_obj, int col, int first_row, 
-		int last_row, const QVector<double> & values, QUndoCommand * parent)
+		int last_row, const QVector<qreal> & values, QUndoCommand * parent)
  : QUndoCommand( parent ), d_private_obj(private_obj), d_col(col), d_first_row(first_row), 
  		d_last_row(last_row), d_values(values)
 {
@@ -389,7 +389,7 @@ void MatrixSetColumnCellsCmd::undo()
 // class MatrixSetRowCellsCmd
 ///////////////////////////////////////////////////////////////////////////
 MatrixSetRowCellsCmd::MatrixSetRowCellsCmd( future::Matrix::Private * private_obj, int row, int first_column, 
-		int last_column, const QVector<double> & values, QUndoCommand * parent)
+		int last_column, const QVector<qreal> & values, QUndoCommand * parent)
  : QUndoCommand( parent ), d_private_obj(private_obj), d_row(row), d_first_column(first_column), 
  		d_last_column(last_column), d_values(values)
 {
@@ -440,8 +440,8 @@ void MatrixTransposeCmd::redo()
 		d_private_obj->insertRows(rows, temp_size - rows);
 	for(int i = 1; i<temp_size; i++)
 	{
-		QVector<double> row = d_private_obj->rowCells(i, 0, i-1);
-		QVector<double> col = d_private_obj->columnCells(i, 0, i-1);
+		QVector<qreal> row = d_private_obj->rowCells(i, 0, i-1);
+		QVector<qreal> col = d_private_obj->columnCells(i, 0, i-1);
 		d_private_obj->setRowCells(i, 0, i-1, col);
 		d_private_obj->setColumnCells(i, 0, i-1, row);
 	}
@@ -482,7 +482,7 @@ void MatrixMirrorHorizontallyCmd::redo()
 	d_private_obj->blockChangeSignals(true);
 	for(int i = 0; i<middle; i++)
 	{
-		QVector<double> temp = d_private_obj->columnCells(i, 0, rows-1);
+		QVector<qreal> temp = d_private_obj->columnCells(i, 0, rows-1);
 		d_private_obj->setColumnCells(i, 0, rows-1, d_private_obj->columnCells(cols-i-1, 0, rows-1));
 		d_private_obj->setColumnCells(cols-i-1, 0, rows-1, temp);
 	}
@@ -519,7 +519,7 @@ void MatrixMirrorVerticallyCmd::redo()
 	d_private_obj->blockChangeSignals(true);
 	for(int i = 0; i<middle; i++)
 	{
-		QVector<double> temp = d_private_obj->rowCells(i, 0, cols-1);
+		QVector<qreal> temp = d_private_obj->rowCells(i, 0, cols-1);
 		d_private_obj->setRowCells(i, 0, cols-1, d_private_obj->rowCells(rows-i-1, 0, cols-1));
 		d_private_obj->setRowCells(rows-i-1, 0, cols-1, temp);
 	}

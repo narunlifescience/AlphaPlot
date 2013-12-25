@@ -153,7 +153,7 @@ QList<Column *> FFT::fftCurve()
 			aMax = a;
 	}
 
-	ApplicationWindow *app = (ApplicationWindow *)parent();
+        //	ApplicationWindow *app = (ApplicationWindow *)parent();
 
 	columns << new Column(tr("Real"), SciDAVis::Numeric);
 	columns << new Column(tr("Imaginary"), SciDAVis::Numeric);

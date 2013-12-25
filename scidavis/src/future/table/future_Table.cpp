@@ -568,7 +568,7 @@ void Table::fillSelectedCellsWithRowNumbers()
 		switch (col_ptr->columnMode()) {
 			case SciDAVis::Numeric:
 				{
-					QVector<double> results(last-first+1);
+					QVector<qreal> results(last-first+1);
 					for (int row=first; row<=last; row++)
 						if(d_view->isCellSelected(row, col)) 
 							results[row-first] = row+1;
@@ -610,7 +610,7 @@ void Table::fillSelectedCellsWithRandomNumbers()
 		switch (col_ptr->columnMode()) {
 			case SciDAVis::Numeric:
 				{
-					QVector<double> results(last-first+1);
+					QVector<qreal> results(last-first+1);
 					for (int row=first; row<=last; row++)
 						if (d_view->isCellSelected(row, col))
 							results[row-first] = double(qrand())/double(RAND_MAX);
@@ -793,7 +793,7 @@ void Table::normalizeColumns(QList< Column* > cols)
 				if (col->valueAt(row) > max)
 					max = col->valueAt(row);
 			}
-			QVector<double> results(col->rowCount());
+			QVector<qreal> results(col->rowCount());
 			if (max != 0.0) // avoid division by zero
 				for (int row=0; row<col->rowCount(); row++)
 					results[row] = col->valueAt(row) / max;
@@ -829,7 +829,7 @@ void Table::normalizeSelection()
 		foreach(Column *col_ptr, d_view->selectedColumns()) {
 			int col = columnIndex(col_ptr);
 			if (col_ptr->dataType() == SciDAVis::TypeDouble) {
-				QVector<double> results(rowCount());
+				QVector<qreal> results(rowCount());
 				for (int row=0; row<col_ptr->rowCount(); row++)
 					if (d_view->isCellSelected(row, col))
 						results[row] = col_ptr->valueAt(row) / max;

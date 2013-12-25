@@ -289,7 +289,7 @@ class Column::Private
 		/**
 		 * Use this only when dataType() is double
 		 */
-		void replaceValues(int first, const QVector<double>& new_values);
+		void replaceValues(int first, const QVector<qreal>& new_values);
 		//@}
 
 	private:

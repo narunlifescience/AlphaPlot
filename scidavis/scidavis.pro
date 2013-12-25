@@ -20,9 +20,6 @@
 ### versions on startup).
 ### 
 
-### do qmake DEBUG=1 to build a debug version
-
-
 ################################################################################
 ### Choose between common configurations                                       #
 ###                                                                            #
@@ -37,12 +34,12 @@ unix:isEmpty(PRESET) { # allow command-line argument to override settings here
 	### (in order to make sure they're compiled against Qt4, not Qt3).
 	### Intended for Linux users building from source (on possibly somewhat
 	### older systems).
-	PRESET = default_installation
+	#PRESET = default_installation
 
 	### Link dynamically against system-wide installed libraries. Intended mainly
 	### for building Linux packages for distributions with Qwt and QwtPlot3D
 	### packages compiled against Qt4 (probably most current ones).
-	#PRESET = linux_package
+	PRESET = linux_package
 
 	### Link statically as much as possible. Qwt, QwtPlot3D and MuParser are
 	### expected to be supplied in the 3rdparty folder. Python, SIP, PyQt and Qt
@@ -237,18 +234,14 @@ contains(PRESET, linux_package) {
 	} else {
 		INCLUDEPATH  += /usr/include/qwt
 	}
-	LIBS         += -lqwt
+	LIBS         += -lqwt -lz -lGLU -lQtAssistantClient
 
 	INCLUDEPATH  += /usr/include/qwtplot3d
 	LIBS         += -lqwtplot3d
 
-        # to cope with latest Qt
-        INCLUDEPATH  += /usr/include/QtAssistant 
-        LIBS         += -lQtAssistantClient
-
 	INCLUDEPATH  += /usr/include/muParser
-	LIBS         += -lGLU -lgsl -lgslcblas
-	LIBS         += -lmuparser -lz
+	LIBS         += -lgsl -lgslcblas
+	LIBS         += -lmuparser 
 
 	contains(DEFINES, ORIGIN_IMPORT) {
 		LIBS += -lorigin

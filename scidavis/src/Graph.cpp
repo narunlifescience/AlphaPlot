@@ -85,6 +85,8 @@
 #include <qwt_text_label.h>
 #include <qwt_color_map.h>
 
+#include <stdexcept>
+
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -2338,6 +2340,8 @@ QString Graph::savePieCurveLayout()
 		index=12;
 	else if (pattern == Qt::Dense7Pattern)
 		index=13;
+        else
+          throw std::runtime_error("pattern out of range");
 
 	s+=QString::number(index)+"\t";
 	s+=QString::number(pieCurve->ray())+"\t";
@@ -4995,11 +4999,11 @@ void Graph::guessUniqueCurveLayout(int& colorIndex, int& symbolIndex)
 		}
 	}
 	if (n_curves > 1)
-		colorIndex = (++colorIndex)%16;
+		colorIndex = (colorIndex+1)%16;
 	if (colorIndex == 13) //avoid white invisible curves
 		colorIndex = 0;
 
-	symbolIndex = (++symbolIndex)%15;
+	symbolIndex = (symbolIndex+1)%15;
 	if (!symbolIndex)
 		symbolIndex = 1;
 }
@@ -5163,11 +5167,11 @@ void Graph::restoreSpectrogram(ApplicationWindow *app, const QStringList& lst)
     }
 }
 
-bool Graph::validCurvesDataSize()
+bool Graph::validCurvesDataSize() const
 {
 	if (!n_curves)
 	{
-		QMessageBox::warning(this, tr("Warning"), tr("There are no curves available on this plot!"));
+          QMessageBox::warning(const_cast<Graph*>(this), tr("Warning"), tr("There are no curves available on this plot!"));
 		return false;
 	}
 	else
@@ -5182,7 +5186,7 @@ bool Graph::validCurvesDataSize()
                     return true;
   	         }
   	    }
-		QMessageBox::warning(this, tr("Error"),
+		QMessageBox::warning(const_cast<Graph*>(this), tr("Error"),
 		tr("There are no curves with more than two points on this plot. Operation aborted!"));
 		return false;
 	}

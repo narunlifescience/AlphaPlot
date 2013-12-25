@@ -106,7 +106,7 @@ private:
 	//! The number of columns to remove
 	int d_count;
 	//! Backups of the removed columns
-	QVector< QVector<double> > d_backups;
+	QVector< QVector<qreal> > d_backups;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@ private:
 	//! The number of rows to remove
 	int d_count;
 	//! Backups of the removed rows
-	QVector< QVector<double> > d_backups;
+	QVector< QVector<qreal> > d_backups;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -158,7 +158,7 @@ private:
 	//! The private object to modify
 	future::Matrix::Private * d_private_obj;
 	//! Backups of the cleared cells
-	QVector< QVector<double> > d_backups;
+	QVector< QVector<qreal> > d_backups;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -184,7 +184,7 @@ private:
 	//! The index of the column
 	int d_col;
 	//! Backup of the cleared column
-	QVector<double> d_backup;
+	QVector<qreal> d_backup;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -321,7 +321,7 @@ class MatrixSetFormulaCmd : public QUndoCommand
 class MatrixSetColumnCellsCmd : public QUndoCommand
 {
 public:
-	MatrixSetColumnCellsCmd( future::Matrix::Private * private_obj, int col, int first_row, int last_row, const QVector<double> & values, QUndoCommand * parent = 0 );
+	MatrixSetColumnCellsCmd( future::Matrix::Private * private_obj, int col, int first_row, int last_row, const QVector<qreal> & values, QUndoCommand * parent = 0 );
 	~MatrixSetColumnCellsCmd();
 
 	virtual void redo();
@@ -337,9 +337,9 @@ private:
 	//! The index of the last row
 	int d_last_row;
 	//! New cell values
-	QVector<double> d_values;
+	QVector<qreal> d_values;
 	//! Backup of the changed values
-	QVector<double> d_old_values;
+	QVector<qreal> d_old_values;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -353,7 +353,7 @@ private:
 class MatrixSetRowCellsCmd : public QUndoCommand
 {
 public:
-	MatrixSetRowCellsCmd( future::Matrix::Private * private_obj, int row, int first_column, int last_column, const QVector<double> & values, QUndoCommand * parent = 0 );
+	MatrixSetRowCellsCmd( future::Matrix::Private * private_obj, int row, int first_column, int last_column, const QVector<qreal> & values, QUndoCommand * parent = 0 );
 	~MatrixSetRowCellsCmd();
 
 	virtual void redo();
@@ -369,9 +369,9 @@ private:
 	//! The index of the last column
 	int d_last_column;
 	//! New cell values
-	QVector<double> d_values;
+	QVector<qreal> d_values;
 	//! Backup of the changed values
-	QVector<double> d_old_values;
+	QVector<qreal> d_old_values;
 };
 
 ///////////////////////////////////////////////////////////////////////////

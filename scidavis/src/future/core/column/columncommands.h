@@ -677,7 +677,7 @@ class ColumnReplaceValuesCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnReplaceValuesCmd(Column::Private * col, int first, const QVector<double>& new_values, QUndoCommand * parent = 0 );
+	ColumnReplaceValuesCmd(Column::Private * col, int first, const QVector<qreal>& new_values, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnReplaceValuesCmd();
 
@@ -692,9 +692,9 @@ private:
 	//! The first row to replace
 	int d_first;
 	//! The new values
-	QVector<double> d_new_values;
+	QVector<qreal> d_new_values;
 	//! The old values
-	QVector<double> d_old_values;
+	QVector<qreal> d_old_values;
 	//! Status flag
 	bool d_copied;
 	//! The old number of rows

@@ -719,7 +719,7 @@ void ColumnReplaceTextsCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 // class ColumnReplaceValuesCmd
 ///////////////////////////////////////////////////////////////////////////
-ColumnReplaceValuesCmd::ColumnReplaceValuesCmd(Column::Private * col, int first, const QVector<double>& new_values, QUndoCommand * parent )
+ColumnReplaceValuesCmd::ColumnReplaceValuesCmd(Column::Private * col, int first, const QVector<qreal>& new_values, QUndoCommand * parent )
  : QUndoCommand( parent ), d_col(col), d_first(first), d_new_values(new_values)
 {
 	setText(QObject::tr("%1: replace the values for rows %2 to %3").arg(col->name()).arg(first).arg(first + new_values.count() -1));
@@ -734,7 +734,7 @@ void ColumnReplaceValuesCmd::redo()
 {
 	if(!d_copied)
 	{
-		d_old_values = static_cast< QVector<double>* >(d_col->dataPointer())->mid(d_first, d_new_values.count());
+		d_old_values = static_cast< QVector<qreal>* >(d_col->dataPointer())->mid(d_first, d_new_values.count());
 		d_row_count = d_col->rowCount();
 		d_validity = d_col->validityAttribute();
 		d_copied = true;

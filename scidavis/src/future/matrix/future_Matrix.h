@@ -148,13 +148,13 @@ class Matrix : public AbstractPart
 		//! Set the value of the cell
 		void setCell(int row, int col, double value );
 		//! Return the values in the given cells as double vector
-		QVector<double> columnCells(int col, int first_row, int last_row);
+		QVector<qreal> columnCells(int col, int first_row, int last_row);
 		//! Set the values in the given cells from a double vector
-		void setColumnCells(int col, int first_row, int last_row, const QVector<double> & values);
+		void setColumnCells(int col, int first_row, int last_row, const QVector<qreal> & values);
 		//! Return the values in the given cells as double vector
-		QVector<double> rowCells(int row, int first_column, int last_column);
+		QVector<qreal> rowCells(int row, int first_column, int last_column);
 		//! Set the values in the given cells from a double vector
-		void setRowCells(int row, int first_column, int last_column, const QVector<double> & values);
+		void setRowCells(int row, int first_column, int last_column, const QVector<qreal> & values);
 		//! Return the text displayed in the given cell
 		QString text(int row, int col);
 		void copy(Matrix * other);
@@ -402,13 +402,13 @@ class Matrix::Private
 		//! Set the value in the given cell
 		void setCell(int row, int col, double value);
 		//! Return the values in the given cells as double vector
-		QVector<double> columnCells(int col, int first_row, int last_row);
+		QVector<qreal> columnCells(int col, int first_row, int last_row);
 		//! Set the values in the given cells from a double vector
-		void setColumnCells(int col, int first_row, int last_row, const QVector<double> & values);
+		void setColumnCells(int col, int first_row, int last_row, const QVector<qreal> & values);
 		//! Return the values in the given cells as double vector
-		QVector<double> rowCells(int row, int first_column, int last_column);
+		QVector<qreal> rowCells(int row, int first_column, int last_column);
 		//! Set the values in the given cells from a double vector
-		void setRowCells(int row, int first_column, int last_column, const QVector<double> & values);
+		void setRowCells(int row, int first_column, int last_column, const QVector<qreal> & values);
 		char numericFormat() const { return d_numeric_format; }
 		void setNumericFormat(char format) { d_numeric_format = format; emit d_owner->formatChanged(); }
 		int displayedDigits()  const { return d_displayed_digits; }
@@ -454,7 +454,7 @@ class Matrix::Private
 		//! The number of rows
 		int d_row_count;
 		//! The matrix data
-		QVector< QVector<double> > d_data;	
+		QVector< QVector<qreal> > d_data;	
 		//! Row widths
 		QList<int> d_row_heights;
 		//! Columns widths

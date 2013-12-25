@@ -1371,24 +1371,24 @@ void Matrix::adjustTabBarAction(bool visible)
 		action_toggle_tabbar->setText(tr("Show Controls"));
 }
 
-QVector<double> Matrix::columnCells(int col, int first_row, int last_row)
+QVector<qreal> Matrix::columnCells(int col, int first_row, int last_row)
 {
 	return d_matrix_private->columnCells(col, first_row, last_row);
 }
 
-void Matrix::setColumnCells(int col, int first_row, int last_row, const QVector<double> & values)
+void Matrix::setColumnCells(int col, int first_row, int last_row, const QVector<qreal> & values)
 {
 	WAIT_CURSOR;
 	exec(new MatrixSetColumnCellsCmd(d_matrix_private, col, first_row, last_row, values));
 	RESET_CURSOR;
 }
 
-QVector<double> Matrix::rowCells(int row, int first_column, int last_column)
+QVector<qreal> Matrix::rowCells(int row, int first_column, int last_column)
 {
 	return d_matrix_private->rowCells(row, first_column, last_column);
 }
 
-void Matrix::setRowCells(int row, int first_column, int last_column, const QVector<double> & values)
+void Matrix::setRowCells(int row, int first_column, int last_column, const QVector<qreal> & values)
 {
 	WAIT_CURSOR;
 	exec(new MatrixSetRowCellsCmd(d_matrix_private, row, first_column, last_column, values));
@@ -1462,7 +1462,7 @@ Matrix * Matrix::fromImage(const QImage & image)
 
 	Matrix * matrix = new Matrix(0, rows, cols, tr("Matrix %1").arg(1));
 
-	QVector<double> values;
+	QVector<qreal> values;
 	values.resize(rows);
 
 	for (int i=0; i<cols; i++)
@@ -1512,7 +1512,7 @@ void Matrix::Private::insertColumns(int before, int count)
 	emit d_owner->columnsAboutToBeInserted(before, count);
 	for(int i=0; i<count; i++)
 	{
-		d_data.insert(before+i, QVector<double>(d_row_count));
+		d_data.insert(before+i, QVector<qreal>(d_row_count));
 		d_column_widths.insert(before+i, Matrix::defaultColumnWidth());
 	}
 
@@ -1577,7 +1577,7 @@ void Matrix::Private::setCell(int row, int col, double value)
 		emit d_owner->dataChanged(row, col, row, col);
 }
 
-QVector<double> Matrix::Private::columnCells(int col, int first_row, int last_row)
+QVector<qreal> Matrix::Private::columnCells(int col, int first_row, int last_row)
 {
 	Q_ASSERT(first_row >= 0 && first_row < d_row_count);
 	Q_ASSERT(last_row >= 0 && last_row < d_row_count);
@@ -1585,13 +1585,13 @@ QVector<double> Matrix::Private::columnCells(int col, int first_row, int last_ro
 	if(first_row == 0 && last_row == d_row_count-1)
 		return d_data.at(col);
 
-	QVector<double> result;
+	QVector<qreal> result;
 	for(int i=first_row; i<=last_row; i++)
 		result.append(d_data.at(col).at(i));
 	return result;
 }
 
-void Matrix::Private::setColumnCells(int col, int first_row, int last_row, const QVector<double> & values)
+void Matrix::Private::setColumnCells(int col, int first_row, int last_row, const QVector<qreal> & values)
 {
 	Q_ASSERT(first_row >= 0 && first_row < d_row_count);
 	Q_ASSERT(last_row >= 0 && last_row < d_row_count);
@@ -1612,18 +1612,18 @@ void Matrix::Private::setColumnCells(int col, int first_row, int last_row, const
 		emit d_owner->dataChanged(first_row, col, last_row, col);
 }
 
-QVector<double> Matrix::Private::rowCells(int row, int first_column, int last_column)
+QVector<qreal> Matrix::Private::rowCells(int row, int first_column, int last_column)
 {
 	Q_ASSERT(first_column >= 0 && first_column < d_column_count);
 	Q_ASSERT(last_column >= 0 && last_column < d_column_count);
 
-	QVector<double> result;
+	QVector<qreal> result;
 	for(int i=first_column; i<=last_column; i++)
 		result.append(d_data.at(i).at(row));
 	return result;
 }
 
-void Matrix::Private::setRowCells(int row, int first_column, int last_column, const QVector<double> & values)
+void Matrix::Private::setRowCells(int row, int first_column, int last_column, const QVector<qreal> & values)
 {
 	Q_ASSERT(first_column >= 0 && first_column < d_column_count);
 	Q_ASSERT(last_column >= 0 && last_column < d_column_count);

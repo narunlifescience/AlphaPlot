@@ -46,11 +46,11 @@ Column::Column(const QString& name, SciDAVis::ColumnMode mode)
 	addChild(outputFilter());
 }
 
-Column::Column(const QString& name, QVector<double> data, IntervalAttribute<bool> validity)
+Column::Column(const QString& name, QVector<qreal> data, IntervalAttribute<bool> validity)
  : AbstractColumn(name)
 {
 	d_column_private = new Private(this, SciDAVis::TypeDouble, 
-		SciDAVis::Numeric, new QVector<double>(data), validity);
+		SciDAVis::Numeric, new QVector<qreal>(data), validity);
 	d_string_io = new ColumnStringIO(this);
 	d_column_private->inputFilter()->input(0,d_string_io);
 	outputFilter()->input(0,this);
@@ -236,7 +236,7 @@ void Column::setValueAt(int row, double new_value)
 	exec(new ColumnSetValueCmd(d_column_private, row, new_value));
 }
 
-void Column::replaceValues(int first, const QVector<double>& new_values)
+void Column::replaceValues(int first, const QVector<qreal>& new_values)
 {
 	if (!new_values.isEmpty())
 		exec(new ColumnReplaceValuesCmd(d_column_private, first, new_values));

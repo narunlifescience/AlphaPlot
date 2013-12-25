@@ -71,7 +71,7 @@ class Column : public AbstractColumn
 		 * \param data initial data vector
 		 * \param validity a list of invalid intervals (optional)
 		 */
-		Column(const QString& name, QVector<double> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>());
+		Column(const QString& name, QVector<qreal> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>());
 		//! Ctor
 		/**
 		 * \param name the column name (= aspect name)
@@ -283,7 +283,7 @@ class Column : public AbstractColumn
 		/**
 		 * Use this only when dataType() is double
 		 */
-		virtual void replaceValues(int first, const QVector<double>& new_values);
+		virtual void replaceValues(int first, const QVector<qreal>& new_values);
 		//@}
 
 		//! \name XML related functions

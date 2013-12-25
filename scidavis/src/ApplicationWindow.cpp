@@ -3296,7 +3296,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 
 	// this is very much a special case, and thus is handled completely in its own block
 	if (import_mode == ImportASCIIDialog::NewTables) {
-		int dx, dy;
+		int dx=0, dy=0;
 		QStringList sorted_files = files;
 		sorted_files.sort();
 		for (int i=0; i<sorted_files.size(); i++)

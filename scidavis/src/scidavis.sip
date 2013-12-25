@@ -512,17 +512,17 @@ public:
 		sipCpp->setCell(row, col, a2);
 %End
 
-	QVector<double> column(int col, int first_row, int last_row);
+	QVector<qreal> column(int col, int first_row, int last_row);
 %MethodCode
-	sipRes = new QVector<double>(sipCpp->d_future_matrix->columnCells(a0, a1, a2));
+	sipRes = new QVector<qreal>(sipCpp->d_future_matrix->columnCells(a0, a1, a2));
 %End
 	void setColumn(int col, int first_row, const QVector<double> &values);
 %MethodCode
 	sipCpp->d_future_matrix->setColumnCells(a0, a1, a1+a2->size()-1, *a2);
 %End
-	QVector<double> row(int row, int first_column, int last_column);
+	QVector<qreal> row(int row, int first_column, int last_column);
 %MethodCode
-	sipRes = new QVector<double>(sipCpp->d_future_matrix->rowCells(a0, a1, a2));
+	sipRes = new QVector<qreal>(sipCpp->d_future_matrix->rowCells(a0, a1, a2));
 %End
 	void setRow(int row, int first_column, const QVector<double> & values);
 %MethodCode
@@ -1015,12 +1015,12 @@ public:
 	sipRes = sipCpp->d_plot->canvas();
 %End
 
-	QPointF pickPoint() /NoDerived/;
+	QPointF pickPoint() const /NoDerived/;
 %MethodCode
 	ApplicationWindow *app = sipscidavis_app();
 	sipRes = new QPointF();
 	if (app)
-		*sipRes = DataPointPicker(sipCpp, app).pick();
+		*sipRes = DataPointPicker(const_cast<Graph*>(sipCpp), app).pick();
 %End
 
 private:

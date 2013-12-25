@@ -66,7 +66,7 @@ QPointF DataPointPicker::pick() {
 		return m_result;
 	DataPickerTool *tool = new DataPickerTool(m_graph, m_app, DataPickerTool::Display);
 	connect(tool, SIGNAL(selected(QwtPlotCurve*,int)),
-			this, SLOT(pointSelected(QwtPlotCurve*,int)));
+                this, SLOT(pointSelected(QwtPlotCurve*,int)));
 	m_graph->setActiveTool(tool);
 	m_picking_loop.exec();
 	m_graph->setActiveTool(0);
