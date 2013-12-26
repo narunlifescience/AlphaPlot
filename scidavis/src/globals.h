@@ -110,9 +110,9 @@ class SciDAVis : public QObject
 		 * mm = minor version
 		 * bb = bugfix version
 		 */
-		static const int scidavis_version;
+		static const int scidavis_version
 		//! Extra version information string (like "-alpha", "-beta", "-rc1", etc...)
-		static const char * extra_version;
+		static const char * version;
 		//! Copyright string containing the author names etc.
 		static const char * copyright_string;
 		//! Release date as a string
