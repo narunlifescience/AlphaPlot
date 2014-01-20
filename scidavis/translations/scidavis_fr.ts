@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.0" language="fr" sourcelanguage="en">
 <context>
     <name>@default</name>
     <message>
@@ -867,7 +867,7 @@ Do you want to overwrite it?</source>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="13384"/>
         <source>&amp;No</source>
-        <translation type="unfinished">&amp;Non</translation>
+        <translation>&amp;Non</translation>
     </message>
     <message>
         <source>QtiPlot - Error</source>
@@ -2183,7 +2183,7 @@ Operation aborted!</source>
         <location filename="../src/ApplicationWindow.cpp" line="1480"/>
         <location filename="../src/ApplicationWindow.cpp" line="13656"/>
         <source>Please select a column to plot!</source>
-        <translation type="unfinished">Veuillez sélectionner une colone à tracer !</translation>
+        <translation>Veuillez sélectionner une colone à tracer !</translation>
     </message>
     <message>
         <source>This operation can not be performed on curves plotted from columns having a non-numerical format.</source>
@@ -2536,7 +2536,7 @@ Operation aborted!</source>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12483"/>
         <source>&amp;Rename</source>
-        <translation type="unfinished">&amp;Renommer</translation>
+        <translation>&amp;Renommer</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="7519"/>
@@ -2621,7 +2621,7 @@ Operation aborted!</source>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12530"/>
         <source>Hidden</source>
-        <translation type="unfinished">Caché</translation>
+        <translation>Caché</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="4933"/>
@@ -3236,7 +3236,7 @@ Etes vous sûr de vouloir continuer ?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12600"/>
         <source>Name already exists!</source>
-        <translation type="unfinished">Ce nom existe déjà !</translation>
+        <translation>Ce nom existe déjà !</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="5156"/>
@@ -3527,7 +3527,7 @@ Etes vous sûr de vouloir continuer ?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11891"/>
         <source>&lt;b&gt; %1 &lt;/b&gt;: Wrong locale option or no translation available!</source>
-        <translation type="unfinished">&lt;b&gt; %1 &lt;/b&gt; : Mauvaise option de langue !</translation>
+        <translation>&lt;b&gt; %1 &lt;/b&gt; : Mauvaise option de langue !</translation>
     </message>
     <message>
         <source>The file: &lt;b&gt;%1&lt;/b&gt; is not a QtiPlot project file!</source>
@@ -3544,77 +3544,77 @@ Etes vous sûr de vouloir continuer ?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12356"/>
         <source>The file: &lt;br&gt;&lt;b&gt;%1&lt;/b&gt; is opened in read-only mode</source>
-        <translation type="unfinished">Le fichier &lt;br&gt;&lt;b&gt;%1&lt;/b&gt; est ouvert en lecture seule</translation>
+        <translation>Le fichier &lt;br&gt;&lt;b&gt;%1&lt;/b&gt; est ouvert en lecture seule</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12464"/>
         <source>&amp;Find...</source>
-        <translation type="unfinished">Chercher...</translation>
+        <translation>Chercher...</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12466"/>
         <source>App&amp;end Project...</source>
-        <translation type="unfinished">Ajout&amp;er un projet...</translation>
+        <translation>Joindr&amp;e un projet...</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12468"/>
         <source>Save &amp;As Project...</source>
-        <translation type="unfinished">S&amp;auvegarder comme projet...</translation>
+        <translation>S&amp;auvegarder comme projet...</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="10469"/>
         <location filename="../src/ApplicationWindow.cpp" line="11036"/>
         <location filename="../src/ApplicationWindow.cpp" line="12470"/>
         <source>Save Project &amp;As...</source>
-        <translation type="unfinished">E&amp;nregistrer le projet sous...</translation>
+        <translation>E&amp;nregistrer le projet sous...</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12475"/>
         <source>&amp;Show All Windows</source>
-        <translation type="unfinished">Montrer toutes les fenêtres</translation>
+        <translation>Montrer toutes les fenêtres</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12476"/>
         <source>&amp;Hide All Windows</source>
-        <translation type="unfinished">Cac&amp;her toutes les fenêtres</translation>
+        <translation>Cac&amp;her toutes les fenêtres</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12482"/>
         <source>&amp;Delete Folder</source>
-        <translation type="unfinished">Supprimer le dossier</translation>
+        <translation>Supprimer le dossier</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12502"/>
         <source>&amp;Windows in Active Folder</source>
-        <translation type="unfinished">Dans le dossier actif</translation>
+        <translation>Fenêtres dans le dossier actif</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12502"/>
         <source>Windows in &amp;Active Folder &amp;&amp; Subfolders</source>
-        <translation type="unfinished">Dans le dossier actif et les sous-dossiers</translation>
+        <translation>Fenêtres dans le dossier actif et ses sous-dossiers</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12509"/>
         <source>&amp;View Windows</source>
-        <translation type="unfinished">Afficher les fenêtres</translation>
+        <translation>&amp;Voir les fenêtres</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12713"/>
         <source>Project</source>
-        <translation type="unfinished">Projet</translation>
+        <translation>Projet</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12716"/>
         <location filename="../src/ApplicationWindow.cpp" line="12756"/>
         <location filename="../src/ApplicationWindow.cpp" line="13071"/>
         <source>Path</source>
-        <translation type="unfinished">Chemin</translation>
+        <translation>Chemin</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12723"/>
         <location filename="../src/ApplicationWindow.cpp" line="12757"/>
         <source>Contents</source>
-        <translation type="unfinished">Contenu</translation>
+        <translation>Contenu</translation>
     </message>
     <message>
         <source>Windows</source>
@@ -3627,19 +3627,19 @@ Etes vous sûr de vouloir continuer ?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12733"/>
         <source>Modified</source>
-        <translation type="unfinished">Modifié</translation>
+        <translation>Modifié</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12738"/>
         <location filename="../src/ApplicationWindow.cpp" line="12763"/>
         <location filename="../src/ApplicationWindow.cpp" line="13038"/>
         <source>Properties</source>
-        <translation type="unfinished">Propriétés</translation>
+        <translation>Propriétés</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12773"/>
         <source>New Folder</source>
-        <translation type="unfinished">Nouveau Dossier</translation>
+        <translation>Nouveau Dossier</translation>
     </message>
     <message>
         <source>QtiPlot - Delete folder?</source>
@@ -3648,13 +3648,13 @@ Etes vous sûr de vouloir continuer ?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12793"/>
         <source>Delete folder &apos;%1&apos; and all the windows it contains?</source>
-        <translation type="unfinished">Supprimer le dossier &apos;%1&apos; et toutes les fenêtres qu&apos;il contient ?</translation>
+        <translation>Supprimer le dossier &apos;%1&apos; et toutes les fenêtres qu&apos;il contient ?</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="13014"/>
         <location filename="../src/ApplicationWindow.cpp" line="13059"/>
         <source>Note</source>
-        <translation type="unfinished">Commentaire</translation>
+        <translation>Commentaire</translation>
     </message>
     <message>
         <source>Plot 3D</source>
@@ -3663,7 +3663,7 @@ Etes vous sûr de vouloir continuer ?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="13073"/>
         <source>Status</source>
-        <translation type="unfinished">Etat</translation>
+        <translation>Etat</translation>
     </message>
     <message>
         <source>QtiPlot - No match found</source>
@@ -3672,22 +3672,22 @@ Etes vous sûr de vouloir continuer ?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="13148"/>
         <source>Sorry, no match found for string: &apos;%1&apos;</source>
-        <translation type="unfinished">Désolé, &apos;%1&apos; introuvable</translation>
+        <translation>Désolé, &apos;%1&apos; introuvable</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="13169"/>
         <source>Cannot move an object to itself!</source>
-        <translation type="unfinished">Impossible de déplacer un objet vers lui-même !</translation>
+        <translation>Impossible de déplacer un objet vers lui-même !</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="13175"/>
         <source>Cannot move a parent folder into a child folder!</source>
-        <translation type="unfinished">Ne peux pas déplacer un dossier père vers un dossier fils !</translation>
+        <translation>Ne peux pas déplacer un dossier père vers un dossier fils !</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="13190"/>
         <source>The destination folder already contains a folder called &apos;%1&apos;! Folder skipped!</source>
-        <translation type="unfinished">Le dossier de destination contient déjà un dossier nomé &apos;%1&apos;. Le dossier n&apos;as pas été déplacé!</translation>
+        <translation>Le dossier de destination contient déjà un dossier nomé &apos;%1&apos;. Le dossier n&apos;as pas été déplacé!</translation>
     </message>
     <message>
         <source>QtiPlot - Skipped Moving Folder</source>
@@ -4125,7 +4125,7 @@ Quelques parties de ce fichier peuvent ne pas être affichés comme attendu.</tr
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="13298"/>
         <source>Error while fetching version file with HTTP: %1.</source>
-        <translation type="unfinished">Erreur lors de la recherche de la version du fichier par le WEB : %1.</translation>
+        <translation>Erreur pendant puiser le fichier de version par HTTP: %1.</translation>
     </message>
     <message>
         <source>QtiPlot - Updates Available</source>
@@ -4309,47 +4309,47 @@ Quelques parties de ce fichier peuvent ne pas être affichés comme attendu.</tr
         <location filename="../src/ApplicationWindow.cpp" line="289"/>
         <source>&amp;Next</source>
         <comment>next window</comment>
-        <translation type="unfinished">&amp;Suivante</translation>
+        <translation>&amp;Suivante</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="290"/>
         <source>F5</source>
         <comment>next window shortcut</comment>
-        <translation type="unfinished">F5</translation>
+        <translation>F5</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="293"/>
         <source>&amp;Previous</source>
         <comment>previous window</comment>
-        <translation type="unfinished">&amp;Précédente</translation>
+        <translation>&amp;Précédente</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="294"/>
         <source>F6</source>
         <comment>previous window shortcut</comment>
-        <translation type="unfinished">F6</translation>
+        <translation>F6</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="447"/>
         <source>Disable &amp;Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer u&amp;Tiles</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="523"/>
         <source>&amp;Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Faire un &amp;Zoom arrière</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="540"/>
         <location filename="../src/ApplicationWindow.cpp" line="11349"/>
         <source>&amp;Data Reader</source>
-        <translation type="unfinished"></translation>
+        <translation>Lecteur de &amp;Données</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="547"/>
         <location filename="../src/ApplicationWindow.cpp" line="11353"/>
         <source>&amp;Select Data Range</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sélectionner les données</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="534"/>

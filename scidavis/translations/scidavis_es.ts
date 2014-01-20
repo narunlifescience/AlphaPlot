@@ -475,12 +475,13 @@ Do you want to overwrite it?</source>
         <location filename="../src/future/core/AbstractAspect.cpp" line="80"/>
         <source> (non-critical)</source>
         <comment>postfix for XML error messages</comment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>mensajes de error XML para postfix</translatorcomment>
+        <translation>(no crítico)</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="89"/>
         <source>aspect name missing or empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de aspecto perdido o vacío</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="97"/>
@@ -512,7 +513,7 @@ Do you want to overwrite it?</source>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="250"/>
         <source>Tabs and line breaks in object names are currently not supported. They have been removed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabs y saltos de línea en los nombres de objeto no están actualmente soportados. Han sido removidos.</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="254"/>
@@ -1316,7 +1317,7 @@ Do you want to overwrite it?</source>
         <location filename="../src/ApplicationWindow.cpp" line="10453"/>
         <location filename="../src/ApplicationWindow.cpp" line="11022"/>
         <source>&amp;Open</source>
-        <translation>Abrir</translation>
+        <translation>&amp;Abrir</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="10454"/>
@@ -1665,7 +1666,7 @@ Do you want to overwrite it?</source>
         <location filename="../src/ApplicationWindow.cpp" line="10623"/>
         <location filename="../src/ApplicationWindow.cpp" line="11170"/>
         <source>Line + S&amp;ymbol</source>
-        <translation>Línea + Símbolo</translation>
+        <translation>Línea + Sí&amp;mbolo</translation>
     </message>
     <message>
         <source>Plot with line + symbols</source>
@@ -1679,7 +1680,7 @@ Do you want to overwrite it?</source>
         <location filename="../src/ApplicationWindow.cpp" line="10631"/>
         <location filename="../src/ApplicationWindow.cpp" line="11175"/>
         <source>&amp;Spline</source>
-        <translation>Suavizado</translation>
+        <translation>&amp;Suavizado</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="10639"/>
@@ -1709,7 +1710,7 @@ Do you want to overwrite it?</source>
         <location filename="../src/ApplicationWindow.cpp" line="10651"/>
         <location filename="../src/ApplicationWindow.cpp" line="11185"/>
         <source>&amp;Area</source>
-        <translation>Área</translation>
+        <translation>&amp;Área</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11186"/>
@@ -1720,7 +1721,7 @@ Do you want to overwrite it?</source>
         <location filename="../src/ApplicationWindow.cpp" line="10655"/>
         <location filename="../src/ApplicationWindow.cpp" line="11188"/>
         <source>&amp;Pie</source>
-        <translation>Porciones</translation>
+        <translation>&amp;Porciones</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11189"/>
@@ -3579,7 +3580,7 @@ Are you sure you want to continue?</source>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11345"/>
         <source>Zoom &amp;Out</source>
-        <translation>Disminuir zoom</translation>
+        <translation>Ale&amp;jar</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="524"/>
@@ -4834,7 +4835,7 @@ Varias partes de este archivo pueden no mostrarse como se esperaba.</translation
         <location filename="../src/ApplicationWindow.cpp" line="11416"/>
         <location filename="../src/ApplicationWindow.cpp" line="11417"/>
         <source>Mesh &amp; Filled Polygons</source>
-        <translation>Polígonos &amp;llenos y mallados</translation>
+        <translation>Polígonos llenos y mallados</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11432"/>
@@ -5009,25 +5010,25 @@ Varias partes de este archivo pueden no mostrarse como se esperaba.</translation
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="9241"/>
         <source>Error reading matrix from project file</source>
-        <translation type="unfinished"></translation>
+        <translation>Error leyendo matriz desde archivo de proyecto</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="9245"/>
         <location filename="../src/ApplicationWindow.cpp" line="9396"/>
         <source>The following problems occured when loading the project file:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Los siguientes problemas ocurrieron cuando se cargaba el archivo de proyecto:</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="9249"/>
         <location filename="../src/ApplicationWindow.cpp" line="9400"/>
         <source>Project loading partly failed</source>
-        <translation type="unfinished"></translation>
+        <translation>La carga del proyecto falló parcialmente</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="9392"/>
         <source>Error reading table from project file</source>
-        <translation type="unfinished"></translation>
+        <translation>Error leyendo tabla desde el archivo de proyecto</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="10643"/>
@@ -7017,7 +7018,7 @@ The following special codes can be used:
     <message>
         <location filename="../src/ConfigDialog.cpp" line="986"/>
         <source>Smoot&amp;h Line</source>
-        <translation>Línea Suave</translation>
+        <translation>Línea S&amp;uave</translation>
     </message>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="987"/>
@@ -7037,7 +7038,7 @@ The following special codes can be used:
     <message>
         <location filename="../src/ConfigDialog.cpp" line="990"/>
         <source>&amp;Grid</source>
-        <translation>Grilla</translation>
+        <translation>&amp;Grilla</translation>
     </message>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="991"/>
@@ -7053,7 +7054,7 @@ The following special codes can be used:
     <message>
         <location filename="../src/ConfigDialog.cpp" line="993"/>
         <source>A&amp;xes</source>
-        <translation>Ejes</translation>
+        <translation>E&amp;jes</translation>
     </message>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="994"/>
@@ -7355,12 +7356,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/future/table/controltabs.ui" line="280"/>
         <source>Numbers are</source>
-        <translation type="unfinished"></translation>
+        <translation>Números son</translation>
     </message>
     <message>
         <location filename="../src/future/table/controltabs.ui" line="290"/>
         <source>since</source>
-        <translation type="unfinished"></translation>
+        <translation>desde</translation>
     </message>
     <message>
         <location filename="../src/future/table/controltabs.ui" line="349"/>
@@ -8213,7 +8214,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/ExportDialog.cpp" line="41"/>
         <source>Export ASCII</source>
-        <translation>E&amp;xportar ASCII</translation>
+        <translation>Exportar ASCII</translation>
     </message>
     <message>
         <location filename="../src/ExportDialog.cpp" line="115"/>
@@ -8741,7 +8742,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/FindDialog.cpp" line="99"/>
         <source>&amp;Find</source>
-        <translation>Buscar</translation>
+        <translation>&amp;Buscar</translation>
     </message>
     <message>
         <location filename="../src/FindDialog.cpp" line="103"/>
@@ -9335,7 +9336,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/FitDialog.cpp" line="835"/>
         <source>Fit using &amp;built-in function</source>
-        <translation>Ajustar usando función incorporada</translation>
+        <translation>Ajustar usando función &amp;incorporada</translation>
     </message>
     <message>
         <location filename="../src/FitDialog.cpp" line="847"/>
@@ -9509,6 +9510,36 @@ p, li { white-space: pre-wrap; }
         <source>bytes</source>
         <translation type="obsolete">bytes</translation>
     </message>
+    <message>
+        <location filename="../src/future/core/future_Folder.cpp" line="113"/>
+        <source>unknown element &apos;%1&apos;</source>
+        <translation>elemento &apos;%1&apos; desconocido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/core/future_Folder.cpp" line="120"/>
+        <source>no folder element found</source>
+        <translation>No se hallaron elementos de carpeta</translation>
+    </message>
+    <message>
+        <location filename="../src/future/core/future_Folder.cpp" line="135"/>
+        <source>Folder %1</source>
+        <translation>Carpeta %1</translation>
+    </message>
+    <message>
+        <location filename="../src/future/core/future_Folder.cpp" line="146"/>
+        <source>Column %1</source>
+        <translation>Columna %1</translation>
+    </message>
+    <message>
+        <location filename="../src/future/core/future_Folder.cpp" line="171"/>
+        <source>creation of aspect from element &apos;%1&apos; failed</source>
+        <translation>Falló la creación de aspecto desde el elemento &apos;%1&apos; </translation>
+    </message>
+    <message>
+        <location filename="../src/future/core/future_Folder.cpp" line="179"/>
+        <source>no plugin to load element &apos;%1&apos; found</source>
+        <translation>No se encontró plugin para cargar elemento &apos;%1&apos;</translation>
+    </message>
 </context>
 <context>
     <name>FunctionCurve</name>
@@ -9618,7 +9649,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/FunctionDialog.cpp" line="152"/>
         <source>&amp;Apply</source>
-        <translation type="unfinished">&amp;Aplicar</translation>
+        <translation>&amp;Aplicar</translation>
     </message>
     <message>
         <location filename="../src/FunctionDialog.cpp" line="156"/>
@@ -9772,35 +9803,35 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">¡Curva seleccionada! !Mueva el cursor y haga click para elegir un punto y doble click/&apos;Enter&apos; para finalizar¡</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4352"/>
-        <location filename="../src/Graph.cpp" line="4398"/>
+        <location filename="../src/Graph.cpp" line="4356"/>
+        <location filename="../src/Graph.cpp" line="4402"/>
         <source>&amp;Cut</source>
         <translation>&amp;Cortar</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4353"/>
-        <location filename="../src/Graph.cpp" line="4399"/>
+        <location filename="../src/Graph.cpp" line="4357"/>
+        <location filename="../src/Graph.cpp" line="4403"/>
         <source>&amp;Copy</source>
         <translation>&amp;Copiar</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4354"/>
-        <location filename="../src/Graph.cpp" line="4400"/>
+        <location filename="../src/Graph.cpp" line="4358"/>
+        <location filename="../src/Graph.cpp" line="4404"/>
         <source>&amp;Delete</source>
         <translation>&amp;Eliminar</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4356"/>
-        <location filename="../src/Graph.cpp" line="4405"/>
+        <location filename="../src/Graph.cpp" line="4360"/>
         <location filename="../src/Graph.cpp" line="4409"/>
         <location filename="../src/Graph.cpp" line="4413"/>
         <location filename="../src/Graph.cpp" line="4417"/>
-        <location filename="../src/Graph.cpp" line="4448"/>
+        <location filename="../src/Graph.cpp" line="4421"/>
+        <location filename="../src/Graph.cpp" line="4452"/>
         <source>&amp;Properties...</source>
         <translation>&amp;Propiedades...</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4430"/>
+        <location filename="../src/Graph.cpp" line="4434"/>
         <source>&amp;Rescale to show all</source>
         <translation>&amp;Reescalar para mostrar todo</translation>
     </message>
@@ -9809,17 +9840,17 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Ctrl+R</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4432"/>
+        <location filename="../src/Graph.cpp" line="4436"/>
         <source>&amp;Hide axis</source>
         <translation>&amp;Ocultar eje</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4434"/>
+        <location filename="../src/Graph.cpp" line="4438"/>
         <source>&amp;Show grids</source>
         <translation>Mo&amp;strar mallas</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4447"/>
+        <location filename="../src/Graph.cpp" line="4451"/>
         <source>&amp;Scale...</source>
         <translation>E&amp;scala...</translation>
     </message>
@@ -9950,7 +9981,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Filtro FFT Bloquea Banda de </translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="5170"/>
+        <location filename="../src/Graph.cpp" line="5174"/>
         <source>There are no curves available on this plot!</source>
         <translation>¡No hay curvas disponibles en este gráfico!</translation>
     </message>
@@ -9959,7 +9990,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">QtiPlot - Error</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="5186"/>
+        <location filename="../src/Graph.cpp" line="5190"/>
         <source>There are no curves with more than two points on this plot. Operation aborted!</source>
         <translation>No hay curvas con más de dos puntos en este gráfico. ¡Operación abortada!</translation>
     </message>
@@ -10104,22 +10135,22 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Boltzmann (Sigmoidal) ajuste de </translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4342"/>
+        <location filename="../src/Graph.cpp" line="4346"/>
         <source>The columns</source>
         <translation>Las columnas</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4342"/>
+        <location filename="../src/Graph.cpp" line="4346"/>
         <source>are empty and will not be added to the plot!</source>
         <translation>están vacías y no serán añadidas al gráfico!</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4346"/>
+        <location filename="../src/Graph.cpp" line="4350"/>
         <source>The column</source>
         <translation>La columna</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4346"/>
+        <location filename="../src/Graph.cpp" line="4350"/>
         <source>is empty and will not be added to the plot!</source>
         <translation>está vacía y no será añadida al gráfico!</translation>
     </message>
@@ -10136,7 +10167,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Derecha</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="1770"/>
+        <location filename="../src/Graph.cpp" line="1772"/>
         <source>Title</source>
         <translation>Título</translation>
     </message>
@@ -10165,8 +10196,8 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Los índices válidos tienen valores comprendidos entre 0 y %1</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="3783"/>
-        <location filename="../src/Graph.cpp" line="3813"/>
+        <location filename="../src/Graph.cpp" line="3787"/>
+        <location filename="../src/Graph.cpp" line="3817"/>
         <source>Image file: &lt;p&gt;&lt;b&gt; %1 &lt;/b&gt;&lt;p&gt;does not exist anymore!</source>
         <translation>¡El archivo de imagen: &lt;p&gt;&lt;b&gt; %1 &lt;/b&gt;&lt;p&gt; ya no existe!</translation>
     </message>
@@ -10175,7 +10206,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">QtiPlot - Error en la fórmula introducida</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4430"/>
+        <location filename="../src/Graph.cpp" line="4434"/>
         <source>Ctrl+Shift+R</source>
         <translation>Ctrl+Shift+R</translation>
     </message>
@@ -10236,18 +10267,18 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">suavizado mediante media de</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="1359"/>
-        <location filename="../src/Graph.cpp" line="1412"/>
+        <location filename="../src/Graph.cpp" line="1361"/>
+        <location filename="../src/Graph.cpp" line="1414"/>
         <source>Please provide a valid file name!</source>
         <translation>¡Por favor, introduzca un nombre válido de archivo!</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="1377"/>
+        <location filename="../src/Graph.cpp" line="1379"/>
         <source>File format not handled, operation aborted!</source>
         <translation>Formato de archivo no soportado, ¡operación abortada!</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4042"/>
+        <location filename="../src/Graph.cpp" line="4046"/>
         <source>Data set generated from curve</source>
         <translation>Conjunto de datos generados a partir de la curva </translation>
     </message>
@@ -10261,56 +10292,56 @@ p, li { white-space: pre-wrap; }
         <translation>F</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="809"/>
-        <location filename="../src/Graph.cpp" line="1359"/>
-        <location filename="../src/Graph.cpp" line="1377"/>
-        <location filename="../src/Graph.cpp" line="1412"/>
-        <location filename="../src/Graph.cpp" line="5185"/>
+        <location filename="../src/Graph.cpp" line="811"/>
+        <location filename="../src/Graph.cpp" line="1361"/>
+        <location filename="../src/Graph.cpp" line="1379"/>
+        <location filename="../src/Graph.cpp" line="1414"/>
+        <location filename="../src/Graph.cpp" line="5189"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="3782"/>
-        <location filename="../src/Graph.cpp" line="3812"/>
+        <location filename="../src/Graph.cpp" line="3786"/>
+        <location filename="../src/Graph.cpp" line="3816"/>
         <source>File open error</source>
         <translation>Error de apertura de archivo</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4341"/>
         <location filename="../src/Graph.cpp" line="4345"/>
-        <location filename="../src/Graph.cpp" line="5170"/>
+        <location filename="../src/Graph.cpp" line="4349"/>
+        <location filename="../src/Graph.cpp" line="5174"/>
         <source>Warning</source>
         <translation>Atención</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4033"/>
+        <location filename="../src/Graph.cpp" line="4037"/>
         <source>1</source>
         <comment>curve data table x column name</comment>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="777"/>
+        <location filename="../src/Graph.cpp" line="779"/>
         <source>Internal Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error interno</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="778"/>
+        <location filename="../src/Graph.cpp" line="780"/>
         <source>&lt;html&gt;Failed to set axis labels on Graph %1. Maybe you&apos;re trying to open a corrupted project file; or there&apos;s some problem within SciDAVis. Please report this as a bug (together with detailed instructions how to reproduce this message or the corrupted file).&lt;p&gt;&lt;a href=&quot;https://sourceforge.net/tracker/?group_id=199120&amp;atid=968214&gt;&quot;&gt;bug tracker: https://sourceforge.net/tracker/?group_id=199120&amp;atid=968214&lt;/a&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;Falló elegir la etiqueta del eje sobre el gráfico %1. Tal vez ha intentado abrir un proyecto corrupto; o hay algún problema dentro SciDAVis. Por favor reporte esto como un bug (junto con las instrucciones detalladas para reproducir este mensaje o el archivo corrupto).&lt;p&gt;&lt;a href=&quot;https://sourceforge.net/tracker/?group_id=199120&amp;atid=968214&gt;&quot;&gt;bug tracker: https://sourceforge.net/tracker/?group_id=199120&amp;atid=968214&lt;/a&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="809"/>
+        <location filename="../src/Graph.cpp" line="811"/>
         <source>Couldn&apos;t change the axis type to the requested format!</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pudo cambiar el tipo de eje al formato requerido!</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4034"/>
+        <location filename="../src/Graph.cpp" line="4038"/>
         <source>2</source>
         <comment>curve data table y column name</comment>
         <translation>2</translation>
     </message>
     <message>
-        <location filename="../src/Graph.cpp" line="4043"/>
+        <location filename="../src/Graph.cpp" line="4047"/>
         <source>Curve data %1</source>
         <translation>Datos de curva %1</translation>
     </message>
@@ -11122,22 +11153,22 @@ have the same number of rows.</source>
     <message>
         <location filename="../src/IntDialog.cpp" line="58"/>
         <source>Interpolation</source>
-        <translation type="unfinished">Interpolación</translation>
+        <translation>Interpolación</translation>
     </message>
     <message>
         <location filename="../src/IntDialog.cpp" line="60"/>
         <source>Linear</source>
-        <translation type="unfinished">Lineal</translation>
+        <translation>Lineal</translation>
     </message>
     <message>
         <location filename="../src/IntDialog.cpp" line="61"/>
         <source>Cubic</source>
-        <translation type="unfinished">Cúbica</translation>
+        <translation>Cúbica</translation>
     </message>
     <message>
         <location filename="../src/IntDialog.cpp" line="62"/>
         <source>Non-rounded Akima</source>
-        <translation type="unfinished">Akima no redondeado</translation>
+        <translation>Akima no redondeado</translation>
     </message>
     <message>
         <location filename="../src/IntDialog.cpp" line="65"/>
@@ -11289,32 +11320,32 @@ Los límites deben estar dentro del rango de x; si no conoce el máximo (mínimo
         <location filename="../src/Integration.cpp" line="86"/>
         <location filename="../src/Integration.cpp" line="118"/>
         <source>SciDAVis</source>
-        <translation type="unfinished">SciDAVis</translation>
+        <translation>SciDAVis</translation>
     </message>
     <message>
         <location filename="../src/Integration.cpp" line="87"/>
         <source>Several data points have the same x value causing divisions by zero, operation aborted!</source>
-        <translation type="unfinished">¡Varios puntos tienen el mismo valor de x causando división por cero, integración abortada!</translation>
+        <translation>¡Varios puntos tienen el mismo valor de x causando división por cero, operación abortada!</translation>
     </message>
     <message>
         <location filename="../src/Integration.cpp" line="101"/>
         <source>Linear</source>
-        <translation type="unfinished">Lineal</translation>
+        <translation>Lineal</translation>
     </message>
     <message>
         <location filename="../src/Integration.cpp" line="105"/>
         <source>Cubic</source>
-        <translation type="unfinished">Cúbica</translation>
+        <translation>Cúbica</translation>
     </message>
     <message>
         <location filename="../src/Integration.cpp" line="109"/>
         <source>Akima</source>
-        <translation type="unfinished">Akima</translation>
+        <translation>Akima</translation>
     </message>
     <message>
         <location filename="../src/Integration.cpp" line="119"/>
         <source>You need at least %1 points in order to perform this operation!</source>
-        <translation type="unfinished">¡Necesita al menos %1 puntos para realizar esta operación!</translation>
+        <translation>¡Necesita al menos %1 puntos para realizar esta operación!</translation>
     </message>
     <message>
         <location filename="../src/Integration.cpp" line="124"/>
@@ -11329,12 +11360,12 @@ Los límites deben estar dentro del rango de x; si no conoce el máximo (mínimo
     <message>
         <location filename="../src/Integration.cpp" line="125"/>
         <source> using </source>
-        <translation type="unfinished"></translation>
+        <translation>usando</translation>
     </message>
     <message>
         <location filename="../src/Integration.cpp" line="125"/>
         <source>Interpolation</source>
-        <translation type="unfinished">Interpolación</translation>
+        <translation>Interpolación</translation>
     </message>
     <message>
         <source>using a %1 order method</source>
@@ -11446,7 +11477,7 @@ Los límites deben estar dentro del rango de x; si no conoce el máximo (mínimo
     <message>
         <location filename="../src/Interpolation.cpp" line="140"/>
         <source>Several data points have the same x value causing divisions by zero, operation aborted!</source>
-        <translation type="unfinished">¡Varios puntos tienen el mismo valor de x causando división por cero, integración abortada!</translation>
+        <translation>¡Varios puntos tienen el mismo valor de x causando división por cero, operación abortada!</translation>
     </message>
     <message>
         <source>QtiPlot - Error</source>
@@ -11529,7 +11560,7 @@ Los límites deben estar dentro del rango de x; si no conoce el máximo (mínimo
     <message>
         <location filename="../src/InterpolationDialog.cpp" line="86"/>
         <source>&amp;Make</source>
-        <translation>Hacer</translation>
+        <translation>&amp;Hacer</translation>
     </message>
     <message>
         <location filename="../src/InterpolationDialog.cpp" line="88"/>
@@ -11947,7 +11978,7 @@ Los límites deben estar dentro del rango de x; si no conoce el máximo (mínimo
         <location filename="../src/LineDialog.cpp" line="182"/>
         <location filename="../src/LineDialog.cpp" line="193"/>
         <source>Y</source>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>To</source>
@@ -12132,6 +12163,7 @@ Do you want to insert cells?</source>
     </message>
     <message>
         <location filename="../src/Matrix.cpp" line="530"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1460"/>
         <source>SciDAVis</source>
         <translation>SciDAVis</translation>
     </message>
@@ -12158,13 +12190,332 @@ Do you want to insert cells?</source>
     </message>
     <message>
         <location filename="../src/Matrix.cpp" line="724"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1463"/>
         <source>Matrix %1</source>
         <translation>Matriz %1</translation>
     </message>
     <message>
         <location filename="../src/Matrix.cpp" line="730"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1424"/>
         <source>%1: apply formula to selection</source>
         <translation>%1: aplicar fórmula a selección</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="208"/>
+        <source>%1: cut selected cell(s)</source>
+        <translation>%1: cortar las celda(s) seleccionada(s)</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="255"/>
+        <source>%1: paste from clipboard</source>
+        <translation>%1: pegar desde el portapapeles</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="442"/>
+        <source>%1: clear selected cell(s)</source>
+        <translation>%1: limpiar la(s) celda(s) seleccionada(s)</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="535"/>
+        <source>Cu&amp;t</source>
+        <translation>Cor&amp;tar</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="538"/>
+        <source>&amp;Copy</source>
+        <translation>&amp;Copiar</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="541"/>
+        <source>Past&amp;e</source>
+        <translation>P&amp;egar</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="547"/>
+        <source>Clea&amp;r</source>
+        <comment>clear selection</comment>
+        <translatorcomment>limpiar selección</translatorcomment>
+        <translation>Limpia&amp;r</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="555"/>
+        <source>Assign &amp;Formula</source>
+        <translation>Asignar &amp;fórmula</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="556"/>
+        <source>Alt+Q</source>
+        <translation>Alt+Q</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="563"/>
+        <source>Recalculate</source>
+        <translation>Recalcular</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="564"/>
+        <source>Ctrl+Return</source>
+        <translation>Ctrl+Return</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="572"/>
+        <source>F12</source>
+        <translation>F12</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="579"/>
+        <source>Select All</source>
+        <translation>Seleccionar todo</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="586"/>
+        <source>Clear Matrix</source>
+        <translation>Limpiar Matriz</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="593"/>
+        <source>&amp;Go to Cell</source>
+        <translation>&amp;Ir a la Celda</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="594"/>
+        <source>Ctrl+Alt+G</source>
+        <translation>Ctrl+Alt+G</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="598"/>
+        <source>&amp;Transpose</source>
+        <translation>&amp;Transponer</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="601"/>
+        <source>Mirror &amp;Horizontally</source>
+        <translation>Reflejar &amp;Horizontalmente</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="604"/>
+        <source>Mirror &amp;Vertically</source>
+        <translation>Reflejar &amp;Verticalmente</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="607"/>
+        <source>&amp;Import Image</source>
+        <comment>import image as matrix</comment>
+        <translatorcomment>importar imagen como matriz</translatorcomment>
+        <translation>&amp;Importar imagen</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="610"/>
+        <source>&amp;Duplicate</source>
+        <comment>duplicate matrix</comment>
+        <translatorcomment>duplicar matriz</translatorcomment>
+        <translation>&amp;Duplicar</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="613"/>
+        <source>&amp;Dimensions</source>
+        <comment>matrix size</comment>
+        <translatorcomment>tamaño de la matriz</translatorcomment>
+        <translation>&amp;Dimensiones</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="616"/>
+        <source>Set &amp;Coordinates</source>
+        <translation>Seleccionar &amp;Coordenadas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="619"/>
+        <source>Set Display &amp;Format</source>
+        <translation>Seleccionar &amp;Formato</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="626"/>
+        <source>&amp;Insert Empty Columns</source>
+        <translation>&amp;Insertar Columnas Vacías</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="633"/>
+        <source>Remo&amp;ve Columns</source>
+        <translation>Remo&amp;ver Columnas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="640"/>
+        <source>Clea&amp;r Columns</source>
+        <translation>Limpia&amp;r columnas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="647"/>
+        <source>&amp;Add Columns</source>
+        <translation>&amp;Agregar columnas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="655"/>
+        <source>&amp;Insert Empty Rows</source>
+        <translation>&amp;Insertar Filas Vacías</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="662"/>
+        <source>Remo&amp;ve Rows</source>
+        <translation>Remo&amp;ver Filas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="669"/>
+        <source>Clea&amp;r Rows</source>
+        <translation>Limpia&amp;r Filas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="676"/>
+        <source>&amp;Add Rows</source>
+        <translation>&amp;Agregar Filas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="749"/>
+        <source>&amp;Matrix</source>
+        <translation>&amp;Matriz</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="815"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="819"/>
+        <source>Go to Cell</source>
+        <translation>Ir a la celda</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="815"/>
+        <source>Enter column</source>
+        <translation>Insertar columna</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="819"/>
+        <source>Enter row</source>
+        <translation>Insertar fila</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="887"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="891"/>
+        <source>Set Matrix Dimensions</source>
+        <translation>Setear dimensiones de la matriz</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="887"/>
+        <source>Enter number of columns</source>
+        <translation>Insertar número de columnas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="891"/>
+        <source>Enter number of rows</source>
+        <translation>Insertar número de filas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="901"/>
+        <source>Images</source>
+        <translation>Imágenes</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="909"/>
+        <source>Import image from file</source>
+        <translation>Importar imagen desde archivo</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="925"/>
+        <source>Error importing image</source>
+        <translation>Error de importación de imagen</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="925"/>
+        <source>Import of image &apos;%1&apos; failed</source>
+        <translation>Falló la importación de la imagen &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1142"/>
+        <source>invalid row or column count</source>
+        <translation>conteo de fila o columna inválido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1174"/>
+        <source>unknown element &apos;%1&apos;</source>
+        <translation>elemento &apos;%1&apos; desconocido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1183"/>
+        <source>no matrix element found</source>
+        <translation>no se hallaron elementos de matriz</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1196"/>
+        <source>invalid or missing numeric format</source>
+        <translation>formato numérico invalido o perdido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1205"/>
+        <source>invalid or missing number of displayed digits</source>
+        <translation>Número de digitos mostrados inválidos o perdidos</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1224"/>
+        <source>invalid x start value</source>
+        <translation>inválido valor inicial de x</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1232"/>
+        <source>invalid x end value</source>
+        <translation>inválido valor final de x</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1240"/>
+        <source>invalid y start value</source>
+        <translation>inválido valor inicial de y</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1248"/>
+        <source>invalid y end value</source>
+        <translation>inválido valor final de y</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1271"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1324"/>
+        <source>invalid or missing row index</source>
+        <translation>índice de fila invalido ó perdido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1278"/>
+        <source>invalid row height</source>
+        <translation>altura de fila inválida</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1295"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1330"/>
+        <source>invalid or missing column index</source>
+        <translation>índice de columna inválido o perdido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1302"/>
+        <source>invalid column width</source>
+        <translation>ancho de columna inválido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1338"/>
+        <source>invalid cell value</source>
+        <translation>valor de celda inválido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1369"/>
+        <source>Hide Controls</source>
+        <translation>Ocultar controles</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1371"/>
+        <source>Show Controls</source>
+        <translation>Mostrar Controles</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1448"/>
+        <source>Matrix</source>
+        <translation>Matriz</translation>
+    </message>
+    <message>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1460"/>
+        <source>Import image...</source>
+        <translation>Importar imagen...</translation>
     </message>
 </context>
 <context>
@@ -12208,7 +12559,7 @@ Do you want to insert cells?</source>
     <message>
         <location filename="../src/future/matrix/matrixcontroltabs.ui" line="231"/>
         <source>Last row Y =</source>
-        <translation type="unfinished"></translation>
+        <translation>Última fila Y +</translation>
     </message>
     <message>
         <location filename="../src/future/matrix/matrixcontroltabs.ui" line="328"/>
@@ -12617,274 +12968,321 @@ p, li { white-space: pre-wrap; }
         <location filename="../src/MuParserScripting.cpp" line="47"/>
         <source>abs(x):
  Absolute value of x.</source>
-        <translation type="unfinished"></translation>
+        <translation>abs(x):
+ Valor absoluto de x.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="48"/>
         <source>acos(x):
  Inverse cos function.</source>
-        <translation type="unfinished"></translation>
+        <translation>acos(x):
+Función coseno inverso.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="49"/>
         <source>acosh(x):
  Hyperbolic inverse cos function.</source>
-        <translation type="unfinished"></translation>
+        <translation>acosh(x):
+Función coseno hiperbólico inverso.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="50"/>
         <source>asin(x):
  Inverse sin function.</source>
-        <translation type="unfinished"></translation>
+        <translation>asin(x):
+Función seno inverso.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="51"/>
         <source>asinh(x):
  Hyperbolic inverse sin function.</source>
-        <translation type="unfinished"></translation>
+        <translation>asinh(x):
+Función seno hiperbólico inverso.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="52"/>
         <source>atan(x):
  Inverse tan function.</source>
-        <translation type="unfinished"></translation>
+        <translation>atan(x):
+Función tangente inversa.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="53"/>
         <source>atanh(x):
   Hyperbolic inverse tan function.</source>
-        <translation type="unfinished"></translation>
+        <translation>atanh(x):
+Función tangente hiperbólica inversa.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="54"/>
         <source>avg(x,y,...):
   Mean value of all arguments.</source>
-        <translation type="unfinished"></translation>
+        <translation>avg(x,y,...):
+Valor medio de todos los argumentos.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="55"/>
         <source>bessel_j0(x):
   Regular cylindrical Bessel function of zeroth order, J_0(x).</source>
-        <translation type="unfinished"></translation>
+        <translation>bessel_j0(x):
+Función de Bessel cilíndrica regular de orden cero, J_0(x).</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="56"/>
         <source>bessel_j1(x):
   Regular cylindrical Bessel function of first order, J_1(x).</source>
-        <translation type="unfinished"></translation>
+        <translation>bessel_j1(x):
+Función de Bessel cilíndrica regular de primer orden, J_1(x).</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="57"/>
         <source>bessel_jn(double x, int n):
  Regular cylindrical Bessel function of order n, J_n(x).</source>
-        <translation type="unfinished"></translation>
+        <translation>bessel_jn(double x, int n):
+Función de Bessel cilíndrica regular de orden n, J_n(x).</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="58"/>
         <source>bessel_jn_zero(double n, unsigned int s):
  s-th positive zero x_s of regular cylindrical Bessel function of order n, J_n(x_s)=0</source>
-        <translation type="unfinished"></translation>
+        <translation>bessel_jn_zero(double n, unsigned int s):
+s-th cero positivo x_s de la Función de Bessel cilíndrica regular de orden n, J_n(x_s)=0</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="59"/>
         <source>bessel_y0(x):
  Irregular cylindrical Bessel function of zeroth order, Y_0(x), for x&gt;0.</source>
-        <translation type="unfinished"></translation>
+        <translation>bessel_y0(x):
+Función de Bessel cilíndrica irregular de orden cero, Y_0(x), for x&gt;0.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="60"/>
         <source>bessel_y1(x):
  Irregular cylindrical Bessel function of first order, Y_1(x), for x&gt;0.</source>
-        <translation type="unfinished"></translation>
+        <translation>bessel_y1(x):
+Función de Bessel cilíndrica irregular de primer orden, Y_1(x), for x&gt;0.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="61"/>
         <source>bessel_yn(double x, int n):
  Irregular cylindrical Bessel function of order n, Y_n(x), for x&gt;0.</source>
-        <translation type="unfinished"></translation>
+        <translation>bessel_yn(double x, int n):
+Función de Bessel cilíndrica irregular de orden n, Y_n(x), for x&gt;0.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="62"/>
         <source>beta(a,b):
  Computes the Beta Function, B(a,b) = Gamma(a)*Gamma(b)/Gamma(a+b) for a &gt; 0, b &gt; 0.</source>
-        <translation type="unfinished"></translation>
+        <translation>beta(a,b):
+Calcula la función Beta, B(a,b) = Gamma(a)*Gamma(b)/Gamma(a+b) para a &gt; 0, b &gt; 0.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="63"/>
         <source>ceil(x):
  Round to the next larger integer,
  smallest integer larger or equal to x.</source>
-        <translation type="unfinished"></translation>
+        <translation>ceil(x):
+redondea al siguiente mayor entero,
+menor entero mayor o igual a x.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="64"/>
         <source>cos(x):
  Calculate cosine.</source>
-        <translation type="unfinished"></translation>
+        <translation>cos(x):
+Calcula el coseno.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="65"/>
         <source>cosh(x):
  Hyperbolic cos function.</source>
-        <translation type="unfinished"></translation>
+        <translation>cosh(x):
+Función coseno hiperbólico.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="66"/>
         <source>erf(x):
   The error function.</source>
-        <translation type="unfinished"></translation>
+        <translation>Función error.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="67"/>
         <source>erfc(x):
  Complementary error function erfc(x) = 1 - erf(x).</source>
-        <translation type="unfinished"></translation>
+        <translation>erfc(x):
+Función error complementario erfc(x) = 1 - erf(x).</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="68"/>
         <source>erfz(x):
  The Gaussian probability density function Z(x).</source>
-        <translation type="unfinished"></translation>
+        <translation>erfz(x):
+Función de densidad de probabilidad Gaussiana Z(x).</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="69"/>
         <source>erfq(x):
  The upper tail of the Gaussian probability function Q(x).</source>
-        <translation type="unfinished"></translation>
+        <translation>erfq(x):
+La cola mayor de la función de probabilidad Gaussiana Q(x).</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="70"/>
         <source>exp(x):
  Exponential function: e raised to the power of x.</source>
-        <translation type="unfinished"></translation>
+        <translation>exp(x):
+Función exponencial: e elevada a la potencia de x.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="71"/>
         <source>floor(x):
  Round to the next smaller integer,
  largest integer smaller or equal to x.</source>
-        <translation type="unfinished"></translation>
+        <translation>floor(x):
+Redondea al siguiente menor entero,
+mayor entero menor o igual a x.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="72"/>
         <source>gamma(x):
  Computes the Gamma function, subject to x not being a negative integer.</source>
-        <translation type="unfinished"></translation>
+        <translation>gamma(x):
+calcula la función Gamma, siendo x un entero positivo.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="73"/>
         <source>gammaln(x):
  Computes the logarithm of the Gamma function, subject to x not a being negative integer. For x&lt;0, log(|Gamma(x)|) is returned.</source>
-        <translation type="unfinished"></translation>
+        <translation>gammaln(x):
+Calcula el logarítmo de la función Gamma, siendo x un entero positivo. Para x&lt;0, log(|Gamma(x)|) es devuelto.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="74"/>
         <source>hazard(x):
  Computes the hazard function for the normal distribution h(x) = erfz(x)/erfq(x).</source>
-        <translation type="unfinished"></translation>
+        <translation>hazard(x):
+Calcula la función aleatoria para la distribución normal h(x) = erfz(x)/erfq(x).</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="75"/>
         <source>if(e1, e2, e3):
  if e1 then e2 else e3.</source>
-        <translation type="unfinished"></translation>
+        <translation>if(e1, e2, e3):
+Si e1 entonces e2 sino e3.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="76"/>
         <source>ln(x):
  Calculate natural logarithm log_e.</source>
-        <translation type="unfinished"></translation>
+        <translation>ln(x):
+Función logarítmo natural log_e.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="77"/>
         <source>log(x):
  Calculate decimal logarithm log_10.</source>
-        <translation type="unfinished"></translation>
+        <translation>log(x):
+Función logarítmo decimal log_10.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="78"/>
         <source>log10(x):
  Calculate decimal logarithm log_10.</source>
-        <translation type="unfinished"></translation>
+        <translation>log10(x):
+Función logarítmo decimal log_10.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="79"/>
         <source>log2(x):
  Calculate binary logarithm log_2.</source>
-        <translation type="unfinished"></translation>
+        <translation>log2(x):
+Función logarítmo en base 2 log_2.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="80"/>
         <source>min(x,y,...):
  Calculate minimum of all arguments.</source>
-        <translation type="unfinished"></translation>
+        <translation>min(x,y,...):
+Calcula el mínimo de todos los argumentos.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="81"/>
         <source>max(x,y,...):
  Calculate maximum of all arguments.</source>
-        <translation type="unfinished"></translation>
+        <translation>max(x,y,...):
+Calcula el máximo de todos los argumentos.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="82"/>
         <source>mod(x,y):
  Calculate rest of integer division x/y,
  x modulo y.</source>
-        <translation type="unfinished"></translation>
+        <translation>mod(x,y):
+Calcula el resto de la división de enteros x/y,
+ x modulo y.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="83"/>
         <source>pow(x,y):
  Raise x to the power of y, x^y.</source>
-        <translation type="unfinished"></translation>
+        <translation>pow(x,y):
+x elevado a la potencia y, x^y.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="84"/>
         <source>rint(x):
  Round to nearest integer.</source>
-        <translation type="unfinished"></translation>
+        <translation>rint(x):
+Redondea al entero más cercano.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="85"/>
         <source>sign(x):
  Sign function: -1 if x&lt;0; 1 if x&gt;0.</source>
-        <translation type="unfinished"></translation>
+        <translation>sign(x):
+Función signo: -1 si x&lt;0; 1 si x&gt;0.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="86"/>
         <source>sin(x):
  Calculate sine.</source>
-        <translation type="unfinished"></translation>
+        <translation>sin(x):
+Función seno.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="87"/>
         <source>sinh(x):
  Hyperbolic sin function.</source>
-        <translation type="unfinished"></translation>
+        <translation>sinh(x):
+Función seno hiperbólico.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="88"/>
         <source>sqrt(x):
  Square root function.</source>
-        <translation type="unfinished"></translation>
+        <translation>sqrt(x):
+Función raíz cuadrada.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="89"/>
         <source>sum(x,y,...):
  Calculate sum of all arguments.</source>
-        <translation type="unfinished"></translation>
+        <translation>sum(x,y,...):
+Calcula la suma de todos los argumentos.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="90"/>
         <source>tan(x):
  Calculate tangent function.</source>
-        <translation type="unfinished"></translation>
+        <translation>tan(x):
+Función tangente.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="91"/>
         <source>tanh(x):
  Hyperbolic tan function.</source>
-        <translation type="unfinished"></translation>
+        <translation>tanh(x):
+Función tangente hiperbólico.</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="92"/>
@@ -12892,7 +13290,10 @@ p, li { white-space: pre-wrap; }
  Compute the principal branch of Lambert&apos;s W function, W_0(x).
  W is defined as a solution to the equation W(x)*exp(W(x))=x.
  For x&lt;0, there are two real-valued branches; this function computes the one where W&gt;-1 for x&lt;0 (also see wm1(x)).</source>
-        <translation type="unfinished"></translation>
+        <translation>w0(x):
+Calcula la rama principal de la función de Lambert W.
+W es definida como una solución para la ecuación W(x)*exp(W(x))=x.
+Para x&lt;0, donde hay dos ramas reales; esta función calcula una donde W&gt;-1 para x&lt;0 (también vea wm1(x)).</translation>
     </message>
     <message>
         <location filename="../src/MuParserScripting.cpp" line="93"/>
@@ -12900,7 +13301,10 @@ p, li { white-space: pre-wrap; }
  Compute the secondary branch of Lambert&apos;s W function, W_{-1}(x).
  W is defined as a solution to the equation W(x)*exp(W(x))=x.
  For x&lt;0, there are two real-valued branches; this function computes the one where W&lt;-1 for x&lt;0. (also see w0(x)).</source>
-        <translation type="unfinished"></translation>
+        <translation>wm1(x):
+Calcula la segunda rama de la función de Lambert W_{-1}(x).
+W es definida como una solución para la ecuación W(x)*exp(W(x))=x.
+Para x&lt;0, donde hay dos ramas reales; esta función calcula una donde W&lt;-1 para x&lt;0 (también vea w0(x)).</translation>
     </message>
 </context>
 <context>
@@ -13302,26 +13706,27 @@ p, li { white-space: pre-wrap; }
         <translation>Gráfico de Origin</translation>
     </message>
     <message>
+        <location filename="../src/OpenProjectDialog.cpp" line="53"/>
         <source>Backup files</source>
-        <translation type="obsolete">Archivos de copia de seguridad</translation>
+        <translation>Archivos de copia de seguridad</translation>
     </message>
     <message>
-        <location filename="../src/OpenProjectDialog.cpp" line="54"/>
+        <location filename="../src/OpenProjectDialog.cpp" line="55"/>
         <source>All files</source>
         <translation>Todos los archivos</translation>
     </message>
     <message>
-        <location filename="../src/OpenProjectDialog.cpp" line="60"/>
+        <location filename="../src/OpenProjectDialog.cpp" line="61"/>
         <source>Open As</source>
         <translation>Abrir como</translation>
     </message>
     <message>
-        <location filename="../src/OpenProjectDialog.cpp" line="63"/>
+        <location filename="../src/OpenProjectDialog.cpp" line="64"/>
         <source>New Project Window</source>
         <translation>Nueva ventana de proyecto</translation>
     </message>
     <message>
-        <location filename="../src/OpenProjectDialog.cpp" line="64"/>
+        <location filename="../src/OpenProjectDialog.cpp" line="65"/>
         <source>New Folder</source>
         <translation>Nueva carpeta</translation>
     </message>
@@ -13611,7 +14016,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/Plot3DDialog.cpp" line="184"/>
         <source>&amp;Axis</source>
-        <translation>Eje</translation>
+        <translation>E&amp;je</translation>
     </message>
     <message>
         <location filename="../src/Plot3DDialog.cpp" line="201"/>
@@ -13666,7 +14071,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/Plot3DDialog.cpp" line="248"/>
         <source>&amp;Axes</source>
-        <translation>Ejes</translation>
+        <translation>&amp;Ejes</translation>
     </message>
     <message>
         <location filename="../src/Plot3DDialog.cpp" line="250"/>
@@ -15300,7 +15705,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11848"/>
-        <location filename="../src/globals.cpp" line="160"/>
+        <location filename="../src/globals.cpp" line="154"/>
         <source>Released</source>
         <translation>Liberado</translation>
     </message>
@@ -15560,7 +15965,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/future/table/future_Table.cpp" line="915"/>
         <source>%1: clear selected cell(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Limpiar la(s) celda(s) seleccionada(s)</translation>
     </message>
     <message>
         <location filename="../src/future/table/tablecommands.cpp" line="128"/>
@@ -15568,7 +15973,7 @@ p, li { white-space: pre-wrap; }
         <translation>%1: mover columna %2 desde  la posición %3 a la %4</translation>
     </message>
     <message>
-        <location filename="../src/globals.cpp" line="158"/>
+        <location filename="../src/globals.cpp" line="152"/>
         <source>About SciDAVis</source>
         <translation>Acerca de SciDAVis</translation>
     </message>
@@ -16215,25 +16620,25 @@ Do you want to overwrite it?</source>
     <message>
         <location filename="../src/SmoothFilter.cpp" line="257"/>
         <source>Tried to smooth over more points (left+right+1=%1) than given as input (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha intentado suavizar sobre más puntos (izquierda+derecha+1=%1) que los dados como entrada (%2).</translation>
     </message>
     <message>
         <location filename="../src/SmoothFilter.cpp" line="265"/>
         <source>Internal error in Savitzky-Golay algorithm.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Error interno en el algorítmo Savitzky-Golay.</translation>
     </message>
     <message>
         <location filename="../src/SmoothFilter.cpp" line="378"/>
         <source>Internal error in Savitzky-Golay algorithm: QR decomposition failed.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Error interno en el algorítmo Savitzky-Golay: la descomposición QR falló.</translation>
     </message>
     <message>
         <location filename="../src/SmoothFilter.cpp" line="384"/>
         <source>Internal error in Savitzky-Golay algorithm: least-squares solution failed.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Error interno en el algorítmo Savitzky-Golay: la solución de mínimos cuadrados falló.</translation>
     </message>
     <message>
         <location filename="../src/SmoothFilter.cpp" line="405"/>
@@ -16276,44 +16681,54 @@ Do you want to overwrite it?</source>
         <translation type="obsolete">QtiPlot - Opciones de Ordenado</translation>
     </message>
     <message>
+        <location filename="../src/future/table/future_SortDialog.cpp" line="52"/>
         <source>Sort columns</source>
-        <translation type="obsolete">Ordenar columnas</translation>
+        <translation>Ordenar columnas</translation>
     </message>
     <message>
+        <location filename="../src/future/table/future_SortDialog.cpp" line="59"/>
         <source>Order</source>
-        <translation type="obsolete">Orden</translation>
+        <translation>Orden</translation>
     </message>
     <message>
+        <location filename="../src/future/table/future_SortDialog.cpp" line="65"/>
         <source>Leading column</source>
-        <translation type="obsolete">Columan principal</translation>
+        <translation>Columna principal</translation>
     </message>
     <message>
+        <location filename="../src/future/table/future_SortDialog.cpp" line="70"/>
         <source>&amp;Sort</source>
-        <translation type="obsolete">&amp;Ordenar</translation>
+        <translation>&amp;Ordenar</translation>
     </message>
     <message>
+        <location filename="../src/future/table/future_SortDialog.cpp" line="74"/>
         <source>&amp;Close</source>
-        <translation type="obsolete">&amp;Cerrar</translation>
+        <translation>&amp;Cerrar</translation>
     </message>
     <message>
+        <location filename="../src/future/table/future_SortDialog.cpp" line="54"/>
         <source>Separately</source>
-        <translation type="obsolete">Separadamente</translation>
+        <translation>Separadamente</translation>
     </message>
     <message>
+        <location filename="../src/future/table/future_SortDialog.cpp" line="55"/>
         <source>Together</source>
-        <translation type="obsolete">Juntos</translation>
+        <translation>Juntos</translation>
     </message>
     <message>
+        <location filename="../src/future/table/future_SortDialog.cpp" line="61"/>
         <source>Ascending</source>
-        <translation type="obsolete">Ascendente</translation>
+        <translation>Ascendente</translation>
     </message>
     <message>
+        <location filename="../src/future/table/future_SortDialog.cpp" line="62"/>
         <source>Descending</source>
-        <translation type="obsolete">Descendente</translation>
+        <translation>Descendente</translation>
     </message>
     <message>
+        <location filename="../src/future/table/future_SortDialog.cpp" line="44"/>
         <source>Sorting Options</source>
-        <translation type="obsolete">Opciones de ordenamiento</translation>
+        <translation>Opciones de ordenamiento</translation>
     </message>
 </context>
 <context>
@@ -16750,8 +17165,424 @@ Do you want to insert cells?</source>
         <translation>Ocultar</translation>
     </message>
     <message>
+        <location filename="../src/future/table/future_Table.cpp" line="353"/>
+        <source>%1: cut selected cell(s)</source>
+        <translation>%1: cortar la(s) celda(s) seleccionada(s)</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="415"/>
+        <source>%1: paste from clipboard</source>
+        <translation>%1: pegar desde el portapapeles</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="505"/>
+        <source>%1: mask selected cell(s)</source>
+        <translation>%1: enmascarar las celda(s) seleccionada(s)</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="525"/>
+        <source>%1: unmask selected cell(s)</source>
+        <translation>%1: desenmascarar la(s) celdas seleccionada(s)</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="549"/>
         <source>%1: apply formula to selection</source>
-        <translation type="obsolete">%1: aplicar formula a selección</translation>
+        <translation>%1: aplicar la formula a la selección</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="565"/>
+        <source>%1: fill cells with row numbers</source>
+        <translation>%1: llenar las celdas con los números de las filas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="606"/>
+        <source>%1: fill cells with random values</source>
+        <translation>%1: llenar las celdas con valores aleatorios</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="962"/>
+        <source>&amp;Table</source>
+        <translation>&amp;Tabla</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="964"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1617"/>
+        <source>S&amp;et Column(s) As</source>
+        <translation>S&amp;etear Columna(s) Como</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="976"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1585"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1629"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1693"/>
+        <source>Fi&amp;ll Selection with</source>
+        <translation>&amp;Llenar la selección con</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1045"/>
+        <source>Cu&amp;t</source>
+        <translation>Cor&amp;tar</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1048"/>
+        <source>&amp;Copy</source>
+        <translation>&amp;Copiar</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1051"/>
+        <source>Past&amp;e</source>
+        <translation>P&amp;egar</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1055"/>
+        <source>&amp;Mask</source>
+        <comment>mask selection</comment>
+        <translatorcomment>enmascarar la selección</translatorcomment>
+        <translation>En&amp;mascarar</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1058"/>
+        <source>&amp;Unmask</source>
+        <comment>unmask selection</comment>
+        <translatorcomment>desenmascarar la selección</translatorcomment>
+        <translation>&amp;Desenmasracar</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1065"/>
+        <source>Assign &amp;Formula</source>
+        <translation>Asignar &amp;Fórmula</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1066"/>
+        <source>Alt+Q</source>
+        <translation>Alt+Q</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1073"/>
+        <source>Clea&amp;r</source>
+        <comment>clear selection</comment>
+        <translatorcomment>limpiar selección</translatorcomment>
+        <translation>Limpia&amp;r</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1080"/>
+        <source>Recalculate</source>
+        <translation>Recalcular</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1081"/>
+        <source>Ctrl+Return</source>
+        <translation>Ctrl+Return</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1085"/>
+        <source>Row Numbers</source>
+        <translation>Números de fila</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1088"/>
+        <source>Random Values</source>
+        <translation>Valores Aleatorios</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1103"/>
+        <source>F12</source>
+        <translation>F12</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1107"/>
+        <source>Formula Edit Mode</source>
+        <translation>Modo de edición de fórmula</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1114"/>
+        <source>Select All</source>
+        <translation>Seleccionar Todo</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1121"/>
+        <source>&amp;Add Column</source>
+        <translation>&amp;Agregar Columna</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1122"/>
+        <source>append a new column to the table</source>
+        <translation>agregar una nueva columna a la tabla</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1129"/>
+        <source>Clear Table</source>
+        <translation>Limpiar tabla</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1136"/>
+        <source>Export to TeX...</source>
+        <translation>Exportar a TeX...</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1142"/>
+        <source>Clear Masks</source>
+        <translation>Limpiar Máscaras</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1149"/>
+        <source>&amp;Sort Table</source>
+        <translation>&amp;Ordenar tabla</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1156"/>
+        <source>&amp;Go to Cell</source>
+        <translation>&amp;Ir a la Celda</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1157"/>
+        <source>Ctrl+Alt+G</source>
+        <translation>Ctrl+Alt+G</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1161"/>
+        <source>&amp;Dimensions</source>
+        <comment>table size</comment>
+        <translatorcomment>tamaño de tabla</translatorcomment>
+        <translation>&amp;Dimensiones</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1162"/>
+        <source>change the table size</source>
+        <translation>cambiar el tamaño de la tabla</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1169"/>
+        <source>&amp;Insert Empty Columns</source>
+        <translation>&amp;Insertar Columnas Vacías</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1176"/>
+        <source>Remo&amp;ve Columns</source>
+        <translation>Remo&amp;ver Columnas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1183"/>
+        <source>Clea&amp;r Columns</source>
+        <translation>Limpia&amp;r Columnas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1190"/>
+        <source>&amp;Add Columns</source>
+        <translation>&amp;Agregar Columnas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1194"/>
+        <source>X</source>
+        <comment>plot designation</comment>
+        <translatorcomment>designación de dibujo</translatorcomment>
+        <translation>X</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1197"/>
+        <source>Y</source>
+        <comment>plot designation</comment>
+        <translatorcomment>designación de dibujo</translatorcomment>
+        <translation>Y</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1200"/>
+        <source>Z</source>
+        <comment>plot designation</comment>
+        <translatorcomment>designación de dibujo</translatorcomment>
+        <translation>Z</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1206"/>
+        <source>X Error</source>
+        <comment>plot designation</comment>
+        <translatorcomment>designación de dibujo</translatorcomment>
+        <translation>X Error</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1213"/>
+        <source>Y Error</source>
+        <comment>plot designation</comment>
+        <translatorcomment>designación de dibujo</translatorcomment>
+        <translation>Y Error</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1217"/>
+        <source>None</source>
+        <comment>plot designation</comment>
+        <translatorcomment>designación de dibujo</translatorcomment>
+        <translation>Ninguno</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1223"/>
+        <source>&amp;Normalize Columns</source>
+        <translation>&amp;Normalizar la(s) Columna(s) </translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1230"/>
+        <source>&amp;Normalize Selection</source>
+        <translation>&amp;Normalizar la Selección</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1237"/>
+        <source>&amp;Sort Columns</source>
+        <translation>Ordenar Columna&amp;s</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1241"/>
+        <source>Column Statisti&amp;cs</source>
+        <translation>Estadísti&amp;ca de Columna</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1242"/>
+        <source>statistics on columns</source>
+        <translation>estadística sobre las columnas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1248"/>
+        <source>Change &amp;Type &amp;&amp; Format</source>
+        <translation>Cambiar &amp;Tipo y Formato</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1249"/>
+        <source>Ctrl+Alt+O</source>
+        <translation>Ctrl+Alt+O</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1256"/>
+        <source>Edit Column &amp;Description</source>
+        <translation>Editar &amp;Descripción de Columna</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1264"/>
+        <source>&amp;Insert Empty Rows</source>
+        <translation>&amp;Insertar Filas Vacías</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1271"/>
+        <source>Remo&amp;ve Rows</source>
+        <translation>Remo&amp;ver Filas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1278"/>
+        <source>Clea&amp;r Rows</source>
+        <translation>Limpia&amp;r Filas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1285"/>
+        <source>&amp;Add Rows</source>
+        <translation>&amp;Agregar Filas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1289"/>
+        <source>Row Statisti&amp;cs</source>
+        <translation>Estadísti&amp;ca de Fila</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1290"/>
+        <source>statistics on rows</source>
+        <translation>estadística sobre filas</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1495"/>
+        <source>TeX Export Error</source>
+        <translation>Error de Exportación TeX</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1496"/>
+        <source>Could not write to file: &lt;br&gt;&lt;h4&gt;%1&lt;/h4&gt;&lt;p&gt;Please verify that you have the right to write to this location!</source>
+        <translation>No se pudo escribir en el archivo &lt;br&gt;&lt;h4&gt; %1 &lt;/h4&gt;&lt;p&gt;¡Por favor, verifique que tiene permiso de escritura en esa ubicación!</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1708"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1712"/>
+        <source>Go to Cell</source>
+        <translation>Ir a la celda</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1708"/>
+        <source>Enter column</source>
+        <translation>Insertar columna</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1712"/>
+        <source>Enter row</source>
+        <translation>Insertar fila</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1724"/>
+        <source>Set Table Dimensions</source>
+        <translation>Setear Dimensiones de Tabla</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1739"/>
+        <source>%1: move column %2 from position %3 to %4.</source>
+        <translation>%1: mover columna %2 desde la posición %3 a la %4.</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="1874"/>
+        <source>%1: sort column(s)</source>
+        <translation>%1: Ordenar columna(s)</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2253"/>
+        <source>invalid row or column count</source>
+        <translation>conteo de fila o columna inválido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2273"/>
+        <source>Column %1</source>
+        <translation>Columna %1</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2289"/>
+        <source>unknown element &apos;%1&apos;</source>
+        <translation>elemento &apos;%1&apos; desconocido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2295"/>
+        <source>columns attribute and number of read columns do not match</source>
+        <translation>atributos de columnas y número de columnas leídas no son iguales</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2298"/>
+        <source>no table element found</source>
+        <translation>No se hallaron elementos de tabla</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2309"/>
+        <source>Hide Comments</source>
+        <translation>Ocultar Comentarios</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2311"/>
+        <source>Show Comments</source>
+        <translation>Mostrar Comentarios</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2315"/>
+        <source>Hide Controls</source>
+        <translation>Ocultar Controles</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2317"/>
+        <source>Show Controls</source>
+        <translation>Mostrar Controles</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2328"/>
+        <source>invalid or missing column index</source>
+        <translation>Índice de columna inválido o perdido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2335"/>
+        <source>invalid column width</source>
+        <translation>ancho de columna inválido</translation>
+    </message>
+    <message>
+        <location filename="../src/future/table/future_Table.cpp" line="2372"/>
+        <source>Table</source>
+        <translation>Tabla</translation>
     </message>
     <message>
         <location filename="../src/Table.cpp" line="1341"/>
@@ -17144,37 +17975,37 @@ Do you want to insert cells?</source>
     <message>
         <location filename="../src/future/table/TableView.cpp" line="241"/>
         <source>years</source>
-        <translation type="unfinished"></translation>
+        <translation>años</translation>
     </message>
     <message>
         <location filename="../src/future/table/TableView.cpp" line="242"/>
         <source>months</source>
-        <translation type="unfinished"></translation>
+        <translation>meses</translation>
     </message>
     <message>
         <location filename="../src/future/table/TableView.cpp" line="243"/>
         <source>days</source>
-        <translation type="unfinished">días</translation>
+        <translation>días</translation>
     </message>
     <message>
         <location filename="../src/future/table/TableView.cpp" line="244"/>
         <source>hours</source>
-        <translation type="unfinished">horas</translation>
+        <translation>horas</translation>
     </message>
     <message>
         <location filename="../src/future/table/TableView.cpp" line="245"/>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>minutos</translation>
     </message>
     <message>
         <location filename="../src/future/table/TableView.cpp" line="246"/>
         <source>seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>segundos</translation>
     </message>
     <message>
         <location filename="../src/future/table/TableView.cpp" line="247"/>
         <source>milliseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>milisegundos</translation>
     </message>
     <message>
         <location filename="../src/future/table/TableView.cpp" line="339"/>
@@ -17234,13 +18065,13 @@ Position: %2</source>
         <location filename="../src/future/table/TableView.cpp" line="488"/>
         <location filename="../src/future/table/TableView.cpp" line="561"/>
         <source>Predefined:</source>
-        <translation type="unfinished"></translation>
+        <translation>Predefinido:</translation>
     </message>
     <message>
         <location filename="../src/future/table/TableView.cpp" line="490"/>
         <location filename="../src/future/table/TableView.cpp" line="563"/>
         <source>Format:</source>
-        <translation type="unfinished">Formato:</translation>
+        <translation>Formato:</translation>
     </message>
     <message>
         <location filename="../src/future/table/TableView.cpp" line="502"/>
@@ -17319,7 +18150,7 @@ valores con punto flotante
     <message>
         <location filename="../src/TeXTableExportDialog.cpp" line="36"/>
         <source>TeX table export dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>dialogo para exportar tabla TeX</translation>
     </message>
 </context>
 <context>
@@ -17327,32 +18158,32 @@ valores con punto flotante
     <message>
         <location filename="../src/TeXTableSettingsWidget.cpp" line="41"/>
         <source>Table caption</source>
-        <translation type="unfinished"></translation>
+        <translation>Leyenda de Tabla</translation>
     </message>
     <message>
         <location filename="../src/TeXTableSettingsWidget.cpp" line="42"/>
         <source>Table labes</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiquetas de tabla</translation>
     </message>
     <message>
         <location filename="../src/TeXTableSettingsWidget.cpp" line="45"/>
         <source>TeX table columns alignment</source>
-        <translation type="unfinished"></translation>
+        <translation>Alineación de columnas de tabla TeX</translation>
     </message>
     <message>
         <location filename="../src/TeXTableSettingsWidget.cpp" line="47"/>
         <source>Left</source>
-        <translation type="unfinished">Izquierda</translation>
+        <translation>Izquierda</translation>
     </message>
     <message>
         <location filename="../src/TeXTableSettingsWidget.cpp" line="48"/>
         <source>Center</source>
-        <translation type="unfinished">Centro</translation>
+        <translation>Centro</translation>
     </message>
     <message>
         <location filename="../src/TeXTableSettingsWidget.cpp" line="49"/>
         <source>Right</source>
-        <translation type="unfinished">Derecha</translation>
+        <translation>Derecha</translation>
     </message>
 </context>
 <context>
@@ -19479,839 +20310,659 @@ valores con punto flotante
 <context>
     <name>future::Folder</name>
     <message>
-        <location filename="../src/future/core/future_Folder.cpp" line="113"/>
         <source>unknown element &apos;%1&apos;</source>
-        <translation>elemento &apos;%1&apos; desconocido</translation>
+        <translation type="obsolete">elemento &apos;%1&apos; desconocido</translation>
     </message>
     <message>
-        <location filename="../src/future/core/future_Folder.cpp" line="120"/>
         <source>no folder element found</source>
-        <translation>No se hallaron elementos de carpeta</translation>
+        <translation type="obsolete">No se hallaron elementos de carpeta</translation>
     </message>
     <message>
-        <location filename="../src/future/core/future_Folder.cpp" line="135"/>
         <source>Folder %1</source>
-        <translation>Carpeta %1</translation>
+        <translation type="obsolete">Carpeta %1</translation>
     </message>
     <message>
-        <location filename="../src/future/core/future_Folder.cpp" line="146"/>
         <source>Column %1</source>
-        <translation>Columna %1</translation>
+        <translation type="obsolete">Columna %1</translation>
     </message>
     <message>
-        <location filename="../src/future/core/future_Folder.cpp" line="171"/>
         <source>creation of aspect from element &apos;%1&apos; failed</source>
-        <translation>Falló la creación de aspecto desde el elemento &apos;%1&apos; </translation>
+        <translation type="obsolete">Falló la creación de aspecto desde el elemento &apos;%1&apos; </translation>
     </message>
     <message>
-        <location filename="../src/future/core/future_Folder.cpp" line="179"/>
         <source>no plugin to load element &apos;%1&apos; found</source>
-        <translation>No se encontró plugin para cargar elemento &apos;%1&apos;</translation>
+        <translation type="obsolete">No se encontró plugin para cargar elemento &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
     <name>future::Matrix</name>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="208"/>
         <source>%1: cut selected cell(s)</source>
-        <translation>%1: cortar las celda(s) seleccionadas</translation>
+        <translation type="obsolete">%1: cortar las celda(s) seleccionadas</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="255"/>
         <source>%1: paste from clipboard</source>
-        <translation>%1: pegar desde el portapapeles</translation>
+        <translation type="obsolete">%1: pegar desde el portapapeles</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="442"/>
         <source>%1: clear selected cell(s)</source>
-        <translation>%1: limpiar la(s) celdas seleccionadas</translation>
+        <translation type="obsolete">%1: limpiar la(s) celdas seleccionadas</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="535"/>
         <source>Cu&amp;t</source>
-        <translation>Cor&amp;tar</translation>
+        <translation type="obsolete">Cor&amp;tar</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="538"/>
         <source>&amp;Copy</source>
-        <translation>&amp;Copiar</translation>
+        <translation type="obsolete">&amp;Copiar</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="541"/>
         <source>Past&amp;e</source>
-        <translation>P&amp;egar</translation>
+        <translation type="obsolete">P&amp;egar</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="547"/>
         <source>Clea&amp;r</source>
         <comment>clear selection</comment>
-        <translation>Limpia&amp;r</translation>
+        <translation type="obsolete">Limpia&amp;r</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="555"/>
         <source>Assign &amp;Formula</source>
-        <translation>Asignar &amp;fórmula</translation>
+        <translation type="obsolete">Asignar &amp;fórmula</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="563"/>
         <source>Recalculate</source>
-        <translation>Recalcular</translation>
+        <translation type="obsolete">Recalcular</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="579"/>
         <source>Select All</source>
-        <translation>Seleccionar todo</translation>
+        <translation type="obsolete">Seleccionar todo</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="586"/>
         <source>Clear Matrix</source>
-        <translation>Limpiar matriz</translation>
+        <translation type="obsolete">Limpiar matriz</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="593"/>
         <source>&amp;Go to Cell</source>
-        <translation>&amp;Ir a la celda</translation>
+        <translation type="obsolete">&amp;Ir a la celda</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="613"/>
         <source>&amp;Dimensions</source>
         <comment>matrix size</comment>
-        <translation>&amp;Dimensiones</translation>
+        <translation type="obsolete">&amp;Dimensiones</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="616"/>
         <source>Set &amp;Coordinates</source>
-        <translation>Setear &amp;coordenadas</translation>
+        <translation type="obsolete">Setear &amp;coordenadas</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="619"/>
         <source>Set Display &amp;Format</source>
-        <translation>Setear &amp;formato</translation>
+        <translation type="obsolete">Setear &amp;formato</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="626"/>
         <source>&amp;Insert Empty Columns</source>
-        <translation>&amp;Insertar columnas vacías</translation>
+        <translation type="obsolete">&amp;Insertar columnas vacías</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="633"/>
         <source>Remo&amp;ve Columns</source>
-        <translation>Remo&amp;ver columnas</translation>
+        <translation type="obsolete">Remo&amp;ver columnas</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="640"/>
         <source>Clea&amp;r Columns</source>
-        <translation>Limpia&amp;r columnas</translation>
+        <translation type="obsolete">Limpia&amp;r columnas</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="647"/>
         <source>&amp;Add Columns</source>
-        <translation>&amp;Agregar columnas</translation>
+        <translation type="obsolete">&amp;Agregar columnas</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="655"/>
         <source>&amp;Insert Empty Rows</source>
-        <translation>&amp;Insertar filas vacías</translation>
+        <translation type="obsolete">&amp;Insertar filas vacías</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="662"/>
         <source>Remo&amp;ve Rows</source>
-        <translation>Remo&amp;ver filas</translation>
+        <translation type="obsolete">Remo&amp;ver filas</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="669"/>
         <source>Clea&amp;r Rows</source>
-        <translation>Limpia&amp;r filas</translation>
+        <translation type="obsolete">Limpia&amp;r filas</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="676"/>
         <source>&amp;Add Rows</source>
-        <translation>&amp;Agregar filas</translation>
+        <translation type="obsolete">&amp;Agregar filas</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="749"/>
         <source>&amp;Matrix</source>
-        <translation>&amp;Matriz</translation>
+        <translation type="obsolete">&amp;Matriz</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="815"/>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="819"/>
         <source>Go to Cell</source>
-        <translation>Ir a la celda</translation>
+        <translation type="obsolete">Ir a la celda</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="815"/>
         <source>Enter column</source>
-        <translation>Insertar columna</translation>
+        <translation type="obsolete">Insertar columna</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="819"/>
         <source>Enter row</source>
-        <translation>Insertar fila</translation>
+        <translation type="obsolete">Insertar fila</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="887"/>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="891"/>
         <source>Set Matrix Dimensions</source>
-        <translation>Setear dimensiones de la matriz</translation>
+        <translation type="obsolete">Setear dimensiones de la matriz</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="887"/>
         <source>Enter number of columns</source>
-        <translation>Insertar número de columnas</translation>
+        <translation type="obsolete">Insertar número de columnas</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="891"/>
         <source>Enter number of rows</source>
-        <translation>Insertar número de filas</translation>
+        <translation type="obsolete">Insertar número de filas</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1142"/>
         <source>invalid row or column count</source>
-        <translation>conteo de fila o columna inválido</translation>
+        <translation type="obsolete">conteo de fila o columna inválido</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1174"/>
         <source>unknown element &apos;%1&apos;</source>
-        <translation>elemento &apos;%1&apos; desconocido</translation>
+        <translation type="obsolete">elemento &apos;%1&apos; desconocido</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1183"/>
         <source>no matrix element found</source>
-        <translation>No se hallaron elementos de matriz</translation>
+        <translation type="obsolete">No se hallaron elementos de matriz</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1196"/>
         <source>invalid or missing numeric format</source>
-        <translation>formato de numérico invalido o perdido</translation>
+        <translation type="obsolete">formato de numérico invalido o perdido</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1205"/>
         <source>invalid or missing number of displayed digits</source>
-        <translation>Número de digitos mostrados inválidos o perdidos</translation>
+        <translation type="obsolete">Número de digitos mostrados inválidos o perdidos</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1224"/>
         <source>invalid x start value</source>
-        <translation>inválido valor de comienzo x</translation>
+        <translation type="obsolete">inválido valor de comienzo x</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1232"/>
         <source>invalid x end value</source>
-        <translation>inválido valor final de x</translation>
+        <translation type="obsolete">inválido valor final de x</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1240"/>
         <source>invalid y start value</source>
-        <translation>inválido valor de comienzo y</translation>
+        <translation type="obsolete">inválido valor de comienzo y</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1248"/>
         <source>invalid y end value</source>
-        <translation>inválido valor final de y</translation>
+        <translation type="obsolete">inválido valor final de y</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1271"/>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1324"/>
         <source>invalid or missing row index</source>
-        <translation>índice de fila invalido ó perdido</translation>
+        <translation type="obsolete">índice de fila invalido ó perdido</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1278"/>
         <source>invalid row height</source>
-        <translation>altura de fila inválida</translation>
+        <translation type="obsolete">altura de fila inválida</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1295"/>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1330"/>
         <source>invalid or missing column index</source>
-        <translation>índice de columna inválido ó perdido</translation>
+        <translation type="obsolete">índice de columna inválido ó perdido</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1302"/>
         <source>invalid column width</source>
-        <translation>ancho de columna inválido</translation>
+        <translation type="obsolete">ancho de columna inválido</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1338"/>
         <source>invalid cell value</source>
-        <translation>valor de celda inválido</translation>
+        <translation type="obsolete">valor de celda inválido</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1369"/>
         <source>Hide Controls</source>
-        <translation>Ocultar controles</translation>
+        <translation type="obsolete">Ocultar controles</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1371"/>
         <source>Show Controls</source>
-        <translation>Mostrar controles</translation>
+        <translation type="obsolete">Mostrar controles</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1448"/>
         <source>Matrix</source>
-        <translation>Limpiar matriz</translation>
+        <translation type="obsolete">Limpiar matriz</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="556"/>
         <source>Alt+Q</source>
-        <translation>Alt+Q</translation>
+        <translation type="obsolete">Alt+Q</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="564"/>
         <source>Ctrl+Return</source>
-        <translation>Ctrl+Return</translation>
+        <translation type="obsolete">Ctrl+Return</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="572"/>
         <source>F12</source>
-        <translation>F12</translation>
+        <translation type="obsolete">F12</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="594"/>
         <source>Ctrl+Alt+G</source>
-        <translation>Ctrl+Alt+G</translation>
+        <translation type="obsolete">Ctrl+Alt+G</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="598"/>
         <source>&amp;Transpose</source>
-        <translation>&amp;Transponer</translation>
+        <translation type="obsolete">&amp;Transponer</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="601"/>
         <source>Mirror &amp;Horizontally</source>
-        <translation>Reflejar &amp;horizontalmente</translation>
+        <translation type="obsolete">Reflejar &amp;horizontalmente</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="604"/>
         <source>Mirror &amp;Vertically</source>
-        <translation>Reflejar &amp;verticalmente</translation>
+        <translation type="obsolete">Reflejar &amp;verticalmente</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="607"/>
         <source>&amp;Import Image</source>
         <comment>import image as matrix</comment>
-        <translation>&amp;Importar imagen</translation>
+        <translation type="obsolete">&amp;Importar imagen</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="610"/>
         <source>&amp;Duplicate</source>
         <comment>duplicate matrix</comment>
-        <translation>&amp;Duplicar</translation>
+        <translation type="obsolete">&amp;Duplicar</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="901"/>
         <source>Images</source>
-        <translation>Imágenes</translation>
+        <translation type="obsolete">Imágenes</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="909"/>
         <source>Import image from file</source>
-        <translation>Importar imagen desde archivo</translation>
+        <translation type="obsolete">Importar imagen desde archivo</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="925"/>
         <source>Error importing image</source>
-        <translation>Error de importación de imagen</translation>
+        <translation type="obsolete">Error de importación de imagen</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="925"/>
         <source>Import of image &apos;%1&apos; failed</source>
-        <translation>Falló la importación de la imagen &apos;%1&apos;</translation>
+        <translation type="obsolete">Falló la importación de la imagen &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1424"/>
         <source>%1: apply formula to selection</source>
-        <translation>%1: aplicar fórmula a selección</translation>
+        <translation type="obsolete">%1: aplicar fórmula a selección</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1460"/>
         <source>SciDAVis</source>
-        <translation>SciDAVis</translation>
+        <translation type="obsolete">SciDAVis</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1460"/>
         <source>Import image...</source>
-        <translation>Importar imagen...</translation>
+        <translation type="obsolete">Importar imagen...</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1463"/>
         <source>Matrix %1</source>
-        <translation>Matriz %1</translation>
+        <translation type="obsolete">Matriz %1</translation>
     </message>
 </context>
 <context>
     <name>future::SortDialog</name>
     <message>
-        <location filename="../src/future/table/future_SortDialog.cpp" line="44"/>
         <source>Sorting Options</source>
-        <translation>Opciones de ordenamiento</translation>
+        <translation type="obsolete">Opciones de ordenamiento</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_SortDialog.cpp" line="52"/>
         <source>Sort columns</source>
-        <translation>Ordenar columnas</translation>
+        <translation type="obsolete">Ordenar columnas</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_SortDialog.cpp" line="54"/>
         <source>Separately</source>
-        <translation>Separadamente</translation>
+        <translation type="obsolete">Separadamente</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_SortDialog.cpp" line="55"/>
         <source>Together</source>
-        <translation>Juntas</translation>
+        <translation type="obsolete">Juntas</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_SortDialog.cpp" line="59"/>
         <source>Order</source>
-        <translation>Orden</translation>
+        <translation type="obsolete">Orden</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_SortDialog.cpp" line="61"/>
         <source>Ascending</source>
-        <translation>Ascendente</translation>
+        <translation type="obsolete">Ascendente</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_SortDialog.cpp" line="62"/>
         <source>Descending</source>
-        <translation>Descendente</translation>
+        <translation type="obsolete">Descendente</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_SortDialog.cpp" line="65"/>
         <source>Leading column</source>
-        <translation>Columna principal</translation>
+        <translation type="obsolete">Columna principal</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_SortDialog.cpp" line="70"/>
         <source>&amp;Sort</source>
-        <translation>&amp;Ordenar</translation>
+        <translation type="obsolete">&amp;Ordenar</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_SortDialog.cpp" line="74"/>
         <source>&amp;Close</source>
-        <translation>&amp;Cerrar</translation>
+        <translation type="obsolete">&amp;Cerrar</translation>
     </message>
 </context>
 <context>
     <name>future::Table</name>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="353"/>
         <source>%1: cut selected cell(s)</source>
-        <translation>%1: cortar las celda(s) seleccionada(s)</translation>
+        <translation type="obsolete">%1: cortar las celda(s) seleccionada(s)</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="415"/>
         <source>%1: paste from clipboard</source>
-        <translation>%1: pegar desde el portapapeles</translation>
+        <translation type="obsolete">%1: pegar desde el portapapeles</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="505"/>
         <source>%1: mask selected cell(s)</source>
-        <translation>%1: enmascarar las celda(s) seleccionada(s)</translation>
+        <translation type="obsolete">%1: enmascarar las celda(s) seleccionada(s)</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="525"/>
         <source>%1: unmask selected cell(s)</source>
-        <translation>%1: desenmascarar la(s) celdas seleccionada(s)</translation>
+        <translation type="obsolete">%1: desenmascarar la(s) celdas seleccionada(s)</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="549"/>
         <source>%1: apply formula to selection</source>
-        <translation>%1: aplicar fórmula a selección</translation>
+        <translation type="obsolete">%1: aplicar fórmula a selección</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="565"/>
         <source>%1: fill cells with row numbers</source>
-        <translation>%1: llenar las celdas con los números de las filas</translation>
+        <translation type="obsolete">%1: llenar las celdas con los números de las filas</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="606"/>
         <source>%1: fill cells with random values</source>
-        <translation>%1: llenar las celdas con valores aleatorios</translation>
+        <translation type="obsolete">%1: llenar las celdas con valores aleatorios</translation>
     </message>
     <message>
         <source>%1: clear selected cell(s)</source>
         <translation type="obsolete">%1: limpiar la(s) celda(s) seleccionada(s)</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="962"/>
         <source>&amp;Table</source>
-        <translation>&amp;Tabla</translation>
+        <translation type="obsolete">&amp;Tabla</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="964"/>
-        <location filename="../src/future/table/future_Table.cpp" line="1617"/>
         <source>S&amp;et Column(s) As</source>
-        <translation>S&amp;etear Columna(s) Como</translation>
+        <translation type="obsolete">S&amp;etear Columna(s) Como</translation>
     </message>
     <message>
         <source>Fi&amp;ll Selection withi</source>
         <translation type="obsolete">&amp;Llenar selección con</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="976"/>
-        <location filename="../src/future/table/future_Table.cpp" line="1585"/>
-        <location filename="../src/future/table/future_Table.cpp" line="1629"/>
-        <location filename="../src/future/table/future_Table.cpp" line="1693"/>
-        <source>Fi&amp;ll Selection with</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1045"/>
         <source>Cu&amp;t</source>
-        <translation>Cor&amp;tar</translation>
+        <translation type="obsolete">Cor&amp;tar</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1048"/>
         <source>&amp;Copy</source>
-        <translation>&amp;Copiar</translation>
+        <translation type="obsolete">&amp;Copiar</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1051"/>
         <source>Past&amp;e</source>
-        <translation>P&amp;egar</translation>
+        <translation type="obsolete">P&amp;egar</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1055"/>
         <source>&amp;Mask</source>
         <comment>mask selection</comment>
-        <translation>En&amp;mascarar</translation>
+        <translation type="obsolete">En&amp;mascarar</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1058"/>
         <source>&amp;Unmask</source>
         <comment>unmask selection</comment>
-        <translation>&amp;Desenmasracar</translation>
+        <translation type="obsolete">&amp;Desenmasracar</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1065"/>
         <source>Assign &amp;Formula</source>
-        <translation>Asignar &amp;fórmula</translation>
+        <translation type="obsolete">Asignar &amp;fórmula</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1066"/>
         <source>Alt+Q</source>
-        <translation>Alt+Q</translation>
+        <translation type="obsolete">Alt+Q</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1073"/>
         <source>Clea&amp;r</source>
         <comment>clear selection</comment>
-        <translation>Limpia&amp;r</translation>
+        <translation type="obsolete">Limpia&amp;r</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1080"/>
         <source>Recalculate</source>
-        <translation>Recalcular</translation>
+        <translation type="obsolete">Recalcular</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1081"/>
         <source>Ctrl+Return</source>
-        <translation>Ctrl+Return</translation>
+        <translation type="obsolete">Ctrl+Return</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1085"/>
         <source>Row Numbers</source>
-        <translation>Números de fila </translation>
+        <translation type="obsolete">Números de fila </translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1088"/>
         <source>Random Values</source>
-        <translation>Valores aleatorios</translation>
+        <translation type="obsolete">Valores aleatorios</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1103"/>
         <source>F12</source>
-        <translation>F12</translation>
+        <translation type="obsolete">F12</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1107"/>
         <source>Formula Edit Mode</source>
-        <translation>Modo de edición de fórmula</translation>
+        <translation type="obsolete">Modo de edición de fórmula</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1114"/>
         <source>Select All</source>
-        <translation>Seleccionar todo</translation>
+        <translation type="obsolete">Seleccionar todo</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1121"/>
         <source>&amp;Add Column</source>
-        <translation>&amp;Agregar columna</translation>
+        <translation type="obsolete">&amp;Agregar columna</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1122"/>
         <source>append a new column to the table</source>
-        <translation>afgregar una nueva columna a la tabla</translation>
+        <translation type="obsolete">afgregar una nueva columna a la tabla</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1129"/>
         <source>Clear Table</source>
-        <translation>Limpiar tabla</translation>
+        <translation type="obsolete">Limpiar tabla</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1136"/>
-        <source>Export to TeX...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1142"/>
         <source>Clear Masks</source>
-        <translation>Limpiar marcara</translation>
+        <translation type="obsolete">Limpiar marcara</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1149"/>
         <source>&amp;Sort Table</source>
-        <translation>&amp;Ordenar tabla</translation>
+        <translation type="obsolete">&amp;Ordenar tabla</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1156"/>
         <source>&amp;Go to Cell</source>
-        <translation>&amp;Ir a la celda</translation>
+        <translation type="obsolete">&amp;Ir a la celda</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1157"/>
         <source>Ctrl+Alt+G</source>
-        <translation>Ctrl+Alt+G</translation>
+        <translation type="obsolete">Ctrl+Alt+G</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1161"/>
         <source>&amp;Dimensions</source>
         <comment>table size</comment>
-        <translation>&amp;Dimensiones</translation>
+        <translation type="obsolete">&amp;Dimensiones</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1162"/>
         <source>change the table size</source>
-        <translation>cambiar el tamaño de la tabla</translation>
+        <translation type="obsolete">cambiar el tamaño de la tabla</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1169"/>
         <source>&amp;Insert Empty Columns</source>
-        <translation>&amp;Insertar columna(s) vacía(s)</translation>
+        <translation type="obsolete">&amp;Insertar columna(s) vacía(s)</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1176"/>
         <source>Remo&amp;ve Columns</source>
-        <translation>Remo&amp;ver columnas</translation>
+        <translation type="obsolete">Remo&amp;ver columnas</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1183"/>
         <source>Clea&amp;r Columns</source>
-        <translation>Limpia&amp;r columnas</translation>
+        <translation type="obsolete">Limpia&amp;r columnas</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1190"/>
         <source>&amp;Add Columns</source>
-        <translation>&amp;Agregar columnas</translation>
+        <translation type="obsolete">&amp;Agregar columnas</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1194"/>
         <source>X</source>
         <comment>plot designation</comment>
-        <translation>X</translation>
+        <translation type="obsolete">X</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1197"/>
         <source>Y</source>
         <comment>plot designation</comment>
-        <translation>Y</translation>
+        <translation type="obsolete">Y</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1200"/>
         <source>Z</source>
         <comment>plot designation</comment>
-        <translation>Z</translation>
+        <translation type="obsolete">Z</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1206"/>
         <source>X Error</source>
         <comment>plot designation</comment>
-        <translation>X Error</translation>
+        <translation type="obsolete">X Error</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1213"/>
         <source>Y Error</source>
         <comment>plot designation</comment>
-        <translation>Y Error</translation>
+        <translation type="obsolete">Y Error</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1217"/>
         <source>None</source>
         <comment>plot designation</comment>
-        <translation>Ninguno</translation>
+        <translation type="obsolete">Ninguno</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1223"/>
         <source>&amp;Normalize Columns</source>
-        <translation>&amp;Normalizar la(s) columna(s) </translation>
+        <translation type="obsolete">&amp;Normalizar la(s) columna(s) </translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1230"/>
         <source>&amp;Normalize Selection</source>
-        <translation>&amp;Normalizar la selección</translation>
+        <translation type="obsolete">&amp;Normalizar la selección</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1237"/>
         <source>&amp;Sort Columns</source>
-        <translation>Ordenar columna&amp;s</translation>
+        <translation type="obsolete">Ordenar columna&amp;s</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1241"/>
         <source>Column Statisti&amp;cs</source>
-        <translation>Estadísti&amp;ca de columna</translation>
+        <translation type="obsolete">Estadísti&amp;ca de columna</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1242"/>
         <source>statistics on columns</source>
-        <translation>estadística sobre las columnas</translation>
+        <translation type="obsolete">estadística sobre las columnas</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1248"/>
         <source>Change &amp;Type &amp;&amp; Format</source>
-        <translation>Cambiar &amp;tipo y formato</translation>
+        <translation type="obsolete">Cambiar &amp;tipo y formato</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1249"/>
         <source>Ctrl+Alt+O</source>
-        <translation>Ctrl+Alt+O</translation>
+        <translation type="obsolete">Ctrl+Alt+O</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1256"/>
         <source>Edit Column &amp;Description</source>
-        <translation>Editar &amp;descripción de columna</translation>
+        <translation type="obsolete">Editar &amp;descripción de columna</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1264"/>
         <source>&amp;Insert Empty Rows</source>
-        <translation>&amp;Insertar filas vacías</translation>
+        <translation type="obsolete">&amp;Insertar filas vacías</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1271"/>
         <source>Remo&amp;ve Rows</source>
-        <translation>Remo&amp;ver filas</translation>
+        <translation type="obsolete">Remo&amp;ver filas</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1278"/>
         <source>Clea&amp;r Rows</source>
-        <translation>Vacia&amp;r filas</translation>
+        <translation type="obsolete">Vacia&amp;r filas</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1285"/>
         <source>&amp;Add Rows</source>
-        <translation>&amp;Agregar filas</translation>
+        <translation type="obsolete">&amp;Agregar filas</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1289"/>
         <source>Row Statisti&amp;cs</source>
-        <translation>Estadísti&amp;ca de fila</translation>
+        <translation type="obsolete">Estadísti&amp;ca de fila</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1290"/>
         <source>statistics on rows</source>
-        <translation>estadística sobre filas</translation>
+        <translation type="obsolete">estadística sobre filas</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1495"/>
-        <source>TeX Export Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1496"/>
         <source>Could not write to file: &lt;br&gt;&lt;h4&gt;%1&lt;/h4&gt;&lt;p&gt;Please verify that you have the right to write to this location!</source>
-        <translation type="unfinished">No se pudo escribir en el archivo &lt;br&gt;&lt;h4&gt; %1 &lt;/h4&gt;&lt;p&gt;¡Por favor, verifique que tiene permiso de escritura!</translation>
+        <translation type="obsolete">No se pudo escribir en el archivo &lt;br&gt;&lt;h4&gt; %1 &lt;/h4&gt;&lt;p&gt;¡Por favor, verifique que tiene permiso de escritura!</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1708"/>
-        <location filename="../src/future/table/future_Table.cpp" line="1712"/>
         <source>Go to Cell</source>
-        <translation>Ir a la celda</translation>
+        <translation type="obsolete">Ir a la celda</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1708"/>
         <source>Enter column</source>
-        <translation>Insertar columna</translation>
+        <translation type="obsolete">Insertar columna</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1712"/>
         <source>Enter row</source>
-        <translation>Insertar fila</translation>
+        <translation type="obsolete">Insertar fila</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1724"/>
         <source>Set Table Dimensions</source>
-        <translation>Setear dimensiones de tabla</translation>
+        <translation type="obsolete">Setear dimensiones de tabla</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1739"/>
         <source>%1: move column %2 from position %3 to %4.</source>
-        <translation>%1: mover columna %2 desde  la posición %3 a la %4.</translation>
+        <translation type="obsolete">%1: mover columna %2 desde  la posición %3 a la %4.</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1874"/>
         <source>%1: sort column(s)</source>
-        <translation>%1: Ordenar columna(s)</translation>
+        <translation type="obsolete">%1: Ordenar columna(s)</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2253"/>
         <source>invalid row or column count</source>
-        <translation>conteo de fila o columna inválido</translation>
+        <translation type="obsolete">conteo de fila o columna inválido</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2273"/>
         <source>Column %1</source>
-        <translation>Columna %1</translation>
+        <translation type="obsolete">Columna %1</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2289"/>
         <source>unknown element &apos;%1&apos;</source>
-        <translation>elemento &apos;%1&apos; desconocido</translation>
+        <translation type="obsolete">elemento &apos;%1&apos; desconocido</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2295"/>
         <source>columns attribute and number of read columns do not match</source>
-        <translation>el atributo de la columna y número de columnas leídas no son iguales</translation>
+        <translation type="obsolete">el atributo de la columna y número de columnas leídas no son iguales</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2298"/>
         <source>no table element found</source>
-        <translation>No se hallaron elementos de tabla</translation>
+        <translation type="obsolete">No se hallaron elementos de tabla</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2309"/>
         <source>Hide Comments</source>
-        <translation>Ocultar comentarios</translation>
+        <translation type="obsolete">Ocultar comentarios</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2311"/>
         <source>Show Comments</source>
-        <translation>Mostrar comentarios</translation>
+        <translation type="obsolete">Mostrar comentarios</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2315"/>
         <source>Hide Controls</source>
-        <translation>Ocultar controles</translation>
+        <translation type="obsolete">Ocultar controles</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2317"/>
         <source>Show Controls</source>
-        <translation>Mostrar controles</translation>
+        <translation type="obsolete">Mostrar controles</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2328"/>
         <source>invalid or missing column index</source>
-        <translation>índice de columna invalido ó perdido</translation>
+        <translation type="obsolete">índice de columna invalido ó perdido</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2335"/>
         <source>invalid column width</source>
-        <translation>ancho de columna inválido</translation>
+        <translation type="obsolete">ancho de columna inválido</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2372"/>
         <source>Table</source>
-        <translation>Tabla</translation>
+        <translation type="obsolete">Tabla</translation>
     </message>
 </context>
 <context>
