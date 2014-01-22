@@ -464,65 +464,65 @@ Voulez-vous l&apos;écraser ?</translation>
         <location filename="../src/future/core/AbstractAspect.cpp" line="79"/>
         <source>XML read error: </source>
         <comment>prefix for XML error messages</comment>
-        <translation type="unfinished"></translation>
+        <translation>Erreur de lire XML:</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="80"/>
         <source> (non-critical)</source>
         <comment>postfix for XML error messages</comment>
-        <translation type="unfinished"></translation>
+        <translation>(pas critique)</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="89"/>
         <source>aspect name missing or empty</source>
-        <translation type="unfinished"></translation>
+        <translation>nom de l&apos;aspect manquant ou vide</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="97"/>
         <source>Invalid creation time for &apos;%1&apos;. Using current time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps de creation pour &apos;%1&apos; invalide. Temps courant utilisé.</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="118"/>
         <source>%1: add %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: plus %2.</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="120"/>
         <location filename="../src/future/core/AbstractAspect.cpp" line="134"/>
         <location filename="../src/future/core/AbstractAspect.cpp" line="165"/>
         <source>Renaming &quot;%1&quot; to &quot;%2&quot; in order to avoid name collision.</source>
-        <translation type="unfinished"></translation>
+        <translation>Renommer &quot;%1&quot; à &quot;%2&quot; pour éviter un collision des noms.</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="132"/>
         <source>%1: insert %2 at position %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: inseré %2 à position %3.</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="145"/>
         <source>%1: remove %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: effacez %2.</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="250"/>
         <source>Tabs and line breaks in object names are currently not supported. They have been removed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Les onglets et les sauts de ligne dans les noms d&apos;objets sont actuellement pas pris en charge. Ils ont été retirés.</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="254"/>
         <source>Intended name &quot;%1&quot; diverted to &quot;%2&quot; in order to avoid name collision.</source>
-        <translation type="unfinished"></translation>
+        <translation>Le nom &quot;%1&quot; est renommé à &quot;%2&quot; pour eviter un collision de nom. </translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="354"/>
         <source>%1: remove all children.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: retirer tous les enfants.</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractAspect.cpp" line="163"/>
         <source>%1: move %2 to %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: déplacez %2 à %3.</translation>
     </message>
 </context>
 <context>
@@ -530,17 +530,17 @@ Voulez-vous l&apos;écraser ?</translation>
     <message>
         <location filename="../src/future/core/AbstractPart.cpp" line="51"/>
         <source>&amp;Restore</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Restituer</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractPart.cpp" line="56"/>
         <source>Mi&amp;nimize</source>
-        <translation type="unfinished"></translation>
+        <translation>Mi&amp;nimiser</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractPart.cpp" line="61"/>
         <source>Ma&amp;ximize</source>
-        <translation type="unfinished"></translation>
+        <translation>Ma&amp;ximiser</translation>
     </message>
 </context>
 <context>
@@ -548,17 +548,17 @@ Voulez-vous l&apos;écraser ?</translation>
     <message>
         <location filename="../src/future/core/AbstractSimpleFilter.cpp" line="145"/>
         <source>incompatible filter type</source>
-        <translation type="unfinished"></translation>
+        <translation>le type de filtre incompatible</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractSimpleFilter.cpp" line="164"/>
         <source>unknown element &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>élément &apos;%1&apos; inconnu</translation>
     </message>
     <message>
         <location filename="../src/future/core/AbstractSimpleFilter.cpp" line="171"/>
         <source>no simple filter element found</source>
-        <translation type="unfinished"></translation>
+        <translation>pas d&apos;élément à filtre simple trouvé</translation>
     </message>
 </context>
 <context>
