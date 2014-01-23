@@ -3779,7 +3779,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	}
 
 	//process the rest
-	file->reset();
+	t.seek(0);
 
 	MultiLayer *plot=0;
 	while ( !t.atEnd() && !progress.wasCanceled())
@@ -12228,7 +12228,7 @@ void ApplicationWindow::appendProject(const QString& fn)
 		}
 
 		//process the rest
-		file->reset();
+		t.seek(0);
 
 		MultiLayer *plot=0;
 		while ( !t.atEnd())
