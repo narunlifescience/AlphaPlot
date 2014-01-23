@@ -229,15 +229,18 @@ contains(PRESET, linux_package) {
 	### Mixing Qt 4.2 and Qt >= 4.3 compiled stuff may also 
 	### cause problems.
 
+	### Debian suffix
+	exists(/usr/include/qwt-qt4): qwtsuff = "-qt4"
+
 	exists(/usr/include/qwt5) {
 		INCLUDEPATH  += /usr/include/qwt5
 	} else {
-		INCLUDEPATH  += /usr/include/qwt
+		INCLUDEPATH  += /usr/include/qwt$${qwtsuff}
 	}
-	LIBS         += -lqwt -lz -lGLU -lQtAssistantClient
+	LIBS         += -lqwt$${qwtsuff} -lz -lGLU -lQtAssistantClient
 
-	INCLUDEPATH  += /usr/include/qwtplot3d
-	LIBS         += -lqwtplot3d
+	INCLUDEPATH  += /usr/include/qwtplot3d$${qwtsuff}
+	LIBS         += -lqwtplot3d$${qwtsuff}
 
 	INCLUDEPATH  += /usr/include/muParser
 	LIBS         += -lgsl -lgslcblas
