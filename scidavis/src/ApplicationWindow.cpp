@@ -12168,7 +12168,7 @@ void ApplicationWindow::appendProject(const QString& fn)
 		//process tables and matrix information
 		while ( !t.atEnd())
 		{
-			s = t.readLine();
+			s = t.readLine(4096); // workaround for safely reading very big lines
 			lst.clear();
 			if  (s.left(8) == "<folder>")
 			{
@@ -12233,7 +12233,7 @@ void ApplicationWindow::appendProject(const QString& fn)
 		MultiLayer *plot=0;
 		while ( !t.atEnd())
 		{
-			s=t.readLine();
+			s=t.readLine(4096); // workaround for safely reading very big lines
 			if  (s.left(8) == "<folder>")
 			{
 				lst = s.split("\t");
