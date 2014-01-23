@@ -183,13 +183,6 @@ DEFINES         += SCRIPTING_DIALOG
 	DEFINES += DOWNLOAD_LINKS
 }
 
-### switch inclusion of debugging symbols on/off
-isEmpty(DEBUG) {
-	CONFIG          += release
-} else {
-	CONFIG          += debug
-}
-
 ### (remark: muparser.pri and python.pri must be included after defining INSTALLBASE )
 ### building without muParser does not work yet (but will in a future version)
 include( muparser.pri )
