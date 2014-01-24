@@ -38,7 +38,6 @@
 
 //  Don't forget to change the Doxyfile, the splash screen and the Windows
 //  installer when changing these!
-const int SciDAVis::scidavis_version = 0x000204;
 
 const char * SciDAVis::extra_version = "";
 
@@ -50,7 +49,7 @@ const char * SciDAVis::copyright_string = "\
 The following people have written parts of the SciDAVis source code, ranging from a few lines to large chunks.\n\
 In alphabetical order.\n\
 \n\
-Tilman Benkert[1], Knut Franke\n\
+Tilman Benkert[1], Knut Franke, Dmitriy Pozitron, Russell Standish\n\
 \n\
 --- Documentation ---\n\
 \n\
@@ -66,7 +65,7 @@ In alphabetical order.\n\
 \n\
 Tilman Benkert[1], Markus Bongard, Tobias Burnus, Rémy Claverie, f0ma, José Antonio Lorenzo Fernández, \
 Pavel Fric, Jan Helebrant, Daniel Klaer, Peter Landgren, Fellype do Nascimento, Tomomasa Ohkubo, \
-Mikhail Shevyakov, Mauricio Troviano\n\
+Mikhail Shevyakov, Russell Standish, Mauricio Troviano\n\
 \n\
 --- Packagers ---\n\
 \n\
@@ -109,19 +108,22 @@ GSL (http://www.gnu.org/software/gsl/)\n\
 \n\
 ... and many more we just forgot to mention.\n";
 
-const char * SciDAVis::release_date = " 2010-03-12";
-
 int SciDAVis::version()
 {
-	return scidavis_version;
+	return scidavis_versionNo;
+}
+
+QString SciDAVis::schemaVersion()
+{
+  return "SciDAVis " + 
+    QString::number((version() & 0xFF0000) >> 16)+"."+ 
+    QString::number((version() & 0x00FF00) >> 8)+"."+
+    QString::number(version() & 0x0000FF);
 }
 
 QString SciDAVis::versionString()
 {
-	return "SciDAVis " + 
-			QString::number((scidavis_version & 0xFF0000) >> 16)+"."+ 
-			QString::number((scidavis_version & 0x00FF00) >> 8)+"."+
-			QString::number(scidavis_version & 0x0000FF);
+  return QString("SciDAVis ") + scidavis_version;
 }
 			
 QString SciDAVis::extraVersion()

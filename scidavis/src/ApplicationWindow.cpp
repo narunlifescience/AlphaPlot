@@ -12364,7 +12364,7 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 
 	QTextStream t( &f );
 	t.setEncoding(QTextStream::UnicodeUTF8);
-	t << SciDAVis::versionString() + " project file\n";
+	t << SciDAVis::schemaVersion() + " project file\n";
 	t << "<scripting-lang>\t"+QString(scriptEnv->name())+"\n";
 	t << "<windows>\t"+QString::number(folder->windowCount(true))+"\n";
 	t.flush();

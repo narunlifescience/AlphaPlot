@@ -38,7 +38,9 @@ contains( INSTALLS, translationfiles ){
 
         unix: tstarget.target = translations/scidavis_de.qm
         win32: tstarget.target = translations\scidavis_de.qm
-        tstarget.commands = $$LUPDATE_BIN scidavis.pro && $$LRELEASE_BIN scidavis.pro
+# note the translation files are not writable during AEGIS
+# integration, so we don't want to perform an update then
+        tstarget.commands = (! test -w translations/scidavis_de.ts || $$LUPDATE_BIN scidavis.pro) && $$LRELEASE_BIN scidavis.pro
 
         QMAKE_EXTRA_TARGETS += tstarget
         PRE_TARGETDEPS += translations/scidavis_de.qm
@@ -312,6 +314,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/TeXTableSettings.cpp \
             src/TeXTableSettingsWidget.cpp \
             src/TeXTableExportDialog.cpp \
+            src/version.cpp \
 
 ###################### FORMS ##############################################
 FORMS +=   src/SciDAVisAbout.ui

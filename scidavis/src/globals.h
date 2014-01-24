@@ -86,7 +86,9 @@ class SciDAVis : public QObject
 		static QString enumValueToString(int key, const QString& enum_name);
 		static int enumStringToValue(const QString& string, const QString& enum_name);
 
-		//! Return the SciDAVis version string ("SciDAVis x.y.z" without extra version)
+		//! Return the SciDAVis version string ("SciDAVis x.y.z" without extra version) used in the project file
+		static QString schemaVersion();
+  /// the user visible release version string (x.Dy usually)
 		static QString versionString();
 
 		//! Return the extra version as a string
@@ -110,7 +112,8 @@ class SciDAVis : public QObject
 		 * mm = minor version
 		 * bb = bugfix version
 		 */
-		static const int scidavis_version;
+		static const int scidavis_versionNo;
+		static const char* scidavis_version;
 		//! Extra version information string (like "-alpha", "-beta", "-rc1", etc...)
 		static const char * extra_version;
 		//! Copyright string containing the author names etc.
