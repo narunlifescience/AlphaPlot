@@ -345,6 +345,7 @@ void FolderListView::contentsMouseDoubleClickEvent( QMouseEvent* e )
 void FolderListView::contentsMousePressEvent( QMouseEvent* e )
 {
 Q3ListView::contentsMousePressEvent(e);
+if (e->button() != Qt::LeftButton) return;
 QPoint p( contentsToViewport( e->pos() ) );
 Q3ListViewItem *i = itemAt( p );
 
