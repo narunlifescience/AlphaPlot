@@ -2,6 +2,7 @@ version=$1
 delta=${version##*.[CD]}
 branch=${version%%.*}
 scidavis_version=$[$branch*65536 + $delta]
+rm -f scidavis/src/version.cpp
 cat >scidavis/src/version.cpp <<EOF
 #include "globals.h"
 const int SciDAVis::scidavis_versionNo = $scidavis_version;
