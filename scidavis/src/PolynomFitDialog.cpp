@@ -70,7 +70,7 @@ PolynomFitDialog::PolynomFitDialog( QWidget* parent, Qt::WFlags fl )
     gl1->addWidget(boxEnd, 3, 1);
 
     gl1->addWidget(new QLabel( tr("Color")), 4, 0);
-	boxColor = new ColorBox( false);
+	boxColor = new ColorBox();
 	boxColor->setColor(QColor(Qt::red));
     gl1->addWidget(boxColor, 4, 1);
 

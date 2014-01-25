@@ -63,7 +63,7 @@ FilterDialog::FilterDialog(int type, QWidget* parent, Qt::WFlags fl )
 	boxStart->setText(tr("0"));
 	gl1->addWidget(boxStart, 1, 1);
 
-	boxColor = new ColorBox(false);
+	boxColor = new ColorBox();
 	boxColor->setColor(QColor(Qt::red));
 	if (type >= FFTFilter::BandPass)
 		{

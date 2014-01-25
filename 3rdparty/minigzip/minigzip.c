@@ -108,7 +108,7 @@ void gz_compress      OF((FILE   *in, gzFile out));
 int  gz_compress_mmap OF((FILE   *in, gzFile out));
 #endif
 void gz_uncompress    OF((gzFile in, FILE   *out));
-void file_compress    OF((char  *file, char *mode));
+void file_compress    OF((const char  *file, const char *mode));
 void file_uncompress  OF((char  *file));
 int  main             OF((int argc, char *argv[]));
 
@@ -222,8 +222,8 @@ void gz_uncompress(in, out)
  * original.
  */
 void file_compress(file, mode)
-    char  *file;
-    char  *mode;
+    const char  *file;
+    const char  *mode;
 {
     local char outfile[MAX_NAME_LEN];
     FILE  *in;

@@ -110,7 +110,7 @@
 	gl1->addWidget(boxStart, 5, 1);
 
 	gl1->addWidget(new QLabel(tr("Color")), 6, 0 );
-	boxColor = new ColorBox(false);
+	boxColor = new ColorBox();
 	boxColor->setColor(QColor(Qt::red));
 	gl1->addWidget(boxColor, 6, 1);
 

@@ -167,7 +167,7 @@ using namespace Qwt3D;
 
 extern "C"
 {
-void file_compress(char  *file, char  *mode);
+void file_compress(const char  *file, const char  *mode);
 }
 
 ApplicationWindow::ApplicationWindow()

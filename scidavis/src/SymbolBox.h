@@ -37,8 +37,8 @@ class SymbolBox : public QComboBox
 {
   Q_OBJECT
 public:
-  SymbolBox(bool rw, QWidget *parent);
-  SymbolBox(QWidget *parent);
+  SymbolBox(bool rw, QWidget *parent = 0);
+  SymbolBox(QWidget *parent = 0);
 
   void setStyle(const QwtSymbol::Style& c);
   QwtSymbol::Style selectedSymbol() const;

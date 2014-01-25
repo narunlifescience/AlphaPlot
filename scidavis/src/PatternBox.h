@@ -36,8 +36,8 @@ class PatternBox : public QComboBox
 {
   Q_OBJECT
 public:
-  PatternBox(bool rw, QWidget *parent);
-  PatternBox(QWidget *parent);
+  PatternBox(bool rw, QWidget *parent = 0);
+  PatternBox(QWidget *parent = 0);
   void setPattern(const Qt::BrushStyle& c);
   Qt::BrushStyle getSelectedPattern() const;
 

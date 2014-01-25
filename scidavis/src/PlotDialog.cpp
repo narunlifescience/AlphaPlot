@@ -377,11 +377,11 @@ void PlotDialog::initPiePage()
 	QGridLayout *gl1 = new QGridLayout();
 	gl1->addWidget(new QLabel( tr( "Color" )), 0, 0);
 
-	boxPieLineColor = new ColorBox(false);
+	boxPieLineColor = new ColorBox();
 	gl1->addWidget(boxPieLineColor, 0, 1);
 
 	gl1->addWidget(new QLabel(tr( "Style" )), 1, 0);
-	boxPieLineStyle = new QComboBox( false );
+	boxPieLineStyle = new QComboBox();
 	boxPieLineStyle->insertItem("_____");
 	boxPieLineStyle->insertItem("- - -");
 	boxPieLineStyle->insertItem(".....");
@@ -400,11 +400,11 @@ void PlotDialog::initPiePage()
 	QGridLayout *gl2 = new QGridLayout();
 	gl2->addWidget(new QLabel( tr( "First color" )), 0, 0);
 
-	boxFirstColor = new ColorBox(false);
+	boxFirstColor = new ColorBox();
 	gl2->addWidget(boxFirstColor, 0, 1);
 
 	gl2->addWidget(new QLabel( tr( "Pattern" )), 1, 0);
-	boxPiePattern = new PatternBox(false);
+	boxPiePattern = new PatternBox();
 	gl2->addWidget(boxPiePattern, 1, 1);
 	gl2->addWidget(new QLabel( tr( "Pie radius" )), 2, 0);
 
@@ -500,7 +500,7 @@ void PlotDialog::initLinePage()
 	gl1->addWidget(boxLineWidth, 2, 1);
 
 	gl1->addWidget(new QLabel(tr( "Color" )), 3, 0);
-	boxLineColor = new ColorBox( false);
+	boxLineColor = new ColorBox();
 	gl1->addWidget(boxLineColor, 3, 1);
     gl1->setRowStretch (4, 1);
 
@@ -508,10 +508,10 @@ void PlotDialog::initLinePage()
 	fillGroupBox->setCheckable(true);
 	QGridLayout *gl2 = new QGridLayout(fillGroupBox);
     gl2->addWidget(new QLabel(tr( "Fill color" )), 0, 0);
-	boxAreaColor = new ColorBox(false);
+	boxAreaColor = new ColorBox();
 	gl2->addWidget(boxAreaColor, 0, 1);
 	gl2->addWidget(new QLabel(tr( "Pattern" )), 1, 0);
-	boxPattern = new PatternBox(false);
+	boxPattern = new PatternBox();
 	gl2->addWidget(boxPattern, 1, 1);
 	gl2->setRowStretch (2, 1);
 
@@ -535,7 +535,7 @@ void PlotDialog::initSymbolsPage()
 	QGroupBox *gb = new QGroupBox();
     QGridLayout *gl = new QGridLayout(gb);
     gl->addWidget(new QLabel(tr( "Style" )), 0, 0);
-	boxSymbolStyle = new SymbolBox(false);
+	boxSymbolStyle = new SymbolBox();
     gl->addWidget(boxSymbolStyle, 0, 1);
     gl->addWidget(new QLabel(tr( "Size" )), 1, 0);
 	boxSymbolSize = new QSpinBox();
@@ -544,10 +544,10 @@ void PlotDialog::initSymbolsPage()
     gl->addWidget(boxSymbolSize, 1, 1);
 	boxFillSymbol = new QCheckBox( tr( "Fill Color" ));
     gl->addWidget(boxFillSymbol, 2, 0);
-	boxFillColor = new ColorBox(false);
+	boxFillColor = new ColorBox();
     gl->addWidget(boxFillColor, 2, 1);
     gl->addWidget(new QLabel(tr( "Edge Color" )), 3, 0);
-	boxSymbolColor = new ColorBox( false);
+	boxSymbolColor = new ColorBox();
     gl->addWidget(boxSymbolColor, 3, 1);
     gl->addWidget(new QLabel(tr( "Edge Width" )), 4, 0);
 	boxPenWidth = new QSpinBox();
@@ -675,23 +675,23 @@ void PlotDialog::initPercentilePage()
     QGridLayout *gl1 = new QGridLayout(gb1);
     gl1->addWidget(new QLabel(tr( "Max" )), 0, 0);
 
-	boxMaxStyle = new SymbolBox(false);
+	boxMaxStyle = new SymbolBox();
     gl1->addWidget(boxMaxStyle, 0, 1);
 
     gl1->addWidget(new QLabel(tr( "99%" )), 1, 0);
-	box99Style = new SymbolBox(false);
+	box99Style = new SymbolBox();
     gl1->addWidget(box99Style, 1, 1);
 
     gl1->addWidget(new QLabel(tr( "Mean" )), 2, 0);
-	boxMeanStyle = new SymbolBox( false);
+	boxMeanStyle = new SymbolBox();
     gl1->addWidget(boxMeanStyle, 2, 1);
 
     gl1->addWidget(new QLabel(tr( "1%" )), 3, 0);
-	box1Style = new SymbolBox(false);
+	box1Style = new SymbolBox();
     gl1->addWidget(box1Style, 3, 1);
 
     gl1->addWidget(new QLabel(tr( "Min" )), 4, 0);
-	boxMinStyle = new SymbolBox(false);
+	boxMinStyle = new SymbolBox();
     gl1->addWidget(boxMinStyle, 4, 1);
     gl1->setRowStretch(5, 1);
 
@@ -705,11 +705,11 @@ void PlotDialog::initPercentilePage()
 
     boxFillSymbols = new QCheckBox(tr( "Fill Color" ));
     gl2->addWidget(boxFillSymbols, 1, 0);
-	boxPercFillColor = new ColorBox(false);
+	boxPercFillColor = new ColorBox();
     gl2->addWidget(boxPercFillColor, 1, 1);
 
     gl2->addWidget(new QLabel(tr( "Edge Color" )), 2, 0);
-	boxEdgeColor = new ColorBox(false);
+	boxEdgeColor = new ColorBox();
     gl2->addWidget(boxEdgeColor, 2, 1);
 
     gl2->addWidget(new QLabel(tr( "Edge Width" )), 3, 0);
@@ -962,7 +962,7 @@ void PlotDialog::initVectPage()
     QGroupBox *gb1 = new QGroupBox();
     QGridLayout *gl1 = new QGridLayout(gb1);
     gl1->addWidget(new QLabel(tr( "Color" )), 0, 0);
-	vectColorBox = new ColorBox(false);
+	vectColorBox = new ColorBox();
     gl1->addWidget(vectColorBox, 0, 1);
     gl1->addWidget(new QLabel(tr( "Line Width" )), 1, 0);
 	vectWidthBox = new QSpinBox();
@@ -988,17 +988,17 @@ void PlotDialog::initVectPage()
     QGridLayout *gl3 = new QGridLayout(GroupBoxVectEnd);
     labelXEnd = new QLabel(tr( "X End" ));
     gl3->addWidget(labelXEnd, 0, 0);
-	xEndBox = new QComboBox(false);
+	xEndBox = new QComboBox();
     gl3->addWidget(xEndBox, 0, 1);
 
 	labelYEnd = new QLabel(tr( "Y End" ));
     gl3->addWidget(labelYEnd, 1, 0);
-	yEndBox = new  QComboBox( false);
+	yEndBox = new  QComboBox();
     gl3->addWidget(yEndBox, 1, 1);
 
 	labelPosition = new QLabel(tr( "Position" ));
     gl3->addWidget(labelPosition, 2, 0);
-	vectPosBox = new  QComboBox( false);
+	vectPosBox = new  QComboBox();
 	vectPosBox->addItem(tr("Tail"));
 	vectPosBox->addItem(tr("Middle"));
 	vectPosBox->addItem(tr("Head"));

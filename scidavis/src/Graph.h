@@ -189,7 +189,7 @@ class Graph: public QWidget
 		double selectedXEndValue();
 
         long curveKey(int curve){return c_keys[curve];}
-		int curveIndex(long key){return c_keys.indexOf(key);};
+		int curveIndex(long key) const {return c_keys.indexOf(key);}
 		//! Map curve pointer to index.
 		int curveIndex(QwtPlotCurve *c) const;
 		//! map curve title to index
