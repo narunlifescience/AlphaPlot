@@ -3550,7 +3550,7 @@ QFile * ApplicationWindow::openCompressedFile(const QString& fn)
 	char buf[16384];
 	int len, err;
 
-	gzFile in = gzopen(fn.toAscii().constData(), "rb");
+	gzFile in = gzopen(QFile::encodeName(fn).constData(), "rb");
 	if (!in) {
 		QMessageBox::critical(this, tr("File opening error"), tr("zlib can't open %1.").arg(fn));
 		return 0;
@@ -4981,7 +4981,7 @@ bool ApplicationWindow::saveProject()
 	saveFolder(projectFolder(), fn);
 
 	if (compress)
-		file_compress((char *)fn.toAscii().constData(), "wb9");
+		file_compress(QFile::encodeName(fn).constData(), "wb9");
 
 	setWindowTitle("SciDAVis - " + projectname);
 	savedProject();
@@ -12442,7 +12442,7 @@ void ApplicationWindow::saveFolderAsProject(Folder *f)
 
 		saveFolder(f, fn);
 		if (selectedFilter.contains(".gz") || compress)
-			file_compress((char *)fn.toAscii().constData(), "wb9");
+			file_compress(QFile::encodeName(fn).constData(), "wb9");
 	}
 }
 
