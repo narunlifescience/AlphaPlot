@@ -965,6 +965,7 @@ public:
 	Qt::PenStyle defaultArrowLineStyle;
 	int majTicksLength, minTicksLength, defaultPlotMargin;
 	int defaultCurveStyle, defaultCurveLineWidth, defaultSymbolSize;
+	int undoLimit;
 	QFont appFont, plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;
 	QFont tableTextFont, tableHeaderFont, plotAxesFont, plotLegendFont, plotNumbersFont, plotTitleFont;
 	QColor tableBkgdColor, tableTextColor, tableHeaderColor;

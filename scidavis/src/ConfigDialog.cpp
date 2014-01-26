@@ -539,13 +539,20 @@ void ConfigDialog::initAppPage()
 	boxMinutes->setEnabled(app->autoSave);
 	topBoxLayout->addWidget( boxMinutes, 4, 1 );
 
+	lblUndoLimit = new QLabel();
+	topBoxLayout->addWidget( lblUndoLimit, 5, 0 );
+	boxUndoLimit = new QSpinBox();
+	boxUndoLimit->setRange(1,10000);
+	boxUndoLimit->setValue(app->undoLimit);
+	topBoxLayout->addWidget( boxUndoLimit, 5, 1 );
+
 #ifdef SEARCH_FOR_UPDATES
 	boxSearchUpdates = new QCheckBox();
 	boxSearchUpdates->setChecked(app->autoSearchUpdates);
-	topBoxLayout->addWidget( boxSearchUpdates, 5, 0, 1, 2 );
+	topBoxLayout->addWidget( boxSearchUpdates, 6, 0, 1, 2 );
 #endif
 
-	topBoxLayout->setRowStretch( 6, 1 );
+	topBoxLayout->setRowStretch( 7, 1 );
 
 	appTabWidget->addTab( application, QString() );
 
@@ -883,6 +890,7 @@ void ConfigDialog::languageChange()
 	lblWorkspace->setText(tr("Workspace"));
 	lblPanelsText->setText(tr("Panels text"));
 	lblPanels->setText(tr("Panels"));
+	lblUndoLimit->setText(tr("Undo/Redo History limit"));
 	boxSave->setText(tr("Save every"));
 #ifdef SEARCH_FOR_UPDATES
 	boxSearchUpdates->setText(tr("Check for new versions at startup"));
@@ -1092,6 +1100,8 @@ void ConfigDialog::apply()
 #endif
 	app->setSaveSettings(boxSave->isChecked(), boxMinutes->value());
 	app->defaultScriptingLang = boxScriptingLanguage->currentText();
+
+	app->undoLimit = boxUndoLimit->value(); // FIXME: can apply only after restart
 
 	// general page: numeric format tab
 	app->d_decimal_digits = boxAppPrecision->value();

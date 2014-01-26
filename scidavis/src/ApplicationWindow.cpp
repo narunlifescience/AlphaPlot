@@ -4153,6 +4153,8 @@ void ApplicationWindow::readSettings()
 	updateRecentProjectsList();
 
 	changeAppStyle(settings.value("/Style", appStyle).toString());
+	undoLimit = settings.value("/UndoLimit",10).toInt();
+	d_project->undoStack()->setUndoLimit(undoLimit);
 	autoSave = settings.value("/AutoSave",true).toBool();
 	autoSaveTime = settings.value("/AutoSaveTime",15).toInt();
 	defaultScriptingLang = settings.value("/ScriptingLang","muParser").toString();
@@ -4436,6 +4438,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/Style", appStyle);
 	settings.setValue("/AutoSave", autoSave);
 	settings.setValue("/AutoSaveTime", autoSaveTime);
+	settings.setValue("/UndoLimit", undoLimit);
 	settings.setValue("/ScriptingLang", defaultScriptingLang);
 	settings.setValue("/Locale", QLocale().name());
 	settings.setValue("/LocaleUseGroupSeparator", bool(!(QLocale().numberOptions() & QLocale::OmitGroupSeparator)));

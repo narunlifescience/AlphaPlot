@@ -154,6 +154,7 @@ private:
 	QLabel *boxSeparatorPreview;
 	QSpinBox *boxMinutes, *boxLineWidth, *boxFrameWidth, *boxResolution, *boxMargin, *boxPrecision, *boxAppPrecision;
 	QSpinBox *boxCurveLineWidth, *boxSymbolSize, *boxMinTicksLength, *boxMajTicksLength, *generatePointsBox;
+	QSpinBox *boxUndoLimit;
 	ColorButton *btnWorkspace, *btnPanels, *btnPanelsText;
 	QListWidget * itemsList;
 	QLabel *labelFrameWidth, *lblLanguage, *lblWorkspace, *lblPanels, *lblPageHeader;
@@ -164,6 +165,7 @@ private:
 	QLabel *lblSymbSize, *lblAxesLineWidth, *lblCurveStyle, *lblResolution, *lblPrecision;
 	QGroupBox *groupBox3DFonts, *groupBox3DCol;
 	QLabel *lblMargin, *lblMajTicks, *lblMajTicksLength, *lblLineWidth, *lblMinTicks, *lblMinTicksLength, *lblPoints, *lblPeaksColor;
+	QLabel *lblUndoLimit;
 	QGroupBox *groupBoxFittingCurve, *groupBoxFitParameters;
 	QRadioButton *samePointsBtn, *generatePointsBtn;
     QGroupBox *groupBoxMultiPeak;
