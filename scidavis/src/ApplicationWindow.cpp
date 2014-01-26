@@ -13357,7 +13357,7 @@ QString ApplicationWindow::generateUniqueName(const QString& name, bool incremen
 		MyWidget *widget = qobject_cast<MyWidget *>(windows->at(i));
 		if (!widget) continue;
 		lst << widget->name();
-		if (QString(widget->name()).startsWith(name))
+		if (widget->name().startsWith(name))
 			index++;
 	}
 	delete windows;

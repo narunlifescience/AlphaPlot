@@ -63,7 +63,7 @@
 TableView::TableView(future::Table *table)
  : d_table(table) 
 #else
-TableView::TableView(const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
+TableView::TableView(const QString& label, QWidget* parent, const QString name, Qt::WFlags f)
  : MyWidget(label, parent, name, f)
 #endif
 {

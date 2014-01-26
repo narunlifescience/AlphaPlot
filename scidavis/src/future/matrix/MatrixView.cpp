@@ -57,7 +57,7 @@
 MatrixView::MatrixView(future::Matrix *matrix)
  : d_matrix(matrix) 
 #else
-MatrixView::MatrixView(const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
+MatrixView::MatrixView(const QString& label, QWidget* parent, const QString name, Qt::WFlags f)
  : MyWidget(label, parent, name, f)
 #endif
 {

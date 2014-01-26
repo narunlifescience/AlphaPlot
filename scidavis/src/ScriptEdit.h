@@ -52,7 +52,7 @@ class ScriptEdit: public QTextEdit, public scripted
 
   public:
     //! Constructor.
-    ScriptEdit(ScriptingEnv *env, QWidget *parent=0, const char *name=0);
+    ScriptEdit(ScriptingEnv *env, QWidget *parent=0, QString name=0);
 
 	 //! Handle changing of scripting environment.
     void customEvent(QEvent*);

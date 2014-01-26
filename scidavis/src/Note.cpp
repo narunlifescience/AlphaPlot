@@ -62,12 +62,6 @@ setGeometry(0, 0, 500, 200);
 connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
 }
 
-void Note::setName(const char *name)
-{
-	te->setName(name);
-	QObject::setName(name);
-}
-
 void Note::modifiedNote()
 {
 emit modifiedWindow(this);

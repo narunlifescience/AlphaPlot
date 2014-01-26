@@ -51,7 +51,6 @@ public:
 
 
 	void init(ScriptingEnv *env);
-	void setName(const char *name);
 
 public slots:
 	QString saveToString(const QString &info);

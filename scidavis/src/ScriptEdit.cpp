@@ -40,7 +40,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 
-ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, const char *name)
+ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, QString name)
   : QTextEdit(parent, name), scripted(env), d_error(false), d_changing_fmt(false)
 {
 	myScript = scriptEnv->newScript("", this, name);
