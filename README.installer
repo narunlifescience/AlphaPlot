@@ -35,3 +35,28 @@ Here's how to build the Windows installer for SciDAVis:
 
 4) Right click on scidavisScriptInstall.nsi and select compile.
 
+Creating a MacOS installable package:
+
+1. You should use the MacPorts system to provide the software
+dependencies (http://www.macports.org). It takes a while to install,
+but it auto configures dependencies of dependencies, so it is quicker
+that trying to do it from generic source code.
+
+2. Issue a qmake PRESET=mac_dist, which sets everything up to use the
+MacPorts stuff
+
+3. make
+
+This should create a clickable application directory scidavis/scidavis.app
+
+4. Run the script mkMacDist.sh. This copies all the dependent
+dynamic libraries from the MacPorts install location (/opt/local) into
+the scidavis.app directory, and rewrites the load paths in the dynamic
+load modules. This is currently horribly fragile, as updates to the
+dependencies will change their names, causing this script to
+fail. You can use "otool -L " to diagnose what's going on, and you
+need a test system (eg virtual machine) without the MacPorts stuff
+installed to make sure everything is working. Someday, it might be
+nice to work out an automated approach to all of this.
+
+5. mkMacDist will create a .pkg file, for distribution.

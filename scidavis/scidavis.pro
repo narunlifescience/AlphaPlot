@@ -216,6 +216,31 @@ contains(PRESET, default_installation) {
 	}
 }
 
+contains(PRESET, mac_dist) {
+	# Uses MacPorts supplied versions of the dependencies
+
+	INCLUDEPATH  += /opt/local/include
+	INCLUDEPATH  += /opt/local/include/qwt
+
+	LIBS         += -L/opt/local/lib -lqwt
+
+	INCLUDEPATH  += /opt/local/include/qwtplot3d
+	LIBS         += -lqwtplot3d
+
+	INCLUDEPATH  += /opt/local/include/muParser
+	LIBS         += -lgsl -lgslcblas -lz
+	LIBS         += -lmuparser -lpython2.7
+
+	contains(DEFINES, ORIGIN_IMPORT) {
+		LIBS += -lorigin
+		INCLUDEPATH += /usr/include/liborigin
+	}
+
+        QMAKE_EXTRA_TARGETS += mac-dist
+        mac-dist.commands = sh mkMacDist.sh
+
+}
+
 contains(PRESET, linux_package) {
 	### dynamically link against Qwt(3D) installed system-wide
 	### WARNING: make sure they are compiled against >= Qt4.2
