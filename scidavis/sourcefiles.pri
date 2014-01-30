@@ -425,4 +425,5 @@ SOURCES += ../3rdparty/minigzip/minigzip.c
 contains(DEFINES, ORIGIN_IMPORT) {
 	HEADERS += src/importOPJ.h
 	SOURCES += src/importOPJ.cpp
+        INCLUDEPATH += /usr/local/include/liborigin
 }
