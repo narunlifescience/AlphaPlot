@@ -84,6 +84,7 @@ Column::Column(const QString& name, QList<QDateTime> data, IntervalAttribute<boo
 
 Column::~Column()
 {
+	delete d_string_io;
 	delete d_column_private;
 }
 

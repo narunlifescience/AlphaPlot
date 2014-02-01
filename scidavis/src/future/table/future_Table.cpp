@@ -121,11 +121,13 @@ Table::Table()
 #endif
 {
 	d_view = NULL;
+	d_table_private = NULL;
 	createActions();
 }
 
 Table::~Table()
 {
+	delete d_table_private;
 	delete d_view;
 }
 

@@ -95,7 +95,7 @@ class Table : public AbstractPart
 		void setView(TableView * view);
 		friend class ::TableStatistics;
 #endif
-		~Table();
+		virtual ~Table();
 
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
