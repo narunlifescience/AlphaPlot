@@ -563,7 +563,7 @@ class Table::Private
 		//! The maximum number of rows of all columns
 		int d_row_count;
 		//! Vertical header data
-		QStringList d_vertical_header_data;
+		QList<int> d_vertical_header_data;
 		//! Horizontal header data
 		QStringList d_horizontal_header_data;
 		//! List of pointers to the column data vectors

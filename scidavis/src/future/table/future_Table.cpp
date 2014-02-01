@@ -2516,9 +2516,9 @@ void Table::Private::updateVerticalHeader(int start_row)
 {
 	int current_size = d_vertical_header_data.size(), i;
 	for(i=start_row; i<current_size; i++)
-		d_vertical_header_data.replace(i, QString::number(i+1));
+		d_vertical_header_data.replace(i, i+1);
 	for(; i<d_row_count; i++)
-		d_vertical_header_data << QString::number(i+1);
+		d_vertical_header_data << i+1;
 	emit d_owner->headerDataChanged(Qt::Vertical, start_row, d_row_count -1);	
 }
 
