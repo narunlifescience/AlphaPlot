@@ -1130,6 +1130,7 @@ void Table::closeEvent( QCloseEvent *e )
 		d_future_table->remove();
 		return;
 	}
+	QWidget::closeEvent(e);
 }
 
 

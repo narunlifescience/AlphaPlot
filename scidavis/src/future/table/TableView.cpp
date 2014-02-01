@@ -98,18 +98,18 @@ void TableView::init()
 	connect(d_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
 	d_main_layout->addWidget(d_view_widget);
 	
-	d_horizontal_header = new TableDoubleHeaderView();
+	d_horizontal_header = new TableDoubleHeaderView(this);
     d_horizontal_header->setClickable(true);
     d_horizontal_header->setHighlightSections(true);
 	d_view_widget->setHorizontalHeader(d_horizontal_header);
 
-	d_hide_button = new QToolButton();
+	d_hide_button = new QToolButton(this);
 	d_hide_button->setArrowType(Qt::RightArrow);
 	d_hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
 	d_hide_button->setCheckable(false);
 	d_main_layout->addWidget(d_hide_button);
 	connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
-	d_control_tabs = new QWidget();
+	d_control_tabs = new QWidget(this);
     ui.setupUi(d_control_tabs);
 	d_main_layout->addWidget(d_control_tabs);
 

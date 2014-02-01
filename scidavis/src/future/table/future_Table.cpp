@@ -961,7 +961,7 @@ bool Table::fillProjectMenu(QMenu * menu)
 {
 	menu->setTitle(tr("&Table"));
 
-	QMenu * submenu = new QMenu(tr("S&et Column(s) As"));
+	QMenu * submenu = new QMenu(tr("S&et Column(s) As"), menu);
 	submenu->addAction(action_set_as_x);
 	submenu->addAction(action_set_as_y);
 	submenu->addAction(action_set_as_z);
@@ -973,7 +973,7 @@ bool Table::fillProjectMenu(QMenu * menu)
 	menu->addMenu(submenu);
 	menu->addSeparator();
 
-	submenu = new QMenu(tr("Fi&ll Selection with"));
+	submenu = new QMenu(tr("Fi&ll Selection with"), menu);
 	submenu->addAction(action_fill_row_numbers);
 	submenu->addAction(action_fill_random);
 	menu->addMenu(submenu);
@@ -2370,8 +2370,6 @@ void Table::initActionManager()
 		action_manager = new ActionManager();
 
 	action_manager->setTitle(tr("Table"));
-	volatile Table * action_creator = new Table(); // initialize the action texts
-	delete action_creator;
 }
 
 /* ========================== Table::Private ====================== */
