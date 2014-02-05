@@ -5084,7 +5084,7 @@ void ApplicationWindow::saveAsTemplate()
 			return;
 		}
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		QString text = SciDAVis::versionString() + " template file\n";
+		QString text = SciDAVis::schemaVersion() + " template file\n";
 		text += w->saveAsTemplate(windowGeometryInfo(w));
 		QTextStream t( &f );
 		t.setEncoding(QTextStream::UnicodeUTF8);
