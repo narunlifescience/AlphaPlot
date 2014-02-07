@@ -1194,7 +1194,7 @@ QString MultiLayer::saveAsTemplate(const QString& geometryInfo)
 		Graph* ag=(Graph*)graphsList.at(i);
 		s += ag->saveToString(true);
 	}
-	return s;
+	return s+"</multiLayer>\n";
 }
 
 void MultiLayer::mousePressEvent ( QMouseEvent * e )

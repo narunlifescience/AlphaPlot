@@ -218,6 +218,7 @@ QString Matrix::saveAsTemplate(const QString &info)
 	s+= "TextFormat\t" + QString(d_future_matrix->numericFormat()) + "\t" + QString::number(d_future_matrix->displayedDigits()) + "\n";
 	s+= "Coordinates\t" + QString::number(xStart(),'g',15) + "\t" +QString::number(xEnd(),'g',15) + "\t";
 	s+= QString::number(yStart(),'g',15) + "\t" + QString::number(yEnd(),'g',15) + "\n";
+	s +="</matrix>\n";
 	return s;
 }
 

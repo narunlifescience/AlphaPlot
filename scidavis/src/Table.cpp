@@ -1161,6 +1161,7 @@ QString Table::saveAsTemplate(const QString& geometryInfo)
 	s+=saveCommands();
 	s+=saveColumnTypes();
 	s+=saveComments();
+	s +="</table>\n";
 	return s;
 }
 
