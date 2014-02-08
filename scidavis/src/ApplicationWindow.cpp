@@ -3895,7 +3895,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	app->blockSignals (false);
 	app->renamedTables.clear();
 
-	app->showMaximized();
+	app->show();
 	app->executeNotes();
 	app->savedProject();
 
