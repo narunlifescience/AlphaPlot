@@ -207,7 +207,7 @@ contains(PRESET, default_installation) {
 	LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
 
 	INCLUDEPATH  += /usr/include/muParser
-	LIBS         += -lgsl -lgslcblas
+	LIBS         += -lgsl -lgslcblas -lz -lGLU
 	LIBS         += -lmuparser
 
 	contains(DEFINES, ORIGIN_IMPORT) {
