@@ -3479,7 +3479,7 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 		return importOPJ(fn);
 #else
 		{
-                QMessageBox::critical(this, tr("File opening error"),  tr("SciDAVis currently does not support Origin import. If you are interested in reviving an maintaining an Origin import filter, contact the developers.").arg(fn));
+                QMessageBox::critical(this, tr("File opening error"),  tr("SciDAVis currently does not support Origin import. If you are interested in reviving and maintaining an Origin import filter, contact the developers.").arg(fn));
 				return 0;
 		}
 #endif
@@ -12146,7 +12146,7 @@ void ApplicationWindow::appendProject(const QString& fn)
 		ImportOPJ(this, fn);
 #else
 		{
-                QMessageBox::critical(this, tr("File opening error"),  tr("SciDAVis currently does not support Origin import. If you are interested in reviving an maintaining an Origin import filter, contact the developers.").arg(fn));
+                QMessageBox::critical(this, tr("File opening error"),  tr("SciDAVis currently does not support Origin import. If you are interested in reviving and maintaining an Origin import filter, contact the developers.").arg(fn));
 				return;
 		}
 #endif
@@ -13326,7 +13326,7 @@ void ApplicationWindow::receivedVersionFile(bool error)
 			else
 			{
 				QMessageBox::information(this, versionString(),
-						tr("No updates available. Your are already running the latest version."));
+						tr("No updates available. You are already running the latest version."));
 			}
 		}
 		else QMessageBox::information(this, tr("Invalid version file"),
