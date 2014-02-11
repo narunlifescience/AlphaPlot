@@ -18,3 +18,5 @@ for i in scidavis/translations/*.ts; do
         fi
 done
 
+# update Doxyversion
+echo "PROJECT_NUMBER=$version" >Doxyversion

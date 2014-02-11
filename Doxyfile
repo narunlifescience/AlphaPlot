@@ -2,7 +2,8 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = SciDAVis
-PROJECT_NUMBER         = 0.2.4
+#PROJECT_NUMBER         = 1.D4
+@INCLUDE = Doxyversion
 OUTPUT_DIRECTORY       = API
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
