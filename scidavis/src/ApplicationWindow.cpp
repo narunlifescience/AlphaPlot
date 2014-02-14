@@ -11583,9 +11583,9 @@ MultiLayer* ApplicationWindow::plotSpectrogram(Matrix *m, Graph::CurveType type)
 	return g;
 }
 
-#ifdef ORIGIN_IMPORT
 ApplicationWindow* ApplicationWindow::importOPJ(const QString& filename)
 {
+#ifdef ORIGIN_IMPORT
     if (filename.endsWith(".opj", Qt::CaseInsensitive) || filename.endsWith(".ogg", Qt::CaseInsensitive))
     {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -11613,8 +11613,10 @@ ApplicationWindow* ApplicationWindow::importOPJ(const QString& filename)
         return this;
     }
 	else return 0;
-}
+#else
+    return NULL;
 #endif
+}
 
 void ApplicationWindow::deleteFitTables()
 {
