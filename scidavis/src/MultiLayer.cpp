@@ -101,12 +101,10 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
 	left_margin = 5; right_margin = 5;
 	top_margin = 5; bottom_margin = 5;
 	l_canvas_width = 400; l_canvas_height = 300;
+	lastSize = QSize(-1, -1);
 	hor_align = HCenter;  vert_align = VCenter;
 	active_graph = 0;
 	addTextOn = false;
-    d_open_maximized = 0;
-    d_max_size = QSize();
-    d_normal_size = QSize();
 	d_scale_on_print = true;
 	d_print_cropmarks = false;
 
@@ -229,23 +227,19 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
 	QSize oldSize = re->oldSize();
 	QSize size = re->size();
 
-    if (d_open_maximized == 1)
-    {// 2 resize events are triggered for maximized windows: this hack allows to ignore the first one!
-        d_open_maximized++;
-        return;
-    }
-    else if (d_open_maximized == 2)
-    {
-        d_open_maximized = 0;
-        //TODO: for maximized windows, the size of the layers should be saved in % of the workspace area in order to restore
-        //the layers properly! For the moment just resize the layers to occupy the whole canvas, although the restored geometry might be altered!
-        oldSize = QSize(canvas->childrenRect().width() + left_margin + right_margin,
-                        canvas->childrenRect().height() + top_margin + bottom_margin);
-        //return;
-    }
-
     if(!oldSize.isValid())
-        return;
+    {
+        if (lastSize.isValid() && isVisible())
+        {
+            oldSize = lastSize;
+        }
+        else
+        {   //TODO: for maximized windows, the size of the layers should be saved in % of the workspace area in order to restore
+            //the layers properly! For the moment just resize the layers to occupy the whole canvas, although the restored geometry might be altered!
+            oldSize = QSize(canvas->childrenRect().width() + left_margin + right_margin,
+                            canvas->childrenRect().height() + top_margin + bottom_margin);
+        }
+    }
 
     resizeLayers(size, oldSize, false);
 }
@@ -275,6 +269,7 @@ void MultiLayer::resizeLayers (const QSize& size, const QSize& oldSize, bool sca
 		}
 	}
 
+	lastSize = size;
 	emit modifiedPlot();
 	emit resizedWindow(this);
 	QApplication::restoreOverrideCursor();
@@ -1350,28 +1345,4 @@ bool MultiLayer::focusNextPrevChild ( bool next )
 		return true;
 
 	return active_graph->focusNextPrevChild(next);
-}
-
-void MultiLayer::changeEvent(QEvent *event)
-{
-	if (event->type() == QEvent::WindowStateChange) {
-		if ( windowState() & Qt::WindowMaximized )
-	     	d_max_size = QSize(width(), height() - LayerButton::btnSize());
-        else if ( windowState() & Qt::WindowMinimized )
-        {
-            if (((QWindowStateChangeEvent*)event)->oldState() == Qt::WindowMaximized)
-                resizeLayers(d_normal_size, d_max_size, true);
-        }
-        else if ( windowState() == Qt::WindowNoState )
-            d_normal_size = QSize(width(), height() - LayerButton::btnSize());
-	}
-	MyWidget::changeEvent(event);
-}
-
-void MultiLayer::setHidden()
-{
-	if (status() == MyWidget::Maximized)
-		resizeLayers(d_normal_size, d_max_size, false);
-
-	MyWidget::setHidden();
 }

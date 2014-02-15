@@ -2354,8 +2354,8 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 	return g;
 }
 
-void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
-{
+void ApplicationWindow::initBareMultilayerPlot(MultiLayer* g, const QString& name)
+{ // FIXME: workaround, init without unnecessary g->show()
 	QString label = name;
 	while(alreadyUsedName(label))
 		label = generateUniqueName(tr("Graph"));
@@ -2371,10 +2371,15 @@ void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 	g->setIcon(QPixmap(":/graph.xpm"));
 	g->setScaleLayersOnPrint(d_scale_plots_on_print);
 	g->printCropmarks(d_print_cropmarks);
-	g->show();
-	g->setFocus();
 
 	addListViewItem(g);
+}
+
+void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
+{
+	initBareMultilayerPlot(g, name);
+	g->show(); // FIXME: bad idea do it here
+	g->setFocus();
 }
 
 void ApplicationWindow::customizeTables(const QColor& bgColor,const QColor& textColor,
@@ -3988,7 +3993,7 @@ void ApplicationWindow::openTemplate()
 	QString filter = "SciDAVis/QtiPlot 2D Graph Template (*.qpt);;";
 	filter += "SciDAVis/QtiPlot 3D Surface Template (*.qst);;";
 	filter += "SciDAVis/QtiPlot Table Template (*.qtt);;";
-	filter += "SciDAVis/QtiPlot Matrix Template (*.qmt);;";
+	filter += "SciDAVis/QtiPlot Matrix Template (*.qmt)";
 
 	QString fn = QFileDialog::getOpenFileName(this, tr("Open Template File"), templatesDir, filter);
 	if (!fn.isEmpty())
@@ -4030,6 +4035,7 @@ void ApplicationWindow::openTemplate()
 				d_file_version = ((vl[0]).toInt() << 16) + ((vl[1]).toInt() << 8) + (vl[2]).toInt();
 
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
 			MyWidget *w = 0;
 			QString templateType;
 			t>>templateType;
@@ -4052,8 +4058,11 @@ void ApplicationWindow::openTemplate()
 				QString geometry = t.readLine();
 
 				if (templateType == "<multiLayer>")
-				{
-					w = multilayerPlot(generateUniqueName(tr("Graph")));
+				{ // FIXME: workarounds for template
+					w = new MultiLayer("", d_workspace, 0);
+					w->setAttribute(Qt::WA_DeleteOnClose);
+					QString label = generateUniqueName(tr("Graph"));
+					initBareMultilayerPlot((MultiLayer*)w, label.replace(QRegExp("_"),"-"));
 					if (w)
 					{
 						((MultiLayer*)w)->setCols(cols);
@@ -4101,6 +4110,11 @@ void ApplicationWindow::openTemplate()
 						restoreWindowGeometry(this, w, geometry);
 					}
 				}
+			}
+
+			f.close();
+			if (w)
+			{
 				switch (w->status())
 				{
 				case MyWidget::Maximized :
@@ -4113,13 +4127,9 @@ void ApplicationWindow::openTemplate()
 					w->setHidden();
 					break;
 				case MyWidget::Normal :
+					w->setNormal();
 					break;
 				}
-			}
-
-			f.close();
-			if (w)
-			{
 				customMenu((QWidget*)w);
 				customToolBars((QWidget*)w);
 			}
@@ -4944,9 +4954,6 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, MyWidget *
 	else if (s.contains ("maximized"))
 	{
 		w->setStatus(MyWidget::Maximized);
-		if (w->inherits("MultiLayer"))
-            ((MultiLayer*)w)->setOpenMaximized();
-
 		app->setListView(caption, tr("Maximized"));
 	}
 	else

@@ -84,22 +84,17 @@ public:
 	void contextMenuEvent(QContextMenuEvent *);
 	void wheelEvent(QWheelEvent *);
 	void keyPressEvent(QKeyEvent *);
-	void changeEvent(QEvent *);
 	bool eventFilter(QObject *object, QEvent *);
 	void releaseLayer();
 
 	bool focusNextPrevChild ( bool next );
 	//@}
 
-	void setOpenMaximized(){d_open_maximized = 1;};
-
 	bool scaleLayersOnPrint(){return d_scale_on_print;};
 	void setScaleLayersOnPrint(bool on){d_scale_on_print = on;};
 
 	bool printCropmarksEnabled(){return d_print_cropmarks;};
 	void printCropmarks(bool on){d_print_cropmarks = on;};
-
-	void setHidden();
 
 public slots:
 	Graph* addLayer(int x = 0, int y = 0, int width = 0, int height = 0);
@@ -219,6 +214,7 @@ signals:
 private:
 	void resizeLayers (const QResizeEvent *re);
 	void resizeLayers (const QSize& size, const QSize& oldSize, bool scaleFonts);
+	QSize lastSize; // workaround for resize layers after hide/minimize
 
 	Graph* active_graph;
 	//! Used for resizing of layers.
@@ -238,11 +234,6 @@ private:
     QWidget *canvas;
 
 	QPointer<SelectionMoveResizer> d_layers_selector;
-	int d_open_maximized;
-	//! Stores the size of the widget in the Qt::WindowMaximized state.
-	QSize d_max_size;
-	//! Stores the size of the widget in Qt::WindowNoState (normal state).
-    QSize d_normal_size;
 };
 
 
