@@ -136,12 +136,6 @@ int main( int argc, char ** argv )
 		ApplicationWindow::about();
 		exit(0);
 	} else {
-		QSplashScreen *splash = new QSplashScreen(QPixmap(":/appsplash"));
-		splash->show();
-		QTimer *timer = new QTimer(&app);
-		app.connect( timer, SIGNAL(timeout()), splash, SLOT(close()) );
-		app.connect( timer, SIGNAL(timeout()), timer, SLOT(stop()) );
-		timer->start(500);
 		ApplicationWindow *mw = new ApplicationWindow();
 		mw->applyUserSettings();
 		mw->newTable();
