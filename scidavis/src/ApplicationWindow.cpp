@@ -4101,6 +4101,20 @@ void ApplicationWindow::openTemplate()
 						restoreWindowGeometry(this, w, geometry);
 					}
 				}
+				switch (w->status())
+				{
+				case MyWidget::Maximized :
+					w->setMaximized();
+					break;
+				case MyWidget::Minimized :
+					w->setMinimized();
+					break;
+				case MyWidget::Hidden :
+					w->setHidden();
+					break;
+				case MyWidget::Normal :
+					break;
+				}
 			}
 
 			f.close();
