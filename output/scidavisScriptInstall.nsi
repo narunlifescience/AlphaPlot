@@ -28,14 +28,14 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "SciDAVis"
-!define PRODUCT_VERSION "1.D1"
+!define PRODUCT_VERSION "1.D5"
 !define PRODUCT_WEB_SITE "http://scidavis.sourceforge.net/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\scidavis.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
-!define PYTHON_INSTALLER "python-2.5.msi"
-!define PYTHON_URL "http://www.python.org/ftp/python/2.5/${PYTHON_INSTALLER}"
+!define PYTHON_INSTALLER "python-2.7.6.msi"
+!define PYTHON_URL "http://www.python.org/ftp/python/2.7.6/${PYTHON_INSTALLER}"
 
 SetCompressor /SOLID lzma
 
@@ -117,10 +117,10 @@ Section "SciDAVis" SEC01
   File "scidavisrc.py"
   File "scidavisrc.pyc"
   File "scidavisUtil.py"
-  File "scidavisUtil.pyc"
+  ;File "scidavisUtil.pyc"
   File "assistant.exe"
   File "sip.pyd"
-  File "python25.dll"
+  File "python27.dll"
   File "zlib1.dll"
   SetOutPath "$INSTDIR\plugins"
   File "plugins\fitRational0.dll"
@@ -231,7 +231,7 @@ Section Uninstall
   Delete "$INSTDIR\CHANGES.txt"
   Delete "$INSTDIR\assistant.exe"
   Delete "$INSTDIR\sip.pyd"
-  Delete "$INSTDIR\python25.dll"
+  Delete "$INSTDIR\python27.dll"
   Delete "$INSTDIR\zlib1.dll"
   Delete "$INSTDIR\plugins\fitRational1.dll"
   Delete "$INSTDIR\plugins\fitRational0.dll"
@@ -282,11 +282,11 @@ SectionEnd
 ; Ask whether to install Python
 Section -Requirements
   SetOutPath $INSTDIR
-  ReadRegStr $3 HKLM "SOFTWARE\Python\PythonCore\2.5\InstallPath" ""
+  ReadRegStr $3 HKLM "SOFTWARE\Python\PythonCore\2.7\InstallPath" ""
   StrCmp $3 "" 0 pythonInstFound
-  ReadRegStr $3 HKCU "SOFTWARE\Python\PythonCore\2.5\InstallPath" ""
+  ReadRegStr $3 HKCU "SOFTWARE\Python\PythonCore\2.7\InstallPath" ""
   StrCmp $3 "" 0 pythonInstFound
-  StrCpy $4 "No Python 2.5 found on your system. Install Python 2.5 from the internet?"
+  StrCpy $4 "No Python 2.7 found on your system. Install Python 2.7 from the internet?"
   MessageBox MB_YESNO $4 /SD IDYES IDNO endInstPython
         StrCpy $2 "$TEMP\${PYTHON_INSTALLER}"
         nsisdl::download /TIMEOUT=30000 ${PYTHON_URL} $2
@@ -299,4 +299,3 @@ Section -Requirements
   pythonInstFound:
   endInstPython:
 SectionEnd
-
