@@ -16,10 +16,12 @@
 
   unix {
     INCLUDEPATH += $$system(python python-includepath.py)
-    macx {
-      LIBS += -framework Python
-    } else {
-      LIBS += $$system(python -c "\"from distutils import sysconfig; print '-lpython'+sysconfig.get_config_var('VERSION')\"")
+    !contains(PRESET,mac_dist) {
+      macx {
+        LIBS += -framework Python
+      } else {
+        LIBS += $$system(python -c "\"from distutils import sysconfig; print '-lpython'+sysconfig.get_config_var('VERSION')\"")
+      }
     }
     LIBS        += -lm
     system(mkdir -p $${SIP_DIR})
