@@ -267,7 +267,7 @@ void Matrix::pasteIntoSelection()
 	{
 		QString input_str = QString(mime_data->data("text/plain"));
 		QList< QStringList > cell_texts;
-		QStringList input_rows(input_str.split("\n"));
+		QStringList input_rows(input_str.split(QRegExp("\\n|\\r\\n|\\r")));
 		input_row_count = input_rows.count();
 		input_col_count = 0;
 		for(int i=0; i<input_row_count; i++)
