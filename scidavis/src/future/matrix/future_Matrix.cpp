@@ -253,7 +253,6 @@ void Matrix::pasteIntoSelection()
 
 	WAIT_CURSOR;
 	beginMacro(tr("%1: paste from clipboard").arg(name()));
-	const QMimeData * mime_data = QApplication::clipboard()->mimeData();
 
 	int first_col = d_view->firstSelectedColumn(false);
 	int last_col = d_view->lastSelectedColumn(false);
@@ -263,9 +262,11 @@ void Matrix::pasteIntoSelection()
 	int input_col_count = 0;
 	int rows, cols;
 
-	if(mime_data->hasFormat("text/plain"))
+	const QClipboard *clipboard = QApplication::clipboard();
+	const QMimeData *mimeData = clipboard->mimeData();;
+	if(mimeData->hasText())
 	{
-		QString input_str = QString(mime_data->data("text/plain"));
+		QString input_str = QString(clipboard->text());
 		QList< QStringList > cell_texts;
 		QStringList input_rows(input_str.split(QRegExp("\\n|\\r\\n|\\r")));
 		input_row_count = input_rows.count();
