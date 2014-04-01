@@ -9380,10 +9380,32 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, QTextStream &stream)
 	else
 	{
 		QString s = stream.readLine();
-		qint64 pos = stream.pos();
+		int length = s.toInt();
 
-		stream.device()->seek(pos); // TODO doesn't work with sequential devices
-		XmlStreamReader reader(stream.device());
+		// On Windows, loading large tables to a QString has been observed to crash
+		// (apparently due to excessive memory usage).
+		// => use temporary file if possible
+		QTemporaryFile tmp_file;
+		QString tmp_string;
+		if (tmp_file.open()) {
+			QTextStream tmp(&tmp_file);
+			tmp.setEncoding(QTextStream::UnicodeUTF8);
+			int read = 0;
+			while (length - read >= 1024) {
+				tmp << stream.read(1024);
+				read += 1024;
+			}
+			tmp << stream.read(length - read);
+			tmp.flush();
+			tmp_file.seek(0);
+			stream.readLine(); // skip to next newline
+		} else
+			while (tmp_string.length() < length)
+				tmp_string += '\n' + stream.readLine();
+
+		XmlStreamReader reader(tmp_string);
+		if (tmp_file.isOpen())
+			reader.setDevice(&tmp_file);
 
 		Table* w = app->newTable("table", 1, 1);
 		reader.readNext();
@@ -9403,8 +9425,6 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, QTextStream &stream)
 		}
 		w->setBirthDate(w->d_future_table->creationTime().toString(Qt::LocalDate));
 
-		stream.seek(pos + reader.characterOffset());
-		s = stream.readLine(); // skip newline symbol
 		s = stream.readLine();
 		restoreWindowGeometry(app, w, s);
 
