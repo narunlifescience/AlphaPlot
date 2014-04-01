@@ -538,31 +538,47 @@ QString Table::saveToString(const QString& geometry)
 }
 
 void Table::saveToDevice(QIODevice *device, const QString &geometry)
-{ // FIXME remove legacy code in future, e.g. after major release
-	// TODO: seek() doesn't work with sequential devices, but this is not problem in most cases
+{
 	QTextStream stream(device);
 	stream.setEncoding(QTextStream::UnicodeUTF8);
 
 	// write start tag
 	stream << "<table>\n";
 	stream.flush();
-	qint64 pos = stream.pos();
 
-	stream << "                                            \n"; // workaround: number of symbols writes here later
-	stream.flush();
-	qint64 pos1 = stream.pos(); // position of table start
-
-	QXmlStreamWriter xml(stream.device());
+	// On Windows, writing to a QString has been observed to crash for large tables
+	// (apparently due to excessive memory usage).
+	// => use temporary file if possible
+	QTemporaryFile tmp_file;
+	QString tmp_string;
+	QXmlStreamWriter xml(&tmp_string);
+	if (tmp_file.open())
+		xml.setDevice(&tmp_file);
 	d_future_table->save(&xml);
 
-	stream.flush();
-	qint64 pos2 = stream.device()->pos(); // position of table end
+	// write number of characters of QXmlStreamWriter's output
+	// this is needed in case there are newlines in the XML
+	int xml_chars = 0;
+	if (tmp_file.isOpen()) {
+		tmp_file.seek(0);
+		QTextStream count(&tmp_file);
+		count.setEncoding(QTextStream::UnicodeUTF8);
+		while (!count.atEnd())
+			xml_chars += count.read(1024).length();
+	} else
+		xml_chars = tmp_string.length();
+	stream << xml_chars << "\n";
 	stream.flush();
 
-	stream.seek(pos);
-	stream << pos2 - pos1; // write number of symbols (for backward compatibility)
-
-	stream.seek(stream.device()->size()); // return to end of table
+	// Copy QXmlStreamWriter's output to device
+	if (tmp_file.isOpen()) {
+		tmp_file.seek(0);
+		qint64 bytes_read;
+		char buffer[1024];
+		while ((bytes_read = tmp_file.read(buffer, 1024)) > 0)
+			device->write(buffer, bytes_read);
+	} else
+		stream << tmp_string;
 	stream << "\n";
 
 	// write geometry and end tag
