@@ -132,6 +132,9 @@ public:
     MyWidget *activeWindow(){return d_active_window;};
     void setActiveWindow(MyWidget *w){d_active_window = w;};
 
+	// TODO: move to Aspect
+	QString name(){return objectName();}
+	void setName(const QString& s){setObjectName(s);}
 protected:
     QString birthdate, modifDate;
     QList<MyWidget *> lstWindows;
@@ -199,7 +202,7 @@ class FolderListView : public Q3ListView
     Q_OBJECT
 
 public:
-    FolderListView( QWidget *parent = 0, const char *name = 0 );
+	FolderListView(QWidget *parent = 0, const QString name = QString() );
 
 public slots:
 	void adjustColumns();

@@ -12776,7 +12776,7 @@ void ApplicationWindow::folderProperties()
 		return;
 	}
 
-	QString s = QString(current_folder->name()) + "\n\n";
+	QString s = current_folder->name() + "\n\n";
 	s += "\n\n\n";
 	s += tr("Type") + ": " + tr("Folder")+"\n\n";
 	s += tr("Path") + ": " + current_folder->path() + "\n\n";

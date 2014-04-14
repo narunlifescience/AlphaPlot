@@ -54,8 +54,9 @@
 #include <QMouseEvent>
 
 Folder::Folder( Folder *parent, const QString &name )
-    : QObject( parent, name ), d_active_window(0)
+	: QObject(parent), d_active_window(0)
 {
+	QObject::setObjectName(name);
 	birthdate = QDateTime::currentDateTime ().toString(Qt::LocalDate);
 
 	// FIXME: This doesn't work anymore in Qt4, need alternative method
@@ -237,8 +238,8 @@ return false;
  *
  *****************************************************************************/
 
-FolderListView::FolderListView( QWidget *parent, const char *name )
-    : Q3ListView( parent, name ), mousePressed( false )
+FolderListView::FolderListView( QWidget *parent, const QString name )
+	: Q3ListView( parent, name.toLocal8Bit().constData() ), mousePressed( false )
 {
     setAcceptDrops( true );
     viewport()->setAcceptDrops( true );
