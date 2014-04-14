@@ -80,10 +80,10 @@ void LayerButton::mouseDoubleClickEvent ( QMouseEvent * )
 	emit showCurvesDialog();
 }
 
-MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
+MultiLayer::MultiLayer(const QString& label, QWidget* parent, const QString name, Qt::WFlags f)
 : MyWidget(label,parent,name,f)
 {
-	if ( !name )
+	if ( name.isEmpty() )
 		setName( "multilayer plot" );
 
 	QPalette pal = palette();

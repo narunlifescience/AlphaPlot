@@ -4853,7 +4853,7 @@ void ApplicationWindow::exportAllGraphs()
 		} else
 			continue;
 
-		QString file_name = output_dir + "/" + w->name() + file_suffix;
+		QString file_name = output_dir + "/" + w->objectName() + file_suffix;
 		QFile f(file_name);
 		if (f.exists() && confirm_overwrite) {
 			QApplication::restoreOverrideCursor();

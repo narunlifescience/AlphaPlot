@@ -68,7 +68,7 @@ class MultiLayer: public MyWidget
 	Q_OBJECT
 
 public:
-    MultiLayer (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+	MultiLayer (const QString& label, QWidget* parent=0, const QString name=QString(), Qt::WFlags f=0);
 	QWidgetList graphPtrs(){return graphsList;};
 	Graph *layer(int num);
 	QWidgetList layerWidgets() const { return graphsList; }
