@@ -290,7 +290,8 @@ contains(PRESET, self_contained) {
 	}
 }
 
-win32 {
+win32: {
+!mxe {
 	### Static linking mostly, except Qt, Python and QwtPlot3D.
 	### The latter seems to be impossible to link statically on Windows.
 
@@ -313,8 +314,22 @@ win32 {
 		LIBS += "$${LIBPATH}/liborigin/build/liborigin.a"
 		INCLUDEPATH += "$${LIBPATH}/liborigin" "$${LIBPATH}/liborigin/build"
 	}
+  }
 }
 
+# Mingw cross compilation environment on Linux. 
+mxe {
+  DEFINES += NOASSISTANT
+  INCLUDEPATH  += . "$$(HOME)/usr/mxe/include"
+  LIBPATH += "$(HOME)/usr/mxe/lib" "$(HOME)/usr/mxe/lib64"
+  LIBS += -lqwt -lqwtplot3d -lmuparser -lgsl -lgslcblas  
+  # Qt libraries specified here to get around a dependency bug in qmake
+  LIBS += -lQt3Support -lQtOpenGL -lQtGui -lQtNetwork -lQtCore
+  LIBS += -lole32 -loleaut32 -limm32 -lcomdlg32 -luuid 
+  LIBS += -lwinspool -lssl -lcrypto -lwinmm -lgdi32 -lws2_32
+  LIBS += -ljpeg -lpng -lmng -ltiff -lz -llzma -llcms2
+  LIBS += -lopengl32 -lglu32 
+}
 
 #############################################################################
 ### Names of the lupdate and lrelease programs                              #

@@ -142,7 +142,9 @@
 #include <QVarLengthArray>
 #include <QList>
 #include <QUrl>
+#ifndef NOASSISTANT
 #include <QtAssistant/QAssistantClient>
+#endif
 #include <QStatusBar>
 #include <QToolButton>
 #include <QSignalMapper>
@@ -284,7 +286,9 @@ void ApplicationWindow::init()
 	createLanguagesList();
 	insertTranslatedStrings();
 
-	assistant = new QAssistantClient( QString(), this );
+#ifndef NOASSISTANT
+        assistant = new QAssistantClient( QString(), this );
+#endif
 
 	actionNextWindow = new QAction(QIcon(QPixmap(":/next.xpm")), tr("&Next","next window"), this);
 	actionNextWindow->setShortcut( tr("F5","next window shortcut") );
@@ -8270,10 +8274,12 @@ void ApplicationWindow::showStandAloneHelp()
 	}
 
 	QStringList cmdLst = QStringList() << "-profile" << profilePath;
-	QAssistantClient *assist = new QAssistantClient( QString(), 0);
-	assist->setArguments( cmdLst );
-	assist->showPage(helpPath);
-	connect(assist, SIGNAL(assistantClosed()), qApp, SLOT(quit()) );
+#ifndef NOASSISTANT
+        QAssistantClient *assist = new QAssistantClient( QString(), 0);
+        assist->setArguments( cmdLst );
+        assist->showPage(helpPath);
+        connect(assist, SIGNAL(assistantClosed()), qApp, SLOT(quit()) );
+#endif
 }
 
 void ApplicationWindow::showHelp()
@@ -8301,8 +8307,10 @@ void ApplicationWindow::showHelp()
 	}
 
 	QStringList cmdLst = QStringList() << "-profile" << profilePath;
+#ifndef NOASSISTANT
 	assistant->setArguments( cmdLst );
 	assistant->showPage(helpFilePath);
+#endif
 }
 
 void ApplicationWindow::showPlotWizard()

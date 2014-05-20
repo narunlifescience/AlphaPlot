@@ -17,7 +17,9 @@ DEFINES       += MANUAL_PATH="\\\"$$replace(manual.path," ","\ ")\\\"
 }
 !isEmpty(plugins.path): DEFINES += PLUGIN_PATH="\\\"$$replace(plugins.path," ","\ ")\\\"
 
-win32:DEFINES += QT_DLL QT_THREAD_SUPPORT
+!mxe {
+     win32:DEFINES += QT_DLL QT_THREAD_SUPPORT
+}
 QT            += opengl qt3support network svg xml
 
 MOC_DIR        = ../tmp/scidavis

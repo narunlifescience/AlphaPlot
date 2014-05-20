@@ -9,10 +9,11 @@ TEMPLATE = subdirs
 
 SUBDIRS = scidavis
 
+!mxe {
 # optional fit plugins
 SUBDIRS += fitPlugins/fitRational0\
            fitPlugins/fitRational1\
            fitPlugins/explin\
            fitPlugins/exp_saturation\
            fitPlugins/planck_wavelength\
-
+}
