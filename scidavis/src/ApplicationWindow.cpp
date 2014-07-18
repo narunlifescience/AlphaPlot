@@ -301,8 +301,6 @@ void ApplicationWindow::init()
 	connect(this, SIGNAL(modified()),this, SLOT(modifiedProject()));
 	connect(d_workspace, SIGNAL(windowActivated (QWidget*)),this, SLOT(windowActivated(QWidget*)));
 	connect(lv, SIGNAL(doubleClicked(Q3ListViewItem *)),
-			this, SLOT(maximizeWindow(Q3ListViewItem *)));
-	connect(lv, SIGNAL(doubleClicked(Q3ListViewItem *)),
 			this, SLOT(folderItemDoubleClicked(Q3ListViewItem *)));
 	connect(lv, SIGNAL(contextMenuRequested(Q3ListViewItem *, const QPoint &, int)),
 			this, SLOT(showWindowPopupMenu(Q3ListViewItem *, const QPoint &, int)));
@@ -12879,11 +12877,29 @@ void ApplicationWindow::deleteFolder()
 
 void ApplicationWindow::folderItemDoubleClicked(Q3ListViewItem *it)
 {
-	if (!it || it->rtti() != FolderListItem::RTTI)
+	if (!it)
 		return;
 
-	FolderListItem *item = ((FolderListItem *)it)->folder()->folderListItem();
-	folders->setCurrentItem(item);
+	if (it->rtti() == FolderListItem::RTTI)
+	{
+		FolderListItem *item = ((FolderListItem *)it)->folder()->folderListItem();
+		folders->setCurrentItem(item);
+	}
+	else if (it->rtti() == WindowListItem::RTTI)
+	{
+		MyWidget *w = ((WindowListItem*)it)->window();
+		if (!w)
+			return;
+		if (d_workspace->activeWindow() != w)
+			activateWindow(w);
+		else
+		{
+			if (!w->isMaximized())
+				w->setMaximized();
+			else
+				w->setNormal();
+		}
+	}
 }
 
 void ApplicationWindow::folderItemChanged(Q3ListViewItem *it)
@@ -13551,8 +13567,6 @@ void ApplicationWindow::showStatusBarContextMenu( const QPoint & pos )
 
 void ApplicationWindow::showWindowMenu(MyWidget * widget)
 {
-	d_workspace->setActiveWindow(widget);
-
 	QMenu cm(this);
 	QMenu depend_menu(this);
 
