@@ -52,17 +52,17 @@ struct data {
 	double * sigma;//weighting data
 };
 
-extern "C" MY_EXPORT char *name()
+extern "C" MY_EXPORT const char *name()
 {
 	return "Rational0";
 }
 
-extern "C" MY_EXPORT char *function()
+extern "C" MY_EXPORT const char *function()
 {
 	return "(b + c*x)/(1 + a*x)";
 }
 
-extern "C" MY_EXPORT char *parameters()
+extern "C" MY_EXPORT const char *parameters()
 {
 	return "a,b,c";
 }

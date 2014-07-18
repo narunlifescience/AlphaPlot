@@ -53,17 +53,17 @@ struct fitData {
 	double * sigma;//weighting data
 };
 
-extern "C" MY_EXPORT char *name()
+extern "C" MY_EXPORT const char *name()
 {
 	return "Rational1";
 }
 
-extern "C" MY_EXPORT char *function()
+extern "C" MY_EXPORT const char *function()
 {
 	return "A*t^2*x/(1+4*PI^2*t^2*x^2)";
 }
 
-extern "C" MY_EXPORT char *parameters()
+extern "C" MY_EXPORT const char *parameters()
 {
 	return "A,t";
 }
