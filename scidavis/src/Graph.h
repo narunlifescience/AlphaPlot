@@ -116,7 +116,7 @@ class Graph: public QWidget
 	Q_OBJECT
 
 	public:
-		Graph (QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+		Graph (QWidget* parent=0, QString name=QString(), Qt::WFlags f=0);
 		~Graph();
 
 		enum AxisType{Numeric = 0, Txt = 1, Day = 2, Month = 3, Time = 4, Date = 5, ColHeader = 6, DateTime = 22};

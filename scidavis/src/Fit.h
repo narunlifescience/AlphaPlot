@@ -57,7 +57,7 @@ class Fit : public Filter, public scripted
 		enum Algorithm{ScaledLevenbergMarquardt, UnscaledLevenbergMarquardt, NelderMeadSimplex};
 		enum ErrorSource {UnknownErrors, AssociatedErrors, PoissonErrors, CustomErrors};
 
-		Fit(ApplicationWindow *parent, Graph *g = 0, const char * name = 0);
+		Fit(ApplicationWindow *parent, Graph *g = 0, QString name = QString());
 		~Fit();
 
 		//! Actually does the fit. Should be reimplemented in derived classes.

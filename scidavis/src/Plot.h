@@ -47,7 +47,7 @@ class Plot: public QwtPlot
 	friend class Graph; // part of axes gaps workaround
 
 public:
-	Plot(QWidget *parent = 0, const char *name = 0);
+	Plot(QWidget *parent = 0, QString name = QString());
 
 	enum LabelFormat{Automatic, Decimal, Scientific, Superscripts};
 

@@ -40,8 +40,8 @@ class FunctionCurve: public QObject, public PlotCurve, public scripted
 public:
 	enum FunctionType{Normal = 0, Parametric = 1, Polar = 2};
 
-	FunctionCurve(ApplicationWindow * parent, const FunctionType& t, const char *name=0);
-	FunctionCurve(ApplicationWindow * parent, const char *name=0);
+	FunctionCurve(ApplicationWindow * parent, const FunctionType& t, QString name = QString());
+	FunctionCurve(ApplicationWindow * parent, QString name = QString());
 
 	double startRange(){return d_from;};
 	double endRange(){return d_to;};

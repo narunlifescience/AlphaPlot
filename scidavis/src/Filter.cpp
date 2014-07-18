@@ -40,16 +40,18 @@
 
 #include <gsl/gsl_sort.h>
 
-Filter::Filter( ApplicationWindow *parent, Graph *g, const char * name)
-: QObject( parent, name)
+Filter::Filter( ApplicationWindow *parent, Graph *g, QString name)
+	: QObject(parent)
 {
+	QObject::setObjectName(name);
 	init();
 	d_graph = g;
 }
 
-Filter::Filter( ApplicationWindow *parent, Table *t, const char * name)
-: QObject( parent, name)
+Filter::Filter( ApplicationWindow *parent, Table *t, QString name)
+	: QObject(parent)
 {
+	QObject::setObjectName(name);
 	init();
 	d_table = t;
 }
@@ -66,7 +68,7 @@ void Filter::init()
 	d_init_err = false;
     d_sort_data = false;
     d_min_points = 2;
-    d_explanation = QString(name());
+    d_explanation = objectName();
     d_graph = 0;
     d_table = 0;
 }
@@ -292,7 +294,7 @@ int Filter::curveData(QwtPlotCurve *c, double start, double end, double **x, dou
 QwtPlotCurve* Filter::addResultCurve(double *x, double *y)
 {
     ApplicationWindow *app = (ApplicationWindow *)parent();
-    const QString tableName = app->generateUniqueName(QString(this->name()));
+    const QString tableName = app->generateUniqueName(this->objectName());
 	Column *xCol = new Column(tr("1", "filter table x column name"), SciDAVis::Numeric);
 	Column *yCol = new Column(tr("2", "filter table y column name"), SciDAVis::Numeric);
 	xCol->setPlotDesignation(SciDAVis::X);

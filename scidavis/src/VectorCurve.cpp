@@ -33,7 +33,7 @@
 #include <QPainter>
 #include <QLocale>
 
-VectorCurve::VectorCurve(VectorStyle style, Table *t, const QString& xColName, const char *name,
+VectorCurve::VectorCurve(VectorStyle style, Table *t, const QString& xColName, QString name,
 				const QString& endCol1, const QString& endCol2, int startRow, int endRow):
     DataCurve(t, xColName, name, startRow, endRow)
 {

@@ -55,7 +55,7 @@ Differentiation::Differentiation(ApplicationWindow *parent, Graph *g, const QStr
 
 void Differentiation::init()
 {
-	setName(tr("Derivative"));
+	setObjectName(tr("Derivative"));
     d_min_points = 4;
 }
 
@@ -71,7 +71,7 @@ void Differentiation::output()
 	}
 
 	ApplicationWindow *app = (ApplicationWindow *)parent();
-	QString tableName = app->generateUniqueName(QString(name()));
+	QString tableName = app->generateUniqueName(objectName());
 	QString curveTitle = d_curve->title().text();
 	Table *t = app->newHiddenTable(tableName, tr("Derivative") + " " + tr("of","Derivative of")  + " " + curveTitle, QList<Column *>() << xCol << yCol);
 	MultiLayer *ml = app->newGraph(tr("Plot")+tr("Derivative"));

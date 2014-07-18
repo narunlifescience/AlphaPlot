@@ -40,7 +40,7 @@
 Convolution::Convolution(ApplicationWindow *parent, Table *t, const QString& signalColName, const QString& responseColName)
 : Filter(parent, t)
 {
-	setName(tr("Convolution"));
+	setObjectName(tr("Convolution"));
     setDataFromTable(t, signalColName, responseColName);
 }
 
@@ -226,7 +226,7 @@ void Convolution::convlv(double *sig, int n, double *dres, int m, int sign)
 Deconvolution::Deconvolution(ApplicationWindow *parent, Table *t, const QString& signalColName, const QString& responseColName)
 : Convolution(parent, t, signalColName, responseColName)
 {
-	setName(tr("Deconvolution"));
+	setObjectName(tr("Deconvolution"));
     setDataFromTable(t, signalColName, responseColName);
 }
 

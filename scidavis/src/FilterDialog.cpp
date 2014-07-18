@@ -138,7 +138,7 @@ if (filter_type >= FFTFilter::BandPass)
 	try
 		{
 		MyParser parser;
-		parser.SetExpr(boxEnd->text().replace(",", ".").toAscii().constData());
+		parser.SetExpr(boxEnd->text().replace(",", ".").toStdString());
 		to=parser.Eval();
 		}
 	catch(mu::ParserError &e)

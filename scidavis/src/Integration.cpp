@@ -60,7 +60,7 @@ Integration::Integration(ApplicationWindow *parent, Graph *g, const QString& cur
 
 void Integration::init()
 {
-	setName(tr("Integration"));
+	setObjectName(tr("Integration"));
 	d_method = Linear;
 	d_sort_data = true;
 	d_result = NAN;

@@ -56,7 +56,7 @@
 
 void PolynomialFit::init()
 {
-	setName(tr("Poly"));
+	setObjectName(tr("Poly"));
 	is_non_linear = false;
 	d_explanation = tr("Polynomial");
 	d_p = d_order + 1;
@@ -239,7 +239,7 @@ void LinearFit::init()
 	d_param_names << "B" << "A";
 	d_param_explain << tr("(y-intercept)") << tr("(slope)");
 	d_explanation = tr("Linear Regression");
-	setName(tr("Linear"));
+	setObjectName(tr("Linear"));
 }
 
 void LinearFit::fit()

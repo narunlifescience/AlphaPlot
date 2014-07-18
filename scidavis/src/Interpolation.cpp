@@ -62,15 +62,15 @@ void Interpolation::init(int m)
 	switch(d_method)
 	{
 		case 0:
-			setName(tr("Linear") + tr("Int"));
+			setObjectName(tr("Linear") + tr("Int"));
 			d_explanation = tr("Linear") + " " + tr("Interpolation");
 			break;
 		case 1:
-			setName(tr("Cubic") + tr("Int"));
+			setObjectName(tr("Cubic") + tr("Int"));
 			d_explanation = tr("Cubic") + " " + tr("Interpolation");
 			break;
 		case 2:
-			setName(tr("Akima") + tr("Int"));
+			setObjectName(tr("Akima") + tr("Int"));
 			d_explanation = tr("Akima") + " " + tr("Interpolation");
 			break;
 	}

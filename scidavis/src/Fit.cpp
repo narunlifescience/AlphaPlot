@@ -46,7 +46,7 @@
 #include <QDateTime>
 #include <QLocale>
 
-Fit::Fit( ApplicationWindow *parent, Graph *g, const char * name)
+Fit::Fit( ApplicationWindow *parent, Graph *g, QString name)
 : Filter( parent, g, name),
 scripted(ScriptingLangManager::newEnv("muParser", parent))
 {
@@ -613,7 +613,7 @@ void Fit::generateFitCurve(double *par)
 
 	if (d_gen_function)
 	{
-		insertFitFunctionCurve(QString(name()) + tr("Fit"), X, Y);
+		insertFitFunctionCurve(objectName() + tr("Fit"), X, Y);
 		d_graph->replot();
 		delete[] X;
 		delete[] Y;

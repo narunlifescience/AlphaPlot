@@ -40,7 +40,7 @@
 : Fit(parent, g),
 	d_profile(profile)
 {
-	setName(tr("MultiPeak"));
+	setObjectName(tr("MultiPeak"));
 
 	if (profile == Gauss)
 	{
@@ -279,9 +279,9 @@ void MultiPeakFit::generateFitCurve(double *par)
 		}
 
 		if (d_peaks > 1)
-			insertFitFunctionCurve(QString(name()) + tr("Fit"), X, Y, 2);
+			insertFitFunctionCurve(objectName() + tr("Fit"), X, Y, 2);
 		else
-			insertFitFunctionCurve(QString(name()) + tr("Fit"), X, Y);
+			insertFitFunctionCurve(objectName() + tr("Fit"), X, Y);
 
 		if (generate_peak_curves)
 		{
@@ -418,7 +418,7 @@ QString MultiPeakFit::logFitInfo(double *par, int iterations, int status, const 
 
 void LorentzFit::init()
 {
-	setName("Lorentz");
+	setObjectName("Lorentz");
 	d_explanation = tr("Lorentz");
 	d_param_explain << tr("(area)") << tr("(center)") << tr("(width)") << tr("(offset)");
 }
@@ -432,7 +432,7 @@ void LorentzFit::init()
 	GaussFit::GaussFit(ApplicationWindow *parent, Graph *g)
 : MultiPeakFit(parent, g, MultiPeakFit::Gauss, 1)
 {
-	setName("Gauss");
+	setObjectName("Gauss");
 	d_explanation = tr("Gauss");
 	d_param_explain << tr("(area)") << tr("(center)") << tr("(width)") << tr("(offset)");
 }
@@ -453,7 +453,7 @@ void LorentzFit::init()
 
 void GaussFit::init()
 {
-	setName("Gauss");
+	setObjectName("Gauss");
 	d_explanation = tr("Gauss");
 	d_param_explain << tr("(area)") << tr("(center)") << tr("(width)") << tr("(offset)");
 }
@@ -486,7 +486,7 @@ void GaussFit::init()
 
 void GaussAmpFit::init()
 {
-	setName("GaussAmp");
+	setObjectName("GaussAmp");
 	d_f = gauss_f;
 	d_df = gauss_df;
 	d_fdf = gauss_fdf;

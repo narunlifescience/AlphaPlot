@@ -54,7 +54,7 @@ FFT::FFT(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
 
 void FFT::init ()
 {
-    setName(tr("FFT"));
+    setObjectName(tr("FFT"));
     d_inverse = false;
     d_normalize = true;
     d_shift_order = true;
@@ -282,7 +282,7 @@ void FFT::output()
 void FFT::output(QList<Column *> columns)
 {
     ApplicationWindow *app = (ApplicationWindow *)parent();
-    QString tableName = app->generateUniqueName(QString(name()));
+    QString tableName = app->generateUniqueName(objectName());
     Table *t = app->newHiddenTable(tableName, d_explanation, columns);
 	MultiLayer *ml = app->multilayerPlot(t, QStringList() << tableName + "_" + tr("Amplitude"), 0);
    	if (!ml)

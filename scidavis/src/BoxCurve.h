@@ -40,7 +40,7 @@ public:
 	enum BoxStyle{NoBox, Rect, Diamond, WindBox, Notch};
 	enum Range{None, SD, SE, r25_75, r10_90, r5_95, r1_99, MinMax, UserDef};
 
-	BoxCurve(Table *t, const char *name, int startRow = 0, int endRow = -1);
+	BoxCurve(Table *t, QString name = QString(), int startRow = 0, int endRow = -1);
 
 	void copy(const BoxCurve *b);
 

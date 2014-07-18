@@ -50,7 +50,7 @@ FFTFilter::FFTFilter(ApplicationWindow *parent, Graph *g, const QString& curveTi
 
 void FFTFilter::init (int m)
 {
-    setName(tr("FFT") + tr("Filtered"));
+    setObjectName(tr("FFT") + tr("Filtered"));
     setFilterType(m);
     d_points = d_n;
     d_offset = true;

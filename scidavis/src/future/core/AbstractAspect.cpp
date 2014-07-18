@@ -234,7 +234,7 @@ QString AbstractAspect::name() const
 void AbstractAspect::setName(const QString &value)
 {
 	if (value.isEmpty()) {
-		setName("1");
+		setObjectName("1");
 		return;
 	}
 	if (value == d_aspect_private->name()) return;

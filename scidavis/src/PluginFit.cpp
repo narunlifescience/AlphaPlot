@@ -65,7 +65,7 @@ bool PluginFit::load(const QString& pluginName)
 		return false;
 	}
 
-	setName(pluginName);
+	setObjectName(pluginName);
 	QLibrary lib(pluginName);
 	lib.setAutoUnload(false);
 
@@ -127,7 +127,7 @@ bool PluginFit::load(const QString& pluginName)
 			d_param_explain << "";
 
 	fitFunction = (fitFunc) lib.resolve( "name" );
-	setName(QString(fitFunction()));
+	setObjectName(QString(fitFunction()));
 
 	fitFunction = (fitFunc) lib.resolve( "function" );
 	if (fitFunction)

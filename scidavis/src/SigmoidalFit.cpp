@@ -53,7 +53,7 @@
 
 void SigmoidalFit::init()
 {
-	setName("Boltzmann");
+	setObjectName("Boltzmann");
 	d_f = boltzmann_f;
 	d_df = boltzmann_df;
 	d_fdf = boltzmann_fdf;

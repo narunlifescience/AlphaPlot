@@ -149,7 +149,7 @@ void ErrDialog::setSrcTables(QWidgetList* tables)
 
 	QList<QWidget *>::const_iterator i;
     for (i = srcTables->begin(); i != srcTables->end(); i++)
-		tableNamesBox->insertItem((*i)->name());
+		tableNamesBox->insertItem((*i)->objectName());
 
 	if (!nameLabel->currentText().contains("="))
 		tableNamesBox->setCurrentIndex(tableNamesBox->findText(nameLabel->currentText().split("_", QString::SkipEmptyParts)[0]));

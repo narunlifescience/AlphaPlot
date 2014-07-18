@@ -40,7 +40,7 @@ class VectorCurve: public DataCurve
 public:
 	enum VectorStyle{XYXY, XYAM};
 
-	VectorCurve(VectorStyle style, Table *t, const QString& xColName, const char *name,
+	VectorCurve(VectorStyle style, Table *t, const QString& xColName, QString name,
 				const QString& endCol1, const QString& endCol2, int startRow, int endRow);
 	~VectorCurve();
 

@@ -43,8 +43,8 @@ class Filter : public QObject
 	Q_OBJECT
 
 	public:
-        Filter(ApplicationWindow *parent, Table *t = 0, const char * name = 0);
-		Filter(ApplicationWindow *parent, Graph *g = 0, const char * name = 0);
+        Filter(ApplicationWindow *parent, Table *t = 0, QString name = QString());
+		Filter(ApplicationWindow *parent, Graph *g = 0, QString name = QString());
 		~Filter();
 
 		//! Actually does the job. Should be reimplemented in derived classes.

@@ -84,7 +84,7 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const QString name
 : MyWidget(label,parent,name,f)
 {
 	if ( name.isEmpty() )
-		setName( "multilayer plot" );
+		setObjectName( "multilayer plot" );
 
 	QPalette pal = palette();
 	pal.setColor(QPalette::Active, QPalette::Window, QColor(Qt::white));

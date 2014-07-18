@@ -76,14 +76,14 @@ void ExponentialFit::init()
 
 	if (is_exp_growth)
 	{
-		setName("ExpGrowth");
+		setObjectName("ExpGrowth");
 		d_explanation = tr("Exponential growth");
 		d_formula = "y0+A*exp(x/t)";
 		d_param_explain << tr("(amplitude)") << tr("(lifetime)") << tr("(offset)");
 	}
 	else
 	{
-		setName("ExpDecay");
+		setObjectName("ExpDecay");
 		d_explanation = tr("Exponential decay");
 		d_formula = "y0+A*exp(-x/t)";
 		d_param_explain << tr("(amplitude)") << tr("(e-folding time)") << tr("(offset)");
@@ -151,7 +151,7 @@ void ExponentialFit::calculateFitCurveData(double *par, double *X, double *Y)
 
 void TwoExpFit::init()
 {
-	setName("ExpDecay");
+	setObjectName("ExpDecay");
 	d_f = expd2_f;
 	d_df = expd2_df;
 	d_fdf = expd2_fdf;
@@ -228,7 +228,7 @@ void TwoExpFit::calculateFitCurveData(double *par, double *X, double *Y)
 
 void ThreeExpFit::init()
 {
-	setName("ExpDecay");
+	setObjectName("ExpDecay");
 	d_f = expd3_f;
 	d_df = expd3_df;
 	d_fdf = expd3_fdf;

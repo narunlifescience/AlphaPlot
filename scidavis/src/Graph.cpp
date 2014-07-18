@@ -92,10 +92,10 @@
 #include <stdio.h>
 #include <stddef.h>
 
-Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
+Graph::Graph(QWidget* parent, QString name, Qt::WFlags f)
 : QWidget(parent,f)
 {
-	if ( !name )
+	if ( name.isEmpty() )
 		setObjectName( "graph" );
 	else
 		setObjectName( name );
