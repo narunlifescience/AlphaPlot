@@ -10,12 +10,12 @@ CONFIG        += qt warn_on exceptions opengl thread zlib
 CONFIG        += assistant
 
 DEFINES       += QT_PLUGIN
-DEFINES       += TS_PATH="\\\"$$replace(translationfiles.path," ","\ ")\\\"
-DEFINES       += DOC_PATH="\\\"$$replace(documentation.path," ","\ ")\\\"
+DEFINES       += TS_PATH=\\\"$$replace(translationfiles.path," ","\\ ")\\\"
+DEFINES       += DOC_PATH=\\\"$$replace(documentation.path," ","\\ ")\\\"
 !isEmpty( manual.path ) {
-DEFINES       += MANUAL_PATH="\\\"$$replace(manual.path," ","\ ")\\\"
+DEFINES       += MANUAL_PATH=\\\"$$replace(manual.path," ","\\ ")\\\"
 }
-!isEmpty(plugins.path): DEFINES += PLUGIN_PATH="\\\"$$replace(plugins.path," ","\ ")\\\"
+!isEmpty(plugins.path): DEFINES += PLUGIN_PATH=\\\"$$replace(plugins.path," ","\\ ")\\\"
 
 !mxe {
      win32:DEFINES += QT_DLL QT_THREAD_SUPPORT

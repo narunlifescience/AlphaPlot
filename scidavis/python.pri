@@ -2,11 +2,12 @@
 
   INSTALLS += pythonconfig
   pythonconfig.files += scidavisrc.py
-  DEFINES       += PYTHON_CONFIG_PATH="\\\"$$replace(pythonconfig.path," ","\ ")\\\"
+  DEFINES       += PYTHON_CONFIG_PATH=\\\"$$replace(pythonconfig.path," ","\\ ")\\\"
 
   INSTALLS += pythonutils
   pythonutils.files += scidavisUtil.py
-  DEFINES       += PYTHON_UTIL_PATH="\\\"$$replace(pythonutils.path," ","\ ")\\\"
+
+  DEFINES       += PYTHON_UTIL_PATH=\\\"$$replace(pythonutils.path," ","\\ ")\\\"
 
   SIP_DIR = ../tmp/scidavis
 
