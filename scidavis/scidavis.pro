@@ -319,6 +319,7 @@ win32: {
 
 # Mingw cross compilation environment on Linux. 
 mxe {
+  QMAKE_CXXFLAGS+=-g
   DEFINES += NOASSISTANT
   INCLUDEPATH  += . "$$(HOME)/usr/mxe/include"
   LIBPATH += "$(HOME)/usr/mxe/lib" "$(HOME)/usr/mxe/lib64"

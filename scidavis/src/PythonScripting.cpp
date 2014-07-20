@@ -36,6 +36,8 @@
 #include <frameobject.h>
 #include <traceback.h>
 
+#include <iostream>
+
 #if PY_VERSION_HEX < 0x020400A1
 typedef struct _traceback {
 	PyObject_HEAD
@@ -58,7 +60,13 @@ typedef struct _traceback {
 
 // includes sip.h, which undefines Qt's "slots" macro since SIP 4.6
 #include "sipAPIscidavis.h"
-extern "C" void initscidavis();
+extern "C" 
+{
+  void initsip();
+  void initQtCore();
+  void initQtGui();
+  void initscidavis();
+}
 
 const char* PythonScripting::langName = "Python";
 
@@ -194,6 +202,11 @@ PythonScripting::PythonScripting(ApplicationWindow *parent)
 		Py_Initialize ();
 		if (!Py_IsInitialized ())
 			return;
+#ifdef SIP_STATIC_MODULE
+                initsip();
+                initQtCore();
+                initQtGui();
+#endif
 		initscidavis();
 
 		mainmod = PyImport_AddModule("__main__");
@@ -346,9 +359,11 @@ bool PythonScripting::setQObject(QObject *val, const char *name, PyObject *dict)
 
 	PyGILState_STATE state = PyGILState_Ensure();
 
-	sipWrapperType * klass = sipFindClass(val->className());
+        //sipWrapperType * klass = sipFindClass(val->className());
+        const sipTypeDef* klass=sipFindType(val->className());
 	if (!klass) return false;
-	pyobj = sipConvertFromInstance(val, klass, NULL);
+        //pyobj = sipConvertFromInstance(val, klass, NULL);
+	pyobj = sipConvertFromType(val, klass, NULL);
 	if (!pyobj) return false;
 
 	if (dict)

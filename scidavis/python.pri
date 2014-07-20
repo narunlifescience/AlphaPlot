@@ -31,14 +31,17 @@
 
   win32 {
   mxe {
-    LIBS += -lpython27
+     DEFINES += SIP_STATIC_MODULE
+#    QMAKE_LIBPATH += "$$(HOME)/usr/mxe/PyQt4/"
+    LIBS += -L"$$(HOME)/usr/mxe/PyQt4/" -lPyQtCore -lPyQtGui -lqpygui -lqpycore -lsip -lpython27
+    system($$system(python python-sipcmd.py) -c $${SIP_DIR} src/scidavis.sip)
   } else {
     INCLUDEPATH += $$system(call python-includepath.py)
     LIBS        += $$system(call python-libs-win.py)
     # TODO: fix the command below (only really necessary if SIP_DIR != MOC/OBJECTS_DIR)
     #system(md $${SIP_DIR})
     system($$system(call python-sipcmd.py) -c $${SIP_DIR}  src/scidavis.sip)
-   }
+    }
   }
 
 
