@@ -1,0 +1,3 @@
+#!/bin/bash
+doxygen
+rsync -P -z --delete -r API web.sf.net:/home/project-web/scidavis/htdocs
