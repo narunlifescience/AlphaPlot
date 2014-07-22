@@ -2,31 +2,33 @@
 
   INSTALLS += pythonconfig
   pythonconfig.files += scidavisrc.py
-  DEFINES       += PYTHON_CONFIG_PATH=\\\"$$replace(pythonconfig.path," ","\\ ")\\\"
+  DEFINES       += PYTHON_CONFIG_PATH="\\\"$$replace(pythonconfig.path," ","\\ ")\\\""
 
   INSTALLS += pythonutils
   pythonutils.files += scidavisUtil.py
 
-  DEFINES       += PYTHON_UTIL_PATH=\\\"$$replace(pythonutils.path," ","\\ ")\\\"
+  DEFINES       += PYTHON_UTIL_PATH="\\\"$$replace(pythonutils.path," ","\\ ")\\\""
 
   SIP_DIR = ../tmp/scidavis
 
   DEFINES += SCRIPTING_PYTHON
-  HEADERS += src/PythonScript.h src/PythonScripting.h
-  SOURCES += src/PythonScript.cpp src/PythonScripting.cpp
+  HEADERS += ../scidavis/src/PythonScript.h ../scidavis/src/PythonScripting.h
+  SOURCES += ../scidavis/src/PythonScript.cpp ../scidavis/src/PythonScripting.cpp
 
   unix {
     INCLUDEPATH += $$system(python python-includepath.py)
-    !contains(PRESET,mac_dist) {
+    contains(PRESET,mac_dist) {
+      DEFINES += PYTHONHOME=/Applications/scidavis.app/Contents/Resources
+    } else {
       macx {
         LIBS += -framework Python
       } else {
         LIBS += $$system(python -c "\"from distutils import sysconfig; print '-lpython'+sysconfig.get_config_var('VERSION')\"")
       }
-    }
+    }     
     LIBS        += -lm
     system(mkdir -p $${SIP_DIR})
-    system($$system(python python-sipcmd.py) -c $${SIP_DIR} src/scidavis.sip)
+    system($$system(python python-sipcmd.py) -c $${SIP_DIR} ../scidavis/src/scidavis.sip)
   }
 
   win32 {
@@ -40,10 +42,9 @@
     LIBS        += $$system(call python-libs-win.py)
     # TODO: fix the command below (only really necessary if SIP_DIR != MOC/OBJECTS_DIR)
     #system(md $${SIP_DIR})
-    system($$system(call python-sipcmd.py) -c $${SIP_DIR}  src/scidavis.sip)
-    }
+    system($$system(call python-sipcmd.py) -c $${SIP_DIR} ../scidavis/src/scidavis.sip)
   }
-
+}
 
 
 ##################### SIP generated files #####################

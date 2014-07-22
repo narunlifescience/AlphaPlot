@@ -1,5 +1,7 @@
 version=$1
 delta=${version##*.[CD]}
+# strip any leading 0s from delta
+delta=`echo $delta|sed -e 's/^0*//'`
 branch=${version%%.*}
 scidavis_version=$[$branch*65536 + $delta]
 rm -f scidavis/src/version.cpp
@@ -19,4 +21,5 @@ for i in scidavis/translations/*.ts; do
 done
 
 # update Doxyversion
+rm -f Doxyversion
 echo "PROJECT_NUMBER=$version" >Doxyversion

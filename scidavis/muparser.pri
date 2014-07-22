@@ -1,8 +1,8 @@
 DEFINES += SCRIPTING_MUPARSER
 
-HEADERS += src/MuParserScript.h \
-           src/MuParserScripting.h \
+HEADERS += ../scidavis/src/MuParserScript.h \
+           ../scidavis/src/MuParserScripting.h \
 
-SOURCES += src/MuParserScript.cpp \
-           src/MuParserScripting.cpp \
+SOURCES += ../scidavis/src/MuParserScript.cpp \
+           ../scidavis/src/MuParserScripting.cpp \
 

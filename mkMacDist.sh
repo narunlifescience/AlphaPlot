@@ -33,7 +33,20 @@ for i in libz.1.dylib libssl.1.0.0.dylib libcrypto.1.0.0.dylib libpng16.16.dylib
 done
 
 # Generic resources required for Qt
-cp -r /opt/local/Library/Frameworks/QtGui.framework/Resources/qt_menu.nib $RES_DIR
+cp -rf /opt/local/Library/Frameworks/QtGui.framework/Resources/qt_menu.nib $RES_DIR
+
+# python resources
+mkdir -p $RES_DIR/lib
+cp -rf /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7 $RES_DIR/lib
+
+# python resources contain some dynamic libraries that need rewriting
+find $RES_DIR/lib -name "*.so" -print | while read soname; do
+    otool -L $soname|grep /opt/local|cut -f1 -d' '|while read oldName; do
+        install_name_tool -change $oldName @executable_path/${oldName##*/} $soname
+        done
+done
+
+
 
 # copy icon, and create mainfest
 cp -f scidavis/icons/scidavis.icns $RES_DIR
@@ -57,6 +70,11 @@ cat >scidavis/scidavis.app/Contents/Info.plist <<EOF
 	<string>scidavis</string>
 	<key>CFBundleIdentifier</key>
 	<string>net.sourceforge.scidavis</string>
+        <key>LSEnvironment</key>
+        <dict>
+           <key>PYTHONHOME</key>
+           <string>/Applications/scidavis.app/Contents/Resources</string>
+        </dict>
 </dict>
 </plist>
 EOF

@@ -116,1874 +116,1874 @@
 <context>
     <name>ApplicationWindow</name>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="390"/>
-        <location filename="../src/ApplicationWindow.cpp" line="679"/>
+        <location filename="../src/ApplicationWindow.cpp" line="392"/>
+        <location filename="../src/ApplicationWindow.cpp" line="681"/>
         <source>File</source>
         <translation>Soubor</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="568"/>
-        <location filename="../src/ApplicationWindow.cpp" line="677"/>
+        <location filename="../src/ApplicationWindow.cpp" line="570"/>
+        <location filename="../src/ApplicationWindow.cpp" line="679"/>
         <source>Plot</source>
         <translation>Graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11342"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11369"/>
         <source>Pointer</source>
         <translation>Kurzor</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11358"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11385"/>
         <source>Select data range</source>
         <translation>Zvolit rozsah dat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11365"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11392"/>
         <source>Move data points</source>
         <translation>Přesunout datové body</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11369"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11396"/>
         <source>Remove data points</source>
         <translation>Odstranit datové body</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11381"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11408"/>
         <source>Draw line</source>
         <translation>Nakreslit čáru</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="619"/>
-        <location filename="../src/ApplicationWindow.cpp" line="676"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2472"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2484"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2691"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7159"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13013"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13057"/>
+        <location filename="../src/ApplicationWindow.cpp" line="621"/>
+        <location filename="../src/ApplicationWindow.cpp" line="678"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2479"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2491"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2698"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7182"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13060"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13104"/>
         <source>Table</source>
         <translation>Tabulka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1048"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1050"/>
         <source>&amp;File</source>
         <translation>&amp;Soubor</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="684"/>
-        <location filename="../src/ApplicationWindow.cpp" line="718"/>
+        <location filename="../src/ApplicationWindow.cpp" line="686"/>
+        <location filename="../src/ApplicationWindow.cpp" line="720"/>
         <source>&amp;New</source>
         <translation>&amp;Nový</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="686"/>
-        <location filename="../src/ApplicationWindow.cpp" line="743"/>
+        <location filename="../src/ApplicationWindow.cpp" line="688"/>
+        <location filename="../src/ApplicationWindow.cpp" line="745"/>
         <source>&amp;Export Graph</source>
         <translation>&amp;Exportovat graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1049"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1051"/>
         <source>&amp;Edit</source>
         <translation>&amp;Upravit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1050"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1052"/>
         <source>&amp;View</source>
         <translation>&amp;Pohled</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1074"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1076"/>
         <source>&amp;Graph</source>
         <translation>&amp;Graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1140"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5831"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1142"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5854"/>
         <source>&amp;Matrix</source>
         <translation>&amp;Matice</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="688"/>
-        <location filename="../src/ApplicationWindow.cpp" line="989"/>
+        <location filename="../src/ApplicationWindow.cpp" line="690"/>
+        <location filename="../src/ApplicationWindow.cpp" line="991"/>
         <source>Special Line/Symb&amp;ol</source>
         <translation>Speciální čára/symb&amp;ol</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="689"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1005"/>
+        <location filename="../src/ApplicationWindow.cpp" line="691"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1007"/>
         <source>Statistical &amp;Graphs</source>
         <translation>Statistické&amp; grafy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="690"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1011"/>
+        <location filename="../src/ApplicationWindow.cpp" line="692"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1013"/>
         <source>Pa&amp;nel</source>
         <translation>Pa&amp;nel</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="696"/>
-        <location filename="../src/ApplicationWindow.cpp" line="894"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7935"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8051"/>
+        <location filename="../src/ApplicationWindow.cpp" line="698"/>
+        <location filename="../src/ApplicationWindow.cpp" line="896"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7958"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8074"/>
         <source>Fit E&amp;xponential Decay</source>
         <translation>Proložit e&amp;xponenciálním poklesem</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1076"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1115"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1078"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1117"/>
         <source>&amp;Analysis</source>
         <translation>Ana&amp;lýza</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1077"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1097"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1079"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1099"/>
         <source>For&amp;mat</source>
         <translation>For&amp;mát</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1161"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1163"/>
         <source>&amp;Windows</source>
         <translation>&amp;Okna</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1166"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10787"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11266"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1168"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10814"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11293"/>
         <source>&amp;Help</source>
         <translation>&amp;Nápověda</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1703"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8303"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1705"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8330"/>
         <source>&lt;h4&gt;There are no tables available in this project.&lt;/h4&gt;&lt;p&gt;&lt;h4&gt;Please create a table and try again!&lt;/h4&gt;</source>
         <translation>&lt;h4&gt;V tomto projektu nejsou žádné tabulky.&lt;/h4&gt;&lt;p&gt;&lt;h4&gt;Vytvořte prosím tabulku a zkuste znovu.&lt;/h4&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1739"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1776"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2627"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2628"/>
-        <location filename="../src/ApplicationWindow.cpp" line="9081"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13009"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13052"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1741"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1778"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2634"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2635"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9108"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13056"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13099"/>
         <source>Matrix</source>
         <translation>Matice</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7550"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7573"/>
         <source>Normal</source>
         <translation>Normální</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2836"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5224"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6037"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6104"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6149"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6572"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6629"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6660"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6679"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6720"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6748"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6786"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6810"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8391"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11704"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11739"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11784"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2843"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5247"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6060"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6127"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6172"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6595"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6652"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6683"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6702"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6743"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6771"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6809"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6833"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8418"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11733"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11768"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11813"/>
         <source>&lt;h4&gt;There are no plot layers available in this window.&lt;/h4&gt;&lt;p&gt;&lt;h4&gt;Please add a layer and try again!&lt;/h4&gt;</source>
         <translation>&lt;h4&gt;V okně nejsou k dispozici žádné vrstvy s grafy.&lt;/h4&gt;&lt;p&gt;&lt;h4&gt;Přidejte vrstvu a zkuste znovu.&lt;/h4&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2880"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2927"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2887"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2934"/>
         <source>This feature is not available for user defined function curves!</source>
         <translation>Tato funkce není dostupná pro uživatelsky definované křivkyfunkcí!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4683"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4709"/>
         <source>&lt;h4&gt;There are no plot layers available in this window!&lt;/h4&gt;</source>
         <translation>&lt;h4&gt;V tomto okně nejsou k dispozici žádné vrstvy s grafy!&lt;/h4&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4837"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5452"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4863"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5475"/>
         <source>A file called: &lt;p&gt;&lt;b&gt;%1&lt;/b&gt;&lt;p&gt;already exists. Do you want to overwrite it?</source>
         <translation>Soubor nazvaný &lt;p&gt;&lt;b&gt;%1&lt;/b&gt;&lt;p&gt;již existuje. Chcete ho přepsat?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4838"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5453"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13387"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4864"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5476"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13434"/>
         <source>&amp;Yes</source>
         <translation>&amp;Ano</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4838"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5453"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10548"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11108"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4864"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5476"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10575"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11135"/>
         <source>&amp;All</source>
         <translation>&amp;Vše</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4838"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5453"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6708"/>
-        <location filename="../src/ApplicationWindow.cpp" line="9107"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4864"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5476"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6731"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9134"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Zrušit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13387"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13434"/>
         <source>&amp;No</source>
         <translation>&amp;Ne</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5727"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5750"/>
         <source>Not available for empty 3D surface plots!</source>
         <translation>Není k dispozici pro prázdné 3D povrchové grafy!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6083"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6194"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6229"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6106"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6217"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6252"/>
         <source>&lt;h4&gt;There are no plot layers available in this window.&lt;/h4&gt;</source>
         <translation>&lt;h4&gt;V okně nejsou k dispozici žádné vrstvy s grafy.&lt;/h4&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6544"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6567"/>
         <source>Sorry, there are no results to display!</source>
         <translation>Žádné výsledky k zobrazen!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6707"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6730"/>
         <source>Do you want to add the text on a new layer or on the active layer?</source>
         <translation>Chcete přidat text do nové vrstvy nebo do aktivní vrstvy?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6708"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6731"/>
         <source>On &amp;New Layer</source>
         <translation>Do &amp;nové vrstvy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6708"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6731"/>
         <source>On &amp;Active Layer</source>
         <translation>Do &amp;aktivní vrstvy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7139"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7162"/>
         <source>There are no windows available in this project!</source>
         <translation>V projektu nejsou k dispozici žádná okna!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7513"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7536"/>
         <source>&amp;Intensity Matrix</source>
         <translation>&amp;Intenzitní matice</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7517"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7540"/>
         <source>&amp;Cut</source>
         <translation>&amp;Vyjmout</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7518"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7967"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8083"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8173"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7541"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7990"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8106"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8196"/>
         <source>&amp;Copy</source>
         <translation>&amp;Kopírovat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7519"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10964"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10987"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7542"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10991"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11014"/>
         <source>&amp;Delete</source>
         <translation>&amp;Smazat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10822"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10825"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10828"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11286"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11287"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11288"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10849"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10852"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10855"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11313"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11314"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11315"/>
         <source>&amp;Properties</source>
         <translation>&amp;Vlastnosti</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7534"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7557"/>
         <source>Please use the project explorer to select a window!</source>
         <translation>Použijte prosím průzkumníka projektu k vybrání okna!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8212"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8235"/>
         <source>There is no file called &lt;b&gt;index.html&lt;/b&gt; in this folder.&lt;br&gt;Please choose another folder!</source>
         <translation>Soubor nazvaný &lt;b&gt;index.html&lt;/b&gt; ve složce nenalezen.&lt;br&gt;Zvolte prosím jinou složku!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11387"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11388"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11389"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11390"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11414"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11415"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11416"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11417"/>
         <source>Box</source>
         <translation>Krabice</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11391"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11393"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11394"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11418"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11420"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11421"/>
         <source>Frame</source>
         <translation>Rám</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11392"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11419"/>
         <source>&amp;Frame</source>
         <translation>&amp;Rám</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11395"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11396"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11422"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11423"/>
         <source>No Axes</source>
         <translation>Žádné osy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11407"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11408"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11409"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11410"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11434"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11435"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11436"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11437"/>
         <source>Wireframe</source>
         <translation>Drátový model</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11411"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11412"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11438"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11439"/>
         <source>Hidden Line</source>
         <translation>Skryté čáry</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11417"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11418"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11444"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11445"/>
         <source>Polygon only</source>
         <translation>Jen polygony</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11421"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11422"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11448"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11449"/>
         <source>Mesh &amp; filled Polygons</source>
         <translation>Síť &amp; vyplněné polygony</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11423"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11424"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11425"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11426"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11450"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11451"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11452"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11453"/>
         <source>Dots</source>
         <translation>Body</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11427"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11428"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11429"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11430"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11454"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11455"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11456"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11457"/>
         <source>Bars</source>
         <translation>Sloupce</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11431"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11432"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11433"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11434"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11458"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11459"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11460"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11461"/>
         <source>Cones</source>
         <translation>Kužely</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11443"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11444"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11470"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11471"/>
         <source>Floor Data Projection</source>
         <translatorcomment>otázka je, jek to přeložit - &quot;podlaha&quot; se mi zdálo divné</translatorcomment>
         <translation>Půdorysné zobrazení dat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11447"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11448"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11474"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11475"/>
         <source>Floor Isolines</source>
         <translation>Půdorysné izolinie</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11451"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11452"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11478"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11479"/>
         <source>Empty Floor</source>
         <translation>Prázdný půdorys</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9107"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9134"/>
         <source>&amp;Guess</source>
         <translation>&amp;Odhadnout</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9107"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9134"/>
         <source>&amp;Top-left corner</source>
         <translation>&amp;Horní levý roh</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10428"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10997"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10455"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11024"/>
         <source>New &amp;Project</source>
         <translation>Nový &amp;Projekt</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10429"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10999"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10456"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11026"/>
         <source>Ctrl+N</source>
         <translation>Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10439"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11008"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10466"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11035"/>
         <source>New &amp;Table</source>
         <translation>Nová &amp;Tabulka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10440"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11009"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10467"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11036"/>
         <source>Ctrl+T</source>
         <translation>Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10443"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11012"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10470"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11039"/>
         <source>New &amp;Matrix</source>
         <translation>Nová &amp;matice</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11014"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11041"/>
         <source>New matrix</source>
         <translation>Nová matice</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10447"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11016"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10474"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11043"/>
         <source>New &amp;Function Plot</source>
         <translation>Nový &amp;graf funkce</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10448"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11018"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10475"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11045"/>
         <source>Ctrl+F</source>
         <translation>Ctrl+F</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10488"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11053"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10515"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11080"/>
         <source>Ctrl+Z</source>
         <translation>Ctrl+Z</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10456"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11025"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10483"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11052"/>
         <source>&amp;Open</source>
         <translation>&amp;Otevřít</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10457"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11026"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10484"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11053"/>
         <source>Ctrl+O</source>
         <translation>Ctrl+O</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11027"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11054"/>
         <source>Open project</source>
         <translation>Otevřít projekt</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10461"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11031"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10488"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11058"/>
         <source>Ctrl+I</source>
         <translation>Ctrl+I</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10467"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11035"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10494"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11062"/>
         <source>&amp;Save Project</source>
         <translation>Uložit &amp;projekt</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10468"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11037"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10495"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11064"/>
         <source>Ctrl+S</source>
         <translation>Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10487"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11051"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10514"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11078"/>
         <source>&amp;Undo</source>
         <translation>&amp;Zpět</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10492"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11055"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10519"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11082"/>
         <source>&amp;Redo</source>
         <translation>&amp;Znovu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10493"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11057"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10520"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11084"/>
         <source>Ctrl+R</source>
         <translation>Ctrl+R</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10497"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11059"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10524"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11086"/>
         <source>&amp;Duplicate</source>
         <translation>&amp;Duplikovat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11060"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11087"/>
         <source>Duplicate window</source>
         <translation>Duplikovat okno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10501"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11064"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10528"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11091"/>
         <source>Ctrl+X</source>
         <translation>Ctrl+X</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10505"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11068"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10532"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11095"/>
         <source>Ctrl+C</source>
         <translation>Ctrl+C</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10509"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11072"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10536"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11099"/>
         <source>Ctrl+V</source>
         <translation>Ctrl+V</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10518"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11079"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10545"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11106"/>
         <source>Ctrl+E</source>
         <translation>Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11080"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11107"/>
         <source>Show project explorer</source>
         <translation>Zobrazit průzkumníka projektu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11082"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11109"/>
         <source>Results &amp;Log</source>
         <translation>Výpis-&amp;výsledků</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10530"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11090"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10557"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11117"/>
         <source>Add La&amp;yer</source>
         <translation>&amp;Přidat vrstvu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10543"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11103"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10570"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11130"/>
         <source>&amp;Current</source>
         <translation>&amp;Aktuální</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10433"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11003"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10460"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11030"/>
         <source>Ctrl+G</source>
         <translation>Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11105"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11132"/>
         <source>Export current graph</source>
         <translation>Exportovat aktuální graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10549"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11109"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10576"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11136"/>
         <source>Alt+X</source>
         <translation>Alt+X</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11110"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11137"/>
         <source>Export all graphs</source>
         <translation>Exportovat všechny grafy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7975"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8091"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10558"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11118"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7998"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8114"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10585"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11145"/>
         <source>&amp;Print</source>
         <translation>&amp;Tisknout</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10559"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11119"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10586"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11146"/>
         <source>Ctrl+P</source>
         <translation>Ctrl+P</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10566"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11125"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10593"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11152"/>
         <source>E&amp;xport ASCII</source>
         <translation>E&amp;xportovat ASCII</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10569"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11127"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10596"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11154"/>
         <source>&amp;Quit</source>
         <translation>&amp;Konec</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10570"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11128"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10597"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11155"/>
         <source>Ctrl+Q</source>
         <translation>Ctrl+Q</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10581"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11134"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10608"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11161"/>
         <source>Ctrl+Alt+W</source>
         <translation>Ctrl+Alt+R</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10584"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11137"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10611"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11164"/>
         <source>&amp;Preferences...</source>
         <translation>&amp;Nastavení...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11141"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11168"/>
         <source>Add curve to graph</source>
         <translation>Přidat do grafu křivku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10592"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11145"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10619"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11172"/>
         <source>Ctrl+B</source>
         <translation>Ctrl+B</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10596"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11149"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10623"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11176"/>
         <source>Ctrl+Alt+F</source>
         <translation>Ctrl+Alt+F</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11153"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11180"/>
         <source>Best fit</source>
         <translation>Nejlepší přizpůsobení</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10603"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11155"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10630"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11182"/>
         <source>New &amp;Legend</source>
         <translation>Nová &amp;legenda</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10604"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11156"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10631"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11183"/>
         <source>Ctrl+L</source>
         <translation>Ctrl+L</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11157"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11184"/>
         <source>Add new legend</source>
         <translation>Přidat novou legendu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10611"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11163"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10638"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11190"/>
         <source>Add &amp;Image</source>
         <translation>Přidat &amp;obrázek</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="489"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11371"/>
+        <location filename="../src/ApplicationWindow.cpp" line="491"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11398"/>
         <source>Add &amp;Text</source>
         <translation>Přidat&amp; text</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10618"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11167"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10645"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11194"/>
         <source>&amp;Line</source>
         <translation>&amp;Čára</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10622"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10692"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11170"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11213"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10649"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10719"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11197"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11240"/>
         <source>&amp;Scatter</source>
         <translation>&amp;Body</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10626"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11173"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10653"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11200"/>
         <source>Line + S&amp;ymbol</source>
         <translation>Čára + S&amp;ymbol</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10634"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11178"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10661"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11205"/>
         <source>&amp;Spline</source>
         <translation>&amp;Spline</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10642"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11179"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10669"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11206"/>
         <source>&amp;Vertical Steps</source>
         <translation>&amp;Vertikální kroky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11183"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11210"/>
         <source>Plot with vertical bars</source>
         <translation>Graf se svislými sloupci</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11186"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11213"/>
         <source>Plot with horizontal bars</source>
         <translation>Graf s vodorovnými sloupci</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10654"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11188"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10681"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11215"/>
         <source>&amp;Area</source>
         <translation>&amp;Plocha</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11189"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11216"/>
         <source>Plot area</source>
         <translation>Plocha grafu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10658"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11191"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10685"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11218"/>
         <source>&amp;Pie</source>
         <translation>&amp;Koláčový graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11192"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11219"/>
         <source>Plot pie</source>
         <translation>Vytvořit koláčový graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10667"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11200"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10694"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11227"/>
         <source>&amp;Histogram</source>
         <translation>&amp;Histogram</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10671"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11201"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10698"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11228"/>
         <source>&amp;Stacked Histogram</source>
         <translation>&amp;Skládaný histogram</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10674"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11202"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10701"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11229"/>
         <source>&amp;Vertical 2 Layers</source>
         <translation>2 &amp;svislé vrstvy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10677"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11203"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10704"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11230"/>
         <source>&amp;Horizontal 2 Layers</source>
         <translation>2 &amp;vodorovné vrstvy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10680"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11204"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10707"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11231"/>
         <source>&amp;4 Layers</source>
         <translation>&amp;4 vrstvy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10683"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11205"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10710"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11232"/>
         <source>&amp;Stacked Layers</source>
         <translation>&amp;Skládané vrstvy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10686"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11207"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10713"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11234"/>
         <source>&amp;Ribbon</source>
         <translation>&amp;Stuha</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10689"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11210"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10716"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11237"/>
         <source>&amp;Bars</source>
         <translation>&amp;Sloupce</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10695"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11216"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10722"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11243"/>
         <source>&amp;Trajectory</source>
         <translation>&amp;Trajektorie</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10444"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11013"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10471"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11040"/>
         <source>Ctrl+M</source>
         <translation>Ctrl+M</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10804"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11279"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10831"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11306"/>
         <source>Alt+R</source>
         <translation>Alt+R</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10698"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11228"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10725"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11255"/>
         <source>Statistics on &amp;Columns</source>
         <translation>&amp;Statistika ve sloupcích</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11229"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11256"/>
         <source>Selected columns statistics</source>
         <translation>Statistika pro vybrané sloupce</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10701"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11231"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10728"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11258"/>
         <source>Statistics on &amp;Rows</source>
         <translation>&amp;Statistika v řádcích</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11232"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11259"/>
         <source>Selected rows statistics</source>
         <translation>Statistika pro vybrané řádky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10704"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11233"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10731"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11260"/>
         <source>&amp;Integrate ...</source>
         <translation>&amp;Integrovat ...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10734"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11243"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10761"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11270"/>
         <source>&amp;Differentiate</source>
         <translation>&amp;Derivovat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10737"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11244"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10764"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11271"/>
         <source>Fit &amp;Linear</source>
         <translation>&amp;Lineární proložení</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10740"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11245"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10767"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11272"/>
         <source>Fit &amp;Polynomial ...</source>
         <translation>&amp;Polynomiální proložení ...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10743"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11246"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10770"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11273"/>
         <source>&amp;First Order ...</source>
         <translation>&amp;Prvého řádu...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10746"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11247"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10773"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11274"/>
         <source>&amp;Second Order ...</source>
         <translation>&amp;Druhého řádu...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10749"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11248"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10776"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11275"/>
         <source>&amp;Third Order ...</source>
         <translation>&amp;Třetího řádu...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10758"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11251"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10785"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11278"/>
         <source>Fit &amp;Gaussian</source>
         <translation>&amp;Gaussovské proložení</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10761"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11252"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10788"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11279"/>
         <source>Fit Lorent&amp;zian</source>
         <translation>Loren&amp;zovské proložení</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10765"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11255"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10792"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11282"/>
         <source>Ctrl+Y</source>
         <translation>Ctrl+Y</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10768"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11257"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10795"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11284"/>
         <source>&amp;Plot ...</source>
         <translation>&amp;Graf ...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10780"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11261"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10807"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11288"/>
         <source>&amp;Title ...</source>
         <translation>&amp;Název ...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10784"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11264"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10811"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11291"/>
         <source>F1</source>
         <translation>F1</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10788"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11267"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10815"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11294"/>
         <source>Ctrl+H</source>
         <translation>Ctrl+H</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10796"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11273"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10823"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11300"/>
         <source>&amp;Rename Window</source>
         <translation>&amp;Přejmenovat okno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7469"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10799"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11275"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7492"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10826"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11302"/>
         <source>Close &amp;Window</source>
         <translation>&amp;Zavřít okno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10800"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11276"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10827"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11303"/>
         <source>Ctrl+W</source>
         <translation>Ctrl+W</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10807"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11281"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10834"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11308"/>
         <source>Window &amp;Geometry...</source>
         <translation>Geometrie&amp; okna...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7467"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10810"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11282"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7490"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10837"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11309"/>
         <source>&amp;Hide Window</source>
         <translation>Skrýt &amp;okno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7498"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10813"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7521"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10840"/>
         <source>More windows...</source>
         <translation>Více oken...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10831"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11289"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10858"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11316"/>
         <source>&amp;Activate Window</source>
         <translation>Aktivovatr &amp;okno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10834"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11290"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10861"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11317"/>
         <source>Mi&amp;nimize Window</source>
         <translation>Minimalizovat ok&amp;no</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10837"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11291"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10864"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11318"/>
         <source>Ma&amp;ximize Window</source>
         <translation>Maximalizovat ok&amp;no</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10840"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11292"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10867"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11319"/>
         <source>Re&amp;size Window...</source>
         <translation>Změ&amp;nit velikost okna...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10843"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11293"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10870"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11320"/>
         <source>&amp;Print Window</source>
         <translation>Vytisknout &amp;okno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10855"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11297"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10882"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11324"/>
         <source>&amp;Invert</source>
         <translation>&amp;Invertovat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10858"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11298"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10885"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11325"/>
         <source>&amp;Determinant</source>
         <translation>&amp;Determinate</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10867"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11301"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10894"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11328"/>
         <source>3D &amp;Wire Frame</source>
         <translation>3D-&amp;drátový model</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10870"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11302"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10897"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11329"/>
         <source>3D &amp;Hidden Line</source>
         <translation>3D &amp;skryté čáry</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10873"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11303"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10900"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11330"/>
         <source>3D &amp;Polygons</source>
         <translation>3D-&amp;Polygony</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10876"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11304"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10903"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11331"/>
         <source>3D Wire &amp;Surface</source>
         <translation>3D-drátový-&amp;povrch</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2847"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6605"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2854"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6628"/>
         <source>There are no curves available on this plot!</source>
         <translation>V grafu nejsou k dispozici žádné křivky!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11341"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11368"/>
         <source>Disable &amp;tools</source>
         <translation>Deaktivovat nástro&amp;je</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="541"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11353"/>
+        <location filename="../src/ApplicationWindow.cpp" line="543"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11380"/>
         <source>CTRL+D</source>
         <translation>Ctrl+D</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11354"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11381"/>
         <source>Data reader</source>
         <translation>Čtečka dat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="548"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11357"/>
+        <location filename="../src/ApplicationWindow.cpp" line="550"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11384"/>
         <source>ALT+S</source>
         <translation>ALT+S</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11361"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11388"/>
         <source>Screen reader</source>
         <translation>Čtečka obrazovky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="554"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11363"/>
+        <location filename="../src/ApplicationWindow.cpp" line="556"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11390"/>
         <source>&amp;Move Data Points...</source>
         <translation>Přesunout datové &amp;body...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="560"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11367"/>
+        <location filename="../src/ApplicationWindow.cpp" line="562"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11394"/>
         <source>Remove &amp;Bad Data Points...</source>
         <translation>Odstranit chybné &amp;datové body...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="561"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11368"/>
+        <location filename="../src/ApplicationWindow.cpp" line="563"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11395"/>
         <source>Alt+B</source>
         <translation>Alt+B</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="490"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11373"/>
+        <location filename="../src/ApplicationWindow.cpp" line="492"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11400"/>
         <source>ALT+T</source>
         <translation>ALT+T</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="504"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11380"/>
+        <location filename="../src/ApplicationWindow.cpp" line="506"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11407"/>
         <source>CTRL+ALT+L</source>
         <translation>Ctrl+ALT+L</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1127"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1129"/>
         <source>&amp;Table</source>
         <translation>&amp;Tabulka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1371"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1409"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1430"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1451"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1465"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1373"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1411"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1432"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1453"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1467"/>
         <source>You must select exactly one column for plotting!</source>
         <translation>Pro tento graf musíte zvolit přesně jeden sloupec!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1480"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13659"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1482"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13704"/>
         <source>Please select a column to plot!</source>
         <translation>Zvolte prosím sloupec k vykreslení do grafu!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5431"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5454"/>
         <source>Choose a directory to export the tables to</source>
         <translation>Vyberte prosím cílovou složku pro export tabulek</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6593"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6616"/>
         <source>There are no plot layers available in this window!</source>
         <translation>V tomto okně nejsou dostupné žádné vrstvy s grafy!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2853"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5235"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6047"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6120"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6163"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6612"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6638"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11717"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11752"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11797"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2860"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5258"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6070"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6143"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6186"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6635"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6661"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11746"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11781"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11826"/>
         <source>This functionality is not available for pie plots!</source>
         <translation>Tato funkce není dostupná pro koláčové grafy!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6857"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6880"/>
         <source>There are no plot layers available in this window.</source>
         <translation>V tomto okně nejsou dostupné žádné vrstvy s grafy.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10531"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11092"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10558"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11119"/>
         <source>ALT+L</source>
         <translation>ALT+L</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10535"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11095"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10562"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11122"/>
         <source>Arran&amp;ge Layers</source>
         <translation>Uspořádat &amp;vrstvy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10536"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11097"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10563"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11124"/>
         <source>ALT+A</source>
         <translation>ALT+A</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10562"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11123"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10589"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11150"/>
         <source>Print All Plo&amp;ts</source>
         <translation>Vytisknout všechny gra&amp;fy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10588"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11140"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10615"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11167"/>
         <source>ALT+C</source>
         <translation>ALT+C</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10612"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11165"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10639"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11192"/>
         <source>ALT+I</source>
         <translation>ALT+I</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10707"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11234"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10734"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11261"/>
         <source>Inte&amp;rpolate ...</source>
         <translation>Inte&amp;rpolovat...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10752"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11249"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10779"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11276"/>
         <source>Fit Exponential Gro&amp;wth ...</source>
         <translation>Proložit exponenciálním &amp;nárůstem ...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10803"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11278"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10830"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11305"/>
         <source>&amp;Remove Layer</source>
         <translation>Odstranit &amp;vrstvu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="200"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12758"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13089"/>
+        <location filename="../src/ApplicationWindow.cpp" line="202"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12787"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13136"/>
         <source>Folder</source>
         <translation>Složka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="222"/>
+        <location filename="../src/ApplicationWindow.cpp" line="224"/>
         <source>UNTITLED</source>
         <translation>BEZEJMENNÝ</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="228"/>
-        <location filename="../src/ApplicationWindow.cpp" line="665"/>
+        <location filename="../src/ApplicationWindow.cpp" line="230"/>
+        <location filename="../src/ApplicationWindow.cpp" line="667"/>
         <source>Name</source>
         <translation>Název</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="229"/>
-        <location filename="../src/ApplicationWindow.cpp" line="666"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12716"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12758"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13052"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13057"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13062"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13067"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13072"/>
+        <location filename="../src/ApplicationWindow.cpp" line="231"/>
+        <location filename="../src/ApplicationWindow.cpp" line="668"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12745"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12787"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13099"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13104"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13109"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13114"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13119"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="230"/>
-        <location filename="../src/ApplicationWindow.cpp" line="667"/>
+        <location filename="../src/ApplicationWindow.cpp" line="232"/>
+        <location filename="../src/ApplicationWindow.cpp" line="669"/>
         <source>View</source>
         <translation>Pohled</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12722"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12751"/>
         <source>Size</source>
         <translation>Velikost</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="231"/>
-        <location filename="../src/ApplicationWindow.cpp" line="668"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12735"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12739"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12763"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13075"/>
+        <location filename="../src/ApplicationWindow.cpp" line="233"/>
+        <location filename="../src/ApplicationWindow.cpp" line="670"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12764"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12768"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12792"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13122"/>
         <source>Created</source>
         <translation>Vytvořeno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="232"/>
-        <location filename="../src/ApplicationWindow.cpp" line="669"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13047"/>
+        <location filename="../src/ApplicationWindow.cpp" line="234"/>
+        <location filename="../src/ApplicationWindow.cpp" line="671"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13094"/>
         <source>Label</source>
         <translation>Popiska</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="427"/>
-        <location filename="../src/ApplicationWindow.cpp" line="680"/>
+        <location filename="../src/ApplicationWindow.cpp" line="429"/>
+        <location filename="../src/ApplicationWindow.cpp" line="682"/>
         <source>Edit</source>
         <translation>Upravit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="555"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11364"/>
+        <location filename="../src/ApplicationWindow.cpp" line="557"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11391"/>
         <source>Ctrl+ALT+M</source>
         <translation>Ctrl+Alt+M</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="193"/>
-        <location filename="../src/ApplicationWindow.cpp" line="671"/>
+        <location filename="../src/ApplicationWindow.cpp" line="195"/>
+        <location filename="../src/ApplicationWindow.cpp" line="673"/>
         <source>Project Explorer</source>
         <translation>Průzkumník projektu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="247"/>
-        <location filename="../src/ApplicationWindow.cpp" line="672"/>
+        <location filename="../src/ApplicationWindow.cpp" line="249"/>
+        <location filename="../src/ApplicationWindow.cpp" line="674"/>
         <source>Results Log</source>
         <translation>Výpis výsledků</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="693"/>
-        <location filename="../src/ApplicationWindow.cpp" line="853"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7909"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8025"/>
+        <location filename="../src/ApplicationWindow.cpp" line="695"/>
+        <location filename="../src/ApplicationWindow.cpp" line="855"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7932"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8048"/>
         <source>&amp;Translate</source>
         <translation>&amp;Přemístit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="694"/>
-        <location filename="../src/ApplicationWindow.cpp" line="866"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7918"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8034"/>
+        <location filename="../src/ApplicationWindow.cpp" line="696"/>
+        <location filename="../src/ApplicationWindow.cpp" line="868"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7941"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8057"/>
         <source>&amp;Smooth</source>
         <translation>&amp;Vyhladit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="905"/>
+        <location filename="../src/ApplicationWindow.cpp" line="907"/>
         <source>Fit &amp;Multi-peak</source>
         <translation>Proložit křivkou s &amp;více vrcholy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1114"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1116"/>
         <source>&amp;Plot</source>
         <translation>&amp;Graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1713"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1715"/>
         <source>There are no available columns with plot designation set to Z!</source>
         <translation>Nejsou tu žádné sloupce nastavené jako sloupce-Z pro graf!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2152"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5355"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2154"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5378"/>
         <source>Y Axis Title</source>
         <translation>Popis osy Y</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2153"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5330"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2155"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5353"/>
         <source>X Axis Title</source>
         <translation>Popis osy X</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13665"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13710"/>
         <source>Please select a Y column to plot!</source>
         <translation>Zvolte prosím sloupec Y pro vykreslení do grafu!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2456"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2463"/>
         <source>pixels</source>
         <translation>pixely</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2457"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2464"/>
         <source>pixel intensity (a.u.)</source>
         <translation>intenzita pixelu (a.u.)</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2502"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2509"/>
         <source>The table &apos;%1&apos; already exists. It has been renamed &apos;%2&apos;.</source>
         <translation>Tabulka &apos;%1&apos; již existuje. Byla přejmenována na &apos;%2&apos;t.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2655"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2662"/>
         <source>Determinant of </source>
         <translation>Determinant</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2935"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2942"/>
         <source>The selected columns have different numbers of rows!</source>
         <translation>Vybrané sliupce mají rozdílný počet řádků!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3610"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3617"/>
         <source>The file &lt;b&gt;%1&lt;/b&gt; is corrupted, but there exists a backup copy.&lt;br&gt;Do you want to open the backup instead?</source>
         <translation>Soubor &lt;b&gt;%1&lt;/b&gt; je porušený, ale existuje záložní kopie.&lt;br&gt;Chcete načíst data ze záložní kopie?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3442"/>
-        <location filename="../src/ApplicationWindow.cpp" line="4004"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11920"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12099"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3449"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4011"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11949"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12128"/>
         <source>The file: &lt;b&gt;%1&lt;/b&gt; doesn&apos;t exist!</source>
         <translation>Soubor &lt;b&gt;%1&lt;/b&gt; neexistuje!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3429"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3436"/>
         <source>The file: &lt;b&gt;%1&lt;/b&gt; is the current file!</source>
         <translation>Soubor &lt;b&gt;%1&lt;/b&gt; je aktuální soubor!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3515"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3522"/>
         <source>The file: &lt;b&gt; %1 &lt;/b&gt; &lt;p&gt;does not exist anymore!&lt;p&gt;It will be removed from the list.</source>
         <translation>Soubor &lt;b&gt; %1 &lt;/b&gt; &lt;p&gt; neexistuje!&lt;p&gt;Bude odstraněn ze seznamu.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4711"/>
-        <location filename="../src/ApplicationWindow.cpp" line="4766"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5083"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4737"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4792"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5106"/>
         <source>Could not write to file: &lt;br&gt;&lt;h4&gt; %1 &lt;/h4&gt;&lt;p&gt;Please verify that you have the right to write to this location!</source>
         <translation>Nemohu zapisovat do souboru: &lt;br&gt;&lt;h4&gt; %1 &lt;/h4&gt;&lt;p&gt;Prosím zkontrolujte zda máte práva k zápisu!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4852"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4878"/>
         <source>Could not write to file: &lt;br&gt;&lt;h4&gt;%1&lt;/h4&gt;&lt;p&gt;Please verify that you have the right to write to this location!</source>
         <translation>Nemohu zapisovat do souboru: &lt;br&gt;&lt;h4&gt; %1 &lt;/h4&gt;&lt;p&gt;Prosím zkontrolujte zda máte práva k zápisu!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5013"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5036"/>
         <source>Save Project As</source>
         <translation>Uložit projekt jako</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5067"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5090"/>
         <source>Save Window As Template</source>
         <translation>Uložit okno jako šablonu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5136"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12592"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5159"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12621"/>
         <source>Please enter a valid name!</source>
         <translation>Zadejte prosím platný název!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5141"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5164"/>
         <source>The name you chose is not valid: only letters and digits are allowed!</source>
         <translation>Zadaný název není platný, povelena jsou jen čísla a písmena!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5142"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5150"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5159"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12603"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5165"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5173"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5182"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12632"/>
         <source>Please choose another name!</source>
         <translation>Zvolte prosím jiný název!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12603"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12632"/>
         <source>Name already exists!</source>
         <translation>Název již existuje!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5159"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5182"/>
         <source>The table name must be different from the names of its columns!</source>
         <translation>Název tabulky se musí lišit od názvů jejích sloupců!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5489"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6198"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5512"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6221"/>
         <source>Choose a filename to save under</source>
         <translation>Zvojte název souboru k uložení</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5593"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5616"/>
         <source>Please select a column first!</source>
         <translation>Nejdřív prosímvyberte jeden sloupec!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8172"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8195"/>
         <source>Cu&amp;t</source>
         <translation>&amp;Vyjmout</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8186"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8209"/>
         <source>Clea&amp;r</source>
         <translation>&amp;Vyčistit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10664"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11194"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10691"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11221"/>
         <source>Vectors &amp;XYXY</source>
         <translation>Vektory &amp;XYXY</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5829"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10955"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10986"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5852"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10982"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11013"/>
         <source>&amp;Worksheet</source>
         <translation>&amp;Pracovní list</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6127"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6169"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6150"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6192"/>
         <source>This will modify the data in the worksheets!
 Are you sure you want to continue?</source>
         <translation>Toto změní data v pracovní listech!
 Chcete pokračovat?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6128"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6170"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6151"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6193"/>
         <source>Continue</source>
         <translation>Pokračovat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6128"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6170"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7651"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6151"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6193"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7674"/>
         <source>Cancel</source>
         <translation>Zrušit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7457"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7480"/>
         <source>&amp;Cascade</source>
         <translation>&amp;Kaskáda</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7458"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7481"/>
         <source>&amp;Tile</source>
         <translation>&amp;Dlaždice</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7522"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7524"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7526"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12514"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13546"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7545"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7547"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7549"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12543"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13591"/>
         <source>&amp;Properties...</source>
         <translation>&amp;&apos;Vlastnosti...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7649"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7672"/>
         <source>Save changes to project: &lt;p&gt;&lt;b&gt; %1 &lt;/b&gt; ?</source>
         <translation>Uložit změny v projektu &lt;p&gt;&lt;b&gt; %1 &lt;/b&gt; ?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7650"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12797"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7673"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12826"/>
         <source>Yes</source>
         <translation>Ano</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7650"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12797"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7673"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12826"/>
         <source>No</source>
         <translation>Ne</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7732"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10512"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11074"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7755"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10539"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11101"/>
         <source>&amp;Delete Selection</source>
         <translation>Smazat &amp;výběr</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7747"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12498"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7770"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12527"/>
         <source>New &amp;Window</source>
         <translation>Nové &amp;okno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7749"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12501"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7772"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12530"/>
         <source>New F&amp;older</source>
         <translation>Nová &amp;složka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7751"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7774"/>
         <source>Auto &amp;Column Width</source>
         <translation>Automatická šířka &amp;sloupce</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13587"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13605"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13611"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13632"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13650"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13656"/>
         <source>D&amp;epends on</source>
         <translation>Zá&amp;visí na</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4936"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7804"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4959"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7827"/>
         <source>Maximized</source>
         <translation>Maximalizovaný</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7965"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7969"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7973"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8081"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8085"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8089"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7988"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7992"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7996"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8104"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8108"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8112"/>
         <source>&amp;Layer</source>
         <translation>&amp;Ebene</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7966"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7970"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7974"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8082"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8086"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8090"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7989"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7993"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7997"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8105"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8109"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8113"/>
         <source>&amp;Window</source>
         <translation>&amp;Fenster</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7971"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8087"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7994"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8110"/>
         <source>E&amp;xport</source>
         <translation>E&amp;xportieren</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7977"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8093"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8000"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8116"/>
         <source>&amp;Geometry...</source>
         <translation>&amp;Geometrie...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7978"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8094"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8001"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8117"/>
         <source>P&amp;roperties...</source>
         <translation>&amp;Eigenschaften...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7980"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8096"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8003"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8119"/>
         <source>&amp;Delete Layer</source>
         <translation>Ebene &amp;löschen</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7952"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8068"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8115"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7975"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8091"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8138"/>
         <source>&amp;Paste Layer</source>
         <translation>Ko&amp;pierte Ebene einfügen</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8132"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8155"/>
         <source>&amp;Copy Page</source>
         <translation>Kopírovat &amp;stránku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8133"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8156"/>
         <source>E&amp;xport Page</source>
         <translation>E&amp;xportovat stránku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8174"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8197"/>
         <source>&amp;Paste</source>
         <translation>V&amp;ložit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8176"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8199"/>
         <source>&amp;Insert Row</source>
         <translation>&amp;vložit řádek</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8180"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8203"/>
         <source>&amp;Delete Rows</source>
         <translation>Smazat &amp;řádky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8145"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8168"/>
         <source>&amp;Matrix...</source>
         <translation>&amp;Matice...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8151"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8174"/>
         <source>Choose &amp;Data Set...</source>
         <translation>Vyberte &amp;dataset...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8153"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8176"/>
         <source>Choose &amp;Matrix...</source>
         <translation>Vyberte &amp;matici...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8156"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8179"/>
         <source>C&amp;lear</source>
         <translation>&amp;Vyčistit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8163"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8186"/>
         <source>&amp;Copy Graph</source>
         <translation>Kopírovat &amp;graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8164"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8187"/>
         <source>&amp;Export</source>
         <translation>&amp;Exportovat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8177"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8200"/>
         <source>&amp;Insert Column</source>
         <translation>Vložit &amp;sloupec</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8184"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8207"/>
         <source>&amp;Delete Columns</source>
         <translation>Smazat &amp;sloupce</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4928"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4954"/>
         <source>Minimized</source>
         <translation>Minimalizovaný</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12533"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12562"/>
         <source>Hidden</source>
         <translation>Skrytý</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10432"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11001"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10459"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11028"/>
         <source>New &amp;Graph</source>
         <translation>Nový &amp;graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10436"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11005"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10463"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11032"/>
         <source>New &amp;Note / Script</source>
         <translation>Nová &amp;poznámka / Script</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10452"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11022"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10479"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11049"/>
         <source>Ctrl+ALT+Z</source>
         <translation>Ctrl+Alt+Z</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10475"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10502"/>
         <source>Open Temp&amp;late...</source>
         <translation>Načíst &amp;šablonu...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10587"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11139"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10614"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11166"/>
         <source>Add/Remove &amp;Curve...</source>
         <translation>&amp;Přidat/Odstranit křivku...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10591"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11143"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10618"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11170"/>
         <source>Add &amp;Error Bars...</source>
         <translation>&amp;Přidat chybové úsečky...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10595"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11147"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10622"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11174"/>
         <source>Add &amp;Function...</source>
         <translation>&amp;Přidat funkci...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10608"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11160"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10635"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11187"/>
         <source>Ctrl+ALT+T</source>
         <translation>Ctrl+Alt+T</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10661"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11197"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10688"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11224"/>
         <source>Vectors XY&amp;AM</source>
         <translation>Vektory XY&amp;AM</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10710"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11235"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10737"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11262"/>
         <source>&amp;Low Pass...</source>
         <translation>&amp;Nízký průchod...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10713"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11236"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10740"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11263"/>
         <source>&amp;High Pass...</source>
         <translation>&amp;Vysoký průchod...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10716"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11237"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10743"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11264"/>
         <source>&amp;Band Pass...</source>
         <translation>&amp;Pásmový průchodBandpass...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10719"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11238"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10746"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11265"/>
         <source>&amp;Band Block...</source>
         <translation>&amp;Blokace pásma...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10722"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11239"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10749"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11266"/>
         <source>&amp;FFT...</source>
         <translation>&amp;FFT...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10725"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11240"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10752"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11267"/>
         <source>&amp;Savitzky-Golay...</source>
         <translation>&amp;Savitzky-Golay...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10728"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11241"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10755"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11268"/>
         <source>&amp;FFT Filter...</source>
         <translation>&amp;FFT Filtr...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10731"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11242"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10758"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11269"/>
         <source>Moving Window &amp;Average...</source>
         <translation>P&amp;ohyblivý okenní průměr...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10755"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11250"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10782"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11277"/>
         <source>Fit &amp;Boltzmann (Sigmoidal)</source>
         <translation>&amp;Proložení Boltzmannem (Sigmoidální)</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10771"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11258"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10798"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11285"/>
         <source>&amp;Scales...</source>
         <translation>&amp;Měřítka...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10774"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11259"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10801"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11286"/>
         <source>&amp;Axes...</source>
         <translation>&amp;Osy...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10777"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11260"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10804"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11287"/>
         <source>&amp;Grid ...</source>
         <translation>&amp;Mřížka...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10849"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11295"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10876"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11322"/>
         <source>&amp;Surface...</source>
         <translation>&amp;Povrch...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10852"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11296"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10879"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11323"/>
         <source>&amp;Data Set...</source>
         <translation>&amp;Dataset...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10888"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11305"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10915"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11332"/>
         <source>Co&amp;rrelate</source>
         <translation>Ko&amp;relovat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10894"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11307"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10921"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11334"/>
         <source>&amp;Convolute</source>
         <translation>&amp;Skládat (konvoluce)</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10897"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11308"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10924"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11335"/>
         <source>&amp;Deconvolute</source>
         <translation>&amp;Rozvinout (dekonvoluce)</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10900"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11309"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10927"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11336"/>
         <source>&amp;Horizontal</source>
         <translation>&amp;Vodorovně</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10903"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11310"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10930"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11337"/>
         <source>&amp;Vertical</source>
         <translation>&amp;Svisle</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12505"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12534"/>
         <source>&amp;None</source>
         <translation>&amp;Žádné</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10906"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11312"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10933"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11339"/>
         <source>&amp;Box Plot</source>
         <translation>&amp;Krabicový graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10910"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11315"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10937"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11342"/>
         <source>&amp;Gaussian...</source>
         <translation>&amp;Gauss...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10913"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11316"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10940"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11343"/>
         <source>&amp;Lorentzian...</source>
         <translation>&amp;Lorentz...</translation>
     </message>
@@ -1992,242 +1992,242 @@ Chcete pokračovat?</translation>
         <translation type="obsolete">&amp;Překlady</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10998"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11025"/>
         <source>Open a new project</source>
         <translation>Otevřít nový projekt</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11002"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11029"/>
         <source>Create an empty 2D plot</source>
         <translation>Vytvořit prázdný 2D graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11017"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11044"/>
         <source>Create a new 2D function plot</source>
         <translation>Vytvořit 2D graf funkce</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11021"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11048"/>
         <source>Create a new 3D surface plot</source>
         <translation>Vytvořit nový 3D povrchový graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11041"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11068"/>
         <source>Open Te&amp;mplate...</source>
         <translation>&amp;Otevřít šablonu...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11052"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11079"/>
         <source>Undo changes</source>
         <translation>Vrátit zpět změny</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11056"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11083"/>
         <source>Redo changes</source>
         <translation>Znovu změny</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11063"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11090"/>
         <source>Cut selection</source>
         <translation>Vyjmout výběr</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11067"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11094"/>
         <source>Copy selection</source>
         <translation>Kopírovat výběr</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11071"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11098"/>
         <source>Paste selection</source>
         <translation>Vložit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11075"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11102"/>
         <source>Delete selection</source>
         <translation>Smazat výběr</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11120"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11147"/>
         <source>Print window</source>
         <translation>Vytisknout okno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11195"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11222"/>
         <source>Vectors XYXY</source>
         <translation>Vektory XYXY</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11198"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11225"/>
         <source>Vectors XYAM</source>
         <translation>Vektory XYAM</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11804"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11833"/>
         <source>Peaks</source>
         <translation>Píky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="259"/>
-        <location filename="../src/ApplicationWindow.cpp" line="674"/>
+        <location filename="../src/ApplicationWindow.cpp" line="261"/>
+        <location filename="../src/ApplicationWindow.cpp" line="676"/>
         <source>Scripting Console</source>
         <translation>Skriptovací konzole</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="496"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11375"/>
+        <location filename="../src/ApplicationWindow.cpp" line="498"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11402"/>
         <source>Draw &amp;Arrow</source>
         <translation>&amp;Nakreslit šipku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="497"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11376"/>
+        <location filename="../src/ApplicationWindow.cpp" line="499"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11403"/>
         <source>CTRL+ALT+A</source>
         <translation>Ctrl+Alt+A</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="503"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11379"/>
+        <location filename="../src/ApplicationWindow.cpp" line="505"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11406"/>
         <source>Draw &amp;Line</source>
         <translation>&amp;Nakreslit čáru</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2081"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2101"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6758"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2083"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2103"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6781"/>
         <source>Images</source>
         <translation>Obrázky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7166"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7189"/>
         <source>Empty 3D surface plots cannot be duplicated!</source>
         <translation>Prázdné 3D povrchové grafy nemohou být duplikovány!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10544"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11104"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10571"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11131"/>
         <source>Alt+G</source>
         <translation>Alt+G</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10600"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11152"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10627"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11179"/>
         <source>Ctrl+Shift+R</source>
         <translation>Ctrl+Shift+R</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10917"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11319"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10944"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11346"/>
         <source>Search for &amp;Updates</source>
         <translation>Zkontrolovat &amp;aktualizace</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11086"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11113"/>
         <source>&amp;Console</source>
         <translation>&amp;Konzole</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11087"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11114"/>
         <source>Show Scripting console</source>
         <translation>Zobrazit skript. konzoli</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11377"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11404"/>
         <source>Draw arrow</source>
         <translation>Nakreslit šipku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3670"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3677"/>
         <source>Window</source>
         <translation>Okno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="516"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11344"/>
+        <location filename="../src/ApplicationWindow.cpp" line="518"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11371"/>
         <source>&amp;Zoom In</source>
         <translation>&amp;Přiblížit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="517"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11345"/>
+        <location filename="../src/ApplicationWindow.cpp" line="519"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11372"/>
         <source>Ctrl++</source>
         <translation>Ctrl++</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11348"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11375"/>
         <source>Zoom &amp;Out</source>
         <translation>&amp;Oddálit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="524"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11349"/>
+        <location filename="../src/ApplicationWindow.cpp" line="526"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11376"/>
         <source>Ctrl+-</source>
         <translation>Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13017"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13062"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13064"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13109"/>
         <source>Note</source>
         <translation>Poznámka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5612"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5635"/>
         <source>Please select a row first!</source>
         <translation>Vyberte prosím nejdřív řádek!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11346"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11373"/>
         <source>Zoom In</source>
         <translation>Přiblížit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11350"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11377"/>
         <source>Zoom Out</source>
         <translation>Oddálit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9048"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9075"/>
         <source>Number of averaged pixels</source>
         <translation>Počet zprůměrovaných pixelů</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="439"/>
-        <location filename="../src/ApplicationWindow.cpp" line="678"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1850"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1886"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1898"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1939"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1952"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1972"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2026"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2121"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2199"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2238"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2349"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2361"/>
-        <location filename="../src/ApplicationWindow.cpp" line="4056"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7155"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7170"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11504"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11574"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13021"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13067"/>
-        <location filename="../src/ApplicationWindow.h" line="496"/>
+        <location filename="../src/ApplicationWindow.cpp" line="441"/>
+        <location filename="../src/ApplicationWindow.cpp" line="680"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1852"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1888"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1900"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1941"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1954"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1974"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2028"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2123"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2201"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2240"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2351"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2363"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4066"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7178"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7193"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11531"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11601"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13068"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13114"/>
+        <location filename="../src/ApplicationWindow.h" line="495"/>
         <source>Graph</source>
         <translation>Graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1771"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1773"/>
         <source>&lt;h4&gt;There are no matrices available in this project.&lt;/h4&gt;&lt;p&gt;&lt;h4&gt;Please create a matrix and try again!&lt;/h4&gt;</source>
         <translation>&lt;h4&gt;V projektu nejsou k dispozici žádné matice.&lt;/h4&gt;&lt;p&gt;&lt;h4&gt;Vytvořte prosím matici a zkuste znovu!&lt;/h4&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2592"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2603"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2599"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2610"/>
         <source>Notes</source>
         <translation>Poznámky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3660"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3667"/>
         <source>The file &quot;%1&quot; was created using &quot;%2&quot; as scripting language.
 
 Initializing support for this language FAILED; I&apos;m using &quot;%3&quot; instead.
@@ -2237,1645 +2237,1656 @@ Inicializace tohoto jazyka SELHALO; namísto toho se použije &quot;%3&quot; .
 Různé části souboru nemusí být zobrazeny korektně.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3982"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3989"/>
         <source>Scripting language &quot;%1&quot; failed to initialize.</source>
         <translation>Skriptovací  jazyk &quot;%1&quot; nemohl být inicializován.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4785"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4811"/>
         <source>Choose a directory to export the graphs to</source>
         <translation>Vyberte cílovou složku pro export grafů</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10976"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10988"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11003"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11015"/>
         <source>&amp;Edit Function...</source>
         <translation>Upravit &amp;funkci...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10952"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10985"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10979"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11012"/>
         <source>&amp;Plot details...</source>
         <translation>&amp;Detaily grafu...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13559"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13604"/>
         <source>D&amp;epending Graphs</source>
         <translation>Závislé&amp; grafy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13573"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13618"/>
         <source>D&amp;epending 3D Graphs</source>
         <translation>Závislé&amp; 3D-Grafy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10950"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11339"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10977"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11366"/>
         <source>Ctrl+Return</source>
         <translation>Ctrl+Return</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10943"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11332"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10970"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11359"/>
         <source>E&amp;xecute</source>
         <translation>&amp;Spustit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10944"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11333"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10971"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11360"/>
         <source>Ctrl+J</source>
         <translation>Ctrl+J</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10946"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11335"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10973"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11362"/>
         <source>Execute &amp;All</source>
         <translation>S&amp;pustit vše</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10947"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11336"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10974"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11363"/>
         <source>Ctrl+Shift+J</source>
         <translation>Ctrl+Shift+J</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10949"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11338"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10976"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11365"/>
         <source>&amp;Evaluate Expression</source>
         <translation>&amp;Ověřit výraz</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11894"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11923"/>
         <source>&lt;b&gt; %1 &lt;/b&gt;: Wrong locale option or no translation available!</source>
         <translation>&lt;b&gt; %1 &lt;/b&gt;: Chybná lokalizacel (locale) nebo není dostupný překlad!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12359"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12388"/>
         <source>The file: &lt;br&gt;&lt;b&gt;%1&lt;/b&gt; is opened in read-only mode</source>
         <translation>Soubor &lt;br&gt;&lt;b&gt;%1&lt;/b&gt; byl otevřen v režimu pouze pro čtení</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12467"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12496"/>
         <source>&amp;Find...</source>
         <translation>&amp;Hledat...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12469"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12498"/>
         <source>App&amp;end Project...</source>
         <translation>Připojit &amp;projekt...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12471"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12500"/>
         <source>Save &amp;As Project...</source>
         <translation>Uložit jak &amp;projekt...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10472"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11039"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12473"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10499"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11066"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12502"/>
         <source>Save Project &amp;As...</source>
         <translation>Uložit projekt &amp;jako...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3337"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3345"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3344"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3352"/>
         <source>ASCII Import Failed</source>
         <translation>ASCII-Import selhal</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3338"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3345"/>
         <source>Numeric data cannot be imported into non-numeric column &quot;%1&quot;.</source>
         <translation>Číselná data nemohou být importována do nečíselného sloupce &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3346"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3353"/>
         <source>Non-numeric data cannot be imported into non-text column &quot;%1&quot;.</source>
         <translation>Nečíselná data nemohou být importována do ne-textového sloupce &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12387"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12416"/>
         <source>Error writing data to disk</source>
         <translation>Chyba při zápisu dat na disk</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12388"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12417"/>
         <source>&lt;html&gt;%1&lt;br&gt;&lt;br&gt;Your data may or may not have ended up in &lt;em&gt;%2&lt;/em&gt; (%3). 					If there already was a version of this project on disk, it has not been touched.&lt;/html&gt;</source>
         <translation>&lt;html&gt;%1&lt;br&gt;&lt;br&gt;Vaše data mohla ale také nemusela skončit v&lt;em&gt;%2&lt;/em&gt;.(%3) Pokud na disku již byla verze tohoto projektu, pak nebyla změněna.&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12406"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12435"/>
         <source>Error renaming backup files</source>
         <translation>Chyba při přejmenování zálohovacích dat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12407"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12436"/>
         <source>&lt;html&gt;%1&lt;br&gt;&lt;br&gt;Data was written to &lt;em&gt;%2&lt;/em&gt;, but saving the original file as &lt;em&gt;%3&lt;/em&gt;					and moving the new file to &lt;em&gt;%4&lt;/em&gt; failed. In case you wonder why the original file hasn&apos;t					been simply replaced, see here:					&lt;a href=&quot;http://bugs.launchpad.net/ubuntu/+source/linux/+bug/317781/comments/54&quot;&gt;					http://bugs.launchpad.net/ubuntu/+source/linux/+bug/317781/comments/54&lt;/a&gt;.&lt;/html&gt;</source>
         <translation>&lt;html&gt;%1&lt;br&gt;&lt;br&gt;Data byla zapsána do souborui &lt;em&gt;%2&lt;/em&gt;, ale uložení původního soubor jako &lt;em&gt;%3&lt;/em&gt; a přesun nového souboru do &lt;em&gt;%4&lt;/em&gt; selhalo. Pokud vás zajímá, proč nebyl původní soubor prostě nahrazen, informace najdete na:
 &lt;a href=&quot;http://bugs.launchpad.net/ubuntu/+source/linux/+bug/317781/comments/54&quot;&gt;http://bugs.launchpad.net/ubuntu/+source/linux/+bug/317781/comments/54&lt;/a&gt;.&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12478"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12507"/>
         <source>&amp;Show All Windows</source>
         <translation>Zobrazit &amp;všechna okna</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12479"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12508"/>
         <source>&amp;Hide All Windows</source>
         <translation>Skrýt &amp;všechna okna</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12485"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12514"/>
         <source>&amp;Delete Folder</source>
         <translation>&amp;Smazat složku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12486"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12515"/>
         <source>&amp;Rename</source>
         <translation>&amp;Přejmenovat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12505"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12534"/>
         <source>&amp;Windows in Active Folder</source>
         <translation>Okna v aktivní &amp;složce</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12505"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12534"/>
         <source>Windows in &amp;Active Folder &amp;&amp; Subfolders</source>
         <translation>Okna v &amp;aktivní složce &amp;&amp; podsložkách</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12512"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12541"/>
         <source>&amp;View Windows</source>
         <translation>Zobrazit &amp;okna</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12716"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12745"/>
         <source>Project</source>
         <translation>Projekt</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12719"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12759"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13074"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12748"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12788"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13121"/>
         <source>Path</source>
         <translation>Cesta</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12722"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12751"/>
         <source>bytes</source>
         <translation>bajtů</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12726"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12760"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12755"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12789"/>
         <source>Contents</source>
         <translation>Obsah</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12736"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12765"/>
         <source>Modified</source>
         <translation>Změněn</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12741"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12766"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13041"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12770"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12795"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13088"/>
         <source>Properties</source>
         <translation>Vlastnosti</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12776"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12805"/>
         <source>New Folder</source>
         <translation>Nová složka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12796"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12825"/>
         <source>Delete folder &apos;%1&apos; and all the windows it contains?</source>
         <translation>Smazat složku &apos;%1&apos; a všechny okna,která obsahuje?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13076"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13123"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13151"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13198"/>
         <source>Sorry, no match found for string: &apos;%1&apos;</source>
         <translation>Promiňte, pro řetězec: &apos;%1&apos; nenalezena žádná shoda</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13172"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13219"/>
         <source>Cannot move an object to itself!</source>
         <translation>Nemohu přesunout objekt sám do sebe!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13178"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13225"/>
         <source>Cannot move a parent folder into a child folder!</source>
         <translation>Nemohu přesunout mateřskou složku do dceřinné!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13193"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13240"/>
         <source>The destination folder already contains a folder called &apos;%1&apos;! Folder skipped!</source>
         <translation>Cílová složka už obsahuje složku nazvanou &apos;%1&apos;! Složka přeskočena!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13301"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13348"/>
         <source>Error while fetching version file with HTTP: %1.</source>
         <translation>Chyba při zjišťování verze přesr HTTP: %1.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10638"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11180"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10665"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11207"/>
         <source>&amp;Horizontal Steps</source>
         <translation>&amp;Vodorovné kroky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10539"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11099"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11100"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10566"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11126"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11127"/>
         <source>Automatic Layout</source>
         <translation>Automatické rozvržení</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11091"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11118"/>
         <source>Add Layer</source>
         <translation>Přidat vrstvu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11096"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11123"/>
         <source>Arrange Layers</source>
         <translation>Uspořádat vrstvy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11144"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11171"/>
         <source>Add Error Bars...</source>
         <translation>Přidat chybové úsečky...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11148"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11175"/>
         <source>Add Function...</source>
         <translation>Přidat funkci...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11164"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11191"/>
         <source>Add Image</source>
         <translation>Přidat obrázek</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11372"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11399"/>
         <source>Add Text</source>
         <translation>Přidat text</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11456"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11457"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11458"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11459"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11483"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11484"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11485"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11486"/>
         <source>Animation</source>
         <translation>Animace</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="637"/>
-        <location filename="../src/ApplicationWindow.cpp" line="681"/>
+        <location filename="../src/ApplicationWindow.cpp" line="639"/>
+        <location filename="../src/ApplicationWindow.cpp" line="683"/>
         <source>Matrix Plot</source>
         <translation>Maticový diagram</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3530"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3537"/>
         <source>The file: &lt;p&gt;&lt;b&gt; %1 &lt;/b&gt;&lt;p&gt; is the current file!</source>
         <translation>Soubor &lt;p&gt;&lt;b&gt; %1 &lt;/b&gt;&lt;p&gt; je aktuálním souborem!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5149"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5172"/>
         <source>Name &lt;b&gt;%1&lt;/b&gt; already exists!</source>
         <translation>Název &lt;b&gt;%1&lt;/b&gt; již existuje!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5151"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5174"/>
         <source>Warning: for internal consistency reasons the underscore character is replaced with a minus sign.</source>
         <translation>Varování: Z důvodů zajištění vnitřní konzistence bude podtržítko nahrazeno znaménkem mínus.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11049"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11076"/>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10879"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10906"/>
         <source>Contour - &amp;Color Fill</source>
         <translation>&amp;Kontury - Barevná výplň</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10882"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11222"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10909"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11249"/>
         <source>Contour &amp;Lines</source>
         <translation>&amp;Vrstevnice (kontury)</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10885"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11225"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10912"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11252"/>
         <source>&amp;Gray Scale Map</source>
         <translation>&amp;Mapa ve stupních šedi</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11219"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11246"/>
         <source>Contour + &amp;Color Fill</source>
         <translation>&amp;Vrstevnice + barevná výplň</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11220"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11247"/>
         <source>Contour Lines + Color Fill</source>
         <translation>Vrstevnice + barevná výplň</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11223"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11250"/>
         <source>Contour Lines</source>
         <translation>Vrstevnice</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11226"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11253"/>
         <source>Gray Scale Map</source>
         <translation>Mapa ve stupních šedi</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11461"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11462"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11463"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11464"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11488"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11489"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11490"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11491"/>
         <source>Enable perspective</source>
         <translation>Zapnout perspektivu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11466"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11467"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11468"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11469"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11493"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11494"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11495"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11496"/>
         <source>Reset rotation</source>
         <translation>Resetovat rotaci</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11471"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11472"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11473"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11474"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11498"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11499"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11500"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11501"/>
         <source>Fit frame to window</source>
         <translation>Přizpůsobit rám oknu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="289"/>
+        <location filename="../src/ApplicationWindow.cpp" line="293"/>
         <source>&amp;Next</source>
         <comment>next window</comment>
         <translation>&amp;Další</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="290"/>
+        <location filename="../src/ApplicationWindow.cpp" line="294"/>
         <source>F5</source>
         <comment>next window shortcut</comment>
         <translation>F5</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="293"/>
+        <location filename="../src/ApplicationWindow.cpp" line="297"/>
         <source>&amp;Previous</source>
         <comment>previous window</comment>
         <translation>&amp;Předchozí</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="294"/>
+        <location filename="../src/ApplicationWindow.cpp" line="298"/>
         <source>F6</source>
         <comment>previous window shortcut</comment>
         <translation>F6</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="447"/>
+        <location filename="../src/ApplicationWindow.cpp" line="449"/>
         <source>Disable &amp;Tools</source>
         <translation>Vypnout &amp;nástroje</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="523"/>
+        <location filename="../src/ApplicationWindow.cpp" line="525"/>
         <source>&amp;Zoom Out</source>
         <translation>&amp;Oddálit</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="540"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11352"/>
+        <location filename="../src/ApplicationWindow.cpp" line="542"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11379"/>
         <source>&amp;Data Reader</source>
         <translation>&amp;Čtečka dat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="547"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11356"/>
+        <location filename="../src/ApplicationWindow.cpp" line="549"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11383"/>
         <source>&amp;Select Data Range</source>
         <translation>&amp;Zvolte rozsah dat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="534"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11360"/>
+        <location filename="../src/ApplicationWindow.cpp" line="536"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11387"/>
         <source>S&amp;creen Reader</source>
         <translation>&amp;Čtečka obrazovky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="682"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8871"/>
+        <location filename="../src/ApplicationWindow.cpp" line="684"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8898"/>
         <source>3D Surface</source>
         <translation>3D-povrch</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="685"/>
-        <location filename="../src/ApplicationWindow.cpp" line="723"/>
+        <location filename="../src/ApplicationWindow.cpp" line="687"/>
+        <location filename="../src/ApplicationWindow.cpp" line="725"/>
         <source>&amp;Recent Projects</source>
         <translation>&amp;Naposled otevřené projekty</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="691"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1021"/>
+        <location filename="../src/ApplicationWindow.cpp" line="693"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1023"/>
         <source>3&amp;D Plot</source>
         <translation>3&amp;D-graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="695"/>
-        <location filename="../src/ApplicationWindow.cpp" line="874"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7924"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8040"/>
+        <location filename="../src/ApplicationWindow.cpp" line="697"/>
+        <location filename="../src/ApplicationWindow.cpp" line="876"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7947"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8063"/>
         <source>&amp;FFT Filter</source>
         <translation>&amp;FFT Filtr</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="697"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7943"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8059"/>
+        <location filename="../src/ApplicationWindow.cpp" line="699"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7966"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8082"/>
         <source>Fit &amp;Multi-Peak</source>
         <translation>Proložení křivkou s &amp;více vrcholy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1051"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1053"/>
         <source>Scripting</source>
         <translation>Skriptování</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1131"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8143"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1133"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8166"/>
         <source>3D &amp;Plot</source>
         <translation>3D-&amp;graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10630"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11176"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10657"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11203"/>
         <source>Vertical &amp;Drop Lines</source>
         <translation>Svislé &amp;čáry</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7512"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7535"/>
         <source>&amp;View Pixel Line profile</source>
         <translation>Zobrazit &amp;profil čáry</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7896"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8012"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3489"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12178"/>
+        <source>SciDAVis currently does not support Origin import. If you are interested in reviving and maintaining an Origin import filter, contact the developers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ApplicationWindow.cpp" line="7919"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8035"/>
         <source>Re&amp;move Pie Curve</source>
         <translation>&amp;Odstranit koláčový graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7946"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8062"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7969"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8085"/>
         <source>Anal&amp;yze</source>
         <translation>Anal&amp;yzovat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7958"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8074"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7981"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8097"/>
         <source>&amp;Paste Text</source>
         <translation>Vlo&amp;žit text</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7960"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8076"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7983"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8099"/>
         <source>&amp;Paste Line/Arrow</source>
         <translation>Vlo&amp;žit nakopírovanou čáru/šipku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7962"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8078"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7985"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8101"/>
         <source>&amp;Paste Image</source>
         <translation>Vlo&amp;žit nakopírovaný obrázek</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8235"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8265"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8258"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8290"/>
         <source>The manual can be downloaded from the following internet address:</source>
         <translation>&apos;Manuál lze stáhnout z internetu nanásledující adrese:</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8245"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8276"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8268"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8301"/>
         <source>The assistant could not start because the file &lt;b&gt;%1&lt;/b&gt; was not found in the help file directory!</source>
         <translation>Asistent nemohl být spuštěn protože soubor &lt;b&gt;%1&lt;/b&gt; nebyla nalezena ve složce nápovědy!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8264"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8289"/>
         <source>Please indicate the location of the help file!</source>
         <translation>Nastavte prosím umístění souborů nápovědy!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9244"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9271"/>
         <source>Error reading matrix from project file</source>
         <translation>Chyba načtení matice ze souboru projektu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9248"/>
-        <location filename="../src/ApplicationWindow.cpp" line="9399"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9275"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9426"/>
         <source>The following problems occured when loading the project file:
 </source>
         <translation>Během načítání projektu ze souboru došlo k následujícím potížím:
 </translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9252"/>
-        <location filename="../src/ApplicationWindow.cpp" line="9403"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9279"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9430"/>
         <source>Project loading partly failed</source>
         <translation>Načítání projektu částečně selhalo</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9395"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9422"/>
         <source>Error reading table from project file</source>
         <translation>Chyba načítání tabulky ze souboru projektu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10451"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11020"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10478"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11047"/>
         <source>New 3D &amp;Surface Plot</source>
         <translation>Nový &amp;3D-povrchový graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10460"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11030"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10487"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11057"/>
         <source>Open Image &amp;File</source>
         <translation>Otevřít obrázek &amp;ze souboru</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10464"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11033"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10491"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11060"/>
         <source>Import I&amp;mage...</source>
         <translation>I&amp;mportovat obrázek...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10478"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11044"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10505"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11071"/>
         <source>Save As &amp;Template...</source>
         <translation>Uložit jako &amp;šablonu...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10481"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10508"/>
         <source>Save Note As...</source>
         <translation>Uložit poznámku jako...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10500"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11062"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10527"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11089"/>
         <source>Cu&amp;t Selection</source>
         <translation>Vyjmout vý&amp;běr</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10504"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11066"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10531"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11093"/>
         <source>&amp;Copy Selection</source>
         <translation>Kopírovat vý&amp;běr</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10508"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11070"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10535"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11097"/>
         <source>&amp;Paste Selection</source>
         <translation>Vložit vý&amp;běr</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10513"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11076"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10540"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11103"/>
         <source>Del</source>
         <comment>delete key</comment>
         <translation>Del</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10573"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11130"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10600"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11157"/>
         <source>Clear &amp;Log Information</source>
         <translation>Smazat všechny výpisy &amp;(logy)</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10576"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11131"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10603"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11158"/>
         <source>Delete &amp;Fit Tables</source>
         <translation>&amp;Smazat prokládací tabulky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10580"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11133"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10607"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11160"/>
         <source>Plot &amp;Wizard</source>
         <translation>&amp;Asistent grafu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10599"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11151"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10626"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11178"/>
         <source>&amp;Rescale to Show All</source>
         <translation>Změnit měřítko na kompletní &amp;pohled</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10607"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11159"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10634"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11186"/>
         <source>Add Time Stamp</source>
         <translation>Přidat časovou značku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10792"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11270"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10819"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11297"/>
         <source>&amp;Choose Help Folder...</source>
         <translation>&amp;Zvolte prosím složku s nápovědou...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10816"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11284"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10843"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11311"/>
         <source>&amp;View Pixel Line Profile</source>
         <translation>Zobrazit &amp;profil čáry</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10819"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11285"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10846"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11312"/>
         <source>&amp;Intensity Table</source>
         <translation>&amp;Tabulka intenzity</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10846"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11294"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10873"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11321"/>
         <source>&amp;Layer Geometry</source>
         <translation>&amp;Geometrie vrstvy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10864"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11300"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10891"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11327"/>
         <source>Convert to &amp;Matrix</source>
         <translation>Převést&amp; na matici</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10927"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11322"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10954"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11349"/>
         <source>Report a &amp;Bug</source>
         <translation>Nahlásit &amp;chybu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10931"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11324"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10958"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11351"/>
         <source>Download &amp;Manual</source>
         <translation>&amp;Stáhnout manuál</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11010"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11037"/>
         <source>New table</source>
         <translation>Nová tabulka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11036"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11063"/>
         <source>Save project</source>
         <translation>Uložit projekt</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11042"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11069"/>
         <source>Open template</source>
         <translation>Otevřít šablonu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11045"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11072"/>
         <source>Save window as template</source>
         <translation>Uložit okno jako šablonu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11078"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11105"/>
         <source>Project &amp;Explorer</source>
         <translation>Průzkumník &amp;projektu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11083"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11110"/>
         <source>Show analysis results</source>
         <translation>Zobrazit výsledky analýzy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11161"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11188"/>
         <source>Date &amp; time </source>
         <translation>Datum &amp; čas</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11168"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11195"/>
         <source>Plot as line</source>
         <translation>Vykreslit jako čáru</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11171"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11198"/>
         <source>Plot as symbols</source>
         <translation>Vykreslit jako symboly</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11174"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11201"/>
         <source>Plot as line + symbols</source>
         <translation>Vykreslit jako čáru a symboly</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11208"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11235"/>
         <source>Plot 3D ribbon</source>
         <translation>Vykreslit 3D-stuhu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11211"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11238"/>
         <source>Plot 3D bars</source>
         <translation>Vykreslit 3D-sloupce</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11214"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11241"/>
         <source>Plot 3D scatter</source>
         <translation>Vykreslit 3D-body</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11217"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11244"/>
         <source>Plot 3D trajectory</source>
         <translation>Vykreslit 3D-trajektorie</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11283"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11310"/>
         <source>More Windows...</source>
         <translation>Víc oken...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11313"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11340"/>
         <source>Box and whiskers plot</source>
         <translation>Graf &quot;Krabička s fousy&quot;</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11397"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11398"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11424"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11425"/>
         <source>No axes</source>
         <translation>Žádné osy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11400"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11427"/>
         <source>Front grid</source>
         <translation>Přední mřížka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11401"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11428"/>
         <source>Back grid</source>
         <translation>Zadní mřížka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11402"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11429"/>
         <source>Right grid</source>
         <translation>Pravá mřížka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11403"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11430"/>
         <source>Left grid</source>
         <translation>Levá mřížka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11404"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11431"/>
         <source>Ceiling grid</source>
         <translation>Stropní mřížka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11405"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11432"/>
         <source>Floor grid</source>
         <translation>Podlahová mřížka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11413"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11414"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11440"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11441"/>
         <source>Hidden line</source>
         <translation>Skryté čáry</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11415"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11416"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11442"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11443"/>
         <source>Polygon Only</source>
         <translation>Jen polygony</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11419"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11420"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11446"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11447"/>
         <source>Mesh &amp; Filled Polygons</source>
         <translation>Síť &amp; vyplněné polygony</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11435"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11436"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11437"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11438"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11462"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11463"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11464"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11465"/>
         <source>Crosshairs</source>
         <translation>Nitkové kříže</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11445"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11446"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11472"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11473"/>
         <source>Floor data projection</source>
         <translation>Půdorysná projekce dat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11449"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11450"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11476"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11477"/>
         <source>Floor isolines</source>
         <translation>Půdorysné vrstevnice</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11453"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11454"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11480"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11481"/>
         <source>Empty floor</source>
         <translation>Prázdné dno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1717"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1727"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1719"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1729"/>
         <source>Column</source>
         <translation>Sloupec</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3921"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3928"/>
         <source>Script Error</source>
         <translation>Chyba skriptu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4092"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4103"/>
         <source>Table1</source>
         <translation>Tabulka1</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10203"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10230"/>
         <source>Curve</source>
         <translation>Křivka</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5550"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5568"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5573"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5591"/>
         <source>Please select two columns for this operation:
  the first represents the signal and the second the response function!</source>
         <translation>Pro tuto operaci vyberte prosím dva sloupce:
 první reprezentuje funkci signálu, druhý fukci odpovědi!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5514"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5537"/>
         <source>Please select two columns for this operation!</source>
         <translation>Pro tuto operaci vyberte prosím dva sloupce!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5532"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5555"/>
         <source>Please select exactly one columns for this operation!</source>
         <translation>Pro tuto operaci vyberte prosím přesně jeden sloupec!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6212"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6235"/>
         <source>Could not write to file: &lt;h4&gt;%1&lt;/h4&gt;&lt;p&gt;Please verify that you have the right to write to this location or that the file is not being used by another application!</source>
         <translation>Nemohu zapisovat do souboru: &lt;h4&gt;%1&lt;/h4&gt;&lt;p&gt;Ověřte si prosím, že máte práva k zápisu do dané složky a že soubor není zrovna používán jinou aplikací! </translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10553"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11113"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10580"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11140"/>
         <source>&amp;Export PDF</source>
         <translation>&amp;Exportovat do PDF</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10554"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11114"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10581"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11141"/>
         <source>Ctrl+Alt+P</source>
         <translation>Ctrl+Alt+P</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10891"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11306"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10918"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11333"/>
         <source>&amp;Autocorrelate</source>
         <translation>&amp;Autokorelovat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11115"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11142"/>
         <source>Export to PDF</source>
         <translation>Exportovat do PDF</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13386"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13433"/>
         <source>This will clear the contents of all the data associated with the table. Are you sure?</source>
         <translation>Tato operace smaže všechna data spojená s tabulkou. Jste si jistý?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10958"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10991"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10985"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11018"/>
         <source>&amp;Reset to Full Range</source>
         <translation>Obnovit na plný &amp;rozsah</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10961"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10992"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10988"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11019"/>
         <source>Edit &amp;Range...</source>
         <translation>U&amp;pravit rozsah...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10967"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10993"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10994"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11020"/>
         <source>&amp;Hide</source>
         <translation>S&amp;krýt</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10970"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10994"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10997"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11021"/>
         <source>Hide &amp;Other Curves</source>
         <translation>Skrýt ostatní &amp;křivky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10973"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10995"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11000"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11022"/>
         <source>&amp;Show All Curves</source>
         <translation>&amp;Zobrazit všechny křivky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11846"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11875"/>
         <source>&lt;b&gt; %1 &lt;/b&gt;: This command line option must be used without other arguments!</source>
         <translation>&lt;b&gt; %1 &lt;/b&gt;: Tato volba příkazové řádky musí být použita bez dalších argumentů!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11856"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11885"/>
         <source>Version</source>
         <translation>Verze</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11864"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11893"/>
         <source>Usage</source>
         <translation>Použití</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11865"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11894"/>
         <source>options</source>
         <translation>Možnosti</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11865"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11874"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11876"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11894"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11903"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11905"/>
         <source>file</source>
         <translation>soubor</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11865"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11874"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11876"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11894"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11903"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11905"/>
         <source>name</source>
         <translation>název</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11866"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11895"/>
         <source>Valid options are</source>
         <translation>Platné možnosti jsou</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11867"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11868"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11869"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11870"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11871"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11872"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11896"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11897"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11898"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11899"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11900"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11901"/>
         <source>or</source>
         <translation>nebo</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11867"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11896"/>
         <source>show about dialog and exit</source>
         <translation>zobrazit dialog O aplikaci a zavřít</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11868"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11897"/>
         <source>show command line options</source>
         <translation>zobrazit volby příkazové řádky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11901"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11930"/>
         <source>&lt;b&gt; %1 &lt;/b&gt; unknown command line option!</source>
         <translation>&lt;b&gt; %1 &lt;/b&gt;: neznámá volba příkazové řádky!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11901"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11930"/>
         <source>Type %1 to see the list of the valid options.</source>
         <translation>Zadejte %1 pro zobrazení výpisu platných voleb.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12430"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12459"/>
         <source>Save project as</source>
         <translation>Uložit projekt jako</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12726"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12760"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12755"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12789"/>
         <source>windows</source>
         <translation>okna</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12729"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12761"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12758"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12790"/>
         <source>folders</source>
         <translation>složky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13025"/>
         <location filename="../src/ApplicationWindow.cpp" line="13072"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13119"/>
         <source>3D Graph</source>
         <translation>3D Graf</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13192"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13239"/>
         <source>Skipped moving folder</source>
         <translation>Přeskočen přesun složky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="182"/>
-        <location filename="../src/ApplicationWindow.cpp" line="663"/>
+        <location filename="../src/ApplicationWindow.cpp" line="184"/>
+        <location filename="../src/ApplicationWindow.cpp" line="665"/>
         <source>SciDAVis - untitled</source>
         <translation>SciDAVis - bezejmenný</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="783"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11135"/>
+        <location filename="../src/ApplicationWindow.cpp" line="785"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11162"/>
         <source>Toolbars</source>
         <translation>Panely nástrojů</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="882"/>
+        <location filename="../src/ApplicationWindow.cpp" line="884"/>
         <source>&amp;Quick Fit</source>
         <translation>&amp;Rychlé proložení</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1075"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1077"/>
         <source>&amp;Tools</source>
         <translation>&amp;Nástroje</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1470"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13671"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1472"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13716"/>
         <source>Please set a default X column for this table, first!</source>
         <translation>Zvolte nejdřív prosím výchozí X-sloupec pro tuto tabulku!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1499"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1518"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1501"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1520"/>
         <source>Please select four columns for this operation!</source>
         <translation>Zvolte prosím čtyři sloupce pro tuto operaci!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3459"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3621"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3466"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3628"/>
         <source>The file &lt;b&gt;%1&lt;/b&gt; is not a valid project file.</source>
         <translation>Soubor &lt;b&gt;%1&lt;/b&gt; není platný soubor projektui.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3636"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3643"/>
         <source>SciDAVis does not support QtiPlot project files from versions later than 0.9.0.</source>
         <translation>SciDAVis nepodporuje projekty QtiPlotu od verze 0.9.0 výše.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3646"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3921"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6126"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6168"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7650"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11856"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13192"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3653"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3928"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6149"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6191"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7673"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11885"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13239"/>
         <source>SciDAVis</source>
         <translation>SciDAVis</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4016"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4023"/>
         <source>The file: &lt;b&gt; %1 &lt;/b&gt; was not created using SciDAVis!</source>
         <translation>Soubor &lt;b&gt; %1 &lt;/b&gt; nebyl vytvořen programem SciDAVis!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4025"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4032"/>
         <source>SciDAVis does not support QtiPlot template files from versions later than 0.9.0.</source>
         <translation>SciDAVis nepodporuje šablony QtiPlotu od verze 0.9.0 výše.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4117"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4143"/>
         <source>The file: &lt;b&gt;%1&lt;/b&gt; is not a SciDAVis template file!</source>
         <translation>Soubor &lt;b&gt;%1&lt;/b&gt; není šablonou programu SciDAVis!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4789"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4815"/>
         <source>Output format:</source>
         <translation>Výstupní formát:</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4790"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4816"/>
         <source>Directory:</source>
         <translation>Složka:</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4821"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4847"/>
         <source>There are no plot layers available in window &lt;b&gt;%1&lt;/b&gt;.&lt;br&gt;Graph window not exported!</source>
         <translation>V okně nejsou k dispozici žádné vrstvy s grafy &lt;b&gt;%1&lt;/b&gt;.&lt;br&gt;Okno grafu nebylo vyexportováno!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5009"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12426"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5032"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12455"/>
         <source>SciDAVis project</source>
         <translation>SciDAVis Projekt</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5010"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12427"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5033"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12456"/>
         <source>Compressed SciDAVis project</source>
         <translation>Komprimovaný SciDAVis projekt</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5058"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5081"/>
         <source>SciDAVis/QtiPlot Matrix Template</source>
         <translation>SciDAVis/QtiPlot šablona matice</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5060"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5083"/>
         <source>SciDAVis/QtiPlot 2D Graph Template</source>
         <translation>SciDAVis/QtiPlot šablona 2D grafu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5062"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5085"/>
         <source>SciDAVis/QtiPlot Table Template</source>
         <translation>SciDAVis/QtiPlot šablona tabulky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5064"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5087"/>
         <source>SciDAVis/QtiPlot 3D Surface Template</source>
         <translation>SciDAVis/QtiPlot šablona 3D povrchového grafu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10646"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11182"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10673"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11209"/>
         <source>&amp;Vertical Bars</source>
         <translation>&amp;Svislé sloupečky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10650"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11185"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10677"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11212"/>
         <source>&amp;Horizontal Bars</source>
         <translation>&amp;Vodorovné sloupečky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8201"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8224"/>
         <source>Choose the location of the SciDAVis help folder!</source>
         <translation>Zadejte umístění složky s nápovědou SciDAVisu!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8246"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8277"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8269"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8302"/>
         <source>This file is provided with the SciDAVis manual which can be downloaded from the following internet address:</source>
         <translation>Tento soubor je dáván k dispozici spolu s manuálem  SciDAVis, který lze stáhnout z následující adresy z internetu:</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9106"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9133"/>
         <source>Do you want SciDAVis to guess the best position for the new layer?
  Warning: this will rearrange existing layers!</source>
         <translation>Chcete aby SciDAVis určil nejlepší umístění nové vrstvy?
  Varování: tato funkce zěmní uspořádání stávajících vrstev!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10484"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11047"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10511"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11074"/>
         <source>&amp;Import ASCII...</source>
         <translation>&amp;Importovat ASCII...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10764"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11254"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10791"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11281"/>
         <source>Fit &amp;Wizard...</source>
         <translation>Asistent prokládání &amp;dat křivkou...</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10783"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11263"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10810"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11290"/>
         <source>&amp;About SciDAVis</source>
         <translation>O&amp; SciDAVis</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10921"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11317"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10948"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11344"/>
         <source>&amp;SciDAVis Homepage</source>
         <translation>&amp;Domovská stránka SciDAVis</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10924"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10951"/>
         <source>SciDAVis &amp;Forums</source>
         <translation>SciDAVis &amp; - diskuzní fóra</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10936"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11328"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10963"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11355"/>
         <source>Scripting &amp;Language</source>
         <translation>S&amp;kriptovací jazyk</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10940"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11330"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10967"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11357"/>
         <source>&amp;Restart Scripting</source>
         <translation>R&amp;estartovat skriptování</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10979"/>
-        <location filename="../src/ApplicationWindow.cpp" line="10989"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11006"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11016"/>
         <source>&amp;Copy status bar text</source>
         <translation>&amp;Kopírovat text ze stavového řádku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11048"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11075"/>
         <source>Import data file(s)</source>
         <translation>Importovat data</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11321"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11348"/>
         <source>Visit SciDAVis &amp;Forums</source>
         <translation>Navštívit fóra &amp;SciDAVis</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11869"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11898"/>
         <source>start SciDAVis in language</source>
         <translation>spouštět SciDAVis v jazyce</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11870"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11899"/>
         <source>show SciDAVis manual in a standalone window</source>
         <translation>Zobrazit manuál SciDAVisu v samostatném okně</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11871"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11900"/>
         <source>print SciDAVis version and release date</source>
         <translation>Vytisknout verzi SciDAVis a datum vydání</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11872"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11901"/>
         <source>execute the script file given as argument</source>
         <translation>spustit soubor skriptu zadaný jako argument</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11874"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11903"/>
         <source>can be any .sciprj, .sciprj.gz, .qti, qti.gz, .opj, .ogm, .ogw, .ogg, .py or ASCII file</source>
         <translation>může být jakékoliv .sciprj, .sciprj.gz, .qti, qti.gz, .opj, .ogm, .ogw, .ogg, .py nebo ASCII soubory</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11880"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11909"/>
         <source>SciDAVis - Help</source>
         <translation>SciDAVis - Nápověda</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11912"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11941"/>
         <source>&lt;b&gt;%1&lt;/b&gt; is a directory, please specify a file name!</source>
         <translation>&lt;b&gt;%1&lt;/b&gt;je složka, zadejte prosím název souboru!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11916"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11945"/>
         <source>You don&apos;t have the permission to open this file: &lt;b&gt;%1&lt;/b&gt;</source>
         <translation>Nemáte oprávnění otevřít soubor: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12106"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12135"/>
         <source>The file: &lt;b&gt;%1&lt;/b&gt; is not a SciDAVis or Origin project file!</source>
         <translation>Soubor &lt;b&gt;%1&lt;/b&gt; není ani SciDAVis ani Origin projekt!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13285"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13332"/>
         <source>Do you wish to continue?</source>
         <translation>Chcete pokračovat?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13631"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13668"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13376"/>
+        <source>No updates available. You are already running the latest version.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ApplicationWindow.cpp" line="13676"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13713"/>
         <source>You need at least two columns for this operation!</source>
         <translation>Pro tuto operaci potřebujete alespoň dva sloupce!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13636"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13681"/>
         <source>Please select a Z column for this operation!</source>
         <translation>Vyberte prosím Z-sloupec pro tuto operaci!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13641"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13686"/>
         <source>You need to define a X column first!</source>
         <translation>Nejdřív musíte definovat X-sloupec!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13646"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13691"/>
         <source>You need to define a Y column first!</source>
         <translation>Nejdřív musíte definovat Y-sloupec!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="408"/>
+        <location filename="../src/ApplicationWindow.cpp" line="410"/>
         <source>New Aspect</source>
         <translation>Nový aspekt</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="461"/>
+        <location filename="../src/ApplicationWindow.cpp" line="463"/>
         <source>Manage layers</source>
         <translation>Spravovat vrstvy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="474"/>
+        <location filename="../src/ApplicationWindow.cpp" line="476"/>
         <source>Add curves / error bars</source>
         <translation>Přidat křivky / chybové úsečky</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="486"/>
+        <location filename="../src/ApplicationWindow.cpp" line="488"/>
         <source>Enrichments</source>
         <translation>Dekorace</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="578"/>
+        <location filename="../src/ApplicationWindow.cpp" line="580"/>
         <source>Lines and/or symbols</source>
         <translation>Čáry a/nebo symboly</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1371"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1409"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1430"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1451"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1464"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1373"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1411"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1432"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1453"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1466"/>
         <source>Plot error</source>
         <translation>Chyba grafu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1470"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1480"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1499"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1518"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2926"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2934"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2944"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5136"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5140"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5149"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5158"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5223"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5234"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5514"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5532"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5550"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5568"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11845"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11893"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11900"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12592"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12602"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13631"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13636"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13641"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13646"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13659"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13665"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13668"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13671"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1472"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1482"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1501"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1520"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2933"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2941"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2951"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5159"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5163"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5172"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5181"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5246"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5257"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5537"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5555"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5573"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5591"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11874"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11922"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11929"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12621"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12631"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13676"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13681"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13686"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13691"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13704"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13710"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13713"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13716"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1702"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1712"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1770"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2835"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2847"/>
-        <location filename="../src/ApplicationWindow.cpp" line="2853"/>
-        <location filename="../src/ApplicationWindow.cpp" line="4820"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5726"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6036"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6046"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6082"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6103"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6119"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6148"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6162"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6193"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6228"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6571"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6592"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6604"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6611"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6628"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6637"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6659"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6678"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6719"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6747"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6785"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6809"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6856"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8302"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8390"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11703"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11716"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11738"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11751"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11783"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11796"/>
-        <location filename="../src/ApplicationWindow.cpp" line="13385"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1704"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1714"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1772"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2842"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2854"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2860"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4846"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5749"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6059"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6069"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6105"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6126"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6142"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6171"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6185"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6216"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6251"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6594"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6615"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6627"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6634"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6651"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6660"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6682"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6701"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6742"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6770"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6808"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6832"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6879"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8329"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8417"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11732"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11745"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11767"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11780"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11812"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11825"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13432"/>
         <source>Warning</source>
         <translation>Varování</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1720"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1731"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1722"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1733"/>
         <source>Choose data set</source>
         <translation>Vyberte dataset</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="1743"/>
-        <location filename="../src/ApplicationWindow.cpp" line="1780"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1745"/>
+        <location filename="../src/ApplicationWindow.cpp" line="1782"/>
         <source>Choose matrix to plot</source>
         <translation>Vyberte matici k vykreslení grafu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2089"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2091"/>
         <source>Import image from file</source>
         <translation>Importovat obrázek ze souboru</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2109"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2111"/>
         <source>Load image from file</source>
         <translation>Načíst obrázek ze souboru</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2501"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2508"/>
         <source>Renamed Window</source>
         <translation>Přejmenované okno</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2879"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2886"/>
         <source>Error bars error</source>
         <translation>Chyba chybových úseček</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3428"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3441"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3458"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3482"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3529"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3555"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3561"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3569"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3575"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3609"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3621"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3635"/>
-        <location filename="../src/ApplicationWindow.cpp" line="3659"/>
-        <location filename="../src/ApplicationWindow.cpp" line="4003"/>
-        <location filename="../src/ApplicationWindow.cpp" line="4015"/>
-        <location filename="../src/ApplicationWindow.cpp" line="4025"/>
-        <location filename="../src/ApplicationWindow.cpp" line="4116"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11911"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11915"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11919"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12098"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12105"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12149"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3435"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3448"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3465"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3489"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3536"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3562"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3568"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3576"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3582"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3616"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3628"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3642"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3666"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4010"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4022"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4032"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4142"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11940"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11944"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11948"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12127"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12134"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12178"/>
         <source>File opening error</source>
         <translation>Chyba při otevírání souboru</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3514"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3521"/>
         <source>File Open Error</source>
         <translation>Chyba při otevírání souboru</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3677"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3684"/>
         <source>Opening file</source>
         <translation>Otvírám soubor</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3981"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3988"/>
         <source>Scripting Error</source>
         <translation>Chyba skriptu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3993"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4000"/>
         <source>Open Template File</source>
         <translation>Otevřít šablonu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4682"/>
-        <location filename="../src/ApplicationWindow.cpp" line="4710"/>
-        <location filename="../src/ApplicationWindow.cpp" line="4765"/>
-        <location filename="../src/ApplicationWindow.cpp" line="4851"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5082"/>
-        <location filename="../src/ApplicationWindow.cpp" line="6211"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4708"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4736"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4791"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4877"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5105"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6234"/>
         <source>Export Error</source>
         <translation>Chyba exportu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="4836"/>
-        <location filename="../src/ApplicationWindow.cpp" line="5451"/>
+        <location filename="../src/ApplicationWindow.cpp" line="4862"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5474"/>
         <source>Overwrite file?</source>
         <translation>Přepsat soubor?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5380"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5403"/>
         <source>Right Axis Title</source>
         <translation>Titulek pravé osy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5405"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5428"/>
         <source>Top Axis Title</source>
         <translation>Titulek horní osy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5592"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5615"/>
         <source>Column selection error</source>
         <translation>Chyba výběru sloupce</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="5611"/>
+        <location filename="../src/ApplicationWindow.cpp" line="5634"/>
         <source>Row selection error</source>
         <translation>Chyba výběru řádku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6706"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6729"/>
         <source>Add new layer?</source>
         <translation>Přidat novou vrstvu?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6766"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6789"/>
         <source>Insert image from file</source>
         <translation>Vložit obrázek ze souboru</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="6880"/>
+        <location filename="../src/ApplicationWindow.cpp" line="6903"/>
         <source>Layer Geometry</source>
         <translation>Geometrie vrstvy</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7138"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7161"/>
         <source>Duplicate window error</source>
         <translation>Chyba duplikace okna</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7166"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7189"/>
         <source>Duplicate error</source>
         <translation>Chyba duplikace</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="7285"/>
-        <location filename="../src/ApplicationWindow.cpp" line="7303"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7308"/>
+        <location filename="../src/ApplicationWindow.cpp" line="7326"/>
         <source>Window Geometry</source>
         <translation>Geometrie okna</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8211"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8234"/>
         <source>index.html File Not Found!</source>
         <translation>index.html nenalezen!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8234"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8263"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8257"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8288"/>
         <source>Help Files Not Found!</source>
         <translation>Soubory nápovědy nenalezeny!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8244"/>
-        <location filename="../src/ApplicationWindow.cpp" line="8275"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8267"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8300"/>
         <source>Help Profile Not Found!</source>
         <translation>Profil nápovědy nenalezen!</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="8364"/>
+        <location filename="../src/ApplicationWindow.cpp" line="8391"/>
         <source>Edit function</source>
         <translation>Upravit funkci</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9048"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9075"/>
         <source>Set the number of pixels to average</source>
         <translation>Nastavit počet pixelů k zprůměrování</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9105"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9132"/>
         <source>Guess best origin for the new layer?</source>
         <translation>Určit nejlepší původ pro novou vrstvu?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11803"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11832"/>
         <source>Enter the number of peaks</source>
         <translation>Zadat počet vrcholů (píků)</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12358"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12387"/>
         <source>File save error</source>
         <translation>Chyba ukládání dat</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="12795"/>
+        <location filename="../src/ApplicationWindow.cpp" line="12824"/>
         <source>Delete folder?</source>
         <translation>Smazat složku?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13150"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13197"/>
         <source>No match found</source>
         <translation>Nenalezena žádná shoda</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13300"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13347"/>
         <source>HTTP get version file</source>
         <translation>HTTP získat soubor o verzi</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13321"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13368"/>
         <source>Updates Available</source>
         <translation>Jsou dostupné aktualizace</translation>
     </message>
@@ -3886,104 +3897,101 @@ první reprezentuje funkci signálu, druhý fukci odpovědi!</translation>
         <translation>Čeština vědecká</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11006"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11033"/>
         <source>Create an empty note / script window</source>
         <translation>Vytvořit prázdnou poznámku-/okno skriptu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13284"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13331"/>
         <source>SciDAVis will now try to determine whether a new version of SciDAVis is available. Please modify your firewall settings in order to allow SciDAVis to connect to the internet.</source>
         <translation>SciDAVis se nyní pokusí zjistit, zda není k dispozici novější verze. Nastavte prosím svůj firewall tak, aby měl SciDAVis povoleno připojit se k internetu.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13322"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13369"/>
         <source>There is a newer version of SciDAVis (%1) available for download. Would you like to download it now?</source>
         <translation>K dispozici je nová verze SciDAVisu (%1). Chcete ji nyní stáhnout?</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13329"/>
         <source>No updates available. Your are already running the latest version.</source>
-        <translation>Žádné aktualizace k dispozici. Používáte zatím nejaktuálnější verzi.</translation>
+        <translation type="obsolete">Žádné aktualizace k dispozici. Používáte zatím nejaktuálnější verzi.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13332"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13379"/>
         <source>Invalid version file</source>
         <translation>Neplatný soubor verze</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13333"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13380"/>
         <source>The version file (contents: &quot;%1&quot;) could not be decoded into a valid version number.</source>
         <translation>Soubor verze (obsaht: &quot;%1&quot;) nemohl být dekódován do platné číslo verze.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="2945"/>
+        <location filename="../src/ApplicationWindow.cpp" line="2952"/>
         <source>You can only define error bars for numeric columns.</source>
         <translation>Můžete pouze definovat chybové úsečky pro číselné sloupce.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3362"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3369"/>
         <source>new_by_import</source>
         <translation>nový_z_importu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3482"/>
-        <location filename="../src/ApplicationWindow.cpp" line="12149"/>
         <source>SciDAVis currently does not support Origin import. If you are interested in reviving an maintaining an Origin import filter, contact the developers.</source>
-        <translation>SciDAVis nepodporuje import souborů Origin. Pokud Vás zajímá možnost vývoje importního filtru pro soubory Origin, kontaktujte prosím vývojáře SciDAVisu.</translation>
+        <translation type="obsolete">SciDAVis nepodporuje import souborů Origin. Pokud Vás zajímá možnost vývoje importního filtru pro soubory Origin, kontaktujte prosím vývojáře SciDAVisu.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9078"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9105"/>
         <source>Error importing image</source>
         <translation>Chyba importu obrázku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="9078"/>
+        <location filename="../src/ApplicationWindow.cpp" line="9105"/>
         <source>Import of image &apos;%1&apos; failed</source>
         <translation>Import obrázku &apos;%1&apos; selhal</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10523"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10550"/>
         <source>Undo/Redo &amp;History</source>
         <translation>Historie Zpět/&amp;Znovu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="10861"/>
-        <location filename="../src/ApplicationWindow.cpp" line="11299"/>
+        <location filename="../src/ApplicationWindow.cpp" line="10888"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11326"/>
         <source>&amp;Convert to Table</source>
         <translation>Převést na  &amp;tabulku</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11876"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11905"/>
         <source>can be any .sciprj, .sciprj.gz, .qti, qti.gz, .py or ASCII file</source>
         <translation>může být jakýkoliv .sciprj, .sciprj.gz, .qti, qti.gz, .py nebo ASCII soubor</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="13762"/>
+        <location filename="../src/ApplicationWindow.cpp" line="13807"/>
         <source>Undo/Redo History</source>
         <translation>Historie Zpět/Znovu</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3555"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3562"/>
         <source>zlib can&apos;t open %1.</source>
         <translation>zlib nemůže otevřít %1.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3561"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3568"/>
         <source>Can&apos;t create temporary file for writing uncompressed copy of %1.</source>
         <translation>Nemohu vytvořit dočasný soubor pro zápis nekomprimované kopie %1.</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3575"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3582"/>
         <source>Error writing to temporary file: %1</source>
         <translation>Chyba při zápisu do dočasného souborui: %1</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3613"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3620"/>
         <source>Opening backup copy</source>
         <translation>Otvírám záložní kopii</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="3614"/>
+        <location filename="../src/ApplicationWindow.cpp" line="3621"/>
         <source>The original (corrupt) file is being left untouched, in case you want to try rescuing data manually. If you want to continue working with the automatically restored backup copy, you have to explicitly overwrite the original file.</source>
         <translation>Původní (porušený) soubor byl ponechán nedotčen pro případ, že byste chtěli obnovit data manuálně. Pokud chcete pokračovat v práci s automaticky obnovenou kopií, musíte explicitně přepsat původní soubor.</translation>
     </message>
@@ -4672,63 +4680,63 @@ první reprezentuje funkci signálu, druhý fukci odpovědi!</translation>
 <context>
     <name>Column</name>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="382"/>
+        <location filename="../src/future/core/column/Column.cpp" line="383"/>
         <source>column type missing</source>
         <translation>chybí typ sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="388"/>
+        <location filename="../src/future/core/column/Column.cpp" line="389"/>
         <source>column type invalid</source>
         <translation>neplatný typ sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="395"/>
+        <location filename="../src/future/core/column/Column.cpp" line="396"/>
         <source>column mode missing</source>
         <translation>chybí režim sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="401"/>
+        <location filename="../src/future/core/column/Column.cpp" line="402"/>
         <source>column mode invalid</source>
         <translation>neplatný režim sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="407"/>
+        <location filename="../src/future/core/column/Column.cpp" line="408"/>
         <source>column type or mode invalid</source>
         <translation>neplatný typ nebo režim sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="417"/>
+        <location filename="../src/future/core/column/Column.cpp" line="418"/>
         <source>column plot designation invalid</source>
         <translation>neplatné označení sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="453"/>
+        <location filename="../src/future/core/column/Column.cpp" line="454"/>
         <source>unknown element &apos;%1&apos;</source>
         <translation>neznámý element &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="462"/>
+        <location filename="../src/future/core/column/Column.cpp" line="463"/>
         <source>no column element found</source>
         <translation>nenalezen žádný prvek sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="497"/>
-        <location filename="../src/future/core/column/Column.cpp" line="516"/>
+        <location filename="../src/future/core/column/Column.cpp" line="498"/>
+        <location filename="../src/future/core/column/Column.cpp" line="517"/>
         <source>invalid or missing start or end row</source>
         <translation>neplatný nebo chybějící začátek/konec řádku</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="537"/>
+        <location filename="../src/future/core/column/Column.cpp" line="538"/>
         <source>invalid or missing row type</source>
         <translation>neplatný nebo chybějící typ řádku</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="545"/>
+        <location filename="../src/future/core/column/Column.cpp" line="546"/>
         <source>invalid or missing row index</source>
         <translation>neplatný nebo chybějící index řádku</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="557"/>
+        <location filename="../src/future/core/column/Column.cpp" line="558"/>
         <source>invalid row value</source>
         <translation>neplatná hodnota řádku</translation>
     </message>
@@ -6528,14 +6536,14 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Filter</name>
     <message>
-        <location filename="../src/Filter.cpp" line="78"/>
-        <location filename="../src/Filter.cpp" line="113"/>
-        <location filename="../src/Filter.cpp" line="206"/>
+        <location filename="../src/Filter.cpp" line="80"/>
+        <location filename="../src/Filter.cpp" line="115"/>
+        <location filename="../src/Filter.cpp" line="208"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../src/Filter.cpp" line="79"/>
+        <location filename="../src/Filter.cpp" line="81"/>
         <source>Please assign a curve first!</source>
         <translation>Nejdřív prosím přiřaďte křivku!</translation>
     </message>
@@ -6544,55 +6552,55 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Několik datových bodů má stejnou hodnotu x, což zvpůsobuje dělení nulou, operace zrušena!</translation>
     </message>
     <message>
-        <location filename="../src/Filter.cpp" line="114"/>
+        <location filename="../src/Filter.cpp" line="116"/>
         <source>You need at least %1 points in order to perform this operation!</source>
         <translation>Potřebujete alespoň %1 bodů pro tuto operaci!</translation>
     </message>
     <message>
-        <location filename="../src/Filter.cpp" line="125"/>
+        <location filename="../src/Filter.cpp" line="127"/>
         <source>Please enter a valid curve name!</source>
         <translation>Zadejte prosím platný název křivky!</translation>
     </message>
     <message>
-        <location filename="../src/Filter.cpp" line="179"/>
+        <location filename="../src/Filter.cpp" line="181"/>
         <source>The color name &apos;%1&apos; is not valid, a default color (red) will be used instead!</source>
         <translation>Název barvy &apos;%1&apos; není platný, použije se výchozí barva (červená)!</translation>
     </message>
     <message>
-        <location filename="../src/Filter.cpp" line="207"/>
+        <location filename="../src/Filter.cpp" line="209"/>
         <source>You didn&apos;t specify a valid data set for this operation!</source>
         <translation>Nezadali jste platný dataset pro tuto operaci!</translation>
     </message>
     <message>
-        <location filename="../src/Filter.cpp" line="306"/>
+        <location filename="../src/Filter.cpp" line="308"/>
         <source>of</source>
         <translation>od</translation>
     </message>
     <message>
-        <location filename="../src/Filter.cpp" line="78"/>
-        <location filename="../src/Filter.cpp" line="113"/>
-        <location filename="../src/Filter.cpp" line="206"/>
+        <location filename="../src/Filter.cpp" line="80"/>
+        <location filename="../src/Filter.cpp" line="115"/>
+        <location filename="../src/Filter.cpp" line="208"/>
         <source>SciDAVis</source>
         <translation>SciDAVis</translation>
     </message>
     <message>
-        <location filename="../src/Filter.cpp" line="124"/>
+        <location filename="../src/Filter.cpp" line="126"/>
         <source>Filter Error</source>
         <translation>Chyba filtru</translation>
     </message>
     <message>
-        <location filename="../src/Filter.cpp" line="178"/>
+        <location filename="../src/Filter.cpp" line="180"/>
         <source>Color Name Error</source>
         <translation>Chyba názvu barvy</translation>
     </message>
     <message>
-        <location filename="../src/Filter.cpp" line="296"/>
+        <location filename="../src/Filter.cpp" line="298"/>
         <source>1</source>
         <comment>filter table x column name</comment>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="../src/Filter.cpp" line="297"/>
+        <location filename="../src/Filter.cpp" line="299"/>
         <source>2</source>
         <comment>filter table y column name</comment>
         <translation>2</translation>
@@ -9194,53 +9202,53 @@ Limity musí být v rozsahu hodnot X. Pokud neznáte maximální ani minimální
 <context>
     <name>Matrix</name>
     <message>
-        <location filename="../src/Matrix.cpp" line="532"/>
+        <location filename="../src/Matrix.cpp" line="533"/>
         <source>Cancel</source>
         <translation>Zrušit</translation>
     </message>
     <message>
-        <location filename="../src/Matrix.cpp" line="304"/>
+        <location filename="../src/Matrix.cpp" line="305"/>
         <source>Calculation failed, the matrix is not square!</source>
         <translation>Výpočet selhal, matice není čtvercová!</translation>
     </message>
     <message>
-        <location filename="../src/Matrix.cpp" line="335"/>
+        <location filename="../src/Matrix.cpp" line="336"/>
         <source>Inversion failed, the matrix is not square!</source>
         <translation>Inverze selhala, matice není čtvercová!</translation>
     </message>
     <message>
-        <location filename="../src/Matrix.cpp" line="530"/>
+        <location filename="../src/Matrix.cpp" line="531"/>
         <source>SciDAVis</source>
         <translation>SciDAVis</translation>
     </message>
     <message>
-        <location filename="../src/Matrix.cpp" line="303"/>
-        <location filename="../src/Matrix.cpp" line="334"/>
+        <location filename="../src/Matrix.cpp" line="304"/>
+        <location filename="../src/Matrix.cpp" line="335"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
     <message>
-        <location filename="../src/Matrix.cpp" line="531"/>
+        <location filename="../src/Matrix.cpp" line="532"/>
         <source>Do you want to hide or delete</source>
         <translation>Chcete skrýt nebo smazat</translation>
     </message>
     <message>
-        <location filename="../src/Matrix.cpp" line="532"/>
+        <location filename="../src/Matrix.cpp" line="533"/>
         <source>Delete</source>
         <translation>Smazat</translation>
     </message>
     <message>
-        <location filename="../src/Matrix.cpp" line="532"/>
+        <location filename="../src/Matrix.cpp" line="533"/>
         <source>Hide</source>
         <translation>Skrýt</translation>
     </message>
     <message>
-        <location filename="../src/Matrix.cpp" line="724"/>
+        <location filename="../src/Matrix.cpp" line="725"/>
         <source>Matrix %1</source>
         <translation>Matice %1</translation>
     </message>
     <message>
-        <location filename="../src/Matrix.cpp" line="730"/>
+        <location filename="../src/Matrix.cpp" line="731"/>
         <source>%1: apply formula to selection</source>
         <translation>%1: použít vzorec na výběr</translation>
     </message>
@@ -9435,409 +9443,344 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MuParserScript</name>
     <message>
-        <location filename="../src/MuParserScript.cpp" line="269"/>
         <source>col() works only on tables!</source>
-        <translation>col() funguje pouze na tabulky!</translation>
+        <translation type="obsolete">col() funguje pouze na tabulky!</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScript.cpp" line="272"/>
-        <location filename="../src/MuParserScript.cpp" line="307"/>
-        <location filename="../src/MuParserScript.cpp" line="349"/>
         <source>There&apos;s no column %1 in table %2!</source>
-        <translation>V tabulce %2 neexistuje sloupec %1!</translation>
+        <translation type="obsolete">V tabulce %2 neexistuje sloupec %1!</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScript.cpp" line="300"/>
         <source>tablecol() works only on tables!</source>
-        <translation>tablecol() funguje pouze na tabulky!</translation>
+        <translation type="obsolete">tablecol() funguje pouze na tabulky!</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScript.cpp" line="303"/>
-        <location filename="../src/MuParserScript.cpp" line="443"/>
-        <location filename="../src/MuParserScript.cpp" line="452"/>
-        <location filename="../src/MuParserScript.cpp" line="458"/>
         <source>Couldn&apos;t find a table named %1.</source>
-        <translation>Nemohu najít tabulku nazvanou %1.</translation>
+        <translation type="obsolete">Nemohu najít tabulku nazvanou %1.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScript.cpp" line="346"/>
-        <location filename="../src/MuParserScript.cpp" line="366"/>
         <source>cell() works only on tables and matrices!</source>
-        <translation>cell() funguje pouze na tabulky a matice!</translation>
+        <translation type="obsolete">cell() funguje pouze na tabulky a matice!</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScript.cpp" line="370"/>
         <source>There&apos;s no row %1 in matrix %2!</source>
-        <translation>V matici %2 neexistuje buňka %1!</translation>
+        <translation type="obsolete">V matici %2 neexistuje buňka %1!</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScript.cpp" line="373"/>
         <source>There&apos;s no column %1 in matrix %2!</source>
-        <translation>V matici %2 neexistuje sloupec %1!</translation>
+        <translation type="obsolete">V matici %2 neexistuje sloupec %1!</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScript.cpp" line="420"/>
-        <location filename="../src/MuParserScript.cpp" line="426"/>
         <source>Accessing table values is not (yet) supported in this context.</source>
-        <translation>Přístup k hodnotám v tabulce není (zatím) podporován v tomto konextu.</translation>
+        <translation type="obsolete">Přístup k hodnotám v tabulce není (zatím) podporován v tomto konextu.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScript.cpp" line="465"/>
         <source>There&apos;s no column named %1 in table %2!</source>
-        <translation>V tabulce %2 neexistuje sloupec %1!</translation>
+        <translation type="obsolete">V tabulce %2 neexistuje sloupec %1!</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScript.cpp" line="576"/>
         <source>tablecol: wrong number of arguments (need 2, got %1)</source>
-        <translation>tablecol: chybný počet argumentů (nutné 2, zadány %1)</translation>
+        <translation type="obsolete">tablecol: chybný počet argumentů (nutné 2, zadány %1)</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScript.cpp" line="603"/>
         <source>cell: wrong number of arguments (need 2, got %1)</source>
-        <translation>cell: chybný počet argumentů (nutné 2, zadány %1)</translation>
+        <translation type="obsolete">cell: chybný počet argumentů (nutné 2, zadány %1)</translation>
     </message>
 </context>
 <context>
     <name>MuParserScripting</name>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="47"/>
         <source>abs(x):
  Absolute value of x.</source>
-        <translation>abs(x):
+        <translation type="obsolete">abs(x):
  Absolutní hodnota x.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="48"/>
         <source>acos(x):
  Inverse cos function.</source>
-        <translation>acos(x):
+        <translation type="obsolete">acos(x):
  Inverzní funkce cosinu.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="49"/>
         <source>acosh(x):
  Hyperbolic inverse cos function.</source>
-        <translation>acosh(x):
+        <translation type="obsolete">acosh(x):
  Hyperbolická inverzní funkce cosinu.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="50"/>
         <source>asin(x):
  Inverse sin function.</source>
-        <translation>asin(x):
+        <translation type="obsolete">asin(x):
  Inverzní funkce sinu.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="51"/>
         <source>asinh(x):
  Hyperbolic inverse sin function.</source>
-        <translation>asinh(x):
+        <translation type="obsolete">asinh(x):
  Hyperbolická inverzní funkce sinu.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="52"/>
         <source>atan(x):
  Inverse tan function.</source>
-        <translation>atan(x):
+        <translation type="obsolete">atan(x):
  Inverzní funkce tangentu.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="53"/>
         <source>atanh(x):
   Hyperbolic inverse tan function.</source>
-        <translation>atanh(x):
+        <translation type="obsolete">atanh(x):
  Hyperbolická inverzní funkce tangentu.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="54"/>
         <source>avg(x,y,...):
   Mean value of all arguments.</source>
-        <translation>avg(x,y,...):
+        <translation type="obsolete">avg(x,y,...):
  Průměrná hodnota všech argumentů.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="55"/>
         <source>bessel_j0(x):
   Regular cylindrical Bessel function of zeroth order, J_0(x).</source>
-        <translation>bessel_j0(x):
+        <translation type="obsolete">bessel_j0(x):
   Pravidelná cylindrická Besselova funkce nulového řádu, J_0(x).</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="56"/>
         <source>bessel_j1(x):
   Regular cylindrical Bessel function of first order, J_1(x).</source>
-        <translation>bessel_j1(x):
+        <translation type="obsolete">bessel_j1(x):
   Pravidelná cylindrická Besselova funkce prvního řádu, J_1(x).</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="57"/>
         <source>bessel_jn(double x, int n):
  Regular cylindrical Bessel function of order n, J_n(x).</source>
-        <translation>bessel_jn(double x, int n):
+        <translation type="obsolete">bessel_jn(double x, int n):
  Pravidelná cylindrická Besselova funkce n-tého řádu, J_n(x).</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="58"/>
         <source>bessel_jn_zero(double n, unsigned int s):
  s-th positive zero x_s of regular cylindrical Bessel function of order n, J_n(x_s)=0</source>
-        <translation>bessel_jn_zero(double n, unsigned int s):
+        <translation type="obsolete">bessel_jn_zero(double n, unsigned int s):
  s-th kladná nula x_s pravidelné cylindrické Besselovy funkce n-tého řádu, J_n(x_s)=0</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="59"/>
         <source>bessel_y0(x):
  Irregular cylindrical Bessel function of zeroth order, Y_0(x), for x&gt;0.</source>
-        <translation>bessel_y0(x):
+        <translation type="obsolete">bessel_y0(x):
   Nepravidelná cylindrická Besselova funkce nulového řádu, Y_0(x), pro x&gt;0.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="60"/>
         <source>bessel_y1(x):
  Irregular cylindrical Bessel function of first order, Y_1(x), for x&gt;0.</source>
-        <translation>bessel_y1(x):
+        <translation type="obsolete">bessel_y1(x):
   Nepravidelná cylindrická Besselova funkce prvního řádu, Y_1(x), pro x&gt;0.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="61"/>
         <source>bessel_yn(double x, int n):
  Irregular cylindrical Bessel function of order n, Y_n(x), for x&gt;0.</source>
-        <translation>bessel_yn(double x, int n):
+        <translation type="obsolete">bessel_yn(double x, int n):
  Nepravidelná cylindrická Besselova funkce n-tého řádu, Y_n(x), for x&gt;0.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="62"/>
         <source>beta(a,b):
  Computes the Beta Function, B(a,b) = Gamma(a)*Gamma(b)/Gamma(a+b) for a &gt; 0, b &gt; 0.</source>
-        <translation>beta(a,b):
+        <translation type="obsolete">beta(a,b):
  Vypočte Beta funkci, B(a,b) = Gamma(a)*Gamma(b)/Gamma(a+b) for a &gt; 0, b &gt; 0.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="63"/>
         <source>ceil(x):
  Round to the next larger integer,
  smallest integer larger or equal to x.</source>
-        <translation>ceil(x):
+        <translation type="obsolete">ceil(x):
  Zaokrouhlí na nejbližší vyšší celé číslo,
  nejnižší celé číslo vyšší nebo rovno x.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="64"/>
         <source>cos(x):
  Calculate cosine.</source>
-        <translation>cos(x):
+        <translation type="obsolete">cos(x):
  Vypočte cosinus.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="65"/>
         <source>cosh(x):
  Hyperbolic cos function.</source>
-        <translation>cosh(x):
+        <translation type="obsolete">cosh(x):
  Hyperbolická funkce cosinu.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="66"/>
         <source>erf(x):
   The error function.</source>
-        <translation>erf(x):
+        <translation type="obsolete">erf(x):
   Chybová funkce.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="67"/>
         <source>erfc(x):
  Complementary error function erfc(x) = 1 - erf(x).</source>
-        <translation>erfc(x):
+        <translation type="obsolete">erfc(x):
  Doplňková chybová funkce erfc(x) = 1 - erf(x).</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="68"/>
         <source>erfz(x):
  The Gaussian probability density function Z(x).</source>
-        <translation>erfz(x):
+        <translation type="obsolete">erfz(x):
  Gaussovská pravděpodobnostní funkce hustoty Z(x).</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="69"/>
         <source>erfq(x):
  The upper tail of the Gaussian probability function Q(x).</source>
-        <translation>erfq(x):
+        <translation type="obsolete">erfq(x):
  Horní konec (&quot;ocas&quot;) Gaussovské pravděpodobnostní funkce Q(x).</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="70"/>
         <source>exp(x):
  Exponential function: e raised to the power of x.</source>
-        <translation>exp(x):
+        <translation type="obsolete">exp(x):
  Exponenciální funkce: e umocněné na x.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="71"/>
         <source>floor(x):
  Round to the next smaller integer,
  largest integer smaller or equal to x.</source>
-        <translation>floor(x):
+        <translation type="obsolete">floor(x):
  Zaokrouhlí na nejbližší nižší celé číslo,
  nejvyšší celé číslo nižší nebo rovno x.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="72"/>
         <source>gamma(x):
  Computes the Gamma function, subject to x not being a negative integer.</source>
-        <translation>gamma(x):
+        <translation type="obsolete">gamma(x):
  Vypočte funkci Gamma function, za pomínky, že x není záporné celé číslo.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="73"/>
         <source>gammaln(x):
  Computes the logarithm of the Gamma function, subject to x not a being negative integer. For x&lt;0, log(|Gamma(x)|) is returned.</source>
-        <translation>gammaln(x):
+        <translation type="obsolete">gammaln(x):
  Vypočte logaritmus funkce Gamma, za podmínky, že x není záporné celé číslo. Pro x&lt;0, vrátí log(|Gamma(x)|) .</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="74"/>
         <source>hazard(x):
  Computes the hazard function for the normal distribution h(x) = erfz(x)/erfq(x).</source>
-        <translation>hazard(x):
+        <translation type="obsolete">hazard(x):
  Vypočte funkci rizika pro normální rozdělení h(x) = erfz(x)/erfq(x).</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="75"/>
         <source>if(e1, e2, e3):
  if e1 then e2 else e3.</source>
-        <translation>if(e1, e2, e3):
+        <translation type="obsolete">if(e1, e2, e3):
  když e1 pak e2 jinak e3.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="76"/>
         <source>ln(x):
  Calculate natural logarithm log_e.</source>
-        <translation>ln(x):
+        <translation type="obsolete">ln(x):
  Vypočte přirozený logaritmus log_e.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="77"/>
         <source>log(x):
  Calculate decimal logarithm log_10.</source>
-        <translation>log(x):
+        <translation type="obsolete">log(x):
  Vypočte dekadický logaritmus log_10.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="78"/>
         <source>log10(x):
  Calculate decimal logarithm log_10.</source>
-        <translation>log10(x):
+        <translation type="obsolete">log10(x):
  Vypočte dekadický logaritmus log_10.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="79"/>
         <source>log2(x):
  Calculate binary logarithm log_2.</source>
-        <translation>log2(x):
+        <translation type="obsolete">log2(x):
  Vypočte binární logaritmus log_2.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="80"/>
         <source>min(x,y,...):
  Calculate minimum of all arguments.</source>
-        <translation>min(x,y,...):
+        <translation type="obsolete">min(x,y,...):
  Vypočte minimum ze všech argumentů.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="81"/>
         <source>max(x,y,...):
  Calculate maximum of all arguments.</source>
-        <translation>max(x,y,...):
+        <translation type="obsolete">max(x,y,...):
  Vypočte maximum ze všech argumentů.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="82"/>
         <source>mod(x,y):
  Calculate rest of integer division x/y,
  x modulo y.</source>
-        <translation>mod(x,y):
+        <translation type="obsolete">mod(x,y):
  Vypočte zbytek celočíselného dělení x/y,
  x modulo y.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="83"/>
         <source>pow(x,y):
  Raise x to the power of y, x^y.</source>
-        <translation>pow(x,y):
+        <translation type="obsolete">pow(x,y):
  Umocní x na y, x^y.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="84"/>
         <source>rint(x):
  Round to nearest integer.</source>
-        <translation>rint(x):
+        <translation type="obsolete">rint(x):
  Zaokrouhlí na nejbližší celé číslo.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="85"/>
         <source>sign(x):
  Sign function: -1 if x&lt;0; 1 if x&gt;0.</source>
-        <translation>sign(x):
+        <translation type="obsolete">sign(x):
  Znaménková funkce: -1 if x&lt;0; 1 if x&gt;0.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="86"/>
         <source>sin(x):
  Calculate sine.</source>
-        <translation>sin(x):
+        <translation type="obsolete">sin(x):
  Vypočte sinus.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="87"/>
         <source>sinh(x):
  Hyperbolic sin function.</source>
-        <translation>sinh(x):
+        <translation type="obsolete">sinh(x):
  Hyperbolická funkce sinu.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="88"/>
         <source>sqrt(x):
  Square root function.</source>
-        <translation>sqrt(x):
+        <translation type="obsolete">sqrt(x):
  Odmocnina x.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="89"/>
         <source>sum(x,y,...):
  Calculate sum of all arguments.</source>
-        <translation>sum(x,y,...):
+        <translation type="obsolete">sum(x,y,...):
  Vypočte součet všech argumentů.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="90"/>
         <source>tan(x):
  Calculate tangent function.</source>
-        <translation>tan(x):
+        <translation type="obsolete">tan(x):
  Vypočte funkci tangens.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="91"/>
         <source>tanh(x):
  Hyperbolic tan function.</source>
-        <translation>tanh(x):
+        <translation type="obsolete">tanh(x):
  Hyperbolická funkce tangens.</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="92"/>
         <source>w0(x):
  Compute the principal branch of Lambert&apos;s W function, W_0(x).
  W is defined as a solution to the equation W(x)*exp(W(x))=x.
  For x&lt;0, there are two real-valued branches; this function computes the one where W&gt;-1 for x&lt;0 (also see wm1(x)).</source>
-        <translation>w0(x):
+        <translation type="obsolete">w0(x):
  Vypočte hlavní větev Lamberovy W funkce, W_0(x).
  W je definováno jako řešení rovnice W(x)*exp(W(x))=x.
  Pro x&lt;0, existují dvě větve reálných čísel; tato funkce vypočte tu, u které W&gt;-1 pro x&lt;0 (také se podívejte na wm1(x)).</translation>
     </message>
     <message>
-        <location filename="../src/MuParserScripting.cpp" line="93"/>
         <source>wm1(x):
  Compute the secondary branch of Lambert&apos;s W function, W_{-1}(x).
  W is defined as a solution to the equation W(x)*exp(W(x))=x.
  For x&lt;0, there are two real-valued branches; this function computes the one where W&lt;-1 for x&lt;0. (also see w0(x)).</source>
-        <translation>wm1(x):
+        <translation type="obsolete">wm1(x):
  Vypočte druhotnou větev Lambertovy W funkce, W_{-1}(x).
  W je definováno jako řešení rovnice W(x)*exp(W(x))=x.
  Pro x&lt;0, existují dvě větve reálných čísel; tato funkce vypočte tu, u které W&lt;-1 for x&lt;0. (také se podívejte na w0(x)).</translation>
@@ -9846,50 +9789,50 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MultiLayer</name>
     <message>
-        <location filename="../src/MultiLayer.cpp" line="290"/>
+        <location filename="../src/MultiLayer.cpp" line="285"/>
         <source>&amp;Yes</source>
         <translation>&amp;Ano</translation>
     </message>
     <message>
-        <location filename="../src/MultiLayer.cpp" line="290"/>
+        <location filename="../src/MultiLayer.cpp" line="285"/>
         <source>&amp;No</source>
         <translation>&amp;Ne</translation>
     </message>
     <message>
-        <location filename="../src/MultiLayer.cpp" line="290"/>
+        <location filename="../src/MultiLayer.cpp" line="285"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Zrušit</translation>
     </message>
     <message>
-        <location filename="../src/MultiLayer.cpp" line="1003"/>
+        <location filename="../src/MultiLayer.cpp" line="998"/>
         <source>enter your text here</source>
         <translation>zde napište váš text</translation>
     </message>
     <message>
-        <location filename="../src/MultiLayer.cpp" line="643"/>
-        <location filename="../src/MultiLayer.cpp" line="704"/>
+        <location filename="../src/MultiLayer.cpp" line="638"/>
+        <location filename="../src/MultiLayer.cpp" line="699"/>
         <source>Please provide a valid file name!</source>
         <translation>Zadejte prosím platný název souboru!</translation>
     </message>
     <message>
-        <location filename="../src/MultiLayer.cpp" line="661"/>
+        <location filename="../src/MultiLayer.cpp" line="656"/>
         <source>File format not handled, operation aborted!</source>
         <translation>Neumím zpracovat formát souboru. Operace zrušena!</translation>
     </message>
     <message>
-        <location filename="../src/MultiLayer.cpp" line="289"/>
+        <location filename="../src/MultiLayer.cpp" line="284"/>
         <source>Do you want SciDAVis to rearrange the remaining layers?</source>
         <translation>Chcete aby SciDAVis znovu uspořádal zbývající vrstvy?</translation>
     </message>
     <message>
-        <location filename="../src/MultiLayer.cpp" line="288"/>
+        <location filename="../src/MultiLayer.cpp" line="283"/>
         <source>Guess best layout?</source>
         <translation>Určit automaticky nejlepší rozvržení?</translation>
     </message>
     <message>
-        <location filename="../src/MultiLayer.cpp" line="643"/>
-        <location filename="../src/MultiLayer.cpp" line="661"/>
-        <location filename="../src/MultiLayer.cpp" line="703"/>
+        <location filename="../src/MultiLayer.cpp" line="638"/>
+        <location filename="../src/MultiLayer.cpp" line="656"/>
+        <location filename="../src/MultiLayer.cpp" line="698"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
@@ -11841,14 +11784,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>PythonScripting</name>
     <message>
-        <location filename="../src/PythonScripting.cpp" line="227"/>
         <source>Failed to export SciDAVis API</source>
-        <translation>Nezdařil se export SciDAVis-API</translation>
+        <translation type="obsolete">Nezdařil se export SciDAVis-API</translation>
     </message>
     <message>
-        <location filename="../src/PythonScripting.cpp" line="228"/>
         <source>Accessing SciDAVis functions or objects from Python code won&apos;t work.Probably your version of SIP differs from the one SciDAVis was compiled against;try updating SIP or recompiling SciDAVis.</source>
-        <translation>Přistupování k funkcím a objektům SciDAVisu z Python kódu nebude fungovat. Pravděpodobně se vaše verze SIP odlišuje od té, kterou byl SciDAVis kompilován. Zkuste updatovat SIP nebo rekompilovat SciDAVis.</translation>
+        <translation type="obsolete">Přistupování k funkcím a objektům SciDAVisu z Python kódu nebude fungovat. Pravděpodobně se vaše verze SIP odlišuje od té, kterou byl SciDAVis kompilován. Zkuste updatovat SIP nebo rekompilovat SciDAVis.</translation>
     </message>
 </context>
 <context>
@@ -11861,7 +11802,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/future/matrix/future_Matrix.cpp" line="120"/>
         <location filename="../src/future/matrix/matrixcommands.cpp" line="38"/>
-        <location filename="../src/future/table/future_Table.cpp" line="178"/>
+        <location filename="../src/future/table/future_Table.cpp" line="180"/>
         <location filename="../src/future/table/tablecommands.cpp" line="44"/>
         <source>%1: insert %2 column(s)</source>
         <translation>%1: vložit %2 sloupců</translation>
@@ -11869,7 +11810,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/future/matrix/future_Matrix.cpp" line="130"/>
         <location filename="../src/future/matrix/matrixcommands.cpp" line="90"/>
-        <location filename="../src/future/table/future_Table.cpp" line="191"/>
+        <location filename="../src/future/table/future_Table.cpp" line="193"/>
         <location filename="../src/future/table/tablecommands.cpp" line="101"/>
         <source>%1: remove %2 column(s)</source>
         <translation>%1: odstranit %2 sloupců</translation>
@@ -11878,7 +11819,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../src/future/core/column/columncommands.cpp" line="244"/>
         <location filename="../src/future/matrix/future_Matrix.cpp" line="140"/>
         <location filename="../src/future/matrix/matrixcommands.cpp" line="125"/>
-        <location filename="../src/future/table/future_Table.cpp" line="211"/>
+        <location filename="../src/future/table/future_Table.cpp" line="213"/>
         <source>%1: remove %2 row(s)</source>
         <translation>%1: odstranit %2 řádků</translation>
     </message>
@@ -11886,7 +11827,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../src/future/core/column/columncommands.cpp" line="216"/>
         <location filename="../src/future/matrix/future_Matrix.cpp" line="150"/>
         <location filename="../src/future/matrix/matrixcommands.cpp" line="64"/>
-        <location filename="../src/future/table/future_Table.cpp" line="225"/>
+        <location filename="../src/future/table/future_Table.cpp" line="227"/>
         <source>%1: insert %2 row(s)</source>
         <translation>%1: vložit %2 řádků</translation>
     </message>
@@ -11898,54 +11839,54 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/future/matrix/future_Matrix.cpp" line="188"/>
         <location filename="../src/future/matrix/matrixcommands.cpp" line="160"/>
-        <location filename="../src/future/table/future_Table.cpp" line="305"/>
+        <location filename="../src/future/table/future_Table.cpp" line="307"/>
         <source>%1: clear</source>
         <translation>%1: vyčistit</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="328"/>
-        <location filename="../src/future/table/future_Table.cpp" line="677"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="329"/>
+        <location filename="../src/future/table/future_Table.cpp" line="680"/>
         <source>%1: insert empty column(s)</source>
         <translation>%1: vložit prázdné sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="352"/>
-        <location filename="../src/future/table/future_Table.cpp" line="704"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="353"/>
+        <location filename="../src/future/table/future_Table.cpp" line="707"/>
         <source>%1: remove selected column(s)</source>
         <translation>%1: odstranit vybrané sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="363"/>
-        <location filename="../src/future/table/future_Table.cpp" line="718"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="364"/>
+        <location filename="../src/future/table/future_Table.cpp" line="721"/>
         <source>%1: clear selected column(s)</source>
         <translation>%1: vyčistit vybrané sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="381"/>
-        <location filename="../src/future/table/future_Table.cpp" line="879"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="382"/>
+        <location filename="../src/future/table/future_Table.cpp" line="882"/>
         <source>%1: insert empty rows(s)</source>
         <translation>%1: vložit prázdné řádky</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="405"/>
-        <location filename="../src/future/table/future_Table.cpp" line="900"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="406"/>
+        <location filename="../src/future/table/future_Table.cpp" line="903"/>
         <source>%1: remove selected rows(s)</source>
         <translation>%1: odstranit vybrané řádky</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="420"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="421"/>
         <source>%1: clear selected rows(s)</source>
         <translation>%1: vyčistit vybrané sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="962"/>
-        <location filename="../src/future/table/future_Table.cpp" line="954"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="963"/>
+        <location filename="../src/future/table/future_Table.cpp" line="957"/>
         <source>%1: add %2 rows(s)</source>
         <translation>%1: přidat  %2 řádků</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="973"/>
-        <location filename="../src/future/table/future_Table.cpp" line="340"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="974"/>
+        <location filename="../src/future/table/future_Table.cpp" line="342"/>
         <source>%1: add %2 column(s)</source>
         <translation>%1: přidat  %2 sloupců</translation>
     </message>
@@ -11982,7 +11923,7 @@ p, li { white-space: pre-wrap; }
         <translation>%1: nastavit vzorec</translation>
     </message>
     <message>
-        <location filename="../src/ApplicationWindow.cpp" line="11851"/>
+        <location filename="../src/ApplicationWindow.cpp" line="11880"/>
         <location filename="../src/globals.cpp" line="162"/>
         <source>Released</source>
         <translation>Vydáno</translation>
@@ -12038,7 +11979,7 @@ p, li { white-space: pre-wrap; }
         <translation>%1: přesunout %2 na %3.</translation>
     </message>
     <message>
-        <location filename="../src/future/core/column/Column.cpp" line="93"/>
+        <location filename="../src/future/core/column/Column.cpp" line="94"/>
         <location filename="../src/future/core/column/columncommands.cpp" line="40"/>
         <location filename="../src/future/table/TableView.cpp" line="631"/>
         <location filename="../src/future/table/TableView.cpp" line="648"/>
@@ -12178,8 +12119,8 @@ p, li { white-space: pre-wrap; }
         <translation>neočekávaný konec dokumentu</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="829"/>
-        <location filename="../src/future/table/future_Table.cpp" line="1748"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="830"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1751"/>
         <source>%1: copy %2</source>
         <translation>%1: zkopírován %2</translation>
     </message>
@@ -12210,33 +12151,33 @@ p, li { white-space: pre-wrap; }
         <translation>ASCII-tabulka</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="238"/>
+        <location filename="../src/future/table/future_Table.cpp" line="240"/>
         <location filename="../src/future/table/tablecommands.cpp" line="73"/>
         <source>%1: set the number of rows to %2</source>
         <translation>%1: počet řádků nastaven na %2</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="317"/>
+        <location filename="../src/future/table/future_Table.cpp" line="319"/>
         <source>%1: clear all masks</source>
         <translation>%1: všechny masky odstraněny</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="329"/>
+        <location filename="../src/future/table/future_Table.cpp" line="331"/>
         <source>%1: add column</source>
         <translation>%1: přidán sloupec</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="740"/>
+        <location filename="../src/future/table/future_Table.cpp" line="743"/>
         <source>%1: set plot designation(s)</source>
         <translation>%1: vzhled grafu změněn</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="785"/>
+        <location filename="../src/future/table/future_Table.cpp" line="788"/>
         <source>%1: normalize column(s)</source>
         <translation>%1: sloupce normalizovány</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="817"/>
+        <location filename="../src/future/table/future_Table.cpp" line="820"/>
         <source>%1: normalize selection</source>
         <translation>%1: výběr.normalizován</translation>
     </message>
@@ -12257,7 +12198,7 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="915"/>
+        <location filename="../src/future/table/future_Table.cpp" line="918"/>
         <source>%1: clear selected cell(s)</source>
         <translation>%1: vyčistit vybrané buňky</translation>
     </message>
@@ -12983,7 +12924,7 @@ p, li { white-space: pre-wrap; }
         <translation>Skrýt</translation>
     </message>
     <message>
-        <location filename="../src/Table.cpp" line="1341"/>
+        <location filename="../src/Table.cpp" line="1342"/>
         <source>%1: apply formula to column</source>
         <translation>%1: použít vzorec na sloupec</translation>
     </message>
@@ -13622,320 +13563,320 @@ dvojitá přesnost
         <translation>%1:vložit ze schránky</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="442"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="443"/>
         <source>%1: clear selected cell(s)</source>
         <translation>%1: vyčistit vybrané buňky</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="535"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="536"/>
         <source>Cu&amp;t</source>
         <translation>&amp;Vyjmout</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="538"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="539"/>
         <source>&amp;Copy</source>
         <translation>&amp;Kopírovat</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="541"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="542"/>
         <source>Past&amp;e</source>
         <translation>&amp;Vložit</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="547"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="548"/>
         <source>Clea&amp;r</source>
         <comment>clear selection</comment>
         <translation>&amp;Vyčistit</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="555"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="556"/>
         <source>Assign &amp;Formula</source>
         <translation>&amp;Přiřadit vzorec</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="563"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="564"/>
         <source>Recalculate</source>
         <translation>Přepočítat</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="579"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="580"/>
         <source>Select All</source>
         <translation>Vybrat vše</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="586"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="587"/>
         <source>Clear Matrix</source>
         <translation>Vyčistit matici</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="593"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="594"/>
         <source>&amp;Go to Cell</source>
         <translation>&amp;Jít na buňku</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="613"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="614"/>
         <source>&amp;Dimensions</source>
         <comment>matrix size</comment>
         <translation>&amp;Rozměry</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="616"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="617"/>
         <source>Set &amp;Coordinates</source>
         <translation>Nastavit  &amp;souřadnice</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="619"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="620"/>
         <source>Set Display &amp;Format</source>
         <translation>Nastavit formát &amp;zobrazení</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="626"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="627"/>
         <source>&amp;Insert Empty Columns</source>
         <translation>Vložit prázdné &amp;sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="633"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="634"/>
         <source>Remo&amp;ve Columns</source>
         <translation>Odstranit &amp;sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="640"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="641"/>
         <source>Clea&amp;r Columns</source>
         <translation>Vyčistit &amp;sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="647"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="648"/>
         <source>&amp;Add Columns</source>
         <translation>Př&amp;idat sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="655"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="656"/>
         <source>&amp;Insert Empty Rows</source>
         <translation>Vložit &amp;prázdné řádky</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="662"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="663"/>
         <source>Remo&amp;ve Rows</source>
         <translation>Odstranit &amp;řádky</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="669"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="670"/>
         <source>Clea&amp;r Rows</source>
         <translation>Vyči&amp;stit řádky</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="676"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="677"/>
         <source>&amp;Add Rows</source>
         <translation>&amp;Přidat řádky</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="749"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="750"/>
         <source>&amp;Matrix</source>
         <translation>&amp;Matice</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="815"/>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="819"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="816"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="820"/>
         <source>Go to Cell</source>
         <translation>Jít na buňku</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="815"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="816"/>
         <source>Enter column</source>
         <translation>Vložit sloupec</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="819"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="820"/>
         <source>Enter row</source>
         <translation>Vložit řádek</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="887"/>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="891"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="888"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="892"/>
         <source>Set Matrix Dimensions</source>
         <translation>Nastavit rozměry matice</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="887"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="888"/>
         <source>Enter number of columns</source>
         <translation>Zadejte počet sloupců</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="891"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="892"/>
         <source>Enter number of rows</source>
         <translation>Zadejte počet řádků</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1142"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1143"/>
         <source>invalid row or column count</source>
         <translation>neplatný počet řádků nebo sloupců</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1174"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1175"/>
         <source>unknown element &apos;%1&apos;</source>
         <translation>neplatný prvek &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1183"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1184"/>
         <source>no matrix element found</source>
         <translation>nenalezen žádný prvek matice</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1196"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1197"/>
         <source>invalid or missing numeric format</source>
         <translation>neplatný nebo chybějící číselný formát</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1205"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1206"/>
         <source>invalid or missing number of displayed digits</source>
         <translation>neplatný nebo chybějící počet zobrazených destinných míst</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1224"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1225"/>
         <source>invalid x start value</source>
         <translation>neplatná počáteční hodnota X</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1232"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1233"/>
         <source>invalid x end value</source>
         <translation>neplatná koncová hodnota X</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1240"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1241"/>
         <source>invalid y start value</source>
         <translation>neplatná počáteční hodnota Y</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1248"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1249"/>
         <source>invalid y end value</source>
         <translation>neplatná koncová hodnota Y</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1271"/>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1324"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1272"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1325"/>
         <source>invalid or missing row index</source>
         <translation>neplatný nebo chybějící index řádku</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1278"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1279"/>
         <source>invalid row height</source>
         <translation>neplatná výška řádku</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1295"/>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1330"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1296"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1331"/>
         <source>invalid or missing column index</source>
         <translation>neplatný nebo chybějící index sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1302"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1303"/>
         <source>invalid column width</source>
         <translation>neplatná šířka sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1338"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1339"/>
         <source>invalid cell value</source>
         <translation>neplatná hodnota buňky</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1369"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1370"/>
         <source>Hide Controls</source>
         <translation>Skrýt ovládání</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1371"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1372"/>
         <source>Show Controls</source>
         <translation>Zobrazit ovládání</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1448"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1449"/>
         <source>Matrix</source>
         <translation>Matice</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="556"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="557"/>
         <source>Alt+Q</source>
         <translation>Alt+Q</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="564"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="565"/>
         <source>Ctrl+Return</source>
         <translation>Ctrl+Return</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="572"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="573"/>
         <source>F12</source>
         <translation>F12</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="594"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="595"/>
         <source>Ctrl+Alt+G</source>
         <translation>Ctrl+Alt+G</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="598"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="599"/>
         <source>&amp;Transpose</source>
         <translation>&amp;Transponovat</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="601"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="602"/>
         <source>Mirror &amp;Horizontally</source>
         <translation>&amp;Zrcadlit vodorovně</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="604"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="605"/>
         <source>Mirror &amp;Vertically</source>
         <translation>&amp;Zrcadlit svisle</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="607"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="608"/>
         <source>&amp;Import Image</source>
         <comment>import image as matrix</comment>
         <translation>Importovat &amp;obrázek</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="610"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="611"/>
         <source>&amp;Duplicate</source>
         <comment>duplicate matrix</comment>
         <translation>&amp;Duplikovat</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="901"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="902"/>
         <source>Images</source>
         <translation>Obrázky</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="909"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="910"/>
         <source>Import image from file</source>
         <translation>Importovat obrázek ze souboru</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="925"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="926"/>
         <source>Error importing image</source>
         <translation>Chyba při importu obrázku</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="925"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="926"/>
         <source>Import of image &apos;%1&apos; failed</source>
         <translation>Import obrázku &apos;%1&apos;selhal</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1424"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1425"/>
         <source>%1: apply formula to selection</source>
         <translation>%1: použít vzorec na výběr</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1460"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1461"/>
         <source>SciDAVis</source>
         <translation>SciDAVis</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1460"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1461"/>
         <source>Import image...</source>
         <translation>Importovat obrázek...</translation>
     </message>
     <message>
-        <location filename="../src/future/matrix/future_Matrix.cpp" line="1463"/>
+        <location filename="../src/future/matrix/future_Matrix.cpp" line="1464"/>
         <source>Matrix %1</source>
         <translation>Matice %1</translation>
     </message>
@@ -13996,37 +13937,37 @@ dvojitá přesnost
 <context>
     <name>future::Table</name>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="353"/>
+        <location filename="../src/future/table/future_Table.cpp" line="355"/>
         <source>%1: cut selected cell(s)</source>
         <translation>%1: vyjmout vybrané buňky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="415"/>
+        <location filename="../src/future/table/future_Table.cpp" line="417"/>
         <source>%1: paste from clipboard</source>
         <translation>%1: vložit ze schránky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="505"/>
+        <location filename="../src/future/table/future_Table.cpp" line="508"/>
         <source>%1: mask selected cell(s)</source>
         <translation>%1: maskovat vybrané buňky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="525"/>
+        <location filename="../src/future/table/future_Table.cpp" line="528"/>
         <source>%1: unmask selected cell(s)</source>
         <translation>%1: demaskovat vybrané buňky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="549"/>
+        <location filename="../src/future/table/future_Table.cpp" line="552"/>
         <source>%1: apply formula to selection</source>
         <translation>%1: použít vzorec na výběr</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="565"/>
+        <location filename="../src/future/table/future_Table.cpp" line="568"/>
         <source>%1: fill cells with row numbers</source>
         <translation>%1: vyplnit buňky čísly řádků</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="606"/>
+        <location filename="../src/future/table/future_Table.cpp" line="609"/>
         <source>%1: fill cells with random values</source>
         <translation>%1: vyplnit buňky náhodnými čísly</translation>
     </message>
@@ -14035,377 +13976,377 @@ dvojitá přesnost
         <translation type="obsolete">%1: vyčistit vybrané buňky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="962"/>
+        <location filename="../src/future/table/future_Table.cpp" line="965"/>
         <source>&amp;Table</source>
         <translation>&amp;Tabulka</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="964"/>
-        <location filename="../src/future/table/future_Table.cpp" line="1617"/>
+        <location filename="../src/future/table/future_Table.cpp" line="967"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1620"/>
         <source>S&amp;et Column(s) As</source>
         <translation>N&amp;astavit sloupce jako</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="976"/>
-        <location filename="../src/future/table/future_Table.cpp" line="1585"/>
-        <location filename="../src/future/table/future_Table.cpp" line="1629"/>
-        <location filename="../src/future/table/future_Table.cpp" line="1693"/>
+        <location filename="../src/future/table/future_Table.cpp" line="979"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1588"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1632"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1696"/>
         <source>Fi&amp;ll Selection with</source>
         <translation>Vyplnit &amp;výběr</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1045"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1048"/>
         <source>Cu&amp;t</source>
         <translation>&amp;Vyjmout</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1048"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1051"/>
         <source>&amp;Copy</source>
         <translation>&amp;Kopírovat</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1051"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1054"/>
         <source>Past&amp;e</source>
         <translation>&amp;Vložit</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1055"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1058"/>
         <source>&amp;Mask</source>
         <comment>mask selection</comment>
         <translation>&amp;Maskovat</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1058"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1061"/>
         <source>&amp;Unmask</source>
         <comment>unmask selection</comment>
         <translation>&amp;Odmaskovat</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1065"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1068"/>
         <source>Assign &amp;Formula</source>
         <translation>&amp;Přiřadit vzorec</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1066"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1069"/>
         <source>Alt+Q</source>
         <translation>Alt+Q</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1073"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1076"/>
         <source>Clea&amp;r</source>
         <comment>clear selection</comment>
         <translation>&amp;Vyčistit</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1080"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1083"/>
         <source>Recalculate</source>
         <translation>Přepočítat</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1081"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1084"/>
         <source>Ctrl+Return</source>
         <translation>Ctrl+Return</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1085"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1088"/>
         <source>Row Numbers</source>
         <translation>Čísly řádků</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1088"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1091"/>
         <source>Random Values</source>
         <translation>Náhodnými hodnotami</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1103"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1106"/>
         <source>F12</source>
         <translation>F12</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1107"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1110"/>
         <source>Formula Edit Mode</source>
         <translation>Režim úpravy vzorce</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1114"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1117"/>
         <source>Select All</source>
         <translation>Vybrat vše</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1121"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1124"/>
         <source>&amp;Add Column</source>
         <translation>&amp;Přidat sloupec</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1122"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1125"/>
         <source>append a new column to the table</source>
         <translation>připojit k tabulce nový sloupec</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1129"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1132"/>
         <source>Clear Table</source>
         <translation>Smazat obsah tabulky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1136"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1139"/>
         <source>Export to TeX...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1142"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1145"/>
         <source>Clear Masks</source>
         <translation>Smazat masky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1149"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1152"/>
         <source>&amp;Sort Table</source>
         <translation>&amp;Třidit tabulku</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1156"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1159"/>
         <source>&amp;Go to Cell</source>
         <translation>&amp;Jít na buňku</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1157"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1160"/>
         <source>Ctrl+Alt+G</source>
         <translation>Ctrl+Alt+G</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1161"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1164"/>
         <source>&amp;Dimensions</source>
         <comment>table size</comment>
         <translation>&amp;Rozměry</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1162"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1165"/>
         <source>change the table size</source>
         <translation>Změnit velikost tabulky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1169"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1172"/>
         <source>&amp;Insert Empty Columns</source>
         <translation>&amp;Vložit prázdné sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1176"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1179"/>
         <source>Remo&amp;ve Columns</source>
         <translation>Odstranit &amp;sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1183"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1186"/>
         <source>Clea&amp;r Columns</source>
         <translation>Smazat obsah &amp;sloupců</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1190"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1193"/>
         <source>&amp;Add Columns</source>
         <translation>&amp;/Přidat sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1194"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1197"/>
         <source>X</source>
         <comment>plot designation</comment>
         <translation>X</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1197"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1200"/>
         <source>Y</source>
         <comment>plot designation</comment>
         <translation>Y</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1200"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1203"/>
         <source>Z</source>
         <comment>plot designation</comment>
         <translation>Z</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1206"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1209"/>
         <source>X Error</source>
         <comment>plot designation</comment>
         <translation>X-chyba</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1213"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1216"/>
         <source>Y Error</source>
         <comment>plot designation</comment>
         <translation>Y-chyba</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1217"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1220"/>
         <source>None</source>
         <comment>plot designation</comment>
         <translation>Žádné</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1223"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1226"/>
         <source>&amp;Normalize Columns</source>
         <translation>Normalizovat &amp;sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1230"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1233"/>
         <source>&amp;Normalize Selection</source>
         <translation>Normalizovat &amp;výběr</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1237"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1240"/>
         <source>&amp;Sort Columns</source>
         <translation>&amp;Třídit sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1241"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1244"/>
         <source>Column Statisti&amp;cs</source>
         <translation>S&amp;tatistika sloupců</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1242"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1245"/>
         <source>statistics on columns</source>
         <translation>Statistika ve sloupcích</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1248"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1251"/>
         <source>Change &amp;Type &amp;&amp; Format</source>
         <translation>Změnit &amp;formát &amp;&amp; typ</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1249"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1252"/>
         <source>Ctrl+Alt+O</source>
         <translation>Ctrl+Alt+O</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1256"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1259"/>
         <source>Edit Column &amp;Description</source>
         <translation>Upravit &amp;popis sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1264"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1267"/>
         <source>&amp;Insert Empty Rows</source>
         <translation>Vložit prázdné &amp;řádky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1271"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1274"/>
         <source>Remo&amp;ve Rows</source>
         <translation>Odstranit &amp;řádky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1278"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1281"/>
         <source>Clea&amp;r Rows</source>
         <translation>Smazat &amp;obsah řádků</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1285"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1288"/>
         <source>&amp;Add Rows</source>
         <translation>&amp;Přidat řádky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1289"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1292"/>
         <source>Row Statisti&amp;cs</source>
         <translation>&amp;Statistika řádků</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1290"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1293"/>
         <source>statistics on rows</source>
         <translation>Statisitka v řádcích</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1495"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1498"/>
         <source>TeX Export Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1496"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1499"/>
         <source>Could not write to file: &lt;br&gt;&lt;h4&gt;%1&lt;/h4&gt;&lt;p&gt;Please verify that you have the right to write to this location!</source>
         <translation type="unfinished">Nemohu zapisovat do souboru: &lt;br&gt;&lt;h4&gt; %1 &lt;/h4&gt;&lt;p&gt;Prosím zkontrolujte zda máte práva k zápisu!</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1708"/>
-        <location filename="../src/future/table/future_Table.cpp" line="1712"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1711"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1715"/>
         <source>Go to Cell</source>
         <translation>Jít na buňku</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1708"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1711"/>
         <source>Enter column</source>
         <translation>Zadat sloupec</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1712"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1715"/>
         <source>Enter row</source>
         <translation>Zadat řádek</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1724"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1727"/>
         <source>Set Table Dimensions</source>
         <translation>Nastavit rozměry tabulky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1739"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1742"/>
         <source>%1: move column %2 from position %3 to %4.</source>
         <translation>%1: přesunout sloupec %2 z pozice %3 na %4.</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="1874"/>
+        <location filename="../src/future/table/future_Table.cpp" line="1877"/>
         <source>%1: sort column(s)</source>
         <translation>%1: Řadit sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2253"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2256"/>
         <source>invalid row or column count</source>
         <translation>neplatný počet řádků nebo sloupců</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2273"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2276"/>
         <source>Column %1</source>
         <translation>Sloupec %1</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2289"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2292"/>
         <source>unknown element &apos;%1&apos;</source>
         <translation>neznámý prvek &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2295"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2298"/>
         <source>columns attribute and number of read columns do not match</source>
         <translation>Atribut sloupců a počet čtených sloupců nesouhlasí</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2298"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2301"/>
         <source>no table element found</source>
         <translation>Nenalezen žádný atribut prvku tabulky</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2309"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2312"/>
         <source>Hide Comments</source>
         <translation>Skrýt komentáře</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2311"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2314"/>
         <source>Show Comments</source>
         <translation>Zobrazit komentáře</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2315"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2318"/>
         <source>Hide Controls</source>
         <translation>Skrýt ovládání</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2317"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2320"/>
         <source>Show Controls</source>
         <translation>Zobrazit ovládání</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2328"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2331"/>
         <source>invalid or missing column index</source>
         <translation>neplatný nebo chybějící index sloupců</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2335"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2338"/>
         <source>invalid column width</source>
         <translation>neplatná šířka sloupce</translation>
     </message>
     <message>
-        <location filename="../src/future/table/future_Table.cpp" line="2372"/>
+        <location filename="../src/future/table/future_Table.cpp" line="2375"/>
         <source>Table</source>
         <translation>Tabulka</translation>
     </message>

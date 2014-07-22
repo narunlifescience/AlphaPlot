@@ -38,6 +38,9 @@
 
 #include <iostream>
 
+#define str(x) xstr(x)
+#define xstr(x) #x
+
 #if PY_VERSION_HEX < 0x020400A1
 typedef struct _traceback {
 	PyObject_HEAD
@@ -181,81 +184,89 @@ QString PythonScripting::errorMsg()
 PythonScripting::PythonScripting(ApplicationWindow *parent)
 	: ScriptingEnv(parent, langName)
 {
-	PyObject *mainmod=NULL, *scidavismod=NULL, *sysmod=NULL;
-	math = NULL;
-	sys = NULL;
-	d_initialized = false;
-	if (Py_IsInitialized())
-	{
-//		PyEval_AcquireLock();
-		mainmod = PyImport_ImportModule("__main__");
-		if (!mainmod)
-		{
-			PyErr_Print();
-//			PyEval_ReleaseLock();
-			return;
-		}
-		globals = PyModule_GetDict(mainmod);
-		Py_DECREF(mainmod);
-	} else {
-//		PyEval_InitThreads ();
-		Py_Initialize ();
-		if (!Py_IsInitialized ())
-			return;
-#ifdef SIP_STATIC_MODULE
-                initsip();
-                initQtCore();
-                initQtGui();
+  PyObject *mainmod=NULL, *scidavismod=NULL, *sysmod=NULL;
+  math = NULL;
+  sys = NULL;
+  d_initialized = false;
+  if (Py_IsInitialized())
+    {
+      //		PyEval_AcquireLock();
+      mainmod = PyImport_ImportModule("__main__");
+      if (!mainmod)
+        {
+          PyErr_Print();
+          //			PyEval_ReleaseLock();
+          return;
+        }
+      globals = PyModule_GetDict(mainmod);
+      Py_DECREF(mainmod);
+    } else {
+    // if we need to bundle Python libraries with the executable,
+    // specify the library location here
+#ifdef PYTHONHOME
+    Py_SetPythonHome(str(PYTHONHOME));
 #endif
-		initscidavis();
+    //		PyEval_InitThreads ();
+    Py_Initialize ();
+    if (!Py_IsInitialized ())
+      return;
 
-		mainmod = PyImport_AddModule("__main__");
-		if (!mainmod)
-		{
-//			PyEval_ReleaseLock();
-			PyErr_Print();
-			return;
-		}
-		globals = PyModule_GetDict(mainmod);
-	}
 
-	if (!globals)
-	{
-		PyErr_Print();
-//		PyEval_ReleaseLock();
-		return;
-	}
-	Py_INCREF(globals);
+#ifdef SIP_STATIC_MODULE
+    initsip();
+    initQtCore();
+    initQtGui();
+#endif
+    initscidavis();
 
-	math = PyDict_New();
-	if (!math)
-		PyErr_Print();
+    mainmod = PyImport_AddModule("__main__");
+    if (!mainmod)
+      {
+        //			PyEval_ReleaseLock();
+        PyErr_Print();
+        return;
+      }
+    globals = PyModule_GetDict(mainmod);
+  }
 
-	scidavismod = PyImport_ImportModule("scidavis");
-	if (scidavismod)
-	{
-		PyDict_SetItemString(globals, "scidavis", scidavismod);
-		PyObject *scidavisDict = PyModule_GetDict(scidavismod);
-		if (!setQObject(d_parent, "app", scidavisDict))
-			QMessageBox::warning(d_parent, tr("Failed to export SciDAVis API"),
-					tr("Accessing SciDAVis functions or objects from Python code won't work."\
-						"Probably your version of SIP differs from the one SciDAVis was compiled against;"\
-						"try updating SIP or recompiling SciDAVis."));
-		PyDict_SetItemString(scidavisDict, "mathFunctions", math);
-		Py_DECREF(scidavismod);
-	} else
-		PyErr_Print();
+  if (!globals)
+    {
+      PyErr_Print();
+      //		PyEval_ReleaseLock();
+      return;
+    }
+  Py_INCREF(globals);
 
-	sysmod = PyImport_ImportModule("sys");
-	if (sysmod)
-	{
-		sys = PyModule_GetDict(sysmod);
-		Py_INCREF(sys);
-	} else
-		PyErr_Print();
+  math = PyDict_New();
+  if (!math)
+    PyErr_Print();
 
-//	PyEval_ReleaseLock();
-	d_initialized = true;
+  scidavismod = PyImport_ImportModule("scidavis");
+  if (scidavismod)
+    {
+      PyDict_SetItemString(globals, "scidavis", scidavismod);
+      PyObject *scidavisDict = PyModule_GetDict(scidavismod);
+      if (!setQObject(d_parent, "app", scidavisDict))
+        QMessageBox::warning
+          (d_parent, tr("Failed to export SciDAVis API"),
+           tr("Accessing SciDAVis functions or objects from Python code won't work." 
+              "Probably your version of SIP differs from the one SciDAVis was compiled against;" 
+              "try updating SIP or recompiling SciDAVis."));
+      PyDict_SetItemString(scidavisDict, "mathFunctions", math);
+      Py_DECREF(scidavismod);
+    } else
+    PyErr_Print();
+
+  sysmod = PyImport_ImportModule("sys");
+  if (sysmod)
+    {
+      sys = PyModule_GetDict(sysmod);
+      Py_INCREF(sys);
+    } else
+    PyErr_Print();
+
+  //	PyEval_ReleaseLock();
+  d_initialized = true;
 }
 
 bool PythonScripting::initialize()

@@ -2,414 +2,317 @@
 ###################### PROJECT FILES SECTION ################################
 #############################################################################
 
-###################### ICONS ################################################
-RESOURCES    +=        appicons.qrc
-RESOURCES    +=        icons.qrc
-RC_FILE      =         scidavis.rc
-
-win32 {
-  win_icon.files = icons/scidavis.ico
-  win_icon.path = "$$INSTALLBASE"
-}
-
-###################### TRANSLATIONS #########################################
-
-TRANSLATIONS    = translations/scidavis_de.ts \
-                  translations/scidavis_es.ts \
-                  translations/scidavis_fr.ts \
-                  translations/scidavis_ru.ts \
-                  translations/scidavis_ja.ts \
-                  translations/scidavis_sv.ts \
-                  translations/scidavis_pt-br.ts \
-                  translations/scidavis_cs.ts \
-                  translations/scidavis_cs-alt.ts \
-
-contains( INSTALLS, translationfiles ){
-    exists(translations/scidavis_de.ts){
-        translationfiles.files =     translations/scidavis_de.qm \
-                             translations/scidavis_es.qm \
-                             translations/scidavis_fr.qm \
-                             translations/scidavis_ru.qm \
-                             translations/scidavis_ja.qm \
-                             translations/scidavis_sv.qm \
-                             translations/scidavis_pt-br.qm \
-                             translations/scidavis_cs.qm \
-                             translations/scidavis_cs-alt.qm \
-
-        unix: tstarget.target = translations/scidavis_de.qm
-        win32: tstarget.target = translations\scidavis_de.qm
-# note the translation files are not writable during AEGIS
-# integration, so we don't want to perform an update then
-        tstarget.commands = (! test -w translations/scidavis_de.ts || $$LUPDATE_BIN scidavis.pro) && $$LRELEASE_BIN scidavis.pro
-
-        QMAKE_EXTRA_TARGETS += tstarget
-        PRE_TARGETDEPS += translations/scidavis_de.qm
-    }
-    !exists(translations/scidavis_de.ts){
-        message("=======================================")   
-        message("Could not find translation (.ts) files.")   
-        message("=======================================")   
-    }
-}
-
-###################### DOCUMENTATION ########################################
-
-documentation.files += ../manual/html \
-                       ../INSTALL.html \
-                       ../scidavis.css \
-                       ../scidavis-logo.png \
-                       ../README \
-                       ../CHANGES \
-                       ../gpl.txt 
-
-###################### DESKTOP INTEGRATION ##################################
-
-unix {
-	desktop_entry.files = scidavis.desktop
-	desktop_entry.path = "$$INSTALLBASE/share/applications"
-
-	mime_package.files = scidavis.xml
-	mime_package.path = "$$INSTALLBASE/share/mime/packages"
-
-	#deprecated
-	mime_link.files = x-sciprj.desktop
-	mime_link.path = "$$INSTALLBASE/share/mimelnk/application"
-	
-	contains(INSTALLS, icons) {
-		# scalable icon
-		icons.files = icons/scidavis.svg
-		icons.path = "$$INSTALLBASE/share/icons/hicolor/scalable/apps"
-
-		# hicolor icons for different resolutions
-		resolutions = 16 22 32 48 64 128
-		for(res, resolutions) {
-			eval(icon_hicolor_$${res}.files = icons/hicolor-$${res}/scidavis.png)
-			eval(icon_hicolor_$${res}.path = "$$INSTALLBASE/share/icons/hicolor/$${res}x$${res}/apps")
-			INSTALLS += icon_hicolor_$${res}
-		}
-
-		# locolor icons for different resolutions
-		resolutions = 16 22 32
-		for(res, resolutions) {
-			eval(icon_locolor_$${res}.files = icons/locolor-$${res}/scidavis.png)
-			eval(icon_locolor_$${res}.path = "$$INSTALLBASE/share/icons/locolor/$${res}x$${res}/apps")
-
-			INSTALLS += icon_locolor_$${res}
-		}
-	}
-}
 
 ###################### HEADERS ##############################################
 
-HEADERS  += src/ApplicationWindow.h \
-            src/globals.h\
-            src/Graph.h \
-            src/Graph3D.h \
-            src/Table.h \
-            src/CurvesDialog.h \
-            src/PlotDialog.h \
-            src/Plot3DDialog.h \
-            src/PlotWizard.h \
-            src/ExportDialog.h \
-            src/AxesDialog.h \
-            src/PolynomFitDialog.h \
-            src/ExpDecayDialog.h \
-            src/FunctionDialog.h \
-            src/FitDialog.h \
-            src/SurfaceDialog.h \
-            src/TextDialog.h \
-            src/LineDialog.h \
-            src/ScalePicker.h \
-            src/TitlePicker.h \
-            src/CanvasPicker.h \
-            src/PlotCurve.h \
-            src/QwtErrorPlotCurve.h \
-            src/QwtPieCurve.h \
-            src/ErrDialog.h \
-            src/Legend.h \
-            src/ArrowMarker.h \
-            src/ImageMarker.h \
-            src/ImageDialog.h \
-            src/fit_gsl.h \
-            src/MultiLayer.h\
-            src/LayerDialog.h \
-            src/IntDialog.h \
-            src/Bar.h \
-            src/Cone3D.h \
-            src/ConfigDialog.h \
-            src/QwtBarCurve.h \
-            src/BoxCurve.h \
-            src/QwtHistogram.h \
-            src/VectorCurve.h \
-            src/ScaleDraw.h \
-            src/Matrix.h \
-            src/DataSetDialog.h \
-            src/MyParser.h \
-            src/ColorBox.h \
-            src/SymbolBox.h \
-            src/PatternBox.h \
-            src/SymbolDialog.h \
-            src/Plot.h \
-            src/ColorButton.h \
-            src/AssociationsDialog.h \
-            src/RenameWindowDialog.h \
-            src/MyWidget.h \
-            src/InterpolationDialog.h\
-            src/ImportASCIIDialog.h \
-            src/ImageExportDialog.h\
-            src/SmoothCurveDialog.h\
-            src/FilterDialog.h\
-            src/FFTDialog.h\
-            src/Note.h\
-            src/Folder.h\
-            src/FindDialog.h\
-            src/ScriptingEnv.h\
-            src/Script.h\
-            src/ScriptEdit.h\
-            src/FunctionCurve.h\
-            src/Fit.h\
-            src/MultiPeakFit.h\
-            src/ExponentialFit.h\
-            src/PolynomialFit.h\
-            src/NonLinearFit.h\
-            src/PluginFit.h\
-            src/SigmoidalFit.h\
-            src/customevents.h\
-            src/ScriptingLangDialog.h\
-            src/TextFormatButtons.h\
-            src/TableStatistics.h\
-            src/Spectrogram.h\
-            src/ColorMapEditor.h\
-            src/SelectionMoveResizer.h\
-            src/Filter.h\
-            src/Differentiation.h\
-            src/Integration.h\
-            src/Interpolation.h\
-            src/SmoothFilter.h\
-            src/FFTFilter.h\
-            src/FFT.h\
-            src/Convolution.h\
-            src/Correlation.h\
-            src/PlotToolInterface.h\
-            src/ScreenPickerTool.h\
-            src/DataPickerTool.h\
-            src/RangeSelectorTool.h\
-            src/TranslateCurveTool.h\
-            src/MultiPeakFitTool.h\
-            src/CurveRangeDialog.h\
-            src/LineProfileTool.h\
-            src/PlotEnrichement.h\
-            src/ExtensibleFileDialog.h\
-            src/OpenProjectDialog.h\
-        src/Grid.h\
-            src/DataPointPicker.h \
-            src/TeXTableSettings.h \
-            src/TeXTableSettingsWidget.h \
-            src/TeXTableExportDialog.h \
+HEADERS  += ../scidavis/src/ApplicationWindow.h \
+            ../scidavis/src/globals.h\
+            ../scidavis/src/Graph.h \
+            ../scidavis/src/Graph3D.h \
+            ../scidavis/src/Table.h \
+            ../scidavis/src/CurvesDialog.h \
+            ../scidavis/src/PlotDialog.h \
+            ../scidavis/src/Plot3DDialog.h \
+            ../scidavis/src/PlotWizard.h \
+            ../scidavis/src/ExportDialog.h \
+            ../scidavis/src/AxesDialog.h \
+            ../scidavis/src/PolynomFitDialog.h \
+            ../scidavis/src/ExpDecayDialog.h \
+            ../scidavis/src/FunctionDialog.h \
+            ../scidavis/src/FitDialog.h \
+            ../scidavis/src/SurfaceDialog.h \
+            ../scidavis/src/TextDialog.h \
+            ../scidavis/src/LineDialog.h \
+            ../scidavis/src/ScalePicker.h \
+            ../scidavis/src/TitlePicker.h \
+            ../scidavis/src/CanvasPicker.h \
+            ../scidavis/src/PlotCurve.h \
+            ../scidavis/src/QwtErrorPlotCurve.h \
+            ../scidavis/src/QwtPieCurve.h \
+            ../scidavis/src/ErrDialog.h \
+            ../scidavis/src/Legend.h \
+            ../scidavis/src/ArrowMarker.h \
+            ../scidavis/src/ImageMarker.h \
+            ../scidavis/src/ImageDialog.h \
+            ../scidavis/src/fit_gsl.h \
+            ../scidavis/src/MultiLayer.h\
+            ../scidavis/src/LayerDialog.h \
+            ../scidavis/src/IntDialog.h \
+            ../scidavis/src/Bar.h \
+            ../scidavis/src/Cone3D.h \
+            ../scidavis/src/ConfigDialog.h \
+            ../scidavis/src/QwtBarCurve.h \
+            ../scidavis/src/BoxCurve.h \
+            ../scidavis/src/QwtHistogram.h \
+            ../scidavis/src/VectorCurve.h \
+            ../scidavis/src/ScaleDraw.h \
+            ../scidavis/src/Matrix.h \
+            ../scidavis/src/DataSetDialog.h \
+            ../scidavis/src/MyParser.h \
+            ../scidavis/src/ColorBox.h \
+            ../scidavis/src/SymbolBox.h \
+            ../scidavis/src/PatternBox.h \
+            ../scidavis/src/SymbolDialog.h \
+            ../scidavis/src/Plot.h \
+            ../scidavis/src/ColorButton.h \
+            ../scidavis/src/AssociationsDialog.h \
+            ../scidavis/src/RenameWindowDialog.h \
+            ../scidavis/src/MyWidget.h \
+            ../scidavis/src/InterpolationDialog.h\
+            ../scidavis/src/ImportASCIIDialog.h \
+            ../scidavis/src/ImageExportDialog.h\
+            ../scidavis/src/SmoothCurveDialog.h\
+            ../scidavis/src/FilterDialog.h\
+            ../scidavis/src/FFTDialog.h\
+            ../scidavis/src/Note.h\
+            ../scidavis/src/Folder.h\
+            ../scidavis/src/FindDialog.h\
+            ../scidavis/src/ScriptingEnv.h\
+            ../scidavis/src/Script.h\
+            ../scidavis/src/ScriptEdit.h\
+            ../scidavis/src/FunctionCurve.h\
+            ../scidavis/src/Fit.h\
+            ../scidavis/src/MultiPeakFit.h\
+            ../scidavis/src/ExponentialFit.h\
+            ../scidavis/src/PolynomialFit.h\
+            ../scidavis/src/NonLinearFit.h\
+            ../scidavis/src/PluginFit.h\
+            ../scidavis/src/SigmoidalFit.h\
+            ../scidavis/src/customevents.h\
+            ../scidavis/src/ScriptingLangDialog.h\
+            ../scidavis/src/TextFormatButtons.h\
+            ../scidavis/src/TableStatistics.h\
+            ../scidavis/src/Spectrogram.h\
+            ../scidavis/src/ColorMapEditor.h\
+            ../scidavis/src/SelectionMoveResizer.h\
+            ../scidavis/src/Filter.h\
+            ../scidavis/src/Differentiation.h\
+            ../scidavis/src/Integration.h\
+            ../scidavis/src/Interpolation.h\
+            ../scidavis/src/SmoothFilter.h\
+            ../scidavis/src/FFTFilter.h\
+            ../scidavis/src/FFT.h\
+            ../scidavis/src/Convolution.h\
+            ../scidavis/src/Correlation.h\
+            ../scidavis/src/PlotToolInterface.h\
+            ../scidavis/src/ScreenPickerTool.h\
+            ../scidavis/src/DataPickerTool.h\
+            ../scidavis/src/RangeSelectorTool.h\
+            ../scidavis/src/TranslateCurveTool.h\
+            ../scidavis/src/MultiPeakFitTool.h\
+            ../scidavis/src/CurveRangeDialog.h\
+            ../scidavis/src/LineProfileTool.h\
+            ../scidavis/src/PlotEnrichement.h\
+            ../scidavis/src/ExtensibleFileDialog.h\
+            ../scidavis/src/OpenProjectDialog.h\
+        ../scidavis/src/Grid.h\
+            ../scidavis/src/DataPointPicker.h \
+            ../scidavis/src/TeXTableSettings.h \
+            ../scidavis/src/TeXTableSettingsWidget.h \
+            ../scidavis/src/TeXTableExportDialog.h \
 
 
 ###################### SOURCES ##############################################
 
-SOURCES  += src/ApplicationWindow.cpp \
-            src/Graph.cpp \
-            src/Graph3D.cpp \
-            src/Table.cpp \
-            src/CurvesDialog.cpp \
-            src/PlotDialog.cpp \
-            src/Plot3DDialog.cpp \
-            src/PlotWizard.cpp \
-            src/ExportDialog.cpp \
-            src/AxesDialog.cpp \
-            src/PolynomFitDialog.cpp \
-            src/TextDialog.cpp \
-            src/ScalePicker.cpp\
-            src/TitlePicker.cpp \
-            src/CanvasPicker.cpp \
-            src/ExpDecayDialog.cpp \
-            src/FunctionDialog.cpp \
-            src/FitDialog.cpp \
-            src/SurfaceDialog.cpp \
-            src/LineDialog.cpp \
-            src/PlotCurve.cpp \
-            src/QwtErrorPlotCurve.cpp \
-            src/QwtPieCurve.cpp \
-            src/ErrDialog.cpp \
-            src/Legend.cpp \
-            src/ArrowMarker.cpp \
-            src/ImageMarker.cpp \
-            src/ImageDialog.cpp \
-            src/MultiLayer.cpp\
-            src/LayerDialog.cpp \
-            src/IntDialog.cpp \
-            src/Bar.cpp \
-            src/Cone3D.cpp \
-            src/DataSetDialog.cpp \
-            src/ConfigDialog.cpp \
-            src/QwtBarCurve.cpp \
-            src/BoxCurve.cpp \
-            src/QwtHistogram.cpp \
-            src/VectorCurve.cpp \
-            src/Matrix.cpp \
-            src/MyParser.cpp\
-            src/ColorBox.cpp \
-            src/SymbolBox.cpp \
-            src/PatternBox.cpp \
-            src/main.cpp \
-            src/SymbolDialog.cpp \
-            src/Plot.cpp \
-            src/ColorButton.cpp \
-            src/AssociationsDialog.cpp \
-            src/RenameWindowDialog.cpp \
-            src/MyWidget.cpp\
-            src/InterpolationDialog.cpp\
-            src/fit_gsl.cpp\
-            src/SmoothCurveDialog.cpp\
-            src/FilterDialog.cpp\
-            src/FFTDialog.cpp\
-            src/Note.cpp\
-            src/Folder.cpp\
-            src/FindDialog.cpp\
-            src/TextFormatButtons.cpp\
-            src/ScriptEdit.cpp\
-            src/ImportASCIIDialog.cpp\
-            src/ImageExportDialog.cpp\
-            src/ScaleDraw.cpp\
-            src/FunctionCurve.cpp\
-            src/Fit.cpp\
-            src/MultiPeakFit.cpp\
-            src/ExponentialFit.cpp\
-            src/PolynomialFit.cpp\
-            src/PluginFit.cpp\
-            src/NonLinearFit.cpp\
-            src/SigmoidalFit.cpp\
-            src/ScriptingEnv.cpp\
-            src/Script.cpp\
-            src/ScriptingLangDialog.cpp\
-            src/TableStatistics.cpp\
-            src/Spectrogram.cpp\
-            src/ColorMapEditor.cpp\
-            src/SelectionMoveResizer.cpp\
-            src/Filter.cpp\
-            src/Differentiation.cpp\
-            src/Integration.cpp\
-            src/Interpolation.cpp\
-            src/SmoothFilter.cpp\
-            src/FFTFilter.cpp\
-            src/FFT.cpp\
-            src/Convolution.cpp\
-            src/Correlation.cpp\
-            src/ScreenPickerTool.cpp\
-            src/DataPickerTool.cpp\
-            src/RangeSelectorTool.cpp\
-            src/TranslateCurveTool.cpp\
-            src/MultiPeakFitTool.cpp\
-            src/CurveRangeDialog.cpp\
-            src/LineProfileTool.cpp\
-            src/PlotEnrichement.cpp\
-            src/ExtensibleFileDialog.cpp\
-            src/OpenProjectDialog.cpp\
-            src/Grid.cpp\
-            src/globals.cpp \
-            src/DataPointPicker.cpp \
-            src/TeXTableSettings.cpp \
-            src/TeXTableSettingsWidget.cpp \
-            src/TeXTableExportDialog.cpp \
-            src/version.cpp \
+SOURCES  += ../scidavis/src/ApplicationWindow.cpp \
+            ../scidavis/src/Graph.cpp \
+            ../scidavis/src/Graph3D.cpp \
+            ../scidavis/src/Table.cpp \
+            ../scidavis/src/CurvesDialog.cpp \
+            ../scidavis/src/PlotDialog.cpp \
+            ../scidavis/src/Plot3DDialog.cpp \
+            ../scidavis/src/PlotWizard.cpp \
+            ../scidavis/src/ExportDialog.cpp \
+            ../scidavis/src/AxesDialog.cpp \
+            ../scidavis/src/PolynomFitDialog.cpp \
+            ../scidavis/src/TextDialog.cpp \
+            ../scidavis/src/ScalePicker.cpp\
+            ../scidavis/src/TitlePicker.cpp \
+            ../scidavis/src/CanvasPicker.cpp \
+            ../scidavis/src/ExpDecayDialog.cpp \
+            ../scidavis/src/FunctionDialog.cpp \
+            ../scidavis/src/FitDialog.cpp \
+            ../scidavis/src/SurfaceDialog.cpp \
+            ../scidavis/src/LineDialog.cpp \
+            ../scidavis/src/PlotCurve.cpp \
+            ../scidavis/src/QwtErrorPlotCurve.cpp \
+            ../scidavis/src/QwtPieCurve.cpp \
+            ../scidavis/src/ErrDialog.cpp \
+            ../scidavis/src/Legend.cpp \
+            ../scidavis/src/ArrowMarker.cpp \
+            ../scidavis/src/ImageMarker.cpp \
+            ../scidavis/src/ImageDialog.cpp \
+            ../scidavis/src/MultiLayer.cpp\
+            ../scidavis/src/LayerDialog.cpp \
+            ../scidavis/src/IntDialog.cpp \
+            ../scidavis/src/Bar.cpp \
+            ../scidavis/src/Cone3D.cpp \
+            ../scidavis/src/DataSetDialog.cpp \
+            ../scidavis/src/ConfigDialog.cpp \
+            ../scidavis/src/QwtBarCurve.cpp \
+            ../scidavis/src/BoxCurve.cpp \
+            ../scidavis/src/QwtHistogram.cpp \
+            ../scidavis/src/VectorCurve.cpp \
+            ../scidavis/src/Matrix.cpp \
+            ../scidavis/src/MyParser.cpp\
+            ../scidavis/src/ColorBox.cpp \
+            ../scidavis/src/SymbolBox.cpp \
+            ../scidavis/src/PatternBox.cpp \
+            ../scidavis/src/SymbolDialog.cpp \
+            ../scidavis/src/Plot.cpp \
+            ../scidavis/src/ColorButton.cpp \
+            ../scidavis/src/AssociationsDialog.cpp \
+            ../scidavis/src/RenameWindowDialog.cpp \
+            ../scidavis/src/MyWidget.cpp\
+            ../scidavis/src/InterpolationDialog.cpp\
+            ../scidavis/src/fit_gsl.cpp\
+            ../scidavis/src/SmoothCurveDialog.cpp\
+            ../scidavis/src/FilterDialog.cpp\
+            ../scidavis/src/FFTDialog.cpp\
+            ../scidavis/src/Note.cpp\
+            ../scidavis/src/Folder.cpp\
+            ../scidavis/src/FindDialog.cpp\
+            ../scidavis/src/TextFormatButtons.cpp\
+            ../scidavis/src/ScriptEdit.cpp\
+            ../scidavis/src/ImportASCIIDialog.cpp\
+            ../scidavis/src/ImageExportDialog.cpp\
+            ../scidavis/src/ScaleDraw.cpp\
+            ../scidavis/src/FunctionCurve.cpp\
+            ../scidavis/src/Fit.cpp\
+            ../scidavis/src/MultiPeakFit.cpp\
+            ../scidavis/src/ExponentialFit.cpp\
+            ../scidavis/src/PolynomialFit.cpp\
+            ../scidavis/src/PluginFit.cpp\
+            ../scidavis/src/NonLinearFit.cpp\
+            ../scidavis/src/SigmoidalFit.cpp\
+            ../scidavis/src/ScriptingEnv.cpp\
+            ../scidavis/src/Script.cpp\
+            ../scidavis/src/ScriptingLangDialog.cpp\
+            ../scidavis/src/TableStatistics.cpp\
+            ../scidavis/src/Spectrogram.cpp\
+            ../scidavis/src/ColorMapEditor.cpp\
+            ../scidavis/src/SelectionMoveResizer.cpp\
+            ../scidavis/src/Filter.cpp\
+            ../scidavis/src/Differentiation.cpp\
+            ../scidavis/src/Integration.cpp\
+            ../scidavis/src/Interpolation.cpp\
+            ../scidavis/src/SmoothFilter.cpp\
+            ../scidavis/src/FFTFilter.cpp\
+            ../scidavis/src/FFT.cpp\
+            ../scidavis/src/Convolution.cpp\
+            ../scidavis/src/Correlation.cpp\
+            ../scidavis/src/ScreenPickerTool.cpp\
+            ../scidavis/src/DataPickerTool.cpp\
+            ../scidavis/src/RangeSelectorTool.cpp\
+            ../scidavis/src/TranslateCurveTool.cpp\
+            ../scidavis/src/MultiPeakFitTool.cpp\
+            ../scidavis/src/CurveRangeDialog.cpp\
+            ../scidavis/src/LineProfileTool.cpp\
+            ../scidavis/src/PlotEnrichement.cpp\
+            ../scidavis/src/ExtensibleFileDialog.cpp\
+            ../scidavis/src/OpenProjectDialog.cpp\
+            ../scidavis/src/Grid.cpp\
+            ../scidavis/src/globals.cpp \
+            ../scidavis/src/DataPointPicker.cpp \
+            ../scidavis/src/TeXTableSettings.cpp \
+            ../scidavis/src/TeXTableSettingsWidget.cpp \
+            ../scidavis/src/TeXTableExportDialog.cpp \
+            ../scidavis/src/version.cpp \
 
 ###################### FORMS ##############################################
-FORMS +=   src/SciDAVisAbout.ui
+FORMS +=   ../scidavis/src/SciDAVisAbout.ui
 
 ########### Future code backported from the aspect framework ##################
 DEFINES += LEGACY_CODE_0_2_x
 INCLUDEPATH  += src
-INCLUDEPATH  += src/future
+INCLUDEPATH  += ../scidavis/src/future
 
-FORMS += src/future/matrix/matrixcontroltabs.ui \
-         src/future/core/ProjectConfigPage.ui \
-		 src/future/table/controltabs.ui \
-		 src/future/table/DimensionsDialog.ui
+FORMS += ../scidavis/src/future/matrix/matrixcontroltabs.ui \
+         ../scidavis/src/future/core/ProjectConfigPage.ui \
+		 ../scidavis/src/future/table/controltabs.ui \
+		 ../scidavis/src/future/table/DimensionsDialog.ui
 
-HEADERS += src/future/core/AbstractAspect.h \
-           src/future/core/AbstractPart.h \
-           src/future/core/AspectPrivate.h \
-           src/future/core/aspectcommands.h \
-           src/future/core/future_Folder.h \
-           src/future/core/Project.h \
-           src/future/core/ProjectConfigPage.h \
-           src/future/core/PartMdiView.h \
-           src/future/core/AbstractColumn.h \
-           src/future/core/column/Column.h \
-           src/future/core/column/ColumnPrivate.h \
-           src/future/core/column/columncommands.h \
-           src/future/core/AbstractFilter.h \
-           src/future/core/AbstractSimpleFilter.h \
-           src/future/core/datatypes/SimpleCopyThroughFilter.h \
-           src/future/core/datatypes/DateTime2DoubleFilter.h \
-           src/future/core/datatypes/DateTime2StringFilter.h \
-           src/future/core/datatypes/DayOfWeek2DoubleFilter.h \
-           src/future/core/datatypes/Double2DateTimeFilter.h \
-           src/future/core/datatypes/Double2DayOfWeekFilter.h \
-           src/future/core/datatypes/Double2MonthFilter.h \
-           src/future/core/datatypes/Double2StringFilter.h \
-           src/future/core/datatypes/Month2DoubleFilter.h \
-           src/future/core/datatypes/String2DateTimeFilter.h \
-           src/future/core/datatypes/String2DayOfWeekFilter.h \
-           src/future/core/datatypes/String2DoubleFilter.h \
-           src/future/core/datatypes/String2MonthFilter.h \
-           src/future/lib/macros.h \
-           src/future/lib/XmlStreamReader.h \
-           src/future/lib/ActionManager.h \
-           src/future/lib/ConfigPageWidget.h \
-           src/future/lib/Interval.h \
-           src/future/lib/IntervalAttribute.h \
-           src/future/matrix/future_Matrix.h \
-           src/future/matrix/MatrixModel.h \
-           src/future/matrix/MatrixView.h \
-           src/future/matrix/matrixcommands.h \
-           src/future/table/future_Table.h \
-           src/future/table/TableModel.h \
-           src/future/table/TableView.h \
-           src/future/table/tablecommands.h \
-           src/future/table/TableDoubleHeaderView.h \
-           src/future/table/TableItemDelegate.h \
-           src/future/table/TableCommentsHeaderModel.h \
-           src/future/table/future_SortDialog.h \
-           src/future/table/AsciiTableImportFilter.h \
-           src/future/core/AbstractImportFilter.h \
-           src/future/core/interfaces.h \
+HEADERS += ../scidavis/src/future/core/AbstractAspect.h \
+           ../scidavis/src/future/core/AbstractPart.h \
+           ../scidavis/src/future/core/AspectPrivate.h \
+           ../scidavis/src/future/core/aspectcommands.h \
+           ../scidavis/src/future/core/future_Folder.h \
+           ../scidavis/src/future/core/Project.h \
+           ../scidavis/src/future/core/ProjectConfigPage.h \
+           ../scidavis/src/future/core/PartMdiView.h \
+           ../scidavis/src/future/core/AbstractColumn.h \
+           ../scidavis/src/future/core/column/Column.h \
+           ../scidavis/src/future/core/column/ColumnPrivate.h \
+           ../scidavis/src/future/core/column/columncommands.h \
+           ../scidavis/src/future/core/AbstractFilter.h \
+           ../scidavis/src/future/core/AbstractSimpleFilter.h \
+           ../scidavis/src/future/core/datatypes/SimpleCopyThroughFilter.h \
+           ../scidavis/src/future/core/datatypes/DateTime2DoubleFilter.h \
+           ../scidavis/src/future/core/datatypes/DateTime2StringFilter.h \
+           ../scidavis/src/future/core/datatypes/DayOfWeek2DoubleFilter.h \
+           ../scidavis/src/future/core/datatypes/Double2DateTimeFilter.h \
+           ../scidavis/src/future/core/datatypes/Double2DayOfWeekFilter.h \
+           ../scidavis/src/future/core/datatypes/Double2MonthFilter.h \
+           ../scidavis/src/future/core/datatypes/Double2StringFilter.h \
+           ../scidavis/src/future/core/datatypes/Month2DoubleFilter.h \
+           ../scidavis/src/future/core/datatypes/String2DateTimeFilter.h \
+           ../scidavis/src/future/core/datatypes/String2DayOfWeekFilter.h \
+           ../scidavis/src/future/core/datatypes/String2DoubleFilter.h \
+           ../scidavis/src/future/core/datatypes/String2MonthFilter.h \
+           ../scidavis/src/future/lib/macros.h \
+           ../scidavis/src/future/lib/XmlStreamReader.h \
+           ../scidavis/src/future/lib/ActionManager.h \
+           ../scidavis/src/future/lib/ConfigPageWidget.h \
+           ../scidavis/src/future/lib/Interval.h \
+           ../scidavis/src/future/lib/IntervalAttribute.h \
+           ../scidavis/src/future/matrix/future_Matrix.h \
+           ../scidavis/src/future/matrix/MatrixModel.h \
+           ../scidavis/src/future/matrix/MatrixView.h \
+           ../scidavis/src/future/matrix/matrixcommands.h \
+           ../scidavis/src/future/table/future_Table.h \
+           ../scidavis/src/future/table/TableModel.h \
+           ../scidavis/src/future/table/TableView.h \
+           ../scidavis/src/future/table/tablecommands.h \
+           ../scidavis/src/future/table/TableDoubleHeaderView.h \
+           ../scidavis/src/future/table/TableItemDelegate.h \
+           ../scidavis/src/future/table/TableCommentsHeaderModel.h \
+           ../scidavis/src/future/table/future_SortDialog.h \
+           ../scidavis/src/future/table/AsciiTableImportFilter.h \
+           ../scidavis/src/future/core/AbstractImportFilter.h \
+           ../scidavis/src/future/core/interfaces.h \
 
-SOURCES += src/future/core/AbstractAspect.cpp \
-           src/future/core/AbstractPart.cpp \
-           src/future/core/AspectPrivate.cpp \
-           src/future/core/future_Folder.cpp \
-           src/future/core/PartMdiView.cpp \
-           src/future/core/Project.cpp \
-           src/future/core/column/Column.cpp \
-           src/future/core/column/ColumnPrivate.cpp \
-           src/future/core/column/columncommands.cpp \
-           src/future/core/datatypes/DateTime2StringFilter.cpp \
-           src/future/core/datatypes/String2DateTimeFilter.cpp \
-           src/future/core/datatypes/Double2StringFilter.cpp \
-           src/future/core/datatypes/Double2DateTimeFilter.cpp \
-           src/future/core/AbstractSimpleFilter.cpp \
-           src/future/core/AbstractFilter.cpp \
-           src/future/core/ProjectConfigPage.cpp \
-           src/future/lib/XmlStreamReader.cpp \
-           src/future/lib/ActionManager.cpp \
-           src/future/lib/ConfigPageWidget.cpp \
-           src/future/matrix/future_Matrix.cpp \
-           src/future/matrix/MatrixModel.cpp \
-           src/future/matrix/MatrixView.cpp \
-           src/future/matrix/matrixcommands.cpp \
-           src/future/table/future_Table.cpp \
-           src/future/table/TableModel.cpp \
-           src/future/table/TableView.cpp \
-           src/future/table/tablecommands.cpp \
-           src/future/table/TableDoubleHeaderView.cpp \
-           src/future/table/TableItemDelegate.cpp \
-           src/future/table/TableCommentsHeaderModel.cpp \
-           src/future/table/future_SortDialog.cpp \
-           src/future/table/AsciiTableImportFilter.cpp \
+SOURCES += ../scidavis/src/future/core/AbstractAspect.cpp \
+           ../scidavis/src/future/core/AbstractPart.cpp \
+           ../scidavis/src/future/core/AspectPrivate.cpp \
+           ../scidavis/src/future/core/future_Folder.cpp \
+           ../scidavis/src/future/core/PartMdiView.cpp \
+           ../scidavis/src/future/core/Project.cpp \
+           ../scidavis/src/future/core/column/Column.cpp \
+           ../scidavis/src/future/core/column/ColumnPrivate.cpp \
+           ../scidavis/src/future/core/column/columncommands.cpp \
+           ../scidavis/src/future/core/datatypes/DateTime2StringFilter.cpp \
+           ../scidavis/src/future/core/datatypes/String2DateTimeFilter.cpp \
+           ../scidavis/src/future/core/datatypes/Double2StringFilter.cpp \
+           ../scidavis/src/future/core/datatypes/Double2DateTimeFilter.cpp \
+           ../scidavis/src/future/core/AbstractSimpleFilter.cpp \
+           ../scidavis/src/future/core/AbstractFilter.cpp \
+           ../scidavis/src/future/core/ProjectConfigPage.cpp \
+           ../scidavis/src/future/lib/XmlStreamReader.cpp \
+           ../scidavis/src/future/lib/ActionManager.cpp \
+           ../scidavis/src/future/lib/ConfigPageWidget.cpp \
+           ../scidavis/src/future/matrix/future_Matrix.cpp \
+           ../scidavis/src/future/matrix/MatrixModel.cpp \
+           ../scidavis/src/future/matrix/MatrixView.cpp \
+           ../scidavis/src/future/matrix/matrixcommands.cpp \
+           ../scidavis/src/future/table/future_Table.cpp \
+           ../scidavis/src/future/table/TableModel.cpp \
+           ../scidavis/src/future/table/TableView.cpp \
+           ../scidavis/src/future/table/tablecommands.cpp \
+           ../scidavis/src/future/table/TableDoubleHeaderView.cpp \
+           ../scidavis/src/future/table/TableItemDelegate.cpp \
+           ../scidavis/src/future/table/TableCommentsHeaderModel.cpp \
+           ../scidavis/src/future/table/future_SortDialog.cpp \
+           ../scidavis/src/future/table/AsciiTableImportFilter.cpp \
 
 ###############################################################
 ##################### Compression #############################
@@ -423,7 +326,6 @@ SOURCES += ../3rdparty/minigzip/minigzip.c
 #### Origin OPJ import via liborigin2
 ###############################################################
 contains(DEFINES, ORIGIN_IMPORT) {
-	HEADERS += src/importOPJ.h
-	SOURCES += src/importOPJ.cpp
-        INCLUDEPATH += /usr/local/include/liborigin
+	HEADERS += ../scidavis/src/importOPJ.h
+	SOURCES += ../scidavis/src/importOPJ.cpp
 }

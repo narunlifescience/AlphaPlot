@@ -73,10 +73,12 @@ bool OriginDefaultParser::parse()
 		return false;
 	}
 
+#ifndef NO_CODE_GENERATION_FOR_LOG
 	if((debug=fopen("opjfile.log","a")) == NULL ) {
 		printf("Could not open log file!\n");
 		return false;
 	}
+#endif // NO_CODE_GENERATION_FOR_LOG
 
 	////////////////////////////// check version from header ///////////////////////////////
 	char vers[5];
@@ -89,7 +91,7 @@ bool OriginDefaultParser::parse()
 
 	unsigned char c=0;	// tmp char
 
-	fprintf(debug,"HEADER :\n");
+	LOG_PRINT(debug,"HEADER :\n");
 	for(i=0;i<0x16;i++) {	// skip header + 5 Bytes ("27")
 		ioret = fread(&c,1,1,f);
 		fprintf(debug,"%.2X ",c);

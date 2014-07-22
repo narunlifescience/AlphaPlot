@@ -72,7 +72,7 @@ Mikhail Shevyakov, Russell Standish, Mauricio Troviano\n\
 The following people have made installing SciDAVis easier by providing specialized binary packages.\n\
 In alphabetical order.\n\
 \n\
-Burkhard Bunk (Debian), Quentin Denis (SUSE), Yu-Hung Lien (Mac OS X), Fellype do Nascimento (Slackware), \
+Burkhard Bunk (Debian), Quentin Denis (SUSE), Yu-Hung Lien (old Mac OS X), Fellype do Nascimento (Slackware), Russell Standish (new MacOSX)\
 Eric Tanguy (Fedora), Mauricio Troviano (Windows installer)\n\
 \n\
 --- QtiPlot ---\n\
