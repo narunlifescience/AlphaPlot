@@ -642,6 +642,17 @@ void Origin750Parser::readSpreadInfo()
 			//close section 00 00 00 00 0A
 			LAYER += size + (size > 0 ? 0x1 : 0) + 0x5;
 
+
+			if(sec_name == "statcbut" || sec_name == "Recalculate"
+					|| sec_name == "Text") // workaround: just skip this section
+			{
+				LAYER -= 0x5;
+				file.seekg(LAYER, ios_base::beg);
+				file >> size;
+				LAYER += size + (size > 0 ? 0x1 : 0) + 0x5;
+				file.seekg(LAYER, ios_base::beg);
+			}
+
 			if(sec_name == "__LayerInfoStorage")
 				break;
 
