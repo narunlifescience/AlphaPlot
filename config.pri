@@ -216,10 +216,10 @@ contains(PRESET, default_installation) {
 	LIBS         += -lgsl -lgslcblas -lz -lGLU
 	LIBS         += -lmuparser
 
-	contains(DEFINES, ORIGIN_IMPORT) {
-		LIBS += -L../3rdparty/liborigin -lorigin
-		INCLUDEPATH += ../3rdparty/liborigin
-	}
+#	contains(DEFINES, ORIGIN_IMPORT) {
+#		LIBS += -L../3rdparty/liborigin -lorigin
+#		INCLUDEPATH += ../3rdparty/liborigin
+#	}
 }
 
 contains(PRESET, mac_dist) {
@@ -237,10 +237,10 @@ contains(PRESET, mac_dist) {
 	LIBS         += -lgsl -lgslcblas -lz
 	LIBS         += -lmuparser -lpython2.7
 
-	contains(DEFINES, ORIGIN_IMPORT) {
-		LIBS += -L../3rdparty/liborigin2 -lorigin
-		INCLUDEPATH += ../3rdparty/liborigin2
-	}
+#	contains(DEFINES, ORIGIN_IMPORT) {
+#		LIBS += -L../3rdparty/liborigin2 -lorigin
+#		INCLUDEPATH += ../3rdparty/liborigin2
+#	}
 
         QMAKE_EXTRA_TARGETS += mac-dist
         mac-dist.commands = sh mkMacDist.sh
@@ -270,10 +270,10 @@ contains(PRESET, linux_package) {
 	LIBS         += -lgsl -lgslcblas
 	LIBS         += -lmuparser 
 
-	contains(DEFINES, ORIGIN_IMPORT) {
-		LIBS += -L../3rdparty/liborigin -lorigin
-		INCLUDEPATH += ../3rdparty/liborigin
-	}
+#	contains(DEFINES, ORIGIN_IMPORT) {
+#		LIBS += -L../3rdparty/liborigin -lorigin
+#		INCLUDEPATH += ../3rdparty/liborigin
+#	}
 }
 
 contains(PRESET, self_contained) {
@@ -290,10 +290,10 @@ contains(PRESET, self_contained) {
 
 	LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
 
-	contains(DEFINES, ORIGIN_IMPORT) {
-		LIBS += ../3rdparty/liborigin/build/liborigin.a
-		INCLUDEPATH += ../3rdparty/liborigin ../3rdparty/liborigin/build
-	}
+#	contains(DEFINES, ORIGIN_IMPORT) {
+#		LIBS += ../3rdparty/liborigin/build/liborigin.a
+#		INCLUDEPATH += ../3rdparty/liborigin ../3rdparty/liborigin/build
+#	}
 }
 
 win32: {
@@ -316,10 +316,10 @@ win32: {
 	LIBS         += "$${LIBPATH}/gsl/lib/libgsl.a"
 	LIBS         += "$${LIBPATH}/gsl/lib/libgslcblas.a"
 
-	contains(DEFINES, ORIGIN_IMPORT) {
-		LIBS += "$${LIBPATH}/liborigin/build/liborigin.a"
-		INCLUDEPATH += "$${LIBPATH}/liborigin" "$${LIBPATH}/liborigin/build"
-	}
+#	contains(DEFINES, ORIGIN_IMPORT) {
+#		LIBS += "$${LIBPATH}/liborigin/build/liborigin.a"
+#		INCLUDEPATH += "$${LIBPATH}/liborigin" "$${LIBPATH}/liborigin/build"
+#	}
   }
 }
 

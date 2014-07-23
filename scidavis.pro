@@ -11,7 +11,7 @@ SUBDIRS = 3rdparty/liborigin scidavis test
 CONFIG+=ordered
 
 # Overwrite the qmake generated Makefile by the cmake one
-system("cd 3rdparty/liborigin; cmake -DBUILD_SHARED_LIBS:BOOL=OFF -DCMAKE_CXX_FLAGS:STRING=-DNO_CODE_GENERATION_FOR_LOG .")
+system("cd 3rdparty/liborigin; rm CMakeCache.txt; cmake -DBUILD_SHARED_LIBS:BOOL=OFF -DCMAKE_CXX_FLAGS:STRING=-DNO_CODE_GENERATION_FOR_LOG .")
 
 !mxe {
 # optional fit plugins
