@@ -187,7 +187,9 @@ DEFINES         += SCRIPTING_DIALOG
 ### building without muParser does not work yet (but will in a future version)
 include( ../scidavis/muparser.pri )
 ### comment out the following line to deactivate Python scripting support
+!mxe {
 include( ../scidavis/python.pri )
+}
 
 ### support for Origin OPJ import using liborigin2
 DEFINES  += ORIGIN_IMPORT

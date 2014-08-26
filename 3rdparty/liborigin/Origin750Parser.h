@@ -35,6 +35,7 @@
 #include "endianfstream.hh"
 #include <string>
 #include <cmath> // for floor()
+#include <stdlib.h>
 
 using namespace std;
 using namespace Origin;

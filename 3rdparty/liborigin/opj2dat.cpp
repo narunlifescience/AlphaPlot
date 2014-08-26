@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <cmath>
 #include <cstring>
+#include <sstream>
 #include <string.h>
 
 int main(int argc, char *argv[]) {
@@ -66,16 +67,20 @@ int main(int argc, char *argv[]) {
 				j+1,column.name.c_str(),column.type,spread.maxRows);
 		}
 		FILE *out;
-		char * filename;
+                //		char * filename;
 		int ioret;
-#ifndef WIN32
-		ioret=asprintf(&filename,"%s.%d.dat",argv[1],s+1);
-#else
-		ioret=asprintf(&filename,"%s.%d.dat",basename(argv[1]),s+1);
-#endif
-		printf("saved to %s\n",filename);
-		if((out=fopen(filename,"w")) == NULL ) {
-			printf("Could not open %s",filename);
+                // RKS - why the different behaviour on Windows to unix?
+                // RKS - also previous code leaks
+//#ifndef WIN32
+//		ioret=asprintf(&filename,"%s.%d.dat",argv[1],s+1);
+//#else
+//		ioret=asprintf(&filename,"%s.%d.dat",basename(argv[1]),s+1);
+//#endif
+                std::ostringstream os;
+                os<<argv[1]<<"."<<s+1<<".dat";
+		printf("saved to %s\n",os.str().c_str());
+		if((out=fopen(os.str().c_str(),"w")) == NULL ) {
+			printf("Could not open %s",os.str().c_str());
 			return -1;
 		}
 		// header
