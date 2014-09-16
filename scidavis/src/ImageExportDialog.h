@@ -65,7 +65,6 @@ private:
 	//! Container widget for all options available for raster formats.
 	QGroupBox *d_raster_options;
 	QSpinBox *d_quality;
-	QCheckBox *d_transparency;
 
 public:
 	//! Constructor
@@ -89,8 +88,6 @@ public:
 	void setOrientation(QPrinter::Orientation orientation);
 	//! Return the quality (in percent) the user selected for export to raster formats.
 	int quality() const { return d_quality->value(); }
-	//! Return whether the output's background should be transparent.
-	bool transparency() const { return d_transparency->isChecked(); }
 
 	void selectFilter(const QString & filter);
 	

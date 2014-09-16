@@ -151,37 +151,6 @@ void Plot::printFrame(QPainter *painter, const QRect &rect) const
 	painter->restore();
 }
 
-
-void Plot::printCanvas(QPainter *painter, const QRect &canvasRect,
-   			 const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const
-{
-	painter->save();
-
-	const QwtPlotCanvas* plotCanvas=canvas();
-	QRect rect = canvasRect;
-	rect.addCoords(1, 0, -1, -1);
-    QwtPainter::fillRect(painter, rect, canvasBackground());
-
-	painter->setClipping(true);
-	QwtPainter::setClipRect(painter, rect);
-
-	drawItems(painter, canvasRect, map, pfilter);
-    painter->restore();
-
-    painter->save();
-	if(plotCanvas->lineWidth() > 0)
-	{
-		QColor color = plotCanvas->palette().color(QPalette::Active, QColorGroup::Foreground);
-		painter->setPen (QPen(color, plotCanvas->lineWidth(),
-                         Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
-
-        int lw = plotCanvas->lineWidth()/2;
-  	    rect.addCoords(-lw, -lw, plotCanvas->lineWidth(), plotCanvas->lineWidth());
-		QwtPainter::drawRect(painter, rect);
-	}
-    painter->restore();
-}
-
 void Plot::drawItems (QPainter *painter, const QRect &rect,
 			const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const
 {
@@ -639,42 +608,6 @@ void Plot::setAxisLabelFormat(int axis, char f, int prec)
 		sd->setLabelFormat(f, prec);
 	}
 }
-
-/*!
-  \brief Adjust plot content to its current size.
-  Must be reimplemented because the base implementation adds a mask causing an ugly drawing artefact.
-*/
-void Plot::updateLayout()
-{
-    plotLayout()->activate(this, contentsRect());
-
-    //
-    // resize and show the visible widgets
-    //
-    if (!titleLabel()->text().isEmpty())
-    {
-        titleLabel()->setGeometry(plotLayout()->titleRect());
-        if (!titleLabel()->isVisible())
-            titleLabel()->show();
-    }
-    else
-		titleLabel()->hide();
-
-    for (int axisId = 0; axisId < axisCnt; axisId++ )
-    {
-        if (axisEnabled(axisId) )
-        {
-            axisWidget(axisId)->setGeometry(plotLayout()->scaleRect(axisId));
-            if (!axisWidget(axisId)->isVisible())
-                axisWidget(axisId)->show();
-        }
-        else
-            axisWidget(axisId)->hide();
-    }
-
-    canvas()->setGeometry(plotLayout()->canvasRect());
-}
-
 
 const QColor & Plot::paletteBackgroundColor() const
 {

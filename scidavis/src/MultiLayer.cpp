@@ -627,11 +627,6 @@ void MultiLayer::setRows(int r)
 		rows=r;
 }
 
-QPixmap MultiLayer::canvasPixmap()
-{
-    return QPixmap::grabWidget(canvas);
-}
-
 void MultiLayer::exportToFile(const QString& fileName)
 {
 	if ( fileName.isEmpty() ){
@@ -657,34 +652,11 @@ void MultiLayer::exportToFile(const QString& fileName)
 	}
 }
 
-void MultiLayer::exportImage(const QString& fileName, int quality, bool transparent)
+void MultiLayer::exportImage(const QString& fileName, int quality)
 {
-	QPixmap pic = canvasPixmap();
-	if (transparent)
-	{
-		QBitmap mask(pic.size());
-		mask.fill(Qt::color1);
-		QPainter p;
-		p.begin(&mask);
-		p.setPen(Qt::color0);
-
-		QColor background = QColor (Qt::white);
-		QRgb backgroundPixel = background.rgb ();
-
-		QImage image = pic.convertToImage();
-		for (int y=0; y<image.height(); y++)
-		{
-			for ( int x=0; x<image.width(); x++ )
-			{
-				QRgb rgb = image.pixel(x, y);
-				if (rgb == backgroundPixel) // we want the frame transparent
-					p.drawPoint( x, y );
-			}
-		}
-		p.end();
-		pic.setMask(mask);
-	}
-	pic.save(fileName, 0, quality);
+	QImage image(canvas->size(), QImage::Format_ARGB32);
+	exportPainter(image);
+	image.save(fileName, 0, quality);
 }
 
 void MultiLayer::exportPDF(const QString& fname)
@@ -708,104 +680,77 @@ void MultiLayer::exportVector(const QString& fileName, int res, bool color, bool
     if (fileName.contains(".eps"))
     	printer.setOutputFormat(QPrinter::PostScriptFormat);
 
-#ifdef Q_OS_MAC
-    if (fileName.contains(".pdf")) // use native Mac OS X print engine
-    	printer.setOutputFormat(QPrinter::NativeFormat);
-#endif
 	if (color)
 		printer.setColorMode(QPrinter::Color);
 	else
 		printer.setColorMode(QPrinter::GrayScale);
 
-	if (res)
-		printer.setResolution(res);
-
-	QRect canvasRect = canvas->rect();
-	printer.setOrientation(orientation);
     if (pageSize == QPrinter::Custom)
-        printer.setPageSize(Graph::minPageSize(printer, canvasRect));
+	   printer.setPaperSize(canvas->size(), QPrinter::Point);
     else
-        printer.setPageSize(pageSize);
-
-	double canvas_aspect = double(canvasRect.width())/double(canvasRect.height());
-
-    int x_margin, y_margin, width, height;
-    if (keepAspect){// export should preserve plot aspect ratio
-        double page_aspect = double(printer.width())/double(printer.height());
-        if (page_aspect > canvas_aspect){
-            y_margin = (int) ((0.1/2.54)*printer.logicalDpiY()); // 1 mm margins
-            height = printer.height() - 2*y_margin;
-            width = height*canvas_aspect;
-            x_margin = (printer.width()- width)/2;
-        } else {
-            x_margin = (int) ((0.1/2.54)*printer.logicalDpiX()); // 1 mm margins
-            width = printer.width() - 2*x_margin;
-            height = width/canvas_aspect;
-            y_margin = (printer.height()- height)/2;
-        }
-	} else {
-	    x_margin = (int) ((0.1/2.54)*printer.logicalDpiX()); // 1 mm margins
-        y_margin = (int) ((0.1/2.54)*printer.logicalDpiY()); // 1 mm margins
-        width = printer.width() - 2*x_margin;
-        height = printer.height() - 2*y_margin;
-	}
-
-    double scaleFactorX = (double)(width)/(double)canvasRect.width();
-    double scaleFactorY = (double)(height)/(double)canvasRect.height();
-
-    QPainter paint(&printer);
-	for (int i=0; i<(int)graphsList.count(); i++){
-        Graph *gr = (Graph *)graphsList.at(i);
-        Plot *myPlot = (Plot *)gr->plotWidget();
-
-        QPoint pos = gr->pos();
-        pos = QPoint(int(x_margin + pos.x()*scaleFactorX), int(y_margin + pos.y()*scaleFactorY));
-
-        int layer_width = int(myPlot->frameGeometry().width()*scaleFactorX);
-        int layer_height = int(myPlot->frameGeometry().height()*scaleFactorY);
-
-        gr->print(&paint, QRect(pos, QSize(layer_width, layer_height)));
+    {
+        printer.setOrientation(orientation);
+        printer.setPaperSize(pageSize);
     }
+
+    exportPainter(printer, keepAspect);
 }
 
 void MultiLayer::exportSVG(const QString& fname)
 {
-	#if QT_VERSION >= 0x040300
+#if QT_VERSION >= 0x040300
 		QSvgGenerator generator;
         generator.setFileName(fname);
+#if QT_VERSION >= 0x040500
         generator.setSize(canvas->size());
-
-		QPainter p(&generator);
-        for (int i=0; i<(int)graphsList.count(); i++)
-		{
-			Graph *gr = (Graph *)graphsList.at(i);
-			Plot *myPlot = (Plot *)gr->plotWidget();
-
-			QPoint pos = QPoint(gr->pos().x(), gr->pos().y());
-			gr->print(&p, QRect(pos, myPlot->size()));
-		}
-		p.end();
-	#endif
+        generator.setViewBox(QRect(QPoint(0,0), generator.size()));
+		generator.setResolution(96); // FIXME hardcored
+        generator.setTitle(this->name());
+#endif
+        exportPainter(generator);
+#endif
 }
+
+void MultiLayer::exportPainter(QPaintDevice& paintDevice, bool keepAspect, QRect rect)
+{
+	QPainter p(&paintDevice);
+    exportPainter(p, keepAspect, rect, QSize(paintDevice.width(), paintDevice.height()));
+	p.end();
+}
+
+void MultiLayer::exportPainter(QPainter &painter, bool keepAspect, QRect rect, QSize size)
+ {
+	if (size == QSize()) size = canvas->size();
+	if (rect == QRect()) rect = canvas->rect();
+    if (keepAspect)
+    {
+        QSize scaled = rect.size();
+        scaled.scale(size, Qt::KeepAspectRatio);
+        size = scaled;
+    }
+     painter.scale(
+                 (double)size.width()/(double)rect.width(),
+                 (double)size.height()/(double)rect.height()
+                 );
+
+	 painter.fillRect(rect, backgroundBrush()); // FIXME workaround for background
+
+    for (int i=0; i<(int)graphsList.count(); i++)
+	{
+		Graph *gr = (Graph *)graphsList.at(i);
+		Plot *myPlot = (Plot *)gr->plotWidget();
+
+		QPoint pos = QPoint(gr->pos().x(), gr->pos().y());
+        gr->exportPainter(painter, false, QRect(pos, myPlot->size()));
+	}
+ }
+
 
 void MultiLayer::copyAllLayers()
 {
-	bool selectionOn = false;
-	if (d_layers_selector)
-	{
-		d_layers_selector->hide();
-		selectionOn = true;
-	}
-
-	foreach (QWidget* g, graphsList)
-		((Graph *)g)->deselectMarker();
-
-	QPixmap pic = canvasPixmap();
-	QImage image= pic.convertToImage();
+	QImage image(canvas->size(), QImage::Format_ARGB32);
+	exportPainter(image);
 	QApplication::clipboard()->setImage(image);
-
-	if (selectionOn)
-		d_layers_selector->show();
 }
 
 void MultiLayer::printActiveLayer()

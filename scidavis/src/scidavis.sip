@@ -1000,7 +1000,7 @@ public:
 
   void replot();
   void print() /PyName=printDialog/;
-  void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
+  void exportImage(const QString& fileName, int quality = -1);
   void exportVector(const QString& fileName, int res = 0, bool color = true,
                     bool keepAspect = true, QPrinter::PageSize pageSize = QPrinter::Custom);
   void exportToFile(const QString& fileName) /PyName=export/;
@@ -1065,7 +1065,7 @@ public:
   void arrangeLayers(bool fit, bool user_size);
 
   void exportToFile(const QString& fileName) /PyName=export/;
-  void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
+  void exportImage(const QString& fileName, int quality = -1);
   void exportVector(const QString& fileName, int res = 0, bool color = true,
                     bool keepAspect = true, QPrinter::PageSize pageSize = QPrinter::Custom);
 

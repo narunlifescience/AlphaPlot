@@ -4752,9 +4752,9 @@ void ApplicationWindow::exportGraph()
 		{
 			if (selected_filter.contains("." + (list[i]).toLower())) {
 				if (plot2D)
-					plot2D->exportImage(file_name, ied->quality(), ied->transparency());
+					plot2D->exportImage(file_name, ied->quality());
 				else if (plot3D)
-					plot3D->exportImage(file_name, ied->quality(), ied->transparency());
+					plot3D->exportImage(file_name, ied->quality());
 			}
 		}
 	}
@@ -4801,7 +4801,7 @@ void ApplicationWindow::exportLayer()
 		QList<QByteArray> list = QImageWriter::supportedImageFormats();
 		for (int i=0; i<(int)list.count(); i++)
 			if (selected_filter.contains("."+(list[i]).toLower()))
-				g->exportImage(file_name, ied->quality(), ied->transparency());
+				g->exportImage(file_name, ied->quality());
 	}
 }
 
@@ -4894,9 +4894,9 @@ void ApplicationWindow::exportAllGraphs()
 			{
 				if (file_suffix.contains("." + (list[i]).toLower())) {
 					if (plot2D)
-						plot2D->exportImage(file_name, ied->quality(), ied->transparency());
+						plot2D->exportImage(file_name, ied->quality());
 					else if (plot3D)
-						plot3D->exportImage(file_name, ied->quality(), ied->transparency());
+						plot3D->exportImage(file_name, ied->quality());
 				}
 			}
 		}
@@ -5773,7 +5773,6 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 		connect (pd,SIGNAL(updateMeshLineWidth(int)), g,SLOT(setMeshLineWidth(int)));
 		connect (pd,SIGNAL(updateBars(double)),g,SLOT(updateBars(double)));
 		connect (pd,SIGNAL(updatePoints(double, bool)),g, SLOT(updatePoints(double, bool)));
-		connect (pd,SIGNAL(updateTransparency(double)),g, SLOT(changeTransparency(double)));
 		connect (pd,SIGNAL(showWorksheet()),g,SLOT(showWorksheet()));
 		connect (pd,SIGNAL(updateZoom(double)),g,SLOT(updateZoom(double)));
 		connect (pd,SIGNAL(updateScaling(double,double,double)), g,SLOT(updateScaling(double,double,double)));
@@ -5781,7 +5780,6 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 		connect (pd,SIGNAL(updateCross(double, double, bool, bool)), g,SLOT(updateCross(double, double, bool, bool)));
 
 		pd->setMeshLineWidth(g->meshLineWidth());
-		pd->setTransparency(g->transparency());
 		pd->setDataColors(g->minDataColor(),g->maxDataColor());
 		pd->setColors(g->titleColor(),g->meshColor(),g->axesColor(),g->numColor(),
 				g->labelColor(), g->bgColor(),g->gridColor());

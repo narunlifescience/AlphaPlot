@@ -93,6 +93,7 @@ void ImageExportDialog::initAdvancedOptions()
 	d_resolution->setRange(0, 1000);
 	d_resolution->setValue(app->d_export_resolution);
 	vector_layout->addWidget(d_resolution, 1, 1);
+	d_resolution->setEnabled(false); // FIXME temporary disabled
 
 	d_color = new QCheckBox();
 	d_color->setText(tr("Export in &color"));
@@ -146,9 +147,11 @@ void ImageExportDialog::initAdvancedOptions()
 	d_box_page_orientation->addItem(tr("Portrait","page orientation"), QVariant(QPrinter::Portrait));
 	d_box_page_orientation->addItem(tr("Landscape","page orientation"), QVariant(QPrinter::Landscape));
 	d_box_page_orientation->setCurrentIndex(app->d_export_orientation);
+	d_box_page_orientation->setEnabled(app->d_export_vector_size != QPrinter::Custom);
 	vector_layout->addWidget(d_box_page_orientation, 5, 1, 1, 2);
 
     connect(d_standard_page, SIGNAL(toggled(bool)), d_box_page_size, SLOT(setEnabled(bool)));
+	connect(d_standard_page, SIGNAL(toggled(bool)), d_box_page_orientation, SLOT(setEnabled(bool)));
 
 	d_keep_aspect = new QCheckBox();
 	d_keep_aspect->setText(tr("&Keep aspect ratio"));
@@ -164,11 +167,6 @@ void ImageExportDialog::initAdvancedOptions()
 	d_quality->setRange(1, 100);
 	d_quality->setValue(app->d_export_quality);
 	raster_layout->addWidget(d_quality, 1, 1);
-
-	d_transparency = new QCheckBox();
-	d_transparency->setText(tr("Save transparency"));
-	d_transparency->setChecked(app->d_export_transparency);
-	raster_layout->addWidget(d_transparency, 2, 0, 1, 2);
 }
 
 void ImageExportDialog::updateAdvancedOptions (const QString & filter)
@@ -183,7 +181,6 @@ void ImageExportDialog::updateAdvancedOptions (const QString & filter)
 		d_advanced_options->setCurrentIndex(0);
 	else {
 		d_advanced_options->setCurrentIndex(1);
-		d_transparency->setEnabled(filter.contains("*.tif") || filter.contains("*.tiff") || filter.contains("*.png") || filter.contains("*.xpm"));
 	}
 }
 
@@ -193,7 +190,6 @@ void ImageExportDialog::closeEvent(QCloseEvent* e)
 	if (app){
 		app->d_extended_export_dialog = this->isExtended();
 		app->d_image_export_filter = this->selectedFilter();
-		app->d_export_transparency = d_transparency->isChecked();
         app->d_export_quality = d_quality->value();
 
         app->d_export_resolution = d_resolution->value();

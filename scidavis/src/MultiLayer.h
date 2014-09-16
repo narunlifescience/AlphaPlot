@@ -160,14 +160,15 @@ public slots:
 
 	//! \name Print and Export
 	//@{
-	QPixmap canvasPixmap();
 	void exportToFile(const QString& fileName);
-	void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
+	void exportImage(const QString& fileName, int quality = -1);
 	void exportSVG(const QString& fname);
     void exportPDF(const QString& fname);
 	void exportVector(const QString& fileName, int res = 0, bool color = true,
                     bool keepAspect = true, QPrinter::PageSize pageSize = QPrinter::Custom, 
 					QPrinter::Orientation orientation = QPrinter::Portrait);
+    void exportPainter(QPaintDevice &paintDevice, bool keepAspect = false, QRect rect = QRect());
+    void exportPainter(QPainter &painter, bool keepAspect = false, QRect rect = QRect(), QSize size = QSize());
 
 	void copyAllLayers();
 	void print();

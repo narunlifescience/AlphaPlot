@@ -143,7 +143,9 @@ class Graph: public QWidget
 
 		Grid *grid(){return d_plot->grid();};
 
-	public slots:
+		void exportPainter(QPaintDevice &paintDevice, bool keepAspect = false, QRect rect = QRect());
+		void exportPainter(QPainter &painter, bool keepAspect = false, QRect rect = QRect(), QSize size = QSize());
+public slots:
 		//! Accessor method for #d_plot.
 		Plot* plotWidget() const {return d_plot;};
 		void copy(ApplicationWindow *parent, Graph* g);
@@ -230,14 +232,13 @@ class Graph: public QWidget
 		void printCropmarks(bool on){d_print_cropmarks = on;};
 
 		void copyImage();
-		QPixmap graphPixmap();
 		//! Provided for convenience in scripts
 		void exportToFile(const QString& fileName);
 		void exportSVG(const QString& fname);
 		void exportVector(const QString& fileName, int res = 0, bool color = true,
                         bool keepAspect = true, QPrinter::PageSize pageSize = QPrinter::Custom, 
 						QPrinter::Orientation orientation = QPrinter::Portrait);
-		void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
+		void exportImage(const QString& fileName, int quality = -1);
 		//@}
 
 		void replot(){d_plot->replot();};
@@ -687,10 +688,7 @@ class Graph: public QWidget
 		void setAntialiasing(bool on = true, bool update = true);
 
 		void deselect();
-		void print(QPainter *, const QRect &rect, const QwtPlotPrintFilter & = QwtPlotPrintFilter());
-		void printCanvas(QPainter *painter, const QRect &canvasRect,
-   			 const QwtScaleMap map[QwtPlot::axisCnt], const QwtPlotPrintFilter &pfilter) const;
-
+        void print(QPainter *, const QRect &rect, const QwtPlotPrintFilter &pfilter = QwtPlotPrintFilter());
 signals:
 		void selectedGraph (Graph*);
 		void closedGraph();
