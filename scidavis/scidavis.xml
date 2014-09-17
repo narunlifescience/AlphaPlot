@@ -5,6 +5,7 @@
 		<comment xml:lang="de">SciDAVis-Projekt</comment>
 		<comment xml:lang="fr">Projet Scidavis</comment>
 		<comment xml:lang="pt_BR">Projeto do SciDAVis</comment>
+		<comment xml:lang="ru">Проект SciDAVis</comment>
 		<magic priority="100">
 			<match type="string" value="SciDAVis" offset="0"/>
 		</magic>
