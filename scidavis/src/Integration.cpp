@@ -79,6 +79,12 @@ bool Integration::isDataAcceptable()
 		case Akima:
 			method_t = gsl_interp_akima;
 			break;
+		default:
+			QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
+			tr("Unknown interpolation method. Valid values are: 0 - Linear, 1 - Cubic, 2 - Akima."));
+			d_init_err = true;
+			return true;
+
 	}
 	// GSL interpolation routines fail with division by zero on such data
 	for (int i=1; i<d_n; i++)
