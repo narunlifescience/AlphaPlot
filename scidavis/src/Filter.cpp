@@ -40,6 +40,9 @@
 
 #include <gsl/gsl_sort.h>
 
+#include <algorithm>
+using namespace std;
+
 Filter::Filter( ApplicationWindow *parent, Graph *g, QString name)
 	: QObject(parent)
 {
@@ -86,28 +89,32 @@ void Filter::setInterval(double from, double to)
 
 void Filter::setDataCurve(int curve, double start, double end)
 {
-	if (start > end) qSwap(start, end);
+  if (start > end) qSwap(start, end);
     
-	if (d_n > 0)
-	{//delete previousely allocated memory
-		delete[] d_x;
-		delete[] d_y;
-	}
+  if (d_n > 0)
+    {//delete previousely allocated memory
+      delete[] d_x;
+      delete[] d_y;
+    }
 
-	d_init_err = false;
-	d_curve = d_graph->curve(curve);
-    if (d_sort_data)
-        d_n = sortedCurveData(d_curve, start, end, &d_x, &d_y);
-    else
-    	d_n = curveData(d_curve, start, end, &d_x, &d_y);
+  d_init_err = false;
+  d_curve = d_graph->curve(curve);
+  if (d_sort_data)
+    d_n = sortedCurveData(d_curve, start, end, &d_x, &d_y);
+  else
+    d_n = curveData(d_curve, start, end, &d_x, &d_y);
 
-	if (!isDataAcceptable()) {
-		d_init_err = true;
-		return;
-	}
+  if (!isDataAcceptable()) {
+    d_init_err = true;
+    return;
+  }
 
-    d_from = start;
-    d_to = end;
+  // ensure range is within data range
+  if (d_n>0)
+    {
+      d_from = max(start, *min_element(d_x,d_x+d_n));
+      d_to = min(end, *max_element(d_x,d_x+d_n));
+    }
 }
 
 bool Filter::isDataAcceptable() {
