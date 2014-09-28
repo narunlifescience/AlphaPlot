@@ -140,13 +140,16 @@ MuParserScript::MuParserScript(ScriptingEnv *environment, const QString &code, Q
 	m_parser.SetVarFactory(variableFactory, this);
 
 	// redefine characters for operators to include ";"
-	m_parser.DefineOprtChars(
+        static const char opChars[]=
 			// standard operator chars as defined in mu::Parser::InitCharSets()
 			"abcdefghijklmnopqrstuvwxyz"
 			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 			"+-*^/?<>=#!$%&|~'_"
 			// our additions
-			";");
+			";";
+	m_parser.DefineOprtChars(opChars);
+        // work around muparser bug number 6 https://code.google.com/p/muparser/issues/detail?id=6
+	m_parser.DefineInfixOprtChars(opChars);
 
 	// statement separation needs lower precedence than everything else; assignment has precedence
 	// -1, everything else defined in mu::Parser has non-negative precedence
