@@ -31,7 +31,7 @@
  *                                                                         *
  ***************************************************************************/
 
-%Module scidavis 0
+%Module scidavis
 %Import QtCore/QtCoremod.sip
 %Import QtGui/QtGuimod.sip
 
@@ -173,14 +173,14 @@ class Column: AbstractAspect
 		void setValueAt(int row, double new_value);
 		void replaceValues(int first, const QVector<double>& new_values);
 
-  Column * x() const /NoDerived/;
+  Column * x() const;
 %MethodCode
     future::Table *t = qobject_cast<future::Table *>(sipCpp->parentAspect());
     if (t)
         sipRes = t->column(t->colX(t->indexOfChild(sipCpp)));
 %End
 
-  Column * y() const /NoDerived/;
+  Column * y() const;
 %MethodCode
     future::Table *t = qobject_cast<future::Table *>(sipCpp->parentAspect());
     if (t)
@@ -229,7 +229,7 @@ public:
 	if (app) app->renameWindow(sipCpp, *a0);
 %End
 
-	MyWidget *clone() /NoDerived/;
+	MyWidget *clone();
 %MethodCode
 	ApplicationWindow *app = sipscidavis_app();
 	if (app) sipRes = app->clone(sipCpp);
@@ -306,17 +306,17 @@ public:
   void setNumRows(int);
   void setNumCols(int);
   Column * column(int index) const;
-  Column * column(const QString & name) const /NoDerived/;
+  Column * column(const QString & name) const;
 %MethodCode
   sipRes = sipCpp->d_future_table->column(*a0, false);
 %End
 
-  Column * __getitem__(int index) const /NoDerived/;
+  Column * __getitem__(int index) const;
 %MethodCode
   sipRes = sipCpp->column(a0);
 %End
 
-  Column * __getitem__(const QString &name) const /NoDerived/;
+  Column * __getitem__(const QString &name) const;
 %MethodCode
   sipRes = sipCpp->column(*a0);
 %End
@@ -380,14 +380,14 @@ public:
 
   void importASCII(const QString&, const QString&="\t", int=0, bool=false, bool=true, bool=false, bool=false);
   bool exportASCII(const QString&, const QString&="\t", bool=false, bool=false);
-  void normalize(SIP_PYOBJECT) /NoDerived/;
+  void normalize(SIP_PYOBJECT);
 %MethodCode
 	sipIsErr = 0;
 	CHECK_TABLE_COL(a0);
 	if (sipIsErr == 0)
 		sipCpp->d_future_table->normalizeColumns(QList< Column* >() << sipCpp->column(col));
 %End
-  void normalize() /NoDerived/;
+  void normalize();
 %MethodCode
 	QList< Column* > cols;
 	for (int i=0; i<sipCpp->numCols(); i++)
@@ -395,14 +395,14 @@ public:
 	sipCpp->d_future_table->normalizeColumns(cols);
 %End
 
-  void sortColumn(SIP_PYOBJECT, int order = 0) /NoDerived/;
+  void sortColumn(SIP_PYOBJECT, int order = 0);
 %MethodCode
   	sipIsErr = 0;
   	CHECK_TABLE_COL(a0);
 	if (sipIsErr == 0)
 		sipCpp->d_future_table->sortColumns(0, QList<Column*>() << sipCpp->column(col), a1==0);
 %End
-  void sort(int type = 0, int order = 0, const QString& leadCol = QString()) /NoDerived/;
+  void sort(int type = 0, int order = 0, const QString& leadCol = QString());
 %MethodCode
 	Column * lead;
 	if (a0 == 0)
@@ -658,7 +658,7 @@ class QwtSymbol
 
 	 // convenience methods for scripting
 
-	 void setColor(const QColor& color) /NoDerived/;
+	 void setColor(const QColor& color);
 %MethodCode
 	QPen pen = sipCpp->pen();
 	pen.setColor(*a0);
@@ -667,7 +667,7 @@ class QwtSymbol
 	brush.setColor(*a0);
 	sipCpp->setBrush(brush);
 %End
-	 void setColor(int color) /NoDerived/;
+	 void setColor(int color);
 %MethodCode
 	QPen pen = sipCpp->pen();
 	pen.setColor(ColorBox::color(a0));
@@ -676,25 +676,25 @@ class QwtSymbol
 	brush.setColor(ColorBox::color(a0));
 	sipCpp->setBrush(brush);
 %End
-	 void setOutlineColor(const QColor& color) /NoDerived/;
+	 void setOutlineColor(const QColor& color);
 %MethodCode
 	QPen pen = sipCpp->pen();
 	pen.setColor(*a0);
 	sipCpp->setPen(pen);
 %End
-	 void setOutlineColor(int color) /NoDerived/;
+	 void setOutlineColor(int color);
 %MethodCode
 	QPen pen = sipCpp->pen();
 	pen.setColor(ColorBox::color(a0));
 	sipCpp->setPen(pen);
 %End
-	 void setFillColor(const QColor& color) /NoDerived/;
+	 void setFillColor(const QColor& color);
 %MethodCode
 	QBrush brush = sipCpp->brush();
 	brush.setColor(*a0);
 	sipCpp->setBrush(brush);
 %End
-	 void setFillColor(int color) /NoDerived/;
+	 void setFillColor(int color);
 %MethodCode
 	QBrush brush = sipCpp->brush();
 	brush.setColor(ColorBox::color(a0));
@@ -731,7 +731,7 @@ class QwtPlotCurve
 
 	 // convenience methods for scripting
 	 
-	 void setColor(const QColor& color) /NoDerived/;
+	 void setColor(const QColor& color);
 %MethodCode
 	QPen pen = sipCpp->pen();
 	pen.setColor(*a0);
@@ -740,7 +740,7 @@ class QwtPlotCurve
 	brush.setColor(*a0);
 	sipCpp->setBrush(brush);
 %End
-	 void setColor(int color) /NoDerived/;
+	 void setColor(int color);
 %MethodCode
 	QPen pen = sipCpp->pen();
 	pen.setColor(ColorBox::color(a0));
@@ -749,31 +749,31 @@ class QwtPlotCurve
 	brush.setColor(ColorBox::color(a0));
 	sipCpp->setBrush(brush);
 %End
-	 void setOutlineColor(const QColor& color) /NoDerived/;
+	 void setOutlineColor(const QColor& color);
 %MethodCode
 	QPen pen = sipCpp->pen();
 	pen.setColor(*a0);
 	sipCpp->setPen(pen);
 %End
-	 void setOutlineColor(int color) /NoDerived/;
+	 void setOutlineColor(int color);
 %MethodCode
 	QPen pen = sipCpp->pen();
 	pen.setColor(ColorBox::color(a0));
 	sipCpp->setPen(pen);
 %End
-	 void setFillColor(const QColor& color) /NoDerived/;
+	 void setFillColor(const QColor& color);
 %MethodCode
 	QBrush brush = sipCpp->brush();
 	brush.setColor(*a0);
 	sipCpp->setBrush(brush);
 %End
-	 void setFillColor(int color) /NoDerived/;
+	 void setFillColor(int color);
 %MethodCode
 	QBrush brush = sipCpp->brush();
 	brush.setColor(ColorBox::color(a0));
 	sipCpp->setBrush(brush);
 %End
-	 void setFillStyle(Qt::BrushStyle style) /NoDerived/;
+	 void setFillStyle(Qt::BrushStyle style);
 %MethodCode
 	QBrush brush = sipCpp->brush();
 	brush.setStyle(a0);
@@ -838,24 +838,24 @@ class Grid
 		void setMinPenY(const QPen &p) /PyName=setYMinorPen/;
 		const QPen& minPenY() const /PyName=yMinorPen/;
 
-		void setMajor(bool) /NoDerived/;
+		void setMajor(bool);
 %MethodCode
 	sipCpp->enableX(a0);
 	sipCpp->enableY(a0);
 %End
 
-		void setMinor(bool) /NoDerived/;
+		void setMinor(bool);
 %MethodCode
 	sipCpp->enableXMin(a0);
 	sipCpp->enableYMin(a0);
 %End
 
-		void setMajorPen(const QPen &p) /NoDerived/;
+		void setMajorPen(const QPen &p);
 %MethodCode
 	sipCpp->setMajPenX(*a0);
 	sipCpp->setMajPenY(*a0);
 %End
-		void setMinorPen(const QPen &p) /NoDerived/;
+		void setMinorPen(const QPen &p);
 %MethodCode
 	sipCpp->setMinPenX(*a0);
 	sipCpp->setMinPenY(*a0);
@@ -881,7 +881,7 @@ public:
   sipRes = PyString_FromString(sipCpp->pieLegendText());
 %End
 
-  bool insertCurve(Table*, const QString&, int=1, int color=-1) /NoDerived/;
+  bool insertCurve(Table*, const QString&, int=1, int color=-1);
 %MethodCode
 	if (sipCpp->insertCurve(a0, *a1, a2)) {
 		CurveLayout cl = sipCpp->initCurveLayout(a2, 1);
@@ -910,7 +910,7 @@ public:
 		sipRes = false;
 %End
 	bool insertFunctionCurve(const QString &formula, double from=0, double to=1, int points=100,
-			const QString &title = QString::null) /NoDerived/;
+			const QString &title = QString::null);
 %MethodCode
 	ApplicationWindow *app = sipscidavis_app();
 	if (app)
@@ -921,7 +921,7 @@ public:
 %End
 	bool insertPolarCurve(const QString &radial, const QString &angular,
 			double from=0, double to=2*M_PI, const QString &parameter="t", int points=100,
-			const QString &title = QString::null) /NoDerived/;
+			const QString &title = QString::null);
 %MethodCode
 	ApplicationWindow *app = sipscidavis_app();
 	if (app)
@@ -932,7 +932,7 @@ public:
 %End
 	bool insertParametricCurve(const QString &x, const QString &y,
 			double from=0, double to=1, const QString &parameter="t", int points=100,
-			const QString &title =QString::null) /NoDerived/;
+			const QString &title =QString::null);
 %MethodCode
 	ApplicationWindow *app = sipscidavis_app();
 	if (app)
@@ -946,7 +946,7 @@ public:
   void removeCurve(const QString&);
   void deleteFitCurves();
   int curves() /PyName=numCurves/;
-  QList<QwtPlotCurve*> curves() const /NoDerived/;
+  QList<QwtPlotCurve*> curves() const;
 %MethodCode
 	sipRes = new QList<QwtPlotCurve*>();
 	for (int i = 0; i<sipCpp->curves(); i++)
@@ -969,7 +969,7 @@ public:
   void setTitle(const QString& t);
   Legend* newLegend();
   Legend* newLegend(const QString&);
-  void setLegend(const QString&) /NoDerived/;
+  void setLegend(const QString&);
 %MethodCode
   sipCpp->legend()->setText(*a0);
 %End
@@ -1010,12 +1010,12 @@ public:
   void setAutoscaleFonts(bool = true);
   void setAntialiasing(bool on = true, bool update = true);
 
-  QWidget * canvas() const /NoDerived/;
+  QWidget * canvas() const;
 %MethodCode
 	sipRes = sipCpp->d_plot->canvas();
 %End
 
-	QPointF pickPoint() const /NoDerived/;
+	QPointF pickPoint() const;
 %MethodCode
 	ApplicationWindow *app = sipscidavis_app();
 	sipRes = new QPointF();
@@ -1057,7 +1057,7 @@ public:
 	// for backwards-compatibility
   void setAlignement (int, int);
   void setAlignement (int, int) /PyName=setAlignment/;
-  void arrangeLayers(bool fit = true) /NoDerived/;
+  void arrangeLayers(bool fit = true);
 %MethodCode
 	sipCpp->arrangeLayers(a0, false);
 %End
@@ -1166,7 +1166,7 @@ public:
 	// a bugfix release though, since an unexpected change in behaviour may be even
 	// more confusing than the inconsistency.
   Note* newNote(const QString& = QString::null);
-  MultiLayer *plot(Table*, SIP_PYTUPLE, int style=1, int color=-1) /NoDerived/;
+  MultiLayer *plot(Table*, SIP_PYTUPLE, int style=1, int color=-1);
 %MethodCode
   QStringList l;
   int n = PyTuple_Size(a1);
@@ -1203,7 +1203,7 @@ public:
     }
   }
 %End
-  MultiLayer *plot(Table*, const QString&, int style=1, int color=-1) /NoDerived/;
+  MultiLayer *plot(Table*, const QString&, int style=1, int color=-1);
 %MethodCode
   if (a0==0) {
 	  sipIsErr = 1;
@@ -1241,7 +1241,7 @@ public:
 //  QTextEdit *console;
 
   // folders
-  Folder *activeFolder() /NoDerived/;
+  Folder *activeFolder();
 %MethodCode
   sipRes = sipCpp->current_folder;
 %End
@@ -1905,14 +1905,14 @@ public:
 
   Folder* rootFolder();
 
-  void save(const QString &filename) /NoDerived/;
+  void save(const QString &filename);
 %MethodCode
 	ApplicationWindow *app = sipscidavis_app();
 	if (app)
 		app->saveFolder(sipCpp, *a0);
 %End
 
-	void addChild(Folder *f /Transfer/) /NoDerived/;
+	void addChild(Folder *f /Transfer/);
 %MethodCode
 	QString name = a0->objectName();
 	int i = 1;

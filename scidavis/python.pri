@@ -15,6 +15,7 @@
   HEADERS += ../scidavis/src/PythonScript.h ../scidavis/src/PythonScripting.h
   SOURCES += ../scidavis/src/PythonScript.cpp ../scidavis/src/PythonScripting.cpp
 
+  message("Making PyQt bindings via SIP")
   unix {
     INCLUDEPATH += $$system(python python-includepath.py)
     contains(PRESET,mac_dist) {
@@ -95,6 +96,9 @@
 				 $${SIP_DIR}/sipscidavisQwtPlotCurve.cpp \
              $${SIP_DIR}/sipscidavisQwtPlot.cpp \
 				 $${SIP_DIR}/sipscidavisGrid.cpp \
+
+
+OTHER_FILES += src/scidavis.sip
 
 exists($${SIP_DIR}/sipscidavisQList.cpp) {
 # SIP < 4.9
