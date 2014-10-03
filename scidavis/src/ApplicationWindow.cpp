@@ -13565,6 +13565,8 @@ void ApplicationWindow::showStatusBarContextMenu( const QPoint & pos )
 
 void ApplicationWindow::showWindowMenu(MyWidget * widget)
 {
+	d_workspace->setActiveWindow(widget); // FIXME not user-friendly, but can't be simply removed
+
 	QMenu cm(this);
 	QMenu depend_menu(this);
 
