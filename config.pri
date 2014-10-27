@@ -192,14 +192,19 @@ include( ../scidavis/python.pri )
 }
 
 ### support for Origin OPJ import using liborigin2
+mxe|osx_dist|aegis {
+CONFIG+=liborigin
+}
+liborigin {
 DEFINES  += ORIGIN_IMPORT
+}
 
 ################################################################################
 ### Dependencies                                                               #
 ################################################################################
 
 # code for maintained branch of liborigin. 
-contains(DEFINES, ORIGIN_IMPORT) {
+liborigin {
   LIBS += ../3rdparty/liborigin/liborigin.a
   INCLUDEPATH += ../3rdparty/liborigin
 	}
@@ -224,7 +229,7 @@ contains(PRESET, default_installation) {
 #	}
 }
 
-contains(PRESET, mac_dist) {
+osx_dist {
 	# Uses MacPorts supplied versions of the dependencies
 
 	INCLUDEPATH  += /opt/local/include
@@ -239,11 +244,8 @@ contains(PRESET, mac_dist) {
 	LIBS         += -lgsl -lgslcblas -lz
 	LIBS         += -lmuparser -lpython2.7
 
-#	contains(DEFINES, ORIGIN_IMPORT) {
-#		LIBS += -L../3rdparty/liborigin2 -lorigin
-#		INCLUDEPATH += ../3rdparty/liborigin2
-#	}
-
+# this was an attempt to add a post build step. Doesn't seem to work,
+# so just run this step manually
         QMAKE_EXTRA_TARGETS += mac-dist
         mac-dist.commands = sh mkMacDist.sh
 

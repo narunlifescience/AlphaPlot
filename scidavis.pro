@@ -2,16 +2,26 @@
 # SciDAVis main project file
 # run "qmake scidavis.pro" to generate the Makefile
 # In most cases you don't have to make changes to
-# this file but to the "scidavis.pro" file in the
-# "scidavis" subdirectory.
+# this file but to the "config.pri" file 
 #################################################
 TEMPLATE = subdirs
 
-SUBDIRS = 3rdparty/liborigin scidavis test
+# configurations that automatically turn on liborigin - mainly the
+# binary releases, as well as the AEGIS build
+mxe|osx_dist|aegis {
+        CONFIG += liborigin 
+}
+
+# liborigin must come first, if it exists
+liborigin {
+          SUBDIRS = 3rdparty/liborigin
+}
+SUBDIRS += scidavis test
 CONFIG+=ordered
 
 !mxe {
 # optional fit plugins
+# mxe is a static build, so these are included elsewhere
 SUBDIRS += fitPlugins/fitRational0\
            fitPlugins/fitRational1\
            fitPlugins/explin\
