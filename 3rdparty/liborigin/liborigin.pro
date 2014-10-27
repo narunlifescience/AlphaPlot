@@ -6,7 +6,7 @@ CONFIG += staticlib
 TARGET = origin
 # following define required to prevent the catastrophic logging when
 # large files are imported
-DEFINE += NO_CODE_GENERATION_FOR_LOG
+DEFINES += NO_CODE_GENERATION_FOR_LOG
 
 HEADERS  += \
         config.h \
