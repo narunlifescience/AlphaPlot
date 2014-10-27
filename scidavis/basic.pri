@@ -70,6 +70,7 @@ contains( INSTALLS, translationfiles ){
         tstarget.commands = (! test -w translations/scidavis_de.ts || $$LUPDATE_BIN scidavis.pro) && $$LRELEASE_BIN scidavis.pro
 
         QMAKE_EXTRA_TARGETS += tstarget
+        QMAKE_CLEAN += $$translationfiles.files
         PRE_TARGETDEPS += translations/scidavis_de.qm
     }
     !exists(translations/scidavis_de.ts){
