@@ -5,7 +5,9 @@
 TEMPLATE = app
 TARGET = readWriteProject
 DEPENDPATH += .
-INCLUDEPATH += . ../scidavis ../scidavis/src ../tmp/scidavis
+INCLUDEPATH += . ../libscidavis ../libscidavis/src ../tmp/scidavis
+LIBS += -L ../libscidavis -lscidavis
+
 
 CONFIG        += qt warn_on exceptions opengl thread zlib
 CONFIG        += assistant
@@ -14,10 +16,18 @@ MOC_DIR        = ../tmp/scidavis
 OBJECTS_DIR    = ../tmp/scidavis
 
 include(../config.pri)
-include(../scidavis/sourcefiles.pri)
+python {include( ../scidavis/python.pri )}
+
+liborigin {
+  LIBS += ../3rdparty/liborigin/liborigin.a
+}
 
 QT+=testlib
 
 # Input
 HEADERS += readWriteProject.h
 SOURCES += readWriteProject.cpp
+
+########### Future code backported from the aspect framework ##################
+DEFINES += LEGACY_CODE_0_2_x
+INCLUDEPATH += ../libscidavis/src/future

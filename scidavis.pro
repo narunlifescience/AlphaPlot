@@ -8,15 +8,16 @@ TEMPLATE = subdirs
 
 # configurations that automatically turn on liborigin - mainly the
 # binary releases, as well as the AEGIS build
-mxe|osx_dist|aegis {
-        CONFIG += liborigin 
-}
+mxe|osx_dist {CONFIG += liborigin}
+aegis {CONFIG += liborigin test}
 
 # liborigin must come first, if it exists
-liborigin {
-          SUBDIRS = 3rdparty/liborigin
-}
-SUBDIRS += scidavis test
+liborigin {SUBDIRS = 3rdparty/liborigin}
+
+SUBDIRS += libscidavis scidavis 
+
+test {SUBDIRS += test}
+
 CONFIG+=ordered
 
 !mxe {

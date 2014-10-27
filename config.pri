@@ -183,14 +183,6 @@ DEFINES         += SCRIPTING_DIALOG
 	DEFINES += DOWNLOAD_LINKS
 }
 
-### (remark: muparser.pri and python.pri must be included after defining INSTALLBASE )
-### building without muParser does not work yet (but will in a future version)
-include( ../scidavis/muparser.pri )
-### comment out the following line to deactivate Python scripting support
-!mxe {
-include( ../scidavis/python.pri )
-}
-
 ### support for Origin OPJ import using liborigin2
 mxe|osx_dist|aegis {
 CONFIG+=liborigin
@@ -199,15 +191,16 @@ liborigin {
 DEFINES  += ORIGIN_IMPORT
 }
 
+### python support
+osx_dist|aegis {
+CONFIG+=python
+}
+
 ################################################################################
 ### Dependencies                                                               #
 ################################################################################
 
 # code for maintained branch of liborigin. 
-liborigin {
-  LIBS += ../3rdparty/liborigin/liborigin.a
-  INCLUDEPATH += ../3rdparty/liborigin
-	}
 
 contains(PRESET, default_installation) {
 	### Link statically against Qwt and Qwtplot3D (in order to make sure they
@@ -223,10 +216,6 @@ contains(PRESET, default_installation) {
 	LIBS         += -lgsl -lgslcblas -lz -lGLU
 	LIBS         += -lmuparser
 
-#	contains(DEFINES, ORIGIN_IMPORT) {
-#		LIBS += -L../3rdparty/liborigin -lorigin
-#		INCLUDEPATH += ../3rdparty/liborigin
-#	}
 }
 
 osx_dist {
@@ -274,10 +263,6 @@ contains(PRESET, linux_package) {
 	LIBS         += -lgsl -lgslcblas
 	LIBS         += -lmuparser 
 
-#	contains(DEFINES, ORIGIN_IMPORT) {
-#		LIBS += -L../3rdparty/liborigin -lorigin
-#		INCLUDEPATH += ../3rdparty/liborigin
-#	}
 }
 
 contains(PRESET, self_contained) {
@@ -294,10 +279,6 @@ contains(PRESET, self_contained) {
 
 	LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
 
-#	contains(DEFINES, ORIGIN_IMPORT) {
-#		LIBS += ../3rdparty/liborigin/build/liborigin.a
-#		INCLUDEPATH += ../3rdparty/liborigin ../3rdparty/liborigin/build
-#	}
 }
 
 win32: {
