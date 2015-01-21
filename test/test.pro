@@ -5,7 +5,7 @@
 TEMPLATE = app
 TARGET = readWriteProject
 DEPENDPATH += .
-INCLUDEPATH += . ../libscidavis ../libscidavis/src ../tmp/scidavis
+INCLUDEPATH += . ../libscidavis ../libscidavis/src ../tmp/scidavis ../scidavis
 LIBS += -L ../libscidavis -lscidavis
 
 

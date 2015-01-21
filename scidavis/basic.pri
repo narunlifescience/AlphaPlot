@@ -67,7 +67,8 @@ contains( INSTALLS, translationfiles ){
         win32: tstarget.target = translations\scidavis_de.qm
 # note the translation files are not writable during AEGIS
 # integration, so we don't want to perform an update then
-        tstarget.commands = (! test -w translations/scidavis_de.ts || $$LUPDATE_BIN scidavis.pro) && $$LRELEASE_BIN scidavis.pro
+        tstarget.commands = (! test -w translations/scidavis_de.ts || \
+$$LUPDATE_BIN ../libscidavis/src/*.cpp -ts translations/*.ts) && $$LRELEASE_BIN translations/*.ts
 
         QMAKE_EXTRA_TARGETS += tstarget
         QMAKE_CLEAN += $$translationfiles.files

@@ -4,6 +4,8 @@ TARGET=scidavis
 
 include(../config.pri)
 
+INCLUDEPATH += ../scidavis
+
 liborigin {
   INCLUDEPATH += ../3rdparty/liborigin
 }
@@ -31,6 +33,8 @@ DESTDIR        = ./
 include( sourcefiles.pri )
 include( muparser.pri )
 python {include( python.pri )}
+
+
 
 #############################################################################
 #############################################################################
