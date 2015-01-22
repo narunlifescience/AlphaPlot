@@ -189,56 +189,63 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
 	switch(ke->key()) {
 		case Qt::Key_Enter:
 		case Qt::Key_Return:
-			emit selected(d_selected_curve, d_selected_point);
-			return true;
+                  if (d_selected_curve)
+                    emit selected(d_selected_curve, d_selected_point);
+                  return true;
 
 		case Qt::Key_Up:
-			{
-				int n_curves = d_graph->curves();
-				int start = d_graph->curveIndex(d_selected_curve) + 1;
-				QwtPlotCurve *c;
-				for (int i = start; i < start + n_curves; ++i)
-					if ((c=d_graph->curve(i % n_curves))->dataSize() > 0) {
-						setSelection(c, qMin(c->dataSize()-1, d_selected_point));
-						break;
-					}
-				d_graph->plotWidget()->replot();
-				return true;
-			}
+                  if (d_graph && d_selected_curve)
+                    {
+                      int n_curves = d_graph->curves();
+                      int start = d_graph->curveIndex(d_selected_curve) + 1;
+                      QwtPlotCurve *c;
+                      for (int i = start; i < start + n_curves; ++i)
+                        if ((c=d_graph->curve(i % n_curves))->dataSize() > 0) {
+                          setSelection(c, qMin(c->dataSize()-1, d_selected_point));
+                          break;
+                        }
+                      d_graph->plotWidget()->replot();
+                    }
+                  return true;
 
 		case Qt::Key_Down:
-			{
-				int n_curves = d_graph->curves();
-				int start = d_graph->curveIndex(d_selected_curve) + n_curves - 1;
-				QwtPlotCurve *c;
-				for (int i = start; i > start - n_curves; --i)
-					if ((c=d_graph->curve(i % n_curves))->dataSize() > 0) {
-						setSelection(c, qMin(c->dataSize()-1, d_selected_point));
-						break;
+                  if (d_graph && d_selected_curve)
+                    {
+                      int n_curves = d_graph->curves();
+                      int start = d_graph->curveIndex(d_selected_curve) + n_curves - 1;
+                      QwtPlotCurve *c;
+                      for (int i = start; i > start - n_curves; --i)
+                        if ((c=d_graph->curve(i % n_curves))->dataSize() > 0) {
+                          setSelection(c, qMin(c->dataSize()-1, d_selected_point));
+                          break;
 					}
-				d_graph->plotWidget()->replot();
-				return true;
-			}
+                      d_graph->plotWidget()->replot();
+                    }
+                  return true;
 
 		case Qt::Key_Right:
 		case Qt::Key_Plus:
-			if (d_selected_curve) {
-				int n_points = d_selected_curve->dataSize();
-				setSelection(d_selected_curve, (d_selected_point + 1) % n_points);
-				d_graph->plotWidget()->replot();
-			} else
-				setSelection(d_graph->curve(0), 0);
-			return true;
+                  if (d_graph)
+                    if (d_selected_curve) {
+                      int n_points = d_selected_curve->dataSize();
+                      setSelection(d_selected_curve, (d_selected_point + 1) % n_points);
+                      d_graph->plotWidget()->replot();
+                    } 
+                    else 
+                      setSelection(d_graph->curve(0), 0);
+                  return true;
 
 		case Qt::Key_Left:
 		case Qt::Key_Minus:
-			if (d_selected_curve) {
-				int n_points = d_selected_curve->dataSize();
-				setSelection(d_selected_curve, (d_selected_point - 1 + n_points) % n_points);
-				d_graph->plotWidget()->replot();
-			} else
-				setSelection(d_graph->curve(d_graph->curves()-1), 0);
-			return true;
+                  if (d_graph)
+                    if (d_selected_curve) {
+                      int n_points = d_selected_curve->dataSize();
+                      setSelection(d_selected_curve, (d_selected_point - 1 + n_points) % n_points);
+                      d_graph->plotWidget()->replot();
+                    } 
+                    else
+                      setSelection(d_graph->curve(d_graph->curves()-1), 0);
+                  return true;
 
 		// The following keys represent a direction, they are
 		// organized on the keyboard.
