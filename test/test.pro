@@ -8,6 +8,7 @@ DEPENDPATH += .
 INCLUDEPATH += . ../libscidavis ../libscidavis/src ../tmp/scidavis ../scidavis
 LIBS += -L ../libscidavis -lscidavis
 
+POST_TARGETDEPS=../libscidavis/libscidavis.a
 
 CONFIG        += qt warn_on exceptions opengl thread zlib
 CONFIG        += assistant
@@ -20,6 +21,7 @@ python {include( ../scidavis/python.pri )}
 
 liborigin {
   LIBS += ../3rdparty/liborigin/liborigin.a
+  POST_TARGETDEPS += ../3rdparty/liborigin/liborigin.a
 }
 
 QT+=testlib
