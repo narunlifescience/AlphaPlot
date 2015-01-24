@@ -459,7 +459,7 @@ Deseja sobrescrevê-lo?</translation>
     <message>
         <source>XML read error: </source>
         <comment>prefix for XML error messages</comment>
-        <translation type="obsolete">Erro na leitura XML:</translation>
+        <translation type="unfinished">Erro na leitura XML:</translation>
     </message>
     <message>
         <source> (loading failed)</source>
@@ -473,77 +473,77 @@ Deseja sobrescrevê-lo?</translation>
     <message>
         <source> (non-critical)</source>
         <comment>postfix for XML error messages</comment>
-        <translation type="obsolete">(não-crítico)</translation>
+        <translation type="unfinished">(não-crítico)</translation>
     </message>
     <message>
         <source>aspect name missing or empty</source>
-        <translation type="obsolete">falta (ou está vazio) o nome do aspecto</translation>
+        <translation type="unfinished">falta (ou está vazio) o nome do aspecto</translation>
     </message>
     <message>
         <source>Invalid creation time for &apos;%1&apos;. Using current time.</source>
-        <translation type="obsolete">Hora de criação inválida para &apos;%1&apos;. Usando hora atual.</translation>
+        <translation type="unfinished">Hora de criação inválida para &apos;%1&apos;. Usando hora atual.</translation>
     </message>
     <message>
         <source>%1: add %2.</source>
-        <translation type="obsolete">%1: adicionar %2.</translation>
+        <translation type="unfinished">%1: adicionar %2.</translation>
     </message>
     <message>
         <source>Renaming &quot;%1&quot; to &quot;%2&quot; in order to avoid name collision.</source>
-        <translation type="obsolete">Renomeando &quot;%1&quot; para &quot;%2&quot; para evitar conflito de nomes.</translation>
+        <translation type="unfinished">Renomeando &quot;%1&quot; para &quot;%2&quot; para evitar conflito de nomes.</translation>
     </message>
     <message>
         <source>%1: insert %2 at position %3.</source>
-        <translation type="obsolete">%1: inserir %2 na posição %3.</translation>
+        <translation type="unfinished">%1: inserir %2 na posição %3.</translation>
     </message>
     <message>
         <source>%1: remove %2.</source>
-        <translation type="obsolete">%1: remover %2.</translation>
+        <translation type="unfinished">%1: remover %2.</translation>
     </message>
     <message>
         <source>%1: move %2 to %3.</source>
-        <translation type="obsolete">%1: mover %2 para %3.</translation>
+        <translation type="unfinished">%1: mover %2 para %3.</translation>
     </message>
     <message>
         <source>Tabs and line breaks in object names are currently not supported. They have been removed.</source>
-        <translation type="obsolete">Tabulação e quebras de linha em nomes de objetos não são suportados atualmente. Eles foram removidos.</translation>
+        <translation type="unfinished">Tabulação e quebras de linha em nomes de objetos não são suportados atualmente. Eles foram removidos.</translation>
     </message>
     <message>
         <source>Intended name &quot;%1&quot; diverted to &quot;%2&quot; in order to avoid name collision.</source>
-        <translation type="obsolete">Nome pretendido &quot;%1&quot; alterado para &quot;%2&quot; para evitar conflito de noimes.</translation>
+        <translation type="unfinished">Nome pretendido &quot;%1&quot; alterado para &quot;%2&quot; para evitar conflito de noimes.</translation>
     </message>
     <message>
         <source>%1: remove all children.</source>
-        <translation type="obsolete">%1: remover todos os filhos.</translation>
+        <translation type="unfinished">%1: remover todos os filhos.</translation>
     </message>
 </context>
 <context>
     <name>AbstractPart</name>
     <message>
         <source>&amp;Restore</source>
-        <translation type="obsolete">&amp;Restaurar</translation>
+        <translation type="unfinished">&amp;Restaurar</translation>
     </message>
     <message>
         <source>Mi&amp;nimize</source>
-        <translation type="obsolete">Mi&amp;nimizar</translation>
+        <translation type="unfinished">Mi&amp;nimizar</translation>
     </message>
     <message>
         <source>Ma&amp;ximize</source>
-        <translation type="obsolete">Ma&amp;ximizar</translation>
+        <translation type="unfinished">Ma&amp;ximizar</translation>
     </message>
 </context>
 <context>
     <name>AbstractSimpleFilter</name>
     <message>
         <source>incompatible filter type</source>
-        <translation type="obsolete">filtro incompatível</translation>
+        <translation type="unfinished">filtro incompatível</translation>
     </message>
     <message>
         <source>unknown element &apos;%1&apos;</source>
-        <translation type="obsolete">elemento &apos;%1&apos; desconhecido</translation>
+        <translation type="unfinished">elemento &apos;%1&apos; desconhecido</translation>
     </message>
     <message>
         <source>no simple filter element found</source>
-        <translation type="obsolete">não foi encontrado nenhum elemento de filtro simples</translation>
+        <translation type="unfinished">não foi encontrado nenhum elemento de filtro simples</translation>
     </message>
 </context>
 <context>
@@ -4563,7 +4563,7 @@ Aviso: esta operação irá reorganizar as camadas existentes!</translation>
     <name>AsciiTableImportFilter</name>
     <message>
         <source>Table</source>
-        <translation type="obsolete">Tabela</translation>
+        <translation type="unfinished">Tabela</translation>
     </message>
 </context>
 <context>
@@ -7541,6 +7541,30 @@ p, li { white-space: pre-wrap; }
         <source>bytes</source>
         <translation type="obsolete">bytes</translation>
     </message>
+    <message>
+        <source>unknown element &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no folder element found</source>
+        <translation type="unfinished">sem elemento de pasta</translation>
+    </message>
+    <message>
+        <source>Folder %1</source>
+        <translation type="unfinished">Pasta %1</translation>
+    </message>
+    <message>
+        <source>Column %1</source>
+        <translation type="unfinished">Coluna %1</translation>
+    </message>
+    <message>
+        <source>creation of aspect from element &apos;%1&apos; failed</source>
+        <translation type="unfinished">A criação de aspecto a partir do elemento &apos;%1&apos; falhou</translation>
+    </message>
+    <message>
+        <source>no plugin to load element &apos;%1&apos; found</source>
+        <translation type="unfinished">Nenhum plugin para carregar o elemento &apos;%1&apos; foi encontrado</translation>
+    </message>
 </context>
 <context>
     <name>FunctionCurve</name>
@@ -9804,6 +9828,254 @@ Gostaria de inserir células?</translation>
         <source>%1: apply formula to selection</source>
         <translation type="unfinished">%1: aplicar fórmula à seleção</translation>
     </message>
+    <message>
+        <source>%1: cut selected cell(s)</source>
+        <translation type="unfinished">%1: cortar célula(s) selecionada(s)</translation>
+    </message>
+    <message>
+        <source>%1: paste from clipboard</source>
+        <translation type="unfinished">%1: colar da área de trabalho</translation>
+    </message>
+    <message>
+        <source>%1: clear selected cell(s)</source>
+        <translation type="unfinished">%1: limpar célula(s) selecionada(s)</translation>
+    </message>
+    <message>
+        <source>Cu&amp;t</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type="unfinished">C&amp;opiar</translation>
+    </message>
+    <message>
+        <source>Past&amp;e</source>
+        <translation type="unfinished">Co&amp;lar</translation>
+    </message>
+    <message>
+        <source>Clea&amp;r</source>
+        <comment>clear selection</comment>
+        <translation type="unfinished">Limpa&amp;r</translation>
+    </message>
+    <message>
+        <source>Assign &amp;Formula</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alt+Q</source>
+        <translation type="unfinished">Alt+Q</translation>
+    </message>
+    <message>
+        <source>Recalculate</source>
+        <translation type="unfinished">Recalcular</translation>
+    </message>
+    <message>
+        <source>Ctrl+Return</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F12</source>
+        <translation type="unfinished">F12</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation type="unfinished">Selecionar tudo</translation>
+    </message>
+    <message>
+        <source>Clear Matrix</source>
+        <translation type="unfinished">Limpar matriz</translation>
+    </message>
+    <message>
+        <source>&amp;Go to Cell</source>
+        <translation type="unfinished">Ir para célula</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+G</source>
+        <translation type="unfinished">Ctrl+Alt+G</translation>
+    </message>
+    <message>
+        <source>&amp;Transpose</source>
+        <translation type="unfinished">&amp;Transpor</translation>
+    </message>
+    <message>
+        <source>Mirror &amp;Horizontally</source>
+        <translation type="unfinished">Espelhar horizontalmente</translation>
+    </message>
+    <message>
+        <source>Mirror &amp;Vertically</source>
+        <translation type="unfinished">Espelhar verticalmente</translation>
+    </message>
+    <message>
+        <source>&amp;Import Image</source>
+        <comment>import image as matrix</comment>
+        <translation type="unfinished">Importar imagem</translation>
+    </message>
+    <message>
+        <source>&amp;Duplicate</source>
+        <comment>duplicate matrix</comment>
+        <translation type="unfinished">&amp;Duplicar</translation>
+    </message>
+    <message>
+        <source>&amp;Dimensions</source>
+        <comment>matrix size</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set &amp;Coordinates</source>
+        <translation type="unfinished">Coordenadas</translation>
+    </message>
+    <message>
+        <source>Set Display &amp;Format</source>
+        <translation type="unfinished">Definir formato do mostrador</translation>
+    </message>
+    <message>
+        <source>&amp;Insert Empty Columns</source>
+        <translation type="unfinished">Inserir coluna vazia</translation>
+    </message>
+    <message>
+        <source>Remo&amp;ve Columns</source>
+        <translation type="unfinished">Remover colunas</translation>
+    </message>
+    <message>
+        <source>Clea&amp;r Columns</source>
+        <translation type="unfinished">Limpar colunas</translation>
+    </message>
+    <message>
+        <source>&amp;Add Columns</source>
+        <translation type="unfinished">Adicionar colunas</translation>
+    </message>
+    <message>
+        <source>&amp;Insert Empty Rows</source>
+        <translation type="unfinished">Inserir linhas vazias</translation>
+    </message>
+    <message>
+        <source>Remo&amp;ve Rows</source>
+        <translation type="unfinished">Remover linhas</translation>
+    </message>
+    <message>
+        <source>Clea&amp;r Rows</source>
+        <translation type="unfinished">Lim&amp;par linhas</translation>
+    </message>
+    <message>
+        <source>&amp;Add Rows</source>
+        <translation type="unfinished">Adicionar linhas</translation>
+    </message>
+    <message>
+        <source>&amp;Matrix</source>
+        <translation type="unfinished">&amp;Matriz</translation>
+    </message>
+    <message>
+        <source>Go to Cell</source>
+        <translation type="unfinished">Ir para a célula</translation>
+    </message>
+    <message>
+        <source>Enter column</source>
+        <translation type="unfinished">Inserir coluna</translation>
+    </message>
+    <message>
+        <source>Enter row</source>
+        <translation type="unfinished">Inserir linha</translation>
+    </message>
+    <message>
+        <source>Set Matrix Dimensions</source>
+        <translation type="unfinished">Definir dimensões da matriz</translation>
+    </message>
+    <message>
+        <source>Enter number of columns</source>
+        <translation type="unfinished">Número de colunas</translation>
+    </message>
+    <message>
+        <source>Enter number of rows</source>
+        <translation type="unfinished">Número de linhas</translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import image from file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error importing image</source>
+        <translation type="unfinished">Erro ao importar imagem</translation>
+    </message>
+    <message>
+        <source>Import of image &apos;%1&apos; failed</source>
+        <translation type="unfinished">A importação da imagem &apos;%1&apos; falhou</translation>
+    </message>
+    <message>
+        <source>invalid row or column count</source>
+        <translation type="unfinished">Contagem de linhas ou colunas inválidas</translation>
+    </message>
+    <message>
+        <source>unknown element &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no matrix element found</source>
+        <translation type="unfinished">Nenhum elemento de matriz encontrado</translation>
+    </message>
+    <message>
+        <source>invalid or missing numeric format</source>
+        <translation type="unfinished">Formato numérico inválido ou ausente</translation>
+    </message>
+    <message>
+        <source>invalid or missing number of displayed digits</source>
+        <translation type="unfinished">O número de dígitos mostrados não é válido</translation>
+    </message>
+    <message>
+        <source>invalid x start value</source>
+        <translation type="unfinished">O valor inicial de x não é válido</translation>
+    </message>
+    <message>
+        <source>invalid x end value</source>
+        <translation type="unfinished">O valor final de x não é válido</translation>
+    </message>
+    <message>
+        <source>invalid y start value</source>
+        <translation type="unfinished">valor inicial de y inválido</translation>
+    </message>
+    <message>
+        <source>invalid y end value</source>
+        <translation type="unfinished">valor final de y inválido</translation>
+    </message>
+    <message>
+        <source>invalid or missing row index</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>invalid row height</source>
+        <translation type="unfinished">altura de linha inválida</translation>
+    </message>
+    <message>
+        <source>invalid or missing column index</source>
+        <translation type="unfinished">índice de colunas inválido ou inexistente</translation>
+    </message>
+    <message>
+        <source>invalid column width</source>
+        <translation type="unfinished">largura de coluna inválida</translation>
+    </message>
+    <message>
+        <source>invalid cell value</source>
+        <translation type="unfinished">valor da célula inválido</translation>
+    </message>
+    <message>
+        <source>Hide Controls</source>
+        <translation type="unfinished">Ocultar controles</translation>
+    </message>
+    <message>
+        <source>Show Controls</source>
+        <translation type="unfinished">Mostrar controles</translation>
+    </message>
+    <message>
+        <source>Matrix</source>
+        <translation type="unfinished">Matriz</translation>
+    </message>
+    <message>
+        <source>Import image...</source>
+        <translation type="unfinished">Importar imagem...</translation>
+    </message>
 </context>
 <context>
     <name>MatrixControlTabs</name>
@@ -10116,35 +10388,35 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Ctrl+A</source>
         <comment>Matrix: select all</comment>
-        <translation type="obsolete">Ctrl+A</translation>
+        <translation type="unfinished">Ctrl+A</translation>
     </message>
     <message>
         <source>Show/hide control tabs</source>
-        <translation type="obsolete">Mostrar/esconder abas de controle</translation>
+        <translation type="unfinished">Mostrar/esconder abas de controle</translation>
     </message>
     <message>
         <source>Decimal</source>
-        <translation type="obsolete">Decimal</translation>
+        <translation type="unfinished">Decimal</translation>
     </message>
     <message>
         <source>Scientific (e)</source>
-        <translation type="obsolete">Científico (e)</translation>
+        <translation type="unfinished">Científico (e)</translation>
     </message>
     <message>
         <source>Scientific (E)</source>
-        <translation type="obsolete">Científico (E)</translation>
+        <translation type="unfinished">Científico (E)</translation>
     </message>
     <message>
         <source>Example: %1</source>
-        <translation type="obsolete">Exemplo: %1</translation>
+        <translation type="unfinished">Exemplo: %1</translation>
     </message>
     <message>
         <source>Automatic (e)</source>
-        <translation type="obsolete">Automático (e)</translation>
+        <translation type="unfinished">Automático (e)</translation>
     </message>
     <message>
         <source>Automatic (E)</source>
-        <translation type="obsolete">Automático (E)</translation>
+        <translation type="unfinished">Automático (E)</translation>
     </message>
 </context>
 <context>
@@ -12235,23 +12507,23 @@ s-ésimo zero positivo x_s da função regular cilíndrica de Bessel de ordem n,
     <name>Project</name>
     <message>
         <source>Unnamed</source>
-        <translation type="obsolete">Sem nome</translation>
+        <translation type="unfinished">Sem nome</translation>
     </message>
     <message>
         <source>invalid or missing project version</source>
-        <translation type="obsolete">versão do projeto inválida ou faltando</translation>
+        <translation type="unfinished">versão do projeto inválida ou faltando</translation>
     </message>
     <message>
         <source>unknown element &apos;%1&apos;</source>
-        <translation type="obsolete">o elemento &apos;%1&apos; é desconhecido</translation>
+        <translation type="unfinished">o elemento &apos;%1&apos; é desconhecido</translation>
     </message>
     <message>
         <source>no scidavis_project element found</source>
-        <translation type="obsolete">nenhum elemento do scidavis encontrado</translation>
+        <translation type="unfinished">nenhum elemento do scidavis encontrado</translation>
     </message>
     <message>
         <source>no valid XML document found</source>
-        <translation type="obsolete">nenhum documento XML válido foi encontrado</translation>
+        <translation type="unfinished">nenhum documento XML válido foi encontrado</translation>
     </message>
 </context>
 <context>
@@ -12296,15 +12568,15 @@ s-ésimo zero positivo x_s da função regular cilíndrica de Bessel de ordem n,
     </message>
     <message>
         <source>&amp;Remove</source>
-        <translation type="obsolete">&amp;Remover</translation>
+        <translation type="unfinished">&amp;Remover</translation>
     </message>
     <message>
         <source>In%1</source>
-        <translation type="obsolete">Em%1</translation>
+        <translation type="unfinished">Em%1</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="obsolete">Geral</translation>
+        <translation type="unfinished">Geral</translation>
     </message>
     <message>
         <source>%1: rename to %2</source>
@@ -12340,7 +12612,7 @@ s-ésimo zero positivo x_s da função regular cilíndrica de Bessel de ordem n,
     </message>
     <message>
         <source>%1: change column type</source>
-        <translation type="obsolete">%1: alterar tipo da coluna</translation>
+        <translation type="unfinished">%1: alterar tipo da coluna</translation>
     </message>
     <message>
         <source>%1: change cell value(s)</source>
@@ -12348,11 +12620,11 @@ s-ésimo zero positivo x_s da função regular cilíndrica de Bessel de ordem n,
     </message>
     <message>
         <source>%1: insert %2 row(s)</source>
-        <translation type="obsolete">%1: inserir %2 linha(s)</translation>
+        <translation type="unfinished">%1: inserir %2 linha(s)</translation>
     </message>
     <message>
         <source>%1: remove %2 row(s)</source>
-        <translation type="obsolete">%1: remover %2 linha(s)</translation>
+        <translation type="unfinished">%1: remover %2 linha(s)</translation>
     </message>
     <message>
         <source>%1: set plot designation</source>
@@ -12420,7 +12692,7 @@ s-ésimo zero positivo x_s da função regular cilíndrica de Bessel de ordem n,
     </message>
     <message>
         <source>%1: set numeric format to &apos;%2&apos;</source>
-        <translation type="obsolete">%1: definir formato numérico para &apos;%2&apos;</translation>
+        <translation type="unfinished">%1: definir formato numérico para &apos;%2&apos;</translation>
     </message>
     <message>
         <source>set numeric format to &apos;%1&apos;</source>
@@ -12428,7 +12700,7 @@ s-ésimo zero positivo x_s da função regular cilíndrica de Bessel de ordem n,
     </message>
     <message>
         <source>%1: set decimal digits to %2</source>
-        <translation type="obsolete">%1: definir casas decimais para %2</translation>
+        <translation type="unfinished">%1: definir casas decimais para %2</translation>
     </message>
     <message>
         <source>set decimal digits to %1</source>
@@ -12437,109 +12709,109 @@ s-ésimo zero positivo x_s da função regular cilíndrica de Bessel de ordem n,
     <message>
         <source>XML reader error: </source>
         <comment>prefix for XML error messages</comment>
-        <translation type="obsolete">Erro no leitor de XML:</translation>
+        <translation type="unfinished">Erro no leitor de XML:</translation>
     </message>
     <message>
         <source> (loading failed)</source>
         <comment>postfix for XML error messages</comment>
-        <translation type="obsolete">(o carregamento falhou)</translation>
+        <translation type="unfinished">(o carregamento falhou)</translation>
     </message>
     <message>
         <source>XML reader warning: </source>
         <comment>prefix for XML warning messages</comment>
-        <translation type="obsolete">Aviso do leitor de XML:</translation>
+        <translation type="unfinished">Aviso do leitor de XML:</translation>
     </message>
     <message>
         <source>line %1, column %2: </source>
-        <translation type="obsolete">linha %1, coluna %2:</translation>
+        <translation type="unfinished">linha %1, coluna %2:</translation>
     </message>
     <message>
         <source>unexpected end of document</source>
-        <translation type="obsolete">final inesperado de documento</translation>
+        <translation type="unfinished">final inesperado de documento</translation>
     </message>
     <message>
         <source>%1: insert %2 column(s)</source>
-        <translation type="obsolete">%1: inserir %2 coluna(s)</translation>
+        <translation type="unfinished">%1: inserir %2 coluna(s)</translation>
     </message>
     <message>
         <source>%1: remove %2 column(s)</source>
-        <translation type="obsolete">%1: remover %2 coluna(s)</translation>
+        <translation type="unfinished">%1: remover %2 coluna(s)</translation>
     </message>
     <message>
         <source>%1: set matrix size to %2x%3</source>
-        <translation type="obsolete">%1: definir tamanho da matriz para %2x%3</translation>
+        <translation type="unfinished">%1: definir tamanho da matriz para %2x%3</translation>
     </message>
     <message>
         <source>%1: clear</source>
-        <translation type="obsolete">%1: limpar</translation>
+        <translation type="unfinished">%1: limpar</translation>
     </message>
     <message>
         <source>%1: insert empty column(s)</source>
-        <translation type="obsolete">%1: inserir coluna(s) em branco</translation>
+        <translation type="unfinished">%1: inserir coluna(s) em branco</translation>
     </message>
     <message>
         <source>%1: remove selected column(s)</source>
-        <translation type="obsolete">%1: remover coluna(s) selecionada(s)</translation>
+        <translation type="unfinished">%1: remover coluna(s) selecionada(s)</translation>
     </message>
     <message>
         <source>%1: clear selected column(s)</source>
-        <translation type="obsolete">%1: limpar coluna(s) selecionada(s)</translation>
+        <translation type="unfinished">%1: limpar coluna(s) selecionada(s)</translation>
     </message>
     <message>
         <source>%1: insert empty rows(s)</source>
-        <translation type="obsolete">%1: inserir linha(s) em branco</translation>
+        <translation type="unfinished">%1: inserir linha(s) em branco</translation>
     </message>
     <message>
         <source>%1: remove selected rows(s)</source>
-        <translation type="obsolete">%1: remover lilnha(s) selecionada(s)</translation>
+        <translation type="unfinished">%1: remover lilnha(s) selecionada(s)</translation>
     </message>
     <message>
         <source>%1: clear selected rows(s)</source>
-        <translation type="obsolete">%1: limpar linha(s) selecionada(s)</translation>
+        <translation type="unfinished">%1: limpar linha(s) selecionada(s)</translation>
     </message>
     <message>
         <source>%1: copy %2</source>
-        <translation type="obsolete">%1: copiar %2</translation>
+        <translation type="unfinished">%1: copiar %2</translation>
     </message>
     <message>
         <source>%1: add %2 rows(s)</source>
-        <translation type="obsolete">%1: adicionar %2 linha(s)</translation>
+        <translation type="unfinished">%1: adicionar %2 linha(s)</translation>
     </message>
     <message>
         <source>%1: add %2 column(s)</source>
-        <translation type="obsolete">%1: adicionar %2 coluna(s)</translation>
+        <translation type="unfinished">%1: adicionar %2 coluna(s)</translation>
     </message>
     <message>
         <source>%1: clear column %2</source>
-        <translation type="obsolete">%1: limpar coluna %2</translation>
+        <translation type="unfinished">%1: limpar coluna %2</translation>
     </message>
     <message>
         <source>%1: set cell value</source>
-        <translation type="obsolete">%1: definir valor da célula</translation>
+        <translation type="unfinished">%1: definir valor da célula</translation>
     </message>
     <message>
         <source>%1: set matrix coordinates</source>
-        <translation type="obsolete">%1: definir coordenadas da matriz</translation>
+        <translation type="unfinished">%1: definir coordenadas da matriz</translation>
     </message>
     <message>
         <source>%1: set formula</source>
-        <translation type="obsolete">%1: definir fórmula</translation>
+        <translation type="unfinished">%1: definir fórmula</translation>
     </message>
     <message>
         <source>%1: set cell values</source>
-        <translation type="obsolete">%1: definir valores das células</translation>
+        <translation type="unfinished">%1: definir valores das células</translation>
     </message>
     <message>
         <source>%1: transpose</source>
-        <translation type="obsolete">%1: transpor</translation>
+        <translation type="unfinished">%1: transpor</translation>
     </message>
     <message>
         <source>%1: mirror horizontally</source>
-        <translation type="obsolete">%1: espelhar horizontalmente</translation>
+        <translation type="unfinished">%1: espelhar horizontalmente</translation>
     </message>
     <message>
         <source>%1: mirror vertically</source>
-        <translation type="obsolete">%1: espelhar verticalmente</translation>
+        <translation type="unfinished">%1: espelhar verticalmente</translation>
     </message>
     <message>
         <source>ASCII table</source>
@@ -12547,31 +12819,31 @@ s-ésimo zero positivo x_s da função regular cilíndrica de Bessel de ordem n,
     </message>
     <message>
         <source>%1: set the number of rows to %2</source>
-        <translation type="obsolete">%1: definir o número de linhas para %2</translation>
+        <translation type="unfinished">%1: definir o número de linhas para %2</translation>
     </message>
     <message>
         <source>%1: clear all masks</source>
-        <translation type="obsolete">%1: remover todas as máscaras</translation>
+        <translation type="unfinished">%1: remover todas as máscaras</translation>
     </message>
     <message>
         <source>%1: add column</source>
-        <translation type="obsolete">%1: adicionar coluna</translation>
+        <translation type="unfinished">%1: adicionar coluna</translation>
     </message>
     <message>
         <source>%1: set plot designation(s)</source>
-        <translation type="obsolete">%1: definir designação do(s) gráfico(s)</translation>
+        <translation type="unfinished">%1: definir designação do(s) gráfico(s)</translation>
     </message>
     <message>
         <source>%1: normalize column(s)</source>
-        <translation type="obsolete">%1: normalizar coluna(s)</translation>
+        <translation type="unfinished">%1: normalizar coluna(s)</translation>
     </message>
     <message>
         <source>%1: normalize selection</source>
-        <translation type="obsolete">%1: normalizar seleção</translation>
+        <translation type="unfinished">%1: normalizar seleção</translation>
     </message>
     <message>
         <source>%1: move column %2 from position %3 to %4</source>
-        <translation type="obsolete">%1: mover coluna %2 da posição %3 para a %4</translation>
+        <translation type="unfinished">%1: mover coluna %2 da posição %3 para a %4</translation>
     </message>
     <message>
         <source>About SciDAVis</source>
@@ -12579,7 +12851,7 @@ s-ésimo zero positivo x_s da função regular cilíndrica de Bessel de ordem n,
     </message>
     <message>
         <source>%1: clear selected cell(s)</source>
-        <translation type="obsolete">%1: limpar célula(s) selecionada(s)</translation>
+        <translation type="unfinished">%1: limpar célula(s) selecionada(s)</translation>
     </message>
 </context>
 <context>
@@ -13180,43 +13452,43 @@ Deseja sobreescrevê-lo?</translation>
     </message>
     <message>
         <source>Sort columns</source>
-        <translation type="obsolete">Ordenar colunas</translation>
+        <translation type="unfinished">Ordenar colunas</translation>
     </message>
     <message>
         <source>Order</source>
-        <translation type="obsolete">Ordem</translation>
+        <translation type="unfinished">Ordem</translation>
     </message>
     <message>
         <source>Leading column</source>
-        <translation type="obsolete">Coluna principal</translation>
+        <translation type="unfinished">Coluna principal</translation>
     </message>
     <message>
         <source>&amp;Sort</source>
-        <translation type="obsolete">&amp;Ordenar</translation>
+        <translation type="unfinished">&amp;Ordenar</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="obsolete">&amp;Fechar</translation>
+        <translation type="unfinished">&amp;Fechar</translation>
     </message>
     <message>
         <source>Separately</source>
-        <translation type="obsolete">Separadamente</translation>
+        <translation type="unfinished">Separadamente</translation>
     </message>
     <message>
         <source>Together</source>
-        <translation type="obsolete">Juntas</translation>
+        <translation type="unfinished">Juntas</translation>
     </message>
     <message>
         <source>Ascending</source>
-        <translation type="obsolete">Ascendente</translation>
+        <translation type="unfinished">Ascendente</translation>
     </message>
     <message>
         <source>Descending</source>
-        <translation type="obsolete">Descendente</translation>
+        <translation type="unfinished">Descendente</translation>
     </message>
     <message>
         <source>Sorting Options</source>
-        <translation type="obsolete">Opções de ordenamento</translation>
+        <translation type="unfinished">Opções de ordenamento</translation>
     </message>
 </context>
 <context>
@@ -13602,6 +13874,332 @@ Gostaria de inserir células?</translation>
         <source>%1: apply formula to column</source>
         <translation type="unfinished">%1: aplicar fórmula à coluna</translation>
     </message>
+    <message>
+        <source>%1: cut selected cell(s)</source>
+        <translation type="unfinished">%1: cortar célula(s) selecionada(s)</translation>
+    </message>
+    <message>
+        <source>%1: paste from clipboard</source>
+        <translation type="unfinished">%1: colar da área de trabalho</translation>
+    </message>
+    <message>
+        <source>%1: mask selected cell(s)</source>
+        <translation type="unfinished">%1: mascarar células(s) selecionada(s)</translation>
+    </message>
+    <message>
+        <source>%1: unmask selected cell(s)</source>
+        <translation type="unfinished">%1: remover máscara(s) de célula(s) selecionada(s)</translation>
+    </message>
+    <message>
+        <source>%1: apply formula to selection</source>
+        <translation type="unfinished">%1: aplicar fórmula à seleção</translation>
+    </message>
+    <message>
+        <source>%1: fill cells with row numbers</source>
+        <translation type="unfinished">%1: preencher células com números das linhas</translation>
+    </message>
+    <message>
+        <source>%1: fill cells with random values</source>
+        <translation type="unfinished">%1: preencher células com valores aleatórios</translation>
+    </message>
+    <message>
+        <source>&amp;Table</source>
+        <translation type="unfinished">&amp;Tabela</translation>
+    </message>
+    <message>
+        <source>S&amp;et Column(s) As</source>
+        <translation type="unfinished">Definir coluna(s) como</translation>
+    </message>
+    <message>
+        <source>Fi&amp;ll Selection with</source>
+        <translation type="unfinished">&amp;Preencher seleção com</translation>
+    </message>
+    <message>
+        <source>Cu&amp;t</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation type="unfinished">C&amp;opiar</translation>
+    </message>
+    <message>
+        <source>Past&amp;e</source>
+        <translation type="unfinished">Co&amp;lar</translation>
+    </message>
+    <message>
+        <source>&amp;Mask</source>
+        <comment>mask selection</comment>
+        <translation type="unfinished">Mascarar</translation>
+    </message>
+    <message>
+        <source>&amp;Unmask</source>
+        <comment>unmask selection</comment>
+        <translation type="unfinished">Desmascarar</translation>
+    </message>
+    <message>
+        <source>Assign &amp;Formula</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alt+Q</source>
+        <translation type="unfinished">Alt+Q</translation>
+    </message>
+    <message>
+        <source>Clea&amp;r</source>
+        <comment>clear selection</comment>
+        <translation type="unfinished">Limpa&amp;r</translation>
+    </message>
+    <message>
+        <source>Recalculate</source>
+        <translation type="unfinished">Recalcular</translation>
+    </message>
+    <message>
+        <source>Ctrl+Return</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Row Numbers</source>
+        <translation type="unfinished">Números das linhas</translation>
+    </message>
+    <message>
+        <source>Random Values</source>
+        <translation type="unfinished">Valores aleatórios</translation>
+    </message>
+    <message>
+        <source>F12</source>
+        <translation type="unfinished">F12</translation>
+    </message>
+    <message>
+        <source>Formula Edit Mode</source>
+        <translation type="unfinished">Modo de edição de fórmula</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation type="unfinished">Selecionar tudo</translation>
+    </message>
+    <message>
+        <source>&amp;Add Column</source>
+        <translation type="unfinished">Adicio&amp;nar coluna</translation>
+    </message>
+    <message>
+        <source>append a new column to the table</source>
+        <translation type="unfinished">adicionar nova coluna à tabela</translation>
+    </message>
+    <message>
+        <source>Clear Table</source>
+        <translation type="unfinished">Limpar tabela</translation>
+    </message>
+    <message>
+        <source>Export to TeX...</source>
+        <translation type="unfinished">Exportar para Tex...</translation>
+    </message>
+    <message>
+        <source>Clear Masks</source>
+        <translation type="unfinished">Limpar máscaras</translation>
+    </message>
+    <message>
+        <source>&amp;Sort Table</source>
+        <translation type="unfinished">Ordenar tabela</translation>
+    </message>
+    <message>
+        <source>&amp;Go to Cell</source>
+        <translation type="unfinished">Ir para célula</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+G</source>
+        <translation type="unfinished">Ctrl+Alt+G</translation>
+    </message>
+    <message>
+        <source>&amp;Dimensions</source>
+        <comment>table size</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>change the table size</source>
+        <translation type="unfinished">Modificar dimensões da tabela</translation>
+    </message>
+    <message>
+        <source>&amp;Insert Empty Columns</source>
+        <translation type="unfinished">Inserir coluna vazia</translation>
+    </message>
+    <message>
+        <source>Remo&amp;ve Columns</source>
+        <translation type="unfinished">Remover colunas</translation>
+    </message>
+    <message>
+        <source>Clea&amp;r Columns</source>
+        <translation type="unfinished">Limpar colunas</translation>
+    </message>
+    <message>
+        <source>&amp;Add Columns</source>
+        <translation type="unfinished">Adicionar colunas</translation>
+    </message>
+    <message>
+        <source>X</source>
+        <comment>plot designation</comment>
+        <translation type="unfinished">X</translation>
+    </message>
+    <message>
+        <source>Y</source>
+        <comment>plot designation</comment>
+        <translation type="unfinished">Y</translation>
+    </message>
+    <message>
+        <source>Z</source>
+        <comment>plot designation</comment>
+        <translation type="unfinished">Z</translation>
+    </message>
+    <message>
+        <source>X Error</source>
+        <comment>plot designation</comment>
+        <translation type="unfinished">Erro em X</translation>
+    </message>
+    <message>
+        <source>Y Error</source>
+        <comment>plot designation</comment>
+        <translation type="unfinished">Erro em Y</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>plot designation</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Normalize Columns</source>
+        <translation type="unfinished">Normalizar colunas</translation>
+    </message>
+    <message>
+        <source>&amp;Normalize Selection</source>
+        <translation type="unfinished">Normalizar seleção</translation>
+    </message>
+    <message>
+        <source>&amp;Sort Columns</source>
+        <translation type="unfinished">Ordenar colunas</translation>
+    </message>
+    <message>
+        <source>Column Statisti&amp;cs</source>
+        <translation type="unfinished">Estatísticas das colunas</translation>
+    </message>
+    <message>
+        <source>statistics on columns</source>
+        <translation type="unfinished">Estatísticas em colunas</translation>
+    </message>
+    <message>
+        <source>Change &amp;Type &amp;&amp; Format</source>
+        <translation type="unfinished">Modificar tipo e formato</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+O</source>
+        <translation type="unfinished">Ctrl+Alt+O</translation>
+    </message>
+    <message>
+        <source>Edit Column &amp;Description</source>
+        <translation type="unfinished">Editar descrição da coluna</translation>
+    </message>
+    <message>
+        <source>&amp;Insert Empty Rows</source>
+        <translation type="unfinished">Inserir linhas vazias</translation>
+    </message>
+    <message>
+        <source>Remo&amp;ve Rows</source>
+        <translation type="unfinished">Remover linhas</translation>
+    </message>
+    <message>
+        <source>Clea&amp;r Rows</source>
+        <translation type="unfinished">Lim&amp;par linhas</translation>
+    </message>
+    <message>
+        <source>&amp;Add Rows</source>
+        <translation type="unfinished">Adicionar linhas</translation>
+    </message>
+    <message>
+        <source>Row Statisti&amp;cs</source>
+        <translation type="unfinished">Estatísticas das linhas</translation>
+    </message>
+    <message>
+        <source>statistics on rows</source>
+        <translation type="unfinished">Estatísticas em linhas</translation>
+    </message>
+    <message>
+        <source>TeX Export Error</source>
+        <translation type="unfinished">Erro ao exportar para Tex</translation>
+    </message>
+    <message>
+        <source>Could not write to file: &lt;br&gt;&lt;h4&gt;%1&lt;/h4&gt;&lt;p&gt;Please verify that you have the right to write to this location!</source>
+        <translation type="unfinished">Não foi possível escrever no arquivo: &lt;br&gt;&lt;h4&gt; %1 &lt;/h4&gt;&lt;p&gt;Por favor, verifique se você tem permissão de escrita no local selecionado!</translation>
+    </message>
+    <message>
+        <source>Go to Cell</source>
+        <translation type="unfinished">Ir para a célula</translation>
+    </message>
+    <message>
+        <source>Enter column</source>
+        <translation type="unfinished">Inserir coluna</translation>
+    </message>
+    <message>
+        <source>Enter row</source>
+        <translation type="unfinished">Inserir linha</translation>
+    </message>
+    <message>
+        <source>Set Table Dimensions</source>
+        <translation type="unfinished">Definir dimensões da tabela</translation>
+    </message>
+    <message>
+        <source>%1: move column %2 from position %3 to %4.</source>
+        <translation type="unfinished">%1: mover coluna %2 da posição %3 para %4.</translation>
+    </message>
+    <message>
+        <source>%1: sort column(s)</source>
+        <translation type="unfinished">%1: ordenar coluna(s)</translation>
+    </message>
+    <message>
+        <source>invalid row or column count</source>
+        <translation type="unfinished">Contagem de linhas ou colunas inválidas</translation>
+    </message>
+    <message>
+        <source>Column %1</source>
+        <translation type="unfinished">Coluna %1</translation>
+    </message>
+    <message>
+        <source>unknown element &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>columns attribute and number of read columns do not match</source>
+        <translation type="unfinished">os atributos das colunas e o número de colunas lidas não coincidem</translation>
+    </message>
+    <message>
+        <source>no table element found</source>
+        <translation type="unfinished">nenhum elemento de tabela encontrado</translation>
+    </message>
+    <message>
+        <source>Hide Comments</source>
+        <translation type="unfinished">Ocultar comentários</translation>
+    </message>
+    <message>
+        <source>Show Comments</source>
+        <translation type="unfinished">Mostrar comentários</translation>
+    </message>
+    <message>
+        <source>Hide Controls</source>
+        <translation type="unfinished">Ocultar controles</translation>
+    </message>
+    <message>
+        <source>Show Controls</source>
+        <translation type="unfinished">Mostrar controles</translation>
+    </message>
+    <message>
+        <source>invalid or missing column index</source>
+        <translation type="unfinished">índice de colunas inválido ou inexistente</translation>
+    </message>
+    <message>
+        <source>invalid column width</source>
+        <translation type="unfinished">largura de coluna inválida</translation>
+    </message>
+    <message>
+        <source>Table</source>
+        <translation type="unfinished">Tabela</translation>
+    </message>
 </context>
 <context>
     <name>TableDialog</name>
@@ -13836,17 +14434,17 @@ Gostaria de inserir células?</translation>
     <name>TableModel</name>
     <message>
         <source>(masked)</source>
-        <translation type="obsolete">(mascarado)</translation>
+        <translation type="unfinished">(mascarado)</translation>
     </message>
     <message>
         <source>invalid cell (ignored in all operations)</source>
         <comment>tooltip string for invalid rows</comment>
-        <translation type="obsolete">célula inválida (ignorada em todas as opreações)</translation>
+        <translation type="unfinished">célula inválida (ignorada em todas as opreações)</translation>
     </message>
     <message>
         <source>-</source>
         <comment>string for invalid rows</comment>
-        <translation type="obsolete">cadeia de caracteres para linhas inválidas</translation>
+        <translation type="unfinished">cadeia de caracteres para linhas inválidas</translation>
     </message>
 </context>
 <context>
@@ -13925,163 +14523,163 @@ Gostaria de inserir células?</translation>
     <message>
         <source>Ctrl+A</source>
         <comment>Table: select all</comment>
-        <translation type="obsolete">Ctrl+A</translation>
+        <translation type="unfinished">Ctrl+A</translation>
     </message>
     <message>
         <source>Show/hide control tabs</source>
-        <translation type="obsolete">Mostrar/ocultar abas de controle</translation>
+        <translation type="unfinished">Mostrar/ocultar abas de controle</translation>
     </message>
     <message>
         <source>Numeric</source>
-        <translation type="obsolete">Numérico</translation>
+        <translation type="unfinished">Numérico</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="obsolete">Texto</translation>
+        <translation type="unfinished">Texto</translation>
     </message>
     <message>
         <source>Month names</source>
-        <translation type="obsolete">Nomes dos meses</translation>
+        <translation type="unfinished">Nomes dos meses</translation>
     </message>
     <message>
         <source>Day names</source>
-        <translation type="obsolete">Nomes dos dias</translation>
+        <translation type="unfinished">Nomes dos dias</translation>
     </message>
     <message>
         <source>Date and time</source>
-        <translation type="obsolete">Data e hora</translation>
+        <translation type="unfinished">Data e hora</translation>
     </message>
     <message>
         <source>years</source>
-        <translation type="obsolete">anos</translation>
+        <translation type="unfinished">anos</translation>
     </message>
     <message>
         <source>months</source>
-        <translation type="obsolete">meses</translation>
+        <translation type="unfinished">meses</translation>
     </message>
     <message>
         <source>days</source>
-        <translation type="obsolete">dias</translation>
+        <translation type="unfinished">dias</translation>
     </message>
     <message>
         <source>hours</source>
-        <translation type="obsolete">horas</translation>
+        <translation type="unfinished">horas</translation>
     </message>
     <message>
         <source>minutes</source>
-        <translation type="obsolete">minutos</translation>
+        <translation type="unfinished">minutos</translation>
     </message>
     <message>
         <source>seconds</source>
-        <translation type="obsolete">segundos</translation>
+        <translation type="unfinished">segundos</translation>
     </message>
     <message>
         <source>milliseconds</source>
-        <translation type="obsolete">milissegundos</translation>
+        <translation type="unfinished">milissegundos</translation>
     </message>
     <message>
         <source>Current column:
 Name: %1
 Position: %2</source>
-        <translation type="obsolete">Coluna Atual:
+        <translation type="unfinished">Coluna Atual:
 Nome: %1
 Posição: %2</translation>
     </message>
     <message>
         <source>Decimal</source>
-        <translation type="obsolete">Decimal</translation>
+        <translation type="unfinished">Decimal</translation>
     </message>
     <message>
         <source>Scientific (e)</source>
-        <translation type="obsolete">Científico (e)</translation>
+        <translation type="unfinished">Científico (e)</translation>
     </message>
     <message>
         <source>Scientific (E)</source>
-        <translation type="obsolete">Científico (E)</translation>
+        <translation type="unfinished">Científico (E)</translation>
     </message>
     <message>
         <source>Number without leading zero</source>
-        <translation type="obsolete">Número sem o zero principal</translation>
+        <translation type="unfinished">Número sem o zero principal</translation>
     </message>
     <message>
         <source>Number with leading zero</source>
-        <translation type="obsolete">Número com o zero principal</translation>
+        <translation type="unfinished">Número com o zero principal</translation>
     </message>
     <message>
         <source>Abbreviated month name</source>
-        <translation type="obsolete">Nome abreviado do mês</translation>
+        <translation type="unfinished">Nome abreviado do mês</translation>
     </message>
     <message>
         <source>Full month name</source>
-        <translation type="obsolete">Nome completo do mês</translation>
+        <translation type="unfinished">Nome completo do mês</translation>
     </message>
     <message>
         <source>Abbreviated day name</source>
-        <translation type="obsolete">Nome abreviado do dia</translation>
+        <translation type="unfinished">Nome abreviado do dia</translation>
     </message>
     <message>
         <source>Full day name</source>
-        <translation type="obsolete">Nome completo do dia</translation>
+        <translation type="unfinished">Nome completo do dia</translation>
     </message>
     <message>
         <source>Predefined:</source>
-        <translation type="obsolete">Pré-definido(a):</translation>
+        <translation type="unfinished">Pré-definido(a):</translation>
     </message>
     <message>
         <source>Format:</source>
-        <translation type="obsolete">Formato:</translation>
+        <translation type="unfinished">Formato:</translation>
     </message>
     <message>
         <source>Selected column type:
 </source>
-        <translation type="obsolete">Selecione tipo de coluna:
+        <translation type="unfinished">Selecione tipo de coluna:
 </translation>
     </message>
     <message>
         <source>Double precision
 floating point values
 </source>
-        <translation type="obsolete">Precisão dupla (double)
+        <translation type="unfinished">Precisão dupla (double)
 valores de ponto flutuante (float)
 </translation>
     </message>
     <message>
         <source>Text
 </source>
-        <translation type="obsolete">Texto
+        <translation type="unfinished">Texto
 </translation>
     </message>
     <message>
         <source>Month names
 </source>
-        <translation type="obsolete">Momes dos meses</translation>
+        <translation type="unfinished">Momes dos meses</translation>
     </message>
     <message>
         <source>Days of the week
 </source>
-        <translation type="obsolete">Dias da semana</translation>
+        <translation type="unfinished">Dias da semana</translation>
     </message>
     <message>
         <source>Dates and/or times
 </source>
-        <translation type="obsolete">Datas e/ou horas</translation>
+        <translation type="unfinished">Datas e/ou horas</translation>
     </message>
     <message>
         <source>Example: </source>
-        <translation type="obsolete">Exemplo: </translation>
+        <translation type="unfinished">Exemplo: </translation>
     </message>
     <message>
         <source>Hello world!
 </source>
-        <translation type="obsolete">Olá mundo!</translation>
+        <translation type="unfinished">Olá mundo!</translation>
     </message>
     <message>
         <source>Automatic (e)</source>
-        <translation type="obsolete">Automático (e)</translation>
+        <translation type="unfinished">Automático (e)</translation>
     </message>
     <message>
         <source>Automatic (E)</source>
-        <translation type="obsolete">Automático (E)</translation>
+        <translation type="unfinished">Automático (E)</translation>
     </message>
 </context>
 <context>

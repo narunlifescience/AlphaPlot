@@ -11988,8 +11988,11 @@ void ApplicationWindow::createLanguagesList()
 
 	if (appLanguage != "en")
 	{
-		appTranslator->load("scidavis_" + appLanguage, qmPath);
-		qtTranslator->load("qt_" + appLanguage, qmPath+"/qt");
+          // failover to exe directory if not found in system loc
+          if (!appTranslator->load("scidavis_" + appLanguage, qmPath))
+            appTranslator->load("scidavis_" + appLanguage);
+          if (!qtTranslator->load("qt_" + appLanguage, qmPath+"/qt"))
+            qtTranslator->load("qt_" + appLanguage);
 	}
 }
 
@@ -12019,8 +12022,11 @@ void ApplicationWindow::switchToLanguage(const QString& locale)
 	else
 	{
 		QString qmPath = TS_PATH;
-		appTranslator->load("scidavis_" + locale, qmPath);
-		qtTranslator->load("qt_" + locale, qmPath+"/qt");
+                // failover to exe directory if not found in system loc
+                if (!appTranslator->load("scidavis_" + appLanguage, qmPath))
+                  appTranslator->load("scidavis_" + appLanguage);
+                if (!qtTranslator->load("qt_" + appLanguage, qmPath+"/qt"))
+                  qtTranslator->load("qt_" + appLanguage);
 	}
 	insertTranslatedStrings();
 }

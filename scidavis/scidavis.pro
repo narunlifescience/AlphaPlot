@@ -7,6 +7,18 @@ include(../config.pri)
 include( basic.pri )
 python {include( python.pri )}
 
+### this is the program itself
+INSTALLS        += target
+
+### README, INSTALL.html, manual (if present in the manual subfolder), etc.
+INSTALLS        += documentation
+
+### translations
+INSTALLS        += translationfiles
+
+### icon file (for Windows installer)
+win32:INSTALLS  += win_icon
+
 liborigin {
   LIBS += ../3rdparty/liborigin/liborigin.a
   POST_TARGETDEPS += ../3rdparty/liborigin/liborigin.a

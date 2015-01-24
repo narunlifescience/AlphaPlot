@@ -51,7 +51,6 @@ TRANSLATIONS    = translations/scidavis_de.ts \
                   translations/scidavis_cs.ts \
                   translations/scidavis_cs-alt.ts \
 
-contains( INSTALLS, translationfiles ){
     exists(translations/scidavis_de.ts){
         translationfiles.files =     translations/scidavis_de.qm \
                              translations/scidavis_es.qm \
@@ -79,7 +78,6 @@ $$LUPDATE_BIN ../libscidavis/src/*.cpp -ts translations/*.ts) && $$LRELEASE_BIN 
         message("Could not find translation (.ts) files.")   
         message("=======================================")   
     }
-}
 
 ###################### DOCUMENTATION ########################################
 
