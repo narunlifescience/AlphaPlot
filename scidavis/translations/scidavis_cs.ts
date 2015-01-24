@@ -8285,7 +8285,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">QtiPlot - Fehler beim Punkte entfernen</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="305"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="312"/>
         <source>Sorry, but removing points of a function is not possible.</source>
         <translation type="unfinished">Promiňte, ale odstranění bodů z funkce není možné.</translation>
     </message>
@@ -8294,7 +8294,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">QtiPlot - Fehler beim Punkte verschieben</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="368"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="375"/>
         <source>Sorry, but moving points of a function is not possible.</source>
         <translation type="unfinished">Promiňte, ale přesun bodů funkce není možný.</translation>
     </message>
@@ -8303,24 +8303,24 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">QtiPlot - Warnung</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="321"/>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="388"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="328"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="395"/>
         <source>This operation cannot be performed on curves plotted from columns having a non-numerical format.</source>
         <translation type="unfinished">Tuto operaci nelze provést na křivkách nakreslených ze sloupců, které nemají číselný formát.</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="304"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="311"/>
         <source>Remove point error</source>
         <translation type="unfinished">Chyba při odstranění bodů</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="320"/>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="387"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="327"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="394"/>
         <source>Warning</source>
         <translation type="unfinished">Varování</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="367"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="374"/>
         <source>Move point error</source>
         <translation type="unfinished">Chyba při přesunu bodů</translation>
     </message>

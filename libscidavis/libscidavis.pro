@@ -1,5 +1,5 @@
 TEMPLATE=lib
-CONFIG+=staticlib
+CONFIG+=staticlib uic
 TARGET=scidavis
 
 include(../config.pri)

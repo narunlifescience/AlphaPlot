@@ -7600,22 +7600,22 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="304"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="311"/>
         <source>Remove point error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="305"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="312"/>
         <source>Sorry, but removing points of a function is not possible.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="367"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="374"/>
         <source>Move point error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="368"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="375"/>
         <source>Sorry, but moving points of a function is not possible.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7628,14 +7628,14 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">QtiPlot - Déplacer l&apos;erreur de point</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="321"/>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="388"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="328"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="395"/>
         <source>This operation cannot be performed on curves plotted from columns having a non-numerical format.</source>
         <translation type="unfinished">Cette opération ne peut être réalisée sur des courbes ayant des colonnes au format non numérique.</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="320"/>
-        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="387"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="327"/>
+        <location filename="../../libscidavis/src/DataPickerTool.cpp" line="394"/>
         <source>Warning</source>
         <translation type="unfinished">Attention</translation>
     </message>
