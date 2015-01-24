@@ -58,17 +58,6 @@ unix:message(Building with preset $$PRESET)
 ### Comment out anything you want to exclude.                                  #
 ################################################################################
 
-### this is the program itself
-INSTALLS        += target
-
-### README, INSTALL.html, manual (if present in the manual subfolder), etc.
-INSTALLS        += documentation
-
-### translations
-INSTALLS        += translationfiles
-
-### icon file (for Windows installer)
-win32:INSTALLS  += win_icon
 
 ### Linux Desktop integration
 !contains(PRESET, self_contained) {
