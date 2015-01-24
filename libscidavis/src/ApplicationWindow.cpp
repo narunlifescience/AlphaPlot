@@ -9634,149 +9634,152 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.left(6)=="curve\t")
 		{
-			bool curve_loaded = false; // Graph::insertCurve may fail
-			QStringList curve = s.split("\t", QString::SkipEmptyParts);
-			if (!app->renamedTables.isEmpty())
-			{
-				QString caption = (curve[2]).left((curve[2]).find("_",0));
+                  bool curve_loaded = false; // Graph::insertCurve may fail
+                  QStringList curve = s.split("\t", QString::SkipEmptyParts);
+                  if (curve.count()>14)
+                    {
+                      if (!app->renamedTables.isEmpty())
+                        {
+                          QString caption = (curve[2]).left((curve[2]).find("_",0));
 
-				if (app->renamedTables.contains(caption))
-				{//modify the name of the curve according to the new table name
-					int index = app->renamedTables.indexOf(caption);
-					QString newCaption = app->renamedTables[++index];
-					curve.replaceInStrings(caption+"_", newCaption+"_");
-				}
-			}
+                          if (app->renamedTables.contains(caption))
+                            {//modify the name of the curve according to the new table name
+                              int index = app->renamedTables.indexOf(caption);
+                              QString newCaption = app->renamedTables[++index];
+                              curve.replaceInStrings(caption+"_", newCaption+"_");
+                            }
+                        }
 
-			CurveLayout cl;
-			cl.connectType=curve[4].toInt();
-			cl.lCol=curve[5].toInt();
-			if (d_file_version <= 89)
-				cl.lCol = convertOldToNewColorIndex(cl.lCol);
-			cl.lStyle=curve[6].toInt();
-			cl.lWidth=curve[7].toInt();
-			cl.sSize=curve[8].toInt();
-			if (d_file_version <= 78)
-				cl.sType=Graph::obsoleteSymbolStyle(curve[9].toInt());
-			else
-				cl.sType=curve[9].toInt();
+                      CurveLayout cl;
+                      cl.connectType=curve[4].toInt();
+                      cl.lCol=curve[5].toInt();
+                      if (d_file_version <= 89)
+                        cl.lCol = convertOldToNewColorIndex(cl.lCol);
+                      cl.lStyle=curve[6].toInt();
+                      cl.lWidth=curve[7].toInt();
+                      cl.sSize=curve[8].toInt();
+                      if (d_file_version <= 78)
+                        cl.sType=Graph::obsoleteSymbolStyle(curve[9].toInt());
+                      else
+                        cl.sType=curve[9].toInt();
 
-			cl.symCol=curve[10].toInt();
-			if (d_file_version <= 89)
-				cl.symCol = convertOldToNewColorIndex(cl.symCol);
-			cl.fillCol=curve[11].toInt();
-			if (d_file_version <= 89)
-				cl.fillCol = convertOldToNewColorIndex(cl.fillCol);
-			cl.filledArea=curve[12].toInt();
-			cl.aCol=curve[13].toInt();
-			if (d_file_version <= 89)
-				cl.aCol = convertOldToNewColorIndex(cl.aCol);
-			cl.aStyle=curve[14].toInt();
-			if(curve.count() < 16)
-				cl.penWidth = cl.lWidth;
-			else if ((d_file_version >= 79) && (curve[3].toInt() == Graph::Box))
-				cl.penWidth = curve[15].toInt();
-			else if ((d_file_version >= 78) && (curve[3].toInt() <= Graph::LineSymbols))
-				cl.penWidth = curve[15].toInt();
-			else
-				cl.penWidth = cl.lWidth;
+                      cl.symCol=curve[10].toInt();
+                      if (d_file_version <= 89)
+                        cl.symCol = convertOldToNewColorIndex(cl.symCol);
+                      cl.fillCol=curve[11].toInt();
+                      if (d_file_version <= 89)
+                        cl.fillCol = convertOldToNewColorIndex(cl.fillCol);
+                      cl.filledArea=curve[12].toInt();
+                      cl.aCol=curve[13].toInt();
+                      if (d_file_version <= 89)
+                        cl.aCol = convertOldToNewColorIndex(cl.aCol);
+                      cl.aStyle=curve[14].toInt();
+                      if(curve.count() < 16)
+                        cl.penWidth = cl.lWidth;
+                      else if ((d_file_version >= 79) && (curve[3].toInt() == Graph::Box))
+                        cl.penWidth = curve[15].toInt();
+                      else if ((d_file_version >= 78) && (curve[3].toInt() <= Graph::LineSymbols))
+                        cl.penWidth = curve[15].toInt();
+                      else
+                        cl.penWidth = cl.lWidth;
 
-			Table *w = app->table(curve[2]);
-			if (w)
-			{
-				int plotType = curve[3].toInt();
-				if(plotType == Graph::VectXYXY || plotType == Graph::VectXYAM)
-				{
-					QStringList colsList;
-					colsList<<curve[2]; colsList<<curve[20]; colsList<<curve[21];
-					if (d_file_version < 72)
-						colsList.prepend(w->colName(curve[1].toInt()));
-					else
-                        colsList.prepend(curve[1]);
+                      Table *w = app->table(curve[2]);
+                      if (w)
+                        {
+                          int plotType = curve[3].toInt();
+                          if(curve.count()>21 && (plotType == Graph::VectXYXY || plotType == Graph::VectXYAM))
+                            {
+                              QStringList colsList;
+                              colsList<<curve[2]; colsList<<curve[20]; colsList<<curve[21];
+                              if (d_file_version < 72)
+                                colsList.prepend(w->colName(curve[1].toInt()));
+                              else
+                                colsList.prepend(curve[1]);
 
-					int startRow = 0;
-					int endRow = -1;
-					if (d_file_version >= 90)
-					{
-						startRow = curve[curve.count()-3].toInt();
-						endRow = curve[curve.count()-2].toInt();
-					}
+                              int startRow = 0;
+                              int endRow = -1;
+                              if (d_file_version >= 90)
+                                {
+                                  startRow = curve[curve.count()-3].toInt();
+                                  endRow = curve[curve.count()-2].toInt();
+                                }
 
-					ag->plotVectorCurve(w, colsList, plotType, startRow, endRow);
-					curve_loaded = true;
+                              ag->plotVectorCurve(w, colsList, plotType, startRow, endRow);
+                              curve_loaded = true;
 
-					if (d_file_version <= 77)
-					{
-						int temp_index = convertOldToNewColorIndex(curve[15].toInt());
-						ag->updateVectorsLayout(curveID, ColorBox::color(temp_index), curve[16].toInt(), curve[17].toInt(),
-								curve[18].toInt(), curve[19].toInt(), 0, curve[20], curve[21]);
-					}
-					else
-					{
-						if(plotType == Graph::VectXYXY)
-							ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(),
-								curve[17].toInt(), curve[18].toInt(), curve[19].toInt(), 0);
-						else
-							ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(), curve[17].toInt(),
-									curve[18].toInt(), curve[19].toInt(), curve[22].toInt());
-					}
-				}
-				else if(plotType == Graph::Box) {
-					ag->openBoxDiagram(w, curve, d_file_version);
-					curve_loaded = true;
-				} else if (plotType == Graph::Histogram) {
-					if (d_file_version < 90)
-						curve_loaded = ag->plotHistogram(w, QStringList() << curve[2]);
-					else
-						curve_loaded = ag->plotHistogram(w, QStringList() << curve[2],
-								curve[curve.count()-3].toInt(), curve[curve.count()-2].toInt());
-					if (curve_loaded) {
-						QwtHistogram *h = (QwtHistogram *)ag->curve(curveID);
-						if (d_file_version <= 76)
-							h->setBinning(curve[16].toInt(),curve[17].toDouble(),curve[18].toDouble(),curve[19].toDouble());
-						else
-							h->setBinning(curve[17].toInt(),curve[18].toDouble(),curve[19].toDouble(),curve[20].toDouble());
-						h->loadData();
-					}
-				} else {
-					if (d_file_version < 72)
-						curve_loaded = ag->insertCurve(w, curve[1].toInt(), curve[2], plotType);
-					else if (d_file_version < 90)
-						curve_loaded = ag->insertCurve(w, curve[1], curve[2], plotType);
-					else
-					{
-						int startRow = curve[curve.count()-3].toInt();
-						int endRow = curve[curve.count()-2].toInt();
-						curve_loaded = ag->insertCurve(w, curve[1], curve[2], plotType, startRow, endRow);
-					}
-				}
+                              if (d_file_version <= 77)
+                                {
+                                  int temp_index = convertOldToNewColorIndex(curve[15].toInt());
+                                  ag->updateVectorsLayout(curveID, ColorBox::color(temp_index), curve[16].toInt(), curve[17].toInt(),
+                                                          curve[18].toInt(), curve[19].toInt(), 0, curve[20], curve[21]);
+                                }
+                              else
+                                {
+                                  if(plotType == Graph::VectXYXY)
+                                    ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(),
+                                                            curve[17].toInt(), curve[18].toInt(), curve[19].toInt(), 0);
+                                  else if (curve.count()>22)
+                                    ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(), curve[17].toInt(),
+                                                            curve[18].toInt(), curve[19].toInt(), curve[22].toInt());
+                                }
+                            }
+                          else if(plotType == Graph::Box) {
+                            ag->openBoxDiagram(w, curve, d_file_version);
+                            curve_loaded = true;
+                          } else if (plotType == Graph::Histogram && curve.count()>19) {
+                            if (d_file_version < 90)
+                              curve_loaded = ag->plotHistogram(w, QStringList() << curve[2]);
+                            else
+                              curve_loaded = ag->plotHistogram(w, QStringList() << curve[2],
+                                                               curve[curve.count()-3].toInt(), curve[curve.count()-2].toInt());
+                            if (curve_loaded) {
+                              QwtHistogram *h = (QwtHistogram *)ag->curve(curveID);
+                              if (d_file_version <= 76)
+                                h->setBinning(curve[16].toInt(),curve[17].toDouble(),curve[18].toDouble(),curve[19].toDouble());
+                              else if (curve.count()>20)
+                                h->setBinning(curve[17].toInt(),curve[18].toDouble(),curve[19].toDouble(),curve[20].toDouble());
+                              h->loadData();
+                            }
+                          } else {
+                            if (d_file_version < 72)
+                              curve_loaded = ag->insertCurve(w, curve[1].toInt(), curve[2], plotType);
+                            else if (d_file_version < 90)
+                              curve_loaded = ag->insertCurve(w, curve[1], curve[2], plotType);
+                            else
+                              {
+                                int startRow = curve[curve.count()-3].toInt();
+                                int endRow = curve[curve.count()-2].toInt();
+                                curve_loaded = ag->insertCurve(w, curve[1], curve[2], plotType, startRow, endRow);
+                              }
+                          }
 
-				if(curve_loaded && (plotType == Graph::VerticalBars || plotType == Graph::HorizontalBars ||
-						plotType == Graph::Histogram))
-				{
-					if (d_file_version <= 76)
-						ag->setBarsGap(curveID, curve[15].toInt(), 0);
-					else
-						ag->setBarsGap(curveID, curve[15].toInt(), curve[16].toInt());
-				}
-				if (curve_loaded)
-					ag->updateCurveLayout(curveID, &cl);
-				if (d_file_version >= 88)
-				{
-					QwtPlotCurve *c = ag->curve(curveID);
-					if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve)
-					{
-						if (d_file_version < 90)
-							c->setAxis(curve[curve.count()-2].toInt(), curve[curve.count()-1].toInt());
-						else
-						{
-							c->setAxis(curve[curve.count()-5].toInt(), curve[curve.count()-4].toInt());
-							c->setVisible(curve.last().toInt());
-						}
-					}
-				}
-			}
-			if (curve_loaded) curveID++;
+                          if(curve_loaded && (plotType == Graph::VerticalBars || plotType == Graph::HorizontalBars ||
+                                              plotType == Graph::Histogram))
+                            {
+                              if (d_file_version <= 76 && curve.count()>15)
+                                ag->setBarsGap(curveID, curve[15].toInt(), 0);
+                              else if (curve.count()>16)
+                                ag->setBarsGap(curveID, curve[15].toInt(), curve[16].toInt());
+                            }
+                          if (curve_loaded)
+                            ag->updateCurveLayout(curveID, &cl);
+                          if (d_file_version >= 88)
+                            {
+                              QwtPlotCurve *c = ag->curve(curveID);
+                              if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve)
+                                {
+                                  if (d_file_version < 90)
+                                    c->setAxis(curve[curve.count()-2].toInt(), curve[curve.count()-1].toInt());
+                                  else
+                                    {
+                                      c->setAxis(curve[curve.count()-5].toInt(), curve[curve.count()-4].toInt());
+                                      c->setVisible(curve.last().toInt());
+                                    }
+                                }
+                            }
+                        }
+                      if (curve_loaded) curveID++;
+                    }
 		}
 		else if (s.contains ("FunctionCurve"))
 		{
