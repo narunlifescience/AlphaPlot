@@ -243,10 +243,13 @@ contains(PRESET, linux_package) {
 	} else {
 		INCLUDEPATH  += /usr/include/qwt$${qwtsuff}
 	}
-	LIBS         += -lqwt$${qwtsuff} -lz -lGLU -lQtAssistantClient
 
-	INCLUDEPATH  += /usr/include/qwtplot3d$${qwtsuff}
+#	INCLUDEPATH  += /usr/include/qwtplot3d$${qwtsuff}
+	INCLUDEPATH  += /tmp/qwtplot3d/include
+	LIBPATH      = /tmp/qwtplot3d/lib $$(LIBPATH)
 	LIBS         += -lqwtplot3d$${qwtsuff}
+
+	LIBS         += -lqwt$${qwtsuff} -lz -lGLU -lQtAssistantClient
 
 	INCLUDEPATH  += /usr/include/muParser
 	LIBS         += -lgsl -lgslcblas

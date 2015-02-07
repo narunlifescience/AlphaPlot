@@ -19,6 +19,16 @@ INSTALLS        += translationfiles
 ### icon file (for Windows installer)
 win32:INSTALLS  += win_icon
 
+###################### ICONS ################################################
+RESOURCES    +=        appicons.qrc
+RESOURCES    +=        icons.qrc
+RC_FILE      =         scidavis.rc
+
+win32 {
+  win_icon.files = icons/scidavis.ico
+  win_icon.path = "$$INSTALLBASE"
+}
+
 liborigin {
   LIBS += ../3rdparty/liborigin/liborigin.a
   POST_TARGETDEPS += ../3rdparty/liborigin/liborigin.a
