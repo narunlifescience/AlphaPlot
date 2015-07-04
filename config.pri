@@ -244,6 +244,9 @@ contains(PRESET, linux_package) {
 		INCLUDEPATH  += /usr/include/qwt$${qwtsuff}
 	}
 
+        INCLUDEPATH = "$(HOME)/usr/include" $$INCLUDEPATH
+        QMAKE_LIBDIR = "$(HOME)/usr/lib" $$QMAKE_LIBDIR
+
 	INCLUDEPATH  += /usr/include/qwtplot3d
 	LIBS         += -lqwtplot3d$${qwtsuff}
 

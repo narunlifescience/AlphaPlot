@@ -123,9 +123,32 @@ There is also a section with some notes about \ref future "future plans".
   - For indentations, tabs are preferred because they allow everyone to choose the indentation depth for him/herself.
 */
 
+struct Application: public QApplication
+{
+  Application(int& argc, char ** argv): QApplication(argc, argv) {}
+
+  // catch exception, and display their contents as modal dialogue
+  bool notify(QObject* receiver, QEvent* event)
+  {
+    try
+      {
+        return QApplication::notify(receiver,event);
+      }
+    catch (const std::exception& e)
+      {
+        QMessageBox::critical(0,tr("Error"),e.what());
+      }
+    catch (...) // shouldn't happen...
+      {
+        QMessageBox::critical(0,tr("Error"),tr("unknown exception caught"));
+      }
+    return false;
+  }
+};
+
 int main( int argc, char ** argv )
 {
-    QApplication app( argc, argv );
+    Application app( argc, argv );
 
 	QStringList args = app.arguments();
 	args.removeFirst(); // remove application name

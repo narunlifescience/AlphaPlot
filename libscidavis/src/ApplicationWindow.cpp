@@ -4746,6 +4746,8 @@ void ApplicationWindow::exportGraph()
 	} else if (selected_filter.contains(".svg")) {
 		if (plot2D)
 			plot2D->exportSVG(file_name);
+                else
+                  plot3D->exportVector(file_name,".svg");
 	} else {
 		QList<QByteArray> list = QImageWriter::supportedImageFormats();
 		for (int i=0; i<(int)list.count(); i++)

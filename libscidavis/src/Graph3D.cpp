@@ -48,6 +48,7 @@
 
 #include <gsl/gsl_vector.h>
 #include <fstream>
+#include <stdexcept>
 
 UserFunction::UserFunction(const QString& s, SurfacePlot& pw)
 : Function(pw)
@@ -2073,7 +2074,8 @@ void Graph3D::exportVector(const QString& fileName, const QString& fileType)
     {
       gl2ps->setTextMode(VectorWriter::NATIVE);
     }
-    IO::save(sp, fileName, format);
+    if (!IO::save(sp, fileName, format))
+      throw std::runtime_error((fileType+tr(" not supported")).toStdString());
 }
 
 bool Graph3D::eventFilter(QObject *object, QEvent *e)

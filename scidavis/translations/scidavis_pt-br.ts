@@ -8331,6 +8331,10 @@ p, li { white-space: pre-wrap; }
         <source>Error</source>
         <translation type="unfinished">Erro</translation>
     </message>
+    <message>
+        <source> not supported</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ImageDialog</name>
