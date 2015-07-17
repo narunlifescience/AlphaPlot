@@ -1,11 +1,20 @@
 ##################### PYTHON + SIP + PyQT #####################
 
   INSTALLS += pythonconfig
-  pythonconfig.files += scidavisrc.py
+  pythonconfig.files += scidavisrc.py scidavisrc.pyc
   DEFINES       += PYTHON_CONFIG_PATH="\\\"$$replace(pythonconfig.path," ","\\ ")\\\""
 
   INSTALLS += pythonutils
-  pythonutils.files += scidavisUtil.py
+  pythonutils.files += scidavisUtil.py scidavisUtil.pyc
+
+  compiledScidavisrc.target = scidavisrc.pyc
+  compiledScidavisrc.depends = scidavisrc.py
+  compiledScidavisrc.commands = python -m py_compile scidavisrc.py
+  compiledScidavisUtil.target = scidavisUtil.pyc
+  compiledScidavisUtil.depends = scidavisUtil.py
+  compiledScidavisUtil.commands = python -m py_compile scidavisUtil.py
+  QMAKE_EXTRA_TARGETS += compiledScidavisrc compiledScidavisUtil
+  PRE_TARGETDEPS += scidavisrc.pyc scidavisUtil.pyc
 
   DEFINES       += PYTHON_UTIL_PATH="\\\"$$replace(pythonutils.path," ","\\ ")\\\""
 
