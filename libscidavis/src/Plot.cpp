@@ -43,7 +43,7 @@
 
 #include <QPainter>
 
-Plot::Plot(QWidget *parent, QString name)
+Plot::Plot(QWidget *parent, QString)
 : QwtPlot(parent)
 {
 	setAutoReplot (false);

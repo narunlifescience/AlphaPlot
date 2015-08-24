@@ -34,6 +34,8 @@
 #include <qwt_plot.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_color_map.h>
+#include <cmath>
+#include <limits>
 
 class MatrixData;
 
@@ -98,11 +100,33 @@ public:
 	for ( int l = 0; l < n_rows; ++l)
 		d_m[l] = new double [n_cols];
 
+        min_z=std::numeric_limits<double>::max();
+        max_z=-std::numeric_limits<double>::max();
 	for (int i = 0; i < n_rows; i++)
          for (int j = 0; j < n_cols; j++)
-           d_m[i][j] = d_matrix->cell(i, j);
+           {
+             // replace NaNs and Infs with average of neighbours
+             if (std::isfinite(d_matrix->cell(i, j)))
+               d_m[i][j] = d_matrix->cell(i, j);
+             else
+               {
+                 double av=0;
+                 unsigned cnt=0;
+                 for (int ii=-1; ii<=1; ii+=2)
+                   for (int jj=-1; jj<=1; jj+=2)
+                     if (std::isfinite(d_matrix->cell(i+ii, j+jj)))
+                       {
+                         av+=d_matrix->cell(i+ii, j+jj);
+                         cnt++;
+                       }
+                 if (cnt>0) av/=cnt;
+                 d_m[i][j] = av;
+               }
+             min_z=std::min(min_z, d_m[i][j]);
+             max_z=std::max(max_z, d_m[i][j]);
+           }
 
-	m->range(&min_z, &max_z);
+	//m->range(&min_z, &max_z);
 
 	x_start = d_matrix->xStart();
 	dx = (d_matrix->xEnd() - x_start)/(double)n_cols;
