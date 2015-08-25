@@ -41,18 +41,25 @@ QStringList AsciiTableImportFilter::fileExtensions() const
 	return QStringList() << "txt" << "csv" << "dat";
 }
 
+namespace
+{
 // redirect to QIODevice's readLine so that we can override it to handle '\r' line terminators
 struct SciDaVisTextStream
 {
   QIODevice& input;
   bool good;
   operator bool() const {return good;}
-  SciDaVisTextStream(QIODevice& inp): input(inp), good(true) {}
+  enum {none, simplify, trim} whiteSpaceTreatment;
+  QString separator;
+  SciDaVisTextStream(QIODevice& inp, const QString& sep): 
+    input(inp), good(true), whiteSpaceTreatment(none),
+    separator(sep) {}
 
-  QString readLine()
+  QStringList readRow()
   {
     char c;
     QString r;
+   
     while ((good=input.getChar(&c)))
       switch (c)
         {
@@ -66,31 +73,54 @@ struct SciDaVisTextStream
           r+=c;
         };
   breakLoop:
-    return r;
+    switch (whiteSpaceTreatment)
+      {
+      case none:
+        return r.split(separator);
+      case simplify:
+        return r.simplified().split(separator);
+      case trim:
+        return r.trimmed().split(separator);
+      default:
+        return QStringList();
+      }
   }
 };
 
+
+  template <class C>
+  void readCols(QList<Column*>& cols, SciDaVisTextStream& stream)
+  {
+    // This is more efficient than it looks. The string lists are handed as-is to Column's
+    // constructor, and thanks to implicit sharing the actual data is not copied.
+    QList<QStringList> data;
+    QList< IntervalAttribute<bool> > invalid_cells;
+
+    
+  }
+
+}
 AbstractAspect * AsciiTableImportFilter::importAspect(QIODevice& input)
 {
-  SciDaVisTextStream stream(input);
+  SciDaVisTextStream stream(input, d_separator);
+  if (d_simplify_whitespace)
+    stream.whiteSpaceTreatment=SciDaVisTextStream::simplify;
+  else if (d_trim_whitespace)
+      stream.whiteSpaceTreatment=SciDaVisTextStream::trim;
+
   QStringList row, column_names;
   int i;
-  // This is more efficient than it looks. The string lists are handed as-is to Column's
-  // constructor, and thanks to implicit sharing the actual data is not copied.
-  QList<QStringList> data;
-  QList< IntervalAttribute<bool> > invalid_cells;
-
   // skip ignored lines
   for (i=0; i<d_ignored_lines; i++)
-    stream.readLine();
+    stream.readRow();
 
   // read first row
-  if (d_simplify_whitespace)
-    row = stream.readLine().simplified().split(d_separator);
-  else if (d_trim_whitespace)
-    row = stream.readLine().trimmed().split(d_separator);
-  else
-    row = stream.readLine().split(d_separator);
+  row = stream.readRow();
+
+    // This is more efficient than it looks. The string lists are handed as-is to Column's
+    // constructor, and thanks to implicit sharing the actual data is not copied.
+    QList<QStringList> data;
+    QList< IntervalAttribute<bool> > invalid_cells;
 
   // initialize data and determine column names
   for (int i=0; i<row.size(); i++) {
@@ -108,12 +138,7 @@ AbstractAspect * AsciiTableImportFilter::importAspect(QIODevice& input)
   // read rest of data
   while (stream)
     {
-      if (d_simplify_whitespace)
-        row = stream.readLine().simplified().split(d_separator);
-      else if (d_trim_whitespace)
-        row = stream.readLine().trimmed().split(d_separator);
-      else
-        row = stream.readLine().split(d_separator);
+      row = stream.readRow();
 
       for (i=0; i<row.size() && i<data.size(); ++i)
         data[i] << row[i];
