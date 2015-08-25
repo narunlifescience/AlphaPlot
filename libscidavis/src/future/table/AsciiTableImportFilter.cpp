@@ -37,6 +37,7 @@
 #include <QStringList>
 
 #include <vector>
+#include <iostream>
 using namespace std;
 
 QStringList AsciiTableImportFilter::fileExtensions() const
@@ -95,6 +96,11 @@ namespace
   template <> double conv<double>(const QString& x) {return x.toDouble();}
   template <> float conv<float>(const QString& x) {return x.toFloat();}
  
+  template <class T>
+  struct AP: public std::auto_ptr<T>
+  {
+    AP(): std::auto_ptr<T>(new T) {}
+  };
 
   template <class C>
   void readCols(QList<Column*>& cols, SciDaVisTextStream& stream, 
@@ -108,7 +114,8 @@ namespace
 
     // This is more efficient than it looks. The string lists are handed as-is to Column's
     // constructor, and thanks to implicit sharing the actual data is not copied.
-    vector <C> data(row.size());
+    int dataSize=row.size();
+    AP<C> data[dataSize];
     vector<IntervalAttribute<bool> > invalid_cells(row.size());
 
     if (readColNames)
@@ -117,25 +124,25 @@ namespace
       for (i=0; i<row.size(); ++i) 
         {
           column_names << QString::number(i+1);
-          data[i] << conv<typename C::value_type>(row[i]);
+          *data[i] << conv<typename C::value_type>(row[i]);
         }
 
     // read rest of data
     while (stream)
       {
         row = stream.readRow();
-        for (i=0; i<row.size() && i<data.size(); ++i)
-          data[i] << conv<typename C::value_type>(row[i]);
+        for (i=0; i<row.size() && i<dataSize; ++i)
+          *data[i] << conv<typename C::value_type>(row[i]);
         // some rows might have too few columns (re-use value of i from above loop)
-        for (; i<data.size(); ++i) {
-          invalid_cells[i].setValue(data[i].size(), true);
-          data[i] << conv<typename C::value_type>("");
+        for (; i<dataSize; ++i) {
+          invalid_cells[i].setValue(data[i]->size(), true);
+          *data[i] << conv<typename C::value_type>("");
         }
       }
 
-    for (i=0; i<data.size(); ++i)
+    for (i=0; i<dataSize; ++i)
       {
-        cols << new Column(column_names[i], data[i], invalid_cells[i]);
+        cols << new Column(column_names[i], auto_ptr<C>(data[i]), invalid_cells[i]);
         if (i == 0) 
           cols.back()->setPlotDesignation(SciDAVis::X);
         else
