@@ -180,6 +180,10 @@ liborigin {
 DEFINES  += ORIGIN_IMPORT
 }
 
+noassistant {
+  DEFINES += NOASSISTANT
+}
+
 ### python support
 osx_dist|aegis {
 CONFIG+=python
@@ -250,7 +254,9 @@ contains(PRESET, linux_package) {
 	INCLUDEPATH  += /usr/include/qwtplot3d
 	LIBS         += -lqwtplot3d$${qwtsuff}
 
-	LIBS         += -lqwt$${qwtsuff} -lz -lGLU -lQtAssistantClient
+	LIBS         += -lqwt$${qwtsuff} -lz -lGLU 
+
+        !noassistant {LIBS+=-lQtAssistantClient}
 
 	INCLUDEPATH  += /usr/include/muParser
 	LIBS         += -lgsl -lgslcblas
@@ -293,11 +299,6 @@ win32: {
 	INCLUDEPATH  += "$${LIBPATH}/gsl/include"
 	LIBS         += "$${LIBPATH}/gsl/lib/libgsl.a"
 	LIBS         += "$${LIBPATH}/gsl/lib/libgslcblas.a"
-
-#	contains(DEFINES, ORIGIN_IMPORT) {
-#		LIBS += "$${LIBPATH}/liborigin/build/liborigin.a"
-#		INCLUDEPATH += "$${LIBPATH}/liborigin" "$${LIBPATH}/liborigin/build"
-#	}
   }
 }
 

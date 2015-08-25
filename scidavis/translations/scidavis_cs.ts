@@ -9041,12 +9041,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>FFTFilter</name>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="53"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="55"/>
         <source>FFT</source>
         <translation type="unfinished">FFT</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="53"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="55"/>
         <source>Filtered</source>
         <translation type="unfinished">Filtrováno</translation>
     </message>
@@ -9055,54 +9055,54 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">QtiPlot</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="66"/>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="88"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="68"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="90"/>
         <source>Error</source>
         <translation type="unfinished">Chyba</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="67"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="69"/>
         <source>Unknown filter type. Valid values are: 1 - Low pass, 2 - High Pass, 3 - Band Pass, 4 - Band block.</source>
         <translation type="unfinished">Neznámý druh filtru: Platnými hodnotami jsou: 1 - s nízkým průchodem, 2 - s vysokým průchodem, 3 - s pásmovým průchodem, 4 - s pásmovým blokem.</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="89"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="91"/>
         <source>Please enter different values for the band limits.</source>
         <translation type="unfinished">Zadejte, prosím, různé hodnoty pro hranice pásma.</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="124"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="137"/>
         <source>to</source>
         <translation type="unfinished"> do</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="125"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="138"/>
         <source>Hz</source>
         <translation type="unfinished">Hz</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="130"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="143"/>
         <source>Low Pass FFT Filter</source>
         <translation type="unfinished">FFT filtr s nízkým průchodem</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="136"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="149"/>
         <source>High Pass FFT Filter</source>
         <translation type="unfinished">FFT filtr s vysokým průchodem</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="142"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="155"/>
         <source>Band Pass FFT Filter</source>
         <translation type="unfinished">FFT filtr s pásmovým průchodem</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="149"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="162"/>
         <source>Band Block FFT Filter</source>
         <translation type="unfinished">FFT filtr s pásmovou závorou</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="66"/>
-        <location filename="../../libscidavis/src/FFTFilter.cpp" line="88"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="68"/>
+        <location filename="../../libscidavis/src/FFTFilter.cpp" line="90"/>
         <source>SciDAVis</source>
         <translation type="unfinished">SciDAVis</translation>
     </message>
