@@ -18629,7 +18629,7 @@ Wollen Sie sie überschreiben?</translation>
         <translation type="obsolete">Nein</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1140"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1110"/>
         <source>Cancel</source>
         <translation type="unfinished">Abbrechen</translation>
     </message>
@@ -18764,12 +18764,12 @@ Wollen sie Zellen einfügen?</translation>
         <translation type="obsolete">Die führende Spalte ist leer! Operation abgebrochen!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1029"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="999"/>
         <source>Could not write to file: &lt;br&gt;&lt;h4&gt;</source>
         <translation type="unfinished">Konnte nicht in Datei schreiben: &lt;br&gt;&lt;h4&gt;</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1138"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1108"/>
         <source>SciDAVis</source>
         <translation type="unfinished">SciDAVis</translation>
     </message>
@@ -18778,27 +18778,27 @@ Wollen sie Zellen einfügen?</translation>
         <translation type="obsolete">Fehler</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1028"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="998"/>
         <source>ASCII Export Error</source>
         <translation type="unfinished">ASCII-Export-Fehler</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1139"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1109"/>
         <source>Do you want to hide or delete</source>
         <translation type="unfinished">Wollen Sie ausblenden oder löschen</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1140"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1110"/>
         <source>Delete</source>
         <translation type="unfinished">Löschen</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1140"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1110"/>
         <source>Hide</source>
         <translation type="unfinished">Ausblenden</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1372"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1342"/>
         <source>%1: apply formula to column</source>
         <translation type="unfinished">%1: Formel auf Spalte angewendet</translation>
     </message>

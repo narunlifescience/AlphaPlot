@@ -15908,7 +15908,7 @@ Do you want to overwrite it?</source>
         <translation type="obsolete">Нет</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1140"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1110"/>
         <source>Cancel</source>
         <translation type="unfinished">Отмена</translation>
     </message>
@@ -16043,7 +16043,7 @@ Do you want to insert cells?</source>
         <translation type="obsolete">Ведущая колонка пуста! Операция прервана!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1029"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="999"/>
         <source>Could not write to file: &lt;br&gt;&lt;h4&gt;</source>
         <translation type="unfinished">Невозможно записать в файл: &lt;br&gt;&lt;h4&gt;</translation>
     </message>
@@ -16052,32 +16052,32 @@ Do you want to insert cells?</source>
         <translation type="obsolete">Ошибка</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1028"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="998"/>
         <source>ASCII Export Error</source>
         <translation type="unfinished">Ошибка экспорта в ASCII</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1138"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1108"/>
         <source>SciDAVis</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1139"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1109"/>
         <source>Do you want to hide or delete</source>
         <translation type="unfinished">Вы хотите скрыть или удалить</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1140"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1110"/>
         <source>Delete</source>
         <translation type="unfinished">Удалить</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1140"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1110"/>
         <source>Hide</source>
         <translation type="unfinished">Скрыть</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Table.cpp" line="1372"/>
+        <location filename="../../libscidavis/src/Table.cpp" line="1342"/>
         <source>%1: apply formula to column</source>
         <translation type="unfinished">%1: применить форумулу к колонке</translation>
     </message>
