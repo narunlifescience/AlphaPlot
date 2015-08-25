@@ -41,84 +41,114 @@ QStringList AsciiTableImportFilter::fileExtensions() const
 	return QStringList() << "txt" << "csv" << "dat";
 }
 
-AbstractAspect * AsciiTableImportFilter::importAspect(QIODevice * input)
+// redirect to QIODevice's readLine so that we can override it to handle '\r' line terminators
+struct SciDaVisTextStream
 {
-	QTextStream stream(input);
-	QStringList row, column_names;
-	int i;
-	// This is more efficient than it looks. The string lists are handed as-is to Column's
-	// constructor, and thanks to implicit sharing the actual data is not copied.
-	QList<QStringList> data;
-	QList< IntervalAttribute<bool> > invalid_cells;
+  QIODevice& input;
+  bool good;
+  operator bool() const {return good;}
+  SciDaVisTextStream(QIODevice& inp): input(inp), good(true) {}
 
-	// skip ignored lines
-	for (i=0; i<d_ignored_lines; i++)
-		stream.readLine();
+  QString readLine()
+  {
+    char c;
+    QString r;
+    while ((good=input.getChar(&c)))
+      switch (c)
+        {
+        case '\r':
+          if (input.getChar(&c) && c!='\n') // eat \n following \r
+            input.ungetChar(c);
+          goto breakLoop;
+        case '\n':
+          goto breakLoop;
+        default:
+          r+=c;
+        };
+  breakLoop:
+    return r;
+  }
+};
 
-	// read first row
-	if (d_simplify_whitespace)
-		row = stream.readLine().simplified().split(d_separator);
-	else if (d_trim_whitespace)
-		row = stream.readLine().trimmed().split(d_separator);
-	else
-		row = stream.readLine().split(d_separator);
+AbstractAspect * AsciiTableImportFilter::importAspect(QIODevice& input)
+{
+  SciDaVisTextStream stream(input);
+  QStringList row, column_names;
+  int i;
+  // This is more efficient than it looks. The string lists are handed as-is to Column's
+  // constructor, and thanks to implicit sharing the actual data is not copied.
+  QList<QStringList> data;
+  QList< IntervalAttribute<bool> > invalid_cells;
 
-	// initialize data and determine column names
-	for (int i=0; i<row.size(); i++) {
-		data << QStringList();
-		invalid_cells << IntervalAttribute<bool>();
-	}
-	if (d_first_row_names_columns)
-		column_names = row;
-	else
-		for (i=0; i<row.size(); ++i) {
-			column_names << QString::number(i+1);
-			data[i] << row[i];
-		}
+  // skip ignored lines
+  for (i=0; i<d_ignored_lines; i++)
+    stream.readLine();
 
-	// read rest of data
-	while (!stream.atEnd()) {
-		if (d_simplify_whitespace)
-			row = stream.readLine().simplified().split(d_separator);
-		else if (d_trim_whitespace)
-			row = stream.readLine().trimmed().split(d_separator);
-		else
-			row = stream.readLine().split(d_separator);
+  // read first row
+  if (d_simplify_whitespace)
+    row = stream.readLine().simplified().split(d_separator);
+  else if (d_trim_whitespace)
+    row = stream.readLine().trimmed().split(d_separator);
+  else
+    row = stream.readLine().split(d_separator);
 
-		for (i=0; i<row.size() && i<data.size(); ++i)
-			data[i] << row[i];
-		// some rows might have too few columns (re-use value of i from above loop)
-		for (; i<data.size(); ++i) {
-			invalid_cells[i].setValue(data[i].size(), true);
-			data[i] << "";
-		}
-	}
+  // initialize data and determine column names
+  for (int i=0; i<row.size(); i++) {
+    data << QStringList();
+    invalid_cells << IntervalAttribute<bool>();
+  }
+  if (d_first_row_names_columns)
+    column_names = row;
+  else
+    for (i=0; i<row.size(); ++i) {
+      column_names << QString::number(i+1);
+      data[i] << row[i];
+    }
 
-	// build a Table from the gathered data
-	QList<Column*> cols;
-	for (i=0; i<data.size(); ++i)
-	{
-		Column *new_col;
-		if (d_convert_to_numeric) {
-			Column * string_col = new Column(column_names[i], data[i], invalid_cells[i]);
-			String2DoubleFilter * filter = new String2DoubleFilter;
-			filter->setNumericLocale(d_numeric_locale);
-			filter->input(0, string_col);
-			new_col = new Column(column_names[i], SciDAVis::Numeric);
-			new_col->copy(filter->output(0));
-			delete filter;
-			delete string_col;
-		} else
-			new_col = new Column(column_names[i], data[i], invalid_cells[i]);
-		if (i == 0) 
-			new_col->setPlotDesignation(SciDAVis::X);
-		else
-			new_col->setPlotDesignation(SciDAVis::Y);
-		cols << new_col;
-	}
-	// renaming will be done by the kernel
-	future::Table * result = new future::Table(0, 0, 0, tr("Table"));
-	result->appendColumns(cols);
-	return result;
+  // read rest of data
+  while (stream)
+    {
+      if (d_simplify_whitespace)
+        row = stream.readLine().simplified().split(d_separator);
+      else if (d_trim_whitespace)
+        row = stream.readLine().trimmed().split(d_separator);
+      else
+        row = stream.readLine().split(d_separator);
+
+      for (i=0; i<row.size() && i<data.size(); ++i)
+        data[i] << row[i];
+      // some rows might have too few columns (re-use value of i from above loop)
+      for (; i<data.size(); ++i) {
+        invalid_cells[i].setValue(data[i].size(), true);
+        data[i] << "";
+      }
+    }
+
+  // build a Table from the gathered data
+  QList<Column*> cols;
+  for (i=0; i<data.size(); ++i)
+    {
+      Column *new_col;
+      if (d_convert_to_numeric) {
+        Column * string_col = new Column(column_names[i], data[i], invalid_cells[i]);
+        String2DoubleFilter * filter = new String2DoubleFilter;
+        filter->setNumericLocale(d_numeric_locale);
+        filter->input(0, string_col);
+        new_col = new Column(column_names[i], SciDAVis::Numeric);
+        new_col->copy(filter->output(0));
+        delete filter;
+        delete string_col;
+      } else
+        new_col = new Column(column_names[i], data[i], invalid_cells[i]);
+      if (i == 0) 
+        new_col->setPlotDesignation(SciDAVis::X);
+      else
+        new_col->setPlotDesignation(SciDAVis::Y);
+      cols << new_col;
+    }
+  // renaming will be done by the kernel
+  future::Table * result = new future::Table(0, 0, 0, tr("Table"));
+  result->appendColumns(cols);
+  return result;
 }
 

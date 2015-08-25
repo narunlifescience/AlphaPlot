@@ -71,7 +71,7 @@ Table::Table(ScriptingEnv *env, const QString &fname,const QString &sep, int ign
 	QFile file(fname);
 	if ( file.open(QIODevice::ReadOnly) )
 	{
-		d_future_table = static_cast<future::Table *>(filter.importAspect(&file));
+		d_future_table = static_cast<future::Table *>(filter.importAspect(file));
 		if (!d_future_table)
 			d_future_table = new future::Table(0, 0, 0, label);
 		else
@@ -1426,7 +1426,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 	QFile file(fname);
 	if ( file.open(QIODevice::ReadOnly) )
 	{
-		future::Table *temp = static_cast<future::Table *>(filter.importAspect(&file));
+		future::Table *temp = static_cast<future::Table *>(filter.importAspect(file));
 		if (!temp) return;
 		int preexisting_cols = columnCount();
 		int overwritten_cols = qMin(temp->columnCount(), preexisting_cols);

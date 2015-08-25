@@ -62,7 +62,7 @@ class AsciiTableImportFilter : public AbstractImportFilter
 			d_convert_to_numeric(false),
 			d_numeric_locale(QLocale::c())
 		{}
-		virtual AbstractAspect * importAspect(QIODevice * input);
+		virtual AbstractAspect * importAspect(QIODevice& input);
 		virtual QStringList fileExtensions() const;
 		virtual QString name() const { return QObject::tr("ASCII table"); }
 

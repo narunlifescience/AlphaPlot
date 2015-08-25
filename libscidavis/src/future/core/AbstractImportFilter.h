@@ -83,7 +83,7 @@ class AbstractImportFilter : public QObject
 		/**
 		 * May return 0 if import failed.
 		 */
-		virtual AbstractAspect * importAspect(QIODevice * input) = 0;
+		virtual AbstractAspect * importAspect(QIODevice& input) = 0;
 		//! The file extension(s) typically associated with the handled format.
 		virtual QStringList fileExtensions() const = 0;
 		//! A (localized) name for the filter.
