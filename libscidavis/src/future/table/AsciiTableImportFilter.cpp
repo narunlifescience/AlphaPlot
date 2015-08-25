@@ -112,8 +112,6 @@ namespace
     // read first row
     row = stream.readRow();
 
-    // This is more efficient than it looks. The string lists are handed as-is to Column's
-    // constructor, and thanks to implicit sharing the actual data is not copied.
     int dataSize=row.size();
     AP<C> data[dataSize];
     vector<IntervalAttribute<bool> > invalid_cells(row.size());
