@@ -306,7 +306,7 @@ win32: {
 mxe {
   QMAKE_CXXFLAGS+=-g
   DEFINES += NOASSISTANT
-  INCLUDEPATH  += . "$$(HOME)/usr/mxe/include"
+  INCLUDEPATH  += . "$$(HOME)/usr/mxe/include" 
   LIBPATH += "$(HOME)/usr/mxe/lib" "$(HOME)/usr/mxe/lib64"
   LIBS += -lqwt -lqwtplot3d -lmuparser -lgsl -lgslcblas  
   # Qt libraries specified here to get around a dependency bug in qmake

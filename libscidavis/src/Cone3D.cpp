@@ -27,8 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include <math.h>
-#include "qwt3d_color.h"
-#include "qwt3d_plot.h"
+#include <qwtplot3d/qwt3d_color.h>
+#include <qwtplot3d/qwt3d_plot.h>
 #include "Cone3D.h"
 
 using namespace Qwt3D;

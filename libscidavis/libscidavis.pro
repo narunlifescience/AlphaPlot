@@ -11,7 +11,6 @@ liborigin {
 }
 
 CONFIG        += qt warn_on exceptions opengl thread zlib
-CONFIG        += assistant
 
 DEFINES       += QT_PLUGIN
 DEFINES       += TS_PATH="\\\"$$replace(translationfiles.path," ","\\ ")\\\""

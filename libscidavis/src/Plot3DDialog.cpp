@@ -48,7 +48,7 @@
 #include <QFontDialog>
 #include <QColorDialog>
 
-#include <qwt3d_color.h>
+#include <qwtplot3d/qwt3d_color.h>
 
 Plot3DDialog::Plot3DDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
