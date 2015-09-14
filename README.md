@@ -1,6 +1,6 @@
 # What is SciDAVis?
 
-SciDAVis is a free application for _Sci_entific _D_ata _A_nalysis and _Vis_ualization.
+SciDAVis is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalysis and <i>Vis</i>ualization.
 
 
 # License
