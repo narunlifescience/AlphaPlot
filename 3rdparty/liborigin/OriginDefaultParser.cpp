@@ -304,7 +304,7 @@ bool OriginDefaultParser::parse()
 
 	int POS = ftell(f)-11;
 	fprintf(debug,"\nHEADER SECTION\n");
-	fprintf(debug,"	nr_spreads = %d\n",speadSheets.size());
+    fprintf(debug,"	nr_spreads = %zu\n",speadSheets.size());
 	fprintf(debug,"	[position @ 0x%X]\n",POS);
 	fflush(debug);
 
@@ -371,7 +371,7 @@ bool OriginDefaultParser::parse()
 		if(spread == -1)
 			spread=i;
 
-		fprintf(debug,"			SPREADSHEET %d NAME : %s	(@ 0x%X) has %d columns\n",
+        fprintf(debug,"			SPREADSHEET %d NAME : %s	(@ 0x%X) has %zu columns\n",
 			spread+1,name,POS + 0x12,speadSheets[spread].columns.size());
 		fflush(debug);
 
@@ -398,7 +398,7 @@ bool OriginDefaultParser::parse()
 		fflush(debug);
 
 		/////////////// COLUMN Types ///////////////////////////////////////////
-		fprintf(debug,"			Spreadsheet has %d columns\n",speadSheets[spread].columns.size());
+        fprintf(debug,"			Spreadsheet has %zu columns\n",speadSheets[spread].columns.size());
 		for (unsigned int j=0; j<speadSheets[spread].columns.size(); j++) {
 			fprintf(debug,"			reading	COLUMN %d/%zd type\n",j+1,speadSheets[spread].columns.size());
 			fflush(debug);

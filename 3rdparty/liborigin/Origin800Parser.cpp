@@ -416,7 +416,7 @@ bool Origin800Parser::parse()
 
 	unsigned int POS = (unsigned int)file.tellg()-11;
 	LOG_PRINT(logfile, "\nHEADER SECTION\n")
-	LOG_PRINT(logfile, "	nr_spreads = %d\n", speadSheets.size())
+    LOG_PRINT(logfile, "	nr_spreads = %zu\n", speadSheets.size())
 	LOG_PRINT(logfile, "	[position @ 0x%X]\n", POS)
 
 	POS += 0xB;
@@ -558,9 +558,9 @@ void Origin800Parser::readNotes()
 
 		file >> notes.back().text.assign(size - labellen, 0);
 
-		LOG_PRINT(logfile, "NOTE %d NAME: %s\n", notes.size(), notes.back().name.c_str())
-		LOG_PRINT(logfile, "NOTE %d LABEL: %s\n", notes.size(), notes.back().label.c_str())
-		LOG_PRINT(logfile, "NOTE %d TEXT: %s\n", notes.size(), notes.back().text.c_str())
+        LOG_PRINT(logfile, "NOTE %zu NAME: %s\n", notes.size(), notes.back().name.c_str())
+        LOG_PRINT(logfile, "NOTE %zu LABEL: %s\n", notes.size(), notes.back().label.c_str())
+        LOG_PRINT(logfile, "NOTE %zu TEXT: %s\n", notes.size(), notes.back().text.c_str())
 
 		file.seekg(1, ios_base::cur);
 		pos = file.tellg();
@@ -1570,7 +1570,7 @@ void Origin800Parser::readGraphInfo()
 				GraphCurve& curve(layer.curves.back());
 				file.seekg(LAYER + 0x4C, ios_base::beg);
 				file >> curve.type;
-				LOG_PRINT(logfile, "			graph %d layer %d curve %d type : %d\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), (int)curve.type)
+                LOG_PRINT(logfile, "			graph %zu layer %zu curve %zu type : %d\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), (int)curve.type)
 
 				file.seekg(LAYER + 0x04, ios_base::beg);
 				file >> w;
@@ -1579,10 +1579,10 @@ void Origin800Parser::readGraphInfo()
 				if(column.first.size() > 0){
 					curve.dataName = column.first;
 					if(layer.is3D()){
-						LOG_PRINT(logfile, "			graph %d layer %d curve %d Z : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
+                        LOG_PRINT(logfile, "			graph %zu layer %zu curve %zu Z : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
 						curve.zColumnName = column.second;
 					} else {
-						LOG_PRINT(logfile, "			graph %d layer %d curve %d Y : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
+                        LOG_PRINT(logfile, "			graph %zu layer %zu curve %zu Y : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
 						curve.yColumnName = column.second;
 					}
 				}
@@ -1592,16 +1592,16 @@ void Origin800Parser::readGraphInfo()
 				column = findDataByIndex(w-1);
 				if(column.first.size() > 0){
 					if(curve.dataName != column.first)
-						LOG_PRINT(logfile, "			graph %d X and Y from different tables\n", graphs.size())
+                        LOG_PRINT(logfile, "			graph %zu X and Y from different tables\n", graphs.size())
 
 					if(layer.is3D()){
-						LOG_PRINT(logfile, "			graph %d layer %d curve %d Y : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
+                        LOG_PRINT(logfile, "			graph %zu layer %zu curve %zu Y : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
 						curve.yColumnName = column.second;
 					} else if (layer.isXYY3D){
-						LOG_PRINT(logfile, "			graph %d layer %d curve %d X : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
+                        LOG_PRINT(logfile, "			graph %zu layer %zu curve %zu X : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
 						curve.xColumnName = column.second;
 					} else {
-						LOG_PRINT(logfile, "			graph %d layer %d curve %d X : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
+                        LOG_PRINT(logfile, "			graph %zu layer %zu curve %zu X : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
 						curve.xColumnName = column.second;
 					}
 				}
@@ -1610,10 +1610,10 @@ void Origin800Parser::readGraphInfo()
 				file >> w;
 				column = findDataByIndex(w-1);
 				if(column.first.size() > 0 && layer.is3D()){
-					LOG_PRINT(logfile, "			graph %d layer %d curve %d X : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
+                    LOG_PRINT(logfile, "			graph %zu layer %zu curve %zu X : %s.%s\n", graphs.size(), graphs.back().layers.size(), layer.curves.size(), column.first.c_str(), column.second.c_str())
 					curve.xColumnName = column.second;
 					if(curve.dataName != column.first)
-						LOG_PRINT(logfile, "			graph %d X and Y from different tables\n", graphs.size())
+                        LOG_PRINT(logfile, "			graph %zu X and Y from different tables\n", graphs.size())
 				}
 
 				if(layer.is3D() || layer.isXYY3D)
