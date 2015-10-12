@@ -49,11 +49,11 @@ int main(int argc, char *argv[]) {
 	printf("Parsing status = %d\n",status);
 	printf("OPJ PROJECT \"%s\" VERSION = %.2f\n",argv[1],opj.version());
 
-	printf("number of spreadsheets = %d\n",opj.spreadCount());
-	printf("number of matrixes     = %d\n",opj.matrixCount());
-	printf("number of functions    = %d\n",opj.functionCount());
-	printf("number of graphs       = %d\n",opj.graphCount());
-	printf("number of notes        = %d\n",opj.noteCount());
+    printf("number of spreadsheets = %zu\n",opj.spreadCount());
+    printf("number of matrixes     = %zu\n",opj.matrixCount());
+    printf("number of functions    = %zu\n",opj.functionCount());
+    printf("number of graphs       = %zu\n",opj.graphCount());
+    printf("number of notes        = %zu\n",opj.noteCount());
 	for (unsigned int s=0;s<opj.spreadCount();s++) {
 		Origin::SpreadSheet spread = opj.spread(s);
 		int columnCount=spread.columns.size();
