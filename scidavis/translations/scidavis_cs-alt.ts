@@ -5573,50 +5573,50 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Correlation</name>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="43"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="44"/>
         <source>Correlation</source>
         <translation type="unfinished">Korelace</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="57"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="64"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="96"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="126"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="58"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="65"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="97"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="127"/>
         <source>Error</source>
         <translation type="unfinished">Chyba</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="58"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="65"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="59"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="66"/>
         <source>The data set %1 does not exist!</source>
         <translation type="unfinished">Dataset %1 neexistuje!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="97"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="98"/>
         <source>Could not allocate memory, operation aborted!</source>
         <translation type="unfinished">Nemohu rezervovat dostatek paměti, operace zrušena!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="127"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="128"/>
         <source>Error in GSL forward FFT operation!</source>
         <translation type="unfinished">Chyba v GSL dopředné FFT operace!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="163"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="167"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="164"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="168"/>
         <source>Lag</source>
         <translation type="unfinished">Zpoždění (lag)</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="171"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="172"/>
         <source>Plot</source>
         <translation type="unfinished">Graf</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="57"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="64"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="96"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="126"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="58"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="65"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="97"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="127"/>
         <source>SciDAVis</source>
         <translation type="unfinished">SciDAVis</translation>
     </message>

@@ -36,6 +36,7 @@
 #include "core/column/Column.h"
 
 #include <gsl/gsl_fft_halfcomplex.h>
+#include <vector>
 
 Correlation::Correlation(ApplicationWindow *parent, Table *t, const QString& colName1, const QString& colName2)
 : Filter(parent, t)
@@ -146,7 +147,7 @@ void Correlation::addResultCurve()
 	d_table->addCol();
 	int n = rows/2;
 
-	double x_temp[rows], y_temp[rows];
+        std::vector<double> x_temp(rows), y_temp(rows);
 	for (int i = 0; i<rows; i++)
 	{
         x_temp[i] = i - n;
@@ -173,7 +174,7 @@ void Correlation::addResultCurve()
         return;
 
     DataCurve *c = new DataCurve(d_table, d_table->colName(cols), d_table->colName(cols2));
-	c->setData(x_temp, y_temp, rows);
+	c->setData(&x_temp[0], &y_temp[0], rows);
     c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
 	ml->activeGraph()->insertPlotItem(c, Graph::Line);
 	ml->activeGraph()->updatePlot();

@@ -7271,7 +7271,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Correlation</name>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="43"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="44"/>
         <source>Correlation</source>
         <translation type="unfinished">Корреляция</translation>
     </message>
@@ -7280,45 +7280,45 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">QtiPlot</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="57"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="64"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="96"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="126"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="58"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="65"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="97"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="127"/>
         <source>Error</source>
         <translation type="unfinished">Ошибка</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="57"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="64"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="96"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="126"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="58"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="65"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="97"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="127"/>
         <source>SciDAVis</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="58"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="65"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="59"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="66"/>
         <source>The data set %1 does not exist!</source>
         <translation type="unfinished">Набор данных %1 не существует!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="97"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="98"/>
         <source>Could not allocate memory, operation aborted!</source>
         <translation type="unfinished">Не удалось выделить память, операция отменена!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="127"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="128"/>
         <source>Error in GSL forward FFT operation!</source>
         <translation type="unfinished">Ошибка в GSL при выполнении БПФ!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="163"/>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="167"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="164"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="168"/>
         <source>Lag</source>
         <translation type="unfinished">Задержка</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/Correlation.cpp" line="171"/>
+        <location filename="../../libscidavis/src/Correlation.cpp" line="172"/>
         <source>Plot</source>
         <translation type="unfinished"></translation>
     </message>
