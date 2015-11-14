@@ -43,13 +43,41 @@ PythonScript::PythonScript(PythonScripting *env, const QString &code, QObject *c
 : Script(env, code, context, name)
 {
 	PyCode = NULL;
-	localDict = PyDict_New();
+	// Old: All scripts share a global namespace, and module top-level has its own nonstandard local namespace
+	modLocalDict = PyDict_New();
+	// A bit of a hack, but we need either IndexError or len() from __builtins__.
+	PyDict_SetItemString(modLocalDict, "__builtins__",
+			     PyDict_GetItemString(this->env()->globalDict(), "__builtins__"));
+	// New: Each script gets its own copy of the global namespace.
+	// it is passed as both globals and locals, so top-level assignments are global to this script.
+	modGlobalDict = PyDict_Copy(this->env()->globalDict());
+	// To read and write program-wide globals, we provide "globals"
+	// e.g. ">>> globals.remote_ctl_server = server"
+	PyObject *ret;
+	ret = PyRun_String(
+			   "import __main__\n"
+			   "globals = __main__",
+			   Py_file_input, modLocalDict, modLocalDict);
+	if (ret)
+		Py_DECREF(ret);
+	else
+		PyErr_Print();
+	ret = PyRun_String(
+			   "import __main__\n"
+			   "globals = __main__",
+			   Py_file_input, modGlobalDict, modGlobalDict);
+	if (ret)
+		Py_DECREF(ret);
+	else
+		PyErr_Print();
+	// "self" is unique to each script, so they can't all run in the __main__ namespace
 	setQObject(Context, "self");
 }
 
 PythonScript::~PythonScript()
 {
-	Py_DECREF(localDict);
+	Py_DECREF(modLocalDict);
+	Py_DECREF(modGlobalDict);
 	Py_XDECREF(PyCode);
 }
 
@@ -61,13 +89,13 @@ void PythonScript::setContext(QObject *context)
 
 bool PythonScript::compile(bool for_eval)
 {
+	hasOldGlobals = Code.contains("\nglobal ") || (0 == Code.indexOf("global "));
+	PyObject *topLevelLocal = hasOldGlobals ? modLocalDict : modGlobalDict;
+
 	// Support for the convenient col() and cell() functions.
 	// This can't be done anywhere else, because we need access to the local
 	// variables self, i and j.
 	if(Context->inherits("Table")) {
-		// A bit of a hack, but we need either IndexError or len() from __builtins__.
-		PyDict_SetItemString(localDict, "__builtins__",
-				PyDict_GetItemString(env()->globalDict(), "__builtins__"));
 		PyObject *ret = PyRun_String(
 				"def col(c,*arg):\n"
 				"\ttry: return self.column(type(c)==str and c or c-1).valueAt(arg[0]-1)\n"
@@ -79,20 +107,17 @@ bool PythonScript::compile(bool for_eval)
 				"def _meth_table_col_(t,c):\n"
 				"\treturn t.column(type(c)==str and c or c-1).valueAt(i-1)\n"
 				"self.__class__.col = _meth_table_col_",
-				Py_file_input, localDict, localDict);
+				Py_file_input, topLevelLocal, topLevelLocal);
 		if (ret)
 			Py_DECREF(ret);
 		else
 			PyErr_Print();
 	} else if(Context->inherits("Matrix")) {
-		// A bit of a hack, but we need either IndexError or len() from __builtins__.
-		PyDict_SetItemString(localDict, "__builtins__",
-				PyDict_GetItemString(env()->globalDict(), "__builtins__"));
 		PyObject *ret = PyRun_String(
 				"def cell(*arg):\n"
 				"\ttry: return self.cell(arg[0],arg[1])\n"
 				"\texcept(IndexError): return self.cell(i,j)\n",
-				Py_file_input, localDict, localDict);
+				Py_file_input, topLevelLocal, topLevelLocal);
 		if (ret)
 			Py_DECREF(ret);
 		else
@@ -120,7 +145,7 @@ bool PythonScript::compile(bool for_eval)
 		int i=0;
 #endif
 		QString signature = "";
-		while(PyDict_Next(localDict, &i, &key, &value))
+		while(PyDict_Next(topLevelLocal, &i, &key, &value))
 			signature.append(PyString_AsString(key)).append(",");
 		signature.truncate(signature.length()-1);
 		QString fdef = "def __doit__("+signature+"):\n";
@@ -130,7 +155,7 @@ bool PythonScript::compile(bool for_eval)
 		if (PyCode)
 		{
 			PyObject *tmp = PyDict_New();
-			Py_XDECREF(PyEval_EvalCode((PyCodeObject*)PyCode, env()->globalDict(), tmp));
+			Py_XDECREF(PyEval_EvalCode((PyCodeObject*)PyCode, topLevelLocal, tmp));
 			Py_DECREF(PyCode);
 			PyCode = PyDict_GetItemString(tmp,"__doit__");
 			Py_XINCREF(PyCode);
@@ -158,15 +183,17 @@ QVariant PythonScript::eval()
 	if (!isFunction) compiled = notCompiled;
 	if (compiled != isCompiled && !compile(true))
 		return QVariant();
+	PyObject *topLevelGlobal = hasOldGlobals ? env()->globalDict() : modGlobalDict;
+	PyObject *topLevelLocal = hasOldGlobals ? modLocalDict : modGlobalDict;
 	PyObject *pyret;
 	beginStdoutRedirect();
 	if (PyCallable_Check(PyCode))
 	{
 		PyObject *empty_tuple = PyTuple_New(0);
-		pyret = PyObject_Call(PyCode, empty_tuple, localDict);
+		pyret = PyObject_Call(PyCode, empty_tuple, topLevelLocal);
 		Py_DECREF(empty_tuple);
 	} else
-		pyret = PyEval_EvalCode((PyCodeObject*)PyCode, env()->globalDict(), localDict);
+		pyret = PyEval_EvalCode((PyCodeObject*)PyCode, topLevelGlobal, topLevelLocal);
 	endStdoutRedirect();
 	if (!pyret)
 	{
@@ -226,6 +253,8 @@ bool PythonScript::exec()
 	if (isFunction) compiled = notCompiled;
 	if (compiled != Script::isCompiled && !compile(false))
 		return false;
+	PyObject *topLevelGlobal = hasOldGlobals ? env()->globalDict() : modGlobalDict;
+	PyObject *topLevelLocal = hasOldGlobals ? modLocalDict : modGlobalDict;
 	PyObject *pyret;
 	beginStdoutRedirect();
 	if (PyCallable_Check(PyCode))
@@ -235,10 +264,10 @@ bool PythonScript::exec()
 			emit_error(env()->errorMsg(), 0);
 			return false;
 		}
-		pyret = PyObject_Call(PyCode,empty_tuple,localDict);
+		pyret = PyObject_Call(PyCode,empty_tuple,topLevelLocal);
 		Py_DECREF(empty_tuple);
 	} else
-		pyret = PyEval_EvalCode((PyCodeObject*)PyCode, env()->globalDict(), localDict);
+		pyret = PyEval_EvalCode((PyCodeObject*)PyCode, topLevelGlobal, topLevelLocal);
 	endStdoutRedirect();
 	if (pyret) {
 		Py_DECREF(pyret);
@@ -268,22 +297,22 @@ void PythonScript::endStdoutRedirect()
 
 bool PythonScript::setQObject(QObject *val, const char *name)
 {
-	if (!PyDict_Contains(localDict, PyString_FromString(name)))
+	if (!PyDict_Contains(modLocalDict, PyString_FromString(name)))
 		compiled = notCompiled;
-	return env()->setQObject(val, name, localDict);
+	return (env()->setQObject(val, name, modLocalDict) && env()->setQObject(val, name, modGlobalDict));
 }
 
 bool PythonScript::setInt(int val, const char *name)
 {
-	if (!PyDict_Contains(localDict, PyString_FromString(name)))
+	if (!PyDict_Contains(modLocalDict, PyString_FromString(name)))
 		compiled = notCompiled;
-	return env()->setInt(val, name, localDict);
+	return (env()->setInt(val, name, modLocalDict) && env()->setInt(val, name, modGlobalDict));
 }
 
 bool PythonScript::setDouble(double val, const char *name)
 {
-	if (!PyDict_Contains(localDict, PyString_FromString(name)))
+	if (!PyDict_Contains(modLocalDict, PyString_FromString(name)))
 		compiled = notCompiled;
-	return env()->setDouble(val, name, localDict);
+	return (env()->setDouble(val, name, modLocalDict) && env()->setDouble(val, name, modGlobalDict));
 }
 

@@ -2276,7 +2276,7 @@ Do you want to overwrite it?</source>
         <translation type="unfinished">título eje X</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13722"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13726"/>
         <source>Please select a Y column to plot!</source>
         <translation type="unfinished">¡Seleccione una columna Y para dibujar!</translation>
     </message>
@@ -2589,7 +2589,7 @@ Are you sure you want to continue?</source>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="7547"/>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="7549"/>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="12553"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13603"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13607"/>
         <source>&amp;Properties...</source>
         <translation type="unfinished">&amp;Propiedades...</translation>
     </message>
@@ -2623,9 +2623,9 @@ Are you sure you want to continue?</source>
         <translation type="obsolete">Gráficas 3D D&amp;ependientes</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13644"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13662"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13668"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13648"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13666"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13672"/>
         <source>D&amp;epends on</source>
         <translation type="unfinished">D&amp;epende de</translation>
     </message>
@@ -3740,12 +3740,12 @@ Varias partes de este archivo pueden no mostrarse como se esperaba.</translation
         <translation type="unfinished">¡Los gráficos de superficies 3D vacíos no pueden ser duplicados!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13616"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13620"/>
         <source>D&amp;epending Graphs</source>
         <translation type="unfinished">Gráficos d&amp;ependientes</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13630"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13634"/>
         <source>D&amp;epending 3D Graphs</source>
         <translation type="unfinished">Gráficos 3D d&amp;ependientes</translation>
     </message>
@@ -4870,13 +4870,13 @@ Varias partes de este archivo pueden no mostrarse como se esperaba.</translation
     </message>
     <message>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="1472"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13728"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13732"/>
         <source>Please set a default X column for this table, first!</source>
         <translation type="unfinished">¡Por favor, primero fije una columna X para esta tabla!</translation>
     </message>
     <message>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="1482"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13716"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13720"/>
         <source>Please select a column to plot!</source>
         <translation type="unfinished">¡Por favor, seleccione una columna para el gráfico!</translation>
     </message>
@@ -5298,23 +5298,23 @@ Varias partes de este archivo pueden no mostrarse como se esperaba.</translation
         <translation type="obsolete">Insertar columna</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13688"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13725"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13692"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13729"/>
         <source>You need at least two columns for this operation!</source>
         <translation type="unfinished">¡Necesita por lo menos dos columnas para esta operación!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13693"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13697"/>
         <source>Please select a Z column for this operation!</source>
         <translation type="unfinished">¡Por favor, seleccione a una columna Z para esta operación!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13698"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13702"/>
         <source>You need to define a X column first!</source>
         <translation type="unfinished">¡Necesita definir una columna X primero!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13703"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13707"/>
         <source>You need to define a Y column first!</source>
         <translation type="unfinished">¡Necesita definir una columna Y primero!</translation>
     </message>
@@ -5375,14 +5375,14 @@ Varias partes de este archivo pueden no mostrarse como se esperaba.</translation
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="11932"/>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="12631"/>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="12641"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13688"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13693"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13698"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13703"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13716"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13722"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13725"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13728"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13692"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13697"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13702"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13707"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13720"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13726"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13729"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13732"/>
         <source>Error</source>
         <translation type="unfinished">Error</translation>
     </message>
@@ -5734,7 +5734,7 @@ Varias partes de este archivo pueden no mostrarse como se esperaba.</translation
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13819"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13823"/>
         <source>Undo/Redo History</source>
         <translation type="unfinished">Historial Hacer/deshacer</translation>
     </message>
@@ -15397,12 +15397,12 @@ Para x&lt;0, donde hay dos ramas reales; esta función calcula una donde W&lt;-1
 <context>
     <name>PythonScripting</name>
     <message>
-        <location filename="../../libscidavis/src/PythonScripting.cpp" line="251"/>
+        <location filename="../../libscidavis/src/PythonScripting.cpp" line="245"/>
         <source>Failed to export SciDAVis API</source>
         <translation type="unfinished">Falló al exportar SciDAVis API</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/PythonScripting.cpp" line="252"/>
+        <location filename="../../libscidavis/src/PythonScripting.cpp" line="246"/>
         <source>Accessing SciDAVis functions or objects from Python code won&apos;t work.Probably your version of SIP differs from the one SciDAVis was compiled against;try updating SIP or recompiling SciDAVis.</source>
         <translation type="unfinished">El acceso a funciones SciDAVis u objetos desde código Python no trabaja. Probablemente su versión de SIP difiere de la versión usada para compilar SciDAVis; trate de actualizar SIP o recompilar SciDAVis.</translation>
     </message>

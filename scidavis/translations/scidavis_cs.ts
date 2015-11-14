@@ -2404,7 +2404,7 @@ Operation aborted!</source>
     </message>
     <message>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="1482"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13716"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13720"/>
         <source>Please select a column to plot!</source>
         <translation type="unfinished">Vyberte, prosím, sloupec, který bude nakreslen!</translation>
     </message>
@@ -2691,7 +2691,7 @@ Operation aborted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13722"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13726"/>
         <source>Please select a Y column to plot!</source>
         <translation type="unfinished">Vyberte, prosím, sloupec Y pro nakreslení!</translation>
     </message>
@@ -3084,7 +3084,7 @@ Jste si jist, že chcete pokračovat?</translation>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="7547"/>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="7549"/>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="12553"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13603"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13607"/>
         <source>&amp;Properties...</source>
         <translation type="unfinished">&amp;Vlastnosti...</translation>
     </message>
@@ -3142,9 +3142,9 @@ Jste si jist, že chcete pokračovat?</translation>
         <translation type="obsolete">Abhängig&amp;e 3D Diagramme</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13644"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13662"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13668"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13648"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13666"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13672"/>
         <source>D&amp;epends on</source>
         <translation type="unfinished">Zá&amp;visí na</translation>
     </message>
@@ -4047,12 +4047,12 @@ Různé části tohoto souboru se nemusí zobrazovat tak, jak se očekává.</tr
         <translation type="unfinished">&amp;Podrobnosti nákresu...</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13616"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13620"/>
         <source>D&amp;epending Graphs</source>
         <translation type="unfinished">&amp;Závisející nákresy</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13630"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13634"/>
         <source>D&amp;epending 3D Graphs</source>
         <translation type="unfinished">&amp;Závisející trojrozměrné nákresy</translation>
     </message>
@@ -5434,7 +5434,7 @@ První představuje funkci signálu a druhý funkci odpovědi!</translation>
     </message>
     <message>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="1472"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13728"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13732"/>
         <source>Please set a default X column for this table, first!</source>
         <translation type="unfinished">Nejprve, prosím, u této tabulky nastavte jeden sloupec jako výchozí sloupec X!</translation>
     </message>
@@ -5702,23 +5702,23 @@ První představuje funkci signálu a druhý funkci odpovědi!</translation>
         <translation type="obsolete">Spalte eingeben</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13688"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13725"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13692"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13729"/>
         <source>You need at least two columns for this operation!</source>
         <translation type="unfinished">Pro tuto operaci je potřeba, abyste vybral alespoň dva sloupce!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13693"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13697"/>
         <source>Please select a Z column for this operation!</source>
         <translation type="unfinished">Vyberte, prosím, pro tuto operaci sloupec Z!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13698"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13702"/>
         <source>You need to define a X column first!</source>
         <translation type="unfinished">Neprve musíte stanovit sloupec X!</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13703"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13707"/>
         <source>You need to define a Y column first!</source>
         <translation type="unfinished">Neprve musíte stanovit sloupec Y!</translation>
     </message>
@@ -5779,14 +5779,14 @@ První představuje funkci signálu a druhý funkci odpovědi!</translation>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="11932"/>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="12631"/>
         <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="12641"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13688"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13693"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13698"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13703"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13716"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13722"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13725"/>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13728"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13692"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13697"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13702"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13707"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13720"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13726"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13729"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13732"/>
         <source>Error</source>
         <translation type="unfinished">Chyba</translation>
     </message>
@@ -6146,7 +6146,7 @@ První představuje funkci signálu a druhý funkci odpovědi!</translation>
         <translation type="unfinished">může být libovolný soubor .sciprj, .sciprj.gz, .qti, qti.gz, .py oder ASCII</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13819"/>
+        <location filename="../../libscidavis/src/ApplicationWindow.cpp" line="13823"/>
         <source>Undo/Redo History</source>
         <translation type="unfinished">Seznam kroků Zpět/Znovu</translation>
     </message>
@@ -17196,12 +17196,12 @@ největší celé číslo menší nebo rovno x.</translation>
 <context>
     <name>PythonScripting</name>
     <message>
-        <location filename="../../libscidavis/src/PythonScripting.cpp" line="251"/>
+        <location filename="../../libscidavis/src/PythonScripting.cpp" line="245"/>
         <source>Failed to export SciDAVis API</source>
         <translation type="unfinished">Nepodařilo se vyvést SciDAVis-API</translation>
     </message>
     <message>
-        <location filename="../../libscidavis/src/PythonScripting.cpp" line="252"/>
+        <location filename="../../libscidavis/src/PythonScripting.cpp" line="246"/>
         <source>Accessing SciDAVis functions or objects from Python code won&apos;t work.Probably your version of SIP differs from the one SciDAVis was compiled against;try updating SIP or recompiling SciDAVis.</source>
         <translation type="unfinished">Přístup k funkcím a objektům z pythonovského kódu u programu SciDAVis není možný. Pravděpodobně je nainstalována jiná verze SIP než ta, která byla použita při sestavení programu SciDAVis; Aktualizace SIP nebo nové sestavení programu SciDAVis by problém odstranilo.</translation>
     </message>

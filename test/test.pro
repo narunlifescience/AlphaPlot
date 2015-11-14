@@ -16,7 +16,15 @@ MOC_DIR        = ../tmp/scidavis
 OBJECTS_DIR    = ../tmp/scidavis
 
 include(../config.pri)
-python {include( ../scidavis/python.pri )}
+python {
+  unix {
+        macx {
+        LIBS += -framework Python
+      } else {
+        LIBS += $$system(python -c "\"from distutils import sysconfig; print '-lpython'+sysconfig.get_config_var('VERSION')\"")
+      }
+  }
+}
 
 liborigin {
   LIBS += ../3rdparty/liborigin/liborigin.a
