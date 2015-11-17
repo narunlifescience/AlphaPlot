@@ -1008,6 +1008,8 @@ public:
 
 	//! The scripting language to use for new projects.
 	QString defaultScriptingLang;
+  /// location of translation resources
+  QString qmPath;
 
 private:
 	//! Show a context menu for the widget

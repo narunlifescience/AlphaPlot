@@ -1,39 +1,44 @@
 #!/bin/bash
 # Create a distributable installable package
 
-DIST_DIR=scidavis/scidavis.app/Contents/MacOS
+MAC_DIST_DIR=scidavis/scidavis.app/Contents/MacOS
 RES_DIR=scidavis/scidavis.app/Contents/Resources
+version=`grep scidavis_version libscidavis/src/version.cpp|tail -1|cut -f5 -d' '|tr -d '";'`
+if [ $version = '"unknown"' ]; then
+    version=0.0.0.0
+fi
 
-# We to copy all dynamic libraries, and rewrite the absolute link paths to be 
-# relative
-for i in libqwt.5.dylib libqwtplot3d.0.dylib libmuparser.0.dylib QtAssistant.framework/Versions/4/QtAssistant libz.1.dylib libssl.1.0.0.dylib libcrypto.1.0.0.dylib libpng16.16.dylib; do 
-    cp -f /opt/local/lib/$i $DIST_DIR
-    install_name_tool -change /opt/local/lib/$i @executable_path/${i##*/} $DIST_DIR/scidavis
-done
-
-# and same for Framework dylibs
-for i in Python.framework/Versions/2.7/Python QtCore.framework/Versions/4/QtCore QtNetwork.framework/Versions/4/QtNetwork QtSvg.framework/Versions/4/QtSvg Qt3Support.framework/Versions/4/Qt3Support QtSql.framework/Versions/4/QtSql QtXml.framework/Versions/4/QtXml QtOpenGL.framework/Versions/4/QtOpenGL QtGui.framework/Versions/4/QtGui; do
-    cp -f /opt/local/Library/Frameworks/$i $DIST_DIR
-    install_name_tool -change /opt/local/Library/Frameworks/$i @executable_path/${i##*/} $DIST_DIR/scidavis
-done
-
-chmod u+w $DIST_DIR/*
-
-# finally rewrite references contained within the dylibs themselves
-for i in Qt3Support.framework/Versions/4/Qt3Support QtGui.framework/Versions/4/QtGui QtCore.framework/Versions/4/QtCore QtSql.framework/Versions/4/QtSql QtXml.framework/Versions/4/QtXml QtNetwork.framework/Versions/4/QtNetwork QtOpenGL.framework/Versions/4/QtOpenGL; do
-    for j in $DIST_DIR/*; do
-        install_name_tool -change /opt/local/Library/Frameworks/$i @executable_path/${i##*/} $j
+rewrite_dylibs()
+{
+    local target=$1
+    echo "rewrite_dylibs $target"
+    otool -L $target|grep opt/local|cut -f1 -d' '|while read dylib; do
+        # avoid infinite loops
+        if [ "${dylib##*/}" == "${target##*/}" ]; then 
+            install_name_tool -change $dylib @executable_path/${dylib##*/} $target
+            continue
+        else
+            cp -f $dylib $MAC_DIST_DIR
+            chmod u+rw $MAC_DIST_DIR/${dylib##*/}
+            rewrite_dylibs $MAC_DIST_DIR/${dylib##*/}
+            echo "install_name_tool -change $dylib @executable_path/${dylib##*/} $target"
+            install_name_tool -change $dylib @executable_path/${dylib##*/} $target
+        fi
     done
-done
-
-for i in libz.1.dylib libssl.1.0.0.dylib libcrypto.1.0.0.dylib libpng16.16.dylib; do 
-    for j in $DIST_DIR/*; do
-        install_name_tool -change /opt/local/lib/$i @executable_path/${i##*/} $j
+    otool -L $target|grep usr/local|cut -f1 -d' '|while read dylib; do
+        cp -f $dylib $MAC_DIST_DIR
+        chmod u+rw $MAC_DIST_DIR/${dylib##*/}
+        rewrite_dylibs $MAC_DIST_DIR/${dylib##*/}
+        install_name_tool -change $dylib @executable_path/${dylib##*/} $target
     done
-done
+}
+
+rewrite_dylibs $MAC_DIST_DIR/scidavis
+
+chmod u+w $MAC_DIST_DIR/*
 
 # Generic resources required for Qt
-cp -rf /opt/local/Library/Frameworks/QtGui.framework/Resources/qt_menu.nib $RES_DIR
+cp -rf /opt/local/libexec/qt4/Library/Frameworks/QtGui.framework/Resources/qt_menu.nib $RES_DIR
 
 # python resources
 mkdir -p $RES_DIR/lib
@@ -46,7 +51,8 @@ find $RES_DIR/lib -name "*.so" -print | while read soname; do
         done
 done
 
-
+# copy translation files
+cp -rf scidavis/translations $MAC_DIST_DIR
 
 # copy icon, and create mainfest
 cp -f scidavis/icons/scidavis.icns $RES_DIR
@@ -79,5 +85,6 @@ cat >scidavis/scidavis.app/Contents/Info.plist <<EOF
 </plist>
 EOF
 
-pkgbuild --root scidavis/scidavis.app --install-location /Applications/scidavis.app --identifier SciDAVis scidavis.pkg
+echo scidavis-$version.pkg
+pkgbuild --root scidavis/scidavis.app --install-location /Applications/scidavis.app --identifier SciDAVis scidavis-$version.pkg
 

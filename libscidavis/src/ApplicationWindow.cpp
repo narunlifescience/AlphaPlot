@@ -11977,23 +11977,30 @@ void ApplicationWindow::createLanguagesList()
 	qApp->installTranslator(appTranslator);
 	qApp->installTranslator(qtTranslator);
 
-	QString qmPath = TS_PATH;
+	qmPath = TS_PATH;
 
 	QDir dir(qmPath);
 	QStringList fileNames = dir.entryList("scidavis_*.qm");
-	for (int i=0; i < (int)fileNames.size(); i++)
-	{
-		QString locale = fileNames[i];
-		locale = locale.mid(locale.find('_')+1);
-		locale.truncate(locale.find('.'));
-		locales.push_back(locale);
-	}
+        if (fileNames.size()==0)
+          {
+            // fall back to looking in the executable's directory
+            qmPath = QFileInfo(QCoreApplication::applicationFilePath()).path()+
+              "/translations";
+            dir.setPath(qmPath);
+            fileNames = dir.entryList("scidavis_*.qm");
+          }
+        for (int i=0; i < (int)fileNames.size(); i++)
+          {
+            QString locale = fileNames[i];
+            locale = locale.mid(locale.find('_')+1);
+            locale.truncate(locale.find('.'));
+            locales.push_back(locale);
+          }
 	locales.push_back("en");
 	locales.sort();
 
 	if (appLanguage != "en")
 	{
-          // failover to exe directory if not found in system loc
           if (!appTranslator->load("scidavis_" + appLanguage, qmPath))
             appTranslator->load("scidavis_" + appLanguage);
           if (!qtTranslator->load("qt_" + appLanguage, qmPath+"/qt"))
@@ -12026,8 +12033,6 @@ void ApplicationWindow::switchToLanguage(const QString& locale)
 	}
 	else
 	{
-		QString qmPath = TS_PATH;
-                // failover to exe directory if not found in system loc
                 if (!appTranslator->load("scidavis_" + appLanguage, qmPath))
                   appTranslator->load("scidavis_" + appLanguage);
                 if (!qtTranslator->load("qt_" + appLanguage, qmPath+"/qt"))

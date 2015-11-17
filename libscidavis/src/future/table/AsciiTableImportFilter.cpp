@@ -113,7 +113,7 @@ namespace
     row = stream.readRow();
 
     int dataSize=row.size();
-    AP<C> data[dataSize];
+    vector<AP<C> > data(dataSize);
     vector<IntervalAttribute<bool> > invalid_cells(row.size());
 
     if (readColNames)

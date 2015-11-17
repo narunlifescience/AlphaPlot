@@ -1,6 +1,8 @@
 # this file is not part of the liborigin library, which uses the cmake
 # system, but must be maintained separately of liborigin
 
+include(../../config.pri)
+
 TEMPLATE = lib
 CONFIG += staticlib
 TARGET = origin

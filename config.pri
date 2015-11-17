@@ -114,7 +114,7 @@ unix {# Linux / MacOS X
 		### location of translation files (*.qm)
 		translationfiles.path = "$$INSTALLBASE/share/scidavis/translations"
 
-		### Important (if you use Python): the following two paths are where the application will expect 
+ 		### Important (if you use Python): the following two paths are where the application will expect 
 		### scidavisrc.py and scidavisUtil.py, respectively. Alternatively you can also put scidavisrc.py 
 		### (or ".scidavis.py") into the users home directory. scidavisUtil.py must be either in the 
 		### directory specified here or somewhere else in the python path (sys.path) where "import" can find it

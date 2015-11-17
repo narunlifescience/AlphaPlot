@@ -40,6 +40,7 @@
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_deriv.h>
+#include <gsl/gsl_version.h>
 
 #include <QApplication>
 #include <QMessageBox>
@@ -120,7 +121,15 @@ double * Fit::fitGslMultifit(int &iterations, int &status)
 	for (int i=0; i<d_p; i++)
 		result[i] = gsl_vector_get(s->x, i);
 	gsl_blas_ddot(s->f, s->f, &chi_2);
+#if GSL_MAJOR_VERSION < 2
 	gsl_multifit_covar (s->J, 0.0, covar);
+#else
+        {
+          gsl_matrix J;
+          gsl_multifit_fdfsolver_jac(s,&J);
+          gsl_multifit_covar (&J, 0.0, covar);
+        }
+#endif
 	if (d_y_error_source == UnknownErrors) {
 		// multiply covar by variance of residuals, which is used as an estimate for the
 		// statistical errors (this relies on the Y errors being set to 1.0, so that

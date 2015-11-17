@@ -1486,33 +1486,32 @@ void ConfigDialog::switchToLanguage(int param)
 
 void ConfigDialog::insertLanguagesList()
 {
-	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
-	QString qmPath = TS_PATH;
-	QDir dir(qmPath);
-	QStringList locales = app->locales;
-	QStringList languages;
-	int lang = 0;
-	for (int i=0; i < (int)locales.size(); i++)
-	{
-		if (locales[i] == "en")
-			languages.push_back("English");
-		else
-		{
-			QTranslator translator;
-			translator.load("scidavis_"+locales[i], qmPath);
+  ApplicationWindow *app = (ApplicationWindow *)parentWidget();
+  QDir dir(app->qmPath);
+  QStringList locales = app->locales;
+  QStringList languages;
+  int lang = 0;
+  for (int i=0; i < (int)locales.size(); i++)
+    {
+      if (locales[i] == "en")
+        languages.push_back("English");
+      else
+        {
+          QTranslator translator;
+          translator.load("scidavis_"+locales[i], app->qmPath);
 
-			QString language = translator.translate("ApplicationWindow", "English", "translate this to the language of the translation file, NOT to the meaning of English!");
-			if (!language.isEmpty())
-				languages.push_back(language);
-			else
-				languages.push_back(locales[i]);
-		}
+          QString language = translator.translate("ApplicationWindow", "English", "translate this to the language of the translation file, NOT to the meaning of English!");
+          if (!language.isEmpty())
+            languages.push_back(language);
+          else
+            languages.push_back(locales[i]);
+        }
 
-		if (locales[i] == app->appLanguage)
-			lang = i;
-	}
-	boxLanguage->addItems(languages);
-	boxLanguage->setCurrentIndex(lang);
+      if (locales[i] == app->appLanguage)
+        lang = i;
+    }
+  boxLanguage->addItems(languages);
+  boxLanguage->setCurrentIndex(lang);
 }
 
 

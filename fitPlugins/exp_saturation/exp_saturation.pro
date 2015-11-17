@@ -1,6 +1,7 @@
 QMAKE_PROJECT_DEPTH = 0
 linux-g++-64: libsuff=64
 
+include(../../config.pri)
 TARGET = exp_saturation
 TEMPLATE = lib
 CONFIG += dll
