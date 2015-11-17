@@ -162,7 +162,7 @@ int main( int argc, char ** argv )
 		ApplicationWindow *mw = new ApplicationWindow();
 		mw->applyUserSettings();
 		mw->newTable();
-		mw->show();
+		mw->activateWindow();
 		mw->savedProject();
 #ifdef SEARCH_FOR_UPDATES
 		if (mw->autoSearchUpdates){

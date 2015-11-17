@@ -7336,6 +7336,9 @@ void ApplicationWindow::setWindowGeometry(int x, int y, int w, int h)
 
 void ApplicationWindow::activateWindow()
 {
+        setWindowState(Qt::WindowActive);
+        raise();
+        show();
 	WindowListItem *it = (WindowListItem *)lv->currentItem();
 	activateWindow(it->window());
 }
