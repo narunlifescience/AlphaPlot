@@ -1,0 +1,45 @@
+diff --git a/include/qwt3d_openglhelper.h b/include/qwt3d_openglhelper.h
+index 0ee80de..cbecb2b 100644
+--- a/include/qwt3d_openglhelper.h
++++ b/include/qwt3d_openglhelper.h
+@@ -7,6 +7,7 @@
+ #else
+ #include <QtOpenGL/qgl.h>
+ #endif
++#include <GL/glu.h>
+ 
+ namespace Qwt3D
+ {
+diff --git a/qwtplot3d.pro b/qwtplot3d.pro
+index 91bcf16..92bd473 100644
+--- a/qwtplot3d.pro
++++ b/qwtplot3d.pro
+@@ -3,7 +3,7 @@
+ 
+ TARGET            = qwtplot3d
+ TEMPLATE          = lib
+-CONFIG           += qt warn_on opengl thread zlib debug
++CONFIG           += qt warn_on opengl thread zlib
+ MOC_DIR           = tmp
+ OBJECTS_DIR       = tmp
+ INCLUDEPATH       = include
+@@ -12,9 +12,9 @@ DESTDIR      			= lib
+ #DESTDIR      			= ../../../lib
+ QT += opengl
+ 
+-win32:TEMPLATE    = vclib
+-win32:CONFIG     += dll exceptions
+-win32:dll:DEFINES    += QT_DLL QWT3D_DLL QWT3D_MAKEDLL
++win32:TEMPLATE    = lib
++win32:CONFIG     += static exceptions
++# win32:dll:DEFINES    += QT_DLL QWT3D_DLL QWT3D_MAKEDLL
+ win32:QMAKE_CXXFLAGS     += $$QMAKE_CFLAGS_STL
+ 
+ # Comment the next line, if you have zlib on your windows system
+@@ -92,4 +92,4 @@ zlib {
+   DEFINES += GL2PS_HAVE_ZLIB
+   win32:LIBS += zlib.lib
+ 	unix:LIBS  += -lz
+-}
+\ No newline at end of file
++}

@@ -1,0 +1,252 @@
+How to compile an installer for SciDAVis (version 1.D8) in a 32-bit windows system.
+
+This process has been used successfully in these systems:
+    Windows 7 Professional, 32bit, SP1, 4GB RAM
+    Windows Vista Home Premium, 32-bit, 3GB RAM
+
+1)  Download and install "Microsoft Visual C++ Compiler for Python 2.7"
+        http://www.microsoft.com/en-us/download/details.aspx?id=44266
+        http://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi
+    This is a special version of "Visual C++ 9.0" (from Visual Studio 2008)
+
+2)  Download and install cmake 3.2.2
+        http://www.cmake.org/files/v3.2/cmake-3.2.2-win32-x86.exe
+
+3)  Download and install python 2.7.9
+        https://www.python.org/ftp/python/2.7.9/python-2.7.9.msi
+
+4)  Download and install Qt-4.8.6
+        http://www.mirrorservice.org/sites/download.qt-project.org/archive/qt/4.8/4.8.6/qt-opensource-windows-x86-vs2008-4.8.6.exe
+
+5)  Download and install PyQt4-4.11.3
+        http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.3/PyQt4-4.11.3-gpl-Py2.7-Qt4.8.6-x32.exe/download
+    Installing PyQt4 adds an additional copy of some Qt4 executables and libs.
+    Be careful to use the ones in c:\Qt\4.8.6\bin for compiling Qt4 programs.
+
+6)  Download and install 7zip
+        http://www.7-zip.org/a/7z938.msi
+
+7)  Download and install "nullsoft NSIS 2.46"
+        http://sourceforge.net/projects/nsis/files/NSIS%202/2.46/nsis-2.46-setup.exe/download
+
+8)  Download and install some GnuWin (http://gnuwin32.sourceforge.net) utils:
+        http://sourceforge.net/projects/gnuwin32/files/wget/1.11.4-1/wget-1.11.4-1-setup.exe/download
+        http://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-setup.exe/download
+        http://sourceforge.net/projects/gnuwin32/files/tar/1.13-1/tar-1.13-1-bin.exe/download
+        http://sourceforge.net/projects/gnuwin32/files/gzip/1.3.12-1/gzip-1.3.12-1-setup.exe/download
+    When installing them, do not create "Start Menu" or "Desktop" shortcut entries, as the tools will
+    be used only from a command prompt.
+    NOTE: patch.exe, when run, will activate UAC and require consent or credentials to run it. See for instance
+        http://stackoverflow.com/questions/533939/how-to-prevent-vista-from-requiring-elevation-on-patch-exe
+        https://github.com/bmatzelle/gow/issues/156
+    There are two possible workarounds
+        a) copy patch.exe to a file with other name without 'patch' or 'install' in the name and use
+        the new executable name instead of 'patch.exe'. For instance:
+            copy patch.exe patx.exe
+            patx.exe --help
+        b) Add a 'patch.exe.manifest' manifest file in the same directory as 'patch.exe' ("c:\Program Files\GnuWin32\bin")
+        You will need also Administrator credentials to copy the file to that directory.
+        See the above URLs for examples of manifest files or use the attached 'patch.exe.manifest'.
+
+9)  Open a "Visual C++ 2008 32-bit Command Prompt".
+    Add Qt, python and GnuWin to PATH:
+        path c:\Python27;c:\Qt\4.8.6\bin;%PATH%;"c:\Program Files\GnuWin32\bin"
+        set WORKDIR=%USERPROFILE%\wip
+        mkdir %WORKDIR%
+        cd %WORKDIR%
+        mkdir download
+        mkdir 3rdparty
+
+10) Download boost 1.58 source (not binary installer).
+    Only a few boost header files are needed at compile time for "liborigin" library.
+        cd %WORKDIR%\download
+        wget http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.zip/download
+        cd %WORKDIR%\3rdparty
+        "c:\Program Files\7-Zip\7z" x %WORKDIR%\download\boost_1_58_0.zip
+    Because boost is quite large, last command takes some time to complete. Be patient.
+
+11) Download GSL 1.16 library
+        cd %WORKDIR%\download
+        wget http://ftp.gul.es/gnu/ftp.gnu.org/gnu/gsl/gsl-1.16.tar.gz
+
+        cd %WORKDIR%\3rdparty
+        gzip -dc %WORKDIR%\download\gsl-1.16.tar.gz | tar x
+    Get cmake files for GSL
+        cd %WORKDIR%\3rdparty\gsl-1.16
+        wget --no-check-certificate https://raw.githubusercontent.com/ampl/gsl/master/CMakeLists.txt
+
+        mkdir cmake
+        cd %WORKDIR%\3rdparty\gsl-1.16\cmake
+        wget --no-check-certificate https://raw.githubusercontent.com/ampl/gsl/master/cmake/init.cmake
+        wget --no-check-certificate https://raw.githubusercontent.com/ampl/gsl/master/cmake/run-cmake.bat
+
+        cd %WORKDIR%\3rdparty\gsl-1.16
+        mkdir build
+        cd build
+        "c:\Program Files\CMake\bin\cmake.exe" -D CMAKE_BUILD_TYPE=Release ..
+        nmake
+    It shows several (many) warnings but compiles to the end.
+        nmake test
+    Fails only with test 24:fft_test
+
+12) Download muparser 2.2.4
+    Go to http://muparser.beltoforion.de/mup_download.html
+    Download "muparser_v2_2_4.zip" to %WORKDIR%\download
+
+        cd %WORKDIR%\3rdparty
+        "c:\Program Files\7-Zip\7z.exe" x %WORKDIR%\download\muparser_v2_2_4.zip
+        cd muparser_v2_2_4\build
+        nmake -f makefile.vc
+
+13) Download sip 4.16.7
+        cd %WORKDIR%\download
+        wget http://sourceforge.net/projects/pyqt/files/sip/sip-4.16.7/sip-4.16.7.zip/download
+
+        cd %WORKDIR%\3rdparty
+        "c:\Program Files\7-Zip\7z.exe" x %WORKDIR%\download\sip-4.16.7.zip
+        cd sip-4.16.7
+
+    Default configuration is already for msvc2008, but we have to change 'default_sip_dir', 
+    the default location of '*.sip' files, because PyQt4 installation leaves them 
+    at 'C:\Python27\Lib\site-packages\PyQt4\sip'. 
+        c:\python27\python.exe configure.py --help
+        c:\python27\python.exe configure.py -v c:\Python27\lib\site-packages\PyQt4\sip
+        nmake
+        nmake install
+
+14) Download Qwt-5.2.3
+        cd %WORKDIR%\download
+        wget http://sourceforge.net/projects/qwt/files/qwt/5.2.3/qwt-5.2.3.zip/download
+
+        cd %WORKDIR%\3rdparty
+        "c:\Program Files\7-Zip\7z.exe" x %WORKDIR%\download\qwt-5.2.3.zip
+        cd qwt-5.2.3
+    Compile a static library: edit "qwtconfig.pri" and comment out line 79.
+        c:\Qt\4.8.6\bin\qmake.exe "CONFIG+=release"
+        nmake release
+    To test the library you can compile the code in 'examples' subdir
+
+15) Download QwtPlot3D
+        cd %WORKDIR%\download
+        wget http://sourceforge.net/projects/qwtplot3d/files/qwtplot3d/0.2.7/qwtplot3d-0.2.7.zip/download
+
+        cd %WORKDIR%\3rdparty
+        "c:\Program Files\7-Zip\7z.exe" x %WORKDIR%\download\qwtplot3d-0.2.7.zip
+        cd qwtplot3d
+    Compile a static library. That requires patching the source.
+        patch -p1 < %WORKDIR%\download\qwtplot3d-static-build.patch
+        c:\Qt\4.8.6\bin\qmake.exe "CONFIG+=release"
+        nmake release
+
+16) Download zlib 1.2.8
+        cd %WORKDIR%\download
+        wget http://sourceforge.net/projects/libpng/files/zlib/1.2.8/zlib128.zip/download
+
+        cd %WORKDIR%\3rdparty
+        "c:\Program Files\7-Zip\7z.exe" x %WORKDIR%\download\zlib128.zip
+        cd zlib-1.2.8
+        mkdir build
+        cd build
+        "c:\Program Files\CMake\bin\cmake.exe" -D CMAKE_BUILD_TYPE=Release ..
+        nmake
+
+17) Download scidavis 1.D8
+        cd %WORKDIR%\download
+        wget http://sourceforge.net/projects/scidavis/files/SciDAVis/1.D8/scidavis.1.D8.tar.gz/download
+
+        cd %WORKDIR%
+        gzip -dc %WORKDIR%\download\scidavis.1.D8.tar.gz | tar x
+
+    Prepare 3rdparty libraries to compile scidavis
+        cd %WORKDIR%\scidavis.1.D8\3rdparty
+        mkdir zlib
+        copy %WORKDIR%\3rdparty\zlib-1.2.8\build\zlibstatic.lib zlib
+        copy %WORKDIR%\3rdparty\zlib-1.2.8\build\zconf.h zlib
+        copy %WORKDIR%\3rdparty\zlib-1.2.8\zlib.h zlib
+
+        cd %WORKDIR%\scidavis.1.D8\3rdparty
+        mkdir gsl\lib
+        copy %WORKDIR%\3rdparty\gsl-1.16\build\gsl.lib gsl\lib
+        copy %WORKDIR%\3rdparty\gsl-1.16\build\gslcblas.lib gsl\lib
+        mkdir gsl\include\gsl
+        copy %WORKDIR%\3rdparty\gsl-1.16\build\gsl\*.h gsl\include\gsl
+
+        cd %WORKDIR%\scidavis.1.D8\3rdparty
+        mkdir qwt\lib
+        copy %WORKDIR%\3rdparty\qwt-5.2.3\lib\qwt.lib qwt\lib
+        mkdir qwt\src
+        copy %WORKDIR%\3rdparty\qwt-5.2.3\src\*.h qwt\src
+
+        cd %WORKDIR%\scidavis.1.D8\3rdparty
+        mkdir qwtplot3d\lib
+        copy %WORKDIR%\3rdparty\qwtplot3d\lib\qwtplot3d.lib qwtplot3d\lib
+        mkdir qwtplot3d\include
+        copy %WORKDIR%\3rdparty\qwtplot3d\include\*.h qwtplot3d\include
+
+        cd %WORKDIR%\scidavis.1.D8\3rdparty
+        mkdir muparser\lib
+        copy %WORKDIR%\3rdparty\muparser_v2_2_4\lib\muparser.lib muparser\lib
+        mkdir muparser\include
+        copy %WORKDIR%\3rdparty\muparser_v2_2_4\include\*.h muparser\include
+
+    Patch the scidavis/liborigin sources. Again, for this patch.exe needs administrative rights.
+        cd %WORKDIR%\scidavis.1.D8
+        patch --binary -p1 < %WORKDIR%\download\scidavis.1.D8-static-msvc-build.patch
+
+    Start to compile. First liborigin
+        cd %WORKDIR%\scidavis.1.D8\3rdparty\liborigin
+        mkdir build
+        cd build
+        "c:\Program Files\CMake\bin\cmake.exe" -DCMAKE_BUILD_TYPE:STRING=Release -DBOOST_ROOT:STRING=%WORKDIR%\3rdparty\boost_1_58_0 .. 
+        nmake
+
+    Now scidavis.
+        cd %WORKDIR%\scidavis.1.D8
+        c:\Qt\4.8.6\bin\qmake.exe "CONFIG+=release" "BOOST_ROOT=$(WORKDIR)/3rdparty/boost_1_58_0"
+        nmake release
+    Copy some files to output directory
+        nmake install
+
+    Gather required files in output directory
+        cd %WORKDIR%\scidavis.1.D8\output
+        python -m py_compile scidavisrc.py
+        python -m py_compile scidavisUtil.py
+        copy c:\Qt\4.8.6\bin\Qt3Support4.dll .
+        copy c:\Qt\4.8.6\bin\QtCore4.dll     .
+        copy c:\Qt\4.8.6\bin\QtGui4.dll      .
+        copy c:\Qt\4.8.6\bin\QtNetwork4.dll  .
+        copy c:\Qt\4.8.6\bin\QtOpenGL4.dll   .
+        copy c:\Qt\4.8.6\bin\QtSql4.dll      .
+        copy c:\Qt\4.8.6\bin\QtSvg4.dll      .
+        copy c:\Qt\4.8.6\bin\QtXml4.dll      .
+        copy c:\Qt\4.8.6\bin\assistant.exe   .
+        copy c:\Windows\system32\python27.dll .
+        copy c:\Python27\Lib\site-packages\sip.pyd .
+        mkdir PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\Qt.pyd            PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtCore.pyd        PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtDesigner.pyd    PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtGui.pyd         PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtHelp.pyd        PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtNetwork.pyd     PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtOpenGL.pyd      PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtScript.pyd      PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtSql.pyd         PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtSvg.pyd         PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtTest.pyd        PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtWebKit.pyd      PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtXml.pyd         PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\QtXmlPatterns.pyd PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\__init__.py       PyQt4
+        copy c:\Python27\Lib\site-packages\PyQt4\__init__.pyc      PyQt4
+        move README  README.txt
+        move CHANGES CHANGES.txt
+        python c:\Python27\Tools\Scripts\lfcr.py README.txt
+        python c:\Python27\Tools\Scripts\lfcr.py CHANGES.txt
+        mkdir translations
+        copy %WORKDIR%\scidavis.1.D8\scidavis\translations\*.qm translations
+
+    Build the win32 installer
+        "c:\Program Files\NSIS\makensis.exe"  scidavisScriptInstall.nsi
+    The built NSIS installer is
+        %WORKDIR%\scidavis.1.D8\output\scidavis-1.D8-win32-setup.exe
