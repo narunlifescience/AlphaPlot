@@ -13543,6 +13543,10 @@ ApplicationWindow * ApplicationWindow::loadScript(const QString& fn, bool execut
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	ApplicationWindow *app= new ApplicationWindow();
 	app->applyUserSettings();
+	if (fn.endsWith(".py", Qt::CaseInsensitive))
+		app->setScriptingLang("Python", false);
+	else
+		app->setScriptingLang("muParser", false);
 	app->showMaximized();
 	Note *script_note = app->newNote(fn);
 	script_note->importASCII(fn);

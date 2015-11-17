@@ -62,8 +62,8 @@ class PythonScript : public Script
 		void beginStdoutRedirect();
 		void endStdoutRedirect();
 
-		PyObject *PyCode, *localDict, *stdoutSave, *stderrSave;
-		bool isFunction;
+		PyObject *PyCode, *modLocalDict, *modGlobalDict, *stdoutSave, *stderrSave;
+		bool isFunction, hasOldGlobals;
 };
 
 
