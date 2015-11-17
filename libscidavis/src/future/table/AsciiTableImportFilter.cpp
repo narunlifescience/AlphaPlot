@@ -100,6 +100,7 @@ namespace
   struct AP: public std::auto_ptr<T>
   {
     AP(): std::auto_ptr<T>(new T) {}
+    AP(const AP& x): std::auto_ptr<T>(new T(*x)) {}
   };
 
   template <class C>
