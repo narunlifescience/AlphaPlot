@@ -305,10 +305,10 @@ win32: {
 # Mingw cross compilation environment on Linux. 
 mxe {
   QMAKE_CXXFLAGS+=-g
-  DEFINES += NOASSISTANT
+  DEFINES += NOASSISTANT CONSOLE
   INCLUDEPATH  += . "$$(HOME)/usr/mxe/include" 
   LIBPATH += "$(HOME)/usr/mxe/lib" "$(HOME)/usr/mxe/lib64"
-  LIBS += -lqwt -lqwtplot3d -lmuparser -lgsl -lgslcblas  
+  LIBS +=  -mwindows -lqwt -lqwtplot3d -lmuparser -lgsl -lgslcblas  
   # Qt libraries specified here to get around a dependency bug in qmake
   LIBS += -lQt3Support -lQtOpenGL -lQtGui -lQtNetwork -lQtCore
   LIBS += -lole32 -loleaut32 -limm32 -lcomdlg32 -luuid 

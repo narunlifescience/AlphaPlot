@@ -1,0 +1,1618 @@
+diff --git a/3rdparty/liborigin/CMakeLists.txt b/3rdparty/liborigin/CMakeLists.txt
+index b5598c0..46a6802 100644
+--- a/3rdparty/liborigin/CMakeLists.txt
++++ b/3rdparty/liborigin/CMakeLists.txt
+@@ -5,6 +5,9 @@ cmake_minimum_required(VERSION 2.8)
+ find_package(Boost REQUIRED)
+ include_directories(${Boost_INCLUDE_DIRS})
+ 
++# disable logging
++add_definitions( -DNO_CODE_GENERATION_FOR_LOG )
++
+ # library version
+ set(LIBORIGIN_VERSION_MAJOR 2)
+ set(LIBORIGIN_VERSION_MINOR 0)
+diff --git a/3rdparty/liborigin/Origin610Parser.cpp b/3rdparty/liborigin/Origin610Parser.cpp
+index eb24861..3b34ead 100644
+--- a/3rdparty/liborigin/Origin610Parser.cpp
++++ b/3rdparty/liborigin/Origin610Parser.cpp
+@@ -532,7 +532,7 @@ void Origin610Parser::readNotes()
+ 		if(state == 0x04)
+ 			notes.back().state = Window::Minimized;
+ 
+-		notes.back().hidden = (state & 0x40);
++		notes.back().hidden = ((state & 0x40)!=0);
+ 
+ 		file.seekg(1, ios_base::cur);
+ 		file >> size;
+@@ -1354,7 +1354,7 @@ bool Origin610Parser::readGraphInfo()
+ 				unsigned char h;
+ 				file.seekg(24, ios_base::cur);
+ 				file >> h;
+-				layer.colorScale.reverseOrder = h;
++				layer.colorScale.reverseOrder = (h!=0);
+ 				file.seekg(7, ios_base::cur);
+ 				file >> layer.colorScale.colorBarThickness;
+ 				file >> layer.colorScale.labelGap;
+@@ -1575,10 +1575,10 @@ bool Origin610Parser::readGraphInfo()
+ 					}
+ 
+ 					file >> h;
+-					curve.text.fontUnderline = (h & 0x1);
+-					curve.text.fontItalic = (h & 0x2);
+-					curve.text.fontBold = (h & 0x8);
+-					curve.text.whiteOut = (h & 0x20);
++					curve.text.fontUnderline = ((h & 0x1)!=0);
++					curve.text.fontItalic = ((h & 0x2)!=0);
++					curve.text.fontBold = ((h & 0x8)!=0);
++					curve.text.whiteOut = ((h & 0x20)!=0);
+ 
+ 					char offset;
+ 					file.seekg(LAYER + 0x37, ios_base::beg);
+@@ -1656,11 +1656,11 @@ bool Origin610Parser::readGraphInfo()
+ 					file.seekg(LAYER + 0x92, ios_base::beg);
+ 					file >> h;
+ 
+-					curve.pie.formatPercentages = (h & 0x01);
+-					curve.pie.formatValues		= (h & 0x02);
+-					curve.pie.positionAssociate = (h & 0x08);
+-					curve.pie.clockwiseRotation = (h & 0x20);
+-					curve.pie.formatCategories	= (h & 0x80);
++					curve.pie.formatPercentages = ((h & 0x01)!=0);
++					curve.pie.formatValues		= ((h & 0x02)!=0);
++					curve.pie.positionAssociate = ((h & 0x08)!=0);
++					curve.pie.clockwiseRotation = ((h & 0x20)!=0);
++					curve.pie.formatCategories	= ((h & 0x80)!=0);
+ 
+ 					file >> curve.pie.formatAutomatic;
+ 					file >> curve.pie.distance;
+@@ -1697,7 +1697,7 @@ bool Origin610Parser::readGraphInfo()
+ 					else
+ 						curve.surface.grids = SurfaceProperties::XY;
+ 
+-					curve.surface.sideWallEnabled = (h & 0x10);
++					curve.surface.sideWallEnabled = ((h & 0x10)!=0);
+ 					file >> curve.surface.frontColor;
+ 
+ 					file.seekg(LAYER + 0x14C, ios_base::beg);
+@@ -1707,28 +1707,28 @@ bool Origin610Parser::readGraphInfo()
+ 
+ 					file.seekg(LAYER + 0x13, ios_base::beg);
+ 					file >> h;
+-					curve.surface.backColorEnabled = (h & 0x08);				
++					curve.surface.backColorEnabled = ((h & 0x08)!=0);
+ 					file.seekg(LAYER + 0x15A, ios_base::beg);
+ 					file >> curve.surface.backColor;
+ 					file >> curve.surface.xSideWallColor;
+ 					file >> curve.surface.ySideWallColor;
+ 
+-					curve.surface.surface.fill = (h & 0x10);
+-					curve.surface.surface.contour = (h & 0x40);
++					curve.surface.surface.fill = ((h & 0x10)!=0);
++					curve.surface.surface.contour = ((h & 0x40)!=0);
+ 					file.seekg(LAYER + 0x94, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.surface.lineWidth = (double)w/500.0;
+ 					file >> curve.surface.surface.lineColor;
+ 
+-					curve.surface.topContour.fill = (h & 0x02);
+-					curve.surface.topContour.contour = (h & 0x04);
++					curve.surface.topContour.fill = ((h & 0x02)!=0);
++					curve.surface.topContour.contour = ((h & 0x04)!=0);
+ 					file.seekg(LAYER + 0xB4, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.topContour.lineWidth = (double)w/500.0;
+ 					file >> curve.surface.topContour.lineColor;
+ 
+-					curve.surface.bottomContour.fill = (h & 0x80);
+-					curve.surface.bottomContour.contour = (h & 0x01);
++					curve.surface.bottomContour.fill = ((h & 0x80)!=0);
++					curve.surface.bottomContour.contour = ((h & 0x01)!=0);
+ 					file.seekg(LAYER + 0xA4, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.bottomContour.lineWidth = (double)w/500.0;
+@@ -1739,7 +1739,7 @@ bool Origin610Parser::readGraphInfo()
+ 					ColorMap& colorMap = (curve.type == GraphCurve::Mesh3D ? curve.surface.colorMap : curve.colorMap);
+ 					file.seekg(LAYER + 0x13, ios_base::beg);
+ 					file >> h;
+-					colorMap.fillEnabled = (h & 0x82);
++					colorMap.fillEnabled = ((h & 0x82)!=0);
+ 
+ 					if (curve.type == GraphCurve::Contour){
+ 						file.seekg(102, ios_base::cur);
+@@ -1747,10 +1747,10 @@ bool Origin610Parser::readGraphInfo()
+ 
+ 						file.seekg(7, ios_base::cur);
+ 						file >> h;
+-						curve.text.fontUnderline = (h & 0x1);
+-						curve.text.fontItalic = (h & 0x2);
+-						curve.text.fontBold = (h & 0x8);
+-						curve.text.whiteOut = (h & 0x20);
++						curve.text.fontUnderline = ((h & 0x1)!=0);
++						curve.text.fontItalic = ((h & 0x2)!=0);
++						curve.text.fontBold = ((h & 0x8)!=0);
++						curve.text.whiteOut = ((h & 0x20)!=0);
+ 
+ 						file.seekg(2, ios_base::cur);
+ 						file >> curve.text.color;
+@@ -1793,7 +1793,7 @@ bool Origin610Parser::readGraphInfo()
+ 
+ 				file.seekg(LAYER + 0x143, ios_base::beg);
+ 				file >> h;
+-				curve.connectSymbols = (h&0x8);
++				curve.connectSymbols = ((h&0x8)!=0);
+ 
+ 				LAYER += size + 0x1;
+ 
+diff --git a/3rdparty/liborigin/Origin700Parser.cpp b/3rdparty/liborigin/Origin700Parser.cpp
+index 33627be..bb028d4 100644
+--- a/3rdparty/liborigin/Origin700Parser.cpp
++++ b/3rdparty/liborigin/Origin700Parser.cpp
+@@ -777,7 +777,7 @@ void Origin700Parser::readGraphInfo()
+ 			unsigned char h;
+ 			file.seekg(LAYER + 0x57, ios_base::beg);
+ 			file >> h;
+-			figure.useBorderColor = (h == 0x10);
++			figure.useBorderColor = ((h == 0x10)!=0);
+ 
+ 			//section_body_2_size
+ 			LAYER += size + 0x1;
+@@ -940,7 +940,7 @@ void Origin700Parser::readGraphInfo()
+ 				unsigned char h;
+ 				file.seekg(24, ios_base::cur);
+ 				file >> h;
+-				layer.colorScale.reverseOrder = h;
++				layer.colorScale.reverseOrder = (h!=0);
+ 				file.seekg(7, ios_base::cur);
+ 				file >> layer.colorScale.colorBarThickness;
+ 				file >> layer.colorScale.labelGap;
+@@ -1153,10 +1153,10 @@ void Origin700Parser::readGraphInfo()
+ 					}
+ 
+ 					file >> h;
+-					curve.text.fontUnderline = (h & 0x1);
+-					curve.text.fontItalic = (h & 0x2);
+-					curve.text.fontBold = (h & 0x8);
+-					curve.text.whiteOut = (h & 0x20);
++					curve.text.fontUnderline = ((h & 0x1)!=0);
++					curve.text.fontItalic = ((h & 0x2)!=0);
++					curve.text.fontBold = ((h & 0x8)!=0);
++					curve.text.whiteOut = ((h & 0x20)!=0);
+ 
+ 					char offset;
+ 					file.seekg(LAYER + 0x37, ios_base::beg);
+@@ -1234,11 +1234,11 @@ void Origin700Parser::readGraphInfo()
+ 					file.seekg(LAYER + 0x92, ios_base::beg);
+ 					file >> h;
+ 
+-					curve.pie.formatPercentages = (h & 0x01);
+-					curve.pie.formatValues		= (h & 0x02);
+-					curve.pie.positionAssociate = (h & 0x08);
+-					curve.pie.clockwiseRotation = (h & 0x20);
+-					curve.pie.formatCategories	= (h & 0x80);
++					curve.pie.formatPercentages = ((h & 0x01)!=0);
++					curve.pie.formatValues		= ((h & 0x02)!=0);
++					curve.pie.positionAssociate = ((h & 0x08)!=0);
++					curve.pie.clockwiseRotation = ((h & 0x20)!=0);
++					curve.pie.formatCategories	= ((h & 0x80)!=0);
+ 
+ 					file >> curve.pie.formatAutomatic;
+ 					file >> curve.pie.distance;
+@@ -1275,7 +1275,7 @@ void Origin700Parser::readGraphInfo()
+ 					else
+ 						curve.surface.grids = SurfaceProperties::XY;
+ 
+-					curve.surface.sideWallEnabled = (h & 0x10);
++					curve.surface.sideWallEnabled = ((h & 0x10)!=0);
+ 					file >> curve.surface.frontColor;
+ 
+ 					file.seekg(LAYER + 0x14C, ios_base::beg);
+@@ -1285,28 +1285,28 @@ void Origin700Parser::readGraphInfo()
+ 
+ 					file.seekg(LAYER + 0x13, ios_base::beg);
+ 					file >> h;
+-					curve.surface.backColorEnabled = (h & 0x08);
++					curve.surface.backColorEnabled = ((h & 0x08)!=0);
+ 					file.seekg(LAYER + 0x15A, ios_base::beg);
+ 					file >> curve.surface.backColor;
+ 					file >> curve.surface.xSideWallColor;
+ 					file >> curve.surface.ySideWallColor;
+ 
+-					curve.surface.surface.fill = (h & 0x10);
+-					curve.surface.surface.contour = (h & 0x40);
++					curve.surface.surface.fill = ((h & 0x10)!=0);
++					curve.surface.surface.contour = ((h & 0x40)!=0);
+ 					file.seekg(LAYER + 0x94, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.surface.lineWidth = (double)w/500.0;
+ 					file >> curve.surface.surface.lineColor;
+ 
+-					curve.surface.topContour.fill = (h & 0x02);
+-					curve.surface.topContour.contour = (h & 0x04);
++					curve.surface.topContour.fill = ((h & 0x02)!=0);
++					curve.surface.topContour.contour = ((h & 0x04)!=0);
+ 					file.seekg(LAYER + 0xB4, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.topContour.lineWidth = (double)w/500.0;
+ 					file >> curve.surface.topContour.lineColor;
+ 
+-					curve.surface.bottomContour.fill = (h & 0x80);
+-					curve.surface.bottomContour.contour = (h & 0x01);
++					curve.surface.bottomContour.fill = ((h & 0x80)!=0);
++					curve.surface.bottomContour.contour = ((h & 0x01)!=0);
+ 					file.seekg(LAYER + 0xA4, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.bottomContour.lineWidth = (double)w/500.0;
+@@ -1317,7 +1317,7 @@ void Origin700Parser::readGraphInfo()
+ 					ColorMap& colorMap = (curve.type == GraphCurve::Mesh3D ? curve.surface.colorMap : curve.colorMap);
+ 					file.seekg(LAYER + 0x13, ios_base::beg);
+ 					file >> h;
+-					colorMap.fillEnabled = (h & 0x82);
++					colorMap.fillEnabled = ((h & 0x82)!=0);
+ 
+ 					if (curve.type == GraphCurve::Contour){
+ 						file.seekg(102, ios_base::cur);
+@@ -1325,10 +1325,10 @@ void Origin700Parser::readGraphInfo()
+ 
+ 						file.seekg(7, ios_base::cur);
+ 						file >> h;
+-						curve.text.fontUnderline = (h & 0x1);
+-						curve.text.fontItalic = (h & 0x2);
+-						curve.text.fontBold = (h & 0x8);
+-						curve.text.whiteOut = (h & 0x20);
++						curve.text.fontUnderline = ((h & 0x1)!=0);
++						curve.text.fontItalic = ((h & 0x2)!=0);
++						curve.text.fontBold = ((h & 0x8)!=0);
++						curve.text.whiteOut = ((h & 0x20)!=0);
+ 
+ 						file.seekg(2, ios_base::cur);
+ 						file >> curve.text.color;
+@@ -1371,7 +1371,7 @@ void Origin700Parser::readGraphInfo()
+ 
+ 				file.seekg(LAYER + 0x143, ios_base::beg);
+ 				file >> h;
+-				curve.connectSymbols = (h&0x8);
++				curve.connectSymbols = ((h&0x8)!=0);
+ 
+ 				LAYER += size + 0x1;
+ 
+diff --git a/3rdparty/liborigin/Origin750Parser.cpp b/3rdparty/liborigin/Origin750Parser.cpp
+index 8a2ae3b..2710d85 100644
+--- a/3rdparty/liborigin/Origin750Parser.cpp
++++ b/3rdparty/liborigin/Origin750Parser.cpp
+@@ -533,7 +533,7 @@ bool Origin750Parser::parse()
+ 			else
+ 				notes.back().title = Window::Both;
+ 
+-			notes.back().hidden = (state & 0x40);
++			notes.back().hidden = ((state & 0x40)!=0);
+ 
+ 			++objectIndex;
+ 
+@@ -1370,7 +1370,7 @@ void Origin750Parser::readGraphInfo()
+ 			unsigned char h;
+ 			file.seekg(LAYER + 0x57, ios_base::beg);
+ 			file >> h;
+-			figure.useBorderColor = (h == 0x10);
++			figure.useBorderColor = ((h == 0x10)!=0);
+ 
+ 			//section_body_2_size
+ 			LAYER += size + 0x1;
+@@ -1535,7 +1535,7 @@ void Origin750Parser::readGraphInfo()
+ 				unsigned char h;
+ 				file.seekg(24, ios_base::cur);
+ 				file >> h;
+-				layer.colorScale.reverseOrder = h;
++				layer.colorScale.reverseOrder = (h!=0);
+ 				file.seekg(7, ios_base::cur);
+ 				file >> layer.colorScale.colorBarThickness;
+ 				file >> layer.colorScale.labelGap;
+@@ -1747,10 +1747,10 @@ void Origin750Parser::readGraphInfo()
+ 					}
+ 
+ 					file >> h;
+-					curve.text.fontUnderline = (h & 0x1);
+-					curve.text.fontItalic = (h & 0x2);
+-					curve.text.fontBold = (h & 0x8);
+-					curve.text.whiteOut = (h & 0x20);
++					curve.text.fontUnderline = ((h & 0x1)!=0);
++					curve.text.fontItalic = ((h & 0x2)!=0);
++					curve.text.fontBold = ((h & 0x8)!=0);
++					curve.text.whiteOut = ((h & 0x20)!=0);
+ 
+ 					char offset;
+ 					file.seekg(LAYER + 0x37, ios_base::beg);
+@@ -1828,11 +1828,11 @@ void Origin750Parser::readGraphInfo()
+ 					file.seekg(LAYER + 0x92, ios_base::beg);
+ 					file >> h;
+ 
+-					curve.pie.formatPercentages = (h & 0x01);
+-					curve.pie.formatValues		= (h & 0x02);
+-					curve.pie.positionAssociate = (h & 0x08);
+-					curve.pie.clockwiseRotation = (h & 0x20);
+-					curve.pie.formatCategories	= (h & 0x80);
++					curve.pie.formatPercentages = ((h & 0x01)!=0);
++					curve.pie.formatValues		= ((h & 0x02)!=0);
++					curve.pie.positionAssociate = ((h & 0x08)!=0);
++					curve.pie.clockwiseRotation = ((h & 0x20)!=0);
++					curve.pie.formatCategories	= ((h & 0x80)!=0);
+ 
+ 					file >> curve.pie.formatAutomatic;
+ 					file >> curve.pie.distance;
+@@ -1869,7 +1869,7 @@ void Origin750Parser::readGraphInfo()
+ 					else
+ 						curve.surface.grids = SurfaceProperties::XY;
+ 
+-					curve.surface.sideWallEnabled = (h & 0x10);
++					curve.surface.sideWallEnabled = ((h & 0x10)!=0);
+ 					file >> curve.surface.frontColor;
+ 
+ 					file.seekg(LAYER + 0x14C, ios_base::beg);
+@@ -1879,28 +1879,28 @@ void Origin750Parser::readGraphInfo()
+ 
+ 					file.seekg(LAYER + 0x13, ios_base::beg);
+ 					file >> h;
+-					curve.surface.backColorEnabled = (h & 0x08);
++					curve.surface.backColorEnabled = ((h & 0x08)!=0);
+ 					file.seekg(LAYER + 0x15A, ios_base::beg);
+ 					file >> curve.surface.backColor;
+ 					file >> curve.surface.xSideWallColor;
+ 					file >> curve.surface.ySideWallColor;
+ 
+-					curve.surface.surface.fill = (h & 0x10);
+-					curve.surface.surface.contour = (h & 0x40);
++					curve.surface.surface.fill = ((h & 0x10)!=0);
++					curve.surface.surface.contour = ((h & 0x40)!=0);
+ 					file.seekg(LAYER + 0x94, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.surface.lineWidth = (double)w/500.0;
+ 					file >> curve.surface.surface.lineColor;
+ 
+-					curve.surface.topContour.fill = (h & 0x02);
+-					curve.surface.topContour.contour = (h & 0x04);
++					curve.surface.topContour.fill = ((h & 0x02)!=0);
++					curve.surface.topContour.contour = ((h & 0x04)!=0);
+ 					file.seekg(LAYER + 0xB4, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.topContour.lineWidth = (double)w/500.0;
+ 					file >> curve.surface.topContour.lineColor;
+ 
+-					curve.surface.bottomContour.fill = (h & 0x80);
+-					curve.surface.bottomContour.contour = (h & 0x01);
++					curve.surface.bottomContour.fill = ((h & 0x80)!=0);
++					curve.surface.bottomContour.contour = ((h & 0x01)!=0);
+ 					file.seekg(LAYER + 0xA4, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.bottomContour.lineWidth = (double)w/500.0;
+@@ -1911,7 +1911,7 @@ void Origin750Parser::readGraphInfo()
+ 					ColorMap& colorMap = (curve.type == GraphCurve::Mesh3D ? curve.surface.colorMap : curve.colorMap);
+ 					file.seekg(LAYER + 0x13, ios_base::beg);
+ 					file >> h;
+-					colorMap.fillEnabled = (h & 0x82);
++					colorMap.fillEnabled = ((h & 0x82)!=0);
+ 
+ 					if (curve.type == GraphCurve::Contour){
+ 						file.seekg(102, ios_base::cur);
+@@ -1919,10 +1919,10 @@ void Origin750Parser::readGraphInfo()
+ 
+ 						file.seekg(7, ios_base::cur);
+ 						file >> h;
+-						curve.text.fontUnderline = (h & 0x1);
+-						curve.text.fontItalic = (h & 0x2);
+-						curve.text.fontBold = (h & 0x8);
+-						curve.text.whiteOut = (h & 0x20);
++						curve.text.fontUnderline = ((h & 0x1)!=0);
++						curve.text.fontItalic = ((h & 0x2)!=0);
++						curve.text.fontBold = ((h & 0x8)!=0);
++						curve.text.whiteOut = ((h & 0x20)!=0);
+ 
+ 						file.seekg(2, ios_base::cur);
+ 						file >> curve.text.color;
+@@ -1964,7 +1964,7 @@ void Origin750Parser::readGraphInfo()
+ 
+ 				file.seekg(LAYER + 0x143, ios_base::beg);
+ 				file >> h;
+-				curve.connectSymbols = (h&0x8);
++				curve.connectSymbols = ((h&0x8)!=0);
+ 
+ 				LAYER += 0x1E7 + 0x1;
+ 
+@@ -2110,7 +2110,7 @@ void Origin750Parser::readGraphAxisFormatInfo(GraphAxisFormat& format)
+ 
+ 	format.minorTicksType = (h>>6);
+ 	format.majorTicksType = ((h>>4) & 3);
+-	format.axisPosition = (h & 0x0F);
++	format.axisPosition = ((h & 0x0F)!=0);
+ 	switch(format.axisPosition) // need for testing
+ 	{
+ 	case 1:
+@@ -2148,7 +2148,7 @@ void Origin750Parser::readGraphAxisTickLabelsInfo(GraphAxisTick& tick)
+ 
+ 	file.seekg(POS + 0x1A, ios_base::beg);
+ 	file >> h;
+-	tick.fontBold = (h & 0x08);
++	tick.fontBold = ((h & 0x08)!=0);
+ 
+ 	file.seekg(POS + 0x23, ios_base::beg);
+ 	file >> w;
+@@ -2366,7 +2366,7 @@ void Origin750Parser::readWindowProperties(Window& window, unsigned int size)
+ 	else
+ 		window.title = Window::Both;
+ 
+-	window.hidden = (c & 0x08);
++	window.hidden = ((c & 0x08)!=0);
+ 	if(window.hidden)
+ 	{
+ 		LOG_PRINT(logfile, "			WINDOW %d NAME : %s	is hidden\n", objectIndex, window.name.c_str())
+@@ -2433,7 +2433,7 @@ void Origin750Parser::readColorMap(ColorMap& colorMap)
+ 
+ 		file.seekg(0x02, ios_base::cur);
+ 		file >> h;
+-		level.labelVisible = (h & 0x1);
++		level.labelVisible = ((h & 0x1)!=0);
+ 		level.lineVisible = !(h & 0x2);
+ 
+ 		file.seekg(0x0D, ios_base::cur);
+diff --git a/3rdparty/liborigin/Origin800Parser.cpp b/3rdparty/liborigin/Origin800Parser.cpp
+index c511638..b898ff9 100644
+--- a/3rdparty/liborigin/Origin800Parser.cpp
++++ b/3rdparty/liborigin/Origin800Parser.cpp
+@@ -544,7 +544,7 @@ void Origin800Parser::readNotes()
+ 		else if(state == 0x0b)
+ 			notes.back().state = Window::Maximized;
+ 
+-		notes.back().hidden = (state & 0x40);
++		notes.back().hidden = ((state & 0x40)!=0);
+ 
+ 		file.seekg(1, ios_base::cur);
+ 		file >> size;
+@@ -1452,7 +1452,7 @@ void Origin800Parser::readGraphInfo()
+ 				unsigned char h;
+ 				file.seekg(24, ios_base::cur);
+ 				file >> h;
+-				layer.colorScale.reverseOrder = h;
++				layer.colorScale.reverseOrder = (h!=0);
+ 				file.seekg(7, ios_base::cur);
+ 				file >> layer.colorScale.colorBarThickness;
+ 				file >> layer.colorScale.labelGap;
+@@ -1663,10 +1663,10 @@ void Origin800Parser::readGraphInfo()
+ 					}
+ 
+ 					file >> h;
+-					curve.text.fontUnderline = (h & 0x1);
+-					curve.text.fontItalic = (h & 0x2);
+-					curve.text.fontBold = (h & 0x8);
+-					curve.text.whiteOut = (h & 0x20);
++					curve.text.fontUnderline = ((h & 0x1)!=0);
++					curve.text.fontItalic = ((h & 0x2)!=0);
++					curve.text.fontBold = ((h & 0x8)!=0);
++					curve.text.whiteOut = ((h & 0x20)!=0);
+ 
+ 					char offset;
+ 					file.seekg(LAYER + 0x37, ios_base::beg);
+@@ -1744,11 +1744,11 @@ void Origin800Parser::readGraphInfo()
+ 					file.seekg(LAYER + 0x92, ios_base::beg);
+ 					file >> h;
+ 
+-					curve.pie.formatPercentages = (h & 0x01);
+-					curve.pie.formatValues		= (h & 0x02);
+-					curve.pie.positionAssociate = (h & 0x08);
+-					curve.pie.clockwiseRotation = (h & 0x20);
+-					curve.pie.formatCategories	= (h & 0x80);
++					curve.pie.formatPercentages = ((h & 0x01)!=0);
++					curve.pie.formatValues		= ((h & 0x02)!=0);
++					curve.pie.positionAssociate = ((h & 0x08)!=0);
++					curve.pie.clockwiseRotation = ((h & 0x20)!=0);
++					curve.pie.formatCategories	= ((h & 0x80)!=0);
+ 
+ 					file >> curve.pie.formatAutomatic;
+ 					file >> curve.pie.distance;
+@@ -1785,7 +1785,7 @@ void Origin800Parser::readGraphInfo()
+ 					else
+ 						curve.surface.grids = SurfaceProperties::XY;
+ 
+-					curve.surface.sideWallEnabled = (h & 0x10);
++					curve.surface.sideWallEnabled = ((h & 0x10)!=0);
+ 					file >> curve.surface.frontColor;
+ 
+ 					file.seekg(LAYER + 0x14C, ios_base::beg);
+@@ -1795,28 +1795,28 @@ void Origin800Parser::readGraphInfo()
+ 
+ 					file.seekg(LAYER + 0x13, ios_base::beg);
+ 					file >> h;
+-					curve.surface.backColorEnabled = (h & 0x08);
++					curve.surface.backColorEnabled = ((h & 0x08)!=0);
+ 					file.seekg(LAYER + 0x15A, ios_base::beg);
+ 					file >> curve.surface.backColor;
+ 					file >> curve.surface.xSideWallColor;
+ 					file >> curve.surface.ySideWallColor;
+ 
+-					curve.surface.surface.fill = (h & 0x10);
+-					curve.surface.surface.contour = (h & 0x40);
++					curve.surface.surface.fill = ((h & 0x10)!=0);
++					curve.surface.surface.contour = ((h & 0x40)!=0);
+ 					file.seekg(LAYER + 0x94, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.surface.lineWidth = (double)w/500.0;
+ 					file >> curve.surface.surface.lineColor;
+ 
+-					curve.surface.topContour.fill = (h & 0x02);
+-					curve.surface.topContour.contour = (h & 0x04);
++					curve.surface.topContour.fill = ((h & 0x02)!=0);
++					curve.surface.topContour.contour = ((h & 0x04)!=0);
+ 					file.seekg(LAYER + 0xB4, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.topContour.lineWidth = (double)w/500.0;
+ 					file >> curve.surface.topContour.lineColor;
+ 
+-					curve.surface.bottomContour.fill = (h & 0x80);
+-					curve.surface.bottomContour.contour = (h & 0x01);
++					curve.surface.bottomContour.fill = ((h & 0x80)!=0);
++					curve.surface.bottomContour.contour = ((h & 0x01)!=0);
+ 					file.seekg(LAYER + 0xA4, ios_base::beg);
+ 					file >> w;
+ 					curve.surface.bottomContour.lineWidth = (double)w/500.0;
+@@ -1827,7 +1827,7 @@ void Origin800Parser::readGraphInfo()
+ 					ColorMap& colorMap = (curve.type == GraphCurve::Mesh3D ? curve.surface.colorMap : curve.colorMap);
+ 					file.seekg(LAYER + 0x13, ios_base::beg);
+ 					file >> h;
+-					colorMap.fillEnabled = (h & 0x82);
++					colorMap.fillEnabled = ((h & 0x82)!=0);
+ 
+ 					if (curve.type == GraphCurve::Contour){
+ 						file.seekg(102, ios_base::cur);
+@@ -1835,10 +1835,10 @@ void Origin800Parser::readGraphInfo()
+ 
+ 						file.seekg(7, ios_base::cur);
+ 						file >> h;
+-						curve.text.fontUnderline = (h & 0x1);
+-						curve.text.fontItalic = (h & 0x2);
+-						curve.text.fontBold = (h & 0x8);
+-						curve.text.whiteOut = (h & 0x20);
++						curve.text.fontUnderline = ((h & 0x1)!=0);
++						curve.text.fontItalic = ((h & 0x2)!=0);
++						curve.text.fontBold = ((h & 0x8)!=0);
++						curve.text.whiteOut = ((h & 0x20)!=0);
+ 
+ 						file.seekg(2, ios_base::cur);
+ 						file >> curve.text.color;
+@@ -1882,7 +1882,7 @@ void Origin800Parser::readGraphInfo()
+ 
+ 				file.seekg(LAYER + 0x143, ios_base::beg);
+ 				file >> h;
+-				curve.connectSymbols = (h&0x8);
++				curve.connectSymbols = ((h&0x8)!=0);
+ 
+ 				LAYER += size + 0x1;
+ 
+diff --git a/3rdparty/liborigin/OriginParser.h b/3rdparty/liborigin/OriginParser.h
+index dc129da..fbce6df 100644
+--- a/3rdparty/liborigin/OriginParser.h
++++ b/3rdparty/liborigin/OriginParser.h
+@@ -32,6 +32,17 @@
+ #include "OriginObj.h"
+ #include "tree.hh"
+ 
++#ifdef _MSC_VER
++#ifndef NO_CODE_GENERATION_FOR_LOG
++#define LOG_PRINT( logfile, ... ) \
++{                                 \
++    int ioret= fprintf(logfile, __VA_ARGS__); \
++    assert(ioret>0);              \
++}
++#else // !NO_CODE_GENERATION_FOR_LOG
++#define LOG_PRINT( logfile, ... ) {};
++#endif // NO_CODE_GENERATION_FOR_LOG
++#else // !_MSC_VER
+ #ifndef NO_CODE_GENERATION_FOR_LOG
+ #define LOG_PRINT( logfile, args... ) \
+ {                                     \
+@@ -41,6 +52,7 @@
+ #else // !NO_CODE_GENERATION_FOR_LOG
+ #define LOG_PRINT( logfile, args... ) {};
+ #endif // NO_CODE_GENERATION_FOR_LOG
++#endif // _MSC_VER
+ 
+ class OriginParser
+ {
+diff --git a/3rdparty/liborigin/opj2dat.cpp b/3rdparty/liborigin/opj2dat.cpp
+index 1745624..63a17bc 100644
+--- a/3rdparty/liborigin/opj2dat.cpp
++++ b/3rdparty/liborigin/opj2dat.cpp
+@@ -30,6 +30,7 @@
+ #include <cstdio>
+ #include <cmath>
+ #include <cstring>
++#include <sstream>
+ #include <string.h>
+ 
+ int main(int argc, char *argv[]) {
+@@ -66,16 +67,12 @@ int main(int argc, char *argv[]) {
+ 				j+1,column.name.c_str(),column.type,spread.maxRows);
+ 		}
+ 		FILE *out;
+-		char * filename;
+-		int ioret;
+-#ifndef WIN32
+-		ioret=asprintf(&filename,"%s.%d.dat",argv[1],s+1);
+-#else
+-		ioret=asprintf(&filename,"%s.%d.dat",basename(argv[1]),s+1);
+-#endif
+-		printf("saved to %s\n",filename);
+-		if((out=fopen(filename,"w")) == NULL ) {
+-			printf("Could not open %s",filename);
++		std::ostringstream os;
++		os << argv[1] << "_" << s+1 << ".dat" ;
++		printf("saved to %s\n",os.str().c_str());
++
++		if((out=fopen(os.str().c_str(),"w")) == NULL ) {
++			printf("Could not open %s",os.str().c_str());
+ 			return -1;
+ 		}
+ 		// header
+diff --git a/config.pri b/config.pri
+index f8f90ba..f180c62 100644
+--- a/config.pri
++++ b/config.pri
+@@ -141,7 +141,7 @@ unix {# Linux / MacOS X
+ }
+ 
+ win32 {# Windows
+-	isEmpty(INSTALLBASE): INSTALLBASE = .
++	isEmpty(INSTALLBASE): INSTALLBASE = ../output
+ 
+ 	target.path = "$$INSTALLBASE"
+ 	documentation.path = "$$INSTALLBASE"
+@@ -197,10 +197,12 @@ DEFINES  += ORIGIN_IMPORT
+ ################################################################################
+ 
+ # code for maintained branch of liborigin. 
++unix{
+ contains(DEFINES, ORIGIN_IMPORT) {
+   LIBS += ../3rdparty/liborigin/liborigin.a
+   INCLUDEPATH += ../3rdparty/liborigin
+ 	}
++}
+ 
+ contains(PRESET, default_installation) {
+ 	### Link statically against Qwt and Qwtplot3D (in order to make sure they
+@@ -298,28 +300,34 @@ contains(PRESET, self_contained) {
+ 
+ win32: {
+ !mxe {
+-	### Static linking mostly, except Qt, Python and QwtPlot3D.
+-	### The latter seems to be impossible to link statically on Windows.
++	### Static linking mostly, except Qt and Python
+ 
+-	isEmpty(LIBPATH): LIBPATH = ../3rdparty
++	isEmpty(QMAKE_LIBDIR): QMAKE_LIBDIR = ../3rdparty
+ 
+-	INCLUDEPATH  += "$${LIBPATH}/qwt/src"
+-	LIBS         += "$${LIBPATH}/qwt/lib/libqwt.a"
++	INCLUDEPATH  += "$${QMAKE_LIBDIR}/qwt/src"
++	LIBS         += "$${QMAKE_LIBDIR}/qwt/lib/qwt.lib"
+ 
+-	INCLUDEPATH  += "$${LIBPATH}/qwtplot3d/include"
+-	LIBS         += "$${LIBPATH}/qwtplot3d/lib/qwtplot3d.dll"
++	INCLUDEPATH  += "$${QMAKE_LIBDIR}/qwtplot3d/include"
++	LIBS         += "$${QMAKE_LIBDIR}/qwtplot3d/lib/qwtplot3d.lib"
+ 
+-	INCLUDEPATH  += "$${LIBPATH}/muparser/include"
+-	LIBS         += "$${LIBPATH}/muparser/lib/libmuparser.a"
++	INCLUDEPATH  += "$${QMAKE_LIBDIR}/muparser/include"
++	LIBS         += "$${QMAKE_LIBDIR}/muparser/lib/muparser.lib"
+ 
+-	INCLUDEPATH  += "$${LIBPATH}/gsl/include"
+-	LIBS         += "$${LIBPATH}/gsl/lib/libgsl.a"
+-	LIBS         += "$${LIBPATH}/gsl/lib/libgslcblas.a"
++	INCLUDEPATH  += "$${QMAKE_LIBDIR}/gsl/include"
++	LIBS         += "$${QMAKE_LIBDIR}/gsl/lib/gsl.lib"
++	LIBS         += "$${QMAKE_LIBDIR}/gsl/lib/gslcblas.lib"
+ 
+-#	contains(DEFINES, ORIGIN_IMPORT) {
+-#		LIBS += "$${LIBPATH}/liborigin/build/liborigin.a"
+-#		INCLUDEPATH += "$${LIBPATH}/liborigin" "$${LIBPATH}/liborigin/build"
+-#	}
++	DEFINES += NOASSISTANT
++
++	INCLUDEPATH  += "$${QMAKE_LIBDIR}/zlib"
++	LIBS         += "$${QMAKE_LIBDIR}/zlib/zlibstatic.lib"
++
++	contains(DEFINES, ORIGIN_IMPORT) {
++		LIBS += "$${QMAKE_LIBDIR}/liborigin/build/origin.lib"
++		INCLUDEPATH += "$${QMAKE_LIBDIR}/liborigin" "$${QMAKE_LIBDIR}/liborigin/build"
++		INCLUDEPATH += "$${BOOST_ROOT}"
++		DEFINES += NO_CODE_GENERATION_FOR_LOG
++	}
+   }
+ }
+ 
+diff --git a/fitPlugins/exp_saturation/exp_saturation.pro b/fitPlugins/exp_saturation/exp_saturation.pro
+index 3bc34ef..db23e01 100644
+--- a/fitPlugins/exp_saturation/exp_saturation.pro
++++ b/fitPlugins/exp_saturation/exp_saturation.pro
+@@ -12,8 +12,9 @@ INSTALLS += target
+ unix:  target.path = /usr/lib$${libsuff}/scidavis/plugins
+ win32: target.path = ../../output/plugins
+ 
+-win32:INCLUDEPATH += ../../3rdparty/gsl-1.8/include
+-win32:LIBS        += ../../3rdparty/gsl-1.8/lib/libgsl.a
++win32:INCLUDEPATH       += ../../3rdparty/gsl/include
++win32:LIBS        += ../../3rdparty/gsl/lib/gsl.lib
++win32:LIBS        += ../../3rdparty/gsl/lib/gslcblas.lib
+ 
+ unix:LIBS += -L/usr/lib$${libsuff} -lgsl -lgslcblas
+ #unix:LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
+diff --git a/fitPlugins/explin/explin.pro b/fitPlugins/explin/explin.pro
+index 1e2644e..778530d 100644
+--- a/fitPlugins/explin/explin.pro
++++ b/fitPlugins/explin/explin.pro
+@@ -12,8 +12,9 @@ INSTALLS += target
+ unix:  target.path = /usr/lib$${libsuff}/scidavis/plugins
+ win32: target.path = ../../output/plugins
+ 
+-win32:INCLUDEPATH += ../../3rdparty/gsl-1.8/include
+-win32:LIBS        += ../../3rdparty/gsl-1.8/lib/libgsl.a
++win32:INCLUDEPATH       += ../../3rdparty/gsl/include
++win32:LIBS        += ../../3rdparty/gsl/lib/gsl.lib
++win32:LIBS        += ../../3rdparty/gsl/lib/gslcblas.lib
+ 
+ unix:LIBS += -L/usr/lib$${libsuff} -lgsl -lgslcblas
+ #unix:LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
+diff --git a/fitPlugins/fitRational0/fitRational0.pro b/fitPlugins/fitRational0/fitRational0.pro
+index 64a7513..3a9c62d 100644
+--- a/fitPlugins/fitRational0/fitRational0.pro
++++ b/fitPlugins/fitRational0/fitRational0.pro
+@@ -18,9 +18,9 @@ INSTALLS += target
+ # To use this on Linux or Mac OS X, remove
+ # the "win32" and prepend '#' to the "LIBS"
+ # line in the dynamic linking section.
+-win32:INCLUDEPATH       += ../../3rdparty/gsl-1.8/include
+-win32:LIBS        += ../../3rdparty/gsl-1.8/lib/libgsl.a
+-win32:LIBS        += ../../3rdparty/gsl-1.8/lib/libgslcblas.a
++win32:INCLUDEPATH       += ../../3rdparty/gsl/include
++win32:LIBS        += ../../3rdparty/gsl/lib/gsl.lib
++win32:LIBS        += ../../3rdparty/gsl/lib/gslcblas.lib
+ 
+ # Dynamically link against GSL installed system-wide.
+ # This is used as default on unix systems such as
+diff --git a/fitPlugins/fitRational1/fitRational1.pro b/fitPlugins/fitRational1/fitRational1.pro
+index 5e89e9a..1902535 100644
+--- a/fitPlugins/fitRational1/fitRational1.pro
++++ b/fitPlugins/fitRational1/fitRational1.pro
+@@ -18,9 +18,9 @@ INSTALLS += target
+ # To use this on Linux or Mac OS X, remove
+ # the "win32" and prepend '#' to the "LIBS"
+ # line in the dynamic linking section.
+-win32:INCLUDEPATH       += ../../3rdparty/gsl-1.8/include
+-win32:LIBS        += ../../3rdparty/gsl-1.8/lib/libgsl.a
+-win32:LIBS        += ../../3rdparty/gsl-1.8/lib/libgslcblas.a
++win32:INCLUDEPATH       += ../../3rdparty/gsl/include
++win32:LIBS        += ../../3rdparty/gsl/lib/gsl.lib
++win32:LIBS        += ../../3rdparty/gsl/lib/gslcblas.lib
+ 
+ # Dynamically link against GSL installed system-wide.
+ # This is used as default on unix systems such as
+diff --git a/fitPlugins/planck_wavelength/planck_wavelength.pro b/fitPlugins/planck_wavelength/planck_wavelength.pro
+index a8d50f8..3606106 100644
+--- a/fitPlugins/planck_wavelength/planck_wavelength.pro
++++ b/fitPlugins/planck_wavelength/planck_wavelength.pro
+@@ -12,9 +12,9 @@ INSTALLS += target
+ unix:  target.path = /usr/lib$${libsuff}/scidavis/plugins
+ win32: target.path = ../../output/plugins
+ 
+-win32:INCLUDEPATH       += ../../3rdparty/gsl-1.8/include
+-win32:LIBS        += ../../3rdparty/gsl-1.8/lib/libgsl.a
+-win32:LIBS        += ../../3rdparty/gsl-1.8/lib/libgslcblas.a
++win32:INCLUDEPATH       += ../../3rdparty/gsl/include
++win32:LIBS        += ../../3rdparty/gsl/lib/gsl.lib
++win32:LIBS        += ../../3rdparty/gsl/lib/gslcblas.lib
+ 
+ unix:LIBS += -L/usr/lib$${libsuff} -lgsl -lgslcblas
+ #unix:LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
+diff --git a/output/scidavisScriptInstall.nsi b/output/scidavisScriptInstall.nsi
+index 1ef1177..f9af9b0 100644
+--- a/output/scidavisScriptInstall.nsi
++++ b/output/scidavisScriptInstall.nsi
+@@ -28,14 +28,14 @@
+ 
+ ; HM NIS Edit Wizard helper defines
+ !define PRODUCT_NAME "SciDAVis"
+-!define PRODUCT_VERSION "1.D5"
++!define PRODUCT_VERSION "1.D8"
+ !define PRODUCT_WEB_SITE "http://scidavis.sourceforge.net/"
+ !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\scidavis.exe"
+ !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+ !define PRODUCT_UNINST_ROOT_KEY "HKLM"
+ !define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
+-!define PYTHON_INSTALLER "python-2.7.6.msi"
+-!define PYTHON_URL "http://www.python.org/ftp/python/2.7.6/${PYTHON_INSTALLER}"
++!define PYTHON_INSTALLER "python-2.7.9.msi"
++!define PYTHON_URL "https://www.python.org/ftp/python/2.7.9/${PYTHON_INSTALLER}"
+ 
+ SetCompressor /SOLID lzma
+ 
+@@ -99,10 +99,10 @@ Section "SciDAVis" SEC01
+ 
+   File "CHANGES.txt"
+   File "gpl.txt"
+-  File "mingwm10.dll"
+-  File "libgcc_s_dw2-1.dll"
++  ; File "mingwm10.dll"
++  ; File "libgcc_s_dw2-1.dll"
+   File "Qt3Support4.dll"
+-  File "QtAssistantClient4.dll"
++  ; File "QtAssistantClient4.dll"
+   File "QtCore4.dll"
+   File "QtGui4.dll"
+   File "QtNetwork4.dll"
+@@ -110,23 +110,24 @@ Section "SciDAVis" SEC01
+   File "QtSql4.dll"
+   File "QtSvg4.dll"
+   File "QtXml4.dll"
+-  File "qwtplot3d.dll"
++  ; File "qwtplot3d.dll"
+   File "README.txt"
+   File "scidavis.ico"
+   File "scidavis.exe"
+   File "scidavisrc.py"
+   File "scidavisrc.pyc"
+   File "scidavisUtil.py"
+-  ;File "scidavisUtil.pyc"
++  ; File "scidavisUtil.pyc"
+   File "assistant.exe"
+   File "sip.pyd"
+   File "python27.dll"
+-  File "zlib1.dll"
++  ; File "zlib1.dll"
+   SetOutPath "$INSTDIR\plugins"
+   File "plugins\fitRational0.dll"
+   File "plugins\fitRational1.dll"
+   File "plugins\exp_saturation.dll"
+   File "plugins\explin.dll"
++  File "plugins\planck_wavelength.dll"
+   SetOutPath "$INSTDIR\translations"
+   File "translations\scidavis_de.qm"
+   File "translations\scidavis_es.qm"
+@@ -141,7 +142,7 @@ Section "SciDAVis" SEC01
+   File "PyQt4\__init__.py"
+   File "PyQt4\__init__.pyc"
+   File "PyQt4\Qt.pyd"
+-  File "PyQt4\QtAssistant.pyd"
++  ; File "PyQt4\QtAssistant.pyd"
+   File "PyQt4\QtCore.pyd"
+   File "PyQt4\QtDesigner.pyd"
+   File "PyQt4\QtGui.pyd"
+@@ -215,7 +216,7 @@ Section Uninstall
+   Delete "$INSTDIR\scidavis.exe"
+   Delete "$INSTDIR\scidavis.ico"
+   Delete "$INSTDIR\README.txt"
+-  Delete "$INSTDIR\qwtplot3d.dll"
++  ; Delete "$INSTDIR\qwtplot3d.dll"
+   Delete "$INSTDIR\QtXml4.dll"
+   Delete "$INSTDIR\QtSvg4.dll"
+   Delete "$INSTDIR\QtSql4.dll"
+@@ -223,20 +224,21 @@ Section Uninstall
+   Delete "$INSTDIR\QtNetwork4.dll"
+   Delete "$INSTDIR\QtGui4.dll"
+   Delete "$INSTDIR\QtCore4.dll"
+-  Delete "$INSTDIR\QtAssistantClient4.dll"
++  ; Delete "$INSTDIR\QtAssistantClient4.dll"
+   Delete "$INSTDIR\Qt3Support4.dll"
+-  Delete "$INSTDIR\mingwm10.dll"
+-  Delete "$INSTDIR\libgcc_s_dw2-1.dll"
++  ; Delete "$INSTDIR\mingwm10.dll"
++  ; Delete "$INSTDIR\libgcc_s_dw2-1.dll"
+   Delete "$INSTDIR\gpl.txt"
+   Delete "$INSTDIR\CHANGES.txt"
+   Delete "$INSTDIR\assistant.exe"
+   Delete "$INSTDIR\sip.pyd"
+   Delete "$INSTDIR\python27.dll"
+-  Delete "$INSTDIR\zlib1.dll"
++  ; Delete "$INSTDIR\zlib1.dll"
+   Delete "$INSTDIR\plugins\fitRational1.dll"
+   Delete "$INSTDIR\plugins\fitRational0.dll"
+   Delete "$INSTDIR\plugins\exp_saturation.dll"
+   Delete "$INSTDIR\plugins\explin.dll"
++  Delete "$INSTDIR\plugins\planck_wavelength.dll"
+   Delete "$INSTDIR\translations\scidavis_de.qm"
+   Delete "$INSTDIR\translations\scidavis_es.qm"
+   Delete "$INSTDIR\translations\scidavis_fr.qm"
+@@ -249,7 +251,7 @@ Section Uninstall
+   Delete "$INSTDIR\PyQt4\__init__.py"
+   Delete "$INSTDIR\PyQt4\__init__.pyc"
+   Delete "$INSTDIR\PyQt4\Qt.pyd"
+-  Delete "$INSTDIR\PyQt4\QtAssistant.pyd"
++  ; Delete "$INSTDIR\PyQt4\QtAssistant.pyd"
+   Delete "$INSTDIR\PyQt4\QtCore.pyd"
+   Delete "$INSTDIR\PyQt4\QtDesigner.pyd"
+   Delete "$INSTDIR\PyQt4\QtGui.pyd"
+diff --git a/scidavis.pro b/scidavis.pro
+index fddc9ce..e368aef 100644
+--- a/scidavis.pro
++++ b/scidavis.pro
+@@ -7,11 +7,14 @@
+ #################################################
+ TEMPLATE = subdirs
+ 
+-SUBDIRS = 3rdparty/liborigin scidavis test
++# SUBDIRS = 3rdparty/liborigin scidavis test
++SUBDIRS = scidavis
+ CONFIG+=ordered
+ 
+ # Overwrite the qmake generated Makefile by the cmake one
++!win32 {
+ system("cd 3rdparty/liborigin; rm CMakeCache.txt; cmake -DBUILD_SHARED_LIBS:BOOL=OFF -DCMAKE_CXX_FLAGS:STRING=-DNO_CODE_GENERATION_FOR_LOG .")
++}
+ 
+ !mxe {
+ # optional fit plugins
+diff --git a/scidavis/basic.pri b/scidavis/basic.pri
+index c08d44b..b7b5b48 100644
+--- a/scidavis/basic.pri
++++ b/scidavis/basic.pri
+@@ -64,10 +64,11 @@ contains( INSTALLS, translationfiles ){
+                              translations/scidavis_cs-alt.qm \
+ 
+         unix: tstarget.target = translations/scidavis_de.qm
+-        win32: tstarget.target = translations\scidavis_de.qm
++        win32: tstarget.target = translations/scidavis_de.qm
+ # note the translation files are not writable during AEGIS
+ # integration, so we don't want to perform an update then
+-        tstarget.commands = (! test -w translations/scidavis_de.ts || $$LUPDATE_BIN scidavis.pro) && $$LRELEASE_BIN scidavis.pro
++        unix: tstarget.commands = (! test -w translations/scidavis_de.ts || $$LUPDATE_BIN scidavis.pro) && $$LRELEASE_BIN scidavis.pro
++        win32: tstarget.commands = $$LUPDATE_BIN scidavis.pro && $$LRELEASE_BIN scidavis.pro
+ 
+         QMAKE_EXTRA_TARGETS += tstarget
+         PRE_TARGETDEPS += translations/scidavis_de.qm
+diff --git a/scidavis/python-includepath.py b/scidavis/python-includepath.py
+index c76fa61..02ba7c9 100644
+--- a/scidavis/python-includepath.py
++++ b/scidavis/python-includepath.py
+@@ -28,6 +28,6 @@
+ ############################################################################
+ 
+ from distutils import sysconfig
+-from PyQt4 import pyqtconfig
+-config = pyqtconfig.Configuration()
++import sipconfig
++config = sipconfig.Configuration()
+ print " ".join([sysconfig.get_python_inc(), config.sip_inc_dir])
+diff --git a/scidavis/python-libs-win.py b/scidavis/python-libs-win.py
+index 4864b38..8b87a79 100644
+--- a/scidavis/python-libs-win.py
++++ b/scidavis/python-libs-win.py
+@@ -27,7 +27,7 @@
+ #                                                                          #
+ ############################################################################
+ 
+-from PyQt4 import pyqtconfig
+-config = pyqtconfig.Configuration()
++import sipconfig
++config = sipconfig.Configuration()
+ 
+ print "-L%s -lpython%d%d" % (config.py_lib_dir, config.py_version >> 16, (config.py_version  >> 8) & 0xff)
+diff --git a/scidavis/python-sipcmd.py b/scidavis/python-sipcmd.py
+index f73ae8d..c746082 100644
+--- a/scidavis/python-sipcmd.py
++++ b/scidavis/python-sipcmd.py
+@@ -27,10 +27,22 @@
+ #                                                                          #
+ ############################################################################
+ 
+-from PyQt4 import pyqtconfig
+-config = pyqtconfig.Configuration()
++from __future__ import print_function
++
++import os
++import sipconfig
++import PyQt4.QtCore
++
++try:
++	# >= 4.10
++	SIP_FLAGS = PyQt4.QtCore.PYQT_CONFIGURATION['sip_flags']
++except:
++	import PyQt4.pyqtconfig
++	SIP_FLAGS = PyQt4.pyqtconfig.Configuration().pyqt_sip_flags
++
+ flags = ["-I ../scidavis"]
+-if config.sip_version >= 0x040a00:
+-	# make use of docstring generation feature in SIP >= 4.10
+-	flags.append("-o")
+-print " ".join([config.sip_bin, "-I", config.pyqt_sip_dir, config.pyqt_sip_flags] + flags)
++PYQT_SIP_DIR = os.path.join(sipconfig.Configuration().default_sip_dir, 'PyQt4')
++SIP_BIN = sipconfig.Configuration().sip_bin
++SIP_INC_DIR = sipconfig.Configuration().sip_inc_dir
++
++print(" ".join([SIP_BIN, "-I", PYQT_SIP_DIR, SIP_FLAGS] + flags))
+diff --git a/scidavis/python.pri b/scidavis/python.pri
+index 3427516..cadb42e 100644
+--- a/scidavis/python.pri
++++ b/scidavis/python.pri
+@@ -41,7 +41,10 @@
+     INCLUDEPATH += $$system(call python-includepath.py)
+     LIBS        += $$system(call python-libs-win.py)
+     # TODO: fix the command below (only really necessary if SIP_DIR != MOC/OBJECTS_DIR)
+-    #system(md $${SIP_DIR})
++    WIN_SIP_DIR = $$replace(SIP_DIR, / , \\\\)
++    !exists($$WIN_SIP_DIR) {
++		system(mkdir $$WIN_SIP_DIR)
++    }
+     system($$system(call python-sipcmd.py) -c $${SIP_DIR} ../scidavis/src/scidavis.sip)
+   }
+ }
+diff --git a/scidavis/src/ApplicationWindow.cpp b/scidavis/src/ApplicationWindow.cpp
+index 18c0b9f..0abc8d7 100644
+--- a/scidavis/src/ApplicationWindow.cpp
++++ b/scidavis/src/ApplicationWindow.cpp
+@@ -35,6 +35,7 @@
+ #define BUGREPORT_URI "http://sourceforge.net/tracker/?group_id=199120&atid=968214"
+ #define DOWNLOAD_URI "http://sourceforge.net/projects/scidavis/files/SciDAVis/"
+ 
++#define NOMINMAX
+ #include "globals.h"
+ #include "ApplicationWindow.h"
+ #include "CurvesDialog.h"
+diff --git a/scidavis/src/ColorMapEditor.cpp b/scidavis/src/ColorMapEditor.cpp
+index 86ac04d..2304f32 100644
+--- a/scidavis/src/ColorMapEditor.cpp
++++ b/scidavis/src/ColorMapEditor.cpp
+@@ -124,7 +124,7 @@ for (int i = 0; i < rows; i++)
+ 		
+ 	QColor c = QColor(map.rgb(QwtDoubleInterval(0, 1), colors[i]));
+ 	it = new QTableWidgetItem(c.name());
+-	it->setFlags(!Qt::ItemIsEditable);
++	it->setFlags(it->flags()&~Qt::ItemIsEditable);
+ 	it->setBackground(QBrush(c));
+ 	it->setForeground(QBrush(c));
+     table->setItem(i, 1, it);
+@@ -156,7 +156,7 @@ QTableWidgetItem *it = new QTableWidgetItem(QString::number(val));
+ table->setItem(row, 0, it);
+ 		
+ it = new QTableWidgetItem(c.name());
+-it->setFlags(!Qt::ItemIsEditable);
++it->setFlags(it->flags()&~Qt::ItemIsEditable);
+ it->setBackground(QBrush(c));
+ it->setForeground(QBrush(c));
+ table->setItem(row, 1, it);
+diff --git a/scidavis/src/Convolution.cpp b/scidavis/src/Convolution.cpp
+index 63c1471..41afb56 100644
+--- a/scidavis/src/Convolution.cpp
++++ b/scidavis/src/Convolution.cpp
+@@ -138,7 +138,7 @@ void Convolution::addResultCurve()
+ 
+ 	d_table->addCol();
+ 	d_table->addCol();
+-	double x_temp[d_n];
++	QVarLengthArray<double> x_temp(d_n);
+ 	for (int i = 0; i<d_n; i++)
+ 	{
+ 		double x = i+1;
+@@ -161,7 +161,7 @@ void Convolution::addResultCurve()
+         return;
+ 
+     DataCurve *c = new DataCurve(d_table, d_table->colName(cols), d_table->colName(cols2));
+-	c->setData(x_temp, d_x, d_n);
++	c->setData(x_temp.data(), d_x, d_n);
+     c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
+ 	ml->activeGraph()->insertPlotItem(c, Graph::Line);
+ 	ml->activeGraph()->updatePlot();
+diff --git a/scidavis/src/Correlation.cpp b/scidavis/src/Correlation.cpp
+index bc6f16b..4206c0a 100644
+--- a/scidavis/src/Correlation.cpp
++++ b/scidavis/src/Correlation.cpp
+@@ -146,7 +146,7 @@ void Correlation::addResultCurve()
+ 	d_table->addCol();
+ 	int n = rows/2;
+ 
+-	double x_temp[rows], y_temp[rows];
++	QVarLengthArray<double> x_temp(rows), y_temp(rows);
+ 	for (int i = 0; i<rows; i++)
+ 	{
+         x_temp[i] = i - n;
+@@ -173,7 +173,7 @@ void Correlation::addResultCurve()
+         return;
+ 
+     DataCurve *c = new DataCurve(d_table, d_table->colName(cols), d_table->colName(cols2));
+-	c->setData(x_temp, y_temp, rows);
++	c->setData(x_temp.data(), y_temp.data(), rows);
+     c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
+ 	ml->activeGraph()->insertPlotItem(c, Graph::Line);
+ 	ml->activeGraph()->updatePlot();
+diff --git a/scidavis/src/FitDialog.cpp b/scidavis/src/FitDialog.cpp
+index b6112ed..ef00cda 100644
+--- a/scidavis/src/FitDialog.cpp
++++ b/scidavis/src/FitDialog.cpp
+@@ -655,7 +655,7 @@ void FitDialog::showFitPage()
+     for (int i = param_table_rows; i<paramList.count(); i++)
+ 	{
+         QTableWidgetItem *it = new QTableWidgetItem(paramList[i]);
+-        it->setFlags(!Qt::ItemIsEditable);
++        it->setFlags(it->flags()&~Qt::ItemIsEditable);
+         it->setBackground(QBrush(Qt::lightGray));
+         it->setForeground(QBrush(Qt::darkRed));
+         QFont font = it->font();
+@@ -679,7 +679,7 @@ void FitDialog::showFitPage()
+ 		for (int i = 0; i<boxParams->rowCount(); i++ )
+ 		{
+             QTableWidgetItem *it = new QTableWidgetItem();
+-            it->setFlags(!Qt::ItemIsEditable);
++            it->setFlags(it->flags()&~Qt::ItemIsEditable);
+             it->setBackground(QBrush(Qt::lightGray));
+             boxParams->setItem(i, 2, it);
+ 
+diff --git a/scidavis/src/Graph3D.cpp b/scidavis/src/Graph3D.cpp
+index 4b60dc4..86584de 100644
+--- a/scidavis/src/Graph3D.cpp
++++ b/scidavis/src/Graph3D.cpp
+@@ -2933,7 +2933,7 @@ void Graph3D::findBestLayout()
+ 
+   	double d = (sp->hull().maxVertex-sp->hull().minVertex).length();
+   	sp->setScale(xScale, yScale, zScale);
+-  	sp->setZoom(d/sqrt(3));
++	sp->setZoom(d/sqrt(3.));
+ 
+   	double majl = 0.1/yScale;
+   	updateTickLength(0, majl, 0.6*majl);
+diff --git a/scidavis/src/MuParserScripting.h b/scidavis/src/MuParserScripting.h
+index 298a20f..94b24f1 100644
+--- a/scidavis/src/MuParserScripting.h
++++ b/scidavis/src/MuParserScripting.h
+@@ -33,6 +33,12 @@
+ #ifndef MUPARSER_SCRIPTING_H
+ #define MUPARSER_SCRIPTING_H
+ 
++#ifdef _MSC_VER
++      #ifndef NAN
++              static const unsigned long __nan[2] = {0xffffffff, 0x7fffffff};
++              #define NAN (*(const float *) __nan)
++      #endif
++#endif
+ #include "ScriptingEnv.h"
+ #include "Script.h"
+ #include "MuParserScript.h"
+diff --git a/scidavis/src/QwtHistogram.cpp b/scidavis/src/QwtHistogram.cpp
+index af91d1f..286d064 100644
+--- a/scidavis/src/QwtHistogram.cpp
++++ b/scidavis/src/QwtHistogram.cpp
+@@ -169,7 +169,7 @@ bool QwtHistogram::loadData()
+ 	for (int i = 0; i<size; i++ )
+ 		gsl_histogram_increment (h, Y[i]);
+ 
+-	double X[n]; //stores ranges (x) and bins (y)
++	QVarLengthArray<double> X(n); //stores ranges (x) and bins (y)
+ 	Y.resize(n);
+ 	for (int i = 0; i<n; i++ ){
+ 		Y[i] = gsl_histogram_get (h, i);
+@@ -177,7 +177,7 @@ bool QwtHistogram::loadData()
+ 		gsl_histogram_get_range (h, i, &lower, &upper);
+ 		X[i] = lower;
+ 	}
+-	setData(X, Y.data(), n);
++	setData(X.data(), Y.data(), n);
+ 
+ 	d_mean = gsl_histogram_mean(h);
+ 	d_standard_deviation = gsl_histogram_sigma(h);
+@@ -203,7 +203,7 @@ void QwtHistogram::initData(const QVector<double>& Y, int size)
+ 	}
+ 
+ 	int n = 10;//default value
+-	double x[n], y[n]; //store ranges (x) and bins (y)
++	QVarLengthArray<double> x(n), y(n); //store ranges (x) and bins (y)
+ 	gsl_histogram * h = gsl_histogram_alloc (n);
+ 	if (!h)
+ 		return;
+@@ -232,7 +232,7 @@ void QwtHistogram::initData(const QVector<double>& Y, int size)
+ 		x[i] = lower;
+ 	}
+ 
+-	setData(x, y, n);
++	setData(x.data(), y.data(), n);
+ 
+ 	d_bin_size = (d_end - d_begin)/(double)n;
+ 	d_autoBin = true;
+diff --git a/scidavis/src/Table.h b/scidavis/src/Table.h
+index d484426..37097e7 100644
+--- a/scidavis/src/Table.h
++++ b/scidavis/src/Table.h
+@@ -31,6 +31,12 @@
+ #ifndef TABLE_H
+ #define TABLE_H
+ 
++#ifdef _MSC_VER
++      #ifndef NAN
++              static const unsigned long __nan[2] = {0xffffffff, 0x7fffffff};
++              #define NAN (*(const float *) __nan)
++      #endif
++#endif
+ #include <QVarLengthArray>
+ #include <QDateTime>
+ #include <QHash>
+diff --git a/scidavis/src/fit_gsl.cpp b/scidavis/src/fit_gsl.cpp
+index 507309e..8f888f5 100644
+--- a/scidavis/src/fit_gsl.cpp
++++ b/scidavis/src/fit_gsl.cpp
+@@ -647,7 +647,7 @@ int lorentz_multi_peak_fdf (const gsl_vector * x, void *params, gsl_vector * f,
+ 
+ int user_f(const gsl_vector * x, void *params, gsl_vector * f)
+ {
+-        static_cast<struct FitData*>(params)->fit->evaluate_f(x, f);
++        return static_cast<struct FitData*>(params)->fit->evaluate_f(x, f);
+ }
+ 
+ double user_d(const gsl_vector * x, void *params)
+diff --git a/scidavis/src/future/core/AbstractColumn.h b/scidavis/src/future/core/AbstractColumn.h
+index 0fabde9..8b8eb08 100644
+--- a/scidavis/src/future/core/AbstractColumn.h
++++ b/scidavis/src/future/core/AbstractColumn.h
+@@ -31,7 +31,9 @@
+ #define ABSTRACTCOLUMN_H
+ 
+ #include <QList>
++#include <QVector>
+ #include <QString>
++#include <QStringList>
+ #include <QDateTime>
+ #include <QDate>
+ #include <QTime>
+diff --git a/scidavis/src/future/lib/Interval.h b/scidavis/src/future/lib/Interval.h
+index a872c30..37017a7 100644
+--- a/scidavis/src/future/lib/Interval.h
++++ b/scidavis/src/future/lib/Interval.h
+@@ -71,7 +71,7 @@ template<class T> class IntervalBase
+ 		Interval<T>& operator=(const Interval<T>& other) {
+ 			d_start = other.start();
+ 			d_end = other.end();
+-			return *this;
++			return (Interval<T>&)*this;
+ 		}
+ 		//! Returns true if no gap is between two intervals.
+ 		virtual bool touches(const Interval<T>& other) const = 0;
+diff --git a/scidavis/src/scidavis.sip b/scidavis/src/scidavis.sip
+index 7bc24f7..66063d5 100644
+--- a/scidavis/src/scidavis.sip
++++ b/scidavis/src/scidavis.sip
+@@ -31,7 +31,7 @@
+  *                                                                         *
+  ***************************************************************************/
+ 
+-%Module scidavis 0
++%Module(name=scidavis, version=0)
+ %Import QtCore/QtCoremod.sip
+ %Import QtGui/QtGuimod.sip
+ 
+@@ -173,14 +173,14 @@ class Column: AbstractAspect
+ 		void setValueAt(int row, double new_value);
+ 		void replaceValues(int first, const QVector<double>& new_values);
+ 
+-  Column * x() const /NoDerived/;
++  Column * x() const;
+ %MethodCode
+     future::Table *t = qobject_cast<future::Table *>(sipCpp->parentAspect());
+     if (t)
+         sipRes = t->column(t->colX(t->indexOfChild(sipCpp)));
+ %End
+ 
+-  Column * y() const /NoDerived/;
++  Column * y() const;
+ %MethodCode
+     future::Table *t = qobject_cast<future::Table *>(sipCpp->parentAspect());
+     if (t)
+@@ -229,7 +229,7 @@ public:
+ 	if (app) app->renameWindow(sipCpp, *a0);
+ %End
+ 
+-	MyWidget *clone() /NoDerived/;
++	MyWidget *clone();
+ %MethodCode
+ 	ApplicationWindow *app = sipscidavis_app();
+ 	if (app) sipRes = app->clone(sipCpp);
+@@ -306,17 +306,17 @@ public:
+   void setNumRows(int);
+   void setNumCols(int);
+   Column * column(int index) const;
+-  Column * column(const QString & name) const /NoDerived/;
++  Column * column(const QString & name) const;
+ %MethodCode
+   sipRes = sipCpp->d_future_table->column(*a0, false);
+ %End
+ 
+-  Column * __getitem__(int index) const /NoDerived/;
++  Column * __getitem__(int index) const;
+ %MethodCode
+   sipRes = sipCpp->column(a0);
+ %End
+ 
+-  Column * __getitem__(const QString &name) const /NoDerived/;
++  Column * __getitem__(const QString &name) const;
+ %MethodCode
+   sipRes = sipCpp->column(*a0);
+ %End
+@@ -380,14 +380,14 @@ public:
+ 
+   void importASCII(const QString&, const QString&="\t", int=0, bool=false, bool=true, bool=false, bool=false);
+   bool exportASCII(const QString&, const QString&="\t", bool=false, bool=false);
+-  void normalize(SIP_PYOBJECT) /NoDerived/;
++  void normalize(SIP_PYOBJECT);
+ %MethodCode
+ 	sipIsErr = 0;
+ 	CHECK_TABLE_COL(a0);
+ 	if (sipIsErr == 0)
+ 		sipCpp->d_future_table->normalizeColumns(QList< Column* >() << sipCpp->column(col));
+ %End
+-  void normalize() /NoDerived/;
++  void normalize();
+ %MethodCode
+ 	QList< Column* > cols;
+ 	for (int i=0; i<sipCpp->numCols(); i++)
+@@ -395,14 +395,14 @@ public:
+ 	sipCpp->d_future_table->normalizeColumns(cols);
+ %End
+ 
+-  void sortColumn(SIP_PYOBJECT, int order = 0) /NoDerived/;
++  void sortColumn(SIP_PYOBJECT, int order = 0);
+ %MethodCode
+   	sipIsErr = 0;
+   	CHECK_TABLE_COL(a0);
+ 	if (sipIsErr == 0)
+ 		sipCpp->d_future_table->sortColumns(0, QList<Column*>() << sipCpp->column(col), a1==0);
+ %End
+-  void sort(int type = 0, int order = 0, const QString& leadCol = QString()) /NoDerived/;
++  void sort(int type = 0, int order = 0, const QString& leadCol = QString());
+ %MethodCode
+ 	Column * lead;
+ 	if (a0 == 0)
+@@ -658,7 +658,7 @@ class QwtSymbol
+ 
+ 	 // convenience methods for scripting
+ 
+-	 void setColor(const QColor& color) /NoDerived/;
++	 void setColor(const QColor& color);
+ %MethodCode
+ 	QPen pen = sipCpp->pen();
+ 	pen.setColor(*a0);
+@@ -667,7 +667,7 @@ class QwtSymbol
+ 	brush.setColor(*a0);
+ 	sipCpp->setBrush(brush);
+ %End
+-	 void setColor(int color) /NoDerived/;
++	 void setColor(int color);
+ %MethodCode
+ 	QPen pen = sipCpp->pen();
+ 	pen.setColor(ColorBox::color(a0));
+@@ -676,25 +676,25 @@ class QwtSymbol
+ 	brush.setColor(ColorBox::color(a0));
+ 	sipCpp->setBrush(brush);
+ %End
+-	 void setOutlineColor(const QColor& color) /NoDerived/;
++	 void setOutlineColor(const QColor& color);
+ %MethodCode
+ 	QPen pen = sipCpp->pen();
+ 	pen.setColor(*a0);
+ 	sipCpp->setPen(pen);
+ %End
+-	 void setOutlineColor(int color) /NoDerived/;
++	 void setOutlineColor(int color);
+ %MethodCode
+ 	QPen pen = sipCpp->pen();
+ 	pen.setColor(ColorBox::color(a0));
+ 	sipCpp->setPen(pen);
+ %End
+-	 void setFillColor(const QColor& color) /NoDerived/;
++	 void setFillColor(const QColor& color);
+ %MethodCode
+ 	QBrush brush = sipCpp->brush();
+ 	brush.setColor(*a0);
+ 	sipCpp->setBrush(brush);
+ %End
+-	 void setFillColor(int color) /NoDerived/;
++	 void setFillColor(int color);
+ %MethodCode
+ 	QBrush brush = sipCpp->brush();
+ 	brush.setColor(ColorBox::color(a0));
+@@ -731,7 +731,7 @@ class QwtPlotCurve
+ 
+ 	 // convenience methods for scripting
+ 	 
+-	 void setColor(const QColor& color) /NoDerived/;
++	 void setColor(const QColor& color);
+ %MethodCode
+ 	QPen pen = sipCpp->pen();
+ 	pen.setColor(*a0);
+@@ -740,7 +740,7 @@ class QwtPlotCurve
+ 	brush.setColor(*a0);
+ 	sipCpp->setBrush(brush);
+ %End
+-	 void setColor(int color) /NoDerived/;
++	 void setColor(int color);
+ %MethodCode
+ 	QPen pen = sipCpp->pen();
+ 	pen.setColor(ColorBox::color(a0));
+@@ -749,31 +749,31 @@ class QwtPlotCurve
+ 	brush.setColor(ColorBox::color(a0));
+ 	sipCpp->setBrush(brush);
+ %End
+-	 void setOutlineColor(const QColor& color) /NoDerived/;
++	 void setOutlineColor(const QColor& color);
+ %MethodCode
+ 	QPen pen = sipCpp->pen();
+ 	pen.setColor(*a0);
+ 	sipCpp->setPen(pen);
+ %End
+-	 void setOutlineColor(int color) /NoDerived/;
++	 void setOutlineColor(int color);
+ %MethodCode
+ 	QPen pen = sipCpp->pen();
+ 	pen.setColor(ColorBox::color(a0));
+ 	sipCpp->setPen(pen);
+ %End
+-	 void setFillColor(const QColor& color) /NoDerived/;
++	 void setFillColor(const QColor& color);
+ %MethodCode
+ 	QBrush brush = sipCpp->brush();
+ 	brush.setColor(*a0);
+ 	sipCpp->setBrush(brush);
+ %End
+-	 void setFillColor(int color) /NoDerived/;
++	 void setFillColor(int color);
+ %MethodCode
+ 	QBrush brush = sipCpp->brush();
+ 	brush.setColor(ColorBox::color(a0));
+ 	sipCpp->setBrush(brush);
+ %End
+-	 void setFillStyle(Qt::BrushStyle style) /NoDerived/;
++	 void setFillStyle(Qt::BrushStyle style);
+ %MethodCode
+ 	QBrush brush = sipCpp->brush();
+ 	brush.setStyle(a0);
+@@ -838,24 +838,24 @@ class Grid
+ 		void setMinPenY(const QPen &p) /PyName=setYMinorPen/;
+ 		const QPen& minPenY() const /PyName=yMinorPen/;
+ 
+-		void setMajor(bool) /NoDerived/;
++		void setMajor(bool);
+ %MethodCode
+ 	sipCpp->enableX(a0);
+ 	sipCpp->enableY(a0);
+ %End
+ 
+-		void setMinor(bool) /NoDerived/;
++		void setMinor(bool);
+ %MethodCode
+ 	sipCpp->enableXMin(a0);
+ 	sipCpp->enableYMin(a0);
+ %End
+ 
+-		void setMajorPen(const QPen &p) /NoDerived/;
++		void setMajorPen(const QPen &p);
+ %MethodCode
+ 	sipCpp->setMajPenX(*a0);
+ 	sipCpp->setMajPenY(*a0);
+ %End
+-		void setMinorPen(const QPen &p) /NoDerived/;
++		void setMinorPen(const QPen &p);
+ %MethodCode
+ 	sipCpp->setMinPenX(*a0);
+ 	sipCpp->setMinPenY(*a0);
+@@ -881,7 +881,7 @@ public:
+   sipRes = PyString_FromString(sipCpp->pieLegendText());
+ %End
+ 
+-  bool insertCurve(Table*, const QString&, int=1, int color=-1) /NoDerived/;
++  bool insertCurve(Table*, const QString&, int=1, int color=-1);
+ %MethodCode
+ 	if (sipCpp->insertCurve(a0, *a1, a2)) {
+ 		CurveLayout cl = sipCpp->initCurveLayout(a2, 1);
+@@ -910,7 +910,7 @@ public:
+ 		sipRes = false;
+ %End
+ 	bool insertFunctionCurve(const QString &formula, double from=0, double to=1, int points=100,
+-			const QString &title = QString::null) /NoDerived/;
++			const QString &title = QString::null);
+ %MethodCode
+ 	ApplicationWindow *app = sipscidavis_app();
+ 	if (app)
+@@ -921,7 +921,7 @@ public:
+ %End
+ 	bool insertPolarCurve(const QString &radial, const QString &angular,
+ 			double from=0, double to=2*M_PI, const QString &parameter="t", int points=100,
+-			const QString &title = QString::null) /NoDerived/;
++			const QString &title = QString::null);
+ %MethodCode
+ 	ApplicationWindow *app = sipscidavis_app();
+ 	if (app)
+@@ -932,7 +932,7 @@ public:
+ %End
+ 	bool insertParametricCurve(const QString &x, const QString &y,
+ 			double from=0, double to=1, const QString &parameter="t", int points=100,
+-			const QString &title =QString::null) /NoDerived/;
++			const QString &title =QString::null);
+ %MethodCode
+ 	ApplicationWindow *app = sipscidavis_app();
+ 	if (app)
+@@ -946,7 +946,7 @@ public:
+   void removeCurve(const QString&);
+   void deleteFitCurves();
+   int curves() /PyName=numCurves/;
+-  QList<QwtPlotCurve*> curves() const /NoDerived/;
++  QList<QwtPlotCurve*> curves() const;
+ %MethodCode
+ 	sipRes = new QList<QwtPlotCurve*>();
+ 	for (int i = 0; i<sipCpp->curves(); i++)
+@@ -969,7 +969,7 @@ public:
+   void setTitle(const QString& t);
+   Legend* newLegend();
+   Legend* newLegend(const QString&);
+-  void setLegend(const QString&) /NoDerived/;
++  void setLegend(const QString&);
+ %MethodCode
+   sipCpp->legend()->setText(*a0);
+ %End
+@@ -1010,12 +1010,12 @@ public:
+   void setAutoscaleFonts(bool = true);
+   void setAntialiasing(bool on = true, bool update = true);
+ 
+-  QWidget * canvas() const /NoDerived/;
++  QWidget * canvas() const;
+ %MethodCode
+ 	sipRes = sipCpp->d_plot->canvas();
+ %End
+ 
+-	QPointF pickPoint() const /NoDerived/;
++	QPointF pickPoint() const;
+ %MethodCode
+ 	ApplicationWindow *app = sipscidavis_app();
+ 	sipRes = new QPointF();
+@@ -1057,7 +1057,7 @@ public:
+ 	// for backwards-compatibility
+   void setAlignement (int, int);
+   void setAlignement (int, int) /PyName=setAlignment/;
+-  void arrangeLayers(bool fit = true) /NoDerived/;
++  void arrangeLayers(bool fit = true);
+ %MethodCode
+ 	sipCpp->arrangeLayers(a0, false);
+ %End
+@@ -1166,7 +1166,7 @@ public:
+ 	// a bugfix release though, since an unexpected change in behaviour may be even
+ 	// more confusing than the inconsistency.
+   Note* newNote(const QString& = QString::null);
+-  MultiLayer *plot(Table*, SIP_PYTUPLE, int style=1, int color=-1) /NoDerived/;
++  MultiLayer *plot(Table*, SIP_PYTUPLE, int style=1, int color=-1);
+ %MethodCode
+   QStringList l;
+   int n = PyTuple_Size(a1);
+@@ -1203,7 +1203,7 @@ public:
+     }
+   }
+ %End
+-  MultiLayer *plot(Table*, const QString&, int style=1, int color=-1) /NoDerived/;
++  MultiLayer *plot(Table*, const QString&, int style=1, int color=-1);
+ %MethodCode
+   if (a0==0) {
+ 	  sipIsErr = 1;
+@@ -1241,7 +1241,7 @@ public:
+ //  QTextEdit *console;
+ 
+   // folders
+-  Folder *activeFolder() /NoDerived/;
++  Folder *activeFolder();
+ %MethodCode
+   sipRes = sipCpp->current_folder;
+ %End
+@@ -1905,14 +1905,14 @@ public:
+ 
+   Folder* rootFolder();
+ 
+-  void save(const QString &filename) /NoDerived/;
++  void save(const QString &filename);
+ %MethodCode
+ 	ApplicationWindow *app = sipscidavis_app();
+ 	if (app)
+ 		app->saveFolder(sipCpp, *a0);
+ %End
+ 
+-	void addChild(Folder *f /Transfer/) /NoDerived/;
++	void addChild(Folder *f /Transfer/);
+ %MethodCode
+ 	QString name = a0->objectName();
+ 	int i = 1;
