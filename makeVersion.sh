@@ -4,8 +4,8 @@ delta=${version##*.[CD]}
 delta=`echo $delta|sed -e 's/^0*//'`
 branch=${version%%.*}
 scidavis_version=$[$branch*65536 + $delta]
-rm -f scidavis/src/version.cpp
-cat >scidavis/src/version.cpp <<EOF
+rm -f libscidavis/src/version.cpp
+cat >libscidavis/src/version.cpp <<EOF
 #include "globals.h"
 const int SciDAVis::scidavis_versionNo = $scidavis_version;
 const char* SciDAVis::scidavis_version = "$version";
