@@ -1363,6 +1363,9 @@ if(sipRes)
 
   //! Returns the sum of squares of the residuals from the best-fit line
   double chiSquare();
+  
+  //! Returns the coefficient of determination of the dataset fitted
+  double rSquare();
 
   Table* parametersTable(const QString&);
   Matrix* covarianceMatrix(const QString&);
