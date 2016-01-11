@@ -1,5 +1,5 @@
-# Build an MSI installer from a compiled SciDaVis
-# Must be run from the toplevel directory of SciDaVis
+# Build an MSI installer from a compiled SciDAVis
+# Must be run from the toplevel directory of SciDAVis
 PATH=$PATH:/c/cygwin/bin
 productId=`uuidgen`
 componentId=`uuidgen`
@@ -12,7 +12,7 @@ msiVersion=`echo $version|tr -d D`
 
 # determine release or beta depending of whether a D appears in the second field
 upgradeId=d6f4ef98-3744-47a2-b581-d789db8a4d63
-productName=SciDaVis
+productName=SciDAVis
 
 echo $version
 
@@ -21,8 +21,8 @@ cat >$scidavisWxs <<EOF
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
 <Product Name='$productName' Id='$productId' UpgradeCode='$upgradeId'
     Language='1033' Codepage='1252' Version='$msiVersion' Manufacturer='High Performance Coders'>
-    <Package Id='*' Keywords='Installer' Description="SciDaVis Installer"
-      Comments='SciDaVis is licensed under GPL2' Manufacturer='High Performance Coders'
+    <Package Id='*' Keywords='Installer' Description="SciDAVis Installer"
+      Comments='SciDAVis is licensed under GPL2' Manufacturer='High Performance Coders'
       InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
     <Upgrade Id='$upgradeId'>
       <UpgradeVersion OnlyDetect='no' Property='PREVIOUSFOUND'
@@ -35,17 +35,17 @@ cat >$scidavisWxs <<EOF
     <Media Id='1' Cabinet='scidavis.cab' EmbedCab='yes'/>
     <Directory Id='TARGETDIR' Name='SourceDir'>
       <Directory Id='ProgramFilesFolder'>
-        <Directory Id='SciDaVis' Name='$productName'>
+        <Directory Id='SciDAVis' Name='$productName'>
           <Directory Id='INSTALLDIR'>
-            <Component Id='SciDaVisFiles' Guid='$componentId'>
-              <File Id='SciDaVisEXE' Name='scidavis.exe' Source='scidavis/scidavis.exe' KeyPath='yes'>
-                <Shortcut Id="startmenuSciDaVis" Directory="ProgramMenuDir" Name="$productName" WorkingDirectory='INSTALLDIR' Icon="scidavis.exe" IconIndex="0" Advertise="yes">
+            <Component Id='SciDAVisFiles' Guid='$componentId'>
+              <File Id='SciDAVisEXE' Name='scidavis.exe' Source='scidavis/scidavis.exe' KeyPath='yes'>
+                <Shortcut Id="startmenuSciDAVis" Directory="ProgramMenuDir" Name="$productName" WorkingDirectory='INSTALLDIR' Icon="scidavis.exe" IconIndex="0" Advertise="yes">
                  </Shortcut>
                 <Shortcut Id="desktopScidavis" Directory="DesktopFolder" Name="$productName" WorkingDirectory='INSTALLDIR' Icon="scidavis.exe" IconIndex="0" Advertise="yes" />
               </File>
-              <ProgId Id='SciPrj' Description='SciDaVis Project File' Icon='SciDaVisEXE'>
+              <ProgId Id='SciPrj' Description='SciDAVis Project File' Icon='SciDAVisEXE'>
                 <Extension Id='sciprj' ContentType='application/scidavis'>
-                  <Verb Id='open' Command='Open' TargetFile='SciDaVisEXE' Argument='"%1"'/>
+                  <Verb Id='open' Command='Open' TargetFile='SciDAVisEXE' Argument='"%1"'/>
                  </Extension>
                </ProgId>
 EOF
@@ -120,7 +120,7 @@ cat >>$scidavisWxs <<EOF
     </Directory>
 
     <Feature Id='Complete' Level='1'>
-      <ComponentRef Id='SciDaVisFiles' />
+      <ComponentRef Id='SciDAVisFiles' />
       <ComponentRef Id='ProgramMenuDir' />
 EOF
 i=0
