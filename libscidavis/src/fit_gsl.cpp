@@ -647,7 +647,7 @@ int lorentz_multi_peak_fdf (const gsl_vector * x, void *params, gsl_vector * f, 
 
 int user_f(const gsl_vector * x, void *params, gsl_vector * f)
 {
-        static_cast<struct FitData*>(params)->fit->evaluate_f(x, f);
+  return static_cast<struct FitData*>(params)->fit->evaluate_f(x, f);
 }
 
 double user_d(const gsl_vector * x, void *params)

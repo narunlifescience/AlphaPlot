@@ -100,5 +100,6 @@ QDateTime Double2DateTimeFilter::dateTimeAt(int row) const {
 				return result.addMSecs(qRound64((input_value - int(floor(input_value))) * 1000.0));
 			}
 	}
+        return result;
 }
 
