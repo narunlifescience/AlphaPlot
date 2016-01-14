@@ -22,17 +22,17 @@ addons:
     packages:
     - libboost-dev
     - libgsl0-dev
-    - sudo python
-    - sudo python-sip-dev
-    - sudo sip-dev
-    - sudo python-qt4-dev
-    - sudo pyqt4-dev-tools
-    - sudo libpython-dev
-    - sudo libqwtplot3d-qt4-dev
-    - sudo ibqwt5-qt4-dev
-    - sudo libqtassistantclient-dev
-    - sudo libqt4-opengl-dev
-    - sudo libqt4-dev
-    - sudo libmuparser-dev
-    - sudo zlib1g-dev
+    - python
+    - python-sip-dev
+    - sip-dev
+    - python-qt4-dev
+    - pyqt4-dev-tools
+    - libpython-dev
+    - libqwtplot3d-qt4-dev
+    - ibqwt5-qt4-dev
+    - libqtassistantclient-dev
+    - libqt4-opengl-dev
+    - libqt4-dev
+    - libmuparser-dev
+    - zlib1g-dev
 script: qmake && make qmake && make
