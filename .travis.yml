@@ -1,38 +1,39 @@
-sudo: false
+sudo: true
+dist: trusty
 language: cpp
-#before_install:
-#  - sudo apt-get update -qq
-#  - sudo apt-get install libboost-dev
-#  - sudo apt-get install libgsl0-dev
-#  - sudo apt-get install python
-#  - sudo apt-get install python-sip-dev
-#  - sudo apt-get install sip-dev
-#  - sudo apt-get install python-qt4-dev
-#  - sudo apt-get install pyqt4-dev-tools
-#  - sudo apt-get install libpython-dev
-#  - sudo apt-get install libqwtplot3d-qt4-dev
-#  - sudo apt-get installlibqwt5-qt4-dev
-#  - sudo apt-get install libqtassistantclient-dev
-#  - sudo apt-get install libqt4-opengl-dev
-#  - sudo apt-get install libqt4-dev
-#  - sudo apt-get install libmuparser-dev
-#  - sudo apt-get install zlib1g-dev
-addons:
-  apt:
-    packages:
-    - libboost-dev
-    - libgsl0-dev
-    - python
-    - python-sip-dev
-    - sip-dev
-    - python-qt4-dev
-    - pyqt4-dev-tools
-    - libpython-dev
-    - libqwtplot3d-qt4-dev
-    - libqwt5-qt4-dev
-    - libqtassistantclient-dev
-    - libqt4-opengl-dev
-    - libqt4-dev
-    - libmuparser-dev
-    - zlib1g-dev
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install libboost-dev
+  - sudo apt-get install libgsl0-dev
+  - sudo apt-get install python
+  - sudo apt-get install python-sip-dev
+  - sudo apt-get install sip-dev
+  - sudo apt-get install python-qt4-dev
+  - sudo apt-get install pyqt4-dev-tools
+  - sudo apt-get install libpython-dev
+  - sudo apt-get install libqwtplot3d-qt4-dev
+  - sudo apt-get installlibqwt5-qt4-dev
+  - sudo apt-get install libqtassistantclient-dev
+  - sudo apt-get install libqt4-opengl-dev
+  - sudo apt-get install libqt4-dev
+  - sudo apt-get install libmuparser-dev
+  - sudo apt-get install zlib1g-dev
+#addons:
+#  apt:
+#    packages:
+#    - libboost-dev
+#    - libgsl0-dev
+#    - python
+#    - python-sip-dev
+#    - sip-dev
+#    - python-qt4-dev
+#    - pyqt4-dev-tools
+#    - libpython-dev
+#    - libqwtplot3d-qt4-dev
+#    - libqwt5-qt4-dev
+#    - libqtassistantclient-dev
+#    - libqt4-opengl-dev
+#    - libqt4-dev
+#    - libmuparser-dev
+#    - zlib1g-dev
 script: qmake && make qmake && make
