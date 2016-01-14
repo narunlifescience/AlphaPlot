@@ -29,7 +29,7 @@ addons:
     - pyqt4-dev-tools
     - libpython-dev
     - libqwtplot3d-qt4-dev
-    - ibqwt5-qt4-dev
+    - libqwt5-qt4-dev
     - libqtassistantclient-dev
     - libqt4-opengl-dev
     - libqt4-dev
