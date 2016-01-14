@@ -20,6 +20,7 @@ before_install:
   - sudo apt-get install -y libqtassistantclient-dev
   - sudo apt-get install -y libqt4-opengl-dev
   - sudo apt-get install -y libqt4-dev
+  - sudo apt-get install -y libmuparser
   - sudo apt-get install -y libmuparser-dev
   - sudo apt-get install -y zlib1g-dev
 #addons:
@@ -40,4 +41,8 @@ before_install:
 #    - libqt4-dev
 #    - libmuparser-dev
 #    - zlib1g-dev
-script: qmake && make qmake && make
+script: 
+  - qmake CONFIG+=aegis
+  - make qmake
+  - make
+  - cd test && for i in 00/*; do sh $i; done
