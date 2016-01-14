@@ -3,7 +3,7 @@ dist: trusty
 language: cpp
 before_install:
   - wget http://download.opensuse.org/repositories/home:hpcoder1/Debian_8.0/Release.key
-  - apt-key add - < Release.key
+  - sudo apt-key add - < Release.key
   - sudo echo 'deb http://download.opensuse.org/repositories/home:/hpcoder1/Debian_8.0/ /' >> /etc/apt/sources.list.d/qwtplot3d.list 
   - sudo apt-get update -qq
   - sudo apt-get install -y libboost-dev
