@@ -1,19 +1,38 @@
+sudo: false
 language: cpp
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install libboost-dev
-  - sudo apt-get install libgsl0-dev
-  - sudo apt-get install python
-  - sudo apt-get install python-sip-dev
-  - sudo apt-get install sip-dev
-  - sudo apt-get install python-qt4-dev
-  - sudo apt-get install pyqt4-dev-tools
-  - sudo apt-get install libpython-dev
-  - sudo apt-get install libqwtplot3d-qt4-dev
-  - sudo apt-get installlibqwt5-qt4-dev
-  - sudo apt-get install libqtassistantclient-dev
-  - sudo apt-get install libqt4-opengl-dev
-  - sudo apt-get install libqt4-dev
-  - sudo apt-get install libmuparser-dev
-  - sudo apt-get install zlib1g-dev
+#before_install:
+#  - sudo apt-get update -qq
+#  - sudo apt-get install libboost-dev
+#  - sudo apt-get install libgsl0-dev
+#  - sudo apt-get install python
+#  - sudo apt-get install python-sip-dev
+#  - sudo apt-get install sip-dev
+#  - sudo apt-get install python-qt4-dev
+#  - sudo apt-get install pyqt4-dev-tools
+#  - sudo apt-get install libpython-dev
+#  - sudo apt-get install libqwtplot3d-qt4-dev
+#  - sudo apt-get installlibqwt5-qt4-dev
+#  - sudo apt-get install libqtassistantclient-dev
+#  - sudo apt-get install libqt4-opengl-dev
+#  - sudo apt-get install libqt4-dev
+#  - sudo apt-get install libmuparser-dev
+#  - sudo apt-get install zlib1g-dev
+addons:
+  apt:
+    packages:
+    - libboost-dev
+    - libgsl0-dev
+    - sudo python
+    - sudo python-sip-dev
+    - sudo sip-dev
+    - sudo python-qt4-dev
+    - sudo pyqt4-dev-tools
+    - sudo libpython-dev
+    - sudo libqwtplot3d-qt4-dev
+    - sudo ibqwt5-qt4-dev
+    - sudo libqtassistantclient-dev
+    - sudo libqt4-opengl-dev
+    - sudo libqt4-dev
+    - sudo libmuparser-dev
+    - sudo zlib1g-dev
 script: qmake && make qmake && make
