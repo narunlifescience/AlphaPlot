@@ -3338,6 +3338,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 
 		// need to check data types of columns for append/overwrite
 		if (import_mode == ImportASCIIDialog::NewRows || import_mode == ImportASCIIDialog::Overwrite)
+		{
 			if (local_convert_to_numeric) {
 				for (int col=0; col < qMin(temp->columnCount(), table->columnCount()); col++)
 					if (table->column(col)->columnMode() != SciDAVis::Numeric) {
@@ -3355,6 +3356,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 						return;
 					}
 			}
+		}
 
 		// copy or move data from temp to table
 		switch(import_mode) {
