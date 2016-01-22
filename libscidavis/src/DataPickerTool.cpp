@@ -226,6 +226,7 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
 		case Qt::Key_Right:
 		case Qt::Key_Plus:
                   if (d_graph)
+                  {
                     if (d_selected_curve) {
                       int n_points = d_selected_curve->dataSize();
                       setSelection(d_selected_curve, (d_selected_point + 1) % n_points);
@@ -233,6 +234,7 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
                     } 
                     else 
                       setSelection(d_graph->curve(0), 0);
+                  }
                   return true;
 
 		case Qt::Key_Left:
