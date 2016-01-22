@@ -591,6 +591,8 @@ void Table::fillSelectedCellsWithRowNumbers()
 					col_ptr->replaceTexts(first, results);
 					break;
 				}
+			default:
+				break;
 		}
 	}
 	endMacro();

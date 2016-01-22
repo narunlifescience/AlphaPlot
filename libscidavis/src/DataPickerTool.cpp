@@ -226,6 +226,7 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
 		case Qt::Key_Right:
 		case Qt::Key_Plus:
                   if (d_graph)
+                  {
                     if (d_selected_curve) {
                       int n_points = d_selected_curve->dataSize();
                       setSelection(d_selected_curve, (d_selected_point + 1) % n_points);
@@ -233,11 +234,13 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
                     } 
                     else 
                       setSelection(d_graph->curve(0), 0);
+                  }
                   return true;
 
 		case Qt::Key_Left:
 		case Qt::Key_Minus:
                   if (d_graph)
+                  {
                     if (d_selected_curve) {
                       int n_points = d_selected_curve->dataSize();
                       setSelection(d_selected_curve, (d_selected_point - 1 + n_points) % n_points);
@@ -245,6 +248,7 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
                     } 
                     else
                       setSelection(d_graph->curve(d_graph->curves()-1), 0);
+                  }
                   return true;
 
 		// The following keys represent a direction, they are

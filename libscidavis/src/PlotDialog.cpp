@@ -2156,6 +2156,8 @@ void PlotDialog::setPenStyle(Qt::PenStyle style)
 		case Qt::DashDotDotLine:
 			boxLineStyle->setCurrentIndex(4);
 			break;
+		default:
+			break;
 	}
 }
 

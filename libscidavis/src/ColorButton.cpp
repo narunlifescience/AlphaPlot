@@ -40,7 +40,7 @@ ColorButton::ColorButton(QWidget *parent) : QWidget(parent)
 
 void ColorButton::init()
 {
-	int btn_size = 28;
+	const int btn_size = 28;
 	selectButton = new QPushButton(QPixmap(":/palette.xpm"), QString(), this);
 	selectButton->setMinimumWidth(btn_size);
 	selectButton->setMinimumHeight(btn_size);
