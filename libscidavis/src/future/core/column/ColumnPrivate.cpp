@@ -421,6 +421,8 @@ void Column::Private::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::Colum
 			disconnect(static_cast<DateTime2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
 				d_owner, SLOT(notifyDisplayChange()));
 			break;
+		default:
+            		break;
 	}
 
 	d_column_mode = mode;
@@ -446,6 +448,8 @@ void Column::Private::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::Colum
 		case SciDAVis::Day:
 			connect(static_cast<DateTime2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
 				d_owner, SLOT(notifyDisplayChange()));
+			break;
+		default:
 			break;
 	} 
 
