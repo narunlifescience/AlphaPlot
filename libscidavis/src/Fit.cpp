@@ -104,6 +104,8 @@ double * Fit::fitGslMultifit(int &iterations, int &status)
 		case UnscaledLevenbergMarquardt:
 			T = gsl_multifit_fdfsolver_lmder;
 			break;
+		default:
+            		break;
 	}
 	gsl_multifit_fdfsolver *s = gsl_multifit_fdfsolver_alloc (T, d_n, d_p);
 	gsl_multifit_fdfsolver_set (s, &f, d_param_init);
