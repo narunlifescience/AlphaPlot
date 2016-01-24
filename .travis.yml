@@ -46,6 +46,7 @@ before_install:
 #    - zlib1g-dev
 script: 
   - which python
+  - ls /usr/lib/python2.7/dist-packages/PyQt4
   - python python-includepath.py
   - qmake CONFIG+=aegis
   - make qmake
