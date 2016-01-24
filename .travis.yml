@@ -10,12 +10,12 @@ before_install:
   - sudo apt-get install -y libboost-dev
   - sudo apt-get install -y libgsl0-dev
   - sudo apt-get install -y python
+  - sudo apt-get install -y libpython-dev
   - sudo apt-get install -y python-sip-dev
   - sudo apt-get install -y sip-dev
   - sudo apt-get install -y python-qt4
   - sudo apt-get install -y python-qt4-dev
 #  - sudo apt-get install -y pyqt4-dev-tools
-  - sudo apt-get install -y libpython-dev
   - sudo apt-get install -y libqwtplot3d-qt4-dev
   - sudo apt-get install -y libqwt5-qt4-dev
   - sudo apt-get install -y libqtassistantclient-dev
