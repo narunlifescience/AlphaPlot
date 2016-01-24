@@ -422,6 +422,7 @@ void ApplicationWindow::initToolBars()
 
 	file_tools->addAction(actionShowExplorer);
 	file_tools->addAction(actionShowLog);
+	file_tools->addAction(locktoolbar);
 
 	edit_tools = new QToolBar( tr("Edit"), this);
 	edit_tools->setObjectName("edit_tools"); // this is needed for QMainWindow::restoreState()
@@ -656,6 +657,28 @@ void ApplicationWindow::initToolBars()
 	matrix_plot_tools->hide();
 }
 
+void ApplicationWindow::lockToolbar(const bool status)
+{
+	if (status)
+	{
+		file_tools->setMovable(false);
+		edit_tools->setMovable(false);
+		graph_tools->setMovable(false);
+		plot_tools->setMovable(false);
+		table_tools->setMovable(false);
+		matrix_plot_tools->setMovable(false);
+		locktoolbar->setIcon(QIcon(QPixmap(":/lock.xpm")));
+	} else {
+		file_tools->setMovable(true);
+		edit_tools->setMovable(true);
+		graph_tools->setMovable(true);
+		plot_tools->setMovable(true);
+		table_tools->setMovable(true);
+		matrix_plot_tools->setMovable(true);
+		locktoolbar->setIcon(QIcon(QPixmap(":/unlock.xpm")));
+	}
+}
+
 void ApplicationWindow::insertTranslatedStrings()
 {
 	if (projectname == "untitled")
@@ -782,6 +805,7 @@ void ApplicationWindow::initMainMenu()
 	toolbarsMenu->setTitle(tr("Toolbars"));
 
 	view->addMenu(toolbarsMenu);
+	view->addAction(locktoolbar);
 	view->addSeparator();
 	view->addAction(actionShowPlotWizard);
 	view->addAction(actionShowExplorer);
@@ -4275,6 +4299,7 @@ void ApplicationWindow::readSettings()
 	asciiDirPath = settings.value("/ASCII", QDir::homePath()).toString();
 	imagesDirPath = settings.value("/Images", QDir::homePath()).toString();
 #endif
+	locktoolbar->setChecked(settings.value("LockToolbars", false).toBool());
 	settings.endGroup(); // Paths
 	settings.endGroup();
 	/* ------------- end group General ------------------- */
@@ -4506,6 +4531,9 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/FitPlugins", fitPluginsPath);
 	settings.setValue("/ASCII", asciiDirPath);
 	settings.setValue("/Images", imagesDirPath);
+	
+	settings.setValue("LockToolbars", locktoolbar->isChecked());
+		
 	settings.endGroup(); // Paths
 	settings.endGroup();
 	/* ---------------- end group General --------------- */
@@ -10544,6 +10572,10 @@ void ApplicationWindow::createActions()
 	actionClearSelection = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("&Delete Selection"), this);
 	actionClearSelection->setShortcut( tr("Del","delete key") );
 	connect(actionClearSelection, SIGNAL(activated()), this, SLOT(clearSelection()));
+
+	locktoolbar = new QAction(QIcon(QPixmap(":/unlock.xpm")), tr("&Lock Toolbars"), this);
+	locktoolbar->setCheckable(true);
+	connect(locktoolbar, SIGNAL(toggled(bool)), this, SLOT(lockToolbar(bool)));
 
 	actionShowExplorer = explorerWindow->toggleViewAction();
 	actionShowExplorer->setIcon(QPixmap(":/folder.xpm"));

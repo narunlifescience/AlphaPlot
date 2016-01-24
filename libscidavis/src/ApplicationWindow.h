@@ -1054,6 +1054,7 @@ private:
     QAction *actionLoad, *actionUndo, *actionRedo;
     QAction *actionCopyWindow;
     QAction *actionCutSelection, *actionCopySelection, *actionPasteSelection, *actionClearSelection;
+    QAction *locktoolbar;
     QAction *actionShowExplorer, *actionShowLog, *actionAddLayer, *actionShowLayerDialog, *actionAutomaticLayout;
 	QAction *actionShowHistory;
 #ifdef SCRIPTING_CONSOLE
@@ -1165,6 +1166,7 @@ private slots:
 
 	void handleAspectAdded(const AbstractAspect * aspect, int index);
 	void handleAspectAboutToBeRemoved(const AbstractAspect * aspect, int index);
+	void lockToolbar(const bool status);
 };
 
 #endif
