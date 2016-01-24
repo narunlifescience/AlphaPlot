@@ -129,7 +129,8 @@ public:
 
 	QAssistantClient *assistant;
 	QTranslator *appTranslator, *qtTranslator;
-	QDockWidget *logWindow, *explorerWindow;
+	QDockWidget *logWindow;
+	QDockWidget *explorerWindow;
 	QTextEdit *results;
 #ifdef SCRIPTING_CONSOLE
 	QDockWidget *consoleWindow;
@@ -137,9 +138,11 @@ public:
 #endif
 	QWorkspace* d_workspace;
 	QToolBar *file_tools, *graph_tools, *table_tools, *plot_tools, *graph_3D_tools, *edit_tools, *matrix_plot_tools;
-	FolderListView *lv, *folders;
+    FolderListView *lv;
+    FolderListView *folders;
 	QToolButton *btnResults;
-	QWidgetList *hiddenWindows, *outWindows;
+    QWidgetList *hiddenWindows;
+    QWidgetList *outWindows;
 	QWidget *lastModified;
 
 public:
@@ -509,8 +512,7 @@ public slots:
 	//@{
 	void insertTranslatedStrings();
 	void translateActionsStrings();
-	void init();
-	void initGlobalConstants();
+    void initFonts();
 	void createActions();
 	void initMainMenu();
 	void initPlotMenu();
@@ -1102,7 +1104,8 @@ private:
 #endif
 	QAction *actionHelpForums, *actionHelpBugReports;
 	QAction *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate, *actionSaveTemplate;
-	QAction *actionNextWindow, *actionPrevWindow;
+    QAction *actionNextWindow;
+    QAction *actionPrevWindow;
 	QAction *actionScriptingLang, *actionRestartScripting, *actionClearTable, *actionGoToCell;
 	QAction *actionNoteExecute, *actionNoteExecuteAll, *actionNoteEvaluate, *actionSaveNote;
 	QAction *actionAnimate, *actionPerspective, *actionFitFrame, *actionResetRotation;

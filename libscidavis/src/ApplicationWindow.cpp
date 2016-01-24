@@ -173,31 +173,63 @@ void file_compress(const char  *file, const char  *mode);
 }
 
 ApplicationWindow::ApplicationWindow()
-: QMainWindow(), scripted(ScriptingLangManager::newEnv(this))
-{
-	setAttribute(Qt::WA_DeleteOnClose);
-	init();
-}
+    : QMainWindow(),
+      scripted(ScriptingLangManager::newEnv(this)),
+#ifndef NOASSISTANT
+      assistant(new QAssistantClient(QString(), this)),
+#endif
+      logWindow(new QDockWidget(this)),
+      explorerWindow(new QDockWidget(this)),
+      results(new QTextEdit(logWindow)),
+#ifdef SCRIPTING_CONSOLE
+      consoleWindow(new QDockWidget(this)),
+      console(new QTextEdit(consoleWindow)),
+#endif
+      d_workspace(new QWorkspace(this)),
+      lv(new FolderListView()),
+      folders(new FolderListView()),
 
-void ApplicationWindow::init()
+      hiddenWindows(new QList<QWidget*>()),
+      outWindows(new QList<QWidget*>()),
+      lastModified(0),
+      current_folder(new Folder( 0, tr("UNTITLED"))),
+      show_windows_policy(ActiveFolder),
+      appStyle(qApp->style()->objectName()),
+      appFont(QFont()),
+      projectname("untitled"),
+      logInfo(QString()),
+      savingTimerId(0),
+      copiedLayer(false),
+      renamedTables(QStringList()),
+      copiedMarkerType(Graph::None),
+#ifdef SEARCH_FOR_UPDATES
+      autoSearchUpdatesRequest(false),
+#endif
+       lastCopiedLayer(0),
+       explorerSplitter(new QSplitter(Qt::Horizontal, explorerWindow)),
+       actionNextWindow(new QAction(QIcon(QPixmap(":/next.xpm")),
+                        tr("&Next","next window"), this)),
+       actionPrevWindow(new QAction(QIcon(QPixmap(":/prev.xpm")),
+                        tr("&Previous","previous window"), this))
+
 {
+    setAttribute(Qt::WA_DeleteOnClose);
+
 	setWindowTitle(tr("SciDAVis - untitled"));
-	initGlobalConstants();
+    initFonts();
 	QPixmapCache::setCacheLimit(20*QPixmapCache::cacheLimit ());
 
-	d_project = new Project();
+    d_project = new Project();
 	connect(d_project, SIGNAL(aspectAdded(const AbstractAspect *, int)), 
 		this, SLOT(handleAspectAdded(const AbstractAspect *, int)));
 	connect(d_project, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)), 
 		this, SLOT(handleAspectAboutToBeRemoved(const AbstractAspect *, int)));
 	
-	explorerWindow = new QDockWidget( this );
 	explorerWindow->setWindowTitle(tr("Project Explorer"));
 	explorerWindow->setObjectName("explorerWindow"); // this is needed for QMainWindow::restoreState()
 	explorerWindow->setMinimumHeight(150);
 	addDockWidget( Qt::BottomDockWidgetArea, explorerWindow );
 
-	folders = new FolderListView();
 	folders->header()->setClickEnabled( false );
 	folders->addColumn( tr("Folder") );
 	folders->setRootIsDecorated( true );
@@ -221,12 +253,10 @@ void ApplicationWindow::init()
 	connect(folders, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
 	connect(folders, SIGNAL(deleteSelection()), this, SLOT(deleteSelectedItems()));
 
-	current_folder = new Folder( 0, tr("UNTITLED"));
-	FolderListItem *fli = new FolderListItem(folders, current_folder);
+    FolderListItem *fli = new FolderListItem(folders, current_folder);
 	current_folder->setFolderListItem(fli);
 	fli->setOpen( true );
 
-	lv = new FolderListView();
 	lv->addColumn (tr("Name"),-1 );
 	lv->addColumn (tr("Type"),-1 );
 	lv->addColumn (tr("View"),-1 );
@@ -237,30 +267,25 @@ void ApplicationWindow::init()
 	lv->setSelectionMode(Q3ListView::Extended);
 	lv->setDefaultRenameAction(Q3ListView::Accept);
 
-	explorerSplitter = new QSplitter(Qt::Horizontal, explorerWindow);
 	explorerSplitter->addWidget(folders);
 	explorerSplitter->addWidget(lv);
 	explorerWindow->setWidget(explorerSplitter);
 	explorerSplitter->setSizes( QList<int>() << 50 << 50);
 	explorerWindow->hide();
 
-	logWindow = new QDockWidget(this);
 	logWindow->setObjectName("logWindow"); // this is needed for QMainWindow::restoreState()
 	logWindow->setWindowTitle(tr("Results Log"));
 	addDockWidget( Qt::TopDockWidgetArea, logWindow );
 
-	results=new QTextEdit(logWindow);
 	results->setReadOnly (true);
 
 	logWindow->setWidget(results);
 	logWindow->hide();
 
 #ifdef SCRIPTING_CONSOLE
-	consoleWindow = new QDockWidget(this);
 	consoleWindow->setObjectName("consoleWindow"); // this is needed for QMainWindow::restoreState()
 	consoleWindow->setWindowTitle(tr("Scripting Console"));
-	addDockWidget( Qt::TopDockWidgetArea, consoleWindow );
-	console = new QTextEdit(consoleWindow);
+    addDockWidget( Qt::TopDockWidgetArea, consoleWindow );
 	console->setReadOnly(true);
 	consoleWindow->setWidget(console);
 	consoleWindow->hide();
@@ -273,28 +298,17 @@ void ApplicationWindow::init()
 	initPlot3DToolBar();
 	initMainMenu();
 
-	d_workspace = new QWorkspace(this);
 	d_workspace->setScrollBarsEnabled(true);
 	setCentralWidget(d_workspace);
 	setAcceptDrops(true);
 
-	hiddenWindows = new QList<QWidget*>();
-	outWindows = new QList<QWidget*>();
-
-	renamedTables = QStringList();
 	readSettings();
 	createLanguagesList();
 	insertTranslatedStrings();
 
-#ifndef NOASSISTANT
-        assistant = new QAssistantClient( QString(), this );
-#endif
-
-	actionNextWindow = new QAction(QIcon(QPixmap(":/next.xpm")), tr("&Next","next window"), this);
 	actionNextWindow->setShortcut( tr("F5","next window shortcut") );
 	connect(actionNextWindow, SIGNAL(activated()), d_workspace, SLOT(activateNextWindow()));
 
-	actionPrevWindow = new QAction(QIcon(QPixmap(":/prev.xpm")), tr("&Previous","previous window"), this);
 	actionPrevWindow->setShortcut( tr("F6","previous window shortcut") );
 	connect(actionPrevWindow, SIGNAL(activated()), d_workspace, SLOT(activatePreviousWindow()));
 
@@ -329,25 +343,8 @@ void ApplicationWindow::init()
 	connect(d_project->undoStack(), SIGNAL(canRedoChanged(bool)), actionRedo, SLOT(setEnabled(bool)));
 }
 
-void ApplicationWindow::initGlobalConstants()
+void ApplicationWindow::initFonts()
 {
-	appStyle = qApp->style()->objectName();
-
-	projectname="untitled";
-	lastModified=0;
-	lastCopiedLayer=0;
-	copiedLayer=false;
-	copiedMarkerType=Graph::None;
-	logInfo=QString();
-	savingTimerId=0;
-
-#ifdef SEARCH_FOR_UPDATES
-	autoSearchUpdatesRequest = false;
-#endif
-
-	show_windows_policy = ActiveFolder;
-
-	appFont = QFont();
 	QString family = appFont.family();
 	int pointSize = appFont.pointSize();
 	tableTextFont = appFont;
