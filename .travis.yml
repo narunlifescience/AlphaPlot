@@ -9,6 +9,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y libboost-dev
   - sudo apt-get install -y libgsl0-dev
+  - sudo apt-get remove --purge python
   - sudo apt-get install -y python
   - sudo apt-get install -y libpython-dev
   - sudo apt-get install -y python-sip-dev
