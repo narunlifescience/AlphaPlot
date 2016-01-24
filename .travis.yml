@@ -24,9 +24,9 @@ before_install:
   - sudo apt-get install -y libmuparser
   - sudo apt-get install -y libmuparser-dev
   - sudo apt-get install -y zlib1g-dev
+  - sudo apt-get install -y xvfb
   # this needs fixing!
   - sudo ln -sf /usr/include/qwtplot3d-qt4 /usr/include/qwtplot3d
-  - sudo find / -name *PyQt4* -print
 #addons:
 #  apt:
 #    packages:
