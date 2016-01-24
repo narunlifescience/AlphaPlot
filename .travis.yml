@@ -9,7 +9,6 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y libboost-dev
   - sudo apt-get install -y libgsl0-dev
-  - sudo apt-get remove -y --purge python
   - sudo apt-get install -y python
   - sudo apt-get install -y libpython-dev
   - sudo apt-get install -y python-sip-dev
@@ -49,7 +48,7 @@ before_install:
 script: 
   - which python
   - ls /usr/lib/python2.7/dist-packages/PyQt4
-  - python python-includepath.py
+  - /usr/bin/python python-includepath.py
   - qmake CONFIG+=aegis
   - make qmake
   - make
