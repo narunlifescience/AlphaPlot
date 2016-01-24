@@ -51,4 +51,5 @@ script:
   - qmake CONFIG+=aegis
   - make qmake
   - make
+  - Xvfb :0 &
   - for i in test/00/*; do sh $i; done
