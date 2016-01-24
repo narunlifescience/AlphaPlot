@@ -26,7 +26,7 @@ possibly also on other platforms like `*`BSD.
 
 # Installation
 
-See [INSTALL.html](INSTALL.html)
+See [INSTALL.md](INSTALL.md)
 
 
 # Web site
