@@ -24,7 +24,7 @@ before_install:
   - sudo apt-get install -y libmuparser-dev
   - sudo apt-get install -y zlib1g-dev
   # this needs fixing!
-  - ln -sf /usr/include/qwtplot3d-qt4 /usr/include/qwtplot3d
+  - sudo ln -sf /usr/include/qwtplot3d-qt4 /usr/include/qwtplot3d
 #addons:
 #  apt:
 #    packages:
