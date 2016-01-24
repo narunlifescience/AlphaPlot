@@ -25,6 +25,7 @@ before_install:
   - sudo apt-get install -y zlib1g-dev
   # this needs fixing!
   - sudo ln -sf /usr/include/qwtplot3d-qt4 /usr/include/qwtplot3d
+  - find /usr/include -name Python.h -print
 #addons:
 #  apt:
 #    packages:
