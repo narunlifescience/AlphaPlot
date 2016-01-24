@@ -2,7 +2,7 @@ sudo: true
 dist: trusty
 language: cpp
 before_install:
-  - wget http://download.opensuse.org/repositories/home:hpcoder1/Debian_8.0/Release.key
+  - wget http://download.opensuse.org/repositories/home:hpcoder1/xUbuntu_14.04/Release.key
   - sudo apt-key add - < Release.key
   - echo 'deb http://download.opensuse.org/repositories/home:/hpcoder1/Debian_8.0/ /' >/tmp/qwtplot3d.list 
   - sudo mv /tmp/qwtplot3d.list /etc/apt/sources.list.d/
