@@ -45,6 +45,7 @@ before_install:
 #    - libmuparser-dev
 #    - zlib1g-dev
 script: 
+  - which python
   - python python-includepath.py
   - qmake CONFIG+=aegis
   - make qmake
