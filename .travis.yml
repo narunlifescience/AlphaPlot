@@ -46,11 +46,9 @@ before_install:
 #    - libmuparser-dev
 #    - zlib1g-dev
 script: 
-  - which python
-  - ls /usr/lib/python2.7/dist-packages/PyQt4
-  - /usr/bin/python python-includepath.py
+  # required to avoid picking up a bodgy python interpreter
   - export PATH=/usr/bin:$PATH
   - qmake CONFIG+=aegis
   - make qmake
   - make
-  - cd test && for i in 00/*; do sh $i; done
+  - for i in test/00/*; do sh $i; done
