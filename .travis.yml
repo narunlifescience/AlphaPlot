@@ -23,6 +23,7 @@ before_install:
   - sudo apt-get install -y libmuparser
   - sudo apt-get install -y libmuparser-dev
   - sudo apt-get install -y zlib1g-dev
+  - ls /usr/include
 #addons:
 #  apt:
 #    packages:
