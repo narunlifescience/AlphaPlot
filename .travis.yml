@@ -52,4 +52,5 @@ script:
   - make qmake
   - make
   - Xvfb :0 &
+  - export DISPLAY=:0
   - for i in test/00/*; do sh $i; done
