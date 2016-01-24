@@ -49,6 +49,7 @@ script:
   - which python
   - ls /usr/lib/python2.7/dist-packages/PyQt4
   - /usr/bin/python python-includepath.py
+  - export PATH=/usr/bin:$PATH
   - qmake CONFIG+=aegis
   - make qmake
   - make
