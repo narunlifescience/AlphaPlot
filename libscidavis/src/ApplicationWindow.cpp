@@ -173,31 +173,63 @@ void file_compress(const char  *file, const char  *mode);
 }
 
 ApplicationWindow::ApplicationWindow()
-: QMainWindow(), scripted(ScriptingLangManager::newEnv(this))
-{
-	setAttribute(Qt::WA_DeleteOnClose);
-	init();
-}
+    : QMainWindow(),
+      scripted(ScriptingLangManager::newEnv(this)),
+#ifndef NOASSISTANT
+      assistant(new QAssistantClient(QString(), this)),
+#endif
+      logWindow(new QDockWidget(this)),
+      explorerWindow(new QDockWidget(this)),
+      results(new QTextEdit(logWindow)),
+#ifdef SCRIPTING_CONSOLE
+      consoleWindow(new QDockWidget(this)),
+      console(new QTextEdit(consoleWindow)),
+#endif
+      d_workspace(new QWorkspace(this)),
+      lv(new FolderListView()),
+      folders(new FolderListView()),
 
-void ApplicationWindow::init()
+      hiddenWindows(new QList<QWidget*>()),
+      outWindows(new QList<QWidget*>()),
+      lastModified(0),
+      current_folder(new Folder( 0, tr("UNTITLED"))),
+      show_windows_policy(ActiveFolder),
+      appStyle(qApp->style()->objectName()),
+      appFont(QFont()),
+      projectname("untitled"),
+      logInfo(QString()),
+      savingTimerId(0),
+      copiedLayer(false),
+      renamedTables(QStringList()),
+      copiedMarkerType(Graph::None),
+#ifdef SEARCH_FOR_UPDATES
+      autoSearchUpdatesRequest(false),
+#endif
+       lastCopiedLayer(0),
+       explorerSplitter(new QSplitter(Qt::Horizontal, explorerWindow)),
+       actionNextWindow(new QAction(QIcon(QPixmap(":/next.xpm")),
+                        tr("&Next","next window"), this)),
+       actionPrevWindow(new QAction(QIcon(QPixmap(":/prev.xpm")),
+                        tr("&Previous","previous window"), this))
+
 {
+    setAttribute(Qt::WA_DeleteOnClose);
+
 	setWindowTitle(tr("SciDAVis - untitled"));
-	initGlobalConstants();
+    initFonts();
 	QPixmapCache::setCacheLimit(20*QPixmapCache::cacheLimit ());
 
-	d_project = new Project();
+    d_project = new Project();
 	connect(d_project, SIGNAL(aspectAdded(const AbstractAspect *, int)), 
 		this, SLOT(handleAspectAdded(const AbstractAspect *, int)));
 	connect(d_project, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)), 
 		this, SLOT(handleAspectAboutToBeRemoved(const AbstractAspect *, int)));
 	
-	explorerWindow = new QDockWidget( this );
 	explorerWindow->setWindowTitle(tr("Project Explorer"));
 	explorerWindow->setObjectName("explorerWindow"); // this is needed for QMainWindow::restoreState()
 	explorerWindow->setMinimumHeight(150);
 	addDockWidget( Qt::BottomDockWidgetArea, explorerWindow );
 
-	folders = new FolderListView();
 	folders->header()->setClickEnabled( false );
 	folders->addColumn( tr("Folder") );
 	folders->setRootIsDecorated( true );
@@ -221,12 +253,10 @@ void ApplicationWindow::init()
 	connect(folders, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
 	connect(folders, SIGNAL(deleteSelection()), this, SLOT(deleteSelectedItems()));
 
-	current_folder = new Folder( 0, tr("UNTITLED"));
-	FolderListItem *fli = new FolderListItem(folders, current_folder);
+    FolderListItem *fli = new FolderListItem(folders, current_folder);
 	current_folder->setFolderListItem(fli);
 	fli->setOpen( true );
 
-	lv = new FolderListView();
 	lv->addColumn (tr("Name"),-1 );
 	lv->addColumn (tr("Type"),-1 );
 	lv->addColumn (tr("View"),-1 );
@@ -237,30 +267,25 @@ void ApplicationWindow::init()
 	lv->setSelectionMode(Q3ListView::Extended);
 	lv->setDefaultRenameAction(Q3ListView::Accept);
 
-	explorerSplitter = new QSplitter(Qt::Horizontal, explorerWindow);
 	explorerSplitter->addWidget(folders);
 	explorerSplitter->addWidget(lv);
 	explorerWindow->setWidget(explorerSplitter);
 	explorerSplitter->setSizes( QList<int>() << 50 << 50);
 	explorerWindow->hide();
 
-	logWindow = new QDockWidget(this);
 	logWindow->setObjectName("logWindow"); // this is needed for QMainWindow::restoreState()
 	logWindow->setWindowTitle(tr("Results Log"));
 	addDockWidget( Qt::TopDockWidgetArea, logWindow );
 
-	results=new QTextEdit(logWindow);
 	results->setReadOnly (true);
 
 	logWindow->setWidget(results);
 	logWindow->hide();
 
 #ifdef SCRIPTING_CONSOLE
-	consoleWindow = new QDockWidget(this);
 	consoleWindow->setObjectName("consoleWindow"); // this is needed for QMainWindow::restoreState()
 	consoleWindow->setWindowTitle(tr("Scripting Console"));
-	addDockWidget( Qt::TopDockWidgetArea, consoleWindow );
-	console = new QTextEdit(consoleWindow);
+    addDockWidget( Qt::TopDockWidgetArea, consoleWindow );
 	console->setReadOnly(true);
 	consoleWindow->setWidget(console);
 	consoleWindow->hide();
@@ -273,28 +298,17 @@ void ApplicationWindow::init()
 	initPlot3DToolBar();
 	initMainMenu();
 
-	d_workspace = new QWorkspace(this);
 	d_workspace->setScrollBarsEnabled(true);
 	setCentralWidget(d_workspace);
 	setAcceptDrops(true);
 
-	hiddenWindows = new QList<QWidget*>();
-	outWindows = new QList<QWidget*>();
-
-	renamedTables = QStringList();
 	readSettings();
 	createLanguagesList();
 	insertTranslatedStrings();
 
-#ifndef NOASSISTANT
-        assistant = new QAssistantClient( QString(), this );
-#endif
-
-	actionNextWindow = new QAction(QIcon(QPixmap(":/next.xpm")), tr("&Next","next window"), this);
 	actionNextWindow->setShortcut( tr("F5","next window shortcut") );
 	connect(actionNextWindow, SIGNAL(activated()), d_workspace, SLOT(activateNextWindow()));
 
-	actionPrevWindow = new QAction(QIcon(QPixmap(":/prev.xpm")), tr("&Previous","previous window"), this);
 	actionPrevWindow->setShortcut( tr("F6","previous window shortcut") );
 	connect(actionPrevWindow, SIGNAL(activated()), d_workspace, SLOT(activatePreviousWindow()));
 
@@ -329,25 +343,8 @@ void ApplicationWindow::init()
 	connect(d_project->undoStack(), SIGNAL(canRedoChanged(bool)), actionRedo, SLOT(setEnabled(bool)));
 }
 
-void ApplicationWindow::initGlobalConstants()
+void ApplicationWindow::initFonts()
 {
-	appStyle = qApp->style()->objectName();
-
-	projectname="untitled";
-	lastModified=0;
-	lastCopiedLayer=0;
-	copiedLayer=false;
-	copiedMarkerType=Graph::None;
-	logInfo=QString();
-	savingTimerId=0;
-
-#ifdef SEARCH_FOR_UPDATES
-	autoSearchUpdatesRequest = false;
-#endif
-
-	show_windows_policy = ActiveFolder;
-
-	appFont = QFont();
 	QString family = appFont.family();
 	int pointSize = appFont.pointSize();
 	tableTextFont = appFont;
@@ -425,6 +422,7 @@ void ApplicationWindow::initToolBars()
 
 	file_tools->addAction(actionShowExplorer);
 	file_tools->addAction(actionShowLog);
+	file_tools->addAction(locktoolbar);
 
 	edit_tools = new QToolBar( tr("Edit"), this);
 	edit_tools->setObjectName("edit_tools"); // this is needed for QMainWindow::restoreState()
@@ -659,6 +657,28 @@ void ApplicationWindow::initToolBars()
 	matrix_plot_tools->hide();
 }
 
+void ApplicationWindow::lockToolbar(const bool status)
+{
+	if (status)
+	{
+		file_tools->setMovable(false);
+		edit_tools->setMovable(false);
+		graph_tools->setMovable(false);
+		plot_tools->setMovable(false);
+		table_tools->setMovable(false);
+		matrix_plot_tools->setMovable(false);
+		locktoolbar->setIcon(QIcon(QPixmap(":/lock.xpm")));
+	} else {
+		file_tools->setMovable(true);
+		edit_tools->setMovable(true);
+		graph_tools->setMovable(true);
+		plot_tools->setMovable(true);
+		table_tools->setMovable(true);
+		matrix_plot_tools->setMovable(true);
+		locktoolbar->setIcon(QIcon(QPixmap(":/unlock.xpm")));
+	}
+}
+
 void ApplicationWindow::insertTranslatedStrings()
 {
 	if (projectname == "untitled")
@@ -785,6 +805,7 @@ void ApplicationWindow::initMainMenu()
 	toolbarsMenu->setTitle(tr("Toolbars"));
 
 	view->addMenu(toolbarsMenu);
+	view->addAction(locktoolbar);
 	view->addSeparator();
 	view->addAction(actionShowPlotWizard);
 	view->addAction(actionShowExplorer);
@@ -4278,6 +4299,7 @@ void ApplicationWindow::readSettings()
 	asciiDirPath = settings.value("/ASCII", QDir::homePath()).toString();
 	imagesDirPath = settings.value("/Images", QDir::homePath()).toString();
 #endif
+	locktoolbar->setChecked(settings.value("LockToolbars", false).toBool());
 	settings.endGroup(); // Paths
 	settings.endGroup();
 	/* ------------- end group General ------------------- */
@@ -4509,6 +4531,9 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/FitPlugins", fitPluginsPath);
 	settings.setValue("/ASCII", asciiDirPath);
 	settings.setValue("/Images", imagesDirPath);
+	
+	settings.setValue("LockToolbars", locktoolbar->isChecked());
+		
 	settings.endGroup(); // Paths
 	settings.endGroup();
 	/* ---------------- end group General --------------- */
@@ -10547,6 +10572,10 @@ void ApplicationWindow::createActions()
 	actionClearSelection = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("&Delete Selection"), this);
 	actionClearSelection->setShortcut( tr("Del","delete key") );
 	connect(actionClearSelection, SIGNAL(activated()), this, SLOT(clearSelection()));
+
+	locktoolbar = new QAction(QIcon(QPixmap(":/unlock.xpm")), tr("&Lock Toolbars"), this);
+	locktoolbar->setCheckable(true);
+	connect(locktoolbar, SIGNAL(toggled(bool)), this, SLOT(lockToolbar(bool)));
 
 	actionShowExplorer = explorerWindow->toggleViewAction();
 	actionShowExplorer->setIcon(QPixmap(":/folder.xpm"));

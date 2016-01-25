@@ -2,19 +2,20 @@ sudo: true
 dist: trusty
 language: cpp
 before_install:
-  - wget http://download.opensuse.org/repositories/home:hpcoder1/Debian_8.0/Release.key
+  - wget http://download.opensuse.org/repositories/home:hpcoder1/xUbuntu_14.04/Release.key
   - sudo apt-key add - < Release.key
-  - echo 'deb http://download.opensuse.org/repositories/home:/hpcoder1/Debian_8.0/ /' >/tmp/qwtplot3d.list 
+  - echo 'deb http://download.opensuse.org/repositories/home:/hpcoder1/xUbuntu_14.04/ /' >/tmp/qwtplot3d.list 
   - sudo mv /tmp/qwtplot3d.list /etc/apt/sources.list.d/
   - sudo apt-get update -qq
   - sudo apt-get install -y libboost-dev
   - sudo apt-get install -y libgsl0-dev
   - sudo apt-get install -y python
+  - sudo apt-get install -y libpython-dev
   - sudo apt-get install -y python-sip-dev
   - sudo apt-get install -y sip-dev
+  - sudo apt-get install -y python-qt4
   - sudo apt-get install -y python-qt4-dev
-  - sudo apt-get install -y pyqt4-dev-tools
-  - sudo apt-get install -y libpython-dev
+#  - sudo apt-get install -y pyqt4-dev-tools
   - sudo apt-get install -y libqwtplot3d-qt4-dev
   - sudo apt-get install -y libqwt5-qt4-dev
   - sudo apt-get install -y libqtassistantclient-dev
@@ -23,6 +24,9 @@ before_install:
   - sudo apt-get install -y libmuparser
   - sudo apt-get install -y libmuparser-dev
   - sudo apt-get install -y zlib1g-dev
+  - sudo apt-get install -y xvfb
+  # this needs fixing!
+  - sudo ln -sf /usr/include/qwtplot3d-qt4 /usr/include/qwtplot3d
 #addons:
 #  apt:
 #    packages:
@@ -42,7 +46,11 @@ before_install:
 #    - libmuparser-dev
 #    - zlib1g-dev
 script: 
+  # required to avoid picking up a bodgy python interpreter
+  - export PATH=/usr/bin:$PATH
   - qmake CONFIG+=aegis
   - make qmake
   - make
-  - cd test && for i in 00/*; do sh $i; done
+  - Xvfb :0 &
+  - export DISPLAY=:0
+  - for i in test/00/*; do if sh $i; then true; else exit 1; fi; done
