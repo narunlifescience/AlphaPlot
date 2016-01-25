@@ -84,9 +84,9 @@ class MuParserScripting: public ScriptingEnv
 #define SPECIAL(fname, arg) gsl_sf_result result; if (gsl_sf_##fname##_e(arg, &result) == GSL_SUCCESS) return result.val; else return NAN
 #define SPECIAL2(fname, arg1, arg2) gsl_sf_result result; if (gsl_sf_##fname##_e(arg1, arg2, &result) == GSL_SUCCESS) return result.val; else return NAN
     static double ceil(double x)
-      { return ceil(x); }
+  { return ::ceil(x); }
     static double floor(double x)
-      { return floor(x); }
+  { return ::floor(x); }
     static double mod(double x, double y)
       { return fmod(x,y); }
     static double mypow(double x, double y)
