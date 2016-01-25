@@ -1,6 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
 	<file alias="pdf.xpm">icons/pdf.xpm</file>
+	<file alias="lock.xpm">icons/lock.xpm</file>
+	<file alias="unlock.xpm">icons/unlock.xpm</file>
 	<file alias="fit_frame.xpm">icons/fit_frame.xpm</file>
 	<file alias="reset_rotation.xpm">icons/reset_rotation.xpm</file>
 	<file alias="perspective.xpm">icons/perspective.xpm</file>
