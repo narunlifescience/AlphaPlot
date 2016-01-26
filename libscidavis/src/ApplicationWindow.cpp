@@ -142,9 +142,7 @@
 #include <QVarLengthArray>
 #include <QList>
 #include <QUrl>
-#ifndef NOASSISTANT
-#include <QtAssistant/QAssistantClient>
-#endif
+#include <QDesktopServices>
 #include <QStatusBar>
 #include <QToolButton>
 #include <QSignalMapper>
@@ -175,9 +173,6 @@ void file_compress(const char  *file, const char  *mode);
 ApplicationWindow::ApplicationWindow()
     : QMainWindow(),
       scripted(ScriptingLangManager::newEnv(this)),
-#ifndef NOASSISTANT
-      assistant(new QAssistantClient(QString(), this)),
-#endif
       logWindow(new QDockWidget(this)),
       explorerWindow(new QDockWidget(this)),
       results(new QTextEdit(logWindow)),
@@ -4252,29 +4247,7 @@ void ApplicationWindow::readSettings()
 
 	settings.beginGroup("/Paths");
 	workingDir = settings.value("/WorkingDir", qApp->applicationDirPath()).toString();
-
-#ifdef DYNAMIC_MANUAL_PATH
-#ifdef MANUAL_PATH
-	helpFilePath = settings.value("/HelpFile", MANUAL_PATH "/index.html").toString();
-#elif defined(DOC_PATH)
-	helpFilePath = settings.value("/HelpFile", DOC_PATH "/manual/index.html").toString();
-#else
-	QVariant help_file_setting = settings.value("/HelpFile");
-	if (help_file_setting.isValid())
-		helpFilePath = help_file_setting.toString();
-	else
-		helpFilePath = guessHelpFolder();
-#endif
-#else // ifdef DYNAMIC_MANUAL_PATH
-#ifdef MANUAL_PATH
-	helpFilePath = MANUAL_PATH "/index.html";
-#elif defined(DOC_PATH)
-	helpFilePath = DOC_PATH "/manual/index.html";
-#else
-	helpFilePath = guessHelpFolder();
-#endif
-#endif
-
+    helpFilePath = settings.value("/HelpFile", "").toString();
 #ifdef PLUGIN_PATH
 	QString defaultFitPluginsPath = PLUGIN_PATH;
 #else // defined PLUGIN_PATH
@@ -8251,63 +8224,37 @@ void ApplicationWindow::showWindowTitleBarMenu()
 
 void ApplicationWindow::chooseHelpFolder()
 {
-	QString dir = QFileDialog::getExistingDirectory(this, tr("Choose the location of the SciDAVis help folder!"),
-			qApp->applicationDirPath());
-
-	if (!dir.isEmpty())
-	{
-		helpFilePath = dir + "/index.html";
-
-		QFile helpFile(helpFilePath);
-		if (!helpFile.exists())
-		{
-			QMessageBox::critical(this, tr("index.html File Not Found!"),
-					tr("There is no file called <b>index.html</b> in this folder.<br>Please choose another folder!"));
-		}
-	}
-}
-
-void ApplicationWindow::showStandAloneHelp()
-{
-#ifdef Q_OS_MAC // Mac
-	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+// TODO: move all paths & location handling to anothor class  
+#if defined(Q_OS_WIN)
+	const QString locateDefaultHelp = qApp->applicationDirPath() +
+        QDir::toNativeSeparators("/manual/index.html");
 #else
-	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+    const QString locateDefaultHelp =
+        QDir::toNativeSeparators("/usr/share/doc/scidavis/manual/index.html");
 #endif
+    if (QFile(locateDefaultHelp).exists())
+    {
+        helpFilePath = locateDefaultHelp;
+    } else {
+	   const QString dir = QFileDialog::getExistingDirectory(this,
+           tr("Choose the location of the SciDAVis help folder!"),
+	       qApp->applicationDirPath());
 
-	settings.beginGroup("/General");
-	settings.beginGroup("/Paths");
-	QString helpPath = settings.value("/HelpFile", qApp->applicationDirPath()+"/manual/index.html").toString();
-	settings.endGroup();
-	settings.endGroup();
-
-	QFile helpFile(helpPath);
-	if (!helpPath.isEmpty() && !helpFile.exists())
-	{
-		QMessageBox::critical(0, tr("Help Files Not Found!"),
-				tr("The manual can be downloaded from the following internet address:")+
-				"<p><a href = \"" MANUAL_URI "\">" MANUAL_URI "</a></p>");
-		exit(0);
-	}
-
-	QFileInfo fi(helpPath);
-	QString profilePath = QString(fi.dirPath(true)+"/scidavis.adp");
-	if (!QFile(profilePath).exists())
-	{
-		QMessageBox::critical(0, tr("Help Profile Not Found!"),
-				tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("scidavis.adp")+"<br>"+
-				tr("This file is provided with the SciDAVis manual which can be downloaded from the following internet address:")+
-				"<p><a href = \"" MANUAL_URI "\">" MANUAL_URI "</a></p>");
-		exit(0);
-	}
-
-	QStringList cmdLst = QStringList() << "-profile" << profilePath;
-#ifndef NOASSISTANT
-        QAssistantClient *assist = new QAssistantClient( QString(), 0);
-        assist->setArguments( cmdLst );
-        assist->showPage(helpPath);
-        connect(assist, SIGNAL(assistantClosed()), qApp, SLOT(quit()) );
-#endif
+	   if (!dir.isEmpty())
+	   {
+		    const QFile helpFile(dir + QDir::toNativeSeparators("/index.html"));
+            // TODO: Probably some kind of validity check to make sure that the
+            // index.html file belongs to sciDavis
+		    if (!helpFile.exists())
+		    {
+			     QMessageBox::critical(this, tr("index.html File Not Found!"),
+			         tr("There is no file called <b>index.html</b> in this folder."
+                        "<br>Please choose another folder!"));
+		    } else {
+                helpFilePath = dir + QDir::toNativeSeparators("/index.html");
+            }
+	   }
+    }
 }
 
 void ApplicationWindow::showHelp()
@@ -8320,25 +8267,19 @@ void ApplicationWindow::showHelp()
 				tr("The manual can be downloaded from the following internet address:")+
 				"<p><a href = \"" MANUAL_URI "\">" MANUAL_URI "</a></p>");
 		chooseHelpFolder();
-		saveSettings();
-	}
-
-	QFileInfo fi(helpFilePath);
-	QString profilePath = QString(fi.dirPath(true)+"/scidavis.adp");
-	if (!QFile(profilePath).exists())
-	{
-		QMessageBox::critical(this,tr("Help Profile Not Found!"),
-				tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("scidavis.adp")+"<br>"+
-				tr("This file is provided with the SciDAVis manual which can be downloaded from the following internet address:")+
-				"<p><a href = \"" MANUAL_URI "\">" MANUAL_URI "</a></p>");
-		return;
-	}
-
-	QStringList cmdLst = QStringList() << "-profile" << profilePath;
-#ifndef NOASSISTANT
-	assistant->setArguments( cmdLst );
-	assistant->showPage(helpFilePath);
+#ifdef Q_OS_MAC
+	    QSettings settings(QSettings::IniFormat,QSettings::UserScope,
+            "SciDAVis", "SciDAVis");
+#else
+	    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,
+            "SciDAVis", "SciDAVis");
 #endif
+        settings.beginGroup("/Paths");
+        settings.setValue("/HelpFile", helpFilePath);
+        settings.endGroup();
+	}
+    
+    QDesktopServices::openUrl(QUrl(helpFilePath));
 }
 
 void ApplicationWindow::showPlotWizard()
@@ -13873,35 +13814,4 @@ QStringList ApplicationWindow::tableWindows()
 	foreach(AbstractAspect *aspect, tables)
 		result.append(aspect->name());
 	return result;
-}
-
-QString ApplicationWindow::guessHelpFolder()
-{
-#if defined(Q_OS_WIN)
-	return qApp->applicationDirPath()+"/manual/index.html";
-#else
-	QFileInfo help_file_info;
-	QString help_dir_base = QString("/usr/share/doc/scidavis-%1.%2.%3")
-		.arg((SciDAVis::version() & 0xff0000) >> 16)
-		.arg((SciDAVis::version() & 0x00ff00) >> 8)
-		.arg(SciDAVis::version() & 0x0000ff);
-	help_file_info.setFile(help_dir_base);
-	if (!help_file_info.exists())
-		help_dir_base = "/usr/share/doc/scidavis";
-	QStringList help_dir_suffixes;
-	QString locale = QLocale().name(); // language_country according to ISO 639 and 3166, respectively
-	help_dir_suffixes
-		<< QString("-") + locale
-		<< QString("-") + locale.section('_',0,0)
-		<< QString("-") + appLanguage
-		<< "-en"
-		<< "";
-	foreach (QString suffix, help_dir_suffixes) {
-		help_file_info.setFile(help_dir_base + QString("/manual%1/index.html").arg(suffix));
-		if (help_file_info.exists())
-			break;
-	}
-	// intentionally defaults to /usr/share/doc/scidavis/manual/index.html even if it doesn't exist
-	return help_file_info.absoluteFilePath();
-#endif
 }

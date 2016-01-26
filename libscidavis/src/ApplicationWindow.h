@@ -63,7 +63,6 @@ class QToolButton;
 class QShortcut;
 class QMenu;
 class QToolBar;
-class QAssistantClient;
 class QStatusBar;
 class QSignalMapper;
 
@@ -127,7 +126,6 @@ public:
 
 	enum ShowWindowsPolicy{HideAll, ActiveFolder, SubFolders};
 
-	QAssistantClient *assistant;
 	QTranslator *appTranslator, *qtTranslator;
 	QDockWidget *logWindow;
 	QDockWidget *explorerWindow;
@@ -638,10 +636,6 @@ public slots:
 
 	void showMoreWindows();
 	void showMarkerPopupMenu();
-	void showHelp();
-	static void showStandAloneHelp();
-	void chooseHelpFolder();
-	QString guessHelpFolder();
 	void showPlotWizard();
 	void showFitPolynomDialog();
 	void showIntegrationDialog();
@@ -885,6 +879,10 @@ public slots:
 
 signals:
 	void modified();
+    
+private slots:
+    	void showHelp();
+	    void chooseHelpFolder();
 
 // TODO: a lot of this stuff should be private
 public:
@@ -970,7 +968,7 @@ public:
 	QFont appFont, plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;
 	QFont tableTextFont, tableHeaderFont, plotAxesFont, plotLegendFont, plotNumbersFont, plotTitleFont;
 	QColor tableBkgdColor, tableTextColor, tableHeaderColor;
-	QString projectname,columnSeparator, helpFilePath, appLanguage;
+	QString projectname,columnSeparator, appLanguage;
 	QString configFilePath, logInfo, fitPluginsPath, asciiDirPath, imagesDirPath;
 	int logID,asciiID,closeID, exportID, printAllID, ignoredLines, savingTimerId, plot3DResolution;
 	bool renameColumns, copiedLayer, strip_spaces, simplify_spaces;
@@ -1029,6 +1027,8 @@ private:
 
 	//! Stores the pointers to the dragged items from the FolderListViews objects
 	QList<Q3ListViewItem *> draggedItems;
+    
+    QString helpFilePath;
 
 #ifdef SEARCH_FOR_UPDATES
 	//! Used when checking for new versions
@@ -1075,7 +1075,8 @@ private:
     QAction *actionShowExpDecayDialog, *actionShowTwoExpDecayDialog, *actionShowExpDecay3Dialog;
     QAction *actionFitExpGrowth, *actionFitSigmoidal, *actionFitGauss, *actionFitLorentz, *actionShowFitDialog;
     QAction *actionShowAxisDialog, *actionShowTitleDialog;
-    QAction *actionAbout, *actionShowHelp;
+    QAction *actionAbout;
+    QAction *actionShowHelp;
 #ifdef DYNAMIC_MANUAL_PATH
    	QAction *actionChooseHelpFolder;
 #endif
@@ -1103,7 +1104,8 @@ private:
 #ifdef DOWNLOAD_LINKS
 	QAction *actionDownloadManual;
 #endif
-	QAction *actionHelpForums, *actionHelpBugReports;
+	QAction *actionHelpForums;
+    QAction *actionHelpBugReports;
 	QAction *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate, *actionSaveTemplate;
     QAction *actionNextWindow;
     QAction *actionPrevWindow;
