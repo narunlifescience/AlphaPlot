@@ -8247,7 +8247,7 @@ void ApplicationWindow::chooseHelpFolder()
             // index.html file belongs to sciDavis
 		    if (!helpFile.exists())
 		    {
-			     QMessageBox::critical(this, tr("index.html File Not Found!"),
+			     QMessageBox::information(this, tr("index.html File Not Found!"),
 			         tr("There is no file called <b>index.html</b> in this folder."
                         "<br>Please choose another folder!"));
 		    } else {
@@ -8262,7 +8262,7 @@ void ApplicationWindow::showHelp()
 	QFile helpFile(helpFilePath);
 	if (!helpFile.exists())
 	{
-		QMessageBox::critical(this,tr("Help Files Not Found!"),
+		QMessageBox::information(this,tr("Help Files Not Found!"),
 				tr("Please indicate the location of the help file!")+"<br>"+
 				tr("The manual can be downloaded from the following internet address:")+
 				"<p><a href = \"" MANUAL_URI "\">" MANUAL_URI "</a></p>");
@@ -8279,7 +8279,10 @@ void ApplicationWindow::showHelp()
         settings.endGroup();
 	}
     
-    QDesktopServices::openUrl(QUrl(helpFilePath));
+    if(!QDesktopServices::openUrl(QUrl(helpFilePath))) {
+    	QMessageBox::information(this, tr("unable to open index.html!"),
+	    tr("<b>index.html</b> file cannot be opened"));
+    }
 }
 
 void ApplicationWindow::showPlotWizard()

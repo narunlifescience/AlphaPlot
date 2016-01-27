@@ -80,7 +80,7 @@ $$LUPDATE_BIN ../libscidavis/src/*.cpp -ts translations/*.ts) && $$LRELEASE_BIN 
 
 ###################### DOCUMENTATION ########################################
 
-documentation.files += ../manual/html \
+documentation.files += ../manual \
                        ../INSTALL.html \
                        ../scidavis.css \
                        ../scidavis-logo.png \
