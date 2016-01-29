@@ -254,7 +254,7 @@ if (!item)
 if (item == firstChild() && item->listView()->rootIsDecorated())
 	return;//it's the project folder so we don't want the user to move it
 
-QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
+// QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
 
 QPixmap pix;
 if (item->rtti() == FolderListItem::RTTI)
