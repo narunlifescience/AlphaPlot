@@ -3,7 +3,7 @@
 
 class ReadWriteProjectTest: public ApplicationWindow
 {
-  Q_OBJECT;
+  Q_OBJECT
 private slots:
   void readWriteProject();
   void largeOriginImport();
