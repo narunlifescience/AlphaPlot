@@ -7,4 +7,5 @@ class ReadWriteProjectTest: public ApplicationWindow
 private slots:
   void readWriteProject();
   void largeOriginImport();
+  void showHelp();
 };

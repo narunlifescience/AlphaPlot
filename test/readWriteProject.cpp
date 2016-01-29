@@ -32,6 +32,12 @@ void ReadWriteProjectTest::largeOriginImport()
   QVERIFY(app.get());
 }
 
+void ReadWriteProjectTest::showHelp()
+{
+  // Override ApplicationWindow::showHelp() to supress documentation file 
+  // path not found error. Need to fix this later (importance : high)
+}
+
 
 QTEST_MAIN(ReadWriteProjectTest);
 
