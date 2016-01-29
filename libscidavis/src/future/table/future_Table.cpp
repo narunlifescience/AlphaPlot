@@ -913,7 +913,7 @@ void Table::clearSelectedCells()
 {
 	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
-	int last = d_view->lastSelectedRow();
+	// int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
 
 	WAIT_CURSOR;
