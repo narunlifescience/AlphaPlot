@@ -188,7 +188,7 @@ bool Project::load(XmlStreamReader * reader)
 		if (reader->name() == "scidavis_project") 
 		{
 			bool ok;
-			int version = reader->readAttributeInt("version", &ok);
+			// int version = reader->readAttributeInt("version", &ok);
 			if(!ok) 
 			{
 				reader->raiseError(tr("invalid or missing project version"));
