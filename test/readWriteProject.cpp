@@ -38,6 +38,9 @@ void ReadWriteProjectTest::showHelp()
   // path not found error. Need to fix this later (importance : high)
 }
 
+void ReadWriteProjectTest::chooseHelpFolder()
+{}
+
 
 QTEST_MAIN(ReadWriteProjectTest);
 

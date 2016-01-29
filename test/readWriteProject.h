@@ -8,4 +8,5 @@ private slots:
   void readWriteProject();
   void largeOriginImport();
   void showHelp();
+  void chooseHelpFolder();
 };
