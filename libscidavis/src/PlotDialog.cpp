@@ -2049,7 +2049,7 @@ bool PlotDialog::validInput()
 		to=to.replace(pos,1,"");
 
 	double start,end, stp;
-	bool error = false;
+	// bool error = false;
 	if (from.contains(nonDigit))
 	{
 		try
@@ -2062,7 +2062,7 @@ bool PlotDialog::validInput()
 		{
 			QMessageBox::critical(this, tr("Start limit error"), QString::fromStdString(e.GetMsg()));
 			histogramBeginBox->setFocus();
-			error = true;
+			// error = true;
 			return false;
 		}
 	}
@@ -2081,7 +2081,7 @@ bool PlotDialog::validInput()
 		{
 			QMessageBox::critical(this, tr("End limit error"), QString::fromStdString(e.GetMsg()));
 			histogramEndBox->setFocus();
-			error=true;
+			// error=true;
 			return false;
 		}
 	}
@@ -2107,7 +2107,7 @@ bool PlotDialog::validInput()
 		{
 			QMessageBox::critical(this, tr("Bin size input error"),QString::fromStdString(e.GetMsg()));
 			binSizeBox->setFocus();
-			error=true;
+			// error=true;
 			return false;
 		}
 	}

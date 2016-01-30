@@ -146,7 +146,7 @@ void PolynomFitDialog::setGraph(Graph *g)
 void PolynomFitDialog::activateCurve(const QString& curveName)
 {
 	double start, end;
-	int n_points = graph->range(graph->curveIndex(curveName), &start, &end);
+	// int n_points = graph->range(graph->curveIndex(curveName), &start, &end);
 
 	boxStart->setText(QString::number(start, 'g', 15));
 	boxEnd->setText(QString::number(end, 'g', 15));
