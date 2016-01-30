@@ -180,10 +180,6 @@ liborigin {
 DEFINES  += ORIGIN_IMPORT
 }
 
-noassistant {
-  DEFINES += NOASSISTANT
-}
-
 ### python support
 osx_dist|aegis {
 CONFIG+=python
@@ -256,8 +252,6 @@ contains(PRESET, linux_package) {
 
 	LIBS         += -lqwt$${qwtsuff} -lz -lGLU 
 
-        !noassistant {LIBS+=-lQtAssistantClient}
-
 	INCLUDEPATH  += /usr/include/muParser
 	LIBS         += -lgsl -lgslcblas
 	LIBS         += -lmuparser 
@@ -305,7 +299,7 @@ win32: {
 # Mingw cross compilation environment on Linux. 
 mxe {
   QMAKE_CXXFLAGS+=-g
-  DEFINES += NOASSISTANT CONSOLE
+  DEFINES += CONSOLE
   INCLUDEPATH  += . "$$(HOME)/usr/mxe/include" 
   LIBPATH += "$(HOME)/usr/mxe/lib" "$(HOME)/usr/mxe/lib64"
   LIBS +=  -mwindows -lqwt -lqwtplot3d -lmuparser -lgsl -lgslcblas  
