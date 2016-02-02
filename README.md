@@ -2,7 +2,7 @@
 
 SciDAVis is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalysis and <i>Vis</i>ualization.
 
-[![Build Status](https://travis-ci.org/highperformancecoder/scidavis.svg?branch=master)](https://travis-ci.org/highperformancecoder/scidavis)
+[![Build Status](https://travis-ci.org/narunlifescience/AlphaPlot.svg?branch=master)](https://travis-ci.org/narunlifescience/AlphaPlot)
 
 # License
 
