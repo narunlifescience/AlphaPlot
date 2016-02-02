@@ -6,6 +6,7 @@
 ###################### HEADERS ##############################################
 
 HEADERS  += src/ApplicationWindow.h \
+            src/IconLoader.h \
             src/globals.h\
             src/Graph.h \
             src/Graph3D.h \
@@ -115,6 +116,7 @@ HEADERS  += src/ApplicationWindow.h \
 ###################### SOURCES ##############################################
 
 SOURCES  += src/ApplicationWindow.cpp \
+            src/IconLoader.cpp \
             src/Graph.cpp \
             src/Graph3D.cpp \
             src/Table.cpp \

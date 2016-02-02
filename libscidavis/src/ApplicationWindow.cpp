@@ -98,6 +98,7 @@
 #include "ColorBox.h"
 #include "QwtHistogram.h"
 #include "OpenProjectDialog.h"
+#include "IconLoader.h"
 #include "core/Project.h"
 #include "core/column/Column.h"
 #include "lib/XmlStreamReader.h"
@@ -152,6 +153,7 @@
 #include <QUndoView>
 #include <QUndoStack>
 #include <QTemporaryFile>
+#include <QDebug>
 
 #include <zlib.h>
 
@@ -211,6 +213,11 @@ ApplicationWindow::ApplicationWindow()
     setAttribute(Qt::WA_DeleteOnClose);
 
 	setWindowTitle(tr("SciDAVis - untitled"));
+
+    // Icons
+    IconLoader::init();
+    IconLoader::lumen_ = IconLoader::isLight(palette().color(QPalette::Window));
+
     initFonts();
 	QPixmapCache::setCacheLimit(20*QPixmapCache::cacheLimit ());
 
@@ -383,7 +390,7 @@ void ApplicationWindow::initToolBars()
 
 	file_tools = new QToolBar( tr( "File" ), this );
 	file_tools->setObjectName("file_tools"); // this is needed for QMainWindow::restoreState()
-	file_tools->setIconSize( QSize(18,20) );
+    file_tools->setIconSize( QSize(22,22) );
 	addToolBar( Qt::TopToolBarArea, file_tools );
 
 	file_tools->addAction(actionNewProject);
@@ -421,7 +428,7 @@ void ApplicationWindow::initToolBars()
 
 	edit_tools = new QToolBar( tr("Edit"), this);
 	edit_tools->setObjectName("edit_tools"); // this is needed for QMainWindow::restoreState()
-	edit_tools->setIconSize( QSize(18,20) );
+    edit_tools->setIconSize( QSize(22,22) );
 	addToolBar( edit_tools );
 
 	edit_tools->addAction(actionUndo);
@@ -433,7 +440,7 @@ void ApplicationWindow::initToolBars()
 
 	graph_tools = new QToolBar( tr("Graph"), this );
 	graph_tools->setObjectName("graph_tools"); // this is needed for QMainWindow::restoreState()
-	graph_tools->setIconSize( QSize(16,20) );
+    graph_tools->setIconSize( QSize(22,22) );
 	addToolBar( graph_tools );
 
 	dataTools = new QActionGroup( this );
@@ -562,7 +569,7 @@ void ApplicationWindow::initToolBars()
 
 	plot_tools = new QToolBar(tr("Plot"), this);
 	plot_tools->setObjectName("plot_tools"); // this is needed for QMainWindow::restoreState()
-	plot_tools->setIconSize( QSize(16,20) );
+    plot_tools->setIconSize( QSize(22,22) );
 	addToolBar( Qt::TopToolBarArea, plot_tools );
 
 	QMenu *menu_plot_linespoints = new QMenu(this);
@@ -613,7 +620,7 @@ void ApplicationWindow::initToolBars()
 
 	table_tools = new QToolBar( tr( "Table" ), this );
 	table_tools->setObjectName("table_tools"); // this is needed for QMainWindow::restoreState()
-	table_tools->setIconSize( QSize(16,20) );
+    table_tools->setIconSize( QSize(22,22) );
 	addToolBar( Qt::TopToolBarArea, table_tools );
 
 	graph_tools->hide();
@@ -7540,8 +7547,8 @@ void ApplicationWindow::showMarkerPopupMenu()
 		markerMenu.addSeparator();
 	}
 
-	markerMenu.insertItem(QPixmap(":/cut.xpm"),tr("&Cut"),this, SLOT(cutSelection()));
-	markerMenu.insertItem(QPixmap(":/copy.xpm"), tr("&Copy"),this, SLOT(copySelection()));
+	markerMenu.insertItem(IconLoader::load("edit-cut"),tr("&Cut"),this, SLOT(cutSelection()));
+	markerMenu.insertItem(IconLoader::load("edit-copy"), tr("&Copy"),this, SLOT(copySelection()));
 	markerMenu.insertItem(QPixmap(":/erase.xpm"), tr("&Delete"),this, SLOT(clearSelection()));
 	markerMenu.addSeparator();
 	if (g->arrowMarkerSelected())
@@ -7975,22 +7982,22 @@ void ApplicationWindow::showGraphContextMenu()
 		if (copiedLayer)
 		{
 			cm.addSeparator();
-			cm.insertItem(QPixmap(":/paste.xpm"), tr("&Paste Layer"),this, SLOT(pasteSelection()));
+            cm.insertItem(IconLoader::load("edit-paste"), tr("&Paste Layer"),this, SLOT(pasteSelection()));
 		}
 		else if (copiedMarkerType >=0 )
 		{
 			cm.addSeparator();
 			if (copiedMarkerType == Graph::Text )
-				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Text"),plot, SIGNAL(pasteMarker()));
+                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Text"),plot, SIGNAL(pasteMarker()));
 			else if (copiedMarkerType == Graph::Arrow )
-				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Line/Arrow"),plot, SIGNAL(pasteMarker()));
+                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Line/Arrow"),plot, SIGNAL(pasteMarker()));
 			else if (copiedMarkerType == Graph::Image )
-				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Image"),plot, SIGNAL(pasteMarker()));
+                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Image"),plot, SIGNAL(pasteMarker()));
 		}
 		cm.addSeparator();
 		copy.insertItem(tr("&Layer"), this, SLOT(copyActiveLayer()));
 		copy.insertItem(tr("&Window"),plot, SLOT(copyAllLayers()));
-		cm.insertItem(QPixmap(":/copy.xpm"),tr("&Copy"), &copy);
+		cm.insertItem(IconLoader::load("edit-copy"),tr("&Copy"), &copy);
 
 		exports.insertItem(tr("&Layer"), this, SLOT(exportLayer()));
 		exports.insertItem(tr("&Window"), this, SLOT(exportGraph()));
@@ -8091,22 +8098,22 @@ void ApplicationWindow::showLayerButtonContextMenu()
 		if (copiedLayer)
 		{
 			cm.addSeparator();
-			cm.insertItem(QPixmap(":/paste.xpm"), tr("&Paste Layer"),this, SLOT(pasteSelection()));
+            cm.insertItem(IconLoader::load("edit-paste"), tr("&Paste Layer"),this, SLOT(pasteSelection()));
 		}
 		else if (copiedMarkerType >=0 )
 		{
 			cm.addSeparator();
 			if (copiedMarkerType == Graph::Text )
-				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Text"),plot, SIGNAL(pasteMarker()));
+                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Text"),plot, SIGNAL(pasteMarker()));
 			else if (copiedMarkerType == Graph::Arrow )
-				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Line/Arrow"),plot, SIGNAL(pasteMarker()));
+                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Line/Arrow"),plot, SIGNAL(pasteMarker()));
 			else if (copiedMarkerType == Graph::Image )
-				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Image"),plot, SIGNAL(pasteMarker()));
+                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Image"),plot, SIGNAL(pasteMarker()));
 		}
 		cm.addSeparator();
 		copy.insertItem(tr("&Layer"), this, SLOT(copyActiveLayer()));
 		copy.insertItem(tr("&Window"),plot, SLOT(copyAllLayers()));
-		cm.insertItem(QPixmap(":/copy.xpm"),tr("&Copy"), &copy);
+		cm.insertItem(IconLoader::load("edit-copy"),tr("&Copy"), &copy);
 
 		exports.insertItem(tr("&Layer"), this, SLOT(exportLayer()));
 		exports.insertItem(tr("&Window"), this, SLOT(exportGraph()));
@@ -8138,7 +8145,7 @@ void ApplicationWindow::showWindowContextMenu()
 		MultiLayer *g=(MultiLayer*)w;
 		if (copiedLayer)
 		{
-			cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Layer"),this, SLOT(pasteSelection()));
+            cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Layer"),this, SLOT(pasteSelection()));
 			cm.addSeparator();
 		}
 
@@ -8155,7 +8162,7 @@ void ApplicationWindow::showWindowContextMenu()
 		cm.addAction(actionRename);
 		cm.addAction(actionCopyWindow);
 		cm.addSeparator();
-		cm.insertItem(QPixmap(":/copy.xpm"),tr("&Copy Page"), g, SLOT(copyAllLayers()));
+		cm.insertItem(IconLoader::load("edit-copy"),tr("&Copy Page"), g, SLOT(copyAllLayers()));
 		cm.insertItem(tr("E&xport Page"), this, SLOT(exportGraph()));
 		cm.addAction(actionPrint);
 		cm.addSeparator();
@@ -8195,9 +8202,9 @@ void ApplicationWindow::showWindowContextMenu()
 	else if (w->inherits("Matrix"))
 	{
 		Matrix *t=(Matrix *)w;
-		cm.insertItem(QPixmap(":/cut.xpm"),tr("Cu&t"), t, SLOT(cutSelection()));
-		cm.insertItem(QPixmap(":/copy.xpm"),tr("&Copy"), t, SLOT(copySelection()));
-		cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste"), t, SLOT(pasteSelection()));
+        cm.insertItem(IconLoader::load("edit-cut"),tr("Cu&t"), t, SLOT(cutSelection()));
+		cm.insertItem(IconLoader::load("edit-copy"),tr("&Copy"), t, SLOT(copySelection()));
+        cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste"), t, SLOT(pasteSelection()));
 		cm.addSeparator();
 		cm.insertItem(tr("&Insert Row"), t, SLOT(insertRow()));
 		cm.insertItem(tr("&Insert Column"), t, SLOT(insertColumn()));
@@ -10488,12 +10495,12 @@ void ApplicationWindow::createActions()
 	actionLoad = new QAction(QIcon(QPixmap(":/import.xpm")), tr("&Import ASCII..."), this);
 	connect(actionLoad, SIGNAL(activated()), this, SLOT(importASCII()));
 
-	actionUndo = new QAction(QIcon(QPixmap(":/undo.xpm")), tr("&Undo"), this);
+    actionUndo = new QAction(IconLoader::load("edit-undo"), tr("&Undo"), this);
 	actionUndo->setShortcut( tr("Ctrl+Z") );
 	connect(actionUndo, SIGNAL(activated()), this, SLOT(undo()));
 	actionUndo->setEnabled(false);
 
-	actionRedo = new QAction(QIcon(QPixmap(":/redo.xpm")), tr("&Redo"), this);
+    actionRedo = new QAction(IconLoader::load("edit-redo"), tr("&Redo"), this);
 	actionRedo->setShortcut( tr("Ctrl+R") );
 	connect(actionRedo, SIGNAL(activated()), this, SLOT(redo()));
 	actionRedo->setEnabled(false);
@@ -10501,15 +10508,15 @@ void ApplicationWindow::createActions()
 	actionCopyWindow = new QAction(QIcon(QPixmap(":/duplicate.xpm")), tr("&Duplicate"), this);
 	connect(actionCopyWindow, SIGNAL(activated()), this, SLOT(clone()));
 
-	actionCutSelection = new QAction(QIcon(QPixmap(":/cut.xpm")), tr("Cu&t Selection"), this);
+    actionCutSelection = new QAction(IconLoader::load("edit-cut"), tr("Cu&t Selection"), this);
 	actionCutSelection->setShortcut( tr("Ctrl+X") );
 	connect(actionCutSelection, SIGNAL(activated()), this, SLOT(cutSelection()));
 
-	actionCopySelection = new QAction(QIcon(QPixmap(":/copy.xpm")), tr("&Copy Selection"), this);
+    actionCopySelection = new QAction(IconLoader::load("edit-copy"), tr("&Copy Selection"), this);
 	actionCopySelection->setShortcut( tr("Ctrl+C") );
 	connect(actionCopySelection, SIGNAL(activated()), this, SLOT(copySelection()));
 
-	actionPasteSelection = new QAction(QIcon(QPixmap(":/paste.xpm")), tr("&Paste Selection"), this);
+    actionPasteSelection = new QAction(IconLoader::load("edit-paste"), tr("&Paste Selection"), this);
 	actionPasteSelection->setShortcut( tr("Ctrl+V") );
 	connect(actionPasteSelection, SIGNAL(activated()), this, SLOT(pasteSelection()));
 

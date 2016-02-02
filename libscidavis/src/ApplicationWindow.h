@@ -65,6 +65,7 @@ class QMenu;
 class QToolBar;
 class QStatusBar;
 class QSignalMapper;
+class IconLoader;
 
 class Matrix;
 class Table;

@@ -204,6 +204,35 @@
 	<file alias="equals.png">icons/equals.png</file>
 	<file alias="16x16/TeX.png">icons/16x16/TeX.png</file>
 	<file alias="32x32/TeX.png">icons/32x32/TeX.png</file>
-
+	<file>icons/light/16/edit-copy.svg</file>
+	<file>icons/light/16/edit-cut.svg</file>
+	<file>icons/light/16/edit-paste.svg</file>
+	<file>icons/light/16/edit-redo.svg</file>
+	<file>icons/light/16/edit-undo.svg</file>
+	<file>icons/light/22/edit-copy.svg</file>
+	<file>icons/light/22/edit-cut.svg</file>
+	<file>icons/light/22/edit-paste.svg</file>
+	<file>icons/light/22/edit-redo.svg</file>
+	<file>icons/light/22/edit-undo.svg</file>
+	<file>icons/light/24/edit-copy.svg</file>
+	<file>icons/light/24/edit-cut.svg</file>
+	<file>icons/light/24/edit-paste.svg</file>
+	<file>icons/light/24/edit-redo.svg</file>
+	<file>icons/light/24/edit-undo.svg</file>
+	<file>icons/dark/16/edit-copy.svg</file>
+	<file>icons/dark/16/edit-cut.svg</file>
+	<file>icons/dark/16/edit-paste.svg</file>
+	<file>icons/dark/16/edit-redo.svg</file>
+	<file>icons/dark/16/edit-undo.svg</file>
+	<file>icons/dark/22/edit-copy.svg</file>
+	<file>icons/dark/22/edit-cut.svg</file>
+	<file>icons/dark/22/edit-paste.svg</file>
+	<file>icons/dark/22/edit-redo.svg</file>
+	<file>icons/dark/22/edit-undo.svg</file>
+	<file>icons/dark/24/edit-copy.svg</file>
+	<file>icons/dark/24/edit-cut.svg</file>
+	<file>icons/dark/24/edit-paste.svg</file>
+	<file>icons/dark/24/edit-redo.svg</file>
+	<file>icons/dark/24/edit-undo.svg</file>
 </qresource>
 </RCC>
