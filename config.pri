@@ -127,6 +127,41 @@ unix {# Linux / MacOS X
 		### where plugins are expected by default
 		plugins.path = "$$INSTALLBASE/lib/scidavis/plugins"
 	}
+
+###################### DESKTOP INTEGRATION ##################################
+
+	desktop_entry.files = scidavis/scidavis.desktop
+	desktop_entry.path = "$$INSTALLBASE/share/applications"
+
+	mime_package.files = scidavis/scidavis.xml
+	mime_package.path = "$$INSTALLBASE/share/mime/packages"
+
+	#deprecated
+	mime_link.files = scidavis/x-sciprj.desktop
+	mime_link.path = "$$INSTALLBASE/share/mimelnk/application"
+	
+	contains(INSTALLS, icons) {
+		# scalable icon
+		icons.files = scidavis/icons/scidavis.svg
+		icons.path = "$$INSTALLBASE/share/icons/hicolor/scalable/apps"
+
+		# hicolor icons for different resolutions
+		resolutions = 16 22 32 48 64 128
+		for(res, resolutions) {
+			eval(icon_hicolor_$${res}.files = scidavis/icons/hicolor-$${res}/scidavis.png)
+			eval(icon_hicolor_$${res}.path = "$$INSTALLBASE/share/icons/hicolor/$${res}x$${res}/apps")
+			INSTALLS += icon_hicolor_$${res}
+		}
+
+		# locolor icons for different resolutions
+		resolutions = 16 22 32
+		for(res, resolutions) {
+			eval(icon_locolor_$${res}.files = scidavis/icons/locolor-$${res}/scidavis.png)
+			eval(icon_locolor_$${res}.path = "$$INSTALLBASE/share/icons/locolor/$${res}x$${res}/apps")
+
+			INSTALLS += icon_locolor_$${res}
+		}
+	}
 }
 
 win32 {# Windows
