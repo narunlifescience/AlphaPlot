@@ -390,7 +390,7 @@ void ApplicationWindow::initToolBars()
 
 	file_tools = new QToolBar( tr( "File" ), this );
 	file_tools->setObjectName("file_tools"); // this is needed for QMainWindow::restoreState()
-    file_tools->setIconSize( QSize(22,22) );
+    file_tools->setIconSize( QSize(24,24) );
 	addToolBar( Qt::TopToolBarArea, file_tools );
 
 	file_tools->addAction(actionNewProject);
@@ -428,7 +428,7 @@ void ApplicationWindow::initToolBars()
 
 	edit_tools = new QToolBar( tr("Edit"), this);
 	edit_tools->setObjectName("edit_tools"); // this is needed for QMainWindow::restoreState()
-    edit_tools->setIconSize( QSize(22,22) );
+    edit_tools->setIconSize( QSize(24,24) );
 	addToolBar( edit_tools );
 
 	edit_tools->addAction(actionUndo);
@@ -440,7 +440,7 @@ void ApplicationWindow::initToolBars()
 
 	graph_tools = new QToolBar( tr("Graph"), this );
 	graph_tools->setObjectName("graph_tools"); // this is needed for QMainWindow::restoreState()
-    graph_tools->setIconSize( QSize(22,22) );
+    graph_tools->setIconSize( QSize(24,24) );
 	addToolBar( graph_tools );
 
 	dataTools = new QActionGroup( this );
@@ -569,7 +569,7 @@ void ApplicationWindow::initToolBars()
 
 	plot_tools = new QToolBar(tr("Plot"), this);
 	plot_tools->setObjectName("plot_tools"); // this is needed for QMainWindow::restoreState()
-    plot_tools->setIconSize( QSize(22,22) );
+    plot_tools->setIconSize( QSize(24,24) );
 	addToolBar( Qt::TopToolBarArea, plot_tools );
 
 	QMenu *menu_plot_linespoints = new QMenu(this);
@@ -620,7 +620,7 @@ void ApplicationWindow::initToolBars()
 
 	table_tools = new QToolBar( tr( "Table" ), this );
 	table_tools->setObjectName("table_tools"); // this is needed for QMainWindow::restoreState()
-    table_tools->setIconSize( QSize(22,22) );
+    table_tools->setIconSize( QSize(24,24) );
 	addToolBar( Qt::TopToolBarArea, table_tools );
 
 	graph_tools->hide();
@@ -669,7 +669,7 @@ void ApplicationWindow::lockToolbar(const bool status)
 		plot_tools->setMovable(false);
 		table_tools->setMovable(false);
 		matrix_plot_tools->setMovable(false);
-		locktoolbar->setIcon(QIcon(QPixmap(":/lock.xpm")));
+		locktoolbar->setIcon(IconLoader::load("lock"));
 	} else {
 		file_tools->setMovable(true);
 		edit_tools->setMovable(true);
@@ -677,7 +677,7 @@ void ApplicationWindow::lockToolbar(const bool status)
 		plot_tools->setMovable(true);
 		table_tools->setMovable(true);
 		matrix_plot_tools->setMovable(true);
-		locktoolbar->setIcon(QIcon(QPixmap(":/unlock.xpm")));
+		locktoolbar->setIcon(IconLoader::load("unlock"));
 	}
 }
 
@@ -8005,7 +8005,7 @@ void ApplicationWindow::showGraphContextMenu()
 
 		prints.insertItem(tr("&Layer"), plot, SLOT(printActiveLayer()));
 		prints.insertItem(tr("&Window"),plot, SLOT(print()));
-		cm.insertItem(QPixmap(":/fileprint.xpm"),tr("&Print"),&prints);
+		cm.insertItem(IconLoader::load("edit-print"),tr("&Print"),&prints);
 		cm.addSeparator();
 		cm.insertItem(QPixmap(":/resize.xpm"), tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
 		cm.insertItem(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
@@ -8121,7 +8121,7 @@ void ApplicationWindow::showLayerButtonContextMenu()
 
 		prints.insertItem(tr("&Layer"), plot, SLOT(printActiveLayer()));
 		prints.insertItem(tr("&Window"),plot, SLOT(print()));
-		cm.insertItem(QPixmap(":/fileprint.xpm"),tr("&Print"),&prints);
+		cm.insertItem(IconLoader::load("edit-print"),tr("&Print"),&prints);
 		cm.addSeparator();
 		cm.insertItem(QPixmap(":/resize.xpm"), tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
 		cm.insertItem(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
@@ -10436,7 +10436,7 @@ void ApplicationWindow::setPlot3DOptions()
 
 void ApplicationWindow::createActions()
 {
-	actionNewProject = new QAction(QIcon(QPixmap(":/new.xpm")), tr("New &Project"), this);
+	actionNewProject = new QAction(IconLoader::load("edit-new"), tr("New &Project"), this);
 	actionNewProject->setShortcut( tr("Ctrl+N") );
 	connect(actionNewProject, SIGNAL(activated()), this, SLOT(newProject()));
 
@@ -10524,7 +10524,7 @@ void ApplicationWindow::createActions()
 	actionClearSelection->setShortcut( tr("Del","delete key") );
 	connect(actionClearSelection, SIGNAL(activated()), this, SLOT(clearSelection()));
 
-	locktoolbar = new QAction(QIcon(QPixmap(":/unlock.xpm")), tr("&Lock Toolbars"), this);
+	locktoolbar = new QAction(IconLoader::load("lock"), tr("&Lock Toolbars"), this);
 	locktoolbar->setCheckable(true);
 	connect(locktoolbar, SIGNAL(toggled(bool)), this, SLOT(lockToolbar(bool)));
 
@@ -10570,7 +10570,7 @@ void ApplicationWindow::createActions()
 	connect(actionExportPDF, SIGNAL(activated()), this, SLOT(exportPDF()));
 
 	// FIXME: "..." should be added before translating, but this would break translations
-	actionPrint = new QAction(QIcon(QPixmap(":/fileprint.xpm")), tr("&Print")+"...", this);
+	actionPrint = new QAction(IconLoader::load("edit-print"), tr("&Print")+"...", this);
 	actionPrint->setShortcut( tr("Ctrl+P") );
 	connect(actionPrint, SIGNAL(activated()), this, SLOT(print()));
 
@@ -10855,7 +10855,7 @@ void ApplicationWindow::createActions()
 	actionResizeWindow = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("Re&size Window..."), this);
 	connect(actionResizeWindow, SIGNAL(activated()), this, SLOT(resizeWindow()));
 
-	actionPrintWindow = new QAction(QIcon(QPixmap(":/fileprint.xpm")),tr("&Print Window"), this);
+	actionPrintWindow = new QAction(IconLoader::load("edit-print"),tr("&Print Window"), this);
 	connect(actionPrintWindow, SIGNAL(activated()), this, SLOT(printWindow()));
 
 	actionShowPlotGeometryDialog = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("&Layer Geometry"), this);

@@ -209,30 +209,54 @@
 	<file>icons/light/16/edit-paste.svg</file>
 	<file>icons/light/16/edit-redo.svg</file>
 	<file>icons/light/16/edit-undo.svg</file>
+	<file>icons/light/16/edit-new.svg</file>
+	<file>icons/light/16/edit-print.svg</file>
+	<file>icons/light/16/lock.svg</file>
+	<file>icons/light/16/unlock.svg</file>
 	<file>icons/light/22/edit-copy.svg</file>
 	<file>icons/light/22/edit-cut.svg</file>
 	<file>icons/light/22/edit-paste.svg</file>
 	<file>icons/light/22/edit-redo.svg</file>
 	<file>icons/light/22/edit-undo.svg</file>
+	<file>icons/light/22/edit-new.svg</file>
+	<file>icons/light/22/edit-print.svg</file>
+	<file>icons/light/22/lock.svg</file>
+	<file>icons/light/22/unlock.svg</file>
 	<file>icons/light/24/edit-copy.svg</file>
 	<file>icons/light/24/edit-cut.svg</file>
 	<file>icons/light/24/edit-paste.svg</file>
 	<file>icons/light/24/edit-redo.svg</file>
 	<file>icons/light/24/edit-undo.svg</file>
+	<file>icons/light/24/edit-new.svg</file>
+	<file>icons/light/24/edit-print.svg</file>
+	<file>icons/light/24/lock.svg</file>
+	<file>icons/light/24/unlock.svg</file>
 	<file>icons/dark/16/edit-copy.svg</file>
 	<file>icons/dark/16/edit-cut.svg</file>
 	<file>icons/dark/16/edit-paste.svg</file>
 	<file>icons/dark/16/edit-redo.svg</file>
 	<file>icons/dark/16/edit-undo.svg</file>
+	<file>icons/dark/16/edit-new.svg</file>
+	<file>icons/dark/16/edit-print.svg</file>
+	<file>icons/dark/16/lock.svg</file>
+	<file>icons/dark/16/unlock.svg</file>
 	<file>icons/dark/22/edit-copy.svg</file>
 	<file>icons/dark/22/edit-cut.svg</file>
 	<file>icons/dark/22/edit-paste.svg</file>
 	<file>icons/dark/22/edit-redo.svg</file>
 	<file>icons/dark/22/edit-undo.svg</file>
+	<file>icons/dark/22/edit-new.svg</file>
+	<file>icons/dark/22/edit-print.svg</file>
+	<file>icons/dark/22/lock.svg</file>
+	<file>icons/dark/22/unlock.svg</file>
 	<file>icons/dark/24/edit-copy.svg</file>
 	<file>icons/dark/24/edit-cut.svg</file>
 	<file>icons/dark/24/edit-paste.svg</file>
 	<file>icons/dark/24/edit-redo.svg</file>
 	<file>icons/dark/24/edit-undo.svg</file>
+	<file>icons/dark/24/edit-new.svg</file>
+	<file>icons/dark/24/edit-print.svg</file>
+	<file>icons/dark/24/lock.svg</file>
+	<file>icons/dark/24/unlock.svg</file>
 </qresource>
 </RCC>
