@@ -213,6 +213,10 @@
 	<file>icons/light/16/edit-print.svg</file>
 	<file>icons/light/16/lock.svg</file>
 	<file>icons/light/16/unlock.svg</file>
+	<file>icons/light/16/application-pdf.svg</file>
+	<file>icons/light/16/document-save.svg</file>
+	<file>icons/light/16/edit-delete-selection.svg</file>
+	<file>icons/light/16/folder-explorer.svg</file>
 	<file>icons/light/22/edit-copy.svg</file>
 	<file>icons/light/22/edit-cut.svg</file>
 	<file>icons/light/22/edit-paste.svg</file>
@@ -222,6 +226,10 @@
 	<file>icons/light/22/edit-print.svg</file>
 	<file>icons/light/22/lock.svg</file>
 	<file>icons/light/22/unlock.svg</file>
+	<file>icons/light/22/application-pdf.svg</file>
+	<file>icons/light/22/document-save.svg</file>
+	<file>icons/light/22/edit-delete-selection.svg</file>
+	<file>icons/light/22/folder-explorer.svg</file>
 	<file>icons/light/24/edit-copy.svg</file>
 	<file>icons/light/24/edit-cut.svg</file>
 	<file>icons/light/24/edit-paste.svg</file>
@@ -231,6 +239,10 @@
 	<file>icons/light/24/edit-print.svg</file>
 	<file>icons/light/24/lock.svg</file>
 	<file>icons/light/24/unlock.svg</file>
+	<file>icons/light/24/application-pdf.svg</file>
+	<file>icons/light/24/document-save.svg</file>
+	<file>icons/light/24/edit-delete-selection.svg</file>
+	<file>icons/light/24/folder-explorer.svg</file>
 	<file>icons/dark/16/edit-copy.svg</file>
 	<file>icons/dark/16/edit-cut.svg</file>
 	<file>icons/dark/16/edit-paste.svg</file>
@@ -240,6 +252,10 @@
 	<file>icons/dark/16/edit-print.svg</file>
 	<file>icons/dark/16/lock.svg</file>
 	<file>icons/dark/16/unlock.svg</file>
+	<file>icons/dark/16/application-pdf.svg</file>
+	<file>icons/dark/16/document-save.svg</file>
+	<file>icons/dark/16/edit-delete-selection.svg</file>
+	<file>icons/dark/16/folder-explorer.svg</file>
 	<file>icons/dark/22/edit-copy.svg</file>
 	<file>icons/dark/22/edit-cut.svg</file>
 	<file>icons/dark/22/edit-paste.svg</file>
@@ -249,6 +265,10 @@
 	<file>icons/dark/22/edit-print.svg</file>
 	<file>icons/dark/22/lock.svg</file>
 	<file>icons/dark/22/unlock.svg</file>
+	<file>icons/dark/22/application-pdf.svg</file>
+	<file>icons/dark/22/document-save.svg</file>
+	<file>icons/dark/22/edit-delete-selection.svg</file>
+	<file>icons/dark/22/folder-explorer.svg</file>
 	<file>icons/dark/24/edit-copy.svg</file>
 	<file>icons/dark/24/edit-cut.svg</file>
 	<file>icons/dark/24/edit-paste.svg</file>
@@ -258,5 +278,9 @@
 	<file>icons/dark/24/edit-print.svg</file>
 	<file>icons/dark/24/lock.svg</file>
 	<file>icons/dark/24/unlock.svg</file>
+	<file>icons/dark/24/application-pdf.svg</file>
+	<file>icons/dark/24/document-save.svg</file>
+	<file>icons/dark/24/edit-delete-selection.svg</file>
+	<file>icons/dark/24/folder-explorer.svg</file>
 </qresource>
 </RCC>
