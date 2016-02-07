@@ -33,6 +33,7 @@
 #include "table/TableItemDelegate.h"
 #include "table/tablecommands.h"
 #include "table/TableDoubleHeaderView.h"
+#include "ConfigDialog.h"
 
 #include "core/column/Column.h"
 #include "core/AbstractFilter.h"
@@ -58,6 +59,12 @@
 #include <QGridLayout>
 #include <QScrollArea>
 #include <QMenu>
+#include <QSettings>
+#include <QScrollBar>
+#include <QPushButton>
+#include <QRgb>
+
+#include "IconLoader.h"
 
 #ifndef LEGACY_CODE_0_2_x
 TableView::TableView(future::Table *table)
@@ -94,6 +101,17 @@ void TableView::init()
 	d_main_layout->setContentsMargins(0, 0, 0, 0);
 	
 	d_view_widget = new TableViewWidget(this);
+#ifdef Q_OS_MAC
+    QSettings settings(QSettings::IniFormat,QSettings::UserScope,
+                      "SciDAVis", "SciDAVis");
+#else
+    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,
+                       "SciDAVis", "SciDAVis");
+#endif
+    settings.beginGroup("[Table]");
+    int defaultRawHeight = settings.value("DefaultRawHeight", 20).toInt();
+    settings.endGroup();
+    d_view_widget->verticalHeader()->setDefaultSectionSize(defaultRawHeight);
 	d_view_widget->setModel(d_model);
 	connect(d_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
 	d_main_layout->addWidget(d_view_widget);
@@ -103,12 +121,21 @@ void TableView::init()
     d_horizontal_header->setHighlightSections(true);
 	d_view_widget->setHorizontalHeader(d_horizontal_header);
 
-	d_hide_button = new QToolButton();
-	d_hide_button->setArrowType(Qt::RightArrow);
-	d_hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
-	d_hide_button->setCheckable(false);
-	d_main_layout->addWidget(d_hide_button);
-	connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
+  // Floating show hide button.
+  d_hide_button = new QToolButton(this);
+  d_hide_button->setArrowType(Qt::RightArrow);
+  d_hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,
+  	                           QSizePolicy::Fixed));
+  d_hide_button->setGeometry( 0, 0, 16, 16);
+  d_hide_button->setCheckable(false);
+  QString proper = "QToolButton {background-color : rgba(%1, %2, %3, 50); "
+      "border-radius: 3px; border: 1px solid rgba(%1, %2, %3, 150);;}";
+  QColor col = palette().color(QPalette::Highlight);
+  d_hide_button->setStyleSheet(proper.arg(col.red())
+  								     .arg(col.green())
+  								     .arg(col.blue()));
+  connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
+	
 	d_control_tabs = new QWidget();
     ui.setupUi(d_control_tabs);
 	d_main_layout->addWidget(d_control_tabs);
@@ -282,10 +309,13 @@ void TableView::deselectAll()
 void TableView::toggleControlTabBar() 
 { 
 	d_control_tabs->setVisible(!d_control_tabs->isVisible());
-	if(d_control_tabs->isVisible())
+    if(d_control_tabs->isVisible()) {
 		d_hide_button->setArrowType(Qt::RightArrow);
-	else
+        moveFloatingButton();
+    } else {
 		d_hide_button->setArrowType(Qt::LeftArrow);
+        moveFloatingButton();
+    }
 }
 
 void TableView::handleHorizontalSectionMoved(int index, int from, int to)
@@ -917,3 +947,25 @@ void TableViewWidget::keyPressEvent(QKeyEvent * event)
 	QTableView::keyPressEvent(event);
 }
 
+// Resize event triggers floating button move.
+void TableView::resizeEvent(QResizeEvent *) {
+  moveFloatingButton();
+}
+
+// Move the floating show hide button.
+void TableView::moveFloatingButton() {
+  int verticalScrollWidth;
+   (d_view_widget->verticalScrollBar()->maximum() > 0) ? verticalScrollWidth =
+       this->style()->pixelMetric(QStyle::PM_ScrollBarExtent)
+       : verticalScrollWidth = 0;
+
+  if (!d_control_tabs->isHidden()) {
+    d_hide_button->move(this->width() - (d_control_tabs->width() +
+        d_hide_button->width() + verticalScrollWidth),
+        d_control_tabs->pos().y() + 60);
+  } else {
+    d_hide_button->move(this->width() - (d_hide_button->width() +
+    	verticalScrollWidth),
+        d_control_tabs->pos().y() + 60);
+  }
+}
