@@ -51,7 +51,6 @@
 #include <QtDebug>
 #include "globals.h"
 #include "MyWidget.h"
-#include "ConfigDialog.h"
 #include "lib/IntervalAttribute.h"
 
 class Column;
@@ -218,7 +217,7 @@ class TableView : public MyWidget
 		TableModel * d_model;
 
 		virtual void changeEvent(QEvent * event);
-        virtual void resizeEvent(QResizeEvent * event);
+        virtual void resizeEvent(QResizeEvent *);
 		void retranslateStrings();
 		void setColumnForControlTabs(int col);
 
@@ -239,8 +238,8 @@ class TableView : public MyWidget
 		//! Initialization
 		void init();
 
-	public:
-		void moveFloatingButton();
+ private:
+  void moveFloatingButton();
 };
 
 

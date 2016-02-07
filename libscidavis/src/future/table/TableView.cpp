@@ -33,7 +33,6 @@
 #include "table/TableItemDelegate.h"
 #include "table/tablecommands.h"
 #include "table/TableDoubleHeaderView.h"
-#include "ConfigDialog.h"
 
 #include "core/column/Column.h"
 #include "core/AbstractFilter.h"
@@ -61,10 +60,6 @@
 #include <QMenu>
 #include <QSettings>
 #include <QScrollBar>
-#include <QPushButton>
-#include <QRgb>
-
-#include "IconLoader.h"
 
 #ifndef LEGACY_CODE_0_2_x
 TableView::TableView(future::Table *table)
@@ -132,8 +127,8 @@ void TableView::init()
       "border-radius: 3px; border: 1px solid rgba(%1, %2, %3, 150);;}";
   QColor col = palette().color(QPalette::Highlight);
   d_hide_button->setStyleSheet(proper.arg(col.red())
-  								     .arg(col.green())
-  								     .arg(col.blue()));
+                                     .arg(col.green())
+                                     .arg(col.blue()));
   connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
 	
 	d_control_tabs = new QWidget();
@@ -304,18 +299,6 @@ void TableView::selectAll()
 void TableView::deselectAll()
 {
 	d_view_widget->clearSelection();
-}
-
-void TableView::toggleControlTabBar() 
-{ 
-	d_control_tabs->setVisible(!d_control_tabs->isVisible());
-    if(d_control_tabs->isVisible()) {
-		d_hide_button->setArrowType(Qt::RightArrow);
-        moveFloatingButton();
-    } else {
-		d_hide_button->setArrowType(Qt::LeftArrow);
-        moveFloatingButton();
-    }
 }
 
 void TableView::handleHorizontalSectionMoved(int index, int from, int to)
@@ -945,6 +928,18 @@ void TableViewWidget::keyPressEvent(QKeyEvent * event)
     if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
 		emit advanceCell();
 	QTableView::keyPressEvent(event);
+}
+
+// Floating button toggle slot.
+void TableView::toggleControlTabBar() { 
+  d_control_tabs->setVisible(!d_control_tabs->isVisible());
+  if(d_control_tabs->isVisible()) {
+    d_hide_button->setArrowType(Qt::RightArrow);
+    moveFloatingButton();
+  } else {
+    d_hide_button->setArrowType(Qt::LeftArrow);
+    moveFloatingButton();
+  }
 }
 
 // Resize event triggers floating button move.
