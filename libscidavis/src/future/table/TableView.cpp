@@ -43,6 +43,8 @@
 #include "core/datatypes/String2DateTimeFilter.h"
 #include "core/datatypes/Double2DateTimeFilter.h"
 
+#include "IconLoader.h"
+
 #include <QKeyEvent>
 #include <QtDebug>
 #include <QHeaderView>
@@ -118,17 +120,13 @@ void TableView::init()
 
   // Floating show hide button.
   d_hide_button = new QToolButton(this);
-  d_hide_button->setArrowType(Qt::RightArrow);
+  d_hide_button->setCheckable(false);
   d_hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,
   	                           QSizePolicy::Fixed));
   d_hide_button->setGeometry( 0, 0, 16, 16);
-  d_hide_button->setCheckable(false);
-  QString proper = "QToolButton {background-color : rgba(%1, %2, %3, 50); "
-      "border-radius: 3px; border: 1px solid rgba(%1, %2, %3, 150);;}";
-  QColor col = palette().color(QPalette::Highlight);
-  d_hide_button->setStyleSheet(proper.arg(col.red())
-                                     .arg(col.green())
-                                     .arg(col.blue()));
+  d_hide_button->setIcon(IconLoader::load("edit-unhide"));
+  d_hide_button->setStyleSheet("QToolButton {background-color : rgba(0, 0, 0, 0); "
+      "border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0);}");
   connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
 	
 	d_control_tabs = new QWidget();
@@ -934,10 +932,12 @@ void TableViewWidget::keyPressEvent(QKeyEvent * event)
 void TableView::toggleControlTabBar() { 
   d_control_tabs->setVisible(!d_control_tabs->isVisible());
   if(d_control_tabs->isVisible()) {
-    d_hide_button->setArrowType(Qt::RightArrow);
+    //d_hide_button->setArrowType(Qt::RightArrow);
+    d_hide_button->setIcon(IconLoader::load("edit-unhide"));
     moveFloatingButton();
   } else {
-    d_hide_button->setArrowType(Qt::LeftArrow);
+    //d_hide_button->setArrowType(Qt::LeftArrow);
+    d_hide_button->setIcon(IconLoader::load("edit-hide"));
     moveFloatingButton();
   }
 }

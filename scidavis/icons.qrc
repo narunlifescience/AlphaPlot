@@ -217,6 +217,8 @@
 	<file>icons/light/16/document-save.svg</file>
 	<file>icons/light/16/edit-delete-selection.svg</file>
 	<file>icons/light/16/folder-explorer.svg</file>
+	<file>icons/light/16/edit-hide.svg</file>
+	<file>icons/light/16/edit-unhide.svg</file>
 	<file>icons/light/22/edit-copy.svg</file>
 	<file>icons/light/22/edit-cut.svg</file>
 	<file>icons/light/22/edit-paste.svg</file>
@@ -230,6 +232,8 @@
 	<file>icons/light/22/document-save.svg</file>
 	<file>icons/light/22/edit-delete-selection.svg</file>
 	<file>icons/light/22/folder-explorer.svg</file>
+	<file>icons/light/22/edit-hide.svg</file>
+	<file>icons/light/22/edit-unhide.svg</file>
 	<file>icons/light/24/edit-copy.svg</file>
 	<file>icons/light/24/edit-cut.svg</file>
 	<file>icons/light/24/edit-paste.svg</file>
@@ -243,6 +247,8 @@
 	<file>icons/light/24/document-save.svg</file>
 	<file>icons/light/24/edit-delete-selection.svg</file>
 	<file>icons/light/24/folder-explorer.svg</file>
+	<file>icons/light/24/edit-hide.svg</file>
+	<file>icons/light/24/edit-unhide.svg</file>
 	<file>icons/dark/16/edit-copy.svg</file>
 	<file>icons/dark/16/edit-cut.svg</file>
 	<file>icons/dark/16/edit-paste.svg</file>
@@ -256,6 +262,8 @@
 	<file>icons/dark/16/document-save.svg</file>
 	<file>icons/dark/16/edit-delete-selection.svg</file>
 	<file>icons/dark/16/folder-explorer.svg</file>
+	<file>icons/dark/16/edit-hide.svg</file>
+	<file>icons/dark/16/edit-unhide.svg</file>
 	<file>icons/dark/22/edit-copy.svg</file>
 	<file>icons/dark/22/edit-cut.svg</file>
 	<file>icons/dark/22/edit-paste.svg</file>
@@ -269,6 +277,8 @@
 	<file>icons/dark/22/document-save.svg</file>
 	<file>icons/dark/22/edit-delete-selection.svg</file>
 	<file>icons/dark/22/folder-explorer.svg</file>
+	<file>icons/dark/22/edit-hide.svg</file>
+	<file>icons/dark/22/edit-unhide.svg</file>
 	<file>icons/dark/24/edit-copy.svg</file>
 	<file>icons/dark/24/edit-cut.svg</file>
 	<file>icons/dark/24/edit-paste.svg</file>
@@ -282,5 +292,7 @@
 	<file>icons/dark/24/document-save.svg</file>
 	<file>icons/dark/24/edit-delete-selection.svg</file>
 	<file>icons/dark/24/folder-explorer.svg</file>
+	<file>icons/dark/24/edit-hide.svg</file>
+	<file>icons/dark/24/edit-unhide.svg</file>
 </qresource>
 </RCC>
