@@ -294,5 +294,6 @@
 	<file>icons/dark/24/folder-explorer.svg</file>
 	<file>icons/dark/24/edit-hide.svg</file>
 	<file>icons/dark/24/edit-unhide.svg</file>
+	<file>splash/splash.png</file>
 </qresource>
 </RCC>
