@@ -628,7 +628,6 @@ void ApplicationWindow::initToolBars()
 	plot_tools->hide();
 
 	d_status_info = new QLabel( this  );
-	d_status_info->setFrameStyle( QFrame::Sunken | QFrame::StyledPanel );
 	d_status_info->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ); 
 	d_status_info->setContextMenuPolicy( Qt::CustomContextMenu );
 	connect(d_status_info, SIGNAL(customContextMenuRequested(const QPoint &)), 
