@@ -43,7 +43,7 @@
 #include "core/datatypes/String2DateTimeFilter.h"
 #include "core/datatypes/Double2DateTimeFilter.h"
 
-#include "IconLoader.h"
+#include "core/IconLoader.h"
 
 #include <QKeyEvent>
 #include <QtDebug>

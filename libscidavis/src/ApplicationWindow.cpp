@@ -98,7 +98,7 @@
 #include "ColorBox.h"
 #include "QwtHistogram.h"
 #include "OpenProjectDialog.h"
-#include "IconLoader.h"
+#include "core/IconLoader.h"
 #include "core/Project.h"
 #include "core/column/Column.h"
 #include "lib/XmlStreamReader.h"
