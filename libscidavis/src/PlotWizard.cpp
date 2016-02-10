@@ -29,7 +29,7 @@
 #include "PlotWizard.h"
 #include "ApplicationWindow.h"
 #include "Table.h"
-#include "Graph3D.h"
+#include "3Dplot/Graph3D.h"
 
 #include <QApplication>
 #include <QHBoxLayout>

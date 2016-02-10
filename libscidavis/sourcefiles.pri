@@ -9,11 +9,11 @@ HEADERS  += src/ApplicationWindow.h \
             src/core/IconLoader.h \
             src/globals.h\
             src/Graph.h \
-            src/Graph3D.h \
+            src/3Dplot/Graph3D.h \
             src/Table.h \
             src/CurvesDialog.h \
             src/PlotDialog.h \
-            src/Plot3DDialog.h \
+            src/3Dplot/Plot3DDialog.h \
             src/PlotWizard.h \
             src/ExportDialog.h \
             src/AxesDialog.h \
@@ -21,7 +21,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/ExpDecayDialog.h \
             src/FunctionDialog.h \
             src/FitDialog.h \
-            src/SurfaceDialog.h \
+            src/3Dplot/SurfaceDialog.h \
             src/TextDialog.h \
             src/LineDialog.h \
             src/ScalePicker.h \
@@ -39,8 +39,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/MultiLayer.h\
             src/LayerDialog.h \
             src/IntDialog.h \
-            src/Bar.h \
-            src/Cone3D.h \
+            src/3Dplot/Bar.h \
+            src/3Dplot/Cone3D.h \
             src/ConfigDialog.h \
             src/QwtBarCurve.h \
             src/BoxCurve.h \
@@ -118,11 +118,11 @@ HEADERS  += src/ApplicationWindow.h \
 SOURCES  += src/ApplicationWindow.cpp \
             src/core/IconLoader.cpp \
             src/Graph.cpp \
-            src/Graph3D.cpp \
+            src/3Dplot/Graph3D.cpp \
             src/Table.cpp \
             src/CurvesDialog.cpp \
             src/PlotDialog.cpp \
-            src/Plot3DDialog.cpp \
+            src/3Dplot/Plot3DDialog.cpp \
             src/PlotWizard.cpp \
             src/ExportDialog.cpp \
             src/AxesDialog.cpp \
@@ -134,7 +134,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ExpDecayDialog.cpp \
             src/FunctionDialog.cpp \
             src/FitDialog.cpp \
-            src/SurfaceDialog.cpp \
+            src/3Dplot/SurfaceDialog.cpp \
             src/LineDialog.cpp \
             src/PlotCurve.cpp \
             src/QwtErrorPlotCurve.cpp \
@@ -147,8 +147,8 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/MultiLayer.cpp\
             src/LayerDialog.cpp \
             src/IntDialog.cpp \
-            src/Bar.cpp \
-            src/Cone3D.cpp \
+            src/3Dplot/Bar.cpp \
+            src/3Dplot/Cone3D.cpp \
             src/DataSetDialog.cpp \
             src/ConfigDialog.cpp \
             src/QwtBarCurve.cpp \
