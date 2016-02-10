@@ -1152,6 +1152,8 @@ private:
 
 	Project * d_project;
 
+	bool was_maximized_;
+
 private slots:
 	void removeDependentTableStatistics(const AbstractAspect *aspect);
 	//! Set the active window selected from the context menu's dependency list

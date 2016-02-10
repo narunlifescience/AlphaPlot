@@ -4220,8 +4220,13 @@ void ApplicationWindow::readSettings()
 	d_decimal_digits = settings.value("/DecimalDigits", 6).toInt();
 	d_default_numeric_format = settings.value("/DefaultNumericFormat", 'g').toChar().toAscii();
 
-	//restore geometry of main window
-	restoreGeometry(settings.value("/ProjectWindow/Geometry").toByteArray());
+  // Set last used geometry to position window on the correct monitor(multi monitor scenario)
+  // Set window state only if the window was last maximized
+  was_maximized_ = settings_.value("Maximized", false).toBool();
+  restoreGeometry(settings.value("/ProjectWindow/Geometry").toByteArray());
+  if (was_maximized_) {
+    setWindowState(windowState() | Qt::WindowMaximized);
+  }
 
 	//restore dock windows and tool bars
 	restoreState(settings.value("/DockWindows").toByteArray());
@@ -4474,7 +4479,13 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/DecimalDigits", d_decimal_digits);
 	settings.setValue("/DefaultNumericFormat", QChar(d_default_numeric_format));
 
-	settings.setValue("/ProjectWindow/Geometry", saveGeometry());
+  was_maximized_ = isMaximized();
+  settings_.setValue("Maximized", was_maximized_);
+  // Save the geometry only when mainwindow is not in maximized state
+  if (!was_maximized_) {
+    settings.setValue("/ProjectWindow/Geometry", saveGeometry());
+  }
+
 	settings.setValue("/DockWindows", saveState());
 	settings.setValue("/ExplorerSplitter", explorerSplitter->saveState());
 
