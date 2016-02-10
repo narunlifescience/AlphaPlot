@@ -4224,9 +4224,6 @@ void ApplicationWindow::readSettings()
   // Set window state only if the window was last maximized
   was_maximized_ = settings.value("Maximized", false).toBool();
   restoreGeometry(settings.value("/ProjectWindow/Geometry").toByteArray());
-  if (was_maximized_) {
-    setWindowState(windowState() | Qt::WindowMaximized);
-  }
 
 	//restore dock windows and tool bars
 	restoreState(settings.value("/DockWindows").toByteArray());
@@ -7351,13 +7348,16 @@ void ApplicationWindow::setWindowGeometry(int x, int y, int w, int h)
 	d_workspace->activeWindow()->parentWidget()->setGeometry(x, y, w, h);
 }
 
-void ApplicationWindow::activateWindow()
-{
-        setWindowState(Qt::WindowActive);
-        raise();
-        show();
-	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	activateWindow(it->window());
+void ApplicationWindow::activateWindow() {
+  if (was_maximized_) {
+    setWindowState(Qt::WindowActive | Qt::WindowMaximized);
+  } else {
+    setWindowState(Qt::WindowActive);
+  }
+  raise();
+  show();
+  WindowListItem *it = (WindowListItem *)lv->currentItem();
+  activateWindow(it->window());
 }
 
 void ApplicationWindow::activateWindow(MyWidget *w)
