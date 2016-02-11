@@ -1,5 +1,4 @@
 # Alpha Plot
-============
 
 [![Build Status](https://travis-ci.org/narunlifescience/AlphaPlot.svg?branch=master)](https://travis-ci.org/narunlifescience/AlphaPlot)
 
@@ -36,13 +35,10 @@ If there are no answers, it doesn't mean we don't care about your feature reques
 
 The following packages may be required by Alpha plot ...
 
-- Qt (http://doc.trolltech.com/4.8/),
+- Qt (https://download.qt.io/archive/qt/4.8/4.8.5/),
 - Qwt (http://qwt.sourceforge.net/),
 - Qwtplot3D (http://qwtplot3d.sourceforge.net/),
-- muParser (http://muparser.sourceforge.net/),
+- muParser (http://muparser.beltoforion.de/),
 - Python (http://www.python.org/),
 - liborigin (http://sourceforge.net/projects/liborigin/),
-- webgen (http://webgen.rubyforge.org/),
-- Doxygen (http://www.doxygen.org/),
-- Subversion (http://subversion.tigris.org/),
 - GSL (http://www.gnu.org/software/gsl/)
