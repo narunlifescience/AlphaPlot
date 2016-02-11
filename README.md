@@ -1,129 +1,48 @@
-# What is SciDAVis?
-
-SciDAVis is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalysis and <i>Vis</i>ualization.
+# Alpha Plot
+============
 
 [![Build Status](https://travis-ci.org/narunlifescience/AlphaPlot.svg?branch=master)](https://travis-ci.org/narunlifescience/AlphaPlot)
 
-# License
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or   
-(at your option) any later version.                                 
-                                                                    
-This program is distributed in the hope that it will be useful,     
-but WITHOUT ANY WARRANTY; without even the implied warranty of      
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       
-GNU General Public License for more details.                        
-
-A copy of this license is provided in the file gpl.txt.
-
-
-# Platforms
-
-SciDAVis runs on GNU/Linux, Windows and MacOS X; 
-possibly also on other platforms like `*`BSD.
-
+Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalysis and <i>Vis</i>ualization for Windows, Linux and Mac OS X (probably BSD also).
 
 # Installation
 
 See [INSTALL.md](INSTALL.md)
 
 
-# Web site
+Opening an issue
+----------------
+### Ask for a new feature
 
-http://scidavis.sourceforge.net
+Please:
 
+ * Check if the new feature is not already implemented (Changelog)
+ * Check if another person didn't already open an issue
+ * If there is already an opened issue there is no need to comment "+1", it won't help. Instead, you can subscribe to the issue to be notified of anything new about it
 
-# Credits
+### Report a bug
 
-## Developers
+Please:
+ 
+ * Try the latest developer build to see if the bug is still present (**Attention**, those builds aren't stable so they might not work well and could sometimes break things like user settings). If it works like a charm even though you see an open issue, please comment on it and explain that the issue has been fixed
+ * Check if another person has already opened the same issue to avoid duplicates
+ * If there already is an open issue you could comment on it to add precisions about the problem or confirm it
+ * In case there isn't, you can open a new issue with an explicit title and as much information as possible (OS, Alpha Plot version, how to reproduce the problem...)
+ * Please use http://pastebin.com/ for logs/debug
+ 
+If there are no answers, it doesn't mean we don't care about your feature request/bug. It just means we can't reproduce the bug or haven't had time to implement it :o)
 
-The following people have written parts of the SciDAVis source code, ranging from a few lines to large chunks.
-In alphabetical order.
+## Dependencies
 
-Tilman Benkert[1], 
-Knut Franke
+The following packages may be required by Alpha plot ...
 
-## Documentation
-
-The following people have written parts of the manual and/or other documentation.
-In alphabetical order :
-
-Knut Franke, Roger Gadiou
-
-## Translations
-
-The following people have contributed translations or parts thereof.
-In alphabetical order.
-
-- Tilman Benkert[1],
-- Markus Bongard,
-- Tobias Burnus,
-- Rémy Claverie,
-- f0ma,
-- Jose Antonio Lorenzo Fernandez,
-- Pavel Fric,
-- Jan Helebrant,
-- Daniel Klaer,
-- Peter Landgren,
-- Fellype do Nascimento,
-- Tomomasa Ohkubo,
-- Mikhail Shevyakov,
-- Mauricio Troviano
-
-## Packagers
-
-The following people have made installing SciDAVis easier by providing specialized binary packages.
-In alphabetical order.
-
-- Burkhard Bunk (Debian),
-- Quentin Denis (SUSE),
-- Yu-Hung Lien (Mac OS X),
-- Eric Tanguy (Fedora),
-- Mauricio Troviano (Windows installer)
-
-## QtiPlot
-
-SciDAVis uses code from QtiPlot, which consisted (at the time of the fork, i.e. QtiPlot 0.9-rc2) of code by the following people:
-
-- Tilman Benkert[1],
-- Shen Chen,
-- Borries Demeler,
-- José Antonio Lorenzo Fernández,
-- Knut Franke,
-- Vasileios Gkanis,
-- Gudjon Gudjonsson,
-- Alex Kargovsky,
-- Michael Mac-Vicar,
-- Tomomasa Ohkubo,
-- Aaron Van Tassle,
-- Branimir Vasilic,
-- Ion Vasilief,
-- Vincent Wagelaar
-
-The SciDAVis manual is based on the QtiPlot manual, written by (in alphabetical order):
-
-Knut Franke, Roger Gadiou, Ion Vasilief
-
-footnotes:
-[1] birth name: Tilman Hoener zu Siederdissen
-
-## Special Thanks
-
-We also want to acknowledge the people having helped us indirectly by contributing to the following
-fine pieces of software. In no particular order.
-
-- Qt (http://doc.trolltech.com/4.3/credits.html),
-- Qwt (http://qwt.sourceforge.net/#credits),
+- Qt (http://doc.trolltech.com/4.8/),
+- Qwt (http://qwt.sourceforge.net/),
 - Qwtplot3D (http://qwtplot3d.sourceforge.net/),
 - muParser (http://muparser.sourceforge.net/),
 - Python (http://www.python.org/),
 - liborigin (http://sourceforge.net/projects/liborigin/),
-- Vim (http://www.vim.org/thanks.php/),
 - webgen (http://webgen.rubyforge.org/),
 - Doxygen (http://www.doxygen.org/),
 - Subversion (http://subversion.tigris.org/),
 - GSL (http://www.gnu.org/software/gsl/)
-
-... and many more we just forgot to mention.
