@@ -68,7 +68,7 @@ exists(../data/translations/scidavis_de.ts){
 # note the translation files are not writable during AEGIS
 # integration, so we don't want to perform an update then
   tstarget.commands = (! test -w ../data/translations/scidavis_de.ts || \
-  $$LUPDATE_BIN ../libscidavis/src/*.cpp -ts ../data/translations/*.ts) && $$LRELEASE_BIN ../data/translations/*.ts
+  $$LUPDATE_BIN src/*.cpp -ts ../data/translations/*.ts) && $$LRELEASE_BIN ../data/translations/*.ts
 
   QMAKE_EXTRA_TARGETS     += tstarget
   QMAKE_CLEAN             += $$translationfiles.files

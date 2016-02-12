@@ -14,7 +14,7 @@ aegis {CONFIG += liborigin test}
 # liborigin must come first, if it exists
 liborigin {SUBDIRS = 3rdparty/liborigin}
 
-SUBDIRS += libscidavis scidavis 
+SUBDIRS += scidavis 
 
 test {SUBDIRS += test}
 
