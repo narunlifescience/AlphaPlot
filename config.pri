@@ -281,7 +281,7 @@ contains(PRESET, linux_package) {
   INCLUDEPATH  += /usr/include/qwtplot3d
   LIBS         += -lqwtplot3d$${qwtsuff}
 
-  LIBS         += -lqwt5 -lz -lGLU
+  LIBS         += -lqwt$${qwtsuff} -lz -lGLU
 
   INCLUDEPATH  += /usr/include/muParser
   LIBS         += -lgsl -lgslcblas
