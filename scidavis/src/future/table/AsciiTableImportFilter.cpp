@@ -97,10 +97,10 @@ namespace
   template <> float conv<float>(const QString& x) {return x.toFloat();}
  
   template <class T>
-  struct AP: public std::auto_ptr<T>
+  struct AP: public std::unique_ptr<T>
   {
-    AP(): std::auto_ptr<T>(new T) {}
-    AP(const AP& x): std::auto_ptr<T>(new T(*x)) {}
+    AP(): std::unique_ptr<T>(new T) {}
+    AP(const AP& x): std::unique_ptr<T>(new T(*x)) {}
   };
 
   template <class C>
@@ -141,7 +141,8 @@ namespace
 
     for (i=0; i<dataSize; ++i)
       {
-        cols << new Column(column_names[i], auto_ptr<C>(data[i]), invalid_cells[i]);
+        // Need to port this line correctly to c++ 11
+        //cols << new Column(column_names[i], unique_ptr<C>(data[i]), invalid_cells[i]);
         if (i == 0) 
           cols.back()->setPlotDesignation(SciDAVis::X);
         else

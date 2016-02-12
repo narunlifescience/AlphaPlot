@@ -79,12 +79,12 @@ public:
          IntervalAttribute<bool> validity = IntervalAttribute<bool>()): 
     AbstractColumn(name)
   {
-    initPrivate(std::auto_ptr<D>(new D(data)), validity);
+    initPrivate(std::unique_ptr<D>(new D(data)), validity);
     init();
   }
 
   template <class D>
-  Column(const QString& name, std::auto_ptr<D> data, 
+  Column(const QString& name, std::unique_ptr<D> data,
          IntervalAttribute<bool> validity = IntervalAttribute<bool>()): 
     AbstractColumn(name)
   {
@@ -321,7 +321,7 @@ private:
 
   void init();
   template <class D>
-  void initPrivate(std::auto_ptr<D>, IntervalAttribute<bool>);
+  void initPrivate(std::unique_ptr<D>, IntervalAttribute<bool>);
 
   friend class ColumnStringIO;
 };

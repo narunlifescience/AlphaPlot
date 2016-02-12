@@ -13,10 +13,10 @@ void file_compress(const char  *file, const char  *mode);
 
 void ReadWriteProjectTest::readWriteProject()
 {
-  auto_ptr<ApplicationWindow> app(open("testProject.sciprj"));
+  unique_ptr<ApplicationWindow> app(open("testProject.sciprj"));
   QVERIFY(app.get());
   app->saveFolder(app->projectFolder(), "testProject1.sciprj");
-  auto_ptr<ApplicationWindow> app1(open("testProject1.sciprj"));
+  unique_ptr<ApplicationWindow> app1(open("testProject1.sciprj"));
   // TODO check that app1 is the same as app?
   QVERIFY(app1.get());
   file_compress("testProject1.sciprj", "wb9");
@@ -28,7 +28,7 @@ void ReadWriteProjectTest::readWriteProject()
 // checks that the large file Origin import problem (ticket #238) remains fixed
 void ReadWriteProjectTest::largeOriginImport()
 {
-  auto_ptr<ApplicationWindow> app(importOPJ("Histo.opj"));
+  unique_ptr<ApplicationWindow> app(importOPJ("Histo.opj"));
   QVERIFY(app.get());
 }
 

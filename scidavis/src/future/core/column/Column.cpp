@@ -47,21 +47,21 @@ Column::Column(const QString& name, SciDAVis::ColumnMode mode)
 }
 
 template <>
-void Column::initPrivate(std::auto_ptr<QVector<qreal> > d, IntervalAttribute<bool> v)
+void Column::initPrivate(std::unique_ptr<QVector<qreal> > d, IntervalAttribute<bool> v)
 {
   d_column_private=new Private
     (this, SciDAVis::TypeDouble, SciDAVis::Numeric, d.release(), v);
 }
 
 template <>
-void Column::initPrivate(std::auto_ptr<QStringList> d, IntervalAttribute<bool> v)
+void Column::initPrivate(std::unique_ptr<QStringList> d, IntervalAttribute<bool> v)
 {
   d_column_private=new Private
     (this, SciDAVis::TypeQString, SciDAVis::Text, d.release(), v);
 }
 
 template <>
-void Column::initPrivate(std::auto_ptr<QList<QDateTime> > d, IntervalAttribute<bool> v)
+void Column::initPrivate(std::unique_ptr<QList<QDateTime> > d, IntervalAttribute<bool> v)
 {
   d_column_private=new Private
     (this, SciDAVis::TypeQDateTime, SciDAVis::DateTime, d.release(), v);
