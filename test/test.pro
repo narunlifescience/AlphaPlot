@@ -5,10 +5,7 @@
 TEMPLATE = app
 TARGET = readWriteProject
 DEPENDPATH += .
-INCLUDEPATH += . ../libscidavis ../libscidavis/src ../tmp/scidavis ../scidavis
-LIBS += -L ../libscidavis -lscidavis
-
-POST_TARGETDEPS=../libscidavis/libscidavis.a
+INCLUDEPATH += . ../scidavis ../scidavis/src ../tmp/scidavis
 
 CONFIG        += qt warn_on exceptions opengl thread zlib
 QT            += opengl qt3support network svg xml
@@ -39,4 +36,4 @@ SOURCES += readWriteProject.cpp
 
 ########### Future code backported from the aspect framework ##################
 DEFINES += LEGACY_CODE_0_2_x
-INCLUDEPATH += ../libscidavis/src/future
+INCLUDEPATH += ../scidavis/src/future
