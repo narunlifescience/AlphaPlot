@@ -106,7 +106,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/PlotEnrichement.h\
             src/ExtensibleFileDialog.h\
             src/OpenProjectDialog.h\
-        src/Grid.h\
+            src/Grid.h\
             src/DataPointPicker.h \
             src/TeXTableSettings.h \
             src/TeXTableSettingsWidget.h \
@@ -220,101 +220,102 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/TeXTableSettingsWidget.cpp \
             src/TeXTableExportDialog.cpp \
             src/version.cpp \
+            src/main.cpp
 
 ###################### FORMS ##############################################
-FORMS +=   src/SciDAVisAbout.ui
+FORMS        += src/SciDAVisAbout.ui
 
 ########### Future code backported from the aspect framework ##################
-DEFINES += LEGACY_CODE_0_2_x
+DEFINES      += LEGACY_CODE_0_2_x
 INCLUDEPATH  += src
 INCLUDEPATH  += src/future
 
-FORMS += src/future/matrix/matrixcontroltabs.ui \
-         src/future/core/ProjectConfigPage.ui \
-		 src/future/table/controltabs.ui \
-		 src/future/table/DimensionsDialog.ui
+FORMS        += src/future/matrix/matrixcontroltabs.ui \
+                src/future/core/ProjectConfigPage.ui \
+                src/future/table/controltabs.ui \
+                src/future/table/DimensionsDialog.ui
 
-HEADERS += src/future/core/AbstractAspect.h \
-           src/future/core/AbstractPart.h \
-           src/future/core/AspectPrivate.h \
-           src/future/core/aspectcommands.h \
-           src/future/core/future_Folder.h \
-           src/future/core/Project.h \
-           src/future/core/ProjectConfigPage.h \
-           src/future/core/PartMdiView.h \
-           src/future/core/AbstractColumn.h \
-           src/future/core/column/Column.h \
-           src/future/core/column/ColumnPrivate.h \
-           src/future/core/column/columncommands.h \
-           src/future/core/AbstractFilter.h \
-           src/future/core/AbstractSimpleFilter.h \
-           src/future/core/datatypes/SimpleCopyThroughFilter.h \
-           src/future/core/datatypes/DateTime2DoubleFilter.h \
-           src/future/core/datatypes/DateTime2StringFilter.h \
-           src/future/core/datatypes/DayOfWeek2DoubleFilter.h \
-           src/future/core/datatypes/Double2DateTimeFilter.h \
-           src/future/core/datatypes/Double2DayOfWeekFilter.h \
-           src/future/core/datatypes/Double2MonthFilter.h \
-           src/future/core/datatypes/Double2StringFilter.h \
-           src/future/core/datatypes/Month2DoubleFilter.h \
-           src/future/core/datatypes/String2DateTimeFilter.h \
-           src/future/core/datatypes/String2DayOfWeekFilter.h \
-           src/future/core/datatypes/String2DoubleFilter.h \
-           src/future/core/datatypes/String2MonthFilter.h \
-           src/future/lib/macros.h \
-           src/future/lib/XmlStreamReader.h \
-           src/future/lib/ActionManager.h \
-           src/future/lib/ConfigPageWidget.h \
-           src/future/lib/Interval.h \
-           src/future/lib/IntervalAttribute.h \
-           src/future/matrix/future_Matrix.h \
-           src/future/matrix/MatrixModel.h \
-           src/future/matrix/MatrixView.h \
-           src/future/matrix/matrixcommands.h \
-           src/future/table/future_Table.h \
-           src/future/table/TableModel.h \
-           src/future/table/TableView.h \
-           src/future/table/tablecommands.h \
-           src/future/table/TableDoubleHeaderView.h \
-           src/future/table/TableItemDelegate.h \
-           src/future/table/TableCommentsHeaderModel.h \
-           src/future/table/future_SortDialog.h \
-           src/future/table/AsciiTableImportFilter.h \
-           src/future/core/AbstractImportFilter.h \
-           src/future/core/interfaces.h \
+HEADERS     += src/future/core/AbstractAspect.h \
+               src/future/core/AbstractPart.h \
+               src/future/core/AspectPrivate.h \
+               src/future/core/aspectcommands.h \
+               src/future/core/future_Folder.h \
+               src/future/core/Project.h \
+               src/future/core/ProjectConfigPage.h \
+               src/future/core/PartMdiView.h \
+               src/future/core/AbstractColumn.h \
+               src/future/core/column/Column.h \
+               src/future/core/column/ColumnPrivate.h \
+               src/future/core/column/columncommands.h \
+               src/future/core/AbstractFilter.h \
+               src/future/core/AbstractSimpleFilter.h \
+               src/future/core/datatypes/SimpleCopyThroughFilter.h \
+               src/future/core/datatypes/DateTime2DoubleFilter.h \
+               src/future/core/datatypes/DateTime2StringFilter.h \
+               src/future/core/datatypes/DayOfWeek2DoubleFilter.h \
+               src/future/core/datatypes/Double2DateTimeFilter.h \
+               src/future/core/datatypes/Double2DayOfWeekFilter.h \
+               src/future/core/datatypes/Double2MonthFilter.h \
+               src/future/core/datatypes/Double2StringFilter.h \
+               src/future/core/datatypes/Month2DoubleFilter.h \
+               src/future/core/datatypes/String2DateTimeFilter.h \
+               src/future/core/datatypes/String2DayOfWeekFilter.h \
+               src/future/core/datatypes/String2DoubleFilter.h \
+               src/future/core/datatypes/String2MonthFilter.h \
+               src/future/lib/macros.h \
+               src/future/lib/XmlStreamReader.h \
+               src/future/lib/ActionManager.h \
+               src/future/lib/ConfigPageWidget.h \
+               src/future/lib/Interval.h \
+               src/future/lib/IntervalAttribute.h \
+               src/future/matrix/future_Matrix.h \
+               src/future/matrix/MatrixModel.h \
+               src/future/matrix/MatrixView.h \
+               src/future/matrix/matrixcommands.h \
+               src/future/table/future_Table.h \
+               src/future/table/TableModel.h \
+               src/future/table/TableView.h \
+               src/future/table/tablecommands.h \
+               src/future/table/TableDoubleHeaderView.h \
+               src/future/table/TableItemDelegate.h \
+               src/future/table/TableCommentsHeaderModel.h \
+               src/future/table/future_SortDialog.h \
+               src/future/table/AsciiTableImportFilter.h \
+               src/future/core/AbstractImportFilter.h \
+               src/future/core/interfaces.h \
 
-SOURCES += src/future/core/AbstractAspect.cpp \
-           src/future/core/AbstractPart.cpp \
-           src/future/core/AspectPrivate.cpp \
-           src/future/core/future_Folder.cpp \
-           src/future/core/PartMdiView.cpp \
-           src/future/core/Project.cpp \
-           src/future/core/column/Column.cpp \
-           src/future/core/column/ColumnPrivate.cpp \
-           src/future/core/column/columncommands.cpp \
-           src/future/core/datatypes/DateTime2StringFilter.cpp \
-           src/future/core/datatypes/String2DateTimeFilter.cpp \
-           src/future/core/datatypes/Double2StringFilter.cpp \
-           src/future/core/datatypes/Double2DateTimeFilter.cpp \
-           src/future/core/AbstractSimpleFilter.cpp \
-           src/future/core/AbstractFilter.cpp \
-           src/future/core/ProjectConfigPage.cpp \
-           src/future/lib/XmlStreamReader.cpp \
-           src/future/lib/ActionManager.cpp \
-           src/future/lib/ConfigPageWidget.cpp \
-           src/future/matrix/future_Matrix.cpp \
-           src/future/matrix/MatrixModel.cpp \
-           src/future/matrix/MatrixView.cpp \
-           src/future/matrix/matrixcommands.cpp \
-           src/future/table/future_Table.cpp \
-           src/future/table/TableModel.cpp \
-           src/future/table/TableView.cpp \
-           src/future/table/tablecommands.cpp \
-           src/future/table/TableDoubleHeaderView.cpp \
-           src/future/table/TableItemDelegate.cpp \
-           src/future/table/TableCommentsHeaderModel.cpp \
-           src/future/table/future_SortDialog.cpp \
-           src/future/table/AsciiTableImportFilter.cpp \
+SOURCES     += src/future/core/AbstractAspect.cpp \
+               src/future/core/AbstractPart.cpp \
+               src/future/core/AspectPrivate.cpp \
+               src/future/core/future_Folder.cpp \
+               src/future/core/PartMdiView.cpp \
+               src/future/core/Project.cpp \
+               src/future/core/column/Column.cpp \
+               src/future/core/column/ColumnPrivate.cpp \
+               src/future/core/column/columncommands.cpp \
+               src/future/core/datatypes/DateTime2StringFilter.cpp \
+               src/future/core/datatypes/String2DateTimeFilter.cpp \
+               src/future/core/datatypes/Double2StringFilter.cpp \
+               src/future/core/datatypes/Double2DateTimeFilter.cpp \
+               src/future/core/AbstractSimpleFilter.cpp \
+               src/future/core/AbstractFilter.cpp \
+               src/future/core/ProjectConfigPage.cpp \
+               src/future/lib/XmlStreamReader.cpp \
+               src/future/lib/ActionManager.cpp \
+               src/future/lib/ConfigPageWidget.cpp \
+               src/future/matrix/future_Matrix.cpp \
+               src/future/matrix/MatrixModel.cpp \
+               src/future/matrix/MatrixView.cpp \
+               src/future/matrix/matrixcommands.cpp \
+               src/future/table/future_Table.cpp \
+               src/future/table/TableModel.cpp \
+               src/future/table/TableView.cpp \
+               src/future/table/tablecommands.cpp \
+               src/future/table/TableDoubleHeaderView.cpp \
+               src/future/table/TableItemDelegate.cpp \
+               src/future/table/TableCommentsHeaderModel.cpp \
+               src/future/table/future_SortDialog.cpp \
+               src/future/table/AsciiTableImportFilter.cpp \
 
 ###############################################################
 ##################### Compression #############################
@@ -322,12 +323,12 @@ SOURCES += src/future/core/AbstractAspect.cpp \
 ################# requires zlib >= 1.2.3 ######################
 ###############################################################
 
-SOURCES += ../3rdparty/minigzip/minigzip.c
+SOURCES     += ../3rdparty/minigzip/minigzip.c
 
 ###############################################################
 #### Origin OPJ import via liborigin2
 ###############################################################
 liborigin {
-	HEADERS += src/importOPJ.h
-	SOURCES += src/importOPJ.cpp
+  HEADERS   += src/importOPJ.h
+  SOURCES   += src/importOPJ.cpp
 }

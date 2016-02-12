@@ -1,4 +1,3 @@
-###
 ### In most cases, defaults and auto-detection should provide an easy way of
 ### building SciDAVis without changing anything in this file (in contrast to
 ### prior versions).
@@ -18,7 +17,6 @@
 ### commonly not needed or even bothersome when integrating SciDAVis in a
 ### package manager (user-selectable paths to manual/plugins, checking for new
 ### versions on startup).
-### 
 
 ################################################################################
 ### Choose between common configurations                                       #
@@ -30,24 +28,24 @@
 
 unix:isEmpty(PRESET) { # allow command-line argument to override settings here
 
-	### Link statically against Qwt and Qwtplot3D in 3rdparty folder
-	### (in order to make sure they're compiled against Qt4, not Qt3).
-	### Intended for Linux users building from source (on possibly somewhat
-	### older systems).
-	#PRESET = default_installation
+  ### Link statically against Qwt and Qwtplot3D in 3rdparty folder
+  ### (in order to make sure they're compiled against Qt4, not Qt3).
+  ### Intended for Linux users building from source (on possibly somewhat
+  ### older systems).
+  #PRESET = default_installation
 
-	### Link dynamically against system-wide installed libraries. Intended mainly
-	### for building Linux packages for distributions with Qwt and QwtPlot3D
-	### packages compiled against Qt4 (probably most current ones).
-	PRESET = linux_package
+  ### Link dynamically against system-wide installed libraries. Intended mainly
+  ### for building Linux packages for distributions with Qwt and QwtPlot3D
+  ### packages compiled against Qt4 (probably most current ones).
+  PRESET = linux_package
 
-	### Link statically as much as possible. Qwt, QwtPlot3D and MuParser are
-	### expected to be supplied in the 3rdparty folder. Python, SIP, PyQt and Qt
-	### are linked in dynamically in order to integrate with an existing Python
-	### installation. Intended mainly for building self-contained Linux binaries.
-	### (TODO: Could we include SIP+PyQt+Qt in the self-contained bundle, as done
-	### in the Windows installer?)
-	#PRESET = self_contained
+  ### Link statically as much as possible. Qwt, QwtPlot3D and MuParser are
+  ### expected to be supplied in the 3rdparty folder. Python, SIP, PyQt and Qt
+  ### are linked in dynamically in order to integrate with an existing Python
+  ### installation. Intended mainly for building self-contained Linux binaries.
+  ### (TODO: Could we include SIP+PyQt+Qt in the self-contained bundle, as done
+  ### in the Windows installer?)
+  #PRESET = self_contained
 }
 
 unix:message(Building with preset $$PRESET)
@@ -61,7 +59,7 @@ unix:message(Building with preset $$PRESET)
 
 ### Linux Desktop integration
 !contains(PRESET, self_contained) {
-	unix:INSTALLS   += desktop_entry mime_package mime_link icons
+  unix:INSTALLS   += desktop_entry mime_package mime_link icons
 }
 
 ################################################################################
@@ -75,109 +73,108 @@ unix:message(Building with preset $$PRESET)
 ################################################################################
 
 unix {# Linux / MacOS X
-	contains(PRESET, self_contained) {
-      ### Unless you're trying to build a self-contained bundle, see the
-		### (heavily commented) "else" block below.
+  contains(PRESET, self_contained) {
+    ### Unless you're trying to build a self-contained bundle, see the
+    ### (heavily commented) "else" block below.
 
-		### When installing into a self-contained directory structure (e.g. for
-		### universal Linux binaries), use relative paths at runtime in order to
-		### support relocation.
-		isEmpty(INSTALLBASE): INSTALLBASE = .
+    ### When installing into a self-contained directory structure (e.g. for
+    ### universal Linux binaries), use relative paths at runtime in order to
+    ### support relocation.
+    isEmpty(INSTALLBASE): INSTALLBASE = .
 
-		target.path = "$$INSTALLBASE"
+    target.path           = "$$INSTALLBASE"
 
-		documentation.path = "$$INSTALLBASE/doc"
-		manual.path = "$$INSTALLBASE/manual"
+    documentation.path    = "$$INSTALLBASE/doc"
+    manual.path           = "$$INSTALLBASE/manual"
 
-		translationfiles.path = "$$INSTALLBASE/translations"
+    translationfiles.path = "$$INSTALLBASE/translations"
 
-		pythonconfig.path = "$$INSTALLBASE"
-		pythonutils.path = "$$INSTALLBASE"
+    pythonconfig.path     = "$$INSTALLBASE"
+    pythonutils.path      = "$$INSTALLBASE"
 
-		plugins.path = "$$INSTALLBASE/plugins"
+    plugins.path          = "$$INSTALLBASE/plugins"
 
-	} else {
+  } else {
 
-		### this is what is called "prefix" when using GNU autotools
-		isEmpty(INSTALLBASE): INSTALLBASE = /usr
+    ### this is what is called "prefix" when using GNU autotools
+    isEmpty(INSTALLBASE): INSTALLBASE = /usr
 
-		### where to put the binary (the application itself)
-		target.path = "$$INSTALLBASE/bin"
+    ### where to put the binary (the application itself)
+    target.path           = "$$INSTALLBASE/bin"
 
-		### location of documentation files
-		documentation.path = "$$INSTALLBASE/share/doc/scidavis"
+    ### location of documentation files
+    documentation.path    = "$$INSTALLBASE/share/doc/scidavis"
 
-		### Usually, the manual will be expected in the "manual" subfolder of "documentation.path" (see above).
-		### To override this, uncomment the next line and adjust the path behind the '='.
-		#manual.path = "$$INSTALLBASE/share/doc/scidavis/manual"
+    ### Usually, the manual will be expected in the "manual" subfolder of "documentation.path" (see above).
+    ### To override this, uncomment the next line and adjust the path behind the '='.
+    #manual.path = "$$INSTALLBASE/share/doc/scidavis/manual"
 
-		### location of translation files (*.qm)
-		translationfiles.path = "$$INSTALLBASE/share/scidavis/translations"
+    ### location of translation files (*.qm)
+    translationfiles.path = "$$INSTALLBASE/share/scidavis/translations"
 
- 		### Important (if you use Python): the following two paths are where the application will expect 
-		### scidavisrc.py and scidavisUtil.py, respectively. Alternatively you can also put scidavisrc.py 
-		### (or ".scidavis.py") into the users home directory. scidavisUtil.py must be either in the 
-		### directory specified here or somewhere else in the python path (sys.path) where "import" can find it
+    ### Important (if you use Python): the following two paths are where the application will expect
+    ### scidavisrc.py and scidavisUtil.py, respectively. Alternatively you can also put scidavisrc.py
+    ### (or ".scidavis.py") into the users home directory. scidavisUtil.py must be either in the
+    ### directory specified here or somewhere else in the python path (sys.path) where "import" can find it
 
-		### where scidavisrc.py is searched for at runtime
-		pythonconfig.path = "$$INSTALLBASE/../etc"
-		### where the scidavisUtil python module is searched for at runtime
-		pythonutils.path = "$$INSTALLBASE/share/scidavis"
+    ### where scidavisrc.py is searched for at runtime
+    pythonconfig.path = "$$INSTALLBASE/../etc"
+    ### where the scidavisUtil python module is searched for at runtime
+    pythonutils.path  = "$$INSTALLBASE/share/scidavis"
 
-		### where plugins are expected by default
-		plugins.path = "$$INSTALLBASE/lib/scidavis/plugins"
-	}
+    ### where plugins are expected by default
+    plugins.path      = "$$INSTALLBASE/lib/scidavis/plugins"
+  }
 
-###################### DESKTOP INTEGRATION ##################################
+  ###################### DESKTOP INTEGRATION ##################################
 
-	desktop_entry.files = scidavis/scidavis.desktop
-	desktop_entry.path = "$$INSTALLBASE/share/applications"
+  desktop_entry.files = scidavis/scidavis.desktop
+  desktop_entry.path  = "$$INSTALLBASE/share/applications"
 
-	mime_package.files = scidavis/scidavis.xml
-	mime_package.path = "$$INSTALLBASE/share/mime/packages"
+  mime_package.files  = scidavis/scidavis.xml
+  mime_package.path   = "$$INSTALLBASE/share/mime/packages"
 
-	#deprecated
-	mime_link.files = scidavis/x-sciprj.desktop
-	mime_link.path = "$$INSTALLBASE/share/mimelnk/application"
-	
-	contains(INSTALLS, icons) {
-		# scalable icon
-		icons.files = scidavis/icons/scidavis.svg
-		icons.path = "$$INSTALLBASE/share/icons/hicolor/scalable/apps"
+  #deprecated
+  mime_link.files     = scidavis/x-sciprj.desktop
+  mime_link.path      = "$$INSTALLBASE/share/mimelnk/application"
 
-		# hicolor icons for different resolutions
-		resolutions = 16 22 32 48 64 128
-		for(res, resolutions) {
-			eval(icon_hicolor_$${res}.files = scidavis/icons/hicolor-$${res}/scidavis.png)
-			eval(icon_hicolor_$${res}.path = "$$INSTALLBASE/share/icons/hicolor/$${res}x$${res}/apps")
-			INSTALLS += icon_hicolor_$${res}
-		}
+  contains(INSTALLS, icons) {
+    # scalable icon
+    icons.files       = scidavis/icons/scidavis.svg
+    icons.path        = "$$INSTALLBASE/share/icons/hicolor/scalable/apps"
 
-		# locolor icons for different resolutions
-		resolutions = 16 22 32
-		for(res, resolutions) {
-			eval(icon_locolor_$${res}.files = scidavis/icons/locolor-$${res}/scidavis.png)
-			eval(icon_locolor_$${res}.path = "$$INSTALLBASE/share/icons/locolor/$${res}x$${res}/apps")
+    # hicolor icons for different resolutions
+    resolutions       = 16 22 32 48 64 128
+    for(res, resolutions) {
+      eval(icon_hicolor_$${res}.files = scidavis/icons/hicolor-$${res}/scidavis.png)
+      eval(icon_hicolor_$${res}.path  = "$$INSTALLBASE/share/icons/hicolor/$${res}x$${res}/apps")
+      INSTALLS                       += icon_hicolor_$${res}
+    }
 
-			INSTALLS += icon_locolor_$${res}
-		}
-	}
-}
+    # locolor icons for different resolutions
+    resolutions        = 16 22 32
+    for(res, resolutions) {
+      eval(icon_locolor_$${res}.files = scidavis/icons/locolor-$${res}/scidavis.png)
+      eval(icon_locolor_$${res}.path  = "$$INSTALLBASE/share/icons/locolor/$${res}x$${res}/apps")
+      INSTALLS                       += icon_locolor_$${res}
+    }
+  }
+} # Linux / MacOS X
 
 win32 {# Windows
-	isEmpty(INSTALLBASE): INSTALLBASE = .
+  isEmpty(INSTALLBASE): INSTALLBASE = .
 
-	target.path = "$$INSTALLBASE"
-	documentation.path = "$$INSTALLBASE"
-	translationfiles.path = "$$INSTALLBASE/translations"
-	pythonconfig.path = "$$INSTALLBASE"
-	pythonutils.path = "$$INSTALLBASE"
-	plugins.path = "$$INSTALLBASE/fitPlugins"
+  target.path            = "$$INSTALLBASE"
+  documentation.path     = "$$INSTALLBASE"
+  translationfiles.path  = "$$INSTALLBASE/translations"
+  pythonconfig.path      = "$$INSTALLBASE"
+  pythonutils.path       = "$$INSTALLBASE"
+  plugins.path           = "$$INSTALLBASE/fitPlugins"
 }
 
 ### 64bit Linux only suffix
-linux-g++-64: libsuff = 64 
-unix:LIBS         += -L/usr/lib$${libsuff}
+linux-g++-64: libsuff  = 64
+unix:LIBS             += -L/usr/lib$${libsuff}
 
 ################################################################################
 ### Optional features                                                          #
@@ -191,33 +188,34 @@ DEFINES         += SCRIPTING_CONSOLE
 DEFINES         += SCRIPTING_DIALOG
 
 !contains(PRESET, linux_package) {
-	### Enables choosing of help folder at runtime, instead of relying on the above path only.
-	### The downside is that the help folder will be remembered as a configuration option, so a binary
-	### package cannot easily update the path for its users.
-	### Dynamic selection of the manual path was the only available option up until SciDAVis 0.2.3.
-	DEFINES += DYNAMIC_MANUAL_PATH
+  ### Enables choosing of help folder at runtime, instead of relying on the above path only.
+  ### The downside is that the help folder will be remembered as a configuration option, so a binary
+  ### package cannot easily update the path for its users.
+  ### Dynamic selection of the manual path was the only available option up until SciDAVis 0.2.3.
+  DEFINES       += DYNAMIC_MANUAL_PATH
 
-   ### Similar to DYNAMIC_MANUAL_PATH, but for the plugin folder
-	DEFINES += DYNAMIC_PLUGIN_PATH
+  ### Similar to DYNAMIC_MANUAL_PATH, but for the plugin folder
+  DEFINES       += DYNAMIC_PLUGIN_PATH
 
-	### Check for new releases on startup (can be disabled in the preferences).
-	DEFINES += SEARCH_FOR_UPDATES
+  ### Check for new releases on startup (can be disabled in the preferences).
+  DEFINES       += SEARCH_FOR_UPDATES
 
-	### Provide links to manual/translations download in help menu
-	DEFINES += DOWNLOAD_LINKS
+  ### Provide links to manual/translations download in help menu
+  DEFINES       += DOWNLOAD_LINKS
 }
 
 ### support for Origin OPJ import using liborigin2
 mxe|osx_dist|aegis {
-CONFIG+=liborigin
+  CONFIG        += liborigin
 }
+
 liborigin {
-DEFINES  += ORIGIN_IMPORT
+  DEFINES       += ORIGIN_IMPORT
 }
 
 ### python support
 osx_dist|aegis {
-CONFIG+=python
+  CONFIG        += python
 }
 
 ################################################################################
@@ -227,117 +225,114 @@ CONFIG+=python
 # code for maintained branch of liborigin. 
 
 contains(PRESET, default_installation) {
-	### Link statically against Qwt and Qwtplot3D (in order to make sure they
-	### are compiled against Qt4), dynamically against everything else.
+  ### Link statically against Qwt and Qwtplot3D (in order to make sure they
+  ### are compiled against Qt4), dynamically against everything else.
 
-	INCLUDEPATH  += ../3rdparty/qwt/src
-	LIBS         += ../3rdparty/qwt/lib/libqwt.a
+  INCLUDEPATH  += ../3rdparty/qwt/src
+  LIBS         += ../3rdparty/qwt/lib/libqwt.a
 
-	INCLUDEPATH  += ../3rdparty/qwtplot3d/include
-	LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
+  INCLUDEPATH  += ../3rdparty/qwtplot3d/include
+  LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
 
-	INCLUDEPATH  += /usr/include/muParser
-	LIBS         += -lgsl -lgslcblas -lz -lGLU
-	LIBS         += -lmuparser
-
+  INCLUDEPATH  += /usr/include/muParser
+  LIBS         += -lgsl -lgslcblas -lz -lGLU
+  LIBS         += -lmuparser
 }
 
 osx_dist {
-	# Uses MacPorts supplied versions of the dependencies
+  # Uses MacPorts supplied versions of the dependencies
 
-	INCLUDEPATH  += /opt/local/include
-	INCLUDEPATH  += /opt/local/include/qwt
+  INCLUDEPATH  += /opt/local/include
+  INCLUDEPATH  += /opt/local/include/qwt
 
-	LIBS         += -L/opt/local/lib -lqwt
+  LIBS         += -L/opt/local/lib -lqwt
 
-	INCLUDEPATH  += /opt/local/include/qwtplot3d
-	LIBS         += -lqwtplot3d
+  INCLUDEPATH  += /opt/local/include/qwtplot3d
+  LIBS         += -lqwtplot3d
 
-	INCLUDEPATH  += /opt/local/include/muParser
-	LIBS         += -lgsl -lgslcblas -lz
-	LIBS         += -lmuparser -lpython2.7
+  INCLUDEPATH  += /opt/local/include/muParser
+  LIBS         += -lgsl -lgslcblas -lz
+  LIBS         += -lmuparser -lpython2.7
 
-# this was an attempt to add a post build step. Doesn't seem to work,
-# so just run this step manually
-        QMAKE_EXTRA_TARGETS += mac-dist
-        mac-dist.commands = sh mkMacDist.sh
-
+  # this was an attempt to add a post build step. Doesn't seem to work,
+  # so just run this step manually
+  QMAKE_EXTRA_TARGETS += mac-dist
+  mac-dist.commands = sh mkMacDist.sh
 }
 
 contains(PRESET, linux_package) {
-	### dynamically link against Qwt(3D) installed system-wide
-	### WARNING: make sure they are compiled against >= Qt4.2
-	### Mixing Qt 4.2 and Qt >= 4.3 compiled stuff may also 
-	### cause problems.
+  ### dynamically link against Qwt(3D) installed system-wide
+  ### WARNING: make sure they are compiled against >= Qt4.2
+  ### Mixing Qt 4.2 and Qt >= 4.3 compiled stuff may also
+  ### cause problems.
 
-	### Debian suffix
-	exists(/usr/include/qwt-qt4): qwtsuff = "-qt4"
+  ### Debian suffix
+  exists(/usr/include/qwt-qt4): qwtsuff = "-qt4"
 
-	exists(/usr/include/qwt5) {
-		INCLUDEPATH  += /usr/include/qwt5
-	} else {
-		INCLUDEPATH  += /usr/include/qwt$${qwtsuff}
-	}
+  exists(/usr/include/qwt5) {
+    INCLUDEPATH  += /usr/include/qwt5
+  } else {
+    INCLUDEPATH  += /usr/include/qwt$${qwtsuff}
+  }
 
-        INCLUDEPATH = "$(HOME)/usr/include" $$INCLUDEPATH
-        QMAKE_LIBDIR = "$(HOME)/usr/lib" $$QMAKE_LIBDIR
+  INCLUDEPATH   = "$(HOME)/usr/include" $$INCLUDEPATH
+  QMAKE_LIBDIR  = "$(HOME)/usr/lib" $$QMAKE_LIBDIR
 
-	INCLUDEPATH  += /usr/include/qwtplot3d
-	LIBS         += -lqwtplot3d$${qwtsuff}
+  INCLUDEPATH  += /usr/include/qwtplot3d
+  LIBS         += -lqwtplot3d$${qwtsuff}
 
-	LIBS         += -lqwt$${qwtsuff} -lz -lGLU 
+  LIBS         += -lqwt5 -lz -lGLU
 
-	INCLUDEPATH  += /usr/include/muParser
-	LIBS         += -lgsl -lgslcblas
-	LIBS         += -lmuparser 
-
+  INCLUDEPATH  += /usr/include/muParser
+  LIBS         += -lgsl -lgslcblas
+  LIBS         += -lmuparser
 }
 
 contains(PRESET, self_contained) {
-	### mostly static linking, for self-contained binaries
+  ### mostly static linking, for self-contained binaries
 
-	INCLUDEPATH  += ../3rdparty/qwt/src
-	LIBS         += ../3rdparty/qwt/lib/libqwt.a
+  INCLUDEPATH  += ../3rdparty/qwt/src
+  LIBS         += ../3rdparty/qwt/lib/libqwt.a
 
-	INCLUDEPATH  += ../3rdparty/qwtplot3d/include
-	LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
+  INCLUDEPATH  += ../3rdparty/qwtplot3d/include
+  LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
 
-	INCLUDEPATH  += ../3rdparty/muparser/include
-	LIBS         += ../3rdparty/muparser/lib/libmuparser.a
+  INCLUDEPATH  += ../3rdparty/muparser/include
+  LIBS         += ../3rdparty/muparser/lib/libmuparser.a
 
-	LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
-
+  LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
 }
 
 win32: {
-!mxe {
-	### Static linking mostly, except Qt, Python and QwtPlot3D.
-	### The latter seems to be impossible to link statically on Windows.
+  !mxe {
+    ### Static linking mostly, except Qt, Python and QwtPlot3D.
+    ### The latter seems to be impossible to link statically on Windows.
 
-	isEmpty(LIBPATH): LIBPATH = ../3rdparty
+    isEmpty(LIBPATH): LIBPATH = ../3rdparty
 
-	INCLUDEPATH  += "$${LIBPATH}/qwt/src"
-	LIBS         += "$${LIBPATH}/qwt/lib/libqwt.a"
+    INCLUDEPATH  += "$${LIBPATH}/qwt/src"
+    LIBS         += "$${LIBPATH}/qwt/lib/libqwt.a"
 
-	INCLUDEPATH  += "$${LIBPATH}/qwtplot3d/include"
-	LIBS         += "$${LIBPATH}/qwtplot3d/lib/qwtplot3d.dll"
+    INCLUDEPATH  += "$${LIBPATH}/qwtplot3d/include"
+    LIBS         += "$${LIBPATH}/qwtplot3d/lib/qwtplot3d.dll"
 
-	INCLUDEPATH  += "$${LIBPATH}/muparser/include"
-	LIBS         += "$${LIBPATH}/muparser/lib/libmuparser.a"
+    INCLUDEPATH  += "$${LIBPATH}/muparser/include"
+    LIBS         += "$${LIBPATH}/muparser/lib/libmuparser.a"
 
-	INCLUDEPATH  += "$${LIBPATH}/gsl/include"
-	LIBS         += "$${LIBPATH}/gsl/lib/libgsl.a"
-	LIBS         += "$${LIBPATH}/gsl/lib/libgslcblas.a"
+    INCLUDEPATH  += "$${LIBPATH}/gsl/include"
+    LIBS         += "$${LIBPATH}/gsl/lib/libgsl.a"
+    LIBS         += "$${LIBPATH}/gsl/lib/libgslcblas.a"
   }
 }
 
 # Mingw cross compilation environment on Linux. 
 mxe {
-  QMAKE_CXXFLAGS+=-g
-  DEFINES += CONSOLE
-  INCLUDEPATH  += . "$$(HOME)/usr/mxe/include" 
-  LIBPATH += "$(HOME)/usr/mxe/lib" "$(HOME)/usr/mxe/lib64"
-  LIBS +=  -mwindows -lqwt -lqwtplot3d -lmuparser -lgsl -lgslcblas  
+  QMAKE_CXXFLAGS +=-g
+  DEFINES        += CONSOLE
+  INCLUDEPATH    += . "$$(HOME)/usr/mxe/include"
+  LIBPATH        += "$(HOME)/usr/mxe/lib" "$(HOME)/usr/mxe/lib64"
+  LIBS           +=  -mwindows -lqwt -lqwtplot3d -lmuparser -lgsl -lgslcblas
+
   # Qt libraries specified here to get around a dependency bug in qmake
   LIBS += -lQt3Support -lQtOpenGL -lQtGui -lQtNetwork -lQtCore
   LIBS += -lole32 -loleaut32 -limm32 -lcomdlg32 -luuid 
@@ -355,11 +350,11 @@ mxe {
 #############################################################################
 
 exists(/usr/bin/lupdate-qt4) {
-	# Debian, Ubuntu, Fedora
-	LUPDATE_BIN = lupdate-qt4
-	LRELEASE_BIN = lrelease-qt4
+  # Debian, Ubuntu, Fedora
+  LUPDATE_BIN  = lupdate-qt4
+  LRELEASE_BIN = lrelease-qt4
 } else {
-	# anything else
-	LUPDATE_BIN = lupdate
-	LRELEASE_BIN = lrelease
+  # anything else
+  LUPDATE_BIN  = lupdate
+  LRELEASE_BIN = lrelease
 }
