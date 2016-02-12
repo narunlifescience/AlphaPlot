@@ -209,9 +209,10 @@ mxe|osx_dist|aegis {
   CONFIG        += liborigin
 }
 
-liborigin {
-  DEFINES       += ORIGIN_IMPORT
-}
+# disable origin
+#liborigin {
+#  DEFINES       += ORIGIN_IMPORT
+#}
 
 ### python support
 osx_dist|aegis {
