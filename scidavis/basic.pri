@@ -84,10 +84,10 @@ exists(../data/translations/scidavis_de.ts) {
 
 ###################### DOCUMENTATION ########################################
 
-documentation.files += ../manual \
-                       ../INSTALL.html \
-                       ../scidavis.css \
-                       ../scidavis-logo.png \
-                       ../README \
-                       ../CHANGES \
-                       ../gpl.txt 
+documentation.files += ../data/manual \
+                       ../data/INSTALL.md \
+                       ../data/scidavis.css \
+                       ../data/scidavis-logo.png \
+                       ../data/README.md \
+                       ../data/CHANGES \
+                       ../data/gpl.txt 

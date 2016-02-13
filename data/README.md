@@ -6,7 +6,7 @@ Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalys
 
 # Installation
 
-See [data/INSTALL.md](INSTALL.md)
+See [INSTALL.md](INSTALL.md)
 
 
 Opening an issue

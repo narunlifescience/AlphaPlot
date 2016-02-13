@@ -128,25 +128,25 @@ unix {# Linux / MacOS X
 
   ###################### DESKTOP INTEGRATION ##################################
 
-  desktop_entry.files = scidavis/scidavis.desktop
+  desktop_entry.files = data/scidavis.desktop
   desktop_entry.path  = "$$INSTALLBASE/share/applications"
 
-  mime_package.files  = scidavis/scidavis.xml
+  mime_package.files  = data/scidavis.xml
   mime_package.path   = "$$INSTALLBASE/share/mime/packages"
 
   #deprecated
-  mime_link.files     = scidavis/x-sciprj.desktop
+  mime_link.files     = data/x-sciprj.desktop
   mime_link.path      = "$$INSTALLBASE/share/mimelnk/application"
 
   contains(INSTALLS, icons) {
     # scalable icon
-    icons.files       = scidavis/icons/scidavis.svg
+    icons.files       = data/icons/scidavis.svg
     icons.path        = "$$INSTALLBASE/share/icons/hicolor/scalable/apps"
 
     # hicolor icons for different resolutions
     resolutions       = 16 22 32 48 64 128
     for(res, resolutions) {
-      eval(icon_hicolor_$${res}.files = scidavis/icons/hicolor-$${res}/scidavis.png)
+      eval(icon_hicolor_$${res}.files = data/icons/hicolor-$${res}/scidavis.png)
       eval(icon_hicolor_$${res}.path  = "$$INSTALLBASE/share/icons/hicolor/$${res}x$${res}/apps")
       INSTALLS                       += icon_hicolor_$${res}
     }
@@ -154,7 +154,7 @@ unix {# Linux / MacOS X
     # locolor icons for different resolutions
     resolutions        = 16 22 32
     for(res, resolutions) {
-      eval(icon_locolor_$${res}.files = scidavis/icons/locolor-$${res}/scidavis.png)
+      eval(icon_locolor_$${res}.files = data/icons/locolor-$${res}/scidavis.png)
       eval(icon_locolor_$${res}.path  = "$$INSTALLBASE/share/icons/locolor/$${res}x$${res}/apps")
       INSTALLS                       += icon_locolor_$${res}
     }
@@ -209,14 +209,13 @@ mxe|osx_dist|aegis {
   CONFIG        += liborigin
 }
 
-# disable origin
-#liborigin {
-#  DEFINES       += ORIGIN_IMPORT
-#}
+liborigin {
+  DEFINES       += ORIGIN_IMPORT
+}
 
 ### python support
 osx_dist|aegis {
-  CONFIG        += python
+  #CONFIG        += python
 }
 
 ################################################################################
@@ -282,7 +281,7 @@ contains(PRESET, linux_package) {
   INCLUDEPATH  += /usr/include/qwtplot3d
   LIBS         += -lqwtplot3d$${qwtsuff}
 
-  LIBS         += -lqwt$${qwtsuff} -lz -lGLU
+  LIBS         += -lqwt5 -lz -lGLU
 
   INCLUDEPATH  += /usr/include/muParser
   LIBS         += -lgsl -lgslcblas
