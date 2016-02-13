@@ -31,6 +31,7 @@
 #include "core/column/ColumnPrivate.h"
 #include "core/column/columncommands.h"
 #include "lib/XmlStreamReader.h"
+#include "core/IconLoader.h"
 #include <QIcon>
 #include <QXmlStreamWriter>
 #include <QtDebug>
@@ -267,9 +268,9 @@ QIcon Column::icon() const
   switch(dataType())
     {
     case SciDAVis::TypeDouble:
-      return QIcon(QPixmap(":/numerictype.png"));
+      return IconLoader::load("number-type");
     case SciDAVis::TypeQString:
-      return QIcon(QPixmap(":/texttype.png"));
+      return IconLoader::load("text-type");
     case SciDAVis::TypeQDateTime:
       return QIcon(QPixmap(":/datetype.png"));
     }

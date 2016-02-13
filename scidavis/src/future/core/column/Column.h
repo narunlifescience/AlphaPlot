@@ -40,6 +40,7 @@
 class QString;
 
 class ColumnStringIO;
+class IconLoader;
 
 //! Aspect that manages a column
 /**

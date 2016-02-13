@@ -219,6 +219,8 @@
 	<file>icons/light/16/folder-explorer.svg</file>
 	<file>icons/light/16/edit-hide.svg</file>
 	<file>icons/light/16/edit-unhide.svg</file>
+	<file>icons/light/16/number-type.svg</file>
+    <file>icons/light/16/text-type.svg</file>
 	<file>icons/light/22/edit-copy.svg</file>
 	<file>icons/light/22/edit-cut.svg</file>
 	<file>icons/light/22/edit-paste.svg</file>
@@ -234,6 +236,8 @@
 	<file>icons/light/22/folder-explorer.svg</file>
 	<file>icons/light/22/edit-hide.svg</file>
 	<file>icons/light/22/edit-unhide.svg</file>
+	<file>icons/light/22/number-type.svg</file>
+    <file>icons/light/22/text-type.svg</file>
 	<file>icons/light/24/edit-copy.svg</file>
 	<file>icons/light/24/edit-cut.svg</file>
 	<file>icons/light/24/edit-paste.svg</file>
@@ -249,6 +253,8 @@
 	<file>icons/light/24/folder-explorer.svg</file>
 	<file>icons/light/24/edit-hide.svg</file>
 	<file>icons/light/24/edit-unhide.svg</file>
+    <file>icons/light/24/number-type.svg</file>
+    <file>icons/light/24/text-type.svg</file>
 	<file>icons/dark/16/edit-copy.svg</file>
 	<file>icons/dark/16/edit-cut.svg</file>
 	<file>icons/dark/16/edit-paste.svg</file>
@@ -264,6 +270,8 @@
 	<file>icons/dark/16/folder-explorer.svg</file>
 	<file>icons/dark/16/edit-hide.svg</file>
 	<file>icons/dark/16/edit-unhide.svg</file>
+	<file>icons/dark/16/number-type.svg</file>
+    <file>icons/dark/16/text-type.svg</file>
 	<file>icons/dark/22/edit-copy.svg</file>
 	<file>icons/dark/22/edit-cut.svg</file>
 	<file>icons/dark/22/edit-paste.svg</file>
@@ -279,6 +287,8 @@
 	<file>icons/dark/22/folder-explorer.svg</file>
 	<file>icons/dark/22/edit-hide.svg</file>
 	<file>icons/dark/22/edit-unhide.svg</file>
+	<file>icons/dark/22/number-type.svg</file>
+    <file>icons/dark/22/text-type.svg</file>
 	<file>icons/dark/24/edit-copy.svg</file>
 	<file>icons/dark/24/edit-cut.svg</file>
 	<file>icons/dark/24/edit-paste.svg</file>
@@ -294,6 +304,8 @@
 	<file>icons/dark/24/folder-explorer.svg</file>
 	<file>icons/dark/24/edit-hide.svg</file>
 	<file>icons/dark/24/edit-unhide.svg</file>
+    <file>icons/dark/24/number-type.svg</file>
+    <file>icons/dark/24/text-type.svg</file>
 	<file>splash/splash.png</file>
 </qresource>
 </RCC>
