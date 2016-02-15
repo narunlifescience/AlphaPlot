@@ -224,6 +224,7 @@ int TableView::columnWidth(int col) const
 
 void TableView::handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize)
 {
+    Q_UNUSED(oldSize);
 	static bool inside = false;
 	d_table->setColumnWidth(logicalIndex, newSize);
 	if (inside) return;

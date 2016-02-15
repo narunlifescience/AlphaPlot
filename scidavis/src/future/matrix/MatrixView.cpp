@@ -443,6 +443,7 @@ void MatrixView::applyFormat()
 
 void MatrixView::handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize)
 {
+    Q_UNUSED(oldSize);
 	static bool inside = false;
 	d_matrix->setColumnWidth(logicalIndex, newSize);
 	if (inside) return;
@@ -459,6 +460,7 @@ void MatrixView::handleHorizontalSectionResized(int logicalIndex, int oldSize, i
 
 void MatrixView::handleVerticalSectionResized(int logicalIndex, int oldSize, int newSize)
 {
+    Q_UNUSED(oldSize);
 	static bool inside = false;
 	d_matrix->setRowHeight(logicalIndex, newSize);
 	if (inside) return;

@@ -94,6 +94,7 @@ Table::Table(void *engine, int rows, int columns, const QString& name)
 	: AbstractPart(name), d_plot_menu(0)
 #endif
 {
+    Q_UNUSED(engine);
 	d_table_private = new Private(this);
 
 	// set initial number of rows and columns

@@ -3953,6 +3953,7 @@ void ApplicationWindow::scriptError(const QString &message, const QString &scrip
 
 void ApplicationWindow::scriptPrint(const QString &text)
 {
+    Q_UNUSED(text);
 #ifdef SCRIPTING_CONSOLE
 	//if(!text.trimmed().isEmpty()) console->append(text);
 //#else
@@ -11638,6 +11639,7 @@ ApplicationWindow* ApplicationWindow::importOPJ(const QString& filename)
     }
 	else return 0;
 #else
+    Q_UNUSED(filename);
     return NULL;
 #endif
 }

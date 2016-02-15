@@ -1386,6 +1386,7 @@ void Graph::exportImage(const QString& fileName, int quality)
 
 void Graph::exportVector(const QString& fileName, int res, bool color, bool keepAspect, QPrinter::PageSize pageSize, QPrinter::Orientation orientation)
 {
+    Q_UNUSED(res);
 	if ( fileName.isEmpty() ){
 		QMessageBox::critical(this, tr("Error"), tr("Please provide a valid file name!"));
         return;
