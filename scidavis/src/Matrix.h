@@ -37,8 +37,8 @@
 #include <QHeaderView>
 #include <QDateTime>
 #include "MyWidget.h"
-#include "ScriptingEnv.h"
-#include "Script.h"
+#include "scripting/ScriptingEnv.h"
+#include "scripting/Script.h"
 #include <qwt_double_rect.h>
 #include "future/matrix/future_Matrix.h"
 #include "future/matrix/MatrixView.h"

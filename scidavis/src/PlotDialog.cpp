@@ -33,7 +33,7 @@
 #include "PatternBox.h"
 #include "SymbolBox.h"
 #include "Table.h"
-#include "MyParser.h"
+#include "scripting/MyParser.h"
 #include "QwtHistogram.h"
 #include "VectorCurve.h"
 #include "QwtErrorPlotCurve.h"

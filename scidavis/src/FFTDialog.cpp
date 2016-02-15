@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "FFTDialog.h"
 #include "Graph.h"
-#include "MyParser.h"
+#include "scripting/MyParser.h"
 #include "ApplicationWindow.h"
 #include "MultiLayer.h"
 #include "Table.h"

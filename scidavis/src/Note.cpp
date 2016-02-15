@@ -30,7 +30,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "Note.h"
-#include "ScriptEdit.h"
+#include "scripting/ScriptEdit.h"
 
 #include <QDateTime>
 #include <QLayout>

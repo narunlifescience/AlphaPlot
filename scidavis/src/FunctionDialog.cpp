@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "FunctionDialog.h"
-#include "MyParser.h"
+#include "scripting/MyParser.h"
 #include "ApplicationWindow.h"
 #include "FunctionCurve.h"
 

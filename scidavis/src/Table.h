@@ -38,8 +38,11 @@
 
 #include "Graph.h"
 #include "MyWidget.h"
-#include "ScriptingEnv.h"
-#include "Script.h"
+
+//Scripting
+#include "scripting/ScriptingEnv.h"
+#include "scripting/Script.h"
+ 
 #include "future/table/future_Table.h"
 #include "future/table/TableView.h"
 #include "globals.h"

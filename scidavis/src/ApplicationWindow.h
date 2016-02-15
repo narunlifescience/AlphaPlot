@@ -44,8 +44,10 @@
 #include <QLocale>
 
 #include "Table.h"
-#include "ScriptingEnv.h"
-#include "Script.h"
+
+//Scripting
+#include "scripting/Script.h"
+#include "scripting/ScriptingEnv.h"
 
 class QPixmap;
 class QCloseEvent;

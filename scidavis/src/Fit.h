@@ -32,7 +32,7 @@
 #include <QObject>
 
 #include "Filter.h"
-#include "Script.h"
+#include "scripting/Script.h"
 
 #include <gsl/gsl_multifit_nlin.h>
 #include <gsl/gsl_multimin.h>

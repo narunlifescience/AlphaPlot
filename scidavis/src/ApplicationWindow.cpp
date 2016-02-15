@@ -80,7 +80,6 @@
 #include "Folder.h"
 #include "FindDialog.h"
 #include "ScaleDraw.h"
-#include "ScriptingLangDialog.h"
 #include "TableStatistics.h"
 #include "Fit.h"
 #include "MultiPeakFit.h"
@@ -111,6 +110,8 @@
 #include "MultiPeakFitTool.h"
 #include "LineProfileTool.h"
 
+//Scripting
+#include "scripting/ScriptingLangDialog.h"
 #include "scripting/widgets/ConsoleWidget.h"
 
 #include <stdio.h>

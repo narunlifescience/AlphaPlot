@@ -30,7 +30,7 @@
 #define FUNCTIONCURVE_H
 
 #include "PlotCurve.h"
-#include "Script.h"
+#include "scripting/Script.h"
 #include <QObject>
 
 // Function curve class

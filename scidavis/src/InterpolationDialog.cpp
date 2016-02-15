@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "InterpolationDialog.h"
 #include "Graph.h"
-#include "MyParser.h"
+#include "scripting/MyParser.h"
 #include "ColorBox.h"
 #include "Interpolation.h"
 

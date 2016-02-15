@@ -33,7 +33,7 @@
 #include "Graph.h"
 #include "Grid.h"
 #include "Plot.h"
-#include "MyParser.h"
+#include "scripting/MyParser.h"
 #include "ColorButton.h"
 #include "TextFormatButtons.h"
 

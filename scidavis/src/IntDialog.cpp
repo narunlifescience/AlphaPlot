@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "IntDialog.h"
-#include "MyParser.h"
+#include "scripting/MyParser.h"
 #include "Graph.h"
 #include "ApplicationWindow.h"
 #include "Integration.h"

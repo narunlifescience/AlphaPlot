@@ -29,7 +29,7 @@
 #include "Graph3D.h"
 #include "Bar.h"
 #include "Cone3D.h"
-#include "MyParser.h"
+#include "scripting/MyParser.h"
 #include "core/column/Column.h"
 
 #include <QApplication>

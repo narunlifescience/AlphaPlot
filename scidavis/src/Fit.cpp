@@ -34,7 +34,7 @@
 #include "Legend.h"
 #include "FunctionCurve.h"
 #include "ColorBox.h"
-#include "Script.h"
+#include "scripting/Script.h"
 #include "core/column/Column.h"
 
 #include <gsl/gsl_statistics.h>

@@ -30,7 +30,7 @@
 #define NOTE_H
 
 #include "MyWidget.h"
-#include "ScriptEdit.h"
+#include "scripting/ScriptEdit.h"
 #include <qtextedit.h>
 
 class ScriptingEnv;

@@ -49,7 +49,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/ScaleDraw.h \
             src/Matrix.h \
             src/DataSetDialog.h \
-            src/MyParser.h \
+            src/scripting/MyParser.h \
             src/ColorBox.h \
             src/SymbolBox.h \
             src/PatternBox.h \
@@ -68,9 +68,9 @@ HEADERS  += src/ApplicationWindow.h \
             src/Note.h\
             src/Folder.h\
             src/FindDialog.h\
-            src/ScriptingEnv.h\
-            src/Script.h\
-            src/ScriptEdit.h\
+            src/scripting/ScriptingEnv.h\
+            src/scripting/Script.h\
+            src/scripting/ScriptEdit.h\
             src/FunctionCurve.h\
             src/Fit.h\
             src/MultiPeakFit.h\
@@ -80,7 +80,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/PluginFit.h\
             src/SigmoidalFit.h\
             src/customevents.h\
-            src/ScriptingLangDialog.h\
+            src/scripting/ScriptingLangDialog.h\
             src/TextFormatButtons.h\
             src/TableStatistics.h\
             src/Spectrogram.h\
@@ -157,7 +157,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/QwtHistogram.cpp \
             src/VectorCurve.cpp \
             src/Matrix.cpp \
-            src/MyParser.cpp\
+            src/scripting/MyParser.cpp\
             src/ColorBox.cpp \
             src/SymbolBox.cpp \
             src/PatternBox.cpp \
@@ -176,7 +176,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/Folder.cpp\
             src/FindDialog.cpp\
             src/TextFormatButtons.cpp\
-            src/ScriptEdit.cpp\
+            src/scripting/ScriptEdit.cpp\
             src/ImportASCIIDialog.cpp\
             src/ImageExportDialog.cpp\
             src/ScaleDraw.cpp\
@@ -188,9 +188,9 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/PluginFit.cpp\
             src/NonLinearFit.cpp\
             src/SigmoidalFit.cpp\
-            src/ScriptingEnv.cpp\
-            src/Script.cpp\
-            src/ScriptingLangDialog.cpp\
+            src/scripting/ScriptingEnv.cpp\
+            src/scripting/Script.cpp\
+            src/scripting/ScriptingLangDialog.cpp\
             src/TableStatistics.cpp\
             src/Spectrogram.cpp\
             src/ColorMapEditor.cpp\

@@ -30,7 +30,7 @@
  ***************************************************************************/
 #include "Matrix.h"
 #include "future/matrix/MatrixView.h"
-#include "ScriptEdit.h"
+#include "scripting/ScriptEdit.h"
 
 #include <QtGlobal>
 #include <QTextStream>

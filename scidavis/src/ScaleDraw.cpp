@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "ScaleDraw.h"
-#include "MyParser.h"
+#include "scripting/MyParser.h"
 
 #include <QDateTime>
 #include <QMessageBox>

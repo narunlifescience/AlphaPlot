@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "FilterDialog.h"
 #include "Graph.h"
-#include "MyParser.h"
+#include "scripting/MyParser.h"
 #include "ColorBox.h"
 #include "FFTFilter.h"
 
