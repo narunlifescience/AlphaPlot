@@ -85,6 +85,8 @@ class CurveRangeDialog;
 class Project;
 class AbstractAspect;
 
+class ConsoleWidget;
+
 #ifndef TS_PATH
 #define TS_PATH (qApp->applicationDirPath() + "/translations")
 #endif
@@ -132,8 +134,7 @@ public:
 	QDockWidget *explorerWindow;
 	QTextEdit *results;
 #ifdef SCRIPTING_CONSOLE
-	QDockWidget *consoleWindow;
-	QTextEdit *console;
+	ConsoleWidget *consoleWindow;
 #endif
 	QWorkspace* d_workspace;
 	QToolBar *file_tools, *graph_tools, *table_tools, *plot_tools, *graph_3D_tools, *edit_tools, *matrix_plot_tools;

@@ -111,6 +111,8 @@
 #include "MultiPeakFitTool.h"
 #include "LineProfileTool.h"
 
+#include "scripting/widgets/ConsoleWidget.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -179,8 +181,7 @@ ApplicationWindow::ApplicationWindow()
       explorerWindow(new QDockWidget(this)),
       results(new QTextEdit(logWindow)),
 #ifdef SCRIPTING_CONSOLE
-      consoleWindow(new QDockWidget(this)),
-      console(new QTextEdit(consoleWindow)),
+      consoleWindow(new ConsoleWidget(this)),
 #endif
       d_workspace(new QWorkspace(this)),
       lv(new FolderListView()),
@@ -286,10 +287,7 @@ ApplicationWindow::ApplicationWindow()
 
 #ifdef SCRIPTING_CONSOLE
 	consoleWindow->setObjectName("consoleWindow"); // this is needed for QMainWindow::restoreState()
-	consoleWindow->setWindowTitle(tr("Scripting Console"));
     addDockWidget( Qt::TopDockWidgetArea, consoleWindow );
-	console->setReadOnly(true);
-	consoleWindow->setWidget(console);
 	consoleWindow->hide();
 #endif
 
@@ -3955,9 +3953,9 @@ void ApplicationWindow::scriptError(const QString &message, const QString &scrip
 void ApplicationWindow::scriptPrint(const QString &text)
 {
 #ifdef SCRIPTING_CONSOLE
-	if(!text.trimmed().isEmpty()) console->append(text);
-#else
-	printf(text.toAscii().constData());
+	//if(!text.trimmed().isEmpty()) console->append(text);
+//#else
+	//printf(text.toAscii().constData());
 #endif
 }
 

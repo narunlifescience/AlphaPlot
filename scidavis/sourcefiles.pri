@@ -111,7 +111,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/TeXTableSettings.h \
             src/TeXTableSettingsWidget.h \
             src/TeXTableExportDialog.h \
-
+            src/scripting/widgets/Console.h \
+            src/scripting/widgets/ConsoleWidget.h \
 
 ###################### SOURCES ##############################################
 
@@ -220,10 +221,13 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/TeXTableSettingsWidget.cpp \
             src/TeXTableExportDialog.cpp \
             src/version.cpp \
+            src/scripting/widgets/Console.cpp \
+            src/scripting/widgets/ConsoleWidget.cpp \
             src/main.cpp
 
 ###################### FORMS ##############################################
-FORMS        += src/SciDAVisAbout.ui
+FORMS        += src/SciDAVisAbout.ui \
+                src/scripting/widgets/ConsoleWidget.ui
 
 ########### Future code backported from the aspect framework ##################
 DEFINES      += LEGACY_CODE_0_2_x
