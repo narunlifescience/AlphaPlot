@@ -79,7 +79,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/NonLinearFit.h\
             src/PluginFit.h\
             src/SigmoidalFit.h\
-            src/customevents.h\
+            src/scripting/customevents.h\
             src/scripting/ScriptingLangDialog.h\
             src/TextFormatButtons.h\
             src/TableStatistics.h\
