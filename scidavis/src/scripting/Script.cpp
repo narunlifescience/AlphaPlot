@@ -76,6 +76,7 @@ QStringList ScriptingLangManager::languages()
 
 bool Script::compile(bool for_eval)
 {
+    Q_UNUSED(for_eval);
 	emit_error("Script::compile called!", 0);
 	return false;
 }

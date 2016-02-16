@@ -76,6 +76,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 						break;
 					}
 				}
+                Q_UNUSED(allAxisDisabled);
 
 				if (me->button()==Qt::LeftButton && (plot()->drawLineActive()))
 				{

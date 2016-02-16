@@ -86,6 +86,7 @@ bool Integration::isDataAcceptable()
 			return true;
 
 	}
+    Q_UNUSED(method_t);
 	// GSL interpolation routines fail with division by zero on such data
 	for (int i=1; i<d_n; i++)
 		if (d_x[i-1] == d_x[i]) {
