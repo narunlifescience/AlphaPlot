@@ -39,10 +39,10 @@
 #include <QMessageBox>
 
 ColorMapEditor::ColorMapEditor(QWidget* parent)
-				: QWidget(parent, 0, 0),
-				min_val(0), 
-				max_val(1),
-				color_map(QwtLinearColorMap())
+    : QWidget(parent, 0, 0),
+      color_map(QwtLinearColorMap()),
+      min_val(0),
+      max_val(1)
 {
 table = new QTableWidget();
 table->setColumnCount(2);

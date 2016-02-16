@@ -35,7 +35,10 @@
 ///////////////////////////////////////////////////////////////////////////
 ColumnSetModeCmd::ColumnSetModeCmd(Column::Private * col, SciDAVis::ColumnMode mode,
 		AbstractFilter *conversion_filter, QUndoCommand * parent )
-: QUndoCommand( parent ), d_col(col), d_mode(mode), d_conversion_filter(conversion_filter)
+    : QUndoCommand( parent ),
+      d_col(col),
+      d_mode(mode),
+      d_conversion_filter(conversion_filter)
 {
 	setText(QObject::tr("%1: change column type").arg(col->name()));
 	d_undone = false;
@@ -165,8 +168,19 @@ void ColumnFullCopyCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 // class ColumnPartialCopyCmd
 ///////////////////////////////////////////////////////////////////////////
-ColumnPartialCopyCmd::ColumnPartialCopyCmd(Column::Private * col, const AbstractColumn * src, int src_start, int dest_start, int num_rows, QUndoCommand * parent )
-: QUndoCommand( parent ), d_col(col), d_src(src), d_src_start(src_start), d_dest_start(dest_start), d_num_rows(num_rows), d_col_backup(0), d_src_backup(0), d_col_backup_owner(0), d_src_backup_owner(0)
+ColumnPartialCopyCmd::ColumnPartialCopyCmd(Column::Private * col,
+    const AbstractColumn * src, int src_start, int dest_start,
+    int num_rows, QUndoCommand * parent )
+    : QUndoCommand( parent ),
+      d_col(col),
+      d_src(src),
+      d_col_backup(0),
+      d_src_backup(0),
+      d_col_backup_owner(0),
+      d_src_backup_owner(0),
+      d_src_start(src_start),
+      d_dest_start(dest_start),
+      d_num_rows(num_rows)
 {
 	setText(QObject::tr("%1: change cell value(s)").arg(col->name()));
 }

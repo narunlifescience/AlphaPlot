@@ -36,10 +36,12 @@
 #include <QPixmap>
 
 TableModel::TableModel(future::Table * table)
-	: QAbstractItemModel(0), d_table(table), d_formula_mode(false)
+    : QAbstractItemModel(0),
+      d_table(table),
 #ifdef LEGACY_CODE_0_2_x
-	, d_read_only(false)
+      d_read_only(false),
 #endif
+      d_formula_mode(false)
 {
 	connect(d_table, SIGNAL(columnsAboutToBeInserted(int, QList<Column *>)),
 			this, SLOT(handleColumnsAboutToBeInserted(int, QList<Column *>)));

@@ -67,7 +67,8 @@ private:
 	QwtLinearColorMap color_map;
 
 	//! Levels range
-	double min_val, max_val;
+    double min_val;
+    double max_val;
 };
    
 #endif
