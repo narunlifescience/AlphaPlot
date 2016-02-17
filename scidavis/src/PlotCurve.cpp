@@ -155,7 +155,7 @@ QList< QVector<double> > DataCurve::convertData(const QList<Column*> &cols, cons
 		Column *col = cols[i];
 
 		switch (col->columnMode()) {
-			case Table::Time:
+            /*case Table::Time:
 				{
 					QTime time;
 					QString format;
@@ -206,7 +206,7 @@ QList< QVector<double> > DataCurve::convertData(const QList<Column*> &cols, cons
 					if (g)
 						g->setLabelsDateTimeFormat(axes[i], Graph::Date, date.toString("YYYY-MM-DD") + ";" + format);
 					break;
-				}
+                }*/
 			case Table::DateTime:
 				{
 					QDateTime datetime;
@@ -254,12 +254,12 @@ QList< QVector<double> > DataCurve::convertData(const QList<Column*> &cols, cons
 				case Table::Text:
 					result[j][i] = static_cast<double>(valid_rows[i] + 1);
 					break;
-				case Table::Time:
+                /*case Table::Time:
 					result[j][i] = reference_times[j].msecsTo(cols[j]->timeAt(valid_rows[i]));
 					break;
 				case Table::Date:
 					result[j][i] = reference_dates[j].daysTo(cols[j]->dateAt(valid_rows[i]));
-					break;
+                    break;*/
 				case Table::DateTime:
 					{
 						QDateTime dt = cols[j]->dateTimeAt(valid_rows[i]);
