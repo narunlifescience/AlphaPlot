@@ -120,7 +120,7 @@ QString Integration::logInfo()
 	gsl_interp *interpolation = gsl_interp_alloc(method_t, d_n);
 	gsl_interp_init(interpolation, d_x, d_y, d_n);
 
-	if (d_n < gsl_interp_min_size(interpolation))
+    if (static_cast<size_t>(d_n) < gsl_interp_min_size(interpolation))
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("You need at least %1 points in order to perform this operation!").arg(gsl_interp_min_size(interpolation)));
