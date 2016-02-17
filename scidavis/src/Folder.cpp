@@ -31,27 +31,26 @@
  ***************************************************************************/
 #include "Folder.h"
 
-#include <qobject.h>
-#include <qdatetime.h>
-#include <qpixmap.h>
-
-#include <qevent.h>
-#include <qpoint.h>
-#include <qmessagebox.h>
-#include <q3dragobject.h>
-#include <qmime.h>
-#include <q3strlist.h>
-#include <qstringlist.h>
-#include <q3header.h>
-#include <qapplication.h>
-#include <q3dragobject.h>
-#include <q3iconview.h>
-#include <qcursor.h>
-//Added by qt3to4:
 #include <Q3PtrList>
+#include <Q3DragObject>
+#include <Q3StrList>
+#include <Q3Header>
+#include <Q3DragObject>
+#include <Q3IconView>
+//Added by qt3to4:
+#include <QObject>
 #include <QKeyEvent>
 #include <QDropEvent>
 #include <QMouseEvent>
+#include <QDateTime>
+#include <QPixmap>
+#include <QEvent>
+#include <QPoint>
+#include <QMessageBox>
+#include <QTime>
+#include <QCursor>
+#include <QApplication>
+#include <QStringList>
 
 Folder::Folder( Folder *parent, const QString &name )
 	: QObject(parent), d_active_window(0)

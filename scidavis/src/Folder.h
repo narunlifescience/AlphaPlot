@@ -29,10 +29,13 @@
 #ifndef FOLDER_H
 #define FOLDER_H
 
-#include <qobject.h>
-#include <q3listview.h>
-#include <q3iconview.h>
+#include "MyWidget.h"
+
+#include <Q3ListView>
+#include <Q3IconView>
+#include <Q3PtrList>
 //Added by qt3to4:
+#include <QObject>
 #include <QDragEnterEvent>
 #include <QMouseEvent>
 #include <QDragLeaveEvent>
@@ -40,9 +43,6 @@
 #include <QKeyEvent>
 #include <QEvent>
 #include <QDropEvent>
-#include <Q3PtrList>
-
-#include "MyWidget.h"
 
 class FolderListItem;
 class Table;
