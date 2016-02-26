@@ -141,8 +141,7 @@ namespace
 
     for (i=0; i<dataSize; ++i)
       {
-        // Need to port this line correctly to c++ 11
-        // cols << new Column(column_names[i], unique_ptr<C>(data[i]), invalid_cells[i]);
+        cols << new Column(std::move(column_names[i]), unique_ptr<C>(std::move(data[i])), std::move(invalid_cells[i]));
         if (i == 0) 
           cols.back()->setPlotDesignation(SciDAVis::X);
         else

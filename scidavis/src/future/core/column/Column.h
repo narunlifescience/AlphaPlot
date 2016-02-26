@@ -88,7 +88,7 @@ public:
          IntervalAttribute<bool> validity = IntervalAttribute<bool>()): 
     AbstractColumn(name)
   {
-    initPrivate(data, validity);
+    initPrivate(std::move(data), validity);
     init();
   }
   /// @}
