@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>SciDAVisAbout</class>
- <widget class="QDialog" name="SciDAVisAbout" >
-  <property name="geometry" >
+ <widget class="QDialog" name="SciDAVisAbout">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,144 +10,99 @@
     <height>450</height>
    </rect>
   </property>
-  <property name="minimumSize" >
+  <property name="minimumSize">
    <size>
     <width>500</width>
     <height>450</height>
    </size>
   </property>
-  <property name="maximumSize" >
+  <property name="maximumSize">
    <size>
     <width>500</width>
     <height>500</height>
    </size>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="../appicons.qrc" >
+  <property name="windowIcon">
+   <iconset resource="../../data/appicons.qrc">
     <normaloff>:/appicon</normaloff>:/appicon</iconset>
   </property>
-  <property name="sizeGripEnabled" >
+  <property name="sizeGripEnabled">
    <bool>false</bool>
   </property>
-  <widget class="QLabel" name="version_label" >
-   <property name="geometry" >
-    <rect>
-     <x>170</x>
-     <y>0</y>
-     <width>321</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="font" >
-    <font>
-     <pointsize>15</pointsize>
-    </font>
-   </property>
-   <property name="text" >
-    <string>SciDAVis XX.XX.XX-betaXX</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="release_date_label" >
-   <property name="geometry" >
-    <rect>
-     <x>170</x>
-     <y>40</y>
-     <width>261</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="font" >
-    <font>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-   <property name="text" >
-    <string>Released XXXX-XX-XX</string>
-   </property>
-  </widget>
-  <widget class="QTextEdit" name="credits_box" >
-   <property name="geometry" >
-    <rect>
-     <x>10</x>
-     <y>70</y>
-     <width>481</width>
-     <height>371</height>
-    </rect>
-   </property>
-   <property name="palette" >
-    <palette>
-     <active>
-      <colorrole role="Base" >
-       <brush brushstyle="SolidPattern" >
-        <color alpha="255" >
-         <red>239</red>
-         <green>239</green>
-         <blue>239</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </active>
-     <inactive>
-      <colorrole role="Base" >
-       <brush brushstyle="SolidPattern" >
-        <color alpha="255" >
-         <red>239</red>
-         <green>239</green>
-         <blue>239</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </inactive>
-     <disabled>
-      <colorrole role="Base" >
-       <brush brushstyle="SolidPattern" >
-        <color alpha="255" >
-         <red>255</red>
-         <green>255</green>
-         <blue>255</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </disabled>
-    </palette>
-   </property>
-   <property name="readOnly" >
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="close_button" >
-   <property name="geometry" >
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>131</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="toolTip" >
-    <string>Close</string>
-   </property>
-   <property name="text" >
-    <string/>
-   </property>
-   <property name="icon" >
-    <iconset resource="../appicons.qrc" >
-     <normaloff>:/applogo</normaloff>:/applogo</iconset>
-   </property>
-   <property name="iconSize" >
-    <size>
-     <width>130</width>
-     <height>50</height>
-    </size>
-   </property>
-  </widget>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="close_button">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Close</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../data/appicons.qrc">
+         <normaloff>:/applogo</normaloff>:/applogo</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>130</width>
+         <height>50</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="version_label">
+         <property name="font">
+          <font>
+           <pointsize>15</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>SciDAVis XX.XX.XX-betaXX</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="release_date_label">
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Released XXXX-XX-XX</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="credits_box">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources>
-  <include location="../appicons.qrc" />
-  <include location="../icons.qrc" />
+  <include location="../../data/appicons.qrc"/>
+  <include location="../../data/icons.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -155,11 +111,11 @@
    <receiver>SciDAVisAbout</receiver>
    <slot>close()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>251</x>
      <y>463</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>249</x>
      <y>249</y>
     </hint>
