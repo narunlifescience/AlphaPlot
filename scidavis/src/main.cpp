@@ -57,13 +57,13 @@ struct Application: public QApplication {
       QMessageBox::critical(0,tr("Error!"),tr("Error ") + e.what()
           + tr(" sending event ") + typeid(*event).name()
           + tr(" to object ") + qPrintable(receiver->objectName())
-          + tr(" (") + typeid(*receiver).name() + tr(")"));
+          + " \"" + typeid(*receiver).name() + "\"");
     } catch (...) /* shouldn't happen..*/ {
       QMessageBox::critical(0,tr("Error!"),
           tr("Error <unknown> sending event")
           + typeid(*event).name() + tr(" to object ")
           + qPrintable(receiver->objectName())
-          + tr(" (") + typeid(*receiver).name() + tr(")"));
+          + " \"" + typeid(*receiver).name() + "\"");
     }
     // qFatal aborts, so this isn't really necessary.
     return false;
