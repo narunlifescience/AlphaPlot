@@ -365,7 +365,8 @@ void ApplicationWindow::applyUserSettings()
 	updateAppFonts();
 	setScriptingLang(defaultScriptingLang);
 
-	d_workspace->setPaletteBackgroundColor (workspaceColor);
+	// comment out color handling for now
+	/*d_workspace->setPaletteBackgroundColor (workspaceColor);
 
 	QColorGroup cg;
 	cg.setColor(QColorGroup::Base, QColor(panelsColor) );
@@ -379,7 +380,7 @@ void ApplicationWindow::applyUserSettings()
 
 	cg.setColor(QColorGroup::Text, QColor(Qt::green) );
 	cg.setColor(QColorGroup::HighlightedText, QColor(Qt::darkGreen) );
-	cg.setColor(QColorGroup::Base, QColor(Qt::black) );
+	cg.setColor(QColorGroup::Base, QColor(Qt::black) );*/
 }
 
 void ApplicationWindow::initToolBars()
@@ -2426,12 +2427,13 @@ void ApplicationWindow::customizeTables(const QColor& bgColor,const QColor& text
 
 void ApplicationWindow::customTable(Table* w)
 {
-	QColorGroup cg;
+  // comment out color handling
+        /*QColorGroup cg;
 	cg.setColor(QColorGroup::Base, QColor(tableBkgdColor));
 	cg.setColor(QColorGroup::Text, QColor(tableTextColor));
 	w->setPalette(QPalette(cg, cg, cg));
 
-	w->setHeaderColor (tableHeaderColor);
+	w->setHeaderColor (tableHeaderColor);*/
 	w->setTextFont(tableTextFont);
 	w->setHeaderFont(tableHeaderFont);
 	w->showComments(d_show_table_comments);
@@ -3067,9 +3069,10 @@ void ApplicationWindow::changeAppStyle(const QString& s)
 	qApp->setStyle(s);
 	appStyle = qApp->style()->objectName();
 
-	QPalette pal = qApp->palette();
+	// comment out color handling
+	/*QPalette pal = qApp->palette();
 	pal.setColor (QPalette::Active, QPalette::Base, QColor(panelsColor));
-	qApp->setPalette(pal);
+	qApp->setPalette(pal);*/
 
 }
 
@@ -10405,7 +10408,8 @@ void ApplicationWindow::connectTable(Table* w)
 
 void ApplicationWindow::setAppColors(const QColor& wc,const QColor& pc,const QColor& tpc)
 {
-	if (workspaceColor != wc)
+  // comment out setting color for now
+        /*if (workspaceColor != wc)
 	{
 		workspaceColor = wc;
 		d_workspace->setPaletteBackgroundColor (wc);
@@ -10425,7 +10429,7 @@ void ApplicationWindow::setAppColors(const QColor& wc,const QColor& pc,const QCo
 	cg.setColor(QColorGroup::WindowText, QColor(panelsTextColor) );
 	cg.setColor(QColorGroup::HighlightedText, QColor(panelsTextColor) );
 	lv->setPalette(QPalette(cg, cg, cg));
-	results->setPalette(QPalette(cg, cg, cg));
+	results->setPalette(QPalette(cg, cg, cg));*/
 }
 
 void ApplicationWindow::setPlot3DOptions()
