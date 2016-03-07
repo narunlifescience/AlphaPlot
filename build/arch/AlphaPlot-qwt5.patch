@@ -1,0 +1,11 @@
+--- AlphaPlot/config.pri	2016-03-07 11:52:34.599116472 -0600
++++ config.pri	2016-03-07 12:08:13.676150659 -0600
+@@ -281,7 +281,7 @@
+   INCLUDEPATH  += /usr/include/qwtplot3d
+   LIBS         += -lqwtplot3d$${qwtsuff}
+ 
+-  LIBS         += -lqwt$${qwtsuff} -lz -lGLU
++  LIBS         += -lqwt5 -lz -lGLU
+ 
+   INCLUDEPATH  += /usr/include/muParser
+   LIBS         += -lgsl -lgslcblas
