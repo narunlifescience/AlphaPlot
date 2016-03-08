@@ -15,8 +15,6 @@
    Description : central settings dialog
 */
 
-
-
 #include "aSettingsListView.h"
 #include "SettingsDialog.h"
 #include "SettingsPage.h"
