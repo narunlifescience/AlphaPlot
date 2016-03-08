@@ -17,18 +17,22 @@
 
 #include "ConsoleWidget.h"
 #include "ui_ConsoleWidget.h"
+
 #include "scripting/widgets/Console.h"
 
 ConsoleWidget::ConsoleWidget(QWidget *parent) :
     QDockWidget(parent),
-    ui(new Ui::ConsoleWidget)
+    ui_(new Ui_ConsoleWidget)
 {
-    ui->setupUi(this);
+    ui_->setupUi(this);
     setWindowTitle(tr("Scripting Console"));
-    connect(ui->console, SIGNAL(command(QString)), ui->console, SLOT(result(QString)));
+    setWindowIcon(QIcon());
+    ui_->gridLayout->setSpacing(0);
+    ui_->gridLayout->setContentsMargins(0, 0, 0, 0);
+    connect(ui_->console, SIGNAL(command(QString)), ui_->console, SLOT(result(QString)));
 }
 
 ConsoleWidget::~ConsoleWidget()
 {
-    delete ui;
+    delete ui_;
 }

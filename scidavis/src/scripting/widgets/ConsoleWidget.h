@@ -20,9 +20,7 @@
 
 #include <QDockWidget>
 
-namespace Ui {
-class ConsoleWidget;
-}
+class Ui_ConsoleWidget;
 
 class ConsoleWidget : public QDockWidget
 {
@@ -33,7 +31,7 @@ public:
     ~ConsoleWidget();
 
 private:
-    Ui::ConsoleWidget *ui;
+    Ui_ConsoleWidget *ui_;
 };
 
 #endif // CONSOLEWIDGET_H
