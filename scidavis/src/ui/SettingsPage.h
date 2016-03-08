@@ -26,7 +26,7 @@ class SettingsPage : public QWidget {
   Q_OBJECT
 
  public:
-  SettingsPage(SettingsDialog* dialog);
+  SettingsPage(SettingsDialog* dialog = nullptr);
 
   // Return false to grey out the page's item in the list.
   virtual bool IsEnabled() const { return true; }

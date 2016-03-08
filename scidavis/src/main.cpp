@@ -35,14 +35,19 @@
   - Class names start with a capital letter, object/variable
     names with a lower case letter.
   - Methods and functions are named likeThis(), variables
-    like_this and instance variables are prefixed with "d_".
+    likeThis and instance variables are prefixed with "d_".
   - Property access methods use Qt style: property() and
     setProperty().
   - Every file should be named exactly like the class inside
     and there should be only one class per file, with the
     exception of really short classes like LayerButton.
-  - For indentations, tabs are preferred because they allow
+  - For indentations, spacess are preferred because they allow
     everyone to choose the indentation depth for him/herself.
+    we prefer Qt Creator as an IDE editor for this project or
+    if you prefer text editor then, Sublime text editor should
+    be appropriate. we prefer monokai color scheme.
+    General format used through out the project should be
+    Google style(clang format) with a line wrap of 80 characters.
 */
 
 struct Application: public QApplication {
