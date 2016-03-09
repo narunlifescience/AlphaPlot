@@ -1,11 +1,12 @@
 /***************************************************************************
     File                 : XmlStreamReader.cpp
     Project              : SciDAVis
-    Description          : XML stream parser that supports errors as well as warnings
+    Description          : XML stream parser that supports errors as well as
+ warnings
     --------------------------------------------------------------------
     Copyright            : (C) 2008-2009 Tilman Benkert (thzs*gmx.net)
-                           (replace * with @ in the email addresses) 
-                           
+                           (replace * with @ in the email addresses)
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -30,111 +31,92 @@
 #include "lib/XmlStreamReader.h"
 #include <QtDebug>
 
-XmlStreamReader::XmlStreamReader()
-{
-	init();
+XmlStreamReader::XmlStreamReader() { init(); }
+
+XmlStreamReader::XmlStreamReader(QIODevice* device) : QXmlStreamReader(device) {
+  init();
 }
 
-XmlStreamReader::XmlStreamReader(QIODevice * device)
-: QXmlStreamReader(device)
-{
-	init();
+XmlStreamReader::XmlStreamReader(const QByteArray& data)
+    : QXmlStreamReader(data) {
+  init();
 }
 
-XmlStreamReader::XmlStreamReader(const QByteArray & data)
-: QXmlStreamReader(data)
-{
-	init();
+XmlStreamReader::XmlStreamReader(const QString& data) : QXmlStreamReader(data) {
+  init();
 }
 
-XmlStreamReader::XmlStreamReader(const QString & data)
-: QXmlStreamReader(data)
-{
-	init();
+XmlStreamReader::XmlStreamReader(const char* data) : QXmlStreamReader(data) {
+  init();
 }
 
-XmlStreamReader::XmlStreamReader(const char * data)
-: QXmlStreamReader(data)
-{
-	init();
+void XmlStreamReader::init() {
+  d_error_prefix =
+      QObject::tr("XML reader error: ", "prefix for XML error messages");
+  d_error_postfix =
+      QObject::tr(" (loading failed)", "postfix for XML error messages");
+  d_warning_prefix =
+      QObject::tr("XML reader warning: ", "prefix for XML warning messages");
+  d_warning_postfix = QObject::tr("", "postfix for XML warning messages");
 }
 
-void XmlStreamReader::init()
-{
-	d_error_prefix = QObject::tr("XML reader error: ","prefix for XML error messages");
-	d_error_postfix = QObject::tr(" (loading failed)", "postfix for XML error messages");
-	d_warning_prefix = QObject::tr("XML reader warning: ","prefix for XML warning messages");
-	d_warning_postfix = QObject::tr("", "postfix for XML warning messages");
+QStringList XmlStreamReader::warningStrings() const { return d_warnings; }
+
+bool XmlStreamReader::hasWarnings() const { return !(d_warnings.isEmpty()); }
+
+void XmlStreamReader::raiseError(const QString& message) {
+  QString prefix2 = QString(QObject::tr("line %1, column %2: ")
+                                .arg(lineNumber())
+                                .arg(columnNumber()));
+  QXmlStreamReader::raiseError(d_error_prefix + prefix2 + message +
+                               d_error_postfix);
 }
 
-QStringList XmlStreamReader::warningStrings() const
-{
-	return d_warnings;
+void XmlStreamReader::raiseWarning(const QString& message) {
+  QString prefix2 = QString(QObject::tr("line %1, column %2: ")
+                                .arg(lineNumber())
+                                .arg(columnNumber()));
+  d_warnings.append(d_warning_prefix + prefix2 + message + d_warning_postfix);
 }
 
-bool XmlStreamReader::hasWarnings() const
-{
-	return !(d_warnings.isEmpty());
+bool XmlStreamReader::skipToNextTag() {
+  if (atEnd()) {
+    raiseError(QObject::tr("unexpected end of document"));
+    return false;
+  }
+  do {
+    readNext();
+  } while (!(isStartElement() || isEndElement() || atEnd()));
+  if (atEnd()) {
+    raiseError(QObject::tr("unexpected end of document"));
+    return false;
+  }
+  return true;
 }
 
-void XmlStreamReader::raiseError(const QString & message)
-{
-	QString prefix2 = QString(QObject::tr("line %1, column %2: ").arg(lineNumber()).arg(columnNumber()));
-	QXmlStreamReader::raiseError(d_error_prefix+prefix2+message+d_error_postfix);
+int XmlStreamReader::readAttributeInt(const QString& name, bool* ok) {
+  QString str = attributes().value(namespaceUri().toString(), name).toString();
+  if (str.isEmpty()) {
+    if (ok) *ok = false;
+    return 0;
+  }
+  return str.toInt(ok);
 }
 
-void XmlStreamReader::raiseWarning(const QString & message)
-{
-	QString prefix2 = QString(QObject::tr("line %1, column %2: ").arg(lineNumber()).arg(columnNumber()));
-	d_warnings.append(d_warning_prefix+prefix2+message+d_warning_postfix);
-}
-
-bool XmlStreamReader::skipToNextTag()
-{
-	if (atEnd())
-	{
-		raiseError(QObject::tr("unexpected end of document"));
-		return false;
-	}
-	do {
-		readNext();
-	} while (!(isStartElement() || isEndElement() || atEnd()));
-	if (atEnd())
-	{
-		raiseError(QObject::tr("unexpected end of document"));
-		return false;
-	}
-	return true;
-}
-
-int XmlStreamReader::readAttributeInt(const QString & name, bool * ok)
-{
-	QString str = attributes().value(namespaceUri().toString(), name).toString();
-	if (str.isEmpty())
-	{
-		if (ok) *ok = false;
-		return 0;
-	}
-	return str.toInt(ok);
-}
-
-bool XmlStreamReader::skipToEndElement()
-{
-	int depth = 1;
-	if (atEnd())
-	{
-		raiseError(QObject::tr("unexpected end of document"));
-		return false;
-	}
-	do {
-		readNext();
-		if (isEndElement()) depth--;
-		if (isStartElement()) depth++; 
-	} while (!((isEndElement() && depth == 0) || atEnd()));
-	if (atEnd())
-	{
-		raiseError(QObject::tr("unexpected end of document"));
-		return false;
-	}
-	return true;
+bool XmlStreamReader::skipToEndElement() {
+  int depth = 1;
+  if (atEnd()) {
+    raiseError(QObject::tr("unexpected end of document"));
+    return false;
+  }
+  do {
+    readNext();
+    if (isEndElement()) depth--;
+    if (isStartElement()) depth++;
+  } while (!((isEndElement() && depth == 0) || atEnd()));
+  if (atEnd()) {
+    raiseError(QObject::tr("unexpected end of document"));
+    return false;
+  }
+  return true;
 }

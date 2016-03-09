@@ -4,7 +4,8 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Tilman Benkert,
     Email (use @ for *)  : thzs*gmx.net
-    Description          : Horizontal header for TableView displaying comments in a second header
+    Description          : Horizontal header for TableView displaying comments
+ in a second header
 
  ***************************************************************************/
 
@@ -40,20 +41,19 @@
  * A TableCommentsHeaderView displays the column comments
  * in a second header below the normal header. It is completely
  * controlled by a TableDoubleHeaderView object and thus has
- * a master-slave relationship to it. This would be an inner class 
+ * a master-slave relationship to it. This would be an inner class
  * of TableDoubleHeaderView if Qt allowed this.
  */
-class TableCommentsHeaderView : public QHeaderView
-{
-	Q_OBJECT
+class TableCommentsHeaderView : public QHeaderView {
+  Q_OBJECT
 
-	public:
-		TableCommentsHeaderView(QWidget *parent = 0);
-		virtual ~TableCommentsHeaderView();
+ public:
+  TableCommentsHeaderView(QWidget *parent = 0);
+  virtual ~TableCommentsHeaderView();
 
-	virtual void setModel(QAbstractItemModel * model);
+  virtual void setModel(QAbstractItemModel *model);
 
-	friend class TableDoubleHeaderView; // access to paintSection (protected)
+  friend class TableDoubleHeaderView;  // access to paintSection (protected)
 };
 
 //! Horizontal header for TableView displaying comments in a second header
@@ -62,46 +62,45 @@ class TableCommentsHeaderView : public QHeaderView
  * It allows for displaying two horizontal headers.
  * A TableDoubleHeaderView displays the column name, plot designation, and
  * type icon in a normal QHeaderView and below that a second header
- * which displays the column comments. 
- * 
+ * which displays the column comments.
+ *
  * \sa TableCommentsHeaderView
  * \sa QHeaderView
  */
-class TableDoubleHeaderView : public QHeaderView
-{
-	Q_OBJECT
+class TableDoubleHeaderView : public QHeaderView {
+  Q_OBJECT
 
-	private:
-		TableCommentsHeaderView * d_slave;
+ private:
+  TableCommentsHeaderView *d_slave;
 
-	public:
-		TableDoubleHeaderView(QWidget * parent = 0);
-		~TableDoubleHeaderView();
+ public:
+  TableDoubleHeaderView(QWidget *parent = 0);
+  ~TableDoubleHeaderView();
 
-		virtual void setModel(QAbstractItemModel * model);
-		virtual QSize sizeHint () const;
-		//! Show or hide (if on = false) the column comments
-		void showComments(bool on = true);
-		//! Return whether comments are show currently
-		bool areCommentsShown() const;
+  virtual void setModel(QAbstractItemModel *model);
+  virtual QSize sizeHint() const;
+  //! Show or hide (if on = false) the column comments
+  void showComments(bool on = true);
+  //! Return whether comments are show currently
+  bool areCommentsShown() const;
 
-	public slots:
-		// adjust geometry and repaint header 
-		void refresh();
-		// React to a header data change
-		void headerDataChanged(Qt::Orientation orientation, int logicalFirst, int logicalLast);
+ public slots:
+  // adjust geometry and repaint header
+  void refresh();
+  // React to a header data change
+  void headerDataChanged(Qt::Orientation orientation, int logicalFirst,
+                         int logicalLast);
 
-	protected slots:
-		void sectionsInserted(const QModelIndex & parent, int logicalFirst, int logicalLast);
+ protected slots:
+  void sectionsInserted(const QModelIndex &parent, int logicalFirst,
+                        int logicalLast);
 
-	protected:
-		virtual void paintSection(QPainter * painter, const QRect & rect, int logicalIndex) const;
-	
-		//! Flag: show/high column comments
-		bool d_show_comments;
+ protected:
+  virtual void paintSection(QPainter *painter, const QRect &rect,
+                            int logicalIndex) const;
+
+  //! Flag: show/high column comments
+  bool d_show_comments;
 };
 
-
-
-
-#endif // #ifndef TABLEDOUBLEHEADERVIEW_H
+#endif  // TABLEDOUBLEHEADERVIEW_H

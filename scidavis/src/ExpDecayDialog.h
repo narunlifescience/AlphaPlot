@@ -40,47 +40,44 @@ class ColorBox;
 class Fit;
 
 //! Fit exponential decay dialog
-class ExpDecayDialog : public QDialog
-{
-    Q_OBJECT
+class ExpDecayDialog : public QDialog {
+  Q_OBJECT
 
-public:
-    ExpDecayDialog( int type, QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~ExpDecayDialog(){};
+ public:
+  ExpDecayDialog(int type, QWidget* parent = 0, Qt::WFlags fl = 0);
+  ~ExpDecayDialog() {}
 
-public slots:
-	void fit();
-	void setGraph(Graph *g);
+ public slots:
+  void fit();
+  void setGraph(Graph* g);
 
-private slots:
-    void activateCurve(const QString& curveName);
-	void changeDataRange();
+ private slots:
+  void activateCurve(const QString& curveName);
+  void changeDataRange();
 
-signals:
-	void options(const QString&,double,double,double,double,int);
-	void options(const QString&, double,double,double,int);
-	void options3(const QString&,double,double,double,double,double,int);
+ signals:
+  void options(const QString&, double, double, double, double, int);
+  void options(const QString&, double, double, double, int);
+  void options3(const QString&, double, double, double, double, double, int);
 
-private:
-    void closeEvent (QCloseEvent *);
+ private:
+  void closeEvent(QCloseEvent*);
 
-    Fit *fitter;
-	Graph *graph;
-	int slopes;
+  Fit* fitter;
+  Graph* graph;
+  int slopes;
 
-	QPushButton* buttonFit;
-	QPushButton* buttonCancel;
-	QComboBox* boxName;
-	QLineEdit* boxAmplitude;
-	QLineEdit* boxFirst;
-	QLineEdit* boxSecond;
-	QLineEdit* boxThird;
-	QLineEdit* boxStart;
-	QLineEdit* boxYOffset;
-	QLabel* thirdLabel, *dampingLabel;
-	ColorBox* boxColor;
+  QPushButton* buttonFit;
+  QPushButton* buttonCancel;
+  QComboBox* boxName;
+  QLineEdit* boxAmplitude;
+  QLineEdit* boxFirst;
+  QLineEdit* boxSecond;
+  QLineEdit* boxThird;
+  QLineEdit* boxStart;
+  QLineEdit* boxYOffset;
+  QLabel *thirdLabel, *dampingLabel;
+  ColorBox* boxColor;
 };
 
-#endif
-
-
+#endif  // EXPDECAYDIALOG_H

@@ -34,7 +34,7 @@
 #include <Q3ListView>
 #include <Q3IconView>
 #include <Q3PtrList>
-//Added by qt3to4:
+// Added by qt3to4:
 #include <QObject>
 #include <QDragEnterEvent>
 #include <QMouseEvent>
@@ -57,91 +57,100 @@ class QDropEvent;
 class Q3DragObject;
 
 //! Folder for the project explorer
-class Folder : public QObject
-{
-    Q_OBJECT
+class Folder : public QObject {
+  Q_OBJECT
 
-public:
-    Folder( Folder *parent, const QString &name );
+ public:
+  Folder(Folder *parent, const QString &name);
 
-	QList<MyWidget *> windowsList(){return lstWindows;};
+  QList<MyWidget *> windowsList() { return lstWindows; }
 
-    void addWindow( MyWidget *w ) {
-		w->setFolder(this);
-		lstWindows.append( w );
-	};
-	void removeWindow( MyWidget *w ){
-		w->setFolder(0);
-		lstWindows.removeAll(w);
-		if (w==d_active_window) d_active_window=0;
-	};
+  void addWindow(MyWidget *w) {
+    w->setFolder(this);
+    lstWindows.append(w);
+  }
+  void removeWindow(MyWidget *w) {
+    w->setFolder(0);
+    lstWindows.removeAll(w);
+    if (w == d_active_window) d_active_window = 0;
+  }
 
-	int windowCount(bool recursive = false) const {
-	    int result = lstWindows.size();
-	    if (recursive)
-		foreach (Folder *folder, folders())
-		    result += folder->windowCount(true);
-	    return result;
-	};
+  int windowCount(bool recursive = false) const {
+    int result = lstWindows.size();
+    if (recursive) foreach (Folder *folder, folders())
+        result += folder->windowCount(true);
+    return result;
+  }
 
-	//! The list of subfolder names, including first generation children only
-	QStringList subfolders();
+  //! The list of subfolder names, including first generation children only
+  QStringList subfolders();
 
-	//! The list of subfolders
-	QList<Folder*> folders() const;
+  //! The list of subfolders
+  QList<Folder *> folders() const;
 
-	//! Pointer to the subfolder called s
-	Folder* findSubfolder(const QString& s, bool caseSensitive = true, bool partialMatch = false);
+  //! Pointer to the subfolder called s
+  Folder *findSubfolder(const QString &s, bool caseSensitive = true,
+                        bool partialMatch = false);
 
-	//! Pointer to the first window matching the search criteria
-	MyWidget* findWindow(const QString& s, bool windowNames, bool labels,
-							 bool caseSensitive, bool partialMatch);
+  //! Pointer to the first window matching the search criteria
+  MyWidget *findWindow(const QString &s, bool windowNames, bool labels,
+                       bool caseSensitive, bool partialMatch);
 
-	//! get a window by name
-	  /**
-	   * Returns the first window with given name that inherits class cls;
-	   * NULL on failure. If recursive is true, do a depth-first recursive
-	   * search.
-	   */
-	MyWidget *window(const QString &name, const char *cls="myWidget", bool recursive=false);
-	//! Return table named name or NULL
-	Table *table(const QString &name, bool recursive=false) { return (Table*) window(name, "Table", recursive); }
-	//! Return matrix named name or NULL
-	Matrix *matrix(const QString &name, bool recursive=false) { return (Matrix*) window(name, "Matrix", recursive); }
-	//! Return graph named name or NULL
-	MultiLayer *graph(const QString &name, bool recursive=false) { return (MultiLayer*) window(name, "MultiLayer", recursive); }
-	//! Return note named name or NULL
-	Note *note(const QString &name, bool recursive=false) { return (Note*) window(name, "Note", recursive); }
+  //! get a window by name
+  /**
+   * Returns the first window with given name that inherits class cls;
+   * NULL on failure. If recursive is true, do a depth-first recursive
+   * search.
+   */
+  MyWidget *window(const QString &name, const char *cls = "myWidget",
+                   bool recursive = false);
+  //! Return table named name or NULL
+  Table *table(const QString &name, bool recursive = false) {
+    return (Table *)window(name, "Table", recursive);
+  }
+  //! Return matrix named name or NULL
+  Matrix *matrix(const QString &name, bool recursive = false) {
+    return (Matrix *)window(name, "Matrix", recursive);
+  }
+  //! Return graph named name or NULL
+  MultiLayer *graph(const QString &name, bool recursive = false) {
+    return (MultiLayer *)window(name, "MultiLayer", recursive);
+  }
+  //! Return note named name or NULL
+  Note *note(const QString &name, bool recursive = false) {
+    return (Note *)window(name, "Note", recursive);
+  }
 
-	//! The complete path of the folder in the project tree
-	QString path();
+  //! The complete path of the folder in the project tree
+  QString path();
 
-	//! The root of the hierarchy this folder belongs to.
-	Folder* rootFolder();
+  //! The root of the hierarchy this folder belongs to.
+  Folder *rootFolder();
 
-	QString birthDate(){return birthdate;};
-	void setBirthDate(const QString& s){birthdate = s;};
+  QString birthDate() { return birthdate; }
+  void setBirthDate(const QString &s) { birthdate = s; }
 
-	QString modificationDate(){return modifDate;};
-	void setModificationDate(const QString& s){modifDate = s;};
+  QString modificationDate() { return modifDate; }
+  void setModificationDate(const QString &s) { modifDate = s; }
 
-	//! Pointer to the corresponding QListViewItem in the main application
-	FolderListItem * folderListItem(){return myFolderListItem;};
-	void setFolderListItem(FolderListItem *it){myFolderListItem = it;};
+  //! Pointer to the corresponding QListViewItem in the main application
+  FolderListItem *folderListItem() { return myFolderListItem; }
+  void setFolderListItem(FolderListItem *it) { myFolderListItem = it; }
 
-    MyWidget *activeWindow(){return d_active_window;};
-    void setActiveWindow(MyWidget *w){d_active_window = w;};
+  MyWidget *activeWindow() { return d_active_window; }
+  void setActiveWindow(MyWidget *w) { d_active_window = w; }
 
-	// TODO: move to Aspect
-	QString name(){return objectName();}
-	void setName(const QString& s){setObjectName(s);}
-protected:
-    QString birthdate, modifDate;
-    QList<MyWidget *> lstWindows;
-	FolderListItem *myFolderListItem;
+  // TODO: move to Aspect
+  QString name() { return objectName(); }
+  void setName(const QString &s) { setObjectName(s); }
 
-	//! Pointer to the active window in the folder
-	MyWidget *d_active_window;
+ protected:
+  QString birthdate, modifDate;
+  QList<MyWidget *> lstWindows;
+  FolderListItem *myFolderListItem;
+
+  //! Pointer to the active window in the folder
+  MyWidget *d_active_window;
 };
 
 /*****************************************************************************
@@ -150,15 +159,14 @@ protected:
  *
  *****************************************************************************/
 //! Windows list item class
-class WindowListItem : public Q3ListViewItem
-{
-public:
-    WindowListItem( Q3ListView *parent, MyWidget *w );
+class WindowListItem : public Q3ListViewItem {
+ public:
+  WindowListItem(Q3ListView *parent, MyWidget *w);
 
-    MyWidget *window() { return myWindow; };
+  MyWidget *window() { return myWindow; }
 
-protected:
-    MyWidget *myWindow;
+ protected:
+  MyWidget *myWindow;
 };
 
 /*****************************************************************************
@@ -167,28 +175,27 @@ protected:
  *
  *****************************************************************************/
 //! Folders list item class
-class FolderListItem : public Q3ListViewItem
-{
-public:
-    FolderListItem( Q3ListView *parent, Folder *f );
-    FolderListItem( FolderListItem *parent, Folder *f );
+class FolderListItem : public Q3ListViewItem {
+ public:
+  FolderListItem(Q3ListView *parent, Folder *f);
+  FolderListItem(FolderListItem *parent, Folder *f);
 
-	enum {RTTI = 1001};
+  enum { RTTI = 1001 };
 
-	void setActive( bool o );
+  void setActive(bool o);
 
-	virtual int rtti() const {return (int)RTTI;};
+  virtual int rtti() const { return (int)RTTI; }
 
-    Folder *folder() { return myFolder; };
+  Folder *folder() { return myFolder; }
 
-	//! Checks weather the folder item is a grandchild of the source folder
-	/**
-	 * \param src source folder item
-	 */
-	bool isChildOf(FolderListItem *src);
+  //! Checks weather the folder item is a grandchild of the source folder
+  /**
+   * \param src source folder item
+   */
+  bool isChildOf(FolderListItem *src);
 
-protected:
-    Folder *myFolder;
+ protected:
+  Folder *myFolder;
 };
 
 /*****************************************************************************
@@ -197,37 +204,36 @@ protected:
  *
  *****************************************************************************/
 //! Folder list view class
-class FolderListView : public Q3ListView
-{
-    Q_OBJECT
+class FolderListView : public Q3ListView {
+  Q_OBJECT
 
-public:
-	FolderListView(QWidget *parent = 0, const QString name = QString() );
+ public:
+  FolderListView(QWidget *parent = 0, const QString name = QString());
 
-public slots:
-	void adjustColumns();
+ public slots:
+  void adjustColumns();
 
-protected:
-	void startDrag();
+ protected:
+  void startDrag();
 
-    void contentsDropEvent( QDropEvent *e );
-    void contentsMouseMoveEvent( QMouseEvent *e );
-    void contentsMousePressEvent( QMouseEvent *e );
-	void contentsMouseDoubleClickEvent( QMouseEvent* e );
-	void keyPressEvent ( QKeyEvent * e );
-    void contentsMouseReleaseEvent( QMouseEvent *){mousePressed = false;};
-	void enterEvent(QEvent *){mousePressed = false;};
+  void contentsDropEvent(QDropEvent *e);
+  void contentsMouseMoveEvent(QMouseEvent *e);
+  void contentsMousePressEvent(QMouseEvent *e);
+  void contentsMouseDoubleClickEvent(QMouseEvent *e);
+  void keyPressEvent(QKeyEvent *e);
+  void contentsMouseReleaseEvent(QMouseEvent *) { mousePressed = false; }
+  void enterEvent(QEvent *) { mousePressed = false; }
 
-signals:
-	void dragItems(QList<Q3ListViewItem *> items);
-	void dropItems(Q3ListViewItem *dest);
-	void renameItem(Q3ListViewItem *item);
-	void addFolderItem();
-	void deleteSelection();
+ signals:
+  void dragItems(QList<Q3ListViewItem *> items);
+  void dropItems(Q3ListViewItem *dest);
+  void renameItem(Q3ListViewItem *item);
+  void addFolderItem();
+  void deleteSelection();
 
-private:
-	bool mousePressed;
-	QPoint presspos;
+ private:
+  bool mousePressed;
+  QPoint presspos;
 };
 
-#endif
+#endif  // FOLDER_H

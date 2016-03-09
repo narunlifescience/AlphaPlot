@@ -4,7 +4,7 @@
     Description          : Model for the access to a Matrix
     --------------------------------------------------------------------
     Copyright            : (C) 2008-2009 Tilman Benkert (thzs*gmx.net)
-                           (replace * with @ in the email addresses) 
+                           (replace * with @ in the email addresses)
 
  ***************************************************************************/
 
@@ -34,214 +34,192 @@
 #include <QBrush>
 #include <QColor>
 
-MatrixModel::MatrixModel(future::Matrix * matrix)
-	: QAbstractItemModel(0), d_matrix(matrix)
-{
-	connect(d_matrix, SIGNAL(columnsAboutToBeInserted(int, int)),
-			this, SLOT(handleColumnsAboutToBeInserted(int, int)));
-	connect(d_matrix, SIGNAL(columnsInserted(int, int)),
-			this, SLOT(handleColumnsInserted(int, int)));
-	connect(d_matrix, SIGNAL(columnsAboutToBeRemoved(int, int)),
-			this, SLOT(handleColumnsAboutToBeRemoved(int, int)));
-	connect(d_matrix, SIGNAL(columnsRemoved(int, int)),
-			this, SLOT(handleColumnsRemoved(int, int)));
-	connect(d_matrix, SIGNAL(rowsAboutToBeInserted(int, int)),
-			this, SLOT(handleRowsAboutToBeInserted(int, int)));
-	connect(d_matrix, SIGNAL(rowsInserted(int, int)),
-			this, SLOT(handleRowsInserted(int, int)));
-	connect(d_matrix, SIGNAL(rowsAboutToBeRemoved(int, int)),
-			this, SLOT(handleRowsAboutToBeRemoved(int, int)));
-	connect(d_matrix, SIGNAL(rowsRemoved(int, int)),
-			this, SLOT(handleRowsRemoved(int, int)));
-	connect(d_matrix, SIGNAL(dataChanged(int, int, int, int)),
-			this, SLOT(handleDataChanged(int, int, int, int)));
-	connect(d_matrix, SIGNAL(coordinatesChanged()),
-			this, SLOT(handleCoordinatesChanged()));
-	connect(d_matrix, SIGNAL(formatChanged()),
-			this, SLOT(handleFormatChanged()));
+MatrixModel::MatrixModel(future::Matrix *matrix)
+    : QAbstractItemModel(0), d_matrix(matrix) {
+  connect(d_matrix, SIGNAL(columnsAboutToBeInserted(int, int)), this,
+          SLOT(handleColumnsAboutToBeInserted(int, int)));
+  connect(d_matrix, SIGNAL(columnsInserted(int, int)), this,
+          SLOT(handleColumnsInserted(int, int)));
+  connect(d_matrix, SIGNAL(columnsAboutToBeRemoved(int, int)), this,
+          SLOT(handleColumnsAboutToBeRemoved(int, int)));
+  connect(d_matrix, SIGNAL(columnsRemoved(int, int)), this,
+          SLOT(handleColumnsRemoved(int, int)));
+  connect(d_matrix, SIGNAL(rowsAboutToBeInserted(int, int)), this,
+          SLOT(handleRowsAboutToBeInserted(int, int)));
+  connect(d_matrix, SIGNAL(rowsInserted(int, int)), this,
+          SLOT(handleRowsInserted(int, int)));
+  connect(d_matrix, SIGNAL(rowsAboutToBeRemoved(int, int)), this,
+          SLOT(handleRowsAboutToBeRemoved(int, int)));
+  connect(d_matrix, SIGNAL(rowsRemoved(int, int)), this,
+          SLOT(handleRowsRemoved(int, int)));
+  connect(d_matrix, SIGNAL(dataChanged(int, int, int, int)), this,
+          SLOT(handleDataChanged(int, int, int, int)));
+  connect(d_matrix, SIGNAL(coordinatesChanged()), this,
+          SLOT(handleCoordinatesChanged()));
+  connect(d_matrix, SIGNAL(formatChanged()), this, SLOT(handleFormatChanged()));
 }
 
-MatrixModel::~MatrixModel()
-{
+MatrixModel::~MatrixModel() {}
+
+Qt::ItemFlags MatrixModel::flags(const QModelIndex &index) const {
+  if (index.isValid())
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+  else
+    return Qt::ItemIsEnabled;
 }
 
-Qt::ItemFlags MatrixModel::flags(const QModelIndex & index ) const
-{
-	if (index.isValid())
-		return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
-	else
-		return Qt::ItemIsEnabled;
+QVariant MatrixModel::data(const QModelIndex &index, int role) const {
+  if (!index.isValid()) return QVariant();
+
+  int row = index.row();
+  int col = index.column();
+
+  switch (role) {
+    case Qt::ToolTipRole:
+    case Qt::EditRole:
+    case Qt::DisplayRole:
+      return QVariant(d_matrix->text(row, col));
+    case Qt::BackgroundRole:
+      return QVariant(QBrush(
+          QColor(0xff, 0xff,
+                 0x77)));  // yellow color to distinguish a matrix from a table
+  }
+
+  return QVariant();
 }
 
-QVariant MatrixModel::data(const QModelIndex &index, int role) const
-{
-	if( !index.isValid() )
-		return QVariant();
-	
-	int row = index.row();
-	int col = index.column();
+QVariant MatrixModel::headerData(int section, Qt::Orientation orientation,
+                                 int role) const {
+  QString result;
+  switch (orientation) {
+    case Qt::Horizontal:
+      switch (role) {
+        case Qt::DisplayRole:
+        case Qt::ToolTipRole:
+          result += QString::number(section + 1) + QString(" (");
+          double diff = d_matrix->xEnd() - d_matrix->xStart();
+          double step = 0.0;
+          if (d_matrix->columnCount() > 1)
+            step = diff / double(d_matrix->columnCount() - 1);
+          result += QLocale().toString(
+              d_matrix->xStart() + double(section) * step,
+              d_matrix->numericFormat(), d_matrix->displayedDigits());
 
-	switch(role)
-	{
-		case Qt::ToolTipRole:
-		case Qt::EditRole:
-		case Qt::DisplayRole:
-			return QVariant(d_matrix->text(row, col));
-		case Qt::BackgroundRole:
-			return QVariant(QBrush(QColor(0xff,0xff,0x77))); // yellow color to distinguish a matrix from a table
-	}
+          result += QString(")");
+          return QVariant(result);
+      }
+    case Qt::Vertical:
+      switch (role) {
+        case Qt::DisplayRole:
+        case Qt::ToolTipRole:
+          result += QString::number(section + 1) + QString(" (");
+          double diff = d_matrix->yEnd() - d_matrix->yStart();
+          double step = 0.0;
+          if (d_matrix->rowCount() > 1)
+            step = diff / double(d_matrix->rowCount() - 1);
+          // TODO: implement decent double == 0 check
+          if (diff < 1e-10)
+            result += QLocale().toString(d_matrix->yStart(),
+                                         d_matrix->numericFormat(),
+                                         d_matrix->displayedDigits());
+          else
+            result += QLocale().toString(
+                d_matrix->yStart() + double(section) * step,
+                d_matrix->numericFormat(), d_matrix->displayedDigits());
 
-	return QVariant();
+          result += QString(")");
+          return QVariant(result);
+      }
+  }
+  return QVariant();
 }
 
-QVariant MatrixModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-	QString result;
-	switch(orientation) 
-	{
-		case Qt::Horizontal:
-			switch(role) 
-			{
-				case Qt::DisplayRole:
-				case Qt::ToolTipRole:
-					result += QString::number(section+1) + QString(" (");
-					double diff = d_matrix->xEnd() - d_matrix->xStart();
-					double step = 0.0;
-					if (d_matrix->columnCount() > 1)
-						step = diff/double(d_matrix->columnCount()-1);
-					result += QLocale().toString(d_matrix->xStart()+double(section)*step, 
-							d_matrix->numericFormat(), d_matrix->displayedDigits());
-
-					result += QString(")");
-					return QVariant(result);
-			}
-		case Qt::Vertical:
-			switch(role) 
-			{
-				case Qt::DisplayRole:
-				case Qt::ToolTipRole:
-					result += QString::number(section+1) + QString(" (");
-					double diff = d_matrix->yEnd() - d_matrix->yStart();
-					double step = 0.0;
-					if (d_matrix->rowCount() > 1)
-						step = diff/double(d_matrix->rowCount()-1);
-					// TODO: implement decent double == 0 check
-					if (diff < 1e-10)
-						result += QLocale().toString(d_matrix->yStart(), 
-								d_matrix->numericFormat(), d_matrix->displayedDigits());
-					else
-						result += QLocale().toString(d_matrix->yStart()+double(section)*step, 
-								d_matrix->numericFormat(), d_matrix->displayedDigits());
-
-					result += QString(")");
-					return QVariant(result);
-			}
-	}
-	return QVariant();
+int MatrixModel::rowCount(const QModelIndex &parent) const {
+  Q_UNUSED(parent)
+  return d_matrix->rowCount();
 }
 
-int MatrixModel::rowCount(const QModelIndex &parent) const
-{
-	Q_UNUSED(parent)
-	return d_matrix->rowCount();
+int MatrixModel::columnCount(const QModelIndex &parent) const {
+  Q_UNUSED(parent)
+  return d_matrix->columnCount();
 }
 
-int MatrixModel::columnCount(const QModelIndex & parent) const
-{
-	Q_UNUSED(parent)
-	return d_matrix->columnCount();
+bool MatrixModel::setData(const QModelIndex &index, const QVariant &value,
+                          int role) {
+  if (!index.isValid()) return false;
+
+  int row = index.row();
+  int column = index.column();
+
+  if (role == Qt::EditRole) {
+    static_cast< ::Matrix *>(d_matrix->view())
+        ->setText(row, column, value.toString());
+    return true;
+  }
+  return false;
 }
 
-bool MatrixModel::setData(const QModelIndex & index, const QVariant & value, int role)
-{
-	if (!index.isValid())
-		return false;
-
-	int row = index.row();
-	int column = index.column();
-
-	if(role ==  Qt::EditRole)
-	{
-			static_cast< ::Matrix *>(d_matrix->view())->setText(row, column, value.toString());
-			return true;
-	}
-	return false;
+QModelIndex MatrixModel::index(int row, int column,
+                               const QModelIndex &parent) const {
+  Q_UNUSED(parent)
+  return createIndex(row, column);
 }
 
-QModelIndex MatrixModel::index(int row, int column, const QModelIndex &parent) const
-{
-	Q_UNUSED(parent)
-	return createIndex(row, column);
+QModelIndex MatrixModel::parent(const QModelIndex &child) const {
+  Q_UNUSED(child)
+  return QModelIndex();
 }
 
-QModelIndex MatrixModel::parent(const QModelIndex & child) const
-{
-	Q_UNUSED(child)
-    return QModelIndex();
+void MatrixModel::handleColumnsAboutToBeInserted(int before, int count) {
+  beginInsertColumns(QModelIndex(), before, before + count - 1);
 }
 
-void MatrixModel::handleColumnsAboutToBeInserted(int before, int count)
-{
-	beginInsertColumns(QModelIndex(), before, before+count-1);
+void MatrixModel::handleColumnsInserted(int first, int count) {
+  Q_UNUSED(first)
+  Q_UNUSED(count)
+  endInsertColumns();
 }
 
-void MatrixModel::handleColumnsInserted(int first, int count)
-{
-	Q_UNUSED(first)
-	Q_UNUSED(count)
-	endInsertColumns();
+void MatrixModel::handleColumnsAboutToBeRemoved(int first, int count) {
+  beginRemoveColumns(QModelIndex(), first, first + count - 1);
 }
 
-void MatrixModel::handleColumnsAboutToBeRemoved(int first, int count)
-{
-	beginRemoveColumns(QModelIndex(), first, first+count-1);
+void MatrixModel::handleColumnsRemoved(int first, int count) {
+  Q_UNUSED(first)
+  Q_UNUSED(count)
+  endRemoveColumns();
 }
 
-void MatrixModel::handleColumnsRemoved(int first, int count)
-{
-	Q_UNUSED(first)
-	Q_UNUSED(count)
-	endRemoveColumns();	 
+void MatrixModel::handleRowsAboutToBeInserted(int before, int count) {
+  beginInsertRows(QModelIndex(), before, before + count - 1);
 }
 
-void MatrixModel::handleRowsAboutToBeInserted(int before, int count)
-{
-	beginInsertRows(QModelIndex(), before, before+count-1);
+void MatrixModel::handleRowsInserted(int first, int count) {
+  Q_UNUSED(first)
+  Q_UNUSED(count)
+  endInsertRows();
 }
 
-void MatrixModel::handleRowsInserted(int first, int count)
-{
-	Q_UNUSED(first)
-	Q_UNUSED(count)
-	endInsertRows();
+void MatrixModel::handleRowsAboutToBeRemoved(int first, int count) {
+  beginRemoveRows(QModelIndex(), first, first + count - 1);
 }
 
-void MatrixModel::handleRowsAboutToBeRemoved(int first, int count)
-{
-	beginRemoveRows(QModelIndex(), first, first+count-1);
+void MatrixModel::handleRowsRemoved(int first, int count) {
+  Q_UNUSED(first)
+  Q_UNUSED(count)
+  endRemoveRows();
 }
 
-void MatrixModel::handleRowsRemoved(int first, int count)
-{
-	Q_UNUSED(first)
-	Q_UNUSED(count)
-	endRemoveRows();	 
+void MatrixModel::handleDataChanged(int top, int left, int bottom, int right) {
+  emit dataChanged(index(top, left), index(bottom, right));
 }
 
-void MatrixModel::handleDataChanged(int top, int left, int bottom, int right)
-{
-	emit dataChanged(index(top, left), index(bottom, right));
+void MatrixModel::handleCoordinatesChanged() {
+  emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
+  emit headerDataChanged(Qt::Vertical, 0, rowCount() - 1);
 }
 
-void MatrixModel::handleCoordinatesChanged()
-{
-	emit headerDataChanged(Qt::Horizontal, 0, columnCount()-1); 
-	emit headerDataChanged(Qt::Vertical, 0, rowCount()-1); 
+void MatrixModel::handleFormatChanged() {
+  handleCoordinatesChanged();
+  handleDataChanged(0, 0, rowCount() - 1, columnCount() - 1);
 }
-
-void MatrixModel::handleFormatChanged()
-{
-	handleCoordinatesChanged();
-	handleDataChanged(0, 0, rowCount()-1, columnCount()-1); 
-}
-

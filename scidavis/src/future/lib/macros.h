@@ -5,8 +5,8 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2008-2009 Tilman Benkert (thzs*gmx.net)
     Copyright            : (C) 2008-2009 Knut Franke (knut.franke*gmx.de)
-                           (replace * with @ in the email addresses) 
-                           
+                           (replace * with @ in the email addresses)
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -32,10 +32,10 @@
 #define MACROS_H
 
 #define BASIC_ACCESSOR(type, var, method, Method) \
-	type method() const { return var; }; \
-	void set ## Method(const type value) { var = value; }
+  type method() const { return var; };            \
+  void set##Method(const type value) { var = value; }
 #define CLASS_ACCESSOR(type, var, method, Method) \
-	type method() const { return var; }; \
-	void set ## Method(const type & value) { var = value; }
+  type method() const { return var; };            \
+  void set##Method(const type& value) { var = value; }
 
-#endif // MACROS_H
+#endif  // MACROS_H

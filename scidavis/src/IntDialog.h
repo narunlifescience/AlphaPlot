@@ -2,7 +2,8 @@
     File                 : IntDialog.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis, Tilman Benkert
+    Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis, Tilman
+ Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Integration options dialog
 
@@ -39,37 +40,34 @@ class QSpinBox;
 class Graph;
 
 //! Integration options dialog
-class IntDialog : public QDialog
-{
-    Q_OBJECT
+class IntDialog : public QDialog {
+  Q_OBJECT
 
-public:
-    IntDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~IntDialog(){};
+ public:
+  IntDialog(QWidget* parent = 0, Qt::WFlags fl = 0);
+  ~IntDialog() {}
 
-    QPushButton* buttonOk;
-	QPushButton* buttonCancel;
-	QPushButton* buttonHelp;
-    QCheckBox* boxShowFormula;
-	QComboBox* boxName;
-	QComboBox* boxMethod;
-	QLineEdit* boxStart;
-	QLineEdit* boxEnd;
+  QPushButton* buttonOk;
+  QPushButton* buttonCancel;
+  QPushButton* buttonHelp;
+  QCheckBox* boxShowFormula;
+  QComboBox* boxName;
+  QComboBox* boxMethod;
+  QLineEdit* boxStart;
+  QLineEdit* boxEnd;
 
-public slots:
-	void accept();
-	void setGraph(Graph *g);
-	void activateCurve(const QString& curveName);
-	void help();
-	void changeDataRange();
+ public slots:
+  void accept();
+  void setGraph(Graph* g);
+  void activateCurve(const QString& curveName);
+  void help();
+  void changeDataRange();
 
-signals:
-	void integrate(int,int,int,double,double,double);
+ signals:
+  void integrate(int, int, int, double, double, double);
 
-private:
-	Graph *graph;
+ private:
+  Graph* graph;
 };
 
-#endif
-
-
+#endif  // INTDIALOG_H

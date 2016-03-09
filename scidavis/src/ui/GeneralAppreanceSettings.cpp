@@ -1,6 +1,6 @@
 /* This file is part of AlphaPlot.
    Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
-   
+
    AlphaPlot is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -11,10 +11,11 @@
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
    along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
-   
+
    Description : General appearance settings page.
 */
 
+#include "../core/IconLoader.h"
 #include "GeneralAppreanceSettings.h"
 #include "ui_GeneralAppreanceSettings.h"
 
@@ -23,7 +24,8 @@
 GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
     : SettingsPage(dialog), ui(new Ui_GeneralAppreanceSettings) {
   ui->setupUi(this);
-  setWindowIcon(QIcon(":/data/preferences-appearence.svg"));
+  // setWindowIcon(IconLoader::load("preferences-general-appearence",
+  // IconLoader::General));
   setWindowTitle(tr("Appearance"));
   ui->scrollArea->setFrameShape(QFrame::NoFrame);
   ui->gridLayout->setContentsMargins(3, 3, 3, 3);
@@ -47,10 +49,11 @@ void GeneralAppreanceSettings::setTitle(QString title) {
   font.setBold(true);
   font.setItalic(true);
 
-  ui->titleLabel->setStyleSheet("QLabel {padding-left: 5px;"
-                                " padding-right: 5px;"
-                                " padding-top: 5px;"
-                                " padding-bottom: 5px }");
+  ui->titleLabel->setStyleSheet(
+      "QLabel {padding-left: 5px;"
+      " padding-right: 5px;"
+      " padding-top: 5px;"
+      " padding-bottom: 5px }");
   ui->titleLabel->setFont(font);
   ui->titleLabel->setText(title);
 }

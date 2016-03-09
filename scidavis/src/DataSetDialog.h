@@ -40,34 +40,33 @@ class QComboBox;
 class Graph;
 
 //! Multi purpose dialog for choosing a data set
-class DataSetDialog : public QDialog
-{
-    Q_OBJECT
+class DataSetDialog : public QDialog {
+  Q_OBJECT
 
-public:
-    DataSetDialog( const QString& text, QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~DataSetDialog(){};
+ public:
+  DataSetDialog(const QString& text, QWidget* parent = 0, Qt::WFlags fl = 0);
+  ~DataSetDialog() {}
 
-    QPushButton* buttonOk;
-	QPushButton* buttonCancel;
-    QGroupBox* groupBox1;
-    QCheckBox* boxShowFormula;
-	QComboBox* boxName;
+  QPushButton* buttonOk;
+  QPushButton* buttonCancel;
+  QGroupBox* groupBox1;
+  QCheckBox* boxShowFormula;
+  QComboBox* boxName;
 
-public slots:
-	void accept();
-	void setCurveNames(const QStringList& names);
-	void setOperationType(const QString& s){operation=s;};
-	void setCurentDataSet(const QString& s);
-	void setGraph(Graph *g);
+ public slots:
+  void accept();
+  void setCurveNames(const QStringList& names);
+  void setOperationType(const QString& s) { operation = s; }
+  void setCurentDataSet(const QString& s);
+  void setGraph(Graph* g);
 
-signals:
-	void options(const QString&);
+ signals:
+  void options(const QString&);
 
-private:
-	QString operation;
-	QString windowTitle;
-	Graph *d_graph;
+ private:
+  QString operation;
+  QString windowTitle;
+  Graph* d_graph;
 };
 
-#endif
+#endif  // DATASETDIALOG_H

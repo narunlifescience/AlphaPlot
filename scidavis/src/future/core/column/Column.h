@@ -4,7 +4,7 @@
     Description          : Aspect that manages a column
     --------------------------------------------------------------------
     Copyright            : (C) 2007-2009 Tilman Benkert (thzs*gmx.net)
-                           (replace * with @ in the email addresses) 
+                           (replace * with @ in the email addresses)
 
  ***************************************************************************/
 
@@ -43,8 +43,8 @@ class ColumnStringIO;
 
 //! Aspect that manages a column
 /**
-  This class represents a column, i.e., (mathematically) a 1D vector of 
-  values with a header. It provides a public reading and (undo aware) writing 
+  This class represents a column, i.e., (mathematically) a 1D vector of
+  values with a header. It provides a public reading and (undo aware) writing
   interface as defined in AbstractColumn. It manages special attributes
   of column rows such as masking and a validity flag. A column
   can have one of currently three data types: double, QString, or
@@ -55,11 +55,10 @@ class ColumnStringIO;
   of the corresponding Table in the aspect hierarchy. Columns don't
   have a view as they are intended to be displayed inside a table.
  */
-class Column : public AbstractColumn
-{
+class Column : public AbstractColumn {
   Q_OBJECT
 
-public:
+ public:
   class Private;
   friend class Private;
   //! Ctor
@@ -75,19 +74,17 @@ public:
    * \param validity a list of invalid intervals (optional)
    */
   template <class D>
-  Column(const QString& name, const D& data, 
-         IntervalAttribute<bool> validity = IntervalAttribute<bool>()): 
-    AbstractColumn(name)
-  {
+  Column(const QString& name, const D& data,
+         IntervalAttribute<bool> validity = IntervalAttribute<bool>())
+      : AbstractColumn(name) {
     initPrivate(std::unique_ptr<D>(new D(data)), validity);
     init();
   }
 
   template <class D>
   Column(const QString& name, std::unique_ptr<D> data,
-         IntervalAttribute<bool> validity = IntervalAttribute<bool>()): 
-    AbstractColumn(name)
-  {
+         IntervalAttribute<bool> validity = IntervalAttribute<bool>())
+      : AbstractColumn(name) {
     initPrivate(std::move(data), validity);
     init();
   }
@@ -97,27 +94,29 @@ public:
 
   //! \name aspect related functions
   //@{
-  //! Return an icon to be used for decorating the views and table column headers
+  //! Return an icon to be used for decorating the views and table column
+  //! headers
   virtual QIcon icon() const;
   //@}
 
   //! Return the data type of the column
   SciDAVis::ColumnDataType dataType() const;
   //! Return whether the object is read-only
-  bool isReadOnly() const { return false; };
+  bool isReadOnly() const { return false; }
   //! Return the column mode
   /**
    * This function is most used by tables but can also be used
-   * by plots. The column mode specifies how to interpret 
+   * by plots. The column mode specifies how to interpret
    * the values in the column additional to the data type.
-   */ 
+   */
   SciDAVis::ColumnMode columnMode() const;
   //! Set the column mode
   /**
    * This sets the column mode and, if
    * necessary, converts it to another datatype.
    */
-  void setColumnMode(SciDAVis::ColumnMode mode, AbstractFilter *conversion_filter=0);
+  void setColumnMode(SciDAVis::ColumnMode mode,
+                     AbstractFilter* conversion_filter = 0);
   //! Copy another column of the same type
   /**
    * This function will return false if the data type
@@ -125,7 +124,7 @@ public:
    * The validity information for the rows is also copied.
    * Use a filter to convert a column to another type.
    */
-  bool copy(const AbstractColumn * other);
+  bool copy(const AbstractColumn* other);
   //! Copies a part of another column of the same type
   /**
    * This function will return false if the data type
@@ -135,11 +134,12 @@ public:
    * \param src_start first row to copy in the column to copy
    * \param dest_start first row to copy in
    * \param num_rows the number of rows to copy
-   */ 
-  bool copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows);
+   */
+  bool copy(const AbstractColumn* source, int source_start, int dest_start,
+            int num_rows);
   //! Return the data vector size
   /**
-   * This returns the number of rows that actually contain data. 
+   * This returns the number of rows that actually contain data.
    * Rows beyond this can be masked etc. but should be ignored by filters,
    * plots etc.
    */
@@ -161,24 +161,24 @@ public:
    * This method is mainly used to get a filter that can convert
    * the column's data type to strings (usualy to display in a view).
    */
-  AbstractSimpleFilter * outputFilter() const;
+  AbstractSimpleFilter* outputFilter() const;
   //! Return a wrapper column object used for String I/O.
-  ColumnStringIO * asStringColumn() const { return d_string_io; }
+  ColumnStringIO* asStringColumn() const { return d_string_io; }
 
   //! \name IntervalAttribute related functions
   //@{
-  //! Return whether a certain row contains an invalid value 	 
+  //! Return whether a certain row contains an invalid value
   bool isInvalid(int row) const;
-  //! Return whether a certain interval of rows contains only invalid values 	 
+  //! Return whether a certain interval of rows contains only invalid values
   bool isInvalid(Interval<int> i) const;
   //! Return all intervals of invalid rows
-  QList< Interval<int> > invalidIntervals() const;
-  //! Return whether a certain row is masked 	 
+  QList<Interval<int> > invalidIntervals() const;
+  //! Return whether a certain row is masked
   bool isMasked(int row) const;
-  //! Return whether a certain interval of rows rows is fully masked 	 
+  //! Return whether a certain interval of rows rows is fully masked
   bool isMasked(Interval<int> i) const;
   //! Return all intervals of masked rows
-  QList< Interval<int> > maskedIntervals() const;
+  QList<Interval<int> > maskedIntervals() const;
   //! Clear all validity information
   void clearValidity();
   //! Clear all masking information
@@ -187,7 +187,7 @@ public:
   /**
    * \param i the interval
    * \param invalid true: set invalid, false: set valid
-   */ 
+   */
   void setInvalid(Interval<int> i, bool invalid = true);
   //! Overloaded function for convenience
   void setInvalid(int row, bool invalid = true);
@@ -195,7 +195,7 @@ public:
   /**
    * \param i the interval
    * \param mask true: mask, false: unmask
-   */ 
+   */
   void setMasked(Interval<int> i, bool mask = true);
   //! Overloaded function for convenience
   void setMasked(int row, bool mask = true);
@@ -203,7 +203,7 @@ public:
 
   //! \name Formula related functions
   //@{
-  //! Return the formula associated with row 'row' 	 
+  //! Return the formula associated with row 'row'
   QString formula(int row) const;
   //! Return the intervals that have associated formulas
   /**
@@ -214,10 +214,11 @@ public:
    * QStringList list;
    * QList< Interval<int> > intervals = my_column.formulaIntervals();
    * foreach(Interval<int> interval, intervals)
-   * 	list << QString(interval.toString() + ": " + my_column.formula(interval.start()));
+   * 	list << QString(interval.toString() + ": " +
+   * my_column.formula(interval.start()));
    * \endcode
    */
-  QList< Interval<int> > formulaIntervals() const;
+  QList<Interval<int> > formulaIntervals() const;
   //! Set a formula string for an interval of rows
   void setFormula(Interval<int> i, QString formula);
   //! Overloaded function for convenience
@@ -225,7 +226,7 @@ public:
   //! Clear all formulas
   void clearFormulas();
   //@}
-		
+
   //! \name type specific functions
   //@{
   //! Return the content of row 'row'.
@@ -238,7 +239,7 @@ public:
    * Use this only when dataType() is QString
    */
   void setTextAt(int row, const QString& new_value);
-  //! Replace a range of values 
+  //! Replace a range of values
   /**
    * Use this only when dataType() is QString
    */
@@ -273,7 +274,7 @@ public:
    * Use this only when dataType() is QDateTime
    */
   void setDateTimeAt(int row, const QDateTime& new_value);
-  //! Replace a range of values 
+  //! Replace a range of values
   /**
    * Use this only when dataType() is QDateTime
    */
@@ -285,7 +286,7 @@ public:
    * Use this only when dataType() is double
    */
   void setValueAt(int row, double new_value);
-  //! Replace a range of values 
+  //! Replace a range of values
   /**
    * Use this only when dataType() is double
    */
@@ -295,29 +296,30 @@ public:
   //! \name XML related functions
   //@{
   //! Save the column as XML
-  void save(QXmlStreamWriter * writer) const;
+  void save(QXmlStreamWriter* writer) const;
   //! Load the column from XML
-  bool load(XmlStreamReader * reader);
-private:
+  bool load(XmlStreamReader* reader);
+
+ private:
   //! Read XML input filter element
-  bool XmlReadInputFilter(XmlStreamReader * reader);
+  bool XmlReadInputFilter(XmlStreamReader* reader);
   //! Read XML output filter element
-  bool XmlReadOutputFilter(XmlStreamReader * reader);
+  bool XmlReadOutputFilter(XmlStreamReader* reader);
   //! Read XML mask element
-  bool XmlReadMask(XmlStreamReader * reader);
+  bool XmlReadMask(XmlStreamReader* reader);
   //! Read XML formula element
-  bool XmlReadFormula(XmlStreamReader * reader);
+  bool XmlReadFormula(XmlStreamReader* reader);
   //! Read XML row element
-  bool XmlReadRow(XmlStreamReader * reader);
+  bool XmlReadRow(XmlStreamReader* reader);
   //@}
 
-private slots:
+ private slots:
   void notifyDisplayChange();
 
-private:
+ private:
   //! Pointer to the private data object
-  Private * d_column_private;
-  ColumnStringIO * d_string_io;
+  Private* d_column_private;
+  ColumnStringIO* d_string_io;
 
   void init();
   template <class D>
@@ -327,32 +329,37 @@ private:
 };
 
 //! String-IO interface of Column.
-class ColumnStringIO : public AbstractColumn
-{
-	Q_OBJECT
-	
-	public:
-		ColumnStringIO(Column * owner) : AbstractColumn(tr("as string")), d_owner(owner), d_setting(false) {}
-		virtual SciDAVis::ColumnMode columnMode() const { return SciDAVis::Text; }
-		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
-		virtual SciDAVis::PlotDesignation plotDesignation() const { return d_owner->plotDesignation(); }
-		virtual int rowCount() const { return d_owner->rowCount(); }
-		virtual QString textAt(int row) const;
-		virtual void setTextAt(int row, const QString &value);
-		virtual bool isInvalid(int row) const {
-			if (d_setting)
-				return false;
-			else
-				return d_owner->isInvalid(row);
-		}
-		virtual bool copy(const AbstractColumn *other);
-		virtual bool copy(const AbstractColumn *source, int source_start, int dest_start, int num_rows);
-		virtual void replaceTexts(int start_row, const QStringList &texts);
+class ColumnStringIO : public AbstractColumn {
+  Q_OBJECT
 
-	private:
-		Column * d_owner;
-		bool d_setting;
-		QString d_to_set;
+ public:
+  ColumnStringIO(Column* owner)
+      : AbstractColumn(tr("as string")), d_owner(owner), d_setting(false) {}
+  virtual SciDAVis::ColumnMode columnMode() const { return SciDAVis::Text; }
+  virtual SciDAVis::ColumnDataType dataType() const {
+    return SciDAVis::TypeQString;
+  }
+  virtual SciDAVis::PlotDesignation plotDesignation() const {
+    return d_owner->plotDesignation();
+  }
+  virtual int rowCount() const { return d_owner->rowCount(); }
+  virtual QString textAt(int row) const;
+  virtual void setTextAt(int row, const QString& value);
+  virtual bool isInvalid(int row) const {
+    if (d_setting)
+      return false;
+    else
+      return d_owner->isInvalid(row);
+  }
+  virtual bool copy(const AbstractColumn* other);
+  virtual bool copy(const AbstractColumn* source, int source_start,
+                    int dest_start, int num_rows);
+  virtual void replaceTexts(int start_row, const QStringList& texts);
+
+ private:
+  Column* d_owner;
+  bool d_setting;
+  QString d_to_set;
 };
 
-#endif
+#endif  // COLUMN_H

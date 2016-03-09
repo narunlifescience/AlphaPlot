@@ -1,10 +1,10 @@
 /***************************************************************************
-	File                 : ColorMapEditor.h
-	Project              : SciDAVis
+        File                 : ColorMapEditor.h
+        Project              : SciDAVis
 --------------------------------------------------------------------
-	Copyright            : (C) 2006 by Ion Vasilief
-	Email (use @ for *)  : ion_vasilief*yahoo.fr
-	Description          : A QwtLinearColorMap Editor Widget
+        Copyright            : (C) 2006 by Ion Vasilief
+        Email (use @ for *)  : ion_vasilief*yahoo.fr
+        Description          : A QwtLinearColorMap Editor Widget
  ***************************************************************************/
 
 /***************************************************************************
@@ -35,40 +35,39 @@ class QPushButton;
 class QTableWidget;
 class QCheckBox;
 
-class ColorMapEditor: public QWidget
-{
-    Q_OBJECT
+class ColorMapEditor : public QWidget {
+  Q_OBJECT
 
-public:
-	ColorMapEditor(QWidget* parent=0);
-	
-	QwtLinearColorMap colorMap(){return color_map;};
-	void setColorMap(const QwtLinearColorMap& map);
+ public:
+  ColorMapEditor(QWidget *parent = 0);
 
-	void setRange(double min, double max);
+  QwtLinearColorMap colorMap() { return color_map; }
+  void setColorMap(const QwtLinearColorMap &map);
 
-protected slots:
-	void updateColorMap();
-	void validateLevel(int row, int col);
-	void enableButtons(int row, int col, int = 0, int = 0);
-	void showColorDialog(int row, int col);
-	void insertLevel();
-	void deleteLevel();
-	void setScaledColors(bool scale = true);
+  void setRange(double min, double max);
 
-	bool eventFilter(QObject *object, QEvent *e);
+ protected slots:
+  void updateColorMap();
+  void validateLevel(int row, int col);
+  void enableButtons(int row, int col, int = 0, int = 0);
+  void showColorDialog(int row, int col);
+  void insertLevel();
+  void deleteLevel();
+  void setScaledColors(bool scale = true);
 
-private:
-	QTableWidget *table;	
-	QPushButton *insertBtn, *deleteBtn;
-	QCheckBox *scaleColorsBox;
+  bool eventFilter(QObject *object, QEvent *e);
 
-	//! Color map object
-	QwtLinearColorMap color_map;
+ private:
+  QTableWidget *table;
+  QPushButton *insertBtn, *deleteBtn;
+  QCheckBox *scaleColorsBox;
 
-	//! Levels range
-    double min_val;
-    double max_val;
+  //! Color map object
+  QwtLinearColorMap color_map;
+
+  //! Levels range
+  double min_val;
+  double max_val;
 };
-   
-#endif
+
+#endif  // COLORMAPEDITOR_H

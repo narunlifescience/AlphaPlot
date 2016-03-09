@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Tilman Benkert,
     Email (use @ for *)  : thzs*gmx.net
-    Description          : Model wrapping a TableModel to display column 
+    Description          : Model wrapping a TableModel to display column
                            comments in a TableCommentsHeaderView
 
  ***************************************************************************/
@@ -30,61 +30,58 @@
 
 #include "TableCommentsHeaderModel.h"
 
-TableCommentsHeaderModel::TableCommentsHeaderModel( TableModel * table_model, QObject * parent )
-	: QAbstractTableModel( parent ), d_table_model(table_model)
-{
-	connect(d_table_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
-		this, SIGNAL(headerDataChanged(Qt::Orientation,int,int)));
-	connect(d_table_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
-		this, SIGNAL(headerDataChanged(Qt::Orientation,int,int)));
-	connect(d_table_model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
-		this, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)));
-	connect(d_table_model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
-		this, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)));
-	connect(d_table_model, SIGNAL(columnsInserted(const QModelIndex&,int,int)),
-		this, SIGNAL(columnsInserted(const QModelIndex&,int,int)));
-	connect(d_table_model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
-		this, SIGNAL(columnsRemoved(const QModelIndex&,int,int)));
+TableCommentsHeaderModel::TableCommentsHeaderModel(TableModel *table_model,
+                                                   QObject *parent)
+    : QAbstractTableModel(parent), d_table_model(table_model) {
+  connect(d_table_model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
+          this, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
+  connect(d_table_model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
+          this, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
+  connect(d_table_model,
+          SIGNAL(columnsAboutToBeInserted(const QModelIndex &, int, int)), this,
+          SIGNAL(columnsAboutToBeInserted(const QModelIndex &, int, int)));
+  connect(d_table_model,
+          SIGNAL(columnsAboutToBeRemoved(const QModelIndex &, int, int)), this,
+          SIGNAL(columnsAboutToBeRemoved(const QModelIndex &, int, int)));
+  connect(d_table_model, SIGNAL(columnsInserted(const QModelIndex &, int, int)),
+          this, SIGNAL(columnsInserted(const QModelIndex &, int, int)));
+  connect(d_table_model, SIGNAL(columnsRemoved(const QModelIndex &, int, int)),
+          this, SIGNAL(columnsRemoved(const QModelIndex &, int, int)));
 }
 
-TableCommentsHeaderModel::~TableCommentsHeaderModel()
-{
+TableCommentsHeaderModel::~TableCommentsHeaderModel() {}
+
+Qt::ItemFlags TableCommentsHeaderModel::flags(const QModelIndex &index) const {
+  if (index.isValid())
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  else
+    return Qt::ItemIsEnabled;
 }
 
-Qt::ItemFlags TableCommentsHeaderModel::flags(const QModelIndex & index ) const
-{
-	if (index.isValid())
-		return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-	else
-		return Qt::ItemIsEnabled;
+QVariant TableCommentsHeaderModel::data(const QModelIndex &index,
+                                        int role) const {
+  Q_UNUSED(index);
+  Q_UNUSED(role);
+  return QVariant();
 }
 
+QVariant TableCommentsHeaderModel::headerData(int section,
+                                              Qt::Orientation orientation,
+                                              int role) const {
+  if (orientation != Qt::Horizontal || role != Qt::DisplayRole || section < 0 ||
+      section >= columnCount())
+    return QVariant();
 
-QVariant TableCommentsHeaderModel::data(const QModelIndex &index, int role) const
-{
-	Q_UNUSED(index);
-	Q_UNUSED(role);
-	return QVariant();
+  return QVariant(d_table_model->headerData(section, Qt::Horizontal,
+                                            TableModel::CommentRole));
 }
 
-QVariant TableCommentsHeaderModel::headerData(int section, Qt::Orientation orientation,
-		int role) const
-{
-	if( orientation != Qt::Horizontal || role != Qt::DisplayRole || section < 0 || section >= columnCount())
-		return QVariant();
-
-	return QVariant(d_table_model->headerData(section, Qt::Horizontal, TableModel::CommentRole));
+int TableCommentsHeaderModel::rowCount(const QModelIndex &parent) const {
+  Q_UNUSED(parent)
+  return d_table_model->rowCount();
 }
 
-int TableCommentsHeaderModel::rowCount(const QModelIndex &parent) const
-{
-	Q_UNUSED(parent)
-	return d_table_model->rowCount();
+int TableCommentsHeaderModel::columnCount(const QModelIndex &parent) const {
+  Q_UNUSED(parent)
+  return d_table_model->columnCount();
 }
-
-int TableCommentsHeaderModel::columnCount(const QModelIndex & parent) const
-{
-	Q_UNUSED(parent)
-	return d_table_model->columnCount();
-}
-

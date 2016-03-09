@@ -31,39 +31,38 @@
 
 #include "Filter.h"
 
-class Integration : public Filter
-{
-Q_OBJECT
+class Integration : public Filter {
+  Q_OBJECT
 
-public:
-	enum InterpolationMethod{Linear, Cubic, Akima};
+ public:
+  enum InterpolationMethod { Linear, Cubic, Akima };
 
-	Integration(ApplicationWindow *parent, Graph *g);
-	Integration(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-	Integration(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+  Integration(ApplicationWindow *parent, Graph *g);
+  Integration(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
+  Integration(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+              double start, double end);
 
-    InterpolationMethod method(){return d_method;};
-    void setMethod(InterpolationMethod method) {
-		 InterpolationMethod backup = d_method;
-		 d_method = method;
-		 if (!isDataAcceptable())
-			 d_method = backup;
-	 };
+  InterpolationMethod method() { return d_method; }
+  void setMethod(InterpolationMethod method) {
+    InterpolationMethod backup = d_method;
+    d_method = method;
+    if (!isDataAcceptable()) d_method = backup;
+  }
 
-	 double result() { return d_result; }
+  double result() { return d_result; }
 
-protected:
-	virtual bool isDataAcceptable();
+ protected:
+  virtual bool isDataAcceptable();
 
-private:
-    void init();
-    QString logInfo();
-    void output(){};
+ private:
+  void init();
+  QString logInfo();
+  void output() {}
 
-    //! The method for computing the interpolation used for integrating.
-    InterpolationMethod d_method;
+  //! The method for computing the interpolation used for integrating.
+  InterpolationMethod d_method;
 
-	 double d_result;
+  double d_result;
 };
 
-#endif
+#endif  // INTEGRATION_H

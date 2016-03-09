@@ -40,41 +40,43 @@ class ScriptingEnv;
  * \section future_plans Future Plans
  * - Search and replace
  */
-class Note: public MyWidget
-{
-    Q_OBJECT
+class Note : public MyWidget {
+  Q_OBJECT
 
-public:
+ public:
+  Note(ScriptingEnv *env, const QString &label, QWidget *parent = 0,
+       const char *name = 0, Qt::WFlags f = 0);
+  ~Note() {}
 
-	Note(ScriptingEnv *env, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
-	~Note(){};
+  void init(ScriptingEnv *env);
 
+ public slots:
+  QString saveToString(const QString &info);
+  void restore(const QStringList &);
 
-	void init(ScriptingEnv *env);
+  QTextEdit *textWidget() { return (QTextEdit *)te; }
+  bool autoexec() const { return autoExec; }
+  void setAutoexec(bool);
+  void modifiedNote();
 
-public slots:
-	QString saveToString(const QString &info);
-	void restore(const QStringList&);
+  // ScriptEdit methods
+  QString text() { return te->text(); }
+  void setText(const QString &s) { te->setText(s); }
+  void print() { te->print(); }
+  void exportPDF(const QString &fileName) { te->exportPDF(fileName); }
+  QString exportASCII(const QString &file = QString::null) {
+    return te->exportASCII(file);
+  }
+  QString importASCII(const QString &file = QString::null) {
+    return te->importASCII(file);
+  }
+  void execute() { te->execute(); }
+  void executeAll() { te->executeAll(); }
+  void evaluate() { te->evaluate(); }
 
-	QTextEdit* textWidget(){return (QTextEdit*)te;};
-	bool autoexec() const { return autoExec; }
-	void setAutoexec(bool);
-	void modifiedNote();
-
-	// ScriptEdit methods
-	QString text() { return te->text(); };
-	void setText(const QString &s) { te->setText(s); };
-	void print() { te->print(); };
-	void exportPDF(const QString& fileName){te->exportPDF(fileName);};
-	QString exportASCII(const QString &file=QString::null) { return te->exportASCII(file); };
-	QString importASCII(const QString &file=QString::null) { return te->importASCII(file); };
-	void execute() { te->execute(); };
-	void executeAll() { te->executeAll(); };
-	void evaluate() { te->evaluate(); };
-
-private:
-	ScriptEdit *te;
-	bool autoExec;
+ private:
+  ScriptEdit *te;
+  bool autoExec;
 };
 
-#endif
+#endif  // NOTE_H

@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006-2009 Tilman Benkert (thzs*gmx.net)
     Copyright            : (C) 2006-2007 Ion Vasilief (ion_vasilief*yahoo.fr)
-                           (replace * with @ in the email addresses) 
+                           (replace * with @ in the email addresses)
 
  ***************************************************************************/
 
@@ -39,9 +39,10 @@
 //  Don't forget to change the Doxyfile, the splash screen and the Windows
 //  installer when changing these!
 
-const char * SciDAVis::extra_version = "";
+const char* SciDAVis::extra_version = "";
 
-const char * SciDAVis::copyright_string = "\
+const char* SciDAVis::copyright_string =
+    "\
 === Credits ===\n\
 \n\
 --- Developers ---\n\
@@ -63,7 +64,7 @@ Knut Franke, Roger Gadiou\n\
 The following people have contributed translations or parts thereof.\n\
 In alphabetical order.\n\
 \n\
-Tilman Benkert[1], Markus Bongard, Tobias Burnus, Rémy Claverie, f0ma, José Antonio Lorenzo Fernández, \
+Tilman Benkert[1], Markus Bongard, Tobias Burnus, Rï¿½my Claverie, f0ma, Josï¿½ Antonio Lorenzo Fernï¿½ndez, \
 Pavel Fric, Jan Helebrant, Daniel Klaer, Peter Landgren, Fellype do Nascimento, Tomomasa Ohkubo, \
 Mikhail Shevyakov, Russell Standish, Mauricio Troviano\n\
 \n\
@@ -79,7 +80,7 @@ Eric Tanguy (Fedora), Mauricio Troviano (Windows installer)\n\
 \n\
 SciDAVis uses code from QtiPlot, which consisted (at the time of the fork, i.e. QtiPlot 0.9-rc2) of code by the following people:\n\
 \n\
-Tilman Benkert[1], Shen Chen, Borries Demeler, José Antonio Lorenzo Fernández, Knut Franke, Vasileios Gkanis, Gudjon Gudjonsson, \
+Tilman Benkert[1], Shen Chen, Borries Demeler, Josï¿½ Antonio Lorenzo Fernï¿½ndez, Knut Franke, Vasileios Gkanis, Gudjon Gudjonsson, \
 Alex Kargovsky, Michael Mac-Vicar, Tomomasa Ohkubo, Aaron Van Tassle, Branimir Vasilic, Ion Vasilief, Vincent Wagelaar\n\
 \n\
 The SciDAVis manual is based on the QtiPlot manual, written by (in alphabetical order):\n\
@@ -87,7 +88,7 @@ The SciDAVis manual is based on the QtiPlot manual, written by (in alphabetical 
 Knut Franke, Roger Gadiou, Ion Vasilief\n\
 \n\
 footnotes:\n\
-[1] birth name: Tilman Höner zu Siederdissen\n\
+[1] birth name: Tilman Hï¿½ner zu Siederdissen\n\
 \n\
 === Special Thanks ===\n\
 \n\
@@ -108,86 +109,69 @@ GSL (http://www.gnu.org/software/gsl/)\n\
 \n\
 ... and many more we just forgot to mention.\n";
 
-int SciDAVis::version()
-{
-	return scidavis_versionNo;
+int SciDAVis::version() { return scidavis_versionNo; }
+
+QString SciDAVis::schemaVersion() {
+  return "SciDAVis " + QString::number((version() & 0xFF0000) >> 16) + "." +
+         QString::number((version() & 0x00FF00) >> 8) + "." +
+         QString::number(version() & 0x0000FF);
 }
 
-QString SciDAVis::schemaVersion()
-{
-  return "SciDAVis " + 
-    QString::number((version() & 0xFF0000) >> 16)+"."+ 
-    QString::number((version() & 0x00FF00) >> 8)+"."+
-    QString::number(version() & 0x0000FF);
-}
-
-QString SciDAVis::versionString()
-{
+QString SciDAVis::versionString() {
   return QString("SciDAVis ") + scidavis_version;
 }
-			
-QString SciDAVis::extraVersion()
-{
-	return	QString(extra_version);
-}
 
-void SciDAVis::about()
-{
-	QString text = QString(SciDAVis::copyright_string);
-	text.replace(QRegExp("\\[1\\]"), "<sup>1</sup>");
-	text.replace("é","&eacute;");
-	text.replace("á","&aacute;");
-	text.replace("ö", "&ouml;");
-	text.replace("\n", "<br>");
-	text.replace("=== ", "<h1>");
-	text.replace(" ===","</h1>");
-	text.replace("--- ", "<h2>");
-	text.replace(" ---","</h2>");
-	text.replace(" ---","</h2>");
-	text.replace("</h1><br><br>", "</h1>");
-	text.replace("</h2><br><br>", "</h2>");
-	text.replace("<br><h1>", "<h1>");
-	text.replace("<br><h2>", "<h2>");
+QString SciDAVis::extraVersion() { return QString(extra_version); }
 
-	Qt::WindowFlags flags = Qt::WindowTitleHint | Qt::WindowSystemMenuHint;
+void SciDAVis::about() {
+  QString text = QString(SciDAVis::copyright_string);
+  text.replace(QRegExp("\\[1\\]"), "<sup>1</sup>");
+  text.replace("ï¿½", "&eacute;");
+  text.replace("ï¿½", "&aacute;");
+  text.replace("ï¿½", "&ouml;");
+  text.replace("\n", "<br>");
+  text.replace("=== ", "<h1>");
+  text.replace(" ===", "</h1>");
+  text.replace("--- ", "<h2>");
+  text.replace(" ---", "</h2>");
+  text.replace(" ---", "</h2>");
+  text.replace("</h1><br><br>", "</h1>");
+  text.replace("</h2><br><br>", "</h2>");
+  text.replace("<br><h1>", "<h1>");
+  text.replace("<br><h2>", "<h2>");
+
+  Qt::WindowFlags flags = Qt::WindowTitleHint | Qt::WindowSystemMenuHint;
 #if QT_VERSION >= 0x040500
-	flags |= Qt::WindowCloseButtonHint;
+  flags |= Qt::WindowCloseButtonHint;
 #endif
-	QDialog *dialog = new QDialog(0, flags);
-	Ui::SciDAVisAbout ui;
-	ui.setupUi(dialog);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->setWindowTitle(QObject::tr("About SciDAVis"));
-	ui.version_label->setText(versionString() + extraVersion());
-	ui.release_date_label->setText(QObject::tr("Released") + ": " + QString(SciDAVis::release_date));
-	ui.credits_box->setHtml(text);
+  QDialog* dialog = new QDialog(0, flags);
+  Ui::SciDAVisAbout ui;
+  ui.setupUi(dialog);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  dialog->setWindowTitle(QObject::tr("About SciDAVis"));
+  ui.version_label->setText(versionString() + extraVersion());
+  ui.release_date_label->setText(QObject::tr("Released") + ": " +
+                                 QString(SciDAVis::release_date));
+  ui.credits_box->setHtml(text);
 
-	dialog->exec();
+  dialog->exec();
 }
 
-QString SciDAVis::copyrightString()
-{
-	return copyright_string;
+QString SciDAVis::copyrightString() { return copyright_string; }
+
+QString SciDAVis::releaseDateString() { return release_date; }
+
+QString SciDAVis::enumValueToString(int key, const QString& enum_name) {
+  int index = staticMetaObject.indexOfEnumerator(enum_name.toAscii());
+  if (index == -1) return QString("invalid");
+  QMetaEnum meta_enum = staticMetaObject.enumerator(index);
+  return QString(meta_enum.valueToKey(key));
 }
 
-QString SciDAVis::releaseDateString()
-{
-	return release_date;
+int SciDAVis::enumStringToValue(const QString& string,
+                                const QString& enum_name) {
+  int index = staticMetaObject.indexOfEnumerator(enum_name.toAscii());
+  if (index == -1) return -1;
+  QMetaEnum meta_enum = staticMetaObject.enumerator(index);
+  return meta_enum.keyToValue(string.toAscii());
 }
-
-QString SciDAVis::enumValueToString(int key, const QString& enum_name)
-{
-	int index = staticMetaObject.indexOfEnumerator(enum_name.toAscii());
-	if(index == -1) return QString("invalid");
-	QMetaEnum meta_enum = staticMetaObject.enumerator(index);
-	return QString(meta_enum.valueToKey(key));
-}
-
-int SciDAVis::enumStringToValue(const QString& string, const QString& enum_name)
-{
-	int index = staticMetaObject.indexOfEnumerator(enum_name.toAscii());
-	if(index == -1) return -1;
-	QMetaEnum meta_enum = staticMetaObject.enumerator(index);
-	return meta_enum.keyToValue(string.toAscii());
-}
-

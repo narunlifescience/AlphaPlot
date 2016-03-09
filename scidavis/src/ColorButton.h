@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : A button used for color selection
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -41,33 +41,32 @@ class QFrame;
  * 1) A frame reflecting the current color
  * 2) A button showing a color wheel to select the color
  */
-class ColorButton : public QWidget
-{
-	Q_OBJECT
+class ColorButton : public QWidget {
+  Q_OBJECT
 
-public:
-	//! Constructor
-	ColorButton(QWidget *parent = 0);
-	//! Set the color of the display part
-	void setColor(const QColor& c);
-	//! Get the color of the display part
-	QColor color() const;
-	QSize sizeHint() const;
+ public:
+  //! Constructor
+  ColorButton(QWidget *parent = 0);
+  //! Set the color of the display part
+  void setColor(const QColor &c);
+  //! Get the color of the display part
+  QColor color() const;
+  QSize sizeHint() const;
 
-private:
-	QPushButton *selectButton;
-	QFrame *display;
+ private:
+  QPushButton *selectButton;
+  QFrame *display;
 
-signals:
-	//! Signal clicked: This is emitted when the selection button is clicked
-	void clicked();
+ signals:
+  //! Signal clicked: This is emitted when the selection button is clicked
+  void clicked();
 
-protected:
-	//! Initialize the widget (called from constructor)
-	void init();
+ protected:
+  //! Initialize the widget (called from constructor)
+  void init();
 
-private:
-	int btn_size;
+ private:
+  int btn_size;
 };
 
-#endif
+#endif  // COLORBUTTON_H

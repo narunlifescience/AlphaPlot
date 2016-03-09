@@ -34,69 +34,65 @@
 #include <qwt_symbol.h>
 #include <qwt_scale_draw.h>
 
-ScreenPickerTool::ScreenPickerTool(Graph *graph, const QObject *status_target, const char *status_slot)
-	: QwtPlotPicker(graph->plotWidget()->canvas()),
-	PlotToolInterface(graph)
-{
-//	d_selection_marker.setSymbol(QwtSymbol(QwtSymbol::Cross, QBrush(Qt::NoBrush), QPen(Qt::red,1), QSize(15,15)));
-	d_selection_marker.setLineStyle(QwtPlotMarker::Cross);
-	d_selection_marker.setLinePen(QPen(Qt::red,1));
-	setTrackerMode(QwtPicker::AlwaysOn);
-	setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
-	d_graph->plotWidget()->canvas()->setCursor(QCursor(QPixmap(":/cursor.xpm"), -1, -1));
+ScreenPickerTool::ScreenPickerTool(Graph *graph, const QObject *status_target,
+                                   const char *status_slot)
+    : QwtPlotPicker(graph->plotWidget()->canvas()), PlotToolInterface(graph) {
+  //	d_selection_marker.setSymbol(QwtSymbol(QwtSymbol::Cross,
+  //QBrush(Qt::NoBrush), QPen(Qt::red,1), QSize(15,15)));
+  d_selection_marker.setLineStyle(QwtPlotMarker::Cross);
+  d_selection_marker.setLinePen(QPen(Qt::red, 1));
+  setTrackerMode(QwtPicker::AlwaysOn);
+  setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
+  d_graph->plotWidget()->canvas()->setCursor(
+      QCursor(QPixmap(":/cursor.xpm"), -1, -1));
 
-	if (status_target)
-		connect(this, SIGNAL(statusText(const QString&)), status_target, status_slot);
-	emit statusText(tr("Click on plot or move cursor to display coordinates!"));
+  if (status_target)
+    connect(this, SIGNAL(statusText(const QString &)), status_target,
+            status_slot);
+  emit statusText(tr("Click on plot or move cursor to display coordinates!"));
 }
 
-ScreenPickerTool::~ScreenPickerTool()
-{
-	d_selection_marker.detach();
-	d_graph->plotWidget()->canvas()->unsetCursor();
-	d_graph->plotWidget()->replot();
+ScreenPickerTool::~ScreenPickerTool() {
+  d_selection_marker.detach();
+  d_graph->plotWidget()->canvas()->unsetCursor();
+  d_graph->plotWidget()->replot();
 }
 
-void ScreenPickerTool::append(const QPoint &point)
-{
-//	QwtPlotPicker::append(point);
+void ScreenPickerTool::append(const QPoint &point) {
+  //	QwtPlotPicker::append(point);
 
-	QwtDoublePoint pos = invTransform(point);
-	emit statusText(trackerText(pos).text());
+  QwtDoublePoint pos = invTransform(point);
+  emit statusText(trackerText(pos).text());
 
-	d_selection_marker.setValue(pos);
-	if (d_selection_marker.plot() == NULL)
-		d_selection_marker.attach(d_graph->plotWidget());
-	d_graph->plotWidget()->replot();
+  d_selection_marker.setValue(pos);
+  if (d_selection_marker.plot() == NULL)
+    d_selection_marker.attach(d_graph->plotWidget());
+  d_graph->plotWidget()->replot();
 }
 
-bool ScreenPickerTool::eventFilter(QObject *obj, QEvent *event)
-{
-	switch(event->type()) {
-		case QEvent::MouseButtonDblClick:
-			emit selected(d_selection_marker.value());
-			return true;
-		case QEvent::KeyPress:
-			{
-				QKeyEvent *ke = (QKeyEvent*) event;
-				switch(ke->key()) {
-					case Qt::Key_Enter:
-					case Qt::Key_Return:
-						emit selected(d_selection_marker.value());
-						return true;
-					default:
-						break;
-				}
-			}
-		default:
-			break;
-	}
-	return QwtPlotPicker::eventFilter(obj, event);
+bool ScreenPickerTool::eventFilter(QObject *obj, QEvent *event) {
+  switch (event->type()) {
+    case QEvent::MouseButtonDblClick:
+      emit selected(d_selection_marker.value());
+      return true;
+    case QEvent::KeyPress: {
+      QKeyEvent *ke = (QKeyEvent *)event;
+      switch (ke->key()) {
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+          emit selected(d_selection_marker.value());
+          return true;
+        default:
+          break;
+      }
+    }
+    default:
+      break;
+  }
+  return QwtPlotPicker::eventFilter(obj, event);
 }
 
 QwtText ScreenPickerTool::trackerText(const QwtDoublePoint &point) const {
-	return plot()->axisScaleDraw(xAxis())->label(point.x()).text() +
-		", " +
-		plot()->axisScaleDraw(yAxis())->label(point.y()).text();
+  return plot()->axisScaleDraw(xAxis())->label(point.x()).text() + ", " +
+         plot()->axisScaleDraw(yAxis())->label(point.y()).text();
 }
-

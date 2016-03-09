@@ -33,47 +33,55 @@
 #include "tree.hh"
 
 #ifndef NO_CODE_GENERATION_FOR_LOG
-#define LOG_PRINT( logfile, args... ) \
-{                                     \
-	int ioret= fprintf(logfile, args); \
-	assert(ioret>0);                   \
-}
-#else // !NO_CODE_GENERATION_FOR_LOG
-#define LOG_PRINT( logfile, args... ) {};
-#endif // NO_CODE_GENERATION_FOR_LOG
+#define LOG_PRINT(logfile, args...)     \
+  {                                     \
+    int ioret = fprintf(logfile, args); \
+    assert(ioret > 0);                  \
+  }
+#else  // !NO_CODE_GENERATION_FOR_LOG
+#define LOG_PRINT(logfile, args...) \
+  {};
+#endif  // NO_CODE_GENERATION_FOR_LOG
 
-class OriginParser
-{
-public:
-	virtual ~OriginParser() {};
-	virtual bool parse() = 0;
-	void setFileVersion(unsigned int version){fileVersion = version;};
+class OriginParser {
+ public:
+  virtual ~OriginParser() {}
+  virtual bool parse() = 0;
+  void setFileVersion(unsigned int version) { fileVersion = version; }
 
-	vector<Origin::SpreadSheet>::difference_type findSpreadByName(const string& name) const;
-	vector<Origin::Matrix>::difference_type findMatrixByName(const string& name) const;
-	vector<Origin::Function>::difference_type findFunctionByName(const string& name) const;
-	vector<Origin::Excel>::difference_type findExcelByName(const string& name) const;
+  vector<Origin::SpreadSheet>::difference_type findSpreadByName(
+      const string& name) const;
+  vector<Origin::Matrix>::difference_type findMatrixByName(
+      const string& name) const;
+  vector<Origin::Function>::difference_type findFunctionByName(
+      const string& name) const;
+  vector<Origin::Excel>::difference_type findExcelByName(
+      const string& name) const;
 
-protected:
-	vector<Origin::SpreadColumn>::difference_type findSpreadColumnByName(vector<Origin::SpreadSheet>::size_type spread, const string& name) const;
-	vector<Origin::SpreadColumn>::difference_type findExcelColumnByName(vector<Origin::Excel>::size_type excel, vector<Origin::SpreadSheet>::size_type sheet, const string& name) const;
-	pair<string, string> findDataByIndex(unsigned int index) const;
-	pair<Origin::ProjectNode::NodeType, string> findObjectByIndex(unsigned int index) const;
-	void convertSpreadToExcel(vector<Origin::SpreadSheet>::size_type spread);
+ protected:
+  vector<Origin::SpreadColumn>::difference_type findSpreadColumnByName(
+      vector<Origin::SpreadSheet>::size_type spread, const string& name) const;
+  vector<Origin::SpreadColumn>::difference_type findExcelColumnByName(
+      vector<Origin::Excel>::size_type excel,
+      vector<Origin::SpreadSheet>::size_type sheet, const string& name) const;
+  pair<string, string> findDataByIndex(unsigned int index) const;
+  pair<Origin::ProjectNode::NodeType, string> findObjectByIndex(
+      unsigned int index) const;
+  void convertSpreadToExcel(vector<Origin::SpreadSheet>::size_type spread);
 
-	int findColumnByName(int spread, const string& name);
+  int findColumnByName(int spread, const string& name);
 
-public:
-	vector<Origin::SpreadSheet> speadSheets;
-	vector<Origin::Matrix> matrixes;
-	vector<Origin::Excel> excels;
-	vector<Origin::Function> functions;
-	vector<Origin::Graph> graphs;
-	vector<Origin::Note> notes;
-	tree<Origin::ProjectNode> projectTree;
-	string resultsLog;
-	unsigned int windowsCount;
-	unsigned int fileVersion;
+ public:
+  vector<Origin::SpreadSheet> speadSheets;
+  vector<Origin::Matrix> matrixes;
+  vector<Origin::Excel> excels;
+  vector<Origin::Function> functions;
+  vector<Origin::Graph> graphs;
+  vector<Origin::Note> notes;
+  tree<Origin::ProjectNode> projectTree;
+  string resultsLog;
+  unsigned int windowsCount;
+  unsigned int fileVersion;
 };
 
 OriginParser* createOriginDefaultParser(const string& fileName);
@@ -84,4 +92,4 @@ OriginParser* createOrigin750Parser(const string& fileName);
 OriginParser* createOrigin800Parser(const string& fileName);
 OriginParser* createOrigin810Parser(const string& fileName);
 
-#endif // ORIGIN_PARSER_H
+#endif  // ORIGIN_PARSER_H

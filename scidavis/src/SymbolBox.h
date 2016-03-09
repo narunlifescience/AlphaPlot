@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Plot symbol combo box
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -33,12 +33,11 @@
 #include <qwt_symbol.h>
 
 //! Plot symbol combo box
-class SymbolBox : public QComboBox
-{
+class SymbolBox : public QComboBox {
   Q_OBJECT
-public:
-  SymbolBox(bool rw, QWidget *parent = 0);
-  SymbolBox(QWidget *parent = 0);
+ public:
+  SymbolBox(bool rw, QWidget* parent = 0);
+  SymbolBox(QWidget* parent = 0);
 
   void setStyle(const QwtSymbol::Style& c);
   QwtSymbol::Style selectedSymbol() const;
@@ -48,8 +47,8 @@ public:
 
   static const QwtSymbol::Style symbols[];
 
-protected:
+ protected:
   void init();
 };
 
-#endif
+#endif  // SYMBOLBOX_H

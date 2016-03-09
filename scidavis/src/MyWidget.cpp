@@ -39,92 +39,84 @@
 #include <QIcon>
 #include <QtDebug>
 
-MyWidget::MyWidget(const QString& label, QWidget * parent, const QString name, Qt::WFlags f):
-	QWidget (parent, f)
-{
-	w_label = label;
-	caption_policy = Both;
-	askOnClose = true;
-	w_status = Normal;
-	titleBar = NULL;
-	setObjectName(QString(name));
+MyWidget::MyWidget(const QString &label, QWidget *parent, const QString name,
+                   Qt::WFlags f)
+    : QWidget(parent, f) {
+  w_label = label;
+  caption_policy = Both;
+  askOnClose = true;
+  w_status = Normal;
+  titleBar = NULL;
+  setObjectName(QString(name));
 }
 
-void MyWidget::updateCaption()
-{
-	switch (caption_policy)
-	{
-		case Name:
-			setWindowTitle(name());
-			break;
+void MyWidget::updateCaption() {
+  switch (caption_policy) {
+    case Name:
+      setWindowTitle(name());
+      break;
 
-		case Label:
-			if (!windowLabel().isEmpty())
-				setWindowTitle(windowLabel());
-			else
-				setWindowTitle(name());
-			break;
+    case Label:
+      if (!windowLabel().isEmpty())
+        setWindowTitle(windowLabel());
+      else
+        setWindowTitle(name());
+      break;
 
-		case Both:
-			if (!windowLabel().isEmpty())
-				setWindowTitle(name() + " - " + windowLabel());
-			else
-				setWindowTitle(name());
-			break;
-	}
+    case Both:
+      if (!windowLabel().isEmpty())
+        setWindowTitle(name() + " - " + windowLabel());
+      else
+        setWindowTitle(name());
+      break;
+  }
 };
 
-void MyWidget::closeEvent( QCloseEvent *e )
-{
-if (askOnClose)
-    {
-    switch( QMessageBox::information(this,tr("SciDAVis"),
-					tr("Do you want to hide or delete") + "<p><b>'" + objectName() + "'</b> ?",
-				      tr("Delete"), tr("Hide"), tr("Cancel"), 0,2))
-		{
-		case 0:
-			emit closedWindow(this);
-			e->accept();
-		break;
+void MyWidget::closeEvent(QCloseEvent *e) {
+  if (askOnClose) {
+    switch (QMessageBox::information(
+        this, tr("SciDAVis"), tr("Do you want to hide or delete") + "<p><b>'" +
+                                  objectName() + "'</b> ?",
+        tr("Delete"), tr("Hide"), tr("Cancel"), 0, 2)) {
+      case 0:
+        emit closedWindow(this);
+        e->accept();
+        break;
 
-		case 1:
-			e->ignore();
-			emit hiddenWindow(this);
-		break;
+      case 1:
+        e->ignore();
+        emit hiddenWindow(this);
+        break;
 
-		case 2:
-			e->ignore();
-		break;
-		}
+      case 2:
+        e->ignore();
+        break;
     }
-else
-    {
-	emit closedWindow(this);
+  } else {
+    emit closedWindow(this);
     e->accept();
-    }
+  }
 }
 
-QString MyWidget::aspect()
-{
-	QString s = tr("Normal");
-	switch (w_status)
-	{
-		case Hidden:
-			return tr("Hidden");
-			break;
+QString MyWidget::aspect() {
+  QString s = tr("Normal");
+  switch (w_status) {
+    case Hidden:
+      return tr("Hidden");
+      break;
 
-		case Normal:
-			break;
+    case Normal:
+      break;
 
-		case Minimized:
-			return tr("Minimized");
-			break;
+    case Minimized:
+      return tr("Minimized");
+      break;
 
-		case Maximized:
-			return tr("Maximized");
-			break;
-	}
-	return s;
+    case Maximized:
+      return tr("Maximized");
+      break;
+  }
+  return s;
 }
 
 // Modifying the title bar menu is somewhat more complicated in Qt4.
@@ -132,80 +124,66 @@ QString MyWidget::aspect()
 // in Qt4 the title bar doesn't exist yet at this point.
 // Thus, we now also have to intercept the creation of the title bar
 // in MyWidget::eventFilter.
-void MyWidget::changeEvent(QEvent *event)
-{
-	if (event->type() == QEvent::ParentChange) {
-		titleBar = 0;
-		if (parent()) parent()->installEventFilter(this);
-	}
-	else if (!isHidden() && event->type() == QEvent::WindowStateChange) {
-	    if (((QWindowStateChangeEvent *)event)->oldState() == windowState())
-            return;
+void MyWidget::changeEvent(QEvent *event) {
+  if (event->type() == QEvent::ParentChange) {
+    titleBar = 0;
+    if (parent()) parent()->installEventFilter(this);
+  } else if (!isHidden() && event->type() == QEvent::WindowStateChange) {
+    if (((QWindowStateChangeEvent *)event)->oldState() == windowState()) return;
 
-		if( windowState() & Qt::WindowMinimized )
-	    	w_status = Minimized;
-		else if ( windowState() & Qt::WindowMaximized )
-	     	w_status = Maximized;
-		else
-	    	w_status = Normal;
-    	emit statusChanged (this);
-	}
-	QWidget::changeEvent(event);
+    if (windowState() & Qt::WindowMinimized)
+      w_status = Minimized;
+    else if (windowState() & Qt::WindowMaximized)
+      w_status = Maximized;
+    else
+      w_status = Normal;
+    emit statusChanged(this);
+  }
+  QWidget::changeEvent(event);
 }
 
-bool MyWidget::eventFilter(QObject *object, QEvent *e)
-{
-	QWidget *tmp;
-	if (e->type()==QEvent::ContextMenu && object == titleBar)
-	{
-		emit showTitleBarMenu();
-		((QContextMenuEvent*)e)->accept();
-		return true;
-	} 
-	else if (e->type()==QEvent::ChildAdded && object == parent() && (tmp = qobject_cast<QWidget *>(((QChildEvent*)e)->child()))) 
-	{
-		(titleBar = tmp)->installEventFilter(this);
-		parent()->removeEventFilter(this);
-		return true;
-	}
-	return false;
+bool MyWidget::eventFilter(QObject *object, QEvent *e) {
+  QWidget *tmp;
+  if (e->type() == QEvent::ContextMenu && object == titleBar) {
+    emit showTitleBarMenu();
+    ((QContextMenuEvent *)e)->accept();
+    return true;
+  } else if (e->type() == QEvent::ChildAdded && object == parent() &&
+             (tmp = qobject_cast<QWidget *>(((QChildEvent *)e)->child()))) {
+    (titleBar = tmp)->installEventFilter(this);
+    parent()->removeEventFilter(this);
+    return true;
+  }
+  return false;
 }
 
-void MyWidget::setStatus(Status s)
-{
-	if (w_status == s)
-		return;
+void MyWidget::setStatus(Status s) {
+  if (w_status == s) return;
 
-	w_status = s;
-	emit statusChanged (this);
+  w_status = s;
+  emit statusChanged(this);
 }
 
-void MyWidget::setHidden()
-{
-    w_status = Hidden;
-    emit statusChanged (this);
-    hide();
+void MyWidget::setHidden() {
+  w_status = Hidden;
+  emit statusChanged(this);
+  hide();
 }
 
-void MyWidget::setNormal()
-{
-	showNormal();
-	w_status = Normal;
-	emit statusChanged (this);
+void MyWidget::setNormal() {
+  showNormal();
+  w_status = Normal;
+  emit statusChanged(this);
 }
 
-void MyWidget::setMinimized()
-{
-	showMinimized();
-	w_status = Minimized;
-	emit statusChanged (this);
+void MyWidget::setMinimized() {
+  showMinimized();
+  w_status = Minimized;
+  emit statusChanged(this);
 }
 
-void MyWidget::setMaximized()
-{
-	showMaximized();
-	w_status = Maximized;
-	emit statusChanged (this);
+void MyWidget::setMaximized() {
+  showMaximized();
+  w_status = Maximized;
+  emit statusChanged(this);
 }
-
-

@@ -34,67 +34,64 @@
 #include <QLabel>
 #include <QPushButton>
 
-OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended, Qt::WFlags flags)
-	: ExtensibleFileDialog(parent, extended, flags)
-{
-	setCaption(tr("Open Project"));
-	setFileMode(ExistingFile);
-	QStringList filters;
-	filters << tr("SciDAVis project") + " (*.sciprj)"
-		<< tr("Compressed SciDAVis project") + " (*.sciprj.gz)"
-		<< tr("QtiPlot project") + " (*.qti)"
-		<< tr("Compressed QtiPlot project") + " (*.qti.gz)"
+OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended,
+                                     Qt::WFlags flags)
+    : ExtensibleFileDialog(parent, extended, flags) {
+  setCaption(tr("Open Project"));
+  setFileMode(ExistingFile);
+  QStringList filters;
+  filters << tr("SciDAVis project") + " (*.sciprj)"
+          << tr("Compressed SciDAVis project") + " (*.sciprj.gz)"
+          << tr("QtiPlot project") + " (*.qti)"
+          << tr("Compressed QtiPlot project") + " (*.qti.gz)"
 #ifdef ORIGIN_IMPORT
-		<< tr("Origin project") + " (*.opj *.OPJ)"
-		<< tr("Origin matrix") + " (*.ogm *.OGM)"
-		<< tr("Origin worksheet") + " (*.ogw *.OGW)"
-		<< tr("Origin graph") + " (*.ogg *.OGG)"
+          << tr("Origin project") + " (*.opj *.OPJ)"
+          << tr("Origin matrix") + " (*.ogm *.OGM)"
+          << tr("Origin worksheet") + " (*.ogw *.OGW)"
+          << tr("Origin graph") + " (*.ogg *.OGG)"
 #endif
-		<< tr("Backup files") + " (*.sciprj~)"
-		//<< tr("Python Source") + " (*.py *.PY)"
-		<< tr("All files") + " (*)";
-	setFilters(filters);
+          << tr("Backup files") + " (*.sciprj~)"
+          //<< tr("Python Source") + " (*.py *.PY)"
+          << tr("All files") + " (*)";
+  setFilters(filters);
 
-	QWidget *advanced_options = new QWidget();
-	QHBoxLayout *advanced_layout = new QHBoxLayout();
-	advanced_options->setLayout(advanced_layout);
-	advanced_layout->addWidget(new QLabel(tr("Open As")));
-	d_open_mode = new QComboBox();
-	// Important: Keep this is sync with enum OpenMode.
-	d_open_mode->addItem(tr("New Project Window"));
-	d_open_mode->addItem(tr("New Folder"));
-	advanced_layout->addWidget(d_open_mode);
-	setExtensionWidget(advanced_options);
+  QWidget *advanced_options = new QWidget();
+  QHBoxLayout *advanced_layout = new QHBoxLayout();
+  advanced_options->setLayout(advanced_layout);
+  advanced_layout->addWidget(new QLabel(tr("Open As")));
+  d_open_mode = new QComboBox();
+  // Important: Keep this is sync with enum OpenMode.
+  d_open_mode->addItem(tr("New Project Window"));
+  d_open_mode->addItem(tr("New Folder"));
+  advanced_layout->addWidget(d_open_mode);
+  setExtensionWidget(advanced_options);
 
 #if QT_VERSION >= 0x040300
-	connect(this, SIGNAL(filterSelected ( const QString & )),
-			this, SLOT(updateAdvancedOptions ( const QString & )));
+  connect(this, SIGNAL(filterSelected(const QString &)), this,
+          SLOT(updateAdvancedOptions(const QString &)));
 #else
-	QList<QComboBox*> combo_boxes = findChildren<QComboBox*>();
-	if (combo_boxes.size() >= 2)
-		connect(combo_boxes[1], SIGNAL(currentIndexChanged ( const QString & )),
-				this, SLOT(updateAdvancedOptions ( const QString & )));
+  QList<QComboBox *> combo_boxes = findChildren<QComboBox *>();
+  if (combo_boxes.size() >= 2)
+    connect(combo_boxes[1], SIGNAL(currentIndexChanged(const QString &)), this,
+            SLOT(updateAdvancedOptions(const QString &)));
 #endif
-	updateAdvancedOptions(selectedFilter());
+  updateAdvancedOptions(selectedFilter());
 }
 
-void OpenProjectDialog::updateAdvancedOptions (const QString & filter)
-{
-	if (filter.contains("*.ogm") || filter.contains("*.ogw")) {
-		d_extension_toggle->setChecked(false);
-		d_extension_toggle->setEnabled(false);
-		return;
-	}
-	d_extension_toggle->setEnabled(true);
+void OpenProjectDialog::updateAdvancedOptions(const QString &filter) {
+  if (filter.contains("*.ogm") || filter.contains("*.ogw")) {
+    d_extension_toggle->setChecked(false);
+    d_extension_toggle->setEnabled(false);
+    return;
+  }
+  d_extension_toggle->setEnabled(true);
 }
 
-void OpenProjectDialog::closeEvent(QCloseEvent* e)
-{
-	if (isExtendable()){
-		ApplicationWindow *app = (ApplicationWindow *)this->parent();
-		if (app)
-			app->d_extended_open_dialog = this->isExtended();
-	}
+void OpenProjectDialog::closeEvent(QCloseEvent *e) {
+  if (isExtendable()) {
+    ApplicationWindow *app = (ApplicationWindow *)this->parent();
+    if (app) app->d_extended_open_dialog = this->isExtended();
+  }
 
-	e->accept();
+  e->accept();
 }

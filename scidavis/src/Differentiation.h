@@ -31,17 +31,18 @@
 
 #include "Filter.h"
 
-class Differentiation : public Filter
-{
-Q_OBJECT
+class Differentiation : public Filter {
+  Q_OBJECT
 
-public:
-	Differentiation(ApplicationWindow *parent, Graph *g);
-	Differentiation(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-	Differentiation(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+ public:
+  Differentiation(ApplicationWindow *parent, Graph *g);
+  Differentiation(ApplicationWindow *parent, Graph *g,
+                  const QString &curveTitle);
+  Differentiation(ApplicationWindow *parent, Graph *g,
+                  const QString &curveTitle, double start, double end);
 
-private:
-    void init();
-    void output();
+ private:
+  void init();
+  void output();
 };
-#endif
+#endif  // DIFFERENTIATION_H

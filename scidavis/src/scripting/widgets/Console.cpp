@@ -1,6 +1,6 @@
 /* This file is part of AlphaPlot.
    Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
-   
+
    AlphaPlot is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -11,18 +11,18 @@
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
    along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
-   
+
    Description : AlphaPlot scripting console widget
 */
 
 #include "Console.h"
 #include <iostream>
 
-Console::Console(QWidget *parent) : QPlainTextEdit(parent),
-  userPrompt(QString(">> ")),
-  locked(false),
-  historySkip(false)
-{
+Console::Console(QWidget *parent)
+    : QPlainTextEdit(parent),
+      userPrompt(QString(">> ")),
+      locked(false),
+      historySkip(false) {
   historyUp.clear();
   historyDown.clear();
   setLineWrapMode(NoWrap);
@@ -38,30 +38,30 @@ Console::Console(QWidget *parent) : QPlainTextEdit(parent),
 void Console::keyPressEvent(QKeyEvent *e) {
   // locked State: a command has been submitted but no result
   // has been received yet.
-  if(locked) return;
+  if (locked) return;
 
-  switch(e->key()) {
-  case Qt::Key_Return:
-    handleEnter();
-    break;
-  case Qt::Key_Backspace:
-    handleLeft(e);
-    break;
-  case Qt::Key_Up:
-    handleHistoryUp();
-    break;
-  case Qt::Key_Down:
-    handleHistoryDown();
-    break;
-  case Qt::Key_Left:
-    handleLeft(e);
-    break;
-  case Qt::Key_Home:
-    handleHome();
-    break;
-  default:
-    QPlainTextEdit::keyPressEvent(e);
-    break;
+  switch (e->key()) {
+    case Qt::Key_Return:
+      handleEnter();
+      break;
+    case Qt::Key_Backspace:
+      handleLeft(e);
+      break;
+    case Qt::Key_Up:
+      handleHistoryUp();
+      break;
+    case Qt::Key_Down:
+      handleHistoryDown();
+      break;
+    case Qt::Key_Left:
+      handleLeft(e);
+      break;
+    case Qt::Key_Home:
+      handleHome();
+      break;
+    default:
+      QPlainTextEdit::keyPressEvent(e);
+      break;
   }
 }
 
@@ -69,8 +69,8 @@ void Console::keyPressEvent(QKeyEvent *e) {
 void Console::handleEnter() {
   QString cmd = getCommand();
 
-  if(0 < cmd.length()) {
-    while(historyDown.count() > 0) {
+  if (0 < cmd.length()) {
+    while (historyDown.count() > 0) {
       historyUp.push(historyDown.pop());
     }
 
@@ -79,7 +79,7 @@ void Console::handleEnter() {
 
   moveToEndOfLine();
 
-  if(cmd.length() > 0) {
+  if (cmd.length() > 0) {
     locked = true;
     setFocus();
     insertPlainText("\n");
@@ -109,7 +109,7 @@ void Console::append(QString text) {
 
 // Arrow up pressed
 void Console::handleHistoryUp() {
-  if(0 < historyUp.count()) {
+  if (0 < historyUp.count()) {
     QString cmd = historyUp.pop();
     historyDown.push(cmd);
 
@@ -122,12 +122,12 @@ void Console::handleHistoryUp() {
 
 // Arrow down pressed
 void Console::handleHistoryDown() {
-  if(0 < historyDown.count() && historySkip) {
+  if (0 < historyDown.count() && historySkip) {
     historyUp.push(historyDown.pop());
     historySkip = false;
   }
 
-  if(0 < historyDown.count()) {
+  if (0 < historyDown.count()) {
     QString cmd = historyDown.pop();
     historyUp.push(cmd);
 
@@ -163,7 +163,7 @@ void Console::moveToEndOfLine() {
 // The text cursor is not allowed to move beyond the
 // prompt
 void Console::handleLeft(QKeyEvent *event) {
-  if(getIndex(textCursor()) > userPrompt.length()) {
+  if (getIndex(textCursor()) > userPrompt.length()) {
     QPlainTextEdit::keyPressEvent(event);
   }
 }
@@ -172,13 +172,14 @@ void Console::handleLeft(QKeyEvent *event) {
 void Console::handleHome() {
   QTextCursor c = textCursor();
   c.movePosition(QTextCursor::StartOfLine);
-  c.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, userPrompt.length());
+  c.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor,
+                 userPrompt.length());
   setTextCursor(c);
 }
 
 // Solution for getting x and y position of the cursor. Found
 // them in the Qt mailing list
-int Console::getIndex (const QTextCursor &crQTextCursor ) {
+int Console::getIndex(const QTextCursor &crQTextCursor) {
   QTextBlock b;
   int column = 1;
   b = crQTextCursor.block();
@@ -191,6 +192,4 @@ void Console::setPrompt(const QString &prompt) {
   clearLine();
 }
 
-QString Console::prompt() const {
-  return userPrompt;
-}
+QString Console::prompt() const { return userPrompt; }

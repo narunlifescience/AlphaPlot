@@ -34,41 +34,46 @@
 #include <qwt_plot_marker.h>
 
 //! 2D Grid class
-class Grid : public QwtPlotGrid
-{
-	public:
-		Grid();
+class Grid : public QwtPlotGrid {
+ public:
+  Grid();
 
-		void draw (QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &rect) const;
-		void drawLines(QPainter *painter, const QRect &rect, Qt::Orientation orientation, const QwtScaleMap &map,
-				const QwtValueList &values) const;
+  void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+            const QRect &rect) const;
+  void drawLines(QPainter *painter, const QRect &rect,
+                 Qt::Orientation orientation, const QwtScaleMap &map,
+                 const QwtValueList &values) const;
 
-		bool xZeroLineEnabled(){return (mrkX >= 0)?true:false;};
-		void enableZeroLineX(bool enable = true);
-		bool yZeroLineEnabled(){return (mrkY >= 0)?true:false;};
-		void enableZeroLineY(bool enable = true);
+  bool xZeroLineEnabled() { return (mrkX >= 0) ? true : false; }
+  void enableZeroLineX(bool enable = true);
+  bool yZeroLineEnabled() { return (mrkY >= 0) ? true : false; }
+  void enableZeroLineY(bool enable = true);
 
-		void setMajPenX(const QPen &p){	setMajPen(p);};
-		const QPen& majPenX() const {return majPen();};
+  void setMajPenX(const QPen &p) { setMajPen(p); }
+  const QPen &majPenX() const { return majPen(); }
 
-		void setMinPenX(const QPen &p){	setMinPen(p);};
-		const QPen& minPenX() const {return minPen();};
+  void setMinPenX(const QPen &p) { setMinPen(p); }
+  const QPen &minPenX() const { return minPen(); }
 
-		void setMajPenY(const QPen &p){	if (d_maj_pen_y != p) d_maj_pen_y = p;};
-		const QPen& majPenY() const {return d_maj_pen_y;};
+  void setMajPenY(const QPen &p) {
+    if (d_maj_pen_y != p) d_maj_pen_y = p;
+  }
+  const QPen &majPenY() const { return d_maj_pen_y; }
 
-		void setMinPenY(const QPen &p){	if (d_min_pen_y != p) d_min_pen_y = p;};
-		const QPen& minPenY() const {return d_min_pen_y;};
+  void setMinPenY(const QPen &p) {
+    if (d_min_pen_y != p) d_min_pen_y = p;
+  }
+  const QPen &minPenY() const { return d_min_pen_y; }
 
-		void load(const QStringList& );
-		void copy(Grid *);
-		QString saveToString();
+  void load(const QStringList &);
+  void copy(Grid *);
+  QString saveToString();
 
-	private:
-		QPen d_maj_pen_y;
-		QPen d_min_pen_y;
+ private:
+  QPen d_maj_pen_y;
+  QPen d_min_pen_y;
 
-		long mrkX, mrkY;//x=0 et y=0 line markers keys
+  long mrkX, mrkY;  // x=0 et y=0 line markers keys
 };
 
-#endif
+#endif  // GRID_H

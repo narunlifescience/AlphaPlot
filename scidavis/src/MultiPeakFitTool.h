@@ -41,35 +41,39 @@ class QwtPlotCurve;
 
 /*! Plot tool for doing multi-peak fitting.
  *
- * This class can be seen as a user-interface wrapper around MultiPeakFit, providing functionality for visually
+ * This class can be seen as a user-interface wrapper around MultiPeakFit,
+ * providing functionality for visually
  * selecting estimated peak positions and finally executing the fit.
  *
- * Maybe some other parts of the multi-peak fitting process (namely, specifying the number of peaks and optionally
+ * Maybe some other parts of the multi-peak fitting process (namely, specifying
+ * the number of peaks and optionally
  * the peak profile) could be moved here as well.
  */
-class MultiPeakFitTool : public QObject, public PlotToolInterface
-{
-	Q_OBJECT
-	public:
-		MultiPeakFitTool(Graph *graph, ApplicationWindow *app, MultiPeakFit::PeakProfile profile, int num_peaks, const QObject *status_target, const char *status_slot);
-		virtual RTTI rtti() const { return MultiPeak; }
-		virtual ~MultiPeakFitTool();
-	signals:
-		/*! Emitted whenever a new message should be presented to the user.
-		 *
-		 * You don't have to connect to this signal if you alreay specified a reciever during initialization.
-		 */
-		void statusText(const QString&);
-	protected slots:
-		void selectPeak(QwtPlotCurve *curve, int point_index);
-	private:
-		void finalize();
-		MultiPeakFit::PeakProfile d_profile;
-		int d_num_peaks, d_selected_peaks;
-		DataPickerTool *d_picker_tool;
-		MultiPeakFit *d_fit;
-		QwtPlotCurve *d_curve;
+class MultiPeakFitTool : public QObject, public PlotToolInterface {
+  Q_OBJECT
+ public:
+  MultiPeakFitTool(Graph *graph, ApplicationWindow *app,
+                   MultiPeakFit::PeakProfile profile, int num_peaks,
+                   const QObject *status_target, const char *status_slot);
+  virtual RTTI rtti() const { return MultiPeak; }
+  virtual ~MultiPeakFitTool();
+ signals:
+  /*! Emitted whenever a new message should be presented to the user.
+   *
+   * You don't have to connect to this signal if you alreay specified a reciever
+   * during initialization.
+   */
+  void statusText(const QString &);
+ protected slots:
+  void selectPeak(QwtPlotCurve *curve, int point_index);
+
+ private:
+  void finalize();
+  MultiPeakFit::PeakProfile d_profile;
+  int d_num_peaks, d_selected_peaks;
+  DataPickerTool *d_picker_tool;
+  MultiPeakFit *d_fit;
+  QwtPlotCurve *d_curve;
 };
 
-#endif // ifndef MULTI_PEAK_FIT_TOOL
-
+#endif  // MULTI_PEAK_FIT_TOOL

@@ -5,8 +5,9 @@
     Copyright            : (C) 2007 by Tilman Benkert,
                            Knut Franke
     Email (use @ for *)  : thzs*gmx.net, knut.franke*gmx.de
-    Description          : Conversion filter QDateTime -> double (using Julian day).
-                           
+    Description          : Conversion filter QDateTime -> double (using Julian
+ day).
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -38,27 +39,27 @@
 #include <QXmlStreamWriter>
 
 //! Conversion filter QDateTime -> double (using Julian day).
-class DateTime2DoubleFilter : public AbstractSimpleFilter
-{
-	Q_OBJECT
+class DateTime2DoubleFilter : public AbstractSimpleFilter {
+  Q_OBJECT
 
-	public:
-		virtual double valueAt(int row) const {
-			if (!d_inputs.value(0)) return 0;
-			QDateTime input_value = d_inputs.value(0)->dateTimeAt(row);
-			return double(input_value.date().toJulianDay()) +
-				double( -input_value.time().msecsTo(QTime(12,0,0,0)) ) / 86400000.0;
-		}
+ public:
+  virtual double valueAt(int row) const {
+    if (!d_inputs.value(0)) return 0;
+    QDateTime input_value = d_inputs.value(0)->dateTimeAt(row);
+    return double(input_value.date().toJulianDay()) +
+           double(-input_value.time().msecsTo(QTime(12, 0, 0, 0))) / 86400000.0;
+  }
 
-		//! Return the data type of the column
-		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeDouble; }
+  //! Return the data type of the column
+  virtual SciDAVis::ColumnDataType dataType() const {
+    return SciDAVis::TypeDouble;
+  }
 
-	protected:
-		//! Using typed ports: only DateTime inputs are accepted.
-		virtual bool inputAcceptable(int, const AbstractColumn *source) {
-			return source->dataType() == SciDAVis::TypeQDateTime;
-		}
+ protected:
+  //! Using typed ports: only DateTime inputs are accepted.
+  virtual bool inputAcceptable(int, const AbstractColumn *source) {
+    return source->dataType() == SciDAVis::TypeQDateTime;
+  }
 };
 
-#endif // ifndef DATE_TIME2DOUBLE_FILTER_H
-
+#endif  // DATE_TIME2DOUBLE_FILTER_H

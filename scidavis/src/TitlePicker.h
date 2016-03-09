@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Title picker
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -31,25 +31,23 @@
 class QwtPlot;
 class QwtTextLabel;
 
-class TitlePicker: public QObject
-{
-    Q_OBJECT
-	
-public:
-    TitlePicker(QwtPlot *plot);
+class TitlePicker : public QObject {
+  Q_OBJECT
 
-    void setSelected(bool select = true);
-	bool selected() { return d_selected; }
+ public:
+  TitlePicker(QwtPlot *plot);
 
-signals:
-	void clicked();
-	void doubleClicked();
-	void removeTitle();
-	void showTitleMenu();
+  void setSelected(bool select = true);
+  bool selected() { return d_selected; }
 
-private:
-	bool eventFilter(QObject *, QEvent *);
-	QwtTextLabel *title;
-	bool d_selected;
+ signals:
+  void clicked();
+  void doubleClicked();
+  void removeTitle();
+  void showTitleMenu();
+
+ private:
+  bool eventFilter(QObject *, QEvent *);
+  QwtTextLabel *title;
+  bool d_selected;
 };
-

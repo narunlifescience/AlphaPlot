@@ -31,22 +31,22 @@
 
 #include "Fit.h"
 
-class PluginFit : public Fit
-{
-	Q_OBJECT
+class PluginFit : public Fit {
+  Q_OBJECT
 
-	public:
-		PluginFit(ApplicationWindow *parent, Graph *g);
-		PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+ public:
+  PluginFit(ApplicationWindow *parent, Graph *g);
+  PluginFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
+  PluginFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+            double start, double end);
 
-		bool load(const QString& pluginName);
+  bool load(const QString &pluginName);
 
-	private:
-		void init();
-		typedef double (*fitFunctionEval)(double, double *);
-		void calculateFitCurveData(double *par, double *X, double *Y);
-		fitFunctionEval f_eval;
+ private:
+  void init();
+  typedef double (*fitFunctionEval)(double, double *);
+  void calculateFitCurveData(double *par, double *X, double *Y);
+  fitFunctionEval f_eval;
 };
-#endif
 
+#endif  // PLUGINFIT_H

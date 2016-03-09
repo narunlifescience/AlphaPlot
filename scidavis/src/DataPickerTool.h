@@ -40,44 +40,47 @@ class QwtPlotCurve;
 class QPoint;
 
 //! Plot tool for selecting, moving or removing individual points of a curve.
-class DataPickerTool : public QwtPlotPicker, public PlotToolInterface
-{
-	Q_OBJECT
-	public:
-		enum Mode { Display, Move, Remove };
-		enum MoveMode {Free, Vertical, Horizontal};
-		DataPickerTool(Graph *graph, ApplicationWindow *app, Mode mode, const QObject *status_target=NULL, const char *status_slot="");
-		virtual RTTI rtti() const { return DataPicker; }
-		Mode mode() const { return d_mode; }
-		virtual ~DataPickerTool();
-		virtual bool eventFilter(QObject *obj, QEvent *event);
-		bool keyEventFilter(QKeyEvent *ke);
-		QwtPlotCurve *selectedCurve() const { return d_selected_curve; }
-	signals:
-		/*! Emitted whenever a new message should be presented to the user.
-		 *
-		 * You don't have to connect to this signal if you alreay specified a reciever during initialization.
-		 */
-		void statusText(const QString&);
-		//! Emitted whenever a new data point has been selected.
-		void selected(QwtPlotCurve*, int);
-	protected:
-		void removePoint();
-		virtual void append(const QPoint &point);
-		virtual void move(const QPoint &point);
-		virtual bool end(bool ok);
-		void setSelection(QwtPlotCurve *curve, int point_index);
-		void moveBy(int dx, int dy);
-		virtual QwtText trackerText(const QwtDoublePoint &point) const;
-	private:
-		ApplicationWindow *d_app;
-		QwtPlotMarker d_selection_marker;
-		Mode d_mode;
-		QwtPlotCurve *d_selected_curve;
-		int d_selected_point;
-		MoveMode d_move_mode;
-		QPoint d_move_target_pos;
+class DataPickerTool : public QwtPlotPicker, public PlotToolInterface {
+  Q_OBJECT
+ public:
+  enum Mode { Display, Move, Remove };
+  enum MoveMode { Free, Vertical, Horizontal };
+  DataPickerTool(Graph *graph, ApplicationWindow *app, Mode mode,
+                 const QObject *status_target = NULL,
+                 const char *status_slot = "");
+  virtual RTTI rtti() const { return DataPicker; }
+  Mode mode() const { return d_mode; }
+  virtual ~DataPickerTool();
+  virtual bool eventFilter(QObject *obj, QEvent *event);
+  bool keyEventFilter(QKeyEvent *ke);
+  QwtPlotCurve *selectedCurve() const { return d_selected_curve; }
+ signals:
+  /*! Emitted whenever a new message should be presented to the user.
+   *
+   * You don't have to connect to this signal if you alreay specified a reciever
+   * during initialization.
+   */
+  void statusText(const QString &);
+  //! Emitted whenever a new data point has been selected.
+  void selected(QwtPlotCurve *, int);
+
+ protected:
+  void removePoint();
+  virtual void append(const QPoint &point);
+  virtual void move(const QPoint &point);
+  virtual bool end(bool ok);
+  void setSelection(QwtPlotCurve *curve, int point_index);
+  void moveBy(int dx, int dy);
+  virtual QwtText trackerText(const QwtDoublePoint &point) const;
+
+ private:
+  ApplicationWindow *d_app;
+  QwtPlotMarker d_selection_marker;
+  Mode d_mode;
+  QwtPlotCurve *d_selected_curve;
+  int d_selected_point;
+  MoveMode d_move_mode;
+  QPoint d_move_target_pos;
 };
 
-#endif // ifndef DATA_PICKER_TOOL_H
-
+#endif  // DATA_PICKER_TOOL_H

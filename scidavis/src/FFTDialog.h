@@ -40,36 +40,32 @@ class Graph;
 class Table;
 
 //! Fast Fourier transform options dialog
-class FFTDialog : public QDialog
-{
-    Q_OBJECT
+class FFTDialog : public QDialog {
+  Q_OBJECT
 
-public:
-	enum DataType{onGraph = 0, onTable = 1};
+ public:
+  enum DataType { onGraph = 0, onTable = 1 };
 
-    FFTDialog(int type, QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~FFTDialog(){};
+  FFTDialog(int type, QWidget* parent = 0, Qt::WFlags fl = 0);
+  ~FFTDialog() {}
 
-	QPushButton* buttonOK;
-	QPushButton* buttonCancel;
-	QRadioButton *forwardBtn, *backwardBtn;
-	QComboBox* boxName, *boxReal, *boxImaginary;
-	QLineEdit* boxSampling;
-	QCheckBox* boxNormalize, *boxOrder;
+  QPushButton* buttonOK;
+  QPushButton* buttonCancel;
+  QRadioButton *forwardBtn, *backwardBtn;
+  QComboBox *boxName, *boxReal, *boxImaginary;
+  QLineEdit* boxSampling;
+  QCheckBox *boxNormalize, *boxOrder;
 
-public slots:
-	void setGraph(Graph *g);
-	void setTable(Table *t);
-	void activateCurve(const QString& curveName);
-	void accept();
+ public slots:
+  void setGraph(Graph* g);
+  void setTable(Table* t);
+  void activateCurve(const QString& curveName);
+  void accept();
 
-private:
-	Graph *graph;
-	Table *d_table;
-	int d_type;
+ private:
+  Graph* graph;
+  Table* d_table;
+  int d_type;
 };
 
-#endif
-
-
-
+#endif  // FFTDIALOG_H

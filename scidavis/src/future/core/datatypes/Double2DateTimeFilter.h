@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke, Tilman Benkert
     Email (use @ for *)  : knut.franke*gmx.de, thzs@gmx.net
-    Description          : Conversion filter double -> QDateTime                           
+    Description          : Conversion filter double -> QDateTime
  ***************************************************************************/
 
 /***************************************************************************
@@ -38,43 +38,40 @@
 /**
  * \brief Conversion filter double -> QDateTime.
  *
- * The equivalence of one unit defaults to a day if nothing else is specified. The default reference
- * date/time if none is specified, or an invalid one is given, is the noon of January 1st, 4713 BC
+ * The equivalence of one unit defaults to a day if nothing else is specified.
+ * The default reference
+ * date/time if none is specified, or an invalid one is given, is the noon of
+ * January 1st, 4713 BC
  * as per Julian Day Number convention.
  */
-class Double2DateTimeFilter : public AbstractSimpleFilter
-{
-	Q_OBJECT
+class Double2DateTimeFilter : public AbstractSimpleFilter {
+  Q_OBJECT
 
-	public:
-		enum UnitInterval { Year, Month, Day, Hour, Minute, Second, Millisecond };
+ public:
+  enum UnitInterval { Year, Month, Day, Hour, Minute, Second, Millisecond };
 
-		Double2DateTimeFilter() : m_unit_interval(Day) {};
-		Double2DateTimeFilter(UnitInterval unit, QDateTime date_time_0) :
-			m_unit_interval(unit),
-			m_date_time_0(date_time_0) {};
+  Double2DateTimeFilter() : m_unit_interval(Day) {}
+  Double2DateTimeFilter(UnitInterval unit, QDateTime date_time_0)
+      : m_unit_interval(unit), m_date_time_0(date_time_0) {}
 
-		virtual QDate dateAt(int row) const {
-			return dateTimeAt(row).date();
-		}
-		virtual QTime timeAt(int row) const {
-			return dateTimeAt(row).time();
-		}
-		virtual QDateTime dateTimeAt(int row) const;
+  virtual QDate dateAt(int row) const { return dateTimeAt(row).date(); }
+  virtual QTime timeAt(int row) const { return dateTimeAt(row).time(); }
+  virtual QDateTime dateTimeAt(int row) const;
 
-		//! Return the data type of the column
-		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQDateTime; }
+  //! Return the data type of the column
+  virtual SciDAVis::ColumnDataType dataType() const {
+    return SciDAVis::TypeQDateTime;
+  }
 
-	protected:
-		//! Using typed ports: only double inputs are accepted.
-		virtual bool inputAcceptable(int, const AbstractColumn *source) {
-			return source->dataType() == SciDAVis::TypeDouble;
-		}
+ protected:
+  //! Using typed ports: only double inputs are accepted.
+  virtual bool inputAcceptable(int, const AbstractColumn *source) {
+    return source->dataType() == SciDAVis::TypeDouble;
+  }
 
-	private:
-		UnitInterval m_unit_interval;
-		QDateTime m_date_time_0;
+ private:
+  UnitInterval m_unit_interval;
+  QDateTime m_date_time_0;
 };
 
-#endif // ifndef DOUBLE2DATE_TIME_FILTER_H
-
+#endif  // DOUBLE2DATE_TIME_FILTER_H

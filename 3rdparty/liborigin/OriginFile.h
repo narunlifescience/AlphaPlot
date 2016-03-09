@@ -37,36 +37,44 @@
 
 using namespace std;
 
-class OriginFile
-{
-public:
-	OriginFile(const string& fileName);
+class OriginFile {
+ public:
+  OriginFile(const string& fileName);
 
-	bool parse();																		//!< parse Origin file
-	double version() const;																//!< get version of Origin file
+  bool parse();            //!< parse Origin file
+  double version() const;  //!< get version of Origin file
 
-	vector<Origin::SpreadSheet>::size_type spreadCount() const;							//!< get number of spreadsheets
-	Origin::SpreadSheet& spread(vector<Origin::SpreadSheet>::size_type s) const;		//!< get spreadsheet s
+  vector<Origin::SpreadSheet>::size_type spreadCount()
+      const;  //!< get number of spreadsheets
+  Origin::SpreadSheet& spread(
+      vector<Origin::SpreadSheet>::size_type s) const;  //!< get spreadsheet s
 
-	vector<Origin::Matrix>::size_type matrixCount() const;								//!< get number of matrices
-	Origin::Matrix& matrix(vector<Origin::Matrix>::size_type m) const;					//!< get matrix m
+  vector<Origin::Matrix>::size_type matrixCount()
+      const;  //!< get number of matrices
+  Origin::Matrix& matrix(
+      vector<Origin::Matrix>::size_type m) const;  //!< get matrix m
 
-	vector<Origin::Function>::size_type functionCount() const;							//!< get number of functions
-	vector<Origin::Function>::size_type functionIndex(const string& name) const;		//!< get name of function s
-	Origin::Function& function(vector<Origin::Function>::size_type f) const;			//!< get function f
+  vector<Origin::Function>::size_type functionCount()
+      const;  //!< get number of functions
+  vector<Origin::Function>::size_type functionIndex(
+      const string& name) const;  //!< get name of function s
+  Origin::Function& function(
+      vector<Origin::Function>::size_type f) const;  //!< get function f
 
-	vector<Origin::Graph>::size_type graphCount() const;								//!< get number of graphs
-	Origin::Graph& graph(vector<Origin::Graph>::size_type g) const;						//!< get graph g
-	
-	vector<Origin::Note>::size_type noteCount() const;									//!< get number of notes
-	Origin::Note& note(vector<Origin::Note>::size_type n) const;						//!< get note n
+  vector<Origin::Graph>::size_type graphCount()
+      const;  //!< get number of graphs
+  Origin::Graph& graph(
+      vector<Origin::Graph>::size_type g) const;  //!< get graph g
 
-	const tree<Origin::ProjectNode>* project() const;									//!< get project tree
-	string resultsLogString() const;													//!< get Results Log
+  vector<Origin::Note>::size_type noteCount() const;  //!< get number of notes
+  Origin::Note& note(vector<Origin::Note>::size_type n) const;  //!< get note n
 
-private:
-	unsigned int fileVersion, buildVersion;
-	auto_ptr<OriginParser> parser;
+  const tree<Origin::ProjectNode>* project() const;  //!< get project tree
+  string resultsLogString() const;                   //!< get Results Log
+
+ private:
+  unsigned int fileVersion, buildVersion;
+  auto_ptr<OriginParser> parser;
 };
 
-#endif // ORIGIN_FILE_H
+#endif  // ORIGIN_FILE_H

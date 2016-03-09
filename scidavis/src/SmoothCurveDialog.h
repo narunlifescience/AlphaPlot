@@ -38,31 +38,27 @@ class Graph;
 class ColorBox;
 
 //! Smoothing options dialog
-class SmoothCurveDialog : public QDialog
-{
-    Q_OBJECT
+class SmoothCurveDialog : public QDialog {
+  Q_OBJECT
 
-public:
-    SmoothCurveDialog(int method, QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~SmoothCurveDialog(){};
+ public:
+  SmoothCurveDialog(int method, QWidget* parent = 0, Qt::WFlags fl = 0);
+  ~SmoothCurveDialog() {}
 
-	QPushButton* btnSmooth;
-	QPushButton* buttonCancel;
-	QComboBox* boxName;
-	QSpinBox *boxPointsLeft, *boxPointsRight, *boxOrder;
-	ColorBox* boxColor;
+  QPushButton* btnSmooth;
+  QPushButton* buttonCancel;
+  QComboBox* boxName;
+  QSpinBox *boxPointsLeft, *boxPointsRight, *boxOrder;
+  ColorBox* boxColor;
 
-public slots:
-	void setGraph(Graph *g);
-	void smooth();
-	void activateCurve(const QString& curveName);
+ public slots:
+  void setGraph(Graph* g);
+  void smooth();
+  void activateCurve(const QString& curveName);
 
-private:
-	Graph *graph;
-	int smooth_method;
+ private:
+  Graph* graph;
+  int smooth_method;
 };
 
-#endif
-
-
-
+#endif  // SMOOTHDIALOG_H

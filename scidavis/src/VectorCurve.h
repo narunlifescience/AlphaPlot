@@ -35,67 +35,68 @@
 class QwtPlot;
 
 //! Vector curve class
-class VectorCurve: public DataCurve
-{
-public:
-	enum VectorStyle{XYXY, XYAM};
+class VectorCurve : public DataCurve {
+ public:
+  enum VectorStyle { XYXY, XYAM };
 
-	VectorCurve(VectorStyle style, Table *t, const QString& xColName, QString name,
-				const QString& endCol1, const QString& endCol2, int startRow, int endRow);
-	~VectorCurve();
+  VectorCurve(VectorStyle style, Table *t, const QString &xColName,
+              QString name, const QString &endCol1, const QString &endCol2,
+              int startRow, int endRow);
+  ~VectorCurve();
 
-	enum Position{Tail, Middle, Head};
+  enum Position { Tail, Middle, Head };
 
-	void copy(const VectorCurve *vc);
+  void copy(const VectorCurve *vc);
 
-	QwtDoubleRect boundingRect() const;
+  QwtDoubleRect boundingRect() const;
 
-	void draw(QPainter *painter,const QwtScaleMap &xMap,
-		const QwtScaleMap &yMap, int from, int to) const;
+  void draw(QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+            int from, int to) const;
 
-	void drawVector(QPainter *painter, const QwtScaleMap &xMap,
-		const QwtScaleMap &yMap, int from, int to) const;
+  void drawVector(QPainter *painter, const QwtScaleMap &xMap,
+                  const QwtScaleMap &yMap, int from, int to) const;
 
-	void drawArrowHead(QPainter *p, int xs, int ys, int xe, int ye) const;
-	double theta(int x0, int y0, int x1, int y1) const;
+  void drawArrowHead(QPainter *p, int xs, int ys, int xe, int ye) const;
+  double theta(int x0, int y0, int x1, int y1) const;
 
-	QString vectorEndXAColName(){return d_end_x_a;};
-	QString vectorEndYMColName(){return d_end_y_m;};
-	void setVectorEnd(const QString& xColName, const QString& yColName);
-	void setVectorEnd(const QwtArray<double>&x, const QwtArray<double>&y);
+  QString vectorEndXAColName() { return d_end_x_a; }
+  QString vectorEndYMColName() { return d_end_y_m; }
+  void setVectorEnd(const QString &xColName, const QString &yColName);
+  void setVectorEnd(const QwtArray<double> &x, const QwtArray<double> &y);
 
-	int width();
-	void setWidth(int w);
+  int width();
+  void setWidth(int w);
 
-	QColor color();
-	void setColor(const QColor& c);
+  QColor color();
+  void setColor(const QColor &c);
 
-	int headLength(){return d_headLength;};
-	void setHeadLength(int l);
+  int headLength() { return d_headLength; }
+  void setHeadLength(int l);
 
-	int headAngle(){return d_headAngle;};
-	void setHeadAngle(int a);
+  int headAngle() { return d_headAngle; }
+  void setHeadAngle(int a);
 
-	bool filledArrowHead(){return filledArrow;};
-	void fillArrowHead(bool fill);
+  bool filledArrowHead() { return filledArrow; }
+  void fillArrowHead(bool fill);
 
-	int position(){return d_position;};
-	void setPosition(int pos){d_position = pos;};
+  int position() { return d_position; }
+  void setPosition(int pos) { d_position = pos; }
 
-	bool updateData(Table *t, const QString& colName);
-	virtual bool loadData();
+  bool updateData(Table *t, const QString &colName);
+  virtual bool loadData();
 
-    QString plotAssociation();
-	void updateColumnNames(const QString& oldName, const QString& newName, bool updateTableName);
+  QString plotAssociation();
+  void updateColumnNames(const QString &oldName, const QString &newName,
+                         bool updateTableName);
 
-protected:
-	QwtArrayData *vectorEnd;
-	QPen pen;
-	bool filledArrow;
-	int d_headLength, d_headAngle, d_position;
+ protected:
+  QwtArrayData *vectorEnd;
+  QPen pen;
+  bool filledArrow;
+  int d_headLength, d_headAngle, d_position;
 
-	QString d_end_x_a;
-	QString d_end_y_m;
+  QString d_end_x_a;
+  QString d_end_y_m;
 };
 
-#endif
+#endif  // VECTORCURVE_H

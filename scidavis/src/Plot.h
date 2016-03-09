@@ -40,71 +40,75 @@
 class Grid;
 
 //! Plot window class
-class Plot: public QwtPlot
-{
-    Q_OBJECT
+class Plot : public QwtPlot {
+  Q_OBJECT
 
-	friend class Graph; // part of axes gaps workaround
+  friend class Graph;  // part of axes gaps workaround
 
-public:
-	Plot(QWidget *parent = 0, QString name = QString());
+ public:
+  Plot(QWidget *parent = 0, QString name = QString());
 
-	enum LabelFormat{Automatic, Decimal, Scientific, Superscripts};
+  enum LabelFormat { Automatic, Decimal, Scientific, Superscripts };
 
-	Grid *grid(){return (Grid *)d_grid;};
-	QList<int> curveKeys(){return d_curves.keys();};
-	QList<QwtPlotItem *> curvesList(){return d_curves.values();};
-	
-	int insertCurve(QwtPlotItem *c);
-	void removeCurve(int index);
+  Grid *grid() { return (Grid *)d_grid; }
+  QList<int> curveKeys() { return d_curves.keys(); }
+  QList<QwtPlotItem *> curvesList() { return d_curves.values(); }
 
-	int closestCurve(int xpos, int ypos, int &dist, int &point);
-	QwtPlotCurve* curve(int index);
-	QwtPlotItem* plotItem(int index){return d_curves.value(index);};
-	QMap<int, QwtPlotItem*> curves(){return d_curves;};
+  int insertCurve(QwtPlotItem *c);
+  void removeCurve(int index);
 
-	QwtPlotMarker* marker(int index){return d_markers.value(index);};
-	QList<int> markerKeys(){return d_markers.keys();};
-	int insertMarker(QwtPlotMarker *m);
-	void removeMarker(int index);
+  int closestCurve(int xpos, int ypos, int &dist, int &point);
+  QwtPlotCurve *curve(int index);
+  QwtPlotItem *plotItem(int index) { return d_curves.value(index); }
+  QMap<int, QwtPlotItem *> curves() { return d_curves; }
 
-	QList<int> getMajorTicksType();
-	void setMajorTicksType(int axis, int type);
+  QwtPlotMarker *marker(int index) { return d_markers.value(index); }
+  QList<int> markerKeys() { return d_markers.keys(); }
+  int insertMarker(QwtPlotMarker *m);
+  void removeMarker(int index);
 
-	QList<int> getMinorTicksType();
-	void setMinorTicksType(int axis, int type);
+  QList<int> getMajorTicksType();
+  void setMajorTicksType(int axis, int type);
 
-	int minorTickLength() const;
-	int majorTickLength() const;
-	void setTickLength (int minLength, int majLength);
+  QList<int> getMinorTicksType();
+  void setMinorTicksType(int axis, int type);
 
-	int axesLinewidth() const;
-	void setAxesLinewidth(int width);
+  int minorTickLength() const;
+  int majorTickLength() const;
+  void setTickLength(int minLength, int majLength);
 
-	void setAxisLabelFormat(int axis, char f, int prec);
-    void axisLabelFormat(int axis, char &f, int &prec) const;
+  int axesLinewidth() const;
+  void setAxesLinewidth(int width);
 
-	int axisLabelFormat(int axis);
-	int axisLabelPrecision(int axis);
+  void setAxisLabelFormat(int axis, char f, int prec);
+  void axisLabelFormat(int axis, char &f, int &prec) const;
 
-	void printFrame(QPainter *painter, const QRect &rect) const;
+  int axisLabelFormat(int axis);
+  int axisLabelPrecision(int axis);
 
-	QColor frameColor();
-	const QColor & paletteBackgroundColor() const;
+  void printFrame(QPainter *painter, const QRect &rect) const;
 
-	void print(QPainter *, const QRect &rect, const QwtPlotPrintFilter & = QwtPlotPrintFilter());
-protected:
-	virtual void drawItems (QPainter *painter, const QRect &rect,
-			const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const;
+  QColor frameColor();
+  const QColor &paletteBackgroundColor() const;
 
-	void drawInwardTicks(QPainter *painter, const QRect &rect,
-							const QwtScaleMap&map, int axis, bool min, bool maj) const;
-	Grid *d_grid;
-	QMap<int, QwtPlotItem*> d_curves;
-	QMap<int, QwtPlotMarker*> d_markers;
+  void print(QPainter *, const QRect &rect,
+             const QwtPlotPrintFilter & = QwtPlotPrintFilter());
 
-	int minTickLength, majTickLength;
-	int marker_key;
-	int curve_key;
+ protected:
+  virtual void drawItems(QPainter *painter, const QRect &rect,
+                         const QwtScaleMap map[axisCnt],
+                         const QwtPlotPrintFilter &pfilter) const;
+
+  void drawInwardTicks(QPainter *painter, const QRect &rect,
+                       const QwtScaleMap &map, int axis, bool min,
+                       bool maj) const;
+  Grid *d_grid;
+  QMap<int, QwtPlotItem *> d_curves;
+  QMap<int, QwtPlotMarker *> d_markers;
+
+  int minTickLength, majTickLength;
+  int marker_key;
+  int curve_key;
 };
-#endif
+
+#endif  // PLOT_H

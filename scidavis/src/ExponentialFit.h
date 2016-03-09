@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Exponential fit classes
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -31,51 +31,52 @@
 
 #include "Fit.h"
 
-class ExponentialFit : public Fit
-{
-	Q_OBJECT
+class ExponentialFit : public Fit {
+  Q_OBJECT
 
-	public:
-		ExponentialFit(ApplicationWindow *parent, Graph *g,  bool expGrowth = false);
-		ExponentialFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, bool expGrowth = false);
-		ExponentialFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, 
-				double start, double end, bool expGrowth = false);
+ public:
+  ExponentialFit(ApplicationWindow *parent, Graph *g, bool expGrowth = false);
+  ExponentialFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+                 bool expGrowth = false);
+  ExponentialFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+                 double start, double end, bool expGrowth = false);
 
-	private:
-		void init();
-		void storeCustomFitResults(double *par);
-		void calculateFitCurveData(double *par, double *X, double *Y);
+ private:
+  void init();
+  void storeCustomFitResults(double *par);
+  void calculateFitCurveData(double *par, double *X, double *Y);
 
-		bool is_exp_growth;
+  bool is_exp_growth;
 };
 
-class TwoExpFit : public Fit
-{
-	Q_OBJECT
+class TwoExpFit : public Fit {
+  Q_OBJECT
 
-	public:
-		TwoExpFit(ApplicationWindow *parent, Graph *g);
-		TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+ public:
+  TwoExpFit(ApplicationWindow *parent, Graph *g);
+  TwoExpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
+  TwoExpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+            double start, double end);
 
-	private:
-		void init();
-		void storeCustomFitResults(double *par);
-		void calculateFitCurveData(double *par, double *X, double *Y);
+ private:
+  void init();
+  void storeCustomFitResults(double *par);
+  void calculateFitCurveData(double *par, double *X, double *Y);
 };
 
-class ThreeExpFit : public Fit
-{
-	Q_OBJECT
+class ThreeExpFit : public Fit {
+  Q_OBJECT
 
-	public:
-		ThreeExpFit(ApplicationWindow *parent, Graph *g);
-		ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+ public:
+  ThreeExpFit(ApplicationWindow *parent, Graph *g);
+  ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
+  ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+              double start, double end);
 
-	private:
-		void init();
-		void storeCustomFitResults(double *par);
-		void calculateFitCurveData(double *par, double *X, double *Y);
+ private:
+  void init();
+  void storeCustomFitResults(double *par);
+  void calculateFitCurveData(double *par, double *X, double *Y);
 };
-#endif
+
+#endif  // EXPONENTIALFIT_H

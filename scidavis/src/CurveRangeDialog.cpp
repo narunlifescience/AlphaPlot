@@ -38,77 +38,70 @@
 #include <QLabel>
 #include <QSpinBox>
 
-CurveRangeDialog::CurveRangeDialog(QWidget* parent, Qt::WFlags fl )
-    : QDialog( parent, fl )
-{
-	setWindowTitle(tr("Plot range"));
+CurveRangeDialog::CurveRangeDialog(QWidget *parent, Qt::WFlags fl)
+    : QDialog(parent, fl) {
+  setWindowTitle(tr("Plot range"));
 
-    QGroupBox *gb1 = new QGroupBox();
-    QGridLayout *gl1 = new QGridLayout(gb1);
-	gl1->addWidget(new QLabel(tr("Data set: ")), 0, 0);
+  QGroupBox *gb1 = new QGroupBox();
+  QGridLayout *gl1 = new QGridLayout(gb1);
+  gl1->addWidget(new QLabel(tr("Data set: ")), 0, 0);
 
-	boxName = new QLabel();
-	gl1->addWidget(boxName, 0, 1);
+  boxName = new QLabel();
+  gl1->addWidget(boxName, 0, 1);
 
-	gl1->addWidget(new QLabel(tr("From row number")), 1, 0);
-	boxStart = new QSpinBox();
-	boxStart->setMinimum(1);
-	gl1->addWidget(boxStart, 1, 1);
+  gl1->addWidget(new QLabel(tr("From row number")), 1, 0);
+  boxStart = new QSpinBox();
+  boxStart->setMinimum(1);
+  gl1->addWidget(boxStart, 1, 1);
 
-	gl1->addWidget(new QLabel(tr("To row number")), 2, 0);
-	boxEnd = new QSpinBox();
-	boxEnd->setMinimum(1);
-    gl1->addWidget(boxEnd, 2, 1);
-    gl1->setRowStretch(3, 1);
+  gl1->addWidget(new QLabel(tr("To row number")), 2, 0);
+  boxEnd = new QSpinBox();
+  boxEnd->setMinimum(1);
+  gl1->addWidget(boxEnd, 2, 1);
+  gl1->setRowStretch(3, 1);
 
-	buttonOK = new QPushButton(tr( "&OK" ));
-    buttonOK->setDefault( true );
-    buttonCancel = new QPushButton(tr( "&Close" ));
+  buttonOK = new QPushButton(tr("&OK"));
+  buttonOK->setDefault(true);
+  buttonCancel = new QPushButton(tr("&Close"));
 
-    QHBoxLayout *hl = new QHBoxLayout();
-	hl->addStretch();
- 	hl->addWidget(buttonOK);
-	hl->addWidget(buttonCancel);
+  QHBoxLayout *hl = new QHBoxLayout();
+  hl->addStretch();
+  hl->addWidget(buttonOK);
+  hl->addWidget(buttonCancel);
 
-    QVBoxLayout *vb = new QVBoxLayout(this);
-    vb->addWidget(gb1);
-    vb->addLayout(hl);
+  QVBoxLayout *vb = new QVBoxLayout(this);
+  vb->addWidget(gb1);
+  vb->addLayout(hl);
 
-	connect( buttonOK, SIGNAL( clicked() ), this, SLOT( accept() ) );
-    connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+  connect(buttonOK, SIGNAL(clicked()), this, SLOT(accept()));
+  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
-void CurveRangeDialog::accept()
-{
-	if (!d_curve)
-		return;
+void CurveRangeDialog::accept() {
+  if (!d_curve) return;
 
-	int start = boxStart->value() - 1;
-	int end = boxEnd->value() - 1;
-	d_curve->setRowRange(QMIN(start, end), QMAX(start, end));
-	d_graph->updatePlot();
-	d_graph->notifyChanges();
-	close();
+  int start = boxStart->value() - 1;
+  int end = boxEnd->value() - 1;
+  d_curve->setRowRange(QMIN(start, end), QMAX(start, end));
+  d_graph->updatePlot();
+  d_graph->notifyChanges();
+  close();
 }
 
-void CurveRangeDialog::setCurveToModify(Graph *g, int curve)
-{
-	if (!g)
-		return;
+void CurveRangeDialog::setCurveToModify(Graph *g, int curve) {
+  if (!g) return;
 
-	d_graph = g;
-	d_curve = (DataCurve *)d_graph->curve(curve);
-	if (!d_curve)
-		return;
+  d_graph = g;
+  d_curve = (DataCurve *)d_graph->curve(curve);
+  if (!d_curve) return;
 
-    Table *t = d_curve->table();
-	if (t)
-	{
-		boxStart->setMaxValue(t->numRows());
-		boxEnd->setMaxValue(t->numRows());
-	}
+  Table *t = d_curve->table();
+  if (t) {
+    boxStart->setMaxValue(t->numRows());
+    boxEnd->setMaxValue(t->numRows());
+  }
 
-	boxName->setText(d_curve->title().text());
-	boxStart->setValue(d_curve->startRow() + 1);
-	boxEnd->setValue(d_curve->endRow() + 1);
+  boxName->setText(d_curve->title().text());
+  boxStart->setValue(d_curve->startRow() + 1);
+  boxEnd->setValue(d_curve->endRow() + 1);
 }

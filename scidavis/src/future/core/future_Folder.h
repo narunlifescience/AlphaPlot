@@ -5,7 +5,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2007 Tilman Benkert (thzs*gmx.net)
     Copyright            : (C) 2007 Knut Franke (knut.franke*gmx.de)
-                           (replace * with @ in the email addresses) 
+                           (replace * with @ in the email addresses)
 
  ***************************************************************************/
 
@@ -32,35 +32,35 @@
 
 #include "core/AbstractAspect.h"
 
-namespace future{
+namespace future {
 //! Folder in a project
-class Folder : public AbstractAspect
-{
-	Q_OBJECT
+class Folder : public AbstractAspect {
+  Q_OBJECT
 
-	public:
-		Folder(const QString &name);
+ public:
+  Folder(const QString &name);
 
-		virtual ~Folder();
+  virtual ~Folder();
 
-		virtual QIcon icon() const;
-		//! Return a new context menu.
-		/**
-		 * The caller takes ownership of the menu.
-		 */
-		virtual QMenu *createContextMenu() const;
+  virtual QIcon icon() const;
+  //! Return a new context menu.
+  /**
+   * The caller takes ownership of the menu.
+   */
+  virtual QMenu *createContextMenu() const;
 
-		//! \name serialize/deserialize
-		//@{
-		//! Save as XML
-		virtual void save(QXmlStreamWriter *) const;
-		//! Load from XML
-		virtual bool load(XmlStreamReader *);
-	protected:
-		//! Read child aspect from XML
-		bool readChildAspectElement(XmlStreamReader * reader);
-		//@}
+  //! \name serialize/deserialize
+  //@{
+  //! Save as XML
+  virtual void save(QXmlStreamWriter *) const;
+  //! Load from XML
+  virtual bool load(XmlStreamReader *);
+
+ protected:
+  //! Read child aspect from XML
+  bool readChildAspectElement(XmlStreamReader *reader);
+  //@}
 };
+}  // namespace
 
-} // namespace
-#endif // ifndef FUTURE_FOLDER_H
+#endif  // FUTURE_FOLDER_H

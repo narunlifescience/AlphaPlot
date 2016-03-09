@@ -33,21 +33,21 @@
 
 #include <QComboBox>
 
-class OpenProjectDialog : public ExtensibleFileDialog
-{
-	Q_OBJECT
-	public:
-		enum OpenMode { NewProject, NewFolder };
-		OpenProjectDialog(QWidget *parent=0, bool extended = true, Qt::WFlags flags=0);
-		OpenMode openMode() const { return (OpenMode) d_open_mode->currentIndex(); }
+class OpenProjectDialog : public ExtensibleFileDialog {
+  Q_OBJECT
+ public:
+  enum OpenMode { NewProject, NewFolder };
+  OpenProjectDialog(QWidget *parent = 0, bool extended = true,
+                    Qt::WFlags flags = 0);
+  OpenMode openMode() const { return (OpenMode)d_open_mode->currentIndex(); }
 
-	private:
-		QComboBox *d_open_mode;
+ private:
+  QComboBox *d_open_mode;
 
-    protected slots:
-		void closeEvent(QCloseEvent* );
-        //! Update which options are visible and enabled based on the output format.
-        void updateAdvancedOptions (const QString &filter);
+ protected slots:
+  void closeEvent(QCloseEvent *);
+  //! Update which options are visible and enabled based on the output format.
+  void updateAdvancedOptions(const QString &filter);
 };
 
-#endif // ifndef OPEN_PROJECT_DIALOG_H
+#endif  // OPEN_PROJECT_DIALOG_H

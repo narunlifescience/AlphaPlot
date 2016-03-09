@@ -4,8 +4,8 @@
     Description          : Widget for configuration pages that has an apply slot
     --------------------------------------------------------------------
     Copyright            : (C) 2008-2009 Tilman Benkert (thzs*gmx.net)
-                           (replace * with @ in the email addresses) 
-                           
+                           (replace * with @ in the email addresses)
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -33,16 +33,14 @@
 #include <QWidget>
 
 //! Widget for configuration pages that has an apply slot
-class ConfigPageWidget : public QWidget
-{
-	Q_OBJECT
+class ConfigPageWidget : public QWidget {
+  Q_OBJECT
 
-	public:
-		ConfigPageWidget(QWidget * parent = 0, Qt::WindowFlags f = 0);
+ public:
+  ConfigPageWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
 
-	public slots:
-		virtual void apply() = 0;
+ public slots:
+  virtual void apply() = 0;
 };
 
-#endif // ifndef CONFIG_PAGE_WIDGET
-
+#endif  // CONFIG_PAGE_WIDGET

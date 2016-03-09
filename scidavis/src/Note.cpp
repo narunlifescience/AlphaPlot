@@ -4,11 +4,11 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Benkert,
-					  Knut Franke
+                                          Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : Notes window class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -41,65 +41,59 @@
 #include <QVBoxLayout>
 #include <QPrintDialog>
 
-Note::Note(ScriptingEnv *env, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
-				: MyWidget(label, parent, name, f)
-{
-init(env);	
+Note::Note(ScriptingEnv* env, const QString& label, QWidget* parent,
+           const char* name, Qt::WFlags f)
+    : MyWidget(label, parent, name, f) {
+  init(env);
 }
 
-void Note::init(ScriptingEnv *env)
-{
-autoExec = false;
-QDateTime dt = QDateTime::currentDateTime ();
-setBirthDate(dt.toString(Qt::LocalDate));
+void Note::init(ScriptingEnv* env) {
+  autoExec = false;
+  QDateTime dt = QDateTime::currentDateTime();
+  setBirthDate(dt.toString(Qt::LocalDate));
 
-te = new ScriptEdit(env, this, name());
-te->setContext(this);
-QVBoxLayout* hlayout = new QVBoxLayout(this,0,0, "hlayout1");
-hlayout->addWidget(te);
+  te = new ScriptEdit(env, this, name());
+  te->setContext(this);
+  QVBoxLayout* hlayout = new QVBoxLayout(this, 0, 0, "hlayout1");
+  hlayout->addWidget(te);
 
-setGeometry(0, 0, 500, 200);
-connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
+  setGeometry(0, 0, 500, 200);
+  connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
 }
 
-void Note::modifiedNote()
-{
-emit modifiedWindow(this);
+void Note::modifiedNote() { emit modifiedWindow(this); }
+
+QString Note::saveToString(const QString& info) {
+  QString s = "<note>\n";
+  s += QString(name()) + "\t" + birthDate() + "\n";
+  s += info;
+  s += "WindowLabel\t" + windowLabel() + "\t" +
+       QString::number(captionPolicy()) + "\n";
+  s += "AutoExec\t" + QString(autoExec ? "1" : "0") + "\n";
+  s += "<content>\n" + te->text().trimmed() + "\n</content>";
+  s += "\n</note>\n";
+  return s;
 }
 
-QString Note::saveToString(const QString &info)
-{
-QString s= "<note>\n";
-s+= QString(name()) + "\t" + birthDate() + "\n";
-s+= info;
-s+= "WindowLabel\t" + windowLabel() + "\t" + QString::number(captionPolicy()) + "\n";
-s+= "AutoExec\t" + QString(autoExec ? "1" : "0") + "\n";
-s+= "<content>\n"+te->text().trimmed()+"\n</content>";
-s+="\n</note>\n";
-return s;
-}
-
-void Note::restore(const QStringList& data)
-{
+void Note::restore(const QStringList& data) {
   QStringList::ConstIterator line = data.begin();
   QStringList fields;
 
   fields = (*line).split("\t");
-  if (fields[0] == "AutoExec"){
+  if (fields[0] == "AutoExec") {
     setAutoexec(fields[1] == "1");
     line++;
   }
 
   if (*line == "<content>") line++;
   while (line != data.end() && *line != "</content>")
-    te->insertPlainText((*line++)+"\n");
+    te->insertPlainText((*line++) + "\n");
 }
 
-void Note::setAutoexec(bool exec)
-{
+void Note::setAutoexec(bool exec) {
   autoExec = exec;
   if (autoExec)
-    te->setPaletteBackgroundColor(QColor(255,239,185));
+    te->setPaletteBackgroundColor(QColor(255, 239, 185));
   else
     te->unsetPalette();
 }

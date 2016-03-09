@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Pattern combo box
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -32,20 +32,19 @@
 #include <QComboBox>
 
 //! Pattern combo box
-class PatternBox : public QComboBox
-{
+class PatternBox : public QComboBox {
   Q_OBJECT
-public:
-  PatternBox(bool rw, QWidget *parent = 0);
-  PatternBox(QWidget *parent = 0);
+ public:
+  PatternBox(bool rw, QWidget* parent = 0);
+  PatternBox(QWidget* parent = 0);
   void setPattern(const Qt::BrushStyle& c);
   Qt::BrushStyle getSelectedPattern() const;
 
   static const Qt::BrushStyle patterns[];
   static int patternIndex(const Qt::BrushStyle& style);
 
-protected:
+ protected:
   void init();
 };
 
-#endif
+#endif  // PATTERNBOX_H

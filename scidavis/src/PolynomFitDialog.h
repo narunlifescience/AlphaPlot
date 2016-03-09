@@ -40,31 +40,29 @@ class Graph;
 class ColorBox;
 
 //! Fit polynomial dialog
-class PolynomFitDialog : public QDialog
-{
-    Q_OBJECT
+class PolynomFitDialog : public QDialog {
+  Q_OBJECT
 
-public:
-    PolynomFitDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
+ public:
+  PolynomFitDialog(QWidget* parent = 0, Qt::WFlags fl = 0);
 
-public slots:
-	void fit();
-	void setGraph(Graph *g);
-	void activateCurve(const QString& curveName);
-	void changeDataRange();
+ public slots:
+  void fit();
+  void setGraph(Graph* g);
+  void activateCurve(const QString& curveName);
+  void changeDataRange();
 
-private:
-	Graph *graph;
+ private:
+  Graph* graph;
 
-    QPushButton* buttonFit;
-	QPushButton* buttonCancel;
-    QCheckBox* boxShowFormula;
-	QComboBox* boxName;
-	QSpinBox* boxOrder;
-	QLineEdit* boxStart;
-	QLineEdit* boxEnd;
-	ColorBox* boxColor;
+  QPushButton* buttonFit;
+  QPushButton* buttonCancel;
+  QCheckBox* boxShowFormula;
+  QComboBox* boxName;
+  QSpinBox* boxOrder;
+  QLineEdit* boxStart;
+  QLineEdit* boxEnd;
+  ColorBox* boxColor;
 };
 
-#endif
-
+#endif  // POLINOMFITDIALOG_H

@@ -1,10 +1,11 @@
 /***************************************************************************
-	File                 : Origin600Parser.cpp
+        File                 : Origin600Parser.cpp
     --------------------------------------------------------------------
-	Copyright            : (C) 2010 Ion Vasilief
-	Email (use @ for *)  : ion_vasilief*yahoo.fr
-	Description          : Origin 6.0 file parser class (uses code from file
-							Origin750Parser.cpp written by Alex Kargovsky)
+        Copyright            : (C) 2010 Ion Vasilief
+        Email (use @ for *)  : ion_vasilief*yahoo.fr
+        Description          : Origin 6.0 file parser class (uses code from file
+                                                        Origin750Parser.cpp
+ written by Alex Kargovsky)
  ***************************************************************************/
 
 /***************************************************************************
@@ -29,12 +30,10 @@
 #include "Origin600Parser.h"
 
 Origin600Parser::Origin600Parser(const string& fileName)
-:	Origin610Parser(fileName)
-{
-	d_start_offset = 0xE;
+    : Origin610Parser(fileName) {
+  d_start_offset = 0xE;
 }
 
-OriginParser* createOrigin600Parser(const string& fileName)
-{
-	return new Origin600Parser(fileName);
+OriginParser* createOrigin600Parser(const string& fileName) {
+  return new Origin600Parser(fileName);
 }

@@ -34,49 +34,54 @@
 #include <QLocale>
 
 Differentiation::Differentiation(ApplicationWindow *parent, Graph *g)
-: Filter(parent, g)
-{
-	init();
+    : Filter(parent, g) {
+  init();
 }
 
-Differentiation::Differentiation(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
-: Filter(parent, g)
-{
-	init();
-	setDataFromCurve(curveTitle);
+Differentiation::Differentiation(ApplicationWindow *parent, Graph *g,
+                                 const QString &curveTitle)
+    : Filter(parent, g) {
+  init();
+  setDataFromCurve(curveTitle);
 }
 
-Differentiation::Differentiation(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
-: Filter(parent, g)
-{
-	init();
-	setDataFromCurve(curveTitle, start, end);
+Differentiation::Differentiation(ApplicationWindow *parent, Graph *g,
+                                 const QString &curveTitle, double start,
+                                 double end)
+    : Filter(parent, g) {
+  init();
+  setDataFromCurve(curveTitle, start, end);
 }
 
-void Differentiation::init()
-{
-	setObjectName(tr("Derivative"));
-    d_min_points = 4;
+void Differentiation::init() {
+  setObjectName(tr("Derivative"));
+  d_min_points = 4;
 }
 
-void Differentiation::output()
-{
-	Column *xCol = new Column(tr("1", "differention table x column name"), SciDAVis::Numeric);
-	Column *yCol = new Column(tr("2", "differention table y column name"), SciDAVis::Numeric);
-	xCol->setPlotDesignation(SciDAVis::X);
-	yCol->setPlotDesignation(SciDAVis::Y);
-	for (int i = 1; i < d_n-1; i++) {
-		xCol->setValueAt(i-1, d_x[i]);
-		yCol->setValueAt(i-1, 0.5*((d_y[i+1]-d_y[i])/(d_x[i+1]-d_x[i]) + (d_y[i]-d_y[i-1])/(d_x[i]-d_x[i-1])));
-	}
+void Differentiation::output() {
+  Column *xCol = new Column(tr("1", "differention table x column name"),
+                            SciDAVis::Numeric);
+  Column *yCol = new Column(tr("2", "differention table y column name"),
+                            SciDAVis::Numeric);
+  xCol->setPlotDesignation(SciDAVis::X);
+  yCol->setPlotDesignation(SciDAVis::Y);
+  for (int i = 1; i < d_n - 1; i++) {
+    xCol->setValueAt(i - 1, d_x[i]);
+    yCol->setValueAt(i - 1,
+                     0.5 * ((d_y[i + 1] - d_y[i]) / (d_x[i + 1] - d_x[i]) +
+                            (d_y[i] - d_y[i - 1]) / (d_x[i] - d_x[i - 1])));
+  }
 
-	ApplicationWindow *app = (ApplicationWindow *)parent();
-	QString tableName = app->generateUniqueName(objectName());
-	QString curveTitle = d_curve->title().text();
-	Table *t = app->newHiddenTable(tableName, tr("Derivative") + " " + tr("of","Derivative of")  + " " + curveTitle, QList<Column *>() << xCol << yCol);
-	MultiLayer *ml = app->newGraph(tr("Plot")+tr("Derivative"));
-	ml->activeGraph()->insertCurve(t, tableName + "_" + yCol->name(), 0);
-	Legend *l = ml->activeGraph()->legend();
-	l->setText("\\c{1}" + tr("Derivative") + " " + tr("of","Derivative of") + " " + curveTitle);
+  ApplicationWindow *app = (ApplicationWindow *)parent();
+  QString tableName = app->generateUniqueName(objectName());
+  QString curveTitle = d_curve->title().text();
+  Table *t = app->newHiddenTable(
+      tableName,
+      tr("Derivative") + " " + tr("of", "Derivative of") + " " + curveTitle,
+      QList<Column *>() << xCol << yCol);
+  MultiLayer *ml = app->newGraph(tr("Plot") + tr("Derivative"));
+  ml->activeGraph()->insertCurve(t, tableName + "_" + yCol->name(), 0);
+  Legend *l = ml->activeGraph()->legend();
+  l->setText("\\c{1}" + tr("Derivative") + " " + tr("of", "Derivative of") +
+             " " + curveTitle);
 }
-

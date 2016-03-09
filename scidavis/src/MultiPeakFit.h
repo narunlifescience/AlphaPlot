@@ -4,8 +4,9 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : MultiPeakFit module with Lorentz and Gauss peak shapes
-                           
+    Description          : MultiPeakFit module with Lorentz and Gauss peak
+ shapes
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -31,86 +32,91 @@
 
 #include "Fit.h"
 
-class MultiPeakFit : public Fit
-{
-	Q_OBJECT
+class MultiPeakFit : public Fit {
+  Q_OBJECT
 
-	public:		
-		enum PeakProfile{Gauss, Lorentz};
-		MultiPeakFit(ApplicationWindow *parent, Graph *g = 0, PeakProfile profile = Gauss, int peaks = 1);
+ public:
+  enum PeakProfile { Gauss, Lorentz };
+  MultiPeakFit(ApplicationWindow *parent, Graph *g = 0,
+               PeakProfile profile = Gauss, int peaks = 1);
 
-		int peaks(){return d_peaks;};
-		void setNumPeaks(int n);
+  int peaks() { return d_peaks; }
+  void setNumPeaks(int n);
 
-		void enablePeakCurves(bool on){generate_peak_curves = on;};
-		void setPeakCurvesColor(int colorIndex){d_peaks_color = colorIndex;};
+  void enablePeakCurves(bool on) { generate_peak_curves = on; }
+  void setPeakCurvesColor(int colorIndex) { d_peaks_color = colorIndex; }
 
-		static QString generateFormula(int order, PeakProfile profile);
-		static QStringList generateParameterList(int order);
-		static QStringList generateExplanationList(int order);
+  static QString generateFormula(int order, PeakProfile profile);
+  static QStringList generateParameterList(int order);
+  static QStringList generateExplanationList(int order);
 
-	private:
-		QString logFitInfo(double *par, int iterations, int status, const QString& plotName);
-		void generateFitCurve(double *par);
-		static QString peakFormula(int peakIndex, PeakProfile profile);
-		//! Inserts a peak function curve into the plot 
-		void insertPeakFunctionCurve(double *x, double *y, int peak);
-		void storeCustomFitResults(double *par);
+ private:
+  QString logFitInfo(double *par, int iterations, int status,
+                     const QString &plotName);
+  void generateFitCurve(double *par);
+  static QString peakFormula(int peakIndex, PeakProfile profile);
+  //! Inserts a peak function curve into the plot
+  void insertPeakFunctionCurve(double *x, double *y, int peak);
+  void storeCustomFitResults(double *par);
 
-		//! Used by the GaussFit and LorentzFit derived classes to calculate initial values for the parameters 
-protected:
-		void guessInitialValues();
-private:
-		//! Number of peaks
-		int d_peaks;
+  //! Used by the GaussFit and LorentzFit derived classes to calculate initial
+  //! values for the parameters
+ protected:
+  void guessInitialValues();
 
-		//! Tells weather the peak curves should be displayed together with the best line fit.
-		bool generate_peak_curves;
+ private:
+  //! Number of peaks
+  int d_peaks;
 
-		//! Color index for the peak curves
-		int d_peaks_color;
+  //! Tells weather the peak curves should be displayed together with the best
+  //! line fit.
+  bool generate_peak_curves;
 
-		//! The peak profile
-		PeakProfile d_profile;
+  //! Color index for the peak curves
+  int d_peaks_color;
+
+  //! The peak profile
+  PeakProfile d_profile;
 };
 
-class LorentzFit : public MultiPeakFit
-{
-	Q_OBJECT
+class LorentzFit : public MultiPeakFit {
+  Q_OBJECT
 
-	public:
-		LorentzFit(ApplicationWindow *parent, Graph *g);
-		LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+ public:
+  LorentzFit(ApplicationWindow *parent, Graph *g);
+  LorentzFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
+  LorentzFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+             double start, double end);
 
-	private:
-		void init();
+ private:
+  void init();
 };
 
-class GaussFit : public MultiPeakFit
-{
-	Q_OBJECT
+class GaussFit : public MultiPeakFit {
+  Q_OBJECT
 
-	public:
-		GaussFit(ApplicationWindow *parent, Graph *g);
-		GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+ public:
+  GaussFit(ApplicationWindow *parent, Graph *g);
+  GaussFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
+  GaussFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+           double start, double end);
 
-	private:
-		void init();
+ private:
+  void init();
 };
 
-class GaussAmpFit : public Fit
-{
-	Q_OBJECT
+class GaussAmpFit : public Fit {
+  Q_OBJECT
 
-	public:
-		GaussAmpFit(ApplicationWindow *parent, Graph *g);
-		GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+ public:
+  GaussAmpFit(ApplicationWindow *parent, Graph *g);
+  GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
+  GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+              double start, double end);
 
-	private:
-		void init();
-		void calculateFitCurveData(double *par, double *X, double *Y);
+ private:
+  void init();
+  void calculateFitCurveData(double *par, double *X, double *Y);
 };
-#endif
+
+#endif  // MULTIPEAKFIT_H

@@ -1,6 +1,6 @@
 /* This file is part of AlphaPlot.
    Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
-   
+
    AlphaPlot is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -11,7 +11,7 @@
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
    along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
-   
+
    Description : AlphaPlot Console dock widget
 */
 
@@ -22,16 +22,15 @@
 
 class Ui_ConsoleWidget;
 
-class ConsoleWidget : public QDockWidget
-{
-    Q_OBJECT
+class ConsoleWidget : public QDockWidget {
+  Q_OBJECT
 
-public:
-    explicit ConsoleWidget(QWidget *parent = 0);
-    ~ConsoleWidget();
+ public:
+  explicit ConsoleWidget(QWidget *parent = nullptr);
+  ~ConsoleWidget();
 
-private:
-    Ui_ConsoleWidget *ui_;
+ private:
+  Ui_ConsoleWidget *ui_;
 };
 
-#endif // CONSOLEWIDGET_H
+#endif  // CONSOLEWIDGET_H

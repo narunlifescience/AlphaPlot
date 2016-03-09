@@ -39,34 +39,30 @@ class Graph;
 class ColorBox;
 
 //! Interpolation options dialog
-class InterpolationDialog : public QDialog
-{
-    Q_OBJECT
+class InterpolationDialog : public QDialog {
+  Q_OBJECT
 
-public:
-    InterpolationDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~InterpolationDialog(){};
+ public:
+  InterpolationDialog(QWidget* parent = 0, Qt::WFlags fl = 0);
+  ~InterpolationDialog() {}
 
-	QPushButton* buttonFit;
-	QPushButton* buttonCancel;
-	QComboBox* boxName;
-	QComboBox* boxMethod;
-	QSpinBox* boxPoints;
-	QLineEdit* boxStart;
-	QLineEdit* boxEnd;
-	ColorBox* boxColor;
+  QPushButton* buttonFit;
+  QPushButton* buttonCancel;
+  QComboBox* boxName;
+  QComboBox* boxMethod;
+  QSpinBox* boxPoints;
+  QLineEdit* boxStart;
+  QLineEdit* boxEnd;
+  ColorBox* boxColor;
 
-public slots:
-	void activateCurve(const QString& curveName);
-	void setGraph(Graph *g);
-	void interpolate();
-	void changeDataRange();
+ public slots:
+  void activateCurve(const QString& curveName);
+  void setGraph(Graph* g);
+  void interpolate();
+  void changeDataRange();
 
-private:
-	Graph *graph;
+ private:
+  Graph* graph;
 };
 
-#endif
-
-
-
+#endif  // INTERPOLATIONDIALOG_H

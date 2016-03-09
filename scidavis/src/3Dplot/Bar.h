@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : 3D bars (modifed enrichment from QwtPlot3D)
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -32,23 +32,21 @@
 #include <qwtplot3d/qwt3d_plot.h>
 
 //! 3D bars (modifed enrichment from QwtPlot3D)
-class Bar : public Qwt3D::VertexEnrichment
-{
-public:
+class Bar : public Qwt3D::VertexEnrichment {
+ public:
   Bar();
   Bar(double rad);
 
-  Qwt3D::Enrichment* clone() const {return new Bar(*this);}
-  
+  Qwt3D::Enrichment* clone() const { return new Bar(*this); }
+
   void configure(double rad);
   void drawBegin();
   void drawEnd();
   void draw(Qwt3D::Triple const&);
 
-private:
+ private:
   double radius_;
   double diag_;
 };
 
-
-#endif
+#endif  // BARS_H

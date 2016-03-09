@@ -39,28 +39,30 @@
 
 /*!Plot tool for selecting arbitrary points.
  *
- * This is a rather thin wrapper around QwtPlotPicker, providing selection of points
+ * This is a rather thin wrapper around QwtPlotPicker, providing selection of
+ * points
  * on a Graph/Plot and displaying coordinates.
  */
-class ScreenPickerTool : public QwtPlotPicker, public PlotToolInterface
-{
-	Q_OBJECT
-	public:
-		ScreenPickerTool(Graph *graph, const QObject *status_target=NULL, const char *status_slot="");
-		virtual ~ScreenPickerTool();
-		virtual RTTI rtti() const { return ScreenPicker; }
-		virtual bool eventFilter(QObject *obj, QEvent *event);
-	signals:
-		/*! Emitted whenever a new message should be presented to the user.
-		 *
-		 * You don't have to connect to this signal if you alreay specified a reciever during initialization.
-		 */
-		void statusText(const QString&);
-	protected:
-		virtual void append(const QPoint &point);
-		QwtPlotMarker d_selection_marker;
-		virtual QwtText trackerText(const QwtDoublePoint &point) const;
+class ScreenPickerTool : public QwtPlotPicker, public PlotToolInterface {
+  Q_OBJECT
+ public:
+  ScreenPickerTool(Graph *graph, const QObject *status_target = NULL,
+                   const char *status_slot = "");
+  virtual ~ScreenPickerTool();
+  virtual RTTI rtti() const { return ScreenPicker; }
+  virtual bool eventFilter(QObject *obj, QEvent *event);
+ signals:
+  /*! Emitted whenever a new message should be presented to the user.
+   *
+   * You don't have to connect to this signal if you alreay specified a reciever
+   * during initialization.
+   */
+  void statusText(const QString &);
+
+ protected:
+  virtual void append(const QPoint &point);
+  QwtPlotMarker d_selection_marker;
+  virtual QwtText trackerText(const QwtDoublePoint &point) const;
 };
 
-#endif // ifndef SCREEN_PICKER_TOOL_H
-
+#endif  // SCREEN_PICKER_TOOL_H

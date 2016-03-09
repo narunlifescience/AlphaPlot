@@ -1,11 +1,11 @@
 /***************************************************************************
-	File                 : TableStatistics.h
-	Project              : SciDAVis
+        File                 : TableStatistics.h
+        Project              : SciDAVis
 --------------------------------------------------------------------
-	Copyright            : (C) 2006 by Knut Franke
-	Email (use @ for *)  : knut.franke*gmx.de
-	Description          : Table subclass that displays statistics on
-	                       columns or rows of another table
+        Copyright            : (C) 2006 by Knut Franke
+        Email (use @ for *)  : knut.franke*gmx.de
+        Description          : Table subclass that displays statistics on
+                               columns or rows of another table
 
  ***************************************************************************/
 
@@ -37,37 +37,38 @@
  * \section tablestats_future Future Plans
  * Make it possible to add new columns/rows to be monitored.
  */
-class TableStatistics : public Table
-{
-	Q_OBJECT
+class TableStatistics : public Table {
+  Q_OBJECT
 
-	public:
-		//! supported statistics types
-		enum Type { StatRow, StatColumn };
-		TableStatistics(ScriptingEnv *env, QWidget *parent, Table *base, Type, QList<int> targets);
-		//! return the type of statistics
-		Type type() const { return d_type; }
-		//! return the base table of which statistics are displayed
-		Table *base() const { return d_base; }
-		// saving
-		virtual QString saveToString(const QString &geometry);
+ public:
+  //! supported statistics types
+  enum Type { StatRow, StatColumn };
+  TableStatistics(ScriptingEnv *env, QWidget *parent, Table *base, Type,
+                  QList<int> targets);
+  //! return the type of statistics
+  Type type() const { return d_type; }
+  //! return the base table of which statistics are displayed
+  Table *base() const { return d_base; }
+  // saving
+  virtual QString saveToString(const QString &geometry);
 
-	public slots:
-		//! update statistics after a column has changed (to be connected with Table::modifiedData)
-		void update(Table*, const QString& colName);
-		//! handle renaming of columns (to be connected with Table::changedColHeader)
-		void renameCol(const QString&, const QString&);
-		//! remove statistics of removed columns (to be connected with Table::removedCol)
-		void removeCol(const QString&);
+ public slots:
+  //! update statistics after a column has changed (to be connected with
+  //! Table::modifiedData)
+  void update(Table *, const QString &colName);
+  //! handle renaming of columns (to be connected with Table::changedColHeader)
+  void renameCol(const QString &, const QString &);
+  //! remove statistics of removed columns (to be connected with
+  //! Table::removedCol)
+  void removeCol(const QString &);
 
-	protected:
-		bool eventFilter( QObject * watched, QEvent * event);
+ protected:
+  bool eventFilter(QObject *watched, QEvent *event);
 
-	private:
-		Table *d_base;
-		Type d_type;
-		QList<int> d_targets;
+ private:
+  Table *d_base;
+  Type d_type;
+  QList<int> d_targets;
 };
 
-#endif
-
+#endif  // TABLE_STATISTICS_H

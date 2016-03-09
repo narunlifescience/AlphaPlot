@@ -42,44 +42,43 @@ class ColorButton;
 class ArrowMarker;
 
 //! Line options dialog
-class LineDialog : public QDialog
-{
-    Q_OBJECT
+class LineDialog : public QDialog {
+  Q_OBJECT
 
-public:
-    LineDialog(ArrowMarker *line, QWidget* parent = 0, Qt::WFlags fl = 0);
+ public:
+  LineDialog(ArrowMarker* line, QWidget* parent = 0, Qt::WFlags fl = 0);
 
-    enum Unit{ScaleCoordinates, Pixels};
+  enum Unit { ScaleCoordinates, Pixels };
 
-	void initGeometryTab();
-	void enableHeadTab();
-	void setCoordinates(int unit);
+  void initGeometryTab();
+  void enableHeadTab();
+  void setCoordinates(int unit);
 
-public slots:
-	void enableButtonDefault(QWidget *w);
-	void setDefaultValues();
-	void displayCoordinates(int unit);
-	void setLineStyle(Qt::PenStyle style);
-	void pickColor();
-	void accept();
-	void apply();
+ public slots:
+  void enableButtonDefault(QWidget* w);
+  void setDefaultValues();
+  void displayCoordinates(int unit);
+  void setLineStyle(Qt::PenStyle style);
+  void pickColor();
+  void accept();
+  void apply();
 
-private:
-	ArrowMarker *lm;
+ private:
+  ArrowMarker* lm;
 
-    ColorButton* colorBox;
-    QComboBox* styleBox;
-    QComboBox* widthBox;
-	QComboBox* unitBox;
-    QPushButton* btnOk;
-    QPushButton* btnApply;
-	QPushButton* buttonDefault;
-    QCheckBox* endBox;
-    QCheckBox* startBox,  *filledBox;
-	QTabWidget* tw;
-	QWidget *options, *geometry, *head;
-	QLineEdit *xStartBox, *yStartBox, *xEndBox, *yEndBox;
-	QSpinBox *boxHeadAngle, *boxHeadLength;
+  ColorButton* colorBox;
+  QComboBox* styleBox;
+  QComboBox* widthBox;
+  QComboBox* unitBox;
+  QPushButton* btnOk;
+  QPushButton* btnApply;
+  QPushButton* buttonDefault;
+  QCheckBox* endBox;
+  QCheckBox *startBox, *filledBox;
+  QTabWidget* tw;
+  QWidget *options, *geometry, *head;
+  QLineEdit *xStartBox, *yStartBox, *xEndBox, *yEndBox;
+  QSpinBox *boxHeadAngle, *boxHeadLength;
 };
 
-#endif // LINEDIALOG_H
+#endif  // LINEDIALOG_H
