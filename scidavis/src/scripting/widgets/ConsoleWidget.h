@@ -27,7 +27,7 @@ class ConsoleWidget : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit ConsoleWidget(QWidget *parent = nullptr);
+    explicit ConsoleWidget(QWidget *parent = 0);
     ~ConsoleWidget();
 
 private:

@@ -124,7 +124,7 @@ void TableView::init()
   d_hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,
   	                           QSizePolicy::Fixed));
   d_hide_button->setGeometry( 0, 0, 16, 16);
-  d_hide_button->setIcon(IconLoader::load("edit-hide"));
+  d_hide_button->setIcon(IconLoader::load("edit-hide", IconLoader::LightDark));
   d_hide_button->setStyleSheet("QToolButton {background-color : rgba(0, 0, 0, 0); "
       "border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0);}");
   connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
@@ -934,11 +934,11 @@ void TableView::toggleControlTabBar() {
   d_control_tabs->setVisible(!d_control_tabs->isVisible());
   if(d_control_tabs->isVisible()) {
     //d_hide_button->setArrowType(Qt::RightArrow);
-    d_hide_button->setIcon(IconLoader::load("edit-hide"));
+    d_hide_button->setIcon(IconLoader::load("edit-hide", IconLoader::LightDark));
     moveFloatingButton();
   } else {
     //d_hide_button->setArrowType(Qt::LeftArrow);
-    d_hide_button->setIcon(IconLoader::load("edit-unhide"));
+    d_hide_button->setIcon(IconLoader::load("edit-unhide", IconLoader::LightDark));
     moveFloatingButton();
   }
 }

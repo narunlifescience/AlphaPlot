@@ -268,9 +268,9 @@ QIcon Column::icon() const
   switch(dataType())
     {
     case SciDAVis::TypeDouble:
-      return IconLoader::load("number-type");
+      return IconLoader::load("number-type", IconLoader::LightDark);
     case SciDAVis::TypeQString:
-      return IconLoader::load("text-type");
+      return IconLoader::load("text-type", IconLoader::LightDark);
     case SciDAVis::TypeQDateTime:
       return QIcon(QPixmap(":/datetype.png"));
     }

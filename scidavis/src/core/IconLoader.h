@@ -1,7 +1,7 @@
 /* This file is part of AlphaPlot.
 
    Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
-   
+
    AlphaPlot is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -12,7 +12,7 @@
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
    along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
-   
+
    Description : AlphaPlot icon loader
 */
 
@@ -23,26 +23,29 @@
 
 class IconLoader {
  public:
+  enum IconMode {
+    General,
+    LightDark,
+  };
   static void init();
-  static QIcon load(const QString& name);
-  static int inline isLight(const QColor &col)
-  {
+  static QIcon load(const QString& name, const IconMode& iconMode);
+  static int inline isLight(const QColor& color) {
     // convert window background to a scale of darkness to choose which
     // icons(light or dark) to load using something similer to
     // http://stackoverflow.com/questions/12043187/
     // how-to-check-if-hex-color-is-too-black
-    return static_cast<int>(0.2126 * col.red() + 0.7152 * col.blue() +
-                            0.0722 * col.green());
+    return static_cast<int>(0.2126 * color.red() + 0.7152 * color.blue() +
+                            0.0722 * color.green());
   }
   static int lumen_;
 
  private:
   IconLoader() {}
 
-  enum IconType
-  {
+  enum IconType {
     Dark = 0,
-    Light = 1
+    Light = 1,
+    Indiscriminate = 2,
   };
 
   static QList<int> sizes_;

@@ -30,7 +30,7 @@ class Console : public QPlainTextEdit
   Q_OBJECT
 
 public:
-  Console(QWidget *parent = nullptr);
+  Console(QWidget *parent = 0);
 
   QString prompt() const;
   void setPrompt(const QString &prompt);

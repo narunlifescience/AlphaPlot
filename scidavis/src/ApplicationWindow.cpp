@@ -109,6 +109,7 @@
 #include "TranslateCurveTool.h"
 #include "MultiPeakFitTool.h"
 #include "LineProfileTool.h"
+#include "ui/SettingsDialog.h"
 
 //Scripting
 #include "scripting/ScriptingLangDialog.h"
@@ -209,7 +210,8 @@ ApplicationWindow::ApplicationWindow()
        actionNextWindow(new QAction(QIcon(QPixmap(":/next.xpm")),
                         tr("&Next","next window"), this)),
        actionPrevWindow(new QAction(QIcon(QPixmap(":/prev.xpm")),
-                        tr("&Previous","previous window"), this))
+                        tr("&Previous","previous window"), this)),
+       settings_(new SettingsDialog(this))
 
 {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -668,7 +670,7 @@ void ApplicationWindow::lockToolbar(const bool status)
 		plot_tools->setMovable(false);
 		table_tools->setMovable(false);
 		matrix_plot_tools->setMovable(false);
-		locktoolbar->setIcon(IconLoader::load("lock"));
+		locktoolbar->setIcon(IconLoader::load("lock", IconLoader::LightDark));
 	} else {
 		file_tools->setMovable(true);
 		edit_tools->setMovable(true);
@@ -676,7 +678,7 @@ void ApplicationWindow::lockToolbar(const bool status)
 		plot_tools->setMovable(true);
 		table_tools->setMovable(true);
 		matrix_plot_tools->setMovable(true);
-		locktoolbar->setIcon(IconLoader::load("unlock"));
+		locktoolbar->setIcon(IconLoader::load("unlock", IconLoader::LightDark));
 	}
 }
 
@@ -3042,6 +3044,7 @@ void ApplicationWindow::showPreferencesDialog()
 	cd->setAttribute(Qt::WA_DeleteOnClose);
 	cd->setColumnSeparator(columnSeparator);
 	cd->exec();
+	settings_->exec();
 }
 
 void ApplicationWindow::setSaveSettings(bool autoSaving, int min)
@@ -7560,9 +7563,9 @@ void ApplicationWindow::showMarkerPopupMenu()
 		markerMenu.addSeparator();
 	}
 
-	markerMenu.insertItem(IconLoader::load("edit-cut"),tr("&Cut"),this, SLOT(cutSelection()));
-	markerMenu.insertItem(IconLoader::load("edit-copy"), tr("&Copy"),this, SLOT(copySelection()));
-	markerMenu.insertItem(IconLoader::load("edit-delete-selection"), tr("&Delete"),this, SLOT(clearSelection()));
+	markerMenu.insertItem(IconLoader::load("edit-cut", IconLoader::LightDark),tr("&Cut"),this, SLOT(cutSelection()));
+	markerMenu.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark), tr("&Copy"),this, SLOT(copySelection()));
+	markerMenu.insertItem(IconLoader::load("edit-delete-selection", IconLoader::LightDark), tr("&Delete"),this, SLOT(clearSelection()));
 	markerMenu.addSeparator();
 	if (g->arrowMarkerSelected())
 		markerMenu.insertItem(tr("&Properties..."),this, SLOT(showLineDialog()));
@@ -7792,7 +7795,7 @@ void ApplicationWindow::showListViewPopupMenu(const QPoint &p)
 	window.addAction(actionNewSurfacePlot);
 	cm.insertItem(tr("New &Window"), &window);
 
-	cm.insertItem(IconLoader::load("folder-explorer"), tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
+	cm.insertItem(IconLoader::load("folder-explorer", IconLoader::LightDark), tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
 	cm.addSeparator();
 	cm.insertItem(tr("Auto &Column Width"), lv, SLOT(adjustColumns()));
 	cm.exec(p);
@@ -7995,22 +7998,22 @@ void ApplicationWindow::showGraphContextMenu()
 		if (copiedLayer)
 		{
 			cm.addSeparator();
-            cm.insertItem(IconLoader::load("edit-paste"), tr("&Paste Layer"),this, SLOT(pasteSelection()));
+	    cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark), tr("&Paste Layer"),this, SLOT(pasteSelection()));
 		}
 		else if (copiedMarkerType >=0 )
 		{
 			cm.addSeparator();
 			if (copiedMarkerType == Graph::Text )
-                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Text"),plot, SIGNAL(pasteMarker()));
+		cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),tr("&Paste Text"),plot, SIGNAL(pasteMarker()));
 			else if (copiedMarkerType == Graph::Arrow )
-                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Line/Arrow"),plot, SIGNAL(pasteMarker()));
+		cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),tr("&Paste Line/Arrow"),plot, SIGNAL(pasteMarker()));
 			else if (copiedMarkerType == Graph::Image )
-                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Image"),plot, SIGNAL(pasteMarker()));
+		cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),tr("&Paste Image"),plot, SIGNAL(pasteMarker()));
 		}
 		cm.addSeparator();
 		copy.insertItem(tr("&Layer"), this, SLOT(copyActiveLayer()));
 		copy.insertItem(tr("&Window"),plot, SLOT(copyAllLayers()));
-		cm.insertItem(IconLoader::load("edit-copy"),tr("&Copy"), &copy);
+		cm.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark),tr("&Copy"), &copy);
 
 		exports.insertItem(tr("&Layer"), this, SLOT(exportLayer()));
 		exports.insertItem(tr("&Window"), this, SLOT(exportGraph()));
@@ -8018,7 +8021,7 @@ void ApplicationWindow::showGraphContextMenu()
 
 		prints.insertItem(tr("&Layer"), plot, SLOT(printActiveLayer()));
 		prints.insertItem(tr("&Window"),plot, SLOT(print()));
-		cm.insertItem(IconLoader::load("edit-print"),tr("&Print"),&prints);
+		cm.insertItem(IconLoader::load("edit-print", IconLoader::LightDark),tr("&Print"),&prints);
 		cm.addSeparator();
 		cm.insertItem(QPixmap(":/resize.xpm"), tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
 		cm.insertItem(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
@@ -8111,22 +8114,22 @@ void ApplicationWindow::showLayerButtonContextMenu()
 		if (copiedLayer)
 		{
 			cm.addSeparator();
-            cm.insertItem(IconLoader::load("edit-paste"), tr("&Paste Layer"),this, SLOT(pasteSelection()));
+	    cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark), tr("&Paste Layer"),this, SLOT(pasteSelection()));
 		}
 		else if (copiedMarkerType >=0 )
 		{
 			cm.addSeparator();
 			if (copiedMarkerType == Graph::Text )
-                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Text"),plot, SIGNAL(pasteMarker()));
+		cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),tr("&Paste Text"),plot, SIGNAL(pasteMarker()));
 			else if (copiedMarkerType == Graph::Arrow )
-                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Line/Arrow"),plot, SIGNAL(pasteMarker()));
+		cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),tr("&Paste Line/Arrow"),plot, SIGNAL(pasteMarker()));
 			else if (copiedMarkerType == Graph::Image )
-                cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Image"),plot, SIGNAL(pasteMarker()));
+		cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),tr("&Paste Image"),plot, SIGNAL(pasteMarker()));
 		}
 		cm.addSeparator();
 		copy.insertItem(tr("&Layer"), this, SLOT(copyActiveLayer()));
 		copy.insertItem(tr("&Window"),plot, SLOT(copyAllLayers()));
-		cm.insertItem(IconLoader::load("edit-copy"),tr("&Copy"), &copy);
+		cm.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark),tr("&Copy"), &copy);
 
 		exports.insertItem(tr("&Layer"), this, SLOT(exportLayer()));
 		exports.insertItem(tr("&Window"), this, SLOT(exportGraph()));
@@ -8134,7 +8137,7 @@ void ApplicationWindow::showLayerButtonContextMenu()
 
 		prints.insertItem(tr("&Layer"), plot, SLOT(printActiveLayer()));
 		prints.insertItem(tr("&Window"),plot, SLOT(print()));
-		cm.insertItem(IconLoader::load("edit-print"),tr("&Print"),&prints);
+		cm.insertItem(IconLoader::load("edit-print", IconLoader::LightDark),tr("&Print"),&prints);
 		cm.addSeparator();
 		cm.insertItem(QPixmap(":/resize.xpm"), tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
 		cm.insertItem(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
@@ -8158,7 +8161,7 @@ void ApplicationWindow::showWindowContextMenu()
 		MultiLayer *g=(MultiLayer*)w;
 		if (copiedLayer)
 		{
-            cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste Layer"),this, SLOT(pasteSelection()));
+	    cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),tr("&Paste Layer"),this, SLOT(pasteSelection()));
 			cm.addSeparator();
 		}
 
@@ -8175,7 +8178,7 @@ void ApplicationWindow::showWindowContextMenu()
 		cm.addAction(actionRename);
 		cm.addAction(actionCopyWindow);
 		cm.addSeparator();
-		cm.insertItem(IconLoader::load("edit-copy"),tr("&Copy Page"), g, SLOT(copyAllLayers()));
+		cm.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark),tr("&Copy Page"), g, SLOT(copyAllLayers()));
 		cm.insertItem(tr("E&xport Page"), this, SLOT(exportGraph()));
 		cm.addAction(actionPrint);
 		cm.addSeparator();
@@ -8199,7 +8202,7 @@ void ApplicationWindow::showWindowContextMenu()
 				cm.insertItem(tr("Choose &Matrix..."), this, SLOT(change3DMatrix()));
 			else if (g->userFunction())
 				cm.addAction(actionEditSurfacePlot);
-			cm.insertItem(IconLoader::load("edit-delete-selection"), tr("C&lear"), g, SLOT(clearData()));
+			cm.insertItem(IconLoader::load("edit-delete-selection", IconLoader::LightDark), tr("C&lear"), g, SLOT(clearData()));
 		}
 
 		cm.addSeparator();
@@ -8215,9 +8218,9 @@ void ApplicationWindow::showWindowContextMenu()
 	else if (w->inherits("Matrix"))
 	{
 		Matrix *t=(Matrix *)w;
-        cm.insertItem(IconLoader::load("edit-cut"),tr("Cu&t"), t, SLOT(cutSelection()));
-		cm.insertItem(IconLoader::load("edit-copy"),tr("&Copy"), t, SLOT(copySelection()));
-        cm.insertItem(IconLoader::load("edit-paste"),tr("&Paste"), t, SLOT(pasteSelection()));
+	cm.insertItem(IconLoader::load("edit-cut", IconLoader::LightDark),tr("Cu&t"), t, SLOT(cutSelection()));
+		cm.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark),tr("&Copy"), t, SLOT(copySelection()));
+	cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),tr("&Paste"), t, SLOT(pasteSelection()));
 		cm.addSeparator();
 		cm.insertItem(tr("&Insert Row"), t, SLOT(insertRow()));
 		cm.insertItem(tr("&Insert Column"), t, SLOT(insertColumn()));
@@ -8229,7 +8232,7 @@ void ApplicationWindow::showWindowContextMenu()
 		{
 			cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Columns"), t, SLOT(deleteSelectedColumns()));
 		}
-		cm.insertItem(IconLoader::load("edit-delete-selection"),tr("Clea&r"), t, SLOT(clearSelection()));
+		cm.insertItem(IconLoader::load("edit-delete-selection", IconLoader::LightDark),tr("Clea&r"), t, SLOT(clearSelection()));
 	}
 	cm.exec(QCursor::pos());
 }
@@ -10450,7 +10453,7 @@ void ApplicationWindow::setPlot3DOptions()
 
 void ApplicationWindow::createActions()
 {
-	actionNewProject = new QAction(IconLoader::load("edit-new"), tr("New &Project"), this);
+	actionNewProject = new QAction(IconLoader::load("edit-new", IconLoader::LightDark), tr("New &Project"), this);
 	actionNewProject->setShortcut( tr("Ctrl+N") );
 	connect(actionNewProject, SIGNAL(activated()), this, SLOT(newProject()));
 
@@ -10489,7 +10492,7 @@ void ApplicationWindow::createActions()
 	actionImportImage = new QAction(tr("Import I&mage..."), this);
 	connect(actionImportImage, SIGNAL(activated()), this, SLOT(importImage()));
 
-	actionSaveProject = new QAction(IconLoader::load("document-save"), tr("&Save Project"), this);
+	actionSaveProject = new QAction(IconLoader::load("document-save", IconLoader::LightDark), tr("&Save Project"), this);
 	actionSaveProject->setShortcut( tr("Ctrl+S") );
 	connect(actionSaveProject, SIGNAL(activated()), this, SLOT(saveProject()));
 	savedProject();
@@ -10509,12 +10512,12 @@ void ApplicationWindow::createActions()
 	actionLoad = new QAction(QIcon(QPixmap(":/import.xpm")), tr("&Import ASCII..."), this);
 	connect(actionLoad, SIGNAL(activated()), this, SLOT(importASCII()));
 
-    actionUndo = new QAction(IconLoader::load("edit-undo"), tr("&Undo"), this);
+    actionUndo = new QAction(IconLoader::load("edit-undo", IconLoader::LightDark), tr("&Undo"), this);
 	actionUndo->setShortcut( tr("Ctrl+Z") );
 	connect(actionUndo, SIGNAL(activated()), this, SLOT(undo()));
 	actionUndo->setEnabled(false);
 
-    actionRedo = new QAction(IconLoader::load("edit-redo"), tr("&Redo"), this);
+    actionRedo = new QAction(IconLoader::load("edit-redo", IconLoader::LightDark), tr("&Redo"), this);
 	actionRedo->setShortcut( tr("Ctrl+R") );
 	connect(actionRedo, SIGNAL(activated()), this, SLOT(redo()));
 	actionRedo->setEnabled(false);
@@ -10522,28 +10525,28 @@ void ApplicationWindow::createActions()
 	actionCopyWindow = new QAction(QIcon(QPixmap(":/duplicate.xpm")), tr("&Duplicate"), this);
 	connect(actionCopyWindow, SIGNAL(activated()), this, SLOT(clone()));
 
-    actionCutSelection = new QAction(IconLoader::load("edit-cut"), tr("Cu&t Selection"), this);
+    actionCutSelection = new QAction(IconLoader::load("edit-cut", IconLoader::LightDark), tr("Cu&t Selection"), this);
 	actionCutSelection->setShortcut( tr("Ctrl+X") );
 	connect(actionCutSelection, SIGNAL(activated()), this, SLOT(cutSelection()));
 
-    actionCopySelection = new QAction(IconLoader::load("edit-copy"), tr("&Copy Selection"), this);
+    actionCopySelection = new QAction(IconLoader::load("edit-copy", IconLoader::LightDark), tr("&Copy Selection"), this);
 	actionCopySelection->setShortcut( tr("Ctrl+C") );
 	connect(actionCopySelection, SIGNAL(activated()), this, SLOT(copySelection()));
 
-    actionPasteSelection = new QAction(IconLoader::load("edit-paste"), tr("&Paste Selection"), this);
+    actionPasteSelection = new QAction(IconLoader::load("edit-paste", IconLoader::LightDark), tr("&Paste Selection"), this);
 	actionPasteSelection->setShortcut( tr("Ctrl+V") );
 	connect(actionPasteSelection, SIGNAL(activated()), this, SLOT(pasteSelection()));
 
-	actionClearSelection = new QAction(IconLoader::load("edit-delete-selection"), tr("&Delete Selection"), this);
+	actionClearSelection = new QAction(IconLoader::load("edit-delete-selection", IconLoader::LightDark), tr("&Delete Selection"), this);
 	actionClearSelection->setShortcut( tr("Del","delete key") );
 	connect(actionClearSelection, SIGNAL(activated()), this, SLOT(clearSelection()));
 
-	locktoolbar = new QAction(IconLoader::load("lock"), tr("&Lock Toolbars"), this);
+	locktoolbar = new QAction(IconLoader::load("lock", IconLoader::LightDark), tr("&Lock Toolbars"), this);
 	locktoolbar->setCheckable(true);
 	connect(locktoolbar, SIGNAL(toggled(bool)), this, SLOT(lockToolbar(bool)));
 
 	actionShowExplorer = explorerWindow->toggleViewAction();
-	actionShowExplorer->setIcon(IconLoader::load("folder-explorer"));
+	actionShowExplorer->setIcon(IconLoader::load("folder-explorer", IconLoader::LightDark));
 	actionShowExplorer->setShortcut( tr("Ctrl+E") );
 
 	actionShowLog = logWindow->toggleViewAction();
@@ -10579,12 +10582,12 @@ void ApplicationWindow::createActions()
 	connect(actionExportAllGraphs, SIGNAL(activated()), this, SLOT(exportAllGraphs()));
 
 	// FIXME: "..." should be added before translating, but this would break translations
-    actionExportPDF = new QAction(IconLoader::load("application-pdf"), tr("&Export PDF")+"...", this);
+    actionExportPDF = new QAction(IconLoader::load("application-pdf", IconLoader::LightDark), tr("&Export PDF")+"...", this);
 	actionExportPDF->setShortcut( tr("Ctrl+Alt+P") );
 	connect(actionExportPDF, SIGNAL(activated()), this, SLOT(exportPDF()));
 
 	// FIXME: "..." should be added before translating, but this would break translations
-	actionPrint = new QAction(IconLoader::load("edit-print"), tr("&Print")+"...", this);
+	actionPrint = new QAction(IconLoader::load("edit-print", IconLoader::LightDark), tr("&Print")+"...", this);
 	actionPrint->setShortcut( tr("Ctrl+P") );
 	connect(actionPrint, SIGNAL(activated()), this, SLOT(print()));
 
@@ -10829,7 +10832,7 @@ void ApplicationWindow::createActions()
 	actionCloseWindow->setShortcut( tr("Ctrl+W") );
 	connect(actionCloseWindow, SIGNAL(activated()), this, SLOT(closeActiveWindow()));
 
-	actionDeleteLayer = new QAction(IconLoader::load("edit-delete-selection"), tr("&Remove Layer"), this);
+	actionDeleteLayer = new QAction(IconLoader::load("edit-delete-selection", IconLoader::LightDark), tr("&Remove Layer"), this);
 	actionDeleteLayer->setShortcut( tr("Alt+R") );
 	connect(actionDeleteLayer, SIGNAL(activated()), this, SLOT(deleteLayer()));
 
@@ -10869,7 +10872,7 @@ void ApplicationWindow::createActions()
 	actionResizeWindow = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("Re&size Window..."), this);
 	connect(actionResizeWindow, SIGNAL(activated()), this, SLOT(resizeWindow()));
 
-	actionPrintWindow = new QAction(IconLoader::load("edit-print"),tr("&Print Window"), this);
+	actionPrintWindow = new QAction(IconLoader::load("edit-print", IconLoader::LightDark),tr("&Print Window"), this);
 	connect(actionPrintWindow, SIGNAL(activated()), this, SLOT(printWindow()));
 
 	actionShowPlotGeometryDialog = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("&Layer Geometry"), this);
@@ -12542,7 +12545,7 @@ void ApplicationWindow::showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p,
 		cm.insertItem(tr("New &Window"), &window);
 	}
 
-	cm.insertItem(IconLoader::load("folder-explorer"), tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
+	cm.insertItem(IconLoader::load("folder-explorer", IconLoader::LightDark), tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
 	cm.addSeparator();
 
 	QStringList lst;

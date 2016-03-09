@@ -71,7 +71,7 @@ class SettingsDialog : public QDialog {
 
  private:
   void addPage(Catagory catogory, Page id, SettingsPage *page);
-  void handleResizeBeforeListviewVisible(aListView *&listView);
+  void handleResizeBeforeListviewVisible(aSettingsListView *&listView);
   void clearAllSelection();
 
   Ui_SettingsDialog *ui_;

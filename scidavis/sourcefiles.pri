@@ -113,6 +113,11 @@ HEADERS  += src/ApplicationWindow.h \
             src/TeXTableExportDialog.h \
             src/scripting/widgets/Console.h \
             src/scripting/widgets/ConsoleWidget.h \
+            src/widgets/aSettingsListView.h \
+            src/ui/GeneralApplicationSettings.h \
+            src/ui/GeneralAppreanceSettings.h \
+            src/ui/SettingsPage.h \
+            src/ui/SettingsDialog.h \
 
 ###################### SOURCES ##############################################
 
@@ -223,11 +228,19 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/version.cpp \
             src/scripting/widgets/Console.cpp \
             src/scripting/widgets/ConsoleWidget.cpp \
+            src/widgets/aSettingsListView.cpp \
+            src/ui/GeneralApplicationSettings.cpp \
+            src/ui/GeneralAppreanceSettings.cpp \
+            src/ui/SettingsPage.cpp \
+            src/ui/SettingsDialog.cpp \
             src/main.cpp
 
 ###################### FORMS ##############################################
 FORMS        += src/SciDAVisAbout.ui \
-                src/scripting/widgets/ConsoleWidget.ui
+                src/scripting/widgets/ConsoleWidget.ui \
+                src/ui/GeneralApplicationSettings.ui \
+                src/ui/GeneralAppreanceSettings.ui \
+                src/ui/SettingsDialog.ui \
 
 ########### Future code backported from the aspect framework ##################
 DEFINES      += LEGACY_CODE_0_2_x

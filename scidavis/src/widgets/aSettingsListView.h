@@ -24,7 +24,7 @@ class aSettingsListView : public QListView {
   Q_OBJECT
 
  public:
-  aSettingsListView(QWidget *parent = nullptr);
+  aSettingsListView(QWidget *parent = 0);
   ~aSettingsListView();
 
   bool autoAdjustHeight();

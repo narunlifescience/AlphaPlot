@@ -88,6 +88,7 @@ class Project;
 class AbstractAspect;
 
 class ConsoleWidget;
+class SettingsDialog;
 
 #ifndef TS_PATH
 #define TS_PATH (qApp->applicationDirPath() + "/translations")
@@ -1154,6 +1155,7 @@ private:
 	QLabel *d_status_info;
 
 	Project * d_project;
+	SettingsDialog *settings_;
 
 	bool was_maximized_;
 

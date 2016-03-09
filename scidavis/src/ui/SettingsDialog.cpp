@@ -15,11 +15,11 @@
    Description : central settings dialog
 */
 
-#include "aSettingsListView.h"
+#include "../widgets/aSettingsListView.h"
 #include "SettingsDialog.h"
 #include "SettingsPage.h"
 #include "ui_SettingsDialog.h"
-#include "ApplicationSettingsPage.h"
+#include "GeneralApplicationSettings.h"
 #include "GeneralAppreanceSettings.h"
 
 #include <QStandardItemModel>
@@ -62,7 +62,6 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   // Setup search box.
   ui_->searchBox->setMaximumWidth(300);
   ui_->searchBox->setToolTip(tr("search"));
-  // ui->searchBox->setStyle();
 
   // Prepare buttons
   ui_->configureButton->setIcon(QIcon(":/data/gtk-preferences.svg"));
@@ -236,14 +235,14 @@ void SettingsDialog::addPage(Catagory catogory, Page id, SettingsPage* page) {
   ui_->stackedWidget->insertWidget(id, page);
 }
 
-void SettingsDialog::handleResizeBeforeListviewVisible(aListView*& listView) {
+void SettingsDialog::handleResizeBeforeListviewVisible(aSettingsListView*& listView) {
   if (listView->model()->rowCount() > 0) {
     listView->setFixedHeight(
         ((((listView->model()->rowCount() * listView->gridSize().width()) /
            (width() - 50)) +
           1) *
          listView->gridSize().width()) +
-        aListView::a_listview_height_padding);
+        aSettingsListView::listViewHeightPadding_);
   } else {
     listView->setFixedHeight(0);
   }
