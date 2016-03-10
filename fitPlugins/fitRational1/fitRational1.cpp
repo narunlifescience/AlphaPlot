@@ -1,6 +1,6 @@
 /***************************************************************************
    File                 : fitRational1.cpp
-   Project              : SciDAVis
+   Project              : AlphaPlot
    Description          : Fit plugin for "A*t^2*x/(1+4*PI^2*t^2*x^2)"
    --------------------------------------------------------------------
    Copyright            : (C) 2005 Ion Vasilief (ion_vasilief*yahoo.fr)

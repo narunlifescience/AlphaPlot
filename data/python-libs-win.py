@@ -3,7 +3,7 @@
 ############################################################################
 #                                                                          #
 # File                 : python-libs-win.py                                #
-# Project              : SciDAVis                                          #
+# Project              : AlphaPlot                                          #
 # Description          : dump -L/-l flags for linking to Python on Windows #
 # Copyright            : (C) 2007-2009 Knut Franke (knut.franke*gmx.de)    #
 #                        (replace * with @ in the email address)           #

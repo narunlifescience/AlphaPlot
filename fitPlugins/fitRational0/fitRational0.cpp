@@ -1,6 +1,6 @@
 /***************************************************************************
    File                 : fitRational0.cpp
-   Project              : SciDAVis
+   Project              : AlphaPlot
    Description          : Fit plugin for "(b + c*x)/(1 + a*x)"
    --------------------------------------------------------------------
    Copyright            : (C) 2005 Ion Vasilief (ion_vasilief*yahoo.fr)

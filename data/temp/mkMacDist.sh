@@ -1,9 +1,9 @@
 #!/bin/bash
 # Create a distributable installable package
 
-MAC_DIST_DIR=scidavis/scidavis.app/Contents/MacOS
-RES_DIR=scidavis/scidavis.app/Contents/Resources
-version=`grep scidavis_version libscidavis/src/version.cpp|tail -1|cut -f5 -d' '|tr -d '";'`
+MAC_DIST_DIR=AlphaPlot/AlphaPlot.app/Contents/MacOS
+RES_DIR=AlphaPlot/AlphaPlot.app/Contents/Resources
+version=`grep AlphaPlot_version libAlphaPlot/src/version.cpp|tail -1|cut -f5 -d' '|tr -d '";'`
 if [ $version = '"unknown"' ]; then
     version=0.0.0.0
 fi
@@ -33,7 +33,7 @@ rewrite_dylibs()
     done
 }
 
-rewrite_dylibs $MAC_DIST_DIR/scidavis
+rewrite_dylibs $MAC_DIST_DIR/AlphaPlot
 
 chmod u+w $MAC_DIST_DIR/*
 
@@ -52,11 +52,11 @@ find $RES_DIR/lib -name "*.so" -print | while read soname; do
 done
 
 # copy translation files
-cp -rf scidavis/translations $MAC_DIST_DIR
+cp -rf AlphaPlot/translations $MAC_DIST_DIR
 
 # copy icon, and create mainfest
-cp -f scidavis/icons/scidavis.icns $RES_DIR
-cat >scidavis/scidavis.app/Contents/Info.plist <<EOF
+cp -f AlphaPlot/icons/AlphaPlot.icns $RES_DIR
+cat >AlphaPlot/AlphaPlot.app/Contents/Info.plist <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -65,7 +65,7 @@ cat >scidavis/scidavis.app/Contents/Info.plist <<EOF
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>CFBundleIconFile</key>
-	<string>scidavis.icns</string>
+	<string>AlphaPlot.icns</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
@@ -73,18 +73,18 @@ cat >scidavis/scidavis.app/Contents/Info.plist <<EOF
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>scidavis</string>
+	<string>AlphaPlot</string>
 	<key>CFBundleIdentifier</key>
-	<string>net.sourceforge.scidavis</string>
+	<string>net.sourceforge.AlphaPlot</string>
         <key>LSEnvironment</key>
         <dict>
            <key>PYTHONHOME</key>
-           <string>/Applications/scidavis.app/Contents/Resources</string>
+           <string>/Applications/AlphaPlot.app/Contents/Resources</string>
         </dict>
 </dict>
 </plist>
 EOF
 
-echo scidavis-$version.pkg
-pkgbuild --root scidavis/scidavis.app --install-location /Applications/scidavis.app --identifier SciDAVis scidavis-$version.pkg
+echo AlphaPlot-$version.pkg
+pkgbuild --root AlphaPlot/AlphaPlot.app --install-location /Applications/AlphaPlot.app --identifier AlphaPlot AlphaPlot-$version.pkg
 

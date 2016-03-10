@@ -21,7 +21,7 @@ unix:LIBS += -L/usr/lib$${libsuff} -lgsl -lgslcblas
 #unix:LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
 
 # where to install the plugins
-unix:target.path=/usr/lib$${libsuff}/scidavis/plugins
+unix:target.path=/usr/lib$${libsuff}/AlphaPlot/plugins
 win32: target.path = ../../output/plugins
 
 SOURCES += fitRational1.cpp

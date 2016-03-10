@@ -1,6 +1,6 @@
 /***************************************************************************
    File                 : exp_saturation.c
-   Project              : SciDAVis
+   Project              : AlphaPlot
    Description          : Fit plugin for "b1*(1-exp(-b2*x))"
    --------------------------------------------------------------------
    Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)

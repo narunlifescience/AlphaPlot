@@ -1,6 +1,6 @@
 /***************************************************************************
    File                 : planck_wavelength.c
-   Project              : SciDAVis
+   Project              : AlphaPlot
    Description          : Fit plugin for "exp(-b1*x)/(b2+b3*x)"
    --------------------------------------------------------------------
    Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)

@@ -1,4 +1,4 @@
-# Patch Qwt and Qwtplot3D configurations to fit into SciDAVis/Windows build process
+# Patch Qwt and Qwtplot3D configurations to fit into AlphaPlot/Windows build process
 
 qwt_conf = "qwt/qwtconfig.pri"
 qwtplot3d_conf = "qwtplot3d/qwtplot3d.pro"

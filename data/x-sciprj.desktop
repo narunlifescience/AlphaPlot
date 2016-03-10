@@ -2,10 +2,10 @@
 Encoding=UTF-8
 Type=MimeType
 MimeType=application/x-sciprj
-Icon=scidavis
+Icon=AlphaPlot
 Patterns=*.sciprj;*.sciprj.gz;
-Comment=SciDAVis project
-Comment[de]=SciDAVis-Projekt
-Comment[fr]=Projet Scidavis
-Comment[pt_BR]=Projeto do SciDAVis
-Comment[ru]=Проект SciDAVis
+Comment=AlphaPlot project
+Comment[de]=AlphaPlot-Projekt
+Comment[fr]=Projet AlphaPlot
+Comment[pt_BR]=Projeto do AlphaPlot
+Comment[ru]=Проект AlphaPlot

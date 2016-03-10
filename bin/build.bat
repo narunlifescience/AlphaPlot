@@ -38,8 +38,8 @@ mingw32-make
 mkdir build
 copy liborigin.a .\build
 cd ..\..
-rem =================== BUILD AND INSTALL SCIDAVIS ============================
-qmake scidavis.pro
+rem =================== BUILD AND INSTALL AlphaPlot ============================
+qmake AlphaPlot.pro
 mingw32-make release
 
 mingw32-make INSTALL_ROOT=./bin install
@@ -49,8 +49,8 @@ copy .\3rdparty\qwtplot3d\lib\qwtplot3d.dll .\bin
 copy .\3rdparty\zlib\bin\zlib1.dll .\bin
 
 
-copy .\scidavis\scidavis.exe .\bin
-copy .\scidavis\icons\scidavis.ico	   .\bin
+copy .\AlphaPlot\AlphaPlot.exe .\bin
+copy .\AlphaPlot\icons\AlphaPlot.ico	   .\bin
 copy /y %QTDIR%\bin\mingwm10.dll           bin
 copy /y %QTDIR%\bin\Qt3Support4.dll        bin
 copy /y %QTDIR%\bin\QtAssistantClient4.dll bin
@@ -66,7 +66,7 @@ copy /y %QTDIR%\bin\libgcc_s_dw2-1.dll	   bin
 copy .\data\gpl.txt .\bin	
 copy .\data\README .\bin\README.txt
 copy .\data\CHANGES .\bin\CHANGES.txt
-copy .\data\scidavis\scidavisrc.py .\bin
-copy .\data\scidavis\scidavisUtil.py .\bin
+copy .\data\AlphaPlot\AlphaPlotrc.py .\bin
+copy .\data\AlphaPlot\AlphaPlotUtil.py .\bin
 copy C:\Python27\Lib\site-packages\sip.pyd .\bin
 copy C:\Python27\DLLs\python27.dll .\bin

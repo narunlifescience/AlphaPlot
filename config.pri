@@ -1,5 +1,5 @@
 ### In most cases, defaults and auto-detection should provide an easy way of
-### building SciDAVis without changing anything in this file (in contrast to
+### building AlphaPlot without changing anything in this file (in contrast to
 ### prior versions).
 ###
 ### Windows users are expected to place all dependencies in the 3rdparty folder
@@ -14,7 +14,7 @@
 ### package manager) is compiled against Qt4 (not Qt3), you can use it by
 ### executing "qmake PRESET=linux_package" instead of just "qmake" during the
 ### build process. Note that this also disables some features which are
-### commonly not needed or even bothersome when integrating SciDAVis in a
+### commonly not needed or even bothersome when integrating AlphaPlot in a
 ### package manager (user-selectable paths to manual/plugins, checking for new
 ### versions on startup).
 
@@ -65,7 +65,7 @@ unix:message(Building with preset $$PRESET)
 ################################################################################
 ### Where to install                                                           #
 ###                                                                            #
-### IMPORTANT: The paths given here specify where SciDAVis will search for     #
+### IMPORTANT: The paths given here specify where AlphaPlot will search for     #
 ###            the files at runtime. If you want "make install" to place them  #
 ###            anywhere else (e.g. in a temporary directory structure used for #
 ###            building a package), use "make INSTALL_ROOT=/some/place install"#
@@ -103,35 +103,35 @@ unix {# Linux / MacOS X
     target.path           = "$$INSTALLBASE/bin"
 
     ### location of documentation files
-    documentation.path    = "$$INSTALLBASE/share/doc/scidavis"
+    documentation.path    = "$$INSTALLBASE/share/doc/AlphaPlot"
 
     ### Usually, the manual will be expected in the "manual" subfolder of "documentation.path" (see above).
     ### To override this, uncomment the next line and adjust the path behind the '='.
-    #manual.path = "$$INSTALLBASE/share/doc/scidavis/manual"
+    #manual.path = "$$INSTALLBASE/share/doc/AlphaPlot/manual"
 
     ### location of translation files (*.qm)
-    translationfiles.path = "$$INSTALLBASE/share/scidavis/translations"
+    translationfiles.path = "$$INSTALLBASE/share/AlphaPlot/translations"
 
     ### Important (if you use Python): the following two paths are where the application will expect
-    ### scidavisrc.py and scidavisUtil.py, respectively. Alternatively you can also put scidavisrc.py
-    ### (or ".scidavis.py") into the users home directory. scidavisUtil.py must be either in the
+    ### AlphaPlotrc.py and AlphaPlotUtil.py, respectively. Alternatively you can also put AlphaPlotrc.py
+    ### (or ".AlphaPlot.py") into the users home directory. AlphaPlotUtil.py must be either in the
     ### directory specified here or somewhere else in the python path (sys.path) where "import" can find it
 
-    ### where scidavisrc.py is searched for at runtime
+    ### where AlphaPlotrc.py is searched for at runtime
     pythonconfig.path = "$$INSTALLBASE/../etc"
-    ### where the scidavisUtil python module is searched for at runtime
-    pythonutils.path  = "$$INSTALLBASE/share/scidavis"
+    ### where the AlphaPlotUtil python module is searched for at runtime
+    pythonutils.path  = "$$INSTALLBASE/share/AlphaPlot"
 
     ### where plugins are expected by default
-    plugins.path      = "$$INSTALLBASE/lib/scidavis/plugins"
+    plugins.path      = "$$INSTALLBASE/lib/AlphaPlot/plugins"
   }
 
   ###################### DESKTOP INTEGRATION ##################################
 
-  desktop_entry.files = data/scidavis.desktop
+  desktop_entry.files = data/AlphaPlot.desktop
   desktop_entry.path  = "$$INSTALLBASE/share/applications"
 
-  mime_package.files  = data/scidavis.xml
+  mime_package.files  = data/AlphaPlot.xml
   mime_package.path   = "$$INSTALLBASE/share/mime/packages"
 
   #deprecated
@@ -140,13 +140,13 @@ unix {# Linux / MacOS X
 
   contains(INSTALLS, icons) {
     # scalable icon
-    icons.files       = data/icons/scidavis.svg
+    icons.files       = data/icons/AlphaPlot.svg
     icons.path        = "$$INSTALLBASE/share/icons/hicolor/scalable/apps"
 
     # hicolor icons for different resolutions
     resolutions       = 16 22 32 48 64 128
     for(res, resolutions) {
-      eval(icon_hicolor_$${res}.files = data/icons/hicolor-$${res}/scidavis.png)
+      eval(icon_hicolor_$${res}.files = data/icons/hicolor-$${res}/AlphaPlot.png)
       eval(icon_hicolor_$${res}.path  = "$$INSTALLBASE/share/icons/hicolor/$${res}x$${res}/apps")
       INSTALLS                       += icon_hicolor_$${res}
     }
@@ -154,7 +154,7 @@ unix {# Linux / MacOS X
     # locolor icons for different resolutions
     resolutions        = 16 22 32
     for(res, resolutions) {
-      eval(icon_locolor_$${res}.files = data/icons/locolor-$${res}/scidavis.png)
+      eval(icon_locolor_$${res}.files = data/icons/locolor-$${res}/AlphaPlot.png)
       eval(icon_locolor_$${res}.path  = "$$INSTALLBASE/share/icons/locolor/$${res}x$${res}/apps")
       INSTALLS                       += icon_locolor_$${res}
     }
@@ -181,7 +181,7 @@ unix:LIBS             += -L/usr/lib$${libsuff}
 ################################################################################
 
 ### a console displaying output of scripts; particularly useful on Windows
-### where running SciDAVis from a terminal is inconvenient
+### where running AlphaPlot from a terminal is inconvenient
 DEFINES         += SCRIPTING_CONSOLE
 
 ### a dialog for selecting the scripting language on a per-project basis
@@ -191,7 +191,7 @@ DEFINES         += SCRIPTING_DIALOG
   ### Enables choosing of help folder at runtime, instead of relying on the above path only.
   ### The downside is that the help folder will be remembered as a configuration option, so a binary
   ### package cannot easily update the path for its users.
-  ### Dynamic selection of the manual path was the only available option up until SciDAVis 0.2.3.
+  ### Dynamic selection of the manual path was the only available option up until AlphaPlot 0.2.3.
   DEFINES       += DYNAMIC_MANUAL_PATH
 
   ### Similar to DYNAMIC_MANUAL_PATH, but for the plugin folder

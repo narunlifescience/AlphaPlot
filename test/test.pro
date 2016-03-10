@@ -12,12 +12,12 @@ greaterThan(QT_MAJOR_VERSION, 4){
 TEMPLATE = app
 TARGET = readWriteProject
 DEPENDPATH += .
-INCLUDEPATH += . ../scidavis ../scidavis/src ../tmp/scidavis
+INCLUDEPATH += . ../AlphaPlot ../AlphaPlot/src ../tmp/AlphaPlot
 
 CONFIG        += qt warn_on exceptions opengl thread zlib
 QT            += opengl qt3support network svg xml
-MOC_DIR        = ../tmp/scidavis
-OBJECTS_DIR    = ../tmp/scidavis
+MOC_DIR        = ../tmp/AlphaPlot
+OBJECTS_DIR    = ../tmp/AlphaPlot
 
 include(../config.pri)
 python {
@@ -43,4 +43,4 @@ SOURCES += readWriteProject.cpp
 
 ########### Future code backported from the aspect framework ##################
 DEFINES += LEGACY_CODE_0_2_x
-INCLUDEPATH += ../scidavis/src/future
+INCLUDEPATH += ../AlphaPlot/src/future

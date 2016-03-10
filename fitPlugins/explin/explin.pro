@@ -10,7 +10,7 @@ CONFIG += release
 DESTDIR = ../
 
 INSTALLS += target
-unix:  target.path = /usr/lib$${libsuff}/scidavis/plugins
+unix:  target.path = /usr/lib$${libsuff}/AlphaPlot/plugins
 win32: target.path = ../../output/plugins
 
 win32:INCLUDEPATH += ../../3rdparty/gsl-1.8/include

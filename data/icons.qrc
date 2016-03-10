@@ -204,6 +204,15 @@
 	<file alias="equals.png">icons/equals.png</file>
 	<file alias="16x16/TeX.png">icons/16x16/TeX.png</file>
 	<file alias="32x32/TeX.png">icons/32x32/TeX.png</file>
+	<file alias="appicon-16">icons/app/16/AlphaPlot.png</file>
+	<file alias="appicon-22">icons/app/22/AlphaPlot.png</file>
+	<file alias="appicon-24">icons/app/24/AlphaPlot.png</file>
+	<file alias="appicon-32">icons/app/32/AlphaPlot.png</file>
+	<file alias="appicon-48">icons/app/48/AlphaPlot.png</file>
+	<file alias="appicon-64">icons/app/64/AlphaPlot.png</file>
+	<file alias="appicon-96">icons/app/96/AlphaPlot.png</file>
+	<file alias="appicon-128">icons/app/128/AlphaPlot.png</file>
+    <file alias="applogo">AlphaPlot-logo.png</file>
 	<file>icons/light/16/edit-copy.svg</file>
 	<file>icons/light/16/edit-cut.svg</file>
 	<file>icons/light/16/edit-paste.svg</file>
@@ -221,6 +230,10 @@
 	<file>icons/light/16/edit-unhide.svg</file>
 	<file>icons/light/16/number-type.svg</file>
     <file>icons/light/16/text-type.svg</file>
+    <file>icons/light/16/import-ascii-filter.svg</file>
+	<file>icons/light/16/project-open.svg</file>
+	<file>icons/light/16/template-open.svg</file>
+    <file>icons/light/16/template-save.svg</file>
 	<file>icons/light/22/edit-copy.svg</file>
 	<file>icons/light/22/edit-cut.svg</file>
 	<file>icons/light/22/edit-paste.svg</file>
@@ -238,6 +251,10 @@
 	<file>icons/light/22/edit-unhide.svg</file>
 	<file>icons/light/22/number-type.svg</file>
     <file>icons/light/22/text-type.svg</file>
+    <file>icons/light/22/import-ascii-filter.svg</file>
+	<file>icons/light/22/project-open.svg</file>
+	<file>icons/light/22/template-open.svg</file>
+    <file>icons/light/22/template-save.svg</file>
 	<file>icons/light/24/edit-copy.svg</file>
 	<file>icons/light/24/edit-cut.svg</file>
 	<file>icons/light/24/edit-paste.svg</file>
@@ -255,6 +272,10 @@
 	<file>icons/light/24/edit-unhide.svg</file>
     <file>icons/light/24/number-type.svg</file>
     <file>icons/light/24/text-type.svg</file>
+    <file>icons/light/24/import-ascii-filter.svg</file>
+	<file>icons/light/24/project-open.svg</file>
+	<file>icons/light/24/template-open.svg</file>
+    <file>icons/light/24/template-save.svg</file>
 	<file>icons/dark/16/edit-copy.svg</file>
 	<file>icons/dark/16/edit-cut.svg</file>
 	<file>icons/dark/16/edit-paste.svg</file>
@@ -272,6 +293,10 @@
 	<file>icons/dark/16/edit-unhide.svg</file>
 	<file>icons/dark/16/number-type.svg</file>
     <file>icons/dark/16/text-type.svg</file>
+    <file>icons/dark/16/import-ascii-filter.svg</file>
+	<file>icons/dark/16/project-open.svg</file>
+	<file>icons/dark/16/template-open.svg</file>
+    <file>icons/dark/16/template-save.svg</file>
 	<file>icons/dark/22/edit-copy.svg</file>
 	<file>icons/dark/22/edit-cut.svg</file>
 	<file>icons/dark/22/edit-paste.svg</file>
@@ -289,6 +314,10 @@
 	<file>icons/dark/22/edit-unhide.svg</file>
 	<file>icons/dark/22/number-type.svg</file>
     <file>icons/dark/22/text-type.svg</file>
+    <file>icons/dark/22/import-ascii-filter.svg</file>
+	<file>icons/dark/22/project-open.svg</file>
+	<file>icons/dark/22/template-open.svg</file>
+    <file>icons/dark/22/template-save.svg</file>
 	<file>icons/dark/24/edit-copy.svg</file>
 	<file>icons/dark/24/edit-cut.svg</file>
 	<file>icons/dark/24/edit-paste.svg</file>
@@ -306,6 +335,10 @@
 	<file>icons/dark/24/edit-unhide.svg</file>
     <file>icons/dark/24/number-type.svg</file>
     <file>icons/dark/24/text-type.svg</file>
+    <file>icons/dark/24/import-ascii-filter.svg</file>
+	<file>icons/dark/24/project-open.svg</file>
+	<file>icons/dark/24/template-open.svg</file>
+    <file>icons/dark/24/template-save.svg</file>
 	<file>splash/splash.png</file>
 </qresource>
 </RCC>

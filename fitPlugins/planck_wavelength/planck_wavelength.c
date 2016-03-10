@@ -1,6 +1,6 @@
 /***************************************************************************
    File                 : planck_wavelength.c
-   Project              : SciDAVis
+   Project              : AlphaPlot
    Description          : Fit plugin for "a/(x^5*(exp(b/x)-1))"
    --------------------------------------------------------------------
    Copyright            : (C) 2009 Knut Franke (knut.franke*gmx.de)
