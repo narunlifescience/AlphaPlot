@@ -90,3 +90,39 @@ documentation.files += ../data/manual \
                        ../data/README.md \
                        ../data/CHANGES \
                        ../data/gpl.txt 
+
+unix {
+  ###################### DESKTOP INTEGRATION ##################################
+
+  desktop_entry.files = ../data/AlphaPlot.desktop
+  desktop_entry.path  = "$$INSTALLBASE/share/applications"
+
+  mime_package.files  = ../data/AlphaPlot.xml
+  mime_package.path   = "$$INSTALLBASE/share/mime/packages"
+
+  #deprecated
+  mime_link.files     = ../data/x-sciprj.desktop
+  mime_link.path      = "$$INSTALLBASE/share/mimelnk/application"
+
+  contains(INSTALLS, icons) {
+    # scalable icon
+    icons.files       = ../data/icons/app/AlphaPlot.svg
+    icons.path        = "$$INSTALLBASE/share/icons/hicolor/scalable/apps"
+
+    # hicolor icons for different resolutions
+    resolutions       = 16 22 32 48 64 96 128
+    for(res, resolutions) {
+      eval(icon_hicolor_$${res}.files = ../data/icons/app/$${res}/AlphaPlot.png)
+      eval(icon_hicolor_$${res}.path  = "$$INSTALLBASE/share/icons/hicolor/$${res}x$${res}/apps")
+      INSTALLS                       += icon_hicolor_$${res}
+    }
+
+    # locolor icons for different resolutions
+    resolutions        = 16 22 32 48 64 96 128
+    for(res, resolutions) {
+      eval(icon_locolor_$${res}.files = ../data/icons/app/$${res}/AlphaPlot.png)
+      eval(icon_locolor_$${res}.path  = "$$INSTALLBASE/share/icons/locolor/$${res}x$${res}/apps")
+      INSTALLS                       += icon_locolor_$${res}
+    }
+  }
+}
