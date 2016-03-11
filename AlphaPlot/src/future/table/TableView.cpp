@@ -96,7 +96,7 @@ void TableView::init() {
   d_view_widget = new TableViewWidget(this);
 
   QSettings settings;
-  settings.beginGroup("[Table]");
+  settings.beginGroup("Table");
   int defaultRawHeight = settings.value("DefaultRawHeight", 20).toInt();
   settings.endGroup();
   d_view_widget->verticalHeader()->setDefaultSectionSize(defaultRawHeight);

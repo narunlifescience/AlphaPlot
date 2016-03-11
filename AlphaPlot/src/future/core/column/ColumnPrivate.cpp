@@ -62,11 +62,11 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
                           // global setting method
       {
         QSettings settings;
-        settings.beginGroup("/General");
+        settings.beginGroup("General");
         static_cast<Double2StringFilter*>(d_output_filter)
-            ->setNumDigits(settings.value("/DecimalDigits", 14).toInt());
+            ->setNumDigits(settings.value("DecimalDigits", 14).toInt());
         static_cast<Double2StringFilter*>(d_output_filter)
-            ->setNumericFormat(settings.value("/DefaultNumericFormat", 'f')
+            ->setNumericFormat(settings.value("DefaultNumericFormat", 'f')
                                    .toChar()
                                    .toAscii());
       }
@@ -132,11 +132,11 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnDataType type,
                           // global setting method
       {
         QSettings settings;
-        settings.beginGroup("/General");
+        settings.beginGroup("General");
         static_cast<Double2StringFilter*>(d_output_filter)
-            ->setNumDigits(settings.value("/DecimalDigits", 14).toInt());
+            ->setNumDigits(settings.value("DecimalDigits", 14).toInt());
         static_cast<Double2StringFilter*>(d_output_filter)
-            ->setNumericFormat(settings.value("/DefaultNumericFormat", 'f')
+            ->setNumericFormat(settings.value("DefaultNumericFormat", 'f')
                                    .toChar()
                                    .toAscii());
       }
@@ -361,11 +361,11 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
                           // global setting method
       {
         QSettings settings;
-        settings.beginGroup("/General");
+        settings.beginGroup("General");
         static_cast<Double2StringFilter*>(new_out_filter)
-            ->setNumDigits(settings.value("/DecimalDigits", 14).toInt());
+            ->setNumDigits(settings.value("DecimalDigits", 14).toInt());
         static_cast<Double2StringFilter*>(new_out_filter)
-            ->setNumericFormat(settings.value("/DefaultNumericFormat", 'f')
+            ->setNumericFormat(settings.value("DefaultNumericFormat", 'f')
                                    .toChar()
                                    .toAscii());
       }

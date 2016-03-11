@@ -4038,19 +4038,19 @@ void ApplicationWindow::readSettings() {
   QSettings settings;
 
   /* ---------------- group General --------------- */
-  settings.beginGroup("/General");
+  settings.beginGroup("General");
 #ifdef SEARCH_FOR_UPDATES
   autoSearchUpdates = settings.value("/AutoSearchUpdates", false).toBool();
 #endif
   appLanguage =
-      settings.value("/Language", QLocale::system().name().section('_', 0, 0))
+      settings.value("Language", QLocale::system().name().section('_', 0, 0))
           .toString();
   show_windows_policy =
-      (ShowWindowsPolicy)settings.value("/ShowWindowsPolicy",
+      (ShowWindowsPolicy)settings.value("ShowWindowsPolicy",
                                         ApplicationWindow::ActiveFolder)
           .toInt();
 
-  recentProjects = settings.value("/RecentProjects").toStringList();
+  recentProjects = settings.value("RecentProjects").toStringList();
 // Follows an ugly hack added by Ion in order to fix Qt4 porting issues
 //(only needed on Windows due to a Qt bug?)
 #ifdef Q_OS_WIN
@@ -4064,17 +4064,17 @@ void ApplicationWindow::readSettings() {
 
   updateRecentProjectsList();
 
-  changeAppStyle(settings.value("/Style", appStyle).toString());
-  undoLimit = settings.value("/UndoLimit", 10).toInt();
+  changeAppStyle(settings.value("Style", appStyle).toString());
+  undoLimit = settings.value("UndoLimit", 10).toInt();
   d_project->undoStack()->setUndoLimit(undoLimit);
-  autoSave = settings.value("/AutoSave", true).toBool();
-  autoSaveTime = settings.value("/AutoSaveTime", 15).toInt();
+  autoSave = settings.value("AutoSave", true).toBool();
+  autoSaveTime = settings.value("AutoSaveTime", 15).toInt();
   defaultScriptingLang =
-      settings.value("/ScriptingLang", "muParser").toString();
+      settings.value("ScriptingLang", "muParser").toString();
 
   QLocale temp_locale =
-      QLocale(settings.value("/Locale", QLocale::system().name()).toString());
-  bool usegl = settings.value("/LocaleUseGroupSeparator", true).toBool();
+      QLocale(settings.value("Locale", QLocale::system().name()).toString());
+  bool usegl = settings.value("LocaleUseGroupSeparator", true).toBool();
   if (usegl)
     temp_locale.setNumberOptions(temp_locale.numberOptions() &
                                  ~QLocale::OmitGroupSeparator);
@@ -4083,54 +4083,54 @@ void ApplicationWindow::readSettings() {
                                  QLocale::OmitGroupSeparator);
   QLocale::setDefault(temp_locale);
 
-  d_decimal_digits = settings.value("/DecimalDigits", 6).toInt();
+  d_decimal_digits = settings.value("DecimalDigits", 6).toInt();
   d_default_numeric_format =
-      settings.value("/DefaultNumericFormat", 'g').toChar().toAscii();
+      settings.value("DefaultNumericFormat", 'g').toChar().toAscii();
 
   // Set last used geometry to position window on the correct monitor(multi
   // monitor scenario)
   // Set window state only if the window was last maximized
   was_maximized_ = settings.value("Maximized", false).toBool();
-  restoreGeometry(settings.value("/ProjectWindow/Geometry").toByteArray());
+  restoreGeometry(settings.value("ProjectWindowGeometry").toByteArray());
 
   // restore dock windows and tool bars
-  restoreState(settings.value("/DockWindows").toByteArray());
+  restoreState(settings.value("DockWindows").toByteArray());
   explorerSplitter->restoreState(
-      settings.value("/ExplorerSplitter").toByteArray());
+      settings.value("ExplorerSplitter").toByteArray());
 
-  QStringList applicationFont = settings.value("/Font").toStringList();
+  QStringList applicationFont = settings.value("Font").toStringList();
   if (applicationFont.size() == 4)
     appFont = QFont(applicationFont[0], applicationFont[1].toInt(),
                     applicationFont[2].toInt(), applicationFont[3].toInt());
 
-  settings.beginGroup("/Dialogs");
-  d_extended_open_dialog = settings.value("/ExtendedOpenDialog", true).toBool();
+  settings.beginGroup("Dialogs");
+  d_extended_open_dialog = settings.value("ExtendedOpenDialog", true).toBool();
   d_extended_export_dialog =
-      settings.value("/ExtendedExportDialog", true).toBool();
+      settings.value("ExtendedExportDialog", true).toBool();
   d_extended_import_ASCII_dialog =
-      settings.value("/ExtendedImportAsciiDialog", true).toBool();
-  d_extended_plot_dialog = settings.value("/ExtendedPlotDialog", true)
+      settings.value("ExtendedImportAsciiDialog", true).toBool();
+  d_extended_plot_dialog = settings.value("ExtendedPlotDialog", true)
                                .toBool();  // used by PlotDialog
 
-  settings.beginGroup("/AddRemoveCurves");
-  d_add_curves_dialog_size = QSize(settings.value("/Width", 700).toInt(),
-                                   settings.value("/Height", 400).toInt());
-  d_show_current_folder = settings.value("/ShowCurrentFolder", false).toBool();
+  settings.beginGroup("AddRemoveCurves");
+  d_add_curves_dialog_size = QSize(settings.value("Width", 700).toInt(),
+                                   settings.value("Height", 400).toInt());
+  d_show_current_folder = settings.value("ShowCurrentFolder", false).toBool();
   settings.endGroup();  // AddRemoveCurves Dialog
   settings.endGroup();  // Dialogs
 
-  settings.beginGroup("/Colors");
-  workspaceColor = settings.value("/Workspace", "darkGray").value<QColor>();
+  settings.beginGroup("Colors");
+  workspaceColor = settings.value("Workspace", "darkGray").value<QColor>();
   // see http://doc.trolltech.com/4.2/qvariant.html for instructions on qcolor
   // <-> qvariant conversion
-  panelsColor = settings.value("/Panels", "#ffffff").value<QColor>();
-  panelsTextColor = settings.value("/PanelsText", "#000000").value<QColor>();
+  panelsColor = settings.value("Panels", "#ffffff").value<QColor>();
+  panelsTextColor = settings.value("PanelsText", "#000000").value<QColor>();
   settings.endGroup();  // Colors
 
-  settings.beginGroup("/Paths");
+  settings.beginGroup("Paths");
   workingDir =
-      settings.value("/WorkingDir", qApp->applicationDirPath()).toString();
-  helpFilePath = settings.value("/HelpFile", "").toString();
+      settings.value("WorkingDir", qApp->applicationDirPath()).toString();
+  helpFilePath = settings.value("HelpFile", "").toString();
 #ifdef PLUGIN_PATH
   QString defaultFitPluginsPath = PLUGIN_PATH;
 #else  // defined PLUGIN_PATH
@@ -4142,50 +4142,50 @@ void ApplicationWindow::readSettings() {
 #endif  // defined PLUGIN_PATH
 #ifdef DYNAMIC_PLUGIN_PATH
   fitPluginsPath =
-      settings.value("/FitPlugins", defaultFitPluginsPath).toString();
+      settings.value("FitPlugins", defaultFitPluginsPath).toString();
 #else  // defined PLUGIN_PATH
   fitPluginsPath = defaultFitPluginsPath;
 #endif
 
 #ifdef Q_OS_WIN
   templatesDir =
-      settings.value("/TemplatesDir", qApp->applicationDirPath()).toString();
+      settings.value("TemplatesDir", qApp->applicationDirPath()).toString();
   asciiDirPath =
-      settings.value("/ASCII", qApp->applicationDirPath()).toString();
+      settings.value("ASCII", qApp->applicationDirPath()).toString();
   imagesDirPath =
-      settings.value("/Images", qApp->applicationDirPath()).toString();
+      settings.value("Images", qApp->applicationDirPath()).toString();
 #else
-  templatesDir = settings.value("/TemplatesDir", QDir::homePath()).toString();
-  asciiDirPath = settings.value("/ASCII", QDir::homePath()).toString();
-  imagesDirPath = settings.value("/Images", QDir::homePath()).toString();
+  templatesDir = settings.value("TemplatesDir", QDir::homePath()).toString();
+  asciiDirPath = settings.value("ASCII", QDir::homePath()).toString();
+  imagesDirPath = settings.value("Images", QDir::homePath()).toString();
 #endif
   locktoolbar->setChecked(settings.value("LockToolbars", false).toBool());
   settings.endGroup();  // Paths
   settings.endGroup();
   /* ------------- end group General ------------------- */
 
-  settings.beginGroup("/UserFunctions");
-  fitFunctions = settings.value("/FitFunctions").toStringList();
-  surfaceFunc = settings.value("/SurfaceFunctions").toStringList();
-  xFunctions = settings.value("/xFunctions").toStringList();
-  yFunctions = settings.value("/yFunctions").toStringList();
-  rFunctions = settings.value("/rFunctions").toStringList();
-  thetaFunctions = settings.value("/thetaFunctions").toStringList();
+  settings.beginGroup("UserFunctions");
+  fitFunctions = settings.value("FitFunctions").toStringList();
+  surfaceFunc = settings.value("SurfaceFunctions").toStringList();
+  xFunctions = settings.value("xFunctions").toStringList();
+  yFunctions = settings.value("yFunctions").toStringList();
+  rFunctions = settings.value("rFunctions").toStringList();
+  thetaFunctions = settings.value("thetaFunctions").toStringList();
   settings.endGroup();  // UserFunctions
 
-  settings.beginGroup("/Confirmations");
-  confirmCloseFolder = settings.value("/Folder", true).toBool();
-  confirmCloseTable = settings.value("/Table", true).toBool();
-  confirmCloseMatrix = settings.value("/Matrix", true).toBool();
-  confirmClosePlot2D = settings.value("/Plot2D", true).toBool();
-  confirmClosePlot3D = settings.value("/Plot3D", true).toBool();
-  confirmCloseNotes = settings.value("/Note", true).toBool();
+  settings.beginGroup("Confirmations");
+  confirmCloseFolder = settings.value("Folder", true).toBool();
+  confirmCloseTable = settings.value("Table", true).toBool();
+  confirmCloseMatrix = settings.value("Matrix", true).toBool();
+  confirmClosePlot2D = settings.value("Plot2D", true).toBool();
+  confirmClosePlot3D = settings.value("Plot3D", true).toBool();
+  confirmCloseNotes = settings.value("Note", true).toBool();
   settings.endGroup();  // Confirmations
 
   /* ---------------- group Tables --------------- */
-  settings.beginGroup("/Tables");
-  d_show_table_comments = settings.value("/DisplayComments", false).toBool();
-  QStringList tableFonts = settings.value("/Fonts").toStringList();
+  settings.beginGroup("Tables");
+  d_show_table_comments = settings.value("DisplayComments", false).toBool();
+  QStringList tableFonts = settings.value("Fonts").toStringList();
   if (tableFonts.size() == 8) {
     tableTextFont = QFont(tableFonts[0], tableFonts[1].toInt(),
                           tableFonts[2].toInt(), tableFonts[3].toInt());
@@ -4193,33 +4193,33 @@ void ApplicationWindow::readSettings() {
                             tableFonts[6].toInt(), tableFonts[7].toInt());
   }
 
-  settings.beginGroup("/Colors");
-  tableBkgdColor = settings.value("/Background", "#ffffff").value<QColor>();
-  tableTextColor = settings.value("/Text", "#000000").value<QColor>();
-  tableHeaderColor = settings.value("/Header", "#000000").value<QColor>();
+  settings.beginGroup("Colors");
+  tableBkgdColor = settings.value("Background", "#ffffff").value<QColor>();
+  tableTextColor = settings.value("Text", "#000000").value<QColor>();
+  tableHeaderColor = settings.value("Header", "#000000").value<QColor>();
   settings.endGroup();  // Colors
   settings.endGroup();
   /* --------------- end group Tables ------------------------ */
 
   /* --------------- group 2D Plots ----------------------------- */
-  settings.beginGroup("/2DPlots");
-  settings.beginGroup("/General");
-  titleOn = settings.value("/Title", true).toBool();
-  allAxesOn = settings.value("/AllAxes", false).toBool();
-  canvasFrameOn = settings.value("/CanvasFrame", false).toBool();
-  canvasFrameWidth = settings.value("/CanvasFrameWidth", 0).toInt();
-  defaultPlotMargin = settings.value("/Margin", 0).toInt();
-  drawBackbones = settings.value("/AxesBackbones", true).toBool();
-  axesLineWidth = settings.value("/AxesLineWidth", 1).toInt();
-  autoscale2DPlots = settings.value("/Autoscale", true).toBool();
-  autoScaleFonts = settings.value("/AutoScaleFonts", true).toBool();
-  autoResizeLayers = settings.value("/AutoResizeLayers", true).toBool();
-  antialiasing2DPlots = settings.value("/Antialiasing", true).toBool();
+  settings.beginGroup("2DPlots");
+  settings.beginGroup("General");
+  titleOn = settings.value("Title", true).toBool();
+  allAxesOn = settings.value("AllAxes", false).toBool();
+  canvasFrameOn = settings.value("CanvasFrame", false).toBool();
+  canvasFrameWidth = settings.value("CanvasFrameWidth", 0).toInt();
+  defaultPlotMargin = settings.value("Margin", 0).toInt();
+  drawBackbones = settings.value("AxesBackbones", true).toBool();
+  axesLineWidth = settings.value("AxesLineWidth", 1).toInt();
+  autoscale2DPlots = settings.value("Autoscale", true).toBool();
+  autoScaleFonts = settings.value("AutoScaleFonts", true).toBool();
+  autoResizeLayers = settings.value("AutoResizeLayers", true).toBool();
+  antialiasing2DPlots = settings.value("Antialiasing", true).toBool();
   d_scale_plots_on_print =
-      settings.value("/ScaleLayersOnPrint", false).toBool();
-  d_print_cropmarks = settings.value("/PrintCropmarks", false).toBool();
+      settings.value("ScaleLayersOnPrint", false).toBool();
+  d_print_cropmarks = settings.value("PrintCropmarks", false).toBool();
 
-  QStringList graphFonts = settings.value("/Fonts").toStringList();
+  QStringList graphFonts = settings.value("Fonts").toStringList();
   if (graphFonts.size() == 16) {
     plotAxesFont = QFont(graphFonts[0], graphFonts[1].toInt(),
                          graphFonts[2].toInt(), graphFonts[3].toInt());
@@ -4232,52 +4232,52 @@ void ApplicationWindow::readSettings() {
   }
   settings.endGroup();  // General
 
-  settings.beginGroup("/Curves");
-  defaultCurveStyle = settings.value("/Style", Graph::LineSymbols).toInt();
-  defaultCurveLineWidth = settings.value("/LineWidth", 1).toInt();
-  defaultSymbolSize = settings.value("/SymbolSize", 7).toInt();
+  settings.beginGroup("Curves");
+  defaultCurveStyle = settings.value("Style", Graph::LineSymbols).toInt();
+  defaultCurveLineWidth = settings.value("LineWidth", 1).toInt();
+  defaultSymbolSize = settings.value("SymbolSize", 7).toInt();
   settings.endGroup();  // Curves
 
-  settings.beginGroup("/Ticks");
-  majTicksStyle = settings.value("/MajTicksStyle", ScaleDraw::Out).toInt();
-  minTicksStyle = settings.value("/MinTicksStyle", ScaleDraw::Out).toInt();
-  minTicksLength = settings.value("/MinTicksLength", 5).toInt();
-  majTicksLength = settings.value("/MajTicksLength", 9).toInt();
+  settings.beginGroup("Ticks");
+  majTicksStyle = settings.value("MajTicksStyle", ScaleDraw::Out).toInt();
+  minTicksStyle = settings.value("MinTicksStyle", ScaleDraw::Out).toInt();
+  minTicksLength = settings.value("MinTicksLength", 5).toInt();
+  majTicksLength = settings.value("MajTicksLength", 9).toInt();
   settings.endGroup();  // Ticks
 
-  settings.beginGroup("/Legend");
-  legendFrameStyle = settings.value("/FrameStyle", Legend::Line).toInt();
-  legendTextColor = settings.value("/TextColor", "#000000")
+  settings.beginGroup("Legend");
+  legendFrameStyle = settings.value("FrameStyle", Legend::Line).toInt();
+  legendTextColor = settings.value("TextColor", "#000000")
                         .value<QColor>();  // default color Qt::black
-  legendBackground = settings.value("/BackgroundColor", "#ffffff")
+  legendBackground = settings.value("BackgroundColor", "#ffffff")
                          .value<QColor>();  // default color Qt::white
   legendBackground.setAlpha(
-      settings.value("/Transparency", 0).toInt());  // transparent by default;
+      settings.value("Transparency", 0).toInt());  // transparent by default;
   settings.endGroup();                              // Legend
 
-  settings.beginGroup("/Arrows");
-  defaultArrowLineWidth = settings.value("/Width", 1).toInt();
-  defaultArrowColor = settings.value("/Color", "#000000")
+  settings.beginGroup("Arrows");
+  defaultArrowLineWidth = settings.value("Width", 1).toInt();
+  defaultArrowColor = settings.value("Color", "#000000")
                           .value<QColor>();  // default color Qt::black
-  defaultArrowHeadLength = settings.value("/HeadLength", 4).toInt();
-  defaultArrowHeadAngle = settings.value("/HeadAngle", 45).toInt();
-  defaultArrowHeadFill = settings.value("/HeadFill", true).toBool();
+  defaultArrowHeadLength = settings.value("HeadLength", 4).toInt();
+  defaultArrowHeadAngle = settings.value("HeadAngle", 45).toInt();
+  defaultArrowHeadFill = settings.value("HeadFill", true).toBool();
   defaultArrowLineStyle =
-      Graph::getPenStyle(settings.value("/LineStyle", "SolidLine").toString());
+      Graph::getPenStyle(settings.value("LineStyle", "SolidLine").toString());
   settings.endGroup();  // Arrows
   settings.endGroup();
   /* ----------------- end group 2D Plots --------------------------- */
 
   /* ----------------- group 3D Plots --------------------------- */
-  settings.beginGroup("/3DPlots");
-  showPlot3DLegend = settings.value("/Legend", true).toBool();
-  showPlot3DProjection = settings.value("/Projection", false).toBool();
-  smooth3DMesh = settings.value("/Antialiasing", true).toBool();
-  plot3DResolution = settings.value("/Resolution", 1).toInt();
-  orthogonal3DPlots = settings.value("/Orthogonal", false).toBool();
-  autoscale3DPlots = settings.value("/Autoscale", true).toBool();
+  settings.beginGroup("3DPlots");
+  showPlot3DLegend = settings.value("Legend", true).toBool();
+  showPlot3DProjection = settings.value("Projection", false).toBool();
+  smooth3DMesh = settings.value("Antialiasing", true).toBool();
+  plot3DResolution = settings.value("Resolution", 1).toInt();
+  orthogonal3DPlots = settings.value("Orthogonal", false).toBool();
+  autoscale3DPlots = settings.value("Autoscale", true).toBool();
 
-  QStringList plot3DFonts = settings.value("/Fonts").toStringList();
+  QStringList plot3DFonts = settings.value("Fonts").toStringList();
   if (plot3DFonts.size() == 12) {
     plot3DTitleFont = QFont(plot3DFonts[0], plot3DFonts[1].toInt(),
                             plot3DFonts[2].toInt(), plot3DFonts[3].toInt());
@@ -4287,64 +4287,64 @@ void ApplicationWindow::readSettings() {
                            plot3DFonts[10].toInt(), plot3DFonts[11].toInt());
   }
 
-  settings.beginGroup("/Colors");
-  plot3DColors << QColor(settings.value("/MaxData", "blue").value<QColor>())
+  settings.beginGroup("Colors");
+  plot3DColors << QColor(settings.value("MaxData", "blue").value<QColor>())
                       .name();
-  plot3DColors << QColor(settings.value("/Labels", "#000000").value<QColor>())
+  plot3DColors << QColor(settings.value("Labels", "#000000").value<QColor>())
                       .name();
-  plot3DColors << QColor(settings.value("/Mesh", "#000000").value<QColor>())
+  plot3DColors << QColor(settings.value("Mesh", "#000000").value<QColor>())
                       .name();
-  plot3DColors << QColor(settings.value("/Grid", "#000000").value<QColor>())
+  plot3DColors << QColor(settings.value("Grid", "#000000").value<QColor>())
                       .name();
-  plot3DColors << QColor(settings.value("/MinData", "red").value<QColor>())
+  plot3DColors << QColor(settings.value("MinData", "red").value<QColor>())
                       .name();
-  plot3DColors << QColor(settings.value("/Numbers", "#000000").value<QColor>())
+  plot3DColors << QColor(settings.value("Numbers", "#000000").value<QColor>())
                       .name();
-  plot3DColors << QColor(settings.value("/Axes", "#000000").value<QColor>())
+  plot3DColors << QColor(settings.value("Axes", "#000000").value<QColor>())
                       .name();
   plot3DColors << QColor(
-                      settings.value("/Background", "#ffffff").value<QColor>())
+                      settings.value("Background", "#ffffff").value<QColor>())
                       .name();
   settings.endGroup();  // Colors
   settings.endGroup();
   /* ----------------- end group 3D Plots --------------------------- */
 
-  settings.beginGroup("/Fitting");
-  fit_output_precision = settings.value("/OutputPrecision", 15).toInt();
-  pasteFitResultsToPlot = settings.value("/PasteResultsToPlot", false).toBool();
-  writeFitResultsToLog = settings.value("/WriteResultsToLog", true).toBool();
-  generateUniformFitPoints = settings.value("/GenerateFunction", true).toBool();
-  fitPoints = settings.value("/Points", 100).toInt();
-  generatePeakCurves = settings.value("/GeneratePeakCurves", true).toBool();
-  peakCurvesColor = settings.value("/PeaksColor", 2).toInt();  // green color
-  fit_scale_errors = settings.value("/ScaleErrors", false).toBool();
-  d_2_linear_fit_points = settings.value("/TwoPointsLinearFit", true).toBool();
+  settings.beginGroup("Fitting");
+  fit_output_precision = settings.value("OutputPrecision", 15).toInt();
+  pasteFitResultsToPlot = settings.value("PasteResultsToPlot", false).toBool();
+  writeFitResultsToLog = settings.value("WriteResultsToLog", true).toBool();
+  generateUniformFitPoints = settings.value("GenerateFunction", true).toBool();
+  fitPoints = settings.value("Points", 100).toInt();
+  generatePeakCurves = settings.value("GeneratePeakCurves", true).toBool();
+  peakCurvesColor = settings.value("PeaksColor", 2).toInt();  // green color
+  fit_scale_errors = settings.value("ScaleErrors", false).toBool();
+  d_2_linear_fit_points = settings.value("TwoPointsLinearFit", true).toBool();
   settings.endGroup();  // Fitting
 
-  settings.beginGroup("/ImportASCII");
-  columnSeparator = settings.value("/ColumnSeparator", "\\t").toString();
+  settings.beginGroup("ImportASCII");
+  columnSeparator = settings.value("ColumnSeparator", "\\t").toString();
   columnSeparator.replace("\\t", "\t").replace("\\s", " ");
-  ignoredLines = settings.value("/IgnoreLines", 0).toInt();
-  renameColumns = settings.value("/RenameColumns", true).toBool();
-  strip_spaces = settings.value("/StripSpaces", false).toBool();
-  simplify_spaces = settings.value("/SimplifySpaces", false).toBool();
-  d_ASCII_file_filter = settings.value("/AsciiFileTypeFilter", "*").toString();
-  d_ASCII_import_locale = settings.value("/AsciiImportLocale", "C").toString();
-  d_convert_to_numeric = settings.value("/ConvertToNumeric", true).toBool();
+  ignoredLines = settings.value("IgnoreLines", 0).toInt();
+  renameColumns = settings.value("RenameColumns", true).toBool();
+  strip_spaces = settings.value("StripSpaces", false).toBool();
+  simplify_spaces = settings.value("SimplifySpaces", false).toBool();
+  d_ASCII_file_filter = settings.value("AsciiFileTypeFilter", "*").toString();
+  d_ASCII_import_locale = settings.value("AsciiImportLocale", "C").toString();
+  d_convert_to_numeric = settings.value("ConvertToNumeric", true).toBool();
   settings.endGroup();  // Import ASCII
 
-  settings.beginGroup("/ExportImage");
+  settings.beginGroup("ExportImage");
   d_image_export_filter =
-      settings.value("/ImageFileTypeFilter", ".png").toString();
-  d_export_transparency = settings.value("/ExportTransparency", false).toBool();
-  d_export_quality = settings.value("/ImageQuality", 100).toInt();
-  d_export_resolution = settings.value("/Resolution", 72).toInt();
-  d_export_color = settings.value("/ExportColor", true).toBool();
+      settings.value("ImageFileTypeFilter", ".png").toString();
+  d_export_transparency = settings.value("ExportTransparency", false).toBool();
+  d_export_quality = settings.value("ImageQuality", 100).toInt();
+  d_export_resolution = settings.value("Resolution", 72).toInt();
+  d_export_color = settings.value("ExportColor", true).toBool();
   d_export_vector_size =
-      settings.value("/ExportPageSize", QPrinter::Custom).toInt();
-  d_keep_plot_aspect = settings.value("/KeepAspect", true).toBool();
+      settings.value("ExportPageSize", QPrinter::Custom).toInt();
+  d_keep_plot_aspect = settings.value("KeepAspect", true).toBool();
   d_export_orientation =
-      settings.value("/Orientation", QPrinter::Landscape).toInt();
+      settings.value("Orientation", QPrinter::Landscape).toInt();
   settings.endGroup();  // ExportImage
 }
 
@@ -4352,68 +4352,68 @@ void ApplicationWindow::saveSettings() {
   QSettings settings;
 
   /* ---------------- group General --------------- */
-  settings.beginGroup("/General");
+  settings.beginGroup("General");
 #ifdef SEARCH_FOR_UPDATES
-  settings.setValue("/AutoSearchUpdates", autoSearchUpdates);
+  settings.setValue("AutoSearchUpdates", autoSearchUpdates);
 #endif
-  settings.setValue("/Language", appLanguage);
-  settings.setValue("/ShowWindowsPolicy", show_windows_policy);
-  settings.setValue("/RecentProjects", recentProjects);
-  settings.setValue("/Style", appStyle);
-  settings.setValue("/AutoSave", autoSave);
-  settings.setValue("/AutoSaveTime", autoSaveTime);
-  settings.setValue("/UndoLimit", undoLimit);
-  settings.setValue("/ScriptingLang", defaultScriptingLang);
-  settings.setValue("/Locale", QLocale().name());
+  settings.setValue("Language", appLanguage);
+  settings.setValue("ShowWindowsPolicy", show_windows_policy);
+  settings.setValue("RecentProjects", recentProjects);
+  settings.setValue("Style", appStyle);
+  settings.setValue("AutoSave", autoSave);
+  settings.setValue("AutoSaveTime", autoSaveTime);
+  settings.setValue("UndoLimit", undoLimit);
+  settings.setValue("ScriptingLang", defaultScriptingLang);
+  settings.setValue("Locale", QLocale().name());
   settings.setValue(
-      "/LocaleUseGroupSeparator",
+      "LocaleUseGroupSeparator",
       bool(!(QLocale().numberOptions() & QLocale::OmitGroupSeparator)));
-  settings.setValue("/DecimalDigits", d_decimal_digits);
-  settings.setValue("/DefaultNumericFormat", QChar(d_default_numeric_format));
+  settings.setValue("DecimalDigits", d_decimal_digits);
+  settings.setValue("DefaultNumericFormat", QChar(d_default_numeric_format));
 
   was_maximized_ = isMaximized();
   settings.setValue("Maximized", was_maximized_);
   // Save the geometry only when mainwindow is not in maximized state
   if (!was_maximized_) {
-    settings.setValue("/ProjectWindow/Geometry", saveGeometry());
+    settings.setValue("ProjectWindowGeometry", saveGeometry());
   }
 
-  settings.setValue("/DockWindows", saveState());
-  settings.setValue("/ExplorerSplitter", explorerSplitter->saveState());
+  settings.setValue("DockWindows", saveState());
+  settings.setValue("ExplorerSplitter", explorerSplitter->saveState());
 
   QStringList applicationFont;
   applicationFont << appFont.family();
   applicationFont << QString::number(appFont.pointSize());
   applicationFont << QString::number(appFont.weight());
   applicationFont << QString::number(appFont.italic());
-  settings.setValue("/Font", applicationFont);
+  settings.setValue("Font", applicationFont);
 
-  settings.beginGroup("/Dialogs");
-  settings.setValue("/ExtendedOpenDialog", d_extended_open_dialog);
-  settings.setValue("/ExtendedExportDialog", d_extended_export_dialog);
-  settings.setValue("/ExtendedImportAsciiDialog",
+  settings.beginGroup("Dialogs");
+  settings.setValue("ExtendedOpenDialog", d_extended_open_dialog);
+  settings.setValue("ExtendedExportDialog", d_extended_export_dialog);
+  settings.setValue("ExtendedImportAsciiDialog",
                     d_extended_import_ASCII_dialog);
-  settings.setValue("/ExtendedPlotDialog", d_extended_plot_dialog);
-  settings.beginGroup("/AddRemoveCurves");
-  settings.setValue("/Width", d_add_curves_dialog_size.width());
-  settings.setValue("/Height", d_add_curves_dialog_size.height());
-  settings.setValue("/ShowCurrentFolder", d_show_current_folder);
+  settings.setValue("ExtendedPlotDialog", d_extended_plot_dialog);
+  settings.beginGroup("AddRemoveCurves");
+  settings.setValue("Width", d_add_curves_dialog_size.width());
+  settings.setValue("Height", d_add_curves_dialog_size.height());
+  settings.setValue("ShowCurrentFolder", d_show_current_folder);
   settings.endGroup();  // AddRemoveCurves Dialog
   settings.endGroup();  // Dialogs
 
-  settings.beginGroup("/Colors");
-  settings.setValue("/Workspace", workspaceColor);
-  settings.setValue("/Panels", panelsColor);
-  settings.setValue("/PanelsText", panelsTextColor);
+  settings.beginGroup("Colors");
+  settings.setValue("Workspace", workspaceColor);
+  settings.setValue("Panels", panelsColor);
+  settings.setValue("PanelsText", panelsTextColor);
   settings.endGroup();  // Colors
 
-  settings.beginGroup("/Paths");
-  settings.setValue("/WorkingDir", workingDir);
-  settings.setValue("/TemplatesDir", templatesDir);
-  settings.setValue("/HelpFile", helpFilePath);
-  settings.setValue("/FitPlugins", fitPluginsPath);
-  settings.setValue("/ASCII", asciiDirPath);
-  settings.setValue("/Images", imagesDirPath);
+  settings.beginGroup("Paths");
+  settings.setValue("WorkingDir", workingDir);
+  settings.setValue("TemplatesDir", templatesDir);
+  settings.setValue("HelpFile", helpFilePath);
+  settings.setValue("FitPlugins", fitPluginsPath);
+  settings.setValue("ASCII", asciiDirPath);
+  settings.setValue("Images", imagesDirPath);
 
   settings.setValue("LockToolbars", locktoolbar->isChecked());
 
@@ -4421,27 +4421,27 @@ void ApplicationWindow::saveSettings() {
   settings.endGroup();
   /* ---------------- end group General --------------- */
 
-  settings.beginGroup("/UserFunctions");
-  settings.setValue("/FitFunctions", fitFunctions);
-  settings.setValue("/SurfaceFunctions", surfaceFunc);
-  settings.setValue("/xFunctions", xFunctions);
-  settings.setValue("/yFunctions", yFunctions);
-  settings.setValue("/rFunctions", rFunctions);
-  settings.setValue("/thetaFunctions", thetaFunctions);
+  settings.beginGroup("UserFunctions");
+  settings.setValue("FitFunctions", fitFunctions);
+  settings.setValue("SurfaceFunctions", surfaceFunc);
+  settings.setValue("xFunctions", xFunctions);
+  settings.setValue("yFunctions", yFunctions);
+  settings.setValue("rFunctions", rFunctions);
+  settings.setValue("thetaFunctions", thetaFunctions);
   settings.endGroup();  // UserFunctions
 
-  settings.beginGroup("/Confirmations");
-  settings.setValue("/Folder", confirmCloseFolder);
-  settings.setValue("/Table", confirmCloseTable);
-  settings.setValue("/Matrix", confirmCloseMatrix);
-  settings.setValue("/Plot2D", confirmClosePlot2D);
-  settings.setValue("/Plot3D", confirmClosePlot3D);
-  settings.setValue("/Note", confirmCloseNotes);
+  settings.beginGroup("Confirmations");
+  settings.setValue("Folder", confirmCloseFolder);
+  settings.setValue("Table", confirmCloseTable);
+  settings.setValue("Matrix", confirmCloseMatrix);
+  settings.setValue("Plot2D", confirmClosePlot2D);
+  settings.setValue("Plot3D", confirmClosePlot3D);
+  settings.setValue("Note", confirmCloseNotes);
   settings.endGroup();  // Confirmations
 
   /* ----------------- group Tables -------------- */
-  settings.beginGroup("/Tables");
-  settings.setValue("/DisplayComments", d_show_table_comments);
+  settings.beginGroup("Tables");
+  settings.setValue("DisplayComments", d_show_table_comments);
   QStringList tableFonts;
   tableFonts << tableTextFont.family();
   tableFonts << QString::number(tableTextFont.pointSize());
@@ -4451,32 +4451,32 @@ void ApplicationWindow::saveSettings() {
   tableFonts << QString::number(tableHeaderFont.pointSize());
   tableFonts << QString::number(tableHeaderFont.weight());
   tableFonts << QString::number(tableHeaderFont.italic());
-  settings.setValue("/Fonts", tableFonts);
+  settings.setValue("Fonts", tableFonts);
 
-  settings.beginGroup("/Colors");
-  settings.setValue("/Background", tableBkgdColor);
-  settings.setValue("/Text", tableTextColor);
-  settings.setValue("/Header", tableHeaderColor);
+  settings.beginGroup("Colors");
+  settings.setValue("Background", tableBkgdColor);
+  settings.setValue("Text", tableTextColor);
+  settings.setValue("Header", tableHeaderColor);
   settings.endGroup();  // Colors
   settings.endGroup();
   /* ----------------- end group Tables ---------- */
 
   /* ----------------- group 2D Plots ------------ */
-  settings.beginGroup("/2DPlots");
-  settings.beginGroup("/General");
-  settings.setValue("/Title", titleOn);
-  settings.setValue("/AllAxes", allAxesOn);
-  settings.setValue("/CanvasFrame", canvasFrameOn);
-  settings.setValue("/CanvasFrameWidth", canvasFrameWidth);
-  settings.setValue("/Margin", defaultPlotMargin);
-  settings.setValue("/AxesBackbones", drawBackbones);
-  settings.setValue("/AxesLineWidth", axesLineWidth);
-  settings.setValue("/Autoscale", autoscale2DPlots);
-  settings.setValue("/AutoScaleFonts", autoScaleFonts);
-  settings.setValue("/AutoResizeLayers", autoResizeLayers);
-  settings.setValue("/Antialiasing", antialiasing2DPlots);
-  settings.setValue("/ScaleLayersOnPrint", d_scale_plots_on_print);
-  settings.setValue("/PrintCropmarks", d_print_cropmarks);
+  settings.beginGroup("2DPlots");
+  settings.beginGroup("General");
+  settings.setValue("Title", titleOn);
+  settings.setValue("AllAxes", allAxesOn);
+  settings.setValue("CanvasFrame", canvasFrameOn);
+  settings.setValue("CanvasFrameWidth", canvasFrameWidth);
+  settings.setValue("Margin", defaultPlotMargin);
+  settings.setValue("AxesBackbones", drawBackbones);
+  settings.setValue("AxesLineWidth", axesLineWidth);
+  settings.setValue("Autoscale", autoscale2DPlots);
+  settings.setValue("AutoScaleFonts", autoScaleFonts);
+  settings.setValue("AutoResizeLayers", autoResizeLayers);
+  settings.setValue("Antialiasing", antialiasing2DPlots);
+  settings.setValue("ScaleLayersOnPrint", d_scale_plots_on_print);
+  settings.setValue("PrintCropmarks", d_print_cropmarks);
 
   QStringList graphFonts;
   graphFonts << plotAxesFont.family();
@@ -4495,48 +4495,48 @@ void ApplicationWindow::saveSettings() {
   graphFonts << QString::number(plotTitleFont.pointSize());
   graphFonts << QString::number(plotTitleFont.weight());
   graphFonts << QString::number(plotTitleFont.italic());
-  settings.setValue("/Fonts", graphFonts);
+  settings.setValue("Fonts", graphFonts);
   settings.endGroup();  // General
 
-  settings.beginGroup("/Curves");
-  settings.setValue("/Style", defaultCurveStyle);
-  settings.setValue("/LineWidth", defaultCurveLineWidth);
-  settings.setValue("/SymbolSize", defaultSymbolSize);
+  settings.beginGroup("Curves");
+  settings.setValue("Style", defaultCurveStyle);
+  settings.setValue("LineWidth", defaultCurveLineWidth);
+  settings.setValue("SymbolSize", defaultSymbolSize);
   settings.endGroup();  // Curves
 
-  settings.beginGroup("/Ticks");
-  settings.setValue("/MajTicksStyle", majTicksStyle);
-  settings.setValue("/MinTicksStyle", minTicksStyle);
-  settings.setValue("/MinTicksLength", minTicksLength);
-  settings.setValue("/MajTicksLength", majTicksLength);
+  settings.beginGroup("Ticks");
+  settings.setValue("MajTicksStyle", majTicksStyle);
+  settings.setValue("MinTicksStyle", minTicksStyle);
+  settings.setValue("MinTicksLength", minTicksLength);
+  settings.setValue("MajTicksLength", majTicksLength);
   settings.endGroup();  // Ticks
 
-  settings.beginGroup("/Legend");
-  settings.setValue("/FrameStyle", legendFrameStyle);
-  settings.setValue("/TextColor", legendTextColor);
-  settings.setValue("/BackgroundColor", legendBackground);
-  settings.setValue("/Transparency", legendBackground.alpha());
+  settings.beginGroup("Legend");
+  settings.setValue("FrameStyle", legendFrameStyle);
+  settings.setValue("TextColor", legendTextColor);
+  settings.setValue("BackgroundColor", legendBackground);
+  settings.setValue("Transparency", legendBackground.alpha());
   settings.endGroup();  // Legend
 
-  settings.beginGroup("/Arrows");
-  settings.setValue("/Width", defaultArrowLineWidth);
-  settings.setValue("/Color", defaultArrowColor.name());
-  settings.setValue("/HeadLength", defaultArrowHeadLength);
-  settings.setValue("/HeadAngle", defaultArrowHeadAngle);
-  settings.setValue("/HeadFill", defaultArrowHeadFill);
-  settings.setValue("/LineStyle", Graph::penStyleName(defaultArrowLineStyle));
+  settings.beginGroup("Arrows");
+  settings.setValue("Width", defaultArrowLineWidth);
+  settings.setValue("Color", defaultArrowColor.name());
+  settings.setValue("HeadLength", defaultArrowHeadLength);
+  settings.setValue("HeadAngle", defaultArrowHeadAngle);
+  settings.setValue("HeadFill", defaultArrowHeadFill);
+  settings.setValue("LineStyle", Graph::penStyleName(defaultArrowLineStyle));
   settings.endGroup();  // Arrows
   settings.endGroup();
   /* ----------------- end group 2D Plots -------- */
 
   /* ----------------- group 3D Plots ------------ */
-  settings.beginGroup("/3DPlots");
-  settings.setValue("/Legend", showPlot3DLegend);
-  settings.setValue("/Projection", showPlot3DProjection);
-  settings.setValue("/Antialiasing", smooth3DMesh);
-  settings.setValue("/Resolution", plot3DResolution);
-  settings.setValue("/Orthogonal", orthogonal3DPlots);
-  settings.setValue("/Autoscale", autoscale3DPlots);
+  settings.beginGroup("3DPlots");
+  settings.setValue("Legend", showPlot3DLegend);
+  settings.setValue("Projection", showPlot3DProjection);
+  settings.setValue("Antialiasing", smooth3DMesh);
+  settings.setValue("Resolution", plot3DResolution);
+  settings.setValue("Orthogonal", orthogonal3DPlots);
+  settings.setValue("Autoscale", autoscale3DPlots);
 
   QStringList plot3DFonts;
   plot3DFonts << plot3DTitleFont.family();
@@ -4551,55 +4551,55 @@ void ApplicationWindow::saveSettings() {
   plot3DFonts << QString::number(plot3DAxesFont.pointSize());
   plot3DFonts << QString::number(plot3DAxesFont.weight());
   plot3DFonts << QString::number(plot3DAxesFont.italic());
-  settings.setValue("/Fonts", plot3DFonts);
+  settings.setValue("Fonts", plot3DFonts);
 
-  settings.beginGroup("/Colors");
-  settings.setValue("/MaxData", plot3DColors[0]);
-  settings.setValue("/Labels", plot3DColors[1]);
-  settings.setValue("/Mesh", plot3DColors[2]);
-  settings.setValue("/Grid", plot3DColors[3]);
-  settings.setValue("/MinData", plot3DColors[4]);
-  settings.setValue("/Numbers", plot3DColors[5]);
-  settings.setValue("/Axes", plot3DColors[6]);
-  settings.setValue("/Background", plot3DColors[7]);
+  settings.beginGroup("Colors");
+  settings.setValue("MaxData", plot3DColors[0]);
+  settings.setValue("Labels", plot3DColors[1]);
+  settings.setValue("Mesh", plot3DColors[2]);
+  settings.setValue("Grid", plot3DColors[3]);
+  settings.setValue("MinData", plot3DColors[4]);
+  settings.setValue("Numbers", plot3DColors[5]);
+  settings.setValue("Axes", plot3DColors[6]);
+  settings.setValue("Background", plot3DColors[7]);
   settings.endGroup();  // Colors
   settings.endGroup();
   /* ----------------- end group 2D Plots -------- */
 
-  settings.beginGroup("/Fitting");
-  settings.setValue("/OutputPrecision", fit_output_precision);
-  settings.setValue("/PasteResultsToPlot", pasteFitResultsToPlot);
-  settings.setValue("/WriteResultsToLog", writeFitResultsToLog);
-  settings.setValue("/GenerateFunction", generateUniformFitPoints);
-  settings.setValue("/Points", fitPoints);
-  settings.setValue("/GeneratePeakCurves", generatePeakCurves);
-  settings.setValue("/PeaksColor", peakCurvesColor);
-  settings.setValue("/ScaleErrors", fit_scale_errors);
-  settings.setValue("/TwoPointsLinearFit", d_2_linear_fit_points);
+  settings.beginGroup("Fitting");
+  settings.setValue("OutputPrecision", fit_output_precision);
+  settings.setValue("PasteResultsToPlot", pasteFitResultsToPlot);
+  settings.setValue("WriteResultsToLog", writeFitResultsToLog);
+  settings.setValue("GenerateFunction", generateUniformFitPoints);
+  settings.setValue("Points", fitPoints);
+  settings.setValue("GeneratePeakCurves", generatePeakCurves);
+  settings.setValue("PeaksColor", peakCurvesColor);
+  settings.setValue("ScaleErrors", fit_scale_errors);
+  settings.setValue("TwoPointsLinearFit", d_2_linear_fit_points);
   settings.endGroup();  // Fitting
 
-  settings.beginGroup("/ImportASCII");
+  settings.beginGroup("ImportASCII");
   QString sep = columnSeparator;
-  settings.setValue("/ColumnSeparator",
+  settings.setValue("ColumnSeparator",
                     sep.replace("\t", "\\t").replace(" ", "\\s"));
-  settings.setValue("/IgnoreLines", ignoredLines);
-  settings.setValue("/RenameColumns", renameColumns);
-  settings.setValue("/StripSpaces", strip_spaces);
-  settings.setValue("/SimplifySpaces", simplify_spaces);
-  settings.setValue("/AsciiFileTypeFilter", d_ASCII_file_filter);
-  settings.setValue("/AsciiImportLocale", d_ASCII_import_locale.name());
-  settings.setValue("/ConvertToNumeric", d_convert_to_numeric);
+  settings.setValue("IgnoreLines", ignoredLines);
+  settings.setValue("RenameColumns", renameColumns);
+  settings.setValue("StripSpaces", strip_spaces);
+  settings.setValue("SimplifySpaces", simplify_spaces);
+  settings.setValue("AsciiFileTypeFilter", d_ASCII_file_filter);
+  settings.setValue("AsciiImportLocale", d_ASCII_import_locale.name());
+  settings.setValue("ConvertToNumeric", d_convert_to_numeric);
   settings.endGroup();  // ImportASCII
 
-  settings.beginGroup("/ExportImage");
-  settings.setValue("/ImageFileTypeFilter", d_image_export_filter);
-  settings.setValue("/ExportTransparency", d_export_transparency);
-  settings.setValue("/ImageQuality", d_export_quality);
-  settings.setValue("/Resolution", d_export_resolution);
-  settings.setValue("/ExportColor", d_export_color);
-  settings.setValue("/ExportPageSize", d_export_vector_size);
-  settings.setValue("/KeepAspect", d_keep_plot_aspect);
-  settings.setValue("/Orientation", d_export_orientation);
+  settings.beginGroup("ExportImage");
+  settings.setValue("ImageFileTypeFilter", d_image_export_filter);
+  settings.setValue("ExportTransparency", d_export_transparency);
+  settings.setValue("ImageQuality", d_export_quality);
+  settings.setValue("Resolution", d_export_resolution);
+  settings.setValue("ExportColor", d_export_color);
+  settings.setValue("ExportPageSize", d_export_vector_size);
+  settings.setValue("KeepAspect", d_keep_plot_aspect);
+  settings.setValue("Orientation", d_export_orientation);
   settings.endGroup();  // ExportImage
 }
 
@@ -7921,8 +7921,8 @@ void ApplicationWindow::showHelp() {
     chooseHelpFolder();
 
     QSettings settings;
-    settings.beginGroup("/Paths");
-    settings.setValue("/HelpFile", helpFilePath);
+    settings.beginGroup("Paths");
+    settings.setValue("HelpFile", helpFilePath);
     settings.endGroup();
   }
 

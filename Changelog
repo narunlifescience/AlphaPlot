@@ -1,1 +1,9 @@
- 
+AlphaPlot changelog 
+
+=== Most important/unimportant changes ===
+- Add a custom icon handler class
+- Rewrite settings dialog & break down to smaller modules
+- Move to c++ 11
+- Use a floating qbutton for table tab
+- Rewrite console widget
+- Lots of other bug fixes
