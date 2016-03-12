@@ -67,7 +67,6 @@ class QMenu;
 class QToolBar;
 class QStatusBar;
 class QSignalMapper;
-class IconLoader;
 
 class Matrix;
 class Table;
@@ -88,6 +87,7 @@ class Project;
 class AbstractAspect;
 
 class ConsoleWidget;
+class IconLoader;
 class SettingsDialog;
 
 #ifndef TS_PATH
@@ -560,7 +560,6 @@ Arranges all the visible project windows in a cascade pattern.
   void initToolBars();
   void initPlot3DToolBar();
   void disableActions();
-  void hideToolbars();
   void customToolBars(QWidget* w);
   void customMenu(QWidget* w);
   void windowActivated(QWidget* w);

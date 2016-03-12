@@ -30,13 +30,14 @@
  ***************************************************************************/
 
 #define HOMEPAGE_URI "http://AlphaPlot.sourceforge.net"
-#define MANUAL_URI                                                           \
+#define MANUAL_URI                                                             \
   "http://sourceforge.net/projects/AlphaPlot/files/AlphaPlot%20Documentation/" \
   "0.1/"
 #define FORUM_URI "http://sourceforge.net/forum/?group_id=199120"
 #define BUGREPORT_URI \
   "http://sourceforge.net/tracker/?group_id=199120&atid=968214"
-#define DOWNLOAD_URI "http://sourceforge.net/projects/AlphaPlot/files/AlphaPlot/"
+#define DOWNLOAD_URI \
+  "http://sourceforge.net/projects/AlphaPlot/files/AlphaPlot/"
 
 #include "globals.h"
 #include "ApplicationWindow.h"
@@ -216,13 +217,12 @@ ApplicationWindow::ApplicationWindow()
       settings_(new SettingsDialog(this))
 
 {
-  setAttribute(Qt::WA_DeleteOnClose);
-
-  setWindowTitle(tr("AlphaPlot - untitled"));
-
   // Icons
   IconLoader::init();
   IconLoader::lumen_ = IconLoader::isLight(palette().color(QPalette::Window));
+
+  setAttribute(Qt::WA_DeleteOnClose);
+  setWindowTitle("AlphaPlot - " + tr("untitled"));
 
   initFonts();
   QPixmapCache::setCacheLimit(20 * QPixmapCache::cacheLimit());
@@ -643,9 +643,9 @@ void ApplicationWindow::initToolBars() {
   table_tools->setIconSize(QSize(24, 24));
   addToolBar(Qt::TopToolBarArea, table_tools);
 
-  graph_tools->hide();
-  table_tools->hide();
-  plot_tools->hide();
+  graph_tools->setEnabled(false);
+  table_tools->setEnabled(false);
+  plot_tools->setEnabled(false);
 
   d_status_info = new QLabel(this);
   d_status_info->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -675,7 +675,7 @@ void ApplicationWindow::initToolBars() {
   actionContourMap->addTo(matrix_plot_tools);
   actionGrayMap->addTo(matrix_plot_tools);
 
-  matrix_plot_tools->hide();
+  matrix_plot_tools->setEnabled(false);
 }
 
 void ApplicationWindow::lockToolbar(const bool status) {
@@ -683,6 +683,7 @@ void ApplicationWindow::lockToolbar(const bool status) {
     file_tools->setMovable(false);
     edit_tools->setMovable(false);
     graph_tools->setMovable(false);
+    graph_3D_tools->setMovable(false);
     plot_tools->setMovable(false);
     table_tools->setMovable(false);
     matrix_plot_tools->setMovable(false);
@@ -691,6 +692,7 @@ void ApplicationWindow::lockToolbar(const bool status) {
     file_tools->setMovable(true);
     edit_tools->setMovable(true);
     graph_tools->setMovable(true);
+    graph_3D_tools->setMovable(true);
     plot_tools->setMovable(true);
     table_tools->setMovable(true);
     matrix_plot_tools->setMovable(true);
@@ -1212,17 +1214,15 @@ void ApplicationWindow::disableActions() {
 
 void ApplicationWindow::customToolBars(QWidget *w) {
   if (w) {
-    if (!projectHas3DPlots()) graph_3D_tools->hide();
-    if (!projectHas2DPlots()) graph_tools->hide();
-    if (!projectHasMatrices()) matrix_plot_tools->hide();
+    if (!projectHas3DPlots()) graph_3D_tools->setEnabled(false);
+    if (!projectHas2DPlots()) graph_tools->setEnabled(false);
+    if (!projectHasMatrices()) matrix_plot_tools->setEnabled(false);
     if (tableWindows().count() <= 0) {
-      table_tools->hide();
-      plot_tools->hide();
+      table_tools->setEnabled(false);
+      plot_tools->setEnabled(false);
     }
 
     if (w->inherits("MultiLayer")) {
-      if (graph_tools->isHidden()) graph_tools->show();
-
       graph_tools->setEnabled(true);
       graph_3D_tools->setEnabled(false);
       table_tools->setEnabled(false);
@@ -1288,7 +1288,6 @@ void ApplicationWindow::customToolBars(QWidget *w) {
     } else if (w->inherits("Table")) {
       table_tools->clear();
       static_cast<Table *>(w)->d_future_table->fillProjectToolBar(table_tools);
-      if (table_tools->isHidden()) table_tools->show();
       table_tools->setEnabled(true);
 
       graph_tools->setEnabled(false);
@@ -1312,8 +1311,6 @@ void ApplicationWindow::customToolBars(QWidget *w) {
       actionPlot3DTrajectory->setEnabled(true);
       actionPlot3DBars->setEnabled(true);
     } else if (w->inherits("Matrix")) {
-      if (matrix_plot_tools->isHidden()) matrix_plot_tools->show();
-
       graph_tools->setEnabled(false);
       graph_3D_tools->setEnabled(false);
       table_tools->setEnabled(false);
@@ -1324,8 +1321,6 @@ void ApplicationWindow::customToolBars(QWidget *w) {
       table_tools->setEnabled(false);
       plot_tools->setEnabled(false);
       matrix_plot_tools->setEnabled(false);
-
-      if (graph_3D_tools->isHidden()) graph_3D_tools->show();
 
       Graph3D *plot = (Graph3D *)w;
       if (plot->plotStyle() == Qwt3D::NOPLOT)
@@ -1342,22 +1337,13 @@ void ApplicationWindow::customToolBars(QWidget *w) {
       matrix_plot_tools->setEnabled(false);
     }
 
-  } else
-    hideToolbars();
-}
-
-void ApplicationWindow::hideToolbars() {
-  graph_3D_tools->hide();
-  graph_tools->hide();
-  table_tools->hide();
-  plot_tools->hide();
-  matrix_plot_tools->hide();
-
-  graph_tools->setEnabled(false);
-  table_tools->setEnabled(false);
-  plot_tools->setEnabled(false);
-  graph_3D_tools->setEnabled(false);
-  matrix_plot_tools->setEnabled(false);
+  } else {
+    graph_tools->setEnabled(false);
+    table_tools->setEnabled(false);
+    plot_tools->setEnabled(false);
+    graph_3D_tools->setEnabled(false);
+    matrix_plot_tools->setEnabled(false);
+  }
 }
 
 void ApplicationWindow::plot3DRibbon() {
@@ -2018,8 +2004,6 @@ void ApplicationWindow::initPlot3D(Graph3D *plot) {
   plot->setFocus();
 
   addListViewItem(plot);
-
-  if (!graph_3D_tools->isVisible()) graph_3D_tools->show();
 
   if (!graph_3D_tools->isEnabled()) graph_3D_tools->setEnabled(true);
 
@@ -3925,10 +3909,11 @@ void ApplicationWindow::openTemplate() {
         d_file_version =
             100 * (vl[0]).toInt() + 10 * (vl[1]).toInt() + (vl[2]).toInt();
         if (d_file_version > 90) {
-          QMessageBox::critical(this, tr("File opening error"),
-                                tr("AlphaPlot does not support QtiPlot template "
-                                   "files from versions later than 0.9.0.")
-                                    .arg(fn));
+          QMessageBox::critical(
+              this, tr("File opening error"),
+              tr("AlphaPlot does not support QtiPlot template "
+                 "files from versions later than 0.9.0.")
+                  .arg(fn));
           return;
         }
       } else
@@ -4069,8 +4054,7 @@ void ApplicationWindow::readSettings() {
   d_project->undoStack()->setUndoLimit(undoLimit);
   autoSave = settings.value("AutoSave", true).toBool();
   autoSaveTime = settings.value("AutoSaveTime", 15).toInt();
-  defaultScriptingLang =
-      settings.value("ScriptingLang", "muParser").toString();
+  defaultScriptingLang = settings.value("ScriptingLang", "muParser").toString();
 
   QLocale temp_locale =
       QLocale(settings.value("Locale", QLocale::system().name()).toString());
@@ -4150,8 +4134,7 @@ void ApplicationWindow::readSettings() {
 #ifdef Q_OS_WIN
   templatesDir =
       settings.value("TemplatesDir", qApp->applicationDirPath()).toString();
-  asciiDirPath =
-      settings.value("ASCII", qApp->applicationDirPath()).toString();
+  asciiDirPath = settings.value("ASCII", qApp->applicationDirPath()).toString();
   imagesDirPath =
       settings.value("Images", qApp->applicationDirPath()).toString();
 #else
@@ -4215,8 +4198,7 @@ void ApplicationWindow::readSettings() {
   autoScaleFonts = settings.value("AutoScaleFonts", true).toBool();
   autoResizeLayers = settings.value("AutoResizeLayers", true).toBool();
   antialiasing2DPlots = settings.value("Antialiasing", true).toBool();
-  d_scale_plots_on_print =
-      settings.value("ScaleLayersOnPrint", false).toBool();
+  d_scale_plots_on_print = settings.value("ScaleLayersOnPrint", false).toBool();
   d_print_cropmarks = settings.value("PrintCropmarks", false).toBool();
 
   QStringList graphFonts = settings.value("Fonts").toStringList();
@@ -4253,7 +4235,7 @@ void ApplicationWindow::readSettings() {
                          .value<QColor>();  // default color Qt::white
   legendBackground.setAlpha(
       settings.value("Transparency", 0).toInt());  // transparent by default;
-  settings.endGroup();                              // Legend
+  settings.endGroup();                             // Legend
 
   settings.beginGroup("Arrows");
   defaultArrowLineWidth = settings.value("Width", 1).toInt();
@@ -5084,7 +5066,8 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text) {
 }
 
 // TODO: string list -> Column * list
-QStringList ApplicationWindow::columnsList(AlphaPlot::PlotDesignation plotType) {
+QStringList ApplicationWindow::columnsList(
+    AlphaPlot::PlotDesignation plotType) {
   QList<QWidget *> *windows = windowsList();
   QStringList list;
   foreach (QWidget *w, *windows) {
@@ -8593,7 +8576,7 @@ void ApplicationWindow::initPlot3DToolBar() {
   actionAnimate->setIconSet(QPixmap(":/movie.xpm"));
   graph_3D_tools->addAction(actionAnimate);
 
-  graph_3D_tools->hide();
+  graph_3D_tools->setEnabled(false);
 
   connect(actionAnimate, SIGNAL(toggled(bool)), this,
           SLOT(toggle3DAnimation(bool)));
@@ -8678,7 +8661,8 @@ void ApplicationWindow::addLayer() {
   MultiLayer *plot = (MultiLayer *)d_workspace->activeWindow();
   switch (QMessageBox::information(
       this, tr("Guess best origin for the new layer?"),
-      tr("Do you want AlphaPlot to guess the best position for the new layer?\n "
+      tr("Do you want AlphaPlot to guess the best position for the new "
+         "layer?\n "
          "Warning: this will rearrange existing layers!"),
       tr("&Guess"), tr("&Top-left corner"), tr("&Cancel"), 0, 2)) {
     case 0: {
@@ -11498,13 +11482,14 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
                                 .arg(str));
     } else if (str == "-v" || str == "--version") {
       QString s = AlphaPlot::versionString() + AlphaPlot::extraVersion() + "\n";
-      s +=
-          QObject::tr("Released") + ": " + AlphaPlot::releaseDateString() + "\n";
+      s += QObject::tr("Released") + ": " + AlphaPlot::releaseDateString() +
+           "\n";
       s += AlphaPlot::copyrightString() + "\n";
 
 #ifdef Q_OS_WIN
       hide();
-      QMessageBox::information(this, tr("AlphaPlot") + " - " + tr("Version"), s);
+      QMessageBox::information(this, tr("AlphaPlot") + " - " + tr("Version"),
+                               s);
 #else
       std::cout << s.toStdString();
 #endif
@@ -12867,7 +12852,8 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest) {
 void ApplicationWindow::searchForUpdates() {
   int choice = QMessageBox::question(
       this, versionString(),
-      tr("AlphaPlot will now try to determine whether a new version of AlphaPlot "
+      tr("AlphaPlot will now try to determine whether a new version of "
+         "AlphaPlot "
          "is available. Please modify your firewall settings in order to allow "
          "AlphaPlot to connect to the internet.") +
           "\n" + tr("Do you wish to continue?"),
@@ -13015,7 +13001,9 @@ ApplicationWindow::~ApplicationWindow() {
   QApplication::clipboard()->clear(QClipboard::Clipboard);
 }
 
-QString ApplicationWindow::versionString() { return AlphaPlot::versionString(); }
+QString ApplicationWindow::versionString() {
+  return AlphaPlot::versionString();
+}
 
 int ApplicationWindow::convertOldToNewColorIndex(int cindex) {
   if ((cindex == 13) || (cindex == 14))  // white and light gray
