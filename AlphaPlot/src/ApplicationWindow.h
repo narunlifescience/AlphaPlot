@@ -185,7 +185,6 @@ class ApplicationWindow : public QMainWindow, public scripted {
    */
   QFile* openCompressedFile(const QString& fn);
   ApplicationWindow* openProject(const QString& fn);
-  ApplicationWindow* importOPJ(const QString& filename);
   void showHistory();
 
   /**
@@ -626,11 +625,11 @@ Arranges all the visible project windows in a cascade pattern.
 
   //! \name Event Handlers
   //@{
-  void closeEvent(QCloseEvent*);
-  void timerEvent(QTimerEvent* e);
-  void dragEnterEvent(QDragEnterEvent* e);
-  void dropEvent(QDropEvent* e);
-  void customEvent(QEvent* e);
+  void closeEvent(QCloseEvent*event);
+  void timerEvent(QTimerEvent* event);
+  void dragEnterEvent(QDragEnterEvent* event);
+  void dropEvent(QDropEvent* event);
+  void customEvent(QEvent* event);
   //@}
 
   //! \name Dialogs
@@ -841,7 +840,10 @@ Arranges all the visible project windows in a cascade pattern.
    * \param p mouse global position
    * \param fromFolders: true means that the user clicked right mouse buttom on
    *an item from QListView "folders"
-   *					   false means that the user clicked right mouse buttom
+   *					   false means that the user clicked
+   *right
+   *mouse
+   *buttom
    *on an item from QListView "lv"
    */
   void showFolderPopupMenu(Q3ListViewItem* it, const QPoint& p,
@@ -908,7 +910,7 @@ Arranges all the visible project windows in a cascade pattern.
             bool caseSensitive, bool partialMatch, bool subfolders);
 
   //!  initializes the list of items dragged by the user
-  void dragFolderItems(QList<Q3ListViewItem*> items) { draggedItems = items; };
+  void dragFolderItems(QList<Q3ListViewItem*> items) { draggedItems = items; }
 
   //!  Drop the objects in the list draggedItems to the folder of the
   //!  destination item
@@ -1050,9 +1052,9 @@ Arranges all the visible project windows in a cascade pattern.
   QStringList plot3DColors, locales;
   QStringList functions;  // user-defined functions;
   QStringList xFunctions, yFunctions, rFunctions,
-      thetaFunctions;  // user functions for parametric and polar plots
+      thetaFunctions;        // user functions for parametric and polar plots
   QStringList fitFunctions;  // user-defined fit functions;
-  QStringList surfaceFunc;  // user-defined surface functions;
+  QStringList surfaceFunc;   // user-defined surface functions;
 
   //! List of tables and matrices renamed in order to avoid conflicts when
   //! appending a project to a folder
@@ -1089,6 +1091,10 @@ Arranges all the visible project windows in a cascade pattern.
   QString qmPath;
 
  private:
+  const QStringList projectExtension{".sciprj",     ".sciprj~", ".sciprj.gz",
+                                     ".sciprj.gz~", ".qti",     ".qti~",
+                                     ".qti.gz",     ".qti.gz~"};
+
   //! Show a context menu for the widget
   void showWindowMenu(MyWidget* widget);
   //! Create a menu for toggeling the toolbars

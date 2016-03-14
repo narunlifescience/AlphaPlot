@@ -22,12 +22,6 @@ void ReadWriteProjectTest::readWriteProject() {
   QVERIFY(app1.get());
 }
 
-// checks that the large file Origin import problem (ticket #238) remains fixed
-void ReadWriteProjectTest::largeOriginImport() {
-  unique_ptr<ApplicationWindow> app(importOPJ("Histo.opj"));
-  QVERIFY(app.get());
-}
-
 // Override showHelp() & chooseHelpFolder() to suppress documentation file
 // path not found error. Need to fix this later (importance : high)
 void ReadWriteProjectTest::showHelp() {}

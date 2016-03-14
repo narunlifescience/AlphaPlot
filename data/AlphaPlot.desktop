@@ -1,5 +1,5 @@
 [Desktop Entry]
-Categories=Graphics;2DGraphics;
+Categories=Science;DataVisualization;
 Comment[en_US]=Application for scientific data analysis and visualization
 Comment=Application for scientific data analysis and visualization
 Comment[af]=Toepassing vir wetenskaplike data analise en visualisasie
@@ -58,4 +58,3 @@ Version=1.0
 X-DBUS-ServiceName=
 X-DBUS-StartupType=
 X-KDE-SubstituteUID=false
-X-KDE-Username=

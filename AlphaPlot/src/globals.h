@@ -49,6 +49,14 @@ class AlphaPlot : public QObject {
 
  public:
   virtual ~AlphaPlot() {}  // avoid the warning message
+
+  // Url links
+  static const char* homepage_Uri;
+  static const char* manual_Uri;
+  static const char* forum_Uri;
+  static const char* bugreport_Uri;
+  static const char* download_Uri;
+
   //! Types of plot designations
   enum PlotDesignation {
     noDesignation = 0,  //!< no plot designation
@@ -97,22 +105,18 @@ class AlphaPlot : public QObject {
   static void about();
 
  private:
-  //  Don't forget to change the Doxyfile when changing these!
-  //! AlphaPlot version number
-  /**
-   * 0xMMmmbb means MM.mm.bb with<br>
+  /* 0xMMmmbb means MM.mm.bb with<br>
    * MM = major version
    * mm = minor version
-   * bb = bugfix version
-   */
+   * bb = bugfix version */
   static const int AlphaPlot_versionNo;
   static const char* AlphaPlot_version;
   //! Extra version information string (like "-alpha", "-beta", "-rc1", etc...)
   static const char* extra_version;
-  //! Copyright string containing the author names etc.
-  static const char* copyright_string;
   //! Release date as a string
   static const char* release_date;
+  //! Copyright string containing the author names etc.
+  static const char* copyright_string;
 };
 
 #endif  // ALPHA_PLOT_GLOBALS_H

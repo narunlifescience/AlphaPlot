@@ -29,16 +29,6 @@
  *                                                                         *
  ***************************************************************************/
 
-#define HOMEPAGE_URI "http://AlphaPlot.sourceforge.net"
-#define MANUAL_URI                                                             \
-  "http://sourceforge.net/projects/AlphaPlot/files/AlphaPlot%20Documentation/" \
-  "0.1/"
-#define FORUM_URI "http://sourceforge.net/forum/?group_id=199120"
-#define BUGREPORT_URI \
-  "http://sourceforge.net/tracker/?group_id=199120&atid=968214"
-#define DOWNLOAD_URI \
-  "http://sourceforge.net/projects/AlphaPlot/files/AlphaPlot/"
-
 #include "globals.h"
 #include "ApplicationWindow.h"
 #include "CurvesDialog.h"
@@ -68,9 +58,6 @@
 #include "DataSetDialog.h"
 #include "IntDialog.h"
 #include "ConfigDialog.h"
-#ifdef ORIGIN_IMPORT
-#include "importOPJ.h"
-#endif
 #include "AssociationsDialog.h"
 #include "RenameWindowDialog.h"
 #include "QwtErrorPlotCurve.h"
@@ -400,7 +387,6 @@ void ApplicationWindow::applyUserSettings() {
 }
 
 void ApplicationWindow::initToolBars() {
-  setWindowIcon(QIcon(":/appicon"));
   QPixmap openIcon, saveIcon;
 
   file_tools = new QToolBar(tr("File"), this);
@@ -3362,24 +3348,7 @@ void ApplicationWindow::open() {
 }
 
 ApplicationWindow *ApplicationWindow::open(const QString &fn) {
-  if (fn.endsWith(".opj", Qt::CaseInsensitive) ||
-      fn.endsWith(".ogm", Qt::CaseInsensitive) ||
-      fn.endsWith(".ogw", Qt::CaseInsensitive) ||
-      fn.endsWith(".ogg", Qt::CaseInsensitive))
-#ifdef ORIGIN_IMPORT
-    return importOPJ(fn);
-#else
-  {
-    QMessageBox::critical(
-        this, tr("File opening error"),
-        tr("AlphaPlot currently does not support Origin import. If you are "
-           "interested in reviving and maintaining an Origin import filter, "
-           "contact the developers.")
-            .arg(fn));
-    return 0;
-  }
-#endif
-  else if (fn.endsWith(".py", Qt::CaseInsensitive))
+  if (fn.endsWith(".py", Qt::CaseInsensitive))
     return loadScript(fn);
   else if (fn.endsWith(".sciprj", Qt::CaseInsensitive) ||
            fn.endsWith(".sciprj.gz", Qt::CaseInsensitive) ||
@@ -7294,93 +7263,98 @@ void ApplicationWindow::modifiedProject(QWidget *w) {
   lastModified = w;
 }
 
-void ApplicationWindow::timerEvent(QTimerEvent *e) {
-  if (e->timerId() == savingTimerId)
+void ApplicationWindow::timerEvent(QTimerEvent *event) {
+  if (event->timerId() == savingTimerId) {
     saveProject();
-  else
-    QWidget::timerEvent(e);
-}
-
-void ApplicationWindow::dropEvent(QDropEvent *e) {
-  QStringList fileNames;
-  if (Q3UriDrag::decodeLocalFiles(e, fileNames)) {
-    QList<QByteArray> lst = QImageReader::supportedImageFormats() << "JPG";
-    QStringList asciiFiles;
-
-    for (int i = 0; i < (int)fileNames.count(); i++) {
-      QString fn = fileNames[i];
-      QFileInfo fi(fn);
-      QString ext = fi.extension().toLower();
-      QStringList tempList;
-      QByteArray temp;
-      // convert QList<QByteArray> to QStringList to be able to 'filter'
-      foreach (temp, lst)
-        tempList.append(QString(temp));
-      QStringList l = tempList.filter(ext, Qt::CaseInsensitive);
-      if (l.count() > 0)
-        loadImage(fn);
-      else if (ext == "opj" || ext == "sciprj" || ext == "qti")
-        open(fn);
-      else
-        asciiFiles << fn;
-    }
-
-    importASCII(asciiFiles, ImportASCIIDialog::NewTables, columnSeparator,
-                ignoredLines, renameColumns, strip_spaces, simplify_spaces,
-                d_convert_to_numeric, d_ASCII_import_locale);
+  } else {
+    QWidget::timerEvent(event);
   }
 }
 
-void ApplicationWindow::dragEnterEvent(QDragEnterEvent *e) {
-  if (e->source()) {
-    e->ignore();
+void ApplicationWindow::dropEvent(QDropEvent *event) {
+  if (event->mimeData()->hasUrls()) {
+    QStringList asciiFiles;
+    QList<QUrl> urls = event->mimeData()->urls();
+
+    foreach (QUrl url, urls) {
+      QString fileName = url.toLocalFile();
+      QFileInfo fileInfo(fileName);
+      QString ext = fileInfo.extension().toLower();
+
+      if (ext == "sciprj" || ext == "sciprj") {
+        open(fileName);
+      } else if (ext == "csv" || ext == "dat" || ext == "txt" || ext == "tsv") {
+        asciiFiles << fileName;
+      } else if (ext == "bmp" || ext == "bw" || ext == "eps" || ext == "epsf" ||
+                 ext == "epsi" || ext == "exr" || ext == "kra" ||
+                 ext == "ora" || ext == "pcx" || ext == "psd" || ext == "ras" ||
+                 ext == "rgb" || ext == "rgba" || ext == "sgi" ||
+                 ext == "tga" || ext == "xcf" || ext == "dds" || ext == "gif" ||
+                 ext == "ico" || ext == "jp2" || ext == "jpeg" ||
+                 ext == "jpg" || ext == "mng" || ext == "pbm" || ext == "pgm" ||
+                 ext == "pic" || ext == "png" || ext == "ppm" || ext == "svg" ||
+                 ext == "svgz" || ext == "tif" || ext == "tiff" ||
+                 ext == "webp" || ext == "xbm" || ext == "xpm" || ext == "xv") {
+        loadImage(fileName);
+      }
+    }
+    if (!asciiFiles.isEmpty()) {
+      importASCII(asciiFiles, ImportASCIIDialog::NewTables, columnSeparator,
+                  ignoredLines, renameColumns, strip_spaces, simplify_spaces,
+                  d_convert_to_numeric, d_ASCII_import_locale);
+    }
+  }
+}
+
+void ApplicationWindow::dragEnterEvent(QDragEnterEvent *event) {
+  if (event->source() && event->possibleActions() & Qt::MoveAction) {
+    event->ignore();
     return;
   }
-
-  e->accept(Q3UriDrag::canDecode(e));
+  (event->mimeData()->hasUrls() || event->mimeData()->hasImage())
+      ? event->acceptProposedAction()
+      : event->ignore();
 }
 
-void ApplicationWindow::closeEvent(QCloseEvent *ce) {
+void ApplicationWindow::closeEvent(QCloseEvent *event) {
   if (!saved) {
-    QString s =
-        tr("Save changes to project: <p><b> %1 </b> ?").arg(projectname);
-    switch (QMessageBox::information(this, tr("AlphaPlot"), s, tr("Yes"),
-                                     tr("No"), tr("Cancel"), 0, 2)) {
+    switch (QMessageBox::information(
+        this, tr("AlphaPlot"),
+        tr("Save changes to project: <p><b> %1 </b> ?").arg(projectname),
+        tr("Yes"), tr("No"), tr("Cancel"), 0, 2)) {
       case 0:
         if (!saveProject()) {
-          ce->ignore();
+          event->ignore();
           break;
         }
         saveSettings();  // the recent projects must be saved
-        ce->accept();
+        event->accept();
         break;
 
       case 1:
       default:
         saveSettings();  // the recent projects must be saved
-        ce->accept();
+        event->accept();
         break;
 
       case 2:
-        ce->ignore();
+        event->ignore();
         break;
     }
   } else {
     saveSettings();  // the recent projects must be saved
-    ce->accept();
+    event->accept();
   }
 }
 
-void ApplicationWindow::customEvent(QEvent *e) {
-  if (e->type() == SCRIPTING_CHANGE_EVENT) {
-    scriptingChangeEvent((ScriptingChangeEvent *)e);
+void ApplicationWindow::customEvent(QEvent *event) {
+  if (event->type() == SCRIPTING_CHANGE_EVENT) {
+    scriptingChangeEvent((ScriptingChangeEvent *)event);
     // If the event is triggered by setScriptingLang(), the connections are
-    // already made
-    // (for messages emitted during initialization). However, it's good
-    // programming practice not
-    // to assume a particular call path for an event; which means that we don't
-    // know for sure
-    // at this point whether scriptEnv is connected or not.
+    // already made (for messages emitted during initialization). However,
+    // it's good programming practice not to assume a particular call path for
+    // an event; which means that we don't know for sure at this point whether
+    // scriptEnv is connected or not.
     scriptEnv->disconnect(this);
     connect(scriptEnv, SIGNAL(error(const QString &, const QString &, int)),
             this, SLOT(scriptError(const QString &, const QString &, int)));
@@ -7390,10 +7364,8 @@ void ApplicationWindow::customEvent(QEvent *e) {
 }
 
 void ApplicationWindow::deleteSelectedItems() {
-  if (folders->hasFocus() &&
-      folders->currentItem() != folders->firstChild()) {  // we never allow the
-                                                          // user to delete the
-                                                          // project folder item
+  // we never allow the user to delete the project folder item
+  if (folders->hasFocus() && folders->currentItem() != folders->firstChild()) {
     deleteFolder();
     return;
   }
@@ -7900,7 +7872,8 @@ void ApplicationWindow::showHelp() {
         tr("Please indicate the location of the help file!") + "<br>" +
             tr("The manual can be downloaded from the following internet "
                "address:") +
-            "<p><a href = \"" MANUAL_URI "\">" MANUAL_URI "</a></p>");
+            "<p><a href = \"" + AlphaPlot::manual_Uri + "\">" +
+            AlphaPlot::manual_Uri + "</a></p>");
     chooseHelpFolder();
 
     QSettings settings;
@@ -11244,40 +11217,6 @@ MultiLayer *ApplicationWindow::plotSpectrogram(Matrix *m,
   return g;
 }
 
-ApplicationWindow *ApplicationWindow::importOPJ(const QString &filename) {
-#ifdef ORIGIN_IMPORT
-  if (filename.endsWith(".opj", Qt::CaseInsensitive) ||
-      filename.endsWith(".ogg", Qt::CaseInsensitive)) {
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-    ApplicationWindow *app = new ApplicationWindow();
-    app->applyUserSettings();
-    app->setWindowTitle("AlphaPlot - " + filename);
-    app->showMaximized();
-    app->projectname = filename;
-    app->recentProjects.remove(filename);
-    app->recentProjects.push_front(filename);
-    app->updateRecentProjectsList();
-
-    ImportOPJ(app, filename);
-
-    QApplication::restoreOverrideCursor();
-    return app;
-  } else if (filename.endsWith(".ogm", Qt::CaseInsensitive) ||
-             filename.endsWith(".ogw", Qt::CaseInsensitive)) {
-    ImportOPJ(this, filename);
-    recentProjects.remove(filename);
-    recentProjects.push_front(filename);
-    updateRecentProjectsList();
-    return this;
-  } else
-    return 0;
-#else
-  Q_UNUSED(filename);
-  return NULL;
-#endif
-}
-
 void ApplicationWindow::deleteFitTables() {
   QList<QWidget *> *mLst = new QList<QWidget *>();
   QList<QWidget *> *windows = windowsList();
@@ -11451,20 +11390,20 @@ void ApplicationWindow::fitMultiPeak(int profile) {
 
 #ifdef DOWNLOAD_LINKS
 void ApplicationWindow::downloadManual() {
-  QDesktopServices::openUrl(QUrl(MANUAL_URI));
+  QDesktopServices::openUrl(QUrl(AlphaPlot::manual_Uri));
 }
 #endif  // defined DOWNLOAD_LINKS
 
 void ApplicationWindow::showHomePage() {
-  QDesktopServices::openUrl(QUrl(HOMEPAGE_URI));
+  QDesktopServices::openUrl(QUrl(AlphaPlot::homepage_Uri));
 }
 
 void ApplicationWindow::showForums() {
-  QDesktopServices::openUrl(QUrl(FORUM_URI));
+  QDesktopServices::openUrl(QUrl(AlphaPlot::forum_Uri));
 }
 
 void ApplicationWindow::showBugTracker() {
-  QDesktopServices::openUrl(QUrl(BUGREPORT_URI));
+  QDesktopServices::openUrl(QUrl(AlphaPlot::bugreport_Uri));
 }
 
 void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
@@ -11511,17 +11450,10 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
            tr("print AlphaPlot version and release date") + "\n";
       s += "-x " + tr("or") + " --execute: " +
            tr("execute the script file given as argument") + "\n\n";
-#ifdef ORIGIN_IMPORT
-      s += "'" + tr("file") + "_" + tr("name") + "' " +
-           tr("can be any .sciprj, .sciprj.gz, .qti, qti.gz, .opj, .ogm, .ogw, "
-              ".ogg, .py or ASCII file") +
-           "\n";
-#else
       s += "'" + tr("file") + "_" + tr("name") + "' " +
            tr("can be any .sciprj, .sciprj.gz, .qti, qti.gz, .py or ASCII "
               "file") +
            "\n";
-#endif
 #ifdef Q_OS_WIN
       hide();
       QMessageBox::information(this, tr("AlphaPlot - Help"), s);
@@ -11729,11 +11661,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
   QFileInfo fi(fn);
   workingDir = fi.dirPath(true);
 
-  if (fn.contains(".sciprj") || fn.contains(".qti") ||
-      fn.contains(".opj", Qt::CaseInsensitive) ||
-      fn.contains(".ogm", Qt::CaseInsensitive) ||
-      fn.contains(".ogw", Qt::CaseInsensitive) ||
-      fn.contains(".ogg", Qt::CaseInsensitive)) {
+  if (fn.contains(".sciprj") || fn.contains(".qti")) {
     QFileInfo f(fn);
     if (!f.exists()) {
       QMessageBox::critical(this, tr("File opening error"),
@@ -11743,8 +11671,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
   } else {
     QMessageBox::critical(
         this, tr("File opening error"),
-        tr("The file: <b>%1</b> is not a AlphaPlot or Origin project file!")
-            .arg(fn));
+        tr("The file: <b>%1</b> is not a AlphaPlot project file!").arg(fn));
     return;
   }
 
@@ -11780,159 +11707,141 @@ void ApplicationWindow::appendProject(const QString &fn) {
   FolderListItem *fli = new FolderListItem(item, current_folder);
   current_folder->setFolderListItem(fli);
 
-  if (fn.contains(".opj", Qt::CaseInsensitive) ||
-      fn.contains(".ogm", Qt::CaseInsensitive) ||
-      fn.contains(".ogw", Qt::CaseInsensitive) ||
-      fn.contains(".ogg", Qt::CaseInsensitive))
-#ifdef ORIGIN_IMPORT
-    ImportOPJ(this, fn);
-#else
-  {
-    QMessageBox::critical(
-        this, tr("File opening error"),
-        tr("AlphaPlot currently does not support Origin import. If you are "
-           "interested in reviving and maintaining an Origin import filter, "
-           "contact the developers.")
-            .arg(fn));
-    return;
-  }
-#endif
-  else {
-    QTextStream t(file);
-    t.setEncoding(QTextStream::UnicodeUTF8);
+  QTextStream t(file);
+  t.setEncoding(QTextStream::UnicodeUTF8);
 
-    QString s = t.readLine();
-    lst = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
-    QString version = lst[1];
-    lst = version.split(".", QString::SkipEmptyParts);
-    if (fn.endsWith(".qti", Qt::CaseInsensitive) ||
-        fn.endsWith(".qti.gz", Qt::CaseInsensitive))
-      d_file_version =
-          100 * (lst[0]).toInt() + 10 * (lst[1]).toInt() + (lst[2]).toInt();
-    else
-      d_file_version =
-          ((lst[0]).toInt() << 16) + ((lst[1]).toInt() << 8) + (lst[2]).toInt();
+  QString s = t.readLine();
+  lst = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
+  QString version = lst[1];
+  lst = version.split(".", QString::SkipEmptyParts);
+  if (fn.endsWith(".qti", Qt::CaseInsensitive) ||
+      fn.endsWith(".qti.gz", Qt::CaseInsensitive))
+    d_file_version =
+        100 * (lst[0]).toInt() + 10 * (lst[1]).toInt() + (lst[2]).toInt();
+  else
+    d_file_version =
+        ((lst[0]).toInt() << 16) + ((lst[1]).toInt() << 8) + (lst[2]).toInt();
 
-    t.readLine();
-    if (d_file_version < 73) t.readLine();
+  t.readLine();
+  if (d_file_version < 73) t.readLine();
 
-    // process tables and matrix information
-    while (!t.atEnd()) {
-      s = t.readLine(4096);  // workaround for safely reading very big lines
-      lst.clear();
-      if (s.left(8) == "<folder>") {
-        lst = s.split("\t");
-        Folder *f = new Folder(current_folder, lst[1]);
-        f->setBirthDate(lst[2]);
-        f->setModificationDate(lst[3]);
-        if (lst.count() > 4)
-          if (lst[4] == "current") cf = f;
+  // process tables and matrix information
+  while (!t.atEnd()) {
+    s = t.readLine(4096);  // workaround for safely reading very big lines
+    lst.clear();
+    if (s.left(8) == "<folder>") {
+      lst = s.split("\t");
+      Folder *f = new Folder(current_folder, lst[1]);
+      f->setBirthDate(lst[2]);
+      f->setModificationDate(lst[3]);
+      if (lst.count() > 4)
+        if (lst[4] == "current") cf = f;
 
-        FolderListItem *fli =
-            new FolderListItem(current_folder->folderListItem(), f);
-        fli->setText(0, lst[1]);
-        f->setFolderListItem(fli);
+      FolderListItem *fli =
+          new FolderListItem(current_folder->folderListItem(), f);
+      fli->setText(0, lst[1]);
+      f->setFolderListItem(fli);
 
-        current_folder = f;
-      } else if (s == "<table>") {
-        openTable(this, t);
-      } else if (s == "<matrix>") {
-        while (s != "</matrix>") {
-          s = t.readLine();
-          lst << s;
-        }
-        lst.pop_back();
-        openMatrix(this, lst);
-      } else if (s == "<note>") {
-        for (int i = 0; i < 3; i++) {
-          s = t.readLine();
-          lst << s;
-        }
-        Note *m = openNote(this, lst);
-        QStringList cont;
-        while (s != "</note>") {
-          s = t.readLine();
-          cont << s;
-        }
-        cont.pop_back();
-        m->restore(cont);
-      } else if (s == "</folder>") {
-        Folder *parent = (Folder *)current_folder->parent();
-        if (!parent)
-          current_folder = projectFolder();
-        else
-          current_folder = parent;
-      }
-    }
-
-    // process the rest
-    t.seek(0);
-
-    MultiLayer *plot = 0;
-    while (!t.atEnd()) {
-      s = t.readLine(4096);  // workaround for safely reading very big lines
-      if (s.left(8) == "<folder>") {
-        lst = s.split("\t");
-        current_folder = current_folder->findSubfolder(lst[1]);
-      } else if (s == "<multiLayer>") {  // process multilayers information
+      current_folder = f;
+    } else if (s == "<table>") {
+      openTable(this, t);
+    } else if (s == "<matrix>") {
+      while (s != "</matrix>") {
         s = t.readLine();
-        QStringList graph = s.split("\t");
-        QString caption = graph[0];
-        plot = multilayerPlot(caption);
-        plot->setCols(graph[1].toInt());
-        plot->setRows(graph[2].toInt());
-        setListViewDate(caption, graph[3]);
-        plot->setBirthDate(graph[3]);
-        plot->blockSignals(true);
-
-        restoreWindowGeometry(this, plot, t.readLine());
-
-        if (d_file_version > 71) {
-          QStringList lst = t.readLine().split("\t");
-          plot->setWindowLabel(lst[1]);
-          setListViewLabel(plot->name(), lst[1]);
-          plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
-        }
-
-        if (d_file_version > 83) {
-          QStringList lst = t.readLine().split("\t", QString::SkipEmptyParts);
-          plot->setMargins(lst[1].toInt(), lst[2].toInt(), lst[3].toInt(),
-                           lst[4].toInt());
-          lst = t.readLine().split("\t", QString::SkipEmptyParts);
-          plot->setSpacing(lst[1].toInt(), lst[2].toInt());
-          lst = t.readLine().split("\t", QString::SkipEmptyParts);
-          plot->setLayerCanvasSize(lst[1].toInt(), lst[2].toInt());
-          lst = t.readLine().split("\t", QString::SkipEmptyParts);
-          plot->setAlignement(lst[1].toInt(), lst[2].toInt());
-        }
-
-        while (s != "</multiLayer>") {  // open layers
-          s = t.readLine();
-          if (s.left(7) == "<graph>") {
-            lst.clear();
-            while (s != "</graph>") {
-              s = t.readLine();
-              lst << s;
-            }
-            openGraph(this, plot, lst);
-          }
-        }
-        plot->blockSignals(false);
-      } else if (s == "<SurfacePlot>") {  // process 3D plots information
-        lst.clear();
-        while (s != "</SurfacePlot>") {
-          s = t.readLine();
-          lst << s;
-        }
-        openSurfacePlot(this, lst);
-      } else if (s == "</folder>") {
-        Folder *parent = (Folder *)current_folder->parent();
-        if (!parent)
-          current_folder = projectFolder();
-        else
-          current_folder = parent;
+        lst << s;
       }
+      lst.pop_back();
+      openMatrix(this, lst);
+    } else if (s == "<note>") {
+      for (int i = 0; i < 3; i++) {
+        s = t.readLine();
+        lst << s;
+      }
+      Note *m = openNote(this, lst);
+      QStringList cont;
+      while (s != "</note>") {
+        s = t.readLine();
+        cont << s;
+      }
+      cont.pop_back();
+      m->restore(cont);
+    } else if (s == "</folder>") {
+      Folder *parent = (Folder *)current_folder->parent();
+      if (!parent)
+        current_folder = projectFolder();
+      else
+        current_folder = parent;
     }
+  }
+
+  // process the rest
+  t.seek(0);
+
+  MultiLayer *plot = 0;
+  while (!t.atEnd()) {
+    s = t.readLine(4096);  // workaround for safely reading very big lines
+    if (s.left(8) == "<folder>") {
+      lst = s.split("\t");
+      current_folder = current_folder->findSubfolder(lst[1]);
+    } else if (s == "<multiLayer>") {  // process multilayers information
+      s = t.readLine();
+      QStringList graph = s.split("\t");
+      QString caption = graph[0];
+      plot = multilayerPlot(caption);
+      plot->setCols(graph[1].toInt());
+      plot->setRows(graph[2].toInt());
+      setListViewDate(caption, graph[3]);
+      plot->setBirthDate(graph[3]);
+      plot->blockSignals(true);
+
+      restoreWindowGeometry(this, plot, t.readLine());
+
+      if (d_file_version > 71) {
+        QStringList lst = t.readLine().split("\t");
+        plot->setWindowLabel(lst[1]);
+        setListViewLabel(plot->name(), lst[1]);
+        plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
+      }
+
+      if (d_file_version > 83) {
+        QStringList lst = t.readLine().split("\t", QString::SkipEmptyParts);
+        plot->setMargins(lst[1].toInt(), lst[2].toInt(), lst[3].toInt(),
+                         lst[4].toInt());
+        lst = t.readLine().split("\t", QString::SkipEmptyParts);
+        plot->setSpacing(lst[1].toInt(), lst[2].toInt());
+        lst = t.readLine().split("\t", QString::SkipEmptyParts);
+        plot->setLayerCanvasSize(lst[1].toInt(), lst[2].toInt());
+        lst = t.readLine().split("\t", QString::SkipEmptyParts);
+        plot->setAlignement(lst[1].toInt(), lst[2].toInt());
+      }
+
+      while (s != "</multiLayer>") {  // open layers
+        s = t.readLine();
+        if (s.left(7) == "<graph>") {
+          lst.clear();
+          while (s != "</graph>") {
+            s = t.readLine();
+            lst << s;
+          }
+          openGraph(this, plot, lst);
+        }
+      }
+      plot->blockSignals(false);
+    } else if (s == "<SurfacePlot>") {  // process 3D plots information
+      lst.clear();
+      while (s != "</SurfacePlot>") {
+        s = t.readLine();
+        lst << s;
+      }
+      openSurfacePlot(this, lst);
+    } else if (s == "</folder>") {
+      Folder *parent = (Folder *)current_folder->parent();
+      if (!parent)
+        current_folder = projectFolder();
+      else
+        current_folder = parent;
+    }
+
     file->close();
     delete file;
   }
@@ -12896,7 +12805,7 @@ void ApplicationWindow::receivedVersionFile(bool error) {
                     .arg(version_line),
                 QMessageBox::Yes | QMessageBox::Default,
                 QMessageBox::No | QMessageBox::Escape) == QMessageBox::Yes)
-          QDesktopServices::openUrl(QUrl(DOWNLOAD_URI));
+          QDesktopServices::openUrl(QUrl(AlphaPlot::download_Uri));
       } else {
         QMessageBox::information(this, versionString(),
                                  tr("No updates available. You are already "
@@ -12910,7 +12819,6 @@ void ApplicationWindow::receivedVersionFile(bool error) {
     autoSearchUpdatesRequest = false;
   }
 }
-
 #endif  // defined SEARCH_FOR_UPDATES
 
 /*!

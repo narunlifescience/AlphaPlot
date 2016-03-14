@@ -124,6 +124,7 @@ void TableView::init() {
   d_control_tabs = new QWidget();
   ui.setupUi(d_control_tabs);
   d_main_layout->addWidget(d_control_tabs);
+  d_control_tabs->setHidden(true);
 
   d_delegate = new TableItemDelegate(d_view_widget);
   d_view_widget->setItemDelegate(d_delegate);

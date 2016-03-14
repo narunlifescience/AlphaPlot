@@ -225,7 +225,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/TeXTableSettings.cpp \
             src/TeXTableSettingsWidget.cpp \
             src/TeXTableExportDialog.cpp \
-            src/version.cpp \
             src/scripting/widgets/Console.cpp \
             src/scripting/widgets/ConsoleWidget.cpp \
             src/widgets/aSettingsListView.cpp \
@@ -341,11 +340,3 @@ SOURCES     += src/future/core/AbstractAspect.cpp \
 ###############################################################
 
 SOURCES     += ../3rdparty/minigzip/minigzip.c
-
-###############################################################
-#### Origin OPJ import via liborigin2
-###############################################################
-liborigin {
-  HEADERS   += src/importOPJ.h
-  SOURCES   += src/importOPJ.cpp
-}

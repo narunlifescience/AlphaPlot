@@ -30,11 +30,6 @@ python {
   }
 }
 
-liborigin {
-  LIBS += ../3rdparty/liborigin/liborigin.a
-  POST_TARGETDEPS += ../3rdparty/liborigin/liborigin.a
-}
-
 QT+=testlib
 
 # Input

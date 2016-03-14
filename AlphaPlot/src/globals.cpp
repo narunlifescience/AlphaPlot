@@ -36,14 +36,22 @@
 #include <QtDebug>
 #include "ui_AlphaPlotAbout.h"
 
-//  Don't forget to change the Doxyfile, the splash screen and the Windows
-//  installer when changing these!
-
-const char* AlphaPlot::extra_version = "";
-
+const int AlphaPlot::AlphaPlot_versionNo = 00001;
+const char* AlphaPlot::AlphaPlot_version = "0.01A";
+const char* AlphaPlot::extra_version = "-alpha";
+const char* AlphaPlot::release_date = "March 10, 2016";
+const char* AlphaPlot::homepage_Uri = "http://AlphaPlot.sourceforge.net";
+const char* AlphaPlot::manual_Uri =
+    "http://sourceforge.net/projects/AlphaPlot/files/AlphaPlot%20Documentation/"
+    "0.1/";
+const char* AlphaPlot::forum_Uri =
+    "http://sourceforge.net/forum/?group_id=199120";
+const char* AlphaPlot::bugreport_Uri =
+    "http://sourceforge.net/tracker/?group_id=199120&atid=968214";
+const char* AlphaPlot::download_Uri =
+    "http://sourceforge.net/projects/AlphaPlot/files/AlphaPlot/";
 const char* AlphaPlot::copyright_string =
-    "\
-=== Credits ===\n\
+    "=== Credits ===\n\
 \n\
 --- Developers ---\n\
 \n\
@@ -100,11 +108,6 @@ Qwt (http://qwt.sourceforge.net/#credits),\n\
 Qwtplot3D (http://qwtplot3d.sourceforge.net/),\n\
 muParser (http://muparser.sourceforge.net/),\n\
 Python (http://www.python.org/),\n\
-liborigin (http://sourceforge.net/projects/liborigin/),\n\
-Vim (http://www.vim.org/thanks.php/),\n\
-webgen (http://webgen.rubyforge.org/),\n\
-Doxygen (http://www.doxygen.org/),\n\
-Subversion (http://subversion.tigris.org/),\n\
 GSL (http://www.gnu.org/software/gsl/)\n\
 \n\
 ... and many more we just forgot to mention.\n";

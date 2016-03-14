@@ -170,15 +170,6 @@ DEFINES         += SCRIPTING_DIALOG
   DEFINES       += DOWNLOAD_LINKS
 }
 
-### support for Origin OPJ import using liborigin2
-mxe|osx_dist|aegis {
-  CONFIG        += liborigin
-}
-
-liborigin {
-  DEFINES       += ORIGIN_IMPORT
-}
-
 ### python support
 osx_dist|aegis {
   #CONFIG        += python
@@ -187,8 +178,6 @@ osx_dist|aegis {
 ################################################################################
 ### Dependencies                                                               #
 ################################################################################
-
-# code for maintained branch of liborigin. 
 
 contains(PRESET, default_installation) {
   ### Link statically against Qwt and Qwtplot3D (in order to make sure they

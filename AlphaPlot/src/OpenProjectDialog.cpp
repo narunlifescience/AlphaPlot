@@ -44,12 +44,6 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended,
           << tr("Compressed AlphaPlot project") + " (*.sciprj.gz)"
           << tr("QtiPlot project") + " (*.qti)"
           << tr("Compressed QtiPlot project") + " (*.qti.gz)"
-#ifdef ORIGIN_IMPORT
-          << tr("Origin project") + " (*.opj *.OPJ)"
-          << tr("Origin matrix") + " (*.ogm *.OGM)"
-          << tr("Origin worksheet") + " (*.ogw *.OGW)"
-          << tr("Origin graph") + " (*.ogg *.OGG)"
-#endif
           << tr("Backup files") + " (*.sciprj~)"
           //<< tr("Python Source") + " (*.py *.PY)"
           << tr("All files") + " (*)";

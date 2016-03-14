@@ -13,9 +13,6 @@ include(../config.pri)
 include(basic.pri)
 python {include( python.pri )}
 
-liborigin {
-  INCLUDEPATH += ../3rdparty/liborigin
-}
 
 CONFIG        += qt warn_on exceptions opengl thread zlib
 
@@ -50,11 +47,6 @@ INSTALLS        += translationfiles
 
 ### icon file (for Windows installer)
 win32:INSTALLS  += win_icon
-
-liborigin {
-  LIBS += ../3rdparty/liborigin/liborigin.a
-  POST_TARGETDEPS += ../3rdparty/liborigin/liborigin.a
-}
 
 ########### Future code backported from the aspect framework ##################
 DEFINES += LEGACY_CODE_0_2_x
