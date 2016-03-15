@@ -101,7 +101,7 @@ unix {
   mime_package.path   = "$$INSTALLBASE/share/mime/packages"
 
   #deprecated
-  mime_link.files     = ../data/x-sciprj.desktop
+  mime_link.files     = ../data/x-aproj.desktop
   mime_link.path      = "$$INSTALLBASE/share/mimelnk/application"
 
   contains(INSTALLS, icons) {

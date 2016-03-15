@@ -118,6 +118,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/ui/GeneralAppreanceSettings.h \
             src/ui/SettingsPage.h \
             src/ui/SettingsDialog.h \
+            src/About.h \
 
 ###################### SOURCES ##############################################
 
@@ -232,14 +233,15 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ui/GeneralAppreanceSettings.cpp \
             src/ui/SettingsPage.cpp \
             src/ui/SettingsDialog.cpp \
+            src/About.cpp \
             src/main.cpp
 
 ###################### FORMS ##############################################
-FORMS        += src/AlphaPlotAbout.ui \
-                src/scripting/widgets/ConsoleWidget.ui \
+FORMS        += src/scripting/widgets/ConsoleWidget.ui \
                 src/ui/GeneralApplicationSettings.ui \
                 src/ui/GeneralAppreanceSettings.ui \
                 src/ui/SettingsDialog.ui \
+                src/About.ui \
 
 ########### Future code backported from the aspect framework ##################
 DEFINES      += LEGACY_CODE_0_2_x

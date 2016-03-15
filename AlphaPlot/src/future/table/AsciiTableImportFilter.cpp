@@ -43,6 +43,7 @@ using namespace std;
 QStringList AsciiTableImportFilter::fileExtensions() const {
   return QStringList() << "txt"
                        << "csv"
+                       << "tsv"
                        << "dat";
 }
 

@@ -40,11 +40,9 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended,
   setCaption(tr("Open Project"));
   setFileMode(ExistingFile);
   QStringList filters;
-  filters << tr("AlphaPlot project") + " (*.sciprj)"
-          << tr("Compressed AlphaPlot project") + " (*.sciprj.gz)"
-          << tr("QtiPlot project") + " (*.qti)"
-          << tr("Compressed QtiPlot project") + " (*.qti.gz)"
-          << tr("Backup files") + " (*.sciprj~)"
+  filters << tr("AlphaPlot project") + " (*.aproj)"
+          << tr("Compressed AlphaPlot project") + " (*.aproj.gz)"
+          << tr("Backup files") + " (*.aproj~ *.aproj.gz~)"
           //<< tr("Python Source") + " (*.py *.PY)"
           << tr("All files") + " (*)";
   setFilters(filters);

@@ -86,34 +86,30 @@ int main(int argc, char** argv) {
   QStringList args = app.arguments();
   args.removeFirst();  // remove application name
 
-  if ((args.count() == 1) && (args[0] == "-a" || args[0] == "--about")) {
-    ApplicationWindow::about();
-    exit(0);
-  } else {
-    ApplicationWindow* mw = new ApplicationWindow();
+  ApplicationWindow* mw = new ApplicationWindow();
 
-    // Show splashscreen
-    QPixmap pixmap(":splash/splash.png");
-    QSplashScreen* splash = new QSplashScreen(pixmap);
-    splash->show();
+  // Show splashscreen
+  QPixmap pixmap(":splash/splash.png");
+  QSplashScreen* splash = new QSplashScreen(pixmap);
+  splash->show();
 
-    // Process more events here before starting app.
-    mw->applyUserSettings();
-    mw->newTable();
-    mw->savedProject();
+  // Process more events here before starting app.
+  mw->applyUserSettings();
+  mw->newTable();
+  mw->savedProject();
 
 #ifdef SEARCH_FOR_UPDATES
-    if (mw->autoSearchUpdates) {
-      mw->autoSearchUpdatesRequest = true;
-      mw->searchForUpdates();
-    }
-#endif
-    mw->parseCommandLineArguments(args);
-
-    // Close splashscreen after 1 sec & show mainwindow
-    QTimer::singleShot(3000, splash, SLOT(close()));
-    QTimer::singleShot(3000, mw, SLOT(activateWindow()));
+  if (mw->autoSearchUpdates) {
+    mw->autoSearchUpdatesRequest = true;
+    mw->searchForUpdates();
   }
+#endif
+  mw->parseCommandLineArguments(args);
+
+  // Close splashscreen after 1 sec & show mainwindow
+  QTimer::singleShot(3000, splash, SLOT(close()));
+  QTimer::singleShot(3000, mw, SLOT(activateWindow()));
+  
   app.connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
   return app.exec();
 }

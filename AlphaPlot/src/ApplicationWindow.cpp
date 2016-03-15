@@ -29,8 +29,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "globals.h"
 #include "ApplicationWindow.h"
+#include "globals.h"
+#include "About.h"
 #include "CurvesDialog.h"
 #include "PlotDialog.h"
 #include "AxesDialog.h"
@@ -209,6 +210,7 @@ ApplicationWindow::ApplicationWindow()
   IconLoader::lumen_ = IconLoader::isLight(palette().color(QPalette::Window));
 
   setAttribute(Qt::WA_DeleteOnClose);
+  setWindowIcon(QIcon(":/appicon-16"));
   setWindowTitle("AlphaPlot - " + tr("untitled"));
 
   initFonts();
@@ -3301,16 +3303,9 @@ void ApplicationWindow::open() {
         }
       }
 
-      if (fn.endsWith(".sciprj", Qt::CaseInsensitive) ||
-          fn.endsWith(".sciprj~", Qt::CaseInsensitive) ||
-          fn.endsWith(".qti", Qt::CaseInsensitive) ||
-          fn.endsWith(".qti~", Qt::CaseInsensitive) ||
-          fn.endsWith(".sciprj.gz", Qt::CaseInsensitive) ||
-          fn.endsWith(".qti.gz", Qt::CaseInsensitive) ||
-          fn.endsWith(".opj", Qt::CaseInsensitive) ||
-          fn.endsWith(".ogm", Qt::CaseInsensitive) ||
-          fn.endsWith(".ogw", Qt::CaseInsensitive) ||
-          fn.endsWith(".ogg", Qt::CaseInsensitive)) {
+      if (fn.endsWith(".aproj", Qt::CaseInsensitive) ||
+          fn.endsWith(".aproj~", Qt::CaseInsensitive) ||
+          fn.endsWith(".aproj.gz", Qt::CaseInsensitive)) {
         if (!fi.exists()) {
           QMessageBox::critical(
               this, tr("File opening error"),
@@ -3323,14 +3318,9 @@ void ApplicationWindow::open() {
         ApplicationWindow *a = open(fn);
         if (a) {
           a->workingDir = workingDir;
-          if (fn.endsWith(".sciprj", Qt::CaseInsensitive) ||
-              fn.endsWith(".sciprj~", Qt::CaseInsensitive) ||
-              fn.endsWith(".sciprj.gz", Qt::CaseInsensitive) ||
-              fn.endsWith(".qti.gz", Qt::CaseInsensitive) ||
-              fn.endsWith(".qti", Qt::CaseInsensitive) ||
-              fn.endsWith(".qti~", Qt::CaseInsensitive) ||
-              fn.endsWith(".opj", Qt::CaseInsensitive) ||
-              fn.endsWith(".ogg", Qt::CaseInsensitive))
+          if (fn.endsWith(".aproj", Qt::CaseInsensitive) ||
+              fn.endsWith(".aproj~", Qt::CaseInsensitive) ||
+              fn.endsWith(".aproj.gz", Qt::CaseInsensitive))
             this->close();
         }
       } else {
@@ -3350,14 +3340,10 @@ void ApplicationWindow::open() {
 ApplicationWindow *ApplicationWindow::open(const QString &fn) {
   if (fn.endsWith(".py", Qt::CaseInsensitive))
     return loadScript(fn);
-  else if (fn.endsWith(".sciprj", Qt::CaseInsensitive) ||
-           fn.endsWith(".sciprj.gz", Qt::CaseInsensitive) ||
-           fn.endsWith(".qti", Qt::CaseInsensitive) ||
-           fn.endsWith(".qti.gz", Qt::CaseInsensitive) ||
-           fn.endsWith(".sciprj~", Qt::CaseInsensitive) ||
-           fn.endsWith(".sciprj.gz~", Qt::CaseInsensitive) ||
-           fn.endsWith(".qti~", Qt::CaseInsensitive) ||
-           fn.endsWith(".qti.gz~", Qt::CaseInsensitive))
+  else if (fn.endsWith(".aproj", Qt::CaseInsensitive) ||
+           fn.endsWith(".aproj.gz", Qt::CaseInsensitive) ||
+           fn.endsWith(".aproj~", Qt::CaseInsensitive) ||
+           fn.endsWith(".aproj.gz~", Qt::CaseInsensitive))
     return openProject(fn);
   else
     return plotFile(fn);
@@ -3396,14 +3382,9 @@ void ApplicationWindow::openRecentProject() {
   if (!fn.isEmpty()) {
     saveSettings();  // the recent projects must be saved
     ApplicationWindow *a = open(fn);
-    if (a && (fn.endsWith(".sciprj", Qt::CaseInsensitive) ||
-              fn.endsWith(".sciprj~", Qt::CaseInsensitive) ||
-              fn.endsWith(".sciprj.gz", Qt::CaseInsensitive) ||
-              fn.endsWith(".qti.gz", Qt::CaseInsensitive) ||
-              fn.endsWith(".qti", Qt::CaseInsensitive) ||
-              fn.endsWith(".qti~", Qt::CaseInsensitive) ||
-              fn.endsWith(".opj", Qt::CaseInsensitive) ||
-              fn.endsWith(".ogg", Qt::CaseInsensitive)))
+    if (a && (fn.endsWith(".aproj", Qt::CaseInsensitive) ||
+              fn.endsWith(".aproj~", Qt::CaseInsensitive) ||
+              fn.endsWith(".aproj.gz", Qt::CaseInsensitive)))
       this->close();
   }
 }
@@ -4877,8 +4858,8 @@ bool ApplicationWindow::saveProject() {
 }
 
 void ApplicationWindow::saveProjectAs() {
-  QString filter = tr("AlphaPlot project") + " (*.sciprj);;";
-  filter += tr("Compressed AlphaPlot project") + " (*.sciprj.gz)";
+  QString filter = tr("AlphaPlot project") + " (*.aproj);;";
+  filter += tr("Compressed AlphaPlot project") + " (*.aproj.gz)";
 
   QString selectedFilter;
   QString fn = QFileDialog::getSaveFileName(
@@ -4887,8 +4868,8 @@ void ApplicationWindow::saveProjectAs() {
     QFileInfo fi(fn);
     workingDir = fi.dirPath(true);
     QString baseName = fi.fileName();
-    if (!baseName.endsWith(".sciprj") && !baseName.endsWith(".sciprj.gz")) {
-      fn.append(".sciprj");
+    if (!baseName.endsWith(".aproj") && !baseName.endsWith(".aproj.gz")) {
+      fn.append(".aproj");
       if (selectedFilter.contains(".gz")) fn.append(".gz");
     }
     projectname = fn;
@@ -7121,7 +7102,10 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
   emit modified();
 }
 
-void ApplicationWindow::about() { AlphaPlot::about(); }
+void ApplicationWindow::about() {
+  About about;
+  about.exec();
+}
 
 void ApplicationWindow::windowsMenuAboutToShow() {
   QList<QWidget *> windows = d_workspace->windowList();
@@ -7281,7 +7265,8 @@ void ApplicationWindow::dropEvent(QDropEvent *event) {
       QFileInfo fileInfo(fileName);
       QString ext = fileInfo.extension().toLower();
 
-      if (ext == "sciprj" || ext == "sciprj") {
+      if (ext == "aproj" || ext == "aproj~" || ext == "aproj.gz" ||
+          ext == "aproj.gz~") {
         open(fileName);
       } else if (ext == "csv" || ext == "dat" || ext == "txt" || ext == "tsv") {
         asciiFiles << fileName;
@@ -11413,17 +11398,12 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
   QString str;
   bool exec = false;
   foreach (str, args) {
-    if ((str == "-a" || str == "--about") ||
-        (str == "-m" || str == "--manual")) {
-      QMessageBox::critical(this, tr("Error"),
-                            tr("<b> %1 </b>: This command line option must be "
-                               "used without other arguments!")
-                                .arg(str));
-    } else if (str == "-v" || str == "--version") {
-      QString s = AlphaPlot::versionString() + AlphaPlot::extraVersion() + "\n";
-      s += QObject::tr("Released") + ": " + AlphaPlot::releaseDateString() +
-           "\n";
-      s += AlphaPlot::copyrightString() + "\n";
+    if (str == "-v" || str == "--version") {
+      QString s = AlphaPlot::versionString() + AlphaPlot::extraVersion() +
+                  "\n" + tr("Released") + ": " +
+                  AlphaPlot::releaseDateString() + "\n" +
+                  tr("Original author") + ": " +
+                  AlphaPlot::originalAuthorString() + "\n";
 
 #ifdef Q_OS_WIN
       hide();
@@ -11434,24 +11414,19 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
 #endif
       exit(0);
     } else if (str == "-h" || str == "--help") {
-      QString s = "\n" + tr("Usage") + ": ";
-      s += "AlphaPlot [" + tr("options") + "] [" + tr("file") + "_" +
-           tr("name") + "]\n\n";
-      s += tr("Valid options are") + ":\n";
-      s += "-a " + tr("or") + " --about: " + tr("show about dialog and exit") +
-           "\n";
+      QString s = "\n" + tr("Usage") + ": " + "AlphaPlot [" + tr("options") +
+                  "] [" + tr("file") + "_" + tr("name") + "]\n\n";
+      s + tr("Valid options are") + ":\n";
       s += "-h " + tr("or") + " --help: " + tr("show command line options") +
            "\n";
       s += "-l=XX " + tr("or") + " --lang=XX: " +
            tr("start AlphaPlot in language") + " XX ('en', 'fr', 'de', ...)\n";
-      s += "-m " + tr("or") + " --manual: " +
-           tr("show AlphaPlot manual in a standalone window") + "\n";
       s += "-v " + tr("or") + " --version: " +
            tr("print AlphaPlot version and release date") + "\n";
       s += "-x " + tr("or") + " --execute: " +
            tr("execute the script file given as argument") + "\n\n";
       s += "'" + tr("file") + "_" + tr("name") + "' " +
-           tr("can be any .sciprj, .sciprj.gz, .qti, qti.gz, .py or ASCII "
+           tr("can be any .aproj, .aproj.gz, .py or ASCII "
               "file") +
            "\n";
 #ifdef Q_OS_WIN
@@ -11661,7 +11636,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
   QFileInfo fi(fn);
   workingDir = fi.dirPath(true);
 
-  if (fn.contains(".sciprj") || fn.contains(".qti")) {
+  if (fn.contains(".aproj")) {
     QFileInfo f(fn);
     if (!f.exists()) {
       QMessageBox::critical(this, tr("File opening error"),
@@ -11967,8 +11942,8 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString &fn) {
 void ApplicationWindow::saveAsProject() { saveFolderAsProject(current_folder); }
 
 void ApplicationWindow::saveFolderAsProject(Folder *f) {
-  QString filter = tr("AlphaPlot project") + " (*.sciprj);;";
-  filter += tr("Compressed AlphaPlot project") + " (*.sciprj.gz)";
+  QString filter = tr("AlphaPlot project") + " (*.aproj);;";
+  filter += tr("Compressed AlphaPlot project") + " (*.aproj.gz)";
 
   QString selectedFilter;
   QString fn = QFileDialog::getSaveFileName(
@@ -11977,8 +11952,8 @@ void ApplicationWindow::saveFolderAsProject(Folder *f) {
     QFileInfo fi(fn);
     workingDir = fi.dirPath(true);
     QString baseName = fi.fileName();
-    if (!baseName.endsWith(".sciprj") && !baseName.endsWith(".sciprj.gz")) {
-      fn.append(".sciprj");
+    if (!baseName.endsWith(".aproj") && !baseName.endsWith(".aproj.gz")) {
+      fn.append(".aproj");
     }
     bool compress = false;
     if (fn.endsWith(".gz")) {

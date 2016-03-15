@@ -80,29 +80,26 @@ class AlphaPlot : public QObject {
   //! Column data type
   enum ColumnDataType { TypeDouble = 1, TypeQString = 2, TypeQDateTime = 3 };
 
-  //! Return the AlphaPlot version number
+  // Return the AlphaPlot version number
   static int version();
 
   static QString enumValueToString(int key, const QString& enum_name);
   static int enumStringToValue(const QString& string, const QString& enum_name);
 
-  //! Return the AlphaPlot version string ("AlphaPlot x.y.z" without extra
-  //! version) used in the project file
+  // Return the AlphaPlot version string ("AlphaPlot x.y.z" without extra
+  // version) used in the project file
   static QString schemaVersion();
   /// the user visible release version string (x.Dy usually)
   static QString versionString();
 
-  //! Return the extra version as a string
+  // Return the extra version as a string
   static QString extraVersion();
 
-  //! Return the copyright string
-  static QString copyrightString();
-
-  //! Return the release date as a string
+  // Return the release date as a string
   static QString releaseDateString();
 
-  //! Show about dialog
-  static void about();
+  // Returns original author
+  static QString originalAuthorString();
 
  private:
   /* 0xMMmmbb means MM.mm.bb with<br>
@@ -111,12 +108,10 @@ class AlphaPlot : public QObject {
    * bb = bugfix version */
   static const int AlphaPlot_versionNo;
   static const char* AlphaPlot_version;
-  //! Extra version information string (like "-alpha", "-beta", "-rc1", etc...)
+  // Extra version information string (like "-alpha", "-beta", "-rc1", etc...)
   static const char* extra_version;
-  //! Release date as a string
+  // Release date as a string
   static const char* release_date;
-  //! Copyright string containing the author names etc.
-  static const char* copyright_string;
 };
 
 #endif  // ALPHA_PLOT_GLOBALS_H

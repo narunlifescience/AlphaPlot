@@ -50,6 +50,7 @@ ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget *parent,
   filters << tr("Text files") + " (*.TXT *.txt)";
   filters << tr("Data files") + " (*.DAT *.dat)";
   filters << tr("Comma Separated Values") + " (*.CSV *.csv)";
+  filters << tr("Tab Separated Values") + " (*.TSV *.tsv)";
   setFilters(filters);
 
   setFileMode(QFileDialog::ExistingFiles);

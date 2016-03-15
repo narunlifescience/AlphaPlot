@@ -484,8 +484,6 @@ Arranges all the visible project windows in a cascade pattern.
   void printWindow();
   //@}
 
-  //! Show about dialog
-  static void about();
   //! Return a version string ("AlphaPlot x.y.z")
   static QString versionString();
   void windowsMenuAboutToShow();
@@ -625,7 +623,7 @@ Arranges all the visible project windows in a cascade pattern.
 
   //! \name Event Handlers
   //@{
-  void closeEvent(QCloseEvent*event);
+  void closeEvent(QCloseEvent* event);
   void timerEvent(QTimerEvent* event);
   void dragEnterEvent(QDragEnterEvent* event);
   void dropEvent(QDropEvent* event);
@@ -946,8 +944,9 @@ Arranges all the visible project windows in a cascade pattern.
   void modified();
 
  private slots:
-  void showHelp();
-  void chooseHelpFolder();
+  void showHelp();          // Open help file index.html
+  void chooseHelpFolder();  // Choose help folder
+  void about();             // Show about dialog
 
   // TODO: a lot of this stuff should be private
  public:
@@ -1091,10 +1090,6 @@ Arranges all the visible project windows in a cascade pattern.
   QString qmPath;
 
  private:
-  const QStringList projectExtension{".sciprj",     ".sciprj~", ".sciprj.gz",
-                                     ".sciprj.gz~", ".qti",     ".qti~",
-                                     ".qti.gz",     ".qti.gz~"};
-
   //! Show a context menu for the widget
   void showWindowMenu(MyWidget* widget);
   //! Create a menu for toggeling the toolbars

@@ -1,9 +1,9 @@
 [Desktop Entry]
 Encoding=UTF-8
 Type=MimeType
-MimeType=application/x-sciprj
+MimeType=application/x-aproj
 Icon=AlphaPlot
-Patterns=*.sciprj;*.sciprj.gz;
+Patterns=*.aproj;*.aproj.gz;
 Comment=AlphaPlot project
 Comment[de]=AlphaPlot-Projekt
 Comment[fr]=Projet AlphaPlot
