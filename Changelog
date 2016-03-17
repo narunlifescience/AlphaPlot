@@ -6,4 +6,6 @@ AlphaPlot changelog
 - Move to c++ 11
 - Use a floating qbutton for table tab
 - Rewrite console widget
+- Fix drag n drop
+- alphaplot project file .aproj (remove scidavis, qtiplot & origin project files)
 - Lots of other bug fixes

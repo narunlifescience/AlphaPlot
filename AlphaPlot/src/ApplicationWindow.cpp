@@ -3279,74 +3279,75 @@ void ApplicationWindow::importASCII(const QStringList &files, int import_mode,
 }
 
 void ApplicationWindow::open() {
-  OpenProjectDialog *open_dialog =
+  OpenProjectDialog *openDialog =
       new OpenProjectDialog(this, d_extended_open_dialog);
-  open_dialog->setDirectory(workingDir);
-  if (open_dialog->exec() != QDialog::Accepted ||
-      open_dialog->selectedFiles().isEmpty())
+  openDialog->setDirectory(workingDir);
+  if (openDialog->exec() != QDialog::Accepted ||
+      openDialog->selectedFiles().isEmpty())
     return;
-  workingDir = open_dialog->directory().path();
+  workingDir = openDialog->directory().path();
 
-  switch (open_dialog->openMode()) {
+  switch (openDialog->openMode()) {
     case OpenProjectDialog::NewProject: {
-      QString fn = open_dialog->selectedFiles()[0];
-      QFileInfo fi(fn);
+      QString fileName = openDialog->selectedFiles()[0];
+      QFileInfo fi(fileName);
 
       if (projectname != "untitled") {
-        QFileInfo fi(projectname);
-        QString pn = fi.absFilePath();
-        if (fn == pn) {
+        QFileInfo fileInf(projectname);
+        QString pn = fileInf.absFilePath();
+        if (fileName == pn) {
           QMessageBox::warning(
               this, tr("File opening error"),
-              tr("The file: <b>%1</b> is the current file!").arg(fn));
+              tr("The file: <b>%1</b> is the current file!").arg(fileName));
           return;
         }
       }
-
-      if (fn.endsWith(".aproj", Qt::CaseInsensitive) ||
-          fn.endsWith(".aproj~", Qt::CaseInsensitive) ||
-          fn.endsWith(".aproj.gz", Qt::CaseInsensitive)) {
+      if (fileName.endsWith(".aproj", Qt::CaseInsensitive) ||
+          fileName.endsWith(".aproj~", Qt::CaseInsensitive) ||
+          fileName.endsWith(".aproj.gz", Qt::CaseInsensitive)) {
         if (!fi.exists()) {
           QMessageBox::critical(
               this, tr("File opening error"),
-              tr("The file: <b>%1</b> doesn't exist!").arg(fn));
+              tr("The file: <b>%1</b> doesn't exist!").arg(fileName));
           return;
         }
 
         saveSettings();  // the recent projects must be saved
 
-        ApplicationWindow *a = open(fn);
-        if (a) {
-          a->workingDir = workingDir;
-          if (fn.endsWith(".aproj", Qt::CaseInsensitive) ||
-              fn.endsWith(".aproj~", Qt::CaseInsensitive) ||
-              fn.endsWith(".aproj.gz", Qt::CaseInsensitive))
+        ApplicationWindow *appWindow = open(fileName);
+        if (appWindow) {
+          appWindow->workingDir = workingDir;
+          if (fileName.endsWith(".aproj", Qt::CaseInsensitive) ||
+              fileName.endsWith(".aproj~", Qt::CaseInsensitive) ||
+              fileName.endsWith(".aproj.gz", Qt::CaseInsensitive))
             this->close();
         }
       } else {
         QMessageBox::critical(
             this, tr("File opening error"),
-            tr("The file <b>%1</b> is not a valid project file.").arg(fn));
+            tr("The file <b>%1</b> is not a valid project file.")
+                .arg(fileName));
         return;
       }
       break;
     }
     case OpenProjectDialog::NewFolder:
-      appendProject(open_dialog->selectedFiles()[0]);
+      appendProject(openDialog->selectedFiles()[0]);
       break;
   }
 }
 
-ApplicationWindow *ApplicationWindow::open(const QString &fn) {
-  if (fn.endsWith(".py", Qt::CaseInsensitive))
-    return loadScript(fn);
-  else if (fn.endsWith(".aproj", Qt::CaseInsensitive) ||
-           fn.endsWith(".aproj.gz", Qt::CaseInsensitive) ||
-           fn.endsWith(".aproj~", Qt::CaseInsensitive) ||
-           fn.endsWith(".aproj.gz~", Qt::CaseInsensitive))
-    return openProject(fn);
-  else
-    return plotFile(fn);
+ApplicationWindow *ApplicationWindow::open(const QString &fileName) {
+  if (fileName.endsWith(".py", Qt::CaseInsensitive)) {
+    return loadScript(fileName);
+  } else if (fileName.endsWith(".aproj", Qt::CaseInsensitive) ||
+             fileName.endsWith(".aproj.gz", Qt::CaseInsensitive) ||
+             fileName.endsWith(".aproj~", Qt::CaseInsensitive) ||
+             fileName.endsWith(".aproj.gz~", Qt::CaseInsensitive)) {
+    return openProject(fileName);
+  } else {
+    return plotFile(fileName);
+  }
 }
 
 void ApplicationWindow::openRecentProject() {
@@ -3436,15 +3437,15 @@ QFile *ApplicationWindow::openCompressedFile(const QString &fn) {
   return file;
 }
 
-ApplicationWindow *ApplicationWindow::openProject(const QString &fn) {
+ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   QFile *file;
 
-  if (fn.endsWith(".gz", Qt::CaseInsensitive) ||
-      fn.endsWith(".gz~", Qt::CaseInsensitive)) {
-    file = openCompressedFile(fn);
+  if (fileName.endsWith(".gz", Qt::CaseInsensitive) ||
+      fileName.endsWith(".gz~", Qt::CaseInsensitive)) {
+    file = openCompressedFile(fileName);
     if (!file) return 0;
   } else {
-    file = new QFile(fn);
+    file = new QFile(fileName);
     file->open(QIODevice::ReadOnly);
   }
 
@@ -3455,15 +3456,15 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fn) {
 
   s = t.readLine();
   list = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
-  if (list.count() < 2 || (list[0] != "AlphaPlot" && list[0] != "QtiPlot")) {
+  if (list.count() < 2 || list[0] != "AlphaPlot") {
     file->close();
     delete file;
-    if (QFile::exists(fn + "~")) {
+    if (QFile::exists(fileName + "~")) {
       int choice = QMessageBox::question(
           this, tr("File opening error"),
           tr("The file <b>%1</b> is corrupted, but there exists a backup "
              "copy.<br>Do you want to open the backup instead?")
-              .arg(fn),
+              .arg(fileName),
           QMessageBox::Yes | QMessageBox::Default,
           QMessageBox::No | QMessageBox::Escape);
       if (choice == QMessageBox::Yes) {
@@ -3475,20 +3476,20 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fn) {
                                     "automatically restored backup copy, you "
                                     "have to explicitly overwrite the "
                                     "original file."));
-        return openProject(fn + "~");
+        return openProject(fileName + "~");
       }
     }
     QMessageBox::critical(
         this, tr("File opening error"),
-        tr("The file <b>%1</b> is not a valid project file.").arg(fn));
+        tr("The file <b>%1</b> is not a valid project file.").arg(fileName));
     return 0;
   }
 
   QStringList vl = list[1].split(".", QString::SkipEmptyParts);
-  if (fn.endsWith(".qti", Qt::CaseInsensitive) ||
-      fn.endsWith(".qti.gz", Qt::CaseInsensitive) ||
-      fn.endsWith(".qti~", Qt::CaseInsensitive) ||
-      fn.endsWith(".qti.gz~", Qt::CaseInsensitive)) {
+  if (fileName.endsWith(".qti", Qt::CaseInsensitive) ||
+      fileName.endsWith(".qti.gz", Qt::CaseInsensitive) ||
+      fileName.endsWith(".qti~", Qt::CaseInsensitive) ||
+      fileName.endsWith(".qti.gz~", Qt::CaseInsensitive)) {
     d_file_version =
         100 * (vl[0]).toInt() + 10 * (vl[1]).toInt() + (vl[2]).toInt();
     if (d_file_version > 90) {
@@ -3497,7 +3498,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fn) {
       QMessageBox::critical(this, tr("File opening error"),
                             tr("AlphaPlot does not support QtiPlot project "
                                "files from versions later than 0.9.0.")
-                                .arg(fn));
+                                .arg(fileName));
       return 0;
     }
   } else
@@ -3506,11 +3507,11 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fn) {
 
   ApplicationWindow *app = new ApplicationWindow();
   app->applyUserSettings();
-  app->projectname = fn;
+  app->projectname = fileName;
   app->d_file_version = d_file_version;
-  app->setWindowTitle(tr("AlphaPlot") + " - " + fn);
+  app->setWindowTitle(tr("AlphaPlot") + " - " + fileName);
 
-  QFileInfo fi(fn);
+  QFileInfo fi(fileName);
   QString baseName = fi.fileName();
 
   if (d_file_version < 73) t.readLine();
@@ -3526,7 +3527,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fn) {
              "Initializing support for this language FAILED; I'm using \"%3\" "
              "instead.\n"
              "Various parts of this file may not be displayed as expected.")
-              .arg(fn)
+              .arg(fileName)
               .arg(list[1])
               .arg(scriptEnv->name()));
 
@@ -3740,8 +3741,8 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fn) {
   app->executeNotes();
   app->savedProject();
 
-  app->recentProjects.remove(fn);
-  app->recentProjects.push_front(fn);
+  app->recentProjects.remove(fileName);
+  app->recentProjects.push_front(fileName);
   app->updateRecentProjectsList();
 
   return app;

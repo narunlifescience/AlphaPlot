@@ -178,13 +178,13 @@ class ApplicationWindow : public QMainWindow, public scripted {
   //! \name Projects and Project Files
   //@{
   void open();
-  ApplicationWindow* open(const QString& fn);
+  ApplicationWindow* open(const QString& fileName);
   //! Returns temporary file ready for reading uncompressed content
   /**
    * Close and delete after you're done with it.
    */
   QFile* openCompressedFile(const QString& fn);
-  ApplicationWindow* openProject(const QString& fn);
+  ApplicationWindow* openProject(const QString& fileName);
   void showHistory();
 
   /**
