@@ -30,6 +30,7 @@
  ***************************************************************************/
 
 #include "ApplicationWindow.h"
+#include "ui_ApplicationWindow.h"
 #include "globals.h"
 #include "About.h"
 #include "CurvesDialog.h"
@@ -168,7 +169,7 @@ void file_compress(const char *file, const char *mode);
 }
 
 ApplicationWindow::ApplicationWindow()
-    : QMainWindow(),
+    : ui_(new Ui_ApplicationWindow),
       scripted(ScriptingLangManager::newEnv(this)),
       logWindow(new QDockWidget(this)),
       explorerWindow(new QDockWidget(this)),
@@ -205,6 +206,7 @@ ApplicationWindow::ApplicationWindow()
       settings_(new SettingsDialog(this))
 
 {
+  ui_->setupUi(this);
   // Icons
   IconLoader::init();
   IconLoader::lumen_ = IconLoader::isLight(palette().color(QPalette::Window));
@@ -397,15 +399,15 @@ void ApplicationWindow::initToolBars() {
   file_tools->setIconSize(QSize(24, 24));
   addToolBar(Qt::TopToolBarArea, file_tools);
 
-  file_tools->addAction(actionNewProject);
+  file_tools->addAction(ui_->actionNewProject);
 
   QMenu *menu_new_aspect = new QMenu(this);
-  menu_new_aspect->addAction(actionNewTable);
-  menu_new_aspect->addAction(actionNewMatrix);
-  menu_new_aspect->addAction(actionNewNote);
-  menu_new_aspect->addAction(actionNewGraph);
-  menu_new_aspect->addAction(actionNewFunctionPlot);
-  menu_new_aspect->addAction(actionNewSurfacePlot);
+  menu_new_aspect->addAction(ui_->actionNewTable);
+  menu_new_aspect->addAction(ui_->actionNewMatrix);
+  menu_new_aspect->addAction(ui_->actionNewNote);
+  menu_new_aspect->addAction(ui_->actionNewGraph);
+  menu_new_aspect->addAction(ui_->actionNewFunctionPlot);
+  menu_new_aspect->addAction(ui_->actionNew3DSurfacePlot);
   QToolButton *btn_new_aspect = new QToolButton(this);
   btn_new_aspect->setMenu(menu_new_aspect);
   btn_new_aspect->setPopupMode(QToolButton::InstantPopup);
@@ -413,15 +415,15 @@ void ApplicationWindow::initToolBars() {
   btn_new_aspect->setToolTip(tr("New Aspect"));
   file_tools->addWidget(btn_new_aspect);
 
-  file_tools->addAction(actionOpen);
-  file_tools->addAction(actionOpenTemplate);
-  file_tools->addAction(actionLoad);
-  file_tools->addAction(actionSaveProject);
-  file_tools->addAction(actionSaveTemplate);
+  file_tools->addAction(ui_->actionOpenAproj);
+  file_tools->addAction(ui_->actionOpenTemplate);
+  file_tools->addAction(ui_->actionImportASCII);
+  file_tools->addAction(ui_->actionSaveProject);
+  file_tools->addAction(ui_->actionSaveAsTemplate);
 
   file_tools->addSeparator();
 
-  file_tools->addAction(actionPrint);
+  file_tools->addAction(ui_->actionPrint);
   file_tools->addAction(actionExportPDF);
 
   file_tools->addSeparator();
@@ -710,10 +712,6 @@ void ApplicationWindow::insertTranslatedStrings() {
   matrix_plot_tools->setLabel(tr("Matrix Plot"));
   graph_3D_tools->setLabel(tr("3D Surface"));
 
-  file->changeItem(newMenuID, tr("&New"));
-  file->changeItem(recentMenuID, tr("&Recent Projects"));
-  file->changeItem(exportID, tr("&Export Graph"));
-
   plot2D->changeItem(specialPlotMenuID, tr("Special Line/Symb&ol"));
   plot2D->changeItem(statMenuID, tr("Statistical &Graphs"));
   plot2D->changeItem(panelMenuID, tr("Pa&nel"));
@@ -730,57 +728,12 @@ void ApplicationWindow::insertTranslatedStrings() {
 }
 
 void ApplicationWindow::initMainMenu() {
-  file = new QMenu(this);
-  file->setFont(appFont);
-
-  type = new QMenu(this);
-  type->setFont(appFont);
-  type->addAction(actionNewProject);
-  type->addAction(actionNewTable);
-  type->addAction(actionNewMatrix);
-  type->addAction(actionNewNote);
-  type->addAction(actionNewGraph);
-  type->addAction(actionNewFunctionPlot);
-  type->addAction(actionNewSurfacePlot);
-
+  /*
   newMenuID = file->insertItem(tr("&New"), type);
-  file->addAction(actionOpen);
-
-  recent = new QMenu(this);
-  recent->setFont(appFont);
-  recentMenuID = file->insertItem(tr("&Recent Projects"), recent);
-
-  file->addSeparator();
-
-  file->addAction(actionLoadImage);
-  file->addAction(actionImportImage);
-
-  file->addSeparator();
-
-  file->addAction(actionSaveProject);
-  file->addAction(actionSaveProjectAs);
-
-  file->addSeparator();
-  file->addAction(actionOpenTemplate);
-  file->addAction(actionSaveTemplate);
-  file->addSeparator();
-
-  exportPlot = new QMenu(this);
-  exportPlot->addAction(actionExportGraph);
-  exportPlot->addAction(actionExportAllGraphs);
+  // recentMenuID = file->insertItem(tr("&Recent Projects"), recent);
+  /*
   exportID = file->insertItem(tr("&Export Graph"), exportPlot);
-
-  file->addAction(actionPrint);
-  file->addAction(actionPrintAllPlots);
-
-  file->addSeparator();
-
-  file->addAction(actionShowExportASCIIDialog);
-  file->addAction(actionLoad);
-
-  file->addSeparator();
-
-  file->addAction(actionCloseAllWindows);
+*/
 
   edit = new QMenu(this);
   edit->setFont(appFont);
@@ -1073,7 +1026,7 @@ void ApplicationWindow::initTableAnalysisMenu() {
 
 void ApplicationWindow::customMenu(QWidget *w) {
   menuBar()->clear();
-  menuBar()->insertItem(tr("&File"), file);
+  menuBar()->insertItem(tr("&File"), ui_->menuFile);
   menuBar()->insertItem(tr("&Edit"), edit);
   menuBar()->insertItem(tr("&View"), view);
   menuBar()->insertItem(tr("Scripting"), scriptingMenu);
@@ -1089,13 +1042,13 @@ void ApplicationWindow::customMenu(QWidget *w) {
   actionNoteEvaluate->setEnabled(false);
 
   if (w) {
-    actionPrintAllPlots->setEnabled(projectHas2DPlots());
-    actionPrint->setEnabled(true);
+    ui_->actionPrintAllPlots->setEnabled(projectHas2DPlots());
+    ui_->actionPrint->setEnabled(true);
     actionCutSelection->setEnabled(true);
     actionCopySelection->setEnabled(true);
     actionPasteSelection->setEnabled(true);
     actionClearSelection->setEnabled(true);
-    actionSaveTemplate->setEnabled(true);
+    ui_->actionSaveAsTemplate->setEnabled(true);
 
     if (w->inherits("MultiLayer")) {
       menuBar()->insertItem(tr("&Graph"), graph);
@@ -1103,9 +1056,9 @@ void ApplicationWindow::customMenu(QWidget *w) {
       menuBar()->insertItem(tr("&Analysis"), calcul);
       menuBar()->insertItem(tr("For&mat"), format);
 
-      file->setItemEnabled(exportID, true);
-      actionShowExportASCIIDialog->setEnabled(false);
-      file->setItemEnabled(closeID, true);
+      ui_->menuFile->setItemEnabled(exportID, true);
+      ui_->actionExportASCII->setEnabled(false);
+      ui_->menuFile->setItemEnabled(closeID, true);
 
       format->clear();
       format->addAction(actionShowPlotDialog);
@@ -1121,10 +1074,10 @@ void ApplicationWindow::customMenu(QWidget *w) {
 
       menuBar()->insertItem(tr("For&mat"), format);
 
-      actionPrint->setEnabled(true);
-      actionSaveTemplate->setEnabled(true);
-      file->setItemEnabled(exportID, true);
-      file->setItemEnabled(closeID, true);
+      ui_->actionPrint->setEnabled(true);
+      ui_->actionSaveAsTemplate->setEnabled(true);
+      ui_->menuFile->setItemEnabled(exportID, true);
+      ui_->menuFile->setItemEnabled(closeID, true);
 
       format->clear();
       format->addAction(actionShowPlotDialog);
@@ -1137,14 +1090,14 @@ void ApplicationWindow::customMenu(QWidget *w) {
       menuBar()->insertItem(tr("&Plot"), plot2D);
       menuBar()->insertItem(tr("&Analysis"), dataMenu);
 
-      actionShowExportASCIIDialog->setEnabled(true);
-      file->setItemEnabled(exportID, false);
-      file->setItemEnabled(closeID, true);
+      ui_->actionExportASCII->setEnabled(true);
+      ui_->menuFile->setItemEnabled(exportID, false);
+      ui_->menuFile->setItemEnabled(closeID, true);
 
       tableMenu->clear();
       static_cast<Table *>(w)->d_future_table->fillProjectMenu(tableMenu);
       tableMenu->addSeparator();
-      tableMenu->addAction(actionShowExportASCIIDialog);
+      tableMenu->addAction(ui_->actionExportASCII);
       tableMenu->addSeparator();
       tableMenu->addAction(actionConvertTable);
       menuBar()->insertItem(tr("&Table"), tableMenu);
@@ -1160,7 +1113,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
       matrixMenu->addAction(actionConvertMatrix);
       menuBar()->insertItem(tr("&Matrix"), matrixMenu);
     } else if (w->inherits("Note")) {
-      actionSaveTemplate->setEnabled(false);
+      ui_->actionSaveAsTemplate->setEnabled(false);
       actionNoteEvaluate->setEnabled(true);
       scriptingMenu->addSeparator();
       scriptingMenu->addAction(actionNoteExecute);
@@ -1184,12 +1137,12 @@ void ApplicationWindow::customMenu(QWidget *w) {
 }
 
 void ApplicationWindow::disableActions() {
-  actionSaveTemplate->setEnabled(false);
-  actionPrintAllPlots->setEnabled(false);
-  actionPrint->setEnabled(false);
-  actionShowExportASCIIDialog->setEnabled(false);
-  file->setItemEnabled(exportID, false);
-  file->setItemEnabled(closeID, false);
+  ui_->actionSaveAsTemplate->setEnabled(false);
+  ui_->actionPrintAllPlots->setEnabled(false);
+  ui_->actionPrint->setEnabled(false);
+  ui_->actionExportASCII->setEnabled(false);
+  ui_->menuFile->setItemEnabled(exportID, false);
+  ui_->menuFile->setItemEnabled(closeID, false);
 
   actionUndo->setEnabled(false);
   actionRedo->setEnabled(false);
@@ -2944,14 +2897,12 @@ void ApplicationWindow::updateAppFonts() {
   windowsMenu->setFont(appFont);
   view->setFont(appFont);
   graph->setFont(appFont);
-  file->setFont(appFont);
+  ui_->menuFile->setFont(appFont);
   format->setFont(appFont);
   calcul->setFont(appFont);
   edit->setFont(appFont);
   dataMenu->setFont(appFont);
-  recent->setFont(appFont);
   help->setFont(appFont);
-  type->setFont(appFont);
   plot2D->setFont(appFont);
   plot3D->setFont(appFont);
   plot3DMenu->setFont(appFont);
@@ -2964,7 +2915,6 @@ void ApplicationWindow::updateAppFonts() {
   decay->setFont(appFont);
   plotDataMenu->setFont(appFont);
   tableMenu->setFont(appFont);
-  exportPlot->setFont(appFont);
   translateMenu->setFont(appFont);
   multiPeakMenu->setFont(appFont);
 }
@@ -7231,13 +7181,13 @@ void ApplicationWindow::newProject() {
 }
 
 void ApplicationWindow::savedProject() {
-  actionSaveProject->setEnabled(false);
+  ui_->actionSaveProject->setEnabled(false);
   saved = true;
   d_project->undoStack()->clear();
 }
 
 void ApplicationWindow::modifiedProject() {
-  actionSaveProject->setEnabled(true);
+  ui_->actionSaveProject->setEnabled(true);
   saved = false;
 }
 
@@ -7384,12 +7334,12 @@ void ApplicationWindow::showListViewPopupMenu(const QPoint &p) {
   QMenu cm(this);
   QMenu window(this);
 
-  window.addAction(actionNewTable);
-  window.addAction(actionNewMatrix);
-  window.addAction(actionNewNote);
-  window.addAction(actionNewGraph);
-  window.addAction(actionNewFunctionPlot);
-  window.addAction(actionNewSurfacePlot);
+  window.addAction(ui_->actionNewTable);
+  window.addAction(ui_->actionNewMatrix);
+  window.addAction(ui_->actionNewNote);
+  window.addAction(ui_->actionNewGraph);
+  window.addAction(ui_->actionNewFunctionPlot);
+  window.addAction(ui_->actionNew3DSurfacePlot);
   cm.insertItem(tr("New &Window"), &window);
 
   cm.insertItem(IconLoader::load("folder-explorer", IconLoader::LightDark),
@@ -7755,7 +7705,7 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark),
                   tr("&Copy Page"), g, SLOT(copyAllLayers()));
     cm.insertItem(tr("E&xport Page"), this, SLOT(exportGraph()));
-    cm.addAction(actionPrint);
+    cm.addAction(ui_->actionPrint);
     cm.addSeparator();
     cm.addAction(actionCloseWindow);
   } else if (w->inherits("Graph3D")) {
@@ -7783,7 +7733,7 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.addSeparator();
     cm.insertItem(tr("&Copy Graph"), g, SLOT(copyImage()));
     cm.insertItem(tr("&Export"), this, SLOT(exportGraph()));
-    cm.addAction(actionPrint);
+    cm.addAction(ui_->actionPrint);
     cm.addSeparator();
     cm.addAction(actionCloseWindow);
   } else if (w->inherits("Matrix")) {
@@ -9852,87 +9802,70 @@ void ApplicationWindow::setPlot3DOptions() {
 }
 
 void ApplicationWindow::createActions() {
-  actionNewProject =
-      new QAction(IconLoader::load("edit-new", IconLoader::LightDark),
-                  tr("New &Project"), this);
-  actionNewProject->setShortcut(tr("Ctrl+N"));
-  connect(actionNewProject, SIGNAL(activated()), this, SLOT(newProject()));
+  ui_->actionNewProject->setIcon(
+      IconLoader::load("edit-new", IconLoader::LightDark));
+  connect(ui_->actionNewProject, SIGNAL(activated()), this, SLOT(newProject()));
 
-  actionNewGraph =
-      new QAction(QIcon(QPixmap(":/new_graph.xpm")), tr("New &Graph"), this);
-  actionNewGraph->setShortcut(tr("Ctrl+G"));
-  connect(actionNewGraph, SIGNAL(activated()), this, SLOT(newGraph()));
+  ui_->actionNewGraph->setIcon(QIcon(QPixmap(":/new_graph.xpm")));
+  connect(ui_->actionNewGraph, SIGNAL(activated()), this, SLOT(newGraph()));
 
-  actionNewNote = new QAction(QIcon(QPixmap(":/new_note.xpm")),
-                              tr("New &Note / Script"), this);
-  connect(actionNewNote, SIGNAL(activated()), this, SLOT(newNote()));
+  ui_->actionNewNote->setIcon(QIcon(QPixmap(":/new_note.xpm")));
+  connect(ui_->actionNewNote, SIGNAL(activated()), this, SLOT(newNote()));
 
-  actionNewTable =
-      new QAction(QIcon(QPixmap(":/table.xpm")), tr("New &Table"), this);
-  actionNewTable->setShortcut(tr("Ctrl+T"));
-  connect(actionNewTable, SIGNAL(activated()), this, SLOT(newTable()));
+  ui_->actionNewTable->setIcon(QIcon(QPixmap(":/table.xpm")));
 
-  actionNewMatrix =
-      new QAction(QIcon(QPixmap(":/new_matrix.xpm")), tr("New &Matrix"), this);
-  actionNewMatrix->setShortcut(tr("Ctrl+M"));
-  connect(actionNewMatrix, SIGNAL(activated()), this, SLOT(newMatrix()));
+  connect(ui_->actionNewTable, SIGNAL(activated()), this, SLOT(newTable()));
 
-  actionNewFunctionPlot =
-      new QAction(QIcon(QPixmap(":/newF.xpm")), tr("New &Function Plot"), this);
-  actionNewFunctionPlot->setShortcut(tr("Ctrl+F"));
-  connect(actionNewFunctionPlot, SIGNAL(activated()), this,
+  ui_->actionNewMatrix->setIcon(QIcon(QPixmap(":/new_matrix.xpm")));
+  connect(ui_->actionNewMatrix, SIGNAL(activated()), this, SLOT(newMatrix()));
+
+  ui_->actionNewFunctionPlot->setIcon(QIcon(QPixmap(":/newF.xpm")));
+  connect(ui_->actionNewFunctionPlot, SIGNAL(activated()), this,
           SLOT(functionDialog()));
 
-  actionNewSurfacePlot = new QAction(QIcon(QPixmap(":/newFxy.xpm")),
-                                     tr("New 3D &Surface Plot"), this);
-  actionNewSurfacePlot->setShortcut(tr("Ctrl+ALT+Z"));
-  connect(actionNewSurfacePlot, SIGNAL(activated()), this,
+  ui_->actionNew3DSurfacePlot->setIcon(QIcon(QPixmap(":/newFxy.xpm")));
+  connect(ui_->actionNew3DSurfacePlot, SIGNAL(activated()), this,
           SLOT(newSurfacePlot()));
 
   // FIXME: "..." should be added before translating, but this would break
   // translations
-  actionOpen =
-      new QAction(IconLoader::load("project-open", IconLoader::LightDark),
-                  tr("&Open") + "...", this);
-  actionOpen->setShortcut(tr("Ctrl+O"));
-  connect(actionOpen, SIGNAL(activated()), this, SLOT(open()));
+  ui_->actionOpenAproj->setIcon(
+      IconLoader::load("project-open", IconLoader::LightDark));
+  connect(ui_->actionOpenAproj, SIGNAL(activated()), this, SLOT(open()));
 
-  actionLoadImage = new QAction(tr("Open Image &File"), this);
-  actionLoadImage->setShortcut(tr("Ctrl+I"));
-  connect(actionLoadImage, SIGNAL(activated()), this, SLOT(loadImage()));
+  ui_->actionOpenImage->setIcon(QIcon());
+  connect(ui_->actionOpenImage, SIGNAL(activated()), this, SLOT(loadImage()));
 
-  actionImportImage = new QAction(tr("Import I&mage..."), this);
-  connect(actionImportImage, SIGNAL(activated()), this, SLOT(importImage()));
+  ui_->actionImportImage->setIcon(QIcon());
+  connect(ui_->actionImportImage, SIGNAL(activated()), this,
+          SLOT(importImage()));
 
-  actionSaveProject =
-      new QAction(IconLoader::load("document-save", IconLoader::LightDark),
-                  tr("&Save Project"), this);
-  actionSaveProject->setShortcut(tr("Ctrl+S"));
-  connect(actionSaveProject, SIGNAL(activated()), this, SLOT(saveProject()));
-  savedProject();
+  ui_->actionSaveProject->setIcon(
+      IconLoader::load("document-save", IconLoader::LightDark));
+  connect(ui_->actionSaveProject, SIGNAL(activated()), this,
+          SLOT(saveProject()));
 
-  actionSaveProjectAs = new QAction(tr("Save Project &As..."), this);
-  connect(actionSaveProjectAs, SIGNAL(activated()), this,
+  ui_->actionSaveProjectAs->setIcon(QIcon());
+  connect(ui_->actionSaveProjectAs, SIGNAL(activated()), this,
           SLOT(saveProjectAs()));
 
-  actionOpenTemplate =
-      new QAction(IconLoader::load("template-open", IconLoader::LightDark),
-                  tr("Open Temp&late..."), this);
-  connect(actionOpenTemplate, SIGNAL(activated()), this, SLOT(openTemplate()));
+  ui_->actionOpenTemplate->setIcon(
+      IconLoader::load("template-open", IconLoader::LightDark));
+  connect(ui_->actionOpenTemplate, SIGNAL(activated()), this,
+          SLOT(openTemplate()));
 
-  actionSaveTemplate =
-      new QAction(IconLoader::load("template-save", IconLoader::LightDark),
-                  tr("Save As &Template..."), this);
-  connect(actionSaveTemplate, SIGNAL(activated()), this,
+  ui_->actionSaveAsTemplate->setIcon(
+      IconLoader::load("template-save", IconLoader::LightDark));
+  connect(ui_->actionSaveAsTemplate, SIGNAL(activated()), this,
           SLOT(saveAsTemplate()));
 
   actionSaveNote = new QAction(tr("Save Note As..."), this);
   connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
 
-  actionLoad = new QAction(
-      IconLoader::load("import-ascii-filter", IconLoader::LightDark),
-      tr("&Import ASCII..."), this);
-  connect(actionLoad, SIGNAL(activated()), this, SLOT(importASCII()));
+  ui_->actionImportASCII->setIcon(
+      IconLoader::load("import-ascii-filter", IconLoader::LightDark));
+  connect(ui_->actionImportASCII, SIGNAL(activated()), this,
+          SLOT(importASCII()));
 
   actionUndo = new QAction(IconLoader::load("edit-undo", IconLoader::LightDark),
                            tr("&Undo"), this);
@@ -10018,15 +9951,14 @@ void ApplicationWindow::createActions() {
 
   // FIXME: "..." should be added before translating, but this would break
   // translations
-  actionExportGraph = new QAction(tr("&Current") + "...", this);
-  actionExportGraph->setShortcut(tr("Alt+G"));
-  connect(actionExportGraph, SIGNAL(activated()), this, SLOT(exportGraph()));
+  ui_->actionExportCurrentGraph->setIcon(QIcon());
+  connect(ui_->actionExportCurrentGraph, SIGNAL(activated()), this,
+          SLOT(exportGraph()));
 
   // FIXME: "..." should be added before translating, but this would break
   // translations
-  actionExportAllGraphs = new QAction(tr("&All") + "...", this);
-  actionExportAllGraphs->setShortcut(tr("Alt+X"));
-  connect(actionExportAllGraphs, SIGNAL(activated()), this,
+  ui_->actionExportAllGraphs->setIcon(QIcon());
+  connect(ui_->actionExportAllGraphs, SIGNAL(activated()), this,
           SLOT(exportAllGraphs()));
 
   // FIXME: "..." should be added before translating, but this would break
@@ -10039,27 +9971,22 @@ void ApplicationWindow::createActions() {
 
   // FIXME: "..." should be added before translating, but this would break
   // translations
-  actionPrint =
-      new QAction(IconLoader::load("edit-print", IconLoader::LightDark),
-                  tr("&Print") + "...", this);
-  actionPrint->setShortcut(tr("Ctrl+P"));
-  connect(actionPrint, SIGNAL(activated()), this, SLOT(print()));
+  ui_->actionPrint->setIcon(
+      IconLoader::load("edit-print", IconLoader::LightDark));
+  connect(ui_->actionPrint, SIGNAL(activated()), this, SLOT(print()));
 
-  actionPrintAllPlots = new QAction(tr("Print All Plo&ts"), this);
-  connect(actionPrintAllPlots, SIGNAL(activated()), this,
+  ui_->actionPrintAllPlots->setIcon(QIcon());
+  connect(ui_->actionPrintAllPlots, SIGNAL(activated()), this,
           SLOT(printAllPlots()));
 
   // FIXME: "..." should be added before translating, but this would break
   // translations
-  actionShowExportASCIIDialog = new QAction(tr("E&xport ASCII") + "...", this);
-  connect(actionShowExportASCIIDialog, SIGNAL(activated()), this,
+  ui_->actionExportASCII->setIcon(QIcon());
+  connect(ui_->actionExportASCII, SIGNAL(activated()), this,
           SLOT(showExportASCIIDialog()));
 
-  actionCloseAllWindows =
-      new QAction(QIcon(QPixmap(":/quit.xpm")), tr("&Quit"), this);
-  actionCloseAllWindows->setShortcut(tr("Ctrl+Q"));
-  connect(actionCloseAllWindows, SIGNAL(activated()), qApp,
-          SLOT(closeAllWindows()));
+  ui_->actionQuit->setIcon(QIcon(QPixmap(":/quit.xpm")));
+  connect(ui_->actionQuit, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
 
   actionClearLogInfo = new QAction(tr("Clear &Log Information"), this);
   connect(actionClearLogInfo, SIGNAL(activated()), this, SLOT(clearLogInfo()));
@@ -10611,61 +10538,8 @@ void ApplicationWindow::translateActionsStrings() {
   actionHideOtherCurves->setMenuText(tr("Hide &Other Curves"));
   actionShowAllCurves->setMenuText(tr("&Show All Curves"));
 
-  actionNewProject->setMenuText(tr("New &Project"));
-  actionNewProject->setToolTip(tr("Open a new project"));
-  actionNewProject->setShortcut(tr("Ctrl+N"));
-
-  actionNewGraph->setMenuText(tr("New &Graph"));
-  actionNewGraph->setToolTip(tr("Create an empty 2D plot"));
-  actionNewGraph->setShortcut(tr("Ctrl+G"));
-
-  actionNewNote->setMenuText(tr("New &Note / Script"));
-  actionNewNote->setToolTip(tr("Create an empty note / script window"));
-
-  actionNewTable->setMenuText(tr("New &Table"));
-  actionNewTable->setShortcut(tr("Ctrl+T"));
-  actionNewTable->setToolTip(tr("New table"));
-
-  actionNewMatrix->setMenuText(tr("New &Matrix"));
-  actionNewMatrix->setShortcut(tr("Ctrl+M"));
-  actionNewMatrix->setToolTip(tr("New matrix"));
-
-  actionNewFunctionPlot->setMenuText(tr("New &Function Plot"));
-  actionNewFunctionPlot->setToolTip(tr("Create a new 2D function plot"));
-  actionNewFunctionPlot->setShortcut(tr("Ctrl+F"));
-
-  actionNewSurfacePlot->setMenuText(tr("New 3D &Surface Plot"));
-  actionNewSurfacePlot->setToolTip(tr("Create a new 3D surface plot"));
-  actionNewSurfacePlot->setShortcut(tr("Ctrl+ALT+Z"));
-
   // FIXME: "..." should be added before translating, but this would break
   // translations
-  actionOpen->setMenuText(tr("&Open") + "...");
-  actionOpen->setShortcut(tr("Ctrl+O"));
-  actionOpen->setToolTip(tr("Open project"));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  actionLoadImage->setMenuText(tr("Open Image &File") + "...");
-  actionLoadImage->setShortcut(tr("Ctrl+I"));
-
-  actionImportImage->setMenuText(tr("Import I&mage..."));
-
-  actionSaveProject->setMenuText(tr("&Save Project"));
-  actionSaveProject->setToolTip(tr("Save project"));
-  actionSaveProject->setShortcut(tr("Ctrl+S"));
-
-  actionSaveProjectAs->setMenuText(tr("Save Project &As..."));
-
-  actionOpenTemplate->setMenuText(tr("Open Te&mplate..."));
-  actionOpenTemplate->setToolTip(tr("Open template"));
-
-  actionSaveTemplate->setMenuText(tr("Save As &Template..."));
-  actionSaveTemplate->setToolTip(tr("Save window as template"));
-
-  actionLoad->setMenuText(tr("&Import ASCII..."));
-  actionLoad->setToolTip(tr("Import data file(s)"));
-  actionLoad->setShortcut(tr("Ctrl+K"));
 
   actionUndo->setMenuText(tr("&Undo"));
   actionUndo->setToolTip(tr("Undo changes"));
@@ -10721,37 +10595,9 @@ void ApplicationWindow::translateActionsStrings() {
 
   // FIXME: "..." should be added before translating, but this would break
   // translations
-  actionExportGraph->setMenuText(tr("&Current") + "...");
-  actionExportGraph->setShortcut(tr("Alt+G"));
-  actionExportGraph->setToolTip(tr("Export current graph"));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  actionExportAllGraphs->setMenuText(tr("&All") + "...");
-  actionExportAllGraphs->setShortcut(tr("Alt+X"));
-  actionExportAllGraphs->setToolTip(tr("Export all graphs"));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
   actionExportPDF->setMenuText(tr("&Export PDF") + "...");
   actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
   actionExportPDF->setToolTip(tr("Export to PDF"));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  actionPrint->setMenuText(tr("&Print") + "...");
-  actionPrint->setShortcut(tr("Ctrl+P"));
-  actionPrint->setToolTip(tr("Print window"));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  actionPrintAllPlots->setMenuText(tr("Print All Plo&ts") + "...");
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  actionShowExportASCIIDialog->setMenuText(tr("E&xport ASCII") + "...");
-
-  actionCloseAllWindows->setMenuText(tr("&Quit"));
-  actionCloseAllWindows->setShortcut(tr("Ctrl+Q"));
 
   actionClearLogInfo->setMenuText(tr("Clear &Log Information"));
   actionDeleteFitTables->setMenuText(tr("Delete &Fit Tables"));
@@ -11258,12 +11104,12 @@ void ApplicationWindow::updateRecentProjectsList() {
   while ((int)recentProjects.size() > MaxRecentProjects)
     recentProjects.pop_back();
 
-  foreach (QAction *action, recent->actions())
+  foreach (QAction *action, ui_->menuRecentProjects->actions())
     action->deleteLater();
 
   for (int i = 0; i < (int)recentProjects.size(); i++)
-    connect(recent->addAction("&" + QString::number(i + 1) + " " +
-                              recentProjects[i]),
+    connect(ui_->menuRecentProjects->addAction("&" + QString::number(i + 1) +
+                                               " " + recentProjects[i]),
             SIGNAL(triggered()), this, SLOT(openRecentProject()));
 }
 
@@ -12005,12 +11851,12 @@ void ApplicationWindow::showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p,
   }
 
   if (fromFolders) {
-    window.addAction(actionNewTable);
-    window.addAction(actionNewMatrix);
-    window.addAction(actionNewNote);
-    window.addAction(actionNewGraph);
-    window.addAction(actionNewFunctionPlot);
-    window.addAction(actionNewSurfacePlot);
+    window.addAction(ui_->actionNewTable);
+    window.addAction(ui_->actionNewMatrix);
+    window.addAction(ui_->actionNewNote);
+    window.addAction(ui_->actionNewGraph);
+    window.addAction(ui_->actionNewFunctionPlot);
+    window.addAction(ui_->actionNew3DSurfacePlot);
     cm.insertItem(tr("New &Window"), &window);
   }
 
@@ -12877,7 +12723,7 @@ void ApplicationWindow::fitFrameToLayer() {
 
 ApplicationWindow::~ApplicationWindow() {
   if (lastCopiedLayer) delete lastCopiedLayer;
-
+  delete ui_;
   delete hiddenWindows;
   delete outWindows;
   delete d_project;
@@ -12970,12 +12816,12 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
   QMenu depend_menu(this);
 
   if (widget->inherits("Table"))
-    cm.addAction(actionShowExportASCIIDialog);
+    cm.addAction(ui_->actionExportASCII);
   else if (widget->inherits("Note"))
     cm.addAction(actionSaveNote);
   else
-    cm.addAction(actionSaveTemplate);
-  cm.addAction(actionPrint);
+    cm.addAction(ui_->actionSaveAsTemplate);
+  cm.addAction(ui_->actionPrint);
   cm.addAction(actionCopyWindow);
   cm.addSeparator();
   cm.addAction(actionRename);

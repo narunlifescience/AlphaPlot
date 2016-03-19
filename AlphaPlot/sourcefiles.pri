@@ -237,7 +237,8 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/main.cpp
 
 ###################### FORMS ##############################################
-FORMS        += src/scripting/widgets/ConsoleWidget.ui \
+FORMS        += src/ApplicationWindow.ui \
+                src/scripting/widgets/ConsoleWidget.ui \
                 src/ui/GeneralApplicationSettings.ui \
                 src/ui/GeneralAppreanceSettings.ui \
                 src/ui/SettingsDialog.ui \

@@ -68,6 +68,7 @@ class QToolBar;
 class QStatusBar;
 class QSignalMapper;
 
+class Ui_ApplicationWindow;
 class Matrix;
 class Table;
 class Graph;
@@ -1090,6 +1091,7 @@ Arranges all the visible project windows in a cascade pattern.
   QString qmPath;
 
  private:
+  Ui_ApplicationWindow* ui_;
   //! Show a context menu for the widget
   void showWindowMenu(MyWidget* widget);
   //! Create a menu for toggeling the toolbars
@@ -1120,11 +1122,10 @@ Arranges all the visible project windows in a cascade pattern.
   Graph* lastCopiedLayer;
   QSplitter* explorerSplitter;
 
-  QMenu *windowsMenu, *view, *graph, *file, *format, *calcul, *edit, *dataMenu,
-      *recent, *exportPlot, *toolbarsMenu;
+  QMenu *windowsMenu, *view, *graph, *format, *calcul, *edit, *dataMenu,
+      *toolbarsMenu;
   QMenu* d_quick_fit_menu;
-  QMenu *help, *type, *plot2D, *plot3D, *specialPlot, *panels, *stat, *decay,
-      *filter;
+  QMenu *help, *plot2D, *plot3D, *specialPlot, *panels, *stat, *decay, *filter;
   QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu;
   QMenu *smooth, *translateMenu, *multiPeakMenu;
   QMenu* scriptingMenu;
@@ -1133,12 +1134,7 @@ Arranges all the visible project windows in a cascade pattern.
       *actionHideCurve, *actionHideOtherCurves;
   QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet,
       *actionShowCurvePlotDialog;
-  QAction *actionNewProject, *actionNewNote, *actionNewTable,
-      *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix,
-      *actionNewGraph;
-  QAction *actionOpen, *actionLoadImage, *actionSaveProject,
-      *actionSaveProjectAs, *actionImportImage;
-  QAction *actionLoad, *actionUndo, *actionRedo;
+  QAction *actionUndo, *actionRedo;
   QAction* actionCopyWindow;
   QAction *actionCutSelection, *actionCopySelection, *actionPasteSelection,
       *actionClearSelection;
@@ -1150,8 +1146,7 @@ Arranges all the visible project windows in a cascade pattern.
   QAction* actionShowConsole;
 #endif
 
-  QAction *actionExportGraph, *actionExportAllGraphs, *actionPrint,
-      *actionPrintAllPlots, *actionShowExportASCIIDialog;
+  QAction* actionShowExportASCIIDialog;
   QAction* actionExportPDF;
   QAction *actionCloseAllWindows, *actionClearLogInfo, *actionShowPlotWizard,
       *actionShowConfigureDialog;
@@ -1213,8 +1208,7 @@ Arranges all the visible project windows in a cascade pattern.
 #endif
   QAction* actionHelpForums;
   QAction* actionHelpBugReports;
-  QAction *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate,
-      *actionSaveTemplate;
+  QAction *actionShowPlotDialog, *actionShowScaleDialog;
   QAction* actionNextWindow;
   QAction* actionPrevWindow;
   QAction *actionScriptingLang, *actionRestartScripting, *actionClearTable,
