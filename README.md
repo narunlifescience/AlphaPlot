@@ -5,8 +5,17 @@
 Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalysis and <i>Vis</i>ualization for Windows, Linux and Mac OS X (probably BSD also).
 
 # Installation
+Get the code (if you haven't already):
 
-See [data/INSTALL.md](INSTALL.md)
+    https://github.com/narunlifescience/AlphaPlot.git
+
+Compile and install:
+
+    qmake
+    make 
+    sudo make install
+
+For Windows/OSX see [data/INSTALL.md](INSTALL.md)
 
 
 Opening an issue
