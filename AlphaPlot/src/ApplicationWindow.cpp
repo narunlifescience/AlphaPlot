@@ -347,9 +347,9 @@ ApplicationWindow::ApplicationWindow()
   // this has to be done after connecting scriptEnv
   scriptEnv->initialize();
 
-  connect(d_project->undoStack(), SIGNAL(canUndoChanged(bool)), actionUndo,
+  connect(d_project->undoStack(), SIGNAL(canUndoChanged(bool)), ui_->actionUndo,
           SLOT(setEnabled(bool)));
-  connect(d_project->undoStack(), SIGNAL(canRedoChanged(bool)), actionRedo,
+  connect(d_project->undoStack(), SIGNAL(canRedoChanged(bool)), ui_->actionRedo,
           SLOT(setEnabled(bool)));
 }
 
@@ -438,12 +438,12 @@ void ApplicationWindow::initToolBars() {
   edit_tools->setIconSize(QSize(24, 24));
   addToolBar(edit_tools);
 
-  edit_tools->addAction(actionUndo);
-  edit_tools->addAction(actionRedo);
-  edit_tools->addAction(actionCutSelection);
-  edit_tools->addAction(actionCopySelection);
-  edit_tools->addAction(actionPasteSelection);
-  edit_tools->addAction(actionClearSelection);
+  edit_tools->addAction(ui_->actionUndo);
+  edit_tools->addAction(ui_->actionRedo);
+  edit_tools->addAction(ui_->actionCutSelection);
+  edit_tools->addAction(ui_->actionCopySelection);
+  edit_tools->addAction(ui_->actionPasteSelection);
+  edit_tools->addAction(ui_->actionClearSelection);
 
   graph_tools = new QToolBar(tr("Graph"), this);
   graph_tools->setObjectName(
@@ -735,27 +735,6 @@ void ApplicationWindow::initMainMenu() {
   exportID = file->insertItem(tr("&Export Graph"), exportPlot);
 */
 
-  edit = new QMenu(this);
-  edit->setFont(appFont);
-  edit->addAction(actionUndo);
-  edit->addAction(actionRedo);
-
-  edit->addSeparator();
-
-  edit->addAction(actionCutSelection);
-  edit->addAction(actionCopySelection);
-  edit->addAction(actionPasteSelection);
-  edit->addAction(actionClearSelection);
-
-  edit->addSeparator();
-
-  edit->addAction(actionDeleteFitTables);
-  edit->addAction(actionClearLogInfo);
-
-  edit->addSeparator();
-
-  edit->addAction(actionShowConfigureDialog);
-
   view = new QMenu(this);
   view->setFont(appFont);
   view->setCheckable(true);
@@ -1027,7 +1006,7 @@ void ApplicationWindow::initTableAnalysisMenu() {
 void ApplicationWindow::customMenu(QWidget *w) {
   menuBar()->clear();
   menuBar()->insertItem(tr("&File"), ui_->menuFile);
-  menuBar()->insertItem(tr("&Edit"), edit);
+  menuBar()->insertItem(tr("&Edit"), ui_->menuEdit);
   menuBar()->insertItem(tr("&View"), view);
   menuBar()->insertItem(tr("Scripting"), scriptingMenu);
 
@@ -1044,10 +1023,10 @@ void ApplicationWindow::customMenu(QWidget *w) {
   if (w) {
     ui_->actionPrintAllPlots->setEnabled(projectHas2DPlots());
     ui_->actionPrint->setEnabled(true);
-    actionCutSelection->setEnabled(true);
-    actionCopySelection->setEnabled(true);
-    actionPasteSelection->setEnabled(true);
-    actionClearSelection->setEnabled(true);
+    ui_->actionCutSelection->setEnabled(true);
+    ui_->actionCopySelection->setEnabled(true);
+    ui_->actionPasteSelection->setEnabled(true);
+    ui_->actionClearSelection->setEnabled(true);
     ui_->actionSaveAsTemplate->setEnabled(true);
 
     if (w->inherits("MultiLayer")) {
@@ -1144,13 +1123,13 @@ void ApplicationWindow::disableActions() {
   ui_->menuFile->setItemEnabled(exportID, false);
   ui_->menuFile->setItemEnabled(closeID, false);
 
-  actionUndo->setEnabled(false);
-  actionRedo->setEnabled(false);
+  ui_->actionUndo->setEnabled(false);
+  ui_->actionRedo->setEnabled(false);
 
-  actionCutSelection->setEnabled(false);
-  actionCopySelection->setEnabled(false);
-  actionPasteSelection->setEnabled(false);
-  actionClearSelection->setEnabled(false);
+  ui_->actionCutSelection->setEnabled(false);
+  ui_->actionCopySelection->setEnabled(false);
+  ui_->actionPasteSelection->setEnabled(false);
+  ui_->actionClearSelection->setEnabled(false);
 }
 
 void ApplicationWindow::customToolBars(QWidget *w) {
@@ -2900,7 +2879,6 @@ void ApplicationWindow::updateAppFonts() {
   ui_->menuFile->setFont(appFont);
   format->setFont(appFont);
   calcul->setFont(appFont);
-  edit->setFont(appFont);
   dataMenu->setFont(appFont);
   help->setFont(appFont);
   plot2D->setFont(appFont);
@@ -4795,8 +4773,8 @@ bool ApplicationWindow::saveProject() {
 
   setWindowTitle("AlphaPlot - " + projectname);
   savedProject();
-  actionUndo->setEnabled(false);
-  actionRedo->setEnabled(false);
+  ui_->actionUndo->setEnabled(false);
+  ui_->actionRedo->setEnabled(false);
 
   if (autoSave) {
     if (savingTimerId) killTimer(savingTimerId);
@@ -7017,8 +6995,8 @@ void ApplicationWindow::removeWindowFromLists(MyWidget *w) {
       removeCurves(name);
     }
     if (w == lastModified) {
-      actionUndo->setEnabled(false);
-      actionRedo->setEnabled(false);
+      ui_->actionUndo->setEnabled(false);
+      ui_->actionRedo->setEnabled(false);
     }
   } else if (w->inherits("MultiLayer")) {
     MultiLayer *ml = (MultiLayer *)w;
@@ -7194,7 +7172,7 @@ void ApplicationWindow::modifiedProject() {
 void ApplicationWindow::modifiedProject(QWidget *w) {
   modifiedProject();
 
-  actionUndo->setEnabled(true);
+  ui_->actionUndo->setEnabled(true);
   lastModified = w;
 }
 
@@ -9867,47 +9845,38 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionImportASCII, SIGNAL(activated()), this,
           SLOT(importASCII()));
 
-  actionUndo = new QAction(IconLoader::load("edit-undo", IconLoader::LightDark),
-                           tr("&Undo"), this);
-  actionUndo->setShortcut(tr("Ctrl+Z"));
-  connect(actionUndo, SIGNAL(activated()), this, SLOT(undo()));
-  actionUndo->setEnabled(false);
+  ui_->actionUndo->setIcon(
+      IconLoader::load("edit-undo", IconLoader::LightDark));
+  connect(ui_->actionUndo, SIGNAL(activated()), this, SLOT(undo()));
+  ui_->actionUndo->setEnabled(false);
 
-  actionRedo = new QAction(IconLoader::load("edit-redo", IconLoader::LightDark),
-                           tr("&Redo"), this);
-  actionRedo->setShortcut(tr("Ctrl+R"));
-  connect(actionRedo, SIGNAL(activated()), this, SLOT(redo()));
-  actionRedo->setEnabled(false);
+  ui_->actionRedo->setIcon(
+      IconLoader::load("edit-redo", IconLoader::LightDark));
+  connect(ui_->actionRedo, SIGNAL(activated()), this, SLOT(redo()));
+  ui_->actionRedo->setEnabled(false);
 
   actionCopyWindow =
       new QAction(QIcon(QPixmap(":/duplicate.xpm")), tr("&Duplicate"), this);
   connect(actionCopyWindow, SIGNAL(activated()), this, SLOT(clone()));
 
-  actionCutSelection =
-      new QAction(IconLoader::load("edit-cut", IconLoader::LightDark),
-                  tr("Cu&t Selection"), this);
-  actionCutSelection->setShortcut(tr("Ctrl+X"));
-  connect(actionCutSelection, SIGNAL(activated()), this, SLOT(cutSelection()));
+  ui_->actionCutSelection->setIcon(
+      IconLoader::load("edit-cut", IconLoader::LightDark));
+  connect(ui_->actionCutSelection, SIGNAL(activated()), this,
+          SLOT(cutSelection()));
 
-  actionCopySelection =
-      new QAction(IconLoader::load("edit-copy", IconLoader::LightDark),
-                  tr("&Copy Selection"), this);
-  actionCopySelection->setShortcut(tr("Ctrl+C"));
-  connect(actionCopySelection, SIGNAL(activated()), this,
+  ui_->actionCopySelection->setIcon(
+      IconLoader::load("edit-copy", IconLoader::LightDark));
+  connect(ui_->actionCopySelection, SIGNAL(activated()), this,
           SLOT(copySelection()));
 
-  actionPasteSelection =
-      new QAction(IconLoader::load("edit-paste", IconLoader::LightDark),
-                  tr("&Paste Selection"), this);
-  actionPasteSelection->setShortcut(tr("Ctrl+V"));
-  connect(actionPasteSelection, SIGNAL(activated()), this,
+  ui_->actionPasteSelection->setIcon(
+      IconLoader::load("edit-paste", IconLoader::LightDark));
+  connect(ui_->actionPasteSelection, SIGNAL(activated()), this,
           SLOT(pasteSelection()));
 
-  actionClearSelection = new QAction(
-      IconLoader::load("edit-delete-selection", IconLoader::LightDark),
-      tr("&Delete Selection"), this);
-  actionClearSelection->setShortcut(tr("Del", "delete key"));
-  connect(actionClearSelection, SIGNAL(activated()), this,
+  ui_->actionClearSelection->setIcon(
+      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
+  connect(ui_->actionClearSelection, SIGNAL(activated()), this,
           SLOT(clearSelection()));
 
   locktoolbar = new QAction(IconLoader::load("lock", IconLoader::LightDark),
@@ -9988,12 +9957,12 @@ void ApplicationWindow::createActions() {
   ui_->actionQuit->setIcon(QIcon(QPixmap(":/quit.xpm")));
   connect(ui_->actionQuit, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
 
-  actionClearLogInfo = new QAction(tr("Clear &Log Information"), this);
-  connect(actionClearLogInfo, SIGNAL(activated()), this, SLOT(clearLogInfo()));
+  ui_->actionClearLogInfo->setIcon(QIcon());
+  connect(ui_->actionClearLogInfo, SIGNAL(activated()), this,
+          SLOT(clearLogInfo()));
 
-  actionDeleteFitTables = new QAction(QIcon(QPixmap(":/close.xpm")),
-                                      tr("Delete &Fit Tables"), this);
-  connect(actionDeleteFitTables, SIGNAL(activated()), this,
+  ui_->actionDeleteFitTables->setIcon(QIcon(QPixmap(":/close.xpm")));
+  connect(ui_->actionDeleteFitTables, SIGNAL(activated()), this,
           SLOT(deleteFitTables()));
 
   // FIXME: "..." should be added before translating, but this would break
@@ -10004,8 +9973,8 @@ void ApplicationWindow::createActions() {
   connect(actionShowPlotWizard, SIGNAL(activated()), this,
           SLOT(showPlotWizard()));
 
-  actionShowConfigureDialog = new QAction(tr("&Preferences..."), this);
-  connect(actionShowConfigureDialog, SIGNAL(activated()), this,
+  ui_->actionPreferences->setIcon(QIcon());
+  connect(ui_->actionPreferences, SIGNAL(activated()), this,
           SLOT(showPreferencesDialog()));
 
   actionShowCurvesDialog = new QAction(QIcon(QPixmap(":/curves.xpm")),
@@ -10538,35 +10507,8 @@ void ApplicationWindow::translateActionsStrings() {
   actionHideOtherCurves->setMenuText(tr("Hide &Other Curves"));
   actionShowAllCurves->setMenuText(tr("&Show All Curves"));
 
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-
-  actionUndo->setMenuText(tr("&Undo"));
-  actionUndo->setToolTip(tr("Undo changes"));
-  actionUndo->setShortcut(tr("Ctrl+Z"));
-
-  actionRedo->setMenuText(tr("&Redo"));
-  actionRedo->setToolTip(tr("Redo changes"));
-  actionRedo->setShortcut(tr("Ctrl+R"));
-
   actionCopyWindow->setMenuText(tr("&Duplicate"));
   actionCopyWindow->setToolTip(tr("Duplicate window"));
-
-  actionCutSelection->setMenuText(tr("Cu&t Selection"));
-  actionCutSelection->setToolTip(tr("Cut selection"));
-  actionCutSelection->setShortcut(tr("Ctrl+X"));
-
-  actionCopySelection->setMenuText(tr("&Copy Selection"));
-  actionCopySelection->setToolTip(tr("Copy selection"));
-  actionCopySelection->setShortcut(tr("Ctrl+C"));
-
-  actionPasteSelection->setMenuText(tr("&Paste Selection"));
-  actionPasteSelection->setToolTip(tr("Paste selection"));
-  actionPasteSelection->setShortcut(tr("Ctrl+V"));
-
-  actionClearSelection->setMenuText(tr("&Delete Selection"));
-  actionClearSelection->setToolTip(tr("Delete selection"));
-  actionClearSelection->setShortcut(tr("Del", "delete key"));
 
   actionShowExplorer->setMenuText(tr("Project &Explorer"));
   actionShowExplorer->setShortcut(tr("Ctrl+E"));
@@ -10599,14 +10541,9 @@ void ApplicationWindow::translateActionsStrings() {
   actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
   actionExportPDF->setToolTip(tr("Export to PDF"));
 
-  actionClearLogInfo->setMenuText(tr("Clear &Log Information"));
-  actionDeleteFitTables->setMenuText(tr("Delete &Fit Tables"));
-
   actionShowPlotWizard->setMenuText(tr("Plot &Wizard"));
   actionShowPlotWizard->setShortcut(tr("Ctrl+Alt+W"));
   toolbarsMenu->setTitle(tr("Toolbars"));
-
-  actionShowConfigureDialog->setMenuText(tr("&Preferences..."));
 
   actionShowCurvesDialog->setMenuText(tr("Add/Remove &Curve..."));
   actionShowCurvesDialog->setShortcut(tr("ALT+C"));

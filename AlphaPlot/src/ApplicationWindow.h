@@ -1122,7 +1122,7 @@ Arranges all the visible project windows in a cascade pattern.
   Graph* lastCopiedLayer;
   QSplitter* explorerSplitter;
 
-  QMenu *windowsMenu, *view, *graph, *format, *calcul, *edit, *dataMenu,
+  QMenu *windowsMenu, *view, *graph, *format, *calcul, *dataMenu,
       *toolbarsMenu;
   QMenu* d_quick_fit_menu;
   QMenu *help, *plot2D, *plot3D, *specialPlot, *panels, *stat, *decay, *filter;
@@ -1134,10 +1134,7 @@ Arranges all the visible project windows in a cascade pattern.
       *actionHideCurve, *actionHideOtherCurves;
   QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet,
       *actionShowCurvePlotDialog;
-  QAction *actionUndo, *actionRedo;
   QAction* actionCopyWindow;
-  QAction *actionCutSelection, *actionCopySelection, *actionPasteSelection,
-      *actionClearSelection;
   QAction* locktoolbar;
   QAction *actionShowExplorer, *actionShowLog, *actionAddLayer,
       *actionShowLayerDialog, *actionAutomaticLayout;
@@ -1148,8 +1145,7 @@ Arranges all the visible project windows in a cascade pattern.
 
   QAction* actionShowExportASCIIDialog;
   QAction* actionExportPDF;
-  QAction *actionCloseAllWindows, *actionClearLogInfo, *actionShowPlotWizard,
-      *actionShowConfigureDialog;
+  QAction *actionCloseAllWindows, *actionShowPlotWizard;
   QAction *actionShowCurvesDialog, *actionAddErrorBars, *actionAddFunctionCurve,
       *actionUnzoom, *actionNewLegend, *actionAddImage, *actionAddText;
   QAction *actionPlotL, *actionPlotP, *actionPlotLP,
@@ -1190,7 +1186,7 @@ Arranges all the visible project windows in a cascade pattern.
   QAction *actionPlot3DWireFrame, *actionPlot3DHiddenLine,
       *actionPlot3DPolygons, *actionPlot3DWireSurface;
   QAction *actionColorMap, *actionContourMap, *actionGrayMap;
-  QAction *actionDeleteFitTables, *actionShowGridDialog, *actionTimeStamp;
+  QAction *actionShowGridDialog, *actionTimeStamp;
   QAction *actionSmoothSavGol, *actionSmoothFFT, *actionSmoothAverage,
       *actionFFT;
   QAction *actionLowPassFilter, *actionHighPassFilter, *actionBandPassFilter,
