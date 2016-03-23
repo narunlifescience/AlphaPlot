@@ -350,7 +350,7 @@ Arranges all the visible project windows in a cascade pattern.
   Matrix* newMatrix(const QString& caption, int r, int c);
   Matrix* matrix(const QString& name);
   Matrix* convertTableToMatrix();
-  void initMatrix(Matrix* m);
+  void initMatrix(Matrix* matrix);
   void invertMatrix();
   void matrixDeterminant();
   //@}
@@ -388,7 +388,7 @@ Arranges all the visible project windows in a cascade pattern.
   void connectTable(Table* w);
   void newWrksheetPlot(const QString& name, const QString& label,
                        QList<Column*> columns);
-  void initTable(Table* w);
+  void initTable(Table* table);
   void customTable(Table* w);
   void customizeTables(const QColor& bgColor, const QColor& textColor,
                        const QColor& headerColor, const QFont& textFont,
@@ -800,7 +800,7 @@ Arranges all the visible project windows in a cascade pattern.
   //! Creates a new empty note window
   Note* newNote(const QString& caption = QString());
   Note* openNote(ApplicationWindow* app, const QStringList& flist);
-  void initNote(Note* m, const QString& caption);
+  void initNote(Note* note, const QString& caption);
   void saveNoteAs();
   //@}
 

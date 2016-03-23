@@ -2293,119 +2293,110 @@ void ApplicationWindow::newWrksheetPlot(const QString &name,
   }
 }
 
-/*
- *used when importing an ASCII file
- */
+// Used when importing an ASCII file
 Table *ApplicationWindow::newTable(const QString &fname, const QString &sep,
                                    int lines, bool renameCols, bool stripSpaces,
                                    bool simplifySpaces, bool convertToNumeric,
                                    QLocale numericLocale) {
-  Table *w = new Table(scriptEnv, fname, sep, lines, renameCols, stripSpaces,
-                       simplifySpaces, convertToNumeric, numericLocale, fname,
-                       d_workspace, 0, 0);
-  if (w) {
-    w->setName(generateUniqueName(tr("Table")));
-    d_project->addChild(w->d_future_table);
+  Table *table = new Table(scriptEnv, fname, sep, lines, renameCols,
+                           stripSpaces, simplifySpaces, convertToNumeric,
+                           numericLocale, fname, d_workspace, 0, 0);
+  if (table) {
+    table->setName(generateUniqueName(tr("Table")));
+    d_project->addChild(table->d_future_table);
   }
-  return w;
+  return table;
 }
 
-/*
- *creates a new empty table
- */
+// Creates a new empty table
 Table *ApplicationWindow::newTable() {
-  Table *w = new Table(scriptEnv, 30, 2, "", d_workspace, 0);
-  w->setName(generateUniqueName(tr("Table")));
-  d_project->addChild(w->d_future_table);
-  return w;
+  Table *table = new Table(scriptEnv, 30, 2, "", d_workspace, 0);
+  table->setName(generateUniqueName(tr("Table")));
+  d_project->addChild(table->d_future_table);
+  return table;
 }
 
-/*
- *used when opening a project file
- */
+// Used when opening a project file
 Table *ApplicationWindow::newTable(const QString &caption, int r, int c) {
-  Table *w = new Table(scriptEnv, r, c, "", d_workspace, 0);
-  w->setName(caption);
-  d_project->addChild(w->d_future_table);
-  if (w->name() != caption)  // the table was renamed
+  Table *table = new Table(scriptEnv, r, c, "", d_workspace, 0);
+  table->setName(caption);
+  d_project->addChild(table->d_future_table);
+  if (table->name() != caption)  // the table was renamed
   {
-    renamedTables << caption << w->name();
+    renamedTables << caption << table->name();
 
     QMessageBox::warning(
         this, tr("Renamed Window"),
         tr("The table '%1' already exists. It has been renamed '%2'.")
             .arg(caption)
-            .arg(w->name()));
+            .arg(table->name()));
   }
-  return w;
+  return table;
 }
 
 Table *ApplicationWindow::newTable(int r, int c, const QString &name,
                                    const QString &legend) {
-  Table *w = new Table(scriptEnv, r, c, legend, d_workspace, 0);
-  w->setName(name);
-  d_project->addChild(w->d_future_table);
-  return w;
+  Table *table = new Table(scriptEnv, r, c, legend, d_workspace, 0);
+  table->setName(name);
+  d_project->addChild(table->d_future_table);
+  return table;
 }
 
 Table *ApplicationWindow::newTable(const QString &name, const QString &legend,
                                    QList<Column *> columns) {
-  Table *w = new Table(scriptEnv, 0, 0, legend, 0, 0);
-  w->d_future_table->appendColumns(columns);
-  w->setName(name);
-  d_project->addChild(w->d_future_table);
-  return w;
+  Table *table = new Table(scriptEnv, 0, 0, legend, 0, 0);
+  table->d_future_table->appendColumns(columns);
+  table->setName(name);
+  d_project->addChild(table->d_future_table);
+  return table;
 }
 
 Table *ApplicationWindow::newHiddenTable(const QString &name,
                                          const QString &label,
                                          QList<Column *> columns) {
-  Table *w = new Table(scriptEnv, 0, 0, label, 0, 0);
-  w->d_future_table->appendColumns(columns);
-  w->setName(name);
-  d_project->addChild(w->d_future_table);
-  hideWindow(w);
-  return w;
+  Table *table = new Table(scriptEnv, 0, 0, label, 0, 0);
+  table->d_future_table->appendColumns(columns);
+  table->setName(name);
+  d_project->addChild(table->d_future_table);
+  hideWindow(table);
+  return table;
 }
 
-void ApplicationWindow::initTable(Table *w) {
-  w->setIcon(QPixmap(":/worksheet.xpm"));
-  current_folder->addWindow(w);
-  w->setFolder(current_folder);
-  d_workspace->addWindow(w);
-  addListViewItem(w);
-  w->showNormal();
+void ApplicationWindow::initTable(Table *table) {
+  table->setIcon(QPixmap(":/worksheet.xpm"));
+  current_folder->addWindow(table);
+  table->setFolder(current_folder);
+  d_workspace->addWindow(table);
+  addListViewItem(table);
+  table->showNormal();
 
-  connectTable(w);
-  customTable(w);
+  connectTable(table);
+  customTable(table);
 
-  w->d_future_table->setPlotMenu(plot2D);
+  table->d_future_table->setPlotMenu(plot2D);
 
   emit modified();
 }
 
-/*
- * !creates a new table with type statistics on target columns/rows of table
- * base
- */
+//  Creates a new table with statistics on target columns/rows of base table
 TableStatistics *ApplicationWindow::newTableStatistics(Table *base, int type,
                                                        QList<int> target,
                                                        const QString &caption) {
-  TableStatistics *s = new TableStatistics(scriptEnv, d_workspace, base,
-                                           (TableStatistics::Type)type, target);
-  if (!caption.isEmpty()) s->setName(caption);
+  TableStatistics *statTable = new TableStatistics(
+      scriptEnv, d_workspace, base, (TableStatistics::Type)type, target);
+  if (!caption.isEmpty()) statTable->setName(caption);
 
-  d_project->addChild(s->d_future_table);
-  connect(base, SIGNAL(modifiedData(Table *, const QString &)), s,
+  d_project->addChild(statTable->d_future_table);
+  connect(base, SIGNAL(modifiedData(Table *, const QString &)), statTable,
           SLOT(update(Table *, const QString &)));
-  connect(base, SIGNAL(changedColHeader(const QString &, const QString &)), s,
-          SLOT(renameCol(const QString &, const QString &)));
-  connect(base, SIGNAL(removedCol(const QString &)), s,
+  connect(base, SIGNAL(changedColHeader(const QString &, const QString &)),
+          statTable, SLOT(renameCol(const QString &, const QString &)));
+  connect(base, SIGNAL(removedCol(const QString &)), statTable,
           SLOT(removeCol(const QString &)));
   connect(base->d_future_table,
           SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *)), this,
           SLOT(removeDependentTableStatistics(const AbstractAspect *)));
-  return s;
+  return statTable;
 }
 
 void ApplicationWindow::removeDependentTableStatistics(
@@ -2424,80 +2415,79 @@ void ApplicationWindow::removeDependentTableStatistics(
   }
 }
 
-/*
- *creates a new empty note window
- */
+// Creates a new empty note window
 Note *ApplicationWindow::newNote(const QString &caption) {
-  Note *m = new Note(scriptEnv, "", d_workspace);
+  Note *note = new Note(scriptEnv, "", d_workspace);
   if (caption.isEmpty())
-    initNote(m, generateUniqueName(tr("Notes")));
+    initNote(note, generateUniqueName(tr("Notes")));
   else
-    initNote(m, caption);
-  m->showNormal();
-  return m;
+    initNote(note, caption);
+  note->showNormal();
+  return note;
 }
 
-void ApplicationWindow::initNote(Note *m, const QString &caption) {
+void ApplicationWindow::initNote(Note *note, const QString &caption) {
   QString name = caption;
   while (name.isEmpty() || alreadyUsedName(name))
     name = generateUniqueName(tr("Notes"));
 
-  m->setWindowTitle(name);
-  m->setName(name);
-  m->setIcon(QPixmap(":/note.xpm"));
-  m->askOnCloseEvent(confirmCloseNotes);
-  m->setFolder(current_folder);
+  note->setWindowTitle(name);
+  note->setName(name);
+  note->setIcon(QPixmap(":/note.xpm"));
+  note->askOnCloseEvent(confirmCloseNotes);
+  note->setFolder(current_folder);
 
-  current_folder->addWindow(m);
-  d_workspace->addWindow(m);
-  addListViewItem(m);
+  current_folder->addWindow(note);
+  d_workspace->addWindow(note);
+  addListViewItem(note);
 
-  connect(m, SIGNAL(modifiedWindow(QWidget *)), this,
+  connect(note, SIGNAL(modifiedWindow(QWidget *)), this,
           SLOT(modifiedProject(QWidget *)));
-  connect(m, SIGNAL(closedWindow(MyWidget *)), this,
+  connect(note, SIGNAL(closedWindow(MyWidget *)), this,
           SLOT(closeWindow(MyWidget *)));
-  connect(m, SIGNAL(hiddenWindow(MyWidget *)), this,
+  connect(note, SIGNAL(hiddenWindow(MyWidget *)), this,
           SLOT(hideWindow(MyWidget *)));
-  connect(m, SIGNAL(statusChanged(MyWidget *)), this,
+  connect(note, SIGNAL(statusChanged(MyWidget *)), this,
           SLOT(updateWindowStatus(MyWidget *)));
-  connect(m, SIGNAL(showTitleBarMenu()), this, SLOT(showWindowTitleBarMenu()));
+  connect(note, SIGNAL(showTitleBarMenu()), this,
+          SLOT(showWindowTitleBarMenu()));
 
   emit modified();
 }
 
 Matrix *ApplicationWindow::newMatrix(int rows, int columns) {
-  Matrix *m = new Matrix(scriptEnv, rows, columns, "", 0, 0);
+  Matrix *matrix = new Matrix(scriptEnv, rows, columns, "", 0, 0);
   QString caption = generateUniqueName(tr("Matrix"));
   while (alreadyUsedName(caption)) {
     caption = generateUniqueName(tr("Matrix"));
   }
-  m->setName(caption);
-  d_project->addChild(m->d_future_matrix);
-  return m;
+  matrix->setName(caption);
+  d_project->addChild(matrix->d_future_matrix);
+  return matrix;
 }
 
 Matrix *ApplicationWindow::newMatrix(const QString &caption, int r, int c) {
-  Matrix *w = new Matrix(scriptEnv, r, c, "", 0, 0);
+  Matrix *matrix = new Matrix(scriptEnv, r, c, "", 0, 0);
   QString name = caption;
   while (alreadyUsedName(name)) {
     name = generateUniqueName(caption);
   }
-  w->setName(name);
-  d_project->addChild(w->d_future_matrix);
-  if (w->name() != caption)  // the matrix was renamed
-    renamedTables << caption << w->name();
+  matrix->setName(name);
+  d_project->addChild(matrix->d_future_matrix);
+  if (matrix->name() != caption)  // the matrix was renamed
+    renamedTables << caption << matrix->name();
 
-  return w;
+  return matrix;
 }
 
 void ApplicationWindow::matrixDeterminant() {
-  Matrix *m = (Matrix *)d_workspace->activeWindow();
-  if (!m) return;
+  Matrix *matrix = (Matrix *)d_workspace->activeWindow();
+  if (!matrix) return;
 
   QDateTime dt = QDateTime::currentDateTime();
   QString info = dt.toString(Qt::LocalDate);
-  info += "\n" + tr("Determinant of ") + QString(m->name()) + ":\t";
-  info += "det = " + QString::number(m->determinant()) + "\n";
+  info += "\n" + tr("Determinant of ") + QString(matrix->name()) + ":\t";
+  info += "det = " + QString::number(matrix->determinant()) + "\n";
   info += "-------------------------------------------------------------\n";
 
   logInfo += info;
@@ -2506,87 +2496,89 @@ void ApplicationWindow::matrixDeterminant() {
 }
 
 void ApplicationWindow::invertMatrix() {
-  Matrix *m = (Matrix *)d_workspace->activeWindow();
-  if (!m) return;
+  Matrix *matrix = (Matrix *)d_workspace->activeWindow();
+  if (!matrix) return;
 
-  m->invert();
+  matrix->invert();
 }
 
 Table *ApplicationWindow::convertMatrixToTable() {
-  Matrix *m = (Matrix *)d_workspace->activeWindow();
-  if (!m) return 0;
+  Matrix *matrix = (Matrix *)d_workspace->activeWindow();
+  if (!matrix) return 0;
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-  int rows = m->numRows();
-  int cols = m->numCols();
+  int rows = matrix->numRows();
+  int cols = matrix->numCols();
 
-  Table *w = new Table(scriptEnv, rows, cols, "", d_workspace, 0);
+  Table *table = new Table(scriptEnv, rows, cols, "", d_workspace, 0);
   for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) w->setCell(i, j, m->cell(i, j));
+    for (int j = 0; j < cols; j++) table->setCell(i, j, matrix->cell(i, j));
   }
 
-  w->setName(generateUniqueName(tr("Table")));
-  d_project->addChild(w->d_future_table);
-  w->setWindowLabel(m->windowLabel());
-  w->setCaptionPolicy(m->captionPolicy());
-  w->resize(m->size());
-  w->showNormal();
+  table->setName(generateUniqueName(tr("Table")));
+  d_project->addChild(table->d_future_table);
+  table->setWindowLabel(matrix->windowLabel());
+  table->setCaptionPolicy(matrix->captionPolicy());
+  table->resize(matrix->size());
+  table->showNormal();
 
   QApplication::restoreOverrideCursor();
 
-  return w;
+  return table;
 }
 
-void ApplicationWindow::initMatrix(Matrix *m) {
-  m->setIcon(QPixmap(":/matrix.xpm"));
-  m->askOnCloseEvent(confirmCloseMatrix);
-  m->setNumericFormat(d_default_numeric_format, d_decimal_digits);
-  m->setFolder(current_folder);
+void ApplicationWindow::initMatrix(Matrix *matrix) {
+  matrix->setIcon(QPixmap(":/matrix.xpm"));
+  matrix->askOnCloseEvent(confirmCloseMatrix);
+  matrix->setNumericFormat(d_default_numeric_format, d_decimal_digits);
+  matrix->setFolder(current_folder);
 
-  current_folder->addWindow(m);
-  m->setFolder(current_folder);
-  d_workspace->addWindow(m);
-  addListViewItem(m);
-  m->showNormal();
+  current_folder->addWindow(matrix);
+  matrix->setFolder(current_folder);
+  d_workspace->addWindow(matrix);
+  addListViewItem(matrix);
+  matrix->showNormal();
 
-  connect(m, SIGNAL(showTitleBarMenu()), this, SLOT(showWindowTitleBarMenu()));
-  connect(m, SIGNAL(modifiedWindow(QWidget *)), this,
+  connect(matrix, SIGNAL(showTitleBarMenu()), this,
+          SLOT(showWindowTitleBarMenu()));
+  connect(matrix, SIGNAL(modifiedWindow(QWidget *)), this,
           SLOT(modifiedProject(QWidget *)));
-  connect(m, SIGNAL(modifiedWindow(QWidget *)), this,
+  connect(matrix, SIGNAL(modifiedWindow(QWidget *)), this,
           SLOT(updateMatrixPlots(QWidget *)));
-  connect(m, SIGNAL(hiddenWindow(MyWidget *)), this,
+  connect(matrix, SIGNAL(hiddenWindow(MyWidget *)), this,
           SLOT(hideWindow(MyWidget *)));
-  connect(m, SIGNAL(statusChanged(MyWidget *)), this,
+  connect(matrix, SIGNAL(statusChanged(MyWidget *)), this,
           SLOT(updateWindowStatus(MyWidget *)));
-  connect(m, SIGNAL(showContextMenu()), this, SLOT(showWindowContextMenu()));
+  connect(matrix, SIGNAL(showContextMenu()), this,
+          SLOT(showWindowContextMenu()));
   emit modified();
 }
 
 Matrix *ApplicationWindow::convertTableToMatrix() {
-  Table *m = (Table *)d_workspace->activeWindow();
-  if (!m) return 0;
+  Table *table = (Table *)d_workspace->activeWindow();
+  if (!table) return 0;
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-  int rows = m->numRows();
-  int cols = m->numCols();
+  int rows = table->numRows();
+  int cols = table->numCols();
 
-  Matrix *w = new Matrix(scriptEnv, rows, cols, "", 0, 0);
+  Matrix *matrix = new Matrix(scriptEnv, rows, cols, "", 0, 0);
   for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) w->setText(i, j, m->text(i, j));
+    for (int j = 0; j < cols; j++) matrix->setText(i, j, table->text(i, j));
   }
 
-  QString caption = generateUniqueName(m->name());
-  w->setName(caption);
-  d_project->addChild(w->d_future_matrix);
+  QString caption = generateUniqueName(table->name());
+  matrix->setName(caption);
+  d_project->addChild(matrix->d_future_matrix);
 
-  w->setCaptionPolicy(m->captionPolicy());
-  w->resize(m->size());
-  w->showNormal();
+  matrix->setCaptionPolicy(table->captionPolicy());
+  matrix->resize(table->size());
+  matrix->showNormal();
 
   QApplication::restoreOverrideCursor();
-  return w;
+  return matrix;
 }
 
 QWidget *ApplicationWindow::window(const QString &name) {
