@@ -241,7 +241,7 @@ Arranges all the visible project windows in a cascade pattern.
   //! \name Multilayer Plots
   //@{
   MultiLayer* multilayerPlot(int c, int r, int style);
-  MultiLayer* multilayerPlot(Table* w, const QStringList& colList, int style,
+  MultiLayer* multilayerPlot(Table* table, const QStringList& colList, int style,
                              int startRow = 0, int endRow = -1);
   //! used when restoring a plot from a project file
   MultiLayer* multilayerPlot(const QString& caption);

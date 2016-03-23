@@ -1997,34 +1997,36 @@ void ApplicationWindow::polishGraph(Graph *g, int style) {
 }
 
 MultiLayer *ApplicationWindow::multilayerPlot(const QString &caption) {
-  MultiLayer *ml = new MultiLayer("", d_workspace, 0);
-  ml->setAttribute(Qt::WA_DeleteOnClose);
+  MultiLayer *multilayer = new MultiLayer("", d_workspace, 0);
+  multilayer->setAttribute(Qt::WA_DeleteOnClose);
   QString label = caption;
-  initMultilayerPlot(ml, label.replace(QRegExp("_"), "-"));
-  return ml;
+  initMultilayerPlot(multilayer, label.replace(QRegExp("_"), "-"));
+  return multilayer;
 }
 
 MultiLayer *ApplicationWindow::newGraph(const QString &caption) {
-  MultiLayer *ml = multilayerPlot(generateUniqueName(caption));
-  if (ml) {
-    Graph *g = ml->addLayer();
-    setPreferences(g);
-    g->newLegend();
-    g->setAutoscaleFonts(false);
-    g->setIgnoreResizeEvents(false);
-    ml->arrangeLayers(false, false);
-    ml->adjustSize();
-    g->setAutoscaleFonts(
+  MultiLayer *multilayer = multilayerPlot(generateUniqueName(caption));
+  if (multilayer) {
+    Graph *graph = multilayer->addLayer();
+    setPreferences(graph);
+    graph->newLegend();
+    graph->setAutoscaleFonts(false);
+    graph->setIgnoreResizeEvents(false);
+    multilayer->arrangeLayers(false, false);
+    multilayer->adjustSize();
+    graph->setAutoscaleFonts(
         autoScaleFonts);  // restore user defined fonts behaviour
-    g->setIgnoreResizeEvents(!autoResizeLayers);
-    customMenu(ml);
+    graph->setIgnoreResizeEvents(!autoResizeLayers);
+    customMenu(multilayer);
   }
-  return ml;
+  return multilayer;
 }
 
-MultiLayer *ApplicationWindow::multilayerPlot(
-    Table *w, const QStringList &colList, int style, int startRow,
-    int endRow) {  // used when plotting selected columns
+// used when plotting selected columns
+MultiLayer *ApplicationWindow::multilayerPlot(Table *table,
+                                              const QStringList &colList,
+                                              int style, int startRow,
+                                              int endRow) {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
   MultiLayer *g = new MultiLayer("", d_workspace, 0);
@@ -2034,7 +2036,7 @@ MultiLayer *ApplicationWindow::multilayerPlot(
   if (!ag) return 0;
 
   setPreferences(ag);
-  ag->insertCurvesList(w, colList, style, defaultCurveLineWidth,
+  ag->insertCurvesList(table, colList, style, defaultCurveLineWidth,
                        defaultSymbolSize, startRow, endRow);
 
   initMultilayerPlot(g, generateUniqueName(tr("Graph")));
@@ -2049,8 +2051,8 @@ MultiLayer *ApplicationWindow::multilayerPlot(
   return g;
 }
 
-MultiLayer *ApplicationWindow::multilayerPlot(
-    int c, int r, int style) {  // used when plotting from the panel menu
+// used when plotting from the panel menu
+MultiLayer *ApplicationWindow::multilayerPlot(int c, int r, int style) {
   if (!d_workspace->activeWindow() ||
       !d_workspace->activeWindow()->inherits("Table"))
     return 0;
@@ -2122,8 +2124,8 @@ MultiLayer *ApplicationWindow::multilayerPlot(
   return g;
 }
 
-MultiLayer *ApplicationWindow::multilayerPlot(
-    const QStringList &colList) {  // used when plotting from wizard
+// used when plotting from wizard
+MultiLayer *ApplicationWindow::multilayerPlot(const QStringList &colList) {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   MultiLayer *g = new MultiLayer("", d_workspace, 0);
   g->setAttribute(Qt::WA_DeleteOnClose);
@@ -12833,6 +12835,7 @@ bool ApplicationWindow::validFor3DPlot(Table *table) {
 }
 
 bool ApplicationWindow::validFor2DPlot(Table *table, int type) {
+  // TODO: check if columns are empty
   switch (type) {
     case Graph::Histogram:
     case Graph::Pie:
@@ -12844,24 +12847,24 @@ bool ApplicationWindow::validFor2DPlot(Table *table, int type) {
       }
       break;
     default:
-      if (table->selectedColumnCount(AlphaPlot::Y) < 1) {
+      if (table->selectedColumnCount(AlphaPlot::X) == 0 ||
+          table->selectedColumnCount(AlphaPlot::Y) == 0) {
         QMessageBox::warning(this, tr("Error"),
-                             tr("Please select a Y column to plot!"));
+                             tr("Please select a X & Y column to plot!"));
         return false;
-      } else if (table->numCols() < 2) {
-        QMessageBox::critical(
+      } else if (table->selectedColumnCount(AlphaPlot::X) > 1) {
+        QMessageBox::warning(
             this, tr("Error"),
-            tr("You need at least two columns for this operation!"));
+            tr("You can only select one X column for this operation!"));
         return false;
-      } else if (table->noXColumn()) {
-        QMessageBox::critical(
+      } else if (!table->selectedColumnCount(AlphaPlot::Z) == 0) {
+        QMessageBox::warning(
             this, tr("Error"),
-            tr("Please set a default X column for this table, first!"));
+            tr("Please dont select Z column for this operation!"));
         return false;
       }
       break;
   }
-
   return true;
 }
 
@@ -12886,11 +12889,12 @@ void ApplicationWindow::selectPlotType(int type) {
     return;
   }
 
-  MultiLayer *ml = qobject_cast<MultiLayer *>(d_workspace->activeWindow());
-  if (ml) {
-    Graph *g = ml->activeGraph();
-    if (g->curves() > 0)
-      g->setCurveType(g->curves() - 1, (Graph::CurveType)type);
+  MultiLayer *multilayer =
+      qobject_cast<MultiLayer *>(d_workspace->activeWindow());
+  if (multilayer) {
+    Graph *graph = multilayer->activeGraph();
+    if (graph->curves() > 0)
+      graph->setCurveType(graph->curves() - 1, (Graph::CurveType)type);
   }
 }
 
