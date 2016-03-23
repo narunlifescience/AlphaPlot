@@ -180,10 +180,16 @@ ApplicationWindow::ApplicationWindow()
       d_workspace(new QWorkspace(this)),
       lv(new FolderListView()),
       folders(new FolderListView()),
-
       hiddenWindows(new QList<QWidget *>()),
       outWindows(new QList<QWidget *>()),
-      lastModified(0),
+      lastModified(nullptr),
+      file_tools(new QToolBar(tr("File"), this)),
+      edit_tools(new QToolBar(tr("Edit"), this)),
+      graph_tools(new QToolBar(tr("Graph"), this)),
+      plot_tools(new QToolBar(tr("Plot"), this)),
+      table_tools(new QToolBar(tr("Table"), this)),
+      matrix_plot_tools(new QToolBar(tr("Matrix Plot"), this)),
+      graph_3D_tools(new QToolBar(tr("3D Surface"), this)),
       current_folder(new Folder(0, tr("UNTITLED"))),
       show_windows_policy(ActiveFolder),
       appStyle(qApp->style()->objectName()),
@@ -203,9 +209,7 @@ ApplicationWindow::ApplicationWindow()
                                    tr("&Next", "next window"), this)),
       actionPrevWindow(new QAction(QIcon(QPixmap(":/prev.xpm")),
                                    tr("&Previous", "previous window"), this)),
-      settings_(new SettingsDialog(this))
-
-{
+      settings_(new SettingsDialog(this)) {
   ui_->setupUi(this);
   // Icons
   IconLoader::init();
@@ -393,7 +397,6 @@ void ApplicationWindow::applyUserSettings() {
 void ApplicationWindow::initToolBars() {
   QPixmap openIcon, saveIcon;
 
-  file_tools = new QToolBar(tr("File"), this);
   file_tools->setObjectName(
       "file_tools");  // this is needed for QMainWindow::restoreState()
   file_tools->setIconSize(QSize(24, 24));
@@ -428,11 +431,10 @@ void ApplicationWindow::initToolBars() {
 
   file_tools->addSeparator();
 
-  file_tools->addAction(actionShowExplorer);
-  file_tools->addAction(actionShowLog);
-  file_tools->addAction(locktoolbar);
+  file_tools->addAction(ui_->actionShowExplorer);
+  file_tools->addAction(ui_->actionShowResultsLog);
+  file_tools->addAction(ui_->actionLockToolbars);
 
-  edit_tools = new QToolBar(tr("Edit"), this);
   edit_tools->setObjectName(
       "edit_tools");  // this is needed for QMainWindow::restoreState()
   edit_tools->setIconSize(QSize(24, 24));
@@ -445,7 +447,6 @@ void ApplicationWindow::initToolBars() {
   edit_tools->addAction(ui_->actionPasteSelection);
   edit_tools->addAction(ui_->actionClearSelection);
 
-  graph_tools = new QToolBar(tr("Graph"), this);
   graph_tools->setObjectName(
       "graph_tools");  // this is needed for QMainWindow::restoreState()
   graph_tools->setIconSize(QSize(24, 24));
@@ -576,7 +577,6 @@ void ApplicationWindow::initToolBars() {
   connect(dataTools, SIGNAL(triggered(QAction *)), this,
           SLOT(pickDataTool(QAction *)));
 
-  plot_tools = new QToolBar(tr("Plot"), this);
   plot_tools->setObjectName(
       "plot_tools");  // this is needed for QMainWindow::restoreState()
   plot_tools->setIconSize(QSize(24, 24));
@@ -627,7 +627,6 @@ void ApplicationWindow::initToolBars() {
   plot_tools->addAction(actionPlot3DScatter);
   plot_tools->addAction(actionPlot3DTrajectory);
 
-  table_tools = new QToolBar(tr("Table"), this);
   table_tools->setObjectName(
       "table_tools");  // this is needed for QMainWindow::restoreState()
   table_tools->setIconSize(QSize(24, 24));
@@ -645,7 +644,6 @@ void ApplicationWindow::initToolBars() {
 
   statusBar()->addWidget(d_status_info, 1);
 
-  matrix_plot_tools = new QToolBar(tr("Matrix Plot"), this);
   matrix_plot_tools->setObjectName("matrix_plot_tools");
   addToolBar(Qt::BottomToolBarArea, matrix_plot_tools);
 
@@ -668,7 +666,7 @@ void ApplicationWindow::initToolBars() {
   matrix_plot_tools->setEnabled(false);
 }
 
-void ApplicationWindow::lockToolbar(const bool status) {
+void ApplicationWindow::lockToolbars(const bool status) {
   if (status) {
     file_tools->setMovable(false);
     edit_tools->setMovable(false);
@@ -677,7 +675,8 @@ void ApplicationWindow::lockToolbar(const bool status) {
     plot_tools->setMovable(false);
     table_tools->setMovable(false);
     matrix_plot_tools->setMovable(false);
-    locktoolbar->setIcon(IconLoader::load("lock", IconLoader::LightDark));
+    ui_->actionLockToolbars->setIcon(
+        IconLoader::load("lock", IconLoader::LightDark));
   } else {
     file_tools->setMovable(true);
     edit_tools->setMovable(true);
@@ -686,7 +685,8 @@ void ApplicationWindow::lockToolbar(const bool status) {
     plot_tools->setMovable(true);
     table_tools->setMovable(true);
     matrix_plot_tools->setMovable(true);
-    locktoolbar->setIcon(IconLoader::load("unlock", IconLoader::LightDark));
+    ui_->actionLockToolbars->setIcon(
+        IconLoader::load("unlock", IconLoader::LightDark));
   }
 }
 
@@ -728,29 +728,19 @@ void ApplicationWindow::insertTranslatedStrings() {
 }
 
 void ApplicationWindow::initMainMenu() {
-  /*
-  newMenuID = file->insertItem(tr("&New"), type);
-  // recentMenuID = file->insertItem(tr("&Recent Projects"), recent);
-  /*
-  exportID = file->insertItem(tr("&Export Graph"), exportPlot);
+/*
+newMenuID = file->insertItem(tr("&New"), type);
+recentMenuID = file->insertItem(tr("&Recent Projects"), recent);
+
+exportID = file->insertItem(tr("&Export Graph"), exportPlot);
 */
 
-  view = new QMenu(this);
-  view->setFont(appFont);
-  view->setCheckable(true);
-  toolbarsMenu = createToolbarsMenu();
-  if (!toolbarsMenu) toolbarsMenu = new QMenu(this);
-  toolbarsMenu->setTitle(tr("Toolbars"));
-
-  view->addMenu(toolbarsMenu);
-  view->addAction(locktoolbar);
-  view->addSeparator();
-  view->addAction(actionShowPlotWizard);
-  view->addAction(actionShowExplorer);
-  view->addAction(actionShowLog);
-  view->addAction(actionShowHistory);
 #ifdef SCRIPTING_CONSOLE
-  view->addAction(actionShowConsole);
+  ui_->actionShowConsole->setEnabled(true);
+  ui_->actionShowConsole->setVisible(true);
+#else
+  ui_->actionShowConsole->setEnabled(false);
+  ui_->actionShowConsole->setVisible(false);
 #endif
 
   graph = new QMenu(this);
@@ -1007,7 +997,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
   menuBar()->clear();
   menuBar()->insertItem(tr("&File"), ui_->menuFile);
   menuBar()->insertItem(tr("&Edit"), ui_->menuEdit);
-  menuBar()->insertItem(tr("&View"), view);
+  menuBar()->insertItem(tr("&View"), ui_->menuView);
   menuBar()->insertItem(tr("Scripting"), scriptingMenu);
 
   scriptingMenu->clear();
@@ -2223,11 +2213,11 @@ void ApplicationWindow::initMultilayerPlot(MultiLayer *g, const QString &name) {
 void ApplicationWindow::customizeTables(
     const QColor &bgColor, const QColor &textColor, const QColor &headerColor,
     const QFont &textFont, const QFont &headerFont, bool showComments) {
-  tableBkgdColor = bgColor;
-  tableTextColor = textColor;
-  tableHeaderColor = headerColor;
-  tableTextFont = textFont;
-  tableHeaderFont = headerFont;
+  // tableBkgdColor = bgColor;
+  // tableTextColor = textColor;
+  // tableHeaderColor = headerColor;
+  // tableTextFont = textFont;
+  // tableHeaderFont = headerFont;
   d_show_table_comments = showComments;
 
   QWidgetList *windows = windowsList();
@@ -2874,7 +2864,6 @@ void ApplicationWindow::updateAppFonts() {
   this->setFont(appFont);
   scriptingMenu->setFont(appFont);
   windowsMenu->setFont(appFont);
-  view->setFont(appFont);
   graph->setFont(appFont);
   ui_->menuFile->setFont(appFont);
   format->setFont(appFont);
@@ -4021,10 +4010,39 @@ void ApplicationWindow::readSettings() {
   asciiDirPath = settings.value("ASCII", QDir::homePath()).toString();
   imagesDirPath = settings.value("Images", QDir::homePath()).toString();
 #endif
-  locktoolbar->setChecked(settings.value("LockToolbars", false).toBool());
   settings.endGroup();  // Paths
   settings.endGroup();
   /* ------------- end group General ------------------- */
+
+  settings.beginGroup("View");
+  ui_->actionShowFileToolbar->setChecked(
+      settings.value("FileToolbar", true).toBool());
+  ui_->actionShowEditToolbar->setChecked(
+      settings.value("EditToolbar", true).toBool());
+  ui_->actionShowGraphToolbar->setChecked(
+      settings.value("GraphToolbar", true).toBool());
+  ui_->actionShowPlotToolbar->setChecked(
+      settings.value("PlotToolbar", true).toBool());
+  ui_->actionShowTableToolbar->setChecked(
+      settings.value("TableToolbar", true).toBool());
+  ui_->actionShowMatrixPlotToolbar->setChecked(
+      settings.value("MatrixPlotToolbar", true).toBool());
+  ui_->actionShow3DSurfacePlotToolbar->setChecked(
+      settings.value("3DSurfacePlotToolbar", true).toBool());
+  ui_->actionLockToolbars->setChecked(
+      settings.value("LockToolbars", false).toBool());
+  ui_->actionShowExplorer->setChecked(
+      settings.value("ShowExplorer", false).toBool());
+  explorerWindow->setVisible(ui_->actionShowExplorer->isChecked());
+  ui_->actionShowResultsLog->setChecked(
+      settings.value("ShowResultsLog", false).toBool());
+  logWindow->setVisible(ui_->actionShowResultsLog->isChecked());
+#ifdef SCRIPTING_CONSOLE
+  ui_->actionShowConsole->setChecked(
+      settings.value("ShowConsole", false).toBool());
+  consoleWindow->setVisible(ui_->actionShowConsole->isChecked());
+#endif
+  settings.endGroup();  // View
 
   settings.beginGroup("UserFunctions");
   fitFunctions = settings.value("FitFunctions").toStringList();
@@ -4056,8 +4074,8 @@ void ApplicationWindow::readSettings() {
   }
 
   settings.beginGroup("Colors");
-  tableBkgdColor = settings.value("Background", "#ffffff").value<QColor>();
-  tableTextColor = settings.value("Text", "#000000").value<QColor>();
+  // tableBkgdColor = settings.value("Background", "#ffffff").value<QColor>();
+  // tableTextColor = settings.value("Text", "#000000").value<QColor>();
   tableHeaderColor = settings.value("Header", "#000000").value<QColor>();
   settings.endGroup();  // Colors
   settings.endGroup();
@@ -4275,12 +4293,27 @@ void ApplicationWindow::saveSettings() {
   settings.setValue("FitPlugins", fitPluginsPath);
   settings.setValue("ASCII", asciiDirPath);
   settings.setValue("Images", imagesDirPath);
-
-  settings.setValue("LockToolbars", locktoolbar->isChecked());
-
   settings.endGroup();  // Paths
   settings.endGroup();
   /* ---------------- end group General --------------- */
+
+  settings.beginGroup("View");
+  settings.setValue("FileToolbar", ui_->actionShowFileToolbar->isChecked());
+  settings.setValue("EditToolbar", ui_->actionShowEditToolbar->isChecked());
+  settings.setValue("GraphToolbar", ui_->actionShowGraphToolbar->isChecked());
+  settings.setValue("PlotToolbar", ui_->actionShowPlotToolbar->isChecked());
+  settings.setValue("TableToolbar", ui_->actionShowTableToolbar->isChecked());
+  settings.setValue("MatrixPlotToolbar",
+                    ui_->actionShowMatrixPlotToolbar->isChecked());
+  settings.setValue("3DSurfacePlotToolbar",
+                    ui_->actionShow3DSurfacePlotToolbar->isChecked());
+  settings.setValue("LockToolbars", ui_->actionLockToolbars->isChecked());
+  settings.setValue("ShowExplorer", ui_->actionShowExplorer->isChecked());
+  settings.setValue("ShowResultsLog", ui_->actionShowResultsLog->isChecked());
+#ifdef SCRIPTING_CONSOLE
+  settings.setValue("ShowConsole", ui_->actionShowConsole->isChecked());
+#endif
+  settings.endGroup();  // View
 
   settings.beginGroup("UserFunctions");
   settings.setValue("FitFunctions", fitFunctions);
@@ -4316,7 +4349,7 @@ void ApplicationWindow::saveSettings() {
 
   settings.beginGroup("Colors");
   settings.setValue("Background", tableBkgdColor);
-  settings.setValue("Text", tableTextColor);
+  // settings.setValue("Text", tableTextColor);
   settings.setValue("Header", tableHeaderColor);
   settings.endGroup();  // Colors
   settings.endGroup();
@@ -8309,7 +8342,6 @@ void ApplicationWindow::custom3DGrids(int grids) {
 }
 
 void ApplicationWindow::initPlot3DToolBar() {
-  graph_3D_tools = new QToolBar(tr("3D Surface"), this);
   graph_3D_tools->setObjectName(
       "graph_3D_tools");  // this is needed for QMainWindow::restoreState()
   graph_3D_tools->setIconSize(QSize(20, 20));
@@ -9740,10 +9772,10 @@ void ApplicationWindow::connectTable(Table *w) {
   w->askOnCloseEvent(confirmCloseTable);
 }
 
-void ApplicationWindow::setAppColors(const QColor &wc, const QColor &pc,
+/*void ApplicationWindow::setAppColors(const QColor &wc, const QColor &pc,
                                      const QColor &tpc) {
   // comment out setting color for now
-  /*if (workspaceColor != wc)
+  if (workspaceColor != wc)
   {
           workspaceColor = wc;
           d_workspace->setPaletteBackgroundColor (wc);
@@ -9763,8 +9795,8 @@ void ApplicationWindow::setAppColors(const QColor &wc, const QColor &pc,
   cg.setColor(QColorGroup::WindowText, QColor(panelsTextColor) );
   cg.setColor(QColorGroup::HighlightedText, QColor(panelsTextColor) );
   lv->setPalette(QPalette(cg, cg, cg));
-  results->setPalette(QPalette(cg, cg, cg));*/
-}
+  results->setPalette(QPalette(cg, cg, cg));
+}*/
 
 void ApplicationWindow::setPlot3DOptions() {
   QList<QWidget *> *windows = windowsList();
@@ -9780,133 +9812,160 @@ void ApplicationWindow::setPlot3DOptions() {
 }
 
 void ApplicationWindow::createActions() {
+  // Set icons
+  // File menu
   ui_->actionNewProject->setIcon(
       IconLoader::load("edit-new", IconLoader::LightDark));
-  connect(ui_->actionNewProject, SIGNAL(activated()), this, SLOT(newProject()));
-
   ui_->actionNewGraph->setIcon(QIcon(QPixmap(":/new_graph.xpm")));
-  connect(ui_->actionNewGraph, SIGNAL(activated()), this, SLOT(newGraph()));
-
   ui_->actionNewNote->setIcon(QIcon(QPixmap(":/new_note.xpm")));
-  connect(ui_->actionNewNote, SIGNAL(activated()), this, SLOT(newNote()));
-
   ui_->actionNewTable->setIcon(QIcon(QPixmap(":/table.xpm")));
-
-  connect(ui_->actionNewTable, SIGNAL(activated()), this, SLOT(newTable()));
-
   ui_->actionNewMatrix->setIcon(QIcon(QPixmap(":/new_matrix.xpm")));
-  connect(ui_->actionNewMatrix, SIGNAL(activated()), this, SLOT(newMatrix()));
-
   ui_->actionNewFunctionPlot->setIcon(QIcon(QPixmap(":/newF.xpm")));
-  connect(ui_->actionNewFunctionPlot, SIGNAL(activated()), this,
-          SLOT(functionDialog()));
-
   ui_->actionNew3DSurfacePlot->setIcon(QIcon(QPixmap(":/newFxy.xpm")));
-  connect(ui_->actionNew3DSurfacePlot, SIGNAL(activated()), this,
-          SLOT(newSurfacePlot()));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
   ui_->actionOpenAproj->setIcon(
       IconLoader::load("project-open", IconLoader::LightDark));
-  connect(ui_->actionOpenAproj, SIGNAL(activated()), this, SLOT(open()));
-
   ui_->actionOpenImage->setIcon(QIcon());
-  connect(ui_->actionOpenImage, SIGNAL(activated()), this, SLOT(loadImage()));
-
   ui_->actionImportImage->setIcon(QIcon());
-  connect(ui_->actionImportImage, SIGNAL(activated()), this,
-          SLOT(importImage()));
-
   ui_->actionSaveProject->setIcon(
       IconLoader::load("document-save", IconLoader::LightDark));
-  connect(ui_->actionSaveProject, SIGNAL(activated()), this,
-          SLOT(saveProject()));
-
   ui_->actionSaveProjectAs->setIcon(QIcon());
-  connect(ui_->actionSaveProjectAs, SIGNAL(activated()), this,
-          SLOT(saveProjectAs()));
-
   ui_->actionOpenTemplate->setIcon(
       IconLoader::load("template-open", IconLoader::LightDark));
-  connect(ui_->actionOpenTemplate, SIGNAL(activated()), this,
-          SLOT(openTemplate()));
-
   ui_->actionSaveAsTemplate->setIcon(
       IconLoader::load("template-save", IconLoader::LightDark));
-  connect(ui_->actionSaveAsTemplate, SIGNAL(activated()), this,
-          SLOT(saveAsTemplate()));
-
-  actionSaveNote = new QAction(tr("Save Note As..."), this);
-  connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
-
+  ui_->actionExportCurrentGraph->setIcon(QIcon());
+  ui_->actionExportAllGraphs->setIcon(QIcon());
+  ui_->actionPrint->setIcon(
+      IconLoader::load("edit-print", IconLoader::LightDark));
+  ui_->actionPrintAllPlots->setIcon(QIcon());
+  ui_->actionExportASCII->setIcon(QIcon());
   ui_->actionImportASCII->setIcon(
       IconLoader::load("import-ascii-filter", IconLoader::LightDark));
-  connect(ui_->actionImportASCII, SIGNAL(activated()), this,
-          SLOT(importASCII()));
-
+  ui_->actionQuit->setIcon(QIcon(QPixmap(":/quit.xpm")));
+  // Edit menu
   ui_->actionUndo->setIcon(
       IconLoader::load("edit-undo", IconLoader::LightDark));
-  connect(ui_->actionUndo, SIGNAL(activated()), this, SLOT(undo()));
-  ui_->actionUndo->setEnabled(false);
-
   ui_->actionRedo->setIcon(
       IconLoader::load("edit-redo", IconLoader::LightDark));
+  ui_->actionCutSelection->setIcon(
+      IconLoader::load("edit-cut", IconLoader::LightDark));
+  ui_->actionCopySelection->setIcon(
+      IconLoader::load("edit-copy", IconLoader::LightDark));
+  ui_->actionPasteSelection->setIcon(
+      IconLoader::load("edit-paste", IconLoader::LightDark));
+  ui_->actionClearSelection->setIcon(
+      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
+  ui_->actionDeleteFitTables->setIcon(QIcon(QPixmap(":/close.xpm")));
+  ui_->actionClearLogInfo->setIcon(QIcon());
+  ui_->actionPreferences->setIcon(QIcon());
+  // View menu
+  ui_->actionLockToolbars->setIcon(
+      IconLoader::load("lock", IconLoader::LightDark));
+  ui_->actionShowExplorer->setIcon(
+      IconLoader::load("folder-explorer", IconLoader::LightDark));
+  ui_->actionShowResultsLog->setIcon(QPixmap(":/log.xpm"));
+#ifdef SCRIPTING_CONSOLE
+  ui_->actionShowConsole->setIcon(QIcon());
+#endif
+  ui_->actionShowUndoRedoHistory->setIcon(QIcon());
+  ui_->actionPlotWizard->setIcon(QIcon(QPixmap(":/wizard.xpm")));
+
+  // Connections
+  // File menu
+  connect(ui_->actionNewProject, SIGNAL(activated()), this, SLOT(newProject()));
+  connect(ui_->actionNewGraph, SIGNAL(activated()), this, SLOT(newGraph()));
+  connect(ui_->actionNewNote, SIGNAL(activated()), this, SLOT(newNote()));
+  connect(ui_->actionNewTable, SIGNAL(activated()), this, SLOT(newTable()));
+  connect(ui_->actionNewMatrix, SIGNAL(activated()), this, SLOT(newMatrix()));
+  connect(ui_->actionNewFunctionPlot, SIGNAL(activated()), this,
+          SLOT(functionDialog()));
+  connect(ui_->actionNew3DSurfacePlot, SIGNAL(activated()), this,
+          SLOT(newSurfacePlot()));
+  connect(ui_->actionOpenAproj, SIGNAL(activated()), this, SLOT(open()));
+  connect(ui_->actionOpenImage, SIGNAL(activated()), this, SLOT(loadImage()));
+  connect(ui_->actionImportImage, SIGNAL(activated()), this,
+          SLOT(importImage()));
+  connect(ui_->actionSaveProject, SIGNAL(activated()), this,
+          SLOT(saveProject()));
+  connect(ui_->actionSaveProjectAs, SIGNAL(activated()), this,
+          SLOT(saveProjectAs()));
+  connect(ui_->actionOpenTemplate, SIGNAL(activated()), this,
+          SLOT(openTemplate()));
+  connect(ui_->actionSaveAsTemplate, SIGNAL(activated()), this,
+          SLOT(saveAsTemplate()));
+  connect(ui_->actionExportCurrentGraph, SIGNAL(activated()), this,
+          SLOT(exportGraph()));
+  connect(ui_->actionExportAllGraphs, SIGNAL(activated()), this,
+          SLOT(exportAllGraphs()));
+  connect(ui_->actionPrint, SIGNAL(activated()), this, SLOT(print()));
+  connect(ui_->actionPrintAllPlots, SIGNAL(activated()), this,
+          SLOT(printAllPlots()));
+  connect(ui_->actionExportASCII, SIGNAL(activated()), this,
+          SLOT(showExportASCIIDialog()));
+  connect(ui_->actionImportASCII, SIGNAL(activated()), this,
+          SLOT(importASCII()));
+  connect(ui_->actionQuit, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
+  // Edit menu
+  connect(ui_->actionUndo, SIGNAL(activated()), this, SLOT(undo()));
+  ui_->actionUndo->setEnabled(false);
   connect(ui_->actionRedo, SIGNAL(activated()), this, SLOT(redo()));
   ui_->actionRedo->setEnabled(false);
+  connect(ui_->actionCutSelection, SIGNAL(activated()), this,
+          SLOT(cutSelection()));
+  connect(ui_->actionCopySelection, SIGNAL(activated()), this,
+          SLOT(copySelection()));
+  connect(ui_->actionPasteSelection, SIGNAL(activated()), this,
+          SLOT(pasteSelection()));
+  connect(ui_->actionClearSelection, SIGNAL(activated()), this,
+          SLOT(clearSelection()));
+  connect(ui_->actionClearLogInfo, SIGNAL(activated()), this,
+          SLOT(clearLogInfo()));
+  connect(ui_->actionDeleteFitTables, SIGNAL(activated()), this,
+          SLOT(deleteFitTables()));
+  connect(ui_->actionPreferences, SIGNAL(activated()), this,
+          SLOT(showPreferencesDialog()));
+  // View menu
+  connect(ui_->actionShowFileToolbar, SIGNAL(toggled(bool)), file_tools,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowEditToolbar, SIGNAL(toggled(bool)), edit_tools,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowGraphToolbar, SIGNAL(toggled(bool)), graph_tools,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowPlotToolbar, SIGNAL(toggled(bool)), plot_tools,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowTableToolbar, SIGNAL(toggled(bool)), table_tools,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowMatrixPlotToolbar, SIGNAL(toggled(bool)),
+          matrix_plot_tools, SLOT(setVisible(bool)));
+  connect(ui_->actionShow3DSurfacePlotToolbar, SIGNAL(toggled(bool)),
+          graph_3D_tools, SLOT(setVisible(bool)));
+  connect(ui_->actionLockToolbars, SIGNAL(toggled(bool)), this,
+          SLOT(lockToolbars(bool)));
+  connect(ui_->actionShowExplorer, SIGNAL(toggled(bool)), explorerWindow,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowResultsLog, SIGNAL(toggled(bool)), logWindow,
+          SLOT(setVisible(bool)));
+#ifdef SCRIPTING_CONSOLE
+  connect(ui_->actionShowConsole, SIGNAL(toggled(bool)), consoleWindow,
+          SLOT(setVisible(bool)));
+#endif
+  connect(ui_->actionShowUndoRedoHistory, SIGNAL(triggered(bool)), this,
+          SLOT(showUndoRedoHistory()));
+  connect(ui_->actionPlotWizard, SIGNAL(activated()), this,
+          SLOT(showPlotWizard()));
 
   actionCopyWindow =
       new QAction(QIcon(QPixmap(":/duplicate.xpm")), tr("&Duplicate"), this);
   connect(actionCopyWindow, SIGNAL(activated()), this, SLOT(clone()));
 
-  ui_->actionCutSelection->setIcon(
-      IconLoader::load("edit-cut", IconLoader::LightDark));
-  connect(ui_->actionCutSelection, SIGNAL(activated()), this,
-          SLOT(cutSelection()));
-
-  ui_->actionCopySelection->setIcon(
-      IconLoader::load("edit-copy", IconLoader::LightDark));
-  connect(ui_->actionCopySelection, SIGNAL(activated()), this,
-          SLOT(copySelection()));
-
-  ui_->actionPasteSelection->setIcon(
-      IconLoader::load("edit-paste", IconLoader::LightDark));
-  connect(ui_->actionPasteSelection, SIGNAL(activated()), this,
-          SLOT(pasteSelection()));
-
-  ui_->actionClearSelection->setIcon(
-      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
-  connect(ui_->actionClearSelection, SIGNAL(activated()), this,
-          SLOT(clearSelection()));
-
-  locktoolbar = new QAction(IconLoader::load("lock", IconLoader::LightDark),
-                            tr("&Lock Toolbars"), this);
-  locktoolbar->setCheckable(true);
-  connect(locktoolbar, SIGNAL(toggled(bool)), this, SLOT(lockToolbar(bool)));
-
-  actionShowExplorer = explorerWindow->toggleViewAction();
-  actionShowExplorer->setIcon(
-      IconLoader::load("folder-explorer", IconLoader::LightDark));
-  actionShowExplorer->setShortcut(tr("Ctrl+E"));
-
-  actionShowLog = logWindow->toggleViewAction();
-  actionShowLog->setIcon(QPixmap(":/log.xpm"));
-
-  actionShowHistory = new QAction(tr("Undo/Redo &History"), this);
-  connect(actionShowHistory, SIGNAL(triggered(bool)), this,
-          SLOT(showHistory()));
-
-#ifdef SCRIPTING_CONSOLE
-  actionShowConsole = consoleWindow->toggleViewAction();
-#endif
+  actionSaveNote = new QAction(tr("Save Note As..."), this);
+  connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
 
   actionAddLayer =
       new QAction(QIcon(QPixmap(":/newLayer.xpm")), tr("Add La&yer"), this);
   actionAddLayer->setShortcut(tr("ALT+L"));
   connect(actionAddLayer, SIGNAL(activated()), this, SLOT(addLayer()));
 
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
   actionShowLayerDialog = new QAction(QIcon(QPixmap(":/arrangeLayers.xpm")),
                                       tr("Arran&ge Layers") + "...", this);
   actionShowLayerDialog->setShortcut(tr("ALT+A"));
@@ -9918,64 +9977,11 @@ void ApplicationWindow::createActions() {
   connect(actionAutomaticLayout, SIGNAL(activated()), this,
           SLOT(autoArrangeLayers()));
 
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  ui_->actionExportCurrentGraph->setIcon(QIcon());
-  connect(ui_->actionExportCurrentGraph, SIGNAL(activated()), this,
-          SLOT(exportGraph()));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  ui_->actionExportAllGraphs->setIcon(QIcon());
-  connect(ui_->actionExportAllGraphs, SIGNAL(activated()), this,
-          SLOT(exportAllGraphs()));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
   actionExportPDF =
       new QAction(IconLoader::load("application-pdf", IconLoader::LightDark),
                   tr("&Export PDF") + "...", this);
   actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
   connect(actionExportPDF, SIGNAL(activated()), this, SLOT(exportPDF()));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  ui_->actionPrint->setIcon(
-      IconLoader::load("edit-print", IconLoader::LightDark));
-  connect(ui_->actionPrint, SIGNAL(activated()), this, SLOT(print()));
-
-  ui_->actionPrintAllPlots->setIcon(QIcon());
-  connect(ui_->actionPrintAllPlots, SIGNAL(activated()), this,
-          SLOT(printAllPlots()));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  ui_->actionExportASCII->setIcon(QIcon());
-  connect(ui_->actionExportASCII, SIGNAL(activated()), this,
-          SLOT(showExportASCIIDialog()));
-
-  ui_->actionQuit->setIcon(QIcon(QPixmap(":/quit.xpm")));
-  connect(ui_->actionQuit, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
-
-  ui_->actionClearLogInfo->setIcon(QIcon());
-  connect(ui_->actionClearLogInfo, SIGNAL(activated()), this,
-          SLOT(clearLogInfo()));
-
-  ui_->actionDeleteFitTables->setIcon(QIcon(QPixmap(":/close.xpm")));
-  connect(ui_->actionDeleteFitTables, SIGNAL(activated()), this,
-          SLOT(deleteFitTables()));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  actionShowPlotWizard = new QAction(QIcon(QPixmap(":/wizard.xpm")),
-                                     tr("Plot &Wizard") + "...", this);
-  actionShowPlotWizard->setShortcut(tr("Ctrl+Alt+W"));
-  connect(actionShowPlotWizard, SIGNAL(activated()), this,
-          SLOT(showPlotWizard()));
-
-  ui_->actionPreferences->setIcon(QIcon());
-  connect(ui_->actionPreferences, SIGNAL(activated()), this,
-          SLOT(showPreferencesDialog()));
 
   actionShowCurvesDialog = new QAction(QIcon(QPixmap(":/curves.xpm")),
                                        tr("Add/Remove &Curve..."), this);
@@ -10510,18 +10516,6 @@ void ApplicationWindow::translateActionsStrings() {
   actionCopyWindow->setMenuText(tr("&Duplicate"));
   actionCopyWindow->setToolTip(tr("Duplicate window"));
 
-  actionShowExplorer->setMenuText(tr("Project &Explorer"));
-  actionShowExplorer->setShortcut(tr("Ctrl+E"));
-  actionShowExplorer->setToolTip(tr("Show project explorer"));
-
-  actionShowLog->setMenuText(tr("Results &Log"));
-  actionShowLog->setToolTip(tr("Show analysis results"));
-
-#ifdef SCRIPTING_CONSOLE
-  actionShowConsole->setMenuText(tr("&Console"));
-  actionShowConsole->setToolTip(tr("Show Scripting console"));
-#endif
-
   actionAddLayer->setMenuText(tr("Add La&yer"));
   actionAddLayer->setToolTip(tr("Add Layer"));
   actionAddLayer->setShortcut(tr("ALT+L"));
@@ -10540,10 +10534,6 @@ void ApplicationWindow::translateActionsStrings() {
   actionExportPDF->setMenuText(tr("&Export PDF") + "...");
   actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
   actionExportPDF->setToolTip(tr("Export to PDF"));
-
-  actionShowPlotWizard->setMenuText(tr("Plot &Wizard"));
-  actionShowPlotWizard->setShortcut(tr("Ctrl+Alt+W"));
-  toolbarsMenu->setTitle(tr("Toolbars"));
 
   actionShowCurvesDialog->setMenuText(tr("Add/Remove &Curve..."));
   actionShowCurvesDialog->setShortcut(tr("ALT+C"));
@@ -12722,19 +12712,6 @@ ApplicationWindow *ApplicationWindow::loadScript(const QString &fn,
   return app;
 }
 
-QMenu *ApplicationWindow::createToolbarsMenu() {
-  QMenu *menu = 0;
-  QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
-  if (toolbars.size()) {
-    menu = new QMenu(this);
-    foreach (QToolBar *toolbar, toolbars) {
-      if (toolbar->parentWidget() == this)
-        menu->addAction(toolbar->toggleViewAction());
-    }
-  }
-  return menu;
-}
-
 void ApplicationWindow::copyStatusBarText() {
   QApplication::clipboard()->setText(d_status_info->text());
 }
@@ -12955,7 +12932,7 @@ void ApplicationWindow::handleAspectAboutToBeRemoved(
   }
 }
 
-void ApplicationWindow::showHistory() {
+void ApplicationWindow::showUndoRedoHistory() {
   if (!d_project->undoStack()) return;
   QDialog dialog;
   QVBoxLayout layout(&dialog);

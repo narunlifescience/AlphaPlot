@@ -154,14 +154,14 @@ class ApplicationWindow : public QMainWindow, public scripted {
   ConsoleWidget* consoleWindow;
 #endif
   QWorkspace* d_workspace;
-  QToolBar *file_tools, *graph_tools, *table_tools, *plot_tools,
-      *graph_3D_tools, *edit_tools, *matrix_plot_tools;
   FolderListView* lv;
   FolderListView* folders;
   QToolButton* btnResults;
   QWidgetList* hiddenWindows;
   QWidgetList* outWindows;
   QWidget* lastModified;
+  QToolBar *file_tools, *edit_tools, *graph_tools, *plot_tools, *table_tools,
+      *matrix_plot_tools, *graph_3D_tools;
 
  public:
   /*! Generates a new unique name starting with string /param name.
@@ -186,7 +186,7 @@ class ApplicationWindow : public QMainWindow, public scripted {
    */
   QFile* openCompressedFile(const QString& fn);
   ApplicationWindow* openProject(const QString& fileName);
-  void showHistory();
+  void showUndoRedoHistory();
 
   /**
    * \brief Create a new project from a data file.
@@ -235,7 +235,7 @@ Arranges all the visible project windows in a cascade pattern.
   void changeAppStyle(const QString& s);
   void changeAppFont(const QFont& f);
   void updateAppFonts();
-  void setAppColors(const QColor& wc, const QColor& pc, const QColor& tpc);
+  // void setAppColors(const QColor& wc, const QColor& pc, const QColor& tpc);
   //@}
 
   //! \name Multilayer Plots
@@ -1094,8 +1094,6 @@ Arranges all the visible project windows in a cascade pattern.
   Ui_ApplicationWindow* ui_;
   //! Show a context menu for the widget
   void showWindowMenu(MyWidget* widget);
-  //! Create a menu for toggeling the toolbars
-  QMenu* createToolbarsMenu();
 
   //! Check whether a table is valid for a 3D plot and display an appropriate
   //! error if not
@@ -1122,8 +1120,7 @@ Arranges all the visible project windows in a cascade pattern.
   Graph* lastCopiedLayer;
   QSplitter* explorerSplitter;
 
-  QMenu *windowsMenu, *view, *graph, *format, *calcul, *dataMenu,
-      *toolbarsMenu;
+  QMenu *windowsMenu, *graph, *format, *calcul, *dataMenu;
   QMenu* d_quick_fit_menu;
   QMenu *help, *plot2D, *plot3D, *specialPlot, *panels, *stat, *decay, *filter;
   QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu;
@@ -1135,17 +1132,11 @@ Arranges all the visible project windows in a cascade pattern.
   QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet,
       *actionShowCurvePlotDialog;
   QAction* actionCopyWindow;
-  QAction* locktoolbar;
-  QAction *actionShowExplorer, *actionShowLog, *actionAddLayer,
-      *actionShowLayerDialog, *actionAutomaticLayout;
-  QAction* actionShowHistory;
-#ifdef SCRIPTING_CONSOLE
-  QAction* actionShowConsole;
-#endif
+  QAction *actionAddLayer, *actionShowLayerDialog, *actionAutomaticLayout;
 
   QAction* actionShowExportASCIIDialog;
   QAction* actionExportPDF;
-  QAction *actionCloseAllWindows, *actionShowPlotWizard;
+  QAction* actionCloseAllWindows;
   QAction *actionShowCurvesDialog, *actionAddErrorBars, *actionAddFunctionCurve,
       *actionUnzoom, *actionNewLegend, *actionAddImage, *actionAddText;
   QAction *actionPlotL, *actionPlotP, *actionPlotLP,
@@ -1275,7 +1266,7 @@ Arranges all the visible project windows in a cascade pattern.
 
   void handleAspectAdded(const AbstractAspect* aspect, int index);
   void handleAspectAboutToBeRemoved(const AbstractAspect* aspect, int index);
-  void lockToolbar(const bool status);
+  void lockToolbars(const bool status);
 };
 
 #endif  // APPLICATION_H

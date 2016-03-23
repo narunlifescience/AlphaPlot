@@ -1151,8 +1151,8 @@ void ConfigDialog::apply() {
                             boxPlots2D->isChecked(), boxPlots3D->isChecked(),
                             boxNotes->isChecked());
   // general page: colors tab
-  app->setAppColors(btnWorkspace->color(), btnPanels->color(),
-                    btnPanelsText->color());
+  //app->setAppColors(btnWorkspace->color(), btnPanels->color(),
+  //                  btnPanelsText->color());
   // 3D plots page
   app->plot3DColors = plot3DColors;
   app->showPlot3DLegend = boxShowLegend->isChecked();

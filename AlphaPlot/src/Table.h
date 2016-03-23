@@ -259,8 +259,8 @@ class Table : public TableView, public scripted {
   QString saveColumnTypes();
   //@}
 
-  void setBackgroundColor(const QColor& col);
-  void setTextColor(const QColor& col);
+  void setTableBackgroundColor(const QColor& col);
+  void setTableTextColor(const QColor& col);
   void setHeaderColor(const QColor& col);
   void setTextFont(const QFont& fnt);
   void setHeaderFont(const QFont& fnt);

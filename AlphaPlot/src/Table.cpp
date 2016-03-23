@@ -92,7 +92,6 @@ void Table::init() {
   d_future_table->setView(this);
 
   birthdate = d_future_table->creationTime().toString(Qt::LocalDate);
-
   ui.gridLayout1->removeWidget(ui.formula_box);
   delete ui.formula_box;
   ui.formula_box = new ScriptEdit(scriptEnv, ui.formula_tab);
@@ -177,11 +176,11 @@ void Table::handleRowChange() {
   for (int i = 0; i < numCols(); i++) emit modifiedData(this, colName(i));
 }
 
-void Table::setBackgroundColor(const QColor &col) {
+void Table::setTableBackgroundColor(const QColor &col) {
   d_view_widget->setPaletteBackgroundColor(col);
 }
 
-void Table::setTextColor(const QColor &col) {
+void Table::setTableTextColor(const QColor &col) {
   d_view_widget->setPaletteForegroundColor(col);
 }
 

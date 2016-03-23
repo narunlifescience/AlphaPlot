@@ -97,8 +97,35 @@
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <widget class="QMenu" name="menuToolbars">
+     <property name="title">
+      <string>&amp;Toolbars</string>
+     </property>
+     <addaction name="actionShowFileToolbar"/>
+     <addaction name="actionShowEditToolbar"/>
+     <addaction name="actionShowGraphToolbar"/>
+     <addaction name="actionShowPlotToolbar"/>
+     <addaction name="actionShowTableToolbar"/>
+     <addaction name="actionShowMatrixPlotToolbar"/>
+     <addaction name="actionShow3DSurfacePlotToolbar"/>
+    </widget>
+    <addaction name="menuToolbars"/>
+    <addaction name="actionLockToolbars"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowExplorer"/>
+    <addaction name="actionShowResultsLog"/>
+    <addaction name="actionShowConsole"/>
+    <addaction name="actionShowUndoRedoHistory"/>
+    <addaction name="separator"/>
+    <addaction name="actionPlotWizard"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -266,7 +293,7 @@
   </action>
   <action name="actionUndo">
    <property name="text">
-    <string>Undo</string>
+    <string>&amp;Undo</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Z</string>
@@ -274,7 +301,7 @@
   </action>
   <action name="actionRedo">
    <property name="text">
-    <string>Redo</string>
+    <string>&amp;Redo</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
@@ -282,7 +309,7 @@
   </action>
   <action name="actionCutSelection">
    <property name="text">
-    <string>Cut Selection</string>
+    <string>&amp;Cut Selection</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+X</string>
@@ -290,7 +317,7 @@
   </action>
   <action name="actionCopySelection">
    <property name="text">
-    <string>Copy Selection</string>
+    <string>Copy &amp;Selection</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
@@ -298,7 +325,7 @@
   </action>
   <action name="actionClearSelection">
    <property name="text">
-    <string>Clear Selection</string>
+    <string>Cl&amp;ear Selection</string>
    </property>
    <property name="shortcut">
     <string>Backspace</string>
@@ -306,7 +333,7 @@
   </action>
   <action name="actionPasteSelection">
    <property name="text">
-    <string>Paste Selection</string>
+    <string>&amp;Paste Selection</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+V</string>
@@ -314,17 +341,121 @@
   </action>
   <action name="actionDeleteFitTables">
    <property name="text">
-    <string>Delete Fit Tables</string>
+    <string>&amp;Delete Fit Tables</string>
    </property>
   </action>
   <action name="actionClearLogInfo">
    <property name="text">
-    <string>Clear Log Information</string>
+    <string>Clear &amp;Log Information</string>
    </property>
   </action>
   <action name="actionPreferences">
    <property name="text">
-    <string>Preferences...</string>
+    <string>Pre&amp;ferences...</string>
+   </property>
+  </action>
+  <action name="actionShowFileToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;File</string>
+   </property>
+  </action>
+  <action name="actionShowEditToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Edit</string>
+   </property>
+  </action>
+  <action name="actionShowGraphToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Graph</string>
+   </property>
+  </action>
+  <action name="actionShowPlotToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Plot</string>
+   </property>
+  </action>
+  <action name="actionShowTableToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Table</string>
+   </property>
+  </action>
+  <action name="actionShowMatrixPlotToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Matrix Plot</string>
+   </property>
+  </action>
+  <action name="actionShow3DSurfacePlotToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;3D Surface Plot</string>
+   </property>
+  </action>
+  <action name="actionLockToolbars">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Lock Toolbars</string>
+   </property>
+  </action>
+  <action name="actionPlotWizard">
+   <property name="text">
+    <string>Plot &amp;Wizard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+W</string>
+   </property>
+  </action>
+  <action name="actionShowExplorer">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Project Explorer</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionShowResultsLog">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Results Log</string>
+   </property>
+  </action>
+  <action name="actionShowConsole">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Console</string>
+   </property>
+  </action>
+  <action name="actionShowUndoRedoHistory">
+   <property name="text">
+    <string>&amp;Undo/Redo History</string>
    </property>
   </action>
  </widget>
