@@ -16,11 +16,6 @@
    Description : AlphaPlot icon loader
 */
 
-/* TODO:
-   1) use diffrent size icons 16x16, 22x22, 32x32 etc..(up to 64x64)
-   2) use only svg icons insted of xpm
-   3) use freedesktop icon naming when possible */
-
 #include "IconLoader.h"
 
 #include <QFile>
@@ -36,7 +31,7 @@ void IconLoader::init() {
   icon_path_.clear();
   icon_path_ << ":icons/dark"
              << ":icons/light"
-             << ":icons/general";
+             << ":icons/common";
 }
 
 QIcon IconLoader::load(const QString& name, const IconMode& iconMode) {
@@ -70,12 +65,21 @@ QIcon IconLoader::load(const QString& name, const IconMode& iconMode) {
       break;
   }
 
-  const QString locate(filename + "/%1/%2.svg");
+  const QString locate(filename + "/%1/%2.%3");
   for (int i = 0; i < sizes_.size(); i++) {
-    QString filename_custom(locate.arg(sizes_.at(i)).arg(name));
+    const QString filename_custom_png(
+        locate.arg(sizes_.at(i)).arg(name).arg("png"));
 
-    if (QFile::exists(filename_custom)) {
-      ret.addFile(filename_custom, QSize(sizes_.at(i), sizes_.at(i)));
+    // First check if a png file is available
+    if (QFile::exists(filename_custom_png)) {
+      ret.addFile(filename_custom_png, QSize(sizes_.at(i), sizes_.at(i)));
+    } else {
+      const QString filename_custom_svg(
+          locate.arg(sizes_.at(i)).arg(name).arg("svg"));
+      // Then check if an svg file is available
+      if (QFile::exists(filename_custom_svg)) {
+        ret.addFile(filename_custom_svg, QSize(sizes_.at(i), sizes_.at(i)));
+      }
     }
   }
 

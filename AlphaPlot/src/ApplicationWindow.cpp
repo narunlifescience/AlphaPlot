@@ -2365,7 +2365,7 @@ Table *ApplicationWindow::newHiddenTable(const QString &name,
 }
 
 void ApplicationWindow::initTable(Table *table) {
-  table->setIcon(QPixmap(":/worksheet.xpm"));
+  table->setIcon(IconLoader::load("table", IconLoader::LightDark).pixmap());
   current_folder->addWindow(table);
   table->setFolder(current_folder);
   d_workspace->addWindow(table);
@@ -12029,7 +12029,8 @@ void ApplicationWindow::folderProperties() {
       new QMessageBox(tr("Properties"), s, QMessageBox::NoIcon, QMessageBox::Ok,
                       QMessageBox::NoButton, QMessageBox::NoButton, this);
 
-  mbox->setIconPixmap(QPixmap(":/folder_open.xpm"));
+  mbox->setIconPixmap(
+      IconLoader::load("folder-open", IconLoader::General).pixmap(16));
   mbox->show();
 }
 
@@ -12266,7 +12267,8 @@ void ApplicationWindow::addListViewItem(MyWidget *w) {
     it->setPixmap(0, QPixmap(":/matrix.xpm"));
     it->setText(1, tr("Matrix"));
   } else if (w->inherits("Table")) {
-    it->setPixmap(0, QPixmap(":/worksheet.xpm"));
+    it->setPixmap(0,
+                  IconLoader::load("table", IconLoader::LightDark).pixmap(16));
     it->setText(1, tr("Table"));
   } else if (w->inherits("Note")) {
     it->setPixmap(0, QPixmap(":/note.xpm"));
@@ -12303,7 +12305,8 @@ void ApplicationWindow::windowProperties() {
     mbox->setIconPixmap(QPixmap(":/matrix.xpm"));
     s += tr("Type") + ": " + tr("Matrix") + "\n\n";
   } else if (w->inherits("Table")) {
-    mbox->setIconPixmap(QPixmap(":/worksheet.xpm"));
+    mbox->setIconPixmap(
+        IconLoader::load("table", IconLoader::LightDark).pixmap(16));
     s += tr("Type") + ": " + tr("Table") + "\n\n";
   } else if (w->inherits("Note")) {
     mbox->setIconPixmap(QPixmap(":/note.xpm"));

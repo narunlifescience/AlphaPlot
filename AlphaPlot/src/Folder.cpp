@@ -30,6 +30,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "Folder.h"
+#include "core/IconLoader.h"
 
 #include <Q3PtrList>
 #include <Q3DragObject>
@@ -190,9 +191,11 @@ FolderListItem::FolderListItem(FolderListItem *parent, Folder *f)
 
 void FolderListItem::setActive(bool o) {
   if (o)
-    setPixmap(0, QPixmap(":/folder_open.xpm"));
+    setPixmap(0, IconLoader::load("folder-open", IconLoader::General)
+                     .pixmap(16));
   else
-    setPixmap(0, QPixmap(":/folder_closed.xpm"));
+    setPixmap(0, IconLoader::load("folder-closed", IconLoader::General)
+                     .pixmap(16));
 
   setSelected(o);
 }

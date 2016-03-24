@@ -56,7 +56,6 @@
      <property name="title">
       <string>&amp;Recent Projects</string>
      </property>
-     <addaction name="actionDummy"/>
     </widget>
     <addaction name="menuNew"/>
     <addaction name="actionOpenAproj"/>
@@ -232,6 +231,15 @@
    <property name="shortcut">
     <string>Ctrl+T</string>
    </property>
+   <property name="autoRepeat">
+    <bool>true</bool>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionNewMatrix">
    <property name="text">
@@ -284,11 +292,6 @@
    </property>
    <property name="shortcut">
     <string>Alt+X</string>
-   </property>
-  </action>
-  <action name="actionDummy">
-   <property name="text">
-    <string>&amp;proj1</string>
    </property>
   </action>
   <action name="actionUndo">

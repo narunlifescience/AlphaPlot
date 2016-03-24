@@ -19,7 +19,6 @@
 	<file alias="general.xpm">icons/general.xpm</file>
 	<file alias="resize.xpm">icons/resize.xpm</file>
 	<file alias="newfolder.xpm">icons/newfolder.xpm</file>
-	<file alias="folder_open.xpm">icons/folder_open.xpm</file>
 	<file alias="note.xpm">icons/note.xpm</file>
 	<file alias="new_aspect.xpm">icons/new_aspect.xpm</file>
 	<file alias="new_note.xpm">icons/new_note.xpm</file>
@@ -127,7 +126,6 @@
 	<file alias="bottom_scl.xpm">icons/bottom_scl.xpm</file>
 	<file alias="cursor.xpm">icons/cursor.xpm</file>
 	<file alias="exp.xpm">icons/exp.xpm</file>
-	<file alias="folder_closed.xpm">icons/folder_closed.xpm</file>
 	<file alias="index.xpm">icons/index.xpm</file>
 	<file alias="left_scl.xpm">icons/left_scl.xpm</file>
 	<file alias="lens.xpm">icons/lens.xpm</file>
@@ -213,6 +211,22 @@
 	<file alias="appicon-96">icons/app/96/AlphaPlot.png</file>
 	<file alias="appicon-128">icons/app/128/AlphaPlot.png</file>
     <file alias="applogo">AlphaPlot-logo.png</file>
+    <file>icons/common/16/folder-closed.png</file>
+    <file>icons/common/16/folder-open.png</file>
+    <file>icons/common/22/folder-closed.png</file>
+    <file>icons/common/22/folder-open.png</file>
+    <file>icons/common/24/folder-closed.png</file>
+    <file>icons/common/24/folder-open.png</file>
+    <file>icons/common/32/folder-closed.png</file>
+    <file>icons/common/32/folder-open.png</file>
+    <file>icons/common/48/folder-closed.png</file>
+    <file>icons/common/48/folder-open.png</file>
+    <file>icons/common/64/folder-closed.png</file>
+    <file>icons/common/64/folder-open.png</file>
+    <file>icons/common/96/folder-closed.png</file>
+    <file>icons/common/96/folder-open.png</file>
+    <file>icons/common/128/folder-closed.png</file>
+    <file>icons/common/128/folder-open.png</file>
 	<file>icons/light/16/edit-copy.svg</file>
 	<file>icons/light/16/edit-cut.svg</file>
 	<file>icons/light/16/edit-paste.svg</file>
@@ -234,6 +248,7 @@
 	<file>icons/light/16/project-open.svg</file>
 	<file>icons/light/16/template-open.svg</file>
     <file>icons/light/16/template-save.svg</file>
+    <file>icons/light/16/table.svg</file>
 	<file>icons/light/22/edit-copy.svg</file>
 	<file>icons/light/22/edit-cut.svg</file>
 	<file>icons/light/22/edit-paste.svg</file>
@@ -255,6 +270,7 @@
 	<file>icons/light/22/project-open.svg</file>
 	<file>icons/light/22/template-open.svg</file>
     <file>icons/light/22/template-save.svg</file>
+    <file>icons/light/22/table.svg</file>
 	<file>icons/light/24/edit-copy.svg</file>
 	<file>icons/light/24/edit-cut.svg</file>
 	<file>icons/light/24/edit-paste.svg</file>
@@ -276,6 +292,7 @@
 	<file>icons/light/24/project-open.svg</file>
 	<file>icons/light/24/template-open.svg</file>
     <file>icons/light/24/template-save.svg</file>
+    <file>icons/light/24/table.svg</file>
 	<file>icons/dark/16/edit-copy.svg</file>
 	<file>icons/dark/16/edit-cut.svg</file>
 	<file>icons/dark/16/edit-paste.svg</file>
@@ -297,6 +314,7 @@
 	<file>icons/dark/16/project-open.svg</file>
 	<file>icons/dark/16/template-open.svg</file>
     <file>icons/dark/16/template-save.svg</file>
+    <file>icons/dark/16/table.svg</file>
 	<file>icons/dark/22/edit-copy.svg</file>
 	<file>icons/dark/22/edit-cut.svg</file>
 	<file>icons/dark/22/edit-paste.svg</file>
@@ -318,6 +336,7 @@
 	<file>icons/dark/22/project-open.svg</file>
 	<file>icons/dark/22/template-open.svg</file>
     <file>icons/dark/22/template-save.svg</file>
+    <file>icons/dark/22/table.svg</file>
 	<file>icons/dark/24/edit-copy.svg</file>
 	<file>icons/dark/24/edit-cut.svg</file>
 	<file>icons/dark/24/edit-paste.svg</file>
@@ -339,6 +358,7 @@
 	<file>icons/dark/24/project-open.svg</file>
 	<file>icons/dark/24/template-open.svg</file>
     <file>icons/dark/24/template-save.svg</file>
+    <file>icons/dark/24/table.svg</file>
 	<file>splash/splash.png</file>
 </qresource>
 </RCC>
