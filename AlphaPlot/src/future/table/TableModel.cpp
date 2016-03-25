@@ -106,9 +106,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const {
     }
     case Qt::ForegroundRole: {
       if (col_ptr->isInvalid(index.row()))
-        return QVariant(QBrush(QColor(0xff, 0, 0)));  // invalid -> red letters
-      else
-        return QVariant(QBrush(QColor(0, 0, 0)));
+        return QVariant(QBrush(QColor(Qt::red)));  // invalid -> red letters
     }
     case MaskingRole:
       return QVariant(col_ptr->isMasked(row));
