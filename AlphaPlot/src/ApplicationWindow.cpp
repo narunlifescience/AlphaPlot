@@ -728,13 +728,6 @@ void ApplicationWindow::insertTranslatedStrings() {
 }
 
 void ApplicationWindow::initMainMenu() {
-/*
-newMenuID = file->insertItem(tr("&New"), type);
-recentMenuID = file->insertItem(tr("&Recent Projects"), recent);
-
-exportID = file->insertItem(tr("&Export Graph"), exportPlot);
-*/
-
 #ifdef SCRIPTING_CONSOLE
   ui_->actionShowConsole->setEnabled(true);
   ui_->actionShowConsole->setVisible(true);
@@ -1025,7 +1018,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
       menuBar()->insertItem(tr("&Analysis"), calcul);
       menuBar()->insertItem(tr("For&mat"), format);
 
-      ui_->menuFile->setItemEnabled(exportID, true);
+      ui_->menuExportGraph->setEnabled(true);
       ui_->actionExportASCII->setEnabled(false);
       ui_->menuFile->setItemEnabled(closeID, true);
 
@@ -1045,7 +1038,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
 
       ui_->actionPrint->setEnabled(true);
       ui_->actionSaveAsTemplate->setEnabled(true);
-      ui_->menuFile->setItemEnabled(exportID, true);
+      ui_->menuExportGraph->setEnabled(true);
       ui_->menuFile->setItemEnabled(closeID, true);
 
       format->clear();
@@ -1060,7 +1053,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
       menuBar()->insertItem(tr("&Analysis"), dataMenu);
 
       ui_->actionExportASCII->setEnabled(true);
-      ui_->menuFile->setItemEnabled(exportID, false);
+      ui_->menuExportGraph->setEnabled(false);
       ui_->menuFile->setItemEnabled(closeID, true);
 
       tableMenu->clear();
@@ -1110,7 +1103,7 @@ void ApplicationWindow::disableActions() {
   ui_->actionPrintAllPlots->setEnabled(false);
   ui_->actionPrint->setEnabled(false);
   ui_->actionExportASCII->setEnabled(false);
-  ui_->menuFile->setItemEnabled(exportID, false);
+  ui_->menuExportGraph->setEnabled(false);
   ui_->menuFile->setItemEnabled(closeID, false);
 
   ui_->actionUndo->setEnabled(false);

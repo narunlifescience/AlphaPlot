@@ -1039,7 +1039,7 @@ Arranges all the visible project windows in a cascade pattern.
   QColor tableBkgdColor, tableTextColor, tableHeaderColor;
   QString projectname, columnSeparator, appLanguage;
   QString configFilePath, logInfo, fitPluginsPath, asciiDirPath, imagesDirPath;
-  int logID, asciiID, closeID, exportID, printAllID, ignoredLines,
+  int logID, asciiID, closeID, printAllID, ignoredLines,
       savingTimerId, plot3DResolution;
   bool renameColumns, copiedLayer, strip_spaces, simplify_spaces;
   QStringList recentProjects;
@@ -1072,7 +1072,7 @@ Arranges all the visible project windows in a cascade pattern.
   bool startArrowOn, endArrowOn, fillArrowHead;
   int arrowHeadLength, arrowHeadAngle, specialPlotMenuID, statMenuID,
       panelMenuID, plot3dID;
-  int plotMenuID, newMenuID, recentMenuID, setAsMenuID, fillMenuID;
+  int plotMenuID, setAsMenuID, fillMenuID;
   int translateMenuID, smoothMenuID, filterMenuID, fitExpMenuID,
       multiPeakMenuID;
 
