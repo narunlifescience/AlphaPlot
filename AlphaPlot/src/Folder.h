@@ -32,8 +32,6 @@
 #include "MyWidget.h"
 
 #include <Q3ListView>
-#include <Q3IconView>
-#include <Q3PtrList>
 // Added by qt3to4:
 #include <QObject>
 #include <QDragEnterEvent>
@@ -82,21 +80,21 @@ class Folder : public QObject {
     return result;
   }
 
-  //! The list of subfolder names, including first generation children only
+  // The list of subfolder names, including first generation children only
   QStringList subfolders();
 
-  //! The list of subfolders
+  // The list of subfolders
   QList<Folder *> folders() const;
 
-  //! Pointer to the subfolder called s
+  // Pointer to the subfolder called s
   Folder *findSubfolder(const QString &s, bool caseSensitive = true,
                         bool partialMatch = false);
 
-  //! Pointer to the first window matching the search criteria
+  // Pointer to the first window matching the search criteria
   MyWidget *findWindow(const QString &s, bool windowNames, bool labels,
                        bool caseSensitive, bool partialMatch);
 
-  //! get a window by name
+  // get a window by name
   /**
    * Returns the first window with given name that inherits class cls;
    * NULL on failure. If recursive is true, do a depth-first recursive
@@ -104,27 +102,27 @@ class Folder : public QObject {
    */
   MyWidget *window(const QString &name, const char *cls = "myWidget",
                    bool recursive = false);
-  //! Return table named name or NULL
+  // Return table named name or NULL
   Table *table(const QString &name, bool recursive = false) {
     return (Table *)window(name, "Table", recursive);
   }
-  //! Return matrix named name or NULL
+  // Return matrix named name or NULL
   Matrix *matrix(const QString &name, bool recursive = false) {
     return (Matrix *)window(name, "Matrix", recursive);
   }
-  //! Return graph named name or NULL
+  // Return graph named name or NULL
   MultiLayer *graph(const QString &name, bool recursive = false) {
     return (MultiLayer *)window(name, "MultiLayer", recursive);
   }
-  //! Return note named name or NULL
+  // Return note named name or NULL
   Note *note(const QString &name, bool recursive = false) {
     return (Note *)window(name, "Note", recursive);
   }
 
-  //! The complete path of the folder in the project tree
+  // The complete path of the folder in the project tree
   QString path();
 
-  //! The root of the hierarchy this folder belongs to.
+  // The root of the hierarchy this folder belongs to.
   Folder *rootFolder();
 
   QString birthDate() { return birthdate; }
@@ -133,7 +131,7 @@ class Folder : public QObject {
   QString modificationDate() { return modifDate; }
   void setModificationDate(const QString &s) { modifDate = s; }
 
-  //! Pointer to the corresponding QListViewItem in the main application
+  // Pointer to the corresponding QListViewItem in the main application
   FolderListItem *folderListItem() { return myFolderListItem; }
   void setFolderListItem(FolderListItem *it) { myFolderListItem = it; }
 
@@ -149,7 +147,7 @@ class Folder : public QObject {
   QList<MyWidget *> lstWindows;
   FolderListItem *myFolderListItem;
 
-  //! Pointer to the active window in the folder
+  // Pointer to the active window in the folder
   MyWidget *d_active_window;
 };
 
@@ -158,7 +156,7 @@ class Folder : public QObject {
  * Class WindowListItem
  *
  *****************************************************************************/
-//! Windows list item class
+// Windows list item class
 class WindowListItem : public Q3ListViewItem {
  public:
   WindowListItem(Q3ListView *parent, MyWidget *w);
@@ -174,7 +172,7 @@ class WindowListItem : public Q3ListViewItem {
  * Class FolderListItem
  *
  *****************************************************************************/
-//! Folders list item class
+// Folders list item class
 class FolderListItem : public Q3ListViewItem {
  public:
   FolderListItem(Q3ListView *parent, Folder *f);
@@ -188,7 +186,7 @@ class FolderListItem : public Q3ListViewItem {
 
   Folder *folder() { return myFolder; }
 
-  //! Checks weather the folder item is a grandchild of the source folder
+  // Checks weather the folder item is a grandchild of the source folder
   /**
    * \param src source folder item
    */
@@ -203,7 +201,7 @@ class FolderListItem : public Q3ListViewItem {
  * Class FolderListView
  *
  *****************************************************************************/
-//! Folder list view class
+// Folder list view class
 class FolderListView : public Q3ListView {
   Q_OBJECT
 

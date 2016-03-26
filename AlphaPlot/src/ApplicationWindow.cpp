@@ -3182,7 +3182,7 @@ void ApplicationWindow::importASCII(const QStringList &files, int import_mode,
   modifiedProject();
 }
 
-void ApplicationWindow::open() {
+void ApplicationWindow::openAproj() {
   OpenProjectDialog *openDialog =
       new OpenProjectDialog(this, d_extended_open_dialog);
   openDialog->setDirectory(workingDir);
@@ -3218,7 +3218,7 @@ void ApplicationWindow::open() {
 
         saveSettings();  // the recent projects must be saved
 
-        ApplicationWindow *appWindow = open(fileName);
+        ApplicationWindow *appWindow = openAproj(fileName);
         if (appWindow) {
           appWindow->workingDir = workingDir;
           if (fileName.endsWith(".aproj", Qt::CaseInsensitive) ||
@@ -3241,7 +3241,7 @@ void ApplicationWindow::open() {
   }
 }
 
-ApplicationWindow *ApplicationWindow::open(const QString &fileName) {
+ApplicationWindow *ApplicationWindow::openAproj(const QString &fileName) {
   if (fileName.endsWith(".py", Qt::CaseInsensitive)) {
     return loadScript(fileName);
   } else if (fileName.endsWith(".aproj", Qt::CaseInsensitive) ||
@@ -3254,7 +3254,7 @@ ApplicationWindow *ApplicationWindow::open(const QString &fileName) {
   }
 }
 
-void ApplicationWindow::openRecentProject() {
+void ApplicationWindow::openRecentAproj() {
   QAction *trigger = qobject_cast<QAction *>(sender());
   if (!trigger) return;
   QString fn = trigger->text();
@@ -3286,7 +3286,7 @@ void ApplicationWindow::openRecentProject() {
 
   if (!fn.isEmpty()) {
     saveSettings();  // the recent projects must be saved
-    ApplicationWindow *a = open(fn);
+    ApplicationWindow *a = openAproj(fn);
     if (a && (fn.endsWith(".aproj", Qt::CaseInsensitive) ||
               fn.endsWith(".aproj~", Qt::CaseInsensitive) ||
               fn.endsWith(".aproj.gz", Qt::CaseInsensitive)))
@@ -3456,7 +3456,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
       title =
           titleBase + QString::number(++aux) + "/" + QString::number(widgets);
       progress.setLabelText(title);
-      openTable(app, t);
+      openTableAproj(app, t);
       progress.setValue(aux);
     } else if (s.left(17) == "<TableStatistics>") {
       QStringList lst;
@@ -3465,7 +3465,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
         lst << s;
       }
       lst.pop_back();
-      app->openTableStatistics(lst);
+      app->openTableStatisticsAproj(lst);
     } else if (s == "<matrix>") {
       title =
           titleBase + QString::number(++aux) + "/" + QString::number(widgets);
@@ -3476,7 +3476,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
         lst << s;
       }
       lst.pop_back();
-      openMatrix(app, lst);
+      openMatrixAproj(app, lst);
       progress.setValue(aux);
     } else if (s == "<note>") {
       title =
@@ -3561,7 +3561,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
             s = t.readLine();
             list << s;
           }
-          openGraph(app, plot, list);
+          openGraphAproj(app, plot, list);
         }
       }
       plot->blockSignals(false);
@@ -3575,7 +3575,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
         s = t.readLine();
         list << s;
       }
-      openSurfacePlot(app, list);
+      openSurfacePlotAproj(app, list);
       progress.setValue(aux);
     } else if (s == "</folder>") {
       Folder *parent = (Folder *)app->current_folder->parent();
@@ -3741,7 +3741,7 @@ void ApplicationWindow::openTemplate() {
         t.skipWhiteSpace();
         QStringList lst;
         while (!t.atEnd()) lst << t.readLine();
-        w = openSurfacePlot(this, lst);
+        w = openSurfacePlotAproj(this, lst);
         if (w) ((Graph3D *)w)->clearData();
       } else {
         int rows, cols;
@@ -3782,7 +3782,7 @@ void ApplicationWindow::openTemplate() {
                   s = t.readLine();
                   lst << s;
                 }
-                openGraph(this, (MultiLayer *)w, lst);
+                openGraphAproj(this, (MultiLayer *)w, lst);
               }
             }
           }
@@ -7116,7 +7116,7 @@ void ApplicationWindow::windowsMenuActivated(int id) {
   }
 }
 
-void ApplicationWindow::newProject() {
+void ApplicationWindow::newAproj() {
   saveSettings();  // the recent projects must be saved
 
   ApplicationWindow *ed = new ApplicationWindow();
@@ -7171,7 +7171,7 @@ void ApplicationWindow::dropEvent(QDropEvent *event) {
 
       if (ext == "aproj" || ext == "aproj~" || ext == "aproj.gz" ||
           ext == "aproj.gz~") {
-        open(fileName);
+        openAproj(fileName);
       } else if (ext == "csv" || ext == "dat" || ext == "txt" || ext == "tsv") {
         asciiFiles << fileName;
       } else if (ext == "bmp" || ext == "bw" || ext == "eps" || ext == "epsf" ||
@@ -8569,7 +8569,7 @@ Note *ApplicationWindow::openNote(ApplicationWindow *app,
 }
 
 // TODO: most of this code belongs into matrix
-Matrix *ApplicationWindow::openMatrix(ApplicationWindow *app,
+Matrix *ApplicationWindow::openMatrixAproj(ApplicationWindow *app,
                                       const QStringList &flist) {
   Matrix *w = app->newMatrix("matrix", 1, 1);
   int length = flist.at(0).toInt();
@@ -8599,7 +8599,7 @@ Matrix *ApplicationWindow::openMatrix(ApplicationWindow *app,
 }
 
 // TODO: most of this code belongs into Table
-Table *ApplicationWindow::openTable(ApplicationWindow *app,
+Table *ApplicationWindow::openTableAproj(ApplicationWindow *app,
                                     QTextStream &stream) {
   QString s = stream.readLine();
   int length = s.toInt();
@@ -8653,7 +8653,7 @@ Table *ApplicationWindow::openTable(ApplicationWindow *app,
   return w;
 }
 
-TableStatistics *ApplicationWindow::openTableStatistics(
+TableStatistics *ApplicationWindow::openTableStatisticsAproj(
     const QStringList &flist) {
   QStringList::const_iterator line = flist.begin();
 
@@ -8708,9 +8708,9 @@ TableStatistics *ApplicationWindow::openTableStatistics(
   return w;
 }
 
-Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
+Graph *ApplicationWindow::openGraphAproj(ApplicationWindow *app, MultiLayer *plot,
                                     const QStringList &list) {
-  Graph *ag = 0;
+  Graph *ag = nullptr;
   int curveID = 0;
   for (int j = 0; j < (int)list.count() - 1; j++) {
     QString s = list[j];
@@ -9124,7 +9124,7 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
   return ag;
 }
 
-Graph3D *ApplicationWindow::openSurfacePlot(ApplicationWindow *app,
+Graph3D *ApplicationWindow::openSurfacePlotAproj(ApplicationWindow *app,
                                             const QStringList &lst) {
   QStringList fList = lst[0].split("\t");
   QString caption = fList[0];
@@ -9551,7 +9551,7 @@ void ApplicationWindow::createActions() {
 
   // Connections
   // File menu
-  connect(ui_->actionNewProject, SIGNAL(activated()), this, SLOT(newProject()));
+  connect(ui_->actionNewProject, SIGNAL(activated()), this, SLOT(newAproj()));
   connect(ui_->actionNewGraph, SIGNAL(activated()), this, SLOT(newGraph()));
   connect(ui_->actionNewNote, SIGNAL(activated()), this, SLOT(newNote()));
   connect(ui_->actionNewTable, SIGNAL(activated()), this, SLOT(newTable()));
@@ -9560,7 +9560,7 @@ void ApplicationWindow::createActions() {
           SLOT(functionDialog()));
   connect(ui_->actionNew3DSurfacePlot, SIGNAL(activated()), this,
           SLOT(newSurfacePlot()));
-  connect(ui_->actionOpenAproj, SIGNAL(activated()), this, SLOT(open()));
+  connect(ui_->actionOpenAproj, SIGNAL(activated()), this, SLOT(openAproj()));
   connect(ui_->actionOpenImage, SIGNAL(activated()), this, SLOT(loadImage()));
   connect(ui_->actionImportImage, SIGNAL(activated()), this,
           SLOT(importImage()));
@@ -10716,7 +10716,7 @@ void ApplicationWindow::updateRecentProjectsList() {
   for (int i = 0; i < (int)recentProjects.size(); i++)
     connect(ui_->menuRecentProjects->addAction("&" + QString::number(i + 1) +
                                                " " + recentProjects[i]),
-            SIGNAL(triggered()), this, SLOT(openRecentProject()));
+            SIGNAL(triggered()), this, SLOT(openRecentAproj()));
 }
 
 void ApplicationWindow::translateCurveHor() {
@@ -10940,7 +10940,7 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
     if (exec)
       a = loadScript(file_name, exec);
     else
-      a = open(file_name);
+      a = openAproj(file_name);
 
     if (a) {
       a->workingDir = workingDir;
@@ -11164,14 +11164,14 @@ void ApplicationWindow::appendProject(const QString &fn) {
 
       current_folder = f;
     } else if (s == "<table>") {
-      openTable(this, t);
+      openTableAproj(this, t);
     } else if (s == "<matrix>") {
       while (s != "</matrix>") {
         s = t.readLine();
         lst << s;
       }
       lst.pop_back();
-      openMatrix(this, lst);
+      openMatrixAproj(this, lst);
     } else if (s == "<note>") {
       for (int i = 0; i < 3; i++) {
         s = t.readLine();
@@ -11239,7 +11239,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
             s = t.readLine();
             lst << s;
           }
-          openGraph(this, plot, lst);
+          openGraphAproj(this, plot, lst);
         }
       }
       plot->blockSignals(false);
@@ -11249,7 +11249,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
         s = t.readLine();
         lst << s;
       }
-      openSurfacePlot(this, lst);
+      openSurfacePlotAproj(this, lst);
     } else if (s == "</folder>") {
       Folder *parent = (Folder *)current_folder->parent();
       if (!parent)

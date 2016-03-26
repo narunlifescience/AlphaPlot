@@ -178,8 +178,8 @@ class ApplicationWindow : public QMainWindow, public scripted {
   void showStatusBarContextMenu(const QPoint& pos);
   //! \name Projects and Project Files
   //@{
-  void open();
-  ApplicationWindow* open(const QString& fileName);
+  void openAproj();
+  ApplicationWindow* openAproj(const QString& fileName);
   //! Returns temporary file ready for reading uncompressed content
   /**
    * Close and delete after you're done with it.
@@ -528,21 +528,21 @@ Arranges all the visible project windows in a cascade pattern.
   void clearSelection();
   void copyActiveLayer();
 
-  void newProject();
+  void newAproj();
 
   //! Creates a new empty multilayer plot
   MultiLayer* newGraph(const QString& caption = tr("Graph"));
 
   //! \name Reading from a Project File
   //@{
-  Matrix* openMatrix(ApplicationWindow* app, const QStringList& flist);
-  Table* openTable(ApplicationWindow* app, QTextStream& stream);
-  TableStatistics* openTableStatistics(const QStringList& flist);
-  Graph3D* openSurfacePlot(ApplicationWindow* app, const QStringList& lst);
-  Graph* openGraph(ApplicationWindow* app, MultiLayer* plot,
+  Matrix* openMatrixAproj(ApplicationWindow* app, const QStringList& flist);
+  Table* openTableAproj(ApplicationWindow* app, QTextStream& stream);
+  TableStatistics* openTableStatisticsAproj(const QStringList& flist);
+  Graph3D* openSurfacePlotAproj(ApplicationWindow* app, const QStringList& lst);
+  Graph* openGraphAproj(ApplicationWindow* app, MultiLayer* plot,
                    const QStringList& list);
 
-  void openRecentProject();
+  void openRecentAproj();
   //@}
 
   //! \name Initialization

@@ -32,11 +32,8 @@
 #include "Folder.h"
 #include "core/IconLoader.h"
 
-#include <Q3PtrList>
 #include <Q3DragObject>
-#include <Q3StrList>
 #include <Q3Header>
-#include <Q3DragObject>
 #include <Q3IconView>
 // Added by qt3to4:
 #include <QObject>
