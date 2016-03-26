@@ -241,8 +241,8 @@ Arranges all the visible project windows in a cascade pattern.
   //! \name Multilayer Plots
   //@{
   MultiLayer* multilayerPlot(int c, int r, int style);
-  MultiLayer* multilayerPlot(Table* table, const QStringList& colList, int style,
-                             int startRow = 0, int endRow = -1);
+  MultiLayer* multilayerPlot(Table* table, const QStringList& colList,
+                             int style, int startRow = 0, int endRow = -1);
   //! used when restoring a plot from a project file
   MultiLayer* multilayerPlot(const QString& caption);
   //! used by the plot wizard
@@ -1009,9 +1009,6 @@ Arranges all the visible project windows in a cascade pattern.
   //! folder
   ShowWindowsPolicy show_windows_policy;
   enum { MaxRecentProjects = 10 };
-  //! File version code used when opening project files (= maj * 100 + min * 10
-  //! + patch)
-  int d_file_version;
 
   QColor workspaceColor, panelsColor, panelsTextColor;
   QString appStyle, workingDir;

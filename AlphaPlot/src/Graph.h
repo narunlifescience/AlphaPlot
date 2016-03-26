@@ -386,7 +386,7 @@ class Graph : public QWidget {
   long insertTextMarker(Legend* mrk);
 
   //! Used when opening a project file
-  long insertTextMarker(const QStringList& list, int fileVersion);
+  long insertTextMarker(const QStringList& list);
   void updateTextMarker(const QString& text, int angle, int bkg,
                         const QFont& fnt, const QColor& textColor,
                         const QColor& backgroundColor);
@@ -417,7 +417,7 @@ class Graph : public QWidget {
   void removeLegend();
   void removeLegendItem(int index);
   void addLegendItem(const QString& colName);
-  void insertLegend(const QStringList& lst, int fileVersion);
+  void insertLegend(const QStringList& lst);
   Legend* legend();
   Legend* newLegend();
   Legend* newLegend(const QString& text);
@@ -433,7 +433,7 @@ class Graph : public QWidget {
   void addArrow(ArrowMarker* mrk);
 
   //! Used when opening a project file
-  void addArrow(QStringList list, int fileVersion);
+  void addArrow(QStringList list);
   QVector<int> lineMarkerKeys() { return d_lines; }
 
   //! Draws a line/arrow depending on the value of "arrow"
@@ -460,7 +460,7 @@ class Graph : public QWidget {
   ImageMarker* addImage(ImageMarker* mrk);
   ImageMarker* addImage(const QString& fileName);
 
-  void insertImageMarker(const QStringList& lst, int fileVersion);
+  void insertImageMarker(const QStringList& lst);
   bool imageMarkerSelected();
   void updateImageMarker(int x, int y, int width, int height);
   //@}
@@ -684,8 +684,7 @@ class Graph : public QWidget {
                         const QString& title = QString::null);
   //! Used when reading from a project file.
   bool insertFunctionCurve(ApplicationWindow* parent,
-                           const QStringList& func_spec, int points,
-                           int fileVersion);
+                           const QStringList& func_spec, int points);
   //! Returns an unique function name
   QString generateFunctionName(const QString& name = tr("F"));
   //@}
@@ -707,7 +706,7 @@ class Graph : public QWidget {
 
   //! \name Box Plots
   //@{
-  void openBoxDiagram(Table* w, const QStringList& l, int fileVersion);
+  void openBoxDiagram(Table* w, const QStringList& l);
   void plotBoxDiagram(Table* w, const QStringList& names, int startRow = 0,
                       int endRow = -1);
   //@}

@@ -2305,11 +2305,11 @@ Legend *Graph::newLegend(const QString &text) {
   return mrk;
 }
 
-void Graph::insertLegend(const QStringList &lst, int fileVersion) {
-  legendMarkerID = insertTextMarker(lst, fileVersion);
+void Graph::insertLegend(const QStringList &lst) {
+  legendMarkerID = insertTextMarker(lst);
 }
 
-long Graph::insertTextMarker(const QStringList &list, int fileVersion) {
+long Graph::insertTextMarker(const QStringList &list) {
   QStringList fList = list;
   Legend *mrk = new Legend(d_plot);
   long key = d_plot->insertMarker(mrk);
@@ -2318,10 +2318,7 @@ long Graph::insertTextMarker(const QStringList &list, int fileVersion) {
   d_texts.resize(++texts);
   d_texts[texts - 1] = key;
 
-  if (fileVersion < 86)
-    mrk->setOrigin(QPoint(fList[1].toInt(), fList[2].toInt()));
-  else
-    mrk->setOriginCoord(fList[1].toDouble(), fList[2].toDouble());
+  mrk->setOriginCoord(fList[1].toDouble(), fList[2].toDouble());
 
   QFont fnt =
       QFont(fList[3], fList[4].toInt(), fList[5].toInt(), fList[6].toInt());
@@ -2332,54 +2329,27 @@ long Graph::insertTextMarker(const QStringList &list, int fileVersion) {
   mrk->setAngle(fList[11].toInt());
 
   QString text = QString();
-  if (fileVersion < 71) {
-    int bkg = fList[10].toInt();
-    if (bkg <= 2)
-      mrk->setFrameStyle(bkg);
-    else if (bkg == 3) {
-      mrk->setFrameStyle(0);
-      mrk->setBackgroundColor(QColor(255, 255, 255));
-    } else if (bkg == 4) {
-      mrk->setFrameStyle(0);
-      mrk->setBackgroundColor(QColor(Qt::black));
-    }
+  mrk->setTextColor(QColor(fList[9]));
+  mrk->setFrameStyle(fList[10].toInt());
+  QColor c = QColor(fList[12]);
+  c.setAlpha(fList[13].toInt());
+  mrk->setBackgroundColor(c);
 
-    int n = (int)fList.count();
-    for (int i = 0; i < n - 12; i++) text += fList[12 + i] + "\n";
-  } else if (fileVersion < 90) {
-    mrk->setTextColor(QColor(fList[9]));
-    mrk->setFrameStyle(fList[10].toInt());
-    mrk->setBackgroundColor(QColor(fList[12]));
-
-    int n = (int)fList.count();
-    for (int i = 0; i < n - 13; i++) text += fList[13 + i] + "\n";
-  } else {
-    mrk->setTextColor(QColor(fList[9]));
-    mrk->setFrameStyle(fList[10].toInt());
-    QColor c = QColor(fList[12]);
-    c.setAlpha(fList[13].toInt());
-    mrk->setBackgroundColor(c);
-
-    int n = (int)fList.count();
-    for (int i = 0; i < n - 14; i++) text += fList[14 + i] + "\n";
-  }
+  int n = (int)fList.count();
+  for (int i = 0; i < n - 14; i++) text += fList[14 + i] + "\n";
   mrk->setText(text.trimmed());
   return key;
 }
 
-void Graph::addArrow(QStringList list, int fileVersion) {
+void Graph::addArrow(QStringList list) {
   ArrowMarker *mrk = new ArrowMarker();
   long mrkID = d_plot->insertMarker(mrk);
   int linesOnPlot = (int)d_lines.size();
   d_lines.resize(++linesOnPlot);
   d_lines[linesOnPlot - 1] = mrkID;
 
-  if (fileVersion < 86) {
-    mrk->setStartPoint(QPoint(list[1].toInt(), list[2].toInt()));
-    mrk->setEndPoint(QPoint(list[3].toInt(), list[4].toInt()));
-  } else
-    mrk->setBoundingRect(list[1].toDouble(), list[2].toDouble(),
-                         list[3].toDouble(), list[4].toDouble());
+  mrk->setBoundingRect(list[1].toDouble(), list[2].toDouble(),
+                       list[3].toDouble(), list[4].toDouble());
 
   mrk->setWidth(list[5].toInt());
   mrk->setColor(QColor(list[6]));
@@ -3445,7 +3415,7 @@ ImageMarker *Graph::addImage(const QString &fileName) {
   return mrk;
 }
 
-void Graph::insertImageMarker(const QStringList &lst, int fileVersion) {
+void Graph::insertImageMarker(const QStringList &lst) {
   QString fn = lst[1];
   if (!QFile::exists(fn)) {
     QMessageBox::warning(
@@ -3459,18 +3429,8 @@ void Graph::insertImageMarker(const QStringList &lst, int fileVersion) {
     d_images.resize(++imagesOnPlot);
     d_images[imagesOnPlot - 1] = d_plot->insertMarker(mrk);
 
-    if (fileVersion < 86) {
-      mrk->setOrigin(QPoint(lst[2].toInt(), lst[3].toInt()));
-      mrk->setSize(QSize(lst[4].toInt(), lst[5].toInt()));
-    } else if (fileVersion < 90) {
-      double left = lst[2].toDouble();
-      double right = left + lst[4].toDouble();
-      double top = lst[3].toDouble();
-      double bottom = top - lst[5].toDouble();
-      mrk->setBoundingRect(left, top, right, bottom);
-    } else
-      mrk->setBoundingRect(lst[2].toDouble(), lst[3].toDouble(),
-                           lst[4].toDouble(), lst[5].toDouble());
+    mrk->setBoundingRect(lst[2].toDouble(), lst[3].toDouble(),
+                         lst[4].toDouble(), lst[5].toDouble());
   }
 }
 
@@ -3569,68 +3529,22 @@ bool Graph::addFunctionCurve(ApplicationWindow *parent, int type,
 }
 
 bool Graph::insertFunctionCurve(ApplicationWindow *parent,
-                                const QStringList &func_spec, int points,
-                                int fileVersion) {
+                                const QStringList &func_spec, int points) {
   int type;
   QStringList formulas;
   QString var, name = QString::null;
   QList<double> ranges;
 
   QStringList curve = func_spec[0].split(",");
-  if (fileVersion >= 0x000105) {
-    // AlphaPlot 0.1.4 and 0.2.0 crash when trying to save a function curve;
-    // thus, it's safe to assume every version from 0.1.5 on uses the new
-    // format,
-    // even though 0.2.0 doesn't actually contain the revised code yet
-    type = curve[0].toInt();
-    name = curve[1];
-    var = curve[2];
-    ranges += curve[3].toDouble();
-    ranges += curve[4].toDouble();
+  type = curve[0].toInt();
+  name = curve[1];
+  var = curve[2];
+  ranges += curve[3].toDouble();
+  ranges += curve[4].toDouble();
 
-    formulas << func_spec[1];
-    if (type != FunctionCurve::Normal) formulas << func_spec[2];
+  formulas << func_spec[1];
+  if (type != FunctionCurve::Normal) formulas << func_spec[2];
 
-  } else if (fileVersion < 87) {
-    if (curve[0][0] == 'f') {
-      type = FunctionCurve::Normal;
-      formulas += curve[0].section('=', 1, 1);
-      var = curve[1];
-      ranges += curve[2].toDouble();
-      ranges += curve[3].toDouble();
-    } else if (curve[0][0] == 'X') {
-      type = FunctionCurve::Parametric;
-      formulas += curve[0].section('=', 1, 1);
-      formulas += curve[1].section('=', 1, 1);
-      var = curve[2];
-      ranges += curve[3].toDouble();
-      ranges += curve[4].toDouble();
-    } else if (curve[0][0] == 'R') {
-      type = FunctionCurve::Polar;
-      formulas += curve[0].section('=', 1, 1);
-      formulas += curve[1].section('=', 1, 1);
-      var = curve[2];
-      ranges += curve[3].toDouble();
-      ranges += curve[4].toDouble();
-    }
-  } else {
-    type = curve[0].toInt();
-    name = curve[1];
-
-    if (type == FunctionCurve::Normal) {
-      formulas << curve[2];
-      var = curve[3];
-      ranges += curve[4].toDouble();
-      ranges += curve[5].toDouble();
-    } else if (type == FunctionCurve::Polar ||
-               type == FunctionCurve::Parametric) {
-      formulas << curve[2];
-      formulas << curve[3];
-      var = curve[4];
-      ranges += curve[5].toDouble();
-      ranges += curve[6].toDouble();
-    }
-  }
   return addFunctionCurve(parent, type, formulas, var, ranges, points, name);
 }
 
@@ -4416,15 +4330,13 @@ void Graph::setCurveBrush(int index, const QBrush &b) {
   c->setBrush(b);
 }
 
-void Graph::openBoxDiagram(Table *w, const QStringList &l, int fileVersion) {
+void Graph::openBoxDiagram(Table *w, const QStringList &l) {
   if (!w) return;
 
   int startRow = 0;
   int endRow = w->numRows() - 1;
-  if (fileVersion >= 90) {
-    startRow = l[l.count() - 3].toInt();
-    endRow = l[l.count() - 2].toInt();
-  }
+  startRow = l[l.count() - 3].toInt();
+  endRow = l[l.count() - 2].toInt();
 
   BoxCurve *c = new BoxCurve(w, l[2], startRow, endRow);
   c->setData(QwtSingleArrayData(l[1].toDouble(), QwtArray<double>(), 0));

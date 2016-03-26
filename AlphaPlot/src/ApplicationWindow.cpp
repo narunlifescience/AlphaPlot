@@ -3350,7 +3350,6 @@ QFile *ApplicationWindow::openCompressedFile(const QString &fn) {
 
 ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   QFile *file;
-
   if (fileName.endsWith(".gz", Qt::CaseInsensitive) ||
       fileName.endsWith(".gz~", Qt::CaseInsensitive)) {
     file = openCompressedFile(fileName);
@@ -3364,7 +3363,6 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   t.setEncoding(QTextStream::UnicodeUTF8);
   QString s;
   QStringList list;
-
   s = t.readLine();
   list = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
   if (list.count() < 2 || list[0] != "AlphaPlot") {
@@ -3396,36 +3394,13 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
     return 0;
   }
 
-  QStringList vl = list[1].split(".", QString::SkipEmptyParts);
-  if (fileName.endsWith(".qti", Qt::CaseInsensitive) ||
-      fileName.endsWith(".qti.gz", Qt::CaseInsensitive) ||
-      fileName.endsWith(".qti~", Qt::CaseInsensitive) ||
-      fileName.endsWith(".qti.gz~", Qt::CaseInsensitive)) {
-    d_file_version =
-        100 * (vl[0]).toInt() + 10 * (vl[1]).toInt() + (vl[2]).toInt();
-    if (d_file_version > 90) {
-      file->close();
-      delete file;
-      QMessageBox::critical(this, tr("File opening error"),
-                            tr("AlphaPlot does not support QtiPlot project "
-                               "files from versions later than 0.9.0.")
-                                .arg(fileName));
-      return 0;
-    }
-  } else
-    d_file_version =
-        ((vl[0]).toInt() << 16) + ((vl[1]).toInt() << 8) + (vl[2]).toInt();
-
   ApplicationWindow *app = new ApplicationWindow();
   app->applyUserSettings();
   app->projectname = fileName;
-  app->d_file_version = d_file_version;
   app->setWindowTitle(tr("AlphaPlot") + " - " + fileName);
 
   QFileInfo fi(fileName);
   QString baseName = fi.fileName();
-
-  if (d_file_version < 73) t.readLine();
 
   s = t.readLine();
   list = s.split("\t", QString::SkipEmptyParts);
@@ -3488,7 +3463,6 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
       title =
           titleBase + QString::number(++aux) + "/" + QString::number(widgets);
       progress.setLabelText(title);
-
       openTable(app, t);
       progress.setValue(aux);
     } else if (s.left(17) == "<TableStatistics>") {
@@ -3572,23 +3546,19 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
       restoreWindowGeometry(app, plot, t.readLine());
       plot->blockSignals(true);
 
-      if (d_file_version > 71) {
-        QStringList lst = t.readLine().split("\t");
-        plot->setWindowLabel(lst[1]);
-        app->setListViewLabel(plot->name(), lst[1]);
-        plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
-      }
-      if (d_file_version > 83) {
-        QStringList lst = t.readLine().split("\t", QString::SkipEmptyParts);
-        plot->setMargins(lst[1].toInt(), lst[2].toInt(), lst[3].toInt(),
-                         lst[4].toInt());
-        lst = t.readLine().split("\t", QString::SkipEmptyParts);
-        plot->setSpacing(lst[1].toInt(), lst[2].toInt());
-        lst = t.readLine().split("\t", QString::SkipEmptyParts);
-        plot->setLayerCanvasSize(lst[1].toInt(), lst[2].toInt());
-        lst = t.readLine().split("\t", QString::SkipEmptyParts);
-        plot->setAlignement(lst[1].toInt(), lst[2].toInt());
-      }
+      QStringList lst = t.readLine().split("\t");
+      plot->setWindowLabel(lst[1]);
+      app->setListViewLabel(plot->name(), lst[1]);
+      plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
+      QStringList stringlst = t.readLine().split("\t", QString::SkipEmptyParts);
+      plot->setMargins(stringlst[1].toInt(), stringlst[2].toInt(),
+                       stringlst[3].toInt(), stringlst[4].toInt());
+      stringlst = t.readLine().split("\t", QString::SkipEmptyParts);
+      plot->setSpacing(stringlst[1].toInt(), stringlst[2].toInt());
+      stringlst = t.readLine().split("\t", QString::SkipEmptyParts);
+      plot->setLayerCanvasSize(stringlst[1].toInt(), stringlst[2].toInt());
+      stringlst = t.readLine().split("\t", QString::SkipEmptyParts);
+      plot->setAlignement(stringlst[1].toInt(), stringlst[2].toInt());
 
       while (s != "</multiLayer>") {  // open layers
         s = t.readLine();
@@ -3767,20 +3737,6 @@ void ApplicationWindow::openTemplate() {
         return;
       }
       QStringList vl = l[1].split(".", QString::SkipEmptyParts);
-      if (fileType == "QtiPlot") {
-        d_file_version =
-            100 * (vl[0]).toInt() + 10 * (vl[1]).toInt() + (vl[2]).toInt();
-        if (d_file_version > 90) {
-          QMessageBox::critical(
-              this, tr("File opening error"),
-              tr("AlphaPlot does not support QtiPlot template "
-                 "files from versions later than 0.9.0.")
-                  .arg(fn));
-          return;
-        }
-      } else
-        d_file_version =
-            ((vl[0]).toInt() << 16) + ((vl[1]).toInt() << 8) + (vl[2]).toInt();
 
       QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -3812,20 +3768,19 @@ void ApplicationWindow::openTemplate() {
             ((MultiLayer *)w)->setCols(cols);
             ((MultiLayer *)w)->setRows(rows);
             restoreWindowGeometry(this, w, geometry);
-            if (d_file_version > 83) {
-              QStringList lst =
-                  t.readLine().split("\t", QString::SkipEmptyParts);
-              ((MultiLayer *)w)
-                  ->setMargins(lst[1].toInt(), lst[2].toInt(), lst[3].toInt(),
-                               lst[4].toInt());
-              lst = t.readLine().split("\t", QString::SkipEmptyParts);
-              ((MultiLayer *)w)->setSpacing(lst[1].toInt(), lst[2].toInt());
-              lst = t.readLine().split("\t", QString::SkipEmptyParts);
-              ((MultiLayer *)w)
-                  ->setLayerCanvasSize(lst[1].toInt(), lst[2].toInt());
-              lst = t.readLine().split("\t", QString::SkipEmptyParts);
-              ((MultiLayer *)w)->setAlignement(lst[1].toInt(), lst[2].toInt());
-            }
+            QStringList strlst =
+                t.readLine().split("\t", QString::SkipEmptyParts);
+            ((MultiLayer *)w)
+                ->setMargins(strlst[1].toInt(), strlst[2].toInt(),
+                             strlst[3].toInt(), strlst[4].toInt());
+            strlst = t.readLine().split("\t", QString::SkipEmptyParts);
+            ((MultiLayer *)w)->setSpacing(strlst[1].toInt(), strlst[2].toInt());
+            strlst = t.readLine().split("\t", QString::SkipEmptyParts);
+            ((MultiLayer *)w)
+                ->setLayerCanvasSize(strlst[1].toInt(), strlst[2].toInt());
+            strlst = t.readLine().split("\t", QString::SkipEmptyParts);
+            ((MultiLayer *)w)
+                ->setAlignement(strlst[1].toInt(), strlst[2].toInt());
             while (!t.atEnd()) {  // open layers
               QString s = t.readLine();
               if (s.left(7) == "<graph>") {
@@ -8623,247 +8578,86 @@ Note *ApplicationWindow::openNote(ApplicationWindow *app,
 // TODO: most of this code belongs into matrix
 Matrix *ApplicationWindow::openMatrix(ApplicationWindow *app,
                                       const QStringList &flist) {
-  if (app->d_file_version < 0x000200) {
-    QStringList::const_iterator line = flist.begin();
-
-    QStringList list = (*line).split("\t");
-    QString caption = list[0];
-    int rows = list[1].toInt();
-    int cols = list[2].toInt();
-
-    Matrix *w = app->newMatrix(caption, rows, cols);
-    app->setListViewDate(caption, list[3]);
-    w->setBirthDate(list[3]);
-
-    for (line++; line != flist.end(); line++) {
-      QStringList fields = (*line).split("\t");
-      if (fields[0] == "geometry") {
-        restoreWindowGeometry(app, w, *line);
-      } else if (fields[0] == "ColWidth") {
-        w->setColumnsWidth(fields[1].toInt());
-      } else if (fields[0] == "Formula") {
-        w->setFormula(fields[1]);
-      } else if (fields[0] == "<formula>") {
-        QString formula;
-        for (line++; line != flist.end() && *line != "</formula>"; line++)
-          formula += *line + "\n";
-        formula.truncate(formula.length() - 1);
-        w->setFormula(formula);
-      } else if (fields[0] == "TextFormat") {
-        if (fields[1] == "f")
-          w->setTextFormat('f', fields[2].toInt());
-        else
-          w->setTextFormat('e', fields[2].toInt());
-      } else if (fields[0] == "WindowLabel") {  // d_file_version > 71
-        w->setWindowLabel(fields[1]);
-        w->setCaptionPolicy((MyWidget::CaptionPolicy)fields[2].toInt());
-        app->setListViewLabel(w->name(), fields[1]);
-      } else if (fields[0] == "Coordinates") {  // d_file_version > 81
-        w->setCoordinates(fields[1].toDouble(), fields[2].toDouble(),
-                          fields[3].toDouble(), fields[4].toDouble());
-      } else  // <data> or values
-        break;
-    }
-    if (*line == "<data>") line++;
-
-    QTime t;
-    t.start();
-    // read and set table values
-    for (; line != flist.end() && *line != "</data>"; line++) {
-      QStringList fields = (*line).split("\t");
-      int row = fields[0].toInt();
-      for (int col = 0; col < cols; col++) {
-        QString cell = fields[col + 1];
-        if (cell.isEmpty()) continue;
-
-        if (d_file_version < 90)
-          w->setCell(row, col, QLocale::c().toDouble(cell));
-        else if (d_file_version >= 0x000100)
-          w->setCell(row, col, QLocale().toDouble(cell));
-        else
-          w->setText(row, col, cell);
-      }
-      if (t.elapsed() > 1000) {
-        QApplication::processEvents(QEventLoop::ExcludeUserInput);
-        t.start();
-      }
-    }
-
-    return w;
-  } else {
-    Matrix *w = app->newMatrix("matrix", 1, 1);
-    int length = flist.at(0).toInt();
-    int index = 1;
-    QString xml(flist.at(index++));
-    while (xml.length() < length && index < flist.size())
-      xml += '\n' + flist.at(index++);
-    XmlStreamReader reader(xml);
-    reader.readNext();
-    reader.readNext();  // read the start document
-    if (w->d_future_matrix->load(&reader) == false) {
-      QString msg_text = reader.errorString();
-      QMessageBox::critical(this, tr("Error reading matrix from project file"),
-                            msg_text);
-    }
-    if (reader.hasWarnings()) {
-      QString msg_text =
-          tr("The following problems occured when loading the project file:\n");
-      QStringList warnings = reader.warningStrings();
-      foreach (QString str, warnings)
-        msg_text += str + "\n";
-      QMessageBox::warning(this, tr("Project loading partly failed"), msg_text);
-    }
-    restoreWindowGeometry(app, w, flist.at(index));
-
-    return w;
+  Matrix *w = app->newMatrix("matrix", 1, 1);
+  int length = flist.at(0).toInt();
+  int index = 1;
+  QString xml(flist.at(index++));
+  while (xml.length() < length && index < flist.size())
+    xml += '\n' + flist.at(index++);
+  XmlStreamReader reader(xml);
+  reader.readNext();
+  reader.readNext();  // read the start document
+  if (w->d_future_matrix->load(&reader) == false) {
+    QString msg_text = reader.errorString();
+    QMessageBox::critical(this, tr("Error reading matrix from project file"),
+                          msg_text);
   }
+  if (reader.hasWarnings()) {
+    QString msg_text =
+        tr("The following problems occured when loading the project file:\n");
+    QStringList warnings = reader.warningStrings();
+    foreach (QString str, warnings)
+      msg_text += str + "\n";
+    QMessageBox::warning(this, tr("Project loading partly failed"), msg_text);
+  }
+  restoreWindowGeometry(app, w, flist.at(index));
+
+  return w;
 }
 
 // TODO: most of this code belongs into Table
 Table *ApplicationWindow::openTable(ApplicationWindow *app,
                                     QTextStream &stream) {
-  if (app->d_file_version < 0x000200) {
-    QStringList flist;
-    QString s;
-    while (s != "</table>") {
-      s = stream.readLine();
-      flist << s;
+  QString s = stream.readLine();
+  int length = s.toInt();
+
+  // On Windows, loading large tables to a QString has been observed to crash
+  // (apparently due to excessive memory usage).
+  // => use temporary file if possible
+  QTemporaryFile tmp_file;
+  QString tmp_string;
+  if (tmp_file.open()) {
+    QTextStream tmp(&tmp_file);
+    tmp.setEncoding(QTextStream::UnicodeUTF8);
+    int read = 0;
+    while (length - read >= 1024) {
+      tmp << stream.read(1024);
+      read += 1024;
     }
-    flist.pop_back();
-    QStringList::const_iterator line = flist.begin();
+    tmp << stream.read(length - read);
+    tmp.flush();
+    tmp_file.seek(0);
+    stream.readLine();  // skip to next newline
+  } else
+    while (tmp_string.length() < length) tmp_string += '\n' + stream.readLine();
 
-    QStringList list = (*line).split("\t");
-    QString caption = list[0];
-    int rows = list[1].toInt();
-    int cols = list[2].toInt();
+  XmlStreamReader reader(tmp_string);
+  if (tmp_file.isOpen()) reader.setDevice(&tmp_file);
 
-    Table *w = app->newTable(caption, rows, cols);
-    app->setListViewDate(caption, list[3]);
-    w->setBirthDate(list[3]);
-
-    for (line++; line != flist.end(); line++) {
-      QStringList fields = (*line).split("\t");
-      if (fields[0] == "geometry" || fields[0] == "tgeometry") {
-        restoreWindowGeometry(app, w, *line);
-      } else if (fields[0] == "header") {
-        fields.pop_front();
-        if (d_file_version >= 78)
-          w->importV0x0001XXHeader(fields);
-        else {
-          w->setColPlotDesignation(list[4].toInt(), AlphaPlot::X);
-          w->setColPlotDesignation(list[6].toInt(), AlphaPlot::Y);
-          w->setHeader(fields);
-        }
-      } else if (fields[0] == "ColWidth") {
-        fields.pop_front();
-        w->setColWidths(fields);
-      } else if (fields[0] == "com") {  // legacy code
-        w->setCommands(*line);
-      } else if (fields[0] == "<com>") {
-        for (line++; line != flist.end() && *line != "</com>"; line++) {
-          int col = (*line).mid(9, (*line).length() - 11).toInt();
-          QString formula;
-          for (line++; line != flist.end() && *line != "</col>"; line++)
-            formula += *line + "\n";
-          formula.truncate(formula.length() - 1);
-          w->setCommand(col, formula);
-        }
-      } else if (fields[0] == "ColType") {  // d_file_version > 65
-        fields.pop_front();
-        w->setColumnTypes(fields);
-      } else if (fields[0] == "Comments") {  // d_file_version > 71
-        fields.pop_front();
-        w->setColComments(fields);
-      } else if (fields[0] == "WindowLabel") {  // d_file_version > 71
-        w->setWindowLabel(fields[1]);
-        w->setCaptionPolicy((MyWidget::CaptionPolicy)fields[2].toInt());
-        app->setListViewLabel(w->name(), fields[1]);
-      } else  // <data> or values
-        break;
-    }
-
-    QTime t;
-    t.start();
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    for (line++; line != flist.end() && *line != "</data>";
-         line++) {  // read and set table values
-      QStringList fields = (*line).split("\t");
-      int row = fields[0].toInt();
-      for (int col = 0; col < cols; col++) {
-        if (fields.count() >= col + 2) {
-          QString cell = fields[col + 1];
-          if (cell.isEmpty()) continue;
-
-          if (d_file_version < 90 && w->columnType(col) == AlphaPlot::Numeric)
-            w->setCell(row, col, QLocale::c().toDouble(cell.replace(",", ".")));
-          else if (d_file_version >= 0x000100 &&
-                   w->columnType(col) == AlphaPlot::Numeric)
-            w->setCell(row, col, QLocale().toDouble(cell));
-          else
-            w->setText(row, col, cell);
-        }
-      }
-      if (t.elapsed() > 1000) {
-        QApplication::processEvents(QEventLoop::ExcludeUserInput);
-        t.start();
-      }
-    }
-    QApplication::restoreOverrideCursor();
-
-    return w;
-  } else {
-    QString s = stream.readLine();
-    int length = s.toInt();
-
-    // On Windows, loading large tables to a QString has been observed to crash
-    // (apparently due to excessive memory usage).
-    // => use temporary file if possible
-    QTemporaryFile tmp_file;
-    QString tmp_string;
-    if (tmp_file.open()) {
-      QTextStream tmp(&tmp_file);
-      tmp.setEncoding(QTextStream::UnicodeUTF8);
-      int read = 0;
-      while (length - read >= 1024) {
-        tmp << stream.read(1024);
-        read += 1024;
-      }
-      tmp << stream.read(length - read);
-      tmp.flush();
-      tmp_file.seek(0);
-      stream.readLine();  // skip to next newline
-    } else
-      while (tmp_string.length() < length)
-        tmp_string += '\n' + stream.readLine();
-
-    XmlStreamReader reader(tmp_string);
-    if (tmp_file.isOpen()) reader.setDevice(&tmp_file);
-
-    Table *w = app->newTable("table", 1, 1);
-    reader.readNext();
-    reader.readNext();  // read the start document
-    if (w->d_future_table->load(&reader) == false) {
-      QString msg_text = reader.errorString();
-      QMessageBox::critical(this, tr("Error reading table from project file"),
-                            msg_text);
-    }
-    if (reader.hasWarnings()) {
-      QString msg_text =
-          tr("The following problems occured when loading the project file:\n");
-      QStringList warnings = reader.warningStrings();
-      foreach (QString str, warnings)
-        msg_text += str + "\n";
-      QMessageBox::warning(this, tr("Project loading partly failed"), msg_text);
-    }
-    w->setBirthDate(w->d_future_table->creationTime().toString(Qt::LocalDate));
-
-    s = stream.readLine();
-    restoreWindowGeometry(app, w, s);
-
-    s = stream.readLine();  // </table>
-
-    return w;
+  Table *w = app->newTable("table", 1, 1);
+  reader.readNext();
+  reader.readNext();  // read the start document
+  if (w->d_future_table->load(&reader) == false) {
+    QString msg_text = reader.errorString();
+    QMessageBox::critical(this, tr("Error reading table from project file"),
+                          msg_text);
   }
+  if (reader.hasWarnings()) {
+    QString msg_text =
+        tr("The following problems occured when loading the project file:\n");
+    QStringList warnings = reader.warningStrings();
+    foreach (QString str, warnings)
+      msg_text += str + "\n";
+    QMessageBox::warning(this, tr("Project loading partly failed"), msg_text);
+  }
+  w->setBirthDate(w->d_future_table->creationTime().toString(Qt::LocalDate));
+
+  s = stream.readLine();
+  restoreWindowGeometry(app, w, s);
+
+  s = stream.readLine();  // </table>
+
+  return w;
 }
 
 TableStatistics *ApplicationWindow::openTableStatistics(
@@ -8891,13 +8685,7 @@ TableStatistics *ApplicationWindow::openTableStatistics(
       restoreWindowGeometry(this, w, *line);
     } else if (fields[0] == "header") {
       fields.pop_front();
-      if (d_file_version >= 78)
-        w->importV0x0001XXHeader(fields);
-      else {
-        w->setColPlotDesignation(list[4].toInt(), AlphaPlot::X);
-        w->setColPlotDesignation(list[6].toInt(), AlphaPlot::Y);
-        w->setHeader(fields);
-      }
+      w->importV0x0001XXHeader(fields);
     } else if (fields[0] == "ColWidth") {
       fields.pop_front();
       w->setColWidths(fields);
@@ -8996,9 +8784,8 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
       QStringList curve = s.split("\t");
       if (!app->renamedTables.isEmpty()) {
         QString caption = (curve[1]).left((curve[1]).find("_", 0));
-        if (app->renamedTables.contains(caption)) {  // modify the name of the
-                                                     // curve according to the
-                                                     // new table name
+        if (app->renamedTables.contains(caption)) {
+          // modify the name of the curve according to the new table name
           int index = app->renamedTables.indexOf(caption);
           QString newCaption = app->renamedTables[++index];
           curve.replaceInStrings(caption + "_", newCaption + "_");
@@ -9013,14 +8800,9 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
         int endRow = table->numRows() - 1;
         int first_color = curve[7].toInt();
         bool visible = true;
-        if (d_file_version >= 90) {
-          startRow = curve[8].toInt();
-          endRow = curve[9].toInt();
-          visible = ((curve.last() == "1") ? true : false);
-        }
-
-        if (d_file_version <= 89)
-          first_color = convertOldToNewColorIndex(first_color);
+        startRow = curve[8].toInt();
+        endRow = curve[9].toInt();
+        visible = ((curve.last() == "1") ? true : false);
 
         ag->plotPie(table, curve[1], pen, curve[5].toInt(), curve[6].toInt(),
                     first_color, startRow, endRow, visible);
@@ -9032,9 +8814,8 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
         if (!app->renamedTables.isEmpty()) {
           QString caption = (curve[2]).left((curve[2]).find("_", 0));
 
-          if (app->renamedTables.contains(caption)) {  // modify the name of the
-                                                       // curve according to the
-                                                       // new table name
+          if (app->renamedTables.contains(caption)) {
+            // modify the name of the curve according to the new table name
             int index = app->renamedTables.indexOf(caption);
             QString newCaption = app->renamedTables[++index];
             curve.replaceInStrings(caption + "_", newCaption + "_");
@@ -9044,31 +8825,21 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
         CurveLayout cl;
         cl.connectType = curve[4].toInt();
         cl.lCol = curve[5].toInt();
-        if (d_file_version <= 89) cl.lCol = convertOldToNewColorIndex(cl.lCol);
         cl.lStyle = curve[6].toInt();
         cl.lWidth = curve[7].toInt();
         cl.sSize = curve[8].toInt();
-        if (d_file_version <= 78)
-          cl.sType = Graph::obsoleteSymbolStyle(curve[9].toInt());
-        else
-          cl.sType = curve[9].toInt();
+        cl.sType = curve[9].toInt();
 
         cl.symCol = curve[10].toInt();
-        if (d_file_version <= 89)
-          cl.symCol = convertOldToNewColorIndex(cl.symCol);
         cl.fillCol = curve[11].toInt();
-        if (d_file_version <= 89)
-          cl.fillCol = convertOldToNewColorIndex(cl.fillCol);
         cl.filledArea = curve[12].toInt();
         cl.aCol = curve[13].toInt();
-        if (d_file_version <= 89) cl.aCol = convertOldToNewColorIndex(cl.aCol);
         cl.aStyle = curve[14].toInt();
         if (curve.count() < 16)
           cl.penWidth = cl.lWidth;
-        else if ((d_file_version >= 79) && (curve[3].toInt() == Graph::Box))
+        else if (curve[3].toInt() == Graph::Box)
           cl.penWidth = curve[15].toInt();
-        else if ((d_file_version >= 78) &&
-                 (curve[3].toInt() <= Graph::LineSymbols))
+        else if (curve[3].toInt() <= Graph::LineSymbols)
           cl.penWidth = curve[15].toInt();
         else
           cl.penWidth = cl.lWidth;
@@ -9082,93 +8853,57 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
             colsList << curve[2];
             colsList << curve[20];
             colsList << curve[21];
-            if (d_file_version < 72)
-              colsList.prepend(w->colName(curve[1].toInt()));
-            else
-              colsList.prepend(curve[1]);
+            colsList.prepend(curve[1]);
 
             int startRow = 0;
             int endRow = -1;
-            if (d_file_version >= 90) {
-              startRow = curve[curve.count() - 3].toInt();
-              endRow = curve[curve.count() - 2].toInt();
-            }
+            startRow = curve[curve.count() - 3].toInt();
+            endRow = curve[curve.count() - 2].toInt();
 
             ag->plotVectorCurve(w, colsList, plotType, startRow, endRow);
             curve_loaded = true;
 
-            if (d_file_version <= 77) {
-              int temp_index = convertOldToNewColorIndex(curve[15].toInt());
-              ag->updateVectorsLayout(curveID, ColorBox::color(temp_index),
-                                      curve[16].toInt(), curve[17].toInt(),
-                                      curve[18].toInt(), curve[19].toInt(), 0,
-                                      curve[20], curve[21]);
-            } else {
-              if (plotType == Graph::VectXYXY)
-                ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(),
-                                        curve[17].toInt(), curve[18].toInt(),
-                                        curve[19].toInt(), 0);
-              else if (curve.count() > 22)
-                ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(),
-                                        curve[17].toInt(), curve[18].toInt(),
-                                        curve[19].toInt(), curve[22].toInt());
-            }
+            if (plotType == Graph::VectXYXY)
+              ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(),
+                                      curve[17].toInt(), curve[18].toInt(),
+                                      curve[19].toInt(), 0);
+            else if (curve.count() > 22)
+              ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(),
+                                      curve[17].toInt(), curve[18].toInt(),
+                                      curve[19].toInt(), curve[22].toInt());
           } else if (plotType == Graph::Box) {
-            ag->openBoxDiagram(w, curve, d_file_version);
+            ag->openBoxDiagram(w, curve);
             curve_loaded = true;
           } else if (plotType == Graph::Histogram && curve.count() > 19) {
-            if (d_file_version < 90)
-              curve_loaded = ag->plotHistogram(w, QStringList() << curve[2]);
-            else
-              curve_loaded =
-                  ag->plotHistogram(w, QStringList() << curve[2],
-                                    curve[curve.count() - 3].toInt(),
-                                    curve[curve.count() - 2].toInt());
+            curve_loaded = ag->plotHistogram(w, QStringList() << curve[2],
+                                             curve[curve.count() - 3].toInt(),
+                                             curve[curve.count() - 2].toInt());
             if (curve_loaded) {
               QwtHistogram *h = (QwtHistogram *)ag->curve(curveID);
-              if (d_file_version <= 76)
-                h->setBinning(curve[16].toInt(), curve[17].toDouble(),
-                              curve[18].toDouble(), curve[19].toDouble());
-              else if (curve.count() > 20)
+              if (curve.count() > 20)
                 h->setBinning(curve[17].toInt(), curve[18].toDouble(),
                               curve[19].toDouble(), curve[20].toDouble());
               h->loadData();
             }
           } else {
-            if (d_file_version < 72)
-              curve_loaded =
-                  ag->insertCurve(w, curve[1].toInt(), curve[2], plotType);
-            else if (d_file_version < 90)
-              curve_loaded = ag->insertCurve(w, curve[1], curve[2], plotType);
-            else {
-              int startRow = curve[curve.count() - 3].toInt();
-              int endRow = curve[curve.count() - 2].toInt();
-              curve_loaded = ag->insertCurve(w, curve[1], curve[2], plotType,
-                                             startRow, endRow);
-            }
+            int startRow = curve[curve.count() - 3].toInt();
+            int endRow = curve[curve.count() - 2].toInt();
+            curve_loaded = ag->insertCurve(w, curve[1], curve[2], plotType,
+                                           startRow, endRow);
           }
 
           if (curve_loaded && (plotType == Graph::VerticalBars ||
                                plotType == Graph::HorizontalBars ||
                                plotType == Graph::Histogram)) {
-            if (d_file_version <= 76 && curve.count() > 15)
-              ag->setBarsGap(curveID, curve[15].toInt(), 0);
-            else if (curve.count() > 16)
+            if (curve.count() > 16)
               ag->setBarsGap(curveID, curve[15].toInt(), curve[16].toInt());
           }
           if (curve_loaded) ag->updateCurveLayout(curveID, &cl);
-          if (d_file_version >= 88) {
-            QwtPlotCurve *c = ag->curve(curveID);
-            if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve) {
-              if (d_file_version < 90)
-                c->setAxis(curve[curve.count() - 2].toInt(),
-                           curve[curve.count() - 1].toInt());
-              else {
-                c->setAxis(curve[curve.count() - 5].toInt(),
-                           curve[curve.count() - 4].toInt());
-                c->setVisible(curve.last().toInt());
-              }
-            }
+          QwtPlotCurve *c = ag->curve(curveID);
+          if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve) {
+            c->setAxis(curve[curve.count() - 5].toInt(),
+                       curve[curve.count() - 4].toInt());
+            c->setVisible(curve.last().toInt());
           }
         }
         if (curve_loaded) curveID++;
@@ -9190,11 +8925,10 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
       int current_index = 17;
       if (curve.count() < 16)
         cl.penWidth = cl.lWidth;
-      else if ((d_file_version >= 79) && (curve[5].toInt() == Graph::Box)) {
+      else if (curve[5].toInt() == Graph::Box) {
         cl.penWidth = curve[17].toInt();
         current_index++;
-      } else if ((d_file_version >= 78) &&
-                 (curve[5].toInt() <= Graph::LineSymbols)) {
+      } else if (curve[5].toInt() <= Graph::LineSymbols) {
         cl.penWidth = curve[17].toInt();
         current_index++;
       } else
@@ -9204,7 +8938,7 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
       func_spec << curve[1];
 
       j++;
-      while (list[j] == "<formula>") {  // d_file_version >= 0x000105
+      while (list[j] == "<formula>") {
         QString formula;
         for (j++; list[j] != "</formula>"; j++) formula += list[j] + "\n";
         func_spec << formula;
@@ -9212,21 +8946,18 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
       }
       j--;
 
-      if (ag->insertFunctionCurve(app, func_spec, curve[2].toInt(),
-                                  d_file_version)) {
+      if (ag->insertFunctionCurve(app, func_spec, curve[2].toInt())) {
         ag->setCurveType(curveID, (Graph::CurveType)curve[5].toInt(), false);
         ag->updateCurveLayout(curveID, &cl);
-        if (d_file_version >= 88) {
-          QwtPlotCurve *c = ag->curve(curveID);
-          if (c) {
-            if (current_index + 1 < curve.size())
-              c->setAxis(curve[current_index].toInt(),
-                         curve[current_index + 1].toInt());
-            if (d_file_version >= 90 && current_index + 2 < curve.size())
-              c->setVisible(curve.last().toInt());
-            else
-              c->setVisible(true);
-          }
+        QwtPlotCurve *c = ag->curve(curveID);
+        if (c) {
+          if (current_index + 1 < curve.size())
+            c->setAxis(curve[current_index].toInt(),
+                       curve[current_index + 1].toInt());
+          if (current_index + 2 < curve.size())
+            c->setVisible(curve.last().toInt());
+          else
+            c->setVisible(true);
         }
         if (ag->curve(curveID)) curveID++;
       }
@@ -9253,28 +8984,9 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
     } else if (s.left(6) == "scale\t") {
       QStringList scl = s.split("\t");
       scl.pop_front();
-      if (d_file_version < 88) {
-        double step = scl[2].toDouble();
-        if (scl[5] == "0") step = 0.0;
-        ag->setScale(QwtPlot::xBottom, scl[0].toDouble(), scl[1].toDouble(),
-                     step, scl[3].toInt(), scl[4].toInt(), scl[6].toInt(),
-                     bool(scl[7].toInt()));
-        ag->setScale(QwtPlot::xTop, scl[0].toDouble(), scl[1].toDouble(), step,
-                     scl[3].toInt(), scl[4].toInt(), scl[6].toInt(),
-                     bool(scl[7].toInt()));
-
-        step = scl[10].toDouble();
-        if (scl[13] == "0") step = 0.0;
-        ag->setScale(QwtPlot::yLeft, scl[8].toDouble(), scl[9].toDouble(), step,
-                     scl[11].toInt(), scl[12].toInt(), scl[14].toInt(),
-                     bool(scl[15].toInt()));
-        ag->setScale(QwtPlot::yRight, scl[8].toDouble(), scl[9].toDouble(),
-                     step, scl[11].toInt(), scl[12].toInt(), scl[14].toInt(),
-                     bool(scl[15].toInt()));
-      } else
-        ag->setScale(scl[0].toInt(), scl[1].toDouble(), scl[2].toDouble(),
-                     scl[3].toDouble(), scl[4].toInt(), scl[5].toInt(),
-                     scl[6].toInt(), bool(scl[7].toInt()));
+      ag->setScale(scl[0].toInt(), scl[1].toDouble(), scl[2].toDouble(),
+                   scl[3].toDouble(), scl[4].toInt(), scl[5].toInt(),
+                   scl[6].toInt(), bool(scl[7].toInt()));
     } else if (s.contains("PlotTitle")) {
       QStringList fList = s.split("\t");
       ag->setTitle(fList[1]);
@@ -9353,26 +9065,26 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
       ag->setCanvasBackground(c);
     } else if (s.contains("Legend")) {  // version <= 0.8.9
       QStringList fList = QStringList::split("\t", s, true);
-      ag->insertLegend(fList, d_file_version);
+      ag->insertLegend(fList);
     } else if (s.startsWith("<legend>") && s.endsWith("</legend>")) {
       QStringList fList = QStringList::split("\t", s.remove("</legend>"), true);
-      ag->insertLegend(fList, d_file_version);
+      ag->insertLegend(fList);
     } else if (s.contains("textMarker")) {  // version <= 0.8.9
       QStringList fList = QStringList::split("\t", s, true);
-      ag->insertTextMarker(fList, d_file_version);
+      ag->insertTextMarker(fList);
     } else if (s.startsWith("<text>") && s.endsWith("</text>")) {
       QStringList fList = QStringList::split("\t", s.remove("</text>"), true);
-      ag->insertTextMarker(fList, d_file_version);
+      ag->insertTextMarker(fList);
     } else if (s.contains("lineMarker")) {  // version <= 0.8.9
       QStringList fList = s.split("\t");
-      ag->addArrow(fList, d_file_version);
+      ag->addArrow(fList);
     } else if (s.startsWith("<line>") && s.endsWith("</line>")) {
       QStringList fList = s.remove("</line>").split("\t");
-      ag->addArrow(fList, d_file_version);
+      ag->addArrow(fList);
     } else if (s.contains("ImageMarker") ||
                (s.startsWith("<image>") && s.endsWith("</image>"))) {
       QStringList fList = s.remove("</image>").split("\t");
-      ag->insertImageMarker(fList, d_file_version);
+      ag->insertImageMarker(fList);
     } else if (s.contains("AxisType")) {
       QStringList fList = s.split("\t");
       if (fList.size() >= 5)
@@ -9400,22 +9112,6 @@ Graph *ApplicationWindow::openGraph(ApplicationWindow *app, MultiLayer *plot,
               break;
           }
         }
-    } else if (d_file_version < 69 && s.contains("AxesTickLabelsCol")) {
-      QStringList fList = s.split("\t");
-      if (fList.size() >= 5) {
-        QList<int> axesTypes = ag->axesType();
-        for (int i = 0; i < 4; i++) {
-          switch (axesTypes[i]) {
-            case Graph::Txt:
-              ag->setLabelsTextFormat(i, app->table(fList[i + 1]),
-                                      fList[i + 1]);
-              break;
-            case Graph::ColHeader:
-              ag->setLabelsColHeaderFormat(i, app->table(fList[i + 1]));
-              break;
-          }
-        }
-      }
     }
   }
   ag->replot();
@@ -9528,18 +9224,14 @@ Graph3D *ApplicationWindow::openSurfacePlot(ApplicationWindow *app,
   fList = lst[19].split("\t", QString::SkipEmptyParts);
   plot->setMeshLineWidth(fList[1].toInt());
 
-  if (d_file_version > 71) {
-    fList = lst[20].split("\t");  // using QString::SkipEmptyParts here causes a
-                                  // crash for empty window labels
-    plot->setWindowLabel(fList[1]);
-    plot->setCaptionPolicy((MyWidget::CaptionPolicy)fList[2].toInt());
-    app->setListViewLabel(plot->name(), fList[1]);
-  }
+  fList = lst[20].split("\t");  // using QString::SkipEmptyParts here causes a
+                                // crash for empty window labels
+  plot->setWindowLabel(fList[1]);
+  plot->setCaptionPolicy((MyWidget::CaptionPolicy)fList[2].toInt());
+  app->setListViewLabel(plot->name(), fList[1]);
 
-  if (d_file_version >= 88) {
-    fList = lst[21].split("\t", QString::SkipEmptyParts);
-    plot->setOrtho(fList[1].toInt());
-  }
+  fList = lst[21].split("\t", QString::SkipEmptyParts);
+  plot->setOrtho(fList[1].toInt());
 
   plot->update();
   plot->setIgnoreFonts(true);
@@ -11457,16 +11149,8 @@ void ApplicationWindow::appendProject(const QString &fn) {
   lst = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
   QString version = lst[1];
   lst = version.split(".", QString::SkipEmptyParts);
-  if (fn.endsWith(".qti", Qt::CaseInsensitive) ||
-      fn.endsWith(".qti.gz", Qt::CaseInsensitive))
-    d_file_version =
-        100 * (lst[0]).toInt() + 10 * (lst[1]).toInt() + (lst[2]).toInt();
-  else
-    d_file_version =
-        ((lst[0]).toInt() << 16) + ((lst[1]).toInt() << 8) + (lst[2]).toInt();
 
   t.readLine();
-  if (d_file_version < 73) t.readLine();
 
   // process tables and matrix information
   while (!t.atEnd()) {
@@ -11539,24 +11223,20 @@ void ApplicationWindow::appendProject(const QString &fn) {
 
       restoreWindowGeometry(this, plot, t.readLine());
 
-      if (d_file_version > 71) {
-        QStringList lst = t.readLine().split("\t");
-        plot->setWindowLabel(lst[1]);
-        setListViewLabel(plot->name(), lst[1]);
-        plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
-      }
+      QStringList strnglst = t.readLine().split("\t");
+      plot->setWindowLabel(strnglst[1]);
+      setListViewLabel(plot->name(), strnglst[1]);
+      plot->setCaptionPolicy((MyWidget::CaptionPolicy)strnglst[2].toInt());
 
-      if (d_file_version > 83) {
-        QStringList lst = t.readLine().split("\t", QString::SkipEmptyParts);
-        plot->setMargins(lst[1].toInt(), lst[2].toInt(), lst[3].toInt(),
-                         lst[4].toInt());
-        lst = t.readLine().split("\t", QString::SkipEmptyParts);
-        plot->setSpacing(lst[1].toInt(), lst[2].toInt());
-        lst = t.readLine().split("\t", QString::SkipEmptyParts);
-        plot->setLayerCanvasSize(lst[1].toInt(), lst[2].toInt());
-        lst = t.readLine().split("\t", QString::SkipEmptyParts);
-        plot->setAlignement(lst[1].toInt(), lst[2].toInt());
-      }
+      QStringList strlist = t.readLine().split("\t", QString::SkipEmptyParts);
+      plot->setMargins(strlist[1].toInt(), strlist[2].toInt(),
+                       strlist[3].toInt(), strlist[4].toInt());
+      strlist = t.readLine().split("\t", QString::SkipEmptyParts);
+      plot->setSpacing(strlist[1].toInt(), strlist[2].toInt());
+      strlist = t.readLine().split("\t", QString::SkipEmptyParts);
+      plot->setLayerCanvasSize(strlist[1].toInt(), strlist[2].toInt());
+      strlist = t.readLine().split("\t", QString::SkipEmptyParts);
+      plot->setAlignement(strlist[1].toInt(), strlist[2].toInt());
 
       while (s != "</multiLayer>") {  // open layers
         s = t.readLine();
