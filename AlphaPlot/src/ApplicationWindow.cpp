@@ -472,10 +472,10 @@ void ApplicationWindow::initToolBars() {
   btn_layers->setToolTip(tr("Manage layers"));
   graph_tools->addWidget(btn_layers);
 
-  menu_layers->addAction(actionAutomaticLayout);
-  menu_layers->addAction(actionAddLayer);
-  menu_layers->addAction(actionDeleteLayer);
-  menu_layers->addAction(actionShowLayerDialog);
+  menu_layers->addAction(ui_->actionAutomaticLayout);
+  menu_layers->addAction(ui_->actionAddLayer);
+  menu_layers->addAction(ui_->actionRemoveLayer);
+  menu_layers->addAction(ui_->actionArrangeLayers);
 
   QMenu *menu_curves = new QMenu(this);
   QToolButton *btn_curves = new QToolButton(this);
@@ -485,9 +485,9 @@ void ApplicationWindow::initToolBars() {
   btn_curves->setToolTip(tr("Add curves / error bars"));
   graph_tools->addWidget(btn_curves);
 
-  menu_curves->addAction(actionShowCurvesDialog);
-  menu_curves->addAction(actionAddErrorBars);
-  menu_curves->addAction(actionAddFunctionCurve);
+  menu_curves->addAction(ui_->actionAddRemoveCurve);
+  menu_curves->addAction(ui_->actionAddErrorBars);
+  menu_curves->addAction(ui_->actionAddFunctionCurve);
 
   QMenu *menu_plot_enrichments = new QMenu(this);
   QToolButton *btn_plot_enrichments = new QToolButton(this);
@@ -497,30 +497,22 @@ void ApplicationWindow::initToolBars() {
   btn_plot_enrichments->setToolTip(tr("Enrichments"));
   graph_tools->addWidget(btn_plot_enrichments);
 
-  actionAddText = new QAction(tr("Add &Text"), this);
-  actionAddText->setShortcut(tr("ALT+T"));
-  actionAddText->setIcon(QIcon(QPixmap(":/text.xpm")));
-  actionAddText->setCheckable(true);
-  connect(actionAddText, SIGNAL(activated()), this, SLOT(addText()));
-  menu_plot_enrichments->addAction(actionAddText);
 
-  btnArrow = new QAction(tr("Draw &Arrow"), this);
-  btnArrow->setShortcut(tr("CTRL+ALT+A"));
-  btnArrow->setActionGroup(dataTools);
-  btnArrow->setCheckable(true);
-  btnArrow->setIcon(QIcon(QPixmap(":/arrow.xpm")));
-  menu_plot_enrichments->addAction(btnArrow);
+  ui_->actionAddText->setIcon(QIcon(QPixmap(":/text.xpm")));
+  connect(ui_->actionAddText, SIGNAL(activated()), this, SLOT(addText()));
+  menu_plot_enrichments->addAction(ui_->actionAddText);
 
-  btnLine = new QAction(tr("Draw &Line"), this);
-  btnLine->setShortcut(tr("CTRL+ALT+L"));
-  btnLine->setActionGroup(dataTools);
-  btnLine->setCheckable(true);
-  btnLine->setIcon(QIcon(QPixmap(":/lPlot.xpm")));
-  menu_plot_enrichments->addAction(btnLine);
+  ui_->actionDrawArrow->setActionGroup(dataTools);
+  ui_->actionDrawArrow->setIcon(QIcon(QPixmap(":/arrow.xpm")));
+  menu_plot_enrichments->addAction(ui_->actionDrawArrow);
 
-  menu_plot_enrichments->addAction(actionTimeStamp);
-  menu_plot_enrichments->addAction(actionAddImage);
-  menu_plot_enrichments->addAction(actionNewLegend);
+  ui_->actionDrawLine->setActionGroup(dataTools);
+  ui_->actionDrawLine->setIcon(QIcon(QPixmap(":/lPlot.xpm")));
+  menu_plot_enrichments->addAction(ui_->actionDrawLine);
+
+  menu_plot_enrichments->addAction(ui_->actionAddTimeStamp);
+  menu_plot_enrichments->addAction(ui_->actionAddImage);
+  menu_plot_enrichments->addAction(ui_->actionNewLegend);
 
   graph_tools->addSeparator();
 
@@ -735,28 +727,6 @@ void ApplicationWindow::initMainMenu() {
   ui_->actionShowConsole->setEnabled(false);
   ui_->actionShowConsole->setVisible(false);
 #endif
-
-  graph = new QMenu(this);
-  graph->setFont(appFont);
-  graph->setCheckable(true);
-  graph->addAction(actionShowCurvesDialog);
-  graph->addAction(actionAddErrorBars);
-  graph->addAction(actionAddFunctionCurve);
-
-  graph->addSeparator();
-
-  graph->addAction(actionAddText);
-  graph->addAction(btnArrow);
-  graph->addAction(btnLine);
-  graph->addAction(actionTimeStamp);
-  graph->addAction(actionAddImage);
-  graph->addAction(actionNewLegend);
-
-  graph->addSeparator();  // layers section
-  graph->addAction(actionAutomaticLayout);
-  graph->addAction(actionAddLayer);
-  graph->addAction(actionDeleteLayer);
-  graph->addAction(actionShowLayerDialog);
 
   plot3DMenu = new QMenu(this);
   plot3DMenu->setFont(appFont);
@@ -1013,7 +983,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
     ui_->actionSaveAsTemplate->setEnabled(true);
 
     if (w->inherits("MultiLayer")) {
-      menuBar()->insertItem(tr("&Graph"), graph);
+      menuBar()->insertItem(tr("&Graph"), ui_->menuGraph);
       menuBar()->insertItem(tr("&Tools"), plotDataMenu);
       menuBar()->insertItem(tr("&Analysis"), calcul);
       menuBar()->insertItem(tr("For&mat"), format);
@@ -1139,9 +1109,9 @@ void ApplicationWindow::customToolBars(QWidget *w) {
         else if (g->zoomOn())
           btnZoomIn->setChecked(true);
         else if (g->drawArrow())
-          btnArrow->setChecked(true);
+          ui_->actionDrawArrow->setChecked(true);
         else if (g->drawLineActive())
-          btnLine->setChecked(true);
+          ui_->actionDrawLine->setChecked(true);
         else if (g->activeTool() == 0)
           btnPointer->setChecked(true);
         else
@@ -2851,7 +2821,6 @@ void ApplicationWindow::updateAppFonts() {
   this->setFont(appFont);
   scriptingMenu->setFont(appFont);
   windowsMenu->setFont(appFont);
-  graph->setFont(appFont);
   ui_->menuFile->setFont(appFont);
   format->setFont(appFont);
   calcul->setFont(appFont);
@@ -6322,7 +6291,7 @@ void ApplicationWindow::addTimeStamp() {
 }
 
 void ApplicationWindow::disableAddText() {
-  actionAddText->setChecked(false);
+  ui_->actionAddText->setChecked(false);
   showTextDialog();
 }
 
@@ -6351,7 +6320,7 @@ void ApplicationWindow::addText() {
             tr("<h4>There are no plot layers available in this window.</h4>"
                "<p><h4>Please add a layer and try again!</h4>"));
 
-        actionAddText->setChecked(false);
+        ui_->actionAddText->setChecked(false);
         return;
       }
 
@@ -6360,7 +6329,7 @@ void ApplicationWindow::addText() {
     } break;
 
     case 2:
-      actionAddText->setChecked(false);
+      ui_->actionAddText->setChecked(false);
       return;
       break;
   }
@@ -7427,8 +7396,8 @@ void ApplicationWindow::showGraphContextMenu() {
         cm.addAction(actionShowAllCurves);
         cm.addSeparator();
       }
-      cm.addAction(actionShowCurvesDialog);
-      cm.addAction(actionAddFunctionCurve);
+      cm.addAction(ui_->actionAddRemoveCurve);
+      cm.addAction(ui_->actionAddFunctionCurve);
 
       translate.addAction(actionTranslateVert);
       translate.addAction(actionTranslateHor);
@@ -7532,8 +7501,8 @@ void ApplicationWindow::showLayerButtonContextMenu() {
 
     Graph *ag = (Graph *)plot->activeGraph();
 
-    cm.addAction(actionAddLayer);
-    cm.addAction(actionDeleteLayer);
+    cm.addAction(ui_->actionAddLayer);
+    cm.addAction(ui_->actionRemoveLayer);
     cm.addSeparator();
 
     if (ag->isPiePlot())
@@ -7543,8 +7512,8 @@ void ApplicationWindow::showLayerButtonContextMenu() {
         cm.addAction(actionShowAllCurves);
         cm.addSeparator();
       }
-      cm.addAction(actionShowCurvesDialog);
-      cm.addAction(actionAddFunctionCurve);
+      cm.addAction(ui_->actionAddRemoveCurve);
+      cm.addAction(ui_->actionAddFunctionCurve);
 
       translate.addAction(actionTranslateVert);
       translate.addAction(actionTranslateHor);
@@ -7643,12 +7612,12 @@ void ApplicationWindow::showWindowContextMenu() {
       cm.addSeparator();
     }
 
-    cm.addAction(actionAddLayer);
+    cm.addAction(ui_->actionAddLayer);
     if (g->layers() != 0) {
-      cm.addAction(actionDeleteLayer);
+      cm.addAction(ui_->actionRemoveLayer);
       cm.addSeparator();
       cm.addAction(actionShowPlotGeometryDialog);
-      cm.addAction(actionShowLayerDialog);
+      cm.addAction(ui_->actionArrangeLayers);
       cm.addSeparator();
     } else
       cm.addSeparator();
@@ -9346,9 +9315,9 @@ void ApplicationWindow::pickDataTool(QAction *action) {
     zoomIn();
   else if (action == btnZoomOut)
     zoomOut();
-  else if (action == btnArrow)
+  else if (action == ui_->actionDrawArrow)
     drawArrow();
-  else if (action == btnLine)
+  else if (action == ui_->actionDrawLine)
     drawLine();
 }
 
@@ -9640,20 +9609,15 @@ void ApplicationWindow::createActions() {
   actionSaveNote = new QAction(tr("Save Note As..."), this);
   connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
 
-  actionAddLayer =
-      new QAction(QIcon(QPixmap(":/newLayer.xpm")), tr("Add La&yer"), this);
-  actionAddLayer->setShortcut(tr("ALT+L"));
-  connect(actionAddLayer, SIGNAL(activated()), this, SLOT(addLayer()));
+  ui_->actionAddLayer->setIcon(QIcon(QPixmap(":/newLayer.xpm")));
+  connect(ui_->actionAddLayer, SIGNAL(activated()), this, SLOT(addLayer()));
 
-  actionShowLayerDialog = new QAction(QIcon(QPixmap(":/arrangeLayers.xpm")),
-                                      tr("Arran&ge Layers") + "...", this);
-  actionShowLayerDialog->setShortcut(tr("ALT+A"));
-  connect(actionShowLayerDialog, SIGNAL(activated()), this,
+  ui_->actionArrangeLayers->setIcon(QIcon(QPixmap(":/arrangeLayers.xpm")));
+  connect(ui_->actionArrangeLayers, SIGNAL(activated()), this,
           SLOT(showLayerDialog()));
 
-  actionAutomaticLayout = new QAction(QIcon(QPixmap(":/auto_layout.xpm")),
-                                      tr("Automatic Layout"), this);
-  connect(actionAutomaticLayout, SIGNAL(activated()), this,
+  ui_->actionAutomaticLayout->setIcon(QIcon(QPixmap(":/auto_layout.xpm")));
+  connect(ui_->actionAutomaticLayout, SIGNAL(activated()), this,
           SLOT(autoArrangeLayers()));
 
   actionExportPDF =
@@ -9662,21 +9626,15 @@ void ApplicationWindow::createActions() {
   actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
   connect(actionExportPDF, SIGNAL(activated()), this, SLOT(exportPDF()));
 
-  actionShowCurvesDialog = new QAction(QIcon(QPixmap(":/curves.xpm")),
-                                       tr("Add/Remove &Curve..."), this);
-  actionShowCurvesDialog->setShortcut(tr("ALT+C"));
-  connect(actionShowCurvesDialog, SIGNAL(activated()), this,
+  ui_->actionAddRemoveCurve->setIcon(QIcon(QPixmap(":/curves.xpm")));
+  connect(ui_->actionAddRemoveCurve, SIGNAL(activated()), this,
           SLOT(showCurvesDialog()));
 
-  actionAddErrorBars = new QAction(QIcon(QPixmap(":/yerror.xpm")),
-                                   tr("Add &Error Bars..."), this);
-  actionAddErrorBars->setShortcut(tr("Ctrl+B"));
-  connect(actionAddErrorBars, SIGNAL(activated()), this, SLOT(addErrorBars()));
+  ui_->actionAddErrorBars->setIcon(QIcon(QPixmap(":/yerror.xpm")));
+  connect(ui_->actionAddErrorBars, SIGNAL(activated()), this, SLOT(addErrorBars()));
 
-  actionAddFunctionCurve =
-      new QAction(QIcon(QPixmap(":/fx.xpm")), tr("Add &Function..."), this);
-  actionAddFunctionCurve->setShortcut(tr("Ctrl+Alt+F"));
-  connect(actionAddFunctionCurve, SIGNAL(activated()), this,
+  ui_->actionAddFunctionCurve->setIcon(QIcon(QPixmap(":/fx.xpm")));
+  connect(ui_->actionAddFunctionCurve, SIGNAL(activated()), this,
           SLOT(addFunctionCurve()));
 
   actionUnzoom = new QAction(QIcon(QPixmap(":/unzoom.xpm")),
@@ -9684,20 +9642,14 @@ void ApplicationWindow::createActions() {
   actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
   connect(actionUnzoom, SIGNAL(activated()), this, SLOT(setAutoScale()));
 
-  actionNewLegend =
-      new QAction(QIcon(QPixmap(":/legend.xpm")), tr("New &Legend"), this);
-  actionNewLegend->setShortcut(tr("Ctrl+L"));
-  connect(actionNewLegend, SIGNAL(activated()), this, SLOT(newLegend()));
+  ui_->actionNewLegend->setIcon(QIcon(QPixmap(":/legend.xpm")));
+  connect(ui_->actionNewLegend, SIGNAL(activated()), this, SLOT(newLegend()));
 
-  actionTimeStamp =
-      new QAction(QIcon(QPixmap(":/clock.xpm")), tr("Add Time Stamp"), this);
-  actionTimeStamp->setShortcut(tr("Ctrl+ALT+T"));
-  connect(actionTimeStamp, SIGNAL(activated()), this, SLOT(addTimeStamp()));
+  ui_->actionAddTimeStamp->setIcon(QIcon(QPixmap(":/clock.xpm")));
+  connect(ui_->actionAddTimeStamp, SIGNAL(activated()), this, SLOT(addTimeStamp()));
 
-  actionAddImage =
-      new QAction(QIcon(QPixmap(":/monalisa.xpm")), tr("Add &Image"), this);
-  actionAddImage->setShortcut(tr("ALT+I"));
-  connect(actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
+  ui_->actionAddImage->setIcon(QIcon(QPixmap(":/monalisa.xpm")));
+  connect(ui_->actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
 
   d_plot_mapper = new QSignalMapper;
   connect(d_plot_mapper, SIGNAL(mapped(int)), this, SLOT(selectPlotType(int)));
@@ -9945,11 +9897,8 @@ void ApplicationWindow::createActions() {
   connect(actionCloseWindow, SIGNAL(activated()), this,
           SLOT(closeActiveWindow()));
 
-  actionDeleteLayer = new QAction(
-      IconLoader::load("edit-delete-selection", IconLoader::LightDark),
-      tr("&Remove Layer"), this);
-  actionDeleteLayer->setShortcut(tr("Alt+R"));
-  connect(actionDeleteLayer, SIGNAL(activated()), this, SLOT(deleteLayer()));
+  ui_->actionRemoveLayer->setIcon(IconLoader::load("edit-delete-selection", IconLoader::LightDark));
+  connect(ui_->actionRemoveLayer, SIGNAL(activated()), this, SLOT(deleteLayer()));
 
   actionResizeActiveWindow = new QAction(QIcon(QPixmap(":/resize.xpm")),
                                          tr("Window &Geometry..."), this);
@@ -10195,52 +10144,15 @@ void ApplicationWindow::translateActionsStrings() {
   actionCopyWindow->setMenuText(tr("&Duplicate"));
   actionCopyWindow->setToolTip(tr("Duplicate window"));
 
-  actionAddLayer->setMenuText(tr("Add La&yer"));
-  actionAddLayer->setToolTip(tr("Add Layer"));
-  actionAddLayer->setShortcut(tr("ALT+L"));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  actionShowLayerDialog->setMenuText(tr("Arran&ge Layers") + "...");
-  actionShowLayerDialog->setToolTip(tr("Arrange Layers"));
-  actionShowLayerDialog->setShortcut(tr("ALT+A"));
-
-  actionAutomaticLayout->setMenuText(tr("Automatic Layout"));
-  actionAutomaticLayout->setToolTip(tr("Automatic Layout"));
-
   // FIXME: "..." should be added before translating, but this would break
   // translations
   actionExportPDF->setMenuText(tr("&Export PDF") + "...");
   actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
   actionExportPDF->setToolTip(tr("Export to PDF"));
 
-  actionShowCurvesDialog->setMenuText(tr("Add/Remove &Curve..."));
-  actionShowCurvesDialog->setShortcut(tr("ALT+C"));
-  actionShowCurvesDialog->setToolTip(tr("Add curve to graph"));
-
-  actionAddErrorBars->setMenuText(tr("Add &Error Bars..."));
-  actionAddErrorBars->setToolTip(tr("Add Error Bars..."));
-  actionAddErrorBars->setShortcut(tr("Ctrl+B"));
-
-  actionAddFunctionCurve->setMenuText(tr("Add &Function..."));
-  actionAddFunctionCurve->setToolTip(tr("Add Function..."));
-  actionAddFunctionCurve->setShortcut(tr("Ctrl+Alt+F"));
-
   actionUnzoom->setMenuText(tr("&Rescale to Show All"));
   actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
   actionUnzoom->setToolTip(tr("Best fit"));
-
-  actionNewLegend->setMenuText(tr("New &Legend"));
-  actionNewLegend->setShortcut(tr("Ctrl+L"));
-  actionNewLegend->setToolTip(tr("Add new legend"));
-
-  actionTimeStamp->setMenuText(tr("Add Time Stamp"));
-  actionTimeStamp->setShortcut(tr("Ctrl+ALT+T"));
-  actionTimeStamp->setToolTip(tr("Date & time "));
-
-  actionAddImage->setMenuText(tr("Add &Image"));
-  actionAddImage->setToolTip(tr("Add Image"));
-  actionAddImage->setShortcut(tr("ALT+I"));
 
   actionPlotL->setMenuText(tr("&Line"));
   actionPlotL->setToolTip(tr("Plot as line"));
@@ -10353,9 +10265,6 @@ void ApplicationWindow::translateActionsStrings() {
   actionCloseWindow->setMenuText(tr("Close &Window"));
   actionCloseWindow->setShortcut(tr("Ctrl+W"));
 
-  actionDeleteLayer->setMenuText(tr("&Remove Layer"));
-  actionDeleteLayer->setShortcut(tr("Alt+R"));
-
   actionResizeActiveWindow->setMenuText(tr("Window &Geometry..."));
   actionHideActiveWindow->setMenuText(tr("&Hide Window"));
   actionShowMoreWindows->setMenuText(tr("More Windows..."));
@@ -10446,17 +10355,6 @@ void ApplicationWindow::translateActionsStrings() {
   btnRemovePoints->setShortcut(tr("Alt+B"));
   btnRemovePoints->setToolTip(tr("Remove data points"));
 
-  actionAddText->setMenuText(tr("Add &Text"));
-  actionAddText->setToolTip(tr("Add Text"));
-  actionAddText->setShortcut(tr("ALT+T"));
-
-  btnArrow->setMenuText(tr("Draw &Arrow"));
-  btnArrow->setShortcut(tr("CTRL+ALT+A"));
-  btnArrow->setToolTip(tr("Draw arrow"));
-
-  btnLine->setMenuText(tr("Draw &Line"));
-  btnLine->setShortcut(tr("CTRL+ALT+L"));
-  btnLine->setToolTip(tr("Draw line"));
 
   // FIXME: is setText necessary for action groups?
   //	coord->setText( tr( "Coordinates" ) );

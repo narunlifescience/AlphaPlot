@@ -122,9 +122,30 @@
     <addaction name="separator"/>
     <addaction name="actionPlotWizard"/>
    </widget>
+   <widget class="QMenu" name="menuGraph">
+    <property name="title">
+     <string>&amp;Graph</string>
+    </property>
+    <addaction name="actionAddRemoveCurve"/>
+    <addaction name="actionAddErrorBars"/>
+    <addaction name="actionAddFunctionCurve"/>
+    <addaction name="separator"/>
+    <addaction name="actionAddText"/>
+    <addaction name="actionDrawArrow"/>
+    <addaction name="actionDrawLine"/>
+    <addaction name="actionAddTimeStamp"/>
+    <addaction name="actionAddImage"/>
+    <addaction name="actionNewLegend"/>
+    <addaction name="separator"/>
+    <addaction name="actionAutomaticLayout"/>
+    <addaction name="actionAddLayer"/>
+    <addaction name="actionRemoveLayer"/>
+    <addaction name="actionArrangeLayers"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
+   <addaction name="menuGraph"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -459,6 +480,104 @@
   <action name="actionShowUndoRedoHistory">
    <property name="text">
     <string>&amp;Undo/Redo History</string>
+   </property>
+  </action>
+  <action name="actionAddRemoveCurve">
+   <property name="text">
+    <string>Add/Remove Curve...</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+C</string>
+   </property>
+  </action>
+  <action name="actionAddErrorBars">
+   <property name="text">
+    <string>Add Error Bars..</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="actionAddFunctionCurve">
+   <property name="text">
+    <string>Add Function...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+F</string>
+   </property>
+  </action>
+  <action name="actionAddText">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Add Text</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+T</string>
+   </property>
+  </action>
+  <action name="actionDrawArrow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Draw Arrow</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+A</string>
+   </property>
+  </action>
+  <action name="actionDrawLine">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Draw Line</string>
+   </property>
+  </action>
+  <action name="actionAddTimeStamp">
+   <property name="text">
+    <string>Add Time Stamp</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+T</string>
+   </property>
+  </action>
+  <action name="actionAddImage">
+   <property name="text">
+    <string>Add Image</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+I</string>
+   </property>
+  </action>
+  <action name="actionNewLegend">
+   <property name="text">
+    <string>New Legend</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionAutomaticLayout">
+   <property name="text">
+    <string>Automatic Layout</string>
+   </property>
+  </action>
+  <action name="actionAddLayer">
+   <property name="text">
+    <string>Add Layer</string>
+   </property>
+  </action>
+  <action name="actionRemoveLayer">
+   <property name="text">
+    <string>Remove Layer</string>
+   </property>
+  </action>
+  <action name="actionArrangeLayers">
+   <property name="text">
+    <string>Arrange Layers...</string>
    </property>
   </action>
  </widget>

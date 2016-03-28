@@ -1117,7 +1117,7 @@ Arranges all the visible project windows in a cascade pattern.
   Graph* lastCopiedLayer;
   QSplitter* explorerSplitter;
 
-  QMenu *windowsMenu, *graph, *format, *calcul, *dataMenu;
+  QMenu *windowsMenu, *format, *calcul, *dataMenu;
   QMenu* d_quick_fit_menu;
   QMenu *help, *plot2D, *plot3D, *specialPlot, *panels, *stat, *decay, *filter;
   QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu;
@@ -1129,13 +1129,11 @@ Arranges all the visible project windows in a cascade pattern.
   QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet,
       *actionShowCurvePlotDialog;
   QAction* actionCopyWindow;
-  QAction *actionAddLayer, *actionShowLayerDialog, *actionAutomaticLayout;
 
   QAction* actionShowExportASCIIDialog;
   QAction* actionExportPDF;
   QAction* actionCloseAllWindows;
-  QAction *actionShowCurvesDialog, *actionAddErrorBars, *actionAddFunctionCurve,
-      *actionUnzoom, *actionNewLegend, *actionAddImage, *actionAddText;
+  QAction *actionUnzoom;
   QAction *actionPlotL, *actionPlotP, *actionPlotLP,
       *actionPlotVerticalDropLines, *actionPlotSpline;
   QAction *actionPlotVertSteps, *actionPlotHorSteps, *actionPlotVerticalBars;
@@ -1160,7 +1158,7 @@ Arranges all the visible project windows in a cascade pattern.
   QAction* actionChooseHelpFolder;
 #endif
   QAction *actionRename, *actionCloseWindow, *actionConvertTable;
-  QAction *actionAddColToTable, *actionDeleteLayer, *actionInterpolate;
+  QAction *actionAddColToTable, *actionInterpolate;
   QAction *actionResizeActiveWindow, *actionHideActiveWindow;
   QAction *actionShowMoreWindows, *actionPixelLineProfile,
       *actionIntensityTable;
@@ -1174,7 +1172,7 @@ Arranges all the visible project windows in a cascade pattern.
   QAction *actionPlot3DWireFrame, *actionPlot3DHiddenLine,
       *actionPlot3DPolygons, *actionPlot3DWireSurface;
   QAction *actionColorMap, *actionContourMap, *actionGrayMap;
-  QAction *actionShowGridDialog, *actionTimeStamp;
+  QAction *actionShowGridDialog;
   QAction *actionSmoothSavGol, *actionSmoothFFT, *actionSmoothAverage,
       *actionFFT;
   QAction *actionLowPassFilter, *actionHighPassFilter, *actionBandPassFilter,
@@ -1204,7 +1202,7 @@ Arranges all the visible project windows in a cascade pattern.
 
   QActionGroup* dataTools;
   QAction *btnCursor, *btnSelect, *btnPicker, *btnRemovePoints, *btnMovePoints;
-  QAction *btnZoomIn, *btnZoomOut, *btnPointer, *btnLine, *btnArrow;
+  QAction *btnZoomIn, *btnZoomOut, *btnPointer;
 
   QActionGroup* coord;
   QAction* Box;
