@@ -1120,7 +1120,6 @@ Arranges all the visible project windows in a cascade pattern.
   QMenu *decay, *filter;
   QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu;
   QMenu *smooth, *translateMenu, *multiPeakMenu;
-  QMenu* scriptingMenu;
   QAction* actionCopyStatusBarText;
   QAction *actionEditCurveRange, *actionCurveFullRange, *actionShowAllCurves,
       *actionHideCurve, *actionHideOtherCurves;
@@ -1168,10 +1167,9 @@ Arranges all the visible project windows in a cascade pattern.
   QAction *actionShowPlotDialog, *actionShowScaleDialog;
   QAction* actionNextWindow;
   QAction* actionPrevWindow;
-  QAction *actionScriptingLang, *actionRestartScripting, *actionClearTable,
+  QAction *actionClearTable,
       *actionGoToCell;
-  QAction *actionNoteExecute, *actionNoteExecuteAll, *actionNoteEvaluate,
-      *actionSaveNote;
+  QAction *actionSaveNote;
   QAction *actionAnimate, *actionPerspective, *actionFitFrame,
       *actionResetRotation;
 

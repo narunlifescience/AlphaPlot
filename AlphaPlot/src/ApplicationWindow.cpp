@@ -821,9 +821,6 @@ void ApplicationWindow::initMainMenu() {
   format = new QMenu(this);
   format->setFont(appFont);
 
-  scriptingMenu = new QMenu(this);
-  scriptingMenu->setFont(appFont);
-
   windowsMenu = new QMenu(this);
   windowsMenu->setFont(appFont);
   windowsMenu->setCheckable(true);
@@ -896,17 +893,17 @@ void ApplicationWindow::customMenu(QWidget *w) {
   menuBar()->insertItem(tr("&File"), ui_->menuFile);
   menuBar()->insertItem(tr("&Edit"), ui_->menuEdit);
   menuBar()->insertItem(tr("&View"), ui_->menuView);
-  menuBar()->insertItem(tr("Scripting"), scriptingMenu);
+  menuBar()->insertItem(tr("Scripting"), ui_->menuScripting);
 
-  scriptingMenu->clear();
 #ifdef SCRIPTING_DIALOG
-  scriptingMenu->addAction(actionScriptingLang);
+  ui_->actionScriptingLanguage->setVisible(true);
+#else
+  ui_->actionScriptingLanguage->setVisible(false);
 #endif
-  scriptingMenu->addAction(actionRestartScripting);
 
   // these use the same keyboard shortcut (Ctrl+Return) and should not be
   // enabled at the same time
-  actionNoteEvaluate->setEnabled(false);
+  ui_->actionEvaluateExpression->setEnabled(false);
 
   if (w) {
     ui_->actionPrintAllPlots->setEnabled(projectHas2DPlots());
@@ -981,18 +978,14 @@ void ApplicationWindow::customMenu(QWidget *w) {
       menuBar()->insertItem(tr("&Matrix"), matrixMenu);
     } else if (w->inherits("Note")) {
       ui_->actionSaveAsTemplate->setEnabled(false);
-      actionNoteEvaluate->setEnabled(true);
-      scriptingMenu->addSeparator();
-      scriptingMenu->addAction(actionNoteExecute);
-      scriptingMenu->addAction(actionNoteExecuteAll);
-      scriptingMenu->addAction(actionNoteEvaluate);
+      ui_->actionEvaluateExpression->setEnabled(true);
 
-      actionNoteExecute->disconnect(SIGNAL(activated()));
-      actionNoteExecuteAll->disconnect(SIGNAL(activated()));
-      actionNoteEvaluate->disconnect(SIGNAL(activated()));
-      connect(actionNoteExecute, SIGNAL(activated()), w, SLOT(execute()));
-      connect(actionNoteExecuteAll, SIGNAL(activated()), w, SLOT(executeAll()));
-      connect(actionNoteEvaluate, SIGNAL(activated()), w, SLOT(evaluate()));
+      ui_->actionExecute->disconnect(SIGNAL(activated()));
+      ui_->actionExecuteAll->disconnect(SIGNAL(activated()));
+      ui_->actionEvaluateExpression->disconnect(SIGNAL(activated()));
+      connect(ui_->actionExecute, SIGNAL(activated()), w, SLOT(execute()));
+      connect(ui_->actionExecuteAll, SIGNAL(activated()), w, SLOT(executeAll()));
+      connect(ui_->actionEvaluateExpression, SIGNAL(activated()), w, SLOT(evaluate()));
     } else
       disableActions();
 
@@ -2757,7 +2750,6 @@ void ApplicationWindow::changeAppFont(const QFont &f) {
 void ApplicationWindow::updateAppFonts() {
   qApp->setFont(appFont);
   this->setFont(appFont);
-  scriptingMenu->setFont(appFont);
   windowsMenu->setFont(appFont);
   ui_->menuFile->setFont(appFont);
   format->setFont(appFont);
@@ -10003,23 +9995,17 @@ void ApplicationWindow::createActions() {
 #endif
 
 #ifdef SCRIPTING_DIALOG
-  actionScriptingLang = new QAction(tr("Scripting &Language"), this);
-  connect(actionScriptingLang, SIGNAL(activated()), this,
+  connect(ui_->actionScriptingLanguage, SIGNAL(activated()), this,
           SLOT(showScriptingLangDialog()));
 #endif
 
-  actionRestartScripting = new QAction(tr("&Restart Scripting"), this);
-  connect(actionRestartScripting, SIGNAL(activated()), this,
+  ui_->actionRestartScripting->setIcon(QIcon());
+  connect(ui_->actionRestartScripting, SIGNAL(activated()), this,
           SLOT(restartScriptingEnv()));
 
-  actionNoteExecute = new QAction(tr("E&xecute"), this);
-  actionNoteExecute->setShortcut(tr("Ctrl+J"));
+  ui_->actionExecute->setIcon(QIcon());
 
-  actionNoteExecuteAll = new QAction(tr("Execute &All"), this);
-  actionNoteExecuteAll->setShortcut(tr("Ctrl+Shift+J"));
-
-  actionNoteEvaluate = new QAction(tr("&Evaluate Expression"), this);
-  actionNoteEvaluate->setShortcut(tr("Ctrl+Return"));
+  ui_->actionEvaluateExpression->setIcon(QIcon());
 
   actionShowCurvePlotDialog = new QAction(tr("&Plot details..."), this);
   connect(actionShowCurvePlotDialog, SIGNAL(activated()), this,
@@ -10168,20 +10154,6 @@ void ApplicationWindow::translateActionsStrings() {
 
   actionMultiPeakGauss->setMenuText(tr("&Gaussian..."));
   actionMultiPeakLorentz->setMenuText(tr("&Lorentzian..."));
-
-#ifdef SCRIPTING_DIALOG
-  actionScriptingLang->setMenuText(tr("Scripting &Language"));
-#endif
-  actionRestartScripting->setMenuText(tr("&Restart Scripting"));
-
-  actionNoteExecute->setMenuText(tr("E&xecute"));
-  actionNoteExecute->setShortcut(tr("Ctrl+J"));
-
-  actionNoteExecuteAll->setMenuText(tr("Execute &All"));
-  actionNoteExecuteAll->setShortcut(tr("Ctrl+Shift+J"));
-
-  actionNoteEvaluate->setMenuText(tr("&Evaluate Expression"));
-  actionNoteEvaluate->setShortcut(tr("Ctrl+Return"));
 
   btnPointer->setMenuText(tr("Disable &tools"));
   btnPointer->setToolTip(tr("Pointer"));

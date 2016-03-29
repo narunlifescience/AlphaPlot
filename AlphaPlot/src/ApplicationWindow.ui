@@ -164,7 +164,7 @@
     </property>
     <widget class="QMenu" name="menuPlot2DSpecialLineSymbol">
      <property name="title">
-      <string>Special Line + Symbol</string>
+      <string>Spe&amp;cial Line + Symbol</string>
      </property>
      <addaction name="actionPlot2DVerticalDropLines"/>
      <addaction name="actionPlot2DSpline"/>
@@ -173,7 +173,7 @@
     </widget>
     <widget class="QMenu" name="menuPlot2DStatisticalGraphs">
      <property name="title">
-      <string>Statistical Graphs</string>
+      <string>Statistical &amp;Graphs</string>
      </property>
      <addaction name="actionPlot2DStatBox"/>
      <addaction name="actionPlot2DStatHistogram"/>
@@ -181,7 +181,7 @@
     </widget>
     <widget class="QMenu" name="menuPlot2DPanel">
      <property name="title">
-      <string>Panel</string>
+      <string>Pa&amp;nel</string>
      </property>
      <addaction name="actionPanelVertical2Layers"/>
      <addaction name="actionPanelHorizontal2Layers"/>
@@ -190,7 +190,7 @@
     </widget>
     <widget class="QMenu" name="menuPlot3D">
      <property name="title">
-      <string>3D Plot</string>
+      <string>&amp;3D Plot</string>
      </property>
      <addaction name="actionPlot3DRibbon"/>
      <addaction name="actionPlot3DBar"/>
@@ -214,9 +214,21 @@
     <addaction name="separator"/>
     <addaction name="menuPlot3D"/>
    </widget>
+   <widget class="QMenu" name="menuScripting">
+    <property name="title">
+     <string>Scripti&amp;ng</string>
+    </property>
+    <addaction name="actionScriptingLanguage"/>
+    <addaction name="actionRestartScripting"/>
+    <addaction name="separator"/>
+    <addaction name="actionExecute"/>
+    <addaction name="actionExecuteAll"/>
+    <addaction name="actionEvaluateExpression"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
+   <addaction name="menuScripting"/>
    <addaction name="menuPlot"/>
    <addaction name="menuGraph"/>
    <addaction name="menuHelp"/>
@@ -702,122 +714,147 @@
   </action>
   <action name="actionPlot2DLine">
    <property name="text">
-    <string>Line</string>
+    <string>&amp;Line</string>
    </property>
   </action>
   <action name="actionPlot2DScatter">
    <property name="text">
-    <string>Scatter</string>
+    <string>&amp;Scatter</string>
    </property>
   </action>
   <action name="actionPlot2DVerticalBars">
    <property name="text">
-    <string>Vertical Bars</string>
+    <string>&amp;Vertical Bars</string>
    </property>
   </action>
   <action name="actionPlot2DHorizontalBars">
    <property name="text">
-    <string>Horizontal Bars</string>
+    <string>&amp;Horizontal Bars</string>
    </property>
   </action>
   <action name="actionPlot2DArea">
    <property name="text">
-    <string>Area</string>
+    <string>&amp;Area</string>
    </property>
   </action>
   <action name="actionPlot2DPie">
    <property name="text">
-    <string>Pie</string>
+    <string>&amp;Pie</string>
    </property>
   </action>
   <action name="actionPlot2DVectorsXYXY">
    <property name="text">
-    <string>Vectors XYXY</string>
+    <string>Vectors &amp;XYXY</string>
    </property>
   </action>
   <action name="actionPlot2DVectorsXYAM">
    <property name="text">
-    <string>Vectors XYAM</string>
+    <string>V&amp;ectors XYAM</string>
    </property>
   </action>
   <action name="actionPlot2DVerticalDropLines">
    <property name="text">
-    <string>Vertical Drop Lines</string>
+    <string>&amp;Vertical Drop Lines</string>
    </property>
   </action>
   <action name="actionPlot2DSpline">
    <property name="text">
-    <string>Spline</string>
+    <string>&amp;Spline</string>
    </property>
   </action>
   <action name="actionPlot2DVerticalSteps">
    <property name="text">
-    <string>Vertical Steps</string>
+    <string>V&amp;ertical Steps</string>
    </property>
   </action>
   <action name="actionPlot2DHorizontalSteps">
    <property name="text">
-    <string>Horizontal Steps</string>
+    <string>&amp;Horizontal Steps</string>
    </property>
   </action>
   <action name="actionPlot2DStatBox">
    <property name="text">
-    <string>Box Plot</string>
+    <string>&amp;Box Plot</string>
    </property>
   </action>
   <action name="actionPlot2DStatHistogram">
    <property name="text">
-    <string>Histogram</string>
+    <string>&amp;Histogram</string>
    </property>
   </action>
   <action name="actionPlot2DStatStackedHistogram">
    <property name="text">
-    <string>Stacked Histogram</string>
+    <string>&amp;Stacked Histogram</string>
    </property>
   </action>
   <action name="actionPanelVertical2Layers">
    <property name="text">
-    <string>Vertical 2 Layers</string>
+    <string>&amp;Vertical 2 Layers</string>
    </property>
   </action>
   <action name="actionPanelHorizontal2Layers">
    <property name="text">
-    <string>Horizontal 2 Layers</string>
+    <string>&amp;Horizontal 2 Layers</string>
    </property>
   </action>
   <action name="actionPanel4Layers">
    <property name="text">
-    <string>4 Layers</string>
+    <string>&amp;4 Layers</string>
    </property>
   </action>
   <action name="actionPanelStackedLayers">
    <property name="text">
-    <string>Stacked Layers</string>
+    <string>&amp;Stacked Layers</string>
    </property>
   </action>
   <action name="actionPlot3DRibbon">
    <property name="text">
-    <string>Ribbon</string>
+    <string>&amp;Ribbon</string>
    </property>
   </action>
   <action name="actionPlot3DBar">
    <property name="text">
-    <string>Bar</string>
+    <string>&amp;Bar</string>
    </property>
   </action>
   <action name="actionPlot3DScatter">
    <property name="text">
-    <string>Scatter</string>
+    <string>&amp;Scatter</string>
    </property>
   </action>
   <action name="actionPlot3DTrajectory">
    <property name="text">
-    <string>Trajectory</string>
+    <string>&amp;Trajectory</string>
    </property>
   </action>
   <action name="actionPlot2DLineSymbol">
    <property name="text">
-    <string>Line + Symbol</string>
+    <string>L&amp;ine + Symbol</string>
+   </property>
+  </action>
+  <action name="actionScriptingLanguage">
+   <property name="text">
+    <string>Scripting Language</string>
+   </property>
+  </action>
+  <action name="actionRestartScripting">
+   <property name="text">
+    <string>Restart Scripting</string>
+   </property>
+  </action>
+  <action name="actionExecute">
+   <property name="text">
+    <string>Execute</string>
+   </property>
+  </action>
+  <action name="actionExecuteAll">
+   <property name="text">
+    <string>Execute All</string>
+   </property>
+  </action>
+  <action name="actionEvaluateExpression">
+   <property name="text">
+    <string>Evaluate Expression</string>
    </property>
   </action>
  </widget>
