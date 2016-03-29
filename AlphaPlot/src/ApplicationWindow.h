@@ -1118,7 +1118,7 @@ Arranges all the visible project windows in a cascade pattern.
   QMenu *windowsMenu, *format, *calcul, *dataMenu;
   QMenu* d_quick_fit_menu;
   QMenu *decay, *filter;
-  QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu;
+  QMenu *matrixMenu, *plotDataMenu, *tableMenu;
   QMenu *smooth, *translateMenu, *multiPeakMenu;
   QAction* actionCopyStatusBarText;
   QAction *actionEditCurveRange, *actionCurveFullRange, *actionShowAllCurves,
@@ -1151,9 +1151,6 @@ Arranges all the visible project windows in a cascade pattern.
       *actionAdd3DData;
   QAction* actionMatrixDeterminant;
   QAction *actionConvertMatrix, *actionInvertMatrix;
-  QAction *actionPlot3DWireFrame, *actionPlot3DHiddenLine,
-      *actionPlot3DPolygons, *actionPlot3DWireSurface;
-  QAction *actionColorMap, *actionContourMap, *actionGrayMap;
   QAction *actionShowGridDialog;
   QAction *actionSmoothSavGol, *actionSmoothFFT, *actionSmoothAverage,
       *actionFFT;

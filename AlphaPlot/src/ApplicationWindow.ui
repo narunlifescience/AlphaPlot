@@ -225,11 +225,28 @@
     <addaction name="actionExecuteAll"/>
     <addaction name="actionEvaluateExpression"/>
    </widget>
+   <widget class="QMenu" name="menu3DPlot">
+    <property name="title">
+     <string>&amp;3D Plot</string>
+    </property>
+    <addaction name="action3DWireFrame"/>
+    <addaction name="action3DHiddenLine"/>
+    <addaction name="action3DPolygons"/>
+    <addaction name="action3DWireSurface"/>
+    <addaction name="separator"/>
+    <addaction name="action3DBar"/>
+    <addaction name="action3DScatter"/>
+    <addaction name="separator"/>
+    <addaction name="action3DCountourColorFill"/>
+    <addaction name="action3DCountourLines"/>
+    <addaction name="action3DGreyScaleMap"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
    <addaction name="menuScripting"/>
    <addaction name="menuPlot"/>
+   <addaction name="menu3DPlot"/>
    <addaction name="menuGraph"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -834,27 +851,72 @@
   </action>
   <action name="actionScriptingLanguage">
    <property name="text">
-    <string>Scripting Language</string>
+    <string>&amp;Scripting Language</string>
    </property>
   </action>
   <action name="actionRestartScripting">
    <property name="text">
-    <string>Restart Scripting</string>
+    <string>&amp;Restart Scripting</string>
    </property>
   </action>
   <action name="actionExecute">
    <property name="text">
-    <string>Execute</string>
+    <string>&amp;Execute</string>
    </property>
   </action>
   <action name="actionExecuteAll">
    <property name="text">
-    <string>Execute All</string>
+    <string>E&amp;xecute All</string>
    </property>
   </action>
   <action name="actionEvaluateExpression">
    <property name="text">
-    <string>Evaluate Expression</string>
+    <string>E&amp;valuate Expression</string>
+   </property>
+  </action>
+  <action name="action3DWireFrame">
+   <property name="text">
+    <string>3D Wire Frame</string>
+   </property>
+  </action>
+  <action name="action3DHiddenLine">
+   <property name="text">
+    <string>3D Hidden Line</string>
+   </property>
+  </action>
+  <action name="action3DPolygons">
+   <property name="text">
+    <string>3D Polygons</string>
+   </property>
+  </action>
+  <action name="action3DWireSurface">
+   <property name="text">
+    <string>3D Wire Surface</string>
+   </property>
+  </action>
+  <action name="action3DBar">
+   <property name="text">
+    <string>Bar</string>
+   </property>
+  </action>
+  <action name="action3DScatter">
+   <property name="text">
+    <string>Scatter</string>
+   </property>
+  </action>
+  <action name="action3DCountourColorFill">
+   <property name="text">
+    <string>Countour + Color Fill</string>
+   </property>
+  </action>
+  <action name="action3DCountourLines">
+   <property name="text">
+    <string>Countour Lines</string>
+   </property>
+  </action>
+  <action name="action3DGreyScaleMap">
+   <property name="text">
+    <string>Grey Scale Map</string>
    </property>
   </action>
  </widget>

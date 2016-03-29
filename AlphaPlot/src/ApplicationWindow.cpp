@@ -638,11 +638,11 @@ void ApplicationWindow::initToolBars() {
   matrix_plot_tools->setObjectName("matrix_plot_tools");
   addToolBar(Qt::BottomToolBarArea, matrix_plot_tools);
 
-  actionPlot3DWireFrame->addTo(matrix_plot_tools);
-  actionPlot3DHiddenLine->addTo(matrix_plot_tools);
+  ui_->action3DWireFrame->addTo(matrix_plot_tools);
+  ui_->action3DHiddenLine->addTo(matrix_plot_tools);
 
-  actionPlot3DPolygons->addTo(matrix_plot_tools);
-  actionPlot3DWireSurface->addTo(matrix_plot_tools);
+  ui_->action3DPolygons->addTo(matrix_plot_tools);
+  ui_->action3DWireSurface->addTo(matrix_plot_tools);
 
   matrix_plot_tools->addSeparator();
 
@@ -650,9 +650,9 @@ void ApplicationWindow::initToolBars() {
   ui_->actionPlot3DScatter->addTo(matrix_plot_tools);
 
   matrix_plot_tools->addSeparator();
-  actionColorMap->addTo(matrix_plot_tools);
-  actionContourMap->addTo(matrix_plot_tools);
-  actionGrayMap->addTo(matrix_plot_tools);
+  ui_->action3DCountourColorFill->addTo(matrix_plot_tools);
+  ui_->action3DCountourLines->addTo(matrix_plot_tools);
+  ui_->action3DGreyScaleMap->addTo(matrix_plot_tools);
 
   matrix_plot_tools->setEnabled(false);
 }
@@ -722,24 +722,9 @@ void ApplicationWindow::initMainMenu() {
   ui_->actionShowConsole->setVisible(false);
 #endif
 
-  plot3DMenu = new QMenu(this);
-  plot3DMenu->setFont(appFont);
-
-  plot3DMenu->addAction(actionPlot3DWireFrame);
-  plot3DMenu->addAction(actionPlot3DHiddenLine);
-
-  plot3DMenu->addAction(actionPlot3DPolygons);
-  plot3DMenu->addAction(actionPlot3DWireSurface);
-
-  plot3DMenu->addSeparator();
-
-  plot3DMenu->addAction(ui_->actionPlot3DBar);
-  plot3DMenu->addAction(ui_->actionPlot3DScatter);
-
-  plot3DMenu->addSeparator();
-  plot3DMenu->addAction(actionColorMap);
-  plot3DMenu->addAction(actionContourMap);
-  plot3DMenu->addAction(actionGrayMap);
+  // connect it with new qaction or find a better way to averse duplicate
+  // plot3DMenu->addAction(ui_->actionPlot3DBar);
+  // plot3DMenu->addAction(ui_->actionPlot3DScatter);
 
   matrixMenu = new QMenu(this);
   matrixMenu->setFont(appFont);
@@ -966,7 +951,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
       tableMenu->addAction(actionConvertTable);
       menuBar()->insertItem(tr("&Table"), tableMenu);
     } else if (w->inherits("Matrix")) {
-      menuBar()->insertItem(tr("3D &Plot"), plot3DMenu);
+      menuBar()->insertItem(tr("3D &Plot"), ui_->menu3DPlot);
 
       matrixMenu->clear();
       static_cast<Matrix *>(w)->d_future_matrix->fillProjectMenu(matrixMenu);
@@ -984,8 +969,10 @@ void ApplicationWindow::customMenu(QWidget *w) {
       ui_->actionExecuteAll->disconnect(SIGNAL(activated()));
       ui_->actionEvaluateExpression->disconnect(SIGNAL(activated()));
       connect(ui_->actionExecute, SIGNAL(activated()), w, SLOT(execute()));
-      connect(ui_->actionExecuteAll, SIGNAL(activated()), w, SLOT(executeAll()));
-      connect(ui_->actionEvaluateExpression, SIGNAL(activated()), w, SLOT(evaluate()));
+      connect(ui_->actionExecuteAll, SIGNAL(activated()), w,
+              SLOT(executeAll()));
+      connect(ui_->actionEvaluateExpression, SIGNAL(activated()), w,
+              SLOT(evaluate()));
     } else
       disableActions();
 
@@ -2755,7 +2742,6 @@ void ApplicationWindow::updateAppFonts() {
   format->setFont(appFont);
   calcul->setFont(appFont);
   dataMenu->setFont(appFont);
-  plot3DMenu->setFont(appFont);
   matrixMenu->setFont(appFont);
   smooth->setFont(appFont);
   filter->setFont(appFont);
@@ -9906,37 +9892,41 @@ void ApplicationWindow::createActions() {
   connect(actionConvertTable, SIGNAL(activated()), this,
           SLOT(convertTableToMatrix()));
 
-  actionPlot3DWireFrame =
-      new QAction(QIcon(QPixmap(":/lineMesh.xpm")), tr("3D &Wire Frame"), this);
-  connect(actionPlot3DWireFrame, SIGNAL(activated()), this,
+  ui_->action3DWireFrame->setIcon(QIcon(QPixmap(":/lineMesh.xpm")));
+  connect(ui_->action3DWireFrame, SIGNAL(activated()), this,
           SLOT(plot3DWireframe()));
 
-  actionPlot3DHiddenLine = new QAction(QIcon(QPixmap(":/grid_only.xpm")),
-                                       tr("3D &Hidden Line"), this);
-  connect(actionPlot3DHiddenLine, SIGNAL(activated()), this,
+  ui_->action3DHiddenLine->setIcon(QIcon(QPixmap(":/grid_only.xpm")));
+  connect(ui_->action3DHiddenLine, SIGNAL(activated()), this,
           SLOT(plot3DHiddenLine()));
 
-  actionPlot3DPolygons =
-      new QAction(QIcon(QPixmap(":/no_grid.xpm")), tr("3D &Polygons"), this);
-  connect(actionPlot3DPolygons, SIGNAL(activated()), this,
+  ui_->action3DPolygons->setIcon(QIcon(QPixmap(":/no_grid.xpm")));
+  connect(ui_->action3DPolygons, SIGNAL(activated()), this,
           SLOT(plot3DPolygons()));
 
-  actionPlot3DWireSurface = new QAction(QIcon(QPixmap(":/grid_poly.xpm")),
-                                        tr("3D Wire &Surface"), this);
-  connect(actionPlot3DWireSurface, SIGNAL(activated()), this,
+  ui_->action3DWireSurface->setIcon(QIcon(QPixmap(":/grid_poly.xpm")));
+  connect(ui_->action3DWireSurface, SIGNAL(activated()), this,
           SLOT(plot3DWireSurface()));
 
-  actionColorMap = new QAction(QIcon(QPixmap(":/color_map.xpm")),
-                               tr("Contour - &Color Fill"), this);
-  connect(actionColorMap, SIGNAL(activated()), this, SLOT(plotColorMap()));
+  ui_->action3DBar->setIcon(QIcon(QPixmap(":/bars.xpm")));
+  connect(ui_->action3DBar, SIGNAL(activated()), ui_->actionPlot3DBar,
+          SIGNAL(activated()));
 
-  actionContourMap = new QAction(QIcon(QPixmap(":/contour_map.xpm")),
-                                 tr("Contour &Lines"), this);
-  connect(actionContourMap, SIGNAL(activated()), this, SLOT(plotContour()));
+  ui_->action3DScatter->setIcon(QIcon(QPixmap(":/scatter.xpm")));
+  connect(ui_->action3DScatter, SIGNAL(activated()), ui_->actionPlot3DScatter,
+          SIGNAL(activated()));
 
-  actionGrayMap = new QAction(QIcon(QPixmap(":/gray_map.xpm")),
-                              tr("&Gray Scale Map"), this);
-  connect(actionGrayMap, SIGNAL(activated()), this, SLOT(plotGrayScale()));
+  ui_->action3DCountourColorFill->setIcon(QIcon(QPixmap(":/color_map.xpm")));
+  connect(ui_->action3DCountourColorFill, SIGNAL(activated()), this,
+          SLOT(plotColorMap()));
+
+  ui_->action3DCountourLines->setIcon(QIcon(QPixmap(":/contour_map.xpm")));
+  connect(ui_->action3DCountourLines, SIGNAL(activated()), this,
+          SLOT(plotContour()));
+
+  ui_->action3DGreyScaleMap->setIcon(QIcon(QPixmap(":/gray_map.xpm")));
+  connect(ui_->action3DGreyScaleMap, SIGNAL(activated()), this,
+          SLOT(plotGrayScale()));
 
   actionCorrelate = new QAction(tr("Co&rrelate"), this);
   connect(actionCorrelate, SIGNAL(activated()), this, SLOT(correlate()));
@@ -10072,15 +10062,6 @@ void ApplicationWindow::translateActionsStrings() {
   actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
   actionUnzoom->setToolTip(tr("Best fit"));
 
-  actionColorMap->setMenuText(tr("Contour + &Color Fill"));
-  actionColorMap->setToolTip(tr("Contour Lines + Color Fill"));
-
-  actionContourMap->setMenuText(tr("Contour &Lines"));
-  actionContourMap->setToolTip(tr("Contour Lines"));
-
-  actionGrayMap->setMenuText(tr("&Gray Scale Map"));
-  actionGrayMap->setToolTip(tr("Gray Scale Map"));
-
   actionShowColStatistics->setMenuText(tr("Statistics on &Columns"));
   actionShowColStatistics->setToolTip(tr("Selected columns statistics"));
 
@@ -10141,10 +10122,6 @@ void ApplicationWindow::translateActionsStrings() {
   actionMatrixDeterminant->setMenuText(tr("&Determinant"));
   actionConvertMatrix->setMenuText(tr("&Convert to Table"));
   actionConvertTable->setMenuText(tr("Convert to &Matrix"));
-  actionPlot3DWireFrame->setMenuText(tr("3D &Wire Frame"));
-  actionPlot3DHiddenLine->setMenuText(tr("3D &Hidden Line"));
-  actionPlot3DPolygons->setMenuText(tr("3D &Polygons"));
-  actionPlot3DWireSurface->setMenuText(tr("3D Wire &Surface"));
   actionCorrelate->setMenuText(tr("Co&rrelate"));
   actionAutoCorrelate->setMenuText(tr("&Autocorrelate"));
   actionConvolute->setMenuText(tr("&Convolute"));
