@@ -142,10 +142,27 @@
     <addaction name="actionRemoveLayer"/>
     <addaction name="actionArrangeLayers"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionHelp"/>
+    <addaction name="actionChooseHelpFolder"/>
+    <addaction name="separator"/>
+    <addaction name="actionHomepage"/>
+    <addaction name="actionCheckUpdates"/>
+    <addaction name="actionDownloadManual"/>
+    <addaction name="separator"/>
+    <addaction name="actionVisitForum"/>
+    <addaction name="actionReportBug"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
    <addaction name="menuGraph"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -484,7 +501,7 @@
   </action>
   <action name="actionAddRemoveCurve">
    <property name="text">
-    <string>Add/Remove Curve...</string>
+    <string>&amp;Add/Remove Curve...</string>
    </property>
    <property name="shortcut">
     <string>Alt+C</string>
@@ -492,7 +509,7 @@
   </action>
   <action name="actionAddErrorBars">
    <property name="text">
-    <string>Add Error Bars..</string>
+    <string>Add &amp;Error Bars..</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+B</string>
@@ -500,7 +517,7 @@
   </action>
   <action name="actionAddFunctionCurve">
    <property name="text">
-    <string>Add Function...</string>
+    <string>Add &amp;Function...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+F</string>
@@ -511,7 +528,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Add Text</string>
+    <string>Add Te&amp;xt</string>
    </property>
    <property name="shortcut">
     <string>Alt+T</string>
@@ -522,7 +539,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Draw Arrow</string>
+    <string>&amp;Draw Arrow</string>
    </property>
    <property name="shortcut">
     <string>Alt+A</string>
@@ -533,12 +550,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Draw Line</string>
+    <string>Dra&amp;w Line</string>
    </property>
   </action>
   <action name="actionAddTimeStamp">
    <property name="text">
-    <string>Add Time Stamp</string>
+    <string>Add Ti&amp;me Stamp</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+T</string>
@@ -546,7 +563,7 @@
   </action>
   <action name="actionAddImage">
    <property name="text">
-    <string>Add Image</string>
+    <string>Add &amp;Image</string>
    </property>
    <property name="shortcut">
     <string>Alt+I</string>
@@ -554,7 +571,7 @@
   </action>
   <action name="actionNewLegend">
    <property name="text">
-    <string>New Legend</string>
+    <string>&amp;New Legend</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
@@ -562,22 +579,68 @@
   </action>
   <action name="actionAutomaticLayout">
    <property name="text">
-    <string>Automatic Layout</string>
+    <string>A&amp;utomatic Layout</string>
    </property>
   </action>
   <action name="actionAddLayer">
    <property name="text">
-    <string>Add Layer</string>
+    <string>Add &amp;Layer</string>
    </property>
   </action>
   <action name="actionRemoveLayer">
    <property name="text">
-    <string>Remove Layer</string>
+    <string>&amp;Remove Layer</string>
    </property>
   </action>
   <action name="actionArrangeLayers">
    <property name="text">
-    <string>Arrange Layers...</string>
+    <string>Arran&amp;ge Layers...</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="actionHomepage">
+   <property name="text">
+    <string>AlphaPlot Homepage</string>
+   </property>
+  </action>
+  <action name="actionChooseHelpFolder">
+   <property name="text">
+    <string>Choose Help Folder</string>
+   </property>
+  </action>
+  <action name="actionCheckUpdates">
+   <property name="text">
+    <string>Check Updates</string>
+   </property>
+  </action>
+  <action name="actionDownloadManual">
+   <property name="text">
+    <string>Download Manual</string>
+   </property>
+  </action>
+  <action name="actionVisitForum">
+   <property name="text">
+    <string>Visit AlphaPlot Forum</string>
+   </property>
+  </action>
+  <action name="actionReportBug">
+   <property name="text">
+    <string>Report a Bug</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+H</string>
    </property>
   </action>
  </widget>

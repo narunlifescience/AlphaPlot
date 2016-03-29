@@ -837,26 +837,22 @@ void ApplicationWindow::initMainMenu() {
   connect(windowsMenu, SIGNAL(aboutToShow()), this,
           SLOT(windowsMenuAboutToShow()));
 
-  help = new QMenu(this);
-  help->setFont(appFont);
-
-  help->addAction(actionShowHelp);
 #ifdef DYNAMIC_MANUAL_PATH
-  help->addAction(actionChooseHelpFolder);
+  ui_->actionChooseHelpFolder->setVisible(true);
+#else
+  ui_->actionChooseHelpFolder->setVisible(false);
 #endif
-  help->addSeparator();
-  help->addAction(actionHomePage);
+
 #ifdef SEARCH_FOR_UPDATES
-  help->addAction(actionCheckUpdates);
+  ui_->actionCheckUpdates->setVisible(true);
+#else
+  ui_->actionCheckUpdates->setVisible(false);
 #endif
 #ifdef DOWNLOAD_LINKS
-  help->addAction(actionDownloadManual);
+  ui_->actionDownloadManual->setVisible(true);
+#else
+  ui_->actionDownloadManual->setVisible(false);
 #endif
-  help->addSeparator();
-  help->addAction(actionHelpForums);
-  help->addAction(actionHelpBugReports);
-  help->addSeparator();
-  help->addAction(actionAbout);
 
   disableActions();
 }
@@ -1065,7 +1061,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
   } else
     disableActions();
 
-  menuBar()->insertItem(tr("&Help"), help);
+  menuBar()->insertItem(tr("&Help"), ui_->menuHelp);
 }
 
 void ApplicationWindow::disableActions() {
@@ -2825,7 +2821,6 @@ void ApplicationWindow::updateAppFonts() {
   format->setFont(appFont);
   calcul->setFont(appFont);
   dataMenu->setFont(appFont);
-  help->setFont(appFont);
   plot2D->setFont(appFont);
   plot3D->setFont(appFont);
   plot3DMenu->setFont(appFont);
@@ -9874,17 +9869,15 @@ void ApplicationWindow::createActions() {
   connect(actionShowTitleDialog, SIGNAL(activated()), this,
           SLOT(showTitleDialog()));
 
-  actionAbout = new QAction(tr("&About AlphaPlot"), this);
-  actionAbout->setShortcut(tr("F1"));
-  connect(actionAbout, SIGNAL(activated()), this, SLOT(about()));
+  ui_->actionAbout->setIcon(QIcon());
+  connect(ui_->actionAbout, SIGNAL(activated()), this, SLOT(about()));
 
-  actionShowHelp = new QAction(tr("&Help"), this);
-  actionShowHelp->setShortcut(tr("Ctrl+H"));
-  connect(actionShowHelp, SIGNAL(activated()), this, SLOT(showHelp()));
+  ui_->actionHelp->setIcon(QIcon());
+  connect(ui_->actionHelp, SIGNAL(activated()), this, SLOT(showHelp()));
 
 #ifdef DYNAMIC_MANUAL_PATH
-  actionChooseHelpFolder = new QAction(tr("&Choose Help Folder..."), this);
-  connect(actionChooseHelpFolder, SIGNAL(activated()), this,
+  ui_->actionChooseHelpFolder->setIcon();
+  connect(ui_->actionChooseHelpFolder, SIGNAL(activated()), this,
           SLOT(chooseHelpFolder()));
 #endif
 
@@ -10049,24 +10042,24 @@ void ApplicationWindow::createActions() {
           SLOT(fitMultiPeakLorentz()));
 
 #ifdef SEARCH_FOR_UPDATES
-  actionCheckUpdates = new QAction(tr("Search for &Updates"), this);
-  connect(actionCheckUpdates, SIGNAL(activated()), this,
+  ui_->actionCheckUpdates->setIcon(QIcon());
+  connect(ui_->actionCheckUpdates, SIGNAL(activated()), this,
           SLOT(searchForUpdates()));
 #endif  // defined SEARCH_FOR_UPDATES
 
-  actionHomePage = new QAction(tr("&AlphaPlot Homepage"), this);
-  connect(actionHomePage, SIGNAL(activated()), this, SLOT(showHomePage()));
+  ui_->actionHomepage->setIcon(QIcon());
+  connect(ui_->actionHomepage, SIGNAL(activated()), this, SLOT(showHomePage()));
 
-  actionHelpForums = new QAction(tr("AlphaPlot &Forums"), this);
-  connect(actionHelpForums, SIGNAL(triggered()), this, SLOT(showForums()));
+  ui_->actionVisitForum->setIcon(QIcon());
+  connect(ui_->actionVisitForum, SIGNAL(triggered()), this, SLOT(showForums()));
 
-  actionHelpBugReports = new QAction(tr("Report a &Bug"), this);
-  connect(actionHelpBugReports, SIGNAL(triggered()), this,
+  ui_->actionReportBug->setIcon(QIcon());
+  connect(ui_->actionReportBug, SIGNAL(triggered()), this,
           SLOT(showBugTracker()));
 
 #ifdef DOWNLOAD_LINKS
-  actionDownloadManual = new QAction(tr("Download &Manual"), this);
-  connect(actionDownloadManual, SIGNAL(activated()), this,
+  ui_->actionDownloadManual->setIcon(QIcon());
+  connect(ui_->actionDownloadManual, SIGNAL(activated()), this,
           SLOT(downloadManual()));
 #endif
 
@@ -10250,16 +10243,6 @@ void ApplicationWindow::translateActionsStrings() {
   actionShowGridDialog->setMenuText(tr("&Grid ..."));
   actionShowTitleDialog->setMenuText(tr("&Title ..."));
 
-  actionAbout->setMenuText(tr("&About AlphaPlot"));
-  actionAbout->setShortcut(tr("F1"));
-
-  actionShowHelp->setMenuText(tr("&Help"));
-  actionShowHelp->setShortcut(tr("Ctrl+H"));
-
-#ifdef DYNAMIC_MANUAL_PATH
-  actionChooseHelpFolder->setMenuText(tr("&Choose Help Folder..."));
-#endif
-
   actionRename->setMenuText(tr("&Rename Window"));
 
   actionCloseWindow->setMenuText(tr("Close &Window"));
@@ -10301,15 +10284,6 @@ void ApplicationWindow::translateActionsStrings() {
 
   actionMultiPeakGauss->setMenuText(tr("&Gaussian..."));
   actionMultiPeakLorentz->setMenuText(tr("&Lorentzian..."));
-  actionHomePage->setMenuText(tr("&AlphaPlot Homepage"));
-#ifdef SEARCH_FOR_UPDATES
-  actionCheckUpdates->setMenuText(tr("Search for &Updates"));
-#endif
-  actionHelpForums->setText(tr("Visit AlphaPlot &Forums"));
-  actionHelpBugReports->setText(tr("Report a &Bug"));
-#ifdef DOWNLOAD_LINKS
-  actionDownloadManual->setMenuText(tr("Download &Manual"));
-#endif
 
 #ifdef SCRIPTING_DIALOG
   actionScriptingLang->setMenuText(tr("Scripting &Language"));

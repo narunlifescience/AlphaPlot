@@ -1119,7 +1119,7 @@ Arranges all the visible project windows in a cascade pattern.
 
   QMenu *windowsMenu, *format, *calcul, *dataMenu;
   QMenu* d_quick_fit_menu;
-  QMenu *help, *plot2D, *plot3D, *specialPlot, *panels, *stat, *decay, *filter;
+  QMenu *plot2D, *plot3D, *specialPlot, *panels, *stat, *decay, *filter;
   QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu;
   QMenu *smooth, *translateMenu, *multiPeakMenu;
   QMenu* scriptingMenu;
@@ -1152,11 +1152,6 @@ Arranges all the visible project windows in a cascade pattern.
   QAction *actionFitExpGrowth, *actionFitSigmoidal, *actionFitGauss,
       *actionFitLorentz, *actionShowFitDialog;
   QAction *actionShowAxisDialog, *actionShowTitleDialog;
-  QAction* actionAbout;
-  QAction* actionShowHelp;
-#ifdef DYNAMIC_MANUAL_PATH
-  QAction* actionChooseHelpFolder;
-#endif
   QAction *actionRename, *actionCloseWindow, *actionConvertTable;
   QAction *actionAddColToTable, *actionInterpolate;
   QAction *actionResizeActiveWindow, *actionHideActiveWindow;
@@ -1181,15 +1176,7 @@ Arranges all the visible project windows in a cascade pattern.
       *actionAutoCorrelate;
   QAction *actionTranslateHor, *actionTranslateVert;
   QAction *actionBoxPlot, *actionMultiPeakGauss, *actionMultiPeakLorentz;
-#ifdef SEARCH_FOR_UPDATES
-  QAction* actionCheckUpdates;
-#endif
-  QAction* actionHomePage;
-#ifdef DOWNLOAD_LINKS
-  QAction* actionDownloadManual;
-#endif
-  QAction* actionHelpForums;
-  QAction* actionHelpBugReports;
+
   QAction *actionShowPlotDialog, *actionShowScaleDialog;
   QAction* actionNextWindow;
   QAction* actionPrevWindow;
