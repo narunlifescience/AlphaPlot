@@ -552,7 +552,6 @@ Arranges all the visible project windows in a cascade pattern.
   void initFonts();
   void createActions();
   void initMainMenu();
-  void initPlotMenu();
   void initTableAnalysisMenu();
   void initPlotDataMenu();
   void initToolBars();
@@ -1070,8 +1069,7 @@ Arranges all the visible project windows in a cascade pattern.
   //@}
 
   bool startArrowOn, endArrowOn, fillArrowHead;
-  int arrowHeadLength, arrowHeadAngle, specialPlotMenuID, statMenuID,
-      panelMenuID, plot3dID;
+  int arrowHeadLength, arrowHeadAngle;
   int plotMenuID, setAsMenuID, fillMenuID;
   int translateMenuID, smoothMenuID, filterMenuID, fitExpMenuID,
       multiPeakMenuID;
@@ -1119,7 +1117,7 @@ Arranges all the visible project windows in a cascade pattern.
 
   QMenu *windowsMenu, *format, *calcul, *dataMenu;
   QMenu* d_quick_fit_menu;
-  QMenu *plot2D, *plot3D, *specialPlot, *panels, *stat, *decay, *filter;
+  QMenu *decay, *filter;
   QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu;
   QMenu *smooth, *translateMenu, *multiPeakMenu;
   QMenu* scriptingMenu;
@@ -1134,16 +1132,6 @@ Arranges all the visible project windows in a cascade pattern.
   QAction* actionExportPDF;
   QAction* actionCloseAllWindows;
   QAction *actionUnzoom;
-  QAction *actionPlotL, *actionPlotP, *actionPlotLP,
-      *actionPlotVerticalDropLines, *actionPlotSpline;
-  QAction *actionPlotVertSteps, *actionPlotHorSteps, *actionPlotVerticalBars;
-  QAction *actionPlotHorizontalBars, *actionPlotArea, *actionPlotPie,
-      *actionPlotVectXYAM, *actionPlotVectXYXY;
-  QAction *actionPlotHistogram, *actionPlotStackedHistograms,
-      *actionPlot2VerticalLayers, *actionPlot2HorizontalLayers,
-      *actionPlot4Layers, *actionPlotStackedLayers;
-  QAction *actionPlot3DRibbon, *actionPlot3DBars, *actionPlot3DScatter,
-      *actionPlot3DTrajectory;
   QAction *actionShowColStatistics, *actionShowRowStatistics,
       *actionShowIntDialog;
   QAction *actionDifferentiate, *actionFitLinear, *actionShowFitPolynomDialog;
@@ -1175,7 +1163,7 @@ Arranges all the visible project windows in a cascade pattern.
   QAction *actionConvolute, *actionDeconvolute, *actionCorrelate,
       *actionAutoCorrelate;
   QAction *actionTranslateHor, *actionTranslateVert;
-  QAction *actionBoxPlot, *actionMultiPeakGauss, *actionMultiPeakLorentz;
+  QAction *actionMultiPeakGauss, *actionMultiPeakLorentz;
 
   QAction *actionShowPlotDialog, *actionShowScaleDialog;
   QAction* actionNextWindow;

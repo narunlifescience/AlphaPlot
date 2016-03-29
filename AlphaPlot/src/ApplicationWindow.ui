@@ -158,9 +158,66 @@
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuPlot">
+    <property name="title">
+     <string>Plot</string>
+    </property>
+    <widget class="QMenu" name="menuPlot2DSpecialLineSymbol">
+     <property name="title">
+      <string>Special Line + Symbol</string>
+     </property>
+     <addaction name="actionPlot2DVerticalDropLines"/>
+     <addaction name="actionPlot2DSpline"/>
+     <addaction name="actionPlot2DVerticalSteps"/>
+     <addaction name="actionPlot2DHorizontalSteps"/>
+    </widget>
+    <widget class="QMenu" name="menuPlot2DStatisticalGraphs">
+     <property name="title">
+      <string>Statistical Graphs</string>
+     </property>
+     <addaction name="actionPlot2DStatBox"/>
+     <addaction name="actionPlot2DStatHistogram"/>
+     <addaction name="actionPlot2DStatStackedHistogram"/>
+    </widget>
+    <widget class="QMenu" name="menuPlot2DPanel">
+     <property name="title">
+      <string>Panel</string>
+     </property>
+     <addaction name="actionPanelVertical2Layers"/>
+     <addaction name="actionPanelHorizontal2Layers"/>
+     <addaction name="actionPanel4Layers"/>
+     <addaction name="actionPanelStackedLayers"/>
+    </widget>
+    <widget class="QMenu" name="menuPlot3D">
+     <property name="title">
+      <string>3D Plot</string>
+     </property>
+     <addaction name="actionPlot3DRibbon"/>
+     <addaction name="actionPlot3DBar"/>
+     <addaction name="actionPlot3DScatter"/>
+     <addaction name="actionPlot3DTrajectory"/>
+    </widget>
+    <addaction name="actionPlot2DLine"/>
+    <addaction name="actionPlot2DScatter"/>
+    <addaction name="actionPlot2DLineSymbol"/>
+    <addaction name="menuPlot2DSpecialLineSymbol"/>
+    <addaction name="separator"/>
+    <addaction name="actionPlot2DVerticalBars"/>
+    <addaction name="actionPlot2DHorizontalBars"/>
+    <addaction name="actionPlot2DArea"/>
+    <addaction name="actionPlot2DPie"/>
+    <addaction name="actionPlot2DVectorsXYXY"/>
+    <addaction name="actionPlot2DVectorsXYAM"/>
+    <addaction name="separator"/>
+    <addaction name="menuPlot2DStatisticalGraphs"/>
+    <addaction name="menuPlot2DPanel"/>
+    <addaction name="separator"/>
+    <addaction name="menuPlot3D"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
+   <addaction name="menuPlot"/>
    <addaction name="menuGraph"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -599,7 +656,7 @@
   </action>
   <action name="actionHelp">
    <property name="text">
-    <string>Help</string>
+    <string>&amp;Help</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+H</string>
@@ -607,40 +664,160 @@
   </action>
   <action name="actionHomepage">
    <property name="text">
-    <string>AlphaPlot Homepage</string>
+    <string>&amp;AlphaPlot Homepage</string>
    </property>
   </action>
   <action name="actionChooseHelpFolder">
    <property name="text">
-    <string>Choose Help Folder</string>
+    <string>&amp;Choose Help Folder</string>
    </property>
   </action>
   <action name="actionCheckUpdates">
    <property name="text">
-    <string>Check Updates</string>
+    <string>Check &amp;Updates</string>
    </property>
   </action>
   <action name="actionDownloadManual">
    <property name="text">
-    <string>Download Manual</string>
+    <string>&amp;Download Manual</string>
    </property>
   </action>
   <action name="actionVisitForum">
    <property name="text">
-    <string>Visit AlphaPlot Forum</string>
+    <string>&amp;Visit AlphaPlot Forum</string>
    </property>
   </action>
   <action name="actionReportBug">
    <property name="text">
-    <string>Report a Bug</string>
+    <string>&amp;Report a Bug</string>
    </property>
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About</string>
+    <string>A&amp;bout</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+H</string>
+   </property>
+  </action>
+  <action name="actionPlot2DLine">
+   <property name="text">
+    <string>Line</string>
+   </property>
+  </action>
+  <action name="actionPlot2DScatter">
+   <property name="text">
+    <string>Scatter</string>
+   </property>
+  </action>
+  <action name="actionPlot2DVerticalBars">
+   <property name="text">
+    <string>Vertical Bars</string>
+   </property>
+  </action>
+  <action name="actionPlot2DHorizontalBars">
+   <property name="text">
+    <string>Horizontal Bars</string>
+   </property>
+  </action>
+  <action name="actionPlot2DArea">
+   <property name="text">
+    <string>Area</string>
+   </property>
+  </action>
+  <action name="actionPlot2DPie">
+   <property name="text">
+    <string>Pie</string>
+   </property>
+  </action>
+  <action name="actionPlot2DVectorsXYXY">
+   <property name="text">
+    <string>Vectors XYXY</string>
+   </property>
+  </action>
+  <action name="actionPlot2DVectorsXYAM">
+   <property name="text">
+    <string>Vectors XYAM</string>
+   </property>
+  </action>
+  <action name="actionPlot2DVerticalDropLines">
+   <property name="text">
+    <string>Vertical Drop Lines</string>
+   </property>
+  </action>
+  <action name="actionPlot2DSpline">
+   <property name="text">
+    <string>Spline</string>
+   </property>
+  </action>
+  <action name="actionPlot2DVerticalSteps">
+   <property name="text">
+    <string>Vertical Steps</string>
+   </property>
+  </action>
+  <action name="actionPlot2DHorizontalSteps">
+   <property name="text">
+    <string>Horizontal Steps</string>
+   </property>
+  </action>
+  <action name="actionPlot2DStatBox">
+   <property name="text">
+    <string>Box Plot</string>
+   </property>
+  </action>
+  <action name="actionPlot2DStatHistogram">
+   <property name="text">
+    <string>Histogram</string>
+   </property>
+  </action>
+  <action name="actionPlot2DStatStackedHistogram">
+   <property name="text">
+    <string>Stacked Histogram</string>
+   </property>
+  </action>
+  <action name="actionPanelVertical2Layers">
+   <property name="text">
+    <string>Vertical 2 Layers</string>
+   </property>
+  </action>
+  <action name="actionPanelHorizontal2Layers">
+   <property name="text">
+    <string>Horizontal 2 Layers</string>
+   </property>
+  </action>
+  <action name="actionPanel4Layers">
+   <property name="text">
+    <string>4 Layers</string>
+   </property>
+  </action>
+  <action name="actionPanelStackedLayers">
+   <property name="text">
+    <string>Stacked Layers</string>
+   </property>
+  </action>
+  <action name="actionPlot3DRibbon">
+   <property name="text">
+    <string>Ribbon</string>
+   </property>
+  </action>
+  <action name="actionPlot3DBar">
+   <property name="text">
+    <string>Bar</string>
+   </property>
+  </action>
+  <action name="actionPlot3DScatter">
+   <property name="text">
+    <string>Scatter</string>
+   </property>
+  </action>
+  <action name="actionPlot3DTrajectory">
+   <property name="text">
+    <string>Trajectory</string>
+   </property>
+  </action>
+  <action name="actionPlot2DLineSymbol">
+   <property name="text">
+    <string>Line + Symbol</string>
    </property>
   </action>
  </widget>

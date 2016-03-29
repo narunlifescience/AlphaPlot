@@ -497,7 +497,6 @@ void ApplicationWindow::initToolBars() {
   btn_plot_enrichments->setToolTip(tr("Enrichments"));
   graph_tools->addWidget(btn_plot_enrichments);
 
-
   ui_->actionAddText->setIcon(QIcon(QPixmap(":/text.xpm")));
   connect(ui_->actionAddText, SIGNAL(activated()), this, SLOT(addText()));
   menu_plot_enrichments->addAction(ui_->actionAddText);
@@ -581,13 +580,13 @@ void ApplicationWindow::initToolBars() {
   btn_plot_linespoints->setIcon(QPixmap(":/lpPlot.xpm"));
   btn_plot_linespoints->setToolTip(tr("Lines and/or symbols"));
   plot_tools->addWidget(btn_plot_linespoints);
-  menu_plot_linespoints->addAction(actionPlotL);
-  menu_plot_linespoints->addAction(actionPlotP);
-  menu_plot_linespoints->addAction(actionPlotLP);
-  menu_plot_linespoints->addAction(actionPlotSpline);
-  menu_plot_linespoints->addAction(actionPlotVerticalDropLines);
-  menu_plot_linespoints->addAction(actionPlotHorSteps);
-  menu_plot_linespoints->addAction(actionPlotVertSteps);
+  menu_plot_linespoints->addAction(ui_->actionPlot2DLine);
+  menu_plot_linespoints->addAction(ui_->actionPlot2DScatter);
+  menu_plot_linespoints->addAction(ui_->actionPlot2DLineSymbol);
+  menu_plot_linespoints->addAction(ui_->actionPlot2DVerticalDropLines);
+  menu_plot_linespoints->addAction(ui_->actionPlot2DSpline);
+  menu_plot_linespoints->addAction(ui_->actionPlot2DVerticalSteps);
+  menu_plot_linespoints->addAction(ui_->actionPlot2DHorizontalSteps);
 
   QMenu *menu_plot_bars = new QMenu(this);
   QToolButton *btn_plot_bars = new QToolButton(this);
@@ -595,13 +594,13 @@ void ApplicationWindow::initToolBars() {
   btn_plot_bars->setPopupMode(QToolButton::InstantPopup);
   btn_plot_bars->setIcon(QPixmap(":/vertBars.xpm"));
   plot_tools->addWidget(btn_plot_bars);
-  menu_plot_bars->addAction(actionPlotVerticalBars);
-  menu_plot_bars->addAction(actionPlotHorizontalBars);
+  menu_plot_bars->addAction(ui_->actionPlot2DVerticalBars);
+  menu_plot_bars->addAction(ui_->actionPlot2DHorizontalBars);
 
-  plot_tools->addAction(actionPlotArea);
-  plot_tools->addAction(actionPlotPie);
-  plot_tools->addAction(actionPlotHistogram);
-  plot_tools->addAction(actionBoxPlot);
+  plot_tools->addAction(ui_->actionPlot2DArea);
+  plot_tools->addAction(ui_->actionPlot2DPie);
+  plot_tools->addAction(ui_->actionPlot2DStatHistogram);
+  plot_tools->addAction(ui_->actionPlot2DStatBox);
 
   QMenu *menu_plot_vect = new QMenu(this);
   QToolButton *btn_plot_vect = new QToolButton(this);
@@ -609,15 +608,15 @@ void ApplicationWindow::initToolBars() {
   btn_plot_vect->setPopupMode(QToolButton::InstantPopup);
   btn_plot_vect->setIcon(QPixmap(":/vectXYXY.xpm"));
   plot_tools->addWidget(btn_plot_vect);
-  menu_plot_vect->addAction(actionPlotVectXYXY);
-  menu_plot_vect->addAction(actionPlotVectXYAM);
+  menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYXY);
+  menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYAM);
 
   plot_tools->addSeparator();
 
-  plot_tools->addAction(actionPlot3DRibbon);
-  plot_tools->addAction(actionPlot3DBars);
-  plot_tools->addAction(actionPlot3DScatter);
-  plot_tools->addAction(actionPlot3DTrajectory);
+  plot_tools->addAction(ui_->actionPlot3DRibbon);
+  plot_tools->addAction(ui_->actionPlot3DBar);
+  plot_tools->addAction(ui_->actionPlot3DScatter);
+  plot_tools->addAction(ui_->actionPlot3DTrajectory);
 
   table_tools->setObjectName(
       "table_tools");  // this is needed for QMainWindow::restoreState()
@@ -647,8 +646,8 @@ void ApplicationWindow::initToolBars() {
 
   matrix_plot_tools->addSeparator();
 
-  actionPlot3DBars->addTo(matrix_plot_tools);
-  actionPlot3DScatter->addTo(matrix_plot_tools);
+  ui_->actionPlot3DBar->addTo(matrix_plot_tools);
+  ui_->actionPlot3DScatter->addTo(matrix_plot_tools);
 
   matrix_plot_tools->addSeparator();
   actionColorMap->addTo(matrix_plot_tools);
@@ -704,11 +703,6 @@ void ApplicationWindow::insertTranslatedStrings() {
   matrix_plot_tools->setLabel(tr("Matrix Plot"));
   graph_3D_tools->setLabel(tr("3D Surface"));
 
-  plot2D->changeItem(specialPlotMenuID, tr("Special Line/Symb&ol"));
-  plot2D->changeItem(statMenuID, tr("Statistical &Graphs"));
-  plot2D->changeItem(panelMenuID, tr("Pa&nel"));
-  plot2D->changeItem(plot3dID, tr("3&D Plot"));
-
   calcul->changeItem(translateMenuID, tr("&Translate"));
   calcul->changeItem(smoothMenuID, tr("&Smooth"));
   calcul->changeItem(filterMenuID, tr("&FFT Filter"));
@@ -739,8 +733,8 @@ void ApplicationWindow::initMainMenu() {
 
   plot3DMenu->addSeparator();
 
-  plot3DMenu->addAction(actionPlot3DBars);
-  plot3DMenu->addAction(actionPlot3DScatter);
+  plot3DMenu->addAction(ui_->actionPlot3DBar);
+  plot3DMenu->addAction(ui_->actionPlot3DScatter);
 
   plot3DMenu->addSeparator();
   plot3DMenu->addAction(actionColorMap);
@@ -753,7 +747,6 @@ void ApplicationWindow::initMainMenu() {
   tableMenu = new QMenu(this);
   tableMenu->setFont(appFont);
 
-  initPlotMenu();
   initTableAnalysisMenu();
   initPlotDataMenu();
 
@@ -878,60 +871,6 @@ void ApplicationWindow::initPlotDataMenu() {
   plotDataMenu->addAction(btnRemovePoints);
 }
 
-void ApplicationWindow::initPlotMenu() {
-  plot2D = new QMenu(this);
-  plot2D->setFont(appFont);
-  specialPlot = new QMenu(this);
-  specialPlot->setFont(appFont);
-  panels = new QMenu(this);
-  panels->setFont(appFont);
-  stat = new QMenu(this);
-  stat->setFont(appFont);
-
-  plot2D->addAction(actionPlotL);
-  plot2D->addAction(actionPlotP);
-  plot2D->addAction(actionPlotLP);
-
-  specialPlot->addAction(actionPlotVerticalDropLines);
-  specialPlot->addAction(actionPlotSpline);
-  specialPlot->addAction(actionPlotVertSteps);
-  specialPlot->addAction(actionPlotHorSteps);
-  specialPlotMenuID =
-      plot2D->insertItem(tr("Special Line/Symb&ol"), specialPlot);
-
-  plot2D->addSeparator();
-
-  plot2D->addAction(actionPlotVerticalBars);
-  plot2D->addAction(actionPlotHorizontalBars);
-  plot2D->addAction(actionPlotArea);
-  plot2D->addAction(actionPlotPie);
-  plot2D->addAction(actionPlotVectXYXY);
-  plot2D->addAction(actionPlotVectXYAM);
-
-  plot2D->addSeparator();
-
-  stat->addAction(actionBoxPlot);
-  stat->addAction(actionPlotHistogram);
-  stat->addAction(actionPlotStackedHistograms);
-  statMenuID = plot2D->insertItem(tr("Statistical &Graphs"), stat);
-
-  panels->addAction(actionPlot2VerticalLayers);
-  panels->addAction(actionPlot2HorizontalLayers);
-  panels->addAction(actionPlot4Layers);
-  panels->addAction(actionPlotStackedLayers);
-  panelMenuID = plot2D->insertItem(tr("Pa&nel"), panels);
-
-  plot3D = new QMenu(this);
-  plot3D->setFont(appFont);
-  plot3D->addAction(actionPlot3DRibbon);
-  plot3D->addAction(actionPlot3DBars);
-  plot3D->addAction(actionPlot3DScatter);
-  plot3D->addAction(actionPlot3DTrajectory);
-
-  plot2D->addSeparator();
-  plot3dID = plot2D->insertItem(tr("3&D Plot"), plot3D);
-}
-
 void ApplicationWindow::initTableAnalysisMenu() {
   dataMenu = new QMenu(this);
   dataMenu->setFont(appFont);
@@ -1015,7 +954,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
       if (((Graph3D *)w)->coordStyle() == Qwt3D::NOCOORD)
         actionShowAxisDialog->setEnabled(false);
     } else if (w->inherits("Table")) {
-      menuBar()->insertItem(tr("&Plot"), plot2D);
+      menuBar()->insertItem(tr("&Plot"), ui_->menuPlot);
       menuBar()->insertItem(tr("&Analysis"), dataMenu);
 
       ui_->actionExportASCII->setEnabled(true);
@@ -1143,15 +1082,18 @@ void ApplicationWindow::customToolBars(QWidget *w) {
           if (a) a->setEnabled(Graph::canConvertTo(c, (Graph::CurveType)i));
         }
         // others
-        actionPlotPie->setEnabled(Graph::canConvertTo(c, Graph::Pie));
-        actionPlotVectXYAM->setEnabled(Graph::canConvertTo(c, Graph::VectXYAM));
-        actionPlotVectXYXY->setEnabled(Graph::canConvertTo(c, Graph::VectXYXY));
-        actionBoxPlot->setEnabled(Graph::canConvertTo(c, Graph::Box));
+        ui_->actionPlot2DPie->setEnabled(Graph::canConvertTo(c, Graph::Pie));
+        ui_->actionPlot2DVectorsXYAM->setEnabled(
+            Graph::canConvertTo(c, Graph::VectXYAM));
+        ui_->actionPlot2DVectorsXYXY->setEnabled(
+            Graph::canConvertTo(c, Graph::VectXYXY));
+        ui_->actionPlot2DStatBox->setEnabled(
+            Graph::canConvertTo(c, Graph::Box));
         // 3D plots
-        actionPlot3DRibbon->setEnabled(false);
-        actionPlot3DScatter->setEnabled(false);
-        actionPlot3DTrajectory->setEnabled(false);
-        actionPlot3DBars->setEnabled(false);
+        ui_->actionPlot3DRibbon->setEnabled(false);
+        ui_->actionPlot3DScatter->setEnabled(false);
+        ui_->actionPlot3DTrajectory->setEnabled(false);
+        ui_->actionPlot3DBar->setEnabled(false);
       } else
         plot_tools->setEnabled(false);
     } else if (w->inherits("Table")) {
@@ -1170,15 +1112,15 @@ void ApplicationWindow::customToolBars(QWidget *w) {
         if (a) a->setEnabled(true);
       }
       // others
-      actionPlotPie->setEnabled(true);
-      actionPlotVectXYAM->setEnabled(true);
-      actionPlotVectXYXY->setEnabled(true);
-      actionBoxPlot->setEnabled(true);
+      ui_->actionPlot2DPie->setEnabled(true);
+      ui_->actionPlot2DVectorsXYAM->setEnabled(true);
+      ui_->actionPlot2DVectorsXYXY->setEnabled(true);
+      ui_->actionPlot2DStatBox->setEnabled(true);
       // 3D plots
-      actionPlot3DRibbon->setEnabled(true);
-      actionPlot3DScatter->setEnabled(true);
-      actionPlot3DTrajectory->setEnabled(true);
-      actionPlot3DBars->setEnabled(true);
+      ui_->actionPlot3DRibbon->setEnabled(true);
+      ui_->actionPlot3DScatter->setEnabled(true);
+      ui_->actionPlot3DTrajectory->setEnabled(true);
+      ui_->actionPlot3DBar->setEnabled(true);
     } else if (w->inherits("Matrix")) {
       graph_tools->setEnabled(false);
       graph_3D_tools->setEnabled(false);
@@ -2334,7 +2276,7 @@ void ApplicationWindow::initTable(Table *table) {
   connectTable(table);
   customTable(table);
 
-  table->d_future_table->setPlotMenu(plot2D);
+  table->d_future_table->setPlotMenu(ui_->menuPlot);
 
   emit modified();
 }
@@ -2821,13 +2763,8 @@ void ApplicationWindow::updateAppFonts() {
   format->setFont(appFont);
   calcul->setFont(appFont);
   dataMenu->setFont(appFont);
-  plot2D->setFont(appFont);
-  plot3D->setFont(appFont);
   plot3DMenu->setFont(appFont);
   matrixMenu->setFont(appFont);
-  specialPlot->setFont(appFont);
-  panels->setFont(appFont);
-  stat->setFont(appFont);
   smooth->setFont(appFont);
   filter->setFont(appFont);
   decay->setFont(appFont);
@@ -8534,7 +8471,7 @@ Note *ApplicationWindow::openNote(ApplicationWindow *app,
 
 // TODO: most of this code belongs into matrix
 Matrix *ApplicationWindow::openMatrixAproj(ApplicationWindow *app,
-                                      const QStringList &flist) {
+                                           const QStringList &flist) {
   Matrix *w = app->newMatrix("matrix", 1, 1);
   int length = flist.at(0).toInt();
   int index = 1;
@@ -8564,7 +8501,7 @@ Matrix *ApplicationWindow::openMatrixAproj(ApplicationWindow *app,
 
 // TODO: most of this code belongs into Table
 Table *ApplicationWindow::openTableAproj(ApplicationWindow *app,
-                                    QTextStream &stream) {
+                                         QTextStream &stream) {
   QString s = stream.readLine();
   int length = s.toInt();
 
@@ -8672,8 +8609,9 @@ TableStatistics *ApplicationWindow::openTableStatisticsAproj(
   return w;
 }
 
-Graph *ApplicationWindow::openGraphAproj(ApplicationWindow *app, MultiLayer *plot,
-                                    const QStringList &list) {
+Graph *ApplicationWindow::openGraphAproj(ApplicationWindow *app,
+                                         MultiLayer *plot,
+                                         const QStringList &list) {
   Graph *ag = nullptr;
   int curveID = 0;
   for (int j = 0; j < (int)list.count() - 1; j++) {
@@ -9089,7 +9027,7 @@ Graph *ApplicationWindow::openGraphAproj(ApplicationWindow *app, MultiLayer *plo
 }
 
 Graph3D *ApplicationWindow::openSurfacePlotAproj(ApplicationWindow *app,
-                                            const QStringList &lst) {
+                                                 const QStringList &lst) {
   QStringList fList = lst[0].split("\t");
   QString caption = fList[0];
   QString date = fList[1];
@@ -9626,7 +9564,8 @@ void ApplicationWindow::createActions() {
           SLOT(showCurvesDialog()));
 
   ui_->actionAddErrorBars->setIcon(QIcon(QPixmap(":/yerror.xpm")));
-  connect(ui_->actionAddErrorBars, SIGNAL(activated()), this, SLOT(addErrorBars()));
+  connect(ui_->actionAddErrorBars, SIGNAL(activated()), this,
+          SLOT(addErrorBars()));
 
   ui_->actionAddFunctionCurve->setIcon(QIcon(QPixmap(":/fx.xpm")));
   connect(ui_->actionAddFunctionCurve, SIGNAL(activated()), this,
@@ -9641,7 +9580,8 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionNewLegend, SIGNAL(activated()), this, SLOT(newLegend()));
 
   ui_->actionAddTimeStamp->setIcon(QIcon(QPixmap(":/clock.xpm")));
-  connect(ui_->actionAddTimeStamp, SIGNAL(activated()), this, SLOT(addTimeStamp()));
+  connect(ui_->actionAddTimeStamp, SIGNAL(activated()), this,
+          SLOT(addTimeStamp()));
 
   ui_->actionAddImage->setIcon(QIcon(QPixmap(":/monalisa.xpm")));
   connect(ui_->actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
@@ -9649,114 +9589,111 @@ void ApplicationWindow::createActions() {
   d_plot_mapper = new QSignalMapper;
   connect(d_plot_mapper, SIGNAL(mapped(int)), this, SLOT(selectPlotType(int)));
 
-  actionPlotL = new QAction(QIcon(QPixmap(":/lPlot.xpm")), tr("&Line"), this);
-  connect(actionPlotL, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-  d_plot_mapper->setMapping(actionPlotL, Graph::Line);
-
-  actionPlotP =
-      new QAction(QIcon(QPixmap(":/pPlot.xpm")), tr("&Scatter"), this);
-  connect(actionPlotP, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-  d_plot_mapper->setMapping(actionPlotP, Graph::Scatter);
-
-  actionPlotLP =
-      new QAction(QIcon(QPixmap(":/lpPlot.xpm")), tr("Line + S&ymbol"), this);
-  connect(actionPlotLP, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-  d_plot_mapper->setMapping(actionPlotLP, Graph::LineSymbols);
-
-  actionPlotVerticalDropLines = new QAction(QIcon(QPixmap(":/dropLines.xpm")),
-                                            tr("Vertical &Drop Lines"), this);
-  connect(actionPlotVerticalDropLines, SIGNAL(activated()), d_plot_mapper,
+  ui_->actionPlot2DLine->setIcon(QIcon(QPixmap(":/lPlot.xpm")));
+  connect(ui_->actionPlot2DLine, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
-  d_plot_mapper->setMapping(actionPlotVerticalDropLines,
+  d_plot_mapper->setMapping(ui_->actionPlot2DLine, Graph::Line);
+
+  ui_->actionPlot2DScatter->setIcon(QIcon(QPixmap(":/pPlot.xpm")));
+  connect(ui_->actionPlot2DScatter, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DScatter, Graph::Scatter);
+
+  ui_->actionPlot2DLineSymbol->setIcon(QIcon(QPixmap(":/lpPlot.xpm")));
+  connect(ui_->actionPlot2DLineSymbol, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DLineSymbol, Graph::LineSymbols);
+
+  ui_->actionPlot2DVerticalDropLines->setIcon(
+      QIcon(QPixmap(":/dropLines.xpm")));
+  connect(ui_->actionPlot2DVerticalDropLines, SIGNAL(activated()),
+          d_plot_mapper, SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DVerticalDropLines,
                             Graph::VerticalDropLines);
 
-  actionPlotSpline =
-      new QAction(QIcon(QPixmap(":/spline.xpm")), tr("&Spline"), this);
-  connect(actionPlotSpline, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-  d_plot_mapper->setMapping(actionPlotSpline, Graph::Spline);
-
-  actionPlotHorSteps =
-      new QAction(QPixmap(":/hor_steps.xpm"), tr("&Horizontal Steps"), this);
-  connect(actionPlotHorSteps, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-  d_plot_mapper->setMapping(actionPlotHorSteps, Graph::HorizontalSteps);
-
-  actionPlotVertSteps = new QAction(QIcon(QPixmap(":/vert_steps.xpm")),
-                                    tr("&Vertical Steps"), this);
-  connect(actionPlotVertSteps, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-  d_plot_mapper->setMapping(actionPlotVertSteps, Graph::VerticalSteps);
-
-  actionPlotVerticalBars =
-      new QAction(QIcon(QPixmap(":/vertBars.xpm")), tr("&Vertical Bars"), this);
-  connect(actionPlotVerticalBars, SIGNAL(activated()), d_plot_mapper,
+  ui_->actionPlot2DSpline->setIcon(QIcon(QPixmap(":/spline.xpm")));
+  connect(ui_->actionPlot2DSpline, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
-  d_plot_mapper->setMapping(actionPlotVerticalBars, Graph::VerticalBars);
+  d_plot_mapper->setMapping(ui_->actionPlot2DSpline, Graph::Spline);
 
-  actionPlotHorizontalBars =
-      new QAction(QIcon(QPixmap(":/hBars.xpm")), tr("&Horizontal Bars"), this);
-  connect(actionPlotHorizontalBars, SIGNAL(activated()), d_plot_mapper,
+  ui_->actionPlot2DHorizontalSteps->setIcon(QIcon(QPixmap(":/hor_steps.xpm")));
+  connect(ui_->actionPlot2DHorizontalSteps, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
-  d_plot_mapper->setMapping(actionPlotHorizontalBars, Graph::HorizontalBars);
+  d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalSteps,
+                            Graph::HorizontalSteps);
 
-  actionPlotArea = new QAction(QIcon(QPixmap(":/area.xpm")), tr("&Area"), this);
-  connect(actionPlotArea, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-  d_plot_mapper->setMapping(actionPlotArea, Graph::Area);
+  ui_->actionPlot2DVerticalSteps->setIcon(QIcon(QPixmap(":/vert_steps.xpm")));
+  connect(ui_->actionPlot2DVerticalSteps, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DVerticalSteps,
+                            Graph::VerticalSteps);
 
-  actionPlotPie = new QAction(QIcon(QPixmap(":/pie.xpm")), tr("&Pie"), this);
-  connect(actionPlotPie, SIGNAL(activated()), this, SLOT(plotPie()));
+  ui_->actionPlot2DVerticalBars->setIcon(QIcon(QPixmap(":/vertBars.xpm")));
+  connect(ui_->actionPlot2DVerticalBars, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DVerticalBars, Graph::VerticalBars);
 
-  actionPlotVectXYAM =
-      new QAction(QIcon(QPixmap(":/vectXYAM.xpm")), tr("Vectors XY&AM"), this);
-  connect(actionPlotVectXYAM, SIGNAL(activated()), this, SLOT(plotVectXYAM()));
+  ui_->actionPlot2DHorizontalBars->setIcon(QIcon(QPixmap(":/hBars.xpm")));
+  connect(ui_->actionPlot2DHorizontalBars, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalBars,
+                            Graph::HorizontalBars);
 
-  actionPlotVectXYXY =
-      new QAction(QIcon(QPixmap(":/vectXYXY.xpm")), tr("Vectors &XYXY"), this);
-  connect(actionPlotVectXYXY, SIGNAL(activated()), this, SLOT(plotVectXYXY()));
+  ui_->actionPlot2DArea->setIcon(QIcon(QPixmap(":/area.xpm")));
+  connect(ui_->actionPlot2DArea, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DArea, Graph::Area);
 
-  actionPlotHistogram =
-      new QAction(QIcon(QPixmap(":/histogram.xpm")), tr("&Histogram"), this);
-  connect(actionPlotHistogram, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-  d_plot_mapper->setMapping(actionPlotHistogram, Graph::Histogram);
+  ui_->actionPlot2DPie->setIcon(QIcon(QPixmap(":/pie.xpm")));
+  connect(ui_->actionPlot2DPie, SIGNAL(activated()), this, SLOT(plotPie()));
 
-  actionPlotStackedHistograms = new QAction(
-      QIcon(QPixmap(":/stacked_hist.xpm")), tr("&Stacked Histogram"), this);
-  connect(actionPlotStackedHistograms, SIGNAL(activated()), this,
+  ui_->actionPlot2DVectorsXYAM->setIcon(QIcon(QPixmap(":/vectXYAM.xpm")));
+  connect(ui_->actionPlot2DVectorsXYAM, SIGNAL(activated()), this,
+          SLOT(plotVectXYAM()));
+
+  ui_->actionPlot2DVectorsXYXY->setIcon(QIcon(QPixmap(":/vectXYXY.xpm")));
+  connect(ui_->actionPlot2DVectorsXYXY, SIGNAL(activated()), this,
+          SLOT(plotVectXYXY()));
+
+  ui_->actionPlot2DStatHistogram->setIcon(QIcon(QPixmap(":/histogram.xpm")));
+  connect(ui_->actionPlot2DStatHistogram, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DStatHistogram, Graph::Histogram);
+
+  ui_->actionPlot2DStatStackedHistogram->setIcon(
+      QIcon(QPixmap(":/stacked_hist.xpm")));
+  connect(ui_->actionPlot2DStatStackedHistogram, SIGNAL(activated()), this,
           SLOT(plotStackedHistograms()));
 
-  actionPlot2VerticalLayers = new QAction(QIcon(QPixmap(":/panel_v2.xpm")),
-                                          tr("&Vertical 2 Layers"), this);
-  connect(actionPlot2VerticalLayers, SIGNAL(activated()), this,
+  ui_->actionPanelVertical2Layers->setIcon(QIcon(QPixmap(":/panel_v2.xpm")));
+  connect(ui_->actionPanelVertical2Layers, SIGNAL(activated()), this,
           SLOT(plot2VerticalLayers()));
 
-  actionPlot2HorizontalLayers = new QAction(QIcon(QPixmap(":/panel_h2.xpm")),
-                                            tr("&Horizontal 2 Layers"), this);
-  connect(actionPlot2HorizontalLayers, SIGNAL(activated()), this,
+  ui_->actionPanelHorizontal2Layers->setIcon(QIcon(QPixmap(":/panel_h2.xpm")));
+  connect(ui_->actionPanelHorizontal2Layers, SIGNAL(activated()), this,
           SLOT(plot2HorizontalLayers()));
 
-  actionPlot4Layers =
-      new QAction(QIcon(QPixmap(":/panel_4.xpm")), tr("&4 Layers"), this);
-  connect(actionPlot4Layers, SIGNAL(activated()), this, SLOT(plot4Layers()));
+  ui_->actionPanel4Layers->setIcon(QIcon(QPixmap(":/panel_4.xpm")));
+  connect(ui_->actionPanel4Layers, SIGNAL(activated()), this,
+          SLOT(plot4Layers()));
 
-  actionPlotStackedLayers =
-      new QAction(QIcon(QPixmap(":/stacked.xpm")), tr("&Stacked Layers"), this);
-  connect(actionPlotStackedLayers, SIGNAL(activated()), this,
+  ui_->actionPanelStackedLayers->setIcon(QIcon(QPixmap(":/stacked.xpm")));
+  connect(ui_->actionPanelStackedLayers, SIGNAL(activated()), this,
           SLOT(plotStackedLayers()));
 
-  actionPlot3DRibbon =
-      new QAction(QIcon(QPixmap(":/ribbon.xpm")), tr("&Ribbon"), this);
-  connect(actionPlot3DRibbon, SIGNAL(activated()), this, SLOT(plot3DRibbon()));
+  ui_->actionPlot3DRibbon->setIcon(QIcon(QPixmap(":/ribbon.xpm")));
+  connect(ui_->actionPlot3DRibbon, SIGNAL(activated()), this,
+          SLOT(plot3DRibbon()));
 
-  actionPlot3DBars =
-      new QAction(QIcon(QPixmap(":/bars.xpm")), tr("&Bars"), this);
-  connect(actionPlot3DBars, SIGNAL(activated()), this, SLOT(plot3DBars()));
+  ui_->actionPlot3DBar->setIcon(QIcon(QPixmap(":/bars.xpm")));
+  connect(ui_->actionPlot3DBar, SIGNAL(activated()), this, SLOT(plot3DBars()));
 
-  actionPlot3DScatter =
-      new QAction(QIcon(QPixmap(":/scatter.xpm")), tr("&Scatter"), this);
-  connect(actionPlot3DScatter, SIGNAL(activated()), this,
+  ui_->actionPlot3DScatter->setIcon(QIcon(QPixmap(":/scatter.xpm")));
+  connect(ui_->actionPlot3DScatter, SIGNAL(activated()), this,
           SLOT(plot3DScatter()));
 
-  actionPlot3DTrajectory =
-      new QAction(QIcon(QPixmap(":/trajectory.xpm")), tr("&Trajectory"), this);
-  connect(actionPlot3DTrajectory, SIGNAL(activated()), this,
+  ui_->actionPlot3DTrajectory->setIcon(QIcon(QPixmap(":/trajectory.xpm")));
+  connect(ui_->actionPlot3DTrajectory, SIGNAL(activated()), this,
           SLOT(plot3DTrajectory()));
 
   actionShowColStatistics = new QAction(QIcon(QPixmap(":/col_stat.xpm")),
@@ -9890,8 +9827,10 @@ void ApplicationWindow::createActions() {
   connect(actionCloseWindow, SIGNAL(activated()), this,
           SLOT(closeActiveWindow()));
 
-  ui_->actionRemoveLayer->setIcon(IconLoader::load("edit-delete-selection", IconLoader::LightDark));
-  connect(ui_->actionRemoveLayer, SIGNAL(activated()), this, SLOT(deleteLayer()));
+  ui_->actionRemoveLayer->setIcon(
+      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
+  connect(ui_->actionRemoveLayer, SIGNAL(activated()), this,
+          SLOT(deleteLayer()));
 
   actionResizeActiveWindow = new QAction(QIcon(QPixmap(":/resize.xpm")),
                                          tr("Window &Geometry..."), this);
@@ -10028,10 +9967,10 @@ void ApplicationWindow::createActions() {
   connect(actionTranslateVert, SIGNAL(activated()), this,
           SLOT(translateCurveVert()));
 
-  actionBoxPlot =
-      new QAction(QIcon(QPixmap(":/boxPlot.xpm")), tr("&Box Plot"), this);
-  connect(actionBoxPlot, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
-  d_plot_mapper->setMapping(actionBoxPlot, Graph::Box);
+  ui_->actionPlot2DStatBox->setIcon(QIcon(QPixmap(":/boxPlot.xpm")));
+  connect(ui_->actionPlot2DStatBox, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DStatBox, Graph::Box);
 
   actionMultiPeakGauss = new QAction(tr("&Gaussian..."), this);
   connect(actionMultiPeakGauss, SIGNAL(activated()), this,
@@ -10147,58 +10086,6 @@ void ApplicationWindow::translateActionsStrings() {
   actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
   actionUnzoom->setToolTip(tr("Best fit"));
 
-  actionPlotL->setMenuText(tr("&Line"));
-  actionPlotL->setToolTip(tr("Plot as line"));
-
-  actionPlotP->setMenuText(tr("&Scatter"));
-  actionPlotP->setToolTip(tr("Plot as symbols"));
-
-  actionPlotLP->setMenuText(tr("Line + S&ymbol"));
-  actionPlotLP->setToolTip(tr("Plot as line + symbols"));
-
-  actionPlotVerticalDropLines->setMenuText(tr("Vertical &Drop Lines"));
-
-  actionPlotSpline->setMenuText(tr("&Spline"));
-  actionPlotVertSteps->setMenuText(tr("&Vertical Steps"));
-  actionPlotHorSteps->setMenuText(tr("&Horizontal Steps"));
-
-  actionPlotVerticalBars->setMenuText(tr("&Vertical Bars"));
-  actionPlotVerticalBars->setToolTip(tr("Plot with vertical bars"));
-
-  actionPlotHorizontalBars->setMenuText(tr("&Horizontal Bars"));
-  actionPlotHorizontalBars->setToolTip(tr("Plot with horizontal bars"));
-
-  actionPlotArea->setMenuText(tr("&Area"));
-  actionPlotArea->setToolTip(tr("Plot area"));
-
-  actionPlotPie->setMenuText(tr("&Pie"));
-  actionPlotPie->setToolTip(tr("Plot pie"));
-
-  actionPlotVectXYXY->setMenuText(tr("Vectors &XYXY"));
-  actionPlotVectXYXY->setToolTip(tr("Vectors XYXY"));
-
-  actionPlotVectXYAM->setMenuText(tr("Vectors XY&AM"));
-  actionPlotVectXYAM->setToolTip(tr("Vectors XYAM"));
-
-  actionPlotHistogram->setMenuText(tr("&Histogram"));
-  actionPlotStackedHistograms->setMenuText(tr("&Stacked Histogram"));
-  actionPlot2VerticalLayers->setMenuText(tr("&Vertical 2 Layers"));
-  actionPlot2HorizontalLayers->setMenuText(tr("&Horizontal 2 Layers"));
-  actionPlot4Layers->setMenuText(tr("&4 Layers"));
-  actionPlotStackedLayers->setMenuText(tr("&Stacked Layers"));
-
-  actionPlot3DRibbon->setMenuText(tr("&Ribbon"));
-  actionPlot3DRibbon->setToolTip(tr("Plot 3D ribbon"));
-
-  actionPlot3DBars->setMenuText(tr("&Bars"));
-  actionPlot3DBars->setToolTip(tr("Plot 3D bars"));
-
-  actionPlot3DScatter->setMenuText(tr("&Scatter"));
-  actionPlot3DScatter->setToolTip(tr("Plot 3D scatter"));
-
-  actionPlot3DTrajectory->setMenuText(tr("&Trajectory"));
-  actionPlot3DTrajectory->setToolTip(tr("Plot 3D trajectory"));
-
   actionColorMap->setMenuText(tr("Contour + &Color Fill"));
   actionColorMap->setToolTip(tr("Contour Lines + Color Fill"));
 
@@ -10279,9 +10166,6 @@ void ApplicationWindow::translateActionsStrings() {
   actionTranslateHor->setMenuText(tr("&Horizontal"));
   actionTranslateVert->setMenuText(tr("&Vertical"));
 
-  actionBoxPlot->setMenuText(tr("&Box Plot"));
-  actionBoxPlot->setToolTip(tr("Box and whiskers plot"));
-
   actionMultiPeakGauss->setMenuText(tr("&Gaussian..."));
   actionMultiPeakLorentz->setMenuText(tr("&Lorentzian..."));
 
@@ -10328,7 +10212,6 @@ void ApplicationWindow::translateActionsStrings() {
   btnRemovePoints->setMenuText(tr("Remove &Bad Data Points..."));
   btnRemovePoints->setShortcut(tr("Alt+B"));
   btnRemovePoints->setToolTip(tr("Remove data points"));
-
 
   // FIXME: is setText necessary for action groups?
   //	coord->setText( tr( "Coordinates" ) );
