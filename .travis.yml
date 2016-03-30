@@ -48,8 +48,8 @@ before_install:
 script: 
   # required to avoid picking up a bodgy python interpreter
   - export PATH=/usr/bin:$PATH
-  - qmake
-  #- qmake CONFIG+=aegis
+  #- qmake
+  - qmake CONFIG+=aegis
   - make qmake
   - make
   - Xvfb :0 &
