@@ -11,14 +11,14 @@ void file_compress(const char *file, const char *mode);
 }
 
 void ReadWriteProjectTest::readWriteProject() {
-  unique_ptr<ApplicationWindow> app(open("testProject.sciprj"));
+  unique_ptr<ApplicationWindow> app(open("testProject.aproj"));
   QVERIFY(app.get());
-  app->saveFolder(app->projectFolder(), "testProject1.sciprj");
-  unique_ptr<ApplicationWindow> app1(open("testProject1.sciprj"));
+  app->saveFolder(app->projectFolder(), "testProject1.aproj");
+  unique_ptr<ApplicationWindow> app1(open("testProject1.aproj"));
   // TODO check that app1 is the same as app?
   QVERIFY(app1.get());
-  file_compress("testProject1.sciprj", "wb9");
-  app1.reset(open("testProject1.sciprj.gz"));
+  file_compress("testProject1.aproj", "wb9");
+  app1.reset(open("testProject1.aproj.gz"));
   QVERIFY(app1.get());
 }
 
