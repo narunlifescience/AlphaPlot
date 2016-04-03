@@ -343,3 +343,10 @@ SOURCES     += src/future/core/AbstractAspect.cpp \
 ###############################################################
 
 SOURCES     += ../3rdparty/minigzip/minigzip.c
+
+##############################################################
+####################### QCustomPlot ##########################
+##############################################################
+
+HEADERS     += ../3rdparty/qcustomplot/qcustomplot.h
+SOURCES     += ../3rdparty/qcustomplot/qcustomplot.cpp
