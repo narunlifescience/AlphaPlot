@@ -286,9 +286,12 @@ win32: {
 mxe {
   QMAKE_CXXFLAGS +=-g
   DEFINES        += CONSOLE
-  INCLUDEPATH    += . "$$(HOME)/usr/mxe/include"
-  LIBPATH        += "$(HOME)/usr/mxe/lib" "$(HOME)/usr/mxe/lib64"
-  LIBS           +=  -mwindows -lqwt -lqwtplot3d -lmuparser -lgsl -lgslcblas
+    
+  INCLUDEPATH  += "../3rdparty/include"
+  LIBS         += "../3rdparty/lib/libqwt.a"
+  LIBS         += "../3rdparty/lib/libqwtplot3d.a"
+
+  LIBS           +=  -mwindows -lmuparser -lgsl -lgslcblas
 
   # Qt libraries specified here to get around a dependency bug in qmake
   LIBS += -lQt3Support -lQtOpenGL -lQtGui -lQtNetwork -lQtCore
