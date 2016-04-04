@@ -31,6 +31,7 @@
  ***************************************************************************/
 #include "ScriptEdit.h"
 #include "Note.h"
+#include "core/IconLoader.h"
 
 #include <QAction>
 #include <QMenu>
@@ -74,7 +75,9 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, QString name)
   actionEval->setShortcut(tr("Ctrl+Return"));
   connect(actionEval, SIGNAL(activated()), this, SLOT(evaluate()));
 
-  actionPrint = new QAction(tr("&Print"), this);
+  actionPrint =
+      new QAction(IconLoader::load("edit-print", IconLoader::LightDark),
+                  tr("&Print"), this);
   connect(actionPrint, SIGNAL(activated()), this, SLOT(print()));
 
   actionImport = new QAction(tr("&Import"), this);

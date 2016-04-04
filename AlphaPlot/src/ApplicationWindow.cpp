@@ -205,15 +205,17 @@ ApplicationWindow::ApplicationWindow()
 #endif
       lastCopiedLayer(0),
       explorerSplitter(new QSplitter(Qt::Horizontal, explorerWindow)),
-      actionNextWindow(new QAction(QIcon(QPixmap(":/next.xpm")),
-                                   tr("&Next", "next window"), this)),
-      actionPrevWindow(new QAction(QIcon(QPixmap(":/prev.xpm")),
-                                   tr("&Previous", "previous window"), this)),
+      actionNextWindow(new QAction(tr("&Next", "next window"), this)),
+      actionPrevWindow(new QAction(tr("&Previous", "previous window"), this)),
       settings_(new SettingsDialog(this)) {
   ui_->setupUi(this);
   // Icons
   IconLoader::init();
   IconLoader::lumen_ = IconLoader::isLight(palette().color(QPalette::Window));
+
+  actionNextWindow->setIcon(IconLoader::load("go-next", IconLoader::LightDark));
+  actionPrevWindow->setIcon(
+      IconLoader::load("go-previous", IconLoader::LightDark));
 
   setAttribute(Qt::WA_DeleteOnClose);
   setWindowIcon(QIcon(":/appicon-16"));
@@ -414,7 +416,8 @@ void ApplicationWindow::initToolBars() {
   QToolButton *btn_new_aspect = new QToolButton(this);
   btn_new_aspect->setMenu(menu_new_aspect);
   btn_new_aspect->setPopupMode(QToolButton::InstantPopup);
-  btn_new_aspect->setIcon(QPixmap(":/new_aspect.xpm"));
+  btn_new_aspect->setIcon(
+      IconLoader::load("edit-new-aspect", IconLoader::LightDark));
   btn_new_aspect->setToolTip(tr("New Aspect"));
   file_tools->addWidget(btn_new_aspect);
 
@@ -458,7 +461,7 @@ void ApplicationWindow::initToolBars() {
   btnPointer = new QAction(tr("Disable &Tools"), this);
   btnPointer->setActionGroup(dataTools);
   btnPointer->setCheckable(true);
-  btnPointer->setIcon(QIcon(QPixmap(":/pointer.xpm")));
+  btnPointer->setIcon(IconLoader::load("edit-select", IconLoader::LightDark));
   btnPointer->setChecked(true);
   graph_tools->addAction(btnPointer);
 
@@ -481,7 +484,8 @@ void ApplicationWindow::initToolBars() {
   QToolButton *btn_curves = new QToolButton(this);
   btn_curves->setMenu(menu_curves);
   btn_curves->setPopupMode(QToolButton::InstantPopup);
-  btn_curves->setIcon(QPixmap(":/curves.xpm"));
+  btn_curves->setIcon(
+      IconLoader::load("edit-add-graph", IconLoader::LightDark));
   btn_curves->setToolTip(tr("Add curves / error bars"));
   graph_tools->addWidget(btn_curves);
 
@@ -493,11 +497,13 @@ void ApplicationWindow::initToolBars() {
   QToolButton *btn_plot_enrichments = new QToolButton(this);
   btn_plot_enrichments->setMenu(menu_plot_enrichments);
   btn_plot_enrichments->setPopupMode(QToolButton::InstantPopup);
-  btn_plot_enrichments->setIcon(QPixmap(":/text.xpm"));
+  btn_plot_enrichments->setIcon(
+      IconLoader::load("draw-text", IconLoader::LightDark));
   btn_plot_enrichments->setToolTip(tr("Enrichments"));
   graph_tools->addWidget(btn_plot_enrichments);
 
-  ui_->actionAddText->setIcon(QIcon(QPixmap(":/text.xpm")));
+  ui_->actionAddText->setIcon(
+      IconLoader::load("draw-text", IconLoader::LightDark));
   connect(ui_->actionAddText, SIGNAL(activated()), this, SLOT(addText()));
   menu_plot_enrichments->addAction(ui_->actionAddText);
 
@@ -506,7 +512,8 @@ void ApplicationWindow::initToolBars() {
   menu_plot_enrichments->addAction(ui_->actionDrawArrow);
 
   ui_->actionDrawLine->setActionGroup(dataTools);
-  ui_->actionDrawLine->setIcon(QIcon(QPixmap(":/lPlot.xpm")));
+  ui_->actionDrawLine->setIcon(
+      IconLoader::load("draw-line", IconLoader::LightDark));
   menu_plot_enrichments->addAction(ui_->actionDrawLine);
 
   menu_plot_enrichments->addAction(ui_->actionAddTimeStamp);
@@ -536,14 +543,15 @@ void ApplicationWindow::initToolBars() {
   btnPicker = new QAction(tr("S&creen Reader"), this);
   btnPicker->setActionGroup(dataTools);
   btnPicker->setCheckable(true);
-  btnPicker->setIcon(QIcon(QPixmap(":/cursor_16.xpm")));
+  btnPicker->setIcon(IconLoader::load("edit-crosshair", IconLoader::LightDark));
   graph_tools->addAction(btnPicker);
 
   btnCursor = new QAction(tr("&Data Reader"), this);
   btnCursor->setShortcut(tr("CTRL+D"));
   btnCursor->setActionGroup(dataTools);
   btnCursor->setCheckable(true);
-  btnCursor->setIcon(QIcon(QPixmap(":/select.xpm")));
+  btnCursor->setIcon(
+      IconLoader::load("edit-select-data", IconLoader::LightDark));
   graph_tools->addAction(btnCursor);
 
   btnSelect = new QAction(tr("&Select Data Range"), this);
@@ -1790,7 +1798,8 @@ void ApplicationWindow::initPlot3D(Graph3D *plot) {
   d_workspace->addWindow(plot);
   connectSurfacePlot(plot);
 
-  plot->setIcon(QPixmap(":/trajectory.xpm"));
+  plot->setIcon(
+      IconLoader::load("edit-graph3d", IconLoader::LightDark).pixmap(16));
   plot->show();
   plot->setFocus();
 
@@ -2080,7 +2089,7 @@ void ApplicationWindow::initBareMultilayerPlot(
 
   g->setWindowTitle(label);
   g->setName(label);
-  g->setIcon(QPixmap(":/graph.xpm"));
+  g->setIcon(IconLoader::load("edit-graph", IconLoader::LightDark).pixmap(16));
   g->setScaleLayersOnPrint(d_scale_plots_on_print);
   g->printCropmarks(d_print_cropmarks);
 
@@ -6907,8 +6916,9 @@ void ApplicationWindow::windowsMenuAboutToShow() {
   windowsMenu->addSeparator();
   windowsMenu->addAction(actionResizeActiveWindow);
   windowsMenu->insertItem(tr("&Hide Window"), this, SLOT(hideActiveWindow()));
-  windowsMenu->insertItem(QPixmap(":/close.xpm"), tr("Close &Window"), this,
-                          SLOT(closeActiveWindow()), Qt::CTRL + Qt::Key_W);
+  windowsMenu->insertItem(IconLoader::load("edit-delete", IconLoader::General),
+                          tr("Close &Window"), this, SLOT(closeActiveWindow()),
+                          Qt::CTRL + Qt::Key_W);
 
   if (n > 0 && n < 10) {
     windowsMenu->addSeparator();
@@ -7382,12 +7392,13 @@ void ApplicationWindow::showGraphContextMenu() {
     cm.insertItem(IconLoader::load("edit-print", IconLoader::LightDark),
                   tr("&Print"), &prints);
     cm.addSeparator();
-    cm.insertItem(QPixmap(":/resize.xpm"), tr("&Geometry..."), plot,
-                  SIGNAL(showGeometryDialog()));
+    cm.insertItem(
+        IconLoader::load("edit-table-dimension", IconLoader::LightDark),
+        tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
     cm.insertItem(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
     cm.addSeparator();
-    cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Layer"), plot,
-                  SLOT(confirmRemoveLayer()));
+    cm.insertItem(IconLoader::load("edit-delete", IconLoader::General),
+                  tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
     cm.exec(QCursor::pos());
   }
 }
@@ -7498,12 +7509,13 @@ void ApplicationWindow::showLayerButtonContextMenu() {
     cm.insertItem(IconLoader::load("edit-print", IconLoader::LightDark),
                   tr("&Print"), &prints);
     cm.addSeparator();
-    cm.insertItem(QPixmap(":/resize.xpm"), tr("&Geometry..."), plot,
-                  SIGNAL(showGeometryDialog()));
+    cm.insertItem(
+        IconLoader::load("edit-table-dimension", IconLoader::LightDark),
+        tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
     cm.insertItem(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
     cm.addSeparator();
-    cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Layer"), plot,
-                  SLOT(confirmRemoveLayer()));
+    cm.insertItem(IconLoader::load("edit-delete", IconLoader::General),
+                  tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
     cm.exec(QCursor::pos());
   }
 }
@@ -7580,11 +7592,11 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.insertItem(tr("&Insert Row"), t, SLOT(insertRow()));
     cm.insertItem(tr("&Insert Column"), t, SLOT(insertColumn()));
     if (t->rowsSelected()) {
-      cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Rows"), t,
-                    SLOT(deleteSelectedRows()));
+      cm.insertItem(IconLoader::load("edit-delete", IconLoader::General),
+                    tr("&Delete Rows"), t, SLOT(deleteSelectedRows()));
     } else if (t->columnsSelected()) {
-      cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Columns"), t,
-                    SLOT(deleteSelectedColumns()));
+      cm.insertItem(IconLoader::load("edit-delete", IconLoader::General),
+                    tr("&Delete Columns"), t, SLOT(deleteSelectedColumns()));
     }
     cm.insertItem(
         IconLoader::load("edit-delete-selection", IconLoader::LightDark),
@@ -8313,7 +8325,8 @@ void ApplicationWindow::initPlot3DToolBar() {
 
   actionAnimate = new QAction(this);
   actionAnimate->setToggleAction(true);
-  actionAnimate->setIconSet(QPixmap(":/movie.xpm"));
+  actionAnimate->setIcon(
+      IconLoader::load("view-3dplot-movie", IconLoader::LightDark));
   graph_3D_tools->addAction(actionAnimate);
 
   graph_3D_tools->setEnabled(false);
@@ -9384,7 +9397,8 @@ void ApplicationWindow::createActions() {
   ui_->actionOpenAproj->setIcon(
       IconLoader::load("project-open", IconLoader::LightDark));
   ui_->actionOpenImage->setIcon(QIcon());
-  ui_->actionImportImage->setIcon(QIcon());
+  ui_->actionImportImage->setIcon(
+      IconLoader::load("view-image", IconLoader::LightDark));
   ui_->actionSaveProject->setIcon(
       IconLoader::load("document-save", IconLoader::LightDark));
   ui_->actionSaveProjectAs->setIcon(QIcon());
@@ -9400,7 +9414,8 @@ void ApplicationWindow::createActions() {
   ui_->actionExportASCII->setIcon(QIcon());
   ui_->actionImportASCII->setIcon(
       IconLoader::load("import-ascii-filter", IconLoader::LightDark));
-  ui_->actionQuit->setIcon(QIcon(QPixmap(":/quit.xpm")));
+  ui_->actionQuit->setIcon(
+      IconLoader::load("application-exit", IconLoader::General));
   // Edit menu
   ui_->actionUndo->setIcon(
       IconLoader::load("edit-undo", IconLoader::LightDark));
@@ -9414,9 +9429,12 @@ void ApplicationWindow::createActions() {
       IconLoader::load("edit-paste", IconLoader::LightDark));
   ui_->actionClearSelection->setIcon(
       IconLoader::load("edit-delete-selection", IconLoader::LightDark));
-  ui_->actionDeleteFitTables->setIcon(QIcon(QPixmap(":/close.xpm")));
-  ui_->actionClearLogInfo->setIcon(QIcon());
-  ui_->actionPreferences->setIcon(QIcon());
+  ui_->actionDeleteFitTables->setIcon(
+      IconLoader::load("edit-delete", IconLoader::General));
+  ui_->actionClearLogInfo->setIcon(
+      IconLoader::load("clear-loginfo", IconLoader::General));
+  ui_->actionPreferences->setIcon(
+      IconLoader::load("edit-preference", IconLoader::LightDark));
   // View menu
   ui_->actionLockToolbars->setIcon(
       IconLoader::load("lock", IconLoader::LightDark));
@@ -9427,7 +9445,8 @@ void ApplicationWindow::createActions() {
   ui_->actionShowConsole->setIcon(QIcon());
 #endif
   ui_->actionShowUndoRedoHistory->setIcon(QIcon());
-  ui_->actionPlotWizard->setIcon(QIcon(QPixmap(":/wizard.xpm")));
+  ui_->actionPlotWizard->setIcon(
+      IconLoader::load("tools-wizard", IconLoader::LightDark));
 
   // Connections
   // File menu
@@ -9514,7 +9533,8 @@ void ApplicationWindow::createActions() {
           SLOT(showPlotWizard()));
 
   actionCopyWindow =
-      new QAction(QIcon(QPixmap(":/duplicate.xpm")), tr("&Duplicate"), this);
+      new QAction(IconLoader::load("edit-duplicate", IconLoader::LightDark),
+                  tr("&Duplicate"), this);
   connect(actionCopyWindow, SIGNAL(activated()), this, SLOT(clone()));
 
   actionSaveNote = new QAction(tr("Save Note As..."), this);
@@ -9527,7 +9547,8 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionArrangeLayers, SIGNAL(activated()), this,
           SLOT(showLayerDialog()));
 
-  ui_->actionAutomaticLayout->setIcon(QIcon(QPixmap(":/auto_layout.xpm")));
+  ui_->actionAutomaticLayout->setIcon(
+      IconLoader::load("auto-layout", IconLoader::LightDark));
   connect(ui_->actionAutomaticLayout, SIGNAL(activated()), this,
           SLOT(autoArrangeLayers()));
 
@@ -9537,7 +9558,8 @@ void ApplicationWindow::createActions() {
   actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
   connect(actionExportPDF, SIGNAL(activated()), this, SLOT(exportPDF()));
 
-  ui_->actionAddRemoveCurve->setIcon(QIcon(QPixmap(":/curves.xpm")));
+  ui_->actionAddRemoveCurve->setIcon(
+      IconLoader::load("edit-add-graph", IconLoader::LightDark));
   connect(ui_->actionAddRemoveCurve, SIGNAL(activated()), this,
           SLOT(showCurvesDialog()));
 
@@ -9545,23 +9567,27 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionAddErrorBars, SIGNAL(activated()), this,
           SLOT(addErrorBars()));
 
-  ui_->actionAddFunctionCurve->setIcon(QIcon(QPixmap(":/fx.xpm")));
+  ui_->actionAddFunctionCurve->setIcon(
+      IconLoader::load("math-fofx", IconLoader::LightDark));
   connect(ui_->actionAddFunctionCurve, SIGNAL(activated()), this,
           SLOT(addFunctionCurve()));
 
-  actionUnzoom = new QAction(QIcon(QPixmap(":/unzoom.xpm")),
-                             tr("&Rescale to Show All"), this);
+  actionUnzoom =
+      new QAction(IconLoader::load("graph-unzoom", IconLoader::LightDark),
+                  tr("&Rescale to Show All"), this);
   actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
   connect(actionUnzoom, SIGNAL(activated()), this, SLOT(setAutoScale()));
 
   ui_->actionNewLegend->setIcon(QIcon(QPixmap(":/legend.xpm")));
   connect(ui_->actionNewLegend, SIGNAL(activated()), this, SLOT(newLegend()));
 
-  ui_->actionAddTimeStamp->setIcon(QIcon(QPixmap(":/clock.xpm")));
+  ui_->actionAddTimeStamp->setIcon(
+      IconLoader::load("clock", IconLoader::LightDark));
   connect(ui_->actionAddTimeStamp, SIGNAL(activated()), this,
           SLOT(addTimeStamp()));
 
-  ui_->actionAddImage->setIcon(QIcon(QPixmap(":/monalisa.xpm")));
+  ui_->actionAddImage->setIcon(
+      IconLoader::load("view-image", IconLoader::LightDark));
   connect(ui_->actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
 
   d_plot_mapper = new QSignalMapper;
@@ -9784,7 +9810,8 @@ void ApplicationWindow::createActions() {
   connect(actionShowTitleDialog, SIGNAL(activated()), this,
           SLOT(showTitleDialog()));
 
-  ui_->actionAbout->setIcon(QIcon());
+  ui_->actionAbout->setIcon(
+      IconLoader::load("help-about", IconLoader::LightDark));
   connect(ui_->actionAbout, SIGNAL(activated()), this, SLOT(about()));
 
   ui_->actionHelp->setIcon(QIcon());
@@ -9800,7 +9827,8 @@ void ApplicationWindow::createActions() {
   connect(actionRename, SIGNAL(activated()), this, SLOT(renameActiveWindow()));
 
   actionCloseWindow =
-      new QAction(QIcon(QPixmap(":/close.xpm")), tr("Close &Window"), this);
+      new QAction(IconLoader::load("edit-delete", IconLoader::General),
+                  tr("Close &Window"), this);
   actionCloseWindow->setShortcut(tr("Ctrl+W"));
   connect(actionCloseWindow, SIGNAL(activated()), this,
           SLOT(closeActiveWindow()));
@@ -9810,8 +9838,9 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionRemoveLayer, SIGNAL(activated()), this,
           SLOT(deleteLayer()));
 
-  actionResizeActiveWindow = new QAction(QIcon(QPixmap(":/resize.xpm")),
-                                         tr("Window &Geometry..."), this);
+  actionResizeActiveWindow = new QAction(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
+      tr("Window &Geometry..."), this);
   connect(actionResizeActiveWindow, SIGNAL(activated()), this,
           SLOT(resizeActiveWindow()));
 
@@ -9856,8 +9885,9 @@ void ApplicationWindow::createActions() {
   connect(actionMaximizeWindow, SIGNAL(activated()), this,
           SLOT(maximizeWindow()));
 
-  actionResizeWindow = new QAction(QIcon(QPixmap(":/resize.xpm")),
-                                   tr("Re&size Window..."), this);
+  actionResizeWindow = new QAction(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
+      tr("Re&size Window..."), this);
   connect(actionResizeWindow, SIGNAL(activated()), this, SLOT(resizeWindow()));
 
   actionPrintWindow =
@@ -9865,8 +9895,9 @@ void ApplicationWindow::createActions() {
                   tr("&Print Window"), this);
   connect(actionPrintWindow, SIGNAL(activated()), this, SLOT(printWindow()));
 
-  actionShowPlotGeometryDialog =
-      new QAction(QIcon(QPixmap(":/resize.xpm")), tr("&Layer Geometry"), this);
+  actionShowPlotGeometryDialog = new QAction(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
+      tr("&Layer Geometry"), this);
   connect(actionShowPlotGeometryDialog, SIGNAL(activated()), this,
           SLOT(showPlotGeometryDialog()));
 
@@ -9974,7 +10005,8 @@ void ApplicationWindow::createActions() {
   ui_->actionVisitForum->setIcon(QIcon());
   connect(ui_->actionVisitForum, SIGNAL(triggered()), this, SLOT(showForums()));
 
-  ui_->actionReportBug->setIcon(QIcon());
+  ui_->actionReportBug->setIcon(
+      IconLoader::load("tools-report-bug", IconLoader::LightDark));
   connect(ui_->actionReportBug, SIGNAL(triggered()), this,
           SLOT(showBugTracker()));
 
@@ -10013,7 +10045,9 @@ void ApplicationWindow::createActions() {
   connect(actionEditCurveRange, SIGNAL(activated()), this,
           SLOT(showCurveRangeDialog()));
 
-  actionRemoveCurve = new QAction(QPixmap(":/close.xpm"), tr("&Delete"), this);
+  actionRemoveCurve =
+      new QAction(IconLoader::load("edit-delete", IconLoader::General),
+                  tr("&Delete"), this);
   connect(actionRemoveCurve, SIGNAL(activated()), this, SLOT(removeCurve()));
 
   actionHideCurve = new QAction(tr("&Hide"), this);
@@ -11142,8 +11176,8 @@ void ApplicationWindow::showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p,
   }
 
   if (((FolderListItem *)it)->folder()->parent()) {
-    cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Folder"), this,
-                  SLOT(deleteFolder()), Qt::Key_F8);
+    cm.insertItem(IconLoader::load("edit-delete", IconLoader::General),
+                  tr("&Delete Folder"), this, SLOT(deleteFolder()), Qt::Key_F8);
     cm.insertItem(tr("&Rename"), this, SLOT(startRenameFolder()), Qt::Key_F2);
     cm.addSeparator();
   }
@@ -11651,10 +11685,12 @@ void ApplicationWindow::addListViewItem(MyWidget *w) {
     it->setPixmap(0, QPixmap(":/note.xpm"));
     it->setText(1, tr("Note"));
   } else if (w->inherits("MultiLayer")) {
-    it->setPixmap(0, QPixmap(":/graph.xpm"));
+    it->setPixmap(
+        0, IconLoader::load("edit-graph", IconLoader::LightDark).pixmap(16));
     it->setText(1, tr("Graph"));
   } else if (w->inherits("Graph3D")) {
-    it->setPixmap(0, QPixmap(":/trajectory.xpm"));
+    it->setPixmap(
+        0, IconLoader::load("edit-graph3d", IconLoader::LightDark).pixmap(16));
     it->setText(1, tr("3D Graph"));
   }
 
@@ -11689,10 +11725,12 @@ void ApplicationWindow::windowProperties() {
     mbox->setIconPixmap(QPixmap(":/note.xpm"));
     s += tr("Type") + ": " + tr("Note") + "\n\n";
   } else if (w->inherits("MultiLayer")) {
-    mbox->setIconPixmap(QPixmap(":/graph.xpm"));
+    mbox->setIconPixmap(
+        IconLoader::load("edit-graph", IconLoader::LightDark).pixmap(16));
     s += tr("Type") + ": " + tr("Graph") + "\n\n";
   } else if (w->inherits("Graph3D")) {
-    mbox->setIconPixmap(QPixmap(":/trajectory.xpm"));
+    mbox->setIconPixmap(
+        IconLoader::load("edit-graph3d", IconLoader::LightDark).pixmap(16));
     s += tr("Type") + ": " + tr("3D Graph") + "\n\n";
   }
   s += tr("Path") + ": " + current_folder->path() + "\n\n";

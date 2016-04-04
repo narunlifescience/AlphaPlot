@@ -32,6 +32,7 @@
 #include "table/future_Table.h"
 #include "core/Project.h"
 #include "lib/ActionManager.h"
+#include "../core/IconLoader.h"
 
 #include <QItemSelectionModel>
 #include <QTime>
@@ -947,16 +948,17 @@ void Table::createActions() {
   QIcon *icon_temp;
 
   // selection related actions
-  action_cut_selection =
-      new QAction(QIcon(QPixmap(":/cut.xpm")), tr("Cu&t"), this);
+  action_cut_selection = new QAction(
+      IconLoader::load("edit-cut", IconLoader::LightDark), tr("Cu&t"), this);
   actionManager()->addAction(action_cut_selection, "cut_selection");
 
-  action_copy_selection =
-      new QAction(QIcon(QPixmap(":/copy.xpm")), tr("&Copy"), this);
+  action_copy_selection = new QAction(
+      IconLoader::load("edit-copy", IconLoader::LightDark), tr("&Copy"), this);
   actionManager()->addAction(action_copy_selection, "copy_selection");
 
   action_paste_into_selection =
-      new QAction(QIcon(QPixmap(":/paste.xpm")), tr("Past&e"), this);
+      new QAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                  tr("Past&e"), this);
   actionManager()->addAction(action_paste_into_selection,
                              "paste_into_selection");
 
@@ -978,13 +980,10 @@ void Table::createActions() {
   actionManager()->addAction(action_set_formula, "set_formula");
   delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/clear.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/clear.png"));
   action_clear_selection =
-      new QAction(*icon_temp, tr("Clea&r", "clear selection"), this);
+      new QAction(IconLoader::load("clear-loginfo", IconLoader::General),
+                  tr("Clea&r", "clear selection"), this);
   actionManager()->addAction(action_clear_selection, "clear_selection");
-  delete icon_temp;
 
   icon_temp = new QIcon();
   icon_temp->addPixmap(QPixmap(":/16x16/recalculate.png"));
@@ -995,11 +994,13 @@ void Table::createActions() {
   delete icon_temp;
 
   action_fill_row_numbers =
-      new QAction(QIcon(QPixmap(":/rowNumbers.xpm")), tr("Row Numbers"), this);
+      new QAction(IconLoader::load("edit-row-number", IconLoader::LightDark),
+                  tr("Row Numbers"), this);
   actionManager()->addAction(action_fill_row_numbers, "fill_row_numbers");
 
-  action_fill_random = new QAction(QIcon(QPixmap(":/randomNumbers.xpm")),
-                                   tr("Random Values"), this);
+  action_fill_random =
+      new QAction(IconLoader::load("edit-random-number", IconLoader::LightDark),
+                  tr("Random Values"), this);
   actionManager()->addAction(action_fill_random, "fill_random");
 
   // table related actions
@@ -1032,13 +1033,11 @@ void Table::createActions() {
   actionManager()->addAction(action_select_all, "select_all");
   delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/add_column.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/add_column.png"));
-  action_add_column = new QAction(*icon_temp, tr("&Add Column"), this);
+  action_add_column = new QAction(
+      IconLoader::load("edit-table-insert-column-right", IconLoader::LightDark),
+      tr("&Add Column"), this);
   action_add_column->setToolTip(tr("append a new column to the table"));
   actionManager()->addAction(action_add_column, "add_column");
-  delete icon_temp;
 
   icon_temp = new QIcon();
   icon_temp->addPixmap(QPixmap(":/16x16/clear_table.png"));
@@ -1075,8 +1074,9 @@ void Table::createActions() {
   actionManager()->addAction(action_go_to_cell, "go_to_cell");
   delete icon_temp;
 
-  action_dimensions_dialog = new QAction(QIcon(QPixmap(":/resize.xpm")),
-                                         tr("&Dimensions", "table size"), this);
+  action_dimensions_dialog = new QAction(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
+      tr("&Dimensions", "table size"), this);
   action_dimensions_dialog->setToolTip(tr("change the table size"));
   actionManager()->addAction(action_dimensions_dialog, "dimensions_dialog");
 

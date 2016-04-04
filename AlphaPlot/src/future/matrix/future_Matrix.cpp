@@ -35,6 +35,7 @@
 #include "matrixcommands.h"
 #include "lib/ActionManager.h"
 #include "lib/XmlStreamReader.h"
+#include "../core/IconLoader.h"
 
 #include <QtCore>
 #include <QtGui>
@@ -498,26 +499,24 @@ void Matrix::createActions() {
   QIcon *icon_temp;
 
   // selection related actions
-  action_cut_selection =
-      new QAction(QIcon(QPixmap(":/cut.xpm")), tr("Cu&t"), this);
+  action_cut_selection = new QAction(
+      IconLoader::load("edit-cut", IconLoader::LightDark), tr("Cu&t"), this);
   actionManager()->addAction(action_cut_selection, "cut_selection");
 
-  action_copy_selection =
-      new QAction(QIcon(QPixmap(":/copy.xpm")), tr("&Copy"), this);
+  action_copy_selection = new QAction(
+      IconLoader::load("edit-copy", IconLoader::LightDark), tr("&Copy"), this);
   actionManager()->addAction(action_copy_selection, "copy_selection");
 
   action_paste_into_selection =
-      new QAction(QIcon(QPixmap(":/paste.xpm")), tr("Past&e"), this);
+      new QAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                  tr("Past&e"), this);
   actionManager()->addAction(action_paste_into_selection,
                              "paste_into_selection");
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/clear.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/clear.png"));
   action_clear_selection =
-      new QAction(*icon_temp, tr("Clea&r", "clear selection"), this);
+      new QAction(IconLoader::load("clear-loginfo", IconLoader::General),
+                  tr("Clea&r", "clear selection"), this);
   actionManager()->addAction(action_clear_selection, "clear_selection");
-  delete icon_temp;
 
   // matrix related actions
   icon_temp = new QIcon();

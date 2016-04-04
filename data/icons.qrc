@@ -213,12 +213,24 @@
     <file alias="applogo">AlphaPlot-logo.png</file>
     <file>icons/common/16/folder-closed.png</file>
     <file>icons/common/16/folder-open.png</file>
+    <file>icons/common/16/application-exit.png</file>
+    <file>icons/common/16/clear-loginfo.png</file>
+    <file>icons/common/16/edit-delete.png</file>
     <file>icons/common/22/folder-closed.png</file>
     <file>icons/common/22/folder-open.png</file>
+    <file>icons/common/22/application-exit.png</file>
+    <file>icons/common/22/clear-loginfo.png</file>
+    <file>icons/common/22/edit-delete.png</file>
     <file>icons/common/24/folder-closed.png</file>
     <file>icons/common/24/folder-open.png</file>
+    <file>icons/common/24/application-exit.png</file>
+    <file>icons/common/24/clear-loginfo.png</file>
+    <file>icons/common/24/edit-delete.png</file>
     <file>icons/common/32/folder-closed.png</file>
     <file>icons/common/32/folder-open.png</file>
+    <file>icons/common/32/application-exit.png</file>
+    <file>icons/common/32/clear-loginfo.png</file>
+    <file>icons/common/32/edit-delete.png</file>
     <file>icons/common/48/folder-closed.png</file>
     <file>icons/common/48/folder-open.png</file>
     <file>icons/common/64/folder-closed.png</file>
@@ -249,6 +261,33 @@
 	<file>icons/light/16/template-open.png</file>
     <file>icons/light/16/template-save.png</file>
     <file>icons/light/16/table.png</file>
+    <file>icons/light/16/draw-text.png</file>
+    <file>icons/light/16/edit-crosshair.png</file>
+    <file>icons/light/16/edit-duplicate.png</file>
+    <file>icons/light/16/edit-graph.png</file>
+    <file>icons/light/16/edit-select-data.png</file>
+	<file>icons/light/16/edit-select.png</file>
+    <file>icons/light/16/edit-table-delete-column.png</file>
+    <file>icons/light/16/edit-table-dimension.png</file>
+    <file>icons/light/16/edit-table-insert-column-right.png</file>
+    <file>icons/light/16/go-next.png</file>
+    <file>icons/light/16/go-previous.png</file>
+    <file>icons/light/16/edit-add-graph.png</file>
+    <file>icons/light/16/edit-new-aspect.png</file>
+    <file>icons/light/16/edit-preference.png</file>
+    <file>icons/light/16/edit-random-number.png</file>
+    <file>icons/light/16/edit-row-number.png</file>
+    <file>icons/light/16/graph-unzoom.png</file>
+    <file>icons/light/16/math-fofx.png</file>
+    <file>icons/light/16/tools-report-bug.png</file>
+    <file>icons/light/16/view-3dplot-movie.png</file>
+    <file>icons/light/16/view-image.png</file>
+    <file>icons/light/16/auto-layout.png</file>
+    <file>icons/light/16/clock.png</file>
+    <file>icons/light/16/draw-line.png</file>
+    <file>icons/light/16/edit-graph3d.png</file>
+    <file>icons/light/16/help-about.png</file>
+    <file>icons/light/16/tools-wizard.png</file>
 	<file>icons/light/22/edit-copy.png</file>
 	<file>icons/light/22/edit-cut.png</file>
 	<file>icons/light/22/edit-paste.png</file>
@@ -271,6 +310,33 @@
 	<file>icons/light/22/template-open.png</file>
     <file>icons/light/22/template-save.png</file>
     <file>icons/light/22/table.png</file>
+    <file>icons/light/22/draw-text.png</file>
+    <file>icons/light/22/edit-crosshair.png</file>
+    <file>icons/light/22/edit-duplicate.png</file>
+    <file>icons/light/22/edit-graph.png</file>
+    <file>icons/light/22/edit-select-data.png</file>
+	<file>icons/light/22/edit-select.png</file>
+    <file>icons/light/22/edit-table-delete-column.png</file>
+    <file>icons/light/22/edit-table-dimension.png</file>
+    <file>icons/light/22/edit-table-insert-column-right.png</file>
+    <file>icons/light/22/go-next.png</file>
+    <file>icons/light/22/edit-add-graph.png</file>
+    <file>icons/light/22/edit-new-aspect.png</file>
+    <file>icons/light/22/edit-preference.png</file>
+    <file>icons/light/22/edit-random-number.png</file>
+    <file>icons/light/22/edit-row-number.png</file>
+    <file>icons/light/22/graph-unzoom.png</file>
+    <file>icons/light/22/math-fofx.png</file>
+    <file>icons/light/22/tools-report-bug.png</file>
+    <file>icons/light/22/view-3dplot-movie.png</file>
+    <file>icons/light/22/view-image.png</file>
+    <file>icons/light/22/go-previous.png</file>
+    <file>icons/light/22/auto-layout.png</file>
+    <file>icons/light/22/clock.png</file>
+    <file>icons/light/22/draw-line.png</file>
+    <file>icons/light/22/edit-graph3d.png</file>
+    <file>icons/light/22/help-about.png</file>
+    <file>icons/light/22/tools-wizard.png</file>
 	<file>icons/light/24/edit-copy.png</file>
 	<file>icons/light/24/edit-cut.png</file>
 	<file>icons/light/24/edit-paste.png</file>
@@ -293,6 +359,32 @@
 	<file>icons/light/24/template-open.png</file>
     <file>icons/light/24/template-save.png</file>
     <file>icons/light/24/table.png</file>
+    <file>icons/light/24/draw-text.png</file>
+    <file>icons/light/24/edit-crosshair.png</file>
+    <file>icons/light/24/edit-duplicate.png</file>
+    <file>icons/light/24/edit-graph.png</file>
+    <file>icons/light/24/edit-select-data.png</file>
+	<file>icons/light/24/edit-select.png</file>
+    <file>icons/light/24/edit-table-delete-column.png</file>
+    <file>icons/light/24/edit-table-dimension.png</file>
+    <file>icons/light/24/edit-table-insert-column-right.png</file>
+    <file>icons/light/24/go-next.png</file>
+    <file>icons/light/24/go-previous.png</file>
+    <file>icons/light/24/edit-add-graph.png</file>
+    <file>icons/light/24/edit-new-aspect.png</file>
+    <file>icons/light/24/edit-preference.png</file>
+    <file>icons/light/24/edit-random-number.png</file>
+    <file>icons/light/24/edit-row-number.png</file>
+    <file>icons/light/24/graph-unzoom.png</file>
+    <file>icons/light/24/tools-report-bug.png</file>
+    <file>icons/light/24/view-3dplot-movie.png</file>
+    <file>icons/light/24/view-image.png</file>
+    <file>icons/light/24/auto-layout.png</file>
+    <file>icons/light/24/clock.png</file>
+    <file>icons/light/24/draw-line.png</file>
+    <file>icons/light/24/edit-graph3d.png</file>
+    <file>icons/light/24/help-about.png</file>
+    <file>icons/light/24/tools-wizard.png</file>
 	<file>icons/dark/16/edit-copy.png</file>
 	<file>icons/dark/16/edit-cut.png</file>
 	<file>icons/dark/16/edit-paste.png</file>
@@ -315,6 +407,33 @@
 	<file>icons/dark/16/template-open.png</file>
     <file>icons/dark/16/template-save.png</file>
     <file>icons/dark/16/table.png</file>
+    <file>icons/dark/16/draw-text.png</file>
+    <file>icons/dark/16/edit-crosshair.png</file>
+    <file>icons/dark/16/edit-duplicate.png</file>
+    <file>icons/dark/16/edit-graph.png</file>
+    <file>icons/dark/16/edit-select-data.png</file>
+	<file>icons/dark/16/edit-select.png</file>
+    <file>icons/dark/16/edit-table-delete-column.png</file>
+    <file>icons/dark/16/edit-table-dimension.png</file>
+    <file>icons/dark/16/edit-table-insert-column-right.png</file>
+    <file>icons/dark/16/go-next.png</file>
+    <file>icons/dark/16/go-previous.png</file>
+    <file>icons/dark/16/edit-add-graph.png</file>
+    <file>icons/dark/16/edit-new-aspect.png</file>
+    <file>icons/dark/16/edit-preference.png</file>
+    <file>icons/dark/16/edit-random-number.png</file>
+    <file>icons/dark/16/edit-row-number.png</file>
+    <file>icons/dark/16/graph-unzoom.png</file>
+    <file>icons/dark/16/math-fofx.png</file>
+    <file>icons/dark/16/tools-report-bug.png</file>
+    <file>icons/dark/16/view-3dplot-movie.png</file>
+    <file>icons/dark/16/view-image.png</file>
+    <file>icons/dark/16/auto-layout.png</file>
+    <file>icons/dark/16/clock.png</file>
+    <file>icons/dark/16/draw-line.png</file>
+    <file>icons/dark/16/edit-graph3d.png</file>
+    <file>icons/dark/16/help-about.png</file>
+    <file>icons/dark/16/tools-wizard.png</file>
 	<file>icons/dark/22/edit-copy.png</file>
 	<file>icons/dark/22/edit-cut.png</file>
 	<file>icons/dark/22/edit-paste.png</file>
@@ -337,6 +456,33 @@
 	<file>icons/dark/22/template-open.png</file>
     <file>icons/dark/22/template-save.png</file>
     <file>icons/dark/22/table.png</file>
+    <file>icons/dark/22/draw-text.png</file>
+    <file>icons/dark/22/edit-crosshair.png</file>
+    <file>icons/dark/22/edit-duplicate.png</file>
+    <file>icons/dark/22/edit-graph.png</file>
+    <file>icons/dark/22/edit-select-data.png</file>
+	<file>icons/dark/22/edit-select.png</file>
+    <file>icons/dark/22/edit-table-delete-column.png</file>
+    <file>icons/dark/22/edit-table-dimension.png</file>
+    <file>icons/dark/22/edit-table-insert-column-right.png</file>
+    <file>icons/dark/22/go-next.png</file>
+    <file>icons/dark/22/go-previous.png</file>
+    <file>icons/dark/22/edit-add-graph.png</file>
+    <file>icons/dark/22/edit-new-aspect.png</file>
+    <file>icons/dark/22/edit-preference.png</file>
+    <file>icons/dark/22/edit-random-number.png</file>
+    <file>icons/dark/22/edit-row-number.png</file>
+    <file>icons/dark/22/graph-unzoom.png</file>
+    <file>icons/dark/22/math-fofx.png</file>
+    <file>icons/dark/22/tools-report-bug.png</file>
+    <file>icons/dark/22/view-3dplot-movie.png</file>
+    <file>icons/dark/22/view-image.png</file>
+    <file>icons/dark/22/auto-layout.png</file>
+    <file>icons/dark/22/clock.png</file>
+    <file>icons/dark/22/draw-line.png</file>
+    <file>icons/dark/22/edit-graph3d.png</file>
+    <file>icons/dark/22/help-about.png</file>
+    <file>icons/dark/22/tools-wizard.png</file>
 	<file>icons/dark/24/edit-copy.png</file>
 	<file>icons/dark/24/edit-cut.png</file>
 	<file>icons/dark/24/edit-paste.png</file>
@@ -359,6 +505,32 @@
 	<file>icons/dark/24/template-open.png</file>
     <file>icons/dark/24/template-save.png</file>
     <file>icons/dark/24/table.png</file>
+    <file>icons/dark/24/draw-text.png</file>
+    <file>icons/dark/24/edit-crosshair.png</file>
+    <file>icons/dark/24/edit-duplicate.png</file>
+    <file>icons/dark/24/edit-graph.png</file>
+    <file>icons/dark/24/edit-select-data.png</file>
+	<file>icons/dark/24/edit-select.png</file>
+    <file>icons/dark/24/edit-table-delete-column.png</file>
+    <file>icons/dark/24/edit-table-dimension.png</file>
+    <file>icons/dark/24/edit-table-insert-column-right.png</file>
+    <file>icons/dark/24/go-next.png</file>
+    <file>icons/dark/24/go-previous.png</file>
+    <file>icons/dark/24/edit-add-graph.png</file>
+    <file>icons/dark/24/edit-new-aspect.png</file>
+    <file>icons/dark/24/edit-preference.png</file>
+    <file>icons/dark/24/edit-random-number.png</file>
+    <file>icons/dark/24/edit-row-number.png</file>
+    <file>icons/dark/24/graph-unzoom.png</file>
+    <file>icons/dark/24/tools-report-bug.png</file>
+    <file>icons/dark/24/view-3dplot-movie.png</file>
+    <file>icons/dark/24/view-image.png</file>
+    <file>icons/dark/24/auto-layout.png</file>
+    <file>icons/dark/24/clock.png</file>
+    <file>icons/dark/24/draw-line.png</file>
+    <file>icons/dark/24/edit-graph3d.png</file>
+    <file>icons/dark/24/help-about.png</file>
+    <file>icons/dark/24/tools-wizard.png</file>
 	<file>splash/splash.png</file>
 </qresource>
 </RCC>
