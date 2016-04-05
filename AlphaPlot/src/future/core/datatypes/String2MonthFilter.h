@@ -91,12 +91,12 @@ class String2MonthFilter : public AbstractSimpleFilter {
 
   //! Return the data type of the column
   virtual AlphaPlot::ColumnDataType dataType() const {
-    return AlphaPlot::TypeQDateTime;
+    return AlphaPlot::TypeDateTime;
   }
 
  protected:
   virtual bool inputAcceptable(int, const AbstractColumn *source) {
-    return source->dataType() == AlphaPlot::TypeQString;
+    return source->dataType() == AlphaPlot::TypeString;
   }
 };
 

@@ -471,7 +471,7 @@ void ApplicationWindow::initToolBars() {
   QToolButton *btn_layers = new QToolButton(this);
   btn_layers->setMenu(menu_layers);
   btn_layers->setPopupMode(QToolButton::InstantPopup);
-  btn_layers->setIcon(QPixmap(":/arrangeLayers.xpm"));
+  btn_layers->setIcon(IconLoader::load("layer-arrange", IconLoader::LightDark));
   btn_layers->setToolTip(tr("Manage layers"));
   graph_tools->addWidget(btn_layers);
 
@@ -508,7 +508,8 @@ void ApplicationWindow::initToolBars() {
   menu_plot_enrichments->addAction(ui_->actionAddText);
 
   ui_->actionDrawArrow->setActionGroup(dataTools);
-  ui_->actionDrawArrow->setIcon(QIcon(QPixmap(":/arrow.xpm")));
+  ui_->actionDrawArrow->setIcon(
+      IconLoader::load("edit-arrow", IconLoader::LightDark));
   menu_plot_enrichments->addAction(ui_->actionDrawArrow);
 
   ui_->actionDrawLine->setActionGroup(dataTools);
@@ -526,14 +527,14 @@ void ApplicationWindow::initToolBars() {
   btnZoomIn->setShortcut(tr("Ctrl++"));
   btnZoomIn->setActionGroup(dataTools);
   btnZoomIn->setCheckable(true);
-  btnZoomIn->setIcon(QIcon(QPixmap(":/zoom.xpm")));
+  btnZoomIn->setIcon(IconLoader::load("zoom-in", IconLoader::LightDark));
   graph_tools->addAction(btnZoomIn);
 
   btnZoomOut = new QAction(tr("&Zoom Out"), this);
   btnZoomOut->setShortcut(tr("Ctrl+-"));
   btnZoomOut->setActionGroup(dataTools);
   btnZoomOut->setCheckable(true);
-  btnZoomOut->setIcon(QIcon(QPixmap(":/zoomOut.xpm")));
+  btnZoomOut->setIcon(IconLoader::load("zoom-out", IconLoader::LightDark));
   graph_tools->addAction(btnZoomOut);
 
   graph_tools->addAction(actionUnzoom);
@@ -558,7 +559,8 @@ void ApplicationWindow::initToolBars() {
   btnSelect->setShortcut(tr("ALT+S"));
   btnSelect->setActionGroup(dataTools);
   btnSelect->setCheckable(true);
-  btnSelect->setIcon(QIcon(QPixmap(":/cursors.xpm")));
+  btnSelect->setIcon(
+      IconLoader::load("edit-data-range", IconLoader::LightDark));
   graph_tools->addAction(btnSelect);
 
   btnMovePoints = new QAction(tr("&Move Data Points..."), this);
@@ -2325,7 +2327,8 @@ void ApplicationWindow::initNote(Note *note, const QString &caption) {
 
   note->setWindowTitle(name);
   note->setName(name);
-  note->setIcon(QPixmap(":/note.xpm"));
+  note->setIcon(
+      IconLoader::load("edit-note", IconLoader::LightDark).pixmap(16));
   note->askOnCloseEvent(confirmCloseNotes);
   note->setFolder(current_folder);
 
@@ -9388,9 +9391,12 @@ void ApplicationWindow::createActions() {
   // File menu
   ui_->actionNewProject->setIcon(
       IconLoader::load("edit-new", IconLoader::LightDark));
-  ui_->actionNewGraph->setIcon(QIcon(QPixmap(":/new_graph.xpm")));
-  ui_->actionNewNote->setIcon(QIcon(QPixmap(":/new_note.xpm")));
-  ui_->actionNewTable->setIcon(QIcon(QPixmap(":/table.xpm")));
+  ui_->actionNewGraph->setIcon(
+      IconLoader::load("edit-graph", IconLoader::LightDark));
+  ui_->actionNewNote->setIcon(
+      IconLoader::load("edit-note", IconLoader::LightDark));
+  ui_->actionNewTable->setIcon(
+      IconLoader::load("table", IconLoader::LightDark));
   ui_->actionNewMatrix->setIcon(QIcon(QPixmap(":/new_matrix.xpm")));
   ui_->actionNewFunctionPlot->setIcon(QIcon(QPixmap(":/newF.xpm")));
   ui_->actionNew3DSurfacePlot->setIcon(QIcon(QPixmap(":/newFxy.xpm")));
@@ -9540,10 +9546,12 @@ void ApplicationWindow::createActions() {
   actionSaveNote = new QAction(tr("Save Note As..."), this);
   connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
 
-  ui_->actionAddLayer->setIcon(QIcon(QPixmap(":/newLayer.xpm")));
+  ui_->actionAddLayer->setIcon(
+      IconLoader::load("layer-new", IconLoader::LightDark));
   connect(ui_->actionAddLayer, SIGNAL(activated()), this, SLOT(addLayer()));
 
-  ui_->actionArrangeLayers->setIcon(QIcon(QPixmap(":/arrangeLayers.xpm")));
+  ui_->actionArrangeLayers->setIcon(
+      IconLoader::load("layer-arrange", IconLoader::LightDark));
   connect(ui_->actionArrangeLayers, SIGNAL(activated()), this,
           SLOT(showLayerDialog()));
 
@@ -9814,7 +9822,8 @@ void ApplicationWindow::createActions() {
       IconLoader::load("help-about", IconLoader::LightDark));
   connect(ui_->actionAbout, SIGNAL(activated()), this, SLOT(about()));
 
-  ui_->actionHelp->setIcon(QIcon());
+  ui_->actionHelp->setIcon(
+      IconLoader::load("edit-help", IconLoader::LightDark));
   connect(ui_->actionHelp, SIGNAL(activated()), this, SLOT(showHelp()));
 
 #ifdef DYNAMIC_MANUAL_PATH
@@ -9999,10 +10008,12 @@ void ApplicationWindow::createActions() {
           SLOT(searchForUpdates()));
 #endif  // defined SEARCH_FOR_UPDATES
 
-  ui_->actionHomepage->setIcon(QIcon());
+  ui_->actionHomepage->setIcon(
+      IconLoader::load("go-home", IconLoader::LightDark));
   connect(ui_->actionHomepage, SIGNAL(activated()), this, SLOT(showHomePage()));
 
-  ui_->actionVisitForum->setIcon(QIcon());
+  ui_->actionVisitForum->setIcon(
+      IconLoader::load("edit-help-forum", IconLoader::LightDark));
   connect(ui_->actionVisitForum, SIGNAL(triggered()), this, SLOT(showForums()));
 
   ui_->actionReportBug->setIcon(
@@ -11682,7 +11693,8 @@ void ApplicationWindow::addListViewItem(MyWidget *w) {
                   IconLoader::load("table", IconLoader::LightDark).pixmap(16));
     it->setText(1, tr("Table"));
   } else if (w->inherits("Note")) {
-    it->setPixmap(0, QPixmap(":/note.xpm"));
+    it->setPixmap(
+        0, IconLoader::load("edit-note", IconLoader::LightDark).pixmap(16));
     it->setText(1, tr("Note"));
   } else if (w->inherits("MultiLayer")) {
     it->setPixmap(
@@ -11722,7 +11734,8 @@ void ApplicationWindow::windowProperties() {
         IconLoader::load("table", IconLoader::LightDark).pixmap(16));
     s += tr("Type") + ": " + tr("Table") + "\n\n";
   } else if (w->inherits("Note")) {
-    mbox->setIconPixmap(QPixmap(":/note.xpm"));
+    mbox->setIconPixmap(
+        IconLoader::load("edit-note", IconLoader::LightDark).pixmap(16));
     s += tr("Type") + ": " + tr("Note") + "\n\n";
   } else if (w->inherits("MultiLayer")) {
     mbox->setIconPixmap(

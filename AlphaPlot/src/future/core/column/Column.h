@@ -337,7 +337,7 @@ class ColumnStringIO : public AbstractColumn {
       : AbstractColumn(tr("as string")), d_owner(owner), d_setting(false) {}
   virtual AlphaPlot::ColumnMode columnMode() const { return AlphaPlot::Text; }
   virtual AlphaPlot::ColumnDataType dataType() const {
-    return AlphaPlot::TypeQString;
+    return AlphaPlot::TypeString;
   }
   virtual AlphaPlot::PlotDesignation plotDesignation() const {
     return d_owner->plotDesignation();

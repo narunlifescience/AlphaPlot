@@ -55,7 +55,7 @@ class Double2MonthFilter : public AbstractSimpleFilter {
 
   //! Return the data type of the column
   virtual AlphaPlot::ColumnDataType dataType() const {
-    return AlphaPlot::TypeQDateTime;
+    return AlphaPlot::TypeDateTime;
   }
 
  protected:

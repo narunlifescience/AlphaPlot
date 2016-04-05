@@ -288,6 +288,20 @@
     <file>icons/light/16/edit-graph3d.png</file>
     <file>icons/light/16/help-about.png</file>
     <file>icons/light/16/tools-wizard.png</file>
+    <file>icons/light/16/edit-find.png</file>
+    <file>icons/light/16/edit-help-forum.png</file>
+    <file>icons/light/16/go-home.png</file>
+    <file>icons/light/16/view-calendar-day.png</file>
+    <file>icons/light/16/view-calendar-month.png</file>
+    <file>icons/light/16/view-calendar.png</file>
+    <file>icons/light/16/edit-data-range.png</file>
+    <file>icons/light/16/layer-arrange.png</file>
+    <file>icons/light/16/edit-arrow.png</file>
+    <file>icons/light/16/edit-help.png</file>
+    <file>icons/light/16/edit-note.png</file>
+    <file>icons/light/16/layer-new.png</file>
+    <file>icons/light/16/zoom-in.png</file>
+    <file>icons/light/16/zoom-out.png</file>
 	<file>icons/light/22/edit-copy.png</file>
 	<file>icons/light/22/edit-cut.png</file>
 	<file>icons/light/22/edit-paste.png</file>
@@ -337,6 +351,20 @@
     <file>icons/light/22/edit-graph3d.png</file>
     <file>icons/light/22/help-about.png</file>
     <file>icons/light/22/tools-wizard.png</file>
+    <file>icons/light/22/edit-find.png</file>
+    <file>icons/light/22/edit-help-forum.png</file>
+    <file>icons/light/22/go-home.png</file>
+    <file>icons/light/22/view-calendar-day.png</file>
+    <file>icons/light/22/view-calendar-month.png</file>
+    <file>icons/light/22/view-calendar.png</file>
+    <file>icons/light/22/edit-data-range.png</file>
+    <file>icons/light/22/layer-arrange.png</file>
+    <file>icons/light/22/edit-arrow.png</file>
+    <file>icons/light/22/edit-help.png</file>
+    <file>icons/light/22/edit-note.png</file>
+    <file>icons/light/22/layer-new.png</file>
+    <file>icons/light/22/zoom-in.png</file>
+    <file>icons/light/22/zoom-out.png</file>
 	<file>icons/light/24/edit-copy.png</file>
 	<file>icons/light/24/edit-cut.png</file>
 	<file>icons/light/24/edit-paste.png</file>
@@ -385,6 +413,20 @@
     <file>icons/light/24/edit-graph3d.png</file>
     <file>icons/light/24/help-about.png</file>
     <file>icons/light/24/tools-wizard.png</file>
+    <file>icons/light/24/edit-find.png</file>
+    <file>icons/light/24/edit-help-forum.png</file>
+    <file>icons/light/24/go-home.png</file>
+    <file>icons/light/24/view-calendar-day.png</file>
+    <file>icons/light/24/view-calendar-month.png</file>
+    <file>icons/light/24/view-calendar.png</file>
+    <file>icons/light/24/edit-data-range.png</file>
+    <file>icons/light/24/layer-arrange.png</file>
+    <file>icons/light/24/edit-arrow.png</file>
+    <file>icons/light/24/edit-help.png</file>
+    <file>icons/light/24/edit-note.png</file>
+    <file>icons/light/24/layer-new.png</file>
+    <file>icons/light/24/zoom-in.png</file>
+    <file>icons/light/24/zoom-out.png</file>
 	<file>icons/dark/16/edit-copy.png</file>
 	<file>icons/dark/16/edit-cut.png</file>
 	<file>icons/dark/16/edit-paste.png</file>
@@ -433,7 +475,21 @@
     <file>icons/dark/16/draw-line.png</file>
     <file>icons/dark/16/edit-graph3d.png</file>
     <file>icons/dark/16/help-about.png</file>
+    <file>icons/dark/16/edit-find.png</file>
+    <file>icons/dark/16/edit-help-forum.png</file>
+    <file>icons/dark/16/go-home.png</file>
+    <file>icons/dark/16/view-calendar-day.png</file>
+    <file>icons/dark/16/view-calendar-month.png</file>
+    <file>icons/dark/16/view-calendar.png</file>
     <file>icons/dark/16/tools-wizard.png</file>
+    <file>icons/dark/16/edit-data-range.png</file>
+    <file>icons/dark/16/layer-arrange.png</file>
+    <file>icons/dark/16/edit-arrow.png</file>
+    <file>icons/dark/16/edit-help.png</file>
+    <file>icons/dark/16/edit-note.png</file>
+    <file>icons/dark/16/layer-new.png</file>
+    <file>icons/dark/16/zoom-in.png</file>
+    <file>icons/dark/16/zoom-out.png</file>
 	<file>icons/dark/22/edit-copy.png</file>
 	<file>icons/dark/22/edit-cut.png</file>
 	<file>icons/dark/22/edit-paste.png</file>
@@ -483,6 +539,20 @@
     <file>icons/dark/22/edit-graph3d.png</file>
     <file>icons/dark/22/help-about.png</file>
     <file>icons/dark/22/tools-wizard.png</file>
+    <file>icons/dark/22/edit-find.png</file>
+    <file>icons/dark/22/edit-help-forum.png</file>
+    <file>icons/dark/22/go-home.png</file>
+    <file>icons/dark/22/view-calendar-day.png</file>
+    <file>icons/dark/22/view-calendar-month.png</file>
+    <file>icons/dark/22/view-calendar.png</file>
+    <file>icons/dark/22/edit-data-range.png</file>
+    <file>icons/dark/22/layer-arrange.png</file>
+    <file>icons/dark/22/edit-arrow.png</file>
+    <file>icons/dark/22/edit-help.png</file>
+    <file>icons/dark/22/edit-note.png</file>
+    <file>icons/dark/22/layer-new.png</file>
+    <file>icons/dark/22/zoom-in.png</file>
+    <file>icons/dark/22/zoom-out.png</file>
 	<file>icons/dark/24/edit-copy.png</file>
 	<file>icons/dark/24/edit-cut.png</file>
 	<file>icons/dark/24/edit-paste.png</file>
@@ -531,6 +601,20 @@
     <file>icons/dark/24/edit-graph3d.png</file>
     <file>icons/dark/24/help-about.png</file>
     <file>icons/dark/24/tools-wizard.png</file>
+    <file>icons/dark/24/edit-find.png</file>
+    <file>icons/dark/24/edit-help-forum.png</file>
+    <file>icons/dark/24/go-home.png</file>
+    <file>icons/dark/24/view-calendar-day.png</file>
+    <file>icons/dark/24/view-calendar-month.png</file>
+    <file>icons/dark/24/view-calendar.png</file>
+    <file>icons/dark/24/edit-data-range.png</file>
+    <file>icons/dark/24/layer-arrange.png</file>
+    <file>icons/dark/24/edit-arrow.png</file>
+    <file>icons/dark/24/edit-help.png</file>
+    <file>icons/dark/24/edit-note.png</file>
+    <file>icons/dark/24/layer-new.png</file>
+    <file>icons/dark/24/zoom-in.png</file>
+    <file>icons/dark/24/zoom-out.png</file>
 	<file>splash/splash.png</file>
 </qresource>
 </RCC>

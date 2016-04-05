@@ -55,20 +55,8 @@ class String2DayOfWeekFilter : public AbstractSimpleFilter {
     bool ok;
     int day_value = input_value.toInt(&ok);
     if (!ok) {
-#if QT_VERSION <= 0x040300
-      // workaround for Qt bug #171920
-      QDate temp = QDate(1900, 1, 1);
-      for (int i = 1; i <= 7; i++)
-        if ((input_value.toLower() == QDate::longDayName(i).toLower()) ||
-            (input_value.toLower() == QDate::shortDayName(i).toLower())) {
-          temp = QDate(1900, 1, i);
-          break;
-        }
-
-#else
       QDate temp = QDate::fromString(input_value, "ddd");
       if (!temp.isValid()) temp = QDate::fromString(input_value, "dddd");
-#endif
       if (!temp.isValid())
         return QDateTime();
       else
@@ -104,12 +92,12 @@ class String2DayOfWeekFilter : public AbstractSimpleFilter {
 
   //! Return the data type of the column
   virtual AlphaPlot::ColumnDataType dataType() const {
-    return AlphaPlot::TypeQDateTime;
+    return AlphaPlot::TypeDateTime;
   }
 
  protected:
   virtual bool inputAcceptable(int, const AbstractColumn *source) {
-    return source->dataType() == AlphaPlot::TypeQString;
+    return source->dataType() == AlphaPlot::TypeString;
   }
 };
 

@@ -54,7 +54,7 @@ class DayOfWeek2DoubleFilter : public AbstractSimpleFilter {
  protected:
   //! Using typed ports: only date-time inputs are accepted.
   virtual bool inputAcceptable(int, const AbstractColumn *source) {
-    return source->dataType() == AlphaPlot::TypeQDateTime;
+    return source->dataType() == AlphaPlot::TypeDateTime;
   }
 };
 

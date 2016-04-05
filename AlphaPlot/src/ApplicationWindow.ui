@@ -876,47 +876,47 @@
   </action>
   <action name="action3DWireFrame">
    <property name="text">
-    <string>3D Wire Frame</string>
+    <string>&amp;3D Wire Frame</string>
    </property>
   </action>
   <action name="action3DHiddenLine">
    <property name="text">
-    <string>3D Hidden Line</string>
+    <string>3D &amp;Hidden Line</string>
    </property>
   </action>
   <action name="action3DPolygons">
    <property name="text">
-    <string>3D Polygons</string>
+    <string>3D &amp;Polygons</string>
    </property>
   </action>
   <action name="action3DWireSurface">
    <property name="text">
-    <string>3D Wire Surface</string>
+    <string>3D &amp;Wire Surface</string>
    </property>
   </action>
   <action name="action3DBar">
    <property name="text">
-    <string>Bar</string>
+    <string>&amp;Bar</string>
    </property>
   </action>
   <action name="action3DScatter">
    <property name="text">
-    <string>Scatter</string>
+    <string>&amp;Scatter</string>
    </property>
   </action>
   <action name="action3DCountourColorFill">
    <property name="text">
-    <string>Countour + Color Fill</string>
+    <string>&amp;Countour + Color Fill</string>
    </property>
   </action>
   <action name="action3DCountourLines">
    <property name="text">
-    <string>Countour Lines</string>
+    <string>Countour &amp;Lines</string>
    </property>
   </action>
   <action name="action3DGreyScaleMap">
    <property name="text">
-    <string>Grey Scale Map</string>
+    <string>&amp;Grey Scale Map</string>
    </property>
   </action>
  </widget>

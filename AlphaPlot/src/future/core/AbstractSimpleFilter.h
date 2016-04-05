@@ -169,7 +169,7 @@ class AbstractSimpleFilter : public AbstractFilter {
     // nevertheless it will return some rather meaningless value to
     // avoid crashes
     return d_inputs.value(0) ? d_inputs.at(0)->dataType()
-                             : AlphaPlot::TypeQString;
+                             : AlphaPlot::TypeString;
   }
   //! Return the column mode
   /**

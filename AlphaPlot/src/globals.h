@@ -78,7 +78,13 @@ class AlphaPlot : public QObject {
   };
 
   //! Column data type
-  enum ColumnDataType { TypeDouble = 1, TypeQString = 2, TypeQDateTime = 3 };
+  enum ColumnDataType {
+    TypeDouble = 1,
+    TypeString = 2,
+    TypeMonth = 3,
+    TypeDay = 4,
+    TypeDateTime = 5
+  };
 
   // Return the AlphaPlot version number
   static int version();

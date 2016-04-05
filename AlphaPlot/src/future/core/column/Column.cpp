@@ -57,13 +57,13 @@ template <>
 void Column::initPrivate(std::unique_ptr<QStringList> d,
                          IntervalAttribute<bool> v) {
   d_column_private =
-      new Private(this, AlphaPlot::TypeQString, AlphaPlot::Text, d.release(), v);
+      new Private(this, AlphaPlot::TypeString, AlphaPlot::Text, d.release(), v);
 }
 
 template <>
 void Column::initPrivate(std::unique_ptr<QList<QDateTime> > d,
                          IntervalAttribute<bool> v) {
-  d_column_private = new Private(this, AlphaPlot::TypeQDateTime,
+  d_column_private = new Private(this, AlphaPlot::TypeDateTime,
                                  AlphaPlot::DateTime, d.release(), v);
 }
 
@@ -221,10 +221,14 @@ QIcon Column::icon() const {
   switch (dataType()) {
     case AlphaPlot::TypeDouble:
       return IconLoader::load("number-type", IconLoader::LightDark);
-    case AlphaPlot::TypeQString:
+    case AlphaPlot::TypeString:
       return IconLoader::load("text-type", IconLoader::LightDark);
-    case AlphaPlot::TypeQDateTime:
-      return QIcon(QPixmap(":/datetype.png"));
+    case AlphaPlot::TypeDay:
+      return QIcon(IconLoader::load("view-calendar-day", IconLoader::LightDark));
+    case AlphaPlot::TypeMonth:
+      return QIcon(IconLoader::load("view-calendar-month", IconLoader::LightDark));
+    case AlphaPlot::TypeDateTime:
+      return QIcon(IconLoader::load("view-calendar", IconLoader::LightDark));
   }
   return QIcon();
 }
@@ -274,7 +278,7 @@ void Column::save(QXmlStreamWriter* writer) const {
         writer->writeEndElement();
       }
       break;
-    case AlphaPlot::TypeQString:
+    case AlphaPlot::TypeString:
       for (i = 0; i < rowCount(); i++) {
         writer->writeStartElement("row");
         writer->writeAttribute(
@@ -286,26 +290,15 @@ void Column::save(QXmlStreamWriter* writer) const {
       }
       break;
 
-    case AlphaPlot::TypeQDateTime:
+    case AlphaPlot::TypeDateTime:
       for (i = 0; i < rowCount(); i++) {
         writer->writeStartElement("row");
         writer->writeAttribute(
             "type", AlphaPlot::enumValueToString(dataType(), "ColumnDataType"));
         writer->writeAttribute("index", QString::number(i));
         writer->writeAttribute("invalid", isInvalid(i) ? "yes" : "no");
-#if QT_VERSION < 0x040400  // avoid a bug in Qt < 4.4
-        QString str = dateTimeAt(i).toString("yyyy-dd-MM hh:mm:ss:zzz");
-        int should_be_length = 4;
-        int actual_length = dateTimeAt(i).toString("yyyy").length();
-        while (actual_length < should_be_length) {
-          str.prepend("0");
-          actual_length++;
-        }
-        writer->writeCharacters(str);
-#else
         writer->writeCharacters(
             dateTimeAt(i).toString("yyyy-dd-MM hh:mm:ss:zzz"));
-#endif
         writer->writeEndElement();
       }
       break;
@@ -483,11 +476,11 @@ bool Column::XmlReadRow(XmlStreamReader* reader) {
       setValueAt(index, value);
       break;
     }
-    case AlphaPlot::TypeQString:
+    case AlphaPlot::TypeString:
       setTextAt(index, str);
       break;
 
-    case AlphaPlot::TypeQDateTime:
+    case AlphaPlot::TypeDateTime:
       QDateTime date_time =
           QDateTime::fromString(str, "yyyy-dd-MM hh:mm:ss:zzz");
       setDateTimeAt(index, date_time);

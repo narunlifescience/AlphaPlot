@@ -53,7 +53,7 @@ class Double2StringFilter : public AbstractSimpleFilter {
 
   //! Return the data type of the column
   virtual AlphaPlot::ColumnDataType dataType() const {
-    return AlphaPlot::TypeQString;
+    return AlphaPlot::TypeString;
   }
 
  signals:
