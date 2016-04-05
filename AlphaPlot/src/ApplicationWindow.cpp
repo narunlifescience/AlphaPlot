@@ -9579,7 +9579,8 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionAddRemoveCurve, SIGNAL(activated()), this,
           SLOT(showCurvesDialog()));
 
-  ui_->actionAddErrorBars->setIcon(QIcon(QPixmap(":/yerror.xpm")));
+  ui_->actionAddErrorBars->setIcon(
+      IconLoader::load("graph-y-error", IconLoader::LightDark));
   connect(ui_->actionAddErrorBars, SIGNAL(activated()), this,
           SLOT(addErrorBars()));
 
@@ -9716,13 +9717,15 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionPlot3DTrajectory, SIGNAL(activated()), this,
           SLOT(plot3DTrajectory()));
 
-  actionShowColStatistics = new QAction(QIcon(QPixmap(":/col_stat.xpm")),
-                                        tr("Statistics on &Columns"), this);
+  actionShowColStatistics =
+      new QAction(IconLoader::load("table-column-sum", IconLoader::LightDark),
+                  tr("Statistics on &Columns"), this);
   connect(actionShowColStatistics, SIGNAL(activated()), this,
           SLOT(showColStatistics()));
 
-  actionShowRowStatistics = new QAction(QIcon(QPixmap(":/stat_rows.xpm")),
-                                        tr("Statistics on &Rows"), this);
+  actionShowRowStatistics =
+      new QAction(IconLoader::load("table-row-sum", IconLoader::LightDark),
+                  tr("Statistics on &Rows"), this);
   connect(actionShowRowStatistics, SIGNAL(activated()), this,
           SLOT(showRowStatistics()));
 

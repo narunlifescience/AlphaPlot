@@ -1122,21 +1122,15 @@ void Table::createActions() {
       new QAction(QIcon(QPixmap()), tr("Z", "plot designation"), this);
   actionManager()->addAction(action_set_as_z, "set_as_z");
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/x_error.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/x_error.png"));
   action_set_as_xerr =
-      new QAction(*icon_temp, tr("X Error", "plot designation"), this);
+      new QAction(IconLoader::load("graph-x-error", IconLoader::LightDark),
+                  tr("X Error", "plot designation"), this);
   actionManager()->addAction(action_set_as_xerr, "set_as_xerr");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/y_error.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/y_error.png"));
   action_set_as_yerr =
-      new QAction(*icon_temp, tr("Y Error", "plot designation"), this);
+      new QAction(IconLoader::load("graph-y-error", IconLoader::LightDark),
+                  tr("Y Error", "plot designation"), this);
   actionManager()->addAction(action_set_as_yerr, "set_as_yerr");
-  delete icon_temp;
 
   action_set_as_none =
       new QAction(QIcon(QPixmap()), tr("None", "plot designation"), this);
@@ -1165,8 +1159,9 @@ void Table::createActions() {
   actionManager()->addAction(action_sort_columns, "sort_columns");
   delete icon_temp;
 
-  action_statistics_columns = new QAction(QIcon(QPixmap(":/col_stat.xpm")),
-                                          tr("Column Statisti&cs"), this);
+  action_statistics_columns =
+      new QAction(IconLoader::load("table-column-sum", IconLoader::LightDark),
+                  tr("Column Statisti&cs"), this);
   action_statistics_columns->setToolTip(tr("statistics on columns"));
   actionManager()->addAction(action_statistics_columns, "statistics_columns");
 
@@ -1216,8 +1211,9 @@ void Table::createActions() {
   actionManager()->addAction(action_add_rows, "add_rows");
   delete icon_temp;
 
-  action_statistics_rows = new QAction(QIcon(QPixmap(":/stat_rows.xpm")),
-                                       tr("Row Statisti&cs"), this);
+  action_statistics_rows =
+      new QAction(IconLoader::load("table-row-sum", IconLoader::LightDark),
+                  tr("Row Statisti&cs"), this);
   action_statistics_rows->setToolTip(tr("statistics on rows"));
   actionManager()->addAction(action_statistics_rows, "statistics_rows");
 }

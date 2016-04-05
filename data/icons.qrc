@@ -302,6 +302,10 @@
     <file>icons/light/16/layer-new.png</file>
     <file>icons/light/16/zoom-in.png</file>
     <file>icons/light/16/zoom-out.png</file>
+    <file>icons/light/16/graph-x-error.png</file>
+    <file>icons/light/16/graph-y-error.png</file>
+    <file>icons/light/16/table-column-sum.png</file>
+    <file>icons/light/16/table-row-sum.png</file>
 	<file>icons/light/22/edit-copy.png</file>
 	<file>icons/light/22/edit-cut.png</file>
 	<file>icons/light/22/edit-paste.png</file>
@@ -365,6 +369,10 @@
     <file>icons/light/22/layer-new.png</file>
     <file>icons/light/22/zoom-in.png</file>
     <file>icons/light/22/zoom-out.png</file>
+    <file>icons/light/22/graph-x-error.png</file>
+    <file>icons/light/22/graph-y-error.png</file>
+    <file>icons/light/22/table-column-sum.png</file>
+    <file>icons/light/22/table-row-sum.png</file>
 	<file>icons/light/24/edit-copy.png</file>
 	<file>icons/light/24/edit-cut.png</file>
 	<file>icons/light/24/edit-paste.png</file>
@@ -427,6 +435,14 @@
     <file>icons/light/24/layer-new.png</file>
     <file>icons/light/24/zoom-in.png</file>
     <file>icons/light/24/zoom-out.png</file>
+    <file>icons/light/24/graph-x-error.png</file>
+    <file>icons/light/24/graph-y-error.png</file>
+    <file>icons/light/24/table-column-sum.png</file>
+    <file>icons/light/24/table-row-sum.png</file>
+    <file>icons/light/32/graph-x-error.png</file>
+    <file>icons/light/32/graph-y-error.png</file>
+    <file>icons/light/32/table-column-sum.png</file>
+    <file>icons/light/32/table-row-sum.png</file>
 	<file>icons/dark/16/edit-copy.png</file>
 	<file>icons/dark/16/edit-cut.png</file>
 	<file>icons/dark/16/edit-paste.png</file>
@@ -490,6 +506,10 @@
     <file>icons/dark/16/layer-new.png</file>
     <file>icons/dark/16/zoom-in.png</file>
     <file>icons/dark/16/zoom-out.png</file>
+    <file>icons/dark/16/graph-x-error.png</file>
+    <file>icons/dark/16/graph-y-error.png</file>
+    <file>icons/dark/16/table-column-sum.png</file>
+    <file>icons/dark/16/table-row-sum.png</file>
 	<file>icons/dark/22/edit-copy.png</file>
 	<file>icons/dark/22/edit-cut.png</file>
 	<file>icons/dark/22/edit-paste.png</file>
@@ -553,6 +573,10 @@
     <file>icons/dark/22/layer-new.png</file>
     <file>icons/dark/22/zoom-in.png</file>
     <file>icons/dark/22/zoom-out.png</file>
+    <file>icons/dark/22/graph-x-error.png</file>
+    <file>icons/dark/22/graph-y-error.png</file>
+    <file>icons/dark/22/table-column-sum.png</file>
+    <file>icons/dark/22/table-row-sum.png</file>
 	<file>icons/dark/24/edit-copy.png</file>
 	<file>icons/dark/24/edit-cut.png</file>
 	<file>icons/dark/24/edit-paste.png</file>
@@ -615,6 +639,14 @@
     <file>icons/dark/24/layer-new.png</file>
     <file>icons/dark/24/zoom-in.png</file>
     <file>icons/dark/24/zoom-out.png</file>
+    <file>icons/dark/24/graph-x-error.png</file>
+    <file>icons/dark/24/graph-y-error.png</file>
+    <file>icons/dark/24/table-column-sum.png</file>
+    <file>icons/dark/24/table-row-sum.png</file>
+    <file>icons/dark/32/graph-x-error.png</file>
+    <file>icons/dark/32/graph-y-error.png</file>
+    <file>icons/dark/32/table-column-sum.png</file>
+    <file>icons/dark/32/table-row-sum.png</file>
 	<file>splash/splash.png</file>
 </qresource>
 </RCC>
