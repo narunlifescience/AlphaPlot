@@ -9838,7 +9838,7 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionHelp, SIGNAL(activated()), this, SLOT(showHelp()));
 
 #ifdef DYNAMIC_MANUAL_PATH
-  ui_->actionChooseHelpFolder->setIcon();
+  ui_->actionChooseHelpFolder->setIcon(QIcon());
   connect(ui_->actionChooseHelpFolder, SIGNAL(activated()), this,
           SLOT(chooseHelpFolder()));
 #endif
