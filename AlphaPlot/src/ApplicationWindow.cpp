@@ -7648,7 +7648,15 @@ void ApplicationWindow::chooseHelpFolder() {
 }
 
 void ApplicationWindow::showHelp() {
-  QFile helpFile(helpFilePath);
+  QMessageBox::information(this, tr("AlphaPlot help files not ready yet!"),
+                           tr("AlphaPlot help files not ready yet!") + "<br>" +
+                               tr("Use SciDavis manual for now. The manual can "
+                                  "be downloaded from the following internet "
+                                  "address:") +
+                               "<p><a href = \"" + AlphaPlot::manual_Uri +
+                               "\">" + AlphaPlot::manual_Uri + "</a></p>");
+
+  /*QFile helpFile(helpFilePath);
   if (!helpFile.exists()) {
     QMessageBox::information(
         this, tr("Help Files Not Found!"),
@@ -7668,7 +7676,7 @@ void ApplicationWindow::showHelp() {
   if (!QDesktopServices::openUrl(QUrl(helpFilePath))) {
     QMessageBox::information(this, tr("unable to open index.html!"),
                              tr("<b>index.html</b> file cannot be opened"));
-  }
+  }*/
 }
 
 void ApplicationWindow::showPlotWizard() {

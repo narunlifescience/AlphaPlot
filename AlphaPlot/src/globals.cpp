@@ -39,16 +39,16 @@ const int AlphaPlot::AlphaPlot_versionNo = 00001;
 const char* AlphaPlot::AlphaPlot_version = "0.01A";
 const char* AlphaPlot::extra_version = "-alpha";
 const char* AlphaPlot::release_date = "March 10, 2016";
-const char* AlphaPlot::homepage_Uri = "http://AlphaPlot.sourceforge.net";
+const char* AlphaPlot::homepage_Uri =
+    "https://github.com/narunlifescience/AlphaPlot";
 const char* AlphaPlot::manual_Uri =
-    "http://sourceforge.net/projects/AlphaPlot/files/AlphaPlot%20Documentation/"
-    "0.1/";
+    "https://sourceforge.net/projects/scidavis/files/";
 const char* AlphaPlot::forum_Uri =
-    "http://sourceforge.net/forum/?group_id=199120";
+    "https://github.com/narunlifescience/AlphaPlot/issues/new";
 const char* AlphaPlot::bugreport_Uri =
-    "http://sourceforge.net/tracker/?group_id=199120&atid=968214";
+    "https://github.com/narunlifescience/AlphaPlot/issues/new";
 const char* AlphaPlot::download_Uri =
-    "http://sourceforge.net/projects/AlphaPlot/files/AlphaPlot/";
+    "https://github.com/narunlifescience/AlphaPlot/releases";
 
 int AlphaPlot::version() { return AlphaPlot_versionNo; }
 
