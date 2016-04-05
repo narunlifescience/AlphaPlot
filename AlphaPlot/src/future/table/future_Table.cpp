@@ -1825,7 +1825,7 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
         // copy the sorted column
         col->copy(temp_col, 0, 0, rows);
         delete temp_col;
-      } else if (col->dataType() == AlphaPlot::TypeQString) {
+      } else if (col->dataType() == AlphaPlot::TypeString) {
         int rows = col->rowCount();
         QList<QPair<QString, int> > map;
 
@@ -1850,7 +1850,7 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
         // copy the sorted column
         col->copy(temp_col, 0, 0, rows);
         delete temp_col;
-      } else if (col->dataType() == AlphaPlot::TypeQDateTime) {
+      } else if (col->dataType() == AlphaPlot::TypeDateTime) {
         int rows = col->rowCount();
         QList<QPair<QDateTime, int> > map;
 
@@ -1908,7 +1908,7 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
         cols.at(i)->copy(temp_col, 0, 0, rows);
         delete temp_col;
       }
-    } else if (leading->dataType() == AlphaPlot::TypeQString) {
+    } else if (leading->dataType() == AlphaPlot::TypeString) {
       QList<QPair<QString, int> > map;
       int rows = leading->rowCount();
 
@@ -1935,7 +1935,7 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
         cols.at(i)->copy(temp_col, 0, 0, rows);
         delete temp_col;
       }
-    } else if (leading->dataType() == AlphaPlot::TypeQDateTime) {
+    } else if (leading->dataType() == AlphaPlot::TypeDateTime) {
       QList<QPair<QDateTime, int> > map;
       int rows = leading->rowCount();
 

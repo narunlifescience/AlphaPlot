@@ -52,18 +52,18 @@ ColumnSetModeCmd::~ColumnSetModeCmd() {
     if (d_new_data != d_old_data) {
       if (d_new_type == AlphaPlot::TypeDouble)
         delete static_cast<QVector<double>*>(d_new_data);
-      else if (d_new_type == AlphaPlot::TypeQString)
+      else if (d_new_type == AlphaPlot::TypeString)
         delete static_cast<QStringList*>(d_new_data);
-      else if (d_new_type == AlphaPlot::TypeQDateTime)
+      else if (d_new_type == AlphaPlot::TypeDateTime)
         delete static_cast<QList<QDateTime>*>(d_new_data);
     }
   } else {
     if (d_new_data != d_old_data) {
       if (d_old_type == AlphaPlot::TypeDouble)
         delete static_cast<QVector<double>*>(d_old_data);
-      else if (d_old_type == AlphaPlot::TypeQString)
+      else if (d_old_type == AlphaPlot::TypeString)
         delete static_cast<QStringList*>(d_old_data);
-      else if (d_old_type == AlphaPlot::TypeQDateTime)
+      else if (d_old_type == AlphaPlot::TypeDateTime)
         delete static_cast<QList<QDateTime>*>(d_old_data);
     }
   }
@@ -316,16 +316,16 @@ ColumnClearCmd::~ColumnClearCmd() {
   if (d_undone) {
     if (d_type == AlphaPlot::TypeDouble)
       delete static_cast<QVector<double>*>(d_empty_data);
-    else if (d_type == AlphaPlot::TypeQString)
+    else if (d_type == AlphaPlot::TypeString)
       delete static_cast<QStringList*>(d_empty_data);
-    else if (d_type == AlphaPlot::TypeQDateTime)
+    else if (d_type == AlphaPlot::TypeDateTime)
       delete static_cast<QList<QDateTime>*>(d_empty_data);
   } else {
     if (d_type == AlphaPlot::TypeDouble)
       delete static_cast<QVector<double>*>(d_data);
-    else if (d_type == AlphaPlot::TypeQString)
+    else if (d_type == AlphaPlot::TypeString)
       delete static_cast<QStringList*>(d_data);
-    else if (d_type == AlphaPlot::TypeQDateTime)
+    else if (d_type == AlphaPlot::TypeDateTime)
       delete static_cast<QList<QDateTime>*>(d_data);
   }
 }
@@ -337,10 +337,12 @@ void ColumnClearCmd::redo() {
       case AlphaPlot::TypeDouble:
         d_empty_data = new QVector<double>();
         break;
-      case AlphaPlot::TypeQDateTime:
+      case AlphaPlot::TypeDateTime:
+      case AlphaPlot::TypeDay:
+      case AlphaPlot::TypeMonth:
         d_empty_data = new QList<QDateTime>();
         break;
-      case AlphaPlot::TypeQString:
+      case AlphaPlot::TypeString:
         d_empty_data = new QStringList();
         break;
     }

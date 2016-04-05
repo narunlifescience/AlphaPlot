@@ -291,6 +291,8 @@ void Column::save(QXmlStreamWriter* writer) const {
       break;
 
     case AlphaPlot::TypeDateTime:
+    case AlphaPlot::TypeDay:
+    case AlphaPlot::TypeMonth:
       for (i = 0; i < rowCount(); i++) {
         writer->writeStartElement("row");
         writer->writeAttribute(
@@ -481,6 +483,8 @@ bool Column::XmlReadRow(XmlStreamReader* reader) {
       break;
 
     case AlphaPlot::TypeDateTime:
+    case AlphaPlot::TypeDay:
+    case AlphaPlot::TypeMonth:
       QDateTime date_time =
           QDateTime::fromString(str, "yyyy-dd-MM hh:mm:ss:zzz");
       setDateTimeAt(index, date_time);

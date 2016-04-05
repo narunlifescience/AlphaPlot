@@ -79,7 +79,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
     case AlphaPlot::Text:
       d_input_filter = new SimpleCopyThroughFilter();
       d_output_filter = new SimpleCopyThroughFilter();
-      d_data_type = AlphaPlot::TypeQString;
+      d_data_type = AlphaPlot::TypeString;
       d_data = new QStringList();
       break;
     case AlphaPlot::DateTime:
@@ -87,7 +87,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
       d_output_filter = new DateTime2StringFilter();
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
               SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
-      d_data_type = AlphaPlot::TypeQDateTime;
+      d_data_type = AlphaPlot::TypeDateTime;
       d_data = new QList<QDateTime>();
       break;
     case AlphaPlot::Month:
@@ -96,7 +96,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
       static_cast<DateTime2StringFilter*>(d_output_filter)->setFormat("MMMM");
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
               SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
-      d_data_type = AlphaPlot::TypeQDateTime;
+      d_data_type = AlphaPlot::TypeDateTime;
       d_data = new QList<QDateTime>();
       break;
     case AlphaPlot::Day:
@@ -105,7 +105,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
       static_cast<DateTime2StringFilter*>(d_output_filter)->setFormat("dddd");
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
               SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
-      d_data_type = AlphaPlot::TypeQDateTime;
+      d_data_type = AlphaPlot::TypeDateTime;
       d_data = new QList<QDateTime>();
       break;
   }  // switch(mode)
@@ -183,11 +183,13 @@ Column::Private::~Private() {
       delete static_cast<QVector<double>*>(d_data);
       break;
 
-    case AlphaPlot::TypeQString:
+    case AlphaPlot::TypeString:
       delete static_cast<QStringList*>(d_data);
       break;
 
-    case AlphaPlot::TypeQDateTime:
+    case AlphaPlot::TypeDateTime:
+    case AlphaPlot::TypeDay:
+    case AlphaPlot::TypeMonth:
       delete static_cast<QList<QDateTime>*>(d_data);
       break;
   }  // switch(d_data_type)
@@ -225,7 +227,7 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
               new Column("temp_col", *(static_cast<QVector<qreal>*>(old_data)),
                          d_validity);
           d_data = new QStringList();
-          d_data_type = AlphaPlot::TypeQString;
+          d_data_type = AlphaPlot::TypeString;
           break;
         case AlphaPlot::DateTime:
           if (!filter) {
@@ -236,7 +238,7 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
               new Column("temp_col", *(static_cast<QVector<qreal>*>(old_data)),
                          d_validity);
           d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeQDateTime;
+          d_data_type = AlphaPlot::TypeDateTime;
           break;
         case AlphaPlot::Month:
           if (!filter) {
@@ -247,7 +249,7 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
               new Column("temp_col", *(static_cast<QVector<qreal>*>(old_data)),
                          d_validity);
           d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeQDateTime;
+          d_data_type = AlphaPlot::TypeDateTime;
           break;
         case AlphaPlot::Day:
           if (!filter) {
@@ -258,7 +260,7 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
               new Column("temp_col", *(static_cast<QVector<qreal>*>(old_data)),
                          d_validity);
           d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeQDateTime;
+          d_data_type = AlphaPlot::TypeDateTime;
           break;
       }  // switch(mode)
       break;
@@ -285,7 +287,7 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
           temp_col = new Column(
               "temp_col", *(static_cast<QStringList*>(old_data)), d_validity);
           d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeQDateTime;
+          d_data_type = AlphaPlot::TypeDateTime;
           break;
         case AlphaPlot::Month:
           if (!filter) {
@@ -295,7 +297,7 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
           temp_col = new Column(
               "temp_col", *(static_cast<QStringList*>(old_data)), d_validity);
           d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeQDateTime;
+          d_data_type = AlphaPlot::TypeDateTime;
           break;
         case AlphaPlot::Day:
           if (!filter) {
@@ -305,7 +307,7 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
           temp_col = new Column(
               "temp_col", *(static_cast<QStringList*>(old_data)), d_validity);
           d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeQDateTime;
+          d_data_type = AlphaPlot::TypeDateTime;
           break;
       }  // switch(mode)
       break;
@@ -327,7 +329,7 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
                                 *(static_cast<QList<QDateTime>*>(old_data)),
                                 d_validity);
           d_data = new QStringList();
-          d_data_type = AlphaPlot::TypeQString;
+          d_data_type = AlphaPlot::TypeString;
           break;
         case AlphaPlot::Numeric:
           if (!filter) {
@@ -497,12 +499,14 @@ bool Column::Private::copy(const AbstractColumn* other) {
       for (int i = 0; i < num_rows; i++) ptr[i] = other->valueAt(i);
       break;
     }
-    case AlphaPlot::TypeQString: {
+    case AlphaPlot::TypeString: {
       for (int i = 0; i < num_rows; i++)
         static_cast<QStringList*>(d_data)->replace(i, other->textAt(i));
       break;
     }
-    case AlphaPlot::TypeQDateTime: {
+    case AlphaPlot::TypeDateTime:
+    case AlphaPlot::TypeDay:
+    case AlphaPlot::TypeMonth: {
       for (int i = 0; i < num_rows; i++)
         static_cast<QList<QDateTime>*>(d_data)
             ->replace(i, other->dateTimeAt(i));
@@ -535,12 +539,14 @@ bool Column::Private::copy(const AbstractColumn* source, int source_start,
         ptr[dest_start + i] = source->valueAt(source_start + i);
       break;
     }
-    case AlphaPlot::TypeQString:
+    case AlphaPlot::TypeString:
       for (int i = 0; i < num_rows; i++)
         static_cast<QStringList*>(d_data)
             ->replace(dest_start + i, source->textAt(source_start + i));
       break;
-    case AlphaPlot::TypeQDateTime:
+    case AlphaPlot::TypeDateTime:
+    case AlphaPlot::TypeDay:
+    case AlphaPlot::TypeMonth:
       for (int i = 0; i < num_rows; i++)
         static_cast<QList<QDateTime>*>(d_data)
             ->replace(dest_start + i, source->dateTimeAt(source_start + i));
@@ -569,12 +575,14 @@ bool Column::Private::copy(const Private* other) {
       for (int i = 0; i < num_rows; i++) ptr[i] = other->valueAt(i);
       break;
     }
-    case AlphaPlot::TypeQString: {
+    case AlphaPlot::TypeString: {
       for (int i = 0; i < num_rows; i++)
         static_cast<QStringList*>(d_data)->replace(i, other->textAt(i));
       break;
     }
-    case AlphaPlot::TypeQDateTime: {
+    case AlphaPlot::TypeDateTime:
+    case AlphaPlot::TypeDay:
+    case AlphaPlot::TypeMonth: {
       for (int i = 0; i < num_rows; i++)
         static_cast<QList<QDateTime>*>(d_data)
             ->replace(i, other->dateTimeAt(i));
@@ -607,12 +615,14 @@ bool Column::Private::copy(const Private* source, int source_start,
         ptr[dest_start + i] = source->valueAt(source_start + i);
       break;
     }
-    case AlphaPlot::TypeQString:
+    case AlphaPlot::TypeString:
       for (int i = 0; i < num_rows; i++)
         static_cast<QStringList*>(d_data)
             ->replace(dest_start + i, source->textAt(source_start + i));
       break;
-    case AlphaPlot::TypeQDateTime:
+    case AlphaPlot::TypeDateTime:
+    case AlphaPlot::TypeDay:
+    case AlphaPlot::TypeMonth:
       for (int i = 0; i < num_rows; i++)
         static_cast<QList<QDateTime>*>(d_data)
             ->replace(dest_start + i, source->dateTimeAt(source_start + i));
@@ -631,9 +641,11 @@ int Column::Private::rowCount() const {
   switch (d_data_type) {
     case AlphaPlot::TypeDouble:
       return static_cast<QVector<double>*>(d_data)->size();
-    case AlphaPlot::TypeQDateTime:
+    case AlphaPlot::TypeDateTime:
+    case AlphaPlot::TypeDay:
+    case AlphaPlot::TypeMonth:
       return static_cast<QList<QDateTime>*>(d_data)->size();
-    case AlphaPlot::TypeQString:
+    case AlphaPlot::TypeString:
       return static_cast<QStringList*>(d_data)->size();
   }
 
@@ -648,7 +660,9 @@ void Column::Private::resizeTo(int new_size) {
     case AlphaPlot::TypeDouble:
       static_cast<QVector<double>*>(d_data)->resize(new_size);
       break;
-    case AlphaPlot::TypeQDateTime: {
+    case AlphaPlot::TypeDateTime:
+    case AlphaPlot::TypeDay:
+    case AlphaPlot::TypeMonth: {
       int new_rows = new_size - old_size;
       if (new_rows > 0) {
         for (int i = 0; i < new_rows; i++)
@@ -659,7 +673,7 @@ void Column::Private::resizeTo(int new_size) {
       }
       break;
     }
-    case AlphaPlot::TypeQString: {
+    case AlphaPlot::TypeString: {
       int new_rows = new_size - old_size;
       if (new_rows > 0) {
         for (int i = 0; i < new_rows; i++)
@@ -687,11 +701,13 @@ void Column::Private::insertRows(int before, int count) {
       case AlphaPlot::TypeDouble:
         static_cast<QVector<double>*>(d_data)->insert(before, count, 0.0);
         break;
-      case AlphaPlot::TypeQDateTime:
+      case AlphaPlot::TypeDateTime:
+      case AlphaPlot::TypeDay:
+      case AlphaPlot::TypeMonth:
         for (int i = 0; i < count; i++)
           static_cast<QList<QDateTime>*>(d_data)->insert(before, QDateTime());
         break;
-      case AlphaPlot::TypeQString:
+      case AlphaPlot::TypeString:
         for (int i = 0; i < count; i++)
           static_cast<QStringList*>(d_data)->insert(before, QString());
         break;
@@ -716,11 +732,13 @@ void Column::Private::removeRows(int first, int count) {
       case AlphaPlot::TypeDouble:
         static_cast<QVector<double>*>(d_data)->remove(first, corrected_count);
         break;
-      case AlphaPlot::TypeQDateTime:
+      case AlphaPlot::TypeDateTime:
+      case AlphaPlot::TypeDay:
+      case AlphaPlot::TypeMonth:
         for (int i = 0; i < corrected_count; i++)
           static_cast<QList<QDateTime>*>(d_data)->removeAt(first);
         break;
-      case AlphaPlot::TypeQString:
+      case AlphaPlot::TypeString:
         for (int i = 0; i < corrected_count; i++)
           static_cast<QStringList*>(d_data)->removeAt(first);
         break;
@@ -780,7 +798,7 @@ void Column::Private::setFormula(int row, QString formula) {
 void Column::Private::clearFormulas() { d_formulas.clear(); }
 
 QString Column::Private::textAt(int row) const {
-  if (d_data_type != AlphaPlot::TypeQString) return QString();
+  if (d_data_type != AlphaPlot::TypeString) return QString();
   return static_cast<QStringList*>(d_data)->value(row);
 }
 
@@ -789,7 +807,7 @@ QDate Column::Private::dateAt(int row) const { return dateTimeAt(row).date(); }
 QTime Column::Private::timeAt(int row) const { return dateTimeAt(row).time(); }
 
 QDateTime Column::Private::dateTimeAt(int row) const {
-  if (d_data_type != AlphaPlot::TypeQDateTime) return QDateTime();
+  if (d_data_type != AlphaPlot::TypeDateTime) return QDateTime();
   return static_cast<QList<QDateTime>*>(d_data)->value(row);
 }
 
@@ -799,7 +817,7 @@ double Column::Private::valueAt(int row) const {
 }
 
 void Column::Private::setTextAt(int row, const QString& new_value) {
-  if (d_data_type != AlphaPlot::TypeQString) return;
+  if (d_data_type != AlphaPlot::TypeString) return;
 
   emit d_owner->dataAboutToChange(d_owner);
   if (row >= rowCount()) {
@@ -815,7 +833,7 @@ void Column::Private::setTextAt(int row, const QString& new_value) {
 }
 
 void Column::Private::replaceTexts(int first, const QStringList& new_values) {
-  if (d_data_type != AlphaPlot::TypeQString) return;
+  if (d_data_type != AlphaPlot::TypeString) return;
 
   emit d_owner->dataAboutToChange(d_owner);
   int num_rows = new_values.size();
@@ -830,19 +848,19 @@ void Column::Private::replaceTexts(int first, const QStringList& new_values) {
 }
 
 void Column::Private::setDateAt(int row, const QDate& new_value) {
-  if (d_data_type != AlphaPlot::TypeQDateTime) return;
+  if (d_data_type != AlphaPlot::TypeDateTime) return;
 
   setDateTimeAt(row, QDateTime(new_value, timeAt(row)));
 }
 
 void Column::Private::setTimeAt(int row, const QTime& new_value) {
-  if (d_data_type != AlphaPlot::TypeQDateTime) return;
+  if (d_data_type != AlphaPlot::TypeDateTime) return;
 
   setDateTimeAt(row, QDateTime(dateAt(row), new_value));
 }
 
 void Column::Private::setDateTimeAt(int row, const QDateTime& new_value) {
-  if (d_data_type != AlphaPlot::TypeQDateTime) return;
+  if (d_data_type != AlphaPlot::TypeDateTime) return;
 
   emit d_owner->dataAboutToChange(d_owner);
   if (row >= rowCount()) {
@@ -859,7 +877,7 @@ void Column::Private::setDateTimeAt(int row, const QDateTime& new_value) {
 
 void Column::Private::replaceDateTimes(int first,
                                        const QList<QDateTime>& new_values) {
-  if (d_data_type != AlphaPlot::TypeQDateTime) return;
+  if (d_data_type != AlphaPlot::TypeDateTime) return;
 
   emit d_owner->dataAboutToChange(d_owner);
   int num_rows = new_values.size();
