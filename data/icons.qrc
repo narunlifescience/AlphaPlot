@@ -312,6 +312,9 @@
     <file>icons/light/16/graph3d-cone.png</file>
     <file>icons/light/16/graph3d-cross.png</file>
     <file>icons/light/16/graph3d-point-mesh.png</file>
+    <file>icons/light/16/graph3d-floor.png</file>
+    <file>icons/light/16/graph3d-isoline.png</file>
+    <file>icons/light/16/graph3d-no-floor.png</file>
 	<file>icons/light/22/edit-copy.png</file>
 	<file>icons/light/22/edit-cut.png</file>
 	<file>icons/light/22/edit-paste.png</file>
@@ -389,6 +392,9 @@
     <file>icons/light/22/graph3d-mesh.png</file>
     <file>icons/light/22/graph3d-polygon-mesh.png</file>
     <file>icons/light/22/graph3d-polygon.png</file>
+    <file>icons/light/22/graph3d-floor.png</file>
+    <file>icons/light/22/graph3d-isoline.png</file>
+    <file>icons/light/22/graph3d-no-floor.png</file>
 	<file>icons/light/24/edit-copy.png</file>
 	<file>icons/light/24/edit-cut.png</file>
 	<file>icons/light/24/edit-paste.png</file>
@@ -465,6 +471,9 @@
     <file>icons/light/24/graph3d-mesh.png</file>
     <file>icons/light/24/graph3d-polygon-mesh.png</file>
     <file>icons/light/24/graph3d-polygon.png</file>
+    <file>icons/light/24/graph3d-floor.png</file>
+    <file>icons/light/24/graph3d-isoline.png</file>
+    <file>icons/light/24/graph3d-no-floor.png</file>
     <file>icons/light/32/graph-x-error.png</file>
     <file>icons/light/32/graph-y-error.png</file>
     <file>icons/light/32/table-column-sum.png</file>
@@ -542,6 +551,9 @@
     <file>icons/dark/16/graph3d-cone.png</file>
     <file>icons/dark/16/graph3d-cross.png</file>
     <file>icons/dark/16/graph3d-point-mesh.png</file>
+    <file>icons/dark/16/graph3d-floor.png</file>
+    <file>icons/dark/16/graph3d-isoline.png</file>
+    <file>icons/dark/16/graph3d-no-floor.png</file>
 	<file>icons/dark/22/edit-copy.png</file>
 	<file>icons/dark/22/edit-cut.png</file>
 	<file>icons/dark/22/edit-paste.png</file>
@@ -619,6 +631,9 @@
     <file>icons/dark/22/graph3d-mesh.png</file>
     <file>icons/dark/22/graph3d-polygon-mesh.png</file>
     <file>icons/dark/22/graph3d-polygon.png</file>
+    <file>icons/dark/22/graph3d-floor.png</file>
+    <file>icons/dark/22/graph3d-isoline.png</file>
+    <file>icons/dark/22/graph3d-no-floor.png</file>
 	<file>icons/dark/24/edit-copy.png</file>
 	<file>icons/dark/24/edit-cut.png</file>
 	<file>icons/dark/24/edit-paste.png</file>
@@ -695,6 +710,9 @@
     <file>icons/dark/24/graph3d-mesh.png</file>
     <file>icons/dark/24/graph3d-polygon-mesh.png</file>
     <file>icons/dark/24/graph3d-polygon.png</file>
+    <file>icons/dark/24/graph3d-floor.png</file>
+    <file>icons/dark/24/graph3d-isoline.png</file>
+    <file>icons/dark/24/graph3d-no-floor.png</file>
     <file>icons/dark/32/graph-x-error.png</file>
     <file>icons/dark/32/graph-y-error.png</file>
     <file>icons/dark/32/table-column-sum.png</file>

@@ -646,6 +646,7 @@ void ApplicationWindow::initToolBars() {
   statusBar()->addWidget(d_status_info, 1);
 
   matrix_plot_tools->setObjectName("matrix_plot_tools");
+  matrix_plot_tools->setIconSize(QSize(24, 24));
   addToolBar(Qt::BottomToolBarArea, matrix_plot_tools);
 
   ui_->action3DWireFrame->addTo(matrix_plot_tools);
@@ -8188,7 +8189,7 @@ void ApplicationWindow::custom3DGrids(int grids) {
 void ApplicationWindow::initPlot3DToolBar() {
   graph_3D_tools->setObjectName(
       "graph_3D_tools");  // this is needed for QMainWindow::restoreState()
-  graph_3D_tools->setIconSize(QSize(20, 20));
+  graph_3D_tools->setIconSize(QSize(24, 24));
   addToolBarBreak(Qt::TopToolBarArea);
   addToolBar(Qt::TopToolBarArea, graph_3D_tools);
 
@@ -8326,13 +8327,13 @@ void ApplicationWindow::initPlot3DToolBar() {
   floorstyle = new QActionGroup(this);
   floordata = new QAction(floorstyle);
   floordata->setCheckable(true);
-  floordata->setIcon(QIcon(QPixmap(":/floor.xpm")));
+  floordata->setIcon(IconLoader::load("graph3d-floor", IconLoader::LightDark));
   flooriso = new QAction(floorstyle);
   flooriso->setCheckable(true);
-  flooriso->setIcon(QIcon(QPixmap(":/isolines.xpm")));
+  flooriso->setIcon(IconLoader::load("graph3d-isoline", IconLoader::LightDark));
   floornone = new QAction(floorstyle);
   floornone->setCheckable(true);
-  floornone->setIcon(QIcon(QPixmap(":/no_floor.xpm")));
+  floornone->setIcon(IconLoader::load("graph3d-no-floor", IconLoader::LightDark));
 
   graph_3D_tools->addAction(floordata);
   graph_3D_tools->addAction(flooriso);
