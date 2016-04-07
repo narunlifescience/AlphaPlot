@@ -79,10 +79,18 @@ QIcon IconLoader::load(const QString& name, const IconMode& iconMode) {
       // Then check if an svg file is available
       if (QFile::exists(filename_custom_svg)) {
         ret.addFile(filename_custom_svg, QSize(sizes_.at(i), sizes_.at(i)));
+      } else {
+        const QString filename_custom_xpm(
+            locate.arg(sizes_.at(i)).arg(name).arg("xpm"));
+        // Then check if an xpm file is available
+        if (QFile::exists(filename_custom_xpm)) {
+          ret.addFile(filename_custom_xpm, QSize(sizes_.at(i), sizes_.at(i)));
+        }
       }
     }
   }
 
+  // if no icons are found, then...
   if (ret.isNull()) {
     qDebug() << "Couldn't load icon" << name;
   }

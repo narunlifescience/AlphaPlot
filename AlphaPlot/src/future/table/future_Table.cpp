@@ -1004,14 +1004,11 @@ void Table::createActions() {
   actionManager()->addAction(action_fill_random, "fill_random");
 
   // table related actions
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/table_header.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/table_header.png"));
   action_toggle_comments =
-      new QAction(*icon_temp, QString("Show/Hide comments"),
+      new QAction(IconLoader::load("table-show-comment", IconLoader::LightDark),
+                  QString("Show/Hide comments"),
                   this);  // show/hide column comments
   actionManager()->addAction(action_toggle_comments, "toggle_comments");
-  delete icon_temp;
 
   icon_temp = new QIcon();
   icon_temp->addPixmap(QPixmap(":/16x16/table_options.png"));

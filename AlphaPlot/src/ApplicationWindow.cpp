@@ -8194,15 +8194,15 @@ void ApplicationWindow::initPlot3DToolBar() {
 
   coord = new QActionGroup(this);
   Box = new QAction(coord);
-  Box->setIcon(QIcon(QPixmap(":/box.xpm")));
+  Box->setIcon(IconLoader::load("graph3d-box-axis", IconLoader::LightDark));
   Box->setCheckable(true);
 
   Frame = new QAction(coord);
-  Frame->setIcon(QIcon(QPixmap(":/free_axes.xpm")));
+  Frame->setIcon(IconLoader::load("graph3d-free-axis", IconLoader::LightDark));
   Frame->setCheckable(true);
 
   None = new QAction(coord);
-  None->setIcon(QIcon(QPixmap(":/no_axes.xpm")));
+  None->setIcon(IconLoader::load("graph3d-no-axis", IconLoader::LightDark));
   None->setCheckable(true);
 
   graph_3D_tools->addAction(Frame);
@@ -8218,22 +8218,22 @@ void ApplicationWindow::initPlot3DToolBar() {
   grids->setExclusive(false);
   front = new QAction(grids);
   front->setCheckable(true);
-  front->setIcon(QIcon(QPixmap(":/frontGrid.xpm")));
+  front->setIcon(IconLoader::load("graph3d-front-grid", IconLoader::LightDark));
   back = new QAction(grids);
   back->setCheckable(true);
-  back->setIcon(QIcon(QPixmap(":/backGrid.xpm")));
+  back->setIcon(IconLoader::load("graph3d-back-grid", IconLoader::LightDark));
   right = new QAction(grids);
   right->setCheckable(true);
-  right->setIcon(QIcon(QPixmap(":/leftGrid.xpm")));
+  right->setIcon(IconLoader::load("graph3d-left-grid", IconLoader::LightDark));
   left = new QAction(grids);
   left->setCheckable(true);
-  left->setIcon(QIcon(QPixmap(":/rightGrid.xpm")));
+  left->setIcon(IconLoader::load("graph3d-right-grid", IconLoader::LightDark));
   ceil = new QAction(grids);
   ceil->setCheckable(true);
-  ceil->setIcon(QIcon(QPixmap(":/ceilGrid.xpm")));
+  ceil->setIcon(IconLoader::load("graph3d-top-grid", IconLoader::LightDark));
   floor = new QAction(grids);
   floor->setCheckable(true);
-  floor->setIcon(QIcon(QPixmap(":/floorGrid.xpm")));
+  floor->setIcon(IconLoader::load("graph3d-floor-grid", IconLoader::LightDark));
 
   graph_3D_tools->addAction(front);
   graph_3D_tools->addAction(back);
@@ -8246,7 +8246,8 @@ void ApplicationWindow::initPlot3DToolBar() {
 
   actionPerspective = new QAction(this);
   actionPerspective->setToggleAction(TRUE);
-  actionPerspective->setIconSet(QPixmap(":/perspective.xpm"));
+  actionPerspective->setIconSet(
+      IconLoader::load("graph3d-perspective-view", IconLoader::LightDark));
   actionPerspective->addTo(graph_3D_tools);
   actionPerspective->setOn(!orthogonal3DPlots);
   connect(actionPerspective, SIGNAL(toggled(bool)), this,
@@ -8254,14 +8255,16 @@ void ApplicationWindow::initPlot3DToolBar() {
 
   actionResetRotation = new QAction(this);
   actionResetRotation->setToggleAction(false);
-  actionResetRotation->setIconSet(QPixmap(":/reset_rotation.xpm"));
+  actionResetRotation->setIconSet(
+      IconLoader::load("graph3d-reset-rotation", IconLoader::LightDark));
   actionResetRotation->addTo(graph_3D_tools);
   connect(actionResetRotation, SIGNAL(activated()), this,
           SLOT(resetRotation()));
 
   actionFitFrame = new QAction(this);
   actionFitFrame->setToggleAction(false);
-  actionFitFrame->setIconSet(QPixmap(":/fit_frame.xpm"));
+  actionFitFrame->setIconSet(
+      IconLoader::load("graph3d-fit-frame", IconLoader::LightDark));
   actionFitFrame->addTo(graph_3D_tools);
   connect(actionFitFrame, SIGNAL(activated()), this, SLOT(fitFrameToLayer()));
 
@@ -8272,33 +8275,37 @@ void ApplicationWindow::initPlot3DToolBar() {
   wireframe = new QAction(plotstyle);
   wireframe->setCheckable(true);
   wireframe->setEnabled(true);
-  wireframe->setIcon(QIcon(QPixmap(":/lineMesh.xpm")));
+  wireframe->setIcon(
+      IconLoader::load("graph3d-hidden-line", IconLoader::LightDark));
   hiddenline = new QAction(plotstyle);
   hiddenline->setCheckable(true);
   hiddenline->setEnabled(true);
-  hiddenline->setIcon(QIcon(QPixmap(":/grid_only.xpm")));
+  hiddenline->setIcon(IconLoader::load("graph3d-mesh", IconLoader::LightDark));
   polygon = new QAction(plotstyle);
   polygon->setCheckable(true);
   polygon->setEnabled(true);
-  polygon->setIcon(QIcon(QPixmap(":/no_grid.xpm")));
+  polygon->setIcon(IconLoader::load("graph3d-polygon", IconLoader::LightDark));
   filledmesh = new QAction(plotstyle);
   filledmesh->setCheckable(true);
-  filledmesh->setIcon(QIcon(QPixmap(":/grid_poly.xpm")));
+  filledmesh->setIcon(
+      IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
   pointstyle = new QAction(plotstyle);
   pointstyle->setCheckable(true);
-  pointstyle->setIcon(QIcon(QPixmap(":/pointsMesh.xpm")));
+  pointstyle->setIcon(
+      IconLoader::load("graph3d-point-mesh", IconLoader::LightDark));
 
   conestyle = new QAction(plotstyle);
   conestyle->setCheckable(true);
-  conestyle->setIcon(QIcon(QPixmap(":/cones.xpm")));
+  conestyle->setIcon(IconLoader::load("graph3d-cone", IconLoader::LightDark));
 
   crossHairStyle = new QAction(plotstyle);
   crossHairStyle->setCheckable(true);
-  crossHairStyle->setIcon(QIcon(QPixmap(":/crosses.xpm")));
+  crossHairStyle->setIcon(
+      IconLoader::load("graph3d-cross", IconLoader::LightDark));
 
   barstyle = new QAction(plotstyle);
   barstyle->setCheckable(true);
-  barstyle->setIcon(QIcon(QPixmap(":/plot_bars.xpm")));
+  barstyle->setIcon(IconLoader::load("graph3d-bar", IconLoader::LightDark));
 
   graph_3D_tools->addAction(barstyle);
   graph_3D_tools->addAction(pointstyle);
@@ -9454,7 +9461,8 @@ void ApplicationWindow::createActions() {
       IconLoader::load("lock", IconLoader::LightDark));
   ui_->actionShowExplorer->setIcon(
       IconLoader::load("folder-explorer", IconLoader::LightDark));
-  ui_->actionShowResultsLog->setIcon(QPixmap(":/log.xpm"));
+  ui_->actionShowResultsLog->setIcon(
+      IconLoader::load("view-console", IconLoader::LightDark));
 #ifdef SCRIPTING_CONSOLE
   ui_->actionShowConsole->setIcon(QIcon());
 #endif
@@ -9706,7 +9714,8 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionPlot3DRibbon, SIGNAL(activated()), this,
           SLOT(plot3DRibbon()));
 
-  ui_->actionPlot3DBar->setIcon(QIcon(QPixmap(":/bars.xpm")));
+  ui_->actionPlot3DBar->setIcon(
+      IconLoader::load("graph3d-bar", IconLoader::LightDark));
   connect(ui_->actionPlot3DBar, SIGNAL(activated()), this, SLOT(plot3DBars()));
 
   ui_->actionPlot3DScatter->setIcon(QIcon(QPixmap(":/scatter.xpm")));
@@ -9844,6 +9853,7 @@ void ApplicationWindow::createActions() {
 #endif
 
   actionRename = new QAction(tr("&Rename Window"), this);
+  actionRename->setIcon(IconLoader::load("edit-rename", IconLoader::LightDark));
   connect(actionRename, SIGNAL(activated()), this, SLOT(renameActiveWindow()));
 
   actionCloseWindow =
@@ -9943,23 +9953,28 @@ void ApplicationWindow::createActions() {
   connect(actionConvertTable, SIGNAL(activated()), this,
           SLOT(convertTableToMatrix()));
 
-  ui_->action3DWireFrame->setIcon(QIcon(QPixmap(":/lineMesh.xpm")));
+  ui_->action3DWireFrame->setIcon(
+      IconLoader::load("graph3d-hidden-line", IconLoader::LightDark));
   connect(ui_->action3DWireFrame, SIGNAL(activated()), this,
           SLOT(plot3DWireframe()));
 
-  ui_->action3DHiddenLine->setIcon(QIcon(QPixmap(":/grid_only.xpm")));
+  ui_->action3DHiddenLine->setIcon(
+      IconLoader::load("graph3d-mesh", IconLoader::LightDark));
   connect(ui_->action3DHiddenLine, SIGNAL(activated()), this,
           SLOT(plot3DHiddenLine()));
 
-  ui_->action3DPolygons->setIcon(QIcon(QPixmap(":/no_grid.xpm")));
+  ui_->action3DPolygons->setIcon(
+      IconLoader::load("graph3d-polygon", IconLoader::LightDark));
   connect(ui_->action3DPolygons, SIGNAL(activated()), this,
           SLOT(plot3DPolygons()));
 
-  ui_->action3DWireSurface->setIcon(QIcon(QPixmap(":/grid_poly.xpm")));
+  ui_->action3DWireSurface->setIcon(
+      IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
   connect(ui_->action3DWireSurface, SIGNAL(activated()), this,
           SLOT(plot3DWireSurface()));
 
-  ui_->action3DBar->setIcon(QIcon(QPixmap(":/bars.xpm")));
+  ui_->action3DBar->setIcon(
+      IconLoader::load("graph3d-bar", IconLoader::LightDark));
   connect(ui_->action3DBar, SIGNAL(activated()), ui_->actionPlot3DBar,
           SIGNAL(activated()));
 

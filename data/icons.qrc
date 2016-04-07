@@ -306,6 +306,12 @@
     <file>icons/light/16/graph-y-error.png</file>
     <file>icons/light/16/table-column-sum.png</file>
     <file>icons/light/16/table-row-sum.png</file>
+    <file>icons/light/16/edit-rename.png</file>
+    <file>icons/light/16/table-show-comment.png</file>
+    <file>icons/light/16/view-console.png</file>
+    <file>icons/light/16/graph3d-cone.png</file>
+    <file>icons/light/16/graph3d-cross.png</file>
+    <file>icons/light/16/graph3d-point-mesh.png</file>
 	<file>icons/light/22/edit-copy.png</file>
 	<file>icons/light/22/edit-cut.png</file>
 	<file>icons/light/22/edit-paste.png</file>
@@ -373,6 +379,16 @@
     <file>icons/light/22/graph-y-error.png</file>
     <file>icons/light/22/table-column-sum.png</file>
     <file>icons/light/22/table-row-sum.png</file>
+    <file>icons/light/22/edit-rename.png</file>
+    <file>icons/light/22/table-show-comment.png</file>
+    <file>icons/light/22/view-console.png</file>
+    <file>icons/light/22/graph3d-cone.png</file>
+    <file>icons/light/22/graph3d-cross.png</file>
+    <file>icons/light/22/graph3d-point-mesh.png</file>
+    <file>icons/light/22/graph3d-hidden-line.png</file>
+    <file>icons/light/22/graph3d-mesh.png</file>
+    <file>icons/light/22/graph3d-polygon-mesh.png</file>
+    <file>icons/light/22/graph3d-polygon.png</file>
 	<file>icons/light/24/edit-copy.png</file>
 	<file>icons/light/24/edit-cut.png</file>
 	<file>icons/light/24/edit-paste.png</file>
@@ -439,6 +455,16 @@
     <file>icons/light/24/graph-y-error.png</file>
     <file>icons/light/24/table-column-sum.png</file>
     <file>icons/light/24/table-row-sum.png</file>
+    <file>icons/light/24/edit-rename.png</file>
+    <file>icons/light/24/table-show-comment.png</file>
+    <file>icons/light/24/view-console.png</file>
+    <file>icons/light/24/graph3d-cone.png</file>
+    <file>icons/light/24/graph3d-cross.png</file>
+    <file>icons/light/24/graph3d-point-mesh.png</file>
+    <file>icons/light/24/graph3d-hidden-line.png</file>
+    <file>icons/light/24/graph3d-mesh.png</file>
+    <file>icons/light/24/graph3d-polygon-mesh.png</file>
+    <file>icons/light/24/graph3d-polygon.png</file>
     <file>icons/light/32/graph-x-error.png</file>
     <file>icons/light/32/graph-y-error.png</file>
     <file>icons/light/32/table-column-sum.png</file>
@@ -510,6 +536,12 @@
     <file>icons/dark/16/graph-y-error.png</file>
     <file>icons/dark/16/table-column-sum.png</file>
     <file>icons/dark/16/table-row-sum.png</file>
+    <file>icons/dark/16/edit-rename.png</file>
+    <file>icons/dark/16/table-show-comment.png</file>
+    <file>icons/dark/16/view-console.png</file>
+    <file>icons/dark/16/graph3d-cone.png</file>
+    <file>icons/dark/16/graph3d-cross.png</file>
+    <file>icons/dark/16/graph3d-point-mesh.png</file>
 	<file>icons/dark/22/edit-copy.png</file>
 	<file>icons/dark/22/edit-cut.png</file>
 	<file>icons/dark/22/edit-paste.png</file>
@@ -577,6 +609,16 @@
     <file>icons/dark/22/graph-y-error.png</file>
     <file>icons/dark/22/table-column-sum.png</file>
     <file>icons/dark/22/table-row-sum.png</file>
+    <file>icons/dark/22/edit-rename.png</file>
+    <file>icons/dark/22/table-show-comment.png</file>
+    <file>icons/dark/22/view-console.png</file>
+    <file>icons/dark/22/graph3d-cone.png</file>
+    <file>icons/dark/22/graph3d-cross.png</file>
+    <file>icons/dark/22/graph3d-point-mesh.png</file>
+    <file>icons/dark/22/graph3d-hidden-line.png</file>
+    <file>icons/dark/22/graph3d-mesh.png</file>
+    <file>icons/dark/22/graph3d-polygon-mesh.png</file>
+    <file>icons/dark/22/graph3d-polygon.png</file>
 	<file>icons/dark/24/edit-copy.png</file>
 	<file>icons/dark/24/edit-cut.png</file>
 	<file>icons/dark/24/edit-paste.png</file>
@@ -643,10 +685,46 @@
     <file>icons/dark/24/graph-y-error.png</file>
     <file>icons/dark/24/table-column-sum.png</file>
     <file>icons/dark/24/table-row-sum.png</file>
+    <file>icons/dark/24/edit-rename.png</file>
+    <file>icons/dark/24/table-show-comment.png</file>
+    <file>icons/dark/24/view-console.png</file>
+    <file>icons/dark/24/graph3d-cone.png</file>
+    <file>icons/dark/24/graph3d-cross.png</file>
+    <file>icons/dark/24/graph3d-point-mesh.png</file>
+    <file>icons/dark/24/graph3d-hidden-line.png</file>
+    <file>icons/dark/24/graph3d-mesh.png</file>
+    <file>icons/dark/24/graph3d-polygon-mesh.png</file>
+    <file>icons/dark/24/graph3d-polygon.png</file>
     <file>icons/dark/32/graph-x-error.png</file>
     <file>icons/dark/32/graph-y-error.png</file>
     <file>icons/dark/32/table-column-sum.png</file>
     <file>icons/dark/32/table-row-sum.png</file>
+    <file>icons/light/16/graph3d-back-grid.xpm</file>
+    <file>icons/light/16/graph3d-box-axis.xpm</file>
+    <file>icons/light/16/graph3d-fit-frame.xpm</file>
+    <file>icons/light/16/graph3d-floor-grid.xpm</file>
+    <file>icons/light/16/graph3d-free-axis.xpm</file>
+    <file>icons/light/16/graph3d-front-grid.xpm</file>
+    <file>icons/light/16/graph3d-left-grid.xpm</file>
+    <file>icons/light/16/graph3d-no-axis.xpm</file>
+    <file>icons/light/16/graph3d-perspective-view.xpm</file>
+    <file>icons/light/16/graph3d-reset-rotation.xpm</file>
+    <file>icons/light/16/graph3d-right-grid.xpm</file>
+    <file>icons/light/16/graph3d-top-grid.xpm</file>
+    <file>icons/light/16/graph3d-bar.xpm</file>
+    <file>icons/dark/16/graph3d-back-grid.xpm</file>
+    <file>icons/dark/16/graph3d-box-axis.xpm</file>
+    <file>icons/dark/16/graph3d-fit-frame.xpm</file>
+    <file>icons/dark/16/graph3d-floor-grid.xpm</file>
+    <file>icons/dark/16/graph3d-free-axis.xpm</file>
+    <file>icons/dark/16/graph3d-front-grid.xpm</file>
+    <file>icons/dark/16/graph3d-left-grid.xpm</file>
+    <file>icons/dark/16/graph3d-no-axis.xpm</file>
+    <file>icons/dark/16/graph3d-perspective-view.xpm</file>
+    <file>icons/dark/16/graph3d-reset-rotation.xpm</file>
+    <file>icons/dark/16/graph3d-right-grid.xpm</file>
+    <file>icons/dark/16/graph3d-top-grid.xpm</file>
+    <file>icons/dark/16/graph3d-bar.xpm</file>
 	<file>splash/splash.png</file>
 </qresource>
 </RCC>
