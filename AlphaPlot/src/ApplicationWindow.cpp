@@ -2427,7 +2427,7 @@ Table *ApplicationWindow::convertMatrixToTable() {
 }
 
 void ApplicationWindow::initMatrix(Matrix *matrix) {
-  matrix->setIcon(QPixmap(":/matrix.xpm"));
+  matrix->setIcon(IconLoader::load("matrix", IconLoader::LightDark).pixmap(16));
   matrix->askOnCloseEvent(confirmCloseMatrix);
   matrix->setNumericFormat(d_default_numeric_format, d_decimal_digits);
   matrix->setFolder(current_folder);
@@ -9416,7 +9416,8 @@ void ApplicationWindow::createActions() {
       IconLoader::load("edit-note", IconLoader::LightDark));
   ui_->actionNewTable->setIcon(
       IconLoader::load("table", IconLoader::LightDark));
-  ui_->actionNewMatrix->setIcon(QIcon(QPixmap(":/new_matrix.xpm")));
+  ui_->actionNewMatrix->setIcon(
+      IconLoader::load("matrix", IconLoader::LightDark));
   ui_->actionNewFunctionPlot->setIcon(QIcon(QPixmap(":/newF.xpm")));
   ui_->actionNew3DSurfacePlot->setIcon(QIcon(QPixmap(":/newFxy.xpm")));
   ui_->actionOpenAproj->setIcon(
@@ -9719,7 +9720,8 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionPanelStackedLayers, SIGNAL(activated()), this,
           SLOT(plotStackedLayers()));
 
-  ui_->actionPlot3DRibbon->setIcon(IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
+  ui_->actionPlot3DRibbon->setIcon(
+      IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
   connect(ui_->actionPlot3DRibbon, SIGNAL(activated()), this,
           SLOT(plot3DRibbon()));
 
@@ -9727,11 +9729,13 @@ void ApplicationWindow::createActions() {
       IconLoader::load("graph3d-bar", IconLoader::LightDark));
   connect(ui_->actionPlot3DBar, SIGNAL(activated()), this, SLOT(plot3DBars()));
 
-  ui_->actionPlot3DScatter->setIcon(IconLoader::load("graph3d-scatter", IconLoader::LightDark));
+  ui_->actionPlot3DScatter->setIcon(
+      IconLoader::load("graph3d-scatter", IconLoader::LightDark));
   connect(ui_->actionPlot3DScatter, SIGNAL(activated()), this,
           SLOT(plot3DScatter()));
 
-  ui_->actionPlot3DTrajectory->setIcon(IconLoader::load("graph3d-trajectory", IconLoader::LightDark));
+  ui_->actionPlot3DTrajectory->setIcon(
+      IconLoader::load("graph3d-trajectory", IconLoader::LightDark));
   connect(ui_->actionPlot3DTrajectory, SIGNAL(activated()), this,
           SLOT(plot3DTrajectory()));
 
@@ -11722,7 +11726,8 @@ void ApplicationWindow::addListViewItem(MyWidget *w) {
 
   WindowListItem *it = new WindowListItem(lv, w);
   if (w->inherits("Matrix")) {
-    it->setPixmap(0, QPixmap(":/matrix.xpm"));
+    it->setPixmap(0,
+                  IconLoader::load("matrix", IconLoader::LightDark).pixmap(16));
     it->setText(1, tr("Matrix"));
   } else if (w->inherits("Table")) {
     it->setPixmap(0,
@@ -11763,7 +11768,8 @@ void ApplicationWindow::windowProperties() {
   s += tr("Label") + ": " + ((MyWidget *)w)->windowLabel() + "\n\n";
 
   if (w->inherits("Matrix")) {
-    mbox->setIconPixmap(QPixmap(":/matrix.xpm"));
+    mbox->setIconPixmap(
+        IconLoader::load("matrix", IconLoader::LightDark).pixmap(16));
     s += tr("Type") + ": " + tr("Matrix") + "\n\n";
   } else if (w->inherits("Table")) {
     mbox->setIconPixmap(

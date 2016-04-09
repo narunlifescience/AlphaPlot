@@ -1086,12 +1086,10 @@ void Table::createActions() {
   actionManager()->addAction(action_insert_columns, "insert_columns");
   delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/remove_column.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/remove_column.png"));
-  action_remove_columns = new QAction(*icon_temp, tr("Remo&ve Columns"), this);
+  action_remove_columns = new QAction(
+      IconLoader::load("edit-table-delete-column", IconLoader::LightDark),
+      tr("Remo&ve Columns"), this);
   actionManager()->addAction(action_remove_columns, "remove_columns");
-  delete icon_temp;
 
   icon_temp = new QIcon();
   icon_temp->addPixmap(QPixmap(":/16x16/clear_column.png"));
@@ -1100,12 +1098,10 @@ void Table::createActions() {
   actionManager()->addAction(action_clear_columns, "clear_columns");
   delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/add_columns.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/add_columns.png"));
-  action_add_columns = new QAction(*icon_temp, tr("&Add Columns"), this);
+  action_add_columns = new QAction(
+      IconLoader::load("edit-table-insert-column-right", IconLoader::LightDark),
+      tr("&Add Columns"), this);
   actionManager()->addAction(action_add_columns, "add_columns");
-  delete icon_temp;
 
   action_set_as_x =
       new QAction(QIcon(QPixmap()), tr("X", "plot designation"), this);

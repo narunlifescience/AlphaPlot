@@ -60,6 +60,69 @@ In order to compile AlphaPlot, you need to install the following libraries:
 9.  Download the source code of muParser from [http://sourceforge.net/project/showfiles.php?group_id=137191](http://sourceforge.net/project/showfiles.php?group_id=137191) and unpack it into the 3rdparty subfolder of the AlphaPlot package. Rename the "muparser_vxyz" directory that gets created to "muparser".
 10.  Open the start menu, find the folder created by the Qt SDK and start a "Qt Command Prompt". Execute "cd <directory containing AlphaPlot sources>", then "build". AlphaPlot and its dependencies should be built automatically and installed into the directory "output".
 
+## Windows(cross compile on linux using MXE)
+
+MXE is a version of MinGW that has been compiled on Linux and acts as a cross-compilation environment targeting the Windows operating system. More details can be found at http://mxe.cc/
+
+1. Install all dependencies required for MXE according to your linux distro as described here http://mxe.cc/#requirements
+2. download current version of MXE(lets use the home directory $HOME)
+
+    cd ~
+    git clone https://github.com/mxe/mxe.git
+    cd mxe
+
+3. Install dependencies required by Alphaplot(this may take some time)
+
+    make qt gsl zlib muparser
+
+4. Create a symbolic link of MXE version of qmake(qt4) & minGW and copy it to /bin directory     
+Note:Qt 4 is in the "qt" subdirectory. Qt 5 is in the "qt5" subdirectory (use QT4)
+
+    sudo ln -sf ~/mxe/usr/i686-w64-mingw32.static/qt/bin/qmake /bin/mxe-qmake-qt4
+    sudo ln -sf ~/mxe/usr/BIN/i686-w64-mingw32.static-g++ /bin/i686-w64-mingw32.static-g++
+    sudo ln -sf ~/mxe/usr/BIN/i686-w64-mingw32.static-gcc-ar /bin/i686-w64-mingw32.static-gcc-ar
+
+5. download QWT5 sources from https://sourceforge.net/projects/qwt/files/qwt/5.2.1/, unpack, edit qwtconfig.pri & comment out the following lines:
+
+    #CONFIG += thread
+    #CONFIG += QwtDll
+
+6. open terminal, get in to qwt5 directory & start build
+
+    mxe-qmake-qt4
+    make
+
+7. download qwtplot3d sources from https://sourceforge.net/projects/qwtplot3d/, unpack, edit qwtplot3d.pro & comment out the following lines:
+
+    #win32:TEMPLATE    = vclib
+    #win32:CONFIG     += dll exceptions
+    #win32:dll:DEFINES    += QT_DLL QWT3D_DLL QWT3D_MAKEDLL
+
+Note: patches may be required.. for eg arch based systems may need https://projects.archlinux.org/svntogit/packages.git/tree/trunk/qwtplot3d-gcc44.patch?h=packages/qwtplot3d & https://projects.archlinux.org/svntogit/packages.git/tree/trunk/qwtplot3d-qt-4.8.0.patch?h=packages/qwtplot3d
+
+8. open terminal, get in to qwtplot3d directory & start build
+
+    mxe-qmake-qt4
+    make
+
+9. download latest sources of AlphaPlot(lets use the home directory $HOME)
+
+    cd ~
+    git clone https://github.com/narunlifescience/AlphaPlot.git
+
+10. create include & lib directory inside ~/AlphaPlot/3rdparty/
+11. copy contents of src directory(only *.h files) inside qwtplot3d to ~/AlphaPlot/3rdparty/include
+12. copy contents of include directory inside qwtplot3d to ~/AlphaPlot/3rdparty/include
+13. copy lib/libqwt.a inside qwt to ~/AlphaPlot/3rdparty/lib
+14. copy lib/libqwtplot3d.a inside qwtplot3d to ~/AlphaPlot/3rdparty/lib
+15. now we can build AlphaPlot
+    
+    cd ~/AlphaPlot
+    mxe-qmake-qt4
+    make
+
+After build process you will get AlphaPlot.exe inside ~/AlphaPlot/AlphaPlot directory...
+
 ## Mac OS X
 
 These instructions where kindly provided by Yu-Hung Lien.

@@ -15,7 +15,7 @@ Compile and install:
     make 
     sudo make install
 
-For Windows/OSX see [data/INSTALL.md](INSTALL.md)
+For Windows/OSX see [installation notes](data/INSTALL.md)
 
 
 Opening an issue
