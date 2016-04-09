@@ -478,6 +478,17 @@
     <file>icons/light/32/graph-y-error.png</file>
     <file>icons/light/32/table-column-sum.png</file>
     <file>icons/light/32/table-row-sum.png</file>
+    <file>icons/light/32/graph2d-area.png</file>
+    <file>icons/light/32/graph2d-box.png</file>
+    <file>icons/light/32/graph2d-horizontal-bar.png</file>
+    <file>icons/light/32/graph2d-line.png</file>
+    <file>icons/light/32/graph2d-pie.png</file>
+    <file>icons/light/32/graph2d-vector.png</file>
+    <file>icons/light/32/graph2d-vertical-bar.png</file>
+    <file>icons/light/32/graph2d-histogram.png</file>
+    <file>icons/light/32/graph3d-ribbon.png</file>
+    <file>icons/light/32/graph3d-scatter.png</file>
+    <file>icons/light/32/graph3d-trajectory.png</file>
 	<file>icons/dark/16/edit-copy.png</file>
 	<file>icons/dark/16/edit-cut.png</file>
 	<file>icons/dark/16/edit-paste.png</file>
@@ -717,6 +728,17 @@
     <file>icons/dark/32/graph-y-error.png</file>
     <file>icons/dark/32/table-column-sum.png</file>
     <file>icons/dark/32/table-row-sum.png</file>
+    <file>icons/dark/32/graph2d-area.png</file>
+    <file>icons/dark/32/graph2d-box.png</file>
+    <file>icons/dark/32/graph2d-horizontal-bar.png</file>
+    <file>icons/dark/32/graph2d-line.png</file>
+    <file>icons/dark/32/graph2d-pie.png</file>
+    <file>icons/dark/32/graph2d-vector.png</file>
+    <file>icons/dark/32/graph2d-vertical-bar.png</file>
+    <file>icons/dark/32/graph2d-histogram.png</file>
+    <file>icons/dark/32/graph3d-ribbon.png</file>
+    <file>icons/dark/32/graph3d-scatter.png</file>
+    <file>icons/dark/32/graph3d-trajectory.png</file>
     <file>icons/light/16/graph3d-back-grid.xpm</file>
     <file>icons/light/16/graph3d-box-axis.xpm</file>
     <file>icons/light/16/graph3d-fit-frame.xpm</file>

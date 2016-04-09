@@ -16,6 +16,7 @@
 */
 
 #include "../widgets/aSettingsListView.h"
+#include "../core/IconLoader.h"
 #include "SettingsDialog.h"
 #include "SettingsPage.h"
 #include "ui_SettingsDialog.h"
@@ -64,8 +65,10 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   ui_->searchBox->setToolTip(tr("search"));
 
   // Prepare buttons
-  ui_->configureButton->setIcon(QIcon(":/data/gtk-preferences.svg"));
-  ui_->settingsButton->setIcon(QIcon(":/data/go-previous.svg"));
+  ui_->configureButton->setIcon(
+      IconLoader::load("edit-preference", IconLoader::LightDark));
+  ui_->settingsButton->setIcon(
+      IconLoader::load("go-previous", IconLoader::LightDark));
   ui_->settingsButton->setEnabled(false);
 
   // Add settings configure menu items(tree/icon view)

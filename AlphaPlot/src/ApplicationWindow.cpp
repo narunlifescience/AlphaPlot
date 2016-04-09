@@ -206,12 +206,12 @@ ApplicationWindow::ApplicationWindow()
       lastCopiedLayer(0),
       explorerSplitter(new QSplitter(Qt::Horizontal, explorerWindow)),
       actionNextWindow(new QAction(tr("&Next", "next window"), this)),
-      actionPrevWindow(new QAction(tr("&Previous", "previous window"), this)),
-      settings_(new SettingsDialog(this)) {
+      actionPrevWindow(new QAction(tr("&Previous", "previous window"), this)) {
   ui_->setupUi(this);
   // Icons
   IconLoader::init();
   IconLoader::lumen_ = IconLoader::isLight(palette().color(QPalette::Window));
+  settings_ = new SettingsDialog(this);
 
   actionNextWindow->setIcon(IconLoader::load("go-next", IconLoader::LightDark));
   actionPrevWindow->setIcon(
@@ -580,14 +580,15 @@ void ApplicationWindow::initToolBars() {
 
   plot_tools->setObjectName(
       "plot_tools");  // this is needed for QMainWindow::restoreState()
-  plot_tools->setIconSize(QSize(24, 24));
+  plot_tools->setIconSize(QSize(32, 32));
   addToolBar(Qt::TopToolBarArea, plot_tools);
 
   QMenu *menu_plot_linespoints = new QMenu(this);
   QToolButton *btn_plot_linespoints = new QToolButton(this);
   btn_plot_linespoints->setMenu(menu_plot_linespoints);
   btn_plot_linespoints->setPopupMode(QToolButton::InstantPopup);
-  btn_plot_linespoints->setIcon(QPixmap(":/lpPlot.xpm"));
+  btn_plot_linespoints->setIcon(
+      IconLoader::load("graph2d-line", IconLoader::LightDark));
   btn_plot_linespoints->setToolTip(tr("Lines and/or symbols"));
   plot_tools->addWidget(btn_plot_linespoints);
   menu_plot_linespoints->addAction(ui_->actionPlot2DLine);
@@ -602,13 +603,13 @@ void ApplicationWindow::initToolBars() {
   QToolButton *btn_plot_bars = new QToolButton(this);
   btn_plot_bars->setMenu(menu_plot_bars);
   btn_plot_bars->setPopupMode(QToolButton::InstantPopup);
-  btn_plot_bars->setIcon(QPixmap(":/vertBars.xpm"));
+  btn_plot_bars->setIcon(
+      IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
   plot_tools->addWidget(btn_plot_bars);
   menu_plot_bars->addAction(ui_->actionPlot2DVerticalBars);
   menu_plot_bars->addAction(ui_->actionPlot2DHorizontalBars);
 
   plot_tools->addAction(ui_->actionPlot2DArea);
-  plot_tools->addAction(ui_->actionPlot2DPie);
   plot_tools->addAction(ui_->actionPlot2DStatHistogram);
   plot_tools->addAction(ui_->actionPlot2DStatBox);
 
@@ -616,17 +617,18 @@ void ApplicationWindow::initToolBars() {
   QToolButton *btn_plot_vect = new QToolButton(this);
   btn_plot_vect->setMenu(menu_plot_vect);
   btn_plot_vect->setPopupMode(QToolButton::InstantPopup);
-  btn_plot_vect->setIcon(QPixmap(":/vectXYXY.xpm"));
+  btn_plot_vect->setIcon(
+      IconLoader::load("graph2d-vector", IconLoader::LightDark));
   plot_tools->addWidget(btn_plot_vect);
   menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYXY);
   menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYAM);
+  plot_tools->addAction(ui_->actionPlot2DPie);
 
   plot_tools->addSeparator();
-
-  plot_tools->addAction(ui_->actionPlot3DRibbon);
-  plot_tools->addAction(ui_->actionPlot3DBar);
   plot_tools->addAction(ui_->actionPlot3DScatter);
   plot_tools->addAction(ui_->actionPlot3DTrajectory);
+  plot_tools->addAction(ui_->actionPlot3DRibbon);
+  plot_tools->addAction(ui_->actionPlot3DBar);
 
   table_tools->setObjectName(
       "table_tools");  // this is needed for QMainWindow::restoreState()
@@ -8333,7 +8335,8 @@ void ApplicationWindow::initPlot3DToolBar() {
   flooriso->setIcon(IconLoader::load("graph3d-isoline", IconLoader::LightDark));
   floornone = new QAction(floorstyle);
   floornone->setCheckable(true);
-  floornone->setIcon(IconLoader::load("graph3d-no-floor", IconLoader::LightDark));
+  floornone->setIcon(
+      IconLoader::load("graph3d-no-floor", IconLoader::LightDark));
 
   graph_3D_tools->addAction(floordata);
   graph_3D_tools->addAction(flooriso);
@@ -9629,7 +9632,8 @@ void ApplicationWindow::createActions() {
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DScatter, Graph::Scatter);
 
-  ui_->actionPlot2DLineSymbol->setIcon(QIcon(QPixmap(":/lpPlot.xpm")));
+  ui_->actionPlot2DLineSymbol->setIcon(
+      IconLoader::load("graph2d-line", IconLoader::LightDark));
   connect(ui_->actionPlot2DLineSymbol, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DLineSymbol, Graph::LineSymbols);
@@ -9658,7 +9662,8 @@ void ApplicationWindow::createActions() {
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalSteps,
                             Graph::VerticalSteps);
 
-  ui_->actionPlot2DVerticalBars->setIcon(QIcon(QPixmap(":/vertBars.xpm")));
+  ui_->actionPlot2DVerticalBars->setIcon(
+      IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
   connect(ui_->actionPlot2DVerticalBars, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalBars, Graph::VerticalBars);
@@ -9669,12 +9674,14 @@ void ApplicationWindow::createActions() {
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalBars,
                             Graph::HorizontalBars);
 
-  ui_->actionPlot2DArea->setIcon(QIcon(QPixmap(":/area.xpm")));
+  ui_->actionPlot2DArea->setIcon(
+      IconLoader::load("graph2d-area", IconLoader::LightDark));
   connect(ui_->actionPlot2DArea, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DArea, Graph::Area);
 
-  ui_->actionPlot2DPie->setIcon(QIcon(QPixmap(":/pie.xpm")));
+  ui_->actionPlot2DPie->setIcon(
+      IconLoader::load("graph2d-pie", IconLoader::LightDark));
   connect(ui_->actionPlot2DPie, SIGNAL(activated()), this, SLOT(plotPie()));
 
   ui_->actionPlot2DVectorsXYAM->setIcon(QIcon(QPixmap(":/vectXYAM.xpm")));
@@ -9685,7 +9692,8 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionPlot2DVectorsXYXY, SIGNAL(activated()), this,
           SLOT(plotVectXYXY()));
 
-  ui_->actionPlot2DStatHistogram->setIcon(QIcon(QPixmap(":/histogram.xpm")));
+  ui_->actionPlot2DStatHistogram->setIcon(
+      IconLoader::load("graph2d-histogram", IconLoader::LightDark));
   connect(ui_->actionPlot2DStatHistogram, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DStatHistogram, Graph::Histogram);
@@ -9711,7 +9719,7 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionPanelStackedLayers, SIGNAL(activated()), this,
           SLOT(plotStackedLayers()));
 
-  ui_->actionPlot3DRibbon->setIcon(QIcon(QPixmap(":/ribbon.xpm")));
+  ui_->actionPlot3DRibbon->setIcon(IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
   connect(ui_->actionPlot3DRibbon, SIGNAL(activated()), this,
           SLOT(plot3DRibbon()));
 
@@ -9719,11 +9727,11 @@ void ApplicationWindow::createActions() {
       IconLoader::load("graph3d-bar", IconLoader::LightDark));
   connect(ui_->actionPlot3DBar, SIGNAL(activated()), this, SLOT(plot3DBars()));
 
-  ui_->actionPlot3DScatter->setIcon(QIcon(QPixmap(":/scatter.xpm")));
+  ui_->actionPlot3DScatter->setIcon(IconLoader::load("graph3d-scatter", IconLoader::LightDark));
   connect(ui_->actionPlot3DScatter, SIGNAL(activated()), this,
           SLOT(plot3DScatter()));
 
-  ui_->actionPlot3DTrajectory->setIcon(QIcon(QPixmap(":/trajectory.xpm")));
+  ui_->actionPlot3DTrajectory->setIcon(IconLoader::load("graph3d-trajectory", IconLoader::LightDark));
   connect(ui_->actionPlot3DTrajectory, SIGNAL(activated()), this,
           SLOT(plot3DTrajectory()));
 
@@ -10016,7 +10024,8 @@ void ApplicationWindow::createActions() {
   connect(actionTranslateVert, SIGNAL(activated()), this,
           SLOT(translateCurveVert()));
 
-  ui_->actionPlot2DStatBox->setIcon(QIcon(QPixmap(":/boxPlot.xpm")));
+  ui_->actionPlot2DStatBox->setIcon(
+      IconLoader::load("graph2d-box", IconLoader::LightDark));
   connect(ui_->actionPlot2DStatBox, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DStatBox, Graph::Box);
