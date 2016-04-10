@@ -216,16 +216,19 @@
     <file>icons/common/16/application-exit.png</file>
     <file>icons/common/16/clear-loginfo.png</file>
     <file>icons/common/16/edit-delete.png</file>
+    <file>icons/common/16/list-remove.png</file>
     <file>icons/common/22/folder-closed.png</file>
     <file>icons/common/22/folder-open.png</file>
     <file>icons/common/22/application-exit.png</file>
     <file>icons/common/22/clear-loginfo.png</file>
     <file>icons/common/22/edit-delete.png</file>
+    <file>icons/common/22/list-remove.png</file>
     <file>icons/common/24/folder-closed.png</file>
     <file>icons/common/24/folder-open.png</file>
     <file>icons/common/24/application-exit.png</file>
     <file>icons/common/24/clear-loginfo.png</file>
     <file>icons/common/24/edit-delete.png</file>
+    <file>icons/common/24/list-remove.png</file>
     <file>icons/common/32/folder-closed.png</file>
     <file>icons/common/32/folder-open.png</file>
     <file>icons/common/32/application-exit.png</file>
@@ -316,6 +319,7 @@
     <file>icons/light/16/graph3d-isoline.png</file>
     <file>icons/light/16/graph3d-no-floor.png</file>
     <file>icons/light/16/matrix.png</file>
+    <file>icons/light/16/list-add.png</file>
 	<file>icons/light/22/edit-copy.png</file>
 	<file>icons/light/22/edit-cut.png</file>
 	<file>icons/light/22/edit-paste.png</file>
@@ -397,6 +401,7 @@
     <file>icons/light/22/graph3d-isoline.png</file>
     <file>icons/light/22/graph3d-no-floor.png</file>
     <file>icons/light/22/matrix.png</file>
+    <file>icons/light/22/list-add.png</file>
 	<file>icons/light/24/edit-copy.png</file>
 	<file>icons/light/24/edit-cut.png</file>
 	<file>icons/light/24/edit-paste.png</file>
@@ -477,6 +482,7 @@
     <file>icons/light/24/graph3d-isoline.png</file>
     <file>icons/light/24/graph3d-no-floor.png</file>
     <file>icons/light/24/matrix.png</file>
+    <file>icons/light/24/list-add.png</file>
     <file>icons/light/32/graph-x-error.png</file>
     <file>icons/light/32/graph-y-error.png</file>
     <file>icons/light/32/table-column-sum.png</file>
@@ -569,6 +575,7 @@
     <file>icons/dark/16/graph3d-isoline.png</file>
     <file>icons/dark/16/graph3d-no-floor.png</file>
     <file>icons/dark/16/matrix.png</file>
+    <file>icons/dark/16/list-add.png</file>
 	<file>icons/dark/22/edit-copy.png</file>
 	<file>icons/dark/22/edit-cut.png</file>
 	<file>icons/dark/22/edit-paste.png</file>
@@ -650,6 +657,7 @@
     <file>icons/dark/22/graph3d-isoline.png</file>
     <file>icons/dark/22/graph3d-no-floor.png</file>
     <file>icons/dark/22/matrix.png</file>
+    <file>icons/dark/22/list-add.png</file>
 	<file>icons/dark/24/edit-copy.png</file>
 	<file>icons/dark/24/edit-cut.png</file>
 	<file>icons/dark/24/edit-paste.png</file>
@@ -730,6 +738,7 @@
     <file>icons/dark/24/graph3d-isoline.png</file>
     <file>icons/dark/24/graph3d-no-floor.png</file>
     <file>icons/dark/24/matrix.png</file>
+    <file>icons/dark/24/list-add.png</file>
     <file>icons/dark/32/graph-x-error.png</file>
     <file>icons/dark/32/graph-y-error.png</file>
     <file>icons/dark/32/table-column-sum.png</file>

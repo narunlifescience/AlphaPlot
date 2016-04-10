@@ -38,11 +38,9 @@
 #include <QPainter>
 #include <QPicture>
 #include <QClipboard>
-
-#if QT_VERSION >= 0x040300
 #include <QSvgGenerator>
-#endif
 
+#include <core/IconLoader.h>
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
@@ -58,12 +56,10 @@
 
 LayerButton::LayerButton(const QString &text, QWidget *parent)
     : QPushButton(text, parent) {
-  int btn_size = 20;
-
   setToggleButton(true);
   setOn(true);
-  setMaximumWidth(btn_size);
-  setMaximumHeight(btn_size);
+  setMaximumWidth(LayerButton::btnSize());
+  setMaximumHeight(LayerButton::btnSize());
 }
 
 void LayerButton::mousePressEvent(QMouseEvent *event) {
@@ -86,8 +82,8 @@ MultiLayer::MultiLayer(const QString &label, QWidget *parent,
   pal.setColor(QPalette::Disabled, QPalette::Window, QColor(Qt::white));
   setPalette(pal);
 
-  QDateTime dt = QDateTime::currentDateTime();
-  setBirthDate(dt.toString(Qt::LocalDate));
+  QDateTime birthday = QDateTime::currentDateTime();
+  setBirthDate(birthday.toString(Qt::LocalDate));
 
   graphs = 0;
   cols = 1;
@@ -110,10 +106,30 @@ MultiLayer::MultiLayer(const QString &label, QWidget *parent,
   d_scale_on_print = true;
   d_print_cropmarks = false;
 
+  toolbuttonsBox = new QHBoxLayout();
+  addLayoutButton = new QPushButton();
+  addLayoutButton->setToolTip(tr("Add layer"));
+  addLayoutButton->setIcon(IconLoader::load("list-add", IconLoader::LightDark));
+  addLayoutButton->setMaximumWidth(LayerButton::btnSize());
+  addLayoutButton->setMaximumHeight(LayerButton::btnSize());
+  connect(addLayoutButton, SIGNAL(clicked()), this, SLOT(addLayer()));
+  toolbuttonsBox->addWidget(addLayoutButton);
+
+  removeLayoutButton = new QPushButton();
+  removeLayoutButton->setToolTip(tr("Remove active layer"));
+  removeLayoutButton->setIcon(
+      IconLoader::load("list-remove", IconLoader::General));
+  removeLayoutButton->setMaximumWidth(LayerButton::btnSize());
+  removeLayoutButton->setMaximumHeight(LayerButton::btnSize());
+  connect(removeLayoutButton, SIGNAL(clicked()), this,
+          SLOT(confirmRemoveLayer()));
+  toolbuttonsBox->addWidget(removeLayoutButton);
+
   layerButtonsBox = new QHBoxLayout();
   QHBoxLayout *hbox = new QHBoxLayout();
   hbox->addLayout(layerButtonsBox);
   hbox->addStretch();
+  hbox->addLayout(toolbuttonsBox);
 
   canvas = new QWidget();
   canvas->installEventFilter(this);
@@ -666,17 +682,13 @@ void MultiLayer::exportVector(const QString &fileName, int res, bool color,
 }
 
 void MultiLayer::exportSVG(const QString &fname) {
-#if QT_VERSION >= 0x040300
   QSvgGenerator generator;
   generator.setFileName(fname);
-#if QT_VERSION >= 0x040500
   generator.setSize(canvas->size());
   generator.setViewBox(QRect(QPoint(0, 0), generator.size()));
   generator.setResolution(96);  // FIXME hardcored
   generator.setTitle(this->name());
-#endif
   exportPainter(generator);
-#endif
 }
 
 void MultiLayer::exportPainter(QPaintDevice &paintDevice, bool keepAspect,

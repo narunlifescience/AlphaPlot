@@ -248,6 +248,9 @@ class MultiLayer : public MyWidget {
 
   QWidgetList buttonsList, graphsList;
   QHBoxLayout* layerButtonsBox;
+  QHBoxLayout *toolbuttonsBox;
+  QPushButton *addLayoutButton;
+  QPushButton *removeLayoutButton;
   QWidget* canvas;
 
   QPointer<SelectionMoveResizer> d_layers_selector;
@@ -261,7 +264,7 @@ class LayerButton : public QPushButton {
   LayerButton(const QString& text = QString::null, QWidget* parent = 0);
   ~LayerButton() {}
 
-  static int btnSize() { return 20; }
+  static int btnSize() { return 22; }
 
  protected:
   void mousePressEvent(QMouseEvent*);
