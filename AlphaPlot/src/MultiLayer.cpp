@@ -170,6 +170,7 @@ Graph *MultiLayer::addLayer(int x, int y, int width, int height) {
     width = graph_width;
     height = graph_height;
   }
+  removeLayoutButton->setEnabled(true);
 
   Graph *g = new Graph(canvas);
   g->setAttribute(Qt::WA_DeleteOnClose);
@@ -293,11 +294,16 @@ void MultiLayer::confirmRemoveLayer() {
         return;
         break;
     }
-  } else
+  } else {
     removeLayer();
+    if(!active_graph)
+      removeLayoutButton->setEnabled(false);
+  }
 }
 
 void MultiLayer::removeLayer() {
+  if(!active_graph)
+    return;
   // remove corresponding button
   LayerButton *btn = 0;
   int i;
