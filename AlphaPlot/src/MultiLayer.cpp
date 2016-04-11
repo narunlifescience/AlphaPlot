@@ -302,8 +302,12 @@ void MultiLayer::confirmRemoveLayer() {
 }
 
 void MultiLayer::removeLayer() {
-  if(!active_graph)
+  if (!active_graph) {
+    QMessageBox::warning(
+        this, tr("Remove Layer error"),
+        tr("There are no layers to be removed!"));
     return;
+  }
   // remove corresponding button
   LayerButton *btn = 0;
   int i;
