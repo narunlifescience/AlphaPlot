@@ -17,10 +17,20 @@
 
 #include "About.h"
 #include "globals.h"
+#include "core/IconLoader.h"
 
 About::About(QWidget* parent) : QDialog(parent) {
   ui_.setupUi(this);
-  ui_.versionLabel->setText("AlpaPlot " + AlphaPlot::versionString() + AlphaPlot::extraVersion());
+
+  ui_.verticalLayout_2->setSpacing(0);
+  ui_.verticalLayout_2->setContentsMargins(0, 0, 0, 0);
+  ui_.horizontalLayout->setContentsMargins(0, 0, 0, 10);
+  ui_.horizontalLayout->setSpacing(10);
+  ui_.verticalLayout->setContentsMargins(0, 0, 0, 0);
+  ui_.verticalLayout->setSpacing(0);
+
+  ui_.versionLabel->setText("AlpaPlot " + AlphaPlot::versionString() +
+                            AlphaPlot::extraVersion());
   ui_.releaseDateLabel->setText(QObject::tr("Released") + ": " +
-                                 AlphaPlot::releaseDateString());
+                                AlphaPlot::releaseDateString());
 }

@@ -972,13 +972,11 @@ void Table::createActions() {
   actionManager()->addAction(action_unmask_selection, "unmask_selection");
 #endif
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/fx.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/fx.png"));
-  action_set_formula = new QAction(*icon_temp, tr("Assign &Formula"), this);
+  action_set_formula =
+      new QAction(IconLoader::load("math-fofx", IconLoader::LightDark),
+                  tr("Assign &Formula"), this);
   action_set_formula->setShortcut(tr("Alt+Q"));
   actionManager()->addAction(action_set_formula, "set_formula");
-  delete icon_temp;
 
   action_clear_selection =
       new QAction(IconLoader::load("clear-loginfo", IconLoader::General),
@@ -1056,20 +1054,16 @@ void Table::createActions() {
   actionManager()->addAction(action_clear_masks, "clear_masks");
 #endif
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/sort.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/sort.png"));
-  action_sort_table = new QAction(*icon_temp, tr("&Sort Table"), this);
+  action_sort_table =
+      new QAction(IconLoader::load("view-sort", IconLoader::LightDark),
+                  tr("&Sort Table"), this);
   actionManager()->addAction(action_sort_table, "sort_table");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/go_to_cell.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/go_to_cell.png"));
-  action_go_to_cell = new QAction(*icon_temp, tr("&Go to Cell"), this);
+  action_go_to_cell =
+      new QAction(IconLoader::load("goto-cell", IconLoader::LightDark),
+                  tr("&Go to Cell"), this);
   action_go_to_cell->setShortcut(tr("Ctrl+Alt+G"));
   actionManager()->addAction(action_go_to_cell, "go_to_cell");
-  delete icon_temp;
 
   action_dimensions_dialog = new QAction(
       IconLoader::load("edit-table-dimension", IconLoader::LightDark),
@@ -1078,13 +1072,10 @@ void Table::createActions() {
   actionManager()->addAction(action_dimensions_dialog, "dimensions_dialog");
 
   // column related actions
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/insert_column.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/insert_column.png"));
-  action_insert_columns =
-      new QAction(*icon_temp, tr("&Insert Empty Columns"), this);
+  action_insert_columns = new QAction(
+      IconLoader::load("edit-table-insert-column", IconLoader::LightDark),
+      tr("&Insert Empty Columns"), this);
   actionManager()->addAction(action_insert_columns, "insert_columns");
-  delete icon_temp;
 
   action_remove_columns = new QAction(
       IconLoader::load("edit-table-delete-column", IconLoader::LightDark),
@@ -1129,28 +1120,20 @@ void Table::createActions() {
       new QAction(QIcon(QPixmap()), tr("None", "plot designation"), this);
   actionManager()->addAction(action_set_as_none, "set_as_none");
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/normalize.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/normalize.png"));
-  action_normalize_columns =
-      new QAction(*icon_temp, tr("&Normalize Columns"), this);
+  action_normalize_columns = new QAction(
+      IconLoader::load("edit-normalize-random-number", IconLoader::LightDark),
+      tr("&Normalize Columns"), this);
   actionManager()->addAction(action_normalize_columns, "normalize_columns");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/normalize.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/normalize.png"));
-  action_normalize_selection =
-      new QAction(*icon_temp, tr("&Normalize Selection"), this);
+  action_normalize_selection = new QAction(
+      IconLoader::load("edit-normalize-random-number", IconLoader::LightDark),
+      tr("&Normalize Selection"), this);
   actionManager()->addAction(action_normalize_selection, "normalize_selection");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/sort.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/sort.png"));
-  action_sort_columns = new QAction(*icon_temp, tr("&Sort Columns"), this);
+  action_sort_columns =
+      new QAction(IconLoader::load("view-sort", IconLoader::LightDark),
+                  tr("&Sort Columns"), this);
   actionManager()->addAction(action_sort_columns, "sort_columns");
-  delete icon_temp;
 
   action_statistics_columns =
       new QAction(IconLoader::load("table-column-sum", IconLoader::LightDark),

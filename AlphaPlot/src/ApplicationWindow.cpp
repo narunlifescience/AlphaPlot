@@ -588,7 +588,7 @@ void ApplicationWindow::initToolBars() {
   btn_plot_linespoints->setMenu(menu_plot_linespoints);
   btn_plot_linespoints->setPopupMode(QToolButton::InstantPopup);
   btn_plot_linespoints->setIcon(
-      IconLoader::load("graph2d-line", IconLoader::LightDark));
+      IconLoader::load("graph2d-line-scatter", IconLoader::LightDark));
   btn_plot_linespoints->setToolTip(tr("Lines and/or symbols"));
   plot_tools->addWidget(btn_plot_linespoints);
   menu_plot_linespoints->addAction(ui_->actionPlot2DLine);
@@ -618,7 +618,7 @@ void ApplicationWindow::initToolBars() {
   btn_plot_vect->setMenu(menu_plot_vect);
   btn_plot_vect->setPopupMode(QToolButton::InstantPopup);
   btn_plot_vect->setIcon(
-      IconLoader::load("graph2d-vector", IconLoader::LightDark));
+      IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
   plot_tools->addWidget(btn_plot_vect);
   menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYXY);
   menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYAM);
@@ -9418,8 +9418,10 @@ void ApplicationWindow::createActions() {
       IconLoader::load("table", IconLoader::LightDark));
   ui_->actionNewMatrix->setIcon(
       IconLoader::load("matrix", IconLoader::LightDark));
-  ui_->actionNewFunctionPlot->setIcon(QIcon(QPixmap(":/newF.xpm")));
-  ui_->actionNew3DSurfacePlot->setIcon(QIcon(QPixmap(":/newFxy.xpm")));
+  ui_->actionNewFunctionPlot->setIcon(
+      IconLoader::load("graph2d-function-xy", IconLoader::LightDark));
+  ui_->actionNew3DSurfacePlot->setIcon(
+      IconLoader::load("graph3d-function-xyz", IconLoader::LightDark));
   ui_->actionOpenAproj->setIcon(
       IconLoader::load("project-open", IconLoader::LightDark));
   ui_->actionOpenImage->setIcon(QIcon());
@@ -9623,41 +9625,43 @@ void ApplicationWindow::createActions() {
   d_plot_mapper = new QSignalMapper;
   connect(d_plot_mapper, SIGNAL(mapped(int)), this, SLOT(selectPlotType(int)));
 
-  ui_->actionPlot2DLine->setIcon(QIcon(QPixmap(":/lPlot.xpm")));
+  ui_->actionPlot2DLine->setIcon(
+      IconLoader::load("graph2d-line", IconLoader::LightDark));
   connect(ui_->actionPlot2DLine, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DLine, Graph::Line);
 
-  ui_->actionPlot2DScatter->setIcon(QIcon(QPixmap(":/pPlot.xpm")));
+  ui_->actionPlot2DScatter->setIcon(
+      IconLoader::load("graph2d-scatter", IconLoader::LightDark));
   connect(ui_->actionPlot2DScatter, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DScatter, Graph::Scatter);
 
   ui_->actionPlot2DLineSymbol->setIcon(
-      IconLoader::load("graph2d-line", IconLoader::LightDark));
+      IconLoader::load("graph2d-line-scatter", IconLoader::LightDark));
   connect(ui_->actionPlot2DLineSymbol, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DLineSymbol, Graph::LineSymbols);
 
   ui_->actionPlot2DVerticalDropLines->setIcon(
-      QIcon(QPixmap(":/dropLines.xpm")));
+      QIcon(IconLoader::load("graph2d-vertical-drop", IconLoader::LightDark)));
   connect(ui_->actionPlot2DVerticalDropLines, SIGNAL(activated()),
           d_plot_mapper, SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalDropLines,
                             Graph::VerticalDropLines);
 
-  ui_->actionPlot2DSpline->setIcon(QIcon(QPixmap(":/spline.xpm")));
+  ui_->actionPlot2DSpline->setIcon(IconLoader::load("graph2d-spline", IconLoader::LightDark));
   connect(ui_->actionPlot2DSpline, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DSpline, Graph::Spline);
 
-  ui_->actionPlot2DHorizontalSteps->setIcon(QIcon(QPixmap(":/hor_steps.xpm")));
+  ui_->actionPlot2DHorizontalSteps->setIcon(IconLoader::load("graph2d-horizontal-step", IconLoader::LightDark));
   connect(ui_->actionPlot2DHorizontalSteps, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalSteps,
                             Graph::HorizontalSteps);
 
-  ui_->actionPlot2DVerticalSteps->setIcon(QIcon(QPixmap(":/vert_steps.xpm")));
+  ui_->actionPlot2DVerticalSteps->setIcon(IconLoader::load("graph2d-vertical-step", IconLoader::LightDark));
   connect(ui_->actionPlot2DVerticalSteps, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalSteps,
@@ -9669,7 +9673,7 @@ void ApplicationWindow::createActions() {
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalBars, Graph::VerticalBars);
 
-  ui_->actionPlot2DHorizontalBars->setIcon(QIcon(QPixmap(":/hBars.xpm")));
+  ui_->actionPlot2DHorizontalBars->setIcon(IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark));
   connect(ui_->actionPlot2DHorizontalBars, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalBars,
@@ -9685,11 +9689,11 @@ void ApplicationWindow::createActions() {
       IconLoader::load("graph2d-pie", IconLoader::LightDark));
   connect(ui_->actionPlot2DPie, SIGNAL(activated()), this, SLOT(plotPie()));
 
-  ui_->actionPlot2DVectorsXYAM->setIcon(QIcon(QPixmap(":/vectXYAM.xpm")));
+  ui_->actionPlot2DVectorsXYAM->setIcon(IconLoader::load("graph2d-vector-xyam", IconLoader::LightDark));
   connect(ui_->actionPlot2DVectorsXYAM, SIGNAL(activated()), this,
           SLOT(plotVectXYAM()));
 
-  ui_->actionPlot2DVectorsXYXY->setIcon(QIcon(QPixmap(":/vectXYXY.xpm")));
+  ui_->actionPlot2DVectorsXYXY->setIcon(IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
   connect(ui_->actionPlot2DVectorsXYXY, SIGNAL(activated()), this,
           SLOT(plotVectXYXY()));
 

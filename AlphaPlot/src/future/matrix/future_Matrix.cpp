@@ -519,13 +519,11 @@ void Matrix::createActions() {
   actionManager()->addAction(action_clear_selection, "clear_selection");
 
   // matrix related actions
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/fx.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/fx.png"));
-  action_set_formula = new QAction(*icon_temp, tr("Assign &Formula"), this);
+  action_set_formula =
+      new QAction(IconLoader::load("math-fofx", IconLoader::LightDark),
+                  tr("Assign &Formula"), this);
   action_set_formula->setShortcut(tr("Alt+Q"));
   actionManager()->addAction(action_set_formula, "set_formula");
-  delete icon_temp;
 
   icon_temp = new QIcon();
   icon_temp->addPixmap(QPixmap(":/16x16/recalculate.png"));
@@ -558,13 +556,11 @@ void Matrix::createActions() {
   actionManager()->addAction(action_clear_matrix, "clear_matrix");
   delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/go_to_cell.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/go_to_cell.png"));
-  action_go_to_cell = new QAction(*icon_temp, tr("&Go to Cell"), this);
+  action_go_to_cell =
+      new QAction(IconLoader::load("goto-cell", IconLoader::LightDark),
+                  tr("&Go to Cell"), this);
   action_go_to_cell->setShortcut(tr("Ctrl+Alt+G"));
   actionManager()->addAction(action_go_to_cell, "go_to_cell");
-  delete icon_temp;
 
   action_transpose = new QAction(tr("&Transpose"), this);
   actionManager()->addAction(action_transpose, "transpose");
@@ -579,12 +575,13 @@ void Matrix::createActions() {
       new QAction(tr("&Import Image", "import image as matrix"), this);
   actionManager()->addAction(action_import_image, "import_image");
 
-  action_duplicate = new QAction(QIcon(QPixmap(":/duplicate.xpm")),
+  action_duplicate = new QAction(IconLoader::load("edit-duplicate", IconLoader::LightDark),
                                  tr("&Duplicate", "duplicate matrix"), this);
   actionManager()->addAction(action_duplicate, "duplicate");
 
   action_dimensions_dialog = new QAction(
-      QIcon(QPixmap(":/resize.xpm")), tr("&Dimensions", "matrix size"), this);
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
+      tr("&Dimensions", "matrix size"), this);
   actionManager()->addAction(action_dimensions_dialog, "dimensions_dialog");
 
   action_edit_coordinates = new QAction(tr("Set &Coordinates"), this);
@@ -594,20 +591,15 @@ void Matrix::createActions() {
   actionManager()->addAction(action_edit_format, "edit_format");
 
   // column related actions
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/insert_column.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/insert_column.png"));
-  action_insert_columns =
-      new QAction(*icon_temp, tr("&Insert Empty Columns"), this);
+  action_insert_columns = new QAction(
+      IconLoader::load("edit-table-insert-column", IconLoader::LightDark),
+      tr("&Insert Empty Columns"), this);
   actionManager()->addAction(action_insert_columns, "insert_columns");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/remove_column.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/remove_column.png"));
-  action_remove_columns = new QAction(*icon_temp, tr("Remo&ve Columns"), this);
+  action_remove_columns = new QAction(
+      IconLoader::load("edit-table-delete-column", IconLoader::LightDark),
+      tr("Remo&ve Columns"), this);
   actionManager()->addAction(action_remove_columns, "remove_columns");
-  delete icon_temp;
 
   icon_temp = new QIcon();
   icon_temp->addPixmap(QPixmap(":/16x16/clear_column.png"));
@@ -837,11 +829,7 @@ void Matrix::copy(Matrix *other) {
 void Matrix::setPlotMenu(QMenu *menu) { d_plot_menu = menu; }
 
 QIcon Matrix::icon() const {
-  QIcon ico;
-  ico.addPixmap(QPixmap(":/16x16/matrix.png"));
-  ico.addPixmap(QPixmap(":/24x24/matrix.png"));
-  ico.addPixmap(QPixmap(":/32x32/matrix.png"));
-  return ico;
+  return IconLoader::load("matrix", IconLoader::LightDark);
 }
 
 QString Matrix::text(int row, int col) {

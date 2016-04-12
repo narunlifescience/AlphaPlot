@@ -320,6 +320,27 @@
     <file>icons/light/16/graph3d-no-floor.png</file>
     <file>icons/light/16/matrix.png</file>
     <file>icons/light/16/list-add.png</file>
+    <file>icons/light/16/edit-normalize-random-number.png</file>
+    <file>icons/light/16/edit-table-insert-column.png</file>
+    <file>icons/light/16/goto-cell.png</file>
+    <file>icons/light/16/graph2d-area.png</file>
+    <file>icons/light/16/graph2d-box.png</file>
+    <file>icons/light/16/graph2d-function-xy.png</file>
+    <file>icons/light/16/graph2d-histogram.png</file>
+    <file>icons/light/16/graph2d-horizontal-bar.png</file>
+    <file>icons/light/16/graph2d-horizontal-step.png</file>
+    <file>icons/light/16/graph2d-line-scatter.png</file>
+    <file>icons/light/16/graph2d-line.png</file>
+    <file>icons/light/16/graph2d-pie.png</file>
+    <file>icons/light/16/graph2d-scatter.png</file>
+    <file>icons/light/16/graph2d-spline.png</file>
+    <file>icons/light/16/graph2d-vector-xy.png</file>
+    <file>icons/light/16/graph2d-vector-xyam.png</file>
+    <file>icons/light/16/graph2d-vertical-bar.png</file>
+    <file>icons/light/16/graph2d-vertical-drop.png</file>
+    <file>icons/light/16/graph2d-vertical-step.png</file>
+    <file>icons/light/16/graph3d-function-xyz.png</file>
+    <file>icons/light/16/view-sort.png</file>
 	<file>icons/light/22/edit-copy.png</file>
 	<file>icons/light/22/edit-cut.png</file>
 	<file>icons/light/22/edit-paste.png</file>
@@ -402,6 +423,27 @@
     <file>icons/light/22/graph3d-no-floor.png</file>
     <file>icons/light/22/matrix.png</file>
     <file>icons/light/22/list-add.png</file>
+    <file>icons/light/22/edit-normalize-random-number.png</file>
+    <file>icons/light/22/edit-table-insert-column.png</file>
+    <file>icons/light/22/goto-cell.png</file>
+    <file>icons/light/22/graph2d-area.png</file>
+    <file>icons/light/22/graph2d-box.png</file>
+    <file>icons/light/22/graph2d-function-xy.png</file>
+    <file>icons/light/22/graph2d-histogram.png</file>
+    <file>icons/light/22/graph2d-horizontal-bar.png</file>
+    <file>icons/light/22/graph2d-horizontal-step.png</file>
+    <file>icons/light/22/graph2d-line-scatter.png</file>
+    <file>icons/light/22/graph2d-line.png</file>
+    <file>icons/light/22/graph2d-pie.png</file>
+    <file>icons/light/22/graph2d-scatter.png</file>
+    <file>icons/light/22/graph2d-spline.png</file>
+    <file>icons/light/22/graph2d-vector-xy.png</file>
+    <file>icons/light/22/graph2d-vector-xyam.png</file>
+    <file>icons/light/22/graph2d-vertical-bar.png</file>
+    <file>icons/light/22/graph2d-vertical-drop.png</file>
+    <file>icons/light/22/graph2d-vertical-step.png</file>
+    <file>icons/light/22/graph3d-function-xyz.png</file>
+    <file>icons/light/22/view-sort.png</file>
 	<file>icons/light/24/edit-copy.png</file>
 	<file>icons/light/24/edit-cut.png</file>
 	<file>icons/light/24/edit-paste.png</file>
@@ -483,6 +525,27 @@
     <file>icons/light/24/graph3d-no-floor.png</file>
     <file>icons/light/24/matrix.png</file>
     <file>icons/light/24/list-add.png</file>
+    <file>icons/light/24/edit-normalize-random-number.png</file>
+    <file>icons/light/24/edit-table-insert-column.png</file>
+    <file>icons/light/24/goto-cell.png</file>
+    <file>icons/light/24/graph2d-area.png</file>
+    <file>icons/light/24/graph2d-box.png</file>
+    <file>icons/light/24/graph2d-function-xy.png</file>
+    <file>icons/light/24/graph2d-histogram.png</file>
+    <file>icons/light/24/graph2d-horizontal-bar.png</file>
+    <file>icons/light/24/graph2d-horizontal-step.png</file>
+    <file>icons/light/24/graph2d-line-scatter.png</file>
+    <file>icons/light/24/graph2d-line.png</file>
+    <file>icons/light/24/graph2d-pie.png</file>
+    <file>icons/light/24/graph2d-scatter.png</file>
+    <file>icons/light/24/graph2d-spline.png</file>
+    <file>icons/light/24/graph2d-vector-xy.png</file>
+    <file>icons/light/24/graph2d-vector-xyam.png</file>
+    <file>icons/light/24/graph2d-vertical-bar.png</file>
+    <file>icons/light/24/graph2d-vertical-drop.png</file>
+    <file>icons/light/24/graph2d-vertical-step.png</file>
+    <file>icons/light/24/graph3d-function-xyz.png</file>
+    <file>icons/light/24/view-sort.png</file>
     <file>icons/light/32/graph-x-error.png</file>
     <file>icons/light/32/graph-y-error.png</file>
     <file>icons/light/32/table-column-sum.png</file>
@@ -490,9 +553,10 @@
     <file>icons/light/32/graph2d-area.png</file>
     <file>icons/light/32/graph2d-box.png</file>
     <file>icons/light/32/graph2d-horizontal-bar.png</file>
-    <file>icons/light/32/graph2d-line.png</file>
+    <file>icons/light/32/graph2d-line-scatter.png</file>
     <file>icons/light/32/graph2d-pie.png</file>
-    <file>icons/light/32/graph2d-vector.png</file>
+    <file>icons/light/32/graph2d-vector-xy.png</file>
+    <file>icons/light/32/graph2d-vector-xyam.png</file>
     <file>icons/light/32/graph2d-vertical-bar.png</file>
     <file>icons/light/32/graph2d-histogram.png</file>
     <file>icons/light/32/graph3d-ribbon.png</file>
@@ -576,6 +640,27 @@
     <file>icons/dark/16/graph3d-no-floor.png</file>
     <file>icons/dark/16/matrix.png</file>
     <file>icons/dark/16/list-add.png</file>
+    <file>icons/dark/16/edit-normalize-random-number.png</file>
+    <file>icons/dark/16/edit-table-insert-column.png</file>
+    <file>icons/dark/16/goto-cell.png</file>
+    <file>icons/dark/16/graph2d-area.png</file>
+    <file>icons/dark/16/graph2d-box.png</file>
+    <file>icons/dark/16/graph2d-function-xy.png</file>
+    <file>icons/dark/16/graph2d-histogram.png</file>
+    <file>icons/dark/16/graph2d-horizontal-bar.png</file>
+    <file>icons/dark/16/graph2d-horizontal-step.png</file>
+    <file>icons/dark/16/graph2d-line-scatter.png</file>
+    <file>icons/dark/16/graph2d-line.png</file>
+    <file>icons/dark/16/graph2d-pie.png</file>
+    <file>icons/dark/16/graph2d-scatter.png</file>
+    <file>icons/dark/16/graph2d-spline.png</file>
+    <file>icons/dark/16/graph2d-vector-xy.png</file>
+    <file>icons/dark/16/graph2d-vector-xyam.png</file>
+    <file>icons/dark/16/graph2d-vertical-bar.png</file>
+    <file>icons/dark/16/graph2d-vertical-drop.png</file>
+    <file>icons/dark/16/graph2d-vertical-step.png</file>
+    <file>icons/dark/16/graph3d-function-xyz.png</file>
+    <file>icons/dark/16/view-sort.png</file>
 	<file>icons/dark/22/edit-copy.png</file>
 	<file>icons/dark/22/edit-cut.png</file>
 	<file>icons/dark/22/edit-paste.png</file>
@@ -658,6 +743,27 @@
     <file>icons/dark/22/graph3d-no-floor.png</file>
     <file>icons/dark/22/matrix.png</file>
     <file>icons/dark/22/list-add.png</file>
+    <file>icons/dark/22/edit-normalize-random-number.png</file>
+    <file>icons/dark/22/edit-table-insert-column.png</file>
+    <file>icons/dark/22/goto-cell.png</file>
+    <file>icons/dark/22/graph2d-area.png</file>
+    <file>icons/dark/22/graph2d-box.png</file>
+    <file>icons/dark/22/graph2d-function-xy.png</file>
+    <file>icons/dark/22/graph2d-histogram.png</file>
+    <file>icons/dark/22/graph2d-horizontal-bar.png</file>
+    <file>icons/dark/22/graph2d-horizontal-step.png</file>
+    <file>icons/dark/22/graph2d-line-scatter.png</file>
+    <file>icons/dark/22/graph2d-line.png</file>
+    <file>icons/dark/22/graph2d-pie.png</file>
+    <file>icons/dark/22/graph2d-scatter.png</file>
+    <file>icons/dark/22/graph2d-spline.png</file>
+    <file>icons/dark/22/graph2d-vector-xy.png</file>
+    <file>icons/dark/22/graph2d-vector-xyam.png</file>
+    <file>icons/dark/22/graph2d-vertical-bar.png</file>
+    <file>icons/dark/22/graph2d-vertical-drop.png</file>
+    <file>icons/dark/22/graph2d-vertical-step.png</file>
+    <file>icons/dark/22/graph3d-function-xyz.png</file>
+    <file>icons/dark/22/view-sort.png</file>
 	<file>icons/dark/24/edit-copy.png</file>
 	<file>icons/dark/24/edit-cut.png</file>
 	<file>icons/dark/24/edit-paste.png</file>
@@ -739,6 +845,27 @@
     <file>icons/dark/24/graph3d-no-floor.png</file>
     <file>icons/dark/24/matrix.png</file>
     <file>icons/dark/24/list-add.png</file>
+    <file>icons/dark/24/edit-normalize-random-number.png</file>
+    <file>icons/dark/24/edit-table-insert-column.png</file>
+    <file>icons/dark/24/goto-cell.png</file>
+    <file>icons/dark/24/graph2d-area.png</file>
+    <file>icons/dark/24/graph2d-box.png</file>
+    <file>icons/dark/24/graph2d-function-xy.png</file>
+    <file>icons/dark/24/graph2d-histogram.png</file>
+    <file>icons/dark/24/graph2d-horizontal-bar.png</file>
+    <file>icons/dark/24/graph2d-horizontal-step.png</file>
+    <file>icons/dark/24/graph2d-line-scatter.png</file>
+    <file>icons/dark/24/graph2d-line.png</file>
+    <file>icons/dark/24/graph2d-pie.png</file>
+    <file>icons/dark/24/graph2d-scatter.png</file>
+    <file>icons/dark/24/graph2d-spline.png</file>
+    <file>icons/dark/24/graph2d-vector-xy.png</file>
+    <file>icons/dark/24/graph2d-vector-xyam.png</file>
+    <file>icons/dark/24/graph2d-vertical-bar.png</file>
+    <file>icons/dark/24/graph2d-vertical-drop.png</file>
+    <file>icons/dark/24/graph2d-vertical-step.png</file>
+    <file>icons/dark/24/graph3d-function-xyz.png</file>
+    <file>icons/dark/24/view-sort.png</file>
     <file>icons/dark/32/graph-x-error.png</file>
     <file>icons/dark/32/graph-y-error.png</file>
     <file>icons/dark/32/table-column-sum.png</file>
@@ -746,9 +873,10 @@
     <file>icons/dark/32/graph2d-area.png</file>
     <file>icons/dark/32/graph2d-box.png</file>
     <file>icons/dark/32/graph2d-horizontal-bar.png</file>
-    <file>icons/dark/32/graph2d-line.png</file>
+    <file>icons/dark/32/graph2d-line-scatter.png</file>
     <file>icons/dark/32/graph2d-pie.png</file>
-    <file>icons/dark/32/graph2d-vector.png</file>
+    <file>icons/dark/32/graph2d-vector-xy.png</file>
+    <file>icons/dark/32/graph2d-vector-xyam.png</file>
     <file>icons/dark/32/graph2d-vertical-bar.png</file>
     <file>icons/dark/32/graph2d-histogram.png</file>
     <file>icons/dark/32/graph3d-ribbon.png</file>
