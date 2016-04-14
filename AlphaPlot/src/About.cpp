@@ -24,7 +24,7 @@ About::About(QWidget* parent) : QDialog(parent) {
 
   ui_.verticalLayout_2->setSpacing(0);
   ui_.verticalLayout_2->setContentsMargins(0, 0, 0, 0);
-  ui_.horizontalLayout->setContentsMargins(0, 0, 0, 10);
+  ui_.horizontalLayout->setContentsMargins(0, 10, 0, 10);
   ui_.horizontalLayout->setSpacing(10);
   ui_.verticalLayout->setContentsMargins(0, 0, 0, 0);
   ui_.verticalLayout->setSpacing(0);

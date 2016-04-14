@@ -217,18 +217,24 @@
     <file>icons/common/16/clear-loginfo.png</file>
     <file>icons/common/16/edit-delete.png</file>
     <file>icons/common/16/list-remove.png</file>
+    <file>icons/common/16/edit-hide.png</file>
+    <file>icons/common/16/edit-unhide.png</file>
     <file>icons/common/22/folder-closed.png</file>
     <file>icons/common/22/folder-open.png</file>
     <file>icons/common/22/application-exit.png</file>
     <file>icons/common/22/clear-loginfo.png</file>
     <file>icons/common/22/edit-delete.png</file>
     <file>icons/common/22/list-remove.png</file>
+    <file>icons/common/22/edit-hide.png</file>
+    <file>icons/common/22/edit-unhide.png</file>
     <file>icons/common/24/folder-closed.png</file>
     <file>icons/common/24/folder-open.png</file>
     <file>icons/common/24/application-exit.png</file>
     <file>icons/common/24/clear-loginfo.png</file>
     <file>icons/common/24/edit-delete.png</file>
     <file>icons/common/24/list-remove.png</file>
+    <file>icons/common/24/edit-hide.png</file>
+    <file>icons/common/24/edit-unhide.png</file>
     <file>icons/common/32/folder-closed.png</file>
     <file>icons/common/32/folder-open.png</file>
     <file>icons/common/32/application-exit.png</file>

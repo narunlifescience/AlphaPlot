@@ -89,6 +89,8 @@ void TableView::setTable(future::Table *table) {
 }
 
 void TableView::init() {
+  setMinimumSize(QSize(600, 350));
+
   d_main_layout = new QHBoxLayout(this);
   d_main_layout->setSpacing(0);
   d_main_layout->setContentsMargins(0, 0, 0, 0);
@@ -115,7 +117,8 @@ void TableView::init() {
   d_hide_button->setSizePolicy(
       QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
   d_hide_button->setGeometry(0, 0, 16, 16);
-  d_hide_button->setIcon(IconLoader::load("edit-hide", IconLoader::LightDark));
+  d_hide_button->setIcon(
+      IconLoader::load("edit-unhide", IconLoader::LightDark));
   d_hide_button->setStyleSheet(
       "QToolButton {background-color : rgba(0, 0, 0, 0); "
       "border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0);}");
@@ -138,9 +141,7 @@ void TableView::init() {
   d_view_widget->setFocusPolicy(Qt::StrongFocus);
   setFocusPolicy(Qt::StrongFocus);
   setFocus();
-#if QT_VERSION >= 0x040300
   d_view_widget->setCornerButtonEnabled(true);
-#endif
 
   d_view_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
@@ -581,21 +582,24 @@ void TableView::handleFormatLineEditChange() {
 
 void TableView::showControlDescriptionTab() {
   d_control_tabs->setVisible(true);
-  d_hide_button->setArrowType(Qt::RightArrow);
+  d_hide_button->setIcon(IconLoader::load("edit-hide", IconLoader::LightDark));
+  moveFloatingButton();
   ui.tab_widget->setCurrentIndex(0);
   ui.tab_widget->setFocus();
 }
 
 void TableView::showControlTypeTab() {
   d_control_tabs->setVisible(true);
-  d_hide_button->setArrowType(Qt::RightArrow);
+  d_hide_button->setIcon(IconLoader::load("edit-hide", IconLoader::LightDark));
+  moveFloatingButton();
   ui.tab_widget->setCurrentIndex(1);
   ui.tab_widget->setFocus();
 }
 
 void TableView::showControlFormulaTab() {
   d_control_tabs->setVisible(true);
-  d_hide_button->setArrowType(Qt::RightArrow);
+  d_hide_button->setIcon(IconLoader::load("edit-hide", IconLoader::LightDark));
+  moveFloatingButton();
   ui.tab_widget->setCurrentIndex(2);
   ui.tab_widget->setFocus();
 }
@@ -905,12 +909,10 @@ void TableViewWidget::keyPressEvent(QKeyEvent *event) {
 void TableView::toggleControlTabBar() {
   d_control_tabs->setVisible(!d_control_tabs->isVisible());
   if (d_control_tabs->isVisible()) {
-    // d_hide_button->setArrowType(Qt::RightArrow);
     d_hide_button->setIcon(
         IconLoader::load("edit-hide", IconLoader::LightDark));
     moveFloatingButton();
   } else {
-    // d_hide_button->setArrowType(Qt::LeftArrow);
     d_hide_button->setIcon(
         IconLoader::load("edit-unhide", IconLoader::LightDark));
     moveFloatingButton();

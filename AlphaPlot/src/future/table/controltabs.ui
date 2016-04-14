@@ -115,7 +115,7 @@
           <item>
            <widget class="QLabel" name="name_label">
             <property name="text">
-             <string>Name:</string>
+             <string>&amp;Name:</string>
             </property>
             <property name="textFormat">
              <enum>Qt::PlainText</enum>
@@ -134,7 +134,7 @@
        <item>
         <widget class="QLabel" name="comment_label">
          <property name="text">
-          <string>Comment:</string>
+          <string>Co&amp;mment:</string>
          </property>
          <property name="textFormat">
           <enum>Qt::PlainText</enum>
@@ -218,7 +218,7 @@ p, li { white-space: pre-wrap; }
        <item row="3" column="0">
         <widget class="QLabel" name="format_label">
          <property name="text">
-          <string>Format:</string>
+          <string>For&amp;mat:</string>
          </property>
          <property name="buddy">
           <cstring>format_box</cstring>
@@ -341,7 +341,7 @@ p, li { white-space: pre-wrap; }
        <item row="0" column="0">
         <widget class="QLabel" name="formula_label">
          <property name="text">
-          <string>Formu&amp;la:</string>
+          <string>For&amp;mula:</string>
          </property>
          <property name="buddy">
           <cstring>formula_box</cstring>

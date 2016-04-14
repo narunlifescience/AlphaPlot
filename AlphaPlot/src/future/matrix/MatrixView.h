@@ -188,15 +188,6 @@ class MatrixView : public MyWidget {
   void updateTypeInfo();
 
  protected:
-  //! Pointer to the current underlying model
-  MatrixModel* d_model;
-
-  virtual void changeEvent(QEvent* event);
-  void retranslateStrings();
-
-  bool eventFilter(QObject* watched, QEvent* event);
-
- protected:
   Ui::MatrixControlTabs ui;
   //! The matrix view (first part of the UI)
   MatrixViewWidget* d_view_widget;
@@ -207,8 +198,20 @@ class MatrixView : public MyWidget {
   QHBoxLayout* d_main_layout;
   future::Matrix* d_matrix;
 
+  //! Pointer to the current underlying model
+  MatrixModel* d_model;
+
+  virtual void changeEvent(QEvent* event);
+  virtual void resizeEvent(QResizeEvent*);
+  void retranslateStrings();
+
+  bool eventFilter(QObject* watched, QEvent* event);
+
   //! Initialization
   void init();
+
+ private:
+  void moveFloatingButton();
 };
 
 #endif  // MATRIXVIEW_H

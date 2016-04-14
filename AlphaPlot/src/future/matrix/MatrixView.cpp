@@ -35,6 +35,7 @@
 #include "matrix/matrixcommands.h"
 
 #include "core/AbstractFilter.h"
+#include "../core/IconLoader.h"
 
 #include <QKeyEvent>
 #include <QtDebug>
@@ -51,6 +52,7 @@
 #include <QGridLayout>
 #include <QScrollArea>
 #include <QMenu>
+#include <QScrollBar>
 #include <QtDebug>
 
 #ifndef LEGACY_CODE_0_2_x
@@ -79,6 +81,8 @@ void MatrixView::setMatrix(future::Matrix *matrix) {
 }
 
 void MatrixView::init() {
+  setMinimumSize(QSize(600, 350));
+
   d_main_layout = new QHBoxLayout(this);
   d_main_layout->setSpacing(0);
   d_main_layout->setContentsMargins(0, 0, 0, 0);
@@ -88,13 +92,18 @@ void MatrixView::init() {
   connect(d_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
   d_main_layout->addWidget(d_view_widget);
 
-  d_hide_button = new QToolButton();
-  d_hide_button->setArrowType(Qt::RightArrow);
-  d_hide_button->setSizePolicy(
-      QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
+  d_hide_button = new QToolButton(this);
   d_hide_button->setCheckable(false);
-  d_main_layout->addWidget(d_hide_button);
+  d_hide_button->setSizePolicy(
+      QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+  d_hide_button->setGeometry(0, 0, 16, 16);
+  d_hide_button->setIcon(
+      IconLoader::load("edit-unhide", IconLoader::General));
+  d_hide_button->setStyleSheet(
+      "QToolButton {background-color : rgba(0, 0, 0, 0); "
+      "border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0);}");
   connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
+
   d_control_tabs = new QWidget();
   ui.setupUi(d_control_tabs);
 #if 0  // this seems not to work
@@ -112,6 +121,7 @@ void MatrixView::init() {
   updateFormulaTab();
   updateFormatTab();
   d_main_layout->addWidget(d_control_tabs);
+  d_control_tabs->setHidden(true);
 
   d_view_widget->setSizePolicy(
       QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
@@ -122,9 +132,7 @@ void MatrixView::init() {
   d_view_widget->setFocusPolicy(Qt::StrongFocus);
   setFocusPolicy(Qt::StrongFocus);
   setFocus();
-#if QT_VERSION >= 0x040300
   d_view_widget->setCornerButtonEnabled(true);
-#endif
 
   d_view_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
@@ -169,6 +177,26 @@ void MatrixView::init() {
   retranslateStrings();
 }
 
+void MatrixView::moveFloatingButton()
+{
+  int verticalScrollWidth;
+  (d_view_widget->verticalScrollBar()->maximum() > 0)
+      ? verticalScrollWidth =
+            this->style()->pixelMetric(QStyle::PM_ScrollBarExtent)
+      : verticalScrollWidth = 0;
+
+  if (!d_control_tabs->isHidden()) {
+    d_hide_button->move(
+        this->width() - (d_control_tabs->width() + d_hide_button->width() +
+                         verticalScrollWidth),
+        d_control_tabs->pos().y() + 60);
+  } else {
+    d_hide_button->move(
+        this->width() - (d_hide_button->width() + verticalScrollWidth),
+        d_control_tabs->pos().y() + 60);
+  }
+}
+
 void MatrixView::rereadSectionSizes() {
   QHeaderView *h_header = d_view_widget->horizontalHeader();
   QHeaderView *v_header = d_view_widget->verticalHeader();
@@ -194,6 +222,11 @@ void MatrixView::rereadSectionSizes() {
 void MatrixView::changeEvent(QEvent *event) {
   if (event->type() == QEvent::LanguageChange) retranslateStrings();
   MyWidget::changeEvent(event);
+}
+
+void MatrixView::resizeEvent(QResizeEvent *)
+{
+  moveFloatingButton();
 }
 
 void MatrixView::retranslateStrings() {
@@ -223,10 +256,15 @@ void MatrixView::selectAll() { d_view_widget->selectAll(); }
 
 void MatrixView::toggleControlTabBar() {
   d_control_tabs->setVisible(!d_control_tabs->isVisible());
-  if (d_control_tabs->isVisible())
-    d_hide_button->setArrowType(Qt::RightArrow);
-  else
-    d_hide_button->setArrowType(Qt::LeftArrow);
+  if (d_control_tabs->isVisible()) {
+    d_hide_button->setIcon(
+        IconLoader::load("edit-hide", IconLoader::General));
+    moveFloatingButton();
+  } else {
+    d_hide_button->setIcon(
+        IconLoader::load("edit-unhide", IconLoader::General));
+    moveFloatingButton();
+  }
   emit controlTabBarStatusChanged(d_control_tabs->isVisible());
 }
 
@@ -352,7 +390,8 @@ bool MatrixView::eventFilter(QObject *watched, QEvent *event) {
 
 void MatrixView::showControlCoordinatesTab() {
   d_control_tabs->setVisible(true);
-  d_hide_button->setArrowType(Qt::RightArrow);
+  d_hide_button->setIcon(IconLoader::load("edit-hide", IconLoader::General));
+  moveFloatingButton();
   ui.tab_widget->setCurrentIndex(0);
   ui.tab_widget->setFocus();
   emit controlTabBarStatusChanged(d_control_tabs->isVisible());
@@ -360,7 +399,8 @@ void MatrixView::showControlCoordinatesTab() {
 
 void MatrixView::showControlFormatTab() {
   d_control_tabs->setVisible(true);
-  d_hide_button->setArrowType(Qt::RightArrow);
+  d_hide_button->setIcon(IconLoader::load("edit-hide", IconLoader::General));
+  moveFloatingButton();
   ui.tab_widget->setCurrentIndex(1);
   ui.tab_widget->setFocus();
   emit controlTabBarStatusChanged(d_control_tabs->isVisible());
@@ -368,7 +408,8 @@ void MatrixView::showControlFormatTab() {
 
 void MatrixView::showControlFormulaTab() {
   d_control_tabs->setVisible(true);
-  d_hide_button->setArrowType(Qt::RightArrow);
+  d_hide_button->setIcon(IconLoader::load("edit-hide", IconLoader::General));
+  moveFloatingButton();
   ui.tab_widget->setCurrentIndex(2);
   ui.tab_widget->setFocus();
   emit controlTabBarStatusChanged(d_control_tabs->isVisible());
