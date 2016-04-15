@@ -206,36 +206,51 @@ ApplicationWindow::ApplicationWindow()
       lastCopiedLayer(0),
       explorerSplitter(new QSplitter(Qt::Horizontal, explorerWindow)) {
   ui_->setupUi(this);
+
   // Icons
   IconLoader::init();
   IconLoader::lumen_ = IconLoader::isLight(palette().color(QPalette::Window));
+
+  // need to be initiated here after IconLoader::init() for icons
   settings_ = new SettingsDialog(this);
 
-  ui_->actionNextWindow->setIcon(
-      IconLoader::load("go-next", IconLoader::LightDark));
-  ui_->actionPreviousWindow->setIcon(
-      IconLoader::load("go-previous", IconLoader::LightDark));
-
-  setAttribute(Qt::WA_DeleteOnClose);
+  // Mainwindow properties
   setWindowIcon(QIcon(":/appicon-16"));
+  setAttribute(Qt::WA_DeleteOnClose);
   setWindowTitle("AlphaPlot - " + tr("untitled"));
-
-  initFonts();
   QPixmapCache::setCacheLimit(20 * QPixmapCache::cacheLimit());
 
+  // Initiate Fonts
+  QString family = appFont.family();
+  int pointSize = appFont.pointSize();
+  tableTextFont = appFont;
+  tableHeaderFont = appFont;
+  plotAxesFont = QFont(family, pointSize, QFont::Bold, false);
+  plotNumbersFont = QFont(family, pointSize);
+  plotLegendFont = appFont;
+  plotTitleFont = QFont(family, pointSize + 2, QFont::Bold, false);
+  plot3DAxesFont = QFont(family, pointSize, QFont::Bold, false);
+  plot3DNumbersFont = QFont(family, pointSize);
+  plot3DTitleFont = QFont(family, pointSize + 2, QFont::Bold, false);
+
+  // Initiate projects & set connections
   d_project = new Project();
   connect(d_project, SIGNAL(aspectAdded(const AbstractAspect *, int)), this,
           SLOT(handleAspectAdded(const AbstractAspect *, int)));
   connect(d_project,
           SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)), this,
           SLOT(handleAspectAboutToBeRemoved(const AbstractAspect *, int)));
+  connect(d_project->undoStack(), SIGNAL(canUndoChanged(bool)), ui_->actionUndo,
+          SLOT(setEnabled(bool)));
+  connect(d_project->undoStack(), SIGNAL(canRedoChanged(bool)), ui_->actionRedo,
+          SLOT(setEnabled(bool)));
 
+  // Explorer window
   explorerWindow->setWindowTitle(tr("Project Explorer"));
-  explorerWindow->setObjectName(
-      "explorerWindow");  // this is needed for QMainWindow::restoreState()
+  explorerWindow->setObjectName("explorerWindow");  // need for restoreState()
   explorerWindow->setMinimumHeight(150);
   addDockWidget(Qt::BottomDockWidgetArea, explorerWindow);
-
+  // Explorer window folder view properties
   folders->header()->setClickEnabled(false);
   folders->addColumn(tr("Folder"));
   folders->setRootIsDecorated(true);
@@ -243,7 +258,7 @@ ApplicationWindow::ApplicationWindow()
   folders->header()->hide();
   folders->setSelectionMode(Q3ListView::Single);
   folders->setDefaultRenameAction(Q3ListView::Accept);
-
+  // Explorer Window folder view connections
   connect(folders, SIGNAL(currentChanged(Q3ListViewItem *)), this,
           SLOT(folderItemChanged(Q3ListViewItem *)));
   connect(folders, SIGNAL(itemRenamed(Q3ListViewItem *, int, const QString &)),
@@ -261,11 +276,11 @@ ApplicationWindow::ApplicationWindow()
   connect(folders, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
   connect(folders, SIGNAL(deleteSelection()), this,
           SLOT(deleteSelectedItems()));
-
+  // Explorer window folderview list item
   FolderListItem *fli = new FolderListItem(folders, current_folder);
   current_folder->setFolderListItem(fli);
   fli->setOpen(true);
-
+  // Explorer window list view properties
   lv->addColumn(tr("Name"), -1);
   lv->addColumn(tr("Type"), -1);
   lv->addColumn(tr("View"), -1);
@@ -275,54 +290,7 @@ ApplicationWindow::ApplicationWindow()
   lv->setMinimumHeight(80);
   lv->setSelectionMode(Q3ListView::Extended);
   lv->setDefaultRenameAction(Q3ListView::Accept);
-
-  explorerSplitter->addWidget(folders);
-  explorerSplitter->addWidget(lv);
-  explorerWindow->setWidget(explorerSplitter);
-  explorerSplitter->setSizes(QList<int>() << 50 << 50);
-  explorerWindow->hide();
-
-  logWindow->setObjectName(
-      "logWindow");  // this is needed for QMainWindow::restoreState()
-  logWindow->setWindowTitle(tr("Results Log"));
-  addDockWidget(Qt::TopDockWidgetArea, logWindow);
-
-  results->setReadOnly(true);
-
-  logWindow->setWidget(results);
-  logWindow->hide();
-
-#ifdef SCRIPTING_CONSOLE
-  consoleWindow->setObjectName(
-      "consoleWindow");  // this is needed for QMainWindow::restoreState()
-  addDockWidget(Qt::TopDockWidgetArea, consoleWindow);
-  consoleWindow->hide();
-#endif
-
-  // Needs to be done after initialization of dock windows,
-  // because we now use QDockWidget::toggleViewAction()
-  createActions();
-  initToolBars();
-  initPlot3DToolBar();
-  initMainMenu();
-
-  d_workspace->setScrollBarsEnabled(true);
-  setCentralWidget(d_workspace);
-  setAcceptDrops(true);
-
-  readSettings();
-  createLanguagesList();
-  insertTranslatedStrings();
-
-  connect(ui_->actionNextWindow, SIGNAL(activated()), d_workspace,
-          SLOT(activateNextWindow()));
-
-  connect(ui_->actionPreviousWindow, SIGNAL(activated()), d_workspace,
-          SLOT(activatePreviousWindow()));
-
-  connect(this, SIGNAL(modified()), this, SLOT(modifiedProject()));
-  connect(d_workspace, SIGNAL(windowActivated(QWidget *)), this,
-          SLOT(windowActivated(QWidget *)));
+  // Explorer Window list view connections
   connect(lv, SIGNAL(doubleClicked(Q3ListViewItem *)), this,
           SLOT(folderItemDoubleClicked(Q3ListViewItem *)));
   connect(
@@ -338,37 +306,66 @@ ApplicationWindow::ApplicationWindow()
   connect(lv, SIGNAL(deleteSelection()), this, SLOT(deleteSelectedItems()));
   connect(lv, SIGNAL(itemRenamed(Q3ListViewItem *, int, const QString &)), this,
           SLOT(renameWindow(Q3ListViewItem *, int, const QString &)));
+  // Explorer window set folder & listview
+  explorerSplitter->addWidget(folders);
+  explorerSplitter->addWidget(lv);
+  explorerWindow->setWidget(explorerSplitter);
+  explorerSplitter->setSizes(QList<int>() << 50 << 50);
+  explorerWindow->hide();
+
+  // Results log window
+  logWindow->setWindowTitle(tr("Results Log"));
+  logWindow->setObjectName("logWindow");  // needed for restoreState()
+  addDockWidget(Qt::TopDockWidgetArea, logWindow);
+  results->setReadOnly(true);
+  logWindow->setWidget(results);
+  logWindow->hide();
+
+// Scripting console window
+#ifdef SCRIPTING_CONSOLE
+  consoleWindow->setObjectName("consoleWindow");  // need for restoreState()
+  addDockWidget(Qt::TopDockWidgetArea, consoleWindow);
+  consoleWindow->hide();
+#endif
+
+  // After initialization of QDockWidget, for toggleViewAction() to work
+  createActions();
+  initToolBars();
+  initPlot3DToolBar();
+  initMainMenu();
+
+  // Create central MdiArea
+  d_workspace->setScrollBarsEnabled(true);
+  setCentralWidget(d_workspace);
+  setAcceptDrops(true);
+  connect(d_workspace, SIGNAL(windowActivated(QWidget *)), this,
+          SLOT(windowActivated(QWidget *)));
+
+  readSettings();
+  createLanguagesList();
+  insertTranslatedStrings();
+
+  ui_->actionNextWindow->setIcon(
+      IconLoader::load("go-next", IconLoader::LightDark));
+  ui_->actionPreviousWindow->setIcon(
+      IconLoader::load("go-previous", IconLoader::LightDark));
+
+  connect(ui_->actionNextWindow, SIGNAL(activated()), d_workspace,
+          SLOT(activateNextWindow()));
+  connect(ui_->actionPreviousWindow, SIGNAL(activated()), d_workspace,
+          SLOT(activatePreviousWindow()));
+
   connect(scriptEnv, SIGNAL(error(const QString &, const QString &, int)), this,
           SLOT(scriptError(const QString &, const QString &, int)));
   connect(scriptEnv, SIGNAL(print(const QString &)), this,
           SLOT(scriptPrint(const QString &)));
+  // this has to be done after connecting scriptEnv
+  scriptEnv->initialize();
 
 #ifdef SEARCH_FOR_UPDATES
   connect(&http, SIGNAL(done(bool)), this, SLOT(receivedVersionFile(bool)));
 #endif
-
-  // this has to be done after connecting scriptEnv
-  scriptEnv->initialize();
-
-  connect(d_project->undoStack(), SIGNAL(canUndoChanged(bool)), ui_->actionUndo,
-          SLOT(setEnabled(bool)));
-  connect(d_project->undoStack(), SIGNAL(canRedoChanged(bool)), ui_->actionRedo,
-          SLOT(setEnabled(bool)));
-}
-
-void ApplicationWindow::initFonts() {
-  QString family = appFont.family();
-  int pointSize = appFont.pointSize();
-  tableTextFont = appFont;
-  tableHeaderFont = appFont;
-  plotAxesFont = QFont(family, pointSize, QFont::Bold, false);
-  plotNumbersFont = QFont(family, pointSize);
-  plotLegendFont = appFont;
-  plotTitleFont = QFont(family, pointSize + 2, QFont::Bold, false);
-
-  plot3DAxesFont = QFont(family, pointSize, QFont::Bold, false);
-  plot3DNumbersFont = QFont(family, pointSize);
-  plot3DTitleFont = QFont(family, pointSize + 2, QFont::Bold, false);
+  connect(this, SIGNAL(modified()), this, SLOT(modifiedProject()));
 }
 
 void ApplicationWindow::applyUserSettings() {
@@ -825,7 +822,8 @@ void ApplicationWindow::initMainMenu() {
   connect(ui_->actionCascadeWindow, SIGNAL(triggered()), this, SLOT(cascade()));
   connect(ui_->actionTileWindow, SIGNAL(triggered()), d_workspace,
           SLOT(tile()));
-  connect(ui_->actionHideWindow, SIGNAL(triggered()), this, SLOT(hideActiveWindow()));
+  connect(ui_->actionHideWindow, SIGNAL(triggered()), this,
+          SLOT(hideActiveWindow()));
   connect(ui_->actionCloseWindow, SIGNAL(triggered()), this,
           SLOT(closeActiveWindow()));
 

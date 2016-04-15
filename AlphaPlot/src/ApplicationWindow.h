@@ -548,7 +548,6 @@ Arranges all the visible project windows in a cascade pattern.
   //@{
   void insertTranslatedStrings();
   void translateActionsStrings();
-  void initFonts();
   void createActions();
   void initMainMenu();
   void initTableAnalysisMenu();
