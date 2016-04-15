@@ -204,17 +204,16 @@ ApplicationWindow::ApplicationWindow()
       autoSearchUpdatesRequest(false),
 #endif
       lastCopiedLayer(0),
-      explorerSplitter(new QSplitter(Qt::Horizontal, explorerWindow)),
-      actionNextWindow(new QAction(tr("&Next", "next window"), this)),
-      actionPrevWindow(new QAction(tr("&Previous", "previous window"), this)) {
+      explorerSplitter(new QSplitter(Qt::Horizontal, explorerWindow)) {
   ui_->setupUi(this);
   // Icons
   IconLoader::init();
   IconLoader::lumen_ = IconLoader::isLight(palette().color(QPalette::Window));
   settings_ = new SettingsDialog(this);
 
-  actionNextWindow->setIcon(IconLoader::load("go-next", IconLoader::LightDark));
-  actionPrevWindow->setIcon(
+  ui_->actionNextWindow->setIcon(
+      IconLoader::load("go-next", IconLoader::LightDark));
+  ui_->actionPreviousWindow->setIcon(
       IconLoader::load("go-previous", IconLoader::LightDark));
 
   setAttribute(Qt::WA_DeleteOnClose);
@@ -315,12 +314,10 @@ ApplicationWindow::ApplicationWindow()
   createLanguagesList();
   insertTranslatedStrings();
 
-  actionNextWindow->setShortcut(tr("F5", "next window shortcut"));
-  connect(actionNextWindow, SIGNAL(activated()), d_workspace,
+  connect(ui_->actionNextWindow, SIGNAL(activated()), d_workspace,
           SLOT(activateNextWindow()));
 
-  actionPrevWindow->setShortcut(tr("F6", "previous window shortcut"));
-  connect(actionPrevWindow, SIGNAL(activated()), d_workspace,
+  connect(ui_->actionPreviousWindow, SIGNAL(activated()), d_workspace,
           SLOT(activatePreviousWindow()));
 
   connect(this, SIGNAL(modified()), this, SLOT(modifiedProject()));
@@ -819,11 +816,18 @@ void ApplicationWindow::initMainMenu() {
   format = new QMenu(this);
   format->setFont(appFont);
 
-  windowsMenu = new QMenu(this);
-  windowsMenu->setFont(appFont);
-  windowsMenu->setCheckable(true);
-  connect(windowsMenu, SIGNAL(aboutToShow()), this,
-          SLOT(windowsMenuAboutToShow()));
+  ui_->actionCascadeWindow->setIcon(QIcon());
+  ui_->actionTileWindow->setIcon(QIcon());
+  ui_->actionHideWindow->setIcon(QIcon());
+  ui_->actionCloseWindow->setIcon(
+      IconLoader::load("edit-delete", IconLoader::General));
+
+  connect(ui_->actionCascadeWindow, SIGNAL(triggered()), this, SLOT(cascade()));
+  connect(ui_->actionTileWindow, SIGNAL(triggered()), d_workspace,
+          SLOT(tile()));
+  connect(ui_->actionHideWindow, SIGNAL(triggered()), this, SLOT(hideActiveWindow()));
+  connect(ui_->actionCloseWindow, SIGNAL(triggered()), this,
+          SLOT(closeActiveWindow()));
 
 #ifdef DYNAMIC_MANUAL_PATH
   ui_->actionChooseHelpFolder->setVisible(true);
@@ -989,7 +993,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
     } else
       disableActions();
 
-    menuBar()->insertItem(tr("&Windows"), windowsMenu);
+    menuBar()->insertItem(tr("&Windows"), ui_->menuWindow);
   } else
     disableActions();
 
@@ -2752,8 +2756,6 @@ void ApplicationWindow::changeAppFont(const QFont &f) {
 void ApplicationWindow::updateAppFonts() {
   qApp->setFont(appFont);
   this->setFont(appFont);
-  windowsMenu->setFont(appFont);
-  ui_->menuFile->setFont(appFont);
   format->setFont(appFont);
   calcul->setFont(appFont);
   dataMenu->setFont(appFont);
@@ -6905,28 +6907,6 @@ void ApplicationWindow::about() {
   about.exec();
 }
 
-void ApplicationWindow::windowsMenuAboutToShow() {
-  QList<QWidget *> windows = d_workspace->windowList();
-  int n = int(windows.count());
-  if (!n) return;
-
-  windowsMenu->clear();
-  windowsMenu->insertItem(tr("&Cascade"), this, SLOT(cascade()));
-  windowsMenu->insertItem(tr("&Tile"), d_workspace, SLOT(tile()));
-  windowsMenu->addSeparator();
-  windowsMenu->addAction(actionNextWindow);
-  windowsMenu->addAction(actionPrevWindow);
-  windowsMenu->addSeparator();
-  windowsMenu->addAction(actionRename);
-  windowsMenu->addAction(actionCopyWindow);
-  windowsMenu->addSeparator();
-  windowsMenu->addAction(actionResizeActiveWindow);
-  windowsMenu->insertItem(tr("&Hide Window"), this, SLOT(hideActiveWindow()));
-  windowsMenu->insertItem(IconLoader::load("edit-delete", IconLoader::General),
-                          tr("Close &Window"), this, SLOT(closeActiveWindow()),
-                          Qt::CTRL + Qt::Key_W);
-}
-
 void ApplicationWindow::showMarkerPopupMenu() {
   if (!d_workspace->activeWindow() ||
       !d_workspace->activeWindow()->inherits("MultiLayer"))
@@ -7522,8 +7502,8 @@ void ApplicationWindow::showWindowContextMenu() {
       cm.addSeparator();
     } else
       cm.addSeparator();
-    cm.addAction(actionRename);
-    cm.addAction(actionCopyWindow);
+    cm.addAction(ui_->actionRenameWindow);
+    cm.addAction(ui_->actionDuplicateWindow);
     cm.addSeparator();
     cm.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark),
                   tr("&Copy Page"), g, SLOT(copyAllLayers()));
@@ -7551,8 +7531,8 @@ void ApplicationWindow::showWindowContextMenu() {
     }
 
     cm.addSeparator();
-    cm.addAction(actionRename);
-    cm.addAction(actionCopyWindow);
+    cm.addAction(ui_->actionRenameWindow);
+    cm.addAction(ui_->actionDuplicateWindow);
     cm.addSeparator();
     cm.insertItem(tr("&Copy Graph"), g, SLOT(copyImage()));
     cm.insertItem(tr("&Export"), this, SLOT(exportGraph()));
@@ -9534,10 +9514,9 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionPlotWizard, SIGNAL(activated()), this,
           SLOT(showPlotWizard()));
 
-  actionCopyWindow =
-      new QAction(IconLoader::load("edit-duplicate", IconLoader::LightDark),
-                  tr("&Duplicate"), this);
-  connect(actionCopyWindow, SIGNAL(activated()), this, SLOT(clone()));
+  ui_->actionDuplicateWindow->setIcon(
+      IconLoader::load("edit-duplicate", IconLoader::LightDark));
+  connect(ui_->actionDuplicateWindow, SIGNAL(activated()), this, SLOT(clone()));
 
   actionSaveNote = new QAction(tr("Save Note As..."), this);
   connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
@@ -9623,18 +9602,21 @@ void ApplicationWindow::createActions() {
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalDropLines,
                             Graph::VerticalDropLines);
 
-  ui_->actionPlot2DSpline->setIcon(IconLoader::load("graph2d-spline", IconLoader::LightDark));
+  ui_->actionPlot2DSpline->setIcon(
+      IconLoader::load("graph2d-spline", IconLoader::LightDark));
   connect(ui_->actionPlot2DSpline, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DSpline, Graph::Spline);
 
-  ui_->actionPlot2DHorizontalSteps->setIcon(IconLoader::load("graph2d-horizontal-step", IconLoader::LightDark));
+  ui_->actionPlot2DHorizontalSteps->setIcon(
+      IconLoader::load("graph2d-horizontal-step", IconLoader::LightDark));
   connect(ui_->actionPlot2DHorizontalSteps, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalSteps,
                             Graph::HorizontalSteps);
 
-  ui_->actionPlot2DVerticalSteps->setIcon(IconLoader::load("graph2d-vertical-step", IconLoader::LightDark));
+  ui_->actionPlot2DVerticalSteps->setIcon(
+      IconLoader::load("graph2d-vertical-step", IconLoader::LightDark));
   connect(ui_->actionPlot2DVerticalSteps, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalSteps,
@@ -9646,7 +9628,8 @@ void ApplicationWindow::createActions() {
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalBars, Graph::VerticalBars);
 
-  ui_->actionPlot2DHorizontalBars->setIcon(IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark));
+  ui_->actionPlot2DHorizontalBars->setIcon(
+      IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark));
   connect(ui_->actionPlot2DHorizontalBars, SIGNAL(activated()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalBars,
@@ -9662,11 +9645,13 @@ void ApplicationWindow::createActions() {
       IconLoader::load("graph2d-pie", IconLoader::LightDark));
   connect(ui_->actionPlot2DPie, SIGNAL(activated()), this, SLOT(plotPie()));
 
-  ui_->actionPlot2DVectorsXYAM->setIcon(IconLoader::load("graph2d-vector-xyam", IconLoader::LightDark));
+  ui_->actionPlot2DVectorsXYAM->setIcon(
+      IconLoader::load("graph2d-vector-xyam", IconLoader::LightDark));
   connect(ui_->actionPlot2DVectorsXYAM, SIGNAL(activated()), this,
           SLOT(plotVectXYAM()));
 
-  ui_->actionPlot2DVectorsXYXY->setIcon(IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
+  ui_->actionPlot2DVectorsXYXY->setIcon(
+      IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
   connect(ui_->actionPlot2DVectorsXYXY, SIGNAL(activated()), this,
           SLOT(plotVectXYXY()));
 
@@ -9842,9 +9827,10 @@ void ApplicationWindow::createActions() {
           SLOT(chooseHelpFolder()));
 #endif
 
-  actionRename = new QAction(tr("&Rename Window"), this);
-  actionRename->setIcon(IconLoader::load("edit-rename", IconLoader::LightDark));
-  connect(actionRename, SIGNAL(activated()), this, SLOT(renameActiveWindow()));
+  ui_->actionRenameWindow->setIcon(
+      IconLoader::load("edit-rename", IconLoader::LightDark));
+  connect(ui_->actionRenameWindow, SIGNAL(activated()), this,
+          SLOT(renameActiveWindow()));
 
   actionCloseWindow =
       new QAction(IconLoader::load("edit-delete", IconLoader::General),
@@ -9858,10 +9844,9 @@ void ApplicationWindow::createActions() {
   connect(ui_->actionRemoveLayer, SIGNAL(activated()), this,
           SLOT(deleteLayer()));
 
-  actionResizeActiveWindow = new QAction(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
-      tr("Window &Geometry..."), this);
-  connect(actionResizeActiveWindow, SIGNAL(activated()), this,
+  ui_->actionWindowGeometry->setIcon(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
+  connect(ui_->actionWindowGeometry, SIGNAL(activated()), this,
           SLOT(resizeActiveWindow()));
 
   actionHideActiveWindow = new QAction(tr("&Hide Window"), this);
@@ -10111,9 +10096,6 @@ void ApplicationWindow::translateActionsStrings() {
   actionHideOtherCurves->setMenuText(tr("Hide &Other Curves"));
   actionShowAllCurves->setMenuText(tr("&Show All Curves"));
 
-  actionCopyWindow->setMenuText(tr("&Duplicate"));
-  actionCopyWindow->setToolTip(tr("Duplicate window"));
-
   // FIXME: "..." should be added before translating, but this would break
   // translations
   actionExportPDF->setMenuText(tr("&Export PDF") + "...");
@@ -10159,12 +10141,9 @@ void ApplicationWindow::translateActionsStrings() {
   actionShowGridDialog->setMenuText(tr("&Grid ..."));
   actionShowTitleDialog->setMenuText(tr("&Title ..."));
 
-  actionRename->setMenuText(tr("&Rename Window"));
-
   actionCloseWindow->setMenuText(tr("Close &Window"));
   actionCloseWindow->setShortcut(tr("Ctrl+W"));
 
-  actionResizeActiveWindow->setMenuText(tr("Window &Geometry..."));
   actionHideActiveWindow->setMenuText(tr("&Hide Window"));
   actionShowMoreWindows->setMenuText(tr("More Windows..."));
   actionPixelLineProfile->setMenuText(tr("&View Pixel Line Profile"));
@@ -12180,9 +12159,9 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
   else
     cm.addAction(ui_->actionSaveAsTemplate);
   cm.addAction(ui_->actionPrint);
-  cm.addAction(actionCopyWindow);
+  cm.addAction(ui_->actionDuplicateWindow);
   cm.addSeparator();
-  cm.addAction(actionRename);
+  cm.addAction(ui_->actionRenameWindow);
   cm.addAction(actionCloseWindow);
   if (!hidden(widget)) cm.addAction(actionHideActiveWindow);
   cm.addAction(actionActivateWindow);

@@ -487,7 +487,6 @@ Arranges all the visible project windows in a cascade pattern.
 
   //! Return a version string ("AlphaPlot x.y.z")
   static QString versionString();
-  void windowsMenuAboutToShow();
   void windowsMenuActivated(int id);
   void removeCurves(const QString& name);
   QStringList dependingPlots(const QString& caption);
@@ -1115,7 +1114,7 @@ Arranges all the visible project windows in a cascade pattern.
   Graph* lastCopiedLayer;
   QSplitter* explorerSplitter;
 
-  QMenu *windowsMenu, *format, *calcul, *dataMenu;
+  QMenu *format, *calcul, *dataMenu;
   QMenu* d_quick_fit_menu;
   QMenu *decay, *filter;
   QMenu *matrixMenu, *plotDataMenu, *tableMenu;
@@ -1125,7 +1124,6 @@ Arranges all the visible project windows in a cascade pattern.
       *actionHideCurve, *actionHideOtherCurves;
   QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet,
       *actionShowCurvePlotDialog;
-  QAction* actionCopyWindow;
 
   QAction* actionShowExportASCIIDialog;
   QAction* actionExportPDF;
@@ -1139,9 +1137,9 @@ Arranges all the visible project windows in a cascade pattern.
   QAction *actionFitExpGrowth, *actionFitSigmoidal, *actionFitGauss,
       *actionFitLorentz, *actionShowFitDialog;
   QAction *actionShowAxisDialog, *actionShowTitleDialog;
-  QAction *actionRename, *actionCloseWindow, *actionConvertTable;
+  QAction *actionCloseWindow, *actionConvertTable;
   QAction *actionAddColToTable, *actionInterpolate;
-  QAction *actionResizeActiveWindow, *actionHideActiveWindow;
+  QAction *actionHideActiveWindow;
   QAction *actionShowMoreWindows, *actionPixelLineProfile,
       *actionIntensityTable;
   QAction *actionShowLineDialog, *actionShowImageDialog, *actionShowTextDialog;
@@ -1162,8 +1160,6 @@ Arranges all the visible project windows in a cascade pattern.
   QAction *actionMultiPeakGauss, *actionMultiPeakLorentz;
 
   QAction *actionShowPlotDialog, *actionShowScaleDialog;
-  QAction* actionNextWindow;
-  QAction* actionPrevWindow;
   QAction *actionClearTable,
       *actionGoToCell;
   QAction *actionSaveNote;

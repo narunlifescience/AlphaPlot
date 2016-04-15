@@ -241,6 +241,23 @@
     <addaction name="action3DCountourLines"/>
     <addaction name="action3DGreyScaleMap"/>
    </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionCascadeWindow"/>
+    <addaction name="actionTileWindow"/>
+    <addaction name="separator"/>
+    <addaction name="actionNextWindow"/>
+    <addaction name="actionPreviousWindow"/>
+    <addaction name="separator"/>
+    <addaction name="actionRenameWindow"/>
+    <addaction name="actionDuplicateWindow"/>
+    <addaction name="separator"/>
+    <addaction name="actionWindowGeometry"/>
+    <addaction name="actionHideWindow"/>
+    <addaction name="actionCloseWindow"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
@@ -248,6 +265,7 @@
    <addaction name="menuPlot"/>
    <addaction name="menu3DPlot"/>
    <addaction name="menuGraph"/>
+   <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -909,6 +927,54 @@
   <action name="action3DGreyScaleMap">
    <property name="text">
     <string>&amp;Grey Scale Map</string>
+   </property>
+  </action>
+  <action name="actionCascadeWindow">
+   <property name="text">
+    <string>Cascade</string>
+   </property>
+  </action>
+  <action name="actionTileWindow">
+   <property name="text">
+    <string>Tile</string>
+   </property>
+  </action>
+  <action name="actionNextWindow">
+   <property name="text">
+    <string>Next</string>
+   </property>
+  </action>
+  <action name="actionPreviousWindow">
+   <property name="text">
+    <string>Previous</string>
+   </property>
+  </action>
+  <action name="actionRenameWindow">
+   <property name="text">
+    <string>Rename Window</string>
+   </property>
+  </action>
+  <action name="actionDuplicateWindow">
+   <property name="text">
+    <string>Duplicate</string>
+   </property>
+  </action>
+  <action name="actionWindowGeometry">
+   <property name="text">
+    <string>Window Geometry...</string>
+   </property>
+  </action>
+  <action name="actionHideWindow">
+   <property name="text">
+    <string>Hide Window</string>
+   </property>
+  </action>
+  <action name="actionCloseWindow">
+   <property name="text">
+    <string>Close Window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
    </property>
   </action>
  </widget>
