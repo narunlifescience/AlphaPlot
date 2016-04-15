@@ -6925,33 +6925,6 @@ void ApplicationWindow::windowsMenuAboutToShow() {
   windowsMenu->insertItem(IconLoader::load("edit-delete", IconLoader::General),
                           tr("Close &Window"), this, SLOT(closeActiveWindow()),
                           Qt::CTRL + Qt::Key_W);
-
-  if (n > 0 && n < 10) {
-    windowsMenu->addSeparator();
-    for (int i = 0; i < n; ++i) {
-      MyWidget *widget = qobject_cast<MyWidget *>(windows.at(i));
-      if (!widget) continue;
-      int id = windowsMenu->insertItem(widget->name(), this,
-                                       SLOT(windowsMenuActivated(int)));
-      windowsMenu->setItemParameter(id, i);
-      windowsMenu->setItemChecked(id,
-                                  d_workspace->activeWindow() == windows.at(i));
-    }
-  } else if (n >= 10) {
-    windowsMenu->addSeparator();
-    for (int i = 0; i < 9; ++i) {
-      MyWidget *widget = qobject_cast<MyWidget *>(windows.at(i));
-      if (!widget) continue;
-      int id = windowsMenu->insertItem(widget->name(), this,
-                                       SLOT(windowsMenuActivated(int)));
-      windowsMenu->setItemParameter(id, i);
-      windowsMenu->setItemChecked(id,
-                                  d_workspace->activeWindow() == windows.at(i));
-    }
-    windowsMenu->addSeparator();
-    windowsMenu->insertItem(tr("More windows..."), this,
-                            SLOT(showMoreWindows()));
-  }
 }
 
 void ApplicationWindow::showMarkerPopupMenu() {
