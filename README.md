@@ -48,5 +48,4 @@ The following packages may be required by Alpha plot ...
 - Qwt (http://qwt.sourceforge.net/),
 - Qwtplot3D (http://qwtplot3d.sourceforge.net/),
 - muParser (http://muparser.beltoforion.de/),
-- Python (http://www.python.org/),
 - GSL (http://www.gnu.org/software/gsl/)
