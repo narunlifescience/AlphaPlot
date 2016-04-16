@@ -204,7 +204,9 @@ ApplicationWindow::ApplicationWindow()
       autoSearchUpdatesRequest(false),
 #endif
       lastCopiedLayer(0),
-      explorerSplitter(new QSplitter(Qt::Horizontal, explorerWindow)) {
+      explorerSplitter(new QSplitter(Qt::Horizontal, explorerWindow)),
+      dataTools(new QActionGroup(this)),
+      d_plot_mapper(new QSignalMapper) {
   ui_->setupUi(this);
 
   // Icons
@@ -329,6 +331,441 @@ ApplicationWindow::ApplicationWindow()
 #endif
 
   // After initialization of QDockWidget, for toggleViewAction() to work
+  // Set icons for QActions
+  // File menu
+  ui_->actionNewProject->setIcon(
+      IconLoader::load("edit-new", IconLoader::LightDark));
+  ui_->actionNewGraph->setIcon(
+      IconLoader::load("edit-graph", IconLoader::LightDark));
+  ui_->actionNewNote->setIcon(
+      IconLoader::load("edit-note", IconLoader::LightDark));
+  ui_->actionNewTable->setIcon(
+      IconLoader::load("table", IconLoader::LightDark));
+  ui_->actionNewMatrix->setIcon(
+      IconLoader::load("matrix", IconLoader::LightDark));
+  ui_->actionNewFunctionPlot->setIcon(
+      IconLoader::load("graph2d-function-xy", IconLoader::LightDark));
+  ui_->actionNew3DSurfacePlot->setIcon(
+      IconLoader::load("graph3d-function-xyz", IconLoader::LightDark));
+  ui_->actionOpenAproj->setIcon(
+      IconLoader::load("project-open", IconLoader::LightDark));
+  ui_->actionOpenImage->setIcon(QIcon());
+  ui_->actionImportImage->setIcon(
+      IconLoader::load("view-image", IconLoader::LightDark));
+  ui_->actionSaveProject->setIcon(
+      IconLoader::load("document-save", IconLoader::LightDark));
+  ui_->actionSaveProjectAs->setIcon(QIcon());
+  ui_->actionOpenTemplate->setIcon(
+      IconLoader::load("template-open", IconLoader::LightDark));
+  ui_->actionSaveAsTemplate->setIcon(
+      IconLoader::load("template-save", IconLoader::LightDark));
+  ui_->actionExportCurrentGraph->setIcon(QIcon());
+  ui_->actionExportAllGraphs->setIcon(QIcon());
+  ui_->actionPrint->setIcon(
+      IconLoader::load("edit-print", IconLoader::LightDark));
+  ui_->actionPrintAllPlots->setIcon(QIcon());
+  ui_->actionExportASCII->setIcon(QIcon());
+  ui_->actionImportASCII->setIcon(
+      IconLoader::load("import-ascii-filter", IconLoader::LightDark));
+  ui_->actionQuit->setIcon(
+      IconLoader::load("application-exit", IconLoader::General));
+  // Edit menu
+  ui_->actionUndo->setIcon(
+      IconLoader::load("edit-undo", IconLoader::LightDark));
+  ui_->actionRedo->setIcon(
+      IconLoader::load("edit-redo", IconLoader::LightDark));
+  ui_->actionCutSelection->setIcon(
+      IconLoader::load("edit-cut", IconLoader::LightDark));
+  ui_->actionCopySelection->setIcon(
+      IconLoader::load("edit-copy", IconLoader::LightDark));
+  ui_->actionPasteSelection->setIcon(
+      IconLoader::load("edit-paste", IconLoader::LightDark));
+  ui_->actionClearSelection->setIcon(
+      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
+  ui_->actionDeleteFitTables->setIcon(
+      IconLoader::load("edit-delete", IconLoader::General));
+  ui_->actionClearLogInfo->setIcon(
+      IconLoader::load("clear-loginfo", IconLoader::General));
+  ui_->actionPreferences->setIcon(
+      IconLoader::load("edit-preference", IconLoader::LightDark));
+  // View menu
+  ui_->actionLockToolbars->setIcon(
+      IconLoader::load("lock", IconLoader::LightDark));
+  ui_->actionShowExplorer->setIcon(
+      IconLoader::load("folder-explorer", IconLoader::LightDark));
+  ui_->actionShowResultsLog->setIcon(
+      IconLoader::load("view-console", IconLoader::LightDark));
+  ui_->actionShowConsole->setIcon(QIcon());
+  ui_->actionShowUndoRedoHistory->setIcon(QIcon());
+  ui_->actionPlotWizard->setIcon(
+      IconLoader::load("tools-wizard", IconLoader::LightDark));
+  // Scripting menu
+  ui_->actionScriptingLanguage->setIcon(QIcon());
+  ui_->actionRestartScripting->setIcon(QIcon());
+  ui_->actionExecute->setIcon(QIcon());
+  ui_->actionExecuteAll->setIcon(QIcon());
+  ui_->actionEvaluateExpression->setIcon(QIcon());
+  // Plot menu
+  ui_->actionPlot2DLine->setIcon(
+      IconLoader::load("graph2d-line", IconLoader::LightDark));
+  ui_->actionPlot2DScatter->setIcon(
+      IconLoader::load("graph2d-scatter", IconLoader::LightDark));
+  ui_->actionPlot2DLineSymbol->setIcon(
+      IconLoader::load("graph2d-line-scatter", IconLoader::LightDark));
+  ui_->actionPlot2DVerticalDropLines->setIcon(
+      QIcon(IconLoader::load("graph2d-vertical-drop", IconLoader::LightDark)));
+  ui_->actionPlot2DSpline->setIcon(
+      IconLoader::load("graph2d-spline", IconLoader::LightDark));
+  ui_->actionPlot2DVerticalSteps->setIcon(
+      IconLoader::load("graph2d-vertical-step", IconLoader::LightDark));
+  ui_->actionPlot2DHorizontalSteps->setIcon(
+      IconLoader::load("graph2d-horizontal-step", IconLoader::LightDark));
+  ui_->actionPlot2DVerticalBars->setIcon(
+      IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
+  ui_->actionPlot2DHorizontalBars->setIcon(
+      IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark));
+  ui_->actionPlot2DArea->setIcon(
+      IconLoader::load("graph2d-area", IconLoader::LightDark));
+  ui_->actionPlot2DPie->setIcon(
+      IconLoader::load("graph2d-pie", IconLoader::LightDark));
+  ui_->actionPlot2DVectorsXYAM->setIcon(
+      IconLoader::load("graph2d-vector-xyam", IconLoader::LightDark));
+  ui_->actionPlot2DVectorsXYXY->setIcon(
+      IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
+  ui_->actionPlot2DStatBox->setIcon(
+      IconLoader::load("graph2d-box", IconLoader::LightDark));
+  ui_->actionPlot2DStatHistogram->setIcon(
+      IconLoader::load("graph2d-histogram", IconLoader::LightDark));
+  ui_->actionPlot2DStatStackedHistogram->setIcon(
+      QIcon(QPixmap(":/stacked_hist.xpm")));
+  ui_->actionPanelVertical2Layers->setIcon(QIcon(QPixmap(":/panel_v2.xpm")));
+  ui_->actionPanelHorizontal2Layers->setIcon(QIcon(QPixmap(":/panel_h2.xpm")));
+  ui_->actionPanel4Layers->setIcon(QIcon(QPixmap(":/panel_4.xpm")));
+  ui_->actionPanelStackedLayers->setIcon(QIcon(QPixmap(":/stacked.xpm")));
+  ui_->actionPlot3DRibbon->setIcon(
+      IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
+  ui_->actionPlot3DBar->setIcon(
+      IconLoader::load("graph3d-bar", IconLoader::LightDark));
+  ui_->actionPlot3DScatter->setIcon(
+      IconLoader::load("graph3d-scatter", IconLoader::LightDark));
+  ui_->actionPlot3DTrajectory->setIcon(
+      IconLoader::load("graph3d-trajectory", IconLoader::LightDark));
+  // 3D Plot menu
+  ui_->action3DWireFrame->setIcon(
+      IconLoader::load("graph3d-hidden-line", IconLoader::LightDark));
+  ui_->action3DHiddenLine->setIcon(
+      IconLoader::load("graph3d-mesh", IconLoader::LightDark));
+  ui_->action3DPolygons->setIcon(
+      IconLoader::load("graph3d-polygon", IconLoader::LightDark));
+  ui_->action3DWireSurface->setIcon(
+      IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
+  ui_->action3DBar->setIcon(
+      IconLoader::load("graph3d-bar", IconLoader::LightDark));
+  ui_->action3DScatter->setIcon(QIcon(QPixmap(":/scatter.xpm")));
+  ui_->action3DCountourColorFill->setIcon(QIcon(QPixmap(":/color_map.xpm")));
+  ui_->action3DCountourLines->setIcon(QIcon(QPixmap(":/contour_map.xpm")));
+  ui_->action3DGreyScaleMap->setIcon(QIcon(QPixmap(":/gray_map.xpm")));
+  // Graph menu
+  ui_->actionAddRemoveCurve->setIcon(
+      IconLoader::load("edit-add-graph", IconLoader::LightDark));
+  ui_->actionAddErrorBars->setIcon(
+      IconLoader::load("graph-y-error", IconLoader::LightDark));
+  ui_->actionAddFunctionCurve->setIcon(
+      IconLoader::load("math-fofx", IconLoader::LightDark));
+  ui_->actionAddText->setIcon(
+      IconLoader::load("draw-text", IconLoader::LightDark));
+  ui_->actionDrawArrow->setIcon(
+      IconLoader::load("edit-arrow", IconLoader::LightDark));
+  ui_->actionDrawLine->setIcon(
+      IconLoader::load("draw-line", IconLoader::LightDark));
+  ui_->actionAddTimeStamp->setIcon(
+      IconLoader::load("clock", IconLoader::LightDark));
+  ui_->actionAddImage->setIcon(
+      IconLoader::load("view-image", IconLoader::LightDark));
+  ui_->actionNewLegend->setIcon(QIcon(QPixmap(":/legend.xpm")));
+  ui_->actionAutomaticLayout->setIcon(
+      IconLoader::load("auto-layout", IconLoader::LightDark));
+  ui_->actionAddLayer->setIcon(
+      IconLoader::load("layer-new", IconLoader::LightDark));
+  ui_->actionRemoveLayer->setIcon(
+      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
+  ui_->actionArrangeLayers->setIcon(
+      IconLoader::load("layer-arrange", IconLoader::LightDark));
+  // Windows menu
+  ui_->actionCascadeWindow->setIcon(QIcon());
+  ui_->actionTileWindow->setIcon(QIcon());
+  ui_->actionNextWindow->setIcon(
+      IconLoader::load("go-next", IconLoader::LightDark));
+  ui_->actionPreviousWindow->setIcon(
+      IconLoader::load("go-previous", IconLoader::LightDark));
+  ui_->actionRenameWindow->setIcon(
+      IconLoader::load("edit-rename", IconLoader::LightDark));
+  ui_->actionDuplicateWindow->setIcon(
+      IconLoader::load("edit-duplicate", IconLoader::LightDark));
+  ui_->actionWindowGeometry->setIcon(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
+  ui_->actionHideWindow->setIcon(QIcon());
+  ui_->actionCloseWindow->setIcon(
+      IconLoader::load("edit-delete", IconLoader::General));
+  // Help menu
+  ui_->actionHelp->setIcon(
+      IconLoader::load("edit-help", IconLoader::LightDark));
+  ui_->actionChooseHelpFolder->setIcon(QIcon());
+  ui_->actionHomepage->setIcon(
+      IconLoader::load("go-home", IconLoader::LightDark));
+  ui_->actionCheckUpdates->setIcon(QIcon());
+  ui_->actionDownloadManual->setIcon(QIcon());
+  ui_->actionVisitForum->setIcon(
+      IconLoader::load("edit-help-forum", IconLoader::LightDark));
+  ui_->actionReportBug->setIcon(
+      IconLoader::load("tools-report-bug", IconLoader::LightDark));
+  ui_->actionAbout->setIcon(
+      IconLoader::load("help-about", IconLoader::LightDark));
+
+  // QAction Connections
+  // File menu
+  connect(ui_->actionNewProject, SIGNAL(activated()), this, SLOT(newAproj()));
+  connect(ui_->actionNewGraph, SIGNAL(activated()), this, SLOT(newGraph()));
+  connect(ui_->actionNewNote, SIGNAL(activated()), this, SLOT(newNote()));
+  connect(ui_->actionNewTable, SIGNAL(activated()), this, SLOT(newTable()));
+  connect(ui_->actionNewMatrix, SIGNAL(activated()), this, SLOT(newMatrix()));
+  connect(ui_->actionNewFunctionPlot, SIGNAL(activated()), this,
+          SLOT(functionDialog()));
+  connect(ui_->actionNew3DSurfacePlot, SIGNAL(activated()), this,
+          SLOT(newSurfacePlot()));
+  connect(ui_->actionOpenAproj, SIGNAL(activated()), this, SLOT(openAproj()));
+  connect(ui_->actionOpenImage, SIGNAL(activated()), this, SLOT(loadImage()));
+  connect(ui_->actionImportImage, SIGNAL(activated()), this,
+          SLOT(importImage()));
+  connect(ui_->actionSaveProject, SIGNAL(activated()), this,
+          SLOT(saveProject()));
+  connect(ui_->actionSaveProjectAs, SIGNAL(activated()), this,
+          SLOT(saveProjectAs()));
+  connect(ui_->actionOpenTemplate, SIGNAL(activated()), this,
+          SLOT(openTemplate()));
+  connect(ui_->actionSaveAsTemplate, SIGNAL(activated()), this,
+          SLOT(saveAsTemplate()));
+  connect(ui_->actionExportCurrentGraph, SIGNAL(activated()), this,
+          SLOT(exportGraph()));
+  connect(ui_->actionExportAllGraphs, SIGNAL(activated()), this,
+          SLOT(exportAllGraphs()));
+  connect(ui_->actionPrint, SIGNAL(activated()), this, SLOT(print()));
+  connect(ui_->actionPrintAllPlots, SIGNAL(activated()), this,
+          SLOT(printAllPlots()));
+  connect(ui_->actionExportASCII, SIGNAL(activated()), this,
+          SLOT(showExportASCIIDialog()));
+  connect(ui_->actionImportASCII, SIGNAL(activated()), this,
+          SLOT(importASCII()));
+  connect(ui_->actionQuit, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
+  // Edit menu
+  connect(ui_->actionUndo, SIGNAL(activated()), this, SLOT(undo()));
+  ui_->actionUndo->setEnabled(false);
+  connect(ui_->actionRedo, SIGNAL(activated()), this, SLOT(redo()));
+  ui_->actionRedo->setEnabled(false);
+  connect(ui_->actionCutSelection, SIGNAL(activated()), this,
+          SLOT(cutSelection()));
+  connect(ui_->actionCopySelection, SIGNAL(activated()), this,
+          SLOT(copySelection()));
+  connect(ui_->actionPasteSelection, SIGNAL(activated()), this,
+          SLOT(pasteSelection()));
+  connect(ui_->actionClearSelection, SIGNAL(activated()), this,
+          SLOT(clearSelection()));
+  connect(ui_->actionClearLogInfo, SIGNAL(activated()), this,
+          SLOT(clearLogInfo()));
+  connect(ui_->actionDeleteFitTables, SIGNAL(activated()), this,
+          SLOT(deleteFitTables()));
+  connect(ui_->actionPreferences, SIGNAL(activated()), this,
+          SLOT(showPreferencesDialog()));
+  // View menu
+  connect(ui_->actionShowFileToolbar, SIGNAL(toggled(bool)), file_tools,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowEditToolbar, SIGNAL(toggled(bool)), edit_tools,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowGraphToolbar, SIGNAL(toggled(bool)), graph_tools,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowPlotToolbar, SIGNAL(toggled(bool)), plot_tools,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowTableToolbar, SIGNAL(toggled(bool)), table_tools,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowMatrixPlotToolbar, SIGNAL(toggled(bool)),
+          matrix_plot_tools, SLOT(setVisible(bool)));
+  connect(ui_->actionShow3DSurfacePlotToolbar, SIGNAL(toggled(bool)),
+          graph_3D_tools, SLOT(setVisible(bool)));
+  connect(ui_->actionLockToolbars, SIGNAL(toggled(bool)), this,
+          SLOT(lockToolbars(bool)));
+  connect(ui_->actionShowExplorer, SIGNAL(toggled(bool)), explorerWindow,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowResultsLog, SIGNAL(toggled(bool)), logWindow,
+          SLOT(setVisible(bool)));
+#ifdef SCRIPTING_CONSOLE
+  connect(ui_->actionShowConsole, SIGNAL(toggled(bool)), consoleWindow,
+          SLOT(setVisible(bool)));
+#endif
+  connect(ui_->actionShowUndoRedoHistory, SIGNAL(triggered(bool)), this,
+          SLOT(showUndoRedoHistory()));
+  connect(ui_->actionPlotWizard, SIGNAL(activated()), this,
+          SLOT(showPlotWizard()));
+// Scripting menu
+#ifdef SCRIPTING_DIALOG
+  connect(ui_->actionScriptingLanguage, SIGNAL(activated()), this,
+          SLOT(showScriptingLangDialog()));
+  ui_->actionScriptingLanguage->setVisible(true);
+#else
+  ui_->actionScriptingLanguage->setVisible(false);
+#endif
+  connect(ui_->actionRestartScripting, SIGNAL(activated()), this,
+          SLOT(restartScriptingEnv()));
+  // Plot menu
+  connect(d_plot_mapper, SIGNAL(mapped(int)), this, SLOT(selectPlotType(int)));
+  connect(ui_->actionPlot2DLine, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DLine, Graph::Line);
+  connect(ui_->actionPlot2DScatter, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DScatter, Graph::Scatter);
+  connect(ui_->actionPlot2DLineSymbol, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DLineSymbol, Graph::LineSymbols);
+  connect(ui_->actionPlot2DVerticalDropLines, SIGNAL(activated()),
+          d_plot_mapper, SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DVerticalDropLines,
+                            Graph::VerticalDropLines);
+  connect(ui_->actionPlot2DSpline, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DSpline, Graph::Spline);
+  connect(ui_->actionPlot2DVerticalSteps, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DVerticalSteps,
+                            Graph::VerticalSteps);
+  connect(ui_->actionPlot2DHorizontalSteps, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalSteps,
+                            Graph::HorizontalSteps);
+  connect(ui_->actionPlot2DVerticalBars, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DVerticalBars, Graph::VerticalBars);
+  connect(ui_->actionPlot2DHorizontalBars, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalBars,
+                            Graph::HorizontalBars);
+  connect(ui_->actionPlot2DArea, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DArea, Graph::Area);
+  connect(ui_->actionPlot2DPie, SIGNAL(activated()), this, SLOT(plotPie()));
+  connect(ui_->actionPlot2DVectorsXYAM, SIGNAL(activated()), this,
+          SLOT(plotVectXYAM()));
+  connect(ui_->actionPlot2DVectorsXYXY, SIGNAL(activated()), this,
+          SLOT(plotVectXYXY()));
+  connect(ui_->actionPlot2DStatBox, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DStatBox, Graph::Box);
+  connect(ui_->actionPlot2DStatHistogram, SIGNAL(activated()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DStatHistogram, Graph::Histogram);
+  connect(ui_->actionPlot2DStatStackedHistogram, SIGNAL(activated()), this,
+          SLOT(plotStackedHistograms()));
+  connect(ui_->actionPanelVertical2Layers, SIGNAL(activated()), this,
+          SLOT(plot2VerticalLayers()));
+  connect(ui_->actionPanelHorizontal2Layers, SIGNAL(activated()), this,
+          SLOT(plot2HorizontalLayers()));
+  connect(ui_->actionPanel4Layers, SIGNAL(activated()), this,
+          SLOT(plot4Layers()));
+  connect(ui_->actionPanelStackedLayers, SIGNAL(activated()), this,
+          SLOT(plotStackedLayers()));
+  connect(ui_->actionPlot3DRibbon, SIGNAL(activated()), this,
+          SLOT(plot3DRibbon()));
+  connect(ui_->actionPlot3DBar, SIGNAL(activated()), this, SLOT(plot3DBars()));
+  connect(ui_->actionPlot3DScatter, SIGNAL(activated()), this,
+          SLOT(plot3DScatter()));
+  connect(ui_->actionPlot3DTrajectory, SIGNAL(activated()), this,
+          SLOT(plot3DTrajectory()));
+  // 3D Plot menu
+  connect(ui_->action3DWireFrame, SIGNAL(activated()), this,
+          SLOT(plot3DWireframe()));
+  connect(ui_->action3DHiddenLine, SIGNAL(activated()), this,
+          SLOT(plot3DHiddenLine()));
+  connect(ui_->action3DPolygons, SIGNAL(activated()), this,
+          SLOT(plot3DPolygons()));
+  connect(ui_->action3DWireSurface, SIGNAL(activated()), this,
+          SLOT(plot3DWireSurface()));
+  connect(ui_->action3DBar, SIGNAL(activated()), ui_->actionPlot3DBar,
+          SIGNAL(activated()));
+  connect(ui_->action3DScatter, SIGNAL(activated()), ui_->actionPlot3DScatter,
+          SIGNAL(activated()));
+  connect(ui_->action3DCountourColorFill, SIGNAL(activated()), this,
+          SLOT(plotColorMap()));
+  connect(ui_->action3DCountourLines, SIGNAL(activated()), this,
+          SLOT(plotContour()));
+  connect(ui_->action3DGreyScaleMap, SIGNAL(activated()), this,
+          SLOT(plotGrayScale()));
+  // Graph menu
+  connect(ui_->actionAddRemoveCurve, SIGNAL(activated()), this,
+          SLOT(showCurvesDialog()));
+  connect(ui_->actionAddErrorBars, SIGNAL(activated()), this,
+          SLOT(addErrorBars()));
+  connect(ui_->actionAddFunctionCurve, SIGNAL(activated()), this,
+          SLOT(addFunctionCurve()));
+  connect(ui_->actionAddText, SIGNAL(activated()), this, SLOT(addText()));
+  dataTools->setExclusive(true);
+  ui_->actionDrawArrow->setActionGroup(dataTools);
+  ui_->actionDrawLine->setActionGroup(dataTools);
+  connect(ui_->actionAddTimeStamp, SIGNAL(activated()), this,
+          SLOT(addTimeStamp()));
+  connect(ui_->actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
+  connect(ui_->actionNewLegend, SIGNAL(activated()), this, SLOT(newLegend()));
+  connect(ui_->actionAutomaticLayout, SIGNAL(activated()), this,
+          SLOT(autoArrangeLayers()));
+  connect(ui_->actionAddLayer, SIGNAL(activated()), this, SLOT(addLayer()));
+  connect(ui_->actionRemoveLayer, SIGNAL(activated()), this,
+          SLOT(deleteLayer()));
+  connect(ui_->actionArrangeLayers, SIGNAL(activated()), this,
+          SLOT(showLayerDialog()));
+  // Windows menu
+  connect(ui_->actionCascadeWindow, SIGNAL(triggered()), this, SLOT(cascade()));
+  connect(ui_->actionTileWindow, SIGNAL(triggered()), d_workspace,
+          SLOT(tile()));
+  connect(ui_->actionNextWindow, SIGNAL(activated()), d_workspace,
+          SLOT(activateNextWindow()));
+  connect(ui_->actionPreviousWindow, SIGNAL(activated()), d_workspace,
+          SLOT(activatePreviousWindow()));
+  connect(ui_->actionRenameWindow, SIGNAL(activated()), this,
+          SLOT(renameActiveWindow()));
+  connect(ui_->actionDuplicateWindow, SIGNAL(activated()), this, SLOT(clone()));
+  connect(ui_->actionWindowGeometry, SIGNAL(activated()), this,
+          SLOT(resizeActiveWindow()));
+  connect(ui_->actionHideWindow, SIGNAL(triggered()), this,
+          SLOT(hideActiveWindow()));
+  connect(ui_->actionCloseWindow, SIGNAL(triggered()), this,
+          SLOT(closeActiveWindow()));
+  // Help menu
+  connect(ui_->actionHelp, SIGNAL(activated()), this, SLOT(showHelp()));
+#ifdef DYNAMIC_MANUAL_PATH
+  connect(ui_->actionChooseHelpFolder, SIGNAL(activated()), this,
+          SLOT(chooseHelpFolder()));
+  ui_->actionChooseHelpFolder->setVisible(true);
+#else
+  ui_->actionChooseHelpFolder->setVisible(false);
+#endif
+  connect(ui_->actionHomepage, SIGNAL(activated()), this, SLOT(showHomePage()));
+#ifdef SEARCH_FOR_UPDATES
+  connect(ui_->actionCheckUpdates, SIGNAL(activated()), this,
+          SLOT(searchForUpdates()));
+  ui_->actionCheckUpdates->setVisible(true);
+#else
+  ui_->actionCheckUpdates->setVisible(false);
+#endif  // defined SEARCH_FOR_UPDATES
+#ifdef DOWNLOAD_LINKS
+  connect(ui_->actionDownloadManual, SIGNAL(activated()), this,
+          SLOT(downloadManual()));
+  ui_->actionDownloadManual->setVisible(true);
+#else
+  ui_->actionDownloadManual->setVisible(false);
+#endif
+  connect(ui_->actionVisitForum, SIGNAL(triggered()), this, SLOT(showForums()));
+  connect(ui_->actionReportBug, SIGNAL(triggered()), this,
+          SLOT(showBugTracker()));
+  connect(ui_->actionAbout, SIGNAL(activated()), this, SLOT(about()));
+
   createActions();
   initToolBars();
   initPlot3DToolBar();
@@ -344,16 +781,6 @@ ApplicationWindow::ApplicationWindow()
   readSettings();
   createLanguagesList();
   insertTranslatedStrings();
-
-  ui_->actionNextWindow->setIcon(
-      IconLoader::load("go-next", IconLoader::LightDark));
-  ui_->actionPreviousWindow->setIcon(
-      IconLoader::load("go-previous", IconLoader::LightDark));
-
-  connect(ui_->actionNextWindow, SIGNAL(activated()), d_workspace,
-          SLOT(activateNextWindow()));
-  connect(ui_->actionPreviousWindow, SIGNAL(activated()), d_workspace,
-          SLOT(activatePreviousWindow()));
 
   connect(scriptEnv, SIGNAL(error(const QString &, const QString &, int)), this,
           SLOT(scriptError(const QString &, const QString &, int)));
@@ -449,9 +876,6 @@ void ApplicationWindow::initToolBars() {
   graph_tools->setIconSize(QSize(24, 24));
   addToolBar(graph_tools);
 
-  dataTools = new QActionGroup(this);
-  dataTools->setExclusive(true);
-
   btnPointer = new QAction(tr("Disable &Tools"), this);
   btnPointer->setActionGroup(dataTools);
   btnPointer->setCheckable(true);
@@ -496,19 +920,8 @@ void ApplicationWindow::initToolBars() {
   btn_plot_enrichments->setToolTip(tr("Enrichments"));
   graph_tools->addWidget(btn_plot_enrichments);
 
-  ui_->actionAddText->setIcon(
-      IconLoader::load("draw-text", IconLoader::LightDark));
-  connect(ui_->actionAddText, SIGNAL(activated()), this, SLOT(addText()));
   menu_plot_enrichments->addAction(ui_->actionAddText);
-
-  ui_->actionDrawArrow->setActionGroup(dataTools);
-  ui_->actionDrawArrow->setIcon(
-      IconLoader::load("edit-arrow", IconLoader::LightDark));
   menu_plot_enrichments->addAction(ui_->actionDrawArrow);
-
-  ui_->actionDrawLine->setActionGroup(dataTools);
-  ui_->actionDrawLine->setIcon(
-      IconLoader::load("draw-line", IconLoader::LightDark));
   menu_plot_enrichments->addAction(ui_->actionDrawLine);
 
   menu_plot_enrichments->addAction(ui_->actionAddTimeStamp);
@@ -813,37 +1226,6 @@ void ApplicationWindow::initMainMenu() {
   format = new QMenu(this);
   format->setFont(appFont);
 
-  ui_->actionCascadeWindow->setIcon(QIcon());
-  ui_->actionTileWindow->setIcon(QIcon());
-  ui_->actionHideWindow->setIcon(QIcon());
-  ui_->actionCloseWindow->setIcon(
-      IconLoader::load("edit-delete", IconLoader::General));
-
-  connect(ui_->actionCascadeWindow, SIGNAL(triggered()), this, SLOT(cascade()));
-  connect(ui_->actionTileWindow, SIGNAL(triggered()), d_workspace,
-          SLOT(tile()));
-  connect(ui_->actionHideWindow, SIGNAL(triggered()), this,
-          SLOT(hideActiveWindow()));
-  connect(ui_->actionCloseWindow, SIGNAL(triggered()), this,
-          SLOT(closeActiveWindow()));
-
-#ifdef DYNAMIC_MANUAL_PATH
-  ui_->actionChooseHelpFolder->setVisible(true);
-#else
-  ui_->actionChooseHelpFolder->setVisible(false);
-#endif
-
-#ifdef SEARCH_FOR_UPDATES
-  ui_->actionCheckUpdates->setVisible(true);
-#else
-  ui_->actionCheckUpdates->setVisible(false);
-#endif
-#ifdef DOWNLOAD_LINKS
-  ui_->actionDownloadManual->setVisible(true);
-#else
-  ui_->actionDownloadManual->setVisible(false);
-#endif
-
   disableActions();
 }
 
@@ -894,12 +1276,6 @@ void ApplicationWindow::customMenu(QWidget *w) {
   menuBar()->insertItem(tr("&Edit"), ui_->menuEdit);
   menuBar()->insertItem(tr("&View"), ui_->menuView);
   menuBar()->insertItem(tr("Scripting"), ui_->menuScripting);
-
-#ifdef SCRIPTING_DIALOG
-  ui_->actionScriptingLanguage->setVisible(true);
-#else
-  ui_->actionScriptingLanguage->setVisible(false);
-#endif
 
   // these use the same keyboard shortcut (Ctrl+Return) and should not be
   // enabled at the same time
@@ -9307,13 +9683,10 @@ void ApplicationWindow::connectTable(Table *w) {
           SLOT(modifiedProject(QWidget *)));
   connect(w, SIGNAL(changedColHeader(const QString &, const QString &)), this,
           SLOT(updateColNames(const QString &, const QString &)));
-
-#ifdef LEGACY_CODE_0_2_x
   connect(w->d_future_table, SIGNAL(requestRowStatistics()), this,
           SLOT(showRowStatistics()));
   connect(w->d_future_table, SIGNAL(requestColumnStatistics()), this,
           SLOT(showColStatistics()));
-#endif
   w->askOnCloseEvent(confirmCloseTable);
 }
 
@@ -9357,181 +9730,8 @@ void ApplicationWindow::setPlot3DOptions() {
 }
 
 void ApplicationWindow::createActions() {
-  // Set icons
-  // File menu
-  ui_->actionNewProject->setIcon(
-      IconLoader::load("edit-new", IconLoader::LightDark));
-  ui_->actionNewGraph->setIcon(
-      IconLoader::load("edit-graph", IconLoader::LightDark));
-  ui_->actionNewNote->setIcon(
-      IconLoader::load("edit-note", IconLoader::LightDark));
-  ui_->actionNewTable->setIcon(
-      IconLoader::load("table", IconLoader::LightDark));
-  ui_->actionNewMatrix->setIcon(
-      IconLoader::load("matrix", IconLoader::LightDark));
-  ui_->actionNewFunctionPlot->setIcon(
-      IconLoader::load("graph2d-function-xy", IconLoader::LightDark));
-  ui_->actionNew3DSurfacePlot->setIcon(
-      IconLoader::load("graph3d-function-xyz", IconLoader::LightDark));
-  ui_->actionOpenAproj->setIcon(
-      IconLoader::load("project-open", IconLoader::LightDark));
-  ui_->actionOpenImage->setIcon(QIcon());
-  ui_->actionImportImage->setIcon(
-      IconLoader::load("view-image", IconLoader::LightDark));
-  ui_->actionSaveProject->setIcon(
-      IconLoader::load("document-save", IconLoader::LightDark));
-  ui_->actionSaveProjectAs->setIcon(QIcon());
-  ui_->actionOpenTemplate->setIcon(
-      IconLoader::load("template-open", IconLoader::LightDark));
-  ui_->actionSaveAsTemplate->setIcon(
-      IconLoader::load("template-save", IconLoader::LightDark));
-  ui_->actionExportCurrentGraph->setIcon(QIcon());
-  ui_->actionExportAllGraphs->setIcon(QIcon());
-  ui_->actionPrint->setIcon(
-      IconLoader::load("edit-print", IconLoader::LightDark));
-  ui_->actionPrintAllPlots->setIcon(QIcon());
-  ui_->actionExportASCII->setIcon(QIcon());
-  ui_->actionImportASCII->setIcon(
-      IconLoader::load("import-ascii-filter", IconLoader::LightDark));
-  ui_->actionQuit->setIcon(
-      IconLoader::load("application-exit", IconLoader::General));
-  // Edit menu
-  ui_->actionUndo->setIcon(
-      IconLoader::load("edit-undo", IconLoader::LightDark));
-  ui_->actionRedo->setIcon(
-      IconLoader::load("edit-redo", IconLoader::LightDark));
-  ui_->actionCutSelection->setIcon(
-      IconLoader::load("edit-cut", IconLoader::LightDark));
-  ui_->actionCopySelection->setIcon(
-      IconLoader::load("edit-copy", IconLoader::LightDark));
-  ui_->actionPasteSelection->setIcon(
-      IconLoader::load("edit-paste", IconLoader::LightDark));
-  ui_->actionClearSelection->setIcon(
-      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
-  ui_->actionDeleteFitTables->setIcon(
-      IconLoader::load("edit-delete", IconLoader::General));
-  ui_->actionClearLogInfo->setIcon(
-      IconLoader::load("clear-loginfo", IconLoader::General));
-  ui_->actionPreferences->setIcon(
-      IconLoader::load("edit-preference", IconLoader::LightDark));
-  // View menu
-  ui_->actionLockToolbars->setIcon(
-      IconLoader::load("lock", IconLoader::LightDark));
-  ui_->actionShowExplorer->setIcon(
-      IconLoader::load("folder-explorer", IconLoader::LightDark));
-  ui_->actionShowResultsLog->setIcon(
-      IconLoader::load("view-console", IconLoader::LightDark));
-#ifdef SCRIPTING_CONSOLE
-  ui_->actionShowConsole->setIcon(QIcon());
-#endif
-  ui_->actionShowUndoRedoHistory->setIcon(QIcon());
-  ui_->actionPlotWizard->setIcon(
-      IconLoader::load("tools-wizard", IconLoader::LightDark));
-
-  // Connections
-  // File menu
-  connect(ui_->actionNewProject, SIGNAL(activated()), this, SLOT(newAproj()));
-  connect(ui_->actionNewGraph, SIGNAL(activated()), this, SLOT(newGraph()));
-  connect(ui_->actionNewNote, SIGNAL(activated()), this, SLOT(newNote()));
-  connect(ui_->actionNewTable, SIGNAL(activated()), this, SLOT(newTable()));
-  connect(ui_->actionNewMatrix, SIGNAL(activated()), this, SLOT(newMatrix()));
-  connect(ui_->actionNewFunctionPlot, SIGNAL(activated()), this,
-          SLOT(functionDialog()));
-  connect(ui_->actionNew3DSurfacePlot, SIGNAL(activated()), this,
-          SLOT(newSurfacePlot()));
-  connect(ui_->actionOpenAproj, SIGNAL(activated()), this, SLOT(openAproj()));
-  connect(ui_->actionOpenImage, SIGNAL(activated()), this, SLOT(loadImage()));
-  connect(ui_->actionImportImage, SIGNAL(activated()), this,
-          SLOT(importImage()));
-  connect(ui_->actionSaveProject, SIGNAL(activated()), this,
-          SLOT(saveProject()));
-  connect(ui_->actionSaveProjectAs, SIGNAL(activated()), this,
-          SLOT(saveProjectAs()));
-  connect(ui_->actionOpenTemplate, SIGNAL(activated()), this,
-          SLOT(openTemplate()));
-  connect(ui_->actionSaveAsTemplate, SIGNAL(activated()), this,
-          SLOT(saveAsTemplate()));
-  connect(ui_->actionExportCurrentGraph, SIGNAL(activated()), this,
-          SLOT(exportGraph()));
-  connect(ui_->actionExportAllGraphs, SIGNAL(activated()), this,
-          SLOT(exportAllGraphs()));
-  connect(ui_->actionPrint, SIGNAL(activated()), this, SLOT(print()));
-  connect(ui_->actionPrintAllPlots, SIGNAL(activated()), this,
-          SLOT(printAllPlots()));
-  connect(ui_->actionExportASCII, SIGNAL(activated()), this,
-          SLOT(showExportASCIIDialog()));
-  connect(ui_->actionImportASCII, SIGNAL(activated()), this,
-          SLOT(importASCII()));
-  connect(ui_->actionQuit, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
-  // Edit menu
-  connect(ui_->actionUndo, SIGNAL(activated()), this, SLOT(undo()));
-  ui_->actionUndo->setEnabled(false);
-  connect(ui_->actionRedo, SIGNAL(activated()), this, SLOT(redo()));
-  ui_->actionRedo->setEnabled(false);
-  connect(ui_->actionCutSelection, SIGNAL(activated()), this,
-          SLOT(cutSelection()));
-  connect(ui_->actionCopySelection, SIGNAL(activated()), this,
-          SLOT(copySelection()));
-  connect(ui_->actionPasteSelection, SIGNAL(activated()), this,
-          SLOT(pasteSelection()));
-  connect(ui_->actionClearSelection, SIGNAL(activated()), this,
-          SLOT(clearSelection()));
-  connect(ui_->actionClearLogInfo, SIGNAL(activated()), this,
-          SLOT(clearLogInfo()));
-  connect(ui_->actionDeleteFitTables, SIGNAL(activated()), this,
-          SLOT(deleteFitTables()));
-  connect(ui_->actionPreferences, SIGNAL(activated()), this,
-          SLOT(showPreferencesDialog()));
-  // View menu
-  connect(ui_->actionShowFileToolbar, SIGNAL(toggled(bool)), file_tools,
-          SLOT(setVisible(bool)));
-  connect(ui_->actionShowEditToolbar, SIGNAL(toggled(bool)), edit_tools,
-          SLOT(setVisible(bool)));
-  connect(ui_->actionShowGraphToolbar, SIGNAL(toggled(bool)), graph_tools,
-          SLOT(setVisible(bool)));
-  connect(ui_->actionShowPlotToolbar, SIGNAL(toggled(bool)), plot_tools,
-          SLOT(setVisible(bool)));
-  connect(ui_->actionShowTableToolbar, SIGNAL(toggled(bool)), table_tools,
-          SLOT(setVisible(bool)));
-  connect(ui_->actionShowMatrixPlotToolbar, SIGNAL(toggled(bool)),
-          matrix_plot_tools, SLOT(setVisible(bool)));
-  connect(ui_->actionShow3DSurfacePlotToolbar, SIGNAL(toggled(bool)),
-          graph_3D_tools, SLOT(setVisible(bool)));
-  connect(ui_->actionLockToolbars, SIGNAL(toggled(bool)), this,
-          SLOT(lockToolbars(bool)));
-  connect(ui_->actionShowExplorer, SIGNAL(toggled(bool)), explorerWindow,
-          SLOT(setVisible(bool)));
-  connect(ui_->actionShowResultsLog, SIGNAL(toggled(bool)), logWindow,
-          SLOT(setVisible(bool)));
-#ifdef SCRIPTING_CONSOLE
-  connect(ui_->actionShowConsole, SIGNAL(toggled(bool)), consoleWindow,
-          SLOT(setVisible(bool)));
-#endif
-  connect(ui_->actionShowUndoRedoHistory, SIGNAL(triggered(bool)), this,
-          SLOT(showUndoRedoHistory()));
-  connect(ui_->actionPlotWizard, SIGNAL(activated()), this,
-          SLOT(showPlotWizard()));
-
-  ui_->actionDuplicateWindow->setIcon(
-      IconLoader::load("edit-duplicate", IconLoader::LightDark));
-  connect(ui_->actionDuplicateWindow, SIGNAL(activated()), this, SLOT(clone()));
-
   actionSaveNote = new QAction(tr("Save Note As..."), this);
   connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
-
-  ui_->actionAddLayer->setIcon(
-      IconLoader::load("layer-new", IconLoader::LightDark));
-  connect(ui_->actionAddLayer, SIGNAL(activated()), this, SLOT(addLayer()));
-
-  ui_->actionArrangeLayers->setIcon(
-      IconLoader::load("layer-arrange", IconLoader::LightDark));
-  connect(ui_->actionArrangeLayers, SIGNAL(activated()), this,
-          SLOT(showLayerDialog()));
-
-  ui_->actionAutomaticLayout->setIcon(
-      IconLoader::load("auto-layout", IconLoader::LightDark));
-  connect(ui_->actionAutomaticLayout, SIGNAL(activated()), this,
-          SLOT(autoArrangeLayers()));
 
   actionExportPDF =
       new QAction(IconLoader::load("application-pdf", IconLoader::LightDark),
@@ -9539,165 +9739,11 @@ void ApplicationWindow::createActions() {
   actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
   connect(actionExportPDF, SIGNAL(activated()), this, SLOT(exportPDF()));
 
-  ui_->actionAddRemoveCurve->setIcon(
-      IconLoader::load("edit-add-graph", IconLoader::LightDark));
-  connect(ui_->actionAddRemoveCurve, SIGNAL(activated()), this,
-          SLOT(showCurvesDialog()));
-
-  ui_->actionAddErrorBars->setIcon(
-      IconLoader::load("graph-y-error", IconLoader::LightDark));
-  connect(ui_->actionAddErrorBars, SIGNAL(activated()), this,
-          SLOT(addErrorBars()));
-
-  ui_->actionAddFunctionCurve->setIcon(
-      IconLoader::load("math-fofx", IconLoader::LightDark));
-  connect(ui_->actionAddFunctionCurve, SIGNAL(activated()), this,
-          SLOT(addFunctionCurve()));
-
   actionUnzoom =
       new QAction(IconLoader::load("graph-unzoom", IconLoader::LightDark),
                   tr("&Rescale to Show All"), this);
   actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
   connect(actionUnzoom, SIGNAL(activated()), this, SLOT(setAutoScale()));
-
-  ui_->actionNewLegend->setIcon(QIcon(QPixmap(":/legend.xpm")));
-  connect(ui_->actionNewLegend, SIGNAL(activated()), this, SLOT(newLegend()));
-
-  ui_->actionAddTimeStamp->setIcon(
-      IconLoader::load("clock", IconLoader::LightDark));
-  connect(ui_->actionAddTimeStamp, SIGNAL(activated()), this,
-          SLOT(addTimeStamp()));
-
-  ui_->actionAddImage->setIcon(
-      IconLoader::load("view-image", IconLoader::LightDark));
-  connect(ui_->actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
-
-  d_plot_mapper = new QSignalMapper;
-  connect(d_plot_mapper, SIGNAL(mapped(int)), this, SLOT(selectPlotType(int)));
-
-  ui_->actionPlot2DLine->setIcon(
-      IconLoader::load("graph2d-line", IconLoader::LightDark));
-  connect(ui_->actionPlot2DLine, SIGNAL(activated()), d_plot_mapper,
-          SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DLine, Graph::Line);
-
-  ui_->actionPlot2DScatter->setIcon(
-      IconLoader::load("graph2d-scatter", IconLoader::LightDark));
-  connect(ui_->actionPlot2DScatter, SIGNAL(activated()), d_plot_mapper,
-          SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DScatter, Graph::Scatter);
-
-  ui_->actionPlot2DLineSymbol->setIcon(
-      IconLoader::load("graph2d-line-scatter", IconLoader::LightDark));
-  connect(ui_->actionPlot2DLineSymbol, SIGNAL(activated()), d_plot_mapper,
-          SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DLineSymbol, Graph::LineSymbols);
-
-  ui_->actionPlot2DVerticalDropLines->setIcon(
-      QIcon(IconLoader::load("graph2d-vertical-drop", IconLoader::LightDark)));
-  connect(ui_->actionPlot2DVerticalDropLines, SIGNAL(activated()),
-          d_plot_mapper, SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DVerticalDropLines,
-                            Graph::VerticalDropLines);
-
-  ui_->actionPlot2DSpline->setIcon(
-      IconLoader::load("graph2d-spline", IconLoader::LightDark));
-  connect(ui_->actionPlot2DSpline, SIGNAL(activated()), d_plot_mapper,
-          SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DSpline, Graph::Spline);
-
-  ui_->actionPlot2DHorizontalSteps->setIcon(
-      IconLoader::load("graph2d-horizontal-step", IconLoader::LightDark));
-  connect(ui_->actionPlot2DHorizontalSteps, SIGNAL(activated()), d_plot_mapper,
-          SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalSteps,
-                            Graph::HorizontalSteps);
-
-  ui_->actionPlot2DVerticalSteps->setIcon(
-      IconLoader::load("graph2d-vertical-step", IconLoader::LightDark));
-  connect(ui_->actionPlot2DVerticalSteps, SIGNAL(activated()), d_plot_mapper,
-          SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DVerticalSteps,
-                            Graph::VerticalSteps);
-
-  ui_->actionPlot2DVerticalBars->setIcon(
-      IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
-  connect(ui_->actionPlot2DVerticalBars, SIGNAL(activated()), d_plot_mapper,
-          SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DVerticalBars, Graph::VerticalBars);
-
-  ui_->actionPlot2DHorizontalBars->setIcon(
-      IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark));
-  connect(ui_->actionPlot2DHorizontalBars, SIGNAL(activated()), d_plot_mapper,
-          SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalBars,
-                            Graph::HorizontalBars);
-
-  ui_->actionPlot2DArea->setIcon(
-      IconLoader::load("graph2d-area", IconLoader::LightDark));
-  connect(ui_->actionPlot2DArea, SIGNAL(activated()), d_plot_mapper,
-          SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DArea, Graph::Area);
-
-  ui_->actionPlot2DPie->setIcon(
-      IconLoader::load("graph2d-pie", IconLoader::LightDark));
-  connect(ui_->actionPlot2DPie, SIGNAL(activated()), this, SLOT(plotPie()));
-
-  ui_->actionPlot2DVectorsXYAM->setIcon(
-      IconLoader::load("graph2d-vector-xyam", IconLoader::LightDark));
-  connect(ui_->actionPlot2DVectorsXYAM, SIGNAL(activated()), this,
-          SLOT(plotVectXYAM()));
-
-  ui_->actionPlot2DVectorsXYXY->setIcon(
-      IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
-  connect(ui_->actionPlot2DVectorsXYXY, SIGNAL(activated()), this,
-          SLOT(plotVectXYXY()));
-
-  ui_->actionPlot2DStatHistogram->setIcon(
-      IconLoader::load("graph2d-histogram", IconLoader::LightDark));
-  connect(ui_->actionPlot2DStatHistogram, SIGNAL(activated()), d_plot_mapper,
-          SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DStatHistogram, Graph::Histogram);
-
-  ui_->actionPlot2DStatStackedHistogram->setIcon(
-      QIcon(QPixmap(":/stacked_hist.xpm")));
-  connect(ui_->actionPlot2DStatStackedHistogram, SIGNAL(activated()), this,
-          SLOT(plotStackedHistograms()));
-
-  ui_->actionPanelVertical2Layers->setIcon(QIcon(QPixmap(":/panel_v2.xpm")));
-  connect(ui_->actionPanelVertical2Layers, SIGNAL(activated()), this,
-          SLOT(plot2VerticalLayers()));
-
-  ui_->actionPanelHorizontal2Layers->setIcon(QIcon(QPixmap(":/panel_h2.xpm")));
-  connect(ui_->actionPanelHorizontal2Layers, SIGNAL(activated()), this,
-          SLOT(plot2HorizontalLayers()));
-
-  ui_->actionPanel4Layers->setIcon(QIcon(QPixmap(":/panel_4.xpm")));
-  connect(ui_->actionPanel4Layers, SIGNAL(activated()), this,
-          SLOT(plot4Layers()));
-
-  ui_->actionPanelStackedLayers->setIcon(QIcon(QPixmap(":/stacked.xpm")));
-  connect(ui_->actionPanelStackedLayers, SIGNAL(activated()), this,
-          SLOT(plotStackedLayers()));
-
-  ui_->actionPlot3DRibbon->setIcon(
-      IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
-  connect(ui_->actionPlot3DRibbon, SIGNAL(activated()), this,
-          SLOT(plot3DRibbon()));
-
-  ui_->actionPlot3DBar->setIcon(
-      IconLoader::load("graph3d-bar", IconLoader::LightDark));
-  connect(ui_->actionPlot3DBar, SIGNAL(activated()), this, SLOT(plot3DBars()));
-
-  ui_->actionPlot3DScatter->setIcon(
-      IconLoader::load("graph3d-scatter", IconLoader::LightDark));
-  connect(ui_->actionPlot3DScatter, SIGNAL(activated()), this,
-          SLOT(plot3DScatter()));
-
-  ui_->actionPlot3DTrajectory->setIcon(
-      IconLoader::load("graph3d-trajectory", IconLoader::LightDark));
-  connect(ui_->actionPlot3DTrajectory, SIGNAL(activated()), this,
-          SLOT(plot3DTrajectory()));
 
   actionShowColStatistics =
       new QAction(IconLoader::load("table-column-sum", IconLoader::LightDark),
@@ -9811,41 +9857,12 @@ void ApplicationWindow::createActions() {
   connect(actionShowTitleDialog, SIGNAL(activated()), this,
           SLOT(showTitleDialog()));
 
-  ui_->actionAbout->setIcon(
-      IconLoader::load("help-about", IconLoader::LightDark));
-  connect(ui_->actionAbout, SIGNAL(activated()), this, SLOT(about()));
-
-  ui_->actionHelp->setIcon(
-      IconLoader::load("edit-help", IconLoader::LightDark));
-  connect(ui_->actionHelp, SIGNAL(activated()), this, SLOT(showHelp()));
-
-#ifdef DYNAMIC_MANUAL_PATH
-  ui_->actionChooseHelpFolder->setIcon(QIcon());
-  connect(ui_->actionChooseHelpFolder, SIGNAL(activated()), this,
-          SLOT(chooseHelpFolder()));
-#endif
-
-  ui_->actionRenameWindow->setIcon(
-      IconLoader::load("edit-rename", IconLoader::LightDark));
-  connect(ui_->actionRenameWindow, SIGNAL(activated()), this,
-          SLOT(renameActiveWindow()));
-
   actionCloseWindow =
       new QAction(IconLoader::load("edit-delete", IconLoader::General),
                   tr("Close &Window"), this);
   actionCloseWindow->setShortcut(tr("Ctrl+W"));
   connect(actionCloseWindow, SIGNAL(activated()), this,
           SLOT(closeActiveWindow()));
-
-  ui_->actionRemoveLayer->setIcon(
-      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
-  connect(ui_->actionRemoveLayer, SIGNAL(activated()), this,
-          SLOT(deleteLayer()));
-
-  ui_->actionWindowGeometry->setIcon(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
-  connect(ui_->actionWindowGeometry, SIGNAL(activated()), this,
-          SLOT(resizeActiveWindow()));
 
   actionHideActiveWindow = new QAction(tr("&Hide Window"), this);
   connect(actionHideActiveWindow, SIGNAL(activated()), this,
@@ -9926,47 +9943,6 @@ void ApplicationWindow::createActions() {
   connect(actionConvertTable, SIGNAL(activated()), this,
           SLOT(convertTableToMatrix()));
 
-  ui_->action3DWireFrame->setIcon(
-      IconLoader::load("graph3d-hidden-line", IconLoader::LightDark));
-  connect(ui_->action3DWireFrame, SIGNAL(activated()), this,
-          SLOT(plot3DWireframe()));
-
-  ui_->action3DHiddenLine->setIcon(
-      IconLoader::load("graph3d-mesh", IconLoader::LightDark));
-  connect(ui_->action3DHiddenLine, SIGNAL(activated()), this,
-          SLOT(plot3DHiddenLine()));
-
-  ui_->action3DPolygons->setIcon(
-      IconLoader::load("graph3d-polygon", IconLoader::LightDark));
-  connect(ui_->action3DPolygons, SIGNAL(activated()), this,
-          SLOT(plot3DPolygons()));
-
-  ui_->action3DWireSurface->setIcon(
-      IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
-  connect(ui_->action3DWireSurface, SIGNAL(activated()), this,
-          SLOT(plot3DWireSurface()));
-
-  ui_->action3DBar->setIcon(
-      IconLoader::load("graph3d-bar", IconLoader::LightDark));
-  connect(ui_->action3DBar, SIGNAL(activated()), ui_->actionPlot3DBar,
-          SIGNAL(activated()));
-
-  ui_->action3DScatter->setIcon(QIcon(QPixmap(":/scatter.xpm")));
-  connect(ui_->action3DScatter, SIGNAL(activated()), ui_->actionPlot3DScatter,
-          SIGNAL(activated()));
-
-  ui_->action3DCountourColorFill->setIcon(QIcon(QPixmap(":/color_map.xpm")));
-  connect(ui_->action3DCountourColorFill, SIGNAL(activated()), this,
-          SLOT(plotColorMap()));
-
-  ui_->action3DCountourLines->setIcon(QIcon(QPixmap(":/contour_map.xpm")));
-  connect(ui_->action3DCountourLines, SIGNAL(activated()), this,
-          SLOT(plotContour()));
-
-  ui_->action3DGreyScaleMap->setIcon(QIcon(QPixmap(":/gray_map.xpm")));
-  connect(ui_->action3DGreyScaleMap, SIGNAL(activated()), this,
-          SLOT(plotGrayScale()));
-
   actionCorrelate = new QAction(tr("Co&rrelate"), this);
   connect(actionCorrelate, SIGNAL(activated()), this, SLOT(correlate()));
 
@@ -9988,12 +9964,6 @@ void ApplicationWindow::createActions() {
   connect(actionTranslateVert, SIGNAL(activated()), this,
           SLOT(translateCurveVert()));
 
-  ui_->actionPlot2DStatBox->setIcon(
-      IconLoader::load("graph2d-box", IconLoader::LightDark));
-  connect(ui_->actionPlot2DStatBox, SIGNAL(activated()), d_plot_mapper,
-          SLOT(map()));
-  d_plot_mapper->setMapping(ui_->actionPlot2DStatBox, Graph::Box);
-
   actionMultiPeakGauss = new QAction(tr("&Gaussian..."), this);
   connect(actionMultiPeakGauss, SIGNAL(activated()), this,
           SLOT(fitMultiPeakGauss()));
@@ -10001,44 +9971,6 @@ void ApplicationWindow::createActions() {
   actionMultiPeakLorentz = new QAction(tr("&Lorentzian..."), this);
   connect(actionMultiPeakLorentz, SIGNAL(activated()), this,
           SLOT(fitMultiPeakLorentz()));
-
-#ifdef SEARCH_FOR_UPDATES
-  ui_->actionCheckUpdates->setIcon(QIcon());
-  connect(ui_->actionCheckUpdates, SIGNAL(activated()), this,
-          SLOT(searchForUpdates()));
-#endif  // defined SEARCH_FOR_UPDATES
-
-  ui_->actionHomepage->setIcon(
-      IconLoader::load("go-home", IconLoader::LightDark));
-  connect(ui_->actionHomepage, SIGNAL(activated()), this, SLOT(showHomePage()));
-
-  ui_->actionVisitForum->setIcon(
-      IconLoader::load("edit-help-forum", IconLoader::LightDark));
-  connect(ui_->actionVisitForum, SIGNAL(triggered()), this, SLOT(showForums()));
-
-  ui_->actionReportBug->setIcon(
-      IconLoader::load("tools-report-bug", IconLoader::LightDark));
-  connect(ui_->actionReportBug, SIGNAL(triggered()), this,
-          SLOT(showBugTracker()));
-
-#ifdef DOWNLOAD_LINKS
-  ui_->actionDownloadManual->setIcon(QIcon());
-  connect(ui_->actionDownloadManual, SIGNAL(activated()), this,
-          SLOT(downloadManual()));
-#endif
-
-#ifdef SCRIPTING_DIALOG
-  connect(ui_->actionScriptingLanguage, SIGNAL(activated()), this,
-          SLOT(showScriptingLangDialog()));
-#endif
-
-  ui_->actionRestartScripting->setIcon(QIcon());
-  connect(ui_->actionRestartScripting, SIGNAL(activated()), this,
-          SLOT(restartScriptingEnv()));
-
-  ui_->actionExecute->setIcon(QIcon());
-
-  ui_->actionEvaluateExpression->setIcon(QIcon());
 
   actionShowCurvePlotDialog = new QAction(tr("&Plot details..."), this);
   connect(actionShowCurvePlotDialog, SIGNAL(activated()), this,

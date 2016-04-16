@@ -243,7 +243,7 @@
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
-     <string>Window</string>
+     <string>Windows</string>
     </property>
     <addaction name="actionCascadeWindow"/>
     <addaction name="actionTileWindow"/>
@@ -931,47 +931,47 @@
   </action>
   <action name="actionCascadeWindow">
    <property name="text">
-    <string>Cascade</string>
+    <string>&amp;Cascade</string>
    </property>
   </action>
   <action name="actionTileWindow">
    <property name="text">
-    <string>Tile</string>
+    <string>&amp;Tile</string>
    </property>
   </action>
   <action name="actionNextWindow">
    <property name="text">
-    <string>Next</string>
+    <string>&amp;Next</string>
    </property>
   </action>
   <action name="actionPreviousWindow">
    <property name="text">
-    <string>Previous</string>
+    <string>&amp;Previous</string>
    </property>
   </action>
   <action name="actionRenameWindow">
    <property name="text">
-    <string>Rename Window</string>
+    <string>&amp;Rename Window</string>
    </property>
   </action>
   <action name="actionDuplicateWindow">
    <property name="text">
-    <string>Duplicate</string>
+    <string>&amp;Duplicate</string>
    </property>
   </action>
   <action name="actionWindowGeometry">
    <property name="text">
-    <string>Window Geometry...</string>
+    <string>&amp;Window Geometry...</string>
    </property>
   </action>
   <action name="actionHideWindow">
    <property name="text">
-    <string>Hide Window</string>
+    <string>&amp;Hide Window</string>
    </property>
   </action>
   <action name="actionCloseWindow">
    <property name="text">
-    <string>Close Window</string>
+    <string>C&amp;lose Window</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
