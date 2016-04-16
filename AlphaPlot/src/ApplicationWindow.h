@@ -549,10 +549,7 @@ Arranges all the visible project windows in a cascade pattern.
   void insertTranslatedStrings();
   void translateActionsStrings();
   void initMainMenu();
-  void initTableAnalysisMenu();
-  void initPlotDataMenu();
   void initToolBars();
-  void initPlot3DToolBar();
   void disableActions();
   void customToolBars(QWidget* w);
   void customMenu(QWidget* w);

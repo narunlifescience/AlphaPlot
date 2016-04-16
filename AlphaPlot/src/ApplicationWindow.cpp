@@ -987,7 +987,6 @@ ApplicationWindow::ApplicationWindow()
           SLOT(copyStatusBarText()));
 
   initToolBars();
-  initPlot3DToolBar();
   initMainMenu();
 
   // Create central MdiArea
@@ -1289,6 +1288,186 @@ void ApplicationWindow::initToolBars() {
   ui_->action3DGreyScaleMap->addTo(matrix_plot_tools);
 
   matrix_plot_tools->setEnabled(false);
+
+  // Graph 3d toolbar
+  graph_3D_tools->setObjectName("graph_3D_tools");  // need for restoreState()
+  graph_3D_tools->setIconSize(QSize(24, 24));
+  addToolBarBreak(Qt::TopToolBarArea);
+  addToolBar(Qt::TopToolBarArea, graph_3D_tools);
+
+  coord = new QActionGroup(this);
+  Box = new QAction(coord);
+  Box->setIcon(IconLoader::load("graph3d-box-axis", IconLoader::LightDark));
+  Box->setCheckable(true);
+
+  Frame = new QAction(coord);
+  Frame->setIcon(IconLoader::load("graph3d-free-axis", IconLoader::LightDark));
+  Frame->setCheckable(true);
+
+  None = new QAction(coord);
+  None->setIcon(IconLoader::load("graph3d-no-axis", IconLoader::LightDark));
+  None->setCheckable(true);
+
+  graph_3D_tools->addAction(Frame);
+  graph_3D_tools->addAction(Box);
+  graph_3D_tools->addAction(None);
+  Box->setChecked(true);
+
+  graph_3D_tools->addSeparator();
+
+  // grid actions
+  grids = new QActionGroup(this);
+  grids->setEnabled(true);
+  grids->setExclusive(false);
+  front = new QAction(grids);
+  front->setCheckable(true);
+  front->setIcon(IconLoader::load("graph3d-front-grid", IconLoader::LightDark));
+  back = new QAction(grids);
+  back->setCheckable(true);
+  back->setIcon(IconLoader::load("graph3d-back-grid", IconLoader::LightDark));
+  right = new QAction(grids);
+  right->setCheckable(true);
+  right->setIcon(IconLoader::load("graph3d-left-grid", IconLoader::LightDark));
+  left = new QAction(grids);
+  left->setCheckable(true);
+  left->setIcon(IconLoader::load("graph3d-right-grid", IconLoader::LightDark));
+  ceil = new QAction(grids);
+  ceil->setCheckable(true);
+  ceil->setIcon(IconLoader::load("graph3d-top-grid", IconLoader::LightDark));
+  floor = new QAction(grids);
+  floor->setCheckable(true);
+  floor->setIcon(IconLoader::load("graph3d-floor-grid", IconLoader::LightDark));
+
+  graph_3D_tools->addAction(front);
+  graph_3D_tools->addAction(back);
+  graph_3D_tools->addAction(right);
+  graph_3D_tools->addAction(left);
+  graph_3D_tools->addAction(ceil);
+  graph_3D_tools->addAction(floor);
+
+  graph_3D_tools->addSeparator();
+
+  actionPerspective = new QAction(this);
+  actionPerspective->setToggleAction(TRUE);
+  actionPerspective->setIconSet(
+      IconLoader::load("graph3d-perspective-view", IconLoader::LightDark));
+  actionPerspective->addTo(graph_3D_tools);
+  actionPerspective->setOn(!orthogonal3DPlots);
+  connect(actionPerspective, SIGNAL(toggled(bool)), this,
+          SLOT(togglePerspective(bool)));
+
+  actionResetRotation = new QAction(this);
+  actionResetRotation->setToggleAction(false);
+  actionResetRotation->setIconSet(
+      IconLoader::load("graph3d-reset-rotation", IconLoader::LightDark));
+  actionResetRotation->addTo(graph_3D_tools);
+  connect(actionResetRotation, SIGNAL(activated()), this,
+          SLOT(resetRotation()));
+
+  actionFitFrame = new QAction(this);
+  actionFitFrame->setToggleAction(false);
+  actionFitFrame->setIconSet(
+      IconLoader::load("graph3d-fit-frame", IconLoader::LightDark));
+  actionFitFrame->addTo(graph_3D_tools);
+  connect(actionFitFrame, SIGNAL(activated()), this, SLOT(fitFrameToLayer()));
+
+  graph_3D_tools->addSeparator();
+
+  // plot style actions
+  plotstyle = new QActionGroup(this);
+  wireframe = new QAction(plotstyle);
+  wireframe->setCheckable(true);
+  wireframe->setEnabled(true);
+  wireframe->setIcon(
+      IconLoader::load("graph3d-hidden-line", IconLoader::LightDark));
+  hiddenline = new QAction(plotstyle);
+  hiddenline->setCheckable(true);
+  hiddenline->setEnabled(true);
+  hiddenline->setIcon(IconLoader::load("graph3d-mesh", IconLoader::LightDark));
+  polygon = new QAction(plotstyle);
+  polygon->setCheckable(true);
+  polygon->setEnabled(true);
+  polygon->setIcon(IconLoader::load("graph3d-polygon", IconLoader::LightDark));
+  filledmesh = new QAction(plotstyle);
+  filledmesh->setCheckable(true);
+  filledmesh->setIcon(
+      IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
+  pointstyle = new QAction(plotstyle);
+  pointstyle->setCheckable(true);
+  pointstyle->setIcon(
+      IconLoader::load("graph3d-point-mesh", IconLoader::LightDark));
+
+  conestyle = new QAction(plotstyle);
+  conestyle->setCheckable(true);
+  conestyle->setIcon(IconLoader::load("graph3d-cone", IconLoader::LightDark));
+
+  crossHairStyle = new QAction(plotstyle);
+  crossHairStyle->setCheckable(true);
+  crossHairStyle->setIcon(
+      IconLoader::load("graph3d-cross", IconLoader::LightDark));
+
+  barstyle = new QAction(plotstyle);
+  barstyle->setCheckable(true);
+  barstyle->setIcon(IconLoader::load("graph3d-bar", IconLoader::LightDark));
+
+  graph_3D_tools->addAction(barstyle);
+  graph_3D_tools->addAction(pointstyle);
+
+  graph_3D_tools->addAction(conestyle);
+  graph_3D_tools->addAction(crossHairStyle);
+  graph_3D_tools->addSeparator();
+
+  graph_3D_tools->addAction(wireframe);
+  graph_3D_tools->addAction(hiddenline);
+  graph_3D_tools->addAction(polygon);
+  graph_3D_tools->addAction(filledmesh);
+  filledmesh->setChecked(true);
+
+  graph_3D_tools->addSeparator();
+
+  // floor actions
+  floorstyle = new QActionGroup(this);
+  floordata = new QAction(floorstyle);
+  floordata->setCheckable(true);
+  floordata->setIcon(IconLoader::load("graph3d-floor", IconLoader::LightDark));
+  flooriso = new QAction(floorstyle);
+  flooriso->setCheckable(true);
+  flooriso->setIcon(IconLoader::load("graph3d-isoline", IconLoader::LightDark));
+  floornone = new QAction(floorstyle);
+  floornone->setCheckable(true);
+  floornone->setIcon(
+      IconLoader::load("graph3d-no-floor", IconLoader::LightDark));
+
+  graph_3D_tools->addAction(floordata);
+  graph_3D_tools->addAction(flooriso);
+  graph_3D_tools->addAction(floornone);
+  floornone->setChecked(true);
+
+  graph_3D_tools->addSeparator();
+
+  actionAnimate = new QAction(this);
+  actionAnimate->setToggleAction(true);
+  actionAnimate->setIcon(
+      IconLoader::load("view-3dplot-movie", IconLoader::LightDark));
+  graph_3D_tools->addAction(actionAnimate);
+
+  graph_3D_tools->setEnabled(false);
+
+  connect(actionAnimate, SIGNAL(toggled(bool)), this,
+          SLOT(toggle3DAnimation(bool)));
+  connect(coord, SIGNAL(triggered(QAction *)), this,
+          SLOT(pickCoordSystem(QAction *)));
+  connect(floorstyle, SIGNAL(triggered(QAction *)), this,
+          SLOT(pickFloorStyle(QAction *)));
+  connect(plotstyle, SIGNAL(triggered(QAction *)), this,
+          SLOT(pickPlotStyle(QAction *)));
+
+  connect(left, SIGNAL(triggered(bool)), this, SLOT(setLeftGrid3DPlot(bool)));
+  connect(right, SIGNAL(triggered(bool)), this, SLOT(setRightGrid3DPlot(bool)));
+  connect(ceil, SIGNAL(triggered(bool)), this, SLOT(setCeilGrid3DPlot(bool)));
+  connect(floor, SIGNAL(triggered(bool)), this, SLOT(setFloorGrid3DPlot(bool)));
+  connect(back, SIGNAL(triggered(bool)), this, SLOT(setBackGrid3DPlot(bool)));
+  connect(front, SIGNAL(triggered(bool)), this, SLOT(setFrontGrid3DPlot(bool)));
 }
 
 void ApplicationWindow::lockToolbars(const bool status) {
@@ -1358,8 +1537,42 @@ void ApplicationWindow::initMainMenu() {
   tableMenu = new QMenu(this);
   tableMenu->setFont(appFont);
 
-  initTableAnalysisMenu();
-  initPlotDataMenu();
+  dataMenu = new QMenu(this);
+  dataMenu->setFont(appFont);
+
+  dataMenu->addAction(actionShowColStatistics);
+  dataMenu->addAction(actionShowRowStatistics);
+
+  dataMenu->addSeparator();
+  dataMenu->addAction(actionFFT);
+  dataMenu->addSeparator();
+  dataMenu->addAction(actionCorrelate);
+  dataMenu->addAction(actionAutoCorrelate);
+  dataMenu->addSeparator();
+  dataMenu->addAction(actionConvolute);
+  dataMenu->addAction(actionDeconvolute);
+
+  dataMenu->addSeparator();
+  dataMenu->addAction(actionShowFitDialog);
+
+  plotDataMenu = new QMenu(this);
+  plotDataMenu->setFont(appFont);
+  plotDataMenu->setCheckable(true);
+
+  plotDataMenu->addAction(btnPointer);
+  plotDataMenu->addAction(btnZoomIn);
+  plotDataMenu->addAction(btnZoomOut);
+  plotDataMenu->addAction(actionUnzoom);
+  plotDataMenu->addSeparator();
+
+  plotDataMenu->addAction(btnPicker);
+  plotDataMenu->addAction(btnCursor);
+  plotDataMenu->addAction(btnSelect);
+
+  plotDataMenu->addSeparator();
+
+  plotDataMenu->addAction(btnMovePoints);
+  plotDataMenu->addAction(btnRemovePoints);
 
   calcul = new QMenu(this);
   calcul->setFont(appFont);
@@ -1433,47 +1646,6 @@ void ApplicationWindow::initMainMenu() {
   format->setFont(appFont);
 
   disableActions();
-}
-
-void ApplicationWindow::initPlotDataMenu() {
-  plotDataMenu = new QMenu(this);
-  plotDataMenu->setFont(appFont);
-  plotDataMenu->setCheckable(true);
-
-  plotDataMenu->addAction(btnPointer);
-  plotDataMenu->addAction(btnZoomIn);
-  plotDataMenu->addAction(btnZoomOut);
-  plotDataMenu->addAction(actionUnzoom);
-  plotDataMenu->addSeparator();
-
-  plotDataMenu->addAction(btnPicker);
-  plotDataMenu->addAction(btnCursor);
-  plotDataMenu->addAction(btnSelect);
-
-  plotDataMenu->addSeparator();
-
-  plotDataMenu->addAction(btnMovePoints);
-  plotDataMenu->addAction(btnRemovePoints);
-}
-
-void ApplicationWindow::initTableAnalysisMenu() {
-  dataMenu = new QMenu(this);
-  dataMenu->setFont(appFont);
-
-  dataMenu->addAction(actionShowColStatistics);
-  dataMenu->addAction(actionShowRowStatistics);
-
-  dataMenu->addSeparator();
-  dataMenu->addAction(actionFFT);
-  dataMenu->addSeparator();
-  dataMenu->addAction(actionCorrelate);
-  dataMenu->addAction(actionAutoCorrelate);
-  dataMenu->addSeparator();
-  dataMenu->addAction(actionConvolute);
-  dataMenu->addAction(actionDeconvolute);
-
-  dataMenu->addSeparator();
-  dataMenu->addAction(actionShowFitDialog);
 }
 
 void ApplicationWindow::customMenu(QWidget *w) {
@@ -8719,187 +8891,6 @@ void ApplicationWindow::custom3DGrids(int grids) {
     left->setChecked(true);
   else
     left->setChecked(false);
-}
-
-void ApplicationWindow::initPlot3DToolBar() {
-  graph_3D_tools->setObjectName("graph_3D_tools");  // need for restoreState()
-  graph_3D_tools->setIconSize(QSize(24, 24));
-  addToolBarBreak(Qt::TopToolBarArea);
-  addToolBar(Qt::TopToolBarArea, graph_3D_tools);
-
-  coord = new QActionGroup(this);
-  Box = new QAction(coord);
-  Box->setIcon(IconLoader::load("graph3d-box-axis", IconLoader::LightDark));
-  Box->setCheckable(true);
-
-  Frame = new QAction(coord);
-  Frame->setIcon(IconLoader::load("graph3d-free-axis", IconLoader::LightDark));
-  Frame->setCheckable(true);
-
-  None = new QAction(coord);
-  None->setIcon(IconLoader::load("graph3d-no-axis", IconLoader::LightDark));
-  None->setCheckable(true);
-
-  graph_3D_tools->addAction(Frame);
-  graph_3D_tools->addAction(Box);
-  graph_3D_tools->addAction(None);
-  Box->setChecked(true);
-
-  graph_3D_tools->addSeparator();
-
-  // grid actions
-  grids = new QActionGroup(this);
-  grids->setEnabled(true);
-  grids->setExclusive(false);
-  front = new QAction(grids);
-  front->setCheckable(true);
-  front->setIcon(IconLoader::load("graph3d-front-grid", IconLoader::LightDark));
-  back = new QAction(grids);
-  back->setCheckable(true);
-  back->setIcon(IconLoader::load("graph3d-back-grid", IconLoader::LightDark));
-  right = new QAction(grids);
-  right->setCheckable(true);
-  right->setIcon(IconLoader::load("graph3d-left-grid", IconLoader::LightDark));
-  left = new QAction(grids);
-  left->setCheckable(true);
-  left->setIcon(IconLoader::load("graph3d-right-grid", IconLoader::LightDark));
-  ceil = new QAction(grids);
-  ceil->setCheckable(true);
-  ceil->setIcon(IconLoader::load("graph3d-top-grid", IconLoader::LightDark));
-  floor = new QAction(grids);
-  floor->setCheckable(true);
-  floor->setIcon(IconLoader::load("graph3d-floor-grid", IconLoader::LightDark));
-
-  graph_3D_tools->addAction(front);
-  graph_3D_tools->addAction(back);
-  graph_3D_tools->addAction(right);
-  graph_3D_tools->addAction(left);
-  graph_3D_tools->addAction(ceil);
-  graph_3D_tools->addAction(floor);
-
-  graph_3D_tools->addSeparator();
-
-  actionPerspective = new QAction(this);
-  actionPerspective->setToggleAction(TRUE);
-  actionPerspective->setIconSet(
-      IconLoader::load("graph3d-perspective-view", IconLoader::LightDark));
-  actionPerspective->addTo(graph_3D_tools);
-  actionPerspective->setOn(!orthogonal3DPlots);
-  connect(actionPerspective, SIGNAL(toggled(bool)), this,
-          SLOT(togglePerspective(bool)));
-
-  actionResetRotation = new QAction(this);
-  actionResetRotation->setToggleAction(false);
-  actionResetRotation->setIconSet(
-      IconLoader::load("graph3d-reset-rotation", IconLoader::LightDark));
-  actionResetRotation->addTo(graph_3D_tools);
-  connect(actionResetRotation, SIGNAL(activated()), this,
-          SLOT(resetRotation()));
-
-  actionFitFrame = new QAction(this);
-  actionFitFrame->setToggleAction(false);
-  actionFitFrame->setIconSet(
-      IconLoader::load("graph3d-fit-frame", IconLoader::LightDark));
-  actionFitFrame->addTo(graph_3D_tools);
-  connect(actionFitFrame, SIGNAL(activated()), this, SLOT(fitFrameToLayer()));
-
-  graph_3D_tools->addSeparator();
-
-  // plot style actions
-  plotstyle = new QActionGroup(this);
-  wireframe = new QAction(plotstyle);
-  wireframe->setCheckable(true);
-  wireframe->setEnabled(true);
-  wireframe->setIcon(
-      IconLoader::load("graph3d-hidden-line", IconLoader::LightDark));
-  hiddenline = new QAction(plotstyle);
-  hiddenline->setCheckable(true);
-  hiddenline->setEnabled(true);
-  hiddenline->setIcon(IconLoader::load("graph3d-mesh", IconLoader::LightDark));
-  polygon = new QAction(plotstyle);
-  polygon->setCheckable(true);
-  polygon->setEnabled(true);
-  polygon->setIcon(IconLoader::load("graph3d-polygon", IconLoader::LightDark));
-  filledmesh = new QAction(plotstyle);
-  filledmesh->setCheckable(true);
-  filledmesh->setIcon(
-      IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
-  pointstyle = new QAction(plotstyle);
-  pointstyle->setCheckable(true);
-  pointstyle->setIcon(
-      IconLoader::load("graph3d-point-mesh", IconLoader::LightDark));
-
-  conestyle = new QAction(plotstyle);
-  conestyle->setCheckable(true);
-  conestyle->setIcon(IconLoader::load("graph3d-cone", IconLoader::LightDark));
-
-  crossHairStyle = new QAction(plotstyle);
-  crossHairStyle->setCheckable(true);
-  crossHairStyle->setIcon(
-      IconLoader::load("graph3d-cross", IconLoader::LightDark));
-
-  barstyle = new QAction(plotstyle);
-  barstyle->setCheckable(true);
-  barstyle->setIcon(IconLoader::load("graph3d-bar", IconLoader::LightDark));
-
-  graph_3D_tools->addAction(barstyle);
-  graph_3D_tools->addAction(pointstyle);
-
-  graph_3D_tools->addAction(conestyle);
-  graph_3D_tools->addAction(crossHairStyle);
-  graph_3D_tools->addSeparator();
-
-  graph_3D_tools->addAction(wireframe);
-  graph_3D_tools->addAction(hiddenline);
-  graph_3D_tools->addAction(polygon);
-  graph_3D_tools->addAction(filledmesh);
-  filledmesh->setChecked(true);
-
-  graph_3D_tools->addSeparator();
-
-  // floor actions
-  floorstyle = new QActionGroup(this);
-  floordata = new QAction(floorstyle);
-  floordata->setCheckable(true);
-  floordata->setIcon(IconLoader::load("graph3d-floor", IconLoader::LightDark));
-  flooriso = new QAction(floorstyle);
-  flooriso->setCheckable(true);
-  flooriso->setIcon(IconLoader::load("graph3d-isoline", IconLoader::LightDark));
-  floornone = new QAction(floorstyle);
-  floornone->setCheckable(true);
-  floornone->setIcon(
-      IconLoader::load("graph3d-no-floor", IconLoader::LightDark));
-
-  graph_3D_tools->addAction(floordata);
-  graph_3D_tools->addAction(flooriso);
-  graph_3D_tools->addAction(floornone);
-  floornone->setChecked(true);
-
-  graph_3D_tools->addSeparator();
-
-  actionAnimate = new QAction(this);
-  actionAnimate->setToggleAction(true);
-  actionAnimate->setIcon(
-      IconLoader::load("view-3dplot-movie", IconLoader::LightDark));
-  graph_3D_tools->addAction(actionAnimate);
-
-  graph_3D_tools->setEnabled(false);
-
-  connect(actionAnimate, SIGNAL(toggled(bool)), this,
-          SLOT(toggle3DAnimation(bool)));
-  connect(coord, SIGNAL(triggered(QAction *)), this,
-          SLOT(pickCoordSystem(QAction *)));
-  connect(floorstyle, SIGNAL(triggered(QAction *)), this,
-          SLOT(pickFloorStyle(QAction *)));
-  connect(plotstyle, SIGNAL(triggered(QAction *)), this,
-          SLOT(pickPlotStyle(QAction *)));
-
-  connect(left, SIGNAL(triggered(bool)), this, SLOT(setLeftGrid3DPlot(bool)));
-  connect(right, SIGNAL(triggered(bool)), this, SLOT(setRightGrid3DPlot(bool)));
-  connect(ceil, SIGNAL(triggered(bool)), this, SLOT(setCeilGrid3DPlot(bool)));
-  connect(floor, SIGNAL(triggered(bool)), this, SLOT(setFloorGrid3DPlot(bool)));
-  connect(back, SIGNAL(triggered(bool)), this, SLOT(setBackGrid3DPlot(bool)));
-  connect(front, SIGNAL(triggered(bool)), this, SLOT(setFrontGrid3DPlot(bool)));
 }
 
 void ApplicationWindow::pixelLineProfile() {
