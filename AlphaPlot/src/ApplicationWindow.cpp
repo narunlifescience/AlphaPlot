@@ -600,6 +600,11 @@ ApplicationWindow::ApplicationWindow()
 #ifdef SCRIPTING_CONSOLE
   connect(ui_->actionShowConsole, SIGNAL(toggled(bool)), consoleWindow,
           SLOT(setVisible(bool)));
+  ui_->actionShowConsole->setEnabled(true);
+  ui_->actionShowConsole->setVisible(true);
+#else
+  ui_->actionShowConsole->setEnabled(false);
+  ui_->actionShowConsole->setVisible(false);
 #endif
   connect(ui_->actionShowUndoRedoHistory, SIGNAL(triggered(bool)), this,
           SLOT(showUndoRedoHistory()));
@@ -766,7 +771,221 @@ ApplicationWindow::ApplicationWindow()
           SLOT(showBugTracker()));
   connect(ui_->actionAbout, SIGNAL(activated()), this, SLOT(about()));
 
-  createActions();
+  // non main menu QActions
+  actionSaveNote = new QAction(tr("Save Note As..."), this);
+  connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
+  actionExportPDF =
+      new QAction(IconLoader::load("application-pdf", IconLoader::LightDark),
+                  tr("&Export PDF") + "...", this);
+  actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
+  connect(actionExportPDF, SIGNAL(activated()), this, SLOT(exportPDF()));
+  actionUnzoom =
+      new QAction(IconLoader::load("graph-unzoom", IconLoader::LightDark),
+                  tr("&Rescale to Show All"), this);
+  actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
+  connect(actionUnzoom, SIGNAL(activated()), this, SLOT(setAutoScale()));
+  actionShowColStatistics =
+      new QAction(IconLoader::load("table-column-sum", IconLoader::LightDark),
+                  tr("Statistics on &Columns"), this);
+  connect(actionShowColStatistics, SIGNAL(activated()), this,
+          SLOT(showColStatistics()));
+  actionShowRowStatistics =
+      new QAction(IconLoader::load("table-row-sum", IconLoader::LightDark),
+                  tr("Statistics on &Rows"), this);
+  connect(actionShowRowStatistics, SIGNAL(activated()), this,
+          SLOT(showRowStatistics()));
+  actionShowIntDialog = new QAction(tr("&Integrate ..."), this);
+  connect(actionShowIntDialog, SIGNAL(activated()), this,
+          SLOT(showIntegrationDialog()));
+  actionInterpolate = new QAction(tr("Inte&rpolate ..."), this);
+  connect(actionInterpolate, SIGNAL(activated()), this,
+          SLOT(showInterpolationDialog()));
+  actionLowPassFilter = new QAction(tr("&Low Pass..."), this);
+  connect(actionLowPassFilter, SIGNAL(activated()), this,
+          SLOT(lowPassFilterDialog()));
+  actionHighPassFilter = new QAction(tr("&High Pass..."), this);
+  connect(actionHighPassFilter, SIGNAL(activated()), this,
+          SLOT(highPassFilterDialog()));
+  actionBandPassFilter = new QAction(tr("&Band Pass..."), this);
+  connect(actionBandPassFilter, SIGNAL(activated()), this,
+          SLOT(bandPassFilterDialog()));
+  actionBandBlockFilter = new QAction(tr("&Band Block..."), this);
+  connect(actionBandBlockFilter, SIGNAL(activated()), this,
+          SLOT(bandBlockFilterDialog()));
+  actionFFT = new QAction(tr("&FFT..."), this);
+  connect(actionFFT, SIGNAL(activated()), this, SLOT(showFFTDialog()));
+  actionSmoothSavGol = new QAction(tr("&Savitzky-Golay..."), this);
+  connect(actionSmoothSavGol, SIGNAL(activated()), this,
+          SLOT(showSmoothSavGolDialog()));
+  actionSmoothFFT = new QAction(tr("&FFT Filter..."), this);
+  connect(actionSmoothFFT, SIGNAL(activated()), this,
+          SLOT(showSmoothFFTDialog()));
+  actionSmoothAverage = new QAction(tr("Moving Window &Average..."), this);
+  connect(actionSmoothAverage, SIGNAL(activated()), this,
+          SLOT(showSmoothAverageDialog()));
+  actionDifferentiate = new QAction(tr("&Differentiate"), this);
+  connect(actionDifferentiate, SIGNAL(activated()), this,
+          SLOT(differentiate()));
+  actionFitLinear = new QAction(tr("Fit &Linear"), this);
+  connect(actionFitLinear, SIGNAL(activated()), this, SLOT(fitLinear()));
+  actionShowFitPolynomDialog = new QAction(tr("Fit &Polynomial ..."), this);
+  connect(actionShowFitPolynomDialog, SIGNAL(activated()), this,
+          SLOT(showFitPolynomDialog()));
+  actionShowExpDecayDialog = new QAction(tr("&First Order ..."), this);
+  connect(actionShowExpDecayDialog, SIGNAL(activated()), this,
+          SLOT(showExpDecayDialog()));
+  actionShowTwoExpDecayDialog = new QAction(tr("&Second Order ..."), this);
+  connect(actionShowTwoExpDecayDialog, SIGNAL(activated()), this,
+          SLOT(showTwoExpDecayDialog()));
+  actionShowExpDecay3Dialog = new QAction(tr("&Third Order ..."), this);
+  connect(actionShowExpDecay3Dialog, SIGNAL(activated()), this,
+          SLOT(showExpDecay3Dialog()));
+  actionFitExpGrowth = new QAction(tr("Fit Exponential Gro&wth ..."), this);
+  connect(actionFitExpGrowth, SIGNAL(activated()), this,
+          SLOT(showExpGrowthDialog()));
+  actionFitSigmoidal = new QAction(tr("Fit &Boltzmann (Sigmoidal)"), this);
+  connect(actionFitSigmoidal, SIGNAL(activated()), this, SLOT(fitSigmoidal()));
+  actionFitGauss = new QAction(tr("Fit &Gaussian"), this);
+  connect(actionFitGauss, SIGNAL(activated()), this, SLOT(fitGauss()));
+  actionFitLorentz = new QAction(tr("Fit Lorent&zian"), this);
+  connect(actionFitLorentz, SIGNAL(activated()), this, SLOT(fitLorentz()));
+  actionShowFitDialog = new QAction(tr("Fit &Wizard..."), this);
+  actionShowFitDialog->setShortcut(tr("Ctrl+Y"));
+  connect(actionShowFitDialog, SIGNAL(activated()), this,
+          SLOT(showFitDialog()));
+  actionShowPlotDialog = new QAction(tr("&Plot ..."), this);
+  connect(actionShowPlotDialog, SIGNAL(activated()), this,
+          SLOT(showGeneralPlotDialog()));
+  actionShowScaleDialog = new QAction(tr("&Scales..."), this);
+  connect(actionShowScaleDialog, SIGNAL(activated()), this,
+          SLOT(showScaleDialog()));
+  actionShowAxisDialog = new QAction(tr("&Axes..."), this);
+  connect(actionShowAxisDialog, SIGNAL(activated()), this,
+          SLOT(showAxisDialog()));
+  actionShowGridDialog = new QAction(tr("&Grid ..."), this);
+  connect(actionShowGridDialog, SIGNAL(activated()), this,
+          SLOT(showGridDialog()));
+  actionShowTitleDialog = new QAction(tr("&Title ..."), this);
+  connect(actionShowTitleDialog, SIGNAL(activated()), this,
+          SLOT(showTitleDialog()));
+  actionCloseWindow =
+      new QAction(IconLoader::load("edit-delete", IconLoader::General),
+                  tr("Close &Window"), this);
+  actionCloseWindow->setShortcut(tr("Ctrl+W"));
+  connect(actionCloseWindow, SIGNAL(activated()), this,
+          SLOT(closeActiveWindow()));
+  actionHideActiveWindow = new QAction(tr("&Hide Window"), this);
+  connect(actionHideActiveWindow, SIGNAL(activated()), this,
+          SLOT(hideActiveWindow()));
+  actionShowMoreWindows = new QAction(tr("More windows..."), this);
+  connect(actionShowMoreWindows, SIGNAL(activated()), this,
+          SLOT(showMoreWindows()));
+  actionPixelLineProfile = new QAction(QIcon(QPixmap(":/pixelProfile.xpm")),
+                                       tr("&View Pixel Line Profile"), this);
+  connect(actionPixelLineProfile, SIGNAL(activated()), this,
+          SLOT(pixelLineProfile()));
+  actionIntensityTable = new QAction(tr("&Intensity Table"), this);
+  connect(actionIntensityTable, SIGNAL(activated()), this,
+          SLOT(intensityTable()));
+  actionShowLineDialog = new QAction(tr("&Properties"), this);
+  connect(actionShowLineDialog, SIGNAL(activated()), this,
+          SLOT(showLineDialog()));
+  actionShowImageDialog = new QAction(tr("&Properties"), this);
+  connect(actionShowImageDialog, SIGNAL(activated()), this,
+          SLOT(showImageDialog()));
+  actionShowTextDialog = new QAction(tr("&Properties"), this);
+  connect(actionShowTextDialog, SIGNAL(activated()), this,
+          SLOT(showTextDialog()));
+  actionActivateWindow = new QAction(tr("&Activate Window"), this);
+  connect(actionActivateWindow, SIGNAL(activated()), this,
+          SLOT(activateWindow()));
+  actionMinimizeWindow = new QAction(tr("Mi&nimize Window"), this);
+  connect(actionMinimizeWindow, SIGNAL(activated()), this,
+          SLOT(minimizeWindow()));
+  actionMaximizeWindow = new QAction(tr("Ma&ximize Window"), this);
+  connect(actionMaximizeWindow, SIGNAL(activated()), this,
+          SLOT(maximizeWindow()));
+  actionResizeWindow = new QAction(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
+      tr("Re&size Window..."), this);
+  connect(actionResizeWindow, SIGNAL(activated()), this, SLOT(resizeWindow()));
+  actionPrintWindow =
+      new QAction(IconLoader::load("edit-print", IconLoader::LightDark),
+                  tr("&Print Window"), this);
+  connect(actionPrintWindow, SIGNAL(activated()), this, SLOT(printWindow()));
+  actionShowPlotGeometryDialog = new QAction(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
+      tr("&Layer Geometry"), this);
+  connect(actionShowPlotGeometryDialog, SIGNAL(activated()), this,
+          SLOT(showPlotGeometryDialog()));
+  actionEditSurfacePlot = new QAction(tr("&Surface..."), this);
+  connect(actionEditSurfacePlot, SIGNAL(activated()), this,
+          SLOT(editSurfacePlot()));
+  actionAdd3DData = new QAction(tr("&Data Set..."), this);
+  connect(actionAdd3DData, SIGNAL(activated()), this, SLOT(add3DData()));
+  actionInvertMatrix = new QAction(tr("&Invert"), this);
+  connect(actionInvertMatrix, SIGNAL(activated()), this, SLOT(invertMatrix()));
+  actionMatrixDeterminant = new QAction(tr("&Determinant"), this);
+  connect(actionMatrixDeterminant, SIGNAL(activated()), this,
+          SLOT(matrixDeterminant()));
+  actionConvertMatrix = new QAction(tr("&Convert to Table"), this);
+  connect(actionConvertMatrix, SIGNAL(activated()), this,
+          SLOT(convertMatrixToTable()));
+  actionConvertTable = new QAction(tr("Convert to &Matrix"), this);
+  connect(actionConvertTable, SIGNAL(activated()), this,
+          SLOT(convertTableToMatrix()));
+  actionCorrelate = new QAction(tr("Co&rrelate"), this);
+  connect(actionCorrelate, SIGNAL(activated()), this, SLOT(correlate()));
+  actionAutoCorrelate = new QAction(tr("&Autocorrelate"), this);
+  connect(actionAutoCorrelate, SIGNAL(activated()), this,
+          SLOT(autoCorrelate()));
+  actionConvolute = new QAction(tr("&Convolute"), this);
+  connect(actionConvolute, SIGNAL(activated()), this, SLOT(convolute()));
+  actionDeconvolute = new QAction(tr("&Deconvolute"), this);
+  connect(actionDeconvolute, SIGNAL(activated()), this, SLOT(deconvolute()));
+  actionTranslateHor = new QAction(tr("&Horizontal"), this);
+  connect(actionTranslateHor, SIGNAL(activated()), this,
+          SLOT(translateCurveHor()));
+  actionTranslateVert = new QAction(tr("&Vertical"), this);
+  connect(actionTranslateVert, SIGNAL(activated()), this,
+          SLOT(translateCurveVert()));
+  actionMultiPeakGauss = new QAction(tr("&Gaussian..."), this);
+  connect(actionMultiPeakGauss, SIGNAL(activated()), this,
+          SLOT(fitMultiPeakGauss()));
+  actionMultiPeakLorentz = new QAction(tr("&Lorentzian..."), this);
+  connect(actionMultiPeakLorentz, SIGNAL(activated()), this,
+          SLOT(fitMultiPeakLorentz()));
+  actionShowCurvePlotDialog = new QAction(tr("&Plot details..."), this);
+  connect(actionShowCurvePlotDialog, SIGNAL(activated()), this,
+          SLOT(showCurvePlotDialog()));
+  actionShowCurveWorksheet = new QAction(tr("&Worksheet"), this);
+  connect(actionShowCurveWorksheet, SIGNAL(activated()), this,
+          SLOT(showCurveWorksheet()));
+  actionCurveFullRange = new QAction(tr("&Reset to Full Range"), this);
+  connect(actionCurveFullRange, SIGNAL(activated()), this,
+          SLOT(setCurveFullRange()));
+  actionEditCurveRange = new QAction(tr("Edit &Range..."), this);
+  connect(actionEditCurveRange, SIGNAL(activated()), this,
+          SLOT(showCurveRangeDialog()));
+  actionRemoveCurve =
+      new QAction(IconLoader::load("edit-delete", IconLoader::General),
+                  tr("&Delete"), this);
+  connect(actionRemoveCurve, SIGNAL(activated()), this, SLOT(removeCurve()));
+  actionHideCurve = new QAction(tr("&Hide"), this);
+  connect(actionHideCurve, SIGNAL(activated()), this, SLOT(hideCurve()));
+  actionHideOtherCurves = new QAction(tr("Hide &Other Curves"), this);
+  connect(actionHideOtherCurves, SIGNAL(activated()), this,
+          SLOT(hideOtherCurves()));
+  actionShowAllCurves = new QAction(tr("&Show All Curves"), this);
+  connect(actionShowAllCurves, SIGNAL(activated()), this,
+          SLOT(showAllCurves()));
+  actionEditFunction = new QAction(tr("&Edit Function..."), this);
+  connect(actionEditFunction, SIGNAL(activated()), this,
+          SLOT(showFunctionDialog()));
+  actionCopyStatusBarText = new QAction(tr("&Copy status bar text"), this);
+  connect(actionCopyStatusBarText, SIGNAL(activated()), this,
+          SLOT(copyStatusBarText()));
+
   initToolBars();
   initPlot3DToolBar();
   initMainMenu();
@@ -820,8 +1039,7 @@ void ApplicationWindow::applyUserSettings() {
 void ApplicationWindow::initToolBars() {
   QPixmap openIcon, saveIcon;
 
-  file_tools->setObjectName(
-      "file_tools");  // this is needed for QMainWindow::restoreState()
+  file_tools->setObjectName("file_tools");  // need for restoreState()
   file_tools->setIconSize(QSize(24, 24));
   addToolBar(Qt::TopToolBarArea, file_tools);
 
@@ -859,8 +1077,7 @@ void ApplicationWindow::initToolBars() {
   file_tools->addAction(ui_->actionShowResultsLog);
   file_tools->addAction(ui_->actionLockToolbars);
 
-  edit_tools->setObjectName(
-      "edit_tools");  // this is needed for QMainWindow::restoreState()
+  edit_tools->setObjectName("edit_tools");  // needed for restoreState()
   edit_tools->setIconSize(QSize(24, 24));
   addToolBar(edit_tools);
 
@@ -871,8 +1088,7 @@ void ApplicationWindow::initToolBars() {
   edit_tools->addAction(ui_->actionPasteSelection);
   edit_tools->addAction(ui_->actionClearSelection);
 
-  graph_tools->setObjectName(
-      "graph_tools");  // this is needed for QMainWindow::restoreState()
+  graph_tools->setObjectName("graph_tools");  // need for restoreState()
   graph_tools->setIconSize(QSize(24, 24));
   addToolBar(graph_tools);
 
@@ -985,8 +1201,7 @@ void ApplicationWindow::initToolBars() {
   connect(dataTools, SIGNAL(triggered(QAction *)), this,
           SLOT(pickDataTool(QAction *)));
 
-  plot_tools->setObjectName(
-      "plot_tools");  // this is needed for QMainWindow::restoreState()
+  plot_tools->setObjectName("plot_tools");  // need for restoreState()
   plot_tools->setIconSize(QSize(32, 32));
   addToolBar(Qt::TopToolBarArea, plot_tools);
 
@@ -1037,8 +1252,7 @@ void ApplicationWindow::initToolBars() {
   plot_tools->addAction(ui_->actionPlot3DRibbon);
   plot_tools->addAction(ui_->actionPlot3DBar);
 
-  table_tools->setObjectName(
-      "table_tools");  // this is needed for QMainWindow::restoreState()
+  table_tools->setObjectName("table_tools");  // needed for restoreState()
   table_tools->setIconSize(QSize(24, 24));
   addToolBar(Qt::TopToolBarArea, table_tools);
 
@@ -1134,14 +1348,6 @@ void ApplicationWindow::insertTranslatedStrings() {
 }
 
 void ApplicationWindow::initMainMenu() {
-#ifdef SCRIPTING_CONSOLE
-  ui_->actionShowConsole->setEnabled(true);
-  ui_->actionShowConsole->setVisible(true);
-#else
-  ui_->actionShowConsole->setEnabled(false);
-  ui_->actionShowConsole->setVisible(false);
-#endif
-
   // connect it with new qaction or find a better way to averse duplicate
   // plot3DMenu->addAction(ui_->actionPlot3DBar);
   // plot3DMenu->addAction(ui_->actionPlot3DScatter);
@@ -8516,8 +8722,7 @@ void ApplicationWindow::custom3DGrids(int grids) {
 }
 
 void ApplicationWindow::initPlot3DToolBar() {
-  graph_3D_tools->setObjectName(
-      "graph_3D_tools");  // this is needed for QMainWindow::restoreState()
+  graph_3D_tools->setObjectName("graph_3D_tools");  // need for restoreState()
   graph_3D_tools->setIconSize(QSize(24, 24));
   addToolBarBreak(Qt::TopToolBarArea);
   addToolBar(Qt::TopToolBarArea, graph_3D_tools);
@@ -9727,290 +9932,6 @@ void ApplicationWindow::setPlot3DOptions() {
     }
   }
   delete windows;
-}
-
-void ApplicationWindow::createActions() {
-  actionSaveNote = new QAction(tr("Save Note As..."), this);
-  connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
-
-  actionExportPDF =
-      new QAction(IconLoader::load("application-pdf", IconLoader::LightDark),
-                  tr("&Export PDF") + "...", this);
-  actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
-  connect(actionExportPDF, SIGNAL(activated()), this, SLOT(exportPDF()));
-
-  actionUnzoom =
-      new QAction(IconLoader::load("graph-unzoom", IconLoader::LightDark),
-                  tr("&Rescale to Show All"), this);
-  actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
-  connect(actionUnzoom, SIGNAL(activated()), this, SLOT(setAutoScale()));
-
-  actionShowColStatistics =
-      new QAction(IconLoader::load("table-column-sum", IconLoader::LightDark),
-                  tr("Statistics on &Columns"), this);
-  connect(actionShowColStatistics, SIGNAL(activated()), this,
-          SLOT(showColStatistics()));
-
-  actionShowRowStatistics =
-      new QAction(IconLoader::load("table-row-sum", IconLoader::LightDark),
-                  tr("Statistics on &Rows"), this);
-  connect(actionShowRowStatistics, SIGNAL(activated()), this,
-          SLOT(showRowStatistics()));
-
-  actionShowIntDialog = new QAction(tr("&Integrate ..."), this);
-  connect(actionShowIntDialog, SIGNAL(activated()), this,
-          SLOT(showIntegrationDialog()));
-
-  actionInterpolate = new QAction(tr("Inte&rpolate ..."), this);
-  connect(actionInterpolate, SIGNAL(activated()), this,
-          SLOT(showInterpolationDialog()));
-
-  actionLowPassFilter = new QAction(tr("&Low Pass..."), this);
-  connect(actionLowPassFilter, SIGNAL(activated()), this,
-          SLOT(lowPassFilterDialog()));
-
-  actionHighPassFilter = new QAction(tr("&High Pass..."), this);
-  connect(actionHighPassFilter, SIGNAL(activated()), this,
-          SLOT(highPassFilterDialog()));
-
-  actionBandPassFilter = new QAction(tr("&Band Pass..."), this);
-  connect(actionBandPassFilter, SIGNAL(activated()), this,
-          SLOT(bandPassFilterDialog()));
-
-  actionBandBlockFilter = new QAction(tr("&Band Block..."), this);
-  connect(actionBandBlockFilter, SIGNAL(activated()), this,
-          SLOT(bandBlockFilterDialog()));
-
-  actionFFT = new QAction(tr("&FFT..."), this);
-  connect(actionFFT, SIGNAL(activated()), this, SLOT(showFFTDialog()));
-
-  actionSmoothSavGol = new QAction(tr("&Savitzky-Golay..."), this);
-  connect(actionSmoothSavGol, SIGNAL(activated()), this,
-          SLOT(showSmoothSavGolDialog()));
-
-  actionSmoothFFT = new QAction(tr("&FFT Filter..."), this);
-  connect(actionSmoothFFT, SIGNAL(activated()), this,
-          SLOT(showSmoothFFTDialog()));
-
-  actionSmoothAverage = new QAction(tr("Moving Window &Average..."), this);
-  connect(actionSmoothAverage, SIGNAL(activated()), this,
-          SLOT(showSmoothAverageDialog()));
-
-  actionDifferentiate = new QAction(tr("&Differentiate"), this);
-  connect(actionDifferentiate, SIGNAL(activated()), this,
-          SLOT(differentiate()));
-
-  actionFitLinear = new QAction(tr("Fit &Linear"), this);
-  connect(actionFitLinear, SIGNAL(activated()), this, SLOT(fitLinear()));
-
-  actionShowFitPolynomDialog = new QAction(tr("Fit &Polynomial ..."), this);
-  connect(actionShowFitPolynomDialog, SIGNAL(activated()), this,
-          SLOT(showFitPolynomDialog()));
-
-  actionShowExpDecayDialog = new QAction(tr("&First Order ..."), this);
-  connect(actionShowExpDecayDialog, SIGNAL(activated()), this,
-          SLOT(showExpDecayDialog()));
-
-  actionShowTwoExpDecayDialog = new QAction(tr("&Second Order ..."), this);
-  connect(actionShowTwoExpDecayDialog, SIGNAL(activated()), this,
-          SLOT(showTwoExpDecayDialog()));
-
-  actionShowExpDecay3Dialog = new QAction(tr("&Third Order ..."), this);
-  connect(actionShowExpDecay3Dialog, SIGNAL(activated()), this,
-          SLOT(showExpDecay3Dialog()));
-
-  actionFitExpGrowth = new QAction(tr("Fit Exponential Gro&wth ..."), this);
-  connect(actionFitExpGrowth, SIGNAL(activated()), this,
-          SLOT(showExpGrowthDialog()));
-
-  actionFitSigmoidal = new QAction(tr("Fit &Boltzmann (Sigmoidal)"), this);
-  connect(actionFitSigmoidal, SIGNAL(activated()), this, SLOT(fitSigmoidal()));
-
-  actionFitGauss = new QAction(tr("Fit &Gaussian"), this);
-  connect(actionFitGauss, SIGNAL(activated()), this, SLOT(fitGauss()));
-
-  actionFitLorentz = new QAction(tr("Fit Lorent&zian"), this);
-  connect(actionFitLorentz, SIGNAL(activated()), this, SLOT(fitLorentz()));
-
-  actionShowFitDialog = new QAction(tr("Fit &Wizard..."), this);
-  actionShowFitDialog->setShortcut(tr("Ctrl+Y"));
-  connect(actionShowFitDialog, SIGNAL(activated()), this,
-          SLOT(showFitDialog()));
-
-  actionShowPlotDialog = new QAction(tr("&Plot ..."), this);
-  connect(actionShowPlotDialog, SIGNAL(activated()), this,
-          SLOT(showGeneralPlotDialog()));
-
-  actionShowScaleDialog = new QAction(tr("&Scales..."), this);
-  connect(actionShowScaleDialog, SIGNAL(activated()), this,
-          SLOT(showScaleDialog()));
-
-  actionShowAxisDialog = new QAction(tr("&Axes..."), this);
-  connect(actionShowAxisDialog, SIGNAL(activated()), this,
-          SLOT(showAxisDialog()));
-
-  actionShowGridDialog = new QAction(tr("&Grid ..."), this);
-  connect(actionShowGridDialog, SIGNAL(activated()), this,
-          SLOT(showGridDialog()));
-
-  actionShowTitleDialog = new QAction(tr("&Title ..."), this);
-  connect(actionShowTitleDialog, SIGNAL(activated()), this,
-          SLOT(showTitleDialog()));
-
-  actionCloseWindow =
-      new QAction(IconLoader::load("edit-delete", IconLoader::General),
-                  tr("Close &Window"), this);
-  actionCloseWindow->setShortcut(tr("Ctrl+W"));
-  connect(actionCloseWindow, SIGNAL(activated()), this,
-          SLOT(closeActiveWindow()));
-
-  actionHideActiveWindow = new QAction(tr("&Hide Window"), this);
-  connect(actionHideActiveWindow, SIGNAL(activated()), this,
-          SLOT(hideActiveWindow()));
-
-  actionShowMoreWindows = new QAction(tr("More windows..."), this);
-  connect(actionShowMoreWindows, SIGNAL(activated()), this,
-          SLOT(showMoreWindows()));
-
-  actionPixelLineProfile = new QAction(QIcon(QPixmap(":/pixelProfile.xpm")),
-                                       tr("&View Pixel Line Profile"), this);
-  connect(actionPixelLineProfile, SIGNAL(activated()), this,
-          SLOT(pixelLineProfile()));
-
-  actionIntensityTable = new QAction(tr("&Intensity Table"), this);
-  connect(actionIntensityTable, SIGNAL(activated()), this,
-          SLOT(intensityTable()));
-
-  actionShowLineDialog = new QAction(tr("&Properties"), this);
-  connect(actionShowLineDialog, SIGNAL(activated()), this,
-          SLOT(showLineDialog()));
-
-  actionShowImageDialog = new QAction(tr("&Properties"), this);
-  connect(actionShowImageDialog, SIGNAL(activated()), this,
-          SLOT(showImageDialog()));
-
-  actionShowTextDialog = new QAction(tr("&Properties"), this);
-  connect(actionShowTextDialog, SIGNAL(activated()), this,
-          SLOT(showTextDialog()));
-
-  actionActivateWindow = new QAction(tr("&Activate Window"), this);
-  connect(actionActivateWindow, SIGNAL(activated()), this,
-          SLOT(activateWindow()));
-
-  actionMinimizeWindow = new QAction(tr("Mi&nimize Window"), this);
-  connect(actionMinimizeWindow, SIGNAL(activated()), this,
-          SLOT(minimizeWindow()));
-
-  actionMaximizeWindow = new QAction(tr("Ma&ximize Window"), this);
-  connect(actionMaximizeWindow, SIGNAL(activated()), this,
-          SLOT(maximizeWindow()));
-
-  actionResizeWindow = new QAction(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
-      tr("Re&size Window..."), this);
-  connect(actionResizeWindow, SIGNAL(activated()), this, SLOT(resizeWindow()));
-
-  actionPrintWindow =
-      new QAction(IconLoader::load("edit-print", IconLoader::LightDark),
-                  tr("&Print Window"), this);
-  connect(actionPrintWindow, SIGNAL(activated()), this, SLOT(printWindow()));
-
-  actionShowPlotGeometryDialog = new QAction(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
-      tr("&Layer Geometry"), this);
-  connect(actionShowPlotGeometryDialog, SIGNAL(activated()), this,
-          SLOT(showPlotGeometryDialog()));
-
-  actionEditSurfacePlot = new QAction(tr("&Surface..."), this);
-  connect(actionEditSurfacePlot, SIGNAL(activated()), this,
-          SLOT(editSurfacePlot()));
-
-  actionAdd3DData = new QAction(tr("&Data Set..."), this);
-  connect(actionAdd3DData, SIGNAL(activated()), this, SLOT(add3DData()));
-
-  actionInvertMatrix = new QAction(tr("&Invert"), this);
-  connect(actionInvertMatrix, SIGNAL(activated()), this, SLOT(invertMatrix()));
-
-  actionMatrixDeterminant = new QAction(tr("&Determinant"), this);
-  connect(actionMatrixDeterminant, SIGNAL(activated()), this,
-          SLOT(matrixDeterminant()));
-
-  actionConvertMatrix = new QAction(tr("&Convert to Table"), this);
-  connect(actionConvertMatrix, SIGNAL(activated()), this,
-          SLOT(convertMatrixToTable()));
-
-  actionConvertTable = new QAction(tr("Convert to &Matrix"), this);
-  connect(actionConvertTable, SIGNAL(activated()), this,
-          SLOT(convertTableToMatrix()));
-
-  actionCorrelate = new QAction(tr("Co&rrelate"), this);
-  connect(actionCorrelate, SIGNAL(activated()), this, SLOT(correlate()));
-
-  actionAutoCorrelate = new QAction(tr("&Autocorrelate"), this);
-  connect(actionAutoCorrelate, SIGNAL(activated()), this,
-          SLOT(autoCorrelate()));
-
-  actionConvolute = new QAction(tr("&Convolute"), this);
-  connect(actionConvolute, SIGNAL(activated()), this, SLOT(convolute()));
-
-  actionDeconvolute = new QAction(tr("&Deconvolute"), this);
-  connect(actionDeconvolute, SIGNAL(activated()), this, SLOT(deconvolute()));
-
-  actionTranslateHor = new QAction(tr("&Horizontal"), this);
-  connect(actionTranslateHor, SIGNAL(activated()), this,
-          SLOT(translateCurveHor()));
-
-  actionTranslateVert = new QAction(tr("&Vertical"), this);
-  connect(actionTranslateVert, SIGNAL(activated()), this,
-          SLOT(translateCurveVert()));
-
-  actionMultiPeakGauss = new QAction(tr("&Gaussian..."), this);
-  connect(actionMultiPeakGauss, SIGNAL(activated()), this,
-          SLOT(fitMultiPeakGauss()));
-
-  actionMultiPeakLorentz = new QAction(tr("&Lorentzian..."), this);
-  connect(actionMultiPeakLorentz, SIGNAL(activated()), this,
-          SLOT(fitMultiPeakLorentz()));
-
-  actionShowCurvePlotDialog = new QAction(tr("&Plot details..."), this);
-  connect(actionShowCurvePlotDialog, SIGNAL(activated()), this,
-          SLOT(showCurvePlotDialog()));
-
-  actionShowCurveWorksheet = new QAction(tr("&Worksheet"), this);
-  connect(actionShowCurveWorksheet, SIGNAL(activated()), this,
-          SLOT(showCurveWorksheet()));
-
-  actionCurveFullRange = new QAction(tr("&Reset to Full Range"), this);
-  connect(actionCurveFullRange, SIGNAL(activated()), this,
-          SLOT(setCurveFullRange()));
-
-  actionEditCurveRange = new QAction(tr("Edit &Range..."), this);
-  connect(actionEditCurveRange, SIGNAL(activated()), this,
-          SLOT(showCurveRangeDialog()));
-
-  actionRemoveCurve =
-      new QAction(IconLoader::load("edit-delete", IconLoader::General),
-                  tr("&Delete"), this);
-  connect(actionRemoveCurve, SIGNAL(activated()), this, SLOT(removeCurve()));
-
-  actionHideCurve = new QAction(tr("&Hide"), this);
-  connect(actionHideCurve, SIGNAL(activated()), this, SLOT(hideCurve()));
-
-  actionHideOtherCurves = new QAction(tr("Hide &Other Curves"), this);
-  connect(actionHideOtherCurves, SIGNAL(activated()), this,
-          SLOT(hideOtherCurves()));
-
-  actionShowAllCurves = new QAction(tr("&Show All Curves"), this);
-  connect(actionShowAllCurves, SIGNAL(activated()), this,
-          SLOT(showAllCurves()));
-
-  actionEditFunction = new QAction(tr("&Edit Function..."), this);
-  connect(actionEditFunction, SIGNAL(activated()), this,
-          SLOT(showFunctionDialog()));
-
-  actionCopyStatusBarText = new QAction(tr("&Copy status bar text"), this);
-  connect(actionCopyStatusBarText, SIGNAL(activated()), this,
-          SLOT(copyStatusBarText()));
 }
 
 void ApplicationWindow::translateActionsStrings() {
