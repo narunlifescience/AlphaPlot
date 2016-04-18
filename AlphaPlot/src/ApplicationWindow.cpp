@@ -1036,8 +1036,6 @@ void ApplicationWindow::applyUserSettings() {
 }
 
 void ApplicationWindow::initToolBars() {
-  QPixmap openIcon, saveIcon;
-
   file_tools->setObjectName("file_tools");  // need for restoreState()
   file_tools->setIconSize(QSize(24, 24));
   addToolBar(Qt::TopToolBarArea, file_tools);

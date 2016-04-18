@@ -19,6 +19,7 @@
 #define CONSOLEWIDGET_H
 
 #include <QDockWidget>
+#include <QtScript/QScriptEngine>
 
 class Ui_ConsoleWidget;
 
@@ -29,8 +30,12 @@ class ConsoleWidget : public QDockWidget {
   explicit ConsoleWidget(QWidget *parent = nullptr);
   ~ConsoleWidget();
 
+ private slots:
+  void evaluate(QString line);
+
  private:
   Ui_ConsoleWidget *ui_;
+  QScriptEngine *engine;
 };
 
 #endif  // CONSOLEWIDGET_H

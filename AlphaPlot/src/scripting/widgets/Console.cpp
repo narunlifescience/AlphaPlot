@@ -29,6 +29,8 @@ Console::Console(QWidget *parent)
   insertPlainText(userPrompt);
 }
 
+Console::~Console() {}
+
 /** Filter all key events. The keys are filtered and handled manually
   * in order to create a typical shell-like behaviour. For example
   * Up and Down arrows don't move the cursor, but allow the user to
@@ -105,6 +107,13 @@ void Console::append(QString text) {
   insertPlainText(text);
   insertPlainText("\n");
   ensureCursorVisible();
+}
+
+void Console::clearConsole() {
+  setPlainText("");
+  insertPlainText(userPrompt);
+  ensureCursorVisible();
+  locked = false;
 }
 
 // Arrow up pressed

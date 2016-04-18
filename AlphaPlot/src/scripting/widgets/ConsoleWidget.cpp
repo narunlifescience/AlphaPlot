@@ -21,14 +21,34 @@
 #include "scripting/widgets/Console.h"
 
 ConsoleWidget::ConsoleWidget(QWidget *parent)
-    : QDockWidget(parent), ui_(new Ui_ConsoleWidget) {
+    : QDockWidget(parent),
+      ui_(new Ui_ConsoleWidget),
+      engine(new QScriptEngine(this)) {
   ui_->setupUi(this);
   setWindowTitle(tr("Scripting Console"));
   setWindowIcon(QIcon());
   ui_->gridLayout->setSpacing(0);
   ui_->gridLayout->setContentsMargins(0, 0, 0, 0);
-  connect(ui_->console, SIGNAL(command(QString)), ui_->console,
-          SLOT(result(QString)));
+  connect(ui_->console, SIGNAL(command(QString)), this,
+          SLOT(evaluate(QString)));
 }
 
-ConsoleWidget::~ConsoleWidget() { delete ui_; }
+ConsoleWidget::~ConsoleWidget() {
+  delete ui_;
+  delete engine;
+}
+
+void ConsoleWidget::evaluate(QString line) {
+  if (line.contains("clear")) {
+    QString clear = line.simplified();
+    clear.replace(" ", "");
+    if (clear == "clear" || clear == "clear;" || clear == "clear()" ||
+        clear == "clear();") {
+      ui_->console->clearConsole();
+    } else {
+      ui_->console->result(engine->evaluate(line).toString());
+    }
+  } else {
+    ui_->console->result(engine->evaluate(line).toString());
+  }
+}

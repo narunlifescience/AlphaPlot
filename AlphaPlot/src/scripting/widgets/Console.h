@@ -30,7 +30,7 @@ class Console : public QPlainTextEdit {
 
  public:
   Console(QWidget *parent = nullptr);
-
+  ~Console();
   QString prompt() const;
   void setPrompt(const QString &prompt);
 
@@ -70,6 +70,7 @@ class Console : public QPlainTextEdit {
  public slots:
   void result(QString result);
   void append(QString text);
+  void clearConsole();
 };
 
 #endif  // CONSOLE_H
