@@ -19,14 +19,14 @@
 #include <iostream>
 
 Console::Console(QWidget *parent)
-    : QPlainTextEdit(parent),
-      userPrompt(QString(">> ")),
+    : QTextEdit(parent),
+      userPrompt(QString(" >> ")),
       locked(false),
       historySkip(false) {
   historyUp.clear();
   historyDown.clear();
   setLineWrapMode(NoWrap);
-  insertPlainText(userPrompt);
+  insertHtml(QString("<font color=\"orange\">&alpha;</font>") + userPrompt);
 }
 
 Console::~Console() {}
@@ -62,7 +62,7 @@ void Console::keyPressEvent(QKeyEvent *e) {
       handleHome();
       break;
     default:
-      QPlainTextEdit::keyPressEvent(e);
+      QTextEdit::keyPressEvent(e);
       break;
   }
 }
@@ -88,7 +88,7 @@ void Console::handleEnter() {
     emit command(cmd);
   } else {
     insertPlainText("\n");
-    insertPlainText(userPrompt);
+    insertHtml(QString("<font color=\"orange\">&alpha;</font>") + userPrompt);
     ensureCursorVisible();
   }
 }
@@ -97,7 +97,7 @@ void Console::handleEnter() {
 void Console::result(QString result) {
   insertPlainText(result);
   insertPlainText("\n");
-  insertPlainText(userPrompt);
+  insertHtml(QString("<font color=\"orange\">&alpha;</font>") + userPrompt);
   ensureCursorVisible();
   locked = false;
 }
@@ -111,7 +111,7 @@ void Console::append(QString text) {
 
 void Console::clearConsole() {
   setPlainText("");
-  insertPlainText(userPrompt);
+  insertHtml(QString("<font color=\"orange\">&alpha;</font>") + userPrompt);
   ensureCursorVisible();
   locked = false;
 }
@@ -151,7 +151,8 @@ void Console::clearLine() {
   QTextCursor c = this->textCursor();
   c.select(QTextCursor::LineUnderCursor);
   c.removeSelectedText();
-  this->insertPlainText(userPrompt);
+  this->insertHtml(QString("<font color=\"orange\">&alpha;</font>") +
+                   userPrompt);
 }
 
 // Select and return the user-input (exclude the prompt)
@@ -160,20 +161,20 @@ QString Console::getCommand() const {
   c.select(QTextCursor::LineUnderCursor);
 
   QString text = c.selectedText();
-  text.remove(0, userPrompt.length());
+  text.remove(0, userPrompt.length() + 1);
 
   return text;
 }
 
 void Console::moveToEndOfLine() {
-  QPlainTextEdit::moveCursor(QTextCursor::EndOfLine);
+  QTextEdit::moveCursor(QTextCursor::EndOfLine);
 }
 
 // The text cursor is not allowed to move beyond the
 // prompt
 void Console::handleLeft(QKeyEvent *event) {
-  if (getIndex(textCursor()) > userPrompt.length()) {
-    QPlainTextEdit::keyPressEvent(event);
+  if (getIndex(textCursor()) > userPrompt.length() + 1) {
+    QTextEdit::keyPressEvent(event);
   }
 }
 
@@ -182,7 +183,7 @@ void Console::handleHome() {
   QTextCursor c = textCursor();
   c.movePosition(QTextCursor::StartOfLine);
   c.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor,
-                 userPrompt.length());
+                 userPrompt.length() + 1);
   setTextCursor(c);
 }
 

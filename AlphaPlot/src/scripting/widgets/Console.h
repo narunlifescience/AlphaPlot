@@ -25,7 +25,7 @@
 #include <QTextDocumentFragment>
 #include <QStack>
 
-class Console : public QPlainTextEdit {
+class Console : public QTextEdit {
   Q_OBJECT
 
  public:
