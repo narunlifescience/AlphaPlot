@@ -71,6 +71,7 @@ class Console : public QTextEdit {
   void result(QString result);
   void append(QString text);
   void clearConsole();
+  void setConsoleFont(QFont font);
 };
 
 #endif  // CONSOLE_H

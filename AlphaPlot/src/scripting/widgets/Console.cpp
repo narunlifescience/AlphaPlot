@@ -27,6 +27,8 @@ Console::Console(QWidget *parent)
   historyDown.clear();
   setLineWrapMode(NoWrap);
   insertHtml(QString("<font color=\"orange\">&alpha;</font>") + userPrompt);
+  QFont consoleFont = QFont("Monospace", 10, QFont::Normal, false);
+  setConsoleFont(consoleFont);
 }
 
 Console::~Console() {}
@@ -95,18 +97,22 @@ void Console::handleEnter() {
 
 // Result received
 void Console::result(QString result) {
-  insertPlainText(result);
-  insertPlainText("\n");
-  insertHtml(QString("<font color=\"orange\">&alpha;</font>") + userPrompt);
-  ensureCursorVisible();
-  locked = false;
+  if (result.trimmed().length() != 0) {
+    insertPlainText("     " + result);
+    insertPlainText("\n");
+    insertHtml(QString("<font color=\"orange\">&alpha;</font>") + userPrompt);
+    ensureCursorVisible();
+    locked = false;
+  }
 }
 
 // Append line but do not display prompt afterwards
 void Console::append(QString text) {
-  insertPlainText(text);
-  insertPlainText("\n");
-  ensureCursorVisible();
+  if (text.trimmed().length() != 0) {
+    insertPlainText("     " + text);
+    insertPlainText("\n");
+    ensureCursorVisible();
+  }
 }
 
 void Console::clearConsole() {
@@ -115,6 +121,8 @@ void Console::clearConsole() {
   ensureCursorVisible();
   locked = false;
 }
+
+void Console::setConsoleFont(QFont font) { setFont(font, true); }
 
 // Arrow up pressed
 void Console::handleHistoryUp() {

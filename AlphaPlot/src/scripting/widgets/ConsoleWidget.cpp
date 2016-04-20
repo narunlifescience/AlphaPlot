@@ -14,16 +14,49 @@
 
    Description : AlphaPlot Console dock widget
 */
-
+#include <QDebug>
 #include "ConsoleWidget.h"
 #include "ui_ConsoleWidget.h"
 
 #include "scripting/widgets/Console.h"
 
+// ScriptingConsole print() function reimplimentation
+QScriptValue print(QScriptContext *context, QScriptEngine *) {
+  QScriptValue result;
+  for (int i = 0; i < context->argumentCount(); i++) {
+    result = result.toString() + " " + context->argument(i).toString();
+    if (context->state() == QScriptContext::ExceptionState) {
+      result = result.toString() + " Unhandled Exception";
+      break;
+    }
+  }
+  QScriptValue calleeData = context->callee().data();
+  Console *console = qobject_cast<Console *>(calleeData.toQObject());
+  if (console) {
+    console->append(result.toString());
+  } else {
+    qDebug() << "Scripting console print() unable to access Console object";
+  }
+  return QObject::tr("Print done!");
+}
+
+// ScriptingConsole clear() function
+QScriptValue clear(QScriptContext *context, QScriptEngine *)
+{
+  QScriptValue calleeData = context->callee().data();
+  Console *console = qobject_cast<Console *>(calleeData.toQObject());
+  if (console) {
+    console->clearConsole();
+  } else {
+    qDebug() << "Scripting console clear() unable to access Console object";
+  }
+  return QObject::tr("");
+}
+
 ConsoleWidget::ConsoleWidget(QWidget *parent)
     : QDockWidget(parent),
-      ui_(new Ui_ConsoleWidget),
-      engine(new QScriptEngine(this)) {
+      engine(new QScriptEngine(this)),
+      ui_(new Ui_ConsoleWidget) {
   ui_->setupUi(this);
   setWindowTitle(tr("Scripting Console"));
   setWindowIcon(QIcon());
@@ -31,6 +64,14 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   ui_->gridLayout->setContentsMargins(0, 0, 0, 0);
   connect(ui_->console, SIGNAL(command(QString)), this,
           SLOT(evaluate(QString)));
+  // print() function
+  QScriptValue printFunction = engine->newFunction(&print);
+  printFunction.setData(engine->newQObject(ui_->console));
+  engine->globalObject().setProperty("print", printFunction);
+  // clear() function
+  QScriptValue clearFunction = engine->newFunction(&clear);
+  clearFunction.setData(engine->newQObject(ui_->console));
+  engine->globalObject().setProperty("clear", clearFunction);
 }
 
 ConsoleWidget::~ConsoleWidget() {
@@ -39,16 +80,5 @@ ConsoleWidget::~ConsoleWidget() {
 }
 
 void ConsoleWidget::evaluate(QString line) {
-  if (line.contains("clear")) {
-    QString clear = line.simplified();
-    clear.replace(" ", "");
-    if (clear == "clear" || clear == "clear;" || clear == "clear()" ||
-        clear == "clear();") {
-      ui_->console->clearConsole();
-    } else {
       ui_->console->result(engine->evaluate(line).toString());
-    }
-  } else {
-    ui_->console->result(engine->evaluate(line).toString());
-  }
 }
