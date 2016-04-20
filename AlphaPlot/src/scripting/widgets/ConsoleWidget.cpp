@@ -21,7 +21,7 @@
 #include "scripting/widgets/Console.h"
 
 // ScriptingConsole print() function reimplimentation
-QScriptValue print(QScriptContext *context, QScriptEngine *) {
+QScriptValue print(QScriptContext *context, QScriptEngine *egne) {
   QScriptValue result;
   for (int i = 0; i < context->argumentCount(); i++) {
     result = result.toString() + " " + context->argument(i).toString();
@@ -37,12 +37,11 @@ QScriptValue print(QScriptContext *context, QScriptEngine *) {
   } else {
     qDebug() << "Scripting console print() unable to access Console object";
   }
-  return QObject::tr("Print done!");
+  return egne->undefinedValue();
 }
 
 // ScriptingConsole clear() function
-QScriptValue clear(QScriptContext *context, QScriptEngine *)
-{
+QScriptValue clear(QScriptContext *context, QScriptEngine *) {
   QScriptValue calleeData = context->callee().data();
   Console *console = qobject_cast<Console *>(calleeData.toQObject());
   if (console) {
@@ -80,5 +79,20 @@ ConsoleWidget::~ConsoleWidget() {
 }
 
 void ConsoleWidget::evaluate(QString line) {
-      ui_->console->result(engine->evaluate(line).toString());
+  snippet.append(line);
+  snippet += QLatin1Char('\n');
+  if (engine->canEvaluate(snippet)) {
+    QScriptValue result = engine->evaluate(snippet);
+    if (!result.isUndefined()) {
+      if (!result.isError())
+        ui_->console->result(result.toString(), Console::Success);
+      else
+        ui_->console->result(result.toString(), Console::Error);
+    } else {
+      ui_->console->promptWithoutResult();
+    }
+    snippet.clear();
+  } else {
+    ui_->console->partialResult();
+  }
 }

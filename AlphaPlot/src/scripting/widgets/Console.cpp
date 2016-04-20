@@ -17,16 +17,20 @@
 
 #include "Console.h"
 #include <iostream>
+#include <QDebug>
 
 Console::Console(QWidget *parent)
     : QTextEdit(parent),
       userPrompt(QString(" >> ")),
+      activeUserPromptPrefix(QString("<font color=\"orange\">&alpha;</font>")),
+      partialUserPromptPrefix(QString(" ")),
+      partialPromptVisible(false),
       locked(false),
       historySkip(false) {
   historyUp.clear();
   historyDown.clear();
   setLineWrapMode(NoWrap);
-  insertHtml(QString("<font color=\"orange\">&alpha;</font>") + userPrompt);
+  insertHtml(activeUserPromptPrefix + userPrompt);
   QFont consoleFont = QFont("Monospace", 10, QFont::Normal, false);
   setConsoleFont(consoleFont);
 }
@@ -90,26 +94,48 @@ void Console::handleEnter() {
     emit command(cmd);
   } else {
     insertPlainText("\n");
-    insertHtml(QString("<font color=\"orange\">&alpha;</font>") + userPrompt);
+    if (!partialPromptVisible)
+      insertHtml(activeUserPromptPrefix + userPrompt);
+    else
+      insertPlainText(partialUserPromptPrefix + userPrompt);
     ensureCursorVisible();
   }
 }
 
 // Result received
-void Console::result(QString result) {
+void Console::result(QString result, ResultType type) {
+  partialPromptVisible = false;
   if (result.trimmed().length() != 0) {
-    insertPlainText("     " + result);
+    if (type == Console::Success)
+      insertPlainText("  " + result);
+    else
+      insertHtml(QString("<font color=\"red\">") + QString("&nbsp;&nbsp;") +
+                 QString(result) + QString("</ font>"));
     insertPlainText("\n");
-    insertHtml(QString("<font color=\"orange\">&alpha;</font>") + userPrompt);
+    insertHtml(activeUserPromptPrefix + userPrompt);
     ensureCursorVisible();
     locked = false;
   }
 }
 
+void Console::partialResult() {
+  partialPromptVisible = true;
+  insertPlainText(partialUserPromptPrefix + userPrompt);
+  ensureCursorVisible();
+  locked = false;
+}
+
+void Console::promptWithoutResult() {
+  partialPromptVisible = false;
+  insertHtml(activeUserPromptPrefix + userPrompt);
+  ensureCursorVisible();
+  locked = false;
+}
+
 // Append line but do not display prompt afterwards
 void Console::append(QString text) {
   if (text.trimmed().length() != 0) {
-    insertPlainText("     " + text);
+    insertPlainText("  " + text);
     insertPlainText("\n");
     ensureCursorVisible();
   }
@@ -117,7 +143,7 @@ void Console::append(QString text) {
 
 void Console::clearConsole() {
   setPlainText("");
-  insertHtml(QString("<font color=\"orange\">&alpha;</font>") + userPrompt);
+  insertHtml(activeUserPromptPrefix + userPrompt);
   ensureCursorVisible();
   locked = false;
 }
@@ -129,7 +155,6 @@ void Console::handleHistoryUp() {
   if (0 < historyUp.count()) {
     QString cmd = historyUp.pop();
     historyDown.push(cmd);
-
     clearLine();
     insertPlainText(cmd);
   }
@@ -159,8 +184,10 @@ void Console::clearLine() {
   QTextCursor c = this->textCursor();
   c.select(QTextCursor::LineUnderCursor);
   c.removeSelectedText();
-  this->insertHtml(QString("<font color=\"orange\">&alpha;</font>") +
-                   userPrompt);
+  if (!partialPromptVisible)
+    this->insertHtml(activeUserPromptPrefix + userPrompt);
+  else
+    this->insertPlainText(partialUserPromptPrefix + userPrompt);
 }
 
 // Select and return the user-input (exclude the prompt)

@@ -34,6 +34,8 @@ class Console : public QTextEdit {
   QString prompt() const;
   void setPrompt(const QString &prompt);
 
+  enum ResultType { Success, Error };
+
  protected:
   void keyPressEvent(QKeyEvent *e);
 
@@ -57,8 +59,11 @@ class Console : public QTextEdit {
   int getIndex(const QTextCursor &crQTextCursor);
 
   QString userPrompt;
+  QString activeUserPromptPrefix;
+  QString partialUserPromptPrefix;
   QStack<QString> historyUp;
   QStack<QString> historyDown;
+  bool partialPromptVisible;
   bool locked;
   bool historySkip;
 
@@ -68,7 +73,9 @@ class Console : public QTextEdit {
 
   // The result slot displays the result of a command in the terminal
  public slots:
-  void result(QString result);
+  void result(QString result, ResultType type);
+  void partialResult();
+  void promptWithoutResult();
   void append(QString text);
   void clearConsole();
   void setConsoleFont(QFont font);

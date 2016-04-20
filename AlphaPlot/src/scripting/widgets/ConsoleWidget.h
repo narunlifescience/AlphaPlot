@@ -24,7 +24,7 @@
 
 class Ui_ConsoleWidget;
 
-QScriptValue print(QScriptContext *context, QScriptEngine *);
+QScriptValue print(QScriptContext *context, QScriptEngine *egne);
 QScriptValue clear(QScriptContext *context, QScriptEngine *);
 
 class ConsoleWidget : public QDockWidget {
@@ -43,6 +43,7 @@ signals:
 
  private:
   Ui_ConsoleWidget *ui_;
+  QString snippet;
 
 };
 
