@@ -19,13 +19,11 @@
 #define CONSOLEWIDGET_H
 
 #include <QDockWidget>
-#include <QtScript/QScriptEngine>
+#include <QScriptEngine>
+#include <QScriptEngineDebugger>
 #include <QTextStream>
 
 class Ui_ConsoleWidget;
-
-QScriptValue print(QScriptContext *context, QScriptEngine *egne);
-QScriptValue clear(QScriptContext *context, QScriptEngine *);
 
 class ConsoleWidget : public QDockWidget {
   Q_OBJECT
@@ -34,6 +32,7 @@ class ConsoleWidget : public QDockWidget {
   explicit ConsoleWidget(QWidget *parent = nullptr);
   ~ConsoleWidget();
   QScriptEngine *engine;
+  QScriptEngineDebugger *debugger;
 
 signals:
   void printResult(QString);

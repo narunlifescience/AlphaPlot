@@ -8,6 +8,7 @@
 HEADERS  += src/ApplicationWindow.h \
             src/core/IconLoader.h \
             src/globals.h\
+            src/scripting/ScriptingFunctions.h\
             src/Graph.h \
             src/3Dplot/Graph3D.h \
             src/Table.h \
@@ -194,6 +195,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/PluginFit.cpp\
             src/NonLinearFit.cpp\
             src/SigmoidalFit.cpp\
+            src/scripting/ScriptingFunctions.cpp\
             src/scripting/ScriptingEnv.cpp\
             src/scripting/Script.cpp\
             src/scripting/ScriptingLangDialog.cpp\

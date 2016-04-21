@@ -23,7 +23,7 @@ DEFINES       += DOC_PATH="\\\"$$replace(documentation.path," ","\\ ")\\\""
   win32:DEFINES += QT_DLL QT_THREAD_SUPPORT
 }
 
-QT             += opengl qt3support network svg xml script
+QT             += opengl qt3support network svg xml script scripttools
 
 MOC_DIR         = ../tmp/AlphaPlot
 OBJECTS_DIR     = ../tmp/AlphaPlot

@@ -143,7 +143,6 @@ void Console::append(QString text) {
 
 void Console::clearConsole() {
   setPlainText("");
-  insertHtml(activeUserPromptPrefix + userPrompt);
   ensureCursorVisible();
   locked = false;
 }

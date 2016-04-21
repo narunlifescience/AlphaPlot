@@ -107,6 +107,7 @@
 // Scripting
 #include "scripting/ScriptingLangDialog.h"
 #include "scripting/widgets/ConsoleWidget.h"
+#include "scripting/ScriptingFunctions.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -151,6 +152,7 @@
 #include <QUndoStack>
 #include <QTemporaryFile>
 #include <QDebug>
+#include <QScriptValue>
 
 #include <zlib.h>
 
@@ -208,6 +210,14 @@ ApplicationWindow::ApplicationWindow()
       dataTools(new QActionGroup(this)),
       d_plot_mapper(new QSignalMapper) {
   ui_->setupUi(this);
+
+  // pass mainwindow as global object
+  QScriptValue objectValue = consoleWindow->engine->newQObject(this);
+  consoleWindow->engine->globalObject().setProperty("alpha", objectValue);
+
+  QScriptValue clearFunction = consoleWindow->engine->newFunction(&openProj);
+  clearFunction.setData(objectValue);
+  consoleWindow->engine->globalObject().setProperty("openAproj", clearFunction);
 
   // Icons
   IconLoader::init();

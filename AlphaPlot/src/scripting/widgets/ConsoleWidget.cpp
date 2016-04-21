@@ -19,42 +19,12 @@
 #include "ui_ConsoleWidget.h"
 
 #include "scripting/widgets/Console.h"
-
-// ScriptingConsole print() function reimplimentation
-QScriptValue print(QScriptContext *context, QScriptEngine *egne) {
-  QScriptValue result;
-  for (int i = 0; i < context->argumentCount(); i++) {
-    result = result.toString() + " " + context->argument(i).toString();
-    if (context->state() == QScriptContext::ExceptionState) {
-      result = result.toString() + " Unhandled Exception";
-      break;
-    }
-  }
-  QScriptValue calleeData = context->callee().data();
-  Console *console = qobject_cast<Console *>(calleeData.toQObject());
-  if (console) {
-    console->append(result.toString());
-  } else {
-    qDebug() << "Scripting console print() unable to access Console object";
-  }
-  return egne->undefinedValue();
-}
-
-// ScriptingConsole clear() function
-QScriptValue clear(QScriptContext *context, QScriptEngine *) {
-  QScriptValue calleeData = context->callee().data();
-  Console *console = qobject_cast<Console *>(calleeData.toQObject());
-  if (console) {
-    console->clearConsole();
-  } else {
-    qDebug() << "Scripting console clear() unable to access Console object";
-  }
-  return QObject::tr("");
-}
+#include "../ScriptingFunctions.h"
 
 ConsoleWidget::ConsoleWidget(QWidget *parent)
     : QDockWidget(parent),
       engine(new QScriptEngine(this)),
+      debugger(new QScriptEngineDebugger(this)),
       ui_(new Ui_ConsoleWidget) {
   ui_->setupUi(this);
   setWindowTitle(tr("Scripting Console"));
@@ -63,14 +33,24 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   ui_->gridLayout->setContentsMargins(0, 0, 0, 0);
   connect(ui_->console, SIGNAL(command(QString)), this,
           SLOT(evaluate(QString)));
+  engine->setProcessEventsInterval(1000); // 1 sec process interval
   // print() function
+  QScriptValue consoleObjectValue = engine->newQObject(ui_->console);
+  QScriptValue consoleWidgetObjectValue = engine->newQObject(this);
   QScriptValue printFunction = engine->newFunction(&print);
-  printFunction.setData(engine->newQObject(ui_->console));
+  printFunction.setData(consoleObjectValue);
   engine->globalObject().setProperty("print", printFunction);
   // clear() function
   QScriptValue clearFunction = engine->newFunction(&clear);
-  clearFunction.setData(engine->newQObject(ui_->console));
+  clearFunction.setData(consoleObjectValue);
   engine->globalObject().setProperty("clear", clearFunction);
+  // collectGarbage() function
+  QScriptValue garbageFunction = engine->newFunction(&collectGarbage);
+  engine->globalObject().setProperty("collectGarbage", garbageFunction);
+  // attachDebugger(bool) function
+  QScriptValue debuggerFunction = engine->newFunction(&attachDebugger);
+  debuggerFunction.setData(consoleWidgetObjectValue);
+  engine->globalObject().setProperty("attachDebugger", debuggerFunction);
 }
 
 ConsoleWidget::~ConsoleWidget() {
