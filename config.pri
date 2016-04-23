@@ -4,21 +4,19 @@
 
 unix:isEmpty(PRESET) {                     # command-line argument to override
   ### Link dynamically against system-wide installed libraries(default).
-  PRESET = linux_package
+  PRESET = linux_all_dynamic
   ### Link statically against Qwt and Qwtplot3D in 3rdparty folder.
-  #PRESET = default_installation
+  #PRESET = linux_qwt_qwtplot3d_static
   ### Link statically as much as possible.except Qt.
-  #PRESET = self_contained
+  #PRESET = linux_all_static
 }
 
-unix:message(Building configuration: $$PRESET)
-
-!contains(PRESET, self_contained) {                 # Linux Desktop integration
+!contains(PRESET, linux_all_static) {                 # Linux Desktop integration
   unix:INSTALLS   += desktop_entry mime_package mime_link icons
 }
 
 unix {                                                       # Linux / MacOS X
-  contains(PRESET, self_contained) {
+  contains(PRESET, linux_all_static) {
     ### When installing into a self-contained directory structure use relative
     ### paths at runtime in order to support relocation.
     isEmpty(INSTALLBASE): INSTALLBASE = .
@@ -43,8 +41,6 @@ win32 {                                                      # Windows
   target.path            = "$$INSTALLBASE"
   documentation.path     = "$$INSTALLBASE"
   translationfiles.path  = "$$INSTALLBASE/translations"
-  pythonconfig.path      = "$$INSTALLBASE"
-  pythonutils.path       = "$$INSTALLBASE"
   plugins.path           = "$$INSTALLBASE/fitPlugins"
 }
 
@@ -61,7 +57,7 @@ DEFINES         += SCRIPTING_CONSOLE
 ### a dialog for selecting the scripting language.
 DEFINES         += SCRIPTING_DIALOG
 
-!contains(PRESET, linux_package) {
+!contains(PRESET, linux_all_dynamic) {
   ### Enables choosing of help folder at runtime.
   DEFINES       += DYNAMIC_MANUAL_PATH
   ### Similar to DYNAMIC_MANUAL_PATH, but for the plugin folder
@@ -76,34 +72,9 @@ DEFINES         += SCRIPTING_DIALOG
 ### Dependencies                                                               #
 ################################################################################
 
-contains(PRESET, default_installation) {
-  ### Link statically against Qwt and Qwtplot3D dynamically against rest.
-  INCLUDEPATH  += ../3rdparty/qwt/src
-  LIBS         += ../3rdparty/qwt/lib/libqwt.a
-  INCLUDEPATH  += ../3rdparty/qwtplot3d/include
-  LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
-  INCLUDEPATH  += /usr/include/muParser
-  LIBS         += -lgsl -lgslcblas -lz -lGLU
-  LIBS         += -lmuparser
-}
-
-osx_dist {
-  # Uses MacPorts supplied versions of the dependencies
-  INCLUDEPATH  += /opt/local/include
-
-  INCLUDEPATH  += /opt/local/include/qwt
-  LIBS         += -L/opt/local/lib -lqwt
-
-  INCLUDEPATH  += /opt/local/include/qwtplot3d
-  LIBS         += -lqwtplot3d
-
-  INCLUDEPATH  += /opt/local/include/muParser
-  LIBS         += -lgsl -lgslcblas -lz
-  LIBS         += -lmuparser -lpython2.7
-}
-
-contains(PRESET, linux_package) {
+contains(PRESET, linux_all_dynamic) {
   ### dynamically link against Qwt(3D) installed system-wide
+  message(Build configuration: Linux all dynamic)
 
   ### Debian suffix
   exists(/usr/include/qwt-qt4): qwtsuff = "-qt4"
@@ -129,8 +100,21 @@ contains(PRESET, linux_package) {
   LIBS         += -lmuparser
 }
 
-contains(PRESET, self_contained) {
+contains(PRESET, linux_qwt_qwtplot3d_static) {
+  ### Link statically against Qwt and Qwtplot3D dynamically against rest.
+  message(Build configuration: Linux all dynamic except QWT & QwtPlot3D)
+  INCLUDEPATH  += ../3rdparty/qwt/src
+  LIBS         += ../3rdparty/qwt/lib/libqwt.a
+  INCLUDEPATH  += ../3rdparty/qwtplot3d/include
+  LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
+  INCLUDEPATH  += /usr/include/muParser
+  LIBS         += -lgsl -lgslcblas -lz -lGLU
+  LIBS         += -lmuparser
+}
+
+contains(PRESET, linux_all_static) {
   ### mostly static linking, for self-contained binaries
+  message(Build configuration: Linux all static)
 
   INCLUDEPATH  += ../3rdparty/qwt/src
   LIBS         += ../3rdparty/qwt/lib/libqwt.a
@@ -144,9 +128,28 @@ contains(PRESET, self_contained) {
   LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
 }
 
+osx_dist {
+  # Uses MacPorts supplied versions of the dependencies
+  message(Build configuration: OSX Distro)
+
+  INCLUDEPATH  += /opt/local/include
+
+  INCLUDEPATH  += /opt/local/include/qwt
+  LIBS         += -L/opt/local/lib -lqwt
+
+  INCLUDEPATH  += /opt/local/include/qwtplot3d
+  LIBS         += -lqwtplot3d
+
+  INCLUDEPATH  += /opt/local/include/muParser
+  LIBS         += -lgsl -lgslcblas -lz
+  LIBS         += -lmuparser
+}
+
 win32: {
   !mxe {
-    ### Static linking mostly, except Qt, Python and QwtPlot3D.
+    ### Static linking mostly, except Qt and QwtPlot3D.
+    message(Build configuration: Win32)
+
     isEmpty(LIBPATH): LIBPATH = ../3rdparty
 
     INCLUDEPATH  += "$${LIBPATH}/qwt/src"
@@ -166,6 +169,8 @@ win32: {
 
 mxe {
   ### Mingw cross compilation environment on Linux.
+  message(Build configuration: Mxe all static)
+
   QMAKE_CXXFLAGS +=-g
   DEFINES        += CONSOLE
     

@@ -11,7 +11,6 @@ include(sourcefiles.pri)
 include(muparser.pri)
 include(../config.pri)
 include(basic.pri)
-python {include( python.pri )}
 
 
 CONFIG        += qt warn_on exceptions opengl thread zlib
@@ -49,5 +48,4 @@ INSTALLS        += translationfiles
 win32:INSTALLS  += win_icon
 
 ########### Future code backported from the aspect framework ##################
-DEFINES += LEGACY_CODE_0_2_x
 INCLUDEPATH += src/future
