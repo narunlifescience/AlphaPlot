@@ -208,7 +208,7 @@ ApplicationWindow::ApplicationWindow()
       lastCopiedLayer(0),
       explorerSplitter(new QSplitter(Qt::Horizontal, explorerWindow)),
       dataTools(new QActionGroup(this)),
-      d_plot_mapper(new QSignalMapper) {
+      d_plot_mapper(new QSignalMapper(this)) {
   ui_->setupUi(this);
 
   // pass mainwindow as global object

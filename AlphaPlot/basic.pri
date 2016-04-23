@@ -17,7 +17,9 @@ DEFINES       += DOC_PATH="\\\"$$replace(documentation.path," ","\\ ")\\\""
   DEFINES     += MANUAL_PATH="\\\"$$replace(manual.path," ","\\ ")\\\""
 }
 
-!isEmpty(plugins.path): DEFINES += PLUGIN_PATH=\\\"$$replace(plugins.path," ","\\ ")\\\"
+!isEmpty(plugins.path) {
+  DEFINES += PLUGIN_PATH=\\\"$$replace(plugins.path," ","\\ ")\\\"
+}
 
 !mxe {
   win32:DEFINES += QT_DLL QT_THREAD_SUPPORT
@@ -63,15 +65,15 @@ exists(../data/translations/AlphaPlot_de.ts) {
 
   unix: tstarget.target  = ../data/translations/AlphaPlot_de.qm
   win32: tstarget.target = ..\data\translations\AlphaPlot_de.qm
-# note the translation files are not writable during AEGIS
-# integration, so we don't want to perform an update then
+
   tstarget.commands = (! test -w ../data/translations/AlphaPlot_de.ts || \
   $$LUPDATE_BIN src/*.cpp -ts ../data/translations/*.ts) && \
   $$LRELEASE_BIN ../data/translations/*.ts
 
   QMAKE_EXTRA_TARGETS     += tstarget
   QMAKE_CLEAN             += $$translationfiles.files
-# comment out for now to get rid of compile time error
+
+# comment out for now to get rid of AlphaPlot compile time error
 #  PRE_TARGETDEPS          += ../data/translations/AlphaPlot_de.qm
 }
 
@@ -113,7 +115,7 @@ unix {
     resolutions       = 16 22 32 48 64 96 128
     for(res, resolutions) {
       eval(icon_hicolor_$${res}.files = ../data/icons/app/$${res}/AlphaPlot.png)
-      eval(icon_hicolor_$${res}.path  = "$$INSTALLBASE/share/icons/hicolor/$${res}x$${res}/apps")
+      eval(icon_hicolor_$${res}.path = "$$INSTALLBASE/share/icons/hicolor/$${res}x$${res}/apps")
       INSTALLS                       += icon_hicolor_$${res}
     }
 
@@ -121,7 +123,7 @@ unix {
     resolutions        = 16 22 32 48 64 96 128
     for(res, resolutions) {
       eval(icon_locolor_$${res}.files = ../data/icons/app/$${res}/AlphaPlot.png)
-      eval(icon_locolor_$${res}.path  = "$$INSTALLBASE/share/icons/locolor/$${res}x$${res}/apps")
+      eval(icon_locolor_$${res}.path = "$$INSTALLBASE/share/icons/locolor/$${res}x$${res}/apps")
       INSTALLS                       += icon_locolor_$${res}
     }
   }
