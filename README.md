@@ -7,6 +7,10 @@
 
 Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalysis and <i>Vis</i>ualization for Windows, Linux and Mac OS X (probably BSD also).
 
+- Website: http://alphaplot.sourceforge.net/
+- Github: https://github.com/narunlifescience/AlphaPlot
+- Latest test builds: http://alphaplot.sourceforge.net/test-build.html
+
 # Installation
 Get the code (if you haven't already):
 
