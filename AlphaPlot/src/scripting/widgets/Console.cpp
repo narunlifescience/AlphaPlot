@@ -16,6 +16,8 @@
 */
 
 #include "Console.h"
+#include "../SyntaxHighlighter.h"
+
 #include <iostream>
 #include <QDebug>
 
@@ -32,6 +34,8 @@ Console::Console(QWidget *parent)
   historyDown.clear();
   setLineWrapMode(NoWrap);
   insertHtml(activeUserPromptPrefix + userPrompt);
+  new SyntaxHighlighter(document());
+  document()->setMaximumBlockCount(3000);
   QFont consoleFont = QFont("Monospace", 10, QFont::Normal, false);
   setConsoleFont(consoleFont);
 }
@@ -252,6 +256,7 @@ void Console::insertFromMimeData(const QMimeData *source) {
     partialResult();
     append(line[i]);
   }
+  locked = true;
   emit(command(text));
 }
 

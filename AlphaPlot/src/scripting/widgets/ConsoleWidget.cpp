@@ -23,7 +23,7 @@
 
 ConsoleWidget::ConsoleWidget(QWidget *parent)
     : QDockWidget(parent),
-      engine(new QScriptEngine(this)),
+      engine(new QScriptEngine()),
       debugger(new QScriptEngineDebugger(this)),
       ui_(new Ui_ConsoleWidget) {
   ui_->setupUi(this);

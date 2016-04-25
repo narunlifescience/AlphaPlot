@@ -40,14 +40,8 @@
 class QAction;
 class QMenu;
 
-/*!\brief Editor widget with support for evaluating expressions and executing
- * code.
- *
- * \section future_plans Future Plans
- * - Display line numbers.
- * - syntax highlighting, indentation, auto-completion etc. (maybe using
- * QScintilla)
- */
+// brief Editor widget with support for evaluating expressions & execution.
+
 class ScriptEdit : public QTextEdit, public scripted {
   Q_OBJECT
 
@@ -55,9 +49,9 @@ class ScriptEdit : public QTextEdit, public scripted {
   //! Constructor.
   ScriptEdit(ScriptingEnv *env, QWidget *parent = 0, QString name = "");
 
-  //! Handle changing of scripting environment.
+  // Handle changing of scripting environment.
   void customEvent(QEvent *);
-  //! Map cursor positions to line numbers.
+  // Map cursor positions to line numbers.
   int lineNumber(int pos) const;
 
  public slots:
@@ -79,8 +73,8 @@ class ScriptEdit : public QTextEdit, public scripted {
   virtual void keyPressEvent(QKeyEvent *e);
 
  private:
-  //! Script used for executing/evaluating code or expressions.
-  Script *myScript;
+
+  Script *myScript; // Script used for executing/evaluating code.
   QAction *actionExecute, *actionExecuteAll, *actionEval, *actionPrint,
       *actionImport, *actionExport;
   //! Submenu of context menu with mathematical functions.

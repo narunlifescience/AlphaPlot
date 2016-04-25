@@ -31,6 +31,7 @@
  ***************************************************************************/
 #include "ScriptEdit.h"
 #include "Note.h"
+#include "SyntaxHighlighter.h"
 #include "core/IconLoader.h"
 
 #include <QAction>
@@ -56,6 +57,8 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, QString name)
   setTextFormat(Qt::PlainText);
   setAcceptRichText(false);
   setFamily("Monospace");
+
+  new SyntaxHighlighter(document());
 
   d_fmt_default.setBackground(palette().brush(QPalette::Base));
   d_fmt_success.setBackground(QBrush(QColor(128, 255, 128)));
