@@ -81,7 +81,8 @@ int main(int argc, char** argv) {
   app.setApplicationName("AlphaPlot");
   app.setApplicationVersion(AlphaPlot::versionString());
   app.setOrganizationName("AlphaPlot");
-  // app.setOrganizationDomain("website"); //not set
+  app.setOrganizationDomain("alphaplot.sourceforge.net");
+
 
   QStringList args = app.arguments();
   args.removeFirst();  // remove application name

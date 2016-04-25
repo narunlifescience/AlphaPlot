@@ -37,6 +37,7 @@ class Console : public QTextEdit {
   enum ResultType { Success, Error };
 
  protected:
+  void insertFromMimeData(const QMimeData * source);
   void keyPressEvent(QKeyEvent *e);
 
   // Do not handle other events
@@ -59,6 +60,7 @@ class Console : public QTextEdit {
   int getIndex(const QTextCursor &crQTextCursor);
 
   QString userPrompt;
+  QString partialUserPrompt;
   QString activeUserPromptPrefix;
   QString partialUserPromptPrefix;
   QStack<QString> historyUp;

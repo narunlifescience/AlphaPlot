@@ -31,9 +31,11 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   setWindowIcon(QIcon());
   ui_->gridLayout->setSpacing(0);
   ui_->gridLayout->setContentsMargins(0, 0, 0, 0);
+
   connect(ui_->console, SIGNAL(command(QString)), this,
           SLOT(evaluate(QString)));
-  engine->setProcessEventsInterval(1000); // 1 sec process interval
+
+  engine->setProcessEventsInterval(1000);  // 1 sec process interval
   // print() function
   QScriptValue consoleObjectValue = engine->newQObject(ui_->console);
   QScriptValue consoleWidgetObjectValue = engine->newQObject(this);
@@ -55,23 +57,42 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
 
 ConsoleWidget::~ConsoleWidget() {
   delete ui_;
-  delete engine;
+  if (engine) delete engine;
+  if (debugger) delete debugger;
 }
 
 void ConsoleWidget::evaluate(QString line) {
   snippet.append(line);
   snippet += QLatin1Char('\n');
   if (engine->canEvaluate(snippet)) {
-    QScriptValue result = engine->evaluate(snippet);
+
+    QScriptSyntaxCheckResult error = engine->checkSyntax(snippet);
+    if (error.Error) {
+      ui_->console->result(
+          QString(error.errorLineNumber()) + " " + error.errorMessage(),
+          Console::Error);
+      return;
+    }
+
+    QScriptValue result = engine->evaluate(snippet, "line", 1);
+    snippet.clear();
     if (!result.isUndefined()) {
-      if (!result.isError())
+      if (!result.isError()) {
         ui_->console->result(result.toString(), Console::Success);
-      else
-        ui_->console->result(result.toString(), Console::Error);
+      } else {
+        if (engine->hasUncaughtException()) {
+          QStringList backtrace = engine->uncaughtExceptionBacktrace();
+          ui_->console->result(result.toString() + "\n" + backtrace.join("\n"),
+                               Console::Error);
+        } else {
+          ui_->console->result(result.toString(), Console::Error);
+        }
+      }
+
     } else {
       ui_->console->promptWithoutResult();
     }
-    snippet.clear();
+
   } else {
     ui_->console->partialResult();
   }

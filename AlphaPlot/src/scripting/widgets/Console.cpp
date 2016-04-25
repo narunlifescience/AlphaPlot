@@ -22,6 +22,7 @@
 Console::Console(QWidget *parent)
     : QTextEdit(parent),
       userPrompt(QString(" >> ")),
+      partialUserPrompt(QString("... ")),
       activeUserPromptPrefix(QString("<font color=\"orange\">&alpha;</font>")),
       partialUserPromptPrefix(QString(" ")),
       partialPromptVisible(false),
@@ -97,7 +98,7 @@ void Console::handleEnter() {
     if (!partialPromptVisible)
       insertHtml(activeUserPromptPrefix + userPrompt);
     else
-      insertPlainText(partialUserPromptPrefix + userPrompt);
+      insertPlainText(partialUserPromptPrefix + partialUserPrompt);
     ensureCursorVisible();
   }
 }
@@ -120,7 +121,7 @@ void Console::result(QString result, ResultType type) {
 
 void Console::partialResult() {
   partialPromptVisible = true;
-  insertPlainText(partialUserPromptPrefix + userPrompt);
+  insertPlainText(partialUserPromptPrefix + partialUserPrompt);
   ensureCursorVisible();
   locked = false;
 }
@@ -186,7 +187,7 @@ void Console::clearLine() {
   if (!partialPromptVisible)
     this->insertHtml(activeUserPromptPrefix + userPrompt);
   else
-    this->insertPlainText(partialUserPromptPrefix + userPrompt);
+    this->insertPlainText(partialUserPromptPrefix + partialUserPrompt);
 }
 
 // Select and return the user-input (exclude the prompt)
@@ -234,6 +235,24 @@ int Console::getIndex(const QTextCursor &crQTextCursor) {
 void Console::setPrompt(const QString &prompt) {
   userPrompt = prompt;
   clearLine();
+}
+
+void Console::insertFromMimeData(const QMimeData *source) {
+  QString text = source->text();
+  QStringList line = text.split("\n");
+
+  if (line.isEmpty()) return;
+  if (line.length() == 1) {
+    insertPlainText(line[0]);
+    return;
+  }
+
+  append(line[0]);
+  for (int i = 1; i < line.length(); ++i) {
+    partialResult();
+    append(line[i]);
+  }
+  emit(command(text));
 }
 
 QString Console::prompt() const { return userPrompt; }
