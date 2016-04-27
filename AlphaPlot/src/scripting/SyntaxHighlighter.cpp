@@ -35,24 +35,24 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
   keywordFormat.setForeground(QColor(249, 38, 114));
   keywordFormat.setFontWeight(QFont::Normal);
   QStringList keywordPatterns;
-  keywordPatterns << "\\bvar\\b"
-                  << "\\bArray\\b"
-                  << "\\bfunction\\b"
-                  << "\\breturn\\b"
-                  << "\\barguments\\b"
-                  << "\\bif\\b"
-                  << "\\belse\\b"
-                  << "\\bfor\\b"
-                  << "\\bswitch\\b"
-                  << "\\bcase\\b"
-                  << "\\bbreak\\b"
-                  << "\\bwhile\\b"
-                  << "\\bnumber\\b"
-                  << "\\bstring\\b"
-                  << "\\bobject\\b"
-                  << "\\bboolean\\b";
+  keywordPatterns << "var"
+                  << "Array"
+                  << "function"
+                  << "return"
+                  << "arguments"
+                  << "if"
+                  << "else"
+                  << "for"
+                  << "switch"
+                  << "case"
+                  << "break"
+                  << "while"
+                  << "number"
+                  << "string"
+                  << "object"
+                  << "boolean";
   foreach (const QString &pattern, keywordPatterns) {
-    rule.pattern = QRegExp(pattern);
+    rule.pattern = QRegExp("\\b" + pattern + "\\b");
     rule.format = keywordFormat;
     highlightingRules.append(rule);
   }
@@ -80,7 +80,18 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
 
   functionFormat.setFontItalic(true);
   functionFormat.setForeground(QColor(204, 140, 91));
-  rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
+
+  // Exclude keywords misinterpretation as functions
+  QString keywordExcludePatterns;
+  foreach (const QString &pattern, keywordPatterns) {
+    (pattern == keywordPatterns[0])
+        ? keywordExcludePatterns.append(pattern)
+        : keywordExcludePatterns.append(QString("|%1").arg(pattern));
+  }
+
+  rule.pattern = QRegExp(
+      QString("\\b(?!(%1)+[\\s]*[/]?(?=\\())([A-Za-z0-9_]+[\\s]*[/]?(?=\\())")
+          .arg(keywordExcludePatterns));
   rule.format = functionFormat;
   highlightingRules.append(rule);
 
