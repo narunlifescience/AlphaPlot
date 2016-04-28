@@ -126,6 +126,31 @@ void TableView::init() {
 
   d_control_tabs = new QWidget();
   ui.setupUi(d_control_tabs);
+  // Set icons
+  ui.tab_widget->setTabIcon(
+      0, IconLoader::load("table-show-comment", IconLoader::LightDark));
+  ui.tab_widget->setTabIcon(
+      1, IconLoader::load("number-type", IconLoader::LightDark));
+  ui.tab_widget->setTabIcon(
+      2, IconLoader::load("math-fofx", IconLoader::LightDark));
+  ui.formula_label->setPixmap(
+      IconLoader::load("math-fofx", IconLoader::LightDark).pixmap(24));
+  ui.formula_label->setFixedSize(QSize(24, 24));
+  ui.add_reference_button->setIcon(
+      IconLoader::load("list-add", IconLoader::LightDark));
+  ui.add_function_button->setIcon(
+      IconLoader::load("list-add", IconLoader::LightDark));
+  ui.previous_column_button->setIcon(
+      IconLoader::load("go-previous", IconLoader::LightDark));
+  ui.next_column_button->setIcon(
+      IconLoader::load("go-next", IconLoader::LightDark));
+  ui.button_set_description->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  ui.button_set_type->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  ui.set_formula_button->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+
   d_main_layout->addWidget(d_control_tabs);
   d_control_tabs->setHidden(true);
 
@@ -257,11 +282,18 @@ void TableView::retranslateStrings() {
   ui.retranslateUi(d_control_tabs);
 
   ui.type_box->clear();
-  ui.type_box->addItem(tr("Numeric"), QVariant(int(AlphaPlot::Numeric)));
-  ui.type_box->addItem(tr("Text"), QVariant(int(AlphaPlot::Text)));
-  ui.type_box->addItem(tr("Month names"), QVariant(int(AlphaPlot::Month)));
-  ui.type_box->addItem(tr("Day names"), QVariant(int(AlphaPlot::Day)));
-  ui.type_box->addItem(tr("Date and time"), QVariant(int(AlphaPlot::DateTime)));
+  ui.type_box->addItem(IconLoader::load("number-type", IconLoader::LightDark),
+                       tr("Numeric"), QVariant(int(AlphaPlot::Numeric)));
+  ui.type_box->addItem(IconLoader::load("text-type", IconLoader::LightDark),
+                       tr("Text"), QVariant(int(AlphaPlot::Text)));
+  ui.type_box->addItem(
+      IconLoader::load("view-calendar-month", IconLoader::LightDark),
+      tr("Month names"), QVariant(int(AlphaPlot::Month)));
+  ui.type_box->addItem(
+      IconLoader::load("view-calendar-day", IconLoader::LightDark),
+      tr("Day names"), QVariant(int(AlphaPlot::Day)));
+  ui.type_box->addItem(IconLoader::load("view-calendar", IconLoader::LightDark),
+                       tr("Date and time"), QVariant(int(AlphaPlot::DateTime)));
   ui.type_box->setCurrentIndex(0);
 
   ui.date_time_interval->clear();

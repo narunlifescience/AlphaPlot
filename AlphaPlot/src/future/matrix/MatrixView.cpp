@@ -97,8 +97,7 @@ void MatrixView::init() {
   d_hide_button->setSizePolicy(
       QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
   d_hide_button->setGeometry(0, 0, 16, 16);
-  d_hide_button->setIcon(
-      IconLoader::load("edit-unhide", IconLoader::General));
+  d_hide_button->setIcon(IconLoader::load("edit-unhide", IconLoader::General));
   d_hide_button->setStyleSheet(
       "QToolButton {background-color : rgba(0, 0, 0, 0); "
       "border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0);}");
@@ -106,15 +105,35 @@ void MatrixView::init() {
 
   d_control_tabs = new QWidget();
   ui.setupUi(d_control_tabs);
+  // Set icons
+  ui.tab_widget->setTabIcon(
+      0, IconLoader::load("edit-table-dimension", IconLoader::LightDark));
+  ui.tab_widget->setTabIcon(
+      1, IconLoader::load("number-type", IconLoader::LightDark));
+  ui.tab_widget->setTabIcon(
+      2, IconLoader::load("math-fofx", IconLoader::LightDark));
+  ui.button_set_coordinates->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  ui.button_set_format->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  ui.button_set_formula->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  ui.formula_label->setPixmap(
+      IconLoader::load("math-fofx", IconLoader::LightDark).pixmap(24));
+  ui.formula_label->setFixedSize(QSize(24, 24));
+  ui.add_cell_button->setIcon(
+        IconLoader::load("list-add", IconLoader::LightDark));
+  ui.add_function_button->setIcon(
+        IconLoader::load("list-add", IconLoader::LightDark));
 #if 0  // this seems not to work
-	ui.first_row_spinbox->setMaximum(std::numeric_limits<double>::max());
-	ui.first_row_spinbox->setMinimum(std::numeric_limits<double>::min());
-	ui.first_col_spinbox->setMaximum(std::numeric_limits<double>::max());
-	ui.first_col_spinbox->setMinimum(std::numeric_limits<double>::min());
-	ui.last_row_spinbox->setMaximum(std::numeric_limits<double>::max());
-	ui.last_row_spinbox->setMinimum(std::numeric_limits<double>::min());
-	ui.last_col_spinbox->setMaximum(std::numeric_limits<double>::max());
-	ui.last_col_spinbox->setMinimum(std::numeric_limits<double>::min());
+  ui.first_row_spinbox->setMaximum(std::numeric_limits<double>::max());
+  ui.first_row_spinbox->setMinimum(std::numeric_limits<double>::min());
+  ui.first_col_spinbox->setMaximum(std::numeric_limits<double>::max());
+  ui.first_col_spinbox->setMinimum(std::numeric_limits<double>::min());
+  ui.last_row_spinbox->setMaximum(std::numeric_limits<double>::max());
+  ui.last_row_spinbox->setMinimum(std::numeric_limits<double>::min());
+  ui.last_col_spinbox->setMaximum(std::numeric_limits<double>::max());
+  ui.last_col_spinbox->setMinimum(std::numeric_limits<double>::min());
 #endif
 
   updateCoordinatesTab();
@@ -177,8 +196,7 @@ void MatrixView::init() {
   retranslateStrings();
 }
 
-void MatrixView::moveFloatingButton()
-{
+void MatrixView::moveFloatingButton() {
   int verticalScrollWidth;
   (d_view_widget->verticalScrollBar()->maximum() > 0)
       ? verticalScrollWidth =
@@ -224,10 +242,7 @@ void MatrixView::changeEvent(QEvent *event) {
   MyWidget::changeEvent(event);
 }
 
-void MatrixView::resizeEvent(QResizeEvent *)
-{
-  moveFloatingButton();
-}
+void MatrixView::resizeEvent(QResizeEvent *) { moveFloatingButton(); }
 
 void MatrixView::retranslateStrings() {
   d_hide_button->setToolTip(tr("Show/hide control tabs"));
@@ -257,8 +272,7 @@ void MatrixView::selectAll() { d_view_widget->selectAll(); }
 void MatrixView::toggleControlTabBar() {
   d_control_tabs->setVisible(!d_control_tabs->isVisible());
   if (d_control_tabs->isVisible()) {
-    d_hide_button->setIcon(
-        IconLoader::load("edit-hide", IconLoader::General));
+    d_hide_button->setIcon(IconLoader::load("edit-hide", IconLoader::General));
     moveFloatingButton();
   } else {
     d_hide_button->setIcon(

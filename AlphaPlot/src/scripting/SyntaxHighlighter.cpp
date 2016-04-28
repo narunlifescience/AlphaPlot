@@ -34,24 +34,41 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
 
   keywordFormat.setForeground(QColor(249, 38, 114));
   keywordFormat.setFontWeight(QFont::Normal);
-  QStringList keywordPatterns;
-  keywordPatterns << "var"
-                  << "Array"
-                  << "function"
-                  << "return"
-                  << "arguments"
-                  << "if"
-                  << "else"
-                  << "for"
-                  << "switch"
-                  << "case"
-                  << "break"
-                  << "while"
-                  << "number"
-                  << "string"
-                  << "object"
-                  << "boolean";
-  foreach (const QString &pattern, keywordPatterns) {
+
+  keywords << "break"
+           << "case"
+           << "catch"
+           << "continue"
+           << "debugger"
+           << "default"
+           << "delete"
+           << "do"
+           << "else"
+           << "finally"
+           << "for"
+           << "function"
+           << "if"
+           << "in"
+           << "instanceof"
+           << "new"
+           << "returm"
+           << "switch"
+           << "throw"
+           << "try"
+           << "typeof"
+           << "var"
+           << "while"
+           << "with";
+
+  uselessKeywords << "class"
+                  << "const"
+                  << "enum"
+                  << "export"
+                  << "extends"
+                  << "import"
+                  << "super";
+
+  foreach (const QString &pattern, keywords) {
     rule.pattern = QRegExp("\\b" + pattern + "\\b");
     rule.format = keywordFormat;
     highlightingRules.append(rule);
@@ -83,8 +100,8 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
 
   // Exclude keywords misinterpretation as functions
   QString keywordExcludePatterns;
-  foreach (const QString &pattern, keywordPatterns) {
-    (pattern == keywordPatterns[0])
+  foreach (const QString &pattern, keywords) {
+    (pattern == keywords[0])
         ? keywordExcludePatterns.append(pattern)
         : keywordExcludePatterns.append(QString("|%1").arg(pattern));
   }

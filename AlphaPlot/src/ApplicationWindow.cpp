@@ -10933,11 +10933,12 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString &fn) {
     QApplication::restoreOverrideCursor();
     QMessageBox::critical(
         this, tr("Error writing data to disk"),
-        tr("<html>%1<br><br>Your data may or may not have ended up in <em>%2</em> (%3). \
-					If there already was a version of this project on disk, it has not been touched.</html>")
-	    .arg(QString::fromLocal8Bit(strerror(errno)))
-	    .arg(fn + ".new")
-	    .arg(f.handle()));
+        tr("<html>%1<br><br>Your data may or may not have ended up in "
+           "<em>%2</em> (%3). If there already was a version of this "
+           "project on disk, it has not been touched.</html>")
+            .arg(QString::fromLocal8Bit(strerror(errno)))
+            .arg(fn + ".new")
+            .arg(f.handle()));
     f.close();
     return;
   }
@@ -10960,15 +10961,17 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString &fn) {
     QApplication::restoreOverrideCursor();
     QMessageBox::critical(
         this, tr("Error renaming backup files"),
-        tr("<html>%1<br><br>Data was written to <em>%2</em>, but saving the original file as <em>%3</em>\
-					and moving the new file to <em>%4</em> failed. In case you wonder why the original file hasn't\
-					been simply replaced, see here:\
-					<a href=\"http://bugs.launchpad.net/ubuntu/+source/linux/+bug/317781/comments/54\">\
-					http://bugs.launchpad.net/ubuntu/+source/linux/+bug/317781/comments/54</a>.</html>")
-	    .arg(QString::fromLocal8Bit(strerror(errno)))
-	    .arg(fn + ".new")
-	    .arg(fn + "~")
-	    .arg(fn));
+        tr("<html>%1<br><br>Data was written to <em>%2</em>, "
+           "but saving the original file as <em>%3</em> and moving "
+           "the new file to <em>%4</em> failed. In case you wonder "
+           "why the original file hasn't been simply replaced, see here: "
+           "<a href=\"http://bugs.launchpad.net/ubuntu/+source/linux/+bug"
+           "/317781/comments/54\"> http://bugs.launchpad.net/ubuntu/+source"
+           "/linux/+bug/317781/comments/54</a>.</html>")
+            .arg(QString::fromLocal8Bit(strerror(errno)))
+            .arg(fn + ".new")
+            .arg(fn + "~")
+            .arg(fn));
     return;
   }
 

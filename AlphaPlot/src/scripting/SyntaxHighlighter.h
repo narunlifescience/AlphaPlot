@@ -57,6 +57,9 @@ class SyntaxHighlighter : public QSyntaxHighlighter {
   QTextCharFormat quotationFormat;
   QTextCharFormat singleQuotationFormat;
   QTextCharFormat functionFormat;
+
+  QStringList keywords;
+  QStringList uselessKeywords;
 };
 
 #endif // SYNTAXHIGHLIGHTER_H

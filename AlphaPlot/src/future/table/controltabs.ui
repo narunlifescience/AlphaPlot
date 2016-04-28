@@ -60,7 +60,7 @@
      </property>
      <widget class="QWidget" name="description_tab">
       <attribute name="title">
-       <string>Description</string>
+       <string>Text</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -72,6 +72,9 @@
            </property>
            <property name="text">
             <string>...</string>
+           </property>
+           <property name="autoRaise">
+            <bool>true</bool>
            </property>
            <property name="arrowType">
             <enum>Qt::LeftArrow</enum>
@@ -85,6 +88,9 @@
            </property>
            <property name="text">
             <string>...</string>
+           </property>
+           <property name="autoRaise">
+            <bool>true</bool>
            </property>
            <property name="arrowType">
             <enum>Qt::RightArrow</enum>
@@ -186,7 +192,7 @@ p, li { white-space: pre-wrap; }
        <item row="2" column="0">
         <widget class="QLabel" name="type_label">
          <property name="text">
-          <string>&amp;Type:</string>
+          <string>T&amp;ype:</string>
          </property>
          <property name="buddy">
           <cstring>type_box</cstring>
@@ -341,7 +347,7 @@ p, li { white-space: pre-wrap; }
        <item row="0" column="0">
         <widget class="QLabel" name="formula_label">
          <property name="text">
-          <string>For&amp;mula:</string>
+          <string/>
          </property>
          <property name="buddy">
           <cstring>formula_box</cstring>

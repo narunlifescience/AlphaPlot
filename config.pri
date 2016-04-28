@@ -4,11 +4,15 @@
 
 unix:isEmpty(PRESET) {                     # command-line argument to override
   ### Link dynamically against system-wide installed libraries(default).
-  PRESET = linux_all_dynamic
-  ### Link statically against Qwt and Qwtplot3D in 3rdparty folder.
-  #PRESET = linux_qwt_qwtplot3d_static
-  ### Link statically as much as possible.except Qt.
-  #PRESET = linux_all_static
+  if(!macx) {
+    PRESET = linux_all_dynamic
+    ### Link statically against Qwt and Qwtplot3D in 3rdparty folder.
+    #PRESET = linux_qwt_qwtplot3d_static
+    ### Link statically as much as possible.except Qt.
+    #PRESET = linux_all_static
+  } else {
+    PRESET = osx_dist
+  }
 }
 
 !contains(PRESET, linux_all_static) {                 # Linux Desktop integration
@@ -128,7 +132,7 @@ contains(PRESET, linux_all_static) {
   LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
 }
 
-osx_dist {
+contains(PRESET, osx_dist) {
   # Uses MacPorts supplied versions of the dependencies
   message(Build configuration: OSX Distro)
 
