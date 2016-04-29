@@ -122,9 +122,12 @@ void MatrixView::init() {
       IconLoader::load("math-fofx", IconLoader::LightDark).pixmap(24));
   ui.formula_label->setFixedSize(QSize(24, 24));
   ui.add_cell_button->setIcon(
-        IconLoader::load("list-add", IconLoader::LightDark));
+      IconLoader::load("list-add", IconLoader::LightDark));
   ui.add_function_button->setIcon(
-        IconLoader::load("list-add", IconLoader::LightDark));
+      IconLoader::load("list-add", IconLoader::LightDark));
+  ui.coordinates_tab_layout->setContentsMargins(0, 0, 0, 0);
+  ui._2->setContentsMargins(0, 0, 0, 0);
+  ui._3->setContentsMargins(0, 0, 0, 0);
 #if 0  // this seems not to work
   ui.first_row_spinbox->setMaximum(std::numeric_limits<double>::max());
   ui.first_row_spinbox->setMinimum(std::numeric_limits<double>::min());

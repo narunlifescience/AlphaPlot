@@ -80,7 +80,7 @@ TableView::TableView(const QString &label, QWidget *parent, const QString name,
 #endif
 }
 
-TableView::~TableView() { delete d_model; }
+TableView::~TableView() { delete d_model;}
 
 void TableView::setTable(future::Table *table) {
   d_table = table;
@@ -150,6 +150,9 @@ void TableView::init() {
       IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
   ui.set_formula_button->setIcon(
       IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  ui.verticalLayout->setContentsMargins(0, 0, 0, 0);
+  ui.format_tab_layout->setContentsMargins(0, 0, 0, 0);
+  ui.formula_tab_layout->setContentsMargins(0, 0, 0, 0);
 
   d_main_layout->addWidget(d_control_tabs);
   d_control_tabs->setHidden(true);

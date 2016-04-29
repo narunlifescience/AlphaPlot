@@ -88,14 +88,14 @@ void Matrix::init(int rows, int cols) {
   birthdate = d_future_matrix->creationTime().toString(Qt::LocalDate);
 
   // this is not very nice but works for the moment
-  ui.gridLayout2->removeWidget(ui.formula_box);
+  ui._2->removeWidget(ui.formula_box);
   delete ui.formula_box;
   ui.formula_box = new ScriptEdit(scriptEnv, ui.formula_tab);
   ui.formula_box->setObjectName(QString::fromUtf8("formula_box"));
   ui.formula_box->setMinimumSize(QSize(60, 10));
   ui.formula_box->setAcceptRichText(false);
   ui.formula_box->setLineWrapMode(QTextEdit::WidgetWidth);
-  ui.gridLayout2->addWidget(ui.formula_box, 1, 0, 1, 3);
+  ui._2->addWidget(ui.formula_box, 1, 0, 1, 3);
 
   ui.add_cell_combobox->addItem("cell(i, j)");
   ui.add_function_combobox->addItems(scriptEnv->mathFunctions());

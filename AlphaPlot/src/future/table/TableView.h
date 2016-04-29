@@ -180,6 +180,7 @@ class TableView : public MyWidget {
   void setColumnWidth(int col, int width);
   int columnWidth(int col) const;
   bool formulaModeActive() const;
+  void moveFloatingButton();
 
  public slots:
   void activateFormulaMode(bool on);
@@ -245,8 +246,6 @@ class TableView : public MyWidget {
   //! Initialization
   void init();
 
- private:
-  void moveFloatingButton();
 };
 
 #endif  //  TABLEVIEW_H

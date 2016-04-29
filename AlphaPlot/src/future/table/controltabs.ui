@@ -56,7 +56,7 @@
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="description_tab">
       <attribute name="title">
@@ -121,7 +121,7 @@
           <item>
            <widget class="QLabel" name="name_label">
             <property name="text">
-             <string>&amp;Name:</string>
+             <string>&amp; Name:</string>
             </property>
             <property name="textFormat">
              <enum>Qt::PlainText</enum>
@@ -140,7 +140,7 @@
        <item>
         <widget class="QLabel" name="comment_label">
          <property name="text">
-          <string>Co&amp;mment:</string>
+          <string> Comment:</string>
          </property>
          <property name="textFormat">
           <enum>Qt::PlainText</enum>
@@ -166,7 +166,7 @@
       <attribute name="title">
        <string>Type</string>
       </attribute>
-      <layout class="QGridLayout">
+      <layout class="QGridLayout" name="format_tab_layout">
        <item row="1" column="0" colspan="4">
         <widget class="QPushButton" name="button_set_type">
          <property name="sizePolicy">
@@ -192,7 +192,7 @@ p, li { white-space: pre-wrap; }
        <item row="2" column="0">
         <widget class="QLabel" name="type_label">
          <property name="text">
-          <string>T&amp;ype:</string>
+          <string> Type:</string>
          </property>
          <property name="buddy">
           <cstring>type_box</cstring>
@@ -224,7 +224,7 @@ p, li { white-space: pre-wrap; }
        <item row="3" column="0">
         <widget class="QLabel" name="format_label">
          <property name="text">
-          <string>For&amp;mat:</string>
+          <string> For&amp;mat:</string>
          </property>
          <property name="buddy">
           <cstring>format_box</cstring>
@@ -256,7 +256,7 @@ p, li { white-space: pre-wrap; }
        <item row="4" column="0">
         <widget class="QLabel" name="format_label2">
          <property name="text">
-          <string>Format:</string>
+          <string> Format:</string>
          </property>
         </widget>
        </item>
@@ -266,7 +266,7 @@ p, li { white-space: pre-wrap; }
        <item row="5" column="0">
         <widget class="QLabel" name="digits_label">
          <property name="text">
-          <string>&amp;Decimal Digits:</string>
+          <string>&amp; Decimal Digits:</string>
          </property>
          <property name="buddy">
           <cstring>digits_box</cstring>
@@ -292,7 +292,7 @@ p, li { white-space: pre-wrap; }
        <item row="6" column="0">
         <widget class="QLabel" name="date_time_interval_label">
          <property name="text">
-          <string>Numbers are</string>
+          <string> Numbers are</string>
          </property>
         </widget>
        </item>
@@ -343,7 +343,7 @@ p, li { white-space: pre-wrap; }
       <attribute name="title">
        <string>Formula</string>
       </attribute>
-      <layout class="QGridLayout">
+      <layout class="QGridLayout" name="formula_tab_layout">
        <item row="0" column="0">
         <widget class="QLabel" name="formula_label">
          <property name="text">

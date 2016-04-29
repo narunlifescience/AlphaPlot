@@ -92,14 +92,14 @@ void Table::init() {
   d_future_table->setView(this);
 
   birthdate = d_future_table->creationTime().toString(Qt::LocalDate);
-  ui.gridLayout1->removeWidget(ui.formula_box);
+  ui.formula_tab_layout->removeWidget(ui.formula_box);
   delete ui.formula_box;
   ui.formula_box = new ScriptEdit(scriptEnv, ui.formula_tab);
   ui.formula_box->setObjectName(QString::fromUtf8("formula_box"));
   ui.formula_box->setMinimumSize(QSize(60, 10));
   ui.formula_box->setAcceptRichText(false);
   ui.formula_box->setLineWrapMode(QTextEdit::WidgetWidth);
-  ui.gridLayout1->addWidget(ui.formula_box, 1, 0, 1, 3);
+  ui.formula_tab_layout->addWidget(ui.formula_box, 1, 0, 1, 3);
 
   for (int i = 0; i < columnCount(); i++)
     ui.add_reference_combobox->addItem("col(\"" + column(i)->name() + "\")");
@@ -314,7 +314,7 @@ void Table::setColumnTypes(const QStringList &ctl) {
     QStringList l = ctl[i].split(";");
     switch (l[0].toInt()) {
       //	old enum: enum ColType{Numeric = 0, Text = 1, Date = 2, Time =
-      //3, Month = 4, Day = 5};
+      // 3, Month = 4, Day = 5};
       case 0:
         column(i)->setColumnMode(AlphaPlot::Numeric);
         break;
@@ -683,7 +683,8 @@ void Table::insertRow() { d_future_table->insertEmptyRows(); }
 void Table::addCol(AlphaPlot::PlotDesignation pd) {
   d_future_table->addColumn();
   column(d_future_table->columnCount() - 1)
-      ->setColumnMode(AlphaPlot::Numeric);  // in case we ever change the default
+      ->setColumnMode(
+          AlphaPlot::Numeric);  // in case we ever change the default
   column(d_future_table->columnCount() - 1)->setPlotDesignation(pd);
 }
 
@@ -728,7 +729,7 @@ int Table::numRows() { return d_future_table->rowCount(); }
 
 int Table::numCols() { return d_future_table->columnCount(); }
 
-int Table::rowCount() { return d_future_table->rowCount(); }
+int Table::rowCnt() { return d_future_table->rowCount(); }
 
 int Table::columnCount() { return d_future_table->columnCount(); }
 
@@ -748,7 +749,7 @@ double Table::cell(int row, int col) {
     return 0.0;
 }
 
-void Table::setCell(int row, int col, double val) {
+void Table::setCellValue(int row, int col, double val) {
   column(col)->setValueAt(row, val);
 }
 
@@ -932,7 +933,7 @@ void Table::closeEvent(QCloseEvent *e) {
   if (askOnClose) {
     switch (QMessageBox::information(
         this, tr("AlphaPlot"), tr("Do you want to hide or delete") + "<p><b>'" +
-                                  objectName() + "'</b> ?",
+                                   objectName() + "'</b> ?",
         tr("Delete"), tr("Hide"), tr("Cancel"), 0, 2)) {
       case 0:
         e->accept();
@@ -1061,7 +1062,7 @@ void Table::setColumnTypes(QList<int> ctl) {
   for (int i = 0; i < d_future_table->columnCount(); i++) {
     switch (ctl.at(i)) {
       //	old enum: enum ColType{Numeric = 0, Text = 1, Date = 2, Time =
-      //3, Month = 4, Day = 5};
+      // 3, Month = 4, Day = 5};
       case 0:
         column(i)->setColumnMode(AlphaPlot::Numeric);
         break;
@@ -1127,8 +1128,8 @@ void Table::applyFormula() {
   QString formula = ui.formula_box->toPlainText();
   for (int col = firstSelectedColumn(); col <= lastSelectedColumn(); col++) {
     Column *col_ptr = column(col);
-    col_ptr->insertRows(col_ptr->rowCount(), rowCount() - col_ptr->rowCount());
-    col_ptr->setFormula(Interval<int>(0, rowCount() - 1), formula);
+    col_ptr->insertRows(col_ptr->rowCount(), rowCnt() - col_ptr->rowCount());
+    col_ptr->setFormula(Interval<int>(0, rowCnt() - 1), formula);
     if (!recalculate(col, false)) break;
   }
 
@@ -1221,4 +1222,75 @@ void Table::importASCII(const QString &fname, const QString &sep,
     delete temp;
     setWindowLabel(fname);
   }
+}
+
+// Scripting Functions
+int Table::rowCount() {
+  if (context()->argumentCount() != 0) {
+    context()->throwError(tr("rowCount() take no arguments!"));
+  }
+  return rowCnt();
+}
+
+int Table::colCount() {
+  if (context()->argumentCount() != 0) {
+    context()->throwError(tr("colCount() take no arguments!"));
+  }
+  return numCols();
+}
+
+double Table::getCell() {
+  if (context()->argumentCount() != 2 || !context()->argument(0).isNumber() ||
+      !context()->argument(1).isNumber()) {
+    context()->throwError(
+        tr("getCell(intiger<row>, intiger<col>) take two arguments!"));
+  } else if (context()->argument(0).toNumber() <= 0 ||
+             context()->argument(1).toNumber() <= 0) {
+    context()->throwError(tr("row/col index cannot be 0 or -ve"));
+  } else if (context()->argument(0).toNumber() > rowCnt()) {
+    context()->throwError(tr("row index out of range!"));
+  } else if (context()->argument(1).toNumber() > numCols()) {
+    context()->throwError(tr("col index out of range!"));
+  }
+  return cell(context()->argument(0).toNumber() - 1,
+              context()->argument(1).toNumber() - 1);
+}
+
+void Table::setCell() {
+  if (context()->argumentCount() != 3 || !context()->argument(0).isNumber() ||
+      !context()->argument(1).isNumber() ||
+      !context()->argument(2).isNumber()) {
+    context()->throwError(
+        tr("setCell(intiger, intiger, double) take three "
+           "arguments!"));
+  } else if (context()->argument(0).toNumber() <= 0 ||
+             context()->argument(1).toNumber() <= 0) {
+    context()->throwError(tr("row/col index cannot be 0 or -ve!"));
+  } else if (context()->argument(0).toNumber() > rowCnt()) {
+    context()->throwError(tr("row index out of range!"));
+  } else if (context()->argument(1).toNumber() > numCols()) {
+    context()->throwError(tr("col index out of range!"));
+  }
+  setCellValue(context()->argument(0).toNumber() - 1,
+               context()->argument(1).toNumber() - 1,
+               context()->argument(2).toNumber());
+}
+
+void Table::setRowCount() {
+  if (context()->argumentCount() != 1 || !context()->argument(0).isNumber()) {
+    context()->throwError(tr("setRowCount(intiger) take one argument!"));
+  } else if (context()->argument(0).toNumber() <= 0) {
+    context()->throwError(tr("cannot set row count to 0 or -ve!"));
+  }
+  setNumRows(context()->argument(0).toNumber());
+  moveFloatingButton();
+}
+
+void Table::setColCount() {
+  if (context()->argumentCount() != 3 || !context()->argument(0).isNumber()) {
+    context()->throwError(tr("setColCount(intiger) take one argument!"));
+  } else if (context()->argument(0).toNumber() <= 0) {
+    context()->throwError(tr("cannot set col count to 0 or -ve!"));
+  }
+  setNumCols(context()->argument(0).toNumber());
 }

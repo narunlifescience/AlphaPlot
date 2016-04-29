@@ -211,13 +211,8 @@ ApplicationWindow::ApplicationWindow()
       d_plot_mapper(new QSignalMapper(this)) {
   ui_->setupUi(this);
 
-  // pass mainwindow as global object
-  QScriptValue objectValue = consoleWindow->engine->newQObject(this);
-  consoleWindow->engine->globalObject().setProperty("alpha", objectValue);
-
-  QScriptValue clearFunction = consoleWindow->engine->newFunction(&openProj);
-  clearFunction.setData(objectValue);
-  consoleWindow->engine->globalObject().setProperty("openAproj", clearFunction);
+  // Initialize scripting environment.
+  attachQtScript();
 
   // Icons
   IconLoader::init();
@@ -3175,7 +3170,8 @@ Table *ApplicationWindow::convertMatrixToTable() {
 
   Table *table = new Table(scriptEnv, rows, cols, "", d_workspace, 0);
   for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) table->setCell(i, j, matrix->cell(i, j));
+    for (int j = 0; j < cols; j++)
+      table->setCellValue(i, j, matrix->cell(i, j));
   }
 
   table->setName(generateUniqueName(tr("Table")));
@@ -3797,9 +3793,8 @@ void ApplicationWindow::importASCII(const QStringList &files, int import_mode,
           table->d_future_table->addChild(new_col);
         }
         Q_ASSERT(table->columnCount() >= temp->columnCount());
-        int start_row = table->rowCount();
-        table->d_future_table->setRowCount(table->rowCount() +
-                                           temp->rowCount());
+        int start_row = table->rowCnt();
+        table->d_future_table->setRowCount(table->rowCnt() + temp->rowCnt());
         for (int col = 0; col < temp->columnCount(); col++) {
           Column *src_col = temp->column(col);
           Column *dst_col = table->column(col);
@@ -3810,14 +3805,14 @@ void ApplicationWindow::importASCII(const QStringList &files, int import_mode,
         break;
       }
       case ImportASCIIDialog::Overwrite: {
-        if (table->rowCount() < temp->rowCount())
-          table->d_future_table->setRowCount(temp->rowCount());
+        if (table->rowCnt() < temp->rowCnt())
+          table->d_future_table->setRowCount(temp->rowCnt());
         for (int col = 0;
              col < table->columnCount() && col < temp->columnCount(); col++) {
           Column *src_col = temp->column(col);
           Column *dst_col = table->column(col);
           Q_ASSERT(src_col->dataType() == dst_col->dataType());
-          dst_col->copy(src_col, 0, 0, temp->rowCount());
+          dst_col->copy(src_col, 0, 0, temp->rowCnt());
           if (local_rename_columns) dst_col->setName(src_col->name());
         }
         if (temp->columnCount() > table->columnCount()) {
@@ -12242,4 +12237,38 @@ QStringList ApplicationWindow::tableWindows() {
   foreach (AbstractAspect *aspect, tables)
     result.append(aspect->name());
   return result;
+}
+
+void ApplicationWindow::attachQtScript() {
+  // pass mainwindow as global object
+  QScriptValue objectValue = consoleWindow->engine->newQObject(this);
+  consoleWindow->engine->globalObject().setProperty("alpha", objectValue);
+
+  QScriptValue clearFunction = consoleWindow->engine->newFunction(&openProj);
+  clearFunction.setData(objectValue);
+  consoleWindow->engine->globalObject().setProperty("openAproj", clearFunction);
+
+  qScriptRegisterMetaType<Table *>(consoleWindow->engine,
+                                   tableObjectToScriptValue,
+                                   tableObjectFromScriptValue);
+  qScriptRegisterMetaType<Note *>(consoleWindow->engine,
+                                  tableObjectToScriptValue,
+                                  tableObjectFromScriptValue);
+  qScriptRegisterMetaType<Matrix *>(consoleWindow->engine,
+                                    tableObjectToScriptValue,
+                                    tableObjectFromScriptValue);
+  qScriptRegisterMetaType<QVector<int>>(consoleWindow->engine, toScriptValue,
+                                        fromScriptValue);
+  qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine,
+                                            toScriptValue, fromScriptValue);
+  qScriptRegisterMetaType<QVector<double>>(consoleWindow->engine,
+                                            toScriptValue, fromScriptValue);
+  qScriptRegisterMetaType<QVector<long>>(consoleWindow->engine,
+                                            toScriptValue, fromScriptValue);
+  qScriptRegisterMetaType<QVector<QString>>(consoleWindow->engine,
+                                            toScriptValue, fromScriptValue);
+  qScriptRegisterMetaType<QVector<QDate>>(consoleWindow->engine,
+                                            toScriptValue, fromScriptValue);
+  qScriptRegisterMetaType<QVector<QDateTime>>(consoleWindow->engine,
+                                            toScriptValue, fromScriptValue);
 }

@@ -35,6 +35,7 @@
 #include <QDateTime>
 #include <QHash>
 #include <QMap>
+#include <QtScript>
 
 #include "Graph.h"
 #include "MyWidget.h"
@@ -46,10 +47,9 @@
 #include "future/table/future_Table.h"
 #include "future/table/TableView.h"
 #include "globals.h"
-
 /*!\brief MDI window providing a spreadsheet table with column logic.
  */
-class Table : public TableView, public scripted {
+class Table : public TableView, public scripted, public QScriptable {
   Q_OBJECT
 
  public:
@@ -114,7 +114,7 @@ class Table : public TableView, public scripted {
   void copy(Table* m);
   int numRows();
   int numCols();
-  int rowCount();
+  int rowCnt();
   int columnCount();
   void setNumRows(int rows);
   void setNumCols(int cols);
@@ -148,7 +148,7 @@ class Table : public TableView, public scripted {
    * Python API.
    */
   double cell(int row, int col);
-  void setCell(int row, int col, double val);
+  void setCellValue(int row, int col, double val);
 
   QString text(int row, int col);
   QStringList columnsList();
@@ -283,6 +283,7 @@ class Table : public TableView, public scripted {
   void modifiedData(Table*, const QString&);
   void resizedTable(QWidget*);
   void showContextMenu(bool selection);
+  void t();
 
  protected slots:
   void applyFormula();
@@ -294,6 +295,16 @@ class Table : public TableView, public scripted {
 
  private:
   QHash<const AbstractAspect*, QString> d_stored_column_labels;
+
+  // Scripting Functions
+ public slots:
+  int rowCount();
+  int colCount();
+  double getCell();
+  void setCell();
+  void setRowCount();
+  void setColCount();
+
 };
 
 #endif  // TABLE_H

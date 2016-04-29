@@ -539,7 +539,7 @@ Arranges all the visible project windows in a cascade pattern.
   TableStatistics* openTableStatisticsAproj(const QStringList& flist);
   Graph3D* openSurfacePlotAproj(ApplicationWindow* app, const QStringList& lst);
   Graph* openGraphAproj(ApplicationWindow* app, MultiLayer* plot,
-                   const QStringList& list);
+                        const QStringList& list);
 
   void openRecentAproj();
   //@}
@@ -1032,8 +1032,8 @@ Arranges all the visible project windows in a cascade pattern.
   QColor tableBkgdColor, tableTextColor, tableHeaderColor;
   QString projectname, columnSeparator, appLanguage;
   QString configFilePath, logInfo, fitPluginsPath, asciiDirPath, imagesDirPath;
-  int logID, asciiID, closeID, printAllID, ignoredLines,
-      savingTimerId, plot3DResolution;
+  int logID, asciiID, closeID, printAllID, ignoredLines, savingTimerId,
+      plot3DResolution;
   bool renameColumns, copiedLayer, strip_spaces, simplify_spaces;
   QStringList recentProjects;
   QStringList tableWindows();
@@ -1094,6 +1094,9 @@ Arranges all the visible project windows in a cascade pattern.
   //! Workaround for the new colors introduced in rev 447
   int convertOldToNewColorIndex(int cindex);
 
+  // Attach to the scripting environment
+  void attachQtScript();
+
   //! Stores the pointers to the dragged items from the FolderListViews objects
   QList<Q3ListViewItem*> draggedItems;
 
@@ -1123,7 +1126,7 @@ Arranges all the visible project windows in a cascade pattern.
   QAction* actionShowExportASCIIDialog;
   QAction* actionExportPDF;
   QAction* actionCloseAllWindows;
-  QAction *actionUnzoom;
+  QAction* actionUnzoom;
   QAction *actionShowColStatistics, *actionShowRowStatistics,
       *actionShowIntDialog;
   QAction *actionDifferentiate, *actionFitLinear, *actionShowFitPolynomDialog;
@@ -1134,7 +1137,7 @@ Arranges all the visible project windows in a cascade pattern.
   QAction *actionShowAxisDialog, *actionShowTitleDialog;
   QAction *actionCloseWindow, *actionConvertTable;
   QAction *actionAddColToTable, *actionInterpolate;
-  QAction *actionHideActiveWindow;
+  QAction* actionHideActiveWindow;
   QAction *actionShowMoreWindows, *actionPixelLineProfile,
       *actionIntensityTable;
   QAction *actionShowLineDialog, *actionShowImageDialog, *actionShowTextDialog;
@@ -1144,7 +1147,7 @@ Arranges all the visible project windows in a cascade pattern.
       *actionAdd3DData;
   QAction* actionMatrixDeterminant;
   QAction *actionConvertMatrix, *actionInvertMatrix;
-  QAction *actionShowGridDialog;
+  QAction* actionShowGridDialog;
   QAction *actionSmoothSavGol, *actionSmoothFFT, *actionSmoothAverage,
       *actionFFT;
   QAction *actionLowPassFilter, *actionHighPassFilter, *actionBandPassFilter,
@@ -1155,9 +1158,8 @@ Arranges all the visible project windows in a cascade pattern.
   QAction *actionMultiPeakGauss, *actionMultiPeakLorentz;
 
   QAction *actionShowPlotDialog, *actionShowScaleDialog;
-  QAction *actionClearTable,
-      *actionGoToCell;
-  QAction *actionSaveNote;
+  QAction *actionClearTable, *actionGoToCell;
+  QAction* actionSaveNote;
   QAction *actionAnimate, *actionPerspective, *actionFitFrame,
       *actionResetRotation;
 

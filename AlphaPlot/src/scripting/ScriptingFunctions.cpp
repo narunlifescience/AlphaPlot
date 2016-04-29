@@ -4,6 +4,7 @@
 #include <QFileInfo>
 
 #include "../ApplicationWindow.h"
+#include "../Table.h"
 #include "scripting/widgets/Console.h"
 #include "widgets/ConsoleWidget.h"
 #include "ScriptingFunctions.h"
@@ -37,7 +38,7 @@ QScriptValue print(QScriptContext *context, QScriptEngine *egne) {
 // ScriptingConsole clear() function
 QScriptValue clear(QScriptContext *context, QScriptEngine *egne) {
   if (context->argumentCount() != 0) {
-    context->throwError(QObject::tr("clear() has no arguments"));
+    context->throwError(QObject::tr("clear() take no arguments!"));
     return false;
   }
   QScriptValue calleeData = context->callee().data();
@@ -54,7 +55,7 @@ QScriptValue clear(QScriptContext *context, QScriptEngine *egne) {
 // ScriptingConsole openAproj() function
 QScriptValue openProj(QScriptContext *context, QScriptEngine *egne) {
   if (context->argumentCount() > 1) {
-    context->throwError(QObject::tr("too much arguments openAproj()"));
+    context->throwError(QObject::tr("openAproj(string) take one argument!"));
     return false;
   }
   QScriptValue calleeData = context->callee().data();
@@ -82,7 +83,7 @@ QScriptValue openProj(QScriptContext *context, QScriptEngine *egne) {
 
 QScriptValue collectGarbage(QScriptContext *context, QScriptEngine *egne) {
   if (context->argumentCount() != 0) {
-    context->throwError(QObject::tr("collectGarbage() has no arguments"));
+    context->throwError(QObject::tr("collectGarbage() take no arguments!"));
     return false;
   }
   egne->collectGarbage();
@@ -91,7 +92,7 @@ QScriptValue collectGarbage(QScriptContext *context, QScriptEngine *egne) {
 
 QScriptValue attachDebugger(QScriptContext *context, QScriptEngine *egne) {
   if (context->argumentCount() != 1) {
-    context->throwError(QObject::tr("attachDebugger(bool) takes one argument"));
+    context->throwError(QObject::tr("attachDebugger(bool) take one argument!"));
     return false;
   }
   if (!context->argument(0).isBool()) {

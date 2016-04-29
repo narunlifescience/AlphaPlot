@@ -36,6 +36,7 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
           SLOT(evaluate(QString)));
 
   engine->setProcessEventsInterval(1000);  // 1 sec process interval
+  // Basic console functions
   // print() function
   QScriptValue consoleObjectValue = engine->newQObject(ui_->console);
   QScriptValue consoleWidgetObjectValue = engine->newQObject(this);
@@ -65,7 +66,6 @@ void ConsoleWidget::evaluate(QString line) {
   snippet.append(line);
   snippet += QLatin1Char('\n');
   if (engine->canEvaluate(snippet)) {
-
     QScriptSyntaxCheckResult error = engine->checkSyntax(snippet);
     if (error.Error) {
       ui_->console->result(
@@ -82,7 +82,7 @@ void ConsoleWidget::evaluate(QString line) {
       } else {
         if (engine->hasUncaughtException()) {
           QStringList backtrace = engine->uncaughtExceptionBacktrace();
-          ui_->console->result(result.toString() + "\n" + backtrace.join("\n"),
+          ui_->console->result(result.toString() + " | " + backtrace.join("\n"),
                                Console::Error);
         } else {
           ui_->console->result(result.toString(), Console::Error);

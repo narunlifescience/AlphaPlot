@@ -56,13 +56,13 @@
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="coordinates_tab">
       <attribute name="title">
        <string>Coord</string>
       </attribute>
-      <layout class="QVBoxLayout">
+      <layout class="QVBoxLayout" name="coordinates_tab_layout">
        <item>
         <widget class="QPushButton" name="button_set_coordinates">
          <property name="text">
@@ -72,7 +72,7 @@
        </item>
        <item>
         <widget class="QWidget" name="coordinates_widget" native="true">
-         <layout class="QGridLayout">
+         <layout class="QGridLayout" name="_4">
           <item row="0" column="0">
            <widget class="QLabel" name="first_col_label">
             <property name="text">
@@ -337,7 +337,7 @@
       <attribute name="title">
        <string>Type</string>
       </attribute>
-      <layout class="QGridLayout">
+      <layout class="QGridLayout" name="_3">
        <item row="0" column="0" colspan="2">
         <widget class="QPushButton" name="button_set_format">
          <property name="sizePolicy">
@@ -360,7 +360,7 @@ p, li { white-space: pre-wrap; }
        <item row="2" column="0">
         <widget class="QLabel" name="format_label">
          <property name="text">
-          <string>Format:</string>
+          <string> Format:</string>
          </property>
          <property name="buddy">
           <cstring>format_box</cstring>
@@ -395,7 +395,7 @@ p, li { white-space: pre-wrap; }
        <item row="3" column="0">
         <widget class="QLabel" name="digits_label">
          <property name="text">
-          <string>Decimal Digits:</string>
+          <string> Decimal Digits:</string>
          </property>
          <property name="buddy">
           <cstring>digits_box</cstring>
@@ -452,7 +452,7 @@ p, li { white-space: pre-wrap; }
       <attribute name="title">
        <string>Formula</string>
       </attribute>
-      <layout class="QGridLayout">
+      <layout class="QGridLayout" name="_2">
        <item row="0" column="0">
         <widget class="QLabel" name="formula_label">
          <property name="text">
