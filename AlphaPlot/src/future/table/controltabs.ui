@@ -56,7 +56,7 @@
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="description_tab">
       <attribute name="title">
@@ -121,7 +121,7 @@
           <item>
            <widget class="QLabel" name="name_label">
             <property name="text">
-             <string>&amp; Name:</string>
+             <string> &amp;Name:</string>
             </property>
             <property name="textFormat">
              <enum>Qt::PlainText</enum>
@@ -140,7 +140,7 @@
        <item>
         <widget class="QLabel" name="comment_label">
          <property name="text">
-          <string> Comment:</string>
+          <string> Co&amp;mment:</string>
          </property>
          <property name="textFormat">
           <enum>Qt::PlainText</enum>

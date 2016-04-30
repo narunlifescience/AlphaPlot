@@ -12259,16 +12259,115 @@ void ApplicationWindow::attachQtScript() {
                                     tableObjectFromScriptValue);
   qScriptRegisterMetaType<QVector<int>>(consoleWindow->engine, toScriptValue,
                                         fromScriptValue);
-  qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine,
-                                            toScriptValue, fromScriptValue);
-  qScriptRegisterMetaType<QVector<double>>(consoleWindow->engine,
-                                            toScriptValue, fromScriptValue);
-  qScriptRegisterMetaType<QVector<long>>(consoleWindow->engine,
-                                            toScriptValue, fromScriptValue);
+  qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine, toScriptValue,
+                                          fromScriptValue);
+  qScriptRegisterMetaType<QVector<double>>(consoleWindow->engine, toScriptValue,
+                                           fromScriptValue);
+  qScriptRegisterMetaType<QVector<long>>(consoleWindow->engine, toScriptValue,
+                                         fromScriptValue);
   qScriptRegisterMetaType<QVector<QString>>(consoleWindow->engine,
                                             toScriptValue, fromScriptValue);
-  qScriptRegisterMetaType<QVector<QDate>>(consoleWindow->engine,
-                                            toScriptValue, fromScriptValue);
+  qScriptRegisterMetaType<QVector<QDate>>(consoleWindow->engine, toScriptValue,
+                                          fromScriptValue);
   qScriptRegisterMetaType<QVector<QDateTime>>(consoleWindow->engine,
-                                            toScriptValue, fromScriptValue);
+                                              toScriptValue, fromScriptValue);
+}
+
+Table *ApplicationWindow::getTableHandle() {
+  if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
+    context()->throwError(tr("getTableHandle(string) take one argument!"));
+  }
+
+  bool namedWidgetPresent = false;
+  QWidgetList *windows = windowsList();
+  foreach (QWidget *widget, *windows) {
+    if (widget->name() == context()->argument(0).toString()) {
+      if (widget->inherits("Table")) {
+        namedWidgetPresent = true;
+        Table *table = qobject_cast<Table *>(widget);
+        if (!table) {
+          context()->throwError(tr("Unable to get Table handle!"));
+        }
+        return table;
+      } else {
+        context()->throwError(context()->argument(0).toString() +
+                              tr(" is not a valid Table object name!"));
+      }
+    }
+  }
+  delete windows;
+
+  if (!namedWidgetPresent) {
+    context()->throwError(context()->argument(0).toString() +
+                          tr(" is not a valid Table object name!"));
+  }
+
+  // will never reach here
+  return 0;
+}
+
+Matrix *ApplicationWindow::getMatrixHandle() {
+  if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
+    context()->throwError(tr("getMatrixHandle(string) take one argument!"));
+  }
+
+  bool namedWidgetPresent = false;
+  QWidgetList *windows = windowsList();
+  foreach (QWidget *widget, *windows) {
+    if (widget->name() == context()->argument(0).toString()) {
+      if (widget->inherits("Matrix")) {
+        namedWidgetPresent = true;
+        Matrix *matrix = qobject_cast<Matrix *>(widget);
+        if (!matrix) {
+          context()->throwError(tr("Unable to get Matrix handle!"));
+        }
+        return matrix;
+      } else {
+        context()->throwError(context()->argument(0).toString() +
+                              tr(" is not a valid Matrix object name!"));
+      }
+    }
+  }
+  delete windows;
+
+  if (!namedWidgetPresent) {
+    context()->throwError(context()->argument(0).toString() +
+                          tr(" is not a valid Matrix object name!"));
+  }
+
+  // will never reach here
+  return 0;
+}
+
+Note *ApplicationWindow::getNoteHandle() {
+  if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
+    context()->throwError(tr("getNoteHandle(string) take one argument!"));
+  }
+
+  bool namedWidgetPresent = false;
+  QWidgetList *windows = windowsList();
+  foreach (QWidget *widget, *windows) {
+    if (widget->name() == context()->argument(0).toString()) {
+      if (widget->inherits("Note")) {
+        namedWidgetPresent = true;
+        Note *note = qobject_cast<Note *>(widget);
+        if (!note) {
+          context()->throwError(tr("Unable to get Note handle!"));
+        }
+        return note;
+      } else {
+        context()->throwError(context()->argument(0).toString() +
+                              tr(" is not a valid Note object name!"));
+      }
+    }
+  }
+  delete windows;
+
+  if (!namedWidgetPresent) {
+    context()->throwError(context()->argument(0).toString() +
+                          tr(" is not a valid Note object name!"));
+  }
+
+  // will never reach here
+  return 0;
 }

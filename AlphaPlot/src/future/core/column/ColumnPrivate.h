@@ -141,7 +141,7 @@ class Column::Private {
   //! Return the column plot designation
   AlphaPlot::PlotDesignation plotDesignation() const {
     return d_plot_designation;
-  };
+  }
   //! Set the column plot designation
   void setPlotDesignation(AlphaPlot::PlotDesignation pd);
   //! Clear the whole column

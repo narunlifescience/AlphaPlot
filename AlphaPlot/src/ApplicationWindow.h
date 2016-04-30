@@ -137,7 +137,9 @@ class SettingsDialog;
  * Model/View approach can be
  * used for Project/ProjectExplorer.
  */
-class ApplicationWindow : public QMainWindow, public scripted {
+class ApplicationWindow : public QMainWindow,
+                          public scripted,
+                          public QScriptable {
   Q_OBJECT
  public:
   ApplicationWindow();
@@ -1225,6 +1227,11 @@ Arranges all the visible project windows in a cascade pattern.
   void handleAspectAdded(const AbstractAspect* aspect, int index);
   void handleAspectAboutToBeRemoved(const AbstractAspect* aspect, int index);
   void lockToolbars(const bool status);
+
+ public slots:
+  Table* getTableHandle();
+  Matrix* getMatrixHandle();
+  Note* getNoteHandle();
 };
 
 #endif  // APPLICATION_H
