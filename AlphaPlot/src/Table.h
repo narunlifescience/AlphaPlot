@@ -137,16 +137,10 @@ class Table : public TableView, public scripted, public QScriptable {
     return d_future_table->column(name);
   }
 
-  //! Return the value of the cell as a double
-  /**
-   * If one of the indices or the cell content is invalid, return 0.0. For the
-   * next non-bugfix
-   * AlphaPlot release, indication of failure should be done by returning NaN
-   * (wherever applicable).
-   * TODO: Make sure we don't rely on zero-on-failure, and document the
-   * resulting change in the
-   * Python API.
-   */
+  // Return the value of the cell as a double
+  // TODO: If one of the indices or the cell content is invalid, return 0.0. For
+  // the next non-bugfix AlphaPlot release, indication of failure should be done
+  // by returning NaN (wherever applicable).
   double cell(int row, int col);
   void setCellValue(int row, int col, double val);
 
@@ -283,7 +277,6 @@ class Table : public TableView, public scripted, public QScriptable {
   void modifiedData(Table*, const QString&);
   void resizedTable(QWidget*);
   void showContextMenu(bool selection);
-  void t();
 
  protected slots:
   void applyFormula();
@@ -304,7 +297,6 @@ class Table : public TableView, public scripted, public QScriptable {
   void setCell();
   void setRowCount();
   void setColCount();
-
 };
 
 #endif  // TABLE_H

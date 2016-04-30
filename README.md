@@ -33,7 +33,7 @@ Please:
 
  * Check if the new feature is not already implemented (Changelog)
  * Check if another person didn't already open an issue
- * If there is already an opened issue there is no need to comment "+1", it won't help. Instead, you can subscribe to the issue to be notified of anything new about it
+ * If there is already an opened issue there is no need to comment unless you have more information, it won't help. Instead, you can click on :thumbsup: and subscribe to the issue to be notified of anything new about it 
 
 ### Report a bug
 
@@ -45,7 +45,7 @@ Please:
  * In case there isn't, you can open a new issue with an explicit title and as much information as possible (OS, Alpha Plot version, how to reproduce the problem...)
  * Please use http://pastebin.com/ for logs/debug
  
-If there are no answers, it doesn't mean we don't care about your feature request/bug. It just means we can't reproduce the bug or haven't had time to implement it :o)
+If there are no answers, it doesn't mean we don't care about your feature request/bug. It just means we can't reproduce the bug or haven't had time to implement it :smiley:
 
 ## Dependencies
 

@@ -53,6 +53,8 @@
 #include <QFile>
 #include <QTemporaryFile>
 
+#include <cmath>
+
 Table::Table(ScriptingEnv *env, const QString &fname, const QString &sep,
              int ignoredLines, bool renameCols, bool stripSpaces,
              bool simplifySpaces, bool convertToNumeric, QLocale numericLocale,
@@ -735,18 +737,18 @@ int Table::columnCount() { return d_future_table->columnCount(); }
 
 double Table::cell(int row, int col) {
   Column *colPtr = column(col);
-  if (!colPtr) return 0.0;
+  if (!colPtr) return std::nan("out of range");
   if (!colPtr->isInvalid(row)) {
     if (colPtr->columnMode() == AlphaPlot::Text) {
       QString yval = colPtr->textAt(row);
       bool valid_data = true;
       double dbval = QLocale().toDouble(yval, &valid_data);
-      if (!valid_data) return 0.0;
+      if (!valid_data) return std::nan("out of range");
       return dbval;
     }
     return colPtr->valueAt(row);
   } else
-    return 0.0;
+    return std::nan("out of range");
 }
 
 void Table::setCellValue(int row, int col, double val) {

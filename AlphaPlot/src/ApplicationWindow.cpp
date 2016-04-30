@@ -12242,7 +12242,7 @@ QStringList ApplicationWindow::tableWindows() {
 void ApplicationWindow::attachQtScript() {
   // pass mainwindow as global object
   QScriptValue objectValue = consoleWindow->engine->newQObject(this);
-  consoleWindow->engine->globalObject().setProperty("alpha", objectValue);
+  consoleWindow->engine->globalObject().setProperty("Alpha", objectValue);
 
   QScriptValue clearFunction = consoleWindow->engine->newFunction(&openProj);
   clearFunction.setData(objectValue);
