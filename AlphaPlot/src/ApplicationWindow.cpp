@@ -222,10 +222,19 @@ ApplicationWindow::ApplicationWindow()
   settings_ = new SettingsDialog(this);
 
   // Mainwindow properties
-  setWindowIcon(QIcon(":/appicon-16"));
+  setWindowIcon(IconLoader::load("alpha-logo", IconLoader::General));
   setAttribute(Qt::WA_DeleteOnClose);
   setWindowTitle("AlphaPlot - " + tr("untitled"));
   QPixmapCache::setCacheLimit(20 * QPixmapCache::cacheLimit());
+
+  // get title bar widget of dock widgets
+  emptyTitleBar[0] = new QWidget();
+  emptyTitleBar[1] = new QWidget();
+  emptyTitleBar[2] = new QWidget();
+  consoleWindowTitleBar = consoleWindow->titleBarWidget();
+  logWindowTitleBar = logWindow->titleBarWidget();
+  explorerWindowTitleBar = explorerWindow->titleBarWidget();
+  results->setFrameShape(QFrame::NoFrame);
 
   // Initiate Fonts
   QString family = appFont.family();
@@ -316,6 +325,9 @@ ApplicationWindow::ApplicationWindow()
   // Explorer window set folder & listview
   explorerSplitter->addWidget(folders);
   explorerSplitter->addWidget(lv);
+  folders->setFrameShape(QFrame::NoFrame);
+  lv->setFrameShape(QFrame::NoFrame);
+  explorerSplitter->setFrameShape(QFrame::NoFrame);
   explorerWindow->setWidget(explorerSplitter);
   explorerSplitter->setSizes(QList<int>() << 50 << 50);
   explorerWindow->hide();
@@ -395,7 +407,9 @@ ApplicationWindow::ApplicationWindow()
       IconLoader::load("edit-preference", IconLoader::LightDark));
   // View menu
   ui_->actionLockToolbars->setIcon(
-      IconLoader::load("lock", IconLoader::LightDark));
+      IconLoader::load("unlock", IconLoader::LightDark));
+  ui_->actionLockDockWindows->setIcon(
+      IconLoader::load("unlock", IconLoader::LightDark));
   ui_->actionShowExplorer->setIcon(
       IconLoader::load("folder-explorer", IconLoader::LightDark));
   ui_->actionShowResultsLog->setIcon(
@@ -598,6 +612,8 @@ ApplicationWindow::ApplicationWindow()
           graph_3D_tools, SLOT(setVisible(bool)));
   connect(ui_->actionLockToolbars, SIGNAL(toggled(bool)), this,
           SLOT(lockToolbars(bool)));
+  connect(ui_->actionLockDockWindows, SIGNAL(toggled(bool)), this,
+          SLOT(lockDockWindows(bool)));
   connect(ui_->actionShowExplorer, SIGNAL(toggled(bool)), explorerWindow,
           SLOT(setVisible(bool)));
   connect(ui_->actionShowResultsLog, SIGNAL(toggled(bool)), logWindow,
@@ -1001,7 +1017,7 @@ ApplicationWindow::ApplicationWindow()
   connect(d_workspace, SIGNAL(windowActivated(QWidget *)), this,
           SLOT(windowActivated(QWidget *)));
 
-  readSettings();
+  loadSettings();
   createLanguagesList();
   insertTranslatedStrings();
 
@@ -1493,6 +1509,22 @@ void ApplicationWindow::lockToolbars(const bool status) {
     table_tools->setMovable(true);
     matrix_plot_tools->setMovable(true);
     ui_->actionLockToolbars->setIcon(
+        IconLoader::load("unlock", IconLoader::LightDark));
+  }
+}
+
+void ApplicationWindow::lockDockWindows(const bool status) {
+  if (status) {
+    consoleWindow->setTitleBarWidget(emptyTitleBar[0]);
+    logWindow->setTitleBarWidget(emptyTitleBar[1]);
+    explorerWindow->setTitleBarWidget(emptyTitleBar[2]);
+    ui_->actionLockDockWindows->setIcon(
+        IconLoader::load("lock", IconLoader::LightDark));
+  } else {
+    consoleWindow->setTitleBarWidget(consoleWindowTitleBar);
+    logWindow->setTitleBarWidget(logWindowTitleBar);
+    explorerWindow->setTitleBarWidget(explorerWindowTitleBar);
+    ui_->actionLockDockWindows->setIcon(
         IconLoader::load("unlock", IconLoader::LightDark));
   }
 }
@@ -4480,13 +4512,13 @@ void ApplicationWindow::openTemplate() {
   }
 }
 
-void ApplicationWindow::readSettings() {
+void ApplicationWindow::loadSettings() {
   QSettings settings;
 
   /* ---------------- group General --------------- */
   settings.beginGroup("General");
 #ifdef SEARCH_FOR_UPDATES
-  autoSearchUpdates = settings.value("/AutoSearchUpdates", false).toBool();
+  autoSearchUpdates = settings.value("AutoSearchUpdates", false).toBool();
 #endif
   appLanguage =
       settings.value("Language", QLocale::system().name().section('_', 0, 0))
@@ -4497,8 +4529,7 @@ void ApplicationWindow::readSettings() {
           .toInt();
 
   recentProjects = settings.value("RecentProjects").toStringList();
-// Follows an ugly hack added by Ion in order to fix Qt4 porting issues
-//(only needed on Windows due to a Qt bug?)
+// Follows an ugly hack to fix Qt4 porting issues (only needed on Windows)
 #ifdef Q_OS_WIN
   if (!recentProjects.isEmpty() && recentProjects[0].contains("^e"))
     recentProjects = recentProjects[0].split("^e", QString::SkipEmptyParts);
@@ -4624,6 +4655,8 @@ void ApplicationWindow::readSettings() {
       settings.value("3DSurfacePlotToolbar", true).toBool());
   ui_->actionLockToolbars->setChecked(
       settings.value("LockToolbars", false).toBool());
+  ui_->actionLockDockWindows->setChecked(
+      settings.value("LockDockWindows", false).toBool());
   ui_->actionShowExplorer->setChecked(
       settings.value("ShowExplorer", false).toBool());
   explorerWindow->setVisible(ui_->actionShowExplorer->isChecked());
@@ -4901,6 +4934,7 @@ void ApplicationWindow::saveSettings() {
   settings.setValue("3DSurfacePlotToolbar",
                     ui_->actionShow3DSurfacePlotToolbar->isChecked());
   settings.setValue("LockToolbars", ui_->actionLockToolbars->isChecked());
+  settings.setValue("LockDockWindows", ui_->actionLockDockWindows->isChecked());
   settings.setValue("ShowExplorer", ui_->actionShowExplorer->isChecked());
   settings.setValue("ShowResultsLog", ui_->actionShowResultsLog->isChecked());
 #ifdef SCRIPTING_CONSOLE
@@ -11920,6 +11954,7 @@ void ApplicationWindow::fitFrameToLayer() {
 }
 
 ApplicationWindow::~ApplicationWindow() {
+  saveSettings();
   if (lastCopiedLayer) delete lastCopiedLayer;
   delete ui_;
   delete hiddenWindows;

@@ -219,6 +219,7 @@
     <file>icons/common/16/list-remove.png</file>
     <file>icons/common/16/edit-hide.png</file>
     <file>icons/common/16/edit-unhide.png</file>
+    <file>icons/common/16/alpha-logo.png</file>
     <file>icons/common/22/folder-closed.png</file>
     <file>icons/common/22/folder-open.png</file>
     <file>icons/common/22/application-exit.png</file>
@@ -227,6 +228,7 @@
     <file>icons/common/22/list-remove.png</file>
     <file>icons/common/22/edit-hide.png</file>
     <file>icons/common/22/edit-unhide.png</file>
+    <file>icons/common/22/alpha-logo.png</file>
     <file>icons/common/24/folder-closed.png</file>
     <file>icons/common/24/folder-open.png</file>
     <file>icons/common/24/application-exit.png</file>
@@ -235,19 +237,37 @@
     <file>icons/common/24/list-remove.png</file>
     <file>icons/common/24/edit-hide.png</file>
     <file>icons/common/24/edit-unhide.png</file>
+    <file>icons/common/24/preferences-general-apperance.png</file>
+    <file>icons/common/24/preferences-desktop-color.png</file>
+    <file>icons/common/24/alpha-logo.png</file>
     <file>icons/common/32/folder-closed.png</file>
     <file>icons/common/32/folder-open.png</file>
     <file>icons/common/32/application-exit.png</file>
     <file>icons/common/32/clear-loginfo.png</file>
     <file>icons/common/32/edit-delete.png</file>
+    <file>icons/common/32/preferences-general-apperance.png</file>
+    <file>icons/common/32/preferences-desktop-color.png</file>
+    <file>icons/common/32/alpha-logo.png</file>
     <file>icons/common/48/folder-closed.png</file>
     <file>icons/common/48/folder-open.png</file>
+    <file>icons/common/48/preferences-general-apperance.png</file>
+    <file>icons/common/48/preferences-desktop-color.png</file>
+    <file>icons/common/48/alpha-logo.png</file>
     <file>icons/common/64/folder-closed.png</file>
     <file>icons/common/64/folder-open.png</file>
+    <file>icons/common/64/preferences-general-apperance.png</file>
+    <file>icons/common/64/preferences-desktop-color.png</file>
+    <file>icons/common/64/alpha-logo.png</file>
     <file>icons/common/96/folder-closed.png</file>
     <file>icons/common/96/folder-open.png</file>
+    <file>icons/common/96/preferences-general-apperance.png</file>
+    <file>icons/common/96/preferences-desktop-color.png</file>
+    <file>icons/common/96/alpha-logo.png</file>
     <file>icons/common/128/folder-closed.png</file>
     <file>icons/common/128/folder-open.png</file>
+    <file>icons/common/128/preferences-general-apperance.png</file>
+    <file>icons/common/128/preferences-desktop-color.png</file>
+    <file>icons/common/128/alpha-logo.png</file>
 	<file>icons/light/16/edit-copy.png</file>
 	<file>icons/light/16/edit-cut.png</file>
 	<file>icons/light/16/edit-paste.png</file>

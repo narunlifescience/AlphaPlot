@@ -33,6 +33,8 @@ class ConsoleWidget : public QDockWidget {
   ~ConsoleWidget();
   QScriptEngine *engine;
   QScriptEngineDebugger *debugger;
+  QWidget* normalTitleWidget;
+  QWidget* hiddenTitleWidget;
 
 signals:
   void printResult(QString);

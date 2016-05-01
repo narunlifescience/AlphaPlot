@@ -42,7 +42,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
       scriptingSettingsModel_(new QStandardItemModel(this)) {
   ui_->setupUi(this);
   setWindowTitle(tr("Settings"));
-  setWindowIcon(QIcon());
+  setWindowIcon(IconLoader::load("edit-preference", IconLoader::LightDark));
   setModal(true);
   setMinimumSize(sizeHint());
 

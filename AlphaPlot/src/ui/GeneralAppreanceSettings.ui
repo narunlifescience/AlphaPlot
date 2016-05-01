@@ -31,40 +31,24 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>523</width>
-        <height>314</height>
+        <width>512</width>
+        <height>300</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QTabWidget" name="tabWidget">
-         <widget class="QWidget" name="tab">
-          <attribute name="title">
-           <string>Tab 1</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <widget class="QLabel" name="styleLabel">
-               <property name="text">
-                <string>Style</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="styleComboBox"/>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="tab_3">
-          <attribute name="title">
-           <string>Tab 2</string>
-          </attribute>
-         </widget>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="styleLabel">
+           <property name="text">
+            <string>Style</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="styleComboBox"/>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QGroupBox" name="groupBox">
@@ -81,11 +65,11 @@
              </sizepolicy>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="previewTab">
              <attribute name="title">
-              <string>Tab 1</string>
+              <string>Controls</string>
              </attribute>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
@@ -229,7 +213,7 @@
             </widget>
             <widget class="QWidget" name="tab_2">
              <attribute name="title">
-              <string>Tab 2</string>
+              <string>Table</string>
              </attribute>
              <layout class="QVBoxLayout" name="verticalLayout">
               <item>

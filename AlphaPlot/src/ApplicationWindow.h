@@ -95,48 +95,40 @@ class SettingsDialog;
 #define TS_PATH (qApp->applicationDirPath() + "/translations")
 #endif
 
-/**
- * \brief AlphaPlot's main window.
+/* brief AlphaPlot's main window.
  *
  * This class contains the main part of the user interface as well as the
- * central project management facilities.
- *
- * It manages all MyWidget MDI Windows in a project, knows about their
- * organization in Folder objects
- * and contains the parts of the project explorer not implemented in Folder,
+ * central project management facilities.It manages all MyWidget MDI Windows
+ * in a project, knows about their organization in Folder objects and contains
+ * the parts of the project explorer not implemented in Folder,
  * FolderListItem or FolderListView.
  *
- * Furthermore, it is responsible for displaying most MDI Windows' context menus
- * and opening all sorts of dialogs.
+ * Furthermore, it is responsible for displaying most MDI Windows' context
+ * menus and opening all sorts of dialogs.
  *
- * \section future_plans Future Plans
- * Split out the project management part into a new Project class.
- * If MyWidget maintains a reference to its parent Project, it should be
- * possible to have its subclasses
- * display their own context menus and dialogs.
- * This is necessary for implementing new plot types or even completely new
- * MyWidget subclasses in plug-ins.
- * It will also make ApplicationWindow more manageable by removing those parts
- * not directly related to the main window.
+ * section future_plans Future Plans
+ * Split out the project management part into a new Project class. If MyWidget
+ * maintains a reference to its parent Project, it should be possible to have
+ * its subclasses display their own context menus and dialogs.This is
+ * necessary for implementing new plot types or even completely new
+ * MyWidget subclasses in plug-ins. It will also make ApplicationWindow more
+ * manageable by removing those parts not directly related to the main window.
  *
  * Project would also take care of basic project file reading/writing (using
- * Qt's XML framework), but delegate most of
- * the work to MyWidget and its subclasses. This is necessary for providing
- * save/restore of classes implemented in
- * plug-ins. Support for foreign formats on the other hand could go into
- * import/export classes (which could also be
- * implemented in plug-ins). Those would interface directly with Project and the
- * MyWidgets it manages. Thus, in addition
- * to supporting QtXML-based save/restore, Project, MyWidget and subclasses will
- * also have to provide generalized
- * save/restore methods/constructors.
+ * Qt's XML framework), but delegate most of the work to MyWidget and its
+ * subclasses. This is necessary for providing save/restore of classes
+ * implemented in plug-ins. Support for foreign formats on the other hand
+ * could go into import/export classes (which could also be implemented in
+ * plug-ins). Those would interface directly with Project and the MyWidgets it
+ * manages. Thus, in addition to supporting QtXML-based save/restore, Project,
+ * MyWidget and subclasses will also have to provide generalized save/restore
+ * methods/constructors.
  *
  * Maybe split out the project explorer into a new ProjectExplorer class,
- * depending on how much code is left
- * in ApplicationWindow after the above reorganizations. Think about whether a
- * Model/View approach can be
- * used for Project/ProjectExplorer.
- */
+ * depending on how much code is left in ApplicationWindow after the above
+ * reorganizations. Think about whether a Model/View approach can be used for
+ * Project/ProjectExplorer.*/
+
 class ApplicationWindow : public QMainWindow,
                           public scripted,
                           public QScriptable {
@@ -190,47 +182,39 @@ class ApplicationWindow : public QMainWindow,
   ApplicationWindow* openProject(const QString& fileName);
   void showUndoRedoHistory();
 
-  /**
-   * \brief Create a new project from a data file.
+  /* brief Create a new project from a data file.
    *
    * \param fn is read as a data file with the default column separator (as set
-   * by the user)
-   * and inserted as a table into a new, empty project.
-   * This table is then plotted with the Graph::LineSymbols style.
-   */
+   * by the user) and inserted as a table into a new, empty project.
+   * This table is then plotted with the Graph::LineSymbols style.*/
   ApplicationWindow* plotFile(const QString& fn);
 
-  /**
-   * \brief Create a new project from a script file.
+  /* brief Create a new project from a script file.
    *
-   * \param fn is read as a Python script file and loaded in the command script
-   * window.
-   * \param execute specifies if the script should be executed after opening.
-   */
+   * param fn is read as Alpha script file and loaded in the scripting console
+   * param execute specifies if the script should be executed after opening.*/
   ApplicationWindow* loadScript(const QString& fn, bool execute = false);
 
   QWidgetList* windowsList();
   void updateWindowLists(MyWidget* w);
-  /*!
-Arranges all the visible project windows in a cascade pattern.
-*/
+
+  // Arranges all the visible project windows in a cascade pattern.
   void cascade();
 
   void saveProjectAs();
   bool saveProject();
 
-  //! Set the project status to modifed
+  // Set the project status to modifed
   void modifiedProject();
-  //! Set the project status to saved (not modified)
+  // Set the project status to saved (not modified)
   void savedProject();
-  //! Set the project status to modified and save 'w' as the last modified
-  //! widget
+  // Set project status to modified and save 'w' as the last modified widget
   void modifiedProject(QWidget* w);
   //@}
 
   //! \name Settings
   //@{
-  void readSettings();
+  void loadSettings();
   void saveSettings();
   void applyUserSettings();
   void setSaveSettings(bool autoSaving, int min);
@@ -834,7 +818,7 @@ Arranges all the visible project windows in a cascade pattern.
    * \param p mouse global position
    * \param fromFolders: true means that the user clicked right mouse buttom on
    *an item from QListView "folders"
-   *					   false means that the user clicked
+   *false means that the user clicked
    *right
    *mouse
    *buttom
@@ -973,47 +957,43 @@ Arranges all the visible project windows in a cascade pattern.
   bool generateUniformFitPoints;
   bool generatePeakCurves;
   int peakCurvesColor;
-  //! User defined size for the Add/Remove curves dialog
+  // User defined size for the Add/Remove curves dialog
   QSize d_add_curves_dialog_size;
 
-  //! Scale the errors output in fit operations with reduced chi^2
+  // Scale the errors output in fit operations with reduced chi^2
   bool fit_scale_errors;
 
-  //! Number of points in a generated fit curve
+  // Number of points in a generated fit curve
   int fitPoints;
 
-  //! Calculate only 2 points in a generated linear fit function curve
+  // Calculate only 2 points in a generated linear fit function curve
   bool d_2_linear_fit_points;
 
   bool pasteFitResultsToPlot;
 
-  //! Write fit output information to Result Log
+  // Write fit output information to Result Log
   bool writeFitResultsToLog;
 
-  //! precision used for the output of the fit operations
+  // precision used for the output of the fit operations
   int fit_output_precision;
 
-  //! default precision to be used for all other operations than fitting
+  // default precision to be used for all other operations than fitting
   int d_decimal_digits;
 
   char d_default_numeric_format;
 
-  //! pointer to the current folder in the project
+  // pointer to the current folder in the project
   Folder* current_folder;
-  //! Describes which windows are shown when the folder becomes the current
-  //! folder
+  // Describes which windows are shown when the folder becomes the current
   ShowWindowsPolicy show_windows_policy;
   enum { MaxRecentProjects = 10 };
 
   QColor workspaceColor, panelsColor, panelsTextColor;
   QString appStyle, workingDir;
 
-  //! Path to the folder where the last template file was opened/saved
+  // Path to the folder where the last template file was opened/saved
   QString templatesDir;
   bool smooth3DMesh, autoScaleFonts, autoResizeLayers;
-#ifdef SEARCH_FOR_UPDATES
-  bool autoSearchUpdates;
-#endif
   bool confirmCloseTable, confirmCloseMatrix, confirmClosePlot2D,
       confirmClosePlot3D;
   bool confirmCloseFolder, confirmCloseNotes;
@@ -1048,13 +1028,12 @@ Arranges all the visible project windows in a cascade pattern.
   QStringList fitFunctions;  // user-defined fit functions;
   QStringList surfaceFunc;   // user-defined surface functions;
 
-  //! List of tables and matrices renamed in order to avoid conflicts when
-  //! appending a project to a folder
+  // List of tables & matrices renamed in order to avoid conflicts when
+  // appending a project to a folder
   QStringList renamedTables;
   Graph::MarkerType copiedMarkerType;
 
-  //! \name variables used when user copy/paste markers
-  //@{
+  // name variables used when user copy/paste markers
   QString auxMrkText;
   QFont auxMrkFont;
   QColor auxMrkColor, auxMrkBkgColor;
@@ -1062,7 +1041,6 @@ Arranges all the visible project windows in a cascade pattern.
   Qt::PenStyle auxMrkStyle;
   QString auxMrkFileName;
   int auxMrkBkg, auxMrkWidth;
-  //@}
 
   bool startArrowOn, endArrowOn, fillArrowHead;
   int arrowHeadLength, arrowHeadAngle;
@@ -1070,44 +1048,41 @@ Arranges all the visible project windows in a cascade pattern.
   int translateMenuID, smoothMenuID, filterMenuID, fitExpMenuID,
       multiPeakMenuID;
 
-#ifdef SEARCH_FOR_UPDATES
-  //! Equals true if an automatical search for updates was performed on start-up
-  //! otherwise is set to false;
-  bool autoSearchUpdatesRequest;
-#endif
-
-  //! The scripting language to use for new projects.
+  // The scripting language to use for new projects.
   QString defaultScriptingLang;
   /// location of translation resources
   QString qmPath;
+#ifdef SEARCH_FOR_UPDATES
+  bool autoSearchUpdates;
+  // Return true if an auto search for updates was performed on start-up
+  bool autoSearchUpdatesRequest;
+#endif
 
  private:
   Ui_ApplicationWindow* ui_;
-  //! Show a context menu for the widget
+  // Show a context menu for the widget
   void showWindowMenu(MyWidget* widget);
 
-  //! Check whether a table is valid for a 3D plot and display an appropriate
-  //! error if not
+  //! Check if a table is valid for 3D plot & display an error if not
   bool validFor3DPlot(Table* table);
-  //! Check whether a table is valid for a 2D plot and display an appropriate
-  //! error if not
+  //! Check if a table is valid for 2D plot & display an error if not
   bool validFor2DPlot(Table* table, int type);
 
-  //! Workaround for the new colors introduced in rev 447
+  // Workaround for the new colors introduced in rev 447
   int convertOldToNewColorIndex(int cindex);
 
   // Attach to the scripting environment
   void attachQtScript();
 
-  //! Stores the pointers to the dragged items from the FolderListViews objects
+  // Stores the pointers to the dragged items from the FolderListViews objects
   QList<Q3ListViewItem*> draggedItems;
 
   QString helpFilePath;
 
 #ifdef SEARCH_FOR_UPDATES
-  //! Used when checking for new versions
+  // Used when checking for new versions(not set)
   QHttp http;
-  //! Used when checking for new versions
+  // Used when checking for new versions(not set)
   QBuffer version_buffer;
 #endif
 
@@ -1196,8 +1171,7 @@ Arranges all the visible project windows in a cascade pattern.
   QAction* barstyle;
   QAction *conestyle, *crossHairStyle;
 
-  //! Manages connection between plot actions and Graph::CurveType values (not
-  //! used by all plot actions).
+  // Manages connection between 2dplot actions (not used by all 2dplot actions).
   QSignalMapper* d_plot_mapper;
 
   QLabel* d_status_info;
@@ -1207,26 +1181,29 @@ Arranges all the visible project windows in a cascade pattern.
 
   bool was_maximized_;
 
+  // Titlebars for QDockWidget (need for lock functionality)
+  QWidget* emptyTitleBar[3];
+  QWidget* consoleWindowTitleBar;
+  QWidget* logWindowTitleBar;
+  QWidget* explorerWindowTitleBar;
+
  private slots:
   void removeDependentTableStatistics(const AbstractAspect* aspect);
-  //! Set the active window selected from the context menu's dependency list
-  /**
-   * See also:
-   * http://doc.trolltech.com/4.3/mainwindows-recentfiles-mainwindow-cpp.html
-   */
+  // Set the active window selected from the context menu's dependency list
+  // See also:
+  // http://doc.trolltech.com/4.3/mainwindows-recentfiles-mainwindow-cpp.html
+
   void setActiveWindowFromAction();
-  //! Manage plot type selection.
-  /**
-   * If the current window is a Table, generate a new graph from the selected
-   * data.
-   * If it is a Graph, change the plot type of the last curve.
-   * For everything else, do nothing.
-   */
+  // Manage plot type selection.
+  // If the current window is a Table, generate a new graph from the selected
+  // data. If it is a Graph, change the plot type of the last curve.For
+  // everything else, do nothing.
   void selectPlotType(int type);
 
   void handleAspectAdded(const AbstractAspect* aspect, int index);
   void handleAspectAboutToBeRemoved(const AbstractAspect* aspect, int index);
   void lockToolbars(const bool status);
+  void lockDockWindows(const bool status);
 
  public slots:
   Table* getTableHandle();

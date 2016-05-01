@@ -24,9 +24,9 @@
 GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
     : SettingsPage(dialog), ui(new Ui_GeneralAppreanceSettings) {
   ui->setupUi(this);
-  // setWindowIcon(IconLoader::load("preferences-general-appearence",
-  // IconLoader::General));
-  setWindowTitle(tr("Appearance"));
+  setWindowIcon(IconLoader::load("preferences-general-apperance",
+   IconLoader::General));
+  setWindowTitle(tr("Apperance"));
   ui->scrollArea->setFrameShape(QFrame::NoFrame);
   ui->gridLayout->setContentsMargins(3, 3, 3, 3);
   QStringList styles = QStyleFactory::keys();

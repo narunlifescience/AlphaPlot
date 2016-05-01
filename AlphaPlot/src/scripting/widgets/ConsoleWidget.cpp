@@ -31,6 +31,7 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   setWindowIcon(QIcon());
   ui_->gridLayout->setSpacing(0);
   ui_->gridLayout->setContentsMargins(0, 0, 0, 0);
+  ui_->console->setFrameShape(QFrame::NoFrame);
 
   connect(ui_->console, SIGNAL(command(QString)), this,
           SLOT(evaluate(QString)));

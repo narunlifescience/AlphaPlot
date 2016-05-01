@@ -114,6 +114,7 @@
     </widget>
     <addaction name="menuToolbars"/>
     <addaction name="actionLockToolbars"/>
+    <addaction name="actionLockDockWindows"/>
     <addaction name="separator"/>
     <addaction name="actionShowExplorer"/>
     <addaction name="actionShowResultsLog"/>
@@ -121,6 +122,7 @@
     <addaction name="actionShowUndoRedoHistory"/>
     <addaction name="separator"/>
     <addaction name="actionPlotWizard"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuGraph">
     <property name="title">
@@ -160,7 +162,7 @@
    </widget>
    <widget class="QMenu" name="menuPlot">
     <property name="title">
-     <string>Plot</string>
+     <string>Pl&amp;ot</string>
     </property>
     <widget class="QMenu" name="menuPlot2DSpecialLineSymbol">
      <property name="title">
@@ -975,6 +977,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionLockDockWindows">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Lock Dock Windows</string>
    </property>
   </action>
  </widget>
