@@ -747,7 +747,8 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->actionArrangeLayers, SIGNAL(activated()), this,
           SLOT(showLayerDialog()));
   // Windows menu
-  connect(ui_->actionCascadeWindow, SIGNAL(triggered()), this, SLOT(cascade()));
+  connect(ui_->actionCascadeWindow, SIGNAL(triggered()), d_workspace,
+          SLOT(cascade()));
   connect(ui_->actionTileWindow, SIGNAL(triggered()), d_workspace,
           SLOT(tile()));
   connect(ui_->actionNextWindow, SIGNAL(activated()), d_workspace,
@@ -11976,29 +11977,6 @@ int ApplicationWindow::convertOldToNewColorIndex(int cindex) {
     return cindex + 8;
 
   return cindex;
-}
-
-void ApplicationWindow::cascade() {
-  QList<QWidget *> windows = d_workspace->windowList(QWorkspace::StackingOrder);
-
-  const int xoffset = 13;
-  const int yoffset = 20;
-
-  int x = 0;
-  int y = 0;
-
-  foreach (QWidget *w, windows) {
-    w->setActiveWindow();
-    w->showNormal();
-    ((MyWidget *)w)->setStatus(MyWidget::Normal);
-    updateWindowStatus((MyWidget *)w);
-
-    w->parentWidget()->setGeometry(x, y, w->width(), w->height());
-    w->raise();
-    x += xoffset;
-    y += yoffset;
-  }
-  modifiedProject();
 }
 
 ApplicationWindow *ApplicationWindow::loadScript(const QString &fn,

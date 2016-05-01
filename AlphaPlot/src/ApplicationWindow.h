@@ -198,9 +198,6 @@ class ApplicationWindow : public QMainWindow,
   QWidgetList* windowsList();
   void updateWindowLists(MyWidget* w);
 
-  // Arranges all the visible project windows in a cascade pattern.
-  void cascade();
-
   void saveProjectAs();
   bool saveProject();
 
