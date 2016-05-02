@@ -911,6 +911,11 @@ void TableView::goToPreviousColumn() {
   d_view_widget->setCurrentIndex(idx.sibling(idx.row(), col));
 }
 
+void TableView::selectColumn(int col)
+{
+  d_view_widget->selectColumn(col);
+}
+
 /* ================== TableViewWidget ================ */
 
 void TableViewWidget::selectAll() {

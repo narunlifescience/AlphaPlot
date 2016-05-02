@@ -1296,3 +1296,19 @@ void Table::setColCount() {
   }
   setNumCols(context()->argument(0).toNumber());
 }
+
+void Table::f() {
+  if (context()->argumentCount() != 2 || !context()->argument(0).isNumber() ||
+      !context()->argument(1).isString()) {
+    context()->throwError(tr("f(string) take one argument!"));
+  }
+
+  selectColumn(context()->argument(0).toNumber() - 1);
+  for (int col = firstSelectedColumn(); col <= lastSelectedColumn(); col++) {
+    Column *col_ptr = column(context()->argument(0).toNumber() - 1);
+    col_ptr->insertRows(col_ptr->rowCount(), rowCnt() - col_ptr->rowCount());
+    col_ptr->setFormula(Interval<int>(0, rowCnt() - 1),
+                        context()->argument(1).toString());
+    if (!recalculate(col, false)) break;
+  }
+}

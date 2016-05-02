@@ -197,6 +197,7 @@ class TableView : public MyWidget {
                                       int newSize);
   void goToNextColumn();
   void goToPreviousColumn();
+  void selectColumn(int col);
 
  protected slots:
   //! Advance current cell after [Return] or [Enter] was pressed

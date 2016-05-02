@@ -297,6 +297,7 @@ class Table : public TableView, public scripted, public QScriptable {
   void setCell();
   void setRowCount();
   void setColCount();
+  void f();
 };
 
 #endif  // TABLE_H

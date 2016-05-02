@@ -37,6 +37,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QEvent>
+#include <QDebug>
 
 #include "customevents.h"
 #include "ScriptingEnv.h"
@@ -75,12 +76,14 @@ class Script : public QObject {
     Code.append(code);
     compiled = notCompiled;
     emit codeChanged();
+    qDebug() << "code add";
   }
   //! Set the code that will be executed when calling exec() or eval()
   virtual void setCode(const QString &code) {
     Code = code;
     compiled = notCompiled;
     emit codeChanged();
+    qDebug() << "code set";
   }
   //! Set the context in which the code is to be executed.
   virtual void setContext(QObject *context) {

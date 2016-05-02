@@ -12270,6 +12270,9 @@ void ApplicationWindow::attachQtScript() {
   qScriptRegisterMetaType<Matrix *>(consoleWindow->engine,
                                     tableObjectToScriptValue,
                                     tableObjectFromScriptValue);
+  qScriptRegisterMetaType<Column *>(consoleWindow->engine,
+                                    tableObjectToScriptValue,
+                                    tableObjectFromScriptValue);
   qScriptRegisterMetaType<QVector<int>>(consoleWindow->engine, toScriptValue,
                                         fromScriptValue);
   qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine, toScriptValue,

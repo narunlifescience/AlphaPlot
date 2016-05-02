@@ -98,10 +98,7 @@ contains(PRESET, linux_all_dynamic) {
   LIBS         += -lqwtplot3d$${qwtsuff}
 
   LIBS         += -lz -lGLU
-
-  INCLUDEPATH  += /usr/include/muParser
   LIBS         += -lgsl -lgslcblas
-  LIBS         += -lmuparser
 }
 
 contains(PRESET, linux_qwt_qwtplot3d_static) {
@@ -111,9 +108,7 @@ contains(PRESET, linux_qwt_qwtplot3d_static) {
   LIBS         += ../3rdparty/qwt/lib/libqwt.a
   INCLUDEPATH  += ../3rdparty/qwtplot3d/include
   LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
-  INCLUDEPATH  += /usr/include/muParser
   LIBS         += -lgsl -lgslcblas -lz -lGLU
-  LIBS         += -lmuparser
 }
 
 contains(PRESET, linux_all_static) {
@@ -125,9 +120,6 @@ contains(PRESET, linux_all_static) {
 
   INCLUDEPATH  += ../3rdparty/qwtplot3d/include
   LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
-
-  INCLUDEPATH  += ../3rdparty/muparser/include
-  LIBS         += ../3rdparty/muparser/lib/libmuparser.a
 
   LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
 }
@@ -144,9 +136,7 @@ contains(PRESET, osx_dist) {
   INCLUDEPATH  += /opt/local/include/qwtplot3d
   LIBS         += -lqwtplot3d
 
-  INCLUDEPATH  += /opt/local/include/muParser
   LIBS         += -lgsl -lgslcblas -lz
-  LIBS         += -lmuparser
 }
 
 win32: {
@@ -161,9 +151,6 @@ win32: {
 
     INCLUDEPATH  += "$${LIBPATH}/qwtplot3d/include"
     LIBS         += "$${LIBPATH}/qwtplot3d/lib/qwtplot3d.dll"
-
-    INCLUDEPATH  += "$${LIBPATH}/muparser/include"
-    LIBS         += "$${LIBPATH}/muparser/lib/libmuparser.a"
 
     INCLUDEPATH  += "$${LIBPATH}/gsl/include"
     LIBS         += "$${LIBPATH}/gsl/lib/libgsl.a"
@@ -182,7 +169,7 @@ mxe {
   LIBS         += "../3rdparty/lib/libqwt.a"
   LIBS         += "../3rdparty/lib/libqwtplot3d.a"
 
-  LIBS           +=  -mwindows -lmuparser -lgsl -lgslcblas
+  LIBS           +=  -mwindows -lgsl -lgslcblas
 
   # Qt libs specified here to get around a dependency bug in qmake
   LIBS += -lQt3Support -lQtOpenGL -lQtGui -lQtNetwork -lQtCore

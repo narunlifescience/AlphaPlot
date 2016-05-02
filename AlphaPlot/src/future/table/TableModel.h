@@ -67,8 +67,7 @@ class TableModel : public QAbstractItemModel {
 
   //! Custom data roles used in addition to Qt::ItemDataRole
   enum CustomDataRole {
-    MaskingRole =
-        Qt::UserRole,  //!< bool determining whether the cell is masked
+    MaskingRole = Qt::UserRole,      //!< bool determining if the cell is masked
     FormulaRole = Qt::UserRole + 1,  //!< the cells formula
     CommentRole = Qt::UserRole + 2,  //!< the column comment (for headerData())
   };
