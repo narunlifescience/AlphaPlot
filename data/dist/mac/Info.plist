@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>AlphaPlot</string>
+	<key>CFBundleGetInfoString</key>
+	<string>AlphaPlot 0.01 Alphapre release2</string>
+	<key>CFBundleIconFile</key>
+	<string>AlphaPlot</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.sourceforge.alphaplot</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLongVersionString</key>
+	<string>0.01 Alpha pre-release2</string>
+	<key>CFBundleName</key>
+	<string>AlphaPlot</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.01 Alpha pre-release2</string>
+	<key>CFBundleVersion</key>
+	<string>0123678</string>
+	<key>CSResourcesFileMapped</key>
+	<true/>
+	<key>LSRequiresCarbon</key>
+	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.education</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.7.0</string>
+</dict>
+</plist>

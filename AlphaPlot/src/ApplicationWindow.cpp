@@ -4317,8 +4317,9 @@ void ApplicationWindow::scriptError(const QString &message,
                                     const QString &scriptName, int lineNumber) {
   Q_UNUSED(scriptName)
   Q_UNUSED(lineNumber)
-  QMessageBox::critical(this, tr("AlphaPlot") + " - " + tr("Script Error"),
-                        message);
+  //QMessageBox::critical(this, tr("AlphaPlot") + " - " + tr("Script Error"),
+  //                      message);
+  consoleWindow->printError(message);
 }
 
 void ApplicationWindow::scriptPrint(const QString &text) {

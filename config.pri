@@ -125,16 +125,16 @@ contains(PRESET, linux_all_static) {
 }
 
 contains(PRESET, osx_dist) {
-  # Uses MacPorts supplied versions of the dependencies
+  # Uses HomeBrew supplied versions of the dependencies
   message(Build configuration: OSX Distro)
 
-  INCLUDEPATH  += /opt/local/include
+  INCLUDEPATH  += /usr/local/include
 
-  INCLUDEPATH  += /opt/local/include/qwt
-  LIBS         += -L/opt/local/lib -lqwt
+  INCLUDEPATH  += ../3rdparty/qwt/src
+  LIBS         += ../3rdparty/qwt/lib/libqwt.a
 
-  INCLUDEPATH  += /opt/local/include/qwtplot3d
-  LIBS         += -lqwtplot3d
+  INCLUDEPATH  += ../3rdparty/qwtplot3d/include
+  LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
 
   LIBS         += -lgsl -lgslcblas -lz
 }

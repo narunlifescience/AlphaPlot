@@ -49,7 +49,8 @@ INSTALLS        += target
 
 ###################### ICONS ################################################
 RESOURCES      += ../data/icons.qrc
-RC_FILE         =  ../data/AlphaPlot.rc
+RC_FILE         = ../data/AlphaPlot.rc
+macx:ICON       = ../data/icons/app/AlphaPlot.icns
 
 win32 {
   win_icon.files = ../data/icons/app/AlphaPlot.ico

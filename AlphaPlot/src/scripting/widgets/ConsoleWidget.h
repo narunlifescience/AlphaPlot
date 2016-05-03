@@ -35,6 +35,7 @@ class ConsoleWidget : public QDockWidget {
   QScriptEngineDebugger *debugger;
   QWidget* normalTitleWidget;
   QWidget* hiddenTitleWidget;
+  void printError(QString err);
 
 signals:
   void printResult(QString);

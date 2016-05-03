@@ -63,6 +63,11 @@ ConsoleWidget::~ConsoleWidget() {
   if (debugger) delete debugger;
 }
 
+void ConsoleWidget::printError(QString err)
+{
+  ui_->console->result("muParser error: " + err, Console::Error);
+}
+
 void ConsoleWidget::evaluate(QString line) {
   snippet.append(line);
   snippet += QLatin1Char('\n');
