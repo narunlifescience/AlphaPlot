@@ -47,6 +47,9 @@ DESTDIR         = ./
 
 INSTALLS        += target
 
+###################### STYLES ###############################################
+RESOURCES      += ../data/styles/dark-blue/style.qrc
+
 ###################### ICONS ################################################
 RESOURCES      += ../data/icons.qrc
 RC_FILE         = ../data/AlphaPlot.rc
