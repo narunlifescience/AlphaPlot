@@ -11,6 +11,8 @@ Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalys
 - Github: https://github.com/narunlifescience/AlphaPlot
 - Latest test builds: http://alphaplot.sourceforge.net/test-build.html
 
+#![screenshot](data/screenshots/alphaplot1.png)
+
 # Installation
 Get the code (if you haven't already):
 
