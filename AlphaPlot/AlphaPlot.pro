@@ -48,7 +48,7 @@ DESTDIR         = ./
 INSTALLS        += target
 
 ###################### STYLES ###############################################
-RESOURCES      += ../data/styles/dark-blue/style.qrc
+RESOURCES      += ../data/styles/style.qrc
 
 ###################### ICONS ################################################
 RESOURCES      += ../data/icons.qrc

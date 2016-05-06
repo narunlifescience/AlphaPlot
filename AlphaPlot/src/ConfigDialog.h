@@ -156,6 +156,7 @@ class ConfigDialog : public QDialog {
       *boxResize, *boxUseGroupSeparator;
   QComboBox *boxMajTicks, *boxMinTicks, *boxStyle, *boxCurveStyle,
       *boxSeparator, *boxLanguage, *boxDecimalSeparator;
+  QComboBox *boxColorScheme;
   QLabel *lblDefaultNumericFormat;
   QComboBox *boxDefaultNumericFormat;
   QLabel *boxSeparatorPreview;
@@ -170,6 +171,7 @@ class ConfigDialog : public QDialog {
       *lblPageHeader;
   QLabel *lblPanelsText, *lblFonts, *lblStyle, *lblDecimalSeparator,
       *lblAppPrecision;
+  QLabel *lblColorScheme;
   QGroupBox *groupBoxConfirm;
   QGroupBox *groupBoxTableFonts, *groupBoxTableCol;
   QLabel *lblSeparator, *lblTableBackground, *lblTextColor, *lblHeaderColor;

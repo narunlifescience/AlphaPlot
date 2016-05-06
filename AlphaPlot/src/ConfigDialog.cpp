@@ -510,36 +510,53 @@ void ConfigDialog::initAppPage() {
   boxStyle->setCurrentIndex(
       boxStyle->findText(app->appStyle, Qt::MatchWildcard));
 
+  lblColorScheme = new QLabel();
+  lblColorScheme->setText("Color scheme");
+  topBoxLayout->addWidget(lblColorScheme, 2, 0);
+  boxColorScheme = new QComboBox();
+  topBoxLayout->addWidget(boxColorScheme, 2, 1);
+  QStringList colorSchemes;
+  colorSchemes << "default"
+               << "alpha dark"
+               << "smooth dark blue"
+               << "smooth dark green"
+               << "smooth dark orange"
+               << "smooth light blue"
+               << "smooth light green"
+               << "smooth light orange";
+  boxColorScheme->addItems(colorSchemes);
+  boxColorScheme->setCurrentIndex(app->appColorScheme);
+
   lblFonts = new QLabel();
-  topBoxLayout->addWidget(lblFonts, 2, 0);
+  topBoxLayout->addWidget(lblFonts, 3, 0);
   fontsBtn = new QPushButton();
-  topBoxLayout->addWidget(fontsBtn, 2, 1);
+  topBoxLayout->addWidget(fontsBtn, 3, 1);
 
   lblScriptingLanguage = new QLabel();
-  topBoxLayout->addWidget(lblScriptingLanguage, 3, 0);
+  topBoxLayout->addWidget(lblScriptingLanguage, 4, 0);
   boxScriptingLanguage = new QComboBox();
   QStringList llist = ScriptingLangManager::languages();
   boxScriptingLanguage->insertStringList(llist);
   boxScriptingLanguage->setCurrentIndex(
       llist.indexOf(app->defaultScriptingLang));
-  topBoxLayout->addWidget(boxScriptingLanguage, 3, 1);
+  topBoxLayout->addWidget(boxScriptingLanguage, 4, 1);
 
   boxSave = new QCheckBox();
   boxSave->setChecked(app->autoSave);
-  topBoxLayout->addWidget(boxSave, 4, 0);
+  topBoxLayout->addWidget(boxSave, 5, 0);
 
   boxMinutes = new QSpinBox();
   boxMinutes->setRange(1, 100);
   boxMinutes->setValue(app->autoSaveTime);
   boxMinutes->setEnabled(app->autoSave);
-  topBoxLayout->addWidget(boxMinutes, 4, 1);
+  topBoxLayout->addWidget(boxMinutes, 5, 1);
 
   lblUndoLimit = new QLabel();
-  topBoxLayout->addWidget(lblUndoLimit, 5, 0);
+  topBoxLayout->addWidget(lblUndoLimit, 6, 0);
   boxUndoLimit = new QSpinBox();
   boxUndoLimit->setRange(1, 10000);
   boxUndoLimit->setValue(app->undoLimit);
-  topBoxLayout->addWidget(boxUndoLimit, 5, 1);
+  topBoxLayout->addWidget(boxUndoLimit, 6, 1);
 
 #ifdef SEARCH_FOR_UPDATES
   boxSearchUpdates = new QCheckBox();
@@ -547,7 +564,7 @@ void ConfigDialog::initAppPage() {
   topBoxLayout->addWidget(boxSearchUpdates, 6, 0, 1, 2);
 #endif
 
-  topBoxLayout->setRowStretch(7, 1);
+  topBoxLayout->setRowStretch(8, 1);
 
   appTabWidget->addTab(application, QString());
 
@@ -1101,6 +1118,7 @@ void ConfigDialog::apply() {
   app->changeAppFont(appFont);
   setFont(appFont);
   app->changeAppStyle(boxStyle->currentText());
+  app->changeAppColorScheme(boxColorScheme->currentIndex());
 #ifdef SEARCH_FOR_UPDATES
   app->autoSearchUpdates = boxSearchUpdates->isChecked();
 #endif
@@ -1151,7 +1169,7 @@ void ConfigDialog::apply() {
                             boxPlots2D->isChecked(), boxPlots3D->isChecked(),
                             boxNotes->isChecked());
   // general page: colors tab
-  //app->setAppColors(btnWorkspace->color(), btnPanels->color(),
+  // app->setAppColors(btnWorkspace->color(), btnPanels->color(),
   //                  btnPanelsText->color());
   // 3D plots page
   app->plot3DColors = plot3DColors;

@@ -216,6 +216,7 @@ class ApplicationWindow : public QMainWindow,
   void applyUserSettings();
   void setSaveSettings(bool autoSaving, int min);
   void changeAppStyle(const QString& s);
+  void changeAppColorScheme(const int& colorScheme);
   void changeAppFont(const QFont& f);
   void updateAppFonts();
   // void setAppColors(const QColor& wc, const QColor& pc, const QColor& tpc);
@@ -987,6 +988,7 @@ class ApplicationWindow : public QMainWindow,
 
   QColor workspaceColor, panelsColor, panelsTextColor;
   QString appStyle, workingDir;
+  int appColorScheme;
 
   // Path to the folder where the last template file was opened/saved
   QString templatesDir;

@@ -195,6 +195,7 @@ ApplicationWindow::ApplicationWindow()
       current_folder(new Folder(0, tr("UNTITLED"))),
       show_windows_policy(ActiveFolder),
       appStyle(qApp->style()->objectName()),
+      appColorScheme(0),
       appFont(QFont()),
       projectname("untitled"),
       logInfo(QString()),
@@ -3535,6 +3536,68 @@ void ApplicationWindow::changeAppStyle(const QString &s) {
   qApp->setPalette(pal);*/
 }
 
+void ApplicationWindow::changeAppColorScheme(const int &colorScheme) {
+  switch (colorScheme) {
+    case 0: {
+      setStyleSheet("");
+      appColorScheme = 0;
+    } break;
+    case 1: {
+      QFile schemefile(":style/alpha/dark.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      setStyleSheet(schemeFileStream.readAll());
+      appColorScheme = 1;
+    } break;
+    case 2: {
+      QFile schemefile(":style/smooth/dark-blue.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      setStyleSheet(schemeFileStream.readAll());
+      appColorScheme = 2;
+    } break;
+    case 3: {
+      QFile schemefile(":style/smooth/dark-green.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      setStyleSheet(schemeFileStream.readAll());
+      appColorScheme = 3;
+    } break;
+    case 4: {
+      QFile schemefile(":style/smooth/dark-orange.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      setStyleSheet(schemeFileStream.readAll());
+      appColorScheme = 4;
+    } break;
+    case 5: {
+      QFile schemefile(":style/smooth/light-blue.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      setStyleSheet(schemeFileStream.readAll());
+      appColorScheme = 5;
+    } break;
+    case 6: {
+      QFile schemefile(":style/smooth/light-green.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      setStyleSheet(schemeFileStream.readAll());
+      appColorScheme = 6;
+    } break;
+    case 7: {
+      QFile schemefile(":style/smooth/light-orange.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      setStyleSheet(schemeFileStream.readAll());
+      appColorScheme = 7;
+    } break;
+    default:
+      // should not reach
+      qDebug() << "color scheme index out of range";
+      break;
+  }
+}
+
 void ApplicationWindow::changeAppFont(const QFont &f) {
   if (appFont == f) return;
 
@@ -4317,7 +4380,7 @@ void ApplicationWindow::scriptError(const QString &message,
                                     const QString &scriptName, int lineNumber) {
   Q_UNUSED(scriptName)
   Q_UNUSED(lineNumber)
-  //QMessageBox::critical(this, tr("AlphaPlot") + " - " + tr("Script Error"),
+  // QMessageBox::critical(this, tr("AlphaPlot") + " - " + tr("Script Error"),
   //                      message);
   consoleWindow->printError(message);
 }
@@ -4544,6 +4607,7 @@ void ApplicationWindow::loadSettings() {
   updateRecentProjectsList();
 
   changeAppStyle(settings.value("Style", appStyle).toString());
+  changeAppColorScheme(settings.value("ColorScheme", 0).toInt());
   undoLimit = settings.value("UndoLimit", 10).toInt();
   d_project->undoStack()->setUndoLimit(undoLimit);
   autoSave = settings.value("AutoSave", true).toBool();
@@ -4867,6 +4931,7 @@ void ApplicationWindow::saveSettings() {
   settings.setValue("ShowWindowsPolicy", show_windows_policy);
   settings.setValue("RecentProjects", recentProjects);
   settings.setValue("Style", appStyle);
+  settings.setValue("ColorScheme", appColorScheme);
   settings.setValue("AutoSave", autoSave);
   settings.setValue("AutoSaveTime", autoSaveTime);
   settings.setValue("UndoLimit", undoLimit);
