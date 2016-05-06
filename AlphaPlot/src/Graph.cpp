@@ -132,7 +132,6 @@ Graph::Graph(QWidget *parent, QString name, Qt::WFlags f) : QWidget(parent, f) {
     axesFormulas << QString::null;
     d_user_step[i] = 0.0;
   }
-
   d_plot = new Plot(this);
   cp = new CanvasPicker(this);
 

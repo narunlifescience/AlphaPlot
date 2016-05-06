@@ -111,7 +111,7 @@ Plot::Plot(QWidget *parent, QString) : QwtPlot(parent) {
   setPalette(QPalette(cg, cg, cg));
   setAutoFillBackground(true);
 
-  setCanvasBackground(background);
+  setCanvasBackground(Qt::white);
   setFocusPolicy(Qt::StrongFocus);
   setFocusProxy(plCanvas);
   setFrameShape(QFrame::Box);

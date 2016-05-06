@@ -3536,10 +3536,13 @@ void ApplicationWindow::changeAppStyle(const QString &s) {
   qApp->setPalette(pal);*/
 }
 
-void ApplicationWindow::changeAppColorScheme(const int &colorScheme) {
+void ApplicationWindow::changeAppColorScheme(int colorScheme) {
+  colorScheme = 0; // disable color schemes for now
   switch (colorScheme) {
     case 0: {
       setStyleSheet("");
+      IconLoader::lumen_ =
+          IconLoader::isLight(palette().color(QPalette::Window));
       appColorScheme = 0;
     } break;
     case 1: {
@@ -3547,6 +3550,7 @@ void ApplicationWindow::changeAppColorScheme(const int &colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       setStyleSheet(schemeFileStream.readAll());
+      IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 1;
     } break;
     case 2: {
@@ -3554,6 +3558,7 @@ void ApplicationWindow::changeAppColorScheme(const int &colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       setStyleSheet(schemeFileStream.readAll());
+      IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 2;
     } break;
     case 3: {
@@ -3561,6 +3566,7 @@ void ApplicationWindow::changeAppColorScheme(const int &colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       setStyleSheet(schemeFileStream.readAll());
+      IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 3;
     } break;
     case 4: {
@@ -3568,6 +3574,7 @@ void ApplicationWindow::changeAppColorScheme(const int &colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       setStyleSheet(schemeFileStream.readAll());
+      IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 4;
     } break;
     case 5: {
@@ -3575,6 +3582,7 @@ void ApplicationWindow::changeAppColorScheme(const int &colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       setStyleSheet(schemeFileStream.readAll());
+      IconLoader::lumen_ = IconLoader::isLight(Qt::white);
       appColorScheme = 5;
     } break;
     case 6: {
@@ -3582,6 +3590,7 @@ void ApplicationWindow::changeAppColorScheme(const int &colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       setStyleSheet(schemeFileStream.readAll());
+      IconLoader::lumen_ = IconLoader::isLight(Qt::white);
       appColorScheme = 6;
     } break;
     case 7: {
@@ -3589,6 +3598,7 @@ void ApplicationWindow::changeAppColorScheme(const int &colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       setStyleSheet(schemeFileStream.readAll());
+      IconLoader::lumen_ = IconLoader::isLight(Qt::white);
       appColorScheme = 7;
     } break;
     default:

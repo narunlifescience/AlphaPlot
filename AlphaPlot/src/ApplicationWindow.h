@@ -216,7 +216,7 @@ class ApplicationWindow : public QMainWindow,
   void applyUserSettings();
   void setSaveSettings(bool autoSaving, int min);
   void changeAppStyle(const QString& s);
-  void changeAppColorScheme(const int& colorScheme);
+  void changeAppColorScheme(int colorScheme);
   void changeAppFont(const QFont& f);
   void updateAppFonts();
   // void setAppColors(const QColor& wc, const QColor& pc, const QColor& tpc);
