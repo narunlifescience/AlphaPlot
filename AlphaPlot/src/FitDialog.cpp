@@ -640,7 +640,7 @@ void FitDialog::showFitPage() {
 
   for (int i = param_table_rows; i < paramList.count(); i++) {
     QTableWidgetItem *it = new QTableWidgetItem(paramList[i]);
-    it->setFlags(Qt::ItemIsEditable ^ 2);
+    it->setFlags(Qt::ItemFlags(Qt::ItemIsEditable ^ 2));
     it->setBackground(QBrush(Qt::lightGray));
     it->setForeground(QBrush(Qt::darkRed));
     QFont font = it->font();
@@ -665,7 +665,7 @@ void FitDialog::showFitPage() {
 
     for (int i = 0; i < boxParams->rowCount(); i++) {
       QTableWidgetItem *it = new QTableWidgetItem();
-      it->setFlags(Qt::ItemIsEditable ^ 2);
+      it->setFlags(Qt::ItemFlags(Qt::ItemIsEditable ^ 2));
       it->setBackground(QBrush(Qt::lightGray));
       boxParams->setItem(i, 2, it);
 

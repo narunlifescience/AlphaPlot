@@ -192,7 +192,7 @@ ApplicationWindow::ApplicationWindow()
       table_tools(new QToolBar(tr("Table"), this)),
       matrix_plot_tools(new QToolBar(tr("Matrix Plot"), this)),
       graph_3D_tools(new QToolBar(tr("3D Surface"), this)),
-      current_folder(new Folder(0, tr("UNTITLED"))),
+      current_folder(new Folder(0, tr("Untitled"))),
       show_windows_policy(ActiveFolder),
       appStyle(qApp->style()->objectName()),
       appColorScheme(0),

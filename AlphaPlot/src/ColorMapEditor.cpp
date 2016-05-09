@@ -123,7 +123,7 @@ void ColorMapEditor::setColorMap(const QwtLinearColorMap &map) {
 
     QColor c = QColor(map.rgb(QwtDoubleInterval(0, 1), colors[i]));
     it = new QTableWidgetItem(c.name());
-    it->setFlags(Qt::ItemIsEditable ^ 2);
+    it->setFlags(Qt::ItemFlags(Qt::ItemIsEditable ^ 2));
     it->setBackground(QBrush(c));
     it->setForeground(QBrush(c));
     table->setItem(i, 1, it);
@@ -154,7 +154,7 @@ void ColorMapEditor::insertLevel() {
   table->setItem(row, 0, it);
 
   it = new QTableWidgetItem(c.name());
-  it->setFlags(Qt::ItemIsEditable ^ 2);
+  it->setFlags(Qt::ItemFlags(Qt::ItemIsEditable ^ 2));
   it->setBackground(QBrush(c));
   it->setForeground(QBrush(c));
   table->setItem(row, 1, it);
