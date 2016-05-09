@@ -1863,9 +1863,11 @@ void ApplicationWindow::customToolBars(QWidget *w) {
         plot_tools->setEnabled(true);
         QwtPlotCurve *c = g->curve(g->curves() - 1);
         // plot tools managed by d_plot_mapper
-        for (int i = 0; i <= (int)Graph::VerticalSteps; i++) {
+        for (int i = 0; i <= static_cast<int>(Graph::VerticalSteps); i++) {
           QAction *a = static_cast<QAction *>(d_plot_mapper->mapping(i));
-          if (a) a->setEnabled(Graph::canConvertTo(c, (Graph::CurveType)i));
+          if (a)
+            a->setEnabled(
+                Graph::canConvertTo(c, static_cast<Graph::CurveType>(i)));
         }
         // others
         ui_->actionPlot2DPie->setEnabled(Graph::canConvertTo(c, Graph::Pie));
@@ -1893,7 +1895,7 @@ void ApplicationWindow::customToolBars(QWidget *w) {
 
       plot_tools->setEnabled(true);
       // plot tools managed by d_plot_mapper
-      for (int i = 0; i <= (int)Graph::VerticalSteps; i++) {
+      for (int i = 0; i <= static_cast<int>(Graph::VerticalSteps); i++) {
         QAction *a = static_cast<QAction *>(d_plot_mapper->mapping(i));
         if (a) a->setEnabled(true);
       }
@@ -2199,7 +2201,7 @@ void ApplicationWindow::remove3DMatrixPlots(Matrix *m) {
       ((Graph3D *)w)->clearData();
     else if (w->inherits("MultiLayer")) {
       QWidgetList graphsList = ((MultiLayer *)w)->graphPtrs();
-      for (int j = 0; j < (int)graphsList.count(); j++) {
+      for (int j = 0; j < static_cast<int>(graphsList.count()); j++) {
         Graph *g = (Graph *)graphsList.at(j);
         for (int i = 0; i < g->curves(); i++) {
           Spectrogram *sp = (Spectrogram *)g->plotItem(i);
@@ -2226,7 +2228,7 @@ void ApplicationWindow::updateMatrixPlots(QWidget *window) {
       ((Graph3D *)w)->updateMatrixData(m);
     else if (w->inherits("MultiLayer")) {
       QWidgetList graphsList = ((MultiLayer *)w)->graphPtrs();
-      for (int j = 0; j < (int)graphsList.count(); j++) {
+      for (int j = 0; j < static_cast<int>(graphsList.count()); j++) {
         Graph *g = (Graph *)graphsList.at(j);
         for (int i = 0; i < g->curves(); i++) {
           Spectrogram *sp = (Spectrogram *)g->plotItem(i);
@@ -2253,7 +2255,7 @@ void ApplicationWindow::add3DData() {
 
   // TODO: string list -> Column * list
   QStringList zColumns = columnsList(AlphaPlot::Z);
-  if ((int)zColumns.count() <= 0) {
+  if (static_cast<int>(zColumns.count()) <= 0) {
     QMessageBox::critical(
         this, tr("Warning"),
         tr("There are no available columns with plot designation set to Z!"));
@@ -2308,7 +2310,7 @@ void ApplicationWindow::change3DMatrix(const QString &matrix_name) {
 
 void ApplicationWindow::add3DMatrixPlot() {
   QStringList matrices = matrixNames();
-  if ((int)matrices.count() <= 0) {
+  if (static_cast<int>(matrices.count()) <= 0) {
     QMessageBox::warning(
         this, tr("Warning"),
         tr("<h4>There are no matrices available in this project.</h4>"
@@ -2414,7 +2416,7 @@ Graph3D *ApplicationWindow::newPlot3D(const QString &formula, double xl,
 void ApplicationWindow::updateSurfaceFuncList(const QString &s) {
   surfaceFunc.remove(s);
   surfaceFunc.push_front(s);
-  while ((int)surfaceFunc.size() > 10) surfaceFunc.pop_back();
+  while (static_cast<int>(surfaceFunc.size()) > 10) surfaceFunc.pop_back();
 }
 
 Graph3D *ApplicationWindow::newPlot3D(const QString &caption,
@@ -2612,7 +2614,7 @@ void ApplicationWindow::initPlot3D(Graph3D *plot) {
 Matrix *ApplicationWindow::importImage() {
   QList<QByteArray> list = QImageReader::supportedImageFormats();
   QString filter = tr("Images") + " (", aux1, aux2;
-  for (int i = 0; i < (int)list.count(); i++) {
+  for (int i = 0; i < static_cast<int>(list.count()); i++) {
     aux1 = " *." + list[i] + " ";
     aux2 += " *." + list[i] + ";;";
     filter += aux1;
@@ -2632,7 +2634,7 @@ Matrix *ApplicationWindow::importImage() {
 void ApplicationWindow::loadImage() {
   QList<QByteArray> list = QImageReader::supportedImageFormats();
   QString filter = tr("Images") + " (", aux1, aux2;
-  for (int i = 0; i < (int)list.count(); i++) {
+  for (int i = 0; i < static_cast<int>(list.count()); i++) {
     aux1 = " *." + list[i] + " ";
     aux2 += " *." + list[i] + ";;";
     filter += aux1;
@@ -2760,7 +2762,7 @@ MultiLayer *ApplicationWindow::multilayerPlot(int c, int r, int style) {
       break;
   }
 
-  int curves = (int)list.count();
+  int curves = static_cast<int>(list.count());
   if (r < 0) r = curves;
 
   MultiLayer *g = new MultiLayer("", d_workspace, 0);
@@ -2820,7 +2822,7 @@ MultiLayer *ApplicationWindow::multilayerPlot(const QStringList &colList) {
   Graph *ag = g->addLayer();
   setPreferences(ag);
   polishGraph(ag, defaultCurveStyle);
-  int curves = (int)colList.count();
+  int curves = static_cast<int>(colList.count());
   int errorBars = 0;
   for (int i = 0; i < curves; i++) {
     if (colList[i].contains("(yErr)") || colList[i].contains("(xErr)"))
@@ -3072,8 +3074,9 @@ void ApplicationWindow::initTable(Table *table) {
 TableStatistics *ApplicationWindow::newTableStatistics(Table *base, int type,
                                                        QList<int> target,
                                                        const QString &caption) {
-  TableStatistics *statTable = new TableStatistics(
-      scriptEnv, d_workspace, base, (TableStatistics::Type)type, target);
+  TableStatistics *statTable =
+      new TableStatistics(scriptEnv, d_workspace, base,
+                          static_cast<TableStatistics::Type>(type), target);
   if (!caption.isEmpty()) statTable->setName(caption);
 
   d_project->addChild(statTable->d_future_table);
@@ -3489,7 +3492,7 @@ void ApplicationWindow::updateCurves(Table *t, const QString &name) {
   foreach (QWidget *w, *windows) {
     if (w->inherits("MultiLayer")) {
       QWidgetList graphsList = ((MultiLayer *)w)->graphPtrs();
-      for (int k = 0; k < (int)graphsList.count(); k++) {
+      for (int k = 0; k < static_cast<int>(graphsList.count()); k++) {
         Graph *g = (Graph *)graphsList.at(k);
         if (g) g->updateCurvesData(t, name);
       }
@@ -4598,10 +4601,9 @@ void ApplicationWindow::loadSettings() {
   appLanguage =
       settings.value("Language", QLocale::system().name().section('_', 0, 0))
           .toString();
-  show_windows_policy =
-      (ShowWindowsPolicy)settings.value("ShowWindowsPolicy",
-                                        ApplicationWindow::ActiveFolder)
-          .toInt();
+  show_windows_policy = static_cast<ShowWindowsPolicy>(
+      settings.value("ShowWindowsPolicy", ApplicationWindow::ActiveFolder)
+          .toInt());
 
   recentProjects = settings.value("RecentProjects").toStringList();
 // Follows an ugly hack to fix Qt4 porting issues (only needed on Windows)
@@ -5263,7 +5265,7 @@ void ApplicationWindow::exportGraph() {
       plot3D->exportVector(file_name, ".svg");
   } else {
     QList<QByteArray> list = QImageWriter::supportedImageFormats();
-    for (int i = 0; i < (int)list.count(); i++) {
+    for (int i = 0; i < static_cast<int>(list.count()); i++) {
       if (selected_filter.contains("." + (list[i]).toLower())) {
         if (plot2D)
           plot2D->exportImage(file_name, ied->quality());
@@ -5313,7 +5315,7 @@ void ApplicationWindow::exportLayer() {
     g->exportSVG(file_name);
   else {
     QList<QByteArray> list = QImageWriter::supportedImageFormats();
-    for (int i = 0; i < (int)list.count(); i++)
+    for (int i = 0; i < static_cast<int>(list.count()); i++)
       if (selected_filter.contains("." + (list[i]).toLower()))
         g->exportImage(file_name, ied->quality());
   }
@@ -5408,7 +5410,7 @@ void ApplicationWindow::exportAllGraphs() {
       if (plot2D) plot2D->exportSVG(file_name);
     } else {
       QList<QByteArray> list = QImageWriter::supportedImageFormats();
-      for (int i = 0; i < (int)list.count(); i++) {
+      for (int i = 0; i < static_cast<int>(list.count()); i++) {
         if (file_suffix.contains("." + (list[i]).toLower())) {
           if (plot2D)
             plot2D->exportImage(file_name, ied->quality());
@@ -6017,7 +6019,7 @@ void ApplicationWindow::correlate() {
 
   Table *t = (Table *)d_workspace->activeWindow();
   QStringList s = t->selectedColumns();
-  if ((int)s.count() != 2) {
+  if (static_cast<int>(s.count()) != 2) {
     QMessageBox::warning(this, tr("Error"),
                          tr("Please select two columns for this operation!"));
     return;
@@ -6035,7 +6037,7 @@ void ApplicationWindow::autoCorrelate() {
 
   Table *t = (Table *)d_workspace->activeWindow();
   QStringList s = t->selectedColumns();
-  if ((int)s.count() != 1) {
+  if (static_cast<int>(s.count()) != 1) {
     QMessageBox::warning(
         this, tr("Error"),
         tr("Please select exactly one columns for this operation!"));
@@ -6054,7 +6056,7 @@ void ApplicationWindow::convolute() {
 
   Table *t = (Table *)d_workspace->activeWindow();
   QStringList s = t->selectedColumns();
-  if ((int)s.count() != 2) {
+  if (static_cast<int>(s.count()) != 2) {
     QMessageBox::warning(
         this, tr("Error"),
         tr("Please select two columns for this operation:\n the first "
@@ -6074,7 +6076,7 @@ void ApplicationWindow::deconvolute() {
 
   Table *t = (Table *)d_workspace->activeWindow();
   QStringList s = t->selectedColumns();
-  if ((int)s.count() != 2) {
+  if (static_cast<int>(s.count()) != 2) {
     QMessageBox::warning(
         this, tr("Error"),
         tr("Please select two columns for this operation:\n the first "
@@ -7151,7 +7153,7 @@ void ApplicationWindow::addImage() {
 
   QList<QByteArray> list = QImageReader::supportedImageFormats();
   QString filter = tr("Images") + " (", aux1, aux2;
-  for (int i = 0; i < (int)list.count(); i++) {
+  for (int i = 0; i < static_cast<int>(list.count()); i++) {
     aux1 = " *." + list[i] + " ";
     aux2 += " *." + list[i] + ";;";
     filter += aux1;
@@ -8068,7 +8070,7 @@ void ApplicationWindow::showTable(const QString &curve) {
 QStringList ApplicationWindow::depending3DPlots(Matrix *m) {
   QWidgetList *windows = windowsList();
   QStringList plots;
-  for (int i = 0; i < (int)windows->count(); i++) {
+  for (int i = 0; i < static_cast<int>(windows->count()); i++) {
     MyWidget *w = qobject_cast<MyWidget *>(windows->at(i));
     if (w && w->inherits("Graph3D") && ((Graph3D *)w)->matrix() == m)
       plots << w->name();
@@ -8621,8 +8623,10 @@ void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas) {
     thetaFunctions.remove(formulas[1]);
     thetaFunctions.push_front(formulas[1]);
 
-    while ((int)rFunctions.size() > maxListSize) rFunctions.pop_back();
-    while ((int)thetaFunctions.size() > maxListSize) thetaFunctions.pop_back();
+    while (static_cast<int>(rFunctions.size()) > maxListSize)
+      rFunctions.pop_back();
+    while (static_cast<int>(thetaFunctions.size()) > maxListSize)
+      thetaFunctions.pop_back();
   } else if (type == 1) {
     xFunctions.remove(formulas[0]);
     xFunctions.push_front(formulas[0]);
@@ -8630,8 +8634,10 @@ void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas) {
     yFunctions.remove(formulas[1]);
     yFunctions.push_front(formulas[1]);
 
-    while ((int)xFunctions.size() > maxListSize) xFunctions.pop_back();
-    while ((int)yFunctions.size() > maxListSize) yFunctions.pop_back();
+    while (static_cast<int>(xFunctions.size()) > maxListSize)
+      xFunctions.pop_back();
+    while (static_cast<int>(yFunctions.size()) > maxListSize)
+      yFunctions.pop_back();
   }
 }
 
@@ -9268,7 +9274,7 @@ Graph *ApplicationWindow::openGraphAproj(ApplicationWindow *app,
                                          const QStringList &list) {
   Graph *ag = nullptr;
   int curveID = 0;
-  for (int j = 0; j < (int)list.count() - 1; j++) {
+  for (int j = 0; j < static_cast<int>(list.count()) - 1; j++) {
     QString s = list[j];
     if (s.contains("ggeometry")) {
       QStringList fList = s.split("\t");
@@ -9586,7 +9592,9 @@ Graph *ApplicationWindow::openGraphAproj(ApplicationWindow *app,
     } else if (s.startsWith("<AxisFormula ")) {
       int pos = s.mid(18, s.length() - 20).toInt();
       QString formula;
-      for (j++; j < (int)list.count() && list[j] != "</AxisFormula>"; j++)
+      for (j++;
+           j < static_cast<int>(list.count()) && list[j] != "</AxisFormula>";
+           j++)
         formula += list[j] + "\n";
       formula.truncate(formula.length() - 1);
       ag->setAxisFormula(pos, formula);
@@ -10412,13 +10420,13 @@ QWidgetList *ApplicationWindow::windowsList() {
 void ApplicationWindow::updateRecentProjectsList() {
   if (recentProjects.isEmpty()) return;
 
-  while ((int)recentProjects.size() > MaxRecentProjects)
+  while (static_cast<int>(recentProjects.size()) > MaxRecentProjects)
     recentProjects.pop_back();
 
   foreach (QAction *action, ui_->menuRecentProjects->actions())
     action->deleteLater();
 
-  for (int i = 0; i < (int)recentProjects.size(); i++)
+  for (int i = 0; i < static_cast<int>(recentProjects.size()); i++)
     connect(ui_->menuRecentProjects->addAction("&" + QString::number(i + 1) +
                                                " " + recentProjects[i]),
             SIGNAL(triggered()), this, SLOT(openRecentAproj()));
@@ -10489,11 +10497,11 @@ void ApplicationWindow::translateCurveVert() {
 }
 
 void ApplicationWindow::fitMultiPeakGauss() {
-  fitMultiPeak((int)MultiPeakFit::Gauss);
+  fitMultiPeak(static_cast<int>(MultiPeakFit::Gauss));
 }
 
 void ApplicationWindow::fitMultiPeakLorentz() {
-  fitMultiPeak((int)MultiPeakFit::Lorentz);
+  fitMultiPeak(static_cast<int>(MultiPeakFit::Lorentz));
 }
 
 void ApplicationWindow::fitMultiPeak(int profile) {
@@ -10671,7 +10679,7 @@ void ApplicationWindow::createLanguagesList() {
     dir.setPath(qmPath);
     fileNames = dir.entryList("AlphaPlot_*.qm");
   }
-  for (int i = 0; i < (int)fileNames.size(); i++) {
+  for (int i = 0; i < static_cast<int>(fileNames.size()); i++) {
     QString locale = fileNames[i];
     locale = locale.mid(locale.find('_') + 1);
     locale.truncate(locale.find('.'));
@@ -10689,7 +10697,8 @@ void ApplicationWindow::createLanguagesList() {
 }
 
 void ApplicationWindow::switchToLanguage(int param) {
-  if (param < (int)locales.size()) switchToLanguage(locales[param]);
+  if (param < static_cast<int>(locales.size()))
+    switchToLanguage(locales[param]);
 }
 
 void ApplicationWindow::switchToLanguage(const QString &locale) {
@@ -11182,9 +11191,9 @@ void ApplicationWindow::showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p,
 }
 
 void ApplicationWindow::setShowWindowsPolicy(int p) {
-  if (show_windows_policy == (ShowWindowsPolicy)p) return;
+  if (show_windows_policy == static_cast<ShowWindowsPolicy>(p)) return;
 
-  show_windows_policy = (ShowWindowsPolicy)p;
+  show_windows_policy = static_cast<ShowWindowsPolicy>(p);
   if (show_windows_policy == HideAll) {
     QList<QWidget *> *lst = windowsList();
     foreach (QWidget *w, *lst) {
@@ -12264,7 +12273,8 @@ void ApplicationWindow::selectPlotType(int type) {
   if (multilayer) {
     Graph *graph = multilayer->activeGraph();
     if (graph->curves() > 0)
-      graph->setCurveType(graph->curves() - 1, (Graph::CurveType)type);
+      graph->setCurveType(graph->curves() - 1,
+                          static_cast<Graph::CurveType>(type));
   }
 }
 
