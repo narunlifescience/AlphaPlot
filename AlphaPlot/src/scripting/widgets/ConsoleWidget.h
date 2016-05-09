@@ -22,8 +22,11 @@
 #include <QScriptEngine>
 #include <QScriptEngineDebugger>
 #include <QTextStream>
+#include <QItemDelegate>
 
 class Ui_ConsoleWidget;
+class QStandardItem;
+class QStandardItemModel;
 
 class ConsoleWidget : public QDockWidget {
   Q_OBJECT
@@ -33,11 +36,14 @@ class ConsoleWidget : public QDockWidget {
   ~ConsoleWidget();
   QScriptEngine *engine;
   QScriptEngineDebugger *debugger;
-  QWidget* normalTitleWidget;
-  QWidget* hiddenTitleWidget;
+  QWidget *normalTitleWidget;
+  QWidget *hiddenTitleWidget;
   void printError(QString err);
+  void setSplitterPosition(QByteArray state);
+  QByteArray getSplitterPosition();
+  void addScriptVariable();
 
-signals:
+ signals:
   void printResult(QString);
 
  private slots:
@@ -46,7 +52,15 @@ signals:
  private:
   Ui_ConsoleWidget *ui_;
   QString snippet;
+  QStandardItemModel *scriptGlobalObjectsModel;
+};
 
+class Delegate : public QItemDelegate {
+  Q_OBJECT
+ public:
+  Delegate(QWidget *parent = 0) : QItemDelegate(parent) {}
+  void paint(QPainter *painter, const QStyleOptionViewItem &option,
+             const QModelIndex &index) const;
 };
 
 #endif  // CONSOLEWIDGET_H

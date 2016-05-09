@@ -32,7 +32,6 @@ Console::Console(QWidget *parent)
       historySkip(false) {
   historyUp.clear();
   historyDown.clear();
-  setLineWrapMode(NoWrap);
   insertHtml(activeUserPromptPrefix + userPrompt);
   new SyntaxHighlighter(document());
   document()->setMaximumBlockCount(3000);

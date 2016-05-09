@@ -15,6 +15,9 @@
    Description : AlphaPlot Console dock widget
 */
 #include <QDebug>
+#include <QPainter>
+#include <QStandardItem>
+#include <QStandardItemModel>
 #include "ConsoleWidget.h"
 #include "ui_ConsoleWidget.h"
 
@@ -25,13 +28,26 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
     : QDockWidget(parent),
       engine(new QScriptEngine()),
       debugger(new QScriptEngineDebugger(this)),
-      ui_(new Ui_ConsoleWidget) {
+      ui_(new Ui_ConsoleWidget),
+      scriptGlobalObjectsModel(new QStandardItemModel()) {
   ui_->setupUi(this);
   setWindowTitle(tr("Scripting Console"));
   setWindowIcon(QIcon());
   ui_->gridLayout->setSpacing(0);
   ui_->gridLayout->setContentsMargins(0, 0, 0, 0);
   ui_->console->setFrameShape(QFrame::NoFrame);
+  ui_->tableView->setFrameShape(QFrame::NoFrame);
+  ui_->splitter->setSizes(QList<int>() << 70 << 30);
+  // ui_->tableView->setShowGrid(false);
+  ui_->tableView->verticalHeader()->setVisible(false);
+  ui_->tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+  scriptGlobalObjectsModel->setColumnCount(2);
+  ui_->tableView->setModel(scriptGlobalObjectsModel);
+  ui_->tableView->setItemDelegate(new Delegate);
+  ui_->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  ui_->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+  ui_->tableView->setAlternatingRowColors(true);
+  addScriptVariable();
 
   connect(ui_->console, SIGNAL(command(QString)), this,
           SLOT(evaluate(QString)));
@@ -63,9 +79,35 @@ ConsoleWidget::~ConsoleWidget() {
   if (debugger) delete debugger;
 }
 
-void ConsoleWidget::printError(QString err)
-{
+void ConsoleWidget::printError(QString err) {
   ui_->console->result("muParser error: " + err, Console::Error);
+}
+
+void ConsoleWidget::setSplitterPosition(QByteArray state) {
+  ui_->splitter->restoreState(state);
+}
+
+QByteArray ConsoleWidget::getSplitterPosition() {
+  return ui_->splitter->saveState();
+}
+
+void ConsoleWidget::addScriptVariable() {
+  scriptGlobalObjectsModel->clear();
+  scriptGlobalObjectsModel->setHorizontalHeaderLabels(QStringList()
+                                                      << "variables"
+                                                      << "values");
+  QScriptValueIterator it(engine->globalObject());
+  while (it.hasNext()) {
+    it.next();
+    if (!it.value().isFunction() && !it.value().isObject())
+      if (it.name() != "NaN" && it.name() != "Infinity" &&
+          it.name() != "undefined") {
+        scriptGlobalObjectsModel->appendRow(
+            QList<QStandardItem *>()
+            << new QStandardItem(it.name())
+            << new QStandardItem(it.value().toString()));
+      }
+  }
 }
 
 void ConsoleWidget::evaluate(QString line) {
@@ -98,8 +140,23 @@ void ConsoleWidget::evaluate(QString line) {
     } else {
       ui_->console->promptWithoutResult();
     }
+    addScriptVariable();
 
   } else {
     ui_->console->partialResult();
   }
+}
+
+void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                     const QModelIndex &index) const {
+  QString val;
+  QStyleOptionViewItem opt(option);
+  /*if (qVariantCanConvert<QString>(index.data()))
+    val = qVariantValue<QString>(index.data());
+  if (val == "variable") {
+    QColor fillColor = option.palette.highlight();
+    fillColor.setAlpha(50);
+    painter->fillRect(option.rect,fillColor);
+    }*/
+QItemDelegate::paint(painter, opt, index);
 }

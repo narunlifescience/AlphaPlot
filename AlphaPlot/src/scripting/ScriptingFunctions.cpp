@@ -2,6 +2,7 @@
 #include <QScriptContext>
 #include <QFile>
 #include <QFileInfo>
+#include <QtDebug>
 
 #include "../ApplicationWindow.h"
 #include "../Table.h"

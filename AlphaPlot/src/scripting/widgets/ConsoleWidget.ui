@@ -16,7 +16,13 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="Console" name="console"/>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="Console" name="console"/>
+      <widget class="QTableView" name="tableView"/>
+     </widget>
     </item>
    </layout>
   </widget>

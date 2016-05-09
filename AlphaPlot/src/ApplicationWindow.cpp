@@ -330,7 +330,7 @@ ApplicationWindow::ApplicationWindow()
   lv->setFrameShape(QFrame::NoFrame);
   explorerSplitter->setFrameShape(QFrame::NoFrame);
   explorerWindow->setWidget(explorerSplitter);
-  explorerSplitter->setSizes(QList<int>() << 50 << 50);
+  explorerSplitter->setSizes(QList<int>() << 30 << 70);
   explorerWindow->hide();
 
   // Results log window
@@ -3537,7 +3537,7 @@ void ApplicationWindow::changeAppStyle(const QString &s) {
 }
 
 void ApplicationWindow::changeAppColorScheme(int colorScheme) {
-  colorScheme = 0; // disable color schemes for now
+  colorScheme = 0;  // disable color schemes for now
   switch (colorScheme) {
     case 0: {
       setStyleSheet("");
@@ -4649,6 +4649,8 @@ void ApplicationWindow::loadSettings() {
   restoreState(settings.value("DockWindows").toByteArray());
   explorerSplitter->restoreState(
       settings.value("ExplorerSplitter").toByteArray());
+  consoleWindow->setSplitterPosition(
+      settings.value("ScriptingConsoleSplitter").toByteArray());
 
   QStringList applicationFont = settings.value("Font").toStringList();
   if (applicationFont.size() == 4)
@@ -4962,6 +4964,8 @@ void ApplicationWindow::saveSettings() {
 
   settings.setValue("DockWindows", saveState());
   settings.setValue("ExplorerSplitter", explorerSplitter->saveState());
+  settings.setValue("ScriptingConsoleSplitter",
+                    consoleWindow->getSplitterPosition());
 
   QStringList applicationFont;
   applicationFont << appFont.family();
