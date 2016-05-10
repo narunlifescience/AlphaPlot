@@ -41,7 +41,6 @@ class ConsoleWidget : public QDockWidget {
   void printError(QString err);
   void setSplitterPosition(QByteArray state);
   QByteArray getSplitterPosition();
-  void addScriptVariable();
 
  signals:
   void printResult(QString);
@@ -53,6 +52,9 @@ class ConsoleWidget : public QDockWidget {
   Ui_ConsoleWidget *ui_;
   QString snippet;
   QStandardItemModel *scriptGlobalObjectsModel;
+
+  void addScriptGlobalsToTableView();
+  void appendRowToTableView(QPair<QString, QString> rowPair);
 };
 
 class Delegate : public QItemDelegate {

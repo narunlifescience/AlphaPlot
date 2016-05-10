@@ -47,7 +47,7 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   ui_->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
   ui_->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
   ui_->tableView->setAlternatingRowColors(true);
-  addScriptVariable();
+  addScriptGlobalsToTableView();
 
   connect(ui_->console, SIGNAL(command(QString)), this,
           SLOT(evaluate(QString)));
@@ -91,7 +91,8 @@ QByteArray ConsoleWidget::getSplitterPosition() {
   return ui_->splitter->saveState();
 }
 
-void ConsoleWidget::addScriptVariable() {
+void ConsoleWidget::addScriptGlobalsToTableView() {
+  QPair<QString, QString> rowPair;
   scriptGlobalObjectsModel->clear();
   scriptGlobalObjectsModel->setHorizontalHeaderLabels(QStringList()
                                                       << "variables"
@@ -99,15 +100,38 @@ void ConsoleWidget::addScriptVariable() {
   QScriptValueIterator it(engine->globalObject());
   while (it.hasNext()) {
     it.next();
-    if (!it.value().isFunction() && !it.value().isObject())
+    if (it.value().isArray()) {
+      // Array variables
+      rowPair.first =
+          it.name() +
+          QString("[%0]").arg(it.value().property("length").toString());
+      QString arrayValue;
+      double arrayLength = it.value().property("length").toInteger();
+      for (quint32 i = 0; i < 3; i++) {
+        if (i < arrayLength)
+          arrayValue += it.value().property(i).toString() + " ,";
+      }
+      if (arrayLength > 3) {
+        arrayValue += "...";
+      }
+      rowPair.second = arrayValue;
+      appendRowToTableView(rowPair);
+
+    } else if (!it.value().isFunction() && !it.value().isObject())
       if (it.name() != "NaN" && it.name() != "Infinity" &&
           it.name() != "undefined") {
-        scriptGlobalObjectsModel->appendRow(
-            QList<QStandardItem *>()
-            << new QStandardItem(it.name())
-            << new QStandardItem(it.value().toString()));
+        // Other variables
+        rowPair.first = it.name();
+        rowPair.second = it.value().toString();
+        appendRowToTableView(rowPair);
       }
   }
+}
+
+void ConsoleWidget::appendRowToTableView(QPair<QString, QString> rowPair) {
+  scriptGlobalObjectsModel->appendRow(QList<QStandardItem *>()
+                                      << new QStandardItem(rowPair.first)
+                                      << new QStandardItem(rowPair.second));
 }
 
 void ConsoleWidget::evaluate(QString line) {
@@ -140,8 +164,7 @@ void ConsoleWidget::evaluate(QString line) {
     } else {
       ui_->console->promptWithoutResult();
     }
-    addScriptVariable();
-
+    addScriptGlobalsToTableView();
   } else {
     ui_->console->partialResult();
   }
@@ -158,5 +181,5 @@ void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     fillColor.setAlpha(50);
     painter->fillRect(option.rect,fillColor);
     }*/
-QItemDelegate::paint(painter, opt, index);
+  QItemDelegate::paint(painter, opt, index);
 }
