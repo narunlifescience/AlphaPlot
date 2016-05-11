@@ -15,7 +15,6 @@ QScriptValue print(QScriptContext *context, QScriptEngine *egne) {
   if (context->argumentCount() == 0) {
     context->throwError(
         QObject::tr("print() should have atleast one argument"));
-    return false;
   }
   QScriptValue result;
   for (int i = 0; i < context->argumentCount(); i++) {
@@ -40,7 +39,6 @@ QScriptValue print(QScriptContext *context, QScriptEngine *egne) {
 QScriptValue clear(QScriptContext *context, QScriptEngine *egne) {
   if (context->argumentCount() != 0) {
     context->throwError(QObject::tr("clear() take no arguments!"));
-    return false;
   }
   QScriptValue calleeData = context->callee().data();
   Console *console = qobject_cast<Console *>(calleeData.toQObject());
@@ -57,7 +55,6 @@ QScriptValue clear(QScriptContext *context, QScriptEngine *egne) {
 QScriptValue openProj(QScriptContext *context, QScriptEngine *egne) {
   if (context->argumentCount() > 1) {
     context->throwError(QObject::tr("openAproj(string) take one argument!"));
-    return false;
   }
   QScriptValue calleeData = context->callee().data();
   ApplicationWindow *app =
@@ -72,7 +69,6 @@ QScriptValue openProj(QScriptContext *context, QScriptEngine *egne) {
       } else {
         context->throwError(QString(fileInfo.absoluteFilePath()) +
                             QObject::tr(" file not found!"));
-        return false;
       }
     }
   } else {
@@ -85,7 +81,6 @@ QScriptValue openProj(QScriptContext *context, QScriptEngine *egne) {
 QScriptValue collectGarbage(QScriptContext *context, QScriptEngine *egne) {
   if (context->argumentCount() != 0) {
     context->throwError(QObject::tr("collectGarbage() take no arguments!"));
-    return false;
   }
   egne->collectGarbage();
   return egne->undefinedValue();
@@ -94,12 +89,10 @@ QScriptValue collectGarbage(QScriptContext *context, QScriptEngine *egne) {
 QScriptValue attachDebugger(QScriptContext *context, QScriptEngine *egne) {
   if (context->argumentCount() != 1) {
     context->throwError(QObject::tr("attachDebugger(bool) take one argument!"));
-    return false;
   }
   if (!context->argument(0).isBool()) {
     context->throwError(
         QObject::tr("argument should be a bool attachDebugger(bool)"));
-    return false;
   }
   QScriptValue calleeData = context->callee().data();
   ConsoleWidget *consoleWidget =

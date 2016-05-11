@@ -1254,8 +1254,8 @@ double Table::getCell() {
   } else if (context()->argument(1).toNumber() > numCols()) {
     context()->throwError(tr("col index out of range!"));
   }
-  return cell(context()->argument(0).toNumber() - 1,
-              context()->argument(1).toNumber() - 1);
+  return cell(context()->argument(0).toInt32() - 1,
+              context()->argument(1).toInt32() - 1);
 }
 
 void Table::setCell() {
@@ -1273,9 +1273,9 @@ void Table::setCell() {
   } else if (context()->argument(1).toNumber() > numCols()) {
     context()->throwError(tr("col index out of range!"));
   }
-  setCellValue(context()->argument(0).toNumber() - 1,
-               context()->argument(1).toNumber() - 1,
-               context()->argument(2).toNumber());
+  setCellValue(context()->argument(0).toInt32() - 1,
+               context()->argument(1).toInt32() - 1,
+               context()->argument(2).toInt32());
 }
 
 void Table::setRowCount() {
@@ -1284,7 +1284,7 @@ void Table::setRowCount() {
   } else if (context()->argument(0).toNumber() <= 0) {
     context()->throwError(tr("cannot set row count to 0 or -ve!"));
   }
-  setNumRows(context()->argument(0).toNumber());
+  setNumRows(context()->argument(0).toInt32());
   moveFloatingButton();
 }
 
@@ -1294,18 +1294,18 @@ void Table::setColCount() {
   } else if (context()->argument(0).toNumber() <= 0) {
     context()->throwError(tr("cannot set col count to 0 or -ve!"));
   }
-  setNumCols(context()->argument(0).toNumber());
+  setNumCols(context()->argument(0).toInt32());
 }
 
-void Table::f() {
+void Table::applyFunction() {
   if (context()->argumentCount() != 2 || !context()->argument(0).isNumber() ||
       !context()->argument(1).isString()) {
     context()->throwError(tr("f(string) take one argument!"));
   }
 
-  selectColumn(context()->argument(0).toNumber() - 1);
+  selectColumn(context()->argument(0).toInt32() - 1);
   for (int col = firstSelectedColumn(); col <= lastSelectedColumn(); col++) {
-    Column *col_ptr = column(context()->argument(0).toNumber() - 1);
+    Column *col_ptr = column(context()->argument(0).toInt32() - 1);
     col_ptr->insertRows(col_ptr->rowCount(), rowCnt() - col_ptr->rowCount());
     col_ptr->setFormula(Interval<int>(0, rowCnt() - 1),
                         context()->argument(1).toString());

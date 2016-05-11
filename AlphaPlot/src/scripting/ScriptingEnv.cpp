@@ -35,10 +35,6 @@
 #include "MuParserScript.h"
 #include "MuParserScripting.h"
 #endif
-#ifdef SCRIPTING_PYTHON
-#include "PythonScript.h"
-#include "PythonScripting.h"
-#endif
 
 ScriptingEnv::ScriptingEnv(ApplicationWindow *parent, const char *langName)
     : QObject(0, langName), d_parent(parent) {

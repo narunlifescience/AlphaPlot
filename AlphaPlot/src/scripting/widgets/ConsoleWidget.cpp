@@ -52,7 +52,7 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   connect(ui_->console, SIGNAL(command(QString)), this,
           SLOT(evaluate(QString)));
 
-  engine->setProcessEventsInterval(1000);  // 1 sec process interval
+  engine->setProcessEventsInterval(50);  // 1 sec process interval
   // Basic console functions
   // print() function
   QScriptValue consoleObjectValue = engine->newQObject(ui_->console);
@@ -138,14 +138,11 @@ void ConsoleWidget::evaluate(QString line) {
   snippet.append(line);
   snippet += QLatin1Char('\n');
   if (engine->canEvaluate(snippet)) {
+    QString syntaxError;
+    // Check syntax errors
     QScriptSyntaxCheckResult error = engine->checkSyntax(snippet);
-    if (error.Error) {
-      ui_->console->result(
-          QString(error.errorLineNumber()) + " " + error.errorMessage(),
-          Console::Error);
-      return;
-    }
-
+    (error.state() != QScriptSyntaxCheckResult::Valid) ?
+      syntaxError += error.errorMessage() + " " : syntaxError = "";
     QScriptValue result = engine->evaluate(snippet, "line", 1);
     snippet.clear();
     if (!result.isUndefined()) {
@@ -154,10 +151,11 @@ void ConsoleWidget::evaluate(QString line) {
       } else {
         if (engine->hasUncaughtException()) {
           QStringList backtrace = engine->uncaughtExceptionBacktrace();
-          ui_->console->result(result.toString() + " | " + backtrace.join("\n"),
-                               Console::Error);
+          ui_->console->result(
+              syntaxError + result.toString() + " | " + backtrace.join("\n"),
+              Console::Error);
         } else {
-          ui_->console->result(result.toString(), Console::Error);
+          ui_->console->result(syntaxError + result.toString(), Console::Error);
         }
       }
 

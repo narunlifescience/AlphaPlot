@@ -35,17 +35,10 @@
 #include "MuParserScript.h"
 #include "MuParserScripting.h"
 #endif
-#ifdef SCRIPTING_PYTHON
-#include "PythonScript.h"
-#include "PythonScripting.h"
-#endif
 
 ScriptingLangManager::ScriptingLang ScriptingLangManager::langs[] = {
 #ifdef SCRIPTING_MUPARSER
     {MuParserScripting::langName, MuParserScripting::constructor},
-#endif
-#ifdef SCRIPTING_PYTHON
-    {PythonScripting::langName, PythonScripting::constructor},
 #endif
     {NULL, NULL}};
 

@@ -12363,19 +12363,19 @@ void ApplicationWindow::attachQtScript() {
   qScriptRegisterMetaType<Column *>(consoleWindow->engine,
                                     tableObjectToScriptValue,
                                     tableObjectFromScriptValue);
-  qScriptRegisterMetaType<QVector<int>>(consoleWindow->engine, toScriptValue,
+  qScriptRegisterMetaType<QVector<int> >(consoleWindow->engine, toScriptValue,
                                         fromScriptValue);
-  qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine, toScriptValue,
+  qScriptRegisterMetaType<QVector<float> >(consoleWindow->engine, toScriptValue,
                                           fromScriptValue);
-  qScriptRegisterMetaType<QVector<double>>(consoleWindow->engine, toScriptValue,
+  qScriptRegisterMetaType<QVector<double> >(consoleWindow->engine, toScriptValue,
                                            fromScriptValue);
-  qScriptRegisterMetaType<QVector<long>>(consoleWindow->engine, toScriptValue,
+  qScriptRegisterMetaType<QVector<long> >(consoleWindow->engine, toScriptValue,
                                          fromScriptValue);
-  qScriptRegisterMetaType<QVector<QString>>(consoleWindow->engine,
+  qScriptRegisterMetaType<QVector<QString> >(consoleWindow->engine,
                                             toScriptValue, fromScriptValue);
-  qScriptRegisterMetaType<QVector<QDate>>(consoleWindow->engine, toScriptValue,
+  qScriptRegisterMetaType<QVector<QDate> >(consoleWindow->engine, toScriptValue,
                                           fromScriptValue);
-  qScriptRegisterMetaType<QVector<QDateTime>>(consoleWindow->engine,
+  qScriptRegisterMetaType<QVector<QDateTime> >(consoleWindow->engine,
                                               toScriptValue, fromScriptValue);
 }
 
