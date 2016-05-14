@@ -10974,10 +10974,10 @@ void ApplicationWindow::appendProject(const QString &fn) {
       else
         current_folder = parent;
     }
-
-    file->close();
-    delete file;
   }
+
+  file->close();
+  delete file;
 
   folders->blockSignals(false);
   // change folder to user defined current folder
