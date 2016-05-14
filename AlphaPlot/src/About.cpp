@@ -18,10 +18,12 @@
 #include "About.h"
 #include "globals.h"
 #include "core/IconLoader.h"
+#include "core/Utilities.h"
 
 About::About(QWidget* parent) : QDialog(parent) {
   ui_.setupUi(this);
 
+  ui_.gridLayout->setContentsMargins(0, 0, 0, 0);
   ui_.verticalLayout_2->setSpacing(0);
   ui_.verticalLayout_2->setContentsMargins(0, 0, 0, 0);
   ui_.horizontalLayout->setContentsMargins(0, 10, 0, 10);
@@ -29,8 +31,10 @@ About::About(QWidget* parent) : QDialog(parent) {
   ui_.verticalLayout->setContentsMargins(0, 0, 0, 0);
   ui_.verticalLayout->setSpacing(0);
 
-  ui_.versionLabel->setText("AlpaPlot " + AlphaPlot::versionString() +
+  ui_.versionLabel->setText(AlphaPlot::versionString() +
                             AlphaPlot::extraVersion());
-  ui_.releaseDateLabel->setText(QObject::tr("Released") + ": " +
-                                AlphaPlot::releaseDateString());
+  ui_.releaseDateLabel->setText(AlphaPlot::releaseDateString());
+  ui_.osLabel->setText(QString("%1 %2-bit")
+                           .arg(Utilities::getOperatingSystem())
+                           .arg(Utilities::getWordSizeOfOS()));
 }

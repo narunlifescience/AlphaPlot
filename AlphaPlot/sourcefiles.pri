@@ -7,6 +7,7 @@
 
 HEADERS  += src/ApplicationWindow.h \
             src/core/IconLoader.h \
+            src/core/Utilities.h \
             src/globals.h\
             src/scripting/ScriptingFunctions.h\
             src/Graph.h \
@@ -127,6 +128,7 @@ HEADERS  += src/ApplicationWindow.h \
 
 SOURCES  += src/ApplicationWindow.cpp \
             src/core/IconLoader.cpp \
+            src/core/Utilities.cpp \
             src/Graph.cpp \
             src/3Dplot/Graph3D.cpp \
             src/Table.cpp \
