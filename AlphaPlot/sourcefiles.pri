@@ -120,6 +120,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/ui/GeneralAppreanceSettings.h \
             src/ui/SettingsPage.h \
             src/ui/SettingsDialog.h \
+            src/ui/PropertiesDialog.h \
             src/About.h \
 
 ###################### SOURCES ##############################################
@@ -237,6 +238,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ui/GeneralAppreanceSettings.cpp \
             src/ui/SettingsPage.cpp \
             src/ui/SettingsDialog.cpp \
+            src/ui/PropertiesDialog.cpp \
             src/About.cpp \
             src/main.cpp
 
@@ -246,6 +248,7 @@ FORMS        += src/ApplicationWindow.ui \
                 src/ui/GeneralApplicationSettings.ui \
                 src/ui/GeneralAppreanceSettings.ui \
                 src/ui/SettingsDialog.ui \
+                src/ui/PropertiesDialog.ui \
                 src/About.ui \
 
 ########### Future code backported from the aspect framework ##################

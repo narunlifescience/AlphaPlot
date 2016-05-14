@@ -109,6 +109,8 @@
 #include "scripting/widgets/ConsoleWidget.h"
 #include "scripting/ScriptingFunctions.h"
 
+#include "ui/PropertiesDialog.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -153,6 +155,7 @@
 #include <QTemporaryFile>
 #include <QDebug>
 #include <QScriptValue>
+#include <QPixmap>
 
 #include <zlib.h>
 
@@ -11359,69 +11362,53 @@ void ApplicationWindow::hideAllFolderWindows() {
   }
 }
 
-void ApplicationWindow::projectProperties() {
-  QString s = QString(current_folder->name()) + "\n\n";
-  s += "\n\n\n";
-  s += tr("Type") + ": " + tr("Project") + "\n\n";
-  if (projectname != "untitled") {
-    s += tr("Path") + ": " + projectname + "\n\n";
-
-    QFileInfo fi(projectname);
-    s += tr("Size") + ": " + QString::number(fi.size()) + " " + tr("bytes") +
-         "\n\n";
-  }
-
-  QList<QWidget *> *lst = windowsList();
-  s += tr("Contents") + ": " + QString::number(lst->count()) + " " +
-       tr("windows");
-  delete lst;
-
-  s += ", " + QString::number(current_folder->subfolders().count()) + " " +
-       tr("folders") + "\n\n";
-  s += "\n\n\n";
-
-  if (projectname != "untitled") {
-    QFileInfo fi(projectname);
-    s += tr("Created") + ": " + fi.created().toString(Qt::LocalDate) + "\n\n";
-    s += tr("Modified") + ": " + fi.lastModified().toString(Qt::LocalDate) +
-         "\n\n";
-  } else
-    s += tr("Created") + ": " + current_folder->birthDate() + "\n\n";
-
-  QMessageBox *mbox =
-      new QMessageBox(tr("Properties"), s, QMessageBox::NoIcon, QMessageBox::Ok,
-                      QMessageBox::NoButton, QMessageBox::NoButton, this);
-
-  mbox->setIconPixmap(QPixmap(":/appicon"));
-  mbox->show();
-}
-
 void ApplicationWindow::folderProperties() {
+  std::unique_ptr<PropertiesDialog> propertiesDialog(
+      new PropertiesDialog(this));
+  PropertiesDialog::Properties properties;
+  // project properties
   if (!current_folder->parent()) {
-    projectProperties();
-    return;
+    properties.icon = QPixmap(":/appicon-64");
+    properties.name = currentFolder()->name();
+    properties.type = "AlphaPlot " + tr("Project");
+    properties.content = QString(tr("%1 Folders \n %2 Windows"))
+                             .arg(current_folder->subfolders().count())
+                             .arg(windowsList()->count());
+    if (projectname != "untitled") {
+      QFileInfo fileInfo(projectname);
+      properties.path = projectname;
+      (saved) ? properties.status = tr("Saved") : properties.status =
+                                                      tr("Not Saved");
+      properties.size = QString::number(fileInfo.size());
+      properties.created = fileInfo.created().toString(Qt::LocalDate);
+      properties.modified = fileInfo.lastModified().toString(Qt::LocalDate);
+      properties.label = "";
+    } else {
+      properties.path = projectname;
+      properties.status = tr("never saved");
+      properties.size = tr("never saved");
+      properties.created = current_folder->birthDate();
+      properties.modified = tr("never saved");
+      properties.label = "";
+    }
+    // folder properties
+  } else {
+    properties.icon =
+        QPixmap(QPixmap(":icons/common/64/folder-properties.png"));
+    properties.name = currentFolder()->name();
+    properties.type = tr("Folder");
+    properties.status = tr("Not applicable");
+    properties.path = current_folder->path();
+    properties.size = tr("Not applicable");
+    properties.created = current_folder->birthDate();
+    properties.modified = currentFolder()->modificationDate();
+    properties.label = "";
+    properties.content = QString(tr("%1 Folders \n %2 Windows"))
+                             .arg(current_folder->subfolders().count())
+                             .arg(current_folder->windowsList().count());
   }
-
-  QString s = current_folder->name() + "\n\n";
-  s += "\n\n\n";
-  s += tr("Type") + ": " + tr("Folder") + "\n\n";
-  s += tr("Path") + ": " + current_folder->path() + "\n\n";
-  s += tr("Contents") + ": " +
-       QString::number(current_folder->windowsList().count()) + " " +
-       tr("windows");
-  s += ", " + QString::number(current_folder->subfolders().count()) + " " +
-       tr("folders") + "\n\n";
-  // s += "\n\n\n";
-  s += tr("Created") + ": " + current_folder->birthDate() + "\n\n";
-  // s += tr("Modified") + ": " + current_folder->modificationDate() + "\n\n";
-
-  QMessageBox *mbox =
-      new QMessageBox(tr("Properties"), s, QMessageBox::NoIcon, QMessageBox::Ok,
-                      QMessageBox::NoButton, QMessageBox::NoButton, this);
-
-  mbox->setIconPixmap(
-      IconLoader::load("folder-open", IconLoader::General).pixmap(16));
-  mbox->show();
+  propertiesDialog->setupProperties(properties);
+  propertiesDialog->exec();
 }
 
 void ApplicationWindow::addFolder() {
@@ -11682,45 +11669,74 @@ void ApplicationWindow::addListViewItem(MyWidget *w) {
 }
 
 void ApplicationWindow::windowProperties() {
-  WindowListItem *it = (WindowListItem *)lv->currentItem();
-  MyWidget *w = it->window();
-  if (!w) return;
+  WindowListItem *item = static_cast<WindowListItem *>(lv->currentItem());
+  MyWidget *window = item->window();
+  if (!window) return;
+  std::unique_ptr<PropertiesDialog> propertiesDialog(
+      new PropertiesDialog(this));
+  PropertiesDialog::Properties properties;
 
-  QMessageBox *mbox = new QMessageBox(
-      tr("Properties"), QString(), QMessageBox::NoIcon, QMessageBox::Ok,
-      QMessageBox::NoButton, QMessageBox::NoButton, this);
-
-  QString s = QString(w->name()) + "\n\n";
-  s += "\n\n\n";
-
-  s += tr("Label") + ": " + ((MyWidget *)w)->windowLabel() + "\n\n";
-
-  if (w->inherits("Matrix")) {
-    mbox->setIconPixmap(
-        IconLoader::load("matrix", IconLoader::LightDark).pixmap(16));
-    s += tr("Type") + ": " + tr("Matrix") + "\n\n";
-  } else if (w->inherits("Table")) {
-    mbox->setIconPixmap(
-        IconLoader::load("table", IconLoader::LightDark).pixmap(16));
-    s += tr("Type") + ": " + tr("Table") + "\n\n";
-  } else if (w->inherits("Note")) {
-    mbox->setIconPixmap(
-        IconLoader::load("edit-note", IconLoader::LightDark).pixmap(16));
-    s += tr("Type") + ": " + tr("Note") + "\n\n";
-  } else if (w->inherits("MultiLayer")) {
-    mbox->setIconPixmap(
-        IconLoader::load("edit-graph", IconLoader::LightDark).pixmap(16));
-    s += tr("Type") + ": " + tr("Graph") + "\n\n";
-  } else if (w->inherits("Graph3D")) {
-    mbox->setIconPixmap(
-        IconLoader::load("edit-graph3d", IconLoader::LightDark).pixmap(16));
-    s += tr("Type") + ": " + tr("3D Graph") + "\n\n";
+  if (window->inherits("Matrix")) {
+    properties.icon = QPixmap(":icons/common/64/matrix-properties.png");
+    properties.type = tr("Matrix");
+    properties.size = QString("%1 x %2")
+                          .arg(static_cast<Matrix *>(window)->size().height())
+                          .arg(static_cast<Matrix *>(window)->size().width());
+    properties.content = QString(tr("%1 Rows, \n %2 Columns"))
+                             .arg(static_cast<Matrix *>(window)->numRows())
+                             .arg(static_cast<Matrix *>(window)->numCols());
+  } else if (window->inherits("Table")) {
+    properties.icon = QPixmap(":icons/common/64/table-properties.png");
+    properties.type = tr("Table");
+    properties.size = QString("%1 x %2")
+                          .arg(static_cast<Table *>(window)->size().height())
+                          .arg(static_cast<Table *>(window)->size().width());
+    properties.content = QString(tr("%1 Rows, \n %2 Columns"))
+                             .arg(static_cast<Table *>(window)->numRows())
+                             .arg(static_cast<Table *>(window)->numCols());
+  } else if (window->inherits("Note")) {
+    properties.icon = QPixmap(":icons/common/64/note-properties.png");
+    properties.type = tr("Note");
+    properties.size = QString("%1 x %2")
+                          .arg(static_cast<Note *>(window)->size().height())
+                          .arg(static_cast<Note *>(window)->size().width());
+    properties.content =
+        QString(tr("%1 Characters, \n %2 Lines"))
+            .arg(QString::number(static_cast<Note *>(window)->text().count()))
+            .arg("(unavailable)");
+  } else if (window->inherits("MultiLayer")) {
+    properties.icon = QPixmap(":icons/common/64/graph2D-properties.png");
+    properties.type = tr("Graph2D");
+    properties.size =
+        QString("%1 x %2")
+            .arg(static_cast<MultiLayer *>(window)->size().height())
+            .arg(static_cast<MultiLayer *>(window)->size().width());
+    properties.content = QString(tr("%1 Layers, \n %2x%3 Layout"))
+                             .arg(static_cast<MultiLayer *>(window)->layers())
+                             .arg(static_cast<MultiLayer *>(window)->getRows())
+                             .arg(static_cast<MultiLayer *>(window)->getCols());
+  } else if (window->inherits("Graph3D")) {
+    properties.icon = QPixmap(":icons/common/64/graph3D-properties.png");
+    properties.type = tr("Graph3D");
+    properties.size = QString("%1 x %2")
+                          .arg(static_cast<Graph3D *>(window)->size().height())
+                          .arg(static_cast<Graph3D *>(window)->size().width());
+    properties.content =
+        QString(tr("%1x%2 Resolution, \n %3 Grids"))
+            .arg(static_cast<Graph3D *>(window)->size().height())
+            .arg(static_cast<Graph3D *>(window)->size().width())
+            .arg(static_cast<Graph3D *>(window)->grids());
   }
-  s += tr("Path") + ": " + current_folder->path() + "\n\n";
-  s += tr("Created") + ": " + w->birthDate() + "\n\n";
-  s += tr("Status") + ": " + it->text(2) + "\n\n";
-  mbox->setText(s);
-  mbox->show();
+
+  properties.name = window->name();
+  properties.status = item->text(2);
+  properties.path = current_folder->path();
+  properties.created = window->birthDate();
+  properties.modified = "";
+  properties.label = window->windowLabel();
+
+  propertiesDialog->setupProperties(properties);
+  propertiesDialog->exec();
 }
 
 void ApplicationWindow::addFolderListViewItem(Folder *f) {
@@ -12364,19 +12380,19 @@ void ApplicationWindow::attachQtScript() {
                                     tableObjectToScriptValue,
                                     tableObjectFromScriptValue);
   qScriptRegisterMetaType<QVector<int> >(consoleWindow->engine, toScriptValue,
-                                        fromScriptValue);
-  qScriptRegisterMetaType<QVector<float> >(consoleWindow->engine, toScriptValue,
-                                          fromScriptValue);
-  qScriptRegisterMetaType<QVector<double> >(consoleWindow->engine, toScriptValue,
-                                           fromScriptValue);
-  qScriptRegisterMetaType<QVector<long> >(consoleWindow->engine, toScriptValue,
                                          fromScriptValue);
-  qScriptRegisterMetaType<QVector<QString> >(consoleWindow->engine,
+  qScriptRegisterMetaType<QVector<float> >(consoleWindow->engine, toScriptValue,
+                                           fromScriptValue);
+  qScriptRegisterMetaType<QVector<double> >(consoleWindow->engine,
                                             toScriptValue, fromScriptValue);
-  qScriptRegisterMetaType<QVector<QDate> >(consoleWindow->engine, toScriptValue,
+  qScriptRegisterMetaType<QVector<long> >(consoleWindow->engine, toScriptValue,
                                           fromScriptValue);
+  qScriptRegisterMetaType<QVector<QString> >(consoleWindow->engine,
+                                             toScriptValue, fromScriptValue);
+  qScriptRegisterMetaType<QVector<QDate> >(consoleWindow->engine, toScriptValue,
+                                           fromScriptValue);
   qScriptRegisterMetaType<QVector<QDateTime> >(consoleWindow->engine,
-                                              toScriptValue, fromScriptValue);
+                                               toScriptValue, fromScriptValue);
 }
 
 Table *ApplicationWindow::getTableHandle() {

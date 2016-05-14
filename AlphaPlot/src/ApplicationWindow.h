@@ -90,6 +90,7 @@ class AbstractAspect;
 class ConsoleWidget;
 class IconLoader;
 class SettingsDialog;
+class PropertiesDialog;
 
 #ifndef TS_PATH
 #define TS_PATH (qApp->applicationDirPath() + "/translations")
@@ -848,14 +849,9 @@ class ApplicationWindow : public QMainWindow,
   //!  hides all windows in folder f
   void hideFolderWindows(Folder* f);
 
-  //!  pops up folder information
+  //  pops up project, folder or window information
   void folderProperties();
-
-  //!  pops up information about the selected window item
   void windowProperties();
-
-  //!  pops up information about the current project
-  void projectProperties();
 
   //! Pops up a file dialog and invokes appendProject(const QString&) on the
   //! result.

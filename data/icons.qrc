@@ -211,6 +211,12 @@
 	<file alias="appicon-96">icons/app/96/AlphaPlot.png</file>
 	<file alias="appicon-128">icons/app/128/AlphaPlot.png</file>
     <file alias="applogo">AlphaPlot-logo.png</file>
+    <file>icons/common/64/folder-properties.png</file>
+    <file>icons/common/64/graph2D-properties.png</file>
+    <file>icons/common/64/graph3D-properties.png</file>
+    <file>icons/common/64/matrix-properties.png</file>
+    <file>icons/common/64/note-properties.png</file>
+    <file>icons/common/64/table-properties.png</file>
     <file>icons/common/16/folder-closed.png</file>
     <file>icons/common/16/folder-open.png</file>
     <file>icons/common/16/application-exit.png</file>
