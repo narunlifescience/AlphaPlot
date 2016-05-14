@@ -698,6 +698,7 @@
     <file>icons/dark/16/graph3d-function-xyz.png</file>
     <file>icons/dark/16/view-sort.png</file>
     <file>icons/dark/16/dialog-ok-apply.png</file>
+    <file>icons/dark/16/alpha-project.png</file>
 	<file>icons/dark/22/edit-copy.png</file>
 	<file>icons/dark/22/edit-cut.png</file>
 	<file>icons/dark/22/edit-paste.png</file>
@@ -802,6 +803,7 @@
     <file>icons/dark/22/graph3d-function-xyz.png</file>
     <file>icons/dark/22/view-sort.png</file>
     <file>icons/dark/22/dialog-ok-apply.png</file>
+    <file>icons/dark/22/alpha-project.png</file>
 	<file>icons/dark/24/edit-copy.png</file>
 	<file>icons/dark/24/edit-cut.png</file>
 	<file>icons/dark/24/edit-paste.png</file>
@@ -905,6 +907,7 @@
     <file>icons/dark/24/graph3d-function-xyz.png</file>
     <file>icons/dark/24/view-sort.png</file>
     <file>icons/dark/24/dialog-ok-apply.png</file>
+    <file>icons/dark/24/alpha-project.png</file>
     <file>icons/dark/32/graph-x-error.png</file>
     <file>icons/dark/32/graph-y-error.png</file>
     <file>icons/dark/32/table-column-sum.png</file>
@@ -921,6 +924,7 @@
     <file>icons/dark/32/graph3d-ribbon.png</file>
     <file>icons/dark/32/graph3d-scatter.png</file>
     <file>icons/dark/32/graph3d-trajectory.png</file>
+    <file>icons/dark/32/alpha-project.png</file>
     <file>icons/light/16/graph3d-back-grid.xpm</file>
     <file>icons/light/16/graph3d-box-axis.xpm</file>
     <file>icons/light/16/graph3d-fit-frame.xpm</file>

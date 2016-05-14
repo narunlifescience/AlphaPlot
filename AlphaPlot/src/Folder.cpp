@@ -187,13 +187,12 @@ FolderListItem::FolderListItem(FolderListItem *parent, Folder *f)
 }
 
 void FolderListItem::setActive(bool o) {
-  if (o)
-    setPixmap(0, IconLoader::load("folder-open", IconLoader::General)
-                     .pixmap(16));
-  else
-    setPixmap(0, IconLoader::load("folder-closed", IconLoader::General)
-                     .pixmap(16));
-
+    if (o)
+      setPixmap(
+          0, IconLoader::load("folder-open", IconLoader::General).pixmap(16));
+    else
+      setPixmap(
+          0, IconLoader::load("folder-closed", IconLoader::General).pixmap(16));
   setSelected(o);
 }
 
