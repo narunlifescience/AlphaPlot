@@ -24,6 +24,7 @@ class PropertiesDialog : public QDialog {
     QString created;
     QString modified;
     QString label;
+    QString description;
   };
 
   void setupProperties(const Properties &properties)  const;

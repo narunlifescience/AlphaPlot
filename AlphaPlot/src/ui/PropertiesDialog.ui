@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>422</width>
-    <height>468</height>
+    <height>490</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="general">
+     <widget class="QWidget" name="generalTab">
       <attribute name="title">
        <string>General</string>
       </attribute>
@@ -157,7 +157,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="contentValue">
+            <widget class="QLabel" name="contentValue1">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="contentValue2">
              <property name="text">
               <string>TextLabel</string>
              </property>
@@ -263,10 +270,15 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="description">
+     <widget class="QWidget" name="descriptionTab">
       <attribute name="title">
        <string>Description</string>
       </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QPlainTextEdit" name="descriptionPlainTextEdit"/>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>

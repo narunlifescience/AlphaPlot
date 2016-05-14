@@ -11362,55 +11362,6 @@ void ApplicationWindow::hideAllFolderWindows() {
   }
 }
 
-void ApplicationWindow::folderProperties() {
-  std::unique_ptr<PropertiesDialog> propertiesDialog(
-      new PropertiesDialog(this));
-  PropertiesDialog::Properties properties;
-  // project properties
-  if (!current_folder->parent()) {
-    properties.icon = QPixmap(":/appicon-64");
-    properties.name = currentFolder()->name();
-    properties.type = "AlphaPlot " + tr("Project");
-    properties.content = QString(tr("%1 Folders \n %2 Windows"))
-                             .arg(current_folder->subfolders().count())
-                             .arg(windowsList()->count());
-    if (projectname != "untitled") {
-      QFileInfo fileInfo(projectname);
-      properties.path = projectname;
-      (saved) ? properties.status = tr("Saved") : properties.status =
-                                                      tr("Not Saved");
-      properties.size = QString::number(fileInfo.size());
-      properties.created = fileInfo.created().toString(Qt::LocalDate);
-      properties.modified = fileInfo.lastModified().toString(Qt::LocalDate);
-      properties.label = "";
-    } else {
-      properties.path = projectname;
-      properties.status = tr("never saved");
-      properties.size = tr("never saved");
-      properties.created = current_folder->birthDate();
-      properties.modified = tr("never saved");
-      properties.label = "";
-    }
-    // folder properties
-  } else {
-    properties.icon =
-        QPixmap(QPixmap(":icons/common/64/folder-properties.png"));
-    properties.name = currentFolder()->name();
-    properties.type = tr("Folder");
-    properties.status = tr("Not applicable");
-    properties.path = current_folder->path();
-    properties.size = tr("Not applicable");
-    properties.created = current_folder->birthDate();
-    properties.modified = currentFolder()->modificationDate();
-    properties.label = "";
-    properties.content = QString(tr("%1 Folders \n %2 Windows"))
-                             .arg(current_folder->subfolders().count())
-                             .arg(current_folder->windowsList().count());
-  }
-  propertiesDialog->setupProperties(properties);
-  propertiesDialog->exec();
-}
-
 void ApplicationWindow::addFolder() {
   QStringList lst = current_folder->subfolders();
   QString name = tr("New Folder");
@@ -11668,6 +11619,57 @@ void ApplicationWindow::addListViewItem(MyWidget *w) {
   it->setText(4, w->windowLabel());
 }
 
+void ApplicationWindow::folderProperties() {
+  std::unique_ptr<PropertiesDialog> propertiesDialog(
+      new PropertiesDialog(this));
+  PropertiesDialog::Properties properties;
+  // project properties
+  if (!current_folder->parent()) {
+    properties.icon = QPixmap(":icons/common/64/project-properties.png");
+    properties.name = currentFolder()->name();
+    properties.type = "AlphaPlot " + tr("Project");
+    properties.description = tr("This is an AlphaPlot project");
+    properties.content = QString(tr("%1 Folders,\n%2 Windows"))
+                             .arg(current_folder->subfolders().count())
+                             .arg(windowsList()->count());
+    if (projectname != "untitled") {
+      QFileInfo fileInfo(projectname);
+      properties.path = projectname;
+      (saved) ? properties.status = tr("Saved") : properties.status =
+                                                      tr("Not Saved");
+      properties.size = QString::number(fileInfo.size());
+      properties.created = fileInfo.created().toString(Qt::LocalDate);
+      properties.modified = fileInfo.lastModified().toString(Qt::LocalDate);
+      properties.label = "";
+    } else {
+      properties.path = projectname;
+      properties.status = tr("never saved");
+      properties.size = tr("never saved");
+      properties.created = current_folder->birthDate();
+      properties.modified = tr("never saved");
+      properties.label = "";
+    }
+    // folder properties
+  } else {
+    properties.icon =
+        QPixmap(QPixmap(":icons/common/64/folder-properties.png"));
+    properties.name = currentFolder()->name();
+    properties.type = tr("Folder");
+    properties.status = tr("Not applicable");
+    properties.path = current_folder->path();
+    properties.size = tr("Not applicable");
+    properties.created = current_folder->birthDate();
+    properties.modified = currentFolder()->modificationDate();
+    properties.label = "";
+    properties.content = QString(tr("%1 Folders,\n%2 Windows"))
+                             .arg(current_folder->subfolders().count())
+                             .arg(current_folder->windowsList().count());
+    properties.description = tr("This is an AlphaPlot Folder");
+  }
+  propertiesDialog->setupProperties(properties);
+  propertiesDialog->exec();
+}
+
 void ApplicationWindow::windowProperties() {
   WindowListItem *item = static_cast<WindowListItem *>(lv->currentItem());
   MyWidget *window = item->window();
@@ -11682,18 +11684,20 @@ void ApplicationWindow::windowProperties() {
     properties.size = QString("%1 x %2")
                           .arg(static_cast<Matrix *>(window)->size().height())
                           .arg(static_cast<Matrix *>(window)->size().width());
-    properties.content = QString(tr("%1 Rows, \n %2 Columns"))
+    properties.content = QString(tr("%1 Rows,\n%2 Columns"))
                              .arg(static_cast<Matrix *>(window)->numRows())
                              .arg(static_cast<Matrix *>(window)->numCols());
+    properties.description = tr("This is an AlphaPlot Matrix");
   } else if (window->inherits("Table")) {
     properties.icon = QPixmap(":icons/common/64/table-properties.png");
     properties.type = tr("Table");
     properties.size = QString("%1 x %2")
                           .arg(static_cast<Table *>(window)->size().height())
                           .arg(static_cast<Table *>(window)->size().width());
-    properties.content = QString(tr("%1 Rows, \n %2 Columns"))
+    properties.content = QString(tr("%1 Rows,\n%2 Columns"))
                              .arg(static_cast<Table *>(window)->numRows())
                              .arg(static_cast<Table *>(window)->numCols());
+    properties.description = tr("This is an AlphaPlot Table");
   } else if (window->inherits("Note")) {
     properties.icon = QPixmap(":icons/common/64/note-properties.png");
     properties.type = tr("Note");
@@ -11701,9 +11705,10 @@ void ApplicationWindow::windowProperties() {
                           .arg(static_cast<Note *>(window)->size().height())
                           .arg(static_cast<Note *>(window)->size().width());
     properties.content =
-        QString(tr("%1 Characters, \n %2 Lines"))
+        QString(tr("%1 Characters,\n%2 Lines"))
             .arg(QString::number(static_cast<Note *>(window)->text().count()))
             .arg("(unavailable)");
+    properties.description = tr("This is an AlphaPlot Note");
   } else if (window->inherits("MultiLayer")) {
     properties.icon = QPixmap(":icons/common/64/graph2D-properties.png");
     properties.type = tr("Graph2D");
@@ -11711,10 +11716,11 @@ void ApplicationWindow::windowProperties() {
         QString("%1 x %2")
             .arg(static_cast<MultiLayer *>(window)->size().height())
             .arg(static_cast<MultiLayer *>(window)->size().width());
-    properties.content = QString(tr("%1 Layers, \n %2x%3 Layout"))
+    properties.content = QString(tr("%1 Layers,\n%2x%3 Layout"))
                              .arg(static_cast<MultiLayer *>(window)->layers())
                              .arg(static_cast<MultiLayer *>(window)->getRows())
                              .arg(static_cast<MultiLayer *>(window)->getCols());
+    properties.description = tr("This is an AlphaPlot 2D Graph");
   } else if (window->inherits("Graph3D")) {
     properties.icon = QPixmap(":icons/common/64/graph3D-properties.png");
     properties.type = tr("Graph3D");
@@ -11722,10 +11728,11 @@ void ApplicationWindow::windowProperties() {
                           .arg(static_cast<Graph3D *>(window)->size().height())
                           .arg(static_cast<Graph3D *>(window)->size().width());
     properties.content =
-        QString(tr("%1x%2 Resolution, \n %3 Grids"))
+        QString(tr("%1x%2 Resolution,\n%3 Grids"))
             .arg(static_cast<Graph3D *>(window)->size().height())
             .arg(static_cast<Graph3D *>(window)->size().width())
             .arg(static_cast<Graph3D *>(window)->grids());
+    properties.description = tr("This is an AlphaPlot 3D Graph");
   }
 
   properties.name = window->name();

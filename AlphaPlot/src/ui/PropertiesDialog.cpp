@@ -36,5 +36,8 @@ void PropertiesDialog::setupProperties(const Properties &properties) const {
   ui_->sizeValue->setText(properties.size);
   ui_->createdValue->setText(properties.created);
   ui_->modifiedValue->setText(properties.modified);
-  ui_->contentValue->setText(properties.content);
+  QStringList lst = properties.content.split("\n");
+  ui_->contentValue1->setText(lst.at(0));
+  ui_->contentValue2->setText(lst.at(1));
+  ui_->descriptionPlainTextEdit->setPlainText(properties.description);
 }
