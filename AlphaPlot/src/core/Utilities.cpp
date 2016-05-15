@@ -22,6 +22,11 @@
 #include <QSysInfo>
 #include <QStringList>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include <assert.h>
+#endif
+
 QString Utilities::getOperatingSystem() {
 #if defined(Q_OS_WIN32)
   switch (QSysInfo::windowsVersion()) {
@@ -62,6 +67,10 @@ QString Utilities::getOperatingSystem() {
       return QString("Mac OS X 10.8");
     case QSysInfo::MV_10_9:
       return QString("Mac OS X 10.9");
+    case QSysInfo::MV_10_10:
+      return QString("Mac OS X 10.10");
+    //case QSysInfo::MV_10_11: (mot available in qt4)
+      //return QString("Mac OS X 10.11");
     default:
       return QString("Mac OS X");
   }
@@ -100,7 +109,7 @@ int Utilities::getWordSizeOfOS() {
   typedef BOOL(WINAPI * LPFN_ISWOW64PROCESS)(HANDLE, PBOOL);
 
   LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
-      GetModuleHandle("kernel32"), "IsWow64Process");
+      GetModuleHandle(L"kernel32"), "IsWow64Process");
 
   if (NULL != fnIsWow64Process) {
     if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64)) {

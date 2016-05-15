@@ -64,8 +64,12 @@ QString AlphaPlot::extraVersion() { return QString(extra_version); }
 
 QString AlphaPlot::releaseDateString() { return release_date; }
 
-QString AlphaPlot::originalAuthorString() {
-  return "Arun Narayanankutty <n.arun.lifescience@gmail.com>";
+QString AlphaPlot::originalAuthor() {
+  return "Arun Narayanankutty";
+}
+
+QString AlphaPlot::originalAuthorWithMail() {
+  return "Arun Narayanankutty: <n.arun.lifescience@gmail.com";
 }
 
 QString AlphaPlot::enumValueToString(int key, const QString& enum_name) {

@@ -7,9 +7,12 @@
 
 Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalysis and <i>Vis</i>ualization for Windows, Linux and Mac OS X (probably BSD also).
 
-- Website: http://alphaplot.sourceforge.net/
-- Github: https://github.com/narunlifescience/AlphaPlot
-- Latest test builds: http://alphaplot.sourceforge.net/test-build.html
+| Web         | Link                                             |
+|:------------|:-------------------------------------------------|
+| Website     | http://alphaplot.sourceforge.net/                |
+| Github      | https://github.com/narunlifescience/AlphaPlot    |
+| Sourceforge | https://sourceforge.net/projects/alphaplot/      |
+| Test builds | http://alphaplot.sourceforge.net/test-build.html |
 
 #![screenshot](data/screenshots/alphaplot1.png)
 
@@ -53,8 +56,10 @@ If there are no answers, it doesn't mean we don't care about your feature reques
 
 The following packages may be required by Alpha plot ...
 
-- Qt (https://download.qt.io/archive/qt/4.8/4.8.5/),
-- Qwt (http://qwt.sourceforge.net/),
-- Qwtplot3D (http://qwtplot3d.sourceforge.net/),
-- muParser (http://muparser.beltoforion.de/),
-- GSL (http://www.gnu.org/software/gsl/)
+| Package   | Link                                         |
+|:----------|:---------------------------------------------|
+| Qt        | https://download.qt.io/archive/qt/4.8/4.8.5/ |
+| Qwt       | http://qwt.sourceforge.net/                  |
+| Qwtplot3D | http://qwtplot3d.sourceforge.net/            |
+| muParser  | http://muparser.beltoforion.de/              |
+| GSL       | http://www.gnu.org/software/gsl/             |

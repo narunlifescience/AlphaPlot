@@ -10572,7 +10572,7 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
                   "\n" + tr("Released") + ": " +
                   AlphaPlot::releaseDateString() + "\n" +
                   tr("Original author") + ": " +
-                  AlphaPlot::originalAuthorString() + "\n";
+                  AlphaPlot::originalAuthorWithMail() + "\n";
 
 #ifdef Q_OS_WIN
       hide();

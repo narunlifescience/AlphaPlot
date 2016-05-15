@@ -105,7 +105,9 @@ class AlphaPlot : public QObject {
   static QString releaseDateString();
 
   // Returns original author
-  static QString originalAuthorString();
+  static QString originalAuthor();
+
+  static QString originalAuthorWithMail();
 
  private:
   /* 0xMMmmbb means MM.mm.bb with<br>

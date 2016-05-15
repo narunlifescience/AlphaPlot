@@ -115,7 +115,7 @@
        <item>
         <widget class="QLabel" name="originalAuthorLabel">
          <property name="text">
-          <string>Arun Narayanankutty</string>
+          <string>Author</string>
          </property>
         </widget>
        </item>

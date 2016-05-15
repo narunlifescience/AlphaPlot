@@ -34,6 +34,7 @@ About::About(QWidget* parent) : QDialog(parent) {
   ui_.versionLabel->setText(AlphaPlot::versionString() +
                             AlphaPlot::extraVersion());
   ui_.releaseDateLabel->setText(AlphaPlot::releaseDateString());
+  ui_.originalAuthorLabel->setText(AlphaPlot::originalAuthor());
   ui_.osLabel->setText(QString("%1 %2-bit")
                            .arg(Utilities::getOperatingSystem())
                            .arg(Utilities::getWordSizeOfOS()));
