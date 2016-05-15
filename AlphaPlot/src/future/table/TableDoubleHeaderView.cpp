@@ -29,10 +29,10 @@
  ***************************************************************************/
 
 #include "TableDoubleHeaderView.h"
-#include "TableCommentsHeaderModel.h"
 #include <QApplication>
 #include <QEvent>
 #include <QLayout>
+#include "TableCommentsHeaderModel.h"
 
 TableCommentsHeaderView::TableCommentsHeaderView(QWidget *parent)
     : QHeaderView(Qt::Horizontal, parent) {}
@@ -91,6 +91,8 @@ void TableDoubleHeaderView::paintSection(QPainter *painter, const QRect &rect,
     QRect slave_rect = rect.adjusted(0, QHeaderView::sizeHint().height(), 0, 0);
     d_slave->paintSection(painter, slave_rect, logicalIndex);
   }
+  // Color code column decorations
+  emit setColColorCode(painter, master_rect, logicalIndex);
 }
 
 bool TableDoubleHeaderView::areCommentsShown() const { return d_show_comments; }

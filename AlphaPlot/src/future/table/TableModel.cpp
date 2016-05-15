@@ -27,13 +27,13 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "core/column/Column.h"
-#include "table/future_Table.h"
 #include "table/TableModel.h"
-#include <QString>
 #include <QBrush>
 #include <QIcon>
 #include <QPixmap>
+#include <QString>
+#include "core/column/Column.h"
+#include "table/future_Table.h"
 
 TableModel::TableModel(future::Table *table)
     : QAbstractItemModel(0),

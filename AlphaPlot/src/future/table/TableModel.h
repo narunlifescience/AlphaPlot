@@ -31,10 +31,10 @@
 #define TABLEMODEL_H
 
 #include <QAbstractItemModel>
+#include <QColor>
 #include <QList>
 #include <QStringList>
 #include "core/AbstractFilter.h"
-#include <QColor>
 
 class Column;
 namespace future {

@@ -30,28 +30,28 @@
 #ifndef TABLEVIEW_H
 #define TABLEVIEW_H
 
-#include <QWidget>
-#include <QTableView>
-#include <QMessageBox>
-#include <QHeaderView>
-#include <QSize>
-#include <QTabWidget>
-#include <QPushButton>
-#include <QToolButton>
+#include <QComboBox>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
-#include <QTextEdit>
+#include <QMessageBox>
 #include <QPushButton>
-#include <QComboBox>
-#include <QSpinBox>
+#include <QPushButton>
 #include <QScrollArea>
-#include "ui_controltabs.h"
+#include <QSize>
+#include <QSpinBox>
+#include <QTabWidget>
+#include <QTableView>
+#include <QTextEdit>
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <QWidget>
 #include <QtDebug>
-#include "globals.h"
 #include "MyWidget.h"
+#include "globals.h"
 #include "lib/IntervalAttribute.h"
+#include "ui_controltabs.h"
 
 class Column;
 namespace future {
@@ -219,6 +219,9 @@ class TableView : public MyWidget {
   void applyDescription();
   void applyType();
 
+ private slots:
+  void setColColorCode(QPainter *painter, QRect &rect, int col) const;
+
  protected:
   //! Pointer to the item delegate
   TableItemDelegate *d_delegate;
@@ -246,7 +249,6 @@ class TableView : public MyWidget {
 
   //! Initialization
   void init();
-
 };
 
 #endif  //  TABLEVIEW_H

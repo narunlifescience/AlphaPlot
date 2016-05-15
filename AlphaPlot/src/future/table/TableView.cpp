@@ -27,41 +27,42 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "table/future_Table.h"
 #include "table/TableView.h"
-#include "table/TableModel.h"
-#include "table/TableItemDelegate.h"
-#include "table/tablecommands.h"
 #include "table/TableDoubleHeaderView.h"
+#include "table/TableItemDelegate.h"
+#include "table/TableModel.h"
+#include "table/future_Table.h"
+#include "table/tablecommands.h"
 
-#include "core/column/Column.h"
 #include "core/AbstractFilter.h"
-#include "core/datatypes/SimpleCopyThroughFilter.h"
-#include "core/datatypes/Double2StringFilter.h"
-#include "core/datatypes/String2DoubleFilter.h"
+#include "core/column/Column.h"
 #include "core/datatypes/DateTime2StringFilter.h"
-#include "core/datatypes/String2DateTimeFilter.h"
 #include "core/datatypes/Double2DateTimeFilter.h"
+#include "core/datatypes/Double2StringFilter.h"
+#include "core/datatypes/SimpleCopyThroughFilter.h"
+#include "core/datatypes/String2DateTimeFilter.h"
+#include "core/datatypes/String2DoubleFilter.h"
 
 #include "core/IconLoader.h"
 
-#include <QKeyEvent>
-#include <QtDebug>
-#include <QHeaderView>
-#include <QRect>
-#include <QPoint>
-#include <QSize>
-#include <QFontMetrics>
 #include <QFont>
-#include <QItemSelectionModel>
-#include <QItemSelection>
-#include <QShortcut>
-#include <QModelIndex>
+#include <QFontMetrics>
 #include <QGridLayout>
-#include <QScrollArea>
+#include <QHeaderView>
+#include <QItemSelection>
+#include <QItemSelectionModel>
+#include <QKeyEvent>
 #include <QMenu>
-#include <QSettings>
+#include <QModelIndex>
+#include <QPainter>
+#include <QPoint>
+#include <QRect>
+#include <QScrollArea>
 #include <QScrollBar>
+#include <QSettings>
+#include <QShortcut>
+#include <QSize>
+#include <QtDebug>
 
 #ifndef LEGACY_CODE_0_2_x
 TableView::TableView(future::Table *table)
@@ -80,7 +81,7 @@ TableView::TableView(const QString &label, QWidget *parent, const QString name,
 #endif
 }
 
-TableView::~TableView() { delete d_model;}
+TableView::~TableView() { delete d_model; }
 
 void TableView::setTable(future::Table *table) {
   d_table = table;
@@ -110,6 +111,9 @@ void TableView::init() {
   d_horizontal_header->setClickable(true);
   d_horizontal_header->setHighlightSections(true);
   d_view_widget->setHorizontalHeader(d_horizontal_header);
+  connect(d_horizontal_header,
+          SIGNAL(setColColorCode(QPainter *, QRect &, int)),
+          SLOT(setColColorCode(QPainter *, QRect &, int)));
 
   // Floating show hide button.
   d_hide_button = new QToolButton(this);
@@ -911,10 +915,7 @@ void TableView::goToPreviousColumn() {
   d_view_widget->setCurrentIndex(idx.sibling(idx.row(), col));
 }
 
-void TableView::selectColumn(int col)
-{
-  d_view_widget->selectColumn(col);
-}
+void TableView::selectColumn(int col) { d_view_widget->selectColumn(col); }
 
 /* ================== TableViewWidget ================ */
 
@@ -980,4 +981,38 @@ void TableView::moveFloatingButton() {
         this->width() - (d_hide_button->width() + verticalScrollWidth),
         d_control_tabs->pos().y() + 60);
   }
+}
+
+void TableView::setColColorCode(QPainter *painter, QRect &rect, int col) const {
+  // color customization can be easily done(later)
+  static QColor color;
+  static const int thickness = 2;
+  static const int xPadding = 4;
+  static const int yPadding = (thickness / 2) + 2;
+
+  switch (d_table->column(col)->plotDesignation()) {
+    case AlphaPlot::X:
+      color = QColor(0, 172, 109);
+      break;
+    case AlphaPlot::Y:
+      color = QColor(204, 140, 91);
+      break;
+    case AlphaPlot::Z:
+      color = QColor(174, 129, 255);
+      break;
+    case AlphaPlot::xErr:
+      color = Qt::red;
+      break;
+    case AlphaPlot::yErr:
+      color = Qt::red;
+      break;
+    case AlphaPlot::noDesignation:
+      color = Qt::gray;
+      break;
+  }
+
+  painter->setPen(QPen(color, thickness, Qt::SolidLine));
+  painter->drawLine(
+      rect.bottomLeft().x() + xPadding, rect.bottomLeft().y() - yPadding,
+      rect.bottomRight().x() - xPadding, rect.bottomRight().y() - yPadding);
 }

@@ -84,6 +84,9 @@ class TableDoubleHeaderView : public QHeaderView {
   //! Return whether comments are show currently
   bool areCommentsShown() const;
 
+ signals:
+  void setColColorCode(QPainter *painter, QRect &rect, int col) const;
+
  public slots:
   // adjust geometry and repaint header
   void refresh();
