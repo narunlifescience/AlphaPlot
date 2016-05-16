@@ -7778,8 +7778,8 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
 }
 
 void ApplicationWindow::about() {
-  About about;
-  about.exec();
+  std::unique_ptr <About> about(new About(this));
+  about->exec();
 }
 
 void ApplicationWindow::showMarkerPopupMenu() {

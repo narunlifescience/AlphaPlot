@@ -1011,8 +1011,10 @@ void TableView::setColColorCode(QPainter *painter, QRect &rect, int col) const {
       break;
   }
 
+  painter->restore();
   painter->setPen(QPen(color, thickness, Qt::SolidLine));
   painter->drawLine(
       rect.bottomLeft().x() + xPadding, rect.bottomLeft().y() - yPadding,
       rect.bottomRight().x() - xPadding, rect.bottomRight().y() - yPadding);
+  painter->save();
 }
