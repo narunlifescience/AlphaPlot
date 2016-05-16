@@ -64,6 +64,8 @@
 #include <QSize>
 #include <QtDebug>
 
+#include <cmath>
+
 #ifndef LEGACY_CODE_0_2_x
 TableView::TableView(future::Table *table)
     : d_table(table)
@@ -1010,11 +1012,58 @@ void TableView::setColColorCode(QPainter *painter, QRect &rect, int col) const {
       color = Qt::gray;
       break;
   }
-
   painter->restore();
   painter->setPen(QPen(color, thickness, Qt::SolidLine));
   painter->drawLine(
       rect.bottomLeft().x() + xPadding, rect.bottomLeft().y() - yPadding,
       rect.bottomRight().x() - xPadding, rect.bottomRight().y() - yPadding);
   painter->save();
+}
+
+void TableView::drawSpikinessData(QPainter *painter, QRect &rect,
+                                  int index) const {
+  // row number
+  int xMin = 0;
+  int xMax = d_table->column(index)->rowCount();
+  if (xMax <= 1) return;
+
+  // column values
+  double yMin = 0;
+  double yMax = 0;
+
+  // get ymax & ymin values
+  for (int i = 0; i < d_table->column(index)->rowCount() - 1; i++) {
+    if (yMin > d_table->column(index)->valueAt(i))
+      yMin = d_table->column(index)->valueAt(i);
+    if (yMax < d_table->column(index)->valueAt(i))
+      yMax = d_table->column(index)->valueAt(i);
+  }
+
+  // get common diffrence between consicutive x & y values
+  double xDeltaDiff = rect.width() / static_cast<double>(xMax - xMin);
+  double yDeltaDiff = rect.height() / static_cast<double>(yMax - yMin);
+
+  // set pen
+  painter->setPen(QPen(Qt::white, 1, Qt::SolidLine));
+  painter->setRenderHint(QPainter::Antialiasing);
+
+  double y1, y2;
+  double yMinAbs = std::abs(yMin);
+  for (int i = 0; i < d_table->column(index)->rowCount() - 1; i++) {
+    y1 = d_table->column(index)->valueAt(i);
+    y2 = d_table->column(index)->valueAt(i + 1);
+
+    // remap negative values to +ves
+    if (yMin < 0) {
+      y1 += yMinAbs;
+      y2 += yMinAbs;
+    }
+
+    // draw spike lines
+    painter->drawLine(
+        static_cast<int>(rect.bottomLeft().x() + (i * xDeltaDiff) + 1),
+        static_cast<int>(rect.bottomLeft().y() - (y1 * yDeltaDiff) + 1),
+        static_cast<int>(rect.bottomLeft().x() + ((i + 1) * xDeltaDiff) + 1),
+        static_cast<int>(rect.bottomLeft().y() - (y2 * yDeltaDiff) + 1));
+  }
 }

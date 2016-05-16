@@ -221,6 +221,7 @@ class TableView : public MyWidget {
 
  private slots:
   void setColColorCode(QPainter *painter, QRect &rect, int col) const;
+  void drawSpikinessData(QPainter *painter, QRect &rect, int index) const;
 
  protected:
   //! Pointer to the item delegate
