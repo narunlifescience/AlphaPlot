@@ -30,84 +30,84 @@
  ***************************************************************************/
 
 #include "ApplicationWindow.h"
-#include "ui_ApplicationWindow.h"
-#include "globals.h"
-#include "About.h"
-#include "CurvesDialog.h"
-#include "PlotDialog.h"
-#include "AxesDialog.h"
-#include "LineDialog.h"
-#include "TextDialog.h"
-#include "ExportDialog.h"
-#include "ErrDialog.h"
-#include "Legend.h"
-#include "ArrowMarker.h"
-#include "ImageMarker.h"
-#include "Graph.h"
-#include "Plot.h"
-#include "Grid.h"
-#include "PlotWizard.h"
-#include "PolynomFitDialog.h"
-#include "ExpDecayDialog.h"
-#include "FunctionDialog.h"
-#include "FitDialog.h"
-#include "3Dplot/SurfaceDialog.h"
 #include "3Dplot/Graph3D.h"
 #include "3Dplot/Plot3DDialog.h"
-#include "ImageDialog.h"
-#include "MultiLayer.h"
-#include "LayerDialog.h"
-#include "DataSetDialog.h"
-#include "IntDialog.h"
-#include "ConfigDialog.h"
+#include "3Dplot/SurfaceDialog.h"
+#include "About.h"
+#include "ArrowMarker.h"
 #include "AssociationsDialog.h"
-#include "RenameWindowDialog.h"
-#include "QwtErrorPlotCurve.h"
-#include "InterpolationDialog.h"
-#include "ImportASCIIDialog.h"
-#include "ImageExportDialog.h"
-#include "SmoothCurveDialog.h"
-#include "FilterDialog.h"
-#include "FFTDialog.h"
-#include "Note.h"
-#include "Folder.h"
-#include "FindDialog.h"
-#include "ScaleDraw.h"
-#include "TableStatistics.h"
-#include "Fit.h"
-#include "MultiPeakFit.h"
-#include "PolynomialFit.h"
-#include "SigmoidalFit.h"
-#include "FunctionCurve.h"
-#include "QwtPieCurve.h"
-#include "Spectrogram.h"
-#include "Differentiation.h"
-#include "SmoothFilter.h"
-#include "FFTFilter.h"
+#include "AxesDialog.h"
+#include "ColorBox.h"
+#include "ConfigDialog.h"
 #include "Convolution.h"
 #include "Correlation.h"
 #include "CurveRangeDialog.h"
-#include "ColorBox.h"
-#include "QwtHistogram.h"
+#include "CurvesDialog.h"
+#include "DataSetDialog.h"
+#include "Differentiation.h"
+#include "ErrDialog.h"
+#include "ExpDecayDialog.h"
+#include "ExportDialog.h"
+#include "FFTDialog.h"
+#include "FFTFilter.h"
+#include "FilterDialog.h"
+#include "FindDialog.h"
+#include "Fit.h"
+#include "FitDialog.h"
+#include "Folder.h"
+#include "FunctionCurve.h"
+#include "FunctionDialog.h"
+#include "Graph.h"
+#include "Grid.h"
+#include "ImageDialog.h"
+#include "ImageExportDialog.h"
+#include "ImageMarker.h"
+#include "ImportASCIIDialog.h"
+#include "IntDialog.h"
+#include "InterpolationDialog.h"
+#include "LayerDialog.h"
+#include "Legend.h"
+#include "LineDialog.h"
+#include "MultiLayer.h"
+#include "MultiPeakFit.h"
+#include "Note.h"
 #include "OpenProjectDialog.h"
+#include "Plot.h"
+#include "PlotDialog.h"
+#include "PlotWizard.h"
+#include "PolynomFitDialog.h"
+#include "PolynomialFit.h"
+#include "QwtErrorPlotCurve.h"
+#include "QwtHistogram.h"
+#include "QwtPieCurve.h"
+#include "RenameWindowDialog.h"
+#include "ScaleDraw.h"
+#include "SigmoidalFit.h"
+#include "SmoothCurveDialog.h"
+#include "SmoothFilter.h"
+#include "Spectrogram.h"
+#include "TableStatistics.h"
+#include "TextDialog.h"
 #include "core/IconLoader.h"
 #include "core/Project.h"
 #include "core/column/Column.h"
+#include "globals.h"
 #include "lib/XmlStreamReader.h"
 #include "table/future_Table.h"
+#include "ui_ApplicationWindow.h"
 
 // TODO: move tool-specific code to an extension manager
-#include "ScreenPickerTool.h"
 #include "DataPickerTool.h"
-#include "TranslateCurveTool.h"
-#include "MultiPeakFitTool.h"
 #include "LineProfileTool.h"
+#include "MultiPeakFitTool.h"
+#include "ScreenPickerTool.h"
+#include "TranslateCurveTool.h"
 #include "ui/SettingsDialog.h"
 
 // Scripting
+#include "scripting/ScriptingFunctions.h"
 #include "scripting/ScriptingLangDialog.h"
 #include "scripting/widgets/ConsoleWidget.h"
-#include "scripting/ScriptingFunctions.h"
 
 #include "ui/PropertiesDialog.h"
 
@@ -116,46 +116,46 @@
 
 #include <q3listview.h>
 
-#include <QFileDialog>
-#include <QInputDialog>
-#include <QProgressDialog>
-#include <QPrintDialog>
-#include <QPixmapCache>
-#include <QMenuBar>
-#include <QClipboard>
-#include <QWorkspace>
-#include <QTranslator>
-#include <QSplitter>
-#include <QSettings>
-#include <QApplication>
-#include <QMessageBox>
-#include <QPrinter>
-#include <QActionGroup>
 #include <QAction>
-#include <QToolBar>
-#include <QKeySequence>
+#include <QActionGroup>
+#include <QApplication>
+#include <QClipboard>
+#include <QDateTime>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QDialogButtonBox>
+#include <QDockWidget>
+#include <QFileDialog>
 #include <QImageReader>
 #include <QImageWriter>
-#include <QDateTime>
-#include <QShortcut>
-#include <QDockWidget>
-#include <QTextStream>
-#include <QVarLengthArray>
+#include <QInputDialog>
+#include <QKeySequence>
 #include <QList>
-#include <QUrl>
-#include <QDesktopServices>
-#include <QStatusBar>
-#include <QToolButton>
-#include <QSignalMapper>
-#include <QUndoStack>
-#include <QtDebug>
-#include <QDialogButtonBox>
-#include <QUndoView>
-#include <QUndoStack>
-#include <QTemporaryFile>
-#include <QDebug>
-#include <QScriptValue>
+#include <QMenuBar>
+#include <QMessageBox>
 #include <QPixmap>
+#include <QPixmapCache>
+#include <QPrintDialog>
+#include <QPrinter>
+#include <QProgressDialog>
+#include <QScriptValue>
+#include <QSettings>
+#include <QShortcut>
+#include <QSignalMapper>
+#include <QSplitter>
+#include <QStatusBar>
+#include <QTemporaryFile>
+#include <QTextStream>
+#include <QToolBar>
+#include <QToolButton>
+#include <QTranslator>
+#include <QUndoStack>
+#include <QUndoStack>
+#include <QUndoView>
+#include <QUrl>
+#include <QVarLengthArray>
+#include <QWorkspace>
+#include <QtDebug>
 
 #include <zlib.h>
 
@@ -4876,23 +4876,22 @@ void ApplicationWindow::loadSettings() {
   }
 
   settings.beginGroup("Colors");
-  plot3DColors << QColor(settings.value("MaxData", "blue").value<QColor>())
-                      .name();
-  plot3DColors << QColor(settings.value("Labels", "#000000").value<QColor>())
-                      .name();
-  plot3DColors << QColor(settings.value("Mesh", "#000000").value<QColor>())
-                      .name();
-  plot3DColors << QColor(settings.value("Grid", "#000000").value<QColor>())
-                      .name();
-  plot3DColors << QColor(settings.value("MinData", "red").value<QColor>())
-                      .name();
-  plot3DColors << QColor(settings.value("Numbers", "#000000").value<QColor>())
-                      .name();
-  plot3DColors << QColor(settings.value("Axes", "#000000").value<QColor>())
-                      .name();
-  plot3DColors << QColor(
-                      settings.value("Background", "#ffffff").value<QColor>())
-                      .name();
+  plot3DColors
+      << QColor(settings.value("MaxData", "blue").value<QColor>()).name();
+  plot3DColors
+      << QColor(settings.value("Labels", "#000000").value<QColor>()).name();
+  plot3DColors
+      << QColor(settings.value("Mesh", "#000000").value<QColor>()).name();
+  plot3DColors
+      << QColor(settings.value("Grid", "#000000").value<QColor>()).name();
+  plot3DColors
+      << QColor(settings.value("MinData", "red").value<QColor>()).name();
+  plot3DColors
+      << QColor(settings.value("Numbers", "#000000").value<QColor>()).name();
+  plot3DColors
+      << QColor(settings.value("Axes", "#000000").value<QColor>()).name();
+  plot3DColors
+      << QColor(settings.value("Background", "#ffffff").value<QColor>()).name();
   settings.endGroup();  // Colors
   settings.endGroup();
   /* ----------------- end group 3D Plots --------------------------- */
@@ -7778,7 +7777,7 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
 }
 
 void ApplicationWindow::about() {
-  std::unique_ptr <About> about(new About(this));
+  std::unique_ptr<About> about(new About(this));
   about->exec();
 }
 
@@ -11927,11 +11926,10 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest) {
 
 void ApplicationWindow::searchForUpdates() {
   int choice = QMessageBox::question(
-      this, versionString(),
+      this, versionString() + AlphaPlot::extraVersion(),
       tr("AlphaPlot will now try to determine whether a new version of "
-         "AlphaPlot "
-         "is available. Please modify your firewall settings in order to allow "
-         "AlphaPlot to connect to the internet.") +
+         "AlphaPlot is available. Please modify your firewall settings in "
+         "order to allow AlphaPlot to connect to the internet.") +
           "\n" + tr("Do you wish to continue?"),
       QMessageBox::Yes | QMessageBox::Default,
       QMessageBox::No | QMessageBox::Escape);
@@ -11959,22 +11957,19 @@ void ApplicationWindow::receivedVersionFile(bool error) {
     QString version_line = t.readLine();
     version_buffer.close();
 
-    QStringList list = version_line.split(".");
-    if (list.count() > 2) {
-      int available_version = (list.at(0).toInt() << 16) +
-                              (list.at(1).toInt() << 8) + list.at(2).toInt();
-
+    if (version_line.count() == 6) {
+      int available_version = version_line.toInt();
       if (available_version > AlphaPlot::version()) {
         if (QMessageBox::question(
                 this, tr("Updates Available"),
-                tr("There is a newer version of AlphaPlot (%1) available for "
-                   "download. Would you like to download it now?")
-                    .arg(version_line),
+                tr("There is a newer version of AlphaPlot available for "
+                   "download. Would you like to download it now?"),
                 QMessageBox::Yes | QMessageBox::Default,
                 QMessageBox::No | QMessageBox::Escape) == QMessageBox::Yes)
           QDesktopServices::openUrl(QUrl(AlphaPlot::download_Uri));
       } else {
-        QMessageBox::information(this, versionString(),
+        QMessageBox::information(this,
+                                 versionString() + AlphaPlot::extraVersion(),
                                  tr("No updates available. You are already "
                                     "running the latest version."));
       }

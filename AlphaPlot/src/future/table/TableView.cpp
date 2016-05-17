@@ -1022,6 +1022,8 @@ void TableView::setColColorCode(QPainter *painter, QRect &rect, int col) const {
 
 void TableView::drawSpikinessData(QPainter *painter, QRect &rect,
                                   int index) const {
+  if (!painter) return;
+  if (index < 0) return;
   // row number
   int xMin = 0;
   int xMax = d_table->column(index)->rowCount();
@@ -1030,9 +1032,8 @@ void TableView::drawSpikinessData(QPainter *painter, QRect &rect,
   // column values
   double yMin = 0;
   double yMax = 0;
-
   // get ymax & ymin values
-  for (int i = 0; i < d_table->column(index)->rowCount() - 1; i++) {
+  for (int i = 0; i < xMax; i++) {
     if (yMin > d_table->column(index)->valueAt(i))
       yMin = d_table->column(index)->valueAt(i);
     if (yMax < d_table->column(index)->valueAt(i))
@@ -1044,26 +1045,25 @@ void TableView::drawSpikinessData(QPainter *painter, QRect &rect,
   double yDeltaDiff = rect.height() / static_cast<double>(yMax - yMin);
 
   // set pen
-  painter->setPen(QPen(Qt::white, 1, Qt::SolidLine));
+  QColor color = palette().color(QPalette::Foreground);
+  color.setAlpha(40);
+  painter->setPen(QPen(color, 0, Qt::SolidLine));
+  painter->setBrush(QBrush(color));
   painter->setRenderHint(QPainter::Antialiasing);
 
-  double y1, y2;
-  double yMinAbs = std::abs(yMin);
-  for (int i = 0; i < d_table->column(index)->rowCount() - 1; i++) {
-    y1 = d_table->column(index)->valueAt(i);
-    y2 = d_table->column(index)->valueAt(i + 1);
+  double y;
+  double yMinAbs;
+  (yMin < 0) ? yMinAbs = std::abs(yMin) : yMinAbs = -yMin;
+  QPainterPath spikePath;
+  spikePath.moveTo(rect.bottomLeft().x(), rect.bottomLeft().y());
 
-    // remap negative values to +ves
-    if (yMin < 0) {
-      y1 += yMinAbs;
-      y2 += yMinAbs;
-    }
-
-    // draw spike lines
-    painter->drawLine(
-        static_cast<int>(rect.bottomLeft().x() + (i * xDeltaDiff) + 1),
-        static_cast<int>(rect.bottomLeft().y() - (y1 * yDeltaDiff) + 1),
-        static_cast<int>(rect.bottomLeft().x() + ((i + 1) * xDeltaDiff) + 1),
-        static_cast<int>(rect.bottomLeft().y() - (y2 * yDeltaDiff) + 1));
+  for (int i = 0; i < d_table->column(index)->rowCount(); i++) {
+    y = d_table->column(index)->valueAt(i) + yMinAbs;
+    spikePath.lineTo(
+        static_cast<int>(rect.bottomLeft().x() + (i * xDeltaDiff)),
+        static_cast<int>(rect.bottomLeft().y() - (y * yDeltaDiff)));
   }
+  spikePath.lineTo(rect.bottomRight().x(), rect.bottomRight().y());
+  spikePath.closeSubpath();
+  painter->drawPath(spikePath);
 }

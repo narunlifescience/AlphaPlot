@@ -35,7 +35,7 @@
 #include <QMetaEnum>
 #include <QtDebug>
 
-const int AlphaPlot::AlphaPlot_versionNo = 00001;
+const int AlphaPlot::AlphaPlot_versionNo = 100012;
 const char* AlphaPlot::AlphaPlot_version = "0.01A";
 const char* AlphaPlot::extra_version = "-alpha";
 const char* AlphaPlot::release_date = "March 10, 2016";
@@ -48,7 +48,7 @@ const char* AlphaPlot::forum_Uri =
 const char* AlphaPlot::bugreport_Uri =
     "https://github.com/narunlifescience/AlphaPlot/issues/new";
 const char* AlphaPlot::download_Uri =
-    "https://github.com/narunlifescience/AlphaPlot/releases";
+    "https://sourceforge.net/projects/alphaplot/";
 
 int AlphaPlot::version() { return AlphaPlot_versionNo; }
 
