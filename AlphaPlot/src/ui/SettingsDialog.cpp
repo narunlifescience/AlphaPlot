@@ -12,8 +12,7 @@
    You should have received a copy of the GNU General Public License
    along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
 
-   Description : central settings dialog
-*/
+   Description : central settings dialog */
 
 #include "../widgets/aSettingsListView.h"
 #include "../core/IconLoader.h"

@@ -1,342 +1,269 @@
-/***************************************************************************
-    File                 : Folder.cpp
-    Project              : AlphaPlot
-    --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief,
-                           Tilman Benkert,
-                                          Knut Franke
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
-                           knut.franke*gmx.de
-    Description          : Folder for the project explorer
+/* This file is part of AlphaPlot.
+   Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+   Copyright 2006, Ion Vasilief <ion_vasilief@yahoo.fr>
+   Copyright 2006, Knut Franke <knut.franke@gmx.de>
+   Copyright 2006, Tilman Benkert <thzs@gmx.net>
 
- ***************************************************************************/
+   AlphaPlot is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   AlphaPlot is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
 
-/***************************************************************************
- *                                                                         *
- *  This program is free software; you can redistribute it and/or modify   *
- *  it under the terms of the GNU General Public License as published by   *
- *  the Free Software Foundation; either version 2 of the License, or      *
- *  (at your option) any later version.                                    *
- *                                                                         *
- *  This program is distributed in the hope that it will be useful,        *
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- *  GNU General Public License for more details.                           *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the Free Software           *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
- *   Boston, MA  02110-1301  USA                                           *
- *                                                                         *
- ***************************************************************************/
+   Description : Folder, items & widgets for the project explorer */
+
 #include "Folder.h"
 #include "core/IconLoader.h"
 
-#include <Q3DragObject>
-#include <Q3Header>
-#include <Q3IconView>
-// Added by qt3to4:
-#include <QObject>
-#include <QKeyEvent>
-#include <QDropEvent>
-#include <QMouseEvent>
-#include <QDateTime>
-#include <QPixmap>
-#include <QEvent>
-#include <QPoint>
-#include <QMessageBox>
-#include <QTime>
 #include <QCursor>
-#include <QApplication>
+#include <QDateTime>
+#include <QDropEvent>
+#include <QEvent>
+#include <QKeyEvent>
+#include <QMessageBox>
+#include <QMouseEvent>
+#include <QObject>
+#include <QPixmap>
+#include <QPoint>
 #include <QStringList>
+#include <QTime>
 
 Folder::Folder(Folder *parent, const QString &name)
     : QObject(parent), d_active_window(0) {
   QObject::setObjectName(name);
   birthdate = QDateTime::currentDateTime().toString(Qt::LocalDate);
-
-  // FIXME: This doesn't work anymore in Qt4, need alternative method
-  // lstWindows.setAutoDelete( true );
 }
 
 QList<Folder *> Folder::folders() const {
-  QList<Folder *> lst;
-  foreach (QObject *f, children())
-    lst.append((Folder *)f);
-  return lst;
+  QList<Folder *> folderList;
+  foreach (QObject *folder, children())
+    folderList.append(static_cast<Folder *>(folder));
+  return folderList;
 }
 
 QStringList Folder::subfolders() {
-  QStringList list = QStringList();
+  QStringList subFolderList = QStringList();
   QObjectList folderList = children();
   if (!folderList.isEmpty()) {
-    QObject *f;
-    foreach (f, folderList)
-      list << static_cast<Folder *>(f)->name();
+    QObject *folder;
+    foreach (folder, folderList)
+      subFolderList << static_cast<Folder *>(folder)->name();
   }
-  return list;
+  return subFolderList;
 }
 
 QString Folder::path() {
-  QString s = "/" + QString(name()) + "/";
-  Folder *parentFolder = (Folder *)parent();
+  QString folderPath = "/" + QString(name()) + "/";
+  Folder *parentFolder = static_cast<Folder *>(parent());
   while (parentFolder) {
-    s.prepend("/" + QString(parentFolder->name()));
-    parentFolder = (Folder *)parentFolder->parent();
+    folderPath.prepend("/" + QString(parentFolder->name()));
+    parentFolder = static_cast<Folder *>(parentFolder->parent());
   }
-  return s;
+  return folderPath;
 }
 
-Folder *Folder::findSubfolder(const QString &s, bool caseSensitive,
+Folder *Folder::findSubfolder(const QString &subFolderName, bool caseSensitive,
                               bool partialMatch) {
   QObjectList folderList = children();
-  if (!folderList.isEmpty()) {
-    QObject *f;
 
-    foreach (f, folderList) {
-      QString name = static_cast<Folder *>(f)->name();
-      if (partialMatch) {
-        if (caseSensitive && name.startsWith(s, Qt::CaseSensitive))
-          return static_cast<Folder *>(f);
-        else if (!caseSensitive && name.startsWith(s, Qt::CaseInsensitive))
-          return static_cast<Folder *>(f);
-      } else  // partialMatch == false
-      {
-        if (caseSensitive && name == s)
-          return static_cast<Folder *>(f);
-        else if (!caseSensitive && (name.toLower() == s.toLower()))
-          return static_cast<Folder *>(f);
-      }
+  if (folderList.isEmpty()) return nullptr;
+
+  foreach (QObject *folder, folderList) {
+    QString name = static_cast<Folder *>(folder)->name();
+    if (partialMatch) {
+      if (caseSensitive && name.startsWith(subFolderName, Qt::CaseSensitive))
+        return static_cast<Folder *>(folder);
+      else if (!caseSensitive &&
+               name.startsWith(subFolderName, Qt::CaseInsensitive))
+        return static_cast<Folder *>(folder);
+    } else  // partialMatch == false
+    {
+      if (caseSensitive && name == subFolderName)
+        return static_cast<Folder *>(folder);
+      else if (!caseSensitive && (name.toLower() == subFolderName.toLower()))
+        return static_cast<Folder *>(folder);
     }
   }
-  return 0;
+  // will never reach
+  return nullptr;
 }
 
-MyWidget *Folder::findWindow(const QString &s, bool windowNames, bool labels,
+MyWidget *Folder::findWindow(const QString &name, bool windowNames, bool labels,
                              bool caseSensitive, bool partialMatch) {
-  MyWidget *w;
-  foreach (w, lstWindows) {
+  if (lstWindows.isEmpty()) return nullptr;
+
+  foreach (MyWidget *window, lstWindows) {
     if (windowNames) {
-      QString name = w->name();
-      if (partialMatch && name.startsWith(s, caseSensitive))
-        return w;
-      else if (caseSensitive && name == s)
-        return w;
+      QString name = window->name();
+      if (partialMatch && name.startsWith(name, caseSensitive))
+        return window;
+      else if (caseSensitive && name == name)
+        return window;
       else {
-        QString text = s;
-        if (name == text.toLower()) return w;
+        QString text = name;
+        if (name == text.toLower()) return window;
       }
     }
 
     if (labels) {
-      QString label = w->windowLabel();
-      if (partialMatch && label.startsWith(s, caseSensitive))
-        return w;
-      else if (caseSensitive && label == s)
-        return w;
+      QString label = window->windowLabel();
+      if (partialMatch && label.startsWith(name, caseSensitive))
+        return window;
+      else if (caseSensitive && label == name)
+        return window;
       else {
-        QString text = s;
-        if (label == text.toLower()) return w;
+        QString text = name;
+        if (label == text.toLower()) return window;
       }
     }
   }
-  return 0;
+  // will never reach
+  return nullptr;
 }
 
 MyWidget *Folder::window(const QString &name, const char *cls, bool recursive) {
-  foreach (MyWidget *w, lstWindows)
-    if (w->inherits(cls) && name == w->name()) return w;
-  if (!recursive) return NULL;
-  foreach (QObject *f, children()) {
-    MyWidget *w = ((Folder *)f)->window(name, cls, true);
-    if (w) return w;
+  foreach (MyWidget *window, lstWindows) {
+    if (window->inherits(cls) && name == window->name()) return window;
   }
-  return NULL;
+
+  if (!recursive) return nullptr;
+
+  foreach (QObject *folder, children()) {
+    MyWidget *window = (static_cast<Folder *>(folder))->window(name, cls, true);
+    if (window) return window;
+  }
+
+  return nullptr;
 }
 
 Folder *Folder::rootFolder() {
-  Folder *i = this;
-  while (i->parent()) i = (Folder *)i->parent();
-  return i;
+  Folder *rootFolder = this;
+  while (rootFolder->parent()) {
+    rootFolder = static_cast<Folder *>(rootFolder->parent());
+  }
+
+  return rootFolder;
 }
 
-/*****************************************************************************
- *
- * Class FolderListItem
- *
- *****************************************************************************/
+//--------------------------class FolderTreeWidgetItem-------------------------
 
-FolderListItem::FolderListItem(Q3ListView *parent, Folder *f)
-    : Q3ListViewItem(parent) {
-  myFolder = f;
-
-  setText(0, f->name());
-  setOpen(true);
+FolderTreeWidgetItem::FolderTreeWidgetItem(QTreeWidget *parent, Folder *dir)
+    : QTreeWidgetItem(parent, FolderTreeWidget::Folders), myFolder(dir) {
+  setText(0, dir->name());
+  setExpanded(true);
   setActive(true);
-  setDragEnabled(true);
-  setDropEnabled(true);
+  setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled |
+           Qt::ItemIsDragEnabled | Qt::ItemIsEditable);
 }
 
-FolderListItem::FolderListItem(FolderListItem *parent, Folder *f)
-    : Q3ListViewItem(parent) {
-  myFolder = f;
-
-  setText(0, f->name());
-  setOpen(true);
+FolderTreeWidgetItem::FolderTreeWidgetItem(FolderTreeWidgetItem *parent,
+                                           Folder *dir)
+    : QTreeWidgetItem(parent, FolderTreeWidget::Folders), myFolder(dir) {
+  setText(0, dir->name());
+  setExpanded(true);
   setActive(true);
+  setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled |
+           Qt::ItemIsDragEnabled | Qt::ItemIsEditable);
 }
 
-void FolderListItem::setActive(bool o) {
-    if (o)
-      setPixmap(
-          0, IconLoader::load("folder-open", IconLoader::General).pixmap(16));
-    else
-      setPixmap(
-          0, IconLoader::load("folder-closed", IconLoader::General).pixmap(16));
-  setSelected(o);
+void FolderTreeWidgetItem::setActive(bool status) {
+  (status) ? setIcon(0, IconLoader::load("folder-open", IconLoader::General))
+           : setIcon(0, IconLoader::load("folder-closed", IconLoader::General));
+  setSelected(status);
 }
 
-bool FolderListItem::isChildOf(FolderListItem *src) {
-  FolderListItem *parent = (FolderListItem *)this->parent();
+bool FolderTreeWidgetItem::isChildOf(FolderTreeWidgetItem *src) {
+  FolderTreeWidgetItem *parent =
+      static_cast<FolderTreeWidgetItem *>(this->parent());
   while (parent) {
     if (parent == src) return true;
-
-    parent = (FolderListItem *)parent->parent();
+    parent = static_cast<FolderTreeWidgetItem *>(parent->parent());
   }
   return false;
 }
 
-/*****************************************************************************
- *
- * Class FolderListView
- *
- *****************************************************************************/
+//--------------------------class FolderTreeWidget-----------------------------
 
-FolderListView::FolderListView(QWidget *parent, const QString name)
-    : Q3ListView(parent, name.toLocal8Bit().constData()), mousePressed(false) {
+FolderTreeWidget::FolderTreeWidget(QWidget *parent, const QString name)
+    : QTreeWidget(parent) {
   setAcceptDrops(true);
   viewport()->setAcceptDrops(true);
+  setName(name);
 }
 
-void FolderListView::startDrag() {
-  Q3ListViewItem *item = currentItem();
+void FolderTreeWidget::adjustColumns() {
+  for (int i = 0; i < columnCount(); i++) resizeColumnToContents(i);
+}
+
+void FolderTreeWidget::startDrag(Qt::DropActions) {
+  QTreeWidgetItem *item = currentItem();
   if (!item) return;
 
-  if (item == firstChild() && item->listView()->rootIsDecorated())
-    return;  // it's the project folder so we don't want the user to move it
+  if (item == topLevelItem(0) && item->treeWidget()->rootIsDecorated())
+    return;  // it's the project folder so we don't want a drag
 
-  // QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos()
-  // ) );
+  //  QList<QTreeWidgetItem *> lst;
+  //  for (item = firstChild(); item; item = item->itemBelow()) {
+  //    if (item->isSelected()) lst.append(item);
+  //  }
 
-  QPixmap pix;
-  if (item->rtti() == FolderListItem::RTTI)
-    pix = QPixmap(":/folder_closed.xpm");
-  else
-    pix = *item->pixmap(0);
-
-  Q3IconDrag *drag = new Q3IconDrag(viewport());
-  drag->setPixmap(pix, QPoint(pix.width() / 2, pix.height() / 2));
-
-  QList<Q3ListViewItem *> lst;
-  for (item = firstChild(); item; item = item->itemBelow()) {
-    if (item->isSelected()) lst.append(item);
-  }
-
-  emit dragItems(lst);
-  drag->drag();
+  //  emit dragItems(lst);
 }
 
-void FolderListView::contentsDropEvent(QDropEvent *e) {
-  Q3ListViewItem *dest = itemAt(contentsToViewport(e->pos()));
-  if (dest && dest->rtti() == FolderListItem::RTTI) {
+void FolderTreeWidget::dropEvent(QDropEvent *event) {
+  QTreeWidgetItem *dest = itemAt(mapToGlobal(event->pos()));
+  if (dest && dest->type() == FolderTreeWidget::Folders) {
     emit dropItems(dest);
-    e->accept();
-  } else
-    e->ignore();
+    event->accept();
+  } else {
+    event->ignore();
+  }
 }
 
-void FolderListView::keyPressEvent(QKeyEvent *e) {
-  if (isRenaming()) {
-    e->ignore();
-    return;
-  }
-  Q3ListViewItem *item = currentItem();
+void FolderTreeWidget::keyPressEvent(QKeyEvent *event) {
+  QTreeWidgetItem *item = currentItem();
   if (!item) {
-    Q3ListView::keyPressEvent(e);
+    QTreeWidget::keyPressEvent(event);
     return;
   }
 
-  if (item->rtti() == FolderListItem::RTTI &&
-      (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return)) {
-    emit doubleClicked(item);
-    e->accept();
-  } else if (e->key() == Qt::Key_F2) {
+  if (item->type() == FolderTreeWidget::Folders &&
+      (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)) {
+    // note: we always sent 0 as the default colum
+    emit itemDoubleClicked(item, 0);
+    event->accept();
+  } else if (event->key() == Qt::Key_F2) {
     if (item) emit renameItem(item);
-    e->accept();
-  } else if (e->key() == Qt::Key_A && e->state() == Qt::ControlModifier) {
-    selectAll(true);
-    e->accept();
-  } else if (e->key() == Qt::Key_F7) {
+    event->accept();
+  } else if (event->key() == Qt::Key_A &&
+             event->state() == Qt::ControlModifier) {
+    selectAll();
+    event->accept();
+  } else if (event->key() == Qt::Key_F7) {
     emit addFolderItem();
-    e->accept();
-  } else if (e->key() == Qt::Key_F8) {
+    event->accept();
+  } else if (event->key() == Qt::Key_F8) {
     emit deleteSelection();
-    e->accept();
+    event->accept();
   } else
-    Q3ListView::keyPressEvent(e);
+    QTreeWidget::keyPressEvent(event);
 }
 
-void FolderListView::contentsMouseDoubleClickEvent(QMouseEvent *e) {
-  if (isRenaming()) {
-    e->ignore();
-    return;
-  }
-
-  Q3ListView::contentsMouseDoubleClickEvent(e);
+void FolderTreeWidget::mouseDoubleClickEvent(QMouseEvent *event) {
+  QTreeWidgetItem *it = itemAt(event->pos());
+  if (it)
+    // note: we always sent 0 as the default colum
+    emit itemDoubleClicked(it, 0);
 }
 
-void FolderListView::contentsMousePressEvent(QMouseEvent *e) {
-  Q3ListView::contentsMousePressEvent(e);
-  if (e->button() != Qt::LeftButton) return;
-  QPoint p(contentsToViewport(e->pos()));
-  Q3ListViewItem *i = itemAt(p);
+//--------------------------class WindowTreeWidgetItem-------------------------
 
-  if (i) {  // if the user clicked into the root decoration of the item, don't
-            // try to start a drag!
-    if (p.x() >
-            header()->cellPos(header()->mapToActual(0)) +
-                treeStepSize() * (i->depth() + (rootIsDecorated() ? 1 : 0)) +
-                itemMargin() ||
-        p.x() < header()->cellPos(header()->mapToActual(0))) {
-      presspos = e->pos();
-      mousePressed = true;
-    }
-  }
-}
-
-void FolderListView::contentsMouseMoveEvent(QMouseEvent *e) {
-  if (mousePressed &&
-      (presspos - e->pos()).manhattanLength() >
-          QApplication::startDragDistance()) {
-    mousePressed = false;
-    Q3ListViewItem *item = itemAt(contentsToViewport(presspos));
-    if (item) startDrag();
-  }
-}
-
-void FolderListView::adjustColumns() {
-  for (int i = 0; i < columns(); i++) adjustColumn(i);
-}
-
-/*****************************************************************************
- *
- * Class WindowListItem
- *
- *****************************************************************************/
-
-WindowListItem::WindowListItem(Q3ListView *parent, MyWidget *w)
-    : Q3ListViewItem(parent) {
-  myWindow = w;
-
-  setDragEnabled(true);
+WindowTableWidgetItem::WindowTableWidgetItem(QTreeWidget *parent, MyWidget *w)
+    : QTreeWidgetItem(parent, FolderTreeWidget::Windows), myWindow(w) {
+  setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
 }

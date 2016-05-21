@@ -1,47 +1,35 @@
-/***************************************************************************
-    File                 : ApplicationWindow.h
-    Project              : AlphaPlot
-    Description          : AlphaPlot's main window
-    --------------------------------------------------------------------
-    Copyright            : (C) 2006-2009 Knut Franke (knut.franke*gmx.de)
-    Copyright            : (C) 2006-2009 Tilman Benkert (thzs*gmx.net)
-    Copyright            : (C) 2004-2007 by Ion Vasilief (ion_vasilief*yahoo.fr)
-                           (replace * with @ in the email address)
+/* This file is part of AlphaPlot.
+   Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+   Copyright 2006 - 2007, Ion Vasilief <ion_vasilief@yahoo.fr>
+   Copyright 2006 - 2009, Knut Franke <knut.franke@gmx.de>
+   Copyright 2006 - 2009, Tilman Benkert <thzs@gmx.net>
 
- ***************************************************************************/
+   AlphaPlot is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   AlphaPlot is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
 
-/***************************************************************************
- *                                                                         *
- *  This program is free software; you can redistribute it and/or modify   *
- *  it under the terms of the GNU General Public License as published by   *
- *  the Free Software Foundation; either version 2 of the License, or      *
- *  (at your option) any later version.                                    *
- *                                                                         *
- *  This program is distributed in the hope that it will be useful,        *
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- *  GNU General Public License for more details.                           *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the Free Software           *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
- *   Boston, MA  02110-1301  USA                                           *
- *                                                                         *
- ***************************************************************************/
+   Description : Main part of UI & project management related stuff */
+
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <QMainWindow>
-#include <Q3ListView>
 #include <Q3Header>
+#include <QMainWindow>
 #ifdef SEARCH_FOR_UPDATES
 #include <QHttp>
 #endif
-#include <QFile>
-#include <QSplitter>
-#include <QDesktopServices>
 #include <QBuffer>
+#include <QDesktopServices>
+#include <QFile>
 #include <QLocale>
+#include <QSplitter>
 
 #include "Table.h"
 
@@ -67,6 +55,7 @@ class QMenu;
 class QToolBar;
 class QStatusBar;
 class QSignalMapper;
+class QTreeWidgetItem;
 
 class Ui_ApplicationWindow;
 class Matrix;
@@ -78,8 +67,8 @@ class Note;
 class MultiLayer;
 class FunctionDialog;
 class Folder;
-class FolderListItem;
-class FolderListView;
+class FolderTreeWidget;
+class FolderTreeWidgetItem;
 class Plot3DDialog;
 class MyWidget;
 class TableStatistics;
@@ -149,8 +138,8 @@ class ApplicationWindow : public QMainWindow,
   ConsoleWidget* consoleWindow;
 #endif
   QWorkspace* d_workspace;
-  FolderListView* lv;
-  FolderListView* folders;
+  FolderTreeWidget* listView;
+  FolderTreeWidget* folderView;
   QToolButton* btnResults;
   QWidgetList* hiddenWindows;
   QWidgetList* outWindows;
@@ -197,6 +186,8 @@ class ApplicationWindow : public QMainWindow,
   ApplicationWindow* loadScript(const QString& fn, bool execute = false);
 
   QWidgetList* windowsList();
+  QWidgetList* windowsListFromTreeRecursive(QWidgetList* list,
+                                            FolderTreeWidgetItem* item);
   void updateWindowLists(MyWidget* w);
 
   void saveProjectAs();
@@ -443,12 +434,12 @@ class ApplicationWindow : public QMainWindow,
   void renameActiveWindow();
 
   //!  Called when the user presses F2 and an item is selected in lv.
-  void renameWindow(Q3ListViewItem* item, int, const QString& s);
+  void renameWindow(QTreeWidgetItem* item, int, const QString& text);
 
   //!  Checks weather the new window name is valid and modifies the name.
   bool renameWindow(MyWidget* w, const QString& text);
 
-  void maximizeWindow(Q3ListViewItem* lbi);
+  void maximizeWindow(QTreeWidgetItem* lbi);
   void maximizeWindow();
   void minimizeWindow();
   //! Changes the geometry of the active MDI window
@@ -647,7 +638,7 @@ class ApplicationWindow : public QMainWindow,
   void showCurvePlotDialog();
   void showCurveWorksheet();
   void showCurveWorksheet(Graph* g, int curveIndex);
-  void showWindowPopupMenu(Q3ListViewItem* it, const QPoint& p, int);
+  void showWindowPopupMenu(const QPoint& p);
 
   //! Connected to the context menu signal from lv; it's called when there are
   //! several items selected in the list
@@ -806,10 +797,10 @@ class ApplicationWindow : public QMainWindow,
 
   //! Changes the current folder when the user changes the current item in the
   //! QListView "folders"
-  void folderItemChanged(Q3ListViewItem* it);
+  void folderItemChanged(QTreeWidgetItem *item);
   //! Changes the current folder when the user double-clicks on a folder item in
   //! the QListView "lv"
-  void folderItemDoubleClicked(Q3ListViewItem* it);
+  void folderItemDoubleClicked(QTreeWidgetItem *it);
 
   //!  creates and opens the context menu of a folder list view item
   /**
@@ -823,20 +814,23 @@ class ApplicationWindow : public QMainWindow,
    *buttom
    *on an item from QListView "lv"
    */
-  void showFolderPopupMenu(Q3ListViewItem* it, const QPoint& p,
+  void showFolderPopupMenu(QTreeWidgetItem *it, const QPoint& p,
                            bool fromFolders);
 
   //!  connected to the SIGNAL contextMenuRequested from the list views
-  void showFolderPopupMenu(Q3ListViewItem* it, const QPoint& p, int);
+  void showFolderPopupMenu(const QPoint& p);
 
-  //!  starts renaming the selected folder by creating a built-in text editor
-  void startRenameFolder();
+  // prepare to rename by passing item
+  void renameFolderFromMenu();
 
-  //!  starts renaming the selected folder by creating a built-in text editor
-  void startRenameFolder(Q3ListViewItem* item);
+  //  starts renaming the selected folder by creating a built-in text editor
+  void startRenameFolder(FolderTreeWidgetItem *fi);
+
+  //  starts renaming the selected folder by creating a built-in text editor
+  void startRenameFolder(QTreeWidgetItem *item);
 
   //!  checks weather the new folder name is valid and modifies the name
-  void renameFolder(Q3ListViewItem* it, int col, const QString& text);
+  void renameFolder(QTreeWidgetItem *it, const QString& text);
 
   //!  forces showing all windows in the current folder and subfolders,
   //!  depending on the user's viewing policy
@@ -882,18 +876,18 @@ class ApplicationWindow : public QMainWindow,
             bool caseSensitive, bool partialMatch, bool subfolders);
 
   //!  initializes the list of items dragged by the user
-  void dragFolderItems(QList<Q3ListViewItem*> items) { draggedItems = items; }
+  //void dragFolderItems(QList<Q3ListViewItem*> items) { draggedItems = items; }
 
   //!  Drop the objects in the list draggedItems to the folder of the
   //!  destination item
-  void dropFolderItems(Q3ListViewItem* dest);
+  //void dropFolderItems(Q3ListViewItem* dest);
 
   //!  moves a folder item to another
   /**
    * \param src source folder item
    * \param dest destination folder item
    */
-  void moveFolder(FolderListItem* src, FolderListItem* dest);
+  //void moveFolder(FolderListItem* src, FolderListItem* dest);
   //@}
 
   //! \name Scripting
@@ -1070,7 +1064,7 @@ class ApplicationWindow : public QMainWindow,
   void attachQtScript();
 
   // Stores the pointers to the dragged items from the FolderListViews objects
-  QList<Q3ListViewItem*> draggedItems;
+  //QList<Q3ListViewItem*> draggedItems;
 
   QString helpFilePath;
 
