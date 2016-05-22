@@ -26,12 +26,15 @@
 #include <QEvent>
 #include <QKeyEvent>
 #include <QMessageBox>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QObject>
 #include <QPixmap>
 #include <QPoint>
 #include <QStringList>
 #include <QTime>
+
+QStringList Folder::currentFolderNames = {};
 
 Folder::Folder(Folder *parent, const QString &name)
     : QObject(parent), d_active_window(0) {
@@ -99,14 +102,14 @@ MyWidget *Folder::findWindow(const QString &name, bool windowNames, bool labels,
 
   foreach (MyWidget *window, lstWindows) {
     if (windowNames) {
-      QString name = window->name();
-      if (partialMatch && name.startsWith(name, caseSensitive))
+      QString windowName = window->name();
+      if (partialMatch && windowName.startsWith(name, caseSensitive))
         return window;
-      else if (caseSensitive && name == name)
+      else if (caseSensitive && windowName == name)
         return window;
       else {
-        QString text = name;
-        if (name == text.toLower()) return window;
+        QString text = windowName;
+        if (windowName == text.toLower()) return window;
       }
     }
 
@@ -148,6 +151,13 @@ Folder *Folder::rootFolder() {
   }
 
   return rootFolder;
+}
+
+//--------------------------class WindowTreeWidgetItem-------------------------
+
+WindowTableWidgetItem::WindowTableWidgetItem(QTreeWidget *parent, MyWidget *w)
+    : QTreeWidgetItem(parent, FolderTreeWidget::Windows), myWindow(w) {
+  setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
 }
 
 //--------------------------class FolderTreeWidgetItem-------------------------
@@ -194,10 +204,26 @@ FolderTreeWidget::FolderTreeWidget(QWidget *parent, const QString name)
   setAcceptDrops(true);
   viewport()->setAcceptDrops(true);
   setName(name);
+  TableWidgetDelegate *tableWidgetDeligate = new TableWidgetDelegate();
+  setItemDelegate(tableWidgetDeligate);
+  connect(tableWidgetDeligate, SIGNAL(emptyFolderName()), this,
+          SLOT(emptyFolderNameMsgBox()));
+  connect(tableWidgetDeligate, SIGNAL(invalidFolderName(const QString &)), this,
+          SLOT(invalidFolderNameMsgBox(const QString &)));
 }
 
 void FolderTreeWidget::adjustColumns() {
   for (int i = 0; i < columnCount(); i++) resizeColumnToContents(i);
+}
+
+void FolderTreeWidget::emptyFolderNameMsgBox() {
+  QMessageBox::critical(this, tr("Error"), tr("Please enter a valid name!"));
+}
+
+void FolderTreeWidget::invalidFolderNameMsgBox(const QString &name) {
+  QMessageBox::critical(this, tr("Error"),
+                        "\"" + name + "\" " + tr("name already exists!") +
+                            "\n" + tr("Please choose another name!"));
 }
 
 void FolderTreeWidget::startDrag(Qt::DropActions) {
@@ -261,9 +287,31 @@ void FolderTreeWidget::mouseDoubleClickEvent(QMouseEvent *event) {
     emit itemDoubleClicked(it, 0);
 }
 
-//--------------------------class WindowTreeWidgetItem-------------------------
+//--------------------------class TableWidgetDeligate--------------------------
 
-WindowTableWidgetItem::WindowTableWidgetItem(QTreeWidget *parent, MyWidget *w)
-    : QTreeWidgetItem(parent, FolderTreeWidget::Windows), myWindow(w) {
-  setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
+void TableWidgetDelegate::setModelData(QWidget *editor,
+                                       QAbstractItemModel *model,
+                                       const QModelIndex &index) const {
+  QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
+  if (!lineEdit->isModified()) {
+    return;
+  }
+  QString text = lineEdit->text().trimmed();
+
+  // If text is empty, do nothing - preserve the old value.
+  if (text.isEmpty()) {
+    emit emptyFolderName();
+    return;
+  }
+
+  // If text is used, do nothing - preserve the old value.
+  foreach (QString folderName, Folder::currentFolderNames) {
+    if (text == folderName) {
+      emit invalidFolderName(folderName);
+      return;
+    }
+  }
+
+  // Everything seems OK... lete set data.
+  QItemDelegate::setModelData(editor, model, index);
 }

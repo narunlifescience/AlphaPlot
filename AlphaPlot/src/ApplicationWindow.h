@@ -797,10 +797,10 @@ class ApplicationWindow : public QMainWindow,
 
   //! Changes the current folder when the user changes the current item in the
   //! QListView "folders"
-  void folderItemChanged(QTreeWidgetItem *item);
+  void folderItemChanged(QTreeWidgetItem* item);
   //! Changes the current folder when the user double-clicks on a folder item in
   //! the QListView "lv"
-  void folderItemDoubleClicked(QTreeWidgetItem *it);
+  void folderItemDoubleClicked(QTreeWidgetItem* it);
 
   //!  creates and opens the context menu of a folder list view item
   /**
@@ -814,7 +814,7 @@ class ApplicationWindow : public QMainWindow,
    *buttom
    *on an item from QListView "lv"
    */
-  void showFolderPopupMenu(QTreeWidgetItem *it, const QPoint& p,
+  void showFolderPopupMenu(QTreeWidgetItem* it, const QPoint& p,
                            bool fromFolders);
 
   //!  connected to the SIGNAL contextMenuRequested from the list views
@@ -824,13 +824,10 @@ class ApplicationWindow : public QMainWindow,
   void renameFolderFromMenu();
 
   //  starts renaming the selected folder by creating a built-in text editor
-  void startRenameFolder(FolderTreeWidgetItem *fi);
+  void startRenameFolder(FolderTreeWidgetItem* fi);
 
   //  starts renaming the selected folder by creating a built-in text editor
-  void startRenameFolder(QTreeWidgetItem *item);
-
-  //!  checks weather the new folder name is valid and modifies the name
-  void renameFolder(QTreeWidgetItem *it, const QString& text);
+  void startRenameFolder(QTreeWidgetItem* item);
 
   //!  forces showing all windows in the current folder and subfolders,
   //!  depending on the user's viewing policy
@@ -876,18 +873,19 @@ class ApplicationWindow : public QMainWindow,
             bool caseSensitive, bool partialMatch, bool subfolders);
 
   //!  initializes the list of items dragged by the user
-  //void dragFolderItems(QList<Q3ListViewItem*> items) { draggedItems = items; }
+  // void dragFolderItems(QList<Q3ListViewItem*> items) { draggedItems = items;
+  // }
 
   //!  Drop the objects in the list draggedItems to the folder of the
   //!  destination item
-  //void dropFolderItems(Q3ListViewItem* dest);
+  // void dropFolderItems(Q3ListViewItem* dest);
 
   //!  moves a folder item to another
   /**
    * \param src source folder item
    * \param dest destination folder item
    */
-  //void moveFolder(FolderListItem* src, FolderListItem* dest);
+  // void moveFolder(FolderListItem* src, FolderListItem* dest);
   //@}
 
   //! \name Scripting
@@ -1064,7 +1062,7 @@ class ApplicationWindow : public QMainWindow,
   void attachQtScript();
 
   // Stores the pointers to the dragged items from the FolderListViews objects
-  //QList<Q3ListViewItem*> draggedItems;
+  // QList<Q3ListViewItem*> draggedItems;
 
   QString helpFilePath;
 

@@ -32,6 +32,7 @@
 #include <QDragMoveEvent>
 #include <QDropEvent>
 #include <QEvent>
+#include <QItemDelegate>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QObject>
@@ -134,6 +135,8 @@ class Folder : public QObject {
   QString name() { return objectName(); }
   void setName(const QString &name) { setObjectName(name); }
 
+  static QStringList currentFolderNames;
+
  protected:
   QString birthdate, modifDate;
   QList<MyWidget *> lstWindows;
@@ -174,39 +177,6 @@ class FolderTreeWidgetItem : public QTreeWidgetItem {
 
 //--------------------------class FolderTreeWidget-----------------------------
 
-// Folder list view class
-/*class FolderListView : public Q3ListView {
-  Q_OBJECT
-
- public:
-  FolderListView(QWidget *parent = 0, const QString name = QString());
-
- public slots:
-  void adjustColumns();
-
- protected:
-  void startDrag();
-
-  void contentsDropEvent(QDropEvent *e);
-  void contentsMouseMoveEvent(QMouseEvent *e);
-  void contentsMousePressEvent(QMouseEvent *e);
-  void contentsMouseDoubleClickEvent(QMouseEvent *e);
-  void keyPressEvent(QKeyEvent *e);
-  void contentsMouseReleaseEvent(QMouseEvent *) { mousePressed = false; }
-  void enterEvent(QEvent *) { mousePressed = false; }
-
- signals:
-  void dragItems(QList<Q3ListViewItem *> items);
-  void dropItems(Q3ListViewItem *dest);
-  void renameItem(Q3ListViewItem *item);
-  void addFolderItem();
-  void deleteSelection();
-
- private:
-  bool mousePressed;
-  QPoint presspos;
-};*/
-
 class FolderTreeWidget : public QTreeWidget {
   Q_OBJECT
 
@@ -221,6 +191,8 @@ class FolderTreeWidget : public QTreeWidget {
 
  public slots:
   void adjustColumns();
+  void emptyFolderNameMsgBox();
+  void invalidFolderNameMsgBox(const QString &name);
 
  protected:
   void startDrag(Qt::DropActions);
@@ -238,6 +210,19 @@ class FolderTreeWidget : public QTreeWidget {
  private:
   bool mousePressed;
   QPoint presspos;
+};
+
+//--------------------------class TableWidgetDeligate--------------------------
+
+class TableWidgetDelegate : public QItemDelegate {
+  Q_OBJECT
+
+ public:
+  void setModelData(QWidget *editor, QAbstractItemModel *model,
+                    const QModelIndex &index) const;
+ signals:
+  void emptyFolderName() const;
+  void invalidFolderName(const QString &) const;
 };
 
 #endif  // FOLDER_H

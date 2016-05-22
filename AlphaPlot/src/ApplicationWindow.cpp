@@ -11145,8 +11145,9 @@ void ApplicationWindow::showFolderPopupMenu(QTreeWidgetItem *it,
   if (!fromFolders || it->parent()) {
     cm.insertItem(IconLoader::load("edit-delete", IconLoader::General),
                   tr("&Delete Folder"), this, SLOT(deleteFolder()), Qt::Key_F8);
-    FolderTreeWidgetItem *fi = static_cast<FolderTreeWidgetItem*>(it);
-    cm.insertItem(tr("&Rename"), this, SLOT(renameFolderFromMenu()), Qt::Key_F2);
+    FolderTreeWidgetItem *fi = static_cast<FolderTreeWidgetItem *>(it);
+    cm.insertItem(tr("&Rename"), this, SLOT(renameFolderFromMenu()),
+                  Qt::Key_F2);
     cm.addSeparator();
   }
 
@@ -11205,17 +11206,25 @@ void ApplicationWindow::showFindDialogue() {
 
 void ApplicationWindow::renameFolderFromMenu() {
   FolderTreeWidgetItem *fi = current_folder->folderTreeWidgetItem();
-  if(fi)
-    startRenameFolder(fi);
+  if (fi) startRenameFolder(fi);
 }
 
 void ApplicationWindow::startRenameFolder(FolderTreeWidgetItem *fi) {
   if (!fi || !fi->parent()) return;
 
+  current_folder = fi->folder();
+  Folder::currentFolderNames.clear();
+
+  Folder *parent = static_cast<Folder *>(current_folder->parent());
+  if (!parent)  // the parent folder is the project folder (it always exists)
+    parent = projectFolder();
+
+  Folder::currentFolderNames << parent->subfolders();
+
   folderView->clearSelection();
   fi->setSelected(true);
   fi->treeWidget()->editItem(fi, 0);
-  current_folder = fi->folder();
+
   connect(folderView, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
           SLOT(startRenameFolder(QTreeWidgetItem *)));
 }
@@ -11223,44 +11232,16 @@ void ApplicationWindow::startRenameFolder(FolderTreeWidgetItem *fi) {
 void ApplicationWindow::startRenameFolder(QTreeWidgetItem *item) {
   disconnect(folderView, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
              SLOT(startRenameFolder(QTreeWidgetItem *)));
-  if(!item) return;
 
-  FolderTreeWidgetItem *it = static_cast<FolderTreeWidgetItem *>(item);
-  it->setText(0, item->text(0));
-  renameFolder(item, it->text(0));
-  WindowTableWidgetItem *wit = static_cast<WindowTableWidgetItem *>(item);
-}
-
-void ApplicationWindow::renameFolder(QTreeWidgetItem *it, const QString &text) {
-  if (!it) return;
+  if (!item) return;
 
   Folder *parent = static_cast<Folder *>(current_folder->parent());
   if (!parent)  // the parent folder is the project folder (it always exists)
     parent = projectFolder();
 
-  while (text.isEmpty()) {
-    QMessageBox::critical(this, tr("Error"), tr("Please enter a valid name!"));
-    it->setFlags(it->flags() | Qt::ItemIsEditable);
-    it->setSelected(true);
-    it->treeWidget()->editItem(it, 0);
-    return;
-  }
-
-  QStringList lst = parent->subfolders();
-  lst.remove(current_folder->name());
-  while (lst.contains(text)) {
-    QMessageBox::critical(
-        this, tr("Error"),
-        tr("Name already exists!") + "\n" + tr("Please choose another name!"));
-
-    it->setSelected(true);
-    it->treeWidget()->editItem(it, 0);
-    return;
-  }
-
-  current_folder->setName(text);
-  folderView->setCurrentItem(
-      parent->folderTreeWidgetItem());  // update the list views
+  current_folder->setName(item->text(0));
+  folderView->clearSelection();
+  folderItemChanged(parent->folderTreeWidgetItem());  // update the list views
 }
 
 void ApplicationWindow::showAllFolderWindows() {
@@ -11288,35 +11269,35 @@ void ApplicationWindow::showAllFolderWindows() {
     }
   }
 
-//  if ((current_folder->children()).isEmpty()) return;
+  //  if ((current_folder->children()).isEmpty()) return;
 
-//  FolderTreeWidgetItem *fi = current_folder->folderTreeWidgetItem();
-//  if (!fi) return;
+  //  FolderTreeWidgetItem *fi = current_folder->folderTreeWidgetItem();
+  //  if (!fi) return;
 
-//  lst = windowsListFromTreeRecursive(new QWidgetList, fi);
-//  foreach (MyWidget *w, lst) {
-//    if (w && show_windows_policy == SubFolders) {
-//      updateWindowLists(w);
-//      switch (w->status()) {
-//        case MyWidget::Hidden:
-//          w->showNormal();
-//          break;
+  //  lst = windowsListFromTreeRecursive(new QWidgetList, fi);
+  //  foreach (MyWidget *w, lst) {
+  //    if (w && show_windows_policy == SubFolders) {
+  //      updateWindowLists(w);
+  //      switch (w->status()) {
+  //        case MyWidget::Hidden:
+  //          w->showNormal();
+  //          break;
 
-//        case MyWidget::Normal:
-//          w->showNormal();
-//          break;
+  //        case MyWidget::Normal:
+  //          w->showNormal();
+  //          break;
 
-//        case MyWidget::Minimized:
-//          w->showMinimized();
-//          break;
+  //        case MyWidget::Minimized:
+  //          w->showMinimized();
+  //          break;
 
-//        case MyWidget::Maximized:
-//          w->showMaximized();
-//          break;
-//      }
-//    } else
-//      w->hide();
-//  }
+  //        case MyWidget::Maximized:
+  //          w->showMaximized();
+  //          break;
+  //      }
+  //    } else
+  //      w->hide();
+  //  }
 }
 
 void ApplicationWindow::hideAllFolderWindows() {
@@ -11728,7 +11709,8 @@ void ApplicationWindow::find(const QString &s, bool windowNames, bool labels,
     if (subfolders) {
       FolderTreeWidgetItem *item;
       for (int i = 0; i < folderView->currentItem()->childCount(); i++) {
-        item = (FolderTreeWidgetItem *)folderView->currentItem()->child(i);
+        item = static_cast<FolderTreeWidgetItem *>(
+            folderView->currentItem()->child(i));
         Folder *f = item->folder();
         MyWidget *w =
             f->findWindow(s, windowNames, labels, caseSensitive, partialMatch);
@@ -11751,7 +11733,8 @@ void ApplicationWindow::find(const QString &s, bool windowNames, bool labels,
     if (subfolders) {
       FolderTreeWidgetItem *item;
       for (int i = 0; i < folderView->currentItem()->childCount(); i++) {
-        item = (FolderTreeWidgetItem *)folderView->currentItem()->child(i);
+        item = static_cast<FolderTreeWidgetItem *>(
+            folderView->currentItem()->child(i));
         Folder *f =
             item->folder()->findSubfolder(s, caseSensitive, partialMatch);
         if (f) {
@@ -12383,7 +12366,7 @@ Table *ApplicationWindow::getTableHandle() {
   }
 
   // will never reach here
-  return 0;
+  return nullptr;
 }
 
 Matrix *ApplicationWindow::getMatrixHandle() {
@@ -12416,7 +12399,7 @@ Matrix *ApplicationWindow::getMatrixHandle() {
   }
 
   // will never reach here
-  return 0;
+  return nullptr;
 }
 
 Note *ApplicationWindow::getNoteHandle() {
@@ -12449,5 +12432,5 @@ Note *ApplicationWindow::getNoteHandle() {
   }
 
   // will never reach here
-  return 0;
+  return nullptr;
 }
