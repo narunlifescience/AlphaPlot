@@ -11269,35 +11269,37 @@ void ApplicationWindow::showAllFolderWindows() {
     }
   }
 
-  //  if ((current_folder->children()).isEmpty()) return;
+  if ((current_folder->children()).isEmpty()) return;
 
-  //  FolderTreeWidgetItem *fi = current_folder->folderTreeWidgetItem();
-  //  if (!fi) return;
+  FolderTreeWidgetItem *fi = current_folder->folderTreeWidgetItem();
+  FolderTreeWidgetItem *item;
+  for (int i = 0; i < fi->childCount(); i++) {  // toggle item view sub dirs
+    item = static_cast<FolderTreeWidgetItem *>(fi->child(i));
+    lst = static_cast<Folder *>(item->folder())->windowsList();
+    foreach (MyWidget *w, lst) {
+      if (w && show_windows_policy == SubFolders) {
+        updateWindowLists(w);
+        switch (w->status()) {
+          case MyWidget::Hidden:
+            w->showNormal();
+            break;
 
-  //  lst = windowsListFromTreeRecursive(new QWidgetList, fi);
-  //  foreach (MyWidget *w, lst) {
-  //    if (w && show_windows_policy == SubFolders) {
-  //      updateWindowLists(w);
-  //      switch (w->status()) {
-  //        case MyWidget::Hidden:
-  //          w->showNormal();
-  //          break;
+          case MyWidget::Normal:
+            w->showNormal();
+            break;
 
-  //        case MyWidget::Normal:
-  //          w->showNormal();
-  //          break;
+          case MyWidget::Minimized:
+            w->showMinimized();
+            break;
 
-  //        case MyWidget::Minimized:
-  //          w->showMinimized();
-  //          break;
-
-  //        case MyWidget::Maximized:
-  //          w->showMaximized();
-  //          break;
-  //      }
-  //    } else
-  //      w->hide();
-  //  }
+          case MyWidget::Maximized:
+            w->showMaximized();
+            break;
+        }
+      } else
+        w->hide();
+    }
+  }
 }
 
 void ApplicationWindow::hideAllFolderWindows() {
@@ -11457,8 +11459,7 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
     w->blockSignals(true);
     if (!hiddenWindows->contains(w) && !outWindows->contains(w) &&
         show_windows_policy != HideAll) {
-      // show only windows in the current folder which are not hidden by the
-      // user
+      // show only windows in the current folder not hidden by the user
       if (w->status() == MyWidget::Normal)
         w->showNormal();
       else if (w->status() == MyWidget::Minimized)
@@ -11489,6 +11490,7 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
       }
     }
   }
+
 
   d_workspace->blockSignals(false);
 
