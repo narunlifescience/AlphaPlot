@@ -20,7 +20,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <Q3Header>
 #include <QMainWindow>
 #ifdef SEARCH_FOR_UPDATES
 #include <QHttp>
@@ -522,8 +521,6 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name Initialization
   //@{
-  void insertTranslatedStrings();
-  void translateActionsStrings();
   void initMainMenu();
   void initToolBars();
   void disableActions();

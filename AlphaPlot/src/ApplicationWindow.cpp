@@ -102,8 +102,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <q3listview.h>
-
 #include <QAction>
 #include <QActionGroup>
 #include <QApplication>
@@ -1001,7 +999,6 @@ ApplicationWindow::ApplicationWindow()
 
   loadSettings();
   createLanguagesList();
-  insertTranslatedStrings();
 
   connect(scriptEnv, SIGNAL(error(const QString &, const QString &, int)), this,
           SLOT(scriptError(const QString &, const QString &, int)));
@@ -1272,21 +1269,17 @@ void ApplicationWindow::initToolBars() {
   matrix_plot_tools->setIconSize(QSize(24, 24));
   addToolBar(Qt::BottomToolBarArea, matrix_plot_tools);
 
-  ui_->action3DWireFrame->addTo(matrix_plot_tools);
-  ui_->action3DHiddenLine->addTo(matrix_plot_tools);
-
-  ui_->action3DPolygons->addTo(matrix_plot_tools);
-  ui_->action3DWireSurface->addTo(matrix_plot_tools);
-
+  matrix_plot_tools->addAction(ui_->action3DWireFrame);
+  matrix_plot_tools->addAction(ui_->action3DHiddenLine);
+  matrix_plot_tools->addAction(ui_->action3DPolygons);
+  matrix_plot_tools->addAction(ui_->action3DWireSurface);
   matrix_plot_tools->addSeparator();
-
-  ui_->actionPlot3DBar->addTo(matrix_plot_tools);
-  ui_->actionPlot3DScatter->addTo(matrix_plot_tools);
-
+  matrix_plot_tools->addAction(ui_->actionPlot3DBar);
+  matrix_plot_tools->addAction(ui_->actionPlot3DScatter);
   matrix_plot_tools->addSeparator();
-  ui_->action3DCountourColorFill->addTo(matrix_plot_tools);
-  ui_->action3DCountourLines->addTo(matrix_plot_tools);
-  ui_->action3DGreyScaleMap->addTo(matrix_plot_tools);
+  matrix_plot_tools->addAction(ui_->action3DCountourColorFill);
+  matrix_plot_tools->addAction(ui_->action3DCountourLines);
+  matrix_plot_tools->addAction(ui_->action3DGreyScaleMap);
 
   matrix_plot_tools->setEnabled(false);
 
@@ -1349,27 +1342,25 @@ void ApplicationWindow::initToolBars() {
   graph_3D_tools->addSeparator();
 
   actionPerspective = new QAction(this);
-  actionPerspective->setToggleAction(TRUE);
-  actionPerspective->setIconSet(
+  actionPerspective->setCheckable(true);
+  actionPerspective->setIcon(
       IconLoader::load("graph3d-perspective-view", IconLoader::LightDark));
-  actionPerspective->addTo(graph_3D_tools);
-  actionPerspective->setOn(!orthogonal3DPlots);
+  graph_3D_tools->addAction(actionPerspective);
+  actionPerspective->setChecked(!orthogonal3DPlots);
   connect(actionPerspective, SIGNAL(toggled(bool)), this,
           SLOT(togglePerspective(bool)));
 
   actionResetRotation = new QAction(this);
-  actionResetRotation->setToggleAction(false);
-  actionResetRotation->setIconSet(
+  actionResetRotation->setIcon(
       IconLoader::load("graph3d-reset-rotation", IconLoader::LightDark));
-  actionResetRotation->addTo(graph_3D_tools);
+  graph_3D_tools->addAction(actionResetRotation);
   connect(actionResetRotation, SIGNAL(activated()), this,
           SLOT(resetRotation()));
 
   actionFitFrame = new QAction(this);
-  actionFitFrame->setToggleAction(false);
-  actionFitFrame->setIconSet(
+  actionFitFrame->setIcon(
       IconLoader::load("graph3d-fit-frame", IconLoader::LightDark));
-  actionFitFrame->addTo(graph_3D_tools);
+  graph_3D_tools->addAction(actionFitFrame);
   connect(actionFitFrame, SIGNAL(activated()), this, SLOT(fitFrameToLayer()));
 
   graph_3D_tools->addSeparator();
@@ -1447,7 +1438,7 @@ void ApplicationWindow::initToolBars() {
   graph_3D_tools->addSeparator();
 
   actionAnimate = new QAction(this);
-  actionAnimate->setToggleAction(true);
+  actionAnimate->setCheckable(true);
   actionAnimate->setIcon(
       IconLoader::load("view-3dplot-movie", IconLoader::LightDark));
   graph_3D_tools->addAction(actionAnimate);
@@ -1509,32 +1500,6 @@ void ApplicationWindow::lockDockWindows(const bool status) {
     ui_->actionLockDockWindows->setIcon(
         IconLoader::load("unlock", IconLoader::LightDark));
   }
-}
-
-void ApplicationWindow::insertTranslatedStrings() {
-  if (projectname == "untitled") setWindowTitle(tr("AlphaPlot - untitled"));
-
-  explorerWindow->setWindowTitle(tr("Project Explorer"));
-  logWindow->setWindowTitle(tr("Results Log"));
-#ifdef SCRIPTING_CONSOLE
-  consoleWindow->setWindowTitle(tr("Scripting Console"));
-#endif
-  table_tools->setLabel(tr("Table"));
-  plot_tools->setLabel(tr("Plot"));
-  graph_tools->setLabel(tr("Graph"));
-  file_tools->setLabel(tr("File"));
-  edit_tools->setLabel(tr("Edit"));
-  matrix_plot_tools->setLabel(tr("Matrix Plot"));
-  graph_3D_tools->setLabel(tr("3D Surface"));
-
-  calcul->changeItem(translateMenuID, tr("&Translate"));
-  calcul->changeItem(smoothMenuID, tr("&Smooth"));
-  calcul->changeItem(filterMenuID, tr("&FFT Filter"));
-  calcul->changeItem(fitExpMenuID, tr("Fit E&xponential Decay"));
-  calcul->changeItem(multiPeakMenuID, tr("Fit &Multi-Peak"));
-
-  translateActionsStrings();
-  customMenu(d_workspace->activeWindow());
 }
 
 void ApplicationWindow::initMainMenu() {
@@ -9694,7 +9659,7 @@ Graph3D *ApplicationWindow::openSurfacePlotAproj(ApplicationWindow *app,
                            fList[3].toDouble(), fList[4].toDouble(),
                            fList[5].toDouble(), fList[6].toDouble(),
                            fList[7].toDouble());
-  else if (fList[1].contains("(Z)", true) > 0)
+  else if (fList[1].contains("(Z)", true))
     plot = app->dataPlotXYZ(caption, fList[1], fList[2].toDouble(),
                             fList[3].toDouble(), fList[4].toDouble(),
                             fList[5].toDouble(), fList[6].toDouble(),
@@ -10041,228 +10006,13 @@ void ApplicationWindow::setPlot3DOptions() {
   delete windows;
 }
 
-void ApplicationWindow::translateActionsStrings() {
-  actionShowCurvePlotDialog->setMenuText(tr("&Plot details..."));
-  actionShowCurveWorksheet->setMenuText(tr("&Worksheet"));
-  actionRemoveCurve->setMenuText(tr("&Delete"));
-  actionEditFunction->setMenuText(tr("&Edit Function..."));
-  actionCopyStatusBarText->setText(tr("&Copy status bar text"));
-
-  actionCurveFullRange->setMenuText(tr("&Reset to Full Range"));
-  actionEditCurveRange->setMenuText(tr("Edit &Range..."));
-  actionHideCurve->setMenuText(tr("&Hide"));
-  actionHideOtherCurves->setMenuText(tr("Hide &Other Curves"));
-  actionShowAllCurves->setMenuText(tr("&Show All Curves"));
-
-  // FIXME: "..." should be added before translating, but this would break
-  // translations
-  actionExportPDF->setMenuText(tr("&Export PDF") + "...");
-  actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
-  actionExportPDF->setToolTip(tr("Export to PDF"));
-
-  actionUnzoom->setMenuText(tr("&Rescale to Show All"));
-  actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
-  actionUnzoom->setToolTip(tr("Best fit"));
-
-  actionShowColStatistics->setMenuText(tr("Statistics on &Columns"));
-  actionShowColStatistics->setToolTip(tr("Selected columns statistics"));
-
-  actionShowRowStatistics->setMenuText(tr("Statistics on &Rows"));
-  actionShowRowStatistics->setToolTip(tr("Selected rows statistics"));
-  actionShowIntDialog->setMenuText(tr("&Integrate ..."));
-  actionInterpolate->setMenuText(tr("Inte&rpolate ..."));
-  actionLowPassFilter->setMenuText(tr("&Low Pass..."));
-  actionHighPassFilter->setMenuText(tr("&High Pass..."));
-  actionBandPassFilter->setMenuText(tr("&Band Pass..."));
-  actionBandBlockFilter->setMenuText(tr("&Band Block..."));
-  actionFFT->setMenuText(tr("&FFT..."));
-  actionSmoothSavGol->setMenuText(tr("&Savitzky-Golay..."));
-  actionSmoothFFT->setMenuText(tr("&FFT Filter..."));
-  actionSmoothAverage->setMenuText(tr("Moving Window &Average..."));
-  actionDifferentiate->setMenuText(tr("&Differentiate"));
-  actionFitLinear->setMenuText(tr("Fit &Linear"));
-  actionShowFitPolynomDialog->setMenuText(tr("Fit &Polynomial ..."));
-  actionShowExpDecayDialog->setMenuText(tr("&First Order ..."));
-  actionShowTwoExpDecayDialog->setMenuText(tr("&Second Order ..."));
-  actionShowExpDecay3Dialog->setMenuText(tr("&Third Order ..."));
-  actionFitExpGrowth->setMenuText(tr("Fit Exponential Gro&wth ..."));
-  actionFitSigmoidal->setMenuText(tr("Fit &Boltzmann (Sigmoidal)"));
-  actionFitGauss->setMenuText(tr("Fit &Gaussian"));
-  actionFitLorentz->setMenuText(tr("Fit Lorent&zian"));
-
-  actionShowFitDialog->setMenuText(tr("Fit &Wizard..."));
-  actionShowFitDialog->setShortcut(tr("Ctrl+Y"));
-
-  actionShowPlotDialog->setMenuText(tr("&Plot ..."));
-  actionShowScaleDialog->setMenuText(tr("&Scales..."));
-  actionShowAxisDialog->setMenuText(tr("&Axes..."));
-  actionShowGridDialog->setMenuText(tr("&Grid ..."));
-  actionShowTitleDialog->setMenuText(tr("&Title ..."));
-
-  actionCloseWindow->setMenuText(tr("Close &Window"));
-  actionCloseWindow->setShortcut(tr("Ctrl+W"));
-
-  actionHideActiveWindow->setMenuText(tr("&Hide Window"));
-  actionShowMoreWindows->setMenuText(tr("More Windows..."));
-  actionPixelLineProfile->setMenuText(tr("&View Pixel Line Profile"));
-  actionIntensityTable->setMenuText(tr("&Intensity Table"));
-  actionShowLineDialog->setMenuText(tr("&Properties"));
-  actionShowImageDialog->setMenuText(tr("&Properties"));
-  actionShowTextDialog->setMenuText(tr("&Properties"));
-  actionActivateWindow->setMenuText(tr("&Activate Window"));
-  actionMinimizeWindow->setMenuText(tr("Mi&nimize Window"));
-  actionMaximizeWindow->setMenuText(tr("Ma&ximize Window"));
-  actionResizeWindow->setMenuText(tr("Re&size Window..."));
-  actionPrintWindow->setMenuText(tr("&Print Window"));
-  actionShowPlotGeometryDialog->setMenuText(tr("&Layer Geometry"));
-  actionEditSurfacePlot->setMenuText(tr("&Surface..."));
-  actionAdd3DData->setMenuText(tr("&Data Set..."));
-  actionInvertMatrix->setMenuText(tr("&Invert"));
-  actionMatrixDeterminant->setMenuText(tr("&Determinant"));
-  actionConvertMatrix->setMenuText(tr("&Convert to Table"));
-  actionConvertTable->setMenuText(tr("Convert to &Matrix"));
-  actionCorrelate->setMenuText(tr("Co&rrelate"));
-  actionAutoCorrelate->setMenuText(tr("&Autocorrelate"));
-  actionConvolute->setMenuText(tr("&Convolute"));
-  actionDeconvolute->setMenuText(tr("&Deconvolute"));
-  actionTranslateHor->setMenuText(tr("&Horizontal"));
-  actionTranslateVert->setMenuText(tr("&Vertical"));
-
-  actionMultiPeakGauss->setMenuText(tr("&Gaussian..."));
-  actionMultiPeakLorentz->setMenuText(tr("&Lorentzian..."));
-
-  btnPointer->setMenuText(tr("Disable &tools"));
-  btnPointer->setToolTip(tr("Pointer"));
-
-  btnZoomIn->setMenuText(tr("&Zoom In"));
-  btnZoomIn->setShortcut(tr("Ctrl++"));
-  btnZoomIn->setToolTip(tr("Zoom In"));
-
-  btnZoomOut->setMenuText(tr("Zoom &Out"));
-  btnZoomOut->setShortcut(tr("Ctrl+-"));
-  btnZoomOut->setToolTip(tr("Zoom Out"));
-
-  btnCursor->setMenuText(tr("&Data Reader"));
-  btnCursor->setShortcut(tr("CTRL+D"));
-  btnCursor->setToolTip(tr("Data reader"));
-
-  btnSelect->setMenuText(tr("&Select Data Range"));
-  btnSelect->setShortcut(tr("ALT+S"));
-  btnSelect->setToolTip(tr("Select data range"));
-
-  btnPicker->setMenuText(tr("S&creen Reader"));
-  btnPicker->setToolTip(tr("Screen reader"));
-
-  btnMovePoints->setMenuText(tr("&Move Data Points..."));
-  btnMovePoints->setShortcut(tr("Ctrl+ALT+M"));
-  btnMovePoints->setToolTip(tr("Move data points"));
-
-  btnRemovePoints->setMenuText(tr("Remove &Bad Data Points..."));
-  btnRemovePoints->setShortcut(tr("Alt+B"));
-  btnRemovePoints->setToolTip(tr("Remove data points"));
-
-  // FIXME: is setText necessary for action groups?
-  //	coord->setText( tr( "Coordinates" ) );
-  //	coord->setMenuText( tr( "&Coord" ) );
-  //  coord->setStatusTip( tr( "Coordinates" ) );
-  Box->setText(tr("Box"));
-  Box->setMenuText(tr("Box"));
-  Box->setToolTip(tr("Box"));
-  Box->setStatusTip(tr("Box"));
-  Frame->setText(tr("Frame"));
-  Frame->setMenuText(tr("&Frame"));
-  Frame->setToolTip(tr("Frame"));
-  Frame->setStatusTip(tr("Frame"));
-  None->setText(tr("No Axes"));
-  None->setMenuText(tr("No Axes"));
-  None->setToolTip(tr("No axes"));
-  None->setStatusTip(tr("No axes"));
-
-  front->setToolTip(tr("Front grid"));
-  back->setToolTip(tr("Back grid"));
-  right->setToolTip(tr("Right grid"));
-  left->setToolTip(tr("Left grid"));
-  ceil->setToolTip(tr("Ceiling grid"));
-  floor->setToolTip(tr("Floor grid"));
-
-  wireframe->setText(tr("Wireframe"));
-  wireframe->setMenuText(tr("Wireframe"));
-  wireframe->setToolTip(tr("Wireframe"));
-  wireframe->setStatusTip(tr("Wireframe"));
-  hiddenline->setText(tr("Hidden Line"));
-  hiddenline->setMenuText(tr("Hidden Line"));
-  hiddenline->setToolTip(tr("Hidden line"));
-  hiddenline->setStatusTip(tr("Hidden line"));
-  polygon->setText(tr("Polygon Only"));
-  polygon->setMenuText(tr("Polygon Only"));
-  polygon->setToolTip(tr("Polygon only"));
-  polygon->setStatusTip(tr("Polygon only"));
-  filledmesh->setText(tr("Mesh & Filled Polygons"));
-  filledmesh->setMenuText(tr("Mesh & Filled Polygons"));
-  filledmesh->setToolTip(tr("Mesh & filled Polygons"));
-  filledmesh->setStatusTip(tr("Mesh & filled Polygons"));
-  pointstyle->setText(tr("Dots"));
-  pointstyle->setMenuText(tr("Dots"));
-  pointstyle->setToolTip(tr("Dots"));
-  pointstyle->setStatusTip(tr("Dots"));
-  barstyle->setText(tr("Bars"));
-  barstyle->setMenuText(tr("Bars"));
-  barstyle->setToolTip(tr("Bars"));
-  barstyle->setStatusTip(tr("Bars"));
-  conestyle->setText(tr("Cones"));
-  conestyle->setMenuText(tr("Cones"));
-  conestyle->setToolTip(tr("Cones"));
-  conestyle->setStatusTip(tr("Cones"));
-  crossHairStyle->setText(tr("Crosshairs"));
-  crossHairStyle->setMenuText(tr("Crosshairs"));
-  crossHairStyle->setToolTip(tr("Crosshairs"));
-  crossHairStyle->setStatusTip(tr("Crosshairs"));
-
-  // floorstyle->setText( tr( "Floor Style" ) );
-  // floorstyle->setMenuText( tr( "Floor Style" ) );
-  // floorstyle->setStatusTip( tr( "Floor Style" ) );
-  floordata->setText(tr("Floor Data Projection"));
-  floordata->setMenuText(tr("Floor Data Projection"));
-  floordata->setToolTip(tr("Floor data projection"));
-  floordata->setStatusTip(tr("Floor data projection"));
-  flooriso->setText(tr("Floor Isolines"));
-  flooriso->setMenuText(tr("Floor Isolines"));
-  flooriso->setToolTip(tr("Floor isolines"));
-  flooriso->setStatusTip(tr("Floor isolines"));
-  floornone->setText(tr("Empty Floor"));
-  floornone->setMenuText(tr("Empty Floor"));
-  floornone->setToolTip(tr("Empty floor"));
-  floornone->setStatusTip(tr("Empty floor"));
-
-  actionAnimate->setText(tr("Animation"));
-  actionAnimate->setMenuText(tr("Animation"));
-  actionAnimate->setToolTip(tr("Animation"));
-  actionAnimate->setStatusTip(tr("Animation"));
-
-  actionPerspective->setText(tr("Enable perspective"));
-  actionPerspective->setMenuText(tr("Enable perspective"));
-  actionPerspective->setToolTip(tr("Enable perspective"));
-  actionPerspective->setStatusTip(tr("Enable perspective"));
-
-  actionResetRotation->setText(tr("Reset rotation"));
-  actionResetRotation->setMenuText(tr("Reset rotation"));
-  actionResetRotation->setToolTip(tr("Reset rotation"));
-  actionResetRotation->setStatusTip(tr("Reset rotation"));
-
-  actionFitFrame->setText(tr("Fit frame to window"));
-  actionFitFrame->setMenuText(tr("Fit frame to window"));
-  actionFitFrame->setToolTip(tr("Fit frame to window"));
-  actionFitFrame->setStatusTip(tr("Fit frame to window"));
-}
-
 Graph3D *ApplicationWindow::openMatrixPlot3D(const QString &caption,
                                              const QString &matrix_name,
                                              double xl, double xr, double yl,
                                              double yr, double zl, double zr) {
-  QString name = matrix_name;
-  name.remove("matrix<", true);
-  name.remove(">");
-  Matrix *m = matrix(name);
+  QStringList getName = matrix_name.split("<");
+  getName = getName.at(1).split(">");
+  Matrix *m = matrix(getName.at(0));
   if (!m) return 0;
 
   Graph3D *plot = new Graph3D("", d_workspace, 0, 0);
@@ -10515,9 +10265,8 @@ void ApplicationWindow::fitMultiPeak(int profile) {
     return;
   } else {
     bool ok;
-    int peaks =
-        QInputDialog::getInteger(tr("Enter the number of peaks"), tr("Peaks"),
-                                 2, 2, 1000000, 1, &ok, this);
+    int peaks = QInputDialog::getInteger(this, tr("Enter the number of peaks"),
+                                         tr("Peaks"), 2, 2, 1000000, 1, &ok);
     if (ok && peaks) {
       g->setActiveTool(new MultiPeakFitTool(
           g, this, (MultiPeakFit::PeakProfile)profile, peaks, d_status_info,
@@ -10590,7 +10339,8 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
 #endif
       exit(0);
     } else if (str.startsWith("--lang=") || str.startsWith("-l=")) {
-      QString locale = str.mid(str.find('=') + 1);
+      QStringList localesplits = str.split("=");
+      QString locale = localesplits.at(1).trimmed();
       if (locales.contains(locale)) switchToLanguage(locale);
 
       if (!locales.contains(locale))
@@ -10633,7 +10383,7 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
       return;
     }
 
-    workingDir = fi.dirPath(true);
+    workingDir = fi.absolutePath();
     saveSettings();  // the recent projects must be saved
 
     ApplicationWindow *a;
@@ -10650,37 +10400,37 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
 }
 
 void ApplicationWindow::createLanguagesList() {
-  appTranslator = new QTranslator(this);
-  qtTranslator = new QTranslator(this);
-  qApp->installTranslator(appTranslator);
-  qApp->installTranslator(qtTranslator);
+  //  appTranslator = new QTranslator(this);
+  //  qtTranslator = new QTranslator(this);
+  //  qApp->installTranslator(appTranslator);
+  //  qApp->installTranslator(qtTranslator);
 
-  qmPath = TS_PATH;
+  //  qmPath = TS_PATH;
 
-  QDir dir(qmPath);
-  QStringList fileNames = dir.entryList("AlphaPlot_*.qm");
-  if (fileNames.size() == 0) {
-    // fall back to looking in the executable's directory
-    qmPath = QFileInfo(QCoreApplication::applicationFilePath()).path() +
-             "/translations";
-    dir.setPath(qmPath);
-    fileNames = dir.entryList("AlphaPlot_*.qm");
-  }
-  for (int i = 0; i < static_cast<int>(fileNames.size()); i++) {
-    QString locale = fileNames[i];
-    locale = locale.mid(locale.find('_') + 1);
-    locale.truncate(locale.find('.'));
-    locales.push_back(locale);
-  }
-  locales.push_back("en");
-  locales.sort();
+  //  QDir dir(qmPath);
+  //  QStringList fileNames = dir.entryList("AlphaPlot_*.qm");
+  //  if (fileNames.size() == 0) {
+  //    // fall back to looking in the executable's directory
+  //    qmPath = QFileInfo(QCoreApplication::applicationFilePath()).path() +
+  //             "/translations";
+  //    dir.setPath(qmPath);
+  //    fileNames = dir.entryList("AlphaPlot_*.qm");
+  //  }
+  //  for (int i = 0; i < static_cast<int>(fileNames.size()); i++) {
+  //    QString locale = fileNames[i];
+  //    locale = locale.mid(locale.find('_') + 1);
+  //    locale.truncate(locale.find('.'));
+  //    locales.push_back(locale);
+  //  }
+  //  locales.push_back("en");
+  //  locales.sort();
 
-  if (appLanguage != "en") {
-    if (!appTranslator->load("AlphaPlot_" + appLanguage, qmPath))
-      appTranslator->load("AlphaPlot_" + appLanguage);
-    if (!qtTranslator->load("qt_" + appLanguage, qmPath + "/qt"))
-      qtTranslator->load("qt_" + appLanguage);
-  }
+  //  if (appLanguage != "en") {
+  //    if (!appTranslator->load("AlphaPlot_" + appLanguage, qmPath))
+  //      appTranslator->load("AlphaPlot_" + appLanguage);
+  //    if (!qtTranslator->load("qt_" + appLanguage, qmPath + "/qt"))
+  //      qtTranslator->load("qt_" + appLanguage);
+  //  }
 }
 
 void ApplicationWindow::switchToLanguage(int param) {
@@ -10707,7 +10457,6 @@ void ApplicationWindow::switchToLanguage(const QString &locale) {
     if (!qtTranslator->load("qt_" + appLanguage, qmPath + "/qt"))
       qtTranslator->load("qt_" + appLanguage);
   }
-  insertTranslatedStrings();
 }
 
 QStringList ApplicationWindow::matrixNames() {
@@ -10788,7 +10537,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
   QFile *file;
 
   QFileInfo fi(fn);
-  workingDir = fi.dirPath(true);
+  workingDir = fi.absolutePath();
 
   if (fn.contains(".aproj")) {
     QFileInfo f(fn);
@@ -10813,7 +10562,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
     file->open(QIODevice::ReadOnly);
   }
 
-  recentProjects.remove(fn);
+  recentProjects.removeOne(fn);
   recentProjects.push_front(fn);
   updateRecentProjectsList();
 
@@ -10838,7 +10587,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
   current_folder->setFolderTreeWidgetItem(fli);
 
   QTextStream t(file);
-  t.setEncoding(QTextStream::UnicodeUTF8);
+  t.setCodec("UTF-8");
 
   QString s = t.readLine();
   lst = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
@@ -10974,7 +10723,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
 
 void ApplicationWindow::rawSaveFolder(Folder *folder, QIODevice *device) {
   QTextStream stream(device);
-  stream.setEncoding(QTextStream::UnicodeUTF8);
+  stream.setCodec("UTF-8");
   foreach (MyWidget *w, folder->windowsList()) {
     Table *t = qobject_cast<Table *>(w);
     if (t)
@@ -11020,9 +10769,10 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString &fn) {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
   QTextStream t(&f);
-  t.setEncoding(QTextStream::UnicodeUTF8);
+  t.setCodec("UTF-8");
+  ;
   t << AlphaPlot::schemaVersion() + " project file\n";
-  t << "<scripting-lang>\t" + QString(scriptEnv->name()) + "\n";
+  t << "<scripting-lang>\t" + QString(scriptEnv->objectName()) + "\n";
   t << "<windows>\t" + QString::number(folder->windowCount(true)) + "\n";
   t.flush();
   rawSaveFolder(folder, &f);
@@ -11096,7 +10846,7 @@ void ApplicationWindow::saveFolderAsProject(Folder *f) {
       this, tr("Save project as"), workingDir, filter, &selectedFilter);
   if (!fn.isEmpty()) {
     QFileInfo fi(fn);
-    workingDir = fi.dirPath(true);
+    workingDir = fi.absolutePath();
     QString baseName = fi.fileName();
     if (!baseName.endsWith(".aproj") && !baseName.endsWith(".aproj.gz")) {
       fn.append(".aproj");
@@ -11125,58 +10875,88 @@ void ApplicationWindow::showFolderPopupMenu(QTreeWidgetItem *it,
   QMenu cm(this);
   QMenu window(this);
   QMenu viewWindowsMenu(this);
-  viewWindowsMenu.setCheckable(true);
 
-  cm.insertItem(tr("&Find..."), this, SLOT(showFindDialogue()));
+  cm.addAction(tr("&Find..."), this, SLOT(showFindDialogue()));
   cm.addSeparator();
-  cm.insertItem(tr("App&end Project..."), this, SLOT(appendProject()));
+  cm.addAction(tr("App&end Project..."), this, SLOT(appendProject()));
   if (static_cast<FolderTreeWidgetItem *>(it)->folder()->parent())
-    cm.insertItem(tr("Save &As Project..."), this, SLOT(saveAsProject()));
+    cm.addAction(tr("Save &As Project..."), this, SLOT(saveAsProject()));
   else
-    cm.insertItem(tr("Save Project &As..."), this, SLOT(saveProjectAs()));
+    cm.addAction(tr("Save Project &As..."), this, SLOT(saveProjectAs()));
   cm.addSeparator();
 
   if (fromFolders && show_windows_policy != HideAll) {
-    cm.insertItem(tr("&Show All Windows"), this, SLOT(showAllFolderWindows()));
-    cm.insertItem(tr("&Hide All Windows"), this, SLOT(hideAllFolderWindows()));
+    cm.addAction(tr("&Show All Windows"), this, SLOT(showAllFolderWindows()));
+    cm.addAction(tr("&Hide All Windows"), this, SLOT(hideAllFolderWindows()));
     cm.addSeparator();
   }
 
   if (!fromFolders || it->parent()) {
-    cm.insertItem(IconLoader::load("edit-delete", IconLoader::General),
-                  tr("&Delete Folder"), this, SLOT(deleteFolder()), Qt::Key_F8);
+    cm.addAction(IconLoader::load("edit-delete", IconLoader::General),
+                 tr("&Delete Folder"), this, SLOT(deleteFolder()), Qt::Key_F8);
     FolderTreeWidgetItem *fi = static_cast<FolderTreeWidgetItem *>(it);
-    cm.insertItem(tr("&Rename"), this, SLOT(renameFolderFromMenu()),
-                  Qt::Key_F2);
+    cm.addAction(tr("&Rename"), this, SLOT(renameFolderFromMenu()), Qt::Key_F2);
     cm.addSeparator();
   }
 
   if (fromFolders) {
+    window.setTitle(tr("New &Window"));
     window.addAction(ui_->actionNewTable);
     window.addAction(ui_->actionNewMatrix);
     window.addAction(ui_->actionNewNote);
     window.addAction(ui_->actionNewGraph);
     window.addAction(ui_->actionNewFunctionPlot);
     window.addAction(ui_->actionNew3DSurfacePlot);
-    cm.insertItem(tr("New &Window"), &window);
+    cm.addMenu(&window);
   }
 
-  cm.insertItem(IconLoader::load("folder-explorer", IconLoader::LightDark),
-                tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
+  cm.addAction(IconLoader::load("folder-explorer", IconLoader::LightDark),
+               tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
   cm.addSeparator();
 
-  QStringList lst;
-  lst << tr("&None") << tr("&Windows in Active Folder")
-      << tr("Windows in &Active Folder && Subfolders");
-  for (int i = 0; i < 3; ++i) {
-    int id = viewWindowsMenu.insertItem(lst[i], this,
-                                        SLOT(setShowWindowsPolicy(int)));
-    viewWindowsMenu.setItemParameter(id, i);
-    viewWindowsMenu.setItemChecked(id, show_windows_policy == i);
+  viewWindowsMenu.setTitle(tr("&View Windows"));
+  QActionGroup showWindowsPolicyGroup(this);
+  QAction windowsNone(tr("&None"), this);
+  QAction windowsInActiveFolder(tr("&Windows in Active Folder"), this);
+  QAction windowsInActiveFoldersAndSubs(
+      tr("Windows in &Active Folder && Subfolders"), this);
+  windowsNone.setCheckable(true);
+  windowsInActiveFolder.setCheckable(true);
+  windowsInActiveFoldersAndSubs.setCheckable(true);
+  showWindowsPolicyGroup.addAction(&windowsNone);
+  showWindowsPolicyGroup.addAction(&windowsInActiveFolder);
+  showWindowsPolicyGroup.addAction(&windowsInActiveFoldersAndSubs);
+
+  viewWindowsMenu.addAction(&windowsNone);
+  viewWindowsMenu.addAction(&windowsInActiveFolder);
+  viewWindowsMenu.addAction(&windowsInActiveFoldersAndSubs);
+
+  QSignalMapper mapper;
+  mapper.setMapping(&windowsNone, HideAll);
+  mapper.setMapping(&windowsInActiveFolder, ActiveFolder);
+  mapper.setMapping(&windowsInActiveFoldersAndSubs, SubFolders);
+
+  switch (show_windows_policy) {
+    case HideAll:
+      windowsNone.setChecked(true);
+      break;
+    case ActiveFolder:
+      windowsInActiveFolder.setChecked(true);
+      break;
+    case SubFolders:
+      windowsInActiveFoldersAndSubs.setChecked(true);
+      break;
   }
-  cm.insertItem(tr("&View Windows"), &viewWindowsMenu);
+
+  connect(&windowsNone, SIGNAL(triggered()), &mapper, SLOT(map()));
+  connect(&windowsInActiveFolder, SIGNAL(triggered()), &mapper, SLOT(map()));
+  connect(&windowsInActiveFoldersAndSubs, SIGNAL(triggered()), &mapper,
+          SLOT(map()));
+  connect(&mapper, SIGNAL(mapped(int)), this, SLOT(setShowWindowsPolicy(int)));
+
+  cm.addMenu(&viewWindowsMenu);
   cm.addSeparator();
-  cm.insertItem(tr("&Properties..."), this, SLOT(folderProperties()));
+  cm.addAction(tr("&Properties..."), this, SLOT(folderProperties()));
   cm.exec(p);
 }
 
@@ -11311,7 +11091,7 @@ void ApplicationWindow::hideAllFolderWindows() {
 void ApplicationWindow::addFolder() {
   QStringList lst = current_folder->subfolders();
   QString name = tr("New Folder");
-  lst = lst.grep(name);
+  lst = lst.filter(name);
   if (!lst.isEmpty()) name += " (" + QString::number(lst.size() + 1) + ")";
 
   Folder *f = new Folder(current_folder, name);
@@ -11490,7 +11270,6 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
       }
     }
   }
-
 
   d_workspace->blockSignals(false);
 
@@ -11876,7 +11655,7 @@ void ApplicationWindow::searchForUpdates() {
       QMessageBox::No | QMessageBox::Escape);
 
   if (choice == QMessageBox::Yes) {
-    version_buffer.open(IO_WriteOnly);
+    version_buffer.open(QBuffer::WriteOnly);
     http.setHost("AlphaPlot.sourceforge.net");
     http.get("/current_version.txt", &version_buffer);
   }
@@ -11892,9 +11671,9 @@ void ApplicationWindow::receivedVersionFile(bool error) {
 
   version_buffer.close();
 
-  if (version_buffer.open(IO_ReadOnly)) {
+  if (version_buffer.open(QBuffer::ReadOnly)) {
     QTextStream t(&version_buffer);
-    t.setEncoding(QTextStream::UnicodeUTF8);
+    t.setCodec("UTF-8");
     QString version_line = t.readLine();
     version_buffer.close();
 
@@ -12346,7 +12125,7 @@ Table *ApplicationWindow::getTableHandle() {
   bool namedWidgetPresent = false;
   QWidgetList *windows = windowsList();
   foreach (QWidget *widget, *windows) {
-    if (widget->name() == context()->argument(0).toString()) {
+    if (widget->accessibleName() == context()->argument(0).toString()) {
       if (widget->inherits("Table")) {
         namedWidgetPresent = true;
         Table *table = qobject_cast<Table *>(widget);
@@ -12379,7 +12158,7 @@ Matrix *ApplicationWindow::getMatrixHandle() {
   bool namedWidgetPresent = false;
   QWidgetList *windows = windowsList();
   foreach (QWidget *widget, *windows) {
-    if (widget->name() == context()->argument(0).toString()) {
+    if (widget->accessibleName() == context()->argument(0).toString()) {
       if (widget->inherits("Matrix")) {
         namedWidgetPresent = true;
         Matrix *matrix = qobject_cast<Matrix *>(widget);
@@ -12412,7 +12191,7 @@ Note *ApplicationWindow::getNoteHandle() {
   bool namedWidgetPresent = false;
   QWidgetList *windows = windowsList();
   foreach (QWidget *widget, *windows) {
-    if (widget->name() == context()->argument(0).toString()) {
+    if (widget->accessibleName() == context()->argument(0).toString()) {
       if (widget->inherits("Note")) {
         namedWidgetPresent = true;
         Note *note = qobject_cast<Note *>(widget);

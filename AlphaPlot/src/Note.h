@@ -60,7 +60,7 @@ class Note : public MyWidget {
   void modifiedNote();
 
   // ScriptEdit methods
-  QString text() { return te->text(); }
+  QString text() { return te->toPlainText(); }
   void setText(const QString &s) { te->setText(s); }
   void print() { te->print(); }
   void exportPDF(const QString &fileName) { te->exportPDF(fileName); }
