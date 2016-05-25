@@ -56,6 +56,7 @@ void Note::init(ScriptingEnv* env) {
   te->setContext(this);
   QVBoxLayout* hlayout = new QVBoxLayout(this);
   hlayout->addWidget(te);
+  hlayout->setContentsMargins(0,0,0,0);
 
   setGeometry(0, 0, 500, 200);
   connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));

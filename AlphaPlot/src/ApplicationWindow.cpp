@@ -1508,13 +1508,10 @@ void ApplicationWindow::initMainMenu() {
   // plot3DMenu->addAction(ui_->actionPlot3DScatter);
 
   matrixMenu = new QMenu(this);
-  matrixMenu->setFont(appFont);
-
   tableMenu = new QMenu(this);
-  tableMenu->setFont(appFont);
 
   dataMenu = new QMenu(this);
-  dataMenu->setFont(appFont);
+  dataMenu->setTitle(tr("Analysis"));
 
   dataMenu->addAction(actionShowColStatistics);
   dataMenu->addAction(actionShowRowStatistics);
@@ -1532,32 +1529,37 @@ void ApplicationWindow::initMainMenu() {
   dataMenu->addAction(actionShowFitDialog);
 
   plotDataMenu = new QMenu(this);
-  plotDataMenu->setFont(appFont);
-  plotDataMenu->setCheckable(true);
-
+  plotDataMenu->setTitle(tr("Tools"));
   plotDataMenu->addAction(btnPointer);
+  btnPointer->setCheckable(true);
   plotDataMenu->addAction(btnZoomIn);
+  btnZoomIn->setCheckable(true);
   plotDataMenu->addAction(btnZoomOut);
+  btnZoomOut->setCheckable(true);
   plotDataMenu->addAction(actionUnzoom);
   plotDataMenu->addSeparator();
 
   plotDataMenu->addAction(btnPicker);
+  btnPicker->setCheckable(true);
   plotDataMenu->addAction(btnCursor);
+  btnCursor->setCheckable(true);
   plotDataMenu->addAction(btnSelect);
+  btnSelect->setCheckable(true);
 
   plotDataMenu->addSeparator();
 
   plotDataMenu->addAction(btnMovePoints);
+  btnMovePoints->setCheckable(true);
   plotDataMenu->addAction(btnRemovePoints);
+  btnRemovePoints->setCheckable(true);
 
   calcul = new QMenu(this);
-  calcul->setFont(appFont);
-
+  calcul->setTitle(tr("Analysis"));
   translateMenu = new QMenu(this);
-  translateMenu->setFont(appFont);
+  translateMenu->setTitle(tr("&Translate"));
   translateMenu->addAction(actionTranslateVert);
   translateMenu->addAction(actionTranslateHor);
-  translateMenuID = calcul->insertItem(tr("&Translate"), translateMenu);
+  calcul->addMenu(translateMenu);
   calcul->addSeparator();
 
   calcul->addAction(actionDifferentiate);
@@ -1566,19 +1568,19 @@ void ApplicationWindow::initMainMenu() {
   calcul->addSeparator();
 
   smooth = new QMenu(this);
-  smooth->setFont(appFont);
+  smooth->setTitle(tr("&Smooth"));
   smooth->addAction(actionSmoothSavGol);
   smooth->addAction(actionSmoothAverage);
   smooth->addAction(actionSmoothFFT);
-  smoothMenuID = calcul->insertItem(tr("&Smooth"), smooth);
+  calcul->addMenu(smooth);
 
   filter = new QMenu(this);
-  filter->setFont(appFont);
+  filter->setTitle(tr("&FFT Filter"));
   filter->addAction(actionLowPassFilter);
   filter->addAction(actionHighPassFilter);
   filter->addAction(actionBandPassFilter);
   filter->addAction(actionBandBlockFilter);
-  filterMenuID = calcul->insertItem(tr("&FFT Filter"), filter);
+  calcul->addMenu(filter);
 
   calcul->addSeparator();
   calcul->addAction(actionInterpolate);
@@ -1594,12 +1596,11 @@ void ApplicationWindow::initMainMenu() {
   d_quick_fit_menu->addSeparator();
 
   decay = new QMenu(this);
-  decay->setFont(appFont);
+  decay->setTitle(tr("Fit E&xponential Decay"));
   decay->addAction(actionShowExpDecayDialog);
   decay->addAction(actionShowTwoExpDecayDialog);
   decay->addAction(actionShowExpDecay3Dialog);
-  fitExpMenuID =
-      d_quick_fit_menu->insertItem(tr("Fit E&xponential Decay"), decay);
+  d_quick_fit_menu->addMenu(decay);
 
   d_quick_fit_menu->addAction(actionFitExpGrowth);
   d_quick_fit_menu->addAction(actionFitSigmoidal);
@@ -1607,11 +1608,11 @@ void ApplicationWindow::initMainMenu() {
   d_quick_fit_menu->addAction(actionFitLorentz);
 
   multiPeakMenu = new QMenu(this);
+  multiPeakMenu->setTitle(tr("Fit &Multi-peak"));
   multiPeakMenu->setFont(appFont);
   multiPeakMenu->addAction(actionMultiPeakGauss);
   multiPeakMenu->addAction(actionMultiPeakLorentz);
-  multiPeakMenuID =
-      d_quick_fit_menu->insertItem(tr("Fit &Multi-peak"), multiPeakMenu);
+  d_quick_fit_menu->addMenu(multiPeakMenu);
 
   d_quick_fit_menu->addSeparator();
 
@@ -1626,10 +1627,10 @@ void ApplicationWindow::initMainMenu() {
 
 void ApplicationWindow::customMenu(QWidget *w) {
   menuBar()->clear();
-  menuBar()->insertItem(tr("&File"), ui_->menuFile);
-  menuBar()->insertItem(tr("&Edit"), ui_->menuEdit);
-  menuBar()->insertItem(tr("&View"), ui_->menuView);
-  menuBar()->insertItem(tr("Scripting"), ui_->menuScripting);
+  menuBar()->addMenu(ui_->menuFile);
+  menuBar()->addMenu(ui_->menuEdit);
+  menuBar()->addMenu(ui_->menuView);
+  menuBar()->addMenu(ui_->menuScripting);
 
   // these use the same keyboard shortcut (Ctrl+Return) and should not be
   // enabled at the same time
@@ -1645,14 +1646,15 @@ void ApplicationWindow::customMenu(QWidget *w) {
     ui_->actionSaveAsTemplate->setEnabled(true);
 
     if (w->inherits("MultiLayer")) {
-      menuBar()->insertItem(tr("&Graph"), ui_->menuGraph);
-      menuBar()->insertItem(tr("&Tools"), plotDataMenu);
-      menuBar()->insertItem(tr("&Analysis"), calcul);
-      menuBar()->insertItem(tr("For&mat"), format);
+      menuBar()->addMenu(ui_->menuGraph);
+      menuBar()->addMenu(plotDataMenu);
+      calcul->setTitle(tr("Analysis"));
+      menuBar()->addMenu(calcul);
+      format->setTitle("Format");
+      menuBar()->addMenu(format);
 
       ui_->menuExportGraph->setEnabled(true);
       ui_->actionExportASCII->setEnabled(false);
-      ui_->menuFile->setItemEnabled(closeID, true);
 
       format->clear();
       format->addAction(actionShowPlotDialog);
@@ -1666,12 +1668,11 @@ void ApplicationWindow::customMenu(QWidget *w) {
     } else if (w->inherits("Graph3D")) {
       disableActions();
 
-      menuBar()->insertItem(tr("For&mat"), format);
+      menuBar()->addMenu(format);
 
       ui_->actionPrint->setEnabled(true);
       ui_->actionSaveAsTemplate->setEnabled(true);
       ui_->menuExportGraph->setEnabled(true);
-      ui_->menuFile->setItemEnabled(closeID, true);
 
       format->clear();
       format->addAction(actionShowPlotDialog);
@@ -1681,12 +1682,11 @@ void ApplicationWindow::customMenu(QWidget *w) {
       if (((Graph3D *)w)->coordStyle() == Qwt3D::NOCOORD)
         actionShowAxisDialog->setEnabled(false);
     } else if (w->inherits("Table")) {
-      menuBar()->insertItem(tr("&Plot"), ui_->menuPlot);
-      menuBar()->insertItem(tr("&Analysis"), dataMenu);
+      menuBar()->addMenu(ui_->menuPlot);
+      menuBar()->addMenu(dataMenu);
 
       ui_->actionExportASCII->setEnabled(true);
       ui_->menuExportGraph->setEnabled(false);
-      ui_->menuFile->setItemEnabled(closeID, true);
 
       tableMenu->clear();
       static_cast<Table *>(w)->d_future_table->fillProjectMenu(tableMenu);
@@ -1694,9 +1694,9 @@ void ApplicationWindow::customMenu(QWidget *w) {
       tableMenu->addAction(ui_->actionExportASCII);
       tableMenu->addSeparator();
       tableMenu->addAction(actionConvertTable);
-      menuBar()->insertItem(tr("&Table"), tableMenu);
+      menuBar()->addMenu(tableMenu);
     } else if (w->inherits("Matrix")) {
-      menuBar()->insertItem(tr("3D &Plot"), ui_->menu3DPlot);
+      menuBar()->addMenu(ui_->menu3DPlot);
 
       matrixMenu->clear();
       static_cast<Matrix *>(w)->d_future_matrix->fillProjectMenu(matrixMenu);
@@ -1705,7 +1705,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
       matrixMenu->addAction(actionMatrixDeterminant);
       matrixMenu->addSeparator();
       matrixMenu->addAction(actionConvertMatrix);
-      menuBar()->insertItem(tr("&Matrix"), matrixMenu);
+      menuBar()->addMenu(matrixMenu);
     } else if (w->inherits("Note")) {
       ui_->actionSaveAsTemplate->setEnabled(false);
       ui_->actionEvaluateExpression->setEnabled(true);
@@ -1721,11 +1721,11 @@ void ApplicationWindow::customMenu(QWidget *w) {
     } else
       disableActions();
 
-    menuBar()->insertItem(tr("&Windows"), ui_->menuWindow);
+    menuBar()->addMenu(ui_->menuWindow);
   } else
     disableActions();
 
-  menuBar()->insertItem(tr("&Help"), ui_->menuHelp);
+  menuBar()->addMenu(ui_->menuHelp);
 }
 
 void ApplicationWindow::disableActions() {
@@ -1734,7 +1734,6 @@ void ApplicationWindow::disableActions() {
   ui_->actionPrint->setEnabled(false);
   ui_->actionExportASCII->setEnabled(false);
   ui_->menuExportGraph->setEnabled(false);
-  ui_->menuFile->setItemEnabled(closeID, false);
 
   ui_->actionUndo->setEnabled(false);
   ui_->actionRedo->setEnabled(false);

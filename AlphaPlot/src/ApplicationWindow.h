@@ -998,7 +998,7 @@ class ApplicationWindow : public QMainWindow,
   QColor tableBkgdColor, tableTextColor, tableHeaderColor;
   QString projectname, columnSeparator, appLanguage;
   QString configFilePath, logInfo, fitPluginsPath, asciiDirPath, imagesDirPath;
-  int logID, asciiID, closeID, printAllID, ignoredLines, savingTimerId,
+  int logID, asciiID, printAllID, ignoredLines, savingTimerId,
       plot3DResolution;
   bool renameColumns, copiedLayer, strip_spaces, simplify_spaces;
   QStringList recentProjects;
@@ -1029,8 +1029,6 @@ class ApplicationWindow : public QMainWindow,
   bool startArrowOn, endArrowOn, fillArrowHead;
   int arrowHeadLength, arrowHeadAngle;
   int plotMenuID, setAsMenuID, fillMenuID;
-  int translateMenuID, smoothMenuID, filterMenuID, fitExpMenuID,
-      multiPeakMenuID;
 
   // The scripting language to use for new projects.
   QString defaultScriptingLang;
