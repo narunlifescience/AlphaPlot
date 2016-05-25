@@ -2087,7 +2087,7 @@ void ApplicationWindow::updateTableNames(const QString &oldName,
         ((Graph *)widget)->updateCurveNames(oldName, newName);
     } else if (w->inherits("Graph3D")) {
       QString name = ((Graph3D *)w)->formula();
-      if (name.contains(oldName, true)) {
+      if (name.contains(oldName, Qt::CaseSensitive)) {
         name.replace(oldName, newName);
         ((Graph3D *)w)->setPlotAssociation(name);
       }
@@ -2576,7 +2576,7 @@ Matrix *ApplicationWindow::importImage() {
                                             imagesDirPath, filter);
   if (!fn.isEmpty()) {
     QFileInfo fi(fn);
-    imagesDirPath = fi.dirPath(true);
+    imagesDirPath = fi.absolutePath();
     return importImage(fn);
   } else
     return 0;
@@ -2597,7 +2597,7 @@ void ApplicationWindow::loadImage() {
   if (!fn.isEmpty()) {
     loadImage(fn);
     QFileInfo fi(fn);
-    imagesDirPath = fi.dirPath(true);
+    imagesDirPath = fi.absolutePath();
   }
 }
 
@@ -4064,7 +4064,8 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   }
 
   QTextStream t(file);
-  t.setEncoding(QTextStream::UnicodeUTF8);
+  t.setCodec("UTF-8");
+  ;
   QString s;
   QStringList list;
   s = t.readLine();
@@ -4119,7 +4120,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
              "Various parts of this file may not be displayed as expected.")
               .arg(fileName)
               .arg(list[1])
-              .arg(scriptEnv->name()));
+              .arg(scriptEnv->objectName()));
 
     s = t.readLine();
     list = s.split("\t", QString::SkipEmptyParts);
@@ -4420,9 +4421,11 @@ void ApplicationWindow::openTemplate() {
                                             templatesDir, filter);
   if (!fn.isEmpty()) {
     QFileInfo fi(fn);
-    templatesDir = fi.dirPath(true);
-    if (fn.contains(".qmt", true) || fn.contains(".qpt", true) ||
-        fn.contains(".qtt", true) || fn.contains(".qst", true)) {
+    templatesDir = fi.absolutePath();
+    if (fn.contains(".qmt", Qt::CaseSensitive) ||
+        fn.contains(".qpt", Qt::CaseSensitive) ||
+        fn.contains(".qtt", Qt::CaseSensitive) ||
+        fn.contains(".qst", Qt::CaseSensitive)) {
       if (!fi.exists()) {
         QMessageBox::critical(this, tr("File opening error"),
                               tr("The file: <b>%1</b> doesn't exist!").arg(fn));
@@ -4430,7 +4433,7 @@ void ApplicationWindow::openTemplate() {
       }
       QFile f(fn);
       QTextStream t(&f);
-      t.setEncoding(QTextStream::UnicodeUTF8);
+      t.setCodec("UTF-8");
       f.open(QIODevice::ReadOnly);
       QStringList l =
           t.readLine().split(QRegExp("\\s"), QString::SkipEmptyParts);
@@ -5179,7 +5182,7 @@ void ApplicationWindow::exportGraph() {
 
   ImageExportDialog *ied =
       new ImageExportDialog(this, plot2D != NULL, d_extended_export_dialog);
-  ied->setDir(workingDir);
+  ied->setDirectory(workingDir);
   ied->selectFilter(d_image_export_filter);
   if (ied->exec() != QDialog::Accepted) return;
   workingDir = ied->directory().path();
@@ -5236,7 +5239,7 @@ void ApplicationWindow::exportLayer() {
 
   ImageExportDialog *ied =
       new ImageExportDialog(this, g != NULL, d_extended_export_dialog);
-  ied->setDir(workingDir);
+  ied->setDirectory(workingDir);
   ied->selectFilter(d_image_export_filter);
   if (ied->exec() != QDialog::Accepted) return;
   workingDir = ied->directory().path();
@@ -5282,7 +5285,7 @@ void ApplicationWindow::exportAllGraphs() {
   ied->setLabelText(QFileDialog::FileType, tr("Output format:"));
   ied->setLabelText(QFileDialog::FileName, tr("Directory:"));
 
-  ied->setDir(workingDir);
+  ied->setDirectory(workingDir);
   ied->selectFilter(d_image_export_filter);
 
   if (ied->exec() != QDialog::Accepted) return;
@@ -5490,7 +5493,7 @@ void ApplicationWindow::saveProjectAs() {
       this, tr("Save Project As"), workingDir, filter, &selectedFilter);
   if (!fn.isEmpty()) {
     QFileInfo fi(fn);
-    workingDir = fi.dirPath(true);
+    workingDir = fi.absolutePath();
     QString baseName = fi.fileName();
     if (!baseName.endsWith(".aproj") && !baseName.endsWith(".aproj.gz")) {
       fn.append(".aproj");
@@ -5539,7 +5542,7 @@ void ApplicationWindow::saveAsTemplate() {
                                             filter, &selectedFilter);
   if (!fn.isEmpty()) {
     QFileInfo fi(fn);
-    workingDir = fi.dirPath(true);
+    workingDir = fi.absolutePath();
     QString baseName = fi.fileName();
     if (!baseName.contains(".")) {
       selectedFilter = selectedFilter.right(5).left(4);
@@ -5559,7 +5562,7 @@ void ApplicationWindow::saveAsTemplate() {
     QString text = AlphaPlot::schemaVersion() + " template file\n";
     text += w->saveAsTemplate(windowGeometryInfo(w));
     QTextStream t(&f);
-    t.setEncoding(QTextStream::UnicodeUTF8);
+    t.setCodec("UTF-8");
     t << text;
     f.close();
     QApplication::restoreOverrideCursor();
@@ -5951,7 +5954,7 @@ void ApplicationWindow::exportASCII(const QString &tableName,
     QString baseName = fi.fileName();
     if (baseName.contains(".") == 0) fname.append(selectedFilter.remove("*"));
 
-    asciiDirPath = fi.dirPath(true);
+    asciiDirPath = fi.absolutePath();
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     t->exportASCII(fname, sep, colNames, expSelection);
@@ -6615,7 +6618,7 @@ void ApplicationWindow::exportPDF() {
     QString baseName = fi.fileName();
     if (!baseName.contains(".")) fname.append(".pdf");
 
-    workingDir = fi.dirPath(true);
+    workingDir = fi.absolutePath();
 
     QFile f(fname);
     if (!f.open(QIODevice::WriteOnly)) {
@@ -7112,7 +7115,7 @@ void ApplicationWindow::addImage() {
                                             imagesDirPath, filter);
   if (!fn.isEmpty()) {
     QFileInfo fi(fn);
-    imagesDirPath = fi.dirPath(true);
+    imagesDirPath = fi.absolutePath();
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     g->addImage(fn);
@@ -7739,28 +7742,27 @@ void ApplicationWindow::showMarkerPopupMenu() {
   QMenu markerMenu(this);
 
   if (g->imageMarkerSelected()) {
-    markerMenu.insertItem(QPixmap(":/pixelProfile.xpm"),
-                          tr("&View Pixel Line profile"), this,
-                          SLOT(pixelLineProfile()));
-    markerMenu.insertItem(tr("&Intensity Matrix"), this,
-                          SLOT(intensityTable()));
+    markerMenu.addAction(QPixmap(":/pixelProfile.xpm"),
+                         tr("&View Pixel Line profile"), this,
+                         SLOT(pixelLineProfile()));
+    markerMenu.addAction(tr("&Intensity Matrix"), this, SLOT(intensityTable()));
     markerMenu.addSeparator();
   }
 
-  markerMenu.insertItem(IconLoader::load("edit-cut", IconLoader::LightDark),
-                        tr("&Cut"), this, SLOT(cutSelection()));
-  markerMenu.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark),
-                        tr("&Copy"), this, SLOT(copySelection()));
-  markerMenu.insertItem(
+  markerMenu.addAction(IconLoader::load("edit-cut", IconLoader::LightDark),
+                       tr("&Cut"), this, SLOT(cutSelection()));
+  markerMenu.addAction(IconLoader::load("edit-copy", IconLoader::LightDark),
+                       tr("&Copy"), this, SLOT(copySelection()));
+  markerMenu.addAction(
       IconLoader::load("edit-delete-selection", IconLoader::LightDark),
       tr("&Delete"), this, SLOT(clearSelection()));
   markerMenu.addSeparator();
   if (g->arrowMarkerSelected())
-    markerMenu.insertItem(tr("&Properties..."), this, SLOT(showLineDialog()));
+    markerMenu.addAction(tr("&Properties..."), this, SLOT(showLineDialog()));
   else if (g->imageMarkerSelected())
-    markerMenu.insertItem(tr("&Properties..."), this, SLOT(showImageDialog()));
+    markerMenu.addAction(tr("&Properties..."), this, SLOT(showImageDialog()));
   else
-    markerMenu.insertItem(tr("&Properties..."), this, SLOT(showTextDialog()));
+    markerMenu.addAction(tr("&Properties..."), this, SLOT(showTextDialog()));
 
   markerMenu.exec(QCursor::pos());
 }
@@ -7838,7 +7840,8 @@ void ApplicationWindow::dropEvent(QDropEvent *event) {
     foreach (QUrl url, urls) {
       QString fileName = url.toLocalFile();
       QFileInfo fileInfo(fileName);
-      QString ext = fileInfo.extension().toLower();
+
+      QString ext = fileInfo.completeSuffix().toLower();
 
       if (ext == "aproj" || ext == "aproj~" || ext == "aproj.gz" ||
           ext == "aproj.gz~") {
@@ -7951,8 +7954,8 @@ void ApplicationWindow::deleteSelectedItems() {
 
 void ApplicationWindow::showListViewSelectionMenu(const QPoint &p) {
   QMenu cm(this);
-  cm.insertItem(tr("&Delete Selection"), this, SLOT(deleteSelectedItems()),
-                Qt::Key_F8);
+  cm.addAction(tr("&Delete Selection"), this, SLOT(deleteSelectedItems()),
+               Qt::Key_F8);
   cm.exec(p);
 }
 
@@ -7960,18 +7963,19 @@ void ApplicationWindow::showListViewPopupMenu(const QPoint &p) {
   QMenu cm(this);
   QMenu window(this);
 
+  window.setTitle(tr("New &Window"));
   window.addAction(ui_->actionNewTable);
   window.addAction(ui_->actionNewMatrix);
   window.addAction(ui_->actionNewNote);
   window.addAction(ui_->actionNewGraph);
   window.addAction(ui_->actionNewFunctionPlot);
   window.addAction(ui_->actionNew3DSurfacePlot);
-  cm.insertItem(tr("New &Window"), &window);
+  cm.addMenu(&window);
 
-  cm.insertItem(IconLoader::load("folder-explorer", IconLoader::LightDark),
-                tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
+  cm.addAction(IconLoader::load("folder-explorer", IconLoader::LightDark),
+               tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
   cm.addSeparator();
-  cm.insertItem(tr("Auto &Column Width"), listView, SLOT(adjustColumns()));
+  cm.addAction(tr("Auto &Column Width"), listView, SLOT(adjustColumns()));
   cm.exec(p);
 }
 
@@ -8052,7 +8056,7 @@ QStringList ApplicationWindow::dependingPlots(const QString &name) {
           plots << w->name();
       }
     } else if (w->inherits("Graph3D")) {
-      if ((((Graph3D *)w)->formula()).contains(name, TRUE) &&
+      if ((((Graph3D *)w)->formula()).contains(name, Qt::CaseSensitive) &&
           plots.contains(w->name()) <= 0)
         plots << w->name();
     }
@@ -8096,7 +8100,7 @@ void ApplicationWindow::showGraphContextMenu() {
     Graph *ag = (Graph *)plot->activeGraph();
 
     if (ag->isPiePlot())
-      cm.insertItem(tr("Re&move Pie Curve"), ag, SLOT(removePie()));
+      cm.addAction(tr("Re&move Pie Curve"), ag, SLOT(removePie()));
     else {
       if (ag->visibleCurves() != ag->curves()) {
         cm.addAction(actionShowAllCurves);
@@ -8105,24 +8109,27 @@ void ApplicationWindow::showGraphContextMenu() {
       cm.addAction(ui_->actionAddRemoveCurve);
       cm.addAction(ui_->actionAddFunctionCurve);
 
+      translate.setTitle(tr("&Translate"));
       translate.addAction(actionTranslateVert);
       translate.addAction(actionTranslateHor);
-      calcul.insertItem(tr("&Translate"), &translate);
+      calcul.addMenu(&translate);
       calcul.addSeparator();
 
       calcul.addAction(actionDifferentiate);
       calcul.addAction(actionShowIntDialog);
       calcul.addSeparator();
+      smooth.setTitle(tr("&Smooth"));
       smooth.addAction(actionSmoothSavGol);
       smooth.addAction(actionSmoothFFT);
       smooth.addAction(actionSmoothAverage);
-      calcul.insertItem(tr("&Smooth"), &smooth);
+      calcul.addMenu(&smooth);
 
+      filter.setTitle(tr("&FFT Filter"));
       filter.addAction(actionLowPassFilter);
       filter.addAction(actionHighPassFilter);
       filter.addAction(actionBandPassFilter);
       filter.addAction(actionBandBlockFilter);
-      calcul.insertItem(tr("&FFT Filter"), &filter);
+      calcul.addMenu(&filter);
       calcul.addSeparator();
       calcul.addAction(actionInterpolate);
       calcul.addAction(actionFFT);
@@ -8130,61 +8137,67 @@ void ApplicationWindow::showGraphContextMenu() {
       calcul.addAction(actionFitLinear);
       calcul.addAction(actionShowFitPolynomDialog);
       calcul.addSeparator();
+      decay.setTitle(tr("Fit E&xponential Decay"));
       decay.addAction(actionShowExpDecayDialog);
       decay.addAction(actionShowTwoExpDecayDialog);
       decay.addAction(actionShowExpDecay3Dialog);
-      calcul.insertItem(tr("Fit E&xponential Decay"), &decay);
+      calcul.addMenu(&decay);
       calcul.addAction(actionFitExpGrowth);
       calcul.addAction(actionFitSigmoidal);
       calcul.addAction(actionFitGauss);
       calcul.addAction(actionFitLorentz);
 
+      multiPeakMenu.setTitle(tr("Fit &Multi-Peak"));
       multiPeakMenu.addAction(actionMultiPeakGauss);
       multiPeakMenu.addAction(actionMultiPeakLorentz);
-      calcul.insertItem(tr("Fit &Multi-Peak"), &multiPeakMenu);
+      calcul.addMenu(&multiPeakMenu);
       calcul.addSeparator();
       calcul.addAction(actionShowFitDialog);
-      cm.insertItem(tr("Anal&yze"), &calcul);
+      calcul.setTitle(tr("Anal&yze"));
+      cm.addMenu(&calcul);
     }
 
     if (copiedLayer) {
       cm.addSeparator();
-      cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),
-                    tr("&Paste Layer"), this, SLOT(pasteSelection()));
+      cm.addAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                   tr("&Paste Layer"), this, SLOT(pasteSelection()));
     } else if (copiedMarkerType >= 0) {
       cm.addSeparator();
       if (copiedMarkerType == Graph::Text)
-        cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),
-                      tr("&Paste Text"), plot, SIGNAL(pasteMarker()));
+        cm.addAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                     tr("&Paste Text"), plot, SIGNAL(pasteMarker()));
       else if (copiedMarkerType == Graph::Arrow)
-        cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),
-                      tr("&Paste Line/Arrow"), plot, SIGNAL(pasteMarker()));
+        cm.addAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                     tr("&Paste Line/Arrow"), plot, SIGNAL(pasteMarker()));
       else if (copiedMarkerType == Graph::Image)
-        cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),
-                      tr("&Paste Image"), plot, SIGNAL(pasteMarker()));
+        cm.addAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                     tr("&Paste Image"), plot, SIGNAL(pasteMarker()));
     }
     cm.addSeparator();
-    copy.insertItem(tr("&Layer"), this, SLOT(copyActiveLayer()));
-    copy.insertItem(tr("&Window"), plot, SLOT(copyAllLayers()));
-    cm.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark),
-                  tr("&Copy"), &copy);
+    copy.setTitle(tr("&Copy"));
+    copy.addAction(tr("&Layer"), this, SLOT(copyActiveLayer()));
+    copy.addAction(tr("&Window"), plot, SLOT(copyAllLayers()));
+    copy.setIcon(IconLoader::load("edit-copy", IconLoader::LightDark));
+    cm.addMenu(&copy);
 
-    exports.insertItem(tr("&Layer"), this, SLOT(exportLayer()));
-    exports.insertItem(tr("&Window"), this, SLOT(exportGraph()));
-    cm.insertItem(tr("E&xport"), &exports);
+    exports.setTitle(tr("E&xport"));
+    exports.addAction(tr("&Layer"), this, SLOT(exportLayer()));
+    exports.addAction(tr("&Window"), this, SLOT(exportGraph()));
+    cm.addMenu(&exports);
 
-    prints.insertItem(tr("&Layer"), plot, SLOT(printActiveLayer()));
-    prints.insertItem(tr("&Window"), plot, SLOT(print()));
-    cm.insertItem(IconLoader::load("edit-print", IconLoader::LightDark),
-                  tr("&Print"), &prints);
+    prints.setTitle(tr("&Print"));
+    prints.addAction(tr("&Layer"), plot, SLOT(printActiveLayer()));
+    prints.addAction(tr("&Window"), plot, SLOT(print()));
+    prints.setIcon(IconLoader::load("edit-print", IconLoader::LightDark));
+    cm.addMenu(&prints);
     cm.addSeparator();
-    cm.insertItem(
+    cm.addAction(
         IconLoader::load("edit-table-dimension", IconLoader::LightDark),
         tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
-    cm.insertItem(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
+    cm.addAction(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
     cm.addSeparator();
-    cm.insertItem(IconLoader::load("edit-delete", IconLoader::General),
-                  tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
+    cm.addAction(IconLoader::load("edit-delete", IconLoader::General),
+                 tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
     cm.exec(QCursor::pos());
   }
 }
@@ -8213,7 +8226,7 @@ void ApplicationWindow::showLayerButtonContextMenu() {
     cm.addSeparator();
 
     if (ag->isPiePlot())
-      cm.insertItem(tr("Re&move Pie Curve"), ag, SLOT(removePie()));
+      cm.addAction(tr("Re&move Pie Curve"), ag, SLOT(removePie()));
     else {
       if (ag->visibleCurves() != ag->curves()) {
         cm.addAction(actionShowAllCurves);
@@ -8222,24 +8235,27 @@ void ApplicationWindow::showLayerButtonContextMenu() {
       cm.addAction(ui_->actionAddRemoveCurve);
       cm.addAction(ui_->actionAddFunctionCurve);
 
+      translate.setTitle(tr("&Translate"));
       translate.addAction(actionTranslateVert);
       translate.addAction(actionTranslateHor);
-      calcul.insertItem(tr("&Translate"), &translate);
+      calcul.addMenu(&translate);
       calcul.addSeparator();
 
       calcul.addAction(actionDifferentiate);
       calcul.addAction(actionShowIntDialog);
       calcul.addSeparator();
+      smooth.setTitle(tr("&Smooth"));
       smooth.addAction(actionSmoothSavGol);
       smooth.addAction(actionSmoothFFT);
       smooth.addAction(actionSmoothAverage);
-      calcul.insertItem(tr("&Smooth"), &smooth);
+      calcul.addMenu(&smooth);
 
+      filter.setTitle(tr("&FFT Filter"));
       filter.addAction(actionLowPassFilter);
       filter.addAction(actionHighPassFilter);
       filter.addAction(actionBandPassFilter);
       filter.addAction(actionBandBlockFilter);
-      calcul.insertItem(tr("&FFT Filter"), &filter);
+      calcul.addMenu(&filter);
       calcul.addSeparator();
       calcul.addAction(actionInterpolate);
       calcul.addAction(actionFFT);
@@ -8247,61 +8263,67 @@ void ApplicationWindow::showLayerButtonContextMenu() {
       calcul.addAction(actionFitLinear);
       calcul.addAction(actionShowFitPolynomDialog);
       calcul.addSeparator();
+      decay.setTitle(tr("Fit E&xponential Decay"));
       decay.addAction(actionShowExpDecayDialog);
       decay.addAction(actionShowTwoExpDecayDialog);
       decay.addAction(actionShowExpDecay3Dialog);
-      calcul.insertItem(tr("Fit E&xponential Decay"), &decay);
+      calcul.addMenu(&decay);
       calcul.addAction(actionFitExpGrowth);
       calcul.addAction(actionFitSigmoidal);
       calcul.addAction(actionFitGauss);
       calcul.addAction(actionFitLorentz);
 
+      multiPeakMenu.setTitle(tr("Fit &Multi-Peak"));
       multiPeakMenu.addAction(actionMultiPeakGauss);
       multiPeakMenu.addAction(actionMultiPeakLorentz);
-      calcul.insertItem(tr("Fit &Multi-Peak"), &multiPeakMenu);
+      calcul.addMenu(&multiPeakMenu);
       calcul.addSeparator();
       calcul.addAction(actionShowFitDialog);
-      cm.insertItem(tr("Anal&yze"), &calcul);
+      calcul.setTitle(tr("Anal&yze"));
+      cm.addMenu(&calcul);
     }
 
     if (copiedLayer) {
       cm.addSeparator();
-      cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),
-                    tr("&Paste Layer"), this, SLOT(pasteSelection()));
+      cm.addAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                   tr("&Paste Layer"), this, SLOT(pasteSelection()));
     } else if (copiedMarkerType >= 0) {
       cm.addSeparator();
       if (copiedMarkerType == Graph::Text)
-        cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),
-                      tr("&Paste Text"), plot, SIGNAL(pasteMarker()));
+        cm.addAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                     tr("&Paste Text"), plot, SIGNAL(pasteMarker()));
       else if (copiedMarkerType == Graph::Arrow)
-        cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),
-                      tr("&Paste Line/Arrow"), plot, SIGNAL(pasteMarker()));
+        cm.addAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                     tr("&Paste Line/Arrow"), plot, SIGNAL(pasteMarker()));
       else if (copiedMarkerType == Graph::Image)
-        cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),
-                      tr("&Paste Image"), plot, SIGNAL(pasteMarker()));
+        cm.addAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                     tr("&Paste Image"), plot, SIGNAL(pasteMarker()));
     }
     cm.addSeparator();
-    copy.insertItem(tr("&Layer"), this, SLOT(copyActiveLayer()));
-    copy.insertItem(tr("&Window"), plot, SLOT(copyAllLayers()));
-    cm.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark),
-                  tr("&Copy"), &copy);
+    copy.setTitle(tr("&Copy"));
+    copy.addAction(tr("&Layer"), this, SLOT(copyActiveLayer()));
+    copy.addAction(tr("&Window"), plot, SLOT(copyAllLayers()));
+    copy.setIcon(IconLoader::load("edit-copy", IconLoader::LightDark));
+    cm.addMenu(&copy);
 
-    exports.insertItem(tr("&Layer"), this, SLOT(exportLayer()));
-    exports.insertItem(tr("&Window"), this, SLOT(exportGraph()));
-    cm.insertItem(tr("E&xport"), &exports);
+    exports.setTitle(tr("E&xport"));
+    exports.addAction(tr("&Layer"), this, SLOT(exportLayer()));
+    exports.addAction(tr("&Window"), this, SLOT(exportGraph()));
+    cm.addMenu(&exports);
 
-    prints.insertItem(tr("&Layer"), plot, SLOT(printActiveLayer()));
-    prints.insertItem(tr("&Window"), plot, SLOT(print()));
-    cm.insertItem(IconLoader::load("edit-print", IconLoader::LightDark),
-                  tr("&Print"), &prints);
+    prints.setTitle(tr("&Print"));
+    prints.addAction(tr("&Layer"), plot, SLOT(printActiveLayer()));
+    prints.addAction(tr("&Window"), plot, SLOT(print()));
+    prints.setIcon(IconLoader::load("edit-print", IconLoader::LightDark));
+    cm.addMenu(&prints);
     cm.addSeparator();
-    cm.insertItem(
+    cm.addAction(
         IconLoader::load("edit-table-dimension", IconLoader::LightDark),
         tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
-    cm.insertItem(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
+    cm.addAction(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
     cm.addSeparator();
-    cm.insertItem(IconLoader::load("edit-delete", IconLoader::General),
-                  tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
+    cm.addAction(IconLoader::load("edit-delete", IconLoader::General),
+                 tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
     cm.exec(QCursor::pos());
   }
 }
@@ -8315,8 +8337,8 @@ void ApplicationWindow::showWindowContextMenu() {
   if (w->inherits("MultiLayer")) {
     MultiLayer *g = (MultiLayer *)w;
     if (copiedLayer) {
-      cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),
-                    tr("&Paste Layer"), this, SLOT(pasteSelection()));
+      cm.addAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                   tr("&Paste Layer"), this, SLOT(pasteSelection()));
       cm.addSeparator();
     }
 
@@ -8332,27 +8354,28 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.addAction(ui_->actionRenameWindow);
     cm.addAction(ui_->actionDuplicateWindow);
     cm.addSeparator();
-    cm.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark),
-                  tr("&Copy Page"), g, SLOT(copyAllLayers()));
-    cm.insertItem(tr("E&xport Page"), this, SLOT(exportGraph()));
+    cm.addAction(IconLoader::load("edit-copy", IconLoader::LightDark),
+                 tr("&Copy Page"), g, SLOT(copyAllLayers()));
+    cm.addAction(tr("E&xport Page"), this, SLOT(exportGraph()));
     cm.addAction(ui_->actionPrint);
     cm.addSeparator();
     cm.addAction(actionCloseWindow);
   } else if (w->inherits("Graph3D")) {
     Graph3D *g = (Graph3D *)w;
     if (!g->hasData()) {
-      cm.insertItem(tr("3D &Plot"), &plot3D);
+      cm.addMenu(&plot3D);
+      plot3D.setTitle(tr("3D &Plot"));
       plot3D.addAction(actionAdd3DData);
-      plot3D.insertItem(tr("&Matrix..."), this, SLOT(add3DMatrixPlot()));
+      plot3D.addAction(tr("&Matrix..."), this, SLOT(add3DMatrixPlot()));
       plot3D.addAction(actionEditSurfacePlot);
     } else {
       if (g->getTable())
-        cm.insertItem(tr("Choose &Data Set..."), this, SLOT(change3DData()));
+        cm.addAction(tr("Choose &Data Set..."), this, SLOT(change3DData()));
       else if (g->matrix())
-        cm.insertItem(tr("Choose &Matrix..."), this, SLOT(change3DMatrix()));
+        cm.addAction(tr("Choose &Matrix..."), this, SLOT(change3DMatrix()));
       else if (g->userFunction())
         cm.addAction(actionEditSurfacePlot);
-      cm.insertItem(
+      cm.addAction(
           IconLoader::load("edit-delete-selection", IconLoader::LightDark),
           tr("C&lear"), g, SLOT(clearData()));
     }
@@ -8361,30 +8384,30 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.addAction(ui_->actionRenameWindow);
     cm.addAction(ui_->actionDuplicateWindow);
     cm.addSeparator();
-    cm.insertItem(tr("&Copy Graph"), g, SLOT(copyImage()));
-    cm.insertItem(tr("&Export"), this, SLOT(exportGraph()));
+    cm.addAction(tr("&Copy Graph"), g, SLOT(copyImage()));
+    cm.addAction(tr("&Export"), this, SLOT(exportGraph()));
     cm.addAction(ui_->actionPrint);
     cm.addSeparator();
     cm.addAction(actionCloseWindow);
   } else if (w->inherits("Matrix")) {
     Matrix *t = (Matrix *)w;
-    cm.insertItem(IconLoader::load("edit-cut", IconLoader::LightDark),
-                  tr("Cu&t"), t, SLOT(cutSelection()));
-    cm.insertItem(IconLoader::load("edit-copy", IconLoader::LightDark),
-                  tr("&Copy"), t, SLOT(copySelection()));
-    cm.insertItem(IconLoader::load("edit-paste", IconLoader::LightDark),
-                  tr("&Paste"), t, SLOT(pasteSelection()));
+    cm.addAction(IconLoader::load("edit-cut", IconLoader::LightDark),
+                 tr("Cu&t"), t, SLOT(cutSelection()));
+    cm.addAction(IconLoader::load("edit-copy", IconLoader::LightDark),
+                 tr("&Copy"), t, SLOT(copySelection()));
+    cm.addAction(IconLoader::load("edit-paste", IconLoader::LightDark),
+                 tr("&Paste"), t, SLOT(pasteSelection()));
     cm.addSeparator();
-    cm.insertItem(tr("&Insert Row"), t, SLOT(insertRow()));
-    cm.insertItem(tr("&Insert Column"), t, SLOT(insertColumn()));
+    cm.addAction(tr("&Insert Row"), t, SLOT(insertRow()));
+    cm.addAction(tr("&Insert Column"), t, SLOT(insertColumn()));
     if (t->rowsSelected()) {
-      cm.insertItem(IconLoader::load("edit-delete", IconLoader::General),
-                    tr("&Delete Rows"), t, SLOT(deleteSelectedRows()));
+      cm.addAction(IconLoader::load("edit-delete", IconLoader::General),
+                   tr("&Delete Rows"), t, SLOT(deleteSelectedRows()));
     } else if (t->columnsSelected()) {
-      cm.insertItem(IconLoader::load("edit-delete", IconLoader::General),
-                    tr("&Delete Columns"), t, SLOT(deleteSelectedColumns()));
+      cm.addAction(IconLoader::load("edit-delete", IconLoader::General),
+                   tr("&Delete Columns"), t, SLOT(deleteSelectedColumns()));
     }
-    cm.insertItem(
+    cm.addAction(
         IconLoader::load("edit-delete-selection", IconLoader::LightDark),
         tr("Clea&r"), t, SLOT(clearSelection()));
   }
@@ -8981,9 +9004,9 @@ void ApplicationWindow::pixelLineProfile() {
   if (!g) return;
 
   bool ok;
-  int res = QInputDialog::getInteger(tr("Set the number of pixels to average"),
-                                     tr("Number of averaged pixels"), 1, 1,
-                                     2000, 2, &ok, this);
+  int res = QInputDialog::getInteger(
+      this, tr("Set the number of pixels to average"),
+      tr("Number of averaged pixels"), 1, 1, 2000, 2, &ok);
   if (!ok) return;
 
   LineProfileTool *lpt = new LineProfileTool(g, res);
@@ -9127,7 +9150,7 @@ Table *ApplicationWindow::openTableAproj(ApplicationWindow *app,
   QString tmp_string;
   if (tmp_file.open()) {
     QTextStream tmp(&tmp_file);
-    tmp.setEncoding(QTextStream::UnicodeUTF8);
+    tmp.setCodec("UTF-8");
     int read = 0;
     while (length - read >= 1024) {
       tmp << stream.read(1024);
@@ -9654,18 +9677,18 @@ Graph3D *ApplicationWindow::openSurfacePlotAproj(ApplicationWindow *app,
   fList = lst[2].split("\t", QString::SkipEmptyParts);
   Graph3D *plot = 0;
 
-  if (fList[1].endsWith("(Y)", true))  // Ribbon plot
+  if (fList[1].endsWith("(Y)", Qt::CaseSensitive))  // Ribbon plot
     plot = app->dataPlot3D(caption, fList[1], fList[2].toDouble(),
                            fList[3].toDouble(), fList[4].toDouble(),
                            fList[5].toDouble(), fList[6].toDouble(),
                            fList[7].toDouble());
-  else if (fList[1].contains("(Z)", true))
+  else if (fList[1].contains("(Z)", Qt::CaseSensitive))
     plot = app->dataPlotXYZ(caption, fList[1], fList[2].toDouble(),
                             fList[3].toDouble(), fList[4].toDouble(),
                             fList[5].toDouble(), fList[6].toDouble(),
                             fList[7].toDouble());
-  else if (fList[1].startsWith("matrix<", true) &&
-           fList[1].endsWith(">", false))
+  else if (fList[1].startsWith("matrix<", Qt::CaseSensitive) &&
+           fList[1].endsWith(">", Qt::CaseInsensitive))
     plot = app->openMatrixPlot3D(caption, fList[1], fList[2].toDouble(),
                                  fList[3].toDouble(), fList[4].toDouble(),
                                  fList[5].toDouble(), fList[6].toDouble(),

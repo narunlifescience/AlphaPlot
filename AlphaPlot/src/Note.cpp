@@ -54,7 +54,7 @@ void Note::init(ScriptingEnv* env) {
 
   te = new ScriptEdit(env, this, name());
   te->setContext(this);
-  QVBoxLayout* hlayout = new QVBoxLayout(this, 0, 0, "hlayout1");
+  QVBoxLayout* hlayout = new QVBoxLayout(this);
   hlayout->addWidget(te);
 
   setGeometry(0, 0, 500, 200);
@@ -70,7 +70,7 @@ QString Note::saveToString(const QString& info) {
   s += "WindowLabel\t" + windowLabel() + "\t" +
        QString::number(captionPolicy()) + "\n";
   s += "AutoExec\t" + QString(autoExec ? "1" : "0") + "\n";
-  s += "<content>\n" + te->text().trimmed() + "\n</content>";
+  s += "<content>\n" + te->toPlainText().trimmed() + "\n</content>";
   s += "\n</note>\n";
   return s;
 }
@@ -92,8 +92,4 @@ void Note::restore(const QStringList& data) {
 
 void Note::setAutoexec(bool exec) {
   autoExec = exec;
-  if (autoExec)
-    te->setPaletteBackgroundColor(QColor(255, 239, 185));
-  else
-    te->unsetPalette();
 }
