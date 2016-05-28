@@ -998,8 +998,7 @@ class ApplicationWindow : public QMainWindow,
   QColor tableBkgdColor, tableTextColor, tableHeaderColor;
   QString projectname, columnSeparator, appLanguage;
   QString configFilePath, logInfo, fitPluginsPath, asciiDirPath, imagesDirPath;
-  int logID, asciiID, printAllID, ignoredLines, savingTimerId,
-      plot3DResolution;
+  int logID, asciiID, printAllID, ignoredLines, savingTimerId, plot3DResolution;
   bool renameColumns, copiedLayer, strip_spaces, simplify_spaces;
   QStringList recentProjects;
   QStringList tableWindows();
@@ -1071,7 +1070,6 @@ class ApplicationWindow : public QMainWindow,
   Graph* lastCopiedLayer;
   QSplitter* explorerSplitter;
 
-  QMenu *format;
   QMenu *matrixMenu, *plotDataMenu, *tableMenu;
   QAction* actionCopyStatusBarText;
   QAction *actionEditCurveRange, *actionCurveFullRange, *actionShowAllCurves,
@@ -1083,9 +1081,8 @@ class ApplicationWindow : public QMainWindow,
   QAction* actionExportPDF;
   QAction* actionCloseAllWindows;
   QAction* actionUnzoom;
-  QAction *actionShowAxisDialog, *actionShowTitleDialog;
-  QAction *actionCloseWindow, *actionConvertTable;
-  QAction *actionAddColToTable;
+  QAction* actionConvertTable;
+  QAction* actionAddColToTable;
   QAction* actionHideActiveWindow;
   QAction *actionShowMoreWindows, *actionPixelLineProfile,
       *actionIntensityTable;
@@ -1096,9 +1093,7 @@ class ApplicationWindow : public QMainWindow,
       *actionAdd3DData;
   QAction* actionMatrixDeterminant;
   QAction *actionConvertMatrix, *actionInvertMatrix;
-  QAction* actionShowGridDialog;
 
-  QAction *actionShowPlotDialog, *actionShowScaleDialog;
   QAction *actionClearTable, *actionGoToCell;
   QAction* actionSaveNote;
   QAction *actionAnimate, *actionPerspective, *actionFitFrame,

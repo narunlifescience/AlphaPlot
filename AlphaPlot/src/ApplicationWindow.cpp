@@ -526,6 +526,12 @@ ApplicationWindow::ApplicationWindow()
   ui_->actionMultiPeakGaussian->setIcon(QIcon());
   ui_->actionMultiPeakLorentzian->setIcon(QIcon());
   ui_->actionGraph2DFitWizard->setIcon(QIcon());
+  // Format menu
+  ui_->actionFormatPlot->setIcon(QIcon());
+  ui_->actionFormatScale->setIcon(QIcon());
+  ui_->actionFormatAxis->setIcon(QIcon());
+  ui_->actionFormatGrid->setIcon(QIcon());
+  ui_->actionFormatTitle->setIcon(QIcon());
   // Windows menu
   ui_->actionCascadeWindow->setIcon(QIcon());
   ui_->actionTileWindow->setIcon(QIcon());
@@ -826,6 +832,17 @@ ApplicationWindow::ApplicationWindow()
           SLOT(fitMultiPeakLorentzian()));
   connect(ui_->actionGraph2DFitWizard, SIGNAL(activated()), this,
           SLOT(showFitDialog()));
+  // Format menu
+  connect(ui_->actionFormatPlot, SIGNAL(activated()), this,
+          SLOT(showGeneralPlotDialog()));
+  connect(ui_->actionFormatScale, SIGNAL(activated()), this,
+          SLOT(showScaleDialog()));
+  connect(ui_->actionFormatAxis, SIGNAL(activated()), this,
+          SLOT(showAxisDialog()));
+  connect(ui_->actionFormatGrid, SIGNAL(activated()), this,
+          SLOT(showGridDialog()));
+  connect(ui_->actionFormatTitle, SIGNAL(activated()), this,
+          SLOT(showTitleDialog()));
   // Windows menu
   connect(ui_->actionCascadeWindow, SIGNAL(triggered()), d_workspace,
           SLOT(cascade()));
@@ -886,27 +903,6 @@ ApplicationWindow::ApplicationWindow()
                   tr("&Rescale to Show All"), this);
   actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
   connect(actionUnzoom, SIGNAL(activated()), this, SLOT(setAutoScale()));
-  actionShowPlotDialog = new QAction(tr("&Plot ..."), this);
-  connect(actionShowPlotDialog, SIGNAL(activated()), this,
-          SLOT(showGeneralPlotDialog()));
-  actionShowScaleDialog = new QAction(tr("&Scales..."), this);
-  connect(actionShowScaleDialog, SIGNAL(activated()), this,
-          SLOT(showScaleDialog()));
-  actionShowAxisDialog = new QAction(tr("&Axes..."), this);
-  connect(actionShowAxisDialog, SIGNAL(activated()), this,
-          SLOT(showAxisDialog()));
-  actionShowGridDialog = new QAction(tr("&Grid ..."), this);
-  connect(actionShowGridDialog, SIGNAL(activated()), this,
-          SLOT(showGridDialog()));
-  actionShowTitleDialog = new QAction(tr("&Title ..."), this);
-  connect(actionShowTitleDialog, SIGNAL(activated()), this,
-          SLOT(showTitleDialog()));
-  actionCloseWindow =
-      new QAction(IconLoader::load("edit-delete", IconLoader::General),
-                  tr("Close &Window"), this);
-  actionCloseWindow->setShortcut(tr("Ctrl+W"));
-  connect(actionCloseWindow, SIGNAL(activated()), this,
-          SLOT(closeActiveWindow()));
   actionHideActiveWindow = new QAction(tr("&Hide Window"), this);
   connect(actionHideActiveWindow, SIGNAL(activated()), this,
           SLOT(hideActiveWindow()));
@@ -1544,8 +1540,6 @@ void ApplicationWindow::initMainMenu() {
   plotDataMenu->addAction(btnRemovePoints);
   btnRemovePoints->setCheckable(true);
 
-  format = new QMenu(this);
-
   disableActions();
 }
 
@@ -1574,37 +1568,26 @@ void ApplicationWindow::customMenu(QWidget *w) {
       menuBar()->addMenu(plotDataMenu);
       menuBar()->addMenu(ui_->menuGraph2DAnalysis);
 
-      format->setTitle("Format");
-      menuBar()->addMenu(format);
+      menuBar()->addMenu(ui_->menuFormat);
 
       ui_->menuExportGraph->setEnabled(true);
       ui_->actionExportASCII->setEnabled(false);
 
-      format->clear();
-      format->addAction(actionShowPlotDialog);
-      format->addSeparator();
-      format->addAction(actionShowScaleDialog);
-      format->addAction(actionShowAxisDialog);
-      actionShowAxisDialog->setEnabled(true);
-      format->addSeparator();
-      format->addAction(actionShowGridDialog);
-      format->addAction(actionShowTitleDialog);
+      ui_->actionFormatAxis->setEnabled(true);
+      ui_->actionFormatGrid->setEnabled(true);
     } else if (w->inherits("Graph3D")) {
       disableActions();
-
-      menuBar()->addMenu(format);
-
+      menuBar()->addMenu(ui_->menuFormat);
       ui_->actionPrint->setEnabled(true);
       ui_->actionSaveAsTemplate->setEnabled(true);
       ui_->menuExportGraph->setEnabled(true);
+      ui_->actionFormatGrid->setEnabled(false);
+      if (static_cast<Graph3D *>(w)->coordStyle() == Qwt3D::NOCOORD) {
+        ui_->actionFormatAxis->setEnabled(false);
+      } else {
+        ui_->actionFormatAxis->setEnabled(true);
+      }
 
-      format->clear();
-      format->addAction(actionShowPlotDialog);
-      format->addAction(actionShowScaleDialog);
-      format->addAction(actionShowAxisDialog);
-      format->addAction(actionShowTitleDialog);
-      if (((Graph3D *)w)->coordStyle() == Qwt3D::NOCOORD)
-        actionShowAxisDialog->setEnabled(false);
     } else if (w->inherits("Table")) {
       menuBar()->addMenu(ui_->menuPlot);
       menuBar()->addMenu(ui_->menuTableAnalysis);
@@ -3495,7 +3478,6 @@ void ApplicationWindow::changeAppFont(const QFont &f) {
 void ApplicationWindow::updateAppFonts() {
   qApp->setFont(appFont);
   this->setFont(appFont);
-  format->setFont(appFont);
   matrixMenu->setFont(appFont);
 
   plotDataMenu->setFont(appFont);
@@ -6634,13 +6616,9 @@ void ApplicationWindow::fitExponential(int type) {
   edd->show();
 }
 
-void ApplicationWindow::fitSecondOrderExponentialDecay() {
-  fitExponential(2);
-}
+void ApplicationWindow::fitSecondOrderExponentialDecay() { fitExponential(2); }
 
-void ApplicationWindow::fitThirdOrderExponentialDecay() {
-  fitExponential(3);
-}
+void ApplicationWindow::fitThirdOrderExponentialDecay() { fitExponential(3); }
 
 void ApplicationWindow::showFitDialog() {
   QWidget *w = d_workspace->activeWindow();
@@ -8280,7 +8258,7 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.addAction(tr("E&xport Page"), this, SLOT(exportGraph()));
     cm.addAction(ui_->actionPrint);
     cm.addSeparator();
-    cm.addAction(actionCloseWindow);
+    cm.addAction(ui_->actionCloseWindow);
   } else if (w->inherits("Graph3D")) {
     Graph3D *g = (Graph3D *)w;
     if (!g->hasData()) {
@@ -8309,7 +8287,7 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.addAction(tr("&Export"), this, SLOT(exportGraph()));
     cm.addAction(ui_->actionPrint);
     cm.addSeparator();
-    cm.addAction(actionCloseWindow);
+    cm.addAction(ui_->actionCloseWindow);
   } else if (w->inherits("Matrix")) {
     Matrix *t = (Matrix *)w;
     cm.addAction(IconLoader::load("edit-cut", IconLoader::LightDark),
@@ -8584,7 +8562,7 @@ void ApplicationWindow::setFramed3DPlot() {
   if (d_workspace->activeWindow() &&
       d_workspace->activeWindow()->inherits("Graph3D")) {
     ((Graph3D *)d_workspace->activeWindow())->setFramed();
-    actionShowAxisDialog->setEnabled(TRUE);
+    ui_->actionFormatAxis->setEnabled(true);
   }
 }
 
@@ -8592,7 +8570,7 @@ void ApplicationWindow::setBoxed3DPlot() {
   if (d_workspace->activeWindow() &&
       d_workspace->activeWindow()->inherits("Graph3D")) {
     ((Graph3D *)d_workspace->activeWindow())->setBoxed();
-    actionShowAxisDialog->setEnabled(TRUE);
+    ui_->actionFormatAxis->setEnabled(true);
   }
 }
 
@@ -8600,7 +8578,7 @@ void ApplicationWindow::removeAxes3DPlot() {
   if (d_workspace->activeWindow() &&
       d_workspace->activeWindow()->inherits("Graph3D")) {
     ((Graph3D *)d_workspace->activeWindow())->setNoAxes();
-    actionShowAxisDialog->setEnabled(false);
+    ui_->actionFormatAxis->setEnabled(false);
   }
 }
 
@@ -11794,7 +11772,7 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
   cm.addAction(ui_->actionDuplicateWindow);
   cm.addSeparator();
   cm.addAction(ui_->actionRenameWindow);
-  cm.addAction(actionCloseWindow);
+  cm.addAction(ui_->actionCloseWindow);
   if (!hidden(widget)) cm.addAction(actionHideActiveWindow);
   cm.addAction(actionActivateWindow);
   cm.addAction(actionMinimizeWindow);
@@ -12024,6 +12002,7 @@ QStringList ApplicationWindow::tableWindows() {
   return result;
 }
 
+// scripting related code
 void ApplicationWindow::attachQtScript() {
   // pass mainwindow as global object
   QScriptValue objectValue = consoleWindow->engine->newQObject(this);

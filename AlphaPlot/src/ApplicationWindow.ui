@@ -348,14 +348,27 @@
     <addaction name="separator"/>
     <addaction name="actionTableFitWizard"/>
    </widget>
+   <widget class="QMenu" name="menuFormat">
+    <property name="title">
+     <string>Format</string>
+    </property>
+    <addaction name="actionFormatPlot"/>
+    <addaction name="separator"/>
+    <addaction name="actionFormatScale"/>
+    <addaction name="actionFormatAxis"/>
+    <addaction name="separator"/>
+    <addaction name="actionFormatGrid"/>
+    <addaction name="actionFormatTitle"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
    <addaction name="menuScripting"/>
    <addaction name="menuPlot"/>
+   <addaction name="menuTableAnalysis"/>
    <addaction name="menu3DPlot"/>
    <addaction name="menuGraph"/>
-   <addaction name="menuTableAnalysis"/>
+   <addaction name="menuFormat"/>
    <addaction name="menuGraph2DAnalysis"/>
    <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
@@ -1243,6 +1256,31 @@
   <action name="actionTableFitWizard">
    <property name="text">
     <string>Fit Wizard...</string>
+   </property>
+  </action>
+  <action name="actionFormatPlot">
+   <property name="text">
+    <string>Plot...</string>
+   </property>
+  </action>
+  <action name="actionFormatScale">
+   <property name="text">
+    <string>Scale...</string>
+   </property>
+  </action>
+  <action name="actionFormatAxis">
+   <property name="text">
+    <string>Axis...</string>
+   </property>
+  </action>
+  <action name="actionFormatGrid">
+   <property name="text">
+    <string>Grid...</string>
+   </property>
+  </action>
+  <action name="actionFormatTitle">
+   <property name="text">
+    <string>Title...</string>
    </property>
   </action>
  </widget>
