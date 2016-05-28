@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>759</width>
+    <width>779</width>
     <height>519</height>
    </rect>
   </property>
@@ -25,7 +25,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>759</width>
+     <width>779</width>
      <height>22</height>
     </rect>
    </property>
@@ -360,14 +360,43 @@
     <addaction name="actionFormatGrid"/>
     <addaction name="actionFormatTitle"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionDisableGraphTools"/>
+    <addaction name="actionGraphZoomIn"/>
+    <addaction name="actionGraphZoomOut"/>
+    <addaction name="actionGraphRescaleShowAll"/>
+    <addaction name="separator"/>
+    <addaction name="actionGraphScreenReader"/>
+    <addaction name="actionGraphDataReader"/>
+    <addaction name="actionGraphSelectDataRange"/>
+    <addaction name="separator"/>
+    <addaction name="actionGraphMoveDataPoints"/>
+    <addaction name="actionGraphRemoveBadDataPoints"/>
+   </widget>
+   <widget class="QMenu" name="menuTable">
+    <property name="title">
+     <string>Table</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuMatrix">
+    <property name="title">
+     <string>Matrix</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
    <addaction name="menuScripting"/>
    <addaction name="menuPlot"/>
    <addaction name="menuTableAnalysis"/>
+   <addaction name="menuTable"/>
+   <addaction name="menuMatrix"/>
    <addaction name="menu3DPlot"/>
    <addaction name="menuGraph"/>
+   <addaction name="menuTools"/>
    <addaction name="menuFormat"/>
    <addaction name="menuGraph2DAnalysis"/>
    <addaction name="menuWindow"/>
@@ -1332,6 +1361,51 @@
   <action name="actionFormatTitle">
    <property name="text">
     <string>Title...</string>
+   </property>
+  </action>
+  <action name="actionDisableGraphTools">
+   <property name="text">
+    <string>Disable Tools</string>
+   </property>
+  </action>
+  <action name="actionGraphZoomIn">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="actionGraphZoomOut">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+  </action>
+  <action name="actionGraphRescaleShowAll">
+   <property name="text">
+    <string>Rescale to Show All</string>
+   </property>
+  </action>
+  <action name="actionGraphScreenReader">
+   <property name="text">
+    <string>Screen Reader</string>
+   </property>
+  </action>
+  <action name="actionGraphDataReader">
+   <property name="text">
+    <string>Data Reader</string>
+   </property>
+  </action>
+  <action name="actionGraphSelectDataRange">
+   <property name="text">
+    <string>Select Data Range</string>
+   </property>
+  </action>
+  <action name="actionGraphMoveDataPoints">
+   <property name="text">
+    <string>Move Data Points...</string>
+   </property>
+  </action>
+  <action name="actionGraphRemoveBadDataPoints">
+   <property name="text">
+    <string>Remove Bad Data Points...</string>
    </property>
   </action>
  </widget>

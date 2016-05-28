@@ -516,11 +516,10 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name Initialization
   //@{
-  void initMainMenu();
   void initToolBars();
   void disableActions();
-  void customToolBars(QWidget* w);
-  void customMenu(QWidget* w);
+  void customToolBars(QWidget* widget);
+  void customMenu(QWidget* widget);
   void windowActivated(QWidget* w);
   //@}
 
@@ -1063,8 +1062,6 @@ class ApplicationWindow : public QMainWindow,
 #endif
 
   Graph* lastCopiedLayer;
-
-  QMenu *matrixMenu, *plotDataMenu, *tableMenu;
   QAction* actionCopyStatusBarText;
   QAction *actionEditCurveRange, *actionCurveFullRange, *actionShowAllCurves,
       *actionHideCurve, *actionHideOtherCurves;
@@ -1074,7 +1071,6 @@ class ApplicationWindow : public QMainWindow,
   QAction* actionShowExportASCIIDialog;
   QAction* actionExportPDF;
   QAction* actionCloseAllWindows;
-  QAction* actionUnzoom;
   QAction* actionConvertTable;
   QAction* actionAddColToTable;
   QAction* actionHideActiveWindow;
@@ -1093,9 +1089,7 @@ class ApplicationWindow : public QMainWindow,
   QAction *actionAnimate, *actionPerspective, *actionFitFrame,
       *actionResetRotation;
 
-  QActionGroup* dataTools;
-  QAction *btnCursor, *btnSelect, *btnPicker, *btnRemovePoints, *btnMovePoints;
-  QAction *btnZoomIn, *btnZoomOut, *btnPointer;
+  QActionGroup* graphToolsGroup;
 
   QActionGroup* coord;
   QAction* Box;

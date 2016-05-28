@@ -193,7 +193,7 @@ ApplicationWindow::ApplicationWindow()
       autoSearchUpdatesRequest(false),
 #endif
       lastCopiedLayer(0),
-      dataTools(new QActionGroup(this)),
+      graphToolsGroup(new QActionGroup(this)),
       d_plot_mapper(new QSignalMapper(this)) {
   ui_->setupUi(this);
 
@@ -473,6 +473,23 @@ ApplicationWindow::ApplicationWindow()
       IconLoader::load("edit-delete-selection", IconLoader::LightDark));
   ui_->actionArrangeLayers->setIcon(
       IconLoader::load("layer-arrange", IconLoader::LightDark));
+  // Tools menu
+  ui_->actionDisableGraphTools->setIcon(
+      IconLoader::load("edit-select", IconLoader::LightDark));
+  ui_->actionGraphZoomIn->setIcon(
+      IconLoader::load("zoom-in", IconLoader::LightDark));
+  ui_->actionGraphZoomOut->setIcon(
+      IconLoader::load("zoom-out", IconLoader::LightDark));
+  ui_->actionGraphRescaleShowAll->setIcon(
+      IconLoader::load("graph-unzoom", IconLoader::LightDark));
+  ui_->actionGraphScreenReader->setIcon(
+      IconLoader::load("edit-crosshair", IconLoader::LightDark));
+  ui_->actionGraphDataReader->setIcon(
+      IconLoader::load("edit-select-data", IconLoader::LightDark));
+  ui_->actionGraphSelectDataRange->setIcon(
+      IconLoader::load("edit-data-range", IconLoader::LightDark));
+  ui_->actionGraphMoveDataPoints->setIcon(QIcon(QPixmap(":/hand.xpm")));
+  ui_->actionGraphRemoveBadDataPoints->setIcon(QIcon(QPixmap(":/gomme.xpm")));
   // Table Analysis menu
   ui_->actionStatisticsOnColumns->setIcon(
       IconLoader::load("table-column-sum", IconLoader::LightDark));
@@ -738,9 +755,9 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->actionAddFunctionCurve, SIGNAL(activated()), this,
           SLOT(addFunctionCurve()));
   connect(ui_->actionAddText, SIGNAL(activated()), this, SLOT(addText()));
-  dataTools->setExclusive(true);
-  ui_->actionDrawArrow->setActionGroup(dataTools);
-  ui_->actionDrawLine->setActionGroup(dataTools);
+  graphToolsGroup->setExclusive(true);
+  ui_->actionDrawArrow->setActionGroup(graphToolsGroup);
+  ui_->actionDrawLine->setActionGroup(graphToolsGroup);
   connect(ui_->actionAddTimeStamp, SIGNAL(activated()), this,
           SLOT(addTimeStamp()));
   connect(ui_->actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
@@ -752,6 +769,25 @@ ApplicationWindow::ApplicationWindow()
           SLOT(deleteLayer()));
   connect(ui_->actionArrangeLayers, SIGNAL(activated()), this,
           SLOT(showLayerDialog()));
+  // Tools menu
+  ui_->actionDisableGraphTools->setActionGroup(graphToolsGroup);
+  ui_->actionDisableGraphTools->setCheckable(true);
+  ui_->actionGraphZoomIn->setActionGroup(graphToolsGroup);
+  ui_->actionGraphZoomIn->setCheckable(true);
+  ui_->actionGraphZoomOut->setActionGroup(graphToolsGroup);
+  ui_->actionGraphZoomOut->setCheckable(true);
+  connect(ui_->actionGraphRescaleShowAll, SIGNAL(activated()), this,
+          SLOT(setAutoScale()));
+  ui_->actionGraphScreenReader->setActionGroup(graphToolsGroup);
+  ui_->actionGraphScreenReader->setCheckable(true);
+  ui_->actionGraphDataReader->setActionGroup(graphToolsGroup);
+  ui_->actionGraphDataReader->setCheckable(true);
+  ui_->actionGraphSelectDataRange->setActionGroup(graphToolsGroup);
+  ui_->actionGraphSelectDataRange->setCheckable(true);
+  ui_->actionGraphMoveDataPoints->setActionGroup(graphToolsGroup);
+  ui_->actionGraphMoveDataPoints->setCheckable(true);
+  ui_->actionGraphRemoveBadDataPoints->setActionGroup(graphToolsGroup);
+  ui_->actionGraphRemoveBadDataPoints->setCheckable(true);
   // Table Analysis menu
   connect(ui_->actionStatisticsOnColumns, SIGNAL(activated()), this,
           SLOT(showColumnStatistics()));
@@ -882,11 +918,6 @@ ApplicationWindow::ApplicationWindow()
                   tr("&Export PDF") + "...", this);
   actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
   connect(actionExportPDF, SIGNAL(activated()), this, SLOT(exportPDF()));
-  actionUnzoom =
-      new QAction(IconLoader::load("graph-unzoom", IconLoader::LightDark),
-                  tr("&Rescale to Show All"), this);
-  actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
-  connect(actionUnzoom, SIGNAL(activated()), this, SLOT(setAutoScale()));
   actionHideActiveWindow = new QAction(tr("&Hide Window"), this);
   connect(actionHideActiveWindow, SIGNAL(activated()), this,
           SLOT(hideActiveWindow()));
@@ -977,9 +1008,13 @@ ApplicationWindow::ApplicationWindow()
   actionCopyStatusBarText = new QAction(tr("&Copy status bar text"), this);
   connect(actionCopyStatusBarText, SIGNAL(activated()), this,
           SLOT(copyStatusBarText()));
+  connect(graphToolsGroup, SIGNAL(triggered(QAction *)), this,
+          SLOT(pickDataTool(QAction *)));
 
+  disableActions();
+
+  // Initiate toolbars
   initToolBars();
-  initMainMenu();
 
   // Create central MdiArea
   d_workspace->setScrollBarsEnabled(true);
@@ -1079,13 +1114,8 @@ void ApplicationWindow::initToolBars() {
   graph_tools->setObjectName("graph_tools");  // need for restoreState()
   graph_tools->setIconSize(QSize(24, 24));
   addToolBar(graph_tools);
-
-  btnPointer = new QAction(tr("Disable &Tools"), this);
-  btnPointer->setActionGroup(dataTools);
-  btnPointer->setCheckable(true);
-  btnPointer->setIcon(IconLoader::load("edit-select", IconLoader::LightDark));
-  btnPointer->setChecked(true);
-  graph_tools->addAction(btnPointer);
+  ui_->actionDisableGraphTools->setChecked(true);
+  graph_tools->addAction(ui_->actionDisableGraphTools);
 
   graph_tools->addSeparator();
 
@@ -1133,61 +1163,13 @@ void ApplicationWindow::initToolBars() {
   menu_plot_enrichments->addAction(ui_->actionNewLegend);
 
   graph_tools->addSeparator();
-
-  btnZoomIn = new QAction(tr("&Zoom In"), this);
-  btnZoomIn->setShortcut(tr("Ctrl++"));
-  btnZoomIn->setActionGroup(dataTools);
-  btnZoomIn->setCheckable(true);
-  btnZoomIn->setIcon(IconLoader::load("zoom-in", IconLoader::LightDark));
-  graph_tools->addAction(btnZoomIn);
-
-  btnZoomOut = new QAction(tr("&Zoom Out"), this);
-  btnZoomOut->setShortcut(tr("Ctrl+-"));
-  btnZoomOut->setActionGroup(dataTools);
-  btnZoomOut->setCheckable(true);
-  btnZoomOut->setIcon(IconLoader::load("zoom-out", IconLoader::LightDark));
-  graph_tools->addAction(btnZoomOut);
-
-  graph_tools->addAction(actionUnzoom);
-
+  graph_tools->addAction(ui_->actionGraphZoomIn);
+  graph_tools->addAction(ui_->actionGraphZoomOut);
+  graph_tools->addAction(ui_->actionGraphRescaleShowAll);
   graph_tools->addSeparator();
-
-  btnPicker = new QAction(tr("S&creen Reader"), this);
-  btnPicker->setActionGroup(dataTools);
-  btnPicker->setCheckable(true);
-  btnPicker->setIcon(IconLoader::load("edit-crosshair", IconLoader::LightDark));
-  graph_tools->addAction(btnPicker);
-
-  btnCursor = new QAction(tr("&Data Reader"), this);
-  btnCursor->setShortcut(tr("CTRL+D"));
-  btnCursor->setActionGroup(dataTools);
-  btnCursor->setCheckable(true);
-  btnCursor->setIcon(
-      IconLoader::load("edit-select-data", IconLoader::LightDark));
-  graph_tools->addAction(btnCursor);
-
-  btnSelect = new QAction(tr("&Select Data Range"), this);
-  btnSelect->setShortcut(tr("ALT+S"));
-  btnSelect->setActionGroup(dataTools);
-  btnSelect->setCheckable(true);
-  btnSelect->setIcon(
-      IconLoader::load("edit-data-range", IconLoader::LightDark));
-  graph_tools->addAction(btnSelect);
-
-  btnMovePoints = new QAction(tr("&Move Data Points..."), this);
-  btnMovePoints->setShortcut(tr("Ctrl+ALT+M"));
-  btnMovePoints->setActionGroup(dataTools);
-  btnMovePoints->setCheckable(true);
-  btnMovePoints->setIcon(QIcon(QPixmap(":/hand.xpm")));
-
-  btnRemovePoints = new QAction(tr("Remove &Bad Data Points..."), this);
-  btnRemovePoints->setShortcut(tr("Alt+B"));
-  btnRemovePoints->setActionGroup(dataTools);
-  btnRemovePoints->setCheckable(true);
-  btnRemovePoints->setIcon(QIcon(QPixmap(":/gomme.xpm")));
-
-  connect(dataTools, SIGNAL(triggered(QAction *)), this,
-          SLOT(pickDataTool(QAction *)));
+  graph_tools->addAction(ui_->actionGraphScreenReader);
+  graph_tools->addAction(ui_->actionGraphDataReader);
+  graph_tools->addAction(ui_->actionGraphSelectDataRange);
 
   plot_tools->setObjectName("plot_tools");  // need for restoreState()
   plot_tools->setIconSize(QSize(32, 32));
@@ -1453,6 +1435,7 @@ void ApplicationWindow::initToolBars() {
   connect(front, SIGNAL(triggered(bool)), this, SLOT(setFrontGrid3DPlot(bool)));
 }
 
+// Lock/unlock toolbar move
 void ApplicationWindow::lockToolbars(const bool status) {
   if (status) {
     file_tools->setMovable(false);
@@ -1477,6 +1460,7 @@ void ApplicationWindow::lockToolbars(const bool status) {
   }
 }
 
+// Lock/unlock dock windows(remove/show titlebar)
 void ApplicationWindow::lockDockWindows(const bool status) {
   if (status) {
     consoleWindow->setTitleBarWidget(emptyTitleBar[0]);
@@ -1493,52 +1477,19 @@ void ApplicationWindow::lockDockWindows(const bool status) {
   }
 }
 
-void ApplicationWindow::initMainMenu() {
-  // connect it with new qaction or find a better way to averse duplicate
-  // plot3DMenu->addAction(ui_->actionPlot3DBar);
-  // plot3DMenu->addAction(ui_->actionPlot3DScatter);
-
-  matrixMenu = new QMenu(this);
-  tableMenu = new QMenu(this);
-
-  plotDataMenu = new QMenu(this);
-  plotDataMenu->setTitle(tr("Tools"));
-  plotDataMenu->addAction(btnPointer);
-  btnPointer->setCheckable(true);
-  plotDataMenu->addAction(btnZoomIn);
-  btnZoomIn->setCheckable(true);
-  plotDataMenu->addAction(btnZoomOut);
-  btnZoomOut->setCheckable(true);
-  plotDataMenu->addAction(actionUnzoom);
-  plotDataMenu->addSeparator();
-
-  plotDataMenu->addAction(btnPicker);
-  btnPicker->setCheckable(true);
-  plotDataMenu->addAction(btnCursor);
-  btnCursor->setCheckable(true);
-  plotDataMenu->addAction(btnSelect);
-  btnSelect->setCheckable(true);
-  plotDataMenu->addSeparator();
-  plotDataMenu->addAction(btnMovePoints);
-  btnMovePoints->setCheckable(true);
-  plotDataMenu->addAction(btnRemovePoints);
-  btnRemovePoints->setCheckable(true);
-
-  disableActions();
-}
-
-void ApplicationWindow::customMenu(QWidget *w) {
+// Dynamic menu
+void ApplicationWindow::customMenu(QWidget *widget) {
   menuBar()->clear();
   menuBar()->addMenu(ui_->menuFile);
   menuBar()->addMenu(ui_->menuEdit);
   menuBar()->addMenu(ui_->menuView);
   menuBar()->addMenu(ui_->menuScripting);
 
-  // these use the same keyboard shortcut (Ctrl+Return) and should not be
-  // enabled at the same time
+  // use the same shortcut (Ctrl+Return) should not be enabled at this time
   ui_->actionEvaluateExpression->setEnabled(false);
 
-  if (w) {
+  // There are active windows
+  if (widget) {
     ui_->actionPrintAllPlots->setEnabled(projectHas2DPlots());
     ui_->actionPrint->setEnabled(true);
     ui_->actionCutSelection->setEnabled(true);
@@ -1547,96 +1498,101 @@ void ApplicationWindow::customMenu(QWidget *w) {
     ui_->actionClearSelection->setEnabled(true);
     ui_->actionSaveAsTemplate->setEnabled(true);
 
-    if (w->inherits("MultiLayer")) {
+    // Active window is a 2D plot
+    if (widget->inherits("MultiLayer")) {
       menuBar()->addMenu(ui_->menuGraph);
-      menuBar()->addMenu(plotDataMenu);
+      menuBar()->addMenu(ui_->menuTools);
       menuBar()->addMenu(ui_->menuGraph2DAnalysis);
-
       menuBar()->addMenu(ui_->menuFormat);
-
       ui_->menuExportGraph->setEnabled(true);
       ui_->actionExportASCII->setEnabled(false);
-
       ui_->actionFormatAxis->setEnabled(true);
       ui_->actionFormatGrid->setEnabled(true);
-    } else if (w->inherits("Graph3D")) {
+
+      // Active window is a 3D plot
+    } else if (widget->inherits("Graph3D")) {
       disableActions();
       menuBar()->addMenu(ui_->menuFormat);
       ui_->actionPrint->setEnabled(true);
       ui_->actionSaveAsTemplate->setEnabled(true);
       ui_->menuExportGraph->setEnabled(true);
       ui_->actionFormatGrid->setEnabled(false);
-      if (static_cast<Graph3D *>(w)->coordStyle() == Qwt3D::NOCOORD) {
+      // Plot with no coordinates
+      if (static_cast<Graph3D *>(widget)->coordStyle() == Qwt3D::NOCOORD) {
         ui_->actionFormatAxis->setEnabled(false);
       } else {
         ui_->actionFormatAxis->setEnabled(true);
       }
 
-    } else if (w->inherits("Table")) {
+      // Active window is a table
+    } else if (widget->inherits("Table")) {
       menuBar()->addMenu(ui_->menuPlot);
       menuBar()->addMenu(ui_->menuTableAnalysis);
-
       ui_->actionExportASCII->setEnabled(true);
       ui_->menuExportGraph->setEnabled(false);
+      ui_->menuTable->clear();
+      static_cast<Table *>(widget)->d_future_table->fillProjectMenu(
+          ui_->menuTable);
+      ui_->menuTable->addSeparator();
+      ui_->menuTable->addAction(ui_->actionExportASCII);
+      ui_->menuTable->addSeparator();
+      ui_->menuTable->addAction(actionConvertTable);
+      menuBar()->addMenu(ui_->menuTable);
 
-      tableMenu->clear();
-      static_cast<Table *>(w)->d_future_table->fillProjectMenu(tableMenu);
-      tableMenu->addSeparator();
-      tableMenu->addAction(ui_->actionExportASCII);
-      tableMenu->addSeparator();
-      tableMenu->addAction(actionConvertTable);
-      menuBar()->addMenu(tableMenu);
-    } else if (w->inherits("Matrix")) {
+      // Active window is a matrix
+    } else if (widget->inherits("Matrix")) {
       menuBar()->addMenu(ui_->menu3DPlot);
+      ui_->menuMatrix->clear();
+      static_cast<Matrix *>(widget)->d_future_matrix->fillProjectMenu(
+          ui_->menuMatrix);
+      ui_->menuMatrix->addSeparator();
+      ui_->menuMatrix->addAction(actionInvertMatrix);
+      ui_->menuMatrix->addAction(actionMatrixDeterminant);
+      ui_->menuMatrix->addSeparator();
+      ui_->menuMatrix->addAction(actionConvertMatrix);
+      menuBar()->addMenu(ui_->menuMatrix);
 
-      matrixMenu->clear();
-      static_cast<Matrix *>(w)->d_future_matrix->fillProjectMenu(matrixMenu);
-      matrixMenu->addSeparator();
-      matrixMenu->addAction(actionInvertMatrix);
-      matrixMenu->addAction(actionMatrixDeterminant);
-      matrixMenu->addSeparator();
-      matrixMenu->addAction(actionConvertMatrix);
-      menuBar()->addMenu(matrixMenu);
-    } else if (w->inherits("Note")) {
+      // Active window is a note
+    } else if (widget->inherits("Note")) {
       ui_->actionSaveAsTemplate->setEnabled(false);
       ui_->actionEvaluateExpression->setEnabled(true);
-
       ui_->actionExecute->disconnect(SIGNAL(activated()));
       ui_->actionExecuteAll->disconnect(SIGNAL(activated()));
       ui_->actionEvaluateExpression->disconnect(SIGNAL(activated()));
-      connect(ui_->actionExecute, SIGNAL(activated()), w, SLOT(execute()));
-      connect(ui_->actionExecuteAll, SIGNAL(activated()), w,
+      connect(ui_->actionExecute, SIGNAL(activated()), widget, SLOT(execute()));
+      connect(ui_->actionExecuteAll, SIGNAL(activated()), widget,
               SLOT(executeAll()));
-      connect(ui_->actionEvaluateExpression, SIGNAL(activated()), w,
+      connect(ui_->actionEvaluateExpression, SIGNAL(activated()), widget,
               SLOT(evaluate()));
     } else
-      disableActions();
+      disableActions();  // None of the above
 
     menuBar()->addMenu(ui_->menuWindow);
   } else
-    disableActions();
+    disableActions();  // No active Window
 
   menuBar()->addMenu(ui_->menuHelp);
 }
 
+// Disable selected QActions
 void ApplicationWindow::disableActions() {
   ui_->actionSaveAsTemplate->setEnabled(false);
   ui_->actionPrintAllPlots->setEnabled(false);
   ui_->actionPrint->setEnabled(false);
   ui_->actionExportASCII->setEnabled(false);
   ui_->menuExportGraph->setEnabled(false);
-
   ui_->actionUndo->setEnabled(false);
   ui_->actionRedo->setEnabled(false);
-
   ui_->actionCutSelection->setEnabled(false);
   ui_->actionCopySelection->setEnabled(false);
   ui_->actionPasteSelection->setEnabled(false);
   ui_->actionClearSelection->setEnabled(false);
 }
 
-void ApplicationWindow::customToolBars(QWidget *w) {
-  if (w) {
+// Dynamic toolbar
+void ApplicationWindow::customToolBars(QWidget *widget) {
+  // There are active windows
+  if (widget) {
     if (!projectHas3DPlots()) graph_3D_tools->setEnabled(false);
     if (!projectHas2DPlots()) graph_tools->setEnabled(false);
     if (!projectHasMatrices()) matrix_plot_tools->setEnabled(false);
@@ -1645,48 +1601,48 @@ void ApplicationWindow::customToolBars(QWidget *w) {
       plot_tools->setEnabled(false);
     }
 
-    if (w->inherits("MultiLayer")) {
+    if (widget->inherits("MultiLayer")) {
       graph_tools->setEnabled(true);
       graph_3D_tools->setEnabled(false);
       table_tools->setEnabled(false);
       matrix_plot_tools->setEnabled(false);
 
-      Graph *g = static_cast<MultiLayer *>(w)->activeGraph();
+      Graph *g = static_cast<MultiLayer *>(widget)->activeGraph();
       if (g) {
-        dataTools->blockSignals(true);
+        graphToolsGroup->blockSignals(true);
         if (g->rangeSelectorsEnabled())
-          btnSelect->setChecked(true);
+          ui_->actionGraphSelectDataRange->setChecked(true);
         else if (g->zoomOn())
-          btnZoomIn->setChecked(true);
+          ui_->actionGraphZoomIn->setChecked(true);
         else if (g->drawArrow())
           ui_->actionDrawArrow->setChecked(true);
         else if (g->drawLineActive())
           ui_->actionDrawLine->setChecked(true);
         else if (g->activeTool() == 0)
-          btnPointer->setChecked(true);
+          ui_->actionDisableGraphTools->setChecked(true);
         else
           switch (g->activeTool()->rtti()) {
             case PlotToolInterface::DataPicker:
               switch (static_cast<DataPickerTool *>(g->activeTool())->mode()) {
                 case DataPickerTool::Display:
-                  btnCursor->setChecked(true);
+                  ui_->actionGraphDataReader->setChecked(true);
                   break;
                 case DataPickerTool::Move:
-                  btnMovePoints->setChecked(true);
+                  ui_->actionGraphMoveDataPoints->setChecked(true);
                   break;
                 case DataPickerTool::Remove:
-                  btnRemovePoints->setChecked(true);
+                  ui_->actionGraphRemoveBadDataPoints->setChecked(true);
                   break;
               }
               break;
             case PlotToolInterface::ScreenPicker:
-              btnPicker->setChecked(true);
+              ui_->actionGraphScreenReader->setChecked(true);
               break;
             default:
-              btnPointer->setChecked(true);
+              ui_->actionDisableGraphTools->setChecked(true);
               break;
           }
-        dataTools->blockSignals(false);
+        graphToolsGroup->blockSignals(false);
       }
       if (g && g->curves() > 0) {
         plot_tools->setEnabled(true);
@@ -1713,9 +1669,10 @@ void ApplicationWindow::customToolBars(QWidget *w) {
         ui_->actionPlot3DBar->setEnabled(false);
       } else
         plot_tools->setEnabled(false);
-    } else if (w->inherits("Table")) {
+    } else if (widget->inherits("Table")) {
       table_tools->clear();
-      static_cast<Table *>(w)->d_future_table->fillProjectToolBar(table_tools);
+      static_cast<Table *>(widget)->d_future_table->fillProjectToolBar(
+          table_tools);
       table_tools->setEnabled(true);
 
       graph_tools->setEnabled(false);
@@ -1738,26 +1695,26 @@ void ApplicationWindow::customToolBars(QWidget *w) {
       ui_->actionPlot3DScatter->setEnabled(true);
       ui_->actionPlot3DTrajectory->setEnabled(true);
       ui_->actionPlot3DBar->setEnabled(true);
-    } else if (w->inherits("Matrix")) {
+    } else if (widget->inherits("Matrix")) {
       graph_tools->setEnabled(false);
       graph_3D_tools->setEnabled(false);
       table_tools->setEnabled(false);
       plot_tools->setEnabled(false);
       matrix_plot_tools->setEnabled(true);
-    } else if (w->inherits("Graph3D")) {
+    } else if (widget->inherits("Graph3D")) {
       graph_tools->setEnabled(false);
       table_tools->setEnabled(false);
       plot_tools->setEnabled(false);
       matrix_plot_tools->setEnabled(false);
 
-      Graph3D *plot = (Graph3D *)w;
+      Graph3D *plot = (Graph3D *)widget;
       if (plot->plotStyle() == Qwt3D::NOPLOT)
         graph_3D_tools->setEnabled(false);
       else
         graph_3D_tools->setEnabled(true);
 
-      custom3DActions(w);
-    } else if (w->inherits("Note")) {
+      custom3DActions(widget);
+    } else if (widget->inherits("Note")) {
       graph_tools->setEnabled(false);
       graph_3D_tools->setEnabled(false);
       table_tools->setEnabled(false);
@@ -3462,7 +3419,6 @@ void ApplicationWindow::changeAppFont(const QFont &f) {
 void ApplicationWindow::updateAppFonts() {
   qApp->setFont(appFont);
   this->setFont(appFont);
-  plotDataMenu->setFont(appFont);
 }
 
 void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices,
@@ -6333,16 +6289,16 @@ void ApplicationWindow::zoomIn() {
         this, tr("Warning"),
         tr("<h4>There are no plot layers available in this window.</h4>"
            "<p><h4>Please add a layer and try again!</h4>"));
-    btnPointer->setOn(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
   if ((Graph *)plot->activeGraph()->isPiePlot()) {
-    if (btnZoomIn->isOn())
+    if (ui_->actionGraphZoomIn->isChecked())
       QMessageBox::warning(
           this, tr("Warning"),
           tr("This functionality is not available for pie plots!"));
-    btnPointer->setOn(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -6362,7 +6318,7 @@ void ApplicationWindow::zoomOut() {
   if (plot->isEmpty() || (Graph *)plot->activeGraph()->isPiePlot()) return;
 
   ((Graph *)plot->activeGraph())->zoomOut();
-  btnPointer->setOn(true);
+  ui_->actionDisableGraphTools->setChecked(true);
 }
 
 void ApplicationWindow::setAutoScale() {
@@ -6396,13 +6352,13 @@ void ApplicationWindow::removePoints() {
         this, tr("Warning"),
         tr("<h4>There are no plot layers available in this window.</h4>"
            "<p><h4>Please add a layer and try again!</h4>"));
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
   Graph *g = (Graph *)plot->activeGraph();
   if (!g || !g->validCurvesDataSize()) {
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -6410,7 +6366,7 @@ void ApplicationWindow::removePoints() {
     QMessageBox::warning(
         this, tr("Warning"),
         tr("This functionality is not available for pie plots!"));
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   } else {
     switch (QMessageBox::warning(
@@ -6425,7 +6381,7 @@ void ApplicationWindow::removePoints() {
         break;
 
       case 1:
-        btnPointer->setChecked(true);
+        ui_->actionDisableGraphTools->setChecked(true);
         break;
     }
   }
@@ -6442,13 +6398,13 @@ void ApplicationWindow::movePoints() {
         this, tr("Warning"),
         tr("<h4>There are no plot layers available in this window.</h4>"
            "<p><h4>Please add a layer and try again!</h4>"));
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
   Graph *g = (Graph *)plot->activeGraph();
   if (!g || !g->validCurvesDataSize()) {
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -6457,7 +6413,7 @@ void ApplicationWindow::movePoints() {
         this, tr("Warning"),
         tr("This functionality is not available for pie plots!"));
 
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   } else {
     switch (QMessageBox::warning(
@@ -6474,7 +6430,7 @@ void ApplicationWindow::movePoints() {
         break;
 
       case 1:
-        btnPointer->setChecked(true);
+        ui_->actionDisableGraphTools->setChecked(true);
         break;
     }
   }
@@ -6807,7 +6763,7 @@ void ApplicationWindow::showScreenReader() {
         this, tr("Warning"),
         tr("<h4>There are no plot layers available in this window.</h4>"
            "<p><h4>Please add a layer and try again!</h4>"));
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -6828,7 +6784,7 @@ void ApplicationWindow::showRangeSelectors() {
     QMessageBox::warning(
         this, tr("Warning"),
         tr("There are no plot layers available in this window!"));
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -6838,13 +6794,13 @@ void ApplicationWindow::showRangeSelectors() {
   if (!g->curves()) {
     QMessageBox::warning(this, tr("Warning"),
                          tr("There are no curves available on this plot!"));
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   } else if (g->isPiePlot()) {
     QMessageBox::warning(
         this, tr("Warning"),
         tr("This functionality is not available for pie plots!"));
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -6862,7 +6818,7 @@ void ApplicationWindow::showCursor() {
         this, tr("Warning"),
         tr("<h4>There are no plot layers available in this window.</h4>"
            "<p><h4>Please add a layer and try again!</h4>"));
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -6871,7 +6827,7 @@ void ApplicationWindow::showCursor() {
         this, tr("Warning"),
         tr("This functionality is not available for pie plots!"));
 
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -6926,7 +6882,8 @@ void ApplicationWindow::disableAddText() {
 }
 
 void ApplicationWindow::addText() {
-  if (!btnPointer->isOn()) btnPointer->setOn(TRUE);
+  if (!ui_->actionDisableGraphTools->isChecked())
+    ui_->actionDisableGraphTools->setChecked(true);
 
   if (!d_workspace->activeWindow() ||
       !d_workspace->activeWindow()->inherits("MultiLayer"))
@@ -7015,7 +6972,7 @@ void ApplicationWindow::drawLine() {
         tr("<h4>There are no plot layers available in this window.</h4>"
            "<p><h4>Please add a layer and try again!</h4>"));
 
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -7038,7 +6995,7 @@ void ApplicationWindow::drawArrow() {
         tr("<h4>There are no plot layers available in this window.</h4>"
            "<p><h4>Please add a layer and try again!</h4>"));
 
-    btnPointer->setOn(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -7576,7 +7533,7 @@ void ApplicationWindow::removeWindowFromLists(MyWidget *w) {
   } else if (w->inherits("MultiLayer")) {
     MultiLayer *ml = (MultiLayer *)w;
     Graph *g = ml->activeGraph();
-    if (g) btnPointer->setChecked(true);
+    if (g) ui_->actionDisableGraphTools->setChecked(true);
   } else if (w->inherits("Matrix"))
     remove3DMatrixPlots((Matrix *)w);
 
@@ -9741,7 +9698,9 @@ void ApplicationWindow::analysis(const QString &whichFit) {
     showDataSetDialog(whichFit);
 }
 
-void ApplicationWindow::pickPointerCursor() { btnPointer->setChecked(true); }
+void ApplicationWindow::pickPointerCursor() {
+  ui_->actionDisableGraphTools->setChecked(true);
+}
 
 void ApplicationWindow::pickDataTool(QAction *action) {
   if (!action) return;
@@ -9754,19 +9713,19 @@ void ApplicationWindow::pickDataTool(QAction *action) {
 
   g->disableTools();
 
-  if (action == btnCursor)
+  if (action == ui_->actionGraphDataReader)
     showCursor();
-  else if (action == btnSelect)
+  else if (action == ui_->actionGraphSelectDataRange)
     showRangeSelectors();
-  else if (action == btnPicker)
+  else if (action == ui_->actionGraphScreenReader)
     showScreenReader();
-  else if (action == btnMovePoints)
+  else if (action == ui_->actionGraphMoveDataPoints)
     movePoints();
-  else if (action == btnRemovePoints)
+  else if (action == ui_->actionGraphRemoveBadDataPoints)
     removePoints();
-  else if (action == btnZoomIn)
+  else if (action == ui_->actionGraphZoomIn)
     zoomIn();
-  else if (action == btnZoomOut)
+  else if (action == ui_->actionGraphZoomOut)
     zoomOut();
   else if (action == ui_->actionDrawArrow)
     drawArrow();
@@ -9805,7 +9764,8 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g) {
   connect(g, SIGNAL(showWindowContextMenu()), this,
           SLOT(showWindowContextMenu()));
   connect(g, SIGNAL(showCurvesDialog()), this, SLOT(showCurvesDialog()));
-  connect(g, SIGNAL(drawLineEnded(bool)), btnPointer, SLOT(setOn(bool)));
+  connect(g, SIGNAL(drawLineEnded(bool)), ui_->actionDisableGraphTools,
+          SLOT(setChecked(bool)));
   connect(g, SIGNAL(drawTextOff()), this, SLOT(disableAddText()));
   connect(g, SIGNAL(showXAxisTitleDialog()), this,
           SLOT(showXAxisTitleDialog()));
@@ -10082,7 +10042,7 @@ void ApplicationWindow::horizontalTranslate() {
         this, tr("Warning"),
         tr("<h4>There are no plot layers available in this window.</h4>"
            "<p><h4>Please add a layer and try again!</h4>"));
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -10094,10 +10054,10 @@ void ApplicationWindow::horizontalTranslate() {
         this, tr("Warning"),
         tr("This functionality is not available for pie plots!"));
 
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   } else if (g->validCurvesDataSize()) {
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     g->setActiveTool(
         new TranslateCurveTool(g, this, TranslateCurveTool::Horizontal,
                                d_status_info, SLOT(setText(const QString &))));
@@ -10114,7 +10074,7 @@ void ApplicationWindow::verticalTranslate() {
         this, tr("Warning"),
         tr("<h4>There are no plot layers available in this window.</h4>"
            "<p><h4>Please add a layer and try again!</h4>"));
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
@@ -10126,10 +10086,10 @@ void ApplicationWindow::verticalTranslate() {
         this, tr("Warning"),
         tr("This functionality is not available for pie plots!"));
 
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   } else if (g->validCurvesDataSize()) {
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     g->setActiveTool(
         new TranslateCurveTool(g, this, TranslateCurveTool::Vertical,
                                d_status_info, SLOT(setText(const QString &))));
@@ -10154,7 +10114,7 @@ void ApplicationWindow::fitMultiPeak(int profile) {
         this, tr("Warning"),
         tr("<h4>There are no plot layers available in this window.</h4>"
            "<p><h4>Please add a layer and try again!</h4>"));
-    btnPointer->setChecked(true);
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
 
