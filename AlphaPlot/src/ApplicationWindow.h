@@ -130,15 +130,10 @@ class ApplicationWindow : public QMainWindow,
   enum ShowWindowsPolicy { HideAll, ActiveFolder, SubFolders };
 
   QTranslator *appTranslator, *qtTranslator;
-  QDockWidget* logWindow;
-  QDockWidget* explorerWindow;
-  QTextEdit* results;
 #ifdef SCRIPTING_CONSOLE
   ConsoleWidget* consoleWindow;
 #endif
   QWorkspace* d_workspace;
-  FolderTreeWidget* listView;
-  FolderTreeWidget* folderView;
   QToolButton* btnResults;
   QWidgetList* hiddenWindows;
   QWidgetList* outWindows;
@@ -1068,7 +1063,6 @@ class ApplicationWindow : public QMainWindow,
 #endif
 
   Graph* lastCopiedLayer;
-  QSplitter* explorerSplitter;
 
   QMenu *matrixMenu, *plotDataMenu, *tableMenu;
   QAction* actionCopyStatusBarText;

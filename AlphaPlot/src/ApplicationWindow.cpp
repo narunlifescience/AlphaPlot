@@ -164,15 +164,10 @@ void file_compress(const char *file, const char *mode);
 ApplicationWindow::ApplicationWindow()
     : ui_(new Ui_ApplicationWindow),
       scripted(ScriptingLangManager::newEnv(this)),
-      logWindow(new QDockWidget(this)),
-      explorerWindow(new QDockWidget(this)),
-      results(new QTextEdit(logWindow)),
 #ifdef SCRIPTING_CONSOLE
       consoleWindow(new ConsoleWidget(this)),
 #endif
       d_workspace(new QWorkspace(this)),
-      listView(new FolderTreeWidget()),
-      folderView(new FolderTreeWidget()),
       hiddenWindows(new QList<QWidget *>()),
       outWindows(new QList<QWidget *>()),
       lastModified(nullptr),
@@ -198,7 +193,6 @@ ApplicationWindow::ApplicationWindow()
       autoSearchUpdatesRequest(false),
 #endif
       lastCopiedLayer(0),
-      explorerSplitter(new QSplitter(Qt::Horizontal, explorerWindow)),
       dataTools(new QActionGroup(this)),
       d_plot_mapper(new QSignalMapper(this)) {
   ui_->setupUi(this);
@@ -224,9 +218,8 @@ ApplicationWindow::ApplicationWindow()
   emptyTitleBar[1] = new QWidget();
   emptyTitleBar[2] = new QWidget();
   consoleWindowTitleBar = consoleWindow->titleBarWidget();
-  logWindowTitleBar = logWindow->titleBarWidget();
-  explorerWindowTitleBar = explorerWindow->titleBarWidget();
-  results->setFrameShape(QFrame::NoFrame);
+  logWindowTitleBar = ui_->logWindow->titleBarWidget();
+  explorerWindowTitleBar = ui_->explorerWindow->titleBarWidget();
 
   // Initiate Fonts
   QString family = appFont.family();
@@ -254,70 +247,61 @@ ApplicationWindow::ApplicationWindow()
           SLOT(setEnabled(bool)));
 
   // Explorer window
-  explorerWindow->setWindowTitle(tr("Project Explorer"));
-  explorerWindow->setObjectName("explorerWindow");  // need for restoreState()
-  explorerWindow->setMinimumHeight(150);
-  folderView->header()->setClickable(false);
-  folderView->setColumnCount(1);
-  folderView->setHeaderLabel(tr("Folder"));
-  folderView->setRootIsDecorated(true);
-  folderView->header()->setResizeMode(0, QHeaderView::Stretch);
-  folderView->header()->hide();
-  folderView->setSelectionMode(QAbstractItemView::SingleSelection);
-  folderView->setContextMenuPolicy(Qt::CustomContextMenu);
-
-  addDockWidget(Qt::BottomDockWidgetArea, explorerWindow);
-  // Explorer window folder view properties
+  ui_->explorerGridLayout->setContentsMargins(0, 0, 0, 0);
+  ui_->explorerWindow->setMinimumHeight(150);
+  ui_->folderView->header()->setClickable(false);
+  ui_->folderView->setColumnCount(1);
+  ui_->folderView->setHeaderLabel(tr("Folder"));
+  ui_->folderView->setRootIsDecorated(true);
+  ui_->folderView->header()->setResizeMode(0, QHeaderView::Stretch);
+  ui_->folderView->header()->hide();
+  ui_->folderView->setSelectionMode(QAbstractItemView::SingleSelection);
+  ui_->folderView->setContextMenuPolicy(Qt::CustomContextMenu);
 
   // Explorer Window folder view connections
-  connect(folderView,
+  connect(ui_->folderView,
           SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
           this, SLOT(folderItemChanged(QTreeWidgetItem *)));
-  connect(folderView, SIGNAL(customContextMenuRequested(const QPoint &)), this,
-          SLOT(showFolderPopupMenu(const QPoint &)));
-  connect(folderView, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
-  connect(folderView, SIGNAL(deleteSelection()), this,
+  connect(ui_->folderView, SIGNAL(customContextMenuRequested(const QPoint &)),
+          this, SLOT(showFolderPopupMenu(const QPoint &)));
+  connect(ui_->folderView, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
+  connect(ui_->folderView, SIGNAL(deleteSelection()), this,
           SLOT(deleteSelectedItems()));
   // Explorer window folderview list item
   FolderTreeWidgetItem *folderTreeItem =
-      new FolderTreeWidgetItem(folderView, current_folder);
+      new FolderTreeWidgetItem(ui_->folderView, current_folder);
   current_folder->setFolderTreeWidgetItem(folderTreeItem);
   folderTreeItem->setExpanded(true);
   // Explorer window list view properties
-  listView->setHeaderLabels(QStringList() << tr("Name") << tr("Type")
-                                          << tr("View") << tr("Created")
-                                          << tr("Label"));
-  // listView->header()->setResizeMode(0, QHeaderView::Stretch);
-  listView->setMinimumHeight(80);
-  listView->setRootIsDecorated(false);
-  listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  listView->setContextMenuPolicy(Qt::CustomContextMenu);
+  ui_->listView->setHeaderLabels(QStringList() << tr("Name") << tr("Type")
+                                               << tr("View") << tr("Created")
+                                               << tr("Label"));
+  // ui_->listView->header()->setResizeMode(0, QHeaderView::Stretch);
+  ui_->listView->setMinimumHeight(80);
+  ui_->listView->setRootIsDecorated(false);
+  ui_->listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  ui_->listView->setContextMenuPolicy(Qt::CustomContextMenu);
 
   // Explorer Window list view connections
-  connect(listView, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this,
-          SLOT(folderItemDoubleClicked(QTreeWidgetItem *)));
-  connect(listView, SIGNAL(customContextMenuRequested(const QPoint &)), this,
-          SLOT(showWindowPopupMenu(const QPoint &)));
-  connect(listView, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
-  connect(listView, SIGNAL(deleteSelection()), this,
+  connect(ui_->listView, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)),
+          this, SLOT(folderItemDoubleClicked(QTreeWidgetItem *)));
+  connect(ui_->listView, SIGNAL(customContextMenuRequested(const QPoint &)),
+          this, SLOT(showWindowPopupMenu(const QPoint &)));
+  connect(ui_->listView, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
+  connect(ui_->listView, SIGNAL(deleteSelection()), this,
           SLOT(deleteSelectedItems()));
   // Explorer window set folder & listview
-  explorerSplitter->addWidget(folderView);
-  explorerSplitter->addWidget(listView);
-  folderView->setFrameShape(QFrame::NoFrame);
-  listView->setFrameShape(QFrame::NoFrame);
-  explorerSplitter->setFrameShape(QFrame::NoFrame);
-  explorerWindow->setWidget(explorerSplitter);
-  explorerSplitter->setSizes(QList<int>() << 30 << 70);
-  explorerWindow->hide();
+  ui_->folderView->setFrameShape(QFrame::NoFrame);
+  ui_->listView->setFrameShape(QFrame::NoFrame);
+  ui_->explorerSplitter->setFrameShape(QFrame::NoFrame);
+  ui_->explorerSplitter->setSizes(QList<int>() << 30 << 70);
+  ui_->explorerWindow->hide();
 
   // Results log window
-  logWindow->setWindowTitle(tr("Results Log"));
-  logWindow->setObjectName("logWindow");  // needed for restoreState()
-  addDockWidget(Qt::TopDockWidgetArea, logWindow);
-  results->setReadOnly(true);
-  logWindow->setWidget(results);
-  logWindow->hide();
+  ui_->resultLogGridLayout->setContentsMargins(0, 0, 0, 0);
+  ui_->resultLog->setFrameShape(QFrame::NoFrame);
+  ui_->resultLog->setReadOnly(true);
+  ui_->logWindow->hide();
 
 // Scripting console window
 #ifdef SCRIPTING_CONSOLE
@@ -636,9 +620,9 @@ ApplicationWindow::ApplicationWindow()
           SLOT(lockToolbars(bool)));
   connect(ui_->actionLockDockWindows, SIGNAL(toggled(bool)), this,
           SLOT(lockDockWindows(bool)));
-  connect(ui_->actionShowExplorer, SIGNAL(toggled(bool)), explorerWindow,
+  connect(ui_->actionShowExplorer, SIGNAL(toggled(bool)), ui_->explorerWindow,
           SLOT(setVisible(bool)));
-  connect(ui_->actionShowResultsLog, SIGNAL(toggled(bool)), logWindow,
+  connect(ui_->actionShowResultsLog, SIGNAL(toggled(bool)), ui_->logWindow,
           SLOT(setVisible(bool)));
 #ifdef SCRIPTING_CONSOLE
   connect(ui_->actionShowConsole, SIGNAL(toggled(bool)), consoleWindow,
@@ -1496,14 +1480,14 @@ void ApplicationWindow::lockToolbars(const bool status) {
 void ApplicationWindow::lockDockWindows(const bool status) {
   if (status) {
     consoleWindow->setTitleBarWidget(emptyTitleBar[0]);
-    logWindow->setTitleBarWidget(emptyTitleBar[1]);
-    explorerWindow->setTitleBarWidget(emptyTitleBar[2]);
+    ui_->logWindow->setTitleBarWidget(emptyTitleBar[1]);
+    ui_->explorerWindow->setTitleBarWidget(emptyTitleBar[2]);
     ui_->actionLockDockWindows->setIcon(
         IconLoader::load("lock", IconLoader::LightDark));
   } else {
     consoleWindow->setTitleBarWidget(consoleWindowTitleBar);
-    logWindow->setTitleBarWidget(logWindowTitleBar);
-    explorerWindow->setTitleBarWidget(explorerWindowTitleBar);
+    ui_->logWindow->setTitleBarWidget(logWindowTitleBar);
+    ui_->explorerWindow->setTitleBarWidget(explorerWindowTitleBar);
     ui_->actionLockDockWindows->setIcon(
         IconLoader::load("unlock", IconLoader::LightDark));
   }
@@ -1937,7 +1921,7 @@ void ApplicationWindow::plotVectXYAM() {
 void ApplicationWindow::renameListViewItem(const QString &oldName,
                                            const QString &newName) {
   QList<QTreeWidgetItem *> items =
-      listView->findItems(oldName, Qt::MatchExactly, 0);
+      ui_->listView->findItems(oldName, Qt::MatchExactly, 0);
   foreach (QTreeWidgetItem *item, items) {
     if (item) item->setText(0, newName);
   }
@@ -1946,7 +1930,7 @@ void ApplicationWindow::renameListViewItem(const QString &oldName,
 void ApplicationWindow::setListViewLabel(const QString &caption,
                                          const QString &label) {
   QList<QTreeWidgetItem *> items =
-      listView->findItems(caption, Qt::MatchExactly, 0);
+      ui_->listView->findItems(caption, Qt::MatchExactly, 0);
   foreach (QTreeWidgetItem *item, items) {
     if (item) item->setText(5, label);
   }
@@ -1955,7 +1939,7 @@ void ApplicationWindow::setListViewLabel(const QString &caption,
 void ApplicationWindow::setListViewDate(const QString &caption,
                                         const QString &date) {
   QList<QTreeWidgetItem *> items =
-      listView->findItems(caption, Qt::MatchExactly, 0);
+      ui_->listView->findItems(caption, Qt::MatchExactly, 0);
   foreach (QTreeWidgetItem *item, items) {
     if (item) item->setText(4, date);
   }
@@ -1964,7 +1948,7 @@ void ApplicationWindow::setListViewDate(const QString &caption,
 void ApplicationWindow::setListView(const QString &caption,
                                     const QString &view) {
   QList<QTreeWidgetItem *> items =
-      listView->findItems(caption, Qt::MatchExactly, 0);
+      ui_->listView->findItems(caption, Qt::MatchExactly, 0);
   foreach (QTreeWidgetItem *item, items) {
     if (item) item->setText(2, view);
   }
@@ -1972,7 +1956,7 @@ void ApplicationWindow::setListView(const QString &caption,
 
 QString ApplicationWindow::listViewDate(const QString &caption) {
   QList<QTreeWidgetItem *> items =
-      listView->findItems(caption, Qt::MatchExactly, 0);
+      ui_->listView->findItems(caption, Qt::MatchExactly, 0);
   foreach (QTreeWidgetItem *item, items) {
     if (item) {
       return item->text(4);
@@ -3478,10 +3462,7 @@ void ApplicationWindow::changeAppFont(const QFont &f) {
 void ApplicationWindow::updateAppFonts() {
   qApp->setFont(appFont);
   this->setFont(appFont);
-  matrixMenu->setFont(appFont);
-
   plotDataMenu->setFont(appFont);
-  tableMenu->setFont(appFont);
 }
 
 void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices,
@@ -4038,11 +4019,11 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   progress.setActiveWindow();
 
   Folder *cf = app->projectFolder();
-  app->folderView->blockSignals(true);
+  app->ui_->folderView->blockSignals(true);
   app->blockSignals(true);
   // rename project folder item
-  FolderTreeWidgetItem *item =
-      static_cast<FolderTreeWidgetItem *>(app->folderView->topLevelItem(0));
+  FolderTreeWidgetItem *item = static_cast<FolderTreeWidgetItem *>(
+      app->ui_->folderView->topLevelItem(0));
   item->setText(0, fi.baseName());
   item->folder()->setName(fi.baseName());
 
@@ -4201,7 +4182,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
         app->logInfo += s + "\n";
         s = t.readLine();
       }
-      app->results->setText(app->logInfo);
+      app->ui_->resultLog->setText(app->logInfo);
     }
   }
   file->close();
@@ -4215,8 +4196,8 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
 
   app->logInfo = app->logInfo.remove("</log>\n", false);
 
-  app->folderView->setCurrentItem(cf->folderTreeWidgetItem());
-  app->folderView->blockSignals(false);
+  app->ui_->folderView->setCurrentItem(cf->folderTreeWidgetItem());
+  app->ui_->folderView->blockSignals(false);
   // change folder to user defined current folder
   app->changeFolder(cf, true);
 
@@ -4503,7 +4484,7 @@ void ApplicationWindow::loadSettings() {
 
   // restore dock windows and tool bars
   restoreState(settings.value("DockWindows").toByteArray());
-  explorerSplitter->restoreState(
+  ui_->explorerSplitter->restoreState(
       settings.value("ExplorerSplitter").toByteArray());
   consoleWindow->setSplitterPosition(
       settings.value("ScriptingConsoleSplitter").toByteArray());
@@ -4593,10 +4574,10 @@ void ApplicationWindow::loadSettings() {
       settings.value("LockDockWindows", false).toBool());
   ui_->actionShowExplorer->setChecked(
       settings.value("ShowExplorer", false).toBool());
-  explorerWindow->setVisible(ui_->actionShowExplorer->isChecked());
+  ui_->explorerWindow->setVisible(ui_->actionShowExplorer->isChecked());
   ui_->actionShowResultsLog->setChecked(
       settings.value("ShowResultsLog", false).toBool());
-  logWindow->setVisible(ui_->actionShowResultsLog->isChecked());
+  ui_->logWindow->setVisible(ui_->actionShowResultsLog->isChecked());
 #ifdef SCRIPTING_CONSOLE
   ui_->actionShowConsole->setChecked(
       settings.value("ShowConsole", false).toBool());
@@ -4818,7 +4799,7 @@ void ApplicationWindow::saveSettings() {
   }
 
   settings.setValue("DockWindows", saveState());
-  settings.setValue("ExplorerSplitter", explorerSplitter->saveState());
+  settings.setValue("ExplorerSplitter", ui_->explorerSplitter->saveState());
   settings.setValue("ScriptingConsoleSplitter",
                     consoleWindow->getSplitterPosition());
 
@@ -5343,7 +5324,7 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app,
 }
 
 Folder *ApplicationWindow::projectFolder() {
-  return static_cast<FolderTreeWidgetItem *>(folderView->topLevelItem(0))
+  return static_cast<FolderTreeWidgetItem *>(ui_->folderView->topLevelItem(0))
       ->folder();
 }
 
@@ -5408,7 +5389,7 @@ void ApplicationWindow::saveProjectAs() {
       QFileInfo fi(fn);
       QString baseName = fi.baseName();
       FolderTreeWidgetItem *item =
-          static_cast<FolderTreeWidgetItem *>(folderView->topLevelItem(0));
+          static_cast<FolderTreeWidgetItem *>(ui_->folderView->topLevelItem(0));
       item->setText(0, baseName);
       item->folder()->setName(baseName);
     }
@@ -6560,7 +6541,7 @@ void ApplicationWindow::print() {
 // print window from project explorer
 void ApplicationWindow::printWindow() {
   WindowTableWidgetItem *it =
-      static_cast<WindowTableWidgetItem *>(listView->currentItem());
+      static_cast<WindowTableWidgetItem *>(ui_->listView->currentItem());
   MyWidget *w = it->window();
   if (!w) return;
 
@@ -6797,21 +6778,21 @@ void ApplicationWindow::differentiate() { analysis("differentiate"); }
 void ApplicationWindow::showResults(bool ok) {
   if (ok) {
     if (!logInfo.isEmpty())
-      results->setText(logInfo);
+      ui_->resultLog->setText(logInfo);
     else
-      results->setText(tr("Sorry, there are no results to display!"));
+      ui_->resultLog->setText(tr("Sorry, there are no results to display!"));
 
-    logWindow->show();
-    QTextCursor cur = results->textCursor();
+    ui_->logWindow->show();
+    QTextCursor cur = ui_->resultLog->textCursor();
     cur.movePosition(QTextCursor::End);
-    results->setTextCursor(cur);
+    ui_->resultLog->setTextCursor(cur);
   } else
-    logWindow->hide();
+    ui_->logWindow->hide();
 }
 
 void ApplicationWindow::showResults(const QString &s, bool ok) {
   logInfo += s;
-  if (!logInfo.isEmpty()) results->setText(logInfo);
+  if (!logInfo.isEmpty()) ui_->resultLog->setText(logInfo);
   showResults(ok);
 }
 
@@ -7178,7 +7159,7 @@ void ApplicationWindow::addColToTable() {
 }
 
 void ApplicationWindow::clearSelection() {
-  if (listView->hasFocus()) {
+  if (ui_->listView->hasFocus()) {
     deleteSelectedItems();
     return;
   }
@@ -7204,8 +7185,8 @@ void ApplicationWindow::clearSelection() {
 }
 
 void ApplicationWindow::copySelection() {
-  if (results->hasFocus()) {
-    results->copy();
+  if (ui_->resultLog->hasFocus()) {
+    ui_->resultLog->copy();
     return;
   }
 
@@ -7518,7 +7499,7 @@ void ApplicationWindow::activateWindow() {
   raise();
   show();
   WindowTableWidgetItem *it =
-      static_cast<WindowTableWidgetItem *>(listView->currentItem());
+      static_cast<WindowTableWidgetItem *>(ui_->listView->currentItem());
   if (it) activateWindow(it->window());
 }
 
@@ -7613,7 +7594,7 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
 
   // update list view in project explorer
   QList<QTreeWidgetItem *> items =
-      listView->findItems(window->name(), Qt::MatchExactly, 0);
+      ui_->listView->findItems(window->name(), Qt::MatchExactly, 0);
   foreach (QTreeWidgetItem *item, items) {
     if (item) delete item;
   }
@@ -7667,12 +7648,12 @@ void ApplicationWindow::showMarkerPopupMenu() {
 }
 
 void ApplicationWindow::showMoreWindows() {
-  if (explorerWindow->isVisible())
+  if (ui_->explorerWindow->isVisible())
     QMessageBox::information(
         this, "AlphaPlot",
         tr("Please use the project explorer to select a window!"));
   else
-    explorerWindow->show();
+    ui_->explorerWindow->show();
 }
 
 void ApplicationWindow::windowsMenuActivated(int id) {
@@ -7827,20 +7808,20 @@ void ApplicationWindow::customEvent(QEvent *event) {
 
 void ApplicationWindow::deleteSelectedItems() {
   // we never allow the user to delete the project folder item
-  if (folderView->hasFocus() &&
-      folderView->currentItem() != folderView->topLevelItem(0)) {
+  if (ui_->folderView->hasFocus() &&
+      ui_->folderView->currentItem() != ui_->folderView->topLevelItem(0)) {
     deleteFolder();
     return;
   }
 
   QTreeWidgetItem *item;
   QList<QTreeWidgetItem *> lst;
-  for (int i = 0; i < listView->topLevelItemCount(); i++) {
-    item = listView->topLevelItem(i);
+  for (int i = 0; i < ui_->listView->topLevelItemCount(); i++) {
+    item = ui_->listView->topLevelItem(i);
     if (item->isSelected()) lst.append(item);
   }
 
-  folderView->blockSignals(true);
+  ui_->folderView->blockSignals(true);
   foreach (item, lst) {
     if (item->type() == FolderTreeWidget::Folders) {
       Folder *f = static_cast<FolderTreeWidgetItem *>(item)->folder();
@@ -7848,7 +7829,7 @@ void ApplicationWindow::deleteSelectedItems() {
     } else
       static_cast<WindowTableWidgetItem *>(item)->window()->close();
   }
-  folderView->blockSignals(false);
+  ui_->folderView->blockSignals(false);
 }
 
 void ApplicationWindow::showListViewSelectionMenu(const QPoint &p) {
@@ -7874,22 +7855,22 @@ void ApplicationWindow::showListViewPopupMenu(const QPoint &p) {
   cm.addAction(IconLoader::load("folder-explorer", IconLoader::LightDark),
                tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
   cm.addSeparator();
-  cm.addAction(tr("Auto &Column Width"), listView, SLOT(adjustColumns()));
+  cm.addAction(tr("Auto &Column Width"), ui_->listView, SLOT(adjustColumns()));
   cm.exec(p);
 }
 
 void ApplicationWindow::showWindowPopupMenu(const QPoint &p) {
-  QTreeWidgetItem *it = listView->itemAt(p);
+  QTreeWidgetItem *it = ui_->listView->itemAt(p);
 
   if (!it) {
-    showListViewPopupMenu(listView->mapToGlobal(p));
+    showListViewPopupMenu(ui_->listView->mapToGlobal(p));
     return;
   }
 
   QTreeWidgetItem *item;
   int selected = 0;
-  for (int i = 0; i < listView->topLevelItemCount(); i++) {
-    item = listView->topLevelItem(i);
+  for (int i = 0; i < ui_->listView->topLevelItemCount(); i++) {
+    item = ui_->listView->topLevelItem(i);
     if (item->isSelected()) selected++;
 
     if (selected > 1) {
@@ -7900,7 +7881,7 @@ void ApplicationWindow::showWindowPopupMenu(const QPoint &p) {
 
   if (it->type() == FolderTreeWidget::Folders) {
     current_folder = static_cast<FolderTreeWidgetItem *>(it)->folder();
-    showFolderPopupMenu(it, listView->mapToGlobal(p), false);
+    showFolderPopupMenu(it, ui_->listView->mapToGlobal(p), false);
     return;
   }
 
@@ -7918,7 +7899,7 @@ void ApplicationWindow::showTable(const QString &curve) {
   w->setCellsSelected(0, colIndex, w->d_future_table->rowCount() - 1, colIndex);
   w->showMaximized();
   QList<QTreeWidgetItem *> items =
-      listView->findItems(w->name(), Qt::MatchExactly, 0);
+      ui_->listView->findItems(w->name(), Qt::MatchExactly, 0);
   foreach (QTreeWidgetItem *item, items) {
     if (item) item->setText(2, tr("Maximized"));
   }
@@ -8535,7 +8516,7 @@ bool ApplicationWindow::newFunctionPlot(int type, QStringList &formulas,
 void ApplicationWindow::clearLogInfo() {
   if (!logInfo.isEmpty()) {
     logInfo = "";
-    results->setText(logInfo);
+    ui_->resultLog->setText(logInfo);
     emit modified();
   }
 }
@@ -10493,7 +10474,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
   Folder *cf = current_folder;
   FolderTreeWidgetItem *item = static_cast<FolderTreeWidgetItem *>(
       current_folder->folderTreeWidgetItem());
-  folderView->blockSignals(true);
+  ui_->folderView->blockSignals(true);
   blockSignals(true);
 
   QString baseName = fi.baseName();
@@ -10635,7 +10616,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
   file->close();
   delete file;
 
-  folderView->blockSignals(false);
+  ui_->folderView->blockSignals(false);
   // change folder to user defined current folder
   changeFolder(cf);
   blockSignals(false);
@@ -10786,8 +10767,8 @@ void ApplicationWindow::saveFolderAsProject(Folder *f) {
 }
 
 void ApplicationWindow::showFolderPopupMenu(const QPoint &p) {
-  QTreeWidgetItem *it = folderView->itemAt(p);
-  if (it) showFolderPopupMenu(it, folderView->mapToGlobal(p), true);
+  QTreeWidgetItem *it = ui_->folderView->itemAt(p);
+  if (it) showFolderPopupMenu(it, ui_->folderView->mapToGlobal(p), true);
 }
 
 void ApplicationWindow::showFolderPopupMenu(QTreeWidgetItem *it,
@@ -10923,16 +10904,16 @@ void ApplicationWindow::startRenameFolder(FolderTreeWidgetItem *fi) {
 
   Folder::currentFolderNames << parent->subfolders();
 
-  folderView->clearSelection();
+  ui_->folderView->clearSelection();
   fi->setSelected(true);
   fi->treeWidget()->editItem(fi, 0);
 
-  connect(folderView, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
+  connect(ui_->folderView, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
           SLOT(startRenameFolder(QTreeWidgetItem *)));
 }
 
 void ApplicationWindow::startRenameFolder(QTreeWidgetItem *item) {
-  disconnect(folderView, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
+  disconnect(ui_->folderView, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
              SLOT(startRenameFolder(QTreeWidgetItem *)));
 
   if (!item) return;
@@ -10942,7 +10923,7 @@ void ApplicationWindow::startRenameFolder(QTreeWidgetItem *item) {
     parent = projectFolder();
 
   current_folder->setName(item->text(0));
-  folderView->clearSelection();
+  ui_->folderView->clearSelection();
   folderItemChanged(parent->folderTreeWidgetItem());  // update the list views
 }
 
@@ -11023,7 +11004,7 @@ void ApplicationWindow::addFolder() {
       new FolderTreeWidgetItem(current_folder->folderTreeWidgetItem(), f);
   if (fi) {
     f->setFolderTreeWidgetItem(fi);
-    folderView->clearSelection();
+    ui_->folderView->clearSelection();
     fi->setSelected(true);
     startRenameFolder(fi);
   }
@@ -11071,16 +11052,16 @@ void ApplicationWindow::deleteFolder() {
   Folder *parent = (Folder *)current_folder->parent();
   if (!parent) parent = projectFolder();
 
-  folderView->blockSignals(true);
+  ui_->folderView->blockSignals(true);
 
   if (deleteFolder(current_folder)) {
     current_folder = parent;
-    folderView->setCurrentItem(parent->folderTreeWidgetItem());
+    ui_->folderView->setCurrentItem(parent->folderTreeWidgetItem());
     changeFolder(parent, true);
   }
 
-  folderView->blockSignals(false);
-  folderView->setFocus();
+  ui_->folderView->blockSignals(false);
+  ui_->folderView->setFocus();
 }
 
 void ApplicationWindow::folderItemDoubleClicked(QTreeWidgetItem *it) {
@@ -11089,7 +11070,7 @@ void ApplicationWindow::folderItemDoubleClicked(QTreeWidgetItem *it) {
   if (it->type() == FolderTreeWidget::Folders) {
     FolderTreeWidgetItem *item =
         ((FolderTreeWidgetItem *)it)->folder()->folderTreeWidgetItem();
-    folderView->setCurrentItem(item);
+    ui_->folderView->setCurrentItem(item);
   } else {
     MyWidget *w = ((WindowTableWidgetItem *)it)->window();
     if (!w) return;
@@ -11109,7 +11090,7 @@ void ApplicationWindow::folderItemChanged(QTreeWidgetItem *item) {
 
   item->setExpanded(true);
   changeFolder(static_cast<FolderTreeWidgetItem *>(item)->folder());
-  folderView->setFocus();
+  ui_->folderView->setFocus();
 }
 
 void ApplicationWindow::hideFolderWindows(Folder *f) {
@@ -11148,7 +11129,7 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
   hideFolderWindows(oldFolder);
   current_folder = newFolder;
 
-  listView->clear();
+  ui_->listView->clear();
 
   QObjectList folderLst = newFolder->children();
   if (!folderLst.isEmpty()) {
@@ -11225,7 +11206,7 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
 
 void ApplicationWindow::deactivateFolders() {
   FolderTreeWidgetItem *item =
-      static_cast<FolderTreeWidgetItem *>(folderView->topLevelItem(0));
+      static_cast<FolderTreeWidgetItem *>(ui_->folderView->topLevelItem(0));
   FolderTreeWidgetItem *it;
   for (int i = 0; i < item->childCount(); i++) {
     it = static_cast<FolderTreeWidgetItem *>(item->child(i));
@@ -11236,7 +11217,7 @@ void ApplicationWindow::deactivateFolders() {
 void ApplicationWindow::addListViewItem(MyWidget *w) {
   if (!w) return;
 
-  WindowTableWidgetItem *it = new WindowTableWidgetItem(listView, w);
+  WindowTableWidgetItem *it = new WindowTableWidgetItem(ui_->listView, w);
   if (w->inherits("Matrix")) {
     it->setIcon(0, IconLoader::load("matrix", IconLoader::LightDark));
     it->setText(1, tr("Matrix"));
@@ -11313,7 +11294,7 @@ void ApplicationWindow::folderProperties() {
 
 void ApplicationWindow::windowProperties() {
   WindowTableWidgetItem *item =
-      static_cast<WindowTableWidgetItem *>(listView->currentItem());
+      static_cast<WindowTableWidgetItem *>(ui_->listView->currentItem());
   MyWidget *window = item->window();
   if (!window) return;
   std::unique_ptr<PropertiesDialog> propertiesDialog(
@@ -11391,7 +11372,7 @@ void ApplicationWindow::windowProperties() {
 void ApplicationWindow::addFolderListViewItem(Folder *f) {
   if (!f) return;
 
-  FolderTreeWidgetItem *it = new FolderTreeWidgetItem(listView, f);
+  FolderTreeWidgetItem *it = new FolderTreeWidgetItem(ui_->listView, f);
   it->setActive(false);
   it->setText(0, f->name());
   it->setText(1, tr("Folder"));
@@ -11411,14 +11392,14 @@ void ApplicationWindow::find(const QString &s, bool windowNames, bool labels,
 
     if (subfolders) {
       FolderTreeWidgetItem *item;
-      for (int i = 0; i < folderView->currentItem()->childCount(); i++) {
+      for (int i = 0; i < ui_->folderView->currentItem()->childCount(); i++) {
         item = static_cast<FolderTreeWidgetItem *>(
-            folderView->currentItem()->child(i));
+            ui_->folderView->currentItem()->child(i));
         Folder *f = item->folder();
         MyWidget *w =
             f->findWindow(s, windowNames, labels, caseSensitive, partialMatch);
         if (w) {
-          folderView->setCurrentItem(f->folderTreeWidgetItem());
+          ui_->folderView->setCurrentItem(f->folderTreeWidgetItem());
           activateWindow(w);
           return;
         }
@@ -11429,19 +11410,19 @@ void ApplicationWindow::find(const QString &s, bool windowNames, bool labels,
   if (folderNames) {
     Folder *f = current_folder->findSubfolder(s, caseSensitive, partialMatch);
     if (f) {
-      folderView->setCurrentItem(f->folderTreeWidgetItem());
+      ui_->folderView->setCurrentItem(f->folderTreeWidgetItem());
       return;
     }
 
     if (subfolders) {
       FolderTreeWidgetItem *item;
-      for (int i = 0; i < folderView->currentItem()->childCount(); i++) {
+      for (int i = 0; i < ui_->folderView->currentItem()->childCount(); i++) {
         item = static_cast<FolderTreeWidgetItem *>(
-            folderView->currentItem()->child(i));
+            ui_->folderView->currentItem()->child(i));
         Folder *f =
             item->folder()->findSubfolder(s, caseSensitive, partialMatch);
         if (f) {
-          folderView->setCurrentItem(f->folderTreeWidgetItem());
+          ui_->folderView->setCurrentItem(f->folderTreeWidgetItem());
           return;
         }
       }
