@@ -489,6 +489,43 @@ ApplicationWindow::ApplicationWindow()
       IconLoader::load("edit-delete-selection", IconLoader::LightDark));
   ui_->actionArrangeLayers->setIcon(
       IconLoader::load("layer-arrange", IconLoader::LightDark));
+  // Table Analysis menu
+  ui_->actionStatisticsOnColumns->setIcon(
+      IconLoader::load("table-column-sum", IconLoader::LightDark));
+  ui_->actionStatisticsOnRows->setIcon(
+      IconLoader::load("table-row-sum", IconLoader::LightDark));
+  ui_->actionTableFFT->setIcon(QIcon());
+  ui_->actionCorrelate->setIcon(QIcon());
+  ui_->actionAutocorrelate->setIcon(QIcon());
+  ui_->actionConvolute->setIcon(QIcon());
+  ui_->actionDeconvolute->setIcon(QIcon());
+  ui_->actionTableFitWizard->setIcon(QIcon());
+  // Graph Analysis menu
+  ui_->actionHorizontalTranslate->setIcon(QIcon());
+  ui_->actionVerticalTranslate->setIcon(QIcon());
+  ui_->actionDifferentiate->setIcon(QIcon());
+  ui_->actionIntegrate->setIcon(QIcon());
+  ui_->actionSavitzkySmooth->setIcon(QIcon());
+  ui_->actionMovingWindowAverageSmooth->setIcon(QIcon());
+  ui_->actionFFTFilterSmooth->setIcon(QIcon());
+  ui_->actionLowPassFFTFilter->setIcon(QIcon());
+  ui_->actionHighPassFFTFilter->setIcon(QIcon());
+  ui_->actionBandPassFFTFilter->setIcon(QIcon());
+  ui_->actionBandBlockFFTFilter->setIcon(QIcon());
+  ui_->actionInterpolate->setIcon(QIcon());
+  ui_->actionGraph2DFFT->setIcon(QIcon());
+  ui_->actionFitLinear->setIcon(QIcon());
+  ui_->actionFitPolynomial->setIcon(QIcon());
+  ui_->actionFirstOrderExponentialDecay->setIcon(QIcon());
+  ui_->actionSecondOrderExponentialDecay->setIcon(QIcon());
+  ui_->actionThirdOrderExponentialDecay->setIcon(QIcon());
+  ui_->actionFitExponentialGrowth->setIcon(QIcon());
+  ui_->actionFitBoltzmannSigmoid->setIcon(QIcon());
+  ui_->actionFitGaussian->setIcon(QIcon());
+  ui_->actionFitLorentzian->setIcon(QIcon());
+  ui_->actionMultiPeakGaussian->setIcon(QIcon());
+  ui_->actionMultiPeakLorentzian->setIcon(QIcon());
+  ui_->actionGraph2DFitWizard->setIcon(QIcon());
   // Windows menu
   ui_->actionCascadeWindow->setIcon(QIcon());
   ui_->actionTileWindow->setIcon(QIcon());
@@ -725,6 +762,70 @@ ApplicationWindow::ApplicationWindow()
           SLOT(deleteLayer()));
   connect(ui_->actionArrangeLayers, SIGNAL(activated()), this,
           SLOT(showLayerDialog()));
+  // Table Analysis menu
+  connect(ui_->actionStatisticsOnColumns, SIGNAL(activated()), this,
+          SLOT(showColumnStatistics()));
+  connect(ui_->actionStatisticsOnRows, SIGNAL(activated()), this,
+          SLOT(showRowStatistics()));
+  connect(ui_->actionTableFFT, SIGNAL(activated()), this,
+          SLOT(showFFTDialog()));
+  connect(ui_->actionCorrelate, SIGNAL(activated()), this, SLOT(correlate()));
+  connect(ui_->actionAutocorrelate, SIGNAL(activated()), this,
+          SLOT(autoCorrelate()));
+  connect(ui_->actionConvolute, SIGNAL(activated()), this, SLOT(convolute()));
+  connect(ui_->actionDeconvolute, SIGNAL(activated()), this,
+          SLOT(deconvolute()));
+  connect(ui_->actionTableFitWizard, SIGNAL(activated()), this,
+          SLOT(showFitDialog()));
+  // Graph Analysis menu
+  connect(ui_->actionHorizontalTranslate, SIGNAL(activated()), this,
+          SLOT(horizontalTranslate()));
+  connect(ui_->actionVerticalTranslate, SIGNAL(activated()), this,
+          SLOT(verticalTranslate()));
+  connect(ui_->actionDifferentiate, SIGNAL(activated()), this,
+          SLOT(differentiate()));
+  connect(ui_->actionIntegrate, SIGNAL(activated()), this, SLOT(integrate()));
+  connect(ui_->actionSavitzkySmooth, SIGNAL(activated()), this,
+          SLOT(savitzkySmooth()));
+  connect(ui_->actionMovingWindowAverageSmooth, SIGNAL(activated()), this,
+          SLOT(movingWindowAverageSmooth()));
+  connect(ui_->actionFFTFilterSmooth, SIGNAL(activated()), this,
+          SLOT(fFTFilterSmooth()));
+  connect(ui_->actionLowPassFFTFilter, SIGNAL(activated()), this,
+          SLOT(lowPassFilter()));
+  connect(ui_->actionHighPassFFTFilter, SIGNAL(activated()), this,
+          SLOT(highPassFilter()));
+  connect(ui_->actionBandPassFFTFilter, SIGNAL(activated()), this,
+          SLOT(bandPassFilter()));
+  connect(ui_->actionBandBlockFFTFilter, SIGNAL(activated()), this,
+          SLOT(bandBlockFilter()));
+  connect(ui_->actionInterpolate, SIGNAL(activated()), this,
+          SLOT(interpolate()));
+  connect(ui_->actionGraph2DFFT, SIGNAL(activated()), this,
+          SLOT(showFFTDialog()));
+  connect(ui_->actionFitLinear, SIGNAL(activated()), this, SLOT(fitLinear()));
+  connect(ui_->actionFitPolynomial, SIGNAL(activated()), this,
+          SLOT(fitPolynomial()));
+  connect(ui_->actionFirstOrderExponentialDecay, SIGNAL(activated()), this,
+          SLOT(fitFirstOrderExponentialDecay()));
+  connect(ui_->actionSecondOrderExponentialDecay, SIGNAL(activated()), this,
+          SLOT(fitSecondOrderExponentialDecay()));
+  connect(ui_->actionThirdOrderExponentialDecay, SIGNAL(activated()), this,
+          SLOT(fitThirdOrderExponentialDecay()));
+  connect(ui_->actionFitExponentialGrowth, SIGNAL(activated()), this,
+          SLOT(fitExponentialGrowth()));
+  connect(ui_->actionFitBoltzmannSigmoid, SIGNAL(activated()), this,
+          SLOT(fitBoltzmannSigmoid()));
+  connect(ui_->actionFitGaussian, SIGNAL(activated()), this,
+          SLOT(fitGaussian()));
+  connect(ui_->actionFitLorentzian, SIGNAL(activated()), this,
+          SLOT(fitLorentzian()));
+  connect(ui_->actionMultiPeakGaussian, SIGNAL(activated()), this,
+          SLOT(fitMultiPeakGaussian()));
+  connect(ui_->actionMultiPeakLorentzian, SIGNAL(activated()), this,
+          SLOT(fitMultiPeakLorentzian()));
+  connect(ui_->actionGraph2DFitWizard, SIGNAL(activated()), this,
+          SLOT(showFitDialog()));
   // Windows menu
   connect(ui_->actionCascadeWindow, SIGNAL(triggered()), d_workspace,
           SLOT(cascade()));
@@ -785,75 +886,6 @@ ApplicationWindow::ApplicationWindow()
                   tr("&Rescale to Show All"), this);
   actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
   connect(actionUnzoom, SIGNAL(activated()), this, SLOT(setAutoScale()));
-  actionShowColStatistics =
-      new QAction(IconLoader::load("table-column-sum", IconLoader::LightDark),
-                  tr("Statistics on &Columns"), this);
-  connect(actionShowColStatistics, SIGNAL(activated()), this,
-          SLOT(showColStatistics()));
-  actionShowRowStatistics =
-      new QAction(IconLoader::load("table-row-sum", IconLoader::LightDark),
-                  tr("Statistics on &Rows"), this);
-  connect(actionShowRowStatistics, SIGNAL(activated()), this,
-          SLOT(showRowStatistics()));
-  actionShowIntDialog = new QAction(tr("&Integrate ..."), this);
-  connect(actionShowIntDialog, SIGNAL(activated()), this,
-          SLOT(showIntegrationDialog()));
-  actionInterpolate = new QAction(tr("Inte&rpolate ..."), this);
-  connect(actionInterpolate, SIGNAL(activated()), this,
-          SLOT(showInterpolationDialog()));
-  actionLowPassFilter = new QAction(tr("&Low Pass..."), this);
-  connect(actionLowPassFilter, SIGNAL(activated()), this,
-          SLOT(lowPassFilterDialog()));
-  actionHighPassFilter = new QAction(tr("&High Pass..."), this);
-  connect(actionHighPassFilter, SIGNAL(activated()), this,
-          SLOT(highPassFilterDialog()));
-  actionBandPassFilter = new QAction(tr("&Band Pass..."), this);
-  connect(actionBandPassFilter, SIGNAL(activated()), this,
-          SLOT(bandPassFilterDialog()));
-  actionBandBlockFilter = new QAction(tr("&Band Block..."), this);
-  connect(actionBandBlockFilter, SIGNAL(activated()), this,
-          SLOT(bandBlockFilterDialog()));
-  actionFFT = new QAction(tr("&FFT..."), this);
-  connect(actionFFT, SIGNAL(activated()), this, SLOT(showFFTDialog()));
-  actionSmoothSavGol = new QAction(tr("&Savitzky-Golay..."), this);
-  connect(actionSmoothSavGol, SIGNAL(activated()), this,
-          SLOT(showSmoothSavGolDialog()));
-  actionSmoothFFT = new QAction(tr("&FFT Filter..."), this);
-  connect(actionSmoothFFT, SIGNAL(activated()), this,
-          SLOT(showSmoothFFTDialog()));
-  actionSmoothAverage = new QAction(tr("Moving Window &Average..."), this);
-  connect(actionSmoothAverage, SIGNAL(activated()), this,
-          SLOT(showSmoothAverageDialog()));
-  actionDifferentiate = new QAction(tr("&Differentiate"), this);
-  connect(actionDifferentiate, SIGNAL(activated()), this,
-          SLOT(differentiate()));
-  actionFitLinear = new QAction(tr("Fit &Linear"), this);
-  connect(actionFitLinear, SIGNAL(activated()), this, SLOT(fitLinear()));
-  actionShowFitPolynomDialog = new QAction(tr("Fit &Polynomial ..."), this);
-  connect(actionShowFitPolynomDialog, SIGNAL(activated()), this,
-          SLOT(showFitPolynomDialog()));
-  actionShowExpDecayDialog = new QAction(tr("&First Order ..."), this);
-  connect(actionShowExpDecayDialog, SIGNAL(activated()), this,
-          SLOT(showExpDecayDialog()));
-  actionShowTwoExpDecayDialog = new QAction(tr("&Second Order ..."), this);
-  connect(actionShowTwoExpDecayDialog, SIGNAL(activated()), this,
-          SLOT(showTwoExpDecayDialog()));
-  actionShowExpDecay3Dialog = new QAction(tr("&Third Order ..."), this);
-  connect(actionShowExpDecay3Dialog, SIGNAL(activated()), this,
-          SLOT(showExpDecay3Dialog()));
-  actionFitExpGrowth = new QAction(tr("Fit Exponential Gro&wth ..."), this);
-  connect(actionFitExpGrowth, SIGNAL(activated()), this,
-          SLOT(showExpGrowthDialog()));
-  actionFitSigmoidal = new QAction(tr("Fit &Boltzmann (Sigmoidal)"), this);
-  connect(actionFitSigmoidal, SIGNAL(activated()), this, SLOT(fitSigmoidal()));
-  actionFitGauss = new QAction(tr("Fit &Gaussian"), this);
-  connect(actionFitGauss, SIGNAL(activated()), this, SLOT(fitGauss()));
-  actionFitLorentz = new QAction(tr("Fit Lorent&zian"), this);
-  connect(actionFitLorentz, SIGNAL(activated()), this, SLOT(fitLorentz()));
-  actionShowFitDialog = new QAction(tr("Fit &Wizard..."), this);
-  actionShowFitDialog->setShortcut(tr("Ctrl+Y"));
-  connect(actionShowFitDialog, SIGNAL(activated()), this,
-          SLOT(showFitDialog()));
   actionShowPlotDialog = new QAction(tr("&Plot ..."), this);
   connect(actionShowPlotDialog, SIGNAL(activated()), this,
           SLOT(showGeneralPlotDialog()));
@@ -935,27 +967,6 @@ ApplicationWindow::ApplicationWindow()
   actionConvertTable = new QAction(tr("Convert to &Matrix"), this);
   connect(actionConvertTable, SIGNAL(activated()), this,
           SLOT(convertTableToMatrix()));
-  actionCorrelate = new QAction(tr("Co&rrelate"), this);
-  connect(actionCorrelate, SIGNAL(activated()), this, SLOT(correlate()));
-  actionAutoCorrelate = new QAction(tr("&Autocorrelate"), this);
-  connect(actionAutoCorrelate, SIGNAL(activated()), this,
-          SLOT(autoCorrelate()));
-  actionConvolute = new QAction(tr("&Convolute"), this);
-  connect(actionConvolute, SIGNAL(activated()), this, SLOT(convolute()));
-  actionDeconvolute = new QAction(tr("&Deconvolute"), this);
-  connect(actionDeconvolute, SIGNAL(activated()), this, SLOT(deconvolute()));
-  actionTranslateHor = new QAction(tr("&Horizontal"), this);
-  connect(actionTranslateHor, SIGNAL(activated()), this,
-          SLOT(translateCurveHor()));
-  actionTranslateVert = new QAction(tr("&Vertical"), this);
-  connect(actionTranslateVert, SIGNAL(activated()), this,
-          SLOT(translateCurveVert()));
-  actionMultiPeakGauss = new QAction(tr("&Gaussian..."), this);
-  connect(actionMultiPeakGauss, SIGNAL(activated()), this,
-          SLOT(fitMultiPeakGauss()));
-  actionMultiPeakLorentz = new QAction(tr("&Lorentzian..."), this);
-  connect(actionMultiPeakLorentz, SIGNAL(activated()), this,
-          SLOT(fitMultiPeakLorentz()));
   actionShowCurvePlotDialog = new QAction(tr("&Plot details..."), this);
   connect(actionShowCurvePlotDialog, SIGNAL(activated()), this,
           SLOT(showCurvePlotDialog()));
@@ -1510,24 +1521,6 @@ void ApplicationWindow::initMainMenu() {
   matrixMenu = new QMenu(this);
   tableMenu = new QMenu(this);
 
-  dataMenu = new QMenu(this);
-  dataMenu->setTitle(tr("Analysis"));
-
-  dataMenu->addAction(actionShowColStatistics);
-  dataMenu->addAction(actionShowRowStatistics);
-
-  dataMenu->addSeparator();
-  dataMenu->addAction(actionFFT);
-  dataMenu->addSeparator();
-  dataMenu->addAction(actionCorrelate);
-  dataMenu->addAction(actionAutoCorrelate);
-  dataMenu->addSeparator();
-  dataMenu->addAction(actionConvolute);
-  dataMenu->addAction(actionDeconvolute);
-
-  dataMenu->addSeparator();
-  dataMenu->addAction(actionShowFitDialog);
-
   plotDataMenu = new QMenu(this);
   plotDataMenu->setTitle(tr("Tools"));
   plotDataMenu->addAction(btnPointer);
@@ -1545,82 +1538,13 @@ void ApplicationWindow::initMainMenu() {
   btnCursor->setCheckable(true);
   plotDataMenu->addAction(btnSelect);
   btnSelect->setCheckable(true);
-
   plotDataMenu->addSeparator();
-
   plotDataMenu->addAction(btnMovePoints);
   btnMovePoints->setCheckable(true);
   plotDataMenu->addAction(btnRemovePoints);
   btnRemovePoints->setCheckable(true);
 
-  calcul = new QMenu(this);
-  calcul->setTitle(tr("Analysis"));
-  translateMenu = new QMenu(this);
-  translateMenu->setTitle(tr("&Translate"));
-  translateMenu->addAction(actionTranslateVert);
-  translateMenu->addAction(actionTranslateHor);
-  calcul->addMenu(translateMenu);
-  calcul->addSeparator();
-
-  calcul->addAction(actionDifferentiate);
-  calcul->addAction(actionShowIntDialog);
-
-  calcul->addSeparator();
-
-  smooth = new QMenu(this);
-  smooth->setTitle(tr("&Smooth"));
-  smooth->addAction(actionSmoothSavGol);
-  smooth->addAction(actionSmoothAverage);
-  smooth->addAction(actionSmoothFFT);
-  calcul->addMenu(smooth);
-
-  filter = new QMenu(this);
-  filter->setTitle(tr("&FFT Filter"));
-  filter->addAction(actionLowPassFilter);
-  filter->addAction(actionHighPassFilter);
-  filter->addAction(actionBandPassFilter);
-  filter->addAction(actionBandBlockFilter);
-  calcul->addMenu(filter);
-
-  calcul->addSeparator();
-  calcul->addAction(actionInterpolate);
-  calcul->addAction(actionFFT);
-  calcul->addSeparator();
-
-  d_quick_fit_menu = new QMenu(this);
-  d_quick_fit_menu->setTitle(tr("&Quick Fit"));
-
-  d_quick_fit_menu->addAction(actionFitLinear);
-  d_quick_fit_menu->addAction(actionShowFitPolynomDialog);
-
-  d_quick_fit_menu->addSeparator();
-
-  decay = new QMenu(this);
-  decay->setTitle(tr("Fit E&xponential Decay"));
-  decay->addAction(actionShowExpDecayDialog);
-  decay->addAction(actionShowTwoExpDecayDialog);
-  decay->addAction(actionShowExpDecay3Dialog);
-  d_quick_fit_menu->addMenu(decay);
-
-  d_quick_fit_menu->addAction(actionFitExpGrowth);
-  d_quick_fit_menu->addAction(actionFitSigmoidal);
-  d_quick_fit_menu->addAction(actionFitGauss);
-  d_quick_fit_menu->addAction(actionFitLorentz);
-
-  multiPeakMenu = new QMenu(this);
-  multiPeakMenu->setTitle(tr("Fit &Multi-peak"));
-  multiPeakMenu->setFont(appFont);
-  multiPeakMenu->addAction(actionMultiPeakGauss);
-  multiPeakMenu->addAction(actionMultiPeakLorentz);
-  d_quick_fit_menu->addMenu(multiPeakMenu);
-
-  d_quick_fit_menu->addSeparator();
-
-  calcul->addMenu(d_quick_fit_menu);
-  calcul->addAction(actionShowFitDialog);
-
   format = new QMenu(this);
-  format->setFont(appFont);
 
   disableActions();
 }
@@ -1648,8 +1572,8 @@ void ApplicationWindow::customMenu(QWidget *w) {
     if (w->inherits("MultiLayer")) {
       menuBar()->addMenu(ui_->menuGraph);
       menuBar()->addMenu(plotDataMenu);
-      calcul->setTitle(tr("Analysis"));
-      menuBar()->addMenu(calcul);
+      menuBar()->addMenu(ui_->menuGraph2DAnalysis);
+
       format->setTitle("Format");
       menuBar()->addMenu(format);
 
@@ -1683,7 +1607,7 @@ void ApplicationWindow::customMenu(QWidget *w) {
         actionShowAxisDialog->setEnabled(false);
     } else if (w->inherits("Table")) {
       menuBar()->addMenu(ui_->menuPlot);
-      menuBar()->addMenu(dataMenu);
+      menuBar()->addMenu(ui_->menuTableAnalysis);
 
       ui_->actionExportASCII->setEnabled(true);
       ui_->menuExportGraph->setEnabled(false);
@@ -3572,16 +3496,10 @@ void ApplicationWindow::updateAppFonts() {
   qApp->setFont(appFont);
   this->setFont(appFont);
   format->setFont(appFont);
-  calcul->setFont(appFont);
-  dataMenu->setFont(appFont);
   matrixMenu->setFont(appFont);
-  smooth->setFont(appFont);
-  filter->setFont(appFont);
-  decay->setFont(appFont);
+
   plotDataMenu->setFont(appFont);
   tableMenu->setFont(appFont);
-  translateMenu->setFont(appFont);
-  multiPeakMenu->setFont(appFont);
 }
 
 void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices,
@@ -6038,7 +5956,7 @@ void ApplicationWindow::deconvolute() {
   delete dcv;
 }
 
-void ApplicationWindow::showColStatistics() {
+void ApplicationWindow::showColumnStatistics() {
   if (!d_workspace->activeWindow() ||
       !d_workspace->activeWindow()->inherits("Table"))
     return;
@@ -6696,11 +6614,11 @@ void ApplicationWindow::printAllPlots() {
   }
 }
 
-void ApplicationWindow::showExpGrowthDialog() { showExpDecayDialog(-1); }
+void ApplicationWindow::fitExponentialGrowth() { fitExponential(-1); }
 
-void ApplicationWindow::showExpDecayDialog() { showExpDecayDialog(1); }
+void ApplicationWindow::fitFirstOrderExponentialDecay() { fitExponential(1); }
 
-void ApplicationWindow::showExpDecayDialog(int type) {
+void ApplicationWindow::fitExponential(int type) {
   if (!d_workspace->activeWindow() ||
       !d_workspace->activeWindow()->inherits("MultiLayer"))
     return;
@@ -6716,9 +6634,13 @@ void ApplicationWindow::showExpDecayDialog(int type) {
   edd->show();
 }
 
-void ApplicationWindow::showTwoExpDecayDialog() { showExpDecayDialog(2); }
+void ApplicationWindow::fitSecondOrderExponentialDecay() {
+  fitExponential(2);
+}
 
-void ApplicationWindow::showExpDecay3Dialog() { showExpDecayDialog(3); }
+void ApplicationWindow::fitThirdOrderExponentialDecay() {
+  fitExponential(3);
+}
 
 void ApplicationWindow::showFitDialog() {
   QWidget *w = d_workspace->activeWindow();
@@ -6764,19 +6686,19 @@ void ApplicationWindow::showFilterDialog(int filter) {
   }
 }
 
-void ApplicationWindow::lowPassFilterDialog() {
+void ApplicationWindow::lowPassFilter() {
   showFilterDialog(FFTFilter::LowPass);
 }
 
-void ApplicationWindow::highPassFilterDialog() {
+void ApplicationWindow::highPassFilter() {
   showFilterDialog(FFTFilter::HighPass);
 }
 
-void ApplicationWindow::bandPassFilterDialog() {
+void ApplicationWindow::bandPassFilter() {
   showFilterDialog(FFTFilter::BandPass);
 }
 
-void ApplicationWindow::bandBlockFilterDialog() {
+void ApplicationWindow::bandBlockFilter() {
   showFilterDialog(FFTFilter::BandBlock);
 }
 
@@ -6815,19 +6737,19 @@ void ApplicationWindow::showSmoothDialog(int m) {
   sd->exec();
 }
 
-void ApplicationWindow::showSmoothSavGolDialog() {
+void ApplicationWindow::savitzkySmooth() {
   showSmoothDialog(SmoothFilter::SavitzkyGolay);
 }
 
-void ApplicationWindow::showSmoothFFTDialog() {
+void ApplicationWindow::fFTFilterSmooth() {
   showSmoothDialog(SmoothFilter::FFT);
 }
 
-void ApplicationWindow::showSmoothAverageDialog() {
+void ApplicationWindow::movingWindowAverageSmooth() {
   showSmoothDialog(SmoothFilter::Average);
 }
 
-void ApplicationWindow::showInterpolationDialog() {
+void ApplicationWindow::interpolate() {
   if (!d_workspace->activeWindow() ||
       !d_workspace->activeWindow()->inherits("MultiLayer"))
     return;
@@ -6842,7 +6764,7 @@ void ApplicationWindow::showInterpolationDialog() {
   id->show();
 }
 
-void ApplicationWindow::showFitPolynomDialog() {
+void ApplicationWindow::fitPolynomial() {
   if (!d_workspace->activeWindow() ||
       !d_workspace->activeWindow()->inherits("MultiLayer"))
     return;
@@ -6867,7 +6789,7 @@ void ApplicationWindow::updateLog(const QString &result) {
   }
 }
 
-void ApplicationWindow::showIntegrationDialog() {
+void ApplicationWindow::integrate() {
   if (!d_workspace->activeWindow() ||
       !d_workspace->activeWindow()->inherits("MultiLayer"))
     return;
@@ -6882,11 +6804,11 @@ void ApplicationWindow::showIntegrationDialog() {
   id->show();
 }
 
-void ApplicationWindow::fitSigmoidal() { analysis("fitSigmoidal"); }
+void ApplicationWindow::fitBoltzmannSigmoid() { analysis("fitSigmoidal"); }
 
-void ApplicationWindow::fitGauss() { analysis("fitGauss"); }
+void ApplicationWindow::fitGaussian() { analysis("fitGauss"); }
 
-void ApplicationWindow::fitLorentz()
+void ApplicationWindow::fitLorentzian()
 
 {
   analysis("fitLorentz");
@@ -8109,49 +8031,49 @@ void ApplicationWindow::showGraphContextMenu() {
       cm.addAction(ui_->actionAddFunctionCurve);
 
       translate.setTitle(tr("&Translate"));
-      translate.addAction(actionTranslateVert);
-      translate.addAction(actionTranslateHor);
+      translate.addAction(ui_->actionVerticalTranslate);
+      translate.addAction(ui_->actionHorizontalTranslate);
       calcul.addMenu(&translate);
       calcul.addSeparator();
 
-      calcul.addAction(actionDifferentiate);
-      calcul.addAction(actionShowIntDialog);
+      calcul.addAction(ui_->actionDifferentiate);
+      calcul.addAction(ui_->actionIntegrate);
       calcul.addSeparator();
       smooth.setTitle(tr("&Smooth"));
-      smooth.addAction(actionSmoothSavGol);
-      smooth.addAction(actionSmoothFFT);
-      smooth.addAction(actionSmoothAverage);
+      smooth.addAction(ui_->actionSavitzkySmooth);
+      smooth.addAction(ui_->actionMovingWindowAverageSmooth);
+      smooth.addAction(ui_->actionFFTFilterSmooth);
       calcul.addMenu(&smooth);
 
       filter.setTitle(tr("&FFT Filter"));
-      filter.addAction(actionLowPassFilter);
-      filter.addAction(actionHighPassFilter);
-      filter.addAction(actionBandPassFilter);
-      filter.addAction(actionBandBlockFilter);
+      filter.addAction(ui_->actionLowPassFFTFilter);
+      filter.addAction(ui_->actionHighPassFFTFilter);
+      filter.addAction(ui_->actionBandPassFFTFilter);
+      filter.addAction(ui_->actionBandBlockFFTFilter);
       calcul.addMenu(&filter);
       calcul.addSeparator();
-      calcul.addAction(actionInterpolate);
-      calcul.addAction(actionFFT);
+      calcul.addAction(ui_->actionInterpolate);
+      calcul.addAction(ui_->actionGraph2DFFT);
       calcul.addSeparator();
-      calcul.addAction(actionFitLinear);
-      calcul.addAction(actionShowFitPolynomDialog);
+      calcul.addAction(ui_->actionFitLinear);
+      calcul.addAction(ui_->actionFitPolynomial);
       calcul.addSeparator();
       decay.setTitle(tr("Fit E&xponential Decay"));
-      decay.addAction(actionShowExpDecayDialog);
-      decay.addAction(actionShowTwoExpDecayDialog);
-      decay.addAction(actionShowExpDecay3Dialog);
+      decay.addAction(ui_->actionFirstOrderExponentialDecay);
+      decay.addAction(ui_->actionSecondOrderExponentialDecay);
+      decay.addAction(ui_->actionThirdOrderExponentialDecay);
       calcul.addMenu(&decay);
-      calcul.addAction(actionFitExpGrowth);
-      calcul.addAction(actionFitSigmoidal);
-      calcul.addAction(actionFitGauss);
-      calcul.addAction(actionFitLorentz);
+      calcul.addAction(ui_->actionFitExponentialGrowth);
+      calcul.addAction(ui_->actionFitBoltzmannSigmoid);
+      calcul.addAction(ui_->actionFitGaussian);
+      calcul.addAction(ui_->actionFitLorentzian);
 
       multiPeakMenu.setTitle(tr("Fit &Multi-Peak"));
-      multiPeakMenu.addAction(actionMultiPeakGauss);
-      multiPeakMenu.addAction(actionMultiPeakLorentz);
+      multiPeakMenu.addAction(ui_->actionMultiPeakGaussian);
+      multiPeakMenu.addAction(ui_->actionMultiPeakLorentzian);
       calcul.addMenu(&multiPeakMenu);
       calcul.addSeparator();
-      calcul.addAction(actionShowFitDialog);
+      calcul.addAction(ui_->actionGraph2DFitWizard);
       calcul.setTitle(tr("Anal&yze"));
       cm.addMenu(&calcul);
     }
@@ -8235,49 +8157,49 @@ void ApplicationWindow::showLayerButtonContextMenu() {
       cm.addAction(ui_->actionAddFunctionCurve);
 
       translate.setTitle(tr("&Translate"));
-      translate.addAction(actionTranslateVert);
-      translate.addAction(actionTranslateHor);
+      translate.addAction(ui_->actionVerticalTranslate);
+      translate.addAction(ui_->actionHorizontalTranslate);
       calcul.addMenu(&translate);
       calcul.addSeparator();
 
-      calcul.addAction(actionDifferentiate);
-      calcul.addAction(actionShowIntDialog);
+      calcul.addAction(ui_->actionDifferentiate);
+      calcul.addAction(ui_->actionIntegrate);
       calcul.addSeparator();
       smooth.setTitle(tr("&Smooth"));
-      smooth.addAction(actionSmoothSavGol);
-      smooth.addAction(actionSmoothFFT);
-      smooth.addAction(actionSmoothAverage);
+      smooth.addAction(ui_->actionSavitzkySmooth);
+      smooth.addAction(ui_->actionMovingWindowAverageSmooth);
+      smooth.addAction(ui_->actionFFTFilterSmooth);
       calcul.addMenu(&smooth);
 
       filter.setTitle(tr("&FFT Filter"));
-      filter.addAction(actionLowPassFilter);
-      filter.addAction(actionHighPassFilter);
-      filter.addAction(actionBandPassFilter);
-      filter.addAction(actionBandBlockFilter);
+      filter.addAction(ui_->actionLowPassFFTFilter);
+      filter.addAction(ui_->actionHighPassFFTFilter);
+      filter.addAction(ui_->actionBandPassFFTFilter);
+      filter.addAction(ui_->actionBandBlockFFTFilter);
       calcul.addMenu(&filter);
       calcul.addSeparator();
-      calcul.addAction(actionInterpolate);
-      calcul.addAction(actionFFT);
+      calcul.addAction(ui_->actionInterpolate);
+      calcul.addAction(ui_->actionGraph2DFFT);
       calcul.addSeparator();
-      calcul.addAction(actionFitLinear);
-      calcul.addAction(actionShowFitPolynomDialog);
+      calcul.addAction(ui_->actionFitLinear);
+      calcul.addAction(ui_->actionFitPolynomial);
       calcul.addSeparator();
       decay.setTitle(tr("Fit E&xponential Decay"));
-      decay.addAction(actionShowExpDecayDialog);
-      decay.addAction(actionShowTwoExpDecayDialog);
-      decay.addAction(actionShowExpDecay3Dialog);
+      decay.addAction(ui_->actionFirstOrderExponentialDecay);
+      decay.addAction(ui_->actionSecondOrderExponentialDecay);
+      decay.addAction(ui_->actionThirdOrderExponentialDecay);
       calcul.addMenu(&decay);
-      calcul.addAction(actionFitExpGrowth);
-      calcul.addAction(actionFitSigmoidal);
-      calcul.addAction(actionFitGauss);
-      calcul.addAction(actionFitLorentz);
+      calcul.addAction(ui_->actionFitExponentialGrowth);
+      calcul.addAction(ui_->actionFitBoltzmannSigmoid);
+      calcul.addAction(ui_->actionFitGaussian);
+      calcul.addAction(ui_->actionFitLorentzian);
 
       multiPeakMenu.setTitle(tr("Fit &Multi-Peak"));
-      multiPeakMenu.addAction(actionMultiPeakGauss);
-      multiPeakMenu.addAction(actionMultiPeakLorentz);
+      multiPeakMenu.addAction(ui_->actionMultiPeakGaussian);
+      multiPeakMenu.addAction(ui_->actionMultiPeakLorentzian);
       calcul.addMenu(&multiPeakMenu);
       calcul.addSeparator();
-      calcul.addAction(actionShowFitDialog);
+      calcul.addAction(ui_->actionGraph2DFitWizard);
       calcul.setTitle(tr("Anal&yze"));
       cm.addMenu(&calcul);
     }
@@ -9985,7 +9907,7 @@ void ApplicationWindow::connectTable(Table *w) {
   connect(w->d_future_table, SIGNAL(requestRowStatistics()), this,
           SLOT(showRowStatistics()));
   connect(w->d_future_table, SIGNAL(requestColumnStatistics()), this,
-          SLOT(showColStatistics()));
+          SLOT(showColumnStatistics()));
   w->askOnCloseEvent(confirmCloseTable);
 }
 
@@ -10191,7 +10113,7 @@ void ApplicationWindow::updateRecentProjectsList() {
             SIGNAL(triggered()), this, SLOT(openRecentAproj()));
 }
 
-void ApplicationWindow::translateCurveHor() {
+void ApplicationWindow::horizontalTranslate() {
   QWidget *w = d_workspace->activeWindow();
   if (!w || !w->inherits("MultiLayer")) return;
 
@@ -10223,7 +10145,7 @@ void ApplicationWindow::translateCurveHor() {
   }
 }
 
-void ApplicationWindow::translateCurveVert() {
+void ApplicationWindow::verticalTranslate() {
   QWidget *w = d_workspace->activeWindow();
   if (!w || !w->inherits("MultiLayer")) return;
 
@@ -10255,11 +10177,11 @@ void ApplicationWindow::translateCurveVert() {
   }
 }
 
-void ApplicationWindow::fitMultiPeakGauss() {
+void ApplicationWindow::fitMultiPeakGaussian() {
   fitMultiPeak(static_cast<int>(MultiPeakFit::Gauss));
 }
 
-void ApplicationWindow::fitMultiPeakLorentz() {
+void ApplicationWindow::fitMultiPeakLorentzian() {
   fitMultiPeak(static_cast<int>(MultiPeakFit::Lorentz));
 }
 

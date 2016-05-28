@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>759</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -260,6 +260,94 @@
     <addaction name="actionHideWindow"/>
     <addaction name="actionCloseWindow"/>
    </widget>
+   <widget class="QMenu" name="menuGraph2DAnalysis">
+    <property name="title">
+     <string>Analysis</string>
+    </property>
+    <widget class="QMenu" name="menuTranslate">
+     <property name="title">
+      <string>Translate...</string>
+     </property>
+     <addaction name="actionHorizontalTranslate"/>
+     <addaction name="actionVerticalTranslate"/>
+    </widget>
+    <widget class="QMenu" name="menuSmooth">
+     <property name="title">
+      <string>Smooth</string>
+     </property>
+     <addaction name="actionSavitzkySmooth"/>
+     <addaction name="actionMovingWindowAverageSmooth"/>
+     <addaction name="actionFFTFilterSmooth"/>
+    </widget>
+    <widget class="QMenu" name="menuFFTFilter">
+     <property name="title">
+      <string>FFT Filter</string>
+     </property>
+     <addaction name="actionLowPassFFTFilter"/>
+     <addaction name="actionHighPassFFTFilter"/>
+     <addaction name="actionBandPassFFTFilter"/>
+     <addaction name="actionBandBlockFFTFilter"/>
+    </widget>
+    <widget class="QMenu" name="menuQuickFit">
+     <property name="title">
+      <string>Quick Fit</string>
+     </property>
+     <widget class="QMenu" name="menuFitExponentialDecay">
+      <property name="title">
+       <string>Fit Exponential Decay...</string>
+      </property>
+      <addaction name="actionFirstOrderExponentialDecay"/>
+      <addaction name="actionSecondOrderExponentialDecay"/>
+      <addaction name="actionThirdOrderExponentialDecay"/>
+     </widget>
+     <widget class="QMenu" name="menuFitMultiPeak">
+      <property name="title">
+       <string>Fit Multi-Peak...</string>
+      </property>
+      <addaction name="actionMultiPeakGaussian"/>
+      <addaction name="actionMultiPeakLorentzian"/>
+     </widget>
+     <addaction name="actionFitLinear"/>
+     <addaction name="actionFitPolynomial"/>
+     <addaction name="separator"/>
+     <addaction name="menuFitExponentialDecay"/>
+     <addaction name="actionFitExponentialGrowth"/>
+     <addaction name="actionFitBoltzmannSigmoid"/>
+     <addaction name="actionFitGaussian"/>
+     <addaction name="actionFitLorentzian"/>
+     <addaction name="menuFitMultiPeak"/>
+    </widget>
+    <addaction name="menuTranslate"/>
+    <addaction name="separator"/>
+    <addaction name="actionGraph2DFFT"/>
+    <addaction name="menuFFTFilter"/>
+    <addaction name="menuSmooth"/>
+    <addaction name="separator"/>
+    <addaction name="actionDifferentiate"/>
+    <addaction name="actionIntegrate"/>
+    <addaction name="separator"/>
+    <addaction name="actionInterpolate"/>
+    <addaction name="separator"/>
+    <addaction name="menuQuickFit"/>
+    <addaction name="actionGraph2DFitWizard"/>
+   </widget>
+   <widget class="QMenu" name="menuTableAnalysis">
+    <property name="title">
+     <string>Analysis</string>
+    </property>
+    <addaction name="actionStatisticsOnColumns"/>
+    <addaction name="actionStatisticsOnRows"/>
+    <addaction name="separator"/>
+    <addaction name="actionTableFFT"/>
+    <addaction name="separator"/>
+    <addaction name="actionCorrelate"/>
+    <addaction name="actionAutocorrelate"/>
+    <addaction name="separator"/>
+    <addaction name="actionConvolute"/>
+    <addaction name="actionDeconvolute"/>
+    <addaction name="separator"/>
+    <addaction name="actionTableFitWizard"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
@@ -267,6 +355,8 @@
    <addaction name="menuPlot"/>
    <addaction name="menu3DPlot"/>
    <addaction name="menuGraph"/>
+   <addaction name="menuTableAnalysis"/>
+   <addaction name="menuGraph2DAnalysis"/>
    <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -985,6 +1075,174 @@
    </property>
    <property name="text">
     <string>Lock Dock Windows</string>
+   </property>
+  </action>
+  <action name="actionStatisticsOnColumns">
+   <property name="text">
+    <string>Statistics on Columns</string>
+   </property>
+  </action>
+  <action name="actionStatisticsOnRows">
+   <property name="text">
+    <string>Statistics on Rows</string>
+   </property>
+  </action>
+  <action name="actionGraph2DFFT">
+   <property name="text">
+    <string>FFT...</string>
+   </property>
+  </action>
+  <action name="actionCorrelate">
+   <property name="text">
+    <string>Correlate</string>
+   </property>
+  </action>
+  <action name="actionAutocorrelate">
+   <property name="text">
+    <string>Autocorrelate</string>
+   </property>
+  </action>
+  <action name="actionConvolute">
+   <property name="text">
+    <string>Convolute</string>
+   </property>
+  </action>
+  <action name="actionDeconvolute">
+   <property name="text">
+    <string>Deconvolute</string>
+   </property>
+  </action>
+  <action name="actionGraph2DFitWizard">
+   <property name="text">
+    <string>Fit Wizard...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="actionHorizontalTranslate">
+   <property name="text">
+    <string>Horizontal</string>
+   </property>
+  </action>
+  <action name="actionVerticalTranslate">
+   <property name="text">
+    <string>Vertical</string>
+   </property>
+  </action>
+  <action name="actionDifferentiate">
+   <property name="text">
+    <string>Differentiate</string>
+   </property>
+  </action>
+  <action name="actionIntegrate">
+   <property name="text">
+    <string>Integrate</string>
+   </property>
+  </action>
+  <action name="actionInterpolate">
+   <property name="text">
+    <string>Interpolate</string>
+   </property>
+  </action>
+  <action name="actionSavitzkySmooth">
+   <property name="text">
+    <string>Savitzky-Golay...</string>
+   </property>
+  </action>
+  <action name="actionMovingWindowAverageSmooth">
+   <property name="text">
+    <string>Moving Window Average...</string>
+   </property>
+  </action>
+  <action name="actionFFTFilterSmooth">
+   <property name="text">
+    <string>FFT Filter...</string>
+   </property>
+  </action>
+  <action name="actionLowPassFFTFilter">
+   <property name="text">
+    <string>Low Pass...</string>
+   </property>
+  </action>
+  <action name="actionHighPassFFTFilter">
+   <property name="text">
+    <string>High Pass...</string>
+   </property>
+  </action>
+  <action name="actionBandPassFFTFilter">
+   <property name="text">
+    <string>Band Pass...</string>
+   </property>
+  </action>
+  <action name="actionBandBlockFFTFilter">
+   <property name="text">
+    <string>Band Block...</string>
+   </property>
+  </action>
+  <action name="actionFitLinear">
+   <property name="text">
+    <string>Fit Linear...</string>
+   </property>
+  </action>
+  <action name="actionFitPolynomial">
+   <property name="text">
+    <string>Fit Polynomial...</string>
+   </property>
+  </action>
+  <action name="actionFitExponentialGrowth">
+   <property name="text">
+    <string>Fit Exponential Growth...</string>
+   </property>
+  </action>
+  <action name="actionFitBoltzmannSigmoid">
+   <property name="text">
+    <string>Fit Boltzmann (Sigmoidal)...</string>
+   </property>
+  </action>
+  <action name="actionFitGaussian">
+   <property name="text">
+    <string>Fit Gaussian...</string>
+   </property>
+  </action>
+  <action name="actionFitLorentzian">
+   <property name="text">
+    <string>Fit Lorentzian...</string>
+   </property>
+  </action>
+  <action name="actionFirstOrderExponentialDecay">
+   <property name="text">
+    <string>First Order...</string>
+   </property>
+  </action>
+  <action name="actionSecondOrderExponentialDecay">
+   <property name="text">
+    <string>Second Order...</string>
+   </property>
+  </action>
+  <action name="actionThirdOrderExponentialDecay">
+   <property name="text">
+    <string>Third Order...</string>
+   </property>
+  </action>
+  <action name="actionMultiPeakGaussian">
+   <property name="text">
+    <string>Gaussian...</string>
+   </property>
+  </action>
+  <action name="actionMultiPeakLorentzian">
+   <property name="text">
+    <string>Lorentzian...</string>
+   </property>
+  </action>
+  <action name="actionTableFFT">
+   <property name="text">
+    <string>FFT...</string>
+   </property>
+  </action>
+  <action name="actionTableFitWizard">
+   <property name="text">
+    <string>Fit Wizard...</string>
    </property>
   </action>
  </widget>

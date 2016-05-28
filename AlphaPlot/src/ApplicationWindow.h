@@ -563,12 +563,12 @@ class ApplicationWindow : public QMainWindow,
   //@{
   void deleteFitTables();
   void fitLinear();
-  void fitSigmoidal();
-  void fitGauss();
-  void fitLorentz();
+  void fitBoltzmannSigmoid();
+  void fitGaussian();
+  void fitLorentzian();
   void fitMultiPeak(int profile);
-  void fitMultiPeakGauss();
-  void fitMultiPeakLorentz();
+  void fitMultiPeakGaussian();
+  void fitMultiPeakLorentzian();
   //@}
 
   //! \name Calculus
@@ -648,35 +648,35 @@ class ApplicationWindow : public QMainWindow,
   void showMoreWindows();
   void showMarkerPopupMenu();
   void showPlotWizard();
-  void showFitPolynomDialog();
-  void showIntegrationDialog();
-  void showInterpolationDialog();
-  void showExpGrowthDialog();
-  void showExpDecayDialog();
-  void showExpDecayDialog(int type);
-  void showTwoExpDecayDialog();
-  void showExpDecay3Dialog();
+  void fitPolynomial();
+  void integrate();
+  void interpolate();
+  void fitExponentialGrowth();
+  void fitFirstOrderExponentialDecay();
+  void fitExponential(int type);
+  void fitSecondOrderExponentialDecay();
+  void fitThirdOrderExponentialDecay();
   void showRowStatistics();
-  void showColStatistics();
+  void showColumnStatistics();
   void showFitDialog();
   void showImageDialog();
   void showPlotGeometryDialog();
   void showLayerDialog();
   void showPreferencesDialog();
-  void showSmoothSavGolDialog();
-  void showSmoothFFTDialog();
-  void showSmoothAverageDialog();
+  void savitzkySmooth();
+  void fFTFilterSmooth();
+  void movingWindowAverageSmooth();
   void showSmoothDialog(int m);
   void showFilterDialog(int filter);
-  void lowPassFilterDialog();
-  void highPassFilterDialog();
-  void bandPassFilterDialog();
-  void bandBlockFilterDialog();
+  void lowPassFilter();
+  void highPassFilter();
+  void bandPassFilter();
+  void bandBlockFilter();
   void showFFTDialog();
   //@}
 
-  void translateCurveHor();
-  void translateCurveVert();
+  void horizontalTranslate();
+  void verticalTranslate();
 
   //! Removes the curve identified by a key stored in the data() of
   //! actionRemoveCurve.
@@ -1071,11 +1071,8 @@ class ApplicationWindow : public QMainWindow,
   Graph* lastCopiedLayer;
   QSplitter* explorerSplitter;
 
-  QMenu *format, *calcul, *dataMenu;
-  QMenu* d_quick_fit_menu;
-  QMenu *decay, *filter;
+  QMenu *format;
   QMenu *matrixMenu, *plotDataMenu, *tableMenu;
-  QMenu *smooth, *translateMenu, *multiPeakMenu;
   QAction* actionCopyStatusBarText;
   QAction *actionEditCurveRange, *actionCurveFullRange, *actionShowAllCurves,
       *actionHideCurve, *actionHideOtherCurves;
@@ -1086,16 +1083,9 @@ class ApplicationWindow : public QMainWindow,
   QAction* actionExportPDF;
   QAction* actionCloseAllWindows;
   QAction* actionUnzoom;
-  QAction *actionShowColStatistics, *actionShowRowStatistics,
-      *actionShowIntDialog;
-  QAction *actionDifferentiate, *actionFitLinear, *actionShowFitPolynomDialog;
-  QAction *actionShowExpDecayDialog, *actionShowTwoExpDecayDialog,
-      *actionShowExpDecay3Dialog;
-  QAction *actionFitExpGrowth, *actionFitSigmoidal, *actionFitGauss,
-      *actionFitLorentz, *actionShowFitDialog;
   QAction *actionShowAxisDialog, *actionShowTitleDialog;
   QAction *actionCloseWindow, *actionConvertTable;
-  QAction *actionAddColToTable, *actionInterpolate;
+  QAction *actionAddColToTable;
   QAction* actionHideActiveWindow;
   QAction *actionShowMoreWindows, *actionPixelLineProfile,
       *actionIntensityTable;
@@ -1107,14 +1097,6 @@ class ApplicationWindow : public QMainWindow,
   QAction* actionMatrixDeterminant;
   QAction *actionConvertMatrix, *actionInvertMatrix;
   QAction* actionShowGridDialog;
-  QAction *actionSmoothSavGol, *actionSmoothFFT, *actionSmoothAverage,
-      *actionFFT;
-  QAction *actionLowPassFilter, *actionHighPassFilter, *actionBandPassFilter,
-      *actionBandBlockFilter;
-  QAction *actionConvolute, *actionDeconvolute, *actionCorrelate,
-      *actionAutoCorrelate;
-  QAction *actionTranslateHor, *actionTranslateVert;
-  QAction *actionMultiPeakGauss, *actionMultiPeakLorentz;
 
   QAction *actionShowPlotDialog, *actionShowScaleDialog;
   QAction *actionClearTable, *actionGoToCell;
