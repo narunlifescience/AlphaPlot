@@ -162,8 +162,8 @@ void file_compress(const char *file, const char *mode);
 }
 
 ApplicationWindow::ApplicationWindow()
-    : ui_(new Ui_ApplicationWindow),
-      scripted(ScriptingLangManager::newEnv(this)),
+    : scripted(ScriptingLangManager::newEnv(this)),
+      ui_(new Ui_ApplicationWindow),
 #ifdef SCRIPTING_CONSOLE
       consoleWindow(new ConsoleWidget(this)),
 #endif
@@ -171,13 +171,13 @@ ApplicationWindow::ApplicationWindow()
       hiddenWindows(new QList<QWidget *>()),
       outWindows(new QList<QWidget *>()),
       lastModified(nullptr),
-      file_tools(new QToolBar(tr("File"), this)),
-      edit_tools(new QToolBar(tr("Edit"), this)),
-      graph_tools(new QToolBar(tr("Graph"), this)),
-      plot_tools(new QToolBar(tr("Plot"), this)),
-      table_tools(new QToolBar(tr("Table"), this)),
-      matrix_plot_tools(new QToolBar(tr("Matrix Plot"), this)),
-      graph_3D_tools(new QToolBar(tr("3D Surface"), this)),
+      fileToolbar(new QToolBar(tr("File"), this)),
+      editToolbar(new QToolBar(tr("Edit"), this)),
+      graphToolsToolbar(new QToolBar(tr("Graph"), this)),
+      plot2DToolbar(new QToolBar(tr("Plot"), this)),
+      tableToolbar(new QToolBar(tr("Table"), this)),
+      matrix3DPlotToolbar(new QToolBar(tr("Matrix Plot"), this)),
+      graph3DToolbar(new QToolBar(tr("3D Surface"), this)),
       current_folder(new Folder(0, tr("Untitled"))),
       show_windows_policy(ActiveFolder),
       appStyle(qApp->style()->objectName()),
@@ -310,6 +310,7 @@ ApplicationWindow::ApplicationWindow()
   consoleWindow->hide();
 #endif
 
+  disableActions();
   // After initialization of QDockWidget, for toggleViewAction() to work
   // Set icons for QActions
   // File menu
@@ -619,20 +620,20 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->actionPreferences, SIGNAL(activated()), this,
           SLOT(showPreferencesDialog()));
   // View menu
-  connect(ui_->actionShowFileToolbar, SIGNAL(toggled(bool)), file_tools,
+  connect(ui_->actionShowFileToolbar, SIGNAL(toggled(bool)), fileToolbar,
           SLOT(setVisible(bool)));
-  connect(ui_->actionShowEditToolbar, SIGNAL(toggled(bool)), edit_tools,
+  connect(ui_->actionShowEditToolbar, SIGNAL(toggled(bool)), editToolbar,
           SLOT(setVisible(bool)));
-  connect(ui_->actionShowGraphToolbar, SIGNAL(toggled(bool)), graph_tools,
+  connect(ui_->actionShowGraphToolbar, SIGNAL(toggled(bool)), graphToolsToolbar,
           SLOT(setVisible(bool)));
-  connect(ui_->actionShowPlotToolbar, SIGNAL(toggled(bool)), plot_tools,
+  connect(ui_->actionShowPlotToolbar, SIGNAL(toggled(bool)), plot2DToolbar,
           SLOT(setVisible(bool)));
-  connect(ui_->actionShowTableToolbar, SIGNAL(toggled(bool)), table_tools,
+  connect(ui_->actionShowTableToolbar, SIGNAL(toggled(bool)), tableToolbar,
           SLOT(setVisible(bool)));
   connect(ui_->actionShowMatrixPlotToolbar, SIGNAL(toggled(bool)),
-          matrix_plot_tools, SLOT(setVisible(bool)));
+          matrix3DPlotToolbar, SLOT(setVisible(bool)));
   connect(ui_->actionShow3DSurfacePlotToolbar, SIGNAL(toggled(bool)),
-          graph_3D_tools, SLOT(setVisible(bool)));
+          graph3DToolbar, SLOT(setVisible(bool)));
   connect(ui_->actionLockToolbars, SIGNAL(toggled(bool)), this,
           SLOT(lockToolbars(bool)));
   connect(ui_->actionLockDockWindows, SIGNAL(toggled(bool)), this,
@@ -788,6 +789,8 @@ ApplicationWindow::ApplicationWindow()
   ui_->actionGraphMoveDataPoints->setCheckable(true);
   ui_->actionGraphRemoveBadDataPoints->setActionGroup(graphToolsGroup);
   ui_->actionGraphRemoveBadDataPoints->setCheckable(true);
+  connect(graphToolsGroup, SIGNAL(triggered(QAction *)), this,
+          SLOT(pickGraphTool(QAction *)));
   // Table Analysis menu
   connect(ui_->actionStatisticsOnColumns, SIGNAL(activated()), this,
           SLOT(showColumnStatistics()));
@@ -1008,13 +1011,17 @@ ApplicationWindow::ApplicationWindow()
   actionCopyStatusBarText = new QAction(tr("&Copy status bar text"), this);
   connect(actionCopyStatusBarText, SIGNAL(activated()), this,
           SLOT(copyStatusBarText()));
-  connect(graphToolsGroup, SIGNAL(triggered(QAction *)), this,
-          SLOT(pickDataTool(QAction *)));
 
-  disableActions();
+  // Make toolbars
+  makeToolBars();
 
-  // Initiate toolbars
-  initToolBars();
+  // Initiate statusbar
+  statusBarInfo = new QLabel(this);
+  statusBarInfo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  statusBarInfo->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(statusBarInfo, SIGNAL(customContextMenuRequested(const QPoint &)),
+          this, SLOT(showStatusBarContextMenu(const QPoint &)));
+  statusBar()->addWidget(statusBarInfo, 1);
 
   // Create central MdiArea
   d_workspace->setScrollBarsEnabled(true);
@@ -1039,35 +1046,26 @@ ApplicationWindow::ApplicationWindow()
   connect(this, SIGNAL(modified()), this, SLOT(modifiedProject()));
 }
 
+// Apply user settings
 void ApplicationWindow::applyUserSettings() {
-  updateAppFonts();
+  qApp->setFont(appFont);
+  this->setFont(appFont);
   setScriptingLang(defaultScriptingLang);
-
-  // comment out color handling for now
-  /*d_workspace->setPaletteBackgroundColor (workspaceColor);
-
-  QColorGroup cg;
-  cg.setColor(QColorGroup::Base, QColor(panelsColor) );
-  qApp->setPalette(QPalette(cg, cg, cg));
-
-  cg.setColor(QColorGroup::Text, QColor(panelsTextColor) );
-  cg.setColor(QColorGroup::WindowText, QColor(panelsTextColor) );
-  cg.setColor(QColorGroup::HighlightedText, QColor(panelsTextColor) );
-  lv->setPalette(QPalette(cg, cg, cg));
-  results->setPalette(QPalette(cg, cg, cg));
-
-  cg.setColor(QColorGroup::Text, QColor(Qt::green) );
-  cg.setColor(QColorGroup::HighlightedText, QColor(Qt::darkGreen) );
-  cg.setColor(QColorGroup::Base, QColor(Qt::black) );*/
 }
 
-void ApplicationWindow::initToolBars() {
-  file_tools->setObjectName("file_tools");  // need for restoreState()
-  file_tools->setIconSize(QSize(24, 24));
-  addToolBar(Qt::TopToolBarArea, file_tools);
+// Make all toolbars
+void ApplicationWindow::makeToolBars() {
+  // Set object names needed for restoreState()
+  fileToolbar->setObjectName("fileToolbar");
+  editToolbar->setObjectName("editToolbar");
+  graphToolsToolbar->setObjectName("graphToolsToolbar");
+  plot2DToolbar->setObjectName("plot2DToolbar");
+  tableToolbar->setObjectName("tableToolbar");
+  matrix3DPlotToolbar->setObjectName("matrix3DPlotToolbar");
+  graph3DToolbar->setObjectName("graph3DToolbar");
 
-  file_tools->addAction(ui_->actionNewProject);
-
+  // File tools toolbar
+  fileToolbar->addAction(ui_->actionNewProject);
   QMenu *menu_new_aspect = new QMenu(this);
   menu_new_aspect->addAction(ui_->actionNewTable);
   menu_new_aspect->addAction(ui_->actionNewMatrix);
@@ -1081,57 +1079,43 @@ void ApplicationWindow::initToolBars() {
   btn_new_aspect->setIcon(
       IconLoader::load("edit-new-aspect", IconLoader::LightDark));
   btn_new_aspect->setToolTip(tr("New Aspect"));
-  file_tools->addWidget(btn_new_aspect);
+  fileToolbar->addWidget(btn_new_aspect);
+  fileToolbar->addAction(ui_->actionOpenAproj);
+  fileToolbar->addAction(ui_->actionOpenTemplate);
+  fileToolbar->addAction(ui_->actionImportASCII);
+  fileToolbar->addAction(ui_->actionSaveProject);
+  fileToolbar->addAction(ui_->actionSaveAsTemplate);
+  fileToolbar->addSeparator();
+  fileToolbar->addAction(ui_->actionPrint);
+  fileToolbar->addAction(actionExportPDF);
+  fileToolbar->addSeparator();
+  fileToolbar->addAction(ui_->actionShowExplorer);
+  fileToolbar->addAction(ui_->actionShowResultsLog);
+  fileToolbar->addAction(ui_->actionLockToolbars);
 
-  file_tools->addAction(ui_->actionOpenAproj);
-  file_tools->addAction(ui_->actionOpenTemplate);
-  file_tools->addAction(ui_->actionImportASCII);
-  file_tools->addAction(ui_->actionSaveProject);
-  file_tools->addAction(ui_->actionSaveAsTemplate);
+  // Edit tools toolbar
+  editToolbar->addAction(ui_->actionUndo);
+  editToolbar->addAction(ui_->actionRedo);
+  editToolbar->addAction(ui_->actionCutSelection);
+  editToolbar->addAction(ui_->actionCopySelection);
+  editToolbar->addAction(ui_->actionPasteSelection);
+  editToolbar->addAction(ui_->actionClearSelection);
 
-  file_tools->addSeparator();
-
-  file_tools->addAction(ui_->actionPrint);
-  file_tools->addAction(actionExportPDF);
-
-  file_tools->addSeparator();
-
-  file_tools->addAction(ui_->actionShowExplorer);
-  file_tools->addAction(ui_->actionShowResultsLog);
-  file_tools->addAction(ui_->actionLockToolbars);
-
-  edit_tools->setObjectName("edit_tools");  // needed for restoreState()
-  edit_tools->setIconSize(QSize(24, 24));
-  addToolBar(edit_tools);
-
-  edit_tools->addAction(ui_->actionUndo);
-  edit_tools->addAction(ui_->actionRedo);
-  edit_tools->addAction(ui_->actionCutSelection);
-  edit_tools->addAction(ui_->actionCopySelection);
-  edit_tools->addAction(ui_->actionPasteSelection);
-  edit_tools->addAction(ui_->actionClearSelection);
-
-  graph_tools->setObjectName("graph_tools");  // need for restoreState()
-  graph_tools->setIconSize(QSize(24, 24));
-  addToolBar(graph_tools);
+  // 2D Graph tools toolbar
   ui_->actionDisableGraphTools->setChecked(true);
-  graph_tools->addAction(ui_->actionDisableGraphTools);
-
-  graph_tools->addSeparator();
-
+  graphToolsToolbar->addAction(ui_->actionDisableGraphTools);
+  graphToolsToolbar->addSeparator();
   QMenu *menu_layers = new QMenu(this);
   QToolButton *btn_layers = new QToolButton(this);
   btn_layers->setMenu(menu_layers);
   btn_layers->setPopupMode(QToolButton::InstantPopup);
   btn_layers->setIcon(IconLoader::load("layer-arrange", IconLoader::LightDark));
   btn_layers->setToolTip(tr("Manage layers"));
-  graph_tools->addWidget(btn_layers);
-
+  graphToolsToolbar->addWidget(btn_layers);
   menu_layers->addAction(ui_->actionAutomaticLayout);
   menu_layers->addAction(ui_->actionAddLayer);
   menu_layers->addAction(ui_->actionRemoveLayer);
   menu_layers->addAction(ui_->actionArrangeLayers);
-
   QMenu *menu_curves = new QMenu(this);
   QToolButton *btn_curves = new QToolButton(this);
   btn_curves->setMenu(menu_curves);
@@ -1139,12 +1123,10 @@ void ApplicationWindow::initToolBars() {
   btn_curves->setIcon(
       IconLoader::load("edit-add-graph", IconLoader::LightDark));
   btn_curves->setToolTip(tr("Add curves / error bars"));
-  graph_tools->addWidget(btn_curves);
-
+  graphToolsToolbar->addWidget(btn_curves);
   menu_curves->addAction(ui_->actionAddRemoveCurve);
   menu_curves->addAction(ui_->actionAddErrorBars);
   menu_curves->addAction(ui_->actionAddFunctionCurve);
-
   QMenu *menu_plot_enrichments = new QMenu(this);
   QToolButton *btn_plot_enrichments = new QToolButton(this);
   btn_plot_enrichments->setMenu(menu_plot_enrichments);
@@ -1152,29 +1134,23 @@ void ApplicationWindow::initToolBars() {
   btn_plot_enrichments->setIcon(
       IconLoader::load("draw-text", IconLoader::LightDark));
   btn_plot_enrichments->setToolTip(tr("Enrichments"));
-  graph_tools->addWidget(btn_plot_enrichments);
-
+  graphToolsToolbar->addWidget(btn_plot_enrichments);
   menu_plot_enrichments->addAction(ui_->actionAddText);
   menu_plot_enrichments->addAction(ui_->actionDrawArrow);
   menu_plot_enrichments->addAction(ui_->actionDrawLine);
-
   menu_plot_enrichments->addAction(ui_->actionAddTimeStamp);
   menu_plot_enrichments->addAction(ui_->actionAddImage);
   menu_plot_enrichments->addAction(ui_->actionNewLegend);
+  graphToolsToolbar->addSeparator();
+  graphToolsToolbar->addAction(ui_->actionGraphZoomIn);
+  graphToolsToolbar->addAction(ui_->actionGraphZoomOut);
+  graphToolsToolbar->addAction(ui_->actionGraphRescaleShowAll);
+  graphToolsToolbar->addSeparator();
+  graphToolsToolbar->addAction(ui_->actionGraphScreenReader);
+  graphToolsToolbar->addAction(ui_->actionGraphDataReader);
+  graphToolsToolbar->addAction(ui_->actionGraphSelectDataRange);
 
-  graph_tools->addSeparator();
-  graph_tools->addAction(ui_->actionGraphZoomIn);
-  graph_tools->addAction(ui_->actionGraphZoomOut);
-  graph_tools->addAction(ui_->actionGraphRescaleShowAll);
-  graph_tools->addSeparator();
-  graph_tools->addAction(ui_->actionGraphScreenReader);
-  graph_tools->addAction(ui_->actionGraphDataReader);
-  graph_tools->addAction(ui_->actionGraphSelectDataRange);
-
-  plot_tools->setObjectName("plot_tools");  // need for restoreState()
-  plot_tools->setIconSize(QSize(32, 32));
-  addToolBar(Qt::TopToolBarArea, plot_tools);
-
+  // 2D plots tool toolbar
   QMenu *menu_plot_linespoints = new QMenu(this);
   QToolButton *btn_plot_linespoints = new QToolButton(this);
   btn_plot_linespoints->setMenu(menu_plot_linespoints);
@@ -1182,7 +1158,7 @@ void ApplicationWindow::initToolBars() {
   btn_plot_linespoints->setIcon(
       IconLoader::load("graph2d-line-scatter", IconLoader::LightDark));
   btn_plot_linespoints->setToolTip(tr("Lines and/or symbols"));
-  plot_tools->addWidget(btn_plot_linespoints);
+  plot2DToolbar->addWidget(btn_plot_linespoints);
   menu_plot_linespoints->addAction(ui_->actionPlot2DLine);
   menu_plot_linespoints->addAction(ui_->actionPlot2DScatter);
   menu_plot_linespoints->addAction(ui_->actionPlot2DLineSymbol);
@@ -1190,99 +1166,66 @@ void ApplicationWindow::initToolBars() {
   menu_plot_linespoints->addAction(ui_->actionPlot2DSpline);
   menu_plot_linespoints->addAction(ui_->actionPlot2DVerticalSteps);
   menu_plot_linespoints->addAction(ui_->actionPlot2DHorizontalSteps);
-
   QMenu *menu_plot_bars = new QMenu(this);
   QToolButton *btn_plot_bars = new QToolButton(this);
   btn_plot_bars->setMenu(menu_plot_bars);
   btn_plot_bars->setPopupMode(QToolButton::InstantPopup);
   btn_plot_bars->setIcon(
       IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
-  plot_tools->addWidget(btn_plot_bars);
+  plot2DToolbar->addWidget(btn_plot_bars);
   menu_plot_bars->addAction(ui_->actionPlot2DVerticalBars);
   menu_plot_bars->addAction(ui_->actionPlot2DHorizontalBars);
-
-  plot_tools->addAction(ui_->actionPlot2DArea);
-  plot_tools->addAction(ui_->actionPlot2DStatHistogram);
-  plot_tools->addAction(ui_->actionPlot2DStatBox);
-
+  plot2DToolbar->addAction(ui_->actionPlot2DArea);
+  plot2DToolbar->addAction(ui_->actionPlot2DStatHistogram);
+  plot2DToolbar->addAction(ui_->actionPlot2DStatBox);
   QMenu *menu_plot_vect = new QMenu(this);
   QToolButton *btn_plot_vect = new QToolButton(this);
   btn_plot_vect->setMenu(menu_plot_vect);
   btn_plot_vect->setPopupMode(QToolButton::InstantPopup);
   btn_plot_vect->setIcon(
       IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
-  plot_tools->addWidget(btn_plot_vect);
+  plot2DToolbar->addWidget(btn_plot_vect);
   menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYXY);
   menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYAM);
-  plot_tools->addAction(ui_->actionPlot2DPie);
+  plot2DToolbar->addAction(ui_->actionPlot2DPie);
+  plot2DToolbar->addSeparator();
+  plot2DToolbar->addAction(ui_->actionPlot3DScatter);
+  plot2DToolbar->addAction(ui_->actionPlot3DTrajectory);
+  plot2DToolbar->addAction(ui_->actionPlot3DRibbon);
+  plot2DToolbar->addAction(ui_->actionPlot3DBar);
 
-  plot_tools->addSeparator();
-  plot_tools->addAction(ui_->actionPlot3DScatter);
-  plot_tools->addAction(ui_->actionPlot3DTrajectory);
-  plot_tools->addAction(ui_->actionPlot3DRibbon);
-  plot_tools->addAction(ui_->actionPlot3DBar);
+  // Matrix tools toolbar
+  matrix3DPlotToolbar->addAction(ui_->action3DWireFrame);
+  matrix3DPlotToolbar->addAction(ui_->action3DHiddenLine);
+  matrix3DPlotToolbar->addAction(ui_->action3DPolygons);
+  matrix3DPlotToolbar->addAction(ui_->action3DWireSurface);
+  matrix3DPlotToolbar->addSeparator();
+  matrix3DPlotToolbar->addAction(ui_->actionPlot3DBar);
+  matrix3DPlotToolbar->addAction(ui_->actionPlot3DScatter);
+  matrix3DPlotToolbar->addSeparator();
+  matrix3DPlotToolbar->addAction(ui_->action3DCountourColorFill);
+  matrix3DPlotToolbar->addAction(ui_->action3DCountourLines);
+  matrix3DPlotToolbar->addAction(ui_->action3DGreyScaleMap);
 
-  table_tools->setObjectName("table_tools");  // needed for restoreState()
-  table_tools->setIconSize(QSize(24, 24));
-  addToolBar(Qt::TopToolBarArea, table_tools);
-
-  graph_tools->setEnabled(false);
-  table_tools->setEnabled(false);
-  plot_tools->setEnabled(false);
-
-  d_status_info = new QLabel(this);
-  d_status_info->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-  d_status_info->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(d_status_info, SIGNAL(customContextMenuRequested(const QPoint &)),
-          this, SLOT(showStatusBarContextMenu(const QPoint &)));
-
-  statusBar()->addWidget(d_status_info, 1);
-
-  matrix_plot_tools->setObjectName("matrix_plot_tools");
-  matrix_plot_tools->setIconSize(QSize(24, 24));
-  addToolBar(Qt::BottomToolBarArea, matrix_plot_tools);
-
-  matrix_plot_tools->addAction(ui_->action3DWireFrame);
-  matrix_plot_tools->addAction(ui_->action3DHiddenLine);
-  matrix_plot_tools->addAction(ui_->action3DPolygons);
-  matrix_plot_tools->addAction(ui_->action3DWireSurface);
-  matrix_plot_tools->addSeparator();
-  matrix_plot_tools->addAction(ui_->actionPlot3DBar);
-  matrix_plot_tools->addAction(ui_->actionPlot3DScatter);
-  matrix_plot_tools->addSeparator();
-  matrix_plot_tools->addAction(ui_->action3DCountourColorFill);
-  matrix_plot_tools->addAction(ui_->action3DCountourLines);
-  matrix_plot_tools->addAction(ui_->action3DGreyScaleMap);
-
-  matrix_plot_tools->setEnabled(false);
-
-  // Graph 3d toolbar
-  graph_3D_tools->setObjectName("graph_3D_tools");  // need for restoreState()
-  graph_3D_tools->setIconSize(QSize(24, 24));
-  addToolBarBreak(Qt::TopToolBarArea);
-  addToolBar(Qt::TopToolBarArea, graph_3D_tools);
-
+  // Graph 3D tools toolbar
+  // Graph 3D axis type selection
   coord = new QActionGroup(this);
   Box = new QAction(coord);
   Box->setIcon(IconLoader::load("graph3d-box-axis", IconLoader::LightDark));
   Box->setCheckable(true);
-
   Frame = new QAction(coord);
   Frame->setIcon(IconLoader::load("graph3d-free-axis", IconLoader::LightDark));
   Frame->setCheckable(true);
-
   None = new QAction(coord);
   None->setIcon(IconLoader::load("graph3d-no-axis", IconLoader::LightDark));
   None->setCheckable(true);
-
-  graph_3D_tools->addAction(Frame);
-  graph_3D_tools->addAction(Box);
-  graph_3D_tools->addAction(None);
+  graph3DToolbar->addAction(Frame);
+  graph3DToolbar->addAction(Box);
+  graph3DToolbar->addAction(None);
   Box->setChecked(true);
+  graph3DToolbar->addSeparator();
 
-  graph_3D_tools->addSeparator();
-
-  // grid actions
+  // Graph 3D grid actions
   grids = new QActionGroup(this);
   grids->setEnabled(true);
   grids->setExclusive(false);
@@ -1304,41 +1247,32 @@ void ApplicationWindow::initToolBars() {
   floor = new QAction(grids);
   floor->setCheckable(true);
   floor->setIcon(IconLoader::load("graph3d-floor-grid", IconLoader::LightDark));
+  graph3DToolbar->addAction(front);
+  graph3DToolbar->addAction(back);
+  graph3DToolbar->addAction(right);
+  graph3DToolbar->addAction(left);
+  graph3DToolbar->addAction(ceil);
+  graph3DToolbar->addAction(floor);
+  graph3DToolbar->addSeparator();
 
-  graph_3D_tools->addAction(front);
-  graph_3D_tools->addAction(back);
-  graph_3D_tools->addAction(right);
-  graph_3D_tools->addAction(left);
-  graph_3D_tools->addAction(ceil);
-  graph_3D_tools->addAction(floor);
-
-  graph_3D_tools->addSeparator();
-
+  // Graph 3D orentation actions
   actionPerspective = new QAction(this);
   actionPerspective->setCheckable(true);
   actionPerspective->setIcon(
       IconLoader::load("graph3d-perspective-view", IconLoader::LightDark));
-  graph_3D_tools->addAction(actionPerspective);
+  graph3DToolbar->addAction(actionPerspective);
   actionPerspective->setChecked(!orthogonal3DPlots);
-  connect(actionPerspective, SIGNAL(toggled(bool)), this,
-          SLOT(togglePerspective(bool)));
-
   actionResetRotation = new QAction(this);
   actionResetRotation->setIcon(
       IconLoader::load("graph3d-reset-rotation", IconLoader::LightDark));
-  graph_3D_tools->addAction(actionResetRotation);
-  connect(actionResetRotation, SIGNAL(activated()), this,
-          SLOT(resetRotation()));
-
+  graph3DToolbar->addAction(actionResetRotation);
   actionFitFrame = new QAction(this);
   actionFitFrame->setIcon(
       IconLoader::load("graph3d-fit-frame", IconLoader::LightDark));
-  graph_3D_tools->addAction(actionFitFrame);
-  connect(actionFitFrame, SIGNAL(activated()), this, SLOT(fitFrameToLayer()));
+  graph3DToolbar->addAction(actionFitFrame);
+  graph3DToolbar->addSeparator();
 
-  graph_3D_tools->addSeparator();
-
-  // plot style actions
+  // Graph 3D plot style actions
   plotstyle = new QActionGroup(this);
   wireframe = new QAction(plotstyle);
   wireframe->setCheckable(true);
@@ -1361,36 +1295,29 @@ void ApplicationWindow::initToolBars() {
   pointstyle->setCheckable(true);
   pointstyle->setIcon(
       IconLoader::load("graph3d-point-mesh", IconLoader::LightDark));
-
   conestyle = new QAction(plotstyle);
   conestyle->setCheckable(true);
   conestyle->setIcon(IconLoader::load("graph3d-cone", IconLoader::LightDark));
-
   crossHairStyle = new QAction(plotstyle);
   crossHairStyle->setCheckable(true);
   crossHairStyle->setIcon(
       IconLoader::load("graph3d-cross", IconLoader::LightDark));
-
   barstyle = new QAction(plotstyle);
   barstyle->setCheckable(true);
   barstyle->setIcon(IconLoader::load("graph3d-bar", IconLoader::LightDark));
-
-  graph_3D_tools->addAction(barstyle);
-  graph_3D_tools->addAction(pointstyle);
-
-  graph_3D_tools->addAction(conestyle);
-  graph_3D_tools->addAction(crossHairStyle);
-  graph_3D_tools->addSeparator();
-
-  graph_3D_tools->addAction(wireframe);
-  graph_3D_tools->addAction(hiddenline);
-  graph_3D_tools->addAction(polygon);
-  graph_3D_tools->addAction(filledmesh);
+  graph3DToolbar->addAction(barstyle);
+  graph3DToolbar->addAction(pointstyle);
+  graph3DToolbar->addAction(conestyle);
+  graph3DToolbar->addAction(crossHairStyle);
+  graph3DToolbar->addSeparator();
+  graph3DToolbar->addAction(wireframe);
+  graph3DToolbar->addAction(hiddenline);
+  graph3DToolbar->addAction(polygon);
+  graph3DToolbar->addAction(filledmesh);
   filledmesh->setChecked(true);
+  graph3DToolbar->addSeparator();
 
-  graph_3D_tools->addSeparator();
-
-  // floor actions
+  // Graph 3D floor actions
   floorstyle = new QActionGroup(this);
   floordata = new QAction(floorstyle);
   floordata->setCheckable(true);
@@ -1402,59 +1329,92 @@ void ApplicationWindow::initToolBars() {
   floornone->setCheckable(true);
   floornone->setIcon(
       IconLoader::load("graph3d-no-floor", IconLoader::LightDark));
-
-  graph_3D_tools->addAction(floordata);
-  graph_3D_tools->addAction(flooriso);
-  graph_3D_tools->addAction(floornone);
+  graph3DToolbar->addAction(floordata);
+  graph3DToolbar->addAction(flooriso);
+  graph3DToolbar->addAction(floornone);
   floornone->setChecked(true);
+  graph3DToolbar->addSeparator();
 
-  graph_3D_tools->addSeparator();
-
+  // Graph 3D animation actions
   actionAnimate = new QAction(this);
   actionAnimate->setCheckable(true);
   actionAnimate->setIcon(
       IconLoader::load("view-3dplot-movie", IconLoader::LightDark));
-  graph_3D_tools->addAction(actionAnimate);
+  graph3DToolbar->addAction(actionAnimate);
 
-  graph_3D_tools->setEnabled(false);
+  // Set toolbar icon size
+  fileToolbar->setIconSize(QSize(24, 24));
+  editToolbar->setIconSize(QSize(24, 24));
+  graphToolsToolbar->setIconSize(QSize(24, 24));
+  plot2DToolbar->setIconSize(QSize(32, 32));
+  tableToolbar->setIconSize(QSize(24, 24));
+  matrix3DPlotToolbar->setIconSize(QSize(24, 24));
+  graph3DToolbar->setIconSize(QSize(24, 24));
 
-  connect(actionAnimate, SIGNAL(toggled(bool)), this,
-          SLOT(toggle3DAnimation(bool)));
+  // Add toolbars
+  addToolBar(Qt::TopToolBarArea, fileToolbar);
+  addToolBar(editToolbar);
+  addToolBar(graphToolsToolbar);
+  addToolBar(Qt::TopToolBarArea, plot2DToolbar);
+  addToolBar(Qt::TopToolBarArea, tableToolbar);
+  addToolBar(Qt::BottomToolBarArea, matrix3DPlotToolbar);
+  addToolBar(Qt::TopToolBarArea, graph3DToolbar);
+  addToolBarBreak(Qt::TopToolBarArea);
+
+  // Disable toolbars
+  graphToolsToolbar->setEnabled(false);
+  tableToolbar->setEnabled(false);
+  plot2DToolbar->setEnabled(false);
+  matrix3DPlotToolbar->setEnabled(false);
+  graph3DToolbar->setEnabled(false);
+
+  // Graph 3D orentation actions
+  connect(actionPerspective, SIGNAL(toggled(bool)), this,
+          SLOT(togglePerspective(bool)));
+  connect(actionResetRotation, SIGNAL(activated()), this,
+          SLOT(resetRotation()));
+  connect(actionFitFrame, SIGNAL(activated()), this, SLOT(fitFrameToLayer()));
+  // Graph 3D Axis type selection Actions
   connect(coord, SIGNAL(triggered(QAction *)), this,
           SLOT(pickCoordSystem(QAction *)));
+  // Graph 3D floor Actions
   connect(floorstyle, SIGNAL(triggered(QAction *)), this,
           SLOT(pickFloorStyle(QAction *)));
+  // Graph 3D plot style
   connect(plotstyle, SIGNAL(triggered(QAction *)), this,
           SLOT(pickPlotStyle(QAction *)));
-
+  // Graph 3D Grid
   connect(left, SIGNAL(triggered(bool)), this, SLOT(setLeftGrid3DPlot(bool)));
   connect(right, SIGNAL(triggered(bool)), this, SLOT(setRightGrid3DPlot(bool)));
   connect(ceil, SIGNAL(triggered(bool)), this, SLOT(setCeilGrid3DPlot(bool)));
   connect(floor, SIGNAL(triggered(bool)), this, SLOT(setFloorGrid3DPlot(bool)));
   connect(back, SIGNAL(triggered(bool)), this, SLOT(setBackGrid3DPlot(bool)));
   connect(front, SIGNAL(triggered(bool)), this, SLOT(setFrontGrid3DPlot(bool)));
+  // Graph 3D animation actions
+  connect(actionAnimate, SIGNAL(toggled(bool)), this,
+          SLOT(toggle3DAnimation(bool)));
 }
 
 // Lock/unlock toolbar move
 void ApplicationWindow::lockToolbars(const bool status) {
   if (status) {
-    file_tools->setMovable(false);
-    edit_tools->setMovable(false);
-    graph_tools->setMovable(false);
-    graph_3D_tools->setMovable(false);
-    plot_tools->setMovable(false);
-    table_tools->setMovable(false);
-    matrix_plot_tools->setMovable(false);
+    fileToolbar->setMovable(false);
+    editToolbar->setMovable(false);
+    graphToolsToolbar->setMovable(false);
+    graph3DToolbar->setMovable(false);
+    plot2DToolbar->setMovable(false);
+    tableToolbar->setMovable(false);
+    matrix3DPlotToolbar->setMovable(false);
     ui_->actionLockToolbars->setIcon(
         IconLoader::load("lock", IconLoader::LightDark));
   } else {
-    file_tools->setMovable(true);
-    edit_tools->setMovable(true);
-    graph_tools->setMovable(true);
-    graph_3D_tools->setMovable(true);
-    plot_tools->setMovable(true);
-    table_tools->setMovable(true);
-    matrix_plot_tools->setMovable(true);
+    fileToolbar->setMovable(true);
+    editToolbar->setMovable(true);
+    graphToolsToolbar->setMovable(true);
+    graph3DToolbar->setMovable(true);
+    plot2DToolbar->setMovable(true);
+    tableToolbar->setMovable(true);
+    matrix3DPlotToolbar->setMovable(true);
     ui_->actionLockToolbars->setIcon(
         IconLoader::load("unlock", IconLoader::LightDark));
   }
@@ -1574,38 +1534,23 @@ void ApplicationWindow::customMenu(QWidget *widget) {
   menuBar()->addMenu(ui_->menuHelp);
 }
 
-// Disable selected QActions
-void ApplicationWindow::disableActions() {
-  ui_->actionSaveAsTemplate->setEnabled(false);
-  ui_->actionPrintAllPlots->setEnabled(false);
-  ui_->actionPrint->setEnabled(false);
-  ui_->actionExportASCII->setEnabled(false);
-  ui_->menuExportGraph->setEnabled(false);
-  ui_->actionUndo->setEnabled(false);
-  ui_->actionRedo->setEnabled(false);
-  ui_->actionCutSelection->setEnabled(false);
-  ui_->actionCopySelection->setEnabled(false);
-  ui_->actionPasteSelection->setEnabled(false);
-  ui_->actionClearSelection->setEnabled(false);
-}
-
 // Dynamic toolbar
 void ApplicationWindow::customToolBars(QWidget *widget) {
   // There are active windows
   if (widget) {
-    if (!projectHas3DPlots()) graph_3D_tools->setEnabled(false);
-    if (!projectHas2DPlots()) graph_tools->setEnabled(false);
-    if (!projectHasMatrices()) matrix_plot_tools->setEnabled(false);
+    if (!projectHas3DPlots()) graph3DToolbar->setEnabled(false);
+    if (!projectHas2DPlots()) graphToolsToolbar->setEnabled(false);
+    if (!projectHasMatrices()) matrix3DPlotToolbar->setEnabled(false);
     if (tableWindows().count() <= 0) {
-      table_tools->setEnabled(false);
-      plot_tools->setEnabled(false);
+      tableToolbar->setEnabled(false);
+      plot2DToolbar->setEnabled(false);
     }
 
     if (widget->inherits("MultiLayer")) {
-      graph_tools->setEnabled(true);
-      graph_3D_tools->setEnabled(false);
-      table_tools->setEnabled(false);
-      matrix_plot_tools->setEnabled(false);
+      graphToolsToolbar->setEnabled(true);
+      graph3DToolbar->setEnabled(false);
+      tableToolbar->setEnabled(false);
+      matrix3DPlotToolbar->setEnabled(false);
 
       Graph *g = static_cast<MultiLayer *>(widget)->activeGraph();
       if (g) {
@@ -1645,7 +1590,7 @@ void ApplicationWindow::customToolBars(QWidget *widget) {
         graphToolsGroup->blockSignals(false);
       }
       if (g && g->curves() > 0) {
-        plot_tools->setEnabled(true);
+        plot2DToolbar->setEnabled(true);
         QwtPlotCurve *c = g->curve(g->curves() - 1);
         // plot tools managed by d_plot_mapper
         for (int i = 0; i <= static_cast<int>(Graph::VerticalSteps); i++) {
@@ -1668,18 +1613,18 @@ void ApplicationWindow::customToolBars(QWidget *widget) {
         ui_->actionPlot3DTrajectory->setEnabled(false);
         ui_->actionPlot3DBar->setEnabled(false);
       } else
-        plot_tools->setEnabled(false);
+        plot2DToolbar->setEnabled(false);
     } else if (widget->inherits("Table")) {
-      table_tools->clear();
+      tableToolbar->clear();
       static_cast<Table *>(widget)->d_future_table->fillProjectToolBar(
-          table_tools);
-      table_tools->setEnabled(true);
+          tableToolbar);
+      tableToolbar->setEnabled(true);
 
-      graph_tools->setEnabled(false);
-      graph_3D_tools->setEnabled(false);
-      matrix_plot_tools->setEnabled(false);
+      graphToolsToolbar->setEnabled(false);
+      graph3DToolbar->setEnabled(false);
+      matrix3DPlotToolbar->setEnabled(false);
 
-      plot_tools->setEnabled(true);
+      plot2DToolbar->setEnabled(true);
       // plot tools managed by d_plot_mapper
       for (int i = 0; i <= static_cast<int>(Graph::VerticalSteps); i++) {
         QAction *a = static_cast<QAction *>(d_plot_mapper->mapping(i));
@@ -1696,39 +1641,54 @@ void ApplicationWindow::customToolBars(QWidget *widget) {
       ui_->actionPlot3DTrajectory->setEnabled(true);
       ui_->actionPlot3DBar->setEnabled(true);
     } else if (widget->inherits("Matrix")) {
-      graph_tools->setEnabled(false);
-      graph_3D_tools->setEnabled(false);
-      table_tools->setEnabled(false);
-      plot_tools->setEnabled(false);
-      matrix_plot_tools->setEnabled(true);
+      graphToolsToolbar->setEnabled(false);
+      graph3DToolbar->setEnabled(false);
+      tableToolbar->setEnabled(false);
+      plot2DToolbar->setEnabled(false);
+      matrix3DPlotToolbar->setEnabled(true);
     } else if (widget->inherits("Graph3D")) {
-      graph_tools->setEnabled(false);
-      table_tools->setEnabled(false);
-      plot_tools->setEnabled(false);
-      matrix_plot_tools->setEnabled(false);
+      graphToolsToolbar->setEnabled(false);
+      tableToolbar->setEnabled(false);
+      plot2DToolbar->setEnabled(false);
+      matrix3DPlotToolbar->setEnabled(false);
 
       Graph3D *plot = (Graph3D *)widget;
       if (plot->plotStyle() == Qwt3D::NOPLOT)
-        graph_3D_tools->setEnabled(false);
+        graph3DToolbar->setEnabled(false);
       else
-        graph_3D_tools->setEnabled(true);
+        graph3DToolbar->setEnabled(true);
 
       custom3DActions(widget);
     } else if (widget->inherits("Note")) {
-      graph_tools->setEnabled(false);
-      graph_3D_tools->setEnabled(false);
-      table_tools->setEnabled(false);
-      plot_tools->setEnabled(false);
-      matrix_plot_tools->setEnabled(false);
+      graphToolsToolbar->setEnabled(false);
+      graph3DToolbar->setEnabled(false);
+      tableToolbar->setEnabled(false);
+      plot2DToolbar->setEnabled(false);
+      matrix3DPlotToolbar->setEnabled(false);
     }
 
   } else {
-    graph_tools->setEnabled(false);
-    table_tools->setEnabled(false);
-    plot_tools->setEnabled(false);
-    graph_3D_tools->setEnabled(false);
-    matrix_plot_tools->setEnabled(false);
+    graphToolsToolbar->setEnabled(false);
+    tableToolbar->setEnabled(false);
+    plot2DToolbar->setEnabled(false);
+    graph3DToolbar->setEnabled(false);
+    matrix3DPlotToolbar->setEnabled(false);
   }
+}
+
+// Disable selected QActions
+void ApplicationWindow::disableActions() {
+  ui_->actionSaveAsTemplate->setEnabled(false);
+  ui_->actionPrintAllPlots->setEnabled(false);
+  ui_->actionPrint->setEnabled(false);
+  ui_->actionExportASCII->setEnabled(false);
+  ui_->menuExportGraph->setEnabled(false);
+  ui_->actionUndo->setEnabled(false);
+  ui_->actionRedo->setEnabled(false);
+  ui_->actionCutSelection->setEnabled(false);
+  ui_->actionCopySelection->setEnabled(false);
+  ui_->actionPasteSelection->setEnabled(false);
+  ui_->actionClearSelection->setEnabled(false);
 }
 
 void ApplicationWindow::plot3DRibbon() {
@@ -2403,7 +2363,7 @@ void ApplicationWindow::initPlot3D(Graph3D *plot) {
 
   addListViewItem(plot);
 
-  if (!graph_3D_tools->isEnabled()) graph_3D_tools->setEnabled(true);
+  if (!graph3DToolbar->isEnabled()) graph3DToolbar->setEnabled(true);
 
   customMenu((QWidget *)plot);
   customToolBars((QWidget *)plot);
@@ -3409,14 +3369,10 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
   }
 }
 
-void ApplicationWindow::changeAppFont(const QFont &f) {
-  if (appFont == f) return;
+void ApplicationWindow::changeAppFont(const QFont &font) {
+  if (appFont == font) return;
 
-  appFont = f;
-  updateAppFonts();
-}
-
-void ApplicationWindow::updateAppFonts() {
+  appFont = font;
   qApp->setFont(appFont);
   this->setFont(appFont);
 }
@@ -6376,7 +6332,7 @@ void ApplicationWindow::removePoints() {
         tr("Continue"), tr("Cancel"), 0, 1)) {
       case 0:
         g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Remove,
-                                            d_status_info,
+                                            statusBarInfo,
                                             SLOT(setText(const QString &))));
         break;
 
@@ -6424,7 +6380,7 @@ void ApplicationWindow::movePoints() {
       case 0:
         if (g) {
           g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Move,
-                                              d_status_info,
+                                              statusBarInfo,
                                               SLOT(setText(const QString &))));
         }
         break;
@@ -6770,7 +6726,7 @@ void ApplicationWindow::showScreenReader() {
   QWidgetList graphsList = plot->graphPtrs();
   foreach (QWidget *w, graphsList)
     ((Graph *)w)
-        ->setActiveTool(new ScreenPickerTool((Graph *)w, d_status_info,
+        ->setActiveTool(new ScreenPickerTool((Graph *)w, statusBarInfo,
                                              SLOT(setText(const QString &))));
 }
 
@@ -6804,7 +6760,7 @@ void ApplicationWindow::showRangeSelectors() {
     return;
   }
 
-  g->enableRangeSelectors(d_status_info, SLOT(setText(const QString &)));
+  g->enableRangeSelectors(statusBarInfo, SLOT(setText(const QString &)));
 }
 
 void ApplicationWindow::showCursor() {
@@ -6836,7 +6792,7 @@ void ApplicationWindow::showCursor() {
     if (!((Graph *)w)->isPiePlot() && ((Graph *)w)->validCurvesDataSize())
       ((Graph *)w)
           ->setActiveTool(new DataPickerTool(
-              (Graph *)w, this, DataPickerTool::Display, d_status_info,
+              (Graph *)w, this, DataPickerTool::Display, statusBarInfo,
               SLOT(setText(const QString &))));
 }
 
@@ -9702,16 +9658,17 @@ void ApplicationWindow::pickPointerCursor() {
   ui_->actionDisableGraphTools->setChecked(true);
 }
 
-void ApplicationWindow::pickDataTool(QAction *action) {
+void ApplicationWindow::pickGraphTool(QAction *action) {
   if (!action) return;
 
-  MultiLayer *m = qobject_cast<MultiLayer *>(d_workspace->activeWindow());
-  if (!m) return;
+  MultiLayer *multilayer =
+      qobject_cast<MultiLayer *>(d_workspace->activeWindow());
+  if (!multilayer) return;
 
-  Graph *g = m->activeGraph();
-  if (!g) return;
+  Graph *graph = multilayer->activeGraph();
+  if (!graph) return;
 
-  g->disableTools();
+  graph->disableTools();
 
   if (action == ui_->actionGraphDataReader)
     showCursor();
@@ -9782,7 +9739,7 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g) {
           SLOT(hideWindow(MyWidget *)));
   connect(g, SIGNAL(statusChanged(MyWidget *)), this,
           SLOT(updateWindowStatus(MyWidget *)));
-  connect(g, SIGNAL(cursorInfo(const QString &)), d_status_info,
+  connect(g, SIGNAL(cursorInfo(const QString &)), statusBarInfo,
           SLOT(setText(const QString &)));
   connect(g, SIGNAL(showImageDialog()), this, SLOT(showImageDialog()));
   connect(
@@ -10060,7 +10017,7 @@ void ApplicationWindow::horizontalTranslate() {
     ui_->actionDisableGraphTools->setChecked(true);
     g->setActiveTool(
         new TranslateCurveTool(g, this, TranslateCurveTool::Horizontal,
-                               d_status_info, SLOT(setText(const QString &))));
+                               statusBarInfo, SLOT(setText(const QString &))));
   }
 }
 
@@ -10092,7 +10049,7 @@ void ApplicationWindow::verticalTranslate() {
     ui_->actionDisableGraphTools->setChecked(true);
     g->setActiveTool(
         new TranslateCurveTool(g, this, TranslateCurveTool::Vertical,
-                               d_status_info, SLOT(setText(const QString &))));
+                               statusBarInfo, SLOT(setText(const QString &))));
   }
 }
 
@@ -10132,7 +10089,7 @@ void ApplicationWindow::fitMultiPeak(int profile) {
                                          tr("Peaks"), 2, 2, 1000000, 1, &ok);
     if (ok && peaks) {
       g->setActiveTool(new MultiPeakFitTool(
-          g, this, (MultiPeakFit::PeakProfile)profile, peaks, d_status_info,
+          g, this, (MultiPeakFit::PeakProfile)profile, peaks, statusBarInfo,
           SLOT(setText(const QString &))));
     }
   }
@@ -11687,13 +11644,13 @@ ApplicationWindow *ApplicationWindow::loadScript(const QString &fn,
 }
 
 void ApplicationWindow::copyStatusBarText() {
-  QApplication::clipboard()->setText(d_status_info->text());
+  QApplication::clipboard()->setText(statusBarInfo->text());
 }
 
 void ApplicationWindow::showStatusBarContextMenu(const QPoint &pos) {
   QMenu cm(this);
   cm.addAction(actionCopyStatusBarText);
-  cm.exec(d_status_info->mapToGlobal(pos));
+  cm.exec(statusBarInfo->mapToGlobal(pos));
 }
 
 void ApplicationWindow::showWindowMenu(MyWidget *widget) {

@@ -127,9 +127,15 @@ class ApplicationWindow : public QMainWindow,
   ApplicationWindow(const QStringList& l);
   ~ApplicationWindow();
 
+ private:
+  Ui_ApplicationWindow* ui_;
+
+ public:
+  // Folder windoes handling policy
   enum ShowWindowsPolicy { HideAll, ActiveFolder, SubFolders };
 
-  QTranslator *appTranslator, *qtTranslator;
+  QTranslator* appTranslator;
+  QTranslator* qtTranslator;
 #ifdef SCRIPTING_CONSOLE
   ConsoleWidget* consoleWindow;
 #endif
@@ -138,15 +144,20 @@ class ApplicationWindow : public QMainWindow,
   QWidgetList* hiddenWindows;
   QWidgetList* outWindows;
   QWidget* lastModified;
-  QToolBar *file_tools, *edit_tools, *graph_tools, *plot_tools, *table_tools,
-      *matrix_plot_tools, *graph_3D_tools;
 
- public:
-  /*! Generates a new unique name starting with string /param name.
+  // Toolbars
+  QToolBar* fileToolbar;
+  QToolBar* editToolbar;
+  QToolBar* graphToolsToolbar;
+  QToolBar* plot2DToolbar;
+  QToolBar* tableToolbar;
+  QToolBar* matrix3DPlotToolbar;
+  QToolBar* graph3DToolbar;
+
+  /* Generates a new unique name starting with string /param name.
   You can force the output to be a name different from /param name,
   even if 'name' is not used in the project, by setting /param increment = true
-  (the default)
-  */
+  (the default)*/
   QString generateUniqueName(const QString& name, bool increment = true);
 
  public slots:
@@ -203,8 +214,7 @@ class ApplicationWindow : public QMainWindow,
   void setSaveSettings(bool autoSaving, int min);
   void changeAppStyle(const QString& s);
   void changeAppColorScheme(int colorScheme);
-  void changeAppFont(const QFont& f);
-  void updateAppFonts();
+  void changeAppFont(const QFont& font);
   // void setAppColors(const QColor& wc, const QColor& pc, const QColor& tpc);
   //@}
 
@@ -516,7 +526,7 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name Initialization
   //@{
-  void initToolBars();
+  void makeToolBars();
   void disableActions();
   void customToolBars(QWidget* widget);
   void customMenu(QWidget* widget);
@@ -548,7 +558,7 @@ class ApplicationWindow : public QMainWindow,
   void showCursor();
   void showScreenReader();
   void pickPointerCursor();
-  void pickDataTool(QAction* action);
+  void pickGraphTool(QAction* action);
 
   void updateLog(const QString& result);
   //@}
@@ -1034,7 +1044,6 @@ class ApplicationWindow : public QMainWindow,
 #endif
 
  private:
-  Ui_ApplicationWindow* ui_;
   // Show a context menu for the widget
   void showWindowMenu(MyWidget* widget);
 
@@ -1121,7 +1130,7 @@ class ApplicationWindow : public QMainWindow,
   // Manages connection between 2dplot actions (not used by all 2dplot actions).
   QSignalMapper* d_plot_mapper;
 
-  QLabel* d_status_info;
+  QLabel* statusBarInfo;
 
   Project* d_project;
   SettingsDialog* settings_;
