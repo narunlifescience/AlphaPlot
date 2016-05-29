@@ -70,10 +70,7 @@
 #include <QImageWriter>
 #include <QFileInfo>
 #include <QRegExp>
-
-#if QT_VERSION >= 0x040300
 #include <QSvgGenerator>
-#endif
 
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
@@ -346,7 +343,7 @@ void Graph::setAxesBaseline(const QList<int> &lst) {
 }
 
 void Graph::setAxesBaseline(QStringList &lst) {
-  lst.remove(lst.first());
+  lst.removeAll(lst.first());
   for (int i = 0; i < QwtPlot::axisCnt; i++) {
     QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
     if (scale) scale->setMargin((lst[i]).toInt());

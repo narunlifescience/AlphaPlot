@@ -58,6 +58,7 @@ unix:LIBS             += -L/usr/lib$${libsuff}
 
 ### a console displaying output of scripts.
 DEFINES         += SCRIPTING_CONSOLE
+DEFINES         += SCRIPTING_MUPARSER
 ### a dialog for selecting the scripting language.
 DEFINES         += SCRIPTING_DIALOG
 DEFINES         += SEARCH_FOR_UPDATES

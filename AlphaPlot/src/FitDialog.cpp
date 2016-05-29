@@ -27,39 +27,39 @@
  *                                                                         *
  ***************************************************************************/
 #include "FitDialog.h"
-#include "scripting/MyParser.h"
+#include <muParserError.h>
 #include "ApplicationWindow.h"
 #include "ColorBox.h"
-#include "Fit.h"
-#include "MultiPeakFit.h"
 #include "ExponentialFit.h"
-#include "PolynomialFit.h"
-#include "PluginFit.h"
-#include "NonLinearFit.h"
-#include "SigmoidalFit.h"
+#include "Fit.h"
 #include "Matrix.h"
-#include <muParserError.h>
+#include "MultiPeakFit.h"
+#include "NonLinearFit.h"
+#include "PluginFit.h"
+#include "PolynomialFit.h"
+#include "SigmoidalFit.h"
+#include "scripting/MyParser.h"
 
-#include <QListWidget>
-#include <QTableWidget>
-#include <QHeaderView>
-#include <QLineEdit>
-#include <QLayout>
-#include <QSpinBox>
+#include <stdio.h>
 #include <QCheckBox>
-#include <QPushButton>
-#include <QLabel>
-#include <QStackedWidget>
-#include <QWidget>
-#include <QMessageBox>
 #include <QComboBox>
-#include <QWidgetList>
-#include <QRadioButton>
 #include <QFileDialog>
 #include <QGroupBox>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLayout>
 #include <QLibrary>
+#include <QLineEdit>
+#include <QListWidget>
 #include <QLocale>
-#include <stdio.h>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QSpinBox>
+#include <QStackedWidget>
+#include <QTableWidget>
+#include <QWidget>
+#include <QWidgetList>
 
 #define CONFS(string) \
   QString::number(QLocale().toDouble(string), 'g', boxPrecision->value())
@@ -535,7 +535,7 @@ void FitDialog::activateCurve(const QString &curveName) {
 };
 
 void FitDialog::saveUserFunction() {
-  if (editBox->text().isEmpty()) {
+  if (editBox->toPlainText().isEmpty()) {
     QMessageBox::critical(this, tr("Input function error"),
                           tr("Please enter a valid function!"));
     editBox->setFocus();
@@ -561,7 +561,7 @@ void FitDialog::saveUserFunction() {
     editBox->setFocus();
     return;
   }
-  if (editBox->text().contains(boxName->text())) {
+  if (editBox->toPlainText().contains(boxName->text())) {
     QMessageBox::critical(this, tr("Input function error"),
                           tr("You can't define functions recursevely!"));
     editBox->setFocus();
@@ -569,8 +569,8 @@ void FitDialog::saveUserFunction() {
   }
 
   QString name = boxName->text();
-  QString f =
-      name + "(x, " + boxParam->text() + ")=" + editBox->text().remove("\n");
+  QString f = name + "(x, " + boxParam->text() + ")=" +
+              editBox->toPlainText().remove("\n");
 
   if (d_user_function_names.contains(name)) {
     int index = d_user_function_names.indexOf(name);
@@ -603,13 +603,13 @@ void FitDialog::removeUserFunction() {
     explainBox->setText(QString());
 
     int index = d_user_function_names.indexOf(name);
-    d_user_function_names.remove(name);
+    d_user_function_names.removeAll(name);
 
     QString f = d_user_functions[index];
-    d_user_functions.remove(f);
+    d_user_functions.removeAll(f);
 
     f = d_user_function_params[index];
-    d_user_function_params.remove(f);
+    d_user_function_params.removeAll(f);
 
     funcBox->clear();
     funcBox->addItems(d_user_function_names);
@@ -674,7 +674,7 @@ void FitDialog::showFitPage() {
     }
   }
 
-  boxFunction->setText(editBox->text().simplified());
+  boxFunction->setText(editBox->toPlainText().simplified());
   lblFunction->setText(boxName->text() + " (x, " + par + ")");
 
   tw->setCurrentWidget(fitPage);
@@ -695,7 +695,7 @@ void FitDialog::setFunction(bool ok) {
 
   if (ok) {
     boxName->setText(funcBox->currentItem()->text());
-    editBox->setText(explainBox->text());
+    editBox->setText(explainBox->toPlainText());
 
     if (categoryBox->currentRow() == 0 && d_user_function_params.size() > 0)
       boxParam->setText(d_user_function_params[funcBox->currentRow()]);
@@ -779,10 +779,10 @@ void FitDialog::addUserFunctions(const QStringList &list) {
     if (!s.isEmpty()) {
       d_user_functions << s;
 
-      int pos1 = s.find("(", 0);
+      int pos1 = s.indexOf("(", 0);
       d_user_function_names << s.left(pos1);
 
-      int pos2 = s.find(")", pos1);
+      int pos2 = s.indexOf(")", pos1);
       d_user_function_params << s.mid(pos1 + 4, pos2 - pos1 - 4);
     }
   }
@@ -969,9 +969,9 @@ void FitDialog::showExpression(int function) {
 }
 
 void FitDialog::pasteExpression() {
-  QString f = explainBox->text();
+  QString f = explainBox->toPlainText();
   if (categoryBox->currentRow() == 2) {  // basic parser function
-    f = f.left(f.find("(", 0) + 1);
+    f = f.left(f.indexOf("(", 0) + 1);
     if (editBox->hasSelectedText()) {
       QString markedText = editBox->selectedText();
       editBox->insert(f + markedText + ")");
@@ -1075,13 +1075,13 @@ void FitDialog::accept() {
   do {
     found_uf = false;
     for (i = 0; i < d_user_function_names.count(); i++)
-      if (boxFunction->text().contains(d_user_function_names[i])) {
+      if (boxFunction->toPlainText().contains(d_user_function_names[i])) {
         QStringList l = d_user_functions[i].split("=");
         formula += QString("%1=%2\n").arg(d_user_function_names[i]).arg(l[1]);
         found_uf = true;
       }
   } while (found_uf);
-  formula += boxFunction->text();
+  formula += boxFunction->toPlainText();
 
   // define variables for builtin functions used in formula
   for (i = 0; i < d_built_in_function_names.count(); i++)
@@ -1165,13 +1165,13 @@ void FitDialog::accept() {
     for (i = 0; i < rows; i++) {
       QCheckBox *cb = (QCheckBox *)boxParams->cellWidget(i, 2);
       if (!cb->isChecked())
-        boxParams->item(i, 1)
-            ->setText(QLocale().toString(res[j++], 'g', boxPrecision->value()));
+        boxParams->item(i, 1)->setText(
+            QLocale().toString(res[j++], 'g', boxPrecision->value()));
     }
   } else {
     for (i = 0; i < rows; i++)
-      boxParams->item(i, 1)
-          ->setText(QLocale().toString(res[i], 'g', boxPrecision->value()));
+      boxParams->item(i, 1)->setText(
+          QLocale().toString(res[i], 'g', boxPrecision->value()));
   }
 }
 

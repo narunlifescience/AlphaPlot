@@ -194,7 +194,8 @@ ApplicationWindow::ApplicationWindow()
 #endif
       lastCopiedLayer(0),
       graphToolsGroup(new QActionGroup(this)),
-      d_plot_mapper(new QSignalMapper(this)) {
+      d_plot_mapper(new QSignalMapper(this)),
+      statusBarInfo(new QLabel(this)) {
   ui_->setupUi(this);
 
   // Initialize scripting environment.
@@ -1016,7 +1017,6 @@ ApplicationWindow::ApplicationWindow()
   makeToolBars();
 
   // Initiate statusbar
-  statusBarInfo = new QLabel(this);
   statusBarInfo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   statusBarInfo->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(statusBarInfo, SIGNAL(customContextMenuRequested(const QPoint &)),
@@ -2172,7 +2172,8 @@ Graph3D *ApplicationWindow::newPlot3D(const QString &formula, double xl,
 }
 
 void ApplicationWindow::updateSurfaceFuncList(const QString &s) {
-  surfaceFunc.remove(s);
+  surfaceFunc.removeAll(s);
+
   surfaceFunc.push_front(s);
   while (static_cast<int>(surfaceFunc.size()) > 10) surfaceFunc.pop_back();
 }
@@ -2219,17 +2220,17 @@ Graph3D *ApplicationWindow::dataPlot3D(const QString &caption,
                                        const QString &formula, double xl,
                                        double xr, double yl, double yr,
                                        double zl, double zr) {
-  int pos = formula.find("_", 0);
+  int pos = formula.indexOf("_", 0);
   QString wCaption = formula.left(pos);
 
   Table *w = table(wCaption);
   if (!w) return 0;
 
-  int posX = formula.find("(", pos);
+  int posX = formula.indexOf("(", pos);
   QString xCol = formula.mid(pos + 1, posX - pos - 1);
 
-  pos = formula.find(",", posX);
-  posX = formula.find("(", pos);
+  pos = formula.indexOf(",", posX);
+  posX = formula.indexOf("(", pos);
   QString yCol = formula.mid(pos + 1, posX - pos - 1);
 
   Graph3D *plot = new Graph3D("", d_workspace, 0);
@@ -2295,22 +2296,22 @@ Graph3D *ApplicationWindow::dataPlotXYZ(const QString &caption,
                                         const QString &formula, double xl,
                                         double xr, double yl, double yr,
                                         double zl, double zr) {
-  int pos = formula.find("_", 0);
+  int pos = formula.indexOf("_", 0);
   QString wCaption = formula.left(pos);
 
   Table *w = table(wCaption);
   if (!w) return 0;
 
-  int posX = formula.find("(X)", pos);
+  int posX = formula.indexOf("(X)", pos);
   QString xColName = formula.mid(pos + 1, posX - pos - 1);
 
-  pos = formula.find(",", posX);
+  pos = formula.indexOf(",", posX);
 
-  posX = formula.find("(Y)", pos);
+  posX = formula.indexOf("(Y)", pos);
   QString yColName = formula.mid(pos + 1, posX - pos - 1);
 
-  pos = formula.find(",", posX);
-  posX = formula.find("(Z)", pos);
+  pos = formula.indexOf(",", posX);
+  posX = formula.indexOf("(Z)", pos);
   QString zColName = formula.mid(pos + 1, posX - pos - 1);
 
   int xCol = w->colIndex(xColName);
@@ -2355,9 +2356,8 @@ void ApplicationWindow::initPlot3D(Graph3D *plot) {
   plot->setFolder(current_folder);
   d_workspace->addWindow(plot);
   connectSurfacePlot(plot);
-
-  plot->setIcon(
-      IconLoader::load("edit-graph3d", IconLoader::LightDark).pixmap(16));
+  plot->setWindowIcon(
+      IconLoader::load("edit-graph3d", IconLoader::LightDark));
   plot->show();
   plot->setFocus();
 
@@ -2589,27 +2589,27 @@ MultiLayer *ApplicationWindow::multilayerPlot(const QStringList &colList) {
 
   for (int i = 0; i < curves; i++) {
     QString s = colList[i];
-    int pos = s.find(":", 0);
+    int pos = s.indexOf(":", 0);
     QString caption = s.left(pos) + "_";
     Table *w = (Table *)table(caption);
 
-    int posX = s.find("(X)", pos);
+    int posX = s.indexOf("(X)", pos);
     QString xColName = caption + s.mid(pos + 2, posX - pos - 2);
     int xCol = w->colIndex(xColName);
 
-    posX = s.find(",", posX);
-    int posY = s.find("(Y)", posX);
+    posX = s.indexOf(",", posX);
+    int posY = s.indexOf("(Y)", posX);
     QString yColName = caption + s.mid(posX + 2, posY - posX - 2);
 
     if (s.contains("(yErr)") || s.contains("(xErr)")) {
-      posY = s.find(",", posY);
+      posY = s.indexOf(",", posY);
       int posErr, errType;
       if (s.contains("(yErr)")) {
         errType = QwtErrorPlotCurve::Vertical;
-        posErr = s.find("(yErr)", posY);
+        posErr = s.indexOf("(yErr)", posY);
       } else {
         errType = QwtErrorPlotCurve::Horizontal;
-        posErr = s.find("(xErr)", posY);
+        posErr = s.indexOf("(xErr)", posY);
       }
 
       QString errColName = caption + s.mid(posY + 2, posErr - posY - 2);
@@ -2647,7 +2647,7 @@ void ApplicationWindow::initBareMultilayerPlot(
 
   g->setWindowTitle(label);
   g->setName(label);
-  g->setIcon(IconLoader::load("edit-graph", IconLoader::LightDark).pixmap(16));
+  g->setWindowIcon(IconLoader::load("edit-graph", IconLoader::LightDark));
   g->setScaleLayersOnPrint(d_scale_plots_on_print);
   g->printCropmarks(d_print_cropmarks);
 
@@ -2813,7 +2813,7 @@ Table *ApplicationWindow::newHiddenTable(const QString &name,
 }
 
 void ApplicationWindow::initTable(Table *table) {
-  table->setIcon(IconLoader::load("table", IconLoader::LightDark).pixmap());
+  table->setWindowIcon(IconLoader::load("table", IconLoader::LightDark));
   current_folder->addWindow(table);
   table->setFolder(current_folder);
   d_workspace->addWindow(table);
@@ -2884,8 +2884,8 @@ void ApplicationWindow::initNote(Note *note, const QString &caption) {
 
   note->setWindowTitle(name);
   note->setName(name);
-  note->setIcon(
-      IconLoader::load("edit-note", IconLoader::LightDark).pixmap(16));
+  note->setWindowIcon(
+      IconLoader::load("edit-note", IconLoader::LightDark));
   note->askOnCloseEvent(confirmCloseNotes);
   note->setFolder(current_folder);
 
@@ -2982,7 +2982,7 @@ Table *ApplicationWindow::convertMatrixToTable() {
 }
 
 void ApplicationWindow::initMatrix(Matrix *matrix) {
-  matrix->setIcon(IconLoader::load("matrix", IconLoader::LightDark).pixmap(16));
+  matrix->setWindowIcon(IconLoader::load("matrix", IconLoader::LightDark));
   matrix->askOnCloseEvent(confirmCloseMatrix);
   matrix->setNumericFormat(d_default_numeric_format, d_decimal_digits);
   matrix->setFolder(current_folder);
@@ -3049,7 +3049,7 @@ QWidget *ApplicationWindow::window(const QString &name) {
 }
 
 Table *ApplicationWindow::table(const QString &name) {
-  int pos = name.find("_", 0);
+  int pos = name.indexOf("_", 0);
   QString caption = name.left(pos);
 
   QList<QWidget *> *lst = windowsList();
@@ -3531,7 +3531,7 @@ void ApplicationWindow::importASCII() {
       new ImportASCIIDialog(d_workspace->activeWindow() &&
                                 d_workspace->activeWindow()->inherits("Table"),
                             this, d_extended_import_ASCII_dialog);
-  import_dialog->setDir(asciiDirPath);
+  import_dialog->setDirectory(asciiDirPath);
   import_dialog->selectFilter(d_ASCII_file_filter);
   if (import_dialog->exec() != QDialog::Accepted) return;
 
@@ -3701,7 +3701,7 @@ void ApplicationWindow::openAproj() {
 
       if (projectname != "untitled") {
         QFileInfo fileInf(projectname);
-        QString pn = fileInf.absFilePath();
+        QString pn = fileInf.absoluteFilePath();
         if (fileName == pn) {
           QMessageBox::warning(
               this, tr("File opening error"),
@@ -3761,7 +3761,7 @@ void ApplicationWindow::openRecentAproj() {
   QAction *trigger = qobject_cast<QAction *>(sender());
   if (!trigger) return;
   QString fn = trigger->text();
-  int pos = fn.find(" ", 0);
+  int pos = fn.indexOf(" ", 0);
   fn = fn.right(fn.length() - pos - 1);
 
   QFile f(fn);
@@ -3771,14 +3771,14 @@ void ApplicationWindow::openRecentAproj() {
                              "<p>It will be removed from the list.")
                               .arg(fn));
 
-    recentProjects.remove(fn);
+    recentProjects.removeAll(fn);
     updateRecentProjectsList();
     return;
   }
 
   if (projectname != "untitled") {
     QFileInfo fi(projectname);
-    QString pn = fi.absFilePath();
+    QString pn = fi.absoluteFilePath();
     if (fn == pn) {
       QMessageBox::warning(
           this, tr("File opening error"),
@@ -3928,7 +3928,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   progress.setMinimumWidth(app->width() / 2);
   progress.setWindowTitle(tr("Opening file") + ": " + baseName);
   progress.setLabelText(title);
-  progress.setActiveWindow();
+  progress.activateWindow();
 
   Folder *cf = app->projectFolder();
   app->ui_->folderView->blockSignals(true);
@@ -4106,7 +4106,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
     return 0;
   }
 
-  app->logInfo = app->logInfo.remove("</log>\n", false);
+  app->logInfo = app->logInfo.remove("</log>\n", Qt::CaseInsensitive);
 
   app->ui_->folderView->setCurrentItem(cf->folderTreeWidgetItem());
   app->ui_->folderView->blockSignals(false);
@@ -4120,7 +4120,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   app->executeNotes();
   app->savedProject();
 
-  app->recentProjects.remove(fileName);
+  app->recentProjects.removeAll(fileName);
   app->recentProjects.push_front(fileName);
   app->updateRecentProjectsList();
 
@@ -4153,12 +4153,13 @@ void ApplicationWindow::scriptPrint(const QString &text) {
 }
 
 bool ApplicationWindow::setScriptingLang(const QString &lang, bool force) {
-  if (!force && lang == scriptEnv->name()) return true;
+  if (!force && lang == scriptEnv->objectName()) return true;
+
   if (lang.isEmpty()) return false;
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-  ScriptingEnv *newEnv = ScriptingLangManager::newEnv(lang, this);
+  ScriptingEnv *newEnv = ScriptingLangManager::newEnv(this);
   if (!newEnv) {
     QApplication::restoreOverrideCursor();
     return false;
@@ -4190,16 +4191,16 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force) {
 void ApplicationWindow::showScriptingLangDialog() {
   ScriptingLangDialog *d = new ScriptingLangDialog(scriptEnv, this);
   d->showNormal();
-  d->setActiveWindow();
+  d->activateWindow();
 }
 
 void ApplicationWindow::restartScriptingEnv() {
-  if (setScriptingLang(scriptEnv->name(), true))
+  if (setScriptingLang(scriptEnv->objectName(), true))
     executeNotes();
   else
     QMessageBox::critical(this, tr("Scripting Error"),
                           tr("Scripting language \"%1\" failed to initialize.")
-                              .arg(scriptEnv->name()));
+                              .arg(scriptEnv->objectName()));
 }
 
 // TODO: rewrite the template system
@@ -5294,7 +5295,7 @@ void ApplicationWindow::saveProjectAs() {
     projectname = fn;
 
     if (saveProject()) {
-      recentProjects.remove(fn);
+      recentProjects.removeAll(fn);
       recentProjects.push_front(fn);
       updateRecentProjectsList();
 
@@ -6976,7 +6977,7 @@ void ApplicationWindow::showImageDialog() {
     id->setAttribute(Qt::WA_DeleteOnClose);
     connect(id, SIGNAL(setGeometry(int, int, int, int)), g,
             SLOT(updateImageMarker(int, int, int, int)));
-    id->setIcon(QPixmap(":/appicon"));
+    id->setWindowIcon(IconLoader::load("alpha-logo", IconLoader::General));
     id->setOrigin(im->origin());
     id->setSize(im->size());
     id->exec();
@@ -7014,7 +7015,7 @@ void ApplicationWindow::showPlotGeometryDialog() {
     id->setAttribute(Qt::WA_DeleteOnClose);
     connect(id, SIGNAL(setGeometry(int, int, int, int)), plot,
             SLOT(setGraphGeometry(int, int, int, int)));
-    id->setIcon(QPixmap(":/appicon"));
+    id->setWindowIcon(IconLoader::load("alpha-logo", IconLoader::General));
     id->setWindowTitle(tr("Layer Geometry"));
     id->setOrigin(g->pos());
     id->setSize(g->plotWidget()->size());
@@ -7039,7 +7040,7 @@ void ApplicationWindow::showTextDialog() {
             g, SLOT(updateTextMarker(const QString &, int, int, const QFont &,
                                      const QColor &, const QColor &)));
 
-    td->setIcon(QPixmap(":/appicon"));
+    td->setWindowIcon(IconLoader::load("alpha-logo", IconLoader::General));
     td->setText(m->text());
     td->setFont(m->font());
     td->setTextColor(m->textColor());
@@ -7844,7 +7845,7 @@ QStringList ApplicationWindow::dependingPlots(const QString &name) {
       foreach (QWidget *widget, lst) {
         Graph *g = (Graph *)widget;
         onPlot = g->curvesList();
-        onPlot = onPlot.grep(name, true);
+        onPlot = onPlot.filter(name);
         if (onPlot.count() > 0 && plots.contains(w->name()) <= 0)
           plots << w->name();
       }
@@ -8362,7 +8363,7 @@ FunctionDialog *ApplicationWindow::functionDialog() {
   fd->insertParamFunctionsList(xFunctions, yFunctions);
   fd->insertPolarFunctionsList(rFunctions, thetaFunctions);
   fd->show();
-  fd->setActiveWindow();
+  fd->activateWindow();
   return fd;
 }
 
@@ -8388,10 +8389,10 @@ void ApplicationWindow::addFunctionCurve() {
 void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas) {
   int maxListSize = 10;
   if (type == 2) {
-    rFunctions.remove(formulas[0]);
+    rFunctions.removeAll(formulas[0]);
     rFunctions.push_front(formulas[0]);
 
-    thetaFunctions.remove(formulas[1]);
+    thetaFunctions.removeAll(formulas[1]);
     thetaFunctions.push_front(formulas[1]);
 
     while (static_cast<int>(rFunctions.size()) > maxListSize)
@@ -8399,10 +8400,10 @@ void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas) {
     while (static_cast<int>(thetaFunctions.size()) > maxListSize)
       thetaFunctions.pop_back();
   } else if (type == 1) {
-    xFunctions.remove(formulas[0]);
+    xFunctions.removeAll(formulas[0]);
     xFunctions.push_front(formulas[0]);
 
-    yFunctions.remove(formulas[1]);
+    yFunctions.removeAll(formulas[1]);
     yFunctions.push_front(formulas[1]);
 
     while (static_cast<int>(xFunctions.size()) > maxListSize)
@@ -8633,8 +8634,8 @@ void ApplicationWindow::pickFloorStyle(QAction *action) {
 void ApplicationWindow::custom3DActions(QWidget *w) {
   if (w && w->inherits("Graph3D")) {
     Graph3D *plot = (Graph3D *)w;
-    actionAnimate->setOn(plot->isAnimated());
-    actionPerspective->setOn(!plot->isOrthogonal());
+    actionAnimate->setChecked(plot->isAnimated());
+    actionPerspective->setChecked(!plot->isOrthogonal());
     switch (plot->plotStyle()) {
       case FILLEDMESH:
         wireframe->setChecked(false);
@@ -9096,7 +9097,7 @@ Graph *ApplicationWindow::openGraphAproj(ApplicationWindow *app,
       fList.pop_front();
       ag->setAxesColors(fList);
     } else if (s.contains("AxesNumberColors")) {
-      QStringList fList = QStringList::split("\t", s, TRUE);
+      QStringList fList = s.split("\t");
       fList.pop_front();
       ag->setAxesNumColors(fList);
     } else if (s.left(5) == "grid\t") {
@@ -9109,7 +9110,7 @@ Graph *ApplicationWindow::openGraphAproj(ApplicationWindow *app,
     } else if (s.contains("PieCurve")) {
       QStringList curve = s.split("\t");
       if (!app->renamedTables.isEmpty()) {
-        QString caption = (curve[1]).left((curve[1]).find("_", 0));
+        QString caption = (curve[1]).left((curve[1]).indexOf("_", 0));
         if (app->renamedTables.contains(caption)) {
           // modify the name of the curve according to the new table name
           int index = app->renamedTables.indexOf(caption);
@@ -9138,7 +9139,7 @@ Graph *ApplicationWindow::openGraphAproj(ApplicationWindow *app,
       QStringList curve = s.split("\t", QString::SkipEmptyParts);
       if (curve.count() > 14) {
         if (!app->renamedTables.isEmpty()) {
-          QString caption = (curve[2]).left((curve[2]).find("_", 0));
+          QString caption = (curve[2]).left((curve[2]).indexOf("_", 0));
 
           if (app->renamedTables.contains(caption)) {
             // modify the name of the curve according to the new table name
@@ -9358,7 +9359,7 @@ Graph *ApplicationWindow::openGraphAproj(ApplicationWindow *app,
       ag->setAxisFont(axis, fnt);
     } else if (s.contains("AxesFormulas")) {
       QStringList fList = s.split("\t");
-      fList.remove(fList.first());
+      fList.removeAll(fList.first());
       ag->setAxesFormulas(fList);
     } else if (s.startsWith("<AxisFormula ")) {
       int pos = s.mid(18, s.length() - 20).toInt();
@@ -9391,17 +9392,11 @@ Graph *ApplicationWindow::openGraphAproj(ApplicationWindow *app,
       QColor c = QColor(list[1]);
       if (list.count() == 3) c.setAlpha(list[2].toInt());
       ag->setCanvasBackground(c);
-    } else if (s.contains("Legend")) {  // version <= 0.8.9
-      QStringList fList = QStringList::split("\t", s, true);
-      ag->insertLegend(fList);
     } else if (s.startsWith("<legend>") && s.endsWith("</legend>")) {
-      QStringList fList = QStringList::split("\t", s.remove("</legend>"), true);
+      QStringList fList = s.remove("</legend>").split("\t");
       ag->insertLegend(fList);
-    } else if (s.contains("textMarker")) {  // version <= 0.8.9
-      QStringList fList = QStringList::split("\t", s, true);
-      ag->insertTextMarker(fList);
     } else if (s.startsWith("<text>") && s.endsWith("</text>")) {
-      QStringList fList = QStringList::split("\t", s.remove("</text>"), true);
+      QStringList fList = s.remove("</text>").split("\t");
       ag->insertTextMarker(fList);
     } else if (s.contains("lineMarker")) {  // version <= 0.8.9
       QStringList fList = s.split("\t");
@@ -10382,7 +10377,7 @@ void ApplicationWindow::appendProject(const QString &fn) {
     file->open(QIODevice::ReadOnly);
   }
 
-  recentProjects.removeOne(fn);
+  recentProjects.removeAll(fn);
   recentProjects.push_front(fn);
   updateRecentProjectsList();
 
