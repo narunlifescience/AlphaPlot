@@ -182,6 +182,11 @@ FolderTreeWidgetItem::FolderTreeWidgetItem(FolderTreeWidgetItem *parent,
 }
 
 void FolderTreeWidgetItem::setActive(bool status) {
+  if (!parent() && treeWidget()->columnCount() == 1 /*folder view*/) {
+    setIcon(0, IconLoader::load("alpha-project", IconLoader::LightDark));
+    return;
+  }
+
   (status) ? setIcon(0, IconLoader::load("folder-open", IconLoader::General))
            : setIcon(0, IconLoader::load("folder-closed", IconLoader::General));
   setSelected(status);
@@ -312,6 +317,6 @@ void TableWidgetDelegate::setModelData(QWidget *editor,
     }
   }
 
-  // Everything seems OK... lete set data.
+  // Everything seems OK... lets set data.
   QItemDelegate::setModelData(editor, model, index);
 }

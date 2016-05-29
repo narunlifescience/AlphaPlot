@@ -275,26 +275,26 @@
     <file>icons/common/128/preferences-general-apperance.png</file>
     <file>icons/common/128/preferences-desktop-color.png</file>
     <file>icons/common/128/alpha-logo.png</file>
-	<file>icons/light/16/edit-copy.png</file>
-	<file>icons/light/16/edit-cut.png</file>
-	<file>icons/light/16/edit-paste.png</file>
-	<file>icons/light/16/edit-redo.png</file>
-	<file>icons/light/16/edit-undo.png</file>
-	<file>icons/light/16/edit-new.png</file>
-	<file>icons/light/16/edit-print.png</file>
-	<file>icons/light/16/lock.png</file>
-	<file>icons/light/16/unlock.png</file>
-	<file>icons/light/16/application-pdf.png</file>
-	<file>icons/light/16/document-save.png</file>
-	<file>icons/light/16/edit-delete-selection.png</file>
-	<file>icons/light/16/folder-explorer.png</file>
-	<file>icons/light/16/edit-hide.png</file>
-	<file>icons/light/16/edit-unhide.png</file>
-	<file>icons/light/16/number-type.png</file>
+    <file>icons/light/16/edit-copy.png</file>
+    <file>icons/light/16/edit-cut.png</file>
+    <file>icons/light/16/edit-paste.png</file>
+    <file>icons/light/16/edit-redo.png</file>
+    <file>icons/light/16/edit-undo.png</file>
+    <file>icons/light/16/edit-new.png</file>
+    <file>icons/light/16/edit-print.png</file>
+    <file>icons/light/16/lock.png</file>
+    <file>icons/light/16/unlock.png</file>
+    <file>icons/light/16/application-pdf.png</file>
+    <file>icons/light/16/document-save.png</file>
+    <file>icons/light/16/edit-delete-selection.png</file>
+    <file>icons/light/16/folder-explorer.png</file>
+    <file>icons/light/16/edit-hide.png</file>
+    <file>icons/light/16/edit-unhide.png</file>
+    <file>icons/light/16/number-type.png</file>
     <file>icons/light/16/text-type.png</file>
     <file>icons/light/16/import-ascii-filter.png</file>
-	<file>icons/light/16/project-open.png</file>
-	<file>icons/light/16/template-open.png</file>
+    <file>icons/light/16/project-open.png</file>
+    <file>icons/light/16/template-open.png</file>
     <file>icons/light/16/template-save.png</file>
     <file>icons/light/16/table.png</file>
     <file>icons/light/16/draw-text.png</file>
@@ -302,7 +302,7 @@
     <file>icons/light/16/edit-duplicate.png</file>
     <file>icons/light/16/edit-graph.png</file>
     <file>icons/light/16/edit-select-data.png</file>
-	<file>icons/light/16/edit-select.png</file>
+    <file>icons/light/16/edit-select.png</file>
     <file>icons/light/16/edit-table-delete-column.png</file>
     <file>icons/light/16/edit-table-dimension.png</file>
     <file>icons/light/16/edit-table-insert-column-right.png</file>
@@ -375,26 +375,27 @@
     <file>icons/light/16/graph3d-function-xyz.png</file>
     <file>icons/light/16/view-sort.png</file>
     <file>icons/light/16/dialog-ok-apply.png</file>
-	<file>icons/light/22/edit-copy.png</file>
-	<file>icons/light/22/edit-cut.png</file>
-	<file>icons/light/22/edit-paste.png</file>
-	<file>icons/light/22/edit-redo.png</file>
-	<file>icons/light/22/edit-undo.png</file>
-	<file>icons/light/22/edit-new.png</file>
-	<file>icons/light/22/edit-print.png</file>
-	<file>icons/light/22/lock.png</file>
-	<file>icons/light/22/unlock.png</file>
-	<file>icons/light/22/application-pdf.png</file>
-	<file>icons/light/22/document-save.png</file>
-	<file>icons/light/22/edit-delete-selection.png</file>
-	<file>icons/light/22/folder-explorer.png</file>
-	<file>icons/light/22/edit-hide.png</file>
-	<file>icons/light/22/edit-unhide.png</file>
-	<file>icons/light/22/number-type.png</file>
+    <file>icons/light/16/alpha-project.png</file>
+    <file>icons/light/22/edit-copy.png</file>
+    <file>icons/light/22/edit-cut.png</file>
+    <file>icons/light/22/edit-paste.png</file>
+    <file>icons/light/22/edit-redo.png</file>
+    <file>icons/light/22/edit-undo.png</file>
+    <file>icons/light/22/edit-new.png</file>
+    <file>icons/light/22/edit-print.png</file>
+    <file>icons/light/22/lock.png</file>
+    <file>icons/light/22/unlock.png</file>
+    <file>icons/light/22/application-pdf.png</file>
+    <file>icons/light/22/document-save.png</file>
+    <file>icons/light/22/edit-delete-selection.png</file>
+    <file>icons/light/22/folder-explorer.png</file>
+    <file>icons/light/22/edit-hide.png</file>
+    <file>icons/light/22/edit-unhide.png</file>
+    <file>icons/light/22/number-type.png</file>
     <file>icons/light/22/text-type.png</file>
     <file>icons/light/22/import-ascii-filter.png</file>
-	<file>icons/light/22/project-open.png</file>
-	<file>icons/light/22/template-open.png</file>
+    <file>icons/light/22/project-open.png</file>
+    <file>icons/light/22/template-open.png</file>
     <file>icons/light/22/template-save.png</file>
     <file>icons/light/22/table.png</file>
     <file>icons/light/22/draw-text.png</file>
@@ -402,7 +403,7 @@
     <file>icons/light/22/edit-duplicate.png</file>
     <file>icons/light/22/edit-graph.png</file>
     <file>icons/light/22/edit-select-data.png</file>
-	<file>icons/light/22/edit-select.png</file>
+    <file>icons/light/22/edit-select.png</file>
     <file>icons/light/22/edit-table-delete-column.png</file>
     <file>icons/light/22/edit-table-dimension.png</file>
     <file>icons/light/22/edit-table-insert-column-right.png</file>
@@ -479,26 +480,27 @@
     <file>icons/light/22/graph3d-function-xyz.png</file>
     <file>icons/light/22/view-sort.png</file>
     <file>icons/light/22/dialog-ok-apply.png</file>
-	<file>icons/light/24/edit-copy.png</file>
-	<file>icons/light/24/edit-cut.png</file>
-	<file>icons/light/24/edit-paste.png</file>
-	<file>icons/light/24/edit-redo.png</file>
-	<file>icons/light/24/edit-undo.png</file>
-	<file>icons/light/24/edit-new.png</file>
-	<file>icons/light/24/edit-print.png</file>
-	<file>icons/light/24/lock.png</file>
-	<file>icons/light/24/unlock.png</file>
-	<file>icons/light/24/application-pdf.png</file>
-	<file>icons/light/24/document-save.png</file>
-	<file>icons/light/24/edit-delete-selection.png</file>
-	<file>icons/light/24/folder-explorer.png</file>
-	<file>icons/light/24/edit-hide.png</file>
-	<file>icons/light/24/edit-unhide.png</file>
+    <file>icons/light/22/alpha-project.png</file>
+    <file>icons/light/24/edit-copy.png</file>
+    <file>icons/light/24/edit-cut.png</file>
+    <file>icons/light/24/edit-paste.png</file>
+    <file>icons/light/24/edit-redo.png</file>
+    <file>icons/light/24/edit-undo.png</file>
+    <file>icons/light/24/edit-new.png</file>
+    <file>icons/light/24/edit-print.png</file>
+    <file>icons/light/24/lock.png</file>
+    <file>icons/light/24/unlock.png</file>
+    <file>icons/light/24/application-pdf.png</file>
+    <file>icons/light/24/document-save.png</file>
+    <file>icons/light/24/edit-delete-selection.png</file>
+    <file>icons/light/24/folder-explorer.png</file>
+    <file>icons/light/24/edit-hide.png</file>
+    <file>icons/light/24/edit-unhide.png</file>
     <file>icons/light/24/number-type.png</file>
     <file>icons/light/24/text-type.png</file>
     <file>icons/light/24/import-ascii-filter.png</file>
-	<file>icons/light/24/project-open.png</file>
-	<file>icons/light/24/template-open.png</file>
+    <file>icons/light/24/project-open.png</file>
+    <file>icons/light/24/template-open.png</file>
     <file>icons/light/24/template-save.png</file>
     <file>icons/light/24/table.png</file>
     <file>icons/light/24/draw-text.png</file>
@@ -506,7 +508,7 @@
     <file>icons/light/24/edit-duplicate.png</file>
     <file>icons/light/24/edit-graph.png</file>
     <file>icons/light/24/edit-select-data.png</file>
-	<file>icons/light/24/edit-select.png</file>
+    <file>icons/light/24/edit-select.png</file>
     <file>icons/light/24/edit-table-delete-column.png</file>
     <file>icons/light/24/edit-table-dimension.png</file>
     <file>icons/light/24/edit-table-insert-column-right.png</file>
@@ -582,6 +584,7 @@
     <file>icons/light/24/graph3d-function-xyz.png</file>
     <file>icons/light/24/view-sort.png</file>
     <file>icons/light/24/dialog-ok-apply.png</file>
+    <file>icons/light/24/alpha-project.png</file>
     <file>icons/light/32/graph-x-error.png</file>
     <file>icons/light/32/graph-y-error.png</file>
     <file>icons/light/32/table-column-sum.png</file>
@@ -598,26 +601,27 @@
     <file>icons/light/32/graph3d-ribbon.png</file>
     <file>icons/light/32/graph3d-scatter.png</file>
     <file>icons/light/32/graph3d-trajectory.png</file>
-	<file>icons/dark/16/edit-copy.png</file>
-	<file>icons/dark/16/edit-cut.png</file>
-	<file>icons/dark/16/edit-paste.png</file>
-	<file>icons/dark/16/edit-redo.png</file>
-	<file>icons/dark/16/edit-undo.png</file>
-	<file>icons/dark/16/edit-new.png</file>
-	<file>icons/dark/16/edit-print.png</file>
-	<file>icons/dark/16/lock.png</file>
-	<file>icons/dark/16/unlock.png</file>
-	<file>icons/dark/16/application-pdf.png</file>
-	<file>icons/dark/16/document-save.png</file>
-	<file>icons/dark/16/edit-delete-selection.png</file>
-	<file>icons/dark/16/folder-explorer.png</file>
-	<file>icons/dark/16/edit-hide.png</file>
-	<file>icons/dark/16/edit-unhide.png</file>
-	<file>icons/dark/16/number-type.png</file>
+    <file>icons/light/32/alpha-project.png</file>
+    <file>icons/dark/16/edit-copy.png</file>
+    <file>icons/dark/16/edit-cut.png</file>
+    <file>icons/dark/16/edit-paste.png</file>
+    <file>icons/dark/16/edit-redo.png</file>
+    <file>icons/dark/16/edit-undo.png</file>
+    <file>icons/dark/16/edit-new.png</file>
+    <file>icons/dark/16/edit-print.png</file>
+    <file>icons/dark/16/lock.png</file>
+    <file>icons/dark/16/unlock.png</file>
+    <file>icons/dark/16/application-pdf.png</file>
+    <file>icons/dark/16/document-save.png</file>
+    <file>icons/dark/16/edit-delete-selection.png</file>
+    <file>icons/dark/16/folder-explorer.png</file>
+    <file>icons/dark/16/edit-hide.png</file>
+    <file>icons/dark/16/edit-unhide.png</file>
+    <file>icons/dark/16/number-type.png</file>
     <file>icons/dark/16/text-type.png</file>
     <file>icons/dark/16/import-ascii-filter.png</file>
-	<file>icons/dark/16/project-open.png</file>
-	<file>icons/dark/16/template-open.png</file>
+    <file>icons/dark/16/project-open.png</file>
+    <file>icons/dark/16/template-open.png</file>
     <file>icons/dark/16/template-save.png</file>
     <file>icons/dark/16/table.png</file>
     <file>icons/dark/16/draw-text.png</file>
@@ -625,7 +629,7 @@
     <file>icons/dark/16/edit-duplicate.png</file>
     <file>icons/dark/16/edit-graph.png</file>
     <file>icons/dark/16/edit-select-data.png</file>
-	<file>icons/dark/16/edit-select.png</file>
+    <file>icons/dark/16/edit-select.png</file>
     <file>icons/dark/16/edit-table-delete-column.png</file>
     <file>icons/dark/16/edit-table-dimension.png</file>
     <file>icons/dark/16/edit-table-insert-column-right.png</file>
@@ -699,26 +703,26 @@
     <file>icons/dark/16/view-sort.png</file>
     <file>icons/dark/16/dialog-ok-apply.png</file>
     <file>icons/dark/16/alpha-project.png</file>
-	<file>icons/dark/22/edit-copy.png</file>
-	<file>icons/dark/22/edit-cut.png</file>
-	<file>icons/dark/22/edit-paste.png</file>
-	<file>icons/dark/22/edit-redo.png</file>
-	<file>icons/dark/22/edit-undo.png</file>
-	<file>icons/dark/22/edit-new.png</file>
-	<file>icons/dark/22/edit-print.png</file>
-	<file>icons/dark/22/lock.png</file>
-	<file>icons/dark/22/unlock.png</file>
-	<file>icons/dark/22/application-pdf.png</file>
-	<file>icons/dark/22/document-save.png</file>
-	<file>icons/dark/22/edit-delete-selection.png</file>
-	<file>icons/dark/22/folder-explorer.png</file>
-	<file>icons/dark/22/edit-hide.png</file>
-	<file>icons/dark/22/edit-unhide.png</file>
-	<file>icons/dark/22/number-type.png</file>
+    <file>icons/dark/22/edit-copy.png</file>
+    <file>icons/dark/22/edit-cut.png</file>
+    <file>icons/dark/22/edit-paste.png</file>
+    <file>icons/dark/22/edit-redo.png</file>
+    <file>icons/dark/22/edit-undo.png</file>
+    <file>icons/dark/22/edit-new.png</file>
+    <file>icons/dark/22/edit-print.png</file>
+    <file>icons/dark/22/lock.png</file>
+    <file>icons/dark/22/unlock.png</file>
+    <file>icons/dark/22/application-pdf.png</file>
+    <file>icons/dark/22/document-save.png</file>
+    <file>icons/dark/22/edit-delete-selection.png</file>
+    <file>icons/dark/22/folder-explorer.png</file>
+    <file>icons/dark/22/edit-hide.png</file>
+    <file>icons/dark/22/edit-unhide.png</file>
+    <file>icons/dark/22/number-type.png</file>
     <file>icons/dark/22/text-type.png</file>
     <file>icons/dark/22/import-ascii-filter.png</file>
-	<file>icons/dark/22/project-open.png</file>
-	<file>icons/dark/22/template-open.png</file>
+    <file>icons/dark/22/project-open.png</file>
+    <file>icons/dark/22/template-open.png</file>
     <file>icons/dark/22/template-save.png</file>
     <file>icons/dark/22/table.png</file>
     <file>icons/dark/22/draw-text.png</file>
@@ -726,7 +730,7 @@
     <file>icons/dark/22/edit-duplicate.png</file>
     <file>icons/dark/22/edit-graph.png</file>
     <file>icons/dark/22/edit-select-data.png</file>
-	<file>icons/dark/22/edit-select.png</file>
+    <file>icons/dark/22/edit-select.png</file>
     <file>icons/dark/22/edit-table-delete-column.png</file>
     <file>icons/dark/22/edit-table-dimension.png</file>
     <file>icons/dark/22/edit-table-insert-column-right.png</file>
@@ -804,26 +808,26 @@
     <file>icons/dark/22/view-sort.png</file>
     <file>icons/dark/22/dialog-ok-apply.png</file>
     <file>icons/dark/22/alpha-project.png</file>
-	<file>icons/dark/24/edit-copy.png</file>
-	<file>icons/dark/24/edit-cut.png</file>
-	<file>icons/dark/24/edit-paste.png</file>
-	<file>icons/dark/24/edit-redo.png</file>
-	<file>icons/dark/24/edit-undo.png</file>
-	<file>icons/dark/24/edit-new.png</file>
-	<file>icons/dark/24/edit-print.png</file>
-	<file>icons/dark/24/lock.png</file>
-	<file>icons/dark/24/unlock.png</file>
-	<file>icons/dark/24/application-pdf.png</file>
-	<file>icons/dark/24/document-save.png</file>
-	<file>icons/dark/24/edit-delete-selection.png</file>
-	<file>icons/dark/24/folder-explorer.png</file>
-	<file>icons/dark/24/edit-hide.png</file>
-	<file>icons/dark/24/edit-unhide.png</file>
+    <file>icons/dark/24/edit-copy.png</file>
+    <file>icons/dark/24/edit-cut.png</file>
+    <file>icons/dark/24/edit-paste.png</file>
+    <file>icons/dark/24/edit-redo.png</file>
+    <file>icons/dark/24/edit-undo.png</file>
+    <file>icons/dark/24/edit-new.png</file>
+    <file>icons/dark/24/edit-print.png</file>
+    <file>icons/dark/24/lock.png</file>
+    <file>icons/dark/24/unlock.png</file>
+    <file>icons/dark/24/application-pdf.png</file>
+    <file>icons/dark/24/document-save.png</file>
+    <file>icons/dark/24/edit-delete-selection.png</file>
+    <file>icons/dark/24/folder-explorer.png</file>
+    <file>icons/dark/24/edit-hide.png</file>
+    <file>icons/dark/24/edit-unhide.png</file>
     <file>icons/dark/24/number-type.png</file>
     <file>icons/dark/24/text-type.png</file>
     <file>icons/dark/24/import-ascii-filter.png</file>
-	<file>icons/dark/24/project-open.png</file>
-	<file>icons/dark/24/template-open.png</file>
+    <file>icons/dark/24/project-open.png</file>
+    <file>icons/dark/24/template-open.png</file>
     <file>icons/dark/24/template-save.png</file>
     <file>icons/dark/24/table.png</file>
     <file>icons/dark/24/draw-text.png</file>
@@ -831,7 +835,7 @@
     <file>icons/dark/24/edit-duplicate.png</file>
     <file>icons/dark/24/edit-graph.png</file>
     <file>icons/dark/24/edit-select-data.png</file>
-	<file>icons/dark/24/edit-select.png</file>
+    <file>icons/dark/24/edit-select.png</file>
     <file>icons/dark/24/edit-table-delete-column.png</file>
     <file>icons/dark/24/edit-table-dimension.png</file>
     <file>icons/dark/24/edit-table-insert-column-right.png</file>
@@ -951,6 +955,6 @@
     <file>icons/dark/16/graph3d-right-grid.xpm</file>
     <file>icons/dark/16/graph3d-top-grid.xpm</file>
     <file>icons/dark/16/graph3d-bar.xpm</file>
-	<file>splash/splash.png</file>
+    <file>splash/splash.png</file>
 </qresource>
 </RCC>

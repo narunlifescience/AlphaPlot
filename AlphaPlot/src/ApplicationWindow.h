@@ -792,6 +792,7 @@ class ApplicationWindow : public QMainWindow,
 
   //! Sets all items in the folders list view to be deactivated
   void deactivateFolders();
+  void deactivateFolderTreeWidgetItemsRecursive(FolderTreeWidgetItem* item);
 
   //! Changes the current folder
   bool changeFolder(Folder* newFolder, bool force = false);

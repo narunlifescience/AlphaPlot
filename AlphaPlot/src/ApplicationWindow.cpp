@@ -2356,8 +2356,7 @@ void ApplicationWindow::initPlot3D(Graph3D *plot) {
   plot->setFolder(current_folder);
   d_workspace->addWindow(plot);
   connectSurfacePlot(plot);
-  plot->setWindowIcon(
-      IconLoader::load("edit-graph3d", IconLoader::LightDark));
+  plot->setWindowIcon(IconLoader::load("edit-graph3d", IconLoader::LightDark));
   plot->show();
   plot->setFocus();
 
@@ -2884,8 +2883,7 @@ void ApplicationWindow::initNote(Note *note, const QString &caption) {
 
   note->setWindowTitle(name);
   note->setName(name);
-  note->setWindowIcon(
-      IconLoader::load("edit-note", IconLoader::LightDark));
+  note->setWindowIcon(IconLoader::load("edit-note", IconLoader::LightDark));
   note->askOnCloseEvent(confirmCloseNotes);
   note->setFolder(current_folder);
 
@@ -10918,7 +10916,6 @@ void ApplicationWindow::addFolder() {
     f->setFolderTreeWidgetItem(fi);
     ui_->folderView->clearSelection();
     fi->setSelected(true);
-    startRenameFolder(fi);
   }
 }
 
@@ -11119,10 +11116,22 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
 void ApplicationWindow::deactivateFolders() {
   FolderTreeWidgetItem *item =
       static_cast<FolderTreeWidgetItem *>(ui_->folderView->topLevelItem(0));
-  FolderTreeWidgetItem *it;
+  deactivateFolderTreeWidgetItemsRecursive(item);
+}
+
+void ApplicationWindow::deactivateFolderTreeWidgetItemsRecursive(
+    FolderTreeWidgetItem *item) {
+  if(!item) return;
+
+  FolderTreeWidgetItem *it = nullptr;
   for (int i = 0; i < item->childCount(); i++) {
     it = static_cast<FolderTreeWidgetItem *>(item->child(i));
     it->setActive(false);
+  }
+
+  for (int i = 0; i < item->childCount(); i++) {
+    it = static_cast<FolderTreeWidgetItem *>(item->child(i));
+    deactivateFolderTreeWidgetItemsRecursive(it);
   }
 }
 
