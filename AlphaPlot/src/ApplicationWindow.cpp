@@ -1849,7 +1849,7 @@ void ApplicationWindow::setListViewLabel(const QString &caption,
   QList<QTreeWidgetItem *> items =
       ui_->listView->findItems(caption, Qt::MatchExactly, 0);
   foreach (QTreeWidgetItem *item, items) {
-    if (item) item->setText(5, label);
+    if (item) item->setText(4, label);
   }
 }
 
@@ -1858,11 +1858,11 @@ void ApplicationWindow::setListViewDate(const QString &caption,
   QList<QTreeWidgetItem *> items =
       ui_->listView->findItems(caption, Qt::MatchExactly, 0);
   foreach (QTreeWidgetItem *item, items) {
-    if (item) item->setText(4, date);
+    if (item) item->setText(3, date);
   }
 }
 
-void ApplicationWindow::setListView(const QString &caption,
+void ApplicationWindow::setListViewView(const QString &caption,
                                     const QString &view) {
   QList<QTreeWidgetItem *> items =
       ui_->listView->findItems(caption, Qt::MatchExactly, 0);
@@ -1876,7 +1876,7 @@ QString ApplicationWindow::listViewDate(const QString &caption) {
       ui_->listView->findItems(caption, Qt::MatchExactly, 0);
   foreach (QTreeWidgetItem *item, items) {
     if (item) {
-      return item->text(4);
+      return item->text(3);
     } else {
       return "";
     }
@@ -5211,10 +5211,10 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app,
       w->parentWidget()->setGeometry(lst[1].toInt(), lst[2].toInt(),
                                      lst[3].toInt(), lst[4].toInt());
     w->setStatus(MyWidget::Minimized);
-    app->setListView(caption, tr("Minimized"));
+    app->setListViewView(caption, tr("Minimized"));
   } else if (s.contains("maximized")) {
     w->setStatus(MyWidget::Maximized);
-    app->setListView(caption, tr("Maximized"));
+    app->setListViewView(caption, tr("Maximized"));
   } else {
     QStringList lst = s.split("\t");
     w->parentWidget()->setGeometry(lst[1].toInt(), lst[2].toInt(),
@@ -7342,7 +7342,7 @@ bool ApplicationWindow::hidden(QWidget *window) {
 }
 
 void ApplicationWindow::updateWindowStatus(MyWidget *w) {
-  setListView(w->name(), w->aspect());
+  setListViewView(w->name(), w->aspect());
   if (w->status() == MyWidget::Maximized) {
     QList<MyWidget *> windows = current_folder->windowsList();
     foreach (MyWidget *oldMaxWindow, windows) {
@@ -7576,7 +7576,7 @@ void ApplicationWindow::windowsMenuActivated(int id) {
     w->setFocus();
     if (hidden(w)) {
       hiddenWindows->takeAt(hiddenWindows->indexOf(w));
-      setListView(w->name(), tr("Normal"));
+      setListViewView(w->name(), tr("Normal"));
     }
   }
 }
@@ -10784,7 +10784,7 @@ void ApplicationWindow::setShowWindowsPolicy(int p) {
       if (!widget) continue;
       hiddenWindows->append(widget);
       widget->hide();
-      setListView(widget->name(), tr("Hidden"));
+      setListViewView(widget->name(), tr("Hidden"));
     }
     delete lst;
   } else
@@ -10835,6 +10835,7 @@ void ApplicationWindow::startRenameFolder(QTreeWidgetItem *item) {
   current_folder->setName(item->text(0));
   ui_->folderView->clearSelection();
   folderItemChanged(parent->folderTreeWidgetItem());  // update the list views
+  parent->folderTreeWidgetItem()->setSelected(true);
 }
 
 void ApplicationWindow::showAllFolderWindows() {
@@ -10914,8 +10915,10 @@ void ApplicationWindow::addFolder() {
       new FolderTreeWidgetItem(current_folder->folderTreeWidgetItem(), f);
   if (fi) {
     f->setFolderTreeWidgetItem(fi);
+    fi->setActive(false);
     ui_->folderView->clearSelection();
-    fi->setSelected(true);
+    Folder *parentFolder = static_cast<Folder *>(f->parent());
+    if (parentFolder) parentFolder->folderTreeWidgetItem()->setSelected(true);
   }
 }
 
@@ -11121,7 +11124,7 @@ void ApplicationWindow::deactivateFolders() {
 
 void ApplicationWindow::deactivateFolderTreeWidgetItemsRecursive(
     FolderTreeWidgetItem *item) {
-  if(!item) return;
+  if (!item) return;
 
   FolderTreeWidgetItem *it = nullptr;
   for (int i = 0; i < item->childCount(); i++) {

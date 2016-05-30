@@ -485,7 +485,7 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name List View in Project Explorer
   //@{
-  void setListView(const QString& caption, const QString& view);
+  void setListViewView(const QString& caption, const QString& view);
   void renameListViewItem(const QString& oldName, const QString& newName);
   void setListViewDate(const QString& caption, const QString& date);
   QString listViewDate(const QString& caption);
