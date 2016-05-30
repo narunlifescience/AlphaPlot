@@ -56,4 +56,5 @@ void PropertiesDialog::setupProperties(const Properties &properties) const {
   ui_->contentValue1->setText(lst.at(0));
   ui_->contentValue2->setText(lst.at(1));
   ui_->descriptionPlainTextEdit->setPlainText(properties.description);
+  ui_->labelValue->setPlainText(properties.label);
 }

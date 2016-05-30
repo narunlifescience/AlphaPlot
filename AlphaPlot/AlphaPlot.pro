@@ -27,7 +27,7 @@ DEFINES       += QT_PLUGIN
 DEFINES       += TS_PATH="\\\"$$replace(translationfiles.path," ","\\ ")\\\""
 DEFINES       += DOC_PATH="\\\"$$replace(documentation.path," ","\\ ")\\\""
 
-!isEmpty( manual.path ) {
+!isEmpty(manual.path) {
   DEFINES     += MANUAL_PATH="\\\"$$replace(manual.path," ","\\ ")\\\""
 }
 

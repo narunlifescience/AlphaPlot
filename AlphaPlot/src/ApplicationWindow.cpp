@@ -1046,6 +1046,17 @@ ApplicationWindow::ApplicationWindow()
   connect(this, SIGNAL(modified()), this, SLOT(modifiedProject()));
 }
 
+// Distructor
+ApplicationWindow::~ApplicationWindow() {
+  saveSettings();
+  if (lastCopiedLayer) delete lastCopiedLayer;
+  delete ui_;
+  delete hiddenWindows;
+  delete outWindows;
+  delete d_project;
+  QApplication::clipboard()->clear(QClipboard::Clipboard);
+}
+
 // Apply user settings
 void ApplicationWindow::applyUserSettings() {
   qApp->setFont(appFont);
@@ -1863,7 +1874,7 @@ void ApplicationWindow::setListViewDate(const QString &caption,
 }
 
 void ApplicationWindow::setListViewView(const QString &caption,
-                                    const QString &view) {
+                                        const QString &view) {
   QList<QTreeWidgetItem *> items =
       ui_->listView->findItems(caption, Qt::MatchExactly, 0);
   foreach (QTreeWidgetItem *item, items) {
@@ -3853,13 +3864,13 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
     file->open(QIODevice::ReadOnly);
   }
 
-  QTextStream t(file);
-  t.setCodec("UTF-8");
-  ;
-  QString s;
+  QTextStream aprojTextStream(file);
+  aprojTextStream.setCodec("UTF-8");
+
+  QString singleLine;
   QStringList list;
-  s = t.readLine();
-  list = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
+  singleLine = aprojTextStream.readLine();
+  list = singleLine.split(QRegExp("\\s"), QString::SkipEmptyParts);
   if (list.count() < 2 || list[0] != "AlphaPlot") {
     file->close();
     delete file;
@@ -3897,8 +3908,8 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   QFileInfo fi(fileName);
   QString baseName = fi.fileName();
 
-  s = t.readLine();
-  list = s.split("\t", QString::SkipEmptyParts);
+  singleLine = aprojTextStream.readLine();
+  list = singleLine.split("\t", QString::SkipEmptyParts);
   if (list[0] == "<scripting-lang>") {
     if (!app->setScriptingLang(list[1], true))
       QMessageBox::warning(
@@ -3912,8 +3923,8 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
               .arg(list[1])
               .arg(scriptEnv->objectName()));
 
-    s = t.readLine();
-    list = s.split("\t", QString::SkipEmptyParts);
+    singleLine = aprojTextStream.readLine();
+    list = singleLine.split("\t", QString::SkipEmptyParts);
   }
   int aux = 0, widgets = list[1].toInt();
 
@@ -3938,11 +3949,11 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   item->folder()->setName(fi.baseName());
 
   // process tables and matrix information
-  while (!t.atEnd() && !progress.wasCanceled()) {
-    s = t.readLine(4096);  // workaround for safely reading very big lines
+  while (!aprojTextStream.atEnd() && !progress.wasCanceled()) {
+    singleLine = aprojTextStream.readLine(4096);  // for reading big lines
     list.clear();
-    if (s.left(8) == "<folder>") {
-      list = s.split("\t");
+    if (singleLine.left(8) == "<folder>") {
+      list = singleLine.split("\t");
       Folder *f = new Folder(app->current_folder, list[1]);
       f->setBirthDate(list[2]);
       f->setModificationDate(list[3]);
@@ -3955,50 +3966,50 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
       f->setFolderTreeWidgetItem(fli);
 
       app->current_folder = f;
-    } else if (s == "<table>") {
+    } else if (singleLine == "<table>") {
       title =
           titleBase + QString::number(++aux) + "/" + QString::number(widgets);
       progress.setLabelText(title);
-      openTableAproj(app, t);
+      openTableAproj(app, aprojTextStream);
       progress.setValue(aux);
-    } else if (s.left(17) == "<TableStatistics>") {
+    } else if (singleLine.left(17) == "<TableStatistics>") {
       QStringList lst;
-      while (s != "</TableStatistics>") {
-        s = t.readLine();
-        lst << s;
+      while (singleLine != "</TableStatistics>") {
+        singleLine = aprojTextStream.readLine();
+        lst << singleLine;
       }
       lst.pop_back();
       app->openTableStatisticsAproj(lst);
-    } else if (s == "<matrix>") {
+    } else if (singleLine == "<matrix>") {
       title =
           titleBase + QString::number(++aux) + "/" + QString::number(widgets);
       progress.setLabelText(title);
       QStringList lst;
-      while (s != "</matrix>") {
-        s = t.readLine();
-        lst << s;
+      while (singleLine != "</matrix>") {
+        singleLine = aprojTextStream.readLine();
+        lst << singleLine;
       }
       lst.pop_back();
       openMatrixAproj(app, lst);
       progress.setValue(aux);
-    } else if (s == "<note>") {
+    } else if (singleLine == "<note>") {
       title =
           titleBase + QString::number(++aux) + "/" + QString::number(widgets);
       progress.setLabelText(title);
       for (int i = 0; i < 3; i++) {
-        s = t.readLine();
-        list << s;
+        singleLine = aprojTextStream.readLine();
+        list << singleLine;
       }
       Note *m = openNote(app, list);
       QStringList cont;
-      while (s != "</note>") {
-        s = t.readLine();
-        cont << s;
+      while (singleLine != "</note>") {
+        singleLine = aprojTextStream.readLine();
+        cont << singleLine;
       }
       cont.pop_back();
       m->restore(cont);
       progress.setValue(aux);
-    } else if (s == "</folder>") {
+    } else if (singleLine == "</folder>") {
       Folder *parent = (Folder *)app->current_folder->parent();
       if (!parent)
         app->current_folder = app->projectFolder();
@@ -4016,21 +4027,23 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   }
 
   // process the rest
-  t.seek(0);
+  aprojTextStream.seek(0);
 
   MultiLayer *plot = 0;
-  while (!t.atEnd() && !progress.wasCanceled()) {
-    s = t.readLine(4096);  // workaround for safely reading very big lines
-    if (s.left(8) == "<folder>") {
-      list = s.split("\t");
+  while (!aprojTextStream.atEnd() && !progress.wasCanceled()) {
+    singleLine = aprojTextStream.readLine(
+        4096);  // workaround for safely reading very big lines
+    if (singleLine.left(8) == "<folder>") {
+      list = singleLine.split("\t");
       app->current_folder = app->current_folder->findSubfolder(list[1]);
-    } else if (s == "<multiLayer>") {  // process multilayers information
+    } else if (singleLine ==
+               "<multiLayer>") {  // process multilayers information
       title =
           titleBase + QString::number(++aux) + "/" + QString::number(widgets);
       progress.setLabelText(title);
 
-      s = t.readLine();
-      QStringList graph = s.split("\t");
+      singleLine = aprojTextStream.readLine();
+      QStringList graph = singleLine.split("\t");
       QString caption = graph[0];
       plot = app->multilayerPlot(caption);
       plot->setCols(graph[1].toInt());
@@ -4039,58 +4052,62 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
       app->setListViewDate(caption, graph[3]);
       plot->setBirthDate(graph[3]);
 
-      restoreWindowGeometry(app, plot, t.readLine());
+      restoreWindowGeometry(app, plot, aprojTextStream.readLine());
       plot->blockSignals(true);
 
-      QStringList lst = t.readLine().split("\t");
+      QStringList lst = aprojTextStream.readLine().split("\t");
       plot->setWindowLabel(lst[1]);
       app->setListViewLabel(plot->name(), lst[1]);
       plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
-      QStringList stringlst = t.readLine().split("\t", QString::SkipEmptyParts);
+      QStringList stringlst =
+          aprojTextStream.readLine().split("\t", QString::SkipEmptyParts);
       plot->setMargins(stringlst[1].toInt(), stringlst[2].toInt(),
                        stringlst[3].toInt(), stringlst[4].toInt());
-      stringlst = t.readLine().split("\t", QString::SkipEmptyParts);
+      stringlst =
+          aprojTextStream.readLine().split("\t", QString::SkipEmptyParts);
       plot->setSpacing(stringlst[1].toInt(), stringlst[2].toInt());
-      stringlst = t.readLine().split("\t", QString::SkipEmptyParts);
+      stringlst =
+          aprojTextStream.readLine().split("\t", QString::SkipEmptyParts);
       plot->setLayerCanvasSize(stringlst[1].toInt(), stringlst[2].toInt());
-      stringlst = t.readLine().split("\t", QString::SkipEmptyParts);
+      stringlst =
+          aprojTextStream.readLine().split("\t", QString::SkipEmptyParts);
       plot->setAlignement(stringlst[1].toInt(), stringlst[2].toInt());
 
-      while (s != "</multiLayer>") {  // open layers
-        s = t.readLine();
-        if (s.left(7) == "<graph>") {
+      while (singleLine != "</multiLayer>") {  // open layers
+        singleLine = aprojTextStream.readLine();
+        if (singleLine.left(7) == "<graph>") {
           list.clear();
-          while (s != "</graph>") {
-            s = t.readLine();
-            list << s;
+          while (singleLine != "</graph>") {
+            singleLine = aprojTextStream.readLine();
+            list << singleLine;
           }
           openGraphAproj(app, plot, list);
         }
       }
       plot->blockSignals(false);
       progress.setValue(aux);
-    } else if (s == "<SurfacePlot>") {  // process 3D plots information
+    } else if (singleLine == "<SurfacePlot>") {  // process 3D plots information
       list.clear();
       title =
           titleBase + QString::number(++aux) + "/" + QString::number(widgets);
       progress.setLabelText(title);
-      while (s != "</SurfacePlot>") {
-        s = t.readLine();
-        list << s;
+      while (singleLine != "</SurfacePlot>") {
+        singleLine = aprojTextStream.readLine();
+        list << singleLine;
       }
       openSurfacePlotAproj(app, list);
       progress.setValue(aux);
-    } else if (s == "</folder>") {
+    } else if (singleLine == "</folder>") {
       Folder *parent = (Folder *)app->current_folder->parent();
       if (!parent)
         app->current_folder = projectFolder();
       else
         app->current_folder = parent;
-    } else if (s.left(5) == "<log>") {  // process analysis information
-      s = t.readLine();
-      while (s != "</log>") {
-        app->logInfo += s + "\n";
-        s = t.readLine();
+    } else if (singleLine.left(5) == "<log>") {  // process analysis information
+      singleLine = aprojTextStream.readLine();
+      while (singleLine != "</log>") {
+        app->logInfo += singleLine + "\n";
+        singleLine = aprojTextStream.readLine();
       }
       app->ui_->resultLog->setText(app->logInfo);
     }
@@ -4105,11 +4122,7 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   }
 
   app->logInfo = app->logInfo.remove("</log>\n", Qt::CaseInsensitive);
-
-  app->ui_->folderView->setCurrentItem(cf->folderTreeWidgetItem());
   app->ui_->folderView->blockSignals(false);
-  // change folder to user defined current folder
-  app->changeFolder(cf, true);
 
   app->blockSignals(false);
   app->renamedTables.clear();
@@ -4121,6 +4134,11 @@ ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
   app->recentProjects.removeAll(fileName);
   app->recentProjects.push_front(fileName);
   app->updateRecentProjectsList();
+
+  // change folder to user defined current folder
+  app->changeFolder(app->projectFolder(), true);  // force update
+  app->changeFolder(cf, false);                   // set current folder
+  app->ui_->folderView->setCurrentItem(cf->folderTreeWidgetItem());  // select
 
   return app;
 }
@@ -7593,6 +7611,7 @@ void ApplicationWindow::newAproj() {
   else
     ed->show();
 
+  ed->projectFolder()->folderTreeWidgetItem()->setSelected(true);
   ed->savedProject();
 
   this->close();
@@ -11066,24 +11085,7 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
   }
 
   if (!(newFolder->children()).isEmpty()) {
-    FolderTreeWidgetItem *fi = newFolder->folderTreeWidgetItem();
-    FolderTreeWidgetItem *item;
-    for (int i = 0; i < fi->childCount(); i++) {
-      item = static_cast<FolderTreeWidgetItem *>(fi->child(i));
-      lst = static_cast<Folder *>(item->folder())->windowsList();
-      foreach (MyWidget *w, lst) {
-        if (!hiddenWindows->contains(w) && !outWindows->contains(w)) {
-          if (show_windows_policy == SubFolders) {
-            if (w->status() == MyWidget::Normal ||
-                w->status() == MyWidget::Maximized)
-              w->showNormal();
-            else if (w->status() == MyWidget::Minimized)
-              w->showMinimized();
-          } else if (w->isVisible())
-            w->hide();
-        }
-      }
-    }
+    refreshFolderTreeWidgetItemsRecursive(newFolder->folderTreeWidgetItem());
   }
 
   d_workspace->blockSignals(false);
@@ -11116,12 +11118,48 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
   return true;
 }
 
+// Recursively set windows policy (project explorer)
+void ApplicationWindow::refreshFolderTreeWidgetItemsRecursive(
+    FolderTreeWidgetItem *item) {
+  if (!item) return;
+
+  if (!(item->folder()->children()).isEmpty()) {
+    FolderTreeWidgetItem *fi = item->folder()->folderTreeWidgetItem();
+    FolderTreeWidgetItem *tempItem;
+    for (int i = 0; i < fi->childCount(); i++) {
+      tempItem = static_cast<FolderTreeWidgetItem *>(fi->child(i));
+      QList<MyWidget *> list =
+          static_cast<Folder *>(tempItem->folder())->windowsList();
+      foreach (MyWidget *widget, list) {
+        if (!hiddenWindows->contains(widget) && !outWindows->contains(widget)) {
+          if (show_windows_policy == SubFolders) {
+            if (widget->status() == MyWidget::Normal ||
+                widget->status() == MyWidget::Maximized)
+              widget->showNormal();
+            else if (widget->status() == MyWidget::Minimized)
+              widget->showMinimized();
+          } else if (widget->isVisible())
+            widget->hide();
+        }
+      }
+    }
+  }
+
+  FolderTreeWidgetItem *it = nullptr;
+  for (int i = 0; i < item->childCount(); i++) {
+    it = static_cast<FolderTreeWidgetItem *>(item->child(i));
+    refreshFolderTreeWidgetItemsRecursive(it);
+  }
+}
+
+// Deactivate all folders (project explorer)
 void ApplicationWindow::deactivateFolders() {
   FolderTreeWidgetItem *item =
       static_cast<FolderTreeWidgetItem *>(ui_->folderView->topLevelItem(0));
   deactivateFolderTreeWidgetItemsRecursive(item);
 }
 
+// Deactivate all children of specific folder item (project explorer)
 void ApplicationWindow::deactivateFolderTreeWidgetItemsRecursive(
     FolderTreeWidgetItem *item) {
   if (!item) return;
@@ -11138,33 +11176,35 @@ void ApplicationWindow::deactivateFolderTreeWidgetItemsRecursive(
   }
 }
 
-void ApplicationWindow::addListViewItem(MyWidget *w) {
-  if (!w) return;
+// Add list view items (project explorer)
+void ApplicationWindow::addListViewItem(MyWidget *widget) {
+  if (!widget) return;
 
-  WindowTableWidgetItem *it = new WindowTableWidgetItem(ui_->listView, w);
-  if (w->inherits("Matrix")) {
+  WindowTableWidgetItem *it = new WindowTableWidgetItem(ui_->listView, widget);
+  if (widget->inherits("Matrix")) {
     it->setIcon(0, IconLoader::load("matrix", IconLoader::LightDark));
     it->setText(1, tr("Matrix"));
-  } else if (w->inherits("Table")) {
+  } else if (widget->inherits("Table")) {
     it->setIcon(0, IconLoader::load("table", IconLoader::LightDark));
     it->setText(1, tr("Table"));
-  } else if (w->inherits("Note")) {
+  } else if (widget->inherits("Note")) {
     it->setIcon(0, IconLoader::load("edit-note", IconLoader::LightDark));
     it->setText(1, tr("Note"));
-  } else if (w->inherits("MultiLayer")) {
+  } else if (widget->inherits("MultiLayer")) {
     it->setIcon(0, IconLoader::load("edit-graph", IconLoader::LightDark));
     it->setText(1, tr("Graph"));
-  } else if (w->inherits("Graph3D")) {
+  } else if (widget->inherits("Graph3D")) {
     it->setIcon(0, IconLoader::load("edit-graph3d", IconLoader::LightDark));
     it->setText(1, tr("3D Graph"));
   }
 
-  it->setText(0, w->name());
-  it->setText(2, w->aspect());
-  it->setText(3, w->birthDate());
-  it->setText(4, w->windowLabel());
+  it->setText(0, widget->name());
+  it->setText(2, widget->aspect());
+  it->setText(3, widget->birthDate());
+  it->setText(4, widget->windowLabel());
 }
 
+// Folder view item Properties (project explorer)
 void ApplicationWindow::folderProperties() {
   std::unique_ptr<PropertiesDialog> propertiesDialog(
       new PropertiesDialog(this));
@@ -11216,6 +11256,7 @@ void ApplicationWindow::folderProperties() {
   propertiesDialog->exec();
 }
 
+// List view windows properties (project explorer)
 void ApplicationWindow::windowProperties() {
   WindowTableWidgetItem *item =
       static_cast<WindowTableWidgetItem *>(ui_->listView->currentItem());
@@ -11287,20 +11328,22 @@ void ApplicationWindow::windowProperties() {
   properties.path = current_folder->path();
   properties.created = window->birthDate();
   properties.modified = "";
-  properties.label = window->windowLabel();
+  properties.label = item->text(4);
+  ;
 
   propertiesDialog->setupProperties(properties);
   propertiesDialog->exec();
 }
 
-void ApplicationWindow::addFolderListViewItem(Folder *f) {
-  if (!f) return;
+// Add folder view items (project explorer)
+void ApplicationWindow::addFolderListViewItem(Folder *folder) {
+  if (!folder) return;
 
-  FolderTreeWidgetItem *it = new FolderTreeWidgetItem(ui_->listView, f);
-  it->setActive(false);
-  it->setText(0, f->name());
-  it->setText(1, tr("Folder"));
-  it->setText(3, f->birthDate());
+  FolderTreeWidgetItem *item = new FolderTreeWidgetItem(ui_->listView, folder);
+  item->setActive(false);
+  item->setText(0, folder->name());
+  item->setText(1, tr("Folder"));
+  item->setText(3, folder->birthDate());
 }
 
 void ApplicationWindow::find(const QString &s, bool windowNames, bool labels,
@@ -11470,7 +11513,7 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest) {
 }*/
 
 #ifdef SEARCH_FOR_UPDATES
-
+// Check for upates
 void ApplicationWindow::searchForUpdates() {
   int choice = QMessageBox::question(
       this, versionString() + AlphaPlot::extraVersion(),
@@ -11488,6 +11531,7 @@ void ApplicationWindow::searchForUpdates() {
   }
 }
 
+// Check the version number (check for updates)
 void ApplicationWindow::receivedVersionFile(bool error) {
   if (error) {
     QMessageBox::warning(this, tr("HTTP get version file"),
@@ -11606,17 +11650,6 @@ void ApplicationWindow::fitFrameToLayer() {
     return;
 
   ((Graph3D *)d_workspace->activeWindow())->findBestLayout();
-}
-
-ApplicationWindow::~ApplicationWindow() {
-  saveSettings();
-  if (lastCopiedLayer) delete lastCopiedLayer;
-  delete ui_;
-  delete hiddenWindows;
-  delete outWindows;
-  delete d_project;
-
-  QApplication::clipboard()->clear(QClipboard::Clipboard);
 }
 
 QString ApplicationWindow::versionString() {
@@ -11801,7 +11834,7 @@ bool ApplicationWindow::validFor2DPlot(Table *table, int type) {
             this, tr("Error"),
             tr("You can only select one X column for this operation!"));
         return false;
-      } else if (!table->selectedColumnCount(AlphaPlot::Z) == 0) {
+      } else if (table->selectedColumnCount(AlphaPlot::Z) > 0) {
         QMessageBox::warning(
             this, tr("Error"),
             tr("Please dont select Z column for this operation!"));

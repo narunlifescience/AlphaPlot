@@ -28,7 +28,6 @@
 #include <QDesktopServices>
 #include <QFile>
 #include <QLocale>
-#include <QSplitter>
 
 #include "Table.h"
 
@@ -131,7 +130,7 @@ class ApplicationWindow : public QMainWindow,
   Ui_ApplicationWindow* ui_;
 
  public:
-  // Folder windoes handling policy
+  // Folder windows handling policy
   enum ShowWindowsPolicy { HideAll, ActiveFolder, SubFolders };
 
   QTranslator* appTranslator;
@@ -796,6 +795,7 @@ class ApplicationWindow : public QMainWindow,
 
   //! Changes the current folder
   bool changeFolder(Folder* newFolder, bool force = false);
+  void refreshFolderTreeWidgetItemsRecursive(FolderTreeWidgetItem *item);
 
   //! Changes the current folder when the user changes the current item in the
   //! QListView "folders"
@@ -858,10 +858,10 @@ class ApplicationWindow : public QMainWindow,
   void rawSaveFolder(Folder* folder, QIODevice* device);
 
   //!  adds a folder list item to the list view "lv"
-  void addFolderListViewItem(Folder* f);
+  void addFolderListViewItem(Folder* folder);
 
   //!  adds a widget list item to the list view "lv"
-  void addListViewItem(MyWidget* w);
+  void addListViewItem(MyWidget* widget);
 
   //!  hides or shows windows in the current folder and changes the view windows
   //!  policy
