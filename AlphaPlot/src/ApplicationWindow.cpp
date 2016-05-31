@@ -1366,11 +1366,10 @@ void ApplicationWindow::makeToolBars() {
   addToolBar(Qt::TopToolBarArea, fileToolbar);
   addToolBar(editToolbar);
   addToolBar(graphToolsToolbar);
-  addToolBar(Qt::TopToolBarArea, plot2DToolbar);
+  addToolBar(Qt::LeftToolBarArea, plot2DToolbar);
   addToolBar(Qt::TopToolBarArea, tableToolbar);
+  addToolBar(Qt::BottomToolBarArea, graph3DToolbar);
   addToolBar(Qt::BottomToolBarArea, matrix3DPlotToolbar);
-  addToolBar(Qt::TopToolBarArea, graph3DToolbar);
-  addToolBarBreak(Qt::TopToolBarArea);
 
   // Disable toolbars
   graphToolsToolbar->setEnabled(false);
@@ -1663,7 +1662,7 @@ void ApplicationWindow::customToolBars(QWidget *widget) {
       plot2DToolbar->setEnabled(false);
       matrix3DPlotToolbar->setEnabled(false);
 
-      Graph3D *plot = (Graph3D *)widget;
+      Graph3D *plot = static_cast<Graph3D *>(widget);
       if (plot->plotStyle() == Qwt3D::NOPLOT)
         graph3DToolbar->setEnabled(false);
       else
@@ -7611,7 +7610,8 @@ void ApplicationWindow::newAproj() {
   else
     ed->show();
 
-  ed->projectFolder()->folderTreeWidgetItem()->setSelected(true);
+  ed->ui_->folderView->setCurrentItem(
+      ed->projectFolder()->folderTreeWidgetItem());
   ed->savedProject();
 
   this->close();
@@ -7805,7 +7805,7 @@ void ApplicationWindow::showWindowPopupMenu(const QPoint &p) {
     if (item->isSelected()) selected++;
 
     if (selected > 1) {
-      showListViewSelectionMenu(p);
+      showListViewSelectionMenu(ui_->listView->mapToGlobal(p));
       return;
     }
   }
@@ -10708,7 +10708,8 @@ void ApplicationWindow::showFolderPopupMenu(QTreeWidgetItem *it,
   QMenu window(this);
   QMenu viewWindowsMenu(this);
 
-  cm.addAction(tr("&Find..."), this, SLOT(showFindDialogue()));
+  cm.addAction(tr("&Find..."), this,
+               SLOT(findWindowOrFolderFromProjectExplorer()));
   cm.addSeparator();
   cm.addAction(tr("App&end Project..."), this, SLOT(appendProject()));
   if (static_cast<FolderTreeWidgetItem *>(it)->folder()->parent())
@@ -10726,7 +10727,6 @@ void ApplicationWindow::showFolderPopupMenu(QTreeWidgetItem *it,
   if (!fromFolders || it->parent()) {
     cm.addAction(IconLoader::load("edit-delete", IconLoader::General),
                  tr("&Delete Folder"), this, SLOT(deleteFolder()), Qt::Key_F8);
-    FolderTreeWidgetItem *fi = static_cast<FolderTreeWidgetItem *>(it);
     cm.addAction(tr("&Rename"), this, SLOT(renameFolderFromMenu()), Qt::Key_F2);
     cm.addSeparator();
   }
@@ -10810,10 +10810,9 @@ void ApplicationWindow::setShowWindowsPolicy(int p) {
     showAllFolderWindows();
 }
 
-void ApplicationWindow::showFindDialogue() {
-  FindDialog *fd = new FindDialog(this);
-  fd->setAttribute(Qt::WA_DeleteOnClose);
-  fd->exec();
+void ApplicationWindow::findWindowOrFolderFromProjectExplorer() {
+  std::unique_ptr<FindDialog> findDialog(new FindDialog(this));
+  findDialog->exec();
 }
 
 void ApplicationWindow::renameFolderFromMenu() {
@@ -10834,7 +10833,7 @@ void ApplicationWindow::startRenameFolder(FolderTreeWidgetItem *fi) {
   Folder::currentFolderNames << parent->subfolders();
 
   ui_->folderView->clearSelection();
-  fi->setSelected(true);
+  ui_->folderView->setCurrentItem(fi);
   fi->treeWidget()->editItem(fi, 0);
 
   connect(ui_->folderView, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
@@ -10852,9 +10851,8 @@ void ApplicationWindow::startRenameFolder(QTreeWidgetItem *item) {
     parent = projectFolder();
 
   current_folder->setName(item->text(0));
-  ui_->folderView->clearSelection();
   folderItemChanged(parent->folderTreeWidgetItem());  // update the list views
-  parent->folderTreeWidgetItem()->setSelected(true);
+  ui_->folderView->setCurrentItem(parent->folderTreeWidgetItem());
 }
 
 void ApplicationWindow::showAllFolderWindows() {
@@ -10935,9 +10933,9 @@ void ApplicationWindow::addFolder() {
   if (fi) {
     f->setFolderTreeWidgetItem(fi);
     fi->setActive(false);
-    ui_->folderView->clearSelection();
     Folder *parentFolder = static_cast<Folder *>(f->parent());
-    if (parentFolder) parentFolder->folderTreeWidgetItem()->setSelected(true);
+    if (parentFolder)
+      ui_->folderView->setCurrentItem(parentFolder->folderTreeWidgetItem());
   }
 }
 
@@ -10999,23 +10997,25 @@ void ApplicationWindow::folderItemDoubleClicked(QTreeWidgetItem *it) {
   if (!it) return;
 
   if (it->type() == FolderTreeWidget::Folders) {
-    FolderTreeWidgetItem *item =
-        ((FolderTreeWidgetItem *)it)->folder()->folderTreeWidgetItem();
+    FolderTreeWidgetItem *item = static_cast<FolderTreeWidgetItem *>(it)
+                                     ->folder()
+                                     ->folderTreeWidgetItem();
     ui_->folderView->setCurrentItem(item);
   } else {
-    MyWidget *w = ((WindowTableWidgetItem *)it)->window();
-    if (!w) return;
-    if (d_workspace->activeWindow() != w)
-      activateWindow(w);
+    MyWidget *widget = static_cast<WindowTableWidgetItem *>(it)->window();
+    if (!widget) return;
+    if (d_workspace->activeWindow() != widget)
+      activateWindow(widget);
     else {
-      if (!w->isMaximized())
-        w->setMaximized();
+      if (!widget->isMaximized())
+        widget->setMaximized();
       else
-        w->setNormal();
+        widget->setNormal();
     }
   }
 }
 
+// Change Folder in folder view (project explorer)
 void ApplicationWindow::folderItemChanged(QTreeWidgetItem *item) {
   if (!item) return;
 
@@ -11024,6 +11024,7 @@ void ApplicationWindow::folderItemChanged(QTreeWidgetItem *item) {
   ui_->folderView->setFocus();
 }
 
+// Hide all windows of current folder (project explorer)
 void ApplicationWindow::hideFolderWindows(Folder *f) {
   QList<MyWidget *> lst = f->windowsList();
   foreach (MyWidget *w, lst)
@@ -11041,6 +11042,7 @@ void ApplicationWindow::hideFolderWindows(Folder *f) {
   }
 }
 
+// Change Folder in folder view main implimentation(project explorer)
 bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
   if (current_folder == newFolder && !force) return false;
 
@@ -11346,58 +11348,85 @@ void ApplicationWindow::addFolderListViewItem(Folder *folder) {
   item->setText(3, folder->birthDate());
 }
 
+// Find window or folders (project explorer)
 void ApplicationWindow::find(const QString &s, bool windowNames, bool labels,
                              bool folderNames, bool caseSensitive,
                              bool partialMatch, bool subfolders) {
   if (windowNames || labels) {
-    MyWidget *w = current_folder->findWindow(s, windowNames, labels,
-                                             caseSensitive, partialMatch);
-    if (w) {
-      activateWindow(w);
+    MyWidget *widget = current_folder->findWindow(s, windowNames, labels,
+                                                  caseSensitive, partialMatch);
+    if (widget) {
+      activateWindow(widget);
       return;
     }
 
     if (subfolders) {
-      FolderTreeWidgetItem *item;
-      for (int i = 0; i < ui_->folderView->currentItem()->childCount(); i++) {
-        item = static_cast<FolderTreeWidgetItem *>(
-            ui_->folderView->currentItem()->child(i));
-        Folder *f = item->folder();
-        MyWidget *w =
-            f->findWindow(s, windowNames, labels, caseSensitive, partialMatch);
-        if (w) {
-          ui_->folderView->setCurrentItem(f->folderTreeWidgetItem());
-          activateWindow(w);
-          return;
-        }
-      }
+      bool found = findRecursive(
+          static_cast<FolderTreeWidgetItem *>(ui_->folderView->currentItem()),
+          FindWindow, s, labels, caseSensitive, partialMatch);
+      if(found) return;
     }
   }
 
   if (folderNames) {
-    Folder *f = current_folder->findSubfolder(s, caseSensitive, partialMatch);
-    if (f) {
-      ui_->folderView->setCurrentItem(f->folderTreeWidgetItem());
+    Folder *dir = current_folder->findSubfolder(s, caseSensitive, partialMatch);
+    if (dir) {
+      ui_->folderView->setCurrentItem(dir->folderTreeWidgetItem());
       return;
     }
 
     if (subfolders) {
-      FolderTreeWidgetItem *item;
-      for (int i = 0; i < ui_->folderView->currentItem()->childCount(); i++) {
-        item = static_cast<FolderTreeWidgetItem *>(
-            ui_->folderView->currentItem()->child(i));
-        Folder *f =
-            item->folder()->findSubfolder(s, caseSensitive, partialMatch);
-        if (f) {
-          ui_->folderView->setCurrentItem(f->folderTreeWidgetItem());
-          return;
-        }
-      }
+      bool found = findRecursive(
+          static_cast<FolderTreeWidgetItem *>(ui_->folderView->currentItem()),
+          FindFolder, s, false, caseSensitive, partialMatch);
+      if(found) return;
     }
   }
 
   QMessageBox::warning(this, tr("No match found"),
                        tr("Sorry, no match found for string: '%1'").arg(s));
+}
+
+// Find window or folders recursively (project explorer)
+bool ApplicationWindow::findRecursive(FolderTreeWidgetItem *item,
+                                      FindItem findItem, QString s, bool labels,
+                                      bool caseSensitive, bool partialMatch) {
+  if (!item) return false;
+  FolderTreeWidgetItem *it = nullptr;
+
+  switch (findItem) {
+    case FindWindow: {
+      for (int i = 0; i < item->childCount(); i++) {
+        it = static_cast<FolderTreeWidgetItem *>(item->child(i));
+        MyWidget *myWidget = it->folder()->findWindow(
+            s, true, labels, caseSensitive, partialMatch);
+        if (myWidget) {
+          ui_->folderView->setCurrentItem(it->folder()->folderTreeWidgetItem());
+          activateWindow(myWidget);
+          return true;
+        }
+      }
+    } break;
+    case FindFolder: {
+      for (int i = 0; i < item->childCount(); i++) {
+        it = static_cast<FolderTreeWidgetItem *>(item->child(i));
+        Folder *fldr =
+            it->folder()->findSubfolder(s, caseSensitive, partialMatch);
+        if (fldr) {
+          ui_->folderView->setCurrentItem(fldr->folderTreeWidgetItem());
+          return true;
+        }
+      }
+    } break;
+  }
+
+  for (int i = 0; i < item->childCount(); i++) {
+    it = static_cast<FolderTreeWidgetItem *>(item->child(i));
+    bool status = findRecursive(it, findItem, s, labels, caseSensitive, partialMatch);
+    if(status) {return true;}
+  }
+
+  return false;
 }
 
 /*void ApplicationWindow::dropFolderItems(Q3ListViewItem *dest) {
@@ -11574,9 +11603,7 @@ void ApplicationWindow::receivedVersionFile(bool error) {
 }
 #endif  // defined SEARCH_FOR_UPDATES
 
-/*!
-  Turns 3D animation on or off
-  */
+// Turns 3D animation on or off
 void ApplicationWindow::toggle3DAnimation(bool on) {
   if (d_workspace->activeWindow() &&
       d_workspace->activeWindow()->inherits("Graph3D"))
@@ -11694,8 +11721,7 @@ void ApplicationWindow::showStatusBarContextMenu(const QPoint &pos) {
 }
 
 void ApplicationWindow::showWindowMenu(MyWidget *widget) {
-  d_workspace->setActiveWindow(
-      widget);  // FIXME not user-friendly, but can't be simply removed
+  d_workspace->setActiveWindow(widget);  // FIXME not user-friendly
 
   QMenu cm(this);
   QMenu depend_menu(this);
@@ -11940,7 +11966,7 @@ QStringList ApplicationWindow::tableWindows() {
   return result;
 }
 
-// scripting related code
+//----------------------------scripting related code---------------------------
 void ApplicationWindow::attachQtScript() {
   // pass mainwindow as global object
   QScriptValue objectValue = consoleWindow->engine->newQObject(this);

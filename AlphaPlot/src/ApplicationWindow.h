@@ -128,6 +128,7 @@ class ApplicationWindow : public QMainWindow,
 
  private:
   Ui_ApplicationWindow* ui_;
+  enum FindItem { FindWindow, FindFolder };
 
  public:
   // Folder windows handling policy
@@ -602,7 +603,7 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name Dialogs
   //@{
-  void showFindDialogue();
+  void findWindowOrFolderFromProjectExplorer();
   //! Show plot style dialog for the active MultiLayer / activeGraph / specified
   //! curve or the activeGraph options dialog if no curve is specified (curveKey
   //! = -1).
@@ -795,7 +796,7 @@ class ApplicationWindow : public QMainWindow,
 
   //! Changes the current folder
   bool changeFolder(Folder* newFolder, bool force = false);
-  void refreshFolderTreeWidgetItemsRecursive(FolderTreeWidgetItem *item);
+  void refreshFolderTreeWidgetItemsRecursive(FolderTreeWidgetItem* item);
 
   //! Changes the current folder when the user changes the current item in the
   //! QListView "folders"
@@ -873,6 +874,8 @@ class ApplicationWindow : public QMainWindow,
   //!  used by the findDialog
   void find(const QString& s, bool windowNames, bool labels, bool folderNames,
             bool caseSensitive, bool partialMatch, bool subfolders);
+  bool findRecursive(FolderTreeWidgetItem* item, FindItem findItem, QString s,
+                     bool labels, bool caseSensitive, bool partialMatch);
 
   //!  initializes the list of items dragged by the user
   // void dragFolderItems(QList<Q3ListViewItem*> items) { draggedItems = items;
