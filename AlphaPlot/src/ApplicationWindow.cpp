@@ -10695,11 +10695,13 @@ void ApplicationWindow::saveFolderAsProject(Folder *f) {
   }
 }
 
+// Folder popup menu from folder view (project explorer)
 void ApplicationWindow::showFolderPopupMenu(const QPoint &p) {
   QTreeWidgetItem *it = ui_->folderView->itemAt(p);
   if (it) showFolderPopupMenu(it, ui_->folderView->mapToGlobal(p), true);
 }
 
+// General Folder popup menu (project explorer)
 void ApplicationWindow::showFolderPopupMenu(QTreeWidgetItem *it,
                                             const QPoint &p, bool fromFolders) {
   if (!it) return;
@@ -10792,10 +10794,11 @@ void ApplicationWindow::showFolderPopupMenu(QTreeWidgetItem *it,
   cm.exec(p);
 }
 
-void ApplicationWindow::setShowWindowsPolicy(int p) {
-  if (show_windows_policy == static_cast<ShowWindowsPolicy>(p)) return;
+// Setting windows policy & windows view (project explorer)
+void ApplicationWindow::setShowWindowsPolicy(int policy) {
+  if (show_windows_policy == static_cast<ShowWindowsPolicy>(policy)) return;
 
-  show_windows_policy = static_cast<ShowWindowsPolicy>(p);
+  show_windows_policy = static_cast<ShowWindowsPolicy>(policy);
   if (show_windows_policy == HideAll) {
     QList<QWidget *> *lst = windowsList();
     foreach (QWidget *w, *lst) {
@@ -10810,16 +10813,19 @@ void ApplicationWindow::setShowWindowsPolicy(int p) {
     showAllFolderWindows();
 }
 
+// Find window or folder dialog (project explorer)
 void ApplicationWindow::findWindowOrFolderFromProjectExplorer() {
   std::unique_ptr<FindDialog> findDialog(new FindDialog(this));
   findDialog->exec();
 }
 
+// Rename triggered from folder/list view context menu (project explorer)
 void ApplicationWindow::renameFolderFromMenu() {
   FolderTreeWidgetItem *fi = current_folder->folderTreeWidgetItem();
   if (fi) startRenameFolder(fi);
 }
 
+// Start rename selected folder item (project explorer)
 void ApplicationWindow::startRenameFolder(FolderTreeWidgetItem *fi) {
   if (!fi || !fi->parent()) return;
 
@@ -10837,12 +10843,13 @@ void ApplicationWindow::startRenameFolder(FolderTreeWidgetItem *fi) {
   fi->treeWidget()->editItem(fi, 0);
 
   connect(ui_->folderView, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
-          SLOT(startRenameFolder(QTreeWidgetItem *)));
+          SLOT(renameFolder(QTreeWidgetItem *)));
 }
 
-void ApplicationWindow::startRenameFolder(QTreeWidgetItem *item) {
+// Rename selected folder item (project explorer)
+void ApplicationWindow::renameFolder(QTreeWidgetItem *item) {
   disconnect(ui_->folderView, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
-             SLOT(startRenameFolder(QTreeWidgetItem *)));
+             SLOT(renameFolder(QTreeWidgetItem *)));
 
   if (!item) return;
 
@@ -10855,70 +10862,60 @@ void ApplicationWindow::startRenameFolder(QTreeWidgetItem *item) {
   ui_->folderView->setCurrentItem(parent->folderTreeWidgetItem());
 }
 
+// Show all windows in folders and subfolders (project explorer)
 void ApplicationWindow::showAllFolderWindows() {
-  QList<MyWidget *> lst = current_folder->windowsList();
-  foreach (MyWidget *w, lst) {  // force show all windows in current folder
-    if (w) {
-      updateWindowLists(w);
-      switch (w->status()) {
-        case MyWidget::Hidden:
-          w->showNormal();
-          break;
+  showAllFolderWindowsRecursive(current_folder->folderTreeWidgetItem());
+}
 
-        case MyWidget::Normal:
-          w->showNormal();
-          break;
+// Show all windows in folders and subfolders recursive (project explorer)
+void ApplicationWindow::showAllFolderWindowsRecursive(
+    FolderTreeWidgetItem *fitem) {
+  if (!fitem) return;
 
-        case MyWidget::Minimized:
-          w->showMinimized();
-          break;
-
-        case MyWidget::Maximized:
-          w->showMaximized();
-          break;
-      }
-    }
-  }
-
-  if ((current_folder->children()).isEmpty()) return;
-
-  FolderTreeWidgetItem *fi = current_folder->folderTreeWidgetItem();
-  FolderTreeWidgetItem *item;
-  for (int i = 0; i < fi->childCount(); i++) {  // toggle item view sub dirs
-    item = static_cast<FolderTreeWidgetItem *>(fi->child(i));
-    lst = static_cast<Folder *>(item->folder())->windowsList();
-    foreach (MyWidget *w, lst) {
-      if (w && show_windows_policy == SubFolders) {
-        updateWindowLists(w);
-        switch (w->status()) {
+  FolderTreeWidgetItem *item = nullptr;
+  for (int i = 0; i < fitem->childCount(); i++) {  // toggle item view sub dirs
+    item = static_cast<FolderTreeWidgetItem *>(fitem->child(i));
+    QList<MyWidget *> list =
+        static_cast<Folder *>(item->folder())->windowsList();
+    foreach (MyWidget *myWidget, list) {
+      if (myWidget && show_windows_policy == SubFolders) {
+        updateWindowLists(myWidget);
+        switch (myWidget->status()) {
           case MyWidget::Hidden:
-            w->showNormal();
+            myWidget->showNormal();
             break;
 
           case MyWidget::Normal:
-            w->showNormal();
+            myWidget->showNormal();
             break;
 
           case MyWidget::Minimized:
-            w->showMinimized();
+            myWidget->showMinimized();
             break;
 
           case MyWidget::Maximized:
-            w->showMaximized();
+            myWidget->showMaximized();
             break;
         }
       } else
-        w->hide();
+        myWidget->hide();
     }
+  }
+
+  for (int i = 0; i < fitem->childCount(); i++) {
+    item = static_cast<FolderTreeWidgetItem *>(fitem->child(i));
+    showAllFolderWindowsRecursive(item);
   }
 }
 
+// Hide all windows in this folder (project explorer)
 void ApplicationWindow::hideAllFolderWindows() {
   QList<MyWidget *> lst = current_folder->windowsList();
   foreach (MyWidget *w, lst)
     hideWindow(w);
 }
 
+// Add new folder (project explorer)
 void ApplicationWindow::addFolder() {
   QStringList lst = current_folder->subfolders();
   QString name = tr("New Folder");
@@ -10939,6 +10936,7 @@ void ApplicationWindow::addFolder() {
   }
 }
 
+// Delete selected folder & subfolders (project explorer)
 bool ApplicationWindow::deleteFolder(Folder *f) {
   if (confirmCloseFolder &&
       QMessageBox::information(
@@ -10955,8 +10953,8 @@ bool ApplicationWindow::deleteFolder(Folder *f) {
     if (!(f->children()).isEmpty()) {
       FolderTreeWidgetItem *item;
       for (int i = 0; i < fi->childCount(); i++) {
-        item = (FolderTreeWidgetItem *)fi->child(i);
-        Folder *subFolder = (Folder *)item->folder();
+        item = static_cast<FolderTreeWidgetItem *>(fi->child(i));
+        Folder *subFolder = static_cast<Folder *>(item->folder());
         if (subFolder) {
           foreach (MyWidget *w, subFolder->windowsList()) {
             removeWindowFromLists(w);
@@ -10977,8 +10975,9 @@ bool ApplicationWindow::deleteFolder(Folder *f) {
   }
 }
 
+// Delete selected folder & subfolders (project explorer)
 void ApplicationWindow::deleteFolder() {
-  Folder *parent = (Folder *)current_folder->parent();
+  Folder *parent = static_cast<Folder *>(current_folder->parent());
   if (!parent) parent = projectFolder();
 
   ui_->folderView->blockSignals(true);
@@ -10993,6 +10992,7 @@ void ApplicationWindow::deleteFolder() {
   ui_->folderView->setFocus();
 }
 
+// Folder item doubleclicked (project explorer)
 void ApplicationWindow::folderItemDoubleClicked(QTreeWidgetItem *it) {
   if (!it) return;
 
@@ -11364,7 +11364,7 @@ void ApplicationWindow::find(const QString &s, bool windowNames, bool labels,
       bool found = findRecursive(
           static_cast<FolderTreeWidgetItem *>(ui_->folderView->currentItem()),
           FindWindow, s, labels, caseSensitive, partialMatch);
-      if(found) return;
+      if (found) return;
     }
   }
 
@@ -11379,7 +11379,7 @@ void ApplicationWindow::find(const QString &s, bool windowNames, bool labels,
       bool found = findRecursive(
           static_cast<FolderTreeWidgetItem *>(ui_->folderView->currentItem()),
           FindFolder, s, false, caseSensitive, partialMatch);
-      if(found) return;
+      if (found) return;
     }
   }
 
@@ -11422,8 +11422,11 @@ bool ApplicationWindow::findRecursive(FolderTreeWidgetItem *item,
 
   for (int i = 0; i < item->childCount(); i++) {
     it = static_cast<FolderTreeWidgetItem *>(item->child(i));
-    bool status = findRecursive(it, findItem, s, labels, caseSensitive, partialMatch);
-    if(status) {return true;}
+    bool status =
+        findRecursive(it, findItem, s, labels, caseSensitive, partialMatch);
+    if (status) {
+      return true;
+    }
   }
 
   return false;

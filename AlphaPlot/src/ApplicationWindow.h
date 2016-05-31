@@ -825,16 +825,13 @@ class ApplicationWindow : public QMainWindow,
 
   // prepare to rename by passing item
   void renameFolderFromMenu();
-
-  //  starts renaming the selected folder by creating a built-in text editor
   void startRenameFolder(FolderTreeWidgetItem* fi);
-
-  //  starts renaming the selected folder by creating a built-in text editor
-  void startRenameFolder(QTreeWidgetItem* item);
+  void renameFolder(QTreeWidgetItem* item);
 
   //!  forces showing all windows in the current folder and subfolders,
   //!  depending on the user's viewing policy
   void showAllFolderWindows();
+  void showAllFolderWindowsRecursive(FolderTreeWidgetItem *item);
 
   //!  forces hidding all windows in the current folder and subfolders,
   //!  depending on the user's viewing policy
@@ -864,9 +861,8 @@ class ApplicationWindow : public QMainWindow,
   //!  adds a widget list item to the list view "lv"
   void addListViewItem(MyWidget* widget);
 
-  //!  hides or shows windows in the current folder and changes the view windows
-  //!  policy
-  void setShowWindowsPolicy(int p);
+  //!  hides or shows windows in the current folder & windows policy
+  void setShowWindowsPolicy(int policy);
 
   //!  returns a pointer to the root project folder
   Folder* projectFolder();
