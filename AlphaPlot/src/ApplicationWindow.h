@@ -128,7 +128,7 @@ class ApplicationWindow : public QMainWindow,
 
  private:
   Ui_ApplicationWindow* ui_;
-  enum FindItem { FindWindow, FindFolder };
+  enum FindItem { FindWindowItem, FindFolderItem };
 
  public:
   // Folder windows handling policy

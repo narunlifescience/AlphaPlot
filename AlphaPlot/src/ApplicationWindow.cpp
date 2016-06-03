@@ -7528,12 +7528,12 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
     if (item) delete item;
   }
 
-  if (window->inherits("Matrix"))
-    window->setParent(0);
-  else if (window->inherits("Table"))
-    window->setParent(0);
-  else
+  if (window->inherits("Matrix") || window->inherits("Table")) {
+    window->setParent(nullptr);
+  } else {
     window->deleteLater();
+  }
+
   emit modified();
 }
 
@@ -11363,7 +11363,7 @@ void ApplicationWindow::find(const QString &s, bool windowNames, bool labels,
     if (subfolders) {
       bool found = findRecursive(
           static_cast<FolderTreeWidgetItem *>(ui_->folderView->currentItem()),
-          FindWindow, s, labels, caseSensitive, partialMatch);
+          FindWindowItem, s, labels, caseSensitive, partialMatch);
       if (found) return;
     }
   }
@@ -11378,7 +11378,7 @@ void ApplicationWindow::find(const QString &s, bool windowNames, bool labels,
     if (subfolders) {
       bool found = findRecursive(
           static_cast<FolderTreeWidgetItem *>(ui_->folderView->currentItem()),
-          FindFolder, s, false, caseSensitive, partialMatch);
+          FindFolderItem, s, false, caseSensitive, partialMatch);
       if (found) return;
     }
   }
@@ -11395,7 +11395,7 @@ bool ApplicationWindow::findRecursive(FolderTreeWidgetItem *item,
   FolderTreeWidgetItem *it = nullptr;
 
   switch (findItem) {
-    case FindWindow: {
+    case FindWindowItem: {
       for (int i = 0; i < item->childCount(); i++) {
         it = static_cast<FolderTreeWidgetItem *>(item->child(i));
         MyWidget *myWidget = it->folder()->findWindow(
@@ -11407,7 +11407,7 @@ bool ApplicationWindow::findRecursive(FolderTreeWidgetItem *item,
         }
       }
     } break;
-    case FindFolder: {
+    case FindFolderItem: {
       for (int i = 0; i < item->childCount(); i++) {
         it = static_cast<FolderTreeWidgetItem *>(item->child(i));
         Folder *fldr =

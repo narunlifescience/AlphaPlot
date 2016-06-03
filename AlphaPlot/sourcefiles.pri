@@ -344,6 +344,12 @@ SOURCES     += src/future/core/AbstractAspect.cpp \
                src/future/table/future_SortDialog.cpp \
                src/future/table/AsciiTableImportFilter.cpp \
 
+##############################################################
+####################### mcppp ################################
+##############################################################
+HEADERS     += src/scripting/mcppp/ParseError.h
+SOURCES     += src/scripting/mcppp/ParseError.cpp
+
 ###############################################################
 ##################### Compression #############################
 ############### (mini gzip implementation) ####################
