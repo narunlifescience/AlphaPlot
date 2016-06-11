@@ -28,7 +28,7 @@ before_install:
   - sudo apt-get -yqq update
   - sudo apt-get -fyq install
   # Install necessary mxe packages, set paths & add soft links (MXE)
-  - sudo apt-get install mxe-i686-w64-mingw32.static-qt mxe-i686-w64-mingw32.static-muparser mxe-i686-w64-mingw32.static-gsl mxe-i686-w64-mingw32.static-zlib mxe-i686-w64-mingw32.static-libidn
+  - sudo apt-get install mxe-i686-w64-mingw32.static-qt mxe-i686-w64-mingw32.static-gsl mxe-i686-w64-mingw32.static-zlib mxe-i686-w64-mingw32.static-libidn
   - target=i686-w64-mingw32.static
   - mxedir=/usr/lib/mxe/
   - sudo ln -s /usr/lib/mxe/usr/bin/i686-w64-mingw32.static-g++ /bin/i686-w64-mingw32.static-g++
