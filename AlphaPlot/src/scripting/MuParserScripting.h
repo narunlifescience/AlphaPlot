@@ -37,7 +37,7 @@
 #include "Script.h"
 #include "MuParserScript.h"
 
-#include <muParser.h>
+#include <../../3rdparty/muparser/muParser.h>
 #include "math.h"
 #include <gsl/gsl_sf.h>
 #include <gsl/gsl_errno.h>

@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "FitDialog.h"
-#include <muParserError.h>
+#include <../../3rdparty/muparser/muParserError.h>
 #include "ApplicationWindow.h"
 #include "ColorBox.h"
 #include "ExponentialFit.h"

@@ -1,22 +1,56 @@
-sudo: true
-dist: trusty
 language: cpp
+dist: wheezy
+compiler: gcc
+cache:    apt
 
 before_install:
-  - sudo apt-get update -qq
-
+  # Install necessary packages (Linux)
   - sudo apt-get install -y libgsl0-dev
   - sudo apt-get install -y libqwtplot3d-qt4-dev
   - sudo apt-get install -y libqwt5-qt4-dev
   - sudo apt-get install -y libqt4-opengl-dev
   - sudo apt-get install -y libqt4-dev
-  - sudo apt-get install -y libmuparser-dev
   - sudo apt-get install -y zlib1g-dev
-  
-  # this needs fixing!
+  # add include files path (Linux)
   - sudo ln -sf /usr/include/qwtplot3d-qt4 /usr/include/qwtplot3d
+  
+  # Create temperory directories for linux & windows build (common)
+  - cd ..
+  - mkdir linux
+  - cp -a AlphaPlot/. linux/
+  - mkdir windows
+  - cp -a AlphaPlot/. windows/
+  - cd windows
+  
+  # Add MXE apt location and key to source list (MXE)
+  - sudo su -c "echo 'deb http://pkg.mxe.cc/repos/apt/debian wheezy main' > /etc/apt/sources.list.d/mxeapt.list"
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D43A795B73B16ABE9643FE1AFD8FFF16DB45C6AB
+  - sudo apt-get -yqq update
+  - sudo apt-get -fyq install
+  # Install necessary mxe packages, set paths & add soft links (MXE)
+  - sudo apt-get install mxe-i686-w64-mingw32.static-qt mxe-i686-w64-mingw32.static-muparser mxe-i686-w64-mingw32.static-gsl mxe-i686-w64-mingw32.static-zlib mxe-i686-w64-mingw32.static-libidn
+  - target=i686-w64-mingw32.static
+  - mxedir=/usr/lib/mxe/
+  - sudo ln -s /usr/lib/mxe/usr/bin/i686-w64-mingw32.static-g++ /bin/i686-w64-mingw32.static-g++
+  - sudo ln -s /usr/lib/mxe/usr/bin/i686-w64-mingw32.static-gcc /bin/i686-w64-mingw32.static-gcc
+  - sudo ln -s /usr/lib/mxe/usr/bin/i686-w64-mingw32.static-gcc-ar /bin/i686-w64-mingw32.static-gcc-ar
+  - sudo ln -s /usr/lib/mxe/usr/bin/i686-w64-mingw32.static-windres /bin/i686-w64-mingw32.static-windres
+  # add libraies & include files to 3rdparty directory (MXE)
+  - mv bin/include bin/lib 3rdparty
+  - echo "mxe { INCLUDEPATH  += \"../3rdparty\" }" >> config.pri
+  - sudo ln -sf /usr/include/qwtplot3d-qt4 3rdparty/qwtplot3d
 
-script: 
+notifications:
+  email: false
+
+script:
+  # Build (MXE)
+  - /usr/lib/mxe/usr/i686-w64-mingw32.static/qt/bin/qmake CONFIG+=mxe
+  - make
+  
+  # Build (Linux)
+  - cd ..
+  - cd linux
   - qmake
   - make qmake
   - make

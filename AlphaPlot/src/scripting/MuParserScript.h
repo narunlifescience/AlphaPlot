@@ -32,7 +32,7 @@
 
 #include "Script.h"
 #include <QtCore/QMap>
-#include <muParser.h>
+#include <../../3rdparty/muparser/muParser.h>
 
 class QByteArray;
 class Column;
