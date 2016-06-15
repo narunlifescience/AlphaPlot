@@ -122,6 +122,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/ui/SettingsPage.h \
             src/ui/SettingsDialog.h \
             src/ui/PropertiesDialog.h \
+            src/ui/RandomDistributionDialog.h \
             src/About.h \
 
 ###################### SOURCES ##############################################
@@ -241,6 +242,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ui/SettingsPage.cpp \
             src/ui/SettingsDialog.cpp \
             src/ui/PropertiesDialog.cpp \
+            src/ui/RandomDistributionDialog.cpp \
             src/About.cpp \
             src/main.cpp
 
@@ -251,6 +253,7 @@ FORMS        += src/ApplicationWindow.ui \
                 src/ui/GeneralAppreanceSettings.ui \
                 src/ui/SettingsDialog.ui \
                 src/ui/PropertiesDialog.ui \
+                src/ui/RandomDistributionDialog.ui \
                 src/About.ui \
 
 ########### Future code backported from the aspect framework ##################
@@ -343,12 +346,6 @@ SOURCES     += src/future/core/AbstractAspect.cpp \
                src/future/table/TableCommentsHeaderModel.cpp \
                src/future/table/future_SortDialog.cpp \
                src/future/table/AsciiTableImportFilter.cpp \
-
-##############################################################
-####################### mcppp ################################
-##############################################################
-HEADERS     += src/scripting/mcppp/ParseError.h
-SOURCES     += src/scripting/mcppp/ParseError.cpp
 
 ###############################################################
 ##################### Compression #############################

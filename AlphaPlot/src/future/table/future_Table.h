@@ -289,6 +289,7 @@ class Table : public AbstractPart
   void recalculateSelectedCells();
   void fillSelectedCellsWithRowNumbers();
   void fillSelectedCellsWithRandomNumbers();
+  void fillSelectedCellsWithCustomRandomNumbers();
   //! Open the sort dialog for all columns
   void sortTable();
   //! Insert columns depending on the selection
@@ -432,6 +433,7 @@ class Table : public AbstractPart
   QAction *action_recalculate;
   QAction *action_fill_row_numbers;
   QAction *action_fill_random;
+  QAction *action_fill_random_distribution;
   QAction *action_normalize_selection;
   //@}
   //! \name table related actions

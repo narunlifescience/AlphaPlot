@@ -30,49 +30,50 @@
  *                                                                         *
  ***************************************************************************/
 #include "table/future_Table.h"
+#include "../core/IconLoader.h"
 #include "core/Project.h"
 #include "lib/ActionManager.h"
-#include "../core/IconLoader.h"
+#include "../../ui/RandomDistributionDialog.h"
 
-#include <QItemSelectionModel>
-#include <QTime>
-#include <QtGlobal>
-#include <QHBoxLayout>
-#include <QShortcut>
 #include <QApplication>
+#include <QClipboard>
 #include <QContextMenuEvent>
-#include <climits>  // for RAND_MAX
-#include <QMenu>
+#include <QDialog>
+#include <QHBoxLayout>
+#include <QInputDialog>
 #include <QItemSelection>
+#include <QItemSelectionModel>
+#include <QMapIterator>
+#include <QMenu>
+#include <QMenuBar>
 #include <QModelIndex>
 #include <QModelIndexList>
-#include <QInputDialog>
-#include <QMapIterator>
-#include <QDialog>
-#include <QMenuBar>
-#include <QClipboard>
+#include <QShortcut>
+#include <QTime>
 #include <QToolBar>
 #include <QtDebug>
+#include <QtGlobal>
+#include <climits>  // for RAND_MAX
 
-#include "table/TableModel.h"
-#include "table/TableView.h"
-#include "table/tablecommands.h"
-#include "table/future_SortDialog.h"
-#include "core/column/Column.h"
-#include "core/AbstractFilter.h"
-#include "core/datatypes/String2DoubleFilter.h"
-#include "core/datatypes/Double2StringFilter.h"
-#include "core/datatypes/DateTime2StringFilter.h"
-#include "core/datatypes/String2DayOfWeekFilter.h"
-#include "core/datatypes/String2MonthFilter.h"
-#include "core/datatypes/Double2DateTimeFilter.h"
-#include "core/datatypes/Double2MonthFilter.h"
-#include "core/datatypes/Double2DayOfWeekFilter.h"
-#include "core/datatypes/String2DateTimeFilter.h"
-#include "core/datatypes/DateTime2DoubleFilter.h"
-#include "core/datatypes/SimpleCopyThroughFilter.h"
 #include "TeXTableExportDialog.h"
 #include "TeXTableSettings.h"
+#include "core/AbstractFilter.h"
+#include "core/column/Column.h"
+#include "core/datatypes/DateTime2DoubleFilter.h"
+#include "core/datatypes/DateTime2StringFilter.h"
+#include "core/datatypes/Double2DateTimeFilter.h"
+#include "core/datatypes/Double2DayOfWeekFilter.h"
+#include "core/datatypes/Double2MonthFilter.h"
+#include "core/datatypes/Double2StringFilter.h"
+#include "core/datatypes/SimpleCopyThroughFilter.h"
+#include "core/datatypes/String2DateTimeFilter.h"
+#include "core/datatypes/String2DayOfWeekFilter.h"
+#include "core/datatypes/String2DoubleFilter.h"
+#include "core/datatypes/String2MonthFilter.h"
+#include "table/TableModel.h"
+#include "table/TableView.h"
+#include "table/future_SortDialog.h"
+#include "table/tablecommands.h"
 
 #include "ui_DimensionsDialog.h"
 
@@ -559,7 +560,7 @@ void Table::fillSelectedCellsWithRandomNumbers() {
 
   WAIT_CURSOR;
   beginMacro(tr("%1: fill cells with random values").arg(name()));
-  qsrand(QTime::currentTime().msec());
+  qsrand(static_cast<uint>(QTime::currentTime().msec()));
   foreach (Column *col_ptr, d_view->selectedColumns()) {
     int col = columnIndex(col_ptr);
     switch (col_ptr->columnMode()) {
@@ -593,11 +594,12 @@ void Table::fillSelectedCellsWithRandomNumbers() {
         for (int row = first; row <= last; row++)
           if (d_view->isCellSelected(row, col))
             results << QDateTime(
-                earliestDate.addDays(((double)qrand()) *
-                                     ((double)earliestDate.daysTo(latestDate)) /
-                                     ((double)RAND_MAX)),
-                midnight.addMSecs(((qint64)qrand()) * 1000 * 60 * 60 * 24 /
-                                  RAND_MAX));
+                earliestDate.addDays(
+                    (static_cast<double>(qrand())) *
+                    (static_cast<double>(earliestDate.daysTo(latestDate))) /
+                    (static_cast<double>(RAND_MAX))),
+                midnight.addMSecs((static_cast<qint64>(qrand())) * 1000 * 60 *
+                                  60 * 24 / RAND_MAX));
           else
             results << col_ptr->dateTimeAt(row);
         col_ptr->replaceDateTimes(first, results);
@@ -607,6 +609,18 @@ void Table::fillSelectedCellsWithRandomNumbers() {
   }
   endMacro();
   RESET_CURSOR;
+}
+
+void Table::fillSelectedCellsWithCustomRandomNumbers() {
+  if (!d_view) return;
+  if (d_view->selectedColumnCount() < 1) return;
+  int first = d_view->firstSelectedRow();
+  int last = d_view->lastSelectedRow();
+  if (first < 0) return;
+
+  std::unique_ptr<RandomDistributionDialog> randomDistributionDialog(
+        new RandomDistributionDialog());
+  randomDistributionDialog->exec();
 }
 
 void Table::sortTable() {
@@ -884,6 +898,7 @@ bool Table::fillProjectMenu(QMenu *menu) {
   submenu = new QMenu(tr("Fi&ll Selection with"));
   submenu->addAction(action_fill_row_numbers);
   submenu->addAction(action_fill_random);
+  submenu->addAction(action_fill_random_distribution);
   menu->addMenu(submenu);
   menu->addSeparator();
 
@@ -1000,6 +1015,11 @@ void Table::createActions() {
       new QAction(IconLoader::load("edit-random-number", IconLoader::LightDark),
                   tr("Random Values"), this);
   actionManager()->addAction(action_fill_random, "fill_random");
+
+  action_fill_random_distribution =
+      new QAction(IconLoader::load("edit-random-number", IconLoader::LightDark),
+                  tr("Custom Random"), this);
+  actionManager()->addAction(action_fill_random_distribution, "fill_random");
 
   // table related actions
   action_toggle_comments =
@@ -1217,6 +1237,8 @@ void Table::connectActions() {
           SLOT(fillSelectedCellsWithRowNumbers()));
   connect(action_fill_random, SIGNAL(triggered()), this,
           SLOT(fillSelectedCellsWithRandomNumbers()));
+  connect(action_fill_random_distribution, SIGNAL(triggered()), this,
+          SLOT(fillSelectedCellsWithCustomRandomNumbers()));
   connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
   connect(action_add_column, SIGNAL(triggered()), this, SLOT(addColumn()));
   connect(action_clear_table, SIGNAL(triggered()), this, SLOT(clear()));
@@ -1294,6 +1316,7 @@ void Table::addActionsToView() {
   d_view->addAction(action_recalculate);
   d_view->addAction(action_fill_row_numbers);
   d_view->addAction(action_fill_random);
+  d_view->addAction(action_fill_random_distribution);
   d_view->addAction(action_toggle_comments);
   d_view->addAction(action_toggle_tabbar);
   d_view->addAction(action_formula_mode);
@@ -1503,6 +1526,7 @@ QMenu *Table::createSelectionMenu(QMenu *append_to) {
   QMenu *submenu = new QMenu(tr("Fi&ll Selection with"));
   submenu->addAction(action_fill_row_numbers);
   submenu->addAction(action_fill_random);
+  submenu->addAction(action_fill_random_distribution);
   menu->addMenu(submenu);
   menu->addSeparator();
 
@@ -1544,6 +1568,7 @@ QMenu *Table::createColumnMenu(QMenu *append_to) {
   submenu = new QMenu(tr("Fi&ll Selection with"));
   submenu->addAction(action_fill_row_numbers);
   submenu->addAction(action_fill_random);
+  submenu->addAction(action_fill_random_distribution);
   menu->addMenu(submenu);
   menu->addSeparator();
 
@@ -1604,6 +1629,7 @@ QMenu *Table::createRowMenu(QMenu *append_to) {
   QMenu *submenu = new QMenu(tr("Fi&ll Selection with"));
   submenu->addAction(action_fill_row_numbers);
   submenu->addAction(action_fill_random);
+  submenu->addAction(action_fill_random_distribution);
   menu->addMenu(submenu);
   menu->addSeparator();
   menu->addAction(action_statistics_rows);
