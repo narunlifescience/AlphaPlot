@@ -618,6 +618,9 @@ void Table::fillSelectedCellsWithCustomRandomNumbers() {
 
   foreach (Column *col_ptr, d_view->selectedColumns()) {
     if (col_ptr->columnMode() != AlphaPlot::Numeric) {
+      QMessageBox::warning(0, tr("Random Distribution Error!"),
+                           tr("Random distributions can be only applied to "
+                              "numeric columns. "));
       return;
     }
   }

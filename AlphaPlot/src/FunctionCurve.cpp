@@ -30,6 +30,8 @@
 
 #include <QMessageBox>
 
+#include <math.h>
+
 // FIXME: While FunctionCurve itself supports arbitrary scripting
 // interpreters now, fit curves assume muParser in many formulas (using
 // "^" as power operator). Thus, simply having FunctionCurve honour the
@@ -101,7 +103,8 @@ bool FunctionCurve::loadData(int points) {
           delete[] Y;
           return false;
         }
-        Y[i] = result.toDouble();
+        (std::isinf(result.toFloat())) ? Y[i] = nan("null")
+                                       : Y[i] = result.toDouble();
       }
       break;
     }
