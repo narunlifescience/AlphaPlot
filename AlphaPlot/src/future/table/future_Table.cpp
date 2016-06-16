@@ -33,8 +33,9 @@
 #include "../core/IconLoader.h"
 #include "core/Project.h"
 #include "lib/ActionManager.h"
-#include "../../ui/RandomDistributionDialog.h"
 
+#include <gsl/gsl_randist.h>
+#include <gsl/gsl_rng.h>
 #include <QApplication>
 #include <QClipboard>
 #include <QContextMenuEvent>
@@ -614,13 +615,69 @@ void Table::fillSelectedCellsWithRandomNumbers() {
 void Table::fillSelectedCellsWithCustomRandomNumbers() {
   if (!d_view) return;
   if (d_view->selectedColumnCount() < 1) return;
+
+  foreach (Column *col_ptr, d_view->selectedColumns()) {
+    if (col_ptr->columnMode() != AlphaPlot::Numeric) {
+      return;
+    }
+  }
+
+  // Random nunber distibution generator dialog
+  std::unique_ptr<RandomDistributionDialog> randomDistributionDialog(
+      new RandomDistributionDialog());
+  connect(
+      randomDistributionDialog.get(),
+      SIGNAL(randomDistribution(const RandomDistributionDialog::Distribution &,
+                                const QVector<double> &)),
+      SLOT(generateRandomDistribution(
+          const RandomDistributionDialog::Distribution &,
+          const QVector<double> &)));
+  randomDistributionDialog->exec();
+}
+
+void Table::generateRandomDistribution(
+    const RandomDistributionDialog::Distribution &dist,
+    const QVector<double> &params) {
   int first = d_view->firstSelectedRow();
   int last = d_view->lastSelectedRow();
   if (first < 0) return;
 
-  std::unique_ptr<RandomDistributionDialog> randomDistributionDialog(
-        new RandomDistributionDialog());
-  randomDistributionDialog->exec();
+  // create a generator chosen by the environment variable GSL_RNG_TYPE
+  gsl_rng_env_setup();
+  const gsl_rng_type *T = gsl_rng_default;
+  gsl_rng *r = gsl_rng_alloc(T);
+
+  WAIT_CURSOR;
+  beginMacro(tr("%1: fill cells with non-uniform random values").arg(name()));
+
+  foreach (Column *col_ptr, d_view->selectedColumns()) {
+    switch (dist) {
+      case RandomDistributionDialog::Gaussian: {
+        double mu = params.at(0);
+        double sigma = params.at(1);
+        int col = columnIndex(col_ptr);
+        QVector<qreal> results(last - first + 1);
+        for (int row = first; row <= last; row++)
+          (d_view->isCellSelected(row, col))
+              ? results[row - first] = gsl_ran_gaussian(r, sigma) + mu
+              : results[row - first] = col_ptr->valueAt(row);
+        col_ptr->replaceValues(first, results);
+      } break;
+      case RandomDistributionDialog::Exponential: {
+        double mu = 1 / params.at(0);  // GSL uses the inverse for exp. distrib
+        int col = columnIndex(col_ptr);
+        QVector<qreal> results(last - first + 1);
+        for (int row = first; row <= last; row++)
+          (d_view->isCellSelected(row, col))
+              ? results[row - first] = gsl_ran_exponential(r, mu)
+              : results[row - first] = col_ptr->valueAt(row);
+        col_ptr->replaceValues(first, results);
+      } break;
+    }
+  }
+  endMacro();
+  RESET_CURSOR;
+  gsl_rng_free(r);
 }
 
 void Table::sortTable() {
@@ -1439,11 +1496,11 @@ bool Table::export_to_TeX(QString fileName, TeXTableSettings &tex_settings) {
 
   if (!file.open(QIODevice::WriteOnly)) {
     QApplication::restoreOverrideCursor();
-    QMessageBox::critical(
-        0, tr("TeX Export Error"),
-        tr("Could not write to file: <br><h4>%1</h4><p>Please verify that you "
-           "have the right to write to this location!")
-            .arg(fileName));
+    QMessageBox::critical(0, tr("TeX Export Error"),
+                          tr("Could not write to file: "
+                             "<br><h4>%1</h4><p>Please verify that you "
+                             "have the right to write to this location!")
+                              .arg(fileName));
     return false;
   }
 
@@ -1760,7 +1817,8 @@ void Table::sortDialog(QList<Column *> cols) {
 void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
   if (cols.isEmpty()) return;
 
-  // the normal QPair comparison does not work properly with descending sorting
+  // the normal QPair comparison does not work properly with descending
+  // sorting
   // thefore we use our own compare functions
   class CompareFunctions {
    public:
@@ -2442,5 +2500,4 @@ QVariant Table::Private::headerData(int section, Qt::Orientation orientation,
   }
   return QVariant();
 }
-
 }  // namespace

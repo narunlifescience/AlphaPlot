@@ -32,13 +32,15 @@
 #ifndef FUTURE_TABLE_H
 #define FUTURE_TABLE_H
 
+#include "../../ui/RandomDistributionDialog.h"
 #include "core/AbstractPart.h"
 #ifndef LEGACY_CODE_0_2_x
 #include "AbstractScriptingEngine.h"
 #endif
-#include "globals.h"
 #include <QList>
 #include <QStringList>
+
+#include "globals.h"
 
 class TableView;
 class QUndoStack;
@@ -290,6 +292,9 @@ class Table : public AbstractPart
   void fillSelectedCellsWithRowNumbers();
   void fillSelectedCellsWithRandomNumbers();
   void fillSelectedCellsWithCustomRandomNumbers();
+  void generateRandomDistribution(
+      const RandomDistributionDialog::Distribution &dist,
+      const QVector<double> &params);
   //! Open the sort dialog for all columns
   void sortTable();
   //! Insert columns depending on the selection

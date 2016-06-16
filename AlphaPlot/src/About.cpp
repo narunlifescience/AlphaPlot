@@ -22,6 +22,7 @@
 
 About::About(QWidget* parent) : QDialog(parent) {
   ui_.setupUi(this);
+  setWindowIcon(IconLoader::load("help-about", IconLoader::LightDark));
 
   ui_.gridLayout->setContentsMargins(0, 0, 0, 0);
   ui_.verticalLayout_2->setSpacing(0);

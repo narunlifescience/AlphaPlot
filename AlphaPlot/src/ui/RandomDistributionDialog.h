@@ -15,6 +15,7 @@
 
    Description : Random distribution dialog for selection
 */
+
 #ifndef RANDOMDISTRIBUTIONDIALOG_H
 #define RANDOMDISTRIBUTIONDIALOG_H
 
@@ -28,13 +29,6 @@ class RandomDistributionDialog : public QDialog {
   explicit RandomDistributionDialog(QWidget *parent = nullptr);
   ~RandomDistributionDialog();
 
- private slots:
-  void distributionChanged(int index);
-  void ok();
-  void cancel();
-
- private:
-  Ui_RandomDistributionDialog *ui_;
   enum Distribution {
     Gaussian,
     Exponential,
@@ -67,6 +61,20 @@ class RandomDistributionDialog : public QDialog {
     Hypergeometric,
     Logarithmic
   };
+
+ signals:
+  void randomDistribution(const RandomDistributionDialog::Distribution &dist,
+                          const QVector<double> &params);
+
+ private slots:
+  void distributionChanged(int index);
+  void ok();
+  void cancel();
+
+ private:
+  Ui_RandomDistributionDialog *ui_;
+  static Distribution distribution;
+  static QVector<double> parameters;
 };
 
 #endif  // RANDOMDISTRIBUTIONDIALOG_H
