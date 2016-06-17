@@ -27,12 +27,19 @@
 
 RandomDistributionDialog::Distribution RandomDistributionDialog::distribution;
 QVector<double> RandomDistributionDialog::parameters;
+//QString RandomDistributionDialog::distFormulaPath;
 
 RandomDistributionDialog::RandomDistributionDialog(QWidget *parent)
     : QDialog(parent), ui_(new Ui_RandomDistributionDialog) {
   ui_->setupUi(this);
-  setWindowIcon(IconLoader::load("edit-random-number", IconLoader::LightDark));
+  setWindowIcon(IconLoader::load("edit-random-dist", IconLoader::LightDark));
+  ui_->distFormulaLabel->setAlignment(Qt::AlignCenter);
   setModal(true);
+
+  // Theaming based pixmap loading
+  (IconLoader::lumen_ < 100)
+      ? distFormulaPath = QString(":icons/dark/distribution/")
+      : distFormulaPath = QString(":icons/light/distribution/");
 
   // Set layout margins
   ui_->verticalLayout->setContentsMargins(3, 3, 3, 3);
@@ -79,7 +86,6 @@ RandomDistributionDialog::RandomDistributionDialog(QWidget *parent)
   ui_->distComboBox->addItem(tr("Hypergeometric Distribution"), Hypergeometric);
   ui_->distComboBox->addItem(tr("Logarithmic Distribution"), Logarithmic);*/
 
-
   // Load settings
   QSettings settings;
   settings.beginGroup("General");
@@ -95,11 +101,11 @@ RandomDistributionDialog::RandomDistributionDialog(QWidget *parent)
   settings.endGroup();
 
   // set parameter bounds (move to switch case for more control)
-  ui_->parameter1DbleSpinBox->setMinimum(std::numeric_limits<double>::min());
+  ui_->parameter1DbleSpinBox->setMinimum(-INFINITY);
   ui_->parameter1DbleSpinBox->setMaximum(std::numeric_limits<double>::max());
-  ui_->parameter2DbleSpinBox->setMinimum(std::numeric_limits<double>::min());
+  ui_->parameter2DbleSpinBox->setMinimum(-INFINITY);
   ui_->parameter2DbleSpinBox->setMaximum(std::numeric_limits<double>::max());
-  ui_->parameter3DbleSpinBox->setMinimum(std::numeric_limits<double>::min());
+  ui_->parameter3DbleSpinBox->setMinimum(-INFINITY);
   ui_->parameter3DbleSpinBox->setMaximum(std::numeric_limits<double>::max());
 
   // Slot connections
@@ -116,6 +122,8 @@ void RandomDistributionDialog::distributionChanged(int index) {
   distribution = dist;
   switch (dist) {
     case Gaussian: {
+      ui_->distFormulaLabel->setPixmap(
+          QPixmap(distFormulaPath + "dist-gaussian.png"));
       ui_->parameter1DbleSpinBox->show();
       ui_->parameter1Label->show();
       ui_->parameter2DbleSpinBox->show();
@@ -130,6 +138,8 @@ void RandomDistributionDialog::distributionChanged(int index) {
       parameters << 0.0 << 1.0 << nan("null");
     } break;
     case Exponential: {
+      ui_->distFormulaLabel->setPixmap(
+          QPixmap(distFormulaPath + "dist-exponential.png"));
       ui_->parameter1DbleSpinBox->show();
       ui_->parameter1Label->show();
       ui_->parameter2DbleSpinBox->hide();

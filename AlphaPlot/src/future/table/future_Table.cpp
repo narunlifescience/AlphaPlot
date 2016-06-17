@@ -1077,7 +1077,7 @@ void Table::createActions() {
   actionManager()->addAction(action_fill_random, "fill_random");
 
   action_fill_random_distribution =
-      new QAction(IconLoader::load("edit-random-number", IconLoader::LightDark),
+      new QAction(IconLoader::load("edit-random-dist", IconLoader::LightDark),
                   tr("Custom Random"), this);
   actionManager()->addAction(action_fill_random_distribution, "fill_random");
 

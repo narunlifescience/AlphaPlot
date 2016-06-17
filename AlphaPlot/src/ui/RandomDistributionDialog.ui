@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>242</height>
+    <height>244</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,7 +42,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="distComboBox"/>
+           <widget class="QComboBox" name="distComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -107,13 +114,34 @@
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
-             <widget class="QDoubleSpinBox" name="parameter1DbleSpinBox"/>
+             <widget class="QDoubleSpinBox" name="parameter1DbleSpinBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
             </item>
             <item>
-             <widget class="QDoubleSpinBox" name="parameter2DbleSpinBox"/>
+             <widget class="QDoubleSpinBox" name="parameter2DbleSpinBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
             </item>
             <item>
-             <widget class="QDoubleSpinBox" name="parameter3DbleSpinBox"/>
+             <widget class="QDoubleSpinBox" name="parameter3DbleSpinBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>

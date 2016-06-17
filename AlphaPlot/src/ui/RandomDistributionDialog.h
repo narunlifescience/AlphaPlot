@@ -75,6 +75,7 @@ class RandomDistributionDialog : public QDialog {
   Ui_RandomDistributionDialog *ui_;
   static Distribution distribution;
   static QVector<double> parameters;
+  QString distFormulaPath;
 };
 
 #endif  // RANDOMDISTRIBUTIONDIALOG_H
