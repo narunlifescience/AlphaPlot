@@ -36,9 +36,10 @@ before_install:
   - sudo ln -s /usr/lib/mxe/usr/bin/i686-w64-mingw32.static-gcc-ar /bin/i686-w64-mingw32.static-gcc-ar
   - sudo ln -s /usr/lib/mxe/usr/bin/i686-w64-mingw32.static-windres /bin/i686-w64-mingw32.static-windres
   # add libraies & include files to 3rdparty directory (MXE)
-  - mv bin/include bin/lib 3rdparty
+  - mv continuous-integration/mxe/lib 3rdparty
   - echo "mxe { INCLUDEPATH  += \"../3rdparty\" }" >> config.pri
   - sudo ln -sf /usr/include/qwtplot3d-qt4 3rdparty/qwtplot3d
+  - sudo ln -sf /usr/include/qwt-qt4 3rdparty/include
 
 notifications:
   email: false
