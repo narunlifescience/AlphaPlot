@@ -1,0 +1,6 @@
+#Remove iccp chunk to get rid of the warning:
+#libpng warning: iCCP: known incorrect sRGB profile
+ pngcrush -ow -rem allb -reduce <filename.png>
+
+#Batch convert *.svg to *.png using Inkscape
+for i in *; do inkscape $i --export-png=`echo $i | sed -e 's/svg$/png/'`; done

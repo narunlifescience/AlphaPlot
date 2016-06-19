@@ -676,6 +676,69 @@ void Table::generateRandomDistribution(
               : results[row - first] = col_ptr->valueAt(row);
         col_ptr->replaceValues(first, results);
       } break;
+      case RandomDistributionDialog::Laplace: {
+        double mu = params.at(0);
+        double a = params.at(1);
+        int col = columnIndex(col_ptr);
+        QVector<qreal> results(last - first + 1);
+        for (int row = first; row <= last; row++)
+          (d_view->isCellSelected(row, col))
+              ? results[row - first] = gsl_ran_laplace(r, a) + mu
+              : results[row - first] = col_ptr->valueAt(row);
+        col_ptr->replaceValues(first, results);
+      } break;
+      case RandomDistributionDialog::ExponentialPower: {
+        double mu = params.at(0);
+        double a = params.at(1);
+        double b = params.at(2);
+        int col = columnIndex(col_ptr);
+        QVector<qreal> results(last - first + 1);
+        for (int row = first; row <= last; row++)
+          (d_view->isCellSelected(row, col))
+              ? results[row - first] = gsl_ran_exppow(r, a, b) + mu
+              : results[row - first] = col_ptr->valueAt(row);
+        col_ptr->replaceValues(first, results);
+      } break;
+      case RandomDistributionDialog::Cauchy: {
+        double a = params.at(0);
+        int col = columnIndex(col_ptr);
+        QVector<qreal> results(last - first + 1);
+        for (int row = first; row <= last; row++)
+          (d_view->isCellSelected(row, col))
+              ? results[row - first] = gsl_ran_cauchy(r, a)
+              : results[row - first] = col_ptr->valueAt(row);
+        col_ptr->replaceValues(first, results);
+      } break;
+      case RandomDistributionDialog::Rayleigh: {
+        double sigma = params.at(0);
+        int col = columnIndex(col_ptr);
+        QVector<qreal> results(last - first + 1);
+        for (int row = first; row <= last; row++)
+          (d_view->isCellSelected(row, col))
+              ? results[row - first] = gsl_ran_rayleigh(r, sigma)
+              : results[row - first] = col_ptr->valueAt(row);
+        col_ptr->replaceValues(first, results);
+      } break;
+      case RandomDistributionDialog::RayleighTail: {
+        double sigma = params.at(0);
+        double a = params.at(1);
+        int col = columnIndex(col_ptr);
+        QVector<qreal> results(last - first + 1);
+        for (int row = first; row <= last; row++)
+          (d_view->isCellSelected(row, col))
+              ? results[row - first] = gsl_ran_rayleigh_tail(r, a, sigma)
+              : results[row - first] = col_ptr->valueAt(row);
+        col_ptr->replaceValues(first, results);
+      } break;
+      case RandomDistributionDialog::Landau: {
+        int col = columnIndex(col_ptr);
+        QVector<qreal> results(last - first + 1);
+        for (int row = first; row <= last; row++)
+          (d_view->isCellSelected(row, col))
+              ? results[row - first] = gsl_ran_landau(r)
+              : results[row - first] = col_ptr->valueAt(row);
+        col_ptr->replaceValues(first, results);
+      } break;
     }
   }
   endMacro();

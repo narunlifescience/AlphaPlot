@@ -961,10 +961,22 @@
     <file>icons/dark/16/graph3d-right-grid.xpm</file>
     <file>icons/dark/16/graph3d-top-grid.xpm</file>
     <file>icons/dark/16/graph3d-bar.xpm</file>
+    <file>icons/light/distribution/dist-cauchy.png</file>
+    <file>icons/light/distribution/dist-exponential-power.png</file>
     <file>icons/light/distribution/dist-exponential.png</file>
     <file>icons/light/distribution/dist-gaussian.png</file>
+    <file>icons/light/distribution/dist-landau.png</file>
+    <file>icons/light/distribution/dist-laplace.png</file>
+    <file>icons/light/distribution/dist-rayleigh-tail.png</file>
+    <file>icons/light/distribution/dist-rayleigh.png</file>
+    <file>icons/dark/distribution/dist-cauchy.png</file>
+    <file>icons/dark/distribution/dist-exponential-power.png</file>
     <file>icons/dark/distribution/dist-exponential.png</file>
     <file>icons/dark/distribution/dist-gaussian.png</file>
+    <file>icons/dark/distribution/dist-landau.png</file>
+    <file>icons/dark/distribution/dist-laplace.png</file>
+    <file>icons/dark/distribution/dist-rayleigh-tail.png</file>
+    <file>icons/dark/distribution/dist-rayleigh.png</file>
     <file>splash/splash.png</file>
 </qresource>
 </RCC>
