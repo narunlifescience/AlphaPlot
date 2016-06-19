@@ -653,94 +653,71 @@ void Table::generateRandomDistribution(
   WAIT_CURSOR;
   beginMacro(tr("%1: fill cells with non-uniform random values").arg(name()));
 
-  foreach (Column *col_ptr, d_view->selectedColumns()) {
-    switch (dist) {
-      case RandomDistributionDialog::Gaussian: {
-        double mu = params.at(0);
-        double sigma = params.at(1);
-        int col = columnIndex(col_ptr);
-        QVector<qreal> results(last - first + 1);
-        for (int row = first; row <= last; row++)
-          (d_view->isCellSelected(row, col))
-              ? results[row - first] = gsl_ran_gaussian(r, sigma) + mu
-              : results[row - first] = col_ptr->valueAt(row);
-        col_ptr->replaceValues(first, results);
-      } break;
-      case RandomDistributionDialog::Exponential: {
-        double mu = 1 / params.at(0);  // GSL uses the inverse for exp. distrib
-        int col = columnIndex(col_ptr);
-        QVector<qreal> results(last - first + 1);
-        for (int row = first; row <= last; row++)
-          (d_view->isCellSelected(row, col))
-              ? results[row - first] = gsl_ran_exponential(r, mu)
-              : results[row - first] = col_ptr->valueAt(row);
-        col_ptr->replaceValues(first, results);
-      } break;
-      case RandomDistributionDialog::Laplace: {
-        double mu = params.at(0);
-        double a = params.at(1);
-        int col = columnIndex(col_ptr);
-        QVector<qreal> results(last - first + 1);
-        for (int row = first; row <= last; row++)
-          (d_view->isCellSelected(row, col))
-              ? results[row - first] = gsl_ran_laplace(r, a) + mu
-              : results[row - first] = col_ptr->valueAt(row);
-        col_ptr->replaceValues(first, results);
-      } break;
-      case RandomDistributionDialog::ExponentialPower: {
-        double mu = params.at(0);
-        double a = params.at(1);
-        double b = params.at(2);
-        int col = columnIndex(col_ptr);
-        QVector<qreal> results(last - first + 1);
-        for (int row = first; row <= last; row++)
-          (d_view->isCellSelected(row, col))
-              ? results[row - first] = gsl_ran_exppow(r, a, b) + mu
-              : results[row - first] = col_ptr->valueAt(row);
-        col_ptr->replaceValues(first, results);
-      } break;
-      case RandomDistributionDialog::Cauchy: {
-        double a = params.at(0);
-        int col = columnIndex(col_ptr);
-        QVector<qreal> results(last - first + 1);
-        for (int row = first; row <= last; row++)
-          (d_view->isCellSelected(row, col))
-              ? results[row - first] = gsl_ran_cauchy(r, a)
-              : results[row - first] = col_ptr->valueAt(row);
-        col_ptr->replaceValues(first, results);
-      } break;
-      case RandomDistributionDialog::Rayleigh: {
-        double sigma = params.at(0);
-        int col = columnIndex(col_ptr);
-        QVector<qreal> results(last - first + 1);
-        for (int row = first; row <= last; row++)
-          (d_view->isCellSelected(row, col))
-              ? results[row - first] = gsl_ran_rayleigh(r, sigma)
-              : results[row - first] = col_ptr->valueAt(row);
-        col_ptr->replaceValues(first, results);
-      } break;
-      case RandomDistributionDialog::RayleighTail: {
-        double sigma = params.at(0);
-        double a = params.at(1);
-        int col = columnIndex(col_ptr);
-        QVector<qreal> results(last - first + 1);
-        for (int row = first; row <= last; row++)
-          (d_view->isCellSelected(row, col))
-              ? results[row - first] = gsl_ran_rayleigh_tail(r, a, sigma)
-              : results[row - first] = col_ptr->valueAt(row);
-        col_ptr->replaceValues(first, results);
-      } break;
-      case RandomDistributionDialog::Landau: {
-        int col = columnIndex(col_ptr);
-        QVector<qreal> results(last - first + 1);
-        for (int row = first; row <= last; row++)
-          (d_view->isCellSelected(row, col))
-              ? results[row - first] = gsl_ran_landau(r)
-              : results[row - first] = col_ptr->valueAt(row);
-        col_ptr->replaceValues(first, results);
-      } break;
-    }
+  // initialize a function pointer lambda
+  double (*rndDistLmd)(gsl_rng * rnd, const QVector<double> &prm) = [](
+      gsl_rng *, const QVector<double> &) -> double {
+    qDebug() << "unknown non uniform random distribution";
+    return std::nan("null");
+  };
+
+  // set appropriate function pointer lambda
+  switch (dist) {
+    case RandomDistributionDialog::Gaussian:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_gaussian(rnd, prm.at(1) /*sigma*/) + prm.at(0) /*mu*/;
+      };
+      break;
+    case RandomDistributionDialog::Exponential:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        // GSL uses the inverse for exponential distribution
+        return gsl_ran_exponential(
+            rnd, static_cast<double>(1 / prm.at(0)) /*lambda*/);
+      };
+      break;
+    case RandomDistributionDialog::Laplace:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_laplace(rnd, prm.at(1) /*a*/) + prm.at(0) /*mu*/;
+      };
+      break;
+    case RandomDistributionDialog::ExponentialPower:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_exppow(rnd, prm.at(1) /*a*/, prm.at(2) /*b*/) +
+               prm.at(0) /*mu*/;
+      };
+      break;
+    case RandomDistributionDialog::Cauchy:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_cauchy(rnd, prm.at(0) /*a*/);
+      };
+      break;
+    case RandomDistributionDialog::Rayleigh:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_rayleigh(rnd, prm.at(0) /*sigma*/);
+      };
+      break;
+    case RandomDistributionDialog::RayleighTail:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_rayleigh_tail(rnd, prm.at(1) /*a*/, prm.at(0) /*sigma*/);
+      };
+      break;
+    case RandomDistributionDialog::Landau:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &) -> double {
+        return gsl_ran_landau(rnd);
+      };
+      break;
   }
+
+  // Generate the non uniform random distribution
+  foreach (Column *col_ptr, d_view->selectedColumns()) {
+    int col = columnIndex(col_ptr);
+    QVector<qreal> results(last - first + 1);
+    for (int row = first; row <= last; row++)
+      (d_view->isCellSelected(row, col))
+          ? results[row - first] = rndDistLmd(r, params)
+          : results[row - first] = col_ptr->valueAt(row);
+    col_ptr->replaceValues(first, results);
+  }
+
   endMacro();
   RESET_CURSOR;
   gsl_rng_free(r);
