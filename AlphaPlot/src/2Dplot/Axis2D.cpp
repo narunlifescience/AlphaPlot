@@ -1,31 +1,18 @@
-/***************************************************************************
-    File                 : Axis2D.cpp
-    Project              : AlphaPlot
-    --------------------------------------------------------------------
-    Copyright            : (C) 2016 Arun Narayanankutty
-    Email                : n.arun.lifescience@gmail.com
-    Description          : Plot2D axis
+/* This file is part of AlphaPlot.
+   Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
 
- ***************************************************************************/
+   AlphaPlot is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   AlphaPlot is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
 
-/***************************************************************************
- *                                                                         *
- *  This program is free software; you can redistribute it and/or modify   *
- *  it under the terms of the GNU General Public License as published by   *
- *  the Free Software Foundation; either version 2 of the License, or      *
- *  (at your option) any later version.                                    *
- *                                                                         *
- *  This program is distributed in the hope that it will be useful,        *
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- *  GNU General Public License for more details.                           *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the Free Software           *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
- *   Boston, MA  02110-1301  USA                                           *
- *                                                                         *
- ***************************************************************************/
+   Description : Plot2D axis related stuff */
 
 #include "Axis2D.h"
 
@@ -72,8 +59,9 @@ void Axis2D::setMajorTickLength(const int &length,
       setTickLength(0, length);
       break;
     case Bothwards:
-      setTickLength(static_cast<float>(length / 2),
-                    static_cast<float>(length / 2));
+      setTickLength(static_cast<int>(length / 2), static_cast<int>(length / 2));
+      break;
+    case None:
       break;
     default:
       break;
@@ -92,8 +80,10 @@ void Axis2D::setMinorTickLength(const int &length,
       setSubTickLength(0, length);
       break;
     case Bothwards:
-      setSubTickLength(static_cast<float>(length / 2),
-                       static_cast<float>(length / 2));
+      setSubTickLength(static_cast<int>(length / 2),
+                       static_cast<int>(length / 2));
+      break;
+    case None:
       break;
     default:
       break;
@@ -108,4 +98,40 @@ void Axis2D::setMajorTickVisible(bool status) {
 void Axis2D::setMinorTickVisible(bool status) {
   minorTickVisible = status;
   (status) ? setSubTickPen(minorTickPen) : setSubTickPen(Qt::NoPen);
+}
+
+Axis2D::AxisOreantation Axis2D::getOrientation()
+{
+  AxisOreantation orientation;
+  switch (axisType()) {
+    case QCPAxis::atLeft:
+      orientation = Left;
+      break;
+    case QCPAxis::atBottom:
+      orientation = Bottom;
+      break;
+    case QCPAxis::atRight:
+      orientation = Right;
+      break;
+    case QCPAxis::atTop:
+      orientation = Top;
+      break;
+    }
+  return orientation;
+}
+
+void Axis2D::setValesInvert(bool status) {
+  (status) ? setRangeReversed(true) : setRangeReversed(false);
+}
+
+void Axis2D::setValueScaleType(const Axis2D::AxisScaleType &type)
+{
+  switch (type) {
+    case Linear:
+      setScaleType(QCPAxis::stLinear);
+      break;
+    case Logarithmic:
+      setScaleType(QCPAxis::stLogarithmic);
+      break;
+    }
 }

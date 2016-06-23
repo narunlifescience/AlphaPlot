@@ -1,31 +1,18 @@
-/***************************************************************************
-    File                 : Axis2D.cpp
-    Project              : AlphaPlot
-    --------------------------------------------------------------------
-    Copyright            : (C) 2016 Arun Narayanankutty
-    Email                : n.arun.lifescience@gmail.com
-    Description          : Plot2D axis
+/* This file is part of AlphaPlot.
+   Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
 
- ***************************************************************************/
+   AlphaPlot is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   AlphaPlot is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
 
-/***************************************************************************
- *                                                                         *
- *  This program is free software; you can redistribute it and/or modify   *
- *  it under the terms of the GNU General Public License as published by   *
- *  the Free Software Foundation; either version 2 of the License, or      *
- *  (at your option) any later version.                                    *
- *                                                                         *
- *  This program is distributed in the hope that it will be useful,        *
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- *  GNU General Public License for more details.                           *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the Free Software           *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
- *   Boston, MA  02110-1301  USA                                           *
- *                                                                         *
- ***************************************************************************/
+   Description : Plot2D axis related stuff */
 
 #ifndef AXIS2D_H
 #define AXIS2D_H
@@ -35,10 +22,12 @@
 class Axis2D : public QCPAxis {
   Q_OBJECT
  public:
-  Axis2D(QCPAxisRect* parent, AxisType type);
+  Axis2D(QCPAxisRect *parent, AxisType type);
   ~Axis2D();
 
   enum TickOrientation { Inward, Outward, Bothwards, None };
+  enum AxisOreantation { Left = 0, Bottom = 1, Right = 2, Top = 3 };
+  enum AxisScaleType { Linear, Logarithmic };
 
   // Axis Ticks
   void setMajorTickPen(const QPen &pen);
@@ -47,6 +36,10 @@ class Axis2D : public QCPAxis {
   void setMinorTickLength(const int &length, TickOrientation &orientation);
   void setMajorTickVisible(bool status);
   void setMinorTickVisible(bool status);
+  AxisOreantation getOrientation();
+
+  void setValesInvert(bool status);
+  void setValueScaleType(const AxisScaleType &type);
 
  private:
   QPen majorTickPen;
