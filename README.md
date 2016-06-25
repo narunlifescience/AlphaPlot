@@ -1,4 +1,4 @@
-#![logo](data/icons/app/22/AlphaPlot.png)Alpha Plot
+#![logo](data/icons/app/22/alphaplot.png)Alpha Plot
 
 [![License][license-badge]][license-page] [![Build Status](https://travis-ci.org/narunlifescience/AlphaPlot.svg?branch=master)](https://travis-ci.org/narunlifescience/AlphaPlot) [![Join the chat at https://gitter.im/narunlifescience/AlphaPlot](https://badges.gitter.im/narunlifescience/AlphaPlot.svg)](https://gitter.im/narunlifescience/AlphaPlot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
