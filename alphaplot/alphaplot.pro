@@ -119,26 +119,31 @@ INSTALLS        += documentation
 unix {
   ###################### DESKTOP INTEGRATION ##################################
 
+  #VARIABLES
+  isEmpty(PREFIX) {
+    PREFIX = /usr
+  }
+
   desktop_entry.files = ../data/alphaplot.desktop
-  desktop_entry.path  = "$$INSTALLBASE/share/applications"
+  desktop_entry.path  = "$$PREFIX/share/applications"
 
   mime_package.files  = ../data/alphaplot.xml
-  mime_package.path   = "$$INSTALLBASE/share/mime/packages"
+  mime_package.path   = "$$PREFIX/share/mime/packages"
 
   #deprecated
   mime_link.files     = ../data/x-aproj.desktop
-  mime_link.path      = "$$INSTALLBASE/share/mimelnk/application"
+  mime_link.path      = "$$PREFIX/share/mimelnk/application"
 
   contains(INSTALLS, icons) {
     # scalable icon
     icons.files       = ../data/icons/app/alphaplot.svg
-    icons.path        = "$$INSTALLBASE/share/icons/hicolor/scalable/apps"
+    icons.path        = "$$PREFIX/share/icons/hicolor/scalable/apps"
 
     # hicolor icons for different resolutions
     resolutions       = 16 22 32 48 64 96 128
     for(res, resolutions) {
       eval(icon_hicolor_$${res}.files = ../data/icons/app/$${res}/alphaplot.png)
-      eval(icon_hicolor_$${res}.path = "$$INSTALLBASE/share/icons/hicolor/$${res}x$${res}/apps")
+      eval(icon_hicolor_$${res}.path = "$$PREFIX/share/icons/hicolor/$${res}x$${res}/apps")
       INSTALLS                       += icon_hicolor_$${res}
     }
 
@@ -146,7 +151,7 @@ unix {
     resolutions        = 16 22 32 48 64 96 128
     for(res, resolutions) {
       eval(icon_locolor_$${res}.files = ../data/icons/app/$${res}/alphaplot.png)
-      eval(icon_locolor_$${res}.path = "$$INSTALLBASE/share/icons/locolor/$${res}x$${res}/apps")
+      eval(icon_locolor_$${res}.path = "$$PREFIX/share/icons/locolor/$${res}x$${res}/apps")
       INSTALLS                       += icon_locolor_$${res}
     }
   }
