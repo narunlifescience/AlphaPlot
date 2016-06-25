@@ -5,7 +5,7 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS += AlphaPlot 
+SUBDIRS += alphaplot 
 CONFIG+=ordered
 
 !mxe {

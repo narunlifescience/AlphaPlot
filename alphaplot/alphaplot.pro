@@ -5,7 +5,7 @@ greaterThan(QT_MAJOR_VERSION, 4){
   QMAKE_CXXFLAGS += -std=c++0x
 }
 
-INCLUDEPATH += AlphaPlot AlphaPlot/src ../data/translations
+INCLUDEPATH += alphaplot alphaplot/src ../data/translations
 
 include(sourcefiles.pri)
 include(muparser.pri)
@@ -18,7 +18,7 @@ include(../config.pri)
 # Aspect framework legacy code
 DEFINES += LEGACY_CODE_0_2_x
 
-TARGET         = AlphaPlot
+TARGET         = alphaplot
 TEMPLATE       = app
 
 CONFIG        += qt warn_on exceptions opengl thread zlib
@@ -41,8 +41,8 @@ DEFINES       += DOC_PATH="\\\"$$replace(documentation.path," ","\\ ")\\\""
 
 QT             += opengl qt3support network svg xml script scripttools
 
-MOC_DIR         = ../tmp/AlphaPlot
-OBJECTS_DIR     = ../tmp/AlphaPlot
+MOC_DIR         = ../tmp/alphaplot
+OBJECTS_DIR     = ../tmp/alphaplot
 DESTDIR         = ./
 
 INSTALLS        += target
@@ -52,41 +52,41 @@ RESOURCES      += ../data/styles/style.qrc
 
 ###################### ICONS ################################################
 RESOURCES      += ../data/icons.qrc
-RC_FILE         = ../data/AlphaPlot.rc
-macx:ICON       = ../data/icons/app/AlphaPlot.icns
+RC_FILE         = ../data/alphaplot.rc
+macx:ICON       = ../data/icons/app/alphaplot.icns
 
 win32 {
-  win_icon.files = ../data/icons/app/AlphaPlot.ico
+  win_icon.files = ../data/icons/app/alphaplot.ico
   win_icon.path  = "$$INSTALLBASE"
   INSTALLS  += win_icon
 }
 
 ###################### TRANSLATIONS #########################################
-TRANSLATIONS     = ../data/translations/AlphaPlot_de.ts \
-                   ../data/translations/AlphaPlot_es.ts \
-                   ../data/translations/AlphaPlot_fr.ts \
-                   ../data/translations/AlphaPlot_ru.ts \
-                   ../data/translations/AlphaPlot_ja.ts \
-                   ../data/translations/AlphaPlot_sv.ts \
-                   ../data/translations/AlphaPlot_pt-br.ts \
-                   ../data/translations/AlphaPlot_cs.ts \
-                   ../data/translations/AlphaPlot_cs-alt.ts \
+TRANSLATIONS     = ../data/translations/alphaplot_de.ts \
+                   ../data/translations/alphaplot_es.ts \
+                   ../data/translations/alphaplot_fr.ts \
+                   ../data/translations/alphaplot_ru.ts \
+                   ../data/translations/alphaplot_ja.ts \
+                   ../data/translations/alphaplot_sv.ts \
+                   ../data/translations/alphaplot_pt-br.ts \
+                   ../data/translations/alphaplot_cs.ts \
+                   ../data/translations/alphaplot_cs-alt.ts \
 
-exists(../data/translations/AlphaPlot_de.ts) {
-  translationfiles.files   = ../data/translations/AlphaPlot_de.qm \
-                             ../data/translations/AlphaPlot_es.qm \
-                             ../data/translations/AlphaPlot_fr.qm \
-                             ../data/translations/AlphaPlot_ru.qm \
-                             ../data/translations/AlphaPlot_ja.qm \
-                             ../data/translations/AlphaPlot_sv.qm \
-                             ../data/translations/AlphaPlot_pt-br.qm \
-                             ../data/translations/AlphaPlot_cs.qm \
-                             ../data/translations/AlphaPlot_cs-alt.qm \
+exists(../data/translations/alphaplot_de.ts) {
+  translationfiles.files   = ../data/translations/alphaplot_de.qm \
+                             ../data/translations/alphaplot_es.qm \
+                             ../data/translations/alphaplot_fr.qm \
+                             ../data/translations/alphaplot_ru.qm \
+                             ../data/translations/alphaplot_ja.qm \
+                             ../data/translations/alphaplot_sv.qm \
+                             ../data/translations/alphaplot_pt-br.qm \
+                             ../data/translations/alphaplot_cs.qm \
+                             ../data/translations/alphaplot_cs-alt.qm \
 
-  unix: tstarget.target  = ../data/translations/AlphaPlot_de.qm
-  win32: tstarget.target = ..\data\translations\AlphaPlot_de.qm
+  unix: tstarget.target  = ../data/translations/alphaplot_de.qm
+  win32: tstarget.target = ..\data\translations\alphaplot_de.qm
 
-  tstarget.commands = (! test -w ../data/translations/AlphaPlot_de.ts || \
+  tstarget.commands = (! test -w ../data/translations/alphaplot_de.ts || \
   $$LUPDATE_BIN src/*.cpp -ts ../data/translations/*.ts) && \
   $$LRELEASE_BIN ../data/translations/*.ts
 
@@ -94,10 +94,10 @@ exists(../data/translations/AlphaPlot_de.ts) {
   QMAKE_CLEAN             += $$translationfiles.files
 
 # comment out for now to get rid of AlphaPlot compile time error
-#  PRE_TARGETDEPS          += ../data/translations/AlphaPlot_de.qm
+#  PRE_TARGETDEPS          += ../data/translations/alphaplot_de.qm
 }
 
-!exists(../data/translations/AlphaPlot_de.ts){
+!exists(../data/translations/alphaplot_de.ts){
   message("=======================================")
   message("Could not find translation (.ts) files.")
   message("=======================================")
@@ -108,8 +108,8 @@ INSTALLS        += translationfiles
 ###################### DOCUMENTATION ########################################
 documentation.files += ../data/manual \
                        ../data/INSTALL.md \
-                       ../data/AlphaPlot.css \
-                       ../data/AlphaPlot-logo.png \
+                       ../data/alphaplot.css \
+                       ../data/alphaplot-logo.png \
                        ../data/README.md \
                        ../data/CHANGES \
                        ../data/gpl.txt
@@ -119,10 +119,10 @@ INSTALLS        += documentation
 unix {
   ###################### DESKTOP INTEGRATION ##################################
 
-  desktop_entry.files = ../data/AlphaPlot.desktop
+  desktop_entry.files = ../data/alphaplot.desktop
   desktop_entry.path  = "$$INSTALLBASE/share/applications"
 
-  mime_package.files  = ../data/AlphaPlot.xml
+  mime_package.files  = ../data/alphaplot.xml
   mime_package.path   = "$$INSTALLBASE/share/mime/packages"
 
   #deprecated
@@ -131,13 +131,13 @@ unix {
 
   contains(INSTALLS, icons) {
     # scalable icon
-    icons.files       = ../data/icons/app/AlphaPlot.svg
+    icons.files       = ../data/icons/app/alphaplot.svg
     icons.path        = "$$INSTALLBASE/share/icons/hicolor/scalable/apps"
 
     # hicolor icons for different resolutions
     resolutions       = 16 22 32 48 64 96 128
     for(res, resolutions) {
-      eval(icon_hicolor_$${res}.files = ../data/icons/app/$${res}/AlphaPlot.png)
+      eval(icon_hicolor_$${res}.files = ../data/icons/app/$${res}/alphaplot.png)
       eval(icon_hicolor_$${res}.path = "$$INSTALLBASE/share/icons/hicolor/$${res}x$${res}/apps")
       INSTALLS                       += icon_hicolor_$${res}
     }
@@ -145,7 +145,7 @@ unix {
     # locolor icons for different resolutions
     resolutions        = 16 22 32 48 64 96 128
     for(res, resolutions) {
-      eval(icon_locolor_$${res}.files = ../data/icons/app/$${res}/AlphaPlot.png)
+      eval(icon_locolor_$${res}.files = ../data/icons/app/$${res}/alphaplot.png)
       eval(icon_locolor_$${res}.path = "$$INSTALLBASE/share/icons/locolor/$${res}x$${res}/apps")
       INSTALLS                       += icon_locolor_$${res}
     }

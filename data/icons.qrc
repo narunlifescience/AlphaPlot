@@ -202,15 +202,15 @@
 	<file alias="equals.png">icons/equals.png</file>
 	<file alias="16x16/TeX.png">icons/16x16/TeX.png</file>
 	<file alias="32x32/TeX.png">icons/32x32/TeX.png</file>
-	<file alias="appicon-16">icons/app/16/AlphaPlot.png</file>
-	<file alias="appicon-22">icons/app/22/AlphaPlot.png</file>
-	<file alias="appicon-24">icons/app/24/AlphaPlot.png</file>
-	<file alias="appicon-32">icons/app/32/AlphaPlot.png</file>
-	<file alias="appicon-48">icons/app/48/AlphaPlot.png</file>
-	<file alias="appicon-64">icons/app/64/AlphaPlot.png</file>
-	<file alias="appicon-96">icons/app/96/AlphaPlot.png</file>
-	<file alias="appicon-128">icons/app/128/AlphaPlot.png</file>
-    <file alias="applogo">AlphaPlot-logo.png</file>
+	<file alias="appicon-16">icons/app/16/alphaplot.png</file>
+	<file alias="appicon-22">icons/app/22/alphaplot.png</file>
+	<file alias="appicon-24">icons/app/24/alphaplot.png</file>
+	<file alias="appicon-32">icons/app/32/alphaplot.png</file>
+	<file alias="appicon-48">icons/app/48/alphaplot.png</file>
+	<file alias="appicon-64">icons/app/64/alphaplot.png</file>
+	<file alias="appicon-96">icons/app/96/alphaplot.png</file>
+	<file alias="appicon-128">icons/app/128/alphaplot.png</file>
+    <file alias="applogo">alphaplot-logo.png</file>
     <file>icons/common/64/folder-properties.png</file>
     <file>icons/common/64/graph2D-properties.png</file>
     <file>icons/common/64/graph3D-properties.png</file>

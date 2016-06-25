@@ -33,10 +33,10 @@ unix {                                                       # Linux / MacOS X
     ### this is what is called "prefix" when using GNU autotools
     isEmpty(INSTALLBASE): INSTALLBASE = /usr
     target.path           = "$$INSTALLBASE/bin"
-    documentation.path    = "$$INSTALLBASE/share/doc/AlphaPlot"
-    manual.path = "$$INSTALLBASE/share/doc/AlphaPlot/manual"
-    translationfiles.path = "$$INSTALLBASE/share/AlphaPlot/translations"
-    plugins.path      = "$$INSTALLBASE/lib/AlphaPlot/plugins"
+    documentation.path    = "$$INSTALLBASE/share/doc/alphaplot"
+    manual.path = "$$INSTALLBASE/share/doc/alphaplot/manual"
+    translationfiles.path = "$$INSTALLBASE/share/alphaplot/translations"
+    plugins.path      = "$$INSTALLBASE/lib/alphaplot/plugins"
   }
 }                                                            # Linux / MacOS X
 
