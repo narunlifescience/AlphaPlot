@@ -56,7 +56,7 @@ RandomDistributionDialog::RandomDistributionDialog(QWidget *parent)
   ui_->distComboBox->addItem(tr("Rayleigh Distribution"), Rayleigh);
   ui_->distComboBox->addItem(tr("Rayleigh Tail Distribution"), RayleighTail);
   ui_->distComboBox->addItem(tr("Landau Distribution"), Landau);
-  /*ui_->distComboBox->addItem(tr("Levy alpha-stable Distribution"),
+  ui_->distComboBox->addItem(tr("Levy alpha-stable Distribution"),
                              LevyAlphaStable);
   ui_->distComboBox->addItem(tr("Levy skew alpha-stable Distribution"),
                              LevySkewAlphaStable);
@@ -64,7 +64,7 @@ RandomDistributionDialog::RandomDistributionDialog(QWidget *parent)
   ui_->distComboBox->addItem(tr("Flat (Uniform) Distribution"), Flat);
   ui_->distComboBox->addItem(tr("Lognormal Distribution"), Lognormal);
   ui_->distComboBox->addItem(tr("Chi-squared Distribution"), ChiSquared);
-  ui_->distComboBox->addItem(tr("F-distribution"), F);
+  /*ui_->distComboBox->addItem(tr("F-distribution"), F);
   ui_->distComboBox->addItem(tr("t-distribution"), t);
   ui_->distComboBox->addItem(tr("Beta Distribution"), Beta);
   ui_->distComboBox->addItem(tr("Logistic Distribution"), Logistic);
@@ -242,6 +242,8 @@ void RandomDistributionDialog::distributionChanged(int index) {
       parameters << nan("null") << nan("null") << nan("null");
     } break;
     case LevyAlphaStable: {
+      ui_->distFormulaLabel->setPixmap(
+          QPixmap(distFormulaPath + "dist-levy-alpha-stable.png"));
       ui_->parameter1DbleSpinBox->show();
       ui_->parameter1Label->show();
       ui_->parameter2DbleSpinBox->show();
@@ -256,6 +258,8 @@ void RandomDistributionDialog::distributionChanged(int index) {
       parameters << 1.0 << 1.0 << nan("null");
     } break;
     case LevySkewAlphaStable: {
+      ui_->distFormulaLabel->setPixmap(
+          QPixmap(distFormulaPath + "dist-levy-skew-alpha-stable.png"));
       ui_->parameter1DbleSpinBox->show();
       ui_->parameter1Label->show();
       ui_->parameter2DbleSpinBox->show();
@@ -272,6 +276,8 @@ void RandomDistributionDialog::distributionChanged(int index) {
       parameters << 1.0 << 1.0 << 1.0;
     } break;
     case Flat: {
+      ui_->distFormulaLabel->setPixmap(
+          QPixmap(distFormulaPath + "dist-flat.png"));
       ui_->parameter1DbleSpinBox->show();
       ui_->parameter1Label->show();
       ui_->parameter2DbleSpinBox->show();
@@ -286,11 +292,16 @@ void RandomDistributionDialog::distributionChanged(int index) {
       parameters << 0.0 << 1.0 << nan("null");
     } break;
     case Gamma:
+      // deliberate fall through
+      ui_->distFormulaLabel->setPixmap(
+          QPixmap(distFormulaPath + "dist-gamma.png"));
     case Beta:
     case Pareto:
     case Weibull:
     case Gumbel1:
     case Gumbel2: {
+        ui_->distFormulaLabel->setPixmap(
+            QPixmap(distFormulaPath + "dist-gamma.png"));
       ui_->parameter1DbleSpinBox->show();
       ui_->parameter1Label->show();
       ui_->parameter2DbleSpinBox->show();
@@ -305,6 +316,8 @@ void RandomDistributionDialog::distributionChanged(int index) {
       parameters << 1.0 << 1.0 << nan("null");
     } break;
     case Lognormal: {
+      ui_->distFormulaLabel->setPixmap(
+          QPixmap(distFormulaPath + "dist-lognormal.png"));
       ui_->parameter1DbleSpinBox->show();
       ui_->parameter1Label->show();
       ui_->parameter2DbleSpinBox->show();
@@ -319,6 +332,8 @@ void RandomDistributionDialog::distributionChanged(int index) {
       parameters << 1.0 << 1.0 << nan("null");
     } break;
     case ChiSquared: {
+      ui_->distFormulaLabel->setPixmap(
+          QPixmap(distFormulaPath + "dist-chisquared.png"));
       ui_->parameter1DbleSpinBox->show();
       ui_->parameter1Label->show();
       ui_->parameter2DbleSpinBox->hide();

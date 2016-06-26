@@ -705,6 +705,37 @@ void Table::generateRandomDistribution(
         return gsl_ran_landau(rnd);
       };
       break;
+    case RandomDistributionDialog::LevyAlphaStable:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_levy(rnd, prm.at(0) /*c*/, prm.at(1) /*alpha*/);
+      };
+      break;
+    case RandomDistributionDialog::LevySkewAlphaStable:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_levy_skew(rnd, prm.at(0) /*c*/, prm.at(1) /*alpha*/,
+                                 prm.at(2) /*beta*/);
+      };
+      break;
+    case RandomDistributionDialog::Flat:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_flat(rnd, prm.at(0) /*a*/, prm.at(1) /*b*/);
+      };
+      break;
+    case RandomDistributionDialog::Gamma:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_gamma(rnd, prm.at(0) /*a*/, prm.at(1) /*b*/);
+      };
+      break;
+    case RandomDistributionDialog::Lognormal:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_lognormal(rnd, prm.at(1) /*zeta*/, prm.at(0) /*sigma*/);
+      };
+      break;
+    case RandomDistributionDialog::ChiSquared:
+      rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
+        return gsl_ran_chisq(rnd, prm.at(0) /*nu*/);
+      };
+      break;
   }
 
   // Generate the non uniform random distribution
