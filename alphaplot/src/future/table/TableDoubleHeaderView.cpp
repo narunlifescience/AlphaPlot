@@ -32,6 +32,7 @@
 #include <QApplication>
 #include <QEvent>
 #include <QLayout>
+#include <QMouseEvent>
 #include "TableCommentsHeaderModel.h"
 
 TableCommentsHeaderView::TableCommentsHeaderView(QWidget *parent)
@@ -96,6 +97,15 @@ void TableDoubleHeaderView::paintSection(QPainter *painter, const QRect &rect,
 }
 
 bool TableDoubleHeaderView::areCommentsShown() const { return d_show_comments; }
+
+void TableDoubleHeaderView::mouseMoveEvent(QMouseEvent *event) {
+  if (logicalIndexAt(event->pos().x()) >= 0 &&
+      logicalIndexAt(event->pos().x()) < count()) {
+    setCursor(Qt::UpArrowCursor);
+  } else {
+    setCursor(Qt::ArrowCursor);
+  }
+}
 
 void TableDoubleHeaderView::showComments(bool on) {
   d_show_comments = on;

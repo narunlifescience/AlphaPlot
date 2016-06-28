@@ -84,6 +84,9 @@ class TableDoubleHeaderView : public QHeaderView {
   //! Return whether comments are show currently
   bool areCommentsShown() const;
 
+ protected:
+  void mouseMoveEvent(QMouseEvent *event);
+
  signals:
   void setColColorCode(QPainter *painter, QRect &rect, int col) const;
 
