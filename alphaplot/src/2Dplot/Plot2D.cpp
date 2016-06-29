@@ -20,6 +20,7 @@ Plot2D::Plot2D(QWidget *parent) : QCustomPlot(parent), canvasBrush_(Qt::white) {
   setBackgroundColor(canvasBrush_);
   setInteraction(QCP::iSelectPlottables, true);
   setInteraction(QCP::iSelectAxes, true);
+  plotLayout()->clear();
 }
 
 Plot2D::~Plot2D() {}

@@ -19,7 +19,7 @@
 
 #include "Axis2D.h"
 #include "Grid2D.h"
-#include "qcustomplot.h"
+#include "../3rdparty/qcustomplot/qcustomplot.h"
 
 class AxisRect2D : public QCPAxisRect {
  public:

@@ -17,7 +17,7 @@
 #ifndef AXIS2D_H
 #define AXIS2D_H
 
-#include "qcustomplot.h"
+#include "../3rdparty/qcustomplot/qcustomplot.h"
 
 class Axis2D : public QCPAxis {
   Q_OBJECT

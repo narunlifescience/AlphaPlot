@@ -17,7 +17,7 @@
 #ifndef GRID2D_H
 #define GRID2D_H
 
-#include "qcustomplot.h"
+#include "../3rdparty/qcustomplot/qcustomplot.h"
 
 class Grid2D : public QCPGrid {
   Q_OBJECT

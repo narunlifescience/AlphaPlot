@@ -17,7 +17,7 @@
 #ifndef PLOT2D_H
 #define PLOT2D_H
 
-#include "qcustomplot.h"
+#include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
 #include "Grid2D.h"
 

@@ -63,6 +63,7 @@ class ScalePicker;
 class Graph3D;
 class Note;
 class MultiLayer;
+class Layout2D;
 class FunctionDialog;
 class Folder;
 class FolderTreeWidget;
@@ -511,6 +512,7 @@ class ApplicationWindow : public QMainWindow,
 
   //! Creates a new empty multilayer plot
   MultiLayer* newGraph(const QString& caption = tr("Graph"));
+  Layout2D *newGraph2D(const QString& caption = tr("Graph"));
 
   //! \name Reading from a Project File
   //@{

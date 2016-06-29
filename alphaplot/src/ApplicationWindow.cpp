@@ -97,6 +97,7 @@
 #include "scripting/ScriptingLangDialog.h"
 #include "scripting/widgets/ConsoleWidget.h"
 
+#include "2Dplot/Layout2D.h"
 #include "ui/PropertiesDialog.h"
 
 #include <stdio.h>
@@ -570,6 +571,7 @@ ApplicationWindow::ApplicationWindow()
   // File menu
   connect(ui_->actionNewProject, SIGNAL(activated()), this, SLOT(newAproj()));
   connect(ui_->actionNewGraph, SIGNAL(activated()), this, SLOT(newGraph()));
+  connect(ui_->actionNewGraph, SIGNAL(activated()), this, SLOT(newGraph2D()));
   connect(ui_->actionNewNote, SIGNAL(activated()), this, SLOT(newNote()));
   connect(ui_->actionNewTable, SIGNAL(activated()), this, SLOT(newTable()));
   connect(ui_->actionNewMatrix, SIGNAL(activated()), this, SLOT(newMatrix()));
@@ -2477,6 +2479,29 @@ MultiLayer *ApplicationWindow::newGraph(const QString &caption) {
     customMenu(multilayer);
   }
   return multilayer;
+}
+
+Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
+  Layout2D *layout2d = new Layout2D("", d_workspace, 0);
+  layout2d->setAttribute(Qt::WA_DeleteOnClose);
+  QString label = caption;
+  while (alreadyUsedName(label)) label = generateUniqueName(tr("Graph"));
+
+  current_folder->addWindow(layout2d);
+  layout2d->setFolder(current_folder);
+
+  d_workspace->addWindow(layout2d);
+
+  layout2d->setWindowTitle(label);
+  layout2d->setName(label);
+  layout2d->setWindowIcon(
+      IconLoader::load("edit-graph", IconLoader::LightDark));
+  addListViewItem(layout2d);
+
+  layout2d->show();  // FIXME: bad idea do it here
+  layout2d->setFocus();
+
+  return layout2d;
 }
 
 // used when plotting selected columns
@@ -11195,6 +11220,9 @@ void ApplicationWindow::addListViewItem(MyWidget *widget) {
   } else if (widget->inherits("MultiLayer")) {
     it->setIcon(0, IconLoader::load("edit-graph", IconLoader::LightDark));
     it->setText(1, tr("Graph"));
+  } else if (widget->inherits("Layout2D")) {
+    it->setIcon(0, IconLoader::load("edit-graph", IconLoader::LightDark));
+    it->setText(1, tr("2D Graph"));
   } else if (widget->inherits("Graph3D")) {
     it->setIcon(0, IconLoader::load("edit-graph3d", IconLoader::LightDark));
     it->setText(1, tr("3D Graph"));
@@ -11310,6 +11338,15 @@ void ApplicationWindow::windowProperties() {
                              .arg(static_cast<MultiLayer *>(window)->layers())
                              .arg(static_cast<MultiLayer *>(window)->getRows())
                              .arg(static_cast<MultiLayer *>(window)->getCols());
+    properties.description = tr("This is an AlphaPlot 2D Graph");
+  } else if (window->inherits("Layout2D")) {
+    properties.icon = QPixmap(":icons/common/64/graph2D-properties.png");
+    properties.type = tr("Graph2D");
+    properties.size = QString("%1 x %2")
+                          .arg(static_cast<Layout2D *>(window)->size().height())
+                          .arg(static_cast<Layout2D *>(window)->size().width());
+    properties.content =
+        QString(tr("%1 Layers,\n%2x%3 Layout")).arg("").arg("").arg("");
     properties.description = tr("This is an AlphaPlot 2D Graph");
   } else if (window->inherits("Graph3D")) {
     properties.icon = QPixmap(":icons/common/64/graph3D-properties.png");
