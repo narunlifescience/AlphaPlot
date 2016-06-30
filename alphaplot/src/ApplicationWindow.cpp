@@ -3331,7 +3331,7 @@ void ApplicationWindow::changeAppStyle(const QString &s) {
 }
 
 void ApplicationWindow::changeAppColorScheme(int colorScheme) {
-  colorScheme = 0;  // disable color schemes for now
+  //colorScheme = 0;  // disable color schemes for now
   switch (colorScheme) {
     case 0: {
       setStyleSheet("");

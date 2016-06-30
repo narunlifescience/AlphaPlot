@@ -10,6 +10,10 @@ class Layout2D : public MyWidget {
   Layout2D(const QString& label, QWidget* parent = nullptr,
            const QString name = QString(), Qt::WFlags f = 0);
    ~Layout2D();
+  bool eventFilter(QObject* object, QEvent*e);
+
+private slots:
+  void axisDoubleClicked(QCPAxis *, QCPAxis::SelectablePart);
 
  private:
   Plot2D* plot2dCanvas_;

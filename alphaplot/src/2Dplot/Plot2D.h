@@ -30,12 +30,6 @@ class Plot2D : public QCustomPlot {
   void setBackgroundColor(const QBrush &brush);
   QBrush getBackgroundColor() const;
 
-signals:
-  void plot2DDoubleClicked();
-
-protected:
-  void mouseDoubleClickEvent(QMouseEvent *);
-
  private:
   QBrush canvasBrush_;
 };

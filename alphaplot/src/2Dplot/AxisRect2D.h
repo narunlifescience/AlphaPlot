@@ -19,6 +19,7 @@
 
 #include "Axis2D.h"
 #include "Grid2D.h"
+#include "LineScatter2D.h"
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 
 class AxisRect2D : public QCPAxisRect {
@@ -41,6 +42,7 @@ class AxisRect2D : public QCPAxisRect {
 
   QBrush axisRectBackGround_;
   QMap<Axis2D::AxisOreantation, QList<Axis2D *>> axises_;
+  QVector<LineScatter2D *> lineScatter_;
   QPair<Grid2D *, Grid2D *> grids_;
 };
 

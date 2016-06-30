@@ -31,8 +31,3 @@ void Plot2D::setBackgroundColor(const QBrush &brush) {
 }
 
 QBrush Plot2D::getBackgroundColor() const { return canvasBrush_; }
-
-void Plot2D::mouseDoubleClickEvent(QMouseEvent *)
-{
-  emit plot2DDoubleClicked();
-}

@@ -282,7 +282,7 @@ public:
   // setters:
   void setSize(double size);
   void setShape(ScatterShape shape);
-  void setPen(const QPen &pen);
+  void setPen2D(const QPen &pen);
   void setBrush(const QBrush &brush);
   void setPixmap(const QPixmap &pixmap);
   void setCustomPath(const QPainterPath &customPath);
