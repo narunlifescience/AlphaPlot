@@ -24,6 +24,7 @@
 
 #include "Matrix.h"
 #include "MultiLayer.h"
+#include "2Dplot/Layout2D.h"
 #include "Note.h"
 #include "Table.h"
 
@@ -102,6 +103,10 @@ class Folder : public QObject {
   // Return graph named name or NULL
   MultiLayer *graph(const QString &name, bool recursive = false) {
     return qobject_cast<MultiLayer *>(window(name, "MultiLayer", recursive));
+  }
+  // Return graph2D named name or NULL
+  Layout2D *graph2D(const QString &name, bool recursive = false) {
+    return qobject_cast<Layout2D *>(window(name, "Layout2D", recursive));
   }
   // Return note named name or NULL
   Note *note(const QString &name, bool recursive = false) {

@@ -2501,6 +2501,16 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
   layout2d->show();  // FIXME: bad idea do it here
   layout2d->setFocus();
 
+  // basic window connections
+  connect(layout2d, SIGNAL(closedWindow(MyWidget *)), this,
+          SLOT(closeWindow(MyWidget *)));
+  connect(layout2d, SIGNAL(hiddenWindow(MyWidget *)), this,
+          SLOT(hideWindow(MyWidget *)));
+  connect(layout2d, SIGNAL(statusChanged(MyWidget *)), this,
+          SLOT(updateWindowStatus(MyWidget *)));
+  connect(layout2d, SIGNAL(showTitleBarMenu()), this,
+          SLOT(showWindowTitleBarMenu()));
+
   return layout2d;
 }
 

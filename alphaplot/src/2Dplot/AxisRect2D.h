@@ -17,10 +17,10 @@
 #ifndef AXISRECT2D_H
 #define AXISRECT2D_H
 
+#include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
 #include "Grid2D.h"
 #include "LineScatter2D.h"
-#include "../3rdparty/qcustomplot/qcustomplot.h"
 
 class AxisRect2D : public QCPAxisRect {
  public:
@@ -36,13 +36,30 @@ class AxisRect2D : public QCPAxisRect {
   QList<Axis2D *> getAxes2D() const;
   QList<Axis2D *> getAxes2D(const Axis2D::AxisOreantation &orientation) const;
 
+  enum LineScatterType {
+    Line2D,
+    Scatter2D,
+    LineAndScatter2D,
+    VerticalDropLine2D,
+    Spline2D,
+    CentralStepAndScatter2D,
+    HorizontalStep2D,
+    VerticalStep2D,
+  };
+
+  LineScatter2D *addLineScatter2DPlot(const LineScatterType &type,
+                                      QCPDataMap *dataMap, Axis2D *xAxis,
+                                      Axis2D *yAxis);
+  // template <typename T> void remove2DPlot(T &plot) {
+  //}
+
  private:
   QList<Axis2D *> getAxesToMap(
       const Axis2D::AxisOreantation &orientation) const;
 
   QBrush axisRectBackGround_;
   QMap<Axis2D::AxisOreantation, QList<Axis2D *>> axises_;
-  QVector<LineScatter2D *> lineScatter_;
+  QMap<LineScatterType, QPair<LineScatter2D *, QCPDataMap *>> lineScatter_;
   QPair<Grid2D *, Grid2D *> grids_;
 };
 

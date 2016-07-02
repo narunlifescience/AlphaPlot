@@ -467,7 +467,7 @@ void QCPScatterStyle::setShape(QCPScatterStyle::ScatterShape shape)
   
   \see setBrush
 */
-void QCPScatterStyle::setPen2D(const QPen &pen)
+void QCPScatterStyle::setPen(const QPen &pen)
 {
   mPenDefined = true;
   mPen = pen;

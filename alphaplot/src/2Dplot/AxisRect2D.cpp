@@ -127,6 +127,48 @@ QList<Axis2D *> AxisRect2D::getAxes2D(
   return axes2D;
 }
 
+LineScatter2D *AxisRect2D::addLineScatter2DPlot(
+    const AxisRect2D::LineScatterType &type, QCPDataMap *dataMap, Axis2D *xAxis,
+    Axis2D *yAxis) {
+  LineScatter2D *lineScatter = new LineScatter2D(xAxis, yAxis);
+
+  switch (type) {
+    case Line2D:
+      lineScatter->setLineScatter2DPlot(LineScatter2D::LinePlot,
+                                        LineScatter2D::ScatterHidden);
+      break;
+    case Scatter2D:
+      lineScatter->setLineScatter2DPlot(LineScatter2D::NonePlot,
+                                        LineScatter2D::ScatterVisible);
+      break;
+    case LineAndScatter2D:
+      lineScatter->setLineScatter2DPlot(LineScatter2D::LinePlot,
+                                        LineScatter2D::ScatterVisible);
+      break;
+    case VerticalDropLine2D:
+      lineScatter->setLineScatter2DPlot(LineScatter2D::VerticalDropLinePlot,
+                                        LineScatter2D::ScatterHidden);
+      break;
+    case Spline2D:
+      break;
+    case CentralStepAndScatter2D:
+      lineScatter->setLineScatter2DPlot(
+          LineScatter2D::CentralStepAndScatterPlot,
+          LineScatter2D::ScatterVisible);
+      break;
+    case HorizontalStep2D:
+      lineScatter->setLineScatter2DPlot(LineScatter2D::VerticalStepPlot,
+                                        LineScatter2D::ScatterHidden);
+      break;
+    case VerticalStep2D:
+      lineScatter->setLineScatter2DPlot(LineScatter2D::HorizontalStepPlot,
+                                        LineScatter2D::ScatterHidden);
+      break;
+  }
+  lineScatter->setData(dataMap);
+  return lineScatter;
+}
+
 // Should not use for other than populating axis map
 QList<Axis2D *> AxisRect2D::getAxesToMap(
     const Axis2D::AxisOreantation &orientation) const {

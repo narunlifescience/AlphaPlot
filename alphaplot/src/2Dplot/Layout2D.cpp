@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include "QDateTime"
 
+#include "../future/core/column/Column.h"
 #include "AxisRect2D.h"
 #include "LayoutGrid2D.h"
 #include "LineScatter2D.h"
@@ -26,6 +27,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   layout->setMargin(0);
   layout->setSpacing(0);
   setGeometry(QRect(0, 0, 500, 400));
+  setMinimumSize(QSize(400,400));
   setFocusPolicy(Qt::StrongFocus);
 
   // connections

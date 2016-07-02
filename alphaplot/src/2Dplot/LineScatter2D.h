@@ -15,6 +15,7 @@ class LineScatter2D : public QCPGraph {
     NonePlot,
     VerticalDropLinePlot,
     SplinePlot,
+    CentralStepAndScatterPlot,
     HorizontalStepPlot,
     VerticalStepPlot,
   };

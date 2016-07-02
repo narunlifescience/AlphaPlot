@@ -10,7 +10,7 @@ LineScatter2D::LineScatter2D(Axis2D *xAxis, Axis2D *yAxis)
       linePen_(QPen(Qt::red, 0)),
       lineBrush_(QBrush(Qt::NoBrush)) {
   scatterStyle_.setShape(QCPScatterStyle::ssTriangle);
-  scatterStyle_.setPen2D(scatterPen_);
+  scatterStyle_.setPen(scatterPen_);
   scatterStyle_.setBrush(scatterBrush_);
   scatterStyle_.setSize(scatterSize_);
   setScatterStyle(scatterStyle_);
@@ -41,6 +41,9 @@ void LineScatter2D::setLineScatter2DPlot(const Line &line,
         break;
       case SplinePlot:
         // a quadratic or higher order interpolation
+        break;
+      case CentralStepAndScatterPlot:
+        setLineStyle(QCPGraph::lsStepCenter);
         break;
       case HorizontalStepPlot:
         setLineStyle(QCPGraph::lsStepLeft);
@@ -134,7 +137,7 @@ void LineScatter2D::setScatterPen2D(const QPen &pen) {
     return;
   }
 
-  scatterStyle_.setPen2D(pen);
+  scatterStyle_.setPen(pen);
   scatterPen_ = pen;
   setScatterStyle(scatterStyle_);
 }

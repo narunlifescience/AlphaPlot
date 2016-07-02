@@ -4,6 +4,8 @@
 #include "../MyWidget.h"
 #include "Plot2D.h"
 
+class Column;
+
 class Layout2D : public MyWidget {
   Q_OBJECT
  public:
@@ -11,6 +13,7 @@ class Layout2D : public MyWidget {
            const QString name = QString(), Qt::WFlags f = 0);
    ~Layout2D();
   bool eventFilter(QObject* object, QEvent*e);
+  QCPDataMap *generateDataMap(Column *xData, Column *yData);
 
 private slots:
   void axisDoubleClicked(QCPAxis *, QCPAxis::SelectablePart);
