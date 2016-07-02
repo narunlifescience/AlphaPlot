@@ -50,8 +50,17 @@ class AxisRect2D : public QCPAxisRect {
   LineScatter2D *addLineScatter2DPlot(const LineScatterType &type,
                                       QCPDataMap *dataMap, Axis2D *xAxis,
                                       Axis2D *yAxis);
-  // template <typename T> void remove2DPlot(T &plot) {
-  //}
+
+/*  template <typename T>
+  void remove2DPlot(T &plot) {
+    QPair<LineScatter2D *, QCPDataMap *> pair;
+    foreach (pair, lineScatter_) {
+      if (pair.first == plot) {
+        lineScatter_.remove()
+      }
+    }
+    lineScatter_.values().contains(pair);
+  }*/
 
  private:
   QList<Axis2D *> getAxesToMap(
@@ -59,7 +68,8 @@ class AxisRect2D : public QCPAxisRect {
 
   QBrush axisRectBackGround_;
   QMap<Axis2D::AxisOreantation, QList<Axis2D *>> axises_;
-  QMap<LineScatterType, QPair<LineScatter2D *, QCPDataMap *>> lineScatter_;
+  QMap<LineScatterType, QList<QPair<LineScatter2D *, QCPDataMap *>>>
+      lineScatter_;
   QPair<Grid2D *, Grid2D *> grids_;
 };
 

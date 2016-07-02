@@ -25,6 +25,21 @@ AxisRect2D::AxisRect2D(QCustomPlot *parent, bool setupDefaultAxis)
   axises_.insert(Axis2D::Bottom, QList<Axis2D *>());
   axises_.insert(Axis2D::Right, QList<Axis2D *>());
   axises_.insert(Axis2D::Top, QList<Axis2D *>());
+
+  // initialize linescatter2D map
+  lineScatter_.insert(Line2D, QList<QPair<LineScatter2D *, QCPDataMap *>>());
+  lineScatter_.insert(Scatter2D, QList<QPair<LineScatter2D *, QCPDataMap *>>());
+  lineScatter_.insert(LineAndScatter2D,
+                      QList<QPair<LineScatter2D *, QCPDataMap *>>());
+  lineScatter_.insert(VerticalDropLine2D,
+                      QList<QPair<LineScatter2D *, QCPDataMap *>>());
+  lineScatter_.insert(Spline2D, QList<QPair<LineScatter2D *, QCPDataMap *>>());
+  lineScatter_.insert(CentralStepAndScatter2D,
+                      QList<QPair<LineScatter2D *, QCPDataMap *>>());
+  lineScatter_.insert(HorizontalStep2D,
+                      QList<QPair<LineScatter2D *, QCPDataMap *>>());
+  lineScatter_.insert(VerticalStep2D,
+                      QList<QPair<LineScatter2D *, QCPDataMap *>>());
 }
 
 AxisRect2D::~AxisRect2D() {}
@@ -131,23 +146,28 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
     const AxisRect2D::LineScatterType &type, QCPDataMap *dataMap, Axis2D *xAxis,
     Axis2D *yAxis) {
   LineScatter2D *lineScatter = new LineScatter2D(xAxis, yAxis);
+  QList<QPair<LineScatter2D *, QCPDataMap *>> list;
 
   switch (type) {
     case Line2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::LinePlot,
                                         LineScatter2D::ScatterHidden);
+      list = lineScatter_.value(Line2D);
       break;
     case Scatter2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::NonePlot,
                                         LineScatter2D::ScatterVisible);
+      list = lineScatter_.value(Scatter2D);
       break;
     case LineAndScatter2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::LinePlot,
                                         LineScatter2D::ScatterVisible);
+      list = lineScatter_.value(LineAndScatter2D);
       break;
     case VerticalDropLine2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::VerticalDropLinePlot,
                                         LineScatter2D::ScatterHidden);
+      list = lineScatter_.value(VerticalDropLine2D);
       break;
     case Spline2D:
       break;
@@ -155,17 +175,26 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
       lineScatter->setLineScatter2DPlot(
           LineScatter2D::CentralStepAndScatterPlot,
           LineScatter2D::ScatterVisible);
+      list = lineScatter_.value(CentralStepAndScatter2D);
       break;
     case HorizontalStep2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::VerticalStepPlot,
                                         LineScatter2D::ScatterHidden);
+      list = lineScatter_.value(HorizontalStep2D);
       break;
     case VerticalStep2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::HorizontalStepPlot,
                                         LineScatter2D::ScatterHidden);
+      list = lineScatter_.value(VerticalStep2D);
       break;
   }
   lineScatter->setData(dataMap);
+
+  QPair<LineScatter2D *, QCPDataMap *> pair;
+  pair.first = lineScatter;
+  pair.second = dataMap;
+  list.append(pair);
+  lineScatter_.insert(type, list);
   return lineScatter;
 }
 

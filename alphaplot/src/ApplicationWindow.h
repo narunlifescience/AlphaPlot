@@ -32,6 +32,7 @@
 #include "Table.h"
 
 // Scripting
+#include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "scripting/Script.h"
 #include "scripting/ScriptingEnv.h"
 
@@ -512,7 +513,7 @@ class ApplicationWindow : public QMainWindow,
 
   //! Creates a new empty multilayer plot
   MultiLayer* newGraph(const QString& caption = tr("Graph"));
-  Layout2D *newGraph2D(const QString& caption = tr("Graph"));
+  Layout2D* newGraph2D(const QString& caption = tr("Graph"));
 
   //! \name Reading from a Project File
   //@{
@@ -833,7 +834,7 @@ class ApplicationWindow : public QMainWindow,
   //!  forces showing all windows in the current folder and subfolders,
   //!  depending on the user's viewing policy
   void showAllFolderWindows();
-  void showAllFolderWindowsRecursive(FolderTreeWidgetItem *item);
+  void showAllFolderWindowsRecursive(FolderTreeWidgetItem* item);
 
   //!  forces hidding all windows in the current folder and subfolders,
   //!  depending on the user's viewing policy

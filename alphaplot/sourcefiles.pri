@@ -372,6 +372,7 @@ HEADERS     += src/2Dplot/Axis2D.h \
                src/2Dplot/Layout2D.h \
                src/2Dplot/LayoutGrid2D.h \
                src/2Dplot/LineScatter2D.h \
+               src/2Dplot/Generate2DFunctionData.h \
                src/2Dplot/Plot2D.h
 
 SOURCES     += src/2Dplot/Axis2D.cpp \
@@ -380,4 +381,5 @@ SOURCES     += src/2Dplot/Axis2D.cpp \
                src/2Dplot/Layout2D.cpp \
                src/2Dplot/LayoutGrid2D.cpp \
                src/2Dplot/LineScatter2D.cpp \
+               src/2Dplot/Generate2DFunctionData.cpp \
                src/2Dplot/Plot2D.cpp              

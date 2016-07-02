@@ -3341,7 +3341,7 @@ void ApplicationWindow::changeAppStyle(const QString &s) {
 }
 
 void ApplicationWindow::changeAppColorScheme(int colorScheme) {
-  //colorScheme = 0;  // disable color schemes for now
+  // colorScheme = 0;  // disable color schemes for now
   switch (colorScheme) {
     case 0: {
       setStyleSheet("");
@@ -8468,15 +8468,44 @@ void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas) {
 bool ApplicationWindow::newFunctionPlot(int type, QStringList &formulas,
                                         const QString &var,
                                         QList<double> &ranges, int points) {
-  MultiLayer *ml = newGraph();
-  if (!ml) return false;
+  QString name = "function";
+  Script *script = scriptEnv->newScript(formulas[0], 0, name);
+  QObject::connect(script, SIGNAL(error(const QString &, const QString &, int)),
+                   this,
+                   SLOT(scriptError(const QString &, const QString &, int)));
 
-  if (!ml->activeGraph()->addFunctionCurve(this, type, formulas, var, ranges,
-                                           points))
-    return false;
+  QCPDataMap *dataMap = new QCPDataMap();
+  double xMin = ranges[0], xMax = ranges[1], yMin = 0, yMax = 0;
+  double step = (xMax - xMin) / static_cast<double>(points - 1);
+  double x = xMin, y = 0;
 
-  updateFunctionLists(type, formulas);
-  return true;
+  for (int i = 0; i < points; i++, x += step) {
+    script->setDouble(x, var.toAscii().constData());
+    QVariant result = script->eval();
+    if (result.type() != QVariant::Double) {
+      delete dataMap;
+      return false;
+    }
+
+    y = result.toDouble();
+    if (y < yMin) {
+      yMin = y;
+    }
+    if (y > yMax) {
+      yMax = y;
+    }
+    dataMap->insert(x, QCPData(x, y));
+  }
+
+  if (dataMap) {
+    Layout2D *layout = newGraph2D();
+    layout->generateFunction2DPlot(std::move(dataMap), xMin, xMax, yMin, yMax,
+                                   formulas[0]);
+    return true;
+  } else {
+    delete dataMap;
+  }
+  return false;
 }
 
 void ApplicationWindow::clearLogInfo() {
