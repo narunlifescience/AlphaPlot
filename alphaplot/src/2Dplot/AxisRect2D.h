@@ -31,7 +31,7 @@ class AxisRect2D : public QCPAxisRect {
   Axis2D *addAxis2D(const Axis2D::AxisOreantation &orientation);
   bool removeAxis2D(Axis2D *axis);
   QBrush getAxisRectBackground() const;
-  void bindGridTo(Axis2D *axis);
+  Grid2D *bindGridTo(Axis2D *axis);
 
   QList<Axis2D *> getAxes2D() const;
   QList<Axis2D *> getAxes2D(const Axis2D::AxisOreantation &orientation) const;
@@ -51,6 +51,9 @@ class AxisRect2D : public QCPAxisRect {
                                       QCPDataMap *dataMap, Axis2D *xAxis,
                                       Axis2D *yAxis);
 
+  QList<Axis2D *> getAxesToMap(
+      const Axis2D::AxisOreantation &orientation) const;
+
 /*  template <typename T>
   void remove2DPlot(T &plot) {
     QPair<LineScatter2D *, QCPDataMap *> pair;
@@ -63,13 +66,10 @@ class AxisRect2D : public QCPAxisRect {
   }*/
 
  private:
-  QList<Axis2D *> getAxesToMap(
-      const Axis2D::AxisOreantation &orientation) const;
 
   QBrush axisRectBackGround_;
   QMap<Axis2D::AxisOreantation, QList<Axis2D *>> axises_;
-  QMap<LineScatterType, QList<QPair<LineScatter2D *, QCPDataMap *>>>
-      lineScatter_;
+  QMap<LineScatterType, QList<LineScatter2D *>> lineScatter_;
   QPair<Grid2D *, Grid2D *> grids_;
 };
 

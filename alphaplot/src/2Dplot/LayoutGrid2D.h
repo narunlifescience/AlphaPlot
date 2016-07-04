@@ -7,7 +7,7 @@ class LayoutGrid2D : public QCPLayoutGrid
 {
   Q_OBJECT
 public:
-  LayoutGrid2D(QWidget *parent = nullptr);
+  LayoutGrid2D();
   ~LayoutGrid2D();
 };
 

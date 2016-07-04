@@ -4188,9 +4188,12 @@ void ApplicationWindow::scriptError(const QString &message,
                                     const QString &scriptName, int lineNumber) {
   Q_UNUSED(scriptName)
   Q_UNUSED(lineNumber)
-  // QMessageBox::critical(this, tr("AlphaPlot") + " - " + tr("Script Error"),
-  //                      message);
-  consoleWindow->printError(message);
+  if (consoleWindow->hasFocus()) {
+    consoleWindow->printError(message);
+  } else {
+    QMessageBox::critical(this, tr("AlphaPlot") + " - " + tr("Script Error"),
+                          message);
+  }
 }
 
 void ApplicationWindow::scriptPrint(const QString &text) {
@@ -8468,42 +8471,55 @@ void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas) {
 bool ApplicationWindow::newFunctionPlot(int type, QStringList &formulas,
                                         const QString &var,
                                         QList<double> &ranges, int points) {
-  QString name = "function";
-  Script *script = scriptEnv->newScript(formulas[0], 0, name);
-  QObject::connect(script, SIGNAL(error(const QString &, const QString &, int)),
-                   this,
-                   SLOT(scriptError(const QString &, const QString &, int)));
+  switch (type) {
+    case 0: {
+      QString name = "normal-function";
+      std::unique_ptr<Script> script(
+          scriptEnv->newScript(formulas[0], 0, name));
+      QObject::connect(
+          script.get(), SIGNAL(error(const QString &, const QString &, int)),
+          this, SLOT(scriptError(const QString &, const QString &, int)));
 
-  QCPDataMap *dataMap = new QCPDataMap();
-  double xMin = ranges[0], xMax = ranges[1], yMin = 0, yMax = 0;
-  double step = (xMax - xMin) / static_cast<double>(points - 1);
-  double x = xMin, y = 0;
+      QCPDataMap *dataMap = new QCPDataMap();
+      double xMin = ranges[0], xMax = ranges[1], yMin = 0, yMax = 0;
+      double step = (xMax - xMin) / static_cast<double>(points - 1);
+      double x = xMin, y = 0;
+      for (int i = 0; i < points; i++, x += step) {
+        script->setDouble(x, var.toAscii().constData());
+        QVariant result = script->eval();
+        if (result.type() != QVariant::Double) {
+          delete dataMap;
+          dataMap = nullptr;
+          return false;
+        }
 
-  for (int i = 0; i < points; i++, x += step) {
-    script->setDouble(x, var.toAscii().constData());
-    QVariant result = script->eval();
-    if (result.type() != QVariant::Double) {
-      delete dataMap;
-      return false;
-    }
+        y = result.toDouble();
+        if (y < yMin) {
+          yMin = y;
+        }
+        if (y > yMax) {
+          yMax = y;
+        }
+        dataMap->insert(x, QCPData(x, y));
+      }
 
-    y = result.toDouble();
-    if (y < yMin) {
-      yMin = y;
-    }
-    if (y > yMax) {
-      yMax = y;
-    }
-    dataMap->insert(x, QCPData(x, y));
-  }
-
-  if (dataMap) {
-    Layout2D *layout = newGraph2D();
-    layout->generateFunction2DPlot(std::move(dataMap), xMin, xMax, yMin, yMax,
-                                   formulas[0]);
-    return true;
-  } else {
-    delete dataMap;
+      if (dataMap) {
+        Layout2D *layout = newGraph2D();
+        layout->generateFunction2DPlot(dataMap, xMin, xMax, yMin,
+                                       yMax, formulas[0]);
+        return true;
+      }
+      delete[] dataMap;
+      dataMap = nullptr;
+    } break;
+    case 1: {
+      qDebug() << "parametric function not implimented";
+    } break;
+    case 2: {
+      qDebug() << "polar function not implimented";
+    } break;
+    default:
+      qDebug() << "unknown function type!";
   }
   return false;
 }

@@ -217,7 +217,7 @@ void Table::print(const QString &fileName) {
   QPainter p;
   if (!p.begin(&printer)) return;  // paint on printer
   int dpiy = printer.logicalDpiY();
-  const int margin = (int)((1 / 2.54) * dpiy);  // 1 cm margins
+  const int margin = static_cast<int>((1 / 2.54) * dpiy);  // 1 cm margins
 
   QHeaderView *hHeader = d_view_widget->horizontalHeader();
   QHeaderView *vHeader = d_view_widget->verticalHeader();
@@ -311,7 +311,7 @@ void Table::setColWidths(const QStringList &widths) {
 
 void Table::setColumnTypes(const QStringList &ctl) {
   // TODO: obsolete, remove in 0.3.0
-  int n = qMin((int)ctl.count(), numCols());
+  int n = qMin(static_cast<int>(ctl.count()), numCols());
   for (int i = 0; i < n; i++) {
     QStringList l = ctl[i].split(";");
     switch (l[0].toInt()) {
@@ -356,7 +356,7 @@ QString Table::saveColumnTypes() {
 }
 
 void Table::setCommands(const QStringList &com) {
-  for (int i = 0; i < (int)com.size() && i < numCols(); i++)
+  for (int i = 0; i < static_cast<int>(com.size()) && i < numCols(); i++)
     column(i)->setFormula(Interval<int>(0, numRows() - 1), com.at(i).trimmed());
 }
 
