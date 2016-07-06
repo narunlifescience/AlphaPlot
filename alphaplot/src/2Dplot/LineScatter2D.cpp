@@ -2,13 +2,14 @@
 
 LineScatter2D::LineScatter2D(Axis2D *xAxis, Axis2D *yAxis)
     : QCPGraph(xAxis, yAxis),
-      scatterShape_(QCPScatterStyle::ssDisc),
-      scatterPen_(QPen(Qt::blue)),
+      scatterShape_(QCPScatterStyle::ssPlus),
+      scatterPen_(QPen(QColor(0, 0, 175, 100))),
       scatterBrush_(QBrush(Qt::yellow)),
       scatterSize_(5),
       lineStyle_(NonePlot),
       linePen_(QPen(Qt::red, 0)),
-      lineBrush_(QBrush(Qt::NoBrush)) {
+      lineBrush_(QBrush(Qt::NoBrush)),
+      autoAntialiasing_(true) {
   scatterStyle_.setShape(QCPScatterStyle::ssTriangle);
   scatterStyle_.setPen(scatterPen_);
   scatterStyle_.setBrush(scatterBrush_);
@@ -27,32 +28,39 @@ void LineScatter2D::setLineScatter2DPlot(const Line &line,
                 "QCPScatterStyle::ssNone";
     return;
   }
+  bool antialiasedLine = false;
 
-  if (lineStyle_ != line) {
     switch (line) {
       case LinePlot:
         setLineStyle(QCPGraph::lsLine);
+        antialiasedLine = true;
         break;
       case NonePlot:
         setLineStyle(QCPGraph::lsNone);
         break;
       case VerticalDropLinePlot:
         setLineStyle(QCPGraph::lsImpulse);
+        antialiasedLine = false;
         break;
       case SplinePlot:
         // a quadratic or higher order interpolation
         break;
       case CentralStepAndScatterPlot:
         setLineStyle(QCPGraph::lsStepCenter);
+        antialiasedLine = false;
         break;
       case HorizontalStepPlot:
         setLineStyle(QCPGraph::lsStepLeft);
+        antialiasedLine = false;
         break;
       case VerticalStepPlot:
         setLineStyle(QCPGraph::lsStepRight);
+        antialiasedLine = false;
         break;
     }
-  }
+
+    if(autoAntialiasing_)
+    setAntialiased(antialiasedLine);
 
   switch (scatter) {
     case ScatterVisible:
@@ -72,6 +80,8 @@ void LineScatter2D::setLineScatter2DPlot(const Line &line,
 void LineScatter2D::setScatterShape2D(
     const QCPScatterStyle::ScatterShape &shape) {
 
+  bool antialiasedScatter = false;
+
   switch (shape) {
     case QCPScatterStyle::ssPixmap:
     case QCPScatterStyle::ssCustom:
@@ -82,51 +92,67 @@ void LineScatter2D::setScatterShape2D(
       break;
     case QCPScatterStyle::ssDot:
       scatterStyle_.setShape(QCPScatterStyle::ssDot);
+      antialiasedScatter = false;
       break;
     case QCPScatterStyle::ssCross:
       scatterStyle_.setShape(QCPScatterStyle::ssCross);
+      antialiasedScatter = true;
       break;
     case QCPScatterStyle::ssPlus:
       scatterStyle_.setShape(QCPScatterStyle::ssPlus);
+      antialiasedScatter = false;
       break;
     case QCPScatterStyle::ssCircle:
       scatterStyle_.setShape(QCPScatterStyle::ssCircle);
+      antialiasedScatter = true;
       break;
     case QCPScatterStyle::ssDisc:
       scatterStyle_.setShape(QCPScatterStyle::ssDisc);
+      antialiasedScatter = true;
       break;
     case QCPScatterStyle::ssSquare:
       scatterStyle_.setShape(QCPScatterStyle::ssSquare);
+      antialiasedScatter = false;
       break;
     case QCPScatterStyle::ssDiamond:
       scatterStyle_.setShape(QCPScatterStyle::ssDiamond);
-      qDebug() << "ssdiamond";
+      antialiasedScatter = true;
       break;
     case QCPScatterStyle::ssStar:
       scatterStyle_.setShape(QCPScatterStyle::ssStar);
+      antialiasedScatter = true;
       break;
     case QCPScatterStyle::ssTriangle:
       scatterStyle_.setShape(QCPScatterStyle::ssTriangle);
+      antialiasedScatter = true;
       break;
     case QCPScatterStyle::ssTriangleInverted:
       scatterStyle_.setShape(QCPScatterStyle::ssTriangleInverted);
+      antialiasedScatter = true;
       break;
     case QCPScatterStyle::ssCrossSquare:
       scatterStyle_.setShape(QCPScatterStyle::ssCrossSquare);
+      antialiasedScatter = true;
       break;
     case QCPScatterStyle::ssPlusSquare:
       scatterStyle_.setShape(QCPScatterStyle::ssPlusSquare);
+      antialiasedScatter = false;
       break;
     case QCPScatterStyle::ssCrossCircle:
       scatterStyle_.setShape(QCPScatterStyle::ssCrossCircle);
+      antialiasedScatter = true;
       break;
     case QCPScatterStyle::ssPlusCircle:
       scatterStyle_.setShape(QCPScatterStyle::ssPlusCircle);
+      antialiasedScatter = true;
       break;
     case QCPScatterStyle::ssPeace:
       scatterStyle_.setShape(QCPScatterStyle::ssPeace);
+      antialiasedScatter = true;
       break;
   }
+  if(autoAntialiasing_) setAntialiasedScatters(antialiasedScatter);
+
   scatterShape_ = shape;
   setScatterStyle(scatterStyle_);
 }

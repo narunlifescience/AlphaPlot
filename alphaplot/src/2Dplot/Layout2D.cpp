@@ -1,5 +1,7 @@
 #include "Layout2D.h"
-#include <QSvgGenerator>
+#include <QInputDialog>
+#include <QLabel>
+#include <QLineEdit>
 #include <QVBoxLayout>
 #include "QDateTime"
 
@@ -9,18 +11,22 @@
 #include "LayoutGrid2D.h"
 #include "LineScatter2D.h"
 
+const int LayoutButton::layoutButtonSize = 22;
+QRect LayoutButton::highLightRect;
+
 LayoutButton::LayoutButton(const QString &text, QWidget *parent)
-    : QPushButton(text, parent) {
+    : QPushButton(parent), active(false), buttonText(text) {
   setToggleButton(true);
-  setOn(true);
   setMaximumWidth(LayoutButton::btnSize());
   setMaximumHeight(LayoutButton::btnSize());
+  setFixedSize(QSize(layoutButtonSize, layoutButtonSize));
 }
 
 LayoutButton::~LayoutButton() {}
 
 void LayoutButton::mousePressEvent(QMouseEvent *event) {
-  if (!isOn()) {
+  emit clicked(this);
+  if (!active) {
     emit clicked(this);
   }
   if (event->button() == Qt::RightButton) {
@@ -32,12 +38,31 @@ void LayoutButton::mouseDoubleClickEvent(QMouseEvent *) {
   emit showCurvesDialog();
 }
 
+void LayoutButton::resizeEvent(QResizeEvent *) {
+  highLightRect = QRect(2, 2, size().rwidth() - 5, size().rheight() - 5);
+}
+
+void LayoutButton::paintEvent(QPaintEvent *event) {
+  QPushButton::paintEvent(event);
+  if (active) {
+    QPainter painter(this);
+    painter.setPen(QPen(Qt::red));
+    painter.drawRect(highLightRect);
+    painter.drawText(highLightRect, Qt::AlignCenter, buttonText);
+  } else {
+    QPainter painter(this);
+    painter.drawText(highLightRect, Qt::AlignCenter, buttonText);
+  }
+}
+
 Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
                    Qt::WFlags f)
     : MyWidget(label, parent, name, f),
       plot2dCanvas_(new Plot2D(this)),
-      layout_(new LayoutGrid2D()) {
-  if (name.isEmpty()) setObjectName("multilayer plot");
+      layout_(new LayoutGrid2D()),
+      buttionlist_(QList<LayoutButton *>()),
+      currentAxisRect_(nullptr) {
+  if (name.isEmpty()) setObjectName("multilayout2d plot");
 
   QPalette pal = palette();
   pal.setColor(QPalette::Active, QPalette::Window, QColor(Qt::white));
@@ -48,7 +73,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   QDateTime birthday = QDateTime::currentDateTime();
   setBirthDate(birthday.toString(Qt::LocalDate));
 
-  toolbuttonsBox_ = new QHBoxLayout();
+  layoutManagebuttonsBox_ = new QHBoxLayout();
   addLayoutButton_ = new QPushButton();
   addLayoutButton_->setToolTip(tr("Add layer"));
   addLayoutButton_->setIcon(
@@ -56,7 +81,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   addLayoutButton_->setMaximumWidth(LayoutButton::btnSize());
   addLayoutButton_->setMaximumHeight(LayoutButton::btnSize());
   connect(addLayoutButton_, SIGNAL(clicked()), this, SLOT(addAxisRectItem()));
-  toolbuttonsBox_->addWidget(addLayoutButton_);
+  layoutManagebuttonsBox_->addWidget(addLayoutButton_);
 
   removeLayoutButton_ = new QPushButton();
   removeLayoutButton_->setToolTip(tr("Remove active layer"));
@@ -66,13 +91,15 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   removeLayoutButton_->setMaximumHeight(LayoutButton::btnSize());
   connect(removeLayoutButton_, SIGNAL(clicked()), this,
           SLOT(removeAxisRectItem()));
-  toolbuttonsBox_->addWidget(removeLayoutButton_);
+  layoutManagebuttonsBox_->addWidget(removeLayoutButton_);
 
   layoutButtonsBox_ = new QHBoxLayout();
   QHBoxLayout *hbox = new QHBoxLayout();
   hbox->addLayout(layoutButtonsBox_);
-  hbox->addStretch();
-  hbox->addLayout(toolbuttonsBox_);
+  QLabel *streachLabel = new QLabel(this);
+  hbox->addWidget(streachLabel);
+  streachLabel->setStyleSheet("QLabel { background-color : white; }");
+  hbox->addLayout(layoutManagebuttonsBox_);
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->addLayout(hbox);
@@ -84,13 +111,28 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   setFocusPolicy(Qt::StrongFocus);
 
   plot2dCanvas_->plotLayout()->addElement(0, 0, layout_);
-  buttionlist_ = QList<LayoutButton *>();
 
   // connections
   connect(plot2dCanvas_,
           SIGNAL(axisDoubleClick(QCPAxis *, QCPAxis::SelectablePart,
                                  QMouseEvent *)),
           this, SLOT(axisDoubleClicked(QCPAxis *, QCPAxis::SelectablePart)));
+
+  draggingLegend = false;
+  connect(plot2dCanvas_, SIGNAL(mouseMove(QMouseEvent *)), this,
+          SLOT(mouseMoveSignal(QMouseEvent *)));
+  connect(plot2dCanvas_, SIGNAL(mousePress(QMouseEvent *)), this,
+          SLOT(mousePressSignal(QMouseEvent *)));
+  connect(plot2dCanvas_, SIGNAL(mouseRelease(QMouseEvent *)), this,
+          SLOT(mouseReleaseSignal(QMouseEvent *)));
+  connect(plot2dCanvas_, SIGNAL(beforeReplot()), this, SLOT(beforeReplot()));
+
+  connect(plot2dCanvas_, SIGNAL(mouseWheel(QWheelEvent *)), this,
+          SLOT(mouseWheel()));
+  connect(plot2dCanvas_,
+          SIGNAL(legendDoubleClick(QCPLegend *, QCPAbstractLegendItem *,
+                                   QMouseEvent *)),
+          this, SLOT(legendDoubleClick(QCPLegend *, QCPAbstractLegendItem *)));
 }
 
 Layout2D::~Layout2D() {
@@ -114,53 +156,101 @@ bool Layout2D::eventFilter(QObject *object, QEvent *e) {
 QCPDataMap *Layout2D::generateDataMap(Column *xData, Column *yData, int from,
                                       int to) {
   QCPDataMap *dataMap = new QCPDataMap();
+
+  double xdata = 0, ydata = 0;
   for (int i = from; i < to; i++) {
-    dataMap->insert(xData->valueAt(i),
-                    QCPData(xData->valueAt(i), yData->valueAt(i)));
+    xdata = xData->valueAt(i);
+    ydata = yData->valueAt(i);
+    dataMap->insert(xdata, QCPData(xdata, ydata));
   }
   return dataMap;
 }
 
-void Layout2D::generateFunction2DPlot(QCPDataMap *dataMap, const double xMin,
-                                      const double xMax, const double yMin,
-                                      const double yMax, const QString yLabel) {
-  AxisRectItem item = addAxisRectItem();
-  AxisRect2D *element = nullptr;
-  element =
-      static_cast<AxisRect2D *>(layout_->elementAt(item.coordinates_.second));
-  QList<Axis2D *> xaxs = item.axises_.value(Axis2D::Left);
-  QList<Axis2D *> yaxs = item.axises_.value(Axis2D::Bottom);
-  xaxs.at(0)->setRange(xMin, xMax);
-  yaxs.at(0)->setRange(yMin, yMax);
-  xaxs.at(0)->setLabel("x");
-  yaxs.at(0)->setLabel(yLabel);
+void Layout2D::generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
+                                      const QString yLabel) {
+  AxisRect2D *element = addAxisRectItem();
+  QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
+  QList<Axis2D *> yAxis = element->getAxesOrientedTo(Axis2D::Left);
+  xAxis.at(0)->setLabel(xLabel);
+  yAxis.at(0)->setLabel(yLabel);
 
-  LineScatter2D *linsc = element->addLineScatter2DPlot(
-      AxisRect2D::Line2D, dataMap, xaxs.at(0), yaxs.at(0));
-  QList<LineScatter2D *> list = item.lineScatter_.value(Line2D);
-  list.append(linsc);
-  item.lineScatter_.insert(Line2D, list);
+  LineScatter2D *linescatter = element->addLineScatter2DPlot(
+      AxisRect2D::Line2D, dataMap, xAxis.at(0), yAxis.at(0));
+  linescatter->setName("f(x) = " + yLabel);
+  linescatter->rescaleAxes();
   plot2dCanvas_->replot();
 }
 
-void Layout2D::generateLineScatter2DPlot(Column *xData, Column *yData, int from,
-                                         int to) const {}
+void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
+                                         Column *xData, Column *yData, int from,
+                                         int to) {
+  QCPDataMap *dataMap = generateDataMap(xData, yData, from, to);
+  AxisRect2D *element = addAxisRectItem();
+  QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
+  QList<Axis2D *> yAxis = element->getAxesOrientedTo(Axis2D::Left);
 
-Layout2D::AxisRectItem Layout2D::getSelectedAxisRect(int col, int row) {
-  int index = (layoutDimension_.first * col) + row;
-  return layoutElementList_.value(index);
+  LineScatter2D *linescatter = nullptr;
+
+  switch (plotType) {
+    case Line2D: {
+      linescatter = element->addLineScatter2DPlot(AxisRect2D::Line2D, dataMap,
+                                                  xAxis.at(0), yAxis.at(0));
+
+    } break;
+    case Scatter2D: {
+      linescatter = element->addLineScatter2DPlot(
+          AxisRect2D::Scatter2D, dataMap, xAxis.at(0), yAxis.at(0));
+    } break;
+    case LineAndScatter2D: {
+      linescatter = element->addLineScatter2DPlot(
+          AxisRect2D::LineAndScatter2D, dataMap, xAxis.at(0), yAxis.at(0));
+    } break;
+    case VerticalDropLine2D: {
+      linescatter = element->addLineScatter2DPlot(
+          AxisRect2D::VerticalDropLine2D, dataMap, xAxis.at(0), yAxis.at(0));
+    } break;
+    case Spline2D:
+      break;
+    case CentralStepAndScatter2D: {
+      linescatter =
+          element->addLineScatter2DPlot(AxisRect2D::CentralStepAndScatter2D,
+                                        dataMap, xAxis.at(0), yAxis.at(0));
+    } break;
+    case HorizontalStep2D: {
+      linescatter = element->addLineScatter2DPlot(
+          AxisRect2D::HorizontalStep2D, dataMap, xAxis.at(0), yAxis.at(0));
+    } break;
+    case VerticalStep2D: {
+      linescatter = element->addLineScatter2DPlot(
+          AxisRect2D::VerticalStep2D, dataMap, xAxis.at(0), yAxis.at(0));
+    } break;
+  }
+
+  linescatter->setName("Table " + QString::number(xData->index() + 1) + "_" +
+                       QString::number(yData->index() + 1));
+  linescatter->rescaleAxes();
+  plot2dCanvas_->replot();
 }
 
-int Layout2D::getAxisRectIndex(Layout2D::AxisRectItem item) {
-  QPair<int, int> pair = item.coordinates_;
-  return (pair.first * layoutDimension_.first) + pair.second;
+AxisRect2D *Layout2D::getSelectedAxisRect(int col, int row) {
+  return static_cast<AxisRect2D *>(layout_->element(row, col));
 }
 
-Layout2D::AxisRectItem Layout2D::addAxisRectItem() {
+int Layout2D::getAxisRectIndex(AxisRect2D *axisRect2d) {
+  AxisRect2D *axisRect;
+  for (int i = 0; i < layout_->elementCount(); i++) {
+    axisRect = static_cast<AxisRect2D *>(layout_->elementAt(i));
+    if (axisRect == axisRect2d) return i;
+  }
+
+  return static_cast<int>(std::nan("invalid index"));
+}
+
+AxisRect2D *Layout2D::addAxisRectItem() {
   int rowcount = layout_->rowCount();
   int colcount = layout_->columnCount();
 
-  int lastIndex = layoutElementList_.size() - 1;
+  int lastIndex = layout_->elementCount() - 1;
   int col = 0, row = 0;
   if (lastIndex + 1 > 0) {
     int maxLastIndex = (rowcount * colcount) - 1;
@@ -176,66 +266,134 @@ Layout2D::AxisRectItem Layout2D::addAxisRectItem() {
     }
   }
 
-  col = lastIndex + 1;
+  col = layout_->elementCount();
 
   AxisRect2D *axisRect2d = new AxisRect2D(plot2dCanvas_);
   Axis2D *xAxis = axisRect2d->addAxis2D(Axis2D::Bottom);
   Axis2D *yAxis = axisRect2d->addAxis2D(Axis2D::Left);
-  Grid2D *xGrid = axisRect2d->bindGridTo(xAxis);
-  Grid2D *yGrid = axisRect2d->bindGridTo(yAxis);
+
+  axisRect2d->bindGridTo(xAxis);
+  axisRect2d->bindGridTo(yAxis);
+
   xAxis->setRange(0, 100);
   yAxis->setRange(0, 100);
+  xAxis->setLabel("X Axis Title");
+  yAxis->setLabel("Y Axis Title");
   layout_->addElement(row, col, axisRect2d);
 
-  // set layour coordinate
-  QPair<int, int> coord;
-  coord.first = row;
-  coord.second = col;
-
-  // Initialize AxisRectItem
-  AxisRectItem axisRectItem;
-  axisRectItem.grids_.first = xGrid;
-  axisRectItem.grids_.second = yGrid;
-  // add coordinates
-  axisRectItem.coordinates_.first = row;
-  axisRectItem.coordinates_.second = col;
-  // initialize & add axis
-  axisRectItem.axises_.insert(Axis2D::Left, QList<Axis2D *>());
-  axisRectItem.axises_.insert(Axis2D::Bottom, QList<Axis2D *>());
-  axisRectItem.axises_.insert(Axis2D::Right, QList<Axis2D *>());
-  axisRectItem.axises_.insert(Axis2D::Top, QList<Axis2D *>());
-  axisRectItem.axises_.insert(Axis2D::Left,
-                              axisRect2d->getAxesToMap(Axis2D::Left));
-  axisRectItem.axises_.insert(Axis2D::Bottom,
-                              axisRect2d->getAxesToMap(Axis2D::Bottom));
-  axisRectItem.axises_.insert(Axis2D::Right,
-                              axisRect2d->getAxesToMap(Axis2D::Right));
-  axisRectItem.axises_.insert(Axis2D::Top,
-                              axisRect2d->getAxesToMap(Axis2D::Top));
-  // initialize linescatter
-  axisRectItem.lineScatter_.insert(Line2D, QList<LineScatter2D *>());
-  axisRectItem.lineScatter_.insert(Scatter2D, QList<LineScatter2D *>());
-  axisRectItem.lineScatter_.insert(LineAndScatter2D, QList<LineScatter2D *>());
-  axisRectItem.lineScatter_.insert(VerticalDropLine2D,
-                                   QList<LineScatter2D *>());
-  axisRectItem.lineScatter_.insert(Spline2D, QList<LineScatter2D *>());
-  axisRectItem.lineScatter_.insert(CentralStepAndScatter2D,
-                                   QList<LineScatter2D *>());
-  axisRectItem.lineScatter_.insert(HorizontalStep2D, QList<LineScatter2D *>());
-  axisRectItem.lineScatter_.insert(VerticalStep2D, QList<LineScatter2D *>());
-
-  (rowcount + colcount == 0)
-      ? layoutElementList_.insert((rowcount + colcount), axisRectItem)
-      : layoutElementList_.insert((rowcount + colcount) - 1, axisRectItem);
-  qDebug() << "list num" << (rowcount + colcount) - 1;
   plot2dCanvas_->replot();
-  qDebug() << layoutElementList_.size();
   addLayoutButton(col);
-  return axisRectItem;
+
+  connect(axisRect2d, SIGNAL(AxisRectClicked(AxisRect2D *)), this,
+          SLOT(axisRectSetFocus(AxisRect2D *)));
+
+  if (!currentAxisRect_) axisRectSetFocus(axisRect2d);
+
+  return axisRect2d;
 }
 
 void Layout2D::removeAxisRectItem() {
-  removeAxisRect(layoutElementList_.size() - 1);
+  // removeAxisRect(getAxisRectIndex(currentAxisRect_));
+  removeAxisRect(layout_->elementCount() - 1);
+}
+
+void Layout2D::axisRectSetFocus(AxisRect2D *rect) {
+  if (!rect) return;
+
+  LayoutButton *button;
+  if (currentAxisRect_) {
+    if (currentAxisRect_ != rect) {
+      currentAxisRect_->setSelected(false);
+      button = buttionlist_.at(getAxisRectIndex(currentAxisRect_));
+      if (button) button->setActive(false);
+    }
+  }
+  currentAxisRect_ = rect;
+  currentAxisRect_->setSelected(true);
+  button = buttionlist_.at(getAxisRectIndex(rect));
+  if (button) button->setActive(true);
+  plot2dCanvas_->replot();
+}
+
+void Layout2D::activateLayout(LayoutButton *button) {
+  for (int i = 0; i < buttionlist_.size(); i++) {
+    if (buttionlist_.at(i) == button) {
+      axisRectSetFocus(static_cast<AxisRect2D *>(layout_->elementAt(i)));
+      break;
+    }
+  }
+}
+
+void Layout2D::mouseMoveSignal(QMouseEvent *event) {
+  // dragging legend
+  if (draggingLegend) {
+    QRectF rect = currentAxisRect_->insetLayout()->insetRect(0);
+    // since insetRect is in axisRect coordinates (0..1), we transform the mouse
+    // position:
+    QPointF mousePoint((event->pos().x() - currentAxisRect_->left()) /
+                           static_cast<double>(currentAxisRect_->width()),
+                       (event->pos().y() - currentAxisRect_->top()) /
+                           static_cast<double>(currentAxisRect_->height()));
+    rect.moveTopLeft(mousePoint - dragLegendOrigin);
+    currentAxisRect_->insetLayout()->setInsetRect(0, rect);
+    plot2dCanvas_->replot();
+  }
+}
+
+void Layout2D::mousePressSignal(QMouseEvent *event) {
+  // dragging legend
+  if (currentAxisRect_->selectTest(event->pos(), false) > 0) {
+    QCPLegend *l = currentAxisRect_->getLegend();
+    if (l->selectTest(event->pos(), false) > 0) {
+      draggingLegend = true;
+      // since insetRect is in axisRect coordinates (0..1), we transform the
+      // mouse position:
+      QPointF mousePoint((event->pos().x() - currentAxisRect_->left()) /
+                             static_cast<double>(currentAxisRect_->width()),
+                         (event->pos().y() - currentAxisRect_->top()) /
+                             static_cast<double>(currentAxisRect_->height()));
+      dragLegendOrigin =
+          mousePoint - currentAxisRect_->insetLayout()->insetRect(0).topLeft();
+    }
+  }
+}
+
+void Layout2D::mouseReleaseSignal(QMouseEvent *) { draggingLegend = false; }
+
+void Layout2D::mouseWheel() {
+  // zoom axis individually or in group
+  //  if (currentAxisRect_->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+  //    currentAxisRect_->setRangeZoom(ui->customPlot->xAxis->orientation());
+  //  else if (ui->customPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+  //    currentAxisRect_->setRangeZoom(ui->customPlot->yAxis->orientation());
+  //  else
+  currentAxisRect_->setRangeZoom(Qt::Horizontal | Qt::Vertical);
+}
+
+void Layout2D::beforeReplot() {
+  if (currentAxisRect_) {
+    currentAxisRect_->updateLegendRect();
+  }
+}
+
+void Layout2D::legendDoubleClick(QCPLegend *legend,
+                                 QCPAbstractLegendItem *item) {
+  // Rename a graph by double clicking on its legend item
+  Q_UNUSED(legend)
+  if (item)  // only react if item was clicked (user could have clicked on
+             // border padding of legend where there is no item, then item is 0)
+  {
+    QCPPlottableLegendItem *plItem =
+        qobject_cast<QCPPlottableLegendItem *>(item);
+    bool ok;
+    QString newName = QInputDialog::getText(
+        this, "QCustomPlot example", "New graph name:", QLineEdit::Normal,
+        plItem->plottable()->name(), &ok);
+    if (ok) {
+      plItem->plottable()->setName(newName);
+      plot2dCanvas_->replot();
+    }
+  }
 }
 
 void Layout2D::setLayoutDimension(QPair<int, int> dimension) {
@@ -244,24 +402,34 @@ void Layout2D::setLayoutDimension(QPair<int, int> dimension) {
 }
 
 void Layout2D::removeAxisRect(int index) {
+  // if no elements to remove
   if (index < 0) {
     qDebug() << "no element to remove from the layout";
     return;
   }
+
+  // if removed element is the currently selected element
+  AxisRect2D *axrect = static_cast<AxisRect2D *>(layout_->elementAt(index));
+
+  if (!axrect) return;
+
+  if (axrect->isSelected()) {
+    axrect = nullptr;
+    axrect = static_cast<AxisRect2D *>(layout_->elementAt(index - 1));
+    if (axrect) {
+      axisRectSetFocus(axrect);
+    } else {
+      currentAxisRect_ = nullptr;
+    }
+  }
+
+  // remove layout button
+  buttionlist_.takeLast()->close();
+
+  // remove the element & adjust layout accordingly
   layout_->remove(layout_->elementAt(index));
   layout_->simplify();
-  layoutElementList_.remove(index);
-  delete buttionlist_.value(index);
-  buttionlist_.pop_front();
-  // buttionlist_.removeLast();
-  // buttionlist_.takeAt(index);
   plot2dCanvas_->replot();
-}
-
-void Layout2D::removeAxisRect(int col, int row) {
-  delete layout_->element(row, col);
-  int index = (layoutDimension_.first * col) + row;
-  layoutElementList_.take(index);
 }
 
 int Layout2D::getLayoutRectGridIndex(QPair<int, int> coord) {
@@ -277,23 +445,20 @@ QPair<int, int> Layout2D::getLayoutRectGridCoordinate(int index) {
 }
 
 LayoutButton *Layout2D::addLayoutButton(int num) {
-  for (int i = 0; i < layoutElementList_.count(); i++) {
-    // LayoutButton *btn = (LayoutButton *)buttonsList.at(i);
-    // btn->setOn(false);
-  }
+  LayoutButton *button = new LayoutButton(QString::number(++num));
 
-  LayoutButton *button = new LayoutButton(QString::number(num));
-  connect(button, SIGNAL(clicked(LayerButton *)), this,
-          SLOT(activateGraph(LayerButton *)));
-  connect(button, SIGNAL(showContextMenu()), this,
-          SIGNAL(showLayerButtonContextMenu()));
-  connect(button, SIGNAL(showCurvesDialog()), this, SIGNAL(showCurvesDialog()));
+  connect(button, SIGNAL(clicked(LayoutButton *)), this,
+          SLOT(activateLayout(LayoutButton *)));
+  /*connect(button, SIGNAL(showContextMenu()), this,
+          SIGNAL(showLayoutButtonContextMenu()));
+  connect(button, SIGNAL(showCurvesDialog()), this,
+  SIGNAL(showCurvesDialog()));*/
 
-  // buttonsList.append(button);
+  buttionlist_ << button;
   layoutButtonsBox_->addWidget(button);
   return button;
 }
 
-void Layout2D::axisDoubleClicked(QCPAxis *, QCPAxis::SelectablePart) {
+void Layout2D::axisDoubleClicked(QCPAxis *axis, QCPAxis::SelectablePart) {
   qDebug() << "axis dblclk";
 }

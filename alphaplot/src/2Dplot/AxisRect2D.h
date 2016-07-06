@@ -23,8 +23,9 @@
 #include "LineScatter2D.h"
 
 class AxisRect2D : public QCPAxisRect {
+  Q_OBJECT
  public:
-  AxisRect2D(QCustomPlot *parent = 0, bool setupDefaultAxis = false);
+  AxisRect2D(QCustomPlot *parent = nullptr, bool setupDefaultAxis = false);
   ~AxisRect2D();
 
   void setAxisRectBackground(const QBrush &brush);
@@ -51,26 +52,31 @@ class AxisRect2D : public QCPAxisRect {
                                       QCPDataMap *dataMap, Axis2D *xAxis,
                                       Axis2D *yAxis);
 
-  QList<Axis2D *> getAxesToMap(
+  QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;
 
-/*  template <typename T>
-  void remove2DPlot(T &plot) {
-    QPair<LineScatter2D *, QCPDataMap *> pair;
-    foreach (pair, lineScatter_) {
-      if (pair.first == plot) {
-        lineScatter_.remove()
-      }
-    }
-    lineScatter_.values().contains(pair);
-  }*/
+  QCPLegend *getLegend() { return axisRectLegend_; }
+  void updateLegendRect();
+
+  // select axisrect with mouse click
+  void setSelected(const bool status);
+  void drawSelection(QCPPainter *painter);
+  bool isSelected() { return isAxisRectSelected_; }
+
+ protected:
+  void mousePressEvent(QMouseEvent *);
+  void draw(QCPPainter *painter);
+
+ signals:
+  void AxisRectClicked(AxisRect2D *);
 
  private:
-
   QBrush axisRectBackGround_;
+  QCPLegend *axisRectLegend_;
   QMap<Axis2D::AxisOreantation, QList<Axis2D *>> axises_;
   QMap<LineScatterType, QList<LineScatter2D *>> lineScatter_;
   QPair<Grid2D *, Grid2D *> grids_;
+  bool isAxisRectSelected_;
 };
 
 #endif  // AXISRECT2D_H

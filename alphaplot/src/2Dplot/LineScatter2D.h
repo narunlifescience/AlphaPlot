@@ -30,6 +30,7 @@ class LineScatter2D : public QCPGraph {
   void setScatterSize2D(const double size);
   void setLinePen2D(const QPen &pen);
   void setLineBrush2D(const QBrush &brush);
+  void setAutoAntialiasing(bool status) {autoAntialiasing_ = status;}
 
   // Get scatter line params
   QCPScatterStyle::ScatterShape getScatterShape() const {
@@ -54,6 +55,7 @@ class LineScatter2D : public QCPGraph {
   Line lineStyle_;
   QPen linePen_;
   QBrush lineBrush_;
+  bool autoAntialiasing_;
 };
 
 #endif  // LINESCATTER2D_H

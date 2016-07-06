@@ -17,8 +17,14 @@
 #include "AxisRect2D.h"
 
 AxisRect2D::AxisRect2D(QCustomPlot *parent, bool setupDefaultAxis)
-    : QCPAxisRect(parent, setupDefaultAxis), axisRectBackGround_(Qt::white) {
+    : QCPAxisRect(parent, setupDefaultAxis),
+      axisRectBackGround_(Qt::white),
+      axisRectLegend_(new QCPLegend()),
+      isAxisRectSelected_(false) {
   setAxisRectBackground(axisRectBackGround_);
+  insetLayout()->addElement(axisRectLegend_, Qt::AlignTop | Qt::AlignLeft);
+  insetLayout()->setInsetPlacement(0, QCPLayoutInset::ipFree);
+  axisRectLegend_->setLayer("legend");
 
   // initialize axis2d map
   axises_.insert(Axis2D::Left, QList<Axis2D *>());
@@ -29,82 +35,15 @@ AxisRect2D::AxisRect2D(QCustomPlot *parent, bool setupDefaultAxis)
   // initialize linescatter2D map
   lineScatter_.insert(Line2D, QList<LineScatter2D *>());
   lineScatter_.insert(Scatter2D, QList<LineScatter2D *>());
-  lineScatter_.insert(LineAndScatter2D,
-                      QList<LineScatter2D *>());
-  lineScatter_.insert(VerticalDropLine2D,
-                      QList<LineScatter2D *>());
+  lineScatter_.insert(LineAndScatter2D, QList<LineScatter2D *>());
+  lineScatter_.insert(VerticalDropLine2D, QList<LineScatter2D *>());
   lineScatter_.insert(Spline2D, QList<LineScatter2D *>());
-  lineScatter_.insert(CentralStepAndScatter2D,
-                      QList<LineScatter2D *>());
-  lineScatter_.insert(HorizontalStep2D,
-                      QList<LineScatter2D *>());
-  lineScatter_.insert(VerticalStep2D,
-                      QList<LineScatter2D *>());
+  lineScatter_.insert(CentralStepAndScatter2D, QList<LineScatter2D *>());
+  lineScatter_.insert(HorizontalStep2D, QList<LineScatter2D *>());
+  lineScatter_.insert(VerticalStep2D, QList<LineScatter2D *>());
 }
 
-AxisRect2D::~AxisRect2D() {
-  qDebug() << "axisrect distructor called";
-  // delete all axis (axises_)
-  foreach (Axis2D *axis, axises_.value(Axis2D::Left)) {
-    //delete axis;
-    //axis = nullptr;
-  }
-  foreach (Axis2D *axis, axises_.value(Axis2D::Bottom)) {
-    //delete axis;
-    //axis = nullptr;
-  }
-//  if (axises_.value(Axis2D::Right).size() > 0)
-//  foreach (Axis2D *axis, axises_.value(Axis2D::Right)) {
-//    delete axis;
-//    axis = nullptr;
-//  }
-//  if (axises_.value(Axis2D::Top).size() > 0)
-//  foreach (Axis2D *axis, axises_.value(Axis2D::Top)) {
-//    delete axis;
-//    axis = nullptr;
-//  }
-
-  // delete line and scatter plots (lineScatter_)
-  foreach (LineScatter2D *lineSctr, lineScatter_.value(Line2D)) {
-    delete lineSctr;
-    lineSctr = nullptr;
-      qDebug() << "entered";
-  }
-  foreach (LineScatter2D *lineSctr, lineScatter_.value(Scatter2D)) {
-      delete lineSctr;
-      lineSctr = nullptr;
-  }
-  foreach (LineScatter2D *lineSctr, lineScatter_.value(LineAndScatter2D)) {
-      delete lineSctr;
-      lineSctr = nullptr;
-  }
-  foreach (LineScatter2D *lineSctr, lineScatter_.value(VerticalDropLine2D)) {
-      delete lineSctr;
-      lineSctr = nullptr;
-  }
-  foreach (LineScatter2D *lineSctr, lineScatter_.value(Spline2D)) {
-      delete lineSctr;
-      lineSctr = nullptr;
-  }
-  foreach (LineScatter2D *lineSctr, lineScatter_.value(CentralStepAndScatter2D)) {
-      delete lineSctr;
-      lineSctr = nullptr;
-  }
-  foreach (LineScatter2D *lineSctr, lineScatter_.value(HorizontalStep2D)) {
-      delete lineSctr;
-      lineSctr = nullptr;
-  }
-  foreach (LineScatter2D *lineSctr, lineScatter_.value(VerticalStep2D)) {
-      delete lineSctr;
-      lineSctr = nullptr;
-  }
-
-  // delete grids (grids_)
-  delete grids_.first;
-  grids_.first = nullptr;
-  delete grids_.second;
-  grids_.second = nullptr;
-}
+AxisRect2D::~AxisRect2D() {}
 
 void AxisRect2D::setAxisRectBackground(const QBrush &brush) {
   axisRectBackGround_ = brush;
@@ -117,22 +56,22 @@ Axis2D *AxisRect2D::addAxis2D(const Axis2D::AxisOreantation &orientation) {
     case Axis2D::Left:
       axis2D = new Axis2D(this, QCPAxis::atLeft);
       addAxis(QCPAxis::atLeft, axis2D);
-      axises_.insert(Axis2D::Left, getAxesToMap(Axis2D::Left));
+      axises_.insert(Axis2D::Left, getAxesOrientedTo(Axis2D::Left));
       break;
     case Axis2D::Bottom:
       axis2D = new Axis2D(this, QCPAxis::atBottom);
       addAxis(QCPAxis::atBottom, axis2D);
-      axises_.insert(Axis2D::Bottom, getAxesToMap(Axis2D::Bottom));
+      axises_.insert(Axis2D::Bottom, getAxesOrientedTo(Axis2D::Bottom));
       break;
     case Axis2D::Right:
       axis2D = new Axis2D(this, QCPAxis::atRight);
       addAxis(QCPAxis::atRight, axis2D);
-      axises_.insert(Axis2D::Right, getAxesToMap(Axis2D::Right));
+      axises_.insert(Axis2D::Right, getAxesOrientedTo(Axis2D::Right));
       break;
     case Axis2D::Top:
       axis2D = new Axis2D(this, QCPAxis::atTop);
       addAxis(QCPAxis::atTop, axis2D);
-      axises_.insert(Axis2D::Top, getAxesToMap(Axis2D::Top));
+      axises_.insert(Axis2D::Top, getAxesOrientedTo(Axis2D::Top));
       break;
   }
   return axis2D;
@@ -145,16 +84,16 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis) {
 
   switch (axis->getOrientation()) {
     case Axis2D::Left:
-      axises_.insert(Axis2D::Left, getAxesToMap(Axis2D::Left));
+      axises_.insert(Axis2D::Left, getAxesOrientedTo(Axis2D::Left));
       break;
     case Axis2D::Bottom:
-      axises_.insert(Axis2D::Bottom, getAxesToMap(Axis2D::Bottom));
+      axises_.insert(Axis2D::Bottom, getAxesOrientedTo(Axis2D::Bottom));
       break;
     case Axis2D::Right:
-      axises_.insert(Axis2D::Right, getAxesToMap(Axis2D::Right));
+      axises_.insert(Axis2D::Right, getAxesOrientedTo(Axis2D::Right));
       break;
     case Axis2D::Top:
-      axises_.insert(Axis2D::Top, getAxesToMap(Axis2D::Top));
+      axises_.insert(Axis2D::Top, getAxesOrientedTo(Axis2D::Top));
       break;
   }
   return status;
@@ -169,14 +108,13 @@ Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
       delete grids_.first;
       grids_.first = new Grid2D(axis);
       return grids_.first;
-      break;
     case Axis2D::Left:
     case Axis2D::Right:
       delete grids_.second;
       grids_.second = new Grid2D(axis);
       return grids_.second;
-      break;
   }
+  return nullptr;
 }
 
 QList<Axis2D *> AxisRect2D::getAxes2D() const {
@@ -230,7 +168,7 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
       break;
     case VerticalDropLine2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::VerticalDropLinePlot,
-                                        LineScatter2D::ScatterHidden);
+                                        LineScatter2D::ScatterVisible);
       list = lineScatter_.value(VerticalDropLine2D);
       break;
     case Spline2D:
@@ -252,15 +190,17 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
       list = lineScatter_.value(VerticalStep2D);
       break;
   }
-  lineScatter->setData(dataMap);
 
+  lineScatter->setData(dataMap);
+  axisRectLegend_->addItem(
+      new QCPPlottableLegendItem(axisRectLegend_, lineScatter));
   list.append(lineScatter);
   lineScatter_.insert(type, list);
   return lineScatter;
 }
 
 // Should not use for other than populating axis map
-QList<Axis2D *> AxisRect2D::getAxesToMap(
+QList<Axis2D *> AxisRect2D::getAxesOrientedTo(
     const Axis2D::AxisOreantation &orientation) const {
   QList<QCPAxis *> axesQCP = QList<QCPAxis *>();
   QList<Axis2D *> axes2D = QList<Axis2D *>();
@@ -284,4 +224,24 @@ QList<Axis2D *> AxisRect2D::getAxesToMap(
     axes2D.append(static_cast<Axis2D *>(axisQCP));
   }
   return axes2D;
+}
+
+void AxisRect2D::updateLegendRect() {
+  axisRectLegend_->setMaximumSize(axisRectLegend_->minimumSizeHint());
+}
+
+void AxisRect2D::setSelected(const bool status) {
+  isAxisRectSelected_ = status;
+}
+
+void AxisRect2D::drawSelection(QCPPainter *painter) {
+  QRect selectionRect(topLeft(), topLeft() + QPoint(10, 10));
+  painter->setBrush(QBrush(Qt::black));
+  painter->drawRect(selectionRect);
+}
+
+void AxisRect2D::mousePressEvent(QMouseEvent *) { emit AxisRectClicked(this); }
+
+void AxisRect2D::draw(QCPPainter *painter) {
+  if (isAxisRectSelected_) drawSelection(painter);
 }

@@ -18,8 +18,9 @@
 
 Plot2D::Plot2D(QWidget *parent) : QCustomPlot(parent), canvasBrush_(Qt::white) {
   setBackgroundColor(canvasBrush_);
-  setInteraction(QCP::iSelectPlottables, true);
-  setInteraction(QCP::iSelectAxes, true);
+  setAutoAddPlottableToLegend(false);
+  setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
+                  QCP::iSelectLegend | QCP::iSelectPlottables);
   plotLayout()->clear();
 }
 

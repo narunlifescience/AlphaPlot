@@ -8505,8 +8505,7 @@ bool ApplicationWindow::newFunctionPlot(int type, QStringList &formulas,
 
       if (dataMap) {
         Layout2D *layout = newGraph2D();
-        layout->generateFunction2DPlot(dataMap, xMin, xMax, yMin,
-                                       yMax, formulas[0]);
+        layout->generateFunction2DPlot(dataMap, "x", formulas[0]);
         return true;
       }
       delete[] dataMap;
@@ -11984,6 +11983,36 @@ void ApplicationWindow::selectPlotType(int type) {
                        table->lastSelectedRow());
         break;
     }
+
+    Layout2D *layout = newGraph2D();
+    Layout2D::LineScatterType plotType;
+    switch (type) {
+      case Graph::Scatter:
+        plotType = Layout2D::Scatter2D;
+        break;
+      case Graph::Line:
+        plotType = Layout2D::Line2D;
+        break;
+      case Graph::LineSymbols:
+        plotType = Layout2D::LineAndScatter2D;
+        break;
+      case Graph::VerticalDropLines:
+        plotType = Layout2D::VerticalDropLine2D;
+        break;
+      case Graph::VerticalSteps:
+        plotType = Layout2D::VerticalStep2D;
+        break;
+      case Graph::HorizontalSteps:
+        plotType = Layout2D::HorizontalStep2D;
+        break;
+      default: {
+        qDebug() << "not implimented";
+        return;
+      }
+    }
+    layout->generateLineScatter2DPlot(
+        plotType, table->column(table->firstXCol()),
+        table->column(table->firstXCol() + 1), 0, table->rowCnt() - 1);
     return;
   }
 
