@@ -2,6 +2,7 @@
 #include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
+#include <QStyleOption>
 #include <QVBoxLayout>
 #include "QDateTime"
 
@@ -10,59 +11,20 @@
 #include "AxisRect2D.h"
 #include "LayoutGrid2D.h"
 #include "LineScatter2D.h"
-
-const int LayoutButton::layoutButtonSize = 22;
-QRect LayoutButton::highLightRect;
-
-LayoutButton::LayoutButton(const QString &text, QWidget *parent)
-    : QPushButton(parent), active(false), buttonText(text) {
-  setToggleButton(true);
-  setMaximumWidth(LayoutButton::btnSize());
-  setMaximumHeight(LayoutButton::btnSize());
-  setFixedSize(QSize(layoutButtonSize, layoutButtonSize));
-}
-
-LayoutButton::~LayoutButton() {}
-
-void LayoutButton::mousePressEvent(QMouseEvent *event) {
-  emit clicked(this);
-  if (!active) {
-    emit clicked(this);
-  }
-  if (event->button() == Qt::RightButton) {
-    emit showContextMenu();
-  }
-}
-
-void LayoutButton::mouseDoubleClickEvent(QMouseEvent *) {
-  emit showCurvesDialog();
-}
-
-void LayoutButton::resizeEvent(QResizeEvent *) {
-  highLightRect = QRect(2, 2, size().rwidth() - 5, size().rheight() - 5);
-}
-
-void LayoutButton::paintEvent(QPaintEvent *event) {
-  QPushButton::paintEvent(event);
-  if (active) {
-    QPainter painter(this);
-    painter.setPen(QPen(Qt::red));
-    painter.drawRect(highLightRect);
-    painter.drawText(highLightRect, Qt::AlignCenter, buttonText);
-  } else {
-    QPainter painter(this);
-    painter.drawText(highLightRect, Qt::AlignCenter, buttonText);
-  }
-}
+#include "widgets/Axis2DPropertiesDialog.h"
+#include "widgets/LayoutButton2D.h"
 
 Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
                    Qt::WFlags f)
     : MyWidget(label, parent, name, f),
       plot2dCanvas_(new Plot2D(this)),
       layout_(new LayoutGrid2D()),
-      buttionlist_(QList<LayoutButton *>()),
-      currentAxisRect_(nullptr) {
+      buttionlist_(QList<LayoutButton2D *>()),
+      currentAxisRect_(nullptr),
+      draggingLegend(false) {
   if (name.isEmpty()) setObjectName("multilayout2d plot");
+  QDateTime birthday = QDateTime::currentDateTime();
+  setBirthDate(birthday.toString(Qt::LocalDate));
 
   QPalette pal = palette();
   pal.setColor(QPalette::Active, QPalette::Window, QColor(Qt::white));
@@ -70,16 +32,13 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   pal.setColor(QPalette::Disabled, QPalette::Window, QColor(Qt::white));
   setPalette(pal);
 
-  QDateTime birthday = QDateTime::currentDateTime();
-  setBirthDate(birthday.toString(Qt::LocalDate));
-
   layoutManagebuttonsBox_ = new QHBoxLayout();
   addLayoutButton_ = new QPushButton();
   addLayoutButton_->setToolTip(tr("Add layer"));
   addLayoutButton_->setIcon(
       IconLoader::load("list-add", IconLoader::LightDark));
-  addLayoutButton_->setMaximumWidth(LayoutButton::btnSize());
-  addLayoutButton_->setMaximumHeight(LayoutButton::btnSize());
+  addLayoutButton_->setMaximumWidth(LayoutButton2D::btnSize());
+  addLayoutButton_->setMaximumHeight(LayoutButton2D::btnSize());
   connect(addLayoutButton_, SIGNAL(clicked()), this, SLOT(addAxisRectItem()));
   layoutManagebuttonsBox_->addWidget(addLayoutButton_);
 
@@ -87,8 +46,8 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   removeLayoutButton_->setToolTip(tr("Remove active layer"));
   removeLayoutButton_->setIcon(
       IconLoader::load("list-remove", IconLoader::General));
-  removeLayoutButton_->setMaximumWidth(LayoutButton::btnSize());
-  removeLayoutButton_->setMaximumHeight(LayoutButton::btnSize());
+  removeLayoutButton_->setMaximumWidth(LayoutButton2D::btnSize());
+  removeLayoutButton_->setMaximumHeight(LayoutButton2D::btnSize());
   connect(removeLayoutButton_, SIGNAL(clicked()), this,
           SLOT(removeAxisRectItem()));
   layoutManagebuttonsBox_->addWidget(removeLayoutButton_);
@@ -96,9 +55,9 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   layoutButtonsBox_ = new QHBoxLayout();
   QHBoxLayout *hbox = new QHBoxLayout();
   hbox->addLayout(layoutButtonsBox_);
-  QLabel *streachLabel = new QLabel(this);
-  hbox->addWidget(streachLabel);
-  streachLabel->setStyleSheet("QLabel { background-color : white; }");
+  streachLabel_ = new QLabel(this);
+  hbox->addWidget(streachLabel_);
+  setBackground(plot2dCanvas_->getBackgroundColor());
   hbox->addLayout(layoutManagebuttonsBox_);
 
   QVBoxLayout *layout = new QVBoxLayout(this);
@@ -117,8 +76,6 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
           SIGNAL(axisDoubleClick(QCPAxis *, QCPAxis::SelectablePart,
                                  QMouseEvent *)),
           this, SLOT(axisDoubleClicked(QCPAxis *, QCPAxis::SelectablePart)));
-
-  draggingLegend = false;
   connect(plot2dCanvas_, SIGNAL(mouseMove(QMouseEvent *)), this,
           SLOT(mouseMoveSignal(QMouseEvent *)));
   connect(plot2dCanvas_, SIGNAL(mousePress(QMouseEvent *)), this,
@@ -140,19 +97,6 @@ Layout2D::~Layout2D() {
   delete plot2dCanvas_;
 }
 
-bool Layout2D::eventFilter(QObject *object, QEvent *e) {
-  if (e->type() == QEvent::MouseButtonPress &&
-      object == (QObject *)plot2dCanvas_) {
-    const QMouseEvent *me = (const QMouseEvent *)e;
-    return false;
-  } else if (e->type() == QEvent::ContextMenu && object == titleBar) {
-    emit showTitleBarMenu();
-    ((QContextMenuEvent *)e)->accept();
-    return true;
-  }
-  return MyWidget::eventFilter(object, e);
-}
-
 QCPDataMap *Layout2D::generateDataMap(Column *xData, Column *yData, int from,
                                       int to) {
   QCPDataMap *dataMap = new QCPDataMap();
@@ -170,7 +114,9 @@ void Layout2D::generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
                                       const QString yLabel) {
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::Top);
   QList<Axis2D *> yAxis = element->getAxesOrientedTo(Axis2D::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::Right);
   xAxis.at(0)->setLabel(xLabel);
   yAxis.at(0)->setLabel(yLabel);
 
@@ -187,7 +133,9 @@ void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
   QCPDataMap *dataMap = generateDataMap(xData, yData, from, to);
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::Top);
   QList<Axis2D *> yAxis = element->getAxesOrientedTo(Axis2D::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::Right);
 
   LineScatter2D *linescatter = nullptr;
 
@@ -288,7 +236,6 @@ AxisRect2D *Layout2D::addAxisRectItem() {
           SLOT(axisRectSetFocus(AxisRect2D *)));
 
   if (!currentAxisRect_) axisRectSetFocus(axisRect2d);
-
   return axisRect2d;
 }
 
@@ -300,7 +247,7 @@ void Layout2D::removeAxisRectItem() {
 void Layout2D::axisRectSetFocus(AxisRect2D *rect) {
   if (!rect) return;
 
-  LayoutButton *button;
+  LayoutButton2D *button;
   if (currentAxisRect_) {
     if (currentAxisRect_ != rect) {
       currentAxisRect_->setSelected(false);
@@ -315,7 +262,7 @@ void Layout2D::axisRectSetFocus(AxisRect2D *rect) {
   plot2dCanvas_->replot();
 }
 
-void Layout2D::activateLayout(LayoutButton *button) {
+void Layout2D::activateLayout(LayoutButton2D *button) {
   for (int i = 0; i < buttionlist_.size(); i++) {
     if (buttionlist_.at(i) == button) {
       axisRectSetFocus(static_cast<AxisRect2D *>(layout_->elementAt(i)));
@@ -444,11 +391,11 @@ QPair<int, int> Layout2D::getLayoutRectGridCoordinate(int index) {
   return pair;
 }
 
-LayoutButton *Layout2D::addLayoutButton(int num) {
-  LayoutButton *button = new LayoutButton(QString::number(++num));
+LayoutButton2D *Layout2D::addLayoutButton(int num) {
+  LayoutButton2D *button = new LayoutButton2D(QString::number(++num));
 
-  connect(button, SIGNAL(clicked(LayoutButton *)), this,
-          SLOT(activateLayout(LayoutButton *)));
+  connect(button, SIGNAL(clicked(LayoutButton2D *)), this,
+          SLOT(activateLayout(LayoutButton2D *)));
   /*connect(button, SIGNAL(showContextMenu()), this,
           SIGNAL(showLayoutButtonContextMenu()));
   connect(button, SIGNAL(showCurvesDialog()), this,
@@ -459,6 +406,41 @@ LayoutButton *Layout2D::addLayoutButton(int num) {
   return button;
 }
 
-void Layout2D::axisDoubleClicked(QCPAxis *axis, QCPAxis::SelectablePart) {
-  qDebug() << "axis dblclk";
+void Layout2D::setBackground(const QColor &background) {
+  QString baseColor = QString("rgba(%0,%1,%2,%3)")
+                          .arg(background.red())
+                          .arg(background.green())
+                          .arg(background.blue())
+                          .arg(background.alpha());
+  streachLabel_->setStyleSheet("QLabel { background-color:" + baseColor + ";}");
+}
+
+void Layout2D::paintEvent(QPaintEvent *) {
+  QPainter painter(this);
+  QRect rect(0, 0, size().rwidth(), size().rheight());
+  painter.setBrush(QBrush(plot2dCanvas_->getBackgroundColor()));
+  painter.drawRect(rect);
+}
+
+void Layout2D::axisDoubleClicked(QCPAxis *axis, QCPAxis::SelectablePart part) {
+  Q_UNUSED(axis);
+  // Set an axis label by double clicking on it
+  if (part == QCPAxis::spAxisLabel)  // only react when the actual axis label is
+                                     // clicked, not tick label or axis backbone
+  {
+    bool ok;
+    QString newLabel =
+        QInputDialog::getText(this, "QCustomPlot example", "New axis label:",
+                              QLineEdit::Normal, axis->label(), &ok);
+    if (ok) {
+      axis->setLabel(newLabel);
+      plot2dCanvas_->replot();
+    }
+  } else {
+    Axis2DPropertiesDialog *axisPropertiesDialog =
+        new Axis2DPropertiesDialog(this, axis, currentAxisRect_);
+    connect(axisPropertiesDialog, SIGNAL(areplot()), plot2dCanvas_,
+            SLOT(replot()));
+    axisPropertiesDialog->exec();
+  }
 }

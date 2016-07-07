@@ -8,42 +8,11 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
+class QLabel;
 class Column;
 class AxisRect2D;
 class LayoutGrid2D;
-
-// Button with layout number
-class LayoutButton : public QPushButton {
-  Q_OBJECT
-
- public:
-  LayoutButton(const QString &text = QString::null, QWidget *parent = nullptr);
-  ~LayoutButton();
-
-  static int btnSize() { return layoutButtonSize; }
-  void setActive(bool status) {
-    active = status;
-    repaint();
-  }
-  bool isActive() { return active; }
-
- protected:
-  void mousePressEvent(QMouseEvent *event);
-  void mouseDoubleClickEvent(QMouseEvent *);
-  void resizeEvent(QResizeEvent *);
-  void paintEvent(QPaintEvent *);
-
- signals:
-  void showCurvesDialog();
-  void clicked(LayoutButton *);
-  void showContextMenu();
-
- private:
-  bool active;
-  static const int layoutButtonSize;
-  static QRect highLightRect;
-  QString buttonText;
-};
+class LayoutButton2D;
 
 class Layout2D : public MyWidget {
   Q_OBJECT
@@ -53,10 +22,7 @@ class Layout2D : public MyWidget {
            const QString name = QString(), Qt::WFlags f = 0);
   ~Layout2D();
 
-  bool eventFilter(QObject *object, QEvent *e);
-  QCPDataMap *generateDataMap(Column *xData,
-                                                       Column *yData, int from,
-                                                       int to);
+  QCPDataMap *generateDataMap(Column *xData, Column *yData, int from, int to);
   void generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
                               const QString yLabel);
   void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
@@ -83,26 +49,31 @@ class Layout2D : public MyWidget {
 
   int getLayoutRectGridIndex(QPair<int, int> coord);
   QPair<int, int> getLayoutRectGridCoordinate(int index);
-  LayoutButton *addLayoutButton(int num);
+  LayoutButton2D *addLayoutButton(int num);
+  void setBackground(const QColor &background);
+
+protected:
+  void paintEvent(QPaintEvent *);
 
  private slots:
-  void axisDoubleClicked(QCPAxis *axis, QCPAxis::SelectablePart);
+  void axisDoubleClicked(QCPAxis *axis, QCPAxis::SelectablePart part);
   AxisRect2D *addAxisRectItem();
   void removeAxisRectItem();
   void axisRectSetFocus(AxisRect2D *rect);
-  void activateLayout(LayoutButton *button);
+  void activateLayout(LayoutButton2D *button);
 
  private:
   Plot2D *plot2dCanvas_;
 
   LayoutGrid2D *layout_;
   QPair<int, int> layoutDimension_;
-  QList<LayoutButton *> buttionlist_;
+  QList<LayoutButton2D *> buttionlist_;
 
   QHBoxLayout *layoutButtonsBox_;
   QHBoxLayout *layoutManagebuttonsBox_;
   QPushButton *addLayoutButton_;
   QPushButton *removeLayoutButton_;
+  QLabel *streachLabel_;
 
   AxisRect2D *currentAxisRect_;
   bool draggingLegend;

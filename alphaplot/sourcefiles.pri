@@ -366,18 +366,28 @@ SOURCES     += ../3rdparty/qcustomplot/qcustomplot.cpp
 ####################### 2DPlot ###############################
 ##############################################################
 
-HEADERS     += src/2Dplot/Axis2D.h \
+HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
+               src/2Dplot/widgets/Axis2DPropertiesDialog.h \
+               src/2Dplot/Axis2D.h \
                src/2Dplot/AxisRect2D.h \
                src/2Dplot/Grid2D.h \
                src/2Dplot/Layout2D.h \
                src/2Dplot/LayoutGrid2D.h \
+               src/2Dplot/Legend2D.h \
                src/2Dplot/LineScatter2D.h \
-               src/2Dplot/Plot2D.h
+               src/2Dplot/Plot2D.h \
+               src/2Dplot/StatBox2D.h \
 
-SOURCES     += src/2Dplot/Axis2D.cpp \
+SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
+               src/2Dplot/widgets/Axis2DPropertiesDialog.cpp \
+               src/2Dplot/Axis2D.cpp \
                src/2Dplot/AxisRect2D.cpp \
                src/2Dplot/Grid2D.cpp \
                src/2Dplot/Layout2D.cpp \
                src/2Dplot/LayoutGrid2D.cpp \
+               src/2Dplot/Legend2D.cpp \
                src/2Dplot/LineScatter2D.cpp \
-               src/2Dplot/Plot2D.cpp              
+               src/2Dplot/Plot2D.cpp \
+               src/2Dplot/StatBox2D.cpp \
+
+FORMS       += src/2Dplot/widgets/Axis2DPropertiesDialog.ui \         

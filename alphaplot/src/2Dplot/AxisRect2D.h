@@ -22,6 +22,8 @@
 #include "Grid2D.h"
 #include "LineScatter2D.h"
 
+class Legend2D;
+
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
  public:
@@ -55,7 +57,9 @@ class AxisRect2D : public QCPAxisRect {
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;
 
-  QCPLegend *getLegend() { return axisRectLegend_; }
+  QCPLegend *getLegend() {
+    return reinterpret_cast<QCPLegend *>(axisRectLegend_);
+  }
   void updateLegendRect();
 
   // select axisrect with mouse click
@@ -70,9 +74,12 @@ class AxisRect2D : public QCPAxisRect {
  signals:
   void AxisRectClicked(AxisRect2D *);
 
+ private slots:
+  void legendClick();
+
  private:
   QBrush axisRectBackGround_;
-  QCPLegend *axisRectLegend_;
+  Legend2D *axisRectLegend_;
   QMap<Axis2D::AxisOreantation, QList<Axis2D *>> axises_;
   QMap<LineScatterType, QList<LineScatter2D *>> lineScatter_;
   QPair<Grid2D *, Grid2D *> grids_;

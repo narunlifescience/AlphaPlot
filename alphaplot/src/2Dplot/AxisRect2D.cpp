@@ -15,11 +15,12 @@
    Description : axis rect related stuff */
 
 #include "AxisRect2D.h"
+#include "Legend2D.h"
 
 AxisRect2D::AxisRect2D(QCustomPlot *parent, bool setupDefaultAxis)
     : QCPAxisRect(parent, setupDefaultAxis),
       axisRectBackGround_(Qt::white),
-      axisRectLegend_(new QCPLegend()),
+      axisRectLegend_(new Legend2D()),
       isAxisRectSelected_(false) {
   setAxisRectBackground(axisRectBackGround_);
   insetLayout()->addElement(axisRectLegend_, Qt::AlignTop | Qt::AlignLeft);
@@ -41,6 +42,8 @@ AxisRect2D::AxisRect2D(QCustomPlot *parent, bool setupDefaultAxis)
   lineScatter_.insert(CentralStepAndScatter2D, QList<LineScatter2D *>());
   lineScatter_.insert(HorizontalStep2D, QList<LineScatter2D *>());
   lineScatter_.insert(VerticalStep2D, QList<LineScatter2D *>());
+
+  connect(axisRectLegend_, SIGNAL(legendClicked()), SLOT(legendClick()));
 }
 
 AxisRect2D::~AxisRect2D() {}
@@ -192,8 +195,9 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
   }
 
   lineScatter->setData(dataMap);
-  axisRectLegend_->addItem(
-      new QCPPlottableLegendItem(axisRectLegend_, lineScatter));
+  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineScatter);
+  axisRectLegend_->addItem(legendItem);
+  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   list.append(lineScatter);
   lineScatter_.insert(type, list);
   return lineScatter;
@@ -235,9 +239,13 @@ void AxisRect2D::setSelected(const bool status) {
 }
 
 void AxisRect2D::drawSelection(QCPPainter *painter) {
-  QRect selectionRect(topLeft(), topLeft() + QPoint(10, 10));
-  painter->setBrush(QBrush(Qt::black));
-  painter->drawRect(selectionRect);
+  QPolygon poly;
+  poly << QPoint(topRight().x() - 16, topRight().y())
+       << QPoint(topRight().x(), topRight().y())
+       << QPoint(topRight().x(), topRight().y() + 16);
+  painter->setBrush(QBrush(QColor(255, 0, 0, 150)));
+  painter->setPen(QPen(Qt::NoPen));
+  painter->drawPolygon(poly);
 }
 
 void AxisRect2D::mousePressEvent(QMouseEvent *) { emit AxisRectClicked(this); }
@@ -245,3 +253,5 @@ void AxisRect2D::mousePressEvent(QMouseEvent *) { emit AxisRectClicked(this); }
 void AxisRect2D::draw(QCPPainter *painter) {
   if (isAxisRectSelected_) drawSelection(painter);
 }
+
+void AxisRect2D::legendClick() { emit AxisRectClicked(this); }
