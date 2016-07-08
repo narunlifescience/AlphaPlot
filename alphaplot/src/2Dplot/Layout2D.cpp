@@ -14,6 +14,9 @@
 #include "widgets/Axis2DPropertiesDialog.h"
 #include "widgets/LayoutButton2D.h"
 
+#include <gsl/gsl_sort.h>
+#include <gsl/gsl_statistics.h>
+
 Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
                    Qt::WFlags f)
     : MyWidget(label, parent, name, f),
@@ -102,12 +105,66 @@ QCPDataMap *Layout2D::generateDataMap(Column *xData, Column *yData, int from,
   QCPDataMap *dataMap = new QCPDataMap();
 
   double xdata = 0, ydata = 0;
-  for (int i = from; i < to; i++) {
+  for (int i = from; i < to + 1; i++) {
     xdata = xData->valueAt(i);
     ydata = yData->valueAt(i);
     dataMap->insert(xdata, QCPData(xdata, ydata));
   }
   return dataMap;
+}
+
+StatBox2D::BoxWhiskerTotalData Layout2D::generateBoxWhiskerData(Column *colData,
+                                                                int from,
+                                                                int to,
+                                                                int key) {
+  size_t size = static_cast<size_t>((to - from) + 1);
+
+  double *data = new double[size];
+
+  for (int i = 0, j = from; j < to + 1; i++, j++) {
+    data[i] = colData->valueAt(i);
+  }
+  // sort the data
+  gsl_sort(data, 1, size - 1);
+
+  StatBox2D::BoxWhiskerTotalData statBoxData;
+  statBoxData.key = key;
+  // basic stats
+  statBoxData.mean = gsl_stats_mean(data, 1, size);
+  statBoxData.median = gsl_stats_median_from_sorted_data(data, 1, size);
+  statBoxData.sd = gsl_stats_sd(data, 1, size);
+  statBoxData.se = statBoxData.sd / sqrt(static_cast<double>(size));
+  // data bounds
+  statBoxData.boxData.sd_lower = statBoxData.mean - statBoxData.sd;
+  statBoxData.boxData.sd_upper = statBoxData.mean + statBoxData.sd;
+  statBoxData.boxData.se_lower = statBoxData.mean - statBoxData.se;
+  statBoxData.boxData.se_upper = statBoxData.mean + statBoxData.se;
+  statBoxData.boxData.perc_1 =
+      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.01);
+  statBoxData.boxData.perc_5 =
+      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.05);
+  statBoxData.boxData.perc_10 =
+      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.10);
+  statBoxData.boxData.perc_25 =
+      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.25);
+  statBoxData.boxData.perc_75 =
+      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.75);
+  statBoxData.boxData.perc_90 =
+      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.90);
+  statBoxData.boxData.perc_95 =
+      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.95);
+  statBoxData.boxData.perc_99 =
+      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.99);
+  statBoxData.boxData.max = data[size - 1];
+  statBoxData.boxData.min = data[0];
+
+  // lets copy it towhisker data
+  statBoxData.whiskerData = statBoxData.boxData;
+
+  // delete the double data pointer
+  delete[] data;
+
+  return statBoxData;
 }
 
 void Layout2D::generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
@@ -127,6 +184,20 @@ void Layout2D::generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
   plot2dCanvas_->replot();
 }
 
+void Layout2D::generateStatBox2DPlot(Column *data, int from, int to, int key) {
+  StatBox2D::BoxWhiskerTotalData statBoxData =
+      generateBoxWhiskerData(data, from, to, key);
+  AxisRect2D *element = addAxisRectItem();
+  QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::Top);
+  QList<Axis2D *> yAxis = element->getAxesOrientedTo(Axis2D::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::Right);
+
+  StatBox2D *statBox = new StatBox2D(xAxis.at(0), yAxis.at(0), statBoxData);
+  statBox->rescaleAxes();
+  plot2dCanvas_->replot();
+}
+
 void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
                                          Column *xData, Column *yData, int from,
                                          int to) {
@@ -143,7 +214,6 @@ void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
     case Line2D: {
       linescatter = element->addLineScatter2DPlot(AxisRect2D::Line2D, dataMap,
                                                   xAxis.at(0), yAxis.at(0));
-
     } break;
     case Scatter2D: {
       linescatter = element->addLineScatter2DPlot(

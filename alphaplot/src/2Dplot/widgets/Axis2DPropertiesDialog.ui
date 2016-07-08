@@ -33,7 +33,7 @@
            </property>
           </column>
          </widget>
-         <widget class="QWidget" name="">
+         <widget class="QWidget" name="layoutWidget">
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
             <widget class="QGroupBox" name="groupBox">
@@ -51,7 +51,20 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="axisFromDoubleSpinBox"/>
+                 <widget class="QDoubleSpinBox" name="axisFromDoubleSpinBox">
+                  <property name="minimum">
+                   <double>-1000000000000000057857959942726969827393378689175040438172647424.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1000000000000000057857959942726969827393378689175040438172647424.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.000000000000000</double>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -65,7 +78,17 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="axisToDoubleSpinBox"/>
+                 <widget class="QDoubleSpinBox" name="axisToDoubleSpinBox">
+                  <property name="minimum">
+                   <double>-1000000000000000057857959942726969827393378689175040438172647424.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1000000000000000057857959942726969827393378689175040438172647424.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>

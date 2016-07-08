@@ -8,6 +8,8 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
+#include "StatBox2D.h"
+
 class QLabel;
 class Column;
 class AxisRect2D;
@@ -23,9 +25,12 @@ class Layout2D : public MyWidget {
   ~Layout2D();
 
   QCPDataMap *generateDataMap(Column *xData, Column *yData, int from, int to);
+  StatBox2D::BoxWhiskerTotalData generateBoxWhiskerData(Column *data, int from,
+                                                        int to, int key);
   void generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
                               const QString yLabel);
   void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
+  void generateStatBox2DPlot(Column *data, int from, int to, int key);
 
   enum LineScatterType {
     Line2D,
@@ -52,7 +57,7 @@ class Layout2D : public MyWidget {
   LayoutButton2D *addLayoutButton(int num);
   void setBackground(const QColor &background);
 
-protected:
+ protected:
   void paintEvent(QPaintEvent *);
 
  private slots:

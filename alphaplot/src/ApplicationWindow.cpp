@@ -12005,6 +12005,11 @@ void ApplicationWindow::selectPlotType(int type) {
       case Graph::HorizontalSteps:
         plotType = Layout2D::HorizontalStep2D;
         break;
+      case Graph::Box:
+        layout->generateStatBox2DPlot(table->column(table->firstXCol()), 0,
+                                      table->rowCnt() - 1, 1);
+        return;
+        break;
       default: {
         qDebug() << "not implimented";
         return;
@@ -12013,6 +12018,7 @@ void ApplicationWindow::selectPlotType(int type) {
     layout->generateLineScatter2DPlot(
         plotType, table->column(table->firstXCol()),
         table->column(table->firstXCol() + 1), 0, table->rowCnt() - 1);
+
     return;
   }
 
