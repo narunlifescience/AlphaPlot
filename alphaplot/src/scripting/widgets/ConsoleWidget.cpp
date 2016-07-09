@@ -26,10 +26,10 @@
 
 ConsoleWidget::ConsoleWidget(QWidget *parent)
     : QDockWidget(parent),
-      engine(new QScriptEngine()),
+      engine(new QScriptEngine(this)),
       debugger(new QScriptEngineDebugger(this)),
       ui_(new Ui_ConsoleWidget),
-      scriptGlobalObjectsModel(new QStandardItemModel()) {
+      scriptGlobalObjectsModel(new QStandardItemModel(this)) {
   ui_->setupUi(this);
   setWindowTitle(tr("Scripting Console"));
   setWindowIcon(QIcon());
@@ -43,7 +43,7 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   ui_->tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
   scriptGlobalObjectsModel->setColumnCount(2);
   ui_->tableView->setModel(scriptGlobalObjectsModel);
-  ui_->tableView->setItemDelegate(new Delegate);
+  ui_->tableView->setItemDelegate(new Delegate(this));
   ui_->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
   ui_->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
   ui_->tableView->setAlternatingRowColors(true);

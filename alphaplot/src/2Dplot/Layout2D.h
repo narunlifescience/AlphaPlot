@@ -26,7 +26,9 @@ class Layout2D : public MyWidget {
 
   QCPDataMap *generateDataMap(Column *xData, Column *yData, int from, int to);
   StatBox2D::BoxWhiskerData generateBoxWhiskerData(Column *data, int from,
-                                                        int to, int key);
+                                                   int to, int key);
+  QCPBarDataMap *generateBarDataMap(Column *xData, Column *yData, int from,
+                                    int to);
   void generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
                               const QString yLabel);
   void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
@@ -44,8 +46,15 @@ class Layout2D : public MyWidget {
     Area2D,
   };
 
+  enum BarType {
+    HorizontalBars,
+    VerticalBars,
+  };
+
   void generateLineScatter2DPlot(const LineScatterType &plotType, Column *xData,
                                  Column *yData, int from, int to);
+  void generateBar2DPlot(const BarType &barType, Column *xData, Column *yData,
+                         int from, int to);
 
   AxisRect2D *getSelectedAxisRect(int col, int row);
   int getAxisRectIndex(AxisRect2D *axisRect2d);

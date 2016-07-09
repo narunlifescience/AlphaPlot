@@ -4,11 +4,12 @@
 #include <QLineEdit>
 #include <QStyleOption>
 #include <QVBoxLayout>
-#include "QDateTime"
+#include <QDateTime>
 
 #include "../core/IconLoader.h"
 #include "../future/core/column/Column.h"
 #include "AxisRect2D.h"
+#include "Bar2D.h"
 #include "LayoutGrid2D.h"
 #include "LineScatter2D.h"
 #include "widgets/Axis2DPropertiesDialog.h"
@@ -114,9 +115,8 @@ QCPDataMap *Layout2D::generateDataMap(Column *xData, Column *yData, int from,
 }
 
 StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Column *colData,
-                                                                int from,
-                                                                int to,
-                                                                int key) {
+                                                           int from, int to,
+                                                           int key) {
   size_t size = static_cast<size_t>((to - from) + 1);
 
   double *data = new double[size];
@@ -164,6 +164,19 @@ StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Column *colData,
   return statBoxData;
 }
 
+QCPBarDataMap *Layout2D::generateBarDataMap(Column *xData, Column *yData,
+                                            int from, int to) {
+  QCPBarDataMap *barDataMap = new QCPBarDataMap();
+
+  double xdata = 0, ydata = 0;
+  for (int i = from; i < to + 1; i++) {
+    xdata = xData->valueAt(i);
+    ydata = yData->valueAt(i);
+    barDataMap->insert(xdata, QCPBarData(xdata, ydata));
+  }
+  return barDataMap;
+}
+
 void Layout2D::generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
                                       const QString yLabel) {
   AxisRect2D *element = addAxisRectItem();
@@ -192,6 +205,32 @@ void Layout2D::generateStatBox2DPlot(Column *data, int from, int to, int key) {
 
   StatBox2D *statBox = new StatBox2D(xAxis.at(0), yAxis.at(0), statBoxData);
   statBox->rescaleAxes();
+  plot2dCanvas_->replot();
+}
+
+void Layout2D::generateBar2DPlot(const BarType &barType, Column *xData,
+                                 Column *yData, int from, int to) {
+  QCPBarDataMap *barDataMap = generateBarDataMap(xData, yData, from, to);
+  AxisRect2D *element = addAxisRectItem();
+  QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::Top);
+  QList<Axis2D *> yAxis = element->getAxesOrientedTo(Axis2D::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::Right);
+  Bar2D *bar = nullptr;
+  AxisRect2D::BarType type;
+  switch (barType) {
+    case HorizontalBars:
+      type = AxisRect2D::HorizontalBars;
+      break;
+    case VerticalBars:
+      type = AxisRect2D::VerticalBars;
+      break;
+  }
+
+  bar = element->addBox2DPlot(type, barDataMap, xAxis.at(0), yAxis.at(0));
+  bar->setName("Table " + QString::number(xData->index() + 1) + "_" +
+               QString::number(yData->index() + 1));
+  bar->rescaleAxes();
   plot2dCanvas_->replot();
 }
 
@@ -240,9 +279,9 @@ void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
           AxisRect2D::VerticalStep2D, dataMap, xAxis.at(0), yAxis.at(0));
     } break;
     case Area2D: {
-        linescatter = element->addLineScatter2DPlot(
-            AxisRect2D::Area2D, dataMap, xAxis.at(0), yAxis.at(0));
-      }break;
+      linescatter = element->addLineScatter2DPlot(AxisRect2D::Area2D, dataMap,
+                                                  xAxis.at(0), yAxis.at(0));
+    } break;
   }
 
   linescatter->setName("Table " + QString::number(xData->index() + 1) + "_" +
@@ -266,7 +305,7 @@ int Layout2D::getAxisRectIndex(AxisRect2D *axisRect2d) {
 }
 
 AxisRect2D *Layout2D::addAxisRectItem() {
-  int rowcount = layout_->rowCount();
+  /*int rowcount = layout_->rowCount();
   int colcount = layout_->columnCount();
 
   int lastIndex = layout_->elementCount() - 1;
@@ -283,9 +322,10 @@ AxisRect2D *Layout2D::addAxisRectItem() {
       col = colcount;
       row = 0;
     }
-  }
+  }*/
 
-  col = layout_->elementCount();
+  int row = 0;
+  int col = layout_->elementCount();
 
   AxisRect2D *axisRect2d = new AxisRect2D(plot2dCanvas_);
   Axis2D *xAxis = axisRect2d->addAxis2D(Axis2D::Bottom);

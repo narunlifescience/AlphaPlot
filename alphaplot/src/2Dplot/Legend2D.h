@@ -21,8 +21,7 @@ class Legend2D : public QCPLegend {
 class LegendItem2D : public QCPPlottableLegendItem {
   Q_OBJECT
  public:
-  LegendItem2D(Legend2D *legend = nullptr,
-               LineScatter2D *lineScatter = nullptr);
+  explicit LegendItem2D(Legend2D *legend, QCPAbstractPlottable *plottable);
   ~LegendItem2D();
 
  signals:

@@ -7,8 +7,8 @@ Legend2D::~Legend2D() {}
 
 void Legend2D::mousePressEvent(QMouseEvent *) { emit legendClicked(); }
 
-LegendItem2D::LegendItem2D(Legend2D *legend, LineScatter2D *lineScatter)
-    : QCPPlottableLegendItem(legend, lineScatter) {}
+LegendItem2D::LegendItem2D(Legend2D *legend, QCPAbstractPlottable *plottable)
+    : QCPPlottableLegendItem(legend, plottable) {}
 
 LegendItem2D::~LegendItem2D() {}
 

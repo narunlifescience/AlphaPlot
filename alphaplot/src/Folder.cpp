@@ -205,17 +205,18 @@ bool FolderTreeWidgetItem::isChildOf(FolderTreeWidgetItem *src) {
 //--------------------------class FolderTreeWidget-----------------------------
 
 FolderTreeWidget::FolderTreeWidget(QWidget *parent, const QString name)
-    : QTreeWidget(parent) {
+    : QTreeWidget(parent), tableWidgetDeligate(new TableWidgetDelegate()) {
   setAcceptDrops(true);
   viewport()->setAcceptDrops(true);
   setName(name);
-  TableWidgetDelegate *tableWidgetDeligate = new TableWidgetDelegate();
   setItemDelegate(tableWidgetDeligate);
   connect(tableWidgetDeligate, SIGNAL(emptyFolderName()), this,
           SLOT(emptyFolderNameMsgBox()));
   connect(tableWidgetDeligate, SIGNAL(invalidFolderName(const QString &)), this,
           SLOT(invalidFolderNameMsgBox(const QString &)));
 }
+
+FolderTreeWidget::~FolderTreeWidget() { delete tableWidgetDeligate; }
 
 void FolderTreeWidget::adjustColumns() {
   for (int i = 0; i < columnCount(); i++) resizeColumnToContents(i);

@@ -19,6 +19,7 @@
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
+#include "Bar2D.h"
 #include "Grid2D.h"
 #include "LineScatter2D.h"
 
@@ -51,9 +52,16 @@ class AxisRect2D : public QCPAxisRect {
     Area2D,
   };
 
+  enum BarType {
+    HorizontalBars,
+    VerticalBars,
+  };
+
   LineScatter2D *addLineScatter2DPlot(const LineScatterType &type,
                                       QCPDataMap *dataMap, Axis2D *xAxis,
                                       Axis2D *yAxis);
+  Bar2D *addBox2DPlot(const BarType &type, QCPBarDataMap *barDataMap,
+                      Axis2D *xAxis, Axis2D *yAxis);
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;
@@ -81,7 +89,7 @@ class AxisRect2D : public QCPAxisRect {
  private:
   QBrush axisRectBackGround_;
   Legend2D *axisRectLegend_;
-  //QMap<LineScatterType, QList<LineScatter2D *>> lineScatter_;
+  // QMap<LineScatterType, QList<LineScatter2D *>> lineScatter_;
   QPair<Grid2D *, Grid2D *> grids_;
   bool isAxisRectSelected_;
 };

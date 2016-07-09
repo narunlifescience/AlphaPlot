@@ -41,6 +41,7 @@
 
 class FolderListItem;
 class FolderTreeWidgetItem;
+class TableWidgetDelegate;
 
 class QDragEnterEvent;
 class QDragMoveEvent;
@@ -187,6 +188,7 @@ class FolderTreeWidget : public QTreeWidget {
 
  public:
   FolderTreeWidget(QWidget *parent = 0, const QString name = QString());
+  ~FolderTreeWidget();
 
   // Item types
   enum ItemType {
@@ -215,6 +217,7 @@ class FolderTreeWidget : public QTreeWidget {
  private:
   bool mousePressed;
   QPoint presspos;
+  TableWidgetDelegate *tableWidgetDeligate;
 };
 
 //--------------------------class TableWidgetDeligate--------------------------

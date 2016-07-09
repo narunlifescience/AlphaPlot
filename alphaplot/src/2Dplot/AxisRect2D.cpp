@@ -167,6 +167,28 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
   return lineScatter;
 }
 
+Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type,
+                                QCPBarDataMap *barDataMap, Axis2D *xAxis,
+                                Axis2D *yAxis) {
+  Bar2D *bar;
+  switch (type) {
+    case HorizontalBars:
+      bar = new Bar2D(yAxis, xAxis);
+      break;
+    case VerticalBars:
+      bar = new Bar2D(xAxis, yAxis);
+      break;
+  }
+
+  bar->setData(barDataMap);
+  bar->setAntialiased(false);
+  bar->setAntialiasedFill(false);
+  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, bar);
+  axisRectLegend_->addItem(legendItem);
+  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  return bar;
+}
+
 // Should not use for other than populating axis map
 QList<Axis2D *> AxisRect2D::getAxesOrientedTo(
     const Axis2D::AxisOreantation &orientation) const {

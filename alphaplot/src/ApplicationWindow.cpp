@@ -11342,9 +11342,8 @@ void ApplicationWindow::folderProperties() {
 
 // List view windows properties (project explorer)
 void ApplicationWindow::windowProperties() {
-  WindowTableWidgetItem *item =
-      static_cast<WindowTableWidgetItem *>(ui_->listView->currentItem());
-  MyWidget *window = item->window();
+  MyWidget *window = qobject_cast<MyWidget *>(d_workspace->activeWindow());
+
   if (!window) return;
   std::unique_ptr<PropertiesDialog> propertiesDialog(
       new PropertiesDialog(this));
@@ -11417,11 +11416,19 @@ void ApplicationWindow::windowProperties() {
   }
 
   properties.name = window->name();
-  properties.status = item->text(2);
+  if (window->status() == MyWidget::Normal) {
+      properties.status = tr("Normal");
+  } else if (window->status() == MyWidget::Hidden) {
+      properties.status = tr("Hidden");
+  } else if (window->status() == MyWidget::Maximized) {
+      properties.status = tr("Maximized");
+  } else if (window->status() == MyWidget::Minimized) {
+      properties.status = tr("Minimized");
+  }
   properties.path = current_folder->path();
   properties.created = window->birthDate();
   properties.modified = "";
-  properties.label = item->text(4);
+  properties.label = window->windowLabel();
   ;
 
   propertiesDialog->setupProperties(properties);
@@ -12012,6 +12019,16 @@ void ApplicationWindow::selectPlotType(int type) {
       case Graph::Area:
         plotType = Layout2D::Area2D;
         break;
+      case Graph::HorizontalBars:
+        layout->generateBar2DPlot(
+            Layout2D::HorizontalBars, table->column(table->firstXCol()),
+            table->column(table->firstXCol() + 1), 0, table->rowCnt() - 1);
+        return;
+      case Graph::VerticalBars:
+        layout->generateBar2DPlot(
+            Layout2D::VerticalBars, table->column(table->firstXCol()),
+            table->column(table->firstXCol() + 1), 0, table->rowCnt() - 1);
+        return;
       default: {
         qDebug() << "not implimented";
         return;
