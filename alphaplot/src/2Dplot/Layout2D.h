@@ -25,7 +25,7 @@ class Layout2D : public MyWidget {
   ~Layout2D();
 
   QCPDataMap *generateDataMap(Column *xData, Column *yData, int from, int to);
-  StatBox2D::BoxWhiskerTotalData generateBoxWhiskerData(Column *data, int from,
+  StatBox2D::BoxWhiskerData generateBoxWhiskerData(Column *data, int from,
                                                         int to, int key);
   void generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
                               const QString yLabel);
@@ -41,6 +41,7 @@ class Layout2D : public MyWidget {
     CentralStepAndScatter2D,
     HorizontalStep2D,
     VerticalStep2D,
+    Area2D,
   };
 
   void generateLineScatter2DPlot(const LineScatterType &plotType, Column *xData,

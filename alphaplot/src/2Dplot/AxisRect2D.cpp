@@ -192,6 +192,11 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
                                         LineScatter2D::ScatterHidden);
       list = lineScatter_.value(VerticalStep2D);
       break;
+    case Area2D:
+      lineScatter->setLineScatter2DPlot(LineScatter2D::AreaPlot,
+                                        LineScatter2D::ScatterHidden);
+      list = lineScatter_.value(VerticalStep2D);
+      break;
   }
 
   lineScatter->setData(dataMap);

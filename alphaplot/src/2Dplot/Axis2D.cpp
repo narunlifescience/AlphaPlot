@@ -63,8 +63,6 @@ void Axis2D::setMajorTickLength(const int &length,
       break;
     case None:
       break;
-    default:
-      break;
   }
 }
 
@@ -84,8 +82,6 @@ void Axis2D::setMinorTickLength(const int &length,
                        static_cast<int>(length / 2));
       break;
     case None:
-      break;
-    default:
       break;
   }
 }

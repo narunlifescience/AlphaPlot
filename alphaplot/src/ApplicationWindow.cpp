@@ -12009,6 +12009,8 @@ void ApplicationWindow::selectPlotType(int type) {
         layout->generateStatBox2DPlot(table->column(table->firstXCol()), 0,
                                       table->rowCnt() - 1, 1);
         return;
+      case Graph::Area:
+        plotType = Layout2D::Area2D;
         break;
       default: {
         qDebug() << "not implimented";

@@ -113,7 +113,7 @@ QCPDataMap *Layout2D::generateDataMap(Column *xData, Column *yData, int from,
   return dataMap;
 }
 
-StatBox2D::BoxWhiskerTotalData Layout2D::generateBoxWhiskerData(Column *colData,
+StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Column *colData,
                                                                 int from,
                                                                 int to,
                                                                 int key) {
@@ -127,7 +127,7 @@ StatBox2D::BoxWhiskerTotalData Layout2D::generateBoxWhiskerData(Column *colData,
   // sort the data
   gsl_sort(data, 1, size - 1);
 
-  StatBox2D::BoxWhiskerTotalData statBoxData;
+  StatBox2D::BoxWhiskerData statBoxData;
   statBoxData.key = key;
   // basic stats
   statBoxData.mean = gsl_stats_mean(data, 1, size);
@@ -135,31 +135,28 @@ StatBox2D::BoxWhiskerTotalData Layout2D::generateBoxWhiskerData(Column *colData,
   statBoxData.sd = gsl_stats_sd(data, 1, size);
   statBoxData.se = statBoxData.sd / sqrt(static_cast<double>(size));
   // data bounds
-  statBoxData.boxData.sd_lower = statBoxData.mean - statBoxData.sd;
-  statBoxData.boxData.sd_upper = statBoxData.mean + statBoxData.sd;
-  statBoxData.boxData.se_lower = statBoxData.mean - statBoxData.se;
-  statBoxData.boxData.se_upper = statBoxData.mean + statBoxData.se;
-  statBoxData.boxData.perc_1 =
+  statBoxData.boxWhiskerDataBounds.sd_lower = statBoxData.mean - statBoxData.sd;
+  statBoxData.boxWhiskerDataBounds.sd_upper = statBoxData.mean + statBoxData.sd;
+  statBoxData.boxWhiskerDataBounds.se_lower = statBoxData.mean - statBoxData.se;
+  statBoxData.boxWhiskerDataBounds.se_upper = statBoxData.mean + statBoxData.se;
+  statBoxData.boxWhiskerDataBounds.perc_1 =
       gsl_stats_quantile_from_sorted_data(data, 1, size, 0.01);
-  statBoxData.boxData.perc_5 =
+  statBoxData.boxWhiskerDataBounds.perc_5 =
       gsl_stats_quantile_from_sorted_data(data, 1, size, 0.05);
-  statBoxData.boxData.perc_10 =
+  statBoxData.boxWhiskerDataBounds.perc_10 =
       gsl_stats_quantile_from_sorted_data(data, 1, size, 0.10);
-  statBoxData.boxData.perc_25 =
+  statBoxData.boxWhiskerDataBounds.perc_25 =
       gsl_stats_quantile_from_sorted_data(data, 1, size, 0.25);
-  statBoxData.boxData.perc_75 =
+  statBoxData.boxWhiskerDataBounds.perc_75 =
       gsl_stats_quantile_from_sorted_data(data, 1, size, 0.75);
-  statBoxData.boxData.perc_90 =
+  statBoxData.boxWhiskerDataBounds.perc_90 =
       gsl_stats_quantile_from_sorted_data(data, 1, size, 0.90);
-  statBoxData.boxData.perc_95 =
+  statBoxData.boxWhiskerDataBounds.perc_95 =
       gsl_stats_quantile_from_sorted_data(data, 1, size, 0.95);
-  statBoxData.boxData.perc_99 =
+  statBoxData.boxWhiskerDataBounds.perc_99 =
       gsl_stats_quantile_from_sorted_data(data, 1, size, 0.99);
-  statBoxData.boxData.max = data[size - 1];
-  statBoxData.boxData.min = data[0];
-
-  // lets copy it towhisker data
-  statBoxData.whiskerData = statBoxData.boxData;
+  statBoxData.boxWhiskerDataBounds.max = data[size - 1];
+  statBoxData.boxWhiskerDataBounds.min = data[0];
 
   // delete the double data pointer
   delete[] data;
@@ -185,7 +182,7 @@ void Layout2D::generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
 }
 
 void Layout2D::generateStatBox2DPlot(Column *data, int from, int to, int key) {
-  StatBox2D::BoxWhiskerTotalData statBoxData =
+  StatBox2D::BoxWhiskerData statBoxData =
       generateBoxWhiskerData(data, from, to, key);
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
@@ -242,6 +239,10 @@ void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
       linescatter = element->addLineScatter2DPlot(
           AxisRect2D::VerticalStep2D, dataMap, xAxis.at(0), yAxis.at(0));
     } break;
+    case Area2D: {
+        linescatter = element->addLineScatter2DPlot(
+            AxisRect2D::Area2D, dataMap, xAxis.at(0), yAxis.at(0));
+      }break;
   }
 
   linescatter->setName("Table " + QString::number(xData->index() + 1) + "_" +

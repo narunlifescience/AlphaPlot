@@ -18,6 +18,7 @@ class LineScatter2D : public QCPGraph {
     CentralStepAndScatterPlot,
     HorizontalStepPlot,
     VerticalStepPlot,
+    AreaPlot,
   };
 
   enum Scatter { ScatterVisible, ScatterHidden };

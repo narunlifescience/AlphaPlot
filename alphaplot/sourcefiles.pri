@@ -370,6 +370,7 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/widgets/Axis2DPropertiesDialog.h \
                src/2Dplot/Axis2D.h \
                src/2Dplot/AxisRect2D.h \
+               src/2Dplot/Bar2D.h \
                src/2Dplot/Grid2D.h \
                src/2Dplot/Layout2D.h \
                src/2Dplot/LayoutGrid2D.h \
@@ -382,6 +383,7 @@ SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/widgets/Axis2DPropertiesDialog.cpp \
                src/2Dplot/Axis2D.cpp \
                src/2Dplot/AxisRect2D.cpp \
+               src/2Dplot/Bar2D.cpp \
                src/2Dplot/Grid2D.cpp \
                src/2Dplot/Layout2D.cpp \
                src/2Dplot/LayoutGrid2D.cpp \

@@ -57,6 +57,11 @@ void LineScatter2D::setLineScatter2DPlot(const Line &line,
         setLineStyle(QCPGraph::lsStepRight);
         antialiasedLine = false;
         break;
+      case AreaPlot:
+        setLineStyle(QCPGraph::lsLine);
+        setBrush(QBrush(Qt::green));
+        antialiasedLine = true;
+        break;
     }
 
     if(autoAntialiasing_)

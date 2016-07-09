@@ -640,7 +640,7 @@ void FitDialog::showFitPage() {
 
   for (int i = param_table_rows; i < paramList.count(); i++) {
     QTableWidgetItem *it = new QTableWidgetItem(paramList[i]);
-    it->setFlags(Qt::ItemFlags(Qt::ItemIsEditable ^ 2));
+    it->setFlags(Qt::ItemFlags(!Qt::ItemIsEditable));
     it->setBackground(QBrush(Qt::lightGray));
     it->setForeground(QBrush(Qt::darkRed));
     QFont font = it->font();

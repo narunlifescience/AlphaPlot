@@ -18,7 +18,7 @@ class StatBox2D : public QCPStatisticalBox {
     Constant,
   };
 
-  struct BoxWhiskerData {
+  struct BoxWhiskerDataBounds {
     double sd_upper = 0;
     double sd_lower = 0;
     double se_upper = 0;
@@ -37,26 +37,25 @@ class StatBox2D : public QCPStatisticalBox {
     double constant_upper = 0;
   };
 
-  struct BoxWhiskerTotalData {
+  struct BoxWhiskerData {
     double key;
     double mean;
     double median;
     double sd;
     double se;
-    BoxWhiskerData boxData;
-    BoxWhiskerData whiskerData;
+    BoxWhiskerDataBounds boxWhiskerDataBounds;
   };
 
   explicit StatBox2D(Axis2D *xAxis, Axis2D *yAxis,
-                     BoxWhiskerTotalData boxWhiskerData);
+                     BoxWhiskerData boxWhiskerData);
   ~StatBox2D();
 
-  void setBoxWhiskerData(BoxWhiskerTotalData boxWhiskerData);
+  void setBoxWhiskerData(BoxWhiskerData boxWhiskerData);
   void setBoxStyle(const BoxWhiskerStyle &boxStyle);
   void setWhiskerStyle(const BoxWhiskerStyle &whiskerStyle);
 
  private:
-  BoxWhiskerTotalData boxWhiskerData_;
+  BoxWhiskerData boxWhiskerData_;
 };
 
 #endif  // STATBOX2D_H

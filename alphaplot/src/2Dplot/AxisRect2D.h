@@ -48,6 +48,7 @@ class AxisRect2D : public QCPAxisRect {
     CentralStepAndScatter2D,
     HorizontalStep2D,
     VerticalStep2D,
+    Area2D,
   };
 
   LineScatter2D *addLineScatter2DPlot(const LineScatterType &type,
