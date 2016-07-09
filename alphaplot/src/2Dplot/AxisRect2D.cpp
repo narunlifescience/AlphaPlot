@@ -27,22 +27,6 @@ AxisRect2D::AxisRect2D(QCustomPlot *parent, bool setupDefaultAxis)
   insetLayout()->setInsetPlacement(0, QCPLayoutInset::ipFree);
   axisRectLegend_->setLayer("legend");
 
-  // initialize axis2d map
-  axises_.insert(Axis2D::Left, QList<Axis2D *>());
-  axises_.insert(Axis2D::Bottom, QList<Axis2D *>());
-  axises_.insert(Axis2D::Right, QList<Axis2D *>());
-  axises_.insert(Axis2D::Top, QList<Axis2D *>());
-
-  // initialize linescatter2D map
-  lineScatter_.insert(Line2D, QList<LineScatter2D *>());
-  lineScatter_.insert(Scatter2D, QList<LineScatter2D *>());
-  lineScatter_.insert(LineAndScatter2D, QList<LineScatter2D *>());
-  lineScatter_.insert(VerticalDropLine2D, QList<LineScatter2D *>());
-  lineScatter_.insert(Spline2D, QList<LineScatter2D *>());
-  lineScatter_.insert(CentralStepAndScatter2D, QList<LineScatter2D *>());
-  lineScatter_.insert(HorizontalStep2D, QList<LineScatter2D *>());
-  lineScatter_.insert(VerticalStep2D, QList<LineScatter2D *>());
-
   connect(axisRectLegend_, SIGNAL(legendClicked()), SLOT(legendClick()));
 }
 
@@ -59,47 +43,25 @@ Axis2D *AxisRect2D::addAxis2D(const Axis2D::AxisOreantation &orientation) {
     case Axis2D::Left:
       axis2D = new Axis2D(this, QCPAxis::atLeft);
       addAxis(QCPAxis::atLeft, axis2D);
-      axises_.insert(Axis2D::Left, getAxesOrientedTo(Axis2D::Left));
       break;
     case Axis2D::Bottom:
       axis2D = new Axis2D(this, QCPAxis::atBottom);
       addAxis(QCPAxis::atBottom, axis2D);
-      axises_.insert(Axis2D::Bottom, getAxesOrientedTo(Axis2D::Bottom));
       break;
     case Axis2D::Right:
       axis2D = new Axis2D(this, QCPAxis::atRight);
       addAxis(QCPAxis::atRight, axis2D);
-      axises_.insert(Axis2D::Right, getAxesOrientedTo(Axis2D::Right));
       break;
     case Axis2D::Top:
       axis2D = new Axis2D(this, QCPAxis::atTop);
       addAxis(QCPAxis::atTop, axis2D);
-      axises_.insert(Axis2D::Top, getAxesOrientedTo(Axis2D::Top));
       break;
   }
   return axis2D;
 }
 
 bool AxisRect2D::removeAxis2D(Axis2D *axis) {
-  bool status = removeAxis(static_cast<QCPAxis *>(axis));
-
-  if (!status) return false;
-
-  switch (axis->getOrientation()) {
-    case Axis2D::Left:
-      axises_.insert(Axis2D::Left, getAxesOrientedTo(Axis2D::Left));
-      break;
-    case Axis2D::Bottom:
-      axises_.insert(Axis2D::Bottom, getAxesOrientedTo(Axis2D::Bottom));
-      break;
-    case Axis2D::Right:
-      axises_.insert(Axis2D::Right, getAxesOrientedTo(Axis2D::Right));
-      break;
-    case Axis2D::Top:
-      axises_.insert(Axis2D::Top, getAxesOrientedTo(Axis2D::Top));
-      break;
-  }
-  return status;
+  return removeAxis(static_cast<QCPAxis *>(axis));
 }
 
 QBrush AxisRect2D::getAxisRectBackground() const { return axisRectBackGround_; }
@@ -121,29 +83,37 @@ Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
 }
 
 QList<Axis2D *> AxisRect2D::getAxes2D() const {
+  QList<QCPAxis *> qcpAxes = axes();
   QList<Axis2D *> axes2D = QList<Axis2D *>();
-  axes2D << axises_.value(Axis2D::Left) << axises_.value(Axis2D::Bottom)
-         << axises_.value(Axis2D::Right) << axises_.value(Axis2D::Top);
+  foreach (QCPAxis *qcpAxis, qcpAxes) {
+    axes2D << static_cast<Axis2D *>(qcpAxis);
+  }
   return axes2D;
 }
 
 QList<Axis2D *> AxisRect2D::getAxes2D(
     const Axis2D::AxisOreantation &orientation) const {
+  QList<QCPAxis *> qcpAxes = QList<QCPAxis *>();
   QList<Axis2D *> axes2D = QList<Axis2D *>();
   switch (orientation) {
     case Axis2D::Left:
-      axes2D = axises_.value(Axis2D::Left);
+      qcpAxes = axes(QCPAxis::atLeft);
       break;
     case Axis2D::Bottom:
-      axes2D = axises_.value(Axis2D::Bottom);
+      qcpAxes = axes(QCPAxis::atBottom);
       break;
     case Axis2D::Right:
-      axes2D = axises_.value(Axis2D::Right);
+      qcpAxes = axes(QCPAxis::atRight);
       break;
     case Axis2D::Top:
-      axes2D = axises_.value(Axis2D::Top);
+      qcpAxes = axes(QCPAxis::atTop);
       break;
   }
+
+  foreach (QCPAxis *qcpAxis, qcpAxes) {
+    axes2D << static_cast<Axis2D *>(qcpAxis);
+  }
+
   return axes2D;
 }
 
@@ -151,28 +121,23 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
     const AxisRect2D::LineScatterType &type, QCPDataMap *dataMap, Axis2D *xAxis,
     Axis2D *yAxis) {
   LineScatter2D *lineScatter = new LineScatter2D(xAxis, yAxis);
-  QList<LineScatter2D *> list;
 
   switch (type) {
     case Line2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::LinePlot,
                                         LineScatter2D::ScatterHidden);
-      list = lineScatter_.value(Line2D);
       break;
     case Scatter2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::NonePlot,
                                         LineScatter2D::ScatterVisible);
-      list = lineScatter_.value(Scatter2D);
       break;
     case LineAndScatter2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::LinePlot,
                                         LineScatter2D::ScatterVisible);
-      list = lineScatter_.value(LineAndScatter2D);
       break;
     case VerticalDropLine2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::VerticalDropLinePlot,
                                         LineScatter2D::ScatterVisible);
-      list = lineScatter_.value(VerticalDropLine2D);
       break;
     case Spline2D:
       break;
@@ -180,22 +145,18 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
       lineScatter->setLineScatter2DPlot(
           LineScatter2D::CentralStepAndScatterPlot,
           LineScatter2D::ScatterVisible);
-      list = lineScatter_.value(CentralStepAndScatter2D);
       break;
     case HorizontalStep2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::VerticalStepPlot,
                                         LineScatter2D::ScatterHidden);
-      list = lineScatter_.value(HorizontalStep2D);
       break;
     case VerticalStep2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::HorizontalStepPlot,
                                         LineScatter2D::ScatterHidden);
-      list = lineScatter_.value(VerticalStep2D);
       break;
     case Area2D:
       lineScatter->setLineScatter2DPlot(LineScatter2D::AreaPlot,
                                         LineScatter2D::ScatterHidden);
-      list = lineScatter_.value(VerticalStep2D);
       break;
   }
 
@@ -203,8 +164,6 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineScatter);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
-  list.append(lineScatter);
-  lineScatter_.insert(type, list);
   return lineScatter;
 }
 

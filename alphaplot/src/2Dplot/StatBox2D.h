@@ -19,22 +19,40 @@ class StatBox2D : public QCPStatisticalBox {
   };
 
   struct BoxWhiskerDataBounds {
-    double sd_upper = 0;
-    double sd_lower = 0;
-    double se_upper = 0;
-    double se_lower = 0;
-    double perc_25 = 0;
-    double perc_75 = 0;
-    double perc_10 = 0;
-    double perc_90 = 0;
-    double perc_5 = 0;
-    double perc_95 = 0;
-    double perc_1 = 0;
-    double perc_99 = 0;
-    double min = 0;
-    double max = 0;
-    double constant_lower = 0;
-    double constant_upper = 0;
+    double sd_upper;
+    double sd_lower;
+    double se_upper;
+    double se_lower;
+    double perc_25;
+    double perc_75;
+    double perc_10;
+    double perc_90;
+    double perc_5;
+    double perc_95;
+    double perc_1;
+    double perc_99;
+    double min;
+    double max;
+    double constant_lower;
+    double constant_upper;
+    BoxWhiskerDataBounds() {
+      sd_upper = 0;
+      sd_lower = 0;
+      se_upper = 0;
+      se_lower = 0;
+      perc_25 = 0;
+      perc_75 = 0;
+      perc_10 = 0;
+      perc_90 = 0;
+      perc_5 = 0;
+      perc_95 = 0;
+      perc_1 = 0;
+      perc_99 = 0;
+      min = 0;
+      max = 0;
+      constant_lower = 0;
+      constant_upper = 0;
+    }
   };
 
   struct BoxWhiskerData {
@@ -44,6 +62,13 @@ class StatBox2D : public QCPStatisticalBox {
     double sd;
     double se;
     BoxWhiskerDataBounds boxWhiskerDataBounds;
+    BoxWhiskerData() {
+      key = 0;
+      mean = 0;
+      median = 0;
+      sd = 0;
+      se = 0;
+    }
   };
 
   explicit StatBox2D(Axis2D *xAxis, Axis2D *yAxis,

@@ -81,8 +81,7 @@ class AxisRect2D : public QCPAxisRect {
  private:
   QBrush axisRectBackGround_;
   Legend2D *axisRectLegend_;
-  QMap<Axis2D::AxisOreantation, QList<Axis2D *>> axises_;
-  QMap<LineScatterType, QList<LineScatter2D *>> lineScatter_;
+  //QMap<LineScatterType, QList<LineScatter2D *>> lineScatter_;
   QPair<Grid2D *, Grid2D *> grids_;
   bool isAxisRectSelected_;
 };
