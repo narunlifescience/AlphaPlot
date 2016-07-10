@@ -1,10 +1,10 @@
 #include "Layout2D.h"
+#include <QDateTime>
 #include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QStyleOption>
 #include <QVBoxLayout>
-#include <QDateTime>
 
 #include "../core/IconLoader.h"
 #include "../future/core/column/Column.h"
@@ -351,8 +351,8 @@ AxisRect2D *Layout2D::addAxisRectItem() {
 }
 
 void Layout2D::removeAxisRectItem() {
-  // removeAxisRect(getAxisRectIndex(currentAxisRect_));
-  removeAxisRect(layout_->elementCount() - 1);
+  removeAxisRect(getAxisRectIndex(currentAxisRect_));
+  // removeAxisRect(layout_->elementCount() - 1);
 }
 
 void Layout2D::axisRectSetFocus(AxisRect2D *rect) {
@@ -473,7 +473,12 @@ void Layout2D::removeAxisRect(int index) {
 
   if (axrect->isSelected()) {
     axrect = nullptr;
-    axrect = static_cast<AxisRect2D *>(layout_->elementAt(index - 1));
+    if (index == 0) {
+      axrect = static_cast<AxisRect2D *>(layout_->elementAt(index + 1));
+    } else {
+      axrect = static_cast<AxisRect2D *>(layout_->elementAt(index - 1));
+    }
+
     if (axrect) {
       axisRectSetFocus(axrect);
     } else {
