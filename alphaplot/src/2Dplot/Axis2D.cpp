@@ -96,8 +96,7 @@ void Axis2D::setMinorTickVisible(bool status) {
   (status) ? setSubTickPen(minorTickPen) : setSubTickPen(Qt::NoPen);
 }
 
-Axis2D::AxisOreantation Axis2D::getOrientation()
-{
+Axis2D::AxisOreantation Axis2D::getOrientation() {
   AxisOreantation orientation;
   switch (axisType()) {
     case QCPAxis::atLeft:
@@ -112,7 +111,7 @@ Axis2D::AxisOreantation Axis2D::getOrientation()
     case QCPAxis::atTop:
       orientation = Top;
       break;
-    }
+  }
   return orientation;
 }
 
@@ -120,8 +119,7 @@ void Axis2D::setValesInvert(bool status) {
   (status) ? setRangeReversed(true) : setRangeReversed(false);
 }
 
-void Axis2D::setValueScaleType(const Axis2D::AxisScaleType &type)
-{
+void Axis2D::setValueScaleType(const Axis2D::AxisScaleType &type) {
   switch (type) {
     case Linear:
       setScaleType(QCPAxis::stLinear);
@@ -129,5 +127,11 @@ void Axis2D::setValueScaleType(const Axis2D::AxisScaleType &type)
     case Logarithmic:
       setScaleType(QCPAxis::stLogarithmic);
       break;
-    }
+  }
+}
+
+void Axis2D::AddPropertyItem() {
+  Property2D::Data <int> d;
+  d.value = 20;
+  qDebug() << d.value;
 }

@@ -379,6 +379,7 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/LineScatter2D.h \
                src/2Dplot/Plot2D.h \
                src/2Dplot/StatBox2D.h \
+               src/2Dplot/Properties2D.h \
 
 SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/widgets/Axis2DPropertiesDialog.cpp \
@@ -393,5 +394,6 @@ SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/LineScatter2D.cpp \
                src/2Dplot/Plot2D.cpp \
                src/2Dplot/StatBox2D.cpp \
+               src/2Dplot/Properties2D.cpp \
 
 FORMS       += src/2Dplot/widgets/Axis2DPropertiesDialog.ui \         

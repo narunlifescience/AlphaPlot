@@ -17,77 +17,106 @@
 #include "Grid2D.h"
 
 Grid2D::Grid2D(QCPAxis *parent)
-    : QCPGrid(parent),
-      majorGridPen(QPen(Qt::darkGray, 0, Qt::DotLine)),
-      minorGridPen(QPen(Qt::lightGray, 0, Qt::DotLine)),
-      zeroLinePen(QPen(Qt::gray, 0, Qt::SolidLine)),
-      majorGridVisible(true),
-      minorGridVisible(false),
-      zeroLineVisible(true) {
+    : QCPGrid(parent), gridProperties_(new Property2D::Grid()) {
   // Set Default grid values
-  setMajorGridPen(majorGridPen);
-  setMajorGridVisible(majorGridVisible);
-  setMinorGridPen(minorGridPen);
-  setMinorGridVisible(minorGridVisible);
-  setZerothLinePen(zeroLinePen);
-  setZerothLineVisible(zeroLineVisible);
+  gridProperties_->majorGrid.visible.value = true;
+  gridProperties_->minorGrid.visible.value = false;
+  gridProperties_->zeroLine.visible.value = true;
+  gridProperties_->majorGrid.strokeColor.value = pen().color();
+  gridProperties_->minorGrid.strokeColor.value = subGridPen().color();
+  gridProperties_->zeroLine.strokeColor.value = zeroLinePen().color();
+  gridProperties_->majorGrid.style.value = pen().style();
+  gridProperties_->minorGrid.style.value = subGridPen().style();
+  gridProperties_->zeroLine.style.value = zeroLinePen().style();
+  gridProperties_->majorGrid.strokeThickness.value = pen().width();
+  gridProperties_->minorGrid.strokeThickness.value = subGridPen().width();
+  gridProperties_->zeroLine.strokeThickness.value = zeroLinePen().width();
 }
 
-Grid2D::~Grid2D() {}
+Grid2D::~Grid2D() { delete gridProperties_; }
 
 // Set Grid Parameters
 void Grid2D::setMajorGridPen(const QPen &pen) {
   setPen(pen);
-  majorGridPen = pen;
+  gridProperties_->majorGrid.strokeColor.value = pen.color();
+  gridProperties_->majorGrid.style.value = pen.style();
+  gridProperties_->majorGrid.strokeThickness.value = pen.width();
 }
 
 void Grid2D::setMinorGridPen(const QPen &pen) {
   setSubGridPen(pen);
-  minorGridPen = pen;
+  gridProperties_->minorGrid.strokeColor.value = pen.color();
+  gridProperties_->minorGrid.style.value = pen.style();
+  gridProperties_->minorGrid.strokeThickness.value = pen.width();
 }
 
 void Grid2D::setZerothLinePen(const QPen &pen) {
   setZeroLinePen(pen);
-  zeroLinePen = pen;
+  gridProperties_->zeroLine.strokeColor.value = pen.color();
+  gridProperties_->zeroLine.style.value = pen.style();
+  gridProperties_->zeroLine.strokeThickness.value = pen.width();
 }
 
 void Grid2D::setMajorGridVisible(const bool status) {
+  QPen majorGridPen;
+  majorGridPen.setColor(gridProperties_->majorGrid.strokeColor.value);
+  majorGridPen.setStyle(gridProperties_->majorGrid.style.value);
+  majorGridPen.setWidth(gridProperties_->majorGrid.strokeThickness.value);
   (status) ? setPen(majorGridPen) : setPen(Qt::NoPen);
-  majorGridVisible = status;
+  gridProperties_->majorGrid.visible.value = status;
 }
 
 void Grid2D::setMinorGridVisible(const bool status) {
   setSubGridVisible(status);
-  minorGridVisible = status;
+  gridProperties_->minorGrid.visible.value = status;
 }
 
 void Grid2D::setZerothLineVisible(const bool status) {
-  (status) ? setZeroLinePen(zeroLinePen) : setZeroLinePen(Qt::NoPen);
-  zeroLineVisible = status;
+  QPen zerolinepen;
+  zerolinepen.setColor(gridProperties_->zeroLine.strokeColor.value);
+  zerolinepen.setStyle(gridProperties_->zeroLine.style.value);
+  zerolinepen.setWidth(gridProperties_->zeroLine.strokeThickness.value);
+  (status) ? setZeroLinePen(zerolinepen) : setZeroLinePen(Qt::NoPen);
+  gridProperties_->zeroLine.visible.value = status;
 }
 
-QPen Grid2D::getMajorGridPen() const { return majorGridPen; }
-
-QPen Grid2D::getMinorGridPen() const { return minorGridPen; }
-
-QPen Grid2D::getZerothLinePen() const { return zeroLinePen; }
-
-bool Grid2D::getMajorGridVisible() const { return majorGridVisible; }
-
-bool Grid2D::getMinorGridVisible() const { return minorGridVisible; }
-
-bool Grid2D::getZerothLineVisible() const { return zeroLineVisible; }
-
-void Grid2D::copy(Grid2D *grid) const {
-  if (!grid) return;
-
-  grid->setMajorGridPen(majorGridPen);
-  grid->setMajorGridVisible(majorGridVisible);
-  grid->setMinorGridPen(minorGridPen);
-  grid->setMinorGridVisible(minorGridVisible);
-  grid->setZerothLinePen(zeroLinePen);
-  grid->setZerothLineVisible(zeroLineVisible);
+QPen Grid2D::getMajorGridPen() const {
+  QPen majorGridPen;
+  majorGridPen.setColor(gridProperties_->majorGrid.strokeColor.value);
+  majorGridPen.setStyle(gridProperties_->majorGrid.style.value);
+  majorGridPen.setWidth(gridProperties_->majorGrid.strokeThickness.value);
+  return majorGridPen;
 }
+
+QPen Grid2D::getMinorGridPen() const {
+  QPen minorGridPen;
+  minorGridPen.setColor(gridProperties_->minorGrid.strokeColor.value);
+  minorGridPen.setStyle(gridProperties_->minorGrid.style.value);
+  minorGridPen.setWidth(gridProperties_->minorGrid.strokeThickness.value);
+  return minorGridPen;
+}
+
+QPen Grid2D::getZerothLinePen() const {
+  QPen zerolinepen;
+  zerolinepen.setColor(gridProperties_->zeroLine.strokeColor.value);
+  zerolinepen.setStyle(gridProperties_->zeroLine.style.value);
+  zerolinepen.setWidth(gridProperties_->zeroLine.strokeThickness.value);
+  return zerolinepen;
+}
+
+bool Grid2D::getMajorGridVisible() const {
+  return gridProperties_->majorGrid.visible.value;
+}
+
+bool Grid2D::getMinorGridVisible() const {
+  return gridProperties_->minorGrid.visible.value;
+}
+
+bool Grid2D::getZerothLineVisible() const {
+  return gridProperties_->zeroLine.visible.value;
+}
+
+Property2D::Grid *Grid2D::getGridProperties() const { return gridProperties_; }
 
 QString Grid2D::saveToAproj() {
   QString s = "<grid>/n";

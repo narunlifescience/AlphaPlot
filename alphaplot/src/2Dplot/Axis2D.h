@@ -18,6 +18,7 @@
 #define AXIS2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
+#include "Properties2D.h"
 
 class Axis2D : public QCPAxis {
   Q_OBJECT
@@ -40,6 +41,8 @@ class Axis2D : public QCPAxis {
 
   void setValesInvert(bool status);
   void setValueScaleType(const AxisScaleType &type);
+
+  void AddPropertyItem();
 
  private:
   QPen majorTickPen;

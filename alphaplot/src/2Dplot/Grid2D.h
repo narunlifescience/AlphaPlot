@@ -18,11 +18,12 @@
 #define GRID2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
+#include "Properties2D.h"
 
 class Grid2D : public QCPGrid {
   Q_OBJECT
  public:
-  Grid2D(QCPAxis *parent = 0);
+  explicit Grid2D(QCPAxis *parent);
   ~Grid2D();
   // Grid & Zeroline
   void setMajorGridPen(const QPen &pen);
@@ -37,19 +38,13 @@ class Grid2D : public QCPGrid {
   bool getMajorGridVisible() const;
   bool getMinorGridVisible() const;
   bool getZerothLineVisible() const;
+  Property2D::Grid *getGridProperties() const;
 
-  void copy(Grid2D *grid) const;
   QString saveToAproj();
 
  private:
-  // struct {
   // Grid & zeroline settings
-  QPen majorGridPen;
-  QPen minorGridPen;
-  QPen zeroLinePen;
-  bool majorGridVisible;
-  bool minorGridVisible;
-  bool zeroLineVisible;
+  Property2D::Grid *gridProperties_;
 };
 
 #endif  // GRID2D_H
