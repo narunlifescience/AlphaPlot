@@ -237,6 +237,7 @@ void AxisRect2D::drawSelection(QCPPainter *painter) {
 void AxisRect2D::mousePressEvent(QMouseEvent *) { emit AxisRectClicked(this); }
 
 void AxisRect2D::draw(QCPPainter *painter) {
+  QCPAxisRect::draw(painter);
   if (isAxisRectSelected_) drawSelection(painter);
 }
 

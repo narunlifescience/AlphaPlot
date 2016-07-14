@@ -18,14 +18,19 @@
 
 #include "core/Utilities.h"
 
+#include <QDebug>
 #include <QProcess>
-#include <QSysInfo>
 #include <QStringList>
+#include <QSysInfo>
+#include <cmath>
 
 #ifdef Q_OS_WIN
-#include <windows.h>
 #include <assert.h>
+#include <windows.h>
 #endif
+
+double Utilities::rgbRandomSeed_ = static_cast<double>(rand())/RAND_MAX;
+int Utilities::rgbCounter_ = 0;
 
 QString Utilities::getOperatingSystem() {
 #if defined(Q_OS_WIN32)
@@ -69,8 +74,8 @@ QString Utilities::getOperatingSystem() {
       return QString("Mac OS X 10.9");
     case QSysInfo::MV_10_10:
       return QString("Mac OS X 10.10");
-    //case QSysInfo::MV_10_11: (mot available in qt4)
-      //return QString("Mac OS X 10.11");
+    // case QSysInfo::MV_10_11: (mot available in qt4)
+    // return QString("Mac OS X 10.11");
     default:
       return QString("Mac OS X");
   }
@@ -165,4 +170,63 @@ int Utilities::getWordSizeOfOS() {
 #else
   return 0;  // unknown
 #endif
+}
+
+QColor Utilities::getRandColorGoldenRatio() {
+  rgbCounter_++;
+  // use golden ratio
+  const double goldenRatioConjugate = 0.618033988749895f;
+  double hue = rgbRandomSeed_;
+  hue += goldenRatioConjugate * rgbCounter_;
+  hue = fmod(hue, 1);
+  double saturation = 0.5;
+  double value = 0.95;
+
+  double p, q, t, ff;
+  int i;
+  QColor rgb;
+
+  i = static_cast<int>(floor(hue * 6));
+  ff = (hue * 6) - i;
+
+  p = value * (1.0 - saturation);
+  q = value * (1.0 - (saturation * ff));
+  t = value * (1.0 - (saturation * (1.0 - ff)));
+
+  switch (i) {
+    case 0:
+      rgb.setRedF(value);
+      rgb.setGreenF(t);
+      rgb.setBlueF(p);
+      break;
+    case 1:
+      rgb.setRedF(q);
+      rgb.setGreenF(value);
+      rgb.setBlueF(p);
+      break;
+    case 2:
+      rgb.setRedF(p);
+      rgb.setGreenF(value);
+      rgb.setBlueF(t);
+      break;
+
+    case 3:
+      rgb.setRedF(p);
+      rgb.setGreenF(q);
+      rgb.setBlueF(value);
+      break;
+    case 4:
+      rgb.setRedF(t);
+      rgb.setGreenF(p);
+      rgb.setBlueF(value);
+      break;
+    case 5:
+    default:
+      rgb.setRedF(value);
+      rgb.setGreenF(p);
+      rgb.setBlueF(q);
+      break;
+  }
+
+  return rgb;
 }

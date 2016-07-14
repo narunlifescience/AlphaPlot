@@ -17,12 +17,16 @@
 
 */
 #include <QString>
+#include <QColor>
 
 class Utilities {
  public:
   static QString getOperatingSystem();
   static int getWordSizeOfOS();
+  static QColor getRandColorGoldenRatio();
 
  private:
   Utilities() {}
+  static double rgbRandomSeed_;
+  static int rgbCounter_;
 };

@@ -7,6 +7,7 @@
 #include <QVBoxLayout>
 
 #include "../core/IconLoader.h"
+#include "../core/Utilities.h"
 #include "../future/core/column/Column.h"
 #include "AxisRect2D.h"
 #include "Bar2D.h"
@@ -352,7 +353,6 @@ AxisRect2D *Layout2D::addAxisRectItem() {
 
 void Layout2D::removeAxisRectItem() {
   removeAxisRect(getAxisRectIndex(currentAxisRect_));
-  // removeAxisRect(layout_->elementCount() - 1);
 }
 
 void Layout2D::axisRectSetFocus(AxisRect2D *rect) {
