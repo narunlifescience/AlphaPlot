@@ -1091,8 +1091,6 @@ QMenu *Table::createContextMenu() const {
 }
 
 void Table::createActions() {
-  QIcon *icon_temp;
-
   // selection related actions
   action_cut_selection = new QAction(
       IconLoader::load("edit-cut", IconLoader::LightDark), tr("Cu&t"), this);
@@ -1129,13 +1127,11 @@ void Table::createActions() {
                   tr("Clea&r", "clear selection"), this);
   actionManager()->addAction(action_clear_selection, "clear_selection");
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/recalculate.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/recalculate.png"));
-  action_recalculate = new QAction(*icon_temp, tr("Recalculate"), this);
+  action_recalculate =
+      new QAction(IconLoader::load("edit-recalculate", IconLoader::LightDark),
+                  tr("Recalculate"), this);
   action_recalculate->setShortcut(tr("Ctrl+Return"));
   actionManager()->addAction(action_recalculate, "recalculate");
-  delete icon_temp;
 
   action_fill_row_numbers =
       new QAction(IconLoader::load("edit-row-number", IconLoader::LightDark),
@@ -1159,25 +1155,21 @@ void Table::createActions() {
                   this);  // show/hide column comments
   actionManager()->addAction(action_toggle_comments, "toggle_comments");
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/table_options.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/table_options.png"));
-  action_toggle_tabbar = new QAction(*icon_temp, QString("Show/Hide Controls"),
-                                     this);  // show/hide control tabs
+  action_toggle_tabbar =
+      new QAction(IconLoader::load("edit-unhide", IconLoader::LightDark),
+                  QString("Show/Hide Controls"),
+                  this);  // show/hide control tabs
   action_toggle_tabbar->setShortcut(tr("F12"));
   actionManager()->addAction(action_toggle_tabbar, "toggle_tabbar");
-  delete icon_temp;
 
   action_formula_mode = new QAction(tr("Formula Edit Mode"), this);
   action_formula_mode->setCheckable(true);
   actionManager()->addAction(action_formula_mode, "formula_mode");
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/select_all.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/select_all.png"));
-  action_select_all = new QAction(*icon_temp, tr("Select All"), this);
+  action_select_all = new QAction(
+      IconLoader::load("edit-table-select-all", IconLoader::LightDark),
+      tr("Select All"), this);
   actionManager()->addAction(action_select_all, "select_all");
-  delete icon_temp;
 
   action_add_column = new QAction(
       IconLoader::load("edit-table-insert-column-right", IconLoader::LightDark),
@@ -1185,19 +1177,14 @@ void Table::createActions() {
   action_add_column->setToolTip(tr("append a new column to the table"));
   actionManager()->addAction(action_add_column, "add_column");
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/clear_table.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/clear_table.png"));
-  action_clear_table = new QAction(*icon_temp, tr("Clear Table"), this);
+  action_clear_table =
+      new QAction(IconLoader::load("edit-table-clear", IconLoader::LightDark),
+                  tr("Clear Table"), this);
   actionManager()->addAction(action_clear_table, "clear_table");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/TeX.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/TeX.png"));
-  action_export_to_TeX = new QAction(*icon_temp, tr("Export to TeX..."), this);
+  action_export_to_TeX = new QAction(QIcon(QPixmap(":/16x16/TeX.png")),
+                                     tr("Export to TeX..."), this);
   actionManager()->addAction(action_export_to_TeX, "export_to_TeX");
-  delete icon_temp;
 
 #ifndef LEGACY_CODE_0_2_x
   action_clear_masks =
@@ -1233,12 +1220,10 @@ void Table::createActions() {
       tr("Remo&ve Columns"), this);
   actionManager()->addAction(action_remove_columns, "remove_columns");
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/clear_column.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/clear_column.png"));
-  action_clear_columns = new QAction(*icon_temp, tr("Clea&r Columns"), this);
+  action_clear_columns = new QAction(
+      IconLoader::load("edit-table-clear-column", IconLoader::LightDark),
+      tr("Clea&r Columns"), this);
   actionManager()->addAction(action_clear_columns, "clear_columns");
-  delete icon_temp;
 
   action_add_columns = new QAction(
       IconLoader::load("edit-table-insert-column-right", IconLoader::LightDark),
@@ -1292,51 +1277,37 @@ void Table::createActions() {
   action_statistics_columns->setToolTip(tr("statistics on columns"));
   actionManager()->addAction(action_statistics_columns, "statistics_columns");
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/column_format_type.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/column_format_type.png"));
-  action_type_format =
-      new QAction(*icon_temp, tr("Change &Type && Format"), this);
+  action_type_format = new QAction(
+      IconLoader::load("edit-change-type-format", IconLoader::LightDark),
+      tr("Change &Type && Format"), this);
   action_type_format->setShortcut(tr("Ctrl+Alt+O"));
   actionManager()->addAction(action_type_format, "type_format");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/column_description.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/column_description.png"));
-  action_edit_description =
-      new QAction(*icon_temp, tr("Edit Column &Description"), this);
+  action_edit_description = new QAction(
+      IconLoader::load("edit-column-description", IconLoader::LightDark),
+      tr("Edit Column &Description"), this);
   actionManager()->addAction(action_edit_description, "edit_description");
-  delete icon_temp;
 
   // row related actions
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/insert_row.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/insert_row.png"));
-  action_insert_rows = new QAction(*icon_temp, tr("&Insert Empty Rows"), this);
+  action_insert_rows = new QAction(
+      IconLoader::load("edit-table-insert-row", IconLoader::LightDark),
+      tr("&Insert Empty Rows"), this);
   actionManager()->addAction(action_insert_rows, "insert_rows");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/remove_row.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/remove_row.png"));
-  action_remove_rows = new QAction(*icon_temp, tr("Remo&ve Rows"), this);
+  action_remove_rows = new QAction(
+      IconLoader::load("edit-table-delete-row", IconLoader::LightDark),
+      tr("Remo&ve Rows"), this);
   actionManager()->addAction(action_remove_rows, "remove_rows");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/clear_row.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/clear_row.png"));
-  action_clear_rows = new QAction(*icon_temp, tr("Clea&r Rows"), this);
+  action_clear_rows = new QAction(
+      IconLoader::load("edit-table-clear-row", IconLoader::LightDark),
+      tr("Clea&r Rows"), this);
   actionManager()->addAction(action_clear_rows, "clear_rows");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/add_rows.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/add_rows.png"));
-  action_add_rows = new QAction(*icon_temp, tr("&Add Rows"), this);
+  action_add_rows =
+      new QAction(IconLoader::load("edit-table-add-row", IconLoader::LightDark),
+                  tr("&Add Rows"), this);
   actionManager()->addAction(action_add_rows, "add_rows");
-  delete icon_temp;
 
   action_statistics_rows =
       new QAction(IconLoader::load("table-row-sum", IconLoader::LightDark),
@@ -2306,10 +2277,15 @@ void Table::adjustActionNames() {
     action_name = tr("Show Comments");
   action_toggle_comments->setText(action_name);
 
-  if (d_view->isControlTabBarVisible())
+  if (d_view->isControlTabBarVisible()) {
     action_name = tr("Hide Controls");
-  else
+    action_toggle_tabbar->setIcon(
+        IconLoader::load("edit-hide", IconLoader::LightDark));
+  } else {
     action_name = tr("Show Controls");
+    action_toggle_tabbar->setIcon(
+        IconLoader::load("edit-unhide", IconLoader::LightDark));
+  }
   action_toggle_tabbar->setText(action_name);
 }
 

@@ -30,20 +30,20 @@
  *                                                                         *
  ***************************************************************************/
 #include "matrix/future_Matrix.h"
+#include "../core/IconLoader.h"
 #include "Matrix.h"
 #include "core/future_Folder.h"
-#include "matrixcommands.h"
 #include "lib/ActionManager.h"
 #include "lib/XmlStreamReader.h"
-#include "../core/IconLoader.h"
+#include "matrixcommands.h"
 
 #include <QtCore>
-#include <QtGui>
 #include <QtDebug>
+#include <QtGui>
 
-#include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_math.h>
@@ -496,8 +496,6 @@ QMenu *Matrix::createRowMenu(QMenu *append_to) {
 }
 
 void Matrix::createActions() {
-  QIcon *icon_temp;
-
   // selection related actions
   action_cut_selection = new QAction(
       IconLoader::load("edit-cut", IconLoader::LightDark), tr("Cu&t"), this);
@@ -525,36 +523,28 @@ void Matrix::createActions() {
   action_set_formula->setShortcut(tr("Alt+Q"));
   actionManager()->addAction(action_set_formula, "set_formula");
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/recalculate.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/recalculate.png"));
-  action_recalculate = new QAction(*icon_temp, tr("Recalculate"), this);
+  action_recalculate =
+      new QAction(IconLoader::load("edit-recalculate", IconLoader::LightDark),
+                  tr("Recalculate"), this);
   action_recalculate->setShortcut(tr("Ctrl+Return"));
   actionManager()->addAction(action_recalculate, "recalculate");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/table_options.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/table_options.png"));
-  action_toggle_tabbar = new QAction(*icon_temp, QString("Show/Hide Controls"),
-                                     this);  // show/hide control tabs
+  action_toggle_tabbar =
+      new QAction(IconLoader::load("edit-unhide", IconLoader::LightDark),
+                  QString("Show/Hide Controls"),
+                  this);  // show/hide control tabs
   action_toggle_tabbar->setShortcut(tr("F12"));
   actionManager()->addAction(action_toggle_tabbar, "toggle_tabbar");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/select_all.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/select_all.png"));
-  action_select_all = new QAction(*icon_temp, tr("Select All"), this);
+  action_select_all = new QAction(
+      IconLoader::load("edit-matrix-select-all", IconLoader::LightDark),
+      tr("Select All"), this);
   actionManager()->addAction(action_select_all, "select_all");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/clear_table.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/clear_table.png"));
-  action_clear_matrix = new QAction(*icon_temp, tr("Clear Matrix"), this);
+  action_clear_matrix =
+      new QAction(IconLoader::load("edit-matrix-clear", IconLoader::LightDark),
+                  tr("Clear Matrix"), this);
   actionManager()->addAction(action_clear_matrix, "clear_matrix");
-  delete icon_temp;
 
   action_go_to_cell =
       new QAction(IconLoader::load("goto-cell", IconLoader::LightDark),
@@ -575,8 +565,9 @@ void Matrix::createActions() {
       new QAction(tr("&Import Image", "import image as matrix"), this);
   actionManager()->addAction(action_import_image, "import_image");
 
-  action_duplicate = new QAction(IconLoader::load("edit-duplicate", IconLoader::LightDark),
-                                 tr("&Duplicate", "duplicate matrix"), this);
+  action_duplicate =
+      new QAction(IconLoader::load("edit-duplicate", IconLoader::LightDark),
+                  tr("&Duplicate", "duplicate matrix"), this);
   actionManager()->addAction(action_duplicate, "duplicate");
 
   action_dimensions_dialog = new QAction(
@@ -601,52 +592,36 @@ void Matrix::createActions() {
       tr("Remo&ve Columns"), this);
   actionManager()->addAction(action_remove_columns, "remove_columns");
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/clear_column.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/clear_column.png"));
-  action_clear_columns = new QAction(*icon_temp, tr("Clea&r Columns"), this);
+  action_clear_columns = new QAction(
+      IconLoader::load("edit-table-clear-column", IconLoader::LightDark),
+      tr("Clea&r Columns"), this);
   actionManager()->addAction(action_clear_columns, "clear_columns");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/add_columns.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/add_columns.png"));
-  action_add_columns = new QAction(*icon_temp, tr("&Add Columns"), this);
+  action_add_columns = new QAction(
+      IconLoader::load("edit-table-insert-column-right", IconLoader::LightDark),
+      tr("&Add Columns"), this);
   actionManager()->addAction(action_add_columns, "add_columns");
-  delete icon_temp;
 
   // row related actions
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/insert_row.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/insert_row.png"));
-  action_insert_rows = new QAction(*icon_temp, tr("&Insert Empty Rows"), this);
-  ;
+  action_insert_rows = new QAction(
+      IconLoader::load("edit-table-insert-row", IconLoader::LightDark),
+      tr("&Insert Empty Rows"), this);
   actionManager()->addAction(action_insert_rows, "insert_rows");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/remove_row.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/remove_row.png"));
-  action_remove_rows = new QAction(*icon_temp, tr("Remo&ve Rows"), this);
-  ;
+  action_remove_rows = new QAction(
+      IconLoader::load("edit-table-delete-row", IconLoader::LightDark),
+      tr("Remo&ve Rows"), this);
   actionManager()->addAction(action_remove_rows, "remove_rows");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/clear_row.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/clear_row.png"));
-  action_clear_rows = new QAction(*icon_temp, tr("Clea&r Rows"), this);
-  ;
+  action_clear_rows = new QAction(
+      IconLoader::load("edit-table-clear-row", IconLoader::LightDark),
+      tr("Clea&r Rows"), this);
   actionManager()->addAction(action_clear_rows, "clear_rows");
-  delete icon_temp;
 
-  icon_temp = new QIcon();
-  icon_temp->addPixmap(QPixmap(":/16x16/add_rows.png"));
-  icon_temp->addPixmap(QPixmap(":/32x32/add_rows.png"));
-  action_add_rows = new QAction(*icon_temp, tr("&Add Rows"), this);
-  ;
+  action_add_rows =
+      new QAction(IconLoader::load("edit-table-add-row", IconLoader::LightDark),
+                  tr("&Add Rows"), this);
   actionManager()->addAction(action_add_rows, "add_rows");
-  delete icon_temp;
 }
 
 void Matrix::connectActions() {
@@ -1271,10 +1246,15 @@ int Matrix::columnWidth(int col) const {
 }
 
 void Matrix::adjustTabBarAction(bool visible) {
-  if (visible)
+  if (visible) {
     action_toggle_tabbar->setText(tr("Hide Controls"));
-  else
+    action_toggle_tabbar->setIcon(
+        IconLoader::load("edit-hide", IconLoader::LightDark));
+  } else {
     action_toggle_tabbar->setText(tr("Show Controls"));
+    action_toggle_tabbar->setIcon(
+        IconLoader::load("edit-unhide", IconLoader::LightDark));
+  }
 }
 
 QVector<qreal> Matrix::columnCells(int col, int first_row, int last_row) {

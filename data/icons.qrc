@@ -377,6 +377,18 @@
     <file>icons/light/16/view-sort.png</file>
     <file>icons/light/16/dialog-ok-apply.png</file>
     <file>icons/light/16/alpha-project.png</file>
+    <file>icons/light/16/edit-column-description.png</file>
+    <file>icons/light/16/edit-matrix-clear.png</file>
+    <file>icons/light/16/edit-matrix-select-all.png</file>
+    <file>icons/light/16/edit-recalculate.png</file>
+    <file>icons/light/16/edit-table-add-row.png</file>
+    <file>icons/light/16/edit-table-clear.png</file>
+    <file>icons/light/16/edit-table-delete-row.png</file>
+    <file>icons/light/16/edit-table-insert-row.png</file>
+    <file>icons/light/16/edit-table-select-all.png</file>
+    <file>icons/light/16/edit-change-type-format.png</file>
+    <file>icons/light/16/edit-table-clear-column.png</file>
+    <file>icons/light/16/edit-table-clear-row.png</file>
     <file>icons/light/22/edit-copy.png</file>
     <file>icons/light/22/edit-cut.png</file>
     <file>icons/light/22/edit-paste.png</file>
@@ -483,6 +495,18 @@
     <file>icons/light/22/view-sort.png</file>
     <file>icons/light/22/dialog-ok-apply.png</file>
     <file>icons/light/22/alpha-project.png</file>
+    <file>icons/light/22/edit-column-description.png</file>
+    <file>icons/light/22/edit-matrix-clear.png</file>
+    <file>icons/light/22/edit-matrix-select-all.png</file>
+    <file>icons/light/22/edit-recalculate.png</file>
+    <file>icons/light/22/edit-table-add-row.png</file>
+    <file>icons/light/22/edit-table-clear.png</file>
+    <file>icons/light/22/edit-table-delete-row.png</file>
+    <file>icons/light/22/edit-table-insert-row.png</file>
+    <file>icons/light/22/edit-table-select-all.png</file>
+    <file>icons/light/22/edit-change-type-format.png</file>
+    <file>icons/light/22/edit-table-clear-column.png</file>
+    <file>icons/light/22/edit-table-clear-row.png</file>
     <file>icons/light/24/edit-copy.png</file>
     <file>icons/light/24/edit-cut.png</file>
     <file>icons/light/24/edit-paste.png</file>
@@ -588,6 +612,18 @@
     <file>icons/light/24/view-sort.png</file>
     <file>icons/light/24/dialog-ok-apply.png</file>
     <file>icons/light/24/alpha-project.png</file>
+    <file>icons/light/24/edit-column-description.png</file>
+    <file>icons/light/24/edit-matrix-clear.png</file>
+    <file>icons/light/24/edit-matrix-select-all.png</file>
+    <file>icons/light/24/edit-recalculate.png</file>
+    <file>icons/light/24/edit-table-add-row.png</file>
+    <file>icons/light/24/edit-table-clear.png</file>
+    <file>icons/light/24/edit-table-delete-row.png</file>
+    <file>icons/light/24/edit-table-insert-row.png</file>
+    <file>icons/light/24/edit-table-select-all.png</file>
+    <file>icons/light/24/edit-change-type-format.png</file>
+    <file>icons/light/24/edit-table-clear-column.png</file>
+    <file>icons/light/24/edit-table-clear-row.png</file>
     <file>icons/light/32/graph-x-error.png</file>
     <file>icons/light/32/graph-y-error.png</file>
     <file>icons/light/32/table-column-sum.png</file>
@@ -707,6 +743,18 @@
     <file>icons/dark/16/view-sort.png</file>
     <file>icons/dark/16/dialog-ok-apply.png</file>
     <file>icons/dark/16/alpha-project.png</file>
+    <file>icons/dark/16/edit-column-description.png</file>
+    <file>icons/dark/16/edit-matrix-clear.png</file>
+    <file>icons/dark/16/edit-matrix-select-all.png</file>
+    <file>icons/dark/16/edit-recalculate.png</file>
+    <file>icons/dark/16/edit-table-add-row.png</file>
+    <file>icons/dark/16/edit-table-clear.png</file>
+    <file>icons/dark/16/edit-table-delete-row.png</file>
+    <file>icons/dark/16/edit-table-insert-row.png</file>
+    <file>icons/dark/16/edit-table-select-all.png</file>
+    <file>icons/dark/16/edit-change-type-format.png</file>
+    <file>icons/dark/16/edit-table-clear-column.png</file>
+    <file>icons/dark/16/edit-table-clear-row.png</file>
     <file>icons/dark/22/edit-copy.png</file>
     <file>icons/dark/22/edit-cut.png</file>
     <file>icons/dark/22/edit-paste.png</file>
@@ -813,6 +861,18 @@
     <file>icons/dark/22/view-sort.png</file>
     <file>icons/dark/22/dialog-ok-apply.png</file>
     <file>icons/dark/22/alpha-project.png</file>
+    <file>icons/dark/22/edit-column-description.png</file>
+    <file>icons/dark/22/edit-matrix-clear.png</file>
+    <file>icons/dark/22/edit-matrix-select-all.png</file>
+    <file>icons/dark/22/edit-recalculate.png</file>
+    <file>icons/dark/22/edit-table-add-row.png</file>
+    <file>icons/dark/22/edit-table-clear.png</file>
+    <file>icons/dark/22/edit-table-delete-row.png</file>
+    <file>icons/dark/22/edit-table-insert-row.png</file>
+    <file>icons/dark/22/edit-table-select-all.png</file>
+    <file>icons/dark/22/edit-change-type-format.png</file>
+    <file>icons/dark/22/edit-table-clear-column.png</file>
+    <file>icons/dark/22/edit-table-clear-row.png</file>
     <file>icons/dark/24/edit-copy.png</file>
     <file>icons/dark/24/edit-cut.png</file>
     <file>icons/dark/24/edit-paste.png</file>
@@ -918,6 +978,18 @@
     <file>icons/dark/24/view-sort.png</file>
     <file>icons/dark/24/dialog-ok-apply.png</file>
     <file>icons/dark/24/alpha-project.png</file>
+    <file>icons/dark/24/edit-column-description.png</file>
+    <file>icons/dark/24/edit-matrix-clear.png</file>
+    <file>icons/dark/24/edit-matrix-select-all.png</file>
+    <file>icons/dark/24/edit-recalculate.png</file>
+    <file>icons/dark/24/edit-table-add-row.png</file>
+    <file>icons/dark/24/edit-table-clear.png</file>
+    <file>icons/dark/24/edit-table-delete-row.png</file>
+    <file>icons/dark/24/edit-table-insert-row.png</file>
+    <file>icons/dark/24/edit-table-select-all.png</file>
+    <file>icons/dark/24/edit-change-type-format.png</file>
+    <file>icons/dark/24/edit-table-clear-column.png</file>
+    <file>icons/dark/24/edit-table-clear-row.png</file>
     <file>icons/dark/32/graph-x-error.png</file>
     <file>icons/dark/32/graph-y-error.png</file>
     <file>icons/dark/32/table-column-sum.png</file>
