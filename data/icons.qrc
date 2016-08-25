@@ -389,6 +389,10 @@
     <file>icons/light/16/edit-change-type-format.png</file>
     <file>icons/light/16/edit-table-clear-column.png</file>
     <file>icons/light/16/edit-table-clear-row.png</file>
+    <file>icons/light/16/edit-hand.png</file>
+    <file>icons/light/16/edit-legend.png</file>
+    <file>icons/light/16/edit-tex.png</file>
+    <file>icons/light/16/edit-erasor.png</file>
     <file>icons/light/22/edit-copy.png</file>
     <file>icons/light/22/edit-cut.png</file>
     <file>icons/light/22/edit-paste.png</file>
@@ -507,6 +511,10 @@
     <file>icons/light/22/edit-change-type-format.png</file>
     <file>icons/light/22/edit-table-clear-column.png</file>
     <file>icons/light/22/edit-table-clear-row.png</file>
+    <file>icons/light/22/edit-hand.png</file>
+    <file>icons/light/22/edit-legend.png</file>
+    <file>icons/light/22/edit-tex.png</file>
+    <file>icons/light/22/edit-erasor.png</file>
     <file>icons/light/24/edit-copy.png</file>
     <file>icons/light/24/edit-cut.png</file>
     <file>icons/light/24/edit-paste.png</file>
@@ -624,6 +632,10 @@
     <file>icons/light/24/edit-change-type-format.png</file>
     <file>icons/light/24/edit-table-clear-column.png</file>
     <file>icons/light/24/edit-table-clear-row.png</file>
+    <file>icons/light/24/edit-hand.png</file>
+    <file>icons/light/24/edit-legend.png</file>
+    <file>icons/light/24/edit-tex.png</file>
+    <file>icons/light/24/edit-erasor.png</file>
     <file>icons/light/32/graph-x-error.png</file>
     <file>icons/light/32/graph-y-error.png</file>
     <file>icons/light/32/table-column-sum.png</file>
@@ -755,6 +767,10 @@
     <file>icons/dark/16/edit-change-type-format.png</file>
     <file>icons/dark/16/edit-table-clear-column.png</file>
     <file>icons/dark/16/edit-table-clear-row.png</file>
+    <file>icons/dark/16/edit-hand.png</file>
+    <file>icons/dark/16/edit-legend.png</file>
+    <file>icons/dark/16/edit-tex.png</file>
+    <file>icons/dark/16/edit-erasor.png</file>
     <file>icons/dark/22/edit-copy.png</file>
     <file>icons/dark/22/edit-cut.png</file>
     <file>icons/dark/22/edit-paste.png</file>
@@ -873,6 +889,10 @@
     <file>icons/dark/22/edit-change-type-format.png</file>
     <file>icons/dark/22/edit-table-clear-column.png</file>
     <file>icons/dark/22/edit-table-clear-row.png</file>
+    <file>icons/dark/22/edit-hand.png</file>
+    <file>icons/dark/22/edit-legend.png</file>
+    <file>icons/dark/22/edit-tex.png</file>
+    <file>icons/dark/22/edit-erasor.png</file>
     <file>icons/dark/24/edit-copy.png</file>
     <file>icons/dark/24/edit-cut.png</file>
     <file>icons/dark/24/edit-paste.png</file>
@@ -990,6 +1010,10 @@
     <file>icons/dark/24/edit-change-type-format.png</file>
     <file>icons/dark/24/edit-table-clear-column.png</file>
     <file>icons/dark/24/edit-table-clear-row.png</file>
+    <file>icons/dark/24/edit-hand.png</file>
+    <file>icons/dark/24/edit-legend.png</file>
+    <file>icons/dark/24/edit-tex.png</file>
+    <file>icons/dark/24/edit-erasor.png</file>
     <file>icons/dark/32/graph-x-error.png</file>
     <file>icons/dark/32/graph-y-error.png</file>
     <file>icons/dark/32/table-column-sum.png</file>

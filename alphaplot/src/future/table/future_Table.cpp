@@ -1182,8 +1182,9 @@ void Table::createActions() {
                   tr("Clear Table"), this);
   actionManager()->addAction(action_clear_table, "clear_table");
 
-  action_export_to_TeX = new QAction(QIcon(QPixmap(":/16x16/TeX.png")),
-                                     tr("Export to TeX..."), this);
+  action_export_to_TeX =
+      new QAction(IconLoader::load("edit-tex", IconLoader::LightDark),
+                  tr("Export to TeX..."), this);
   actionManager()->addAction(action_export_to_TeX, "export_to_TeX");
 
 #ifndef LEGACY_CODE_0_2_x

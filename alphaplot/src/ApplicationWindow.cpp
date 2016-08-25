@@ -467,7 +467,8 @@ ApplicationWindow::ApplicationWindow()
       IconLoader::load("clock", IconLoader::LightDark));
   ui_->actionAddImage->setIcon(
       IconLoader::load("view-image", IconLoader::LightDark));
-  ui_->actionNewLegend->setIcon(QIcon(QPixmap(":/legend.xpm")));
+  ui_->actionNewLegend->setIcon(
+      IconLoader::load("edit-legend", IconLoader::LightDark));
   ui_->actionAutomaticLayout->setIcon(
       IconLoader::load("auto-layout", IconLoader::LightDark));
   ui_->actionAddLayer->setIcon(
@@ -491,8 +492,10 @@ ApplicationWindow::ApplicationWindow()
       IconLoader::load("edit-select-data", IconLoader::LightDark));
   ui_->actionGraphSelectDataRange->setIcon(
       IconLoader::load("edit-data-range", IconLoader::LightDark));
-  ui_->actionGraphMoveDataPoints->setIcon(QIcon(QPixmap(":/hand.xpm")));
-  ui_->actionGraphRemoveBadDataPoints->setIcon(QIcon(QPixmap(":/gomme.xpm")));
+  ui_->actionGraphMoveDataPoints->setIcon(
+      IconLoader::load("edit-hand", IconLoader::LightDark));
+  ui_->actionGraphRemoveBadDataPoints->setIcon(
+      IconLoader::load("edit-erasor", IconLoader::LightDark));
   // Table Analysis menu
   ui_->actionStatisticsOnColumns->setIcon(
       IconLoader::load("table-column-sum", IconLoader::LightDark));
@@ -11417,13 +11420,13 @@ void ApplicationWindow::windowProperties() {
 
   properties.name = window->name();
   if (window->status() == MyWidget::Normal) {
-      properties.status = tr("Normal");
+    properties.status = tr("Normal");
   } else if (window->status() == MyWidget::Hidden) {
-      properties.status = tr("Hidden");
+    properties.status = tr("Hidden");
   } else if (window->status() == MyWidget::Maximized) {
-      properties.status = tr("Maximized");
+    properties.status = tr("Maximized");
   } else if (window->status() == MyWidget::Minimized) {
-      properties.status = tr("Minimized");
+    properties.status = tr("Minimized");
   }
   properties.path = current_folder->path();
   properties.created = window->birthDate();
