@@ -988,36 +988,36 @@ void TableView::moveFloatingButton() {
 void TableView::setColColorCode(QPainter *painter, QRect &rect, int col) const {
   // color customization can be easily done(later)
   static QColor color;
-  static const int thickness = 2;
+  static const int thickness = 0;
   static const int xPadding = 4;
-  static const int yPadding = (thickness / 2) + 2;
+  static const int yPadding = (thickness / 2) + 6;
 
   switch (d_table->column(col)->plotDesignation()) {
     case AlphaPlot::X:
-      color = QColor(0, 172, 109);
+      color = AlphaPlot::xColorCode;
       break;
     case AlphaPlot::Y:
-      color = QColor(204, 140, 91);
+      color = AlphaPlot::yColorCode;
       break;
     case AlphaPlot::Z:
-      color = QColor(174, 129, 255);
+      color = AlphaPlot::zColorCode;
       break;
     case AlphaPlot::xErr:
-      color = Qt::red;
+      color = AlphaPlot::xErrColorCode;
       break;
     case AlphaPlot::yErr:
-      color = Qt::red;
+      color = AlphaPlot::yErrColorCode;
       break;
     case AlphaPlot::noDesignation:
-      color = Qt::gray;
+      color = AlphaPlot::noneColorCode;
       break;
   }
-  painter->restore();
-  painter->setPen(QPen(color, thickness, Qt::SolidLine));
+
+  painter->setPen(QPen(color, thickness, Qt::SolidLine, Qt::RoundCap));
   painter->drawLine(
       rect.bottomLeft().x() + xPadding, rect.bottomLeft().y() - yPadding,
       rect.bottomRight().x() - xPadding, rect.bottomRight().y() - yPadding);
-  painter->save();
+  //drawSpikinessData(painter, rect, col);
 }
 
 void TableView::drawSpikinessData(QPainter *painter, QRect &rect,

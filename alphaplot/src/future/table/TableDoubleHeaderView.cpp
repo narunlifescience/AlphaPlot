@@ -30,9 +30,11 @@
 
 #include "TableDoubleHeaderView.h"
 #include <QApplication>
+#include <QDebug>
 #include <QEvent>
 #include <QLayout>
-//#include <QMouseEvent>
+#include <QPainter>
+#include "../../globals.h"
 #include "TableCommentsHeaderModel.h"
 
 TableCommentsHeaderView::TableCommentsHeaderView(QWidget *parent)
@@ -55,6 +57,13 @@ void TableCommentsHeaderView::setModel(QAbstractItemModel *model) {
   delete old_model;
 }
 
+QSize TableCommentsHeaderView::sizeHint() const {
+  QSize comment_size;
+  comment_size = QHeaderView::sizeHint();
+  comment_size.setHeight(AlphaPlot::commentHeaderHeight);
+  return comment_size;
+}
+
 TableDoubleHeaderView::TableDoubleHeaderView(QWidget *parent)
     : QHeaderView(Qt::Horizontal, parent) {
   setDefaultAlignment(Qt::AlignLeft | Qt::AlignTop);
@@ -68,9 +77,12 @@ TableDoubleHeaderView::~TableDoubleHeaderView() { delete d_slave; }
 QSize TableDoubleHeaderView::sizeHint() const {
   QSize master_size, slave_size;
   master_size = QHeaderView::sizeHint();
+  master_size.setHeight(AlphaPlot::headerHeight);
   slave_size = d_slave->sizeHint();
-  if (d_show_comments)
+  if (d_show_comments) {
     master_size.setHeight(master_size.height() + slave_size.height());
+  }
+
   return master_size;
 }
 
@@ -85,13 +97,16 @@ void TableDoubleHeaderView::setModel(QAbstractItemModel *model) {
 void TableDoubleHeaderView::paintSection(QPainter *painter, const QRect &rect,
                                          int logicalIndex) const {
   QRect master_rect = rect;
+  painter->save();
   if (d_show_comments)
     master_rect = rect.adjusted(0, 0, 0, -d_slave->sizeHint().height());
   QHeaderView::paintSection(painter, master_rect, logicalIndex);
-  if (d_show_comments && rect.height() > QHeaderView::sizeHint().height()) {
-    QRect slave_rect = rect.adjusted(0, QHeaderView::sizeHint().height(), 0, 0);
+  if (d_show_comments && rect.height() > master_rect.height()) {
+    QRect slave_rect = rect.adjusted(0, master_rect.height(), 0, 0);
     d_slave->paintSection(painter, slave_rect, logicalIndex);
   }
+  painter->restore();
+
   // Color code column decorations
   emit setColColorCode(painter, master_rect, logicalIndex);
 }

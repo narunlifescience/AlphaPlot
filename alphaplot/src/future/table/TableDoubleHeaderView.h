@@ -52,6 +52,7 @@ class TableCommentsHeaderView : public QHeaderView {
   virtual ~TableCommentsHeaderView();
 
   virtual void setModel(QAbstractItemModel *model);
+  virtual QSize sizeHint() const;
 
   friend class TableDoubleHeaderView;  // access to paintSection (protected)
 };
@@ -72,6 +73,7 @@ class TableDoubleHeaderView : public QHeaderView {
 
  private:
   TableCommentsHeaderView *d_slave;
+  static int tableHeaderHeight;
 
  public:
   TableDoubleHeaderView(QWidget *parent = 0);
@@ -84,8 +86,8 @@ class TableDoubleHeaderView : public QHeaderView {
   //! Return whether comments are show currently
   bool areCommentsShown() const;
 
-  // protected:
-  // void mouseMoveEvent(QMouseEvent *event);
+ protected:
+  //void mouseMoveEvent(QMouseEvent *event);
 
  signals:
   void setColColorCode(QPainter *painter, QRect &rect, int col) const;

@@ -33,6 +33,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QColor>
 
 //! Definition of global constants and enums
 /**
@@ -56,6 +57,18 @@ class AlphaPlot : public QObject {
   static const char* forum_Uri;
   static const char* bugreport_Uri;
   static const char* download_Uri;
+
+  // Table header/comment height
+  static int headerHeight;
+  static int commentHeaderHeight;
+
+  // Table header color codes
+  static QColor xColorCode;
+  static QColor yColorCode;
+  static QColor zColorCode;
+  static QColor xErrColorCode;
+  static QColor yErrColorCode;
+  static QColor noneColorCode;
 
   //! Types of plot designations
   enum PlotDesignation {
