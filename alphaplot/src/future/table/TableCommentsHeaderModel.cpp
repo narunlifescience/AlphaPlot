@@ -85,3 +85,7 @@ int TableCommentsHeaderModel::columnCount(const QModelIndex &parent) const {
   Q_UNUSED(parent)
   return d_table_model->columnCount();
 }
+
+QColor TableCommentsHeaderModel::headerDataColorCode(int logicalIndex) const {
+  return d_table_model->headerDataColorCode(logicalIndex);
+}

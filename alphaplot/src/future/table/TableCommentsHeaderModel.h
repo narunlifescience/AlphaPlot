@@ -54,6 +54,7 @@ class TableCommentsHeaderModel : public QAbstractTableModel {
   int rowCount(const QModelIndex &parent = QModelIndex()) const;
   int columnCount(const QModelIndex &parent = QModelIndex()) const;
   //@}
+  QColor headerDataColorCode(int logicalIndex) const;
 
  private:
   TableModel *d_table_model;

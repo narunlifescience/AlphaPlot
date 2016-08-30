@@ -113,9 +113,6 @@ void TableView::init() {
   d_horizontal_header->setClickable(true);
   d_horizontal_header->setHighlightSections(true);
   d_view_widget->setHorizontalHeader(d_horizontal_header);
-  connect(d_horizontal_header,
-          SIGNAL(setColColorCode(QPainter *, QRect &, int)),
-          SLOT(setColColorCode(QPainter *, QRect &, int)));
 
   // Floating show hide button.
   d_hide_button = new QToolButton(this);
@@ -983,41 +980,6 @@ void TableView::moveFloatingButton() {
         this->width() - (d_hide_button->width() + verticalScrollWidth),
         d_control_tabs->pos().y() + 60);
   }
-}
-
-void TableView::setColColorCode(QPainter *painter, QRect &rect, int col) const {
-  // color customization can be easily done(later)
-  static QColor color;
-  static const int thickness = 0;
-  static const int xPadding = 4;
-  static const int yPadding = (thickness / 2) + 6;
-
-  switch (d_table->column(col)->plotDesignation()) {
-    case AlphaPlot::X:
-      color = AlphaPlot::xColorCode;
-      break;
-    case AlphaPlot::Y:
-      color = AlphaPlot::yColorCode;
-      break;
-    case AlphaPlot::Z:
-      color = AlphaPlot::zColorCode;
-      break;
-    case AlphaPlot::xErr:
-      color = AlphaPlot::xErrColorCode;
-      break;
-    case AlphaPlot::yErr:
-      color = AlphaPlot::yErrColorCode;
-      break;
-    case AlphaPlot::noDesignation:
-      color = AlphaPlot::noneColorCode;
-      break;
-  }
-
-  painter->setPen(QPen(color, thickness, Qt::SolidLine, Qt::RoundCap));
-  painter->drawLine(
-      rect.bottomLeft().x() + xPadding, rect.bottomLeft().y() - yPadding,
-      rect.bottomRight().x() - xPadding, rect.bottomRight().y() - yPadding);
-  //drawSpikinessData(painter, rect, col);
 }
 
 void TableView::drawSpikinessData(QPainter *painter, QRect &rect,

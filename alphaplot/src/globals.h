@@ -70,6 +70,11 @@ class AlphaPlot : public QObject {
   static QColor yErrColorCode;
   static QColor noneColorCode;
 
+  // Table header color code geometry
+  static int colorCodeThickness;
+  static int colorCodeXPadding;
+  static int colorCodeYPadding;
+
   //! Types of plot designations
   enum PlotDesignation {
     noDesignation = 0,  //!< no plot designation

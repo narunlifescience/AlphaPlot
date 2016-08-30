@@ -150,6 +150,8 @@ class Column : public AbstractColumn {
   void removeRows(int first, int count);
   //! Return the column plot designation
   AlphaPlot::PlotDesignation plotDesignation() const;
+  //! Return the column plot designation color
+  QColor plotDesignationColor() const;
   //! Set the column plot designation
   void setPlotDesignation(AlphaPlot::PlotDesignation pd);
   //! Clear the whole column

@@ -28,13 +28,13 @@
  ***************************************************************************/
 
 #include "core/column/Column.h"
-#include "core/column/ColumnPrivate.h"
-#include "core/column/columncommands.h"
-#include "lib/XmlStreamReader.h"
-#include "core/IconLoader.h"
 #include <QIcon>
 #include <QXmlStreamWriter>
 #include <QtDebug>
+#include "core/IconLoader.h"
+#include "core/column/ColumnPrivate.h"
+#include "core/column/columncommands.h"
+#include "lib/XmlStreamReader.h"
 
 Column::Column(const QString& name, AlphaPlot::ColumnMode mode)
     : AbstractColumn(name) {
@@ -49,8 +49,8 @@ Column::Column(const QString& name, AlphaPlot::ColumnMode mode)
 template <>
 void Column::initPrivate(std::unique_ptr<QVector<qreal> > d,
                          IntervalAttribute<bool> v) {
-  d_column_private = new Private(this, AlphaPlot::TypeDouble, AlphaPlot::Numeric,
-                                 d.release(), v);
+  d_column_private = new Private(this, AlphaPlot::TypeDouble,
+                                 AlphaPlot::Numeric, d.release(), v);
 }
 
 template <>
@@ -224,9 +224,11 @@ QIcon Column::icon() const {
     case AlphaPlot::TypeString:
       return IconLoader::load("text-type", IconLoader::LightDark);
     case AlphaPlot::TypeDay:
-      return QIcon(IconLoader::load("view-calendar-day", IconLoader::LightDark));
+      return QIcon(
+          IconLoader::load("view-calendar-day", IconLoader::LightDark));
     case AlphaPlot::TypeMonth:
-      return QIcon(IconLoader::load("view-calendar-month", IconLoader::LightDark));
+      return QIcon(
+          IconLoader::load("view-calendar-month", IconLoader::LightDark));
     case AlphaPlot::TypeDateTime:
       return QIcon(IconLoader::load("view-calendar", IconLoader::LightDark));
   }
@@ -507,6 +509,10 @@ int Column::rowCount() const { return d_column_private->rowCount(); }
 
 AlphaPlot::PlotDesignation Column::plotDesignation() const {
   return d_column_private->plotDesignation();
+}
+
+QColor Column::plotDesignationColor() const {
+  return d_column_private->plotDesignationColor();
 }
 
 AbstractSimpleFilter* Column::outputFilter() const {

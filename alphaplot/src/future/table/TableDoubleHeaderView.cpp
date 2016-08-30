@@ -108,7 +108,13 @@ void TableDoubleHeaderView::paintSection(QPainter *painter, const QRect &rect,
   painter->restore();
 
   // Color code column decorations
-  emit setColColorCode(painter, master_rect, logicalIndex);
+  painter->setPen(QPen(
+      static_cast<TableModel *>(model())->headerDataColorCode(logicalIndex),
+      AlphaPlot::colorCodeThickness, Qt::SolidLine, Qt::RoundCap));
+  painter->drawLine(rect.bottomLeft().x() + AlphaPlot::colorCodeXPadding,
+                    rect.bottomLeft().y() - AlphaPlot::colorCodeYPadding,
+                    rect.bottomRight().x() - AlphaPlot::colorCodeXPadding,
+                    rect.bottomRight().y() - AlphaPlot::colorCodeYPadding);
 }
 
 bool TableDoubleHeaderView::areCommentsShown() const { return d_show_comments; }

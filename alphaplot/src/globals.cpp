@@ -59,6 +59,10 @@ QColor AlphaPlot::xErrColorCode = QColor(255, 0, 0, 100);
 QColor AlphaPlot::yErrColorCode = QColor(255, 0, 0, 100);
 QColor AlphaPlot::noneColorCode = QColor(150, 150, 150, 100);
 
+int AlphaPlot::colorCodeThickness = 0;
+int AlphaPlot::colorCodeXPadding = 4;
+int AlphaPlot::colorCodeYPadding = (AlphaPlot::colorCodeThickness / 2) + 6;
+
 int AlphaPlot::version() { return AlphaPlot_versionNo; }
 
 QString AlphaPlot::schemaVersion() {

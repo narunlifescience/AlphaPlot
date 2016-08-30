@@ -142,8 +142,14 @@ class Column::Private {
   AlphaPlot::PlotDesignation plotDesignation() const {
     return d_plot_designation;
   }
+  //! Return the column plot designation color
+  QColor plotDesignationColor() const {
+    return d_plot_designation_color;
+  }
   //! Set the column plot designation
   void setPlotDesignation(AlphaPlot::PlotDesignation pd);
+  //! Set the column plot designation
+  void setPlotDesignationColor(AlphaPlot::PlotDesignation pd);
   //! Clear the whole column
   void clear();
   //! Return the data pointer
@@ -336,6 +342,7 @@ class Column::Private {
   IntervalAttribute<QString> d_formulas;
   //! The plot designation
   AlphaPlot::PlotDesignation d_plot_designation;
+  QColor d_plot_designation_color;
   //! The owner column
   Column* d_owner;
   //@}

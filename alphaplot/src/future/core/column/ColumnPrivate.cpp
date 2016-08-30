@@ -28,25 +28,25 @@
  ***************************************************************************/
 
 #include "core/column/ColumnPrivate.h"
-#include "core/column/Column.h"
-#include "core/AbstractSimpleFilter.h"
-#include "core/datatypes/SimpleCopyThroughFilter.h"
-#include "core/datatypes/String2DoubleFilter.h"
-#include "core/datatypes/Double2StringFilter.h"
-#include "core/datatypes/Double2DateTimeFilter.h"
-#include "core/datatypes/Double2MonthFilter.h"
-#include "core/datatypes/Double2DayOfWeekFilter.h"
-#include "core/datatypes/String2DateTimeFilter.h"
-#include "core/datatypes/DateTime2StringFilter.h"
-#include "core/datatypes/String2MonthFilter.h"
-#include "core/datatypes/String2DayOfWeekFilter.h"
-#include "core/datatypes/DateTime2DoubleFilter.h"
-#include "core/datatypes/DayOfWeek2DoubleFilter.h"
-#include "core/datatypes/Month2DoubleFilter.h"
+#include <QSettings>
 #include <QString>
 #include <QStringList>
-#include <QSettings>
 #include <QtDebug>
+#include "core/AbstractSimpleFilter.h"
+#include "core/column/Column.h"
+#include "core/datatypes/DateTime2DoubleFilter.h"
+#include "core/datatypes/DateTime2StringFilter.h"
+#include "core/datatypes/DayOfWeek2DoubleFilter.h"
+#include "core/datatypes/Double2DateTimeFilter.h"
+#include "core/datatypes/Double2DayOfWeekFilter.h"
+#include "core/datatypes/Double2MonthFilter.h"
+#include "core/datatypes/Double2StringFilter.h"
+#include "core/datatypes/Month2DoubleFilter.h"
+#include "core/datatypes/SimpleCopyThroughFilter.h"
+#include "core/datatypes/String2DateTimeFilter.h"
+#include "core/datatypes/String2DayOfWeekFilter.h"
+#include "core/datatypes/String2DoubleFilter.h"
+#include "core/datatypes/String2MonthFilter.h"
 
 Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
     : d_owner(owner) {
@@ -66,9 +66,8 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
         static_cast<Double2StringFilter*>(d_output_filter)
             ->setNumDigits(settings.value("DecimalDigits", 14).toInt());
         static_cast<Double2StringFilter*>(d_output_filter)
-            ->setNumericFormat(settings.value("DefaultNumericFormat", 'f')
-                                   .toChar()
-                                   .toAscii());
+            ->setNumericFormat(
+                settings.value("DefaultNumericFormat", 'f').toChar().toAscii());
       }
 #endif
       connect(static_cast<Double2StringFilter*>(d_output_filter),
@@ -111,6 +110,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
   }  // switch(mode)
 
   d_plot_designation = AlphaPlot::noDesignation;
+  d_plot_designation_color = AlphaPlot::noneColorCode;
   d_input_filter->setName("InputFilter");
   d_output_filter->setName("OutputFilter");
 }
@@ -136,9 +136,8 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnDataType type,
         static_cast<Double2StringFilter*>(d_output_filter)
             ->setNumDigits(settings.value("DecimalDigits", 14).toInt());
         static_cast<Double2StringFilter*>(d_output_filter)
-            ->setNumericFormat(settings.value("DefaultNumericFormat", 'f')
-                                   .toChar()
-                                   .toAscii());
+            ->setNumericFormat(
+                settings.value("DefaultNumericFormat", 'f').toChar().toAscii());
       }
 #endif
       connect(static_cast<Double2StringFilter*>(d_output_filter),
@@ -171,6 +170,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnDataType type,
   }  // switch(mode)
 
   d_plot_designation = AlphaPlot::noDesignation;
+  d_plot_designation_color = AlphaPlot::noneColorCode;
   d_input_filter->setName("InputFilter");
   d_output_filter->setName("OutputFilter");
 }
@@ -367,9 +367,8 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
         static_cast<Double2StringFilter*>(new_out_filter)
             ->setNumDigits(settings.value("DecimalDigits", 14).toInt());
         static_cast<Double2StringFilter*>(new_out_filter)
-            ->setNumericFormat(settings.value("DefaultNumericFormat", 'f')
-                                   .toChar()
-                                   .toAscii());
+            ->setNumericFormat(
+                settings.value("DefaultNumericFormat", 'f').toChar().toAscii());
       }
 #endif
       connect(static_cast<Double2StringFilter*>(new_out_filter),
@@ -425,7 +424,8 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
 }
 
 void Column::Private::replaceModeData(AlphaPlot::ColumnMode mode,
-                                      AlphaPlot::ColumnDataType type, void* data,
+                                      AlphaPlot::ColumnDataType type,
+                                      void* data,
                                       AbstractSimpleFilter* in_filter,
                                       AbstractSimpleFilter* out_filter,
                                       IntervalAttribute<bool> validity) {
@@ -508,8 +508,8 @@ bool Column::Private::copy(const AbstractColumn* other) {
     case AlphaPlot::TypeDay:
     case AlphaPlot::TypeMonth: {
       for (int i = 0; i < num_rows; i++)
-        static_cast<QList<QDateTime>*>(d_data)
-            ->replace(i, other->dateTimeAt(i));
+        static_cast<QList<QDateTime>*>(d_data)->replace(i,
+                                                        other->dateTimeAt(i));
       break;
     }
   }
@@ -541,15 +541,15 @@ bool Column::Private::copy(const AbstractColumn* source, int source_start,
     }
     case AlphaPlot::TypeString:
       for (int i = 0; i < num_rows; i++)
-        static_cast<QStringList*>(d_data)
-            ->replace(dest_start + i, source->textAt(source_start + i));
+        static_cast<QStringList*>(d_data)->replace(
+            dest_start + i, source->textAt(source_start + i));
       break;
     case AlphaPlot::TypeDateTime:
     case AlphaPlot::TypeDay:
     case AlphaPlot::TypeMonth:
       for (int i = 0; i < num_rows; i++)
-        static_cast<QList<QDateTime>*>(d_data)
-            ->replace(dest_start + i, source->dateTimeAt(source_start + i));
+        static_cast<QList<QDateTime>*>(d_data)->replace(
+            dest_start + i, source->dateTimeAt(source_start + i));
       break;
   }
   // copy the validity information
@@ -584,8 +584,8 @@ bool Column::Private::copy(const Private* other) {
     case AlphaPlot::TypeDay:
     case AlphaPlot::TypeMonth: {
       for (int i = 0; i < num_rows; i++)
-        static_cast<QList<QDateTime>*>(d_data)
-            ->replace(i, other->dateTimeAt(i));
+        static_cast<QList<QDateTime>*>(d_data)->replace(i,
+                                                        other->dateTimeAt(i));
       break;
     }
   }
@@ -617,15 +617,15 @@ bool Column::Private::copy(const Private* source, int source_start,
     }
     case AlphaPlot::TypeString:
       for (int i = 0; i < num_rows; i++)
-        static_cast<QStringList*>(d_data)
-            ->replace(dest_start + i, source->textAt(source_start + i));
+        static_cast<QStringList*>(d_data)->replace(
+            dest_start + i, source->textAt(source_start + i));
       break;
     case AlphaPlot::TypeDateTime:
     case AlphaPlot::TypeDay:
     case AlphaPlot::TypeMonth:
       for (int i = 0; i < num_rows; i++)
-        static_cast<QList<QDateTime>*>(d_data)
-            ->replace(dest_start + i, source->dateTimeAt(source_start + i));
+        static_cast<QList<QDateTime>*>(d_data)->replace(
+            dest_start + i, source->dateTimeAt(source_start + i));
       break;
   }
   // copy the validity information
@@ -750,7 +750,31 @@ void Column::Private::removeRows(int first, int count) {
 void Column::Private::setPlotDesignation(AlphaPlot::PlotDesignation pd) {
   emit d_owner->plotDesignationAboutToChange(d_owner);
   d_plot_designation = pd;
+  setPlotDesignationColor(pd);
   emit d_owner->plotDesignationChanged(d_owner);
+}
+
+void Column::Private::setPlotDesignationColor(AlphaPlot::PlotDesignation pd) {
+  switch (pd) {
+    case AlphaPlot::X:
+      d_plot_designation_color = AlphaPlot::xColorCode;
+      break;
+    case AlphaPlot::Y:
+      d_plot_designation_color = AlphaPlot::yColorCode;
+      break;
+    case AlphaPlot::Z:
+      d_plot_designation_color = AlphaPlot::zColorCode;
+      break;
+    case AlphaPlot::xErr:
+      d_plot_designation_color = AlphaPlot::xErrColorCode;
+      break;
+    case AlphaPlot::yErr:
+      d_plot_designation_color = AlphaPlot::yErrColorCode;
+      break;
+    case AlphaPlot::noDesignation:
+      d_plot_designation_color = AlphaPlot::noneColorCode;
+      break;
+  }
 }
 
 void Column::Private::clear() { removeRows(0, rowCount()); }
@@ -886,8 +910,8 @@ void Column::Private::replaceDateTimes(int first,
   if (first + num_rows > rowCount()) resizeTo(first + num_rows);
 
   for (int i = 0; i < num_rows; i++) {
-    static_cast<QList<QDateTime>*>(d_data)
-        ->replace(first + i, new_values.at(i));
+    static_cast<QList<QDateTime>*>(d_data)->replace(first + i,
+                                                    new_values.at(i));
     d_validity.setValue(i, !new_values.at(i).isValid());
   }
   emit d_owner->dataChanged(d_owner);

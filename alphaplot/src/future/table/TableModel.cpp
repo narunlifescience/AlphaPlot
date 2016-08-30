@@ -175,6 +175,10 @@ QModelIndex TableModel::parent(const QModelIndex &child) const {
   return QModelIndex();
 }
 
+QColor TableModel::headerDataColorCode(int logicalIndex) const {
+  return d_table->column(logicalIndex)->plotDesignationColor();
+}
+
 void TableModel::handleColumnsAboutToBeInserted(int before,
                                                 QList<Column *> cols) {
   int count = cols.count();

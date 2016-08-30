@@ -83,7 +83,8 @@ class TableModel : public QAbstractItemModel {
   QModelIndex index(int row, int column,
                     const QModelIndex &parent = QModelIndex()) const;
   QModelIndex parent(const QModelIndex &child) const;
-//@}
+  //@}
+  QColor headerDataColorCode(int logicalIndex) const;
 
 #ifdef LEGACY_CODE_0_2_x
   bool isReadOnly() const { return d_read_only; }

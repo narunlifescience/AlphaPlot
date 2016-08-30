@@ -130,7 +130,7 @@ class AbstractColumn : public AbstractAspect {
     Q_UNUSED(dest_start)
     Q_UNUSED(num_rows)
     return false;
-  };
+  }
 
   //! Return the data vector size
   virtual int rowCount() const = 0;
@@ -144,6 +144,7 @@ class AbstractColumn : public AbstractAspect {
   }
   //! Return the column plot designation
   virtual AlphaPlot::PlotDesignation plotDesignation() const = 0;
+  //virtual QColor plotDesignationColor() const = 0;
   //! Set the column plot designation
   // virtual void setPlotDesignation(AlphaPlot::PlotDesignation pd) {
   // Q_UNUSED(pd) };

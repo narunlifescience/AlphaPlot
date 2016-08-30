@@ -89,9 +89,6 @@ class TableDoubleHeaderView : public QHeaderView {
  protected:
   //void mouseMoveEvent(QMouseEvent *event);
 
- signals:
-  void setColColorCode(QPainter *painter, QRect &rect, int col) const;
-
  public slots:
   // adjust geometry and repaint header
   void refresh();
