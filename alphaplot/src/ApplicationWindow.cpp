@@ -196,7 +196,10 @@ ApplicationWindow::ApplicationWindow()
       lastCopiedLayer(0),
       graphToolsGroup(new QActionGroup(this)),
       d_plot_mapper(new QSignalMapper(this)),
-      statusBarInfo(new QLabel(this)) {
+      statusBarInfo(new QLabel(this)),
+      actionShowProjectExplorer(new QAction(this)),
+      actionShowResultsLog(new QAction(this)),
+      actionShowConsole(new QAction(this)) {
   ui_->setupUi(this);
 
   // Initialize scripting environment.
@@ -215,13 +218,12 @@ ApplicationWindow::ApplicationWindow()
   setWindowTitle("AlphaPlot - " + tr("untitled"));
   QPixmapCache::setCacheLimit(20 * QPixmapCache::cacheLimit());
 
-  // get title bar widget of dock widgets
-  emptyTitleBar[0] = new QWidget();
-  emptyTitleBar[1] = new QWidget();
-  emptyTitleBar[2] = new QWidget();
-  consoleWindowTitleBar = consoleWindow->titleBarWidget();
-  logWindowTitleBar = ui_->logWindow->titleBarWidget();
-  explorerWindowTitleBar = ui_->explorerWindow->titleBarWidget();
+  // Show/hide toggle Project Explorer, Result Log & Scripting Console
+  actionShowProjectExplorer = ui_->explorerWindow->toggleViewAction();
+  actionShowResultsLog = ui_->logWindow->toggleViewAction();
+#ifdef SCRIPTING_CONSOLE
+  actionShowConsole = consoleWindow->toggleViewAction();
+#endif
 
   // Initiate Fonts
   QString family = appFont.family();
@@ -372,18 +374,16 @@ ApplicationWindow::ApplicationWindow()
   ui_->actionPreferences->setIcon(
       IconLoader::load("edit-preference", IconLoader::LightDark));
   // View menu
-  ui_->actionLockToolbars->setIcon(
-      IconLoader::load("unlock", IconLoader::LightDark));
-  ui_->actionLockDockWindows->setIcon(
-      IconLoader::load("unlock", IconLoader::LightDark));
-  ui_->actionShowExplorer->setIcon(
-      IconLoader::load("folder-explorer", IconLoader::LightDark));
-  ui_->actionShowResultsLog->setIcon(
-      IconLoader::load("view-console", IconLoader::LightDark));
-  ui_->actionShowConsole->setIcon(QIcon());
-  ui_->actionShowUndoRedoHistory->setIcon(QIcon());
   ui_->actionPlotWizard->setIcon(
       IconLoader::load("tools-wizard", IconLoader::LightDark));
+  ui_->actionShowUndoRedoHistory->setIcon(QIcon());
+  ui_->actionLockToolbars->setIcon(
+      IconLoader::load("unlock", IconLoader::LightDark));
+  actionShowProjectExplorer->setIcon(
+      IconLoader::load("folder-explorer", IconLoader::LightDark));
+  actionShowResultsLog->setIcon(
+      IconLoader::load("view-console", IconLoader::LightDark));
+  actionShowConsole->setIcon(QIcon());
   // Scripting menu
   ui_->actionScriptingLanguage->setIcon(QIcon());
   ui_->actionRestartScripting->setIcon(QIcon());
@@ -626,6 +626,10 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->actionPreferences, SIGNAL(activated()), this,
           SLOT(showPreferencesDialog()));
   // View menu
+  connect(ui_->actionPlotWizard, SIGNAL(activated()), this,
+          SLOT(showPlotWizard()));
+  connect(ui_->actionShowUndoRedoHistory, SIGNAL(triggered(bool)), this,
+          SLOT(showUndoRedoHistory()));
   connect(ui_->actionShowFileToolbar, SIGNAL(toggled(bool)), fileToolbar,
           SLOT(setVisible(bool)));
   connect(ui_->actionShowEditToolbar, SIGNAL(toggled(bool)), editToolbar,
@@ -642,25 +646,27 @@ ApplicationWindow::ApplicationWindow()
           graph3DToolbar, SLOT(setVisible(bool)));
   connect(ui_->actionLockToolbars, SIGNAL(toggled(bool)), this,
           SLOT(lockToolbars(bool)));
-  connect(ui_->actionLockDockWindows, SIGNAL(toggled(bool)), this,
-          SLOT(lockDockWindows(bool)));
-  connect(ui_->actionShowExplorer, SIGNAL(toggled(bool)), ui_->explorerWindow,
-          SLOT(setVisible(bool)));
-  connect(ui_->actionShowResultsLog, SIGNAL(toggled(bool)), ui_->logWindow,
-          SLOT(setVisible(bool)));
+  actionShowProjectExplorer->setText(tr("Project Explorer"));
+  actionShowResultsLog->setText(tr("Result Log"));
+  actionShowConsole->setText(tr("Console"));
+  actionShowProjectExplorer->setToolTip(tr("Show Project Explorer"));
+  actionShowResultsLog->setToolTip(tr("Show Result Log"));
+  actionShowConsole->setToolTip(tr("Show Scripting Console"));
+  actionShowProjectExplorer->setShortcut(tr("Ctrl+E"));
+  actionShowProjectExplorer->setCheckable(true);
+  actionShowResultsLog->setCheckable(true);
+  actionShowConsole->setCheckable(true);
+  ui_->menuView->addAction(actionShowProjectExplorer);
+  ui_->menuView->addAction(actionShowResultsLog);
 #ifdef SCRIPTING_CONSOLE
-  connect(ui_->actionShowConsole, SIGNAL(toggled(bool)), consoleWindow,
-          SLOT(setVisible(bool)));
-  ui_->actionShowConsole->setEnabled(true);
-  ui_->actionShowConsole->setVisible(true);
+  ui_->menuView->addAction(actionShowConsole);
+  actionShowConsole->setEnabled(true);
+  actionShowConsole->setVisible(true);
 #else
-  ui_->actionShowConsole->setEnabled(false);
-  ui_->actionShowConsole->setVisible(false);
+  actionShowConsole->setEnabled(false);
+  actionShowConsole->setVisible(false);
 #endif
-  connect(ui_->actionShowUndoRedoHistory, SIGNAL(triggered(bool)), this,
-          SLOT(showUndoRedoHistory()));
-  connect(ui_->actionPlotWizard, SIGNAL(activated()), this,
-          SLOT(showPlotWizard()));
+
 // Scripting menu
 #ifdef SCRIPTING_DIALOG
   connect(ui_->actionScriptingLanguage, SIGNAL(activated()), this,
@@ -1053,7 +1059,6 @@ ApplicationWindow::ApplicationWindow()
 
 // Distructor
 ApplicationWindow::~ApplicationWindow() {
-  saveSettings();
   if (lastCopiedLayer) delete lastCopiedLayer;
   delete ui_;
   delete hiddenWindows;
@@ -1105,8 +1110,8 @@ void ApplicationWindow::makeToolBars() {
   fileToolbar->addAction(ui_->actionPrint);
   fileToolbar->addAction(actionExportPDF);
   fileToolbar->addSeparator();
-  fileToolbar->addAction(ui_->actionShowExplorer);
-  fileToolbar->addAction(ui_->actionShowResultsLog);
+  fileToolbar->addAction(actionShowProjectExplorer);
+  fileToolbar->addAction(actionShowResultsLog);
   fileToolbar->addAction(ui_->actionLockToolbars);
 
   // Edit tools toolbar
@@ -1431,23 +1436,6 @@ void ApplicationWindow::lockToolbars(const bool status) {
     tableToolbar->setMovable(true);
     matrix3DPlotToolbar->setMovable(true);
     ui_->actionLockToolbars->setIcon(
-        IconLoader::load("unlock", IconLoader::LightDark));
-  }
-}
-
-// Lock/unlock dock windows(remove/show titlebar)
-void ApplicationWindow::lockDockWindows(const bool status) {
-  if (status) {
-    consoleWindow->setTitleBarWidget(emptyTitleBar[0]);
-    ui_->logWindow->setTitleBarWidget(emptyTitleBar[1]);
-    ui_->explorerWindow->setTitleBarWidget(emptyTitleBar[2]);
-    ui_->actionLockDockWindows->setIcon(
-        IconLoader::load("lock", IconLoader::LightDark));
-  } else {
-    consoleWindow->setTitleBarWidget(consoleWindowTitleBar);
-    ui_->logWindow->setTitleBarWidget(logWindowTitleBar);
-    ui_->explorerWindow->setTitleBarWidget(explorerWindowTitleBar);
-    ui_->actionLockDockWindows->setIcon(
         IconLoader::load("unlock", IconLoader::LightDark));
   }
 }
@@ -4539,18 +4527,10 @@ void ApplicationWindow::loadSettings() {
       settings.value("3DSurfacePlotToolbar", true).toBool());
   ui_->actionLockToolbars->setChecked(
       settings.value("LockToolbars", false).toBool());
-  ui_->actionLockDockWindows->setChecked(
-      settings.value("LockDockWindows", false).toBool());
-  ui_->actionShowExplorer->setChecked(
-      settings.value("ShowExplorer", false).toBool());
-  ui_->explorerWindow->setVisible(ui_->actionShowExplorer->isChecked());
-  ui_->actionShowResultsLog->setChecked(
-      settings.value("ShowResultsLog", false).toBool());
-  ui_->logWindow->setVisible(ui_->actionShowResultsLog->isChecked());
+  ui_->explorerWindow->setVisible(settings.value("ShowExplorer", false).toBool());
+  ui_->logWindow->setVisible(settings.value("ShowResultsLog", false).toBool());
 #ifdef SCRIPTING_CONSOLE
-  ui_->actionShowConsole->setChecked(
-      settings.value("ShowConsole", false).toBool());
-  consoleWindow->setVisible(ui_->actionShowConsole->isChecked());
+  consoleWindow->setVisible(settings.value("ShowConsole", false).toBool());
 #endif
   settings.endGroup();  // View
 
@@ -4820,11 +4800,10 @@ void ApplicationWindow::saveSettings() {
   settings.setValue("3DSurfacePlotToolbar",
                     ui_->actionShow3DSurfacePlotToolbar->isChecked());
   settings.setValue("LockToolbars", ui_->actionLockToolbars->isChecked());
-  settings.setValue("LockDockWindows", ui_->actionLockDockWindows->isChecked());
-  settings.setValue("ShowExplorer", ui_->actionShowExplorer->isChecked());
-  settings.setValue("ShowResultsLog", ui_->actionShowResultsLog->isChecked());
+  settings.setValue("ShowExplorer", ui_->explorerWindow->isVisible());
+  settings.setValue("ShowResultsLog", ui_->logWindow->isVisible());
 #ifdef SCRIPTING_CONSOLE
-  settings.setValue("ShowConsole", ui_->actionShowConsole->isChecked());
+  settings.setValue("ShowConsole", consoleWindow->isVisible());
 #endif
   settings.endGroup();  // View
 

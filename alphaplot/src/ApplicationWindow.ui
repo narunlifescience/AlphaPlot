@@ -112,16 +112,11 @@
      <addaction name="actionShowMatrixPlotToolbar"/>
      <addaction name="actionShow3DSurfacePlotToolbar"/>
     </widget>
+    <addaction name="actionPlotWizard"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowUndoRedoHistory"/>
     <addaction name="menuToolbars"/>
     <addaction name="actionLockToolbars"/>
-    <addaction name="actionLockDockWindows"/>
-    <addaction name="separator"/>
-    <addaction name="actionShowExplorer"/>
-    <addaction name="actionShowResultsLog"/>
-    <addaction name="actionShowConsole"/>
-    <addaction name="actionShowUndoRedoHistory"/>
-    <addaction name="separator"/>
-    <addaction name="actionPlotWizard"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuGraph">
@@ -748,33 +743,6 @@
     <string>Ctrl+Alt+W</string>
    </property>
   </action>
-  <action name="actionShowExplorer">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Project Explorer</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+E</string>
-   </property>
-  </action>
-  <action name="actionShowResultsLog">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Results Log</string>
-   </property>
-  </action>
-  <action name="actionShowConsole">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Console</string>
-   </property>
-  </action>
   <action name="actionShowUndoRedoHistory">
    <property name="text">
     <string>&amp;Undo/Redo History</string>
@@ -1160,14 +1128,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
-   </property>
-  </action>
-  <action name="actionLockDockWindows">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Lock Dock Windows</string>
    </property>
   </action>
   <action name="actionStatisticsOnColumns">

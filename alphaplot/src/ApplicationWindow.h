@@ -1140,11 +1140,9 @@ class ApplicationWindow : public QMainWindow,
 
   bool was_maximized_;
 
-  // Titlebars for QDockWidget (need for lock functionality)
-  QWidget* emptyTitleBar[3];
-  QWidget* consoleWindowTitleBar;
-  QWidget* logWindowTitleBar;
-  QWidget* explorerWindowTitleBar;
+  QAction *actionShowProjectExplorer;
+  QAction *actionShowResultsLog;
+  QAction *actionShowConsole;
 
  private slots:
   void removeDependentTableStatistics(const AbstractAspect* aspect);
@@ -1162,7 +1160,6 @@ class ApplicationWindow : public QMainWindow,
   void handleAspectAdded(const AbstractAspect* aspect, int index);
   void handleAspectAboutToBeRemoved(const AbstractAspect* aspect, int index);
   void lockToolbars(const bool status);
-  void lockDockWindows(const bool status);
 
  public slots:
   Table* getTableHandle();
