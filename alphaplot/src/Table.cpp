@@ -1285,7 +1285,6 @@ void Table::setRowCount() {
     context()->throwError(tr("cannot set row count to 0 or -ve!"));
   }
   setNumRows(context()->argument(0).toInt32());
-  moveFloatingButton();
 }
 
 void Table::setColCount() {

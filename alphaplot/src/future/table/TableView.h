@@ -180,7 +180,6 @@ class TableView : public MyWidget {
   void setColumnWidth(int col, int width);
   int columnWidth(int col) const;
   bool formulaModeActive() const;
-  void moveFloatingButton();
 
  public slots:
   void activateFormulaMode(bool on);
@@ -221,6 +220,8 @@ class TableView : public MyWidget {
 
  private slots:
   void drawSpikinessData(QPainter *painter, QRect &rect, int index) const;
+  void moveFloatingButton() const;
+  void moveFloatingButtonTimerSlingshot();
 
  protected:
   //! Pointer to the item delegate

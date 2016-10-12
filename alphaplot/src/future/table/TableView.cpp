@@ -62,6 +62,7 @@
 #include <QSettings>
 #include <QShortcut>
 #include <QSize>
+#include <QTimer>
 #include <QtDebug>
 
 #include <cmath>
@@ -204,6 +205,10 @@ void TableView::init() {
   connect(d_table, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)),
           this,
           SLOT(handleAspectAboutToBeRemoved(const AbstractAspect *, int)));
+  connect(d_table, SIGNAL(rowsInserted(int, int)), this,
+          SLOT(moveFloatingButtonTimerSlingshot()));
+  connect(d_table, SIGNAL(rowsRemoved(int, int)), this,
+          SLOT(moveFloatingButtonTimerSlingshot()));
 
   rereadSectionSizes();
 
@@ -916,6 +921,12 @@ void TableView::goToPreviousColumn() {
 
 void TableView::selectColumn(int col) { d_view_widget->selectColumn(col); }
 
+void TableView::moveFloatingButtonTimerSlingshot() {
+  // QTableview draws the widget after emitting rowInserted() or rowRemoved()
+  // signal so lets use a timer delay.
+  QTimer::singleShot(50, this, SLOT(moveFloatingButton()));
+}
+
 /* ================== TableViewWidget ================ */
 
 void TableViewWidget::selectAll() {
@@ -963,7 +974,7 @@ void TableView::toggleControlTabBar() {
 void TableView::resizeEvent(QResizeEvent *) { moveFloatingButton(); }
 
 // Move the floating show hide button.
-void TableView::moveFloatingButton() {
+void TableView::moveFloatingButton() const {
   int verticalScrollWidth;
   (d_view_widget->verticalScrollBar()->maximum() > 0)
       ? verticalScrollWidth =

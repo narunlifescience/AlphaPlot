@@ -37,18 +37,16 @@ class QCloseEvent;
 class QString;
 class Folder;
 
-/**
- * \brief Base class of all MDI client windows.
+/* brief Base class of all MDI client windows.
  *
  * These are the main objects of every AlphaPlot project.
  * All content (apart from the directory structure) is managed by subclasses of
  * MyWidget.
  *
- * \section future_plans Future Plans
+ * section future_plans Future Plans
  * Rename to Aspect.
  *
- * \sa Folder, ApplicationWindow
- */
+ * sa Folder, ApplicationWindow */
 class MyWidget : public QWidget {
   Q_OBJECT
 
@@ -61,7 +59,7 @@ class MyWidget : public QWidget {
    * \param f window flags
    * \sa setCaptionPolicy(), captionPolicy()
    */
-  MyWidget(const QString &label = QString(), QWidget *parent = 0,
+  MyWidget(const QString &label = QString(), QWidget *parent = nullptr,
            const QString name = 0, Qt::WFlags f = 0);
 
   //! Possible window captions.
@@ -106,7 +104,7 @@ class MyWidget : public QWidget {
   //! Return the window status flag (hidden, normal, minimized or maximized)
   Status status() { return w_status; }
   //! Set the window status flag (hidden, normal, minimized or maximized)
-  void setStatus(Status s);
+  void setStatus(Status status);
 
   virtual QString saveAsTemplate(const QString &) { return QString(); }
   // TODO:
@@ -131,7 +129,7 @@ class MyWidget : public QWidget {
   //! Toggle the "ask on close" flag
   void askOnCloseEvent(bool ask) { askOnClose = ask; }
   //! Filters other object's events (customizes title bar's context menu)
-  bool eventFilter(QObject *object, QEvent *e);
+  bool eventFilter(QObject *object, QEvent *event);
 
   //! Returns the pointer to the parent folder of the window
   Folder *folder() { return parentFolder; }

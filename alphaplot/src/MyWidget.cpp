@@ -31,12 +31,12 @@
 #include "MyWidget.h"
 #include "Folder.h"
 
-#include <QMessageBox>
-#include <QEvent>
 #include <QCloseEvent>
-#include <QString>
-#include <QLocale>
+#include <QEvent>
 #include <QIcon>
+#include <QLocale>
+#include <QMessageBox>
+#include <QString>
 #include <QtDebug>
 
 MyWidget::MyWidget(const QString &label, QWidget *parent, const QString name,
@@ -46,7 +46,7 @@ MyWidget::MyWidget(const QString &label, QWidget *parent, const QString name,
   caption_policy = Both;
   askOnClose = true;
   w_status = Normal;
-  titleBar = NULL;
+  titleBar = nullptr;
   setObjectName(QString(name));
 }
 
@@ -75,8 +75,8 @@ void MyWidget::updateCaption() {
 void MyWidget::closeEvent(QCloseEvent *e) {
   if (askOnClose) {
     switch (QMessageBox::information(
-        this, tr("AlphaPlot"), tr("Do you want to hide or delete") + "<p><b>'" +
-                                  objectName() + "'</b> ?",
+        this, "AlphaPlot", tr("Do you want to hide or delete") + "<p><b>'" +
+                               objectName() + "'</b> ?",
         tr("Delete"), tr("Hide"), tr("Cancel"), 0, 2)) {
       case 0:
         emit closedWindow(this);
@@ -99,24 +99,21 @@ void MyWidget::closeEvent(QCloseEvent *e) {
 }
 
 QString MyWidget::aspect() {
-  QString s = tr("Normal");
+  QString status = tr("Normal");
   switch (w_status) {
     case Hidden:
       return tr("Hidden");
-      break;
 
     case Normal:
       break;
 
     case Minimized:
       return tr("Minimized");
-      break;
 
     case Maximized:
       return tr("Maximized");
-      break;
   }
-  return s;
+  return status;
 }
 
 // Modifying the title bar menu is somewhat more complicated in Qt4.
@@ -129,7 +126,9 @@ void MyWidget::changeEvent(QEvent *event) {
     titleBar = 0;
     if (parent()) parent()->installEventFilter(this);
   } else if (!isHidden() && event->type() == QEvent::WindowStateChange) {
-    if (((QWindowStateChangeEvent *)event)->oldState() == windowState()) return;
+    if (static_cast<QWindowStateChangeEvent *>(event)->oldState() ==
+        windowState())
+      return;
 
     if (windowState() & Qt::WindowMinimized)
       w_status = Minimized;
@@ -142,14 +141,15 @@ void MyWidget::changeEvent(QEvent *event) {
   QWidget::changeEvent(event);
 }
 
-bool MyWidget::eventFilter(QObject *object, QEvent *e) {
+bool MyWidget::eventFilter(QObject *object, QEvent *event) {
   QWidget *tmp;
-  if (e->type() == QEvent::ContextMenu && object == titleBar) {
+  if (event->type() == QEvent::ContextMenu && object == titleBar) {
     emit showTitleBarMenu();
-    ((QContextMenuEvent *)e)->accept();
+    static_cast<QContextMenuEvent *>(event)->accept();
     return true;
-  } else if (e->type() == QEvent::ChildAdded && object == parent() &&
-             (tmp = qobject_cast<QWidget *>(((QChildEvent *)e)->child()))) {
+  } else if (event->type() == QEvent::ChildAdded && object == parent() &&
+             (tmp = qobject_cast<QWidget *>(
+                  static_cast<QChildEvent *>(event)->child()))) {
     (titleBar = tmp)->installEventFilter(this);
     parent()->removeEventFilter(this);
     return true;
@@ -157,10 +157,10 @@ bool MyWidget::eventFilter(QObject *object, QEvent *e) {
   return false;
 }
 
-void MyWidget::setStatus(Status s) {
-  if (w_status == s) return;
+void MyWidget::setStatus(Status status) {
+  if (w_status == status) return;
 
-  w_status = s;
+  w_status = status;
   emit statusChanged(this);
 }
 

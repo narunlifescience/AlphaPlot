@@ -55,6 +55,7 @@ class QToolBar;
 class QStatusBar;
 class QSignalMapper;
 class QTreeWidgetItem;
+class QMdiArea;
 
 class Ui_ApplicationWindow;
 class Matrix;
