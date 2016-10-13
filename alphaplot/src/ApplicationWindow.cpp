@@ -7404,7 +7404,7 @@ void ApplicationWindow::hideWindow(MyWidget *w) {
 }
 
 void ApplicationWindow::resizeActiveWindow() {
-  QWidget *w = (QWidget *)d_workspace->activeWindow();
+  QWidget *w = static_cast<QWidget *>(d_workspace->activeWindow());
   if (!w) return;
 
   ImageDialog *id = new ImageDialog(this);

@@ -93,7 +93,6 @@ void TableView::setTable(future::Table *table) {
 }
 
 void TableView::init() {
-  setMinimumSize(QSize(400, 300));
 
   d_main_layout = new QHBoxLayout(this);
   d_main_layout->setSpacing(0);

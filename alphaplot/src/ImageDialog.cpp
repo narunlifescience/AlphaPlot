@@ -28,9 +28,9 @@
  ***************************************************************************/
 #include "ImageDialog.h"
 
-#include <QLayout>
 #include <QGroupBox>
 #include <QLabel>
+#include <QLayout>
 
 ImageDialog::ImageDialog(QWidget *parent, Qt::WFlags fl) : QDialog(parent, fl) {
   setWindowTitle(tr("Image Geometry"));
@@ -45,26 +45,26 @@ ImageDialog::ImageDialog(QWidget *parent, Qt::WFlags fl) : QDialog(parent, fl) {
   boxY->setSuffix(tr(" pixels"));
 
   QGridLayout *gl1 = new QGridLayout(gb1);
-  gl1->addWidget(new QLabel(tr("X= ")), 0, 0);
+  gl1->addWidget(new QLabel(tr("X :")), 0, 0);
   gl1->addWidget(boxX, 0, 1);
-  gl1->addWidget(new QLabel(tr("Y= ")), 1, 0);
+  gl1->addWidget(new QLabel(tr("Y :")), 1, 0);
   gl1->addWidget(boxY, 1, 1);
   gl1->setRowStretch(2, 1);
 
   QGroupBox *gb2 = new QGroupBox(tr("Size"));
   boxWidth = new QSpinBox();
-  boxWidth->setRange(0, 2000);
+  boxWidth->setRange(420, 2000);
   boxWidth->setSuffix(tr(" pixels"));
 
   boxHeight = new QSpinBox();
-  boxHeight->setRange(0, 2000);
+  boxHeight->setRange(340, 2000);
   boxHeight->setSuffix(tr(" pixels"));
 
   QGridLayout *gl2 = new QGridLayout(gb2);
-  gl2->addWidget(new QLabel(tr("width= ")), 0, 0);
+  gl2->addWidget(new QLabel(tr("Width :")), 0, 0);
   gl2->addWidget(boxWidth, 0, 1);
 
-  gl2->addWidget(new QLabel(tr("height= ")), 2, 0);
+  gl2->addWidget(new QLabel(tr("Height :")), 2, 0);
   gl2->addWidget(boxHeight, 2, 1);
 
   keepRatioBox = new QCheckBox(tr("Keep aspect ratio"));
@@ -104,7 +104,8 @@ void ImageDialog::setOrigin(const QPoint &o) {
 void ImageDialog::setSize(const QSize &size) {
   boxWidth->setValue(size.width());
   boxHeight->setValue(size.height());
-  aspect_ratio = (double)size.width() / (double)size.height();
+  aspect_ratio =
+      static_cast<double>(size.width()) / static_cast<double>(size.height());
 
   connect(boxWidth, SIGNAL(valueChanged(int)), this, SLOT(adjustHeight(int)));
   connect(boxHeight, SIGNAL(valueChanged(int)), this, SLOT(adjustWidth(int)));
@@ -117,7 +118,8 @@ void ImageDialog::adjustHeight(int width) {
     boxHeight->setValue(int(width / aspect_ratio));
     connect(boxHeight, SIGNAL(valueChanged(int)), this, SLOT(adjustWidth(int)));
   } else
-    aspect_ratio = (double)width / double(boxHeight->value());
+    aspect_ratio =
+        static_cast<double>(width) / static_cast<double>(boxHeight->value());
 }
 
 void ImageDialog::adjustWidth(int height) {
@@ -127,7 +129,8 @@ void ImageDialog::adjustWidth(int height) {
     boxWidth->setValue(int(height * aspect_ratio));
     connect(boxWidth, SIGNAL(valueChanged(int)), this, SLOT(adjustHeight(int)));
   } else
-    aspect_ratio = double(boxWidth->value()) / (double)height;
+    aspect_ratio =
+        static_cast<double>(boxWidth->value()) / static_cast<double>(height);
 }
 
 void ImageDialog::update() {
