@@ -18,6 +18,7 @@ Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalys
 
 # Installation
 Get the code (if you haven't already):
+
 Note: please clone release-0.01A-alpha branch insted of master
 
     git clone -b release-0.01A-alpha --single-branch https://github.com/narunlifescience/AlphaPlot.git 
