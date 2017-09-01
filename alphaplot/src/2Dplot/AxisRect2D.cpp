@@ -15,6 +15,7 @@
    Description : axis rect related stuff */
 
 #include "AxisRect2D.h"
+#include "../future/core/column/Column.h"
 #include "Legend2D.h"
 
 AxisRect2D::AxisRect2D(QCustomPlot *parent, bool setupDefaultAxis)
@@ -118,8 +119,8 @@ QList<Axis2D *> AxisRect2D::getAxes2D(
 }
 
 LineScatter2D *AxisRect2D::addLineScatter2DPlot(
-    const AxisRect2D::LineScatterType &type, QCPDataMap *dataMap, Axis2D *xAxis,
-    Axis2D *yAxis) {
+    const AxisRect2D::LineScatterType &type, Column *xData, Column *yData,
+    int from, int to, Axis2D *xAxis, Axis2D *yAxis) {
   LineScatter2D *lineScatter = new LineScatter2D(xAxis, yAxis);
 
   switch (type) {
@@ -160,15 +161,29 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
       break;
   }
 
-  lineScatter->setData(dataMap);
+  lineScatter->setGraphData(xData, yData, from, to);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineScatter);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   return lineScatter;
 }
 
-Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type,
-                                QCPBarDataMap *barDataMap, Axis2D *xAxis,
+LineScatter2D *AxisRect2D::addLineFunction2DPlot(QVector<double> *xdata,
+                                                 QVector<double> *ydata,
+                                                 Axis2D *xAxis, Axis2D *yAxis) {
+  LineScatter2D *lineScatter = new LineScatter2D(xAxis, yAxis);
+  lineScatter->setLineScatter2DPlot(LineScatter2D::LinePlot,
+                                    LineScatter2D::ScatterHidden);
+
+  lineScatter->setGraphData(xdata, ydata);
+  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineScatter);
+  axisRectLegend_->addItem(legendItem);
+  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  return lineScatter;
+}
+
+Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Column *xData,
+                                Column *yData, int from, int to, Axis2D *xAxis,
                                 Axis2D *yAxis) {
   Bar2D *bar;
   switch (type) {
@@ -180,7 +195,7 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type,
       break;
   }
 
-  bar->setData(barDataMap);
+  bar->setBarData(xData, yData, from, to);
   bar->setAntialiased(false);
   bar->setAntialiasedFill(false);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, bar);

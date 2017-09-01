@@ -24,13 +24,10 @@ class Layout2D : public MyWidget {
            const QString name = QString(), Qt::WFlags f = 0);
   ~Layout2D();
 
-  QCPDataMap *generateDataMap(Column *xData, Column *yData, int from, int to);
   StatBox2D::BoxWhiskerData generateBoxWhiskerData(Column *data, int from,
                                                    int to, int key);
-  QCPBarDataMap *generateBarDataMap(Column *xData, Column *yData, int from,
-                                    int to);
-  void generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
-                              const QString yLabel);
+  void generateFunction2DPlot(QVector<double> *xdata, QVector<double> *ydata,
+                              const QString xLabel, const QString yLabel);
   void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
   void generateStatBox2DPlot(Column *data, int from, int to, int key);
 

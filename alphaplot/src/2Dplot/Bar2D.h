@@ -4,6 +4,8 @@
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
 
+class Column;
+
 class Bar2D : public QCPBars {
   Q_OBJECT
  public:
@@ -16,6 +18,8 @@ class Bar2D : public QCPBars {
     VerticalStacked,
     HorizontalStacked,
   };
+
+  void setBarData(Column *xData, Column *yData, int from, int to);
 
 private:
 

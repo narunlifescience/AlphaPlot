@@ -4,6 +4,8 @@
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
 
+class Column;
+
 class LineScatter2D : public QCPGraph {
   Q_OBJECT
  public:
@@ -23,6 +25,8 @@ class LineScatter2D : public QCPGraph {
 
   enum Scatter { ScatterVisible, ScatterHidden };
 
+  void setGraphData(Column *xData, Column *yData, int from, int to);
+  void setGraphData(QVector<double> *xdata, QVector<double> *ydata);
   // set scatter line params
   void setLineScatter2DPlot(const Line &line, const Scatter &scatter);
   void setScatterShape2D(const QCPScatterStyle::ScatterShape &shape);

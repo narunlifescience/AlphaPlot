@@ -24,6 +24,7 @@
 #include "LineScatter2D.h"
 
 class Legend2D;
+class Column;
 
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
@@ -58,10 +59,13 @@ class AxisRect2D : public QCPAxisRect {
   };
 
   LineScatter2D *addLineScatter2DPlot(const LineScatterType &type,
-                                      QCPDataMap *dataMap, Axis2D *xAxis,
-                                      Axis2D *yAxis);
-  Bar2D *addBox2DPlot(const BarType &type, QCPBarDataMap *barDataMap,
-                      Axis2D *xAxis, Axis2D *yAxis);
+                                      Column *xData, Column *yData, int from,
+                                      int to, Axis2D *xAxis, Axis2D *yAxis);
+  LineScatter2D *addLineFunction2DPlot(QVector<double> *xdata,
+                                       QVector<double> *ydata, Axis2D *xAxis,
+                                       Axis2D *yAxis);
+  Bar2D *addBox2DPlot(const BarType &type, Column *xData, Column *yData,
+                      int from, int to, Axis2D *xAxis, Axis2D *yAxis);
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;

@@ -12,6 +12,7 @@ LayoutButton2D::LayoutButton2D(const QString &text, QWidget *parent)
   setMaximumWidth(LayoutButton2D::btnSize());
   setMaximumHeight(LayoutButton2D::btnSize());
   setFixedSize(QSize(layoutButtonSize_, layoutButtonSize_));
+  setFocusPolicy(Qt::NoFocus);
 }
 
 LayoutButton2D::~LayoutButton2D() {}

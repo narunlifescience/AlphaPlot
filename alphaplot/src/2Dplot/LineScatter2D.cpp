@@ -1,4 +1,6 @@
 #include "LineScatter2D.h"
+#include <QThread>
+#include "../future/core/column/Column.h"
 
 LineScatter2D::LineScatter2D(Axis2D *xAxis, Axis2D *yAxis)
     : QCPGraph(xAxis, yAxis),
@@ -21,6 +23,38 @@ LineScatter2D::LineScatter2D(Axis2D *xAxis, Axis2D *yAxis)
 
 LineScatter2D::~LineScatter2D() {}
 
+void LineScatter2D::setGraphData(Column *xData, Column *yData, int from,
+                                 int to) {
+  QSharedPointer<QCPGraphDataContainer> graphData(new QCPGraphDataContainer);
+  double xdata = 0, ydata = 0;
+  for (int i = from; i < to + 1; i++) {
+    xdata = xData->valueAt(i);
+    ydata = yData->valueAt(i);
+    QCPGraphData gd;
+    gd.key = xdata;
+    gd.value = ydata;
+    graphData->add(gd);
+  }
+  setData(graphData);
+}
+
+void LineScatter2D::setGraphData(QVector<double> *xdata,
+                                 QVector<double> *ydata) {
+  Q_ASSERT(xdata->size() == ydata->size());
+
+  QSharedPointer<QCPGraphDataContainer> functionData(new QCPGraphDataContainer);
+  for (int i = 0; i < xdata->size(); i++) {
+    QCPGraphData fd;
+    fd.key = xdata->at(i);
+    fd.value = ydata->at(i);
+    functionData->add(fd);
+  }
+  setData(functionData);
+  // free those containers
+  delete xdata;
+  delete ydata;
+}
+
 void LineScatter2D::setLineScatter2DPlot(const Line &line,
                                          const Scatter &scatter) {
   if (line == NonePlot && scatter == ScatterHidden) {
@@ -30,46 +64,45 @@ void LineScatter2D::setLineScatter2DPlot(const Line &line,
   }
   bool antialiasedLine = false;
 
-    switch (line) {
-      case LinePlot:
-        setLineStyle(QCPGraph::lsLine);
-        antialiasedLine = true;
-        break;
-      case NonePlot:
-        setLineStyle(QCPGraph::lsNone);
-        break;
-      case VerticalDropLinePlot:
-        setLineStyle(QCPGraph::lsImpulse);
-        antialiasedLine = false;
-        break;
-      case SplinePlot:
-        // a quadratic or higher order interpolation
-        break;
-      case CentralStepAndScatterPlot:
-        setLineStyle(QCPGraph::lsStepCenter);
-        antialiasedLine = false;
-        break;
-      case HorizontalStepPlot:
-        setLineStyle(QCPGraph::lsStepLeft);
-        antialiasedLine = false;
-        break;
-      case VerticalStepPlot:
-        setLineStyle(QCPGraph::lsStepRight);
-        antialiasedLine = false;
-        break;
-      case AreaPlot:
-        setLineStyle(QCPGraph::lsLine);
-        setBrush(QBrush(Qt::green));
-        antialiasedLine = true;
-        break;
-    }
+  switch (line) {
+    case LinePlot:
+      setLineStyle(QCPGraph::lsLine);
+      antialiasedLine = true;
+      break;
+    case NonePlot:
+      setLineStyle(QCPGraph::lsNone);
+      break;
+    case VerticalDropLinePlot:
+      setLineStyle(QCPGraph::lsImpulse);
+      antialiasedLine = false;
+      break;
+    case SplinePlot:
+      // a quadratic or higher order interpolation
+      break;
+    case CentralStepAndScatterPlot:
+      setLineStyle(QCPGraph::lsStepCenter);
+      antialiasedLine = false;
+      break;
+    case HorizontalStepPlot:
+      setLineStyle(QCPGraph::lsStepLeft);
+      antialiasedLine = false;
+      break;
+    case VerticalStepPlot:
+      setLineStyle(QCPGraph::lsStepRight);
+      antialiasedLine = false;
+      break;
+    case AreaPlot:
+      setLineStyle(QCPGraph::lsLine);
+      setBrush(QBrush(Qt::green));
+      antialiasedLine = true;
+      break;
+  }
 
-    if(autoAntialiasing_)
-    setAntialiased(antialiasedLine);
+  if (autoAntialiasing_) setAntialiased(antialiasedLine);
 
   switch (scatter) {
     case ScatterVisible:
-       if (scatterShape_ == QCPScatterStyle::ssNone) {
+      if (scatterShape_ == QCPScatterStyle::ssNone) {
         scatterShape_ = QCPScatterStyle::ssDisc;
       }
       setScatterShape2D(QCPScatterStyle::ssDisc);
@@ -84,7 +117,6 @@ void LineScatter2D::setLineScatter2DPlot(const Line &line,
 // scatter style
 void LineScatter2D::setScatterShape2D(
     const QCPScatterStyle::ScatterShape &shape) {
-
   bool antialiasedScatter = false;
 
   switch (shape) {
@@ -156,7 +188,7 @@ void LineScatter2D::setScatterShape2D(
       antialiasedScatter = true;
       break;
   }
-  if(autoAntialiasing_) setAntialiasedScatters(antialiasedScatter);
+  if (autoAntialiasing_) setAntialiasedScatters(antialiasedScatter);
 
   scatterShape_ = shape;
   setScatterStyle(scatterStyle_);

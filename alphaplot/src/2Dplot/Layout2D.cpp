@@ -102,19 +102,6 @@ Layout2D::~Layout2D() {
   delete plot2dCanvas_;
 }
 
-QCPDataMap *Layout2D::generateDataMap(Column *xData, Column *yData, int from,
-                                      int to) {
-  QCPDataMap *dataMap = new QCPDataMap();
-
-  double xdata = 0, ydata = 0;
-  for (int i = from; i < to + 1; i++) {
-    xdata = xData->valueAt(i);
-    ydata = yData->valueAt(i);
-    dataMap->insert(xdata, QCPData(xdata, ydata));
-  }
-  return dataMap;
-}
-
 StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Column *colData,
                                                            int from, int to,
                                                            int key) {
@@ -165,20 +152,9 @@ StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Column *colData,
   return statBoxData;
 }
 
-QCPBarDataMap *Layout2D::generateBarDataMap(Column *xData, Column *yData,
-                                            int from, int to) {
-  QCPBarDataMap *barDataMap = new QCPBarDataMap();
-
-  double xdata = 0, ydata = 0;
-  for (int i = from; i < to + 1; i++) {
-    xdata = xData->valueAt(i);
-    ydata = yData->valueAt(i);
-    barDataMap->insert(xdata, QCPBarData(xdata, ydata));
-  }
-  return barDataMap;
-}
-
-void Layout2D::generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
+void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
+                                      QVector<double> *ydata,
+                                      const QString xLabel,
                                       const QString yLabel) {
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
@@ -188,8 +164,8 @@ void Layout2D::generateFunction2DPlot(QCPDataMap *dataMap, const QString xLabel,
   xAxis.at(0)->setLabel(xLabel);
   yAxis.at(0)->setLabel(yLabel);
 
-  LineScatter2D *linescatter = element->addLineScatter2DPlot(
-      AxisRect2D::Line2D, dataMap, xAxis.at(0), yAxis.at(0));
+  LineScatter2D *linescatter =
+      element->addLineFunction2DPlot(xdata, ydata, xAxis.at(0), yAxis.at(0));
   linescatter->setName("f(x) = " + yLabel);
   linescatter->rescaleAxes();
   plot2dCanvas_->replot();
@@ -211,7 +187,6 @@ void Layout2D::generateStatBox2DPlot(Column *data, int from, int to, int key) {
 
 void Layout2D::generateBar2DPlot(const BarType &barType, Column *xData,
                                  Column *yData, int from, int to) {
-  QCPBarDataMap *barDataMap = generateBarDataMap(xData, yData, from, to);
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::Top);
@@ -228,7 +203,8 @@ void Layout2D::generateBar2DPlot(const BarType &barType, Column *xData,
       break;
   }
 
-  bar = element->addBox2DPlot(type, barDataMap, xAxis.at(0), yAxis.at(0));
+  bar = element->addBox2DPlot(type, xData, yData, from, to, xAxis.at(0),
+                              yAxis.at(0));
   bar->setName("Table " + QString::number(xData->index() + 1) + "_" +
                QString::number(yData->index() + 1));
   bar->rescaleAxes();
@@ -238,7 +214,6 @@ void Layout2D::generateBar2DPlot(const BarType &barType, Column *xData,
 void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
                                          Column *xData, Column *yData, int from,
                                          int to) {
-  QCPDataMap *dataMap = generateDataMap(xData, yData, from, to);
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::Top);
@@ -249,39 +224,44 @@ void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
 
   switch (plotType) {
     case Line2D: {
-      linescatter = element->addLineScatter2DPlot(AxisRect2D::Line2D, dataMap,
-                                                  xAxis.at(0), yAxis.at(0));
+      linescatter = element->addLineScatter2DPlot(
+          AxisRect2D::Line2D, xData, yData, from, to, xAxis.at(0), yAxis.at(0));
     } break;
     case Scatter2D: {
-      linescatter = element->addLineScatter2DPlot(
-          AxisRect2D::Scatter2D, dataMap, xAxis.at(0), yAxis.at(0));
+      linescatter =
+          element->addLineScatter2DPlot(AxisRect2D::Scatter2D, xData, yData,
+                                        from, to, xAxis.at(0), yAxis.at(0));
     } break;
     case LineAndScatter2D: {
-      linescatter = element->addLineScatter2DPlot(
-          AxisRect2D::LineAndScatter2D, dataMap, xAxis.at(0), yAxis.at(0));
+      linescatter = element->addLineScatter2DPlot(AxisRect2D::LineAndScatter2D,
+                                                  xData, yData, from, to,
+                                                  xAxis.at(0), yAxis.at(0));
     } break;
     case VerticalDropLine2D: {
       linescatter = element->addLineScatter2DPlot(
-          AxisRect2D::VerticalDropLine2D, dataMap, xAxis.at(0), yAxis.at(0));
+          AxisRect2D::VerticalDropLine2D, xData, yData, from, to, xAxis.at(0),
+          yAxis.at(0));
     } break;
     case Spline2D:
       break;
     case CentralStepAndScatter2D: {
-      linescatter =
-          element->addLineScatter2DPlot(AxisRect2D::CentralStepAndScatter2D,
-                                        dataMap, xAxis.at(0), yAxis.at(0));
+      linescatter = element->addLineScatter2DPlot(
+          AxisRect2D::CentralStepAndScatter2D, xData, yData, from, to,
+          xAxis.at(0), yAxis.at(0));
     } break;
     case HorizontalStep2D: {
-      linescatter = element->addLineScatter2DPlot(
-          AxisRect2D::HorizontalStep2D, dataMap, xAxis.at(0), yAxis.at(0));
+      linescatter = element->addLineScatter2DPlot(AxisRect2D::HorizontalStep2D,
+                                                  xData, yData, from, to,
+                                                  xAxis.at(0), yAxis.at(0));
     } break;
     case VerticalStep2D: {
-      linescatter = element->addLineScatter2DPlot(
-          AxisRect2D::VerticalStep2D, dataMap, xAxis.at(0), yAxis.at(0));
+      linescatter = element->addLineScatter2DPlot(AxisRect2D::VerticalStep2D,
+                                                  xData, yData, from, to,
+                                                  xAxis.at(0), yAxis.at(0));
     } break;
     case Area2D: {
-      linescatter = element->addLineScatter2DPlot(AxisRect2D::Area2D, dataMap,
-                                                  xAxis.at(0), yAxis.at(0));
+      linescatter = element->addLineScatter2DPlot(
+          AxisRect2D::Area2D, xData, yData, from, to, xAxis.at(0), yAxis.at(0));
     } break;
   }
 
@@ -545,9 +525,9 @@ void Layout2D::axisDoubleClicked(QCPAxis *axis, QCPAxis::SelectablePart part) {
                                      // clicked, not tick label or axis backbone
   {
     bool ok;
-    QString newLabel =
-        QInputDialog::getText(this, "QCustomPlot example", "New axis label:",
-                              QLineEdit::Normal, axis->label(), &ok);
+    QString newLabel = QInputDialog::getText(
+        this, "QCustomPlot example", "New axis label:", QLineEdit::Normal,
+        axis->label(), &ok);
     if (ok) {
       axis->setLabel(newLabel);
       plot2dCanvas_->replot();

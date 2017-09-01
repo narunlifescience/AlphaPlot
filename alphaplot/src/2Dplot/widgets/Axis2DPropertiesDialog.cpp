@@ -142,6 +142,6 @@ void Axis2DPropertiesDialog::populateAxisValue() {
   }
 
   ui_->axisInvertedCheckBox->setChecked(selectedAxis_->rangeReversed());
-  ui_->majorTicksSpinBox->setValue(selectedAxis_->subTickCount());
-  ui_->minorTicksSpinBox->setValue(selectedAxis_->subTickCount());
+  //ui_->majorTicksSpinBox->setValue(selectedAxis_->subTickCount());
+  //ui_->minorTicksSpinBox->setValue(selectedAxis_->subTickCount());
 }

@@ -8462,7 +8462,8 @@ bool ApplicationWindow::newFunctionPlot(int type, QStringList &formulas,
           script.get(), SIGNAL(error(const QString &, const QString &, int)),
           this, SLOT(scriptError(const QString &, const QString &, int)));
 
-      QCPDataMap *dataMap = new QCPDataMap();
+      QVector<double> *xData = new QVector<double>();
+      QVector<double> *yData = new QVector<double>();
       double xMin = ranges[0], xMax = ranges[1], yMin = 0, yMax = 0;
       double step = (xMax - xMin) / static_cast<double>(points - 1);
       double x = xMin, y = 0;
@@ -8470,8 +8471,10 @@ bool ApplicationWindow::newFunctionPlot(int type, QStringList &formulas,
         script->setDouble(x, var.toAscii().constData());
         QVariant result = script->eval();
         if (result.type() != QVariant::Double) {
-          delete dataMap;
-          dataMap = nullptr;
+          delete xData;
+          delete yData;
+          xData = nullptr;
+          yData = nullptr;
           return false;
         }
 
@@ -8482,16 +8485,19 @@ bool ApplicationWindow::newFunctionPlot(int type, QStringList &formulas,
         if (y > yMax) {
           yMax = y;
         }
-        dataMap->insert(x, QCPData(x, y));
+        xData->append(x);
+        yData->append(y);
       }
 
-      if (dataMap) {
+      if (xData && yData) {
         Layout2D *layout = newGraph2D();
-        layout->generateFunction2DPlot(dataMap, "x", formulas[0]);
+        layout->generateFunction2DPlot(xData, yData, "x", formulas[0]);
         return true;
       }
-      delete[] dataMap;
-      dataMap = nullptr;
+      delete xData;
+      delete yData;
+      xData = nullptr;
+      yData = nullptr;
     } break;
     case 1: {
       qDebug() << "parametric function not implimented";
