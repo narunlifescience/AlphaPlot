@@ -52,17 +52,21 @@ void Axis2DPropertiesDialog::applyAndClose() {
 void Axis2DPropertiesDialog::axisItemActivated(QTreeWidgetItem *item) {
   if (item->isSelected()) {
     if (item->parent() == leftAxisRootItem_) {
-      selectedAxis_ = selectedAxisRect_->getAxesOrientedTo(Axis2D::Left)
-                          .at(item->parent()->indexOfChild(item));
+      selectedAxis_ =
+          selectedAxisRect_->getAxesOrientedTo(Axis2D::AxisOreantation::Left)
+              .at(item->parent()->indexOfChild(item));
     } else if (item->parent() == bottomAxisRootItem_) {
-      selectedAxis_ = selectedAxisRect_->getAxesOrientedTo(Axis2D::Bottom)
-                          .at(item->parent()->indexOfChild(item));
+      selectedAxis_ =
+          selectedAxisRect_->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom)
+              .at(item->parent()->indexOfChild(item));
     } else if (item->parent() == rightAxisRootItem_) {
-      selectedAxis_ = selectedAxisRect_->getAxesOrientedTo(Axis2D::Right)
-                          .at(item->parent()->indexOfChild(item));
+      selectedAxis_ =
+          selectedAxisRect_->getAxesOrientedTo(Axis2D::AxisOreantation::Right)
+              .at(item->parent()->indexOfChild(item));
     } else if (item->parent() == topAxisRootItem_) {
-      selectedAxis_ = selectedAxisRect_->getAxesOrientedTo(Axis2D::Top)
-                          .at(item->parent()->indexOfChild(item));
+      selectedAxis_ =
+          selectedAxisRect_->getAxesOrientedTo(Axis2D::AxisOreantation::Top)
+              .at(item->parent()->indexOfChild(item));
     }
     populateAxisValue();
   }
@@ -73,7 +77,8 @@ void Axis2DPropertiesDialog::populateAxisTreeWidget() {
   int count = 0;
   leftAxisRootItem_->setText(0, tr("Left Axes"));
   leftAxisRootItem_->setIcon(0, QPixmap(":/image5.xpm"));
-  count = selectedAxisRect_->getAxesOrientedTo(Axis2D::Left).count();
+  count = selectedAxisRect_->getAxesOrientedTo(Axis2D::AxisOreantation::Left)
+              .count();
   for (int i = 0; i < count; i++) {
     QTreeWidgetItem *leftAxisChildItem = new QTreeWidgetItem();
     leftAxisRootItem_->addChild(leftAxisChildItem);
@@ -84,7 +89,8 @@ void Axis2DPropertiesDialog::populateAxisTreeWidget() {
   count = 0;
   bottomAxisRootItem_->setText(0, tr("Bottom Axes"));
   bottomAxisRootItem_->setIcon(0, QPixmap(":/image4.xpm"));
-  count = selectedAxisRect_->getAxesOrientedTo(Axis2D::Bottom).size();
+  count = selectedAxisRect_->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom)
+              .size();
   for (int i = 0; i < count; i++) {
     QTreeWidgetItem *bottomAxisChildItem = new QTreeWidgetItem();
     bottomAxisRootItem_->addChild(bottomAxisChildItem);
@@ -95,7 +101,8 @@ void Axis2DPropertiesDialog::populateAxisTreeWidget() {
   count = 0;
   rightAxisRootItem_->setText(0, tr("Right Axes"));
   rightAxisRootItem_->setIcon(0, QPixmap(":/image7.xpm"));
-  count = selectedAxisRect_->getAxesOrientedTo(Axis2D::Right).count();
+  count = selectedAxisRect_->getAxesOrientedTo(Axis2D::AxisOreantation::Right)
+              .count();
   for (int i = 0; i < count; i++) {
     QTreeWidgetItem *rightAxisChildItem = new QTreeWidgetItem();
     rightAxisRootItem_->addChild(rightAxisChildItem);
@@ -106,7 +113,8 @@ void Axis2DPropertiesDialog::populateAxisTreeWidget() {
   count = 0;
   topAxisRootItem_->setText(0, tr("Top Axes"));
   topAxisRootItem_->setIcon(0, QPixmap(":/image6.xpm"));
-  count = selectedAxisRect_->getAxesOrientedTo(Axis2D::Top).count();
+  count = selectedAxisRect_->getAxesOrientedTo(Axis2D::AxisOreantation::Top)
+              .count();
   for (int i = 0; i < count; i++) {
     QTreeWidgetItem *topAxisChildItem = new QTreeWidgetItem();
     topAxisRootItem_->addChild(topAxisChildItem);
@@ -142,6 +150,6 @@ void Axis2DPropertiesDialog::populateAxisValue() {
   }
 
   ui_->axisInvertedCheckBox->setChecked(selectedAxis_->rangeReversed());
-  //ui_->majorTicksSpinBox->setValue(selectedAxis_->subTickCount());
-  //ui_->minorTicksSpinBox->setValue(selectedAxis_->subTickCount());
+  // ui_->majorTicksSpinBox->setValue(selectedAxis_->subTickCount());
+  // ui_->minorTicksSpinBox->setValue(selectedAxis_->subTickCount());
 }

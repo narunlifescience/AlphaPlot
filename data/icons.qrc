@@ -227,6 +227,11 @@
     <file>icons/common/16/edit-hide.png</file>
     <file>icons/common/16/edit-unhide.png</file>
     <file>icons/common/16/alpha-logo.png</file>
+    <file>icons/common/16/edit-style-dashdotdotline.png</file>
+    <file>icons/common/16/edit-style-dashdotline.png</file>
+    <file>icons/common/16/edit-style-dashline.png</file>
+    <file>icons/common/16/edit-style-dotline.png</file>
+    <file>icons/common/16/edit-style-solidline.png</file>
     <file>icons/common/22/folder-closed.png</file>
     <file>icons/common/22/folder-open.png</file>
     <file>icons/common/22/application-exit.png</file>

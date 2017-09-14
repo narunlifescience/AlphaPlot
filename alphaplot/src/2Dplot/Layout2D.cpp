@@ -157,10 +157,12 @@ void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
                                       const QString xLabel,
                                       const QString yLabel) {
   AxisRect2D *element = addAxisRectItem();
-  QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
-  xAxis << element->getAxesOrientedTo(Axis2D::Top);
-  QList<Axis2D *> yAxis = element->getAxesOrientedTo(Axis2D::Left);
-  yAxis << element->getAxesOrientedTo(Axis2D::Right);
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
   xAxis.at(0)->setLabel(xLabel);
   yAxis.at(0)->setLabel(yLabel);
 
@@ -175,10 +177,12 @@ void Layout2D::generateStatBox2DPlot(Column *data, int from, int to, int key) {
   StatBox2D::BoxWhiskerData statBoxData =
       generateBoxWhiskerData(data, from, to, key);
   AxisRect2D *element = addAxisRectItem();
-  QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
-  xAxis << element->getAxesOrientedTo(Axis2D::Top);
-  QList<Axis2D *> yAxis = element->getAxesOrientedTo(Axis2D::Left);
-  yAxis << element->getAxesOrientedTo(Axis2D::Right);
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
 
   StatBox2D *statBox = new StatBox2D(xAxis.at(0), yAxis.at(0), statBoxData);
   statBox->rescaleAxes();
@@ -188,10 +192,12 @@ void Layout2D::generateStatBox2DPlot(Column *data, int from, int to, int key) {
 void Layout2D::generateBar2DPlot(const BarType &barType, Column *xData,
                                  Column *yData, int from, int to) {
   AxisRect2D *element = addAxisRectItem();
-  QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
-  xAxis << element->getAxesOrientedTo(Axis2D::Top);
-  QList<Axis2D *> yAxis = element->getAxesOrientedTo(Axis2D::Left);
-  yAxis << element->getAxesOrientedTo(Axis2D::Right);
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
   Bar2D *bar = nullptr;
   AxisRect2D::BarType type;
   switch (barType) {
@@ -211,14 +217,24 @@ void Layout2D::generateBar2DPlot(const BarType &barType, Column *xData,
   plot2dCanvas_->replot();
 }
 
+QList<AxisRect2D *> Layout2D::getAxisRectList() {
+  QList<AxisRect2D *> elementslist;
+  for (int i = 0; i < layout_->elementCount(); i++) {
+    elementslist.append(static_cast<AxisRect2D *>(layout_->elementAt(i)));
+  }
+  return elementslist;
+}
+
 void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
                                          Column *xData, Column *yData, int from,
                                          int to) {
   AxisRect2D *element = addAxisRectItem();
-  QList<Axis2D *> xAxis = element->getAxesOrientedTo(Axis2D::Bottom);
-  xAxis << element->getAxesOrientedTo(Axis2D::Top);
-  QList<Axis2D *> yAxis = element->getAxesOrientedTo(Axis2D::Left);
-  yAxis << element->getAxesOrientedTo(Axis2D::Right);
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
 
   LineScatter2D *linescatter = nullptr;
 
@@ -309,8 +325,10 @@ AxisRect2D *Layout2D::addAxisRectItem() {
   int col = layout_->elementCount();
 
   AxisRect2D *axisRect2d = new AxisRect2D(plot2dCanvas_);
-  Axis2D *xAxis = axisRect2d->addAxis2D(Axis2D::Bottom);
-  Axis2D *yAxis = axisRect2d->addAxis2D(Axis2D::Left);
+  // axisrectitem->setData(0, Qt::UserRole, 3);
+
+  Axis2D *xAxis = axisRect2d->addAxis2D(Axis2D::AxisOreantation::Bottom);
+  Axis2D *yAxis = axisRect2d->addAxis2D(Axis2D::AxisOreantation::Left);
 
   axisRect2d->bindGridTo(xAxis);
   axisRect2d->bindGridTo(yAxis);
@@ -327,12 +345,14 @@ AxisRect2D *Layout2D::addAxisRectItem() {
   connect(axisRect2d, SIGNAL(AxisRectClicked(AxisRect2D *)), this,
           SLOT(axisRectSetFocus(AxisRect2D *)));
 
+  emit AxisRectCreated(axisRect2d, this);
   if (!currentAxisRect_) axisRectSetFocus(axisRect2d);
   return axisRect2d;
 }
 
 void Layout2D::removeAxisRectItem() {
   removeAxisRect(getAxisRectIndex(currentAxisRect_));
+  emit AxisRectRemoved(nullptr, this);
 }
 
 void Layout2D::axisRectSetFocus(AxisRect2D *rect) {

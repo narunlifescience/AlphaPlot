@@ -81,6 +81,7 @@ class ConsoleWidget;
 class IconLoader;
 class SettingsDialog;
 class PropertiesDialog;
+class PropertyEditor;
 
 #ifndef TS_PATH
 #define TS_PATH (qApp->applicationDirPath() + "/translations")
@@ -142,6 +143,7 @@ class ApplicationWindow : public QMainWindow,
 #ifdef SCRIPTING_CONSOLE
   ConsoleWidget* consoleWindow;
 #endif
+  PropertyEditor* propertyeditor;
   QWorkspace* d_workspace;
   QToolButton* btnResults;
   QWidgetList* hiddenWindows;

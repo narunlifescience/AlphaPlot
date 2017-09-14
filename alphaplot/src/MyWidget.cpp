@@ -69,7 +69,17 @@ void MyWidget::updateCaption() {
       else
         setWindowTitle(name());
       break;
-  }
+    }
+}
+
+void MyWidget::focusInEvent(QFocusEvent *)
+{
+  emit focusinWindow(this);
+}
+
+void MyWidget::focusOutEvent(QFocusEvent *)
+{
+  emit focusoutWindow(this);
 };
 
 void MyWidget::closeEvent(QCloseEvent *e) {

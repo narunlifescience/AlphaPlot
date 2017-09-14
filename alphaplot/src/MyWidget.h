@@ -145,6 +145,8 @@ class MyWidget : public QWidget {
   void setMaximized();
 
  signals:
+  void focusinWindow(MyWidget *);
+  void focusoutWindow(MyWidget *);
   //! Emitted when the window was closed
   void closedWindow(MyWidget *);
   //! Emitted when the window was hidden
@@ -161,6 +163,8 @@ class MyWidget : public QWidget {
   void updateCaption();
 
  protected:
+  void focusInEvent(QFocusEvent *);
+  void focusOutEvent(QFocusEvent *);
   //! Catches parent changes (in order to gain access to the title bar)
   virtual void changeEvent(QEvent *event);
   //! Title bar of this MDI window if it currently belongs to a QWorkspace, NULL

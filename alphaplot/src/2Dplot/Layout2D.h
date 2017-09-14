@@ -53,6 +53,7 @@ class Layout2D : public MyWidget {
   void generateBar2DPlot(const BarType &barType, Column *xData, Column *yData,
                          int from, int to);
 
+  QList<AxisRect2D *> getAxisRectList();
   AxisRect2D *getSelectedAxisRect(int col, int row);
   int getAxisRectIndex(AxisRect2D *axisRect2d);
 
@@ -98,6 +99,10 @@ class Layout2D : public MyWidget {
   void mouseWheel();
   void beforeReplot();
   void legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
+
+ signals:
+  void AxisRectCreated(AxisRect2D *, MyWidget *);
+  void AxisRectRemoved(AxisRect2D *, MyWidget *);
 };
 
 #endif  // LAYOUT2D_H

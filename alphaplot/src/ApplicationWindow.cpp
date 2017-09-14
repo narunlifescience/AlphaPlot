@@ -98,6 +98,7 @@
 #include "scripting/widgets/ConsoleWidget.h"
 
 #include "2Dplot/Layout2D.h"
+#include "2Dplot/widgets/propertyeditor.h"
 #include "ui/PropertiesDialog.h"
 
 #include <stdio.h>
@@ -139,7 +140,6 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QUndoStack>
-#include <QUndoStack>
 #include <QUndoView>
 #include <QUrl>
 #include <QVarLengthArray>
@@ -168,6 +168,7 @@ ApplicationWindow::ApplicationWindow()
 #ifdef SCRIPTING_CONSOLE
       consoleWindow(new ConsoleWidget(this)),
 #endif
+      propertyeditor(new PropertyEditor(this)),
       d_workspace(new QWorkspace(this)),
       hiddenWindows(new QList<QWidget *>()),
       outWindows(new QList<QWidget *>()),
@@ -277,9 +278,9 @@ ApplicationWindow::ApplicationWindow()
   current_folder->setFolderTreeWidgetItem(folderTreeItem);
   folderTreeItem->setExpanded(true);
   // Explorer window list view properties
-  ui_->listView->setHeaderLabels(QStringList() << tr("Name") << tr("Type")
-                                               << tr("View") << tr("Created")
-                                               << tr("Label"));
+  ui_->listView->setHeaderLabels(QStringList()
+                                 << tr("Name") << tr("Type") << tr("View")
+                                 << tr("Created") << tr("Label"));
   // ui_->listView->header()->setResizeMode(0, QHeaderView::Stretch);
   ui_->listView->setMinimumHeight(80);
   ui_->listView->setRootIsDecorated(false);
@@ -313,6 +314,8 @@ ApplicationWindow::ApplicationWindow()
   addDockWidget(Qt::TopDockWidgetArea, consoleWindow);
   consoleWindow->hide();
 #endif
+  addDockWidget(Qt::RightDockWidgetArea, propertyeditor);
+  propertyeditor->show();
 
   disableActions();
   // After initialization of QDockWidget, for toggleViewAction() to work
@@ -2501,6 +2504,10 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
           SLOT(updateWindowStatus(MyWidget *)));
   connect(layout2d, SIGNAL(showTitleBarMenu()), this,
           SLOT(showWindowTitleBarMenu()));
+  //connect(layout2d, SIGNAL(focusinWindow(MyWidget *)), propertyeditor,
+  //        SLOT(populateObjectBrowser(MyWidget *)));
+  //connect(layout2d, SIGNAL(focusoutWindow(MyWidget *)), propertyeditor,
+  //        SLOT(freeObjectBrowser()));
 
   return layout2d;
 }
@@ -3120,6 +3127,8 @@ void ApplicationWindow::windowActivated(QWidget *w) {
 
   customToolBars(w);
   customMenu(w);
+
+  propertyeditor->populateObjectBrowser((MyWidget *)(w));
 
   Folder *f = ((MyWidget *)w)->folder();
   if (f) f->setActiveWindow((MyWidget *)w);
@@ -4527,7 +4536,8 @@ void ApplicationWindow::loadSettings() {
       settings.value("3DSurfacePlotToolbar", true).toBool());
   ui_->actionLockToolbars->setChecked(
       settings.value("LockToolbars", false).toBool());
-  ui_->explorerWindow->setVisible(settings.value("ShowExplorer", false).toBool());
+  ui_->explorerWindow->setVisible(
+      settings.value("ShowExplorer", false).toBool());
   ui_->logWindow->setVisible(settings.value("ShowResultsLog", false).toBool());
 #ifdef SCRIPTING_CONSOLE
   consoleWindow->setVisible(settings.value("ShowConsole", false).toBool());
@@ -10220,12 +10230,15 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
       s + tr("Valid options are") + ":\n";
       s += "-h " + tr("or") + " --help: " + tr("show command line options") +
            "\n";
-      s += "-l=XX " + tr("or") + " --lang=XX: " +
-           tr("start AlphaPlot in language") + " XX ('en', 'fr', 'de', ...)\n";
-      s += "-v " + tr("or") + " --version: " +
-           tr("print AlphaPlot version and release date") + "\n";
-      s += "-x " + tr("or") + " --execute: " +
-           tr("execute the script file given as argument") + "\n\n";
+      s += "-l=XX " + tr("or") +
+           " --lang=XX: " + tr("start AlphaPlot in language") +
+           " XX ('en', 'fr', 'de', ...)\n";
+      s += "-v " + tr("or") +
+           " --version: " + tr("print AlphaPlot version and release date") +
+           "\n";
+      s += "-x " + tr("or") +
+           " --execute: " + tr("execute the script file given as argument") +
+           "\n\n";
       s += "'" + tr("file") + "_" + tr("name") + "' " +
            tr("can be any .aproj, .aproj.gz, .py or ASCII "
               "file") +
@@ -11293,8 +11306,8 @@ void ApplicationWindow::folderProperties() {
     if (projectname != "untitled") {
       QFileInfo fileInfo(projectname);
       properties.path = projectname;
-      (saved) ? properties.status = tr("Saved") : properties.status =
-                                                      tr("Not Saved");
+      (saved) ? properties.status = tr("Saved")
+              : properties.status = tr("Not Saved");
       properties.size = QString::number(fileInfo.size());
       properties.created = fileInfo.created().toString(Qt::LocalDate);
       properties.modified = fileInfo.lastModified().toString(Qt::LocalDate);

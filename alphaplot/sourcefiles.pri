@@ -2,7 +2,6 @@
 ###################### PROJECT FILES SECTION ################################
 #############################################################################
 
-
 ###################### HEADERS ##############################################
 
 HEADERS  += src/ApplicationWindow.h \
@@ -360,7 +359,26 @@ SOURCES     += ../3rdparty/minigzip/minigzip.c
 ##############################################################
 
 HEADERS     += ../3rdparty/qcustomplot/qcustomplot.h
+
 SOURCES     += ../3rdparty/qcustomplot/qcustomplot.cpp
+
+##############################################################
+####################### PropertyBrowser ######################
+##############################################################
+
+    SOURCES += ../3rdparty/propertybrowser/qtpropertybrowser.cpp \
+               ../3rdparty/propertybrowser/qtpropertymanager.cpp \
+               ../3rdparty/propertybrowser/qteditorfactory.cpp \
+               ../3rdparty/propertybrowser/qttreepropertybrowser.cpp \
+               ../3rdparty/propertybrowser/qtpropertybrowserutils.cpp
+
+    HEADERS += ../3rdparty/propertybrowser/qtpropertybrowser.h \
+               ../3rdparty/propertybrowser/qtpropertymanager.h \
+               ../3rdparty/propertybrowser/qteditorfactory.h \
+               ../3rdparty/propertybrowser/qttreepropertybrowser.h \
+               ../3rdparty/propertybrowser/qtpropertybrowserutils_p.h
+
+    RESOURCES += ../3rdparty/propertybrowser/qtpropertybrowser.qrc
 
 ##############################################################
 ####################### 2DPlot ###############################
@@ -368,6 +386,7 @@ SOURCES     += ../3rdparty/qcustomplot/qcustomplot.cpp
 
 HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/widgets/Axis2DPropertiesDialog.h \
+               src/2Dplot/widgets/propertyeditor.h \
                src/2Dplot/Axis2D.h \
                src/2Dplot/AxisRect2D.h \
                src/2Dplot/Bar2D.h \
@@ -383,6 +402,7 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
 
 SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/widgets/Axis2DPropertiesDialog.cpp \
+               src/2Dplot/widgets/propertyeditor.cpp \
                src/2Dplot/Axis2D.cpp \
                src/2Dplot/AxisRect2D.cpp \
                src/2Dplot/Bar2D.cpp \
@@ -396,4 +416,5 @@ SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/StatBox2D.cpp \
                src/2Dplot/Properties2D.cpp \
 
-FORMS       += src/2Dplot/widgets/Axis2DPropertiesDialog.ui \         
+FORMS       += src/2Dplot/widgets/Axis2DPropertiesDialog.ui \
+               src/2Dplot/widgets/propertyeditor.ui \

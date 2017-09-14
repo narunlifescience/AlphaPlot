@@ -81,11 +81,12 @@ class AxisRect2D : public QCPAxisRect {
   bool isSelected() { return isAxisRectSelected_; }
 
  protected:
-  void mousePressEvent(QMouseEvent *);
+  void mousePressEvent(QMouseEvent *, const QVariant &);
   void draw(QCPPainter *painter);
 
  signals:
   void AxisRectClicked(AxisRect2D *);
+  void AxisCreated(Axis2D *);
 
  private slots:
   void legendClick();

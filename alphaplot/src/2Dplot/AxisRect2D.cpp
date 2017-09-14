@@ -41,23 +41,24 @@ void AxisRect2D::setAxisRectBackground(const QBrush &brush) {
 Axis2D *AxisRect2D::addAxis2D(const Axis2D::AxisOreantation &orientation) {
   Axis2D *axis2D = nullptr;
   switch (orientation) {
-    case Axis2D::Left:
+    case Axis2D::AxisOreantation::Left:
       axis2D = new Axis2D(this, QCPAxis::atLeft);
       addAxis(QCPAxis::atLeft, axis2D);
       break;
-    case Axis2D::Bottom:
+    case Axis2D::AxisOreantation::Bottom:
       axis2D = new Axis2D(this, QCPAxis::atBottom);
       addAxis(QCPAxis::atBottom, axis2D);
       break;
-    case Axis2D::Right:
+    case Axis2D::AxisOreantation::Right:
       axis2D = new Axis2D(this, QCPAxis::atRight);
       addAxis(QCPAxis::atRight, axis2D);
       break;
-    case Axis2D::Top:
+    case Axis2D::AxisOreantation::Top:
       axis2D = new Axis2D(this, QCPAxis::atTop);
       addAxis(QCPAxis::atTop, axis2D);
       break;
   }
+  emit AxisCreated(axis2D);
   return axis2D;
 }
 
@@ -68,14 +69,14 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis) {
 QBrush AxisRect2D::getAxisRectBackground() const { return axisRectBackGround_; }
 
 Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
-  switch (axis->getOrientation()) {
-    case Axis2D::Bottom:
-    case Axis2D::Top:
+  switch (axis->getorientation_axis()) {
+    case Axis2D::AxisOreantation::Bottom:
+    case Axis2D::AxisOreantation::Top:
       delete grids_.first;
       grids_.first = new Grid2D(axis);
       return grids_.first;
-    case Axis2D::Left:
-    case Axis2D::Right:
+    case Axis2D::AxisOreantation::Left:
+    case Axis2D::AxisOreantation::Right:
       delete grids_.second;
       grids_.second = new Grid2D(axis);
       return grids_.second;
@@ -97,16 +98,16 @@ QList<Axis2D *> AxisRect2D::getAxes2D(
   QList<QCPAxis *> qcpAxes = QList<QCPAxis *>();
   QList<Axis2D *> axes2D = QList<Axis2D *>();
   switch (orientation) {
-    case Axis2D::Left:
+    case Axis2D::AxisOreantation::Left:
       qcpAxes = axes(QCPAxis::atLeft);
       break;
-    case Axis2D::Bottom:
+    case Axis2D::AxisOreantation::Bottom:
       qcpAxes = axes(QCPAxis::atBottom);
       break;
-    case Axis2D::Right:
+    case Axis2D::AxisOreantation::Right:
       qcpAxes = axes(QCPAxis::atRight);
       break;
-    case Axis2D::Top:
+    case Axis2D::AxisOreantation::Top:
       qcpAxes = axes(QCPAxis::atTop);
       break;
   }
@@ -211,16 +212,16 @@ QList<Axis2D *> AxisRect2D::getAxesOrientedTo(
   QList<Axis2D *> axes2D = QList<Axis2D *>();
 
   switch (orientation) {
-    case Axis2D::Left:
+    case Axis2D::AxisOreantation::Left:
       axesQCP = axes(QCPAxis::atLeft);
       break;
-    case Axis2D::Bottom:
+    case Axis2D::AxisOreantation::Bottom:
       axesQCP = axes(QCPAxis::atBottom);
       break;
-    case Axis2D::Right:
+    case Axis2D::AxisOreantation::Right:
       axesQCP = axes(QCPAxis::atRight);
       break;
-    case Axis2D::Top:
+    case Axis2D::AxisOreantation::Top:
       axesQCP = axes(QCPAxis::atTop);
       break;
   }
@@ -232,7 +233,7 @@ QList<Axis2D *> AxisRect2D::getAxesOrientedTo(
 }
 
 void AxisRect2D::updateLegendRect() {
-  axisRectLegend_->setMaximumSize(axisRectLegend_->minimumSizeHint());
+  axisRectLegend_->setMaximumSize(axisRectLegend_->minimumOuterSizeHint());
 }
 
 void AxisRect2D::setSelected(const bool status) {
@@ -249,7 +250,10 @@ void AxisRect2D::drawSelection(QCPPainter *painter) {
   painter->drawPolygon(poly);
 }
 
-void AxisRect2D::mousePressEvent(QMouseEvent *) { emit AxisRectClicked(this); }
+void AxisRect2D::mousePressEvent(QMouseEvent *, const QVariant &) {
+  qDebug() << "selected rect";
+  emit AxisRectClicked(this);
+}
 
 void AxisRect2D::draw(QCPPainter *painter) {
   QCPAxisRect::draw(painter);
