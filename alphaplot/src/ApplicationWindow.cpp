@@ -2504,10 +2504,6 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
           SLOT(updateWindowStatus(MyWidget *)));
   connect(layout2d, SIGNAL(showTitleBarMenu()), this,
           SLOT(showWindowTitleBarMenu()));
-  //connect(layout2d, SIGNAL(focusinWindow(MyWidget *)), propertyeditor,
-  //        SLOT(populateObjectBrowser(MyWidget *)));
-  //connect(layout2d, SIGNAL(focusoutWindow(MyWidget *)), propertyeditor,
-  //        SLOT(freeObjectBrowser()));
 
   return layout2d;
 }
