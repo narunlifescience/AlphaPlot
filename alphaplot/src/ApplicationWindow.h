@@ -310,8 +310,9 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name User-defined Functions
   //@{
-  bool newFunctionPlot(int type, QStringList& formulas, const QString& var,
-                       QList<double>& ranges, int points);
+  bool newFunctionPlot(const int type, const QStringList& formulas,
+                       const QString& var, const QList<double>& ranges,
+                       const int points);
 
   FunctionDialog* functionDialog();
   void showFunctionDialog();
@@ -1143,9 +1144,9 @@ class ApplicationWindow : public QMainWindow,
 
   bool was_maximized_;
 
-  QAction *actionShowProjectExplorer;
-  QAction *actionShowResultsLog;
-  QAction *actionShowConsole;
+  QAction* actionShowProjectExplorer;
+  QAction* actionShowResultsLog;
+  QAction* actionShowConsole;
 
  private slots:
   void removeDependentTableStatistics(const AbstractAspect* aspect);

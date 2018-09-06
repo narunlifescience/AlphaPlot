@@ -129,8 +129,9 @@ QList<QVector<double> > DataCurve::convertData(const QList<Column *> &cols,
 
   // initialize result list
   QList<QVector<double> > result;
-  for (int i = 0; i < cols.size(); i++)
+  for (int i = 0; i < cols.size(); i++) {
     result.push_back(QVector<double>(valid_rows.size()));
+    }
 
   // For date and time (but not DateTime) values, numbers are relative to the
   // first valid row's

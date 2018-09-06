@@ -18,6 +18,7 @@
 */
 
 #include "ApplicationWindow.h"
+#include "core/IconLoader.h"
 #include "globals.h"
 
 #include <QAction>
@@ -78,11 +79,16 @@ struct Application : public QApplication {
 
 int main(int argc, char** argv) {
   Application app(argc, argv);
+
+  // icon initiation (mandatory)
+  IconLoader::init();
+  IconLoader::lumen_ =
+      IconLoader::isLight(app.palette().color(QPalette::Window));
+
   app.setApplicationName("AlphaPlot");
   app.setApplicationVersion(AlphaPlot::versionString());
   app.setOrganizationName("AlphaPlot");
   app.setOrganizationDomain("alphaplot.sourceforge.net");
-
 
   QStringList args = app.arguments();
   args.removeFirst();  // remove application name
@@ -110,7 +116,7 @@ int main(int argc, char** argv) {
   // Close splashscreen after 1 sec & show mainwindow
   QTimer::singleShot(3000, splash, SLOT(close()));
   QTimer::singleShot(3000, mw, SLOT(activateWindow()));
-  
+
   app.connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
   return app.exec();
 }

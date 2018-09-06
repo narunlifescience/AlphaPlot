@@ -15,10 +15,14 @@
    Description : Plot2D axis related stuff */
 
 #include "Axis2D.h"
+#include "AxisRect2D.h"
 
-Axis2D::Axis2D(QCPAxisRect *parent, AxisType type) : QCPAxis(parent, type) {}
+Axis2D::Axis2D(AxisRect2D *parent, AxisType type)
+    : QCPAxis(static_cast<QCPAxisRect *>(parent), type), axisrect_(parent) {}
 
 Axis2D::~Axis2D() {}
+
+AxisRect2D *Axis2D::getaxisrect_axis() const { return axisrect_; }
 
 bool Axis2D::getshowhide_axis() const { return realVisibility(); }
 

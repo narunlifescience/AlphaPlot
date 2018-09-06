@@ -32,6 +32,7 @@
 #include <QString>
 #include <QStringList>
 #include <QtDebug>
+#include <cmath>
 #include "core/AbstractSimpleFilter.h"
 #include "core/column/Column.h"
 #include "core/datatypes/DateTime2DoubleFilter.h"

@@ -206,10 +206,6 @@ ApplicationWindow::ApplicationWindow()
   // Initialize scripting environment.
   attachQtScript();
 
-  // Icons
-  IconLoader::init();
-  IconLoader::lumen_ = IconLoader::isLight(palette().color(QPalette::Window));
-
   // need to be initiated here after IconLoader::init() for icons
   settings_ = new SettingsDialog(this);
 
@@ -1800,6 +1796,9 @@ void ApplicationWindow::plotPie() {
   if (s.count() > 0) {
     multilayerPlot(table, s, Graph::Pie, table->firstSelectedRow(),
                    table->lastSelectedRow());
+    Layout2D *layout = newGraph2D();
+    layout->generatePie2DPlot(table->column(table->firstXCol()), 0,
+                              table->rowCnt() - 1);
   } else
     QMessageBox::warning(this, tr("Error"),
                          tr("Please select a column to plot!"));
@@ -1818,6 +1817,13 @@ void ApplicationWindow::plotVectXYXY() {
   if (s.count() == 4) {
     multilayerPlot(table, s, Graph::VectXYXY, table->firstSelectedRow(),
                    table->lastSelectedRow());
+    Layout2D *layout = newGraph2D();
+    layout->generateVector2DPlot(
+        Vector2D::VectorPlot::XYXY, table->column(table->firstXCol()),
+        table->column(table->firstXCol() + 1),
+        table->column(table->firstXCol() + 2),
+        table->column(table->firstXCol() + 3), 0, table->rowCnt() - 1);
+
   } else
     QMessageBox::warning(this, tr("Error"),
                          tr("Please select four columns for this operation!"));
@@ -1836,6 +1842,12 @@ void ApplicationWindow::plotVectXYAM() {
   if (s.count() == 4) {
     multilayerPlot(table, s, Graph::VectXYAM, table->firstSelectedRow(),
                    table->lastSelectedRow());
+    Layout2D *layout = newGraph2D();
+    layout->generateVector2DPlot(
+        Vector2D::VectorPlot::XYAM, table->column(table->firstXCol()),
+        table->column(table->firstXCol() + 1),
+        table->column(table->firstXCol() + 2),
+        table->column(table->firstXCol() + 3), 0, table->rowCnt() - 1);
   } else
     QMessageBox::warning(this, tr("Error"),
                          tr("Please select four columns for this operation!"));
@@ -2126,10 +2138,12 @@ void ApplicationWindow::editSurfacePlot() {
 
     SurfaceDialog *sd = new SurfaceDialog(this);
     sd->setAttribute(Qt::WA_DeleteOnClose);
-    connect(sd, SIGNAL(options(const QString &, double, double, double, double,
-                               double, double)),
-            g, SLOT(insertFunction(const QString &, double, double, double,
-                                   double, double, double)));
+    connect(sd,
+            SIGNAL(options(const QString &, double, double, double, double,
+                           double, double)),
+            g,
+            SLOT(insertFunction(const QString &, double, double, double, double,
+                                double, double)));
     connect(sd, SIGNAL(clearFunctionsList()), this,
             SLOT(clearSurfaceFunctionsList()));
 
@@ -2146,10 +2160,12 @@ void ApplicationWindow::editSurfacePlot() {
 void ApplicationWindow::newSurfacePlot() {
   SurfaceDialog *sd = new SurfaceDialog(this);
   sd->setAttribute(Qt::WA_DeleteOnClose);
-  connect(sd, SIGNAL(options(const QString &, double, double, double, double,
-                             double, double)),
-          this, SLOT(newPlot3D(const QString &, double, double, double, double,
-                               double, double)));
+  connect(sd,
+          SIGNAL(options(const QString &, double, double, double, double,
+                         double, double)),
+          this,
+          SLOT(newPlot3D(const QString &, double, double, double, double,
+                         double, double)));
   connect(sd, SIGNAL(clearFunctionsList()), this,
           SLOT(clearSurfaceFunctionsList()));
 
@@ -6005,8 +6021,9 @@ QDialog *ApplicationWindow::showPlot3dDialog() {
         pd,
         SIGNAL(updateColors(const QColor &, const QColor &, const QColor &,
                             const QColor &, const QColor &, const QColor &)),
-        g, SLOT(updateColors(const QColor &, const QColor &, const QColor &,
-                             const QColor &, const QColor &, const QColor &)));
+        g,
+        SLOT(updateColors(const QColor &, const QColor &, const QColor &,
+                          const QColor &, const QColor &, const QColor &)));
     connect(pd, SIGNAL(setDataColorMap(const QString &)), g,
             SLOT(setDataColorMap(const QString &)));
     connect(pd, SIGNAL(updateDataColors(const QColor &, const QColor &)), g,
@@ -7076,10 +7093,12 @@ void ApplicationWindow::showTextDialog() {
 
     TextDialog *td = new TextDialog(TextDialog::TextMarker, this, 0);
     td->setAttribute(Qt::WA_DeleteOnClose);
-    connect(td, SIGNAL(values(const QString &, int, int, const QFont &,
-                              const QColor &, const QColor &)),
-            g, SLOT(updateTextMarker(const QString &, int, int, const QFont &,
-                                     const QColor &, const QColor &)));
+    connect(td,
+            SIGNAL(values(const QString &, int, int, const QFont &,
+                          const QColor &, const QColor &)),
+            g,
+            SLOT(updateTextMarker(const QString &, int, int, const QFont &,
+                                  const QColor &, const QColor &)));
 
     td->setWindowIcon(IconLoader::load("alpha-logo", IconLoader::General));
     td->setText(m->text());
@@ -8456,22 +8475,26 @@ void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas) {
   }
 }
 
-bool ApplicationWindow::newFunctionPlot(int type, QStringList &formulas,
+bool ApplicationWindow::newFunctionPlot(const int type,
+                                        const QStringList &formulas,
                                         const QString &var,
-                                        QList<double> &ranges, int points) {
+                                        const QList<double> &ranges,
+                                        const int points) {
+  Q_ASSERT(ranges.size() == 2);
   switch (type) {
     case 0: {
+      Q_ASSERT(formulas.size() == 1);
       QString name = "normal-function";
       std::unique_ptr<Script> script(
-          scriptEnv->newScript(formulas[0], 0, name));
+          scriptEnv->newScript(formulas.at(0), 0, name));
       QObject::connect(
           script.get(), SIGNAL(error(const QString &, const QString &, int)),
           this, SLOT(scriptError(const QString &, const QString &, int)));
 
       QVector<double> *xData = new QVector<double>();
       QVector<double> *yData = new QVector<double>();
-      double xMin = ranges[0], xMax = ranges[1], yMin = 0, yMax = 0;
-      double step = (xMax - xMin) / static_cast<double>(points - 1);
+      const double xMin = ranges.at(0), xMax = ranges.at(1);
+      const double step = (xMax - xMin) / static_cast<double>(points - 1);
       double x = xMin, y = 0;
       for (int i = 0; i < points; i++, x += step) {
         script->setDouble(x, var.toAscii().constData());
@@ -8485,12 +8508,6 @@ bool ApplicationWindow::newFunctionPlot(int type, QStringList &formulas,
         }
 
         y = result.toDouble();
-        if (y < yMin) {
-          yMin = y;
-        }
-        if (y > yMax) {
-          yMax = y;
-        }
         xData->append(x);
         yData->append(y);
       }
@@ -8505,11 +8522,58 @@ bool ApplicationWindow::newFunctionPlot(int type, QStringList &formulas,
       xData = nullptr;
       yData = nullptr;
     } break;
-    case 1: {
-      qDebug() << "parametric function not implimented";
-    } break;
+    case 1:
     case 2: {
-      qDebug() << "polar function not implimented";
+      Q_ASSERT(formulas.size() == 2);
+      QString name = "parametric/polar-function";
+      std::unique_ptr<Script> script_x(
+          scriptEnv->newScript(formulas.at(0), 0, name));
+      std::unique_ptr<Script> script_y(
+          scriptEnv->newScript(formulas.at(1), 0, name));
+      QObject::connect(
+          script_x.get(), SIGNAL(error(const QString &, const QString &, int)),
+          this, SLOT(scriptError(const QString &, const QString &, int)));
+      QObject::connect(
+          script_y.get(), SIGNAL(error(const QString &, const QString &, int)),
+          this, SLOT(scriptError(const QString &, const QString &, int)));
+
+      QVector<double> *xData = new QVector<double>();
+      QVector<double> *yData = new QVector<double>();
+
+      const double xMin = ranges.at(0), xMax = ranges.at(1);
+      const double step = (xMax - xMin) / static_cast<double>(points - 1);
+      double x = xMin;
+      for (int i = 0; i < points; i++, x += step) {
+        script_x->setDouble(x, var.toAscii().constData());
+        script_y->setDouble(x, var.toAscii().constData());
+        QVariant result_x = script_x->eval();
+        QVariant result_y = script_y->eval();
+        if (result_x.type() != QVariant::Double ||
+            result_y.type() != QVariant::Double) {
+          delete xData;
+          delete yData;
+          xData = nullptr;
+          yData = nullptr;
+          return false;
+        }
+        if (type == 2) {
+          xData->append(result_x.toDouble() * cos(result_y.toDouble()));
+          yData->append(result_x.toDouble() * sin(result_y.toDouble()));
+        } else {
+          xData->append(result_x.toDouble());
+          yData->append(result_y.toDouble());
+        }
+      }
+      if (xData && yData) {
+        Layout2D *layout = newGraph2D();
+        layout->generateParametric2DPlot(xData, yData, formulas.at(0),
+                                         formulas.at(1));
+        return true;
+      }
+      delete xData;
+      delete yData;
+      xData = nullptr;
+      yData = nullptr;
     } break;
     default:
       qDebug() << "unknown function type!";
@@ -8894,10 +8958,12 @@ void ApplicationWindow::pixelLineProfile() {
   if (!ok) return;
 
   LineProfileTool *lpt = new LineProfileTool(g, res);
-  connect(lpt, SIGNAL(createTablePlot(const QString &, const QString &,
-                                      QList<Column *>)),
-          this, SLOT(newWrksheetPlot(const QString &, const QString &,
-                                     QList<Column *>)));
+  connect(
+      lpt,
+      SIGNAL(
+          createTablePlot(const QString &, const QString &, QList<Column *>)),
+      this,
+      SLOT(newWrksheetPlot(const QString &, const QString &, QList<Column *>)));
   g->setActiveTool(lpt);
 }
 
@@ -12003,6 +12069,11 @@ void ApplicationWindow::selectPlotType(int type) {
       case Graph::VerticalDropLines:
         plotType = Layout2D::VerticalDropLine2D;
         break;
+      case Graph::Spline:
+        layout->generateSpline2DPlot(table->column(table->firstXCol()),
+                                     table->column(table->firstXCol() + 1), 0,
+                                     table->rowCnt() - 1);
+        return;
       case Graph::VerticalSteps:
         plotType = Layout2D::VerticalStep2D;
         break;

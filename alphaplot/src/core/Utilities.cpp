@@ -29,7 +29,7 @@
 #include <windows.h>
 #endif
 
-double Utilities::rgbRandomSeed_ = static_cast<double>(rand())/RAND_MAX;
+double Utilities::rgbRandomSeed_ = static_cast<double>(rand()) / RAND_MAX;
 int Utilities::rgbCounter_ = 0;
 
 QString Utilities::getOperatingSystem() {
@@ -172,14 +172,23 @@ int Utilities::getWordSizeOfOS() {
 #endif
 }
 
-QColor Utilities::getRandColorGoldenRatio() {
+QColor Utilities::getRandColorGoldenRatio(ColorPal colpal) {
   rgbCounter_++;
   // use golden ratio
-  const double goldenRatioConjugate = 0.618033988749895f;
+  const double goldenRatioConjugate =
+      1.6180339887498949025257388711906969547271728515625;
   double hue = rgbRandomSeed_;
   hue += goldenRatioConjugate * rgbCounter_;
   hue = fmod(hue, 1);
-  double saturation = 0.5;
+  double saturation;
+  switch (colpal) {
+    case ColorPal::Light:
+      saturation = 0.5;
+      break;
+    case ColorPal::Dark:
+      saturation = 0.9;
+      break;
+  }
   double value = 0.95;
 
   double p, q, t, ff;

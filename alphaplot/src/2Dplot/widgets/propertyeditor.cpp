@@ -11,6 +11,7 @@
 #include "../3rdparty/propertybrowser/qtpropertymanager.h"
 #include "../3rdparty/propertybrowser/qttreepropertybrowser.h"
 #include "../Layout2D.h"
+#include "../LineScatter2D.h"
 #include "Matrix.h"
 #include "MultiLayer.h"
 #include "Note.h"
@@ -21,7 +22,7 @@ PropertyEditor::PropertyEditor(QWidget *parent)
     : QDockWidget(parent),
       ui_(new Ui_PropertyEditor),
       splitter_(new QSplitter(Qt::Vertical)),
-      objectbrowser_(new QTreeWidget(this)),
+      objectbrowser_(new MyTreeWidget(this)),
       propertybrowser_(new QtTreePropertyBrowser(this)),
       objectitems_(QList<QTreeWidgetItem *>()),
       previouswidget_(nullptr),
@@ -179,58 +180,145 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   axispropertyticklabelprecisionitem_ = intManager_->addProperty("Precision");
   axispropertyticklabelvisibilityitem_->addSubProperty(
       axispropertyticklabelprecisionitem_);
+  // LineScatter Properties block
+  QStringList lstylelist;
+  lstylelist << tr("None") << tr("Line") << tr("StepLeft") << tr("StepRight")
+             << tr("StepCenter") << tr("Impulse");
+  QStringList sstylelist;
+  sstylelist << tr("None") << tr("Dot") << tr("Cross") << tr("Plus")
+             << tr("Circle") << tr("Disc") << tr("Square") << tr("Diamond")
+             << tr("Star") << tr("Triangle") << tr("TriangleInverted")
+             << tr("CrossSquare") << tr("PlusSquare") << tr("CrossCircle")
+             << tr("PlusCircle") << tr("Peace");
+  lsplotpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
+  lsplotpropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
+  lsplotpropertylinestyleitem_ = enumManager_->addProperty("Line Style");
+  enumManager_->setEnumNames(lsplotpropertylinestyleitem_, lstylelist);
+  lsplotpropertylinestrokecoloritem_ =
+      colorManager_->addProperty("Line Stroke Color");
+  lsplotpropertylinestrokethicknessitem_ =
+      doubleManager_->addProperty("Line Stroke Thickness");
+  lsplotpropertylinestroketypeitem_ =
+      enumManager_->addProperty("Line Stroke Type");
+  enumManager_->setEnumNames(lsplotpropertylinestroketypeitem_, stroketypelist);
+  enumManager_->setEnumIcons(lsplotpropertylinestroketypeitem_,
+                             stroketypeiconslist);
+  lsplotpropertylinefillstatusitem_ =
+      boolManager_->addProperty("Fill Under Area");
+  lsplotpropertylinefillcoloritem_ =
+      colorManager_->addProperty("Area Fill Color");
+  lsplotpropertylineantialiaseditem_ =
+      boolManager_->addProperty("Line Antialiased");
+  lsplotpropertyscatterstyleitem_ = enumManager_->addProperty("Scatter Style");
+  enumManager_->setEnumNames(lsplotpropertyscatterstyleitem_, sstylelist);
+  lsplotpropertyscatterthicknessitem_ =
+      doubleManager_->addProperty("Scatter Size");
+  lsplotpropertyscatterfillcoloritem_ =
+      colorManager_->addProperty("Scatter Fill Color");
+  lsplotpropertyscatterstrokecoloritem_ =
+      colorManager_->addProperty("Scatter Outline Color");
+  lsplotpropertyscatterstrokethicknessitem_ =
+      doubleManager_->addProperty("Scatter Outline Thickness");
+  lsplotpropertyscatterstrokestyleitem_ =
+      enumManager_->addProperty("Scatter Outline Type");
+  enumManager_->setEnumNames(lsplotpropertyscatterstrokestyleitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(lsplotpropertyscatterstrokestyleitem_,
+                             stroketypeiconslist);
+  lsplotpropertyscatterantialiaseditem_ =
+      boolManager_->addProperty("Scatter Antialiased");
+  lsplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
 
   // Axis Properties Major Grid Sub Block
-  axisXgridpropertygroupitem_ = groupManager_->addProperty("Axis Grids");
-  axisXmajorgridpropertyvisibleitem_ =
-      boolManager_->addProperty(tr("Major Grid"));
-  axisXgridpropertygroupitem_->addSubProperty(
-      axisXmajorgridpropertyvisibleitem_);
-  axisXmajorgridpropertystrokecoloritem =
+  hgridaxispropertycomboitem_ =
+      groupManager_->addProperty("Horizontal Axis Grids");
+  hmajgridpropertyvisibleitem_ = boolManager_->addProperty(tr("Major Grid"));
+  hgridaxispropertycomboitem_->addSubProperty(hmajgridpropertyvisibleitem_);
+  hmajgridpropertystrokecoloritem_ =
       colorManager_->addProperty(tr("Stroke Color"));
-  axisXmajorgridpropertyvisibleitem_->addSubProperty(
-      axisXmajorgridpropertystrokecoloritem);
-  axisXmajorgridpropertystrokethicknessitem =
+  hmajgridpropertyvisibleitem_->addSubProperty(
+      hmajgridpropertystrokecoloritem_);
+  hmajgridpropertystrokethicknessitem_ =
       doubleManager_->addProperty(tr("Stroke Thickness"));
-  axisXmajorgridpropertyvisibleitem_->addSubProperty(
-      axisXmajorgridpropertystrokethicknessitem);
-  axisXmajorgridpropertystroketypeitem =
+  hmajgridpropertyvisibleitem_->addSubProperty(
+      hmajgridpropertystrokethicknessitem_);
+  hmajgridpropertystroketypeitem_ =
       enumManager_->addProperty(tr("Stroke Type"));
-  axisXmajorgridpropertyvisibleitem_->addSubProperty(
-      axisXmajorgridpropertystroketypeitem);
-  enumManager_->setEnumNames(axisXmajorgridpropertystroketypeitem,
-                             stroketypelist);
-  enumManager_->setEnumIcons(axisXmajorgridpropertystroketypeitem,
+  hmajgridpropertyvisibleitem_->addSubProperty(hmajgridpropertystroketypeitem_);
+  enumManager_->setEnumNames(hmajgridpropertystroketypeitem_, stroketypelist);
+  enumManager_->setEnumIcons(hmajgridpropertystroketypeitem_,
                              stroketypeiconslist);
-  axisXmajorgridpropertyzerolinevisibleitem =
+  hmajgridpropertyzerolinevisibleitem_ =
       boolManager_->addProperty(tr("Zero Line"));
-  axisXmajorgridpropertyvisibleitem_->addSubProperty(
-      axisXmajorgridpropertyzerolinevisibleitem);
+  hmajgridpropertyvisibleitem_->addSubProperty(
+      hmajgridpropertyzerolinevisibleitem_);
   // Axis Properties Minor Grid Sub Block
-  axisXminorgridpropertyvisibleitem_ =
-      boolManager_->addProperty(tr("Minor Grid"));
-  axisXgridpropertygroupitem_->addSubProperty(
-      axisXminorgridpropertyvisibleitem_);
-  axisXminorgridpropertystrokecoloritem =
+  hmingridpropertyvisibleitem_ = boolManager_->addProperty(tr("Minor Grid"));
+  hgridaxispropertycomboitem_->addSubProperty(hmingridpropertyvisibleitem_);
+  hmingridpropertystrokecoloritem_ =
       colorManager_->addProperty(tr("Stroke Color"));
-  axisXminorgridpropertyvisibleitem_->addSubProperty(
-      axisXminorgridpropertystrokecoloritem);
-  axisXminorgridpropertystrokethicknessitem =
+  hmingridpropertyvisibleitem_->addSubProperty(
+      hmingridpropertystrokecoloritem_);
+  hmingridpropertystrokethicknessitem_ =
       doubleManager_->addProperty(tr("Stroke Thickness"));
-  axisXminorgridpropertyvisibleitem_->addSubProperty(
-      axisXminorgridpropertystrokethicknessitem);
-  axisXminorgridpropertystroketypeitem =
+  hmingridpropertyvisibleitem_->addSubProperty(
+      hmingridpropertystrokethicknessitem_);
+  hmingridpropertystroketypeitem_ =
       enumManager_->addProperty(tr("Stroke Type"));
-  axisXminorgridpropertyvisibleitem_->addSubProperty(
-      axisXminorgridpropertystroketypeitem);
-  enumManager_->setEnumNames(axisXminorgridpropertystroketypeitem,
-                             stroketypelist);
-  enumManager_->setEnumIcons(axisXminorgridpropertystroketypeitem,
+  hmingridpropertyvisibleitem_->addSubProperty(hmingridpropertystroketypeitem_);
+  enumManager_->setEnumNames(hmingridpropertystroketypeitem_, stroketypelist);
+  enumManager_->setEnumIcons(hmingridpropertystroketypeitem_,
                              stroketypeiconslist);
-  axisXminorgridpropertyzerolinevisibleitem =
+  hmingridpropertyzerolinevisibleitem_ =
       boolManager_->addProperty(tr("Zero Line"));
-  axisXminorgridpropertyvisibleitem_->addSubProperty(
-      axisXminorgridpropertyzerolinevisibleitem);
+  hmingridpropertyvisibleitem_->addSubProperty(
+      hmingridpropertyzerolinevisibleitem_);
+
+  // Axis Properties Major Grid Sub Block
+  vgridaxispropertycomboitem_ =
+      groupManager_->addProperty("Vertical Axis Grids");
+  vmajgridpropertyvisibleitem_ = boolManager_->addProperty(tr("Major Grid"));
+  vgridaxispropertycomboitem_->addSubProperty(vmajgridpropertyvisibleitem_);
+  vmajgridpropertystrokecoloritem_ =
+      colorManager_->addProperty(tr("Stroke Color"));
+  vmajgridpropertyvisibleitem_->addSubProperty(
+      vmajgridpropertystrokecoloritem_);
+  vmajgridpropertystrokethicknessitem_ =
+      doubleManager_->addProperty(tr("Stroke Thickness"));
+  vmajgridpropertyvisibleitem_->addSubProperty(
+      vmajgridpropertystrokethicknessitem_);
+  vmajgridpropertystroketypeitem_ =
+      enumManager_->addProperty(tr("Stroke Type"));
+  vmajgridpropertyvisibleitem_->addSubProperty(vmajgridpropertystroketypeitem_);
+  enumManager_->setEnumNames(vmajgridpropertystroketypeitem_, stroketypelist);
+  enumManager_->setEnumIcons(vmajgridpropertystroketypeitem_,
+                             stroketypeiconslist);
+  vmajgridpropertyzerolinevisibleitem_ =
+      boolManager_->addProperty(tr("Zero Line"));
+  vmajgridpropertyvisibleitem_->addSubProperty(
+      vmajgridpropertyzerolinevisibleitem_);
+  // Axis Properties Minor Grid Sub Block
+  vmingridpropertyvisibleitem_ = boolManager_->addProperty(tr("Minor Grid"));
+  vgridaxispropertycomboitem_->addSubProperty(vmingridpropertyvisibleitem_);
+  vmingridpropertystrokecoloritem_ =
+      colorManager_->addProperty(tr("Stroke Color"));
+  vmingridpropertyvisibleitem_->addSubProperty(
+      vmingridpropertystrokecoloritem_);
+  vmingridpropertystrokethicknessitem_ =
+      doubleManager_->addProperty(tr("Stroke Thickness"));
+  vmingridpropertyvisibleitem_->addSubProperty(
+      vmingridpropertystrokethicknessitem_);
+  vmingridpropertystroketypeitem_ =
+      enumManager_->addProperty(tr("Stroke Type"));
+  vmingridpropertyvisibleitem_->addSubProperty(vmingridpropertystroketypeitem_);
+  enumManager_->setEnumNames(vmingridpropertystroketypeitem_, stroketypelist);
+  enumManager_->setEnumIcons(vmingridpropertystroketypeitem_,
+                             stroketypeiconslist);
+  vmingridpropertyzerolinevisibleitem_ =
+      boolManager_->addProperty(tr("Zero Line"));
+  vmingridpropertyvisibleitem_->addSubProperty(
+      vmingridpropertyzerolinevisibleitem_);
+
   // initiate property ID required for compare()
   setObjectPropertyId();
 
@@ -281,6 +369,21 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelvisibility_axis(value);
     axis->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertylinefillstatusitem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setlinefillstatus_lsplot(value);
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertylineantialiaseditem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setlineantialiased_lsplot(value);
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertyscatterantialiaseditem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setscatterantialiased_lsplot(value);
+    lsgraph->parentPlot()->replot();
   } else {
     qDebug() << "unknown bool property item";
   }
@@ -316,6 +419,26 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelcolor_axis(color);
     axis->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertylinestrokecoloritem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setlinestrokecolor_lsplot(color);
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertylinefillcoloritem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setlinefillcolor_lsplot(color);
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertyscatterfillcoloritem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setscatterfillcolor_lsplot(color);
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertyscatterstrokecoloritem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setscatterstrokecolor_lsplot(color);
+    lsgraph->parentPlot()->replot();
   }
   connect(colorManager_, SIGNAL(valueChanged(QtProperty *, QColor)), this,
           SLOT(valueChange(QtProperty *, const QColor &)));
@@ -325,8 +448,8 @@ void PropertyEditor::valueChange(QtProperty *prop, const QRect &rect) {
   if (prop->compare(layoutpropertyrectitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
-    axisrect->setOuterRect(rect);
-    axisrect->parentPlot()->replot();
+    // axisrect->setOuterRect(rect);
+    // axisrect->parentPlot()->replot();
   }
 }
 
@@ -355,6 +478,21 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelrotation_axis(value);
     axis->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertylinestrokethicknessitem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setlinestrokethickness_lsplot(value);
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertyscatterthicknessitem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setscattersize_lsplot(value);
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertyscatterstrokethicknessitem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setscatterstrokethickness_lsplot(value);
+    lsgraph->parentPlot()->replot();
   }
 }
 
@@ -363,6 +501,11 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setLabel(value);
     axis->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertylegendtextitem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setlegendtext_lsplot(value);
+    lsgraph->parentPlot()->replot();
   }
 }
 
@@ -423,6 +566,48 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelside_axis(static_cast<Axis2D::AxisLabelSide>(value));
     axis->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertyxaxisitem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getXAxis(value);
+    if(!axis)
+      return;
+    lsgraph->setxaxis_lsplot(axis);
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertyyaxisitem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getYAxis(value);
+    if(!axis)
+      return;
+    lsgraph->setyaxis_lsplot(axis);
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertylinestyleitem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setlinetype_lsplot(
+        static_cast<LineScatter2D::LineStyleType>(value));
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertylinestroketypeitem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setlinestrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertyscatterstyleitem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setscattershape_lsplot(
+        static_cast<LineScatter2D::ScatterStyle>(value));
+    lsgraph->parentPlot()->replot();
+  } else if (prop->compare(lsplotpropertyscatterstrokestyleitem_)) {
+    LineScatter2D *lsgraph =
+        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    lsgraph->setscatterstrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
+    lsgraph->parentPlot()->replot();
   }
 }
 
@@ -439,22 +624,30 @@ void PropertyEditor::valueChange(QtProperty *prop, const QFont &font) {
 }
 
 void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
-  switch (
-      static_cast<PropertyItemType>(item->data(0, Qt::UserRole).value<int>())) {
-    case PropertyItemType::Layout: {
+  switch (static_cast<MyTreeWidget::PropertyItemType>(
+      item->data(0, Qt::UserRole).value<int>())) {
+    case MyTreeWidget::PropertyItemType::Layout: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
       LayoutPropertyBlock(axisrect);
     } break;
-    case PropertyItemType::Grid: {
-      // void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
-      // Grid2D *gridrect = static_cast<Grid2D *>(ptr);
+    case MyTreeWidget::PropertyItemType::Grid: {
+      void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
+      AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
+      GridPropertyBlock(axisrect);
     } break;
-    case PropertyItemType::Axis:
+    case MyTreeWidget::PropertyItemType::Axis: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       Axis2D *axis = static_cast<Axis2D *>(ptr);
       AxisPropertyBlock(axis);
-      break;
+    } break;
+    case MyTreeWidget::PropertyItemType::LSGraph: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      LineScatter2D *lsgraph = static_cast<LineScatter2D *>(ptr1);
+      void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
+      AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
+      LSPropertyBlock(lsgraph, axisrect);
+    } break;
   }
 }
 
@@ -553,9 +746,143 @@ void PropertyEditor::AxisPropertyBlock(Axis2D *axis) {
                         axis->getticklabelprecision_axis());
 }
 
+void PropertyEditor::GridPropertyBlock(AxisRect2D *axisrect) {
+  propertybrowser_->clear();
+  propertybrowser_->addProperty(hgridaxispropertycomboitem_);
+  propertybrowser_->addProperty(vgridaxispropertycomboitem_);
+}
+
+void PropertyEditor::LSPropertyBlock(LineScatter2D *lsgraph,
+                                     AxisRect2D *axisrect) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(lsplotpropertyxaxisitem_);
+  propertybrowser_->addProperty(lsplotpropertyyaxisitem_);
+  propertybrowser_->addProperty(lsplotpropertylinestyleitem_);
+  propertybrowser_->addProperty(lsplotpropertylinestrokecoloritem_);
+  propertybrowser_->addProperty(lsplotpropertylinestrokethicknessitem_);
+  propertybrowser_->addProperty(lsplotpropertylinestroketypeitem_);
+  propertybrowser_->addProperty(lsplotpropertylinefillstatusitem_);
+  propertybrowser_->addProperty(lsplotpropertylinefillcoloritem_);
+  propertybrowser_->addProperty(lsplotpropertylineantialiaseditem_);
+  propertybrowser_->addProperty(lsplotpropertyscatterstyleitem_);
+  propertybrowser_->addProperty(lsplotpropertyscatterthicknessitem_);
+  propertybrowser_->addProperty(lsplotpropertyscatterfillcoloritem_);
+  propertybrowser_->addProperty(lsplotpropertyscatterstrokecoloritem_);
+  propertybrowser_->addProperty(lsplotpropertyscatterstrokestyleitem_);
+  propertybrowser_->addProperty(lsplotpropertyscatterstrokethicknessitem_);
+  propertybrowser_->addProperty(lsplotpropertyscatterantialiaseditem_);
+  propertybrowser_->addProperty(lsplotpropertylegendtextitem_);
+  {
+    QStringList lsyaxislist;
+    int currentyaxis = 0;
+    int ycount = 0;
+    QList<Axis2D *> yaxes = axisrect->getYAxes2D();
+
+    for (int i = 0; i < yaxes.size(); i++) {
+      lsyaxislist << QString("Y Axis %1").arg(i + 1);
+      if (yaxes.at(i) == lsgraph->getyaxis_lsplot()) {
+        currentyaxis = ycount;
+      }
+      ycount++;
+    }
+    enumManager_->setEnumNames(lsplotpropertyyaxisitem_, lsyaxislist);
+    enumManager_->setValue(lsplotpropertyyaxisitem_, currentyaxis);
+  }
+
+  {
+    QStringList lsxaxislist;
+    int currentxaxis = 0;
+    int xcount = 0;
+    QList<Axis2D *> xaxes = axisrect->getXAxes2D();
+    for (int i = 0; i < xaxes.size(); i++) {
+      lsxaxislist << QString("X Axis %1").arg(i + 1);
+      if (xaxes.at(i) == lsgraph->getxaxis_lsplot()) {
+        currentxaxis = xcount;
+      }
+      xcount++;
+    }
+
+    enumManager_->setEnumNames(lsplotpropertyxaxisitem_, lsxaxislist);
+    enumManager_->setValue(lsplotpropertyxaxisitem_, currentxaxis);
+  }
+
+  // lsgraph->getxaxis_lsplot();
+  // lsgraph->getyaxis_lsplot()
+
+  enumManager_->setValue(lsplotpropertylinestyleitem_,
+                         static_cast<int>(lsgraph->getlinetype_lsplot()));
+  colorManager_->setValue(lsplotpropertylinestrokecoloritem_,
+                          lsgraph->getlinestrokecolor_lsplot());
+  doubleManager_->setValue(lsplotpropertylinestrokethicknessitem_,
+                           lsgraph->getlinestrokethickness_lsplot());
+  enumManager_->setValue(
+      lsplotpropertylinestroketypeitem_,
+      static_cast<int>(lsgraph->getlinestrokestyle_lsplot() - 1));
+  boolManager_->setValue(lsplotpropertylinefillstatusitem_,
+                         lsgraph->getlinefillstatus_lsplot());
+  colorManager_->setValue(lsplotpropertylinefillcoloritem_,
+                          lsgraph->getlinefillcolor_lsplot());
+  boolManager_->setValue(lsplotpropertylineantialiaseditem_,
+                         lsgraph->getlineantialiased_lsplot());
+  enumManager_->setValue(lsplotpropertyscatterstyleitem_,
+                         static_cast<int>(lsgraph->getscattershape_lsplot()));
+  doubleManager_->setValue(lsplotpropertyscatterthicknessitem_,
+                           lsgraph->getscattersize_lsplot());
+  colorManager_->setValue(lsplotpropertyscatterfillcoloritem_,
+                          lsgraph->getscatterfillcolor_lsplot());
+  colorManager_->setValue(lsplotpropertyscatterstrokecoloritem_,
+                          lsgraph->getscatterstrokecolor_lsplot());
+  enumManager_->setValue(
+      lsplotpropertyscatterstrokestyleitem_,
+      static_cast<int>(lsgraph->getscatterstrokestyle_lsplot() - 1));
+  doubleManager_->setValue(lsplotpropertyscatterstrokethicknessitem_,
+                           lsgraph->getscatterstrokethickness_lsplot());
+  boolManager_->setValue(lsplotpropertyscatterantialiaseditem_,
+                         lsgraph->getscatterantialiased_lsplot());
+  stringManager_->setValue(lsplotpropertylegendtextitem_,
+                           lsgraph->getlegendtext_lsplot());
+}
+
 void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
-  Q_UNUSED(axisrect);
+  connect(axisrect, SIGNAL(AxisCreated(Axis2D *)), this,
+          SLOT(axisCreated(Axis2D *)));
+  connect(axisrect, SIGNAL(AxisRemoved(AxisRect2D *)), this,
+          SLOT(axisRemoved(AxisRect2D *)));
+
+  connect(axisrect, SIGNAL(LineScatterCreated(LineScatter2D *)), this,
+          SLOT(lineScatterCreated(LineScatter2D *)));
+  connect(axisrect, SIGNAL(BarCreated(Bar2D *)), this,
+          SLOT(barCreated(Bar2D *)));
   populateObjectBrowser(widget);
+}
+
+void PropertyEditor::axisCreated(Axis2D *axis) {
+  MyWidget *widget = qobject_cast<MyWidget *>(axis->parentPlot()->parent());
+  if (widget) {
+    populateObjectBrowser(widget);
+  }
+}
+
+void PropertyEditor::axisRemoved(AxisRect2D *axisrect) {
+  MyWidget *widget = qobject_cast<MyWidget *>(axisrect->parentPlot()->parent());
+  if (widget) {
+    populateObjectBrowser(widget);
+  }
+}
+
+void PropertyEditor::lineScatterCreated(LineScatter2D *ls) {
+  MyWidget *widget = qobject_cast<MyWidget *>(ls->parentPlot()->parent());
+  if (widget) {
+    populateObjectBrowser(widget);
+  }
+}
+
+void PropertyEditor::barCreated(Bar2D *bar) {
+  MyWidget *widget = qobject_cast<MyWidget *>(bar->parentPlot()->parent());
+  if (widget) {
+    populateObjectBrowser(widget);
+  }
 }
 
 void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
@@ -572,35 +899,129 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     for (int i = 0; i < elementslist.size(); ++i) {
       AxisRect2D *element = elementslist.at(i);
       QTreeWidgetItem *item =
-          new QTreeWidgetItem(static_cast<QTreeWidget *>(0),
+          new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
                               QStringList(QString("Layout: %1").arg(i + 1)));
+      item->setIcon(0,
+                    IconLoader::load("graph2d-layout", IconLoader::LightDark));
       item->setData(0, Qt::UserRole,
-                    static_cast<int>(PropertyItemType::Layout));
+                    static_cast<int>(MyTreeWidget::PropertyItemType::Layout));
       item->setData(0, Qt::UserRole + 1, QVariant::fromValue<void *>(element));
 
       // Grids
-      QTreeWidgetItem *griditem = new QTreeWidgetItem(
-          static_cast<QTreeWidget *>(0), QStringList(QString("Axis Grids")));
+      QTreeWidgetItem *griditem =
+          new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
+                              QStringList(QString("Axis Grids")));
+      griditem->setIcon(
+          0, IconLoader::load("graph3d-cross", IconLoader::LightDark));
       griditem->setData(0, Qt::UserRole,
-                        static_cast<int>(PropertyItemType::Grid));
+                        static_cast<int>(MyTreeWidget::PropertyItemType::Grid));
       item->setData(0, Qt::UserRole + 1, QVariant::fromValue<void *>(element));
       item->addChild(griditem);
 
       // Axis items
-      QList<Axis2D *> axes = element->getAxes2D();
-      for (int j = 0; j < axes.size(); j++) {
-        Axis2D *axis = axes.at(j);
-        QString axistext =
-            generateAxisTreeitemText(axis->getorientation_axis()).arg(j + 1);
-        QTreeWidgetItem *axisitem = new QTreeWidgetItem(
-            static_cast<QTreeWidget *>(0), QStringList(axistext));
-        axisitem->setData(0, Qt::UserRole,
-                          static_cast<int>(PropertyItemType::Axis));
+      QList<Axis2D *> xaxes = element->getXAxes2D();
+      QList<Axis2D *> yaxes = element->getYAxes2D();
+
+      for (int j = 0; j < xaxes.size(); j++) {
+        Axis2D *axis = xaxes.at(j);
+        QString axistext;
+        QTreeWidgetItem *axisitem =
+            new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+
+        switch (axis->getorientation_axis()) {
+          case Axis2D::AxisOreantation::Bottom:
+            axistext = QString("X Axis: " + QString::number(j + 1));
+            axisitem->setIcon(0, IconLoader::load("graph2d-axis-bottom",
+                                                  IconLoader::LightDark));
+            break;
+          case Axis2D::AxisOreantation::Top:
+            axistext = QString("X Axis: " + QString::number(j + 1));
+            axisitem->setIcon(
+                0, IconLoader::load("graph2d-axis-top", IconLoader::LightDark));
+            break;
+          case Axis2D::AxisOreantation::Left:
+          case Axis2D::AxisOreantation::Right:
+            qDebug() << "no left & right oriented X axis";
+            break;
+        }
+        axisitem->setText(0, axistext);
+        axisitem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::Axis));
         axisitem->setData(0, Qt::UserRole + 1,
                           QVariant::fromValue<void *>(axis));
         item->addChild(axisitem);
       }
+
+      for (int j = 0; j < yaxes.size(); j++) {
+        Axis2D *axis = yaxes.at(j);
+        QString axistext;
+        QTreeWidgetItem *axisitem =
+            new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+
+        switch (axis->getorientation_axis()) {
+          case Axis2D::AxisOreantation::Left:
+            axistext = QString("Y Axis: " + QString::number(j + 1));
+            axisitem->setIcon(0, IconLoader::load("graph2d-axis-left",
+                                                  IconLoader::LightDark));
+            break;
+          case Axis2D::AxisOreantation::Right:
+            axistext = QString("Y Axis: " + QString::number(j + 1));
+            axisitem->setIcon(0, IconLoader::load("graph2d-axis-right",
+                                                  IconLoader::LightDark));
+            break;
+          case Axis2D::AxisOreantation::Top:
+          case Axis2D::AxisOreantation::Bottom:
+            qDebug() << "no top & bottom oriented Y axis";
+            break;
+        }
+        axisitem->setText(0, axistext);
+        axisitem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::Axis));
+        axisitem->setData(0, Qt::UserRole + 1,
+                          QVariant::fromValue<void *>(axis));
+        item->addChild(axisitem);
+      }
+
+      // LineScatter plot Items
+      LsVec graphvec = element->getGraphVec();
+      for (int j = 0; j < graphvec.size(); j++) {
+        LineScatter2D *lsgraph = graphvec.at(j);
+        QString lsgraphtext = QString("Line Scatter %1").arg(j + 1);
+        QTreeWidgetItem *lsgraphitem = new QTreeWidgetItem(
+            static_cast<QTreeWidget *>(nullptr), QStringList(lsgraphtext));
+        lsgraphitem->setIcon(
+            0, IconLoader::load("graph2d-line", IconLoader::LightDark));
+        lsgraphitem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::LSGraph));
+        lsgraphitem->setData(0, Qt::UserRole + 1,
+                             QVariant::fromValue<void *>(lsgraph));
+        lsgraphitem->setData(0, Qt::UserRole + 2,
+                             QVariant::fromValue<void *>(element));
+        item->addChild(lsgraphitem);
+      }
+
+      // Bar Plot items
+      BarVec barvec = element->getBarVec();
+      for (int j = 0; j < barvec.size(); j++) {
+        Bar2D *bar = barvec.at(j);
+        QString bartext = QString("Bar %1").arg(j + 1);
+        QTreeWidgetItem *baritem = new QTreeWidgetItem(
+            static_cast<QTreeWidget *>(nullptr), QStringList(bartext));
+        baritem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::BarGraph));
+        baritem->setData(0, Qt::UserRole + 1, QVariant::fromValue<void *>(bar));
+        baritem->setData(0, Qt::UserRole + 2,
+                         QVariant::fromValue<void *>(element));
+        item->addChild(baritem);
+      }
       objectitems_.append(item);
+      // if (!elementslist.isEmpty()) {
+      // elementslist.at(0)->parentPlot()->replot();
+      //}
     }
     connect(gd, SIGNAL(AxisRectCreated(AxisRect2D *, MyWidget *)), this,
             SLOT(axisRectCreated(AxisRect2D *, MyWidget *)));
@@ -688,24 +1109,36 @@ void PropertyEditor::setObjectPropertyId() {
       "axispropertyticklabelsideitem_");
   axispropertyticklabelprecisionitem_->setPropertyId(
       "axispropertyticklabelprecisionitem_");
-}
-
-QString PropertyEditor::generateAxisTreeitemText(
-    const Axis2D::AxisOreantation &orient) {
-  QString axistext;
-  switch (orient) {
-    case Axis2D::AxisOreantation::Left:
-      axistext = QString("Y Axis Left: %1");
-      break;
-    case Axis2D::AxisOreantation::Right:
-      axistext = QString("Y Axis Right: %1");
-      break;
-    case Axis2D::AxisOreantation::Bottom:
-      axistext = QString("X Axis Bottom: %1");
-      break;
-    case Axis2D::AxisOreantation::Top:
-      axistext = QString("X Axis Top: %1");
-      break;
-  }
-  return axistext;
+  // Line Scatter Property Block
+  lsplotpropertyxaxisitem_->setPropertyId("lsplotpropertyxaxisitem_");
+  lsplotpropertyyaxisitem_->setPropertyId("lsplotpropertyyaxisitem_");
+  lsplotpropertylinestyleitem_->setPropertyId("lsplotpropertylinestyleitem_");
+  lsplotpropertylinestrokecoloritem_->setPropertyId(
+      "lsplotpropertylinestrokecoloritem_");
+  lsplotpropertylinestrokethicknessitem_->setPropertyId(
+      "lsplotpropertylinestrokethicknesitem_");
+  lsplotpropertylinestroketypeitem_->setPropertyId(
+      "lsplotpropertylinestroketypeitem_");
+  lsplotpropertylinefillstatusitem_->setPropertyId(
+      "lsplotpropertylinefillstatusitem_");
+  lsplotpropertylinefillcoloritem_->setPropertyId(
+      "lsplotpropertylinefillcoloritem_");
+  lsplotpropertylineantialiaseditem_->setPropertyId(
+      "lsplotpropertylineantialiaseditem_");
+  lsplotpropertyscatterstyleitem_->setPropertyId(
+      "lsplotpropertyscatterstyleitem_");
+  lsplotpropertyscatterthicknessitem_->setPropertyId(
+      "lsplotpropertyscatterthicknessitem_");
+  lsplotpropertyscatterfillcoloritem_->setPropertyId(
+      "lsplotpropertyscatterfillcoloritem_");
+  lsplotpropertyscatterstrokecoloritem_->setPropertyId(
+      "lsplotpropertyscatterstrokecoloritem_");
+  lsplotpropertyscatterstrokethicknessitem_->setPropertyId(
+      "lsplotpropertyscatterstrokethicknessitem_");
+  lsplotpropertyscatterstrokestyleitem_->setPropertyId(
+      "lsplotpropertyscatterstrokestyleitem_");
+  lsplotpropertyscatterantialiaseditem_->setPropertyId(
+      "lsplotpropertyscatterantialiaseditem_");
+  lsplotpropertylegendtextitem_->setPropertyId(
+      "lsplotpropertylelegendtextitem_");
 }

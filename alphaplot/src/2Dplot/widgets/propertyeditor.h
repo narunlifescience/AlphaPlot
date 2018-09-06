@@ -2,8 +2,8 @@
 #define PROPERTYEDITOR_H
 
 #include <QDockWidget>
-#include <QTreeWidget>
 #include "../Axis2D.h"
+#include "MyTreeWidget.h"
 
 class Ui_PropertyEditor;
 class QSplitter;
@@ -13,6 +13,9 @@ class QTreeWidgetItem;
 class QtAbstractPropertyBrowser;
 class Layout2D;
 class AxisRect2D;
+class Grid2D;
+class LineScatter2D;
+class Bar2D;
 // Property
 class QtProperty;
 class QtBoolPropertyManager;
@@ -38,11 +41,6 @@ class PropertyEditor : public QDockWidget {
  public:
   explicit PropertyEditor(QWidget *parent = nullptr);
   ~PropertyEditor();
-  enum class PropertyItemType : int {
-    Layout = 0,
-    Grid = 1,
-    Axis = 2,
-  };
 
  private slots:
   void valueChange(QtProperty *prop, const bool value);
@@ -57,25 +55,33 @@ class PropertyEditor : public QDockWidget {
   void selectObjectItem(QTreeWidgetItem *item);
   void LayoutPropertyBlock(AxisRect2D *axisrect);
   void AxisPropertyBlock(Axis2D *axis);
+  void GridPropertyBlock(AxisRect2D *axisrect);
+  void LSPropertyBlock(LineScatter2D *lsgraph, AxisRect2D *axisrect);
   void axisRectCreated(AxisRect2D *axisrect, MyWidget *widget);
+  void axisCreated(Axis2D *axis);
+  void axisRemoved(AxisRect2D *axisrect);
+  void lineScatterCreated(LineScatter2D *ls);
+  void barCreated(Bar2D *bar);
 
  public slots:
   void populateObjectBrowser(MyWidget *widget);
 
  private:
   void setObjectPropertyId();
-  QString generateAxisTreeitemText(const Axis2D::AxisOreantation &orient);
   template <class T>
-  T* getgraph2dobject(QTreeWidgetItem *item) {
+  T *getgraph2dobject(QTreeWidgetItem *item) {
     void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
-    T* object = static_cast<T *>(ptr);
+    T *object = static_cast<T *>(ptr);
     return object;
   }
+  typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
+  typedef QVector<LineScatter2D *> LsVec;
+  typedef QVector<Bar2D *> BarVec;
 
  private:
   Ui_PropertyEditor *ui_;
   QSplitter *splitter_;
-  QTreeWidget *objectbrowser_;
+  MyTreeWidget *objectbrowser_;
   QtAbstractPropertyBrowser *propertybrowser_;
   QList<QTreeWidgetItem *> objectitems_;
   QWidget *previouswidget_;
@@ -141,19 +147,51 @@ class PropertyEditor : public QDockWidget {
   QtProperty *axispropertyticklabelsideitem_;
   QtProperty *axispropertyticklabelprecisionitem_;
 
-  // Axis Properties Major Grid Sub Block
-  QtProperty *axisXgridpropertygroupitem_;
-  QtProperty *axisXmajorgridpropertyvisibleitem_;
-  QtProperty *axisXmajorgridpropertystrokecoloritem;
-  QtProperty *axisXmajorgridpropertystrokethicknessitem;
-  QtProperty *axisXmajorgridpropertystroketypeitem;
-  QtProperty *axisXmajorgridpropertyzerolinevisibleitem;
-  // Axis Properties Minor Grid Sub Block
-  QtProperty *axisXminorgridpropertyvisibleitem_;
-  QtProperty *axisXminorgridpropertystrokecoloritem;
-  QtProperty *axisXminorgridpropertystrokethicknessitem;
-  QtProperty *axisXminorgridpropertystroketypeitem;
-  QtProperty *axisXminorgridpropertyzerolinevisibleitem;
+  // LineScatter Properties block
+  QtProperty *lsplotpropertyxaxisitem_;
+  QtProperty *lsplotpropertyyaxisitem_;
+  QtProperty *lsplotpropertylinestyleitem_;
+  QtProperty *lsplotpropertylinestrokecoloritem_;
+  QtProperty *lsplotpropertylinestrokethicknessitem_;
+  QtProperty *lsplotpropertylinestroketypeitem_;
+  QtProperty *lsplotpropertylinefillstatusitem_;
+  QtProperty *lsplotpropertylinefillcoloritem_;
+  QtProperty *lsplotpropertylineantialiaseditem_;
+  QtProperty *lsplotpropertyscatterstyleitem_;
+  QtProperty *lsplotpropertyscatterthicknessitem_;
+  QtProperty *lsplotpropertyscatterfillcoloritem_;
+  QtProperty *lsplotpropertyscatterstrokecoloritem_;
+  QtProperty *lsplotpropertyscatterstrokethicknessitem_;
+  QtProperty *lsplotpropertyscatterstrokestyleitem_;
+  QtProperty *lsplotpropertyscatterantialiaseditem_;
+  QtProperty *lsplotpropertylegendtextitem_;
+
+  // Horizontal Major Grid Sub Block
+  QtProperty *hgridaxispropertycomboitem_;
+  QtProperty *hmajgridpropertyvisibleitem_;
+  QtProperty *hmajgridpropertystrokecoloritem_;
+  QtProperty *hmajgridpropertystrokethicknessitem_;
+  QtProperty *hmajgridpropertystroketypeitem_;
+  QtProperty *hmajgridpropertyzerolinevisibleitem_;
+  // Horizontal Minor Grid Sub Block
+  QtProperty *hmingridpropertyvisibleitem_;
+  QtProperty *hmingridpropertystrokecoloritem_;
+  QtProperty *hmingridpropertystrokethicknessitem_;
+  QtProperty *hmingridpropertystroketypeitem_;
+  QtProperty *hmingridpropertyzerolinevisibleitem_;
+  // Vertical Major Grid Sub Block
+  QtProperty *vgridaxispropertycomboitem_;
+  QtProperty *vmajgridpropertyvisibleitem_;
+  QtProperty *vmajgridpropertystrokecoloritem_;
+  QtProperty *vmajgridpropertystrokethicknessitem_;
+  QtProperty *vmajgridpropertystroketypeitem_;
+  QtProperty *vmajgridpropertyzerolinevisibleitem_;
+  // Vertical Minor Grid Sub Block
+  QtProperty *vmingridpropertyvisibleitem_;
+  QtProperty *vmingridpropertystrokecoloritem_;
+  QtProperty *vmingridpropertystrokethicknessitem_;
+  QtProperty *vmingridpropertystroketypeitem_;
+  QtProperty *vmingridpropertyzerolinevisibleitem_;
 };
 
 #endif  // PROPERTYEDITOR_H

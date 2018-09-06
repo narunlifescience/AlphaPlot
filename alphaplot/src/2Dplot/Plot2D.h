@@ -24,7 +24,7 @@
 class Plot2D : public QCustomPlot {
   Q_OBJECT
  public:
-  explicit Plot2D(QWidget *parent = 0);
+  explicit Plot2D(QWidget *parent = nullptr);
   ~Plot2D();
 
   void setBackgroundColor(const QBrush &brush);

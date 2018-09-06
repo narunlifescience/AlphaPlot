@@ -398,6 +398,11 @@
     <file>icons/light/16/edit-legend.png</file>
     <file>icons/light/16/edit-tex.png</file>
     <file>icons/light/16/edit-erasor.png</file>
+    <file>icons/light/16/graph2d-axis-left.png</file>
+    <file>icons/light/16/graph2d-axis-bottom.png</file>
+    <file>icons/light/16/graph2d-axis-right.png</file>
+    <file>icons/light/16/graph2d-axis-top.png</file>
+    <file>icons/light/16/graph2d-layout.png</file>
     <file>icons/light/22/edit-copy.png</file>
     <file>icons/light/22/edit-cut.png</file>
     <file>icons/light/22/edit-paste.png</file>
@@ -520,6 +525,11 @@
     <file>icons/light/22/edit-legend.png</file>
     <file>icons/light/22/edit-tex.png</file>
     <file>icons/light/22/edit-erasor.png</file>
+    <file>icons/light/22/graph2d-axis-left.png</file>
+    <file>icons/light/22/graph2d-axis-bottom.png</file>
+    <file>icons/light/22/graph2d-axis-right.png</file>
+    <file>icons/light/22/graph2d-axis-top.png</file>
+    <file>icons/light/22/graph2d-layout.png</file>
     <file>icons/light/24/edit-copy.png</file>
     <file>icons/light/24/edit-cut.png</file>
     <file>icons/light/24/edit-paste.png</file>
@@ -641,6 +651,11 @@
     <file>icons/light/24/edit-legend.png</file>
     <file>icons/light/24/edit-tex.png</file>
     <file>icons/light/24/edit-erasor.png</file>
+    <file>icons/light/24/graph2d-axis-left.png</file>
+    <file>icons/light/24/graph2d-axis-bottom.png</file>
+    <file>icons/light/24/graph2d-axis-right.png</file>
+    <file>icons/light/24/graph2d-axis-top.png</file>
+    <file>icons/light/24/graph2d-layout.png</file>
     <file>icons/light/32/graph-x-error.png</file>
     <file>icons/light/32/graph-y-error.png</file>
     <file>icons/light/32/table-column-sum.png</file>
@@ -776,6 +791,11 @@
     <file>icons/dark/16/edit-legend.png</file>
     <file>icons/dark/16/edit-tex.png</file>
     <file>icons/dark/16/edit-erasor.png</file>
+    <file>icons/dark/16/graph2d-axis-left.png</file>
+    <file>icons/dark/16/graph2d-axis-bottom.png</file>
+    <file>icons/dark/16/graph2d-axis-right.png</file>
+    <file>icons/dark/16/graph2d-axis-top.png</file>
+    <file>icons/dark/16/graph2d-layout.png</file>
     <file>icons/dark/22/edit-copy.png</file>
     <file>icons/dark/22/edit-cut.png</file>
     <file>icons/dark/22/edit-paste.png</file>
@@ -898,6 +918,11 @@
     <file>icons/dark/22/edit-legend.png</file>
     <file>icons/dark/22/edit-tex.png</file>
     <file>icons/dark/22/edit-erasor.png</file>
+    <file>icons/dark/22/graph2d-axis-left.png</file>
+    <file>icons/dark/22/graph2d-axis-bottom.png</file>
+    <file>icons/dark/22/graph2d-axis-right.png</file>
+    <file>icons/dark/22/graph2d-axis-top.png</file>
+    <file>icons/dark/22/graph2d-layout.png</file>
     <file>icons/dark/24/edit-copy.png</file>
     <file>icons/dark/24/edit-cut.png</file>
     <file>icons/dark/24/edit-paste.png</file>
@@ -1019,6 +1044,11 @@
     <file>icons/dark/24/edit-legend.png</file>
     <file>icons/dark/24/edit-tex.png</file>
     <file>icons/dark/24/edit-erasor.png</file>
+    <file>icons/dark/24/graph2d-axis-left.png</file>
+    <file>icons/dark/24/graph2d-axis-bottom.png</file>
+    <file>icons/dark/24/graph2d-axis-right.png</file>
+    <file>icons/dark/24/graph2d-axis-top.png</file>
+    <file>icons/dark/24/graph2d-layout.png</file>
     <file>icons/dark/32/graph-x-error.png</file>
     <file>icons/dark/32/graph-y-error.png</file>
     <file>icons/dark/32/table-column-sum.png</file>

@@ -20,14 +20,23 @@
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
 #include "Bar2D.h"
+#include "Curve2D.h"
 #include "Grid2D.h"
 #include "LineScatter2D.h"
+#include "Pie2D.h"
+#include "Spline2D.h"
+#include "Vector2D.h"
 
 class Legend2D;
 class Column;
 
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
+ private:
+  typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
+  typedef QVector<LineScatter2D *> LsVec;
+  typedef QVector<Bar2D *> BarVec;
+
  public:
   AxisRect2D(QCustomPlot *parent = nullptr, bool setupDefaultAxis = false);
   ~AxisRect2D();
@@ -40,13 +49,20 @@ class AxisRect2D : public QCPAxisRect {
 
   QList<Axis2D *> getAxes2D() const;
   QList<Axis2D *> getAxes2D(const Axis2D::AxisOreantation &orientation) const;
+  QList<Axis2D *> getXAxes2D() const;
+  QList<Axis2D *> getYAxes2D() const;
+  GridPair getGridPair() const { return gridpair_; }
+  LsVec getGraphVec() const { return lsvec_; }
+  BarVec getBarVec() const { return barvec_; }
+
+  Axis2D *getXAxis(int value);
+  Axis2D *getYAxis(int value);
 
   enum LineScatterType {
     Line2D,
     Scatter2D,
     LineAndScatter2D,
     VerticalDropLine2D,
-    Spline2D,
     CentralStepAndScatter2D,
     HorizontalStep2D,
     VerticalStep2D,
@@ -61,16 +77,26 @@ class AxisRect2D : public QCPAxisRect {
   LineScatter2D *addLineScatter2DPlot(const LineScatterType &type,
                                       Column *xData, Column *yData, int from,
                                       int to, Axis2D *xAxis, Axis2D *yAxis);
+  Spline2D *addSpline2DPlot(Column *xData, Column *yData, int from, int to,
+                            Axis2D *xAxis, Axis2D *yAxis);
   LineScatter2D *addLineFunction2DPlot(QVector<double> *xdata,
                                        QVector<double> *ydata, Axis2D *xAxis,
                                        Axis2D *yAxis);
+  Curve2D *addCurveFunction2DPlot(QVector<double> *xdata,
+                                  QVector<double> *ydata, Axis2D *xAxis,
+                                  Axis2D *yAxis);
   Bar2D *addBox2DPlot(const BarType &type, Column *xData, Column *yData,
                       int from, int to, Axis2D *xAxis, Axis2D *yAxis);
+  Vector2D *addVectorPlot(const Vector2D::VectorPlot &vectorplot,
+                          Column *x1Data, Column *y1Data, Column *x2Data,
+                          Column *y2Data, int from, int to, Axis2D *xAxis,
+                          Axis2D *yAxis);
+  Pie2D *addPie2DPlot(Column *xData, int from, int to);
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;
 
-  QCPLegend *getLegend() {
+  QCPLegend *getLegend() const {
     return reinterpret_cast<QCPLegend *>(axisRectLegend_);
   }
   void updateLegendRect();
@@ -80,23 +106,44 @@ class AxisRect2D : public QCPAxisRect {
   void drawSelection(QCPPainter *painter);
   bool isSelected() { return isAxisRectSelected_; }
 
+ public slots:
+  Axis2D *addLeftAxis2D() { return addAxis2D(Axis2D::AxisOreantation::Left); }
+  Axis2D *addBottomAxis2D() {
+    return addAxis2D(Axis2D::AxisOreantation::Bottom);
+  }
+  Axis2D *addRightAxis2D() { return addAxis2D(Axis2D::AxisOreantation::Right); }
+  Axis2D *addTopAxis2D() { return addAxis2D(Axis2D::AxisOreantation::Top); }
+
  protected:
   void mousePressEvent(QMouseEvent *, const QVariant &);
+  void mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos);
   void draw(QCPPainter *painter);
 
  signals:
   void AxisRectClicked(AxisRect2D *);
   void AxisCreated(Axis2D *);
+  void AxisRemoved(AxisRect2D *);
+  void LineScatterCreated(LineScatter2D *);
+  void LineScatterRemoved(AxisRect2D *);
+  void BarCreated(Bar2D *);
+  void BarRemoved();
 
  private slots:
   void legendClick();
+  void addfunctionplot();
+  void addplot();
 
  private:
   QBrush axisRectBackGround_;
   Legend2D *axisRectLegend_;
-  // QMap<LineScatterType, QList<LineScatter2D *>> lineScatter_;
-  QPair<Grid2D *, Grid2D *> grids_;
   bool isAxisRectSelected_;
+  GridPair gridpair_;
+  LsVec lsvec_;
+  BarVec barvec_;
+  QList<Axis2D *> axes_;
+  // QVector<QPair<StatBox2D *, QPair<Axis2D *, Axis2D *>>> statboxplots_;
+  // Histogram
+  // Other types
 };
 
 #endif  // AXISRECT2D_H

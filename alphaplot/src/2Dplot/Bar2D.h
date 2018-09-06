@@ -20,9 +20,11 @@ class Bar2D : public QCPBars {
   };
 
   void setBarData(Column *xData, Column *yData, int from, int to);
+  void setBarWidth(double barwidth);
+  double getBarWidth();
 
 private:
-
+  double barwidth_;
 };
 
 #endif  // BAR2D_H

@@ -15,8 +15,9 @@
    Description : Plot2D grid related stuff */
 
 #include "Grid2D.h"
+#include "Axis2D.h"
 
-Grid2D::Grid2D(QCPAxis *parent)
+Grid2D::Grid2D(Axis2D *parent)
     : QCPGrid(parent), gridProperties_(new Property2D::Grid()) {
   // Set Default grid values
   gridProperties_->majorGrid.visible.value = true;

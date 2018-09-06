@@ -5,6 +5,7 @@
 #include "Axis2D.h"
 
 class Column;
+class PlotPoint;
 
 class LineScatter2D : public QCPGraph {
   Q_OBJECT
@@ -12,55 +13,84 @@ class LineScatter2D : public QCPGraph {
   LineScatter2D(Axis2D *xAxis = nullptr, Axis2D *yAxis = nullptr);
   ~LineScatter2D();
 
-  enum Line {
-    LinePlot,
-    NonePlot,
-    VerticalDropLinePlot,
-    SplinePlot,
-    CentralStepAndScatterPlot,
-    HorizontalStepPlot,
-    VerticalStepPlot,
-    AreaPlot,
+  enum class LineStyleType : int {
+    None = 0,
+    Line = 1,
+    StepLeft = 2,
+    StepRight = 3,
+    StepCenter = 4,
+    Impulse = 5,
   };
 
-  enum Scatter { ScatterVisible, ScatterHidden };
+  enum class ScatterStyle : int {
+    None = 0,
+    Dot = 1,
+    Cross = 2,
+    Plus = 3,
+    Circle = 4,
+    Disc = 5,
+    Square = 6,
+    Diamond = 7,
+    Star = 8,
+    Triangle = 9,
+    TriangleInverted = 10,
+    CrossSquare = 11,
+    PlusSquare = 12,
+    CrossCircle = 13,
+    PlusCircle = 14,
+    Peace = 15,
+  };
 
   void setGraphData(Column *xData, Column *yData, int from, int to);
   void setGraphData(QVector<double> *xdata, QVector<double> *ydata);
-  // set scatter line params
-  void setLineScatter2DPlot(const Line &line, const Scatter &scatter);
-  void setScatterShape2D(const QCPScatterStyle::ScatterShape &shape);
-  void setScatterPen2D(const QPen &pen);
-  void setScatterBrush2D(const QBrush &brush);
-  void setScatterSize2D(const double size);
-  void setLinePen2D(const QPen &pen);
-  void setLineBrush2D(const QBrush &brush);
-  void setAutoAntialiasing(bool status) {autoAntialiasing_ = status;}
+  // Getters
+  LineStyleType getlinetype_lsplot() const;
+  Qt::PenStyle getlinestrokestyle_lsplot() const;
+  QColor getlinestrokecolor_lsplot() const;
+  double getlinestrokethickness_lsplot() const;
+  bool getlinefillstatus_lsplot() const;
+  QColor getlinefillcolor_lsplot() const;
+  bool getlineantialiased_lsplot() const;
+  ScatterStyle getscattershape_lsplot() const;
+  QColor getscatterfillcolor_lsplot() const;
+  double getscattersize_lsplot() const;
+  Qt::PenStyle getscatterstrokestyle_lsplot() const;
+  QColor getscatterstrokecolor_lsplot() const;
+  double getscatterstrokethickness_lsplot() const;
+  bool getscatterantialiased_lsplot() const;
+  QString getlegendtext_lsplot() const;
+  Axis2D *getxaxis_lsplot() const;
+  Axis2D *getyaxis_lsplot() const;
+  // Setters
+  void setlinetype_lsplot(const LineStyleType &line);
+  void setlinestrokestyle_lsplot(const Qt::PenStyle &style);
+  void setlinestrokecolor_lsplot(const QColor &color);
+  void setlinestrokethickness_lsplot(const double value);
+  void setlinefillstatus_lsplot(bool status);
+  void setlinefillcolor_lsplot(const QColor &color);
+  void setlineantialiased_lsplot(const bool value);
+  void setscattershape_lsplot(const ScatterStyle &shape);
+  void setscatterfillcolor_lsplot(const QColor &color);
+  void setscattersize_lsplot(const double value);
+  void setscatterstrokestyle_lsplot(const Qt::PenStyle &style);
+  void setscatterstrokecolor_lsplot(const QColor &color);
+  void setscatterstrokethickness_lsplot(const double value);
+  void setscatterantialiased_lsplot(const bool value);
+  void setlegendtext_lsplot(const QString &legendtext);
+  void setxaxis_lsplot(Axis2D *axis);
+  void setyaxis_lsplot(Axis2D *axis);
 
-  // Get scatter line params
-  QCPScatterStyle::ScatterShape getScatterShape() const {
-    return scatterShape_;
-  }
-  QPen getScatterPen() const { return scatterPen_; }
-  QBrush getScatterBrush() const { return scatterBrush_; }
-  double getScatterSize() const { return scatterSize_; }
-  Line getLinePlotStyle() const { return lineStyle_; }
-  QPen getLinePen() const { return linePen_; }
-  QBrush getLineBrush() const { return lineBrush_; }
+protected:
+  void mousePressEvent(QMouseEvent *event, const QVariant &details);
+  void mouseMoveEvent(QMouseEvent *event,  const QPointF &startPos);
+  void keyPressEvent(QKeyEvent *event);
+  void keyreleaseEvent(QKeyEvent *event);
 
-
- private:
-  // Scatter
-  QCPScatterStyle scatterStyle_;
-  QCPScatterStyle::ScatterShape scatterShape_;
-  QPen scatterPen_;
-  QBrush scatterBrush_;
-  double scatterSize_;
-  // Line
-  Line lineStyle_;
-  QPen linePen_;
-  QBrush lineBrush_;
-  bool autoAntialiasing_;
+private:
+  Axis2D *xAxis_;
+  Axis2D *yAxis_;
+  QCPScatterStyle *scatterstyle_;
+  PlotPoint *mPointUnderCursor;
 };
 
 #endif  // LINESCATTER2D_H

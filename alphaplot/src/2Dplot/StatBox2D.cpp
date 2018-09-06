@@ -9,7 +9,9 @@ StatBox2D::StatBox2D(Axis2D *xAxis, Axis2D *yAxis,
   sBoxdata.key = boxWhiskerData.key;
   sBoxdata.median = boxWhiskerData.median;
   sBoxdata = setBoxStyle(Perc_25_75, sBoxdata, boxWhiskerData);
-  sBoxdata = setWhiskerStyle(MinMax, sBoxdata, boxWhiskerData);
+  sBoxdata = setWhiskerStyle(Perc_5_95, sBoxdata, boxWhiskerData);
+  sBoxdata.outliers << boxWhiskerData.boxWhiskerDataBounds.min
+                    << boxWhiskerData.boxWhiskerDataBounds.max;
   statBoxdataContainer_->add(sBoxdata);
   setData(statBoxdataContainer_);
 }

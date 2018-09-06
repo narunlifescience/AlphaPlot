@@ -20,10 +20,12 @@
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Properties2D.h"
 
+class Axis2D;
+
 class Grid2D : public QCPGrid {
   Q_OBJECT
  public:
-  explicit Grid2D(QCPAxis *parent);
+  explicit Grid2D(Axis2D *parent);
   ~Grid2D();
   // Grid & Zeroline
   void setMajorGridPen(const QPen &pen);

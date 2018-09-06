@@ -65,11 +65,11 @@ FunctionDialog::FunctionDialog(QWidget *parent, Qt::WFlags fl)
   boxFunction = new QTextEdit();
   boxFunction->setMinimumWidth(350);
   gl1->addWidget(boxFunction, 0, 1);
-  gl1->addWidget(new QLabel(tr("From x= ")), 1, 0);
+  gl1->addWidget(new QLabel(tr("From x = ")), 1, 0);
   boxFrom = new QLineEdit();
   boxFrom->setText("0");
   gl1->addWidget(boxFrom, 1, 1);
-  gl1->addWidget(new QLabel(tr("To x= ")), 2, 0);
+  gl1->addWidget(new QLabel(tr("To x = ")), 2, 0);
   boxTo = new QLineEdit();
   boxTo->setText("1");
   gl1->addWidget(boxTo, 2, 1);

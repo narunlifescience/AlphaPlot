@@ -77,11 +77,13 @@ class StatBox2D : public QCPStatisticalBox {
 
   void setBoxWhiskerData(BoxWhiskerData boxWhiskerData);
   QCPStatisticalBoxData setBoxStyle(const BoxWhiskerStyle &boxStyle,
-                   QCPStatisticalBoxData sBoxdata,
-                   BoxWhiskerData boxWhiskerData);
+                                    QCPStatisticalBoxData sBoxdata,
+                                    BoxWhiskerData boxWhiskerData);
   QCPStatisticalBoxData setWhiskerStyle(const BoxWhiskerStyle &whiskerStyle,
-                       QCPStatisticalBoxData sBoxdata,
-                       BoxWhiskerData boxWhiskerData);
+                                        QCPStatisticalBoxData sBoxdata,
+                                        BoxWhiskerData boxWhiskerData);
+  void setBoxWhiskerWidth(double width) { setWidth(width); }
+  double boxWhiskerWidth() { return width(); }
 
  private:
   QSharedPointer<QCPStatisticalBoxDataContainer> statBoxdataContainer_;

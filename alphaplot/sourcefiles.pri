@@ -123,6 +123,14 @@ HEADERS  += src/ApplicationWindow.h \
             src/ui/PropertiesDialog.h \
             src/ui/RandomDistributionDialog.h \
             src/About.h \
+            src/2Dplot/Spline2D.h \
+            src/2Dplot/Vector2D.h \
+            src/2Dplot/DataManager2D.h \
+            src/2Dplot/Curve2D.h \
+            src/2Dplot/PlotPoint.h \
+            src/2Dplot/Pie2D.h \
+            src/2Dplot/widgets/MyTreeWidget.h \
+            src/2Dplot/widgets/AddAxisWidget.h
 
 ###################### SOURCES ##############################################
 
@@ -243,7 +251,15 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ui/PropertiesDialog.cpp \
             src/ui/RandomDistributionDialog.cpp \
             src/About.cpp \
-            src/main.cpp
+            src/main.cpp \
+            src/2Dplot/Spline2D.cpp \
+            src/2Dplot/Vector2D.cpp \
+            src/2Dplot/DataManager2D.cpp \
+            src/2Dplot/Curve2D.cpp \
+            src/2Dplot/PlotPoint.cpp \
+            src/2Dplot/Pie2D.cpp \
+            src/2Dplot/widgets/MyTreeWidget.cpp \
+            src/2Dplot/widgets/AddAxisWidget.cpp
 
 ###################### FORMS ##############################################
 FORMS        += src/ApplicationWindow.ui \
@@ -253,6 +269,7 @@ FORMS        += src/ApplicationWindow.ui \
                 src/ui/SettingsDialog.ui \
                 src/ui/PropertiesDialog.ui \
                 src/ui/RandomDistributionDialog.ui \
+                src/2Dplot/widgets/AddAxisWidget.ui \
                 src/About.ui \
 
 ########### Future code backported from the aspect framework ##################
@@ -387,6 +404,7 @@ SOURCES     += ../3rdparty/qcustomplot/qcustomplot.cpp
 HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/widgets/Axis2DPropertiesDialog.h \
                src/2Dplot/widgets/propertyeditor.h \
+               src/2Dplot/widgets/Function2DDialog.h \
                src/2Dplot/Axis2D.h \
                src/2Dplot/AxisRect2D.h \
                src/2Dplot/Bar2D.h \
@@ -403,6 +421,7 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
 SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/widgets/Axis2DPropertiesDialog.cpp \
                src/2Dplot/widgets/propertyeditor.cpp \
+               src/2Dplot/widgets/Function2DDialog.cpp \
                src/2Dplot/Axis2D.cpp \
                src/2Dplot/AxisRect2D.cpp \
                src/2Dplot/Bar2D.cpp \
@@ -418,3 +437,4 @@ SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
 
 FORMS       += src/2Dplot/widgets/Axis2DPropertiesDialog.ui \
                src/2Dplot/widgets/propertyeditor.ui \
+               src/2Dplot/widgets/Function2DDialog.ui \

@@ -21,13 +21,16 @@ class Layout2D : public MyWidget {
 
  public:
   Layout2D(const QString &label, QWidget *parent = nullptr,
-           const QString name = QString(), Qt::WFlags f = 0);
+           const QString name = QString(), Qt::WFlags f = nullptr);
   ~Layout2D();
 
   StatBox2D::BoxWhiskerData generateBoxWhiskerData(Column *data, int from,
                                                    int to, int key);
+
   void generateFunction2DPlot(QVector<double> *xdata, QVector<double> *ydata,
                               const QString xLabel, const QString yLabel);
+  void generateParametric2DPlot(QVector<double> *xdata, QVector<double> *ydata,
+                                const QString xLabel, const QString yLabel);
   void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
   void generateStatBox2DPlot(Column *data, int from, int to, int key);
 
@@ -36,7 +39,6 @@ class Layout2D : public MyWidget {
     Scatter2D,
     LineAndScatter2D,
     VerticalDropLine2D,
-    Spline2D,
     CentralStepAndScatter2D,
     HorizontalStep2D,
     VerticalStep2D,
@@ -50,8 +52,13 @@ class Layout2D : public MyWidget {
 
   void generateLineScatter2DPlot(const LineScatterType &plotType, Column *xData,
                                  Column *yData, int from, int to);
+  void generateSpline2DPlot(Column *xData, Column *yData, int from, int to);
   void generateBar2DPlot(const BarType &barType, Column *xData, Column *yData,
                          int from, int to);
+  void generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
+                            Column *x1Data, Column *y1Data, Column *x2Data,
+                            Column *y2Data, int from, int to);
+  void generatePie2DPlot(Column *xData, int from, int to);
 
   QList<AxisRect2D *> getAxisRectList();
   AxisRect2D *getSelectedAxisRect(int col, int row);

@@ -16,14 +16,15 @@
    Description : AlphaPlot utilities : handle application wide
 
 */
-#include <QString>
 #include <QColor>
+#include <QString>
 
 class Utilities {
  public:
+  enum class ColorPal { Light, Dark };
   static QString getOperatingSystem();
   static int getWordSizeOfOS();
-  static QColor getRandColorGoldenRatio();
+  static QColor getRandColorGoldenRatio(ColorPal colpal);
 
  private:
   Utilities() {}

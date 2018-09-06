@@ -11,6 +11,7 @@
 #include "../future/core/column/Column.h"
 #include "AxisRect2D.h"
 #include "Bar2D.h"
+#include "Curve2D.h"
 #include "LayoutGrid2D.h"
 #include "LineScatter2D.h"
 #include "widgets/Axis2DPropertiesDialog.h"
@@ -173,6 +174,27 @@ void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
   plot2dCanvas_->replot();
 }
 
+void Layout2D::generateParametric2DPlot(QVector<double> *xdata,
+                                        QVector<double> *ydata,
+                                        const QString xLabel,
+                                        const QString yLabel) {
+  AxisRect2D *element = addAxisRectItem();
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+  xAxis.at(0)->setLabel(xLabel);
+  yAxis.at(0)->setLabel(yLabel);
+
+  Curve2D *curve =
+      element->addCurveFunction2DPlot(xdata, ydata, xAxis.at(0), yAxis.at(0));
+  curve->setName("f(x) = " + yLabel);
+  curve->rescaleAxes();
+  plot2dCanvas_->replot();
+}
+
 void Layout2D::generateStatBox2DPlot(Column *data, int from, int to, int key) {
   StatBox2D::BoxWhiskerData statBoxData =
       generateBoxWhiskerData(data, from, to, key);
@@ -185,7 +207,18 @@ void Layout2D::generateStatBox2DPlot(Column *data, int from, int to, int key) {
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
 
   StatBox2D *statBox = new StatBox2D(xAxis.at(0), yAxis.at(0), statBoxData);
+  statBox->setBoxWhiskerWidth(0.5);
   statBox->rescaleAxes();
+
+  QCPRange keyRange = statBox->keyAxis()->range();
+  QCPRange valueRange = statBox->valueAxis()->range();
+  double keyRangeSpan = keyRange.upper - keyRange.lower;
+  double valueRangeSpan = valueRange.upper - valueRange.lower;
+  statBox->keyAxis()->setRange(QCPRange(keyRange.lower - keyRangeSpan * 0.2,
+                                        keyRange.upper + keyRangeSpan * 0.2));
+  statBox->valueAxis()->setRange(
+      QCPRange(valueRange.lower - valueRangeSpan * 0.2,
+               valueRange.upper + valueRangeSpan * 0.2));
   plot2dCanvas_->replot();
 }
 
@@ -214,6 +247,37 @@ void Layout2D::generateBar2DPlot(const BarType &barType, Column *xData,
   bar->setName("Table " + QString::number(xData->index() + 1) + "_" +
                QString::number(yData->index() + 1));
   bar->rescaleAxes();
+  plot2dCanvas_->replot();
+}
+
+void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
+                                    Column *x1Data, Column *y1Data,
+                                    Column *x2Data, Column *y2Data, int from,
+                                    int to) {
+  AxisRect2D *element = addAxisRectItem();
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+
+  Vector2D *vex =
+      element->addVectorPlot(vectorplot, x1Data, y1Data, x2Data, y2Data, from,
+                             to, xAxis.at(0), yAxis.at(0));
+  vex->setName("Table " + QString::number(x1Data->index() + 1) + "_" +
+               QString::number(y1Data->index() + 1) + "_" +
+               QString::number(x2Data->index() + 1) + "_" +
+               QString::number(y2Data->index() + 1));
+  vex->rescaleAxes();
+  plot2dCanvas_->replot();
+}
+
+void Layout2D::generatePie2DPlot(Column *xData, int from, int to) {
+  AxisRect2D *element = addAxisRectItem();
+
+  Pie2D *pie = element->addPie2DPlot(xData, from, to);
+  //pie->rescaleAxes();
   plot2dCanvas_->replot();
 }
 
@@ -258,8 +322,6 @@ void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
           AxisRect2D::VerticalDropLine2D, xData, yData, from, to, xAxis.at(0),
           yAxis.at(0));
     } break;
-    case Spline2D:
-      break;
     case CentralStepAndScatter2D: {
       linescatter = element->addLineScatter2DPlot(
           AxisRect2D::CentralStepAndScatter2D, xData, yData, from, to,
@@ -284,6 +346,25 @@ void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
   linescatter->setName("Table " + QString::number(xData->index() + 1) + "_" +
                        QString::number(yData->index() + 1));
   linescatter->rescaleAxes();
+  plot2dCanvas_->replot();
+}
+
+void Layout2D::generateSpline2DPlot(Column *xData, Column *yData, int from,
+                                    int to) {
+  AxisRect2D *element = addAxisRectItem();
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+
+  Spline2D *spline = element->addSpline2DPlot(xData, yData, from, to,
+                                              xAxis.at(0), yAxis.at(0));
+
+  spline->setName("Table " + QString::number(xData->index() + 1) + "_" +
+                  QString::number(yData->index() + 1));
+  spline->rescaleAxes();
   plot2dCanvas_->replot();
 }
 
@@ -327,7 +408,7 @@ AxisRect2D *Layout2D::addAxisRectItem() {
   AxisRect2D *axisRect2d = new AxisRect2D(plot2dCanvas_);
   // axisrectitem->setData(0, Qt::UserRole, 3);
 
-  Axis2D *xAxis = axisRect2d->addAxis2D(Axis2D::AxisOreantation::Bottom);
+ Axis2D *xAxis = axisRect2d->addAxis2D(Axis2D::AxisOreantation::Bottom);
   Axis2D *yAxis = axisRect2d->addAxis2D(Axis2D::AxisOreantation::Left);
 
   axisRect2d->bindGridTo(xAxis);
@@ -386,15 +467,32 @@ void Layout2D::mouseMoveSignal(QMouseEvent *event) {
   // dragging legend
   if (draggingLegend) {
     QRectF rect = currentAxisRect_->insetLayout()->insetRect(0);
+
+    // set bounding rect for drag event
+    QPoint eventpos = event->pos();
+    if (event->pos().x() < currentAxisRect_->left()) {
+      eventpos.setX(currentAxisRect_->left());
+    }
+    if (event->pos().x() > currentAxisRect_->right()) {
+      eventpos.setX(currentAxisRect_->right());
+    }
+    if (event->pos().y() < currentAxisRect_->top()) {
+      eventpos.setY(currentAxisRect_->top());
+    }
+    if (event->pos().y() > currentAxisRect_->bottom()) {
+      eventpos.setY(currentAxisRect_->bottom());
+    }
+
     // since insetRect is in axisRect coordinates (0..1), we transform the mouse
     // position:
-    QPointF mousePoint((event->pos().x() - currentAxisRect_->left()) /
+    QPointF mousePoint((eventpos.x() - currentAxisRect_->left()) /
                            static_cast<double>(currentAxisRect_->width()),
-                       (event->pos().y() - currentAxisRect_->top()) /
+                       (eventpos.y() - currentAxisRect_->top()) /
                            static_cast<double>(currentAxisRect_->height()));
+
     rect.moveTopLeft(mousePoint - dragLegendOrigin);
     currentAxisRect_->insetLayout()->setInsetRect(0, rect);
-    plot2dCanvas_->replot();
+    currentAxisRect_->layer()->replot();
   }
 }
 
@@ -412,11 +510,17 @@ void Layout2D::mousePressSignal(QMouseEvent *event) {
                              static_cast<double>(currentAxisRect_->height()));
       dragLegendOrigin =
           mousePoint - currentAxisRect_->insetLayout()->insetRect(0).topLeft();
+      setCursor(Qt::ClosedHandCursor);
     }
   }
 }
 
-void Layout2D::mouseReleaseSignal(QMouseEvent *) { draggingLegend = false; }
+void Layout2D::mouseReleaseSignal(QMouseEvent *) {
+  if (draggingLegend) {
+    draggingLegend = false;
+    unsetCursor();
+  }
+}
 
 void Layout2D::mouseWheel() {
   // zoom axis individually or in group

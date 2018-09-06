@@ -20,19 +20,21 @@
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Properties2D.h"
 
+class AxisRect2D;
+
 class Axis2D : public QCPAxis {
   Q_OBJECT
  public:
-  Axis2D(QCPAxisRect *parent, AxisType type);
+  Axis2D(AxisRect2D *parent, AxisType type);
   ~Axis2D();
 
-  enum class TickOrientation { Inward, Outward, Bothwards, None };
   enum class AxisOreantation { Left = 0, Bottom = 1, Right = 2, Top = 3 };
   enum class AxisScaleType { Linear = 0, Logarithmic = 1 };
   enum class AxisLabelSide { Inside = 0, Outside = 1 };
 
   // getter
   // Axis properties
+  AxisRect2D *getaxisrect_axis() const;
   bool getshowhide_axis() const;
   int getoffset_axis() const;
   double getfrom_axis() const;
@@ -111,6 +113,9 @@ class Axis2D : public QCPAxis {
   void setticklabelrotation_axis(const double value);
   void setticklabelside_axis(const AxisLabelSide &side);
   void setticklabelprecision_axis(const int value);
+
+private:
+  AxisRect2D *axisrect_;
 };
 
 #endif  // AXIS2D_H

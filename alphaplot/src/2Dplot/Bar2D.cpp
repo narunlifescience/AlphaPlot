@@ -1,12 +1,12 @@
 #include "Bar2D.h"
 #include "../future/core/column/Column.h"
 
-Bar2D::Bar2D(Axis2D *xAxis, Axis2D *yAxis) : QCPBars(xAxis, yAxis) {}
+Bar2D::Bar2D(Axis2D *xAxis, Axis2D *yAxis)
+    : QCPBars(xAxis, yAxis), barwidth_(1) {}
 
 Bar2D::~Bar2D() {}
 
-void Bar2D::setBarData(Column *xData, Column *yData, int from, int to)
-{
+void Bar2D::setBarData(Column *xData, Column *yData, int from, int to) {
   QSharedPointer<QCPBarsDataContainer> barData(new QCPBarsDataContainer());
 
   double xdata = 0, ydata = 0;
@@ -19,4 +19,13 @@ void Bar2D::setBarData(Column *xData, Column *yData, int from, int to)
     barData->add(gd);
   }
   setData(barData);
+  barwidth_ = data().data()->at(data().data()->size() - 1)->key -
+              data().data()->at(0)->key;
+  setBarWidth(barwidth_);
 }
+
+void Bar2D::setBarWidth(double barwidth) {
+  setWidth(barwidth / static_cast<double>(data().data()->size()));
+}
+
+double Bar2D::getBarWidth() { return barwidth_; }
