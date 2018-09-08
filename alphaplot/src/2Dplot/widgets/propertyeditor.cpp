@@ -229,6 +229,55 @@ PropertyEditor::PropertyEditor(QWidget *parent)
       boolManager_->addProperty("Scatter Antialiased");
   lsplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
 
+  // Spline properties block
+  splinepropertyxaxisitem_ = enumManager_->addProperty("X Axis");
+  splinepropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
+  splinepropertylinestrokecoloritem_ =
+      colorManager_->addProperty("Line Stroke Color");
+  splinepropertylinestrokethicknessitem_ =
+      doubleManager_->addProperty("Line Stroke Thickness");
+  splinepropertylinestroketypeitem_ =
+      enumManager_->addProperty("Line Stroke Type");
+  enumManager_->setEnumNames(splinepropertylinestroketypeitem_, stroketypelist);
+  enumManager_->setEnumIcons(splinepropertylinestroketypeitem_,
+                             stroketypeiconslist);
+  splinepropertylinefillstatusitem_ =
+      boolManager_->addProperty("Fill Under Area");
+  splinepropertylinefillcoloritem_ =
+      colorManager_->addProperty("Area Fill Color");
+  splinepropertylineantialiaseditem_ =
+      boolManager_->addProperty("Line Antialiased");
+  splinepropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
+
+  // Vector Properties block
+  QStringList vectorendingstylelist;
+  vectorendingstylelist << tr("None") << tr("Flat Arrow") << tr("Spike Arrow")
+                        << tr("Line Arrow") << tr("Disc") << tr("Square")
+                        << tr("Diamond") << tr("Bar") << tr("Half Bar")
+                        << tr("Skewed Bar");
+  vectorpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
+  vectorpropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
+  vectorpropertylinestrokecoloritem_ =
+      colorManager_->addProperty("Line Stroke Color");
+  vectorpropertylinestrokethicknessitem_ =
+      doubleManager_->addProperty("Line Stroke Thickness");
+  vectorpropertylinestroketypeitem_ =
+      enumManager_->addProperty("Line Stroke Type");
+  enumManager_->setEnumNames(vectorpropertylinestroketypeitem_, stroketypelist);
+  enumManager_->setEnumIcons(vectorpropertylinestroketypeitem_,
+                             stroketypeiconslist);
+  vectorpropertylineendingtypeitem_ =
+      enumManager_->addProperty("Line Ending Type");
+  enumManager_->setEnumNames(vectorpropertylineendingtypeitem_,
+                             vectorendingstylelist);
+  vectorpropertylineendingheightitem_ =
+      doubleManager_->addProperty("Line Ending Height");
+  vectorpropertylineendingwidthitem_ =
+      doubleManager_->addProperty("Line Ending Width");
+  vectorpropertylineantialiaseditem_ =
+      boolManager_->addProperty("Line Antialiased");
+  vectorpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
+
   // Axis Properties Major Grid Sub Block
   hgridaxispropertycomboitem_ =
       groupManager_->addProperty("Horizontal Axis Grids");
@@ -384,6 +433,21 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
     lsgraph->setscatterantialiased_lsplot(value);
     lsgraph->parentPlot()->replot();
+  } else if (prop->compare(splinepropertylinefillstatusitem_)) {
+    Spline2D *spline =
+        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
+    spline->setlinefillstatus_splot(value);
+    spline->parentPlot()->replot();
+  } else if (prop->compare(splinepropertylineantialiaseditem_)) {
+    Spline2D *spline =
+        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
+    spline->setlineantialiased_splot(value);
+    spline->parentPlot()->replot();
+  } else if (prop->compare(vectorpropertylineantialiaseditem_)) {
+    Vector2D *vector =
+        getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
+    vector->setlineantialiased_vecplot(value);
+    vector->parentPlot()->replot();
   } else {
     qDebug() << "unknown bool property item";
   }
@@ -439,6 +503,21 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
     lsgraph->setscatterstrokecolor_lsplot(color);
     lsgraph->parentPlot()->replot();
+  } else if (prop->compare(splinepropertylinestrokecoloritem_)) {
+    Spline2D *spline =
+        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
+    spline->setlinestrokecolor_splot(color);
+    spline->parentPlot()->replot();
+  } else if (prop->compare(splinepropertylinefillcoloritem_)) {
+    Spline2D *spline =
+        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
+    spline->setlinefillcolor_splot(color);
+    spline->parentPlot()->replot();
+  } else if (prop->compare(vectorpropertylinestrokecoloritem_)) {
+    Vector2D *vector =
+        getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
+    vector->setlinestrokecolor_vecplot(color);
+    vector->parentPlot()->replot();
   }
   connect(colorManager_, SIGNAL(valueChanged(QtProperty *, QColor)), this,
           SLOT(valueChange(QtProperty *, const QColor &)));
@@ -493,6 +572,26 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
     lsgraph->setscatterstrokethickness_lsplot(value);
     lsgraph->parentPlot()->replot();
+  } else if (prop->compare(splinepropertylinestrokethicknessitem_)) {
+    Spline2D *spline =
+        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
+    spline->setlinestrokethickness_splot(value);
+    spline->parentPlot()->replot();
+  } else if (prop->compare(vectorpropertylinestrokethicknessitem_)) {
+    Vector2D *vector =
+        getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
+    vector->setlinestrokethickness_vecplot(value);
+    vector->parentPlot()->replot();
+  } else if (prop->compare(vectorpropertylineendingheightitem_)) {
+    Vector2D *vector =
+        getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
+    vector->setendheight_vecplot(value, Vector2D::LineEndLocation::Stop);
+    vector->parentPlot()->replot();
+  } else if (prop->compare(vectorpropertylineendingwidthitem_)) {
+    Vector2D *vector =
+        getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
+    vector->setendwidth_vecplot(value, Vector2D::LineEndLocation::Stop);
+    vector->parentPlot()->replot();
   }
 }
 
@@ -506,6 +605,16 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
     lsgraph->setlegendtext_lsplot(value);
     lsgraph->parentPlot()->replot();
+  } else if (prop->compare(splinepropertylegendtextitem_)) {
+    Spline2D *spline =
+        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
+    spline->setlegendtext_splot(value);
+    spline->parentPlot()->replot();
+  } else if (prop->compare(vectorpropertylegendtextitem_)) {
+    Vector2D *vector =
+        getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
+    vector->setlegendtext_vecplot(value);
+    vector->parentPlot()->replot();
   }
 }
 
@@ -572,8 +681,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     Axis2D *axis = axisrect->getXAxis(value);
-    if(!axis)
-      return;
+    if (!axis) return;
     lsgraph->setxaxis_lsplot(axis);
     lsgraph->parentPlot()->replot();
   } else if (prop->compare(lsplotpropertyyaxisitem_)) {
@@ -582,15 +690,13 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     Axis2D *axis = axisrect->getYAxis(value);
-    if(!axis)
-      return;
+    if (!axis) return;
     lsgraph->setyaxis_lsplot(axis);
     lsgraph->parentPlot()->replot();
   } else if (prop->compare(lsplotpropertylinestyleitem_)) {
     LineScatter2D *lsgraph =
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
-    lsgraph->setlinetype_lsplot(
-        static_cast<LineScatter2D::LineStyleType>(value));
+    lsgraph->setlinetype_lsplot(static_cast<LSCommon::LineStyleType>(value));
     lsgraph->parentPlot()->replot();
   } else if (prop->compare(lsplotpropertylinestroketypeitem_)) {
     LineScatter2D *lsgraph =
@@ -600,14 +706,65 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
   } else if (prop->compare(lsplotpropertyscatterstyleitem_)) {
     LineScatter2D *lsgraph =
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
-    lsgraph->setscattershape_lsplot(
-        static_cast<LineScatter2D::ScatterStyle>(value));
+    lsgraph->setscattershape_lsplot(static_cast<LSCommon::ScatterStyle>(value));
     lsgraph->parentPlot()->replot();
   } else if (prop->compare(lsplotpropertyscatterstrokestyleitem_)) {
     LineScatter2D *lsgraph =
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
     lsgraph->setscatterstrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
     lsgraph->parentPlot()->replot();
+  } else if (prop->compare(splinepropertyxaxisitem_)) {
+    Spline2D *spline =
+        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getXAxis(value);
+    if (!axis) return;
+    spline->setxaxis_splot(axis);
+    spline->parentPlot()->replot();
+  } else if (prop->compare(splinepropertyyaxisitem_)) {
+    Spline2D *spline =
+        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getYAxis(value);
+    if (!axis) return;
+    spline->setyaxis_splot(axis);
+    spline->parentPlot()->replot();
+  } else if (prop->compare(splinepropertylinestroketypeitem_)) {
+    Spline2D *spline =
+        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
+    spline->setlinestrokestyle_splot(static_cast<Qt::PenStyle>(value + 1));
+    spline->parentPlot()->replot();
+  } else if (prop->compare(vectorpropertyxaxisitem_)) {
+    Vector2D *vector =
+        getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getXAxis(value);
+    if (!axis) return;
+    vector->setxaxis_vecplot(axis);
+    vector->parentPlot()->replot();
+  } else if (prop->compare(vectorpropertyyaxisitem_)) {
+    Vector2D *vector =
+        getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getYAxis(value);
+    if (!axis) return;
+    vector->setyaxis_vecplot(axis);
+    vector->parentPlot()->replot();
+  } else if (prop->compare(vectorpropertylinestroketypeitem_)) {
+    Vector2D *vector =
+        getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
+    vector->setlinestrokestyle_vecplot(static_cast<Qt::PenStyle>(value + 1));
+    vector->parentPlot()->replot();
+  } else if (prop->compare(vectorpropertylineendingtypeitem_)) {
+    Vector2D *vector =
+        getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
+    vector->setendstyle_vecplot(static_cast<Vector2D::LineEnd>(value + 1),
+                                Vector2D::LineEndLocation::Stop);
+    vector->parentPlot()->replot();
   }
 }
 
@@ -647,6 +804,20 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
       void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       LSPropertyBlock(lsgraph, axisrect);
+    } break;
+    case MyTreeWidget::PropertyItemType::Spline: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      Spline2D *spline = static_cast<Spline2D *>(ptr1);
+      void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
+      AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
+      SplinePropertyBlock(spline, axisrect);
+    } break;
+    case MyTreeWidget::PropertyItemType::Vector: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      Vector2D *vector = static_cast<Vector2D *>(ptr1);
+      void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
+      AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
+      VectorPropertyBlock(vector, axisrect);
     } break;
   }
 }
@@ -807,9 +978,6 @@ void PropertyEditor::LSPropertyBlock(LineScatter2D *lsgraph,
     enumManager_->setValue(lsplotpropertyxaxisitem_, currentxaxis);
   }
 
-  // lsgraph->getxaxis_lsplot();
-  // lsgraph->getyaxis_lsplot()
-
   enumManager_->setValue(lsplotpropertylinestyleitem_,
                          static_cast<int>(lsgraph->getlinetype_lsplot()));
   colorManager_->setValue(lsplotpropertylinestrokecoloritem_,
@@ -844,6 +1012,140 @@ void PropertyEditor::LSPropertyBlock(LineScatter2D *lsgraph,
                            lsgraph->getlegendtext_lsplot());
 }
 
+void PropertyEditor::SplinePropertyBlock(Spline2D *splinegraph,
+                                         AxisRect2D *axisrect) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(splinepropertyxaxisitem_);
+  propertybrowser_->addProperty(splinepropertyyaxisitem_);
+  propertybrowser_->addProperty(splinepropertylinestrokecoloritem_);
+  propertybrowser_->addProperty(splinepropertylinestrokethicknessitem_);
+  propertybrowser_->addProperty(splinepropertylinestroketypeitem_);
+  propertybrowser_->addProperty(splinepropertylinefillstatusitem_);
+  propertybrowser_->addProperty(splinepropertylinefillcoloritem_);
+  propertybrowser_->addProperty(splinepropertylineantialiaseditem_);
+  propertybrowser_->addProperty(splinepropertylegendtextitem_);
+  {
+    QStringList splineyaxislist;
+    int currentyaxis = 0;
+    int ycount = 0;
+    QList<Axis2D *> yaxes = axisrect->getYAxes2D();
+
+    for (int i = 0; i < yaxes.size(); i++) {
+      splineyaxislist << QString("Y Axis %1").arg(i + 1);
+      if (yaxes.at(i) == splinegraph->getyaxis_splot()) {
+        currentyaxis = ycount;
+      }
+      ycount++;
+    }
+    enumManager_->setEnumNames(splinepropertyyaxisitem_, splineyaxislist);
+    enumManager_->setValue(splinepropertyyaxisitem_, currentyaxis);
+  }
+
+  {
+    QStringList splinexaxislist;
+    int currentxaxis = 0;
+    int xcount = 0;
+    QList<Axis2D *> xaxes = axisrect->getXAxes2D();
+    for (int i = 0; i < xaxes.size(); i++) {
+      splinexaxislist << QString("X Axis %1").arg(i + 1);
+      if (xaxes.at(i) == splinegraph->getxaxis_splot()) {
+        currentxaxis = xcount;
+      }
+      xcount++;
+    }
+
+    enumManager_->setEnumNames(splinepropertyxaxisitem_, splinexaxislist);
+    enumManager_->setValue(splinepropertyxaxisitem_, currentxaxis);
+  }
+
+  colorManager_->setValue(splinepropertylinestrokecoloritem_,
+                          splinegraph->getlinestrokecolor_splot());
+  doubleManager_->setValue(splinepropertylinestrokethicknessitem_,
+                           splinegraph->getlinestrokethickness_splot());
+  enumManager_->setValue(
+      splinepropertylinestroketypeitem_,
+      static_cast<int>(splinegraph->getlinestrokestyle_splot() - 1));
+  boolManager_->setValue(splinepropertylinefillstatusitem_,
+                         splinegraph->getlinefillstatus_splot());
+  colorManager_->setValue(splinepropertylinefillcoloritem_,
+                          splinegraph->getlinefillcolor_splot());
+  boolManager_->setValue(splinepropertylineantialiaseditem_,
+                         splinegraph->getlineantialiased_splot());
+  stringManager_->setValue(splinepropertylegendtextitem_,
+                           splinegraph->getlegendtext_splot());
+}
+
+void PropertyEditor::VectorPropertyBlock(Vector2D *vectorgraph,
+                                         AxisRect2D *axisrect) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(vectorpropertyxaxisitem_);
+  propertybrowser_->addProperty(vectorpropertyyaxisitem_);
+  propertybrowser_->addProperty(vectorpropertylinestrokecoloritem_);
+  propertybrowser_->addProperty(vectorpropertylinestrokethicknessitem_);
+  propertybrowser_->addProperty(vectorpropertylinestroketypeitem_);
+  propertybrowser_->addProperty(vectorpropertylineendingtypeitem_);
+  propertybrowser_->addProperty(vectorpropertylineendingheightitem_);
+  propertybrowser_->addProperty(vectorpropertylineendingwidthitem_);
+  propertybrowser_->addProperty(vectorpropertylineantialiaseditem_);
+  propertybrowser_->addProperty(vectorpropertylegendtextitem_);
+  {
+    QStringList vectoryaxislist;
+    int currentyaxis = 0;
+    int ycount = 0;
+    QList<Axis2D *> yaxes = axisrect->getYAxes2D();
+
+    for (int i = 0; i < yaxes.size(); i++) {
+      vectoryaxislist << QString("Y Axis %1").arg(i + 1);
+      if (yaxes.at(i) == vectorgraph->getyaxis_vecplot()) {
+        currentyaxis = ycount;
+      }
+      ycount++;
+    }
+    enumManager_->setEnumNames(vectorpropertyyaxisitem_, vectoryaxislist);
+    enumManager_->setValue(vectorpropertyyaxisitem_, currentyaxis);
+  }
+
+  {
+    QStringList vectorxaxislist;
+    int currentxaxis = 0;
+    int xcount = 0;
+    QList<Axis2D *> xaxes = axisrect->getXAxes2D();
+    for (int i = 0; i < xaxes.size(); i++) {
+      vectorxaxislist << QString("X Axis %1").arg(i + 1);
+      if (xaxes.at(i) == vectorgraph->getxaxis_vecplot()) {
+        currentxaxis = xcount;
+      }
+      xcount++;
+    }
+
+    enumManager_->setEnumNames(vectorpropertyxaxisitem_, vectorxaxislist);
+    enumManager_->setValue(vectorpropertyxaxisitem_, currentxaxis);
+  }
+  colorManager_->setValue(vectorpropertylinestrokecoloritem_,
+                          vectorgraph->getlinestrokecolor_vecplot());
+  doubleManager_->setValue(vectorpropertylinestrokethicknessitem_,
+                           vectorgraph->getlinestrokethickness_vecplot());
+  enumManager_->setValue(
+      vectorpropertylinestroketypeitem_,
+      static_cast<int>(vectorgraph->getlinestrokestyle_vecplot() - 1));
+  enumManager_->setValue(vectorpropertylineendingtypeitem_,
+                         static_cast<int>(vectorgraph->getendstyle_vecplot(
+                             Vector2D::LineEndLocation::Stop)) -
+                             1);
+  doubleManager_->setValue(
+      vectorpropertylineendingheightitem_,
+      vectorgraph->getendheight_vecplot(Vector2D::LineEndLocation::Stop));
+  doubleManager_->setValue(
+      vectorpropertylineendingwidthitem_,
+      vectorgraph->getendwidth_vecplot(Vector2D::LineEndLocation::Stop));
+  boolManager_->setValue(vectorpropertylineantialiaseditem_,
+                         vectorgraph->getlineantialiased_vecplot());
+  stringManager_->setValue(vectorpropertylegendtextitem_,
+                           vectorgraph->getlegendtext_vecplot());
+}
+
 void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
   connect(axisrect, SIGNAL(AxisCreated(Axis2D *)), this,
           SLOT(axisCreated(Axis2D *)));
@@ -852,6 +1154,10 @@ void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
 
   connect(axisrect, SIGNAL(LineScatterCreated(LineScatter2D *)), this,
           SLOT(lineScatterCreated(LineScatter2D *)));
+  connect(axisrect, SIGNAL(SplineCreated(Spline2D *)), this,
+          SLOT(splineCreated(Spline2D *)));
+  connect(axisrect, SIGNAL(VectorCreated(Vector2D *)), this,
+          SLOT(vectorCreated(Vector2D *)));
   connect(axisrect, SIGNAL(BarCreated(Bar2D *)), this,
           SLOT(barCreated(Bar2D *)));
   populateObjectBrowser(widget);
@@ -873,6 +1179,20 @@ void PropertyEditor::axisRemoved(AxisRect2D *axisrect) {
 
 void PropertyEditor::lineScatterCreated(LineScatter2D *ls) {
   MyWidget *widget = qobject_cast<MyWidget *>(ls->parentPlot()->parent());
+  if (widget) {
+    populateObjectBrowser(widget);
+  }
+}
+
+void PropertyEditor::splineCreated(Spline2D *spline) {
+  MyWidget *widget = qobject_cast<MyWidget *>(spline->parentPlot()->parent());
+  if (widget) {
+    populateObjectBrowser(widget);
+  }
+}
+
+void PropertyEditor::vectorCreated(Vector2D *vector) {
+  MyWidget *widget = qobject_cast<MyWidget *>(vector->parentPlot()->parent());
   if (widget) {
     populateObjectBrowser(widget);
   }
@@ -985,7 +1305,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       }
 
       // LineScatter plot Items
-      LsVec graphvec = element->getGraphVec();
+      LsVec graphvec = element->getLsVec();
       for (int j = 0; j < graphvec.size(); j++) {
         LineScatter2D *lsgraph = graphvec.at(j);
         QString lsgraphtext = QString("Line Scatter %1").arg(j + 1);
@@ -1003,6 +1323,44 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         item->addChild(lsgraphitem);
       }
 
+      // Spline plot Items
+      SplineVec splinevec = element->getSplineVec();
+      for (int j = 0; j < splinevec.size(); j++) {
+        Spline2D *spline = splinevec.at(j);
+        QString splinetext = QString("Spline %1").arg(j + 1);
+        QTreeWidgetItem *splineitem = new QTreeWidgetItem(
+            static_cast<QTreeWidget *>(nullptr), QStringList(splinetext));
+        splineitem->setIcon(
+            0, IconLoader::load("graph2d-spline", IconLoader::LightDark));
+        splineitem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::Spline));
+        splineitem->setData(0, Qt::UserRole + 1,
+                            QVariant::fromValue<void *>(spline));
+        splineitem->setData(0, Qt::UserRole + 2,
+                            QVariant::fromValue<void *>(element));
+        item->addChild(splineitem);
+      }
+
+      // Vector plot Items
+      VectorVec vectorvec = element->getVectorVec();
+      for (int j = 0; j < vectorvec.size(); j++) {
+        Vector2D *vector = vectorvec.at(j);
+        QString vectortext = QString("Vector %1").arg(j + 1);
+        QTreeWidgetItem *vectoritem = new QTreeWidgetItem(
+            static_cast<QTreeWidget *>(nullptr), QStringList(vectortext));
+        vectoritem->setIcon(
+            0, IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
+        vectoritem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::Vector));
+        vectoritem->setData(0, Qt::UserRole + 1,
+                            QVariant::fromValue<void *>(vector));
+        vectoritem->setData(0, Qt::UserRole + 2,
+                            QVariant::fromValue<void *>(element));
+        item->addChild(vectoritem);
+      }
+
       // Bar Plot items
       BarVec barvec = element->getBarVec();
       for (int j = 0; j < barvec.size(); j++) {
@@ -1010,6 +1368,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         QString bartext = QString("Bar %1").arg(j + 1);
         QTreeWidgetItem *baritem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(bartext));
+        baritem->setIcon(
+            0, IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
         baritem->setData(
             0, Qt::UserRole,
             static_cast<int>(MyTreeWidget::PropertyItemType::BarGraph));
@@ -1141,4 +1501,39 @@ void PropertyEditor::setObjectPropertyId() {
       "lsplotpropertyscatterantialiaseditem_");
   lsplotpropertylegendtextitem_->setPropertyId(
       "lsplotpropertylelegendtextitem_");
+  // Spline property block
+  splinepropertyxaxisitem_->setPropertyId("splinepropertyxaxisitem_");
+  splinepropertyyaxisitem_->setPropertyId("splinepropertyyaxisitem_");
+  splinepropertylinestrokecoloritem_->setPropertyId(
+      "splinepropertylinestrokecoloritem_");
+  splinepropertylinestrokethicknessitem_->setPropertyId(
+      "splinepropertylinestrokethicknesitem_");
+  splinepropertylinestroketypeitem_->setPropertyId(
+      "splinepropertylinestroketypeitem_");
+  splinepropertylinefillstatusitem_->setPropertyId(
+      "splinepropertylinefillstatusitem_");
+  splinepropertylinefillcoloritem_->setPropertyId(
+      "splinepropertylinefillcoloritem_");
+  splinepropertylineantialiaseditem_->setPropertyId(
+      "splinepropertylineantialiaseditem_");
+  splinepropertylegendtextitem_->setPropertyId(
+      "splinepropertylelegendtextitem_");
+  // Vector property block
+  vectorpropertyxaxisitem_->setPropertyId("vectorpropertyxaxisitem_");
+  vectorpropertyyaxisitem_->setPropertyId("vectorpropertyyaxisitem_");
+  vectorpropertylinestrokecoloritem_->setPropertyId(
+      "vectorpropertylinestrokecoloritem_");
+  vectorpropertylinestrokethicknessitem_->setPropertyId(
+      "vectorpropertylinestrokethicknessitem_");
+  vectorpropertylinestroketypeitem_->setPropertyId(
+      "vectorpropertylinestroketypeitem_");
+  vectorpropertylineendingtypeitem_->setPropertyId(
+      "vectorpropertylineendingtypeitem_");
+  vectorpropertylineendingheightitem_->setPropertyId(
+      "vectorpropertylineendingheightitem_");
+  vectorpropertylineendingwidthitem_->setPropertyId(
+      "vectorpropertylineendingwidthitem_");
+  vectorpropertylineantialiaseditem_->setPropertyId(
+      "vectorpropertylineantialiaseditem_");
+  vectorpropertylegendtextitem_->setPropertyId("vectorpropertylegendtextitem_");
 }

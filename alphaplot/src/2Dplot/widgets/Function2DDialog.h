@@ -11,18 +11,19 @@ class Function2DDialog : public QDialog {
   Q_OBJECT
 
  public:
-  explicit Function2DDialog(QWidget *parent = nullptr);
+  explicit Function2DDialog(QWidget *parent = nullptr,
+                            AxisRect2D *axisrect = nullptr);
   ~Function2DDialog();
 
  private slots:
   void raiseWidget(const int index) const;
-  //void setFunctionPlotToModify(LineScatter2D *ls);
-  //void setParametricFunctionPlotToModify();
+  // void setFunctionPlotToModify(LineScatter2D *ls);
+  // void setParametricFunctionPlotToModify();
   bool apply();
   void accept();
   bool acceptFunction();
   bool acceptParametric();
-  //bool acceptPolar();
+  // bool acceptPolar();
   void clearList();
 
  signals:
@@ -32,6 +33,7 @@ class Function2DDialog : public QDialog {
 
  private:
   Ui_Function2DDialog *ui_;
+  AxisRect2D *axisrect_;
 };
 
 #endif  // FUNCTION2DDIALOG_H

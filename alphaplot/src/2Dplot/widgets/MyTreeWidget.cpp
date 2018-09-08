@@ -82,7 +82,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
 }
 
 void MyTreeWidget::addfunctiongraph() {
-  Function2DDialog *fd = new Function2DDialog();
+  Function2DDialog *fd = new Function2DDialog(this);
   fd->setAttribute(Qt::WA_DeleteOnClose);
   fd->setModal(true);
   fd->show();

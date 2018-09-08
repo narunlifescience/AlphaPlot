@@ -7,7 +7,7 @@
 
 class Column;
 
-class Spline2D : public QCPGraph {
+class Spline2D : public QCPCurve {
   Q_OBJECT
  public:
   Spline2D(Axis2D *xAxis = nullptr, Axis2D *yAxis = nullptr);
@@ -21,12 +21,20 @@ class Spline2D : public QCPGraph {
   double getlinestrokethickness_splot() const;
   QColor getlinefillcolor_splot() const;
   bool getlineantialiased_splot() const;
+  bool getlinefillstatus_splot() const;
+  QString getlegendtext_splot() const;
+  Axis2D *getxaxis_splot() const;
+  Axis2D *getyaxis_splot() const;
   // Setters
+  void setxaxis_splot(Axis2D *axis);
+  void setyaxis_splot(Axis2D *axis);
   void setlinestrokestyle_splot(const Qt::PenStyle &style);
   void setlinestrokecolor_splot(const QColor &color);
   void setlinestrokethickness_splot(const double value);
   void setlinefillcolor_splot(const QColor &color);
   void setlineantialiased_splot(const bool value);
+  void setlinefillstatus_splot(const bool value);
+  void setlegendtext_splot(const QString &text);
 
  private:
   Axis2D *xAxis_;

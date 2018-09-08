@@ -179,57 +179,57 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
 
   switch (type) {
     case Line2D:
-      lineScatter->setlinetype_lsplot(LineScatter2D::LineStyleType::Line);
-      lineScatter->setscattershape_lsplot(LineScatter2D::ScatterStyle::None);
+      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Line);
+      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
       lineScatter->setlinefillstatus_lsplot(false);
       lineScatter->setlineantialiased_lsplot(true);
       lineScatter->setscatterantialiased_lsplot(true);
       break;
     case Scatter2D:
-      lineScatter->setlinetype_lsplot(LineScatter2D::LineStyleType::None);
-      lineScatter->setscattershape_lsplot(LineScatter2D::ScatterStyle::Disc);
+      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::None);
+      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::Disc);
       lineScatter->setlinefillstatus_lsplot(false);
       lineScatter->setlineantialiased_lsplot(false);
       lineScatter->setscatterantialiased_lsplot(true);
       break;
     case LineAndScatter2D:
-      lineScatter->setlinetype_lsplot(LineScatter2D::LineStyleType::Line);
-      lineScatter->setscattershape_lsplot(LineScatter2D::ScatterStyle::Disc);
+      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Line);
+      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::Disc);
       lineScatter->setlinefillstatus_lsplot(false);
       lineScatter->setlineantialiased_lsplot(true);
       lineScatter->setscatterantialiased_lsplot(true);
       break;
     case VerticalDropLine2D:
-      lineScatter->setlinetype_lsplot(LineScatter2D::LineStyleType::Impulse);
-      lineScatter->setscattershape_lsplot(LineScatter2D::ScatterStyle::Disc);
+      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Impulse);
+      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::Disc);
       lineScatter->setlinefillstatus_lsplot(false);
       lineScatter->setlineantialiased_lsplot(false);
       lineScatter->setscatterantialiased_lsplot(true);
       break;
     case CentralStepAndScatter2D:
-      lineScatter->setlinetype_lsplot(LineScatter2D::LineStyleType::StepCenter);
-      lineScatter->setscattershape_lsplot(LineScatter2D::ScatterStyle::Disc);
+      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::StepCenter);
+      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::Disc);
       lineScatter->setlinefillstatus_lsplot(false);
       lineScatter->setlineantialiased_lsplot(false);
       lineScatter->setscatterantialiased_lsplot(true);
       break;
     case HorizontalStep2D:
-      lineScatter->setlinetype_lsplot(LineScatter2D::LineStyleType::StepRight);
-      lineScatter->setscattershape_lsplot(LineScatter2D::ScatterStyle::None);
+      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::StepRight);
+      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
       lineScatter->setlinefillstatus_lsplot(false);
       lineScatter->setlineantialiased_lsplot(false);
       lineScatter->setscatterantialiased_lsplot(true);
       break;
     case VerticalStep2D:
-      lineScatter->setlinetype_lsplot(LineScatter2D::LineStyleType::StepLeft);
-      lineScatter->setscattershape_lsplot(LineScatter2D::ScatterStyle::None);
+      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::StepLeft);
+      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
       lineScatter->setlinefillstatus_lsplot(false);
       lineScatter->setlineantialiased_lsplot(false);
       lineScatter->setscatterantialiased_lsplot(true);
       break;
     case Area2D:
-      lineScatter->setlinetype_lsplot(LineScatter2D::LineStyleType::Line);
-      lineScatter->setscattershape_lsplot(LineScatter2D::ScatterStyle::None);
+      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Line);
+      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
       lineScatter->setlinefillstatus_lsplot(true);
       lineScatter->setlineantialiased_lsplot(true);
       lineScatter->setscatterantialiased_lsplot(true);
@@ -249,10 +249,15 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
 Spline2D *AxisRect2D::addSpline2DPlot(Column *xData, Column *yData, int from,
                                       int to, Axis2D *xAxis, Axis2D *yAxis) {
   Spline2D *spline = new Spline2D(xAxis, yAxis);
+  spline->setlinefillcolor_splot(
+      Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
   spline->setGraphData(xData, yData, from, to);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, spline);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  splinevec_.append(spline);
+
+  emit SplineCreated(spline);
   return spline;
 }
 
@@ -260,8 +265,8 @@ LineScatter2D *AxisRect2D::addLineFunction2DPlot(QVector<double> *xdata,
                                                  QVector<double> *ydata,
                                                  Axis2D *xAxis, Axis2D *yAxis) {
   LineScatter2D *lineScatter = new LineScatter2D(xAxis, yAxis);
-  lineScatter->setlinetype_lsplot(LineScatter2D::LineStyleType::Line);
-  lineScatter->setscattershape_lsplot(LineScatter2D::ScatterStyle::None);
+  lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Line);
+  lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
 
   lineScatter->setGraphData(xdata, ydata);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineScatter);
@@ -307,7 +312,7 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Column *xData,
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   barvec_.append(bar);
 
-  BarCreated(bar);
+  emit BarCreated(bar);
   return bar;
 }
 
@@ -320,6 +325,9 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, vec);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  vectorvec_.append(vec);
+
+  emit VectorCreated(vec);
   return vec;
 }
 

@@ -35,24 +35,32 @@ class Vector2D : public QCPGraph {
   void drawLine(double x1, double y1, double x2, double y2);
 
   // Getters
-  QColor getstrokecolor_vecplot() const;
-  Qt::PenStyle getstrokestyle_vecplot() const;
-  double getstrokethickness_vecplot() const;
+  Axis2D *getxaxis_vecplot();
+  Axis2D *getyaxis_vecplot();
+  QColor getlinestrokecolor_vecplot() const;
+  Qt::PenStyle getlinestrokestyle_vecplot() const;
+  double getlinestrokethickness_vecplot() const;
+  bool getlineantialiased_vecplot() const;
   LineEnd getendstyle_vecplot(const LineEndLocation &location) const;
   double getendwidth_vecplot(const LineEndLocation &location) const;
   double getendheight_vecplot(const LineEndLocation &location) const;
   bool getendinverted_vecplot(const LineEndLocation &location) const;
+  QString getlegendtext_vecplot() const;
 
   // Setters
-  void setstrokecolor_vecplot(const QColor &color);
-  void setstrokestyle_vecplot(const Qt::PenStyle &style);
-  void setstrokethickness_vecplot(const double value);
+  void setxaxis_vecplot(Axis2D* axis);
+  void setyaxis_vecplot(Axis2D *axis);
+  void setlinestrokecolor_vecplot(const QColor &color);
+  void setlinestrokestyle_vecplot(const Qt::PenStyle &style);
+  void setlinestrokethickness_vecplot(const double value);
+  void setlineantialiased_vecplot(bool status);
   void setendstyle_vecplot(const LineEnd &end, const LineEndLocation &location);
   void setendwidth_vecplot(const double value, const LineEndLocation &location);
   void setendheight_vecplot(const double value,
                             const LineEndLocation &location);
   void setendinverted_vecplot(const bool value,
                               const LineEndLocation &location);
+  void setlegendtext_vecplot(const QString &name);
 
  private:
   Axis2D *xaxis_;

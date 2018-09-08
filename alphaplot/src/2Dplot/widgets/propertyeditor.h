@@ -15,6 +15,8 @@ class Layout2D;
 class AxisRect2D;
 class Grid2D;
 class LineScatter2D;
+class Spline2D;
+class Vector2D;
 class Bar2D;
 // Property
 class QtProperty;
@@ -57,10 +59,14 @@ class PropertyEditor : public QDockWidget {
   void AxisPropertyBlock(Axis2D *axis);
   void GridPropertyBlock(AxisRect2D *axisrect);
   void LSPropertyBlock(LineScatter2D *lsgraph, AxisRect2D *axisrect);
+  void SplinePropertyBlock(Spline2D *splinegraph, AxisRect2D *axisrect);
+  void VectorPropertyBlock(Vector2D *vectorgraph, AxisRect2D *axisrect);
   void axisRectCreated(AxisRect2D *axisrect, MyWidget *widget);
   void axisCreated(Axis2D *axis);
   void axisRemoved(AxisRect2D *axisrect);
   void lineScatterCreated(LineScatter2D *ls);
+  void splineCreated(Spline2D *spline);
+  void vectorCreated(Vector2D *vector);
   void barCreated(Bar2D *bar);
 
  public slots:
@@ -76,6 +82,8 @@ class PropertyEditor : public QDockWidget {
   }
   typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
   typedef QVector<LineScatter2D *> LsVec;
+  typedef QVector<Spline2D *> SplineVec;
+  typedef QVector<Vector2D *> VectorVec;
   typedef QVector<Bar2D *> BarVec;
 
  private:
@@ -165,6 +173,29 @@ class PropertyEditor : public QDockWidget {
   QtProperty *lsplotpropertyscatterstrokestyleitem_;
   QtProperty *lsplotpropertyscatterantialiaseditem_;
   QtProperty *lsplotpropertylegendtextitem_;
+
+  // Spline Properties block
+  QtProperty *splinepropertyxaxisitem_;
+  QtProperty *splinepropertyyaxisitem_;
+  QtProperty *splinepropertylinestrokecoloritem_;
+  QtProperty *splinepropertylinestrokethicknessitem_;
+  QtProperty *splinepropertylinestroketypeitem_;
+  QtProperty *splinepropertylinefillstatusitem_;
+  QtProperty *splinepropertylinefillcoloritem_;
+  QtProperty *splinepropertylineantialiaseditem_;
+  QtProperty *splinepropertylegendtextitem_;
+
+  // Vector properties block
+  QtProperty *vectorpropertyxaxisitem_;
+  QtProperty *vectorpropertyyaxisitem_;
+  QtProperty *vectorpropertylinestrokecoloritem_;
+  QtProperty *vectorpropertylinestrokethicknessitem_;
+  QtProperty *vectorpropertylinestroketypeitem_;
+  QtProperty *vectorpropertylineendingtypeitem_;
+  QtProperty *vectorpropertylineendingheightitem_;
+  QtProperty *vectorpropertylineendingwidthitem_;
+  QtProperty *vectorpropertylineantialiaseditem_;
+  QtProperty *vectorpropertylegendtextitem_;
 
   // Horizontal Major Grid Sub Block
   QtProperty *hgridaxispropertycomboitem_;

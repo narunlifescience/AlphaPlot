@@ -8,9 +8,7 @@
 #include <QMessageBox>
 
 Spline2D::Spline2D(Axis2D *xAxis, Axis2D *yAxis)
-    : QCPGraph(xAxis, yAxis), xAxis_(xAxis), yAxis_(yAxis) {
-  setLineStyle(QCPGraph::lsLine);
-
+    : QCPCurve(xAxis, yAxis), xAxis_(xAxis), yAxis_(yAxis) {
   setlinestrokecolor_splot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
 }
@@ -41,7 +39,7 @@ void Spline2D::setGraphData(Column *xData, Column *yData, int from, int to) {
   for (int i = 1; i < d_n; i++)
     if (d_x[i - 1] == d_x[i]) {
       QMessageBox::critical(
-            this->parentPlot(), tr("AlphaPlot") + " - " + tr("Error"),
+          this->parentPlot(), tr("AlphaPlot") + " - " + tr("Error"),
           tr("Several data points have the same x value causing divisions by "
              "zero, operation aborted!"));
       delete[] d_x;
@@ -72,13 +70,17 @@ void Spline2D::setGraphData(Column *xData, Column *yData, int from, int to) {
   delete[] d_x;
   delete[] d_y;
 
-  QSharedPointer<QCPGraphDataContainer> functionData(new QCPGraphDataContainer);
+  QSharedPointer<QCPCurveDataContainer> functionData(new QCPCurveDataContainer);
+  QVector<QCPCurveData> *gdvector = new QVector<QCPCurveData>();
   for (int i = 0; i < xdata->size(); i++) {
-    QCPGraphData fd;
+    QCPCurveData fd;
     fd.key = xdata->at(i);
     fd.value = ydata->at(i);
-    functionData->add(fd);
+    gdvector->append(fd);
   }
+  functionData->add(*gdvector, true);
+  gdvector->clear();
+  delete gdvector;
   setData(functionData);
   // free those containers
   delete xdata;
@@ -96,6 +98,38 @@ double Spline2D::getlinestrokethickness_splot() const { return pen().widthF(); }
 QColor Spline2D::getlinefillcolor_splot() const { return brush().color(); }
 
 bool Spline2D::getlineantialiased_splot() const { return antialiased(); }
+
+bool Spline2D::getlinefillstatus_splot() const {
+  if (brush().style() == Qt::NoBrush) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+QString Spline2D::getlegendtext_splot() const { return name(); }
+
+Axis2D *Spline2D::getxaxis_splot() const { return xAxis_; }
+
+Axis2D *Spline2D::getyaxis_splot() const { return yAxis_; }
+
+void Spline2D::setxaxis_splot(Axis2D *axis) {
+  Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Bottom ||
+           axis->getorientation_axis() == Axis2D::AxisOreantation::Top);
+  if (axis == getxaxis_splot()) return;
+
+  xAxis_ = axis;
+  setKeyAxis(axis);
+}
+
+void Spline2D::setyaxis_splot(Axis2D *axis) {
+  Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Left ||
+           axis->getorientation_axis() == Axis2D::AxisOreantation::Right);
+  if (axis == getyaxis_splot()) return;
+
+  yAxis_ = axis;
+  setValueAxis(axis);
+}
 
 void Spline2D::setlinestrokestyle_splot(const Qt::PenStyle &style) {
   QPen p = pen();
@@ -124,3 +158,17 @@ void Spline2D::setlinefillcolor_splot(const QColor &color) {
 void Spline2D::setlineantialiased_splot(const bool value) {
   setAntialiased(value);
 }
+
+void Spline2D::setlinefillstatus_splot(const bool value) {
+  if (value) {
+    QBrush b = brush();
+    b.setStyle(Qt::SolidPattern);
+    setBrush(b);
+  } else {
+    QBrush b = brush();
+    b.setStyle(Qt::NoBrush);
+    setBrush(b);
+  }
+}
+
+void Spline2D::setlegendtext_splot(const QString &text) { setName(text); }

@@ -1,11 +1,13 @@
 #include "Function2DDialog.h"
 #include "scripting/MyParser.h"
 #include "ui_Function2DDialog.h"
+#include "../AxisRect2D.h"
+#include "ApplicationWindow.h"
 
 #include <QMessageBox>
 
-Function2DDialog::Function2DDialog(QWidget *parent)
-    : QDialog(parent), ui_(new Ui_Function2DDialog) {
+Function2DDialog::Function2DDialog(QWidget *parent, AxisRect2D *axisrect)
+    : QDialog(parent), ui_(new Ui_Function2DDialog), axisrect_(axisrect) {
   ui_->setupUi(this);
   setSizeGripEnabled(true);
 
@@ -65,7 +67,7 @@ bool Function2DDialog::apply() {
       break;
 
     case 2:
-      //result = acceptPolar();
+      // result = acceptPolar();
       break;
   }
   return result;
@@ -125,6 +127,11 @@ bool Function2DDialog::acceptFunction() {
 
   bool result;
   emit updateFunctionLists(type, formulas);
+  /*if(axisrect_) {
+      ApplicationWindow *app = (ApplicationWindow *)this->parent();
+      app->updateFunctionLists(type, formulas);
+      app->newFunctionPlot(type, formulas, "", ranges, points.toInt());
+    }*/
   /*if (!graph)
     result =
         app->newFunctionPlot(type, formulas, "x", ranges, boxPoints->value());
@@ -140,8 +147,7 @@ bool Function2DDialog::acceptFunction() {
   return result;
 }
 
-bool Function2DDialog::acceptParametric()
-{
+bool Function2DDialog::acceptParametric() {
   QString from = ui_->paramfromLineEdit->text().toLower();
   QString to = ui_->paramtoLineEdit->text().toLower();
   QString points = ui_->parampointsSpinBox->text().toLower();
@@ -183,7 +189,7 @@ bool Function2DDialog::acceptParametric()
       ui_->paramyLineEdit->text().replace(QChar::ParagraphSeparator, "\n");
 
   // Collecting all the information
-  int type =  ui_->functionComboBox->currentItem();
+  int type = ui_->functionComboBox->currentItem();
   QStringList formulas;
   QList<double> ranges;
   formulas += xformula;
@@ -206,7 +212,7 @@ bool Function2DDialog::acceptParametric()
           graph->addFunctionCurve(app, type, formulas, boxParameter->text(),
                                   ranges, boxParPoints->value());
   }*/
-  if (!result)  ui_->paramxLineEdit->setFocus();
+  if (!result) ui_->paramxLineEdit->setFocus();
   return result;
 }
 

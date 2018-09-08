@@ -123,7 +123,7 @@ void Vector2D::setGraphData(const VectorPlot &vectorplot, Column *x1Data,
   xaxis_->setto_axis(max_x);
   yaxis_->setfrom_axis(min_y);
   yaxis_->setto_axis(max_y);
-  setstrokecolor_vecplot(
+  setlinestrokecolor_vecplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
 }
 
@@ -137,7 +137,11 @@ void Vector2D::drawLine(double x1, double y1, double x2, double y2) {
   linelist_.append(arrow);
 }
 
-QColor Vector2D::getstrokecolor_vecplot() const {
+Axis2D *Vector2D::getxaxis_vecplot() { return xaxis_; }
+
+Axis2D *Vector2D::getyaxis_vecplot() { return yaxis_; }
+
+QColor Vector2D::getlinestrokecolor_vecplot() const {
   if (linelist_.size() > 0) {
     return linelist_.at(0)->pen().color();
   } else {
@@ -145,7 +149,7 @@ QColor Vector2D::getstrokecolor_vecplot() const {
   }
 }
 
-Qt::PenStyle Vector2D::getstrokestyle_vecplot() const {
+Qt::PenStyle Vector2D::getlinestrokestyle_vecplot() const {
   if (linelist_.size() > 0) {
     return linelist_.at(0)->pen().style();
   } else {
@@ -153,13 +157,15 @@ Qt::PenStyle Vector2D::getstrokestyle_vecplot() const {
   }
 }
 
-double Vector2D::getstrokethickness_vecplot() const {
+double Vector2D::getlinestrokethickness_vecplot() const {
   if (linelist_.size() > 0) {
     return linelist_.at(0)->pen().widthF();
   } else {
     return 0.0;
   }
 }
+
+bool Vector2D::getlineantialiased_vecplot() const { return antialiased(); }
 
 Vector2D::LineEnd Vector2D::getendstyle_vecplot(
     const Vector2D::LineEndLocation &location) const {
@@ -251,7 +257,31 @@ bool Vector2D::getendinverted_vecplot(
   return ending->inverted();
 }
 
-void Vector2D::setstrokecolor_vecplot(const QColor &color) {
+QString Vector2D::getlegendtext_vecplot() const { return name(); }
+
+void Vector2D::setxaxis_vecplot(Axis2D *axis) {
+  Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Bottom ||
+           axis->getorientation_axis() == Axis2D::AxisOreantation::Top);
+  if (axis == getxaxis_vecplot()) return;
+
+  xaxis_ = axis;
+  setKeyAxis(axis);
+}
+
+void Vector2D::setyaxis_vecplot(Axis2D *axis) {
+  Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Left ||
+           axis->getorientation_axis() == Axis2D::AxisOreantation::Right);
+  if (axis == getyaxis_vecplot()) return;
+
+  yaxis_ = axis;
+  setValueAxis(axis);
+}
+
+void Vector2D::setlineantialiased_vecplot(bool status) {
+  setAntialiased(status);
+}
+
+void Vector2D::setlinestrokecolor_vecplot(const QColor &color) {
   foreach (QCPItemLine *arrow, linelist_) {
     QPen p = arrow->pen();
     p.setColor(color);
@@ -259,7 +289,7 @@ void Vector2D::setstrokecolor_vecplot(const QColor &color) {
   }
 }
 
-void Vector2D::setstrokestyle_vecplot(const Qt::PenStyle &style) {
+void Vector2D::setlinestrokestyle_vecplot(const Qt::PenStyle &style) {
   foreach (QCPItemLine *arrow, linelist_) {
     QPen p = arrow->pen();
     p.setStyle(style);
@@ -267,7 +297,7 @@ void Vector2D::setstrokestyle_vecplot(const Qt::PenStyle &style) {
   }
 }
 
-void Vector2D::setstrokethickness_vecplot(const double value) {
+void Vector2D::setlinestrokethickness_vecplot(const double value) {
   foreach (QCPItemLine *arrow, linelist_) {
     QPen p = arrow->pen();
     p.setWidthF(value);
@@ -365,3 +395,5 @@ void Vector2D::setendinverted_vecplot(
 
   ending->setInverted(value);
 }
+
+void Vector2D::setlegendtext_vecplot(const QString &name) { setName(name); }

@@ -2960,55 +2960,77 @@ template <class DataType>
 QCPRange QCPDataContainer<DataType>::keyRange(bool &foundRange, QCP::SignDomain signDomain)
 {
   if (isEmpty())
-  {
-    foundRange = false;
-    return QCPRange();
-  }
-  QCPRange range;
-  bool haveLower = false;
-  bool haveUpper = false;
-  double current;
-  
+    {
+      foundRange = false;
+      return QCPRange();
+    }
+    QCPRange range;
+    bool haveLower = false;
+    bool haveUpper = false;
+    double current;
+
   QCPDataContainer<DataType>::const_iterator it = constBegin();
   QCPDataContainer<DataType>::const_iterator itEnd = constEnd();
+  
   if (signDomain == QCP::sdBoth) // range may be anywhere
-  {
-    if (DataType::sortKeyIsMainKey()) // if DataType is sorted by main key (e.g. QCPGraph, but not QCPCurve), use faster algorithm by finding just first and last key with non-NaN value
     {
-      while (it != itEnd) // find first non-nan going up from left
+      if (DataType::sortKeyIsMainKey()) // if DataType is sorted by main key (e.g. QCPGraph, but not QCPCurve), use faster algorithm by finding just first and last key with non-NaN value
       {
-        if (!qIsNaN(it->mainValue()))
+        while (it != itEnd) // find first non-nan going up from left
         {
-          range.lower = it->mainKey();
-          haveLower = true;
-          break;
+          if (!qIsNaN(it->mainValue()))
+          {
+            range.lower = it->mainKey();
+            haveLower = true;
+            break;
+          }
+          ++it;
         }
-        ++it;
-      }
-      it = itEnd;
-      while (it != constBegin()) // find first non-nan going down from right
+        it = itEnd;
+        while (it != constBegin()) // find first non-nan going down from right
+        {
+          --it;
+          if (!qIsNaN(it->mainValue()))
+          {
+            range.upper = it->mainKey();
+            haveUpper = true;
+            break;
+          }
+        }
+      } else // DataType is not sorted by main key, go through all data points and accordingly expand range
       {
-        --it;
-        if (!qIsNaN(it->mainValue()))
+        while (it != itEnd)
         {
-          range.upper = it->mainKey();
-          haveUpper = true;
-          break;
+          if (!qIsNaN(it->mainValue()))
+          {
+            current = it->mainKey();
+            if (current < range.lower || !haveLower)
+            {
+              range.lower = current;
+              haveLower = true;
+            }
+            if (current > range.upper || !haveUpper)
+            {
+              range.upper = current;
+              haveUpper = true;
+            }
+          }
+          ++it;
         }
       }
-    } else // DataType is not sorted by main key, go through all data points and accordingly expand range
+    } else if (signDomain == QCP::sdNegative) // range may only be in the negative sign domain
     {
       while (it != itEnd)
       {
         if (!qIsNaN(it->mainValue()))
         {
           current = it->mainKey();
-          if (current < range.lower || !haveLower)
+          if ((current < range.lower || !haveLower) && current < 0)
           {
             range.lower = current;
             haveLower = true;
           }
-          if (current > range.upper || !haveUpper)
+          if ((current > range.upper || !haveUpper) && current < 0)
           {
             range.upper = current;
             haveUpper = true;
@@ -3016,47 +3038,26 @@ QCPRange QCPDataContainer<DataType>::keyRange(bool &foundRange, QCP::SignDomain 
         }
         ++it;
       }
-    }
-  } else if (signDomain == QCP::sdNegative) // range may only be in the negative sign domain
-  {
-    while (it != itEnd)
+    } else if (signDomain == QCP::sdPositive) // range may only be in the positive sign domain
     {
-      if (!qIsNaN(it->mainValue()))
+      while (it != itEnd)
       {
-        current = it->mainKey();
-        if ((current < range.lower || !haveLower) && current < 0)
+        if (!qIsNaN(it->mainValue()))
         {
-          range.lower = current;
-          haveLower = true;
+          current = it->mainKey();
+          if ((current < range.lower || !haveLower) && current > 0)
+          {
+            range.lower = current;
+            haveLower = true;
+          }
+          if ((current > range.upper || !haveUpper) && current > 0)
+          {
+            range.upper = current;
+            haveUpper = true;
+          }
         }
-        if ((current > range.upper || !haveUpper) && current < 0)
-        {
-          range.upper = current;
-          haveUpper = true;
-        }
+        ++it;
       }
-      ++it;
-    }
-  } else if (signDomain == QCP::sdPositive) // range may only be in the positive sign domain
-  {
-    while (it != itEnd)
-    {
-      if (!qIsNaN(it->mainValue()))
-      {
-        current = it->mainKey();
-        if ((current < range.lower || !haveLower) && current > 0)
-        {
-          range.lower = current;
-          haveLower = true;
-        }
-        if ((current > range.upper || !haveUpper) && current > 0)
-        {
-          range.upper = current;
-          haveUpper = true;
-        }
-      }
-      ++it;
-    }
   }
   
   foundRange = haveLower && haveUpper;

@@ -130,7 +130,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/2Dplot/PlotPoint.h \
             src/2Dplot/Pie2D.h \
             src/2Dplot/widgets/MyTreeWidget.h \
-            src/2Dplot/widgets/AddAxisWidget.h
+            src/2Dplot/widgets/AddAxisWidget.h \
+    $$PWD/src/2Dplot/LineScatterCommon.h
 
 ###################### SOURCES ##############################################
 

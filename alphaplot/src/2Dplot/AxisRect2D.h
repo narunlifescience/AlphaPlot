@@ -35,6 +35,8 @@ class AxisRect2D : public QCPAxisRect {
  private:
   typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
   typedef QVector<LineScatter2D *> LsVec;
+  typedef QVector<Spline2D *> SplineVec;
+  typedef QVector<Vector2D *> VectorVec;
   typedef QVector<Bar2D *> BarVec;
 
  public:
@@ -52,7 +54,9 @@ class AxisRect2D : public QCPAxisRect {
   QList<Axis2D *> getXAxes2D() const;
   QList<Axis2D *> getYAxes2D() const;
   GridPair getGridPair() const { return gridpair_; }
-  LsVec getGraphVec() const { return lsvec_; }
+  LsVec getLsVec() const { return lsvec_; }
+  SplineVec getSplineVec() const { return splinevec_; }
+  VectorVec getVectorVec() const { return vectorvec_; }
   BarVec getBarVec() const { return barvec_; }
 
   Axis2D *getXAxis(int value);
@@ -124,6 +128,8 @@ class AxisRect2D : public QCPAxisRect {
   void AxisCreated(Axis2D *);
   void AxisRemoved(AxisRect2D *);
   void LineScatterCreated(LineScatter2D *);
+  void SplineCreated(Spline2D *);
+  void VectorCreated(Vector2D *);
   void LineScatterRemoved(AxisRect2D *);
   void BarCreated(Bar2D *);
   void BarRemoved();
@@ -139,6 +145,8 @@ class AxisRect2D : public QCPAxisRect {
   bool isAxisRectSelected_;
   GridPair gridpair_;
   LsVec lsvec_;
+  SplineVec splinevec_;
+  VectorVec vectorvec_;
   BarVec barvec_;
   QList<Axis2D *> axes_;
   // QVector<QPair<StatBox2D *, QPair<Axis2D *, Axis2D *>>> statboxplots_;

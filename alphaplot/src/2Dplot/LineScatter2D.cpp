@@ -25,6 +25,7 @@ LineScatter2D::~LineScatter2D() {}
 void LineScatter2D::setGraphData(Column *xData, Column *yData, int from,
                                  int to) {
   QSharedPointer<QCPGraphDataContainer> graphData(new QCPGraphDataContainer);
+  QVector<QCPGraphData> *gdvector = new QVector<QCPGraphData>();
   double xdata = 0, ydata = 0;
 
   // strip unused end rows
@@ -50,8 +51,11 @@ void LineScatter2D::setGraphData(Column *xData, Column *yData, int from,
     QCPGraphData gd;
     gd.key = xdata;
     gd.value = ydata;
-    graphData->add(gd);
+    gdvector->append(gd);
   }
+  graphData->add(*gdvector, true);
+  gdvector->clear();
+  delete gdvector;
   setData(graphData);
 }
 
@@ -72,27 +76,27 @@ void LineScatter2D::setGraphData(QVector<double> *xdata,
   delete ydata;
 }
 
-LineScatter2D::LineStyleType LineScatter2D::getlinetype_lsplot() const {
-  LineStyleType linestyletype;
+LSCommon::LineStyleType LineScatter2D::getlinetype_lsplot() const {
+  LSCommon::LineStyleType linestyletype;
 
   switch (lineStyle()) {
     case lsNone:
-      linestyletype = LineStyleType::None;
+      linestyletype = LSCommon::LineStyleType::None;
       break;
     case lsLine:
-      linestyletype = LineStyleType::Line;
+      linestyletype = LSCommon::LineStyleType::Line;
       break;
     case lsStepLeft:
-      linestyletype = LineStyleType::StepLeft;
+      linestyletype = LSCommon::LineStyleType::StepLeft;
       break;
     case lsStepRight:
-      linestyletype = LineStyleType::StepRight;
+      linestyletype = LSCommon::LineStyleType::StepRight;
       break;
     case lsStepCenter:
-      linestyletype = LineStyleType::StepCenter;
+      linestyletype = LSCommon::LineStyleType::StepCenter;
       break;
     case lsImpulse:
-      linestyletype = LineStyleType::Impulse;
+      linestyletype = LSCommon::LineStyleType::Impulse;
       break;
   }
   return linestyletype;
@@ -124,62 +128,62 @@ QColor LineScatter2D::getlinefillcolor_lsplot() const {
 
 bool LineScatter2D::getlineantialiased_lsplot() const { return antialiased(); }
 
-LineScatter2D::ScatterStyle LineScatter2D::getscattershape_lsplot() const {
-  ScatterStyle scatterstyle;
+LSCommon::ScatterStyle LineScatter2D::getscattershape_lsplot() const {
+  LSCommon::ScatterStyle scatterstyle;
   switch (scatterStyle().shape()) {
     case QCPScatterStyle::ssNone:
-      scatterstyle = ScatterStyle::None;
+      scatterstyle = LSCommon::ScatterStyle::None;
       break;
     case QCPScatterStyle::ssDot:
-      scatterstyle = ScatterStyle::Dot;
+      scatterstyle = LSCommon::ScatterStyle::Dot;
       break;
     case QCPScatterStyle::ssCross:
-      scatterstyle = ScatterStyle::Cross;
+      scatterstyle = LSCommon::ScatterStyle::Cross;
       break;
     case QCPScatterStyle::ssPlus:
-      scatterstyle = ScatterStyle::Plus;
+      scatterstyle = LSCommon::ScatterStyle::Plus;
       break;
     case QCPScatterStyle::ssCircle:
-      scatterstyle = ScatterStyle::Circle;
+      scatterstyle = LSCommon::ScatterStyle::Circle;
       break;
     case QCPScatterStyle::ssDisc:
-      scatterstyle = ScatterStyle::Disc;
+      scatterstyle = LSCommon::ScatterStyle::Disc;
       break;
     case QCPScatterStyle::ssSquare:
-      scatterstyle = ScatterStyle::Square;
+      scatterstyle = LSCommon::ScatterStyle::Square;
       break;
     case QCPScatterStyle::ssDiamond:
-      scatterstyle = ScatterStyle::Diamond;
+      scatterstyle = LSCommon::ScatterStyle::Diamond;
       break;
     case QCPScatterStyle::ssStar:
-      scatterstyle = ScatterStyle::Star;
+      scatterstyle = LSCommon::ScatterStyle::Star;
       break;
     case QCPScatterStyle::ssTriangle:
-      scatterstyle = ScatterStyle::Triangle;
+      scatterstyle = LSCommon::ScatterStyle::Triangle;
       break;
     case QCPScatterStyle::ssTriangleInverted:
-      scatterstyle = ScatterStyle::TriangleInverted;
+      scatterstyle = LSCommon::ScatterStyle::TriangleInverted;
       break;
     case QCPScatterStyle::ssCrossSquare:
-      scatterstyle = ScatterStyle::CrossSquare;
+      scatterstyle = LSCommon::ScatterStyle::CrossSquare;
       break;
     case QCPScatterStyle::ssPlusSquare:
-      scatterstyle = ScatterStyle::PlusSquare;
+      scatterstyle = LSCommon::ScatterStyle::PlusSquare;
       break;
     case QCPScatterStyle::ssCrossCircle:
-      scatterstyle = ScatterStyle::CrossCircle;
+      scatterstyle = LSCommon::ScatterStyle::CrossCircle;
       break;
     case QCPScatterStyle::ssPlusCircle:
-      scatterstyle = ScatterStyle::PlusCircle;
+      scatterstyle = LSCommon::ScatterStyle::PlusCircle;
       break;
     case QCPScatterStyle::ssPeace:
-      scatterstyle = ScatterStyle::Peace;
+      scatterstyle = LSCommon::ScatterStyle::Peace;
       break;
     case QCPScatterStyle::ssCustom:
     case QCPScatterStyle::ssPixmap:
       qDebug() << "QCPScatterStyle::ssCustom & QCPScatterStyle::ssPixmap "
                   "unsupported! using QCPScatterStyle::ssDisc insted";
-      scatterstyle = ScatterStyle::Disc;
+      scatterstyle = LSCommon::ScatterStyle::Disc;
       break;
   }
   return scatterstyle;
@@ -215,25 +219,24 @@ Axis2D *LineScatter2D::getxaxis_lsplot() const { return xAxis_; }
 
 Axis2D *LineScatter2D::getyaxis_lsplot() const { return yAxis_; }
 
-void LineScatter2D::setlinetype_lsplot(
-    const LineScatter2D::LineStyleType &line) {
+void LineScatter2D::setlinetype_lsplot(const LSCommon::LineStyleType &line) {
   switch (line) {
-    case LineStyleType::Line:
+    case LSCommon::LineStyleType::Line:
       setLineStyle(QCPGraph::lsLine);
       break;
-    case LineStyleType::None:
+    case LSCommon::LineStyleType::None:
       setLineStyle(QCPGraph::lsNone);
       break;
-    case LineStyleType::Impulse:
+    case LSCommon::LineStyleType::Impulse:
       setLineStyle(QCPGraph::lsImpulse);
       break;
-    case LineStyleType::StepCenter:
+    case LSCommon::LineStyleType::StepCenter:
       setLineStyle(QCPGraph::lsStepCenter);
       break;
-    case LineStyleType::StepLeft:
+    case LSCommon::LineStyleType::StepLeft:
       setLineStyle(QCPGraph::lsStepLeft);
       break;
-    case LineStyleType::StepRight:
+    case LSCommon::LineStyleType::StepRight:
       setLineStyle(QCPGraph::lsStepRight);
       break;
   }
@@ -279,54 +282,55 @@ void LineScatter2D::setlineantialiased_lsplot(const bool value) {
   setAntialiased(value);
 }
 
-void LineScatter2D::setscattershape_lsplot(const ScatterStyle &shape) {
+void LineScatter2D::setscattershape_lsplot(
+    const LSCommon::ScatterStyle &shape) {
   switch (shape) {
-    case ScatterStyle::None:
+    case LSCommon::ScatterStyle::None:
       scatterstyle_->setShape(QCPScatterStyle::ssNone);
       break;
-    case ScatterStyle::Dot:
+    case LSCommon::ScatterStyle::Dot:
       scatterstyle_->setShape(QCPScatterStyle::ssDot);
       break;
-    case ScatterStyle::Cross:
+    case LSCommon::ScatterStyle::Cross:
       scatterstyle_->setShape(QCPScatterStyle::ssCross);
       break;
-    case ScatterStyle::Plus:
+    case LSCommon::ScatterStyle::Plus:
       scatterstyle_->setShape(QCPScatterStyle::ssPlus);
       break;
-    case ScatterStyle::Circle:
+    case LSCommon::ScatterStyle::Circle:
       scatterstyle_->setShape(QCPScatterStyle::ssCircle);
       break;
-    case ScatterStyle::Disc:
+    case LSCommon::ScatterStyle::Disc:
       scatterstyle_->setShape(QCPScatterStyle::ssDisc);
       break;
-    case ScatterStyle::Square:
+    case LSCommon::ScatterStyle::Square:
       scatterstyle_->setShape(QCPScatterStyle::ssSquare);
       break;
-    case ScatterStyle::Diamond:
+    case LSCommon::ScatterStyle::Diamond:
       scatterstyle_->setShape(QCPScatterStyle::ssDiamond);
       break;
-    case ScatterStyle::Star:
+    case LSCommon::ScatterStyle::Star:
       scatterstyle_->setShape(QCPScatterStyle::ssStar);
       break;
-    case ScatterStyle::Triangle:
+    case LSCommon::ScatterStyle::Triangle:
       scatterstyle_->setShape(QCPScatterStyle::ssTriangle);
       break;
-    case ScatterStyle::TriangleInverted:
+    case LSCommon::ScatterStyle::TriangleInverted:
       scatterstyle_->setShape(QCPScatterStyle::ssTriangleInverted);
       break;
-    case ScatterStyle::CrossSquare:
+    case LSCommon::ScatterStyle::CrossSquare:
       scatterstyle_->setShape(QCPScatterStyle::ssCrossSquare);
       break;
-    case ScatterStyle::PlusSquare:
+    case LSCommon::ScatterStyle::PlusSquare:
       scatterstyle_->setShape(QCPScatterStyle::ssPlusSquare);
       break;
-    case ScatterStyle::CrossCircle:
+    case LSCommon::ScatterStyle::CrossCircle:
       scatterstyle_->setShape(QCPScatterStyle::ssCrossCircle);
       break;
-    case ScatterStyle::PlusCircle:
+    case LSCommon::ScatterStyle::PlusCircle:
       scatterstyle_->setShape(QCPScatterStyle::ssPlusCircle);
       break;
-    case ScatterStyle::Peace:
+    case LSCommon::ScatterStyle::Peace:
       scatterstyle_->setShape(QCPScatterStyle::ssPeace);
       break;
   }

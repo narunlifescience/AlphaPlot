@@ -15,7 +15,9 @@ class MyTreeWidget : public QTreeWidget {
     Grid = 1,
     Axis = 2,
     LSGraph = 3,
-    BarGraph = 4,
+    Spline =4,
+    Vector = 5,
+    BarGraph = 6,
   };
   MyTreeWidget(QWidget* parent = nullptr);
   ~MyTreeWidget() {}
