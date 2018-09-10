@@ -35,7 +35,6 @@
 #include "Differentiation.h"
 #include "ErrDialog.h"
 #include "ExpDecayDialog.h"
-#include "ExportDialog.h"
 #include "FFTDialog.h"
 #include "FFTFilter.h"
 #include "FilterDialog.h"
@@ -82,6 +81,7 @@
 #include "globals.h"
 #include "lib/XmlStreamReader.h"
 #include "table/future_Table.h"
+#include "ui/ExportDialog.h"
 #include "ui_ApplicationWindow.h"
 
 // TODO: move tool-specific code to an extension manager
@@ -168,7 +168,6 @@ ApplicationWindow::ApplicationWindow()
 #ifdef SCRIPTING_CONSOLE
       consoleWindow(new ConsoleWidget(this)),
 #endif
-      propertyeditor(new PropertyEditor(this)),
       d_workspace(new QWorkspace(this)),
       hiddenWindows(new QList<QWidget *>()),
       outWindows(new QList<QWidget *>()),
@@ -310,6 +309,7 @@ ApplicationWindow::ApplicationWindow()
   addDockWidget(Qt::TopDockWidgetArea, consoleWindow);
   consoleWindow->hide();
 #endif
+  propertyeditor = new PropertyEditor(this);
   addDockWidget(Qt::RightDockWidgetArea, propertyeditor);
   propertyeditor->show();
 
@@ -8483,6 +8483,71 @@ bool ApplicationWindow::newFunctionPlot(const int type,
   Q_ASSERT(ranges.size() == 2);
   switch (type) {
     case 0: {
+      QPair<QVector<double> *, QVector<double> *> datapair;
+      datapair = generateFunctiondata(type, formulas, var, ranges, points);
+      if (!datapair.first && !datapair.second) return false;
+      Layout2D *layout = newGraph2D();
+      layout->generateFunction2DPlot(datapair.first, datapair.second, "x",
+                                     formulas[0]);
+      return true;
+    }
+    case 1:
+    case 2: {
+      QPair<QVector<double> *, QVector<double> *> datapair;
+      datapair = generateFunctiondata(type, formulas, var, ranges, points);
+      if (!datapair.first && !datapair.second) return false;
+      Layout2D *layout = newGraph2D();
+      layout->generateParametric2DPlot(datapair.first, datapair.second,
+                                       formulas.at(0), formulas.at(1));
+      return true;
+    }
+    default:
+      qDebug() << "unknown function type!";
+  }
+  return false;
+}
+
+bool ApplicationWindow::addFunctionPlot(
+    const int type, const QStringList &formulas, const QString &var,
+    const QList<double> &ranges, const int points, AxisRect2D *axisrect) {
+  Q_ASSERT(ranges.size() == 2);
+  switch (type) {
+    case 0: {
+      QPair<QVector<double> *, QVector<double> *> datapair;
+      datapair = generateFunctiondata(type, formulas, var, ranges, points);
+      if (!datapair.first || !datapair.second) return false;
+      axisrect->addLineFunction2DPlot(datapair.first, datapair.second,
+                                      axisrect->getXAxis(0),
+                                      axisrect->getYAxis(0), formulas.at(0));
+      return true;
+    }
+    case 1:
+    case 2: {
+      QPair<QVector<double> *, QVector<double> *> datapair;
+      datapair = generateFunctiondata(type, formulas, var, ranges, points);
+      if (!datapair.first || !datapair.second) return false;
+      axisrect->addCurveFunction2DPlot(datapair.first, datapair.second,
+                                       axisrect->getXAxis(0),
+                                       axisrect->getYAxis(0), formulas.at(0));
+      return true;
+    }
+    default:
+      qDebug() << "unknown function type!";
+  }
+  return false;
+}
+
+QPair<QVector<double> *, QVector<double> *>
+ApplicationWindow::generateFunctiondata(const int type,
+                                        const QStringList &formulas,
+                                        const QString &var,
+                                        const QList<double> &ranges,
+                                        const int points) {
+  QPair<QVector<double> *, QVector<double> *> datapair;
+  datapair.first = nullptr;
+  datapair.second = nullptr;
+  switch (type) {
+    case 0: {
       Q_ASSERT(formulas.size() == 1);
       QString name = "normal-function";
       std::unique_ptr<Script> script(
@@ -8493,6 +8558,7 @@ bool ApplicationWindow::newFunctionPlot(const int type,
 
       QVector<double> *xData = new QVector<double>();
       QVector<double> *yData = new QVector<double>();
+
       const double xMin = ranges.at(0), xMax = ranges.at(1);
       const double step = (xMax - xMin) / static_cast<double>(points - 1);
       double x = xMin, y = 0;
@@ -8504,18 +8570,17 @@ bool ApplicationWindow::newFunctionPlot(const int type,
           delete yData;
           xData = nullptr;
           yData = nullptr;
-          return false;
+          return datapair;
         }
-
         y = result.toDouble();
         xData->append(x);
         yData->append(y);
       }
 
       if (xData && yData) {
-        Layout2D *layout = newGraph2D();
-        layout->generateFunction2DPlot(xData, yData, "x", formulas[0]);
-        return true;
+        datapair.first = xData;
+        datapair.second = yData;
+        return datapair;
       }
       delete xData;
       delete yData;
@@ -8554,7 +8619,7 @@ bool ApplicationWindow::newFunctionPlot(const int type,
           delete yData;
           xData = nullptr;
           yData = nullptr;
-          return false;
+          return datapair;
         }
         if (type == 2) {
           xData->append(result_x.toDouble() * cos(result_y.toDouble()));
@@ -8565,10 +8630,9 @@ bool ApplicationWindow::newFunctionPlot(const int type,
         }
       }
       if (xData && yData) {
-        Layout2D *layout = newGraph2D();
-        layout->generateParametric2DPlot(xData, yData, formulas.at(0),
-                                         formulas.at(1));
-        return true;
+        datapair.first = xData;
+        datapair.second = yData;
+        return datapair;
       }
       delete xData;
       delete yData;
@@ -8578,7 +8642,7 @@ bool ApplicationWindow::newFunctionPlot(const int type,
     default:
       qDebug() << "unknown function type!";
   }
-  return false;
+  return datapair;
 }
 
 void ApplicationWindow::clearLogInfo() {
@@ -12205,20 +12269,20 @@ void ApplicationWindow::attachQtScript() {
   qScriptRegisterMetaType<Column *>(consoleWindow->engine,
                                     tableObjectToScriptValue,
                                     tableObjectFromScriptValue);
-  qScriptRegisterMetaType<QVector<int> >(consoleWindow->engine, toScriptValue,
-                                         fromScriptValue);
-  qScriptRegisterMetaType<QVector<float> >(consoleWindow->engine, toScriptValue,
-                                           fromScriptValue);
-  qScriptRegisterMetaType<QVector<double> >(consoleWindow->engine,
-                                            toScriptValue, fromScriptValue);
-  qScriptRegisterMetaType<QVector<long> >(consoleWindow->engine, toScriptValue,
+  qScriptRegisterMetaType<QVector<int>>(consoleWindow->engine, toScriptValue,
+                                        fromScriptValue);
+  qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine, toScriptValue,
                                           fromScriptValue);
-  qScriptRegisterMetaType<QVector<QString> >(consoleWindow->engine,
-                                             toScriptValue, fromScriptValue);
-  qScriptRegisterMetaType<QVector<QDate> >(consoleWindow->engine, toScriptValue,
+  qScriptRegisterMetaType<QVector<double>>(consoleWindow->engine, toScriptValue,
                                            fromScriptValue);
-  qScriptRegisterMetaType<QVector<QDateTime> >(consoleWindow->engine,
-                                               toScriptValue, fromScriptValue);
+  qScriptRegisterMetaType<QVector<long>>(consoleWindow->engine, toScriptValue,
+                                         fromScriptValue);
+  qScriptRegisterMetaType<QVector<QString>>(consoleWindow->engine,
+                                            toScriptValue, fromScriptValue);
+  qScriptRegisterMetaType<QVector<QDate>>(consoleWindow->engine, toScriptValue,
+                                          fromScriptValue);
+  qScriptRegisterMetaType<QVector<QDateTime>>(consoleWindow->engine,
+                                              toScriptValue, fromScriptValue);
 }
 
 Table *ApplicationWindow::getTableHandle() {

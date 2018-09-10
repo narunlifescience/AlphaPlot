@@ -29,7 +29,7 @@
 #ifndef OPEN_PROJECT_DIALOG_H
 #define OPEN_PROJECT_DIALOG_H
 
-#include "ExtensibleFileDialog.h"
+#include "ui/ExtensibleFileDialog.h"
 
 #include <QComboBox>
 

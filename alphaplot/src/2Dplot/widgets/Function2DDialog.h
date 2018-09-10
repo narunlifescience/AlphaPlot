@@ -2,7 +2,6 @@
 #define FUNCTION2DDIALOG_H
 
 #include <QDialog>
-#include "../LineScatter2D.h"
 
 class Ui_Function2DDialog;
 class AxisRect2D;
@@ -11,9 +10,10 @@ class Function2DDialog : public QDialog {
   Q_OBJECT
 
  public:
-  explicit Function2DDialog(QWidget *parent = nullptr,
-                            AxisRect2D *axisrect = nullptr);
+  explicit Function2DDialog( QWidget *parent = nullptr);
   ~Function2DDialog();
+
+  void setLayout2DToModify(AxisRect2D *axisrect, int plottomidify);
 
  private slots:
   void raiseWidget(const int index) const;
@@ -34,6 +34,7 @@ class Function2DDialog : public QDialog {
  private:
   Ui_Function2DDialog *ui_;
   AxisRect2D *axisrect_;
+  int plottomodify_;
 };
 
 #endif  // FUNCTION2DDIALOG_H

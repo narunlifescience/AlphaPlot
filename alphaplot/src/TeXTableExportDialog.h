@@ -30,7 +30,7 @@
 #ifndef TEX_TABLE_EXPORT_DIALOG_H
 #define TEX_TABLE_EXPORT_DIALOG_H
 
-#include "ExtensibleFileDialog.h"
+#include "ui/ExtensibleFileDialog.h"
 
 class TeXTableSettingsWidget;
 class TeXTableSettings;

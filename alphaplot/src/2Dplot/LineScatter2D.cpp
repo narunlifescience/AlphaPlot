@@ -20,7 +20,7 @@ LineScatter2D::LineScatter2D(Axis2D *xAxis, Axis2D *yAxis)
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
 }
 
-LineScatter2D::~LineScatter2D() {}
+LineScatter2D::~LineScatter2D() { delete scatterstyle_; }
 
 void LineScatter2D::setGraphData(Column *xData, Column *yData, int from,
                                  int to) {

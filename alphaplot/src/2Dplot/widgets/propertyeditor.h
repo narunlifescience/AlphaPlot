@@ -65,6 +65,7 @@ class PropertyEditor : public QDockWidget {
   void axisCreated(Axis2D *axis);
   void axisRemoved(AxisRect2D *axisrect);
   void lineScatterCreated(LineScatter2D *ls);
+  void lineScatterRemoved(AxisRect2D *axisrect);
   void splineCreated(Spline2D *spline);
   void vectorCreated(Vector2D *vector);
   void barCreated(Bar2D *bar);
@@ -80,6 +81,15 @@ class PropertyEditor : public QDockWidget {
     T *object = static_cast<T *>(ptr);
     return object;
   }
+  template <class T>
+  void objectschanged(T *element) {
+    MyWidget *widget =
+        qobject_cast<MyWidget *>(element->parentPlot()->parent());
+    if (widget) {
+      populateObjectBrowser(widget);
+    }
+  }
+
   typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
   typedef QVector<LineScatter2D *> LsVec;
   typedef QVector<Spline2D *> SplineVec;

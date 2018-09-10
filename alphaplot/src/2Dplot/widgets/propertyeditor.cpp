@@ -1154,56 +1154,37 @@ void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
 
   connect(axisrect, SIGNAL(LineScatterCreated(LineScatter2D *)), this,
           SLOT(lineScatterCreated(LineScatter2D *)));
+  connect(axisrect, SIGNAL(LineScatterRemoved(AxisRect2D *)), this,
+          SLOT(lineScatterRemoved(AxisRect2D *)));
   connect(axisrect, SIGNAL(SplineCreated(Spline2D *)), this,
           SLOT(splineCreated(Spline2D *)));
   connect(axisrect, SIGNAL(VectorCreated(Vector2D *)), this,
           SLOT(vectorCreated(Vector2D *)));
   connect(axisrect, SIGNAL(BarCreated(Bar2D *)), this,
           SLOT(barCreated(Bar2D *)));
+
   populateObjectBrowser(widget);
 }
 
-void PropertyEditor::axisCreated(Axis2D *axis) {
-  MyWidget *widget = qobject_cast<MyWidget *>(axis->parentPlot()->parent());
-  if (widget) {
-    populateObjectBrowser(widget);
-  }
-}
+void PropertyEditor::axisCreated(Axis2D *axis) { objectschanged(axis); }
 
 void PropertyEditor::axisRemoved(AxisRect2D *axisrect) {
-  MyWidget *widget = qobject_cast<MyWidget *>(axisrect->parentPlot()->parent());
-  if (widget) {
-    populateObjectBrowser(widget);
-  }
+  objectschanged(axisrect);
 }
 
 void PropertyEditor::lineScatterCreated(LineScatter2D *ls) {
-  MyWidget *widget = qobject_cast<MyWidget *>(ls->parentPlot()->parent());
-  if (widget) {
-    populateObjectBrowser(widget);
-  }
+  objectschanged(ls);
 }
 
-void PropertyEditor::splineCreated(Spline2D *spline) {
-  MyWidget *widget = qobject_cast<MyWidget *>(spline->parentPlot()->parent());
-  if (widget) {
-    populateObjectBrowser(widget);
-  }
+void PropertyEditor::lineScatterRemoved(AxisRect2D *axisrect) {
+  objectschanged(axisrect);
 }
 
-void PropertyEditor::vectorCreated(Vector2D *vector) {
-  MyWidget *widget = qobject_cast<MyWidget *>(vector->parentPlot()->parent());
-  if (widget) {
-    populateObjectBrowser(widget);
-  }
-}
+void PropertyEditor::splineCreated(Spline2D *spline) { objectschanged(spline); }
 
-void PropertyEditor::barCreated(Bar2D *bar) {
-  MyWidget *widget = qobject_cast<MyWidget *>(bar->parentPlot()->parent());
-  if (widget) {
-    populateObjectBrowser(widget);
-  }
-}
+void PropertyEditor::vectorCreated(Vector2D *vector) { objectschanged(vector); }
+
+void PropertyEditor::barCreated(Bar2D *bar) { objectschanged(bar); }
 
 void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
   objectbrowser_->clear();

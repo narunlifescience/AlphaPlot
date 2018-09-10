@@ -3,6 +3,8 @@
 #include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
+#include <QMessageBox>
 #include <QStyleOption>
 #include <QVBoxLayout>
 
@@ -15,6 +17,7 @@
 #include "LayoutGrid2D.h"
 #include "LineScatter2D.h"
 #include "widgets/Axis2DPropertiesDialog.h"
+#include "widgets/ImageExportDialog2D.h"
 #include "widgets/LayoutButton2D.h"
 
 #include <gsl/gsl_sort.h>
@@ -167,9 +170,9 @@ void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
   xAxis.at(0)->setLabel(xLabel);
   yAxis.at(0)->setLabel(yLabel);
 
-  LineScatter2D *linescatter =
-      element->addLineFunction2DPlot(xdata, ydata, xAxis.at(0), yAxis.at(0));
-  linescatter->setName("f(x) = " + yLabel);
+  QString name = "f(x) = " + yLabel;
+  LineScatter2D *linescatter = element->addLineFunction2DPlot(
+      xdata, ydata, xAxis.at(0), yAxis.at(0), name);
   linescatter->rescaleAxes();
   plot2dCanvas_->replot();
 }
@@ -188,9 +191,9 @@ void Layout2D::generateParametric2DPlot(QVector<double> *xdata,
   xAxis.at(0)->setLabel(xLabel);
   yAxis.at(0)->setLabel(yLabel);
 
-  Curve2D *curve =
-      element->addCurveFunction2DPlot(xdata, ydata, xAxis.at(0), yAxis.at(0));
-  curve->setName("f(x) = " + yLabel);
+  QString name = "f(x) = " + yLabel;
+  Curve2D *curve = element->addCurveFunction2DPlot(xdata, ydata, xAxis.at(0),
+                                                   yAxis.at(0), name);
   curve->rescaleAxes();
   plot2dCanvas_->replot();
 }
@@ -277,7 +280,7 @@ void Layout2D::generatePie2DPlot(Column *xData, int from, int to) {
   AxisRect2D *element = addAxisRectItem();
 
   Pie2D *pie = element->addPie2DPlot(xData, from, to);
-  //pie->rescaleAxes();
+  // pie->rescaleAxes();
   plot2dCanvas_->replot();
 }
 
@@ -408,7 +411,7 @@ AxisRect2D *Layout2D::addAxisRectItem() {
   AxisRect2D *axisRect2d = new AxisRect2D(plot2dCanvas_);
   // axisrectitem->setData(0, Qt::UserRole, 3);
 
- Axis2D *xAxis = axisRect2d->addAxis2D(Axis2D::AxisOreantation::Bottom);
+  Axis2D *xAxis = axisRect2d->addAxis2D(Axis2D::AxisOreantation::Bottom);
   Axis2D *yAxis = axisRect2d->addAxis2D(Axis2D::AxisOreantation::Left);
 
   axisRect2d->bindGridTo(xAxis);
@@ -497,28 +500,41 @@ void Layout2D::mouseMoveSignal(QMouseEvent *event) {
 }
 
 void Layout2D::mousePressSignal(QMouseEvent *event) {
-  // dragging legend
-  if (currentAxisRect_->selectTest(event->pos(), false) > 0) {
-    QCPLegend *l = currentAxisRect_->getLegend();
-    if (l->selectTest(event->pos(), false) > 0) {
-      draggingLegend = true;
-      // since insetRect is in axisRect coordinates (0..1), we transform the
-      // mouse position:
-      QPointF mousePoint((event->pos().x() - currentAxisRect_->left()) /
-                             static_cast<double>(currentAxisRect_->width()),
-                         (event->pos().y() - currentAxisRect_->top()) /
-                             static_cast<double>(currentAxisRect_->height()));
-      dragLegendOrigin =
-          mousePoint - currentAxisRect_->insetLayout()->insetRect(0).topLeft();
-      setCursor(Qt::ClosedHandCursor);
+  if (event->button() == Qt::LeftButton) {
+    // dragging legend
+    if (currentAxisRect_->selectTest(event->pos(), false) > 0) {
+      QCPLegend *l = currentAxisRect_->getLegend();
+      if (l->selectTest(event->pos(), false) > 0) {
+        draggingLegend = true;
+        // since insetRect is in axisRect coordinates (0..1), we transform the
+        // mouse position:
+        QPointF mousePoint((event->pos().x() - currentAxisRect_->left()) /
+                               static_cast<double>(currentAxisRect_->width()),
+                           (event->pos().y() - currentAxisRect_->top()) /
+                               static_cast<double>(currentAxisRect_->height()));
+        dragLegendOrigin =
+            mousePoint -
+            currentAxisRect_->insetLayout()->insetRect(0).topLeft();
+        setCursor(Qt::ClosedHandCursor);
+      }
     }
   }
 }
 
-void Layout2D::mouseReleaseSignal(QMouseEvent *) {
-  if (draggingLegend) {
-    draggingLegend = false;
-    unsetCursor();
+void Layout2D::mouseReleaseSignal(QMouseEvent *event) {
+  if (event->button() == Qt::LeftButton) {
+    if (draggingLegend) {
+      draggingLegend = false;
+      unsetCursor();
+    }
+  } else {
+    QPointF startPos = event->posF();
+    QMenu *menu = new QMenu();
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    menu->addAction("Export", this, SLOT(exportGraph()));
+    menu->addAction("Print", this, SLOT(printGraph()));
+    menu->popup(plot2dCanvas_->mapToGlobal(QPoint(
+        static_cast<int>(startPos.x()), static_cast<int>(startPos.y()))));
   }
 }
 
@@ -557,6 +573,72 @@ void Layout2D::legendDoubleClick(QCPLegend *legend,
     }
   }
 }
+
+bool Layout2D::exportGraph() {
+  std::unique_ptr<ImageExportDialog2D> ied(
+      new ImageExportDialog2D(nullptr, plot2dCanvas_ != nullptr));
+  ied->setraster_height(plot2dCanvas_->height());
+  ied->setraster_width(plot2dCanvas_->width());
+  ied->setvector_height(plot2dCanvas_->height());
+  ied->setraster_width(plot2dCanvas_->width());
+  if (ied->exec() != QDialog::Accepted) return false;
+  if (ied->selectedFiles().isEmpty()) return false;
+
+  QString selected_filter = ied->selectedFilter();
+
+  QString file_name = ied->selectedFiles()[0];
+  QFileInfo file_info(file_name);
+  if (!file_info.fileName().contains("."))
+    file_name.append(selected_filter.remove("*"));
+
+  QFile file(file_name);
+  if (!file.open(QIODevice::WriteOnly)) {
+    QMessageBox::critical(
+        this, tr("Export Error"),
+        tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that "
+           "you have the right to write to this location!")
+            .arg(file_name));
+    return false;
+  }
+
+  int raster_resolution = ied->raster_resolution();
+  int raster_width = ied->raster_width();
+  int raster_height = ied->raster_height();
+  double raster_scale = ied->raster_scale();
+  int raster_quality = ied->raster_quality();
+
+  int vector_width = ied->vector_width();
+  int vector_height = ied->vector_height();
+
+  bool success = false;
+  currentAxisRect_->setPrintorExportJob(true);
+  if (selected_filter.contains(".pdf")) {
+    success = plot2dCanvas_->savePdf(file_name, vector_width, vector_height);
+  } else if (selected_filter.contains(".svg")) {
+    success = plot2dCanvas_->saveSvg(file_name, vector_width, vector_height);
+  } else if (selected_filter.contains(".ps")) {
+    success = plot2dCanvas_->savePs(file_name, vector_width, vector_height);
+  } else {
+    QByteArray ba = selected_filter.toLatin1();
+    ba.stripWhiteSpace();
+    ba.remove(0, 1);
+    const char *c_char = ba.data();
+    success = plot2dCanvas_->saveRastered(file_name, raster_width,
+                                          raster_height, raster_scale, c_char,
+                                          raster_quality, raster_resolution);
+  }
+  currentAxisRect_->setPrintorExportJob(false);
+  if (!success) {
+    QMessageBox::critical(
+        this, tr("Export Error"),
+        tr("Unknown error exporting: <br><h4> %1 </h4><p>May be "
+           "the advanced image export parameters are not rightfully set!")
+            .arg(file_name));
+  }
+  return success;
+}
+
+void Layout2D::printGraph() {}
 
 void Layout2D::setLayoutDimension(QPair<int, int> dimension) {
   layoutDimension_.first = dimension.first;

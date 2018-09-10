@@ -1,13 +1,16 @@
 #include "Function2DDialog.h"
-#include "scripting/MyParser.h"
-#include "ui_Function2DDialog.h"
 #include "../AxisRect2D.h"
 #include "ApplicationWindow.h"
+#include "scripting/MyParser.h"
+#include "ui_Function2DDialog.h"
 
 #include <QMessageBox>
 
-Function2DDialog::Function2DDialog(QWidget *parent, AxisRect2D *axisrect)
-    : QDialog(parent), ui_(new Ui_Function2DDialog), axisrect_(axisrect) {
+Function2DDialog::Function2DDialog(QWidget *parent)
+    : QDialog(parent),
+      ui_(new Ui_Function2DDialog),
+      axisrect_(nullptr),
+      plottomodify_(-1) {
   ui_->setupUi(this);
   setSizeGripEnabled(true);
 
@@ -37,17 +40,25 @@ Function2DDialog::Function2DDialog(QWidget *parent, AxisRect2D *axisrect)
 
   connect(ui_->functionComboBox, SIGNAL(activated(int)), this,
           SLOT(raiseWidget(int)));
-  connect(ui_->dialogButtonBox->button(QDialogButtonBox::Apply),
-          SIGNAL(clicked()), this, SLOT(apply()));
   connect(ui_->dialogButtonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()),
           this, SLOT(accept()));
-  connect(ui_->dialogButtonBox->button(QDialogButtonBox::Cancel),
-          SIGNAL(clicked()), this, SLOT(reject()));
+  connect(ui_->dialogButtonBox->button(QDialogButtonBox::Close),
+          SIGNAL(clicked()), this, SLOT(close()));
   connect(ui_->clearfunction_pushButton, SIGNAL(clicked()), this,
           SLOT(clearList()));
 }
 
 Function2DDialog::~Function2DDialog() { delete ui_; }
+
+void Function2DDialog::setLayout2DToModify(AxisRect2D *axisrect,
+                                           int plottomidify) {
+  if (!axisrect) return;
+  axisrect_ = axisrect;
+
+  plottomodify_ = plottomidify;
+  if (plottomodify_ == -1) {
+  }
+}
 
 void Function2DDialog::raiseWidget(const int index) const {
   (index == 0) ? ui_->clearfunction_pushButton->setText(tr("Clear list"))
@@ -90,7 +101,7 @@ bool Function2DDialog::acceptFunction() {
     parser.SetExpr(from.toAscii().constData());
     start = parser.Eval();
   } catch (mu::ParserError &error) {
-    QMessageBox::critical(0, tr("Start limit error"),
+    QMessageBox::critical(nullptr, tr("Start limit error"),
                           QString::fromStdString(error.GetMsg()));
     ui_->normfromxLineEdit->setFocus();
     return false;
@@ -100,7 +111,7 @@ bool Function2DDialog::acceptFunction() {
     parser.SetExpr(to.toAscii().constData());
     end = parser.Eval();
   } catch (mu::ParserError &error) {
-    QMessageBox::critical(0, tr("End limit error"),
+    QMessageBox::critical(nullptr, tr("End limit error"),
                           QString::fromStdString(error.GetMsg()));
     ui_->normtoxLineEdit->setFocus();
     return false;
@@ -108,7 +119,7 @@ bool Function2DDialog::acceptFunction() {
 
   if (start >= end) {
     QMessageBox::critical(
-        0, tr("Input error"),
+        nullptr, tr("Input error"),
         tr("Please enter x limits that satisfy: from < end!"));
     ui_->normtoxLineEdit->setFocus();
     return false;
@@ -125,26 +136,30 @@ bool Function2DDialog::acceptFunction() {
   ranges += start;
   ranges += end;
 
+  ApplicationWindow *app =
+      qobject_cast<ApplicationWindow *>(this->parent()->parent());
+  if (!app) {
+    qDebug() << "unable to cast ApplicationWindow";
+    return false;
+  }
+  app->updateFunctionLists(type, formulas);
+
   bool result;
+
+  if (!axisrect_) {
+    result = app->newFunctionPlot(type, formulas, "x", ranges,
+                                  ui_->normpointsSpinBox->value());
+  } else {
+    if (plottomodify_ == -1) {
+      result = app->addFunctionPlot(type, formulas, "x", ranges,
+                                    ui_->normpointsSpinBox->value(), axisrect_);
+    } else {
+      // result = app->editFunctionPlot();
+    }
+  }
+
   emit updateFunctionLists(type, formulas);
-  /*if(axisrect_) {
-      ApplicationWindow *app = (ApplicationWindow *)this->parent();
-      app->updateFunctionLists(type, formulas);
-      app->newFunctionPlot(type, formulas, "", ranges, points.toInt());
-    }*/
-  /*if (!graph)
-    result =
-        app->newFunctionPlot(type, formulas, "x", ranges, boxPoints->value());
-  else {
-    if (curveID >= 0)
-      result = graph->modifyFunctionCurve(app, curveID, type, formulas, "x",
-                                          ranges, boxPoints->value());
-    else
-      result = graph->addFunctionCurve(app, type, formulas, "x", ranges,
-                                       boxPoints->value());
-  }*/
-  if (!result) ui_->normfofxTextEdit->setFocus();
-  return result;
+  return true;
 }
 
 bool Function2DDialog::acceptParametric() {
@@ -158,7 +173,7 @@ bool Function2DDialog::acceptParametric() {
     parser.SetExpr(from.toAscii().constData());
     start = parser.Eval();
   } catch (mu::ParserError &error) {
-    QMessageBox::critical(0, tr("Start limit error"),
+    QMessageBox::critical(nullptr, tr("Start limit error"),
                           QString::fromStdString(error.GetMsg()));
     ui_->paramfromLineEdit->setFocus();
     return false;
@@ -169,7 +184,7 @@ bool Function2DDialog::acceptParametric() {
     parser.SetExpr(to.toAscii().constData());
     end = parser.Eval();
   } catch (mu::ParserError &error) {
-    QMessageBox::critical(0, tr("End limit error"),
+    QMessageBox::critical(nullptr, tr("End limit error"),
                           QString::fromStdString(error.GetMsg()));
     ui_->paramtoLineEdit->setFocus();
     return false;
@@ -177,7 +192,7 @@ bool Function2DDialog::acceptParametric() {
 
   if (start >= end) {
     QMessageBox::critical(
-        0, tr("Input error"),
+        nullptr, tr("Input error"),
         tr("Please enter parameter limits that satisfy: from < end!"));
     ui_->paramtoLineEdit->setFocus();
     return false;
@@ -196,23 +211,27 @@ bool Function2DDialog::acceptParametric() {
   formulas += yformula;
   ranges += start;
   ranges += end;
+  ApplicationWindow *app =
+      qobject_cast<ApplicationWindow *>(this->parent()->parent());
+  if (!app) {
+    qDebug() << "unable to cast ApplicationWindow";
+    return false;
+  }
+  app->updateFunctionLists(type, formulas);
 
-  bool result;
+  bool result = false;
   emit updateFunctionLists(type, formulas);
-  /*if (!graph)
-    result = app->newFunctionPlot(type, formulas, boxParameter->text(), ranges,
-                                  boxParPoints->value());
-  else {
-    if (curveID >= 0)
-      result = graph->modifyFunctionCurve(app, curveID, type, formulas,
-                                          boxParameter->text(), ranges,
-                                          boxParPoints->value());
-    else
-      result =
-          graph->addFunctionCurve(app, type, formulas, boxParameter->text(),
-                                  ranges, boxParPoints->value());
-  }*/
-  if (!result) ui_->paramxLineEdit->setFocus();
+  if (!axisrect_) {
+    result = app->newFunctionPlot(type, formulas, "x", ranges,
+                                  ui_->normpointsSpinBox->value());
+  } else {
+    if (plottomodify_ == -1) {
+      result = app->addFunctionPlot(type, formulas, "x", ranges,
+                                    ui_->normpointsSpinBox->value(), axisrect_);
+    } else {
+      // result = app->editFunctionPlot();
+    }
+  }
   return result;
 }
 

@@ -55,14 +55,14 @@ class ExtensibleFileDialog : public QFileDialog {
    * \param extended flag: show/hide the advanced options on start-up
    * \param flags window flags
    */
-  ExtensibleFileDialog(QWidget *parent = 0, bool extended = true,
+  ExtensibleFileDialog(QWidget *parent = nullptr, bool extended = true,
                        Qt::WFlags flags = 0);
   //! Set the extension widget to be displayed when the user presses the toggle
   //! button.
   void setExtensionWidget(QWidget *extension);
 
   //! Tells weather the dialog has a valid extension widget
-  bool isExtendable() { return d_extension != NULL; }
+  bool isExtendable() { return d_extension != nullptr; }
   bool isExtended() { return d_extension_toggle->isChecked(); }
   void setExtended(bool extended) { d_extension_toggle->setChecked(extended); }
 

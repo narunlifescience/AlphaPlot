@@ -102,10 +102,12 @@ class Layout2D : public MyWidget {
  private slots:
   void mouseMoveSignal(QMouseEvent *event);
   void mousePressSignal(QMouseEvent *event);
-  void mouseReleaseSignal(QMouseEvent *);
+  void mouseReleaseSignal(QMouseEvent *event);
   void mouseWheel();
   void beforeReplot();
   void legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
+  bool exportGraph();
+  void printGraph();
 
  signals:
   void AxisRectCreated(AxisRect2D *, MyWidget *);

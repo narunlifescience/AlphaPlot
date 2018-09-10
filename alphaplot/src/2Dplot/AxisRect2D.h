@@ -24,6 +24,7 @@
 #include "Grid2D.h"
 #include "LineScatter2D.h"
 #include "Pie2D.h"
+#include "Plot2D.h"
 #include "Spline2D.h"
 #include "Vector2D.h"
 
@@ -40,7 +41,7 @@ class AxisRect2D : public QCPAxisRect {
   typedef QVector<Bar2D *> BarVec;
 
  public:
-  AxisRect2D(QCustomPlot *parent = nullptr, bool setupDefaultAxis = false);
+  explicit AxisRect2D(Plot2D *parent, bool setupDefaultAxis = false);
   ~AxisRect2D();
 
   void setAxisRectBackground(const QBrush &brush);
@@ -61,6 +62,7 @@ class AxisRect2D : public QCPAxisRect {
 
   Axis2D *getXAxis(int value);
   Axis2D *getYAxis(int value);
+  Plot2D *getParentPlot2D() { return plot2d_; }
 
   enum LineScatterType {
     Line2D,
@@ -85,10 +87,10 @@ class AxisRect2D : public QCPAxisRect {
                             Axis2D *xAxis, Axis2D *yAxis);
   LineScatter2D *addLineFunction2DPlot(QVector<double> *xdata,
                                        QVector<double> *ydata, Axis2D *xAxis,
-                                       Axis2D *yAxis);
+                                       Axis2D *yAxis, const QString &name);
   Curve2D *addCurveFunction2DPlot(QVector<double> *xdata,
                                   QVector<double> *ydata, Axis2D *xAxis,
-                                  Axis2D *yAxis);
+                                  Axis2D *yAxis, const QString &name);
   Bar2D *addBox2DPlot(const BarType &type, Column *xData, Column *yData,
                       int from, int to, Axis2D *xAxis, Axis2D *yAxis);
   Vector2D *addVectorPlot(const Vector2D::VectorPlot &vectorplot,
@@ -110,6 +112,9 @@ class AxisRect2D : public QCPAxisRect {
   void drawSelection(QCPPainter *painter);
   bool isSelected() { return isAxisRectSelected_; }
 
+  bool removeLineScatter2D(LineScatter2D *ls);
+  void setPrintorExportJob(bool value) { printorexportjob_ = value; }
+
  public slots:
   Axis2D *addLeftAxis2D() { return addAxis2D(Axis2D::AxisOreantation::Left); }
   Axis2D *addBottomAxis2D() {
@@ -120,7 +125,6 @@ class AxisRect2D : public QCPAxisRect {
 
  protected:
   void mousePressEvent(QMouseEvent *, const QVariant &);
-  void mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos);
   void draw(QCPPainter *painter);
 
  signals:
@@ -137,12 +141,15 @@ class AxisRect2D : public QCPAxisRect {
  private slots:
   void legendClick();
   void addfunctionplot();
+  void exportGraph();
   void addplot();
 
  private:
+  Plot2D *plot2d_;
   QBrush axisRectBackGround_;
   Legend2D *axisRectLegend_;
   bool isAxisRectSelected_;
+  bool printorexportjob_;
   GridPair gridpair_;
   LsVec lsvec_;
   SplineVec splinevec_;

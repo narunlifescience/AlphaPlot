@@ -30,6 +30,7 @@ class MyTreeWidget : public QTreeWidget {
   void removels();
 
 private:
+  QWidget *widget_;
   QAction *addgraph_;
   QAction *addfunctiongraph_;
   QAction *addaxis_;

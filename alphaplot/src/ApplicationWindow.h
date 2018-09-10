@@ -82,6 +82,7 @@ class IconLoader;
 class SettingsDialog;
 class PropertiesDialog;
 class PropertyEditor;
+class AxisRect2D;
 
 #ifndef TS_PATH
 #define TS_PATH (qApp->applicationDirPath() + "/translations")
@@ -313,6 +314,12 @@ class ApplicationWindow : public QMainWindow,
   bool newFunctionPlot(const int type, const QStringList& formulas,
                        const QString& var, const QList<double>& ranges,
                        const int points);
+  bool addFunctionPlot(const int type, const QStringList& formulas,
+                       const QString& var, const QList<double>& ranges,
+                       const int points, AxisRect2D *axisrect);
+  QPair<QVector<double> *, QVector<double> *> generateFunctiondata(
+      const int type, const QStringList& formulas, const QString& var,
+      const QList<double>& ranges, const int points);
 
   FunctionDialog* functionDialog();
   void showFunctionDialog();
@@ -357,13 +364,13 @@ class ApplicationWindow : public QMainWindow,
                   QList<Column*> columns);
   /**
    * \brief Create a Table which is initially hidden; used to return the result
-* of an analysis operation.
+   * of an analysis operation.
    *
    * \param name window name (compare MyWidget::MyWidget)
    * \param label window label (compare MyWidget::MyWidget)
    * \param r number of rows
    * \param c number of columns
-*\param text tab/newline - seperated initial content; may be empty
+   *\param text tab/newline - seperated initial content; may be empty
    */
   Table* newHiddenTable(const QString& name, const QString& label,
                         QList<Column*> columns);

@@ -29,6 +29,14 @@ class Plot2D : public QCustomPlot {
 
   void setBackgroundColor(const QBrush &brush);
   QBrush getBackgroundColor() const;
+  bool saveSvg(const QString &fileName, int width = 0, int height = 0,
+               QCP::ExportPen exportPen = QCP::epAllowCosmetic,
+               const QString &svgTitle = QString(),
+               const QString &svgDescription = QString());
+  bool savePs(const QString &fileName, int width = 0, int height = 0,
+              QCP::ExportPen exportPen = QCP::epAllowCosmetic,
+              const QString &psCreator = QString(),
+              const QString &psTitle = QString());
 
  private:
   QBrush canvasBrush_;

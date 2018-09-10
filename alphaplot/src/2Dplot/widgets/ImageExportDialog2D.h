@@ -31,22 +31,52 @@
 #ifndef IMAGEEXPORTDIALOG_H
 #define IMAGEEXPORTDIALOG_H
 
-#include "ui/ExtensibleFileDialog.h"
+#include "../../ui/ExtensibleFileDialog.h"
 
-#include <QSpinBox>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QPrinter>
+#include <QSpinBox>
 
 class QStackedWidget;
 class QGroupBox;
 
 //! QFileDialog extended with options for image export
-class ImageExportDialog : public ExtensibleFileDialog {
+class ImageExportDialog2D : public ExtensibleFileDialog {
   Q_OBJECT
 
+ public:
+  explicit ImageExportDialog2D(QWidget *parent = nullptr,
+                               bool vector_options = true, bool extended = true,
+                               Qt::WFlags flags = nullptr);
+
+  // getters
+  int raster_resolution() const { return d_raster_resolution->value(); }
+  int raster_width() const { return d_raster_width->value(); }
+  int raster_height() const { return d_raster_height->value(); }
+  double raster_scale() const { return d_raster_scale->value(); }
+  int raster_quality() const { return d_raster_quality->value(); }
+  int vector_width() const { return d_vector_width->value(); }
+  int vector_height() const { return d_vector_height->value(); }
+
+  // setters
+  void setraster_resolution(int value) { d_raster_resolution->setValue(value); }
+  void setraster_width(int value) { d_raster_width->setValue(value); }
+  void setraster_height(int value) { d_raster_height->setValue(value); }
+  void setraster_scale(double value) { d_raster_scale->setValue(value); }
+  void setraster_quality(int value) { d_raster_quality->setValue(value); }
+  void setvector_width(int value) { d_vector_width->setValue(value); }
+  void setvector_height(int value) { d_vector_height->setValue(value); }
+
+  void selectFilter(const QString &filter);
+
+ protected slots:
+  void closeEvent(QCloseEvent *event);
+  // Update which options are visible and enabled based on the output format.
+  void updateAdvancedOptions(const QString &filter);
+
  private:
-  //! Create #d_advanced_options and everything it contains.
+  // Create #d_advanced_options and everything it contains.
   void initAdvancedOptions();
 
   //! Container widget for all advanced options.
@@ -54,53 +84,16 @@ class ImageExportDialog : public ExtensibleFileDialog {
   // vector format options
   //! Container widget for all options available for vector formats.
   QGroupBox *d_vector_options;
-  QSpinBox *d_resolution;
-  QCheckBox *d_color;
-  QCheckBox *d_keep_aspect;
-  QCheckBox *d_standard_page;
-  QComboBox *d_box_page_size;
-  QComboBox *d_box_page_orientation;
+  QSpinBox *d_vector_width;
+  QSpinBox *d_vector_height;
   // raster format options
   //! Container widget for all options available for raster formats.
   QGroupBox *d_raster_options;
-  QSpinBox *d_quality;
-
- public:
-  //! Constructor
-  /**
-   * \param parent parent widget
-   * \param vector_options whether advanced options are to be provided for
-   * export to vector formats
-   * \param extended flag: show/hide the advanced options on start-up
-   * \param flags window flags
-   */
-  ImageExportDialog(QWidget *parent = 0, bool vector_options = true,
-                    bool extended = true, Qt::WFlags flags = 0);
-  //! For vector formats: returns the output resolution the user selected,
-  //! defaulting to the screen resolution.
-  int resolution() const { return d_resolution->value(); }
-  //! For vector formats: returns whether colors should be enabled for ouput
-  //! (default: true).
-  bool color() const { return d_color->isChecked(); }
-  //! For vector formats: returns whether the output should preserve aspect
-  //! ratio of the plot (default: true).
-  bool keepAspect() const { return d_keep_aspect->isChecked(); }
-  //! For vector formats: returns a standard output page size (default:
-  //! QPrinter::Custom).
-  QPrinter::PageSize pageSize() const;
-  void setPageSize(QPrinter::PageSize size);
-  QPrinter::Orientation pageOrientation() const;
-  void setOrientation(QPrinter::Orientation orientation);
-  //! Return the quality (in percent) the user selected for export to raster
-  //! formats.
-  int quality() const { return d_quality->value(); }
-
-  void selectFilter(const QString &filter);
-
- protected slots:
-  void closeEvent(QCloseEvent *);
-  //! Update which options are visible and enabled based on the output format.
-  void updateAdvancedOptions(const QString &filter);
+  QSpinBox *d_raster_resolution;
+  QSpinBox *d_raster_width;
+  QSpinBox *d_raster_height;
+  QDoubleSpinBox *d_raster_scale;
+  QSpinBox *d_raster_quality;
 };
 
 #endif  // IMAGEEXPORTDIALOG_H

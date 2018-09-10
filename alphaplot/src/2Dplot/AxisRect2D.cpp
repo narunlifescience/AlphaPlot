@@ -18,15 +18,18 @@
 #include "../future/core/column/Column.h"
 //#include "FunctionDialog.h"
 #include "Legend2D.h"
+
 #include "core/Utilities.h"
 
 #include <QMenu>
 
-AxisRect2D::AxisRect2D(QCustomPlot *parent, bool setupDefaultAxis)
+AxisRect2D::AxisRect2D(Plot2D *parent, bool setupDefaultAxis)
     : QCPAxisRect(parent, setupDefaultAxis),
+      plot2d_(parent),
       axisRectBackGround_(Qt::white),
       axisRectLegend_(new Legend2D()),
-      isAxisRectSelected_(false) {
+      isAxisRectSelected_(false),
+      printorexportjob_(false) {
   setAxisRectBackground(axisRectBackGround_);
   insetLayout()->addElement(axisRectLegend_, Qt::AlignTop | Qt::AlignLeft);
   insetLayout()->setInsetPlacement(0, QCPLayoutInset::ipFree);
@@ -263,12 +266,14 @@ Spline2D *AxisRect2D::addSpline2DPlot(Column *xData, Column *yData, int from,
 
 LineScatter2D *AxisRect2D::addLineFunction2DPlot(QVector<double> *xdata,
                                                  QVector<double> *ydata,
-                                                 Axis2D *xAxis, Axis2D *yAxis) {
+                                                 Axis2D *xAxis, Axis2D *yAxis,
+                                                 const QString &name) {
   LineScatter2D *lineScatter = new LineScatter2D(xAxis, yAxis);
   lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Line);
   lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
 
   lineScatter->setGraphData(xdata, ydata);
+  lineScatter->setName(name);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineScatter);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
@@ -280,10 +285,12 @@ LineScatter2D *AxisRect2D::addLineFunction2DPlot(QVector<double> *xdata,
 
 Curve2D *AxisRect2D::addCurveFunction2DPlot(QVector<double> *xdata,
                                             QVector<double> *ydata,
-                                            Axis2D *xAxis, Axis2D *yAxis) {
+                                            Axis2D *xAxis, Axis2D *yAxis,
+                                            const QString &name) {
   Curve2D *curve = new Curve2D(xAxis, yAxis);
 
   curve->setGraphData(xdata, ydata);
+  curve->setName(name);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
@@ -391,28 +398,27 @@ void AxisRect2D::drawSelection(QCPPainter *painter) {
   painter->drawPolygon(poly);
 }
 
+bool AxisRect2D::removeLineScatter2D(LineScatter2D *ls) {
+  for (int i = 0; i < lsvec_.size(); i++) {
+    if (lsvec_.at(i) == ls) {
+      lsvec_.remove(i);
+    }
+  }
+
+  bool result = false;
+  result = plot2d_->removeGraph(ls);
+  if (!result) return result;
+
+  emit LineScatterRemoved(this);
+  return result;
+}
+
 void AxisRect2D::mousePressEvent(QMouseEvent *, const QVariant &) {
   emit AxisRectClicked(this);
 }
 
-void AxisRect2D::mouseReleaseEvent(QMouseEvent *event,
-                                   const QPointF &startPos) {
-  if (event->button() == Qt::RightButton) {
-    QMenu *menu = new QMenu();
-    menu->setAttribute(Qt::WA_DeleteOnClose);
-    menu->addAction("Add/Remove plot...", this, SLOT(removeSelectedGraph()));
-    menu->addAction("Add Function plot...", this, SLOT(addfunctionplot()));
-    menu->addAction("Analyze", this, SLOT(addfunctionplot()));
-    menu->addSeparator();
-    menu->addAction("Copy", this, SLOT(addfunctionplot()));
-    menu->addAction("Export", this, SLOT(addfunctionplot()));
-    menu->addAction("Print", this, SLOT(addfunctionplot()));
-    menu->popup(parentPlot()->mapToGlobal(QPoint(
-        static_cast<int>(startPos.x()), static_cast<int>(startPos.y()))));
-  }
-}
-
 void AxisRect2D::draw(QCPPainter *painter) {
+  if (printorexportjob_) return;
   QCPAxisRect::draw(painter);
   if (isAxisRectSelected_) drawSelection(painter);
 }
@@ -425,6 +431,32 @@ void AxisRect2D::addfunctionplot() {
   fd->setWindowTitle(tr("Edit function"));
   fd->show();
   fd->activateWindow();*/
+}
+
+void AxisRect2D::exportGraph() {
+  /*ImageExportDialog2D *ied =
+      new ImageExportDialog2D(this, plot2D != NULL, d_extended_export_dialog);
+  ied->setDirectory(workingDir);
+  ied->selectFilter(d_image_export_filter);
+  if (ied->exec() != QDialog::Accepted) return;
+  workingDir = ied->directory().path();
+  if (ied->selectedFiles().isEmpty()) return;
+
+  QString selected_filter = ied->selectedFilter();
+  QString file_name = ied->selectedFiles()[0];
+  QFileInfo file_info(file_name);
+  if (!file_info.fileName().contains("."))
+    file_name.append(selected_filter.remove("*"));
+
+  QFile file(file_name);
+  if (!file.open(QIODevice::WriteOnly)) {
+    QMessageBox::critical(
+        this, tr("Export Error"),
+        tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that "
+           "you have the right to write to this location!")
+            .arg(file_name));
+    return;
+  }*/
 }
 
 void AxisRect2D::addplot() {}

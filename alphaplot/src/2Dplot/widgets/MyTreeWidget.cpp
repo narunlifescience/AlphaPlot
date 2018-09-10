@@ -10,6 +10,7 @@
 
 MyTreeWidget::MyTreeWidget(QWidget *parent)
     : QTreeWidget(parent),
+      widget_(parent),
       addgraph_(new QAction("Add", this)),
       addfunctiongraph_(new QAction("Add", this)),
       addaxis_(new QAction("Add", this)),
@@ -82,10 +83,14 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
 }
 
 void MyTreeWidget::addfunctiongraph() {
-  Function2DDialog *fd = new Function2DDialog(this);
-  fd->setAttribute(Qt::WA_DeleteOnClose);
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+  void *ptr = action->data().value<void *>();
+  AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
+  std::unique_ptr<Function2DDialog> fd(new Function2DDialog(widget_));
+  fd->setLayout2DToModify(axisrect, -1);
   fd->setModal(true);
-  fd->show();
+  fd->exec();
 }
 
 void MyTreeWidget::addaxis() {
@@ -120,7 +125,11 @@ void MyTreeWidget::removels() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   LineScatter2D *ls = static_cast<LineScatter2D *>(ptr);
-  //ls->removeFromLegend();
-  //ls->parentPlot()->removeGraph(ls);
-  //delete ls;
+  bool result =
+      ls->getxaxis_lsplot()->getaxisrect_axis()->removeLineScatter2D(ls);
+  if (!result) {
+  }
+  // ls->removeFromLegend();
+  // ls->parentPlot()->removeGraph(ls);
+  // delete ls;
 }

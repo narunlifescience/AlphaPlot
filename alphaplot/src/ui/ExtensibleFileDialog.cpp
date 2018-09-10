@@ -33,7 +33,7 @@
 ExtensibleFileDialog::ExtensibleFileDialog(QWidget *parent, bool extended,
                                            Qt::WFlags flags)
     : QFileDialog(parent, flags) {
-  d_extension = 0;
+  d_extension = nullptr;
 
   d_extension_toggle = new QPushButton(tr("<< &Advanced"));
   d_extension_toggle->setCheckable(true);
@@ -87,8 +87,7 @@ void ExtensibleFileDialog::setExtensionWidget(QWidget *extension) {
 
 void ExtensibleFileDialog::resize(bool extension_on) {
   QSize geo = size();
-  geo.setHeight(geo.height() +
-                (extension_on ? 1 : -1) *
-                    (d_extension->sizeHint().height() - 44));
+  geo.setHeight(geo.height() + (extension_on ? 1 : -1) *
+                                   (d_extension->sizeHint().height() - 44));
   setGeometry(QRect(geometry().topLeft(), geo));
 }

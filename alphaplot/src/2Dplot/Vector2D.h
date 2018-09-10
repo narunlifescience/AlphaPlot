@@ -48,7 +48,7 @@ class Vector2D : public QCPGraph {
   QString getlegendtext_vecplot() const;
 
   // Setters
-  void setxaxis_vecplot(Axis2D* axis);
+  void setxaxis_vecplot(Axis2D *axis);
   void setyaxis_vecplot(Axis2D *axis);
   void setlinestrokecolor_vecplot(const QColor &color);
   void setlinestrokestyle_vecplot(const Qt::PenStyle &style);

@@ -16,7 +16,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/PlotDialog.h \
             src/3Dplot/Plot3DDialog.h \
             src/PlotWizard.h \
-            src/ExportDialog.h \
             src/AxesDialog.h \
             src/PolynomFitDialog.h \
             src/ExpDecayDialog.h \
@@ -105,7 +104,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/CurveRangeDialog.h\
             src/LineProfileTool.h\
             src/PlotEnrichement.h\
-            src/ExtensibleFileDialog.h\
             src/OpenProjectDialog.h\
             src/Grid.h\
             src/DataPointPicker.h \
@@ -116,6 +114,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/scripting/widgets/ConsoleWidget.h \
             src/scripting/SyntaxHighlighter.h \
             src/widgets/aSettingsListView.h \
+            src/ui/ExportDialog.h \
+            src/ui/ExtensibleFileDialog.h \
             src/ui/GeneralApplicationSettings.h \
             src/ui/GeneralAppreanceSettings.h \
             src/ui/SettingsPage.h \
@@ -131,7 +131,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/2Dplot/Pie2D.h \
             src/2Dplot/widgets/MyTreeWidget.h \
             src/2Dplot/widgets/AddAxisWidget.h \
-    $$PWD/src/2Dplot/LineScatterCommon.h
+            src/2Dplot/widgets/ImageExportDialog2D.h \
+            src/2Dplot/LineScatterCommon.h
 
 ###################### SOURCES ##############################################
 
@@ -145,7 +146,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/PlotDialog.cpp \
             src/3Dplot/Plot3DDialog.cpp \
             src/PlotWizard.cpp \
-            src/ExportDialog.cpp \
             src/AxesDialog.cpp \
             src/PolynomFitDialog.cpp \
             src/TextDialog.cpp \
@@ -233,7 +233,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/CurveRangeDialog.cpp\
             src/LineProfileTool.cpp\
             src/PlotEnrichement.cpp\
-            src/ExtensibleFileDialog.cpp\
             src/OpenProjectDialog.cpp\
             src/Grid.cpp\
             src/globals.cpp \
@@ -245,6 +244,8 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/scripting/widgets/ConsoleWidget.cpp \
             src/scripting/SyntaxHighlighter.cpp \
             src/widgets/aSettingsListView.cpp \
+            src/ui/ExportDialog.cpp \
+            src/ui/ExtensibleFileDialog.cpp \
             src/ui/GeneralApplicationSettings.cpp \
             src/ui/GeneralAppreanceSettings.cpp \
             src/ui/SettingsPage.cpp \
@@ -260,7 +261,8 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/2Dplot/PlotPoint.cpp \
             src/2Dplot/Pie2D.cpp \
             src/2Dplot/widgets/MyTreeWidget.cpp \
-            src/2Dplot/widgets/AddAxisWidget.cpp
+            src/2Dplot/widgets/AddAxisWidget.cpp \
+            src/2Dplot/widgets/ImageExportDialog2D.cpp \
 
 ###################### FORMS ##############################################
 FORMS        += src/ApplicationWindow.ui \
