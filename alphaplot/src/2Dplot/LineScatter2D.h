@@ -6,7 +6,7 @@
 #include "Axis2D.h"
 
 class Column;
-class PlotPoint;
+//class PlotPoint;
 
 class LineScatter2D : public QCPGraph {
   Q_OBJECT
@@ -63,7 +63,7 @@ private:
   Axis2D *xAxis_;
   Axis2D *yAxis_;
   QCPScatterStyle *scatterstyle_;
-  PlotPoint *mPointUnderCursor;
+  //PlotPoint *mPointUnderCursor;
 };
 
 #endif  // LINESCATTER2D_H

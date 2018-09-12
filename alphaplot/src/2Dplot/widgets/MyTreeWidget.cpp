@@ -5,6 +5,7 @@
 #include "../Axis2D.h"
 #include "../AxisRect2D.h"
 #include "AddAxisWidget.h"
+#include "AddPlot2DDialog.h"
 #include "Function2DDialog.h"
 #include "core/IconLoader.h"
 
@@ -36,6 +37,8 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
           SLOT(showContextMenu(const QPoint &)));
   connect(addfunctiongraph_, SIGNAL(triggered(bool)), this,
           SLOT(addfunctiongraph()));
+  connect(addgraph_, SIGNAL(triggered(bool)), this,
+          SLOT(addplot()));
   connect(addaxis_, SIGNAL(triggered(bool)), this, SLOT(addaxis()));
   connect(removeaxis_, SIGNAL(triggered(bool)), this, SLOT(removeaxis()));
   connect(removels_, SIGNAL(triggered(bool)), this, SLOT(removels()));
@@ -91,6 +94,16 @@ void MyTreeWidget::addfunctiongraph() {
   fd->setLayout2DToModify(axisrect, -1);
   fd->setModal(true);
   fd->exec();
+}
+
+void MyTreeWidget::addplot() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+  void *ptr = action->data().value<void *>();
+  AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
+  std::unique_ptr<AddPlot2DDialog> addplot2d(new AddPlot2DDialog(widget_));
+  addplot2d->setModal(true);
+  addplot2d->exec();
 }
 
 void MyTreeWidget::addaxis() {

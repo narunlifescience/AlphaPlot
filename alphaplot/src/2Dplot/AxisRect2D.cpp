@@ -288,6 +288,7 @@ Curve2D *AxisRect2D::addCurveFunction2DPlot(QVector<double> *xdata,
                                             Axis2D *xAxis, Axis2D *yAxis,
                                             const QString &name) {
   Curve2D *curve = new Curve2D(xAxis, yAxis);
+  curve->setLineStyle(QCPCurve::LineStyle::lsLine);
 
   curve->setGraphData(xdata, ydata);
   curve->setName(name);
@@ -407,6 +408,7 @@ bool AxisRect2D::removeLineScatter2D(LineScatter2D *ls) {
 
   bool result = false;
   result = plot2d_->removeGraph(ls);
+  //result = plot2d_->removePlottable(ls);
   if (!result) return result;
 
   emit LineScatterRemoved(this);

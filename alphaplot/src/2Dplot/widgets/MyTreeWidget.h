@@ -25,6 +25,7 @@ class MyTreeWidget : public QTreeWidget {
  private slots:
   void showContextMenu(const QPoint& pos);
   void addfunctiongraph();
+  void addplot();
   void addaxis();
   void removeaxis();
   void removels();

@@ -14,8 +14,9 @@ LineScatter2D::LineScatter2D(Axis2D *xAxis, Axis2D *yAxis)
       scatterstyle_(new QCPScatterStyle(
           QCPScatterStyle::ssDisc,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
-          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
-      mPointUnderCursor(new PlotPoint(parentPlot(), 5)) {
+          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0))
+// mPointUnderCursor(new PlotPoint(parentPlot(), 5))
+{
   setlinestrokecolor_lsplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
 }
@@ -57,6 +58,7 @@ void LineScatter2D::setGraphData(Column *xData, Column *yData, int from,
   gdvector->clear();
   delete gdvector;
   setData(graphData);
+  connect(xData, SIGNAL(), this, SLOT());
 }
 
 void LineScatter2D::setGraphData(QVector<double> *xdata,
@@ -398,40 +400,40 @@ void LineScatter2D::setyaxis_lsplot(Axis2D *axis) {
 
 void LineScatter2D::mousePressEvent(QMouseEvent *event,
                                     const QVariant &details) {
-  if (event->button() == Qt::LeftButton && mPointUnderCursor) {
+  /*if (event->button() == Qt::LeftButton && mPointUnderCursor) {
     // localpos()
     mPointUnderCursor->startMoving(
         event->pos(), event->modifiers().testFlag(Qt::ShiftModifier));
     return;
-  }
+  }*/
 
   QCPGraph::mousePressEvent(event, details);
 }
 
 void LineScatter2D::mouseMoveEvent(QMouseEvent *event,
                                    const QPointF &startPos) {
-  if (event->buttons() == Qt::NoButton) {
-    PlotPoint *plotPoint =
-        qobject_cast<PlotPoint *>(parentPlot()->itemAt(event->pos(), true));
-    if (plotPoint != mPointUnderCursor) {
-      if (mPointUnderCursor == nullptr) {
-        // cursor moved from empty space to item
-        plotPoint->setActive(true);
-        parentPlot()->setCursor(Qt::OpenHandCursor);
-      } else if (plotPoint == nullptr) {
-        // cursor move from item to empty space
-        qDebug() << "elipse not active";
-        mPointUnderCursor->setActive(false);
-        parentPlot()->unsetCursor();
-      } else {
-        // cursor moved from item to item
-        qDebug() << "point under cursor";
-        mPointUnderCursor->setActive(false);
-        plotPoint->setActive(true);
-      }
-      mPointUnderCursor = plotPoint;
-      parentPlot()->replot();
-    }
-  }
+  /*if (event->buttons() == Qt::NoButton) {
+     PlotPoint *plotPoint =
+         qobject_cast<PlotPoint *>(parentPlot()->itemAt(event->pos(), true));
+     if (plotPoint != mPointUnderCursor) {
+       if (mPointUnderCursor == nullptr) {
+         // cursor moved from empty space to item
+         plotPoint->setActive(true);
+         parentPlot()->setCursor(Qt::OpenHandCursor);
+       } else if (plotPoint == nullptr) {
+         // cursor move from item to empty space
+         qDebug() << "elipse not active";
+         mPointUnderCursor->setActive(false);
+         parentPlot()->unsetCursor();
+       } else {
+         // cursor moved from item to item
+         qDebug() << "point under cursor";
+         mPointUnderCursor->setActive(false);
+         plotPoint->setActive(true);
+       }
+       mPointUnderCursor = plotPoint;
+       parentPlot()->replot();
+     }
+   }*/
   QCPGraph::mouseMoveEvent(event, event->pos());
 }

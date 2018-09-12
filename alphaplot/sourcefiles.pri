@@ -132,7 +132,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/2Dplot/widgets/MyTreeWidget.h \
             src/2Dplot/widgets/AddAxisWidget.h \
             src/2Dplot/widgets/ImageExportDialog2D.h \
-            src/2Dplot/LineScatterCommon.h
+            src/2Dplot/LineScatterCommon.h \
+            src/2Dplot/widgets/AddPlot2DDialog.h \
 
 ###################### SOURCES ##############################################
 
@@ -263,6 +264,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/2Dplot/widgets/MyTreeWidget.cpp \
             src/2Dplot/widgets/AddAxisWidget.cpp \
             src/2Dplot/widgets/ImageExportDialog2D.cpp \
+            src/2Dplot/widgets/AddPlot2DDialog.cpp \
 
 ###################### FORMS ##############################################
 FORMS        += src/ApplicationWindow.ui \

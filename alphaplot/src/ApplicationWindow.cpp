@@ -1779,7 +1779,8 @@ void ApplicationWindow::plotPie() {
 
   Table *table = static_cast<Table *>(d_workspace->activeWindow());
 
-  if (table->selectedColumns().count() != 1) {
+  QStringList selectedcolumns = table->selectedColumns();
+  if (selectedcolumns.count() != 1) {
     QMessageBox::warning(
         this, tr("Plot error"),
         tr("You must select exactly one column for plotting!"));
@@ -1787,17 +1788,14 @@ void ApplicationWindow::plotPie() {
   }
   if (table->noXColumn()) {
     QMessageBox::critical(
-        0, tr("Error"),
+        this, tr("Error"),
         tr("Please set a default X column for this table, first!"));
     return;
   }
 
-  QStringList s = table->selectedColumns();
-  if (s.count() > 0) {
-    multilayerPlot(table, s, Graph::Pie, table->firstSelectedRow(),
-                   table->lastSelectedRow());
+  if (selectedcolumns.count() == 1) {
     Layout2D *layout = newGraph2D();
-    layout->generatePie2DPlot(table->column(table->firstXCol()), 0,
+    layout->generatePie2DPlot(table->column(table->firstSelectedColumn()), 0,
                               table->rowCnt() - 1);
   } else
     QMessageBox::warning(this, tr("Error"),
@@ -8516,6 +8514,8 @@ bool ApplicationWindow::addFunctionPlot(
       QPair<QVector<double> *, QVector<double> *> datapair;
       datapair = generateFunctiondata(type, formulas, var, ranges, points);
       if (!datapair.first || !datapair.second) return false;
+      Axis2D *xaxis = axisrect->getXAxis(0);
+
       axisrect->addLineFunction2DPlot(datapair.first, datapair.second,
                                       axisrect->getXAxis(0),
                                       axisrect->getYAxis(0), formulas.at(0));
