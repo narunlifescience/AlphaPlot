@@ -1247,7 +1247,7 @@ void FitDialog::changeDataRange() {
   boxTo->setText(QString::number(QMAX(start, end), 'g', 15));
 }
 
-void FitDialog::setSrcTables(QWidgetList *tables) {
+void FitDialog::setSrcTables(QList<QMdiSubWindow *> *tables) {
   if (tables->isEmpty()) {
     tableNamesBox->addItem(tr("No data tables"));
     colNamesBox->addItem(tr("No data tables"));

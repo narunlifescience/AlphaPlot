@@ -58,7 +58,6 @@ void LineScatter2D::setGraphData(Column *xData, Column *yData, int from,
   gdvector->clear();
   delete gdvector;
   setData(graphData);
-  connect(xData, SIGNAL(), this, SLOT());
 }
 
 void LineScatter2D::setGraphData(QVector<double> *xdata,

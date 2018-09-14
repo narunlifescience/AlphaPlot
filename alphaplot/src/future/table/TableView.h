@@ -242,6 +242,7 @@ class TableView : public MyWidget {
   TableViewWidget *d_view_widget;
   //! Widget that contains the control tabs UI from #ui
   QWidget *d_control_tabs;
+  QWidget *d_main_widget;
   //! Button to toogle the visibility of #d_tool_box
   QToolButton *d_hide_button;
   QHBoxLayout *d_main_layout;

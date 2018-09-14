@@ -80,7 +80,7 @@ TableView::TableView(const QString &label, QWidget *parent, const QString name,
   d_model = new TableModel(table);
   init();
 #else
-  d_model = NULL;
+  d_model = nullptr;
 #endif
 }
 
@@ -93,12 +93,13 @@ void TableView::setTable(future::Table *table) {
 }
 
 void TableView::init() {
-
-  d_main_layout = new QHBoxLayout(this);
+  d_main_widget = new QWidget(this);
+  d_main_widget->setContentsMargins(0,0,0,0);
+  d_main_layout = new QHBoxLayout(d_main_widget);
   d_main_layout->setSpacing(0);
   d_main_layout->setContentsMargins(0, 0, 0, 0);
 
-  d_view_widget = new TableViewWidget(this);
+  d_view_widget = new TableViewWidget(d_main_widget);
 
   QSettings settings;
   settings.beginGroup("Table");
@@ -115,7 +116,7 @@ void TableView::init() {
   d_view_widget->setHorizontalHeader(d_horizontal_header);
 
   // Floating show hide button.
-  d_hide_button = new QToolButton(this);
+  d_hide_button = new QToolButton(d_main_widget);
   d_hide_button->setCheckable(false);
   d_hide_button->setSizePolicy(
       QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -127,7 +128,7 @@ void TableView::init() {
       "border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0);}");
   connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
 
-  d_control_tabs = new QWidget();
+  d_control_tabs = new QWidget(d_main_widget);
   ui.setupUi(d_control_tabs);
   // Set icons
   ui.tab_widget->setTabIcon(
@@ -166,6 +167,7 @@ void TableView::init() {
   d_view_widget->setSizePolicy(
       QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   d_main_layout->setStretchFactor(d_view_widget, 1);
+  setWidget(d_main_widget);
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
@@ -982,12 +984,12 @@ void TableView::moveFloatingButton() const {
 
   if (!d_control_tabs->isHidden()) {
     d_hide_button->move(
-        this->width() - (d_control_tabs->width() + d_hide_button->width() +
+        widget()->width() - (d_control_tabs->width() + d_hide_button->width() +
                          verticalScrollWidth),
         d_control_tabs->pos().y() + 60);
   } else {
     d_hide_button->move(
-        this->width() - (d_hide_button->width() + verticalScrollWidth),
+        widget()->width() - (d_hide_button->width() + verticalScrollWidth),
         d_control_tabs->pos().y() + 60);
   }
 }

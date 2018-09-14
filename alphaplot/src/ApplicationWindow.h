@@ -45,7 +45,6 @@ class QTranslator;
 class QDockWidget;
 class QAction;
 class QActionGroup;
-class QWorkspace;
 class QLineEdit;
 class QTranslator;
 class QToolButton;
@@ -138,6 +137,14 @@ class ApplicationWindow : public QMainWindow,
  public:
   // Folder windows handling policy
   enum ShowWindowsPolicy { HideAll, ActiveFolder, SubFolders };
+  enum SubWindowType {
+    TableSubWindow,
+    MatrixSubWindow,
+    NoteSubWindow,
+    MultiLayerSubWindow,
+    Plot2DSubWindow,
+    Plot3DSubWindow,
+  };
 
   QTranslator* appTranslator;
   QTranslator* qtTranslator;
@@ -145,11 +152,11 @@ class ApplicationWindow : public QMainWindow,
   ConsoleWidget* consoleWindow;
 #endif
   PropertyEditor* propertyeditor;
-  QWorkspace* d_workspace;
+  QMdiArea* d_workspace;
   QToolButton* btnResults;
   QWidgetList* hiddenWindows;
   QWidgetList* outWindows;
-  QWidget* lastModified;
+  MyWidget* lastModified;
 
   // Toolbars
   QToolBar* fileToolbar;
@@ -196,9 +203,9 @@ class ApplicationWindow : public QMainWindow,
    * param execute specifies if the script should be executed after opening.*/
   ApplicationWindow* loadScript(const QString& fn, bool execute = false);
 
-  QWidgetList* windowsList();
-  QWidgetList* windowsListFromTreeRecursive(QWidgetList* list,
-                                            FolderTreeWidgetItem* item);
+  QList<QMdiSubWindow*> subWindowsList();
+  QList<QMdiSubWindow*> subWindowsListFromTreeRecursive(
+      QList<QMdiSubWindow*> list, FolderTreeWidgetItem* item);
   void updateWindowLists(MyWidget* w);
 
   void saveProjectAs();
@@ -209,7 +216,7 @@ class ApplicationWindow : public QMainWindow,
   // Set the project status to saved (not modified)
   void savedProject();
   // Set project status to modified and save 'w' as the last modified widget
-  void modifiedProject(QWidget* w);
+  void modifiedProject(MyWidget *w);
   //@}
 
   //! \name Settings
@@ -283,7 +290,7 @@ class ApplicationWindow : public QMainWindow,
   void newSurfacePlot();
   void editSurfacePlot();
   void remove3DMatrixPlots(Matrix* m);
-  void updateMatrixPlots(QWidget*);
+  void updateMatrixPlots(MyWidget *);
   void add3DData();
   void change3DData();
   void change3DData(const QString& colName);
@@ -316,8 +323,8 @@ class ApplicationWindow : public QMainWindow,
                        const int points);
   bool addFunctionPlot(const int type, const QStringList& formulas,
                        const QString& var, const QList<double>& ranges,
-                       const int points, AxisRect2D *axisrect);
-  QPair<QVector<double> *, QVector<double> *> generateFunctiondata(
+                       const int points, AxisRect2D* axisrect);
+  QPair<QVector<double>*, QVector<double>*> generateFunctiondata(
       const int type, const QStringList& formulas, const QString& var,
       const QList<double>& ranges, const int points);
 
@@ -376,7 +383,7 @@ class ApplicationWindow : public QMainWindow,
                         QList<Column*> columns);
   Table* table(const QString& name);
   Table* convertMatrixToTable();
-  QWidgetList* tableList();
+  QList<QMdiSubWindow *>* tableList();
 
   void connectTable(Table* w);
   void newWrksheetPlot(const QString& name, const QString& label,
@@ -434,7 +441,7 @@ class ApplicationWindow : public QMainWindow,
   void exportAllGraphs();
   void exportPDF();
   void print();
-  void print(QWidget* w);
+  void print(QMdiSubWindow *subwindow);
   void printAllPlots();
   //@}
 
@@ -484,7 +491,7 @@ class ApplicationWindow : public QMainWindow,
   void removeCurves(const QString& name);
   QStringList dependingPlots(const QString& caption);
   QStringList depending3DPlots(Matrix* m);
-  QStringList multilayerDependencies(QWidget* w);
+  QStringList multilayerDependencies(MyWidget *w);
 
   void saveAsTemplate();
   void openTemplate();
@@ -542,9 +549,9 @@ class ApplicationWindow : public QMainWindow,
   //@{
   void makeToolBars();
   void disableActions();
-  void customToolBars(QWidget* widget);
-  void customMenu(QWidget* widget);
-  void windowActivated(QWidget* w);
+  void customToolBars(QMdiSubWindow* subwindow);
+  void customMenu(QMdiSubWindow* subwindow);
+  void windowActivated(QMdiSubWindow* subwindow);
   //@}
 
   //! \name Table Tools
@@ -739,7 +746,7 @@ class ApplicationWindow : public QMainWindow,
   void pickPlotStyle(QAction* action);
   void pickCoordSystem(QAction* action);
   void pickFloorStyle(QAction* action);
-  void custom3DActions(QWidget* w);
+  void custom3DActions(QMdiSubWindow *subwindow);
   void custom3DGrids(int grids);
   //@}
 
@@ -774,7 +781,7 @@ class ApplicationWindow : public QMainWindow,
   bool projectHasMatrices();
 
   //! Returns a pointer to the window named "name"
-  QWidget* window(const QString& name);
+  QMdiSubWindow *window(const QString& name);
 
   //! Returns a list with the names of all the matrices in the project
   QStringList matrixNames();
@@ -1071,6 +1078,10 @@ class ApplicationWindow : public QMainWindow,
 
   // Attach to the scripting environment
   void attachQtScript();
+
+  bool isActiveSubwindow(const SubWindowType& subwindowtype);
+  bool isActiveSubWindow(QMdiSubWindow* subwindow,
+                         const SubWindowType& subwindowtype);
 
   // Stores the pointers to the dragged items from the FolderListViews objects
   // QList<Q3ListViewItem*> draggedItems;

@@ -121,7 +121,7 @@ class FitDialog : public QDialog {
 
   //! Populate the list of tables containing data displayed in the corresponding
   //! graph
-  void setSrcTables(QWidgetList* tables);
+  void setSrcTables(QList<QMdiSubWindow*>* tables);
   //! Select a table from the source tables list
   void selectSrcTable(int tabnr);
   //! Enable/disable widgets for selection of custom error source.
@@ -154,7 +154,7 @@ class FitDialog : public QDialog {
   QStringList d_built_in_function_names, d_built_in_functions;
   QStringList d_plugin_function_names, d_plugin_functions, d_plugin_files_list,
       d_plugin_params;
-  QWidgetList* d_src_table;
+  QList<QMdiSubWindow *>* d_src_table;
 
   QCheckBox* boxUseBuiltIn;
   QStackedWidget* tw;

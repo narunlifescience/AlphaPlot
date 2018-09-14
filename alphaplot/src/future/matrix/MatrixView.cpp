@@ -29,30 +29,29 @@
 
 #include <limits>
 
-#include "matrix/future_Matrix.h"
-#include "matrix/MatrixView.h"
 #include "matrix/MatrixModel.h"
+#include "matrix/MatrixView.h"
+#include "matrix/future_Matrix.h"
 #include "matrix/matrixcommands.h"
 
-#include "core/AbstractFilter.h"
 #include "../core/IconLoader.h"
+#include "core/AbstractFilter.h"
 
-#include <QKeyEvent>
-#include <QtDebug>
-#include <QHeaderView>
-#include <QRect>
-#include <QPoint>
-#include <QSize>
-#include <QFontMetrics>
 #include <QFont>
-#include <QItemSelectionModel>
-#include <QItemSelection>
-#include <QShortcut>
-#include <QModelIndex>
+#include <QFontMetrics>
 #include <QGridLayout>
-#include <QScrollArea>
+#include <QHeaderView>
+#include <QItemSelection>
+#include <QItemSelectionModel>
+#include <QKeyEvent>
 #include <QMenu>
+#include <QModelIndex>
+#include <QPoint>
+#include <QRect>
+#include <QScrollArea>
 #include <QScrollBar>
+#include <QShortcut>
+#include <QSize>
 #include <QtDebug>
 
 #ifndef LEGACY_CODE_0_2_x
@@ -68,7 +67,7 @@ MatrixView::MatrixView(const QString &label, QWidget *parent,
   d_model = new MatrixModel(matrix);
   init();
 #else
-  d_model = NULL;
+  d_model = nullptr;
 #endif
 }
 
@@ -83,16 +82,18 @@ void MatrixView::setMatrix(future::Matrix *matrix) {
 void MatrixView::init() {
   setMinimumSize(QSize(400, 300));
 
-  d_main_layout = new QHBoxLayout(this);
+  d_main_widget = new QWidget(this);
+  d_main_widget->setContentsMargins(0, 0, 0, 0);
+  d_main_layout = new QHBoxLayout(d_main_widget);
   d_main_layout->setSpacing(0);
   d_main_layout->setContentsMargins(0, 0, 0, 0);
 
-  d_view_widget = new MatrixViewWidget(this);
+  d_view_widget = new MatrixViewWidget(d_main_widget);
   d_view_widget->setModel(d_model);
   connect(d_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
   d_main_layout->addWidget(d_view_widget);
 
-  d_hide_button = new QToolButton(this);
+  d_hide_button = new QToolButton(d_main_widget);
   d_hide_button->setCheckable(false);
   d_hide_button->setSizePolicy(
       QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -103,7 +104,7 @@ void MatrixView::init() {
       "border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0);}");
   connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
 
-  d_control_tabs = new QWidget();
+  d_control_tabs = new QWidget(d_main_widget);
   ui.setupUi(d_control_tabs);
   // Set icons
   ui.tab_widget->setTabIcon(
@@ -148,6 +149,8 @@ void MatrixView::init() {
   d_view_widget->setSizePolicy(
       QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   d_main_layout->setStretchFactor(d_view_widget, 1);
+  d_main_widget->setLayout(d_main_layout);
+  setWidget(d_main_widget);
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
@@ -208,12 +211,12 @@ void MatrixView::moveFloatingButton() {
 
   if (!d_control_tabs->isHidden()) {
     d_hide_button->move(
-        this->width() - (d_control_tabs->width() + d_hide_button->width() +
-                         verticalScrollWidth),
+        widget()->width() - (d_control_tabs->width() + d_hide_button->width() +
+                             verticalScrollWidth),
         d_control_tabs->pos().y() + 60);
   } else {
     d_hide_button->move(
-        this->width() - (d_hide_button->width() + verticalScrollWidth),
+        widget()->width() - (d_hide_button->width() + verticalScrollWidth),
         d_control_tabs->pos().y() + 60);
   }
 }

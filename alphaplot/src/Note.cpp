@@ -32,14 +32,14 @@
 #include "Note.h"
 #include "scripting/ScriptEdit.h"
 
+#include <QApplication>
 #include <QDateTime>
 #include <QLayout>
-#include <QApplication>
-#include <QPrinter>
-#include <QPainter>
 #include <QPaintDevice>
-#include <QVBoxLayout>
+#include <QPainter>
 #include <QPrintDialog>
+#include <QPrinter>
+#include <QVBoxLayout>
 
 Note::Note(ScriptingEnv* env, const QString& label, QWidget* parent,
            const char* name, Qt::WFlags f)
@@ -54,9 +54,7 @@ void Note::init(ScriptingEnv* env) {
 
   te = new ScriptEdit(env, this, name());
   te->setContext(this);
-  QVBoxLayout* hlayout = new QVBoxLayout(this);
-  hlayout->addWidget(te);
-  hlayout->setContentsMargins(0,0,0,0);
+  setWidget(te);
 
   setGeometry(0, 0, 500, 200);
   connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
@@ -91,6 +89,4 @@ void Note::restore(const QStringList& data) {
     te->insertPlainText((*line++) + "\n");
 }
 
-void Note::setAutoexec(bool exec) {
-  autoExec = exec;
-}
+void Note::setAutoexec(bool exec) { autoExec = exec; }

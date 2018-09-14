@@ -26,20 +26,16 @@
 Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
                    Qt::WFlags f)
     : MyWidget(label, parent, name, f),
-      plot2dCanvas_(new Plot2D(this)),
+      main_widget_(new QWidget(this)),
+      plot2dCanvas_(new Plot2D()),
       layout_(new LayoutGrid2D()),
       buttionlist_(QList<LayoutButton2D *>()),
       currentAxisRect_(nullptr),
       draggingLegend(false) {
+  main_widget_->setContentsMargins(0, 0, 0, 0);
   if (name.isEmpty()) setObjectName("multilayout2d plot");
   QDateTime birthday = QDateTime::currentDateTime();
   setBirthDate(birthday.toString(Qt::LocalDate));
-
-  QPalette pal = palette();
-  pal.setColor(QPalette::Active, QPalette::Window, QColor(Qt::white));
-  pal.setColor(QPalette::Inactive, QPalette::Window, QColor(Qt::white));
-  pal.setColor(QPalette::Disabled, QPalette::Window, QColor(Qt::white));
-  setPalette(pal);
 
   layoutManagebuttonsBox_ = new QHBoxLayout();
   addLayoutButton_ = new QPushButton();
@@ -64,14 +60,15 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   layoutButtonsBox_ = new QHBoxLayout();
   QHBoxLayout *hbox = new QHBoxLayout();
   hbox->addLayout(layoutButtonsBox_);
-  streachLabel_ = new QLabel(this);
+  streachLabel_ = new QLabel();
   hbox->addWidget(streachLabel_);
-  setBackground(plot2dCanvas_->getBackgroundColor());
   hbox->addLayout(layoutManagebuttonsBox_);
+  setBackground(plot2dCanvas_->getBackgroundColor());
 
-  QVBoxLayout *layout = new QVBoxLayout(this);
+  QVBoxLayout *layout = new QVBoxLayout(main_widget_);
   layout->addLayout(hbox);
   layout->addWidget(plot2dCanvas_, 1);
+  setWidget(main_widget_);
   layout->setMargin(0);
   layout->setSpacing(0);
   setGeometry(QRect(0, 0, 500, 400));
@@ -714,14 +711,10 @@ void Layout2D::setBackground(const QColor &background) {
                           .arg(background.green())
                           .arg(background.blue())
                           .arg(background.alpha());
-  streachLabel_->setStyleSheet("QLabel { background-color:" + baseColor + ";}");
-}
-
-void Layout2D::paintEvent(QPaintEvent *) {
-  QPainter painter(this);
-  QRect rect(0, 0, size().rwidth(), size().rheight());
-  painter.setBrush(QBrush(plot2dCanvas_->getBackgroundColor()));
-  painter.drawRect(rect);
+  streachLabel_->setStyleSheet(".QLabel { background-color:" + baseColor +
+                               ";}");
+  main_widget_->setStyleSheet(".QWidget { background-color:" + baseColor +
+                              ";}");
 }
 
 void Layout2D::axisDoubleClicked(QCPAxis *axis, QCPAxis::SelectablePart part) {

@@ -196,6 +196,7 @@ class MatrixView : public MyWidget {
   //! Button to toogle the visibility of #d_tool_box
   QToolButton* d_hide_button;
   QHBoxLayout* d_main_layout;
+  QWidget *d_main_widget;
   future::Matrix* d_matrix;
 
   //! Pointer to the current underlying model

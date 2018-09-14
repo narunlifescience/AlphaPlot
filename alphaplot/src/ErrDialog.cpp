@@ -29,18 +29,18 @@
 #include "ErrDialog.h"
 #include "Table.h"
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QList>
-#include <QLabel>
-#include <QComboBox>
-#include <QRadioButton>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QGroupBox>
 #include <QButtonGroup>
+#include <QComboBox>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QList>
+#include <QMdiSubWindow>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QVBoxLayout>
 #include <QWidget>
 
 ErrDialog::ErrDialog(QWidget* parent, Qt::WFlags fl) : QDialog(parent, fl) {
@@ -141,11 +141,11 @@ void ErrDialog::setCurveNames(const QStringList& names) {
   nameLabel->addItems(names);
 }
 
-void ErrDialog::setSrcTables(QWidgetList* tables) {
+void ErrDialog::setSrcTables(QList<QMdiSubWindow*>* tables) {
   srcTables = tables;
   tableNamesBox->clear();
 
-  QList<QWidget*>::const_iterator i;
+  QList<QMdiSubWindow*>::const_iterator i;
   for (i = srcTables->begin(); i != srcTables->end(); i++)
     tableNamesBox->insertItem((*i)->objectName());
 
@@ -169,9 +169,10 @@ void ErrDialog::add() {
     direction = 1;
 
   if (columnBox->isChecked())
-    emit options(nameLabel->currentText(), tableNamesBox->currentText() + "_" +
-                                               colNamesBox->currentText(),
-                 direction);
+    emit options(
+        nameLabel->currentText(),
+        tableNamesBox->currentText() + "_" + colNamesBox->currentText(),
+        direction);
   else {
     int type;
     if (percentBox->isChecked())

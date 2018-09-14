@@ -169,9 +169,9 @@ QString AssociationsDialog::plotAssociation(const QString &text) {
   return s;
 }
 
-void AssociationsDialog::initTablesList(QWidgetList *lst, int curve) {
+void AssociationsDialog::initTablesList(QList<QMdiSubWindow *> *lst, int curve) {
   tables = lst;
-  active_table = 0;
+  active_table = nullptr;
 
   if (curve < 0 || curve >= (int)associations->count()) curve = 0;
 

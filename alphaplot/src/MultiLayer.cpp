@@ -26,19 +26,19 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include <QVector>
-#include <QWidgetList>
-#include <QPrinter>
-#include <QPrintDialog>
-#include <QDateTime>
 #include <QApplication>
-#include <QMessageBox>
 #include <QBitmap>
+#include <QClipboard>
+#include <QDateTime>
 #include <QImageWriter>
+#include <QMessageBox>
 #include <QPainter>
 #include <QPicture>
-#include <QClipboard>
+#include <QPrintDialog>
+#include <QPrinter>
 #include <QSvgGenerator>
+#include <QVector>
+#include <QWidgetList>
 
 #include <core/IconLoader.h>
 #include <qwt_plot.h>
@@ -47,9 +47,9 @@
 #include <qwt_scale_widget.h>
 #include <qwt_text_label.h>
 
+#include "Legend.h"
 #include "MultiLayer.h"
 #include "Plot.h"
-#include "Legend.h"
 #include "SelectionMoveResizer.h"
 
 #include <gsl/gsl_vector.h>
@@ -106,6 +106,7 @@ MultiLayer::MultiLayer(const QString &label, QWidget *parent,
   d_scale_on_print = true;
   d_print_cropmarks = false;
 
+  main_widget = new QWidget(this);
   toolbuttonsBox = new QHBoxLayout();
   addLayoutButton = new QPushButton();
   addLayoutButton->setToolTip(tr("Add layer"));
@@ -134,11 +135,12 @@ MultiLayer::MultiLayer(const QString &label, QWidget *parent,
   canvas = new QWidget();
   canvas->installEventFilter(this);
 
-  QVBoxLayout *layout = new QVBoxLayout(this);
+  QVBoxLayout *layout = new QVBoxLayout(main_widget);
   layout->addLayout(hbox);
   layout->addWidget(canvas, 1);
   layout->setMargin(0);
   layout->setSpacing(0);
+  setWidget(main_widget);
   setMinimumHeight(50);
   setGeometry(QRect(0, 0, graph_width, graph_height));
   setFocusPolicy(Qt::StrongFocus);
@@ -296,16 +298,14 @@ void MultiLayer::confirmRemoveLayer() {
     }
   } else {
     removeLayer();
-    if(!active_graph)
-      removeLayoutButton->setEnabled(false);
+    if (!active_graph) removeLayoutButton->setEnabled(false);
   }
 }
 
 void MultiLayer::removeLayer() {
   if (!active_graph) {
-    QMessageBox::warning(
-        this, tr("Remove Layer error"),
-        tr("There are no layers to be removed!"));
+    QMessageBox::warning(this, tr("Remove Layer error"),
+                         tr("There are no layers to be removed!"));
     return;
   }
   // remove corresponding button
@@ -938,10 +938,6 @@ bool MultiLayer::eventFilter(QObject *object, QEvent *e) {
     return false;
   } else if (e->type() == QEvent::Resize && object == (QObject *)canvas) {
     resizeLayers((const QResizeEvent *)e);
-  } else if (e->type() == QEvent::ContextMenu && object == titleBar) {
-    emit showTitleBarMenu();
-    ((QContextMenuEvent *)e)->accept();
-    return true;
   }
   return MyWidget::eventFilter(object, e);
 }
@@ -1088,8 +1084,18 @@ QString MultiLayer::saveAsTemplate(const QString &geometryInfo) {
 }
 
 void MultiLayer::mousePressEvent(QMouseEvent *e) {
+  if (!this->widget()->geometry().contains(
+          e->pos())) {  // event.pos is in titlebar
+    if (e->button() == Qt::RightButton) {
+      emit showTitleBarMenu();
+      e->accept();
+    } else {
+      MyWidget::mousePressEvent(e);
+    }
+    return;
+  }
   int margin = 5;
-  QPoint pos = canvas->mapFromParent(e->pos());
+  QPoint pos = canvas->mapFrom(this,e->pos());
   // iterate backwards, so layers on top are preferred for selection
   QList<QWidget *>::iterator i = graphsList.end();
   while (i != graphsList.begin()) {

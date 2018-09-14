@@ -72,9 +72,6 @@ class Layout2D : public MyWidget {
   LayoutButton2D *addLayoutButton(int num);
   void setBackground(const QColor &background);
 
- protected:
-  void paintEvent(QPaintEvent *);
-
  private slots:
   void axisDoubleClicked(QCPAxis *axis, QCPAxis::SelectablePart part);
   AxisRect2D *addAxisRectItem();
@@ -83,6 +80,7 @@ class Layout2D : public MyWidget {
   void activateLayout(LayoutButton2D *button);
 
  private:
+  QWidget *main_widget_;
   Plot2D *plot2dCanvas_;
 
   LayoutGrid2D *layout_;

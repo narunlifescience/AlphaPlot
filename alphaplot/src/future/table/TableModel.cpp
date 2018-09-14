@@ -36,7 +36,7 @@
 #include "table/future_Table.h"
 
 TableModel::TableModel(future::Table *table)
-    : QAbstractItemModel(0),
+    : QAbstractItemModel(nullptr),
       d_table(table),
 #ifdef LEGACY_CODE_0_2_x
       d_read_only(false),

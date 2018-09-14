@@ -252,6 +252,7 @@ class MultiLayer : public MyWidget {
   QPushButton *addLayoutButton;
   QPushButton *removeLayoutButton;
   QWidget* canvas;
+  QWidget *main_widget;
 
   QPointer<SelectionMoveResizer> d_layers_selector;
 };

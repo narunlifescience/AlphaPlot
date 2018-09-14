@@ -371,7 +371,7 @@ class Graph3D : public MyWidget {
   void showContextMenu();
   void showOptionsDialog();
   void modified();
-  void custom3DActions(QWidget*);
+  void custom3DActions(QMdiSubWindow *);
 
  private:
   Qwt3D::Triple** allocateData(int columns, int rows);
@@ -400,6 +400,8 @@ class Graph3D : public MyWidget {
   bool crossHairSmooth, crossHairBoxed;
   int conesQuality;
   PointStyle pointStyle;
+  QWidget *d_main_widget;
+  QVBoxLayout *d_main_layout;
   Table* worksheet;
   Matrix* d_matrix;
   Qwt3D::PLOTSTYLE style_;

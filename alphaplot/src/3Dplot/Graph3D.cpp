@@ -29,22 +29,22 @@
 #include "Graph3D.h"
 #include "Bar.h"
 #include "Cone3D.h"
-#include "scripting/MyParser.h"
 #include "core/column/Column.h"
+#include "scripting/MyParser.h"
 
 #include <QApplication>
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QPrinter>
-#include <QClipboard>
-#include <QPixmap>
 #include <QBitmap>
-#include <QDateTime>
+#include <QClipboard>
 #include <QCursor>
+#include <QDateTime>
+#include <QFileDialog>
 #include <QImageWriter>
+#include <QMessageBox>
+#include <QPixmap>
+#include <QPrinter>
 
-#include <qwtplot3d/qwt3d_io_gl2ps.h>
 #include <qwtplot3d/qwt3d_coordsys.h>
+#include <qwtplot3d/qwt3d_io_gl2ps.h>
 
 #include <gsl/gsl_vector.h>
 #include <fstream>
@@ -94,7 +94,8 @@ void Graph3D::initPlot() {
   connect(d_timer, SIGNAL(timeout()), this, SLOT(rotate()));
   ignoreFonts = false;
 
-  sp = new SurfacePlot(this);
+  d_main_widget = new QWidget(this);
+  sp = new SurfacePlot(d_main_widget);
   sp->resize(500, 400);
   sp->installEventFilter(this);
   sp->setRotation(30, 0, 15);
@@ -154,6 +155,12 @@ void Graph3D::initPlot() {
   conesRad = 0.5;
 
   style_ = NOPLOT;
+  QHBoxLayout* d_main_layout = new QHBoxLayout(d_main_widget);
+  d_main_layout->setSpacing(0);
+  d_main_layout->setContentsMargins(0, 0, 0, 0);
+  d_main_layout->addWidget(sp);
+  d_main_widget->setLayout(d_main_layout);
+  setWidget(d_main_widget);
   initCoord();
 
   connect(sp, SIGNAL(rotationChanged(double, double, double)), this,
@@ -1557,12 +1564,17 @@ void Graph3D::resizeEvent(QResizeEvent* e) {
   }
 
   sp->updateGL();
-  emit resizedWindow(this);
+  emit resizedWindow(qobject_cast<MyWidget*>(this));
   emit modified();
+  QMdiSubWindow::resizeEvent(e);
 }
 
 void Graph3D::contextMenuEvent(QContextMenuEvent* e) {
-  emit showContextMenu();
+  if (widget()->geometry().contains(e->pos())) {
+    emit showContextMenu();
+  } else {
+    emit showTitleBarMenu();
+  }
   e->accept();
 }
 
@@ -1796,8 +1808,9 @@ void Graph3D::print() {
       QFile f("alphaplot.png");
       f.remove();
     } else
-      QMessageBox::about(0, tr("IO Error"), tr("Could not print: <h4>" +
-                                               QString(name()) + "</h4>."));
+      QMessageBox::about(
+          0, tr("IO Error"),
+          tr("Could not print: <h4>" + QString(name()) + "</h4>."));
   }
 }
 
@@ -1864,7 +1877,7 @@ bool Graph3D::eventFilter(QObject* object, QEvent* e) {
   if (e->type() == QEvent::MouseButtonDblClick &&
       object == (QObject*)this->sp) {
     emit showOptionsDialog();
-    return TRUE;
+    return true;
   }
   return MyWidget::eventFilter(object, e);
 }

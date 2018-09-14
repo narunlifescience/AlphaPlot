@@ -65,7 +65,7 @@ Matrix::Matrix(AbstractScriptingEngine *engine, int rows, int cols,
 #else
 Matrix::Matrix(void *, int rows, int cols, const QString &name)
     : AbstractPart(name),
-      d_plot_menu(0)
+      d_plot_menu(nullptr)
 #endif
 {
   d_matrix_private = new Private(this);
@@ -73,7 +73,7 @@ Matrix::Matrix(void *, int rows, int cols, const QString &name)
   appendColumns(cols);
   appendRows(rows);
 
-  d_view = NULL;
+  d_view = nullptr;
   createActions();
   connectActions();
 }
@@ -87,11 +87,11 @@ Matrix::Matrix()
     : AbstractPart("temp")
 #endif
 {
-  d_view = NULL;
+  d_view = nullptr;
   createActions();
 }
 
-Matrix::~Matrix() { delete d_view; }
+Matrix::~Matrix() {}
 
 void Matrix::setView(MatrixView *view) {
   d_view = view;
@@ -1535,4 +1535,4 @@ void Matrix::Private::setFormula(const QString &formula) {
   emit d_owner->formulaChanged();
 }
 
-}  // namespace
+}  // namespace future

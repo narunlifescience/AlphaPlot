@@ -31,7 +31,7 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include <QWidget>
+#include <QMdiSubWindow>
 class QEvent;
 class QCloseEvent;
 class QString;
@@ -47,7 +47,7 @@ class Folder;
  * Rename to Aspect.
  *
  * sa Folder, ApplicationWindow */
-class MyWidget : public QWidget {
+class MyWidget : public QMdiSubWindow {
   Q_OBJECT
 
  public:
@@ -128,8 +128,6 @@ class MyWidget : public QWidget {
   void closeEvent(QCloseEvent *);
   //! Toggle the "ask on close" flag
   void askOnCloseEvent(bool ask) { askOnClose = ask; }
-  //! Filters other object's events (customizes title bar's context menu)
-  bool eventFilter(QObject *object, QEvent *event);
 
   //! Returns the pointer to the parent folder of the window
   Folder *folder() { return parentFolder; }
@@ -149,8 +147,8 @@ class MyWidget : public QWidget {
   void closedWindow(MyWidget *);
   //! Emitted when the window was hidden
   void hiddenWindow(MyWidget *);
-  void modifiedWindow(QWidget *);
-  void resizedWindow(QWidget *);
+  void modifiedWindow(MyWidget *);
+  void resizedWindow(MyWidget *);
   //! Emitted when the window status changed
   void statusChanged(MyWidget *);
   //! Emitted when the title bar recieves a QContextMenuEvent
@@ -162,10 +160,7 @@ class MyWidget : public QWidget {
 
  protected:
   //! Catches parent changes (in order to gain access to the title bar)
-  virtual void changeEvent(QEvent *event);
-  //! Title bar of this MDI window if it currently belongs to a QWorkspace, NULL
-  //! else
-  QWidget *titleBar;
+  virtual void contextMenuEvent(QContextMenuEvent *event);
 
   //! Pointer to the parent folder of the window
   Folder *parentFolder;

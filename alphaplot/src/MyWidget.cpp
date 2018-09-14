@@ -41,12 +41,11 @@
 
 MyWidget::MyWidget(const QString &label, QWidget *parent, const QString name,
                    Qt::WFlags f)
-    : QWidget(parent, f) {
+    : QMdiSubWindow(parent, f) {
   w_label = label;
   caption_policy = Both;
   askOnClose = true;
   w_status = Normal;
-  titleBar = nullptr;
   setObjectName(QString(name));
 }
 
@@ -69,15 +68,16 @@ void MyWidget::updateCaption() {
       else
         setWindowTitle(name());
       break;
-    }
+  }
 }
 
 void MyWidget::closeEvent(QCloseEvent *e) {
   if (askOnClose) {
-    switch (QMessageBox::information(
-        this, "AlphaPlot", tr("Do you want to hide or delete") + "<p><b>'" +
-                               objectName() + "'</b> ?",
-        tr("Delete"), tr("Hide"), tr("Cancel"), 0, 2)) {
+    switch (QMessageBox::information(this, "AlphaPlot",
+                                     tr("Do you want to hide or delete") +
+                                         "<p><b>'" + objectName() + "'</b> ?",
+                                     tr("Delete"), tr("Hide"), tr("Cancel"), 0,
+                                     2)) {
       case 0:
         emit closedWindow(this);
         e->accept();
@@ -116,45 +116,11 @@ QString MyWidget::aspect() {
   return status;
 }
 
-// Modifying the title bar menu is somewhat more complicated in Qt4.
-// Apart from the trivial change in how we intercept the reparenting,
-// in Qt4 the title bar doesn't exist yet at this point.
-// Thus, we now also have to intercept the creation of the title bar
-// in MyWidget::eventFilter.
-void MyWidget::changeEvent(QEvent *event) {
-  if (event->type() == QEvent::ParentChange) {
-    titleBar = 0;
-    if (parent()) parent()->installEventFilter(this);
-  } else if (!isHidden() && event->type() == QEvent::WindowStateChange) {
-    if (static_cast<QWindowStateChangeEvent *>(event)->oldState() ==
-        windowState())
-      return;
-
-    if (windowState() & Qt::WindowMinimized)
-      w_status = Minimized;
-    else if (windowState() & Qt::WindowMaximized)
-      w_status = Maximized;
-    else
-      w_status = Normal;
-    emit statusChanged(this);
-  }
-  QWidget::changeEvent(event);
-}
-
-bool MyWidget::eventFilter(QObject *object, QEvent *event) {
-  QWidget *tmp;
-  if (event->type() == QEvent::ContextMenu && object == titleBar) {
+void MyWidget::contextMenuEvent(QContextMenuEvent *event) {
+  if (!this->widget()->geometry().contains(event->pos())) {
     emit showTitleBarMenu();
-    static_cast<QContextMenuEvent *>(event)->accept();
-    return true;
-  } else if (event->type() == QEvent::ChildAdded && object == parent() &&
-             (tmp = qobject_cast<QWidget *>(
-                  static_cast<QChildEvent *>(event)->child()))) {
-    (titleBar = tmp)->installEventFilter(this);
-    parent()->removeEventFilter(this);
-    return true;
+    event->accept();
   }
-  return false;
 }
 
 void MyWidget::setStatus(Status status) {
