@@ -15,6 +15,7 @@ class Layout2D;
 class AxisRect2D;
 class Grid2D;
 class LineScatter2D;
+class Curve2D;
 class Spline2D;
 class Vector2D;
 class Bar2D;
@@ -59,6 +60,7 @@ class PropertyEditor : public QDockWidget {
   void AxisPropertyBlock(Axis2D *axis);
   void GridPropertyBlock(AxisRect2D *axisrect);
   void LSPropertyBlock(LineScatter2D *lsgraph, AxisRect2D *axisrect);
+  void CurvePropertyBlock(Curve2D *curve, AxisRect2D *axisrect);
   void SplinePropertyBlock(Spline2D *splinegraph, AxisRect2D *axisrect);
   void VectorPropertyBlock(Vector2D *vectorgraph, AxisRect2D *axisrect);
   void axisRectCreated(AxisRect2D *axisrect, MyWidget *widget);
@@ -66,6 +68,7 @@ class PropertyEditor : public QDockWidget {
   void axisRemoved(AxisRect2D *axisrect);
   void lineScatterCreated(LineScatter2D *ls);
   void lineScatterRemoved(AxisRect2D *axisrect);
+  void curveCreated(Curve2D *curve);
   void splineCreated(Spline2D *spline);
   void vectorCreated(Vector2D *vector);
   void barCreated(Bar2D *bar);
@@ -92,6 +95,7 @@ class PropertyEditor : public QDockWidget {
 
   typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
   typedef QVector<LineScatter2D *> LsVec;
+  typedef QVector<Curve2D *> CurveVec;
   typedef QVector<Spline2D *> SplineVec;
   typedef QVector<Vector2D *> VectorVec;
   typedef QVector<Bar2D *> BarVec;
@@ -183,6 +187,25 @@ class PropertyEditor : public QDockWidget {
   QtProperty *lsplotpropertyscatterstrokestyleitem_;
   QtProperty *lsplotpropertyscatterantialiaseditem_;
   QtProperty *lsplotpropertylegendtextitem_;
+
+  // Curve Properties block
+  QtProperty *cplotpropertyxaxisitem_;
+  QtProperty *cplotpropertyyaxisitem_;
+  QtProperty *cplotpropertylinestyleitem_;
+  QtProperty *cplotpropertylinestrokecoloritem_;
+  QtProperty *cplotpropertylinestrokethicknessitem_;
+  QtProperty *cplotpropertylinestroketypeitem_;
+  QtProperty *cplotpropertylinefillstatusitem_;
+  QtProperty *cplotpropertylinefillcoloritem_;
+  QtProperty *cplotpropertylineantialiaseditem_;
+  QtProperty *cplotpropertyscatterstyleitem_;
+  QtProperty *cplotpropertyscatterthicknessitem_;
+  QtProperty *cplotpropertyscatterfillcoloritem_;
+  QtProperty *cplotpropertyscatterstrokecoloritem_;
+  QtProperty *cplotpropertyscatterstrokethicknessitem_;
+  QtProperty *cplotpropertyscatterstrokestyleitem_;
+  QtProperty *cplotpropertyscatterantialiaseditem_;
+  QtProperty *cplotpropertylegendtextitem_;
 
   // Spline Properties block
   QtProperty *splinepropertyxaxisitem_;

@@ -98,6 +98,7 @@
 #include "scripting/widgets/ConsoleWidget.h"
 
 #include "2Dplot/Layout2D.h"
+#include "2Dplot/widgets/Function2DDialog.h"
 #include "2Dplot/widgets/propertyeditor.h"
 #include "ui/PropertiesDialog.h"
 
@@ -5258,8 +5259,8 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app,
   if (s.contains("minimized")) {
     QStringList lst = s.split("\t");
     if (lst.count() > 4)
-      w->setGeometry(lst[1].toInt(), lst[2].toInt(),
-                                     lst[3].toInt(), lst[4].toInt());
+      w->setGeometry(lst[1].toInt(), lst[2].toInt(), lst[3].toInt(),
+                     lst[4].toInt());
     w->setStatus(MyWidget::Minimized);
     app->setListViewView(caption, tr("Minimized"));
   } else if (s.contains("maximized")) {
@@ -5267,8 +5268,8 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app,
     app->setListViewView(caption, tr("Maximized"));
   } else {
     QStringList lst = s.split("\t");
-    w->setGeometry(lst[1].toInt(), lst[2].toInt(),
-                                   lst[3].toInt(), lst[4].toInt());
+    w->setGeometry(lst[1].toInt(), lst[2].toInt(), lst[3].toInt(),
+                   lst[4].toInt());
     w->setStatus(MyWidget::Normal);
 
     if (lst.count() > 5) {
@@ -8339,13 +8340,13 @@ void ApplicationWindow::showFunctionDialog() {
 void ApplicationWindow::showFunctionDialog(Graph *g, int curve) {
   if (!g) return;
 
-  FunctionDialog *fd = functionDialog();
+ /* FunctionDialog *fd = functionDialog();
   fd->setWindowTitle(tr("Edit function"));
-  fd->setCurveToModify(g, curve);
+  fd->setCurveToModify(g, curve);*/
 }
 
-FunctionDialog *ApplicationWindow::functionDialog() {
-  FunctionDialog *fd = new FunctionDialog(this);
+Function2DDialog *ApplicationWindow::functionDialog() {
+  Function2DDialog *fd = new Function2DDialog(d_workspace);
   fd->setAttribute(Qt::WA_DeleteOnClose);
   connect(fd, SIGNAL(clearParamFunctionsList()), this,
           SLOT(clearParamFunctionsList()));
@@ -8374,8 +8375,8 @@ void ApplicationWindow::addFunctionCurve() {
 
   Graph *graph = plot->activeGraph();
   if (graph) {
-    FunctionDialog *fd = functionDialog();
-    if (fd) fd->setGraph(graph);
+    //FunctionDialog *fd = functionDialog();
+    //if (fd) fd->setGraph(graph);
   }
 }
 
@@ -8458,6 +8459,7 @@ bool ApplicationWindow::addFunctionPlot(
       QPair<QVector<double> *, QVector<double> *> datapair;
       datapair = generateFunctiondata(type, formulas, var, ranges, points);
       if (!datapair.first || !datapair.second) return false;
+
       axisrect->addCurveFunction2DPlot(datapair.first, datapair.second,
                                        axisrect->getXAxis(0),
                                        axisrect->getYAxis(0), formulas.at(0));
@@ -11545,12 +11547,12 @@ bool ApplicationWindow::findRecursive(FolderTreeWidgetItem *item,
   return false;
 }
 
-/*void ApplicationWindow::dropFolderItems(Q3ListViewItem *dest) {
+/*void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
   if (!dest || draggedItems.isEmpty()) return;
 
   Folder *dest_f = ((FolderListItem *)dest)->folder();
 
-  Q3ListViewItem *it;
+  QTreeWidgetItem *it;
   QStringList subfolders = dest_f->subfolders();
 
   foreach (it, draggedItems) {
@@ -11605,7 +11607,8 @@ bool ApplicationWindow::findRecursive(FolderTreeWidgetItem *item,
   modifiedProject();
 }
 
-void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest) {
+void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
+                                   FolderTreeWidgetItem *dest) {
   folders->blockSignals(true);
 
   Folder *dest_f = dest->folder();
@@ -11615,9 +11618,9 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest) {
   dest_f->setBirthDate(src_f->birthDate());
   dest_f->setModificationDate(src_f->modificationDate());
 
-  FolderListItem *copy_item = new FolderListItem(dest, dest_f);
+  FolderTreeWidgetItem *copy_item = new FolderTreeWidgetItem(dest, dest_f);
   copy_item->setText(0, src_f->name());
-  dest_f->setFolderListItem(copy_item);
+  dest_f->setFolderTreeWidgetItem(copy_item);
 
   QList<MyWidget *> lst = QList<MyWidget *>(src_f->windowsList());
   foreach (MyWidget *w, lst) {
@@ -11627,8 +11630,10 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest) {
   }
 
   if (!(src_f->children()).isEmpty()) {
-    FolderListItem *item = (FolderListItem *)src->firstChild();
+    FolderTreeWidgetItem *item = (FolderTreeWidgetItem *)src->child(0);
     int initial_depth = item->depth();
+    QTreeWidgetItemIterator it(item);
+
     while (item && item->depth() >= initial_depth) {
       src_f = (Folder *)item->folder();
 
@@ -11636,9 +11641,9 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest) {
       dest_f->setBirthDate(src_f->birthDate());
       dest_f->setModificationDate(src_f->modificationDate());
 
-      copy_item = new FolderListItem(copy_item, dest_f);
+      copy_item = new FolderTreeWidgetItem(copy_item, dest_f);
       copy_item->setText(0, src_f->name());
-      dest_f->setFolderListItem(copy_item);
+      dest_f->setFolderTreeWidgetItem(copy_item);
 
       lst = QList<MyWidget *>(src_f->windowsList());
       foreach (MyWidget *w, lst) {
@@ -11647,7 +11652,8 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest) {
         dest_f->addWindow(w);
       }
 
-      item = (FolderListItem *)item->itemBelow();
+      it++;
+      item = (FolderTreeWidgetItem *)(*it);
     }
   }
 

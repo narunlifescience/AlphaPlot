@@ -222,11 +222,13 @@ bool Function2DDialog::acceptParametric() {
   bool result = false;
   emit updateFunctionLists(type, formulas);
   if (!axisrect_) {
-    result = app->newFunctionPlot(type, formulas, "x", ranges,
+    result = app->newFunctionPlot(type, formulas,
+                                  ui_->paramparameterLineEdit->text(), ranges,
                                   ui_->normpointsSpinBox->value());
   } else {
     if (plottomodify_ == -1) {
-      result = app->addFunctionPlot(type, formulas, "x", ranges,
+      result = app->addFunctionPlot(type, formulas,
+                                    ui_->paramparameterLineEdit->text(), ranges,
                                     ui_->normpointsSpinBox->value(), axisrect_);
     } else {
       // result = app->editFunctionPlot();
@@ -252,5 +254,25 @@ void Function2DDialog::clearList() {
       ui_->polaryLineEdit->clear();
       emit clearPolarFunctionsList();
       break;
+  }
+}
+
+void Function2DDialog::insertParamFunctionsList(const QStringList &xList,
+                                                const QStringList &yList) {
+  if (xList.size() > 0) {
+    ui_->paramxLineEdit->setText(xList.at(0));
+  }
+  if (yList.size() > 0) {
+    ui_->paramyLineEdit->setText(yList.at(0));
+  }
+}
+
+void Function2DDialog::insertPolarFunctionsList(const QStringList &rList,
+                                                const QStringList &thetaList) {
+  if (rList.size() > 0) {
+    ui_->polarxLineEdit->setText(rList.at(0));
+  }
+  if (thetaList.size() > 0) {
+    ui_->polaryLineEdit->setText(thetaList.at(0));
   }
 }

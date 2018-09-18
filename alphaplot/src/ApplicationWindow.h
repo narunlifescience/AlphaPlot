@@ -82,6 +82,7 @@ class SettingsDialog;
 class PropertiesDialog;
 class PropertyEditor;
 class AxisRect2D;
+class Function2DDialog;
 
 #ifndef TS_PATH
 #define TS_PATH (qApp->applicationDirPath() + "/translations")
@@ -328,7 +329,7 @@ class ApplicationWindow : public QMainWindow,
       const int type, const QStringList& formulas, const QString& var,
       const QList<double>& ranges, const int points);
 
-  FunctionDialog* functionDialog();
+  Function2DDialog *functionDialog();
   void showFunctionDialog();
   void showFunctionDialog(Graph* g, int curve);
   void addFunctionCurve();
@@ -900,14 +901,14 @@ class ApplicationWindow : public QMainWindow,
 
   //!  Drop the objects in the list draggedItems to the folder of the
   //!  destination item
-  // void dropFolderItems(Q3ListViewItem* dest);
+  //void dropFolderItems(QTreeWidgetItem* dest);
 
   //!  moves a folder item to another
   /**
    * \param src source folder item
    * \param dest destination folder item
    */
-  // void moveFolder(FolderListItem* src, FolderListItem* dest);
+  //void moveFolder(FolderTreeWidgetItem* src, FolderTreeWidgetItem* dest);
   //@}
 
   //! \name Scripting

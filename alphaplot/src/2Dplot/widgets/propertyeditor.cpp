@@ -229,6 +229,48 @@ PropertyEditor::PropertyEditor(QWidget *parent)
       boolManager_->addProperty("Scatter Antialiased");
   lsplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
 
+  // Curve property block
+  QStringList clstylelist;
+  clstylelist << tr("None") << tr("Line");
+  cplotpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
+  cplotpropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
+  cplotpropertylinestyleitem_ = enumManager_->addProperty("Line Style");
+  enumManager_->setEnumNames(cplotpropertylinestyleitem_, clstylelist);
+  cplotpropertylinestrokecoloritem_ =
+      colorManager_->addProperty("Line Stroke Color");
+  cplotpropertylinestrokethicknessitem_ =
+      doubleManager_->addProperty("Line Stroke Thickness");
+  cplotpropertylinestroketypeitem_ =
+      enumManager_->addProperty("Line Stroke Type");
+  enumManager_->setEnumNames(cplotpropertylinestroketypeitem_, stroketypelist);
+  enumManager_->setEnumIcons(cplotpropertylinestroketypeitem_,
+                             stroketypeiconslist);
+  cplotpropertylinefillstatusitem_ =
+      boolManager_->addProperty("Fill Under Area");
+  cplotpropertylinefillcoloritem_ =
+      colorManager_->addProperty("Area Fill Color");
+  cplotpropertylineantialiaseditem_ =
+      boolManager_->addProperty("Line Antialiased");
+  cplotpropertyscatterstyleitem_ = enumManager_->addProperty("Scatter Style");
+  enumManager_->setEnumNames(cplotpropertyscatterstyleitem_, sstylelist);
+  cplotpropertyscatterthicknessitem_ =
+      doubleManager_->addProperty("Scatter Size");
+  cplotpropertyscatterfillcoloritem_ =
+      colorManager_->addProperty("Scatter Fill Color");
+  cplotpropertyscatterstrokecoloritem_ =
+      colorManager_->addProperty("Scatter Outline Color");
+  cplotpropertyscatterstrokethicknessitem_ =
+      doubleManager_->addProperty("Scatter Outline Thickness");
+  cplotpropertyscatterstrokestyleitem_ =
+      enumManager_->addProperty("Scatter Outline Type");
+  enumManager_->setEnumNames(cplotpropertyscatterstrokestyleitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(cplotpropertyscatterstrokestyleitem_,
+                             stroketypeiconslist);
+  cplotpropertyscatterantialiaseditem_ =
+      boolManager_->addProperty("Scatter Antialiased");
+  cplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
+
   // Spline properties block
   splinepropertyxaxisitem_ = enumManager_->addProperty("X Axis");
   splinepropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
@@ -433,6 +475,18 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
     lsgraph->setscatterantialiased_lsplot(value);
     lsgraph->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertylinefillstatusitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setlinefillstatus_cplot(value);
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertylineantialiaseditem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setlineantialiased_cplot(value);
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertyscatterantialiaseditem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setscatterantialiased_cplot(value);
+    curve->parentPlot()->replot();
   } else if (prop->compare(splinepropertylinefillstatusitem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
@@ -503,6 +557,22 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
     lsgraph->setscatterstrokecolor_lsplot(color);
     lsgraph->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertylinestrokecoloritem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setlinestrokecolor_cplot(color);
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertylinefillcoloritem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setlinefillcolor_cplot(color);
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertyscatterfillcoloritem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setscatterfillcolor_cplot(color);
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertyscatterstrokecoloritem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setscatterstrokecolor_cplot(color);
+    curve->parentPlot()->replot();
   } else if (prop->compare(splinepropertylinestrokecoloritem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
@@ -572,6 +642,18 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
     lsgraph->setscatterstrokethickness_lsplot(value);
     lsgraph->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertylinestrokethicknessitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setlinestrokethickness_cplot(value);
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertyscatterthicknessitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setscattersize_cplot(value);
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertyscatterstrokethicknessitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setscatterstrokethickness_cplot(value);
+    curve->parentPlot()->replot();
   } else if (prop->compare(splinepropertylinestrokethicknessitem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
@@ -605,6 +687,10 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
     lsgraph->setlegendtext_lsplot(value);
     lsgraph->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertylegendtextitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setlegendtext_cplot(value);
+    curve->parentPlot()->replot();
   } else if (prop->compare(splinepropertylegendtextitem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
@@ -713,6 +799,38 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
         getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
     lsgraph->setscatterstrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
     lsgraph->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertyxaxisitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getXAxis(value);
+    if (!axis) return;
+    curve->setxaxis_cplot(axis);
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertyyaxisitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getYAxis(value);
+    if (!axis) return;
+    curve->setyaxis_cplot(axis);
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertylinestyleitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setlinetype_cplot(value);
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertylinestroketypeitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setlinestrokestyle_cplot(static_cast<Qt::PenStyle>(value + 1));
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertyscatterstyleitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setscattershape_cplot(static_cast<LSCommon::ScatterStyle>(value));
+    curve->parentPlot()->replot();
+  } else if (prop->compare(cplotpropertyscatterstrokestyleitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setscatterstrokestyle_cplot(static_cast<Qt::PenStyle>(value + 1));
+    curve->parentPlot()->replot();
   } else if (prop->compare(splinepropertyxaxisitem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
@@ -804,6 +922,13 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
       void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       LSPropertyBlock(lsgraph, axisrect);
+    } break;
+    case MyTreeWidget::PropertyItemType::Curve: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      Curve2D *curve = static_cast<Curve2D *>(ptr1);
+      void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
+      AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
+      CurvePropertyBlock(curve, axisrect);
     } break;
     case MyTreeWidget::PropertyItemType::Spline: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
@@ -1012,6 +1137,94 @@ void PropertyEditor::LSPropertyBlock(LineScatter2D *lsgraph,
                            lsgraph->getlegendtext_lsplot());
 }
 
+void PropertyEditor::CurvePropertyBlock(Curve2D *curve, AxisRect2D *axisrect) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(cplotpropertyxaxisitem_);
+  propertybrowser_->addProperty(cplotpropertyyaxisitem_);
+  propertybrowser_->addProperty(cplotpropertylinestyleitem_);
+  propertybrowser_->addProperty(cplotpropertylinestrokecoloritem_);
+  propertybrowser_->addProperty(cplotpropertylinestrokethicknessitem_);
+  propertybrowser_->addProperty(cplotpropertylinestroketypeitem_);
+  propertybrowser_->addProperty(cplotpropertylinefillstatusitem_);
+  propertybrowser_->addProperty(cplotpropertylinefillcoloritem_);
+  propertybrowser_->addProperty(cplotpropertylineantialiaseditem_);
+  propertybrowser_->addProperty(cplotpropertyscatterstyleitem_);
+  propertybrowser_->addProperty(cplotpropertyscatterthicknessitem_);
+  propertybrowser_->addProperty(cplotpropertyscatterfillcoloritem_);
+  propertybrowser_->addProperty(cplotpropertyscatterstrokecoloritem_);
+  propertybrowser_->addProperty(cplotpropertyscatterstrokestyleitem_);
+  propertybrowser_->addProperty(cplotpropertyscatterstrokethicknessitem_);
+  propertybrowser_->addProperty(cplotpropertyscatterantialiaseditem_);
+  propertybrowser_->addProperty(cplotpropertylegendtextitem_);
+  {
+    QStringList cyaxislist;
+    int currentyaxis = 0;
+    int ycount = 0;
+    QList<Axis2D *> yaxes = axisrect->getYAxes2D();
+
+    for (int i = 0; i < yaxes.size(); i++) {
+      cyaxislist << QString("Y Axis %1").arg(i + 1);
+      if (yaxes.at(i) == curve->getyaxis_cplot()) {
+        currentyaxis = ycount;
+      }
+      ycount++;
+    }
+    enumManager_->setEnumNames(cplotpropertyyaxisitem_, cyaxislist);
+    enumManager_->setValue(cplotpropertyyaxisitem_, currentyaxis);
+  }
+
+  {
+    QStringList cxaxislist;
+    int currentxaxis = 0;
+    int xcount = 0;
+    QList<Axis2D *> xaxes = axisrect->getXAxes2D();
+    for (int i = 0; i < xaxes.size(); i++) {
+      cxaxislist << QString("X Axis %1").arg(i + 1);
+      if (xaxes.at(i) == curve->getxaxis_cplot()) {
+        currentxaxis = xcount;
+      }
+      xcount++;
+    }
+
+    enumManager_->setEnumNames(cplotpropertyxaxisitem_, cxaxislist);
+    enumManager_->setValue(cplotpropertyxaxisitem_, currentxaxis);
+  }
+
+  enumManager_->setValue(cplotpropertylinestyleitem_,
+                         static_cast<int>(curve->getlinetype_cplot()));
+  colorManager_->setValue(cplotpropertylinestrokecoloritem_,
+                          curve->getlinestrokecolor_cplot());
+  doubleManager_->setValue(cplotpropertylinestrokethicknessitem_,
+                           curve->getlinestrokethickness_cplot());
+  enumManager_->setValue(
+      cplotpropertylinestroketypeitem_,
+      static_cast<int>(curve->getlinestrokestyle_cplot() - 1));
+  boolManager_->setValue(cplotpropertylinefillstatusitem_,
+                         curve->getlinefillstatus_cplot());
+  colorManager_->setValue(cplotpropertylinefillcoloritem_,
+                          curve->getlinefillcolor_cplot());
+  boolManager_->setValue(cplotpropertylineantialiaseditem_,
+                         curve->getlineantialiased_cplot());
+  enumManager_->setValue(cplotpropertyscatterstyleitem_,
+                         static_cast<int>(curve->getscattershape_cplot()));
+  doubleManager_->setValue(cplotpropertyscatterthicknessitem_,
+                           curve->getscattersize_cplot());
+  colorManager_->setValue(cplotpropertyscatterfillcoloritem_,
+                          curve->getscatterfillcolor_cplot());
+  colorManager_->setValue(cplotpropertyscatterstrokecoloritem_,
+                          curve->getscatterstrokecolor_cplot());
+  enumManager_->setValue(
+      cplotpropertyscatterstrokestyleitem_,
+      static_cast<int>(curve->getscatterstrokestyle_cplot() - 1));
+  doubleManager_->setValue(cplotpropertyscatterstrokethicknessitem_,
+                           curve->getscatterstrokethickness_cplot());
+  boolManager_->setValue(cplotpropertyscatterantialiaseditem_,
+                         curve->getscatterantialiased_cplot());
+  stringManager_->setValue(cplotpropertylegendtextitem_,
+                           curve->getlegendtext_cplot());
+}
+
 void PropertyEditor::SplinePropertyBlock(Spline2D *splinegraph,
                                          AxisRect2D *axisrect) {
   propertybrowser_->clear();
@@ -1154,6 +1367,8 @@ void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
 
   connect(axisrect, SIGNAL(LineScatterCreated(LineScatter2D *)), this,
           SLOT(lineScatterCreated(LineScatter2D *)));
+  connect(axisrect, SIGNAL(CurveCreated(Curve2D *)), this,
+          SLOT(curveCreated(Curve2D *)));
   connect(axisrect, SIGNAL(LineScatterRemoved(AxisRect2D *)), this,
           SLOT(lineScatterRemoved(AxisRect2D *)));
   connect(axisrect, SIGNAL(SplineCreated(Spline2D *)), this,
@@ -1179,6 +1394,8 @@ void PropertyEditor::lineScatterCreated(LineScatter2D *ls) {
 void PropertyEditor::lineScatterRemoved(AxisRect2D *axisrect) {
   objectschanged(axisrect);
 }
+
+void PropertyEditor::curveCreated(Curve2D *curve) { objectschanged(curve); }
 
 void PropertyEditor::splineCreated(Spline2D *spline) { objectschanged(spline); }
 
@@ -1302,6 +1519,25 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         lsgraphitem->setData(0, Qt::UserRole + 2,
                              QVariant::fromValue<void *>(element));
         item->addChild(lsgraphitem);
+      }
+
+      // Curve plot Items
+      CurveVec curvevec = element->getCurveVec();
+      for (int j = 0; j < curvevec.size(); j++) {
+        Curve2D *curvegraph = curvevec.at(j);
+        QString curvegraphtext = QString("Curve %1").arg(j + 1);
+        QTreeWidgetItem *curvegraphitem = new QTreeWidgetItem(
+            static_cast<QTreeWidget *>(nullptr), QStringList(curvegraphtext));
+        curvegraphitem->setIcon(
+            0, IconLoader::load("graph2d-line", IconLoader::LightDark));
+        curvegraphitem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::Curve));
+        curvegraphitem->setData(0, Qt::UserRole + 1,
+                                QVariant::fromValue<void *>(curvegraph));
+        curvegraphitem->setData(0, Qt::UserRole + 2,
+                                QVariant::fromValue<void *>(element));
+        item->addChild(curvegraphitem);
       }
 
       // Spline plot Items
@@ -1482,6 +1718,37 @@ void PropertyEditor::setObjectPropertyId() {
       "lsplotpropertyscatterantialiaseditem_");
   lsplotpropertylegendtextitem_->setPropertyId(
       "lsplotpropertylelegendtextitem_");
+  // Curve Property Block
+  cplotpropertyxaxisitem_->setPropertyId("cplotpropertyxaxisitem_");
+  cplotpropertyyaxisitem_->setPropertyId("cplotpropertyyaxisitem_");
+  cplotpropertylinestyleitem_->setPropertyId("cplotpropertylinestyleitem_");
+  cplotpropertylinestrokecoloritem_->setPropertyId(
+      "cplotpropertylinestrokecoloritem_");
+  cplotpropertylinestrokethicknessitem_->setPropertyId(
+      "cplotpropertylinestrokethicknesitem_");
+  cplotpropertylinestroketypeitem_->setPropertyId(
+      "cplotpropertylinestroketypeitem_");
+  cplotpropertylinefillstatusitem_->setPropertyId(
+      "cplotpropertylinefillstatusitem_");
+  cplotpropertylinefillcoloritem_->setPropertyId(
+      "cplotpropertylinefillcoloritem_");
+  cplotpropertylineantialiaseditem_->setPropertyId(
+      "cplotpropertylineantialiaseditem_");
+  cplotpropertyscatterstyleitem_->setPropertyId(
+      "cplotpropertyscatterstyleitem_");
+  cplotpropertyscatterthicknessitem_->setPropertyId(
+      "cplotpropertyscatterthicknessitem_");
+  cplotpropertyscatterfillcoloritem_->setPropertyId(
+      "cplotpropertyscatterfillcoloritem_");
+  cplotpropertyscatterstrokecoloritem_->setPropertyId(
+      "cplotpropertyscatterstrokecoloritem_");
+  cplotpropertyscatterstrokethicknessitem_->setPropertyId(
+      "cplotpropertyscatterstrokethicknessitem_");
+  cplotpropertyscatterstrokestyleitem_->setPropertyId(
+      "cplotpropertyscatterstrokestyleitem_");
+  cplotpropertyscatterantialiaseditem_->setPropertyId(
+      "cplotpropertyscatterantialiaseditem_");
+  cplotpropertylegendtextitem_->setPropertyId("cplotpropertylelegendtextitem_");
   // Spline property block
   splinepropertyxaxisitem_->setPropertyId("splinepropertyxaxisitem_");
   splinepropertyyaxisitem_->setPropertyId("splinepropertyyaxisitem_");

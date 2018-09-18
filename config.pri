@@ -172,7 +172,7 @@ mxe {
   LIBS           +=  -mwindows -lgsl -lgslcblas
 
   # Qt libs specified here to get around a dependency bug in qmake
-  LIBS += -lQt3Support -lQtOpenGL -lQtGui -lQtNetwork -lQtCore
+  LIBS += -lQtOpenGL -lQtGui -lQtNetwork -lQtCore
   LIBS += -lole32 -loleaut32 -limm32 -lcomdlg32 -luuid 
   LIBS += -lwinspool -lssl -lcrypto -lwinmm -lgdi32 -lws2_32
   LIBS += -ljpeg -lpng -lmng -ltiff -lz -llzma -llcms2

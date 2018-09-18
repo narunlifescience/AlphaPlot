@@ -288,13 +288,17 @@ Curve2D *AxisRect2D::addCurveFunction2DPlot(QVector<double> *xdata,
                                             Axis2D *xAxis, Axis2D *yAxis,
                                             const QString &name) {
   Curve2D *curve = new Curve2D(xAxis, yAxis);
-  curve->setLineStyle(QCPCurve::LineStyle::lsLine);
+  curve->setlinetype_cplot(1);
+  curve->setscattershape_cplot(LSCommon::ScatterStyle::None);
 
   curve->setGraphData(xdata, ydata);
   curve->setName(name);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  curvevec_.append(curve);
+
+  emit CurveCreated(curve);
   return curve;
 }
 
@@ -408,10 +412,22 @@ bool AxisRect2D::removeLineScatter2D(LineScatter2D *ls) {
 
   bool result = false;
   result = plot2d_->removeGraph(ls);
-  //result = plot2d_->removePlottable(ls);
+  // result = plot2d_->removePlottable(ls);
   if (!result) return result;
 
   emit LineScatterRemoved(this);
+  return result;
+}
+
+bool AxisRect2D::removeCurve2D(Curve2D *curve) {
+  for (int i = 0; i < curvevec_.size(); i++) {
+    if (curvevec_.at(i) == curve) {
+      curvevec_.remove(i);
+    }
+  }
+  bool result = false;
+  result = plot2d_->removePlottable(curve);
+  emit CurveRemoved(this);
   return result;
 }
 

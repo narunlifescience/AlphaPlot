@@ -10,10 +10,15 @@ class Function2DDialog : public QDialog {
   Q_OBJECT
 
  public:
-  explicit Function2DDialog( QWidget *parent = nullptr);
+  explicit Function2DDialog(QWidget* parent = nullptr);
   ~Function2DDialog();
 
-  void setLayout2DToModify(AxisRect2D *axisrect, int plottomidify);
+  void setLayout2DToModify(AxisRect2D* axisrect, int plottomidify);
+
+  void insertParamFunctionsList(const QStringList& xList,
+                                const QStringList& yList);
+  void insertPolarFunctionsList(const QStringList& rList,
+                                const QStringList& thetaList);
 
  private slots:
   void raiseWidget(const int index) const;
@@ -32,8 +37,8 @@ class Function2DDialog : public QDialog {
   void clearPolarFunctionsList();
 
  private:
-  Ui_Function2DDialog *ui_;
-  AxisRect2D *axisrect_;
+  Ui_Function2DDialog* ui_;
+  AxisRect2D* axisrect_;
   int plottomodify_;
 };
 

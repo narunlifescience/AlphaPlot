@@ -36,6 +36,7 @@ class AxisRect2D : public QCPAxisRect {
  private:
   typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
   typedef QVector<LineScatter2D *> LsVec;
+  typedef QVector<Curve2D *> CurveVec;
   typedef QVector<Spline2D *> SplineVec;
   typedef QVector<Vector2D *> VectorVec;
   typedef QVector<Bar2D *> BarVec;
@@ -56,6 +57,7 @@ class AxisRect2D : public QCPAxisRect {
   QList<Axis2D *> getYAxes2D() const;
   GridPair getGridPair() const { return gridpair_; }
   LsVec getLsVec() const { return lsvec_; }
+  CurveVec getCurveVec() const { return curvevec_; }
   SplineVec getSplineVec() const { return splinevec_; }
   VectorVec getVectorVec() const { return vectorvec_; }
   BarVec getBarVec() const { return barvec_; }
@@ -113,6 +115,7 @@ class AxisRect2D : public QCPAxisRect {
   bool isSelected() { return isAxisRectSelected_; }
 
   bool removeLineScatter2D(LineScatter2D *ls);
+  bool removeCurve2D(Curve2D *curve);
   void setPrintorExportJob(bool value) { printorexportjob_ = value; }
 
  public slots:
@@ -132,9 +135,11 @@ class AxisRect2D : public QCPAxisRect {
   void AxisCreated(Axis2D *);
   void AxisRemoved(AxisRect2D *);
   void LineScatterCreated(LineScatter2D *);
+  void CurveCreated(Curve2D *);
   void SplineCreated(Spline2D *);
   void VectorCreated(Vector2D *);
   void LineScatterRemoved(AxisRect2D *);
+  void CurveRemoved(AxisRect2D *);
   void BarCreated(Bar2D *);
   void BarRemoved();
 
@@ -152,6 +157,7 @@ class AxisRect2D : public QCPAxisRect {
   bool printorexportjob_;
   GridPair gridpair_;
   LsVec lsvec_;
+  CurveVec curvevec_;
   SplineVec splinevec_;
   VectorVec vectorvec_;
   BarVec barvec_;

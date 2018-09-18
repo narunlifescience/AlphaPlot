@@ -49,9 +49,7 @@ void LineScatter2D::setGraphData(Column *xData, Column *yData, int from,
   for (int i = 0; i < valid_rows.size(); i++) {
     xdata = xData->valueAt(valid_rows.at(i));
     ydata = yData->valueAt(valid_rows.at(i));
-    QCPGraphData gd;
-    gd.key = xdata;
-    gd.value = ydata;
+    QCPGraphData gd(xdata, ydata);
     gdvector->append(gd);
   }
   graphData->add(*gdvector, true);
