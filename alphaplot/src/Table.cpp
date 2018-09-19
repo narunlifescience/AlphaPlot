@@ -52,6 +52,7 @@
 #include <QProgressDialog>
 #include <QFile>
 #include <QTemporaryFile>
+#include <QCloseEvent>
 
 #include <cmath>
 
@@ -180,17 +181,23 @@ void Table::handleRowChange() {
 }
 
 void Table::setTableBackgroundColor(const QColor &col) {
-  d_view_widget->setPaletteBackgroundColor(col);
+  QPalette palette;
+  palette.setColor(QPalette::Window, col);
+d_view_widget->setPalette(palette);
 }
 
 void Table::setTableTextColor(const QColor &col) {
-  d_view_widget->setPaletteForegroundColor(col);
+  QPalette palette;
+  palette.setColor(QPalette::WindowText, col);
+d_view_widget->setPalette(palette);
 }
 
 void Table::setTextFont(const QFont &fnt) { d_view_widget->setFont(fnt); }
 
 void Table::setHeaderColor(const QColor &col) {
-  d_view_widget->horizontalHeader()->setPaletteForegroundColor(col);
+  QPalette palette;
+  palette.setColor(QPalette::WindowText, col);
+d_view_widget->horizontalHeader()->setPalette(palette);
 }
 
 void Table::setHeaderFont(const QFont &fnt) {
@@ -244,7 +251,7 @@ void Table::print(const QString &fileName) {
     tr.setHeight(br.height());
     header_label =
         d_view_widget->model()->headerData(i, Qt::Horizontal).toString();
-    p.drawText(tr, Qt::AlignCenter, header_label, -1);
+    p.drawText(tr, Qt::AlignCenter, header_label);
     right += w;
     p.drawLine(right, height, right, height + tr.height());
 
@@ -267,7 +274,7 @@ void Table::print(const QString &fileName) {
     br.setTopLeft(QPoint(right, height));
     br.setWidth(vertHeaderWidth);
     br.setHeight(tr.height());
-    p.drawText(br, Qt::AlignCenter, cell_text, -1);
+    p.drawText(br, Qt::AlignCenter, cell_text);
     right += vertHeaderWidth;
     p.drawLine(right, height, right, height + tr.height());
 
@@ -278,7 +285,7 @@ void Table::print(const QString &fileName) {
       br.setTopLeft(QPoint(right, height));
       br.setWidth(w);
       br.setHeight(tr.height());
-      p.drawText(br, Qt::AlignCenter, cell_text, -1);
+      p.drawText(br, Qt::AlignCenter, cell_text);
       right += w;
       p.drawLine(right, height, right, height + tr.height());
 
@@ -494,7 +501,7 @@ QString Table::saveToString(const QString &geometry) {
 
 void Table::saveToDevice(QIODevice *device, const QString &geometry) {
   QTextStream stream(device);
-  stream.setEncoding(QTextStream::UnicodeUTF8);
+  stream.setCodec(QTextCodec::codecForName("UTF-8"));
 
   // write start tag
   stream << "<table>\n";
@@ -516,7 +523,7 @@ void Table::saveToDevice(QIODevice *device, const QString &geometry) {
   if (tmp_file.isOpen()) {
     tmp_file.seek(0);
     QTextStream count(&tmp_file);
-    count.setEncoding(QTextStream::UnicodeUTF8);
+    count.setCodec(QTextCodec::codecForName("UTF-8"));
     while (!count.atEnd()) xml_chars += count.read(1024).length();
   } else
     xml_chars = tmp_string.length();
@@ -843,7 +850,7 @@ bool Table::exportASCII(const QString &fname, const QString &separator,
   if (!file.open(QIODevice::WriteOnly)) {
     QApplication::restoreOverrideCursor();
     QMessageBox::critical(0, tr("ASCII Export Error"),
-                          tr("Could not write to file: <br><h4>" + fname +
+                          tr("Could not write to file: <br><h4>%1"
                              "</h4><p>Please verify that you have the right to "
                              "write to this location!")
                               .arg(fname));

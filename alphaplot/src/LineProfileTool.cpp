@@ -39,6 +39,7 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <qwt_plot_canvas.h>
+#include <QMouseEvent>
 
 LineProfileTool::LineProfileTool(Graph *graph, int average_pixels)
     : QWidget(graph->plotWidget()->canvas()), PlotToolInterface(graph) {
@@ -67,7 +68,7 @@ void LineProfileTool::calculateLineProfile(const QPoint &start,
 
   QPoint o = d_target->origin();
   QPixmap pic = d_target->pixmap();
-  QImage image = pic.convertToImage();
+  QImage image = pic.toImage();
 
   int x1 = start.x() - o.x();
   int x2 = end.x() - o.x();

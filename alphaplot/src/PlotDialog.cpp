@@ -26,45 +26,45 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "ApplicationWindow.h"
 #include "PlotDialog.h"
+#include "ApplicationWindow.h"
+#include "BoxCurve.h"
 #include "ColorBox.h"
 #include "ColorButton.h"
+#include "ColorMapEditor.h"
+#include "FunctionCurve.h"
 #include "PatternBox.h"
+#include "QwtErrorPlotCurve.h"
+#include "QwtHistogram.h"
+#include "QwtPieCurve.h"
+#include "Spectrogram.h"
 #include "SymbolBox.h"
 #include "Table.h"
-#include "scripting/MyParser.h"
-#include "QwtHistogram.h"
 #include "VectorCurve.h"
-#include "QwtErrorPlotCurve.h"
-#include "BoxCurve.h"
-#include "FunctionCurve.h"
-#include "Spectrogram.h"
-#include "QwtPieCurve.h"
-#include "ColorMapEditor.h"
 #include "core/column/Column.h"
+#include "scripting/MyParser.h"
 
-#include <QTreeWidget>
-#include <QLineEdit>
-#include <QLayout>
-#include <QSpinBox>
 #include <QCheckBox>
+#include <QColorDialog>
+#include <QComboBox>
+#include <QDateTime>
+#include <QDoubleSpinBox>
+#include <QFileDialog>
+#include <QFontDialog>
+#include <QGroupBox>
+#include <QKeySequence>
+#include <QLabel>
+#include <QLayout>
+#include <QLineEdit>
+#include <QMenu>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QRadioButton>
-#include <QLabel>
-#include <QWidget>
-#include <QMessageBox>
-#include <QComboBox>
-#include <QWidgetList>
-#include <QFileDialog>
-#include <QGroupBox>
-#include <QFontDialog>
-#include <QColorDialog>
 #include <QShortcut>
-#include <QKeySequence>
-#include <QDoubleSpinBox>
-#include <QMenu>
-#include <QDateTime>
+#include <QSpinBox>
+#include <QTreeWidget>
+#include <QWidget>
+#include <QWidgetList>
 
 PlotDialog::PlotDialog(bool showExtended, QWidget *parent, Qt::WFlags fl)
     : QDialog(parent, fl), d_ml(0) {
@@ -364,11 +364,11 @@ void PlotDialog::initPiePage() {
 
   gl1->addWidget(new QLabel(tr("Style")), 1, 0);
   boxPieLineStyle = new QComboBox();
-  boxPieLineStyle->insertItem("_____");
-  boxPieLineStyle->insertItem("- - -");
-  boxPieLineStyle->insertItem(".....");
-  boxPieLineStyle->insertItem("_._._");
-  boxPieLineStyle->insertItem("_.._..");
+  boxPieLineStyle->addItem("_____");
+  boxPieLineStyle->addItem("- - -");
+  boxPieLineStyle->addItem(".....");
+  boxPieLineStyle->addItem("_._._");
+  boxPieLineStyle->addItem("_.._..");
   gl1->addWidget(boxPieLineStyle);
 
   gl1->addWidget(new QLabel(tr("Width")), 2, 0);
@@ -537,7 +537,7 @@ void PlotDialog::initSymbolsPage() {
   QHBoxLayout *hl = new QHBoxLayout(symbolPage);
   hl->addWidget(gb);
 
-  privateTabWidget->insertTab(symbolPage, tr("Symbol"));
+  privateTabWidget->addTab(symbolPage, tr("Symbol"));
 
   connect(boxSymbolColor, SIGNAL(activated(int)), this, SLOT(acceptParams()));
   connect(boxSymbolStyle, SIGNAL(activated(int)), this, SLOT(acceptParams()));
@@ -639,7 +639,7 @@ void PlotDialog::initBoxPage() {
   QHBoxLayout *hl = new QHBoxLayout(boxPage);
   hl->addLayout(vl1);
   hl->addLayout(vl2);
-  privateTabWidget->insertTab(boxPage, tr("Box/Whiskers"));
+  privateTabWidget->addTab(boxPage, tr("Box/Whiskers"));
 
   connect(boxType, SIGNAL(activated(int)), this, SLOT(setBoxType(int)));
   connect(boxRange, SIGNAL(activated(int)), this, SLOT(setBoxRangeType(int)));
@@ -699,7 +699,7 @@ void PlotDialog::initPercentilePage() {
   QHBoxLayout *hl = new QHBoxLayout(percentilePage);
   hl->addWidget(gb1);
   hl->addWidget(gb2);
-  privateTabWidget->insertTab(percentilePage, tr("Percentile"));
+  privateTabWidget->addTab(percentilePage, tr("Percentile"));
 
   connect(boxMeanStyle, SIGNAL(activated(int)), this, SLOT(acceptParams()));
   connect(boxMinStyle, SIGNAL(activated(int)), this, SLOT(acceptParams()));
@@ -813,8 +813,8 @@ void PlotDialog::initSpectrogramPage() {
   vl2->addWidget(axisScaleBox);
   vl2->addStretch();
 
-  privateTabWidget->insertTab(spectrogramPage,
-                              tr("Contour") + " / " + tr("Image"));
+  privateTabWidget->addTab(spectrogramPage,
+                           tr("Contour") + " / " + tr("Image"));
 }
 
 void PlotDialog::fillBoxSymbols() {
@@ -875,7 +875,7 @@ void PlotDialog::initErrorsPage() {
   QHBoxLayout *hl = new QHBoxLayout(errorsPage);
   hl->addWidget(gb1);
   hl->addWidget(gb2);
-  privateTabWidget->insertTab(errorsPage, tr("Error Bars"));
+  privateTabWidget->addTab(errorsPage, tr("Error Bars"));
 
   connect(colorBox, SIGNAL(clicked()), this, SLOT(pickErrorBarsColor()));
   connect(xBox, SIGNAL(clicked()), this, SLOT(changeErrorBarsType()));
@@ -910,7 +910,7 @@ void PlotDialog::initHistogramPage() {
   vl->addWidget(GroupBoxH);
   vl->addStretch();
 
-  privateTabWidget->insertTab(histogramPage, tr("Histogram Data"));
+  privateTabWidget->addTab(histogramPage, tr("Histogram Data"));
 
   connect(automaticBox, SIGNAL(clicked()), this, SLOT(setAutomaticBinning()));
   connect(buttonStatistics, SIGNAL(clicked()), this, SLOT(showStatistics()));
@@ -932,7 +932,7 @@ void PlotDialog::initSpacingPage() {
   gl->addWidget(offsetBox, 1, 1);
   gl->setRowStretch(2, 1);
 
-  privateTabWidget->insertTab(spacingPage, tr("Spacing"));
+  privateTabWidget->addTab(spacingPage, tr("Spacing"));
 }
 
 void PlotDialog::initVectPage() {
@@ -992,7 +992,7 @@ void PlotDialog::initVectPage() {
   hl->addLayout(vl1);
   hl->addWidget(GroupBoxVectEnd);
 
-  privateTabWidget->insertTab(vectPage, tr("Vector"));
+  privateTabWidget->addTab(vectPage, tr("Vector"));
 }
 
 void PlotDialog::setMultiLayer(MultiLayer *ml) {
@@ -1065,8 +1065,8 @@ void PlotDialog::showStatistics() {
       t->column(2)->setValueAt(i, sum);
       t->column(3)->setValueAt(i, sum / h_sum * 100);
     }
-    t->setHeader(QStringList() << tr("Bins") << tr("Quantity") << tr("Sum")
-                               << tr("Percent"));
+    t->setHeader(QStringList()
+                 << tr("Bins") << tr("Quantity") << tr("Sum") << tr("Percent"));
     t->showMaximized();
   }
 
@@ -1100,14 +1100,14 @@ void PlotDialog::contextMenuEvent(QContextMenuEvent *e) {
   QRect rect = listBox->visualItemRect(listBox->currentItem());
   if (rect.contains(pos)) {
     QMenu contextMenu(this);
-    contextMenu.insertItem(tr("&Delete"), this, SLOT(removeSelectedCurve()));
+    contextMenu.addAction(tr("&Delete"), this, SLOT(removeSelectedCurve()));
 
     if (it->rtti() == QwtPlotItem::Rtti_PlotCurve) {
       if (((PlotCurve *)it)->type() == Graph::Function)
-        contextMenu.insertItem(tr("&Edit..."), this, SLOT(editCurve()));
+        contextMenu.addAction(tr("&Edit..."), this, SLOT(editCurve()));
       else
-        contextMenu.insertItem(tr("&Plot Associations..."), this,
-                               SLOT(editCurve()));
+        contextMenu.addAction(tr("&Plot Associations..."), this,
+                              SLOT(editCurve()));
     }
     contextMenu.exec(QCursor::pos());
   }
@@ -1372,7 +1372,7 @@ int PlotDialog::setPlotType(CurveTreeItem *item) {
       boxPlotType->addItem(tr("Box"));
     else if (curveType == Graph::ColorMap || curveType == Graph::GrayMap ||
              curveType == Graph::ContourMap)
-      boxPlotType->insertItem(tr("Contour") + " / " + tr("Image"));
+      boxPlotType->addItem(tr("Contour") + " / " + tr("Image"));
     else {
       boxPlotType->addItem(tr("Line"));
       boxPlotType->addItem(tr("Scatter"));
@@ -1625,12 +1625,14 @@ void PlotDialog::updateEndPointColumns(const QString &text) {
   }
 
   xEndBox->clear();
-  xEndBox->insertStringList(list);
-  xEndBox->setCurrentText(table + "_" + cols[2].remove("(X)").remove("(A)"));
+  xEndBox->addItems(list);
+  xEndBox->setItemText(xEndBox->currentIndex(),
+                       table + "_" + cols[2].remove("(X)").remove("(A)"));
 
   yEndBox->clear();
-  yEndBox->insertStringList(list);
-  yEndBox->setCurrentText(table + "_" + cols[3].remove("(Y)").remove("(M)"));
+  yEndBox->addItems(list);
+  yEndBox->setItemText(yEndBox->currentIndex(),
+                       table + "_" + cols[3].remove("(Y)").remove("(M)"));
 }
 
 bool PlotDialog::acceptParams() {
@@ -1689,7 +1691,7 @@ bool PlotDialog::acceptParams() {
     else
       sp->setDefaultContourPen(
           QPen(levelsColorBox->color(), contourWidthBox->value(),
-               Graph::getPenStyle(boxContourStyle->currentItem())));
+               Graph::getPenStyle(boxContourStyle->currentIndex())));
 
     sp->setDisplayMode(QwtPlotSpectrogram::ContourMode,
                        levelsGroupBox->isChecked());
@@ -1705,7 +1707,7 @@ bool PlotDialog::acceptParams() {
     } else
       sp->setCustomColorMap(colorMapEditor->colorMap());
 
-    sp->showColorScale((QwtPlot::Axis)colorScaleBox->currentItem(),
+    sp->showColorScale((QwtPlot::Axis)colorScaleBox->currentIndex(),
                        axisScaleBox->isChecked());
     sp->setColorBarWidth(colorScaleWidthBox->value());
 
@@ -1895,10 +1897,10 @@ bool PlotDialog::validInput() {
   to = to.remove(".");
   step = step.remove(".");
 
-  int pos = from.find("-", 0);
+  int pos = from.indexOf("-", 0);
   if (pos == 0) from = from.replace(pos, 1, "");
 
-  pos = to.find("-", 0);
+  pos = to.indexOf("-", 0);
   if (pos == 0) to = to.replace(pos, 1, "");
 
   double start, end, stp;

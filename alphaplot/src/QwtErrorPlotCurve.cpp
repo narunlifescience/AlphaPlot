@@ -245,10 +245,10 @@ QwtDoubleRect QwtErrorPlotCurve::boundingRect() const {
   QwtDoubleRect minrect = erMin->boundingRect();
   QwtDoubleRect maxrect = erMax->boundingRect();
 
-  rect.setTop(QMIN(minrect.top(), maxrect.top()));
-  rect.setBottom(QMAX(minrect.bottom(), maxrect.bottom()));
-  rect.setLeft(QMIN(minrect.left(), maxrect.left()));
-  rect.setRight(QMAX(minrect.right(), maxrect.right()));
+  rect.setTop(std::min(minrect.top(), maxrect.top()));
+  rect.setBottom(std::max(minrect.bottom(), maxrect.bottom()));
+  rect.setLeft(std::min(minrect.left(), maxrect.left()));
+  rect.setRight(std::max(minrect.right(), maxrect.right()));
 
   delete erMin;
   delete erMax;

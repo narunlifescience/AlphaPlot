@@ -118,8 +118,8 @@ void FitDialog::initFitPage() {
   boxParams->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
   boxParams->horizontalHeader()->setResizeMode(2,
                                                QHeaderView::ResizeToContents);
-  QStringList header = QStringList() << tr("Parameter") << tr("Value")
-                                     << tr("Constant");
+  QStringList header = QStringList()
+                       << tr("Parameter") << tr("Value") << tr("Constant");
   boxParams->setHorizontalHeaderLabels(header);
   boxParams->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   boxParams->verticalHeader()->hide();
@@ -287,7 +287,7 @@ void FitDialog::initEditPage() {
   gb->setLayout(gl2);
 
   editBox = new QTextEdit();
-  editBox->setTextFormat(Qt::PlainText);
+  editBox->setAcceptRichText(false);
   editBox->setFocus();
 
   QVBoxLayout *vbox1 = new QVBoxLayout();
@@ -530,8 +530,8 @@ void FitDialog::activateCurve(const QString &curveName) {
 
   double start, end;
   d_graph->range(d_graph->curveIndex(curveName), &start, &end);
-  boxFrom->setText(QLocale().toString(QMIN(start, end), 'g', 15));
-  boxTo->setText(QLocale().toString(QMAX(start, end), 'g', 15));
+  boxFrom->setText(QLocale().toString(std::min(start, end), 'g', 15));
+  boxTo->setText(QLocale().toString(std::max(start, end), 'g', 15));
 };
 
 void FitDialog::saveUserFunction() {
@@ -569,8 +569,8 @@ void FitDialog::saveUserFunction() {
   }
 
   QString name = boxName->text();
-  QString f = name + "(x, " + boxParam->text() + ")=" +
-              editBox->toPlainText().remove("\n");
+  QString f = name + "(x, " + boxParam->text() +
+              ")=" + editBox->toPlainText().remove("\n");
 
   if (d_user_function_names.contains(name)) {
     int index = d_user_function_names.indexOf(name);
@@ -635,8 +635,8 @@ void FitDialog::showFitPage() {
   boxParams->hideColumn(2);
 
   if (parameters > 7) parameters = 7;
-  boxParams->setMinimumHeight(
-      4 + (parameters + 1) * boxParams->horizontalHeader()->height());
+  boxParams->setMinimumHeight(4 + (parameters + 1) *
+                                      boxParams->horizontalHeader()->height());
 
   for (int i = param_table_rows; i < paramList.count(); i++) {
     QTableWidgetItem *it = new QTableWidgetItem(paramList[i]);
@@ -845,8 +845,8 @@ void FitDialog::showFunctionsList(int category) {
 void FitDialog::choosePluginsFolder() {
   ApplicationWindow *app = (ApplicationWindow *)this->parent();
   QString dir = QFileDialog::getExistingDirectory(
-      QDir::currentDirPath(), this, "get directory",
-      tr("Choose the plugins folder"), true, true);
+      this, tr("Choose the plugins folder"), QDir::currentPath(),
+      QFileDialog::ShowDirsOnly);
   if (!dir.isEmpty()) {
     d_plugin_files_list.clear();
     d_plugin_function_names.clear();
@@ -886,7 +886,7 @@ void FitDialog::loadPlugins() {
       d_plugin_function_names << QString(name());
       d_plugin_functions << QString(function());
       d_plugin_params << QString(params());
-      d_plugin_files_list << lib.library();
+      d_plugin_files_list << lib.fileName();
     }
   }
 }
@@ -972,20 +972,20 @@ void FitDialog::pasteExpression() {
   QString f = explainBox->toPlainText();
   if (categoryBox->currentRow() == 2) {  // basic parser function
     f = f.left(f.indexOf("(", 0) + 1);
-    if (editBox->hasSelectedText()) {
-      QString markedText = editBox->selectedText();
-      editBox->insert(f + markedText + ")");
+    if (editBox->textCursor().hasSelection()) {
+      QString markedText = editBox->textCursor().selectedText();
+      editBox->insertPlainText(f + markedText + ")");
     } else
-      editBox->insert(f + ")");
+      editBox->insertPlainText(f + ")");
   } else
-    editBox->insert(f);
+    editBox->insertPlainText(f);
 
   editBox->setFocus();
 }
 
 void FitDialog::pasteFunctionName() {
   if (!funcBox->currentItem()) return;
-  editBox->insert(funcBox->currentItem()->text());
+  editBox->insertPlainText(funcBox->currentItem()->text());
   editBox->setFocus();
 }
 
@@ -1152,7 +1152,7 @@ void FitDialog::accept() {
   d_fitter->setMaximumIterations(boxPoints->value());
   d_fitter->scaleErrors(scaleErrorsBox->isChecked());
 
-  if (d_fitter->name() == tr("MultiPeak") &&
+  if (d_fitter->objectName() == tr("MultiPeak") &&
       ((MultiPeakFit *)d_fitter)->peaks() > 1) {
     ((MultiPeakFit *)d_fitter)->enablePeakCurves(app->generatePeakCurves);
     ((MultiPeakFit *)d_fitter)->setPeakCurvesColor(app->peakCurvesColor);
@@ -1243,8 +1243,8 @@ bool FitDialog::validInitialValues() {
 void FitDialog::changeDataRange() {
   double start = d_graph->selectedXStartValue();
   double end = d_graph->selectedXEndValue();
-  boxFrom->setText(QString::number(QMIN(start, end), 'g', 15));
-  boxTo->setText(QString::number(QMAX(start, end), 'g', 15));
+  boxFrom->setText(QString::number(std::min(start, end), 'g', 15));
+  boxTo->setText(QString::number(std::max(start, end), 'g', 15));
 }
 
 void FitDialog::setSrcTables(QList<QMdiSubWindow *> *tables) {
@@ -1257,7 +1257,7 @@ void FitDialog::setSrcTables(QList<QMdiSubWindow *> *tables) {
   d_src_table = tables;
   tableNamesBox->clear();
   foreach (QWidget *i, *d_src_table)
-    tableNamesBox->addItem(i->name());
+    tableNamesBox->addItem(i->objectName());
 
   tableNamesBox->setCurrentIndex(tableNamesBox->findText(
       boxCurve->currentText().split("_", QString::SkipEmptyParts)[0]));

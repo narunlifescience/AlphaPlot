@@ -105,7 +105,7 @@ void AssociationsDialog::accept() {
 void AssociationsDialog::updateCurves() {
   if (!graph) return;
 
-  QApplication::setOverrideCursor(Qt::waitCursor);
+  QApplication::setOverrideCursor(Qt::WaitCursor);
 
   for (int i = 0; i < associations->count(); i++)
     changePlotAssociation(i, plotAssociation(associations->item(i)->text()));
@@ -182,7 +182,7 @@ Table *AssociationsDialog::findTable(int index) {
   QString text = associations->item(index)->text();
   QStringList lst = text.split(":", QString::SkipEmptyParts);
   for (int i = 0; i < (int)tables->count(); i++) {
-    if (tables->at(i)->name() == lst[0]) return (Table *)tables->at(i);
+    if (tables->at(i)->objectName() == lst[0]) return (Table *)tables->at(i);
   }
   return 0;
 }

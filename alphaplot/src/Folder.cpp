@@ -100,10 +100,14 @@ MyWidget *Folder::findWindow(const QString &name, bool windowNames, bool labels,
                              bool caseSensitive, bool partialMatch) {
   if (lstWindows.isEmpty()) return nullptr;
 
+  Qt::CaseSensitivity casesen = Qt::CaseSensitive;
+  if(!caseSensitive)
+    casesen = Qt::CaseInsensitive;
+
   foreach (MyWidget *window, lstWindows) {
     if (windowNames) {
       QString windowName = window->name();
-      if (partialMatch && windowName.startsWith(name, caseSensitive))
+      if (partialMatch && windowName.startsWith(name, casesen))
         return window;
       else if (caseSensitive && windowName == name)
         return window;
@@ -115,7 +119,7 @@ MyWidget *Folder::findWindow(const QString &name, bool windowNames, bool labels,
 
     if (labels) {
       QString label = window->windowLabel();
-      if (partialMatch && label.startsWith(name, caseSensitive))
+      if (partialMatch && label.startsWith(name, casesen))
         return window;
       else if (caseSensitive && label == name)
         return window;
@@ -208,7 +212,7 @@ FolderTreeWidget::FolderTreeWidget(QWidget *parent, const QString name)
     : QTreeWidget(parent), tableWidgetDeligate(new TableWidgetDelegate()) {
   setAcceptDrops(true);
   viewport()->setAcceptDrops(true);
-  setName(name);
+  setObjectName(name.toLocal8Bit());
   setItemDelegate(tableWidgetDeligate);
   connect(tableWidgetDeligate, SIGNAL(emptyFolderName()), this,
           SLOT(emptyFolderNameMsgBox()));
@@ -273,7 +277,7 @@ void FolderTreeWidget::keyPressEvent(QKeyEvent *event) {
     if (item) emit renameItem(item);
     event->accept();
   } else if (event->key() == Qt::Key_A &&
-             event->state() == Qt::ControlModifier) {
+             event->modifiers() == Qt::ControlModifier) {
     selectAll();
     event->accept();
   } else if (event->key() == Qt::Key_F7) {

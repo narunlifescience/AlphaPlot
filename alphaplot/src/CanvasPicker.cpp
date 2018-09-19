@@ -34,6 +34,7 @@
 #include "ArrowMarker.h"
 
 #include <QVector>
+#include <QMouseEvent>
 
 #include <qwt_text_label.h>
 #include <qwt_plot_canvas.h>
@@ -127,7 +128,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e) {
 
     case QEvent::MouseMove: {
       const QMouseEvent *me = (const QMouseEvent *)e;
-      if (me->state() != Qt::LeftButton) return true;
+      if (me->button() != Qt::LeftButton) return true;
 
       QPoint pos = me->pos();
 

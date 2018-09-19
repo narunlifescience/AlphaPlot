@@ -53,8 +53,8 @@ bool Plot2D::saveSvg(const QString &fileName, int width, int height,
   generator.setFileName(fileName);
   generator.setSize(QSize(newWidth, newHeight));
   generator.setViewBox(QRect(0, 0, newWidth, newHeight));
-  generator.setTitle(trUtf8(svgTitle));
-  generator.setDescription(trUtf8(svgDescription));
+  generator.setTitle(svgTitle.toUtf8());
+  generator.setDescription(svgDescription.toUtf8());
 
   QCPPainter painter;
   if (painter.begin(&generator)) {

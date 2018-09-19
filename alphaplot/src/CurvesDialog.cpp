@@ -90,13 +90,13 @@ CurvesDialog::CurvesDialog(QWidget *parent, Qt::WFlags fl)
 
   QVBoxLayout *vl1 = new QVBoxLayout();
   btnAdd = new QPushButton();
-  btnAdd->setPixmap(QPixmap(":/next.xpm"));
+  btnAdd->setIcon(QPixmap(":/next.xpm"));
   btnAdd->setFixedWidth(35);
   btnAdd->setFixedHeight(30);
   vl1->addWidget(btnAdd);
 
   btnRemove = new QPushButton();
-  btnRemove->setPixmap(QPixmap(":/prev.xpm"));
+  btnRemove->setIcon(QPixmap(":/prev.xpm"));
   btnRemove->setFixedWidth(35);
   btnRemove->setFixedHeight(30);
   vl1->addWidget(btnRemove);
@@ -230,9 +230,9 @@ void CurvesDialog::contextMenuEvent(QContextMenuEvent *e) {
     QMenu contextMenu(this);
     QList<QListWidgetItem *> lst = available->selectedItems();
     if (lst.size() > 1)
-      contextMenu.insertItem(tr("&Plot Selection"), this, SLOT(addCurves()));
+      contextMenu.addAction(tr("&Plot Selection"), this, SLOT(addCurves()));
     else if (lst.size() == 1)
-      contextMenu.insertItem(tr("&Plot"), this, SLOT(addCurves()));
+      contextMenu.addAction(tr("&Plot"), this, SLOT(addCurves()));
     contextMenu.exec(QCursor::pos());
   }
 
@@ -242,10 +242,10 @@ void CurvesDialog::contextMenuEvent(QContextMenuEvent *e) {
     QMenu contextMenu(this);
     QList<QListWidgetItem *> lst = contents->selectedItems();
     if (lst.size() > 1)
-      contextMenu.insertItem(tr("&Delete Selection"), this,
+      contextMenu.addAction(tr("&Delete Selection"), this,
                              SLOT(removeCurves()));
     else if (lst.size() == 1)
-      contextMenu.insertItem(tr("&Delete Curve"), this, SLOT(removeCurves()));
+      contextMenu.addAction(tr("&Delete Curve"), this, SLOT(removeCurves()));
     contextMenu.exec(QCursor::pos());
   }
 
@@ -407,7 +407,7 @@ void CurvesDialog::enableRemoveBtn() {
 
 int CurvesDialog::curveStyle() {
   int style = 0;
-  switch (boxStyle->currentItem()) {
+  switch (boxStyle->currentIndex()) {
     case 0:
       style = Graph::Line;
       break;

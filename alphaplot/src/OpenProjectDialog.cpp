@@ -37,7 +37,7 @@
 OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended,
                                      Qt::WFlags flags)
     : ExtensibleFileDialog(parent, extended, flags) {
-  setCaption(tr("Open Project"));
+  setWindowTitle(tr("Open Project"));
   setFileMode(ExistingFile);
   QStringList filters;
   filters << tr("AlphaPlot project") + " (*.aproj)"

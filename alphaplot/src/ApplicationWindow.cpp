@@ -6481,34 +6481,7 @@ void ApplicationWindow::printWindow() {
   print(w);
 }
 
-void ApplicationWindow::printAllPlots() {
-  QPrinter printer;
-  printer.setOrientation(QPrinter::Landscape);
-  printer.setColorMode(QPrinter::Color);
-  printer.setFullPage(true);
-
-  if (printer.setup()) {
-    QPainter *paint = new QPainter(&printer);
-    QList<QMdiSubWindow *> subwindowlist = subWindowsList();
-
-    int plots = 0;
-    QMdiSubWindow *subwindow = nullptr;
-    foreach (subwindow, subwindowlist) {
-      if (isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) plots++;
-    }
-
-    printer.setMinMax(0, plots);
-    printer.setFromTo(0, plots);
-
-    foreach (subwindow, subwindowlist) {
-      if (isActiveSubwindow(SubWindowType::MultiLayerSubWindow) &&
-          printer.newPage())
-        qobject_cast<MultiLayer *>(subwindow)->printAllLayers(paint);
-    }
-    paint->end();
-    delete paint;
-  }
-}
+void ApplicationWindow::printAllPlots() {}
 
 void ApplicationWindow::fitExponentialGrowth() { fitExponential(-1); }
 
@@ -8340,9 +8313,9 @@ void ApplicationWindow::showFunctionDialog() {
 void ApplicationWindow::showFunctionDialog(Graph *g, int curve) {
   if (!g) return;
 
- /* FunctionDialog *fd = functionDialog();
-  fd->setWindowTitle(tr("Edit function"));
-  fd->setCurveToModify(g, curve);*/
+  /* FunctionDialog *fd = functionDialog();
+   fd->setWindowTitle(tr("Edit function"));
+   fd->setCurveToModify(g, curve);*/
 }
 
 Function2DDialog *ApplicationWindow::functionDialog() {
@@ -8375,8 +8348,8 @@ void ApplicationWindow::addFunctionCurve() {
 
   Graph *graph = plot->activeGraph();
   if (graph) {
-    //FunctionDialog *fd = functionDialog();
-    //if (fd) fd->setGraph(graph);
+    // FunctionDialog *fd = functionDialog();
+    // if (fd) fd->setGraph(graph);
   }
 }
 

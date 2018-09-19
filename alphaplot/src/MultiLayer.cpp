@@ -32,6 +32,7 @@
 #include <QDateTime>
 #include <QImageWriter>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPicture>
 #include <QPrintDialog>
@@ -56,14 +57,14 @@
 
 LayerButton::LayerButton(const QString &text, QWidget *parent)
     : QPushButton(text, parent) {
-  setToggleButton(true);
-  setOn(true);
+  setCheckable(true);
+  setChecked(true);
   setMaximumWidth(LayerButton::btnSize());
   setMaximumHeight(LayerButton::btnSize());
 }
 
 void LayerButton::mousePressEvent(QMouseEvent *event) {
-  if (!isOn()) emit clicked(this);
+  if (!isChecked()) emit clicked(this);
   if (event->button() == Qt::RightButton) emit showContextMenu();
 }
 
@@ -151,7 +152,7 @@ Graph *MultiLayer::layer(int num) { return (Graph *)graphsList.at(num - 1); }
 LayerButton *MultiLayer::addLayerButton() {
   for (int i = 0; i < buttonsList.count(); i++) {
     LayerButton *btn = (LayerButton *)buttonsList.at(i);
-    btn->setOn(false);
+    btn->setChecked(false);
   }
 
   LayerButton *button = new LayerButton(QString::number(++graphs));
@@ -193,13 +194,13 @@ void MultiLayer::adjustSize() {
 void MultiLayer::activateGraph(LayerButton *button) {
   for (int i = 0; i < buttonsList.count(); i++) {
     LayerButton *btn = (LayerButton *)buttonsList.at(i);
-    if (btn->isOn()) btn->setOn(false);
+    if (btn->isChecked()) btn->setChecked(false);
 
     if (btn == button) {
       active_graph = (Graph *)graphsList.at(i);
       active_graph->setFocus();
       active_graph->raise();  // raise layer on top of the layers stack
-      button->setOn(true);
+      button->setChecked(true);
     }
   }
 }
@@ -218,9 +219,9 @@ void MultiLayer::setActiveGraph(Graph *g) {
     Graph *gr = (Graph *)graphsList.at(i);
     LayerButton *btn = (LayerButton *)buttonsList.at(i);
     if (gr == g)
-      btn->setOn(true);
+      btn->setChecked(true);
     else
-      btn->setOn(false);
+      btn->setChecked(false);
   }
 }
 
@@ -251,7 +252,7 @@ void MultiLayer::resizeLayers(const QResizeEvent *re) {
 
 void MultiLayer::resizeLayers(const QSize &size, const QSize &oldSize,
                               bool scaleFonts) {
-  QApplication::setOverrideCursor(Qt::waitCursor);
+  QApplication::setOverrideCursor(Qt::WaitCursor);
 
   double w_ratio = (double)size.width() / (double)oldSize.width();
   double h_ratio = (double)(size.height()) / (double)(oldSize.height());
@@ -313,9 +314,9 @@ void MultiLayer::removeLayer() {
   int i;
   for (i = 0; i < buttonsList.count(); i++) {
     btn = (LayerButton *)buttonsList.at(i);
-    if (btn->isOn()) {
+    if (btn->isChecked()) {
       buttonsList.removeAll(btn);
-      btn->close(true);
+      btn->close();
       break;
     }
   }
@@ -346,7 +347,7 @@ void MultiLayer::removeLayer() {
     Graph *gr = (Graph *)graphsList.at(i);
     if (gr == active_graph) {
       LayerButton *button = (LayerButton *)buttonsList.at(i);
-      button->setOn(TRUE);
+      button->setChecked(true);
       break;
     }
   }
@@ -576,7 +577,7 @@ void MultiLayer::findBestLayout(int &rows, int &cols) {
 void MultiLayer::arrangeLayers(bool fit, bool userSize) {
   if (!graphs) return;
 
-  QApplication::setOverrideCursor(Qt::waitCursor);
+  QApplication::setOverrideCursor(Qt::WaitCursor);
 
   if (d_layers_selector) delete d_layers_selector;
 
@@ -721,7 +722,7 @@ void MultiLayer::exportPainter(QPainter &painter, bool keepAspect, QRect rect,
   painter.scale((double)size.width() / (double)rect.width(),
                 (double)size.height() / (double)rect.height());
 
-  painter.fillRect(rect, backgroundBrush());  // FIXME workaround for background
+  painter.fillRect(rect, palette().brush(backgroundRole()));
 
   for (int i = 0; i < (int)graphsList.count(); i++) {
     Graph *gr = (Graph *)graphsList.at(i);
@@ -817,7 +818,7 @@ void MultiLayer::printAllLayers(QPainter *painter) {
     }
   }
   if (d_print_cropmarks) {
-    cr.addCoords(-1, -1, 2, 2);
+    cr.adjust(-1, -1, 2, 2);
     painter->save();
     painter->setPen(QPen(QColor(Qt::black), 0.5, Qt::DashLine));
     painter->drawLine(paperRect.left(), cr.top(), paperRect.right(), cr.top());
@@ -968,7 +969,7 @@ void MultiLayer::keyPressEvent(QKeyEvent *e) {
 }
 
 void MultiLayer::wheelEvent(QWheelEvent *e) {
-  QApplication::setOverrideCursor(Qt::waitCursor);
+  QApplication::setOverrideCursor(Qt::WaitCursor);
 
   bool resize = false;
   QPoint aux;
@@ -984,16 +985,16 @@ void MultiLayer::wheelEvent(QWheelEvent *e) {
     if (xMouse > aux.x() && xMouse < (aux.x() + intSize.width())) {
       if (yMouse > aux.y() && yMouse < (aux.y() + intSize.height())) {
         resize_graph = gr;
-        resize = TRUE;
+        resize = true;
       }
     }
   }
-  if (resize &&
-      (e->state() == Qt::AltButton || e->state() == Qt::ControlButton ||
-       e->state() == Qt::ShiftButton)) {
+  if (resize && (resize && (e->modifiers() == Qt::AltModifier ||
+                            e->modifiers() == Qt::ControlModifier ||
+                            e->modifiers() == Qt::ShiftModifier))) {
     intSize = resize_graph->plotWidget()->size();
     // If alt is pressed then change the width
-    if (e->state() == Qt::AltButton) {
+    if (e->modifiers() == Qt::AltModifier) {
       if (e->delta() > 0) {
         intSize.rwidth() += 5;
       } else if (e->delta() < 0) {
@@ -1001,7 +1002,7 @@ void MultiLayer::wheelEvent(QWheelEvent *e) {
       }
     }
     // If crt is pressed then changed the height
-    else if (e->state() == Qt::ControlButton) {
+    else if (e->modifiers() == Qt::ControlModifier) {
       if (e->delta() > 0) {
         intSize.rheight() += 5;
       } else if (e->delta() < 0) {
@@ -1009,7 +1010,7 @@ void MultiLayer::wheelEvent(QWheelEvent *e) {
       }
     }
     // If shift is pressed then resize
-    else if (e->state() == Qt::ShiftButton) {
+    else if (e->modifiers() == Qt::ShiftModifier) {
       if (e->delta() > 0) {
         intSize.rwidth() += 5;
         intSize.rheight() += 5;
@@ -1095,13 +1096,13 @@ void MultiLayer::mousePressEvent(QMouseEvent *e) {
     return;
   }
   int margin = 5;
-  QPoint pos = canvas->mapFrom(this,e->pos());
+  QPoint pos = canvas->mapFrom(this, e->pos());
   // iterate backwards, so layers on top are preferred for selection
   QList<QWidget *>::iterator i = graphsList.end();
   while (i != graphsList.begin()) {
     --i;
     QRect igeo = (*i)->frameGeometry();
-    igeo.addCoords(-margin, -margin, margin, margin);
+    igeo.adjust(-margin, -margin, margin, margin);
     if (igeo.contains(pos)) {
       if (e->modifiers() & Qt::ShiftModifier) {
         if (d_layers_selector)
@@ -1182,7 +1183,7 @@ void MultiLayer::setLayersNumber(int n) {
       Graph *gr = (Graph *)graphsList.at(j);
       if (gr == active_graph) {
         LayerButton *button = (LayerButton *)buttonsList.at(j);
-        button->setOn(TRUE);
+        button->setChecked(true);
         break;
       }
     }

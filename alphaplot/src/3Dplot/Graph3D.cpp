@@ -549,7 +549,7 @@ void Graph3D::updateData(Table* table) {
   int xCol = table->colIndex(xColName);
   int yCol = table->colIndex(yColName);
 
-  if (name.contains("(Z)", true)) {
+  if (name.contains("(Z)", Qt::CaseSensitive)) {
     pos = name.indexOf(",", posX);
     posX = name.indexOf("(", pos);
     QString zColName = name.mid(pos + 1, posX - pos - 1);
@@ -832,7 +832,7 @@ QStringList Graph3D::axisTickLengths() {
 void Graph3D::setTickLengths(const QStringList& lst) {
   double majorl, minorl;
   QStringList tick_length = lst;
-  if (int(lst.count()) > 6) tick_length.remove(tick_length.first());
+  if (int(lst.count()) > 6) tick_length.removeAll(tick_length.first());
 
   majorl = tick_length[0].toDouble();
   minorl = tick_length[1].toDouble();
@@ -1205,14 +1205,14 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr,
     QString yColName = name.mid(pos + 1, posX - pos - 1);
     int yCol = worksheet->colIndex(yColName);
 
-    if (name.endsWith("(Z)", true)) {
+    if (name.endsWith("(Z)", Qt::CaseSensitive)) {
       pos = name.indexOf(",", posX);
       posX = name.indexOf("(", pos);
       QString zColName = name.mid(pos + 1, posX - pos - 1);
       int zCol = worksheet->colIndex(zColName);
 
       updateScales(xl, xr, yl, yr, zl, zr, xCol, yCol, zCol);
-    } else if (name.endsWith("(Y)", true))
+    } else if (name.endsWith("(Y)", Qt::CaseSensitive))
       updateScales(xl, xr, yl, yr, zl, zr, xCol, yCol);
   }
 
@@ -1796,10 +1796,11 @@ void Graph3D::print() {
   printer.setColorMode(QPrinter::Color);
   printer.setFullPage(false);
 
-  if (printer.setup()) {
+  QPrintDialog dialog(&printer, this);
+  if (dialog.exec()) {
     if (IO::save(sp, "alphaplot.png", "PNG")) {
       QPixmap p;
-      p.load("alphaplot.png", "PNG", QPixmap::Color);
+      p.load("alphaplot.png", "PNG", Qt::ColorOnly);
 
       QPainter paint(&printer);
       paint.drawPixmap(QPoint(0, 0), p);
@@ -1810,7 +1811,7 @@ void Graph3D::print() {
     } else
       QMessageBox::about(
           0, tr("IO Error"),
-          tr("Could not print: <h4>" + QString(name()) + "</h4>."));
+          tr("Could not print: <h4>") + QString(name()) + "</h4>.");
   }
 }
 
@@ -1834,7 +1835,7 @@ void Graph3D::exportImage(const QString& fileName, int quality,
 
     QColor background = QColor(Qt::white);
     QRgb backgroundPixel = background.rgb();
-    QImage image = pic.convertToImage();
+    QImage image = pic.toImage();
     for (int y = 0; y < image.height(); y++) {
       for (int x = 0; x < image.width(); x++) {
         QRgb rgb = image.pixel(x, y);

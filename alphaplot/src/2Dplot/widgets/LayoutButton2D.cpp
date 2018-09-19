@@ -8,7 +8,7 @@ QRect LayoutButton2D::highLightRect_;
 
 LayoutButton2D::LayoutButton2D(const QString &text, QWidget *parent)
     : QPushButton(parent), active_(false), buttonText_(text) {
-  setToggleButton(true);
+  setCheckable(true);
   setMaximumWidth(LayoutButton2D::btnSize());
   setMaximumHeight(LayoutButton2D::btnSize());
   setFixedSize(QSize(layoutButtonSize_, layoutButtonSize_));

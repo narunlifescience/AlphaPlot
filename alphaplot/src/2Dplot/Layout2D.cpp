@@ -63,7 +63,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   streachLabel_ = new QLabel();
   hbox->addWidget(streachLabel_);
   hbox->addLayout(layoutManagebuttonsBox_);
-  setBackground(plot2dCanvas_->getBackgroundColor());
+  setBackground(plot2dCanvas_->getBackgroundColor().color());
 
   QVBoxLayout *layout = new QVBoxLayout(main_widget_);
   layout->addLayout(hbox);
@@ -617,7 +617,7 @@ bool Layout2D::exportGraph() {
     success = plot2dCanvas_->savePs(file_name, vector_width, vector_height);
   } else {
     QByteArray ba = selected_filter.toLatin1();
-    ba.stripWhiteSpace();
+    ba = ba.trimmed();
     ba.remove(0, 1);
     const char *c_char = ba.data();
     success = plot2dCanvas_->saveRastered(file_name, raster_width,

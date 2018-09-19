@@ -27,23 +27,23 @@
  *                                                                         *
  ***************************************************************************/
 #include "FFTDialog.h"
-#include "Graph.h"
-#include "scripting/MyParser.h"
 #include "ApplicationWindow.h"
-#include "MultiLayer.h"
-#include "Table.h"
-#include "Plot.h"
 #include "FFT.h"
+#include "Graph.h"
+#include "MultiLayer.h"
+#include "Plot.h"
+#include "Table.h"
+#include "scripting/MyParser.h"
 
-#include <QRadioButton>
-#include <QGroupBox>
 #include <QCheckBox>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLayout>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QLabel>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QLayout>
+#include <QRadioButton>
 
 FFTDialog::FFTDialog(int type, QWidget *parent, Qt::WFlags fl)
     : QDialog(parent, fl) {
@@ -166,7 +166,7 @@ void FFTDialog::accept() {
 
 void FFTDialog::setGraph(Graph *g) {
   graph = g;
-  boxName->insertStringList(g->analysableCurvesList());
+  boxName->addItems(g->analysableCurvesList());
   activateCurve(boxName->currentText());
 };
 
@@ -187,9 +187,9 @@ void FFTDialog::activateCurve(const QString &curveName) {
 void FFTDialog::setTable(Table *t) {
   d_table = t;
   QStringList l = t->columnsList();
-  boxName->insertStringList(l);
-  boxReal->insertStringList(l);
-  boxImaginary->insertStringList(l);
+  boxName->addItems(l);
+  boxReal->addItems(l);
+  boxImaginary->addItems(l);
 
   int xcol = t->firstXCol();
   if (xcol >= 0) {
@@ -203,11 +203,11 @@ void FFTDialog::setTable(Table *t) {
   l = t->selectedColumns();
   int selected = (int)l.size();
   if (!selected) {
-    boxReal->setCurrentText(QString());
-    boxImaginary->setCurrentText(QString());
+    boxReal->setItemText(boxReal->currentIndex(), QString());
+    boxImaginary->setItemText(boxImaginary->currentIndex(), QString());
   } else if (selected == 1) {
     boxReal->setCurrentIndex(t->colIndex(l[0]));
-    boxImaginary->setCurrentText(QString());
+    boxImaginary->setItemText(boxImaginary->currentIndex(), QString());
   } else {
     boxReal->setCurrentIndex(t->colIndex(l[0]));
     boxImaginary->setCurrentIndex(t->colIndex(l[1]));

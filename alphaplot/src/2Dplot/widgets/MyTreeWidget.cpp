@@ -51,7 +51,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
   QPoint globalPos = viewport()->mapToGlobal(pos);
   QMenu menu;
 
-  switch (static_cast<PropertyItemType>(item->data(0, Qt::UserRole).asInt())) {
+  switch (static_cast<PropertyItemType>(item->data(0, Qt::UserRole).toInt())) {
     case PropertyItemType::Layout:
       menu.addAction(addgraph_);
       addgraph_->setData(item->data(0, Qt::UserRole + 1));

@@ -56,9 +56,9 @@ IntDialog::IntDialog(QWidget *parent, Qt::WFlags fl) : QDialog(parent, fl) {
 
   gl1->addWidget(new QLabel(tr("Interpolation")), 1, 0);
   boxMethod = new QComboBox();
-  boxMethod->insertItem(tr("Linear"));
-  boxMethod->insertItem(tr("Cubic"));
-  boxMethod->insertItem(tr("Non-rounded Akima"));
+  boxMethod->addItem(tr("Linear"));
+  boxMethod->addItem(tr("Cubic"));
+  boxMethod->addItem(tr("Non-rounded Akima"));
   gl1->addWidget(boxMethod, 1, 1);
 
   gl1->addWidget(new QLabel(tr("Lower limit")), 4, 0);
@@ -102,7 +102,7 @@ void IntDialog::accept() {
         tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!")
             .arg(curveName));
     boxName->clear();
-    boxName->insertStringList(curvesList);
+    boxName->addItems(curvesList);
     return;
   }
 
@@ -210,7 +210,7 @@ void IntDialog::accept() {
 
 void IntDialog::setGraph(Graph *g) {
   graph = g;
-  boxName->insertStringList(g->analysableCurvesList());
+  boxName->addItems(g->analysableCurvesList());
 
   QString selectedCurve = g->selectedCurveTitle();
   if (!selectedCurve.isEmpty()) {
@@ -233,9 +233,9 @@ void IntDialog::activateCurve(const QString &curveName) {
   double start, end;
   graph->range(graph->curveIndex(curveName), &start, &end);
   boxStart->setText(
-      QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::min(start, end), 'g', app->d_decimal_digits));
   boxEnd->setText(
-      QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::max(start, end), 'g', app->d_decimal_digits));
 };
 
 void IntDialog::changeDataRange() {
@@ -245,9 +245,9 @@ void IntDialog::changeDataRange() {
   double start = graph->selectedXStartValue();
   double end = graph->selectedXEndValue();
   boxStart->setText(
-      QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::min(start, end), 'g', app->d_decimal_digits));
   boxEnd->setText(
-      QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::max(start, end), 'g', app->d_decimal_digits));
 }
 
 void IntDialog::help() {

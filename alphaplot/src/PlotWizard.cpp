@@ -310,15 +310,15 @@ void PlotWizard::plot3DRibbon(const QStringList &lst) {
 
   for (int i = 0; i < lst.count(); i++) {
     QString s = lst[i];
-    int pos = s.find(":", 0);
+    int pos = s.indexOf(":", 0);
     QString table_name = s.left(pos) + "_";
     Table *t = app->table(table_name);
     if (t) {
-      int posX = s.find("(", pos);
+      int posX = s.indexOf("(", pos);
       QString xColName = table_name + s.mid(pos + 2, posX - pos - 2);
 
-      posX = s.find(",", posX);
-      int posY = s.find("(", posX);
+      posX = s.indexOf(",", posX);
+      int posY = s.indexOf("(", posX);
       QString yColName = table_name + s.mid(posX + 2, posY - posX - 2);
 
       Graph3D *g = app->newPlot3D();
@@ -339,19 +339,19 @@ void PlotWizard::plot3D(const QStringList &lst) {
 
   for (int i = 0; i < lst.count(); i++) {
     QString s = lst[i];
-    int pos = s.find(":", 0);
+    int pos = s.indexOf(":", 0);
     QString table_name = s.left(pos) + "_";
     Table *t = app->table(table_name);
     if (t) {
-      int posX = s.find("(", pos);
+      int posX = s.indexOf("(", pos);
       QString xColName = table_name + s.mid(pos + 2, posX - pos - 2);
 
-      posX = s.find(",", posX);
-      int posY = s.find("(", posX);
+      posX = s.indexOf(",", posX);
+      int posY = s.indexOf("(", posX);
       QString yColName = table_name + s.mid(posX + 2, posY - posX - 2);
 
-      posY = s.find(",", posY);
-      int posZ = s.find("(", posY);
+      posY = s.indexOf(",", posY);
+      int posZ = s.indexOf("(", posY);
       QString zColName = table_name + s.mid(posY + 2, posZ - posY - 2);
 
       int xCol = t->colIndex(xColName);

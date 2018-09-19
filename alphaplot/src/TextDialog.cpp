@@ -30,19 +30,19 @@
 #include "TextDialog.h"
 #include "ApplicationWindow.h"
 
-#include <QFontDialog>
 #include <QColorDialog>
-#include <QFont>
-#include <QGroupBox>
-#include <QTextEdit>
-#include <QTextCursor>
 #include <QComboBox>
-#include <QLabel>
+#include <QFont>
+#include <QFontDialog>
 #include <QGridLayout>
-#include <QVBoxLayout>
+#include <QGroupBox>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QTextCursor>
+#include <QTextEdit>
+#include <QVBoxLayout>
 
 TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl)
     : QDialog(parent, fl) {
@@ -160,7 +160,7 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl)
      */
 
   textEditBox = new QTextEdit();
-  textEditBox->setTextFormat(Qt::PlainText);
+  textEditBox->setAcceptRichText(false);
   textEditBox->setFont(QFont());
 
   formatButtons = new TextFormatButtons(textEditBox);
@@ -192,8 +192,9 @@ void TextDialog::apply() {
   } else {
     QColor c = backgroundBtn->color();
     c.setAlpha(boxBackgroundTransparency->value());
-    emit values(textEditBox->text(), angle(), backgroundBox->currentIndex(),
-                selectedFont, colorBtn->color(), c);
+    emit values(textEditBox->toPlainText(), angle(),
+                backgroundBox->currentIndex(), selectedFont, colorBtn->color(),
+                c);
   }
 }
 

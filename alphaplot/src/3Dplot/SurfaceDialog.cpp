@@ -132,7 +132,7 @@ void SurfaceDialog::clearList() {
 }
 
 void SurfaceDialog::setFunction(const QString &s) {
-  boxFunction->setCurrentText(s);
+  boxFunction->setItemText(boxFunction->currentIndex(), s);
 }
 
 void SurfaceDialog::setLimits(double xs, double xe, double ys, double ye,
@@ -146,12 +146,12 @@ void SurfaceDialog::setLimits(double xs, double xe, double ys, double ye,
 }
 
 void SurfaceDialog::accept() {
-  QString Xfrom = boxXFrom->text().lower();
-  QString Xto = boxXTo->text().lower();
-  QString Yfrom = boxYFrom->text().lower();
-  QString Yto = boxYTo->text().lower();
-  QString Zfrom = boxZFrom->text().lower();
-  QString Zto = boxZTo->text().lower();
+  QString Xfrom = boxXFrom->text().toLower();
+  QString Xto = boxXTo->text().toLower();
+  QString Yfrom = boxYFrom->text().toLower();
+  QString Yto = boxYTo->text().toLower();
+  QString Zfrom = boxZFrom->text().toLower();
+  QString Zto = boxZTo->text().toLower();
 
   double fromX, toX, fromY, toY, fromZ, toZ;
   try {
@@ -257,7 +257,7 @@ void SurfaceDialog::accept() {
 }
 
 void SurfaceDialog::insertFunctionsList(const QStringList &list) {
-  boxFunction->insertStringList(list, 1);
+  boxFunction->insertItems(1, list);
 }
 
 SurfaceDialog::~SurfaceDialog() {}

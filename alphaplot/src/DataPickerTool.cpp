@@ -63,7 +63,7 @@ DataPickerTool::DataPickerTool(Graph *graph, ApplicationWindow *app, Mode mode,
   setTrackerMode(QwtPicker::AlwaysOn);
   if (d_mode == Move) {
     setSelectionFlags(QwtPicker::PointSelection | QwtPicker::DragSelection);
-    d_graph->plotWidget()->canvas()->setCursor(Qt::pointingHandCursor);
+    d_graph->plotWidget()->canvas()->setCursor(Qt::PointingHandCursor);
   } else {
     setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
     d_graph->plotWidget()->canvas()->setCursor(

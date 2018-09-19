@@ -27,8 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "NonLinearFit.h"
-#include "scripting/MyParser.h"
 #include "fit_gsl.h"
+#include "scripting/MyParser.h"
 
 #include <QMessageBox>
 
@@ -95,7 +95,8 @@ void NonLinearFit::setParametersList(const QStringList &lst) {
 }
 
 void NonLinearFit::calculateFitCurveData(double *par, double *X, double *Y) {
-  for (int i = 0; i < d_p; i++) d_script->setDouble(par[i], d_param_names[i]);
+  for (int i = 0; i < d_p; i++)
+    d_script->setDouble(par[i], d_param_names[i].toUtf8());
 
   if (d_gen_function) {
     double X0 = d_x[0];

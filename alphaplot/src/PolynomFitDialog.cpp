@@ -109,7 +109,7 @@ void PolynomFitDialog::fit() {
         tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!")
             .arg(curveName));
     boxName->clear();
-    boxName->insertStringList(curvesList);
+    boxName->addItems(curvesList);
     return;
   }
 
@@ -118,7 +118,7 @@ void PolynomFitDialog::fit() {
                                             boxShowFormula->isChecked());
   if (fitter->setDataFromCurve(curveName, boxStart->text().toDouble(),
                                boxEnd->text().toDouble())) {
-    fitter->setColor(boxColor->currentItem());
+    fitter->setColor(boxColor->currentIndex());
     fitter->scaleErrors(app->fit_scale_errors);
     fitter->setOutputPrecision(app->fit_output_precision);
     fitter->generateFunction(app->generateUniformFitPoints, app->fitPoints);
@@ -155,6 +155,6 @@ void PolynomFitDialog::activateCurve(const QString &curveName) {
 void PolynomFitDialog::changeDataRange() {
   double start = graph->selectedXStartValue();
   double end = graph->selectedXEndValue();
-  boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
-  boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
+  boxStart->setText(QString::number(std::min(start, end), 'g', 15));
+  boxEnd->setText(QString::number(std::max(start, end), 'g', 15));
 }

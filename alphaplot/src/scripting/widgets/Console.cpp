@@ -151,7 +151,7 @@ void Console::clearConsole() {
   locked = false;
 }
 
-void Console::setConsoleFont(QFont font) { setFont(font, true); }
+void Console::setConsoleFont(QFont font) { setFont(font); }
 
 // Arrow up pressed
 void Console::handleHistoryUp() {

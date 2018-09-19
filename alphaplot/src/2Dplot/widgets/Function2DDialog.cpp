@@ -125,11 +125,11 @@ bool Function2DDialog::acceptFunction() {
     return false;
   }
 
-  QString formula =
-      ui_->normfofxTextEdit->text().replace(QChar::ParagraphSeparator, "\n");
+  QString formula = ui_->normfofxTextEdit->toPlainText().replace(
+      QChar::ParagraphSeparator, "\n");
 
   // Collecting all the information
-  int type = ui_->functionComboBox->currentItem();
+  int type = ui_->functionComboBox->currentIndex();
   QStringList formulas;
   QList<double> ranges;
   formulas += formula;
@@ -204,7 +204,7 @@ bool Function2DDialog::acceptParametric() {
       ui_->paramyLineEdit->text().replace(QChar::ParagraphSeparator, "\n");
 
   // Collecting all the information
-  int type = ui_->functionComboBox->currentItem();
+  int type = ui_->functionComboBox->currentIndex();
   QStringList formulas;
   QList<double> ranges;
   formulas += xformula;

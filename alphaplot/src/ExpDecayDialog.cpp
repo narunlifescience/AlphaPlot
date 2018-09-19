@@ -162,7 +162,7 @@ void ExpDecayDialog::activateCurve(const QString &curveName) {
   int precision = app->fit_output_precision;
   double start, end;
   graph->range(graph->curveIndex(curveName), &start, &end);
-  boxStart->setText(QString::number(QMIN(start, end)));
+  boxStart->setText(QString::number(std::min(start, end)));
   boxYOffset->setText(QString::number(c->minYValue(), 'g', precision));
   if (slopes < 2)
     boxAmplitude->setText(
@@ -172,7 +172,7 @@ void ExpDecayDialog::activateCurve(const QString &curveName) {
 void ExpDecayDialog::changeDataRange() {
   double start = graph->selectedXStartValue();
   double end = graph->selectedXEndValue();
-  boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
+  boxStart->setText(QString::number(std::min(start, end), 'g', 15));
 }
 
 void ExpDecayDialog::fit() {
@@ -222,7 +222,7 @@ void ExpDecayDialog::fit() {
 
   if (fitter->setDataFromCurve(boxName->currentText(),
                                boxStart->text().toDouble(), c->maxXValue())) {
-    fitter->setColor(boxColor->currentItem());
+    fitter->setColor(boxColor->currentIndex());
     fitter->scaleErrors(app->fit_scale_errors);
     fitter->setOutputPrecision(app->fit_output_precision);
     fitter->generateFunction(app->generateUniformFitPoints, app->fitPoints);

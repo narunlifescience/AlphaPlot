@@ -35,18 +35,18 @@
 #include "core/IconLoader.h"
 
 #include <QAction>
+#include <QFileDialog>
+#include <QKeyEvent>
 #include <QMenu>
+#include <QMessageBox>
 #include <QPrintDialog>
 #include <QPrinter>
-#include <QMessageBox>
-#include <QFileDialog>
+#include <QTextCodec>
 #include <QTextStream>
 
 ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, QString name)
-    : QTextEdit(parent, name),
-      scripted(env),
-      d_error(false),
-      d_changing_fmt(false) {
+    : QTextEdit(parent), scripted(env), d_error(false), d_changing_fmt(false) {
+  setObjectName(name);
   myScript = scriptEnv->newScript("", this, name);
   connect(myScript, SIGNAL(error(const QString &, const QString &, int)), this,
           SLOT(insertErrorMsg(const QString &)));
@@ -54,9 +54,8 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, QString name)
           SLOT(scriptPrint(const QString &)));
 
   setLineWrapMode(NoWrap);
-  setTextFormat(Qt::PlainText);
   setAcceptRichText(false);
-  setFamily("Monospace");
+  setFontFamily("Monospace");
 
   new SyntaxHighlighter(document());
 
@@ -102,7 +101,7 @@ void ScriptEdit::customEvent(QEvent *e) {
   if (e->type() == SCRIPTING_CHANGE_EVENT) {
     scriptingChangeEvent((ScriptingChangeEvent *)e);
     delete myScript;
-    myScript = scriptEnv->newScript("", this, name());
+    myScript = scriptEnv->newScript("", this, objectName());
     connect(myScript, SIGNAL(error(const QString &, const QString &, int)),
             this, SLOT(insertErrorMsg(const QString &)));
     connect(myScript, SIGNAL(print(const QString &)), this,
@@ -131,8 +130,8 @@ void ScriptEdit::contextMenuEvent(QContextMenuEvent *e) {
   if (parent()->inherits("Note")) {
     Note *sp = (Note *)parent();
     QAction *actionAutoexec = new QAction(tr("Auto&exec"), menu);
-    actionAutoexec->setToggleAction(true);
-    actionAutoexec->setOn(sp->autoexec());
+    actionAutoexec->setCheckable(true);
+    actionAutoexec->setChecked(sp->autoexec());
     connect(actionAutoexec, SIGNAL(toggled(bool)), sp, SLOT(setAutoexec(bool)));
     menu->addAction(actionAutoexec);
   }
@@ -140,7 +139,7 @@ void ScriptEdit::contextMenuEvent(QContextMenuEvent *e) {
   functionsMenu->clear();
   functionsMenu->setTearOffEnabled(true);
   QStringList flist = scriptEnv->mathFunctions();
-  QMenu *submenu = NULL;
+  QMenu *submenu = nullptr;
   for (int i = 0; i < flist.size(); i++) {
     QAction *newAction;
     QString menupart;
@@ -227,7 +226,7 @@ void ScriptEdit::handleContentsChange(int position, int, int) {
 
 void ScriptEdit::execute() {
   QString fname = "<%1:%2>";
-  fname = fname.arg(name());
+  fname = fname.arg(objectName());
   QTextCursor codeCursor = textCursor();
   if (codeCursor.selectedText().isEmpty()) {
     codeCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
@@ -252,16 +251,16 @@ void ScriptEdit::execute() {
 
 void ScriptEdit::executeAll() {
   QString fname = "<%1>";
-  fname = fname.arg(name());
+  fname = fname.arg(objectName());
   myScript->setName(fname);
-  myScript->setCode(text());
+  myScript->setCode(toPlainText());
   printCursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
   myScript->exec();
 }
 
 void ScriptEdit::evaluate() {
   QString fname = "<%1:%2>";
-  fname = fname.arg(name());
+  fname = fname.arg(objectName());
   QTextCursor codeCursor = textCursor();
   if (codeCursor.selectedText().isEmpty()) {
     codeCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
@@ -322,20 +321,20 @@ QString ScriptEdit::importASCII(const QString &filename) {
 
   QString f;
   if (filename.isEmpty())
-    f = QFileDialog::getOpenFileName(name(), filter, this, 0,
-                                     tr("Import Text From File"));
+    f = QFileDialog::getOpenFileName(this, tr("Import Text From File"),
+                                     objectName(), filter, 0);
   else
     f = filename;
   if (f.isEmpty()) return QString::null;
   QFile file(f);
-  if (!file.open(IO_ReadOnly)) {
+  if (!file.open(QIODevice::ReadOnly)) {
     QMessageBox::critical(this, tr("Error Opening File"),
                           tr("Could not open file \"%1\" for reading.").arg(f));
     return QString::null;
   }
   QTextStream s(&file);
-  s.setEncoding(QTextStream::UnicodeUTF8);
-  while (!s.atEnd()) insert(s.readLine() + "\n");
+  s.setCodec(QTextCodec::codecForName("UTF-8"));
+  while (!s.atEnd()) insertPlainText(s.readLine() + "\n");
   file.close();
   return f;
 }
@@ -348,9 +347,9 @@ QString ScriptEdit::exportASCII(const QString &filename) {
   QString selectedFilter;
   QString fn;
   if (filename.isEmpty())
-    fn = QFileDialog::getSaveFileName(name(), filter, this, 0,
-                                      tr("Save Text to File"), &selectedFilter,
-                                      false);
+    fn = QFileDialog::getSaveFileName(this, tr("Save Text to File"),
+                                      objectName(), filter, &selectedFilter,
+                                      QFileDialog::DontResolveSymlinks);
   else
     fn = filename;
 
@@ -365,7 +364,7 @@ QString ScriptEdit::exportASCII(const QString &filename) {
     }
 
     QFile f(fn);
-    if (!f.open(IO_WriteOnly)) {
+    if (!f.open(QIODevice::WriteOnly)) {
       QMessageBox::critical(
           0, tr("File Save Error"),
           tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that "
@@ -375,8 +374,8 @@ QString ScriptEdit::exportASCII(const QString &filename) {
     }
 
     QTextStream t(&f);
-    t.setEncoding(QTextStream::UnicodeUTF8);
-    t << text();
+    t.setCodec(QTextCodec::codecForName("UTF-8"));
+    t << toPlainText();
     f.close();
   }
   return fn;

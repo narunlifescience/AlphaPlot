@@ -29,13 +29,13 @@
 #include "ArrowMarker.h"
 #include "LineDialog.h"
 
-#include <QPainter>
-#include <QMouseEvent>
 #include <QApplication>
+#include <QMouseEvent>
+#include <QPainter>
 
+#include <qwt_painter.h>
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
-#include <qwt_painter.h>
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643;
@@ -353,20 +353,20 @@ bool ArrowMarker::eventFilter(QObject *, QEvent *e) {
       QRect handler = QRect(QPoint(0, 0), QSize(10, 10));
       handler.moveCenter(startPoint());
       if (handler.contains(me->pos())) {
-        QApplication::setOverrideCursor(QCursor(Qt::SizeAllCursor), true);
+        QApplication::changeOverrideCursor(QCursor(Qt::SizeAllCursor));
         d_op = MoveStart;
         return true;
       }
       handler.moveCenter(endPoint());
       if (handler.contains(me->pos())) {
-        QApplication::setOverrideCursor(QCursor(Qt::SizeAllCursor), true);
+        QApplication::changeOverrideCursor(QCursor(Qt::SizeAllCursor));
         d_op = MoveEnd;
         return true;
       }
       int d = width() +
               (int)floor(headLength() * tan(M_PI * headAngle() / 180.0) + 0.5);
       if (dist(me->pos().x(), me->pos().y()) <= d) {
-        QApplication::setOverrideCursor(QCursor(Qt::SizeAllCursor), true);
+        QApplication::changeOverrideCursor(QCursor(Qt::SizeAllCursor));
         d_op = MoveBoth;
         d_op_startat = me->pos() - startPoint();
         return true;

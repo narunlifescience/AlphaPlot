@@ -536,7 +536,7 @@ void Matrix::print(const QString &fileName) {
     tr.setHeight(br.height());
     header_label =
         d_view_widget->model()->headerData(i, Qt::Horizontal).toString();
-    p.drawText(tr, Qt::AlignCenter, header_label, -1);
+    p.drawText(tr, Qt::AlignCenter, header_label);
     right += w;
     p.drawLine(right, height, right, height + tr.height());
 
@@ -559,7 +559,7 @@ void Matrix::print(const QString &fileName) {
     br.setTopLeft(QPoint(right, height));
     br.setWidth(vertHeaderWidth);
     br.setHeight(tr.height());
-    p.drawText(br, Qt::AlignCenter, cell_text, -1);
+    p.drawText(br, Qt::AlignCenter, cell_text);
     right += vertHeaderWidth;
     p.drawLine(right, height, right, height + tr.height());
 
@@ -570,7 +570,7 @@ void Matrix::print(const QString &fileName) {
       br.setTopLeft(QPoint(right, height));
       br.setWidth(w);
       br.setHeight(tr.height());
-      p.drawText(br, Qt::AlignCenter, cell_text, -1);
+      p.drawText(br, Qt::AlignCenter, cell_text);
       right += w;
       p.drawLine(right, height, right, height + tr.height());
 

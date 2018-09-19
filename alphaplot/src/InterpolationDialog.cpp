@@ -54,9 +54,9 @@ InterpolationDialog::InterpolationDialog(QWidget *parent, Qt::WFlags fl)
 
   gl1->addWidget(new QLabel(tr("Spline")), 1, 0);
   boxMethod = new QComboBox();
-  boxMethod->insertItem(tr("Linear"));
-  boxMethod->insertItem(tr("Cubic"));
-  boxMethod->insertItem(tr("Non-rounded Akima"));
+  boxMethod->addItem(tr("Linear"));
+  boxMethod->addItem(tr("Cubic"));
+  boxMethod->addItem(tr("Non-rounded Akima"));
   gl1->addWidget(boxMethod, 1, 1);
 
   gl1->addWidget(new QLabel(tr("Points")), 2, 0);
@@ -179,9 +179,9 @@ void InterpolationDialog::activateCurve(const QString &curveName) {
   double start, end;
   graph->range(graph->curveIndex(curveName), &start, &end);
   boxStart->setText(
-      QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::min(start, end), 'g', app->d_decimal_digits));
   boxEnd->setText(
-      QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::max(start, end), 'g', app->d_decimal_digits));
 };
 
 void InterpolationDialog::changeDataRange() {
@@ -191,7 +191,7 @@ void InterpolationDialog::changeDataRange() {
   double start = graph->selectedXStartValue();
   double end = graph->selectedXEndValue();
   boxStart->setText(
-      QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::min(start, end), 'g', app->d_decimal_digits));
   boxEnd->setText(
-      QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::max(start, end), 'g', app->d_decimal_digits));
 }

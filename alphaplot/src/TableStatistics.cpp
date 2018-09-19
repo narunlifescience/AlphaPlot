@@ -37,6 +37,7 @@
 
 #include <QList>
 #include <QMenu>
+#include <QContextMenuEvent>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_statistics.h>
 
@@ -290,7 +291,7 @@ void TableStatistics::removeCol(const QString &col) {
   }
   for (int c = 0; c < d_targets.size(); c++)
     if (col == QString(d_base->name()) + "_" + text(c, 0)) {
-      d_targets.remove(d_targets.at(c));
+      d_targets.removeAt(d_targets.at(c));
       d_future_table->removeRows(c, 1);
       return;
     }
@@ -321,7 +322,7 @@ bool TableStatistics::eventFilter(QObject *watched, QEvent *event) {
   QHeaderView *v_header = d_view_widget->verticalHeader();
 
   if (event->type() == QEvent::ContextMenu) {
-    QContextMenuEvent *cm_event = static_cast<QContextMenuEvent *>(event);
+    QContextMenuEvent *cm_event = dynamic_cast<QContextMenuEvent *>(event);
     QPoint global_pos = cm_event->globalPos();
     if (watched == v_header) {
       // no enabled actions for rows

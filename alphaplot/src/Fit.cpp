@@ -519,7 +519,7 @@ void Fit::scriptError(const QString &message, const QString &script_name,
 
 int Fit::evaluate_f(const gsl_vector *x, gsl_vector *f) {
   for (int i = 0; i < d_p; i++)
-    d_script->setDouble(gsl_vector_get(x, i), d_param_names[i]);
+    d_script->setDouble(gsl_vector_get(x, i), d_param_names[i].toUtf8());
   for (int j = 0; j < d_n; j++) {
     d_script->setDouble(d_x[j], "x");
     bool success;
@@ -533,7 +533,7 @@ int Fit::evaluate_f(const gsl_vector *x, gsl_vector *f) {
 double Fit::evaluate_d(const gsl_vector *x) {
   double result = 0.0;
   for (int i = 0; i < d_p; i++)
-    d_script->setDouble(gsl_vector_get(x, i), d_param_names[i]);
+    d_script->setDouble(gsl_vector_get(x, i), d_param_names[i].toUtf8());
   for (int j = 0; j < d_n; j++) {
     d_script->setDouble(d_x[j], "x");
     bool success;
@@ -552,7 +552,7 @@ typedef struct {
 
 double Fit::evaluate_df_helper(double x, void *params) {
   DiffData *data = static_cast<DiffData *>(params);
-  data->script->setDouble(x, data->param);
+  data->script->setDouble(x, data->param.toUtf8());
   bool success;
   double result = data->script->eval().toDouble(&success);
   if (!success) {
@@ -572,7 +572,7 @@ int Fit::evaluate_df(const gsl_vector *x, gsl_matrix *J) {
   data.script = d_script;
   data.success = true;
   for (int i = 0; i < d_p; i++)
-    d_script->setDouble(gsl_vector_get(x, i), d_param_names[i]);
+    d_script->setDouble(gsl_vector_get(x, i), d_param_names[i].toUtf8());
   for (int i = 0; i < d_n; i++) {
     d_script->setDouble(d_x[i], "x");
     for (int j = 0; j < d_p; j++) {

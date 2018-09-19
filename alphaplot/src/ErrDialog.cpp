@@ -147,7 +147,7 @@ void ErrDialog::setSrcTables(QList<QMdiSubWindow*>* tables) {
 
   QList<QMdiSubWindow*>::const_iterator i;
   for (i = srcTables->begin(); i != srcTables->end(); i++)
-    tableNamesBox->insertItem((*i)->objectName());
+    tableNamesBox->addItem((*i)->objectName());
 
   if (!nameLabel->currentText().contains("="))
     tableNamesBox->setCurrentIndex(tableNamesBox->findText(

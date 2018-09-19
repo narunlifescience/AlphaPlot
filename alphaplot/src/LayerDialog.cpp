@@ -60,16 +60,16 @@ LayerDialog::LayerDialog(QWidget *parent, Qt::WFlags fl) : QDialog(parent, fl) {
   gl2->addWidget(new QLabel(tr("Horizontal")), 0, 0);
 
   alignHorBox = new QComboBox();
-  alignHorBox->insertItem(tr("Center"));
-  alignHorBox->insertItem(tr("Left"));
-  alignHorBox->insertItem(tr("Right"));
+  alignHorBox->addItem(tr("Center"));
+  alignHorBox->addItem(tr("Left"));
+  alignHorBox->addItem(tr("Right"));
   gl2->addWidget(alignHorBox, 0, 1);
 
   gl2->addWidget(new QLabel(tr("Vertical")), 1, 0);
   alignVertBox = new QComboBox();
-  alignVertBox->insertItem(tr("Center"));
-  alignVertBox->insertItem(tr("Top"));
-  alignVertBox->insertItem(tr("Bottom"));
+  alignVertBox->addItem(tr("Center"));
+  alignVertBox->addItem(tr("Top"));
+  alignVertBox->addItem(tr("Bottom"));
   gl2->addWidget(alignVertBox, 1, 1);
   gl2->setRowStretch(2, 1);
 
@@ -247,8 +247,8 @@ void LayerDialog::update() {
     multi_layer->setLayerCanvasSize(boxCanvasWidth->value(),
                                     boxCanvasHeight->value());
 
-  multi_layer->setAlignement(alignHorBox->currentItem(),
-                             alignVertBox->currentItem());
+  multi_layer->setAlignement(alignHorBox->currentIndex(),
+                             alignVertBox->currentIndex());
 
   multi_layer->setMargins(boxLeftSpace->value(), boxRightSpace->value(),
                           boxTopSpace->value(), boxBottomSpace->value());

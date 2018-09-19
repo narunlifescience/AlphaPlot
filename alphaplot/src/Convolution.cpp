@@ -139,15 +139,15 @@ void Convolution::addResultCurve() {
     d_table->column(cols2)->setValueAt(i, d_x[i]);
   }
 
-  QStringList l = d_table->colNames().grep(tr("Index"));
+  QStringList l = d_table->colNames().filter(tr("Index"));
   QString id = QString::number((int)l.size() + 1);
-  QString label = name() + id;
+  QString label = objectName() + id;
 
   d_table->setColName(cols, tr("Index") + id);
   d_table->setColName(cols2, label);
   d_table->setColPlotDesignation(cols, AlphaPlot::X);
 
-  MultiLayer *ml = app->newGraph(name() + tr("Plot"));
+  MultiLayer *ml = app->newGraph(objectName() + tr("Plot"));
   if (!ml) return;
 
   DataCurve *c =

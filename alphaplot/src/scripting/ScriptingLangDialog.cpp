@@ -39,7 +39,7 @@ ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env,
                                          ApplicationWindow *parent,
                                          Qt::WFlags fl)
     : QDialog(parent, fl), scripted(env) {
-  setCaption(tr("Select scripting language"));
+  setWindowTitle(tr("Select scripting language"));
 
   langList = new QListWidget(this);
 
@@ -67,7 +67,7 @@ void ScriptingLangDialog::updateLangList() {
   langList->clear();
   langList->insertItems(0, ScriptingLangManager::languages());
   QListWidgetItem *current =
-      langList->findItems(scriptEnv->name(), Qt::MatchExactly).first();
+      langList->findItems(scriptEnv->objectName(), Qt::MatchExactly).first();
   if (current) langList->setCurrentItem(current);
 }
 

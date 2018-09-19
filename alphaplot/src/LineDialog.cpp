@@ -27,24 +27,24 @@
  *                                                                         *
  ***************************************************************************/
 #include "LineDialog.h"
-#include "ColorButton.h"
+#include "ApplicationWindow.h"
 #include "ArrowMarker.h"
+#include "ColorButton.h"
 #include "Graph.h"
 #include "Plot.h"
-#include "ApplicationWindow.h"
 
 #include <qwt_plot.h>
 
-#include <QMessageBox>
-#include <QLayout>
-#include <QGroupBox>
-#include <QSpinBox>
 #include <QCheckBox>
-#include <QPushButton>
-#include <QLabel>
-#include <QLineEdit>
-#include <QComboBox>
 #include <QColorDialog>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLayout>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSpinBox>
 #include <QTabWidget>
 
 LineDialog::LineDialog(ArrowMarker *line, QWidget *parent, Qt::WFlags fl)
@@ -63,22 +63,22 @@ LineDialog::LineDialog(ArrowMarker *line, QWidget *parent, Qt::WFlags fl)
 
   gl1->addWidget(new QLabel(tr("Line type")), 1, 0);
   styleBox = new QComboBox();
-  styleBox->insertItem("_____");
-  styleBox->insertItem("- - -");
-  styleBox->insertItem(".....");
-  styleBox->insertItem("_._._");
-  styleBox->insertItem("_.._..");
+  styleBox->addItem("_____");
+  styleBox->addItem("- - -");
+  styleBox->addItem(".....");
+  styleBox->addItem("_._._");
+  styleBox->addItem("_.._..");
   gl1->addWidget(styleBox, 1, 1);
 
   setLineStyle(lm->style());
 
   gl1->addWidget(new QLabel(tr("Line width")), 2, 0);
   widthBox = new QComboBox();
-  widthBox->insertItem(tr("1"));
-  widthBox->insertItem(tr("2"));
-  widthBox->insertItem(tr("3"));
-  widthBox->insertItem(tr("4"));
-  widthBox->insertItem(tr("5"));
+  widthBox->addItem(tr("1"));
+  widthBox->addItem(tr("2"));
+  widthBox->addItem(tr("3"));
+  widthBox->addItem(tr("4"));
+  widthBox->addItem(tr("5"));
   widthBox->setEditable(true);
   widthBox->setCurrentIndex(0);
   widthBox->setEditText(QString::number(lm->width()));
@@ -164,8 +164,8 @@ LineDialog::LineDialog(ArrowMarker *line, QWidget *parent, Qt::WFlags fl)
 
 void LineDialog::initGeometryTab() {
   unitBox = new QComboBox();
-  unitBox->insertItem(tr("Scale Coordinates"));
-  unitBox->insertItem(tr("Pixels"));
+  unitBox->addItem(tr("Scale Coordinates"));
+  unitBox->addItem(tr("Pixels"));
 
   QBoxLayout *bl1 = new QBoxLayout(QBoxLayout::LeftToRight);
   bl1->addWidget(new QLabel(tr("Unit")));
@@ -245,7 +245,7 @@ void LineDialog::setCoordinates(int unit) {
 
 void LineDialog::apply() {
   if (tw->currentWidget() == (QWidget *)options) {
-    lm->setStyle(Graph::getPenStyle(styleBox->currentItem()));
+    lm->setStyle(Graph::getPenStyle(styleBox->currentIndex()));
     lm->setColor(colorBox->color());
     lm->setWidth(widthBox->currentText().toInt());
     lm->drawEndArrow(endBox->isChecked());
@@ -260,7 +260,7 @@ void LineDialog::apply() {
     if (lm->filledArrowHead() != filledBox->isChecked())
       lm->fillArrowHead(filledBox->isChecked());
   } else if (tw->currentWidget() == (QWidget *)geometry)
-    setCoordinates(unitBox->currentItem());
+    setCoordinates(unitBox->currentIndex());
 
   QwtPlot *plot = lm->plot();
   Graph *g = (Graph *)plot->parent();
@@ -290,9 +290,9 @@ void LineDialog::setLineStyle(Qt::PenStyle style) {
 
 void LineDialog::enableHeadTab() {
   if (startBox->isChecked() || endBox->isChecked())
-    tw->setTabEnabled(head, true);
+    tw->setTabEnabled(tw->indexOf(head), true);
   else
-    tw->setTabEnabled(head, false);
+    tw->setTabEnabled(tw->indexOf(head), false);
 }
 
 void LineDialog::pickColor() {
@@ -308,7 +308,7 @@ void LineDialog::setDefaultValues() {
 
   app->setArrowDefaultSettings(
       widthBox->currentText().toInt(), colorBox->color(),
-      Graph::getPenStyle(styleBox->currentItem()), boxHeadLength->value(),
+      Graph::getPenStyle(styleBox->currentIndex()), boxHeadLength->value(),
       boxHeadAngle->value(), filledBox->isChecked());
 }
 
