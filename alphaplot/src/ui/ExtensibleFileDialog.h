@@ -56,7 +56,7 @@ class ExtensibleFileDialog : public QFileDialog {
    * \param flags window flags
    */
   ExtensibleFileDialog(QWidget *parent = nullptr, bool extended = true,
-                       Qt::WFlags flags = 0);
+                       Qt::WindowFlags flags = 0);
   //! Set the extension widget to be displayed when the user presses the toggle
   //! button.
   void setExtensionWidget(QWidget *extension);

@@ -251,11 +251,19 @@ ApplicationWindow::ApplicationWindow()
   // Explorer window
   ui_->explorerGridLayout->setContentsMargins(0, 0, 0, 0);
   ui_->explorerWindow->setMinimumHeight(150);
-  ui_->folderView->header()->setClickable(false);
+
   ui_->folderView->setColumnCount(1);
   ui_->folderView->setHeaderLabel(tr("Folder"));
   ui_->folderView->setRootIsDecorated(true);
+
+#if QT_VERSION >= 0x050000
+  ui_->folderView->header()->setSectionsClickable(false);
+  ui_->folderView->header()->setSectionResizeMode(
+      QHeaderView::ResizeToContents);
+#else
+  ui_->folderView->header()->setClickable(false);
   ui_->folderView->header()->setResizeMode(0, QHeaderView::Stretch);
+#endif
   ui_->folderView->header()->hide();
   ui_->folderView->setSelectionMode(QAbstractItemView::SingleSelection);
   ui_->folderView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1054,7 +1062,8 @@ ApplicationWindow::ApplicationWindow()
   scriptEnv->initialize();
 
 #ifdef SEARCH_FOR_UPDATES
-  connect(&http, SIGNAL(done(bool)), this, SLOT(receivedVersionFile(bool)));
+  connect(&http, SIGNAL(finished(QNetworkReply *)), this,
+          SLOT(receivedVersionFile(QNetworkReply *)));
 #endif
   connect(this, SIGNAL(modified()), this, SLOT(modifiedProject()));
 }
@@ -3579,7 +3588,7 @@ void ApplicationWindow::importASCII() {
       new ImportASCIIDialog(isActiveSubwindow(SubWindowType::TableSubWindow),
                             this, d_extended_import_ASCII_dialog);
   import_dialog->setDirectory(asciiDirPath);
-  import_dialog->selectFilter(d_ASCII_file_filter);
+  import_dialog->selectNameFilter(d_ASCII_file_filter);
   if (import_dialog->exec() != QDialog::Accepted) return;
 
   asciiDirPath = import_dialog->directory().path();
@@ -4447,7 +4456,7 @@ void ApplicationWindow::loadSettings() {
 
   d_decimal_digits = settings.value("DecimalDigits", 6).toInt();
   d_default_numeric_format =
-      settings.value("DefaultNumericFormat", 'g').toChar().toAscii();
+      settings.value("DefaultNumericFormat", 'g').toChar().toLatin1();
 
   // Set last used geometry to position window on the correct monitor(multi
   // monitor scenario)
@@ -5033,7 +5042,7 @@ void ApplicationWindow::exportGraph() {
   workingDir = ied->directory().path();
   if (ied->selectedFiles().isEmpty()) return;
 
-  QString selected_filter = ied->selectedFilter();
+  QString selected_filter = ied->selectedNameFilter();
   QString file_name = ied->selectedFiles()[0];
   QFileInfo file_info(file_name);
   if (!file_info.fileName().contains("."))
@@ -5090,7 +5099,7 @@ void ApplicationWindow::exportLayer() {
   workingDir = ied->directory().path();
   if (ied->selectedFiles().isEmpty()) return;
 
-  QString selected_filter = ied->selectedFilter();
+  QString selected_filter = ied->selectedNameFilter();
   QString file_name = ied->selectedFiles()[0];
   QFileInfo file_info(file_name);
   if (!file_info.fileName().contains("."))
@@ -5124,9 +5133,9 @@ void ApplicationWindow::exportAllGraphs() {
   ImageExportDialog *ied =
       new ImageExportDialog(this, true, d_extended_export_dialog);
   ied->setWindowTitle(tr("Choose a directory to export the graphs to"));
-  QStringList tmp = ied->filters();
+  QStringList tmp = ied->nameFilters();
   ied->setFileMode(QFileDialog::Directory);
-  ied->setFilters(tmp);
+  ied->setNameFilters(tmp);
   ied->setLabelText(QFileDialog::FileType, tr("Output format:"));
   ied->setLabelText(QFileDialog::FileName, tr("Directory:"));
 
@@ -5140,7 +5149,7 @@ void ApplicationWindow::exportAllGraphs() {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
   QString output_dir = ied->selectedFiles()[0];
-  QString file_suffix = ied->selectedFilter();
+  QString file_suffix = ied->selectedNameFilter();
   file_suffix.toLower();
   file_suffix.remove("*");
 
@@ -7838,7 +7847,7 @@ QStringList ApplicationWindow::multilayerDependencies(MyWidget *w) {
     QStringList onPlot = ag->curvesList();
     for (int j = 0; j < onPlot.count(); j++) {
       QStringList tl = onPlot[j].split("_", QString::SkipEmptyParts);
-      if (tables.contains(tl[0]) <= nullptr) tables << tl[0];
+      if (tables.contains(tl[0]) <= 0) tables << tl[0];
     }
   }
   return tables;
@@ -8470,7 +8479,7 @@ ApplicationWindow::generateFunctiondata(const int type,
       const double step = (xMax - xMin) / static_cast<double>(points - 1);
       double x = xMin, y = 0;
       for (int i = 0; i < points; i++, x += step) {
-        script->setDouble(x, var.toAscii().constData());
+        script->setDouble(x, var.toUtf8().constData());
         QVariant result = script->eval();
         if (result.type() != QVariant::Double) {
           delete xData;
@@ -8516,8 +8525,8 @@ ApplicationWindow::generateFunctiondata(const int type,
       const double step = (xMax - xMin) / static_cast<double>(points - 1);
       double x = xMin;
       for (int i = 0; i < points; i++, x += step) {
-        script_x->setDouble(x, var.toAscii().constData());
-        script_y->setDouble(x, var.toAscii().constData());
+        script_x->setDouble(x, var.toUtf8().constData());
+        script_y->setDouble(x, var.toUtf8().constData());
         QVariant result_x = script_x->eval();
         QVariant result_y = script_y->eval();
         if (result_x.type() != QVariant::Double ||
@@ -8899,7 +8908,7 @@ void ApplicationWindow::pixelLineProfile() {
   if (!g) return;
 
   bool ok;
-  int res = QInputDialog::getInteger(
+  int res = QInputDialog::getInt(
       this, tr("Set the number of pixels to average"),
       tr("Number of averaged pixels"), 1, 1, 2000, 2, &ok);
   if (!ok) return;
@@ -9664,7 +9673,7 @@ Graph3D *ApplicationWindow::openSurfacePlotAproj(ApplicationWindow *app,
 void ApplicationWindow::copyActiveLayer() {
   if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
 
-  copiedLayer = TRUE;
+  copiedLayer = true;
 
   Graph *g =
       qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
@@ -9927,7 +9936,7 @@ Graph3D *ApplicationWindow::openMatrixPlot3D(const QString &caption,
   Matrix *m = matrix(getName.at(0));
   if (!m) return nullptr;
 
-  Graph3D *plot = new Graph3D("", d_workspace, nullptr, nullptr);
+  Graph3D *plot = new Graph3D("", d_workspace, nullptr, 0);
   plot->setAttribute(Qt::WA_DeleteOnClose);
   plot->setWindowTitle(caption);
   plot->setName(caption);
@@ -10169,7 +10178,7 @@ void ApplicationWindow::fitMultiPeak(int profile) {
     return;
   } else {
     bool ok;
-    int peaks = QInputDialog::getInteger(this, tr("Enter the number of peaks"),
+    int peaks = QInputDialog::getInt(this, tr("Enter the number of peaks"),
                                          tr("Peaks"), 2, 2, 1000000, 1, &ok);
     if (ok && peaks) {
       graph->setActiveTool(new MultiPeakFitTool(
@@ -11649,28 +11658,26 @@ void ApplicationWindow::searchForUpdates() {
       QMessageBox::No | QMessageBox::Escape);
 
   if (choice == QMessageBox::Yes) {
-    version_buffer.open(QBuffer::WriteOnly);
-    http.setHost("AlphaPlot.sourceforge.net");
-    http.get("/current_version.txt", &version_buffer);
+    http.get(QNetworkRequest(
+        QUrl("https://AlphaPlot.sourceforge.net/current_version.txt")));
   }
 }
 
 // Check the version number (check for updates)
-void ApplicationWindow::receivedVersionFile(bool error) {
-  if (error) {
+void ApplicationWindow::receivedVersionFile(QNetworkReply* reply) {
+  if (reply->error() != QNetworkReply::NoError) {
     QMessageBox::warning(this, tr("HTTP get version file"),
                          tr("Error while fetching version file with HTTP: %1.")
-                             .arg(http.errorString()));
+                             .arg(reply->error()));
     return;
   }
 
-  version_buffer.close();
+  version_buffer = reply->readAll();
 
-  if (version_buffer.open(QBuffer::ReadOnly)) {
+  if (version_buffer.size() > 0) {
     QTextStream t(&version_buffer);
-    t.setCodec("UTF-8");
+    t.setCodec(QTextCodec::codecForName("UTF-8"));
     QString version_line = t.readLine();
-    version_buffer.close();
 
     if (version_line.count() == 6) {
       int available_version = version_line.toInt();

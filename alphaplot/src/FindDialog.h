@@ -42,7 +42,7 @@ class FindDialog : public QDialog {
   Q_OBJECT
 
  public:
-  FindDialog(QWidget* parent = 0, Qt::WFlags fl = 0);
+  FindDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);
   ~FindDialog();
 
  private:

@@ -59,7 +59,7 @@ class ConfigDialog : public QDialog {
    * \param parent parent widget (must be the application window!=
    * \param fl window flags
    */
-  ConfigDialog(QWidget *parent, Qt::WFlags fl = 0);
+  ConfigDialog(QWidget *parent, Qt::WindowFlags fl = 0);
 
  public slots:
   virtual void languageChange();

@@ -75,7 +75,7 @@ class ImageExportDialog : public ExtensibleFileDialog {
    * \param flags window flags
    */
   ImageExportDialog(QWidget *parent = 0, bool vector_options = true,
-                    bool extended = true, Qt::WFlags flags = 0);
+                    bool extended = true, Qt::WindowFlags flags = 0);
   //! For vector formats: returns the output resolution the user selected,
   //! defaulting to the screen resolution.
   int resolution() const { return d_resolution->value(); }

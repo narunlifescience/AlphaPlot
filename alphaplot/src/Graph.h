@@ -124,7 +124,7 @@ class Graph : public QWidget {
   Q_OBJECT
 
  public:
-  Graph(QWidget* parent = 0, QString name = QString(), Qt::WFlags f = 0);
+  Graph(QWidget* parent = 0, QString name = QString(), Qt::WindowFlags f = 0);
   ~Graph();
 
   enum AxisType {
@@ -437,7 +437,7 @@ class Graph : public QWidget {
   QVector<int> lineMarkerKeys() { return d_lines; }
 
   //! Draws a line/arrow depending on the value of "arrow"
-  void drawLine(bool on, bool arrow = FALSE);
+  void drawLine(bool on, bool arrow = false);
   bool drawArrow() { return drawArrowOn; }
   bool drawLineActive() { return drawLineOn; }
 

@@ -39,7 +39,7 @@ class ImageDialog : public QDialog {
   Q_OBJECT
 
  public:
-  ImageDialog(QWidget* parent = nullptr, Qt::WFlags fl = 0);
+  ImageDialog(QWidget* parent = nullptr, Qt::WindowFlags fl = 0);
   ~ImageDialog(){}
 
   void setOrigin(const QPoint& o);

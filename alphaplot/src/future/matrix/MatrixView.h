@@ -86,7 +86,7 @@ class MatrixView : public MyWidget {
   MatrixView(future::Matrix* matrix);
 #else
   MatrixView(const QString& label, QWidget* parent = 0, const QString name = 0,
-             Qt::WFlags f = 0);
+             Qt::WindowFlags f = 0);
   void setMatrix(future::Matrix* matrix);
 #endif
   //! Destructor

@@ -23,6 +23,11 @@ TEMPLATE       = app
 
 CONFIG        += qt warn_on exceptions opengl thread zlib
 
+
+equals(QT_MAJOR_VERSION, 5){
+    QT += printsupport
+}
+
 DEFINES       += QT_PLUGIN
 DEFINES       += TS_PATH="\\\"$$replace(translationfiles.path," ","\\ ")\\\""
 DEFINES       += DOC_PATH="\\\"$$replace(documentation.path," ","\\ ")\\\""

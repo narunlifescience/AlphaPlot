@@ -51,7 +51,7 @@ class ErrDialog : public QDialog {
    * \param parent parent widget
    * \param fl window flags
    */
-  ErrDialog(QWidget* parent = 0, Qt::WFlags fl = 0);
+  ErrDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);
   //! Destructor
   ~ErrDialog();
 

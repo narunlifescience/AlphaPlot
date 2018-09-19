@@ -44,7 +44,7 @@ class DataSetDialog : public QDialog {
   Q_OBJECT
 
  public:
-  DataSetDialog(const QString& text, QWidget* parent = 0, Qt::WFlags fl = 0);
+  DataSetDialog(const QString& text, QWidget* parent = 0, Qt::WindowFlags fl = 0);
   ~DataSetDialog() {}
 
   QPushButton* buttonOk;

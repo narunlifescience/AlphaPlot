@@ -22,7 +22,8 @@
 
 #include <QMainWindow>
 #ifdef SEARCH_FOR_UPDATES
-#include <QHttp>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #endif
 #include <QBuffer>
 #include <QDesktopServices>
@@ -755,7 +756,7 @@ class ApplicationWindow : public QMainWindow,
 
 #ifdef SEARCH_FOR_UPDATES
   //!  connected to the done(bool) signal of the http object
-  void receivedVersionFile(bool error);
+  void receivedVersionFile(QNetworkReply *reply);
   //!  called when the user presses the actionCheckUpdates
   void searchForUpdates();
 #endif
@@ -1090,10 +1091,10 @@ class ApplicationWindow : public QMainWindow,
   QString helpFilePath;
 
 #ifdef SEARCH_FOR_UPDATES
-  // Used when checking for new versions(not set)
-  QHttp http;
-  // Used when checking for new versions(not set)
-  QBuffer version_buffer;
+  //! Used when checking for new versions
+  QNetworkAccessManager http;
+  //! Used when checking for new versions
+QByteArray version_buffer;
 #endif
 
   Graph* lastCopiedLayer;

@@ -63,7 +63,7 @@ class PlotDialog : public QDialog {
   Q_OBJECT
 
  public:
-  PlotDialog(bool showExtended, QWidget *parent = 0, Qt::WFlags fl = 0);
+  PlotDialog(bool showExtended, QWidget *parent = 0, Qt::WindowFlags fl = 0);
   void initFonts(const QFont &titlefont, const QFont &axesfont,
                  const QFont &numbersfont, const QFont &legendfont);
   void insertColumnsList(const QStringList &names) { columnNames = names; }

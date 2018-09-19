@@ -45,7 +45,7 @@ class AssociationsDialog : public QDialog {
   Q_OBJECT
 
  public:
-  AssociationsDialog(QWidget *parent = 0, Qt::WFlags fl = 0);
+  AssociationsDialog(QWidget *parent = 0, Qt::WindowFlags fl = 0);
   ~AssociationsDialog();
 
   void initTablesList(QList<QMdiSubWindow *> *lst, int curve);

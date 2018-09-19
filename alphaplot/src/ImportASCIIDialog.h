@@ -67,7 +67,7 @@ class ImportASCIIDialog : public ExtensibleFileDialog {
    * \param flags window flags
    */
   ImportASCIIDialog(bool importModeEnabled, QWidget *parent = 0,
-                    bool extended = true, Qt::WFlags flags = 0);
+                    bool extended = true, Qt::WindowFlags flags = 0);
 
   //! Return the selected import mode
   /**
