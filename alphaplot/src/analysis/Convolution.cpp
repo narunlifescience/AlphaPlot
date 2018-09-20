@@ -27,15 +27,11 @@
  *                                                                         *
  ***************************************************************************/
 #include "Convolution.h"
-#include "MultiLayer.h"
-#include "Plot.h"
-#include "PlotCurve.h"
-#include "ColorBox.h"
 #include "core/column/Column.h"
 
-#include <QMessageBox>
-#include <QLocale>
 #include <gsl/gsl_fft_halfcomplex.h>
+#include <QLocale>
+#include <QMessageBox>
 
 Convolution::Convolution(ApplicationWindow *parent, Table *t,
                          const QString &signalColName,
@@ -54,13 +50,15 @@ void Convolution::setDataFromTable(Table *t, const QString &signalColName,
 
   if (signal_col < 0) {
     QMessageBox::warning(
-        (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
+        qobject_cast<ApplicationWindow *>(parent()),
+        tr("AlphaPlot") + " - " + tr("Error"),
         tr("The signal data set %1 does not exist!").arg(signalColName));
     d_init_err = true;
     return;
   } else if (response_col < 0) {
     QMessageBox::warning(
-        (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
+        qobject_cast<ApplicationWindow *>(parent()),
+        tr("AlphaPlot") + " - " + tr("Error"),
         tr("The response data set %1 does not exist!").arg(responseColName));
     d_init_err = true;
     return;
@@ -77,7 +75,7 @@ void Convolution::setDataFromTable(Table *t, const QString &signalColName,
     if (!d_table->text(i, response_col).isEmpty()) d_n_response++;
   }
   if (d_n_response >= rows / 2) {
-    QMessageBox::warning((ApplicationWindow *)parent(),
+    QMessageBox::warning(qobject_cast<ApplicationWindow *>(parent()),
                          tr("AlphaPlot") + " - " + tr("Error"),
                          tr("The response dataset '%1' must be less then half "
                             "the size of the signal dataset '%2'!")
@@ -87,7 +85,8 @@ void Convolution::setDataFromTable(Table *t, const QString &signalColName,
     return;
   } else if (d_n_response % 2 == 0) {
     QMessageBox::warning(
-        (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
+        qobject_cast<ApplicationWindow *>(parent()),
+        tr("AlphaPlot") + " - " + tr("Error"),
         tr("The response dataset '%1' must contain an odd number of points!")
             .arg(responseColName));
     d_init_err = true;
@@ -99,7 +98,7 @@ void Convolution::setDataFromTable(Table *t, const QString &signalColName,
   d_n_signal = 16;  // tmp number of points
   while (d_n_signal < d_n + d_n_response / 2) d_n_signal *= 2;
 
-  d_x = new double[d_n_signal];  // signal
+  d_x = new double[d_n_signal];    // signal
   d_y = new double[d_n_response];  // response
 
   if (d_y && d_x) {
@@ -108,7 +107,7 @@ void Convolution::setDataFromTable(Table *t, const QString &signalColName,
     for (int i = 0; i < d_n_response; i++)
       d_y[i] = d_table->cell(i, response_col);
   } else {
-    QMessageBox::critical((ApplicationWindow *)parent(),
+    QMessageBox::critical(qobject_cast<ApplicationWindow *>(parent()),
                           tr("AlphaPlot") + " - " + tr("Error"),
                           tr("Could not allocate memory, operation aborted!"));
     d_init_err = true;
@@ -122,7 +121,7 @@ void Convolution::output() {
 }
 
 void Convolution::addResultCurve() {
-  ApplicationWindow *app = (ApplicationWindow *)parent();
+  ApplicationWindow *app = qobject_cast<ApplicationWindow *>(parent());
   if (!app) return;
 
   int cols = d_table->numCols();
@@ -140,22 +139,14 @@ void Convolution::addResultCurve() {
   }
 
   QStringList l = d_table->colNames().filter(tr("Index"));
-  QString id = QString::number((int)l.size() + 1);
+  QString id = QString::number(l.size() + 1);
   QString label = objectName() + id;
 
   d_table->setColName(cols, tr("Index") + id);
   d_table->setColName(cols2, label);
   d_table->setColPlotDesignation(cols, AlphaPlot::X);
 
-  MultiLayer *ml = app->newGraph(objectName() + tr("Plot"));
-  if (!ml) return;
-
-  DataCurve *c =
-      new DataCurve(d_table, d_table->colName(cols), d_table->colName(cols2));
-  c->setData(x_temp, d_x, d_n);
-  c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
-  ml->activeGraph()->insertPlotItem(c, Graph::Line);
-  ml->activeGraph()->updatePlot();
+  app->newCurve2D(d_table, d_table->colName(cols), d_table->colName(cols2));
 }
 
 void Convolution::convlv(double *sig, int n, double *dres, int m, int sign) {
@@ -202,8 +193,8 @@ void Convolution::convlv(double *sig, int n, double *dres, int m, int sign) {
   gsl_fft_halfcomplex_radix2_inverse(sig, 1, n);  // inverse fft
 }
 /**************************************************************************
-*             Class Deconvolution                                         *
-***************************************************************************/
+ *             Class Deconvolution                                         *
+ ***************************************************************************/
 
 Deconvolution::Deconvolution(ApplicationWindow *parent, Table *t,
                              const QString &signalColName,

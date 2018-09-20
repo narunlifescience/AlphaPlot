@@ -12,6 +12,7 @@
 
 class QLabel;
 class Column;
+class Table;
 class AxisRect2D;
 class LayoutGrid2D;
 class LayoutButton2D;
@@ -52,6 +53,8 @@ class Layout2D : public MyWidget {
 
   void generateLineScatter2DPlot(const LineScatterType &plotType, Column *xData,
                                  Column *yData, int from, int to);
+  void generateCurve2DPlot(Table *table, QString xcolname, QString ycolname,
+                           int from, int to);
   void generateSpline2DPlot(Column *xData, Column *yData, int from, int to);
   void generateBar2DPlot(const BarType &barType, Column *xData, Column *yData,
                          int from, int to);

@@ -29,6 +29,7 @@
 #include "Vector2D.h"
 
 class Legend2D;
+class Table;
 class Column;
 
 class AxisRect2D : public QCPAxisRect {
@@ -85,6 +86,8 @@ class AxisRect2D : public QCPAxisRect {
   LineScatter2D *addLineScatter2DPlot(const LineScatterType &type,
                                       Column *xData, Column *yData, int from,
                                       int to, Axis2D *xAxis, Axis2D *yAxis);
+  Curve2D *addCurve2DPlot(Table *table, QString xcolname, QString ycolname,
+                          int from, int to, Axis2D *xAxis, Axis2D *yAxis);
   Spline2D *addSpline2DPlot(Column *xData, Column *yData, int from, int to,
                             Axis2D *xAxis, Axis2D *yAxis);
   LineScatter2D *addLineFunction2DPlot(QVector<double> *xdata,

@@ -929,11 +929,13 @@ class ApplicationWindow : public QMainWindow,
   //! current one and force is true, restart it
   bool setScriptingLang(const QString& lang, bool force = false);
   //@}
+  void newCurve2D(Table *table, QString xcolname, QString ycolname);
 
  signals:
   void modified();
 
  private slots:
+
   void showHelp();          // Open help file index.html
   void chooseHelpFolder();  // Choose help folder
   void about();             // Show about dialog

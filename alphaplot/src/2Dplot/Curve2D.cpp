@@ -1,4 +1,5 @@
 #include "Curve2D.h"
+#include "DataManager2D.h"
 #include "core/Utilities.h"
 
 Curve2D::Curve2D(Axis2D *xAxis, Axis2D *yAxis)
@@ -8,12 +9,16 @@ Curve2D::Curve2D(Axis2D *xAxis, Axis2D *yAxis)
       scatterstyle_(new QCPScatterStyle(
           QCPScatterStyle::ssNone,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
-          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)) {
+          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
+      curvedata_(nullptr) {
   setlinestrokecolor_cplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
 }
 
-Curve2D::~Curve2D() { delete scatterstyle_; }
+Curve2D::~Curve2D() {
+  delete scatterstyle_;
+  delete curvedata_;
+}
 
 void Curve2D::setGraphData(QVector<double> *xdata, QVector<double> *ydata) {
   Q_ASSERT(xdata->size() == ydata->size());
@@ -29,6 +34,16 @@ void Curve2D::setGraphData(QVector<double> *xdata, QVector<double> *ydata) {
   // free those containers
   delete xdata;
   delete ydata;
+}
+
+void Curve2D::setGraphData(Table *table, QString xcolname, QString ycolname,
+                           int from, int to) {
+  if (curvedata_) {
+    qDebug() << "DataBlockCurveData already set";
+    return;
+  }
+  curvedata_ = new DataBlockCurveData(table, xcolname, ycolname, from, to);
+  setData(curvedata_->data());
 }
 
 int Curve2D::getlinetype_cplot() const {

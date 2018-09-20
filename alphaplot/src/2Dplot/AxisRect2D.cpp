@@ -249,6 +249,20 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
   return lineScatter;
 }
 
+Curve2D *AxisRect2D::addCurve2DPlot(Table *table, QString xcolname,
+                                    QString ycolname, int from, int to,
+                                    Axis2D *xAxis, Axis2D *yAxis) {
+  Curve2D *curve = new Curve2D(xAxis, yAxis);
+  curve->setGraphData(table, xcolname, ycolname, from, to);
+  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
+  axisRectLegend_->addItem(legendItem);
+  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  curvevec_.append(curve);
+
+  emit CurveCreated(curve);
+  return curve;
+}
+
 Spline2D *AxisRect2D::addSpline2DPlot(Column *xData, Column *yData, int from,
                                       int to, Axis2D *xAxis, Axis2D *yAxis) {
   Spline2D *spline = new Spline2D(xAxis, yAxis);

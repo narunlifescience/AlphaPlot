@@ -19,7 +19,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/AxesDialog.h \
             src/PolynomFitDialog.h \
             src/ExpDecayDialog.h \
-            src/FunctionDialog.h \
             src/FitDialog.h \
             src/3Dplot/SurfaceDialog.h \
             src/TextDialog.h \
@@ -93,8 +92,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/SmoothFilter.h\
             src/FFTFilter.h\
             src/FFT.h\
-            src/Convolution.h\
-            src/Correlation.h\
+            src/analysis/Convolution.h\
+            src/analysis/Correlation.h\
             src/PlotToolInterface.h\
             src/ScreenPickerTool.h\
             src/DataPickerTool.h\
@@ -154,7 +153,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/TitlePicker.cpp \
             src/CanvasPicker.cpp \
             src/ExpDecayDialog.cpp \
-            src/FunctionDialog.cpp \
             src/FitDialog.cpp \
             src/3Dplot/SurfaceDialog.cpp \
             src/LineDialog.cpp \
@@ -224,8 +222,8 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/SmoothFilter.cpp\
             src/FFTFilter.cpp\
             src/FFT.cpp\
-            src/Convolution.cpp\
-            src/Correlation.cpp\
+            src/analysis/Convolution.cpp\
+            src/analysis/Correlation.cpp\
             src/ScreenPickerTool.cpp\
             src/DataPickerTool.cpp\
             src/RangeSelectorTool.cpp\

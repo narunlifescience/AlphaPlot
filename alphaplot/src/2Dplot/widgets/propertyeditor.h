@@ -87,7 +87,7 @@ class PropertyEditor : public QDockWidget {
   template <class T>
   void objectschanged(T *element) {
     MyWidget *widget =
-        qobject_cast<MyWidget *>(element->parentPlot()->parent());
+        static_cast<MyWidget *>(element->parentPlot()->parentWidget());
     if (widget) {
       populateObjectBrowser(widget);
     }

@@ -349,6 +349,23 @@ void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
   plot2dCanvas_->replot();
 }
 
+void Layout2D::generateCurve2DPlot(Table *table, QString xcolname,
+                                   QString ycolname, int from, int to) {
+  AxisRect2D *element = addAxisRectItem();
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+
+  Curve2D *curve = element->addCurve2DPlot(table, xcolname, ycolname, from, to,
+                                           xAxis.at(0), yAxis.at(0));
+  curve->setName("Table" + xcolname + "_" + ycolname);
+  curve->rescaleAxes();
+  plot2dCanvas_->replot();
+}
+
 void Layout2D::generateSpline2DPlot(Column *xData, Column *yData, int from,
                                     int to) {
   AxisRect2D *element = addAxisRectItem();

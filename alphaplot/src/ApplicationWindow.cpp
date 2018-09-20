@@ -27,8 +27,8 @@
 #include "AxesDialog.h"
 #include "ColorBox.h"
 #include "ConfigDialog.h"
-#include "Convolution.h"
-#include "Correlation.h"
+#include "analysis/Convolution.h"
+#include "analysis/Correlation.h"
 #include "CurveRangeDialog.h"
 #include "CurvesDialog.h"
 #include "DataSetDialog.h"
@@ -1820,8 +1820,6 @@ void ApplicationWindow::plotVectXYXY() {
 
   QStringList s = table->selectedColumns();
   if (s.count() == 4) {
-    multilayerPlot(table, s, Graph::VectXYXY, table->firstSelectedRow(),
-                   table->lastSelectedRow());
     Layout2D *layout = newGraph2D();
     layout->generateVector2DPlot(
         Vector2D::VectorPlot::XYXY, table->column(table->firstXCol()),
@@ -1843,8 +1841,6 @@ void ApplicationWindow::plotVectXYAM() {
 
   QStringList s = table->selectedColumns();
   if (s.count() == 4) {
-    multilayerPlot(table, s, Graph::VectXYAM, table->firstSelectedRow(),
-                   table->lastSelectedRow());
     Layout2D *layout = newGraph2D();
     layout->generateVector2DPlot(
         Vector2D::VectorPlot::XYAM, table->column(table->firstXCol()),
@@ -4254,6 +4250,14 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force) {
   QApplication::restoreOverrideCursor();
 
   return true;
+}
+
+void ApplicationWindow::newCurve2D(Table *table, QString xcolname,
+                                   QString ycolname) {
+  Layout2D *layout = newGraph2D();
+  layout->generateCurve2DPlot(
+      table, xcolname, ycolname, 0,
+      table->column(table->colIndex(xcolname))->rowCount() - 1);
 }
 
 void ApplicationWindow::showScriptingLangDialog() {
@@ -8908,9 +8912,9 @@ void ApplicationWindow::pixelLineProfile() {
   if (!g) return;
 
   bool ok;
-  int res = QInputDialog::getInt(
-      this, tr("Set the number of pixels to average"),
-      tr("Number of averaged pixels"), 1, 1, 2000, 2, &ok);
+  int res =
+      QInputDialog::getInt(this, tr("Set the number of pixels to average"),
+                           tr("Number of averaged pixels"), 1, 1, 2000, 2, &ok);
   if (!ok) return;
 
   LineProfileTool *lpt = new LineProfileTool(g, res);
@@ -10179,7 +10183,7 @@ void ApplicationWindow::fitMultiPeak(int profile) {
   } else {
     bool ok;
     int peaks = QInputDialog::getInt(this, tr("Enter the number of peaks"),
-                                         tr("Peaks"), 2, 2, 1000000, 1, &ok);
+                                     tr("Peaks"), 2, 2, 1000000, 1, &ok);
     if (ok && peaks) {
       graph->setActiveTool(new MultiPeakFitTool(
           graph, this, static_cast<MultiPeakFit::PeakProfile>(profile), peaks,
@@ -11664,7 +11668,7 @@ void ApplicationWindow::searchForUpdates() {
 }
 
 // Check the version number (check for updates)
-void ApplicationWindow::receivedVersionFile(QNetworkReply* reply) {
+void ApplicationWindow::receivedVersionFile(QNetworkReply *reply) {
   if (reply->error() != QNetworkReply::NoError) {
     QMessageBox::warning(this, tr("HTTP get version file"),
                          tr("Error while fetching version file with HTTP: %1.")
@@ -12037,15 +12041,6 @@ void ApplicationWindow::selectPlotType(int type) {
         table->column(table->firstXCol() + 1), 0, table->rowCnt() - 1);
 
     return;
-  }
-
-  MultiLayer *multilayer =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (multilayer) {
-    Graph *graph = multilayer->activeGraph();
-    if (graph->curves() > 0)
-      graph->setCurveType(graph->curves() - 1,
-                          static_cast<Graph::CurveType>(type));
   }
 }
 

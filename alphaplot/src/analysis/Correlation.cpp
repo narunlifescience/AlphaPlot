@@ -27,12 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "Correlation.h"
-#include "MultiLayer.h"
-#include "Plot.h"
-#include "PlotCurve.h"
-#include "ColorBox.h"
-#include <QMessageBox>
 #include <QLocale>
+#include <QMessageBox>
 #include "core/column/Column.h"
 
 #include <gsl/gsl_fft_halfcomplex.h>
@@ -53,13 +49,13 @@ void Correlation::setDataFromTable(Table *t, const QString &colName1,
   int col2 = d_table->colIndex(colName2);
 
   if (col1 < 0) {
-    QMessageBox::warning((ApplicationWindow *)parent(),
+    QMessageBox::warning(qobject_cast<ApplicationWindow *>(parent()),
                          tr("AlphaPlot") + " - " + tr("Error"),
                          tr("The data set %1 does not exist!").arg(colName1));
     d_init_err = true;
     return;
   } else if (col2 < 0) {
-    QMessageBox::warning((ApplicationWindow *)parent(),
+    QMessageBox::warning(qobject_cast<ApplicationWindow *>(parent()),
                          tr("AlphaPlot") + " - " + tr("Error"),
                          tr("The data set %1 does not exist!").arg(colName2));
     d_init_err = true;
@@ -86,7 +82,7 @@ void Correlation::setDataFromTable(Table *t, const QString &colName1,
       d_y[i] = d_table->cell(i, col2);
     }
   } else {
-    QMessageBox::critical((ApplicationWindow *)parent(),
+    QMessageBox::critical(qobject_cast<ApplicationWindow *>(parent()),
                           tr("AlphaPlot") + " - " + tr("Error"),
                           tr("Could not allocate memory, operation aborted!"));
     d_init_err = true;
@@ -111,7 +107,7 @@ void Correlation::output() {
       }
     }
   } else {
-    QMessageBox::warning((ApplicationWindow *)parent(),
+    QMessageBox::warning(qobject_cast<ApplicationWindow *>(parent()),
                          tr("AlphaPlot") + " - " + tr("Error"),
                          tr("Error in GSL forward FFT operation!"));
     return;
@@ -123,7 +119,7 @@ void Correlation::output() {
 }
 
 void Correlation::addResultCurve() {
-  ApplicationWindow *app = (ApplicationWindow *)parent();
+  ApplicationWindow *app = qobject_cast<ApplicationWindow *>(parent());
   if (!app) return;
 
   int rows = d_table->numRows();
@@ -153,14 +149,5 @@ void Correlation::addResultCurve() {
   d_table->setColName(cols, tr("Lag") + id);
   d_table->setColName(cols2, label);
   d_table->setColPlotDesignation(cols, AlphaPlot::X);
-
-  MultiLayer *ml = app->newGraph(objectName() + tr("Plot"));
-  if (!ml) return;
-
-  DataCurve *c =
-      new DataCurve(d_table, d_table->colName(cols), d_table->colName(cols2));
-  c->setData(&x_temp[0], &y_temp[0], rows);
-  c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
-  ml->activeGraph()->insertPlotItem(c, Graph::Line);
-  ml->activeGraph()->updatePlot();
+  app->newCurve2D(d_table, d_table->colName(cols), d_table->colName(cols2));
 }

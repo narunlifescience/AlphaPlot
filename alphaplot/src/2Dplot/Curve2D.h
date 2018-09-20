@@ -2,17 +2,21 @@
 #define CURVE2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "LineScatterCommon.h"
 #include "Axis2D.h"
+#include "LineScatterCommon.h"
 
-class Curve2D : public QCPCurve
-{
+class Table;
+class DataBlockCurveData;
+
+class Curve2D : public QCPCurve {
   Q_OBJECT
-public:
-  explicit Curve2D(Axis2D *xAxis= nullptr, Axis2D *yAxis=nullptr);
+ public:
+  explicit Curve2D(Axis2D *xAxis = nullptr, Axis2D *yAxis = nullptr);
   ~Curve2D();
 
   void setGraphData(QVector<double> *xdata, QVector<double> *ydata);
+  void setGraphData(Table *table, QString xcolname, QString ycolname, int from,
+                    int to);
 
   // Getters
   int getlinetype_cplot() const;
@@ -51,10 +55,11 @@ public:
   void setlinefillstatus_cplot(const bool value);
   void setlegendtext_cplot(const QString &text);
 
-private:
+ private:
   Axis2D *xAxis_;
   Axis2D *yAxis_;
   QCPScatterStyle *scatterstyle_;
+  DataBlockCurveData *curvedata_;
 };
 
-#endif // CURVE2D_H
+#endif  // CURVE2D_H
