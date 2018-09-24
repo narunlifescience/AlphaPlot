@@ -159,6 +159,7 @@ class MyWidget : public QMdiSubWindow {
   void updateCaption();
 
  protected:
+  virtual void changeEvent(QEvent *event);
   //! Catches parent changes (in order to gain access to the title bar)
   virtual void contextMenuEvent(QContextMenuEvent *event);
 

@@ -6,7 +6,8 @@
 #include "LineScatterCommon.h"
 
 class Table;
-class DataBlockCurveData;
+class Column;
+class DataBlockCurve;
 
 class Curve2D : public QCPCurve {
   Q_OBJECT
@@ -15,8 +16,7 @@ class Curve2D : public QCPCurve {
   ~Curve2D();
 
   void setGraphData(QVector<double> *xdata, QVector<double> *ydata);
-  void setGraphData(Table *table, QString xcolname, QString ycolname, int from,
-                    int to);
+  void setCurveData(Table *table, Column *xcol, Column *ycol, int from, int to);
 
   // Getters
   int getlinetype_cplot() const;
@@ -36,6 +36,8 @@ class Curve2D : public QCPCurve {
   QString getlegendtext_cplot() const;
   Axis2D *getxaxis_cplot() const;
   Axis2D *getyaxis_cplot() const;
+  LSCommon::PlotType getplottype_curveplot() const { return type_; }
+  DataBlockCurve *getdatablock_curveplot() const { return curvedata_; }
   // Setters
   void setxaxis_cplot(Axis2D *axis);
   void setyaxis_cplot(Axis2D *axis);
@@ -59,7 +61,8 @@ class Curve2D : public QCPCurve {
   Axis2D *xAxis_;
   Axis2D *yAxis_;
   QCPScatterStyle *scatterstyle_;
-  DataBlockCurveData *curvedata_;
+  DataBlockCurve *curvedata_;
+  LSCommon::PlotType type_;
 };
 
 #endif  // CURVE2D_H

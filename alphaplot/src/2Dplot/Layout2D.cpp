@@ -16,6 +16,7 @@
 #include "Curve2D.h"
 #include "LayoutGrid2D.h"
 #include "LineScatter2D.h"
+#include "Table.h"
 #include "widgets/Axis2DPropertiesDialog.h"
 #include "widgets/ImageExportDialog2D.h"
 #include "widgets/LayoutButton2D.h"
@@ -195,7 +196,8 @@ void Layout2D::generateParametric2DPlot(QVector<double> *xdata,
   plot2dCanvas_->replot();
 }
 
-void Layout2D::generateStatBox2DPlot(Column *data, int from, int to, int key) {
+void Layout2D::generateStatBox2DPlot(Table *table, Column *data, int from,
+                                     int to, int key) {
   StatBox2D::BoxWhiskerData statBoxData =
       generateBoxWhiskerData(data, from, to, key);
   AxisRect2D *element = addAxisRectItem();
@@ -222,8 +224,9 @@ void Layout2D::generateStatBox2DPlot(Column *data, int from, int to, int key) {
   plot2dCanvas_->replot();
 }
 
-void Layout2D::generateBar2DPlot(const BarType &barType, Column *xData,
-                                 Column *yData, int from, int to) {
+void Layout2D::generateBar2DPlot(const BarType &barType, Table *table,
+                                 Column *xData, Column *yData, int from,
+                                 int to) {
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
@@ -242,18 +245,16 @@ void Layout2D::generateBar2DPlot(const BarType &barType, Column *xData,
       break;
   }
 
-  bar = element->addBox2DPlot(type, xData, yData, from, to, xAxis.at(0),
+  bar = element->addBox2DPlot(type, table, xData, yData, from, to, xAxis.at(0),
                               yAxis.at(0));
-  bar->setName("Table " + QString::number(xData->index() + 1) + "_" +
-               QString::number(yData->index() + 1));
   bar->rescaleAxes();
   plot2dCanvas_->replot();
 }
 
 void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
-                                    Column *x1Data, Column *y1Data,
-                                    Column *x2Data, Column *y2Data, int from,
-                                    int to) {
+                                    Table *table, Column *x1Data,
+                                    Column *y1Data, Column *x2Data,
+                                    Column *y2Data, int from, int to) {
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
@@ -263,20 +264,17 @@ void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
 
   Vector2D *vex =
-      element->addVectorPlot(vectorplot, x1Data, y1Data, x2Data, y2Data, from,
-                             to, xAxis.at(0), yAxis.at(0));
-  vex->setName("Table " + QString::number(x1Data->index() + 1) + "_" +
-               QString::number(y1Data->index() + 1) + "_" +
-               QString::number(x2Data->index() + 1) + "_" +
-               QString::number(y2Data->index() + 1));
+      element->addVectorPlot(vectorplot, table, x1Data, y1Data, x2Data, y2Data,
+                             from, to, xAxis.at(0), yAxis.at(0));
   vex->rescaleAxes();
   plot2dCanvas_->replot();
 }
 
-void Layout2D::generatePie2DPlot(Column *xData, int from, int to) {
+void Layout2D::generatePie2DPlot(Table *table, Column *xData, int from,
+                                 int to) {
   AxisRect2D *element = addAxisRectItem();
 
-  Pie2D *pie = element->addPie2DPlot(xData, from, to);
+  Pie2D *pie = element->addPie2DPlot(table, xData, from, to);
   // pie->rescaleAxes();
   plot2dCanvas_->replot();
 }
@@ -290,8 +288,8 @@ QList<AxisRect2D *> Layout2D::getAxisRectList() {
 }
 
 void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
-                                         Column *xData, Column *yData, int from,
-                                         int to) {
+                                         Table *table, Column *xData,
+                                         Column *yData, int from, int to) {
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
@@ -304,53 +302,53 @@ void Layout2D::generateLineScatter2DPlot(const LineScatterType &plotType,
 
   switch (plotType) {
     case Line2D: {
-      linescatter = element->addLineScatter2DPlot(
-          AxisRect2D::Line2D, xData, yData, from, to, xAxis.at(0), yAxis.at(0));
+      linescatter =
+          element->addLineScatter2DPlot(AxisRect2D::Line2D, table, xData, yData,
+                                        from, to, xAxis.at(0), yAxis.at(0));
     } break;
     case Scatter2D: {
-      linescatter =
-          element->addLineScatter2DPlot(AxisRect2D::Scatter2D, xData, yData,
-                                        from, to, xAxis.at(0), yAxis.at(0));
+      linescatter = element->addLineScatter2DPlot(AxisRect2D::Scatter2D, table,
+                                                  xData, yData, from, to,
+                                                  xAxis.at(0), yAxis.at(0));
     } break;
     case LineAndScatter2D: {
       linescatter = element->addLineScatter2DPlot(AxisRect2D::LineAndScatter2D,
-                                                  xData, yData, from, to,
+                                                  table, xData, yData, from, to,
                                                   xAxis.at(0), yAxis.at(0));
     } break;
     case VerticalDropLine2D: {
       linescatter = element->addLineScatter2DPlot(
-          AxisRect2D::VerticalDropLine2D, xData, yData, from, to, xAxis.at(0),
-          yAxis.at(0));
+          AxisRect2D::VerticalDropLine2D, table, xData, yData, from, to,
+          xAxis.at(0), yAxis.at(0));
     } break;
     case CentralStepAndScatter2D: {
       linescatter = element->addLineScatter2DPlot(
-          AxisRect2D::CentralStepAndScatter2D, xData, yData, from, to,
+          AxisRect2D::CentralStepAndScatter2D, table, xData, yData, from, to,
           xAxis.at(0), yAxis.at(0));
     } break;
     case HorizontalStep2D: {
       linescatter = element->addLineScatter2DPlot(AxisRect2D::HorizontalStep2D,
-                                                  xData, yData, from, to,
+                                                  table, xData, yData, from, to,
                                                   xAxis.at(0), yAxis.at(0));
     } break;
     case VerticalStep2D: {
       linescatter = element->addLineScatter2DPlot(AxisRect2D::VerticalStep2D,
-                                                  xData, yData, from, to,
+                                                  table, xData, yData, from, to,
                                                   xAxis.at(0), yAxis.at(0));
     } break;
     case Area2D: {
-      linescatter = element->addLineScatter2DPlot(
-          AxisRect2D::Area2D, xData, yData, from, to, xAxis.at(0), yAxis.at(0));
+      linescatter =
+          element->addLineScatter2DPlot(AxisRect2D::Area2D, table, xData, yData,
+                                        from, to, xAxis.at(0), yAxis.at(0));
     } break;
   }
 
-  linescatter->setName("Table " + QString::number(xData->index() + 1) + "_" +
-                       QString::number(yData->index() + 1));
   linescatter->rescaleAxes();
   plot2dCanvas_->replot();
 }
 
-void Layout2D::generateCurve2DPlot(Table *table, QString xcolname,
-                                   QString ycolname, int from, int to) {
+void Layout2D::generateCurve2DPlot(Table *table, Column *xcol, Column *ycol,
+                                   int from, int to) {
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
@@ -359,15 +357,15 @@ void Layout2D::generateCurve2DPlot(Table *table, QString xcolname,
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
 
-  Curve2D *curve = element->addCurve2DPlot(table, xcolname, ycolname, from, to,
+  Curve2D *curve = element->addCurve2DPlot(table, xcol, ycol, from, to,
                                            xAxis.at(0), yAxis.at(0));
-  curve->setName("Table" + xcolname + "_" + ycolname);
+
   curve->rescaleAxes();
   plot2dCanvas_->replot();
 }
 
-void Layout2D::generateSpline2DPlot(Column *xData, Column *yData, int from,
-                                    int to) {
+void Layout2D::generateSpline2DPlot(Table *table, Column *xData, Column *yData,
+                                    int from, int to) {
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
@@ -376,11 +374,9 @@ void Layout2D::generateSpline2DPlot(Column *xData, Column *yData, int from,
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
 
-  Spline2D *spline = element->addSpline2DPlot(xData, yData, from, to,
+  Spline2D *spline = element->addSpline2DPlot(table, xData, yData, from, to,
                                               xAxis.at(0), yAxis.at(0));
 
-  spline->setName("Table " + QString::number(xData->index() + 1) + "_" +
-                  QString::number(yData->index() + 1));
   spline->rescaleAxes();
   plot2dCanvas_->replot();
 }

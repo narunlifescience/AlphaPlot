@@ -4,28 +4,25 @@
 #include "../future/core/column/Column.h"
 #include "Table.h"
 
-DataBlock2::DataBlock2(Table *table, Column *xcolumn, Column *ycolumn, int from,
-                       int to)
+DataBlockGraph::DataBlockGraph(Table *table, Column *xcolumn, Column *ycolumn,
+                               int from, int to)
     : isvalid_(new QList<bool>()),
-      data_(new QVector<QCPGraphData>()),
+      data_(new QCPGraphDataContainer),
       table_(table),
       xcolumn_(xcolumn),
       ycolumn_(ycolumn),
       from_(from),
       to_(to) {
-  generateDataBlock2();
+  generateDataBlockGraph();
 }
 
-DataBlock2::~DataBlock2() {
-  delete isvalid_;
-  delete data_;
-}
+DataBlockGraph::~DataBlockGraph() { delete isvalid_; }
 
-void DataBlock2::addat(const int position, const bool valid, const double x,
-                       const double y) {
+void DataBlockGraph::addat(const int position, const bool valid, const double x,
+                           const double y) {
   Q_ASSERT(position >= 0);
   isvalid_->insert(position, valid);
-  data_->insert(position, QCPGraphData(x, y));
+  data_->add(QCPGraphData(x, y));
 
   if (xrange_.lower > x) {
     xrange_.lower = x;
@@ -44,7 +41,9 @@ void DataBlock2::addat(const int position, const bool valid, const double x,
   }
 }
 
-void DataBlock2::generateDataBlock2() {
+void DataBlockGraph::generateDataBlockGraph() {
+  QVector<QCPGraphData> *gdvector = new QVector<QCPGraphData>();
+
   // strip unused end rows
   int end_row = to_;
   if (end_row >= xcolumn_->rowCount()) end_row = xcolumn_->rowCount() - 1;
@@ -56,13 +55,13 @@ void DataBlock2::generateDataBlock2() {
       isvalid_->append(false);
       QCPGraphData data(std::numeric_limits<double>::quiet_NaN(),
                         std::numeric_limits<double>::quiet_NaN());
-      data_->append(data);
+      gdvector->append(data);
     } else {
       isvalid_->append(true);
       double xdata = xcolumn_->valueAt(row);
       double ydata = ycolumn_->valueAt(row);
       QCPGraphData data(xdata, ydata);
-      data_->append(data);
+      gdvector->append(data);
 
       if (xrange_.lower > xdata) {
         xrange_.lower = xdata;
@@ -81,29 +80,30 @@ void DataBlock2::generateDataBlock2() {
       }
     }
   }
+  data_.data()->add(*gdvector, true);
+  gdvector->clear();
+  delete gdvector;
 }
 
-DataBlockCurveData::DataBlockCurveData(Table *table, QString xcolname,
-                                       QString ycolname, int from, int to)
+DataBlockCurve::DataBlockCurve(Table *table, Column *xcol, Column *ycol,
+                               int from, int to)
     : isvalid_(new QList<bool>()),
       data_(new QCPCurveDataContainer),
       table_(table),
-      xcolname_(xcolname),
-      ycolname_(ycolname),
+      xcol_(xcol),
+      ycol_(ycol),
       from_(from),
       to_(to) {
-  generateDataBlockCurveData();
+  generateDataBlockCurve();
 }
 
-DataBlockCurveData::~DataBlockCurveData() {
-  delete isvalid_;
-}
+DataBlockCurve::~DataBlockCurve() { delete isvalid_; }
 
-void DataBlockCurveData::addat(const int position, const bool valid,
-                               const double x, const double y) {
+void DataBlockCurve::addat(const int position, const bool valid, const double x,
+                           const double y) {
   Q_ASSERT(position >= 0);
   isvalid_->insert(position, valid);
-  data_->add( QCPCurveData(position, x, y));
+  data_->add(QCPCurveData(position, x, y));
 
   if (xrange_.lower > x) {
     xrange_.lower = x;
@@ -122,25 +122,23 @@ void DataBlockCurveData::addat(const int position, const bool valid,
   }
 }
 
-void DataBlockCurveData::generateDataBlockCurveData() {
+void DataBlockCurve::generateDataBlockCurve() {
   // strip unused end rows
   int end_row = to_;
-  Column *xcolumn_ = table_->column(table_->colIndex(xcolname_));
-  Column *ycolumn_ = table_->column(table_->colIndex(ycolname_));
-  if (end_row >= xcolumn_->rowCount()) end_row = xcolumn_->rowCount() - 1;
-  if (end_row >= ycolumn_->rowCount()) end_row = ycolumn_->rowCount() - 1;
+  if (end_row >= xcol_->rowCount()) end_row = xcol_->rowCount() - 1;
+  if (end_row >= ycol_->rowCount()) end_row = ycol_->rowCount() - 1;
 
   // determine rows for which all columns have valid content
   for (int i = 0, row = from_; row <= end_row; row++) {
-    if (xcolumn_->isInvalid(row) || ycolumn_->isInvalid(row)) {
+    if (xcol_->isInvalid(row) || ycol_->isInvalid(row)) {
       isvalid_->append(false);
       QCPCurveData data(i, std::numeric_limits<double>::quiet_NaN(),
                         std::numeric_limits<double>::quiet_NaN());
       data_->add(data);
     } else {
       isvalid_->append(true);
-      double xdata = xcolumn_->valueAt(row);
-      double ydata = ycolumn_->valueAt(row);
+      double xdata = xcol_->valueAt(row);
+      double ydata = ycol_->valueAt(row);
       QCPCurveData data(i, xdata, ydata);
       data_->add(data);
 

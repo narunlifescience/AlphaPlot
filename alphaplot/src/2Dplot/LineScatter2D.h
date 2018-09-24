@@ -2,11 +2,13 @@
 #define LINESCATTER2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "LineScatterCommon.h"
 #include "Axis2D.h"
+#include "LineScatterCommon.h"
 
 class Column;
-//class PlotPoint;
+class Table;
+class DataBlockGraph;
+// class PlotPoint;
 
 class LineScatter2D : public QCPGraph {
   Q_OBJECT
@@ -14,7 +16,7 @@ class LineScatter2D : public QCPGraph {
   LineScatter2D(Axis2D *xAxis = nullptr, Axis2D *yAxis = nullptr);
   ~LineScatter2D();
 
-  void setGraphData(Column *xData, Column *yData, int from, int to);
+  void setGraphData(Table *table, Column *xcol, Column *ycol, int from, int to);
   void setGraphData(QVector<double> *xdata, QVector<double> *ydata);
   // Getters
   LSCommon::LineStyleType getlinetype_lsplot() const;
@@ -34,6 +36,8 @@ class LineScatter2D : public QCPGraph {
   QString getlegendtext_lsplot() const;
   Axis2D *getxaxis_lsplot() const;
   Axis2D *getyaxis_lsplot() const;
+  LSCommon::PlotType getplottype_lsplot() const { return type_; }
+  DataBlockGraph *getdatablock_lsplot() const { return graphdata_; }
   // Setters
   void setlinetype_lsplot(const LSCommon::LineStyleType &line);
   void setlinestrokestyle_lsplot(const Qt::PenStyle &style);
@@ -53,17 +57,19 @@ class LineScatter2D : public QCPGraph {
   void setxaxis_lsplot(Axis2D *axis);
   void setyaxis_lsplot(Axis2D *axis);
 
-protected:
+ protected:
   void mousePressEvent(QMouseEvent *event, const QVariant &details);
-  void mouseMoveEvent(QMouseEvent *event,  const QPointF &startPos);
+  void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
   void keyPressEvent(QKeyEvent *event);
   void keyreleaseEvent(QKeyEvent *event);
 
-private:
+ private:
   Axis2D *xAxis_;
   Axis2D *yAxis_;
   QCPScatterStyle *scatterstyle_;
-  //PlotPoint *mPointUnderCursor;
+  DataBlockGraph *graphdata_;
+  LSCommon::PlotType type_;
+  // PlotPoint *mPointUnderCursor;
 };
 
 #endif  // LINESCATTER2D_H

@@ -149,5 +149,5 @@ void Correlation::addResultCurve() {
   d_table->setColName(cols, tr("Lag") + id);
   d_table->setColName(cols2, label);
   d_table->setColPlotDesignation(cols, AlphaPlot::X);
-  app->newCurve2D(d_table, d_table->colName(cols), d_table->colName(cols2));
+  app->newCurve2D(d_table, d_table->column(cols), d_table->column(cols2));
 }

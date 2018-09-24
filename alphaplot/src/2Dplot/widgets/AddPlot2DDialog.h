@@ -1,8 +1,8 @@
 #ifndef ADDPLOT2DDIALOG_H
 #define ADDPLOT2DDIALOG_H
 
-
 #include <QDialog>
+#include "../AxisRect2D.h"
 
 class QComboBox;
 class QListWidget;
@@ -16,15 +16,11 @@ class AddPlot2DDialog : public QDialog {
   Q_OBJECT
 
  public:
-  AddPlot2DDialog(QWidget* parent = nullptr, Qt::WFlags fl = 0);
-
-  void setLayout2D(AxisRect2D* axisrect);
+  AddPlot2DDialog(QWidget* parent, AxisRect2D* axisrect, Qt::WFlags fl = 0);
 
  private slots:
   void addCurves();
-  void removeCurves();
   int curveStyle();
-  void showCurveRangeDialog();
   void showPlotAssociations();
   void showFunctionDialog();
 
@@ -42,38 +38,33 @@ the graph contents list, depending on the selected item in this list:
 <tr>  <td>all others</td>   <td>no</td> <td>yes</td> <td>yes</td>   </tr>
 </table>
   */
-  void showCurveBtn(int);
   void enableAddBtn();
-  void enableRemoveBtn();
-  void showCurveRange(bool);
-  void updateCurveRange();
   void showCurrentFolder(bool);
 
  private:
-  void closeEvent(QCloseEvent*);
+  void closeEvent(QCloseEvent* event);
 
   void init();
-  bool addCurve(const QString& name);
+  void loadplotcontents();
   QSize sizeHint() const;
   void contextMenuEvent(QContextMenuEvent*);
 
-  ApplicationWindow *app_;
+  ApplicationWindow* app_;
   int defaultCurveLineWidth, defaultSymbolSize;
   AxisRect2D* axisrect_;
+  QList<QPair<Table*, Column*>> available_columns_;
+  QList<QPair<Table*, Column*>> plotted_columns_;
 
   QPushButton* btnAdd;
-  QPushButton* btnRemove;
   QPushButton* btnOK;
   QPushButton* btnCancel;
   QPushButton* btnAssociations;
   QPushButton* btnEditFunction;
-  QPushButton* btnRange;
   QListWidget* available;
   QListWidget* contents;
   QComboBox* boxStyle;
   QComboBox* boxMatrixStyle;
-  QCheckBox* boxShowRange;
   QCheckBox* boxShowCurrentFolder;
 };
 
-#endif // ADDPLOT2DDIALOG_H
+#endif  // ADDPLOT2DDIALOG_H

@@ -133,6 +133,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/2Dplot/widgets/ImageExportDialog2D.h \
             src/2Dplot/LineScatterCommon.h \
             src/2Dplot/widgets/AddPlot2DDialog.h \
+    $$PWD/src/2Dplot/LineItem2D.h
 
 ###################### SOURCES ##############################################
 
@@ -263,6 +264,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/2Dplot/widgets/AddAxisWidget.cpp \
             src/2Dplot/widgets/ImageExportDialog2D.cpp \
             src/2Dplot/widgets/AddPlot2DDialog.cpp \
+    $$PWD/src/2Dplot/LineItem2D.cpp
 
 ###################### FORMS ##############################################
 FORMS        += src/ApplicationWindow.ui \

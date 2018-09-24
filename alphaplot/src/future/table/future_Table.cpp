@@ -97,7 +97,7 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns,
 #else
 Table::Table(void *engine, int rows, int columns, const QString &name)
     : AbstractPart(name),
-      d_plot_menu(0)
+      d_plot_menu(nullptr)
 #endif
 {
   Q_UNUSED(engine);
@@ -113,7 +113,7 @@ Table::Table(void *engine, int rows, int columns, const QString &name)
   appendColumns(cols);
   setRowCount(rows);
 
-  d_view = NULL;
+  d_view = nullptr;
   createActions();
   connectActions();
 }
@@ -127,8 +127,8 @@ Table::Table()
     : AbstractPart("temp")
 #endif
 {
-  d_view = NULL;
-  d_table_private = NULL;
+  d_view = nullptr;
+  d_table_private = nullptr;
   createActions();
 }
 
@@ -618,7 +618,7 @@ void Table::fillSelectedCellsWithCustomRandomNumbers() {
 
   foreach (Column *col_ptr, d_view->selectedColumns()) {
     if (col_ptr->columnMode() != AlphaPlot::Numeric) {
-      QMessageBox::warning(0, tr("Random Distribution Error!"),
+      QMessageBox::warning(nullptr, tr("Random Distribution Error!"),
                            tr("Random distributions can be only applied to "
                               "numeric columns. "));
       return;
@@ -654,8 +654,8 @@ void Table::generateRandomDistribution(
   beginMacro(tr("%1: fill cells with non-uniform random values").arg(name()));
 
   // initialize a function pointer lambda
-  double (*rndDistLmd)(gsl_rng * rnd, const QVector<double> &prm) = [](
-      gsl_rng *, const QVector<double> &) -> double {
+  double (*rndDistLmd)(gsl_rng * rnd, const QVector<double> &prm) =
+      [](gsl_rng *, const QVector<double> &) -> double {
     qDebug() << "unknown non uniform random distribution";
     return std::nan("null");
   };
@@ -1542,7 +1542,7 @@ bool Table::export_to_TeX(QString fileName, TeXTableSettings &tex_settings) {
 
   if (!file.open(QIODevice::WriteOnly)) {
     QApplication::restoreOverrideCursor();
-    QMessageBox::critical(0, tr("TeX Export Error"),
+    QMessageBox::critical(nullptr, tr("TeX Export Error"),
                           tr("Could not write to file: "
                              "<br><h4>%1</h4><p>Please verify that you "
                              "have the right to write to this location!")
@@ -1744,12 +1744,13 @@ void Table::goToCell() {
   if (!d_view) return;
   bool ok;
 
-  int col = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter column"), 1,
-                                     1, columnCount(), 1, &ok);
+  int col =
+      QInputDialog::getInteger(nullptr, tr("Go to Cell"), tr("Enter column"), 1,
+                               1, columnCount(), 1, &ok);
   if (!ok) return;
 
-  int row = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter row"), 1, 1,
-                                     rowCount(), 1, &ok);
+  int row = QInputDialog::getInteger(nullptr, tr("Go to Cell"), tr("Enter row"),
+                                     1, 1, rowCount(), 1, &ok);
   if (!ok) return;
 
   d_view->goToCell(row - 1, col - 1);
@@ -2320,7 +2321,7 @@ int Table::columnWidth(int col) const {
 }
 
 /* ========================= static methods ======================= */
-ActionManager *Table::action_manager = 0;
+ActionManager *Table::action_manager = nullptr;
 
 ActionManager *Table::actionManager() {
   if (!action_manager) initActionManager();
@@ -2551,4 +2552,4 @@ QVariant Table::Private::headerData(int section, Qt::Orientation orientation,
   }
   return QVariant();
 }
-}  // namespace
+}  // namespace future

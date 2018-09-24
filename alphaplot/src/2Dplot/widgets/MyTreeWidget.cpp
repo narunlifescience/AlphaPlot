@@ -37,8 +37,7 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
           SLOT(showContextMenu(const QPoint &)));
   connect(addfunctiongraph_, SIGNAL(triggered(bool)), this,
           SLOT(addfunctiongraph()));
-  connect(addgraph_, SIGNAL(triggered(bool)), this,
-          SLOT(addplot()));
+  connect(addgraph_, SIGNAL(triggered(bool)), this, SLOT(addplot()));
   connect(addaxis_, SIGNAL(triggered(bool)), this, SLOT(addaxis()));
   connect(removeaxis_, SIGNAL(triggered(bool)), this, SLOT(removeaxis()));
   connect(removels_, SIGNAL(triggered(bool)), this, SLOT(removels()));
@@ -101,13 +100,14 @@ void MyTreeWidget::addplot() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
-  std::unique_ptr<AddPlot2DDialog> addplot2d(new AddPlot2DDialog(widget_));
+  std::unique_ptr<AddPlot2DDialog> addplot2d(
+      new AddPlot2DDialog(widget_, axisrect));
   addplot2d->setModal(true);
   addplot2d->exec();
 }
 
 void MyTreeWidget::addaxis() {
-  AddAxisWidget *ad = new AddAxisWidget();
+  AddAxisWidget *ad = new AddAxisWidget(nullptr);
   ad->setAttribute(Qt::WA_DeleteOnClose);
   ad->setModal(true);
   ad->show();

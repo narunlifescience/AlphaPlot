@@ -31,19 +31,21 @@ void Curve2D::setGraphData(QVector<double> *xdata, QVector<double> *ydata) {
     functionData->add(fd);
   }
   setData(functionData);
+  type_ = LSCommon::PlotType::Function;
   // free those containers
   delete xdata;
   delete ydata;
 }
 
-void Curve2D::setGraphData(Table *table, QString xcolname, QString ycolname,
-                           int from, int to) {
+void Curve2D::setCurveData(Table *table, Column *xcol, Column *ycol, int from,
+                           int to) {
   if (curvedata_) {
-    qDebug() << "DataBlockCurveData already set";
+    qDebug() << "DataBlockCurve already set";
     return;
   }
-  curvedata_ = new DataBlockCurveData(table, xcolname, ycolname, from, to);
+  curvedata_ = new DataBlockCurve(table, xcol, ycol, from, to);
   setData(curvedata_->data());
+   type_ = LSCommon::PlotType::Associated;
 }
 
 int Curve2D::getlinetype_cplot() const {

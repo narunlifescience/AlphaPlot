@@ -16,8 +16,9 @@
 
 #include "AxisRect2D.h"
 #include "../future/core/column/Column.h"
-//#include "FunctionDialog.h"
 #include "Legend2D.h"
+#include "QMessageBox"
+#include "Table.h"
 
 #include "core/Utilities.h"
 
@@ -70,7 +71,41 @@ Axis2D *AxisRect2D::addAxis2D(const Axis2D::AxisOreantation &orientation) {
 }
 
 bool AxisRect2D::removeAxis2D(Axis2D *axis) {
-  bool status = removeAxis(static_cast<QCPAxis *>(axis));
+  bool status = true;
+  foreach (LineScatter2D *ls, lsvec_) {
+    if (ls->getxaxis_lsplot() == axis || ls->getyaxis_lsplot() == axis)
+      status = false;
+  }
+
+  foreach (Curve2D *curve, curvevec_) {
+    if (curve->getxaxis_cplot() == axis || curve->getyaxis_cplot() == axis)
+      status = false;
+  }
+
+  foreach (Spline2D *spline, splinevec_) {
+    if (spline->getxaxis_splot() == axis || spline->getyaxis_splot() == axis)
+      status = false;
+  }
+
+  foreach (Vector2D *vec, vectorvec_) {
+    if (vec->getxaxis_vecplot() == axis || vec->getyaxis_vecplot() == axis)
+      status = false;
+  }
+
+  foreach (Bar2D *bar, barvec_) {
+    if (bar->getxaxis_barplot() == axis || bar->getyaxis_barplot() == axis)
+      status = false;
+  }
+
+  if (!status) {
+    QMessageBox::warning(
+        nullptr, tr("Axis associated with plot"),
+        tr("This axis is associated with a plot! eithor remove the plot or "
+           "change the plot to anothor axis"));
+    return false;
+  }
+
+  status = removeAxis(static_cast<QCPAxis *>(axis));
   if (status) {
     for (int i = 0; i < axes_.size(); i++) {
       if (axes_.at(i) == axis) axes_.removeAt(i);
@@ -174,8 +209,8 @@ Axis2D *AxisRect2D::getYAxis(int value) {
 }
 
 LineScatter2D *AxisRect2D::addLineScatter2DPlot(
-    const AxisRect2D::LineScatterType &type, Column *xData, Column *yData,
-    int from, int to, Axis2D *xAxis, Axis2D *yAxis) {
+    const AxisRect2D::LineScatterType &type, Table *table, Column *xData,
+    Column *yData, int from, int to, Axis2D *xAxis, Axis2D *yAxis) {
   LineScatter2D *lineScatter = new LineScatter2D(xAxis, yAxis);
   lineScatter->setlinefillcolor_lsplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
@@ -239,32 +274,36 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
       break;
   }
 
-  lineScatter->setGraphData(xData, yData, from, to);
+  lineScatter->setGraphData(table, xData, yData, from, to);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineScatter);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  lineScatter->setName(table->name() + "_" + xData->name() + "_" +
+                       yData->name());
   lsvec_.append(lineScatter);
 
   emit LineScatterCreated(lineScatter);
   return lineScatter;
 }
 
-Curve2D *AxisRect2D::addCurve2DPlot(Table *table, QString xcolname,
-                                    QString ycolname, int from, int to,
-                                    Axis2D *xAxis, Axis2D *yAxis) {
+Curve2D *AxisRect2D::addCurve2DPlot(Table *table, Column *xcol, Column *ycol,
+                                    int from, int to, Axis2D *xAxis,
+                                    Axis2D *yAxis) {
   Curve2D *curve = new Curve2D(xAxis, yAxis);
-  curve->setGraphData(table, xcolname, ycolname, from, to);
+  curve->setCurveData(table, xcol, ycol, from, to);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  curve->setName(table->name() + "_" + xcol->name() + "_" + ycol->name());
   curvevec_.append(curve);
 
   emit CurveCreated(curve);
   return curve;
 }
 
-Spline2D *AxisRect2D::addSpline2DPlot(Column *xData, Column *yData, int from,
-                                      int to, Axis2D *xAxis, Axis2D *yAxis) {
+Spline2D *AxisRect2D::addSpline2DPlot(Table *table, Column *xData,
+                                      Column *yData, int from, int to,
+                                      Axis2D *xAxis, Axis2D *yAxis) {
   Spline2D *spline = new Spline2D(xAxis, yAxis);
   spline->setlinefillcolor_splot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
@@ -272,6 +311,7 @@ Spline2D *AxisRect2D::addSpline2DPlot(Column *xData, Column *yData, int from,
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, spline);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  spline->setName(table->name() + "_" + xData->name() + "_" + yData->name());
   splinevec_.append(spline);
 
   emit SplineCreated(spline);
@@ -316,9 +356,9 @@ Curve2D *AxisRect2D::addCurveFunction2DPlot(QVector<double> *xdata,
   return curve;
 }
 
-Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Column *xData,
-                                Column *yData, int from, int to, Axis2D *xAxis,
-                                Axis2D *yAxis) {
+Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
+                                Column *xData, Column *yData, int from, int to,
+                                Axis2D *xAxis, Axis2D *yAxis) {
   Bar2D *bar;
   switch (type) {
     case HorizontalBars:
@@ -336,6 +376,7 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Column *xData,
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, bar);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  bar->setName(table->name() + "_" + xData->name() + "_" + yData->name());
   barvec_.append(bar);
 
   emit BarCreated(bar);
@@ -343,21 +384,24 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Column *xData,
 }
 
 Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
-                                    Column *x1Data, Column *y1Data,
-                                    Column *x2Data, Column *y2Data, int from,
-                                    int to, Axis2D *xAxis, Axis2D *yAxis) {
+                                    Table *table, Column *x1Data,
+                                    Column *y1Data, Column *x2Data,
+                                    Column *y2Data, int from, int to,
+                                    Axis2D *xAxis, Axis2D *yAxis) {
   Vector2D *vec = new Vector2D(xAxis, yAxis);
   vec->setGraphData(vectorplot, x1Data, y1Data, x2Data, y2Data, from, to);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, vec);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  vec->setName(table->name() + "_" + x1Data->name() + "_" + y1Data->name() +
+               "_" + x2Data->name() + "_" + y2Data->name());
   vectorvec_.append(vec);
 
   emit VectorCreated(vec);
   return vec;
 }
 
-Pie2D *AxisRect2D::addPie2DPlot(Column *xData, int from, int to) {
+Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
   // remove all axis
   /*for (int i = 0; i < axes_.size(); i++) {
     removeAxis2D(axes_.at(i));

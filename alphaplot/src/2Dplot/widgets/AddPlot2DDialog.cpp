@@ -1,4 +1,5 @@
 #include "AddPlot2DDialog.h"
+#include "../DataManager2D.h"
 
 #include "ApplicationWindow.h"
 #include "Folder.h"
@@ -8,6 +9,7 @@
 #include "PlotCurve.h"
 #include "Table.h"
 #include "core/IconLoader.h"
+#include "core/column/Column.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -21,13 +23,17 @@
 #include <QPushButton>
 #include <QShortcut>
 
+#include <QList>
 #include <QMessageBox>
+#include <QPair>
 
-AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, Qt::WFlags fl)
-    : QDialog(parent, fl), app_(nullptr), axisrect_(nullptr) {
-  Q_ASSERT(parent);
-  app_ = qobject_cast<ApplicationWindow *>(parent->parent());
+AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
+                                 Qt::WFlags fl)
+    : QDialog(parent, fl),
+      app_(qobject_cast<ApplicationWindow *>(parent->parent())),
+      axisrect_(axisrect) {
   Q_ASSERT(app_);
+  Q_ASSERT(axisrect_);
 
   setWindowTitle(tr("Add/Remove 2D Plots"));
   setSizeGripEnabled(true);
@@ -89,11 +95,6 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, Qt::WFlags fl)
   btnAdd->setFixedHeight(30);
   vl1->addWidget(btnAdd);
 
-  btnRemove = new QPushButton();
-  btnRemove->setIcon(IconLoader::load("go-previous", IconLoader::LightDark));
-  btnRemove->setFixedWidth(35);
-  btnRemove->setFixedHeight(30);
-  vl1->addWidget(btnRemove);
   vl1->addStretch();
 
   gl->addLayout(vl1, 1, 1);
@@ -106,10 +107,6 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, Qt::WFlags fl)
   btnAssociations->setEnabled(false);
   vl2->addWidget(btnAssociations);
 
-  btnRange = new QPushButton(tr("Edit &Range..."));
-  btnRange->setEnabled(false);
-  vl2->addWidget(btnRange);
-
   btnEditFunction = new QPushButton(tr("&Edit Function..."));
   btnEditFunction->setEnabled(false);
   vl2->addWidget(btnEditFunction);
@@ -120,9 +117,6 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, Qt::WFlags fl)
 
   btnCancel = new QPushButton(tr("Close"));
   vl2->addWidget(btnCancel);
-
-  boxShowRange = new QCheckBox(tr("&Show Range"));
-  vl2->addWidget(boxShowRange);
 
   vl2->addStretch();
   gl->addLayout(vl2, 1, 3);
@@ -138,60 +132,17 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, Qt::WFlags fl)
 
   connect(boxShowCurrentFolder, SIGNAL(toggled(bool)), this,
           SLOT(showCurrentFolder(bool)));
-  connect(boxShowRange, SIGNAL(toggled(bool)), this,
-          SLOT(showCurveRange(bool)));
-  connect(btnRange, SIGNAL(clicked()), this, SLOT(showCurveRangeDialog()));
   connect(btnAssociations, SIGNAL(clicked()), this,
           SLOT(showPlotAssociations()));
   connect(btnEditFunction, SIGNAL(clicked()), this, SLOT(showFunctionDialog()));
   connect(btnAdd, SIGNAL(clicked()), this, SLOT(addCurves()));
-  connect(btnRemove, SIGNAL(clicked()), this, SLOT(removeCurves()));
   connect(btnOK, SIGNAL(clicked()), this, SLOT(close()));
   connect(btnCancel, SIGNAL(clicked()), this, SLOT(close()));
-  connect(contents, SIGNAL(currentRowChanged(int)), this,
-          SLOT(showCurveBtn(int)));
-  connect(contents, SIGNAL(itemSelectionChanged()), this,
-          SLOT(enableRemoveBtn()));
   connect(available, SIGNAL(itemSelectionChanged()), this,
           SLOT(enableAddBtn()));
 
-  QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
-  connect(shortcut, SIGNAL(activated()), this, SLOT(removeCurves()));
-  shortcut = new QShortcut(QKeySequence("-"), this);
-  connect(shortcut, SIGNAL(activated()), this, SLOT(removeCurves()));
-  shortcut = new QShortcut(QKeySequence("+"), this);
+  QShortcut *shortcut = new QShortcut(QKeySequence("-"), this);
   connect(shortcut, SIGNAL(activated()), this, SLOT(addCurves()));
-}
-
-void AddPlot2DDialog::showCurveBtn(int) {
- /* QwtPlotItem *it = d_graph->plotItem(contents->currentRow());
-  if (!it) return;
-
-  bool function = false;
-  bool associations = false;
-  bool range = false;
-
-  if (it->rtti() != QwtPlotItem::Rtti_PlotSpectrogram) {
-    PlotCurve *c = (PlotCurve *)it;
-    if (c->type() == Graph::Function)
-      function = true;
-    else {
-      associations = true;
-      if (c->type() != Graph::ErrorBars) range = true;
-    }
-  }
-
-  btnEditFunction->setEnabled(function);
-  btnAssociations->setEnabled(associations);
-  btnRange->setEnabled(range);*/
-}
-
-void AddPlot2DDialog::showCurveRangeDialog() {
-  /*int curve = contents->currentRow();
-  if (curve < 0) curve = 0;
-
-  app_->showCurveRangeDialog(d_graph, curve);
-  updateCurveRange();*/
 }
 
 void AddPlot2DDialog::showPlotAssociations() {
@@ -204,10 +155,10 @@ void AddPlot2DDialog::showPlotAssociations() {
 }
 
 void AddPlot2DDialog::showFunctionDialog() {
-/*  int currentRow = contents->currentRow();
-  close();
+  /*  int currentRow = contents->currentRow();
+    close();
 
-  app_->showFunctionDialog(d_graph, currentRow);*/
+    app_->showFunctionDialog(d_graph, currentRow);*/
 }
 
 QSize AddPlot2DDialog::sizeHint() const { return QSize(700, 400); }
@@ -232,7 +183,7 @@ void AddPlot2DDialog::contextMenuEvent(QContextMenuEvent *e) {
     QList<QListWidgetItem *> lst = contents->selectedItems();
     if (lst.size() > 1)
       contextMenu.addAction(tr("&Delete Selection"), this,
-                             SLOT(removeCurves()));
+                            SLOT(removeCurves()));
     else if (lst.size() == 1)
       contextMenu.addAction(tr("&Delete Curve"), this, SLOT(removeCurves()));
     contextMenu.exec(QCursor::pos());
@@ -242,6 +193,7 @@ void AddPlot2DDialog::contextMenuEvent(QContextMenuEvent *e) {
 }
 
 void AddPlot2DDialog::init() {
+  loadplotcontents();
   bool currentFolderOnly = app_->d_show_current_folder;
   boxShowCurrentFolder->setChecked(currentFolderOnly);
   showCurrentFolder(currentFolderOnly);
@@ -275,119 +227,64 @@ void AddPlot2DDialog::init() {
     boxStyle->setCurrentIndex(9);
 
   if (!available->count()) btnAdd->setDisabled(true);
-}
-
-void AddPlot2DDialog::setLayout2D(AxisRect2D *axisrect) {
-  if(!axisrect) return;
-
-  axisrect_ = axisrect;
-  //contents->addItems(d_graph->plotItemsList());
-  enableRemoveBtn();
   enableAddBtn();
 }
 
+void AddPlot2DDialog::loadplotcontents() {
+  contents->clear();
+  plotted_columns_.clear();
+  QVector<LineScatter2D *> lslist = axisrect_->getLsVec();
+  QVector<Curve2D *> curvelist = axisrect_->getCurveVec();
+  foreach (LineScatter2D *ls, lslist) {
+    if (ls->getplottype_lsplot() == LSCommon::PlotType::Associated) {
+      DataBlockGraph *graphdata = ls->getdatablock_lsplot();
+      QPair<Table *, Column *> columnpair =
+          QPair<Table *, Column *>(graphdata->table(), graphdata->ycolumn());
+      plotted_columns_ << columnpair;
+      contents->addItem(columnpair.first->name() + "_" +
+                        columnpair.second->name() + "[" +
+                        QString::number(graphdata->from() + 1) + ":" +
+                        QString::number(graphdata->to() + 1) + "]");
+    }
+  }
+  foreach (Curve2D *curve, curvelist) {
+    if (curve->getplottype_curveplot() == LSCommon::PlotType::Associated) {
+      DataBlockCurve *curvedata = curve->getdatablock_curveplot();
+      QPair<Table *, Column *> columnpair =
+          QPair<Table *, Column *>(curvedata->table(), curvedata->ycolumn());
+      plotted_columns_ << columnpair;
+      contents->addItem(columnpair.first->name() + "_" +
+                        columnpair.second->name() + "[" +
+                        QString::number(curvedata->from() + 1) + ":" +
+                        QString::number(curvedata->to() + 1) + "]");
+    }
+  }
+}
+
 void AddPlot2DDialog::addCurves() {
-  /*QStringList emptyColumns;
+  QPair<Table *, Column *> pair;
   QList<QListWidgetItem *> lst = available->selectedItems();
-  for (int i = 0; i < lst.size(); ++i) {
-    QString text = lst.at(i)->text();
-    if (contents->findItems(text, Qt::MatchExactly).isEmpty()) {
-      if (!addCurve(text)) emptyColumns << text;
-    }
+
+  if (!lst.size() && !axisrect_->getXAxes2D().count() &&
+      !axisrect_->getYAxes2D().count())
+    return;
+
+  foreach (QListWidgetItem *item, lst) {
+    pair = available_columns_.at(available->row(item));
+    axisrect_->addLineScatter2DPlot(
+        AxisRect2D::LineScatterType::Line2D, pair.first,
+        pair.first->column(pair.first->firstXCol()), pair.second, 0,
+        pair.second->rowCount() - 1, axisrect_->getXAxis(0),
+        axisrect_->getYAxis(0));
   }
-  d_graph->updatePlot();
-  Graph::showPlotErrorMessage(this, emptyColumns);
-
-  showCurveRange(boxShowRange->isChecked());*/
-}
-
-bool AddPlot2DDialog::addCurve(const QString &name) {
-  /*QStringList matrices = app_->matrixNames();
-  if (matrices.contains(name)) {
-    Matrix *m = app_->matrix(name);
-    if (!m) return false;
-
-    switch (boxMatrixStyle->currentIndex()) {
-      case 0:
-        d_graph->plotSpectrogram(m, Graph::ColorMap);
-        break;
-      case 1:
-        d_graph->plotSpectrogram(m, Graph::ContourMap);
-        break;
-      case 2:
-        d_graph->plotSpectrogram(m, Graph::GrayMap);
-        break;
-    }
-
-    contents->addItem(name);
-    return true;
-  }
-
-  int style = curveStyle();
-  Table *t = app_->table(name);
-  if (t && d_graph->insertCurve(t, name, style)) {
-    CurveLayout cl = Graph::initCurveLayout();
-    int color, symbol;
-    d_graph->guessUniqueCurveLayout(color, symbol);
-
-    cl.lCol = color;
-    cl.symCol = color;
-    cl.fillCol = color;
-    cl.lWidth = app_->defaultCurveLineWidth;
-    cl.sSize = app_->defaultSymbolSize;
-    cl.sType = symbol;
-
-    if (style == Graph::Line)
-      cl.sType = 0;
-    else if (style == Graph::VerticalBars || style == Graph::HorizontalBars) {
-      cl.filledArea = 1;
-      cl.lCol = 0;
-      cl.aCol = color;
-      cl.sType = 0;
-    } else if (style == Graph::Area) {
-      cl.filledArea = 1;
-      cl.aCol = color;
-      cl.sType = 0;
-    } else if (style == Graph::VerticalDropLines)
-      cl.connectType = 2;
-    else if (style == Graph::VerticalSteps || style == Graph::HorizontalSteps) {
-      cl.connectType = 3;
-      cl.sType = 0;
-    } else if (style == Graph::Spline)
-      cl.connectType = 5;
-
-    d_graph->updateCurveLayout(d_graph->curves() - 1, &cl);
-
-    contents->addItem(name);
-    return true;
-  }
-  return false;*/
-}
-
-void AddPlot2DDialog::removeCurves() {
-  /*QList<QListWidgetItem *> lst = contents->selectedItems();
-  for (int i = 0; i < lst.size(); ++i) {
-    QListWidgetItem *it = lst.at(i);
-    QString s = it->text();
-    if (boxShowRange->isChecked()) {
-      QStringList lst = s.split("[");
-      s = lst[0];
-    }
-    d_graph->removeCurve(s);
-  }
-
-  showCurveRange(boxShowRange->isChecked());
-  d_graph->updatePlot();*/
+  loadplotcontents();
+  showCurrentFolder(app_->d_show_current_folder);
+  enableAddBtn();
 }
 
 void AddPlot2DDialog::enableAddBtn() {
   btnAdd->setEnabled(available->count() > 0 &&
                      !available->selectedItems().isEmpty());
-}
-
-void AddPlot2DDialog::enableRemoveBtn() {
-  btnRemove->setEnabled(contents->count() > 0 &&
-                        !contents->selectedItems().isEmpty());
 }
 
 int AddPlot2DDialog::curveStyle() {
@@ -427,59 +324,37 @@ int AddPlot2DDialog::curveStyle() {
   return style;
 }
 
-void AddPlot2DDialog::showCurveRange(bool on) {
-  /*int row = contents->currentRow();
-  contents->clear();
-  if (on) {
-    QStringList lst = QStringList();
-    for (int i = 0; i < d_graph->curves(); i++) {
-      QwtPlotItem *it = d_graph->plotItem(i);
-      if (!it) continue;
-
-      if (it->rtti() == QwtPlotItem::Rtti_PlotCurve &&
-          ((PlotCurve *)it)->type() != Graph::Function) {
-        DataCurve *c = (DataCurve *)it;
-        lst << c->title().text() + "[" + QString::number(c->startRow() + 1) +
-                   ":" + QString::number(c->endRow() + 1) + "]";
-      } else
-        lst << it->title().text();
-    }
-    contents->addItems(lst);
-  } else
-    contents->addItems(d_graph->plotItemsList());
-
-  contents->setCurrentRow(row);
-  enableRemoveBtn();*/
-}
-
-void AddPlot2DDialog::updateCurveRange() {
-  showCurveRange(boxShowRange->isChecked());
-}
-
 void AddPlot2DDialog::showCurrentFolder(bool currentFolder) {
   app_->d_show_current_folder = currentFolder;
   available->clear();
+  available_columns_.clear();
 
   if (currentFolder) {
-    Folder *f = app_->currentFolder();
-    if (f) {
-      QStringList columns;
-      foreach (QWidget *w, f->windowsList()) {
-        if (!w->inherits("Table")) continue;
-
-        Table *t = (Table *)w;
-        for (int i = 0; i < t->numCols(); i++) {
-          if (t->colPlotDesignation(i) == AlphaPlot::Y)
-            columns << QString(t->name()) + "_" + t->colLabel(i);
-        }
-      }
-      available->addItems(columns);
+    Folder *folder = app_->currentFolder();
+    if (folder) {
+      available_columns_ = app_->columnList(folder, AlphaPlot::Y);
     }
-  } else
-    available->addItems(app_->columnsList(AlphaPlot::Y));
+  } else {
+    available_columns_ = app_->columnList(AlphaPlot::Y);
+  }
+  QPair<Table *, Column *> columnpair;
+  QPair<Table *, Column *> plotcolumnpair;
+  foreach (columnpair, available_columns_) {
+    bool isplottable = false;
+    foreach (plotcolumnpair, plotted_columns_) {
+      if (plotcolumnpair == columnpair) {
+        available_columns_.removeOne(plotcolumnpair);
+        isplottable = true;
+        break;
+      }
+    }
+    if (!isplottable)
+      available->addItem(columnpair.first->name() + "_" +
+                         columnpair.second->name());
+  }
 }
 
-void AddPlot2DDialog::closeEvent(QCloseEvent *e) {
+void AddPlot2DDialog::closeEvent(QCloseEvent *event) {
   app_->d_add_curves_dialog_size = this->size();
-  e->accept();
+  event->accept();
 }

@@ -27,8 +27,6 @@
 #include "AxesDialog.h"
 #include "ColorBox.h"
 #include "ConfigDialog.h"
-#include "analysis/Convolution.h"
-#include "analysis/Correlation.h"
 #include "CurveRangeDialog.h"
 #include "CurvesDialog.h"
 #include "DataSetDialog.h"
@@ -43,7 +41,6 @@
 #include "FitDialog.h"
 #include "Folder.h"
 #include "FunctionCurve.h"
-#include "FunctionDialog.h"
 #include "Graph.h"
 #include "Grid.h"
 #include "ImageDialog.h"
@@ -75,6 +72,8 @@
 #include "Spectrogram.h"
 #include "TableStatistics.h"
 #include "TextDialog.h"
+#include "analysis/Convolution.h"
+#include "analysis/Correlation.h"
 #include "core/IconLoader.h"
 #include "core/Project.h"
 #include "core/column/Column.h"
@@ -1804,7 +1803,8 @@ void ApplicationWindow::plotPie() {
 
   if (selectedcolumns.count() == 1) {
     Layout2D *layout = newGraph2D();
-    layout->generatePie2DPlot(table->column(table->firstSelectedColumn()), 0,
+    layout->generatePie2DPlot(table,
+                              table->column(table->firstSelectedColumn()), 0,
                               table->rowCnt() - 1);
   } else
     QMessageBox::warning(this, tr("Error"),
@@ -1822,7 +1822,7 @@ void ApplicationWindow::plotVectXYXY() {
   if (s.count() == 4) {
     Layout2D *layout = newGraph2D();
     layout->generateVector2DPlot(
-        Vector2D::VectorPlot::XYXY, table->column(table->firstXCol()),
+        Vector2D::VectorPlot::XYXY, table, table->column(table->firstXCol()),
         table->column(table->firstXCol() + 1),
         table->column(table->firstXCol() + 2),
         table->column(table->firstXCol() + 3), 0, table->rowCnt() - 1);
@@ -1843,7 +1843,7 @@ void ApplicationWindow::plotVectXYAM() {
   if (s.count() == 4) {
     Layout2D *layout = newGraph2D();
     layout->generateVector2DPlot(
-        Vector2D::VectorPlot::XYAM, table->column(table->firstXCol()),
+        Vector2D::VectorPlot::XYAM, table, table->column(table->firstXCol()),
         table->column(table->firstXCol() + 1),
         table->column(table->firstXCol() + 2),
         table->column(table->firstXCol() + 3), 0, table->rowCnt() - 1);
@@ -3138,10 +3138,9 @@ void ApplicationWindow::windowActivated(QMdiSubWindow *subwindow) {
 
   MyWidget *mywidget = qobject_cast<MyWidget *>(subwindow);
 
-  propertyeditor->populateObjectBrowser(mywidget);
-
   Folder *f = mywidget->folder();
   if (f) f->setActiveWindow(mywidget);
+  propertyeditor->populateObjectBrowser(mywidget);
 
   emit modified();
 }
@@ -4252,12 +4251,9 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force) {
   return true;
 }
 
-void ApplicationWindow::newCurve2D(Table *table, QString xcolname,
-                                   QString ycolname) {
+void ApplicationWindow::newCurve2D(Table *table, Column *xcol, Column *ycol) {
   Layout2D *layout = newGraph2D();
-  layout->generateCurve2DPlot(
-      table, xcolname, ycolname, 0,
-      table->column(table->colIndex(xcolname))->rowCount() - 1);
+  layout->generateCurve2DPlot(table, xcol, ycol, 0, xcol->rowCount() - 1);
 }
 
 void ApplicationWindow::showScriptingLangDialog() {
@@ -5498,15 +5494,48 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text) {
 // TODO: string list -> Column * list
 QStringList ApplicationWindow::columnsList(
     AlphaPlot::PlotDesignation plotType) {
-  QList<QMdiSubWindow *> windows = subWindowsList();
-  QStringList list;
-  foreach (QMdiSubWindow *w, windows) {
-    if (!isActiveSubWindow(w, SubWindowType::TableSubWindow)) continue;
+  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
+  QStringList columnlist;
+  foreach (QMdiSubWindow *subwindow, subwindowlist) {
+    if (!isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) continue;
 
-    Table *t = qobject_cast<Table *>(w);
+    Table *t = qobject_cast<Table *>(subwindow);
     for (int i = 0; i < t->numCols(); i++) {
       if (t->colPlotDesignation(i) == plotType)
-        list << QString(t->name()) + "_" + t->colLabel(i);
+        columnlist << QString(t->name()) + "_" + t->colLabel(i);
+    }
+  }
+  return columnlist;
+}
+
+QList<QPair<Table *, Column *>> ApplicationWindow::columnList(
+    AlphaPlot::PlotDesignation plotType) {
+  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
+  QList<QPair<Table *, Column *>> list;
+  foreach (QMdiSubWindow *subwindow, subwindowlist) {
+    if (!isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) continue;
+
+    Table *t = qobject_cast<Table *>(subwindow);
+    for (int i = 0; i < t->numCols(); i++) {
+      if (t->colPlotDesignation(i) == plotType)
+        list << QPair<Table *, Column *>(t, t->column(i));
+    }
+  }
+  return list;
+}
+
+QList<QPair<Table *, Column *>> ApplicationWindow::columnList(
+    Folder *folder, AlphaPlot::PlotDesignation plotType) {
+  QList<MyWidget *> subwindowlist = folder->windowsList();
+  QList<QPair<Table *, Column *>> list;
+
+  foreach (MyWidget *subwindow, subwindowlist) {
+    if (!isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) continue;
+
+    Table *t = qobject_cast<Table *>(subwindow);
+    for (int i = 0; i < t->numCols(); i++) {
+      if (t->colPlotDesignation(i) == plotType)
+        list << QPair<Table *, Column *>(t, t->column(i));
     }
   }
   return list;
@@ -5522,6 +5551,20 @@ QStringList ApplicationWindow::columnsList() {
     Table *t = qobject_cast<Table *>(subwindow);
     for (int i = 0; i < t->numCols(); i++) {
       list << QString(t->name()) + "_" + t->colLabel(i);
+    }
+  }
+  return list;
+}
+
+QList<QPair<Table *, Column *>> ApplicationWindow::columnList() {
+  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
+  QList<QPair<Table *, Column *>> list;
+  foreach (QMdiSubWindow *subwindow, subwindowlist) {
+    if (!isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) continue;
+
+    Table *t = qobject_cast<Table *>(subwindow);
+    for (int i = 0; i < t->numCols(); i++) {
+      list << QPair<Table *, Column *>(t, t->column(i));
     }
   }
   return list;
@@ -11935,7 +11978,6 @@ bool ApplicationWindow::validFor3DPlot(Table *table) {
 }
 
 bool ApplicationWindow::validFor2DPlot(Table *table, int type) {
-  // TODO: check if columns are empty
   switch (type) {
     case Graph::Histogram:
     case Graph::Pie:
@@ -11965,342 +12007,367 @@ bool ApplicationWindow::validFor2DPlot(Table *table, int type) {
       }
       break;
   }
+  // check if columns are empty
+  QStringList list = table->selectedColumns();
+  foreach (QString name, list) {
+    Column *col = table->column(table->colIndex(name));
+    if (col->rowCount() == 0) {
+      QMessageBox::warning(
+          this, tr("Error"),
+          tr("Please dont select empty columns for this operation!"));
+      return false;
+    }
+  }
   return true;
 }
 
-void ApplicationWindow::selectPlotType(int type) {
-  if (!d_workspace->activeSubWindow()) return;
+  void ApplicationWindow::selectPlotType(int type) {
+    if (!d_workspace->activeSubWindow()) return;
 
-  Table *table = qobject_cast<Table *>(d_workspace->activeSubWindow());
-  if (table && validFor2DPlot(table, type)) {
-    switch (type) {
-      case Graph::Histogram:
-      case Graph::Pie:
-      case Graph::Box:
-        multilayerPlot(table, table->selectedColumns(),
-                       static_cast<Graph::CurveType>(type),
-                       table->firstSelectedRow(), table->lastSelectedRow());
-        break;
-      default:
-        multilayerPlot(table, table->drawableColumnSelection(),
-                       static_cast<Graph::CurveType>(type),
-                       table->firstSelectedRow(), table->lastSelectedRow());
-        break;
-    }
-
-    Layout2D *layout = newGraph2D();
-    Layout2D::LineScatterType plotType;
-    switch (type) {
-      case Graph::Scatter:
-        plotType = Layout2D::Scatter2D;
-        break;
-      case Graph::Line:
-        plotType = Layout2D::Line2D;
-        break;
-      case Graph::LineSymbols:
-        plotType = Layout2D::LineAndScatter2D;
-        break;
-      case Graph::VerticalDropLines:
-        plotType = Layout2D::VerticalDropLine2D;
-        break;
-      case Graph::Spline:
-        layout->generateSpline2DPlot(table->column(table->firstXCol()),
-                                     table->column(table->firstXCol() + 1), 0,
-                                     table->rowCnt() - 1);
-        return;
-      case Graph::VerticalSteps:
-        plotType = Layout2D::VerticalStep2D;
-        break;
-      case Graph::HorizontalSteps:
-        plotType = Layout2D::HorizontalStep2D;
-        break;
-      case Graph::Box:
-        layout->generateStatBox2DPlot(table->column(table->firstXCol()), 0,
-                                      table->rowCnt() - 1, 1);
-        return;
-      case Graph::Area:
-        plotType = Layout2D::Area2D;
-        break;
-      case Graph::HorizontalBars:
-        layout->generateBar2DPlot(
-            Layout2D::HorizontalBars, table->column(table->firstXCol()),
-            table->column(table->firstXCol() + 1), 0, table->rowCnt() - 1);
-        return;
-      case Graph::VerticalBars:
-        layout->generateBar2DPlot(
-            Layout2D::VerticalBars, table->column(table->firstXCol()),
-            table->column(table->firstXCol() + 1), 0, table->rowCnt() - 1);
-        return;
-      default: {
-        qDebug() << "not implimented";
-        return;
+    Table *table = qobject_cast<Table *>(d_workspace->activeSubWindow());
+    if (table && validFor2DPlot(table, type)) {
+      switch (type) {
+        case Graph::Histogram:
+        case Graph::Pie:
+        case Graph::Box:
+          multilayerPlot(table, table->selectedColumns(),
+                         static_cast<Graph::CurveType>(type),
+                         table->firstSelectedRow(), table->lastSelectedRow());
+          break;
+        default:
+          multilayerPlot(table, table->drawableColumnSelection(),
+                         static_cast<Graph::CurveType>(type),
+                         table->firstSelectedRow(), table->lastSelectedRow());
+          break;
       }
-    }
-    layout->generateLineScatter2DPlot(
-        plotType, table->column(table->firstXCol()),
-        table->column(table->firstXCol() + 1), 0, table->rowCnt() - 1);
 
-    return;
-  }
-}
-
-void ApplicationWindow::handleAspectAdded(const AbstractAspect *parent,
-                                          int index) {
-  AbstractAspect *aspect = parent->child(index);
-  future::Matrix *matrix = qobject_cast<future::Matrix *>(aspect);
-  if (matrix) {
-    initMatrix(static_cast<Matrix *>(matrix->view()));
-    return;
-  }
-  future::Table *table = qobject_cast<future::Table *>(aspect);
-  if (table) {
-    initTable(static_cast<Table *>(table->view()));
-    return;
-  }
-}
-
-void ApplicationWindow::handleAspectAboutToBeRemoved(
-    const AbstractAspect *parent, int index) {
-  AbstractAspect *aspect = parent->child(index);
-  future::Matrix *matrix = qobject_cast<future::Matrix *>(aspect);
-  if (matrix) {
-    closeWindow(static_cast<Matrix *>(matrix->view()));
-    return;
-  }
-  future::Table *table = qobject_cast<future::Table *>(aspect);
-  if (table) {
-    closeWindow(static_cast<Table *>(table->view()));
-    return;
-  }
-}
-
-void ApplicationWindow::showUndoRedoHistory() {
-  if (!d_project->undoStack()) return;
-  QDialog dialog;
-  QVBoxLayout layout(&dialog);
-
-  QDialogButtonBox button_box;
-  button_box.setOrientation(Qt::Horizontal);
-  button_box.setStandardButtons(QDialogButtonBox::Cancel |
-                                QDialogButtonBox::NoButton |
-                                QDialogButtonBox::Ok);
-  QObject::connect(&button_box, SIGNAL(accepted()), &dialog, SLOT(accept()));
-  QObject::connect(&button_box, SIGNAL(rejected()), &dialog, SLOT(reject()));
-
-  int index = d_project->undoStack()->index();
-  QUndoView undo_view(d_project->undoStack());
-
-  layout.addWidget(&undo_view);
-  layout.addWidget(&button_box);
-
-  dialog.setWindowTitle(tr("Undo/Redo History"));
-  if (dialog.exec() == QDialog::Accepted) return;
-
-  d_project->undoStack()->setIndex(index);
-}
-
-QStringList ApplicationWindow::tableWindows() {
-  QList<AbstractAspect *> tables =
-      d_project->descendantsThatInherit("future::Table");
-  QStringList result;
-  foreach (AbstractAspect *aspect, tables)
-    result.append(aspect->name());
-  return result;
-}
-
-//----------------------------scripting related code---------------------------
-void ApplicationWindow::attachQtScript() {
-  // pass mainwindow as global object
-  QScriptValue objectValue = consoleWindow->engine->newQObject(this);
-  consoleWindow->engine->globalObject().setProperty("Alpha", objectValue);
-
-  QScriptValue clearFunction = consoleWindow->engine->newFunction(&openProj);
-  clearFunction.setData(objectValue);
-  consoleWindow->engine->globalObject().setProperty("openAproj", clearFunction);
-
-  qScriptRegisterMetaType<Table *>(consoleWindow->engine,
-                                   tableObjectToScriptValue,
-                                   tableObjectFromScriptValue);
-  qScriptRegisterMetaType<Note *>(consoleWindow->engine,
-                                  tableObjectToScriptValue,
-                                  tableObjectFromScriptValue);
-  qScriptRegisterMetaType<Matrix *>(consoleWindow->engine,
-                                    tableObjectToScriptValue,
-                                    tableObjectFromScriptValue);
-  qScriptRegisterMetaType<Column *>(consoleWindow->engine,
-                                    tableObjectToScriptValue,
-                                    tableObjectFromScriptValue);
-  qScriptRegisterMetaType<QVector<int>>(consoleWindow->engine, toScriptValue,
-                                        fromScriptValue);
-  qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine, toScriptValue,
-                                          fromScriptValue);
-  qScriptRegisterMetaType<QVector<double>>(consoleWindow->engine, toScriptValue,
-                                           fromScriptValue);
-  qScriptRegisterMetaType<QVector<long>>(consoleWindow->engine, toScriptValue,
-                                         fromScriptValue);
-  qScriptRegisterMetaType<QVector<QString>>(consoleWindow->engine,
-                                            toScriptValue, fromScriptValue);
-  qScriptRegisterMetaType<QVector<QDate>>(consoleWindow->engine, toScriptValue,
-                                          fromScriptValue);
-  qScriptRegisterMetaType<QVector<QDateTime>>(consoleWindow->engine,
-                                              toScriptValue, fromScriptValue);
-}
-
-bool ApplicationWindow::isActiveSubwindow(
-    const ApplicationWindow::SubWindowType &subwindowtype) {
-  bool result = false;
-  if (d_workspace->activeSubWindow()) {
-    switch (subwindowtype) {
-      case TableSubWindow:
-        (qobject_cast<Table *>(d_workspace->activeSubWindow()))
-            ? result = true
-            : result = false;
-        break;
-      case MatrixSubWindow:
-        (qobject_cast<Matrix *>(d_workspace->activeSubWindow()))
-            ? result = true
-            : result = false;
-        break;
-      case NoteSubWindow:
-        (qobject_cast<Note *>(d_workspace->activeSubWindow())) ? result = true
-                                                               : result = false;
-        break;
-      case MultiLayerSubWindow:
-        (qobject_cast<MultiLayer *>(d_workspace->activeSubWindow()))
-            ? result = true
-            : result = false;
-        break;
-      case Plot2DSubWindow:
-        (qobject_cast<Layout2D *>(d_workspace->activeSubWindow()))
-            ? result = true
-            : result = false;
-        break;
-      case Plot3DSubWindow:
-        (qobject_cast<Graph3D *>(d_workspace->activeSubWindow()))
-            ? result = true
-            : result = false;
-        break;
-    }
-  }
-  return result;
-}
-
-bool ApplicationWindow::isActiveSubWindow(
-    QMdiSubWindow *subwindow,
-    const ApplicationWindow::SubWindowType &subwindowtype) {
-  bool result = false;
-  if (subwindow) {
-    switch (subwindowtype) {
-      case TableSubWindow:
-        (qobject_cast<Table *>(subwindow)) ? result = true : result = false;
-        break;
-      case MatrixSubWindow:
-        (qobject_cast<Matrix *>(subwindow)) ? result = true : result = false;
-        break;
-      case NoteSubWindow:
-        (qobject_cast<Note *>(subwindow)) ? result = true : result = false;
-        break;
-      case MultiLayerSubWindow:
-        (qobject_cast<MultiLayer *>(subwindow)) ? result = true
-                                                : result = false;
-        break;
-      case Plot2DSubWindow:
-        (qobject_cast<Layout2D *>(subwindow)) ? result = true : result = false;
-        break;
-      case Plot3DSubWindow:
-        (qobject_cast<Graph3D *>(subwindow)) ? result = true : result = false;
-        break;
-    }
-  }
-  return result;
-}
-
-Table *ApplicationWindow::getTableHandle() {
-  if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
-    context()->throwError(tr("getTableHandle(string) take one argument!"));
-  }
-
-  bool namedWidgetPresent = false;
-  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
-  foreach (QMdiSubWindow *subwindow, subwindowlist) {
-    if (subwindow->accessibleName() == context()->argument(0).toString()) {
-      if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
-        namedWidgetPresent = true;
-        Table *table = qobject_cast<Table *>(subwindow);
-        return table;
-      } else {
-        context()->throwError(context()->argument(0).toString() +
-                              tr(" is not a valid Table object name!"));
-      }
-    }
-  }
-
-  if (!namedWidgetPresent) {
-    context()->throwError(context()->argument(0).toString() +
-                          tr(" is not a valid Table object name!"));
-  }
-
-  // will never reach here
-  return nullptr;
-}
-
-Matrix *ApplicationWindow::getMatrixHandle() {
-  if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
-    context()->throwError(tr("getMatrixHandle(string) take one argument!"));
-  }
-
-  bool namedWidgetPresent = false;
-  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
-  foreach (QMdiSubWindow *subwindow, subwindowlist) {
-    if (subwindow->accessibleName() == context()->argument(0).toString()) {
-      if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow)) {
-        namedWidgetPresent = true;
-        Matrix *matrix = qobject_cast<Matrix *>(subwindow);
-        return matrix;
-      } else {
-        context()->throwError(context()->argument(0).toString() +
-                              tr(" is not a valid Matrix object name!"));
-      }
-    }
-  }
-
-  if (!namedWidgetPresent) {
-    context()->throwError(context()->argument(0).toString() +
-                          tr(" is not a valid Matrix object name!"));
-  }
-
-  // will never reach here
-  return nullptr;
-}
-
-Note *ApplicationWindow::getNoteHandle() {
-  if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
-    context()->throwError(tr("getNoteHandle(string) take one argument!"));
-  }
-
-  bool namedWidgetPresent = false;
-  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
-  foreach (QMdiSubWindow *subwindow, subwindowlist) {
-    if (subwindow->accessibleName() == context()->argument(0).toString()) {
-      if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow)) {
-        namedWidgetPresent = true;
-        Note *note = qobject_cast<Note *>(subwindow);
-        if (!note) {
-          context()->throwError(tr("Unable to get Note handle!"));
+      QStringList list = table->selectedColumns();
+      Column *xcol = nullptr;
+      Column *ycol = nullptr;
+      if (list.size() == 2) {
+        if (table->YColumns().contains(list.at(0))) {
+          xcol = table->column(table->colIndex(list.at(1)));
+          ycol = table->column(table->colIndex(list.at(0)));
+        } else {
+          xcol = table->column(table->colIndex(list.at(0)));
+          ycol = table->column(table->colIndex(list.at(1)));
         }
-        return note;
       } else {
-        context()->throwError(context()->argument(0).toString() +
-                              tr(" is not a valid Note object name!"));
+        xcol = table->column(table->colIndex(list.at(0)));
       }
+
+      Layout2D *layout = newGraph2D();
+      Layout2D::LineScatterType plotType;
+      switch (type) {
+        case Graph::Scatter:
+          plotType = Layout2D::Scatter2D;
+          break;
+        case Graph::Line:
+          plotType = Layout2D::Line2D;
+          break;
+        case Graph::LineSymbols:
+          plotType = Layout2D::LineAndScatter2D;
+          break;
+        case Graph::VerticalDropLines:
+          plotType = Layout2D::VerticalDropLine2D;
+          break;
+        case Graph::Spline:
+          layout->generateSpline2DPlot(table, xcol, ycol, 0,
+                                       table->rowCnt() - 1);
+          return;
+        case Graph::VerticalSteps:
+          plotType = Layout2D::VerticalStep2D;
+          break;
+        case Graph::HorizontalSteps:
+          plotType = Layout2D::HorizontalStep2D;
+          break;
+        case Graph::Box:
+          layout->generateStatBox2DPlot(table, xcol, 0, table->rowCnt() - 1, 1);
+          return;
+        case Graph::Area:
+          plotType = Layout2D::Area2D;
+          break;
+        case Graph::HorizontalBars:
+          layout->generateBar2DPlot(Layout2D::HorizontalBars, table, xcol, ycol,
+                                    0, table->rowCnt() - 1);
+          return;
+        case Graph::VerticalBars:
+          layout->generateBar2DPlot(Layout2D::VerticalBars, table, xcol, ycol,
+                                    0, table->rowCnt() - 1);
+          return;
+        default: {
+          qDebug() << "not implimented";
+          return;
+        }
+      }
+      layout->generateLineScatter2DPlot(plotType, table, xcol, ycol, 0,
+                                        table->rowCnt() - 1);
+
+      return;
     }
   }
 
-  if (!namedWidgetPresent) {
-    context()->throwError(context()->argument(0).toString() +
-                          tr(" is not a valid Note object name!"));
+  void ApplicationWindow::handleAspectAdded(const AbstractAspect *parent,
+                                            int index) {
+    AbstractAspect *aspect = parent->child(index);
+    future::Matrix *matrix = qobject_cast<future::Matrix *>(aspect);
+    if (matrix) {
+      initMatrix(static_cast<Matrix *>(matrix->view()));
+      return;
+    }
+    future::Table *table = qobject_cast<future::Table *>(aspect);
+    if (table) {
+      initTable(static_cast<Table *>(table->view()));
+      return;
+    }
   }
 
-  // will never reach here
-  return nullptr;
-}
+  void ApplicationWindow::handleAspectAboutToBeRemoved(
+      const AbstractAspect *parent, int index) {
+    AbstractAspect *aspect = parent->child(index);
+    future::Matrix *matrix = qobject_cast<future::Matrix *>(aspect);
+    if (matrix) {
+      closeWindow(static_cast<Matrix *>(matrix->view()));
+      return;
+    }
+    future::Table *table = qobject_cast<future::Table *>(aspect);
+    if (table) {
+      closeWindow(static_cast<Table *>(table->view()));
+      return;
+    }
+  }
+
+  void ApplicationWindow::showUndoRedoHistory() {
+    if (!d_project->undoStack()) return;
+    QDialog dialog;
+    QVBoxLayout layout(&dialog);
+
+    QDialogButtonBox button_box;
+    button_box.setOrientation(Qt::Horizontal);
+    button_box.setStandardButtons(QDialogButtonBox::Cancel |
+                                  QDialogButtonBox::NoButton |
+                                  QDialogButtonBox::Ok);
+    QObject::connect(&button_box, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    QObject::connect(&button_box, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+    int index = d_project->undoStack()->index();
+    QUndoView undo_view(d_project->undoStack());
+
+    layout.addWidget(&undo_view);
+    layout.addWidget(&button_box);
+
+    dialog.setWindowTitle(tr("Undo/Redo History"));
+    if (dialog.exec() == QDialog::Accepted) return;
+
+    d_project->undoStack()->setIndex(index);
+  }
+
+  QStringList ApplicationWindow::tableWindows() {
+    QList<AbstractAspect *> tables =
+        d_project->descendantsThatInherit("future::Table");
+    QStringList result;
+    foreach (AbstractAspect *aspect, tables)
+      result.append(aspect->name());
+    return result;
+  }
+
+  //----------------------------scripting related
+  //code---------------------------
+  void ApplicationWindow::attachQtScript() {
+    // pass mainwindow as global object
+    QScriptValue objectValue = consoleWindow->engine->newQObject(this);
+    consoleWindow->engine->globalObject().setProperty("Alpha", objectValue);
+
+    QScriptValue clearFunction = consoleWindow->engine->newFunction(&openProj);
+    clearFunction.setData(objectValue);
+    consoleWindow->engine->globalObject().setProperty("openAproj",
+                                                      clearFunction);
+
+    qScriptRegisterMetaType<Table *>(consoleWindow->engine,
+                                     tableObjectToScriptValue,
+                                     tableObjectFromScriptValue);
+    qScriptRegisterMetaType<Note *>(consoleWindow->engine,
+                                    tableObjectToScriptValue,
+                                    tableObjectFromScriptValue);
+    qScriptRegisterMetaType<Matrix *>(consoleWindow->engine,
+                                      tableObjectToScriptValue,
+                                      tableObjectFromScriptValue);
+    qScriptRegisterMetaType<Column *>(consoleWindow->engine,
+                                      tableObjectToScriptValue,
+                                      tableObjectFromScriptValue);
+    qScriptRegisterMetaType<QVector<int>>(consoleWindow->engine, toScriptValue,
+                                          fromScriptValue);
+    qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine,
+                                            toScriptValue, fromScriptValue);
+    qScriptRegisterMetaType<QVector<double>>(consoleWindow->engine,
+                                             toScriptValue, fromScriptValue);
+    qScriptRegisterMetaType<QVector<long>>(consoleWindow->engine, toScriptValue,
+                                           fromScriptValue);
+    qScriptRegisterMetaType<QVector<QString>>(consoleWindow->engine,
+                                              toScriptValue, fromScriptValue);
+    qScriptRegisterMetaType<QVector<QDate>>(consoleWindow->engine,
+                                            toScriptValue, fromScriptValue);
+    qScriptRegisterMetaType<QVector<QDateTime>>(consoleWindow->engine,
+                                                toScriptValue, fromScriptValue);
+  }
+
+  bool ApplicationWindow::isActiveSubwindow(
+      const ApplicationWindow::SubWindowType &subwindowtype) {
+    bool result = false;
+    if (d_workspace->activeSubWindow()) {
+      switch (subwindowtype) {
+        case TableSubWindow:
+          (qobject_cast<Table *>(d_workspace->activeSubWindow()))
+              ? result = true
+              : result = false;
+          break;
+        case MatrixSubWindow:
+          (qobject_cast<Matrix *>(d_workspace->activeSubWindow()))
+              ? result = true
+              : result = false;
+          break;
+        case NoteSubWindow:
+          (qobject_cast<Note *>(d_workspace->activeSubWindow()))
+              ? result = true
+              : result = false;
+          break;
+        case MultiLayerSubWindow:
+          (qobject_cast<MultiLayer *>(d_workspace->activeSubWindow()))
+              ? result = true
+              : result = false;
+          break;
+        case Plot2DSubWindow:
+          (qobject_cast<Layout2D *>(d_workspace->activeSubWindow()))
+              ? result = true
+              : result = false;
+          break;
+        case Plot3DSubWindow:
+          (qobject_cast<Graph3D *>(d_workspace->activeSubWindow()))
+              ? result = true
+              : result = false;
+          break;
+      }
+    }
+    return result;
+  }
+
+  bool ApplicationWindow::isActiveSubWindow(
+      QMdiSubWindow * subwindow,
+      const ApplicationWindow::SubWindowType &subwindowtype) {
+    bool result = false;
+    if (subwindow) {
+      switch (subwindowtype) {
+        case TableSubWindow:
+          (qobject_cast<Table *>(subwindow)) ? result = true : result = false;
+          break;
+        case MatrixSubWindow:
+          (qobject_cast<Matrix *>(subwindow)) ? result = true : result = false;
+          break;
+        case NoteSubWindow:
+          (qobject_cast<Note *>(subwindow)) ? result = true : result = false;
+          break;
+        case MultiLayerSubWindow:
+          (qobject_cast<MultiLayer *>(subwindow)) ? result = true
+                                                  : result = false;
+          break;
+        case Plot2DSubWindow:
+          (qobject_cast<Layout2D *>(subwindow)) ? result = true
+                                                : result = false;
+          break;
+        case Plot3DSubWindow:
+          (qobject_cast<Graph3D *>(subwindow)) ? result = true : result = false;
+          break;
+      }
+    }
+    return result;
+  }
+
+  Table *ApplicationWindow::getTableHandle() {
+    if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
+      context()->throwError(tr("getTableHandle(string) take one argument!"));
+    }
+
+    bool namedWidgetPresent = false;
+    QList<QMdiSubWindow *> subwindowlist = subWindowsList();
+    foreach (QMdiSubWindow *subwindow, subwindowlist) {
+      if (subwindow->accessibleName() == context()->argument(0).toString()) {
+        if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
+          namedWidgetPresent = true;
+          Table *table = qobject_cast<Table *>(subwindow);
+          return table;
+        } else {
+          context()->throwError(context()->argument(0).toString() +
+                                tr(" is not a valid Table object name!"));
+        }
+      }
+    }
+
+    if (!namedWidgetPresent) {
+      context()->throwError(context()->argument(0).toString() +
+                            tr(" is not a valid Table object name!"));
+    }
+
+    // will never reach here
+    return nullptr;
+  }
+
+  Matrix *ApplicationWindow::getMatrixHandle() {
+    if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
+      context()->throwError(tr("getMatrixHandle(string) take one argument!"));
+    }
+
+    bool namedWidgetPresent = false;
+    QList<QMdiSubWindow *> subwindowlist = subWindowsList();
+    foreach (QMdiSubWindow *subwindow, subwindowlist) {
+      if (subwindow->accessibleName() == context()->argument(0).toString()) {
+        if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow)) {
+          namedWidgetPresent = true;
+          Matrix *matrix = qobject_cast<Matrix *>(subwindow);
+          return matrix;
+        } else {
+          context()->throwError(context()->argument(0).toString() +
+                                tr(" is not a valid Matrix object name!"));
+        }
+      }
+    }
+
+    if (!namedWidgetPresent) {
+      context()->throwError(context()->argument(0).toString() +
+                            tr(" is not a valid Matrix object name!"));
+    }
+
+    // will never reach here
+    return nullptr;
+  }
+
+  Note *ApplicationWindow::getNoteHandle() {
+    if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
+      context()->throwError(tr("getNoteHandle(string) take one argument!"));
+    }
+
+    bool namedWidgetPresent = false;
+    QList<QMdiSubWindow *> subwindowlist = subWindowsList();
+    foreach (QMdiSubWindow *subwindow, subwindowlist) {
+      if (subwindow->accessibleName() == context()->argument(0).toString()) {
+        if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow)) {
+          namedWidgetPresent = true;
+          Note *note = qobject_cast<Note *>(subwindow);
+          if (!note) {
+            context()->throwError(tr("Unable to get Note handle!"));
+          }
+          return note;
+        } else {
+          context()->throwError(context()->argument(0).toString() +
+                                tr(" is not a valid Note object name!"));
+        }
+      }
+    }
+
+    if (!namedWidgetPresent) {
+      context()->throwError(context()->argument(0).toString() +
+                            tr(" is not a valid Note object name!"));
+    }
+
+    // will never reach here
+    return nullptr;
+  }

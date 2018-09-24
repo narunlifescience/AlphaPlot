@@ -4,6 +4,7 @@
 #include <QCursorShape>
 #include <QCustomEvent>
 #include "../future/core/column/Column.h"
+#include "DataManager2D.h"
 #include "PlotPoint.h"
 #include "core/Utilities.h"
 
@@ -14,7 +15,8 @@ LineScatter2D::LineScatter2D(Axis2D *xAxis, Axis2D *yAxis)
       scatterstyle_(new QCPScatterStyle(
           QCPScatterStyle::ssDisc,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
-          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0))
+          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
+      graphdata_(nullptr)
 // mPointUnderCursor(new PlotPoint(parentPlot(), 5))
 {
   setlinestrokecolor_lsplot(
@@ -23,39 +25,15 @@ LineScatter2D::LineScatter2D(Axis2D *xAxis, Axis2D *yAxis)
 
 LineScatter2D::~LineScatter2D() { delete scatterstyle_; }
 
-void LineScatter2D::setGraphData(Column *xData, Column *yData, int from,
-                                 int to) {
-  QSharedPointer<QCPGraphDataContainer> graphData(new QCPGraphDataContainer);
-  QVector<QCPGraphData> *gdvector = new QVector<QCPGraphData>();
-  double xdata = 0, ydata = 0;
-
-  // strip unused end rows
-  int end_row = to;
-  if (end_row >= xData->rowCount()) end_row = xData->rowCount() - 1;
-  if (end_row >= yData->rowCount()) end_row = yData->rowCount() - 1;
-
-  // determine rows for which all columns have valid content
-  QList<int> valid_rows;
-  for (int row = from; row <= end_row; row++) {
-    bool all_valid = true;
-
-    if (xData->isInvalid(row) || yData->isInvalid(row)) {
-      all_valid = false;
-    }
-
-    if (all_valid) valid_rows.push_back(row);
+void LineScatter2D::setGraphData(Table *table, Column *xcol, Column *ycol,
+                                 int from, int to) {
+  if (graphdata_) {
+    qDebug() << "DataBlockGraph already set";
+    return;
   }
-
-  for (int i = 0; i < valid_rows.size(); i++) {
-    xdata = xData->valueAt(valid_rows.at(i));
-    ydata = yData->valueAt(valid_rows.at(i));
-    QCPGraphData gd(xdata, ydata);
-    gdvector->append(gd);
-  }
-  graphData->add(*gdvector, true);
-  gdvector->clear();
-  delete gdvector;
-  setData(graphData);
+  graphdata_ = new DataBlockGraph(table, xcol, ycol, from, to);
+  setData(graphdata_->data());
+  type_ = LSCommon::PlotType::Associated;
 }
 
 void LineScatter2D::setGraphData(QVector<double> *xdata,
@@ -70,6 +48,7 @@ void LineScatter2D::setGraphData(QVector<double> *xdata,
     functionData->add(fd);
   }
   setData(functionData);
+  type_ = LSCommon::PlotType::Function;
   // free those containers
   delete xdata;
   delete ydata;

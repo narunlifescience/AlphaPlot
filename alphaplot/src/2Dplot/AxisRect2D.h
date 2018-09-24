@@ -83,26 +83,27 @@ class AxisRect2D : public QCPAxisRect {
     VerticalBars,
   };
 
-  LineScatter2D *addLineScatter2DPlot(const LineScatterType &type,
+  LineScatter2D *addLineScatter2DPlot(const LineScatterType &type, Table *table,
                                       Column *xData, Column *yData, int from,
                                       int to, Axis2D *xAxis, Axis2D *yAxis);
-  Curve2D *addCurve2DPlot(Table *table, QString xcolname, QString ycolname,
-                          int from, int to, Axis2D *xAxis, Axis2D *yAxis);
-  Spline2D *addSpline2DPlot(Column *xData, Column *yData, int from, int to,
-                            Axis2D *xAxis, Axis2D *yAxis);
+  Curve2D *addCurve2DPlot(Table *table, Column *xcol, Column *ycol, int from,
+                          int to, Axis2D *xAxis, Axis2D *yAxis);
+  Spline2D *addSpline2DPlot(Table *table, Column *xData, Column *yData,
+                            int from, int to, Axis2D *xAxis, Axis2D *yAxis);
   LineScatter2D *addLineFunction2DPlot(QVector<double> *xdata,
                                        QVector<double> *ydata, Axis2D *xAxis,
                                        Axis2D *yAxis, const QString &name);
   Curve2D *addCurveFunction2DPlot(QVector<double> *xdata,
                                   QVector<double> *ydata, Axis2D *xAxis,
                                   Axis2D *yAxis, const QString &name);
-  Bar2D *addBox2DPlot(const BarType &type, Column *xData, Column *yData,
-                      int from, int to, Axis2D *xAxis, Axis2D *yAxis);
-  Vector2D *addVectorPlot(const Vector2D::VectorPlot &vectorplot,
+  Bar2D *addBox2DPlot(const BarType &type, Table *table, Column *xData,
+                      Column *yData, int from, int to, Axis2D *xAxis,
+                      Axis2D *yAxis);
+  Vector2D *addVectorPlot(const Vector2D::VectorPlot &vectorplot, Table *table,
                           Column *x1Data, Column *y1Data, Column *x2Data,
                           Column *y2Data, int from, int to, Axis2D *xAxis,
                           Axis2D *yAxis);
-  Pie2D *addPie2DPlot(Column *xData, int from, int to);
+  Pie2D *addPie2DPlot(Table *table, Column *xData, int from, int to);
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;

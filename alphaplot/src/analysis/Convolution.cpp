@@ -146,12 +146,12 @@ void Convolution::addResultCurve() {
   d_table->setColName(cols2, label);
   d_table->setColPlotDesignation(cols, AlphaPlot::X);
 
-  app->newCurve2D(d_table, d_table->colName(cols), d_table->colName(cols2));
+  app->newCurve2D(d_table, d_table->column(cols), d_table->column(cols2));
 }
 
 void Convolution::convlv(double *sig, int n, double *dres, int m, int sign) {
   double *res = new double[n];
-  memset(res, 0, n * sizeof(double));
+  memset(res, 0, static_cast<size_t>(n) * sizeof(double));
   int i, m2 = m / 2;
   for (i = 0; i < m2; i++) {  // store the response in wrap around order, see
                               // Numerical Recipes doc
@@ -162,8 +162,8 @@ void Convolution::convlv(double *sig, int n, double *dres, int m, int sign) {
   if (m2 % 2 == 1) res[m2] = dres[m - 1];
 
   // calculate ffts
-  gsl_fft_real_radix2_transform(res, 1, n);
-  gsl_fft_real_radix2_transform(sig, 1, n);
+  gsl_fft_real_radix2_transform(res, 1, static_cast<size_t>(n));
+  gsl_fft_real_radix2_transform(sig, 1, static_cast<size_t>(n));
 
   double re, im, size;
   for (i = 0; i < n / 2; i++) {  // multiply/divide both ffts
@@ -190,7 +190,7 @@ void Convolution::convlv(double *sig, int n, double *dres, int m, int sign) {
     }
   }
   delete[] res;
-  gsl_fft_halfcomplex_radix2_inverse(sig, 1, n);  // inverse fft
+  gsl_fft_halfcomplex_radix2_inverse(sig, 1, static_cast<size_t>(n));  // inverse fft
 }
 /**************************************************************************
  *             Class Deconvolution                                         *

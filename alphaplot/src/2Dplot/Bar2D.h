@@ -18,6 +18,8 @@ class Bar2D : public QCPBars {
     VerticalStacked,
     HorizontalStacked,
   };
+  Axis2D *getxaxis_barplot() const;
+  Axis2D *getyaxis_barplot() const;
 
   void setBarData(Column *xData, Column *yData, int from, int to);
   void setBarWidth(double barwidth);
@@ -25,6 +27,8 @@ class Bar2D : public QCPBars {
 
 private:
   double barwidth_;
+  Axis2D *xaxis_;
+  Axis2D *yaxis_;
 };
 
 #endif  // BAR2D_H

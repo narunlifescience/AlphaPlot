@@ -29,6 +29,11 @@ enum class ScatterStyle : int {
   PlusCircle = 14,
   Peace = 15,
 };
+
+enum class PlotType{
+  Associated,
+  Function
+};
 }  // namespace LSCommon
 
 #endif  // LINESCATTERCOMMON_H

@@ -8,10 +8,11 @@
 class Table;
 class Column;
 
-class DataBlock2 {
+class DataBlockGraph {
  public:
-  DataBlock2(Table *table, Column *xcolumn, Column *ycolumn, int from, int to);
-  ~DataBlock2();
+  DataBlockGraph(Table *table, Column *xcolumn, Column *ycolumn, int from,
+                 int to);
+  ~DataBlockGraph();
 
   // setters
   void addat(const int position, const bool valid, const double x,
@@ -19,7 +20,7 @@ class DataBlock2 {
   // getters
   int size() { return data_->size(); }
   QList<bool> *validitylist() { return isvalid_; }
-  QVector<QCPGraphData> *data() { return data_; }
+  QSharedPointer<QCPGraphDataContainer> data() { return data_; }
   QCPRange xrange() { return xrange_; }
   QCPRange yrange() { return yrange_; }
   Table *table() { return table_; }
@@ -29,11 +30,11 @@ class DataBlock2 {
   int to() { return to_; }
 
  private:
-  void generateDataBlock2();
+  void generateDataBlockGraph();
 
  private:
   QList<bool> *isvalid_;
-  QVector<QCPGraphData> *data_;
+  QSharedPointer<QCPGraphDataContainer> data_;
   QCPRange xrange_;
   QCPRange yrange_;
   Table *table_;
@@ -43,11 +44,10 @@ class DataBlock2 {
   int to_;
 };
 
-class DataBlockCurveData {
+class DataBlockCurve {
  public:
-  DataBlockCurveData(Table *table, QString xcolname, QString ycolname, int from,
-                     int to);
-  ~DataBlockCurveData();
+  DataBlockCurve(Table *table, Column *xcol, Column *ycol, int from, int to);
+  ~DataBlockCurve();
 
   // setters
   void addat(const int position, const bool valid, const double x,
@@ -59,13 +59,13 @@ class DataBlockCurveData {
   QCPRange xrange() { return xrange_; }
   QCPRange yrange() { return yrange_; }
   Table *table() { return table_; }
-  QString xcolname() { return xcolname_; }
-  QString ycolname() { return ycolname_; }
+  Column *xcolumn() { return xcol_; }
+  Column *ycolumn() { return ycol_; }
   int from() { return from_; }
   int to() { return to_; }
 
  private:
-  void generateDataBlockCurveData();
+  void generateDataBlockCurve();
 
  private:
   QList<bool> *isvalid_;
@@ -73,8 +73,8 @@ class DataBlockCurveData {
   QCPRange xrange_;
   QCPRange yrange_;
   Table *table_;
-  QString xcolname_;
-  QString ycolname_;
+  Column *xcol_;
+  Column *ycol_;
   int from_;
   int to_;
 };

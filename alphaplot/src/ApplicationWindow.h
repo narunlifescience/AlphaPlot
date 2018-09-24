@@ -218,7 +218,7 @@ class ApplicationWindow : public QMainWindow,
   // Set the project status to saved (not modified)
   void savedProject();
   // Set project status to modified and save 'w' as the last modified widget
-  void modifiedProject(MyWidget *w);
+  void modifiedProject(MyWidget* w);
   //@}
 
   //! \name Settings
@@ -292,7 +292,7 @@ class ApplicationWindow : public QMainWindow,
   void newSurfacePlot();
   void editSurfacePlot();
   void remove3DMatrixPlots(Matrix* m);
-  void updateMatrixPlots(MyWidget *);
+  void updateMatrixPlots(MyWidget*);
   void add3DData();
   void change3DData();
   void change3DData(const QString& colName);
@@ -330,7 +330,7 @@ class ApplicationWindow : public QMainWindow,
       const int type, const QStringList& formulas, const QString& var,
       const QList<double>& ranges, const int points);
 
-  Function2DDialog *functionDialog();
+  Function2DDialog* functionDialog();
   void showFunctionDialog();
   void showFunctionDialog(Graph* g, int curve);
   void addFunctionCurve();
@@ -385,7 +385,7 @@ class ApplicationWindow : public QMainWindow,
                         QList<Column*> columns);
   Table* table(const QString& name);
   Table* convertMatrixToTable();
-  QList<QMdiSubWindow *>* tableList();
+  QList<QMdiSubWindow*>* tableList();
 
   void connectTable(Table* w);
   void newWrksheetPlot(const QString& name, const QString& label,
@@ -443,12 +443,15 @@ class ApplicationWindow : public QMainWindow,
   void exportAllGraphs();
   void exportPDF();
   void print();
-  void print(QMdiSubWindow *subwindow);
+  void print(QMdiSubWindow* subwindow);
   void printAllPlots();
   //@}
 
   QStringList columnsList(AlphaPlot::PlotDesignation plotType);
+  QList<QPair<Table*, Column*>> columnList(AlphaPlot::PlotDesignation plotType);
+  QList<QPair<Table*, Column*>> columnList(Folder *folder, AlphaPlot::PlotDesignation plotType);
   QStringList columnsList();
+  QList<QPair<Table*, Column*>>  columnList();
 
   void undo();
   void redo();
@@ -493,7 +496,7 @@ class ApplicationWindow : public QMainWindow,
   void removeCurves(const QString& name);
   QStringList dependingPlots(const QString& caption);
   QStringList depending3DPlots(Matrix* m);
-  QStringList multilayerDependencies(MyWidget *w);
+  QStringList multilayerDependencies(MyWidget* w);
 
   void saveAsTemplate();
   void openTemplate();
@@ -748,7 +751,7 @@ class ApplicationWindow : public QMainWindow,
   void pickPlotStyle(QAction* action);
   void pickCoordSystem(QAction* action);
   void pickFloorStyle(QAction* action);
-  void custom3DActions(QMdiSubWindow *subwindow);
+  void custom3DActions(QMdiSubWindow* subwindow);
   void custom3DGrids(int grids);
   //@}
 
@@ -756,7 +759,7 @@ class ApplicationWindow : public QMainWindow,
 
 #ifdef SEARCH_FOR_UPDATES
   //!  connected to the done(bool) signal of the http object
-  void receivedVersionFile(QNetworkReply *reply);
+  void receivedVersionFile(QNetworkReply* reply);
   //!  called when the user presses the actionCheckUpdates
   void searchForUpdates();
 #endif
@@ -783,7 +786,7 @@ class ApplicationWindow : public QMainWindow,
   bool projectHasMatrices();
 
   //! Returns a pointer to the window named "name"
-  QMdiSubWindow *window(const QString& name);
+  QMdiSubWindow* window(const QString& name);
 
   //! Returns a list with the names of all the matrices in the project
   QStringList matrixNames();
@@ -902,14 +905,14 @@ class ApplicationWindow : public QMainWindow,
 
   //!  Drop the objects in the list draggedItems to the folder of the
   //!  destination item
-  //void dropFolderItems(QTreeWidgetItem* dest);
+  // void dropFolderItems(QTreeWidgetItem* dest);
 
   //!  moves a folder item to another
   /**
    * \param src source folder item
    * \param dest destination folder item
    */
-  //void moveFolder(FolderTreeWidgetItem* src, FolderTreeWidgetItem* dest);
+  // void moveFolder(FolderTreeWidgetItem* src, FolderTreeWidgetItem* dest);
   //@}
 
   //! \name Scripting
@@ -929,7 +932,7 @@ class ApplicationWindow : public QMainWindow,
   //! current one and force is true, restart it
   bool setScriptingLang(const QString& lang, bool force = false);
   //@}
-  void newCurve2D(Table *table, QString xcolname, QString ycolname);
+  void newCurve2D(Table* table, Column *xcol, Column *ycol);
 
  signals:
   void modified();
@@ -1096,7 +1099,7 @@ class ApplicationWindow : public QMainWindow,
   //! Used when checking for new versions
   QNetworkAccessManager http;
   //! Used when checking for new versions
-QByteArray version_buffer;
+  QByteArray version_buffer;
 #endif
 
   Graph* lastCopiedLayer;

@@ -33,7 +33,8 @@ class Layout2D : public MyWidget {
   void generateParametric2DPlot(QVector<double> *xdata, QVector<double> *ydata,
                                 const QString xLabel, const QString yLabel);
   void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
-  void generateStatBox2DPlot(Column *data, int from, int to, int key);
+  void generateStatBox2DPlot(Table *table, Column *data, int from, int to,
+                             int key);
 
   enum LineScatterType {
     Line2D,
@@ -51,17 +52,19 @@ class Layout2D : public MyWidget {
     VerticalBars,
   };
 
-  void generateLineScatter2DPlot(const LineScatterType &plotType, Column *xData,
-                                 Column *yData, int from, int to);
-  void generateCurve2DPlot(Table *table, QString xcolname, QString ycolname,
-                           int from, int to);
-  void generateSpline2DPlot(Column *xData, Column *yData, int from, int to);
-  void generateBar2DPlot(const BarType &barType, Column *xData, Column *yData,
-                         int from, int to);
+  void generateLineScatter2DPlot(const LineScatterType &plotType, Table *table,
+                                 Column *xData, Column *yData, int from,
+                                 int to);
+  void generateCurve2DPlot(Table *table, Column *xcol, Column *ycol, int from,
+                           int to);
+  void generateSpline2DPlot(Table *table, Column *xData, Column *yData,
+                            int from, int to);
+  void generateBar2DPlot(const BarType &barType, Table *table, Column *xData,
+                         Column *yData, int from, int to);
   void generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
-                            Column *x1Data, Column *y1Data, Column *x2Data,
-                            Column *y2Data, int from, int to);
-  void generatePie2DPlot(Column *xData, int from, int to);
+                            Table *table, Column *x1Data, Column *y1Data,
+                            Column *x2Data, Column *y2Data, int from, int to);
+  void generatePie2DPlot(Table *table, Column *xData, int from, int to);
 
   QList<AxisRect2D *> getAxisRectList();
   AxisRect2D *getSelectedAxisRect(int col, int row);

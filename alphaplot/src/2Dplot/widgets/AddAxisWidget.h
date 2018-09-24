@@ -10,7 +10,7 @@ class AddAxisWidget : public QDialog
   Q_OBJECT
 
 public:
-  explicit AddAxisWidget(QWidget *parent = nullptr);
+  explicit AddAxisWidget(QWidget *parent);
   ~AddAxisWidget();
 
 signals:
