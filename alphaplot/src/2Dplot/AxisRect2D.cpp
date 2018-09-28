@@ -19,6 +19,7 @@
 #include "Legend2D.h"
 #include "QMessageBox"
 #include "Table.h"
+#include "TextItem2D.h"
 
 #include "core/Utilities.h"
 
@@ -31,6 +32,10 @@ AxisRect2D::AxisRect2D(Plot2D *parent, bool setupDefaultAxis)
       axisRectLegend_(new Legend2D()),
       isAxisRectSelected_(false),
       printorexportjob_(false) {
+  gridpair_.first.first = nullptr;
+  gridpair_.first.second = nullptr;
+  gridpair_.second.first = nullptr;
+  gridpair_.second.second = nullptr;
   setAxisRectBackground(axisRectBackGround_);
   insetLayout()->addElement(axisRectLegend_, Qt::AlignTop | Qt::AlignLeft);
   insetLayout()->setInsetPlacement(0, QCPLayoutInset::ipFree);
@@ -121,7 +126,8 @@ Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
   switch (axis->getorientation_axis()) {
     case Axis2D::AxisOreantation::Bottom:
     case Axis2D::AxisOreantation::Top:
-      delete gridpair_.first.first;
+      if (gridpair_.first.second == axis) return gridpair_.first.first;
+      if (gridpair_.first.first != nullptr) delete gridpair_.first.first;
       gridpair_.first.first = nullptr;
       gridpair_.first.second = nullptr;
       gridpair_.first.first = new Grid2D(axis);
@@ -129,7 +135,8 @@ Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
       return gridpair_.first.first;
     case Axis2D::AxisOreantation::Left:
     case Axis2D::AxisOreantation::Right:
-      delete gridpair_.second.first;
+      if (gridpair_.second.second == axis) return gridpair_.second.first;
+      if (gridpair_.second.first != nullptr) delete gridpair_.second.first;
       gridpair_.second.first = nullptr;
       gridpair_.second.second = nullptr;
       gridpair_.second.first = new Grid2D(axis);
@@ -211,7 +218,8 @@ Axis2D *AxisRect2D::getYAxis(int value) {
 LineScatter2D *AxisRect2D::addLineScatter2DPlot(
     const AxisRect2D::LineScatterType &type, Table *table, Column *xData,
     Column *yData, int from, int to, Axis2D *xAxis, Axis2D *yAxis) {
-  LineScatter2D *lineScatter = new LineScatter2D(xAxis, yAxis);
+  LineScatter2D *lineScatter =
+      new LineScatter2D(table, xData, yData, from, to, xAxis, yAxis);
   lineScatter->setlinefillcolor_lsplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
 
@@ -274,7 +282,6 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
       break;
   }
 
-  lineScatter->setGraphData(table, xData, yData, from, to);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineScatter);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
@@ -289,8 +296,7 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
 Curve2D *AxisRect2D::addCurve2DPlot(Table *table, Column *xcol, Column *ycol,
                                     int from, int to, Axis2D *xAxis,
                                     Axis2D *yAxis) {
-  Curve2D *curve = new Curve2D(xAxis, yAxis);
-  curve->setCurveData(table, xcol, ycol, from, to);
+  Curve2D *curve = new Curve2D(table, xcol, ycol, from, to, xAxis, yAxis);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
@@ -322,11 +328,10 @@ LineScatter2D *AxisRect2D::addLineFunction2DPlot(QVector<double> *xdata,
                                                  QVector<double> *ydata,
                                                  Axis2D *xAxis, Axis2D *yAxis,
                                                  const QString &name) {
-  LineScatter2D *lineScatter = new LineScatter2D(xAxis, yAxis);
+  LineScatter2D *lineScatter = new LineScatter2D(xdata, ydata, xAxis, yAxis);
   lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Line);
   lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
 
-  lineScatter->setGraphData(xdata, ydata);
   lineScatter->setName(name);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineScatter);
   axisRectLegend_->addItem(legendItem);
@@ -341,11 +346,10 @@ Curve2D *AxisRect2D::addCurveFunction2DPlot(QVector<double> *xdata,
                                             QVector<double> *ydata,
                                             Axis2D *xAxis, Axis2D *yAxis,
                                             const QString &name) {
-  Curve2D *curve = new Curve2D(xAxis, yAxis);
+  Curve2D *curve = new Curve2D(xdata, ydata, xAxis, yAxis);
   curve->setlinetype_cplot(1);
   curve->setscattershape_cplot(LSCommon::ScatterStyle::None);
 
-  curve->setGraphData(xdata, ydata);
   curve->setName(name);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
@@ -362,14 +366,14 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
   Bar2D *bar;
   switch (type) {
     case HorizontalBars:
-      bar = new Bar2D(yAxis, xAxis);
+      bar = new Bar2D(table, xData, yData, from, to, yAxis, xAxis);
       break;
     case VerticalBars:
-      bar = new Bar2D(xAxis, yAxis);
+      bar = new Bar2D(table, xData, yData, from, to, xAxis, yAxis);
       break;
   }
 
-  bar->setBarData(xData, yData, from, to);
+  bar->setBarData(table, xData, yData, from, to);
   bar->setBarWidth(1);
   bar->setAntialiased(false);
   bar->setAntialiasedFill(false);
@@ -414,6 +418,15 @@ Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
   // axisRectLegend_->addItem(legendItem);
   // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   return pie;
+}
+
+TextItem2D *AxisRect2D::addTextItem2D(QString text) {
+  TextItem2D *textitem = new TextItem2D(this, plot2d_);
+  textitem->setText(text);
+  textitem->position->setPixelPosition(this->rect().center());
+  textvec_.append(textitem);
+  emit TextItem2DCreated(textitem);
+  return textitem;
 }
 
 // Should not use for other than populating axis map
@@ -461,6 +474,20 @@ void AxisRect2D::drawSelection(QCPPainter *painter) {
   painter->drawPolygon(poly);
 }
 
+bool AxisRect2D::removeTextItem2D(TextItem2D *textitem) {
+  for (int i = 0; i < textvec_.size(); i++) {
+    if (textvec_.at(i) == textitem) {
+      textvec_.remove(i);
+    }
+  }
+  bool result = false;
+  result = plot2d_->removeItem(textitem);
+  if (!result) return result;
+
+  emit TextItem2DRemoved(this);
+  return result;
+}
+
 bool AxisRect2D::removeLineScatter2D(LineScatter2D *ls) {
   for (int i = 0; i < lsvec_.size(); i++) {
     if (lsvec_.at(i) == ls) {
@@ -477,6 +504,18 @@ bool AxisRect2D::removeLineScatter2D(LineScatter2D *ls) {
   return result;
 }
 
+bool AxisRect2D::removeSpline2D(Spline2D *spline) {
+  for (int i = 0; i < splinevec_.size(); i++) {
+    if (splinevec_.at(i) == spline) {
+      splinevec_.remove(i);
+    }
+  }
+  bool result = false;
+  result = plot2d_->removePlottable(spline);
+  emit Spline2DRemoved(this);
+  return result;
+}
+
 bool AxisRect2D::removeCurve2D(Curve2D *curve) {
   for (int i = 0; i < curvevec_.size(); i++) {
     if (curvevec_.at(i) == curve) {
@@ -486,6 +525,18 @@ bool AxisRect2D::removeCurve2D(Curve2D *curve) {
   bool result = false;
   result = plot2d_->removePlottable(curve);
   emit CurveRemoved(this);
+  return result;
+}
+
+bool AxisRect2D::removeBar2D(Bar2D *bar) {
+  for (int i = 0; i < barvec_.size(); i++) {
+    if (barvec_.at(i) == bar) {
+      barvec_.remove(i);
+    }
+  }
+  bool result = false;
+  result = plot2d_->removePlottable(bar);
+  emit BarRemoved(this);
   return result;
 }
 

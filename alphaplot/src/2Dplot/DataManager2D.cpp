@@ -5,79 +5,50 @@
 #include "Table.h"
 
 DataBlockGraph::DataBlockGraph(Table *table, Column *xcolumn, Column *ycolumn,
-                               int from, int to)
-    : isvalid_(new QList<bool>()),
-      data_(new QCPGraphDataContainer),
+                               const int from, const int to)
+    : data_(new QCPGraphDataContainer),
       table_(table),
       xcolumn_(xcolumn),
       ycolumn_(ycolumn),
       from_(from),
       to_(to) {
-  generateDataBlockGraph();
+  regenerateDataBlock(table, xcolumn, ycolumn, from, to);
 }
 
-DataBlockGraph::~DataBlockGraph() { delete isvalid_; }
+DataBlockGraph::~DataBlockGraph() {}
 
-void DataBlockGraph::addat(const int position, const bool valid, const double x,
-                           const double y) {
-  Q_ASSERT(position >= 0);
-  isvalid_->insert(position, valid);
-  data_->add(QCPGraphData(x, y));
+void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
+                                         Column *ycolumn, const int from,
+                                         const int to) {
+  this->settable(table);
+  this->setxcolumn(xcolumn);
+  this->setycolumn(ycolumn);
+  this->setfrom(from);
+  this->setto(to);
 
-  if (xrange_.lower > x) {
-    xrange_.lower = x;
-  }
+  Column *xcol = this->getxcolumn();
+  Column *ycol = this->getycolumn();
+  int start_row = this->getfrom();
+  int end_row = this->getto();
 
-  if (xrange_.upper > x) {
-    xrange_.upper = x;
-  }
-
-  if (yrange_.lower > y) {
-    yrange_.lower = y;
-  }
-
-  if (yrange_.upper > y) {
-    yrange_.upper = y;
-  }
-}
-
-void DataBlockGraph::generateDataBlockGraph() {
+  data_.data()->clear();
   QVector<QCPGraphData> *gdvector = new QVector<QCPGraphData>();
 
   // strip unused end rows
-  int end_row = to_;
-  if (end_row >= xcolumn_->rowCount()) end_row = xcolumn_->rowCount() - 1;
-  if (end_row >= ycolumn_->rowCount()) end_row = ycolumn_->rowCount() - 1;
+  if (end_row >= xcol->rowCount()) end_row = xcol->rowCount() - 1;
+  if (end_row >= ycol->rowCount()) end_row = ycol->rowCount() - 1;
 
   // determine rows for which all columns have valid content
-  for (int row = from_; row <= end_row; row++) {
-    if (xcolumn_->isInvalid(row) || ycolumn_->isInvalid(row)) {
-      isvalid_->append(false);
+  for (int row = start_row; row <= end_row; row++) {
+    if (xcol->isInvalid(row) || ycol->isInvalid(row)) {
       QCPGraphData data(std::numeric_limits<double>::quiet_NaN(),
                         std::numeric_limits<double>::quiet_NaN());
       gdvector->append(data);
     } else {
-      isvalid_->append(true);
-      double xdata = xcolumn_->valueAt(row);
-      double ydata = ycolumn_->valueAt(row);
+      double xdata = xcol->valueAt(row);
+      double ydata = ycol->valueAt(row);
       QCPGraphData data(xdata, ydata);
       gdvector->append(data);
-
-      if (xrange_.lower > xdata) {
-        xrange_.lower = xdata;
-      }
-
-      if (xrange_.upper > xdata) {
-        xrange_.upper = xdata;
-      }
-
-      if (yrange_.lower > ydata) {
-        yrange_.lower = ydata;
-      }
-
-      if (yrange_.upper > ydata) {
-        yrange_.upper = ydata;
-      }
     }
   }
   data_.data()->add(*gdvector, true);
@@ -86,77 +57,135 @@ void DataBlockGraph::generateDataBlockGraph() {
 }
 
 DataBlockCurve::DataBlockCurve(Table *table, Column *xcol, Column *ycol,
-                               int from, int to)
-    : isvalid_(new QList<bool>()),
-      data_(new QCPCurveDataContainer),
+                               const int from, const int to)
+    : data_(new QCPCurveDataContainer),
       table_(table),
-      xcol_(xcol),
-      ycol_(ycol),
+      xcolumn_(xcol),
+      ycolumn_(ycol),
       from_(from),
       to_(to) {
-  generateDataBlockCurve();
+  regenerateDataBlock(table, xcol, ycol, from, to);
 }
 
-DataBlockCurve::~DataBlockCurve() { delete isvalid_; }
+DataBlockCurve::~DataBlockCurve() {}
 
-void DataBlockCurve::addat(const int position, const bool valid, const double x,
-                           const double y) {
-  Q_ASSERT(position >= 0);
-  isvalid_->insert(position, valid);
-  data_->add(QCPCurveData(position, x, y));
+void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
+                                         Column *ycolumn, const int from,
+                                         const int to) {
+  this->settable(table);
+  this->setxcolumn(xcolumn);
+  this->setycolumn(ycolumn);
+  this->setfrom(from);
+  this->setto(to);
 
-  if (xrange_.lower > x) {
-    xrange_.lower = x;
-  }
+  Column *xcol = this->getxcolumn();
+  Column *ycol = this->getycolumn();
+  int start_row = this->getfrom();
+  int end_row = this->getto();
 
-  if (xrange_.upper > x) {
-    xrange_.upper = x;
-  }
+  data_.data()->clear();
 
-  if (yrange_.lower > y) {
-    yrange_.lower = y;
-  }
-
-  if (yrange_.upper > y) {
-    yrange_.upper = y;
-  }
-}
-
-void DataBlockCurve::generateDataBlockCurve() {
   // strip unused end rows
-  int end_row = to_;
-  if (end_row >= xcol_->rowCount()) end_row = xcol_->rowCount() - 1;
-  if (end_row >= ycol_->rowCount()) end_row = ycol_->rowCount() - 1;
+  if (end_row >= xcol->rowCount()) end_row = xcol->rowCount() - 1;
+  if (end_row >= ycol->rowCount()) end_row = ycol->rowCount() - 1;
 
   // determine rows for which all columns have valid content
-  for (int i = 0, row = from_; row <= end_row; row++) {
-    if (xcol_->isInvalid(row) || ycol_->isInvalid(row)) {
-      isvalid_->append(false);
+  for (int i = 0, row = start_row; row <= end_row; row++) {
+    if (xcol->isInvalid(row) || ycol->isInvalid(row)) {
       QCPCurveData data(i, std::numeric_limits<double>::quiet_NaN(),
                         std::numeric_limits<double>::quiet_NaN());
       data_->add(data);
     } else {
-      isvalid_->append(true);
-      double xdata = xcol_->valueAt(row);
-      double ydata = ycol_->valueAt(row);
+      double xdata = xcol->valueAt(row);
+      double ydata = ycol->valueAt(row);
       QCPCurveData data(i, xdata, ydata);
       data_->add(data);
+    }
+  }
+}
 
-      if (xrange_.lower > xdata) {
-        xrange_.lower = xdata;
-      }
+DataBlockBar::DataBlockBar(Table *table, Column *xcol, Column *ycol,
+                           const int from, const int to)
+    : data_(new QCPBarsDataContainer),
+      table_(table),
+      xcolumn_(xcol),
+      ycolumn_(ycol),
+      from_(from),
+      to_(to) {
+  regenerateDataBlock(table, xcol, ycol, from, to);
+}
 
-      if (xrange_.upper > xdata) {
-        xrange_.upper = xdata;
-      }
+DataBlockBar::~DataBlockBar() {}
 
-      if (yrange_.lower > ydata) {
-        yrange_.lower = ydata;
-      }
+void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
+                                       Column *ycolumn, const int from,
+                                       const int to) {
+  this->settable(table);
+  this->setxcolumn(xcolumn);
+  this->setycolumn(ycolumn);
+  this->setfrom(from);
+  this->setto(to);
 
-      if (yrange_.upper > ydata) {
-        yrange_.upper = ydata;
-      }
+  int start_row = from;
+  int end_row = to;
+
+  data_.data()->clear();
+
+  // strip unused end rows
+  if (end_row >= xcolumn->rowCount()) end_row = xcolumn->rowCount() - 1;
+  if (end_row >= ycolumn->rowCount()) end_row = ycolumn->rowCount() - 1;
+
+  // determine rows for which all columns have valid content
+  for (int row = start_row; row <= end_row; row++) {
+    if (xcolumn->isInvalid(row) || ycolumn->isInvalid(row)) {
+      QCPBarsData data(std::numeric_limits<double>::quiet_NaN(),
+                       std::numeric_limits<double>::quiet_NaN());
+      data_->add(data);
+    } else {
+      double xdata = xcolumn->valueAt(row);
+      double ydata = ycolumn->valueAt(row);
+      QCPBarsData data(xdata, ydata);
+      data_->add(data);
+    }
+  }
+}
+
+DataBlockError::DataBlockError(Table *table, Column *errorcol, const int from,
+                               const int to)
+    : data_(new QCPErrorBarsDataContainer),
+      table_(table),
+      errorcolumn_(errorcol),
+      from_(from),
+      to_(to) {
+  regenerateDataBlock(table, errorcol, from, to);
+}
+
+DataBlockError::~DataBlockError() {}
+
+void DataBlockError::regenerateDataBlock(Table *table, Column *errorcolumn,
+                                         const int from, const int to) {
+  this->settable(table);
+  this->seterrorcolumn(errorcolumn);
+  this->setfrom(from);
+  this->setto(to);
+
+  int start_row = from;
+  int end_row = to;
+
+  data_.data()->clear();
+
+  // strip unused end rows
+  if (end_row >= errorcolumn->rowCount()) end_row = errorcolumn->rowCount() - 1;
+
+  // determine rows for which all columns have valid content
+  for (int row = start_row; row <= end_row; row++) {
+    if (errorcolumn->isInvalid(row)) {
+      QCPErrorBarsData data(std::numeric_limits<double>::quiet_NaN());
+      data_->append(data);
+    } else {
+      double errordata = errorcolumn->valueAt(row);
+      QCPErrorBarsData data(errordata);
+      data_->append(data);
     }
   }
 }

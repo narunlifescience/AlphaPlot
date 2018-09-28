@@ -449,9 +449,10 @@ class ApplicationWindow : public QMainWindow,
 
   QStringList columnsList(AlphaPlot::PlotDesignation plotType);
   QList<QPair<Table*, Column*>> columnList(AlphaPlot::PlotDesignation plotType);
-  QList<QPair<Table*, Column*>> columnList(Folder *folder, AlphaPlot::PlotDesignation plotType);
+  QList<QPair<Table*, Column*>> columnList(Folder* folder,
+                                           AlphaPlot::PlotDesignation plotType);
   QStringList columnsList();
-  QList<QPair<Table*, Column*>>  columnList();
+  QList<QPair<Table*, Column*>> columnList();
 
   void undo();
   void redo();
@@ -534,7 +535,7 @@ class ApplicationWindow : public QMainWindow,
 
   void newAproj();
 
-  //! Creates a new empty multilayer plot
+  //! Creates a new empty 2d plot
   MultiLayer* newGraph(const QString& caption = tr("Graph"));
   Layout2D* newGraph2D(const QString& caption = tr("Graph"));
 
@@ -630,39 +631,21 @@ class ApplicationWindow : public QMainWindow,
   //! \name Dialogs
   //@{
   void findWindowOrFolderFromProjectExplorer();
-  //! Show plot style dialog for the active MultiLayer / activeGraph / specified
-  //! curve or the activeGraph options dialog if no curve is specified (curveKey
-  //! = -1).
-  void showPlotDialog(int curveKey = -1);
-  QDialog* showScaleDialog();
   QDialog* showPlot3dDialog();
-  AxesDialog* showScalePageFromAxisDialog(int axisPos);
-  AxesDialog* showAxisPageFromAxisDialog(int axisPos);
-  void showAxisDialog();
-  void showGridDialog();
-  void showGeneralPlotDialog();
   void showResults(bool ok);
   void showResults(const QString& s, bool ok = true);
-  void showTextDialog();
   void showLineDialog();
-  void showTitleDialog();
   void showExportASCIIDialog();
   void showCurvesDialog();
   void showCurveRangeDialog();
   CurveRangeDialog* showCurveRangeDialog(Graph* g, int curve);
   void showPlotAssociations(int curve);
 
-  void showXAxisTitleDialog();
-  void showYAxisTitleDialog();
-  void showRightAxisTitleDialog();
-  void showTopAxisTitleDialog();
-
   void showGraphContextMenu();
   void showLayerButtonContextMenu();
   void showWindowContextMenu();
   void showWindowTitleBarMenu();
   void showCurveContextMenu(int curveKey);
-  void showCurvePlotDialog();
   void showCurveWorksheet();
   void showCurveWorksheet(Graph* g, int curveIndex);
   void showWindowPopupMenu(const QPoint& p);
@@ -932,7 +915,7 @@ class ApplicationWindow : public QMainWindow,
   //! current one and force is true, restart it
   bool setScriptingLang(const QString& lang, bool force = false);
   //@}
-  void newCurve2D(Table* table, Column *xcol, Column *ycol);
+  void newCurve2D(Table* table, Column* xcol, Column* ycol);
 
  signals:
   void modified();
@@ -1080,9 +1063,6 @@ class ApplicationWindow : public QMainWindow,
   //! Check if a table is valid for 2D plot & display an error if not
   bool validFor2DPlot(Table* table, int type);
 
-  // Workaround for the new colors introduced in rev 447
-  int convertOldToNewColorIndex(int cindex);
-
   // Attach to the scripting environment
   void attachQtScript();
 
@@ -1106,8 +1086,7 @@ class ApplicationWindow : public QMainWindow,
   QAction* actionCopyStatusBarText;
   QAction *actionEditCurveRange, *actionCurveFullRange, *actionShowAllCurves,
       *actionHideCurve, *actionHideOtherCurves;
-  QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet,
-      *actionShowCurvePlotDialog;
+  QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet;
 
   QAction* actionShowExportASCIIDialog;
   QAction* actionExportPDF;
@@ -1117,7 +1096,7 @@ class ApplicationWindow : public QMainWindow,
   QAction* actionHideActiveWindow;
   QAction *actionShowMoreWindows, *actionPixelLineProfile,
       *actionIntensityTable;
-  QAction *actionShowLineDialog, *actionShowImageDialog, *actionShowTextDialog;
+  QAction *actionShowLineDialog, *actionShowImageDialog;
   QAction *actionActivateWindow, *actionMinimizeWindow, *actionMaximizeWindow,
       *actionResizeWindow, *actionPrintWindow;
   QAction *actionShowPlotGeometryDialog, *actionEditSurfacePlot,
@@ -1180,10 +1159,6 @@ class ApplicationWindow : public QMainWindow,
   // http://doc.trolltech.com/4.3/mainwindows-recentfiles-mainwindow-cpp.html
 
   void setActiveWindowFromAction();
-  // Manage plot type selection.
-  // If the current window is a Table, generate a new graph from the selected
-  // data. If it is a Graph, change the plot type of the last curve.For
-  // everything else, do nothing.
   void selectPlotType(int type);
 
   void handleAspectAdded(const AbstractAspect* aspect, int index);

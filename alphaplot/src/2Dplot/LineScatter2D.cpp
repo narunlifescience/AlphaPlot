@@ -5,10 +5,12 @@
 #include <QCustomEvent>
 #include "../future/core/column/Column.h"
 #include "DataManager2D.h"
+#include "ErrorBar2D.h"
 #include "PlotPoint.h"
 #include "core/Utilities.h"
 
-LineScatter2D::LineScatter2D(Axis2D *xAxis, Axis2D *yAxis)
+LineScatter2D::LineScatter2D(Table *table, Column *xcol, Column *ycol, int from,
+                             int to, Axis2D *xAxis, Axis2D *yAxis)
     : QCPGraph(xAxis, yAxis),
       xAxis_(xAxis),
       yAxis_(yAxis),
@@ -16,42 +18,123 @@ LineScatter2D::LineScatter2D(Axis2D *xAxis, Axis2D *yAxis)
           QCPScatterStyle::ssDisc,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
-      graphdata_(nullptr)
+      graphdata_(new DataBlockGraph(table, xcol, ycol, from, to)),
+      functionData_(nullptr),
+      type_(LSCommon::PlotType::Associated),
+      xerrorbar_(nullptr),
+      yerrorbar_(nullptr),
+      xerroravailable_(false),
+      yerroravailable_(false)
 // mPointUnderCursor(new PlotPoint(parentPlot(), 5))
 {
   setlinestrokecolor_lsplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
+  setData(graphdata_->data());
 }
 
-LineScatter2D::~LineScatter2D() { delete scatterstyle_; }
+LineScatter2D::LineScatter2D(QVector<double> *xdata, QVector<double> *ydata,
+                             Axis2D *xAxis, Axis2D *yAxis)
+    : QCPGraph(xAxis, yAxis),
+      xAxis_(xAxis),
+      yAxis_(yAxis),
+      scatterstyle_(new QCPScatterStyle(
+          QCPScatterStyle::ssDisc,
+          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
+          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
+      graphdata_(nullptr),
+      functionData_(new QCPGraphDataContainer),
+      type_(LSCommon::PlotType::Function),
+      xerrorbar_(nullptr),
+      yerrorbar_(nullptr),
+      xerroravailable_(false),
+      yerroravailable_(false) {
+  Q_ASSERT(xdata->size() == ydata->size());
+
+  for (int i = 0; i < xdata->size(); i++) {
+    QCPGraphData fd;
+    fd.key = xdata->at(i);
+    fd.value = ydata->at(i);
+    functionData_->add(fd);
+  }
+  setData(functionData_);
+  // free those containers
+  delete xdata;
+  delete ydata;
+}
+
+LineScatter2D::~LineScatter2D() {
+  delete scatterstyle_;
+  switch (type_) {
+    case LSCommon::PlotType::Associated:
+      delete graphdata_;
+      break;
+    case LSCommon::PlotType::Function:
+      break;
+  }
+  if (xerroravailable_) delete xerrorbar_;
+  if (yerroravailable_) delete yerrorbar_;
+}
+
+void LineScatter2D::setXerrorBar(Table *table, Column *errorcol, int from,
+                                 int to) {
+  if (xerroravailable_ || type_ == LSCommon::PlotType::Function) return;
+  xerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xAxis_, yAxis_,
+                              QCPErrorBars::ErrorType::etKeyError, this);
+  xerroravailable_ = true;
+}
+
+void LineScatter2D::setYerrorBar(Table *table, Column *errorcol, int from,
+                                 int to) {
+  if (yerroravailable_ || type_ == LSCommon::PlotType::Function) return;
+  yerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xAxis_, yAxis_,
+                              QCPErrorBars::ErrorType::etValueError, this);
+  yerroravailable_ = true;
+}
 
 void LineScatter2D::setGraphData(Table *table, Column *xcol, Column *ycol,
                                  int from, int to) {
-  if (graphdata_) {
-    qDebug() << "DataBlockGraph already set";
+  if (type_ == LSCommon::PlotType::Function) {
+    qDebug() << "cannot associate table with function plot";
     return;
   }
-  graphdata_ = new DataBlockGraph(table, xcol, ycol, from, to);
+  graphdata_->regenerateDataBlock(table, xcol, ycol, from, to);
   setData(graphdata_->data());
-  type_ = LSCommon::PlotType::Associated;
 }
 
 void LineScatter2D::setGraphData(QVector<double> *xdata,
                                  QVector<double> *ydata) {
   Q_ASSERT(xdata->size() == ydata->size());
-
-  QSharedPointer<QCPGraphDataContainer> functionData(new QCPGraphDataContainer);
+  if (type_ == LSCommon::PlotType::Associated) {
+    qDebug() << "cannot add function data to association plot";
+    return;
+  }
+  functionData_.data()->clear();
   for (int i = 0; i < xdata->size(); i++) {
     QCPGraphData fd;
     fd.key = xdata->at(i);
     fd.value = ydata->at(i);
-    functionData->add(fd);
+    functionData_->add(fd);
   }
-  setData(functionData);
-  type_ = LSCommon::PlotType::Function;
+  setData(functionData_);
   // free those containers
   delete xdata;
   delete ydata;
+}
+
+void LineScatter2D::removeXerrorBar() {
+  if (xerroravailable_ || type_ == LSCommon::PlotType::Function) return;
+
+  delete xerrorbar_;
+  xerrorbar_ = nullptr;
+  xerroravailable_ = false;
+}
+
+void LineScatter2D::removeYerrorBar() {
+  if (yerroravailable_ || type_ == LSCommon::PlotType::Function) return;
+
+  delete yerrorbar_;
+  yerrorbar_ = nullptr;
+  yerroravailable_ = false;
 }
 
 LSCommon::LineStyleType LineScatter2D::getlinetype_lsplot() const {
@@ -374,21 +457,21 @@ void LineScatter2D::setyaxis_lsplot(Axis2D *axis) {
   setValueAxis(axis);
 }
 
-void LineScatter2D::mousePressEvent(QMouseEvent *event,
+/*void LineScatter2D::mousePressEvent(QMouseEvent *event,
                                     const QVariant &details) {
-  /*if (event->button() == Qt::LeftButton && mPointUnderCursor) {
+  if (event->button() == Qt::LeftButton && mPointUnderCursor) {
     // localpos()
     mPointUnderCursor->startMoving(
         event->pos(), event->modifiers().testFlag(Qt::ShiftModifier));
     return;
-  }*/
+  }
 
   QCPGraph::mousePressEvent(event, details);
-}
+}*/
 
-void LineScatter2D::mouseMoveEvent(QMouseEvent *event,
+/*void LineScatter2D::mouseMoveEvent(QMouseEvent *event,
                                    const QPointF &startPos) {
-  /*if (event->buttons() == Qt::NoButton) {
+  if (event->buttons() == Qt::NoButton) {
      PlotPoint *plotPoint =
          qobject_cast<PlotPoint *>(parentPlot()->itemAt(event->pos(), true));
      if (plotPoint != mPointUnderCursor) {
@@ -410,6 +493,6 @@ void LineScatter2D::mouseMoveEvent(QMouseEvent *event,
        mPointUnderCursor = plotPoint;
        parentPlot()->replot();
      }
-   }*/
+   }
   QCPGraph::mouseMoveEvent(event, event->pos());
-}
+}*/

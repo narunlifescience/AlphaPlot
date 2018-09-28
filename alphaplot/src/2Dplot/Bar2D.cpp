@@ -1,31 +1,30 @@
 #include "Bar2D.h"
 #include "../future/core/column/Column.h"
+#include "DataManager2D.h"
+#include "Table.h"
 
-Bar2D::Bar2D(Axis2D *xAxis, Axis2D *yAxis)
-    : QCPBars(xAxis, yAxis), barwidth_(1), xaxis_(xAxis), yaxis_(yAxis) {}
+Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
+             Axis2D *xAxis, Axis2D *yAxis)
+    : QCPBars(xAxis, yAxis),
+      barwidth_(1),
+      xaxis_(xAxis),
+      yaxis_(yAxis),
+      bardata_(new DataBlockBar(table, xcol, ycol, from, to)) {
+  setData(bardata_->data());
+}
 
-Bar2D::~Bar2D() {}
+Bar2D::~Bar2D() { delete bardata_; }
 
 Axis2D *Bar2D::getxaxis_barplot() const { return xaxis_; }
 
 Axis2D *Bar2D::getyaxis_barplot() const { return yaxis_; }
 
-void Bar2D::setBarData(Column *xData, Column *yData, int from, int to) {
-  QSharedPointer<QCPBarsDataContainer> barData(new QCPBarsDataContainer());
+DataBlockBar *Bar2D::getdatablock_barplot() const { return bardata_; }
 
-  double xdata = 0, ydata = 0;
-  for (int i = from; i < to + 1; i++) {
-    xdata = xData->valueAt(i);
-    ydata = yData->valueAt(i);
-    QCPBarsData gd;
-    gd.key = xdata;
-    gd.value = ydata;
-    barData->add(gd);
-  }
-  setData(barData);
-  barwidth_ = data().data()->at(data().data()->size() - 1)->key -
-              data().data()->at(0)->key;
-  setBarWidth(barwidth_);
+void Bar2D::setBarData(Table *table, Column *xcol, Column *ycol, int from,
+                       int to) {
+  bardata_->regenerateDataBlock(table, xcol, ycol, from, to);
+  setData(bardata_->data());
 }
 
 void Bar2D::setBarWidth(double barwidth) {

@@ -31,11 +31,13 @@
 class Legend2D;
 class Table;
 class Column;
+class TextItem2D;
 
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
  private:
   typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
+  typedef QVector<TextItem2D *> TextItemVec;
   typedef QVector<LineScatter2D *> LsVec;
   typedef QVector<Curve2D *> CurveVec;
   typedef QVector<Spline2D *> SplineVec;
@@ -57,6 +59,7 @@ class AxisRect2D : public QCPAxisRect {
   QList<Axis2D *> getXAxes2D() const;
   QList<Axis2D *> getYAxes2D() const;
   GridPair getGridPair() const { return gridpair_; }
+  TextItemVec getTextItemVec() const { return textvec_; }
   LsVec getLsVec() const { return lsvec_; }
   CurveVec getCurveVec() const { return curvevec_; }
   SplineVec getSplineVec() const { return splinevec_; }
@@ -104,6 +107,7 @@ class AxisRect2D : public QCPAxisRect {
                           Column *y2Data, int from, int to, Axis2D *xAxis,
                           Axis2D *yAxis);
   Pie2D *addPie2DPlot(Table *table, Column *xData, int from, int to);
+  TextItem2D *addTextItem2D(QString text);
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;
@@ -118,8 +122,11 @@ class AxisRect2D : public QCPAxisRect {
   void drawSelection(QCPPainter *painter);
   bool isSelected() { return isAxisRectSelected_; }
 
+  bool removeTextItem2D(TextItem2D *textitem);
   bool removeLineScatter2D(LineScatter2D *ls);
+  bool removeSpline2D(Spline2D *spline);
   bool removeCurve2D(Curve2D *curve);
+  bool removeBar2D(Bar2D *bar);
   void setPrintorExportJob(bool value) { printorexportjob_ = value; }
 
  public slots:
@@ -138,14 +145,17 @@ class AxisRect2D : public QCPAxisRect {
   void AxisRectClicked(AxisRect2D *);
   void AxisCreated(Axis2D *);
   void AxisRemoved(AxisRect2D *);
+  void TextItem2DCreated(TextItem2D *);
   void LineScatterCreated(LineScatter2D *);
   void CurveCreated(Curve2D *);
   void SplineCreated(Spline2D *);
-  void VectorCreated(Vector2D *);
-  void LineScatterRemoved(AxisRect2D *);
-  void CurveRemoved(AxisRect2D *);
   void BarCreated(Bar2D *);
-  void BarRemoved();
+  void VectorCreated(Vector2D *);
+  void TextItem2DRemoved(AxisRect2D *);
+  void LineScatterRemoved(AxisRect2D *);
+  void Spline2DRemoved(AxisRect2D *);
+  void CurveRemoved(AxisRect2D *);
+  void BarRemoved(AxisRect2D *);
 
  private slots:
   void legendClick();
@@ -160,6 +170,7 @@ class AxisRect2D : public QCPAxisRect {
   bool isAxisRectSelected_;
   bool printorexportjob_;
   GridPair gridpair_;
+  TextItemVec textvec_;
   LsVec lsvec_;
   CurveVec curvevec_;
   SplineVec splinevec_;

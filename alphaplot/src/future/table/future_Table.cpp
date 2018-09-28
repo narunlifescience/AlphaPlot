@@ -134,7 +134,7 @@ Table::Table()
 
 Table::~Table() {
   delete d_table_private;
-  delete d_view;
+  // delete d_view;
 }
 
 Column *Table::column(int index) const {

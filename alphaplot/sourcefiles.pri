@@ -11,17 +11,15 @@ HEADERS  += src/ApplicationWindow.h \
             src/scripting/ScriptingFunctions.h\
             src/Graph.h \
             src/3Dplot/Graph3D.h \
+            src/3Dplot/TextDialog.h \
             src/Table.h \
-            src/CurvesDialog.h \
             src/PlotDialog.h \
             src/3Dplot/Plot3DDialog.h \
             src/PlotWizard.h \
-            src/AxesDialog.h \
             src/PolynomFitDialog.h \
             src/ExpDecayDialog.h \
             src/FitDialog.h \
             src/3Dplot/SurfaceDialog.h \
-            src/TextDialog.h \
             src/LineDialog.h \
             src/ScalePicker.h \
             src/TitlePicker.h \
@@ -133,7 +131,9 @@ HEADERS  += src/ApplicationWindow.h \
             src/2Dplot/widgets/ImageExportDialog2D.h \
             src/2Dplot/LineScatterCommon.h \
             src/2Dplot/widgets/AddPlot2DDialog.h \
-    $$PWD/src/2Dplot/LineItem2D.h
+    $$PWD/src/2Dplot/LineItem2D.h \
+    $$PWD/src/2Dplot/ErrorBar2D.h \
+    $$PWD/src/2Dplot/TextItem2D.h
 
 ###################### SOURCES ##############################################
 
@@ -142,14 +142,12 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/core/Utilities.cpp \
             src/Graph.cpp \
             src/3Dplot/Graph3D.cpp \
+            src/3Dplot/TextDialog.cpp \
             src/Table.cpp \
-            src/CurvesDialog.cpp \
             src/PlotDialog.cpp \
             src/3Dplot/Plot3DDialog.cpp \
             src/PlotWizard.cpp \
-            src/AxesDialog.cpp \
             src/PolynomFitDialog.cpp \
-            src/TextDialog.cpp \
             src/ScalePicker.cpp\
             src/TitlePicker.cpp \
             src/CanvasPicker.cpp \
@@ -264,7 +262,9 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/2Dplot/widgets/AddAxisWidget.cpp \
             src/2Dplot/widgets/ImageExportDialog2D.cpp \
             src/2Dplot/widgets/AddPlot2DDialog.cpp \
-    $$PWD/src/2Dplot/LineItem2D.cpp
+    $$PWD/src/2Dplot/LineItem2D.cpp \
+    $$PWD/src/2Dplot/ErrorBar2D.cpp \
+    $$PWD/src/2Dplot/TextItem2D.cpp
 
 ###################### FORMS ##############################################
 FORMS        += src/ApplicationWindow.ui \
@@ -407,7 +407,6 @@ SOURCES     += ../3rdparty/qcustomplot/qcustomplot.cpp
 ##############################################################
 
 HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
-               src/2Dplot/widgets/Axis2DPropertiesDialog.h \
                src/2Dplot/widgets/propertyeditor.h \
                src/2Dplot/widgets/Function2DDialog.h \
                src/2Dplot/Axis2D.h \
@@ -424,7 +423,6 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/Properties2D.h \
 
 SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
-               src/2Dplot/widgets/Axis2DPropertiesDialog.cpp \
                src/2Dplot/widgets/propertyeditor.cpp \
                src/2Dplot/widgets/Function2DDialog.cpp \
                src/2Dplot/Axis2D.cpp \
@@ -440,6 +438,5 @@ SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/StatBox2D.cpp \
                src/2Dplot/Properties2D.cpp \
 
-FORMS       += src/2Dplot/widgets/Axis2DPropertiesDialog.ui \
-               src/2Dplot/widgets/propertyeditor.ui \
+FORMS       += src/2Dplot/widgets/propertyeditor.ui \
                src/2Dplot/widgets/Function2DDialog.ui \

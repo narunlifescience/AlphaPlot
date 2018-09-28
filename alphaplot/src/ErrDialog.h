@@ -31,6 +31,9 @@
 
 #include <QDialog>
 #include <QList>
+#include <2Dplot/LineScatterCommon.h>
+
+class ApplicationWindow;
 class QLabel;
 class QComboBox;
 class QRadioButton;
@@ -40,6 +43,9 @@ class QGroupBox;
 class QButtonGroup;
 class QWidget;
 class QMdiSubWindow;
+class AxisRect2D;
+class Table;
+class Column;
 
 //! Add error bars dialog
 class ErrDialog : public QDialog {
@@ -51,13 +57,13 @@ class ErrDialog : public QDialog {
    * \param parent parent widget
    * \param fl window flags
    */
-  ErrDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);
+  ErrDialog(QWidget* parent, AxisRect2D* axisrect, Qt::WindowFlags fl = 0);
   //! Destructor
   ~ErrDialog();
 
  private:
   QLabel* textLabel1;
-  QComboBox *nameLabel, *tableNamesBox, *colNamesBox;
+  QComboBox *nameLabel, *tableNamesBox;
   QGroupBox* groupBox2;
   QGroupBox *groupBox1, *groupBox3;
   QButtonGroup *buttonGroup1, *buttonGroup2;
@@ -70,19 +76,12 @@ class ErrDialog : public QDialog {
   QPushButton* buttonCancel;
   QList<QMdiSubWindow*>* srcTables;
 
- protected slots:
-  //! Set all string in the current language
-  virtual void languageChange();
-
  public slots:
   //! Add a plot definition
   void add();
   //! Supply the dialog with a curves list
-  void setCurveNames(const QStringList& names);
-  //! Supply the dialog with a tables list
-  void setSrcTables(QList<QMdiSubWindow *> *tables);
-  //! Select a table
-  void selectSrcTable(int tabnr);
+  void plotNames();
+  void errorColumnNames();
 
  signals:
   //! This is usually connected to the main window's defineErrorBars() slot
@@ -91,6 +90,12 @@ class ErrDialog : public QDialog {
   //! This is usually connected to the main window's defineErrorBars() slot
   void options(const QString& curveName, const QString& errColumnName,
                int direction);
+
+ private:
+  AxisRect2D* axisrect_;
+  ApplicationWindow* app_;
+  QList<PlotData::AssociatedData> plotted_columns_;
+  QList<QPair<Table*, Column*>> error_columns_;
 };
 
 #endif  // ERRDIALOG_H

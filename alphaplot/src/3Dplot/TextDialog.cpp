@@ -316,3 +316,4 @@ void TextDialog::setFont(const QFont& fnt) { selectedFont = fnt; }
 void TextDialog::updateTransparency(int alpha) {
   backgroundBtn->setEnabled(alpha);
 }
+ 

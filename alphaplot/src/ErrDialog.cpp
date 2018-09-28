@@ -27,7 +27,15 @@
  *                                                                         *
  ***************************************************************************/
 #include "ErrDialog.h"
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Bar2D.h"
+#include "2Dplot/Curve2D.h"
+#include "2Dplot/DataManager2D.h"
+#include "2Dplot/ErrorBar2D.h"
+#include "2Dplot/LineScatter2D.h"
+#include "ApplicationWindow.h"
 #include "Table.h"
+#include "core/column/Column.h"
 
 #include <QButtonGroup>
 #include <QComboBox>
@@ -43,14 +51,19 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-ErrDialog::ErrDialog(QWidget* parent, Qt::WFlags fl) : QDialog(parent, fl) {
+ErrDialog::ErrDialog(QWidget *parent, AxisRect2D *axisrect, Qt::WFlags fl)
+    : QDialog(parent, fl),
+      axisrect_(axisrect),
+      app_(qobject_cast<ApplicationWindow *>(parent->parent())) {
+  Q_ASSERT(axisrect);
+  Q_ASSERT(app_);
   setFocusPolicy(Qt::StrongFocus);
   setSizeGripEnabled(true);
 
-  QVBoxLayout* vbox1 = new QVBoxLayout();
+  QVBoxLayout *vbox1 = new QVBoxLayout();
   vbox1->setSpacing(5);
 
-  QHBoxLayout* hbox1 = new QHBoxLayout();
+  QHBoxLayout *hbox1 = new QHBoxLayout();
   vbox1->addLayout(hbox1);
 
   textLabel1 = new QLabel();
@@ -60,7 +73,7 @@ ErrDialog::ErrDialog(QWidget* parent, Qt::WFlags fl) : QDialog(parent, fl) {
   hbox1->addWidget(nameLabel);
 
   groupBox1 = new QGroupBox(QString(tr("Source of errors")));
-  QGridLayout* gridLayout = new QGridLayout(groupBox1);
+  QGridLayout *gridLayout = new QGridLayout(groupBox1);
   vbox1->addWidget(groupBox1);
 
   buttonGroup1 = new QButtonGroup();
@@ -71,12 +84,10 @@ ErrDialog::ErrDialog(QWidget* parent, Qt::WFlags fl) : QDialog(parent, fl) {
   buttonGroup1->addButton(columnBox);
   gridLayout->addWidget(columnBox, 0, 0);
 
-  colNamesBox = new QComboBox();
   tableNamesBox = new QComboBox();
 
-  QHBoxLayout* comboBoxes = new QHBoxLayout();
+  QHBoxLayout *comboBoxes = new QHBoxLayout();
   comboBoxes->addWidget(tableNamesBox);
-  comboBoxes->addWidget(colNamesBox);
 
   gridLayout->addLayout(comboBoxes, 0, 1);
 
@@ -95,7 +106,7 @@ ErrDialog::ErrDialog(QWidget* parent, Qt::WFlags fl) : QDialog(parent, fl) {
 
   groupBox3 = new QGroupBox(QString());
   vbox1->addWidget(groupBox3);
-  QHBoxLayout* hbox2 = new QHBoxLayout(groupBox3);
+  QHBoxLayout *hbox2 = new QHBoxLayout(groupBox3);
 
   buttonGroup2 = new QButtonGroup();
   buttonGroup2->setExclusive(true);
@@ -109,7 +120,7 @@ ErrDialog::ErrDialog(QWidget* parent, Qt::WFlags fl) : QDialog(parent, fl) {
   hbox2->addWidget(yErrBox);
   yErrBox->setChecked(true);
 
-  QVBoxLayout* vbox2 = new QVBoxLayout();
+  QVBoxLayout *vbox2 = new QVBoxLayout();
   buttonAdd = new QPushButton();
   buttonAdd->setDefault(true);
   vbox2->addWidget(buttonAdd);
@@ -119,74 +130,10 @@ ErrDialog::ErrDialog(QWidget* parent, Qt::WFlags fl) : QDialog(parent, fl) {
 
   vbox2->addStretch(1);
 
-  QHBoxLayout* hlayout1 = new QHBoxLayout(this);
+  QHBoxLayout *hlayout1 = new QHBoxLayout(this);
   hlayout1->addLayout(vbox1);
   hlayout1->addLayout(vbox2);
 
-  languageChange();
-
-  // signals and slots connections
-  connect(buttonAdd, SIGNAL(clicked()), this, SLOT(add()));
-  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
-  connect(percentBox, SIGNAL(toggled(bool)), valueBox, SLOT(setEnabled(bool)));
-  connect(columnBox, SIGNAL(toggled(bool)), tableNamesBox,
-          SLOT(setEnabled(bool)));
-  connect(columnBox, SIGNAL(toggled(bool)), colNamesBox,
-          SLOT(setEnabled(bool)));
-  connect(tableNamesBox, SIGNAL(activated(int)), this,
-          SLOT(selectSrcTable(int)));
-}
-
-void ErrDialog::setCurveNames(const QStringList& names) {
-  nameLabel->addItems(names);
-}
-
-void ErrDialog::setSrcTables(QList<QMdiSubWindow*>* tables) {
-  srcTables = tables;
-  tableNamesBox->clear();
-
-  QList<QMdiSubWindow*>::const_iterator i;
-  for (i = srcTables->begin(); i != srcTables->end(); i++)
-    tableNamesBox->addItem((*i)->objectName());
-
-  if (!nameLabel->currentText().contains("="))
-    tableNamesBox->setCurrentIndex(tableNamesBox->findText(
-        nameLabel->currentText().split("_", QString::SkipEmptyParts)[0]));
-  selectSrcTable(tableNamesBox->currentIndex());
-}
-
-void ErrDialog::selectSrcTable(int tabnr) {
-  colNamesBox->clear();
-  if (tabnr > -1)
-    colNamesBox->addItems(((Table*)srcTables->at(tabnr))->colNames());
-}
-
-void ErrDialog::add() {
-  int direction = -1;
-  if (xErrBox->isChecked())
-    direction = 0;
-  else
-    direction = 1;
-
-  if (columnBox->isChecked())
-    emit options(
-        nameLabel->currentText(),
-        tableNamesBox->currentText() + "_" + colNamesBox->currentText(),
-        direction);
-  else {
-    int type;
-    if (percentBox->isChecked())
-      type = 0;
-    else
-      type = 1;
-
-    emit options(nameLabel->currentText(), type, valueBox->text(), direction);
-  }
-}
-
-ErrDialog::~ErrDialog() {}
-
-void ErrDialog::languageChange() {
   setWindowTitle(tr("Error Bars"));
   xErrBox->setText(tr("&X Error Bars"));
   buttonAdd->setText(tr("&Add"));
@@ -198,4 +145,135 @@ void ErrDialog::languageChange() {
   yErrBox->setText(tr("&Y Error Bars"));
   buttonCancel->setText(tr("&Close"));
   columnBox->setText("Existing column");
+
+  plotNames();
+  errorColumnNames();
+
+  // signals and slots connections
+  connect(buttonAdd, SIGNAL(clicked()), this, SLOT(add()));
+  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+  connect(percentBox, SIGNAL(toggled(bool)), valueBox, SLOT(setEnabled(bool)));
+  connect(columnBox, SIGNAL(toggled(bool)), tableNamesBox,
+          SLOT(setEnabled(bool)));
+  connect(buttonGroup2, SIGNAL(buttonClicked(int)), this,
+          SLOT(errorColumnNames()));
 }
+
+void ErrDialog::plotNames() {
+  nameLabel->clear();
+  plotted_columns_.clear();
+  QVector<LineScatter2D *> lslist = axisrect_->getLsVec();
+  QVector<Curve2D *> curvelist = axisrect_->getCurveVec();
+  QVector<Bar2D *> barlist = axisrect_->getBarVec();
+  foreach (LineScatter2D *ls, lslist) {
+    if (ls->getplottype_lsplot() == LSCommon::PlotType::Associated) {
+      DataBlockGraph *graphdata = ls->getdatablock_lsplot();
+      PlotData::AssociatedData plotdata;
+      plotdata.table = graphdata->gettable();
+      plotdata.xcol = graphdata->getxcolumn();
+      plotdata.ycol = graphdata->getycolumn();
+      plotted_columns_ << plotdata;
+      nameLabel->addItem(plotdata.table->name() + "_" + plotdata.ycol->name() +
+                         "[" + QString::number(graphdata->getfrom() + 1) + ":" +
+                         QString::number(graphdata->getto() + 1) + "]");
+    }
+  }
+  foreach (Curve2D *curve, curvelist) {
+    if (curve->getplottype_curveplot() == LSCommon::PlotType::Associated) {
+      DataBlockCurve *curvedata = curve->getdatablock_curveplot();
+      PlotData::AssociatedData plotdata;
+      plotdata.table = curvedata->gettable();
+      plotdata.xcol = curvedata->getxcolumn();
+      plotdata.ycol = curvedata->getycolumn();
+      plotted_columns_ << plotdata;
+      nameLabel->addItem(plotdata.table->name() + "_" + plotdata.ycol->name() +
+                         "[" + QString::number(curvedata->getfrom() + 1) + ":" +
+                         QString::number(curvedata->getto() + 1) + "]");
+    }
+  }
+  foreach (Bar2D *bar, barlist) {
+    DataBlockBar *bardata = bar->getdatablock_barplot();
+    PlotData::AssociatedData plotdata;
+    plotdata.table = bardata->gettable();
+    plotdata.xcol = bardata->getxcolumn();
+    plotdata.ycol = bardata->getycolumn();
+    plotted_columns_ << plotdata;
+    nameLabel->addItem(plotdata.table->name() + "_" + plotdata.ycol->name() +
+                       "[" + QString::number(bardata->getfrom() + 1) + ":" +
+                       QString::number(bardata->getto() + 1) + "]");
+  }
+}
+
+void ErrDialog::errorColumnNames() {
+  error_columns_.clear();
+  tableNamesBox->clear();
+  if (xErrBox->isChecked()) {
+    error_columns_ = app_->columnList(AlphaPlot::xErr);
+  } else {
+    error_columns_ = app_->columnList(AlphaPlot::yErr);
+  }
+  QPair<Table *, Column *> columnpair;
+
+  foreach (columnpair, error_columns_) {
+    tableNamesBox->addItem(columnpair.first->name() + "_" +
+                           columnpair.second->name());
+  }
+}
+
+void ErrDialog::add() {
+  if (columnBox->isChecked()) {
+  } else if (percentBox->isChecked()) {
+    PlotData::AssociatedData selectplotdata =
+        plotted_columns_.at(nameLabel->currentIndex());
+    QVector<LineScatter2D *> lslist = axisrect_->getLsVec();
+    QVector<Curve2D *> curvelist = axisrect_->getCurveVec();
+    QVector<Bar2D *> barlist = axisrect_->getBarVec();
+    foreach (LineScatter2D *ls, lslist) {
+      DataBlockGraph *graphdata = ls->getdatablock_lsplot();
+
+      if (selectplotdata.table == graphdata->gettable() &&
+          selectplotdata.xcol == graphdata->getxcolumn() &&
+          selectplotdata.ycol == graphdata->getycolumn()) {
+        Column *errors = new Column("1", AlphaPlot::Numeric);
+        (xErrBox->isChecked()) ? errors->setPlotDesignation(AlphaPlot::xErr)
+                               : errors->setPlotDesignation(AlphaPlot::yErr);
+        selectplotdata.table->d_future_table->addChild(errors);
+        double fraction = fraction = valueBox->text().toDouble() / 100.0;
+        Column *col;
+        (xErrBox->isChecked()) ? col = selectplotdata.xcol
+                               : col = selectplotdata.ycol;
+        for (int i = 0; i < col->rowCount(); i++)
+          errors->setValueAt(i, col->valueAt(i) * fraction);
+
+        (xErrBox->isChecked()) ? ls->setXerrorBar(selectplotdata.table, errors,
+                                                  0, errors->rowCount() - 1)
+                               : ls->setYerrorBar(selectplotdata.table, errors,
+                                                  0, errors->rowCount() - 1);
+      }
+    }
+  } else if (standardBox->isChecked()) {
+  }
+
+  /*  int direction = -1;
+    if (xErrBox->isChecked())
+      direction = 0;
+    else
+      direction = 1;
+
+    if (columnBox->isChecked())
+      emit options(nameLabel->currentText(), tableNamesBox->currentText(),
+                   direction);
+    else {
+      int type;
+      if (percentBox->isChecked())
+        type = 0;
+      else
+        type = 1;
+
+      emit options(nameLabel->currentText(), type, valueBox->text(), direction);
+    }*/
+
+  close();
+}
+
+ErrDialog::~ErrDialog() {}

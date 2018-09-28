@@ -42,7 +42,6 @@
 
 #include "Plot.h"
 #include "Table.h"
-#include "AxesDialog.h"
 #include "PlotToolInterface.h"
 #include "core/column/Column.h"
 

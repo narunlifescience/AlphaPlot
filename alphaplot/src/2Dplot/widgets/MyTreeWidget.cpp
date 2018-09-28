@@ -16,7 +16,12 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       addfunctiongraph_(new QAction("Add", this)),
       addaxis_(new QAction("Add", this)),
       removeaxis_(new QAction("Remove", this)),
-      removels_(new QAction("Remove", this)) {
+      removels_(new QAction("Remove", this)),
+      removespline_(new QAction("Remove", this)),
+      removecurve_(new QAction("Remove", this)),
+      removebar_(new QAction("Remove", this)),
+      removevector_(new QAction("Remove", this)),
+      removepie_(new QAction("Remove", this)) {
   setContextMenuPolicy(Qt::CustomContextMenu);
 
   addgraph_->setText("Add Plot...");
@@ -24,6 +29,11 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   addaxis_->setText("Add Axis");
   removeaxis_->setText("Remove");
   removels_->setText("Remove");
+  removespline_->setText("Remove");
+  removecurve_->setText("Remove");
+  removebar_->setText("Remove");
+  removevector_->setText("Remove");
+  removepie_->setText("Remove");
 
   addgraph_->setIcon(IconLoader::load("edit-add-graph", IconLoader::LightDark));
   addfunctiongraph_->setIcon(
@@ -32,6 +42,13 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       IconLoader::load("graph2d-axis-left", IconLoader::LightDark));
   removeaxis_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removels_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
+  removespline_->setIcon(
+      IconLoader::load("clear-loginfo", IconLoader::General));
+  removecurve_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
+  removebar_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
+  removevector_->setIcon(
+      IconLoader::load("clear-loginfo", IconLoader::General));
+  removepie_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
 
   connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
           SLOT(showContextMenu(const QPoint &)));
@@ -41,6 +58,12 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   connect(addaxis_, SIGNAL(triggered(bool)), this, SLOT(addaxis()));
   connect(removeaxis_, SIGNAL(triggered(bool)), this, SLOT(removeaxis()));
   connect(removels_, SIGNAL(triggered(bool)), this, SLOT(removels()));
+  connect(removespline_, SIGNAL(triggered(bool)), this, SLOT(removespline()));
+  connect(removecurve_, SIGNAL(triggered(bool)), this, SLOT(removecurve()));
+  connect(removebar_, SIGNAL(triggered(bool)), this, SLOT(removebar()));
+  // connect(removevector_, SIGNAL(triggered(bool)), this,
+  // SLOT(removevector())); connect(removepie_, SIGNAL(triggered(bool)), this,
+  // SLOT(removepie()));
 }
 
 void MyTreeWidget::showContextMenu(const QPoint &pos) {
@@ -70,11 +93,33 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       break;
 
     case PropertyItemType::LSGraph:
-    case PropertyItemType::BarGraph:
       menu.addAction("Edit Data");
       menu.addAction("Analyze");
       menu.addAction(removels_);
       removels_->setData(item->data(0, Qt::UserRole + 1));
+      break;
+    case PropertyItemType::Spline:
+      menu.addAction("Edit Data");
+      menu.addAction("Analyze");
+      menu.addAction(removespline_);
+      removespline_->setData(item->data(0, Qt::UserRole + 1));
+      break;
+    case PropertyItemType::Curve:
+      menu.addAction("Edit Data");
+      menu.addAction("Analyze");
+      menu.addAction(removecurve_);
+      removecurve_->setData(item->data(0, Qt::UserRole + 1));
+      break;
+    case PropertyItemType::BarGraph:
+      menu.addAction("Edit Data");
+      menu.addAction("Analyze");
+      menu.addAction(removebar_);
+      removebar_->setData(item->data(0, Qt::UserRole + 1));
+      break;
+    case PropertyItemType::Vector:
+      menu.addAction("Edit Data");
+      menu.addAction("Analyze");
+      menu.addAction(removebar_);
       break;
 
     case PropertyItemType::Grid:
@@ -141,8 +186,41 @@ void MyTreeWidget::removels() {
   bool result =
       ls->getxaxis_lsplot()->getaxisrect_axis()->removeLineScatter2D(ls);
   if (!result) {
+    qDebug() << "unable to remove line scatter 2d plot";
   }
-  // ls->removeFromLegend();
-  // ls->parentPlot()->removeGraph(ls);
-  // delete ls;
+}
+
+void MyTreeWidget::removecurve() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+  void *ptr = action->data().value<void *>();
+  Curve2D *curve = static_cast<Curve2D *>(ptr);
+  bool result =
+      curve->getxaxis_cplot()->getaxisrect_axis()->removeCurve2D(curve);
+  if (!result) {
+    qDebug() << "unable to remove line scatter 2d plot";
+  }
+}
+
+void MyTreeWidget::removespline() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+  void *ptr = action->data().value<void *>();
+  Spline2D *spline = static_cast<Spline2D *>(ptr);
+  bool result =
+      spline->getxaxis_splot()->getaxisrect_axis()->removeSpline2D(spline);
+  if (!result) {
+    qDebug() << "unable to remove line scatter 2d plot";
+  }
+}
+
+void MyTreeWidget::removebar() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+  void *ptr = action->data().value<void *>();
+  Bar2D *bar = static_cast<Bar2D *>(ptr);
+  bool result = bar->getxaxis_barplot()->getaxisrect_axis()->removeBar2D(bar);
+  if (!result) {
+    qDebug() << "unable to remove line scatter 2d plot";
+  }
 }

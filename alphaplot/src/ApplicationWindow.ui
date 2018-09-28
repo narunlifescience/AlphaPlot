@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>779</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -343,18 +343,6 @@
     <addaction name="separator"/>
     <addaction name="actionTableFitWizard"/>
    </widget>
-   <widget class="QMenu" name="menuFormat">
-    <property name="title">
-     <string>Format</string>
-    </property>
-    <addaction name="actionFormatPlot"/>
-    <addaction name="separator"/>
-    <addaction name="actionFormatScale"/>
-    <addaction name="actionFormatAxis"/>
-    <addaction name="separator"/>
-    <addaction name="actionFormatGrid"/>
-    <addaction name="actionFormatTitle"/>
-   </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>Tools</string>
@@ -392,7 +380,6 @@
    <addaction name="menu3DPlot"/>
    <addaction name="menuGraph"/>
    <addaction name="menuTools"/>
-   <addaction name="menuFormat"/>
    <addaction name="menuGraph2DAnalysis"/>
    <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>

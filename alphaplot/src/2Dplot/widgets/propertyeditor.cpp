@@ -321,8 +321,7 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   vectorpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
 
   // Axis Properties Major Grid Sub Block
-  hgridaxispropertycomboitem_ =
-      groupManager_->addProperty("Horizontal Axis Grids");
+  hgridaxispropertycomboitem_ = enumManager_->addProperty("Horizontal Axis");
   hmajgridpropertyvisibleitem_ = boolManager_->addProperty(tr("Major Grid"));
   hgridaxispropertycomboitem_->addSubProperty(hmajgridpropertyvisibleitem_);
   hmajgridpropertystrokecoloritem_ =
@@ -343,6 +342,23 @@ PropertyEditor::PropertyEditor(QWidget *parent)
       boolManager_->addProperty(tr("Zero Line"));
   hmajgridpropertyvisibleitem_->addSubProperty(
       hmajgridpropertyzerolinevisibleitem_);
+  hmajgridpropertyzerolinestrokecoloritem_ =
+      colorManager_->addProperty(tr("Zero Color"));
+  hmajgridpropertyvisibleitem_->addSubProperty(
+      hmajgridpropertyzerolinestrokecoloritem_);
+  hmajgridpropertyzerolinestrokethicknessitem_ =
+      doubleManager_->addProperty(tr("Zero Thickness"));
+  hmajgridpropertyvisibleitem_->addSubProperty(
+      hmajgridpropertyzerolinestrokethicknessitem_);
+  hmajgridpropertyzerolinestroketypeitem_ =
+      enumManager_->addProperty(tr("Zero Type"));
+  hmajgridpropertyvisibleitem_->addSubProperty(
+      hmajgridpropertyzerolinestroketypeitem_);
+  enumManager_->setEnumNames(hmajgridpropertyzerolinestroketypeitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(hmajgridpropertyzerolinestroketypeitem_,
+                             stroketypeiconslist);
+
   // Axis Properties Minor Grid Sub Block
   hmingridpropertyvisibleitem_ = boolManager_->addProperty(tr("Minor Grid"));
   hgridaxispropertycomboitem_->addSubProperty(hmingridpropertyvisibleitem_);
@@ -360,14 +376,9 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   enumManager_->setEnumNames(hmingridpropertystroketypeitem_, stroketypelist);
   enumManager_->setEnumIcons(hmingridpropertystroketypeitem_,
                              stroketypeiconslist);
-  hmingridpropertyzerolinevisibleitem_ =
-      boolManager_->addProperty(tr("Zero Line"));
-  hmingridpropertyvisibleitem_->addSubProperty(
-      hmingridpropertyzerolinevisibleitem_);
 
   // Axis Properties Major Grid Sub Block
-  vgridaxispropertycomboitem_ =
-      groupManager_->addProperty("Vertical Axis Grids");
+  vgridaxispropertycomboitem_ = enumManager_->addProperty("Vertical Axis");
   vmajgridpropertyvisibleitem_ = boolManager_->addProperty(tr("Major Grid"));
   vgridaxispropertycomboitem_->addSubProperty(vmajgridpropertyvisibleitem_);
   vmajgridpropertystrokecoloritem_ =
@@ -388,6 +399,22 @@ PropertyEditor::PropertyEditor(QWidget *parent)
       boolManager_->addProperty(tr("Zero Line"));
   vmajgridpropertyvisibleitem_->addSubProperty(
       vmajgridpropertyzerolinevisibleitem_);
+  vmajgridpropertyzerolinestrokecoloritem_ =
+      colorManager_->addProperty(tr("Zero Color"));
+  vmajgridpropertyvisibleitem_->addSubProperty(
+      vmajgridpropertyzerolinestrokecoloritem_);
+  vmajgridpropertyzerolinestrokethicknessitem_ =
+      doubleManager_->addProperty(tr("Zero Thickness"));
+  vmajgridpropertyvisibleitem_->addSubProperty(
+      vmajgridpropertyzerolinestrokethicknessitem_);
+  vmajgridpropertyzerolinestroketypeitem_ =
+      enumManager_->addProperty(tr("Zero Type"));
+  vmajgridpropertyvisibleitem_->addSubProperty(
+      vmajgridpropertyzerolinestroketypeitem_);
+  enumManager_->setEnumNames(vmajgridpropertyzerolinestroketypeitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(vmajgridpropertyzerolinestroketypeitem_,
+                             stroketypeiconslist);
   // Axis Properties Minor Grid Sub Block
   vmingridpropertyvisibleitem_ = boolManager_->addProperty(tr("Minor Grid"));
   vgridaxispropertycomboitem_->addSubProperty(vmingridpropertyvisibleitem_);
@@ -405,10 +432,6 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   enumManager_->setEnumNames(vmingridpropertystroketypeitem_, stroketypelist);
   enumManager_->setEnumIcons(vmingridpropertystroketypeitem_,
                              stroketypeiconslist);
-  vmingridpropertyzerolinevisibleitem_ =
-      boolManager_->addProperty(tr("Zero Line"));
-  vmingridpropertyvisibleitem_->addSubProperty(
-      vmingridpropertyzerolinevisibleitem_);
 
   // initiate property ID required for compare()
   setObjectPropertyId();
@@ -435,11 +458,43 @@ PropertyEditor::PropertyEditor(QWidget *parent)
 
 PropertyEditor::~PropertyEditor() { delete ui_; }
 
+MyTreeWidget *PropertyEditor::getObjectBrowser() { return objectbrowser_; }
+
 void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
   if (prop->compare(axispropertyvisibleitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setshowhide_axis(value);
     axis->parentPlot()->replot();
+  } else if (prop->compare(hmajgridpropertyvisibleitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setMajorGridVisible(value);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(hmingridpropertyvisibleitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setMinorGridVisible(value);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(hmajgridpropertyzerolinevisibleitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setZerothLineVisible(value);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmajgridpropertyvisibleitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setMajorGridVisible(value);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmingridpropertyvisibleitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setMinorGridVisible(value);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmajgridpropertyzerolinevisibleitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setZerothLineVisible(value);
+    axisrect->parentPlot()->replot();
   } else if (prop->compare(axispropertyinvertitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setinverted_axis(value);
@@ -516,6 +571,36 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
     QBrush brush = axisrect->backgroundBrush();
     brush.setColor(color);
     axisrect->setBackground(brush);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(hmajgridpropertystrokecoloritem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setMajorGridColor(color);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(hmajgridpropertyzerolinestrokecoloritem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setZerothLineColor(color);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(hmingridpropertystrokecoloritem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setMinorGridColor(color);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmajgridpropertystrokecoloritem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setMajorGridColor(color);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmajgridpropertyzerolinestrokecoloritem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setZerothLineColor(color);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmingridpropertystrokecoloritem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setMinorGridColor(color);
     axisrect->parentPlot()->replot();
   } else if (prop->compare(axispropertystrokecoloritem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
@@ -603,7 +688,37 @@ void PropertyEditor::valueChange(QtProperty *prop, const QRect &rect) {
 }
 
 void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
-  if (prop->compare(axispropertyfromitem_)) {
+  if (prop->compare(hmajgridpropertystrokethicknessitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setMajorGridThickness(value);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(hmajgridpropertyzerolinestrokethicknessitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setZerothLineThickness(value);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(hmingridpropertystrokethicknessitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setMinorGridThickness(value);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmajgridpropertystrokethicknessitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setMajorGridThickness(value);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmajgridpropertyzerolinestrokethicknessitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setZerothLineThickness(value);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmingridpropertystrokethicknessitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setMinorGridThickness(value);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(axispropertyfromitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setRangeLower(value);
     axis->parentPlot()->replot();
@@ -741,7 +856,55 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
 }
 
 void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
-  if (prop->compare(axispropertylinlogitem_)) {
+  if (prop->compare(hgridaxispropertycomboitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    Axis2D *axis = axisrect->getXAxes2D().at(value);
+    axisrect->bindGridTo(axis);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(hmajgridpropertystroketypeitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setMajorGridStyle(
+        static_cast<Qt::PenStyle>(value + 1));
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(hmajgridpropertyzerolinestroketypeitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setZerothLineStyle(
+        static_cast<Qt::PenStyle>(value + 1));
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(hmingridpropertystroketypeitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().first.first->setMinorGridStyle(
+        static_cast<Qt::PenStyle>(value + 1));
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vgridaxispropertycomboitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    Axis2D *axis = axisrect->getYAxes2D().at(value);
+    axisrect->bindGridTo(axis);
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmajgridpropertystroketypeitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setMajorGridStyle(
+        static_cast<Qt::PenStyle>(value + 1));
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmajgridpropertyzerolinestroketypeitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setZerothLineStyle(
+        static_cast<Qt::PenStyle>(value + 1));
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(vmingridpropertystroketypeitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    axisrect->getGridPair().second.first->setMinorGridStyle(
+        static_cast<Qt::PenStyle>(value + 1));
+    axisrect->parentPlot()->replot();
+  } else if (prop->compare(axispropertylinlogitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setscaletype_axis(static_cast<Axis2D::AxisScaleType>(value));
     axis->parentPlot()->replot();
@@ -1044,8 +1207,101 @@ void PropertyEditor::AxisPropertyBlock(Axis2D *axis) {
 
 void PropertyEditor::GridPropertyBlock(AxisRect2D *axisrect) {
   propertybrowser_->clear();
+  QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> gridpair =
+      axisrect->getGridPair();
+  if (!gridpair.first.first || !gridpair.second.first) {
+    qDebug() << "invalid grid pointers";
+    return;
+  }
   propertybrowser_->addProperty(hgridaxispropertycomboitem_);
   propertybrowser_->addProperty(vgridaxispropertycomboitem_);
+
+  {
+    QStringList lsxaxislist;
+    int currentxaxis = 0;
+    int xcount = 0;
+    QList<Axis2D *> xaxes = axisrect->getXAxes2D();
+    for (int i = 0; i < xaxes.size(); i++) {
+      lsxaxislist << QString("X Axis %1").arg(i + 1);
+      if (xaxes.at(i) == gridpair.first.second) {
+        currentxaxis = xcount;
+      }
+      xcount++;
+    }
+
+    enumManager_->setEnumNames(hgridaxispropertycomboitem_, lsxaxislist);
+    enumManager_->setValue(hgridaxispropertycomboitem_, currentxaxis);
+  }
+
+  Grid2D *hgrid = axisrect->getGridPair().first.first;
+
+  boolManager_->setValue(hmajgridpropertyvisibleitem_,
+                         hgrid->getMajorGridVisible());
+  colorManager_->setValue(hmajgridpropertystrokecoloritem_,
+                          hgrid->getMajorGridColor());
+  doubleManager_->setValue(hmajgridpropertystrokethicknessitem_,
+                           hgrid->getMajorGridwidth());
+  enumManager_->setValue(hmajgridpropertystroketypeitem_,
+                         hgrid->getMajorGridStyle() - 1);
+  boolManager_->setValue(hmajgridpropertyzerolinevisibleitem_,
+                         hgrid->getZerothLineVisible());
+  colorManager_->setValue(hmajgridpropertyzerolinestrokecoloritem_,
+                          hgrid->getZerothLineColor());
+  doubleManager_->setValue(hmajgridpropertyzerolinestrokethicknessitem_,
+                           hgrid->getZeroLinewidth());
+  enumManager_->setValue(hmajgridpropertyzerolinestroketypeitem_,
+                         hgrid->getZeroLineStyle() - 1);
+  boolManager_->setValue(hmingridpropertyvisibleitem_,
+                         hgrid->getMinorGridVisible());
+  colorManager_->setValue(hmingridpropertystrokecoloritem_,
+                          hgrid->getMinorGridColor());
+  doubleManager_->setValue(hmingridpropertystrokethicknessitem_,
+                           hgrid->getMinorGridwidth());
+  enumManager_->setValue(hmingridpropertystroketypeitem_,
+                         hgrid->getMinorGridStyle() - 1);
+
+  {
+    QStringList lsyaxislist;
+    int currentyaxis = 0;
+    int ycount = 0;
+    QList<Axis2D *> yaxes = axisrect->getYAxes2D();
+
+    for (int i = 0; i < yaxes.size(); i++) {
+      lsyaxislist << QString("Y Axis %1").arg(i + 1);
+      if (yaxes.at(i) == gridpair.second.second) {
+        currentyaxis = ycount;
+      }
+      ycount++;
+    }
+    enumManager_->setEnumNames(vgridaxispropertycomboitem_, lsyaxislist);
+    enumManager_->setValue(vgridaxispropertycomboitem_, currentyaxis);
+  }
+  Grid2D *vgrid = axisrect->getGridPair().second.first;
+
+  boolManager_->setValue(vmajgridpropertyvisibleitem_,
+                         vgrid->getMajorGridVisible());
+  colorManager_->setValue(vmajgridpropertystrokecoloritem_,
+                          vgrid->getMajorGridColor());
+  doubleManager_->setValue(vmajgridpropertystrokethicknessitem_,
+                           vgrid->getMajorGridwidth());
+  enumManager_->setValue(vmajgridpropertystroketypeitem_,
+                         vgrid->getMajorGridStyle() - 1);
+  boolManager_->setValue(vmajgridpropertyzerolinevisibleitem_,
+                         vgrid->getZerothLineVisible());
+  colorManager_->setValue(vmajgridpropertyzerolinestrokecoloritem_,
+                          vgrid->getZerothLineColor());
+  doubleManager_->setValue(vmajgridpropertyzerolinestrokethicknessitem_,
+                           vgrid->getZeroLinewidth());
+  enumManager_->setValue(vmajgridpropertyzerolinestroketypeitem_,
+                         vgrid->getZeroLineStyle() - 1);
+  boolManager_->setValue(vmingridpropertyvisibleitem_,
+                         vgrid->getMinorGridVisible());
+  colorManager_->setValue(vmingridpropertystrokecoloritem_,
+                          vgrid->getMinorGridColor());
+  doubleManager_->setValue(vmingridpropertystrokethicknessitem_,
+                           vgrid->getMinorGridwidth());
+  enumManager_->setValue(vmingridpropertystroketypeitem_,
+                         vgrid->getMinorGridStyle() - 1);
 }
 
 void PropertyEditor::LSPropertyBlock(LineScatter2D *lsgraph,
@@ -1364,7 +1620,10 @@ void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
           SLOT(axisCreated(Axis2D *)));
   connect(axisrect, SIGNAL(AxisRemoved(AxisRect2D *)), this,
           SLOT(axisRemoved(AxisRect2D *)));
-
+  connect(axisrect, SIGNAL(TextItem2DCreated(TextItem2D *)), this,
+          SLOT(textItem2DCreated(TextItem2D *)));
+  connect(axisrect, SIGNAL(TextItem2DRemoved(AxisRect2D *)), this,
+          SLOT(textItem2DRemoved(AxisRect2D *)));
   connect(axisrect, SIGNAL(LineScatterCreated(LineScatter2D *)), this,
           SLOT(lineScatterCreated(LineScatter2D *)));
   connect(axisrect, SIGNAL(CurveCreated(Curve2D *)), this,
@@ -1384,6 +1643,14 @@ void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
 void PropertyEditor::axisCreated(Axis2D *axis) { objectschanged(axis); }
 
 void PropertyEditor::axisRemoved(AxisRect2D *axisrect) {
+  objectschanged(axisrect);
+}
+
+void PropertyEditor::textItem2DCreated(TextItem2D *textitem) {
+  objectschanged(textitem);
+}
+
+void PropertyEditor::textItem2DRemoved(AxisRect2D *axisrect) {
   objectschanged(axisrect);
 }
 
@@ -1425,6 +1692,23 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                     static_cast<int>(MyTreeWidget::PropertyItemType::Layout));
       item->setData(0, Qt::UserRole + 1, QVariant::fromValue<void *>(element));
 
+      // Text items
+      QVector<TextItem2D *> textitems = element->getTextItemVec();
+      for (int j = 0; j < textitems.size(); j++) {
+        QTreeWidgetItem *textitem =
+            new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+        QString text = QString("Text Item: " + QString::number(j + 1));
+        textitem->setIcon(0,
+                          IconLoader::load("draw-text", IconLoader::LightDark));
+        textitem->setText(0, text);
+        textitem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::TextItem));
+        textitem->setData(0, Qt::UserRole + 1,
+                          QVariant::fromValue<void *>(textitems.at(j)));
+        item->addChild(textitem);
+      }
+
       // Grids
       QTreeWidgetItem *griditem =
           new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
@@ -1433,7 +1717,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
           0, IconLoader::load("graph3d-cross", IconLoader::LightDark));
       griditem->setData(0, Qt::UserRole,
                         static_cast<int>(MyTreeWidget::PropertyItemType::Grid));
-      item->setData(0, Qt::UserRole + 1, QVariant::fromValue<void *>(element));
+      griditem->setData(0, Qt::UserRole + 1,
+                        QVariant::fromValue<void *>(element));
       item->addChild(griditem);
 
       // Axis items
@@ -1784,4 +2069,52 @@ void PropertyEditor::setObjectPropertyId() {
   vectorpropertylineantialiaseditem_->setPropertyId(
       "vectorpropertylineantialiaseditem_");
   vectorpropertylegendtextitem_->setPropertyId("vectorpropertylegendtextitem_");
+
+  // Grid Block
+  hgridaxispropertycomboitem_->setPropertyId("hgridaxispropertycomboitem_");
+  hmajgridpropertyvisibleitem_->setPropertyId("hmajgridpropertyvisibleitem_");
+  hmajgridpropertystrokecoloritem_->setPropertyId(
+      "hmajgridpropertystrokecoloritem_");
+  hmajgridpropertystrokethicknessitem_->setPropertyId(
+      "hmajgridpropertystrokethicknessitem_");
+  hmajgridpropertystroketypeitem_->setPropertyId(
+      "hmajgridpropertystroketypeitem_");
+  hmajgridpropertyzerolinevisibleitem_->setPropertyId(
+      "hmajgridpropertyzerolinevisibleitem_");
+  hmajgridpropertyzerolinestrokecoloritem_->setPropertyId(
+      "hmajgridpropertyzerolinestrokecoloritem_");
+  hmajgridpropertyzerolinestrokethicknessitem_->setPropertyId(
+      "hmajgridpropertyzerolinestrokethicknessitem_");
+  hmajgridpropertyzerolinestroketypeitem_->setPropertyId(
+      "hmajgridpropertyzerolinestroketypeitem_");
+  hmingridpropertyvisibleitem_->setPropertyId("hmingridpropertyvisibleitem_");
+  hmingridpropertystrokecoloritem_->setPropertyId(
+      "hmingridpropertystrokecoloritem_");
+  hmingridpropertystrokethicknessitem_->setPropertyId(
+      "hmingridpropertystrokethicknessitem_");
+  hmingridpropertystroketypeitem_->setPropertyId(
+      "hmingridpropertystroketypeitem_");
+  vgridaxispropertycomboitem_->setPropertyId("vgridaxispropertycomboitem_");
+  vmajgridpropertyvisibleitem_->setPropertyId("vmajgridpropertyvisibleitem_");
+  vmajgridpropertystrokecoloritem_->setPropertyId(
+      "vmajgridpropertystrokecoloritem_");
+  vmajgridpropertystrokethicknessitem_->setPropertyId(
+      "vmajgridpropertystrokethicknessitem_");
+  vmajgridpropertystroketypeitem_->setPropertyId(
+      "vmajgridpropertystroketypeitem_");
+  vmajgridpropertyzerolinevisibleitem_->setPropertyId(
+      "vmajgridpropertyzerolinevisibleitem_");
+  vmajgridpropertyzerolinestrokecoloritem_->setPropertyId(
+      "vmajgridpropertyzerolinestrokecoloritem_");
+  vmajgridpropertyzerolinestrokethicknessitem_->setPropertyId(
+      "vmajgridpropertyzerolinestrokethicknessitem_");
+  vmajgridpropertyzerolinestroketypeitem_->setPropertyId(
+      "vmajgridpropertyzerolinestroketypeitem_");
+  vmingridpropertyvisibleitem_->setPropertyId("vmingridpropertyvisibleitem_");
+  vmingridpropertystrokecoloritem_->setPropertyId(
+      "vmingridpropertystrokecoloritem_");
+  vmingridpropertystrokethicknessitem_->setPropertyId(
+      "vmingridpropertystrokethicknessitem_");
+  vmingridpropertystroketypeitem_->setPropertyId(
+      "vmingridpropertystroketypeitem_");
 }

@@ -30,29 +30,29 @@
  ***************************************************************************/
 #include "Table.h"
 #include "core/column/Column.h"
-#include "lib/Interval.h"
-#include "table/TableModel.h"
+#include "core/datatypes/DateTime2StringFilter.h"
 #include "core/datatypes/Double2StringFilter.h"
 #include "core/datatypes/String2DoubleFilter.h"
-#include "core/datatypes/DateTime2StringFilter.h"
-#include "table/AsciiTableImportFilter.h"
+#include "lib/Interval.h"
 #include "scripting/ScriptEdit.h"
+#include "table/AsciiTableImportFilter.h"
+#include "table/TableModel.h"
 
-#include <QMessageBox>
-#include <QDateTime>
-#include <QTextStream>
-#include <QClipboard>
 #include <QApplication>
-#include <QPainter>
-#include <QEvent>
-#include <QLayout>
-#include <QPrintDialog>
-#include <QLocale>
-#include <QShortcut>
-#include <QProgressDialog>
-#include <QFile>
-#include <QTemporaryFile>
+#include <QClipboard>
 #include <QCloseEvent>
+#include <QDateTime>
+#include <QEvent>
+#include <QFile>
+#include <QLayout>
+#include <QLocale>
+#include <QMessageBox>
+#include <QPainter>
+#include <QPrintDialog>
+#include <QProgressDialog>
+#include <QShortcut>
+#include <QTemporaryFile>
+#include <QTextStream>
 
 #include <cmath>
 
@@ -183,13 +183,13 @@ void Table::handleRowChange() {
 void Table::setTableBackgroundColor(const QColor &col) {
   QPalette palette;
   palette.setColor(QPalette::Window, col);
-d_view_widget->setPalette(palette);
+  d_view_widget->setPalette(palette);
 }
 
 void Table::setTableTextColor(const QColor &col) {
   QPalette palette;
   palette.setColor(QPalette::WindowText, col);
-d_view_widget->setPalette(palette);
+  d_view_widget->setPalette(palette);
 }
 
 void Table::setTextFont(const QFont &fnt) { d_view_widget->setFont(fnt); }
@@ -197,7 +197,7 @@ void Table::setTextFont(const QFont &fnt) { d_view_widget->setFont(fnt); }
 void Table::setHeaderColor(const QColor &col) {
   QPalette palette;
   palette.setColor(QPalette::WindowText, col);
-d_view_widget->horizontalHeader()->setPalette(palette);
+  d_view_widget->horizontalHeader()->setPalette(palette);
 }
 
 void Table::setHeaderFont(const QFont &fnt) {
@@ -432,7 +432,7 @@ bool Table::recalculate(int col, bool only_selected_rows) {
           if (ret.canConvert(QVariant::Double))
             results[i - start_row] = ret.toDouble();
           else
-            results[i - start_row] = NAN;
+            results[i - start_row] = std::numeric_limits<double>::quiet_NaN();
         }
         col_ptr->replaceValues(start_row, results);
         break;
@@ -849,7 +849,7 @@ bool Table::exportASCII(const QString &fname, const QString &separator,
   QFile file(fname);
   if (!file.open(QIODevice::WriteOnly)) {
     QApplication::restoreOverrideCursor();
-    QMessageBox::critical(0, tr("ASCII Export Error"),
+    QMessageBox::critical(nullptr, tr("ASCII Export Error"),
                           tr("Could not write to file: <br><h4>%1"
                              "</h4><p>Please verify that you have the right to "
                              "write to this location!")
@@ -936,15 +936,16 @@ bool Table::exportASCII(const QString &fname, const QString &separator,
 
 void Table::customEvent(QEvent *e) {
   if (e->type() == SCRIPTING_CHANGE_EVENT)
-    scriptingChangeEvent((ScriptingChangeEvent *)e);
+    scriptingChangeEvent(dynamic_cast<ScriptingChangeEvent *>(e));
 }
 
 void Table::closeEvent(QCloseEvent *e) {
   if (askOnClose) {
-    switch (QMessageBox::information(
-        this, tr("AlphaPlot"), tr("Do you want to hide or delete") + "<p><b>'" +
-                                   objectName() + "'</b> ?",
-        tr("Delete"), tr("Hide"), tr("Cancel"), 0, 2)) {
+    switch (QMessageBox::information(this, tr("AlphaPlot"),
+                                     tr("Do you want to hide or delete") +
+                                         "<p><b>'" + objectName() + "'</b> ?",
+                                     tr("Delete"), tr("Hide"), tr("Cancel"), 0,
+                                     2)) {
       case 0:
         e->accept();
         d_future_table->remove();

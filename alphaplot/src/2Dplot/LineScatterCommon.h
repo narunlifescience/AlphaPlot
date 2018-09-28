@@ -1,6 +1,9 @@
 #ifndef LINESCATTERCOMMON_H
 #define LINESCATTERCOMMON_H
 
+class Column;
+class Table;
+
 namespace LSCommon {
 enum class LineStyleType : int {
   None = 0,
@@ -30,10 +33,15 @@ enum class ScatterStyle : int {
   Peace = 15,
 };
 
-enum class PlotType{
-  Associated,
-  Function
-};
+enum class PlotType { Associated, Function };
 }  // namespace LSCommon
+
+namespace PlotData {
+struct AssociatedData {
+  Column *xcol;
+  Column *ycol;
+  Table *table;
+};
+}  // namespace PlotData
 
 #endif  // LINESCATTERCOMMON_H

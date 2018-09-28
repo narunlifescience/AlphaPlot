@@ -4,6 +4,7 @@
 #include <QDockWidget>
 #include "../Axis2D.h"
 #include "MyTreeWidget.h"
+#include "2Dplot/TextItem2D.h"
 
 class Ui_PropertyEditor;
 class QSplitter;
@@ -44,6 +45,7 @@ class PropertyEditor : public QDockWidget {
  public:
   explicit PropertyEditor(QWidget *parent = nullptr);
   ~PropertyEditor();
+  MyTreeWidget *getObjectBrowser();
 
  private slots:
   void valueChange(QtProperty *prop, const bool value);
@@ -66,6 +68,8 @@ class PropertyEditor : public QDockWidget {
   void axisRectCreated(AxisRect2D *axisrect, MyWidget *widget);
   void axisCreated(Axis2D *axis);
   void axisRemoved(AxisRect2D *axisrect);
+  void textItem2DCreated(TextItem2D *textitem);
+  void textItem2DRemoved(AxisRect2D *axisrect);
   void lineScatterCreated(LineScatter2D *ls);
   void lineScatterRemoved(AxisRect2D *axisrect);
   void curveCreated(Curve2D *curve);
@@ -237,12 +241,14 @@ class PropertyEditor : public QDockWidget {
   QtProperty *hmajgridpropertystrokethicknessitem_;
   QtProperty *hmajgridpropertystroketypeitem_;
   QtProperty *hmajgridpropertyzerolinevisibleitem_;
+  QtProperty *hmajgridpropertyzerolinestrokecoloritem_;
+  QtProperty *hmajgridpropertyzerolinestrokethicknessitem_;
+  QtProperty *hmajgridpropertyzerolinestroketypeitem_;
   // Horizontal Minor Grid Sub Block
   QtProperty *hmingridpropertyvisibleitem_;
   QtProperty *hmingridpropertystrokecoloritem_;
   QtProperty *hmingridpropertystrokethicknessitem_;
   QtProperty *hmingridpropertystroketypeitem_;
-  QtProperty *hmingridpropertyzerolinevisibleitem_;
   // Vertical Major Grid Sub Block
   QtProperty *vgridaxispropertycomboitem_;
   QtProperty *vmajgridpropertyvisibleitem_;
@@ -250,12 +256,14 @@ class PropertyEditor : public QDockWidget {
   QtProperty *vmajgridpropertystrokethicknessitem_;
   QtProperty *vmajgridpropertystroketypeitem_;
   QtProperty *vmajgridpropertyzerolinevisibleitem_;
+  QtProperty *vmajgridpropertyzerolinestrokecoloritem_;
+  QtProperty *vmajgridpropertyzerolinestrokethicknessitem_;
+  QtProperty *vmajgridpropertyzerolinestroketypeitem_;
   // Vertical Minor Grid Sub Block
   QtProperty *vmingridpropertyvisibleitem_;
   QtProperty *vmingridpropertystrokecoloritem_;
   QtProperty *vmingridpropertystrokethicknessitem_;
   QtProperty *vmingridpropertystroketypeitem_;
-  QtProperty *vmingridpropertyzerolinevisibleitem_;
 };
 
 #endif  // PROPERTYEDITOR_H

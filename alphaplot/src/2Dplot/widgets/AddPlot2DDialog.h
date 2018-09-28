@@ -16,7 +16,8 @@ class AddPlot2DDialog : public QDialog {
   Q_OBJECT
 
  public:
-  AddPlot2DDialog(QWidget* parent, AxisRect2D* axisrect, Qt::WFlags fl = 0);
+  AddPlot2DDialog(QWidget* parent, AxisRect2D* axisrect,
+                  Qt::WindowFlags fl = 0);
 
  private slots:
   void addCurves();

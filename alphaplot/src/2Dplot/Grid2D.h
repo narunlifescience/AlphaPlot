@@ -18,7 +18,6 @@
 #define GRID2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "Properties2D.h"
 
 class Axis2D;
 
@@ -28,25 +27,42 @@ class Grid2D : public QCPGrid {
   explicit Grid2D(Axis2D *parent);
   ~Grid2D();
   // Grid & Zeroline
-  void setMajorGridPen(const QPen &pen);
-  void setMinorGridPen(const QPen &pen);
-  void setZerothLinePen(const QPen &pen);
+  void setMajorGridColor(const QColor &color);
+  void setMajorGridStyle(const Qt::PenStyle &penstyle);
+  void setMajorGridThickness(const double thickness);
+  void setMinorGridColor(const QColor &color);
+  void setMinorGridStyle(const Qt::PenStyle &penstyle);
+  void setMinorGridThickness(const double thickness);
+  void setZerothLineColor(const QColor &color);
+  void setZerothLineStyle(const Qt::PenStyle &penstyle);
+  void setZerothLineThickness(const double thickness);
   void setMajorGridVisible(const bool status);
   void setMinorGridVisible(const bool status);
   void setZerothLineVisible(const bool status);
-  QPen getMajorGridPen() const;
-  QPen getMinorGridPen() const;
-  QPen getZerothLinePen() const;
+  QColor getMajorGridColor() const;
+  Qt::PenStyle getMajorGridStyle() const;
+  double getMajorGridwidth() const;
+  QColor getMinorGridColor() const;
+  Qt::PenStyle getMinorGridStyle() const;
+  double getMinorGridwidth() const;
+  QColor getZerothLineColor() const;
+  Qt::PenStyle getZeroLineStyle() const;
+  double getZeroLinewidth() const;
   bool getMajorGridVisible() const;
   bool getMinorGridVisible() const;
   bool getZerothLineVisible() const;
-  Property2D::Grid *getGridProperties() const;
 
   QString saveToAproj();
 
  private:
   // Grid & zeroline settings
-  Property2D::Grid *gridProperties_;
+  QColor majorgridcolor_;
+  Qt::PenStyle majorgridstyle_;
+  double majorgridthickness_;
+  QColor zerolinecolor_;
+  Qt::PenStyle zerolinestyle_;
+  double zerolinethickness_;
+
 };
 
 #endif  // GRID2D_H

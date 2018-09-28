@@ -8,16 +8,23 @@
 class Column;
 class Table;
 class DataBlockGraph;
-// class PlotPoint;
+class ErrorBar2D;
 
 class LineScatter2D : public QCPGraph {
   Q_OBJECT
  public:
-  LineScatter2D(Axis2D *xAxis = nullptr, Axis2D *yAxis = nullptr);
+  LineScatter2D(Table *table, Column *xcol, Column *ycol, int from, int to,
+                Axis2D *xAxis, Axis2D *yAxis);
+  LineScatter2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
+                Axis2D *yAxis);
   ~LineScatter2D();
 
+  void setXerrorBar(Table *table, Column *errorcol, int from, int to);
+  void setYerrorBar(Table *table, Column *errorcol, int from, int to);
   void setGraphData(Table *table, Column *xcol, Column *ycol, int from, int to);
   void setGraphData(QVector<double> *xdata, QVector<double> *ydata);
+  void removeXerrorBar();
+  void removeYerrorBar();
   // Getters
   LSCommon::LineStyleType getlinetype_lsplot() const;
   Qt::PenStyle getlinestrokestyle_lsplot() const;
@@ -58,8 +65,8 @@ class LineScatter2D : public QCPGraph {
   void setyaxis_lsplot(Axis2D *axis);
 
  protected:
-  void mousePressEvent(QMouseEvent *event, const QVariant &details);
-  void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
+  //void mousePressEvent(QMouseEvent *event, const QVariant &details);
+  //void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
   void keyPressEvent(QKeyEvent *event);
   void keyreleaseEvent(QKeyEvent *event);
 
@@ -68,7 +75,12 @@ class LineScatter2D : public QCPGraph {
   Axis2D *yAxis_;
   QCPScatterStyle *scatterstyle_;
   DataBlockGraph *graphdata_;
+  QSharedPointer<QCPGraphDataContainer> functionData_;
   LSCommon::PlotType type_;
+  ErrorBar2D *xerrorbar_;
+  ErrorBar2D *yerrorbar_;
+  bool xerroravailable_;
+  bool yerroravailable_;
   // PlotPoint *mPointUnderCursor;
 };
 

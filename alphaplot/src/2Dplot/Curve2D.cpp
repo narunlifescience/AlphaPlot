@@ -2,7 +2,8 @@
 #include "DataManager2D.h"
 #include "core/Utilities.h"
 
-Curve2D::Curve2D(Axis2D *xAxis, Axis2D *yAxis)
+Curve2D::Curve2D(Table *table, Column *xcol, Column *ycol, int from, int to,
+                 Axis2D *xAxis, Axis2D *yAxis)
     : QCPCurve(xAxis, yAxis),
       xAxis_(xAxis),
       yAxis_(yAxis),
@@ -10,28 +11,69 @@ Curve2D::Curve2D(Axis2D *xAxis, Axis2D *yAxis)
           QCPScatterStyle::ssNone,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
-      curvedata_(nullptr) {
+      curvedata_(new DataBlockCurve(table, xcol, ycol, from, to)),
+      functionData_(nullptr),
+      type_(LSCommon::PlotType::Associated) {
   setlinestrokecolor_cplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
+  setData(curvedata_->data());
 }
 
-Curve2D::~Curve2D() {
-  delete scatterstyle_;
-  delete curvedata_;
-}
-
-void Curve2D::setGraphData(QVector<double> *xdata, QVector<double> *ydata) {
+Curve2D::Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
+                 Axis2D *yAxis)
+    : QCPCurve(xAxis, yAxis),
+      xAxis_(xAxis),
+      yAxis_(yAxis),
+      scatterstyle_(new QCPScatterStyle(
+          QCPScatterStyle::ssNone,
+          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
+          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
+      curvedata_(nullptr),
+      functionData_(new QCPCurveDataContainer),
+      type_(LSCommon::PlotType::Function) {
   Q_ASSERT(xdata->size() == ydata->size());
+  setlinestrokecolor_cplot(
+      Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
 
-  QSharedPointer<QCPCurveDataContainer> functionData(new QCPCurveDataContainer);
   for (int i = 0; i < xdata->size(); i++) {
     QCPCurveData fd;
     fd.key = xdata->at(i);
     fd.value = ydata->at(i);
-    functionData->add(fd);
+    functionData_->add(fd);
   }
-  setData(functionData);
-  type_ = LSCommon::PlotType::Function;
+  setData(functionData_);
+  // free those containers
+  delete xdata;
+  delete ydata;
+}
+
+Curve2D::~Curve2D() {
+  delete scatterstyle_;
+  switch (type_) {
+    case LSCommon::PlotType::Associated:
+      delete curvedata_;
+      break;
+    case LSCommon::PlotType::Function:
+      break;
+  }
+}
+
+void Curve2D::setGraphData(QVector<double> *xdata, QVector<double> *ydata) {
+  if (type_ == LSCommon::PlotType::Associated) {
+    qDebug() << "cannot add function data to association plot";
+    return;
+  }
+
+  Q_ASSERT(xdata->size() == ydata->size());
+
+  functionData_.data()->clear();
+  for (int i = 0; i < xdata->size(); i++) {
+    QCPCurveData fd;
+    fd.key = xdata->at(i);
+    fd.value = ydata->at(i);
+    functionData_->add(fd);
+  }
+  setData(functionData_);
   // free those containers
   delete xdata;
   delete ydata;
@@ -39,13 +81,12 @@ void Curve2D::setGraphData(QVector<double> *xdata, QVector<double> *ydata) {
 
 void Curve2D::setCurveData(Table *table, Column *xcol, Column *ycol, int from,
                            int to) {
-  if (curvedata_) {
-    qDebug() << "DataBlockCurve already set";
+  if (type_ == LSCommon::PlotType::Function) {
+    qDebug() << "cannot associate table with function plot";
     return;
   }
-  curvedata_ = new DataBlockCurve(table, xcol, ycol, from, to);
+  curvedata_->regenerateDataBlock(table, xcol, ycol, from, to);
   setData(curvedata_->data());
-   type_ = LSCommon::PlotType::Associated;
 }
 
 int Curve2D::getlinetype_cplot() const {
@@ -54,9 +95,6 @@ int Curve2D::getlinetype_cplot() const {
       return 0;
     case LineStyle::lsLine:
       return 1;
-    default:
-      qDebug() << "unknown LineStyle";
-      return 0;
   }
 }
 

@@ -154,3 +154,4 @@ class TextDialog : public QDialog {
 };
 
 #endif  // TEXTDLG_H
+ 

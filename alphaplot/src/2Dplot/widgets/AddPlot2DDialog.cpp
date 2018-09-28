@@ -28,14 +28,14 @@
 #include <QPair>
 
 AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
-                                 Qt::WFlags fl)
+                                 Qt::WindowFlags fl)
     : QDialog(parent, fl),
       app_(qobject_cast<ApplicationWindow *>(parent->parent())),
       axisrect_(axisrect) {
   Q_ASSERT(app_);
   Q_ASSERT(axisrect_);
 
-  setWindowTitle(tr("Add/Remove 2D Plots"));
+  setWindowTitle(tr("Add 2D Plots"));
   setSizeGripEnabled(true);
   setFocus();
 
@@ -204,28 +204,6 @@ void AddPlot2DDialog::init() {
     available->addItems(matrices);
   }
 
-  int style = app_->defaultCurveStyle;
-  if (style == Graph::Line)
-    boxStyle->setCurrentIndex(0);
-  else if (style == Graph::Scatter)
-    boxStyle->setCurrentIndex(1);
-  else if (style == Graph::LineSymbols)
-    boxStyle->setCurrentIndex(2);
-  else if (style == Graph::VerticalDropLines)
-    boxStyle->setCurrentIndex(3);
-  else if (style == Graph::Spline)
-    boxStyle->setCurrentIndex(4);
-  else if (style == Graph::VerticalSteps)
-    boxStyle->setCurrentIndex(5);
-  else if (style == Graph::HorizontalSteps)
-    boxStyle->setCurrentIndex(6);
-  else if (style == Graph::Area)
-    boxStyle->setCurrentIndex(7);
-  else if (style == Graph::VerticalBars)
-    boxStyle->setCurrentIndex(8);
-  else if (style == Graph::HorizontalBars)
-    boxStyle->setCurrentIndex(9);
-
   if (!available->count()) btnAdd->setDisabled(true);
   enableAddBtn();
 }
@@ -235,29 +213,40 @@ void AddPlot2DDialog::loadplotcontents() {
   plotted_columns_.clear();
   QVector<LineScatter2D *> lslist = axisrect_->getLsVec();
   QVector<Curve2D *> curvelist = axisrect_->getCurveVec();
+  QVector<Bar2D *> barlist = axisrect_->getBarVec();
   foreach (LineScatter2D *ls, lslist) {
     if (ls->getplottype_lsplot() == LSCommon::PlotType::Associated) {
       DataBlockGraph *graphdata = ls->getdatablock_lsplot();
-      QPair<Table *, Column *> columnpair =
-          QPair<Table *, Column *>(graphdata->table(), graphdata->ycolumn());
+      QPair<Table *, Column *> columnpair = QPair<Table *, Column *>(
+          graphdata->gettable(), graphdata->getycolumn());
       plotted_columns_ << columnpair;
       contents->addItem(columnpair.first->name() + "_" +
                         columnpair.second->name() + "[" +
-                        QString::number(graphdata->from() + 1) + ":" +
-                        QString::number(graphdata->to() + 1) + "]");
+                        QString::number(graphdata->getfrom() + 1) + ":" +
+                        QString::number(graphdata->getto() + 1) + "]");
     }
   }
   foreach (Curve2D *curve, curvelist) {
     if (curve->getplottype_curveplot() == LSCommon::PlotType::Associated) {
       DataBlockCurve *curvedata = curve->getdatablock_curveplot();
-      QPair<Table *, Column *> columnpair =
-          QPair<Table *, Column *>(curvedata->table(), curvedata->ycolumn());
+      QPair<Table *, Column *> columnpair = QPair<Table *, Column *>(
+          curvedata->gettable(), curvedata->getycolumn());
       plotted_columns_ << columnpair;
       contents->addItem(columnpair.first->name() + "_" +
                         columnpair.second->name() + "[" +
-                        QString::number(curvedata->from() + 1) + ":" +
-                        QString::number(curvedata->to() + 1) + "]");
+                        QString::number(curvedata->getfrom() + 1) + ":" +
+                        QString::number(curvedata->getto() + 1) + "]");
     }
+  }
+  foreach (Bar2D *bar, barlist) {
+    DataBlockBar *bardata = bar->getdatablock_barplot();
+    QPair<Table *, Column *> columnpair =
+        QPair<Table *, Column *>(bardata->gettable(), bardata->getycolumn());
+    plotted_columns_ << columnpair;
+    contents->addItem(columnpair.first->name() + "_" +
+                      columnpair.second->name() + "[" +
+                      QString::number(bardata->getfrom() + 1) + ":" +
+                      QString::number(bardata->getto() + 1) + "]");
   }
 }
 
@@ -271,11 +260,75 @@ void AddPlot2DDialog::addCurves() {
 
   foreach (QListWidgetItem *item, lst) {
     pair = available_columns_.at(available->row(item));
-    axisrect_->addLineScatter2DPlot(
-        AxisRect2D::LineScatterType::Line2D, pair.first,
-        pair.first->column(pair.first->firstXCol()), pair.second, 0,
-        pair.second->rowCount() - 1, axisrect_->getXAxis(0),
-        axisrect_->getYAxis(0));
+    switch (boxStyle->currentIndex()) {
+      case 0:
+        axisrect_->addLineScatter2DPlot(
+            AxisRect2D::LineScatterType::Scatter2D, pair.first,
+            pair.first->column(pair.first->firstXCol()), pair.second, 0,
+            pair.second->rowCount() - 1, axisrect_->getXAxis(0),
+            axisrect_->getYAxis(0));
+        break;
+      case 1:
+        axisrect_->addLineScatter2DPlot(
+            AxisRect2D::LineScatterType::Line2D, pair.first,
+            pair.first->column(pair.first->firstXCol()), pair.second, 0,
+            pair.second->rowCount() - 1, axisrect_->getXAxis(0),
+            axisrect_->getYAxis(0));
+        break;
+      case 2:
+        axisrect_->addLineScatter2DPlot(
+            AxisRect2D::LineScatterType::LineAndScatter2D, pair.first,
+            pair.first->column(pair.first->firstXCol()), pair.second, 0,
+            pair.second->rowCount() - 1, axisrect_->getXAxis(0),
+            axisrect_->getYAxis(0));
+        break;
+      case 3:
+        axisrect_->addLineScatter2DPlot(
+            AxisRect2D::LineScatterType::VerticalDropLine2D, pair.first,
+            pair.first->column(pair.first->firstXCol()), pair.second, 0,
+            pair.second->rowCount() - 1, axisrect_->getXAxis(0),
+            axisrect_->getYAxis(0));
+        break;
+      case 4:
+        axisrect_->addSpline2DPlot(
+            pair.first, pair.first->column(pair.first->firstXCol()),
+            pair.second, 0, pair.second->rowCount() - 1, axisrect_->getXAxis(0),
+            axisrect_->getYAxis(0));
+        break;
+      case 5:
+        axisrect_->addLineScatter2DPlot(
+            AxisRect2D::LineScatterType::VerticalStep2D, pair.first,
+            pair.first->column(pair.first->firstXCol()), pair.second, 0,
+            pair.second->rowCount() - 1, axisrect_->getXAxis(0),
+            axisrect_->getYAxis(0));
+        break;
+      case 6:
+        axisrect_->addLineScatter2DPlot(
+            AxisRect2D::LineScatterType::HorizontalStep2D, pair.first,
+            pair.first->column(pair.first->firstXCol()), pair.second, 0,
+            pair.second->rowCount() - 1, axisrect_->getXAxis(0),
+            axisrect_->getYAxis(0));
+        break;
+      case 7:
+        axisrect_->addLineScatter2DPlot(
+            AxisRect2D::LineScatterType::Area2D, pair.first,
+            pair.first->column(pair.first->firstXCol()), pair.second, 0,
+            pair.second->rowCount() - 1, axisrect_->getXAxis(0),
+            axisrect_->getYAxis(0));
+        break;
+      case 8:
+        axisrect_->addBox2DPlot(AxisRect2D::BarType::VerticalBars, pair.first,
+                                pair.first->column(pair.first->firstXCol()),
+                                pair.second, 0, pair.second->rowCount() - 1,
+                                axisrect_->getXAxis(0), axisrect_->getYAxis(0));
+        break;
+      case 9:
+        axisrect_->addBox2DPlot(AxisRect2D::BarType::HorizontalBars, pair.first,
+                                pair.first->column(pair.first->firstXCol()),
+                                pair.second, 0, pair.second->rowCount() - 1,
+                                axisrect_->getXAxis(0), axisrect_->getYAxis(0));
+        break;
+    }
   }
   loadplotcontents();
   showCurrentFolder(app_->d_show_current_folder);

@@ -69,6 +69,8 @@ class Layout2D : public MyWidget {
   QList<AxisRect2D *> getAxisRectList();
   AxisRect2D *getSelectedAxisRect(int col, int row);
   int getAxisRectIndex(AxisRect2D *axisRect2d);
+  AxisRect2D *getCurrentAxisRect();
+  Plot2D *getPlotCanwas() const;
 
   void setLayoutDimension(QPair<int, int> dimension);
   void removeAxisRect(int index);
@@ -79,7 +81,6 @@ class Layout2D : public MyWidget {
   void setBackground(const QColor &background);
 
  private slots:
-  void axisDoubleClicked(QCPAxis *axis, QCPAxis::SelectablePart part);
   AxisRect2D *addAxisRectItem();
   void removeAxisRectItem();
   void axisRectSetFocus(AxisRect2D *rect);
@@ -109,7 +110,6 @@ class Layout2D : public MyWidget {
   void mouseReleaseSignal(QMouseEvent *event);
   void mouseWheel();
   void beforeReplot();
-  void legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
   bool exportGraph();
   void printGraph();
 

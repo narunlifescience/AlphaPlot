@@ -12,7 +12,10 @@ class DataBlockCurve;
 class Curve2D : public QCPCurve {
   Q_OBJECT
  public:
-  explicit Curve2D(Axis2D *xAxis = nullptr, Axis2D *yAxis = nullptr);
+  explicit Curve2D(Table *table, Column *xcol, Column *ycol, int from, int to,
+                   Axis2D *xAxis, Axis2D *yAxis);
+  explicit Curve2D(QVector<double> *xdata, QVector<double> *ydata,
+                   Axis2D *xAxis, Axis2D *yAxis);
   ~Curve2D();
 
   void setGraphData(QVector<double> *xdata, QVector<double> *ydata);
@@ -62,6 +65,7 @@ class Curve2D : public QCPCurve {
   Axis2D *yAxis_;
   QCPScatterStyle *scatterstyle_;
   DataBlockCurve *curvedata_;
+  QSharedPointer<QCPCurveDataContainer> functionData_;
   LSCommon::PlotType type_;
 };
 

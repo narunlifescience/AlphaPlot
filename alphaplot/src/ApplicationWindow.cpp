@@ -18,17 +18,16 @@
    Description : Main part of UI & project management related stuff */
 
 #include "ApplicationWindow.h"
+#include "2Dplot/TextItem2D.h"
 #include "3Dplot/Graph3D.h"
 #include "3Dplot/Plot3DDialog.h"
 #include "3Dplot/SurfaceDialog.h"
 #include "About.h"
 #include "ArrowMarker.h"
 #include "AssociationsDialog.h"
-#include "AxesDialog.h"
 #include "ColorBox.h"
 #include "ConfigDialog.h"
 #include "CurveRangeDialog.h"
-#include "CurvesDialog.h"
 #include "DataSetDialog.h"
 #include "Differentiation.h"
 #include "ErrDialog.h"
@@ -71,7 +70,6 @@
 #include "SmoothFilter.h"
 #include "Spectrogram.h"
 #include "TableStatistics.h"
-#include "TextDialog.h"
 #include "analysis/Convolution.h"
 #include "analysis/Correlation.h"
 #include "core/IconLoader.h"
@@ -97,6 +95,7 @@
 #include "scripting/widgets/ConsoleWidget.h"
 
 #include "2Dplot/Layout2D.h"
+#include "2Dplot/widgets/AddPlot2DDialog.h"
 #include "2Dplot/widgets/Function2DDialog.h"
 #include "2Dplot/widgets/propertyeditor.h"
 #include "ui/PropertiesDialog.h"
@@ -541,12 +540,6 @@ ApplicationWindow::ApplicationWindow()
   ui_->actionMultiPeakGaussian->setIcon(QIcon());
   ui_->actionMultiPeakLorentzian->setIcon(QIcon());
   ui_->actionGraph2DFitWizard->setIcon(QIcon());
-  // Format menu
-  ui_->actionFormatPlot->setIcon(QIcon());
-  ui_->actionFormatScale->setIcon(QIcon());
-  ui_->actionFormatAxis->setIcon(QIcon());
-  ui_->actionFormatGrid->setIcon(QIcon());
-  ui_->actionFormatTitle->setIcon(QIcon());
   // Windows menu
   ui_->actionCascadeWindow->setIcon(QIcon());
   ui_->actionTileWindow->setIcon(QIcon());
@@ -875,17 +868,6 @@ ApplicationWindow::ApplicationWindow()
           SLOT(fitMultiPeakLorentzian()));
   connect(ui_->actionGraph2DFitWizard, SIGNAL(activated()), this,
           SLOT(showFitDialog()));
-  // Format menu
-  connect(ui_->actionFormatPlot, SIGNAL(activated()), this,
-          SLOT(showGeneralPlotDialog()));
-  connect(ui_->actionFormatScale, SIGNAL(activated()), this,
-          SLOT(showScaleDialog()));
-  connect(ui_->actionFormatAxis, SIGNAL(activated()), this,
-          SLOT(showAxisDialog()));
-  connect(ui_->actionFormatGrid, SIGNAL(activated()), this,
-          SLOT(showGridDialog()));
-  connect(ui_->actionFormatTitle, SIGNAL(activated()), this,
-          SLOT(showTitleDialog()));
   // Windows menu
   connect(ui_->actionCascadeWindow, SIGNAL(triggered()), d_workspace,
           SLOT(cascadeSubWindows()));
@@ -960,9 +942,6 @@ ApplicationWindow::ApplicationWindow()
   actionShowImageDialog = new QAction(tr("&Properties"), this);
   connect(actionShowImageDialog, SIGNAL(activated()), this,
           SLOT(showImageDialog()));
-  actionShowTextDialog = new QAction(tr("&Properties"), this);
-  connect(actionShowTextDialog, SIGNAL(activated()), this,
-          SLOT(showTextDialog()));
   actionActivateWindow = new QAction(tr("&Activate Window"), this);
   connect(actionActivateWindow, SIGNAL(activated()), this,
           SLOT(activateWindow()));
@@ -1001,9 +980,6 @@ ApplicationWindow::ApplicationWindow()
   actionConvertTable = new QAction(tr("Convert to &Matrix"), this);
   connect(actionConvertTable, SIGNAL(activated()), this,
           SLOT(convertTableToMatrix()));
-  actionShowCurvePlotDialog = new QAction(tr("&Plot details..."), this);
-  connect(actionShowCurvePlotDialog, SIGNAL(activated()), this,
-          SLOT(showCurvePlotDialog()));
   actionShowCurveWorksheet = new QAction(tr("&Worksheet"), this);
   connect(actionShowCurveWorksheet, SIGNAL(activated()), this,
           SLOT(showCurveWorksheet()));
@@ -1472,30 +1448,19 @@ void ApplicationWindow::customMenu(QMdiSubWindow *subwindow) {
     ui_->actionSaveAsTemplate->setEnabled(true);
 
     // Active window is a 2D plot
-    if (isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow)) {
+    if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
       menuBar()->addMenu(ui_->menuGraph);
       menuBar()->addMenu(ui_->menuTools);
       menuBar()->addMenu(ui_->menuGraph2DAnalysis);
-      menuBar()->addMenu(ui_->menuFormat);
       ui_->menuExportGraph->setEnabled(true);
       ui_->actionExportASCII->setEnabled(false);
-      ui_->actionFormatAxis->setEnabled(true);
-      ui_->actionFormatGrid->setEnabled(true);
 
       // Active window is a 3D plot
     } else if (isActiveSubWindow(subwindow, SubWindowType::Plot3DSubWindow)) {
       disableActions();
-      menuBar()->addMenu(ui_->menuFormat);
       ui_->actionPrint->setEnabled(true);
       ui_->actionSaveAsTemplate->setEnabled(true);
       ui_->menuExportGraph->setEnabled(true);
-      ui_->actionFormatGrid->setEnabled(false);
-      // Plot with no coordinates
-      if (static_cast<Graph3D *>(subwindow)->coordStyle() == Qwt3D::NOCOORD) {
-        ui_->actionFormatAxis->setEnabled(false);
-      } else {
-        ui_->actionFormatAxis->setEnabled(true);
-      }
 
       // Active window is a table
     } else if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
@@ -1560,14 +1525,13 @@ void ApplicationWindow::customToolBars(QMdiSubWindow *subwindow) {
       plot2DToolbar->setEnabled(false);
     }
 
-    if (isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow)) {
+    if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
       graphToolsToolbar->setEnabled(true);
       graph3DToolbar->setEnabled(false);
       tableToolbar->setEnabled(false);
       matrix3DPlotToolbar->setEnabled(false);
 
-      Graph *g = static_cast<MultiLayer *>(subwindow)->activeGraph();
-      if (g) {
+      /*if (g) {
         graphToolsGroup->blockSignals(true);
         if (g->rangeSelectorsEnabled())
           ui_->actionGraphSelectDataRange->setChecked(true);
@@ -1602,32 +1566,32 @@ void ApplicationWindow::customToolBars(QMdiSubWindow *subwindow) {
               break;
           }
         graphToolsGroup->blockSignals(false);
-      }
-      if (g && g->curves() > 0) {
-        plot2DToolbar->setEnabled(true);
-        QwtPlotCurve *c = g->curve(g->curves() - 1);
-        // plot tools managed by d_plot_mapper
-        for (int i = 0; i <= static_cast<int>(Graph::VerticalSteps); i++) {
-          QAction *a = static_cast<QAction *>(d_plot_mapper->mapping(i));
-          if (a)
-            a->setEnabled(
-                Graph::canConvertTo(c, static_cast<Graph::CurveType>(i)));
-        }
-        // others
-        ui_->actionPlot2DPie->setEnabled(Graph::canConvertTo(c, Graph::Pie));
-        ui_->actionPlot2DVectorsXYAM->setEnabled(
-            Graph::canConvertTo(c, Graph::VectXYAM));
-        ui_->actionPlot2DVectorsXYXY->setEnabled(
-            Graph::canConvertTo(c, Graph::VectXYXY));
-        ui_->actionPlot2DStatBox->setEnabled(
-            Graph::canConvertTo(c, Graph::Box));
-        // 3D plots
-        ui_->actionPlot3DRibbon->setEnabled(false);
-        ui_->actionPlot3DScatter->setEnabled(false);
-        ui_->actionPlot3DTrajectory->setEnabled(false);
-        ui_->actionPlot3DBar->setEnabled(false);
-      } else
-        plot2DToolbar->setEnabled(false);
+      }*/
+      /* if (g && g->curves() > 0) {
+         plot2DToolbar->setEnabled(true);
+         QwtPlotCurve *c = g->curve(g->curves() - 1);
+         // plot tools managed by d_plot_mapper
+         for (int i = 0; i <= static_cast<int>(Graph::VerticalSteps); i++) {
+           QAction *a = static_cast<QAction *>(d_plot_mapper->mapping(i));
+           if (a)
+             a->setEnabled(
+                 Graph::canConvertTo(c, static_cast<Graph::CurveType>(i)));
+         }
+         // others
+         ui_->actionPlot2DPie->setEnabled(Graph::canConvertTo(c, Graph::Pie));
+         ui_->actionPlot2DVectorsXYAM->setEnabled(
+             Graph::canConvertTo(c, Graph::VectXYAM));
+         ui_->actionPlot2DVectorsXYXY->setEnabled(
+             Graph::canConvertTo(c, Graph::VectXYXY));
+         ui_->actionPlot2DStatBox->setEnabled(
+             Graph::canConvertTo(c, Graph::Box));*/
+      // 3D plots
+      ui_->actionPlot3DRibbon->setEnabled(false);
+      ui_->actionPlot3DScatter->setEnabled(false);
+      ui_->actionPlot3DTrajectory->setEnabled(false);
+      ui_->actionPlot3DBar->setEnabled(false);
+      // } else
+      plot2DToolbar->setEnabled(false);
     } else if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
       tableToolbar->clear();
       static_cast<Table *>(subwindow)->d_future_table->fillProjectToolBar(
@@ -3141,47 +3105,28 @@ void ApplicationWindow::windowActivated(QMdiSubWindow *subwindow) {
   Folder *f = mywidget->folder();
   if (f) f->setActiveWindow(mywidget);
   propertyeditor->populateObjectBrowser(mywidget);
-
   emit modified();
 }
 
 void ApplicationWindow::addErrorBars() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"
-           "<p><h4>Please add a layer and try again!</h4>"));
+        tr("<h4>There are no suitable layout/plot available in this "
+           "window.</h4><p><h4>Please add a layout/plot and try again!</h4>"));
     return;
   }
 
-  Graph *g = qobject_cast<Graph *>(plot->activeGraph());
-  if (!g) return;
-
-  if (!g->curves()) {
-    QMessageBox::warning(this, tr("Warning"),
-                         tr("There are no curves available on this plot!"));
-    return;
-  }
-
-  if (g->isPiePlot()) {
-    QMessageBox::warning(
-        this, tr("Warning"),
-        tr("This functionality is not available for pie plots!"));
-    return;
-  }
-
-  ErrDialog *ed = new ErrDialog(this);
+  ErrDialog *ed = new ErrDialog(d_workspace, axisrect);
   ed->setAttribute(Qt::WA_DeleteOnClose);
   connect(ed, SIGNAL(options(const QString &, int, const QString &, int)), this,
           SLOT(defineErrorBars(const QString &, int, const QString &, int)));
   connect(ed, SIGNAL(options(const QString &, const QString &, int)), this,
           SLOT(defineErrorBars(const QString &, const QString &, int)));
-
-  ed->setCurveNames(g->analysableCurvesList());
-  ed->setSrcTables(tableList());
   ed->exec();
 }
 
@@ -3451,7 +3396,7 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices,
     confirmClosePlot2D = askPlots2D;
     for (int i = 0; i < int(subwindowlist.count()); i++) {
       if (isActiveSubWindow(subwindowlist.at(i),
-                            SubWindowType::MultiLayerSubWindow))
+                            SubWindowType::Plot2DSubWindow))
         qobject_cast<MyWidget *>(subwindowlist.at(i))
             ->askOnCloseEvent(confirmClosePlot2D);
     }
@@ -5571,31 +5516,22 @@ QList<QPair<Table *, Column *>> ApplicationWindow::columnList() {
 }
 
 void ApplicationWindow::showCurvesDialog() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  if (qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->isEmpty()) {
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
-        this, tr("Error"),
-        tr("<h4>There are no plot layers available in this window.</h4>"
-           "<p><h4>Please add a layer and try again!</h4>"));
+        this, tr("Warning"),
+        tr("<h4>There are no plot layout elements "
+           "selected/available in this window.</h4>"
+           "<p><h4>Please add/select a layout element and try again!</h4>"));
     return;
   }
 
-  Graph *g =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (!g) return;
-
-  if (g->isPiePlot()) {
-    QMessageBox::warning(
-        this, tr("Error"),
-        tr("This functionality is not available for pie plots!"));
-  } else {
-    CurvesDialog *crvDialog = new CurvesDialog(this);
-    crvDialog->setAttribute(Qt::WA_DeleteOnClose);
-    crvDialog->setGraph(g);
-    crvDialog->resize(d_add_curves_dialog_size);
-    crvDialog->show();
-  }
+  std::unique_ptr<AddPlot2DDialog> addplot2d(
+      new AddPlot2DDialog(d_workspace, axisrect));
+  addplot2d->setModal(true);
+  addplot2d->exec();
 }
 
 QList<QMdiSubWindow *> *ApplicationWindow::tableList() {
@@ -5621,146 +5557,6 @@ void ApplicationWindow::showPlotAssociations(int curve) {
   ad->setGraph(g);
   ad->initTablesList(tableList(), curve);
   ad->exec();
-}
-
-void ApplicationWindow::showTitleDialog() {
-  QMdiSubWindow *subwindow = d_workspace->activeSubWindow();
-  if (!subwindow) return;
-
-  if (isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow)) {
-    Graph *g = qobject_cast<MultiLayer *>(subwindow)->activeGraph();
-    if (g) {
-      TextDialog *td = new TextDialog(TextDialog::AxisTitle, this, 0);
-      td->setAttribute(Qt::WA_DeleteOnClose);
-      connect(td, SIGNAL(changeFont(const QFont &)), g,
-              SLOT(setTitleFont(const QFont &)));
-      connect(td, SIGNAL(changeText(const QString &)), g,
-              SLOT(setTitle(const QString &)));
-      connect(td, SIGNAL(changeColor(const QColor &)), g,
-              SLOT(setTitleColor(const QColor &)));
-      connect(td, SIGNAL(changeAlignment(int)), g,
-              SLOT(setTitleAlignment(int)));
-
-      QwtText t = g->plotWidget()->title();
-      td->setText(t.text());
-      td->setFont(t.font());
-      td->setTextColor(t.color());
-      td->setAlignment(t.renderFlags());
-      td->exec();
-    }
-  } else if (isActiveSubWindow(subwindow, SubWindowType::Plot3DSubWindow)) {
-    Plot3DDialog *pd = qobject_cast<Plot3DDialog *>(showPlot3dDialog());
-    if (pd) pd->showTitleTab();
-    delete pd;
-  }
-}
-
-void ApplicationWindow::showXAxisTitleDialog() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  Graph *g =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (g) {
-    TextDialog *td = new TextDialog(TextDialog::AxisTitle, this, 0);
-    td->setAttribute(Qt::WA_DeleteOnClose);
-    connect(td, SIGNAL(changeFont(const QFont &)), g,
-            SLOT(setXAxisTitleFont(const QFont &)));
-    connect(td, SIGNAL(changeText(const QString &)), g,
-            SLOT(setXAxisTitle(const QString &)));
-    connect(td, SIGNAL(changeColor(const QColor &)), g,
-            SLOT(setXAxisTitleColor(const QColor &)));
-    connect(td, SIGNAL(changeAlignment(int)), g,
-            SLOT(setXAxisTitleAlignment(int)));
-
-    QStringList t = g->scalesTitles();
-    td->setText(t[0]);
-    td->setFont(g->axisTitleFont(2));
-    td->setTextColor(g->axisTitleColor(2));
-    td->setAlignment(g->axisTitleAlignment(2));
-    td->setWindowTitle(tr("X Axis Title"));
-    td->exec();
-  }
-}
-
-void ApplicationWindow::showYAxisTitleDialog() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  Graph *g =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (g) {
-    TextDialog *td = new TextDialog(TextDialog::AxisTitle, this, 0);
-    td->setAttribute(Qt::WA_DeleteOnClose);
-    connect(td, SIGNAL(changeFont(const QFont &)), g,
-            SLOT(setYAxisTitleFont(const QFont &)));
-    connect(td, SIGNAL(changeText(const QString &)), g,
-            SLOT(setYAxisTitle(const QString &)));
-    connect(td, SIGNAL(changeColor(const QColor &)), g,
-            SLOT(setYAxisTitleColor(const QColor &)));
-    connect(td, SIGNAL(changeAlignment(int)), g,
-            SLOT(setYAxisTitleAlignment(int)));
-
-    QStringList t = g->scalesTitles();
-    td->setText(t[1]);
-    td->setFont(g->axisTitleFont(0));
-    td->setTextColor(g->axisTitleColor(0));
-    td->setAlignment(g->axisTitleAlignment(0));
-    td->setWindowTitle(tr("Y Axis Title"));
-    td->exec();
-  }
-}
-
-void ApplicationWindow::showRightAxisTitleDialog() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  Graph *g =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (g) {
-    TextDialog *td = new TextDialog(TextDialog::AxisTitle, this, 0);
-    td->setAttribute(Qt::WA_DeleteOnClose);
-    connect(td, SIGNAL(changeFont(const QFont &)), g,
-            SLOT(setRightAxisTitleFont(const QFont &)));
-    connect(td, SIGNAL(changeText(const QString &)), g,
-            SLOT(setRightAxisTitle(const QString &)));
-    connect(td, SIGNAL(changeColor(const QColor &)), g,
-            SLOT(setRightAxisTitleColor(const QColor &)));
-    connect(td, SIGNAL(changeAlignment(int)), g,
-            SLOT(setRightAxisTitleAlignment(int)));
-
-    QStringList t = g->scalesTitles();
-    td->setText(t[3]);
-    td->setFont(g->axisTitleFont(1));
-    td->setTextColor(g->axisTitleColor(1));
-    td->setAlignment(g->axisTitleAlignment(1));
-    td->setWindowTitle(tr("Right Axis Title"));
-    td->exec();
-  }
-}
-
-void ApplicationWindow::showTopAxisTitleDialog() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  Graph *g =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (g) {
-    TextDialog *td = new TextDialog(TextDialog::AxisTitle, this, 0);
-    td->setAttribute(Qt::WA_DeleteOnClose);
-    connect(td, SIGNAL(changeFont(const QFont &)), g,
-            SLOT(setTopAxisTitleFont(const QFont &)));
-    connect(td, SIGNAL(changeText(const QString &)), g,
-            SLOT(setTopAxisTitle(const QString &)));
-    connect(td, SIGNAL(changeColor(const QColor &)), g,
-            SLOT(setTopAxisTitleColor(const QColor &)));
-    connect(td, SIGNAL(changeAlignment(int)), g,
-            SLOT(setTopAxisTitleAlignment(int)));
-
-    QStringList t = g->scalesTitles();
-    td->setText(t[2]);
-    td->setFont(g->axisTitleFont(3));
-    td->setTextColor(g->axisTitleColor(3));
-    td->setAlignment(g->axisTitleAlignment(3));
-    td->setWindowTitle(tr("Top Axis Title"));
-    td->exec();
-  }
 }
 
 void ApplicationWindow::showExportASCIIDialog() {
@@ -5970,70 +5766,6 @@ void ApplicationWindow::plotStackedHistograms() {
   multilayerPlot(1, -1, Graph::Histogram);
 }
 
-void ApplicationWindow::showGeneralPlotDialog() {
-  QMdiSubWindow *plot = d_workspace->activeSubWindow();
-  if (!plot) return;
-
-  if (isActiveSubWindow(plot, SubWindowType::MultiLayerSubWindow) &&
-      qobject_cast<MultiLayer *>(plot)->layers())
-    showPlotDialog();
-  else if (isActiveSubWindow(plot, SubWindowType::Plot3DSubWindow)) {
-    QDialog *gd = showScaleDialog();
-    qobject_cast<Plot3DDialog *>(gd)->showGeneralTab();
-  }
-}
-
-void ApplicationWindow::showAxisDialog() {
-  QMdiSubWindow *plot = d_workspace->activeSubWindow();
-  if (!plot) return;
-
-  QDialog *gd = showScaleDialog();
-  if (gd && isActiveSubWindow(plot, SubWindowType::MultiLayerSubWindow) &&
-      qobject_cast<MultiLayer *>(plot)->layers())
-    qobject_cast<AxesDialog *>(gd)->showAxesPage();
-  else if (gd && isActiveSubWindow(plot, SubWindowType::Plot3DSubWindow))
-    qobject_cast<Plot3DDialog *>(gd)->showAxisTab();
-}
-
-void ApplicationWindow::showGridDialog() {
-  AxesDialog *gd = qobject_cast<AxesDialog *>(showScaleDialog());
-  if (gd) gd->showGridPage();
-}
-
-QDialog *ApplicationWindow::showScaleDialog() {
-  QMdiSubWindow *subwindow = d_workspace->activeSubWindow();
-  if (!subwindow) return nullptr;
-
-  if (isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow)) {
-    if (qobject_cast<MultiLayer *>(subwindow)->isEmpty()) return nullptr;
-
-    Graph *g = qobject_cast<MultiLayer *>(subwindow)->activeGraph();
-    AxesDialog *ad = new AxesDialog(this);
-    ad->setGraph(g);
-    ad->exec();
-    return ad;
-  } else if (isActiveSubWindow(subwindow, SubWindowType::Plot3DSubWindow))
-    return showPlot3dDialog();
-
-  return nullptr;
-}
-
-AxesDialog *ApplicationWindow::showScalePageFromAxisDialog(int axisPos) {
-  AxesDialog *gd = qobject_cast<AxesDialog *>(showScaleDialog());
-  if (gd) gd->setCurrentScale(axisPos);
-
-  return gd;
-}
-
-AxesDialog *ApplicationWindow::showAxisPageFromAxisDialog(int axisPos) {
-  AxesDialog *gd = qobject_cast<AxesDialog *>(showScaleDialog());
-  if (gd) {
-    gd->showAxesPage();
-    gd->setCurrentScale(axisPos);
-  }
-  return gd;
-}
-
 QDialog *ApplicationWindow::showPlot3dDialog() {
   if (isActiveSubwindow(SubWindowType::Plot3DSubWindow)) {
     Graph3D *g = qobject_cast<Graph3D *>(d_workspace->activeSubWindow());
@@ -6161,29 +5893,6 @@ QDialog *ApplicationWindow::showPlot3dDialog() {
     return nullptr;
 }
 
-void ApplicationWindow::showPlotDialog(int curveKey) {
-  QMdiSubWindow *subwindow = d_workspace->activeSubWindow();
-  if (!subwindow) return;
-
-  if (isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow)) {
-    PlotDialog *pd = new PlotDialog(d_extended_plot_dialog, this);
-    pd->setAttribute(Qt::WA_DeleteOnClose);
-    pd->setMultiLayer(qobject_cast<MultiLayer *>(subwindow));
-    pd->insertColumnsList(columnsList());
-    if (curveKey >= 0) {
-      Graph *g = qobject_cast<MultiLayer *>(subwindow)->activeGraph();
-      if (g) pd->selectCurve(g->curveIndex(curveKey));
-    }
-    pd->initFonts(plotTitleFont, plotAxesFont, plotNumbersFont, plotLegendFont);
-    pd->showAll(d_extended_plot_dialog);
-    pd->show();
-  }
-}
-
-void ApplicationWindow::showCurvePlotDialog() {
-  showPlotDialog(actionShowCurvePlotDialog->data().toInt());
-}
-
 void ApplicationWindow::showCurveContextMenu(int curveKey) {
   if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
 
@@ -6193,8 +5902,6 @@ void ApplicationWindow::showCurveContextMenu(int curveKey) {
   if (!c || !c->isVisible()) return;
 
   QMenu curveMenu(this);
-  curveMenu.addAction(c->title().text(), this, SLOT(showCurvePlotDialog()));
-  curveMenu.addSeparator();
 
   curveMenu.addAction(actionHideCurve);
   actionHideCurve->setData(curveKey);
@@ -6232,9 +5939,6 @@ void ApplicationWindow::showCurveContextMenu(int curveKey) {
 
   curveMenu.addAction(actionShowCurveWorksheet);
   actionShowCurveWorksheet->setData(curveKey);
-
-  curveMenu.addAction(actionShowCurvePlotDialog);
-  actionShowCurvePlotDialog->setData(curveKey);
 
   curveMenu.addSeparator();
 
@@ -6853,24 +6557,25 @@ void ApplicationWindow::newLegend() {
 }
 
 void ApplicationWindow::addTimeStamp() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"
-           "<p><h4>Please add a layer and try again!</h4>"));
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
     return;
   }
 
-  Graph *graph = qobject_cast<Graph *>(plot->activeGraph());
-  if (graph) graph->addTimeStamp();
+  QString date = QDateTime::currentDateTime().toString(Qt::LocalDate);
+  axisrect->addTextItem2D(date);
+  //textitem->setPositionAlignment(Qt::AlignRight | Qt::AlignVCenter);
 }
 
 void ApplicationWindow::disableAddText() {
   ui_->actionAddText->setChecked(false);
-  showTextDialog();
 }
 
 void ApplicationWindow::addText() {
@@ -7042,35 +6747,6 @@ void ApplicationWindow::showPlotGeometryDialog() {
     id->setOrigin(graph->pos());
     id->setSize(graph->plotWidget()->size());
     id->exec();
-  }
-}
-
-void ApplicationWindow::showTextDialog() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  Graph *graph =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (graph) {
-    Legend *m = dynamic_cast<Legend *>(graph->selectedMarkerPtr());
-    if (!m) return;
-
-    TextDialog *td = new TextDialog(TextDialog::TextMarker, this, 0);
-    td->setAttribute(Qt::WA_DeleteOnClose);
-    connect(td,
-            SIGNAL(values(const QString &, int, int, const QFont &,
-                          const QColor &, const QColor &)),
-            graph,
-            SLOT(updateTextMarker(const QString &, int, int, const QFont &,
-                                  const QColor &, const QColor &)));
-
-    td->setWindowIcon(IconLoader::load("alpha-logo", IconLoader::General));
-    td->setText(m->text());
-    td->setFont(m->font());
-    td->setTextColor(m->textColor());
-    td->setBackgroundColor(m->backgroundColor());
-    td->setBackgroundType(m->frameStyle());
-    td->setAngle(m->angle());
-    td->exec();
   }
 }
 
@@ -7552,38 +7228,7 @@ void ApplicationWindow::about() {
   about->exec();
 }
 
-void ApplicationWindow::showMarkerPopupMenu() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  Graph *graph =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  QMenu markerMenu(this);
-
-  if (graph->imageMarkerSelected()) {
-    markerMenu.addAction(QPixmap(":/pixelProfile.xpm"),
-                         tr("&View Pixel Line profile"), this,
-                         SLOT(pixelLineProfile()));
-    markerMenu.addAction(tr("&Intensity Matrix"), this, SLOT(intensityTable()));
-    markerMenu.addSeparator();
-  }
-
-  markerMenu.addAction(IconLoader::load("edit-cut", IconLoader::LightDark),
-                       tr("&Cut"), this, SLOT(cutSelection()));
-  markerMenu.addAction(IconLoader::load("edit-copy", IconLoader::LightDark),
-                       tr("&Copy"), this, SLOT(copySelection()));
-  markerMenu.addAction(
-      IconLoader::load("edit-delete-selection", IconLoader::LightDark),
-      tr("&Delete"), this, SLOT(clearSelection()));
-  markerMenu.addSeparator();
-  if (graph->arrowMarkerSelected())
-    markerMenu.addAction(tr("&Properties..."), this, SLOT(showLineDialog()));
-  else if (graph->imageMarkerSelected())
-    markerMenu.addAction(tr("&Properties..."), this, SLOT(showImageDialog()));
-  else
-    markerMenu.addAction(tr("&Properties..."), this, SLOT(showTextDialog()));
-
-  markerMenu.exec(QCursor::pos());
-}
+void ApplicationWindow::showMarkerPopupMenu() {}
 
 void ApplicationWindow::showMoreWindows() {
   if (ui_->explorerWindow->isVisible())
@@ -8014,7 +7659,6 @@ void ApplicationWindow::showGraphContextMenu() {
     cm.addAction(
         IconLoader::load("edit-table-dimension", IconLoader::LightDark),
         tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
-    cm.addAction(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
     cm.addSeparator();
     cm.addAction(IconLoader::load("edit-delete", IconLoader::General),
                  tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
@@ -8140,7 +7784,6 @@ void ApplicationWindow::showLayerButtonContextMenu() {
     cm.addAction(
         IconLoader::load("edit-table-dimension", IconLoader::LightDark),
         tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
-    cm.addAction(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
     cm.addSeparator();
     cm.addAction(IconLoader::load("edit-delete", IconLoader::General),
                  tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
@@ -8391,22 +8034,23 @@ Function2DDialog *ApplicationWindow::functionDialog() {
 
 void ApplicationWindow::addFunctionCurve() {
   QMdiSubWindow *subwindow = d_workspace->activeSubWindow();
-  if (!isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) return;
 
-  MultiLayer *plot = qobject_cast<MultiLayer *>(subwindow);
-  if (plot->isEmpty()) {
+  Layout2D *layout = qobject_cast<Layout2D *>(subwindow);
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"
-           "<p><h4>Please add a layer and try again!</h4>"));
+        tr("<h4>There are no plot layout elements "
+           "selected/available in this window.</h4>"
+           "<p><h4>Please add/select a layout element and try again!</h4>"));
     return;
   }
 
-  Graph *graph = plot->activeGraph();
-  if (graph) {
-    // FunctionDialog *fd = functionDialog();
-    // if (fd) fd->setGraph(graph);
-  }
+  std::unique_ptr<Function2DDialog> fd(new Function2DDialog(d_workspace));
+  fd->setLayout2DToModify(axisrect, -1);
+  fd->setModal(true);
+  fd->exec();
 }
 
 void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas) {
@@ -8637,19 +8281,16 @@ void ApplicationWindow::clearSurfaceFunctionsList() { surfaceFunc.clear(); }
 void ApplicationWindow::setFramed3DPlot() {
   if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
   qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setFramed();
-  ui_->actionFormatAxis->setEnabled(true);
 }
 
 void ApplicationWindow::setBoxed3DPlot() {
   if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
   qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setBoxed();
-  ui_->actionFormatAxis->setEnabled(true);
 }
 
 void ApplicationWindow::removeAxes3DPlot() {
   if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
   qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setNoAxes();
-  ui_->actionFormatAxis->setEnabled(false);
 }
 
 void ApplicationWindow::removeGrid3DPlot() {
@@ -9858,28 +9499,13 @@ void ApplicationWindow::connectSurfacePlot(Graph3D *plot) {
 
 void ApplicationWindow::connectMultilayerPlot(MultiLayer *g) {
   connect(g, SIGNAL(showTitleBarMenu()), this, SLOT(showWindowTitleBarMenu()));
-  connect(g, SIGNAL(showTextDialog()), this, SLOT(showTextDialog()));
-  connect(g, SIGNAL(showPlotDialog(int)), this, SLOT(showPlotDialog(int)));
-  connect(g, SIGNAL(showScaleDialog(int)), this,
-          SLOT(showScalePageFromAxisDialog(int)));
-  connect(g, SIGNAL(showAxisDialog(int)), this,
-          SLOT(showAxisPageFromAxisDialog(int)));
   connect(g, SIGNAL(showCurveContextMenu(int)), this,
           SLOT(showCurveContextMenu(int)));
   connect(g, SIGNAL(showWindowContextMenu()), this,
           SLOT(showWindowContextMenu()));
-  connect(g, SIGNAL(showCurvesDialog()), this, SLOT(showCurvesDialog()));
   connect(g, SIGNAL(drawLineEnded(bool)), ui_->actionDisableGraphTools,
           SLOT(setChecked(bool)));
   connect(g, SIGNAL(drawTextOff()), this, SLOT(disableAddText()));
-  connect(g, SIGNAL(showXAxisTitleDialog()), this,
-          SLOT(showXAxisTitleDialog()));
-  connect(g, SIGNAL(showYAxisTitleDialog()), this,
-          SLOT(showYAxisTitleDialog()));
-  connect(g, SIGNAL(showRightAxisTitleDialog()), this,
-          SLOT(showRightAxisTitleDialog()));
-  connect(g, SIGNAL(showTopAxisTitleDialog()), this,
-          SLOT(showTopAxisTitleDialog()));
   connect(g, SIGNAL(showMarkerPopupMenu()), this, SLOT(showMarkerPopupMenu()));
   connect(g, SIGNAL(closedWindow(MyWidget *)), this,
           SLOT(closeWindow(MyWidget *)));
@@ -9893,7 +9519,6 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g) {
   connect(
       g, SIGNAL(createTable(const QString &, const QString &, QList<Column *>)),
       this, SLOT(newTable(const QString &, const QString &, QList<Column *>)));
-  connect(g, SIGNAL(viewTitleDialog()), this, SLOT(showTitleDialog()));
   connect(g, SIGNAL(modifiedWindow(MyWidget *)), this,
           SLOT(modifiedProject(MyWidget *)));
   connect(g, SIGNAL(modifiedPlot()), this, SLOT(modifiedProject()));
@@ -10459,7 +10084,7 @@ bool ApplicationWindow::projectHas2DPlots() {
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
   bool hasPlots = false;
   foreach (QMdiSubWindow *subwindow, subwindowlist) {
-    if (isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow)) {
+    if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
       hasPlots = true;
       break;
     }
@@ -11823,16 +11448,6 @@ QString ApplicationWindow::versionString() {
   return AlphaPlot::versionString();
 }
 
-int ApplicationWindow::convertOldToNewColorIndex(int cindex) {
-  if ((cindex == 13) || (cindex == 14))  // white and light gray
-    return cindex + 4;
-
-  if (cindex == 15)  // dark gray
-    return cindex + 8;
-
-  return cindex;
-}
-
 ApplicationWindow *ApplicationWindow::loadScript(const QString &fn,
                                                  bool execute) {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -12021,353 +11636,334 @@ bool ApplicationWindow::validFor2DPlot(Table *table, int type) {
   return true;
 }
 
-  void ApplicationWindow::selectPlotType(int type) {
-    if (!d_workspace->activeSubWindow()) return;
+void ApplicationWindow::selectPlotType(int type) {
+  if (!d_workspace->activeSubWindow()) return;
 
-    Table *table = qobject_cast<Table *>(d_workspace->activeSubWindow());
-    if (table && validFor2DPlot(table, type)) {
-      switch (type) {
-        case Graph::Histogram:
-        case Graph::Pie:
-        case Graph::Box:
-          multilayerPlot(table, table->selectedColumns(),
-                         static_cast<Graph::CurveType>(type),
-                         table->firstSelectedRow(), table->lastSelectedRow());
-          break;
-        default:
-          multilayerPlot(table, table->drawableColumnSelection(),
-                         static_cast<Graph::CurveType>(type),
-                         table->firstSelectedRow(), table->lastSelectedRow());
-          break;
-      }
+  Table *table = qobject_cast<Table *>(d_workspace->activeSubWindow());
+  if (!table || !validFor2DPlot(table, type)) return;
 
-      QStringList list = table->selectedColumns();
-      Column *xcol = nullptr;
-      Column *ycol = nullptr;
-      if (list.size() == 2) {
-        if (table->YColumns().contains(list.at(0))) {
-          xcol = table->column(table->colIndex(list.at(1)));
-          ycol = table->column(table->colIndex(list.at(0)));
-        } else {
-          xcol = table->column(table->colIndex(list.at(0)));
-          ycol = table->column(table->colIndex(list.at(1)));
-        }
-      } else {
-        xcol = table->column(table->colIndex(list.at(0)));
-      }
+  QStringList list = table->selectedColumns();
+  Column *xcol = nullptr;
+  Column *ycol = nullptr;
+  if (list.size() == 2) {
+    if (table->YColumns().contains(list.at(0))) {
+      xcol = table->column(table->colIndex(list.at(1)));
+      ycol = table->column(table->colIndex(list.at(0)));
+    } else {
+      xcol = table->column(table->colIndex(list.at(0)));
+      ycol = table->column(table->colIndex(list.at(1)));
+    }
+  } else {
+    xcol = table->column(table->colIndex(list.at(0)));
+  }
 
-      Layout2D *layout = newGraph2D();
-      Layout2D::LineScatterType plotType;
-      switch (type) {
-        case Graph::Scatter:
-          plotType = Layout2D::Scatter2D;
-          break;
-        case Graph::Line:
-          plotType = Layout2D::Line2D;
-          break;
-        case Graph::LineSymbols:
-          plotType = Layout2D::LineAndScatter2D;
-          break;
-        case Graph::VerticalDropLines:
-          plotType = Layout2D::VerticalDropLine2D;
-          break;
-        case Graph::Spline:
-          layout->generateSpline2DPlot(table, xcol, ycol, 0,
-                                       table->rowCnt() - 1);
-          return;
-        case Graph::VerticalSteps:
-          plotType = Layout2D::VerticalStep2D;
-          break;
-        case Graph::HorizontalSteps:
-          plotType = Layout2D::HorizontalStep2D;
-          break;
-        case Graph::Box:
-          layout->generateStatBox2DPlot(table, xcol, 0, table->rowCnt() - 1, 1);
-          return;
-        case Graph::Area:
-          plotType = Layout2D::Area2D;
-          break;
-        case Graph::HorizontalBars:
-          layout->generateBar2DPlot(Layout2D::HorizontalBars, table, xcol, ycol,
-                                    0, table->rowCnt() - 1);
-          return;
-        case Graph::VerticalBars:
-          layout->generateBar2DPlot(Layout2D::VerticalBars, table, xcol, ycol,
-                                    0, table->rowCnt() - 1);
-          return;
-        default: {
-          qDebug() << "not implimented";
-          return;
-        }
-      }
-      layout->generateLineScatter2DPlot(plotType, table, xcol, ycol, 0,
-                                        table->rowCnt() - 1);
-
+  Layout2D *layout = newGraph2D();
+  Layout2D::LineScatterType plotType;
+  switch (type) {
+    case Graph::Scatter:
+      plotType = Layout2D::Scatter2D;
+      break;
+    case Graph::Line:
+      plotType = Layout2D::Line2D;
+      break;
+    case Graph::LineSymbols:
+      plotType = Layout2D::LineAndScatter2D;
+      break;
+    case Graph::VerticalDropLines:
+      plotType = Layout2D::VerticalDropLine2D;
+      break;
+    case Graph::Spline:
+      layout->generateSpline2DPlot(table, xcol, ycol, 0, table->rowCnt() - 1);
+      return;
+    case Graph::VerticalSteps:
+      plotType = Layout2D::VerticalStep2D;
+      break;
+    case Graph::HorizontalSteps:
+      plotType = Layout2D::HorizontalStep2D;
+      break;
+    case Graph::Box:
+      layout->generateStatBox2DPlot(table, xcol, 0, table->rowCnt() - 1, 1);
+      return;
+    case Graph::Area:
+      plotType = Layout2D::Area2D;
+      break;
+    case Graph::HorizontalBars:
+      layout->generateBar2DPlot(Layout2D::HorizontalBars, table, xcol, ycol, 0,
+                                table->rowCnt() - 1);
+      return;
+    case Graph::VerticalBars:
+      layout->generateBar2DPlot(Layout2D::VerticalBars, table, xcol, ycol, 0,
+                                table->rowCnt() - 1);
+      return;
+    default: {
+      qDebug() << "not implimented";
       return;
     }
   }
+  layout->generateLineScatter2DPlot(plotType, table, xcol, ycol, 0,
+                                    table->rowCnt() - 1);
 
-  void ApplicationWindow::handleAspectAdded(const AbstractAspect *parent,
-                                            int index) {
-    AbstractAspect *aspect = parent->child(index);
-    future::Matrix *matrix = qobject_cast<future::Matrix *>(aspect);
-    if (matrix) {
-      initMatrix(static_cast<Matrix *>(matrix->view()));
-      return;
-    }
-    future::Table *table = qobject_cast<future::Table *>(aspect);
-    if (table) {
-      initTable(static_cast<Table *>(table->view()));
-      return;
-    }
+  return;
+}
+
+void ApplicationWindow::handleAspectAdded(const AbstractAspect *parent,
+                                          int index) {
+  AbstractAspect *aspect = parent->child(index);
+  future::Matrix *matrix = qobject_cast<future::Matrix *>(aspect);
+  if (matrix) {
+    initMatrix(static_cast<Matrix *>(matrix->view()));
+    return;
   }
-
-  void ApplicationWindow::handleAspectAboutToBeRemoved(
-      const AbstractAspect *parent, int index) {
-    AbstractAspect *aspect = parent->child(index);
-    future::Matrix *matrix = qobject_cast<future::Matrix *>(aspect);
-    if (matrix) {
-      closeWindow(static_cast<Matrix *>(matrix->view()));
-      return;
-    }
-    future::Table *table = qobject_cast<future::Table *>(aspect);
-    if (table) {
-      closeWindow(static_cast<Table *>(table->view()));
-      return;
-    }
+  future::Table *table = qobject_cast<future::Table *>(aspect);
+  if (table) {
+    initTable(static_cast<Table *>(table->view()));
+    return;
   }
+}
 
-  void ApplicationWindow::showUndoRedoHistory() {
-    if (!d_project->undoStack()) return;
-    QDialog dialog;
-    QVBoxLayout layout(&dialog);
-
-    QDialogButtonBox button_box;
-    button_box.setOrientation(Qt::Horizontal);
-    button_box.setStandardButtons(QDialogButtonBox::Cancel |
-                                  QDialogButtonBox::NoButton |
-                                  QDialogButtonBox::Ok);
-    QObject::connect(&button_box, SIGNAL(accepted()), &dialog, SLOT(accept()));
-    QObject::connect(&button_box, SIGNAL(rejected()), &dialog, SLOT(reject()));
-
-    int index = d_project->undoStack()->index();
-    QUndoView undo_view(d_project->undoStack());
-
-    layout.addWidget(&undo_view);
-    layout.addWidget(&button_box);
-
-    dialog.setWindowTitle(tr("Undo/Redo History"));
-    if (dialog.exec() == QDialog::Accepted) return;
-
-    d_project->undoStack()->setIndex(index);
+void ApplicationWindow::handleAspectAboutToBeRemoved(
+    const AbstractAspect *parent, int index) {
+  AbstractAspect *aspect = parent->child(index);
+  future::Matrix *matrix = qobject_cast<future::Matrix *>(aspect);
+  if (matrix) {
+    closeWindow(static_cast<Matrix *>(matrix->view()));
+    return;
   }
-
-  QStringList ApplicationWindow::tableWindows() {
-    QList<AbstractAspect *> tables =
-        d_project->descendantsThatInherit("future::Table");
-    QStringList result;
-    foreach (AbstractAspect *aspect, tables)
-      result.append(aspect->name());
-    return result;
+  future::Table *table = qobject_cast<future::Table *>(aspect);
+  if (table) {
+    closeWindow(static_cast<Table *>(table->view()));
+    return;
   }
+}
 
-  //----------------------------scripting related
-  //code---------------------------
-  void ApplicationWindow::attachQtScript() {
-    // pass mainwindow as global object
-    QScriptValue objectValue = consoleWindow->engine->newQObject(this);
-    consoleWindow->engine->globalObject().setProperty("Alpha", objectValue);
+void ApplicationWindow::showUndoRedoHistory() {
+  if (!d_project->undoStack()) return;
+  QDialog dialog;
+  QVBoxLayout layout(&dialog);
 
-    QScriptValue clearFunction = consoleWindow->engine->newFunction(&openProj);
-    clearFunction.setData(objectValue);
-    consoleWindow->engine->globalObject().setProperty("openAproj",
-                                                      clearFunction);
+  QDialogButtonBox button_box;
+  button_box.setOrientation(Qt::Horizontal);
+  button_box.setStandardButtons(QDialogButtonBox::Cancel |
+                                QDialogButtonBox::NoButton |
+                                QDialogButtonBox::Ok);
+  QObject::connect(&button_box, SIGNAL(accepted()), &dialog, SLOT(accept()));
+  QObject::connect(&button_box, SIGNAL(rejected()), &dialog, SLOT(reject()));
 
-    qScriptRegisterMetaType<Table *>(consoleWindow->engine,
-                                     tableObjectToScriptValue,
-                                     tableObjectFromScriptValue);
-    qScriptRegisterMetaType<Note *>(consoleWindow->engine,
+  int index = d_project->undoStack()->index();
+  QUndoView undo_view(d_project->undoStack());
+
+  layout.addWidget(&undo_view);
+  layout.addWidget(&button_box);
+
+  dialog.setWindowTitle(tr("Undo/Redo History"));
+  if (dialog.exec() == QDialog::Accepted) return;
+
+  d_project->undoStack()->setIndex(index);
+}
+
+QStringList ApplicationWindow::tableWindows() {
+  QList<AbstractAspect *> tables =
+      d_project->descendantsThatInherit("future::Table");
+  QStringList result;
+  foreach (AbstractAspect *aspect, tables)
+    result.append(aspect->name());
+  return result;
+}
+
+//----------------------------scripting related
+// code---------------------------
+void ApplicationWindow::attachQtScript() {
+  // pass mainwindow as global object
+  QScriptValue objectValue = consoleWindow->engine->newQObject(this);
+  consoleWindow->engine->globalObject().setProperty("Alpha", objectValue);
+
+  QScriptValue clearFunction = consoleWindow->engine->newFunction(&openProj);
+  clearFunction.setData(objectValue);
+  consoleWindow->engine->globalObject().setProperty("openAproj", clearFunction);
+
+  qScriptRegisterMetaType<Table *>(consoleWindow->engine,
+                                   tableObjectToScriptValue,
+                                   tableObjectFromScriptValue);
+  qScriptRegisterMetaType<Note *>(consoleWindow->engine,
+                                  tableObjectToScriptValue,
+                                  tableObjectFromScriptValue);
+  qScriptRegisterMetaType<Matrix *>(consoleWindow->engine,
                                     tableObjectToScriptValue,
                                     tableObjectFromScriptValue);
-    qScriptRegisterMetaType<Matrix *>(consoleWindow->engine,
-                                      tableObjectToScriptValue,
-                                      tableObjectFromScriptValue);
-    qScriptRegisterMetaType<Column *>(consoleWindow->engine,
-                                      tableObjectToScriptValue,
-                                      tableObjectFromScriptValue);
-    qScriptRegisterMetaType<QVector<int>>(consoleWindow->engine, toScriptValue,
+  qScriptRegisterMetaType<Column *>(consoleWindow->engine,
+                                    tableObjectToScriptValue,
+                                    tableObjectFromScriptValue);
+  qScriptRegisterMetaType<QVector<int>>(consoleWindow->engine, toScriptValue,
+                                        fromScriptValue);
+  qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine, toScriptValue,
                                           fromScriptValue);
-    qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine,
-                                            toScriptValue, fromScriptValue);
-    qScriptRegisterMetaType<QVector<double>>(consoleWindow->engine,
-                                             toScriptValue, fromScriptValue);
-    qScriptRegisterMetaType<QVector<long>>(consoleWindow->engine, toScriptValue,
+  qScriptRegisterMetaType<QVector<double>>(consoleWindow->engine, toScriptValue,
                                            fromScriptValue);
-    qScriptRegisterMetaType<QVector<QString>>(consoleWindow->engine,
-                                              toScriptValue, fromScriptValue);
-    qScriptRegisterMetaType<QVector<QDate>>(consoleWindow->engine,
+  qScriptRegisterMetaType<QVector<long>>(consoleWindow->engine, toScriptValue,
+                                         fromScriptValue);
+  qScriptRegisterMetaType<QVector<QString>>(consoleWindow->engine,
                                             toScriptValue, fromScriptValue);
-    qScriptRegisterMetaType<QVector<QDateTime>>(consoleWindow->engine,
-                                                toScriptValue, fromScriptValue);
-  }
+  qScriptRegisterMetaType<QVector<QDate>>(consoleWindow->engine, toScriptValue,
+                                          fromScriptValue);
+  qScriptRegisterMetaType<QVector<QDateTime>>(consoleWindow->engine,
+                                              toScriptValue, fromScriptValue);
+}
 
-  bool ApplicationWindow::isActiveSubwindow(
-      const ApplicationWindow::SubWindowType &subwindowtype) {
-    bool result = false;
-    if (d_workspace->activeSubWindow()) {
-      switch (subwindowtype) {
-        case TableSubWindow:
-          (qobject_cast<Table *>(d_workspace->activeSubWindow()))
-              ? result = true
-              : result = false;
-          break;
-        case MatrixSubWindow:
-          (qobject_cast<Matrix *>(d_workspace->activeSubWindow()))
-              ? result = true
-              : result = false;
-          break;
-        case NoteSubWindow:
-          (qobject_cast<Note *>(d_workspace->activeSubWindow()))
-              ? result = true
-              : result = false;
-          break;
-        case MultiLayerSubWindow:
-          (qobject_cast<MultiLayer *>(d_workspace->activeSubWindow()))
-              ? result = true
-              : result = false;
-          break;
-        case Plot2DSubWindow:
-          (qobject_cast<Layout2D *>(d_workspace->activeSubWindow()))
-              ? result = true
-              : result = false;
-          break;
-        case Plot3DSubWindow:
-          (qobject_cast<Graph3D *>(d_workspace->activeSubWindow()))
-              ? result = true
-              : result = false;
-          break;
-      }
+bool ApplicationWindow::isActiveSubwindow(
+    const ApplicationWindow::SubWindowType &subwindowtype) {
+  bool result = false;
+  if (d_workspace->activeSubWindow()) {
+    switch (subwindowtype) {
+      case TableSubWindow:
+        (qobject_cast<Table *>(d_workspace->activeSubWindow()))
+            ? result = true
+            : result = false;
+        break;
+      case MatrixSubWindow:
+        (qobject_cast<Matrix *>(d_workspace->activeSubWindow()))
+            ? result = true
+            : result = false;
+        break;
+      case NoteSubWindow:
+        (qobject_cast<Note *>(d_workspace->activeSubWindow())) ? result = true
+                                                               : result = false;
+        break;
+      case MultiLayerSubWindow:
+        (qobject_cast<MultiLayer *>(d_workspace->activeSubWindow()))
+            ? result = true
+            : result = false;
+        break;
+      case Plot2DSubWindow:
+        (qobject_cast<Layout2D *>(d_workspace->activeSubWindow()))
+            ? result = true
+            : result = false;
+        break;
+      case Plot3DSubWindow:
+        (qobject_cast<Graph3D *>(d_workspace->activeSubWindow()))
+            ? result = true
+            : result = false;
+        break;
     }
-    return result;
   }
+  return result;
+}
 
-  bool ApplicationWindow::isActiveSubWindow(
-      QMdiSubWindow * subwindow,
-      const ApplicationWindow::SubWindowType &subwindowtype) {
-    bool result = false;
-    if (subwindow) {
-      switch (subwindowtype) {
-        case TableSubWindow:
-          (qobject_cast<Table *>(subwindow)) ? result = true : result = false;
-          break;
-        case MatrixSubWindow:
-          (qobject_cast<Matrix *>(subwindow)) ? result = true : result = false;
-          break;
-        case NoteSubWindow:
-          (qobject_cast<Note *>(subwindow)) ? result = true : result = false;
-          break;
-        case MultiLayerSubWindow:
-          (qobject_cast<MultiLayer *>(subwindow)) ? result = true
-                                                  : result = false;
-          break;
-        case Plot2DSubWindow:
-          (qobject_cast<Layout2D *>(subwindow)) ? result = true
+bool ApplicationWindow::isActiveSubWindow(
+    QMdiSubWindow *subwindow,
+    const ApplicationWindow::SubWindowType &subwindowtype) {
+  bool result = false;
+  if (subwindow) {
+    switch (subwindowtype) {
+      case TableSubWindow:
+        (qobject_cast<Table *>(subwindow)) ? result = true : result = false;
+        break;
+      case MatrixSubWindow:
+        (qobject_cast<Matrix *>(subwindow)) ? result = true : result = false;
+        break;
+      case NoteSubWindow:
+        (qobject_cast<Note *>(subwindow)) ? result = true : result = false;
+        break;
+      case MultiLayerSubWindow:
+        (qobject_cast<MultiLayer *>(subwindow)) ? result = true
                                                 : result = false;
-          break;
-        case Plot3DSubWindow:
-          (qobject_cast<Graph3D *>(subwindow)) ? result = true : result = false;
-          break;
-      }
+        break;
+      case Plot2DSubWindow:
+        (qobject_cast<Layout2D *>(subwindow)) ? result = true : result = false;
+        break;
+      case Plot3DSubWindow:
+        (qobject_cast<Graph3D *>(subwindow)) ? result = true : result = false;
+        break;
     }
-    return result;
+  }
+  return result;
+}
+
+Table *ApplicationWindow::getTableHandle() {
+  if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
+    context()->throwError(tr("getTableHandle(string) take one argument!"));
   }
 
-  Table *ApplicationWindow::getTableHandle() {
-    if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
-      context()->throwError(tr("getTableHandle(string) take one argument!"));
+  bool namedWidgetPresent = false;
+  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
+  foreach (QMdiSubWindow *subwindow, subwindowlist) {
+    if (subwindow->accessibleName() == context()->argument(0).toString()) {
+      if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
+        namedWidgetPresent = true;
+        Table *table = qobject_cast<Table *>(subwindow);
+        return table;
+      } else {
+        context()->throwError(context()->argument(0).toString() +
+                              tr(" is not a valid Table object name!"));
+      }
     }
+  }
 
-    bool namedWidgetPresent = false;
-    QList<QMdiSubWindow *> subwindowlist = subWindowsList();
-    foreach (QMdiSubWindow *subwindow, subwindowlist) {
-      if (subwindow->accessibleName() == context()->argument(0).toString()) {
-        if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
-          namedWidgetPresent = true;
-          Table *table = qobject_cast<Table *>(subwindow);
-          return table;
-        } else {
-          context()->throwError(context()->argument(0).toString() +
-                                tr(" is not a valid Table object name!"));
+  if (!namedWidgetPresent) {
+    context()->throwError(context()->argument(0).toString() +
+                          tr(" is not a valid Table object name!"));
+  }
+
+  // will never reach here
+  return nullptr;
+}
+
+Matrix *ApplicationWindow::getMatrixHandle() {
+  if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
+    context()->throwError(tr("getMatrixHandle(string) take one argument!"));
+  }
+
+  bool namedWidgetPresent = false;
+  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
+  foreach (QMdiSubWindow *subwindow, subwindowlist) {
+    if (subwindow->accessibleName() == context()->argument(0).toString()) {
+      if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow)) {
+        namedWidgetPresent = true;
+        Matrix *matrix = qobject_cast<Matrix *>(subwindow);
+        return matrix;
+      } else {
+        context()->throwError(context()->argument(0).toString() +
+                              tr(" is not a valid Matrix object name!"));
+      }
+    }
+  }
+
+  if (!namedWidgetPresent) {
+    context()->throwError(context()->argument(0).toString() +
+                          tr(" is not a valid Matrix object name!"));
+  }
+
+  // will never reach here
+  return nullptr;
+}
+
+Note *ApplicationWindow::getNoteHandle() {
+  if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
+    context()->throwError(tr("getNoteHandle(string) take one argument!"));
+  }
+
+  bool namedWidgetPresent = false;
+  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
+  foreach (QMdiSubWindow *subwindow, subwindowlist) {
+    if (subwindow->accessibleName() == context()->argument(0).toString()) {
+      if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow)) {
+        namedWidgetPresent = true;
+        Note *note = qobject_cast<Note *>(subwindow);
+        if (!note) {
+          context()->throwError(tr("Unable to get Note handle!"));
         }
+        return note;
+      } else {
+        context()->throwError(context()->argument(0).toString() +
+                              tr(" is not a valid Note object name!"));
       }
     }
-
-    if (!namedWidgetPresent) {
-      context()->throwError(context()->argument(0).toString() +
-                            tr(" is not a valid Table object name!"));
-    }
-
-    // will never reach here
-    return nullptr;
   }
 
-  Matrix *ApplicationWindow::getMatrixHandle() {
-    if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
-      context()->throwError(tr("getMatrixHandle(string) take one argument!"));
-    }
-
-    bool namedWidgetPresent = false;
-    QList<QMdiSubWindow *> subwindowlist = subWindowsList();
-    foreach (QMdiSubWindow *subwindow, subwindowlist) {
-      if (subwindow->accessibleName() == context()->argument(0).toString()) {
-        if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow)) {
-          namedWidgetPresent = true;
-          Matrix *matrix = qobject_cast<Matrix *>(subwindow);
-          return matrix;
-        } else {
-          context()->throwError(context()->argument(0).toString() +
-                                tr(" is not a valid Matrix object name!"));
-        }
-      }
-    }
-
-    if (!namedWidgetPresent) {
-      context()->throwError(context()->argument(0).toString() +
-                            tr(" is not a valid Matrix object name!"));
-    }
-
-    // will never reach here
-    return nullptr;
+  if (!namedWidgetPresent) {
+    context()->throwError(context()->argument(0).toString() +
+                          tr(" is not a valid Note object name!"));
   }
 
-  Note *ApplicationWindow::getNoteHandle() {
-    if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
-      context()->throwError(tr("getNoteHandle(string) take one argument!"));
-    }
-
-    bool namedWidgetPresent = false;
-    QList<QMdiSubWindow *> subwindowlist = subWindowsList();
-    foreach (QMdiSubWindow *subwindow, subwindowlist) {
-      if (subwindow->accessibleName() == context()->argument(0).toString()) {
-        if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow)) {
-          namedWidgetPresent = true;
-          Note *note = qobject_cast<Note *>(subwindow);
-          if (!note) {
-            context()->throwError(tr("Unable to get Note handle!"));
-          }
-          return note;
-        } else {
-          context()->throwError(context()->argument(0).toString() +
-                                tr(" is not a valid Note object name!"));
-        }
-      }
-    }
-
-    if (!namedWidgetPresent) {
-      context()->throwError(context()->argument(0).toString() +
-                            tr(" is not a valid Note object name!"));
-    }
-
-    // will never reach here
-    return nullptr;
-  }
+  // will never reach here
+  return nullptr;
+}

@@ -17,7 +17,6 @@
 #include "LayoutGrid2D.h"
 #include "LineScatter2D.h"
 #include "Table.h"
-#include "widgets/Axis2DPropertiesDialog.h"
 #include "widgets/ImageExportDialog2D.h"
 #include "widgets/LayoutButton2D.h"
 
@@ -28,7 +27,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
                    Qt::WFlags f)
     : MyWidget(label, parent, name, f),
       main_widget_(new QWidget(this)),
-      plot2dCanvas_(new Plot2D()),
+      plot2dCanvas_(new Plot2D(main_widget_)),
       layout_(new LayoutGrid2D()),
       buttionlist_(QList<LayoutButton2D *>()),
       currentAxisRect_(nullptr),
@@ -79,10 +78,6 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   plot2dCanvas_->plotLayout()->addElement(0, 0, layout_);
 
   // connections
-  connect(plot2dCanvas_,
-          SIGNAL(axisDoubleClick(QCPAxis *, QCPAxis::SelectablePart,
-                                 QMouseEvent *)),
-          this, SLOT(axisDoubleClicked(QCPAxis *, QCPAxis::SelectablePart)));
   connect(plot2dCanvas_, SIGNAL(mouseMove(QMouseEvent *)), this,
           SLOT(mouseMoveSignal(QMouseEvent *)));
   connect(plot2dCanvas_, SIGNAL(mousePress(QMouseEvent *)), this,
@@ -93,15 +88,11 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
 
   connect(plot2dCanvas_, SIGNAL(mouseWheel(QWheelEvent *)), this,
           SLOT(mouseWheel()));
-  connect(plot2dCanvas_,
-          SIGNAL(legendDoubleClick(QCPLegend *, QCPAbstractLegendItem *,
-                                   QMouseEvent *)),
-          this, SLOT(legendDoubleClick(QCPLegend *, QCPAbstractLegendItem *)));
 }
 
 Layout2D::~Layout2D() {
   delete layout_;
-  delete plot2dCanvas_;
+  // delete plot2dCanvas_;
 }
 
 StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Column *colData,
@@ -395,6 +386,10 @@ int Layout2D::getAxisRectIndex(AxisRect2D *axisRect2d) {
   return static_cast<int>(std::nan("invalid index"));
 }
 
+AxisRect2D *Layout2D::getCurrentAxisRect() { return currentAxisRect_; }
+
+Plot2D *Layout2D::getPlotCanwas() const { return plot2dCanvas_; }
+
 AxisRect2D *Layout2D::addAxisRectItem() {
   /*int rowcount = layout_->rowCount();
   int colcount = layout_->columnCount();
@@ -564,26 +559,6 @@ void Layout2D::beforeReplot() {
   }
 }
 
-void Layout2D::legendDoubleClick(QCPLegend *legend,
-                                 QCPAbstractLegendItem *item) {
-  // Rename a graph by double clicking on its legend item
-  Q_UNUSED(legend)
-  if (item)  // only react if item was clicked (user could have clicked on
-             // border padding of legend where there is no item, then item is 0)
-  {
-    QCPPlottableLegendItem *plItem =
-        qobject_cast<QCPPlottableLegendItem *>(item);
-    bool ok;
-    QString newName = QInputDialog::getText(
-        this, "QCustomPlot example", "New graph name:", QLineEdit::Normal,
-        plItem->plottable()->name(), &ok);
-    if (ok) {
-      plItem->plottable()->setName(newName);
-      plot2dCanvas_->replot();
-    }
-  }
-}
-
 bool Layout2D::exportGraph() {
   std::unique_ptr<ImageExportDialog2D> ied(
       new ImageExportDialog2D(nullptr, plot2dCanvas_ != nullptr));
@@ -728,27 +703,4 @@ void Layout2D::setBackground(const QColor &background) {
                                ";}");
   main_widget_->setStyleSheet(".QWidget { background-color:" + baseColor +
                               ";}");
-}
-
-void Layout2D::axisDoubleClicked(QCPAxis *axis, QCPAxis::SelectablePart part) {
-  Q_UNUSED(axis);
-  // Set an axis label by double clicking on it
-  if (part == QCPAxis::spAxisLabel)  // only react when the actual axis label is
-                                     // clicked, not tick label or axis backbone
-  {
-    bool ok;
-    QString newLabel = QInputDialog::getText(
-        this, "QCustomPlot example", "New axis label:", QLineEdit::Normal,
-        axis->label(), &ok);
-    if (ok) {
-      axis->setLabel(newLabel);
-      plot2dCanvas_->replot();
-    }
-  } else {
-    Axis2DPropertiesDialog *axisPropertiesDialog =
-        new Axis2DPropertiesDialog(this, axis, currentAxisRect_);
-    connect(axisPropertiesDialog, SIGNAL(areplot()), plot2dCanvas_,
-            SLOT(replot()));
-    axisPropertiesDialog->exec();
-  }
 }
