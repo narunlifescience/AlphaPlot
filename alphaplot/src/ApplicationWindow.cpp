@@ -6571,7 +6571,6 @@ void ApplicationWindow::addTimeStamp() {
 
   QString date = QDateTime::currentDateTime().toString(Qt::LocalDate);
   axisrect->addTextItem2D(date);
-  //textitem->setPositionAlignment(Qt::AlignRight | Qt::AlignVCenter);
 }
 
 void ApplicationWindow::disableAddText() {
@@ -6579,42 +6578,20 @@ void ApplicationWindow::disableAddText() {
 }
 
 void ApplicationWindow::addText() {
-  if (!ui_->actionDisableGraphTools->isChecked())
-    ui_->actionDisableGraphTools->setChecked(true);
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-
-  switch (QMessageBox::information(
-      this, tr("Add new layer?"),
-      tr("Do you want to add the text on a new layer or on the active layer?"),
-      tr("On &New Layer"), tr("On &Active Layer"), tr("&Cancel"), 0, 2)) {
-    case 0:
-      plot->addTextLayer(legendFrameStyle, plotLegendFont, legendTextColor,
-                         legendBackground);
-      break;
-
-    case 1: {
-      if (plot->isEmpty()) {
-        QMessageBox::warning(
-            this, tr("Warning"),
-            tr("<h4>There are no plot layers available in this window.</h4>"
-               "<p><h4>Please add a layer and try again!</h4>"));
-
-        ui_->actionAddText->setChecked(false);
-        return;
-      }
-
-      Graph *graph = qobject_cast<Graph *>(plot->activeGraph());
-      if (graph) graph->drawText(true);
-    } break;
-
-    case 2:
-      ui_->actionAddText->setChecked(false);
-      return;
-      break;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
+    return;
   }
+  QString text = QString("Text");
+  axisrect->addTextItem2D(text);
+  disableAddText();
 }
 
 void ApplicationWindow::addImage() {
@@ -11596,13 +11573,30 @@ bool ApplicationWindow::validFor2DPlot(Table *table, int type) {
   switch (type) {
     case Graph::Histogram:
     case Graph::Pie:
-    case Graph::Box:
       if (table->selectedColumnCount() < 1) {
         QMessageBox::warning(this, tr("Error"),
                              tr("Please select a column to plot!"));
         return false;
       }
       break;
+    case Graph::Box: {
+      if (table->selectedColumnCount(AlphaPlot::Y) == 0) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Please select one or multiple Y column(s) to plot!"));
+        return false;
+      } else if (table->selectedColumnCount(AlphaPlot::X) > 0) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("You can not select X column(s) for this operation!"));
+        return false;
+      } else if (table->selectedColumnCount(AlphaPlot::Z) > 0) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Please dont select Z column for this operation!"));
+        return false;
+      }
+    } break;
     default:
       if (table->selectedColumnCount(AlphaPlot::X) == 0 ||
           table->selectedColumnCount(AlphaPlot::Y) == 0) {
@@ -11641,6 +11635,16 @@ void ApplicationWindow::selectPlotType(int type) {
 
   Table *table = qobject_cast<Table *>(d_workspace->activeSubWindow());
   if (!table || !validFor2DPlot(table, type)) return;
+
+  if (type == Graph::Box) {
+    QList<Column *> ycollist;
+    Layout2D *layout = newGraph2D();
+    QStringList list = table->selectedColumns();
+    foreach (QString colname, list)
+      ycollist << table->column(table->colIndex(colname));
+    layout->generateStatBox2DPlot(table, ycollist, 0, table->rowCnt() - 1, 1);
+    return;
+  }
 
   QStringList list = table->selectedColumns();
   Column *xcol = nullptr;
@@ -11681,9 +11685,6 @@ void ApplicationWindow::selectPlotType(int type) {
     case Graph::HorizontalSteps:
       plotType = Layout2D::HorizontalStep2D;
       break;
-    case Graph::Box:
-      layout->generateStatBox2DPlot(table, xcol, 0, table->rowCnt() - 1, 1);
-      return;
     case Graph::Area:
       plotType = Layout2D::Area2D;
       break;

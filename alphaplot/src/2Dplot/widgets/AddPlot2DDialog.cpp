@@ -260,6 +260,12 @@ void AddPlot2DDialog::addCurves() {
 
   foreach (QListWidgetItem *item, lst) {
     pair = available_columns_.at(available->row(item));
+    if (pair.first->firstXCol() < 0) {
+      QMessageBox::warning(
+          this, tr("Error"),
+          tr("No X column available in table: ") + pair.first->name() + "!");
+      return;
+    }
     switch (boxStyle->currentIndex()) {
       case 0:
         axisrect_->addLineScatter2DPlot(

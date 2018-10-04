@@ -11,6 +11,14 @@ class Legend2D : public QCPLegend {
   Legend2D();
   ~Legend2D();
 
+  QColor getborderstrokecolor_legend() const;
+  double getborderstrokethickness_legend() const;
+  Qt::PenStyle getborderstrokestyle_legend() const;
+
+  void setborderstrokecolor_legend(const QColor &color);
+  void setborderstrokethickness_legend(const double value);
+  void setborderstrokestyle_legend(const Qt::PenStyle &style);
+
  signals:
   void legendClicked();
 

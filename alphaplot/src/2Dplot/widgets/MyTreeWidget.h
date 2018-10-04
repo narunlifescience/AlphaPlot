@@ -16,12 +16,14 @@ class MyTreeWidget : public QTreeWidget {
     Layout = 0,
     Grid = 1,
     Axis = 2,
-    TextItem = 3,
-    LSGraph = 4,
-    Curve = 5,
-    Spline = 6,
-    Vector = 7,
-    BarGraph = 8,
+    Legend =3,
+    TextItem = 4,
+    LSGraph = 5,
+    Curve = 6,
+    Spline = 7,
+    StatBox = 8,
+    Vector = 9,
+    BarGraph = 10,
   };
   MyTreeWidget(QWidget *parent = nullptr);
   ~MyTreeWidget() {}

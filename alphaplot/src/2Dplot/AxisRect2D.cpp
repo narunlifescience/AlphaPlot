@@ -405,6 +405,20 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
   return vec;
 }
 
+StatBox2D *AxisRect2D::addStatBox2DPlot(Table *table,
+                                        StatBox2D::BoxWhiskerData data,
+                                        Axis2D *xAxis, Axis2D *yAxis) {
+  StatBox2D *statbox = new StatBox2D(xAxis, yAxis, table, data);
+  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, statbox);
+  axisRectLegend_->addItem(legendItem);
+  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  statbox->setName(data.name);
+  statboxvec_.append(statbox);
+
+  emit StatBox2DCreated(statbox);
+  return statbox;
+}
+
 Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
   // remove all axis
   /*for (int i = 0; i < axes_.size(); i++) {

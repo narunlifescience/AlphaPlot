@@ -33,8 +33,8 @@ class Layout2D : public MyWidget {
   void generateParametric2DPlot(QVector<double> *xdata, QVector<double> *ydata,
                                 const QString xLabel, const QString yLabel);
   void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
-  void generateStatBox2DPlot(Table *table, Column *data, int from, int to,
-                             int key);
+  void generateStatBox2DPlot(Table *table, QList<Column *> ycollist, int from,
+                             int to, int key);
 
   enum LineScatterType {
     Line2D,

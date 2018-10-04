@@ -3,8 +3,8 @@
 
 #include <QDockWidget>
 #include "../Axis2D.h"
-#include "MyTreeWidget.h"
 #include "2Dplot/TextItem2D.h"
+#include "MyTreeWidget.h"
 
 class Ui_PropertyEditor;
 class QSplitter;
@@ -61,9 +61,12 @@ class PropertyEditor : public QDockWidget {
   void LayoutPropertyBlock(AxisRect2D *axisrect);
   void AxisPropertyBlock(Axis2D *axis);
   void GridPropertyBlock(AxisRect2D *axisrect);
+  void LegendPropertyBlock(Legend2D *legend);
+  void TextItemPropertyBlock(TextItem2D *textitem);
   void LSPropertyBlock(LineScatter2D *lsgraph, AxisRect2D *axisrect);
   void CurvePropertyBlock(Curve2D *curve, AxisRect2D *axisrect);
   void SplinePropertyBlock(Spline2D *splinegraph, AxisRect2D *axisrect);
+  void StatBoxPropertyBlock(StatBox2D *statbox, AxisRect2D *axisrect);
   void VectorPropertyBlock(Vector2D *vectorgraph, AxisRect2D *axisrect);
   void axisRectCreated(AxisRect2D *axisrect, MyWidget *widget);
   void axisCreated(Axis2D *axis);
@@ -74,6 +77,8 @@ class PropertyEditor : public QDockWidget {
   void lineScatterRemoved(AxisRect2D *axisrect);
   void curveCreated(Curve2D *curve);
   void splineCreated(Spline2D *spline);
+  void statBox2DCreated(StatBox2D *statbox);
+  void statBox2DRemoved(AxisRect2D *axisrect);
   void vectorCreated(Vector2D *vector);
   void barCreated(Bar2D *bar);
 
@@ -173,6 +178,33 @@ class PropertyEditor : public QDockWidget {
   QtProperty *axispropertyticklabelsideitem_;
   QtProperty *axispropertyticklabelprecisionitem_;
 
+  // Legend Properties
+  QtProperty *itempropertylegendfontitem_;
+  QtProperty *itempropertylegendtextcoloritem_;
+  QtProperty *itempropertylegendiconwidthitem_;
+  QtProperty *itempropertylegendiconheightitem_;
+  QtProperty *itempropertylegendicontextpaddingitem_;
+  QtProperty *itempropertylegendborderstrokecoloritem_;
+  QtProperty *itempropertylegendborderstrokethicknessitem_;
+  QtProperty *itempropertylegendborderstroketypeitem_;
+  QtProperty *itempropertylegendbackgroundcoloritem_;
+
+  // Text Item Properties
+  QtProperty *itempropertytextpixelpositionxitem_;
+  QtProperty *itempropertytextpixelpositionyitem_;
+  QtProperty *itempropertytextmarginitem_;
+  QtProperty *itempropertytexttextitem_;
+  QtProperty *itempropertytextfontitem_;
+  QtProperty *itempropertytextcoloritem_;
+  QtProperty *itempropertyantialiaseditem_;
+  QtProperty *itempropertytextstrokecoloritem_;
+  QtProperty *itempropertytextstrokethicknessitem_;
+  QtProperty *itempropertytextstroketypeitem_;
+  QtProperty *itempropertytextbackgroundcoloritem_;
+  QtProperty *itempropertytextrotationitem_;
+  QtProperty *itempropertytextpositionalignmentitem_;
+  QtProperty *itempropertytexttextalignmentitem_;
+
   // LineScatter Properties block
   QtProperty *lsplotpropertyxaxisitem_;
   QtProperty *lsplotpropertyyaxisitem_;
@@ -221,6 +253,36 @@ class PropertyEditor : public QDockWidget {
   QtProperty *splinepropertylinefillcoloritem_;
   QtProperty *splinepropertylineantialiaseditem_;
   QtProperty *splinepropertylegendtextitem_;
+
+  // StatBox Properties block
+  QtProperty *statboxplotpropertyxaxisitem_;
+  QtProperty *statboxplotpropertyyaxisitem_;
+  QtProperty *statboxplotpropertywidthitem_;
+  QtProperty *statboxplotpropertywhiskerwidthitem_;
+  QtProperty *statboxplotpropertyboxstyleitem_;
+  QtProperty *statboxplotpropertywhiskerstyleitem_;
+  QtProperty *statboxplotpropertyantialiaseditem_;
+  QtProperty *statboxplotpropertyfillantialiaseditem_;
+  QtProperty *statboxplotpropertyfillstatusitem_;
+  QtProperty *statboxplotpropertyfillcoloritem_;
+  QtProperty *statboxplotpropertywhiskerantialiaseditem_;
+  QtProperty *statboxplotpropertywhiskerstrokecoloritem_;
+  QtProperty *statboxplotpropertywhiskerstrokethicknessitem_;
+  QtProperty *statboxplotpropertywhiskerstrokestyleitem_;
+  QtProperty *statboxplotpropertywhiskerbarstrokecoloritem_;
+  QtProperty *statboxplotpropertywhiskerbarstrokethicknessitem_;
+  QtProperty *statboxplotpropertywhiskerbarstrokestyleitem_;
+  QtProperty *statboxplotpropertymedianstrokecoloritem_;
+  QtProperty *statboxplotpropertymideanstrokethicknessitem_;
+  QtProperty *statboxplotpropertymideanstrokestyleitem_;
+  QtProperty *statboxplotpropertyscatterantialiaseditem_;
+  QtProperty *statboxplotpropertyscatterstyleitem_;
+  QtProperty *statboxplotpropertyscattersizeitem_;
+  QtProperty *statboxplotpropertyscatterfillcoloritem_;
+  QtProperty *statboxplotpropertyscatteroutlinecoloritem_;
+  QtProperty *statboxplotpropertyscatteroutlinethicknessitem_;
+  QtProperty *statboxplotpropertyscatteroutlinestyleitem_;
+  QtProperty *statboxplotpropertylegendtextitem_;
 
   // Vector properties block
   QtProperty *vectorpropertyxaxisitem_;

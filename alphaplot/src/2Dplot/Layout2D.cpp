@@ -106,7 +106,7 @@ StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Column *colData,
     data[i] = colData->valueAt(i);
   }
   // sort the data
-  gsl_sort(data, 1, size - 1);
+  gsl_sort(data, 1, size);
 
   StatBox2D::BoxWhiskerData statBoxData;
   statBoxData.key = key;
@@ -138,6 +138,7 @@ StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Column *colData,
       gsl_stats_quantile_from_sorted_data(data, 1, size, 0.99);
   statBoxData.boxWhiskerDataBounds.max = data[size - 1];
   statBoxData.boxWhiskerDataBounds.min = data[0];
+  statBoxData.name = colData->name();
 
   // delete the double data pointer
   delete[] data;
@@ -187,10 +188,13 @@ void Layout2D::generateParametric2DPlot(QVector<double> *xdata,
   plot2dCanvas_->replot();
 }
 
-void Layout2D::generateStatBox2DPlot(Table *table, Column *data, int from,
-                                     int to, int key) {
-  StatBox2D::BoxWhiskerData statBoxData =
-      generateBoxWhiskerData(data, from, to, key);
+void Layout2D::generateStatBox2DPlot(Table *table, QList<Column *> ycollist,
+                                     int from, int to, int key) {
+  QList<StatBox2D::BoxWhiskerData> statBoxData;
+  foreach (Column *col, ycollist) {
+    statBoxData << generateBoxWhiskerData(col, from, to, key);
+  }
+
   AxisRect2D *element = addAxisRectItem();
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
@@ -199,19 +203,26 @@ void Layout2D::generateStatBox2DPlot(Table *table, Column *data, int from,
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
 
-  StatBox2D *statBox = new StatBox2D(xAxis.at(0), yAxis.at(0), statBoxData);
-  statBox->setBoxWhiskerWidth(0.5);
-  statBox->rescaleAxes();
+  QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
+  for (int i = 0; i < statBoxData.size(); i++) {
+    StatBox2D::BoxWhiskerData data = statBoxData.at(i);
+    data.key = i + 1;
+    element->addStatBox2DPlot(table, data, xAxis.at(0), yAxis.at(0));
+    textTicker->addTick(data.key, data.name);
+  }
+  xAxis.at(0)->setTicker(textTicker);
 
-  QCPRange keyRange = statBox->keyAxis()->range();
-  QCPRange valueRange = statBox->valueAxis()->range();
+  xAxis.at(0)->rescale();
+  yAxis.at(0)->rescale();
+  QCPRange keyRange = xAxis.at(0)->range();
+  QCPRange valueRange = yAxis.at(0)->range();
   double keyRangeSpan = keyRange.upper - keyRange.lower;
   double valueRangeSpan = valueRange.upper - valueRange.lower;
-  statBox->keyAxis()->setRange(QCPRange(keyRange.lower - keyRangeSpan * 0.2,
-                                        keyRange.upper + keyRangeSpan * 0.2));
-  statBox->valueAxis()->setRange(
-      QCPRange(valueRange.lower - valueRangeSpan * 0.2,
-               valueRange.upper + valueRangeSpan * 0.2));
+  xAxis.at(0)->setRange(QCPRange(keyRange.lower - keyRangeSpan * 0.2,
+                                 keyRange.upper + keyRangeSpan * 0.2));
+  yAxis.at(0)->setRange(QCPRange(valueRange.lower - valueRangeSpan * 0.2,
+                                 valueRange.upper + valueRangeSpan * 0.2));
+
   plot2dCanvas_->replot();
 }
 
@@ -508,7 +519,8 @@ void Layout2D::mousePressSignal(QMouseEvent *event) {
   if (event->button() == Qt::LeftButton) {
     // dragging legend
     if (currentAxisRect_->selectTest(event->pos(), false) > 0) {
-      QCPLegend *l = currentAxisRect_->getLegend();
+      QCPLegend *l =
+          reinterpret_cast<QCPLegend *>(currentAxisRect_->getLegend());
       if (l->selectTest(event->pos(), false) > 0) {
         draggingLegend = true;
         // since insetRect is in axisRect coordinates (0..1), we transform the

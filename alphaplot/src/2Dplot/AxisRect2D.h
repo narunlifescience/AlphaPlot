@@ -26,12 +26,14 @@
 #include "Pie2D.h"
 #include "Plot2D.h"
 #include "Spline2D.h"
+#include "StatBox2D.h"
 #include "Vector2D.h"
 
 class Legend2D;
 class Table;
 class Column;
 class TextItem2D;
+class StatBox2D;
 
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
@@ -43,6 +45,7 @@ class AxisRect2D : public QCPAxisRect {
   typedef QVector<Spline2D *> SplineVec;
   typedef QVector<Vector2D *> VectorVec;
   typedef QVector<Bar2D *> BarVec;
+  typedef QVector<StatBox2D *> StatBoxVec;
 
  public:
   explicit AxisRect2D(Plot2D *parent, bool setupDefaultAxis = false);
@@ -65,6 +68,7 @@ class AxisRect2D : public QCPAxisRect {
   SplineVec getSplineVec() const { return splinevec_; }
   VectorVec getVectorVec() const { return vectorvec_; }
   BarVec getBarVec() const { return barvec_; }
+  StatBoxVec getStatBoxVec() const { return statboxvec_; }
 
   Axis2D *getXAxis(int value);
   Axis2D *getYAxis(int value);
@@ -106,15 +110,15 @@ class AxisRect2D : public QCPAxisRect {
                           Column *x1Data, Column *y1Data, Column *x2Data,
                           Column *y2Data, int from, int to, Axis2D *xAxis,
                           Axis2D *yAxis);
+  StatBox2D *addStatBox2DPlot(Table *table, StatBox2D::BoxWhiskerData data,
+                              Axis2D *xAxis, Axis2D *yAxis);
   Pie2D *addPie2DPlot(Table *table, Column *xData, int from, int to);
   TextItem2D *addTextItem2D(QString text);
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;
 
-  QCPLegend *getLegend() const {
-    return reinterpret_cast<QCPLegend *>(axisRectLegend_);
-  }
+  Legend2D *getLegend() const { return axisRectLegend_; }
   void updateLegendRect();
 
   // select axisrect with mouse click
@@ -150,12 +154,14 @@ class AxisRect2D : public QCPAxisRect {
   void CurveCreated(Curve2D *);
   void SplineCreated(Spline2D *);
   void BarCreated(Bar2D *);
+  void StatBox2DCreated(StatBox2D *);
   void VectorCreated(Vector2D *);
   void TextItem2DRemoved(AxisRect2D *);
   void LineScatterRemoved(AxisRect2D *);
   void Spline2DRemoved(AxisRect2D *);
   void CurveRemoved(AxisRect2D *);
   void BarRemoved(AxisRect2D *);
+  void StatBox2DRemoved(AxisRect2D *);
 
  private slots:
   void legendClick();
@@ -176,6 +182,7 @@ class AxisRect2D : public QCPAxisRect {
   SplineVec splinevec_;
   VectorVec vectorvec_;
   BarVec barvec_;
+  StatBoxVec statboxvec_;
   QList<Axis2D *> axes_;
   // QVector<QPair<StatBox2D *, QPair<Axis2D *, Axis2D *>>> statboxplots_;
   // Histogram
