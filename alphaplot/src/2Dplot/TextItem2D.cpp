@@ -4,6 +4,7 @@
 
 TextItem2D::TextItem2D(AxisRect2D *axisrect, Plot2D *plot)
     : QCPItemText(plot), axisrect_(axisrect), draggingtextitem_(false) {
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setClipAxisRect(axisrect_);
   setAntialiased(false);
   setstrokestyle_textitem(Qt::SolidLine);

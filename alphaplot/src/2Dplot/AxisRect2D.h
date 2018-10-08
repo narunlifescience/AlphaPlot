@@ -22,7 +22,7 @@
 #include "Bar2D.h"
 #include "Curve2D.h"
 #include "Grid2D.h"
-#include "LineScatter2D.h"
+#include "LineSpecial2D.h"
 #include "Pie2D.h"
 #include "Plot2D.h"
 #include "Spline2D.h"
@@ -34,18 +34,21 @@ class Table;
 class Column;
 class TextItem2D;
 class StatBox2D;
+class LineItem2D;
 
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
  private:
   typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
   typedef QVector<TextItem2D *> TextItemVec;
-  typedef QVector<LineScatter2D *> LsVec;
+  typedef QVector<LineItem2D *> LineItemVec;
+  typedef QVector<LineSpecial2D *> LsVec;
   typedef QVector<Curve2D *> CurveVec;
   typedef QVector<Spline2D *> SplineVec;
   typedef QVector<Vector2D *> VectorVec;
   typedef QVector<Bar2D *> BarVec;
   typedef QVector<StatBox2D *> StatBoxVec;
+  typedef QVector<Pie2D *> PieVec;
 
  public:
   explicit AxisRect2D(Plot2D *parent, bool setupDefaultAxis = false);
@@ -63,46 +66,49 @@ class AxisRect2D : public QCPAxisRect {
   QList<Axis2D *> getYAxes2D() const;
   GridPair getGridPair() const { return gridpair_; }
   TextItemVec getTextItemVec() const { return textvec_; }
+  LineItemVec getLineItemVec() const { return linevec_; }
   LsVec getLsVec() const { return lsvec_; }
   CurveVec getCurveVec() const { return curvevec_; }
   SplineVec getSplineVec() const { return splinevec_; }
   VectorVec getVectorVec() const { return vectorvec_; }
   BarVec getBarVec() const { return barvec_; }
   StatBoxVec getStatBoxVec() const { return statboxvec_; }
+  PieVec getPieVec() const { return pievec_; }
 
   Axis2D *getXAxis(int value);
   Axis2D *getYAxis(int value);
   Plot2D *getParentPlot2D() { return plot2d_; }
 
-  enum LineScatterType {
+  enum class LineScatterType {
     Line2D,
     Scatter2D,
     LineAndScatter2D,
+    Area2D,
+  };
+
+  enum class LineScatterSpecialType {
     VerticalDropLine2D,
     CentralStepAndScatter2D,
     HorizontalStep2D,
     VerticalStep2D,
-    Area2D,
   };
 
-  enum BarType {
+  enum class BarType {
     HorizontalBars,
     VerticalBars,
   };
 
-  LineScatter2D *addLineScatter2DPlot(const LineScatterType &type, Table *table,
-                                      Column *xData, Column *yData, int from,
-                                      int to, Axis2D *xAxis, Axis2D *yAxis);
-  Curve2D *addCurve2DPlot(Table *table, Column *xcol, Column *ycol, int from,
-                          int to, Axis2D *xAxis, Axis2D *yAxis);
+  LineSpecial2D *addLineScatter2DPlot(const LineScatterSpecialType &type,
+                                      Table *table, Column *xData,
+                                      Column *yData, int from, int to,
+                                      Axis2D *xAxis, Axis2D *yAxis);
+  Curve2D *addCurve2DPlot(const AxisRect2D::LineScatterType &type, Table *table,
+                          Column *xcol, Column *ycol, int from, int to,
+                          Axis2D *xAxis, Axis2D *yAxis);
   Spline2D *addSpline2DPlot(Table *table, Column *xData, Column *yData,
                             int from, int to, Axis2D *xAxis, Axis2D *yAxis);
-  LineScatter2D *addLineFunction2DPlot(QVector<double> *xdata,
-                                       QVector<double> *ydata, Axis2D *xAxis,
-                                       Axis2D *yAxis, const QString &name);
-  Curve2D *addCurveFunction2DPlot(QVector<double> *xdata,
-                                  QVector<double> *ydata, Axis2D *xAxis,
-                                  Axis2D *yAxis, const QString &name);
+  Curve2D *addFunction2DPlot(QVector<double> *xdata, QVector<double> *ydata,
+                             Axis2D *xAxis, Axis2D *yAxis, const QString &name);
   Bar2D *addBox2DPlot(const BarType &type, Table *table, Column *xData,
                       Column *yData, int from, int to, Axis2D *xAxis,
                       Axis2D *yAxis);
@@ -114,23 +120,31 @@ class AxisRect2D : public QCPAxisRect {
                               Axis2D *xAxis, Axis2D *yAxis);
   Pie2D *addPie2DPlot(Table *table, Column *xData, int from, int to);
   TextItem2D *addTextItem2D(QString text);
+  LineItem2D *addLineItem2D();
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;
 
   Legend2D *getLegend() const { return axisRectLegend_; }
   void updateLegendRect();
+  void selectAxisRect();
 
   // select axisrect with mouse click
   void setSelected(const bool status);
   void drawSelection(QCPPainter *painter);
   bool isSelected() { return isAxisRectSelected_; }
 
+  // remove
   bool removeTextItem2D(TextItem2D *textitem);
-  bool removeLineScatter2D(LineScatter2D *ls);
-  bool removeSpline2D(Spline2D *spline);
+  bool removeLineItem2D(LineItem2D *lineitem);
+  bool removeLineScatter2D(LineSpecial2D *ls);
   bool removeCurve2D(Curve2D *curve);
+  bool removeSpline2D(Spline2D *spline);
+  bool removeStatBox2D(StatBox2D *statbox);
+  bool removeVector2D(Vector2D *vector);
   bool removeBar2D(Bar2D *bar);
+  bool removePie2D(Pie2D *pie);
+
   void setPrintorExportJob(bool value) { printorexportjob_ = value; }
 
  public slots:
@@ -147,21 +161,28 @@ class AxisRect2D : public QCPAxisRect {
 
  signals:
   void AxisRectClicked(AxisRect2D *);
-  void AxisCreated(Axis2D *);
-  void AxisRemoved(AxisRect2D *);
+  // created
+  void Axis2DCreated(Axis2D *);
   void TextItem2DCreated(TextItem2D *);
-  void LineScatterCreated(LineScatter2D *);
-  void CurveCreated(Curve2D *);
-  void SplineCreated(Spline2D *);
-  void BarCreated(Bar2D *);
+  void LineItem2DCreated(LineItem2D *);
+  void LineScatter2DCreated(LineSpecial2D *);
+  void Curve2DCreated(Curve2D *);
+  void Spline2DCreated(Spline2D *);
   void StatBox2DCreated(StatBox2D *);
-  void VectorCreated(Vector2D *);
+  void Vector2DCreated(Vector2D *);
+  void Bar2DCreated(Bar2D *);
+  void Pie2DCreated(Pie2D *);
+  // Removed
+  void Axis2DRemoved(AxisRect2D *);
   void TextItem2DRemoved(AxisRect2D *);
-  void LineScatterRemoved(AxisRect2D *);
+  void LineItem2DRemoved(AxisRect2D *);
+  void LineScatter2DRemoved(AxisRect2D *);
+  void Curve2DRemoved(AxisRect2D *);
   void Spline2DRemoved(AxisRect2D *);
-  void CurveRemoved(AxisRect2D *);
-  void BarRemoved(AxisRect2D *);
   void StatBox2DRemoved(AxisRect2D *);
+  void Vector2DRemoved(AxisRect2D *);
+  void Bar2DRemoved(AxisRect2D *);
+  void Pie2DRemoved(AxisRect2D *);
 
  private slots:
   void legendClick();
@@ -177,12 +198,14 @@ class AxisRect2D : public QCPAxisRect {
   bool printorexportjob_;
   GridPair gridpair_;
   TextItemVec textvec_;
+  LineItemVec linevec_;
   LsVec lsvec_;
   CurveVec curvevec_;
   SplineVec splinevec_;
   VectorVec vectorvec_;
   BarVec barvec_;
   StatBoxVec statboxvec_;
+  PieVec pievec_;
   QList<Axis2D *> axes_;
   // QVector<QPair<StatBox2D *, QPair<Axis2D *, Axis2D *>>> statboxplots_;
   // Histogram

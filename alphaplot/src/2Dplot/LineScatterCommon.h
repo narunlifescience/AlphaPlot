@@ -6,12 +6,10 @@ class Table;
 
 namespace LSCommon {
 enum class LineStyleType : int {
-  None = 0,
-  Line = 1,
-  StepLeft = 2,
-  StepRight = 3,
-  StepCenter = 4,
-  Impulse = 5,
+  StepLeft = 0,
+  StepRight = 1,
+  StepCenter = 2,
+  Impulse = 3,
 };
 
 enum class ScatterStyle : int {

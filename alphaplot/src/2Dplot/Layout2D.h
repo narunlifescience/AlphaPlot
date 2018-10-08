@@ -30,37 +30,20 @@ class Layout2D : public MyWidget {
 
   void generateFunction2DPlot(QVector<double> *xdata, QVector<double> *ydata,
                               const QString xLabel, const QString yLabel);
-  void generateParametric2DPlot(QVector<double> *xdata, QVector<double> *ydata,
-                                const QString xLabel, const QString yLabel);
   void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
   void generateStatBox2DPlot(Table *table, QList<Column *> ycollist, int from,
                              int to, int key);
 
-  enum LineScatterType {
-    Line2D,
-    Scatter2D,
-    LineAndScatter2D,
-    VerticalDropLine2D,
-    CentralStepAndScatter2D,
-    HorizontalStep2D,
-    VerticalStep2D,
-    Area2D,
-  };
-
-  enum BarType {
-    HorizontalBars,
-    VerticalBars,
-  };
-
-  void generateLineScatter2DPlot(const LineScatterType &plotType, Table *table,
-                                 Column *xData, Column *yData, int from,
-                                 int to);
-  void generateCurve2DPlot(Table *table, Column *xcol, Column *ycol, int from,
+  void generateLineScatter2DPlot(
+      const AxisRect2D::LineScatterSpecialType &plotType, Table *table,
+      Column *xData, Column *yData, int from, int to);
+  void generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
+                           Table *table, Column *xcol, Column *ycol, int from,
                            int to);
   void generateSpline2DPlot(Table *table, Column *xData, Column *yData,
                             int from, int to);
-  void generateBar2DPlot(const BarType &barType, Table *table, Column *xData,
-                         Column *yData, int from, int to);
+  void generateBar2DPlot(const AxisRect2D::BarType &barType, Table *table,
+                         Column *xData, Column *yData, int from, int to);
   void generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
                             Table *table, Column *x1Data, Column *y1Data,
                             Column *x2Data, Column *y2Data, int from, int to);
@@ -110,12 +93,13 @@ class Layout2D : public MyWidget {
   void mouseReleaseSignal(QMouseEvent *event);
   void mouseWheel();
   void beforeReplot();
+  void refresh();
   bool exportGraph();
   void printGraph();
 
  signals:
   void AxisRectCreated(AxisRect2D *, MyWidget *);
-  void AxisRectRemoved(AxisRect2D *, MyWidget *);
+  void AxisRectRemoved(MyWidget *);
 };
 
 #endif  // LAYOUT2D_H

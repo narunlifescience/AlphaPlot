@@ -14,6 +14,7 @@ Curve2D::Curve2D(Table *table, Column *xcol, Column *ycol, int from, int to,
       curvedata_(new DataBlockCurve(table, xcol, ycol, from, to)),
       functionData_(nullptr),
       type_(LSCommon::PlotType::Associated) {
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setlinestrokecolor_cplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
   setData(curvedata_->data());

@@ -29,16 +29,15 @@
 
 #include "SelectionMoveResizer.h"
 
-#include <QPainter>
 #include <QMouseEvent>
+#include <QPainter>
 
-#include <qwt_scale_map.h>
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
+#include <qwt_scale_map.h>
 
-#include "Legend.h"
-#include "ArrowMarker.h"
 #include "ImageMarker.h"
+#include "Legend.h"
 #include "PlotEnrichement.h"
 
 SelectionMoveResizer::SelectionMoveResizer(Legend *target)
@@ -46,8 +45,7 @@ SelectionMoveResizer::SelectionMoveResizer(Legend *target)
   init();
   add(target);
 }
-SelectionMoveResizer::SelectionMoveResizer(ArrowMarker *target)
-    : QWidget(target->plot()->canvas()) {
+SelectionMoveResizer::SelectionMoveResizer(ArrowMarker *target) : QWidget() {
   init();
   add(target);
 }
@@ -91,17 +89,7 @@ void SelectionMoveResizer::add(Legend *target) {
 
   update();
 }
-void SelectionMoveResizer::add(ArrowMarker *target) {
-  if ((QWidget *)target->plot()->canvas() != parent()) return;
-  d_line_markers << target;
-
-  if (d_bounding_rect.isValid())
-    d_bounding_rect |= boundingRectOf(target);
-  else
-    d_bounding_rect = boundingRectOf(target);
-
-  update();
-}
+void SelectionMoveResizer::add(ArrowMarker *target) {}
 void SelectionMoveResizer::add(ImageMarker *target) {
   if ((QWidget *)target->plot()->canvas() != parent()) return;
   d_image_markers << target;
@@ -175,12 +163,6 @@ void SelectionMoveResizer::recalcBoundingRect() {
   d_bounding_rect = QRect(0, 0, -1, -1);
 
   foreach (Legend *i, d_legend_markers) {
-    if (d_bounding_rect.isValid())
-      d_bounding_rect |= boundingRectOf(i);
-    else
-      d_bounding_rect = boundingRectOf(i);
-  }
-  foreach (ArrowMarker *i, d_line_markers) {
     if (d_bounding_rect.isValid())
       d_bounding_rect |= boundingRectOf(i);
     else
@@ -296,17 +278,6 @@ void SelectionMoveResizer::operateOnTargets() {
                      (i->rect().width() * i->rect().height()));
       i->setFont(f);
     }
-  }
-  foreach (ArrowMarker *i, d_line_markers) {
-    QPoint p1 = i->startPoint();
-    QPoint p2 = i->endPoint();
-    QRect new_rect = operateOn(i->rect());
-    i->setStartPoint(
-        QPoint(p1.x() < p2.x() ? new_rect.left() : new_rect.right(),
-               p1.y() < p2.y() ? new_rect.top() : new_rect.bottom()));
-    i->setEndPoint(
-        QPoint(p2.x() < p1.x() ? new_rect.left() : new_rect.right(),
-               p2.y() < p1.y() ? new_rect.top() : new_rect.bottom()));
   }
   foreach (ImageMarker *i, d_image_markers) {
     QRect new_rect = operateOn(i->rect());

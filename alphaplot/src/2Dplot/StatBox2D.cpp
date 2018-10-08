@@ -14,6 +14,7 @@ StatBox2D::StatBox2D(Axis2D *xAxis, Axis2D *yAxis, Table *table,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
       boxstyle_(StatBox2D::BoxWhiskerStyle::Perc_25_75),
       whiskerstyle_(StatBox2D::BoxWhiskerStyle::Perc_5_95) {
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setWhiskerAntialiased(false);
   setAntialiased(false);
   setOutlierStyle(*scatterstyle_);

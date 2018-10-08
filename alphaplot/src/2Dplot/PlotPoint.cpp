@@ -10,6 +10,7 @@ PlotPoint::PlotPoint(QCustomPlot *parentPlot, int halfSize)
       mLastWantedPos(),
       mMoveTimer(new QTimer(this)),
       mCurWantedPosPx() {
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   mCenterTracer->setStyle(QCPItemTracer::tsNone);
 
   topLeft->setParentAnchor(mCenterTracer->position);
@@ -114,7 +115,7 @@ void PlotPoint::stopMoving() {
       mParentPlot->removeItem(item);
     }
 
-    mParentPlot->replot();
+    layer()->replot();
   }
 
   parentPlot()->releaseKeyboard();
@@ -140,7 +141,7 @@ void PlotPoint::move(double x, double y, bool signalNeeded) {
 
   mCenterTracer->position->setCoords(x, y);
 
-  parentPlot()->replot();
+  layer()->replot();
 
   if (signalNeeded) {
     emit moved(QPointF(x, y));

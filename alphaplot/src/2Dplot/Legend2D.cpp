@@ -1,9 +1,11 @@
 #include "Legend2D.h"
-#include "LineScatter2D.h"
+#include "LineSpecial2D.h"
 
 Legend2D::Legend2D() : QCPLegend() {}
 
 Legend2D::~Legend2D() {}
+
+bool Legend2D::gethidden_legend() const { return layer()->visible(); }
 
 QColor Legend2D::getborderstrokecolor_legend() const {
   return borderPen().color();
@@ -15,6 +17,10 @@ double Legend2D::getborderstrokethickness_legend() const {
 
 Qt::PenStyle Legend2D::getborderstrokestyle_legend() const {
   return borderPen().style();
+}
+
+void Legend2D::sethidden_legend(const bool status) {
+  layer()->setVisible(status);
 }
 
 void Legend2D::setborderstrokecolor_legend(const QColor &color) {

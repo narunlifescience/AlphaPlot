@@ -31,7 +31,6 @@
 #include "CanvasPicker.h"
 #include "ImageMarker.h"
 #include "Legend.h"
-#include "ArrowMarker.h"
 
 #include <QVector>
 #include <QMouseEvent>
@@ -87,7 +86,6 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e) {
       }
 
       if (d_editing_marker) {
-        d_editing_marker->setEditable(false);
         d_editing_marker = 0;
       }
 
@@ -98,7 +96,6 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e) {
 
     case QEvent::MouseButtonDblClick: {
       if (d_editing_marker) {
-        return d_editing_marker->eventFilter(plotWidget->canvas(), e);
       } else if (plot()->selectedMarkerKey() >= 0) {
         if (texts.contains(plot()->selectedMarkerKey())) {
           emit viewTextDialog();
@@ -143,28 +140,6 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e) {
     case QEvent::MouseButtonRelease: {
       const QMouseEvent *me = (const QMouseEvent *)e;
       Graph *g = plot();
-
-      if (g->drawLineActive()) {
-        ArrowMarker mrk;
-        mrk.attach(g->plotWidget());
-        mrk.setStartPoint(startLinePoint);
-        mrk.setEndPoint(QPoint(me->x(), me->y()));
-        mrk.setColor(g->arrowDefaultColor());
-        mrk.setWidth(g->arrowDefaultWidth());
-        mrk.setStyle(g->arrowLineDefaultStyle());
-        mrk.setHeadLength(g->arrowHeadDefaultLength());
-        mrk.setHeadAngle(g->arrowHeadDefaultAngle());
-        mrk.fillArrowHead(g->arrowHeadDefaultFill());
-        mrk.drawEndArrow(g->drawArrow());
-        mrk.drawStartArrow(false);
-
-        g->addArrow(&mrk);
-        g->drawLine(false);
-        mrk.detach();
-        plotWidget->replot();
-
-        return true;
-      }
       return false;
     } break;
 
@@ -197,7 +172,6 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e) {
 
 void CanvasPicker::disableEditing() {
   if (d_editing_marker) {
-    d_editing_marker->setEditable(false);
     d_editing_marker = 0;
   }
 }
@@ -216,25 +190,6 @@ void CanvasPicker::drawTextMarker(const QPoint &point) {
 }
 
 void CanvasPicker::drawLineMarker(const QPoint &point, bool endArrow) {
-  plot()->plotWidget()->canvas()->repaint();
-  ArrowMarker mrk;
-  mrk.attach(plotWidget);
-
-  int clw = plotWidget->canvas()->lineWidth();
-  mrk.setStartPoint(QPoint(startLinePoint.x() + clw, startLinePoint.y() + clw));
-  mrk.setEndPoint(QPoint(point.x() + clw, point.y() + clw));
-  mrk.setWidth(1);
-  mrk.setStyle(Qt::SolidLine);
-  mrk.drawEndArrow(endArrow);
-  mrk.drawStartArrow(false);
-
-  if (plot()->drawLineActive())
-    mrk.setColor(Qt::black);
-  else
-    mrk.setColor(Qt::red);
-
-  plotWidget->replot();
-  mrk.detach();
 }
 
 bool CanvasPicker::selectMarker(const QMouseEvent *e) {
@@ -244,7 +199,6 @@ bool CanvasPicker::selectMarker(const QMouseEvent *e) {
     if (!m) return false;
     if (m->rect().contains(point)) {
       if (d_editing_marker) {
-        d_editing_marker->setEditable(false);
         d_editing_marker = 0;
       }
       plot()->setSelectedMarker(i, e->modifiers() & Qt::ShiftModifier);
@@ -256,37 +210,9 @@ bool CanvasPicker::selectMarker(const QMouseEvent *e) {
     if (!m) return false;
     if (m->rect().contains(point)) {
       if (d_editing_marker) {
-        d_editing_marker->setEditable(false);
         d_editing_marker = 0;
       }
       plot()->setSelectedMarker(i, e->modifiers() & Qt::ShiftModifier);
-      return true;
-    }
-  }
-  foreach (long i, plot()->lineMarkerKeys()) {
-    ArrowMarker *mrkL = (ArrowMarker *)plotWidget->marker(i);
-    if (!mrkL) return false;
-    int d =
-        mrkL->width() +
-        (int)floor(mrkL->headLength() * tan(M_PI * mrkL->headAngle() / 180.0) +
-                   0.5);
-    double dist = mrkL->dist(point.x(), point.y());
-    if (dist <= d) {
-      if (d_editing_marker) {
-        d_editing_marker->setEditable(false);
-        d_editing_marker = 0;
-      }
-      if (e->modifiers() & Qt::ShiftModifier) {
-        plot()->setSelectedMarker(i, true);
-        return true;
-      } else if (e->button() == Qt::RightButton) {
-        mrkL->setEditable(false);
-        plot()->setSelectedMarker(i, false);
-        return true;
-      }
-      plot()->deselectMarker();
-      mrkL->setEditable(true);
-      d_editing_marker = mrkL;
       return true;
     }
   }

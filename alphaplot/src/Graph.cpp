@@ -29,66 +29,65 @@
 
 #include <QVarLengthArray>
 
+#include "ApplicationWindow.h"
+#include "BoxCurve.h"
+#include "CanvasPicker.h"
+#include "ColorBox.h"
+#include "FunctionCurve.h"
 #include "Graph.h"
 #include "Grid.h"
-#include "CanvasPicker.h"
-#include "QwtErrorPlotCurve.h"
-#include "Legend.h"
-#include "ArrowMarker.h"
-#include "ScalePicker.h"
-#include "TitlePicker.h"
-#include "QwtPieCurve.h"
 #include "ImageMarker.h"
-#include "QwtBarCurve.h"
-#include "BoxCurve.h"
-#include "QwtHistogram.h"
-#include "VectorCurve.h"
-#include "ScaleDraw.h"
-#include "ColorBox.h"
+#include "Legend.h"
 #include "PatternBox.h"
-#include "SymbolBox.h"
-#include "FunctionCurve.h"
-#include "Spectrogram.h"
-#include "SelectionMoveResizer.h"
-#include "RangeSelectorTool.h"
 #include "PlotCurve.h"
-#include "ApplicationWindow.h"
+#include "QwtBarCurve.h"
+#include "QwtErrorPlotCurve.h"
+#include "QwtHistogram.h"
+#include "QwtPieCurve.h"
+#include "RangeSelectorTool.h"
+#include "ScaleDraw.h"
+#include "ScalePicker.h"
+#include "SelectionMoveResizer.h"
+#include "Spectrogram.h"
+#include "SymbolBox.h"
+#include "TitlePicker.h"
+#include "VectorCurve.h"
 #include "core/column/Column.h"
 
 #include <QApplication>
 #include <QBitmap>
 #include <QClipboard>
-#include <QCursor>
-#include <QImage>
-#include <QMessageBox>
-#include <QPixmap>
-#include <QPainter>
-#include <QMenu>
-#include <QTextStream>
-#include <QLocale>
-#include <QPrintDialog>
-#include <QImageWriter>
-#include <QFileInfo>
-#include <QRegExp>
 #include <QColorGroup>
+#include <QCursor>
+#include <QFileInfo>
+#include <QImage>
+#include <QImageWriter>
+#include <QLocale>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPainter>
+#include <QPixmap>
+#include <QPrintDialog>
+#include <QRegExp>
 #include <QSvgGenerator>
+#include <QTextStream>
 
+#include <qwt_color_map.h>
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
 #include <qwt_plot_zoomer.h>
-#include <qwt_scale_widget.h>
 #include <qwt_scale_engine.h>
+#include <qwt_scale_widget.h>
 #include <qwt_text.h>
 #include <qwt_text_label.h>
-#include <qwt_color_map.h>
 
 #include <stdexcept>
 
 #include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 Graph::Graph(QWidget *parent, QString name, Qt::WFlags f) : QWidget(parent, f) {
   if (name.isEmpty())
@@ -1456,77 +1455,9 @@ bool Graph::imageMarkerSelected() {
   return (d_images.contains(selectedMarker));
 }
 
-void Graph::copyMarker() {
-  if (selectedMarker < 0) {
-    selectedMarkerType = None;
-    return;
-  }
+void Graph::copyMarker() {}
 
-  if (d_lines.contains(selectedMarker)) {
-    ArrowMarker *mrkL = (ArrowMarker *)d_plot->marker(selectedMarker);
-    auxMrkStart = mrkL->startPoint();
-    auxMrkEnd = mrkL->endPoint();
-    selectedMarkerType = Arrow;
-  } else if (d_images.contains(selectedMarker)) {
-    ImageMarker *mrkI = (ImageMarker *)d_plot->marker(selectedMarker);
-    auxMrkStart = mrkI->origin();
-    QRect rect = mrkI->rect();
-    auxMrkEnd = rect.bottomRight();
-    auxMrkFileName = mrkI->fileName();
-    selectedMarkerType = Image;
-  } else
-    selectedMarkerType = Text;
-}
-
-void Graph::pasteMarker() {
-  if (selectedMarkerType == Arrow) {
-    ArrowMarker *mrkL = new ArrowMarker();
-    int linesOnPlot = (int)d_lines.size();
-    d_lines.resize(++linesOnPlot);
-    d_lines[linesOnPlot - 1] = d_plot->insertMarker(mrkL);
-
-    mrkL->setColor(auxMrkColor);
-    mrkL->setWidth(auxMrkWidth);
-    mrkL->setStyle(auxMrkStyle);
-    mrkL->setStartPoint(QPoint(auxMrkStart.x() + 10, auxMrkStart.y() + 10));
-    mrkL->setEndPoint(QPoint(auxMrkEnd.x() + 10, auxMrkEnd.y() + 10));
-    mrkL->drawStartArrow(startArrowOn);
-    mrkL->drawEndArrow(endArrowOn);
-    mrkL->setHeadLength(auxArrowHeadLength);
-    mrkL->setHeadAngle(auxArrowHeadAngle);
-    mrkL->fillArrowHead(auxFilledArrowHead);
-  } else if (selectedMarkerType == Image) {
-    ImageMarker *mrk = new ImageMarker(auxMrkFileName);
-    int imagesOnPlot = d_images.size();
-    d_images.resize(++imagesOnPlot);
-    d_images[imagesOnPlot - 1] = d_plot->insertMarker(mrk);
-
-    QPoint o = d_plot->canvas()->mapFromGlobal(QCursor::pos());
-    if (!d_plot->canvas()->contentsRect().contains(o))
-      o = QPoint(auxMrkStart.x() + 20, auxMrkStart.y() + 20);
-    mrk->setOrigin(o);
-    mrk->setSize(QRect(auxMrkStart, auxMrkEnd).size());
-  } else {
-    Legend *mrk = new Legend(d_plot);
-    int texts = d_texts.size();
-    d_texts.resize(++texts);
-    d_texts[texts - 1] = d_plot->insertMarker(mrk);
-
-    QPoint o = d_plot->canvas()->mapFromGlobal(QCursor::pos());
-    if (!d_plot->canvas()->contentsRect().contains(o))
-      o = QPoint(auxMrkStart.x() + 20, auxMrkStart.y() + 20);
-    mrk->setOrigin(o);
-    mrk->setAngle(auxMrkAngle);
-    mrk->setFrameStyle(auxMrkBkg);
-    mrk->setFont(auxMrkFont);
-    mrk->setText(auxMrkText);
-    mrk->setTextColor(auxMrkColor);
-    mrk->setBackgroundColor(auxMrkBkgColor);
-  }
-
-  d_plot->replot();
-  deselectMarker();
-}
+void Graph::pasteMarker() {}
 
 void Graph::setCopiedMarkerEnds(const QPoint &start, const QPoint &end) {
   auxMrkStart = start;
@@ -2339,43 +2270,9 @@ long Graph::insertTextMarker(const QStringList &list) {
 }
 
 void Graph::addArrow(QStringList list) {
-  ArrowMarker *mrk = new ArrowMarker();
-  long mrkID = d_plot->insertMarker(mrk);
-  int linesOnPlot = (int)d_lines.size();
-  d_lines.resize(++linesOnPlot);
-  d_lines[linesOnPlot - 1] = mrkID;
-
-  mrk->setBoundingRect(list[1].toDouble(), list[2].toDouble(),
-                       list[3].toDouble(), list[4].toDouble());
-
-  mrk->setWidth(list[5].toInt());
-  mrk->setColor(QColor(list[6]));
-  mrk->setStyle(getPenStyle(list[7]));
-  mrk->drawEndArrow(list[8] == "1");
-  mrk->drawStartArrow(list[9] == "1");
-  if (list.count() > 10) {
-    mrk->setHeadLength(list[10].toInt());
-    mrk->setHeadAngle(list[11].toInt());
-    mrk->fillArrowHead(list[12] == "1");
-  }
 }
 
 void Graph::addArrow(ArrowMarker *mrk) {
-  ArrowMarker *aux = new ArrowMarker();
-  int linesOnPlot = (int)d_lines.size();
-  d_lines.resize(++linesOnPlot);
-  d_lines[linesOnPlot - 1] = d_plot->insertMarker(aux);
-
-  aux->setBoundingRect(mrk->startPointCoord().x(), mrk->startPointCoord().y(),
-                       mrk->endPointCoord().x(), mrk->endPointCoord().y());
-  aux->setWidth(mrk->width());
-  aux->setColor(mrk->color());
-  aux->setStyle(mrk->style());
-  aux->drawEndArrow(mrk->hasEndArrow());
-  aux->drawStartArrow(mrk->hasStartArrow());
-  aux->setHeadLength(mrk->headLength());
-  aux->setHeadAngle(mrk->headAngle());
-  aux->fillArrowHead(mrk->filledArrowHead());
 }
 
 ArrowMarker *Graph::arrow(long id) { return (ArrowMarker *)d_plot->marker(id); }
@@ -2416,28 +2313,6 @@ QString Graph::saveMarkers() {
     s += QString::number(mrkI->yValue(), 'g', 15) + "\t";
     s += QString::number(mrkI->right(), 'g', 15) + "\t";
     s += QString::number(mrkI->bottom(), 'g', 15) + "</image>\n";
-  }
-
-  for (int i = 0; i < l; i++) {
-    ArrowMarker *mrkL = (ArrowMarker *)d_plot->marker(d_lines[i]);
-    s += "<line>\t";
-
-    QwtDoublePoint sp = mrkL->startPointCoord();
-    s += (QString::number(sp.x(), 'g', 15)) + "\t";
-    s += (QString::number(sp.y(), 'g', 15)) + "\t";
-
-    QwtDoublePoint ep = mrkL->endPointCoord();
-    s += (QString::number(ep.x(), 'g', 15)) + "\t";
-    s += (QString::number(ep.y(), 'g', 15)) + "\t";
-
-    s += QString::number(mrkL->width()) + "\t";
-    s += mrkL->color().name() + "\t";
-    s += penStyleName(mrkL->style()) + "\t";
-    s += QString::number(mrkL->hasEndArrow()) + "\t";
-    s += QString::number(mrkL->hasStartArrow()) + "\t";
-    s += QString::number(mrkL->headLength()) + "\t";
-    s += QString::number(mrkL->headAngle()) + "\t";
-    s += QString::number(mrkL->filledArrowHead()) + "</line>\n";
   }
 
   for (int i = 0; i < t; i++) {
@@ -2773,15 +2648,12 @@ bool Graph::addErrorBars(const QString &xColName, const QString &yColName,
 
 void Graph::plotPie(Table *w, const QString &name, const QPen &pen, int brush,
                     int size, int firstColor, int startRow, int endRow,
-                    bool visible) {
-}
+                    bool visible) {}
 
-void Graph::plotPie(Table *w, const QString &name, int startRow, int endRow) {
-}
+void Graph::plotPie(Table *w, const QString &name, int startRow, int endRow) {}
 
 bool Graph::plotHistogram(Table *w, QStringList names, int startRow,
-                          int endRow) {
-}
+                          int endRow) {}
 
 void Graph::insertPlotItem(QwtPlotItem *i, int type) {
   c_type.resize(++n_curves);
@@ -2877,8 +2749,6 @@ bool Graph::insertCurve(Table *w, int xcol, const QString &name, int style) {
 bool Graph::insertCurve(Table *w, const QString &xColName,
                         const QString &yColName, int style, int startRow,
                         int endRow) {
-
-
   return true;
 }
 
@@ -3078,11 +2948,9 @@ void Graph::removeCurve(int index) {
   emit modifiedGraph();
 }
 
-void Graph::removeLegendItem(int index) {
-}
+void Graph::removeLegendItem(int index) {}
 
-void Graph::addLegendItem(const QString &colName) {
-}
+void Graph::addLegendItem(const QString &colName) {}
 
 void Graph::contextMenuEvent(QContextMenuEvent *e) {
   if (selectedMarker >= 0) {
@@ -3354,8 +3222,8 @@ void Graph::createTable(const QwtPlotCurve *curve) {
   }
   QString legend =
       tr("Data set generated from curve") + ": " + curve->title().text();
-  emit createTable(tr("Curve data %1").arg(1), legend, QList<Column *>()
-                                                           << xCol << yCol);
+  emit createTable(tr("Curve data %1").arg(1), legend,
+                   QList<Column *>() << xCol << yCol);
 }
 
 QString Graph::saveToString(bool saveAsTemplate) {
@@ -3408,20 +3276,6 @@ void Graph::showIntensityTable() {
 }
 
 void Graph::updateMarkersBoundingRect() {
-  for (int i = 0; i < (int)d_lines.size(); i++) {
-    ArrowMarker *mrkL = (ArrowMarker *)d_plot->marker(d_lines[i]);
-    if (mrkL) mrkL->updateBoundingRect();
-  }
-  for (int i = 0; i < (int)d_texts.size(); i++) {
-    Legend *mrkT = (Legend *)d_plot->marker(d_texts[i]);
-    if (mrkT) mrkT->updateOrigin();
-  }
-
-  for (int i = 0; i < (int)d_images.size(); i++) {
-    ImageMarker *mrk = (ImageMarker *)d_plot->marker(d_images[i]);
-    if (mrk) mrk->updateBoundingRect();
-  }
-  d_plot->replot();
 }
 
 void Graph::resizeEvent(QResizeEvent *e) {

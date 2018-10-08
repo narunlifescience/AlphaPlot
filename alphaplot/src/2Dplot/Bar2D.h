@@ -11,8 +11,8 @@ class DataBlockBar;
 class Bar2D : public QCPBars {
   Q_OBJECT
  public:
-  Bar2D(Table *table, Column *xcol, Column *ycol, int from,
-        int to, Axis2D *xAxis, Axis2D *yAxis);
+  Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
+        Axis2D *xAxis, Axis2D *yAxis);
   ~Bar2D();
 
   enum BarStyle {
@@ -29,11 +29,18 @@ class Bar2D : public QCPBars {
   QColor getfillcolor_barplot() const;
   DataBlockBar *getdatablock_barplot() const;
 
+  void setxaxis_barplot(Axis2D *axis);
+  void setyaxis_barplot(Axis2D *axis);
+  void setstrokestyle_barplot(const Qt::PenStyle &style);
+  void setstrokecolor_barplot(const QColor &color);
+  void setstrokethickness_barplot(const double value);
+  void setfillcolor_barplot(const QColor &color);
+
   void setBarData(Table *table, Column *xcol, Column *ycol, int from, int to);
   void setBarWidth(double barwidth);
   double getBarWidth();
 
-private:
+ private:
   double barwidth_;
   Axis2D *xaxis_;
   Axis2D *yaxis_;

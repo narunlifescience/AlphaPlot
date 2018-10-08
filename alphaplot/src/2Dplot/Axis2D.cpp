@@ -18,7 +18,9 @@
 #include "AxisRect2D.h"
 
 Axis2D::Axis2D(AxisRect2D *parent, AxisType type)
-    : QCPAxis(static_cast<QCPAxisRect *>(parent), type), axisrect_(parent) {}
+    : QCPAxis(static_cast<QCPAxisRect *>(parent), type), axisrect_(parent) {
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
+}
 
 Axis2D::~Axis2D() {}
 

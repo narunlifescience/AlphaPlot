@@ -17,6 +17,7 @@
 #include "AxisRect2D.h"
 #include "../future/core/column/Column.h"
 #include "Legend2D.h"
+#include "LineItem2D.h"
 #include "QMessageBox"
 #include "Table.h"
 #include "TextItem2D.h"
@@ -71,13 +72,13 @@ Axis2D *AxisRect2D::addAxis2D(const Axis2D::AxisOreantation &orientation) {
       break;
   }
   axes_.append(axis2D);
-  emit AxisCreated(axis2D);
+  emit Axis2DCreated(axis2D);
   return axis2D;
 }
 
 bool AxisRect2D::removeAxis2D(Axis2D *axis) {
   bool status = true;
-  foreach (LineScatter2D *ls, lsvec_) {
+  foreach (LineSpecial2D *ls, lsvec_) {
     if (ls->getxaxis_lsplot() == axis || ls->getyaxis_lsplot() == axis)
       status = false;
   }
@@ -89,6 +90,12 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis) {
 
   foreach (Spline2D *spline, splinevec_) {
     if (spline->getxaxis_splot() == axis || spline->getyaxis_splot() == axis)
+      status = false;
+  }
+
+  foreach (StatBox2D *statbox, statboxvec_) {
+    if (statbox->getxaxis_statbox() == axis ||
+        statbox->getyaxis_statbox() == axis)
       status = false;
   }
 
@@ -115,7 +122,7 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis) {
     for (int i = 0; i < axes_.size(); i++) {
       if (axes_.at(i) == axis) axes_.removeAt(i);
     }
-    emit AxisRemoved(this);
+    emit Axis2DRemoved(this);
   }
   return status;
 }
@@ -215,69 +222,41 @@ Axis2D *AxisRect2D::getYAxis(int value) {
   }
 }
 
-LineScatter2D *AxisRect2D::addLineScatter2DPlot(
-    const AxisRect2D::LineScatterType &type, Table *table, Column *xData,
+LineSpecial2D *AxisRect2D::addLineScatter2DPlot(
+    const LineScatterSpecialType &type, Table *table, Column *xData,
     Column *yData, int from, int to, Axis2D *xAxis, Axis2D *yAxis) {
-  LineScatter2D *lineScatter =
-      new LineScatter2D(table, xData, yData, from, to, xAxis, yAxis);
+  LineSpecial2D *lineScatter =
+      new LineSpecial2D(table, xData, yData, from, to, xAxis, yAxis);
   lineScatter->setlinefillcolor_lsplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
 
   switch (type) {
-    case Line2D:
-      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Line);
-      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
-      lineScatter->setlinefillstatus_lsplot(false);
-      lineScatter->setlineantialiased_lsplot(true);
-      lineScatter->setscatterantialiased_lsplot(true);
-      break;
-    case Scatter2D:
-      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::None);
-      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::Disc);
-      lineScatter->setlinefillstatus_lsplot(false);
-      lineScatter->setlineantialiased_lsplot(false);
-      lineScatter->setscatterantialiased_lsplot(true);
-      break;
-    case LineAndScatter2D:
-      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Line);
-      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::Disc);
-      lineScatter->setlinefillstatus_lsplot(false);
-      lineScatter->setlineantialiased_lsplot(true);
-      lineScatter->setscatterantialiased_lsplot(true);
-      break;
-    case VerticalDropLine2D:
+    case LineScatterSpecialType::VerticalDropLine2D:
       lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Impulse);
       lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::Disc);
       lineScatter->setlinefillstatus_lsplot(false);
       lineScatter->setlineantialiased_lsplot(false);
       lineScatter->setscatterantialiased_lsplot(true);
       break;
-    case CentralStepAndScatter2D:
+    case LineScatterSpecialType::CentralStepAndScatter2D:
       lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::StepCenter);
       lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::Disc);
       lineScatter->setlinefillstatus_lsplot(false);
       lineScatter->setlineantialiased_lsplot(false);
       lineScatter->setscatterantialiased_lsplot(true);
       break;
-    case HorizontalStep2D:
+    case LineScatterSpecialType::HorizontalStep2D:
       lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::StepRight);
       lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
       lineScatter->setlinefillstatus_lsplot(false);
       lineScatter->setlineantialiased_lsplot(false);
       lineScatter->setscatterantialiased_lsplot(true);
       break;
-    case VerticalStep2D:
+    case LineScatterSpecialType::VerticalStep2D:
       lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::StepLeft);
       lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
       lineScatter->setlinefillstatus_lsplot(false);
       lineScatter->setlineantialiased_lsplot(false);
-      lineScatter->setscatterantialiased_lsplot(true);
-      break;
-    case Area2D:
-      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Line);
-      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
-      lineScatter->setlinefillstatus_lsplot(true);
-      lineScatter->setlineantialiased_lsplot(true);
       lineScatter->setscatterantialiased_lsplot(true);
       break;
   }
@@ -289,21 +268,44 @@ LineScatter2D *AxisRect2D::addLineScatter2DPlot(
                        yData->name());
   lsvec_.append(lineScatter);
 
-  emit LineScatterCreated(lineScatter);
+  emit LineScatter2DCreated(lineScatter);
   return lineScatter;
 }
 
-Curve2D *AxisRect2D::addCurve2DPlot(Table *table, Column *xcol, Column *ycol,
+Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
+                                    Table *table, Column *xcol, Column *ycol,
                                     int from, int to, Axis2D *xAxis,
                                     Axis2D *yAxis) {
   Curve2D *curve = new Curve2D(table, xcol, ycol, from, to, xAxis, yAxis);
+  switch (type) {
+    case LineScatterType::Line2D:
+      curve->setlinetype_cplot(1);
+      curve->setscattershape_cplot(LSCommon::ScatterStyle::None);
+      curve->setlinefillstatus_cplot(false);
+      break;
+    case LineScatterType::Scatter2D:
+      curve->setlinetype_cplot(0);
+      curve->setscattershape_cplot(LSCommon::ScatterStyle::Disc);
+      curve->setlinefillstatus_cplot(false);
+      break;
+    case LineScatterType::LineAndScatter2D:
+      curve->setlinetype_cplot(1);
+      curve->setscattershape_cplot(LSCommon::ScatterStyle::Disc);
+      curve->setlinefillstatus_cplot(false);
+      break;
+    case LineScatterType::Area2D:
+      curve->setlinetype_cplot(1);
+      curve->setscattershape_cplot(LSCommon::ScatterStyle::None);
+      curve->setlinefillstatus_cplot(false);
+      break;
+  }
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   curve->setName(table->name() + "_" + xcol->name() + "_" + ycol->name());
   curvevec_.append(curve);
 
-  emit CurveCreated(curve);
+  emit Curve2DCreated(curve);
   return curve;
 }
 
@@ -320,32 +322,13 @@ Spline2D *AxisRect2D::addSpline2DPlot(Table *table, Column *xData,
   spline->setName(table->name() + "_" + xData->name() + "_" + yData->name());
   splinevec_.append(spline);
 
-  emit SplineCreated(spline);
+  emit Spline2DCreated(spline);
   return spline;
 }
 
-LineScatter2D *AxisRect2D::addLineFunction2DPlot(QVector<double> *xdata,
-                                                 QVector<double> *ydata,
-                                                 Axis2D *xAxis, Axis2D *yAxis,
-                                                 const QString &name) {
-  LineScatter2D *lineScatter = new LineScatter2D(xdata, ydata, xAxis, yAxis);
-  lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Line);
-  lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
-
-  lineScatter->setName(name);
-  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineScatter);
-  axisRectLegend_->addItem(legendItem);
-  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
-  lsvec_.append(lineScatter);
-
-  emit LineScatterCreated(lineScatter);
-  return lineScatter;
-}
-
-Curve2D *AxisRect2D::addCurveFunction2DPlot(QVector<double> *xdata,
-                                            QVector<double> *ydata,
-                                            Axis2D *xAxis, Axis2D *yAxis,
-                                            const QString &name) {
+Curve2D *AxisRect2D::addFunction2DPlot(QVector<double> *xdata,
+                                       QVector<double> *ydata, Axis2D *xAxis,
+                                       Axis2D *yAxis, const QString &name) {
   Curve2D *curve = new Curve2D(xdata, ydata, xAxis, yAxis);
   curve->setlinetype_cplot(1);
   curve->setscattershape_cplot(LSCommon::ScatterStyle::None);
@@ -356,7 +339,7 @@ Curve2D *AxisRect2D::addCurveFunction2DPlot(QVector<double> *xdata,
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   curvevec_.append(curve);
 
-  emit CurveCreated(curve);
+  emit Curve2DCreated(curve);
   return curve;
 }
 
@@ -365,10 +348,10 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
                                 Axis2D *xAxis, Axis2D *yAxis) {
   Bar2D *bar;
   switch (type) {
-    case HorizontalBars:
+    case AxisRect2D::BarType::HorizontalBars:
       bar = new Bar2D(table, xData, yData, from, to, yAxis, xAxis);
       break;
-    case VerticalBars:
+    case AxisRect2D::BarType::VerticalBars:
       bar = new Bar2D(table, xData, yData, from, to, xAxis, yAxis);
       break;
   }
@@ -383,7 +366,7 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
   bar->setName(table->name() + "_" + xData->name() + "_" + yData->name());
   barvec_.append(bar);
 
-  emit BarCreated(bar);
+  emit Bar2DCreated(bar);
   return bar;
 }
 
@@ -401,7 +384,7 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
                "_" + x2Data->name() + "_" + y2Data->name());
   vectorvec_.append(vec);
 
-  emit VectorCreated(vec);
+  emit Vector2DCreated(vec);
   return vec;
 }
 
@@ -431,6 +414,8 @@ Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
   // LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, pie);
   // axisRectLegend_->addItem(legendItem);
   // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  pievec_.append(pie);
+  emit Pie2DCreated(pie);
   return pie;
 }
 
@@ -441,6 +426,19 @@ TextItem2D *AxisRect2D::addTextItem2D(QString text) {
   textvec_.append(textitem);
   emit TextItem2DCreated(textitem);
   return textitem;
+}
+
+LineItem2D *AxisRect2D::addLineItem2D() {
+  LineItem2D *lineitem = new LineItem2D(this, plot2d_);
+  QRectF rect = this->rect();
+  int widthpercent = static_cast<int>((rect.width() * 20) / 100);
+  int heightpercent = static_cast<int>((rect.height() * 20) / 100);
+  rect.adjust(widthpercent, heightpercent, -widthpercent, -heightpercent);
+  lineitem->start->setPixelPosition(rect.topLeft());
+  lineitem->end->setPixelPosition(rect.bottomRight());
+  linevec_.append(lineitem);
+  emit LineItem2DCreated(lineitem);
+  return lineitem;
 }
 
 // Should not use for other than populating axis map
@@ -474,6 +472,8 @@ void AxisRect2D::updateLegendRect() {
   axisRectLegend_->setMaximumSize(axisRectLegend_->minimumOuterSizeHint());
 }
 
+void AxisRect2D::selectAxisRect() { emit AxisRectClicked(this); }
+
 void AxisRect2D::setSelected(const bool status) {
   isAxisRectSelected_ = status;
 }
@@ -502,7 +502,21 @@ bool AxisRect2D::removeTextItem2D(TextItem2D *textitem) {
   return result;
 }
 
-bool AxisRect2D::removeLineScatter2D(LineScatter2D *ls) {
+bool AxisRect2D::removeLineItem2D(LineItem2D *lineitem) {
+  for (int i = 0; i < linevec_.size(); i++) {
+    if (linevec_.at(i) == lineitem) {
+      linevec_.remove(i);
+    }
+  }
+  bool result = false;
+  result = plot2d_->removeItem(lineitem);
+  if (!result) return result;
+
+  emit LineItem2DRemoved(this);
+  return result;
+}
+
+bool AxisRect2D::removeLineScatter2D(LineSpecial2D *ls) {
   for (int i = 0; i < lsvec_.size(); i++) {
     if (lsvec_.at(i) == ls) {
       lsvec_.remove(i);
@@ -514,7 +528,7 @@ bool AxisRect2D::removeLineScatter2D(LineScatter2D *ls) {
   // result = plot2d_->removePlottable(ls);
   if (!result) return result;
 
-  emit LineScatterRemoved(this);
+  emit LineScatter2DRemoved(this);
   return result;
 }
 
@@ -530,6 +544,30 @@ bool AxisRect2D::removeSpline2D(Spline2D *spline) {
   return result;
 }
 
+bool AxisRect2D::removeStatBox2D(StatBox2D *statbox) {
+  for (int i = 0; i < statboxvec_.size(); i++) {
+    if (statboxvec_.at(i) == statbox) {
+      statboxvec_.remove(i);
+    }
+  }
+  bool result = false;
+  result = plot2d_->removePlottable(statbox);
+  emit StatBox2DRemoved(this);
+  return result;
+}
+
+bool AxisRect2D::removeVector2D(Vector2D *vector) {
+  for (int i = 0; i < vectorvec_.size(); i++) {
+    if (vectorvec_.at(i) == vector) {
+      vectorvec_.remove(i);
+    }
+  }
+  bool result = false;
+  result = plot2d_->removePlottable(vector);
+  emit Vector2DRemoved(this);
+  return result;
+}
+
 bool AxisRect2D::removeCurve2D(Curve2D *curve) {
   for (int i = 0; i < curvevec_.size(); i++) {
     if (curvevec_.at(i) == curve) {
@@ -538,7 +576,7 @@ bool AxisRect2D::removeCurve2D(Curve2D *curve) {
   }
   bool result = false;
   result = plot2d_->removePlottable(curve);
-  emit CurveRemoved(this);
+  emit Curve2DRemoved(this);
   return result;
 }
 
@@ -550,7 +588,19 @@ bool AxisRect2D::removeBar2D(Bar2D *bar) {
   }
   bool result = false;
   result = plot2d_->removePlottable(bar);
-  emit BarRemoved(this);
+  emit Bar2DRemoved(this);
+  return result;
+}
+
+bool AxisRect2D::removePie2D(Pie2D *pie) {
+  for (int i = 0; i < pievec_.size(); i++) {
+    if (pievec_.at(i) == pie) {
+      pievec_.remove(i);
+    }
+  }
+  bool result = false;
+  result = plot2d_->removeItem(pie);
+  emit Pie2DRemoved(this);
   return result;
 }
 

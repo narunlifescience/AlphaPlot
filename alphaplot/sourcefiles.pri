@@ -20,7 +20,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/ExpDecayDialog.h \
             src/FitDialog.h \
             src/3Dplot/SurfaceDialog.h \
-            src/LineDialog.h \
             src/ScalePicker.h \
             src/TitlePicker.h \
             src/CanvasPicker.h \
@@ -29,7 +28,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/QwtPieCurve.h \
             src/ErrDialog.h \
             src/Legend.h \
-            src/ArrowMarker.h \
             src/ImageMarker.h \
             src/ImageDialog.h \
             src/fit_gsl.h \
@@ -154,13 +152,11 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ExpDecayDialog.cpp \
             src/FitDialog.cpp \
             src/3Dplot/SurfaceDialog.cpp \
-            src/LineDialog.cpp \
             src/PlotCurve.cpp \
             src/QwtErrorPlotCurve.cpp \
             src/QwtPieCurve.cpp \
             src/ErrDialog.cpp \
             src/Legend.cpp \
-            src/ArrowMarker.cpp \
             src/ImageMarker.cpp \
             src/ImageDialog.cpp \
             src/MultiLayer.cpp\
@@ -417,7 +413,7 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/Layout2D.h \
                src/2Dplot/LayoutGrid2D.h \
                src/2Dplot/Legend2D.h \
-               src/2Dplot/LineScatter2D.h \
+               src/2Dplot/LineSpecial2D.h \
                src/2Dplot/Plot2D.h \
                src/2Dplot/StatBox2D.h \
                src/2Dplot/Properties2D.h \
@@ -433,7 +429,7 @@ SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/Layout2D.cpp \
                src/2Dplot/LayoutGrid2D.cpp \
                src/2Dplot/Legend2D.cpp \
-               src/2Dplot/LineScatter2D.cpp \
+               src/2Dplot/LineSpecial2D.cpp \
                src/2Dplot/Plot2D.cpp \
                src/2Dplot/StatBox2D.cpp \
                src/2Dplot/Properties2D.cpp \

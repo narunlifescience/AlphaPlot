@@ -4,6 +4,7 @@
 #include <QDockWidget>
 #include "../Axis2D.h"
 #include "2Dplot/TextItem2D.h"
+#include "ApplicationWindow.h"
 #include "MyTreeWidget.h"
 
 class Ui_PropertyEditor;
@@ -15,7 +16,7 @@ class QtAbstractPropertyBrowser;
 class Layout2D;
 class AxisRect2D;
 class Grid2D;
-class LineScatter2D;
+class LineSpecial2D;
 class Curve2D;
 class Spline2D;
 class Vector2D;
@@ -58,34 +59,29 @@ class PropertyEditor : public QDockWidget {
   void valueChange(QtProperty *prop, const QFont &font);
 
   void selectObjectItem(QTreeWidgetItem *item);
-  void LayoutPropertyBlock(AxisRect2D *axisrect);
-  void AxisPropertyBlock(Axis2D *axis);
-  void GridPropertyBlock(AxisRect2D *axisrect);
-  void LegendPropertyBlock(Legend2D *legend);
-  void TextItemPropertyBlock(TextItem2D *textitem);
-  void LSPropertyBlock(LineScatter2D *lsgraph, AxisRect2D *axisrect);
-  void CurvePropertyBlock(Curve2D *curve, AxisRect2D *axisrect);
-  void SplinePropertyBlock(Spline2D *splinegraph, AxisRect2D *axisrect);
-  void StatBoxPropertyBlock(StatBox2D *statbox, AxisRect2D *axisrect);
-  void VectorPropertyBlock(Vector2D *vectorgraph, AxisRect2D *axisrect);
   void axisRectCreated(AxisRect2D *axisrect, MyWidget *widget);
-  void axisCreated(Axis2D *axis);
-  void axisRemoved(AxisRect2D *axisrect);
-  void textItem2DCreated(TextItem2D *textitem);
-  void textItem2DRemoved(AxisRect2D *axisrect);
-  void lineScatterCreated(LineScatter2D *ls);
-  void lineScatterRemoved(AxisRect2D *axisrect);
-  void curveCreated(Curve2D *curve);
-  void splineCreated(Spline2D *spline);
-  void statBox2DCreated(StatBox2D *statbox);
-  void statBox2DRemoved(AxisRect2D *axisrect);
-  void vectorCreated(Vector2D *vector);
-  void barCreated(Bar2D *bar);
+  void objectschanged();
+
+  // properties block handler
+  void Layout2DPropertyBlock(AxisRect2D *axisrect);
+  void Axis2DPropertyBlock(Axis2D *axis);
+  void Grid2DPropertyBlock(AxisRect2D *axisrect);
+  void Legend2DPropertyBlock(Legend2D *legend);
+  void TextItem2DPropertyBlock(TextItem2D *textitem);
+  void LineItem2DPropertyBlock(LineItem2D *lineitem);
+  void LineScatter2DPropertyBlock(LineSpecial2D *lsgraph, AxisRect2D *axisrect);
+  void Curve2DPropertyBlock(Curve2D *curve, AxisRect2D *axisrect);
+  void Spline2DPropertyBlock(Spline2D *splinegraph, AxisRect2D *axisrect);
+  void Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect);
+  void StatBox2DPropertyBlock(StatBox2D *statbox, AxisRect2D *axisrect);
+  void Vector2DPropertyBlock(Vector2D *vectorgraph, AxisRect2D *axisrect);
+  void Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect);
 
  public slots:
   void populateObjectBrowser(MyWidget *widget);
 
  private:
+  void axisrectConnections(AxisRect2D *axisrect);
   void setObjectPropertyId();
   template <class T>
   T *getgraph2dobject(QTreeWidgetItem *item) {
@@ -93,17 +89,9 @@ class PropertyEditor : public QDockWidget {
     T *object = static_cast<T *>(ptr);
     return object;
   }
-  template <class T>
-  void objectschanged(T *element) {
-    MyWidget *widget =
-        static_cast<MyWidget *>(element->parentPlot()->parentWidget());
-    if (widget) {
-      populateObjectBrowser(widget);
-    }
-  }
 
   typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
-  typedef QVector<LineScatter2D *> LsVec;
+  typedef QVector<LineSpecial2D *> LsVec;
   typedef QVector<Curve2D *> CurveVec;
   typedef QVector<Spline2D *> SplineVec;
   typedef QVector<Vector2D *> VectorVec;
@@ -179,6 +167,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *axispropertyticklabelprecisionitem_;
 
   // Legend Properties
+  QtProperty *itempropertylegendvisibleitem_;
   QtProperty *itempropertylegendfontitem_;
   QtProperty *itempropertylegendtextcoloritem_;
   QtProperty *itempropertylegendiconwidthitem_;
@@ -196,7 +185,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *itempropertytexttextitem_;
   QtProperty *itempropertytextfontitem_;
   QtProperty *itempropertytextcoloritem_;
-  QtProperty *itempropertyantialiaseditem_;
+  QtProperty *itempropertytextantialiaseditem_;
   QtProperty *itempropertytextstrokecoloritem_;
   QtProperty *itempropertytextstrokethicknessitem_;
   QtProperty *itempropertytextstroketypeitem_;
@@ -204,6 +193,12 @@ class PropertyEditor : public QDockWidget {
   QtProperty *itempropertytextrotationitem_;
   QtProperty *itempropertytextpositionalignmentitem_;
   QtProperty *itempropertytexttextalignmentitem_;
+
+  // Line Item Properties
+  QtProperty *itempropertylineantialiaseditem_;
+  QtProperty *itempropertylinestrokecoloritem_;
+  QtProperty *itempropertylinestrokethicknessitem_;
+  QtProperty *itempropertylinestroketypeitem_;
 
   // LineScatter Properties block
   QtProperty *lsplotpropertyxaxisitem_;
@@ -254,6 +249,18 @@ class PropertyEditor : public QDockWidget {
   QtProperty *splinepropertylineantialiaseditem_;
   QtProperty *splinepropertylegendtextitem_;
 
+  // Box Properties block
+  QtProperty *barplotpropertyxaxisitem_;
+  QtProperty *barplotpropertyyaxisitem_;
+  QtProperty *barplotpropertywidthitem_;
+  QtProperty *barplotpropertyfillantialiaseditem_;
+  QtProperty *barplotpropertyfillcoloritem_;
+  QtProperty *barplotpropertyantialiaseditem_;
+  QtProperty *barplotpropertystrokecoloritem_;
+  QtProperty *barplotpropertystrokethicknessitem_;
+  QtProperty *barplotpropertystrokestyleitem_;
+  QtProperty *barplotpropertylegendtextitem_;
+
   // StatBox Properties block
   QtProperty *statboxplotpropertyxaxisitem_;
   QtProperty *statboxplotpropertyyaxisitem_;
@@ -295,6 +302,11 @@ class PropertyEditor : public QDockWidget {
   QtProperty *vectorpropertylineendingwidthitem_;
   QtProperty *vectorpropertylineantialiaseditem_;
   QtProperty *vectorpropertylegendtextitem_;
+
+  // Pie Properties Block
+  QtProperty *pieplotpropertylinestrokecoloritem_;
+  QtProperty *pieplotpropertylinestrokethicknessitem_;
+  QtProperty *pieplotpropertylinestroketypeitem_;
 
   // Horizontal Major Grid Sub Block
   QtProperty *hgridaxispropertycomboitem_;

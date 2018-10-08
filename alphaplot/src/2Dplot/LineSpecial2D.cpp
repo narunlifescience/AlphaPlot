@@ -1,4 +1,4 @@
-#include "LineScatter2D.h"
+#include "LineSpecial2D.h"
 #include <QApplication>
 #include <QCursor>
 #include <QCursorShape>
@@ -9,7 +9,7 @@
 #include "PlotPoint.h"
 #include "core/Utilities.h"
 
-LineScatter2D::LineScatter2D(Table *table, Column *xcol, Column *ycol, int from,
+LineSpecial2D::LineSpecial2D(Table *table, Column *xcol, Column *ycol, int from,
                              int to, Axis2D *xAxis, Axis2D *yAxis)
     : QCPGraph(xAxis, yAxis),
       xAxis_(xAxis),
@@ -20,133 +20,65 @@ LineScatter2D::LineScatter2D(Table *table, Column *xcol, Column *ycol, int from,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
       graphdata_(new DataBlockGraph(table, xcol, ycol, from, to)),
       functionData_(nullptr),
-      type_(LSCommon::PlotType::Associated),
       xerrorbar_(nullptr),
       yerrorbar_(nullptr),
       xerroravailable_(false),
       yerroravailable_(false)
 // mPointUnderCursor(new PlotPoint(parentPlot(), 5))
 {
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setlinestrokecolor_lsplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
   setData(graphdata_->data());
 }
 
-LineScatter2D::LineScatter2D(QVector<double> *xdata, QVector<double> *ydata,
-                             Axis2D *xAxis, Axis2D *yAxis)
-    : QCPGraph(xAxis, yAxis),
-      xAxis_(xAxis),
-      yAxis_(yAxis),
-      scatterstyle_(new QCPScatterStyle(
-          QCPScatterStyle::ssDisc,
-          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
-          Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
-      graphdata_(nullptr),
-      functionData_(new QCPGraphDataContainer),
-      type_(LSCommon::PlotType::Function),
-      xerrorbar_(nullptr),
-      yerrorbar_(nullptr),
-      xerroravailable_(false),
-      yerroravailable_(false) {
-  Q_ASSERT(xdata->size() == ydata->size());
-
-  for (int i = 0; i < xdata->size(); i++) {
-    QCPGraphData fd;
-    fd.key = xdata->at(i);
-    fd.value = ydata->at(i);
-    functionData_->add(fd);
-  }
-  setData(functionData_);
-  // free those containers
-  delete xdata;
-  delete ydata;
-}
-
-LineScatter2D::~LineScatter2D() {
+LineSpecial2D::~LineSpecial2D() {
   delete scatterstyle_;
-  switch (type_) {
-    case LSCommon::PlotType::Associated:
-      delete graphdata_;
-      break;
-    case LSCommon::PlotType::Function:
-      break;
-  }
+  delete graphdata_;
   if (xerroravailable_) delete xerrorbar_;
   if (yerroravailable_) delete yerrorbar_;
 }
 
-void LineScatter2D::setXerrorBar(Table *table, Column *errorcol, int from,
+void LineSpecial2D::setXerrorBar(Table *table, Column *errorcol, int from,
                                  int to) {
-  if (xerroravailable_ || type_ == LSCommon::PlotType::Function) return;
   xerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xAxis_, yAxis_,
                               QCPErrorBars::ErrorType::etKeyError, this);
   xerroravailable_ = true;
 }
 
-void LineScatter2D::setYerrorBar(Table *table, Column *errorcol, int from,
+void LineSpecial2D::setYerrorBar(Table *table, Column *errorcol, int from,
                                  int to) {
-  if (yerroravailable_ || type_ == LSCommon::PlotType::Function) return;
   yerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xAxis_, yAxis_,
                               QCPErrorBars::ErrorType::etValueError, this);
   yerroravailable_ = true;
 }
 
-void LineScatter2D::setGraphData(Table *table, Column *xcol, Column *ycol,
+void LineSpecial2D::setGraphData(Table *table, Column *xcol, Column *ycol,
                                  int from, int to) {
-  if (type_ == LSCommon::PlotType::Function) {
-    qDebug() << "cannot associate table with function plot";
-    return;
-  }
   graphdata_->regenerateDataBlock(table, xcol, ycol, from, to);
   setData(graphdata_->data());
 }
 
-void LineScatter2D::setGraphData(QVector<double> *xdata,
-                                 QVector<double> *ydata) {
-  Q_ASSERT(xdata->size() == ydata->size());
-  if (type_ == LSCommon::PlotType::Associated) {
-    qDebug() << "cannot add function data to association plot";
-    return;
-  }
-  functionData_.data()->clear();
-  for (int i = 0; i < xdata->size(); i++) {
-    QCPGraphData fd;
-    fd.key = xdata->at(i);
-    fd.value = ydata->at(i);
-    functionData_->add(fd);
-  }
-  setData(functionData_);
-  // free those containers
-  delete xdata;
-  delete ydata;
-}
-
-void LineScatter2D::removeXerrorBar() {
-  if (xerroravailable_ || type_ == LSCommon::PlotType::Function) return;
+void LineSpecial2D::removeXerrorBar() {
+  if (xerroravailable_) return;
 
   delete xerrorbar_;
   xerrorbar_ = nullptr;
   xerroravailable_ = false;
 }
 
-void LineScatter2D::removeYerrorBar() {
-  if (yerroravailable_ || type_ == LSCommon::PlotType::Function) return;
+void LineSpecial2D::removeYerrorBar() {
+  if (yerroravailable_) return;
 
   delete yerrorbar_;
   yerrorbar_ = nullptr;
   yerroravailable_ = false;
 }
 
-LSCommon::LineStyleType LineScatter2D::getlinetype_lsplot() const {
+LSCommon::LineStyleType LineSpecial2D::getlinetype_lsplot() const {
   LSCommon::LineStyleType linestyletype;
 
   switch (lineStyle()) {
-    case lsNone:
-      linestyletype = LSCommon::LineStyleType::None;
-      break;
-    case lsLine:
-      linestyletype = LSCommon::LineStyleType::Line;
-      break;
     case lsStepLeft:
       linestyletype = LSCommon::LineStyleType::StepLeft;
       break;
@@ -159,23 +91,26 @@ LSCommon::LineStyleType LineScatter2D::getlinetype_lsplot() const {
     case lsImpulse:
       linestyletype = LSCommon::LineStyleType::Impulse;
       break;
+    case lsNone:
+    case lsLine:
+      linestyletype = LSCommon::LineStyleType::StepLeft;
   }
   return linestyletype;
 }
 
-Qt::PenStyle LineScatter2D::getlinestrokestyle_lsplot() const {
+Qt::PenStyle LineSpecial2D::getlinestrokestyle_lsplot() const {
   return pen().style();
 }
 
-QColor LineScatter2D::getlinestrokecolor_lsplot() const {
+QColor LineSpecial2D::getlinestrokecolor_lsplot() const {
   return pen().color();
 }
 
-double LineScatter2D::getlinestrokethickness_lsplot() const {
+double LineSpecial2D::getlinestrokethickness_lsplot() const {
   return pen().widthF();
 }
 
-bool LineScatter2D::getlinefillstatus_lsplot() const {
+bool LineSpecial2D::getlinefillstatus_lsplot() const {
   if (brush().style() == Qt::NoBrush) {
     return false;
   } else {
@@ -183,13 +118,13 @@ bool LineScatter2D::getlinefillstatus_lsplot() const {
   }
 }
 
-QColor LineScatter2D::getlinefillcolor_lsplot() const {
+QColor LineSpecial2D::getlinefillcolor_lsplot() const {
   return brush().color();
 }
 
-bool LineScatter2D::getlineantialiased_lsplot() const { return antialiased(); }
+bool LineSpecial2D::getlineantialiased_lsplot() const { return antialiased(); }
 
-LSCommon::ScatterStyle LineScatter2D::getscattershape_lsplot() const {
+LSCommon::ScatterStyle LineSpecial2D::getscattershape_lsplot() const {
   LSCommon::ScatterStyle scatterstyle;
   switch (scatterStyle().shape()) {
     case QCPScatterStyle::ssNone:
@@ -250,44 +185,38 @@ LSCommon::ScatterStyle LineScatter2D::getscattershape_lsplot() const {
   return scatterstyle;
 }
 
-QColor LineScatter2D::getscatterfillcolor_lsplot() const {
+QColor LineSpecial2D::getscatterfillcolor_lsplot() const {
   return scatterStyle().brush().color();
 }
 
-double LineScatter2D::getscattersize_lsplot() const {
+double LineSpecial2D::getscattersize_lsplot() const {
   return scatterStyle().size();
 }
 
-Qt::PenStyle LineScatter2D::getscatterstrokestyle_lsplot() const {
+Qt::PenStyle LineSpecial2D::getscatterstrokestyle_lsplot() const {
   return scatterStyle().pen().style();
 }
 
-QColor LineScatter2D::getscatterstrokecolor_lsplot() const {
+QColor LineSpecial2D::getscatterstrokecolor_lsplot() const {
   return scatterStyle().pen().color();
 }
 
-double LineScatter2D::getscatterstrokethickness_lsplot() const {
+double LineSpecial2D::getscatterstrokethickness_lsplot() const {
   return scatterStyle().pen().widthF();
 }
 
-bool LineScatter2D::getscatterantialiased_lsplot() const {
+bool LineSpecial2D::getscatterantialiased_lsplot() const {
   return antialiasedScatters();
 }
 
-QString LineScatter2D::getlegendtext_lsplot() const { return name(); }
+QString LineSpecial2D::getlegendtext_lsplot() const { return name(); }
 
-Axis2D *LineScatter2D::getxaxis_lsplot() const { return xAxis_; }
+Axis2D *LineSpecial2D::getxaxis_lsplot() const { return xAxis_; }
 
-Axis2D *LineScatter2D::getyaxis_lsplot() const { return yAxis_; }
+Axis2D *LineSpecial2D::getyaxis_lsplot() const { return yAxis_; }
 
-void LineScatter2D::setlinetype_lsplot(const LSCommon::LineStyleType &line) {
+void LineSpecial2D::setlinetype_lsplot(const LSCommon::LineStyleType &line) {
   switch (line) {
-    case LSCommon::LineStyleType::Line:
-      setLineStyle(QCPGraph::lsLine);
-      break;
-    case LSCommon::LineStyleType::None:
-      setLineStyle(QCPGraph::lsNone);
-      break;
     case LSCommon::LineStyleType::Impulse:
       setLineStyle(QCPGraph::lsImpulse);
       break;
@@ -303,25 +232,25 @@ void LineScatter2D::setlinetype_lsplot(const LSCommon::LineStyleType &line) {
   }
 }
 
-void LineScatter2D::setlinestrokestyle_lsplot(const Qt::PenStyle &style) {
+void LineSpecial2D::setlinestrokestyle_lsplot(const Qt::PenStyle &style) {
   QPen p = pen();
   p.setStyle(style);
   setPen(p);
 }
 
-void LineScatter2D::setlinestrokecolor_lsplot(const QColor &color) {
+void LineSpecial2D::setlinestrokecolor_lsplot(const QColor &color) {
   QPen p = pen();
   p.setColor(color);
   setPen(p);
 }
 
-void LineScatter2D::setlinestrokethickness_lsplot(const double value) {
+void LineSpecial2D::setlinestrokethickness_lsplot(const double value) {
   QPen p = pen();
   p.setWidthF(value);
   setPen(p);
 }
 
-void LineScatter2D::setlinefillstatus_lsplot(bool status) {
+void LineSpecial2D::setlinefillstatus_lsplot(bool status) {
   if (status) {
     QBrush b = brush();
     b.setStyle(Qt::SolidPattern);
@@ -333,17 +262,17 @@ void LineScatter2D::setlinefillstatus_lsplot(bool status) {
   }
 }
 
-void LineScatter2D::setlinefillcolor_lsplot(const QColor &color) {
+void LineSpecial2D::setlinefillcolor_lsplot(const QColor &color) {
   QBrush b = brush();
   b.setColor(color);
   setBrush(b);
 }
 
-void LineScatter2D::setlineantialiased_lsplot(const bool value) {
+void LineSpecial2D::setlineantialiased_lsplot(const bool value) {
   setAntialiased(value);
 }
 
-void LineScatter2D::setscattershape_lsplot(
+void LineSpecial2D::setscattershape_lsplot(
     const LSCommon::ScatterStyle &shape) {
   switch (shape) {
     case LSCommon::ScatterStyle::None:
@@ -398,48 +327,48 @@ void LineScatter2D::setscattershape_lsplot(
   setScatterStyle(*scatterstyle_);
 }
 
-void LineScatter2D::setscatterfillcolor_lsplot(const QColor &color) {
+void LineSpecial2D::setscatterfillcolor_lsplot(const QColor &color) {
   QBrush b = scatterstyle_->brush();
   b.setColor(color);
   scatterstyle_->setBrush(b);
   setScatterStyle(*scatterstyle_);
 }
 
-void LineScatter2D::setscattersize_lsplot(const double value) {
+void LineSpecial2D::setscattersize_lsplot(const double value) {
   scatterstyle_->setSize(value);
   setScatterStyle(*scatterstyle_);
 }
 
-void LineScatter2D::setscatterstrokestyle_lsplot(const Qt::PenStyle &style) {
+void LineSpecial2D::setscatterstrokestyle_lsplot(const Qt::PenStyle &style) {
   QPen p = scatterstyle_->pen();
   p.setStyle(style);
   scatterstyle_->setPen(p);
   setScatterStyle(*scatterstyle_);
 }
 
-void LineScatter2D::setscatterstrokecolor_lsplot(const QColor &color) {
+void LineSpecial2D::setscatterstrokecolor_lsplot(const QColor &color) {
   QPen p = scatterstyle_->pen();
   p.setColor(color);
   scatterstyle_->setPen(p);
   setScatterStyle(*scatterstyle_);
 }
 
-void LineScatter2D::setscatterstrokethickness_lsplot(const double value) {
+void LineSpecial2D::setscatterstrokethickness_lsplot(const double value) {
   QPen p = scatterstyle_->pen();
   p.setWidthF(value);
   scatterstyle_->setPen(p);
   setScatterStyle(*scatterstyle_);
 }
 
-void LineScatter2D::setscatterantialiased_lsplot(const bool value) {
+void LineSpecial2D::setscatterantialiased_lsplot(const bool value) {
   setAntialiasedScatters(value);
 }
 
-void LineScatter2D::setlegendtext_lsplot(const QString &legendtext) {
+void LineSpecial2D::setlegendtext_lsplot(const QString &legendtext) {
   setName(legendtext);
 }
 
-void LineScatter2D::setxaxis_lsplot(Axis2D *axis) {
+void LineSpecial2D::setxaxis_lsplot(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Bottom ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Top);
   if (axis == getxaxis_lsplot()) return;
@@ -448,7 +377,7 @@ void LineScatter2D::setxaxis_lsplot(Axis2D *axis) {
   setKeyAxis(axis);
 }
 
-void LineScatter2D::setyaxis_lsplot(Axis2D *axis) {
+void LineSpecial2D::setyaxis_lsplot(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Left ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Right);
   if (axis == getyaxis_lsplot()) return;

@@ -3,7 +3,7 @@
 #include "Bar2D.h"
 #include "Curve2D.h"
 #include "DataManager2D.h"
-#include "LineScatter2D.h"
+#include "LineSpecial2D.h"
 #include "Table.h"
 #include "core/Utilities.h"
 #include "core/column/Column.h"
@@ -11,13 +11,14 @@
 ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
                        Axis2D *xAxis, Axis2D *yAxis,
                        QCPErrorBars::ErrorType errortype,
-                       LineScatter2D *linescatter)
+                       LineSpecial2D *linescatter)
     : QCPErrorBars(xAxis, yAxis),
       xAxis_(xAxis),
       yAxis_(yAxis),
       errortype_(errortype),
       linescatter_(linescatter),
       errordata_(new DataBlockError(table, errorcol, from, to)) {
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setErrorType(errortype_);
   setData(errordata_->data());
   setDataPlottable(linescatter_);

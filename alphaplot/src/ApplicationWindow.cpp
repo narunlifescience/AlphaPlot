@@ -23,7 +23,6 @@
 #include "3Dplot/Plot3DDialog.h"
 #include "3Dplot/SurfaceDialog.h"
 #include "About.h"
-#include "ArrowMarker.h"
 #include "AssociationsDialog.h"
 #include "ColorBox.h"
 #include "ConfigDialog.h"
@@ -50,7 +49,6 @@
 #include "InterpolationDialog.h"
 #include "LayerDialog.h"
 #include "Legend.h"
-#include "LineDialog.h"
 #include "MultiLayer.h"
 #include "MultiPeakFit.h"
 #include "Note.h"
@@ -771,7 +769,8 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->actionAddText, SIGNAL(activated()), this, SLOT(addText()));
   graphToolsGroup->setExclusive(true);
   ui_->actionDrawArrow->setActionGroup(graphToolsGroup);
-  ui_->actionDrawLine->setActionGroup(graphToolsGroup);
+  // ui_->actionDrawLine->setActionGroup(graphToolsGroup);
+  connect(ui_->actionDrawLine, SIGNAL(activated()), this, SLOT(drawLine()));
   connect(ui_->actionAddTimeStamp, SIGNAL(activated()), this,
           SLOT(addTimeStamp()));
   connect(ui_->actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
@@ -937,8 +936,6 @@ ApplicationWindow::ApplicationWindow()
   connect(actionIntensityTable, SIGNAL(activated()), this,
           SLOT(intensityTable()));
   actionShowLineDialog = new QAction(tr("&Properties"), this);
-  connect(actionShowLineDialog, SIGNAL(activated()), this,
-          SLOT(showLineDialog()));
   actionShowImageDialog = new QAction(tr("&Properties"), this);
   connect(actionShowImageDialog, SIGNAL(activated()), this,
           SLOT(showImageDialog()));
@@ -962,8 +959,6 @@ ApplicationWindow::ApplicationWindow()
   actionShowPlotGeometryDialog = new QAction(
       IconLoader::load("edit-table-dimension", IconLoader::LightDark),
       tr("&Layer Geometry"), this);
-  connect(actionShowPlotGeometryDialog, SIGNAL(activated()), this,
-          SLOT(showPlotGeometryDialog()));
   actionEditSurfacePlot = new QAction(tr("&Surface..."), this);
   connect(actionEditSurfacePlot, SIGNAL(activated()), this,
           SLOT(editSurfacePlot()));
@@ -1051,6 +1046,12 @@ ApplicationWindow::~ApplicationWindow() {
   delete outWindows;
   delete d_project;
   QApplication::clipboard()->clear(QClipboard::Clipboard);
+}
+
+MyWidget *ApplicationWindow::getactiveMyWidget() {
+  if (!d_workspace->activeSubWindow()) return nullptr;
+
+  return qobject_cast<MyWidget *>(d_workspace->activeSubWindow());
 }
 
 // Apply user settings
@@ -2469,10 +2470,10 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
       IconLoader::load("edit-graph", IconLoader::LightDark));
   addListViewItem(layout2d);
 
-  layout2d->show();  // FIXME: bad idea do it here
+  layout2d->show();
   layout2d->setFocus();
 
-  // basic window connections
+  // window connections
   connect(layout2d, SIGNAL(closedWindow(MyWidget *)), this,
           SLOT(closeWindow(MyWidget *)));
   connect(layout2d, SIGNAL(hiddenWindow(MyWidget *)), this,
@@ -2481,6 +2482,8 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
           SLOT(updateWindowStatus(MyWidget *)));
   connect(layout2d, SIGNAL(showTitleBarMenu()), this,
           SLOT(showWindowTitleBarMenu()));
+  connect(layout2d, SIGNAL(AxisRectRemoved(MyWidget *)), propertyeditor,
+          SLOT(populateObjectBrowser(MyWidget *)));
 
   return layout2d;
 }
@@ -4198,7 +4201,8 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force) {
 
 void ApplicationWindow::newCurve2D(Table *table, Column *xcol, Column *ycol) {
   Layout2D *layout = newGraph2D();
-  layout->generateCurve2DPlot(table, xcol, ycol, 0, xcol->rowCount() - 1);
+  layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Line2D, table, xcol,
+                              ycol, 0, xcol->rowCount() - 1);
 }
 
 void ApplicationWindow::showScriptingLangDialog() {
@@ -6063,21 +6067,21 @@ void ApplicationWindow::zoomOut() {
 }
 
 void ApplicationWindow::setAutoScale() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"));
+        tr("<h4>There are no plot layout elements "
+           "selected/available in this window.</h4>"
+           "<p><h4>Please add/select a layout element and try again!</h4>"));
     return;
   }
 
-  Graph *g = qobject_cast<Graph *>(plot->activeGraph());
-  if (g) {
-    g->setAutoScale();
-    emit modified();
-  }
+  QList<Axis2D *> axes = axisrect->getAxes2D();
+  foreach (Axis2D *axis, axes) { axis->rescale(); }
+  axisrect->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
 void ApplicationWindow::removePoints() {
@@ -6212,11 +6216,11 @@ void ApplicationWindow::exportPDF() {
 }
 
 void ApplicationWindow::print(QMdiSubWindow *subwindow) {
-  if (isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow) &&
-      qobject_cast<MultiLayer *>(subwindow)->isEmpty()) {
+  if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow) &&
+      qobject_cast<Layout2D *>(subwindow)->getCurrentAxisRect() == nullptr) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"));
+        tr("<h4>There are no plot layouts available in this window.</h4>"));
     return;
   }
 
@@ -6571,6 +6575,7 @@ void ApplicationWindow::addTimeStamp() {
 
   QString date = QDateTime::currentDateTime().toString(Qt::LocalDate);
   axisrect->addTextItem2D(date);
+  axisrect->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
 void ApplicationWindow::disableAddText() {
@@ -6591,85 +6596,56 @@ void ApplicationWindow::addText() {
   }
   QString text = QString("Text");
   axisrect->addTextItem2D(text);
+  axisrect->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   disableAddText();
 }
 
 void ApplicationWindow::addImage() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  if (!layout->getCurrentAxisRect()) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"
-           "<p><h4>Please add a layer and try again!</h4>"));
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
     return;
   }
 
-  Graph *graph = qobject_cast<Graph *>(plot->activeGraph());
-  if (!graph) return;
-
-  QList<QByteArray> list = QImageReader::supportedImageFormats();
-  QString filter = tr("Images") + " (", aux1, aux2;
-  for (int i = 0; i < static_cast<int>(list.count()); i++) {
-    aux1 = " *." + list[i] + " ";
-    aux2 += " *." + list[i] + ";;";
-    filter += aux1;
-  }
-  filter += ");;" + aux2;
-
-  QString fn = QFileDialog::getOpenFileName(this, tr("Insert image from file"),
-                                            imagesDirPath, filter);
-  if (!fn.isEmpty()) {
-    QFileInfo fi(fn);
-    imagesDirPath = fi.absolutePath();
-
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    graph->addImage(fn);
-    QApplication::restoreOverrideCursor();
-  }
+  QMessageBox::warning(this, tr("Warning"),
+                       tr("<h4>This feature is not available.</h4>"));
 }
 
 void ApplicationWindow::drawLine() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"
-           "<p><h4>Please add a layer and try again!</h4>"));
-
-    ui_->actionDisableGraphTools->setChecked(true);
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
     return;
   }
-
-  Graph *graph = qobject_cast<Graph *>(plot->activeGraph());
-  if (graph) {
-    graph->drawLine(true);
-    emit modified();
-  }
+  axisrect->addLineItem2D();
+  axisrect->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
 void ApplicationWindow::drawArrow() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"
-           "<p><h4>Please add a layer and try again!</h4>"));
-
-    ui_->actionDisableGraphTools->setChecked(true);
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
     return;
   }
-
-  Graph *graph = qobject_cast<Graph *>(plot->activeGraph());
-  if (graph) {
-    graph->drawLine(true, 1);
-    emit modified();
-  }
+  axisrect->addLineItem2D();
+  axisrect->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
 void ApplicationWindow::showImageDialog() {
@@ -6709,39 +6685,6 @@ void ApplicationWindow::showLayerDialog() {
   id->exec();
 }
 
-void ApplicationWindow::showPlotGeometryDialog() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  Graph *graph = plot->activeGraph();
-  if (graph) {
-    ImageDialog *id = new ImageDialog(this);
-    id->setAttribute(Qt::WA_DeleteOnClose);
-    connect(id, SIGNAL(setGeometry(int, int, int, int)), plot,
-            SLOT(setGraphGeometry(int, int, int, int)));
-    id->setWindowIcon(IconLoader::load("alpha-logo", IconLoader::General));
-    id->setWindowTitle(tr("Layer Geometry"));
-    id->setOrigin(graph->pos());
-    id->setSize(graph->plotWidget()->size());
-    id->exec();
-  }
-}
-
-void ApplicationWindow::showLineDialog() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  Graph *graph =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (graph) {
-    ArrowMarker *lm = dynamic_cast<ArrowMarker *>(graph->selectedMarkerPtr());
-    if (!lm) return;
-
-    LineDialog *ld = new LineDialog(lm, this);
-    ld->setAttribute(Qt::WA_DeleteOnClose);
-    ld->exec();
-  }
-}
-
 void ApplicationWindow::addColToTable() {
   if (!isActiveSubwindow(SubWindowType::TableSubWindow)) return;
   Table *table = qobject_cast<Table *>(d_workspace->activeSubWindow());
@@ -6761,14 +6704,9 @@ void ApplicationWindow::clearSelection() {
     qobject_cast<Table *>(subwindow)->clearSelection();
   else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
     qobject_cast<Matrix *>(subwindow)->clearSelection();
-  else if (isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow)) {
-    Graph *g = qobject_cast<MultiLayer *>(subwindow)->activeGraph();
-    if (!g) return;
-
-    if (g->titleSelected())
-      g->removeTitle();
-    else if (g->markerSelected())
-      g->removeMarker();
+  else if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
+    QMessageBox::warning(this, tr("Error"), tr("Cannot use this on Graph2D!"));
+    return;
   } else if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow))
     qobject_cast<Note *>(subwindow)->textWidget()->clear();
   emit modified();
@@ -6787,16 +6725,9 @@ void ApplicationWindow::copySelection() {
     qobject_cast<Table *>(subwindow)->copySelection();
   else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
     qobject_cast<Matrix *>(subwindow)->copySelection();
-  else if (isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow)) {
-    MultiLayer *plot = qobject_cast<MultiLayer *>(subwindow);
-    if (plot->layers() == 0) return;
-
-    Graph *g = qobject_cast<Graph *>(plot->activeGraph());
-    if (!g) return;
-    if (g->markerSelected())
-      copyMarker();
-    else
-      copyActiveLayer();
+  else if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
+    QMessageBox::warning(this, tr("Error"), tr("Cannot use this on Graph2D!"));
+    return;
   } else if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow))
     qobject_cast<Note *>(subwindow)->textWidget()->copy();
 }
@@ -6809,59 +6740,13 @@ void ApplicationWindow::cutSelection() {
     qobject_cast<Table *>(subwindow)->cutSelection();
   else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
     qobject_cast<Matrix *>(subwindow)->cutSelection();
-  else if (isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow)) {
-    MultiLayer *plot = qobject_cast<MultiLayer *>(subwindow);
-    if (plot->layers() == 0) return;
-
-    Graph *g = qobject_cast<Graph *>(plot->activeGraph());
-    if (!g) return;
-    if (g->markerSelected()) {
-      copyMarker();
-      g->removeMarker();
-    } else {
-      copyActiveLayer();
-      plot->removeLayer();
-    }
+  else if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
+    QMessageBox::warning(this, tr("Error"), tr("Cannot use this on Graph2D!"));
+    return;
   } else if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow))
     qobject_cast<Note *>(subwindow)->textWidget()->cut();
 
   emit modified();
-}
-
-void ApplicationWindow::copyMarker() {
-  QMdiSubWindow *m = d_workspace->activeSubWindow();
-  MultiLayer *plot = qobject_cast<MultiLayer *>(m);
-  Graph *g = qobject_cast<Graph *>(plot->activeGraph());
-  if (g && g->markerSelected()) {
-    g->copyMarker();
-    copiedMarkerType = g->copiedMarkerType();
-    QRect rect = g->copiedMarkerRect();
-    auxMrkStart = rect.topLeft();
-    auxMrkEnd = rect.bottomRight();
-
-    if (copiedMarkerType == Graph::Text) {
-      Legend *m = dynamic_cast<Legend *>(g->selectedMarkerPtr());
-      auxMrkText = m->text();
-      auxMrkColor = m->textColor();
-      auxMrkFont = m->font();
-      auxMrkBkg = m->frameStyle();
-      auxMrkBkgColor = m->backgroundColor();
-    } else if (copiedMarkerType == Graph::Arrow) {
-      ArrowMarker *m = dynamic_cast<ArrowMarker *>(g->selectedMarkerPtr());
-      auxMrkWidth = m->width();
-      auxMrkColor = m->color();
-      auxMrkStyle = m->style();
-      startArrowOn = m->hasStartArrow();
-      endArrowOn = m->hasEndArrow();
-      arrowHeadLength = m->headLength();
-      arrowHeadAngle = m->headAngle();
-      fillArrowHead = m->filledArrowHead();
-    } else if (copiedMarkerType == Graph::Image) {
-      ImageMarker *im = dynamic_cast<ImageMarker *>(g->selectedMarkerPtr());
-      if (im) auxMrkFileName = im->fileName();
-    }
-  }
-  copiedLayer = false;
 }
 
 void ApplicationWindow::pasteSelection() {
@@ -6875,41 +6760,11 @@ void ApplicationWindow::pasteSelection() {
     qobject_cast<Matrix *>(m)->pasteSelection();
   else if (isActiveSubWindow(m, SubWindowType::NoteSubWindow))
     qobject_cast<Note *>(m)->textWidget()->paste();
-  else if (isActiveSubWindow(m, SubWindowType::MultiLayerSubWindow)) {
-    MultiLayer *plot = qobject_cast<MultiLayer *>(m);
-    if (!plot) return;
-    if (copiedLayer) {
-      QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-      Graph *g = plot->addLayer();
-      setPreferences(g);
-      g->copy(this, lastCopiedLayer);
-      QPoint pos = plot->mapFromGlobal(QCursor::pos());
-      plot->setGraphGeometry(pos.x(), pos.y() - 20, lastCopiedLayer->width(),
-                             lastCopiedLayer->height());
-
-      QApplication::restoreOverrideCursor();
-    } else {
-      if (plot->layers() == 0) return;
-
-      Graph *g = qobject_cast<Graph *>(plot->activeGraph());
-      if (!g) return;
-
-      g->setCopiedMarkerType(copiedMarkerType);
-      g->setCopiedMarkerEnds(auxMrkStart, auxMrkEnd);
-
-      if (copiedMarkerType == Graph::Text)
-        g->setCopiedTextOptions(auxMrkBkg, auxMrkText, auxMrkFont, auxMrkColor,
-                                auxMrkBkgColor);
-      if (copiedMarkerType == Graph::Arrow)
-        g->setCopiedArrowOptions(auxMrkWidth, auxMrkStyle, auxMrkColor,
-                                 startArrowOn, endArrowOn, arrowHeadLength,
-                                 arrowHeadAngle, fillArrowHead);
-      if (copiedMarkerType == Graph::Image)
-        g->setCopiedImageName(auxMrkFileName);
-      g->pasteMarker();
-    }
+  else if (isActiveSubWindow(m, SubWindowType::Plot2DSubWindow)) {
+    QMessageBox::warning(this, tr("Error"), tr("Cannot use this on Graph2D!"));
+    return;
   }
+
   emit modified();
 }
 
@@ -8064,23 +7919,23 @@ bool ApplicationWindow::newFunctionPlot(const int type,
                                         const int points) {
   Q_ASSERT(ranges.size() == 2);
   switch (type) {
-    case 0: {
-      QPair<QVector<double> *, QVector<double> *> datapair;
-      datapair = generateFunctiondata(type, formulas, var, ranges, points);
-      if (!datapair.first && !datapair.second) return false;
-      Layout2D *layout = newGraph2D();
-      layout->generateFunction2DPlot(datapair.first, datapair.second, "x",
-                                     formulas[0]);
-      return true;
-    }
+    case 0:
     case 1:
     case 2: {
       QPair<QVector<double> *, QVector<double> *> datapair;
       datapair = generateFunctiondata(type, formulas, var, ranges, points);
       if (!datapair.first && !datapair.second) return false;
       Layout2D *layout = newGraph2D();
-      layout->generateParametric2DPlot(datapair.first, datapair.second,
-                                       formulas.at(0), formulas.at(1));
+      QString xlabel, ylabel;
+      if (formulas.size() == 2) {
+        xlabel = formulas.at(0);
+        ylabel = formulas.at(1);
+      } else if (formulas.size() == 1) {
+        xlabel = "x";
+        ylabel = formulas.at(0);
+      }
+      layout->generateFunction2DPlot(datapair.first, datapair.second, xlabel,
+                                     ylabel);
       return true;
     }
     default:
@@ -8094,25 +7949,26 @@ bool ApplicationWindow::addFunctionPlot(
     const QList<double> &ranges, const int points, AxisRect2D *axisrect) {
   Q_ASSERT(ranges.size() == 2);
   switch (type) {
-    case 0: {
-      QPair<QVector<double> *, QVector<double> *> datapair;
-      datapair = generateFunctiondata(type, formulas, var, ranges, points);
-      if (!datapair.first || !datapair.second) return false;
-
-      axisrect->addLineFunction2DPlot(datapair.first, datapair.second,
-                                      axisrect->getXAxis(0),
-                                      axisrect->getYAxis(0), formulas.at(0));
-      return true;
-    }
+    case 0:
     case 1:
     case 2: {
       QPair<QVector<double> *, QVector<double> *> datapair;
       datapair = generateFunctiondata(type, formulas, var, ranges, points);
       if (!datapair.first || !datapair.second) return false;
 
-      axisrect->addCurveFunction2DPlot(datapair.first, datapair.second,
-                                       axisrect->getXAxis(0),
-                                       axisrect->getYAxis(0), formulas.at(0));
+      QString label;
+      QString xlabel, ylabel;
+      if (formulas.size() == 2) {
+        xlabel = formulas.at(0);
+        ylabel = formulas.at(1);
+      } else if (formulas.size() == 1) {
+        xlabel = "x";
+        ylabel = formulas.at(0);
+      }
+      label = "f(" + xlabel + ") = " + ylabel;
+      axisrect->addFunction2DPlot(datapair.first, datapair.second,
+                                  axisrect->getXAxis(0), axisrect->getYAxis(0),
+                                  label);
       return true;
     }
     default:
@@ -9499,9 +9355,6 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g) {
   connect(g, SIGNAL(modifiedWindow(MyWidget *)), this,
           SLOT(modifiedProject(MyWidget *)));
   connect(g, SIGNAL(modifiedPlot()), this, SLOT(modifiedProject()));
-  connect(g, SIGNAL(showLineDialog()), this, SLOT(showLineDialog()));
-  connect(g, SIGNAL(showGeometryDialog()), this,
-          SLOT(showPlotGeometryDialog()));
   connect(g, SIGNAL(pasteMarker()), this, SLOT(pasteSelection()));
   connect(g, SIGNAL(showGraphContextMenu()), this,
           SLOT(showGraphContextMenu()));
@@ -11662,49 +11515,54 @@ void ApplicationWindow::selectPlotType(int type) {
   }
 
   Layout2D *layout = newGraph2D();
-  Layout2D::LineScatterType plotType;
   switch (type) {
     case Graph::Scatter:
-      plotType = Layout2D::Scatter2D;
-      break;
+      layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Scatter2D, table,
+                                  xcol, ycol, 0, table->rowCnt() - 1);
+      return;
     case Graph::Line:
-      plotType = Layout2D::Line2D;
-      break;
+      layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Line2D, table,
+                                  xcol, ycol, 0, table->rowCnt() - 1);
+      return;
     case Graph::LineSymbols:
-      plotType = Layout2D::LineAndScatter2D;
-      break;
+      layout->generateCurve2DPlot(AxisRect2D::LineScatterType::LineAndScatter2D,
+                                  table, xcol, ycol, 0, table->rowCnt() - 1);
+      return;
     case Graph::VerticalDropLines:
-      plotType = Layout2D::VerticalDropLine2D;
-      break;
+      layout->generateLineScatter2DPlot(
+          AxisRect2D::LineScatterSpecialType::VerticalDropLine2D, table, xcol,
+          ycol, 0, table->rowCnt() - 1);
+      return;
     case Graph::Spline:
       layout->generateSpline2DPlot(table, xcol, ycol, 0, table->rowCnt() - 1);
       return;
     case Graph::VerticalSteps:
-      plotType = Layout2D::VerticalStep2D;
-      break;
+      layout->generateLineScatter2DPlot(
+          AxisRect2D::LineScatterSpecialType::VerticalStep2D, table, xcol, ycol,
+          0, table->rowCnt() - 1);
+      return;
     case Graph::HorizontalSteps:
-      plotType = Layout2D::HorizontalStep2D;
-      break;
+      layout->generateLineScatter2DPlot(
+          AxisRect2D::LineScatterSpecialType::HorizontalStep2D, table, xcol,
+          ycol, 0, table->rowCnt() - 1);
+      return;
     case Graph::Area:
-      plotType = Layout2D::Area2D;
-      break;
+      layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Area2D, table,
+                                  xcol, ycol, 0, table->rowCnt() - 1);
+      return;
     case Graph::HorizontalBars:
-      layout->generateBar2DPlot(Layout2D::HorizontalBars, table, xcol, ycol, 0,
-                                table->rowCnt() - 1);
+      layout->generateBar2DPlot(AxisRect2D::BarType::HorizontalBars, table,
+                                xcol, ycol, 0, table->rowCnt() - 1);
       return;
     case Graph::VerticalBars:
-      layout->generateBar2DPlot(Layout2D::VerticalBars, table, xcol, ycol, 0,
-                                table->rowCnt() - 1);
+      layout->generateBar2DPlot(AxisRect2D::BarType::VerticalBars, table, xcol,
+                                ycol, 0, table->rowCnt() - 1);
       return;
     default: {
       qDebug() << "not implimented";
       return;
     }
   }
-  layout->generateLineScatter2DPlot(plotType, table, xcol, ycol, 0,
-                                    table->rowCnt() - 1);
-
-  return;
 }
 
 void ApplicationWindow::handleAspectAdded(const AbstractAspect *parent,

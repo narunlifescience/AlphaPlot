@@ -28,6 +28,10 @@
 
 #include <typeinfo>
 
+#ifdef Q_OS_WIN
+#include <Windows.h>
+#endif  // Q_OS_WIN
+
 /*page style Coding Style
   The following rules are not used everywhere (yet), but are
   intended as guidelines for new code and eventually old code
@@ -78,19 +82,29 @@ struct Application : public QApplication {
 };
 
 int main(int argc, char** argv) {
-  Application app(argc, argv);
+#ifdef Q_OS_WIN
+  // solves high density dpi scaling in windows
+  // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
+  SetProcessDPIAware();  // call before the main event loop
+#endif                   // Q_OS_WIN
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+  // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
+  QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
+#endif
+  Application* app = new Application(argc, argv);
 
   // icon initiation (mandatory)
   IconLoader::init();
   IconLoader::lumen_ =
-      IconLoader::isLight(app.palette().color(QPalette::Window));
+      IconLoader::isLight(app->palette().color(QPalette::Window));
 
-  app.setApplicationName("AlphaPlot");
-  app.setApplicationVersion(AlphaPlot::versionString());
-  app.setOrganizationName("AlphaPlot");
-  app.setOrganizationDomain("alphaplot.sourceforge.net");
+  app->setApplicationName("AlphaPlot");
+  app->setApplicationVersion(AlphaPlot::versionString());
+  app->setOrganizationName("AlphaPlot");
+  app->setOrganizationDomain("alphaplot.sourceforge.net");
 
-  QStringList args = app.arguments();
+  QStringList args = app->arguments();
   args.removeFirst();  // remove application name
 
   ApplicationWindow* mw = new ApplicationWindow();
@@ -117,6 +131,6 @@ int main(int argc, char** argv) {
   QTimer::singleShot(3000, splash, SLOT(close()));
   QTimer::singleShot(3000, mw, SLOT(activateWindow()));
 
-  app.connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
-  return app.exec();
+  app->connect(app, SIGNAL(lastWindowClosed()), app, SLOT(quit()));
+  return app->exec();
 }

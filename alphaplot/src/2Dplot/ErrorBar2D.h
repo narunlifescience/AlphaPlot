@@ -7,7 +7,7 @@
 class Table;
 class Column;
 class Curve2D;
-class LineScatter2D;
+class LineSpecial2D;
 class Bar2D;
 class DataBlockError;
 
@@ -15,7 +15,7 @@ class ErrorBar2D : QCPErrorBars {
  public:
   ErrorBar2D(Table *table, Column *errorcol, int from, int to, Axis2D *xAxis,
              Axis2D *yAxis, QCPErrorBars::ErrorType errortype,
-             LineScatter2D *linescatter);
+             LineSpecial2D *linescatter);
   ErrorBar2D(Table *table, Column *errorcol, int from, int to, Axis2D *xAxis,
              Axis2D *yAxis, QCPErrorBars::ErrorType errortype, Curve2D *curve);
   ErrorBar2D(Table *table, Column *errorcol, int from, int to, Axis2D *xAxis,
@@ -26,7 +26,7 @@ class ErrorBar2D : QCPErrorBars {
   Axis2D *xAxis_;
   Axis2D *yAxis_;
   QCPErrorBars::ErrorType errortype_;
-  LineScatter2D *linescatter_;
+  LineSpecial2D *linescatter_;
   Curve2D *curve_;
   Bar2D *bar_;
   DataBlockError *errordata_;

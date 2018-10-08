@@ -65,7 +65,7 @@ class Fit : public Filter, public scripted {
     CustomErrors
   };
 
-  Fit(ApplicationWindow *parent, Graph *g = 0, QString name = QString());
+  Fit(ApplicationWindow *parent, Graph *g = nullptr, QString name = QString());
   ~Fit();
 
   //! Actually does the fit. Should be reimplemented in derived classes.
@@ -81,7 +81,7 @@ class Fit : public Filter, public scripted {
   int numParameters() { return d_p; }
 
   void setInitialGuess(int parIndex, double val) {
-    gsl_vector_set(d_param_init, parIndex, val);
+    gsl_vector_set(d_param_init, static_cast<size_t>(parIndex), val);
   }
   void setInitialGuesses(double *x_init);
 

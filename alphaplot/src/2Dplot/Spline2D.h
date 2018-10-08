@@ -14,7 +14,7 @@ class Spline2D : public QCPCurve {
   ~Spline2D();
 
    void setGraphData(Column *xData, Column *yData, int from, int to);
-
+   void setSplineData(Column *xData, Column *yData, int from, int to);
   // Getters
   Qt::PenStyle getlinestrokestyle_splot() const;
   QColor getlinestrokecolor_splot() const;

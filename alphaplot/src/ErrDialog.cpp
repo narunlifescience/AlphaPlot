@@ -32,7 +32,7 @@
 #include "2Dplot/Curve2D.h"
 #include "2Dplot/DataManager2D.h"
 #include "2Dplot/ErrorBar2D.h"
-#include "2Dplot/LineScatter2D.h"
+#include "2Dplot/LineSpecial2D.h"
 #include "ApplicationWindow.h"
 #include "Table.h"
 #include "core/column/Column.h"
@@ -162,21 +162,19 @@ ErrDialog::ErrDialog(QWidget *parent, AxisRect2D *axisrect, Qt::WFlags fl)
 void ErrDialog::plotNames() {
   nameLabel->clear();
   plotted_columns_.clear();
-  QVector<LineScatter2D *> lslist = axisrect_->getLsVec();
+  QVector<LineSpecial2D *> lslist = axisrect_->getLsVec();
   QVector<Curve2D *> curvelist = axisrect_->getCurveVec();
   QVector<Bar2D *> barlist = axisrect_->getBarVec();
-  foreach (LineScatter2D *ls, lslist) {
-    if (ls->getplottype_lsplot() == LSCommon::PlotType::Associated) {
-      DataBlockGraph *graphdata = ls->getdatablock_lsplot();
-      PlotData::AssociatedData plotdata;
-      plotdata.table = graphdata->gettable();
-      plotdata.xcol = graphdata->getxcolumn();
-      plotdata.ycol = graphdata->getycolumn();
-      plotted_columns_ << plotdata;
-      nameLabel->addItem(plotdata.table->name() + "_" + plotdata.ycol->name() +
-                         "[" + QString::number(graphdata->getfrom() + 1) + ":" +
-                         QString::number(graphdata->getto() + 1) + "]");
-    }
+  foreach (LineSpecial2D *ls, lslist) {
+    DataBlockGraph *graphdata = ls->getdatablock_lsplot();
+    PlotData::AssociatedData plotdata;
+    plotdata.table = graphdata->gettable();
+    plotdata.xcol = graphdata->getxcolumn();
+    plotdata.ycol = graphdata->getycolumn();
+    plotted_columns_ << plotdata;
+    nameLabel->addItem(plotdata.table->name() + "_" + plotdata.ycol->name() +
+                       "[" + QString::number(graphdata->getfrom() + 1) + ":" +
+                       QString::number(graphdata->getto() + 1) + "]");
   }
   foreach (Curve2D *curve, curvelist) {
     if (curve->getplottype_curveplot() == LSCommon::PlotType::Associated) {
@@ -225,10 +223,10 @@ void ErrDialog::add() {
   } else if (percentBox->isChecked()) {
     PlotData::AssociatedData selectplotdata =
         plotted_columns_.at(nameLabel->currentIndex());
-    QVector<LineScatter2D *> lslist = axisrect_->getLsVec();
+    QVector<LineSpecial2D *> lslist = axisrect_->getLsVec();
     QVector<Curve2D *> curvelist = axisrect_->getCurveVec();
     QVector<Bar2D *> barlist = axisrect_->getBarVec();
-    foreach (LineScatter2D *ls, lslist) {
+    foreach (LineSpecial2D *ls, lslist) {
       DataBlockGraph *graphdata = ls->getdatablock_lsplot();
 
       if (selectplotdata.table == graphdata->gettable() &&

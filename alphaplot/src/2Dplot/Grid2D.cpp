@@ -19,7 +19,7 @@
 
 Grid2D::Grid2D(Axis2D *parent) : QCPGrid(parent) {
   // Set Default grid values
-
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   majorgridcolor_ = pen().color();
   zerolinecolor_ = zeroLinePen().color();
   majorgridstyle_ = pen().style();

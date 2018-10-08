@@ -7,8 +7,14 @@
 #include <gsl/gsl_spline.h>
 #include <QMessageBox>
 
+#include <gsl/gsl_bspline.h>
+#include <gsl/gsl_multifit.h>
+#include <gsl/gsl_randist.h>
+#include <gsl/gsl_statistics.h>
+
 Spline2D::Spline2D(Axis2D *xAxis, Axis2D *yAxis)
     : QCPCurve(xAxis, yAxis), xAxis_(xAxis), yAxis_(yAxis) {
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setlinestrokecolor_splot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
 }
@@ -85,6 +91,122 @@ void Spline2D::setGraphData(Column *xData, Column *yData, int from, int to) {
   // free those containers
   delete xdata;
   delete ydata;
+}
+
+void Spline2D::setSplineData(Column *xData, Column *yData, int from, int to) {
+  int start_row = from;
+  int end_row = to;
+  if (end_row >= xData->rowCount()) end_row = xData->rowCount() - 1;
+  if (end_row >= yData->rowCount()) end_row = yData->rowCount() - 1;
+  QVector<QPair<double, double>> *points = new QVector<QPair<double, double>>();
+  for (int row = start_row; row <= end_row; row++) {
+    if (!xData->isInvalid(row) && !yData->isInvalid(row)) {
+      QPair<double, double> point;
+      point.first = xData->valueAt(row);
+      point.second = yData->valueAt(row);
+      points->append(point);
+    }
+  }
+
+  QVector<double> *xdat = new QVector<double>();
+  QVector<double> *ydat = new QVector<double>();
+
+  const size_t n = points->size();
+  const size_t ncoeffs = 12;
+  const size_t nbreak = 10;
+  size_t i, j;
+  gsl_bspline_workspace *bw;
+  gsl_vector *B;
+  double dy;
+  gsl_vector *c, *w;
+  gsl_vector *x, *y;
+  gsl_matrix *X, *cov;
+  gsl_multifit_linear_workspace *mw;
+  double chisq, Rsq, dof, tss;
+
+  gsl_rng_env_setup();
+
+  /* allocate a cubic bspline workspace (k = 4) */
+  bw = gsl_bspline_alloc(4, nbreak);
+  B = gsl_vector_alloc(ncoeffs);
+
+  x = gsl_vector_alloc(n);
+  y = gsl_vector_alloc(n);
+  X = gsl_matrix_alloc(n, ncoeffs);
+  c = gsl_vector_alloc(ncoeffs);
+  w = gsl_vector_alloc(n);
+  cov = gsl_matrix_alloc(ncoeffs, ncoeffs);
+  mw = gsl_multifit_linear_alloc(n, ncoeffs);
+
+  /* this is the data to be fitted */
+  for (i = 0; i < n; ++i) {
+    double sigma;
+    double xi = points->at(i).first;
+    double yi = points->at(i).second;
+
+    sigma = 0.1 * yi;
+
+    gsl_vector_set(x, i, xi);
+    gsl_vector_set(y, i, yi);
+    gsl_vector_set(w, i, 1.0 / (sigma * sigma));
+  }
+
+  /* use uniform breakpoints on [0, 15] */
+  gsl_bspline_knots_uniform(0.0, 15.0, bw);
+
+  /* construct the fit matrix X */
+  for (i = 0; i < n; ++i) {
+    double xi = gsl_vector_get(x, i);
+
+    /* compute B_j(xi) for all j */
+    gsl_bspline_eval(xi, B, bw);
+
+    /* fill in row i of X */
+    for (j = 0; j < ncoeffs; ++j) {
+      double Bj = gsl_vector_get(B, j);
+      gsl_matrix_set(X, i, j, Bj);
+    }
+  }
+
+  /* do the fit */
+  gsl_multifit_wlinear(X, w, y, c, cov, &chisq, mw);
+
+  dof = n - ncoeffs;
+  tss = gsl_stats_wtss(w->data, 1, y->data, 1, y->size);
+  Rsq = 1.0 - chisq / tss;
+
+  /* output the smoothed curve */
+  {
+    double xi, yi, yerr;
+
+    for (xi = 0.0; xi < 1; xi += 0.1) {
+      gsl_bspline_eval(xi, B, bw);
+      gsl_multifit_linear_est(B, c, cov, &yi, &yerr);
+      xdat->append(xi);
+      ydat->append(yi);
+    }
+  }
+
+  QSharedPointer<QCPCurveDataContainer> functionData(new QCPCurveDataContainer);
+  for (int i = 0; i < xdat->size(); i++) {
+    QCPCurveData fd;
+    fd.key = xdat->at(i);
+    fd.value = ydat->at(i);
+    functionData.data()->add(fd);
+  }
+
+  setData(functionData);
+
+  // free those containers
+  gsl_bspline_free(bw);
+  gsl_vector_free(B);
+  gsl_vector_free(x);
+  gsl_vector_free(y);
+  gsl_matrix_free(X);
+  gsl_vector_free(c);
+  gsl_vector_free(w);
+  gsl_matrix_free(cov);
+  gsl_multifit_linear_free(mw);
 }
 
 Qt::PenStyle Spline2D::getlinestrokestyle_splot() const {

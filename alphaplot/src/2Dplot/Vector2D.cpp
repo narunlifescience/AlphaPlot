@@ -9,6 +9,7 @@ Vector2D::Vector2D(Axis2D *xAxis, Axis2D *yAxis)
       d_position_(Position::Tail),
       start_(new QCPLineEnding()),
       stop_(new QCPLineEnding()) {
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   start_->setStyle(QCPLineEnding::esSpikeArrow);
   stop_->setStyle(QCPLineEnding::esNone);
 }

@@ -31,7 +31,6 @@
  ***************************************************************************/
 #include "LineProfileTool.h"
 #include "ImageMarker.h"
-#include "ArrowMarker.h"
 #include "Graph.h"
 
 #include <QPoint>
@@ -169,20 +168,6 @@ int LineProfileTool::averageImagePixel(const QImage &image, int px, int py,
 }
 
 void LineProfileTool::addLineMarker(const QPoint &start, const QPoint &end) {
-  ArrowMarker *mrk = new ArrowMarker();
-  mrk->attach(d_graph->plotWidget());
-
-  mrk->setStartPoint(start);
-  mrk->setEndPoint(end);
-  mrk->setColor(Qt::red);
-  mrk->setWidth(1);
-  mrk->setStyle(Qt::SolidLine);
-  mrk->drawEndArrow(false);
-  mrk->drawStartArrow(false);
-
-  d_graph->addArrow(mrk);
-  mrk->detach();
-  d_graph->replot();
 }
 
 void LineProfileTool::paintEvent(QPaintEvent *) {

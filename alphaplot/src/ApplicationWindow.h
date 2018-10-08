@@ -169,6 +169,7 @@ class ApplicationWindow : public QMainWindow,
   QToolBar* matrix3DPlotToolbar;
   QToolBar* graph3DToolbar;
 
+  MyWidget* getactiveMyWidget();
   /* Generates a new unique name starting with string /param name.
   You can force the output to be a name different from /param name,
   even if 'name' is not used in the project, by setting /param increment = true
@@ -528,7 +529,6 @@ class ApplicationWindow : public QMainWindow,
   void addColToTable();
   void cutSelection();
   void copySelection();
-  void copyMarker();
   void pasteSelection();
   void clearSelection();
   void copyActiveLayer();
@@ -634,7 +634,6 @@ class ApplicationWindow : public QMainWindow,
   QDialog* showPlot3dDialog();
   void showResults(bool ok);
   void showResults(const QString& s, bool ok = true);
-  void showLineDialog();
   void showExportASCIIDialog();
   void showCurvesDialog();
   void showCurveRangeDialog();
@@ -673,7 +672,6 @@ class ApplicationWindow : public QMainWindow,
   void showColumnStatistics();
   void showFitDialog();
   void showImageDialog();
-  void showPlotGeometryDialog();
   void showLayerDialog();
   void showPreferencesDialog();
   void savitzkySmooth();

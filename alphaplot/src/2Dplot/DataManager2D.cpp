@@ -1,8 +1,7 @@
 #include "DataManager2D.h"
 
-#include <QObject>
-#include "../future/core/column/Column.h"
 #include "Table.h"
+#include "future/core/column/Column.h"
 
 DataBlockGraph::DataBlockGraph(Table *table, Column *xcolumn, Column *ycolumn,
                                const int from, const int to)
@@ -32,7 +31,6 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
   int end_row = this->getto();
 
   data_.data()->clear();
-  QVector<QCPGraphData> *gdvector = new QVector<QCPGraphData>();
 
   // strip unused end rows
   if (end_row >= xcol->rowCount()) end_row = xcol->rowCount() - 1;
@@ -43,17 +41,14 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
     if (xcol->isInvalid(row) || ycol->isInvalid(row)) {
       QCPGraphData data(std::numeric_limits<double>::quiet_NaN(),
                         std::numeric_limits<double>::quiet_NaN());
-      gdvector->append(data);
+      data_.data()->add(data);
     } else {
       double xdata = xcol->valueAt(row);
       double ydata = ycol->valueAt(row);
       QCPGraphData data(xdata, ydata);
-      gdvector->append(data);
+      data_.data()->add(data);
     }
   }
-  data_.data()->add(*gdvector, true);
-  gdvector->clear();
-  delete gdvector;
 }
 
 DataBlockCurve::DataBlockCurve(Table *table, Column *xcol, Column *ycol,

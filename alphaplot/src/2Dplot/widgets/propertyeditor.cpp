@@ -12,7 +12,8 @@
 #include "../3rdparty/propertybrowser/qttreepropertybrowser.h"
 #include "2Dplot/Layout2D.h"
 #include "2Dplot/Legend2D.h"
-#include "2Dplot/LineScatter2D.h"
+#include "2Dplot/LineItem2D.h"
+#include "2Dplot/LineSpecial2D.h"
 #include "Matrix.h"
 #include "MultiLayer.h"
 #include "Note.h"
@@ -181,7 +182,8 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   axispropertyticklabelprecisionitem_ = intManager_->addProperty("Precision");
   axispropertyticklabelvisibilityitem_->addSubProperty(
       axispropertyticklabelprecisionitem_);
-  // Text Item Properties
+  // Legend Properties
+  itempropertylegendvisibleitem_ = boolManager_->addProperty("Visible");
   itempropertylegendfontitem_ = fontManager_->addProperty("Font");
   itempropertylegendtextcoloritem_ = colorManager_->addProperty("Text color");
   itempropertylegendiconwidthitem_ = intManager_->addProperty("Icon width");
@@ -214,7 +216,7 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   itempropertytexttextitem_ = stringManager_->addProperty("Text");
   itempropertytextfontitem_ = fontManager_->addProperty("Font");
   itempropertytextcoloritem_ = colorManager_->addProperty("Text color");
-  itempropertyantialiaseditem_ = boolManager_->addProperty("Antialiased");
+  itempropertytextantialiaseditem_ = boolManager_->addProperty("Antialiased");
   itempropertytextstrokecoloritem_ = colorManager_->addProperty("Stroke Color");
   itempropertytextstrokethicknessitem_ =
       doubleManager_->addProperty("Stroke Thickness");
@@ -231,10 +233,19 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   itempropertytexttextalignmentitem_ =
       enumManager_->addProperty("Text alignment");
   enumManager_->setEnumNames(itempropertytexttextalignmentitem_, alignlist);
+  // Line Item Properties
+  itempropertylineantialiaseditem_ = boolManager_->addProperty("Antialiased");
+  itempropertylinestrokecoloritem_ = colorManager_->addProperty("Stroke Color");
+  itempropertylinestrokethicknessitem_ =
+      doubleManager_->addProperty("Stroke Thickness");
+  itempropertylinestroketypeitem_ = enumManager_->addProperty("Stroke Style");
+  enumManager_->setEnumNames(itempropertylinestroketypeitem_, stroketypelist);
+  enumManager_->setEnumIcons(itempropertylinestroketypeitem_,
+                             stroketypeiconslist);
   // LineScatter Properties block
   QStringList lstylelist;
-  lstylelist << tr("None") << tr("Line") << tr("StepLeft") << tr("StepRight")
-             << tr("StepCenter") << tr("Impulse");
+  lstylelist << tr("StepLeft") << tr("StepRight") << tr("StepCenter")
+             << tr("Impulse");
   QStringList sstylelist;
   sstylelist << tr("None") << tr("Dot") << tr("Cross") << tr("Plus")
              << tr("Circle") << tr("Disc") << tr("Square") << tr("Diamond")
@@ -341,6 +352,24 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   splinepropertylineantialiaseditem_ =
       boolManager_->addProperty("Line Antialiased");
   splinepropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
+
+  // Box Properties block
+  barplotpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
+  barplotpropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
+  barplotpropertywidthitem_ = doubleManager_->addProperty("Width");
+  barplotpropertyfillantialiaseditem_ =
+      boolManager_->addProperty("Fill Antialiased");
+  barplotpropertyfillcoloritem_ = colorManager_->addProperty("Fill Color");
+  barplotpropertyantialiaseditem_ =
+      boolManager_->addProperty("Stroke Antialiased");
+  barplotpropertystrokecoloritem_ = colorManager_->addProperty("Stroke Color");
+  barplotpropertystrokethicknessitem_ =
+      doubleManager_->addProperty("Stroke Thickness");
+  barplotpropertystrokestyleitem_ = enumManager_->addProperty("Stroke Style");
+  enumManager_->setEnumNames(barplotpropertystrokestyleitem_, stroketypelist);
+  enumManager_->setEnumIcons(barplotpropertystrokestyleitem_,
+                             stroketypeiconslist);
+  barplotpropertylegendtextitem_ = stringManager_->addProperty("Legend Text");
 
   // StatBox Properties block
   QStringList boxwhiskerstylelist;
@@ -452,6 +481,18 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   vectorpropertylineantialiaseditem_ =
       boolManager_->addProperty("Line Antialiased");
   vectorpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
+
+  // Pie Properties Block
+  pieplotpropertylinestrokecoloritem_ =
+      colorManager_->addProperty("Stroke Color");
+  pieplotpropertylinestrokethicknessitem_ =
+      doubleManager_->addProperty("Stroke Thickness");
+  pieplotpropertylinestroketypeitem_ =
+      enumManager_->addProperty("Stroke Style");
+  enumManager_->setEnumNames(pieplotpropertylinestroketypeitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(pieplotpropertylinestroketypeitem_,
+                             stroketypeiconslist);
 
   // Axis Properties Major Grid Sub Block
   hgridaxispropertycomboitem_ = enumManager_->addProperty("Horizontal Axis");
@@ -597,129 +638,147 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
   if (prop->compare(axispropertyvisibleitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setshowhide_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(hmajgridpropertyvisibleitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setMajorGridVisible(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(hmingridpropertyvisibleitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setMinorGridVisible(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(hmajgridpropertyzerolinevisibleitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setZerothLineVisible(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(vmajgridpropertyvisibleitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setMajorGridVisible(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(vmingridpropertyvisibleitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setMinorGridVisible(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(vmajgridpropertyzerolinevisibleitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setZerothLineVisible(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(axispropertyinvertitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setinverted_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertyantialiaseditem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setantialiased_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertytickvisibilityitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->settickvisibility_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertysubtickvisibilityitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setsubtickvisibility_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertyticklabelvisibilityitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelvisibility_axis(value);
-    axis->parentPlot()->replot();
-  } else if (prop->compare(itempropertyantialiaseditem_)) {
+    axis->layer()->replot();
+  } else if (prop->compare(itempropertylegendvisibleitem_)) {
+    Legend2D *legend =
+        getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
+    legend->sethidden_legend(value);
+    legend->layer()->replot();
+  } else if (prop->compare(itempropertytextantialiaseditem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     textitem->setAntialiased(value);
     textitem->layer()->replot();
+  } else if (prop->compare(itempropertylineantialiaseditem_)) {
+    LineItem2D *lineitem =
+        getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
+    lineitem->setAntialiased(value);
+    lineitem->layer()->replot();
   } else if (prop->compare(lsplotpropertylinefillstatusitem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setlinefillstatus_lsplot(value);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertylineantialiaseditem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setlineantialiased_lsplot(value);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertyscatterantialiaseditem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setscatterantialiased_lsplot(value);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(cplotpropertylinefillstatusitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlinefillstatus_cplot(value);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertylineantialiaseditem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlineantialiased_cplot(value);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertyscatterantialiaseditem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscatterantialiased_cplot(value);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(splinepropertylinefillstatusitem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
     spline->setlinefillstatus_splot(value);
-    spline->parentPlot()->replot();
+    spline->layer()->replot();
   } else if (prop->compare(splinepropertylineantialiaseditem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
     spline->setlineantialiased_splot(value);
-    spline->parentPlot()->replot();
+    spline->layer()->replot();
+  } else if (prop->compare(barplotpropertyfillantialiaseditem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    bar->setAntialiasedFill(value);
+    bar->layer()->replot();
+  } else if (prop->compare(barplotpropertyantialiaseditem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    bar->setAntialiased(value);
+    bar->layer()->replot();
   } else if (prop->compare(statboxplotpropertyantialiaseditem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setAntialiased(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyfillantialiaseditem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setAntialiasedFill(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyfillstatusitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setfillstatus_statbox(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertywhiskerantialiaseditem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setWhiskerAntialiased(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyscatterantialiaseditem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setAntialiasedScatters(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(vectorpropertylineantialiaseditem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setlineantialiased_vecplot(value);
-    vector->parentPlot()->replot();
+    vector->layer()->replot();
   } else {
     qDebug() << "unknown bool property item";
   }
@@ -734,84 +793,85 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
     QBrush brush = axisrect->backgroundBrush();
     brush.setColor(color);
     axisrect->setBackground(brush);
-    axisrect->parentPlot()->replot();
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedReplot);
   } else if (prop->compare(hmajgridpropertystrokecoloritem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setMajorGridColor(color);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(hmajgridpropertyzerolinestrokecoloritem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setZerothLineColor(color);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(hmingridpropertystrokecoloritem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setMinorGridColor(color);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(vmajgridpropertystrokecoloritem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setMajorGridColor(color);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(vmajgridpropertyzerolinestrokecoloritem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setZerothLineColor(color);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(vmingridpropertystrokecoloritem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setMinorGridColor(color);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(axispropertystrokecoloritem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setstrokecolor_axis(color);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertylabelcoloritem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setlabelcolor_axis(color);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertytickstrokecoloritem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->settickstrokecolor_axis(color);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertysubtickstrokecoloritem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setsubtickstrokecolor_axis(color);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertyticklabelcoloritem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelcolor_axis(color);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(itempropertylegendtextcoloritem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->setTextColor(color);
-    legend->parentPlot()->replot();
+    legend->layer()->replot();
   } else if (prop->compare(itempropertylegendborderstrokecoloritem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->setborderstrokecolor_legend(color);
-    legend->parentPlot()->replot();
+    legend->layer()->replot();
   } else if (prop->compare(itempropertylegendbackgroundcoloritem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     QBrush b = legend->brush();
     b.setColor(color);
     legend->setBrush(b);
-    legend->parentPlot()->replot();
+    legend->layer()->replot();
   } else if (prop->compare(itempropertytextcoloritem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     textitem->setColor(color);
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
   } else if (prop->compare(itempropertytextstrokecoloritem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     textitem->setstrokecolor_textitem(color);
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
   } else if (prop->compare(itempropertytextbackgroundcoloritem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
@@ -819,88 +879,105 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
     b.setStyle(Qt::SolidPattern);
     b.setColor(color);
     textitem->setBrush(b);
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
+  } else if (prop->compare(itempropertylinestrokecoloritem_)) {
+    LineItem2D *lineitem =
+        getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
+    lineitem->setstrokecolor_lineitem(color);
+    lineitem->layer()->replot();
   } else if (prop->compare(lsplotpropertylinestrokecoloritem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setlinestrokecolor_lsplot(color);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertylinefillcoloritem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setlinefillcolor_lsplot(color);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertyscatterfillcoloritem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setscatterfillcolor_lsplot(color);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertyscatterstrokecoloritem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setscatterstrokecolor_lsplot(color);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(cplotpropertylinestrokecoloritem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlinestrokecolor_cplot(color);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertylinefillcoloritem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlinefillcolor_cplot(color);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertyscatterfillcoloritem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscatterfillcolor_cplot(color);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertyscatterstrokecoloritem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscatterstrokecolor_cplot(color);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(splinepropertylinestrokecoloritem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
     spline->setlinestrokecolor_splot(color);
-    spline->parentPlot()->replot();
+    spline->layer()->replot();
   } else if (prop->compare(splinepropertylinefillcoloritem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
     spline->setlinefillcolor_splot(color);
-    spline->parentPlot()->replot();
+    spline->layer()->replot();
+  } else if (prop->compare(barplotpropertyfillcoloritem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    bar->setfillcolor_barplot(color);
+    bar->layer()->replot();
+  } else if (prop->compare(barplotpropertystrokecoloritem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    bar->setstrokecolor_barplot(color);
+    bar->layer()->replot();
   } else if (prop->compare(statboxplotpropertyfillcoloritem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setfillcolor_statbox(color);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertywhiskerstrokecoloritem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setwhiskerstrokecolor_statbox(color);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertywhiskerbarstrokecoloritem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setwhiskerbarstrokecolor_statbox(color);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertymedianstrokecoloritem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setmedianstrokecolor_statbox(color);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyscatterfillcoloritem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setscatterfillcolor_statbox(color);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyscatteroutlinecoloritem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setscatterstrokecolor_statbox(color);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(vectorpropertylinestrokecoloritem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setlinestrokecolor_vecplot(color);
-    vector->parentPlot()->replot();
+    vector->layer()->replot();
+  } else if (prop->compare(pieplotpropertylinestrokecoloritem_)) {
+    Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
+    pie->setstrokecolor_pieplot(color);
+    pie->layer()->replot();
   }
   connect(colorManager_, SIGNAL(valueChanged(QtProperty *, QColor)), this,
           SLOT(valueChange(QtProperty *, const QColor &)));
@@ -911,7 +988,6 @@ void PropertyEditor::valueChange(QtProperty *prop, const QRect &rect) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     // axisrect->setOuterRect(rect);
-    // axisrect->parentPlot()->replot();
   } else if (prop->compare(itempropertytextmarginitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
@@ -921,7 +997,7 @@ void PropertyEditor::valueChange(QtProperty *prop, const QRect &rect) {
     margin.setRight(rect.right());
     margin.setBottom(rect.bottom());
     textitem->setPadding(margin);
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
   }
 }
 
@@ -930,167 +1006,184 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setMajorGridThickness(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(hmajgridpropertyzerolinestrokethicknessitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setZerothLineThickness(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(hmingridpropertystrokethicknessitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setMinorGridThickness(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(vmajgridpropertystrokethicknessitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setMajorGridThickness(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(vmajgridpropertyzerolinestrokethicknessitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setZerothLineThickness(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(vmingridpropertystrokethicknessitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setMinorGridThickness(value);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(axispropertyfromitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setRangeLower(value);
-    axis->parentPlot()->replot();
+    axis->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   } else if (prop->compare(axispropertytoitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setRangeUpper(value);
-    axis->parentPlot()->replot();
+    axis->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   } else if (prop->compare(axispropertystrokethicknessitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setstrokethickness_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertytickstrokethicknessitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->settickstrokethickness_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertysubtickstrokethicknessitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setsubtickstrokethickness_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertyticklabelrotationitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelrotation_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(itempropertylegendborderstrokethicknessitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->setborderstrokethickness_legend(value);
-    legend->parentPlot()->replot();
+    legend->layer()->replot();
   } else if (prop->compare(itempropertytextpixelpositionxitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     QPointF point = textitem->position->pixelPosition();
     point.setX(value);
     textitem->position->setPixelPosition(point);
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
   } else if (prop->compare(itempropertytextpixelpositionyitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     QPointF point = textitem->position->pixelPosition();
     point.setY(value);
     textitem->position->setPixelPosition(point);
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
   } else if (prop->compare(itempropertytextstrokethicknessitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     textitem->setstrokethickness_textitem(value);
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
+  } else if (prop->compare(itempropertylinestrokethicknessitem_)) {
+    LineItem2D *lineitem =
+        getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
+    lineitem->setstrokethickness_lineitem(value);
+    lineitem->layer()->replot();
   } else if (prop->compare(itempropertytextrotationitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     textitem->setRotation(value);
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
   } else if (prop->compare(lsplotpropertylinestrokethicknessitem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setlinestrokethickness_lsplot(value);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertyscatterthicknessitem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setscattersize_lsplot(value);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertyscatterstrokethicknessitem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setscatterstrokethickness_lsplot(value);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(cplotpropertylinestrokethicknessitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlinestrokethickness_cplot(value);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertyscatterthicknessitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscattersize_cplot(value);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertyscatterstrokethicknessitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscatterstrokethickness_cplot(value);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(splinepropertylinestrokethicknessitem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
     spline->setlinestrokethickness_splot(value);
-    spline->parentPlot()->replot();
+    spline->layer()->replot();
+  } else if (prop->compare(barplotpropertywidthitem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    bar->setWidth(value);
+    bar->layer()->replot();
+  } else if (prop->compare(barplotpropertystrokethicknessitem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    bar->setstrokethickness_barplot(value);
+    bar->layer()->replot();
   } else if (prop->compare(statboxplotpropertywidthitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setWidth(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertywhiskerwidthitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setWhiskerWidth(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertywhiskerstrokethicknessitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setwhiskerstrokethickness_statbox(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertywhiskerbarstrokethicknessitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setwhiskerbarstrokethickness_statbox(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertymideanstrokethicknessitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setmedianstrokethickness_statbox(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyscattersizeitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setscattersize_statbox(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyscatteroutlinethicknessitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setscatterstrokethickness_statbox(value);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(vectorpropertylinestrokethicknessitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setlinestrokethickness_vecplot(value);
-    vector->parentPlot()->replot();
+    vector->layer()->replot();
   } else if (prop->compare(vectorpropertylineendingheightitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setendheight_vecplot(value, Vector2D::LineEndLocation::Stop);
-    vector->parentPlot()->replot();
+    vector->layer()->replot();
   } else if (prop->compare(vectorpropertylineendingwidthitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setendwidth_vecplot(value, Vector2D::LineEndLocation::Stop);
-    vector->parentPlot()->replot();
+    vector->layer()->replot();
+  } else if (prop->compare(pieplotpropertylinestrokethicknessitem_)) {
+    Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
+    pie->setstrokethickness_pieplot(value);
+    pie->layer()->replot();
   }
 }
 
@@ -1098,36 +1191,52 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
   if (prop->compare(axispropertylabeltextitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setLabel(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(itempropertytexttextitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     textitem->setText(value);
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
   } else if (prop->compare(lsplotpropertylegendtextitem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setlegendtext_lsplot(value);
-    lsgraph->parentPlot()->replot();
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    axisrect->getLegend()->layer()->replot();
   } else if (prop->compare(cplotpropertylegendtextitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlegendtext_cplot(value);
-    curve->parentPlot()->replot();
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    axisrect->getLegend()->layer()->replot();
   } else if (prop->compare(splinepropertylegendtextitem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
     spline->setlegendtext_splot(value);
-    spline->parentPlot()->replot();
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    axisrect->getLegend()->layer()->replot();
+  } else if (prop->compare(barplotpropertylegendtextitem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    bar->setName(value);
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    axisrect->getLegend()->layer()->replot();
   } else if (prop->compare(statboxplotpropertylegendtextitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setName(value);
-    statbox->parentPlot()->replot();
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    axisrect->getLegend()->layer()->replot();
   } else if (prop->compare(vectorpropertylegendtextitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setlegendtext_vecplot(value);
-    vector->parentPlot()->replot();
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    axisrect->getLegend()->layer()->replot();
   }
 }
 
@@ -1135,54 +1244,54 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
   if (prop->compare(axispropertyoffsetitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setoffset_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertylabelpaddingitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setlabelpadding_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertyticklengthinitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklengthin_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertyticklengthoutitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklengthout_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertysubticklengthinitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setsubticklengthin_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertysubticklengthoutitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setsubticklengthout_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertyticklabelpaddingitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelpadding_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertyticklabelprecisionitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelprecision_axis(value);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(itempropertylegendiconwidthitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     QSize size = legend->iconSize();
     size.setWidth(value);
     legend->setIconSize(size);
-    legend->parentPlot()->replot();
+    legend->layer()->replot();
   } else if (prop->compare(itempropertylegendiconheightitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     QSize size = legend->iconSize();
     size.setHeight(value);
     legend->setIconSize(size);
-    legend->parentPlot()->replot();
+    legend->layer()->replot();
   } else if (prop->compare(itempropertylegendicontextpaddingitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->setIconTextPadding(value);
-    legend->parentPlot()->replot();
+    legend->layer()->replot();
   }
 }
 
@@ -1192,128 +1301,133 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     Axis2D *axis = axisrect->getXAxes2D().at(value);
     axisrect->bindGridTo(axis);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(hmajgridpropertystroketypeitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setMajorGridStyle(
         static_cast<Qt::PenStyle>(value + 1));
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(hmajgridpropertyzerolinestroketypeitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setZerothLineStyle(
         static_cast<Qt::PenStyle>(value + 1));
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(hmingridpropertystroketypeitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setMinorGridStyle(
         static_cast<Qt::PenStyle>(value + 1));
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().first.first->layer()->replot();
   } else if (prop->compare(vgridaxispropertycomboitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     Axis2D *axis = axisrect->getYAxes2D().at(value);
     axisrect->bindGridTo(axis);
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(vmajgridpropertystroketypeitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setMajorGridStyle(
         static_cast<Qt::PenStyle>(value + 1));
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(vmajgridpropertyzerolinestroketypeitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setZerothLineStyle(
         static_cast<Qt::PenStyle>(value + 1));
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(vmingridpropertystroketypeitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().second.first->setMinorGridStyle(
         static_cast<Qt::PenStyle>(value + 1));
-    axisrect->parentPlot()->replot();
+    axisrect->getGridPair().second.first->layer()->replot();
   } else if (prop->compare(axispropertylinlogitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setscaletype_axis(static_cast<Axis2D::AxisScaleType>(value));
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertystroketypeitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setstroketype_axis(static_cast<Qt::PenStyle>(value + 1));
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertytickstroketypeitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->settickstrokestyle_axis(static_cast<Qt::PenStyle>(value + 1));
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertysubtickstroketypeitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setsubtickstrokestyle_axis(static_cast<Qt::PenStyle>(value + 1));
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertyticklabelsideitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelside_axis(static_cast<Axis2D::AxisLabelSide>(value));
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(itempropertylegendborderstroketypeitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->setborderstrokestyle_legend(static_cast<Qt::PenStyle>(value + 1));
-    legend->parentPlot()->replot();
+    legend->layer()->replot();
   } else if (prop->compare(itempropertytexttextalignmentitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     textitem->settextalignment_textitem(
         static_cast<TextItem2D::TextAlignment>(value));
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
   } else if (prop->compare(itempropertytextstroketypeitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     textitem->setstrokestyle_textitem(static_cast<Qt::PenStyle>(value + 1));
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
+  } else if (prop->compare(itempropertylinestroketypeitem_)) {
+    LineItem2D *lineitem =
+        getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
+    lineitem->setstrokestyle_lineitem(static_cast<Qt::PenStyle>(value + 1));
+    lineitem->layer()->replot();
   } else if (prop->compare(itempropertylegendborderstroketypeitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->setborderstrokestyle_legend(static_cast<Qt::PenStyle>(value + 1));
-    legend->parentPlot()->replot();
+    legend->layer()->replot();
   } else if (prop->compare(lsplotpropertyxaxisitem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     Axis2D *axis = axisrect->getXAxis(value);
     if (!axis) return;
     lsgraph->setxaxis_lsplot(axis);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertyyaxisitem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     Axis2D *axis = axisrect->getYAxis(value);
     if (!axis) return;
     lsgraph->setyaxis_lsplot(axis);
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertylinestyleitem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setlinetype_lsplot(static_cast<LSCommon::LineStyleType>(value));
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertylinestroketypeitem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setlinestrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertyscatterstyleitem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setscattershape_lsplot(static_cast<LSCommon::ScatterStyle>(value));
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertyscatterstrokestyleitem_)) {
-    LineScatter2D *lsgraph =
-        getgraph2dobject<LineScatter2D>(objectbrowser_->currentItem());
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setscatterstrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
-    lsgraph->parentPlot()->replot();
+    lsgraph->layer()->replot();
   } else if (prop->compare(cplotpropertyxaxisitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     AxisRect2D *axisrect =
@@ -1321,7 +1435,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Axis2D *axis = axisrect->getXAxis(value);
     if (!axis) return;
     curve->setxaxis_cplot(axis);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertyyaxisitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     AxisRect2D *axisrect =
@@ -1329,23 +1443,23 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Axis2D *axis = axisrect->getYAxis(value);
     if (!axis) return;
     curve->setyaxis_cplot(axis);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertylinestyleitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlinetype_cplot(value);
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertylinestroketypeitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlinestrokestyle_cplot(static_cast<Qt::PenStyle>(value + 1));
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertyscatterstyleitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscattershape_cplot(static_cast<LSCommon::ScatterStyle>(value));
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertyscatterstrokestyleitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscatterstrokestyle_cplot(static_cast<Qt::PenStyle>(value + 1));
-    curve->parentPlot()->replot();
+    curve->layer()->replot();
   } else if (prop->compare(splinepropertyxaxisitem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
@@ -1354,7 +1468,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Axis2D *axis = axisrect->getXAxis(value);
     if (!axis) return;
     spline->setxaxis_splot(axis);
-    spline->parentPlot()->replot();
+    spline->layer()->replot();
   } else if (prop->compare(splinepropertyyaxisitem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
@@ -1363,12 +1477,32 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Axis2D *axis = axisrect->getYAxis(value);
     if (!axis) return;
     spline->setyaxis_splot(axis);
-    spline->parentPlot()->replot();
+    spline->layer()->replot();
   } else if (prop->compare(splinepropertylinestroketypeitem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
     spline->setlinestrokestyle_splot(static_cast<Qt::PenStyle>(value + 1));
-    spline->parentPlot()->replot();
+    spline->layer()->replot();
+  } else if (prop->compare(barplotpropertyxaxisitem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getXAxis(value);
+    if (!axis) return;
+    bar->setxaxis_barplot(axis);
+    bar->layer()->replot();
+  } else if (prop->compare(barplotpropertyyaxisitem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getYAxis(value);
+    if (!axis) return;
+    bar->setyaxis_barplot(axis);
+    bar->layer()->replot();
+  } else if (prop->compare(barplotpropertystrokestyleitem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    bar->setstrokestyle_barplot(static_cast<Qt::PenStyle>(value + 1));
+    bar->layer()->replot();
   } else if (prop->compare(statboxplotpropertyxaxisitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
@@ -1377,7 +1511,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Axis2D *axis = axisrect->getXAxis(value);
     if (!axis) return;
     statbox->setxaxis_statbox(axis);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyyaxisitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
@@ -1386,48 +1520,48 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Axis2D *axis = axisrect->getYAxis(value);
     if (!axis) return;
     statbox->setyaxis_statbox(axis);
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyboxstyleitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setboxstyle_statbox(
         static_cast<StatBox2D::BoxWhiskerStyle>(value));
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertywhiskerstyleitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setwhiskerstyle_statbox(
         static_cast<StatBox2D::BoxWhiskerStyle>(value));
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertywhiskerstrokestyleitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setwhiskerstrokestyle_statbox(
         static_cast<Qt::PenStyle>(value + 1));
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertywhiskerbarstrokestyleitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setwhiskerbarstrokestyle_statbox(
         static_cast<Qt::PenStyle>(value + 1));
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertymideanstrokestyleitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setmedianstrokestyle_statbox(static_cast<Qt::PenStyle>(value + 1));
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyscatterstyleitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setscattershape_statbox(
         static_cast<LSCommon::ScatterStyle>(value));
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyscatteroutlinestyleitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setscatterstrokestyle_statbox(
         static_cast<Qt::PenStyle>(value + 1));
-    statbox->parentPlot()->replot();
+    statbox->layer()->replot();
   } else if (prop->compare(vectorpropertyxaxisitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
@@ -1436,7 +1570,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Axis2D *axis = axisrect->getXAxis(value);
     if (!axis) return;
     vector->setxaxis_vecplot(axis);
-    vector->parentPlot()->replot();
+    vector->layer()->replot();
   } else if (prop->compare(vectorpropertyyaxisitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
@@ -1445,18 +1579,22 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Axis2D *axis = axisrect->getYAxis(value);
     if (!axis) return;
     vector->setyaxis_vecplot(axis);
-    vector->parentPlot()->replot();
+    vector->layer()->replot();
   } else if (prop->compare(vectorpropertylinestroketypeitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setlinestrokestyle_vecplot(static_cast<Qt::PenStyle>(value + 1));
-    vector->parentPlot()->replot();
+    vector->layer()->replot();
   } else if (prop->compare(vectorpropertylineendingtypeitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setendstyle_vecplot(static_cast<Vector2D::LineEnd>(value + 1),
                                 Vector2D::LineEndLocation::Stop);
-    vector->parentPlot()->replot();
+    vector->layer()->replot();
+  } else if (prop->compare(pieplotpropertylinestroketypeitem_)) {
+    Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
+    pie->setstrokestyle_pieplot(static_cast<Qt::PenStyle>(value + 1));
+    pie->layer()->replot();
   }
 }
 
@@ -1464,21 +1602,21 @@ void PropertyEditor::valueChange(QtProperty *prop, const QFont &font) {
   if (prop->compare(axispropertylabelfontitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setlabelfont_axis(font);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(axispropertyticklabelfontitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelfont_axis(font);
-    axis->parentPlot()->replot();
+    axis->layer()->replot();
   } else if (prop->compare(itempropertytextfontitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     textitem->setFont(font);
-    textitem->parentPlot()->replot();
+    textitem->layer()->replot();
   } else if (prop->compare(itempropertylegendfontitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->setFont(font);
-    legend->parentPlot()->replot();
+    legend->layer()->replot();
   }
 }
 
@@ -1488,67 +1626,86 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
     case MyTreeWidget::PropertyItemType::Layout: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
-      LayoutPropertyBlock(axisrect);
+      Layout2DPropertyBlock(axisrect);
     } break;
     case MyTreeWidget::PropertyItemType::Grid: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
-      GridPropertyBlock(axisrect);
+      Grid2DPropertyBlock(axisrect);
     } break;
     case MyTreeWidget::PropertyItemType::Axis: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       Axis2D *axis = static_cast<Axis2D *>(ptr);
-      AxisPropertyBlock(axis);
+      Axis2DPropertyBlock(axis);
     } break;
     case MyTreeWidget::PropertyItemType::Legend: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Legend2D *legend = static_cast<Legend2D *>(ptr1);
-      LegendPropertyBlock(legend);
+      Legend2DPropertyBlock(legend);
     } break;
     case MyTreeWidget::PropertyItemType::TextItem: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       TextItem2D *textitem = static_cast<TextItem2D *>(ptr1);
-      TextItemPropertyBlock(textitem);
+      TextItem2DPropertyBlock(textitem);
+    } break;
+    case MyTreeWidget::PropertyItemType::LineItem: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      LineItem2D *lineitem = static_cast<LineItem2D *>(ptr1);
+      LineItem2DPropertyBlock(lineitem);
     } break;
     case MyTreeWidget::PropertyItemType::LSGraph: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
-      LineScatter2D *lsgraph = static_cast<LineScatter2D *>(ptr1);
+      LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr1);
       void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
-      LSPropertyBlock(lsgraph, axisrect);
+      LineScatter2DPropertyBlock(lsgraph, axisrect);
     } break;
     case MyTreeWidget::PropertyItemType::Curve: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Curve2D *curve = static_cast<Curve2D *>(ptr1);
       void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
-      CurvePropertyBlock(curve, axisrect);
+      Curve2DPropertyBlock(curve, axisrect);
     } break;
     case MyTreeWidget::PropertyItemType::Spline: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Spline2D *spline = static_cast<Spline2D *>(ptr1);
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
-      SplinePropertyBlock(spline, axisrect);
+      Spline2DPropertyBlock(spline, axisrect);
+    } break;
+    case MyTreeWidget::PropertyItemType::BarGraph: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      Bar2D *bar = static_cast<Bar2D *>(ptr1);
+      void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
+      AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
+      Bar2DPropertyBlock(bar, axisrect);
     } break;
     case MyTreeWidget::PropertyItemType::StatBox: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       StatBox2D *statbox = static_cast<StatBox2D *>(ptr1);
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
-      StatBoxPropertyBlock(statbox, axisrect);
+      StatBox2DPropertyBlock(statbox, axisrect);
     } break;
     case MyTreeWidget::PropertyItemType::Vector: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Vector2D *vector = static_cast<Vector2D *>(ptr1);
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
-      VectorPropertyBlock(vector, axisrect);
+      Vector2DPropertyBlock(vector, axisrect);
+    } break;
+    case MyTreeWidget::PropertyItemType::PieGraph: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      Pie2D *pie = static_cast<Pie2D *>(ptr1);
+      void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
+      AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
+      Pie2DPropertyBlock(pie, axisrect);
     } break;
   }
 }
 
-void PropertyEditor::LayoutPropertyBlock(AxisRect2D *axisrect) {
+void PropertyEditor::Layout2DPropertyBlock(AxisRect2D *axisrect) {
   propertybrowser_->clear();
   colorManager_->blockSignals(true);
 
@@ -1560,7 +1717,7 @@ void PropertyEditor::LayoutPropertyBlock(AxisRect2D *axisrect) {
   colorManager_->blockSignals(false);
 }
 
-void PropertyEditor::AxisPropertyBlock(Axis2D *axis) {
+void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
   propertybrowser_->clear();
 
   propertybrowser_->addProperty(axispropertyvisibleitem_);
@@ -1643,7 +1800,7 @@ void PropertyEditor::AxisPropertyBlock(Axis2D *axis) {
                         axis->getticklabelprecision_axis());
 }
 
-void PropertyEditor::GridPropertyBlock(AxisRect2D *axisrect) {
+void PropertyEditor::Grid2DPropertyBlock(AxisRect2D *axisrect) {
   propertybrowser_->clear();
   QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> gridpair =
       axisrect->getGridPair();
@@ -1742,10 +1899,11 @@ void PropertyEditor::GridPropertyBlock(AxisRect2D *axisrect) {
                          vgrid->getMinorGridStyle() - 1);
 }
 
-void PropertyEditor::LegendPropertyBlock(Legend2D *legend) {
+void PropertyEditor::Legend2DPropertyBlock(Legend2D *legend) {
   propertybrowser_->clear();
 
   // Legend Properties
+  propertybrowser_->addProperty(itempropertylegendvisibleitem_);
   propertybrowser_->addProperty(itempropertylegendfontitem_);
   propertybrowser_->addProperty(itempropertylegendtextcoloritem_);
   propertybrowser_->addProperty(itempropertylegendiconwidthitem_);
@@ -1756,6 +1914,8 @@ void PropertyEditor::LegendPropertyBlock(Legend2D *legend) {
   propertybrowser_->addProperty(itempropertylegendborderstroketypeitem_);
   propertybrowser_->addProperty(itempropertylegendbackgroundcoloritem_);
 
+  boolManager_->setValue(itempropertylegendvisibleitem_,
+                         legend->gethidden_legend());
   fontManager_->setValue(itempropertylegendfontitem_, legend->font());
   colorManager_->setValue(itempropertylegendtextcoloritem_,
                           legend->textColor());
@@ -1775,7 +1935,7 @@ void PropertyEditor::LegendPropertyBlock(Legend2D *legend) {
                           legend->brush().color());
 }
 
-void PropertyEditor::TextItemPropertyBlock(TextItem2D *textitem) {
+void PropertyEditor::TextItem2DPropertyBlock(TextItem2D *textitem) {
   propertybrowser_->clear();
 
   propertybrowser_->addProperty(itempropertytextpixelpositionxitem_);
@@ -1785,7 +1945,7 @@ void PropertyEditor::TextItemPropertyBlock(TextItem2D *textitem) {
   propertybrowser_->addProperty(itempropertytexttextitem_);
   propertybrowser_->addProperty(itempropertytextfontitem_);
   propertybrowser_->addProperty(itempropertytextcoloritem_);
-  propertybrowser_->addProperty(itempropertyantialiaseditem_);
+  propertybrowser_->addProperty(itempropertytextantialiaseditem_);
   propertybrowser_->addProperty(itempropertytextstrokecoloritem_);
   propertybrowser_->addProperty(itempropertytextstrokethicknessitem_);
   propertybrowser_->addProperty(itempropertytextstroketypeitem_);
@@ -1805,7 +1965,8 @@ void PropertyEditor::TextItemPropertyBlock(TextItem2D *textitem) {
   stringManager_->setValue(itempropertytexttextitem_, textitem->text());
   fontManager_->setValue(itempropertytextfontitem_, textitem->font());
   colorManager_->setValue(itempropertytextcoloritem_, textitem->color());
-  boolManager_->setValue(itempropertyantialiaseditem_, textitem->antialiased());
+  boolManager_->setValue(itempropertytextantialiaseditem_,
+                         textitem->antialiased());
   colorManager_->setValue(itempropertytextstrokecoloritem_,
                           textitem->getstrokecolor_textitem());
   doubleManager_->setValue(itempropertytextstrokethicknessitem_,
@@ -1820,8 +1981,26 @@ void PropertyEditor::TextItemPropertyBlock(TextItem2D *textitem) {
       static_cast<int>(textitem->gettextalignment_textitem()));
 }
 
-void PropertyEditor::LSPropertyBlock(LineScatter2D *lsgraph,
-                                     AxisRect2D *axisrect) {
+void PropertyEditor::LineItem2DPropertyBlock(LineItem2D *lineitem) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(itempropertylineantialiaseditem_);
+  propertybrowser_->addProperty(itempropertylinestrokecoloritem_);
+  propertybrowser_->addProperty(itempropertylinestrokethicknessitem_);
+  propertybrowser_->addProperty(itempropertylinestroketypeitem_);
+
+  boolManager_->setValue(itempropertylineantialiaseditem_,
+                         lineitem->antialiased());
+  colorManager_->setValue(itempropertylinestrokecoloritem_,
+                          lineitem->getstrokecolor_lineitem());
+  doubleManager_->setValue(itempropertylinestrokethicknessitem_,
+                           lineitem->getstrokethickness_lineitem());
+  enumManager_->setValue(itempropertylinestroketypeitem_,
+                         lineitem->getstrokestyle_lineitem() - 1);
+}
+
+void PropertyEditor::LineScatter2DPropertyBlock(LineSpecial2D *lsgraph,
+                                                AxisRect2D *axisrect) {
   propertybrowser_->clear();
 
   propertybrowser_->addProperty(lsplotpropertyxaxisitem_);
@@ -1909,7 +2088,8 @@ void PropertyEditor::LSPropertyBlock(LineScatter2D *lsgraph,
                            lsgraph->getlegendtext_lsplot());
 }
 
-void PropertyEditor::CurvePropertyBlock(Curve2D *curve, AxisRect2D *axisrect) {
+void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
+                                          AxisRect2D *axisrect) {
   propertybrowser_->clear();
 
   propertybrowser_->addProperty(cplotpropertyxaxisitem_);
@@ -1997,8 +2177,8 @@ void PropertyEditor::CurvePropertyBlock(Curve2D *curve, AxisRect2D *axisrect) {
                            curve->getlegendtext_cplot());
 }
 
-void PropertyEditor::SplinePropertyBlock(Spline2D *splinegraph,
-                                         AxisRect2D *axisrect) {
+void PropertyEditor::Spline2DPropertyBlock(Spline2D *splinegraph,
+                                           AxisRect2D *axisrect) {
   propertybrowser_->clear();
 
   propertybrowser_->addProperty(splinepropertyxaxisitem_);
@@ -2061,8 +2241,71 @@ void PropertyEditor::SplinePropertyBlock(Spline2D *splinegraph,
                            splinegraph->getlegendtext_splot());
 }
 
-void PropertyEditor::StatBoxPropertyBlock(StatBox2D *statbox,
-                                          AxisRect2D *axisrect) {
+void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(barplotpropertyxaxisitem_);
+  propertybrowser_->addProperty(barplotpropertyyaxisitem_);
+  propertybrowser_->addProperty(barplotpropertywidthitem_);
+  propertybrowser_->addProperty(barplotpropertyfillantialiaseditem_);
+  propertybrowser_->addProperty(barplotpropertyfillcoloritem_);
+  propertybrowser_->addProperty(barplotpropertyantialiaseditem_);
+  propertybrowser_->addProperty(barplotpropertystrokecoloritem_);
+  propertybrowser_->addProperty(barplotpropertystrokethicknessitem_);
+  propertybrowser_->addProperty(barplotpropertystrokestyleitem_);
+  propertybrowser_->addProperty(barplotpropertylegendtextitem_);
+  {
+    QStringList baryaxislist;
+    int currentyaxis = 0;
+    int ycount = 0;
+    QList<Axis2D *> yaxes = axisrect->getYAxes2D();
+
+    for (int i = 0; i < yaxes.size(); i++) {
+      baryaxislist << QString("Y Axis %1").arg(i + 1);
+      if (yaxes.at(i) == bargraph->getyaxis_barplot()) {
+        currentyaxis = ycount;
+      }
+      ycount++;
+    }
+    enumManager_->setEnumNames(barplotpropertyyaxisitem_, baryaxislist);
+    enumManager_->setValue(barplotpropertyyaxisitem_, currentyaxis);
+  }
+
+  {
+    QStringList barxaxislist;
+    int currentxaxis = 0;
+    int xcount = 0;
+    QList<Axis2D *> xaxes = axisrect->getXAxes2D();
+    for (int i = 0; i < xaxes.size(); i++) {
+      barxaxislist << QString("X Axis %1").arg(i + 1);
+      if (xaxes.at(i) == bargraph->getxaxis_barplot()) {
+        currentxaxis = xcount;
+      }
+      xcount++;
+    }
+
+    enumManager_->setEnumNames(barplotpropertyxaxisitem_, barxaxislist);
+    enumManager_->setValue(barplotpropertyxaxisitem_, currentxaxis);
+  }
+
+  doubleManager_->setValue(barplotpropertywidthitem_, bargraph->width());
+  boolManager_->setValue(barplotpropertyfillantialiaseditem_,
+                         bargraph->antialiasedFill());
+  colorManager_->setValue(barplotpropertyfillcoloritem_,
+                          bargraph->getfillcolor_barplot());
+  boolManager_->setValue(barplotpropertyantialiaseditem_,
+                         bargraph->antialiased());
+  colorManager_->setValue(barplotpropertystrokecoloritem_,
+                          bargraph->getstrokecolor_barplot());
+  doubleManager_->setValue(barplotpropertystrokethicknessitem_,
+                           bargraph->getstrokethickness_barplot());
+  enumManager_->setValue(barplotpropertystrokestyleitem_,
+                         bargraph->getstrokestyle_barplot() - 1);
+  stringManager_->setValue(barplotpropertylegendtextitem_, bargraph->name());
+}
+
+void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
+                                            AxisRect2D *axisrect) {
   propertybrowser_->clear();
 
   propertybrowser_->addProperty(statboxplotpropertyxaxisitem_);
@@ -2182,8 +2425,8 @@ void PropertyEditor::StatBoxPropertyBlock(StatBox2D *statbox,
   stringManager_->setValue(statboxplotpropertylegendtextitem_, statbox->name());
 }
 
-void PropertyEditor::VectorPropertyBlock(Vector2D *vectorgraph,
-                                         AxisRect2D *axisrect) {
+void PropertyEditor::Vector2DPropertyBlock(Vector2D *vectorgraph,
+                                           AxisRect2D *axisrect) {
   propertybrowser_->clear();
 
   propertybrowser_->addProperty(vectorpropertyxaxisitem_);
@@ -2252,72 +2495,34 @@ void PropertyEditor::VectorPropertyBlock(Vector2D *vectorgraph,
                            vectorgraph->getlegendtext_vecplot());
 }
 
-void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
-  connect(axisrect, SIGNAL(AxisCreated(Axis2D *)), this,
-          SLOT(axisCreated(Axis2D *)));
-  connect(axisrect, SIGNAL(AxisRemoved(AxisRect2D *)), this,
-          SLOT(axisRemoved(AxisRect2D *)));
-  connect(axisrect, SIGNAL(TextItem2DCreated(TextItem2D *)), this,
-          SLOT(textItem2DCreated(TextItem2D *)));
-  connect(axisrect, SIGNAL(TextItem2DRemoved(AxisRect2D *)), this,
-          SLOT(textItem2DRemoved(AxisRect2D *)));
-  connect(axisrect, SIGNAL(LineScatterCreated(LineScatter2D *)), this,
-          SLOT(lineScatterCreated(LineScatter2D *)));
-  connect(axisrect, SIGNAL(CurveCreated(Curve2D *)), this,
-          SLOT(curveCreated(Curve2D *)));
-  connect(axisrect, SIGNAL(LineScatterRemoved(AxisRect2D *)), this,
-          SLOT(lineScatterRemoved(AxisRect2D *)));
-  connect(axisrect, SIGNAL(SplineCreated(Spline2D *)), this,
-          SLOT(splineCreated(Spline2D *)));
-  connect(axisrect, SIGNAL(StatBox2DCreated(StatBox2D *)), this,
-          SLOT(statBox2DCreated(StatBox2D *)));
-  connect(axisrect, SIGNAL(StatBox2DRemoved(AxisRect2D *)), this,
-          SLOT(statBox2DRemoved(AxisRect2D *)));
-  connect(axisrect, SIGNAL(VectorCreated(Vector2D *)), this,
-          SLOT(vectorCreated(Vector2D *)));
-  connect(axisrect, SIGNAL(BarCreated(Bar2D *)), this,
-          SLOT(barCreated(Bar2D *)));
+void PropertyEditor::Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect) {
+  propertybrowser_->clear();
 
+  // Pie Properties Block
+  propertybrowser_->addProperty(pieplotpropertylinestrokecoloritem_);
+  propertybrowser_->addProperty(pieplotpropertylinestrokethicknessitem_);
+  propertybrowser_->addProperty(pieplotpropertylinestroketypeitem_);
+
+  colorManager_->setValue(pieplotpropertylinestrokecoloritem_,
+                          piegraph->getstrokecolor_pieplot());
+  doubleManager_->setValue(pieplotpropertylinestrokethicknessitem_,
+                           piegraph->getstrokethickness_pieplot());
+  enumManager_->setValue(pieplotpropertylinestroketypeitem_,
+                         piegraph->getstrokestyle_pieplot() - 1);
+}
+
+void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
+  Q_UNUSED(axisrect);
   populateObjectBrowser(widget);
 }
 
-void PropertyEditor::axisCreated(Axis2D *axis) { objectschanged(axis); }
-
-void PropertyEditor::axisRemoved(AxisRect2D *axisrect) {
-  objectschanged(axisrect);
+void PropertyEditor::objectschanged() {
+  ApplicationWindow *app_ = qobject_cast<ApplicationWindow *>(parent());
+  if (app_) {
+    MyWidget *mywidget = app_->getactiveMyWidget();
+    populateObjectBrowser(mywidget);
+  }
 }
-
-void PropertyEditor::textItem2DCreated(TextItem2D *textitem) {
-  objectschanged(textitem);
-}
-
-void PropertyEditor::textItem2DRemoved(AxisRect2D *axisrect) {
-  objectschanged(axisrect);
-}
-
-void PropertyEditor::lineScatterCreated(LineScatter2D *ls) {
-  objectschanged(ls);
-}
-
-void PropertyEditor::lineScatterRemoved(AxisRect2D *axisrect) {
-  objectschanged(axisrect);
-}
-
-void PropertyEditor::curveCreated(Curve2D *curve) { objectschanged(curve); }
-
-void PropertyEditor::splineCreated(Spline2D *spline) { objectschanged(spline); }
-
-void PropertyEditor::statBox2DCreated(StatBox2D *statbox) {
-  objectschanged(statbox);
-}
-
-void PropertyEditor::statBox2DRemoved(AxisRect2D *axisrect) {
-  objectschanged(axisrect);
-}
-
-void PropertyEditor::vectorCreated(Vector2D *vector) { objectschanged(vector); }
-
-void PropertyEditor::barCreated(Bar2D *bar) { objectschanged(bar); }
 
 void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
   objectbrowser_->clear();
@@ -2449,11 +2654,28 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         item->addChild(textitem);
       }
 
+      // Line items
+      QVector<LineItem2D *> lineitems = element->getLineItemVec();
+      for (int j = 0; j < lineitems.size(); j++) {
+        QTreeWidgetItem *lineitem =
+            new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+        QString text = QString("Line Item: " + QString::number(j + 1));
+        lineitem->setIcon(0,
+                          IconLoader::load("draw-line", IconLoader::LightDark));
+        lineitem->setText(0, text);
+        lineitem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::LineItem));
+        lineitem->setData(0, Qt::UserRole + 1,
+                          QVariant::fromValue<void *>(lineitems.at(j)));
+        item->addChild(lineitem);
+      }
+
       // LineScatter plot Items
       LsVec graphvec = element->getLsVec();
       for (int j = 0; j < graphvec.size(); j++) {
-        LineScatter2D *lsgraph = graphvec.at(j);
-        QString lsgraphtext = QString("Line Scatter %1").arg(j + 1);
+        LineSpecial2D *lsgraph = graphvec.at(j);
+        QString lsgraphtext = QString("Line Special %1").arg(j + 1);
         QTreeWidgetItem *lsgraphitem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(lsgraphtext));
         lsgraphitem->setIcon(
@@ -2472,11 +2694,19 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       CurveVec curvevec = element->getCurveVec();
       for (int j = 0; j < curvevec.size(); j++) {
         Curve2D *curvegraph = curvevec.at(j);
-        QString curvegraphtext = QString("Curve %1").arg(j + 1);
+        QString curvegraphtext = QString("Line Scatter %1").arg(j + 1);
         QTreeWidgetItem *curvegraphitem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(curvegraphtext));
-        curvegraphitem->setIcon(
-            0, IconLoader::load("graph2d-line", IconLoader::LightDark));
+        switch (curvegraph->getplottype_curveplot()) {
+          case LSCommon::PlotType::Associated:
+            curvegraphitem->setIcon(
+                0, IconLoader::load("graph2d-line", IconLoader::LightDark));
+            break;
+          case LSCommon::PlotType::Function:
+            curvegraphitem->setIcon(0, IconLoader::load("graph2d-function-xy",
+                                                        IconLoader::LightDark));
+            break;
+        }
         curvegraphitem->setData(
             0, Qt::UserRole,
             static_cast<int>(MyTreeWidget::PropertyItemType::Curve));
@@ -2561,10 +2791,30 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                          QVariant::fromValue<void *>(element));
         item->addChild(baritem);
       }
+
+      // Pie Plot Items
+      QVector<Pie2D *> pievec = element->getPieVec();
+      for (int j = 0; j < pievec.size(); j++) {
+        Pie2D *pie = pievec.at(j);
+        QString pietext = QString("Pie %1").arg(j + 1);
+        QTreeWidgetItem *pieitem = new QTreeWidgetItem(
+            static_cast<QTreeWidget *>(nullptr), QStringList(pietext));
+        pieitem->setIcon(
+            0, IconLoader::load("graph2d-pie", IconLoader::LightDark));
+        pieitem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::PieGraph));
+        pieitem->setData(0, Qt::UserRole + 1, QVariant::fromValue<void *>(pie));
+        pieitem->setData(0, Qt::UserRole + 2,
+                         QVariant::fromValue<void *>(element));
+        item->addChild(pieitem);
+      }
+
       objectitems_.append(item);
       // if (!elementslist.isEmpty()) {
       // elementslist.at(0)->parentPlot()->replot();
       //}
+      axisrectConnections(elementslist.at(i));
     }
     connect(gd, SIGNAL(AxisRectCreated(AxisRect2D *, MyWidget *)), this,
             SLOT(axisRectCreated(AxisRect2D *, MyWidget *)));
@@ -2589,6 +2839,52 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     objectbrowser_->topLevelItem(0)->setSelected(true);
     selectObjectItem(objectbrowser_->topLevelItem(0));
   }*/
+}
+
+void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
+  // created
+  connect(axisrect, SIGNAL(Axis2DCreated(Axis2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(TextItem2DCreated(TextItem2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(LineItem2DCreated(LineItem2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(LineScatter2DCreated(LineSpecial2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(Curve2DCreated(Curve2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(Spline2DCreated(Spline2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(StatBox2DCreated(StatBox2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(Vector2DCreated(Vector2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(Bar2DCreated(Bar2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(Pie2DCreated(Pie2D *)), this,
+          SLOT(objectschanged()));
+
+  // Removed
+  connect(axisrect, SIGNAL(Axis2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(TextItem2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(LineItem2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(LineScatter2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(Curve2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(Spline2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(StatBox2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(Vector2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(Bar2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(Pie2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
 }
 
 void PropertyEditor::setObjectPropertyId() {
@@ -2653,6 +2949,8 @@ void PropertyEditor::setObjectPropertyId() {
   axispropertyticklabelprecisionitem_->setPropertyId(
       "axispropertyticklabelprecisionitem_");
   // Legend Properties
+  itempropertylegendvisibleitem_->setPropertyId(
+      "itempropertylegendvisibleitem_");
   itempropertylegendfontitem_->setPropertyId("itempropertylegendfontitem_");
   itempropertylegendtextcoloritem_->setPropertyId(
       "itempropertylegendtextcoloritem_");
@@ -2679,7 +2977,8 @@ void PropertyEditor::setObjectPropertyId() {
   itempropertytexttextitem_->setPropertyId("itempropertytexttextitem_");
   itempropertytextfontitem_->setPropertyId("itempropertytextfontitem_");
   itempropertytextcoloritem_->setPropertyId("itempropertytextcoloritem_");
-  itempropertyantialiaseditem_->setPropertyId("itempropertyantialiaseditem_");
+  itempropertytextantialiaseditem_->setPropertyId(
+      "itempropertytextantialiaseditem_");
   itempropertytextstrokecoloritem_->setPropertyId(
       "itempropertytextstrokecoloritem_");
   itempropertytextstrokethicknessitem_->setPropertyId(
@@ -2693,6 +2992,15 @@ void PropertyEditor::setObjectPropertyId() {
       "itempropertytextpositionalignmentitem_");
   itempropertytexttextalignmentitem_->setPropertyId(
       "itempropertytexttextalignmentitem_");
+  // Line Item Properties
+  itempropertylineantialiaseditem_->setPropertyId(
+      "itempropertylineantialiaseditem_");
+  itempropertylinestrokecoloritem_->setPropertyId(
+      "itempropertylinestrokecoloritem_");
+  itempropertylinestrokethicknessitem_->setPropertyId(
+      "itempropertylinestrokethicknessitem_");
+  itempropertylinestroketypeitem_->setPropertyId(
+      "itempropertylinestroketypeitem_");
   // Line Scatter Property Block
   lsplotpropertyxaxisitem_->setPropertyId("lsplotpropertyxaxisitem_");
   lsplotpropertyyaxisitem_->setPropertyId("lsplotpropertyyaxisitem_");
@@ -2774,6 +3082,24 @@ void PropertyEditor::setObjectPropertyId() {
   splinepropertylegendtextitem_->setPropertyId(
       "splinepropertylelegendtextitem_");
 
+  // Box Properties block
+  barplotpropertyxaxisitem_->setPropertyId("barplotpropertyxaxisitem_");
+  barplotpropertyyaxisitem_->setPropertyId("barplotpropertyyaxisitem_");
+  barplotpropertywidthitem_->setPropertyId("barplotpropertywidthitem_");
+  barplotpropertyfillantialiaseditem_->setPropertyId(
+      "barplotpropertyfillantialiaseditem_");
+  barplotpropertyfillcoloritem_->setPropertyId("barplotpropertyfillcoloritem_");
+  barplotpropertyantialiaseditem_->setPropertyId(
+      "barplotpropertyantialiaseditem_");
+  barplotpropertystrokecoloritem_->setPropertyId(
+      "barplotpropertystrokecoloritem_");
+  barplotpropertystrokethicknessitem_->setPropertyId(
+      "barplotpropertystrokethicknessitem_");
+  barplotpropertystrokestyleitem_->setPropertyId(
+      "barplotpropertystrokestyleitem_");
+  barplotpropertylegendtextitem_->setPropertyId(
+      "barplotpropertylegendtextitem_");
+
   // StatBox Properties block
   statboxplotpropertyxaxisitem_->setPropertyId("statboxplotpropertyxaxisitem_");
   statboxplotpropertyyaxisitem_->setPropertyId("statboxplotpropertyyaxisitem_");
@@ -2847,6 +3173,14 @@ void PropertyEditor::setObjectPropertyId() {
   vectorpropertylineantialiaseditem_->setPropertyId(
       "vectorpropertylineantialiaseditem_");
   vectorpropertylegendtextitem_->setPropertyId("vectorpropertylegendtextitem_");
+
+  // Pie Properties Block
+  pieplotpropertylinestrokecoloritem_->setPropertyId(
+      "pieplotpropertylinestrokecoloritem_");
+  pieplotpropertylinestrokethicknessitem_->setPropertyId(
+      "pieplotpropertylinestrokethicknessitem_");
+  pieplotpropertylinestroketypeitem_->setPropertyId(
+      "pieplotpropertylinestroketypeitem_");
 
   // Grid Block
   hgridaxispropertycomboitem_->setPropertyId("hgridaxispropertycomboitem_");

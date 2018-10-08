@@ -16,19 +16,22 @@ class MyTreeWidget : public QTreeWidget {
     Layout = 0,
     Grid = 1,
     Axis = 2,
-    Legend =3,
+    Legend = 3,
     TextItem = 4,
-    LSGraph = 5,
-    Curve = 6,
-    Spline = 7,
-    StatBox = 8,
-    Vector = 9,
-    BarGraph = 10,
+    LineItem = 5,
+    LSGraph = 6,
+    Curve = 7,
+    Spline = 8,
+    StatBox = 9,
+    Vector = 10,
+    BarGraph = 11,
+    PieGraph = 12,
   };
   MyTreeWidget(QWidget *parent = nullptr);
   ~MyTreeWidget() {}
 
  private slots:
+  void CurrentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
   void showContextMenu(const QPoint &pos);
   void addfunctiongraph();
   void addplot();

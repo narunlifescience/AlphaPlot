@@ -50,6 +50,9 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       IconLoader::load("clear-loginfo", IconLoader::General));
   removepie_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
 
+  connect(this,
+          SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
+          this, SLOT(CurrentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
   connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
           SLOT(showContextMenu(const QPoint &)));
   connect(addfunctiongraph_, SIGNAL(triggered(bool)), this,
@@ -64,6 +67,83 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   // connect(removevector_, SIGNAL(triggered(bool)), this,
   // SLOT(removevector())); connect(removepie_, SIGNAL(triggered(bool)), this,
   // SLOT(removepie()));
+}
+
+void MyTreeWidget::CurrentItemChanged(QTreeWidgetItem *current,
+                                      QTreeWidgetItem *previous) {
+  Q_UNUSED(previous);
+  AxisRect2D *currentaxisrect = nullptr;
+  if (current) {
+    switch (static_cast<MyTreeWidget::PropertyItemType>(
+        current->data(0, Qt::UserRole).value<int>())) {
+      case MyTreeWidget::PropertyItemType::Layout: {
+        void *ptr = current->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::Grid: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::Axis: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::Legend: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::TextItem: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::LineItem: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::LSGraph: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::Curve: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::Spline: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::BarGraph: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::StatBox: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::Vector: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+      case MyTreeWidget::PropertyItemType::PieGraph: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
+    }
+  }
+
+  if (currentaxisrect) currentaxisrect->selectAxisRect();
 }
 
 void MyTreeWidget::showContextMenu(const QPoint &pos) {
@@ -176,18 +256,21 @@ void MyTreeWidget::removeaxis() {
   Axis2D *axis = static_cast<Axis2D *>(ptr);
   AxisRect2D *axisrect = axis->getaxisrect_axis();
   axisrect->removeAxis2D(axis);
+  axisrect->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removels() {
   QAction *action = qobject_cast<QAction *>(sender());
   if (!action) return;
   void *ptr = action->data().value<void *>();
-  LineScatter2D *ls = static_cast<LineScatter2D *>(ptr);
+  LineSpecial2D *ls = static_cast<LineSpecial2D *>(ptr);
+  QCustomPlot *customplot = ls->parentPlot();
   bool result =
       ls->getxaxis_lsplot()->getaxisrect_axis()->removeLineScatter2D(ls);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
   }
+  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removecurve() {
@@ -195,11 +278,13 @@ void MyTreeWidget::removecurve() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   Curve2D *curve = static_cast<Curve2D *>(ptr);
+  QCustomPlot *customplot = curve->parentPlot();
   bool result =
       curve->getxaxis_cplot()->getaxisrect_axis()->removeCurve2D(curve);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
   }
+  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removespline() {
@@ -207,11 +292,13 @@ void MyTreeWidget::removespline() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   Spline2D *spline = static_cast<Spline2D *>(ptr);
+  QCustomPlot *customplot = spline->parentPlot();
   bool result =
       spline->getxaxis_splot()->getaxisrect_axis()->removeSpline2D(spline);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
   }
+  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removebar() {
@@ -219,8 +306,10 @@ void MyTreeWidget::removebar() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   Bar2D *bar = static_cast<Bar2D *>(ptr);
+  QCustomPlot *customplot = bar->parentPlot();
   bool result = bar->getxaxis_barplot()->getaxisrect_axis()->removeBar2D(bar);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
   }
+  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
