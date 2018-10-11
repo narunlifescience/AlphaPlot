@@ -239,3 +239,25 @@ QColor Utilities::getRandColorGoldenRatio(ColorPal colpal) {
 
   return rgb;
 }
+
+QString Utilities::splitstring(QString string) {
+  if (string.isEmpty()) return string;
+
+  QStringList stringlist = string.split("<endl>");
+  QString final = stringlist.at(0);
+  for (int i = 1; i < stringlist.count(); i++) {
+    final += "\n" + stringlist.at(i);
+  }
+  return final;
+}
+
+QString Utilities::joinstring(QString string) {
+  if (string.isEmpty()) return string;
+
+  QStringList stringlist = string.split("\n");
+  QString final = stringlist.at(0);
+  for (int i = 1; i < stringlist.count(); i++) {
+    final += "<endl>" + stringlist.at(i);
+  }
+  return final;
+}

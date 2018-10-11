@@ -130,9 +130,9 @@
     <addaction name="actionAddText"/>
     <addaction name="actionDrawArrow"/>
     <addaction name="actionDrawLine"/>
+    <addaction name="actionDrawEllipse"/>
     <addaction name="actionAddTimeStamp"/>
     <addaction name="actionAddImage"/>
-    <addaction name="actionNewLegend"/>
     <addaction name="separator"/>
     <addaction name="actionAutomaticLayout"/>
     <addaction name="actionAddLayer"/>
@@ -805,9 +805,15 @@
     <string>Alt+I</string>
    </property>
   </action>
-  <action name="actionNewLegend">
+  <action name="actionDrawEllipse">
    <property name="text">
-    <string>&amp;New Legend</string>
+    <string>&amp;Draw Ellipse</string>
+   </property>
+   <property name="iconText">
+    <string>Draw Ellipse</string>
+   </property>
+   <property name="toolTip">
+    <string>Draw Ellipse</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>

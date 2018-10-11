@@ -4,6 +4,7 @@
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
 #include "LineScatterCommon.h"
+//#include "PlotPoint.h"
 
 class Column;
 class Table;
@@ -23,14 +24,14 @@ class LineSpecial2D : public QCPGraph {
   void removeXerrorBar();
   void removeYerrorBar();
   // Getters
-  LSCommon::LineStyleType getlinetype_lsplot() const;
+  Graph2DCommon::LineStyleType getlinetype_lsplot() const;
   Qt::PenStyle getlinestrokestyle_lsplot() const;
   QColor getlinestrokecolor_lsplot() const;
   double getlinestrokethickness_lsplot() const;
   bool getlinefillstatus_lsplot() const;
   QColor getlinefillcolor_lsplot() const;
   bool getlineantialiased_lsplot() const;
-  LSCommon::ScatterStyle getscattershape_lsplot() const;
+  Graph2DCommon::ScatterStyle getscattershape_lsplot() const;
   QColor getscatterfillcolor_lsplot() const;
   double getscattersize_lsplot() const;
   Qt::PenStyle getscatterstrokestyle_lsplot() const;
@@ -42,14 +43,14 @@ class LineSpecial2D : public QCPGraph {
   Axis2D *getyaxis_lsplot() const;
   DataBlockGraph *getdatablock_lsplot() const { return graphdata_; }
   // Setters
-  void setlinetype_lsplot(const LSCommon::LineStyleType &line);
+  void setlinetype_lsplot(const Graph2DCommon::LineStyleType &line);
   void setlinestrokestyle_lsplot(const Qt::PenStyle &style);
   void setlinestrokecolor_lsplot(const QColor &color);
   void setlinestrokethickness_lsplot(const double value);
   void setlinefillstatus_lsplot(bool status);
   void setlinefillcolor_lsplot(const QColor &color);
   void setlineantialiased_lsplot(const bool value);
-  void setscattershape_lsplot(const LSCommon::ScatterStyle &shape);
+  void setscattershape_lsplot(const Graph2DCommon::ScatterStyle &shape);
   void setscatterfillcolor_lsplot(const QColor &color);
   void setscattersize_lsplot(const double value);
   void setscatterstrokestyle_lsplot(const Qt::PenStyle &style);
@@ -59,12 +60,25 @@ class LineSpecial2D : public QCPGraph {
   void setlegendtext_lsplot(const QString &legendtext);
   void setxaxis_lsplot(Axis2D *axis);
   void setyaxis_lsplot(Axis2D *axis);
+  void setpicker_lsplot(const Graph2DCommon::Picker picker);
 
  protected:
   // void mousePressEvent(QMouseEvent *event, const QVariant &details);
   // void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
   void keyPressEvent(QKeyEvent *event);
   void keyreleaseEvent(QKeyEvent *event);
+
+ protected:
+  void mousePressEvent(QMouseEvent *event, const QVariant &details);
+
+ private:
+  void datapicker(QMouseEvent *event, const QVariant &details);
+  void graphpicker(QMouseEvent *event, const QVariant &details);
+  void movepicker(QMouseEvent *event, const QVariant &details);
+  void removepicker(QMouseEvent *event, const QVariant &details);
+
+ signals:
+  void showtooltip(QPointF position, double xval, double yval);
 
  private:
   Axis2D *xAxis_;
@@ -76,6 +90,7 @@ class LineSpecial2D : public QCPGraph {
   ErrorBar2D *yerrorbar_;
   bool xerroravailable_;
   bool yerroravailable_;
+  Graph2DCommon::Picker picker_;
   // PlotPoint *mPointUnderCursor;
 };
 

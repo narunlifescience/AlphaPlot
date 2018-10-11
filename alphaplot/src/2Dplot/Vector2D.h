@@ -63,6 +63,9 @@ class Vector2D : public QCPGraph {
   void setlegendtext_vecplot(const QString &name);
 
  private:
+  void reloadendings(const LineEndLocation &location);
+
+ private:
   Axis2D *xaxis_;
   Axis2D *yaxis_;
   QList<QCPItemLine *> linelist_;

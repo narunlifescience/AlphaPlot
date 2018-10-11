@@ -27,22 +27,21 @@
  *                                                                         *
  ***************************************************************************/
 #include "AssociationsDialog.h"
-#include "Table.h"
 #include "FunctionCurve.h"
 #include "PlotCurve.h"
 #include "QwtErrorPlotCurve.h"
-#include "VectorCurve.h"
+#include "Table.h"
 
-#include <QLabel>
-#include <QListWidget>
-#include <QPushButton>
-#include <QTableWidget>
-#include <QHeaderView>
+#include <QApplication>
 #include <QCheckBox>
 #include <QEvent>
+#include <QHeaderView>
+#include <QLabel>
 #include <QLayout>
-#include <QApplication>
+#include <QListWidget>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QTableWidget>
 
 AssociationsDialog::AssociationsDialog(QWidget *parent, Qt::WFlags fl)
     : QDialog(parent, fl), graph(0) {
@@ -65,9 +64,9 @@ AssociationsDialog::AssociationsDialog(QWidget *parent, Qt::WFlags fl)
   table->verticalHeader()->hide();
   table->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   table->setMaximumHeight(8 * table->rowHeight(0));
-  table->setHorizontalHeaderLabels(QStringList() << tr("Column") << tr("X")
-                                                 << tr("Y") << tr("xErr")
-                                                 << tr("yErr"));
+  table->setHorizontalHeaderLabels(QStringList()
+                                   << tr("Column") << tr("X") << tr("Y")
+                                   << tr("xErr") << tr("yErr"));
   vl->addWidget(table);
 
   associations = new QListWidget();
@@ -142,17 +141,6 @@ void AssociationsDialog::changePlotAssociation(int curve, const QString &text) {
     else
       er->loadData();
   } else if (lst.count() == 4) {
-    VectorCurve *v = (VectorCurve *)c;
-    v->setXColumnName(lst[0].remove("(X)"));
-    v->setTitle(lst[1].remove("(Y)"));
-
-    QString xEndCol = lst[2].remove("(X)").remove("(A)");
-    QString yEndCol = lst[3].remove("(Y)").remove("(M)");
-    if (v->vectorEndXAColName() != xEndCol ||
-        v->vectorEndYMColName() != yEndCol)
-      v->setVectorEnd(xEndCol, yEndCol);
-    else
-      v->loadData();
   }
   graph->notifyChanges();
 }
@@ -169,7 +157,8 @@ QString AssociationsDialog::plotAssociation(const QString &text) {
   return s;
 }
 
-void AssociationsDialog::initTablesList(QList<QMdiSubWindow *> *lst, int curve) {
+void AssociationsDialog::initTablesList(QList<QMdiSubWindow *> *lst,
+                                        int curve) {
   tables = lst;
   active_table = nullptr;
 
@@ -280,8 +269,8 @@ void AssociationsDialog::updateColumnTypes() {
       xEndColName = cols[2].remove("(A)");
       yEndColName = cols[3].remove("(M)");
       table->horizontalHeaderItem(3)->setText(tr("Angle"));
-      table->horizontalHeaderItem(4)
-          ->setText(tr("Magn.", "Magnitude, vector length"));
+      table->horizontalHeaderItem(4)->setText(
+          tr("Magn.", "Magnitude, vector length"));
     }
   }
 

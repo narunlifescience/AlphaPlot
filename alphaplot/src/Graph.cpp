@@ -30,8 +30,6 @@
 #include <QVarLengthArray>
 
 #include "ApplicationWindow.h"
-#include "BoxCurve.h"
-#include "CanvasPicker.h"
 #include "ColorBox.h"
 #include "FunctionCurve.h"
 #include "Graph.h"
@@ -51,7 +49,6 @@
 #include "Spectrogram.h"
 #include "SymbolBox.h"
 #include "TitlePicker.h"
-#include "VectorCurve.h"
 #include "core/column/Column.h"
 
 #include <QApplication>
@@ -130,7 +127,6 @@ Graph::Graph(QWidget *parent, QString name, Qt::WFlags f) : QWidget(parent, f) {
     d_user_step[i] = 0.0;
   }
   d_plot = new Plot(this);
-  cp = new CanvasPicker(this);
 
   titlePicker = new TitlePicker(d_plot);
   scalePicker = new ScalePicker(d_plot);
@@ -155,16 +151,6 @@ Graph::Graph(QWidget *parent, QString name, Qt::WFlags f) : QWidget(parent, f) {
   d_texts = QVector<int>();
   c_type = QVector<int>();
   c_keys = QVector<int>();
-
-  connect(cp, SIGNAL(selectPlot()), this, SLOT(activateGraph()));
-  connect(cp, SIGNAL(drawTextOff()), this, SIGNAL(drawTextOff()));
-  connect(cp, SIGNAL(viewImageDialog()), this, SIGNAL(viewImageDialog()));
-  connect(cp, SIGNAL(viewTextDialog()), this, SIGNAL(viewTextDialog()));
-  connect(cp, SIGNAL(viewLineDialog()), this, SIGNAL(viewLineDialog()));
-  connect(cp, SIGNAL(showPlotDialog(int)), this, SIGNAL(showPlotDialog(int)));
-  connect(cp, SIGNAL(showMarkerPopupMenu()), this,
-          SIGNAL(showMarkerPopupMenu()));
-  connect(cp, SIGNAL(modified()), this, SIGNAL(modifiedGraph()));
 
   connect(titlePicker, SIGNAL(showTitleMenu()), this,
           SLOT(showTitleContextMenu()));
@@ -2081,33 +2067,6 @@ QString Graph::saveCurveLayout(int index) {
     s += QString::number(h->binSize()) + "\t";
     s += QString::number(h->begin()) + "\t";
     s += QString::number(h->end()) + "\t";
-  } else if (style == VectXYXY || style == VectXYAM) {
-    VectorCurve *v = (VectorCurve *)c;
-    s += v->color().name() + "\t";
-    s += QString::number(v->width()) + "\t";
-    s += QString::number(v->headLength()) + "\t";
-    s += QString::number(v->headAngle()) + "\t";
-    s += QString::number(v->filledArrowHead()) + "\t";
-
-    QStringList colsList =
-        v->plotAssociation().split(",", QString::SkipEmptyParts);
-    s += colsList[2].remove("(X)").remove("(A)") + "\t";
-    s += colsList[3].remove("(Y)").remove("(M)");
-    if (style == VectXYAM) s += "\t" + QString::number(v->position());
-    s += "\t";
-  } else if (style == Box) {
-    BoxCurve *b = (BoxCurve *)c;
-    s += QString::number(SymbolBox::symbolIndex(b->maxStyle())) + "\t";
-    s += QString::number(SymbolBox::symbolIndex(b->p99Style())) + "\t";
-    s += QString::number(SymbolBox::symbolIndex(b->meanStyle())) + "\t";
-    s += QString::number(SymbolBox::symbolIndex(b->p1Style())) + "\t";
-    s += QString::number(SymbolBox::symbolIndex(b->minStyle())) + "\t";
-    s += QString::number(b->boxStyle()) + "\t";
-    s += QString::number(b->boxWidth()) + "\t";
-    s += QString::number(b->boxRangeType()) + "\t";
-    s += QString::number(b->boxRange()) + "\t";
-    s += QString::number(b->whiskersRangeType()) + "\t";
-    s += QString::number(b->whiskersRange()) + "\t";
   }
 
   return s;
@@ -2269,11 +2228,9 @@ long Graph::insertTextMarker(const QStringList &list) {
   return key;
 }
 
-void Graph::addArrow(QStringList list) {
-}
+void Graph::addArrow(QStringList list) {}
 
-void Graph::addArrow(ArrowMarker *mrk) {
-}
+void Graph::addArrow(ArrowMarker *mrk) {}
 
 ArrowMarker *Graph::arrow(long id) { return (ArrowMarker *)d_plot->marker(id); }
 
@@ -2462,27 +2419,7 @@ CurveLayout Graph::initCurveLayout(int style, int curves) {
   return cl;
 }
 
-bool Graph::canConvertTo(QwtPlotCurve *c, CurveType type) {
-  if (!c) return false;
-  // conversion between VectXYXY and VectXYAM is possible, but not implemented
-  if (dynamic_cast<VectorCurve *>(c)) return false;
-  // conversion between Pie, Histogram and Box should be possible (all of them
-  // take one input column),
-  // but lots of special-casing in ApplicationWindow and Graph makes this very
-  // difficult
-  if (dynamic_cast<QwtPieCurve *>(c) || dynamic_cast<QwtHistogram *>(c) ||
-      dynamic_cast<BoxCurve *>(c))
-    return false;
-  // converting error bars doesn't make sense
-  if (dynamic_cast<QwtErrorPlotCurve *>(c)) return false;
-  // line/symbol, area and bar curves can be converted to each other
-  if (dynamic_cast<DataCurve *>(c))
-    return type == Line || type == Scatter || type == LineSymbols ||
-           type == VerticalBars || type == HorizontalBars ||
-           type == HorizontalSteps || type == VerticalSteps || type == Area ||
-           type == VerticalDropLines || type == Spline;
-  return false;
-}
+bool Graph::canConvertTo(QwtPlotCurve *c, CurveType type) {}
 
 void Graph::setCurveType(int curve_index, CurveType type, bool update) {
   CurveType old_type = static_cast<CurveType>(c_type[curve_index]);
@@ -2753,54 +2690,12 @@ bool Graph::insertCurve(Table *w, const QString &xColName,
 }
 
 void Graph::plotVectorCurve(Table *w, const QStringList &colList, int style,
-                            int startRow, int endRow) {
-  if (colList.count() != 4) return;
-
-  if (endRow < 0) endRow = w->numRows() - 1;
-
-  VectorCurve *v = 0;
-  if (style == VectXYAM)
-    v = new VectorCurve(VectorCurve::XYAM, w, colList[0], colList[1],
-                        colList[2], colList[3], startRow, endRow);
-  else
-    v = new VectorCurve(VectorCurve::XYXY, w, colList[0], colList[1],
-                        colList[2], colList[3], startRow, endRow);
-
-  if (!v) return;
-
-  v->loadData();
-  v->setStyle(QwtPlotCurve::NoCurve);
-
-  c_type.resize(++n_curves);
-  c_type[n_curves - 1] = style;
-
-  c_keys.resize(n_curves);
-  c_keys[n_curves - 1] = d_plot->insertCurve(v);
-
-  addLegendItem(colList[1]);
-  updatePlot();
-}
+                            int startRow, int endRow) {}
 
 void Graph::updateVectorsLayout(int curve, const QColor &color, int width,
                                 int arrowLength, int arrowAngle, bool filled,
                                 int position, const QString &xEndColName,
-                                const QString &yEndColName) {
-  VectorCurve *vect = (VectorCurve *)this->curve(curve);
-  if (!vect) return;
-
-  vect->setColor(color);
-  vect->setWidth(width);
-  vect->setHeadLength(arrowLength);
-  vect->setHeadAngle(arrowAngle);
-  vect->fillArrowHead(filled);
-  vect->setPosition(position);
-
-  if (!xEndColName.isEmpty() && !yEndColName.isEmpty())
-    vect->setVectorEnd(xEndColName, yEndColName);
-
-  d_plot->replot();
-  emit modifiedGraph();
-}
+                                const QString &yEndColName) {}
 
 void Graph::updatePlot() {
   if (m_autoscale && !zoomOn() && d_active_tool == NULL) {
@@ -3275,8 +3170,7 @@ void Graph::showIntensityTable() {
   emit createIntensityTable(mrk->fileName());
 }
 
-void Graph::updateMarkersBoundingRect() {
-}
+void Graph::updateMarkersBoundingRect() {}
 
 void Graph::resizeEvent(QResizeEvent *e) {
   if (ignoreResize || !this->isVisible()) return;
@@ -3707,21 +3601,6 @@ void Graph::copy(ApplicationWindow *parent, Graph *g) {
         }
       } else if (style == Histogram) {
         ((QwtHistogram *)c)->copy((const QwtHistogram *)cv);
-      } else if (style == VectXYXY || style == VectXYAM) {
-        VectorCurve::VectorStyle vs = VectorCurve::XYXY;
-        if (style == VectXYAM) vs = VectorCurve::XYAM;
-        c = new VectorCurve(vs, cv->table(), cv->xColumnName(),
-                            cv->title().text(),
-                            ((VectorCurve *)cv)->vectorEndXAColName(),
-                            ((VectorCurve *)cv)->vectorEndYMColName(),
-                            cv->startRow(), cv->endRow());
-        ((VectorCurve *)c)->copy((const VectorCurve *)cv);
-      } else if (style == Box) {
-        c = new BoxCurve(cv->table(), cv->title().text(), cv->startRow(),
-                         cv->endRow());
-        ((BoxCurve *)c)->copy((const BoxCurve *)cv);
-        QwtSingleArrayData dat(x[0], y, n);
-        c->setData(dat);
       } else
         c = new DataCurve(cv->table(), cv->xColumnName(), cv->title().text(),
                           cv->startRow(), cv->endRow());
@@ -3876,18 +3755,6 @@ void Graph::plotBoxDiagram(Table *w, const QStringList &names, int startRow,
   if (endRow < 0) endRow = w->numRows() - 1;
 
   for (int j = 0; j < (int)names.count(); j++) {
-    BoxCurve *c = new BoxCurve(w, names[j], startRow, endRow);
-    c->setData(QwtSingleArrayData(double(j + 1), QwtArray<double>(), 0));
-    c->loadData();
-
-    c_keys.resize(++n_curves);
-    c_keys[n_curves - 1] = d_plot->insertCurve(c);
-    c_type.resize(n_curves);
-    c_type[n_curves - 1] = Box;
-
-    c->setPen(QPen(ColorBox::color(j), 1));
-    c->setSymbol(QwtSymbol(QwtSymbol::NoSymbol, QBrush(),
-                           QPen(ColorBox::color(j), 1), QSize(7, 7)));
   }
 
   Legend *mrk = (Legend *)d_plot->marker(legendMarkerID);
@@ -3954,35 +3821,7 @@ void Graph::setCurveBrush(int index, const QBrush &b) {
   c->setBrush(b);
 }
 
-void Graph::openBoxDiagram(Table *w, const QStringList &l) {
-  if (!w) return;
-
-  int startRow = 0;
-  int endRow = w->numRows() - 1;
-  startRow = l[l.count() - 3].toInt();
-  endRow = l[l.count() - 2].toInt();
-
-  BoxCurve *c = new BoxCurve(w, l[2], startRow, endRow);
-  c->setData(QwtSingleArrayData(l[1].toDouble(), QwtArray<double>(), 0));
-  c->setData(QwtSingleArrayData(l[1].toDouble(), QwtArray<double>(), 0));
-  c->loadData();
-
-  c_keys.resize(++n_curves);
-  c_keys[n_curves - 1] = d_plot->insertCurve(c);
-  c_type.resize(n_curves);
-  c_type[n_curves - 1] = Box;
-
-  c->setMaxStyle(SymbolBox::style(l[16].toInt()));
-  c->setP99Style(SymbolBox::style(l[17].toInt()));
-  c->setMeanStyle(SymbolBox::style(l[18].toInt()));
-  c->setP1Style(SymbolBox::style(l[19].toInt()));
-  c->setMinStyle(SymbolBox::style(l[20].toInt()));
-
-  c->setBoxStyle(l[21].toInt());
-  c->setBoxWidth(l[22].toInt());
-  c->setBoxRange(l[23].toInt(), l[24].toDouble());
-  c->setWhiskersRange(l[25].toInt(), l[26].toDouble());
-}
+void Graph::openBoxDiagram(Table *w, const QStringList &l) {}
 
 void Graph::setActiveTool(PlotToolInterface *tool) {
   if (d_active_tool) delete d_active_tool;
@@ -4285,8 +4124,6 @@ bool Graph::focusNextPrevChild(bool) {
     if (key > max_key) key = min_key;
   } else
     key = min_key;
-
-  cp->disableEditing();
 
   setSelectedMarker(key);
   return true;

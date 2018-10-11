@@ -6,6 +6,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QStyleOption>
+#include <QToolTip>
 #include <QVBoxLayout>
 
 #include "../core/IconLoader.h"
@@ -32,7 +33,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
       layout_(new LayoutGrid2D()),
       buttionlist_(QList<LayoutButton2D *>()),
       currentAxisRect_(nullptr),
-      draggingLegend(false) {
+      picker_(Graph2DCommon::Picker::None) {
   main_widget_->setContentsMargins(0, 0, 0, 0);
   if (name.isEmpty()) setObjectName("multilayout2d plot");
   QDateTime birthday = QDateTime::currentDateTime();
@@ -206,6 +207,22 @@ void Layout2D::generateStatBox2DPlot(Table *table, QList<Column *> ycollist,
   plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
+void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
+                                       Table *table, Column *yData, int from,
+                                       int to) {
+  AxisRect2D *element = addAxisRectItem();
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+  Bar2D *bar = element->addHistogram2DPlot(barType, table, yData, from, to,
+                                           xAxis.at(0), yAxis.at(0));
+  bar->rescaleAxes();
+  bar->layer()->replot();
+}
+
 void Layout2D::generateBar2DPlot(const AxisRect2D::BarType &barType,
                                  Table *table, Column *xData, Column *yData,
                                  int from, int to) {
@@ -371,6 +388,8 @@ AxisRect2D *Layout2D::addAxisRectItem() {
 
   connect(axisRect2d, SIGNAL(AxisRectClicked(AxisRect2D *)), this,
           SLOT(axisRectSetFocus(AxisRect2D *)));
+  connect(axisRect2d, SIGNAL(showtooltip(QPointF, double, double)), this,
+          SLOT(showtooltip(QPointF, double, double)));
 
   emit AxisRectCreated(axisRect2d, this);
   if (!currentAxisRect_) axisRectSetFocus(axisRect2d);
@@ -409,69 +428,18 @@ void Layout2D::activateLayout(LayoutButton2D *button) {
   }
 }
 
-void Layout2D::mouseMoveSignal(QMouseEvent *event) {
-  // dragging legend
-  if (draggingLegend) {
-    QRectF rect = currentAxisRect_->insetLayout()->insetRect(0);
-
-    // set bounding rect for drag event
-    QPoint eventpos = event->pos();
-    if (event->pos().x() < currentAxisRect_->left()) {
-      eventpos.setX(currentAxisRect_->left());
-    }
-    if (event->pos().x() > currentAxisRect_->right()) {
-      eventpos.setX(currentAxisRect_->right());
-    }
-    if (event->pos().y() < currentAxisRect_->top()) {
-      eventpos.setY(currentAxisRect_->top());
-    }
-    if (event->pos().y() > currentAxisRect_->bottom()) {
-      eventpos.setY(currentAxisRect_->bottom());
-    }
-
-    // since insetRect is in axisRect coordinates (0..1), we transform the mouse
-    // position:
-    QPointF mousePoint((eventpos.x() - currentAxisRect_->left()) /
-                           static_cast<double>(currentAxisRect_->width()),
-                       (eventpos.y() - currentAxisRect_->top()) /
-                           static_cast<double>(currentAxisRect_->height()));
-
-    rect.moveTopLeft(mousePoint - dragLegendOrigin);
-    currentAxisRect_->insetLayout()->setInsetRect(0, rect);
-    currentAxisRect_->getLegend()->layer()->replot();
-  }
+void Layout2D::showtooltip(QPointF position, double xval, double yval) {
+  QToolTip::showText(mapToGlobal(QPoint(static_cast<int>(position.x()),
+                                        static_cast<int>(position.y()))),
+                     QString::number(xval) + ", " + QString::number(yval));
 }
 
-void Layout2D::mousePressSignal(QMouseEvent *event) {
-  if (event->button() == Qt::LeftButton) {
-    // dragging legend
-    if (currentAxisRect_->selectTest(event->pos(), false) > 0) {
-      QCPLegend *l =
-          reinterpret_cast<QCPLegend *>(currentAxisRect_->getLegend());
-      if (l->selectTest(event->pos(), false) > 0) {
-        draggingLegend = true;
-        // since insetRect is in axisRect coordinates (0..1), we transform the
-        // mouse position:
-        QPointF mousePoint((event->pos().x() - currentAxisRect_->left()) /
-                               static_cast<double>(currentAxisRect_->width()),
-                           (event->pos().y() - currentAxisRect_->top()) /
-                               static_cast<double>(currentAxisRect_->height()));
-        dragLegendOrigin =
-            mousePoint -
-            currentAxisRect_->insetLayout()->insetRect(0).topLeft();
-        setCursor(Qt::ClosedHandCursor);
-      }
-    }
-  }
-}
+void Layout2D::mouseMoveSignal(QMouseEvent *event) { Q_UNUSED(event); }
+
+void Layout2D::mousePressSignal(QMouseEvent *event) { Q_UNUSED(event); }
 
 void Layout2D::mouseReleaseSignal(QMouseEvent *event) {
-  if (event->button() == Qt::LeftButton) {
-    if (draggingLegend) {
-      draggingLegend = false;
-      unsetCursor();
-    }
-  } else {
+  if (event->button() == Qt::RightButton) {
     QPointF startPos = event->posF();
     QMenu *menu = new QMenu();
     menu->setAttribute(Qt::WA_DeleteOnClose);
@@ -489,7 +457,8 @@ void Layout2D::mouseWheel() {
   // zoom axis individually or in group
   //  if (currentAxisRect_->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
   //    currentAxisRect_->setRangeZoom(ui->customPlot->xAxis->orientation());
-  //  else if (ui->customPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+  //  else if
+  //  (ui->customPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
   //    currentAxisRect_->setRangeZoom(ui->customPlot->yAxis->orientation());
   //  else
   currentAxisRect_->setRangeZoom(Qt::Horizontal | Qt::Vertical);
@@ -649,4 +618,29 @@ void Layout2D::setBackground(const QColor &background) {
                                ";}");
   main_widget_->setStyleSheet(".QWidget { background-color:" + baseColor +
                               ";}");
+}
+
+void Layout2D::setGraphTool(const Graph2DCommon::Picker &picker) {
+  picker_ = picker;
+  switch (picker_) {
+    case Graph2DCommon::Picker::None:
+      plot2dCanvas_->unsetCursor();
+      break;
+    case Graph2DCommon::Picker::DataPoint:
+      plot2dCanvas_->setCursor(Qt::CursorShape::CrossCursor);
+      break;
+    case Graph2DCommon::Picker::DataGraph:
+      plot2dCanvas_->setCursor(Qt::CursorShape::CrossCursor);
+      break;
+    case Graph2DCommon::Picker::DataMove:
+      plot2dCanvas_->setCursor(Qt::CursorShape::OpenHandCursor);
+      break;
+    case Graph2DCommon::Picker::DataRemove:
+      plot2dCanvas_->setCursor(Qt::CursorShape::PointingHandCursor);
+      break;
+  }
+  QList<AxisRect2D *> axisrectlist = getAxisRectList();
+  foreach (AxisRect2D *axisrect, axisrectlist) {
+    axisrect->setGraphTool(picker_);
+  }
 }

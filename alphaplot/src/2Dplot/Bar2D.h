@@ -3,6 +3,7 @@
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
+#include "LineScatterCommon.h"
 
 class Column;
 class Table;
@@ -13,6 +14,8 @@ class Bar2D : public QCPBars {
  public:
   Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
         Axis2D *xAxis, Axis2D *yAxis);
+  Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
+        Axis2D *yAxis);
   ~Bar2D();
 
   enum BarStyle {
@@ -28,6 +31,7 @@ class Bar2D : public QCPBars {
   double getstrokethickness_barplot() const;
   QColor getfillcolor_barplot() const;
   DataBlockBar *getdatablock_barplot() const;
+  bool ishistogram_barplot() const;
 
   void setxaxis_barplot(Axis2D *axis);
   void setyaxis_barplot(Axis2D *axis);
@@ -39,12 +43,27 @@ class Bar2D : public QCPBars {
   void setBarData(Table *table, Column *xcol, Column *ycol, int from, int to);
   void setBarWidth(double barwidth);
   double getBarWidth();
+  void setpicker_barplot(const Graph2DCommon::Picker picker);
+
+ protected:
+  void mousePressEvent(QMouseEvent *event, const QVariant &details);
+
+private:
+  void datapicker(QMouseEvent *event, const QVariant &details);
+  void graphpicker(QMouseEvent *event, const QVariant &details);
+  void movepicker(QMouseEvent *event, const QVariant &details);
+  void removepicker(QMouseEvent *event, const QVariant &details);
+
+ signals:
+  void showtooltip(QPointF position, double xval, double yval);
 
  private:
   double barwidth_;
   Axis2D *xaxis_;
   Axis2D *yaxis_;
   DataBlockBar *bardata_;
+  bool ishistogram_;
+  Graph2DCommon::Picker picker_;
 };
 
 #endif  // BAR2D_H

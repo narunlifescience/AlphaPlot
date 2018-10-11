@@ -33,6 +33,8 @@ class Layout2D : public MyWidget {
   void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
   void generateStatBox2DPlot(Table *table, QList<Column *> ycollist, int from,
                              int to, int key);
+  void generateHistogram2DPlot(const AxisRect2D::BarType &barType, Table *table,
+                               Column *yData, int from, int to);
 
   void generateLineScatter2DPlot(
       const AxisRect2D::LineScatterSpecialType &plotType, Table *table,
@@ -62,12 +64,14 @@ class Layout2D : public MyWidget {
   QPair<int, int> getLayoutRectGridCoordinate(int index);
   LayoutButton2D *addLayoutButton(int num);
   void setBackground(const QColor &background);
+  void setGraphTool(const Graph2DCommon::Picker &picker);
 
  private slots:
   AxisRect2D *addAxisRectItem();
   void removeAxisRectItem();
   void axisRectSetFocus(AxisRect2D *rect);
   void activateLayout(LayoutButton2D *button);
+  void showtooltip(QPointF position, double xval, double yval);
 
  private:
   QWidget *main_widget_;
@@ -84,8 +88,7 @@ class Layout2D : public MyWidget {
   QLabel *streachLabel_;
 
   AxisRect2D *currentAxisRect_;
-  bool draggingLegend;
-  QPointF dragLegendOrigin;
+  Graph2DCommon::Picker picker_;
 
  private slots:
   void mouseMoveSignal(QMouseEvent *event);

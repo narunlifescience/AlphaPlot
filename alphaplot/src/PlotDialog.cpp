@@ -28,7 +28,6 @@
  ***************************************************************************/
 #include "PlotDialog.h"
 #include "ApplicationWindow.h"
-#include "BoxCurve.h"
 #include "ColorBox.h"
 #include "ColorButton.h"
 #include "ColorMapEditor.h"
@@ -40,7 +39,6 @@
 #include "Spectrogram.h"
 #include "SymbolBox.h"
 #include "Table.h"
-#include "VectorCurve.h"
 #include "core/column/Column.h"
 #include "scripting/MyParser.h"
 
@@ -1549,20 +1547,6 @@ void PlotDialog::setActiveCurve(CurveTreeItem *item) {
     }
   }
 
-  if (curveType == Graph::VectXYXY ||
-      curveType == Graph::VectXYAM) {  // Vector page
-    VectorCurve *v = (VectorCurve *)i;
-    if (v) {
-      vectColorBox->setColor(v->color());
-      vectWidthBox->setValue(v->width());
-      headLengthBox->setValue(v->headLength());
-      headAngleBox->setValue(v->headAngle());
-      filledHeadBox->setChecked(v->filledArrowHead());
-      vectPosBox->setCurrentIndex(v->position());
-      updateEndPointColumns(item->text(0));
-    }
-  }
-
   if (curveType == Graph::ErrorBars) {
     QwtErrorPlotCurve *err = (QwtErrorPlotCurve *)i;
     if (err) {
@@ -1573,43 +1557,6 @@ void PlotDialog::setActiveCurve(CurveTreeItem *item) {
       throughBox->setChecked(err->throughSymbol());
       plusBox->setChecked(err->plusSide());
       minusBox->setChecked(err->minusSide());
-    }
-  }
-
-  if (curveType == Graph::Box) {
-    BoxCurve *b = (BoxCurve *)i;
-    if (b) {
-      boxMaxStyle->setStyle(b->maxStyle());
-      boxMinStyle->setStyle(b->minStyle());
-      boxMeanStyle->setStyle(b->meanStyle());
-      box99Style->setStyle(b->p99Style());
-      box1Style->setStyle(b->p1Style());
-
-      boxPercSize->setValue(s.size().width() / 2);
-      boxFillSymbols->setChecked(s.brush() != Qt::NoBrush);
-      boxPercFillColor->setEnabled(s.brush() != Qt::NoBrush);
-      boxPercFillColor->setColor(s.brush().color());
-      boxEdgeColor->setColor(s.pen().color());
-      boxEdgeWidth->setValue(s.pen().width());
-
-      boxRange->setCurrentIndex(b->boxRangeType() - 1);
-      boxType->setCurrentIndex(b->boxStyle());
-      boxWidth->setValue(b->boxWidth());
-      setBoxRangeType(boxRange->currentIndex());
-      setBoxType(boxType->currentIndex());
-      if (b->boxRangeType() == BoxCurve::SD ||
-          b->boxRangeType() == BoxCurve::SE)
-        boxCnt->setValue(b->boxRange());
-      else
-        boxCoef->setValue((int)b->boxRange());
-
-      boxWhiskersRange->setCurrentIndex(b->whiskersRangeType());
-      setWhiskersRange(boxWhiskersRange->currentIndex());
-      if (b->whiskersRangeType() == BoxCurve::SD ||
-          b->whiskersRangeType() == BoxCurve::SE)
-        whiskerCnt->setValue(b->whiskersRange());
-      else
-        boxWhiskersCoef->setValue((int)b->whiskersRange());
     }
   }
 }
@@ -1822,40 +1769,7 @@ bool PlotDialog::acceptParams() {
     pie->setBrushStyle(boxPiePattern->getSelectedPattern());
     pie->setFirstColor(boxFirstColor->currentIndex());
   } else if (privateTabWidget->currentWidget() == percentilePage) {
-    BoxCurve *b = (BoxCurve *)plotItem;
-    if (b) {
-      b->setMaxStyle(boxMaxStyle->selectedSymbol());
-      b->setP99Style(box99Style->selectedSymbol());
-      b->setMeanStyle(boxMeanStyle->selectedSymbol());
-      b->setP1Style(box1Style->selectedSymbol());
-      b->setMinStyle(boxMinStyle->selectedSymbol());
-
-      int size = 2 * boxPercSize->value() + 1;
-      QBrush br = QBrush(boxPercFillColor->color(), Qt::SolidPattern);
-      if (!boxFillSymbols->isChecked()) br = QBrush();
-      QwtSymbol s = QwtSymbol(
-          QwtSymbol::NoSymbol, br,
-          QPen(boxEdgeColor->color(), boxEdgeWidth->value(), Qt::SolidLine),
-          QSize(size, size));
-      b->setSymbol(s);
-    }
   } else if (privateTabWidget->currentWidget() == boxPage) {
-    BoxCurve *b = (BoxCurve *)plotItem;
-    if (b) {
-      b->setBoxWidth(boxWidth->value());
-      b->setBoxStyle(boxType->currentIndex());
-      if (boxCnt->isVisible())
-        b->setBoxRange(boxRange->currentIndex() + 1, boxCnt->value());
-      else
-        b->setBoxRange(boxRange->currentIndex() + 1, (double)boxCoef->value());
-
-      if (whiskerCnt->isVisible())
-        b->setWhiskersRange(boxWhiskersRange->currentIndex(),
-                            whiskerCnt->value());
-      else
-        b->setWhiskersRange(boxWhiskersRange->currentIndex(),
-                            (double)boxWhiskersCoef->value());
-    }
   }
   graph->replot();
   graph->notifyChanges();
@@ -2003,19 +1917,6 @@ void PlotDialog::setBoxType(int index) {
   boxCoef->hide();
   boxCntLabel->hide();
   boxCnt->hide();
-
-  if (index != BoxCurve::NoBox && index != BoxCurve::WindBox) {
-    boxRange->show();
-    boxRangeLabel->show();
-    int id = boxRange->currentIndex() + 1;
-    if (id == BoxCurve::UserDef) {
-      boxCoef->show();
-      boxCoeffLabel->show();
-    } else if (id == BoxCurve::SD || id == BoxCurve::SE) {
-      boxCntLabel->show();
-      boxCnt->show();
-    }
-  }
 }
 
 void PlotDialog::setBoxRangeType(int index) {
@@ -2023,15 +1924,6 @@ void PlotDialog::setBoxRangeType(int index) {
   boxCoef->hide();
   boxCntLabel->hide();
   boxCnt->hide();
-
-  index++;
-  if (index == BoxCurve::UserDef) {
-    boxCoeffLabel->show();
-    boxCoef->show();
-  } else if (index == BoxCurve::SD || index == BoxCurve::SE) {
-    boxCntLabel->show();
-    boxCnt->show();
-  }
 }
 
 void PlotDialog::setWhiskersRange(int index) {
@@ -2039,14 +1931,6 @@ void PlotDialog::setWhiskersRange(int index) {
   boxWhiskersCoef->hide();
   whiskerCntLabel->hide();
   whiskerCnt->hide();
-
-  if (index == BoxCurve::UserDef) {
-    whiskerCoeffLabel->show();
-    boxWhiskersCoef->show();
-  } else if (index == BoxCurve::SD || index == BoxCurve::SE) {
-    whiskerCntLabel->show();
-    whiskerCnt->show();
-  }
 }
 
 void PlotDialog::customVectorsPage(bool angleMag) {

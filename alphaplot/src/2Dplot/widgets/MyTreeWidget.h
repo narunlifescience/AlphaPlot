@@ -19,13 +19,14 @@ class MyTreeWidget : public QTreeWidget {
     Legend = 3,
     TextItem = 4,
     LineItem = 5,
-    LSGraph = 6,
-    Curve = 7,
-    Spline = 8,
-    StatBox = 9,
-    Vector = 10,
-    BarGraph = 11,
-    PieGraph = 12,
+    ImageItem = 6,
+    LSGraph = 7,
+    Curve = 8,
+    Spline = 9,
+    StatBox = 10,
+    Vector = 11,
+    BarGraph = 12,
+    PieGraph = 13,
   };
   MyTreeWidget(QWidget *parent = nullptr);
   ~MyTreeWidget() {}

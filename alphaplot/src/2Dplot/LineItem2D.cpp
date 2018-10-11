@@ -5,15 +5,22 @@ const int LineItem2D::selectionpixelsize_ = 10;
 LineItem2D::LineItem2D(AxisRect2D *axisrect, Plot2D *plot)
     : QCPItemLine(plot),
       axisrect_(axisrect),
+      ending_(new QCPLineEnding),
+      starting_(new QCPLineEnding),
       draggingendlineitem_(false),
       draggingstartlineitem_(false),
       lineitemclicked_(false) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setClipAxisRect(axisrect_);
   setClipToAxisRect(true);
+  setHead(*starting_);
+  setTail(*ending_);
 }
 
-LineItem2D::~LineItem2D() {}
+LineItem2D::~LineItem2D() {
+  delete starting_;
+  delete ending_;
+}
 
 QColor LineItem2D::getstrokecolor_lineitem() const { return pen().color(); }
 
@@ -23,6 +30,33 @@ double LineItem2D::getstrokethickness_lineitem() const {
 
 Qt::PenStyle LineItem2D::getstrokestyle_lineitem() const {
   return pen().style();
+}
+
+QCPLineEnding::EndingStyle LineItem2D::getendstyle_lineitem(
+    const LineItem2D::LineEndLocation &location) const {
+  if (location == LineItem2D::LineEndLocation::Start) {
+    return starting_->style();
+  } else {
+    return ending_->style();
+  }
+}
+
+double LineItem2D::getendwidth_lineitem(
+    const LineItem2D::LineEndLocation &location) const {
+  if (location == LineItem2D::LineEndLocation::Start) {
+    return starting_->width();
+  } else {
+    return ending_->width();
+  }
+}
+
+double LineItem2D::getendlength_lineitem(
+    const LineItem2D::LineEndLocation &location) const {
+  if (location == LineItem2D::LineEndLocation::Start) {
+    return starting_->length();
+  } else {
+    return ending_->length();
+  }
 }
 
 void LineItem2D::setstrokecolor_lineitem(const QColor &color) {
@@ -41,6 +75,48 @@ void LineItem2D::setstrokestyle_lineitem(const Qt::PenStyle &style) {
   QPen p = pen();
   p.setStyle(style);
   setPen(p);
+}
+
+void LineItem2D::setendstyle_lineitem(const LineEndLocation &location,
+                                      const QCPLineEnding::EndingStyle &style) {
+  switch (location) {
+    case LineEndLocation::Start:
+      starting_->setStyle(style);
+      setHead(*starting_);
+      break;
+    case LineEndLocation::Stop:
+      ending_->setStyle(style);
+      setTail(*ending_);
+      break;
+  }
+}
+
+void LineItem2D::setendwidth_lineitem(
+    const double value, const LineItem2D::LineEndLocation &location) {
+  switch (location) {
+    case LineEndLocation::Start:
+      starting_->setWidth(value);
+      setHead(*starting_);
+      break;
+    case LineEndLocation::Stop:
+      ending_->setWidth(value);
+      setTail(*ending_);
+      break;
+  }
+}
+
+void LineItem2D::setendlength_lineitem(
+    const double value, const LineItem2D::LineEndLocation &location) {
+  switch (location) {
+    case LineEndLocation::Start:
+      starting_->setLength(value);
+      setHead(*starting_);
+      break;
+    case LineEndLocation::Stop:
+      ending_->setLength(value);
+      setTail(*ending_);
+      break;
+  }
 }
 
 void LineItem2D::draw(QCPPainter *painter) {
@@ -71,16 +147,21 @@ void LineItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
       if (end->pixelPosition().x() > (event->pos().x() - selectionpixelsize_) &&
           end->pixelPosition().x() < (event->pos().x() + selectionpixelsize_) &&
           end->pixelPosition().y() > (event->pos().y() - selectionpixelsize_) &&
-          end->pixelPosition().y() < (event->pos().y() + selectionpixelsize_))
+          end->pixelPosition().y() < (event->pos().y() + selectionpixelsize_)) {
         draggingendlineitem_ = true;
+        parentPlot()->setCursor(Qt::CursorShape::CrossCursor);
+      }
       if (start->pixelPosition().x() >
               (event->pos().x() - selectionpixelsize_) &&
           start->pixelPosition().x() <
               (event->pos().x() + selectionpixelsize_) &&
           start->pixelPosition().y() >
               (event->pos().y() - selectionpixelsize_) &&
-          start->pixelPosition().y() < (event->pos().y() + selectionpixelsize_))
+          start->pixelPosition().y() <
+              (event->pos().y() + selectionpixelsize_)) {
         draggingstartlineitem_ = true;
+        parentPlot()->setCursor(Qt::CursorShape::CrossCursor);
+      }
     }
     this->layer()->replot();
   }
@@ -132,9 +213,11 @@ void LineItem2D::mouseReleaseEvent(QMouseEvent *event,
     lineitemclicked_ = false;
     if (draggingendlineitem_) {
       draggingendlineitem_ = false;
+      parentPlot()->unsetCursor();
     }
     if (draggingstartlineitem_) {
       draggingstartlineitem_ = false;
+      parentPlot()->unsetCursor();
     }
   }
 }

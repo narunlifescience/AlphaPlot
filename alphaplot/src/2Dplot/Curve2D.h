@@ -29,7 +29,7 @@ class Curve2D : public QCPCurve {
   QColor getlinefillcolor_cplot() const;
   bool getlineantialiased_cplot() const;
   bool getlinefillstatus_cplot() const;
-  LSCommon::ScatterStyle getscattershape_cplot() const;
+  Graph2DCommon::ScatterStyle getscattershape_cplot() const;
   QColor getscatterfillcolor_cplot() const;
   double getscattersize_cplot() const;
   Qt::PenStyle getscatterstrokestyle_cplot() const;
@@ -39,7 +39,7 @@ class Curve2D : public QCPCurve {
   QString getlegendtext_cplot() const;
   Axis2D *getxaxis_cplot() const;
   Axis2D *getyaxis_cplot() const;
-  LSCommon::PlotType getplottype_curveplot() const { return type_; }
+  Graph2DCommon::PlotType getplottype_curveplot() const { return type_; }
   DataBlockCurve *getdatablock_curveplot() const { return curvedata_; }
   // Setters
   void setxaxis_cplot(Axis2D *axis);
@@ -50,7 +50,7 @@ class Curve2D : public QCPCurve {
   void setlinestrokethickness_cplot(const double value);
   void setlinefillcolor_cplot(const QColor &color);
   void setlineantialiased_cplot(const bool value);
-  void setscattershape_cplot(const LSCommon::ScatterStyle &shape);
+  void setscattershape_cplot(const Graph2DCommon::ScatterStyle &shape);
   void setscatterfillcolor_cplot(const QColor &color);
   void setscattersize_cplot(const double value);
   void setscatterstrokestyle_cplot(const Qt::PenStyle &style);
@@ -59,6 +59,19 @@ class Curve2D : public QCPCurve {
   void setscatterantialiased_cplot(const bool value);
   void setlinefillstatus_cplot(const bool value);
   void setlegendtext_cplot(const QString &text);
+  void setpicker_cplot(const Graph2DCommon::Picker picker);
+
+protected:
+    void mousePressEvent(QMouseEvent *event, const QVariant &details);
+
+private:
+  void datapicker(QMouseEvent *event, const QVariant &details);
+  void graphpicker(QMouseEvent *event, const QVariant &details);
+  void movepicker(QMouseEvent *event, const QVariant &details);
+  void removepicker(QMouseEvent *event, const QVariant &details);
+
+signals:
+    void showtooltip(QPointF position, double xval, double yval);
 
  private:
   Axis2D *xAxis_;
@@ -66,7 +79,8 @@ class Curve2D : public QCPCurve {
   QCPScatterStyle *scatterstyle_;
   DataBlockCurve *curvedata_;
   QSharedPointer<QCPCurveDataContainer> functionData_;
-  LSCommon::PlotType type_;
+  Graph2DCommon::PlotType type_;
+  Graph2DCommon::Picker picker_;
 };
 
 #endif  // CURVE2D_H

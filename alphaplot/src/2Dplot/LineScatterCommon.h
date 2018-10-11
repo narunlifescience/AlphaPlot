@@ -1,10 +1,10 @@
-#ifndef LINESCATTERCOMMON_H
-#define LINESCATTERCOMMON_H
+#ifndef GRAPH2DCOMMON_H
+#define GRAPH2DCOMMON_H
 
 class Column;
 class Table;
 
-namespace LSCommon {
+namespace Graph2DCommon {
 enum class LineStyleType : int {
   StepLeft = 0,
   StepRight = 1,
@@ -31,8 +31,16 @@ enum class ScatterStyle : int {
   Peace = 15,
 };
 
+enum class Picker : int {
+  None = 0,
+  DataPoint = 1,
+  DataGraph = 2,
+  DataMove = 3,
+  DataRemove = 4,
+};
+
 enum class PlotType { Associated, Function };
-}  // namespace LSCommon
+}  // namespace Graph2DCommon
 
 namespace PlotData {
 struct AssociatedData {
@@ -42,4 +50,4 @@ struct AssociatedData {
 };
 }  // namespace PlotData
 
-#endif  // LINESCATTERCOMMON_H
+#endif  // GRAPH2DCOMMON_H

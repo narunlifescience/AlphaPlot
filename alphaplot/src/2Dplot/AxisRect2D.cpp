@@ -16,6 +16,7 @@
 
 #include "AxisRect2D.h"
 #include "../future/core/column/Column.h"
+#include "ImageItem2D.h"
 #include "Legend2D.h"
 #include "LineItem2D.h"
 #include "QMessageBox"
@@ -30,7 +31,7 @@ AxisRect2D::AxisRect2D(Plot2D *parent, bool setupDefaultAxis)
     : QCPAxisRect(parent, setupDefaultAxis),
       plot2d_(parent),
       axisRectBackGround_(Qt::white),
-      axisRectLegend_(new Legend2D()),
+      axisRectLegend_(new Legend2D(this)),
       isAxisRectSelected_(false),
       printorexportjob_(false) {
   gridpair_.first.first = nullptr;
@@ -225,51 +226,53 @@ Axis2D *AxisRect2D::getYAxis(int value) {
 LineSpecial2D *AxisRect2D::addLineScatter2DPlot(
     const LineScatterSpecialType &type, Table *table, Column *xData,
     Column *yData, int from, int to, Axis2D *xAxis, Axis2D *yAxis) {
-  LineSpecial2D *lineScatter =
+  LineSpecial2D *lineSpecial =
       new LineSpecial2D(table, xData, yData, from, to, xAxis, yAxis);
-  lineScatter->setlinefillcolor_lsplot(
+  lineSpecial->setlinefillcolor_lsplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
 
   switch (type) {
     case LineScatterSpecialType::VerticalDropLine2D:
-      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::Impulse);
-      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::Disc);
-      lineScatter->setlinefillstatus_lsplot(false);
-      lineScatter->setlineantialiased_lsplot(false);
-      lineScatter->setscatterantialiased_lsplot(true);
+      lineSpecial->setlinetype_lsplot(Graph2DCommon::LineStyleType::Impulse);
+      lineSpecial->setscattershape_lsplot(Graph2DCommon::ScatterStyle::Disc);
+      lineSpecial->setlinefillstatus_lsplot(false);
+      lineSpecial->setlineantialiased_lsplot(false);
+      lineSpecial->setscatterantialiased_lsplot(true);
       break;
     case LineScatterSpecialType::CentralStepAndScatter2D:
-      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::StepCenter);
-      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::Disc);
-      lineScatter->setlinefillstatus_lsplot(false);
-      lineScatter->setlineantialiased_lsplot(false);
-      lineScatter->setscatterantialiased_lsplot(true);
+      lineSpecial->setlinetype_lsplot(Graph2DCommon::LineStyleType::StepCenter);
+      lineSpecial->setscattershape_lsplot(Graph2DCommon::ScatterStyle::Disc);
+      lineSpecial->setlinefillstatus_lsplot(false);
+      lineSpecial->setlineantialiased_lsplot(false);
+      lineSpecial->setscatterantialiased_lsplot(true);
       break;
     case LineScatterSpecialType::HorizontalStep2D:
-      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::StepRight);
-      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
-      lineScatter->setlinefillstatus_lsplot(false);
-      lineScatter->setlineantialiased_lsplot(false);
-      lineScatter->setscatterantialiased_lsplot(true);
+      lineSpecial->setlinetype_lsplot(Graph2DCommon::LineStyleType::StepRight);
+      lineSpecial->setscattershape_lsplot(Graph2DCommon::ScatterStyle::None);
+      lineSpecial->setlinefillstatus_lsplot(false);
+      lineSpecial->setlineantialiased_lsplot(false);
+      lineSpecial->setscatterantialiased_lsplot(true);
       break;
     case LineScatterSpecialType::VerticalStep2D:
-      lineScatter->setlinetype_lsplot(LSCommon::LineStyleType::StepLeft);
-      lineScatter->setscattershape_lsplot(LSCommon::ScatterStyle::None);
-      lineScatter->setlinefillstatus_lsplot(false);
-      lineScatter->setlineantialiased_lsplot(false);
-      lineScatter->setscatterantialiased_lsplot(true);
+      lineSpecial->setlinetype_lsplot(Graph2DCommon::LineStyleType::StepLeft);
+      lineSpecial->setscattershape_lsplot(Graph2DCommon::ScatterStyle::None);
+      lineSpecial->setlinefillstatus_lsplot(false);
+      lineSpecial->setlineantialiased_lsplot(false);
+      lineSpecial->setscatterantialiased_lsplot(true);
       break;
   }
 
-  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineScatter);
+  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineSpecial);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
-  lineScatter->setName(table->name() + "_" + xData->name() + "_" +
+  lineSpecial->setName(table->name() + "_" + xData->name() + "_" +
                        yData->name());
-  lsvec_.append(lineScatter);
+  lsvec_.append(lineSpecial);
+  connect(lineSpecial, SIGNAL(showtooltip(QPointF, double, double)), this,
+          SIGNAL(showtooltip(QPointF, double, double)));
 
-  emit LineScatter2DCreated(lineScatter);
-  return lineScatter;
+  emit LineScatter2DCreated(lineSpecial);
+  return lineSpecial;
 }
 
 Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
@@ -280,22 +283,22 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
   switch (type) {
     case LineScatterType::Line2D:
       curve->setlinetype_cplot(1);
-      curve->setscattershape_cplot(LSCommon::ScatterStyle::None);
+      curve->setscattershape_cplot(Graph2DCommon::ScatterStyle::None);
       curve->setlinefillstatus_cplot(false);
       break;
     case LineScatterType::Scatter2D:
       curve->setlinetype_cplot(0);
-      curve->setscattershape_cplot(LSCommon::ScatterStyle::Disc);
+      curve->setscattershape_cplot(Graph2DCommon::ScatterStyle::Disc);
       curve->setlinefillstatus_cplot(false);
       break;
     case LineScatterType::LineAndScatter2D:
       curve->setlinetype_cplot(1);
-      curve->setscattershape_cplot(LSCommon::ScatterStyle::Disc);
+      curve->setscattershape_cplot(Graph2DCommon::ScatterStyle::Disc);
       curve->setlinefillstatus_cplot(false);
       break;
     case LineScatterType::Area2D:
       curve->setlinetype_cplot(1);
-      curve->setscattershape_cplot(LSCommon::ScatterStyle::None);
+      curve->setscattershape_cplot(Graph2DCommon::ScatterStyle::None);
       curve->setlinefillstatus_cplot(false);
       break;
   }
@@ -304,6 +307,8 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   curve->setName(table->name() + "_" + xcol->name() + "_" + ycol->name());
   curvevec_.append(curve);
+  connect(curve, SIGNAL(showtooltip(QPointF, double, double)), this,
+          SIGNAL(showtooltip(QPointF, double, double)));
 
   emit Curve2DCreated(curve);
   return curve;
@@ -315,12 +320,14 @@ Spline2D *AxisRect2D::addSpline2DPlot(Table *table, Column *xData,
   Spline2D *spline = new Spline2D(xAxis, yAxis);
   spline->setlinefillcolor_splot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
-  spline->setGraphData(xData, yData, from, to);
+  spline->setGraphData(table, xData, yData, from, to);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, spline);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   spline->setName(table->name() + "_" + xData->name() + "_" + yData->name());
   splinevec_.append(spline);
+  connect(spline, SIGNAL(showtooltip(QPointF, double, double)), this,
+          SIGNAL(showtooltip(QPointF, double, double)));
 
   emit Spline2DCreated(spline);
   return spline;
@@ -331,13 +338,15 @@ Curve2D *AxisRect2D::addFunction2DPlot(QVector<double> *xdata,
                                        Axis2D *yAxis, const QString &name) {
   Curve2D *curve = new Curve2D(xdata, ydata, xAxis, yAxis);
   curve->setlinetype_cplot(1);
-  curve->setscattershape_cplot(LSCommon::ScatterStyle::None);
+  curve->setscattershape_cplot(Graph2DCommon::ScatterStyle::None);
 
   curve->setName(name);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   curvevec_.append(curve);
+  connect(curve, SIGNAL(showtooltip(QPointF, double, double)), this,
+          SIGNAL(showtooltip(QPointF, double, double)));
 
   emit Curve2DCreated(curve);
   return curve;
@@ -357,7 +366,7 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
   }
 
   bar->setBarData(table, xData, yData, from, to);
-  bar->setBarWidth(1);
+  bar->setWidth(1);
   bar->setAntialiased(false);
   bar->setAntialiasedFill(false);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, bar);
@@ -365,6 +374,8 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   bar->setName(table->name() + "_" + xData->name() + "_" + yData->name());
   barvec_.append(bar);
+  connect(bar, SIGNAL(showtooltip(QPointF, double, double)), this,
+          SIGNAL(showtooltip(QPointF, double, double)));
 
   emit Bar2DCreated(bar);
   return bar;
@@ -397,9 +408,39 @@ StatBox2D *AxisRect2D::addStatBox2DPlot(Table *table,
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   statbox->setName(data.name);
   statboxvec_.append(statbox);
+  connect(statbox, SIGNAL(showtooltip(QPointF, double, double)), this,
+          SIGNAL(showtooltip(QPointF, double, double)));
 
   emit StatBox2DCreated(statbox);
   return statbox;
+}
+
+Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
+                                      Table *table, Column *yData, int from,
+                                      int to, Axis2D *xAxis, Axis2D *yAxis) {
+  Bar2D *bar;
+  switch (type) {
+    case AxisRect2D::BarType::HorizontalBars:
+      bar = new Bar2D(table, yData, from, to, yAxis, xAxis);
+      break;
+    case AxisRect2D::BarType::VerticalBars:
+      bar = new Bar2D(table, yData, from, to, xAxis, yAxis);
+      break;
+  }
+
+  bar->setWidth(1);
+  bar->setAntialiased(false);
+  bar->setAntialiasedFill(false);
+  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, bar);
+  axisRectLegend_->addItem(legendItem);
+  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  bar->setName(table->name() + "_" + yData->name());
+  barvec_.append(bar);
+  connect(bar, SIGNAL(showtooltip(QPointF, double, double)), this,
+          SIGNAL(showtooltip(QPointF, double, double)));
+
+  emit Bar2DCreated(bar);
+  return bar;
 }
 
 Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
@@ -439,6 +480,20 @@ LineItem2D *AxisRect2D::addLineItem2D() {
   linevec_.append(lineitem);
   emit LineItem2DCreated(lineitem);
   return lineitem;
+}
+
+LineItem2D *AxisRect2D::addArrowItem2D() {
+  LineItem2D *lineitem = addLineItem2D();
+  lineitem->setendstyle_lineitem(LineItem2D::LineEndLocation::Stop,
+                                 QCPLineEnding::EndingStyle::esFlatArrow);
+  return lineitem;
+}
+
+ImageItem2D *AxisRect2D::addImageItem2D(const QString &filename) {
+  ImageItem2D *imageitem = new ImageItem2D(this, plot2d_, filename);
+  imagevec_.append(imageitem);
+  emit ImageItem2DCreated(imageitem);
+  return imageitem;
 }
 
 // Should not use for other than populating axis map
@@ -513,6 +568,20 @@ bool AxisRect2D::removeLineItem2D(LineItem2D *lineitem) {
   if (!result) return result;
 
   emit LineItem2DRemoved(this);
+  return result;
+}
+
+bool AxisRect2D::removeImageItem2D(ImageItem2D *imageitem) {
+  for (int i = 0; i < imagevec_.size(); i++) {
+    if (imagevec_.at(i) == imageitem) {
+      imagevec_.remove(i);
+    }
+  }
+  bool result = false;
+  result = plot2d_->removeItem(imageitem);
+  if (!result) return result;
+
+  emit ImageItem2DRemoved(this);
   return result;
 }
 
@@ -602,6 +671,16 @@ bool AxisRect2D::removePie2D(Pie2D *pie) {
   result = plot2d_->removeItem(pie);
   emit Pie2DRemoved(this);
   return result;
+}
+
+void AxisRect2D::setGraphTool(const Graph2DCommon::Picker &picker) {
+  foreach (LineSpecial2D *ls, lsvec_) { ls->setpicker_lsplot(picker); }
+  foreach (Curve2D *curve, curvevec_) { curve->setpicker_cplot(picker); }
+  foreach (Spline2D *spline, splinevec_) { spline->setpicker_splot(picker); }
+  foreach (Bar2D *bar, barvec_) { bar->setpicker_barplot(picker); }
+  foreach (StatBox2D *statbox, statboxvec_) {
+    statbox->setpicker_statbox(picker);
+  }
 }
 
 void AxisRect2D::mousePressEvent(QMouseEvent *, const QVariant &) {

@@ -28,18 +28,17 @@
  ***************************************************************************/
 #include "Legend.h"
 #include "QwtPieCurve.h"
-#include "VectorCurve.h"
 
+#include <QMessageBox>
 #include <QPainter>
 #include <QPolygon>
-#include <QMessageBox>
 
-#include <qwt_plot.h>
-#include <qwt_scale_widget.h>
-#include <qwt_painter.h>
-#include <qwt_plot_layout.h>
-#include <qwt_plot_canvas.h>
 #include <qwt_layout_metrics.h>
+#include <qwt_painter.h>
+#include <qwt_plot.h>
+#include <qwt_plot_canvas.h>
+#include <qwt_plot_layout.h>
+#include <qwt_scale_widget.h>
 #include <qwt_symbol.h>
 
 Legend::Legend(Plot *plot) : d_plot(plot), d_frame(0), d_angle(0) {
@@ -196,35 +195,7 @@ void Legend::drawFrame(QPainter *p, int type, const QRect &rect) const {
 }
 
 void Legend::drawVector(QPainter *p, int x, int y, int l,
-                        int curveIndex) const {
-  Graph *g = (Graph *)d_plot->parent();
-  if (!g) return;
-
-  VectorCurve *v = (VectorCurve *)g->curve(curveIndex);
-  if (!v) return;
-
-  p->save();
-
-  QPen pen(v->color(), v->width(), Qt::SolidLine);
-  p->setPen(pen);
-  QwtPainter::drawLine(p, x, y, x + l, y);
-
-  p->translate(x + l, y);
-
-  double pi = 4 * atan(-1.0);
-  int headLength = v->headLength();
-  int d = qRound(headLength * tan(pi * (double)v->headAngle() / 180.0));
-
-  QPolygon endArray(3);
-  endArray[0] = QPoint(0, 0);
-  endArray[1] = QPoint(-headLength, d);
-  endArray[2] = QPoint(-headLength, -d);
-
-  if (v->filledArrowHead()) p->setBrush(QBrush(pen.color(), Qt::SolidPattern));
-
-  QwtPainter::drawPolygon(p, endArray);
-  p->restore();
-}
+                        int curveIndex) const {}
 
 void Legend::drawSymbols(QPainter *p, const QRect &rect, QwtArray<long> height,
                          int symbolLineLength) const {

@@ -283,27 +283,33 @@ void Vector2D::setlineantialiased_vecplot(bool status) {
 }
 
 void Vector2D::setlinestrokecolor_vecplot(const QColor &color) {
+  QPen p;
   foreach (QCPItemLine *arrow, linelist_) {
-    QPen p = arrow->pen();
+    p = arrow->pen();
     p.setColor(color);
     arrow->setPen(p);
   }
+  setPen(p);
 }
 
 void Vector2D::setlinestrokestyle_vecplot(const Qt::PenStyle &style) {
+  QPen p;
   foreach (QCPItemLine *arrow, linelist_) {
-    QPen p = arrow->pen();
+    p = arrow->pen();
     p.setStyle(style);
     arrow->setPen(p);
   }
+  setPen(p);
 }
 
 void Vector2D::setlinestrokethickness_vecplot(const double value) {
+  QPen p;
   foreach (QCPItemLine *arrow, linelist_) {
-    QPen p = arrow->pen();
+    p = arrow->pen();
     p.setWidthF(value);
     arrow->setPen(p);
   }
+  setPen(p);
 }
 
 void Vector2D::setendstyle_vecplot(const Vector2D::LineEnd &end,
@@ -350,6 +356,8 @@ void Vector2D::setendstyle_vecplot(const Vector2D::LineEnd &end,
       ending->setStyle(QCPLineEnding::esSkewedBar);
       break;
   }
+
+  reloadendings(location);
 }
 
 void Vector2D::setendwidth_vecplot(const double value,
@@ -365,6 +373,7 @@ void Vector2D::setendwidth_vecplot(const double value,
   }
 
   ending->setWidth(value);
+  reloadendings(location);
 }
 
 void Vector2D::setendheight_vecplot(const double value,
@@ -380,6 +389,7 @@ void Vector2D::setendheight_vecplot(const double value,
   }
 
   ending->setLength(value);
+  reloadendings(location);
 }
 
 void Vector2D::setendinverted_vecplot(
@@ -395,6 +405,18 @@ void Vector2D::setendinverted_vecplot(
   }
 
   ending->setInverted(value);
+  reloadendings(location);
 }
 
 void Vector2D::setlegendtext_vecplot(const QString &name) { setName(name); }
+
+void Vector2D::reloadendings(const Vector2D::LineEndLocation &location) {
+  switch (location) {
+    case LineEndLocation::Start:
+      foreach (QCPItemLine *line, linelist_) { line->setHead(*start_); }
+      break;
+    case LineEndLocation::Stop:
+      foreach (QCPItemLine *line, linelist_) { line->setTail(*stop_); }
+      break;
+  }
+}

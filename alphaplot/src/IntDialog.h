@@ -37,6 +37,7 @@ class QCheckBox;
 class QLineEdit;
 class QComboBox;
 class QSpinBox;
+class ApplicationWindow;
 class Graph;
 
 //! Integration options dialog
@@ -44,7 +45,7 @@ class IntDialog : public QDialog {
   Q_OBJECT
 
  public:
-  IntDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);
+  IntDialog(QWidget* parent = nullptr, Qt::WindowFlags fl = 0);
   ~IntDialog() {}
 
   QPushButton* buttonOk;
@@ -68,6 +69,7 @@ class IntDialog : public QDialog {
 
  private:
   Graph* graph;
+  ApplicationWindow *app_;
 };
 
 #endif  // INTDIALOG_H

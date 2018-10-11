@@ -472,8 +472,6 @@ ApplicationWindow::ApplicationWindow()
       IconLoader::load("clock", IconLoader::LightDark));
   ui_->actionAddImage->setIcon(
       IconLoader::load("view-image", IconLoader::LightDark));
-  ui_->actionNewLegend->setIcon(
-      IconLoader::load("edit-legend", IconLoader::LightDark));
   ui_->actionAutomaticLayout->setIcon(
       IconLoader::load("auto-layout", IconLoader::LightDark));
   ui_->actionAddLayer->setIcon(
@@ -774,7 +772,8 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->actionAddTimeStamp, SIGNAL(activated()), this,
           SLOT(addTimeStamp()));
   connect(ui_->actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
-  connect(ui_->actionNewLegend, SIGNAL(activated()), this, SLOT(newLegend()));
+  connect(ui_->actionDrawEllipse, SIGNAL(activated()), this,
+          SLOT(drawEllipse()));
   connect(ui_->actionAutomaticLayout, SIGNAL(activated()), this,
           SLOT(autoArrangeLayers()));
   connect(ui_->actionAddLayer, SIGNAL(activated()), this, SLOT(addLayer()));
@@ -1148,7 +1147,6 @@ void ApplicationWindow::makeToolBars() {
   menu_plot_enrichments->addAction(ui_->actionDrawLine);
   menu_plot_enrichments->addAction(ui_->actionAddTimeStamp);
   menu_plot_enrichments->addAction(ui_->actionAddImage);
-  menu_plot_enrichments->addAction(ui_->actionNewLegend);
   graphToolsToolbar->addSeparator();
   graphToolsToolbar->addAction(ui_->actionGraphZoomIn);
   graphToolsToolbar->addAction(ui_->actionGraphZoomOut);
@@ -2440,7 +2438,6 @@ MultiLayer *ApplicationWindow::newGraph(const QString &caption) {
   if (multilayer) {
     Graph *graph = multilayer->addLayer();
     setPreferences(graph);
-    graph->newLegend();
     graph->setAutoscaleFonts(false);
     graph->setIgnoreResizeEvents(false);
     multilayer->arrangeLayers(false, false);
@@ -2508,7 +2505,6 @@ MultiLayer *ApplicationWindow::multilayerPlot(Table *table,
   initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 
   polishGraph(ag, style);
-  ag->newLegend();
   g->arrangeLayers(false, false);
   customMenu(g);
 
@@ -2550,7 +2546,6 @@ MultiLayer *ApplicationWindow::multilayerPlot(int c, int r, int style) {
         setPreferences(ag);
         ag->insertCurvesList(w, QStringList(list[i]), style,
                              defaultCurveLineWidth, defaultSymbolSize);
-        ag->newLegend();
         ag->setAutoscaleFonts(false);  // in order to avoid to small fonts
         ag->setIgnoreResizeEvents(false);
         polishGraph(ag, style);
@@ -2565,7 +2560,6 @@ MultiLayer *ApplicationWindow::multilayerPlot(int c, int r, int style) {
         setPreferences(ag);
         ag->insertCurvesList(w, lst, style, defaultCurveLineWidth,
                              defaultSymbolSize);
-        ag->newLegend();
         ag->setAutoscaleFonts(false);  // in order to avoid to small fonts
         ag->setIgnoreResizeEvents(false);
         polishGraph(ag, style);
@@ -2638,7 +2632,6 @@ MultiLayer *ApplicationWindow::multilayerPlot(const QStringList &colList) {
     cl.sSize = defaultSymbolSize;
     ag->updateCurveLayout(i, &cl);
   }
-  ag->newLegend();
   ag->updatePlot();
   initMultilayerPlot(g, generateUniqueName(tr("Graph")));
   g->arrangeLayers(true, false);
@@ -6085,47 +6078,19 @@ void ApplicationWindow::setAutoScale() {
 }
 
 void ApplicationWindow::removePoints() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"
-           "<p><h4>Please add a layer and try again!</h4>"));
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
     ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
-
-  Graph *g = qobject_cast<Graph *>(plot->activeGraph());
-  if (!g || !g->validCurvesDataSize()) {
-    ui_->actionDisableGraphTools->setChecked(true);
-    return;
-  }
-
-  if (g->isPiePlot()) {
-    QMessageBox::warning(
-        this, tr("Warning"),
-        tr("This functionality is not available for pie plots!"));
-    ui_->actionDisableGraphTools->setChecked(true);
-    return;
-  } else {
-    switch (QMessageBox::warning(
-        this, tr("AlphaPlot"),
-        tr("This will modify the data in the worksheets!\nAre you sure you "
-           "want to continue?"),
-        tr("Continue"), tr("Cancel"), 0, 1)) {
-      case 0:
-        g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Remove,
-                                            statusBarInfo,
-                                            SLOT(setText(const QString &))));
-        break;
-
-      case 1:
-        ui_->actionDisableGraphTools->setChecked(true);
-        break;
-    }
-  }
+  layout->setGraphTool(Graph2DCommon::Picker::DataRemove);
 }
 
 void ApplicationWindow::movePoints() {
@@ -6416,16 +6381,23 @@ void ApplicationWindow::updateLog(const QString &result) {
 }
 
 void ApplicationWindow::integrate() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  Graph *graph =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (!graph || !graph->validCurvesDataSize()) return;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
+    ui_->actionDisableGraphTools->setChecked(true);
+    return;
+  }
 
   IntDialog *id = new IntDialog(this);
   id->setAttribute(Qt::WA_DeleteOnClose);
-  connect(graph, SIGNAL(destroyed()), id, SLOT(close()));
-  id->setGraph(graph);
+  // connect(graph, SIGNAL(destroyed()), id, SLOT(close()));
+  // id->setGraph(graph);
   id->show();
 }
 
@@ -6463,101 +6435,58 @@ void ApplicationWindow::showResults(const QString &s, bool ok) {
 }
 
 void ApplicationWindow::showScreenReader() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"
-           "<p><h4>Please add a layer and try again!</h4>"));
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
     ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
-
-  QWidgetList graphsList = plot->graphPtrs();
-  foreach (QWidget *w, graphsList)
-    qobject_cast<Graph *>(w)->setActiveTool(
-        new ScreenPickerTool(qobject_cast<Graph *>(w), statusBarInfo,
-                             SLOT(setText(const QString &))));
+  layout->setGraphTool(Graph2DCommon::Picker::DataGraph);
 }
 
 void ApplicationWindow::showRangeSelectors() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
-    QMessageBox::warning(
-        this, tr("Warning"),
-        tr("There are no plot layers available in this window!"));
-    ui_->actionDisableGraphTools->setChecked(true);
-    return;
-  }
-
-  Graph *graph = qobject_cast<Graph *>(plot->activeGraph());
-  if (!graph) return;
-
-  if (!graph->curves()) {
-    QMessageBox::warning(this, tr("Warning"),
-                         tr("There are no curves available on this plot!"));
-    ui_->actionDisableGraphTools->setChecked(true);
-    return;
-  } else if (graph->isPiePlot()) {
-    QMessageBox::warning(
-        this, tr("Warning"),
-        tr("This functionality is not available for pie plots!"));
-    ui_->actionDisableGraphTools->setChecked(true);
-    return;
-  }
-
-  graph->enableRangeSelectors(statusBarInfo, SLOT(setText(const QString &)));
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
+  ui_->actionDisableGraphTools->setChecked(true);
+  qDebug() << "not implimented";
 }
 
-void ApplicationWindow::showCursor() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+void ApplicationWindow::showDataReader() {
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"
-           "<p><h4>Please add a layer and try again!</h4>"));
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
     ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
-
-  if (qobject_cast<Graph *>(plot->activeGraph())->isPiePlot()) {
-    QMessageBox::warning(
-        this, tr("Warning"),
-        tr("This functionality is not available for pie plots!"));
-
-    ui_->actionDisableGraphTools->setChecked(true);
-    return;
-  }
-
-  QWidgetList graphsList = plot->graphPtrs();
-  foreach (QWidget *w, graphsList)
-    if (!qobject_cast<Graph *>(w)->isPiePlot() &&
-        qobject_cast<Graph *>(w)->validCurvesDataSize())
-      qobject_cast<Graph *>(w)->setActiveTool(new DataPickerTool(
-          qobject_cast<Graph *>(w), this, DataPickerTool::Display,
-          statusBarInfo, SLOT(setText(const QString &))));
+  layout->setGraphTool(Graph2DCommon::Picker::DataPoint);
 }
 
-void ApplicationWindow::newLegend() {
-  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+void ApplicationWindow::drawEllipse() {
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("<h4>There are no plot layers available in this window.</h4>"
-           "<p><h4>Please add a layer and try again!</h4>"));
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
-
-  Graph *graph = qobject_cast<Graph *>(plot->activeGraph());
-  if (graph) graph->newLegend();
+  QMessageBox::warning(this, tr("Warning"),
+                       tr("<h4>not implimented yet!</h4>"));
 }
 
 void ApplicationWindow::addTimeStamp() {
@@ -6604,16 +6533,35 @@ void ApplicationWindow::addImage() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
   Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
-  if (!layout->getCurrentAxisRect()) {
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
     QMessageBox::warning(
         this, tr("Warning"),
         tr("<h4>There are no plot layout available in this window.</h4>"
            "<p><h4>Please add a layout and try again!</h4>"));
     return;
   }
+  QList<QByteArray> list = QImageReader::supportedImageFormats();
+  QString filter = tr("Images") + " (", aux1, aux2;
+  for (int i = 0; i < list.count(); i++) {
+    aux1 = " *." + list[i] + " ";
+    aux2 += " *." + list[i] + ";;";
+    filter += aux1;
+  }
+  filter += ");;" + aux2;
 
-  QMessageBox::warning(this, tr("Warning"),
-                       tr("<h4>This feature is not available.</h4>"));
+  QString filename = QFileDialog::getOpenFileName(
+      this, tr("Insert image from file"), imagesDirPath, filter);
+  if (!filename.isEmpty()) {
+    QFileInfo fi(filename);
+    imagesDirPath = fi.absolutePath();
+
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    layout->getCurrentAxisRect()->addImageItem2D(filename);
+    QApplication::restoreOverrideCursor();
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedReplot);
+  }
 }
 
 void ApplicationWindow::drawLine() {
@@ -6644,7 +6592,7 @@ void ApplicationWindow::drawArrow() {
            "<p><h4>Please add a layout and try again!</h4>"));
     return;
   }
-  axisrect->addLineItem2D();
+  axisrect->addArrowItem2D();
   axisrect->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
@@ -7051,6 +6999,11 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
    isActiveSubwindow(SubWindowType::TableSubWindow))
       ? window->setParent(nullptr)
       : window->deleteLater();
+
+  if (d_workspace->subWindowList().count() == 1) {
+    customMenu(nullptr);
+    customToolBars(nullptr);
+  }
 
   emit modified();
 }
@@ -9283,17 +9236,13 @@ void ApplicationWindow::pickPointerCursor() {
 void ApplicationWindow::pickGraphTool(QAction *action) {
   if (!action) return;
 
-  MultiLayer *multilayer =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (!multilayer) return;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  if (!layout) return;
 
-  Graph *graph = multilayer->activeGraph();
-  if (!graph) return;
-
-  graph->disableTools();
-
-  if (action == ui_->actionGraphDataReader)
-    showCursor();
+  if (action == ui_->actionDisableGraphTools)
+    layout->setGraphTool(Graph2DCommon::Picker::None);
+  else if (action == ui_->actionGraphDataReader)
+    showDataReader();
   else if (action == ui_->actionGraphSelectDataRange)
     showRangeSelectors();
   else if (action == ui_->actionGraphScreenReader)
@@ -9336,8 +9285,6 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g) {
           SLOT(showCurveContextMenu(int)));
   connect(g, SIGNAL(showWindowContextMenu()), this,
           SLOT(showWindowContextMenu()));
-  connect(g, SIGNAL(drawLineEnded(bool)), ui_->actionDisableGraphTools,
-          SLOT(setChecked(bool)));
   connect(g, SIGNAL(drawTextOff()), this, SLOT(disableAddText()));
   connect(g, SIGNAL(showMarkerPopupMenu()), this, SLOT(showMarkerPopupMenu()));
   connect(g, SIGNAL(closedWindow(MyWidget *)), this,
@@ -11557,6 +11504,10 @@ void ApplicationWindow::selectPlotType(int type) {
     case Graph::VerticalBars:
       layout->generateBar2DPlot(AxisRect2D::BarType::VerticalBars, table, xcol,
                                 ycol, 0, table->rowCnt() - 1);
+      return;
+    case Graph::Histogram:
+      layout->generateHistogram2DPlot(AxisRect2D::BarType::VerticalBars, table,
+                                      ycol, 0, table->rowCnt() - 1);
       return;
     default: {
       qDebug() << "not implimented";

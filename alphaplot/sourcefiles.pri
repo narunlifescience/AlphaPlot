@@ -22,7 +22,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/3Dplot/SurfaceDialog.h \
             src/ScalePicker.h \
             src/TitlePicker.h \
-            src/CanvasPicker.h \
             src/PlotCurve.h \
             src/QwtErrorPlotCurve.h \
             src/QwtPieCurve.h \
@@ -38,9 +37,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/3Dplot/Cone3D.h \
             src/ConfigDialog.h \
             src/QwtBarCurve.h \
-            src/BoxCurve.h \
             src/QwtHistogram.h \
-            src/VectorCurve.h \
             src/ScaleDraw.h \
             src/Matrix.h \
             src/DataSetDialog.h \
@@ -131,7 +128,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/2Dplot/widgets/AddPlot2DDialog.h \
     $$PWD/src/2Dplot/LineItem2D.h \
     $$PWD/src/2Dplot/ErrorBar2D.h \
-    $$PWD/src/2Dplot/TextItem2D.h
+    $$PWD/src/2Dplot/TextItem2D.h \
+    $$PWD/src/2Dplot/ImageItem2D.h
 
 ###################### SOURCES ##############################################
 
@@ -148,7 +146,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/PolynomFitDialog.cpp \
             src/ScalePicker.cpp\
             src/TitlePicker.cpp \
-            src/CanvasPicker.cpp \
             src/ExpDecayDialog.cpp \
             src/FitDialog.cpp \
             src/3Dplot/SurfaceDialog.cpp \
@@ -167,9 +164,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/DataSetDialog.cpp \
             src/ConfigDialog.cpp \
             src/QwtBarCurve.cpp \
-            src/BoxCurve.cpp \
             src/QwtHistogram.cpp \
-            src/VectorCurve.cpp \
             src/Matrix.cpp \
             src/scripting/MyParser.cpp\
             src/ColorBox.cpp \
@@ -260,7 +255,8 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/2Dplot/widgets/AddPlot2DDialog.cpp \
     $$PWD/src/2Dplot/LineItem2D.cpp \
     $$PWD/src/2Dplot/ErrorBar2D.cpp \
-    $$PWD/src/2Dplot/TextItem2D.cpp
+    $$PWD/src/2Dplot/TextItem2D.cpp \
+    $$PWD/src/2Dplot/ImageItem2D.cpp
 
 ###################### FORMS ##############################################
 FORMS        += src/ApplicationWindow.ui \

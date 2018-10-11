@@ -13,7 +13,9 @@ Curve2D::Curve2D(Table *table, Column *xcol, Column *ycol, int from, int to,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
       curvedata_(new DataBlockCurve(table, xcol, ycol, from, to)),
       functionData_(nullptr),
-      type_(LSCommon::PlotType::Associated) {
+      type_(Graph2DCommon::PlotType::Associated),
+      picker_(Graph2DCommon::Picker::None) {
+  setSelectable(QCP::SelectionType::stSingleData);
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setlinestrokecolor_cplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
@@ -31,7 +33,7 @@ Curve2D::Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
       curvedata_(nullptr),
       functionData_(new QCPCurveDataContainer),
-      type_(LSCommon::PlotType::Function) {
+      type_(Graph2DCommon::PlotType::Function) {
   Q_ASSERT(xdata->size() == ydata->size());
   setlinestrokecolor_cplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
@@ -51,16 +53,16 @@ Curve2D::Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
 Curve2D::~Curve2D() {
   delete scatterstyle_;
   switch (type_) {
-    case LSCommon::PlotType::Associated:
+    case Graph2DCommon::PlotType::Associated:
       delete curvedata_;
       break;
-    case LSCommon::PlotType::Function:
+    case Graph2DCommon::PlotType::Function:
       break;
   }
 }
 
 void Curve2D::setGraphData(QVector<double> *xdata, QVector<double> *ydata) {
-  if (type_ == LSCommon::PlotType::Associated) {
+  if (type_ == Graph2DCommon::PlotType::Associated) {
     qDebug() << "cannot add function data to association plot";
     return;
   }
@@ -82,7 +84,7 @@ void Curve2D::setGraphData(QVector<double> *xdata, QVector<double> *ydata) {
 
 void Curve2D::setCurveData(Table *table, Column *xcol, Column *ycol, int from,
                            int to) {
-  if (type_ == LSCommon::PlotType::Function) {
+  if (type_ == Graph2DCommon::PlotType::Function) {
     qDebug() << "cannot associate table with function plot";
     return;
   }
@@ -117,62 +119,62 @@ bool Curve2D::getlinefillstatus_cplot() const {
   }
 }
 
-LSCommon::ScatterStyle Curve2D::getscattershape_cplot() const {
-  LSCommon::ScatterStyle scatterstyle;
+Graph2DCommon::ScatterStyle Curve2D::getscattershape_cplot() const {
+  Graph2DCommon::ScatterStyle scatterstyle;
   switch (scatterStyle().shape()) {
     case QCPScatterStyle::ssNone:
-      scatterstyle = LSCommon::ScatterStyle::None;
+      scatterstyle = Graph2DCommon::ScatterStyle::None;
       break;
     case QCPScatterStyle::ssDot:
-      scatterstyle = LSCommon::ScatterStyle::Dot;
+      scatterstyle = Graph2DCommon::ScatterStyle::Dot;
       break;
     case QCPScatterStyle::ssCross:
-      scatterstyle = LSCommon::ScatterStyle::Cross;
+      scatterstyle = Graph2DCommon::ScatterStyle::Cross;
       break;
     case QCPScatterStyle::ssPlus:
-      scatterstyle = LSCommon::ScatterStyle::Plus;
+      scatterstyle = Graph2DCommon::ScatterStyle::Plus;
       break;
     case QCPScatterStyle::ssCircle:
-      scatterstyle = LSCommon::ScatterStyle::Circle;
+      scatterstyle = Graph2DCommon::ScatterStyle::Circle;
       break;
     case QCPScatterStyle::ssDisc:
-      scatterstyle = LSCommon::ScatterStyle::Disc;
+      scatterstyle = Graph2DCommon::ScatterStyle::Disc;
       break;
     case QCPScatterStyle::ssSquare:
-      scatterstyle = LSCommon::ScatterStyle::Square;
+      scatterstyle = Graph2DCommon::ScatterStyle::Square;
       break;
     case QCPScatterStyle::ssDiamond:
-      scatterstyle = LSCommon::ScatterStyle::Diamond;
+      scatterstyle = Graph2DCommon::ScatterStyle::Diamond;
       break;
     case QCPScatterStyle::ssStar:
-      scatterstyle = LSCommon::ScatterStyle::Star;
+      scatterstyle = Graph2DCommon::ScatterStyle::Star;
       break;
     case QCPScatterStyle::ssTriangle:
-      scatterstyle = LSCommon::ScatterStyle::Triangle;
+      scatterstyle = Graph2DCommon::ScatterStyle::Triangle;
       break;
     case QCPScatterStyle::ssTriangleInverted:
-      scatterstyle = LSCommon::ScatterStyle::TriangleInverted;
+      scatterstyle = Graph2DCommon::ScatterStyle::TriangleInverted;
       break;
     case QCPScatterStyle::ssCrossSquare:
-      scatterstyle = LSCommon::ScatterStyle::CrossSquare;
+      scatterstyle = Graph2DCommon::ScatterStyle::CrossSquare;
       break;
     case QCPScatterStyle::ssPlusSquare:
-      scatterstyle = LSCommon::ScatterStyle::PlusSquare;
+      scatterstyle = Graph2DCommon::ScatterStyle::PlusSquare;
       break;
     case QCPScatterStyle::ssCrossCircle:
-      scatterstyle = LSCommon::ScatterStyle::CrossCircle;
+      scatterstyle = Graph2DCommon::ScatterStyle::CrossCircle;
       break;
     case QCPScatterStyle::ssPlusCircle:
-      scatterstyle = LSCommon::ScatterStyle::PlusCircle;
+      scatterstyle = Graph2DCommon::ScatterStyle::PlusCircle;
       break;
     case QCPScatterStyle::ssPeace:
-      scatterstyle = LSCommon::ScatterStyle::Peace;
+      scatterstyle = Graph2DCommon::ScatterStyle::Peace;
       break;
     case QCPScatterStyle::ssCustom:
     case QCPScatterStyle::ssPixmap:
       qDebug() << "QCPScatterStyle::ssCustom & QCPScatterStyle::ssPixmap "
                   "unsupported! using QCPScatterStyle::ssDisc insted";
-      scatterstyle = LSCommon::ScatterStyle::Disc;
+      scatterstyle = Graph2DCommon::ScatterStyle::Disc;
       break;
   }
   return scatterstyle;
@@ -263,54 +265,54 @@ void Curve2D::setlineantialiased_cplot(const bool value) {
   setAntialiased(value);
 }
 
-void Curve2D::setscattershape_cplot(const LSCommon::ScatterStyle &shape) {
+void Curve2D::setscattershape_cplot(const Graph2DCommon::ScatterStyle &shape) {
   switch (shape) {
-    case LSCommon::ScatterStyle::None:
+    case Graph2DCommon::ScatterStyle::None:
       scatterstyle_->setShape(QCPScatterStyle::ssNone);
       break;
-    case LSCommon::ScatterStyle::Dot:
+    case Graph2DCommon::ScatterStyle::Dot:
       scatterstyle_->setShape(QCPScatterStyle::ssDot);
       break;
-    case LSCommon::ScatterStyle::Cross:
+    case Graph2DCommon::ScatterStyle::Cross:
       scatterstyle_->setShape(QCPScatterStyle::ssCross);
       break;
-    case LSCommon::ScatterStyle::Plus:
+    case Graph2DCommon::ScatterStyle::Plus:
       scatterstyle_->setShape(QCPScatterStyle::ssPlus);
       break;
-    case LSCommon::ScatterStyle::Circle:
+    case Graph2DCommon::ScatterStyle::Circle:
       scatterstyle_->setShape(QCPScatterStyle::ssCircle);
       break;
-    case LSCommon::ScatterStyle::Disc:
+    case Graph2DCommon::ScatterStyle::Disc:
       scatterstyle_->setShape(QCPScatterStyle::ssDisc);
       break;
-    case LSCommon::ScatterStyle::Square:
+    case Graph2DCommon::ScatterStyle::Square:
       scatterstyle_->setShape(QCPScatterStyle::ssSquare);
       break;
-    case LSCommon::ScatterStyle::Diamond:
+    case Graph2DCommon::ScatterStyle::Diamond:
       scatterstyle_->setShape(QCPScatterStyle::ssDiamond);
       break;
-    case LSCommon::ScatterStyle::Star:
+    case Graph2DCommon::ScatterStyle::Star:
       scatterstyle_->setShape(QCPScatterStyle::ssStar);
       break;
-    case LSCommon::ScatterStyle::Triangle:
+    case Graph2DCommon::ScatterStyle::Triangle:
       scatterstyle_->setShape(QCPScatterStyle::ssTriangle);
       break;
-    case LSCommon::ScatterStyle::TriangleInverted:
+    case Graph2DCommon::ScatterStyle::TriangleInverted:
       scatterstyle_->setShape(QCPScatterStyle::ssTriangleInverted);
       break;
-    case LSCommon::ScatterStyle::CrossSquare:
+    case Graph2DCommon::ScatterStyle::CrossSquare:
       scatterstyle_->setShape(QCPScatterStyle::ssCrossSquare);
       break;
-    case LSCommon::ScatterStyle::PlusSquare:
+    case Graph2DCommon::ScatterStyle::PlusSquare:
       scatterstyle_->setShape(QCPScatterStyle::ssPlusSquare);
       break;
-    case LSCommon::ScatterStyle::CrossCircle:
+    case Graph2DCommon::ScatterStyle::CrossCircle:
       scatterstyle_->setShape(QCPScatterStyle::ssCrossCircle);
       break;
-    case LSCommon::ScatterStyle::PlusCircle:
+    case Graph2DCommon::ScatterStyle::PlusCircle:
       scatterstyle_->setShape(QCPScatterStyle::ssPlusCircle);
       break;
-    case LSCommon::ScatterStyle::Peace:
+    case Graph2DCommon::ScatterStyle::Peace:
       scatterstyle_->setShape(QCPScatterStyle::ssPeace);
       break;
   }
@@ -367,3 +369,56 @@ void Curve2D::setlinefillstatus_cplot(const bool value) {
 }
 
 void Curve2D::setlegendtext_cplot(const QString &text) { setName(text); }
+
+void Curve2D::setpicker_cplot(const Graph2DCommon::Picker picker) {
+  picker_ = picker;
+}
+
+void Curve2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
+  if (event->button() == Qt::LeftButton) {
+    switch (picker_) {
+      case Graph2DCommon::Picker::None:
+        break;
+      case Graph2DCommon::Picker::DataPoint:
+        datapicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataGraph:
+        graphpicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataMove:
+        movepicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataRemove:
+        removepicker(event, details);
+        break;
+    }
+  }
+  QCPCurve::mousePressEvent(event, details);
+}
+
+void Curve2D::datapicker(QMouseEvent *event, const QVariant &details) {
+  QCPCurveDataContainer::const_iterator it = data()->constEnd();
+  QCPDataSelection dataPoints = details.value<QCPDataSelection>();
+  if (dataPoints.dataPointCount() > 0) {
+    dataPoints.dataRange();
+    it = data()->at(dataPoints.dataRange().begin());
+    QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
+    if (point.x() > event->posF().x() - 10 &&
+        point.x() < event->posF().x() + 10 &&
+        point.y() > event->posF().y() - 10 &&
+        point.y() < event->posF().y() + 10) {
+      emit showtooltip(point, it->mainKey(), it->mainValue());
+    }
+  }
+}
+
+void Curve2D::graphpicker(QMouseEvent *event, const QVariant &details) {
+  Q_UNUSED(details);
+  double xvalue, yvalue;
+  pixelsToCoords(event->posF(), xvalue, yvalue);
+  emit showtooltip(event->posF(), xvalue, yvalue);
+}
+
+void Curve2D::movepicker(QMouseEvent *event, const QVariant &details) {}
+
+void Curve2D::removepicker(QMouseEvent *event, const QVariant &details) {}

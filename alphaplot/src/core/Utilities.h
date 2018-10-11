@@ -25,6 +25,8 @@ class Utilities {
   static QString getOperatingSystem();
   static int getWordSizeOfOS();
   static QColor getRandColorGoldenRatio(ColorPal colpal);
+  static QString splitstring(QString string);
+  static QString joinstring(QString string);
 
  private:
   Utilities() {}

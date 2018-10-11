@@ -13,7 +13,10 @@
 #include <gsl/gsl_statistics.h>
 
 Spline2D::Spline2D(Axis2D *xAxis, Axis2D *yAxis)
-    : QCPCurve(xAxis, yAxis), xAxis_(xAxis), yAxis_(yAxis) {
+    : QCPCurve(xAxis, yAxis),
+      xAxis_(xAxis),
+      yAxis_(yAxis),
+      picker_(Graph2DCommon::Picker::None) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setlinestrokecolor_splot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
@@ -21,7 +24,13 @@ Spline2D::Spline2D(Axis2D *xAxis, Axis2D *yAxis)
 
 Spline2D::~Spline2D() {}
 
-void Spline2D::setGraphData(Column *xData, Column *yData, int from, int to) {
+void Spline2D::setGraphData(Table *table, Column *xData, Column *yData,
+                            int from, int to) {
+  table_ = table;
+  xcol_ = xData;
+  ycol_ = yData;
+  from_ = from;
+  to_ = to;
   int d_n = (to - from) + 1;
 
   if (d_n < 4) {
@@ -294,3 +303,55 @@ void Spline2D::setlinefillstatus_splot(const bool value) {
 }
 
 void Spline2D::setlegendtext_splot(const QString &text) { setName(text); }
+
+void Spline2D::setpicker_splot(const Graph2DCommon::Picker picker) {
+  picker_ = picker;
+}
+
+void Spline2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
+  if (event->button() == Qt::LeftButton) {
+    switch (picker_) {
+      case Graph2DCommon::Picker::None:
+        break;
+      case Graph2DCommon::Picker::DataPoint:
+        datapicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataGraph:
+        graphpicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataMove:
+        movepicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataRemove:
+        removepicker(event, details);
+        break;
+    }
+  }
+  QCPCurve::mousePressEvent(event, details);
+}
+
+void Spline2D::datapicker(QMouseEvent *event, const QVariant &details) {
+  QCPCurveDataContainer::const_iterator it = data()->constEnd();
+  QCPDataSelection dataPoints = details.value<QCPDataSelection>();
+  if (dataPoints.dataPointCount() > 0) {
+    dataPoints.dataRange();
+    it = data()->at(dataPoints.dataRange().begin());
+    QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
+    if (point.x() > event->posF().x() - 10 &&
+        point.x() < event->posF().x() + 10 &&
+        point.y() > event->posF().y() - 10 &&
+        point.y() < event->posF().y() + 10) {
+      emit showtooltip(point, it->mainKey(), it->mainValue());
+    }
+  }
+}
+
+void Spline2D::graphpicker(QMouseEvent *event, const QVariant &details) {
+  double xvalue, yvalue;
+  pixelsToCoords(event->posF(), xvalue, yvalue);
+  emit showtooltip(event->posF(), xvalue, yvalue);
+}
+
+void Spline2D::movepicker(QMouseEvent *event, const QVariant &details) {}
+
+void Spline2D::removepicker(QMouseEvent *event, const QVariant &details) {}

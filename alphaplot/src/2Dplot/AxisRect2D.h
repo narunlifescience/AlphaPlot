@@ -35,6 +35,7 @@ class Column;
 class TextItem2D;
 class StatBox2D;
 class LineItem2D;
+class ImageItem2D;
 
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
@@ -42,6 +43,7 @@ class AxisRect2D : public QCPAxisRect {
   typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
   typedef QVector<TextItem2D *> TextItemVec;
   typedef QVector<LineItem2D *> LineItemVec;
+  typedef QVector<ImageItem2D *> ImageItemVec;
   typedef QVector<LineSpecial2D *> LsVec;
   typedef QVector<Curve2D *> CurveVec;
   typedef QVector<Spline2D *> SplineVec;
@@ -67,6 +69,7 @@ class AxisRect2D : public QCPAxisRect {
   GridPair getGridPair() const { return gridpair_; }
   TextItemVec getTextItemVec() const { return textvec_; }
   LineItemVec getLineItemVec() const { return linevec_; }
+  ImageItemVec getImageItemVec() const { return imagevec_; }
   LsVec getLsVec() const { return lsvec_; }
   CurveVec getCurveVec() const { return curvevec_; }
   SplineVec getSplineVec() const { return splinevec_; }
@@ -118,9 +121,13 @@ class AxisRect2D : public QCPAxisRect {
                           Axis2D *yAxis);
   StatBox2D *addStatBox2DPlot(Table *table, StatBox2D::BoxWhiskerData data,
                               Axis2D *xAxis, Axis2D *yAxis);
+  Bar2D *addHistogram2DPlot(const BarType &type, Table *table, Column *yData,
+                            int from, int to, Axis2D *xAxis, Axis2D *yAxis);
   Pie2D *addPie2DPlot(Table *table, Column *xData, int from, int to);
   TextItem2D *addTextItem2D(QString text);
   LineItem2D *addLineItem2D();
+  LineItem2D *addArrowItem2D();
+  ImageItem2D *addImageItem2D(const QString &filename);
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;
@@ -137,6 +144,7 @@ class AxisRect2D : public QCPAxisRect {
   // remove
   bool removeTextItem2D(TextItem2D *textitem);
   bool removeLineItem2D(LineItem2D *lineitem);
+  bool removeImageItem2D(ImageItem2D *imageitem);
   bool removeLineScatter2D(LineSpecial2D *ls);
   bool removeCurve2D(Curve2D *curve);
   bool removeSpline2D(Spline2D *spline);
@@ -146,6 +154,7 @@ class AxisRect2D : public QCPAxisRect {
   bool removePie2D(Pie2D *pie);
 
   void setPrintorExportJob(bool value) { printorexportjob_ = value; }
+  void setGraphTool(const Graph2DCommon::Picker &picker);
 
  public slots:
   Axis2D *addLeftAxis2D() { return addAxis2D(Axis2D::AxisOreantation::Left); }
@@ -165,6 +174,7 @@ class AxisRect2D : public QCPAxisRect {
   void Axis2DCreated(Axis2D *);
   void TextItem2DCreated(TextItem2D *);
   void LineItem2DCreated(LineItem2D *);
+  void ImageItem2DCreated(ImageItem2D *);
   void LineScatter2DCreated(LineSpecial2D *);
   void Curve2DCreated(Curve2D *);
   void Spline2DCreated(Spline2D *);
@@ -176,6 +186,7 @@ class AxisRect2D : public QCPAxisRect {
   void Axis2DRemoved(AxisRect2D *);
   void TextItem2DRemoved(AxisRect2D *);
   void LineItem2DRemoved(AxisRect2D *);
+  void ImageItem2DRemoved(AxisRect2D *);
   void LineScatter2DRemoved(AxisRect2D *);
   void Curve2DRemoved(AxisRect2D *);
   void Spline2DRemoved(AxisRect2D *);
@@ -183,6 +194,7 @@ class AxisRect2D : public QCPAxisRect {
   void Vector2DRemoved(AxisRect2D *);
   void Bar2DRemoved(AxisRect2D *);
   void Pie2DRemoved(AxisRect2D *);
+  void showtooltip(QPointF position, double xval, double yval);
 
  private slots:
   void legendClick();
@@ -199,6 +211,7 @@ class AxisRect2D : public QCPAxisRect {
   GridPair gridpair_;
   TextItemVec textvec_;
   LineItemVec linevec_;
+  ImageItemVec imagevec_;
   LsVec lsvec_;
   CurveVec curvevec_;
   SplineVec splinevec_;

@@ -95,7 +95,7 @@ class StatBox2D : public QCPStatisticalBox {
   Qt::PenStyle getmedianstrokestyle_statbox() const;
   QColor getmedianstrokecolor_statbox() const;
   double getmedianstrokethickness_statbox() const;
-  LSCommon::ScatterStyle getscattershape_statbox() const;
+  Graph2DCommon::ScatterStyle getscattershape_statbox() const;
   QColor getscatterfillcolor_statbox() const;
   double getscattersize_statbox() const;
   Qt::PenStyle getscatterstrokestyle_statbox() const;
@@ -118,13 +118,26 @@ class StatBox2D : public QCPStatisticalBox {
   void setmedianstrokestyle_statbox(const Qt::PenStyle &style);
   void setmedianstrokecolor_statbox(const QColor &color);
   void setmedianstrokethickness_statbox(const double value);
-  void setscattershape_statbox(const LSCommon::ScatterStyle &shape);
+  void setscattershape_statbox(const Graph2DCommon::ScatterStyle &shape);
   void setscatterfillcolor_statbox(const QColor &color);
   void setscattersize_statbox(const double value);
   void setscatterstrokestyle_statbox(const Qt::PenStyle &style);
   void setscatterstrokecolor_statbox(const QColor &color);
   void setscatterstrokethickness_statbox(const double value);
   void reloaddata_statbox();
+  void setpicker_statbox(const Graph2DCommon::Picker picker);
+
+protected:
+ void mousePressEvent(QMouseEvent *event, const QVariant &details);
+
+private:
+ void datapicker(QMouseEvent *event, const QVariant &details);
+ void graphpicker(QMouseEvent *event, const QVariant &details);
+ void movepicker(QMouseEvent *event, const QVariant &details);
+ void removepicker(QMouseEvent *event, const QVariant &details);
+
+signals:
+ void showtooltip(QPointF, double, double);
 
  private:
   Axis2D *xAxis_;
@@ -134,6 +147,7 @@ class StatBox2D : public QCPStatisticalBox {
   QCPScatterStyle *scatterstyle_;
   BoxWhiskerStyle boxstyle_;
   BoxWhiskerStyle whiskerstyle_;
+  Graph2DCommon::Picker picker_;
 };
 
 #endif  // STATBOX2D_H

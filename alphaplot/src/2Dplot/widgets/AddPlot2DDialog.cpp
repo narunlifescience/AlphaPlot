@@ -226,7 +226,7 @@ void AddPlot2DDialog::loadplotcontents() {
                       QString::number(graphdata->getto() + 1) + "]");
   }
   foreach (Curve2D *curve, curvelist) {
-    if (curve->getplottype_curveplot() == LSCommon::PlotType::Associated) {
+    if (curve->getplottype_curveplot() == Graph2DCommon::PlotType::Associated) {
       DataBlockCurve *curvedata = curve->getdatablock_curveplot();
       QPair<Table *, Column *> columnpair = QPair<Table *, Column *>(
           curvedata->gettable(), curvedata->getycolumn());
@@ -238,26 +238,27 @@ void AddPlot2DDialog::loadplotcontents() {
     }
   }
 
-  /*foreach (Spline2D *spline, splinelist) {
-      DataBlockCurve *curvedata = spline->get
-      QPair<Table *, Column *> columnpair = QPair<Table *, Column *>(
-          curvedata->gettable(), curvedata->getycolumn());
-      plotted_columns_ << columnpair;
-      contents->addItem(columnpair.first->name() + "_" +
-                        columnpair.second->name() + "[" +
-                        QString::number(curvedata->getfrom() + 1) + ":" +
-                        QString::number(curvedata->getto() + 1) + "]");
-  }*/
-
-  foreach (Bar2D *bar, barlist) {
-    DataBlockBar *bardata = bar->getdatablock_barplot();
-    QPair<Table *, Column *> columnpair =
-        QPair<Table *, Column *>(bardata->gettable(), bardata->getycolumn());
+  foreach (Spline2D *spline, splinelist) {
+    QPair<Table *, Column *> columnpair = QPair<Table *, Column *>(
+        spline->gettable_splot(), spline->getycolumn());
     plotted_columns_ << columnpair;
     contents->addItem(columnpair.first->name() + "_" +
                       columnpair.second->name() + "[" +
-                      QString::number(bardata->getfrom() + 1) + ":" +
-                      QString::number(bardata->getto() + 1) + "]");
+                      QString::number(spline->getfrom_splot() + 1) + ":" +
+                      QString::number(spline->getto_splot() + 1) + "]");
+  }
+
+  foreach (Bar2D *bar, barlist) {
+    if (!bar->ishistogram_barplot()) {
+      DataBlockBar *bardata = bar->getdatablock_barplot();
+      QPair<Table *, Column *> columnpair =
+          QPair<Table *, Column *>(bardata->gettable(), bardata->getycolumn());
+      plotted_columns_ << columnpair;
+      contents->addItem(columnpair.first->name() + "_" +
+                        columnpair.second->name() + "[" +
+                        QString::number(bardata->getfrom() + 1) + ":" +
+                        QString::number(bardata->getto() + 1) + "]");
+    }
   }
 }
 

@@ -2,13 +2,14 @@
 #define LEGEND2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
+#include "AxisRect2D.h"
 
 class LineSpecial2D;
 
 class Legend2D : public QCPLegend {
   Q_OBJECT
  public:
-  Legend2D();
+  Legend2D(AxisRect2D *axisrect);
   ~Legend2D();
 
   bool gethidden_legend() const;
@@ -25,7 +26,14 @@ class Legend2D : public QCPLegend {
   void legendClicked();
 
  protected:
-  void mousePressEvent(QMouseEvent *);
+  void mousePressEvent(QMouseEvent *event, const QVariant &details);
+  void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
+  void mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos);
+
+ private:
+  AxisRect2D *axisrect_;
+  bool draggingLegend_;
+  QPointF dragLegendOrigin_;
 };
 
 class LegendItem2D : public QCPPlottableLegendItem {
@@ -37,8 +45,8 @@ class LegendItem2D : public QCPPlottableLegendItem {
  signals:
   void legendItemClicked();
 
- protected:
-  void mousePressEvent(QMouseEvent *);
+protected:
+ void mousePressEvent(QMouseEvent *event, const QVariant &details);
 };
 
 #endif  // LEGEND2D_H

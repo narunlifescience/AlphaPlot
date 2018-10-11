@@ -571,7 +571,7 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name Plot Tools
   //@{
-  void newLegend();
+  void drawEllipse();
   void addTimeStamp();
   void drawLine();
   void drawArrow();
@@ -582,7 +582,7 @@ class ApplicationWindow : public QMainWindow,
   void zoomOut();
   void setAutoScale();
   void showRangeSelectors();
-  void showCursor();
+  void showDataReader();
   void showScreenReader();
   void pickPointerCursor();
   void pickGraphTool(QAction* action);

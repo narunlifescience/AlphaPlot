@@ -13,7 +13,8 @@ StatBox2D::StatBox2D(Axis2D *xAxis, Axis2D *yAxis, Table *table,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
       boxstyle_(StatBox2D::BoxWhiskerStyle::Perc_25_75),
-      whiskerstyle_(StatBox2D::BoxWhiskerStyle::Perc_5_95) {
+      whiskerstyle_(StatBox2D::BoxWhiskerStyle::Perc_5_95),
+      picker_(Graph2DCommon::Picker::None) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setWhiskerAntialiased(false);
   setAntialiased(false);
@@ -93,62 +94,62 @@ double StatBox2D::getmedianstrokethickness_statbox() const {
   return medianPen().widthF();
 }
 
-LSCommon::ScatterStyle StatBox2D::getscattershape_statbox() const {
-  LSCommon::ScatterStyle scatterstyle;
+Graph2DCommon::ScatterStyle StatBox2D::getscattershape_statbox() const {
+  Graph2DCommon::ScatterStyle scatterstyle;
   switch (outlierStyle().shape()) {
     case QCPScatterStyle::ssNone:
-      scatterstyle = LSCommon::ScatterStyle::None;
+      scatterstyle = Graph2DCommon::ScatterStyle::None;
       break;
     case QCPScatterStyle::ssDot:
-      scatterstyle = LSCommon::ScatterStyle::Dot;
+      scatterstyle = Graph2DCommon::ScatterStyle::Dot;
       break;
     case QCPScatterStyle::ssCross:
-      scatterstyle = LSCommon::ScatterStyle::Cross;
+      scatterstyle = Graph2DCommon::ScatterStyle::Cross;
       break;
     case QCPScatterStyle::ssPlus:
-      scatterstyle = LSCommon::ScatterStyle::Plus;
+      scatterstyle = Graph2DCommon::ScatterStyle::Plus;
       break;
     case QCPScatterStyle::ssCircle:
-      scatterstyle = LSCommon::ScatterStyle::Circle;
+      scatterstyle = Graph2DCommon::ScatterStyle::Circle;
       break;
     case QCPScatterStyle::ssDisc:
-      scatterstyle = LSCommon::ScatterStyle::Disc;
+      scatterstyle = Graph2DCommon::ScatterStyle::Disc;
       break;
     case QCPScatterStyle::ssSquare:
-      scatterstyle = LSCommon::ScatterStyle::Square;
+      scatterstyle = Graph2DCommon::ScatterStyle::Square;
       break;
     case QCPScatterStyle::ssDiamond:
-      scatterstyle = LSCommon::ScatterStyle::Diamond;
+      scatterstyle = Graph2DCommon::ScatterStyle::Diamond;
       break;
     case QCPScatterStyle::ssStar:
-      scatterstyle = LSCommon::ScatterStyle::Star;
+      scatterstyle = Graph2DCommon::ScatterStyle::Star;
       break;
     case QCPScatterStyle::ssTriangle:
-      scatterstyle = LSCommon::ScatterStyle::Triangle;
+      scatterstyle = Graph2DCommon::ScatterStyle::Triangle;
       break;
     case QCPScatterStyle::ssTriangleInverted:
-      scatterstyle = LSCommon::ScatterStyle::TriangleInverted;
+      scatterstyle = Graph2DCommon::ScatterStyle::TriangleInverted;
       break;
     case QCPScatterStyle::ssCrossSquare:
-      scatterstyle = LSCommon::ScatterStyle::CrossSquare;
+      scatterstyle = Graph2DCommon::ScatterStyle::CrossSquare;
       break;
     case QCPScatterStyle::ssPlusSquare:
-      scatterstyle = LSCommon::ScatterStyle::PlusSquare;
+      scatterstyle = Graph2DCommon::ScatterStyle::PlusSquare;
       break;
     case QCPScatterStyle::ssCrossCircle:
-      scatterstyle = LSCommon::ScatterStyle::CrossCircle;
+      scatterstyle = Graph2DCommon::ScatterStyle::CrossCircle;
       break;
     case QCPScatterStyle::ssPlusCircle:
-      scatterstyle = LSCommon::ScatterStyle::PlusCircle;
+      scatterstyle = Graph2DCommon::ScatterStyle::PlusCircle;
       break;
     case QCPScatterStyle::ssPeace:
-      scatterstyle = LSCommon::ScatterStyle::Peace;
+      scatterstyle = Graph2DCommon::ScatterStyle::Peace;
       break;
     case QCPScatterStyle::ssCustom:
     case QCPScatterStyle::ssPixmap:
       qDebug() << "QCPScatterStyle::ssCustom & QCPScatterStyle::ssPixmap "
                   "unsupported! using QCPScatterStyle::ssDisc insted";
-      scatterstyle = LSCommon::ScatterStyle::Disc;
+      scatterstyle = Graph2DCommon::ScatterStyle::Disc;
       break;
   }
   return scatterstyle;
@@ -364,54 +365,55 @@ void StatBox2D::setmedianstrokethickness_statbox(const double value) {
   setMedianPen(p);
 }
 
-void StatBox2D::setscattershape_statbox(const LSCommon::ScatterStyle &shape) {
+void StatBox2D::setscattershape_statbox(
+    const Graph2DCommon::ScatterStyle &shape) {
   switch (shape) {
-    case LSCommon::ScatterStyle::None:
+    case Graph2DCommon::ScatterStyle::None:
       scatterstyle_->setShape(QCPScatterStyle::ssNone);
       break;
-    case LSCommon::ScatterStyle::Dot:
+    case Graph2DCommon::ScatterStyle::Dot:
       scatterstyle_->setShape(QCPScatterStyle::ssDot);
       break;
-    case LSCommon::ScatterStyle::Cross:
+    case Graph2DCommon::ScatterStyle::Cross:
       scatterstyle_->setShape(QCPScatterStyle::ssCross);
       break;
-    case LSCommon::ScatterStyle::Plus:
+    case Graph2DCommon::ScatterStyle::Plus:
       scatterstyle_->setShape(QCPScatterStyle::ssPlus);
       break;
-    case LSCommon::ScatterStyle::Circle:
+    case Graph2DCommon::ScatterStyle::Circle:
       scatterstyle_->setShape(QCPScatterStyle::ssCircle);
       break;
-    case LSCommon::ScatterStyle::Disc:
+    case Graph2DCommon::ScatterStyle::Disc:
       scatterstyle_->setShape(QCPScatterStyle::ssDisc);
       break;
-    case LSCommon::ScatterStyle::Square:
+    case Graph2DCommon::ScatterStyle::Square:
       scatterstyle_->setShape(QCPScatterStyle::ssSquare);
       break;
-    case LSCommon::ScatterStyle::Diamond:
+    case Graph2DCommon::ScatterStyle::Diamond:
       scatterstyle_->setShape(QCPScatterStyle::ssDiamond);
       break;
-    case LSCommon::ScatterStyle::Star:
+    case Graph2DCommon::ScatterStyle::Star:
       scatterstyle_->setShape(QCPScatterStyle::ssStar);
       break;
-    case LSCommon::ScatterStyle::Triangle:
+    case Graph2DCommon::ScatterStyle::Triangle:
       scatterstyle_->setShape(QCPScatterStyle::ssTriangle);
       break;
-    case LSCommon::ScatterStyle::TriangleInverted:
+    case Graph2DCommon::ScatterStyle::TriangleInverted:
       scatterstyle_->setShape(QCPScatterStyle::ssTriangleInverted);
       break;
-    case LSCommon::ScatterStyle::CrossSquare:
+    case Graph2DCommon::ScatterStyle::CrossSquare:
       scatterstyle_->setShape(QCPScatterStyle::ssCrossSquare);
       break;
-    case LSCommon::ScatterStyle::PlusSquare:
+    case Graph2DCommon::ScatterStyle::PlusSquare:
       scatterstyle_->setShape(QCPScatterStyle::ssPlusSquare);
       break;
-    case LSCommon::ScatterStyle::CrossCircle:
+    case Graph2DCommon::ScatterStyle::CrossCircle:
       scatterstyle_->setShape(QCPScatterStyle::ssCrossCircle);
       break;
-    case LSCommon::ScatterStyle::PlusCircle:
+    case Graph2DCommon::ScatterStyle::PlusCircle:
       scatterstyle_->setShape(QCPScatterStyle::ssPlusCircle);
       break;
-    case LSCommon::ScatterStyle::Peace:
+    case Graph2DCommon::ScatterStyle::Peace:
       scatterstyle_->setShape(QCPScatterStyle::ssPeace);
       break;
   }
@@ -450,3 +452,55 @@ void StatBox2D::setscatterstrokethickness_statbox(const double value) {
   scatterstyle_->setPen(p);
   setOutlierStyle(*scatterstyle_);
 }
+
+void StatBox2D::setpicker_statbox(const Graph2DCommon::Picker picker) {
+  picker_ = picker;
+}
+
+void StatBox2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
+  if (event->button() == Qt::LeftButton) {
+    switch (picker_) {
+      case Graph2DCommon::Picker::None:
+        break;
+      case Graph2DCommon::Picker::DataPoint:
+        datapicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataGraph:
+        graphpicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataMove:
+        movepicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataRemove:
+        removepicker(event, details);
+        break;
+    }
+  }
+  QCPStatisticalBox::mousePressEvent(event, details);
+}
+
+void StatBox2D::datapicker(QMouseEvent *event, const QVariant &details) {
+  QCPStatisticalBoxDataContainer::const_iterator it = data()->constEnd();
+  QCPDataSelection dataPoints = details.value<QCPDataSelection>();
+  if (dataPoints.dataPointCount() > 0) {
+    dataPoints.dataRange();
+    it = data()->at(dataPoints.dataRange().begin());
+    QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
+    if (point.x() > event->posF().x() - 10 &&
+        point.x() < event->posF().x() + 10 &&
+        point.y() > event->posF().y() - 10 &&
+        point.y() < event->posF().y() + 10) {
+      emit showtooltip(point, it->mainKey(), it->mainValue());
+    }
+  }
+}
+
+void StatBox2D::graphpicker(QMouseEvent *event, const QVariant &details) {
+  double xvalue, yvalue;
+  pixelsToCoords(event->posF(), xvalue, yvalue);
+  emit showtooltip(event->posF(), xvalue, yvalue);
+}
+
+void StatBox2D::movepicker(QMouseEvent *event, const QVariant &details) {}
+
+void StatBox2D::removepicker(QMouseEvent *event, const QVariant &details) {}

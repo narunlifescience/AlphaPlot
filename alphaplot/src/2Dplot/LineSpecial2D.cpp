@@ -6,7 +6,7 @@
 #include "../future/core/column/Column.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
-#include "PlotPoint.h"
+//#include "PlotPoint.h"
 #include "core/Utilities.h"
 
 LineSpecial2D::LineSpecial2D(Table *table, Column *xcol, Column *ycol, int from,
@@ -23,10 +23,12 @@ LineSpecial2D::LineSpecial2D(Table *table, Column *xcol, Column *ycol, int from,
       xerrorbar_(nullptr),
       yerrorbar_(nullptr),
       xerroravailable_(false),
-      yerroravailable_(false)
+      yerroravailable_(false),
+      picker_(Graph2DCommon::Picker::None)
 // mPointUnderCursor(new PlotPoint(parentPlot(), 5))
 {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
+  setSelectable(QCP::SelectionType::stSingleData);
   setlinestrokecolor_lsplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
   setData(graphdata_->data());
@@ -75,25 +77,25 @@ void LineSpecial2D::removeYerrorBar() {
   yerroravailable_ = false;
 }
 
-LSCommon::LineStyleType LineSpecial2D::getlinetype_lsplot() const {
-  LSCommon::LineStyleType linestyletype;
+Graph2DCommon::LineStyleType LineSpecial2D::getlinetype_lsplot() const {
+  Graph2DCommon::LineStyleType linestyletype;
 
   switch (lineStyle()) {
     case lsStepLeft:
-      linestyletype = LSCommon::LineStyleType::StepLeft;
+      linestyletype = Graph2DCommon::LineStyleType::StepLeft;
       break;
     case lsStepRight:
-      linestyletype = LSCommon::LineStyleType::StepRight;
+      linestyletype = Graph2DCommon::LineStyleType::StepRight;
       break;
     case lsStepCenter:
-      linestyletype = LSCommon::LineStyleType::StepCenter;
+      linestyletype = Graph2DCommon::LineStyleType::StepCenter;
       break;
     case lsImpulse:
-      linestyletype = LSCommon::LineStyleType::Impulse;
+      linestyletype = Graph2DCommon::LineStyleType::Impulse;
       break;
     case lsNone:
     case lsLine:
-      linestyletype = LSCommon::LineStyleType::StepLeft;
+      linestyletype = Graph2DCommon::LineStyleType::StepLeft;
   }
   return linestyletype;
 }
@@ -124,62 +126,62 @@ QColor LineSpecial2D::getlinefillcolor_lsplot() const {
 
 bool LineSpecial2D::getlineantialiased_lsplot() const { return antialiased(); }
 
-LSCommon::ScatterStyle LineSpecial2D::getscattershape_lsplot() const {
-  LSCommon::ScatterStyle scatterstyle;
+Graph2DCommon::ScatterStyle LineSpecial2D::getscattershape_lsplot() const {
+  Graph2DCommon::ScatterStyle scatterstyle;
   switch (scatterStyle().shape()) {
     case QCPScatterStyle::ssNone:
-      scatterstyle = LSCommon::ScatterStyle::None;
+      scatterstyle = Graph2DCommon::ScatterStyle::None;
       break;
     case QCPScatterStyle::ssDot:
-      scatterstyle = LSCommon::ScatterStyle::Dot;
+      scatterstyle = Graph2DCommon::ScatterStyle::Dot;
       break;
     case QCPScatterStyle::ssCross:
-      scatterstyle = LSCommon::ScatterStyle::Cross;
+      scatterstyle = Graph2DCommon::ScatterStyle::Cross;
       break;
     case QCPScatterStyle::ssPlus:
-      scatterstyle = LSCommon::ScatterStyle::Plus;
+      scatterstyle = Graph2DCommon::ScatterStyle::Plus;
       break;
     case QCPScatterStyle::ssCircle:
-      scatterstyle = LSCommon::ScatterStyle::Circle;
+      scatterstyle = Graph2DCommon::ScatterStyle::Circle;
       break;
     case QCPScatterStyle::ssDisc:
-      scatterstyle = LSCommon::ScatterStyle::Disc;
+      scatterstyle = Graph2DCommon::ScatterStyle::Disc;
       break;
     case QCPScatterStyle::ssSquare:
-      scatterstyle = LSCommon::ScatterStyle::Square;
+      scatterstyle = Graph2DCommon::ScatterStyle::Square;
       break;
     case QCPScatterStyle::ssDiamond:
-      scatterstyle = LSCommon::ScatterStyle::Diamond;
+      scatterstyle = Graph2DCommon::ScatterStyle::Diamond;
       break;
     case QCPScatterStyle::ssStar:
-      scatterstyle = LSCommon::ScatterStyle::Star;
+      scatterstyle = Graph2DCommon::ScatterStyle::Star;
       break;
     case QCPScatterStyle::ssTriangle:
-      scatterstyle = LSCommon::ScatterStyle::Triangle;
+      scatterstyle = Graph2DCommon::ScatterStyle::Triangle;
       break;
     case QCPScatterStyle::ssTriangleInverted:
-      scatterstyle = LSCommon::ScatterStyle::TriangleInverted;
+      scatterstyle = Graph2DCommon::ScatterStyle::TriangleInverted;
       break;
     case QCPScatterStyle::ssCrossSquare:
-      scatterstyle = LSCommon::ScatterStyle::CrossSquare;
+      scatterstyle = Graph2DCommon::ScatterStyle::CrossSquare;
       break;
     case QCPScatterStyle::ssPlusSquare:
-      scatterstyle = LSCommon::ScatterStyle::PlusSquare;
+      scatterstyle = Graph2DCommon::ScatterStyle::PlusSquare;
       break;
     case QCPScatterStyle::ssCrossCircle:
-      scatterstyle = LSCommon::ScatterStyle::CrossCircle;
+      scatterstyle = Graph2DCommon::ScatterStyle::CrossCircle;
       break;
     case QCPScatterStyle::ssPlusCircle:
-      scatterstyle = LSCommon::ScatterStyle::PlusCircle;
+      scatterstyle = Graph2DCommon::ScatterStyle::PlusCircle;
       break;
     case QCPScatterStyle::ssPeace:
-      scatterstyle = LSCommon::ScatterStyle::Peace;
+      scatterstyle = Graph2DCommon::ScatterStyle::Peace;
       break;
     case QCPScatterStyle::ssCustom:
     case QCPScatterStyle::ssPixmap:
       qDebug() << "QCPScatterStyle::ssCustom & QCPScatterStyle::ssPixmap "
                   "unsupported! using QCPScatterStyle::ssDisc insted";
-      scatterstyle = LSCommon::ScatterStyle::Disc;
+      scatterstyle = Graph2DCommon::ScatterStyle::Disc;
       break;
   }
   return scatterstyle;
@@ -215,18 +217,19 @@ Axis2D *LineSpecial2D::getxaxis_lsplot() const { return xAxis_; }
 
 Axis2D *LineSpecial2D::getyaxis_lsplot() const { return yAxis_; }
 
-void LineSpecial2D::setlinetype_lsplot(const LSCommon::LineStyleType &line) {
+void LineSpecial2D::setlinetype_lsplot(
+    const Graph2DCommon::LineStyleType &line) {
   switch (line) {
-    case LSCommon::LineStyleType::Impulse:
+    case Graph2DCommon::LineStyleType::Impulse:
       setLineStyle(QCPGraph::lsImpulse);
       break;
-    case LSCommon::LineStyleType::StepCenter:
+    case Graph2DCommon::LineStyleType::StepCenter:
       setLineStyle(QCPGraph::lsStepCenter);
       break;
-    case LSCommon::LineStyleType::StepLeft:
+    case Graph2DCommon::LineStyleType::StepLeft:
       setLineStyle(QCPGraph::lsStepLeft);
       break;
-    case LSCommon::LineStyleType::StepRight:
+    case Graph2DCommon::LineStyleType::StepRight:
       setLineStyle(QCPGraph::lsStepRight);
       break;
   }
@@ -273,54 +276,54 @@ void LineSpecial2D::setlineantialiased_lsplot(const bool value) {
 }
 
 void LineSpecial2D::setscattershape_lsplot(
-    const LSCommon::ScatterStyle &shape) {
+    const Graph2DCommon::ScatterStyle &shape) {
   switch (shape) {
-    case LSCommon::ScatterStyle::None:
+    case Graph2DCommon::ScatterStyle::None:
       scatterstyle_->setShape(QCPScatterStyle::ssNone);
       break;
-    case LSCommon::ScatterStyle::Dot:
+    case Graph2DCommon::ScatterStyle::Dot:
       scatterstyle_->setShape(QCPScatterStyle::ssDot);
       break;
-    case LSCommon::ScatterStyle::Cross:
+    case Graph2DCommon::ScatterStyle::Cross:
       scatterstyle_->setShape(QCPScatterStyle::ssCross);
       break;
-    case LSCommon::ScatterStyle::Plus:
+    case Graph2DCommon::ScatterStyle::Plus:
       scatterstyle_->setShape(QCPScatterStyle::ssPlus);
       break;
-    case LSCommon::ScatterStyle::Circle:
+    case Graph2DCommon::ScatterStyle::Circle:
       scatterstyle_->setShape(QCPScatterStyle::ssCircle);
       break;
-    case LSCommon::ScatterStyle::Disc:
+    case Graph2DCommon::ScatterStyle::Disc:
       scatterstyle_->setShape(QCPScatterStyle::ssDisc);
       break;
-    case LSCommon::ScatterStyle::Square:
+    case Graph2DCommon::ScatterStyle::Square:
       scatterstyle_->setShape(QCPScatterStyle::ssSquare);
       break;
-    case LSCommon::ScatterStyle::Diamond:
+    case Graph2DCommon::ScatterStyle::Diamond:
       scatterstyle_->setShape(QCPScatterStyle::ssDiamond);
       break;
-    case LSCommon::ScatterStyle::Star:
+    case Graph2DCommon::ScatterStyle::Star:
       scatterstyle_->setShape(QCPScatterStyle::ssStar);
       break;
-    case LSCommon::ScatterStyle::Triangle:
+    case Graph2DCommon::ScatterStyle::Triangle:
       scatterstyle_->setShape(QCPScatterStyle::ssTriangle);
       break;
-    case LSCommon::ScatterStyle::TriangleInverted:
+    case Graph2DCommon::ScatterStyle::TriangleInverted:
       scatterstyle_->setShape(QCPScatterStyle::ssTriangleInverted);
       break;
-    case LSCommon::ScatterStyle::CrossSquare:
+    case Graph2DCommon::ScatterStyle::CrossSquare:
       scatterstyle_->setShape(QCPScatterStyle::ssCrossSquare);
       break;
-    case LSCommon::ScatterStyle::PlusSquare:
+    case Graph2DCommon::ScatterStyle::PlusSquare:
       scatterstyle_->setShape(QCPScatterStyle::ssPlusSquare);
       break;
-    case LSCommon::ScatterStyle::CrossCircle:
+    case Graph2DCommon::ScatterStyle::CrossCircle:
       scatterstyle_->setShape(QCPScatterStyle::ssCrossCircle);
       break;
-    case LSCommon::ScatterStyle::PlusCircle:
+    case Graph2DCommon::ScatterStyle::PlusCircle:
       scatterstyle_->setShape(QCPScatterStyle::ssPlusCircle);
       break;
-    case LSCommon::ScatterStyle::Peace:
+    case Graph2DCommon::ScatterStyle::Peace:
       scatterstyle_->setShape(QCPScatterStyle::ssPeace);
       break;
   }
@@ -386,6 +389,73 @@ void LineSpecial2D::setyaxis_lsplot(Axis2D *axis) {
   setValueAxis(axis);
 }
 
+void LineSpecial2D::setpicker_lsplot(const Graph2DCommon::Picker picker) {
+  picker_ = picker;
+}
+
+void LineSpecial2D::mousePressEvent(QMouseEvent *event,
+                                    const QVariant &details) {
+  if (event->button() == Qt::LeftButton) {
+    switch (picker_) {
+      case Graph2DCommon::Picker::None:
+        break;
+      case Graph2DCommon::Picker::DataPoint:
+        datapicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataGraph:
+        graphpicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataMove:
+        movepicker(event, details);
+        break;
+      case Graph2DCommon::Picker::DataRemove:
+        removepicker(event, details);
+        break;
+    }
+  }
+  QCPGraph::mousePressEvent(event, details);
+}
+
+void LineSpecial2D::datapicker(QMouseEvent *event, const QVariant &details) {
+  QCPGraphDataContainer::const_iterator it = data()->constEnd();
+  QCPDataSelection dataPoints = details.value<QCPDataSelection>();
+  if (dataPoints.dataPointCount() > 0) {
+    dataPoints.dataRange();
+    it = data()->at(dataPoints.dataRange().begin());
+    QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
+    if (point.x() > event->posF().x() - 10 &&
+        point.x() < event->posF().x() + 10 &&
+        point.y() > event->posF().y() - 10 &&
+        point.y() < event->posF().y() + 10)
+      emit showtooltip(point, it->mainKey(), it->mainValue());
+  }
+}
+
+void LineSpecial2D::graphpicker(QMouseEvent *event, const QVariant &details) {
+  double xvalue, yvalue;
+  pixelsToCoords(event->posF(), xvalue, yvalue);
+  emit showtooltip(event->posF(), xvalue, yvalue);
+}
+
+void LineSpecial2D::movepicker(QMouseEvent *event, const QVariant &details) {}
+
+void LineSpecial2D::removepicker(QMouseEvent *event, const QVariant &details) {
+  QCPGraphDataContainer::const_iterator it = data()->constEnd();
+  QCPDataSelection dataPoints = details.value<QCPDataSelection>();
+  if (dataPoints.dataPointCount() > 0) {
+    dataPoints.dataRange();
+    it = data()->at(dataPoints.dataRange().begin());
+    QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
+    if (point.x() > event->posF().x() - 10 &&
+        point.x() < event->posF().x() + 10 &&
+        point.y() > event->posF().y() - 10 &&
+        point.y() < event->posF().y() + 10) {
+      graphdata_->data()->remove(it->mainKey());
+      layer()->replot();
+    }
+  }
+}
+
 /*void LineScatter2D::mousePressEvent(QMouseEvent *event,
                                     const QVariant &details) {
   if (event->button() == Qt::LeftButton && mPointUnderCursor) {
@@ -398,30 +468,30 @@ void LineSpecial2D::setyaxis_lsplot(Axis2D *axis) {
   QCPGraph::mousePressEvent(event, details);
 }*/
 
-/*void LineScatter2D::mouseMoveEvent(QMouseEvent *event,
+/*void LineSpecial2D::mouseMoveEvent(QMouseEvent *event,
                                    const QPointF &startPos) {
   if (event->buttons() == Qt::NoButton) {
-     PlotPoint *plotPoint =
-         qobject_cast<PlotPoint *>(parentPlot()->itemAt(event->pos(), true));
-     if (plotPoint != mPointUnderCursor) {
-       if (mPointUnderCursor == nullptr) {
-         // cursor moved from empty space to item
-         plotPoint->setActive(true);
-         parentPlot()->setCursor(Qt::OpenHandCursor);
-       } else if (plotPoint == nullptr) {
-         // cursor move from item to empty space
-         qDebug() << "elipse not active";
-         mPointUnderCursor->setActive(false);
-         parentPlot()->unsetCursor();
-       } else {
-         // cursor moved from item to item
-         qDebug() << "point under cursor";
-         mPointUnderCursor->setActive(false);
-         plotPoint->setActive(true);
-       }
-       mPointUnderCursor = plotPoint;
-       parentPlot()->replot();
-     }
-   }
+    PlotPoint *plotPoint =
+        qobject_cast<PlotPoint *>(parentPlot()->itemAt(event->pos(), true));
+    if (plotPoint != mPointUnderCursor) {
+      if (mPointUnderCursor == nullptr) {
+        // cursor moved from empty space to item
+        plotPoint->setActive(true);
+        parentPlot()->setCursor(Qt::CursorShape::CrossCursor);
+      } else if (plotPoint == nullptr) {
+        // cursor move from item to empty space
+        qDebug() << "elipse not active";
+        mPointUnderCursor->setActive(false);
+        parentPlot()->unsetCursor();
+      } else {
+        // cursor moved from item to item
+        qDebug() << "point under cursor";
+        mPointUnderCursor->setActive(false);
+        plotPoint->setActive(true);
+      }
+      mPointUnderCursor = plotPoint;
+      parentPlot()->replot(QCustomPlot::RefreshPriority::rpImmediateRefresh);
+    }
+  }
   QCPGraph::mouseMoveEvent(event, event->pos());
 }*/

@@ -69,6 +69,7 @@ class PropertyEditor : public QDockWidget {
   void Legend2DPropertyBlock(Legend2D *legend);
   void TextItem2DPropertyBlock(TextItem2D *textitem);
   void LineItem2DPropertyBlock(LineItem2D *lineitem);
+  void ImageItem2DPropertyBlock(ImageItem2D *imageitem);
   void LineScatter2DPropertyBlock(LineSpecial2D *lsgraph, AxisRect2D *axisrect);
   void Curve2DPropertyBlock(Curve2D *curve, AxisRect2D *axisrect);
   void Spline2DPropertyBlock(Spline2D *splinegraph, AxisRect2D *axisrect);
@@ -199,6 +200,18 @@ class PropertyEditor : public QDockWidget {
   QtProperty *itempropertylinestrokecoloritem_;
   QtProperty *itempropertylinestrokethicknessitem_;
   QtProperty *itempropertylinestroketypeitem_;
+  QtProperty *itempropertylineendingstyleitem_;
+  QtProperty *itempropertylineendingwidthitem_;
+  QtProperty *itempropertylineendinglengthitem_;
+  QtProperty *itempropertylinestartingstyleitem_;
+  QtProperty *itempropertylinestartingwidthitem_;
+  QtProperty *itempropertylinestartinglengthitem_;
+
+  // Image Item Properties
+  QtProperty *itempropertyimagesourceitem_;
+  QtProperty *itempropertyimagestrokecoloritem_;
+  QtProperty *itempropertyimagestrokethicknessitem_;
+  QtProperty *itempropertyimagestroketypeitem_;
 
   // LineScatter Properties block
   QtProperty *lsplotpropertyxaxisitem_;

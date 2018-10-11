@@ -87,6 +87,7 @@ void TextItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   if (event->button() == Qt::LeftButton) {
     if (selectTest(event->pos(), false) > 0) {
       draggingtextitem_ = true;
+      parentPlot()->setCursor(Qt::CursorShape::ClosedHandCursor);
     }
   }
 }
@@ -95,7 +96,7 @@ void TextItem2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
   Q_UNUSED(startPos);
   if (draggingtextitem_) {
     // set bounding rect for drag event
-    QPoint eventpos = event->pos();
+    QPointF eventpos = event->pos();
     if (event->pos().x() < axisrect_->left()) {
       eventpos.setX(axisrect_->left());
     }
@@ -119,6 +120,7 @@ void TextItem2D::mouseReleaseEvent(QMouseEvent *event,
   if (event->button() == Qt::LeftButton) {
     if (draggingtextitem_) {
       draggingtextitem_ = false;
+      parentPlot()->unsetCursor();
     }
   }
 }

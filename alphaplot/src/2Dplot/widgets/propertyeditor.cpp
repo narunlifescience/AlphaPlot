@@ -10,6 +10,7 @@
 #include "../3rdparty/propertybrowser/qteditorfactory.h"
 #include "../3rdparty/propertybrowser/qtpropertymanager.h"
 #include "../3rdparty/propertybrowser/qttreepropertybrowser.h"
+#include "2Dplot/ImageItem2D.h"
 #include "2Dplot/Layout2D.h"
 #include "2Dplot/Legend2D.h"
 #include "2Dplot/LineItem2D.h"
@@ -19,6 +20,7 @@
 #include "Note.h"
 #include "Table.h"
 #include "core/IconLoader.h"
+#include "core/Utilities.h"
 
 PropertyEditor::PropertyEditor(QWidget *parent)
     : QDockWidget(parent),
@@ -233,7 +235,13 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   itempropertytexttextalignmentitem_ =
       enumManager_->addProperty("Text alignment");
   enumManager_->setEnumNames(itempropertytexttextalignmentitem_, alignlist);
+
   // Line Item Properties
+  QStringList endingstylelist;
+  endingstylelist << tr("None") << tr("Flat Arrow") << tr("Spike Arrow")
+                  << tr("Line Arrow") << tr("Disc") << tr("Square")
+                  << tr("Diamond") << tr("Bar") << tr("Half Bar")
+                  << tr("Skewed Bar");
   itempropertylineantialiaseditem_ = boolManager_->addProperty("Antialiased");
   itempropertylinestrokecoloritem_ = colorManager_->addProperty("Stroke Color");
   itempropertylinestrokethicknessitem_ =
@@ -242,6 +250,33 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   enumManager_->setEnumNames(itempropertylinestroketypeitem_, stroketypelist);
   enumManager_->setEnumIcons(itempropertylinestroketypeitem_,
                              stroketypeiconslist);
+  itempropertylineendingstyleitem_ = enumManager_->addProperty("Ending Style");
+  enumManager_->setEnumNames(itempropertylineendingstyleitem_, endingstylelist);
+  itempropertylineendingwidthitem_ =
+      doubleManager_->addProperty("Ending Width");
+  itempropertylineendinglengthitem_ =
+      doubleManager_->addProperty("Ending Length");
+  itempropertylinestartingstyleitem_ =
+      enumManager_->addProperty("Starting Style");
+  enumManager_->setEnumNames(itempropertylinestartingstyleitem_,
+                             endingstylelist);
+  itempropertylinestartingwidthitem_ =
+      doubleManager_->addProperty("Starting Width");
+  itempropertylinestartinglengthitem_ =
+      doubleManager_->addProperty("Starting Length");
+
+  // Image Item Properties
+  itempropertyimagesourceitem_ = stringManager_->addProperty("Source");
+  itempropertyimagesourceitem_->setEnabled(false);
+  itempropertyimagestrokecoloritem_ =
+      colorManager_->addProperty("Stroke Color");
+  itempropertyimagestrokethicknessitem_ =
+      doubleManager_->addProperty("Stroke Thickness");
+  itempropertyimagestroketypeitem_ = enumManager_->addProperty("Stroke Style");
+  enumManager_->setEnumNames(itempropertyimagestroketypeitem_, stroketypelist);
+  enumManager_->setEnumIcons(itempropertyimagestroketypeitem_,
+                             stroketypeiconslist);
+
   // LineScatter Properties block
   QStringList lstylelist;
   lstylelist << tr("StepLeft") << tr("StepRight") << tr("StepCenter")
@@ -454,11 +489,6 @@ PropertyEditor::PropertyEditor(QWidget *parent)
       stringManager_->addProperty("Legend text");
 
   // Vector Properties block
-  QStringList vectorendingstylelist;
-  vectorendingstylelist << tr("None") << tr("Flat Arrow") << tr("Spike Arrow")
-                        << tr("Line Arrow") << tr("Disc") << tr("Square")
-                        << tr("Diamond") << tr("Bar") << tr("Half Bar")
-                        << tr("Skewed Bar");
   vectorpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
   vectorpropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
   vectorpropertylinestrokecoloritem_ =
@@ -473,7 +503,7 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   vectorpropertylineendingtypeitem_ =
       enumManager_->addProperty("Line Ending Type");
   enumManager_->setEnumNames(vectorpropertylineendingtypeitem_,
-                             vectorendingstylelist);
+                             endingstylelist);
   vectorpropertylineendingheightitem_ =
       doubleManager_->addProperty("Line Ending Height");
   vectorpropertylineendingwidthitem_ =
@@ -885,6 +915,11 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
         getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
     lineitem->setstrokecolor_lineitem(color);
     lineitem->layer()->replot();
+  } else if (prop->compare(itempropertyimagestrokecoloritem_)) {
+    ImageItem2D *imageitem =
+        getgraph2dobject<ImageItem2D>(objectbrowser_->currentItem());
+    imageitem->setstrokecolor_imageitem(color);
+    imageitem->layer()->replot();
   } else if (prop->compare(lsplotpropertylinestrokecoloritem_)) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
@@ -1090,6 +1125,31 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     textitem->setRotation(value);
     textitem->layer()->replot();
+  } else if (prop->compare(itempropertylineendingwidthitem_)) {
+    LineItem2D *lineitem =
+        getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
+    lineitem->setendwidth_lineitem(value, LineItem2D::LineEndLocation::Stop);
+    lineitem->layer()->replot();
+  } else if (prop->compare(itempropertylineendinglengthitem_)) {
+    LineItem2D *lineitem =
+        getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
+    lineitem->setendlength_lineitem(value, LineItem2D::LineEndLocation::Stop);
+    lineitem->layer()->replot();
+  } else if (prop->compare(itempropertylinestartingwidthitem_)) {
+    LineItem2D *lineitem =
+        getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
+    lineitem->setendwidth_lineitem(value, LineItem2D::LineEndLocation::Start);
+    lineitem->layer()->replot();
+  } else if (prop->compare(itempropertylinestartinglengthitem_)) {
+    LineItem2D *lineitem =
+        getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
+    lineitem->setendlength_lineitem(value, LineItem2D::LineEndLocation::Start);
+    lineitem->layer()->replot();
+  } else if (prop->compare(itempropertyimagestrokethicknessitem_)) {
+    ImageItem2D *imageitem =
+        getgraph2dobject<ImageItem2D>(objectbrowser_->currentItem());
+    imageitem->setstrokethickness_imageitem(value);
+    imageitem->layer()->replot();
   } else if (prop->compare(lsplotpropertylinestrokethicknessitem_)) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
@@ -1173,12 +1233,12 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
   } else if (prop->compare(vectorpropertylineendingheightitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
-    vector->setendheight_vecplot(value, Vector2D::LineEndLocation::Stop);
+    vector->setendheight_vecplot(value, Vector2D::LineEndLocation::Start);
     vector->layer()->replot();
   } else if (prop->compare(vectorpropertylineendingwidthitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
-    vector->setendwidth_vecplot(value, Vector2D::LineEndLocation::Stop);
+    vector->setendwidth_vecplot(value, Vector2D::LineEndLocation::Start);
     vector->layer()->replot();
   } else if (prop->compare(pieplotpropertylinestrokethicknessitem_)) {
     Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
@@ -1190,50 +1250,50 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
 void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
   if (prop->compare(axispropertylabeltextitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
-    axis->setLabel(value);
+    axis->setLabel(Utilities::splitstring(value));
     axis->layer()->replot();
   } else if (prop->compare(itempropertytexttextitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
-    textitem->setText(value);
+    textitem->setText(Utilities::splitstring(value));
     textitem->layer()->replot();
   } else if (prop->compare(lsplotpropertylegendtextitem_)) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
-    lsgraph->setlegendtext_lsplot(value);
+    lsgraph->setlegendtext_lsplot(Utilities::splitstring(value));
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     axisrect->getLegend()->layer()->replot();
   } else if (prop->compare(cplotpropertylegendtextitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
-    curve->setlegendtext_cplot(value);
+    curve->setlegendtext_cplot(Utilities::splitstring(value));
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     axisrect->getLegend()->layer()->replot();
   } else if (prop->compare(splinepropertylegendtextitem_)) {
     Spline2D *spline =
         getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
-    spline->setlegendtext_splot(value);
+    spline->setlegendtext_splot(Utilities::splitstring(value));
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     axisrect->getLegend()->layer()->replot();
   } else if (prop->compare(barplotpropertylegendtextitem_)) {
     Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
-    bar->setName(value);
+    bar->setName(Utilities::splitstring(value));
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     axisrect->getLegend()->layer()->replot();
   } else if (prop->compare(statboxplotpropertylegendtextitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
-    statbox->setName(value);
+    statbox->setName(Utilities::splitstring(value));
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     axisrect->getLegend()->layer()->replot();
   } else if (prop->compare(vectorpropertylegendtextitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
-    vector->setlegendtext_vecplot(value);
+    vector->setlegendtext_vecplot(Utilities::splitstring(value));
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     axisrect->getLegend()->layer()->replot();
@@ -1385,11 +1445,30 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
         getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
     lineitem->setstrokestyle_lineitem(static_cast<Qt::PenStyle>(value + 1));
     lineitem->layer()->replot();
+  } else if (prop->compare(itempropertylineendingstyleitem_)) {
+    LineItem2D *lineitem =
+        getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
+    lineitem->setendstyle_lineitem(
+        LineItem2D::LineEndLocation::Stop,
+        static_cast<QCPLineEnding::EndingStyle>(value));
+    lineitem->layer()->replot();
+  } else if (prop->compare(itempropertylinestartingstyleitem_)) {
+    LineItem2D *lineitem =
+        getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
+    lineitem->setendstyle_lineitem(
+        LineItem2D::LineEndLocation::Start,
+        static_cast<QCPLineEnding::EndingStyle>(value));
+    lineitem->layer()->replot();
   } else if (prop->compare(itempropertylegendborderstroketypeitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->setborderstrokestyle_legend(static_cast<Qt::PenStyle>(value + 1));
     legend->layer()->replot();
+  } else if (prop->compare(itempropertyimagestroketypeitem_)) {
+    ImageItem2D *imageitem =
+        getgraph2dobject<ImageItem2D>(objectbrowser_->currentItem());
+    imageitem->setstrokestyle_imageitem(static_cast<Qt::PenStyle>(value + 1));
+    imageitem->layer()->replot();
   } else if (prop->compare(lsplotpropertyxaxisitem_)) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
@@ -1411,7 +1490,8 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
   } else if (prop->compare(lsplotpropertylinestyleitem_)) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
-    lsgraph->setlinetype_lsplot(static_cast<LSCommon::LineStyleType>(value));
+    lsgraph->setlinetype_lsplot(
+        static_cast<Graph2DCommon::LineStyleType>(value));
     lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertylinestroketypeitem_)) {
     LineSpecial2D *lsgraph =
@@ -1421,7 +1501,8 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
   } else if (prop->compare(lsplotpropertyscatterstyleitem_)) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
-    lsgraph->setscattershape_lsplot(static_cast<LSCommon::ScatterStyle>(value));
+    lsgraph->setscattershape_lsplot(
+        static_cast<Graph2DCommon::ScatterStyle>(value));
     lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertyscatterstrokestyleitem_)) {
     LineSpecial2D *lsgraph =
@@ -1454,7 +1535,8 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     curve->layer()->replot();
   } else if (prop->compare(cplotpropertyscatterstyleitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
-    curve->setscattershape_cplot(static_cast<LSCommon::ScatterStyle>(value));
+    curve->setscattershape_cplot(
+        static_cast<Graph2DCommon::ScatterStyle>(value));
     curve->layer()->replot();
   } else if (prop->compare(cplotpropertyscatterstrokestyleitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
@@ -1554,7 +1636,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setscattershape_statbox(
-        static_cast<LSCommon::ScatterStyle>(value));
+        static_cast<Graph2DCommon::ScatterStyle>(value));
     statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyscatteroutlinestyleitem_)) {
     StatBox2D *statbox =
@@ -1588,8 +1670,8 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
   } else if (prop->compare(vectorpropertylineendingtypeitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
-    vector->setendstyle_vecplot(static_cast<Vector2D::LineEnd>(value + 1),
-                                Vector2D::LineEndLocation::Stop);
+    vector->setendstyle_vecplot(static_cast<Vector2D::LineEnd>(value),
+                                Vector2D::LineEndLocation::Start);
     vector->layer()->replot();
   } else if (prop->compare(pieplotpropertylinestroketypeitem_)) {
     Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
@@ -1652,6 +1734,11 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       LineItem2D *lineitem = static_cast<LineItem2D *>(ptr1);
       LineItem2DPropertyBlock(lineitem);
+    } break;
+    case MyTreeWidget::PropertyItemType::ImageItem: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      ImageItem2D *imageitem = static_cast<ImageItem2D *>(ptr1);
+      ImageItem2DPropertyBlock(imageitem);
     } break;
     case MyTreeWidget::PropertyItemType::LSGraph: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
@@ -1754,7 +1841,7 @@ void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
   boolManager_->setValue(axispropertyantialiaseditem_,
                          axis->getantialiased_axis());
   stringManager_->setValue(axispropertylabeltextitem_,
-                           axis->getlabeltext_axis());
+                           Utilities::joinstring(axis->getlabeltext_axis()));
   fontManager_->setValue(axispropertylabelfontitem_, axis->getlabelfont_axis());
   colorManager_->setValue(axispropertylabelcoloritem_,
                           axis->getlabelcolor_axis());
@@ -1962,7 +2049,8 @@ void PropertyEditor::TextItem2DPropertyBlock(TextItem2D *textitem) {
   rect.setRight(textitem->padding().right());
   rect.setBottom(textitem->padding().bottom());
   rectManager_->setValue(itempropertytextmarginitem_, rect);
-  stringManager_->setValue(itempropertytexttextitem_, textitem->text());
+  stringManager_->setValue(itempropertytexttextitem_,
+                           Utilities::joinstring(textitem->text()));
   fontManager_->setValue(itempropertytextfontitem_, textitem->font());
   colorManager_->setValue(itempropertytextcoloritem_, textitem->color());
   boolManager_->setValue(itempropertytextantialiaseditem_,
@@ -1988,6 +2076,12 @@ void PropertyEditor::LineItem2DPropertyBlock(LineItem2D *lineitem) {
   propertybrowser_->addProperty(itempropertylinestrokecoloritem_);
   propertybrowser_->addProperty(itempropertylinestrokethicknessitem_);
   propertybrowser_->addProperty(itempropertylinestroketypeitem_);
+  propertybrowser_->addProperty(itempropertylineendingstyleitem_);
+  propertybrowser_->addProperty(itempropertylineendingwidthitem_);
+  propertybrowser_->addProperty(itempropertylineendinglengthitem_);
+  propertybrowser_->addProperty(itempropertylinestartingstyleitem_);
+  propertybrowser_->addProperty(itempropertylinestartingwidthitem_);
+  propertybrowser_->addProperty(itempropertylinestartinglengthitem_);
 
   boolManager_->setValue(itempropertylineantialiaseditem_,
                          lineitem->antialiased());
@@ -1997,6 +2091,42 @@ void PropertyEditor::LineItem2DPropertyBlock(LineItem2D *lineitem) {
                            lineitem->getstrokethickness_lineitem());
   enumManager_->setValue(itempropertylinestroketypeitem_,
                          lineitem->getstrokestyle_lineitem() - 1);
+  enumManager_->setValue(
+      itempropertylineendingstyleitem_,
+      lineitem->getendstyle_lineitem(LineItem2D::LineEndLocation::Stop));
+  doubleManager_->setValue(
+      itempropertylineendingwidthitem_,
+      lineitem->getendwidth_lineitem(LineItem2D::LineEndLocation::Stop));
+  doubleManager_->setValue(
+      itempropertylineendinglengthitem_,
+      lineitem->getendlength_lineitem(LineItem2D::LineEndLocation::Stop));
+  enumManager_->setValue(
+      itempropertylinestartingstyleitem_,
+      lineitem->getendstyle_lineitem(LineItem2D::LineEndLocation::Start));
+  doubleManager_->setValue(
+      itempropertylinestartingwidthitem_,
+      lineitem->getendwidth_lineitem(LineItem2D::LineEndLocation::Start));
+  doubleManager_->setValue(
+      itempropertylinestartinglengthitem_,
+      lineitem->getendlength_lineitem(LineItem2D::LineEndLocation::Start));
+}
+
+void PropertyEditor::ImageItem2DPropertyBlock(ImageItem2D *imageitem) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(itempropertyimagesourceitem_);
+  propertybrowser_->addProperty(itempropertyimagestrokecoloritem_);
+  propertybrowser_->addProperty(itempropertyimagestrokethicknessitem_);
+  propertybrowser_->addProperty(itempropertyimagestroketypeitem_);
+
+  stringManager_->setValue(itempropertyimagesourceitem_,
+                           imageitem->getsource_imageitem());
+  colorManager_->setValue(itempropertyimagestrokecoloritem_,
+                          imageitem->getstrokecolor_imageitem());
+  doubleManager_->setValue(itempropertyimagestrokethicknessitem_,
+                           imageitem->getstrokethickness_imageitem());
+  enumManager_->setValue(itempropertyimagestroketypeitem_,
+                         imageitem->getstrokestyle_imageitem() - 1);
 }
 
 void PropertyEditor::LineScatter2DPropertyBlock(LineSpecial2D *lsgraph,
@@ -2084,8 +2214,9 @@ void PropertyEditor::LineScatter2DPropertyBlock(LineSpecial2D *lsgraph,
                            lsgraph->getscatterstrokethickness_lsplot());
   boolManager_->setValue(lsplotpropertyscatterantialiaseditem_,
                          lsgraph->getscatterantialiased_lsplot());
-  stringManager_->setValue(lsplotpropertylegendtextitem_,
-                           lsgraph->getlegendtext_lsplot());
+  stringManager_->setValue(
+      lsplotpropertylegendtextitem_,
+      Utilities::joinstring(lsgraph->getlegendtext_lsplot()));
 }
 
 void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
@@ -2174,7 +2305,7 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
   boolManager_->setValue(cplotpropertyscatterantialiaseditem_,
                          curve->getscatterantialiased_cplot());
   stringManager_->setValue(cplotpropertylegendtextitem_,
-                           curve->getlegendtext_cplot());
+                           Utilities::joinstring(curve->getlegendtext_cplot()));
 }
 
 void PropertyEditor::Spline2DPropertyBlock(Spline2D *splinegraph,
@@ -2237,8 +2368,9 @@ void PropertyEditor::Spline2DPropertyBlock(Spline2D *splinegraph,
                           splinegraph->getlinefillcolor_splot());
   boolManager_->setValue(splinepropertylineantialiaseditem_,
                          splinegraph->getlineantialiased_splot());
-  stringManager_->setValue(splinepropertylegendtextitem_,
-                           splinegraph->getlegendtext_splot());
+  stringManager_->setValue(
+      splinepropertylegendtextitem_,
+      Utilities::joinstring(splinegraph->getlegendtext_splot()));
 }
 
 void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
@@ -2301,7 +2433,8 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
                            bargraph->getstrokethickness_barplot());
   enumManager_->setValue(barplotpropertystrokestyleitem_,
                          bargraph->getstrokestyle_barplot() - 1);
-  stringManager_->setValue(barplotpropertylegendtextitem_, bargraph->name());
+  stringManager_->setValue(barplotpropertylegendtextitem_,
+                           Utilities::joinstring(bargraph->name()));
 }
 
 void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
@@ -2422,7 +2555,8 @@ void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
                            statbox->getscatterstrokethickness_statbox());
   enumManager_->setValue(statboxplotpropertyscatteroutlinestyleitem_,
                          statbox->getscatterstrokestyle_statbox() - 1);
-  stringManager_->setValue(statboxplotpropertylegendtextitem_, statbox->name());
+  stringManager_->setValue(statboxplotpropertylegendtextitem_,
+                           Utilities::joinstring(statbox->name()));
 }
 
 void PropertyEditor::Vector2DPropertyBlock(Vector2D *vectorgraph,
@@ -2481,18 +2615,18 @@ void PropertyEditor::Vector2DPropertyBlock(Vector2D *vectorgraph,
       static_cast<int>(vectorgraph->getlinestrokestyle_vecplot() - 1));
   enumManager_->setValue(vectorpropertylineendingtypeitem_,
                          static_cast<int>(vectorgraph->getendstyle_vecplot(
-                             Vector2D::LineEndLocation::Stop)) -
-                             1);
+                             Vector2D::LineEndLocation::Start)));
   doubleManager_->setValue(
       vectorpropertylineendingheightitem_,
-      vectorgraph->getendheight_vecplot(Vector2D::LineEndLocation::Stop));
+      vectorgraph->getendheight_vecplot(Vector2D::LineEndLocation::Start));
   doubleManager_->setValue(
       vectorpropertylineendingwidthitem_,
-      vectorgraph->getendwidth_vecplot(Vector2D::LineEndLocation::Stop));
+      vectorgraph->getendwidth_vecplot(Vector2D::LineEndLocation::Start));
   boolManager_->setValue(vectorpropertylineantialiaseditem_,
                          vectorgraph->getlineantialiased_vecplot());
-  stringManager_->setValue(vectorpropertylegendtextitem_,
-                           vectorgraph->getlegendtext_vecplot());
+  stringManager_->setValue(
+      vectorpropertylegendtextitem_,
+      Utilities::joinstring(vectorgraph->getlegendtext_vecplot()));
 }
 
 void PropertyEditor::Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect) {
@@ -2671,6 +2805,23 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         item->addChild(lineitem);
       }
 
+      // Image items
+      QVector<ImageItem2D *> imageitems = element->getImageItemVec();
+      for (int j = 0; j < imageitems.size(); j++) {
+        QTreeWidgetItem *imageitem =
+            new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+        QString text = QString("Image Item: " + QString::number(j + 1));
+        imageitem->setIcon(
+            0, IconLoader::load("view-image", IconLoader::LightDark));
+        imageitem->setText(0, text);
+        imageitem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::ImageItem));
+        imageitem->setData(0, Qt::UserRole + 1,
+                           QVariant::fromValue<void *>(imageitems.at(j)));
+        item->addChild(imageitem);
+      }
+
       // LineScatter plot Items
       LsVec graphvec = element->getLsVec();
       for (int j = 0; j < graphvec.size(); j++) {
@@ -2698,11 +2849,11 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         QTreeWidgetItem *curvegraphitem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(curvegraphtext));
         switch (curvegraph->getplottype_curveplot()) {
-          case LSCommon::PlotType::Associated:
+          case Graph2DCommon::PlotType::Associated:
             curvegraphitem->setIcon(
                 0, IconLoader::load("graph2d-line", IconLoader::LightDark));
             break;
-          case LSCommon::PlotType::Function:
+          case Graph2DCommon::PlotType::Function:
             curvegraphitem->setIcon(0, IconLoader::load("graph2d-function-xy",
                                                         IconLoader::LightDark));
             break;
@@ -2781,8 +2932,13 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         QString bartext = QString("Bar %1").arg(j + 1);
         QTreeWidgetItem *baritem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(bartext));
-        baritem->setIcon(
-            0, IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
+        if (bar->ishistogram_barplot()) {
+          baritem->setIcon(
+              0, IconLoader::load("graph2d-histogram", IconLoader::LightDark));
+        } else {
+          baritem->setIcon(0, IconLoader::load("graph2d-vertical-bar",
+                                               IconLoader::LightDark));
+        }
         baritem->setData(
             0, Qt::UserRole,
             static_cast<int>(MyTreeWidget::PropertyItemType::BarGraph));
@@ -2849,6 +3005,8 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
           SLOT(objectschanged()));
   connect(axisrect, SIGNAL(LineItem2DCreated(LineItem2D *)), this,
           SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(ImageItem2DCreated(ImageItem2D *)), this,
+          SLOT(objectschanged()));
   connect(axisrect, SIGNAL(LineScatter2DCreated(LineSpecial2D *)), this,
           SLOT(objectschanged()));
   connect(axisrect, SIGNAL(Curve2DCreated(Curve2D *)), this,
@@ -2870,6 +3028,8 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
   connect(axisrect, SIGNAL(TextItem2DRemoved(AxisRect2D *)), this,
           SLOT(objectschanged()));
   connect(axisrect, SIGNAL(LineItem2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(ImageItem2DRemoved(AxisRect2D *)), this,
           SLOT(objectschanged()));
   connect(axisrect, SIGNAL(LineScatter2DRemoved(AxisRect2D *)), this,
           SLOT(objectschanged()));
@@ -3001,6 +3161,26 @@ void PropertyEditor::setObjectPropertyId() {
       "itempropertylinestrokethicknessitem_");
   itempropertylinestroketypeitem_->setPropertyId(
       "itempropertylinestroketypeitem_");
+  itempropertylineendingstyleitem_->setPropertyId(
+      "itempropertylineendingstyleitem_");
+  itempropertylineendingwidthitem_->setPropertyId(
+      "itempropertylineendingwidthitem_");
+  itempropertylineendinglengthitem_->setPropertyId(
+      "itempropertylineendinglengthitem_");
+  itempropertylinestartingstyleitem_->setPropertyId(
+      "itempropertylinestartingstyleitem_");
+  itempropertylinestartingwidthitem_->setPropertyId(
+      "itempropertylinestartingwidthitem_");
+  itempropertylinestartinglengthitem_->setPropertyId(
+      "itempropertylinestartinglengthitem_");
+  // Image Item Properties
+  itempropertyimagesourceitem_->setPropertyId("itempropertyimagesourceitem_");
+  itempropertyimagestrokecoloritem_->setPropertyId(
+      "itempropertyimagestrokecoloritem_");
+  itempropertyimagestrokethicknessitem_->setPropertyId(
+      "itempropertyimagestrokethicknessitem_");
+  itempropertyimagestroketypeitem_->setPropertyId(
+      "itempropertyimagestroketypeitem_");
   // Line Scatter Property Block
   lsplotpropertyxaxisitem_->setPropertyId("lsplotpropertyxaxisitem_");
   lsplotpropertyyaxisitem_->setPropertyId("lsplotpropertyyaxisitem_");
