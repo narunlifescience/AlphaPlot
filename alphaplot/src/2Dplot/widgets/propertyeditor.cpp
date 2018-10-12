@@ -6,7 +6,6 @@
 #include <QTreeWidgetItem>
 #include <QtDebug>
 
-#include "../../MyWidget.h"
 #include "../3rdparty/propertybrowser/qteditorfactory.h"
 #include "../3rdparty/propertybrowser/qtpropertymanager.h"
 #include "../3rdparty/propertybrowser/qttreepropertybrowser.h"
@@ -17,6 +16,7 @@
 #include "2Dplot/LineSpecial2D.h"
 #include "Matrix.h"
 #include "MultiLayer.h"
+#include "MyWidget.h"
 #include "Note.h"
 #include "Table.h"
 #include "core/IconLoader.h"
@@ -78,6 +78,16 @@ PropertyEditor::PropertyEditor(QWidget *parent)
       QIcon(":/icons/common/16/edit-style-dashdotline.png");
   stroketypeiconslist[4] =
       QIcon(":/icons/common/16/edit-style-dashdotdotline.png");
+  QStringList formatlist;
+  formatlist << "Scientific: 1.250e+01"
+             << "Scientific: 1.250.10^-1"
+             << "Scientific: 1.250x10^-1"
+             << "Scientific: 1.250E+01"
+             << "Decimal: 12.500"
+             << "Automatic(g)"
+             << "Automatic(gb)"
+             << "Automatic(gbc)"
+             << "Automatic(G)";
 
   // Property browser set up appropriate widget factory
   propertybrowser_->setFactoryForManager(boolManager_, checkBoxFactory_);
@@ -181,6 +191,10 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   axispropertyticklabelvisibilityitem_->addSubProperty(
       axispropertyticklabelsideitem_);
   enumManager_->setEnumNames(axispropertyticklabelsideitem_, axislabelsidelist);
+  axispropertyticklabelformatitem_ = enumManager_->addProperty("Format");
+  axispropertyticklabelvisibilityitem_->addSubProperty(
+      axispropertyticklabelformatitem_);
+  enumManager_->setEnumNames(axispropertyticklabelformatitem_, formatlist);
   axispropertyticklabelprecisionitem_ = intManager_->addProperty("Precision");
   axispropertyticklabelvisibilityitem_->addSubProperty(
       axispropertyticklabelprecisionitem_);
@@ -1424,6 +1438,10 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelside_axis(static_cast<Axis2D::AxisLabelSide>(value));
     axis->layer()->replot();
+  } else if (prop->compare(axispropertyticklabelformatitem_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    axis->setticklabelformat_axis(static_cast<Axis2D::AxisLabelFormat>(value));
+    axis->parentPlot()->replot();
   } else if (prop->compare(itempropertylegendborderstroketypeitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
@@ -1883,6 +1901,8 @@ void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
                            axis->getticklabelrotation_axis());
   enumManager_->setValue(axispropertyticklabelsideitem_,
                          static_cast<int>(axis->getticklabelside_axis()));
+  enumManager_->setValue(axispropertyticklabelformatitem_,
+                         static_cast<int>(axis->getticklabelformat_axis()));
   intManager_->setValue(axispropertyticklabelprecisionitem_,
                         axis->getticklabelprecision_axis());
 }
@@ -3106,6 +3126,8 @@ void PropertyEditor::setObjectPropertyId() {
       "axispropertyticklabelrotationitem_");
   axispropertyticklabelsideitem_->setPropertyId(
       "axispropertyticklabelsideitem_");
+  axispropertyticklabelformatitem_->setPropertyId(
+      "axispropertyticklabelformatitem_");
   axispropertyticklabelprecisionitem_->setPropertyId(
       "axispropertyticklabelprecisionitem_");
   // Legend Properties

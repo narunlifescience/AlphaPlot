@@ -1766,9 +1766,10 @@ void ApplicationWindow::plotPie() {
 
   if (selectedcolumns.count() == 1) {
     Layout2D *layout = newGraph2D();
-    layout->generatePie2DPlot(table,
-                              table->column(table->firstSelectedColumn()), 0,
-                              table->rowCnt() - 1);
+    layout->generatePie2DPlot(
+        table, table->column(table->firstSelectedColumn()),
+        table->firstSelectedRow(),
+        table->firstSelectedRow() + table->selectedRowCount() - 1);
   } else
     QMessageBox::warning(this, tr("Error"),
                          tr("Please select a column to plot!"));
@@ -1781,14 +1782,25 @@ void ApplicationWindow::plotVectXYXY() {
 
   if (!validFor2DPlot(table, Graph::VectXYXY)) return;
 
-  QStringList s = table->selectedColumns();
-  if (s.count() == 4) {
+  QStringList list = table->selectedColumns();
+  if (list.count() == 4) {
+    Column *xcol = nullptr;
+    QList<Column *> ycollist;
+    QStringList list = table->selectedColumns();
+    foreach (QString colname, list) {
+      if (table->YColumns().contains(colname)) {
+        ycollist << table->column(table->colIndex(colname));
+      } else {
+        xcol = table->column(table->colIndex(colname));
+      }
+    }
+    Q_ASSERT(ycollist.size() == 3);
+
     Layout2D *layout = newGraph2D();
     layout->generateVector2DPlot(
-        Vector2D::VectorPlot::XYXY, table, table->column(table->firstXCol()),
-        table->column(table->firstXCol() + 1),
-        table->column(table->firstXCol() + 2),
-        table->column(table->firstXCol() + 3), 0, table->rowCnt() - 1);
+        Vector2D::VectorPlot::XYXY, table, xcol, ycollist.at(0), ycollist.at(1),
+        ycollist.at(2), table->firstSelectedRow(),
+        table->firstSelectedRow() + table->selectedRowCount() - 1);
 
   } else
     QMessageBox::warning(this, tr("Error"),
@@ -1804,12 +1816,23 @@ void ApplicationWindow::plotVectXYAM() {
 
   QStringList s = table->selectedColumns();
   if (s.count() == 4) {
+    Column *xcol = nullptr;
+    QList<Column *> ycollist;
+    QStringList list = table->selectedColumns();
+    foreach (QString colname, list) {
+      if (table->YColumns().contains(colname)) {
+        ycollist << table->column(table->colIndex(colname));
+      } else {
+        xcol = table->column(table->colIndex(colname));
+      }
+    }
+    Q_ASSERT(ycollist.size() == 3);
+
     Layout2D *layout = newGraph2D();
     layout->generateVector2DPlot(
-        Vector2D::VectorPlot::XYAM, table, table->column(table->firstXCol()),
-        table->column(table->firstXCol() + 1),
-        table->column(table->firstXCol() + 2),
-        table->column(table->firstXCol() + 3), 0, table->rowCnt() - 1);
+        Vector2D::VectorPlot::XYAM, table, xcol, ycollist.at(0), ycollist.at(1),
+        ycollist.at(2), table->firstSelectedRow(),
+        table->firstSelectedRow() + table->selectedRowCount() - 1);
   } else
     QMessageBox::warning(this, tr("Error"),
                          tr("Please select four columns for this operation!"));
@@ -5760,7 +5783,24 @@ void ApplicationWindow::plotStackedLayers() {
 }
 
 void ApplicationWindow::plotStackedHistograms() {
-  multilayerPlot(1, -1, Graph::Histogram);
+  if (!d_workspace->activeSubWindow()) return;
+
+  Table *table = qobject_cast<Table *>(d_workspace->activeSubWindow());
+  if (!table || !validFor2DPlot(table, static_cast<int>(Graph::Histogram)))
+    return;
+
+  int from = table->firstSelectedRow();
+  int to = table->firstSelectedRow() + table->numSelectedRows() - 1;
+
+  QList<Column *> collist;
+
+  QStringList list = table->selectedColumns();
+  foreach (QString colname, list)
+    collist << table->column(table->colIndex(colname));
+
+  Layout2D *layout = newGraph2D();
+  layout->generateHistogram2DPlot(AxisRect2D::BarType::VerticalBars, true,
+                                  table, collist, from, to);
 }
 
 QDialog *ApplicationWindow::showPlot3dDialog() {
@@ -7000,7 +7040,9 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
       ? window->setParent(nullptr)
       : window->deleteLater();
 
-  if (d_workspace->subWindowList().count() == 1) {
+  QList<QMdiSubWindow *> subwindowlist = d_workspace->subWindowList();
+  subwindowlist.removeOne(window);
+  if (subwindowlist.isEmpty()) {
     customMenu(nullptr);
     customToolBars(nullptr);
   }
@@ -11436,81 +11478,86 @@ void ApplicationWindow::selectPlotType(int type) {
   Table *table = qobject_cast<Table *>(d_workspace->activeSubWindow());
   if (!table || !validFor2DPlot(table, type)) return;
 
+  int from = table->firstSelectedRow();
+  int to = table->firstSelectedRow() + table->numSelectedRows() - 1;
+
   if (type == Graph::Box) {
     QList<Column *> ycollist;
     Layout2D *layout = newGraph2D();
     QStringList list = table->selectedColumns();
     foreach (QString colname, list)
       ycollist << table->column(table->colIndex(colname));
-    layout->generateStatBox2DPlot(table, ycollist, 0, table->rowCnt() - 1, 1);
+    layout->generateStatBox2DPlot(table, ycollist, from, to, 1);
+    return;
+  } else if (type == Graph::Histogram) {
+    QList<Column *> collist;
+    Layout2D *layout = newGraph2D();
+    QStringList list = table->selectedColumns();
+    foreach (QString colname, list)
+      collist << table->column(table->colIndex(colname));
+    layout->generateHistogram2DPlot(AxisRect2D::BarType::VerticalBars, false,
+                                    table, collist, from, to);
     return;
   }
 
   QStringList list = table->selectedColumns();
   Column *xcol = nullptr;
   Column *ycol = nullptr;
-  if (list.size() == 2) {
-    if (table->YColumns().contains(list.at(0))) {
-      xcol = table->column(table->colIndex(list.at(1)));
-      ycol = table->column(table->colIndex(list.at(0)));
-    } else {
-      xcol = table->column(table->colIndex(list.at(0)));
-      ycol = table->column(table->colIndex(list.at(1)));
-    }
+  Q_ASSERT(list.size() == 2);
+  if (table->YColumns().contains(list.at(0))) {
+    xcol = table->column(table->colIndex(list.at(1)));
+    ycol = table->column(table->colIndex(list.at(0)));
   } else {
     xcol = table->column(table->colIndex(list.at(0)));
+    ycol = table->column(table->colIndex(list.at(1)));
   }
 
   Layout2D *layout = newGraph2D();
   switch (type) {
     case Graph::Scatter:
       layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Scatter2D, table,
-                                  xcol, ycol, 0, table->rowCnt() - 1);
+                                  xcol, ycol, from, to);
       return;
     case Graph::Line:
       layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Line2D, table,
-                                  xcol, ycol, 0, table->rowCnt() - 1);
+                                  xcol, ycol, from, to);
       return;
     case Graph::LineSymbols:
       layout->generateCurve2DPlot(AxisRect2D::LineScatterType::LineAndScatter2D,
-                                  table, xcol, ycol, 0, table->rowCnt() - 1);
+                                  table, xcol, ycol, from, to);
       return;
     case Graph::VerticalDropLines:
-      layout->generateLineScatter2DPlot(
+      layout->generateLineSpecial2DPlot(
           AxisRect2D::LineScatterSpecialType::VerticalDropLine2D, table, xcol,
-          ycol, 0, table->rowCnt() - 1);
+          ycol, from, to);
       return;
     case Graph::Spline:
-      layout->generateSpline2DPlot(table, xcol, ycol, 0, table->rowCnt() - 1);
+      layout->generateSpline2DPlot(table, xcol, ycol, from, to);
       return;
     case Graph::VerticalSteps:
-      layout->generateLineScatter2DPlot(
+      layout->generateLineSpecial2DPlot(
           AxisRect2D::LineScatterSpecialType::VerticalStep2D, table, xcol, ycol,
-          0, table->rowCnt() - 1);
+          from, to);
       return;
     case Graph::HorizontalSteps:
-      layout->generateLineScatter2DPlot(
+      layout->generateLineSpecial2DPlot(
           AxisRect2D::LineScatterSpecialType::HorizontalStep2D, table, xcol,
-          ycol, 0, table->rowCnt() - 1);
+          ycol, from, to);
       return;
     case Graph::Area:
       layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Area2D, table,
-                                  xcol, ycol, 0, table->rowCnt() - 1);
+                                  xcol, ycol, from, to);
       return;
     case Graph::HorizontalBars:
       layout->generateBar2DPlot(AxisRect2D::BarType::HorizontalBars, table,
-                                xcol, ycol, 0, table->rowCnt() - 1);
+                                xcol, ycol, from, to);
       return;
     case Graph::VerticalBars:
       layout->generateBar2DPlot(AxisRect2D::BarType::VerticalBars, table, xcol,
-                                ycol, 0, table->rowCnt() - 1);
-      return;
-    case Graph::Histogram:
-      layout->generateHistogram2DPlot(AxisRect2D::BarType::VerticalBars, table,
-                                      ycol, 0, table->rowCnt() - 1);
+                                ycol, from, to);
       return;
     default: {
-      qDebug() << "not implimented";
+      qDebug() << "not implimented" << type;
       return;
     }
   }

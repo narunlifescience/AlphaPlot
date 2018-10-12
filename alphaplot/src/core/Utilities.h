@@ -17,6 +17,7 @@
 
 */
 #include <QColor>
+#include <QImage>
 #include <QString>
 
 class Utilities {
@@ -27,6 +28,8 @@ class Utilities {
   static QColor getRandColorGoldenRatio(ColorPal colpal);
   static QString splitstring(QString string);
   static QString joinstring(QString string);
+  QImage convertToGrayScale(const QImage &srcImage);
+  QImage convertToGrayScaleFast(const QImage &srcImage);
 
  private:
   Utilities() {}

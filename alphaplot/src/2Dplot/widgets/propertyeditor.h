@@ -165,6 +165,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *axispropertyticklabelpaddingitem_;
   QtProperty *axispropertyticklabelrotationitem_;
   QtProperty *axispropertyticklabelsideitem_;
+  QtProperty *axispropertyticklabelformatitem_;
   QtProperty *axispropertyticklabelprecisionitem_;
 
   // Legend Properties

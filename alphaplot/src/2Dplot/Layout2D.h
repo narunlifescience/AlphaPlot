@@ -8,10 +8,9 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
+#include "../future/core/column/Column.h"
 #include "StatBox2D.h"
-
 class QLabel;
-class Column;
 class Table;
 class AxisRect2D;
 class LayoutGrid2D;
@@ -33,10 +32,11 @@ class Layout2D : public MyWidget {
   void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
   void generateStatBox2DPlot(Table *table, QList<Column *> ycollist, int from,
                              int to, int key);
-  void generateHistogram2DPlot(const AxisRect2D::BarType &barType, Table *table,
-                               Column *yData, int from, int to);
+  void generateHistogram2DPlot(const AxisRect2D::BarType &barType,
+                               bool multilayout, Table *table,
+                               QList<Column *> collist, int from, int to);
 
-  void generateLineScatter2DPlot(
+  void generateLineSpecial2DPlot(
       const AxisRect2D::LineScatterSpecialType &plotType, Table *table,
       Column *xData, Column *yData, int from, int to);
   void generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
@@ -68,10 +68,15 @@ class Layout2D : public MyWidget {
 
  private slots:
   AxisRect2D *addAxisRectItem();
+  AxisRect2D *addAxisRectItem(const AlphaPlot::ColumnDataType &xcoldatatype,
+                              const AlphaPlot::ColumnDataType &ycoldatatype);
   void removeAxisRectItem();
   void axisRectSetFocus(AxisRect2D *rect);
   void activateLayout(LayoutButton2D *button);
   void showtooltip(QPointF position, double xval, double yval);
+
+ private:
+  void addTextToAxisTicker(Column *col, Axis2D *axis);
 
  private:
   QWidget *main_widget_;

@@ -37,8 +37,8 @@ LineSpecial2D::LineSpecial2D(Table *table, Column *xcol, Column *ycol, int from,
 LineSpecial2D::~LineSpecial2D() {
   delete scatterstyle_;
   delete graphdata_;
-  if (xerroravailable_) delete xerrorbar_;
-  if (yerroravailable_) delete yerrorbar_;
+  if (xerroravailable_) removeXerrorBar();
+  if (yerroravailable_) removeYerrorBar();
 }
 
 void LineSpecial2D::setXerrorBar(Table *table, Column *errorcol, int from,
@@ -62,17 +62,17 @@ void LineSpecial2D::setGraphData(Table *table, Column *xcol, Column *ycol,
 }
 
 void LineSpecial2D::removeXerrorBar() {
-  if (xerroravailable_) return;
+  if (!xerroravailable_) return;
 
-  delete xerrorbar_;
+  parentPlot()->removePlottable(xerrorbar_);
   xerrorbar_ = nullptr;
   xerroravailable_ = false;
 }
 
 void LineSpecial2D::removeYerrorBar() {
-  if (yerroravailable_) return;
+  if (!yerroravailable_) return;
 
-  delete yerrorbar_;
+  parentPlot()->removePlottable(yerrorbar_);
   yerrorbar_ = nullptr;
   yerroravailable_ = false;
 }

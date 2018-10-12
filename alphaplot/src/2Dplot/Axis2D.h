@@ -25,12 +25,31 @@ class AxisRect2D;
 class Axis2D : public QCPAxis {
   Q_OBJECT
  public:
-  Axis2D(AxisRect2D *parent, AxisType type);
+  enum class TickerType : int {
+    Value = 0,
+    Log = 1,
+    Pi = 3,
+    Text = 4,
+    Time = 5,
+    DateTime = 6
+  };
+  Axis2D(AxisRect2D *parent, AxisType type, Axis2D::TickerType tickertype);
   ~Axis2D();
 
   enum class AxisOreantation { Left = 0, Bottom = 1, Right = 2, Top = 3 };
   enum class AxisScaleType { Linear = 0, Logarithmic = 1 };
   enum class AxisLabelSide { Inside = 0, Outside = 1 };
+  enum class AxisLabelFormat {
+    e = 0,
+    eb = 1,
+    ebc = 2,
+    E = 3,
+    f = 4,
+    g = 5,
+    gb = 6,
+    gbc = 7,
+    G = 8,
+  };
 
   // getter
   // Axis properties
@@ -72,7 +91,10 @@ class Axis2D : public QCPAxis {
   QColor getticklabelcolor_axis() const;
   double getticklabelrotation_axis() const;
   AxisLabelSide getticklabelside_axis() const;
+  AxisLabelFormat getticklabelformat_axis() const;
   int getticklabelprecision_axis() const;
+
+  QSharedPointer<QCPAxisTicker> getticker_axis();
 
   // setters
   // Axis properties
@@ -112,10 +134,13 @@ class Axis2D : public QCPAxis {
   void setticklabelcolor_axis(const QColor &color);
   void setticklabelrotation_axis(const double value);
   void setticklabelside_axis(const AxisLabelSide &side);
+  void setticklabelformat_axis(const AxisLabelFormat &axisformat);
   void setticklabelprecision_axis(const int value);
 
-private:
+ private:
   AxisRect2D *axisrect_;
+  Axis2D::TickerType tickertype_;
+  QSharedPointer<QCPAxisTicker> ticker_;
 };
 
 #endif  // AXIS2D_H

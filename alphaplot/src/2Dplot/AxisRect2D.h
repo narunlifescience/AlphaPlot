@@ -57,7 +57,8 @@ class AxisRect2D : public QCPAxisRect {
   ~AxisRect2D();
 
   void setAxisRectBackground(const QBrush &brush);
-  Axis2D *addAxis2D(const Axis2D::AxisOreantation &orientation);
+  Axis2D *addAxis2D(const Axis2D::AxisOreantation &orientation,
+                    const Axis2D::TickerType &tickertype);
   bool removeAxis2D(Axis2D *axis);
   QBrush getAxisRectBackground() const;
   Grid2D *bindGridTo(Axis2D *axis);
@@ -157,12 +158,19 @@ class AxisRect2D : public QCPAxisRect {
   void setGraphTool(const Graph2DCommon::Picker &picker);
 
  public slots:
-  Axis2D *addLeftAxis2D() { return addAxis2D(Axis2D::AxisOreantation::Left); }
-  Axis2D *addBottomAxis2D() {
-    return addAxis2D(Axis2D::AxisOreantation::Bottom);
+  Axis2D *addLeftAxis2D() {
+    return addAxis2D(Axis2D::AxisOreantation::Left, Axis2D::TickerType::Pi);
   }
-  Axis2D *addRightAxis2D() { return addAxis2D(Axis2D::AxisOreantation::Right); }
-  Axis2D *addTopAxis2D() { return addAxis2D(Axis2D::AxisOreantation::Top); }
+  Axis2D *addBottomAxis2D() {
+    return addAxis2D(Axis2D::AxisOreantation::Bottom,
+                     Axis2D::TickerType::Pi);
+  }
+  Axis2D *addRightAxis2D() {
+    return addAxis2D(Axis2D::AxisOreantation::Right, Axis2D::TickerType::Pi);
+  }
+  Axis2D *addTopAxis2D() {
+    return addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Pi);
+  }
 
  protected:
   void mousePressEvent(QMouseEvent *, const QVariant &);

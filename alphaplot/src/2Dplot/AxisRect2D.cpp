@@ -52,23 +52,24 @@ void AxisRect2D::setAxisRectBackground(const QBrush &brush) {
   setBackground(brush);
 }
 
-Axis2D *AxisRect2D::addAxis2D(const Axis2D::AxisOreantation &orientation) {
+Axis2D *AxisRect2D::addAxis2D(const Axis2D::AxisOreantation &orientation,
+                              const Axis2D::TickerType &tickertype) {
   Axis2D *axis2D = nullptr;
   switch (orientation) {
     case Axis2D::AxisOreantation::Left:
-      axis2D = new Axis2D(this, QCPAxis::atLeft);
+      axis2D = new Axis2D(this, QCPAxis::atLeft, tickertype);
       addAxis(QCPAxis::atLeft, axis2D);
       break;
     case Axis2D::AxisOreantation::Bottom:
-      axis2D = new Axis2D(this, QCPAxis::atBottom);
+      axis2D = new Axis2D(this, QCPAxis::atBottom, tickertype);
       addAxis(QCPAxis::atBottom, axis2D);
       break;
     case Axis2D::AxisOreantation::Right:
-      axis2D = new Axis2D(this, QCPAxis::atRight);
+      axis2D = new Axis2D(this, QCPAxis::atRight, tickertype);
       addAxis(QCPAxis::atRight, axis2D);
       break;
     case Axis2D::AxisOreantation::Top:
-      axis2D = new Axis2D(this, QCPAxis::atTop);
+      axis2D = new Axis2D(this, QCPAxis::atTop, tickertype);
       addAxis(QCPAxis::atTop, axis2D);
       break;
   }
@@ -444,16 +445,9 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
 }
 
 Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
-  // remove all axis
-  /*for (int i = 0; i < axes_.size(); i++) {
-    removeAxis2D(axes_.at(i));
-    qDebug() << axes_.size();
-  }*/
   Pie2D *pie = new Pie2D(this);
-
   pie->setGraphData(xData, from, to);
-  // LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, pie);
-  // axisRectLegend_->addItem(legendItem);
+  getLegend()->setVisible(false);
   // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   pievec_.append(pie);
   emit Pie2DCreated(pie);

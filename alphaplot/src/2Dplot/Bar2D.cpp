@@ -1,6 +1,7 @@
 #include "Bar2D.h"
 #include "DataManager2D.h"
 #include "Table.h"
+#include "core/Utilities.h"
 #include "future/core/column/Column.h"
 
 #include <gsl/gsl_histogram.h>
@@ -17,6 +18,10 @@ Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
       picker_(Graph2DCommon::Picker::None) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setSelectable(QCP::SelectionType::stSingleData);
+  QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);
+  setstrokecolor_barplot(color);
+  color.setAlpha(100);
+  setfillcolor_barplot(color);
   setData(bardata_->data());
 }
 
@@ -28,12 +33,17 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
       yaxis_(yAxis),
       ishistogram_(true) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
+  setSelectable(QCP::SelectionType::stSingleData);
+  QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);
+  setstrokecolor_barplot(color);
+  color.setAlpha(100);
+  setfillcolor_barplot(color);
   int d_end_row = to;
   int d_start_row = from;
   bool d_autoBin = true;
-  int d_bin_size;
-  double d_begin;
-  double d_end;
+  int d_bin_size = 0;
+  double d_begin = 0.0;
+  double d_end = 0.0;
   double d_mean;
   double d_standard_deviation;
   double d_min;

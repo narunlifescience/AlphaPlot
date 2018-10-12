@@ -421,4 +421,19 @@ void Curve2D::graphpicker(QMouseEvent *event, const QVariant &details) {
 
 void Curve2D::movepicker(QMouseEvent *event, const QVariant &details) {}
 
-void Curve2D::removepicker(QMouseEvent *event, const QVariant &details) {}
+void Curve2D::removepicker(QMouseEvent *event, const QVariant &details) {
+  QCPCurveDataContainer::const_iterator it = data()->constEnd();
+  QCPDataSelection dataPoints = details.value<QCPDataSelection>();
+  if (dataPoints.dataPointCount() > 0) {
+    dataPoints.dataRange();
+    it = data()->at(dataPoints.dataRange().begin());
+    QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
+    if (point.x() > event->posF().x() - 10 &&
+        point.x() < event->posF().x() + 10 &&
+        point.y() > event->posF().y() - 10 &&
+        point.y() < event->posF().y() + 10) {
+      curvedata_->data()->remove(it->sortKey());
+      layer()->replot();
+    }
+  }
+}

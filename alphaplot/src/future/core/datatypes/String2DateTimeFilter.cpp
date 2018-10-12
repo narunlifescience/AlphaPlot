@@ -29,17 +29,17 @@
  ***************************************************************************/
 #include "String2DateTimeFilter.h"
 #include <QStringList>
-#include "lib/XmlStreamReader.h"
 #include <QXmlStreamWriter>
+#include "lib/XmlStreamReader.h"
 
 const char *String2DateTimeFilter::date_formats[] = {
     "yyyy-M-d",  // ISO 8601 w/ and w/o leading zeros
     "yyyy/M/d",
     "d/M/yyyy",  // European style day/month order (this order seems to be used
                  // in more countries than the US style M/d/yyyy)
-    "d/M/yy",   "d-M-yyyy", "d-M-yy",
+    "d/M/yy", "d-M-yyyy", "d-M-yy",
     "d.M.yyyy",  // German style
-    "d.M.yy",   "M/yyyy",
+    "d.M.yy", "M/yyyy",
     "d.M.",  // German form w/o year
     "yyyyMMdd", 0};
 

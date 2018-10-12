@@ -17,8 +17,34 @@
 #include "Axis2D.h"
 #include "AxisRect2D.h"
 
-Axis2D::Axis2D(AxisRect2D *parent, AxisType type)
-    : QCPAxis(static_cast<QCPAxisRect *>(parent), type), axisrect_(parent) {
+Axis2D::Axis2D(AxisRect2D *parent, AxisType type, TickerType tickertype)
+    : QCPAxis(static_cast<QCPAxisRect *>(parent), type),
+      axisrect_(parent),
+      tickertype_(tickertype),
+      ticker_(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker)) {
+  switch (tickertype) {
+    case Axis2D::TickerType::Value:
+      ticker_ = ticker();
+      break;
+    case Axis2D::TickerType::Log:
+      ticker_ = QSharedPointer<QCPAxisTicker>(new QCPAxisTickerLog);
+      break;
+    case Axis2D::TickerType::Pi:
+      ticker_ = QSharedPointer<QCPAxisTicker>(new QCPAxisTickerPi);
+      break;
+    case Axis2D::TickerType::Text:
+      ticker_ = QSharedPointer<QCPAxisTicker>(new QCPAxisTickerText);
+      break;
+    case Axis2D::TickerType::Time:
+      ticker_ = QSharedPointer<QCPAxisTicker>(new QCPAxisTickerTime);
+      qSharedPointerCast<QCPAxisTickerDateTime>(ticker_)->setDateTimeFormat(
+          "d. MMMM\nyyyy");
+      break;
+    case Axis2D::TickerType::DateTime:
+      ticker_ = QSharedPointer<QCPAxisTicker>(new QCPAxisTickerDateTime);
+      break;
+  }
+  setTicker(ticker_);
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
 }
 
@@ -141,7 +167,37 @@ Axis2D::AxisLabelSide Axis2D::getticklabelside_axis() const {
   return side;
 }
 
+Axis2D::AxisLabelFormat Axis2D::getticklabelformat_axis() const {
+  const QString format = numberFormat();
+  Axis2D::AxisLabelFormat axisformat;
+  if (format == "e") {
+    axisformat = AxisLabelFormat::e;
+  } else if (format == "eb") {
+    axisformat = AxisLabelFormat::eb;
+  } else if (format == "ebc") {
+    axisformat = AxisLabelFormat::ebc;
+  } else if (format == "E") {
+    axisformat = AxisLabelFormat::E;
+  } else if (format == "f") {
+    axisformat = AxisLabelFormat::f;
+  } else if (format == "g") {
+    axisformat = AxisLabelFormat::g;
+  } else if (format == "gb") {
+    axisformat = AxisLabelFormat::gb;
+  } else if (format == "gbc") {
+    axisformat = AxisLabelFormat::gbc;
+  } else if (format == "G") {
+    axisformat = AxisLabelFormat::G;
+  } else {
+    qDebug() << "unknown Axis2D::AxisLabelFormat: " << format;
+    axisformat = AxisLabelFormat::gbc;
+  }
+  return axisformat;
+}
+
 int Axis2D::getticklabelprecision_axis() const { return numberPrecision(); }
+
+QSharedPointer<QCPAxisTicker> Axis2D::getticker_axis() { return ticker_; }
 
 void Axis2D::setshowhide_axis(const bool value) { setVisible(value); }
 
@@ -271,6 +327,39 @@ void Axis2D::setticklabelside_axis(const Axis2D::AxisLabelSide &side) {
       break;
     case AxisLabelSide::Outside:
       setTickLabelSide(LabelSide::lsOutside);
+      break;
+  }
+}
+
+void Axis2D::setticklabelformat_axis(
+    const Axis2D::AxisLabelFormat &axisformat) {
+  switch (axisformat) {
+    case Axis2D::AxisLabelFormat::e:
+      setNumberFormat("e");
+      break;
+    case Axis2D::AxisLabelFormat::eb:
+      setNumberFormat("eb");
+      break;
+    case Axis2D::AxisLabelFormat::ebc:
+      setNumberFormat("ebc");
+      break;
+    case Axis2D::AxisLabelFormat::E:
+      setNumberFormat("E");
+      break;
+    case Axis2D::AxisLabelFormat::f:
+      setNumberFormat("f");
+      break;
+    case Axis2D::AxisLabelFormat::g:
+      setNumberFormat("g");
+      break;
+    case Axis2D::AxisLabelFormat::gb:
+      setNumberFormat("gb");
+      break;
+    case Axis2D::AxisLabelFormat::gbc:
+      setNumberFormat("gbc");
+      break;
+    case Axis2D::AxisLabelFormat::G:
+      setNumberFormat("G");
       break;
   }
 }

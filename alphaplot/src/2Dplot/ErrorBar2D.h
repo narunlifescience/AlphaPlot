@@ -11,7 +11,7 @@ class LineSpecial2D;
 class Bar2D;
 class DataBlockError;
 
-class ErrorBar2D : QCPErrorBars {
+class ErrorBar2D : public QCPErrorBars {
  public:
   ErrorBar2D(Table *table, Column *errorcol, int from, int to, Axis2D *xAxis,
              Axis2D *yAxis, QCPErrorBars::ErrorType errortype,

@@ -261,3 +261,35 @@ QString Utilities::joinstring(QString string) {
   }
   return final;
 }
+
+QImage Utilities::convertToGrayScale(const QImage& srcImage) {
+  // Convert to 32bit pixel format
+  QImage dstImage = srcImage.convertToFormat(srcImage.hasAlphaChannel()
+                                                 ? QImage::Format_ARGB32
+                                                 : QImage::Format_RGB32);
+
+  for (int ii = 0; ii < dstImage.width(); ii++) {
+    for (int jj = 0; jj < dstImage.height(); jj++) {
+      int gray = qGray(dstImage.pixel(ii, jj));
+      dstImage.setPixel(ii, jj, QColor(gray, gray, gray).rgb());
+    }
+  }
+  return dstImage;
+}
+
+QImage Utilities::convertToGrayScaleFast(const QImage& srcImage) {
+  QImage image = srcImage.convertToFormat(srcImage.hasAlphaChannel()
+                                              ? QImage::Format_ARGB32
+                                              : QImage::Format_RGB32);
+
+  for (int ii = 0; ii < image.height(); ii++) {
+    uchar* scan = image.scanLine(ii);
+    int depth = 4;
+    for (int jj = 0; jj < image.width(); jj++) {
+      QRgb* rgbpixel = reinterpret_cast<QRgb*>(scan + jj * depth);
+      int gray = qGray(*rgbpixel);
+      *rgbpixel = QColor(gray, gray, gray).rgba();
+    }
+  }
+  return image;
+}

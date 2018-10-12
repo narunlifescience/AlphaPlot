@@ -27210,9 +27210,7 @@ QCPErrorBars::QCPErrorBars(QCPAxis *keyAxis, QCPAxis *valueAxis) :
   setBrush(Qt::NoBrush);
 }
 
-QCPErrorBars::~QCPErrorBars()
-{
-}
+QCPErrorBars::~QCPErrorBars(){}
 
 /*! \overload
 
