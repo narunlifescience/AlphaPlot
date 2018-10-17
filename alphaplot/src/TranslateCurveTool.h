@@ -31,15 +31,13 @@
 #ifndef TRANSLATE_CURVE_TOOL_H
 #define TRANSLATE_CURVE_TOOL_H
 
-#include "PlotToolInterface.h"
 #include <QObject>
-#include <qwt_double_rect.h>
 
 class ApplicationWindow;
 class QwtPlotCurve;
 
 //! Plot tool for translating curves.
-class TranslateCurveTool : public QObject, public PlotToolInterface {
+class TranslateCurveTool : public QObject {
   Q_OBJECT
  public:
   enum Direction { Vertical, Horizontal };
@@ -56,22 +54,16 @@ class TranslateCurveTool : public QObject, public PlotToolInterface {
    * statusText(const QString&) is emitted
    * during initialization, before there's any other chance of connecting to it.
    */
-  TranslateCurveTool(Graph *graph, ApplicationWindow *app, Direction dir,
+  /*TranslateCurveTool(Graph *graph, ApplicationWindow *app, Direction dir,
                      const QObject *status_target = NULL,
                      const char *status_slot = "");
   virtual RTTI rtti() const { return TranslateCurve; }
  signals:
-  /*!\brief Emitted whenever a new message should be presented to the user.
-   *
-   * You don't have to connect to this signal if you alreay specified a reciever
-   * during initialization.
-   */
+
   void statusText(const QString &);
  public slots:
-  //! Select curve to translate, using the specified point as base point.
+
   void selectCurvePoint(QwtPlotCurve *curve, int point_index);
-  //! Select the coordinates where the base point should end up (modulo
-  //! projection on #d_dir direction).
   void selectDestination(const QwtDoublePoint &point);
 
  private:
@@ -79,7 +71,7 @@ class TranslateCurveTool : public QObject, public PlotToolInterface {
   PlotToolInterface *d_sub_tool;
   QwtPlotCurve *d_selected_curve;
   QwtDoublePoint d_curve_point;
-  ApplicationWindow *d_app;
+  ApplicationWindow *d_app;*/
 };
 
 #endif  // TRANSLATE_CURVE_TOOL_H

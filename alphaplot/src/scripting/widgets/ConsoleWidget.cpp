@@ -14,15 +14,15 @@
 
    Description : AlphaPlot Console dock widget
 */
+#include "ConsoleWidget.h"
 #include <QDebug>
 #include <QPainter>
 #include <QStandardItem>
 #include <QStandardItemModel>
-#include "ConsoleWidget.h"
 #include "ui_ConsoleWidget.h"
 
-#include "scripting/widgets/Console.h"
 #include "../ScriptingFunctions.h"
+#include "scripting/widgets/Console.h"
 
 ConsoleWidget::ConsoleWidget(QWidget *parent)
     : QDockWidget(parent),
@@ -40,7 +40,8 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   ui_->splitter->setSizes(QList<int>() << 70 << 30);
   // ui_->tableView->setShowGrid(false);
   ui_->tableView->verticalHeader()->setVisible(false);
-  ui_->tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+  ui_->tableView->horizontalHeader()->setSelectionMode(
+      QAbstractItemView::SingleSelection);
   scriptGlobalObjectsModel->setColumnCount(2);
   ui_->tableView->setModel(scriptGlobalObjectsModel);
   ui_->tableView->setItemDelegate(new Delegate(this));
@@ -102,9 +103,8 @@ void ConsoleWidget::addScriptGlobalsToTableView() {
     it.next();
     if (it.value().isArray()) {
       // Array variables
-      rowPair.first =
-          it.name() +
-          QString("[%0]").arg(it.value().property("length").toString());
+      rowPair.first = it.name() + QString("[%0]").arg(
+                                      it.value().property("length").toString());
       QString arrayValue;
       double arrayLength = it.value().property("length").toInteger();
       for (quint32 i = 0; i < 3; i++) {
@@ -141,8 +141,9 @@ void ConsoleWidget::evaluate(QString line) {
     QString syntaxError;
     // Check syntax errors
     QScriptSyntaxCheckResult error = engine->checkSyntax(snippet);
-    (error.state() != QScriptSyntaxCheckResult::Valid) ?
-      syntaxError += error.errorMessage() + " " : syntaxError = "";
+    (error.state() != QScriptSyntaxCheckResult::Valid)
+        ? syntaxError += error.errorMessage() + " "
+        : syntaxError = "";
     QScriptValue result = engine->evaluate(snippet, "line", 1);
     snippet.clear();
     if (!result.isUndefined()) {

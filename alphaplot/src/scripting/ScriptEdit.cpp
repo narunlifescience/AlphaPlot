@@ -67,26 +67,26 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, QString name)
 
   actionExecute = new QAction(tr("E&xecute"), this);
   actionExecute->setShortcut(tr("Ctrl+J"));
-  connect(actionExecute, SIGNAL(activated()), this, SLOT(execute()));
+  connect(actionExecute, SIGNAL(triggered()), this, SLOT(execute()));
 
   actionExecuteAll = new QAction(tr("Execute &All"), this);
   actionExecuteAll->setShortcut(tr("Ctrl+Shift+J"));
-  connect(actionExecuteAll, SIGNAL(activated()), this, SLOT(executeAll()));
+  connect(actionExecuteAll, SIGNAL(triggered()), this, SLOT(executeAll()));
 
   actionEval = new QAction(tr("&Evaluate Expression"), this);
   actionEval->setShortcut(tr("Ctrl+Return"));
-  connect(actionEval, SIGNAL(activated()), this, SLOT(evaluate()));
+  connect(actionEval, SIGNAL(triggered()), this, SLOT(evaluate()));
 
   actionPrint =
       new QAction(IconLoader::load("edit-print", IconLoader::LightDark),
                   tr("&Print"), this);
-  connect(actionPrint, SIGNAL(activated()), this, SLOT(print()));
+  connect(actionPrint, SIGNAL(triggered()), this, SLOT(print()));
 
   actionImport = new QAction(tr("&Import"), this);
-  connect(actionImport, SIGNAL(activated()), this, SLOT(importASCII()));
+  connect(actionImport, SIGNAL(triggered()), this, SLOT(importASCII()));
 
   actionExport = new QAction(tr("&Export"), this);
-  connect(actionExport, SIGNAL(activated()), this, SLOT(exportASCII()));
+  connect(actionExport, SIGNAL(triggered()), this, SLOT(exportASCII()));
 
   functionsMenu = new QMenu(this);
   Q_CHECK_PTR(functionsMenu);

@@ -38,7 +38,7 @@
 #include <QLineEdit>
 #include <QComboBox>
 
-SurfaceDialog::SurfaceDialog(QWidget *parent, Qt::WFlags fl)
+SurfaceDialog::SurfaceDialog(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
   setWindowTitle(tr("Define surface plot"));
   setSizeGripEnabled(true);
@@ -156,7 +156,7 @@ void SurfaceDialog::accept() {
   double fromX, toX, fromY, toY, fromZ, toZ;
   try {
     MyParser parser;
-    parser.SetExpr(Xfrom.toAscii().constData());
+    parser.SetExpr(Xfrom.toUtf8().constData());
     fromX = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(0, tr("X Start limit error"),
@@ -166,7 +166,7 @@ void SurfaceDialog::accept() {
   }
   try {
     MyParser parser;
-    parser.SetExpr(Xto.toAscii().constData());
+    parser.SetExpr(Xto.toUtf8().constData());
     toX = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(0, tr("X End limit error"),
@@ -177,7 +177,7 @@ void SurfaceDialog::accept() {
 
   try {
     MyParser parser;
-    parser.SetExpr(Yfrom.toAscii().constData());
+    parser.SetExpr(Yfrom.toUtf8().constData());
     fromY = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(0, tr("Y Start limit error"),
@@ -187,7 +187,7 @@ void SurfaceDialog::accept() {
   }
   try {
     MyParser parser;
-    parser.SetExpr(Yto.toAscii().constData());
+    parser.SetExpr(Yto.toUtf8().constData());
     toY = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(0, tr("Y End limit error"),
@@ -197,7 +197,7 @@ void SurfaceDialog::accept() {
   }
   try {
     MyParser parser;
-    parser.SetExpr(Zfrom.toAscii().constData());
+    parser.SetExpr(Zfrom.toUtf8().constData());
     fromZ = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(0, tr("Z Start limit error"),
@@ -207,7 +207,7 @@ void SurfaceDialog::accept() {
   }
   try {
     MyParser parser;
-    parser.SetExpr(Zto.toAscii().constData());
+    parser.SetExpr(Zto.toUtf8().constData());
     toZ = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(0, tr("Z End limit error"),
@@ -230,7 +230,7 @@ void SurfaceDialog::accept() {
     MyParser parser;
     parser.DefineVar("x", &x);
     parser.DefineVar("y", &y);
-    parser.SetExpr(formula.toAscii().constData());
+    parser.SetExpr(formula.toUtf8().constData());
 
     x = fromX;
     y = fromY;

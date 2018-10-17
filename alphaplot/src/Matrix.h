@@ -31,17 +31,16 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <QTableWidget>
 #include <QContextMenuEvent>
+#include <QDateTime>
 #include <QEvent>
 #include <QHeaderView>
-#include <QDateTime>
+#include <QTableWidget>
 #include "MyWidget.h"
-#include "scripting/ScriptingEnv.h"
-#include "scripting/Script.h"
-#include <qwt_double_rect.h>
-#include "future/matrix/future_Matrix.h"
 #include "future/matrix/MatrixView.h"
+#include "future/matrix/future_Matrix.h"
+#include "scripting/Script.h"
+#include "scripting/ScriptingEnv.h"
 
 // (maximum) initial matrix size
 #define _Matrix_initial_rows_ 10
@@ -269,9 +268,8 @@ class Matrix : public MatrixView, public scripted {
   double yEnd() { return d_future_matrix->yEnd(); }
 
   //! Returns the bounding rect of the matrix coordinates
-  QwtDoubleRect boundingRect() {
-    return QwtDoubleRect(xStart(), yStart(), xEnd() - xStart(),
-                         yEnd() - yStart())
+  QRect boundingRect() {
+    return QRect(xStart(), yStart(), xEnd() - xStart(), yEnd() - yStart())
         .normalized();
   }
   //! Set the X and Y coordinate intervals

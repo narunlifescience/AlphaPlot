@@ -28,16 +28,17 @@
  ***************************************************************************/
 #include "table/future_SortDialog.h"
 
-#include <QPushButton>
-#include <QLabel>
+#include <QApplication>
 #include <QComboBox>
 #include <QGroupBox>
+#include <QLabel>
 #include <QLayout>
-#include <QApplication>
+#include <QPushButton>
 
 namespace future {
 
-SortDialog::SortDialog(QWidget* parent, Qt::WFlags fl) : QDialog(parent, fl) {
+SortDialog::SortDialog(QWidget* parent, Qt::WindowFlags fl)
+    : QDialog(parent, fl) {
   setWindowIcon(qApp->windowIcon());
   setWindowTitle(tr("Sorting Options"));
   setSizeGripEnabled(true);
@@ -106,4 +107,4 @@ void SortDialog::changeType(int Type) {
     ui.columns_list->setEnabled(false);
 }
 
-}  // namespace
+}  // namespace future

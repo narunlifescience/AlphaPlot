@@ -53,6 +53,7 @@
 #include <QShortcut>
 #include <QTemporaryFile>
 #include <QTextStream>
+#include <QPrinter>
 
 #include <cmath>
 
@@ -60,7 +61,7 @@ Table::Table(ScriptingEnv *env, const QString &fname, const QString &sep,
              int ignoredLines, bool renameCols, bool stripSpaces,
              bool simplifySpaces, bool convertToNumeric, QLocale numericLocale,
              const QString &label, QWidget *parent, const char *name,
-             Qt::WFlags f)
+             Qt::WindowFlags f)
     : TableView(label, parent, name, f), scripted(env) {
   AsciiTableImportFilter filter;
   filter.set_ignored_lines(ignoredLines);
@@ -84,7 +85,7 @@ Table::Table(ScriptingEnv *env, const QString &fname, const QString &sep,
 }
 
 Table::Table(ScriptingEnv *env, int r, int c, const QString &label,
-             QWidget *parent, const char *name, Qt::WFlags f)
+             QWidget *parent, const char *name, Qt::WindowFlags f)
     : TableView(label, parent, name, f), scripted(env) {
   d_future_table = new future::Table(0, r, c, label);
   init();

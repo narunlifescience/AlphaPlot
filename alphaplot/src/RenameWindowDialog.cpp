@@ -41,7 +41,7 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 
-RenameWindowDialog::RenameWindowDialog(QWidget *parent, Qt::WFlags fl)
+RenameWindowDialog::RenameWindowDialog(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
   setWindowTitle(tr("Rename Window"));
 

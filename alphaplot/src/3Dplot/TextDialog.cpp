@@ -44,7 +44,7 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 
-TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl)
+TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
   setWindowTitle(tr("Text options"));
   setSizeGripEnabled(true);
@@ -204,8 +204,6 @@ void TextDialog::setDefaultValues() {
 
   QColor c = backgroundBtn->color();
   c.setAlpha(boxBackgroundTransparency->value());
-  app->setLegendDefaultSettings(backgroundBox->currentIndex(), selectedFont,
-                                colorBtn->color(), c);
 }
 
 void TextDialog::accept() {

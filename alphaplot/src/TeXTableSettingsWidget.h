@@ -46,7 +46,7 @@ class TeXTableSettingsWidget : public QWidget {
   Q_OBJECT
 
  public:
-  TeXTableSettingsWidget(QWidget* parent = 0);
+  TeXTableSettingsWidget(QWidget* parent = nullptr);
   //! Return the parameters settings of the TeX table
   TeXTableSettings settings(void);
   //! Sets the all parameters settings of the TeX table

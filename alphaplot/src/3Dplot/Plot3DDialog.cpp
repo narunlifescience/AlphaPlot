@@ -48,14 +48,14 @@
 #include <QWidget>
 #include <QWidgetList>
 
-#include <qwtplot3d/qwt3d_color.h>
+#include <../3rdparty/qwtplot3d/qwt3d_color.h>
 
-Plot3DDialog::Plot3DDialog(QWidget* parent, Qt::WFlags fl)
+Plot3DDialog::Plot3DDialog(QWidget* parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
   setWindowTitle(tr("Surface Plot Options"));
 
-  bars = 0;
-  points = 0;
+  bars = nullptr;
+  points = nullptr;
 
   QHBoxLayout* hbox = new QHBoxLayout();
   hbox->addStretch();
@@ -780,7 +780,7 @@ bool Plot3DDialog::updatePlot() {
     bool error = false;
     try {
       MyParser parser;
-      parser.SetExpr(from.toAscii().constData());
+      parser.SetExpr(from.toUtf8().constData());
       start = parser.Eval();
     } catch (mu::ParserError& e) {
       QMessageBox::critical(0, tr("Start limit error"),
@@ -791,7 +791,7 @@ bool Plot3DDialog::updatePlot() {
     }
     try {
       MyParser parser;
-      parser.SetExpr(to.toAscii().constData());
+      parser.SetExpr(to.toUtf8().constData());
       end = parser.Eval();
     } catch (mu::ParserError& e) {
       QMessageBox::critical(0, tr("End limit error"),

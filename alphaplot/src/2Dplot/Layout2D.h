@@ -103,6 +103,7 @@ class Layout2D : public MyWidget {
   void beforeReplot();
   void refresh();
   bool exportGraph();
+  void exportPDF(const QString &filename);
   void printGraph();
 
  signals:

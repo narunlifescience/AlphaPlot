@@ -29,7 +29,8 @@
 #ifndef LAYERDIALOG_H
 #define LAYERDIALOG_H
 
-#include "MultiLayer.h"
+#include <QDialog>
+#include "2Dplot/Layout2D.h"
 
 class QGroupBox;
 class QPushButton;
@@ -43,7 +44,7 @@ class LayerDialog : public QDialog {
 
  public:
   LayerDialog(QWidget *parent = 0, Qt::WindowFlags fl = 0);
-  void setMultiLayer(MultiLayer *g);
+  void setLayout2D(Layout2D *layout);
 
  protected slots:
   void accept();
@@ -51,7 +52,7 @@ class LayerDialog : public QDialog {
   void enableLayoutOptions(bool ok);
 
  private:
-  MultiLayer *multi_layer;
+  Layout2D *layout2d_;
 
   QPushButton *buttonOk;
   QPushButton *buttonCancel;

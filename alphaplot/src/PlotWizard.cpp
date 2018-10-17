@@ -27,23 +27,24 @@
  *                                                                         *
  ***************************************************************************/
 #include "PlotWizard.h"
+#include "3Dplot/Graph3D.h"
 #include "ApplicationWindow.h"
 #include "Table.h"
-#include "3Dplot/Graph3D.h"
 
 #include <QApplication>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QSizePolicy>
-#include <QLabel>
-#include <QMessageBox>
-#include <QGroupBox>
-#include <QPushButton>
-#include <QListWidget>
 #include <QComboBox>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QListWidget>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSizePolicy>
+#include <QVBoxLayout>
 
-PlotWizard::PlotWizard(QWidget *parent, Qt::WFlags fl) : QDialog(parent, fl) {
+PlotWizard::PlotWizard(QWidget *parent, Qt::WindowFlags fl)
+    : QDialog(parent, fl) {
   setWindowTitle(tr("Select Columns to Plot"));
 
   setSizeGripEnabled(true);

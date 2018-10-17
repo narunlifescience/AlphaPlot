@@ -6,15 +6,16 @@
 DataBlockGraph::DataBlockGraph(Table *table, Column *xcolumn, Column *ycolumn,
                                const int from, const int to)
     : data_(new QCPGraphDataContainer),
-      table_(table),
-      xcolumn_(xcolumn),
-      ycolumn_(ycolumn),
-      from_(from),
-      to_(to) {
+      associateddata_(new PlotData::AssociatedData) {
+  associateddata_->table = table;
+  associateddata_->xcol = xcolumn;
+  associateddata_->ycol = ycolumn;
+  associateddata_->from = from;
+  associateddata_->to = to;
   regenerateDataBlock(table, xcolumn, ycolumn, from, to);
 }
 
-DataBlockGraph::~DataBlockGraph() {}
+DataBlockGraph::~DataBlockGraph() { delete associateddata_; }
 
 void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
                                          Column *ycolumn, const int from,
@@ -79,15 +80,16 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
 DataBlockCurve::DataBlockCurve(Table *table, Column *xcol, Column *ycol,
                                const int from, const int to)
     : data_(new QCPCurveDataContainer),
-      table_(table),
-      xcolumn_(xcol),
-      ycolumn_(ycol),
-      from_(from),
-      to_(to) {
+      associateddata_(new PlotData::AssociatedData) {
+  associateddata_->table = table;
+  associateddata_->xcol = xcol;
+  associateddata_->ycol = ycol;
+  associateddata_->from = from;
+  associateddata_->to = to;
   regenerateDataBlock(table, xcol, ycol, from, to);
 }
 
-DataBlockCurve::~DataBlockCurve() {}
+DataBlockCurve::~DataBlockCurve() { delete associateddata_; }
 
 void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
                                          Column *ycolumn, const int from,
@@ -153,15 +155,16 @@ void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
 DataBlockBar::DataBlockBar(Table *table, Column *xcol, Column *ycol,
                            const int from, const int to)
     : data_(new QCPBarsDataContainer),
-      table_(table),
-      xcolumn_(xcol),
-      ycolumn_(ycol),
-      from_(from),
-      to_(to) {
+      associateddata_(new PlotData::AssociatedData) {
+  associateddata_->table = table;
+  associateddata_->xcol = xcol;
+  associateddata_->ycol = ycol;
+  associateddata_->from = from;
+  associateddata_->to = to;
   regenerateDataBlock(table, xcol, ycol, from, to);
 }
 
-DataBlockBar::~DataBlockBar() {}
+DataBlockBar::~DataBlockBar() { delete associateddata_; }
 
 void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
                                        Column *ycolumn, const int from,

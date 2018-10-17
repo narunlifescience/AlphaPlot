@@ -9,7 +9,7 @@
 class AxisRect2D;
 
 class MyTreeWidget : public QTreeWidget {
-  Q_OBJECT;
+  Q_OBJECT
 
  public:
   enum class PropertyItemType : int {

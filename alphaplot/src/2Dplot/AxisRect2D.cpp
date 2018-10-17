@@ -318,10 +318,9 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
 Spline2D *AxisRect2D::addSpline2DPlot(Table *table, Column *xData,
                                       Column *yData, int from, int to,
                                       Axis2D *xAxis, Axis2D *yAxis) {
-  Spline2D *spline = new Spline2D(xAxis, yAxis);
+  Spline2D *spline = new Spline2D(table, xData, yData, from, to, xAxis, yAxis);
   spline->setlinefillcolor_splot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
-  spline->setGraphData(table, xData, yData, from, to);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, spline);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));

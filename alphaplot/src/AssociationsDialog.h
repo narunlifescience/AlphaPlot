@@ -37,8 +37,8 @@ class QPushButton;
 class QTableWidget;
 class QStringList;
 class Table;
-class Graph;
 class QMdiSubWindow;
+class AxisRect2D;
 
 //! Plot associations dialog
 class AssociationsDialog : public QDialog {
@@ -49,7 +49,7 @@ class AssociationsDialog : public QDialog {
   ~AssociationsDialog();
 
   void initTablesList(QList<QMdiSubWindow *> *lst, int curve);
-  void setGraph(Graph *g);
+  void setAxisRect(AxisRect2D *axisrect);
 
  private slots:
   void updateTable(int index);
@@ -67,7 +67,7 @@ class AssociationsDialog : public QDialog {
 
   QList<QMdiSubWindow *> *tables;
   Table *active_table;
-  Graph *graph;
+  AxisRect2D *axisrect_;
   QStringList plotAssociationsList;
 
   QLabel *tableCaptionLabel;

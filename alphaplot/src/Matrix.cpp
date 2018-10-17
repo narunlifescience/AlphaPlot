@@ -61,7 +61,7 @@
 #include <gsl/gsl_math.h>
 
 Matrix::Matrix(ScriptingEnv *env, int r, int c, const QString &label,
-               QWidget *parent, const char *name, Qt::WFlags f)
+               QWidget *parent, const char *name, Qt::WindowFlags f)
     : MatrixView(label, parent, name, f), scripted(env) {
   d_future_matrix = new future::Matrix(0, r, c, label);
   init(r, c);
@@ -69,7 +69,7 @@ Matrix::Matrix(ScriptingEnv *env, int r, int c, const QString &label,
 
 Matrix::Matrix(future::Matrix *future_matrix, ScriptingEnv *env, int r, int c,
                const QString &label, QWidget *parent, const char *name,
-               Qt::WFlags f)
+               Qt::WindowFlags f)
     : MatrixView(label, parent, name, f), scripted(env) {
   d_future_matrix = future_matrix;
   init(r, c);
@@ -244,14 +244,14 @@ void Matrix::setNumericFormat(const QChar &f, int prec) {
       d_future_matrix->displayedDigits() == prec)
     return;
 
-  d_future_matrix->setNumericFormat(f.toAscii());
+  d_future_matrix->setNumericFormat(f.toLatin1());
   d_future_matrix->setDisplayedDigits(prec);
 
   emit modifiedWindow(this);
 }
 
 void Matrix::setTextFormat(const QChar &format, int precision) {
-  d_future_matrix->setNumericFormat(format.toAscii());
+  d_future_matrix->setNumericFormat(format.toLatin1());
   d_future_matrix->setDisplayedDigits(precision);
 }
 

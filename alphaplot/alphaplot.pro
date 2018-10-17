@@ -1,9 +1,11 @@
+# Qt modules
+QT += core gui widgets opengl network svg xml script scripttools printsupport
+
 # enable C++11 support
-greaterThan(QT_MAJOR_VERSION, 4){
-  CONFIG += c++11
-} else {
-  QMAKE_CXXFLAGS += -std=c++0x
-}
+  CONFIG += c++14
+  CONFIG += force_debug_info
+ # CONFIG += qt warn_on exceptions opengl thread zlib
+
 
 INCLUDEPATH += alphaplot alphaplot/src ../data/translations
 
@@ -21,13 +23,6 @@ DEFINES += LEGACY_CODE_0_2_x
 TARGET         = alphaplot
 TEMPLATE       = app
 
-CONFIG        += qt warn_on exceptions opengl thread zlib
-
-
-equals(QT_MAJOR_VERSION, 5){
-    QT += printsupport
-}
-
 DEFINES       += QT_PLUGIN
 DEFINES       += TS_PATH="\\\"$$replace(translationfiles.path," ","\\ ")\\\""
 DEFINES       += DOC_PATH="\\\"$$replace(documentation.path," ","\\ ")\\\""
@@ -43,8 +38,6 @@ DEFINES       += DOC_PATH="\\\"$$replace(documentation.path," ","\\ ")\\\""
 !mxe {
   win32:DEFINES += QT_DLL QT_THREAD_SUPPORT
 }
-
-QT             += opengl  network svg xml script scripttools
 
 MOC_DIR         = ../tmp/alphaplot
 OBJECTS_DIR     = ../tmp/alphaplot

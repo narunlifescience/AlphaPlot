@@ -145,6 +145,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *axispropertylabelcoloritem_;
   QtProperty *axispropertylabelpaddingitem_;
   // Axis Properties Ticks sub block
+
   QtProperty *axispropertytickvisibilityitem_;
   QtProperty *axispropertyticklengthinitem_;
   QtProperty *axispropertyticklengthoutitem_;

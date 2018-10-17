@@ -18,7 +18,7 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include <QtGui/QPlainTextEdit>
+#include <QPlainTextEdit>
 #include <QKeyEvent>
 #include <QTextBlock>
 #include <QTextCursor>

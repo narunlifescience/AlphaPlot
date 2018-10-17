@@ -59,7 +59,7 @@ MatrixView::MatrixView(future::Matrix *matrix)
     : d_matrix(matrix)
 #else
 MatrixView::MatrixView(const QString &label, QWidget *parent,
-                       const QString name, Qt::WFlags f)
+                       const QString name, Qt::WindowFlags f)
     : MyWidget(label, parent, name, f)
 #endif
 {
@@ -163,10 +163,10 @@ void MatrixView::init() {
 
   QHeaderView *h_header = d_view_widget->horizontalHeader();
   QHeaderView *v_header = d_view_widget->verticalHeader();
-  v_header->setResizeMode(QHeaderView::Interactive);
-  h_header->setResizeMode(QHeaderView::Interactive);
-  v_header->setMovable(false);
-  h_header->setMovable(false);
+  v_header->setSectionResizeMode(QHeaderView::Interactive);
+  h_header->setSectionResizeMode(QHeaderView::Interactive);
+  v_header->setSectionsMovable(false);
+  h_header->setSectionsMovable(false);
   v_header->setDefaultSectionSize(future::Matrix::defaultRowHeight());
   h_header->setDefaultSectionSize(future::Matrix::defaultColumnWidth());
 

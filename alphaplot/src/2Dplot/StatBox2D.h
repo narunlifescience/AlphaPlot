@@ -3,7 +3,7 @@
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
-#include "LineScatterCommon.h"
+#include "Graph2DCommon.h"
 
 class Table;
 

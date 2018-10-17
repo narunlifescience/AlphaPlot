@@ -186,7 +186,7 @@
  * tableCellFunction()
  * \sa tableCell_Function(), matrixCellFunction()
  */
-MuParserScript *MuParserScript::s_currentInstance = 0;
+MuParserScript *MuParserScript::s_currentInstance = nullptr;
 
 MuParserScript::MuParserScript(ScriptingEnv *environment, const QString &code,
                                QObject *context, const QString &name)
@@ -222,11 +222,11 @@ MuParserScript::MuParserScript(ScriptingEnv *environment, const QString &code,
   for (const MuParserScripting::mathFunction *i =
            MuParserScripting::math_functions;
        i->name; i++)
-    if (i->numargs == 1 && i->fun1 != NULL)
+    if (i->numargs == 1 && i->fun1 != nullptr)
       m_parser.DefineFun(i->name, i->fun1);
-    else if (i->numargs == 2 && i->fun2 != NULL)
+    else if (i->numargs == 2 && i->fun2 != nullptr)
       m_parser.DefineFun(i->name, i->fun2);
-    else if (i->numargs == 3 && i->fun3 != NULL)
+    else if (i->numargs == 3 && i->fun3 != nullptr)
       m_parser.DefineFun(i->name, i->fun3);
 
   // tell parser about table/matrix access functions
@@ -486,7 +486,7 @@ double MuParserScript::matrixCellFunction(double rowIndex, double columnIndex) {
  * contain slashes and table names will follow in a future release.
  */
 Column *MuParserScript::resolveColumnPath(const QString &path) {
-  Column *result = 0;
+  Column *result = nullptr;
 
   // Split path into components.
   // While escape handling would be possible using a regular expression, it
@@ -497,7 +497,7 @@ Column *MuParserScript::resolveColumnPath(const QString &path) {
   // path.
   QStringList pathComponents;
   QString current;
-  for (int i = 0; i < path.size(); ++i) switch (path.at(i).toAscii()) {
+  for (int i = 0; i < path.size(); ++i) switch (path.at(i).toLatin1()) {
       case '/':
         pathComponents << current;
         current.clear();
@@ -511,7 +511,7 @@ Column *MuParserScript::resolveColumnPath(const QString &path) {
     }
   QString columnName = current;
 
-  Table *table = 0;
+  Table *table = nullptr;
   if (pathComponents.isEmpty()) {
     // only column name specified, read from this table
     table = qobject_cast<Table *>(Context);
@@ -607,7 +607,7 @@ bool MuParserScript::translateLegacyFunctions(QString &input) {
     for (int i = functionStart + legacyFunction.matchedLength(),
              parenthesisLevel = 1;
          parenthesisLevel > 0 && i < input.size(); i++) {
-      switch (input.at(i).toAscii()) {
+      switch (input.at(i).toLatin1()) {
         case '"':
           currentArgument += '"';
           for (i++; i < input.size() && input.at(i) != QChar('"'); i++)
@@ -769,7 +769,7 @@ bool MuParserScript::compile(bool asFunction) {
   bool inString = false;
   int commentStart = -1;
   for (int i = 0; i < intermediate.size(); i++)
-    switch (intermediate.at(i).toAscii()) {
+    switch (intermediate.at(i).toLatin1()) {
       case '"':
         if (commentStart < 0) inString = !inString;
         break;

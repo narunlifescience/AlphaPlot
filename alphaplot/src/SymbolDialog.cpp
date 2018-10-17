@@ -5,7 +5,6 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Tool window to select special text characters
-
  ***************************************************************************/
 
 /***************************************************************************
@@ -34,7 +33,7 @@
 #include <QHBoxLayout>
 #include <QButtonGroup>
 
-SymbolDialog::SymbolDialog(CharSet charSet, QWidget *parent, Qt::WFlags fl)
+SymbolDialog::SymbolDialog(CharSet charSet, QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   setSizeGripEnabled(false);
@@ -355,4 +354,4 @@ void SymbolDialog::focusInEvent(QFocusEvent *event) {
   Q_UNUSED(event)
   // select the first button as default (in case [return] is pressed)
   ((QPushButton *)buttons->button(1))->setFocus(Qt::TabFocusReason);
-}
+} 

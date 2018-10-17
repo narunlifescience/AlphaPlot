@@ -35,7 +35,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 
-ExportDialog::ExportDialog(QWidget *parent, Qt::WFlags fl)
+ExportDialog::ExportDialog(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
   setWindowTitle(tr("Export ASCII"));
   setSizeGripEnabled(true);

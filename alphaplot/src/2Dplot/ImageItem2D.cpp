@@ -58,7 +58,7 @@ void ImageItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
     if (selectTest(event->pos(), false) > 0) {
       draggingimageitem_ = true;
       dragimageitemorigin_ =
-          event->posF() - position("topLeft")->pixelPosition();
+          event->localPos() - position("topLeft")->pixelPosition();
       parentPlot()->setCursor(Qt::CursorShape::ClosedHandCursor);
     }
   }

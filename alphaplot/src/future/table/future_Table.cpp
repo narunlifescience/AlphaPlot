@@ -51,6 +51,7 @@
 #include <QModelIndexList>
 #include <QShortcut>
 #include <QTime>
+#include <QMimeData>
 #include <QToolBar>
 #include <QtDebug>
 #include <QtGlobal>
@@ -1745,11 +1746,11 @@ void Table::goToCell() {
   bool ok;
 
   int col =
-      QInputDialog::getInteger(nullptr, tr("Go to Cell"), tr("Enter column"), 1,
+      QInputDialog::getInt(nullptr, tr("Go to Cell"), tr("Enter column"), 1,
                                1, columnCount(), 1, &ok);
   if (!ok) return;
 
-  int row = QInputDialog::getInteger(nullptr, tr("Go to Cell"), tr("Enter row"),
+  int row = QInputDialog::getInt(nullptr, tr("Go to Cell"), tr("Enter row"),
                                      1, 1, rowCount(), 1, &ok);
   if (!ok) return;
 

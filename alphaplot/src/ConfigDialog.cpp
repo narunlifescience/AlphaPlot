@@ -28,39 +28,37 @@
  ***************************************************************************/
 #include "ConfigDialog.h"
 #include "ApplicationWindow.h"
-#include "MultiLayer.h"
-#include "Graph.h"
-#include "Matrix.h"
-#include "ColorButton.h"
 #include "ColorBox.h"
+#include "ColorButton.h"
+#include "Matrix.h"
 
-#include <QLocale>
-#include <QPushButton>
-#include <QLabel>
-#include <QGridLayout>
-#include <QGroupBox>
+#include <QApplication>
+#include <QColorDialog>
+#include <QComboBox>
+#include <QDir>
 #include <QFont>
 #include <QFontDialog>
-#include <QColorDialog>
-#include <QTabWidget>
-#include <QStackedWidget>
-#include <QWidget>
-#include <QComboBox>
-#include <QSpinBox>
-#include <QRadioButton>
-#include <QStyleFactory>
-#include <QRegExp>
-#include <QMessageBox>
-#include <QTranslator>
-#include <QApplication>
-#include <QDir>
-#include <QPixmap>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QListWidget>
 #include <QFontMetrics>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QListWidget>
+#include <QLocale>
+#include <QMessageBox>
+#include <QPixmap>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QRegExp>
+#include <QSpinBox>
+#include <QStackedWidget>
+#include <QStyleFactory>
+#include <QTabWidget>
+#include <QTranslator>
+#include <QVBoxLayout>
+#include <QWidget>
 
-ConfigDialog::ConfigDialog(QWidget *parent, Qt::WFlags fl)
+ConfigDialog::ConfigDialog(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
   // get current values from app window
   ApplicationWindow *app = (ApplicationWindow *)parentWidget();
@@ -988,28 +986,6 @@ void ConfigDialog::languageChange() {
   boxCurveStyle->addItem(QPixmap(":/vertBars.xpm"), tr(" Vertical Bars"));
   boxCurveStyle->addItem(QPixmap(":/hBars.xpm"), tr(" Horizontal Bars"));
 
-  int style = app->defaultCurveStyle;
-  if (style == Graph::Line)
-    boxCurveStyle->setCurrentIndex(0);
-  else if (style == Graph::Scatter)
-    boxCurveStyle->setCurrentIndex(1);
-  else if (style == Graph::LineSymbols)
-    boxCurveStyle->setCurrentIndex(2);
-  else if (style == Graph::VerticalDropLines)
-    boxCurveStyle->setCurrentIndex(3);
-  else if (style == Graph::Spline)
-    boxCurveStyle->setCurrentIndex(4);
-  else if (style == Graph::VerticalSteps)
-    boxCurveStyle->setCurrentIndex(5);
-  else if (style == Graph::HorizontalSteps)
-    boxCurveStyle->setCurrentIndex(6);
-  else if (style == Graph::Area)
-    boxCurveStyle->setCurrentIndex(7);
-  else if (style == Graph::VerticalBars)
-    boxCurveStyle->setCurrentIndex(8);
-  else if (style == Graph::HorizontalBars)
-    boxCurveStyle->setCurrentIndex(9);
-
   // plots 3D
   lblResolution->setText(tr("Resolution"));
   boxResolution->setSpecialValueText("1 " + tr("(all data shown)"));
@@ -1085,9 +1061,6 @@ void ConfigDialog::apply() {
   app->drawBackbones = boxBackbones->isChecked();
   app->axesLineWidth = boxLineWidth->value();
   app->defaultPlotMargin = boxMargin->value();
-  app->setGraphDefaultSettings(
-      boxAutoscaling->isChecked(), boxScaleFonts->isChecked(),
-      boxResize->isChecked(), boxAntialiasing->isChecked());
   // 2D plots page: curves tab
   app->defaultCurveStyle = curveStyle();
   app->defaultCurveLineWidth = boxCurveLineWidth->value();
@@ -1106,13 +1079,6 @@ void ConfigDialog::apply() {
   app->d_print_cropmarks = boxPrintCropmarks->isChecked();
   app->d_scale_plots_on_print = boxScaleLayersOnPrint->isChecked();
   QList<QMdiSubWindow *> windows = app->subWindowsList();
-  foreach (QMdiSubWindow *w, windows) {
-    if (w->inherits("MultiLayer")) {
-      ((MultiLayer *)w)
-          ->setScaleLayersOnPrint(boxScaleLayersOnPrint->isChecked());
-      ((MultiLayer *)w)->printCropmarks(boxPrintCropmarks->isChecked());
-    }
-  }
   // general page: application tab
   app->changeAppFont(appFont);
   setFont(appFont);
@@ -1148,7 +1114,7 @@ void ConfigDialog::apply() {
   int currentBoxIndex = boxDefaultNumericFormat->currentIndex();
   if (currentBoxIndex > -1) {
     app->d_default_numeric_format =
-        boxDefaultNumericFormat->itemData(currentBoxIndex).toChar().toAscii();
+        boxDefaultNumericFormat->itemData(currentBoxIndex).toChar().toLatin1();
   }
 
   if (boxUseGroupSeparator->isChecked())
@@ -1209,38 +1175,6 @@ void ConfigDialog::apply() {
 
 int ConfigDialog::curveStyle() {
   int style = 0;
-  switch (boxCurveStyle->currentIndex()) {
-    case 0:
-      style = Graph::Line;
-      break;
-    case 1:
-      style = Graph::Scatter;
-      break;
-    case 2:
-      style = Graph::LineSymbols;
-      break;
-    case 3:
-      style = Graph::VerticalDropLines;
-      break;
-    case 4:
-      style = Graph::Spline;
-      break;
-    case 5:
-      style = Graph::VerticalSteps;
-      break;
-    case 6:
-      style = Graph::HorizontalSteps;
-      break;
-    case 7:
-      style = Graph::Area;
-      break;
-    case 8:
-      style = Graph::VerticalBars;
-      break;
-    case 9:
-      style = Graph::HorizontalBars;
-      break;
-  }
   return style;
 }
 

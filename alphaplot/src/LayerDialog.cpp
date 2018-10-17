@@ -29,18 +29,19 @@
 #include "LayerDialog.h"
 #include "ApplicationWindow.h"
 
-#include <QLayout>
-#include <QSpinBox>
 #include <QCheckBox>
-#include <QGroupBox>
-#include <QPushButton>
-#include <QLabel>
 #include <QComboBox>
-#include <QFontDialog>
 #include <QFont>
+#include <QFontDialog>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLayout>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QSpinBox>
 
-LayerDialog::LayerDialog(QWidget *parent, Qt::WFlags fl) : QDialog(parent, fl) {
+LayerDialog::LayerDialog(QWidget *parent, Qt::WindowFlags fl)
+    : QDialog(parent, fl) {
   setWindowTitle(tr("Arrange Layers"));
 
   QGroupBox *gb1 = new QGroupBox(tr("Layers"));
@@ -177,94 +178,93 @@ void LayerDialog::enableLayoutOptions(bool ok) {
   GroupCanvasSize->setEnabled(!ok);
 }
 
-void LayerDialog::setMultiLayer(MultiLayer *g) {
-  multi_layer = g;
+void LayerDialog::setLayout2D(Layout2D *layout) {
+  layout2d_ = layout;
 
-  layersBox->setValue(g->layers());
-  boxX->setValue(g->getCols());
-  boxY->setValue(g->getRows());
-  boxColsGap->setValue(g->colsSpacing());
-  boxRowsGap->setValue(g->rowsSpacing());
-  boxLeftSpace->setValue(g->leftMargin());
-  boxRightSpace->setValue(g->rightMargin());
-  boxTopSpace->setValue(g->topMargin());
-  boxBottomSpace->setValue(g->bottomMargin());
-  boxCanvasWidth->setValue(g->layerCanvasSize().width());
-  boxCanvasHeight->setValue(g->layerCanvasSize().height());
-  alignHorBox->setCurrentIndex(g->horizontalAlignement());
-  alignVertBox->setCurrentIndex(g->verticalAlignement());
+  /*  layersBox->setValue(g->layers());
+    boxX->setValue(g->getCols());
+    boxY->setValue(g->getRows());
+    boxColsGap->setValue(g->colsSpacing());
+    boxRowsGap->setValue(g->rowsSpacing());
+    boxLeftSpace->setValue(g->leftMargin());
+    boxRightSpace->setValue(g->rightMargin());
+    boxTopSpace->setValue(g->topMargin());
+    boxBottomSpace->setValue(g->bottomMargin());
+    boxCanvasWidth->setValue(g->layerCanvasSize().width());
+    boxCanvasHeight->setValue(g->layerCanvasSize().height());
+    alignHorBox->setCurrentIndex(g->horizontalAlignement());
+    alignVertBox->setCurrentIndex(g->verticalAlignement());*/
 }
 
 void LayerDialog::update() {
-  int graphs = layersBox->value();
-  int old_graphs = multi_layer->layers();
-  int dn = multi_layer->layers() - graphs;
-  if (dn > 0 &&
-      QMessageBox::question(
-          0, tr("Delete Layers?"),
-          tr("You are about to delete %1 existing layers.").arg(dn) + "\n" +
-              tr("Are you sure you want to continue this operation?"),
-          tr("&Continue"), tr("&Cancel"), QString(), 0, 1))
-    return;
+  /* int graphs = layersBox->value();
+   int old_graphs = multi_layer->layers();
+   int dn = multi_layer->layers() - graphs;
+   if (dn > 0 &&
+       QMessageBox::question(
+           0, tr("Delete Layers?"),
+           tr("You are about to delete %1 existing layers.").arg(dn) + "\n" +
+               tr("Are you sure you want to continue this operation?"),
+           tr("&Continue"), tr("&Cancel"), QString(), 0, 1))
+     return;
 
-  multi_layer->setLayersNumber(graphs);
+   multi_layer->setLayersNumber(graphs);
 
-  if (!graphs) return;
+   if (!graphs) return;
 
-  if (dn < 0) {  // Customize new layers with user default settings
-    ApplicationWindow *app = (ApplicationWindow *)this->parent();
-    for (int i = old_graphs + 1; i <= graphs; i++)
-      app->setPreferences(multi_layer->layer(i));
-  }
+   if (dn < 0) {  // Customize new layers with user default settings
+     ApplicationWindow *app = (ApplicationWindow *)this->parent();
+   }
 
-  int cols = boxX->value();
-  int rows = boxY->value();
+   int cols = boxX->value();
+   int rows = boxY->value();
 
-  if (cols > graphs && !fitBox->isChecked()) {
-    QMessageBox::about(0, tr("Columns input error"),
-                       tr("The number of columns you've entered is greater "
-                          "than the number of graphs (%1)!")
-                           .arg(graphs));
-    boxX->setFocus();
-    return;
-  }
+   if (cols > graphs && !fitBox->isChecked()) {
+     QMessageBox::about(0, tr("Columns input error"),
+                        tr("The number of columns you've entered is greater "
+                           "than the number of graphs (%1)!")
+                            .arg(graphs));
+     boxX->setFocus();
+     return;
+   }
 
-  if (rows > graphs && !fitBox->isChecked()) {
-    QMessageBox::about(0, tr("Rows input error"),
-                       tr("The number of rows you've entered is greater than "
-                          "the number of graphs (%1)!")
-                           .arg(graphs));
-    boxY->setFocus();
-    return;
-  }
+   if (rows > graphs && !fitBox->isChecked()) {
+     QMessageBox::about(0, tr("Rows input error"),
+                        tr("The number of rows you've entered is greater than "
+                           "the number of graphs (%1)!")
+                            .arg(graphs));
+     boxY->setFocus();
+     return;
+   }
 
-  if (!fitBox->isChecked()) {
-    multi_layer->setCols(cols);
-    multi_layer->setRows(rows);
-  }
+   if (!fitBox->isChecked()) {
+     multi_layer->setCols(cols);
+     multi_layer->setRows(rows);
+   }
 
-  if (GroupCanvasSize->isChecked())
-    multi_layer->setLayerCanvasSize(boxCanvasWidth->value(),
-                                    boxCanvasHeight->value());
+   if (GroupCanvasSize->isChecked())
+     multi_layer->setLayerCanvasSize(boxCanvasWidth->value(),
+                                     boxCanvasHeight->value());
 
-  multi_layer->setAlignement(alignHorBox->currentIndex(),
-                             alignVertBox->currentIndex());
+   multi_layer->setAlignement(alignHorBox->currentIndex(),
+                              alignVertBox->currentIndex());
 
-  multi_layer->setMargins(boxLeftSpace->value(), boxRightSpace->value(),
-                          boxTopSpace->value(), boxBottomSpace->value());
+   multi_layer->setMargins(boxLeftSpace->value(), boxRightSpace->value(),
+                           boxTopSpace->value(), boxBottomSpace->value());
 
-  multi_layer->setSpacing(boxRowsGap->value(), boxColsGap->value());
-  multi_layer->arrangeLayers(fitBox->isChecked(), GroupCanvasSize->isChecked());
+   multi_layer->setSpacing(boxRowsGap->value(), boxColsGap->value());
+   multi_layer->arrangeLayers(fitBox->isChecked(),
+   GroupCanvasSize->isChecked());
 
-  if (!GroupCanvasSize->isChecked()) {  // show new layer canvas size
-    boxCanvasWidth->setValue(multi_layer->layerCanvasSize().width());
-    boxCanvasHeight->setValue(multi_layer->layerCanvasSize().height());
-  }
+   if (!GroupCanvasSize->isChecked()) {  // show new layer canvas size
+     boxCanvasWidth->setValue(multi_layer->layerCanvasSize().width());
+     boxCanvasHeight->setValue(multi_layer->layerCanvasSize().height());
+   }
 
-  if (fitBox->isChecked()) {  // show new grid settings
-    boxX->setValue(multi_layer->getCols());
-    boxY->setValue(multi_layer->getRows());
-  }
+   if (fitBox->isChecked()) {  // show new grid settings
+     boxX->setValue(multi_layer->getCols());
+     boxY->setValue(multi_layer->getRows());
+   }*/
 }
 
 void LayerDialog::accept() {

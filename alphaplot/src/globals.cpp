@@ -86,7 +86,7 @@ QString AlphaPlot::originalAuthorWithMail() {
 }
 
 QString AlphaPlot::enumValueToString(int key, const QString& enum_name) {
-  int index = staticMetaObject.indexOfEnumerator(enum_name.toAscii());
+  int index = staticMetaObject.indexOfEnumerator(enum_name.toUtf8());
   if (index == -1) return QString("invalid");
   QMetaEnum meta_enum = staticMetaObject.enumerator(index);
   return QString(meta_enum.valueToKey(key));
@@ -94,8 +94,8 @@ QString AlphaPlot::enumValueToString(int key, const QString& enum_name) {
 
 int AlphaPlot::enumStringToValue(const QString& string,
                                  const QString& enum_name) {
-  int index = staticMetaObject.indexOfEnumerator(enum_name.toAscii());
+  int index = staticMetaObject.indexOfEnumerator(enum_name.toUtf8());
   if (index == -1) return -1;
   QMetaEnum meta_enum = staticMetaObject.enumerator(index);
-  return meta_enum.keyToValue(string.toAscii());
+  return meta_enum.keyToValue(string.toUtf8());
 }

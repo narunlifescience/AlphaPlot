@@ -252,8 +252,8 @@ void Bar2D::datapicker(QMouseEvent *event, const QVariant &details) {
 
 void Bar2D::graphpicker(QMouseEvent *event, const QVariant &details) {
   double xvalue, yvalue;
-  pixelsToCoords(event->posF(), xvalue, yvalue);
-  emit showtooltip(event->posF(), xvalue, yvalue);
+  pixelsToCoords(event->localPos(), xvalue, yvalue);
+  emit showtooltip(event->localPos(), xvalue, yvalue);
 }
 
 void Bar2D::movepicker(QMouseEvent *event, const QVariant &details) {}

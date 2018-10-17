@@ -35,15 +35,15 @@ class FFTFilter : public Filter {
   Q_OBJECT
 
  public:
-  FFTFilter(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
-            int m = 1);
-  FFTFilter(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
-            double start, double end, int m = 1);
+  FFTFilter(ApplicationWindow *parent, AxisRect2D *axisrect,
+            const QString &curveTitle, int m = 1);
+  FFTFilter(ApplicationWindow *parent, AxisRect2D *axisrect,
+            const QString &curveTitle, double start, double end, int m = 1);
 
   enum FilterType { LowPass = 1, HighPass = 2, BandPass = 3, BandBlock = 4 };
 
   void setFilterType(int type);
-  void setFilterType(FilterType type) { setFilterType((int)type); }
+  void setFilterType(FilterType type) { setFilterType(static_cast<int>(type)); }
 
   //! Sets the cutoff frequency. To be used only for Low Pass and High Pass
   //! filters.

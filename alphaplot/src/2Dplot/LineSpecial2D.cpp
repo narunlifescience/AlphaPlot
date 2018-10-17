@@ -1,8 +1,6 @@
 #include "LineSpecial2D.h"
 #include <QApplication>
 #include <QCursor>
-#include <QCursorShape>
-#include <QCustomEvent>
 #include "../future/core/column/Column.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
@@ -423,18 +421,18 @@ void LineSpecial2D::datapicker(QMouseEvent *event, const QVariant &details) {
     dataPoints.dataRange();
     it = data()->at(dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
-    if (point.x() > event->posF().x() - 10 &&
-        point.x() < event->posF().x() + 10 &&
-        point.y() > event->posF().y() - 10 &&
-        point.y() < event->posF().y() + 10)
+    if (point.x() > event->localPos().x() - 10 &&
+        point.x() < event->localPos().x() + 10 &&
+        point.y() > event->localPos().y() - 10 &&
+        point.y() < event->localPos().y() + 10)
       emit showtooltip(point, it->mainKey(), it->mainValue());
   }
 }
 
 void LineSpecial2D::graphpicker(QMouseEvent *event, const QVariant &details) {
   double xvalue, yvalue;
-  pixelsToCoords(event->posF(), xvalue, yvalue);
-  emit showtooltip(event->posF(), xvalue, yvalue);
+  pixelsToCoords(event->localPos(), xvalue, yvalue);
+  emit showtooltip(event->localPos(), xvalue, yvalue);
 }
 
 void LineSpecial2D::movepicker(QMouseEvent *event, const QVariant &details) {}
@@ -446,10 +444,10 @@ void LineSpecial2D::removepicker(QMouseEvent *event, const QVariant &details) {
     dataPoints.dataRange();
     it = data()->at(dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
-    if (point.x() > event->posF().x() - 10 &&
-        point.x() < event->posF().x() + 10 &&
-        point.y() > event->posF().y() - 10 &&
-        point.y() < event->posF().y() + 10) {
+    if (point.x() > event->localPos().x() - 10 &&
+        point.x() < event->localPos().x() + 10 &&
+        point.y() > event->localPos().y() - 10 &&
+        point.y() < event->localPos().y() + 10) {
       graphdata_->data()->remove(it->mainKey());
       layer()->replot();
     }

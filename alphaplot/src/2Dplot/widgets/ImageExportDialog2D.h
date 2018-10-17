@@ -48,7 +48,7 @@ class ImageExportDialog2D : public ExtensibleFileDialog {
  public:
   explicit ImageExportDialog2D(QWidget *parent = nullptr,
                                bool vector_options = true, bool extended = true,
-                               Qt::WFlags flags = nullptr);
+                               Qt::WindowFlags flags = nullptr);
 
   // getters
   int raster_resolution() const { return d_raster_resolution->value(); }

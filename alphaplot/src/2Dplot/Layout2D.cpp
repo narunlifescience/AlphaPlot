@@ -25,7 +25,7 @@
 #include <gsl/gsl_statistics.h>
 
 Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
-                   Qt::WFlags f)
+                   Qt::WindowFlags f)
     : MyWidget(label, parent, name, f),
       main_widget_(new QWidget(this)),
       plot2dCanvas_(new Plot2D(main_widget_)),
@@ -522,7 +522,7 @@ void Layout2D::mousePressSignal(QMouseEvent *event) { Q_UNUSED(event); }
 
 void Layout2D::mouseReleaseSignal(QMouseEvent *event) {
   if (event->button() == Qt::RightButton) {
-    QPointF startPos = event->posF();
+    QPointF startPos = event->localPos();
     QMenu *menu = new QMenu();
     menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->addAction(IconLoader::load("edit-recalculate", IconLoader::LightDark),
@@ -566,7 +566,7 @@ bool Layout2D::exportGraph() {
   if (ied->exec() != QDialog::Accepted) return false;
   if (ied->selectedFiles().isEmpty()) return false;
 
-  QString selected_filter = ied->selectedFilter();
+  QString selected_filter = ied->selectedNameFilter();
 
   QString file_name = ied->selectedFiles()[0];
   QFileInfo file_info(file_name);
@@ -618,6 +618,10 @@ bool Layout2D::exportGraph() {
             .arg(file_name));
   }
   return success;
+}
+
+void Layout2D::exportPDF(const QString &filename) {
+  plot2dCanvas_->savePdf(filename);
 }
 
 void Layout2D::printGraph() {}

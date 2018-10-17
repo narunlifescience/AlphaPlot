@@ -42,7 +42,7 @@
 #include <QVBoxLayout>
 
 Note::Note(ScriptingEnv* env, const QString& label, QWidget* parent,
-           const char* name, Qt::WFlags f)
+           const char* name, Qt::WindowFlags f)
     : MyWidget(label, parent, name, f) {
   init(env);
 }

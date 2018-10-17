@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <QDebug>
+#include <QMimeData>
 
 Console::Console(QWidget *parent)
     : QTextEdit(parent),

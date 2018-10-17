@@ -98,7 +98,7 @@ bool Function2DDialog::acceptFunction() {
   double start, end;
   try {
     MyParser parser;
-    parser.SetExpr(from.toAscii().constData());
+    parser.SetExpr(from.toUtf8().constData());
     start = parser.Eval();
   } catch (mu::ParserError &error) {
     QMessageBox::critical(nullptr, tr("Start limit error"),
@@ -108,7 +108,7 @@ bool Function2DDialog::acceptFunction() {
   }
   try {
     MyParser parser;
-    parser.SetExpr(to.toAscii().constData());
+    parser.SetExpr(to.toUtf8().constData());
     end = parser.Eval();
   } catch (mu::ParserError &error) {
     QMessageBox::critical(nullptr, tr("End limit error"),
@@ -170,7 +170,7 @@ bool Function2DDialog::acceptParametric() {
   double start, end;
   try {
     MyParser parser;
-    parser.SetExpr(from.toAscii().constData());
+    parser.SetExpr(from.toUtf8().constData());
     start = parser.Eval();
   } catch (mu::ParserError &error) {
     QMessageBox::critical(nullptr, tr("Start limit error"),
@@ -181,7 +181,7 @@ bool Function2DDialog::acceptParametric() {
 
   try {
     MyParser parser;
-    parser.SetExpr(to.toAscii().constData());
+    parser.SetExpr(to.toUtf8().constData());
     end = parser.Eval();
   } catch (mu::ParserError &error) {
     QMessageBox::critical(nullptr, tr("End limit error"),

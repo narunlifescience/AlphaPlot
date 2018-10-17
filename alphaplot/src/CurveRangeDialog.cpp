@@ -27,8 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "CurveRangeDialog.h"
-#include "PlotCurve.h"
-#include "Graph.h"
 #include "Table.h"
 
 #include <QGroupBox>
@@ -38,7 +36,7 @@
 #include <QLabel>
 #include <QSpinBox>
 
-CurveRangeDialog::CurveRangeDialog(QWidget *parent, Qt::WFlags fl)
+CurveRangeDialog::CurveRangeDialog(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
   setWindowTitle(tr("Plot range"));
 
@@ -78,17 +76,17 @@ CurveRangeDialog::CurveRangeDialog(QWidget *parent, Qt::WFlags fl)
 }
 
 void CurveRangeDialog::accept() {
-  if (!d_curve) return;
+  /*if (!d_curve) return;
 
   int start = boxStart->value() - 1;
   int end = boxEnd->value() - 1;
   d_curve->setRowRange(std::min(start, end), std::max(start, end));
   d_graph->updatePlot();
-  d_graph->notifyChanges();
+  d_graph->notifyChanges();*/
   close();
 }
 
-void CurveRangeDialog::setCurveToModify(Graph *g, int curve) {
+/*void CurveRangeDialog::setCurveToModify(Graph *g, int curve) {
   if (!g) return;
 
   d_graph = g;
@@ -104,4 +102,4 @@ void CurveRangeDialog::setCurveToModify(Graph *g, int curve) {
   boxName->setText(d_curve->title().text());
   boxStart->setValue(d_curve->startRow() + 1);
   boxEnd->setValue(d_curve->endRow() + 1);
-}
+}*/

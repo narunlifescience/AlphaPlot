@@ -36,8 +36,6 @@
 #include <QHash>
 #include <QMap>
 #include <QtScript>
-
-#include "Graph.h"
 #include "MyWidget.h"
 
 // Scripting

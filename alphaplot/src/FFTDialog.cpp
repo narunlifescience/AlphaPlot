@@ -27,11 +27,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "FFTDialog.h"
+#include "2Dplot/Plotcolumns.h"
 #include "ApplicationWindow.h"
 #include "FFT.h"
-#include "Graph.h"
-#include "MultiLayer.h"
-#include "Plot.h"
 #include "Table.h"
 #include "scripting/MyParser.h"
 
@@ -45,13 +43,12 @@
 #include <QPushButton>
 #include <QRadioButton>
 
-FFTDialog::FFTDialog(int type, QWidget *parent, Qt::WFlags fl)
-    : QDialog(parent, fl) {
+FFTDialog::FFTDialog(int type, QWidget *parent, Qt::WindowFlags flag)
+    : QDialog(parent, flag),
+      axisrect_(nullptr),
+      d_table(nullptr),
+      d_type(type) {
   setWindowTitle(tr("FFT Options"));
-
-  d_table = 0;
-  graph = 0;
-  d_type = type;
 
   forwardBtn = new QRadioButton(tr("&Forward"));
   forwardBtn->setChecked(true);
@@ -131,7 +128,7 @@ void FFTDialog::accept() {
   double sampling;
   try {
     MyParser parser;
-    parser.SetExpr(boxSampling->text().toAscii().constData());
+    parser.SetExpr(boxSampling->text().toUtf8().constData());
     sampling = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(this, tr("Sampling value error"),
@@ -140,10 +137,14 @@ void FFTDialog::accept() {
     return;
   }
 
-  ApplicationWindow *app = (ApplicationWindow *)parent();
-  FFT *fft;
-  if (graph) {
-    fft = new FFT(app, graph, boxName->currentText());
+  ApplicationWindow *app = qobject_cast<ApplicationWindow *>(parent());
+  if (!app) return;
+  FFT *fft = nullptr;
+  if (axisrect_) {
+    PlotColumns::plottedcolumns(axisrect_);
+    fft = new FFT(app, axisrect_,
+                  PlotColumns::getassociateddatafromstring(
+                      axisrect_, boxName->currentText()));
   } else if (d_table) {
     if (boxReal->currentText().isEmpty()) {
       QMessageBox::critical(
@@ -155,6 +156,7 @@ void FFTDialog::accept() {
     fft = new FFT(app, d_table, boxReal->currentText(),
                   boxImaginary->currentText());
   }
+  if (!fft) return;
   fft->setInverseFFT(backwardBtn->isChecked());
   fft->setSampling(sampling);
   fft->normalizeAmplitudes(boxNormalize->isChecked());
@@ -164,18 +166,22 @@ void FFTDialog::accept() {
   close();
 }
 
-void FFTDialog::setGraph(Graph *g) {
-  graph = g;
-  boxName->addItems(g->analysableCurvesList());
+void FFTDialog::setAxisrect(AxisRect2D *axisrect) {
+  axisrect_ = axisrect;
+  boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
   activateCurve(boxName->currentText());
 };
 
 void FFTDialog::activateCurve(const QString &curveName) {
-  if (graph) {
-    QwtPlotCurve *c = graph->curve(curveName);
-    if (!c) return;
+  if (axisrect_) {
+    PlotData::AssociatedData *associateddata;
+    associateddata =
+        PlotColumns::getassociateddatafromstring(axisrect_, curveName);
+    if (!associateddata) return;
 
-    boxSampling->setText(QString::number(c->x(1) - c->x(0)));
+    boxSampling->setText(QString::number(
+        associateddata->xcol->valueAt(associateddata->from + 1) -
+        associateddata->xcol->valueAt(associateddata->from)));
   } else if (d_table) {
     int col = d_table->colIndex(curveName);
     double x0 = d_table->text(0, col).toDouble();
@@ -184,32 +190,32 @@ void FFTDialog::activateCurve(const QString &curveName) {
   }
 };
 
-void FFTDialog::setTable(Table *t) {
-  d_table = t;
-  QStringList l = t->columnsList();
+void FFTDialog::setTable(Table *table) {
+  d_table = table;
+  QStringList l = table->columnsList();
   boxName->addItems(l);
   boxReal->addItems(l);
   boxImaginary->addItems(l);
 
-  int xcol = t->firstXCol();
+  int xcol = table->firstXCol();
   if (xcol >= 0) {
     boxName->setCurrentIndex(xcol);
 
-    double x0 = t->text(0, xcol).toDouble();
-    double x1 = t->text(1, xcol).toDouble();
+    double x0 = table->text(0, xcol).toDouble();
+    double x1 = table->text(1, xcol).toDouble();
     boxSampling->setText(QString::number(x1 - x0));
   }
 
-  l = t->selectedColumns();
-  int selected = (int)l.size();
+  l = table->selectedColumns();
+  int selected = l.size();
   if (!selected) {
     boxReal->setItemText(boxReal->currentIndex(), QString());
     boxImaginary->setItemText(boxImaginary->currentIndex(), QString());
   } else if (selected == 1) {
-    boxReal->setCurrentIndex(t->colIndex(l[0]));
+    boxReal->setCurrentIndex(table->colIndex(l[0]));
     boxImaginary->setItemText(boxImaginary->currentIndex(), QString());
   } else {
-    boxReal->setCurrentIndex(t->colIndex(l[0]));
-    boxImaginary->setCurrentIndex(t->colIndex(l[1]));
+    boxReal->setCurrentIndex(table->colIndex(l[0]));
+    boxImaginary->setCurrentIndex(table->colIndex(l[1]));
   }
 };

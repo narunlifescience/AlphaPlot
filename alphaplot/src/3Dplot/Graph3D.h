@@ -29,8 +29,8 @@
 #ifndef GRAPH3D_H
 #define GRAPH3D_H
 
-#include <qwtplot3d/qwt3d_surfaceplot.h>
-#include <qwtplot3d/qwt3d_function.h>
+#include <../3rdparty/qwtplot3d/qwt3d_surfaceplot.h>
+#include <../3rdparty/qwtplot3d/qwt3d_function.h>
 
 #include <QTimer>
 #include <QVector>

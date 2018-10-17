@@ -29,7 +29,6 @@
  ***************************************************************************/
 
 #include "TextFormatButtons.h"
-#include "SymbolDialog.h"
 #include <QTextEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
@@ -127,56 +126,16 @@ TextFormatButtons::TextFormatButtons(QTextEdit *textEdit, QWidget *parent)
 }
 
 void TextFormatButtons::showLowerGreek() {
-  SymbolDialog *greekLetters =
-      new SymbolDialog(SymbolDialog::lowerGreek, this, Qt::Tool);
-  greekLetters->setAttribute(Qt::WA_DeleteOnClose);
-  QFont f = connectedTextEdit->font();
-  if (f.pointSize() < 14) f.setPointSize(14);
-  greekLetters->setFont(f);
-  connect(greekLetters, SIGNAL(addLetter(const QString &)), this,
-          SLOT(addSymbol(const QString &)));
-  greekLetters->show();
-  greekLetters->setFocus();
+
 }
 
 void TextFormatButtons::showUpperGreek() {
-  SymbolDialog *greekLetters =
-      new SymbolDialog(SymbolDialog::upperGreek, this, Qt::Tool);
-  greekLetters->setAttribute(Qt::WA_DeleteOnClose);
-  QFont f = connectedTextEdit->font();
-  if (f.pointSize() < 14) f.setPointSize(14);
-  greekLetters->setFont(f);
-  connect(greekLetters, SIGNAL(addLetter(const QString &)), this,
-          SLOT(addSymbol(const QString &)));
-  greekLetters->show();
-  greekLetters->setFocus();
 }
 
 void TextFormatButtons::showMathSymbols() {
-  SymbolDialog *mathSymbols =
-      new SymbolDialog(SymbolDialog::mathSymbols, this, Qt::Tool);
-  mathSymbols->setAttribute(Qt::WA_DeleteOnClose);
-  QFont f = connectedTextEdit->font();
-  if (f.pointSize() < 14) f.setPointSize(14);
-  mathSymbols->setFont(f);
-  connect(mathSymbols, SIGNAL(addLetter(const QString &)), this,
-          SLOT(addSymbol(const QString &)));
-  mathSymbols->show();
-  mathSymbols->setFocus();
 }
 
 void TextFormatButtons::showArrowSymbols() {
-  SymbolDialog *arrowSymbols =
-      new SymbolDialog(SymbolDialog::arrowSymbols, this, Qt::Tool);
-  arrowSymbols->setAttribute(Qt::WA_DeleteOnClose);
-  arrowSymbols->setFont(connectedTextEdit->font());
-  QFont f = connectedTextEdit->font();
-  if (f.pointSize() < 14) f.setPointSize(14);
-  arrowSymbols->setFont(f);
-  connect(arrowSymbols, SIGNAL(addLetter(const QString &)), this,
-          SLOT(addSymbol(const QString &)));
-  arrowSymbols->show();
-  arrowSymbols->setFocus();
 }
 
 void TextFormatButtons::addSymbol(const QString &letter) {

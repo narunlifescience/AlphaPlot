@@ -41,10 +41,11 @@
 #include <QImageWriter>
 #include <QMessageBox>
 #include <QPixmap>
+#include <QPrintDialog>
 #include <QPrinter>
 
-#include <qwtplot3d/qwt3d_coordsys.h>
-#include <qwtplot3d/qwt3d_io_gl2ps.h>
+#include <../3rdparty/qwtplot3d/qwt3d_coordsys.h>
+#include <../3rdparty/qwtplot3d/qwt3d_io_gl2ps.h>
 
 #include <gsl/gsl_vector.h>
 #include <fstream>
@@ -63,7 +64,7 @@ double UserFunction::operator()(double x, double y) {
     parser.DefineVar("x", &x);
     parser.DefineVar("y", &y);
 
-    parser.SetExpr((const std::string)formula.toAscii().constData());
+    parser.SetExpr((const std::string)formula.toUtf8().constData());
     result = parser.Eval();
   } catch (mu::ParserError& e) {
     QMessageBox::critical(0, "Input function error",
@@ -75,14 +76,14 @@ double UserFunction::operator()(double x, double y) {
 UserFunction::~UserFunction() {}
 
 Graph3D::Graph3D(const QString& label, QWidget* parent, const char* name,
-                 Qt::WFlags f)
+                 Qt::WindowFlags f)
     : MyWidget(label, parent, name, f) {
   initPlot();
 }
 
 void Graph3D::initPlot() {
-  worksheet = 0;
-  d_matrix = 0;
+  worksheet = nullptr;
+  d_matrix = nullptr;
   plotAssociation = QString();
 
   QDateTime dt = QDateTime::currentDateTime();

@@ -31,7 +31,7 @@
 
 #include <QDialog>
 #include <QList>
-#include <2Dplot/LineScatterCommon.h>
+#include <2Dplot/Graph2DCommon.h>
 
 class ApplicationWindow;
 class QLabel;

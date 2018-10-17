@@ -27,9 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "AssociationsDialog.h"
-#include "FunctionCurve.h"
-#include "PlotCurve.h"
-#include "QwtErrorPlotCurve.h"
+#include "2Dplot/AxisRect2D.h"
 #include "Table.h"
 
 #include <QApplication>
@@ -43,8 +41,8 @@
 #include <QPushButton>
 #include <QTableWidget>
 
-AssociationsDialog::AssociationsDialog(QWidget *parent, Qt::WFlags fl)
-    : QDialog(parent, fl), graph(0) {
+AssociationsDialog::AssociationsDialog(QWidget *parent, Qt::WindowFlags fl)
+    : QDialog(parent, fl), axisrect_(nullptr) {
   setWindowTitle(tr("Plot Associations"));
   setSizeGripEnabled(true);
   setFocus();
@@ -59,10 +57,9 @@ AssociationsDialog::AssociationsDialog(QWidget *parent, Qt::WFlags fl)
   vl->addLayout(hbox1);
 
   table = new QTableWidget(3, 5);
-  table->horizontalHeader()->setClickable(false);
-  table->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+  table->horizontalHeader()->setSelectionMode(
+      QAbstractItemView::SingleSelection);
   table->verticalHeader()->hide();
-  table->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   table->setMaximumHeight(8 * table->rowHeight(0));
   table->setHorizontalHeaderLabels(QStringList()
                                    << tr("Column") << tr("X") << tr("Y")
@@ -102,47 +99,38 @@ void AssociationsDialog::accept() {
 }
 
 void AssociationsDialog::updateCurves() {
-  if (!graph) return;
+  /* if (!graph) return;
 
-  QApplication::setOverrideCursor(Qt::WaitCursor);
+   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  for (int i = 0; i < associations->count(); i++)
-    changePlotAssociation(i, plotAssociation(associations->item(i)->text()));
-  graph->updatePlot();
+   for (int i = 0; i < associations->count(); i++)
+     changePlotAssociation(i, plotAssociation(associations->item(i)->text()));
+   graph->updatePlot();
 
-  QApplication::restoreOverrideCursor();
+   QApplication::restoreOverrideCursor();*/
 }
 
 void AssociationsDialog::changePlotAssociation(int curve, const QString &text) {
-  DataCurve *c = (DataCurve *)graph->curve(curve);  // c_keys[curve]);
-  if (!c) return;
+  /* DataCurve *c = (DataCurve *)graph->curve(curve);  // c_keys[curve]);
+   if (!c) return;
 
-  if (c->plotAssociation() == text) return;
+   if (c->plotAssociation() == text) return;
 
-  QStringList lst = text.split(",", QString::SkipEmptyParts);
-  if (lst.count() == 2) {
-    c->setXColumnName(lst[0].remove("(X)"));
-    c->setTitle(lst[1].remove("(Y)"));
-    c->loadData();
-  } else if (lst.count() == 3) {  // curve with error bars
-    QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)c;
-    QString xColName = lst[0].remove("(X)");
-    QString yColName = lst[1].remove("(Y)");
-    QString erColName = lst[2].remove("(xErr)").remove("(yErr)");
-    DataCurve *master_curve = graph->masterCurve(xColName, yColName);
-    if (!master_curve) return;
-
-    int type = QwtErrorPlotCurve::Vertical;
-    if (text.contains("(xErr)")) type = QwtErrorPlotCurve::Horizontal;
-    er->setDirection(type);
-    er->setTitle(erColName);
-    if (master_curve != er->masterCurve())
-      er->setMasterCurve(master_curve);
-    else
-      er->loadData();
-  } else if (lst.count() == 4) {
-  }
-  graph->notifyChanges();
+   QStringList lst = text.split(",", QString::SkipEmptyParts);
+   if (lst.count() == 2) {
+     c->setXColumnName(lst[0].remove("(X)"));
+     c->setTitle(lst[1].remove("(Y)"));
+     c->loadData();
+   } else if (lst.count() == 3) {  // curve with error bars
+     QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)c;
+     QString xColName = lst[0].remove("(X)");
+     QString yColName = lst[1].remove("(Y)");
+     QString erColName = lst[2].remove("(xErr)").remove("(yErr)");
+     DataCurve *master_curve = graph->masterCurve(xColName, yColName);
+     if (!master_curve) return;
+   } else if (lst.count() == 4) {
+   }
+   graph->notifyChanges();*/
 }
 
 QString AssociationsDialog::plotAssociation(const QString &text) {
@@ -304,24 +292,24 @@ void AssociationsDialog::uncheckCol(int col) {
   }
 }
 
-void AssociationsDialog::setGraph(Graph *g) {
-  graph = g;
+void AssociationsDialog::setAxisRect(AxisRect2D *axisrect) {
+  /*  graph = g;
 
-  for (int i = 0; i < graph->curves(); i++) {
-    const QwtPlotItem *it = (QwtPlotItem *)graph->plotItem(i);
-    if (!it) continue;
-    if (it->rtti() != QwtPlotItem::Rtti_PlotCurve) continue;
+    for (int i = 0; i < graph->curves(); i++) {
+      const QwtPlotItem *it = (QwtPlotItem *)graph->plotItem(i);
+      if (!it) continue;
+      if (it->rtti() != QwtPlotItem::Rtti_PlotCurve) continue;
 
-    if (((DataCurve *)it)->type() != Graph::Function) {
-      QString s = ((DataCurve *)it)->plotAssociation();
-      QString table = ((DataCurve *)it)->table()->name();
-      plotAssociationsList << table + ": " + s.remove(table + "_");
+      if (((DataCurve *)it)->type() != Graph::Function) {
+        QString s = ((DataCurve *)it)->plotAssociation();
+        QString table = ((DataCurve *)it)->table()->name();
+        plotAssociationsList << table + ": " + s.remove(table + "_");
+      }
     }
-  }
-  associations->addItems(plotAssociationsList);
-  associations->setMaximumHeight(
-      (plotAssociationsList.count() + 1) *
-      associations->visualItemRect(associations->item(0)).height());
+    associations->addItems(plotAssociationsList);
+    associations->setMaximumHeight(
+        (plotAssociationsList.count() + 1) *
+        associations->visualItemRect(associations->item(0)).height());*/
 }
 
 void AssociationsDialog::updatePlotAssociation(int row, int col) {

@@ -41,7 +41,7 @@
 #include <QMessageBox>
 
 ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget *parent,
-                                     bool extended, Qt::WFlags flags)
+                                     bool extended, Qt::WindowFlags flags)
     : ExtensibleFileDialog(parent, extended, flags) {
   setWindowTitle(tr("Import ASCII File(s)"));
 
@@ -51,7 +51,7 @@ ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget *parent,
   filters << tr("Data files") + " (*.DAT *.dat)";
   filters << tr("Comma Separated Values") + " (*.CSV *.csv)";
   filters << tr("Tab Separated Values") + " (*.TSV *.tsv)";
-  setFilters(filters);
+  setNameFilters(filters);
 
   setFileMode(QFileDialog::ExistingFiles);
 
@@ -289,7 +289,7 @@ void ImportASCIIDialog::closeEvent(QCloseEvent *e) {
   ApplicationWindow *app = (ApplicationWindow *)this->parent();
   if (app) {
     app->d_extended_import_ASCII_dialog = this->isExtended();
-    app->d_ASCII_file_filter = this->selectedFilter();
+    app->d_ASCII_file_filter = this->selectedNameFilter();
   }
 
   e->accept();

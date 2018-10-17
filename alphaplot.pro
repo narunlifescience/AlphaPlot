@@ -6,7 +6,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += alphaplot 
-CONFIG+=ordered
+CONFIG += ordered
 
 !mxe {
 # optional fit plugins (mxe is a static build, so included elsewhere)

@@ -3,10 +3,7 @@
 
 #include "ApplicationWindow.h"
 #include "Folder.h"
-#include "FunctionCurve.h"
-#include "Graph.h"
 #include "Matrix.h"
-#include "PlotCurve.h"
 #include "Table.h"
 #include "core/IconLoader.h"
 #include "core/column/Column.h"
@@ -381,34 +378,34 @@ int AddPlot2DDialog::curveStyle() {
   int style = 0;
   switch (boxStyle->currentIndex()) {
     case 0:
-      style = Graph::Line;
+      style = static_cast<int>(ApplicationWindow::Graph::Line);
       break;
     case 1:
-      style = Graph::Scatter;
+      style = static_cast<int>(ApplicationWindow::Graph::Scatter);
       break;
     case 2:
-      style = Graph::LineSymbols;
+      style = static_cast<int>(ApplicationWindow::Graph::LineSymbols);
       break;
     case 3:
-      style = Graph::VerticalDropLines;
+      style = static_cast<int>(ApplicationWindow::Graph::VerticalDropLines);
       break;
     case 4:
-      style = Graph::Spline;
+      style = static_cast<int>(ApplicationWindow::Graph::Spline);
       break;
     case 5:
-      style = Graph::VerticalSteps;
+      style = static_cast<int>(ApplicationWindow::Graph::VerticalSteps);
       break;
     case 6:
-      style = Graph::HorizontalSteps;
+      style = static_cast<int>(ApplicationWindow::Graph::HorizontalSteps);
       break;
     case 7:
-      style = Graph::Area;
+      style = static_cast<int>(ApplicationWindow::Graph::Area);
       break;
     case 8:
-      style = Graph::VerticalBars;
+      style = static_cast<int>(ApplicationWindow::Graph::VerticalBars);
       break;
     case 9:
-      style = Graph::HorizontalBars;
+      style = static_cast<int>(ApplicationWindow::Graph::HorizontalBars);
       break;
   }
   return style;

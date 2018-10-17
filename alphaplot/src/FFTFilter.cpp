@@ -27,25 +27,28 @@
  *                                                                         *
  ***************************************************************************/
 #include "FFTFilter.h"
-
-#include <QMessageBox>
 #include <QLocale>
+#include <QMessageBox>
+#include "2Dplot/Plotcolumns.h"
 
 #include <gsl/gsl_fft_halfcomplex.h>
 
-FFTFilter::FFTFilter(ApplicationWindow *parent, Graph *g,
+FFTFilter::FFTFilter(ApplicationWindow *parent, AxisRect2D *axisrect,
                      const QString &curveTitle, int m)
-    : Filter(parent, g) {
+    : Filter(parent, axisrect) {
   d_sort_data = true;
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(
+      PlotColumns::getassociateddatafromstring(axisrect, curveTitle));
   init(m);
 }
 
-FFTFilter::FFTFilter(ApplicationWindow *parent, Graph *g,
+FFTFilter::FFTFilter(ApplicationWindow *parent, AxisRect2D *axisrect,
                      const QString &curveTitle, double start, double end, int m)
-    : Filter(parent, g) {
+    : Filter(parent, axisrect) {
   d_sort_data = true;
-  setDataFromCurve(curveTitle, start, end);
+  setDataFromCurve(
+      PlotColumns::getassociateddatafromstring(axisrect, curveTitle), start,
+      end);
   init(m);
 }
 
@@ -61,13 +64,13 @@ void FFTFilter::init(int m) {
 void FFTFilter::setFilterType(int type) {
   if (type < 1 || type > 4) {
     QMessageBox::critical(
-        (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
+        app_, tr("AlphaPlot") + " - " + tr("Error"),
         tr("Unknown filter type. Valid values are: 1 - Low pass, 2 - High "
            "Pass, 3 - Band Pass, 4 - Band block."));
     d_init_err = true;
     return;
   }
-  d_filter_type = (FilterType)type;
+  d_filter_type = static_cast<FilterType>(type);
 }
 
 void FFTFilter::setCutoff(double f) {
@@ -81,7 +84,7 @@ void FFTFilter::setBand(double lowFreq, double highFreq) {
     return;
   else if (lowFreq == highFreq) {
     QMessageBox::critical(
-        (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
+        app_, tr("AlphaPlot") + " - " + tr("Error"),
         tr("Please enter different values for the band limits."));
     d_init_err = true;
     return;
@@ -115,10 +118,12 @@ void FFTFilter::calculateOutputData(double *x, double *y) {
 
   double df = 1.0 / (x[d_n - 1] - x[0]);
 
-  gsl_fft_real_workspace *work = gsl_fft_real_workspace_alloc(d_n);
-  gsl_fft_real_wavetable *real = gsl_fft_real_wavetable_alloc(d_n);
+  gsl_fft_real_workspace *work =
+      gsl_fft_real_workspace_alloc(static_cast<size_t>(d_n));
+  gsl_fft_real_wavetable *real =
+      gsl_fft_real_wavetable_alloc(static_cast<size_t>(d_n));
 
-  gsl_fft_real_transform(y, 1, d_n, real, work);
+  gsl_fft_real_transform(y, 1, static_cast<size_t>(d_n), real, work);
   gsl_fft_real_wavetable_free(real);
 
   d_explanation = QLocale().toString(d_low_freq) + " ";
@@ -126,7 +131,7 @@ void FFTFilter::calculateOutputData(double *x, double *y) {
     d_explanation += tr("to") + " " + QLocale().toString(d_high_freq) + " ";
   d_explanation += tr("Hz") + " ";
 
-  switch ((int)d_filter_type) {
+  switch (static_cast<int>(d_filter_type)) {
     case 1:  // low pass
       d_explanation += tr("Low Pass FFT Filter");
       for (int i = d_n - 1; i >= 0 && ((i + 1) / 2) * df > d_low_freq; i--)
@@ -158,8 +163,9 @@ void FFTFilter::calculateOutputData(double *x, double *y) {
       break;
   }
 
-  gsl_fft_halfcomplex_wavetable *hc = gsl_fft_halfcomplex_wavetable_alloc(d_n);
-  gsl_fft_halfcomplex_inverse(y, 1, d_n, hc, work);
+  gsl_fft_halfcomplex_wavetable *hc =
+      gsl_fft_halfcomplex_wavetable_alloc(static_cast<size_t>(d_n));
+  gsl_fft_halfcomplex_inverse(y, 1, static_cast<size_t>(d_n), hc, work);
   gsl_fft_halfcomplex_wavetable_free(hc);
   gsl_fft_real_workspace_free(work);
 }

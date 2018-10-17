@@ -30,17 +30,18 @@
 #include "ApplicationWindow.h"
 #include "Folder.h"
 
-#include <QPushButton>
 #include <QCheckBox>
 #include <QComboBox>
-#include <QGridLayout>
-#include <QRegExp>
-#include <QLabel>
-#include <QVBoxLayout>
 #include <QFrame>
+#include <QGridLayout>
 #include <QGroupBox>
+#include <QLabel>
+#include <QPushButton>
+#include <QRegExp>
+#include <QVBoxLayout>
 
-FindDialog::FindDialog(QWidget *parent, Qt::WFlags fl) : QDialog(parent, fl) {
+FindDialog::FindDialog(QWidget *parent, Qt::WindowFlags fl)
+    : QDialog(parent, fl) {
   setWindowTitle(tr("AlphaPlot") + " - " + tr("Find"));
   setSizeGripEnabled(true);
 

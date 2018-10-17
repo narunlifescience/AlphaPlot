@@ -31,28 +31,33 @@
 
 #include <QObject>
 
+#include "2Dplot/Graph2DCommon.h"
 #include "ApplicationWindow.h"
 
-class QwtPlotCurve;
-class Graph;
 class Table;
+class AxisRect2D;
+class Curve2D;
 
 //! Abstract base class for data analysis operations
 class Filter : public QObject {
   Q_OBJECT
 
  public:
-  Filter(ApplicationWindow *parent, Table *t = 0, QString name = QString());
-  Filter(ApplicationWindow *parent, Graph *g = 0, QString name = QString());
+  Filter(ApplicationWindow *parent, Table *table = nullptr,
+         QString name = QString());
+  Filter(ApplicationWindow *parent, AxisRect2D *axisrect = nullptr,
+         QString name = QString());
   ~Filter();
 
   //! Actually does the job. Should be reimplemented in derived classes.
   virtual bool run();
 
-  virtual void setDataCurve(int curve, double start, double end);
-  bool setDataFromCurve(const QString &curveTitle, Graph *g = 0);
-  bool setDataFromCurve(const QString &curveTitle, double from, double to,
-                        Graph *g = 0);
+  virtual void setDataCurve(PlotData::AssociatedData *associateddata,
+                            double start, double end);
+  bool setDataFromCurve(PlotData::AssociatedData *associateddata,
+                        AxisRect2D *axisrect = nullptr);
+  bool setDataFromCurve(PlotData::AssociatedData *associateddata, double from,
+                        double to, AxisRect2D *axisrect = nullptr);
 
   //! Changes the data range if the source curve was already assigned. Provided
   //! for convenience.
@@ -78,12 +83,6 @@ class Filter : public QObject {
   //! session
   void setMaximumIterations(int iter) { d_max_iterations = iter; }
 
-  //! Adds a new legend to the plot. Calls virtual legendInfo()
-  virtual void showLegend();
-
-  //! Output string added to the plot as a new legend
-  virtual QString legendInfo() { return QString(); }
-
   //! Returns the size of the fitted data set
   int dataSize() { return d_n; }
 
@@ -93,17 +92,17 @@ class Filter : public QObject {
   void init();
 
   /**
-                  * \brief Sets x and y to the curve points between start and
+   * \brief Sets x and y to the curve points between start and
    * end.
-                  *
-             * \returns the number of points within range == size of x and y
+   *
+   * \returns the number of points within range == size of x and y
    * arrays.
-                  * Memory will be allocated with new double[].
-                  */
-  int curveData(QwtPlotCurve *c, double start, double end, double **x,
+   * Memory will be allocated with new double[].
+   */
+  int curveData(double start, double end, double **x,
                 double **y);
   //! Same as curveData, but sorts the points by their x value.
-  int sortedCurveData(QwtPlotCurve *c, double start, double end, double **x,
+  int sortedCurveData(double start, double end, double **x,
                       double **y);
 
  protected:
@@ -111,11 +110,7 @@ class Filter : public QObject {
 
   //! Adds the result curve to the target output plot window. Creates a hidden
   //! table and frees the input data from memory.
-  QwtPlotCurve *addResultCurve(double *x, double *y);
-
-  //! Performs checks and returns the index of the source data curve if OK, -1
-  //! otherwise
-  int curveIndex(const QString &curveTitle, Graph *g);
+  Curve2D *addResultCurve(double *xdata, double *ydata);
 
   //! Output string added to the log pannel of the application
   virtual QString logInfo() { return QString(); }
@@ -125,12 +120,13 @@ class Filter : public QObject {
 
   //! Calculates the data for the output curve and store it in the X an Y
   //! vectors
-  virtual void calculateOutputData(double *X, double *Y) {
-    Q_UNUSED(X) Q_UNUSED(Y)
-  }
+  virtual void calculateOutputData(double *X,
+                                   double *Y){Q_UNUSED(X) Q_UNUSED(Y)}
+
+  ApplicationWindow *app_;
 
   //! The graph where the result curve should be displayed
-  Graph *d_graph;
+  AxisRect2D *axisrect_;
 
   //! A table source of data
   Table *d_table;
@@ -157,7 +153,7 @@ class Filter : public QObject {
   int d_max_iterations;
 
   //! The curve to be analysed
-  QwtPlotCurve *d_curve;
+  PlotData::AssociatedData *associateddata_;
 
   //! Precision (number of significant digits) used for the results output
   int d_prec;

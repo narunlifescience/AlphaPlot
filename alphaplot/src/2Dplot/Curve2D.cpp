@@ -403,10 +403,10 @@ void Curve2D::datapicker(QMouseEvent *event, const QVariant &details) {
     dataPoints.dataRange();
     it = data()->at(dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
-    if (point.x() > event->posF().x() - 10 &&
-        point.x() < event->posF().x() + 10 &&
-        point.y() > event->posF().y() - 10 &&
-        point.y() < event->posF().y() + 10) {
+    if (point.x() > event->localPos().x() - 10 &&
+        point.x() < event->localPos().x() + 10 &&
+        point.y() > event->localPos().y() - 10 &&
+        point.y() < event->localPos().y() + 10) {
       emit showtooltip(point, it->mainKey(), it->mainValue());
     }
   }
@@ -415,8 +415,8 @@ void Curve2D::datapicker(QMouseEvent *event, const QVariant &details) {
 void Curve2D::graphpicker(QMouseEvent *event, const QVariant &details) {
   Q_UNUSED(details);
   double xvalue, yvalue;
-  pixelsToCoords(event->posF(), xvalue, yvalue);
-  emit showtooltip(event->posF(), xvalue, yvalue);
+  pixelsToCoords(event->localPos(), xvalue, yvalue);
+  emit showtooltip(event->localPos(), xvalue, yvalue);
 }
 
 void Curve2D::movepicker(QMouseEvent *event, const QVariant &details) {}
@@ -428,10 +428,10 @@ void Curve2D::removepicker(QMouseEvent *event, const QVariant &details) {
     dataPoints.dataRange();
     it = data()->at(dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
-    if (point.x() > event->posF().x() - 10 &&
-        point.x() < event->posF().x() + 10 &&
-        point.y() > event->posF().y() - 10 &&
-        point.y() < event->posF().y() + 10) {
+    if (point.x() > event->localPos().x() - 10 &&
+        point.x() < event->localPos().x() + 10 &&
+        point.y() > event->localPos().y() - 10 &&
+        point.y() < event->localPos().y() + 10) {
       curvedata_->data()->remove(it->sortKey());
       layer()->replot();
     }

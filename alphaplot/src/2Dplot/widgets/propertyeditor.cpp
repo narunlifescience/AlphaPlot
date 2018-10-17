@@ -15,7 +15,6 @@
 #include "2Dplot/LineItem2D.h"
 #include "2Dplot/LineSpecial2D.h"
 #include "Matrix.h"
-#include "MultiLayer.h"
 #include "MyWidget.h"
 #include "Note.h"
 #include "Table.h"
@@ -3003,8 +3002,6 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     objectbrowser_->setHeaderLabel("Note");
   } else if (qobject_cast<Matrix *>(widget)) {
     objectbrowser_->setHeaderLabel("Matrix");
-  } else if (qobject_cast<MultiLayer *>(widget)) {
-    objectbrowser_->setHeaderLabel("Graph");
   } else {
     qDebug() << "unknown Mywidget";
   }

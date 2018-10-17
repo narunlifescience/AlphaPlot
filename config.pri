@@ -6,8 +6,8 @@ unix:isEmpty(PRESET) {                     # command-line argument to override
   ### Link dynamically against system-wide installed libraries(default).
   if(!macx) {
     PRESET = linux_all_dynamic
-    ### Link statically against Qwt and Qwtplot3D in 3rdparty folder.
-    #PRESET = linux_qwt_qwtplot3d_static
+    ### Link statically against Qwtplot3D in 3rdparty folder.
+    #PRESET = linux_qwtplot3d_static
     ### Link statically as much as possible.except Qt.
     #PRESET = linux_all_static
   } else {
@@ -49,8 +49,8 @@ win32 {                                                      # Windows
 }
 
 ### 64bit Linux only suffix
-linux-g++-64: libsuff  = 64
-unix:LIBS             += -L/usr/lib$${libsuff}
+#linux-g++-64: libsuff  = 64
+#unix:LIBS             += -L/usr/lib$${libsuff}
 
 ################################################################################
 ### Optional features                                                          #
@@ -80,32 +80,16 @@ contains(PRESET, linux_all_dynamic) {
   ### dynamically link against Qwt(3D) installed system-wide
   message(Build configuration: Linux all dynamic)
 
-  ### Debian suffix
-  exists(/usr/include/qwt-qt4): qwtsuff = "-qt4"
-
-  exists(/usr/include/qwt5) {
-    INCLUDEPATH  += /usr/include/qwt5
-    LIBS         += -lqwt5
-  } else {
-    INCLUDEPATH  += /usr/include/qwt$${qwtsuff}
-    LIBS         += -lqwt$${qwtsuff}
-  }
-
   INCLUDEPATH   = "$(HOME)/usr/include" $$INCLUDEPATH
   QMAKE_LIBDIR  = "$(HOME)/usr/lib" $$QMAKE_LIBDIR
-
-  INCLUDEPATH  += /usr/include/qwtplot3d
-  LIBS         += -lqwtplot3d$${qwtsuff}
 
   LIBS         += -lz -lGLU
   LIBS         += -lgsl -lgslcblas
 }
 
-contains(PRESET, linux_qwt_qwtplot3d_static) {
+contains(PRESET, linux_qwtplot3d_static) {
   ### Link statically against Qwt and Qwtplot3D dynamically against rest.
-  message(Build configuration: Linux all dynamic except QWT & QwtPlot3D)
-  INCLUDEPATH  += ../3rdparty/qwt/src
-  LIBS         += ../3rdparty/qwt/lib/libqwt.a
+  message(Build configuration: Linux all dynamic except QwtPlot3D)
   INCLUDEPATH  += ../3rdparty/qwtplot3d/include
   LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
   LIBS         += -lgsl -lgslcblas -lz -lGLU
@@ -114,9 +98,6 @@ contains(PRESET, linux_qwt_qwtplot3d_static) {
 contains(PRESET, linux_all_static) {
   ### mostly static linking, for self-contained binaries
   message(Build configuration: Linux all static)
-
-  INCLUDEPATH  += ../3rdparty/qwt/src
-  LIBS         += ../3rdparty/qwt/lib/libqwt.a
 
   INCLUDEPATH  += ../3rdparty/qwtplot3d/include
   LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
@@ -130,9 +111,6 @@ contains(PRESET, osx_dist) {
 
   INCLUDEPATH  += /usr/local/include
 
-  INCLUDEPATH  += ../3rdparty/qwt/src
-  LIBS         += ../3rdparty/qwt/lib/libqwt.a
-
   INCLUDEPATH  += ../3rdparty/qwtplot3d/include
   LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
 
@@ -145,9 +123,6 @@ win32: {
     message(Build configuration: Win32)
 
     isEmpty(LIBPATH): LIBPATH = ../3rdparty
-
-    INCLUDEPATH  += "$${LIBPATH}/qwt/src"
-    LIBS         += "$${LIBPATH}/qwt/lib/libqwt.a"
 
     INCLUDEPATH  += "$${LIBPATH}/qwtplot3d/include"
     LIBS         += "$${LIBPATH}/qwtplot3d/lib/qwtplot3d.dll"
@@ -166,7 +141,6 @@ mxe {
   DEFINES        += CONSOLE
     
   INCLUDEPATH  += "../3rdparty/include"
-  LIBS         += "../3rdparty/lib/libqwt.a"
   LIBS         += "../3rdparty/lib/libqwtplot3d.a"
 
   LIBS           +=  -mwindows -lgsl -lgslcblas
@@ -183,12 +157,12 @@ mxe {
 ### Names of the lupdate and lrelease programs                              #
 #############################################################################
 
-exists(/usr/bin/lupdate-qt4) {
+#exists(/usr/bin/lupdate-qt4) {
   # Debian, Ubuntu, Fedora
-  LUPDATE_BIN  = lupdate-qt4
-  LRELEASE_BIN = lrelease-qt4
-} else {
+  #LUPDATE_BIN  = lupdate-qt4
+  #LRELEASE_BIN = lrelease-qt4
+#} else {
   # anything else
-  LUPDATE_BIN  = lupdate
-  LRELEASE_BIN = lrelease
-}
+  #LUPDATE_BIN  = lupdate
+  #LRELEASE_BIN = lrelease
+#}

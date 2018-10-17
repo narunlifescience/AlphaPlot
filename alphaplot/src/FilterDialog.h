@@ -35,7 +35,7 @@ class QPushButton;
 class QLineEdit;
 class QComboBox;
 class QCheckBox;
-class Graph;
+class AxisRect2D;
 class ColorBox;
 
 //! Filter options dialog
@@ -43,7 +43,8 @@ class FilterDialog : public QDialog {
   Q_OBJECT
 
  public:
-  FilterDialog(int type, QWidget* parent = 0, Qt::WindowFlags fl = 0);
+  FilterDialog(int type, QWidget* parent = nullptr,
+               Qt::WindowFlags flag = Qt::Widget);
   ~FilterDialog() {}
 
   QPushButton* buttonFilter;
@@ -55,11 +56,11 @@ class FilterDialog : public QDialog {
   ColorBox* boxColor;
 
  public slots:
-  void setGraph(Graph* g);
+  void setAxisRect(AxisRect2D* axisrect);
   void filter();
 
  private:
-  Graph* graph;
+  AxisRect2D* axisrect_;
   int filter_type;
 };
 

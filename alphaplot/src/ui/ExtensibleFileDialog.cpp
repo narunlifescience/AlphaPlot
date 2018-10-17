@@ -31,7 +31,7 @@
 #include <QGridLayout>
 
 ExtensibleFileDialog::ExtensibleFileDialog(QWidget *parent, bool extended,
-                                           Qt::WFlags flags)
+                                           Qt::WindowFlags flags)
     : QFileDialog(parent, flags) {
   d_extension = nullptr;
 

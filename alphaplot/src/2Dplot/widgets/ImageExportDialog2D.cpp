@@ -41,7 +41,7 @@
 #include <QStackedWidget>
 
 ImageExportDialog2D::ImageExportDialog2D(QWidget *parent, bool vector_options,
-                                         bool extended, Qt::WFlags flags)
+                                         bool extended, Qt::WindowFlags flags)
     : ExtensibleFileDialog(parent, extended, flags) {
   setWindowTitle(tr("Choose a filename to save under"));
   setAcceptMode(QFileDialog::AcceptSave);
@@ -60,7 +60,7 @@ ImageExportDialog2D::ImageExportDialog2D(QWidget *parent, bool vector_options,
   filters.removeDuplicates();
 
   filters.sort();
-  setFilters(filters);
+  setNameFilters(filters);
   setFileMode(QFileDialog::AnyFile);
 
   initAdvancedOptions();
@@ -69,7 +69,7 @@ ImageExportDialog2D::ImageExportDialog2D(QWidget *parent, bool vector_options,
 
   connect(this, SIGNAL(filterSelected(const QString &)), this,
           SLOT(updateAdvancedOptions(const QString &)));
-  updateAdvancedOptions(selectedFilter());
+  updateAdvancedOptions(selectedNameFilter());
 }
 
 void ImageExportDialog2D::initAdvancedOptions() {
@@ -133,6 +133,6 @@ void ImageExportDialog2D::updateAdvancedOptions(const QString &filter) {
 void ImageExportDialog2D::closeEvent(QCloseEvent *event) { event->accept(); }
 
 void ImageExportDialog2D::selectFilter(const QString &filter) {
-  QFileDialog::selectFilter(filter);
+  QFileDialog::selectNameFilter(filter);
   updateAdvancedOptions(filter);
 }

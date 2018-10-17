@@ -35,7 +35,7 @@
 #include <QPushButton>
 
 OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended,
-                                     Qt::WFlags flags)
+                                     Qt::WindowFlags flags)
     : ExtensibleFileDialog(parent, extended, flags) {
   setWindowTitle(tr("Open Project"));
   setFileMode(ExistingFile);
@@ -45,7 +45,7 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended,
           << tr("Backup files") + " (*.aproj~ *.aproj.gz~)"
           //<< tr("Python Source") + " (*.py *.PY)"
           << tr("All files") + " (*)";
-  setFilters(filters);
+  setNameFilters(filters);
 
   QWidget *advanced_options = new QWidget();
   QHBoxLayout *advanced_layout = new QHBoxLayout();
@@ -60,7 +60,7 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended,
 
   connect(this, SIGNAL(filterSelected(const QString &)), this,
           SLOT(updateAdvancedOptions(const QString &)));
-  updateAdvancedOptions(selectedFilter());
+  updateAdvancedOptions(selectedNameFilter());
 }
 
 void OpenProjectDialog::updateAdvancedOptions(const QString &filter) {

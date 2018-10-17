@@ -64,13 +64,13 @@ struct Application : public QApplication {
     try {
       return QApplication::notify(receiver, event);
     } catch (const std::exception& e) {
-      QMessageBox::critical(0, tr("Error!"),
+      QMessageBox::critical(nullptr, tr("Error!"),
                             tr("Error ") + e.what() + tr(" sending event ") +
                                 typeid(*event).name() + tr(" to object ") +
                                 qPrintable(receiver->objectName()) + " \"" +
                                 typeid(*receiver).name() + "\"");
     } catch (...) /* shouldn't happen..*/ {
-      QMessageBox::critical(0, tr("Error!"),
+      QMessageBox::critical(nullptr, tr("Error!"),
                             tr("Error <unknown> sending event") +
                                 typeid(*event).name() + tr(" to object ") +
                                 qPrintable(receiver->objectName()) + " \"" +
@@ -88,10 +88,8 @@ int main(int argc, char** argv) {
   SetProcessDPIAware();  // call before the main event loop
 #endif                   // Q_OS_WIN
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
   // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
   QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
-#endif
   Application* app = new Application(argc, argv);
 
   // icon initiation (mandatory)

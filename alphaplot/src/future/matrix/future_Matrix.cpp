@@ -37,6 +37,10 @@
 #include "lib/XmlStreamReader.h"
 #include "matrixcommands.h"
 
+#include <QInputDialog>
+#include <QMenu>
+#include <QProgressDialog>
+#include <QFileDialog>
 #include <QtCore>
 #include <QtDebug>
 #include <QtGui>
@@ -767,12 +771,12 @@ void Matrix::goToCell() {
   if (!d_view) return;
   bool ok;
 
-  int col = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter column"), 1,
-                                     1, columnCount(), 1, &ok);
+  int col = QInputDialog::getInt(nullptr, tr("Go to Cell"), tr("Enter column"),
+                                 1, 1, columnCount(), 1, &ok);
   if (!ok) return;
 
-  int row = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter row"), 1, 1,
-                                     rowCount(), 1, &ok);
+  int row = QInputDialog::getInt(nullptr, tr("Go to Cell"), tr("Enter row"), 1,
+                                 1, rowCount(), 1, &ok);
   if (!ok) return;
 
   d_view->goToCell(row - 1, col - 1);
@@ -826,12 +830,12 @@ void Matrix::setCell(int row, int col, double value) {
 void Matrix::dimensionsDialog() {
   bool ok;
 
-  int cols = QInputDialog::getInteger(0, tr("Set Matrix Dimensions"),
+  int cols = QInputDialog::getInt(nullptr, tr("Set Matrix Dimensions"),
                                       tr("Enter number of columns"),
                                       columnCount(), 1, 1e9, 1, &ok);
   if (!ok) return;
 
-  int rows = QInputDialog::getInteger(0, tr("Set Matrix Dimensions"),
+  int rows = QInputDialog::getInt(nullptr, tr("Set Matrix Dimensions"),
                                       tr("Enter number of rows"), rowCount(), 1,
                                       1e9, 1, &ok);
   if (!ok) return;
@@ -850,20 +854,20 @@ void Matrix::importImageDialog() {
 
   QString images_path = global("images_path").toString();
   QString file_name = QFileDialog::getOpenFileName(
-      0, tr("Import image from file"), images_path, filter);
+      nullptr, tr("Import image from file"), images_path, filter);
   if (!file_name.isEmpty()) {
     QFileInfo file_info(file_name);
     images_path = file_info.canonicalPath();
     setGlobal("images_path", images_path);
     QImage image(file_name);
-    Matrix *matrix = NULL;
+    Matrix *matrix = nullptr;
     if (!image.isNull()) matrix = Matrix::fromImage(image);
     if (matrix) {
       copy(matrix);
       delete matrix;
     } else
       QMessageBox::information(
-          0, tr("Error importing image"),
+          nullptr, tr("Error importing image"),
           tr("Import of image '%1' failed").arg(file_name));
   }
 }
@@ -1099,7 +1103,7 @@ bool Matrix::readDisplayElement(XmlStreamReader *reader) {
     reader->raiseError(tr("invalid or missing numeric format"));
     return false;
   }
-  setNumericFormat(str.at(0).toAscii());
+  setNumericFormat(str.at(0).toLatin1());
 
   bool ok;
   int digits = reader->readAttributeInt("displayed_digits", &ok);
@@ -1311,7 +1315,7 @@ void Matrix::recalculateSelectedCells() {
 }
 
 /* ========================= static methods ======================= */
-ActionManager *Matrix::action_manager = 0;
+ActionManager *Matrix::action_manager = nullptr;
 
 ActionManager *Matrix::actionManager() {
   if (!action_manager) initActionManager();
@@ -1337,7 +1341,7 @@ Matrix *Matrix::fromImage(const QImage &image) {
   progress.setWindowTitle(tr("AlphaPlot") + " - " + tr("Import image..."));
   progress.raise();
 
-  Matrix *matrix = new Matrix(0, rows, cols, tr("Matrix %1").arg(1));
+  Matrix *matrix = new Matrix(nullptr, rows, cols, tr("Matrix %1").arg(1));
 
   QVector<qreal> values;
   values.resize(rows);
@@ -1358,7 +1362,7 @@ Matrix *Matrix::fromImage(const QImage &image) {
 
   if (progress.wasCanceled()) {
     delete matrix;
-    return NULL;
+    return nullptr;
   }
   return matrix;
 }

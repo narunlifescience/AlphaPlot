@@ -27,25 +27,26 @@
  *                                                                         *
  ***************************************************************************/
 #include "DataSetDialog.h"
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Graph2DCommon.h"
+#include "2Dplot/Plotcolumns.h"
 #include "ApplicationWindow.h"
-#include "Graph.h"
 
-#include <QPushButton>
 #include <QCheckBox>
-#include <QLabel>
 #include <QComboBox>
 #include <QGroupBox>
-#include <QLineEdit>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 DataSetDialog::DataSetDialog(const QString& text, QWidget* parent,
-                             Qt::WFlags fl)
-    : QDialog(parent, fl) {
+                             Qt::WindowFlags fl)
+    : QDialog(parent, fl), axisrect_(nullptr) {
   setWindowTitle(tr("Select data set"));
 
   operation = QString();
-  d_graph = 0;
 
   QVBoxLayout* mainLayout = new QVBoxLayout(this);
   QHBoxLayout* bottomLayout = new QHBoxLayout();
@@ -77,9 +78,9 @@ DataSetDialog::DataSetDialog(const QString& text, QWidget* parent,
 void DataSetDialog::accept() {
   if (operation.isEmpty())
     emit options(boxName->currentText());
-  else if (d_graph) {
+  else if (axisrect_) {
     ApplicationWindow* app = (ApplicationWindow*)this->parent();
-    if (app) app->analyzeCurve(d_graph, operation, boxName->currentText());
+    if (app) app->analyzeCurve(axisrect_, operation, boxName->currentText());
   }
   close();
 }
@@ -93,9 +94,9 @@ void DataSetDialog::setCurentDataSet(const QString& s) {
   boxName->setCurrentIndex(row);
 }
 
-void DataSetDialog::setGraph(Graph* g) {
-  if (!g) return;
+void DataSetDialog::setAxisRect(AxisRect2D* axisrect) {
+  if (!axisrect) return;
 
-  d_graph = g;
-  boxName->addItems(g->analysableCurvesList());
+  axisrect_ = axisrect;
+  boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
 }

@@ -51,7 +51,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-ErrDialog::ErrDialog(QWidget *parent, AxisRect2D *axisrect, Qt::WFlags fl)
+ErrDialog::ErrDialog(QWidget *parent, AxisRect2D *axisrect, Qt::WindowFlags fl)
     : QDialog(parent, fl),
       axisrect_(axisrect),
       app_(qobject_cast<ApplicationWindow *>(parent->parent())) {

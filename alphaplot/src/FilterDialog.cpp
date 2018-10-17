@@ -27,22 +27,23 @@
  *                                                                         *
  ***************************************************************************/
 #include "FilterDialog.h"
-//#include "Graph.h"
-#include "scripting/MyParser.h"
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Plotcolumns.h"
 #include "ColorBox.h"
 #include "FFTFilter.h"
+#include "scripting/MyParser.h"
 
-#include <QGroupBox>
 #include <QCheckBox>
-#include <QMessageBox>
-#include <QLayout>
-#include <QPushButton>
-#include <QLabel>
-#include <QLineEdit>
 #include <QComboBox>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLayout>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QPushButton>
 
-FilterDialog::FilterDialog(int type, QWidget *parent, Qt::WFlags fl)
-    : QDialog(parent, fl) {
+FilterDialog::FilterDialog(int type, QWidget *parent, Qt::WindowFlags flag)
+    : QDialog(parent, flag) {
   setWindowTitle(tr("Filter options"));
   filter_type = type;
 
@@ -109,7 +110,7 @@ void FilterDialog::filter() {
   double from = 0.0, to = 0.0;
   try {
     MyParser parser;
-    parser.SetExpr(boxStart->text().replace(",", ".").toAscii().constData());
+    parser.SetExpr(boxStart->text().replace(",", ".").toUtf8().constData());
     from = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(this, tr("Frequency input error"),
@@ -153,8 +154,9 @@ void FilterDialog::filter() {
     }
   }
 
-  FFTFilter *f = new FFTFilter((ApplicationWindow *)this->parent(), graph,
-                               boxName->currentText(), filter_type);
+  FFTFilter *f =
+      new FFTFilter(qobject_cast<ApplicationWindow *>(this->parent()),
+                    axisrect_, boxName->currentText(), filter_type);
   if (filter_type == FFTFilter::BandPass) {
     f->setBand(from, to);
     f->enableOffset(boxOffset->isChecked());
@@ -169,7 +171,7 @@ void FilterDialog::filter() {
   delete f;
 }
 
-void FilterDialog::setGraph(Graph *g) {
-  graph = g;
-  boxName->addItems(g->analysableCurvesList());
+void FilterDialog::setAxisRect(AxisRect2D *axisrect) {
+  axisrect_ = axisrect;
+  boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
 }

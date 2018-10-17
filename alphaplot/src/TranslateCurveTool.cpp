@@ -29,18 +29,12 @@
  *                                                                         *
  ***************************************************************************/
 #include "TranslateCurveTool.h"
-#include "Graph.h"
-#include "PlotCurve.h"
-#include "FunctionCurve.h"
 #include "ApplicationWindow.h"
-#include "DataPickerTool.h"
-#include "ScreenPickerTool.h"
 #include <QMessageBox>
 #include <QLocale>
-#include <qwt_plot_curve.h>
 #include "core/column/Column.h"
 
-TranslateCurveTool::TranslateCurveTool(Graph *graph, ApplicationWindow *app,
+/*TranslateCurveTool::TranslateCurveTool(Graph *graph, ApplicationWindow *app,
                                        Direction dir,
                                        const QObject *status_target,
                                        const char *status_slot)
@@ -53,10 +47,6 @@ TranslateCurveTool::TranslateCurveTool(Graph *graph, ApplicationWindow *app,
   // emit statusText(tr("Double-click on plot to select a data point!"));
 
   // Phase 1: select curve point
-  d_sub_tool = new DataPickerTool(d_graph, app, DataPickerTool::Display, this,
-                                  SIGNAL(statusText(const QString &)));
-  connect((DataPickerTool *)d_sub_tool, SIGNAL(selected(QwtPlotCurve *, int)),
-          this, SLOT(selectCurvePoint(QwtPlotCurve *, int)));
 }
 
 void TranslateCurveTool::selectCurvePoint(QwtPlotCurve *curve,
@@ -140,6 +130,5 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point) {
     d_app->updateCurves(tab, col_name);
     d_app->modifiedProject();
     d_graph->setActiveTool(NULL);
-    // attention: I'm now deleted. Maybe there is a cleaner solution...*/
   }
-}
+}*/

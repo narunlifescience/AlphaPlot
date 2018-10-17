@@ -30,26 +30,21 @@
 #define SPECTROGRAM_H
 
 #include "Matrix.h"
-#include <qwt_raster_data.h>
-#include <qwt_plot.h>
-#include <qwt_plot_spectrogram.h>
-#include <qwt_color_map.h>
 #include <cmath>
 #include <limits>
 
 class MatrixData;
 
-class Spectrogram : public QwtPlotSpectrogram {
+class Spectrogram {
  public:
   Spectrogram();
-  Spectrogram(Matrix *m);
 
   enum ColorMapPolicy { GrayScale, Default, Custom };
 
   Spectrogram *copy();
   Matrix *matrix() { return d_matrix; }
 
-  int levels() { return (int)contourLevels().size() + 1; }
+  int levels() { return  1; }
   void setLevelsNumber(int levels);
 
   bool hasColorScale();
@@ -61,9 +56,7 @@ class Spectrogram : public QwtPlotSpectrogram {
 
   void setGrayScale();
   void setDefaultColorMap();
-  static QwtLinearColorMap defaultColorMap();
 
-  void setCustomColorMap(const QwtLinearColorMap &map);
   void updateData(Matrix *m);
 
   //! Used when saving a project file
@@ -80,13 +73,11 @@ class Spectrogram : public QwtPlotSpectrogram {
 
   //! Flags
   ColorMapPolicy color_map_policy;
-
-  QwtLinearColorMap color_map;
 };
 
-class MatrixData : public QwtRasterData {
+class MatrixData {
  public:
-  MatrixData(Matrix *m) : QwtRasterData(m->boundingRect()), d_matrix(m) {
+  MatrixData(Matrix *m) : d_matrix(m) {
     n_rows = d_matrix->numRows();
     n_cols = d_matrix->numCols();
 
@@ -130,18 +121,6 @@ class MatrixData : public QwtRasterData {
 
     delete[] d_m;
   }
-
-  virtual QwtRasterData *copy() const { return new MatrixData(d_matrix); }
-
-  virtual QwtDoubleInterval range() const {
-    return QwtDoubleInterval(min_z, max_z);
-  }
-
-  virtual QSize rasterHint(const QwtDoubleRect &) const {
-    return QSize(n_cols, n_rows);
-  }
-
-  virtual double value(double x, double y) const;
 
  private:
   //! Pointer to the source data matrix

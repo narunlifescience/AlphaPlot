@@ -60,13 +60,10 @@ class QMdiArea;
 class Ui_ApplicationWindow;
 class Matrix;
 class Table;
-class Graph;
 class ScalePicker;
 class Graph3D;
 class Note;
-class MultiLayer;
 class Layout2D;
-class FunctionDialog;
 class Folder;
 class FolderTreeWidget;
 class FolderTreeWidgetItem;
@@ -143,9 +140,31 @@ class ApplicationWindow : public QMainWindow,
     TableSubWindow,
     MatrixSubWindow,
     NoteSubWindow,
-    MultiLayerSubWindow,
     Plot2DSubWindow,
     Plot3DSubWindow,
+  };
+
+  enum class Graph {
+    Line = 0,
+    Scatter = 1,
+    LineSymbols = 2,
+    VerticalBars = 3,
+    Area = 4,
+    Pie = 5,
+    VerticalDropLines = 6,
+    Spline = 7,
+    HorizontalSteps = 8,
+    Histogram = 9,
+    HorizontalBars = 10,
+    VectXYXY = 11,
+    ErrorBars = 12,
+    Box = 13,
+    VectXYAM = 14,
+    VerticalSteps = 15,
+    ColorMap = 16,
+    GrayMap = 17,
+    ContourMap = 18,
+    Function = 19
   };
 
   QTranslator* appTranslator;
@@ -234,33 +253,20 @@ class ApplicationWindow : public QMainWindow,
   // void setAppColors(const QColor& wc, const QColor& pc, const QColor& tpc);
   //@}
 
-  //! \name Multilayer Plots
-  //@{
-  MultiLayer* multilayerPlot(int c, int r, int style);
-  MultiLayer* multilayerPlot(Table* table, const QStringList& colList,
-                             int style, int startRow = 0, int endRow = -1);
-  //! used when restoring a plot from a project file
-  MultiLayer* multilayerPlot(const QString& caption);
-  //! used by the plot wizard
-  MultiLayer* multilayerPlot(const QStringList& colList);
-  void connectMultilayerPlot(MultiLayer* g);
   void addLayer();
   void deleteLayer();
 
   //! Creates a new spectrogram graph
-  MultiLayer* plotSpectrogram(Matrix* m, Graph::CurveType type);
+  Layout2D* plotSpectrogram(Matrix* m, Graph type);
   void plotGrayScale();
-  MultiLayer* plotGrayScale(Matrix* m);
+  Layout2D* plotGrayScale(Matrix* m);
   void plotContour();
-  MultiLayer* plotContour(Matrix* m);
+  Layout2D* plotContour(Matrix* m);
   void plotColorMap();
-  MultiLayer* plotColorMap(Matrix* m);
+  Layout2D* plotColorMap(Matrix* m);
 
   //! Rearrange the layersin order to fit to the size of the plot window
   void autoArrangeLayers();
-  void initMultilayerPlot(MultiLayer* g, const QString& name);
-  void initBareMultilayerPlot(MultiLayer* g, const QString& name);
-  void polishGraph(Graph* g, int style);
   void plot2VerticalLayers();
   void plot2HorizontalLayers();
   void plot4Layers();
@@ -332,8 +338,6 @@ class ApplicationWindow : public QMainWindow,
       const QList<double>& ranges, const int points);
 
   Function2DDialog* functionDialog();
-  void showFunctionDialog();
-  void showFunctionDialog(Graph* g, int curve);
   void addFunctionCurve();
   void clearFitFunctionsList();
   void saveFitFunctionsList(const QStringList& l);
@@ -413,15 +417,6 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name Graphs
   //@{
-  void setPreferences(Graph* g);
-  void setGraphDefaultSettings(bool autoscale, bool scaleFonts,
-                               bool resizeLayers, bool antialiasing);
-  void setLegendDefaultSettings(int frame, const QFont& font,
-                                const QColor& textCol,
-                                const QColor& backgroundCol);
-  void setArrowDefaultSettings(int lineWidth, const QColor& c,
-                               Qt::PenStyle style, int headLength,
-                               int headAngle, bool fillHead);
   void plotPie();
   void plotVectXYXY();
   void plotVectXYAM();
@@ -498,7 +493,6 @@ class ApplicationWindow : public QMainWindow,
   void removeCurves(const QString& name);
   QStringList dependingPlots(const QString& caption);
   QStringList depending3DPlots(Matrix* m);
-  QStringList multilayerDependencies(MyWidget* w);
 
   void saveAsTemplate();
   void openTemplate();
@@ -536,7 +530,6 @@ class ApplicationWindow : public QMainWindow,
   void newAproj();
 
   //! Creates a new empty 2d plot
-  MultiLayer* newGraph(const QString& caption = tr("Graph"));
   Layout2D* newGraph2D(const QString& caption = tr("Graph"));
 
   //! \name Reading from a Project File
@@ -545,8 +538,8 @@ class ApplicationWindow : public QMainWindow,
   Table* openTableAproj(ApplicationWindow* app, QTextStream& stream);
   TableStatistics* openTableStatisticsAproj(const QStringList& flist);
   Graph3D* openSurfacePlotAproj(ApplicationWindow* app, const QStringList& lst);
-  Graph* openGraphAproj(ApplicationWindow* app, MultiLayer* plot,
-                        const QStringList& list);
+  AxisRect2D* openGraphAproj(ApplicationWindow* app, Layout2D* layout,
+                             const QStringList& list);
 
   void openRecentAproj();
   //@}
@@ -606,7 +599,7 @@ class ApplicationWindow : public QMainWindow,
   //@{
   void differentiate();
   void analysis(const QString& whichFit);
-  void analyzeCurve(Graph* g, const QString& whichFit,
+  void analyzeCurve(AxisRect2D* axisrect, const QString& whichFit,
                     const QString& curveTitle);
   void showDataSetDialog(const QString& whichFit);
   //@}
@@ -637,16 +630,11 @@ class ApplicationWindow : public QMainWindow,
   void showExportASCIIDialog();
   void showCurvesDialog();
   void showCurveRangeDialog();
-  CurveRangeDialog* showCurveRangeDialog(Graph* g, int curve);
+  CurveRangeDialog* showCurveRangeDialog(AxisRect2D *axisrect, int curve);
   void showPlotAssociations(int curve);
 
-  void showGraphContextMenu();
-  void showLayerButtonContextMenu();
   void showWindowContextMenu();
   void showWindowTitleBarMenu();
-  void showCurveContextMenu(int curveKey);
-  void showCurveWorksheet();
-  void showCurveWorksheet(Graph* g, int curveIndex);
   void showWindowPopupMenu(const QPoint& p);
 
   //! Connected to the context menu signal from lv; it's called when there are
@@ -688,14 +676,6 @@ class ApplicationWindow : public QMainWindow,
 
   void horizontalTranslate();
   void verticalTranslate();
-
-  //! Removes the curve identified by a key stored in the data() of
-  //! actionRemoveCurve.
-  void removeCurve();
-  void hideCurve();
-  void hideOtherCurves();
-  void showAllCurves();
-  void setCurveFullRange();
 
   void updateConfirmOptions(bool askTables, bool askMatrixes, bool askPlots2D,
                             bool askPlots3D, bool askNotes);
@@ -1027,7 +1007,6 @@ class ApplicationWindow : public QMainWindow,
   // List of tables & matrices renamed in order to avoid conflicts when
   // appending a project to a folder
   QStringList renamedTables;
-  Graph::MarkerType copiedMarkerType;
 
   // name variables used when user copy/paste markers
   QString auxMrkText;
@@ -1059,7 +1038,7 @@ class ApplicationWindow : public QMainWindow,
   //! Check if a table is valid for 3D plot & display an error if not
   bool validFor3DPlot(Table* table);
   //! Check if a table is valid for 2D plot & display an error if not
-  bool validFor2DPlot(Table* table, int type);
+  bool validFor2DPlot(Table* table, Graph type);
 
   // Attach to the scripting environment
   void attachQtScript();
@@ -1080,11 +1059,8 @@ class ApplicationWindow : public QMainWindow,
   QByteArray version_buffer;
 #endif
 
-  Graph* lastCopiedLayer;
   QAction* actionCopyStatusBarText;
-  QAction *actionEditCurveRange, *actionCurveFullRange, *actionShowAllCurves,
-      *actionHideCurve, *actionHideOtherCurves;
-  QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet;
+  QAction* actionEditCurveRange;
 
   QAction* actionShowExportASCIIDialog;
   QAction* actionExportPDF;
@@ -1157,7 +1133,7 @@ class ApplicationWindow : public QMainWindow,
   // http://doc.trolltech.com/4.3/mainwindows-recentfiles-mainwindow-cpp.html
 
   void setActiveWindowFromAction();
-  void selectPlotType(int type);
+  void selectPlotType(int value);
 
   void handleAspectAdded(const AbstractAspect* aspect, int index);
   void handleAspectAboutToBeRemoved(const AbstractAspect* aspect, int index);

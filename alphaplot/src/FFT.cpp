@@ -27,28 +27,28 @@
  *                                                                         *
  ***************************************************************************/
 #include "FFT.h"
-#include "MultiLayer.h"
-#include "Plot.h"
+#include "2Dplot/Layout2D.h"
 #include "ColorBox.h"
 #include "core/column/Column.h"
 
-#include <QMessageBox>
 #include <QLocale>
+#include <QMessageBox>
 
 #include <gsl/gsl_fft_complex.h>
 #include <gsl/gsl_fft_halfcomplex.h>
 
-FFT::FFT(ApplicationWindow *parent, Table *t, const QString &realColName,
+FFT::FFT(ApplicationWindow *parent, Table *table, const QString &realColName,
          const QString &imagColName)
-    : Filter(parent, t) {
+    : Filter(parent, table) {
   init();
-  setDataFromTable(t, realColName, imagColName);
+  setDataFromTable(table, realColName, imagColName);
 }
 
-FFT::FFT(ApplicationWindow *parent, Graph *g, const QString &curveTitle)
-    : Filter(parent, g) {
+FFT::FFT(ApplicationWindow *parent, AxisRect2D *axisrect,
+         PlotData::AssociatedData *associateddata)
+    : Filter(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(associateddata);
 }
 
 void FFT::init() {
@@ -68,55 +68,66 @@ QList<Column *> FFT::fftCurve() {
   double *result = new double[2 * d_n];
 
   if (!amp || !result) {
-    QMessageBox::critical((ApplicationWindow *)parent(),
-                          tr("AlphaPlot") + " - " + tr("Error"),
+    QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
                           tr("Could not allocate memory, operation aborted!"));
     d_init_err = true;
     return QList<Column *>();
   }
 
-  double df = 1.0 / (double)(d_n * d_sampling);  // frequency sampling
-  double aMax = 0.0;  // max amplitude
+  double df =
+      1.0 / static_cast<double>(d_n * d_sampling);  // frequency sampling
+  double aMax = 0.0;                                // max amplitude
   QList<Column *> columns;
   if (!d_inverse) {
-    d_explanation = tr("Forward") + " " + tr("FFT") + " " + tr("of") + " " +
-                    d_curve->title().text();
+    QString label = associateddata_->table->name() + "_" +
+                    associateddata_->xcol->name() + "_" +
+                    associateddata_->ycol->name();
+    d_explanation =
+        tr("Forward") + " " + tr("FFT") + " " + tr("of") + " " + label;
     columns << new Column(tr("Frequency"), AlphaPlot::Numeric);
 
-    gsl_fft_real_workspace *work = gsl_fft_real_workspace_alloc(d_n);
-    gsl_fft_real_wavetable *real = gsl_fft_real_wavetable_alloc(d_n);
+    gsl_fft_real_workspace *work =
+        gsl_fft_real_workspace_alloc(static_cast<size_t>(d_n));
+    gsl_fft_real_wavetable *real =
+        gsl_fft_real_wavetable_alloc(static_cast<size_t>(d_n));
 
     if (!work || !real) {
       QMessageBox::critical(
-          (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
+          app_, tr("AlphaPlot") + " - " + tr("Error"),
           tr("Could not allocate memory, operation aborted!"));
       d_init_err = true;
       return QList<Column *>();
     }
 
-    gsl_fft_real_transform(d_y, 1, d_n, real, work);
-    gsl_fft_halfcomplex_unpack(d_y, result, 1, d_n);
+    gsl_fft_real_transform(d_y, 1, static_cast<size_t>(d_n), real, work);
+    gsl_fft_halfcomplex_unpack(d_y, result, 1, static_cast<size_t>(d_n));
 
     gsl_fft_real_wavetable_free(real);
     gsl_fft_real_workspace_free(work);
   } else {
-    d_explanation = tr("Inverse") + " " + tr("FFT") + " " + tr("of") + " " +
-                    d_curve->title().text();
+    QString label = associateddata_->table->name() + "_" +
+                    associateddata_->xcol->name() + "_" +
+                    associateddata_->ycol->name();
+    d_explanation =
+        tr("Inverse") + " " + tr("FFT") + " " + tr("of") + " " + label;
     columns << new Column(tr("Time"), AlphaPlot::Numeric);
 
-    gsl_fft_real_unpack(d_y, result, 1, d_n);
-    gsl_fft_complex_wavetable *wavetable = gsl_fft_complex_wavetable_alloc(d_n);
-    gsl_fft_complex_workspace *workspace = gsl_fft_complex_workspace_alloc(d_n);
+    gsl_fft_real_unpack(d_y, result, 1, static_cast<size_t>(d_n));
+    gsl_fft_complex_wavetable *wavetable =
+        gsl_fft_complex_wavetable_alloc(static_cast<size_t>(d_n));
+    gsl_fft_complex_workspace *workspace =
+        gsl_fft_complex_workspace_alloc(static_cast<size_t>(d_n));
 
     if (!workspace || !wavetable) {
       QMessageBox::critical(
-          (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
+          app_, tr("AlphaPlot") + " - " + tr("Error"),
           tr("Could not allocate memory, operation aborted!"));
       d_init_err = true;
       return QList<Column *>();
     }
 
-    gsl_fft_complex_inverse(result, 1, d_n, wavetable, workspace);
+    gsl_fft_complex_inverse(result, 1, static_cast<size_t>(d_n), wavetable,
+                            workspace);
     gsl_fft_complex_wavetable_free(wavetable);
     gsl_fft_complex_workspace_free(workspace);
   }
@@ -174,26 +185,30 @@ QList<Column *> FFT::fftTable() {
   int rows = d_table->numRows();
   double *amp = new double[rows];
 
-  gsl_fft_complex_wavetable *wavetable = gsl_fft_complex_wavetable_alloc(rows);
-  gsl_fft_complex_workspace *workspace = gsl_fft_complex_workspace_alloc(rows);
+  gsl_fft_complex_wavetable *wavetable =
+      gsl_fft_complex_wavetable_alloc(static_cast<size_t>(rows));
+  gsl_fft_complex_workspace *workspace =
+      gsl_fft_complex_workspace_alloc(static_cast<size_t>(rows));
 
   if (!amp || !wavetable || !workspace) {
-    QMessageBox::critical((ApplicationWindow *)parent(),
-                          tr("AlphaPlot") + " - " + tr("Error"),
+    QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
                           tr("Could not allocate memory, operation aborted!"));
     d_init_err = true;
     return QList<Column *>();
   }
 
-  double df = 1.0 / (double)(rows * d_sampling);  // frequency sampling
-  double aMax = 0.0;  // max amplitude
+  double df =
+      1.0 / static_cast<double>(rows * d_sampling);  // frequency sampling
+  double aMax = 0.0;                                 // max amplitude
   QList<Column *> columns;
   if (!d_inverse) {
     columns << new Column(tr("Frequency"), AlphaPlot::Numeric);
-    gsl_fft_complex_forward(d_y, 1, rows, wavetable, workspace);
+    gsl_fft_complex_forward(d_y, 1, static_cast<size_t>(rows), wavetable,
+                            workspace);
   } else {
     columns << new Column(tr("Time"), AlphaPlot::Numeric);
-    gsl_fft_complex_inverse(d_y, 1, rows, wavetable, workspace);
+    gsl_fft_complex_inverse(d_y, 1, static_cast<size_t>(rows), wavetable,
+                            workspace);
   }
 
   gsl_fft_complex_wavetable_free(wavetable);
@@ -245,7 +260,7 @@ QList<Column *> FFT::fftTable() {
 
 void FFT::output() {
   QList<Column *> columns;
-  if (d_graph && d_curve)
+  if (axisrect_ && associateddata_)
     columns = fftCurve();
   else if (d_table)
     columns = fftTable();
@@ -254,29 +269,15 @@ void FFT::output() {
 }
 
 void FFT::output(QList<Column *> columns) {
-  ApplicationWindow *app = (ApplicationWindow *)parent();
-  QString tableName = app->generateUniqueName(objectName());
-  Table *t = app->newHiddenTable(tableName, d_explanation, columns);
-  MultiLayer *ml = app->multilayerPlot(
-      t, QStringList() << tableName + "_" + tr("Amplitude"), 0);
-  if (!ml) return;
+  QString tableName = app_->generateUniqueName(objectName());
+  Table *table = app_->newHiddenTable(tableName, d_explanation, columns);
+  Layout2D *layout = app_->newGraph2D();
 
-  Graph *g = ml->activeGraph();
-  if (g) {
-    g->setCurvePen(0, QPen(ColorBox::color(d_curveColorIndex), 1));
+  if (!layout) return;
 
-    Plot *plot = g->plotWidget();
-    plot->setTitle(QString());
-    if (!d_inverse)
-      plot->setAxisTitle(QwtPlot::xBottom,
-                         tr("Frequency") + " (" + tr("Hz") + ")");
-    else
-      plot->setAxisTitle(QwtPlot::xBottom, tr("Time") + +" (" + tr("s") + ")");
-
-    plot->setAxisTitle(QwtPlot::yLeft, tr("Amplitude"));
-    plot->replot();
-  }
-  ml->showMaximized();
+  layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Line2D, table,
+                              columns.at(0), columns.at(3), 0,
+                              table->rowCount() - 1);
 }
 
 void FFT::setDataFromTable(Table *t, const QString &realColName,
@@ -298,15 +299,14 @@ void FFT::setDataFromTable(Table *t, const QString &realColName,
   d_x = new double[d_n];
 
   if (d_y && d_x) {  // zero-pad data array
-    memset(d_y, 0, n2 * sizeof(double));
+    memset(d_y, 0, static_cast<size_t>(n2) * sizeof(double));
     for (int i = 0; i < d_n; i++) {
       int i2 = 2 * i;
       d_y[i2] = d_table->cell(i, d_real_col);
       if (d_imag_col >= 0) d_y[i2 + 1] = d_table->cell(i, d_imag_col);
     }
   } else {
-    QMessageBox::critical((ApplicationWindow *)parent(),
-                          tr("AlphaPlot") + " - " + tr("Error"),
+    QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
                           tr("Could not allocate memory, operation aborted!"));
     d_init_err = true;
   }

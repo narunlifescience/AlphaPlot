@@ -40,7 +40,7 @@
 #include <QtDebug>
 
 MyWidget::MyWidget(const QString &label, QWidget *parent, const QString name,
-                   Qt::WFlags f)
+                   Qt::WindowFlags f)
     : QMdiSubWindow(parent, f) {
   w_label = label;
   caption_policy = Both;

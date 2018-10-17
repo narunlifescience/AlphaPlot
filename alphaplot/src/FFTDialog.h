@@ -30,13 +30,14 @@
 #define FFTDIALOG_H
 
 #include <QDialog>
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Graph2DCommon.h"
 
 class QPushButton;
 class QRadioButton;
 class QLineEdit;
 class QComboBox;
 class QCheckBox;
-class Graph;
 class Table;
 
 //! Fast Fourier transform options dialog
@@ -46,7 +47,8 @@ class FFTDialog : public QDialog {
  public:
   enum DataType { onGraph = 0, onTable = 1 };
 
-  FFTDialog(int type, QWidget* parent = 0, Qt::WindowFlags fl = 0);
+  FFTDialog(int type, QWidget* parent = nullptr,
+            Qt::WindowFlags flag = Qt::Widget);
   ~FFTDialog() {}
 
   QPushButton* buttonOK;
@@ -57,13 +59,13 @@ class FFTDialog : public QDialog {
   QCheckBox *boxNormalize, *boxOrder;
 
  public slots:
-  void setGraph(Graph* g);
-  void setTable(Table* t);
+  void setAxisrect(AxisRect2D* axisrect);
+  void setTable(Table* table);
   void activateCurve(const QString& curveName);
   void accept();
 
  private:
-  Graph* graph;
+  AxisRect2D* axisrect_;
   Table* d_table;
   int d_type;
 };

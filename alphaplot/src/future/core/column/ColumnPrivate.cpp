@@ -67,8 +67,9 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
         static_cast<Double2StringFilter*>(d_output_filter)
             ->setNumDigits(settings.value("DecimalDigits", 14).toInt());
         static_cast<Double2StringFilter*>(d_output_filter)
-            ->setNumericFormat(
-                settings.value("DefaultNumericFormat", 'f').toChar().toAscii());
+            ->setNumericFormat(settings.value("DefaultNumericFormat", 'f')
+                                   .toChar()
+                                   .toLatin1());
       }
 #endif
       connect(static_cast<Double2StringFilter*>(d_output_filter),
@@ -137,8 +138,9 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnDataType type,
         static_cast<Double2StringFilter*>(d_output_filter)
             ->setNumDigits(settings.value("DecimalDigits", 14).toInt());
         static_cast<Double2StringFilter*>(d_output_filter)
-            ->setNumericFormat(
-                settings.value("DefaultNumericFormat", 'f').toChar().toAscii());
+            ->setNumericFormat(settings.value("DefaultNumericFormat", 'f')
+                                   .toChar()
+                                   .toLatin1());
       }
 #endif
       connect(static_cast<Double2StringFilter*>(d_output_filter),
@@ -368,8 +370,9 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
         static_cast<Double2StringFilter*>(new_out_filter)
             ->setNumDigits(settings.value("DecimalDigits", 14).toInt());
         static_cast<Double2StringFilter*>(new_out_filter)
-            ->setNumericFormat(
-                settings.value("DefaultNumericFormat", 'f').toChar().toAscii());
+            ->setNumericFormat(settings.value("DefaultNumericFormat", 'f')
+                                   .toChar()
+                                   .toLatin1());
       }
 #endif
       connect(static_cast<Double2StringFilter*>(new_out_filter),

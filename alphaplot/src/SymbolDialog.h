@@ -5,7 +5,6 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Tool window to select special text characters
-
  ***************************************************************************/
 
 /***************************************************************************
@@ -59,7 +58,7 @@ class SymbolDialog : public QDialog {
    * \param parent parent widget
    * \param fl window flags
    */
-  SymbolDialog(CharSet charSet, QWidget* parent = 0, Qt::WFlags fl = 0);
+  SymbolDialog(CharSet charSet, QWidget* parent = 0, Qt::WindowFlags fl = 0);
   //! Destructor
   ~SymbolDialog();
 
@@ -99,4 +98,5 @@ class SymbolDialog : public QDialog {
   void addLetter(const QString&);
 };
 
-#endif  // SYMBOLDIALOG_H
+#endif // SYMBOLDIALOG_H
+ 

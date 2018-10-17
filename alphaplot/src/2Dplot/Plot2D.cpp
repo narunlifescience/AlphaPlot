@@ -79,7 +79,7 @@ bool Plot2D::saveSvg(const QString &fileName, int width, int height,
 bool Plot2D::savePs(const QString &fileName, int width, int height,
                     QCP::ExportPen exportPen, const QString &psCreator,
                     const QString &psTitle) {
-  bool success = false;
+ /* bool success = false;
 #ifdef QT_NO_PRINTER
   Q_UNUSED(fileName)
   Q_UNUSED(exportPen)
@@ -139,5 +139,6 @@ bool Plot2D::savePs(const QString &fileName, int width, int height,
   }
   setViewport(oldViewport);
 #endif  // QT_NO_PRINTER
-  return success;
+  return success;*/
+  return false;
 }

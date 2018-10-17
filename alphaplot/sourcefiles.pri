@@ -9,52 +9,29 @@ HEADERS  += src/ApplicationWindow.h \
             src/core/Utilities.h \
             src/globals.h\
             src/scripting/ScriptingFunctions.h\
-            src/Graph.h \
             src/3Dplot/Graph3D.h \
             src/3Dplot/TextDialog.h \
             src/Table.h \
-            src/PlotDialog.h \
             src/3Dplot/Plot3DDialog.h \
             src/PlotWizard.h \
-            src/PolynomFitDialog.h \
-            src/ExpDecayDialog.h \
-            src/FitDialog.h \
             src/3Dplot/SurfaceDialog.h \
-            src/ScalePicker.h \
-            src/TitlePicker.h \
-            src/PlotCurve.h \
-            src/QwtErrorPlotCurve.h \
-            src/QwtPieCurve.h \
             src/ErrDialog.h \
-            src/Legend.h \
-            src/ImageMarker.h \
             src/ImageDialog.h \
-            src/fit_gsl.h \
-            src/MultiLayer.h\
             src/LayerDialog.h \
-            src/IntDialog.h \
             src/3Dplot/Bar.h \
             src/3Dplot/Cone3D.h \
             src/ConfigDialog.h \
-            src/QwtBarCurve.h \
-            src/QwtHistogram.h \
-            src/ScaleDraw.h \
             src/Matrix.h \
             src/DataSetDialog.h \
             src/scripting/MyParser.h \
             src/ColorBox.h \
-            src/SymbolBox.h \
             src/PatternBox.h \
-            src/SymbolDialog.h \
-            src/Plot.h \
             src/ColorButton.h \
             src/AssociationsDialog.h \
             src/RenameWindowDialog.h \
             src/MyWidget.h \
-            src/InterpolationDialog.h\
             src/ImportASCIIDialog.h \
             src/ImageExportDialog.h\
-            src/SmoothCurveDialog.h\
             src/FilterDialog.h\
             src/FFTDialog.h\
             src/Note.h\
@@ -63,43 +40,21 @@ HEADERS  += src/ApplicationWindow.h \
             src/scripting/ScriptingEnv.h\
             src/scripting/Script.h\
             src/scripting/ScriptEdit.h\
-            src/FunctionCurve.h\
-            src/Fit.h\
-            src/MultiPeakFit.h\
-            src/ExponentialFit.h\
-            src/PolynomialFit.h\
-            src/NonLinearFit.h\
-            src/PluginFit.h\
-            src/SigmoidalFit.h\
             src/scripting/customevents.h\
             src/scripting/ScriptingLangDialog.h\
             src/TextFormatButtons.h\
             src/TableStatistics.h\
             src/Spectrogram.h\
-            src/ColorMapEditor.h\
-            src/SelectionMoveResizer.h\
             src/Filter.h\
-            src/Differentiation.h\
-            src/Integration.h\
-            src/Interpolation.h\
-            src/SmoothFilter.h\
             src/FFTFilter.h\
             src/FFT.h\
             src/analysis/Convolution.h\
             src/analysis/Correlation.h\
-            src/PlotToolInterface.h\
-            src/ScreenPickerTool.h\
-            src/DataPickerTool.h\
-            src/RangeSelectorTool.h\
             src/TranslateCurveTool.h\
-            src/MultiPeakFitTool.h\
             src/CurveRangeDialog.h\
-            src/LineProfileTool.h\
-            src/PlotEnrichement.h\
             src/OpenProjectDialog.h\
-            src/Grid.h\
-            src/DataPointPicker.h \
             src/TeXTableSettings.h \
+            src/SymbolDialog.h \
             src/TeXTableSettingsWidget.h \
             src/TeXTableExportDialog.h \
             src/scripting/widgets/Console.h \
@@ -124,61 +79,41 @@ HEADERS  += src/ApplicationWindow.h \
             src/2Dplot/widgets/MyTreeWidget.h \
             src/2Dplot/widgets/AddAxisWidget.h \
             src/2Dplot/widgets/ImageExportDialog2D.h \
-            src/2Dplot/LineScatterCommon.h \
+            src/2Dplot/Graph2DCommon.h \
             src/2Dplot/widgets/AddPlot2DDialog.h \
     $$PWD/src/2Dplot/LineItem2D.h \
     $$PWD/src/2Dplot/ErrorBar2D.h \
     $$PWD/src/2Dplot/TextItem2D.h \
-    $$PWD/src/2Dplot/ImageItem2D.h
+    $$PWD/src/2Dplot/ImageItem2D.h \
+    $$PWD/src/2Dplot/Plotcolumns.h \
+    $$PWD/src/analysis/spline.h
 
 ###################### SOURCES ##############################################
 
 SOURCES  += src/ApplicationWindow.cpp \
             src/core/IconLoader.cpp \
             src/core/Utilities.cpp \
-            src/Graph.cpp \
             src/3Dplot/Graph3D.cpp \
             src/3Dplot/TextDialog.cpp \
             src/Table.cpp \
-            src/PlotDialog.cpp \
             src/3Dplot/Plot3DDialog.cpp \
             src/PlotWizard.cpp \
-            src/PolynomFitDialog.cpp \
-            src/ScalePicker.cpp\
-            src/TitlePicker.cpp \
-            src/ExpDecayDialog.cpp \
-            src/FitDialog.cpp \
             src/3Dplot/SurfaceDialog.cpp \
-            src/PlotCurve.cpp \
-            src/QwtErrorPlotCurve.cpp \
-            src/QwtPieCurve.cpp \
             src/ErrDialog.cpp \
-            src/Legend.cpp \
-            src/ImageMarker.cpp \
             src/ImageDialog.cpp \
-            src/MultiLayer.cpp\
             src/LayerDialog.cpp \
-            src/IntDialog.cpp \
             src/3Dplot/Bar.cpp \
             src/3Dplot/Cone3D.cpp \
             src/DataSetDialog.cpp \
             src/ConfigDialog.cpp \
-            src/QwtBarCurve.cpp \
-            src/QwtHistogram.cpp \
             src/Matrix.cpp \
             src/scripting/MyParser.cpp\
             src/ColorBox.cpp \
-            src/SymbolBox.cpp \
             src/PatternBox.cpp \
-            src/SymbolDialog.cpp \
-            src/Plot.cpp \
             src/ColorButton.cpp \
             src/AssociationsDialog.cpp \
             src/RenameWindowDialog.cpp \
             src/MyWidget.cpp\
-            src/InterpolationDialog.cpp\
-            src/fit_gsl.cpp\
-            src/SmoothCurveDialog.cpp\
             src/FilterDialog.cpp\
             src/FFTDialog.cpp\
             src/Note.cpp\
@@ -188,45 +123,23 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/scripting/ScriptEdit.cpp\
             src/ImportASCIIDialog.cpp\
             src/ImageExportDialog.cpp\
-            src/ScaleDraw.cpp\
-            src/FunctionCurve.cpp\
-            src/Fit.cpp\
-            src/MultiPeakFit.cpp\
-            src/ExponentialFit.cpp\
-            src/PolynomialFit.cpp\
-            src/PluginFit.cpp\
-            src/NonLinearFit.cpp\
-            src/SigmoidalFit.cpp\
             src/scripting/ScriptingFunctions.cpp\
             src/scripting/ScriptingEnv.cpp\
             src/scripting/Script.cpp\
             src/scripting/ScriptingLangDialog.cpp\
             src/TableStatistics.cpp\
             src/Spectrogram.cpp\
-            src/ColorMapEditor.cpp\
-            src/SelectionMoveResizer.cpp\
             src/Filter.cpp\
-            src/Differentiation.cpp\
-            src/Integration.cpp\
-            src/Interpolation.cpp\
-            src/SmoothFilter.cpp\
             src/FFTFilter.cpp\
             src/FFT.cpp\
             src/analysis/Convolution.cpp\
             src/analysis/Correlation.cpp\
-            src/ScreenPickerTool.cpp\
-            src/DataPickerTool.cpp\
-            src/RangeSelectorTool.cpp\
             src/TranslateCurveTool.cpp\
-            src/MultiPeakFitTool.cpp\
             src/CurveRangeDialog.cpp\
-            src/LineProfileTool.cpp\
-            src/PlotEnrichement.cpp\
             src/OpenProjectDialog.cpp\
-            src/Grid.cpp\
             src/globals.cpp \
-            src/DataPointPicker.cpp \
             src/TeXTableSettings.cpp \
+            src/SymbolDialog.cpp \
             src/TeXTableSettingsWidget.cpp \
             src/TeXTableExportDialog.cpp \
             src/scripting/widgets/Console.cpp \
@@ -256,7 +169,8 @@ SOURCES  += src/ApplicationWindow.cpp \
     $$PWD/src/2Dplot/LineItem2D.cpp \
     $$PWD/src/2Dplot/ErrorBar2D.cpp \
     $$PWD/src/2Dplot/TextItem2D.cpp \
-    $$PWD/src/2Dplot/ImageItem2D.cpp
+    $$PWD/src/2Dplot/ImageItem2D.cpp \
+    $$PWD/src/analysis/spline.cpp
 
 ###################### FORMS ##############################################
 FORMS        += src/ApplicationWindow.ui \
