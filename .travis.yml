@@ -3,6 +3,9 @@ dist: wheezy
 compiler: gcc
 cache:    apt
 
+sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
+sudo apt-get update -qq
+
 before_install:
   # Install necessary packages (Linux)
   - sudo apt-get install -y libgsl0-dev
