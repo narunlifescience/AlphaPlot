@@ -1,10 +1,11 @@
 # Qt modules
-QT += core gui widgets opengl network svg xml script scripttools printsupport
+QT += core gui
+#QT += datavisualization
+QT += widgets opengl network svg xml script scripttools printsupport
 
 # enable C++11 support
   CONFIG += c++14
-  CONFIG += force_debug_info
- # CONFIG += qt warn_on exceptions opengl thread zlib
+  CONFIG += qt warn_on exceptions opengl thread zlib
 
 
 INCLUDEPATH += alphaplot alphaplot/src ../data/translations

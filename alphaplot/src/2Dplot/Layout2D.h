@@ -1,14 +1,14 @@
 #ifndef LAYOUT2D_H
 #define LAYOUT2D_H
 
-#include "../MyWidget.h"
+#include "MyWidget.h"
 #include "AxisRect2D.h"
 #include "Plot2D.h"
 
 #include <QHBoxLayout>
 #include <QPushButton>
 
-#include "../future/core/column/Column.h"
+#include "future/core/column/Column.h"
 #include "StatBox2D.h"
 class QLabel;
 class Table;
@@ -21,7 +21,7 @@ class Layout2D : public MyWidget {
 
  public:
   Layout2D(const QString &label, QWidget *parent = nullptr,
-           const QString name = QString(), Qt::WindowFlags f = 0);
+           const QString name = QString(), Qt::WindowFlags f = Qt::Widget);
   ~Layout2D();
 
   StatBox2D::BoxWhiskerData generateBoxWhiskerData(Column *data, int from,
@@ -42,8 +42,6 @@ class Layout2D : public MyWidget {
   void generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
                            Table *table, Column *xcol, Column *ycol, int from,
                            int to);
-  void generateSpline2DPlot(Table *table, Column *xData, Column *yData,
-                            int from, int to);
   void generateBar2DPlot(const AxisRect2D::BarType &barType, Table *table,
                          Column *xData, Column *yData, int from, int to);
   void generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
@@ -65,6 +63,7 @@ class Layout2D : public MyWidget {
   LayoutButton2D *addLayoutButton(int num);
   void setBackground(const QColor &background);
   void setGraphTool(const Graph2DCommon::Picker &picker);
+  void print();
 
  private slots:
   AxisRect2D *addAxisRectItem();

@@ -70,7 +70,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/ui/PropertiesDialog.h \
             src/ui/RandomDistributionDialog.h \
             src/About.h \
-            src/2Dplot/Spline2D.h \
             src/2Dplot/Vector2D.h \
             src/2Dplot/DataManager2D.h \
             src/2Dplot/Curve2D.h \
@@ -81,12 +80,12 @@ HEADERS  += src/ApplicationWindow.h \
             src/2Dplot/widgets/ImageExportDialog2D.h \
             src/2Dplot/Graph2DCommon.h \
             src/2Dplot/widgets/AddPlot2DDialog.h \
-    $$PWD/src/2Dplot/LineItem2D.h \
-    $$PWD/src/2Dplot/ErrorBar2D.h \
-    $$PWD/src/2Dplot/TextItem2D.h \
-    $$PWD/src/2Dplot/ImageItem2D.h \
-    $$PWD/src/2Dplot/Plotcolumns.h \
-    $$PWD/src/analysis/spline.h
+            src/2Dplot/LineItem2D.h \
+            src/2Dplot/ErrorBar2D.h \
+            src/2Dplot/TextItem2D.h \
+            src/2Dplot/ImageItem2D.h \
+            src/2Dplot/Plotcolumns.h \
+            src/3Dplot/Layout3D.h
 
 ###################### SOURCES ##############################################
 
@@ -156,7 +155,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ui/RandomDistributionDialog.cpp \
             src/About.cpp \
             src/main.cpp \
-            src/2Dplot/Spline2D.cpp \
             src/2Dplot/Vector2D.cpp \
             src/2Dplot/DataManager2D.cpp \
             src/2Dplot/Curve2D.cpp \
@@ -166,11 +164,11 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/2Dplot/widgets/AddAxisWidget.cpp \
             src/2Dplot/widgets/ImageExportDialog2D.cpp \
             src/2Dplot/widgets/AddPlot2DDialog.cpp \
-    $$PWD/src/2Dplot/LineItem2D.cpp \
-    $$PWD/src/2Dplot/ErrorBar2D.cpp \
-    $$PWD/src/2Dplot/TextItem2D.cpp \
-    $$PWD/src/2Dplot/ImageItem2D.cpp \
-    $$PWD/src/analysis/spline.cpp
+            src/2Dplot/LineItem2D.cpp \
+            src/2Dplot/ErrorBar2D.cpp \
+            src/2Dplot/TextItem2D.cpp \
+            src/2Dplot/ImageItem2D.cpp \
+            src/3Dplot/Layout3D.cpp
 
 ###################### FORMS ##############################################
 FORMS        += src/ApplicationWindow.ui \

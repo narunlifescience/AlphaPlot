@@ -25,7 +25,6 @@
 #include "LineSpecial2D.h"
 #include "Pie2D.h"
 #include "Plot2D.h"
-#include "Spline2D.h"
 #include "StatBox2D.h"
 #include "Vector2D.h"
 
@@ -46,7 +45,6 @@ class AxisRect2D : public QCPAxisRect {
   typedef QVector<ImageItem2D *> ImageItemVec;
   typedef QVector<LineSpecial2D *> LsVec;
   typedef QVector<Curve2D *> CurveVec;
-  typedef QVector<Spline2D *> SplineVec;
   typedef QVector<Vector2D *> VectorVec;
   typedef QVector<Bar2D *> BarVec;
   typedef QVector<StatBox2D *> StatBoxVec;
@@ -73,7 +71,6 @@ class AxisRect2D : public QCPAxisRect {
   ImageItemVec getImageItemVec() const { return imagevec_; }
   LsVec getLsVec() const { return lsvec_; }
   CurveVec getCurveVec() const { return curvevec_; }
-  SplineVec getSplineVec() const { return splinevec_; }
   VectorVec getVectorVec() const { return vectorvec_; }
   BarVec getBarVec() const { return barvec_; }
   StatBoxVec getStatBoxVec() const { return statboxvec_; }
@@ -88,6 +85,7 @@ class AxisRect2D : public QCPAxisRect {
     Scatter2D,
     LineAndScatter2D,
     Area2D,
+    Spline2D,
   };
 
   enum class LineScatterSpecialType {
@@ -109,8 +107,6 @@ class AxisRect2D : public QCPAxisRect {
   Curve2D *addCurve2DPlot(const AxisRect2D::LineScatterType &type, Table *table,
                           Column *xcol, Column *ycol, int from, int to,
                           Axis2D *xAxis, Axis2D *yAxis);
-  Spline2D *addSpline2DPlot(Table *table, Column *xData, Column *yData,
-                            int from, int to, Axis2D *xAxis, Axis2D *yAxis);
   Curve2D *addFunction2DPlot(QVector<double> *xdata, QVector<double> *ydata,
                              Axis2D *xAxis, Axis2D *yAxis, const QString &name);
   Bar2D *addBox2DPlot(const BarType &type, Table *table, Column *xData,
@@ -148,7 +144,6 @@ class AxisRect2D : public QCPAxisRect {
   bool removeImageItem2D(ImageItem2D *imageitem);
   bool removeLineScatter2D(LineSpecial2D *ls);
   bool removeCurve2D(Curve2D *curve);
-  bool removeSpline2D(Spline2D *spline);
   bool removeStatBox2D(StatBox2D *statbox);
   bool removeVector2D(Vector2D *vector);
   bool removeBar2D(Bar2D *bar);
@@ -162,8 +157,7 @@ class AxisRect2D : public QCPAxisRect {
     return addAxis2D(Axis2D::AxisOreantation::Left, Axis2D::TickerType::Pi);
   }
   Axis2D *addBottomAxis2D() {
-    return addAxis2D(Axis2D::AxisOreantation::Bottom,
-                     Axis2D::TickerType::Pi);
+    return addAxis2D(Axis2D::AxisOreantation::Bottom, Axis2D::TickerType::Pi);
   }
   Axis2D *addRightAxis2D() {
     return addAxis2D(Axis2D::AxisOreantation::Right, Axis2D::TickerType::Pi);
@@ -185,7 +179,6 @@ class AxisRect2D : public QCPAxisRect {
   void ImageItem2DCreated(ImageItem2D *);
   void LineScatter2DCreated(LineSpecial2D *);
   void Curve2DCreated(Curve2D *);
-  void Spline2DCreated(Spline2D *);
   void StatBox2DCreated(StatBox2D *);
   void Vector2DCreated(Vector2D *);
   void Bar2DCreated(Bar2D *);
@@ -197,7 +190,6 @@ class AxisRect2D : public QCPAxisRect {
   void ImageItem2DRemoved(AxisRect2D *);
   void LineScatter2DRemoved(AxisRect2D *);
   void Curve2DRemoved(AxisRect2D *);
-  void Spline2DRemoved(AxisRect2D *);
   void StatBox2DRemoved(AxisRect2D *);
   void Vector2DRemoved(AxisRect2D *);
   void Bar2DRemoved(AxisRect2D *);
@@ -222,7 +214,6 @@ class AxisRect2D : public QCPAxisRect {
   ImageItemVec imagevec_;
   LsVec lsvec_;
   CurveVec curvevec_;
-  SplineVec splinevec_;
   VectorVec vectorvec_;
   BarVec barvec_;
   StatBoxVec statboxvec_;

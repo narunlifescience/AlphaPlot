@@ -381,26 +381,6 @@ PropertyEditor::PropertyEditor(QWidget *parent)
       boolManager_->addProperty("Scatter Antialiased");
   cplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
 
-  // Spline properties block
-  splinepropertyxaxisitem_ = enumManager_->addProperty("X Axis");
-  splinepropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
-  splinepropertylinestrokecoloritem_ =
-      colorManager_->addProperty("Line Stroke Color");
-  splinepropertylinestrokethicknessitem_ =
-      doubleManager_->addProperty("Line Stroke Thickness");
-  splinepropertylinestroketypeitem_ =
-      enumManager_->addProperty("Line Stroke Type");
-  enumManager_->setEnumNames(splinepropertylinestroketypeitem_, stroketypelist);
-  enumManager_->setEnumIcons(splinepropertylinestroketypeitem_,
-                             stroketypeiconslist);
-  splinepropertylinefillstatusitem_ =
-      boolManager_->addProperty("Fill Under Area");
-  splinepropertylinefillcoloritem_ =
-      colorManager_->addProperty("Area Fill Color");
-  splinepropertylineantialiaseditem_ =
-      boolManager_->addProperty("Line Antialiased");
-  splinepropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
-
   // Box Properties block
   barplotpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
   barplotpropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
@@ -536,6 +516,9 @@ PropertyEditor::PropertyEditor(QWidget *parent)
                              stroketypelist);
   enumManager_->setEnumIcons(pieplotpropertylinestroketypeitem_,
                              stroketypeiconslist);
+  pieplotpropertymarginpercentitem_ =
+      intManager_->addProperty("Margin Percent");
+  intManager_->setRange(pieplotpropertymarginpercentitem_, 0, 100);
 
   // Axis Properties Major Grid Sub Block
   hgridaxispropertycomboitem_ = enumManager_->addProperty("Horizontal Axis");
@@ -774,16 +757,6 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscatterantialiased_cplot(value);
     curve->layer()->replot();
-  } else if (prop->compare(splinepropertylinefillstatusitem_)) {
-    Spline2D *spline =
-        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
-    spline->setlinefillstatus_splot(value);
-    spline->layer()->replot();
-  } else if (prop->compare(splinepropertylineantialiaseditem_)) {
-    Spline2D *spline =
-        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
-    spline->setlineantialiased_splot(value);
-    spline->layer()->replot();
   } else if (prop->compare(barplotpropertyfillantialiaseditem_)) {
     Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
     bar->setAntialiasedFill(value);
@@ -969,16 +942,6 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscatterstrokecolor_cplot(color);
     curve->layer()->replot();
-  } else if (prop->compare(splinepropertylinestrokecoloritem_)) {
-    Spline2D *spline =
-        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
-    spline->setlinestrokecolor_splot(color);
-    spline->layer()->replot();
-  } else if (prop->compare(splinepropertylinefillcoloritem_)) {
-    Spline2D *spline =
-        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
-    spline->setlinefillcolor_splot(color);
-    spline->layer()->replot();
   } else if (prop->compare(barplotpropertyfillcoloritem_)) {
     Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
     bar->setfillcolor_barplot(color);
@@ -1190,11 +1153,6 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscatterstrokethickness_cplot(value);
     curve->layer()->replot();
-  } else if (prop->compare(splinepropertylinestrokethicknessitem_)) {
-    Spline2D *spline =
-        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
-    spline->setlinestrokethickness_splot(value);
-    spline->layer()->replot();
   } else if (prop->compare(barplotpropertywidthitem_)) {
     Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
     bar->setWidth(value);
@@ -1283,13 +1241,6 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     axisrect->getLegend()->layer()->replot();
-  } else if (prop->compare(splinepropertylegendtextitem_)) {
-    Spline2D *spline =
-        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
-    spline->setlegendtext_splot(Utilities::splitstring(value));
-    AxisRect2D *axisrect =
-        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
-    axisrect->getLegend()->layer()->replot();
   } else if (prop->compare(barplotpropertylegendtextitem_)) {
     Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
     bar->setName(Utilities::splitstring(value));
@@ -1365,6 +1316,10 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->setIconTextPadding(value);
     legend->layer()->replot();
+  } else if (prop->compare(pieplotpropertymarginpercentitem_)) {
+    Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
+    pie->setmarginpercent_pieplot(value);
+    pie->layer()->replot();
   }
 }
 
@@ -1559,29 +1514,6 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscatterstrokestyle_cplot(static_cast<Qt::PenStyle>(value + 1));
     curve->layer()->replot();
-  } else if (prop->compare(splinepropertyxaxisitem_)) {
-    Spline2D *spline =
-        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
-    AxisRect2D *axisrect =
-        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
-    Axis2D *axis = axisrect->getXAxis(value);
-    if (!axis) return;
-    spline->setxaxis_splot(axis);
-    spline->layer()->replot();
-  } else if (prop->compare(splinepropertyyaxisitem_)) {
-    Spline2D *spline =
-        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
-    AxisRect2D *axisrect =
-        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
-    Axis2D *axis = axisrect->getYAxis(value);
-    if (!axis) return;
-    spline->setyaxis_splot(axis);
-    spline->layer()->replot();
-  } else if (prop->compare(splinepropertylinestroketypeitem_)) {
-    Spline2D *spline =
-        getgraph2dobject<Spline2D>(objectbrowser_->currentItem());
-    spline->setlinestrokestyle_splot(static_cast<Qt::PenStyle>(value + 1));
-    spline->layer()->replot();
   } else if (prop->compare(barplotpropertyxaxisitem_)) {
     Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
     AxisRect2D *axisrect =
@@ -1770,13 +1702,6 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
       void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       Curve2DPropertyBlock(curve, axisrect);
-    } break;
-    case MyTreeWidget::PropertyItemType::Spline: {
-      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
-      Spline2D *spline = static_cast<Spline2D *>(ptr1);
-      void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
-      AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
-      Spline2DPropertyBlock(spline, axisrect);
     } break;
     case MyTreeWidget::PropertyItemType::BarGraph: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
@@ -2327,71 +2252,6 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
                            Utilities::joinstring(curve->getlegendtext_cplot()));
 }
 
-void PropertyEditor::Spline2DPropertyBlock(Spline2D *splinegraph,
-                                           AxisRect2D *axisrect) {
-  propertybrowser_->clear();
-
-  propertybrowser_->addProperty(splinepropertyxaxisitem_);
-  propertybrowser_->addProperty(splinepropertyyaxisitem_);
-  propertybrowser_->addProperty(splinepropertylinestrokecoloritem_);
-  propertybrowser_->addProperty(splinepropertylinestrokethicknessitem_);
-  propertybrowser_->addProperty(splinepropertylinestroketypeitem_);
-  propertybrowser_->addProperty(splinepropertylinefillstatusitem_);
-  propertybrowser_->addProperty(splinepropertylinefillcoloritem_);
-  propertybrowser_->addProperty(splinepropertylineantialiaseditem_);
-  propertybrowser_->addProperty(splinepropertylegendtextitem_);
-  {
-    QStringList splineyaxislist;
-    int currentyaxis = 0;
-    int ycount = 0;
-    QList<Axis2D *> yaxes = axisrect->getYAxes2D();
-
-    for (int i = 0; i < yaxes.size(); i++) {
-      splineyaxislist << QString("Y Axis %1").arg(i + 1);
-      if (yaxes.at(i) == splinegraph->getyaxis_splot()) {
-        currentyaxis = ycount;
-      }
-      ycount++;
-    }
-    enumManager_->setEnumNames(splinepropertyyaxisitem_, splineyaxislist);
-    enumManager_->setValue(splinepropertyyaxisitem_, currentyaxis);
-  }
-
-  {
-    QStringList splinexaxislist;
-    int currentxaxis = 0;
-    int xcount = 0;
-    QList<Axis2D *> xaxes = axisrect->getXAxes2D();
-    for (int i = 0; i < xaxes.size(); i++) {
-      splinexaxislist << QString("X Axis %1").arg(i + 1);
-      if (xaxes.at(i) == splinegraph->getxaxis_splot()) {
-        currentxaxis = xcount;
-      }
-      xcount++;
-    }
-
-    enumManager_->setEnumNames(splinepropertyxaxisitem_, splinexaxislist);
-    enumManager_->setValue(splinepropertyxaxisitem_, currentxaxis);
-  }
-
-  colorManager_->setValue(splinepropertylinestrokecoloritem_,
-                          splinegraph->getlinestrokecolor_splot());
-  doubleManager_->setValue(splinepropertylinestrokethicknessitem_,
-                           splinegraph->getlinestrokethickness_splot());
-  enumManager_->setValue(
-      splinepropertylinestroketypeitem_,
-      static_cast<int>(splinegraph->getlinestrokestyle_splot() - 1));
-  boolManager_->setValue(splinepropertylinefillstatusitem_,
-                         splinegraph->getlinefillstatus_splot());
-  colorManager_->setValue(splinepropertylinefillcoloritem_,
-                          splinegraph->getlinefillcolor_splot());
-  boolManager_->setValue(splinepropertylineantialiaseditem_,
-                         splinegraph->getlineantialiased_splot());
-  stringManager_->setValue(
-      splinepropertylegendtextitem_,
-      Utilities::joinstring(splinegraph->getlegendtext_splot()));
-}
-
 void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
   propertybrowser_->clear();
 
@@ -2655,6 +2515,7 @@ void PropertyEditor::Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect) {
   propertybrowser_->addProperty(pieplotpropertylinestrokecoloritem_);
   propertybrowser_->addProperty(pieplotpropertylinestrokethicknessitem_);
   propertybrowser_->addProperty(pieplotpropertylinestroketypeitem_);
+  propertybrowser_->addProperty(pieplotpropertymarginpercentitem_);
 
   colorManager_->setValue(pieplotpropertylinestrokecoloritem_,
                           piegraph->getstrokecolor_pieplot());
@@ -2662,6 +2523,8 @@ void PropertyEditor::Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect) {
                            piegraph->getstrokethickness_pieplot());
   enumManager_->setValue(pieplotpropertylinestroketypeitem_,
                          piegraph->getstrokestyle_pieplot() - 1);
+  intManager_->setValue(pieplotpropertymarginpercentitem_,
+                        piegraph->getmarginpercent_pieplot());
 }
 
 void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
@@ -2841,7 +2704,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         item->addChild(imageitem);
       }
 
-      // LineScatter plot Items
+      // LineSpecial plot Items
       LsVec graphvec = element->getLsVec();
       for (int j = 0; j < graphvec.size(); j++) {
         LineSpecial2D *lsgraph = graphvec.at(j);
@@ -2867,10 +2730,14 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         QString curvegraphtext = QString("Line Scatter %1").arg(j + 1);
         QTreeWidgetItem *curvegraphitem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(curvegraphtext));
-        switch (curvegraph->getplottype_curveplot()) {
+        switch (curvegraph->getplottype_cplot()) {
           case Graph2DCommon::PlotType::Associated:
+            if(curvegraph->getcurvetype_cplot() == Curve2D::Curve2DType::Curve)
             curvegraphitem->setIcon(
                 0, IconLoader::load("graph2d-line", IconLoader::LightDark));
+            else
+              curvegraphitem->setIcon(
+                  0, IconLoader::load("graph2d-spline", IconLoader::LightDark));
             break;
           case Graph2DCommon::PlotType::Function:
             curvegraphitem->setIcon(0, IconLoader::load("graph2d-function-xy",
@@ -2885,25 +2752,6 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         curvegraphitem->setData(0, Qt::UserRole + 2,
                                 QVariant::fromValue<void *>(element));
         item->addChild(curvegraphitem);
-      }
-
-      // Spline plot Items
-      SplineVec splinevec = element->getSplineVec();
-      for (int j = 0; j < splinevec.size(); j++) {
-        Spline2D *spline = splinevec.at(j);
-        QString splinetext = QString("Spline %1").arg(j + 1);
-        QTreeWidgetItem *splineitem = new QTreeWidgetItem(
-            static_cast<QTreeWidget *>(nullptr), QStringList(splinetext));
-        splineitem->setIcon(
-            0, IconLoader::load("graph2d-spline", IconLoader::LightDark));
-        splineitem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::Spline));
-        splineitem->setData(0, Qt::UserRole + 1,
-                            QVariant::fromValue<void *>(spline));
-        splineitem->setData(0, Qt::UserRole + 2,
-                            QVariant::fromValue<void *>(element));
-        item->addChild(splineitem);
       }
 
       // Statbox plot Items
@@ -3028,8 +2876,6 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
           SLOT(objectschanged()));
   connect(axisrect, SIGNAL(Curve2DCreated(Curve2D *)), this,
           SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(Spline2DCreated(Spline2D *)), this,
-          SLOT(objectschanged()));
   connect(axisrect, SIGNAL(StatBox2DCreated(StatBox2D *)), this,
           SLOT(objectschanged()));
   connect(axisrect, SIGNAL(Vector2DCreated(Vector2D *)), this,
@@ -3051,8 +2897,6 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
   connect(axisrect, SIGNAL(LineScatter2DRemoved(AxisRect2D *)), this,
           SLOT(objectschanged()));
   connect(axisrect, SIGNAL(Curve2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(Spline2DRemoved(AxisRect2D *)), this,
           SLOT(objectschanged()));
   connect(axisrect, SIGNAL(StatBox2DRemoved(AxisRect2D *)), this,
           SLOT(objectschanged()));
@@ -3263,23 +3107,6 @@ void PropertyEditor::setObjectPropertyId() {
   cplotpropertyscatterantialiaseditem_->setPropertyId(
       "cplotpropertyscatterantialiaseditem_");
   cplotpropertylegendtextitem_->setPropertyId("cplotpropertylelegendtextitem_");
-  // Spline property block
-  splinepropertyxaxisitem_->setPropertyId("splinepropertyxaxisitem_");
-  splinepropertyyaxisitem_->setPropertyId("splinepropertyyaxisitem_");
-  splinepropertylinestrokecoloritem_->setPropertyId(
-      "splinepropertylinestrokecoloritem_");
-  splinepropertylinestrokethicknessitem_->setPropertyId(
-      "splinepropertylinestrokethicknesitem_");
-  splinepropertylinestroketypeitem_->setPropertyId(
-      "splinepropertylinestroketypeitem_");
-  splinepropertylinefillstatusitem_->setPropertyId(
-      "splinepropertylinefillstatusitem_");
-  splinepropertylinefillcoloritem_->setPropertyId(
-      "splinepropertylinefillcoloritem_");
-  splinepropertylineantialiaseditem_->setPropertyId(
-      "splinepropertylineantialiaseditem_");
-  splinepropertylegendtextitem_->setPropertyId(
-      "splinepropertylelegendtextitem_");
 
   // Box Properties block
   barplotpropertyxaxisitem_->setPropertyId("barplotpropertyxaxisitem_");
@@ -3380,6 +3207,8 @@ void PropertyEditor::setObjectPropertyId() {
       "pieplotpropertylinestrokethicknessitem_");
   pieplotpropertylinestroketypeitem_->setPropertyId(
       "pieplotpropertylinestroketypeitem_");
+  pieplotpropertymarginpercentitem_->setPropertyId(
+      "pieplotpropertymarginpercentitem_");
 
   // Grid Block
   hgridaxispropertycomboitem_->setPropertyId("hgridaxispropertycomboitem_");

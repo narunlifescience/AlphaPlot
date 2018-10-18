@@ -341,24 +341,6 @@ void Layout2D::generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
   plot2dCanvas_->replot();
 }
 
-void Layout2D::generateSpline2DPlot(Table *table, Column *xData, Column *yData,
-                                    int from, int to) {
-  AxisRect2D *element = addAxisRectItem(xData->dataType(), yData->dataType());
-  QList<Axis2D *> xAxis =
-      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
-  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
-  QList<Axis2D *> yAxis =
-      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
-  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
-  addTextToAxisTicker(xData, xAxis.at(0));
-  addTextToAxisTicker(yData, yAxis.at(0));
-  Spline2D *spline = element->addSpline2DPlot(table, xData, yData, from, to,
-                                              xAxis.at(0), yAxis.at(0));
-
-  spline->rescaleAxes();
-  plot2dCanvas_->replot();
-}
-
 AxisRect2D *Layout2D::getSelectedAxisRect(int col, int row) {
   return static_cast<AxisRect2D *>(layout_->element(row, col));
 }
@@ -730,6 +712,8 @@ void Layout2D::setGraphTool(const Graph2DCommon::Picker &picker) {
     axisrect->setGraphTool(picker_);
   }
 }
+
+void Layout2D::print() {}
 
 AxisRect2D *Layout2D::addAxisRectItem() {
   return addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,

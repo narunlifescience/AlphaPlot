@@ -41,8 +41,6 @@ class Bar2D : public QCPBars {
   void setfillcolor_barplot(const QColor &color);
 
   void setBarData(Table *table, Column *xcol, Column *ycol, int from, int to);
-  void setBarWidth(double barwidth);
-  double getBarWidth();
   void setpicker_barplot(const Graph2DCommon::Picker picker);
 
  protected:

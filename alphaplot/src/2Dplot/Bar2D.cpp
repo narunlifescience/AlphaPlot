@@ -23,6 +23,9 @@ Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
   color.setAlpha(100);
   setfillcolor_barplot(color);
   setData(bardata_->data());
+  if (bardata_ && bardata_->data()->size() > 1)
+  setWidth(bardata_->data()->at(1)->mainKey() -
+           bardata_->data()->at(0)->mainKey());
 }
 
 Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
@@ -135,6 +138,8 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
   d_max = gsl_histogram_max_val(h);
 
   gsl_histogram_free(h);
+  if (!cont.isNull() && cont.data()->size() > 1)
+    setWidth(cont.data()->at(1)->mainKey() - cont.data()->at(0)->mainKey());
 
   return;
 }
@@ -206,12 +211,6 @@ void Bar2D::setBarData(Table *table, Column *xcol, Column *ycol, int from,
   bardata_->regenerateDataBlock(table, xcol, ycol, from, to);
   setData(bardata_->data());
 }
-
-void Bar2D::setBarWidth(double barwidth) {
-  setWidth(barwidth / static_cast<double>(data().data()->size()));
-}
-
-double Bar2D::getBarWidth() { return barwidth_; }
 
 void Bar2D::setpicker_barplot(const Graph2DCommon::Picker picker) {
   picker_ = picker;

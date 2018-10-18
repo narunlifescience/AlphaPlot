@@ -248,7 +248,10 @@ void MatrixView::changeEvent(QEvent *event) {
   MyWidget::changeEvent(event);
 }
 
-void MatrixView::resizeEvent(QResizeEvent *) { moveFloatingButton(); }
+void MatrixView::resizeEvent(QResizeEvent *event) {
+  moveFloatingButton();
+  MyWidget::resizeEvent(event);
+}
 
 void MatrixView::retranslateStrings() {
   d_hide_button->setToolTip(tr("Show/hide control tabs"));

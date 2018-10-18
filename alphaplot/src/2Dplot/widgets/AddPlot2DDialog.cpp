@@ -211,7 +211,6 @@ void AddPlot2DDialog::loadplotcontents() {
   QVector<LineSpecial2D *> lslist = axisrect_->getLsVec();
   QVector<Curve2D *> curvelist = axisrect_->getCurveVec();
   QVector<Bar2D *> barlist = axisrect_->getBarVec();
-  QVector<Spline2D *> splinelist = axisrect_->getSplineVec();
   foreach (LineSpecial2D *ls, lslist) {
     DataBlockGraph *graphdata = ls->getdatablock_lsplot();
     QPair<Table *, Column *> columnpair = QPair<Table *, Column *>(
@@ -223,8 +222,8 @@ void AddPlot2DDialog::loadplotcontents() {
                       QString::number(graphdata->getto() + 1) + "]");
   }
   foreach (Curve2D *curve, curvelist) {
-    if (curve->getplottype_curveplot() == Graph2DCommon::PlotType::Associated) {
-      DataBlockCurve *curvedata = curve->getdatablock_curveplot();
+    if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
+      DataBlockCurve *curvedata = curve->getdatablock_cplot();
       QPair<Table *, Column *> columnpair = QPair<Table *, Column *>(
           curvedata->gettable(), curvedata->getycolumn());
       plotted_columns_ << columnpair;
@@ -233,16 +232,6 @@ void AddPlot2DDialog::loadplotcontents() {
                         QString::number(curvedata->getfrom() + 1) + ":" +
                         QString::number(curvedata->getto() + 1) + "]");
     }
-  }
-
-  foreach (Spline2D *spline, splinelist) {
-    QPair<Table *, Column *> columnpair = QPair<Table *, Column *>(
-        spline->gettable_splot(), spline->getycolumn());
-    plotted_columns_ << columnpair;
-    contents->addItem(columnpair.first->name() + "_" +
-                      columnpair.second->name() + "[" +
-                      QString::number(spline->getfrom_splot() + 1) + ":" +
-                      QString::number(spline->getto_splot() + 1) + "]");
   }
 
   foreach (Bar2D *bar, barlist) {
@@ -312,9 +301,10 @@ void AddPlot2DDialog::addCurves() {
         ls->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
       } break;
       case 4: {
-        Spline2D *spline = axisrect_->addSpline2DPlot(
-            pair.first, pair.first->column(pair.first->firstXCol()),
-            pair.second, 0, pair.second->rowCount() - 1, axisrect_->getXAxis(0),
+        Curve2D *spline = axisrect_->addCurve2DPlot(
+            AxisRect2D::LineScatterType::Spline2D, pair.first,
+            pair.first->column(pair.first->firstXCol()), pair.second, 0,
+            pair.second->rowCount() - 1, axisrect_->getXAxis(0),
             axisrect_->getYAxis(0));
         spline->parentPlot()->replot(
             QCustomPlot::RefreshPriority::rpQueuedRefresh);

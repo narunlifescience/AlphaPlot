@@ -177,8 +177,8 @@ void ErrDialog::plotNames() {
                        QString::number(graphdata->getto() + 1) + "]");
   }
   foreach (Curve2D *curve, curvelist) {
-    if (curve->getplottype_curveplot() == Graph2DCommon::PlotType::Associated) {
-      DataBlockCurve *curvedata = curve->getdatablock_curveplot();
+    if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
+      DataBlockCurve *curvedata = curve->getdatablock_cplot();
       PlotData::AssociatedData plotdata;
       plotdata.table = curvedata->gettable();
       plotdata.xcol = curvedata->getxcolumn();

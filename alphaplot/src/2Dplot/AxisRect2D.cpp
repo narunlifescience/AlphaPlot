@@ -90,11 +90,6 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis) {
       status = false;
   }
 
-  foreach (Spline2D *spline, splinevec_) {
-    if (spline->getxaxis_splot() == axis || spline->getyaxis_splot() == axis)
-      status = false;
-  }
-
   foreach (StatBox2D *statbox, statboxvec_) {
     if (statbox->getxaxis_statbox() == axis ||
         statbox->getyaxis_statbox() == axis)
@@ -280,7 +275,21 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
                                     Table *table, Column *xcol, Column *ycol,
                                     int from, int to, Axis2D *xAxis,
                                     Axis2D *yAxis) {
-  Curve2D *curve = new Curve2D(table, xcol, ycol, from, to, xAxis, yAxis);
+  Curve2D *curve = nullptr;
+  switch (type) {
+    case LineScatterType::Line2D:
+    case LineScatterType::Scatter2D:
+    case LineScatterType::LineAndScatter2D:
+    case LineScatterType::Area2D:
+      curve = new Curve2D(Curve2D::Curve2DType::Curve, table, xcol, ycol, from,
+                          to, xAxis, yAxis);
+      break;
+    case LineScatterType::Spline2D:
+      curve = new Curve2D(Curve2D::Curve2DType::Spline, table, xcol, ycol, from,
+                          to, xAxis, yAxis);
+      break;
+  }
+
   switch (type) {
     case LineScatterType::Line2D:
       curve->setlinetype_cplot(1);
@@ -302,6 +311,10 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
       curve->setscattershape_cplot(Graph2DCommon::ScatterStyle::None);
       curve->setlinefillstatus_cplot(false);
       break;
+    case LineScatterType::Spline2D:
+      curve->setscattershape_cplot(Graph2DCommon::ScatterStyle::Disc);
+      curve->setlinefillstatus_cplot(false);
+      break;
   }
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
@@ -313,24 +326,6 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
 
   emit Curve2DCreated(curve);
   return curve;
-}
-
-Spline2D *AxisRect2D::addSpline2DPlot(Table *table, Column *xData,
-                                      Column *yData, int from, int to,
-                                      Axis2D *xAxis, Axis2D *yAxis) {
-  Spline2D *spline = new Spline2D(table, xData, yData, from, to, xAxis, yAxis);
-  spline->setlinefillcolor_splot(
-      Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
-  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, spline);
-  axisRectLegend_->addItem(legendItem);
-  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
-  spline->setName(table->name() + "_" + xData->name() + "_" + yData->name());
-  splinevec_.append(spline);
-  connect(spline, SIGNAL(showtooltip(QPointF, double, double)), this,
-          SIGNAL(showtooltip(QPointF, double, double)));
-
-  emit Spline2DCreated(spline);
-  return spline;
 }
 
 Curve2D *AxisRect2D::addFunction2DPlot(QVector<double> *xdata,
@@ -365,7 +360,6 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
       break;
   }
 
-  bar->setBarData(table, xData, yData, from, to);
   bar->setWidth(1);
   bar->setAntialiased(false);
   bar->setAntialiasedFill(false);
@@ -427,8 +421,6 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
       bar = new Bar2D(table, yData, from, to, xAxis, yAxis);
       break;
   }
-
-  bar->setWidth(1);
   bar->setAntialiased(false);
   bar->setAntialiasedFill(false);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, bar);
@@ -445,7 +437,7 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
 
 Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
   Pie2D *pie = new Pie2D(this);
-  pie->setGraphData(xData, from, to);
+  pie->setGraphData(table, xData, from, to);
   getLegend()->setVisible(false);
   // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   pievec_.append(pie);
@@ -594,18 +586,6 @@ bool AxisRect2D::removeLineScatter2D(LineSpecial2D *ls) {
   return result;
 }
 
-bool AxisRect2D::removeSpline2D(Spline2D *spline) {
-  for (int i = 0; i < splinevec_.size(); i++) {
-    if (splinevec_.at(i) == spline) {
-      splinevec_.remove(i);
-    }
-  }
-  bool result = false;
-  result = plot2d_->removePlottable(spline);
-  emit Spline2DRemoved(this);
-  return result;
-}
-
 bool AxisRect2D::removeStatBox2D(StatBox2D *statbox) {
   for (int i = 0; i < statboxvec_.size(); i++) {
     if (statboxvec_.at(i) == statbox) {
@@ -669,7 +649,6 @@ bool AxisRect2D::removePie2D(Pie2D *pie) {
 void AxisRect2D::setGraphTool(const Graph2DCommon::Picker &picker) {
   foreach (LineSpecial2D *ls, lsvec_) { ls->setpicker_lsplot(picker); }
   foreach (Curve2D *curve, curvevec_) { curve->setpicker_cplot(picker); }
-  foreach (Spline2D *spline, splinevec_) { spline->setpicker_splot(picker); }
   foreach (Bar2D *bar, barvec_) { bar->setpicker_barplot(picker); }
   foreach (StatBox2D *statbox, statboxvec_) {
     statbox->setpicker_statbox(picker);

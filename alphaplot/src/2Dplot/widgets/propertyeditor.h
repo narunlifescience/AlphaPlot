@@ -18,7 +18,6 @@ class AxisRect2D;
 class Grid2D;
 class LineSpecial2D;
 class Curve2D;
-class Spline2D;
 class Vector2D;
 class Bar2D;
 // Property
@@ -72,7 +71,6 @@ class PropertyEditor : public QDockWidget {
   void ImageItem2DPropertyBlock(ImageItem2D *imageitem);
   void LineScatter2DPropertyBlock(LineSpecial2D *lsgraph, AxisRect2D *axisrect);
   void Curve2DPropertyBlock(Curve2D *curve, AxisRect2D *axisrect);
-  void Spline2DPropertyBlock(Spline2D *splinegraph, AxisRect2D *axisrect);
   void Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect);
   void StatBox2DPropertyBlock(StatBox2D *statbox, AxisRect2D *axisrect);
   void Vector2DPropertyBlock(Vector2D *vectorgraph, AxisRect2D *axisrect);
@@ -94,7 +92,6 @@ class PropertyEditor : public QDockWidget {
   typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
   typedef QVector<LineSpecial2D *> LsVec;
   typedef QVector<Curve2D *> CurveVec;
-  typedef QVector<Spline2D *> SplineVec;
   typedef QVector<Vector2D *> VectorVec;
   typedef QVector<Bar2D *> BarVec;
 
@@ -253,17 +250,6 @@ class PropertyEditor : public QDockWidget {
   QtProperty *cplotpropertyscatterantialiaseditem_;
   QtProperty *cplotpropertylegendtextitem_;
 
-  // Spline Properties block
-  QtProperty *splinepropertyxaxisitem_;
-  QtProperty *splinepropertyyaxisitem_;
-  QtProperty *splinepropertylinestrokecoloritem_;
-  QtProperty *splinepropertylinestrokethicknessitem_;
-  QtProperty *splinepropertylinestroketypeitem_;
-  QtProperty *splinepropertylinefillstatusitem_;
-  QtProperty *splinepropertylinefillcoloritem_;
-  QtProperty *splinepropertylineantialiaseditem_;
-  QtProperty *splinepropertylegendtextitem_;
-
   // Box Properties block
   QtProperty *barplotpropertyxaxisitem_;
   QtProperty *barplotpropertyyaxisitem_;
@@ -322,6 +308,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *pieplotpropertylinestrokecoloritem_;
   QtProperty *pieplotpropertylinestrokethicknessitem_;
   QtProperty *pieplotpropertylinestroketypeitem_;
+  QtProperty *pieplotpropertymarginpercentitem_;
 
   // Horizontal Major Grid Sub Block
   QtProperty *hgridaxispropertycomboitem_;

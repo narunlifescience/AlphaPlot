@@ -22,11 +22,10 @@ class MyTreeWidget : public QTreeWidget {
     ImageItem = 6,
     LSGraph = 7,
     Curve = 8,
-    Spline = 9,
-    StatBox = 10,
-    Vector = 11,
-    BarGraph = 12,
-    PieGraph = 13,
+    StatBox = 9,
+    Vector = 10,
+    BarGraph = 11,
+    PieGraph = 12,
   };
   MyTreeWidget(QWidget *parent = nullptr);
   ~MyTreeWidget() {}
@@ -40,7 +39,6 @@ class MyTreeWidget : public QTreeWidget {
   void removeaxis();
   void removels();
   void removecurve();
-  void removespline();
   void removebar();
   // void removevector();
   // void removepie();
@@ -52,7 +50,6 @@ class MyTreeWidget : public QTreeWidget {
   QAction *addaxis_;
   QAction *removeaxis_;
   QAction *removels_;
-  QAction *removespline_;
   QAction *removecurve_;
   QAction *removebar_;
   QAction *removevector_;

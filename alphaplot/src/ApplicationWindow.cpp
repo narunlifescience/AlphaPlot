@@ -85,6 +85,8 @@
 #include "2Dplot/widgets/propertyeditor.h"
 #include "ui/PropertiesDialog.h"
 
+#include "3Dplot/Layout3D.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -184,7 +186,6 @@ ApplicationWindow::ApplicationWindow()
       actionShowResultsLog(new QAction(this)),
       actionShowConsole(new QAction(this)) {
   ui_->setupUi(this);
-
   // Initialize scripting environment.
   attachQtScript();
 
@@ -250,9 +251,8 @@ ApplicationWindow::ApplicationWindow()
   ui_->folderView->setContextMenuPolicy(Qt::CustomContextMenu);
 
   // Explorer Window folder view connections
-  connect(ui_->folderView,
-          SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-          this, SLOT(folderItemChanged(QTreeWidgetItem *)));
+  connect(ui_->folderView, &FolderTreeWidget::currentItemChanged, this,
+          &ApplicationWindow::folderItemChanged);
   connect(ui_->folderView, SIGNAL(customContextMenuRequested(const QPoint &)),
           this, SLOT(showFolderPopupMenu(const QPoint &)));
   connect(ui_->folderView, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
@@ -2123,7 +2123,6 @@ Graph3D *ApplicationWindow::newPlot3D(const QString &caption,
 
 Graph3D *ApplicationWindow::dataPlot3D(Table *table, const QString &colName) {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
   QString label = generateUniqueName(tr("Graph"));
   Graph3D *plot = new Graph3D("", d_workspace, 0);
   plot->setAttribute(Qt::WA_DeleteOnClose);
@@ -2371,6 +2370,38 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
           SLOT(populateObjectBrowser(MyWidget *)));
 
   return layout2d;
+}
+
+Layout3D *ApplicationWindow::newGraph3D(const QString &caption) {
+  Layout3D *layout3d = new Layout3D("", d_workspace, 0);
+  layout3d->setAttribute(Qt::WA_DeleteOnClose);
+  QString label = caption;
+  while (alreadyUsedName(label)) label = generateUniqueName(tr("Graph"));
+
+  current_folder->addWindow(layout3d);
+  layout3d->setFolder(current_folder);
+
+  d_workspace->addSubWindow(layout3d);
+
+  layout3d->setWindowTitle(label);
+  layout3d->setName(label);
+  layout3d->setWindowIcon(
+      IconLoader::load("edit-graph3d", IconLoader::LightDark));
+  addListViewItem(layout3d);
+
+  layout3d->show();
+  layout3d->setFocus();
+  // window connections
+  connect(layout3d, &MyWidget::closedWindow, this,
+          &ApplicationWindow::closeWindow);
+  connect(layout3d, &MyWidget::hiddenWindow, this,
+          &ApplicationWindow::hideWindow);
+  connect(layout3d, &MyWidget::statusChanged, this,
+          &ApplicationWindow::updateWindowStatus);
+  connect(layout3d, &MyWidget::showTitleBarMenu, this,
+          &ApplicationWindow::showWindowTitleBarMenu);
+
+  return layout3d;
 }
 
 void ApplicationWindow::customizeTables(
@@ -5053,7 +5084,6 @@ void ApplicationWindow::exportAllTables(const QString &sep, bool colNames,
 
             case 2:
               return;
-              break;
           }
         } else
           success = t->exportASCII(fileName, sep, colNames, expSelection);
@@ -6297,7 +6327,6 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
 }
 
 void ApplicationWindow::about() {
-  qDebug() << "about";
   std::unique_ptr<About> about(new About(this));
   about->exec();
 }
@@ -9183,6 +9212,9 @@ void ApplicationWindow::addListViewItem(MyWidget *widget) {
   } else if (isActiveSubWindow(widget, SubWindowType::Plot2DSubWindow)) {
     it->setIcon(0, IconLoader::load("edit-graph", IconLoader::LightDark));
     it->setText(1, tr("2D Graph"));
+  } else if (isActiveSubWindow(widget, SubWindowType::SubwindowPlot3D)) {
+    it->setIcon(0, IconLoader::load("edit-graph3d", IconLoader::LightDark));
+    it->setText(1, tr("3D Graph"));
   } else if (isActiveSubWindow(widget, SubWindowType::Plot3DSubWindow)) {
     it->setIcon(0, IconLoader::load("edit-graph3d", IconLoader::LightDark));
     it->setText(1, tr("3D Graph"));
@@ -9906,6 +9938,15 @@ void ApplicationWindow::selectPlotType(int value) {
     ycol = table->column(table->colIndex(list.at(1)));
   }
 
+  if (type == Graph::Spline) {
+    if (to - from < 2) {
+      QMessageBox::warning(
+          this, tr("Error"),
+          tr("Please select three or more rows for Spline plotting!"));
+      return;
+    }
+  }
+
   Layout2D *layout = newGraph2D();
   switch (type) {
     case Graph::Scatter:
@@ -9920,13 +9961,14 @@ void ApplicationWindow::selectPlotType(int value) {
       layout->generateCurve2DPlot(AxisRect2D::LineScatterType::LineAndScatter2D,
                                   table, xcol, ycol, from, to);
       return;
+    case Graph::Spline:
+      layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Spline2D, table,
+                                  xcol, ycol, from, to);
+      return;
     case Graph::VerticalDropLines:
       layout->generateLineSpecial2DPlot(
           AxisRect2D::LineScatterSpecialType::VerticalDropLine2D, table, xcol,
           ycol, from, to);
-      return;
-    case Graph::Spline:
-      layout->generateSpline2DPlot(table, xcol, ycol, from, to);
       return;
     case Graph::VerticalSteps:
       layout->generateLineSpecial2DPlot(
@@ -10084,6 +10126,11 @@ bool ApplicationWindow::isActiveSubwindow(
             ? result = true
             : result = false;
         break;
+      case SubwindowPlot3D:
+        (qobject_cast<Layout3D *>(d_workspace->activeSubWindow()))
+            ? result = true
+            : result = false;
+        break;
       case Plot3DSubWindow:
         (qobject_cast<Graph3D *>(d_workspace->activeSubWindow()))
             ? result = true
@@ -10111,6 +10158,9 @@ bool ApplicationWindow::isActiveSubWindow(
         break;
       case Plot2DSubWindow:
         (qobject_cast<Layout2D *>(subwindow)) ? result = true : result = false;
+        break;
+      case SubwindowPlot3D:
+        (qobject_cast<Layout3D *>(subwindow)) ? result = true : result = false;
         break;
       case Plot3DSubWindow:
         (qobject_cast<Graph3D *>(subwindow)) ? result = true : result = false;

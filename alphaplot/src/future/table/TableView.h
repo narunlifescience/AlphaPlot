@@ -37,7 +37,6 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QPushButton>
 #include <QScrollArea>
 #include <QSize>
 #include <QSpinBox>
@@ -68,7 +67,7 @@ class TableViewWidget : public QTableView {
 
  public:
   //! Constructor
-  TableViewWidget(QWidget *parent = 0) : QTableView(parent) {}
+  TableViewWidget(QWidget *parent = nullptr) : QTableView(parent) {}
 
  protected:
   //! Overloaded function (cf. Qt documentation)
@@ -93,8 +92,8 @@ class TableView : public MyWidget {
 #ifndef LEGACY_CODE_0_2_x
   TableView(future::Table *table);
 #else
-  TableView(const QString &label, QWidget *parent = 0, const QString name = 0,
-            Qt::WindowFlags f = 0);
+  TableView(const QString &label, QWidget *parent = nullptr,
+            const QString name = 0, Qt::WindowFlags f = 0);
   void setTable(future::Table *table);
 #endif
   //! Destructor
@@ -230,7 +229,7 @@ class TableView : public MyWidget {
   TableModel *d_model;
 
   virtual void changeEvent(QEvent *event);
-  virtual void resizeEvent(QResizeEvent *);
+  virtual void resizeEvent(QResizeEvent *event);
   void retranslateStrings();
   void setColumnForControlTabs(int col);
 

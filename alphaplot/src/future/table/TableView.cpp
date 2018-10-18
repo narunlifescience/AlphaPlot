@@ -57,6 +57,7 @@
 #include <QPainter>
 #include <QPoint>
 #include <QRect>
+#include <QResizeEvent>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSettings>
@@ -94,7 +95,7 @@ void TableView::setTable(future::Table *table) {
 
 void TableView::init() {
   d_main_widget = new QWidget(this);
-  d_main_widget->setContentsMargins(0,0,0,0);
+  d_main_widget->setContentsMargins(0, 0, 0, 0);
   d_main_layout = new QHBoxLayout(d_main_widget);
   d_main_layout->setSpacing(0);
   d_main_layout->setContentsMargins(0, 0, 0, 0);
@@ -234,10 +235,11 @@ void TableView::init() {
 
   QItemSelectionModel *sel_model = d_view_widget->selectionModel();
 
-  connect(sel_model, SIGNAL(currentColumnChanged(const QModelIndex &,
-                                                 const QModelIndex &)),
-          this,
-          SLOT(currentColumnChanged(const QModelIndex &, const QModelIndex &)));
+  connect(
+      sel_model,
+      SIGNAL(currentColumnChanged(const QModelIndex &, const QModelIndex &)),
+      this,
+      SLOT(currentColumnChanged(const QModelIndex &, const QModelIndex &)));
   connect(
       sel_model,
       SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -392,7 +394,7 @@ void TableView::setColumnForControlTabs(int col) {
   ui.name_edit->setText(col_ptr->name());
   ui.comment_box->document()->setPlainText(col_ptr->comment());
   ui.type_box->setCurrentIndex(
-      ui.type_box->findData((int)col_ptr->columnMode()));
+      ui.type_box->findData(static_cast<int>(col_ptr->columnMode())));
   switch (col_ptr->columnMode()) {
     case AlphaPlot::Numeric: {
       Double2StringFilter *filter =
@@ -667,8 +669,8 @@ void TableView::applyType() {
   int type_index = ui.type_box->currentIndex();
   if (format_index < 0 && type_index < 0) return;
 
-  AlphaPlot::ColumnMode new_mode =
-      (AlphaPlot::ColumnMode)ui.type_box->itemData(type_index).toInt();
+  AlphaPlot::ColumnMode new_mode = static_cast<AlphaPlot::ColumnMode>(
+      ui.type_box->itemData(type_index).toInt());
   QList<Column *> list = selectedColumns();
   switch (new_mode) {
     case AlphaPlot::Numeric:
@@ -696,14 +698,15 @@ void TableView::applyType() {
         col->beginMacro(QObject::tr("%1: change column type").arg(col->name()));
         QString format = ui.formatLineEdit->text();
         AlphaPlot::ColumnMode old_mode = col->columnMode();
-        AbstractFilter *converter = 0;
+        AbstractFilter *converter = nullptr;
         switch (old_mode) {
           case AlphaPlot::Numeric:
             if (ui.date_time_interval->isVisible()) {
               Double2DateTimeFilter::UnitInterval unit =
-                  (Double2DateTimeFilter::UnitInterval)ui.date_time_interval
-                      ->itemData(ui.date_time_interval->currentIndex())
-                      .toInt();
+                  static_cast<Double2DateTimeFilter::UnitInterval>(
+                      ui.date_time_interval
+                          ->itemData(ui.date_time_interval->currentIndex())
+                          .toInt());
               QDateTime date_time_0 = ui.date_time_0->dateTime();
               if (!date_time_0.date().isValid())
                 date_time_0.setDate(QDate(-1, 12, 31));
@@ -972,7 +975,10 @@ void TableView::toggleControlTabBar() {
 }
 
 // Resize event triggers floating button move.
-void TableView::resizeEvent(QResizeEvent *) { moveFloatingButton(); }
+void TableView::resizeEvent(QResizeEvent *event) {
+  moveFloatingButton();
+  MyWidget::resizeEvent(event);
+}
 
 // Move the floating show hide button.
 void TableView::moveFloatingButton() const {
@@ -985,7 +991,7 @@ void TableView::moveFloatingButton() const {
   if (!d_control_tabs->isHidden()) {
     d_hide_button->move(
         widget()->width() - (d_control_tabs->width() + d_hide_button->width() +
-                         verticalScrollWidth),
+                             verticalScrollWidth),
         d_control_tabs->pos().y() + 60);
   } else {
     d_hide_button->move(

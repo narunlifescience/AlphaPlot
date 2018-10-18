@@ -17,7 +17,6 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       addaxis_(new QAction("Add", this)),
       removeaxis_(new QAction("Remove", this)),
       removels_(new QAction("Remove", this)),
-      removespline_(new QAction("Remove", this)),
       removecurve_(new QAction("Remove", this)),
       removebar_(new QAction("Remove", this)),
       removevector_(new QAction("Remove", this)),
@@ -29,7 +28,6 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   addaxis_->setText("Add Axis");
   removeaxis_->setText("Remove");
   removels_->setText("Remove");
-  removespline_->setText("Remove");
   removecurve_->setText("Remove");
   removebar_->setText("Remove");
   removevector_->setText("Remove");
@@ -42,8 +40,6 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       IconLoader::load("graph2d-axis-left", IconLoader::LightDark));
   removeaxis_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removels_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
-  removespline_->setIcon(
-      IconLoader::load("clear-loginfo", IconLoader::General));
   removecurve_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removebar_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removevector_->setIcon(
@@ -61,7 +57,6 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   connect(addaxis_, SIGNAL(triggered(bool)), this, SLOT(addaxis()));
   connect(removeaxis_, SIGNAL(triggered(bool)), this, SLOT(removeaxis()));
   connect(removels_, SIGNAL(triggered(bool)), this, SLOT(removels()));
-  connect(removespline_, SIGNAL(triggered(bool)), this, SLOT(removespline()));
   connect(removecurve_, SIGNAL(triggered(bool)), this, SLOT(removecurve()));
   connect(removebar_, SIGNAL(triggered(bool)), this, SLOT(removebar()));
   // connect(removevector_, SIGNAL(triggered(bool)), this,
@@ -111,11 +106,6 @@ void MyTreeWidget::CurrentItemChanged(QTreeWidgetItem *current,
         currentaxisrect = static_cast<AxisRect2D *>(ptr);
       } break;
       case MyTreeWidget::PropertyItemType::Curve: {
-        void *ptr =
-            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
-        currentaxisrect = static_cast<AxisRect2D *>(ptr);
-      } break;
-      case MyTreeWidget::PropertyItemType::Spline: {
         void *ptr =
             current->parent()->data(0, Qt::UserRole + 1).value<void *>();
         currentaxisrect = static_cast<AxisRect2D *>(ptr);
@@ -177,12 +167,6 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       menu.addAction("Analyze");
       menu.addAction(removels_);
       removels_->setData(item->data(0, Qt::UserRole + 1));
-      break;
-    case PropertyItemType::Spline:
-      menu.addAction("Edit Data");
-      menu.addAction("Analyze");
-      menu.addAction(removespline_);
-      removespline_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Curve:
       menu.addAction("Edit Data");
@@ -281,20 +265,6 @@ void MyTreeWidget::removecurve() {
   QCustomPlot *customplot = curve->parentPlot();
   bool result =
       curve->getxaxis_cplot()->getaxisrect_axis()->removeCurve2D(curve);
-  if (!result) {
-    qDebug() << "unable to remove line scatter 2d plot";
-  }
-  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
-}
-
-void MyTreeWidget::removespline() {
-  QAction *action = qobject_cast<QAction *>(sender());
-  if (!action) return;
-  void *ptr = action->data().value<void *>();
-  Spline2D *spline = static_cast<Spline2D *>(ptr);
-  QCustomPlot *customplot = spline->parentPlot();
-  bool result =
-      spline->getxaxis_splot()->getaxisrect_axis()->removeSpline2D(spline);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
   }

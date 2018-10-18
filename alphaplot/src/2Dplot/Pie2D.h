@@ -6,6 +6,7 @@
 #include "Axis2D.h"
 
 class Column;
+class Table;
 class LegendItem2D;
 
 class Pie2D : public QCPAbstractItem {
@@ -14,7 +15,7 @@ class Pie2D : public QCPAbstractItem {
   Pie2D(AxisRect2D *axisrect);
   ~Pie2D();
 
-  void setGraphData(Column *xData, int from, int to);
+  void setGraphData(Table *table, Column *xData, int from, int to);
   // reimplemented virtual methods:
   double selectTest(const QPointF &pos, bool onlySelectable,
                     QVariant *details = nullptr) const;
@@ -22,18 +23,15 @@ class Pie2D : public QCPAbstractItem {
   Qt::PenStyle getstrokestyle_pieplot() const;
   QColor getstrokecolor_pieplot() const;
   double getstrokethickness_pieplot() const;
+  int getmarginpercent_pieplot() const;
 
   void setstrokestyle_pieplot(const Qt::PenStyle &style);
   void setstrokecolor_pieplot(const QColor &color);
   void setstrokethickness_pieplot(const double value);
-
-  QCPItemPosition *const topLeft;
-  QCPItemPosition *const bottomRight;
+  void setmarginpercent_pieplot(const int value);
 
  protected:
-  // void draw(QCPPainter *painter);
   void draw(QCPPainter *painter);
-  QPointF anchorPixelPosition(int anchorId);
 
  private:
   AxisRect2D *axisrect_;
@@ -41,6 +39,7 @@ class Pie2D : public QCPAbstractItem {
   QVector<QColor> *pieColors_;
   QPen mPen;
   QBrush mBrush;
+  int marginpercent_;
 };
 
 #endif  // PIE2D_H

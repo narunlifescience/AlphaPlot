@@ -203,7 +203,7 @@ class MatrixView : public MyWidget {
   MatrixModel* d_model;
 
   virtual void changeEvent(QEvent* event);
-  virtual void resizeEvent(QResizeEvent*);
+  virtual void resizeEvent(QResizeEvent*event);
   void retranslateStrings();
 
   bool eventFilter(QObject* watched, QEvent* event);

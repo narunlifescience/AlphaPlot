@@ -13,24 +13,17 @@ static QList<PlotData::AssociatedData *> plottedcolumns(AxisRect2D *axisrect) {
   QVector<LineSpecial2D *> lslist = axisrect->getLsVec();
   QVector<Curve2D *> curvelist = axisrect->getCurveVec();
   QVector<Bar2D *> barlist = axisrect->getBarVec();
-  QVector<Spline2D *> splinelist = axisrect->getSplineVec();
   foreach (LineSpecial2D *ls, lslist) {
     PlotData::AssociatedData *data =
         ls->getdatablock_lsplot()->getassociateddata();
     associateddata << data;
   }
   foreach (Curve2D *curve, curvelist) {
-    if (curve->getplottype_curveplot() == Graph2DCommon::PlotType::Associated) {
+    if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
       PlotData::AssociatedData *data =
-          curve->getdatablock_curveplot()->getassociateddata();
+          curve->getdatablock_cplot()->getassociateddata();
       associateddata << data;
     }
-  }
-
-  foreach (Spline2D *spline, splinelist) {
-    PlotData::AssociatedData *data =
-        spline->getdatablock_splot()->getassociateddata();
-    associateddata << data;
   }
 
   foreach (Bar2D *bar, barlist) {

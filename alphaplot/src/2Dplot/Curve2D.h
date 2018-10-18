@@ -12,10 +12,11 @@ class DataBlockCurve;
 class Curve2D : public QCPCurve {
   Q_OBJECT
  public:
-  explicit Curve2D(Table *table, Column *xcol, Column *ycol, int from, int to,
-                   Axis2D *xAxis, Axis2D *yAxis);
-  explicit Curve2D(QVector<double> *xdata, QVector<double> *ydata,
-                   Axis2D *xAxis, Axis2D *yAxis);
+  enum class Curve2DType { Curve, Spline };
+  Curve2D(Curve2DType curve2dtype, Table *table, Column *xcol, Column *ycol,
+          int from, int to, Axis2D *xAxis, Axis2D *yAxis);
+  Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
+          Axis2D *yAxis);
   ~Curve2D();
 
   void setGraphData(QVector<double> *xdata, QVector<double> *ydata);
@@ -39,8 +40,9 @@ class Curve2D : public QCPCurve {
   QString getlegendtext_cplot() const;
   Axis2D *getxaxis_cplot() const;
   Axis2D *getyaxis_cplot() const;
-  Graph2DCommon::PlotType getplottype_curveplot() const { return type_; }
-  DataBlockCurve *getdatablock_curveplot() const { return curvedata_; }
+  Graph2DCommon::PlotType getplottype_cplot() const { return type_; }
+  Curve2D::Curve2DType getcurvetype_cplot() const { return curve2dtype_; }
+  DataBlockCurve *getdatablock_cplot() const { return curvedata_; }
   // Setters
   void setxaxis_cplot(Axis2D *axis);
   void setyaxis_cplot(Axis2D *axis);
@@ -61,17 +63,22 @@ class Curve2D : public QCPCurve {
   void setlegendtext_cplot(const QString &text);
   void setpicker_cplot(const Graph2DCommon::Picker picker);
 
-protected:
-    void mousePressEvent(QMouseEvent *event, const QVariant &details);
+ protected:
+  void draw(QCPPainter *painter);
+  void mousePressEvent(QMouseEvent *event, const QVariant &details);
 
-private:
+ private:
+  void drawSpline(QCPPainter *painter);
+  void loadSplineData();
+  QVector<QPointF> calculateControlPoints(const QVector<QPointF> &points);
+  QVector<qreal> firstControlPoints(const QVector<qreal> &vector);
   void datapicker(QMouseEvent *event, const QVariant &details);
   void graphpicker(QMouseEvent *event, const QVariant &details);
   void movepicker(QMouseEvent *event, const QVariant &details);
   void removepicker(QMouseEvent *event, const QVariant &details);
 
-signals:
-    void showtooltip(QPointF position, double xval, double yval);
+ signals:
+  void showtooltip(QPointF position, double xval, double yval);
 
  private:
   Axis2D *xAxis_;
@@ -80,7 +87,12 @@ signals:
   DataBlockCurve *curvedata_;
   QSharedPointer<QCPCurveDataContainer> functionData_;
   Graph2DCommon::PlotType type_;
+  Curve2DType curve2dtype_;
   Graph2DCommon::Picker picker_;
+  QPen splinePen_;
+  QBrush splineBrush_;
+  QVector<QPointF> *splinepoints_;
+  QVector<QPointF> *splinecontrolpoints_;
 };
 
 #endif  // CURVE2D_H
