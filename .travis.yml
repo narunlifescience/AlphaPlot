@@ -1,11 +1,10 @@
 language: cpp
 dist: trusty
 compiler: gcc
-cache:    apt
+cache: apt
 
   before_install:
   # Install necessary packages (Linux)
-    # C++14
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
   - sudo apt-get update -qq
