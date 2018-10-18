@@ -5,8 +5,15 @@ cache:    apt
 
 before_install:
   # Install necessary packages (Linux)
+    # C++14
+  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
   - sudo apt-get update -qq
+
+  install: 
+  # C++14
+  - sudo apt-get install -qq g++-5
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 90
   - sudo apt-get install -y libgsl0-dev
   - sudo apt-get install qtbase5-dev qtdeclarative5-dev libqt5webkit5-dev qtscript5-dev
   - sudo apt-get install qt5-default qttools5-dev-tools libqt5svg5-dev

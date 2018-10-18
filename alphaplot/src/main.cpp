@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
 #endif                   // Q_OS_WIN
 
   // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
-  QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
+  //QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
   Application* app = new Application(argc, argv);
 
   // icon initiation (mandatory)
