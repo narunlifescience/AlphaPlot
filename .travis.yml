@@ -6,13 +6,10 @@ cache:    apt
 before_install:
   # Install necessary packages (Linux)
   - sudo apt-get install -y libgsl0-dev
-  - sudo apt-get install -y libqwtplot3d-qt4-dev
-  - sudo apt-get install -y libqwt5-qt4-dev
-  - sudo apt-get install -y libqt4-opengl-dev
-  - sudo apt-get install -y libqt4-dev
+  - sudo apt-get install qtbase5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev
+  - sudo apt-get install qt5-default qttools5-dev-tools
   - sudo apt-get install -y zlib1g-dev
   # add include files path (Linux)
-  - sudo ln -sf /usr/include/qwtplot3d-qt4 /usr/include/qwtplot3d
   
   # Create temperory directories for linux & windows build (common)
   - cd ..
