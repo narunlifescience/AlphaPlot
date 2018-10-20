@@ -35,15 +35,16 @@ class QPushButton;
 class QLineEdit;
 class QComboBox;
 class QSpinBox;
-class Graph;
+class AxisRect2D;
 class ColorBox;
+class ApplicationWindow;
 
 //! Interpolation options dialog
 class InterpolationDialog : public QDialog {
   Q_OBJECT
 
  public:
-  InterpolationDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);
+  InterpolationDialog(QWidget* parent = nullptr, Qt::WindowFlags fl = Qt::Widget);
   ~InterpolationDialog() {}
 
   QPushButton* buttonFit;
@@ -57,12 +58,15 @@ class InterpolationDialog : public QDialog {
 
  public slots:
   void activateCurve(const QString& curveName);
-  void setGraph(Graph* g);
+  void setAxisRect(AxisRect2D* axisrect);
   void interpolate();
   void changeDataRange();
 
  private:
-  Graph* graph;
+  AxisRect2D *axisrect_;
+  ApplicationWindow *app_;
+  double xmin_;
+  double xmax_;
 };
 
 #endif  // INTERPOLATIONDIALOG_H

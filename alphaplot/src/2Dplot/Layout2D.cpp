@@ -12,6 +12,7 @@
 #include "AxisRect2D.h"
 #include "Bar2D.h"
 #include "Curve2D.h"
+#include "DataManager2D.h"
 #include "LayoutGrid2D.h"
 #include "Legend2D.h"
 #include "LineSpecial2D.h"
@@ -251,9 +252,10 @@ void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
 }
 
 void Layout2D::generateBar2DPlot(const AxisRect2D::BarType &barType,
-                                 Table *table, Column *xData, Column *yData,
-                                 int from, int to) {
-  AxisRect2D *element = addAxisRectItem(xData->dataType(), yData->dataType());
+                                 Table *table, Column *xData,
+                                 QList<Column *> ycollist, int from, int to) {
+  AxisRect2D *element =
+      addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType());
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -261,11 +263,13 @@ void Layout2D::generateBar2DPlot(const AxisRect2D::BarType &barType,
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
   addTextToAxisTicker(xData, xAxis.at(0));
-  addTextToAxisTicker(yData, yAxis.at(0));
-  Bar2D *bar = element->addBox2DPlot(barType, table, xData, yData, from, to,
-                                     xAxis.at(0), yAxis.at(0));
-  bar->rescaleAxes();
-  bar->layer()->replot();
+  addTextToAxisTicker(ycollist.at(0), yAxis.at(0));
+  foreach (Column *col, ycollist) {
+    Bar2D *bar = element->addBox2DPlot(barType, table, xData, col, from, to,
+                                       xAxis.at(0), yAxis.at(0));
+    bar->rescaleAxes();
+  }
+  plot2dCanvas_->replot();
 }
 
 void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
@@ -307,8 +311,9 @@ QList<AxisRect2D *> Layout2D::getAxisRectList() {
 
 void Layout2D::generateLineSpecial2DPlot(
     const AxisRect2D::LineScatterSpecialType &plotType, Table *table,
-    Column *xData, Column *yData, int from, int to) {
-  AxisRect2D *element = addAxisRectItem(xData->dataType(), yData->dataType());
+    Column *xData, QList<Column *> ycollist, int from, int to) {
+  AxisRect2D *element =
+      addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType());
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -316,17 +321,20 @@ void Layout2D::generateLineSpecial2DPlot(
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
   addTextToAxisTicker(xData, xAxis.at(0));
-  addTextToAxisTicker(yData, yAxis.at(0));
-  LineSpecial2D *linescatter = element->addLineScatter2DPlot(
-      plotType, table, xData, yData, from, to, xAxis.at(0), yAxis.at(0));
-  linescatter->rescaleAxes();
-  linescatter->layer()->replot();
+  addTextToAxisTicker(ycollist.at(0), yAxis.at(0));
+  foreach (Column *col, ycollist) {
+    LineSpecial2D *linescatter = element->addLineScatter2DPlot(
+        plotType, table, xData, col, from, to, xAxis.at(0), yAxis.at(0));
+    linescatter->rescaleAxes();
+  }
+  plot2dCanvas_->replot();
 }
 
 void Layout2D::generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
-                                   Table *table, Column *xcol, Column *ycol,
-                                   int from, int to) {
-  AxisRect2D *element = addAxisRectItem(xcol->dataType(), ycol->dataType());
+                                   Table *table, Column *xcol,
+                                   QList<Column *> ycollist, int from, int to) {
+  AxisRect2D *element =
+      addAxisRectItem(xcol->dataType(), ycollist.at(0)->dataType());
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -334,10 +342,12 @@ void Layout2D::generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
   addTextToAxisTicker(xcol, xAxis.at(0));
-  addTextToAxisTicker(ycol, yAxis.at(0));
-  Curve2D *curve = element->addCurve2DPlot(plotType, table, xcol, ycol, from,
-                                           to, xAxis.at(0), yAxis.at(0));
-  curve->rescaleAxes();
+  addTextToAxisTicker(ycollist.at(0), yAxis.at(0));
+  foreach (Column *col, ycollist) {
+    Curve2D *curve = element->addCurve2DPlot(plotType, table, xcol, col, from,
+                                             to, xAxis.at(0), yAxis.at(0));
+    curve->rescaleAxes();
+  }
   plot2dCanvas_->replot();
 }
 
@@ -508,10 +518,10 @@ void Layout2D::mouseReleaseSignal(QMouseEvent *event) {
     QMenu *menu = new QMenu();
     menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->addAction(IconLoader::load("edit-recalculate", IconLoader::LightDark),
-                    "Refresh", this, SLOT(refresh()));
-    menu->addAction("Export", this, SLOT(exportGraph()));
+                    "Refresh", this, &Layout2D::refresh);
+    menu->addAction("Export", this, &Layout2D::exportGraph);
     menu->addAction(IconLoader::load("edit-print", IconLoader::LightDark),
-                    "Print", this, SLOT(printGraph()));
+                    "Print", this, &Layout2D::print);
     menu->popup(plot2dCanvas_->mapToGlobal(QPoint(
         static_cast<int>(startPos.x()), static_cast<int>(startPos.y()))));
   }
@@ -539,15 +549,17 @@ void Layout2D::refresh() {
 }
 
 bool Layout2D::exportGraph() {
-  std::unique_ptr<ImageExportDialog2D> ied(
-      new ImageExportDialog2D(nullptr, plot2dCanvas_ != nullptr));
+  ImageExportDialog2D *ied =
+      new ImageExportDialog2D(nullptr, plot2dCanvas_ != nullptr);
+  ied->setAttribute(Qt::WA_DeleteOnClose);
+  /* std::unique_ptr<ImageExportDialog2D> ied(
+       new ImageExportDialog2D(nullptr, plot2dCanvas_ != nullptr));*/
   ied->setraster_height(plot2dCanvas_->height());
   ied->setraster_width(plot2dCanvas_->width());
   ied->setvector_height(plot2dCanvas_->height());
   ied->setraster_width(plot2dCanvas_->width());
   if (ied->exec() != QDialog::Accepted) return false;
   if (ied->selectedFiles().isEmpty()) return false;
-
   QString selected_filter = ied->selectedNameFilter();
 
   QString file_name = ied->selectedFiles()[0];
@@ -602,11 +614,164 @@ bool Layout2D::exportGraph() {
   return success;
 }
 
-void Layout2D::exportPDF(const QString &filename) {
-  plot2dCanvas_->savePdf(filename);
+void Layout2D::updateData(Table *table, const QString &name) {
+  if (!currentAxisRect_) return;
+  if (!table) return;
+  Column *col = table->column(table->colIndex(name));
+  if (!col) return;
+  bool modified = false;
+  foreach (AxisRect2D *axisrect, getAxisRectList()) {
+    QVector<LineSpecial2D *> lslist = axisrect->getLsVec();
+    QVector<Curve2D *> curvelist = axisrect->getCurveVec();
+    QVector<Bar2D *> barlist = axisrect->getBarVec();
+    QVector<Vector2D *> vectorlist = axisrect->getVectorVec();
+    foreach (LineSpecial2D *ls, lslist) {
+      PlotData::AssociatedData *data =
+          ls->getdatablock_lsplot()->getassociateddata();
+      if (data->table == table) {
+        if (data->xcol == col || data->ycol == col) {
+          ls->setGraphData(data->table, data->xcol, data->ycol, data->from,
+                           data->to);
+          modified = true;
+        }
+      }
+    }
+    foreach (Curve2D *curve, curvelist) {
+      if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
+        PlotData::AssociatedData *data =
+            curve->getdatablock_cplot()->getassociateddata();
+        if (data->table == table) {
+          if (data->xcol == col || data->ycol == col) {
+            curve->setCurveData(data->table, data->xcol, data->ycol, data->from,
+                                data->to);
+            modified = true;
+          }
+        }
+      }
+    }
+
+    foreach (Bar2D *bar, barlist) {
+      if (!bar->ishistogram_barplot()) {
+        PlotData::AssociatedData *data =
+            bar->getdatablock_barplot()->getassociateddata();
+        if (data->table == table) {
+          if (data->xcol == col || data->ycol == col) {
+            bar->setBarData(data->table, data->xcol, data->ycol, data->from,
+                            data->to);
+            modified = true;
+          }
+        }
+      }
+    }
+
+    foreach (Vector2D *vector, vectorlist) {
+      if (vector->gettable_vecplot() == table) {
+        if (vector->getfirstcol_vecplot() == col ||
+            vector->getsecondcol_vecplot() == col ||
+            vector->getthirdcol_vecplot() == col ||
+            vector->getfourthcol_vecplot() == col) {
+          vector->setGraphData(
+              vector->gettable_vecplot(), vector->getfirstcol_vecplot(),
+              vector->getsecondcol_vecplot(), vector->getthirdcol_vecplot(),
+              vector->getfourthcol_vecplot(), vector->getfrom_vecplot(),
+              vector->getto_vecplot());
+          modified = true;
+        }
+      }
+    }
+  }
+  if (modified)
+    plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
-void Layout2D::printGraph() {}
+void Layout2D::removeColumn(Table *table, const QString &name) {
+  if (!currentAxisRect_) return;
+  if (!table) return;
+  Column *col = table->column(table->colIndex(name));
+  if (!col) return;
+  bool removed = false;
+  foreach (AxisRect2D *axisrect, getAxisRectList()) {
+    QVector<LineSpecial2D *> lslist = axisrect->getLsVec();
+    QVector<Curve2D *> curvelist = axisrect->getCurveVec();
+    QVector<Bar2D *> barlist = axisrect->getBarVec();
+    QVector<Vector2D *> vectorlist = axisrect->getVectorVec();
+    foreach (LineSpecial2D *ls, lslist) {
+      PlotData::AssociatedData *data =
+          ls->getdatablock_lsplot()->getassociateddata();
+      if (data->table == table) {
+        if (data->xcol == col || data->ycol == col) {
+          axisrect->removeLineScatter2D(ls);
+          removed = true;
+        }
+      }
+    }
+    foreach (Curve2D *curve, curvelist) {
+      if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
+        PlotData::AssociatedData *data =
+            curve->getdatablock_cplot()->getassociateddata();
+        if (data->table == table) {
+          if (data->xcol == col || data->ycol == col) {
+            axisrect->removeCurve2D(curve);
+            removed = true;
+          }
+        }
+      }
+    }
+
+    foreach (Bar2D *bar, barlist) {
+      if (!bar->ishistogram_barplot()) {
+        PlotData::AssociatedData *data =
+            bar->getdatablock_barplot()->getassociateddata();
+        if (data->table == table) {
+          if (data->xcol == col || data->ycol == col) {
+            axisrect->removeBar2D(bar);
+            removed = true;
+          }
+        }
+      }
+    }
+
+    foreach (Vector2D *vector, vectorlist) {
+      if (vector->gettable_vecplot() == table) {
+        if (vector->getfirstcol_vecplot() == col ||
+            vector->getsecondcol_vecplot() == col ||
+            vector->getthirdcol_vecplot() == col ||
+            vector->getfourthcol_vecplot() == col) {
+          axisrect->removeVector2D(vector);
+          removed = true;
+        }
+      }
+    }
+  }
+  if (removed)
+    plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+}
+
+void Layout2D::exportPDF(const QString &filename) {
+  currentAxisRect_->setPrintorExportJob(true);
+  plot2dCanvas_->savePdf(filename);
+  currentAxisRect_->setPrintorExportJob(false);
+}
+
+void Layout2D::renderPlot(QPrinter *printer) {
+  printer->setPageSize(QPrinter::A4);
+  QCPPainter painter(printer);
+  QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
+
+  int plotWidth = plot2dCanvas_->viewport().width();
+  int plotHeight = plot2dCanvas_->viewport().height();
+  double scale = pageRect.width() / static_cast<double>(plotWidth);
+
+  painter.setMode(QCPPainter::pmVectorized);
+  painter.setMode(QCPPainter::pmNoCaching);
+  // comment this out if you want cosmetic thin lines (always 1 pixel thick
+  // independent of pdf zoom level)
+  // painter.setMode(QCPPainter::pmNonCosmetic);
+  painter.scale(scale, scale);
+  currentAxisRect_->setPrintorExportJob(true);
+  plot2dCanvas_->toPainter(&painter, plotWidth, plotHeight);
+  currentAxisRect_->setPrintorExportJob(false);
+}
 
 void Layout2D::setLayoutDimension(QPair<int, int> dimension) {
   layoutDimension_.first = dimension.first;
@@ -713,7 +878,13 @@ void Layout2D::setGraphTool(const Graph2DCommon::Picker &picker) {
   }
 }
 
-void Layout2D::print() {}
+void Layout2D::print() {
+  QPrinter printer;
+  QPrintPreviewDialog previewDialog(&printer, this);
+  connect(&previewDialog, SIGNAL(paintRequested(QPrinter *)),
+          SLOT(renderPlot(QPrinter *)));
+  previewDialog.exec();
+}
 
 AxisRect2D *Layout2D::addAxisRectItem() {
   return addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,

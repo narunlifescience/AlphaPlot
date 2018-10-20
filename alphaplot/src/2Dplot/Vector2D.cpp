@@ -1,9 +1,13 @@
 #include "Vector2D.h"
 #include "../core/Utilities.h"
 #include "../future/core/column/Column.h"
+#include "Table.h"
 
-Vector2D::Vector2D(Axis2D *xAxis, Axis2D *yAxis)
+Vector2D::Vector2D(const VectorPlot &vectorplot, Table *table, Column *x1Data,
+                   Column *y1Data, Column *x2Data, Column *y2Data, int from,
+                   int to, Axis2D *xAxis, Axis2D *yAxis)
     : QCPGraph(xAxis, yAxis),
+      vectorplot_(vectorplot),
       xaxis_(xAxis),
       yaxis_(yAxis),
       d_position_(Position::Tail),
@@ -12,16 +16,24 @@ Vector2D::Vector2D(Axis2D *xAxis, Axis2D *yAxis)
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   start_->setStyle(QCPLineEnding::esSpikeArrow);
   stop_->setStyle(QCPLineEnding::esNone);
+  setGraphData(table, x1Data, y1Data, x2Data, y2Data, from, to);
 }
 
 Vector2D::~Vector2D() {
+  foreach (QCPItemLine *line, linelist_) { parentPlot()->removeItem(line); }
   delete start_;
   delete stop_;
 }
 
-void Vector2D::setGraphData(const VectorPlot &vectorplot, Column *x1Data,
-                            Column *y1Data, Column *x2Data, Column *y2Data,
-                            int from, int to) {
+void Vector2D::setGraphData(Table *table, Column *x1Data, Column *y1Data,
+                            Column *x2Data, Column *y2Data, int from, int to) {
+  table_ = table;
+  x1col_ = x1Data;
+  y1col_ = y1Data;
+  x2col_ = x2Data;
+  y2col_ = y2Data;
+  from_ = from;
+  to_ = to;
   foreach (QCPItemLine *line, linelist_) { delete line; }
   linelist_.clear();
   double min_x, max_x, min_y, max_y;
@@ -29,7 +41,7 @@ void Vector2D::setGraphData(const VectorPlot &vectorplot, Column *x1Data,
   max_x = x1Data->valueAt(from);
   min_y = y1Data->valueAt(from);
   max_y = y1Data->valueAt(from);
-  switch (vectorplot) {
+  switch (vectorplot_) {
     case VectorPlot::XYXY:
       for (int i = from; i <= to; i++) {
         if (min_x > x1Data->valueAt(i)) {
@@ -419,4 +431,20 @@ void Vector2D::reloadendings(const Vector2D::LineEndLocation &location) {
       foreach (QCPItemLine *line, linelist_) { line->setTail(*stop_); }
       break;
   }
+}
+
+void Vector2D::datapicker(QMouseEvent *, const QVariant &) {
+  qDebug() << "data picker unavailable for vector2D plots";
+}
+
+void Vector2D::graphpicker(QMouseEvent *, const QVariant &) {
+  qDebug() << "graph picker unavailable for vector2D plots";
+}
+
+void Vector2D::movepicker(QMouseEvent *, const QVariant &) {
+  qDebug() << "move picker unavailable for vector2D plots";
+}
+
+void Vector2D::removepicker(QMouseEvent *, const QVariant &) {
+  qDebug() << "remove picker unavailable for vector2D plots";
 }

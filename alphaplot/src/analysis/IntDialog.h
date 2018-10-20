@@ -1,10 +1,11 @@
 /***************************************************************************
-    File                 : Integration.h
+    File                 : IntDialog.h
     Project              : AlphaPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Ion Vasilief
-    Email (use @ for *)  : ion_vasilief*yahoo.fr
-    Description          : Numerical integration of data sets
+    Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis, Tilman
+ Benkert
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
+    Description          : Integration options dialog
 
  ***************************************************************************/
 
@@ -26,43 +27,51 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef INTEGRATION_H
-#define INTEGRATION_H
+#ifndef INTDIALOG_H
+#define INTDIALOG_H
 
-#include "Filter.h"
+#include <QDialog>
 
-class Integration : public Filter {
+class QPushButton;
+class QCheckBox;
+class QLineEdit;
+class QComboBox;
+class QSpinBox;
+class ApplicationWindow;
+class AxisRect2D;
+
+//! Integration options dialog
+class IntDialog : public QDialog {
   Q_OBJECT
 
  public:
-  enum InterpolationMethod { Linear, Cubic, Akima };
+  IntDialog(QWidget* parent = nullptr, Qt::WindowFlags fl = 0);
+  ~IntDialog() {}
 
-  Integration(ApplicationWindow *parent, Graph *g);
-  Integration(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
-  Integration(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
-              double start, double end);
+  QPushButton* buttonOk;
+  QPushButton* buttonCancel;
+  QPushButton* buttonHelp;
+  QCheckBox* boxShowFormula;
+  QComboBox* boxName;
+  QComboBox* boxMethod;
+  QLineEdit* boxStart;
+  QLineEdit* boxEnd;
 
-  InterpolationMethod method() { return d_method; }
-  void setMethod(InterpolationMethod method) {
-    InterpolationMethod backup = d_method;
-    d_method = method;
-    if (!isDataAcceptable()) d_method = backup;
-  }
+ public slots:
+  void accept();
+  void setAxisrect(AxisRect2D* axisrect);
+  void activateCurve(const QString& curveName);
+  void help();
+  void changeDataRange();
 
-  double result() { return d_result; }
-
- protected:
-  virtual bool isDataAcceptable();
+ signals:
+  void integrate(int, int, int, double, double, double);
 
  private:
-  void init();
-  QString logInfo();
-  void output() {}
-
-  //! The method for computing the interpolation used for integrating.
-  InterpolationMethod d_method;
-
-  double d_result;
+  AxisRect2D* axisrect_;
+  ApplicationWindow *app_;
+  double xmin_;
+  double xmax_;
 };
 
-#endif  // INTEGRATION_H
+#endif  // INTDIALOG_H

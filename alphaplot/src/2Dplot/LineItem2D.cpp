@@ -7,6 +7,7 @@ LineItem2D::LineItem2D(AxisRect2D *axisrect, Plot2D *plot)
       axisrect_(axisrect),
       ending_(new QCPLineEnding),
       starting_(new QCPLineEnding),
+      dragginglineitem_(false),
       draggingendlineitem_(false),
       draggingstartlineitem_(false),
       lineitemclicked_(false) {
@@ -150,17 +151,20 @@ void LineItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
           end->pixelPosition().y() < (event->pos().y() + selectionpixelsize_)) {
         draggingendlineitem_ = true;
         parentPlot()->setCursor(Qt::CursorShape::CrossCursor);
-      }
-      if (start->pixelPosition().x() >
-              (event->pos().x() - selectionpixelsize_) &&
-          start->pixelPosition().x() <
-              (event->pos().x() + selectionpixelsize_) &&
-          start->pixelPosition().y() >
-              (event->pos().y() - selectionpixelsize_) &&
-          start->pixelPosition().y() <
-              (event->pos().y() + selectionpixelsize_)) {
+      } else if (start->pixelPosition().x() >
+                     (event->pos().x() - selectionpixelsize_) &&
+                 start->pixelPosition().x() <
+                     (event->pos().x() + selectionpixelsize_) &&
+                 start->pixelPosition().y() >
+                     (event->pos().y() - selectionpixelsize_) &&
+                 start->pixelPosition().y() <
+                     (event->pos().y() + selectionpixelsize_)) {
         draggingstartlineitem_ = true;
         parentPlot()->setCursor(Qt::CursorShape::CrossCursor);
+      } else {
+        draglineitemorigin_ = event->localPos() - end->pixelPosition();
+        parentPlot()->setCursor(Qt::CursorShape::ClosedHandCursor);
+        dragginglineitem_ = true;
       }
     }
     this->layer()->replot();
@@ -169,9 +173,9 @@ void LineItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
 
 void LineItem2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
   Q_UNUSED(startPos);
+  QPointF eventpos = event->pos();
   if (draggingendlineitem_) {
     // set bounding rect for drag event
-    QPoint eventpos = event->pos();
     if (event->pos().x() < axisrect_->left()) {
       eventpos.setX(axisrect_->left());
     }
@@ -186,8 +190,7 @@ void LineItem2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
     }
     end->setPixelPosition(eventpos);
     this->layer()->replot();
-  }
-  if (draggingstartlineitem_) {
+  } else if (draggingstartlineitem_) {
     QPoint eventpos = event->pos();
     if (event->pos().x() < axisrect_->left()) {
       eventpos.setX(axisrect_->left());
@@ -203,6 +206,10 @@ void LineItem2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
     }
     start->setPixelPosition(eventpos);
     this->layer()->replot();
+  } else if (dragginglineitem_) {
+    start->setPixelPosition(eventpos + draglineitemorigin_);
+    end->setPixelPosition(eventpos - draglineitemorigin_);
+    layer()->replot();
   }
 }
 
@@ -217,6 +224,10 @@ void LineItem2D::mouseReleaseEvent(QMouseEvent *event,
     }
     if (draggingstartlineitem_) {
       draggingstartlineitem_ = false;
+      parentPlot()->unsetCursor();
+    }
+    if (dragginglineitem_) {
+      dragginglineitem_ = false;
       parentPlot()->unsetCursor();
     }
   }

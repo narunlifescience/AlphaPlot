@@ -2732,9 +2732,9 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             static_cast<QTreeWidget *>(nullptr), QStringList(curvegraphtext));
         switch (curvegraph->getplottype_cplot()) {
           case Graph2DCommon::PlotType::Associated:
-            if(curvegraph->getcurvetype_cplot() == Curve2D::Curve2DType::Curve)
-            curvegraphitem->setIcon(
-                0, IconLoader::load("graph2d-line", IconLoader::LightDark));
+            if (curvegraph->getcurvetype_cplot() == Curve2D::Curve2DType::Curve)
+              curvegraphitem->setIcon(
+                  0, IconLoader::load("graph2d-line", IconLoader::LightDark));
             else
               curvegraphitem->setIcon(
                   0, IconLoader::load("graph2d-spline", IconLoader::LightDark));

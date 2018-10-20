@@ -4,14 +4,17 @@
 #include "Axis2D.h"
 
 class Column;
+class Table;
 
 class Vector2D : public QCPGraph {
   Q_OBJECT
  public:
-  Vector2D(Axis2D *xAxis = nullptr, Axis2D *yAxis = nullptr);
+  enum class VectorPlot : int { XYXY = 0, XYAM = 1 };
+  Vector2D(const VectorPlot &vectorplot, Table *table, Column *x1Data,
+           Column *y1Data, Column *x2Data, Column *y2Data, int from, int to,
+           Axis2D *xAxis, Axis2D *yAxis);
   ~Vector2D();
 
-  enum class VectorPlot : int { XYXY = 0, XYAM = 1 };
   enum class Position : int { Tail = 0, Middle = 1, Head = 2 };
   enum class LineEnd : int {
     None = 0,
@@ -29,9 +32,8 @@ class Vector2D : public QCPGraph {
     Start = 0,
     Stop = 1,
   };
-  void setGraphData(const VectorPlot &vectorplot, Column *x1Data,
-                    Column *y1Data, Column *x2Data, Column *y2Data, int from,
-                    int to);
+  void setGraphData(Table *table, Column *x1Data, Column *y1Data,
+                    Column *x2Data, Column *y2Data, int from, int to);
   void drawLine(double x1, double y1, double x2, double y2);
 
   // Getters
@@ -46,6 +48,13 @@ class Vector2D : public QCPGraph {
   double getendheight_vecplot(const LineEndLocation &location) const;
   bool getendinverted_vecplot(const LineEndLocation &location) const;
   QString getlegendtext_vecplot() const;
+  Table *gettable_vecplot() const { return table_; }
+  Column *getfirstcol_vecplot() const { return x1col_; }
+  Column *getsecondcol_vecplot() const { return y1col_; }
+  Column *getthirdcol_vecplot() const { return x2col_; }
+  Column *getfourthcol_vecplot() const { return y2col_; }
+  int getfrom_vecplot() const { return from_; }
+  int getto_vecplot() const { return to_; }
 
   // Setters
   void setxaxis_vecplot(Axis2D *axis);
@@ -64,8 +73,20 @@ class Vector2D : public QCPGraph {
 
  private:
   void reloadendings(const LineEndLocation &location);
+ void datapicker(QMouseEvent *, const QVariant &);
+ void graphpicker(QMouseEvent *, const QVariant &);
+ void movepicker(QMouseEvent *, const QVariant &);
+ void removepicker(QMouseEvent *, const QVariant &);
 
  private:
+  VectorPlot vectorplot_;
+  Table *table_;
+  Column *x1col_;
+  Column *y1col_;
+  Column *x2col_;
+  Column *y2col_;
+  int from_;
+  int to_;
   Axis2D *xaxis_;
   Axis2D *yaxis_;
   QList<QCPItemLine *> linelist_;

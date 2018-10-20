@@ -644,11 +644,9 @@ void Curve2D::removepicker(QMouseEvent *event, const QVariant &details) {
         point.x() < event->localPos().x() + 10 &&
         point.y() > event->localPos().y() - 10 &&
         point.y() < event->localPos().y() + 10) {
-      curvedata_->data()->remove(it->sortKey());
-      if (curve2dtype_ == Curve2D::Curve2DType::Spline) {
-        loadSplineData();
+      if (curvedata_->removedatafromtable(it->mainKey(), it->mainValue())) {
+        if (curve2dtype_ == Curve2D::Curve2DType::Spline) loadSplineData();
       }
-      layer()->replot();
     }
   }
 }

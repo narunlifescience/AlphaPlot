@@ -44,6 +44,8 @@ class LineItem2D : public QCPItemLine {
   AxisRect2D *axisrect_;
   QCPLineEnding *ending_;
   QCPLineEnding *starting_;
+  bool dragginglineitem_;
+  QPointF draglineitemorigin_;
   bool draggingendlineitem_;
   bool draggingstartlineitem_;
   bool lineitemclicked_;

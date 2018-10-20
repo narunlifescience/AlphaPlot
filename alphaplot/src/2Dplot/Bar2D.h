@@ -46,11 +46,11 @@ class Bar2D : public QCPBars {
  protected:
   void mousePressEvent(QMouseEvent *event, const QVariant &details);
 
-private:
-  void datapicker(QMouseEvent *event, const QVariant &details);
-  void graphpicker(QMouseEvent *event, const QVariant &details);
+ private:
+  void datapicker(QMouseEvent *, const QVariant &details);
+  void graphpicker(QMouseEvent *event, const QVariant &);
   void movepicker(QMouseEvent *event, const QVariant &details);
-  void removepicker(QMouseEvent *event, const QVariant &details);
+  void removepicker(QMouseEvent *, const QVariant &details);
 
  signals:
   void showtooltip(QPointF position, double xval, double yval);

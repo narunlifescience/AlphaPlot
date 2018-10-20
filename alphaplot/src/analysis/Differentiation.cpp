@@ -27,30 +27,33 @@
  *                                                                         *
  ***************************************************************************/
 #include "Differentiation.h"
-#include "MultiLayer.h"
-#include "Legend.h"
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Layout2D.h"
 #include "core/column/Column.h"
 
 #include <QLocale>
 
-Differentiation::Differentiation(ApplicationWindow *parent, Graph *g)
-    : Filter(parent, g) {
+Differentiation::Differentiation(ApplicationWindow *parent,
+                                 AxisRect2D *axisrect)
+    : Filter(parent, axisrect) {
   init();
 }
 
-Differentiation::Differentiation(ApplicationWindow *parent, Graph *g,
-                                 const QString &curveTitle)
-    : Filter(parent, g) {
+Differentiation::Differentiation(ApplicationWindow *parent,
+                                 AxisRect2D *axisrect,
+                                 PlotData::AssociatedData *associateddata)
+    : Filter(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(associateddata);
 }
 
-Differentiation::Differentiation(ApplicationWindow *parent, Graph *g,
-                                 const QString &curveTitle, double start,
-                                 double end)
-    : Filter(parent, g) {
+Differentiation::Differentiation(ApplicationWindow *parent,
+                                 AxisRect2D *axisrect,
+                                 PlotData::AssociatedData *associateddata,
+                                 double start, double end)
+    : Filter(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle, start, end);
+  setDataFromCurve(associateddata, start, end);
 }
 
 void Differentiation::init() {
@@ -59,29 +62,33 @@ void Differentiation::init() {
 }
 
 void Differentiation::output() {
-  Column *xCol = new Column(tr("1", "differention table x column name"),
+  Column *xcol = new Column(tr("1", "differention table x column name"),
                             AlphaPlot::Numeric);
-  Column *yCol = new Column(tr("2", "differention table y column name"),
+  Column *ycol = new Column(tr("2", "differention table y column name"),
                             AlphaPlot::Numeric);
-  xCol->setPlotDesignation(AlphaPlot::X);
-  yCol->setPlotDesignation(AlphaPlot::Y);
+  xcol->setPlotDesignation(AlphaPlot::X);
+  ycol->setPlotDesignation(AlphaPlot::Y);
   for (int i = 1; i < d_n - 1; i++) {
-    xCol->setValueAt(i - 1, d_x[i]);
-    yCol->setValueAt(i - 1,
+    xcol->setValueAt(i - 1, d_x[i]);
+    ycol->setValueAt(i - 1,
                      0.5 * ((d_y[i + 1] - d_y[i]) / (d_x[i + 1] - d_x[i]) +
                             (d_y[i] - d_y[i - 1]) / (d_x[i] - d_x[i - 1])));
   }
 
-  ApplicationWindow *app = (ApplicationWindow *)parent();
-  QString tableName = app->generateUniqueName(objectName());
-  QString curveTitle = associateddata_->title().text();
-  Table *t = app->newHiddenTable(
+  QString tableName = app_->generateUniqueName(objectName());
+  QString curveTitle = associateddata_->table->name() + "_" +
+                       associateddata_->xcol->name() + "_" +
+                       associateddata_->ycol->name();
+  Table *table = app_->newHiddenTable(
       tableName,
       tr("Derivative") + " " + tr("of", "Derivative of") + " " + curveTitle,
-      QList<Column *>() << xCol << yCol);
-  MultiLayer *ml = app->newGraph(tr("Plot") + tr("Derivative"));
-  ml->activeGraph()->insertCurve(t, tableName + "_" + yCol->name(), 0);
-  Legend *l = ml->activeGraph()->legend();
-  l->setText("\\c{1}" + tr("Derivative") + " " + tr("of", "Derivative of") +
-             " " + curveTitle);
+      QList<Column *>() << xcol << ycol);
+  Layout2D *layout = app_->newGraph2D();
+
+  if (!layout) return;
+  if (!table) return;
+
+  layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Line2D, table, xcol,
+                              QList<Column *>() << ycol, 0,
+                              table->rowCnt() - 1);
 }

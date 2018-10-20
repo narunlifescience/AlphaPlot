@@ -32,8 +32,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/MyWidget.h \
             src/ImportASCIIDialog.h \
             src/ImageExportDialog.h\
-            src/FilterDialog.h\
-            src/FFTDialog.h\
+            src/analysis/FilterDialog.h\
+            src/analysis/FFTDialog.h\
             src/Note.h\
             src/Folder.h\
             src/FindDialog.h\
@@ -45,11 +45,16 @@ HEADERS  += src/ApplicationWindow.h \
             src/TextFormatButtons.h\
             src/TableStatistics.h\
             src/Spectrogram.h\
-            src/Filter.h\
-            src/FFTFilter.h\
-            src/FFT.h\
+            src/analysis/Filter.h\
+            src/analysis/FFTFilter.h\
+            src/analysis/FFT.h\
             src/analysis/Convolution.h\
             src/analysis/Correlation.h\
+            src/analysis/Differentiation.h\
+            src/analysis/Integration.h\
+            src/analysis/IntDialog.h\
+            src/analysis/Interpolation.h\
+            src/analysis/InterpolationDialog.h\
             src/TranslateCurveTool.h\
             src/CurveRangeDialog.h\
             src/OpenProjectDialog.h\
@@ -113,8 +118,8 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/AssociationsDialog.cpp \
             src/RenameWindowDialog.cpp \
             src/MyWidget.cpp\
-            src/FilterDialog.cpp\
-            src/FFTDialog.cpp\
+            src/analysis/FilterDialog.cpp\
+            src/analysis/FFTDialog.cpp\
             src/Note.cpp\
             src/Folder.cpp\
             src/FindDialog.cpp\
@@ -128,11 +133,16 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/scripting/ScriptingLangDialog.cpp\
             src/TableStatistics.cpp\
             src/Spectrogram.cpp\
-            src/Filter.cpp\
-            src/FFTFilter.cpp\
-            src/FFT.cpp\
+            src/analysis/Filter.cpp\
+            src/analysis/FFTFilter.cpp\
+            src/analysis/FFT.cpp\
             src/analysis/Convolution.cpp\
             src/analysis/Correlation.cpp\
+            src/analysis/Differentiation.cpp\
+            src/analysis/Integration.cpp\
+            src/analysis/IntDialog.cpp\
+            src/analysis/Interpolation.cpp\
+            src/analysis/InterpolationDialog.cpp\
             src/TranslateCurveTool.cpp\
             src/CurveRangeDialog.cpp\
             src/OpenProjectDialog.cpp\

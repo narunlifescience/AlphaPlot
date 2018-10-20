@@ -28,10 +28,10 @@
  *                                                                         *
  ***************************************************************************/
 #include "IntDialog.h"
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Plotcolumns.h"
 #include "ApplicationWindow.h"
 #include "Differentiation.h"
-#include "FunctionCurve.h"
-#include "Graph.h"
 #include "Integration.h"
 #include "scripting/MyParser.h"
 
@@ -44,9 +44,8 @@
 #include <QPushButton>
 #include <QSpinBox>
 
-IntDialog::IntDialog(QWidget *parent, Qt::WFlags fl)
+IntDialog::IntDialog(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl), app_(qobject_cast<ApplicationWindow *>(parent)) {
-  // app_ = qobject_cast<ApplicationWindow *>(parent);
   Q_ASSERT(app_);
   setWindowTitle(tr("Integration Options"));
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
@@ -96,22 +95,33 @@ IntDialog::IntDialog(QWidget *parent, Qt::WFlags fl)
 }
 
 void IntDialog::accept() {
-  QString curveName = boxName->currentText();
-  QwtPlotCurve *c = graph->curve(curveName);
-  QStringList curvesList = graph->analysableCurvesList();
-  if (!c || !curvesList.contains(curveName)) {
+  if (!axisrect_) return;
+  QString curve = boxName->currentText();
+  QStringList curvesList =
+      PlotColumns::getstringlistfromassociateddata(axisrect_);
+  if (!curvesList.contains(curve)) {
     QMessageBox::critical(
-        app_, tr("AlphaPlot") + " - " + tr("Warning"),
+        this, tr("Warning"),
         tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!")
-            .arg(curveName));
+            .arg(curve));
     boxName->clear();
     boxName->addItems(curvesList);
     return;
   }
 
-  double start = 0, stop = 0;
-  double minx = c->minXValue();
-  double maxx = c->maxXValue();
+  PlotData::AssociatedData *associateddata =
+      PlotColumns::getassociateddatafromstring(axisrect_,
+                                               boxName->currentText());
+  Column *col = associateddata->xcol;
+  double minx = col->valueAt(associateddata->from);
+  double maxx = col->valueAt(associateddata->from);
+  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
+    double value = col->valueAt(i);
+    if (minx > value) minx = value;
+    if (maxx < value) maxx = value;
+  }
+  double start = 0;
+  double stop = 0;
 
   // Check the Xmin
   QString from = boxStart->text().toLower();
@@ -124,7 +134,7 @@ void IntDialog::accept() {
   } else {
     try {
       MyParser parser;
-      parser.SetExpr((boxStart->text()).toAscii().constData());
+      parser.SetExpr((boxStart->text()).toUtf8().constData());
       start = parser.Eval();
 
       if (start < minx) {
@@ -167,7 +177,7 @@ void IntDialog::accept() {
   } else {
     try {
       MyParser parser;
-      parser.SetExpr((boxEnd->text()).toAscii().constData());
+      parser.SetExpr((boxEnd->text()).toUtf8().constData());
       stop = parser.Eval();
       if (stop > maxx) {
         // FIXME: I don't understand why this doesn't work for
@@ -202,44 +212,45 @@ void IntDialog::accept() {
   }
 
   Integration *i =
-      new Integration(app_, graph, curveName, boxStart->text().toDouble(),
-                      boxEnd->text().toDouble());
+      new Integration(app_, axisrect_, associateddata,
+                      boxStart->text().toDouble(), boxEnd->text().toDouble());
   i->setMethod(
       static_cast<Integration::InterpolationMethod>(boxMethod->currentIndex()));
   i->run();
   delete i;
 }
 
-void IntDialog::setGraph(Graph *g) {
-  graph = g;
-  boxName->addItems(g->analysableCurvesList());
-
-  QString selectedCurve = g->selectedCurveTitle();
-  if (!selectedCurve.isEmpty()) {
-    int index = boxName->findText(selectedCurve);
-    boxName->setCurrentIndex(index);
-  }
+void IntDialog::setAxisrect(AxisRect2D *axisrect) {
+  if (!axisrect) return;
+  axisrect_ = axisrect;
+  boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
   activateCurve(boxName->currentText());
-
-  connect(graph, SIGNAL(closedGraph()), this, SLOT(close()));
-  connect(graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 }
 
 void IntDialog::activateCurve(const QString &curveName) {
-  QwtPlotCurve *c = graph->curve(curveName);
-  if (!c) return;
+  if (!axisrect_) return;
+  PlotData::AssociatedData *associateddata;
+  associateddata =
+      PlotColumns::getassociateddatafromstring(axisrect_, curveName);
+  if (!associateddata) return;
 
-  double start, end;
-  graph->range(graph->curveIndex(curveName), &start, &end);
+  Column *col = associateddata->xcol;
+  xmin_ = col->valueAt(associateddata->from);
+  xmax_ = col->valueAt(associateddata->from);
+  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
+    double value = col->valueAt(i);
+    if (xmin_ > value) xmin_ = value;
+    if (xmax_ < value) xmax_ = value;
+  }
   boxStart->setText(
-      QString::number(std::min(start, end), 'g', app_->d_decimal_digits));
+      QString::number(std::min(xmin_, xmax_), 'g', app_->d_decimal_digits));
   boxEnd->setText(
-      QString::number(std::max(start, end), 'g', app_->d_decimal_digits));
+      QString::number(std::max(xmin_, xmax_), 'g', app_->d_decimal_digits));
 };
 
 void IntDialog::changeDataRange() {
-  double start = graph->selectedXStartValue();
-  double end = graph->selectedXEndValue();
+  double start = xmin_;
+  double end = xmax_;
   boxStart->setText(
       QString::number(std::min(start, end), 'g', app_->d_decimal_digits));
   boxEnd->setText(

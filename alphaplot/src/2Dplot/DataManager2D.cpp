@@ -39,11 +39,7 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
 
   // determine rows for which all columns have valid content
   for (int i = 0, row = start_row; row <= end_row; row++) {
-    if (xcol->isInvalid(row) || ycol->isInvalid(row)) {
-      QCPGraphData data(std::numeric_limits<double>::quiet_NaN(),
-                        std::numeric_limits<double>::quiet_NaN());
-      data_.data()->add(data);
-    } else {
+    if (!xcol->isInvalid(row) && !ycol->isInvalid(row)) {
       double xdata = std::numeric_limits<double>::quiet_NaN();
       double ydata = std::numeric_limits<double>::quiet_NaN();
       switch (xcol->dataType()) {
@@ -75,6 +71,23 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
     }
     i++;
   }
+}
+
+bool DataBlockGraph::removedatafromtable(const double key, const double value) {
+  for (int i = associateddata_->from; i < associateddata_->to + 1; i++) {
+    if (associateddata_->xcol->valueAt(i) == key) {
+      if (associateddata_->ycol->valueAt(i) == value) {
+        associateddata_->xcol->asStringColumn()->setTextAt(i, QString());
+        associateddata_->ycol->asStringColumn()->setTextAt(i, QString());
+        return true;
+      }
+    }
+  }
+  qDebug() << "unable to find data point " << key << ", " << value
+           << " in column(s)" << associateddata_->xcol->name() << ", "
+           << associateddata_->ycol->name()
+           << " from associated table: " << associateddata_->table->name();
+  return false;
 }
 
 DataBlockCurve::DataBlockCurve(Table *table, Column *xcol, Column *ycol,
@@ -113,11 +126,7 @@ void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
 
   // determine rows for which all columns have valid content
   for (int i = 0, row = start_row; row <= end_row; row++) {
-    if (xcol->isInvalid(row) || ycol->isInvalid(row)) {
-      QCPCurveData data(i, std::numeric_limits<double>::quiet_NaN(),
-                        std::numeric_limits<double>::quiet_NaN());
-      data_->add(data);
-    } else {
+    if (!xcol->isInvalid(row) && !ycol->isInvalid(row)) {
       double xdata = std::numeric_limits<double>::quiet_NaN();
       double ydata = std::numeric_limits<double>::quiet_NaN();
       switch (xcol->dataType()) {
@@ -150,6 +159,23 @@ void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
     }
     i++;
   }
+}
+
+bool DataBlockCurve::removedatafromtable(const double key, const double value) {
+  for (int i = associateddata_->from; i < associateddata_->to + 1; i++) {
+    if (associateddata_->xcol->valueAt(i) == key) {
+      if (associateddata_->ycol->valueAt(i) == value) {
+        associateddata_->xcol->asStringColumn()->setTextAt(i, QString());
+        associateddata_->ycol->asStringColumn()->setTextAt(i, QString());
+        return true;
+      }
+    }
+  }
+  qDebug() << "unable to find data point " << key << ", " << value
+           << " in column(s)" << associateddata_->xcol->name() << ", "
+           << associateddata_->ycol->name()
+           << " from associated table: " << associateddata_->table->name();
+  return false;
 }
 
 DataBlockBar::DataBlockBar(Table *table, Column *xcol, Column *ycol,
@@ -186,11 +212,7 @@ void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
 
   // determine rows for which all columns have valid content
   for (int i = 0, row = start_row; row <= end_row; row++) {
-    if (xcolumn->isInvalid(row) || ycolumn->isInvalid(row)) {
-      QCPBarsData data(std::numeric_limits<double>::quiet_NaN(),
-                       std::numeric_limits<double>::quiet_NaN());
-      data_->add(data);
-    } else {
+    if (!xcolumn->isInvalid(row) && !ycolumn->isInvalid(row)) {
       double xdata = std::numeric_limits<double>::quiet_NaN();
       double ydata = std::numeric_limits<double>::quiet_NaN();
       switch (xcolumn->dataType()) {
@@ -222,6 +244,23 @@ void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
     }
     i++;
   }
+}
+
+bool DataBlockBar::removedatafromtable(const double key, const double value) {
+  for (int i = associateddata_->from; i < associateddata_->to + 1; i++) {
+    if (associateddata_->xcol->valueAt(i) == key) {
+      if (associateddata_->ycol->valueAt(i) == value) {
+        associateddata_->xcol->asStringColumn()->setTextAt(i, QString());
+        associateddata_->ycol->asStringColumn()->setTextAt(i, QString());
+        return true;
+      }
+    }
+  }
+  qDebug() << "unable to find data point " << key << ", " << value
+           << " in column(s)" << associateddata_->xcol->name() << ", "
+           << associateddata_->ycol->name()
+           << " from associated table: " << associateddata_->table->name();
+  return false;
 }
 
 DataBlockError::DataBlockError(Table *table, Column *errorcol, const int from,

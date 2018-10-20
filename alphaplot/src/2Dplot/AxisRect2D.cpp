@@ -316,7 +316,8 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
       curve->setlinefillstatus_cplot(false);
       break;
   }
-  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
+  SplineLegendItem2D *legendItem =
+      new SplineLegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   curve->setName(table->name() + "_" + xcol->name() + "_" + ycol->name());
@@ -380,9 +381,9 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
                                     Column *y1Data, Column *x2Data,
                                     Column *y2Data, int from, int to,
                                     Axis2D *xAxis, Axis2D *yAxis) {
-  Vector2D *vec = new Vector2D(xAxis, yAxis);
-  vec->setGraphData(vectorplot, x1Data, y1Data, x2Data, y2Data, from, to);
-  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, vec);
+  Vector2D *vec = new Vector2D(vectorplot, table, x1Data, y1Data, x2Data,
+                               y2Data, from, to, xAxis, yAxis);
+  VectorLegendItem2D *legendItem = new VectorLegendItem2D(axisRectLegend_, vec);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   vec->setName(table->name() + "_" + x1Data->name() + "_" + y1Data->name() +

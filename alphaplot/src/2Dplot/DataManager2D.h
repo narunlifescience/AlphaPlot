@@ -20,13 +20,14 @@ class DataBlockGraph {
   // getters
   int size() const { return data_->size(); }
   QSharedPointer<QCPGraphDataContainer> data() const { return data_; }
-  PlotData::AssociatedData *getassociateddata() {return  associateddata_;}
+  PlotData::AssociatedData *getassociateddata() { return associateddata_; }
   Table *gettable() const { return associateddata_->table; }
   Column *getxcolumn() const { return associateddata_->xcol; }
   Column *getycolumn() { return associateddata_->ycol; }
   int getfrom() const { return associateddata_->from; }
   int getto() const { return associateddata_->to; }
 
+  bool removedatafromtable(const double key, const double value);
   // Setters
   void settable(Table *table) { associateddata_->table = table; }
   void setxcolumn(Column *column) { associateddata_->xcol = column; }
@@ -50,13 +51,14 @@ class DataBlockCurve {
   // getters
   int size() const { return data_->size(); }
   QSharedPointer<QCPCurveDataContainer> data() const { return data_; }
-  PlotData::AssociatedData *getassociateddata() {return  associateddata_;}
+  PlotData::AssociatedData *getassociateddata() { return associateddata_; }
   Table *gettable() const { return associateddata_->table; }
   Column *getxcolumn() const { return associateddata_->xcol; }
   Column *getycolumn() { return associateddata_->ycol; }
   int getfrom() const { return associateddata_->from; }
   int getto() const { return associateddata_->to; }
 
+  bool removedatafromtable(const double key, const double value);
   // Setters
   void settable(Table *table) { associateddata_->table = table; }
   void setxcolumn(Column *column) { associateddata_->xcol = column; }
@@ -80,13 +82,14 @@ class DataBlockBar {
   // getters
   int size() const { return data_->size(); }
   QSharedPointer<QCPBarsDataContainer> data() const { return data_; }
-  PlotData::AssociatedData *getassociateddata() {return  associateddata_;}
+  PlotData::AssociatedData *getassociateddata() { return associateddata_; }
   Table *gettable() const { return associateddata_->table; }
   Column *getxcolumn() const { return associateddata_->xcol; }
   Column *getycolumn() { return associateddata_->ycol; }
   int getfrom() const { return associateddata_->from; }
   int getto() const { return associateddata_->to; }
 
+  bool removedatafromtable(const double key, const double value);
   // Setters
   void settable(Table *table) { associateddata_->table = table; }
   void setxcolumn(Column *column) { associateddata_->xcol = column; }
@@ -96,7 +99,7 @@ class DataBlockBar {
 
  private:
   QSharedPointer<QCPBarsDataContainer> data_;
-PlotData::AssociatedData *associateddata_;
+  PlotData::AssociatedData *associateddata_;
 };
 
 class DataBlockError {

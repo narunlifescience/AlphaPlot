@@ -31,21 +31,22 @@
 
 #include "Filter.h"
 
-class QwtPlotCurve;
+class AxisRect2D;
 class Interpolation : public Filter {
   Q_OBJECT
 
  public:
   enum InterpolationMethod { Linear, Cubic, Akima };
 
-  Interpolation(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
-                int m = 0);
-  Interpolation(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
-                double start, double end, int m = 0);
+  Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
+                PlotData::AssociatedData *associateddata, int m = 0);
+  Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
+                PlotData::AssociatedData *associateddata, double start,
+                double end, int m = 0);
 
   int method() { return d_method; }
   void setMethod(int m);
-  void setMethod(InterpolationMethod m) { setMethod((int)m); }
+  void setMethod(InterpolationMethod m) { setMethod(static_cast<int>(m)); }
 
  protected:
   virtual bool isDataAcceptable();

@@ -31,7 +31,7 @@
 #ifndef IMAGEEXPORTDIALOG_H
 #define IMAGEEXPORTDIALOG_H
 
-#include "../../ui/ExtensibleFileDialog.h"
+#include "ui/ExtensibleFileDialog.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -48,7 +48,7 @@ class ImageExportDialog2D : public ExtensibleFileDialog {
  public:
   explicit ImageExportDialog2D(QWidget *parent = nullptr,
                                bool vector_options = true, bool extended = true,
-                               Qt::WindowFlags flags = nullptr);
+                               Qt::WindowFlags flags = Qt::Widget);
 
   // getters
   int raster_resolution() const { return d_raster_resolution->value(); }

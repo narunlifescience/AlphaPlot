@@ -27,41 +27,41 @@
  *                                                                         *
  ***************************************************************************/
 #include "Integration.h"
-#include "MultiLayer.h"
-#include "Legend.h"
+#include "future/core/column/Column.h"
 
-#include <QMessageBox>
 #include <QDateTime>
 #include <QLocale>
+#include <QMessageBox>
 
-#include <gsl/gsl_spline.h>
 #include <gsl/gsl_interp.h>
+#include <gsl/gsl_spline.h>
 #include <gsl/gsl_vector.h>
 
-Integration::Integration(ApplicationWindow *parent, Graph *g)
-    : Filter(parent, g) {
+Integration::Integration(ApplicationWindow *parent, AxisRect2D *axisrect)
+    : Filter(parent, axisrect) {
   init();
 }
 
-Integration::Integration(ApplicationWindow *parent, Graph *g,
-                         const QString &curveTitle)
-    : Filter(parent, g) {
+Integration::Integration(ApplicationWindow *parent, AxisRect2D *axisrect,
+                         PlotData::AssociatedData *associateddata)
+    : Filter(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(associateddata);
 }
 
-Integration::Integration(ApplicationWindow *parent, Graph *g,
-                         const QString &curveTitle, double start, double end)
-    : Filter(parent, g) {
+Integration::Integration(ApplicationWindow *parent, AxisRect2D *axisrect,
+                         PlotData::AssociatedData *associateddata, double start,
+                         double end)
+    : Filter(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle, start, end);
+  setDataFromCurve(associateddata, start, end);
 }
 
 void Integration::init() {
   setObjectName(tr("Integration"));
   d_method = Linear;
   d_sort_data = true;
-  d_result = NAN;
+  d_result = std::numeric_limits<double>::quiet_NaN();
 }
 
 bool Integration::isDataAcceptable() {
@@ -77,8 +77,7 @@ bool Integration::isDataAcceptable() {
       method_t = gsl_interp_akima;
       break;
     default:
-      QMessageBox::critical((ApplicationWindow *)parent(),
-                            tr("AlphaPlot") + " - " + tr("Error"),
+      QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
                             tr("Unknown interpolation method. Valid values "
                                "are: 0 - Linear, 1 - Cubic, 2 - Akima."));
       d_init_err = true;
@@ -89,7 +88,7 @@ bool Integration::isDataAcceptable() {
   for (int i = 1; i < d_n; i++)
     if (d_x[i - 1] == d_x[i]) {
       QMessageBox::critical(
-          (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
+          app_, tr("AlphaPlot") + " - " + tr("Error"),
           tr("Several data points have the same x value causing divisions by "
              "zero, operation aborted!"));
       return false;
@@ -116,42 +115,45 @@ QString Integration::logInfo() {
       break;
   }
 
-  gsl_interp *interpolation = gsl_interp_alloc(method_t, d_n);
-  gsl_interp_init(interpolation, d_x, d_y, d_n);
+  gsl_interp *interpolation =
+      gsl_interp_alloc(method_t, static_cast<size_t>(d_n));
+  gsl_interp_init(interpolation, d_x, d_y, static_cast<size_t>(d_n));
 
   if (static_cast<size_t>(d_n) < gsl_interp_min_size(interpolation)) {
     QMessageBox::critical(
-        (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
+        app_, tr("AlphaPlot") + " - " + tr("Error"),
         tr("You need at least %1 points in order to perform this operation!")
             .arg(gsl_interp_min_size(interpolation)));
     d_init_err = true;
     return "";
   }
 
+  QString curvename = associateddata_->table->name() + "_" +
+                      associateddata_->xcol->name() + "_" +
+                      associateddata_->ycol->name();
   QString logInfo = "[" + QDateTime::currentDateTime().toString(Qt::LocalDate) +
-                    "\t" + tr("Plot") + ": ''" + axisrect_->parentPlotName() +
-                    "'']\n";
-  logInfo += "\n" + tr("Numerical integration of") + ": " +
-             associateddata_->title().text() + tr(" using ") + method_name +
-             tr("Interpolation") + "\n";
+                    "\t" + tr("Plot") + ": ''" + curvename + "'']\n";
+  logInfo += "\n" + tr("Numerical integration of") + ": " + curvename +
+             tr(" using ") + method_name + tr("Interpolation") + "\n";
 
-  ApplicationWindow *app = (ApplicationWindow *)parent();
-  int prec = app->d_decimal_digits;
+  int prec = app_->d_decimal_digits;
   logInfo += tr("Points") + ": " + QString::number(d_n) + " " + tr("from") +
              " x = " + QLocale().toString(d_from, 'g', prec) + " ";
   logInfo += tr("to") + " x = " + QLocale().toString(d_to, 'g', prec) + "\n";
 
   // using GSL to find maximum value of data set
-  gsl_vector *aux = gsl_vector_alloc(d_n);
-  for (int i = 0; i < d_n; i++) gsl_vector_set(aux, i, d_y[i]);
+  gsl_vector *aux = gsl_vector_alloc(static_cast<size_t>(d_n));
+  for (int i = 0; i < d_n; i++)
+    gsl_vector_set(aux, static_cast<size_t>(i), d_y[i]);
   int maxID = gsl_vector_max_index(aux);
   gsl_vector_free(aux);
 
   // calculate result
-  d_result = gsl_interp_eval_integ(interpolation, d_x, d_y, d_from, d_to, 0);
+  d_result =
+      gsl_interp_eval_integ(interpolation, d_x, d_y, d_from, d_to, nullptr);
 
-  logInfo += tr("Peak at") + " x = " +
-             QLocale().toString(d_x[maxID], 'g', prec) + "\t";
+  logInfo += tr("Peak at") +
+             " x = " + QLocale().toString(d_x[maxID], 'g', prec) + "\t";
   logInfo += "y = " + QLocale().toString(d_y[maxID], 'g', prec) + "\n";
 
   logInfo += tr("Area") + "=";

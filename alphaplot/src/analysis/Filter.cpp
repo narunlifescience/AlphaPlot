@@ -192,13 +192,14 @@ int Filter::sortedCurveData(double start, double end, double **x, double **y) {
   int from = associateddata_->from;
   int to = associateddata_->to;
   int datasize = (to - from) + 1;
-  double *xtemp = new double[datasize];
+
+  double *xtemp = new double[static_cast<size_t>(datasize)];
   for (int i = 0, j = from; i < datasize; i++) {
     xtemp[i] = associateddata_->xcol->valueAt(j);
     j++;
   }
 
-  size_t *p = new size_t[datasize];
+  size_t *p = new size_t[static_cast<size_t>(datasize)];
   gsl_sort_index(p, xtemp, 1, static_cast<size_t>(datasize));
   delete[] xtemp;
 
@@ -214,26 +215,25 @@ int Filter::sortedCurveData(double start, double end, double **x, double **y) {
   return n;
 }
 
-int Filter::curveData(double start, double end, double **x,
-                      double **y) {
+int Filter::curveData(double start, double end, double **x, double **y) {
   if (!associateddata_) return 0;
 
   int from = associateddata_->from;
   int to = associateddata_->to;
   int datasize = (to - from) + 1;
-  int i_start = 0, i_end = to+1;
-  for (i_start = from; i_start < datasize; i_start++)
+  int i_start = from, i_end = to;
+  /*for (i_start = from; i_start < datasize; i_start++)
     if (associateddata_->xcol->valueAt(i_start) >= start) break;
   for (i_end = datasize - 1; i_end >= 0; i_end--)
-    if (associateddata_->xcol->valueAt(i_end) <= end) break;
+    if (associateddata_->xcol->valueAt(i_end) <= end) break;*/
 
   int n = i_end - i_start + 1;
   (*x) = new double[n];
   (*y) = new double[n];
 
   for (int j = 0, i = i_start; i <= i_end; i++, j++) {
-      (*x)[j] = associateddata_->xcol->valueAt(i);
-      (*y)[j] = associateddata_->ycol->valueAt(i);
+    (*x)[j] = associateddata_->xcol->valueAt(i);
+    (*y)[j] = associateddata_->ycol->valueAt(i);
   }
   return n;
 }

@@ -1,11 +1,10 @@
 /***************************************************************************
-    File                 : IntDialog.h
+    File                 : Differentiation.h
     Project              : AlphaPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis, Tilman
- Benkert
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Integration options dialog
+    Copyright            : (C) 2007 by Ion Vasilief
+    Email (use @ for *)  : ion_vasilief*yahoo.fr
+    Description          : Numerical differentiation of data sets
 
  ***************************************************************************/
 
@@ -27,49 +26,26 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef INTDIALOG_H
-#define INTDIALOG_H
+#ifndef DIFFERENTIATION_H
+#define DIFFERENTIATION_H
 
-#include <QDialog>
+#include "Filter.h"
 
-class QPushButton;
-class QCheckBox;
-class QLineEdit;
-class QComboBox;
-class QSpinBox;
-class ApplicationWindow;
-class Graph;
+class AxisRect2D;
 
-//! Integration options dialog
-class IntDialog : public QDialog {
+class Differentiation : public Filter {
   Q_OBJECT
 
  public:
-  IntDialog(QWidget* parent = nullptr, Qt::WindowFlags fl = 0);
-  ~IntDialog() {}
-
-  QPushButton* buttonOk;
-  QPushButton* buttonCancel;
-  QPushButton* buttonHelp;
-  QCheckBox* boxShowFormula;
-  QComboBox* boxName;
-  QComboBox* boxMethod;
-  QLineEdit* boxStart;
-  QLineEdit* boxEnd;
-
- public slots:
-  void accept();
-  void setGraph(Graph* g);
-  void activateCurve(const QString& curveName);
-  void help();
-  void changeDataRange();
-
- signals:
-  void integrate(int, int, int, double, double, double);
+  Differentiation(ApplicationWindow *parent, AxisRect2D *axisrect);
+  Differentiation(ApplicationWindow *parent, AxisRect2D *axisrect,
+                  PlotData::AssociatedData *associateddata);
+  Differentiation(ApplicationWindow *parent, AxisRect2D *axisrect,
+                  PlotData::AssociatedData *associateddata, double start,
+                  double end);
 
  private:
-  Graph* graph;
-  ApplicationWindow *app_;
+  void init();
+  void output();
 };
-
-#endif  // INTDIALOG_H
+#endif  // DIFFERENTIATION_H

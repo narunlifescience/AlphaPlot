@@ -1,15 +1,15 @@
 #ifndef LAYOUT2D_H
 #define LAYOUT2D_H
 
-#include "MyWidget.h"
 #include "AxisRect2D.h"
+#include "MyWidget.h"
 #include "Plot2D.h"
 
 #include <QHBoxLayout>
 #include <QPushButton>
 
-#include "future/core/column/Column.h"
 #include "StatBox2D.h"
+#include "future/core/column/Column.h"
 class QLabel;
 class Table;
 class AxisRect2D;
@@ -38,12 +38,13 @@ class Layout2D : public MyWidget {
 
   void generateLineSpecial2DPlot(
       const AxisRect2D::LineScatterSpecialType &plotType, Table *table,
-      Column *xData, Column *yData, int from, int to);
+      Column *xData, QList<Column *> ycollist, int from, int to);
   void generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
-                           Table *table, Column *xcol, Column *ycol, int from,
-                           int to);
+                           Table *table, Column *xcol, QList<Column *> ycollist,
+                           int from, int to);
   void generateBar2DPlot(const AxisRect2D::BarType &barType, Table *table,
-                         Column *xData, Column *yData, int from, int to);
+                         Column *xData, QList<Column *> ycollist, int from,
+                         int to);
   void generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
                             Table *table, Column *x1Data, Column *y1Data,
                             Column *x2Data, Column *y2Data, int from, int to);
@@ -64,6 +65,11 @@ class Layout2D : public MyWidget {
   void setBackground(const QColor &background);
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void print();
+
+ public slots:
+  bool exportGraph();
+  void updateData(Table *table, const QString &name);
+  void removeColumn(Table *table, const QString &name);
 
  private slots:
   AxisRect2D *addAxisRectItem();
@@ -101,9 +107,8 @@ class Layout2D : public MyWidget {
   void mouseWheel();
   void beforeReplot();
   void refresh();
-  bool exportGraph();
   void exportPDF(const QString &filename);
-  void printGraph();
+  void renderPlot(QPrinter *printer);
 
  signals:
   void AxisRectCreated(AxisRect2D *, MyWidget *);

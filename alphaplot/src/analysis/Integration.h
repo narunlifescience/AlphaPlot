@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : Differentiation.h
+    File                 : Integration.h
     Project              : AlphaPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
-    Description          : Numerical differentiation of data sets
+    Description          : Numerical integration of data sets
 
  ***************************************************************************/
 
@@ -26,23 +26,46 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef DIFFERENTIATION_H
-#define DIFFERENTIATION_H
+#ifndef INTEGRATION_H
+#define INTEGRATION_H
 
 #include "Filter.h"
 
-class Differentiation : public Filter {
+class AxisRect2D;
+
+class Integration : public Filter {
   Q_OBJECT
 
  public:
-  Differentiation(ApplicationWindow *parent, Graph *g);
-  Differentiation(ApplicationWindow *parent, Graph *g,
-                  const QString &curveTitle);
-  Differentiation(ApplicationWindow *parent, Graph *g,
-                  const QString &curveTitle, double start, double end);
+  enum InterpolationMethod { Linear, Cubic, Akima };
+
+  Integration(ApplicationWindow *parent, AxisRect2D *axisrect);
+  Integration(ApplicationWindow *parent, AxisRect2D *axisrect,
+              PlotData::AssociatedData *associateddata);
+  Integration(ApplicationWindow *parent, AxisRect2D *axisrect,
+              PlotData::AssociatedData *associateddata, double start, double end);
+
+  InterpolationMethod method() { return d_method; }
+  void setMethod(InterpolationMethod method) {
+    InterpolationMethod backup = d_method;
+    d_method = method;
+    if (!isDataAcceptable()) d_method = backup;
+  }
+
+  double result() { return d_result; }
+
+ protected:
+  virtual bool isDataAcceptable();
 
  private:
   void init();
-  void output();
+  QString logInfo();
+  void output() {}
+
+  //! The method for computing the interpolation used for integrating.
+  InterpolationMethod d_method;
+
+  double d_result;
 };
-#endif  // DIFFERENTIATION_H
+
+#endif  // INTEGRATION_H

@@ -49,11 +49,11 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QPrintDialog>
+#include <QPrinter>
 #include <QProgressDialog>
 #include <QShortcut>
 #include <QTemporaryFile>
 #include <QTextStream>
-#include <QPrinter>
 
 #include <cmath>
 
@@ -170,7 +170,8 @@ void Table::handleColumnChange(int top, int left, int bottom, int right) {
 }
 
 void Table::handleColumnsAboutToBeRemoved(int first, int count) {
-  for (int i = first; i < first + count; i++) emit aboutToRemoveCol(colName(i));
+  for (int i = first; i < first + count; i++)
+    emit aboutToRemoveCol(this, colName(i));
 }
 
 void Table::handleColumnsRemoved(int first, int count) {

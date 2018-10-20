@@ -39,14 +39,43 @@ class Legend2D : public QCPLegend {
 class LegendItem2D : public QCPPlottableLegendItem {
   Q_OBJECT
  public:
-  explicit LegendItem2D(Legend2D *legend, QCPAbstractPlottable *plottable);
+  LegendItem2D(Legend2D *legend, QCPAbstractPlottable *plottable);
   ~LegendItem2D();
 
  signals:
   void legendItemClicked();
 
-protected:
- void mousePressEvent(QMouseEvent *event, const QVariant &details);
+ protected:
+  void mousePressEvent(QMouseEvent *event, const QVariant &details);
+};
+
+class SplineLegendItem2D : public LegendItem2D {
+  Q_OBJECT
+ public:
+  SplineLegendItem2D(Legend2D *legend, Curve2D *plottable);
+  ~SplineLegendItem2D();
+
+ protected:
+  void draw(QCPPainter *painter);
+
+ private:
+  bool isspline_;
+  Curve2D *curve_;
+  Legend2D *legend_;
+};
+
+class VectorLegendItem2D : public LegendItem2D {
+  Q_OBJECT
+ public:
+  VectorLegendItem2D(Legend2D *legend, Vector2D *plottable);
+  ~VectorLegendItem2D();
+
+ protected:
+  void draw(QCPPainter *painter);
+
+ private:
+  Vector2D *vector_;
+  Legend2D *legend_;
 };
 
 #endif  // LEGEND2D_H

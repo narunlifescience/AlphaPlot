@@ -492,7 +492,7 @@ class ApplicationWindow : public QMainWindow,
   //! Return a version string ("AlphaPlot x.y.z")
   static QString versionString();
   void windowsMenuActivated(int id);
-  void removeCurves(const QString& name);
+  void removeCurves(Table* table, const QString& name);
   QStringList dependingPlots(const QString& caption);
   QStringList depending3DPlots(Matrix* m);
 
@@ -534,7 +534,7 @@ class ApplicationWindow : public QMainWindow,
   //! Creates a new empty 2d plot
   Layout2D* newGraph2D(const QString& caption = tr("Graph"));
   //! Creates a new empty 3d plot
-  Layout3D *newGraph3D(const QString& caption = tr("Graph"));
+  Layout3D* newGraph3D(const QString& caption = tr("Graph"));
 
   //! \name Reading from a Project File
   //@{
@@ -634,7 +634,7 @@ class ApplicationWindow : public QMainWindow,
   void showExportASCIIDialog();
   void showCurvesDialog();
   void showCurveRangeDialog();
-  CurveRangeDialog* showCurveRangeDialog(AxisRect2D *axisrect, int curve);
+  CurveRangeDialog* showCurveRangeDialog(AxisRect2D* axisrect, int curve);
   void showPlotAssociations(int curve);
 
   void showWindowContextMenu();

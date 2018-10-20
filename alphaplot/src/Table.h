@@ -31,19 +31,19 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include <QVarLengthArray>
 #include <QDateTime>
 #include <QHash>
 #include <QMap>
+#include <QVarLengthArray>
 #include <QtScript>
 #include "MyWidget.h"
 
 // Scripting
-#include "scripting/ScriptingEnv.h"
 #include "scripting/Script.h"
+#include "scripting/ScriptingEnv.h"
 
-#include "future/table/future_Table.h"
 #include "future/table/TableView.h"
+#include "future/table/future_Table.h"
 #include "globals.h"
 /*!\brief MDI window providing a spreadsheet table with column logic.
  */
@@ -270,7 +270,7 @@ class Table : public TableView, public scripted, public QScriptable {
 
  signals:
   void changedColHeader(const QString&, const QString&);
-  void aboutToRemoveCol(const QString&);
+  void aboutToRemoveCol(Table*, const QString&);
   void removedCol(const QString&);
   void modifiedData(Table*, const QString&);
   void resizedTable(QWidget*);

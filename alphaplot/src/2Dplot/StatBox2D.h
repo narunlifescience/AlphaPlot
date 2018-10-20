@@ -132,9 +132,9 @@ protected:
 
 private:
  void datapicker(QMouseEvent *event, const QVariant &details);
- void graphpicker(QMouseEvent *event, const QVariant &details);
- void movepicker(QMouseEvent *event, const QVariant &details);
- void removepicker(QMouseEvent *event, const QVariant &details);
+ void graphpicker(QMouseEvent *event, const QVariant &);
+ void movepicker(QMouseEvent *, const QVariant &);
+ void removepicker(QMouseEvent *, const QVariant &);
 
 signals:
  void showtooltip(QPointF, double, double);

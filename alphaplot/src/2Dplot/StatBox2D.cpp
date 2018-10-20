@@ -15,13 +15,13 @@ StatBox2D::StatBox2D(Axis2D *xAxis, Axis2D *yAxis, Table *table,
       boxstyle_(StatBox2D::BoxWhiskerStyle::Perc_25_75),
       whiskerstyle_(StatBox2D::BoxWhiskerStyle::Perc_5_95),
       picker_(Graph2DCommon::Picker::None) {
+  Q_UNUSED(table);
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setWhiskerAntialiased(false);
   setAntialiased(false);
   setOutlierStyle(*scatterstyle_);
-  QBrush b = brush();
-  b.setColor(Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
-  setBrush(b);
+  setfillcolor_statbox(
+      Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
   sBoxdata_.key = boxWhiskerData.key;
   sBoxdata_.median = boxWhiskerData.median;
   setboxstyle_statbox(Perc_25_75);
@@ -495,12 +495,16 @@ void StatBox2D::datapicker(QMouseEvent *event, const QVariant &details) {
   }
 }
 
-void StatBox2D::graphpicker(QMouseEvent *event, const QVariant &details) {
+void StatBox2D::graphpicker(QMouseEvent *event, const QVariant &) {
   double xvalue, yvalue;
   pixelsToCoords(event->localPos(), xvalue, yvalue);
   emit showtooltip(event->localPos(), xvalue, yvalue);
 }
 
-void StatBox2D::movepicker(QMouseEvent *event, const QVariant &details) {}
+void StatBox2D::movepicker(QMouseEvent *, const QVariant &) {
+  qDebug() << "move picker unavailable for StatBox2D plots";
+}
 
-void StatBox2D::removepicker(QMouseEvent *event, const QVariant &details) {}
+void StatBox2D::removepicker(QMouseEvent *, const QVariant &) {
+  qDebug() << "remove picker unavailable for StatBox2D plots";
+}

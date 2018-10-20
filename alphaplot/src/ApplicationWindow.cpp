@@ -28,22 +28,22 @@
 #include "ConfigDialog.h"
 #include "CurveRangeDialog.h"
 #include "DataSetDialog.h"
-//#include "Differentiation.h"
 #include "ErrDialog.h"
+#include "analysis/Differentiation.h"
 //#include "ExpDecayDialog.h"
-#include "FFTDialog.h"
-#include "FFTFilter.h"
-#include "FilterDialog.h"
 #include "FindDialog.h"
+#include "analysis/FFTDialog.h"
+#include "analysis/FFTFilter.h"
+#include "analysis/FilterDialog.h"
 //#include "Fit.h"
 //#include "FitDialog.h"
 #include "Folder.h"
 #include "ImageDialog.h"
 #include "ImageExportDialog.h"
 #include "ImportASCIIDialog.h"
-//#include "IntDialog.h"
-//#include "InterpolationDialog.h"
 #include "LayerDialog.h"
+#include "analysis/IntDialog.h"
+#include "analysis/InterpolationDialog.h"
 //#include "MultiPeakFit.h"
 #include "Note.h"
 #include "OpenProjectDialog.h"
@@ -238,14 +238,10 @@ ApplicationWindow::ApplicationWindow()
   ui_->folderView->setHeaderLabel(tr("Folder"));
   ui_->folderView->setRootIsDecorated(true);
 
-#if QT_VERSION >= 0x050000
   ui_->folderView->header()->setSectionsClickable(false);
   ui_->folderView->header()->setSectionResizeMode(
       QHeaderView::ResizeToContents);
-#else
-  ui_->folderView->header()->setClickable(false);
-  ui_->folderView->header()->setResizeMode(0, QHeaderView::Stretch);
-#endif
+
   ui_->folderView->header()->hide();
   ui_->folderView->setSelectionMode(QAbstractItemView::SingleSelection);
   ui_->folderView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -2852,12 +2848,14 @@ void ApplicationWindow::defineErrorBars(const QString &curveName,
   emit modified();
 }
 
-void ApplicationWindow::removeCurves(const QString &name) {
+void ApplicationWindow::removeCurves(Table *table, const QString &name) {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
   foreach (QMdiSubWindow *subwindow, subwindowlist) {
     if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
+      Layout2D *layout2d = qobject_cast<Layout2D *>(subwindow);
+      if (layout2d) layout2d->removeColumn(table, name);
     } else if (isActiveSubWindow(subwindow, SubWindowType::Plot3DSubWindow)) {
       if ((qobject_cast<Graph3D *>(subwindow)->formula()).contains(name))
         qobject_cast<Graph3D *>(subwindow)->clearData();
@@ -2870,6 +2868,8 @@ void ApplicationWindow::updateCurves(Table *t, const QString &name) {
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
   foreach (QMdiSubWindow *subwindow, subwindowlist) {
     if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
+      Layout2D *layout2d = qobject_cast<Layout2D *>(subwindow);
+      if (layout2d) layout2d->updateData(t, name);
     } else if (isActiveSubWindow(subwindow, SubWindowType::Plot3DSubWindow)) {
       Graph3D *g = qobject_cast<Graph3D *>(subwindow);
       if ((g->formula()).contains(name)) g->updateData(t);
@@ -3735,7 +3735,8 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force) {
 void ApplicationWindow::newCurve2D(Table *table, Column *xcol, Column *ycol) {
   Layout2D *layout = newGraph2D();
   layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Line2D, table, xcol,
-                              ycol, 0, xcol->rowCount() - 1);
+                              QList<Column *>() << ycol, 0,
+                              xcol->rowCount() - 1);
 }
 
 void ApplicationWindow::showScriptingLangDialog() {
@@ -4503,6 +4504,9 @@ void ApplicationWindow::exportGraph() {
       QMessageBox::critical(
           this, tr("Export Error"),
           tr("<h4>There are no plot layouts available in this window!</h4>"));
+      return;
+    } else {
+      plot2D->exportGraph();
       return;
     }
   } else if (isActiveSubWindow(w, SubWindowType::Plot3DSubWindow))
@@ -5619,21 +5623,18 @@ void ApplicationWindow::showFFTDialog() {
   QMdiSubWindow *subwindow = d_workspace->activeSubWindow();
   if (!subwindow) return;
 
-  FFTDialog *sd = nullptr;
+  std::unique_ptr<FFTDialog> sd = nullptr;
   if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
     AxisRect2D *axisrect =
         qobject_cast<Layout2D *>(subwindow)->getCurrentAxisRect();
     if (axisrect) {
-      sd = new FFTDialog(FFTDialog::onGraph, this);
-      sd->setAttribute(Qt::WA_DeleteOnClose);
+      sd = std::unique_ptr<FFTDialog>(new FFTDialog(FFTDialog::onGraph, this));
       sd->setAxisrect(axisrect);
     }
   } else if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
-    sd = new FFTDialog(FFTDialog::onTable, this);
-    sd->setAttribute(Qt::WA_DeleteOnClose);
+    sd = std::unique_ptr<FFTDialog>(new FFTDialog(FFTDialog::onTable, this));
     sd->setTable(qobject_cast<Table *>(subwindow));
   }
-
   if (sd) sd->exec();
 }
 
@@ -5663,17 +5664,23 @@ void ApplicationWindow::movingWindowAverageSmooth() {
 }
 
 void ApplicationWindow::interpolate() {
-  /*if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  Graph *graph =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (!graph || !graph->validCurvesDataSize()) return;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
+    ui_->actionDisableGraphTools->setChecked(true);
+    return;
+  }
 
   InterpolationDialog *id = new InterpolationDialog(this);
   id->setAttribute(Qt::WA_DeleteOnClose);
-  connect(graph, SIGNAL(destroyed()), id, SLOT(close()));
-  id->setGraph(graph);
-  id->show();*/
+  id->setAxisRect(axisrect);
+  id->show();
 }
 
 void ApplicationWindow::fitPolynomial() {
@@ -5702,7 +5709,7 @@ void ApplicationWindow::updateLog(const QString &result) {
 }
 
 void ApplicationWindow::integrate() {
-  /*if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
   Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
   AxisRect2D *axisrect = layout->getCurrentAxisRect();
@@ -5715,11 +5722,11 @@ void ApplicationWindow::integrate() {
     return;
   }
 
-  IntDialog *id = new IntDialog(this);
-  id->setAttribute(Qt::WA_DeleteOnClose);
-  // connect(graph, SIGNAL(destroyed()), id, SLOT(close()));
-  // id->setGraph(graph);
-  id->show();*/
+  std::unique_ptr<IntDialog> id =
+      std::unique_ptr<IntDialog>(new IntDialog(this));
+  // id->setAttribute(Qt::WA_DeleteOnClose);
+  id->setAxisrect(axisrect);
+  id->show();
 }
 
 void ApplicationWindow::fitBoltzmannSigmoid() { analysis("fitSigmoidal"); }
@@ -5732,7 +5739,21 @@ void ApplicationWindow::fitLorentzian()
   analysis("fitLorentz");
 }
 
-void ApplicationWindow::differentiate() { analysis("differentiate"); }
+void ApplicationWindow::differentiate() {
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
+
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
+    ui_->actionDisableGraphTools->setChecked(true);
+    return;
+  }
+  analysis("differentiate");
+}
 
 void ApplicationWindow::showResults(bool ok) {
   if (ok) {
@@ -6283,7 +6304,7 @@ void ApplicationWindow::removeWindowFromLists(MyWidget *w) {
     Table *m = qobject_cast<Table *>(w);
     for (int i = 0; i < m->numCols(); i++) {
       QString name = m->colName(i);
-      removeCurves(name);
+      removeCurves(m, name);
     }
     if (w == lastModified) {
       ui_->actionUndo->setEnabled(false);
@@ -6759,8 +6780,8 @@ void ApplicationWindow::showPlotWizard() {
   if (tableWindows().count() > 0) {
     PlotWizard *pw = new PlotWizard(this, 0);
     pw->setAttribute(Qt::WA_DeleteOnClose);
-    connect(pw, SIGNAL(plot(const QStringList &)), this,
-            SLOT(multilayerPlot(const QStringList &)));
+    // connect(pw, SIGNAL(plot(const QStringList &)), this,
+    //         SLOT(multilayerPlot(const QStringList &)));
 
     pw->insertTablesList(tableWindows());
     // TODO: string list -> Column * list
@@ -7819,8 +7840,8 @@ void ApplicationWindow::connectTable(Table *w) {
           SLOT(hideWindow(MyWidget *)));
   connect(w, SIGNAL(closedWindow(MyWidget *)), this,
           SLOT(closeWindow(MyWidget *)));
-  connect(w, SIGNAL(aboutToRemoveCol(const QString &)), this,
-          SLOT(removeCurves(const QString &)));
+  connect(w, SIGNAL(aboutToRemoveCol(Table *, const QString &)), this,
+          SLOT(removeCurves(Table *, const QString &)));
   connect(w, SIGNAL(modifiedData(Table *, const QString &)), this,
           SLOT(updateCurves(Table *, const QString &)));
   connect(w, SIGNAL(modifiedWindow(MyWidget *)), this,
@@ -9586,7 +9607,7 @@ void ApplicationWindow::searchForUpdates() {
 
   if (choice == QMessageBox::Yes) {
     http.get(QNetworkRequest(
-        QUrl("https://AlphaPlot.sourceforge.net/current_version.txt")));
+        QUrl("http://AlphaPlot.sourceforge.net/current_version.txt")));
   }
 }
 
@@ -9928,14 +9949,23 @@ void ApplicationWindow::selectPlotType(int value) {
 
   QStringList list = table->selectedColumns();
   Column *xcol = nullptr;
-  Column *ycol = nullptr;
-  Q_ASSERT(list.size() == 2);
-  if (table->YColumns().contains(list.at(0))) {
-    xcol = table->column(table->colIndex(list.at(1)));
-    ycol = table->column(table->colIndex(list.at(0)));
-  } else {
-    xcol = table->column(table->colIndex(list.at(0)));
-    ycol = table->column(table->colIndex(list.at(1)));
+  QList<Column *> ycollist;
+  foreach (QString col, list) {
+    if (table->YColumns().contains(col)) {
+      ycollist << table->column(table->colIndex(col));
+    } else {
+      xcol = table->column(table->colIndex(col));
+    }
+  }
+
+  AlphaPlot::ColumnDataType coldatatype = ycollist.at(0)->dataType();
+  foreach (Column *col, ycollist) {
+    if (col->dataType() != coldatatype) {
+      QMessageBox::warning(this, tr("Error"),
+                           tr("Please select all Y Column(s) with same "
+                              "ColumnDataType for plotting!"));
+      return;
+    }
   }
 
   if (type == Graph::Spline) {
@@ -9951,46 +9981,46 @@ void ApplicationWindow::selectPlotType(int value) {
   switch (type) {
     case Graph::Scatter:
       layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Scatter2D, table,
-                                  xcol, ycol, from, to);
+                                  xcol, ycollist, from, to);
       return;
     case Graph::Line:
       layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Line2D, table,
-                                  xcol, ycol, from, to);
+                                  xcol, ycollist, from, to);
       return;
     case Graph::LineSymbols:
       layout->generateCurve2DPlot(AxisRect2D::LineScatterType::LineAndScatter2D,
-                                  table, xcol, ycol, from, to);
+                                  table, xcol, ycollist, from, to);
       return;
     case Graph::Spline:
       layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Spline2D, table,
-                                  xcol, ycol, from, to);
+                                  xcol, ycollist, from, to);
       return;
     case Graph::VerticalDropLines:
       layout->generateLineSpecial2DPlot(
           AxisRect2D::LineScatterSpecialType::VerticalDropLine2D, table, xcol,
-          ycol, from, to);
+          ycollist, from, to);
       return;
     case Graph::VerticalSteps:
       layout->generateLineSpecial2DPlot(
-          AxisRect2D::LineScatterSpecialType::VerticalStep2D, table, xcol, ycol,
-          from, to);
+          AxisRect2D::LineScatterSpecialType::VerticalStep2D, table, xcol,
+          ycollist, from, to);
       return;
     case Graph::HorizontalSteps:
       layout->generateLineSpecial2DPlot(
           AxisRect2D::LineScatterSpecialType::HorizontalStep2D, table, xcol,
-          ycol, from, to);
+          ycollist, from, to);
       return;
     case Graph::Area:
       layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Area2D, table,
-                                  xcol, ycol, from, to);
+                                  xcol, ycollist, from, to);
       return;
     case Graph::HorizontalBars:
       layout->generateBar2DPlot(AxisRect2D::BarType::HorizontalBars, table,
-                                xcol, ycol, from, to);
+                                xcol, ycollist, from, to);
       return;
     case Graph::VerticalBars:
       layout->generateBar2DPlot(AxisRect2D::BarType::VerticalBars, table, xcol,
-                                ycol, from, to);
+                                ycollist, from, to);
       return;
     default: {
       qDebug() << "not implimented" << value;

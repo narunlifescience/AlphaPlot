@@ -115,3 +115,60 @@ void LegendItem2D::mousePressEvent(QMouseEvent *event,
   emit legendItemClicked();
   QCPPlottableLegendItem::mousePressEvent(event, details);
 }
+
+SplineLegendItem2D::SplineLegendItem2D(Legend2D *legend, Curve2D *plottable)
+    : LegendItem2D(legend, plottable),
+      isspline_(false),
+      curve_(plottable),
+      legend_(legend) {
+  isspline_ = (plottable->getcurvetype_cplot() == Curve2D::Curve2DType::Spline)
+                  ? isspline_ = true
+                  : isspline_ = false;
+}
+
+SplineLegendItem2D::~SplineLegendItem2D() {}
+
+void SplineLegendItem2D::draw(QCPPainter *painter) {
+  if (isspline_) {
+    QPen mpen = curve_->getSplinePen();
+    QBrush mbrush = curve_->getSplineBrush();
+    painter->setPen(mpen);
+    painter->setBrush(mbrush);
+    QPainterPath path;
+    QRectF icrect = QRectF(rect().topLeft(), legend_->iconSize());
+    double diff = (icrect.bottomLeft().y() - icrect.topLeft().y()) / 2;
+    QPointF point1 = QPointF(icrect.topLeft().x(), icrect.topLeft().y() + diff);
+    QPointF point2 =
+        QPointF(icrect.topRight().x(), icrect.topRight().y() + diff);
+    double diff2 = (icrect.bottomRight().x() - icrect.bottomLeft().x()) / 4;
+    QPointF ctrl1 = QPointF(icrect.topLeft().x() + diff2, icrect.topLeft().y());
+    QPointF ctrl2 =
+        QPointF(icrect.topRight().x() - diff2, icrect.bottomLeft().y());
+    path.moveTo(point1);
+    path.cubicTo(ctrl1, ctrl2, point2);
+    painter->setRenderHint(QPainter::Antialiasing, true);
+    painter->drawPath(path);
+  }
+  LegendItem2D::draw(painter);
+}
+
+VectorLegendItem2D::VectorLegendItem2D(Legend2D *legend, Vector2D *plottable)
+    : LegendItem2D(legend, plottable), vector_(plottable), legend_(legend) {}
+
+VectorLegendItem2D::~VectorLegendItem2D() {}
+
+void VectorLegendItem2D::draw(QCPPainter *painter) {
+  QPen mpen = vector_->pen();
+  QBrush mbrush = vector_->brush();
+  painter->setPen(mpen);
+  painter->setBrush(mbrush);
+  QPainterPath path;
+  QRectF icrect = QRectF(rect().topLeft(), legend_->iconSize());
+  double diff = (icrect.bottomLeft().y() - icrect.topLeft().y()) / 2;
+  QPointF point1 = QPointF(icrect.topLeft().x(), icrect.topLeft().y() + diff);
+  QPointF point2 = QPointF(icrect.topRight().x(), icrect.topRight().y() + diff);
+  path.moveTo(point1);
+  path.lineTo(point2);
+  painter->drawPath(path);
+  LegendItem2D::draw(painter);
+}

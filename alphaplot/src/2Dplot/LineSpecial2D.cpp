@@ -448,8 +448,7 @@ void LineSpecial2D::removepicker(QMouseEvent *event, const QVariant &details) {
         point.x() < event->localPos().x() + 10 &&
         point.y() > event->localPos().y() - 10 &&
         point.y() < event->localPos().y() + 10) {
-      graphdata_->data()->remove(it->mainKey());
-      layer()->replot();
+      graphdata_->removedatafromtable(it->mainKey(), it->mainValue());
     }
   }
 }

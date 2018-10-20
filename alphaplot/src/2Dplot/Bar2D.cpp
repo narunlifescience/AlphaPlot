@@ -24,8 +24,8 @@ Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
   setfillcolor_barplot(color);
   setData(bardata_->data());
   if (bardata_ && bardata_->data()->size() > 1)
-  setWidth(bardata_->data()->at(1)->mainKey() -
-           bardata_->data()->at(0)->mainKey());
+    setWidth(bardata_->data()->at(1)->mainKey() -
+             bardata_->data()->at(0)->mainKey());
 }
 
 Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
@@ -47,10 +47,10 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
   int d_bin_size = 0;
   double d_begin = 0.0;
   double d_end = 0.0;
-  double d_mean;
-  double d_standard_deviation;
-  double d_min;
-  double d_max;
+  double d_mean = 0.0;
+  double d_standard_deviation = 0.0;
+  double d_min = 0.0;
+  double d_max = 0.0;
 
   int r = abs(d_end_row - d_start_row) + 1;
   QVarLengthArray<double> Y(r);
@@ -98,7 +98,7 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
 
     d_begin = floor(min);
     d_end = ceil(max);
-    d_bin_size = (d_end - d_begin) / (double)n;
+    d_bin_size = (d_end - d_begin) / static_cast<double>(n);
 
     gsl_histogram_set_ranges_uniform(h, floor(min), ceil(max));
   } else {
@@ -238,7 +238,7 @@ void Bar2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   QCPBars::mousePressEvent(event, details);
 }
 
-void Bar2D::datapicker(QMouseEvent *event, const QVariant &details) {
+void Bar2D::datapicker(QMouseEvent *, const QVariant &details) {
   QCPBarsDataContainer::const_iterator it = data()->constEnd();
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
@@ -249,7 +249,7 @@ void Bar2D::datapicker(QMouseEvent *event, const QVariant &details) {
   }
 }
 
-void Bar2D::graphpicker(QMouseEvent *event, const QVariant &details) {
+void Bar2D::graphpicker(QMouseEvent *event, const QVariant &) {
   double xvalue, yvalue;
   pixelsToCoords(event->localPos(), xvalue, yvalue);
   emit showtooltip(event->localPos(), xvalue, yvalue);
@@ -257,4 +257,12 @@ void Bar2D::graphpicker(QMouseEvent *event, const QVariant &details) {
 
 void Bar2D::movepicker(QMouseEvent *event, const QVariant &details) {}
 
-void Bar2D::removepicker(QMouseEvent *event, const QVariant &details) {}
+void Bar2D::removepicker(QMouseEvent *, const QVariant &details) {
+  QCPBarsDataContainer::const_iterator it = data()->constEnd();
+  QCPDataSelection dataPoints = details.value<QCPDataSelection>();
+  if (dataPoints.dataPointCount() > 0) {
+    dataPoints.dataRange();
+    it = data()->at(dataPoints.dataRange().begin());
+    bardata_->removedatafromtable(it->mainKey(), it->mainValue());
+  }
+}

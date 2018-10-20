@@ -59,8 +59,8 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   connect(removels_, SIGNAL(triggered(bool)), this, SLOT(removels()));
   connect(removecurve_, SIGNAL(triggered(bool)), this, SLOT(removecurve()));
   connect(removebar_, SIGNAL(triggered(bool)), this, SLOT(removebar()));
-  // connect(removevector_, SIGNAL(triggered(bool)), this,
-  // SLOT(removevector())); connect(removepie_, SIGNAL(triggered(bool)), this,
+  connect(removevector_, SIGNAL(triggered(bool)), this, SLOT(removevector()));
+  // connect(removepie_, SIGNAL(triggered(bool)), this,
   // SLOT(removepie()));
 }
 
@@ -183,7 +183,8 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
     case PropertyItemType::Vector:
       menu.addAction("Edit Data");
       menu.addAction("Analyze");
-      menu.addAction(removebar_);
+      menu.addAction(removevector_);
+      removevector_->setData(item->data(0, Qt::UserRole + 1));
       break;
 
     case PropertyItemType::Grid:
@@ -253,6 +254,7 @@ void MyTreeWidget::removels() {
       ls->getxaxis_lsplot()->getaxisrect_axis()->removeLineScatter2D(ls);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
+    return;
   }
   customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
@@ -267,6 +269,7 @@ void MyTreeWidget::removecurve() {
       curve->getxaxis_cplot()->getaxisrect_axis()->removeCurve2D(curve);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
+    return;
   }
   customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
@@ -280,6 +283,22 @@ void MyTreeWidget::removebar() {
   bool result = bar->getxaxis_barplot()->getaxisrect_axis()->removeBar2D(bar);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
+    return;
+  }
+  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
+}
+
+void MyTreeWidget::removevector() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+  void *ptr = action->data().value<void *>();
+  Vector2D *vector = static_cast<Vector2D *>(ptr);
+  QCustomPlot *customplot = vector->parentPlot();
+  bool result =
+      vector->getxaxis_vecplot()->getaxisrect_axis()->removeVector2D(vector);
+  if (!result) {
+    qDebug() << "unable to remove line scatter 2d plot";
+    return;
   }
   customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }

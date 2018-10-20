@@ -43,6 +43,8 @@ class Curve2D : public QCPCurve {
   Graph2DCommon::PlotType getplottype_cplot() const { return type_; }
   Curve2D::Curve2DType getcurvetype_cplot() const { return curve2dtype_; }
   DataBlockCurve *getdatablock_cplot() const { return curvedata_; }
+  QPen getSplinePen() { return splinePen_; }
+  QBrush getSplineBrush() { return splineBrush_; }
   // Setters
   void setxaxis_cplot(Axis2D *axis);
   void setyaxis_cplot(Axis2D *axis);

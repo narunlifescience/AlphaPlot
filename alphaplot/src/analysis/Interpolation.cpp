@@ -30,29 +30,28 @@
 
 #include <QMessageBox>
 
+#include <gsl/gsl_interp.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_spline.h>
-#include <gsl/gsl_interp.h>
 
-Interpolation::Interpolation(ApplicationWindow *parent, Graph *g,
-                             const QString &curveTitle, int m)
-    : Filter(parent, g) {
+Interpolation::Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
+                             PlotData::AssociatedData *associateddata, int m)
+    : Filter(parent, axisrect) {
   init(m);
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(associateddata);
 }
 
-Interpolation::Interpolation(ApplicationWindow *parent, Graph *g,
-                             const QString &curveTitle, double start,
-                             double end, int m)
-    : Filter(parent, g) {
+Interpolation::Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
+                             PlotData::AssociatedData *associateddata,
+                             double start, double end, int m)
+    : Filter(parent, axisrect) {
   init(m);
-  setDataFromCurve(curveTitle, start, end);
+  setDataFromCurve(associateddata, start, end);
 }
 
 void Interpolation::init(int m) {
   if (m < 0 || m > 2) {
-    QMessageBox::critical((ApplicationWindow *)parent(),
-                          tr("AlphaPlot") + " - " + tr("Error"),
+    QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
                           tr("Unknown interpolation method. Valid values are: "
                              "0 - Linear, 1 - Cubic, 2 - Akima."));
     d_init_err = true;
@@ -79,7 +78,7 @@ void Interpolation::init(int m) {
 
 void Interpolation::setMethod(int m) {
   if (m < 0 || m > 2) {
-    QMessageBox::critical((ApplicationWindow *)parent(), tr("Error"),
+    QMessageBox::critical(app_, tr("Error"),
                           tr("Unknown interpolation method, valid values are: "
                              "0 - Linear, 1 - Cubic, 2 - Akima."));
     d_init_err = true;
@@ -88,7 +87,7 @@ void Interpolation::setMethod(int m) {
   int min_points = m + 3;
   if (d_n < min_points) {
     QMessageBox::critical(
-        (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
+        app_, tr("AlphaPlot") + " - " + tr("Error"),
         tr("You need at least %1 points in order to perform this operation!")
             .arg(min_points));
     d_init_err = true;
@@ -100,7 +99,7 @@ void Interpolation::setMethod(int m) {
 
 void Interpolation::calculateOutputData(double *x, double *y) {
   gsl_interp_accel *acc = gsl_interp_accel_alloc();
-  const gsl_interp_type *method = NULL;
+  const gsl_interp_type *method = nullptr;
   switch (d_method) {
     case 0:
       method = gsl_interp_linear;
@@ -113,10 +112,10 @@ void Interpolation::calculateOutputData(double *x, double *y) {
       break;
   }
 
-  gsl_spline *interp = gsl_spline_alloc(method, d_n);
-  gsl_spline_init(interp, d_x, d_y, d_n);
+  gsl_spline *interp = gsl_spline_alloc(method, static_cast<size_t>(d_n));
+  gsl_spline_init(interp, d_x, d_y, static_cast<size_t>(d_n));
 
-  double step = (d_to - d_from) / (double)(d_points - 1);
+  double step = (d_to - d_from) / static_cast<double>(d_points - 1);
   for (int j = 0; j < d_points; j++) {
     x[j] = d_from + j * step;
     y[j] = gsl_spline_eval(interp, x[j], acc);
@@ -131,7 +130,7 @@ bool Interpolation::isDataAcceptable() {
   for (int i = 1; i < d_n; i++)
     if (d_x[i - 1] == d_x[i]) {
       QMessageBox::critical(
-          (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
+          app_, tr("AlphaPlot") + " - " + tr("Error"),
           tr("Several data points have the same x value causing divisions by "
              "zero, operation aborted!"));
       return false;

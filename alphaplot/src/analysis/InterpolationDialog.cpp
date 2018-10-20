@@ -27,22 +27,26 @@
  *                                                                         *
  ***************************************************************************/
 #include "InterpolationDialog.h"
-#include "Graph.h"
-#include "scripting/MyParser.h"
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Plotcolumns.h"
 #include "ColorBox.h"
 #include "Interpolation.h"
+#include "scripting/MyParser.h"
 
+#include <QComboBox>
 #include <QGroupBox>
-#include <QSpinBox>
+#include <QLabel>
+#include <QLayout>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QLabel>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QLayout>
+#include <QSpinBox>
 
-InterpolationDialog::InterpolationDialog(QWidget *parent, Qt::WFlags fl)
-    : QDialog(parent, fl) {
+InterpolationDialog::InterpolationDialog(QWidget *parent, Qt::WindowFlags fl)
+    : QDialog(parent, fl),
+      axisrect_(nullptr),
+      app_(qobject_cast<ApplicationWindow *>(parent)) {
+  Q_ASSERT(app_);
   setWindowTitle(tr("Interpolation Options"));
 
   QGroupBox *gb1 = new QGroupBox();
@@ -102,8 +106,10 @@ InterpolationDialog::InterpolationDialog(QWidget *parent, Qt::WFlags fl)
 }
 
 void InterpolationDialog::interpolate() {
-/*  QString curve = boxName->currentText();
-  QStringList curvesList = graph->analysableCurvesList();
+  if (!axisrect_) return;
+  QString curve = boxName->currentText();
+  QStringList curvesList =
+      PlotColumns::getstringlistfromassociateddata(axisrect_);
   if (!curvesList.contains(curve)) {
     QMessageBox::critical(
         this, tr("Warning"),
@@ -113,11 +119,14 @@ void InterpolationDialog::interpolate() {
     boxName->addItems(curvesList);
     return;
   }
+  PlotData::AssociatedData *associateddata =
+      PlotColumns::getassociateddatafromstring(axisrect_,
+                                               boxName->currentText());
 
   double from, to;
   try {
     MyParser parser;
-    parser.SetExpr(boxStart->text().replace(",", ".").toAscii().constData());
+    parser.SetExpr(boxStart->text().replace(",", ".").toUtf8().constData());
     from = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(this, tr("Start limit error"),
@@ -128,7 +137,7 @@ void InterpolationDialog::interpolate() {
 
   try {
     MyParser parser;
-    parser.SetExpr(boxEnd->text().replace(",", ".").toAscii().constData());
+    parser.SetExpr(boxEnd->text().replace(",", ".").toUtf8().constData());
     to = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(this, tr("End limit error"),
@@ -144,54 +153,47 @@ void InterpolationDialog::interpolate() {
     return;
   }
 
-  Interpolation *i =
-      new Interpolation((ApplicationWindow *)this->parent(), graph, curve, from,
-                        to, boxMethod->currentIndex());
+  Interpolation *i = new Interpolation(app_, axisrect_, associateddata, from,
+                                       to, boxMethod->currentIndex());
   i->setOutputPoints(boxPoints->value());
   i->setColor(boxColor->currentIndex());
   i->run();
-  delete i;*/
+  delete i;
 }
 
-void InterpolationDialog::setGraph(Graph *g) {
-  graph = g;
-  boxName->addItems(g->analysableCurvesList());
-
-  QString selectedCurve = g->selectedCurveTitle();
-  if (!selectedCurve.isEmpty()) {
-    int index = boxName->findText(selectedCurve);
-    boxName->setCurrentIndex(index);
-  }
-
+void InterpolationDialog::setAxisRect(AxisRect2D *axisrect) {
+  if (!axisrect) return;
+  axisrect_ = axisrect;
+  boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
   activateCurve(boxName->currentText());
-
-  connect(graph, SIGNAL(closedGraph()), this, SLOT(close()));
-  connect(graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
 void InterpolationDialog::activateCurve(const QString &curveName) {
-  QwtPlotCurve *c = graph->curve(curveName);
-  if (!c) return;
+  if (!axisrect_) return;
+  PlotData::AssociatedData *associateddata;
+  associateddata =
+      PlotColumns::getassociateddatafromstring(axisrect_, curveName);
+  if (!associateddata) return;
 
-  ApplicationWindow *app = (ApplicationWindow *)parent();
-  if (!app) return;
-
-  double start, end;
-  graph->range(graph->curveIndex(curveName), &start, &end);
+  Column *col = associateddata->xcol;
+  xmin_ = col->valueAt(associateddata->from);
+  xmax_ = col->valueAt(associateddata->from);
+  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
+    double value = col->valueAt(i);
+    if (xmin_ > value) xmin_ = value;
+    if (xmax_ < value) xmax_ = value;
+  }
   boxStart->setText(
-      QString::number(std::min(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::min(xmin_, xmax_), 'g', app_->d_decimal_digits));
   boxEnd->setText(
-      QString::number(std::max(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::max(xmin_, xmax_), 'g', app_->d_decimal_digits));
 };
 
 void InterpolationDialog::changeDataRange() {
-  ApplicationWindow *app = (ApplicationWindow *)parent();
-  if (!app) return;
-
-  double start = graph->selectedXStartValue();
-  double end = graph->selectedXEndValue();
+  double start = xmin_;
+  double end = xmax_;
   boxStart->setText(
-      QString::number(std::min(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::min(start, end), 'g', app_->d_decimal_digits));
   boxEnd->setText(
-      QString::number(std::max(start, end), 'g', app->d_decimal_digits));
+      QString::number(std::max(start, end), 'g', app_->d_decimal_digits));
 }

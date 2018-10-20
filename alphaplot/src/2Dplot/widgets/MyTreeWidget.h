@@ -40,7 +40,7 @@ class MyTreeWidget : public QTreeWidget {
   void removels();
   void removecurve();
   void removebar();
-  // void removevector();
+  void removevector();
   // void removepie();
 
  private:

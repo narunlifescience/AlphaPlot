@@ -4,7 +4,7 @@ QT += core gui
 QT += widgets opengl network svg xml script scripttools printsupport
 
 # enable C++11 support
-  CONFIG += c++11
+  CONFIG += c++14
   CONFIG += qt warn_on exceptions opengl thread zlib
 
 
