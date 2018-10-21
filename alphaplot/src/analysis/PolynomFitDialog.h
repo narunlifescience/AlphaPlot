@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : SmoothCurveDialog.h
+    File                 : PolynomFitDialog.h
     Project              : AlphaPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Smoothing options dialog
+    Description          : Fit polynomial dialog
 
  ***************************************************************************/
 
@@ -26,39 +26,47 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef SMOOTHDIALOG_H
-#define SMOOTHDIALOG_H
+#ifndef POLINOMFITDIALOG_H
+#define POLINOMFITDIALOG_H
 
 #include <QDialog>
 
-class QPushButton;
-class QComboBox;
+class QCheckBox;
 class QSpinBox;
-class Graph;
+class QPushButton;
+class QLineEdit;
+class QComboBox;
 class ColorBox;
+class AxisRect2D;
+class ApplicationWindow;
 
-//! Smoothing options dialog
-class SmoothCurveDialog : public QDialog {
+//! Fit polynomial dialog
+class PolynomFitDialog : public QDialog {
   Q_OBJECT
 
  public:
-  SmoothCurveDialog(int method, QWidget* parent = 0, Qt::WindowFlags fl = 0);
-  ~SmoothCurveDialog() {}
-
-  QPushButton* btnSmooth;
-  QPushButton* buttonCancel;
-  QComboBox* boxName;
-  QSpinBox *boxPointsLeft, *boxPointsRight, *boxOrder;
-  ColorBox* boxColor;
+  PolynomFitDialog(QWidget* parent = nullptr, Qt::WindowFlags fl = Qt::Widget);
 
  public slots:
-  void setGraph(Graph* g);
-  void smooth();
+  void fit();
+  void setAxisRect(AxisRect2D* axisrect);
   void activateCurve(const QString& curveName);
+  void changeDataRange();
 
  private:
-  Graph* graph;
-  int smooth_method;
+  AxisRect2D* axisrect_;
+  ApplicationWindow *app_;
+  double xmin_;
+  double xmax_;
+
+  QPushButton* buttonFit;
+  QPushButton* buttonCancel;
+  QCheckBox* boxShowFormula;
+  QComboBox* boxName;
+  QSpinBox* boxOrder;
+  QLineEdit* boxStart;
+  QLineEdit* boxEnd;
+  ColorBox* boxColor;
 };
 
-#endif  // SMOOTHDIALOG_H
+#endif  // POLINOMFITDIALOG_H

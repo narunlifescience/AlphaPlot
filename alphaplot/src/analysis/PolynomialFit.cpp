@@ -27,32 +27,34 @@
  *                                                                         *
  ***************************************************************************/
 #include "PolynomialFit.h"
+#include "future/core/column/Column.h"
 
-#include <QMessageBox>
 #include <QLocale>
+#include <QMessageBox>
 
-#include <gsl/gsl_multifit.h>
 #include <gsl/gsl_fit.h>
+#include <gsl/gsl_multifit.h>
 
-PolynomialFit::PolynomialFit(ApplicationWindow *parent, Graph *g, int order,
-                             bool legend)
-    : Fit(parent, g), d_order(order), show_legend(legend) {
+PolynomialFit::PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                             int order)
+    : Fit(parent, axisrect), d_order(order) {
   init();
 }
 
-PolynomialFit::PolynomialFit(ApplicationWindow *parent, Graph *g,
-                             QString &curveTitle, int order, bool legend)
-    : Fit(parent, g), d_order(order), show_legend(legend) {
+PolynomialFit::PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                             PlotData::AssociatedData *associateddata,
+                             int order)
+    : Fit(parent, axisrect), d_order(order) {
   init();
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(associateddata);
 }
 
-PolynomialFit::PolynomialFit(ApplicationWindow *parent, Graph *g,
-                             QString &curveTitle, double start, double end,
-                             int order, bool legend)
-    : Fit(parent, g), d_order(order), show_legend(legend) {
+PolynomialFit::PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                             PlotData::AssociatedData *associateddata,
+                             double start, double end, int order)
+    : Fit(parent, axisrect), d_order(order) {
   init();
-  setDataFromCurve(curveTitle, start, end);
+  setDataFromCurve(associateddata, start, end);
 }
 
 void PolynomialFit::init() {
@@ -62,8 +64,8 @@ void PolynomialFit::init() {
   d_p = d_order + 1;
   d_min_points = d_p;
 
-  covar = gsl_matrix_alloc(d_p, d_p);
-  d_results = new double[d_p];
+  covar = gsl_matrix_alloc(static_cast<size_t>(d_p), static_cast<size_t>(d_p));
+  d_results = new double[static_cast<size_t>(d_p)];
 
   d_formula = generateFormula(d_order);
   d_param_names = generateParameterList(d_order);
@@ -115,45 +117,51 @@ void PolynomialFit::fit() {
   if (d_init_err) return;
 
   if (d_p > d_n) {
-    QMessageBox::critical((ApplicationWindow *)parent(), tr("Fit Error"),
+    QMessageBox::critical(app_, tr("Fit Error"),
                           tr("You need at least %1 data points for this fit "
                              "operation. Operation aborted!")
                               .arg(d_p));
     return;
   }
 
-  gsl_matrix *X = gsl_matrix_alloc(d_n, d_p);
-  gsl_vector *c = gsl_vector_alloc(d_p);
+  gsl_matrix *X =
+      gsl_matrix_alloc(static_cast<size_t>(d_n), static_cast<size_t>(d_p));
+  gsl_vector *c = gsl_vector_alloc(static_cast<size_t>(d_p));
 
   for (int i = 0; i < d_n; i++) {
-    for (int j = 0; j < d_p; j++) gsl_matrix_set(X, i, j, pow(d_x[i], j));
+    for (int j = 0; j < d_p; j++)
+      gsl_matrix_set(X, static_cast<size_t>(i), static_cast<size_t>(j),
+                     pow(d_x[i], j));
   }
 
-  gsl_vector_view y = gsl_vector_view_array(d_y, d_n);
+  gsl_vector_view y = gsl_vector_view_array(d_y, static_cast<size_t>(d_n));
 
-  gsl_vector *weights = gsl_vector_alloc(d_n);
+  gsl_vector *weights = gsl_vector_alloc(static_cast<size_t>(d_n));
   for (int i = 0; i < d_n; i++)
-    gsl_vector_set(weights, i, 1.0 / pow(d_y_errors[i], 2));
+    gsl_vector_set(weights, static_cast<size_t>(i),
+                   1.0 / pow(d_y_errors[i], 2));
 
-  gsl_multifit_linear_workspace *work = gsl_multifit_linear_alloc(d_n, d_p);
+  gsl_multifit_linear_workspace *work = gsl_multifit_linear_alloc(
+      static_cast<size_t>(d_n), static_cast<size_t>(d_p));
 
   if (d_y_error_source == UnknownErrors)
     gsl_multifit_linear(X, &y.vector, c, covar, &chi_2, work);
   else
     gsl_multifit_wlinear(X, weights, &y.vector, c, covar, &chi_2, work);
 
-  for (int i = 0; i < d_p; i++) d_results[i] = gsl_vector_get(c, i);
+  for (int i = 0; i < d_p; i++)
+    d_results[i] = gsl_vector_get(c, static_cast<size_t>(i));
 
   gsl_multifit_linear_free(work);
   gsl_matrix_free(X);
   gsl_vector_free(c);
   gsl_vector_free(weights);
 
-  ApplicationWindow *app = (ApplicationWindow *)parent();
-  if (app->writeFitResultsToLog)
-    app->updateLog(logFitInfo(d_results, 0, 0, axisrect_->parentPlotName()));
-
-  if (show_legend) showLegend();
+  if (app_->writeFitResultsToLog)
+    app_->updateLog(logFitInfo(d_results, 0, 0,
+                               associateddata_->table->name() + "_" +
+                                   associateddata_->xcol->name() + "_" +
+                                   associateddata_->ycol->name()));
 
   generateFitCurve(d_results);
 }
@@ -180,30 +188,32 @@ QString PolynomialFit::legendInfo() {
  *
  *****************************************************************************/
 
-LinearFit::LinearFit(ApplicationWindow *parent, Graph *g) : Fit(parent, g) {
+LinearFit::LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect)
+    : Fit(parent, axisrect) {
   init();
 }
 
-LinearFit::LinearFit(ApplicationWindow *parent, Graph *g,
-                     const QString &curveTitle)
-    : Fit(parent, g) {
+LinearFit::LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                     PlotData::AssociatedData *associateddata)
+    : Fit(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(associateddata);
 }
 
-LinearFit::LinearFit(ApplicationWindow *parent, Graph *g,
-                     const QString &curveTitle, double start, double end)
-    : Fit(parent, g) {
+LinearFit::LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                     PlotData::AssociatedData *associateddata, double start,
+                     double end)
+    : Fit(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle, start, end);
+  setDataFromCurve(associateddata, start, end);
 }
 
 void LinearFit::init() {
   d_p = 2;
   d_min_points = d_p;
 
-  covar = gsl_matrix_alloc(d_p, d_p);
-  d_results = new double[d_p];
+  covar = gsl_matrix_alloc(static_cast<size_t>(d_p), static_cast<size_t>(d_p));
+  d_results = new double[static_cast<size_t>(d_p)];
 
   is_non_linear = false;
   d_formula = "A*x+B";
@@ -218,7 +228,7 @@ void LinearFit::fit() {
   if (d_init_err) return;
 
   if (d_p > d_n) {
-    QMessageBox::critical((ApplicationWindow *)parent(), tr("Fit Error"),
+    QMessageBox::critical(app_, tr("Fit Error"),
                           tr("You need at least %1 data points for this fit "
                              "operation. Operation aborted!")
                               .arg(d_p));
@@ -227,15 +237,15 @@ void LinearFit::fit() {
 
   double c0, c1, cov00, cov01, cov11;
 
-  double *weights = new double[d_n];
+  double *weights = new double[static_cast<size_t>(d_n)];
   for (int i = 0; i < d_n; i++) weights[i] = 1.0 / pow(d_y_errors[i], 2);
 
   if (d_y_error_source == UnknownErrors)
-    gsl_fit_linear(d_x, 1, d_y, 1, d_n, &c0, &c1, &cov00, &cov01, &cov11,
-                   &chi_2);
+    gsl_fit_linear(d_x, 1, d_y, 1, static_cast<size_t>(d_n), &c0, &c1, &cov00,
+                   &cov01, &cov11, &chi_2);
   else
-    gsl_fit_wlinear(d_x, 1, weights, 1, d_y, 1, d_n, &c0, &c1, &cov00, &cov01,
-                    &cov11, &chi_2);
+    gsl_fit_wlinear(d_x, 1, weights, 1, d_y, 1, static_cast<size_t>(d_n), &c0,
+                    &c1, &cov00, &cov01, &cov11, &chi_2);
 
   delete[] weights;
 
@@ -247,9 +257,11 @@ void LinearFit::fit() {
   gsl_matrix_set(covar, 1, 1, cov11);
   gsl_matrix_set(covar, 1, 0, cov01);
 
-  ApplicationWindow *app = (ApplicationWindow *)parent();
-  if (app->writeFitResultsToLog)
-    app->updateLog(logFitInfo(d_results, 0, 0, axisrect_->parentPlotName()));
+  if (app_->writeFitResultsToLog)
+    app_->updateLog(logFitInfo(d_results, 0, 0,
+                               associateddata_->table->name() + "_" +
+                                   associateddata_->xcol->name() + "_" +
+                                   associateddata_->ycol->name()));
 
   generateFitCurve(d_results);
 }

@@ -45,10 +45,10 @@
 #include "Fit.h"
 
 int expd3_f(const gsl_vector *x, void *params, gsl_vector *f) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A1 = gsl_vector_get(x, 0);
   double t1 = gsl_vector_get(x, 1);
@@ -69,10 +69,10 @@ int expd3_f(const gsl_vector *x, void *params, gsl_vector *f) {
 }
 
 double expd3_d(const gsl_vector *x, void *params) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A1 = gsl_vector_get(x, 0);
   double t1 = gsl_vector_get(x, 1);
@@ -96,9 +96,9 @@ double expd3_d(const gsl_vector *x, void *params) {
 }
 
 int expd3_df(const gsl_vector *x, void *params, gsl_matrix *J) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A1 = gsl_vector_get(x, 0);
   double l1 = gsl_vector_get(x, 1);
@@ -138,10 +138,10 @@ int expd3_fdf(const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J) {
 }
 
 int expd2_f(const gsl_vector *x, void *params, gsl_vector *f) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A1 = gsl_vector_get(x, 0);
   double t1 = gsl_vector_get(x, 1);
@@ -159,10 +159,10 @@ int expd2_f(const gsl_vector *x, void *params, gsl_vector *f) {
 }
 
 double expd2_d(const gsl_vector *x, void *params) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A1 = gsl_vector_get(x, 0);
   double t1 = gsl_vector_get(x, 1);
@@ -182,9 +182,9 @@ double expd2_d(const gsl_vector *x, void *params) {
 }
 
 int expd2_df(const gsl_vector *x, void *params, gsl_matrix *J) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A1 = gsl_vector_get(x, 0);
   double l1 = gsl_vector_get(x, 1);
@@ -219,10 +219,10 @@ int expd2_fdf(const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J) {
 }
 
 int exp_f(const gsl_vector *x, void *params, gsl_vector *f) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A = gsl_vector_get(x, 0);
   double lambda = gsl_vector_get(x, 1);
@@ -236,10 +236,10 @@ int exp_f(const gsl_vector *x, void *params, gsl_vector *f) {
 }
 
 double exp_d(const gsl_vector *x, void *params) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A = gsl_vector_get(x, 0);
   double lambda = gsl_vector_get(x, 1);
@@ -254,9 +254,9 @@ double exp_d(const gsl_vector *x, void *params) {
 }
 
 int exp_df(const gsl_vector *x, void *params, gsl_matrix *J) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A = gsl_vector_get(x, 0);
   double lambda = gsl_vector_get(x, 1);
@@ -284,10 +284,10 @@ int exp_fdf(const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J) {
 }
 
 int gauss_f(const gsl_vector *x, void *params, gsl_vector *f) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double Y0 = gsl_vector_get(x, 0);
   double A = gsl_vector_get(x, 1);
@@ -305,10 +305,10 @@ int gauss_f(const gsl_vector *x, void *params, gsl_vector *f) {
 }
 
 double gauss_d(const gsl_vector *x, void *params) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double Y0 = gsl_vector_get(x, 0);
   double A = gsl_vector_get(x, 1);
@@ -328,9 +328,9 @@ double gauss_d(const gsl_vector *x, void *params) {
 }
 
 int gauss_df(const gsl_vector *x, void *params, gsl_matrix *J) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A = gsl_vector_get(x, 1);
   double C = gsl_vector_get(x, 2);
@@ -363,11 +363,11 @@ int gauss_fdf(const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J) {
 }
 
 int gauss_multi_peak_f(const gsl_vector *x, void *params, gsl_vector *f) {
-  size_t n = ((struct FitData *)params)->n;
-  size_t p = ((struct FitData *)params)->p;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  size_t p = static_cast<struct FitData *>(params)->p;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   size_t peaks = (p - 1) / 3;
   double *a = new double[peaks];
@@ -397,11 +397,11 @@ int gauss_multi_peak_f(const gsl_vector *x, void *params, gsl_vector *f) {
 }
 
 double gauss_multi_peak_d(const gsl_vector *x, void *params) {
-  size_t n = ((struct FitData *)params)->n;
-  size_t p = ((struct FitData *)params)->p;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  size_t p = static_cast<struct FitData *>(params)->p;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   size_t peaks = (p - 1) / 3;
   double *a = new double[peaks];
@@ -434,10 +434,10 @@ double gauss_multi_peak_d(const gsl_vector *x, void *params) {
 }
 
 int gauss_multi_peak_df(const gsl_vector *x, void *params, gsl_matrix *J) {
-  size_t n = ((struct FitData *)params)->n;
-  size_t p = ((struct FitData *)params)->p;
-  double *X = ((struct FitData *)params)->X;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  size_t p = static_cast<struct FitData *>(params)->p;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   size_t peaks = (p - 1) / 3;
   double *a = new double[peaks];
@@ -478,11 +478,11 @@ int gauss_multi_peak_fdf(const gsl_vector *x, void *params, gsl_vector *f,
 }
 
 int lorentz_multi_peak_f(const gsl_vector *x, void *params, gsl_vector *f) {
-  size_t n = ((struct FitData *)params)->n;
-  size_t p = ((struct FitData *)params)->p;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  size_t p = static_cast<struct FitData *>(params)->p;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   size_t peaks = (p - 1) / 3;
   double *a = new double[peaks];
@@ -511,11 +511,11 @@ int lorentz_multi_peak_f(const gsl_vector *x, void *params, gsl_vector *f) {
 }
 
 double lorentz_multi_peak_d(const gsl_vector *x, void *params) {
-  size_t n = ((struct FitData *)params)->n;
-  size_t p = ((struct FitData *)params)->p;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  size_t p = static_cast<struct FitData *>(params)->p;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   size_t peaks = (p - 1) / 3;
   double *a = new double[peaks];
@@ -546,10 +546,10 @@ double lorentz_multi_peak_d(const gsl_vector *x, void *params) {
 }
 
 int lorentz_multi_peak_df(const gsl_vector *x, void *params, gsl_matrix *J) {
-  size_t n = ((struct FitData *)params)->n;
-  size_t p = ((struct FitData *)params)->p;
-  double *X = ((struct FitData *)params)->X;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  size_t p = static_cast<struct FitData *>(params)->p;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   size_t peaks = (p - 1) / 3;
   double *a = new double[peaks];
@@ -609,10 +609,10 @@ int user_fdf(const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J) {
 }
 
 int boltzmann_f(const gsl_vector *x, void *params, gsl_vector *f) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A1 = gsl_vector_get(x, 0);
   double A2 = gsl_vector_get(x, 1);
@@ -628,10 +628,10 @@ int boltzmann_f(const gsl_vector *x, void *params, gsl_vector *f) {
 }
 
 double boltzmann_d(const gsl_vector *x, void *params) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *Y = ((struct FitData *)params)->Y;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *Y = static_cast<struct FitData *>(params)->Y;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A1 = gsl_vector_get(x, 0);
   double A2 = gsl_vector_get(x, 1);
@@ -648,9 +648,9 @@ double boltzmann_d(const gsl_vector *x, void *params) {
 }
 
 int boltzmann_df(const gsl_vector *x, void *params, gsl_matrix *J) {
-  size_t n = ((struct FitData *)params)->n;
-  double *X = ((struct FitData *)params)->X;
-  double *sigma = ((struct FitData *)params)->sigma;
+  size_t n = static_cast<struct FitData *>(params)->n;
+  double *X = static_cast<struct FitData *>(params)->X;
+  double *sigma = static_cast<struct FitData *>(params)->sigma;
 
   double A1 = gsl_vector_get(x, 0);
   double A2 = gsl_vector_get(x, 1);

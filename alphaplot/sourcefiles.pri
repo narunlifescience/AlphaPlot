@@ -55,6 +55,14 @@ HEADERS  += src/ApplicationWindow.h \
             src/analysis/IntDialog.h\
             src/analysis/Interpolation.h\
             src/analysis/InterpolationDialog.h\
+            src/analysis/SmoothFilter.h\
+            src/analysis/SmoothCurveDialog.h\
+            src/analysis/Fit.h\
+            src/analysis/fit_gsl.h\
+            src/analysis/PolynomialFit.h\
+            src/analysis/PolynomFitDialog.h\
+            src/analysis/ExponentialFit.h\
+            src/analysis/ExpDecayDialog.h\
             src/TranslateCurveTool.h\
             src/CurveRangeDialog.h\
             src/OpenProjectDialog.h\
@@ -143,6 +151,14 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/analysis/IntDialog.cpp\
             src/analysis/Interpolation.cpp\
             src/analysis/InterpolationDialog.cpp\
+            src/analysis/SmoothFilter.cpp\
+            src/analysis/SmoothCurveDialog.cpp\
+            src/analysis/Fit.cpp\
+            src/analysis/fit_gsl.cpp\
+            src/analysis/PolynomialFit.cpp\
+            src/analysis/PolynomFitDialog.cpp\
+            src/analysis/ExponentialFit.cpp\
+            src/analysis/ExpDecayDialog.cpp\
             src/TranslateCurveTool.cpp\
             src/CurveRangeDialog.cpp\
             src/OpenProjectDialog.cpp\

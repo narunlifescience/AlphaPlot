@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : ExpDecayDialog.h
+    File                 : PolynomialFit.h
     Project              : AlphaPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Fit exponential decay dialog
+    Description          : Polynomial Fit and Linear Fit classes
 
  ***************************************************************************/
 
@@ -26,58 +26,50 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef EXPDECAYDIALOG_H
-#define EXPDECAYDIALOG_H
+#ifndef POLYNOMIALFIT_H
+#define POLYNOMIALFIT_H
 
-#include <QDialog>
+#include "Fit.h"
 
-class QPushButton;
-class QLineEdit;
-class QComboBox;
-class QLabel;
-class Graph;
-class ColorBox;
-class Fit;
-
-//! Fit exponential decay dialog
-class ExpDecayDialog : public QDialog {
+class PolynomialFit : public Fit {
   Q_OBJECT
 
  public:
-  ExpDecayDialog(int type, QWidget* parent = 0, Qt::WindowFlags fl = 0);
-  ~ExpDecayDialog() {}
+  PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect, int order = 2);
+  PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                PlotData::AssociatedData *associateddata, int order = 2);
+  PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                PlotData::AssociatedData *associateddata, double start,
+                double end, int order = 2);
 
- public slots:
+  virtual QString legendInfo();
   void fit();
-  void setGraph(Graph* g);
 
- private slots:
-  void activateCurve(const QString& curveName);
-  void changeDataRange();
-
- signals:
-  void options(const QString&, double, double, double, double, int);
-  void options(const QString&, double, double, double, int);
-  void options3(const QString&, double, double, double, double, double, int);
+  static QString generateFormula(int order);
+  static QStringList generateParameterList(int order);
 
  private:
-  void closeEvent(QCloseEvent*);
+  void init();
+  void calculateFitCurveData(double *par, double *X, double *Y);
 
-  Fit* fitter;
-  Graph* graph;
-  int slopes;
-
-  QPushButton* buttonFit;
-  QPushButton* buttonCancel;
-  QComboBox* boxName;
-  QLineEdit* boxAmplitude;
-  QLineEdit* boxFirst;
-  QLineEdit* boxSecond;
-  QLineEdit* boxThird;
-  QLineEdit* boxStart;
-  QLineEdit* boxYOffset;
-  QLabel *thirdLabel, *dampingLabel;
-  ColorBox* boxColor;
+  int d_order;
 };
 
-#endif  // EXPDECAYDIALOG_H
+class LinearFit : public Fit {
+  Q_OBJECT
+
+ public:
+  LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+  LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+            PlotData::AssociatedData *associateddata);
+  LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+            PlotData::AssociatedData *associateddata, double start, double end);
+
+  void fit();
+
+ private:
+  void init();
+  void calculateFitCurveData(double *par, double *X, double *Y);
+};
+
+#endif  // POLYNOMIALFIT_H

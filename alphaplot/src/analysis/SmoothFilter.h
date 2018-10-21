@@ -29,23 +29,26 @@
 #ifndef SMOOTHFILTER_H
 #define SMOOTHFILTER_H
 
-#include "Filter.h"
 #include <gsl/gsl_matrix_double.h>
+#include "Filter.h"
+
+class AxisRect2D;
 
 class SmoothFilter : public Filter {
   Q_OBJECT
 
  public:
-  SmoothFilter(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
-               int m = 3);
-  SmoothFilter(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
-               double start, double end, int m = 3);
+  SmoothFilter(ApplicationWindow *parent, AxisRect2D *axisrect,
+               PlotData::AssociatedData *associateddata, int m = 3);
+  SmoothFilter(ApplicationWindow *parent, AxisRect2D *axisrect,
+               PlotData::AssociatedData *associateddata, double start,
+               double end, int m = 3);
 
   enum SmoothMethod { SavitzkyGolay = 1, FFT = 2, Average = 3 };
 
-  int method() { return (int)d_method; }
+  int method() { return static_cast<int>(d_method); }
   void setMethod(int m);
-  void setMethod(SmoothMethod m) { setMethod((int)m); }
+  void setMethod(SmoothMethod m) { setMethod(static_cast<int>(m)); }
 
   void setSmoothPoints(int points, int left_points = 0);
   //! Sets the polynomial order in the Savitky-Golay algorithm.

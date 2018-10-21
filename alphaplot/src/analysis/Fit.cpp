@@ -27,24 +27,22 @@
  *                                                                         *
  ***************************************************************************/
 #include "Fit.h"
-#include "fit_gsl.h"
-#include "Table.h"
-#include "Matrix.h"
-#include "Legend.h"
-#include "FunctionCurve.h"
 #include "ColorBox.h"
-#include "scripting/Script.h"
+#include "Matrix.h"
+#include "Table.h"
 #include "core/column/Column.h"
+#include "fit_gsl.h"
+#include "scripting/Script.h"
 
-#include <gsl/gsl_statistics.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_deriv.h>
+#include <gsl/gsl_statistics.h>
 #include <gsl/gsl_version.h>
 
 #include <QApplication>
-#include <QMessageBox>
 #include <QDateTime>
 #include <QLocale>
+#include <QMessageBox>
 
 Fit::Fit(ApplicationWindow *parent, AxisRect2D *axisrect, QString name)
     : Filter(parent, axisrect, name),
@@ -57,14 +55,14 @@ Fit::Fit(ApplicationWindow *parent, AxisRect2D *axisrect, QString name)
   d_gen_function = true;
   d_points = 100;
   d_max_iterations = 1000;
-  associateddata_ = 0;
+  associateddata_ = nullptr;
   d_formula = QString::null;
   d_explanation = QString::null;
   d_y_error_source = UnknownErrors;
   d_y_error_dataset = QString::null;
   is_non_linear = true;
-  d_results = 0;
-  d_result_errors = 0;
+  d_results = nullptr;
+  d_result_errors = nullptr;
   d_prec = parent->fit_output_precision;
   d_init_err = false;
   chi_2 = -1;
@@ -73,7 +71,7 @@ Fit::Fit(ApplicationWindow *parent, AxisRect2D *axisrect, QString name)
 }
 
 double *Fit::fitGslMultifit(int &iterations, int &status) {
-  double *result = new double[d_p];
+  double *result = new double[static_cast<size_t>(d_p)];
 
   // declare input data
   struct FitData data = {static_cast<size_t>(d_n),
@@ -86,8 +84,8 @@ double *Fit::fitGslMultifit(int &iterations, int &status) {
   f.f = d_f;
   f.df = d_df;
   f.fdf = d_fdf;
-  f.n = d_n;
-  f.p = d_p;
+  f.n = static_cast<size_t>(d_n);
+  f.p = static_cast<size_t>(d_p);
   f.params = &data;
 
   // initialize solver
@@ -102,7 +100,8 @@ double *Fit::fitGslMultifit(int &iterations, int &status) {
     default:
       break;
   }
-  gsl_multifit_fdfsolver *s = gsl_multifit_fdfsolver_alloc(T, d_n, d_p);
+  gsl_multifit_fdfsolver *s = gsl_multifit_fdfsolver_alloc(
+      T, static_cast<size_t>(d_n), static_cast<size_t>(d_p));
   gsl_multifit_fdfsolver_set(s, &f, d_param_init);
 
   // iterate solver algorithm
@@ -115,7 +114,8 @@ double *Fit::fitGslMultifit(int &iterations, int &status) {
   }
 
   // grab results
-  for (int i = 0; i < d_p; i++) result[i] = gsl_vector_get(s->x, i);
+  for (int i = 0; i < d_p; i++)
+    result[i] = gsl_vector_get(s->x, static_cast<size_t>(i));
   gsl_blas_ddot(s->f, s->f, &chi_2);
 #if GSL_MAJOR_VERSION < 2
   gsl_multifit_covar(s->J, 0.0, covar);
@@ -141,7 +141,7 @@ double *Fit::fitGslMultifit(int &iterations, int &status) {
 }
 
 double *Fit::fitGslMultimin(int &iterations, int &status) {
-  double *result = new double[d_p];
+  double *result = new double[static_cast<size_t>(d_p)];
 
   // declare input data
   struct FitData data = {static_cast<size_t>(d_n),
@@ -152,7 +152,7 @@ double *Fit::fitGslMultimin(int &iterations, int &status) {
                          this};
   gsl_multimin_function f;
   f.f = d_fsimplex;
-  f.n = d_p;
+  f.n = static_cast<size_t>(d_p);
   f.params = &data;
 
   // step size (size of the simplex)
@@ -176,10 +176,12 @@ double *Fit::fitGslMultimin(int &iterations, int &status) {
   }
 
   // grab results
-  for (int i = 0; i < d_p; i++) result[i] = gsl_vector_get(s_min->x, i);
+  for (int i = 0; i < d_p; i++)
+    result[i] = gsl_vector_get(s_min->x, static_cast<size_t>(i));
   chi_2 = s_min->fval;
-  gsl_matrix *J = gsl_matrix_alloc(d_n, d_p);
-  d_df(s_min->x, (void *)f.params, J);
+  gsl_matrix *J =
+      gsl_matrix_alloc(static_cast<size_t>(d_n), static_cast<size_t>(d_p));
+  d_df(s_min->x, static_cast<void *>(f.params), J);
   gsl_multifit_covar(J, 0.0, covar);
   if (d_y_error_source == UnknownErrors) {
     // multiply covar by variance of residuals, which is used as an estimate for
@@ -196,18 +198,20 @@ double *Fit::fitGslMultimin(int &iterations, int &status) {
   return result;
 }
 
-void Fit::setDataCurve(int curve, double start, double end) {
+void Fit::setDataCurve(PlotData::AssociatedData *associateddata, double start,
+                       double end) {
   if (d_n > 0) delete[] d_y_errors;
 
-  Filter::setDataCurve(curve, start, end);
+  Filter::setDataCurve(associateddata, start, end);
 
-  d_y_errors = new double[d_n];
+  d_y_errors = new double[static_cast<size_t>(d_n)];
   if (!setYErrorSource(AssociatedErrors, QString::null, true))
     setYErrorSource(UnknownErrors);
 }
 
 void Fit::setInitialGuesses(double *x_init) {
-  for (int i = 0; i < d_p; i++) gsl_vector_set(d_param_init, i, x_init[i]);
+  for (int i = 0; i < d_p; i++)
+    gsl_vector_set(d_param_init, static_cast<size_t>(i), x_init[i]);
 }
 
 void Fit::generateFunction(bool yes, int points) {
@@ -221,7 +225,8 @@ QString Fit::logFitInfo(double *par, int iterations, int status,
   QString info = "[" + dt.toString(Qt::LocalDate) + "\t" + tr("Plot") + ": ''" +
                  plotName + "'']\n";
   info += d_explanation + " " + tr("fit of dataset") + ": " +
-          associateddata_->title().text();
+          associateddata_->table->name() + "_" + associateddata_->xcol->name() +
+          "_" + associateddata_->ycol->name();
   if (!d_formula.isEmpty())
     info += ", " + tr("using function") + ": " + d_formula + "\n";
   else
@@ -263,12 +268,16 @@ QString Fit::logFitInfo(double *par, int iterations, int status,
     info += d_param_names[i] + " " + d_param_explain[i] + " = " +
             QLocale().toString(par[i], 'g', d_prec) + " +/- ";
     if (d_scale_errors)
-      info += QLocale().toString(sqrt(chi_2_dof * gsl_matrix_get(covar, i, i)),
-                                 'g', d_prec) +
+      info += QLocale().toString(
+                  sqrt(chi_2_dof * gsl_matrix_get(covar, static_cast<size_t>(i),
+                                                  static_cast<size_t>(i))),
+                  'g', d_prec) +
               "\n";
     else
       info +=
-          QLocale().toString(sqrt(gsl_matrix_get(covar, i, i)), 'g', d_prec) +
+          QLocale().toString(sqrt(gsl_matrix_get(covar, static_cast<size_t>(i),
+                                                 static_cast<size_t>(i))),
+                             'g', d_prec) +
           "\n";
   }
   info +=
@@ -311,7 +320,9 @@ double Fit::rSquare() {
 }
 
 QString Fit::legendInfo() {
-  QString info = tr("Dataset") + ": " + associateddata_->title().text() + "\n";
+  QString info = tr("Dataset") + ": " + associateddata_->table->name() + "_" +
+                 associateddata_->xcol->name() + "_" +
+                 associateddata_->ycol->name() + "\n";
   info += tr("Function") + ": " + d_formula + "\n\n";
 
   double chi_2_dof = chi_2 / (d_n - d_p);
@@ -322,12 +333,16 @@ QString Fit::legendInfo() {
     info += d_param_names[i] + " = " +
             QLocale().toString(d_results[i], 'g', d_prec) + " +/- ";
     if (d_scale_errors)
-      info += QLocale().toString(sqrt(chi_2_dof * gsl_matrix_get(covar, i, i)),
-                                 'g', d_prec) +
+      info += QLocale().toString(
+                  sqrt(chi_2_dof * gsl_matrix_get(covar, static_cast<size_t>(i),
+                                                  static_cast<size_t>(i))),
+                  'g', d_prec) +
               "\n";
     else
       info +=
-          QLocale().toString(sqrt(gsl_matrix_get(covar, i, i)), 'g', d_prec) +
+          QLocale().toString(sqrt(gsl_matrix_get(covar, static_cast<size_t>(i),
+                                                 static_cast<size_t>(i))),
+                             'g', d_prec) +
           "\n";
   }
   return info;
@@ -369,40 +384,41 @@ bool Fit::setYErrorSource(ErrorSource err, const QString &colName,
         for (int j = 0; j < d_n; j++) d_y_errors[j] = er->errorValue(j);
       }
     */} break;
-    case PoissonErrors: {
-      d_y_error_dataset = associateddata_->title().text();
+      case PoissonErrors: {
+        d_y_error_dataset = associateddata_->table->name() + "_" +
+                            associateddata_->xcol->name() + "_" +
+                            associateddata_->ycol->name();
 
-      for (int i = 0; i < d_n; i++) d_y_errors[i] = sqrt(d_y[i]);
-    } break;
-    case CustomErrors: {  // d_y_errors are equal to the values of the arbitrary
-                          // dataset
-      if (colName.isEmpty()) return false;
+        for (int i = 0; i < d_n; i++) d_y_errors[i] = sqrt(d_y[i]);
+      } break;
+      case CustomErrors: {  // d_y_errors are equal to the values of the
+                            // arbitrary dataset
+        if (colName.isEmpty()) return false;
 
-      Table *t = ((ApplicationWindow *)parent())->table(colName);
-      if (!t) return false;
+        Table *t = app_->table(colName);
+        if (!t) return false;
 
-      if (t->numRows() < d_n) {
-        if (!fail_silently)
-          QMessageBox::critical(
-              (ApplicationWindow *)parent(), tr("Error"),
-              tr("The column %1 has less points than the fitted data set. "
-                 "Please choose another column!.")
-                  .arg(colName));
-        return false;
-      }
+        if (t->numRows() < d_n) {
+          if (!fail_silently)
+            QMessageBox::critical(
+                app_, tr("Error"),
+                tr("The column %1 has less points than the fitted data set. "
+                   "Please choose another column!.")
+                    .arg(colName));
+          return false;
+        }
 
-      d_y_error_dataset = colName;
+        d_y_error_dataset = colName;
 
-      int col = t->colIndex(colName);
-      for (int i = 0; i < d_n; i++) d_y_errors[i] = t->cell(i, col);
-    } break;
+        int col = t->colIndex(colName);
+        for (int i = 0; i < d_n; i++) d_y_errors[i] = t->cell(i, col);
+      } break;
   }
   return true;
 }
 
 Table *Fit::parametersTable(const QString &tableName) {
-  ApplicationWindow *app = (ApplicationWindow *)parent();
-  Table *t = app->newTable(tableName, d_p, 3);
+  Table *t = app_->newTable(tableName, d_p, 3);
   t->setHeader(QStringList() << tr("Parameter") << tr("Value") << tr("Error"));
   t->column(0)->setColumnMode(AlphaPlot::Text);
   t->column(1)->setColumnMode(AlphaPlot::Numeric);
@@ -410,7 +426,9 @@ Table *Fit::parametersTable(const QString &tableName) {
   for (int i = 0; i < d_p; i++) {
     t->column(0)->setTextAt(i, d_param_names[i]);
     t->column(1)->setValueAt(i, d_results[i]);
-    t->column(2)->setValueAt(i, sqrt(gsl_matrix_get(covar, i, i)));
+    t->column(2)->setValueAt(i,
+                             sqrt(gsl_matrix_get(covar, static_cast<size_t>(i),
+                                                 static_cast<size_t>(i))));
   }
 
   t->column(2)->setPlotDesignation(AlphaPlot::yErr);
@@ -424,12 +442,14 @@ Table *Fit::parametersTable(const QString &tableName) {
 }
 
 Matrix *Fit::covarianceMatrix(const QString &matrixName) {
-  ApplicationWindow *app = (ApplicationWindow *)parent();
-  Matrix *m = app->newMatrix(matrixName, d_p, d_p);
+  Matrix *m = app_->newMatrix(matrixName, d_p, d_p);
   for (int i = 0; i < d_p; i++) {
     for (int j = 0; j < d_p; j++)
-      m->setText(i, j,
-                 QLocale().toString(gsl_matrix_get(covar, i, j), 'g', d_prec));
+      m->setText(
+          i, j,
+          QLocale().toString(gsl_matrix_get(covar, static_cast<size_t>(i),
+                                            static_cast<size_t>(j)),
+                             'g', d_prec));
   }
   m->showNormal();
   return m;
@@ -437,13 +457,16 @@ Matrix *Fit::covarianceMatrix(const QString &matrixName) {
 
 double *Fit::errors() {
   if (!d_result_errors) {
-    d_result_errors = new double[d_p];
+    d_result_errors = new double[static_cast<size_t>(d_p)];
     double chi_2_dof = chi_2 / (d_n - d_p);
     for (int i = 0; i < d_p; i++) {
       if (d_scale_errors)
-        d_result_errors[i] = sqrt(chi_2_dof * gsl_matrix_get(covar, i, i));
+        d_result_errors[i] =
+            sqrt(chi_2_dof * gsl_matrix_get(covar, static_cast<size_t>(i),
+                                            static_cast<size_t>(i)));
       else
-        d_result_errors[i] = sqrt(gsl_matrix_get(covar, i, i));
+        d_result_errors[i] = sqrt(gsl_matrix_get(covar, static_cast<size_t>(i),
+                                                 static_cast<size_t>(i)));
     }
   }
   return d_result_errors;
@@ -457,19 +480,19 @@ void Fit::fit() {
   if (!axisrect_ || d_init_err) return;
 
   if (!d_n) {
-    QMessageBox::critical((ApplicationWindow *)parent(), tr("Fit Error"),
+    QMessageBox::critical(app_, tr("Fit Error"),
                           tr("You didn't specify a valid data set for this fit "
                              "operation. Operation aborted!"));
     return;
   }
   if (!d_p) {
-    QMessageBox::critical((ApplicationWindow *)parent(), tr("Fit Error"),
+    QMessageBox::critical(app_, tr("Fit Error"),
                           tr("There are no parameters specified for this fit "
                              "operation. Operation aborted!"));
     return;
   }
   if (d_p > d_n) {
-    QMessageBox::critical((ApplicationWindow *)parent(), tr("Fit Error"),
+    QMessageBox::critical(app_, tr("Fit Error"),
                           tr("You need at least %1 data points for this fit "
                              "operation. Operation aborted!")
                               .arg(d_p));
@@ -477,7 +500,7 @@ void Fit::fit() {
   }
   if (d_formula.isEmpty()) {
     QMessageBox::critical(
-        (ApplicationWindow *)parent(), tr("Fit Error"),
+        app_, tr("Fit Error"),
         tr("You must specify a valid fit function first. Operation aborted!"));
     return;
   }
@@ -501,10 +524,11 @@ void Fit::fit() {
   delete[] par;
   delete d_script;
 
-  ApplicationWindow *app = (ApplicationWindow *)parent();
-  if (app->writeFitResultsToLog)
-    app->updateLog(
-        logFitInfo(d_results, iterations, status, axisrect_->parentPlotName()));
+  if (app_->writeFitResultsToLog)
+    app_->updateLog(logFitInfo(d_results, iterations, status,
+                               associateddata_->table->name() + "_" +
+                                   associateddata_->xcol->name() + "_" +
+                                   associateddata_->ycol->name()));
 
   QApplication::restoreOverrideCursor();
 }
@@ -518,12 +542,14 @@ void Fit::scriptError(const QString &message, const QString &script_name,
 
 int Fit::evaluate_f(const gsl_vector *x, gsl_vector *f) {
   for (int i = 0; i < d_p; i++)
-    d_script->setDouble(gsl_vector_get(x, i), d_param_names[i].toUtf8());
+    d_script->setDouble(gsl_vector_get(x, static_cast<size_t>(i)),
+                        d_param_names[i].toUtf8());
   for (int j = 0; j < d_n; j++) {
     d_script->setDouble(d_x[j], "x");
     bool success;
     gsl_vector_set(
-        f, j, (d_script->eval().toDouble(&success) - d_y[j]) / d_y_errors[j]);
+        f, static_cast<size_t>(j),
+        (d_script->eval().toDouble(&success) - d_y[j]) / d_y_errors[j]);
     if (!success) return GSL_EINVAL;
   }
   return GSL_SUCCESS;
@@ -532,7 +558,8 @@ int Fit::evaluate_f(const gsl_vector *x, gsl_vector *f) {
 double Fit::evaluate_d(const gsl_vector *x) {
   double result = 0.0;
   for (int i = 0; i < d_p; i++)
-    d_script->setDouble(gsl_vector_get(x, i), d_param_names[i].toUtf8());
+    d_script->setDouble(gsl_vector_get(x, static_cast<size_t>(i)),
+                        d_param_names[i].toUtf8());
   for (int j = 0; j < d_n; j++) {
     d_script->setDouble(d_x[j], "x");
     bool success;
@@ -571,14 +598,17 @@ int Fit::evaluate_df(const gsl_vector *x, gsl_matrix *J) {
   data.script = d_script;
   data.success = true;
   for (int i = 0; i < d_p; i++)
-    d_script->setDouble(gsl_vector_get(x, i), d_param_names[i].toUtf8());
+    d_script->setDouble(gsl_vector_get(x, static_cast<size_t>(i)),
+                        d_param_names[i].toUtf8());
   for (int i = 0; i < d_n; i++) {
     d_script->setDouble(d_x[i], "x");
     for (int j = 0; j < d_p; j++) {
       data.param = d_param_names[j];
-      gsl_deriv_central(&F, gsl_vector_get(x, j), 1e-8, &result, &abserr);
+      gsl_deriv_central(&F, gsl_vector_get(x, static_cast<size_t>(j)), 1e-8,
+                        &result, &abserr);
       if (!data.success) return GSL_EINVAL;
-      gsl_matrix_set(J, i, j, result / d_y_errors[j]);
+      gsl_matrix_set(J, static_cast<size_t>(i), static_cast<size_t>(j),
+                     result / d_y_errors[j]);
     }
   }
   return GSL_SUCCESS;
@@ -587,28 +617,27 @@ int Fit::evaluate_df(const gsl_vector *x, gsl_matrix *J) {
 void Fit::generateFitCurve(double *par) {
   if (!d_gen_function) d_points = d_n;
 
-  double *X = new double[d_points];
-  double *Y = new double[d_points];
+  double *X = new double[static_cast<size_t>(d_points)];
+  double *Y = new double[static_cast<size_t>(d_points)];
 
   calculateFitCurveData(par, X, Y);
 
   if (d_gen_function) {
     insertFitFunctionCurve(objectName() + tr("Fit"), X, Y);
-    axisrect_->replot();
     delete[] X;
     delete[] Y;
   } else
-    axisrect_->addFitCurve(addResultCurve(X, Y));
+    addResultCurve(X, Y);
 }
 
 void Fit::insertFitFunctionCurve(const QString &name, double *x, double *y,
                                  int penWidth) {
-  QString title = axisrect_->generateFunctionName(name);
-  FunctionCurve *c = new FunctionCurve((ApplicationWindow *)parent(),
-                                       FunctionCurve::Normal, title);
-  c->setPen(QPen(ColorBox::color(d_curveColorIndex), penWidth));
-  c->setData(x, y, d_points);
-  c->setRange(d_x[0], d_x[d_n - 1]);
+  qDebug() << "insertFitFunctionCurve(const QString &name, double *x, double "
+              "*y, int penWidth)";
+  //QString title = axisrect_->generateFunctionName(name);
+
+  //c->setData(x, y, d_points);
+  //c->setRange(d_x[0], d_x[d_n - 1]);
 
   QString formula;
   for (int j = 0; j < d_p; j++)
@@ -617,9 +646,12 @@ void Fit::insertFitFunctionCurve(const QString &name, double *x, double *y,
                    .arg(d_results[j], 0, 'g', d_prec);
   formula += "\n";
   formula += d_formula;
-  c->setFormula(formula);
-  axisrect_->insertPlotItem(c, Graph::Line);
-  axisrect_->addFitCurve(c);
+  qDebug() << formula << d_formula;
+  qDebug() << d_x[0] << d_x[d_n - 1];
+  //c->setFormula(formula);
+  //app_->addFunctionPlot(1, QStringList() << formula,
+  //                                    ui_->paramparameterLineEdit->text(), ranges,
+  //                                    ui_->normpointsSpinBox->value(), axisrect_);
 }
 
 Fit::~Fit() {

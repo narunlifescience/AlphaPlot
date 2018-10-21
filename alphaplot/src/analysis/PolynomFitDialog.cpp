@@ -27,23 +27,25 @@
  *                                                                         *
  ***************************************************************************/
 #include "PolynomFitDialog.h"
-#include "Graph.h"
-#include "ColorBox.h"
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Plotcolumns.h"
 #include "ApplicationWindow.h"
+#include "ColorBox.h"
 #include "PolynomialFit.h"
 
-#include <QSpinBox>
 #include <QCheckBox>
-#include <QMessageBox>
-#include <QLayout>
-#include <QGroupBox>
-#include <QPushButton>
-#include <QLabel>
-#include <QLineEdit>
 #include <QComboBox>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLayout>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSpinBox>
 
-PolynomFitDialog::PolynomFitDialog(QWidget *parent, Qt::WFlags fl)
-    : QDialog(parent, fl) {
+PolynomFitDialog::PolynomFitDialog(QWidget *parent, Qt::WindowFlags fl)
+    : QDialog(parent, fl), app_(qobject_cast<ApplicationWindow *>(parent)) {
+  Q_ASSERT(app_);
   setWindowTitle(tr("Polynomial Fit Options"));
   setSizeGripEnabled(true);
 
@@ -92,8 +94,6 @@ PolynomFitDialog::PolynomFitDialog(QWidget *parent, Qt::WFlags fl)
   hlayout->addWidget(gb1);
   hlayout->addLayout(vl);
 
-  languageChange();
-
   connect(buttonFit, SIGNAL(clicked()), this, SLOT(fit()));
   connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
   connect(boxName, SIGNAL(activated(const QString &)), this,
@@ -102,7 +102,8 @@ PolynomFitDialog::PolynomFitDialog(QWidget *parent, Qt::WFlags fl)
 
 void PolynomFitDialog::fit() {
   QString curveName = boxName->currentText();
-  QStringList curvesList = graph->analysableCurvesList();
+  QStringList curvesList =
+      PlotColumns::getstringlistfromassociateddata(axisrect_);
   if (!curvesList.contains(curveName)) {
     QMessageBox::critical(
         this, tr("Warning"),
@@ -113,48 +114,50 @@ void PolynomFitDialog::fit() {
     return;
   }
 
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
-  PolynomialFit *fitter = new PolynomialFit(app, graph, boxOrder->value(),
-                                            boxShowFormula->isChecked());
-  if (fitter->setDataFromCurve(curveName, boxStart->text().toDouble(),
-                               boxEnd->text().toDouble())) {
+  PolynomialFit *fitter = new PolynomialFit(app_, axisrect_, boxOrder->value());
+  if (fitter->setDataFromCurve(
+          PlotColumns::getassociateddatafromstring(axisrect_, curveName),
+          boxStart->text().toDouble(), boxEnd->text().toDouble())) {
     fitter->setColor(boxColor->currentIndex());
-    fitter->scaleErrors(app->fit_scale_errors);
-    fitter->setOutputPrecision(app->fit_output_precision);
-    fitter->generateFunction(app->generateUniformFitPoints, app->fitPoints);
+    fitter->scaleErrors(app_->fit_scale_errors);
+    fitter->setOutputPrecision(app_->fit_output_precision);
+    fitter->generateFunction(app_->generateUniformFitPoints, app_->fitPoints);
     fitter->fit();
     delete fitter;
   }
 }
 
-void PolynomFitDialog::setGraph(Graph *g) {
-  graph = g;
-  boxName->addItems(g->analysableCurvesList());
-
-  QString selectedCurve = g->selectedCurveTitle();
-  if (!selectedCurve.isEmpty()) {
-    int index = boxName->findText(selectedCurve);
-    boxName->setCurrentIndex(index);
-  }
+void PolynomFitDialog::setAxisRect(AxisRect2D *axisrect) {
+  axisrect_ = axisrect;
+  boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
   activateCurve(boxName->currentText());
-
-  connect(graph, SIGNAL(closedGraph()), this, SLOT(close()));
-  connect(graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
 void PolynomFitDialog::activateCurve(const QString &curveName) {
   Q_UNUSED(curveName);
   double start = 0;
   double end = 0;
-  // int n_points = graph->range(graph->curveIndex(curveName), &start, &end);
+  PlotData::AssociatedData *associateddata;
+  associateddata =
+      PlotColumns::getassociateddatafromstring(axisrect_, curveName);
+  if (!associateddata) return;
+
+  Column *col = associateddata->xcol;
+  xmin_ = col->valueAt(associateddata->from);
+  xmax_ = col->valueAt(associateddata->from);
+  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
+    double value = col->valueAt(i);
+    if (xmin_ > value) xmin_ = value;
+    if (xmax_ < value) xmax_ = value;
+  }
 
   boxStart->setText(QString::number(start, 'g', 15));
   boxEnd->setText(QString::number(end, 'g', 15));
 };
 
 void PolynomFitDialog::changeDataRange() {
-  double start = graph->selectedXStartValue();
-  double end = graph->selectedXEndValue();
+  double start = xmin_;
+  double end = xmax_;
   boxStart->setText(QString::number(std::min(start, end), 'g', 15));
   boxEnd->setText(QString::number(std::max(start, end), 'g', 15));
 }

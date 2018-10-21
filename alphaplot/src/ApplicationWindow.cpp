@@ -30,12 +30,12 @@
 #include "DataSetDialog.h"
 #include "ErrDialog.h"
 #include "analysis/Differentiation.h"
-//#include "ExpDecayDialog.h"
+#include "analysis/ExpDecayDialog.h"
 #include "FindDialog.h"
 #include "analysis/FFTDialog.h"
 #include "analysis/FFTFilter.h"
 #include "analysis/FilterDialog.h"
-//#include "Fit.h"
+#include "analysis/Fit.h"
 //#include "FitDialog.h"
 #include "Folder.h"
 #include "ImageDialog.h"
@@ -48,16 +48,16 @@
 #include "Note.h"
 #include "OpenProjectDialog.h"
 #include "PlotWizard.h"
-//#include "PolynomFitDialog.h"
-//#include "PolynomialFit.h"
 #include "RenameWindowDialog.h"
+#include "analysis/PolynomFitDialog.h"
+#include "analysis/PolynomialFit.h"
 //#include "SigmoidalFit.h"
-//#include "SmoothCurveDialog.h"
-//#include "SmoothFilter.h"
 #include "Spectrogram.h"
 #include "TableStatistics.h"
 #include "analysis/Convolution.h"
 #include "analysis/Correlation.h"
+#include "analysis/SmoothCurveDialog.h"
+#include "analysis/SmoothFilter.h"
 #include "core/IconLoader.h"
 #include "core/Project.h"
 #include "core/column/Column.h"
@@ -5538,19 +5538,17 @@ void ApplicationWindow::fitExponentialGrowth() { fitExponential(-1); }
 void ApplicationWindow::fitFirstOrderExponentialDecay() { fitExponential(1); }
 
 void ApplicationWindow::fitExponential(int type) {
-  /* if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-   Graph *g =
-       qobject_cast<MultiLayer
-   *>(d_workspace->activeSubWindow())->activeGraph(); if (!g ||
-   !g->validCurvesDataSize()) return;
+  AxisRect2D *axisrect =
+      qobject_cast<Layout2D *>(d_workspace->activeSubWindow())
+          ->getCurrentAxisRect();
+  if(!axisrect) return;
 
    ExpDecayDialog *edd = new ExpDecayDialog(type, this);
    edd->setAttribute(Qt::WA_DeleteOnClose);
-   connect(g, SIGNAL(destroyed()), edd, SLOT(close()));
-
-   edd->setGraph(g);
-   edd->show();*/
+   edd->setAxisRect(axisrect);
+   edd->show();
 }
 
 void ApplicationWindow::fitSecondOrderExponentialDecay() { fitExponential(2); }
@@ -5639,28 +5637,29 @@ void ApplicationWindow::showFFTDialog() {
 }
 
 void ApplicationWindow::showSmoothDialog(int m) {
-  /*if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  Graph *graph =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (!graph || !graph->validCurvesDataSize()) return;
+  AxisRect2D *axisrect =
+      qobject_cast<Layout2D *>(d_workspace->activeSubWindow())
+          ->getCurrentAxisRect();
+  if (!axisrect) return;
 
   SmoothCurveDialog *sd = new SmoothCurveDialog(m, this);
   sd->setAttribute(Qt::WA_DeleteOnClose);
-  sd->setGraph(graph);
-  sd->exec();*/
+  sd->setAxisRect(axisrect);
+  sd->exec();
 }
 
 void ApplicationWindow::savitzkySmooth() {
-  // showSmoothDialog(SmoothFilter::SavitzkyGolay);
+  showSmoothDialog(SmoothFilter::SavitzkyGolay);
 }
 
 void ApplicationWindow::fFTFilterSmooth() {
-  // showSmoothDialog(SmoothFilter::FFT);
+  showSmoothDialog(SmoothFilter::FFT);
 }
 
 void ApplicationWindow::movingWindowAverageSmooth() {
-  // showSmoothDialog(SmoothFilter::Average);
+  showSmoothDialog(SmoothFilter::Average);
 }
 
 void ApplicationWindow::interpolate() {
@@ -5684,18 +5683,23 @@ void ApplicationWindow::interpolate() {
 }
 
 void ApplicationWindow::fitPolynomial() {
-  /*  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-    Graph *graph =
-        qobject_cast<MultiLayer
-    *>(d_workspace->activeSubWindow())->activeGraph(); if (!graph ||
-    !graph->validCurvesDataSize()) return;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
+    ui_->actionDisableGraphTools->setChecked(true);
+    return;
+  }
 
-    PolynomFitDialog *pfd = new PolynomFitDialog(this);
-    pfd->setAttribute(Qt::WA_DeleteOnClose);
-    connect(graph, SIGNAL(destroyed()), pfd, SLOT(close()));
-    pfd->setGraph(graph);
-    pfd->show();*/
+  PolynomFitDialog *pfd = new PolynomFitDialog(this);
+  pfd->setAttribute(Qt::WA_DeleteOnClose);
+  pfd->setAxisRect(axisrect);
+  pfd->show();
 }
 
 void ApplicationWindow::fitLinear() { analysis("fitLinear"); }

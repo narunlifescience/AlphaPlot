@@ -35,10 +35,13 @@ class ExponentialFit : public Fit {
   Q_OBJECT
 
  public:
-  ExponentialFit(ApplicationWindow *parent, Graph *g, bool expGrowth = false);
-  ExponentialFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+  ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
                  bool expGrowth = false);
-  ExponentialFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+  ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                 PlotData::AssociatedData *associateddata,
+                 bool expGrowth = false);
+  ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                 PlotData::AssociatedData *associateddata,
                  double start, double end, bool expGrowth = false);
 
  private:
@@ -53,9 +56,11 @@ class TwoExpFit : public Fit {
   Q_OBJECT
 
  public:
-  TwoExpFit(ApplicationWindow *parent, Graph *g);
-  TwoExpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
-  TwoExpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+  TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+  TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+            PlotData::AssociatedData *associateddata);
+  TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+            PlotData::AssociatedData *associateddata,
             double start, double end);
 
  private:
@@ -68,9 +73,11 @@ class ThreeExpFit : public Fit {
   Q_OBJECT
 
  public:
-  ThreeExpFit(ApplicationWindow *parent, Graph *g);
-  ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
-  ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+  ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+  ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+              PlotData::AssociatedData *associateddata);
+  ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+              PlotData::AssociatedData *associateddata,
               double start, double end);
 
  private:

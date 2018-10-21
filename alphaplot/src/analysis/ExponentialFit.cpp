@@ -35,25 +35,26 @@
  *
  *****************************************************************************/
 
-ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g,
+ExponentialFit::ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
                                bool expGrowth)
-    : Fit(parent, g), is_exp_growth(expGrowth) {
+    : Fit(parent, axisrect), is_exp_growth(expGrowth) {
   init();
 }
 
-ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g,
-                               const QString &curveTitle, bool expGrowth)
-    : Fit(parent, g), is_exp_growth(expGrowth) {
+ExponentialFit::ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                               PlotData::AssociatedData *associateddata,
+                               bool expGrowth)
+    : Fit(parent, axisrect), is_exp_growth(expGrowth) {
   init();
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(associateddata);
 }
 
-ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g,
-                               const QString &curveTitle, double start,
-                               double end, bool expGrowth)
-    : Fit(parent, g), is_exp_growth(expGrowth) {
+ExponentialFit::ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                               PlotData::AssociatedData *associateddata,
+                               double start, double end, bool expGrowth)
+    : Fit(parent, axisrect), is_exp_growth(expGrowth) {
   init();
-  setDataFromCurve(curveTitle, start, end);
+  setDataFromCurve(associateddata, start, end);
 }
 
 void ExponentialFit::init() {
@@ -117,22 +118,24 @@ void ExponentialFit::calculateFitCurveData(double *par, double *X, double *Y) {
  *
  *****************************************************************************/
 
-TwoExpFit::TwoExpFit(ApplicationWindow *parent, Graph *g) : Fit(parent, g) {
+TwoExpFit::TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect)
+    : Fit(parent, axisrect) {
   init();
 }
 
-TwoExpFit::TwoExpFit(ApplicationWindow *parent, Graph *g,
-                     const QString &curveTitle)
-    : Fit(parent, g) {
+TwoExpFit::TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                     PlotData::AssociatedData *associateddata)
+    : Fit(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(associateddata);
 }
 
-TwoExpFit::TwoExpFit(ApplicationWindow *parent, Graph *g,
-                     const QString &curveTitle, double start, double end)
-    : Fit(parent, g) {
+TwoExpFit::TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                     PlotData::AssociatedData *associateddata, double start,
+                     double end)
+    : Fit(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle, start, end);
+  setDataFromCurve(associateddata, start, end);
 }
 
 void TwoExpFit::init() {
@@ -190,22 +193,24 @@ void TwoExpFit::calculateFitCurveData(double *par, double *X, double *Y) {
  *
  *****************************************************************************/
 
-ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Graph *g) : Fit(parent, g) {
+ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect)
+    : Fit(parent, axisrect) {
   init();
 }
 
-ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Graph *g,
-                         const QString &curveTitle)
-    : Fit(parent, g) {
+ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                         PlotData::AssociatedData *associateddata)
+    : Fit(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(associateddata);
 }
 
-ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Graph *g,
-                         const QString &curveTitle, double start, double end)
-    : Fit(parent, g) {
+ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                         PlotData::AssociatedData *associateddata, double start,
+                         double end)
+    : Fit(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle, start, end);
+  setDataFromCurve(associateddata, start, end);
 }
 
 void ThreeExpFit::init() {

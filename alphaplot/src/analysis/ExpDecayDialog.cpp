@@ -27,22 +27,24 @@
  *                                                                         *
  ***************************************************************************/
 #include "ExpDecayDialog.h"
-#include "Graph.h"
-#include "ColorBox.h"
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Plotcolumns.h"
 #include "ApplicationWindow.h"
-#include "Fit.h"
+#include "ColorBox.h"
 #include "ExponentialFit.h"
+#include "Fit.h"
 
-#include <QMessageBox>
-#include <QLayout>
-#include <QGroupBox>
-#include <QPushButton>
-#include <QLabel>
-#include <QLineEdit>
 #include <QComboBox>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLayout>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QPushButton>
 
-ExpDecayDialog::ExpDecayDialog(int type, QWidget *parent, Qt::WFlags fl)
-    : QDialog(parent, fl) {
+ExpDecayDialog::ExpDecayDialog(int type, QWidget *parent, Qt::WindowFlags fl)
+    : QDialog(parent, fl), app_(qobject_cast<ApplicationWindow *>(parent)) {
+  Q_ASSERT(app_);
   slopes = type;
 
   setWindowTitle(tr("Verify initial guesses"));
@@ -133,53 +135,62 @@ ExpDecayDialog::ExpDecayDialog(int type, QWidget *parent, Qt::WFlags fl)
   connect(buttonCancel, SIGNAL(clicked()), this, SLOT(close()));
 }
 
-void ExpDecayDialog::setGraph(Graph *g) {
-  if (!g) return;
+void ExpDecayDialog::setAxisRect(AxisRect2D *axisrect) {
+  if (!axisrect) return;
 
-  fitter = 0;
-  graph = g;
+  fitter = nullptr;
+  axisrect_ = axisrect;
 
-  boxName->addItems(graph->analysableCurvesList());
-
-  QString selectedCurve = g->selectedCurveTitle();
-  if (!selectedCurve.isEmpty()) {
-    int index = boxName->findText(selectedCurve);
-    boxName->setCurrentIndex(index);
-  }
+  boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
   activateCurve(boxName->currentText());
-
-  connect(graph, SIGNAL(closedGraph()), this, SLOT(close()));
-  connect(graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
 void ExpDecayDialog::activateCurve(const QString &curveName) {
-  QwtPlotCurve *c = graph->curve(curveName);
-  if (!c) return;
+  if (!axisrect_) return;
+  PlotData::AssociatedData *associateddata;
+  associateddata =
+      PlotColumns::getassociateddatafromstring(axisrect_, curveName);
+  if (!associateddata) return;
 
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
-  if (!app) return;
+  Column *col = associateddata->xcol;
+  xmin_ = col->valueAt(associateddata->from);
+  xmax_ = col->valueAt(associateddata->from);
+  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
+    double value = col->valueAt(i);
+    if (xmin_ > value) xmin_ = value;
+    if (xmax_ < value) xmax_ = value;
+  }
 
-  int precision = app->fit_output_precision;
+  Column *ycol = associateddata->ycol;
+  double ymin = ycol->valueAt(associateddata->from);
+  double ymax = ycol->valueAt(associateddata->from);
+  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
+    double value = ycol->valueAt(i);
+    if (ymin > value) ymin = value;
+    if (ymax < value) ymax = value;
+  }
+
+  int precision = app_->fit_output_precision;
   double start, end;
-  graph->range(graph->curveIndex(curveName), &start, &end);
   boxStart->setText(QString::number(std::min(start, end)));
-  boxYOffset->setText(QString::number(c->minYValue(), 'g', precision));
+  boxYOffset->setText(QString::number(ymin, 'g', precision));
   if (slopes < 2)
-    boxAmplitude->setText(
-        QString::number(c->maxYValue() - c->minYValue(), 'g', precision));
+    boxAmplitude->setText(QString::number(ymax - ymin, 'g', precision));
 };
 
 void ExpDecayDialog::changeDataRange() {
-  double start = graph->selectedXStartValue();
-  double end = graph->selectedXEndValue();
+  double start = xmin_;
+  double end = xmax_;
   boxStart->setText(QString::number(std::min(start, end), 'g', 15));
 }
 
 void ExpDecayDialog::fit() {
   QString curve = boxName->currentText();
-  QwtPlotCurve *c = graph->curve(curve);
-  QStringList curvesList = graph->analysableCurvesList();
-  if (!c || !curvesList.contains(curve)) {
+  PlotData::AssociatedData *associateddata =
+      PlotColumns::getassociateddatafromstring(axisrect_, curve);
+  QStringList curvesList =
+      PlotColumns::getstringlistfromassociateddata(axisrect_);
+  if (!associateddata || !curvesList.contains(curve)) {
     QMessageBox::critical(
         this, tr("Warning"),
         tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!")
@@ -189,10 +200,7 @@ void ExpDecayDialog::fit() {
     return;
   }
 
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
-  if (!app) return;
-
-  int precision = app->fit_output_precision;
+  int precision = app_->fit_output_precision;
 
   if (fitter) delete fitter;
 
@@ -204,28 +212,28 @@ void ExpDecayDialog::fit() {
                         1.0,
                         boxThird->text().toDouble(),
                         boxYOffset->text().toDouble()};
-    fitter = new ThreeExpFit(app, graph);
+    fitter = new ThreeExpFit(app_, axisrect_);
     fitter->setInitialGuesses(x_init);
   } else if (slopes == 2) {
     double x_init[5] = {1.0, boxFirst->text().toDouble(), 1.0,
                         boxSecond->text().toDouble(),
                         boxYOffset->text().toDouble()};
-    fitter = new TwoExpFit(app, graph);
+    fitter = new TwoExpFit(app_, axisrect_);
     fitter->setInitialGuesses(x_init);
   } else if (slopes == 1 || slopes == -1) {
     double x_init[3] = {boxAmplitude->text().toDouble(),
                         slopes / boxFirst->text().toDouble(),
                         boxYOffset->text().toDouble()};
-    fitter = new ExponentialFit(app, graph, slopes == -1);
+    fitter = new ExponentialFit(app_, axisrect_, slopes == -1);
     fitter->setInitialGuesses(x_init);
   }
 
-  if (fitter->setDataFromCurve(boxName->currentText(),
-                               boxStart->text().toDouble(), c->maxXValue())) {
+  if (fitter->setDataFromCurve(associateddata, boxStart->text().toDouble(),
+                               xmax_)) {
     fitter->setColor(boxColor->currentIndex());
-    fitter->scaleErrors(app->fit_scale_errors);
-    fitter->setOutputPrecision(app->fit_output_precision);
-    fitter->generateFunction(app->generateUniformFitPoints, app->fitPoints);
+    fitter->scaleErrors(app_->fit_scale_errors);
+    fitter->setOutputPrecision(app_->fit_output_precision);
+    fitter->generateFunction(app_->generateUniformFitPoints, app_->fitPoints);
     fitter->fit();
 
     double *results = fitter->results();
@@ -246,9 +254,6 @@ void ExpDecayDialog::fit() {
 
 void ExpDecayDialog::closeEvent(QCloseEvent *e) {
   if (fitter) {
-    ApplicationWindow *app = (ApplicationWindow *)this->parent();
-    if (app && app->pasteFitResultsToPlot) fitter->showLegend();
-
     delete fitter;
   }
 

@@ -27,24 +27,28 @@
  *                                                                         *
  ***************************************************************************/
 #include "SmoothCurveDialog.h"
-#include "Graph.h"
-#include "scripting/MyParser.h"
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Plotcolumns.h"
 #include "ColorBox.h"
 #include "SmoothFilter.h"
+#include "scripting/MyParser.h"
 
+#include <QComboBox>
 #include <QGroupBox>
-#include <QSpinBox>
+#include <QLabel>
+#include <QLayout>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QLabel>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QLayout>
+#include <QSpinBox>
 
-SmoothCurveDialog::SmoothCurveDialog(int method, QWidget *parent, Qt::WFlags fl)
-    : QDialog(parent, fl) {
+SmoothCurveDialog::SmoothCurveDialog(int method, QWidget *parent,
+                                     Qt::WindowFlags fl)
+    : QDialog(parent, fl),
+      axisrect_(nullptr),
+      app_(qobject_cast<ApplicationWindow *>(parent)) {
+  Q_ASSERT(app_);
   smooth_method = method;
-
   setWindowTitle(tr("Smoothing Options"));
 
   QGroupBox *gb1 = new QGroupBox();
@@ -113,9 +117,11 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget *parent, Qt::WFlags fl)
 }
 
 void SmoothCurveDialog::smooth() {
-  SmoothFilter *sf =
-      new SmoothFilter((ApplicationWindow *)this->parent(), graph,
-                       boxName->currentText(), smooth_method);
+  if (!axisrect_) return;
+  SmoothFilter *sf = new SmoothFilter(app_, axisrect_,
+                                      PlotColumns::getassociateddatafromstring(
+                                          axisrect_, boxName->currentText()),
+                                      smooth_method);
   if (smooth_method == SmoothFilter::SavitzkyGolay) {
     sf->setSmoothPoints(boxPointsLeft->value(), boxPointsRight->value());
     sf->setPolynomOrder(boxOrder->value());
@@ -127,17 +133,22 @@ void SmoothCurveDialog::smooth() {
   delete sf;
 }
 
-void SmoothCurveDialog::setGraph(Graph *g) {
-  graph = g;
-  boxName->addItems(g->analysableCurvesList());
+void SmoothCurveDialog::setAxisRect(AxisRect2D *axisrect) {
+  if (!axisrect) return;
+  axisrect_ = axisrect;
+  boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
   activateCurve(boxName->currentText());
 }
 
 void SmoothCurveDialog::activateCurve(const QString &curveName) {
-  if (smooth_method == SmoothFilter::Average) {
-    QwtPlotCurve *c = graph->curve(curveName);
-    if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve) return;
+  if (!axisrect_) return;
+  PlotData::AssociatedData *associateddata;
+  associateddata =
+      PlotColumns::getassociateddatafromstring(axisrect_, curveName);
+  if (!associateddata) return;
 
-    boxPointsLeft->setMaximum(c->dataSize() / 2);
+  if (smooth_method == SmoothFilter::Average) {
+    boxPointsLeft->setMaximum((associateddata->to - associateddata->from + 1) /
+                              2);
   }
 }
