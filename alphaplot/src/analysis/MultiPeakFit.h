@@ -37,7 +37,7 @@ class MultiPeakFit : public Fit {
 
  public:
   enum PeakProfile { Gauss, Lorentz };
-  MultiPeakFit(ApplicationWindow *parent, Graph *g = 0,
+  MultiPeakFit(ApplicationWindow *parent, AxisRect2D *axisrect,
                PeakProfile profile = Gauss, int peaks = 1);
 
   int peaks() { return d_peaks; }
@@ -83,9 +83,11 @@ class LorentzFit : public MultiPeakFit {
   Q_OBJECT
 
  public:
-  LorentzFit(ApplicationWindow *parent, Graph *g);
-  LorentzFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
-  LorentzFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+  LorentzFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+  LorentzFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+             PlotData::AssociatedData *associateddata);
+  LorentzFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+             PlotData::AssociatedData *associateddata,
              double start, double end);
 
  private:
@@ -96,9 +98,11 @@ class GaussFit : public MultiPeakFit {
   Q_OBJECT
 
  public:
-  GaussFit(ApplicationWindow *parent, Graph *g);
-  GaussFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
-  GaussFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+  GaussFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+  GaussFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+           PlotData::AssociatedData *associateddata);
+  GaussFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+           PlotData::AssociatedData *associateddata,
            double start, double end);
 
  private:
@@ -109,9 +113,11 @@ class GaussAmpFit : public Fit {
   Q_OBJECT
 
  public:
-  GaussAmpFit(ApplicationWindow *parent, Graph *g);
-  GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
-  GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+  GaussAmpFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+  GaussAmpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+              PlotData::AssociatedData *associateddata);
+  GaussAmpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+              PlotData::AssociatedData *associateddata,
               double start, double end);
 
  private:

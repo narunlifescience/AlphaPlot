@@ -41,7 +41,7 @@ SOURCES += ../3rdparty/qwtplot3d/qwt3d_axis.cpp \
            ../3rdparty/qwtplot3d/qwt3d_scale.cpp
 
 SOURCES += ../3rdparty/qwtplot3d/qwt3d_gridmapping.cpp \
-		   ../3rdparty/qwtplot3d/qwt3d_parametricsurface.cpp \
+		       ../3rdparty/qwtplot3d/qwt3d_parametricsurface.cpp \
            ../3rdparty/qwtplot3d/qwt3d_function.cpp
 
 SOURCES += ../3rdparty/qwtplot3d/qwt3d_surfaceplot.cpp \
@@ -52,7 +52,7 @@ SOURCES += ../3rdparty/qwtplot3d/qwt3d_surfaceplot.cpp \
 HEADERS += ../3rdparty/qwtplot3d/qwt3d_color.h \
            ../3rdparty/qwtplot3d/qwt3d_global.h \
            ../3rdparty/qwtplot3d/qwt3d_types.h \
-	       ../3rdparty/qwtplot3d/qwt3d_axis.h \
+	         ../3rdparty/qwtplot3d/qwt3d_axis.h \
            ../3rdparty/qwtplot3d/qwt3d_coordsys.h \
            ../3rdparty/qwtplot3d/qwt3d_drawable.h \
            ../3rdparty/qwtplot3d/qwt3d_helper.h \
@@ -70,7 +70,7 @@ HEADERS += ../3rdparty/qwtplot3d/qwt3d_color.h \
            ../3rdparty/qwtplot3d/qwt3d_portability.h
 						
 HEADERS += ../3rdparty/qwtplot3d/qwt3d_mapping.h \
-		   ../3rdparty/qwtplot3d/qwt3d_gridmapping.h \
+		       ../3rdparty/qwtplot3d/qwt3d_gridmapping.h \
            ../3rdparty/qwtplot3d/qwt3d_parametricsurface.h \
            ../3rdparty/qwtplot3d/qwt3d_function.h
 

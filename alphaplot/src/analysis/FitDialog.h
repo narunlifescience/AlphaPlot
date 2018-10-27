@@ -29,7 +29,7 @@
 #ifndef FITDIALOG_H
 #define FITDIALOG_H
 
-#include "Graph.h"
+#include <QDialog>
 
 class QPushButton;
 class QLineEdit;
@@ -44,15 +44,19 @@ class QSpinBox;
 class QLabel;
 class QRadioButton;
 class QLineEdit;
+class QMdiSubWindow;
+class ApplicationWindow;
 class ColorBox;
 class Fit;
+class AxisRect2D;
 
 //! Fit Wizard
 class FitDialog : public QDialog {
   Q_OBJECT
 
  public:
-  FitDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);
+  FitDialog(QWidget* parent, Qt::WindowFlags fl = Qt::Widget);
+  ~FitDialog();
 
  protected:
   //! On closing show the fit function in the plot window if that option is
@@ -107,7 +111,7 @@ class FitDialog : public QDialog {
   //! Check whether the given function contains a user-defined function
   bool containsUserFunctionName(const QString& function);
   //! Set the graph that is to be fitted
-  void setGraph(Graph* g);
+  void setAxisRect(AxisRect2D* axisrect);
   //! Read the range of curve 'curveName' and set the from/to fields
   void activateCurve(const QString& curveName);
   //! Let the user select the Plugin folder
@@ -149,7 +153,7 @@ class FitDialog : public QDialog {
 
  private:
   Fit* d_fitter;
-  Graph* d_graph;
+  AxisRect2D* axisrect_;
   QStringList d_user_functions, d_user_function_names, d_user_function_params;
   QStringList d_built_in_function_names, d_built_in_functions;
   QStringList d_plugin_function_names, d_plugin_functions, d_plugin_files_list,
@@ -187,6 +191,9 @@ class FitDialog : public QDialog {
   QPushButton *btnParamTable, *btnCovMatrix;
   QLineEdit *covMatrixName, *paramTableName;
   QCheckBox *plotLabelBox, *logBox, *scaleErrorsBox;
+  ApplicationWindow *app_;
+  double xmin_;
+  double xmax_;
 };
 
 #endif  // FITDIALOG_H

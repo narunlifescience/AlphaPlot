@@ -154,7 +154,6 @@ void AddPlot2DDialog::showPlotAssociations() {
 void AddPlot2DDialog::showFunctionDialog() {
   /*  int currentRow = contents->currentRow();
     close();
-
     app_->showFunctionDialog(d_graph, currentRow);*/
 }
 

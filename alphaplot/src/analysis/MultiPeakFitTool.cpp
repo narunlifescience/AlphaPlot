@@ -29,20 +29,17 @@
  *                                                                         *
  ***************************************************************************/
 #include "MultiPeakFitTool.h"
-#include "ApplicationWindow.h"
-#include "Plot.h"
-#include <qwt_plot_curve.h>
 #include <QApplication>
+#include "ApplicationWindow.h"
 
-MultiPeakFitTool::MultiPeakFitTool(Graph *graph, ApplicationWindow *app,
+MultiPeakFitTool::MultiPeakFitTool(AxisRect2D *axisrect, ApplicationWindow *app,
                                    MultiPeakFit::PeakProfile profile,
                                    int num_peaks, const QObject *status_target,
                                    const char *status_slot)
-    : PlotToolInterface(graph), d_profile(profile), d_num_peaks(num_peaks) {
+    : PlotToolInterface(axisrect), d_profile(profile), d_num_peaks(num_peaks) {
   d_selected_peaks = 0;
-  d_curve = nullptr;
 
-  d_fit = new MultiPeakFit(app, d_graph, d_profile, d_num_peaks);
+  d_fit = new MultiPeakFit(app, axisrect_, d_profile, d_num_peaks);
   d_fit->enablePeakCurves(app->generatePeakCurves);
   d_fit->setPeakCurvesColor(app->peakCurvesColor);
   d_fit->generateFunction(app->generateUniformFitPoints, app->fitPoints);
@@ -61,25 +58,27 @@ MultiPeakFitTool::MultiPeakFitTool(Graph *graph, ApplicationWindow *app,
 }
 
 MultiPeakFitTool::~MultiPeakFitTool() {
-  if (d_picker_tool) delete d_picker_tool;
+  // if (d_picker_tool) delete d_picker_tool;
   if (d_fit) delete d_fit;
- // d_graph->plotWidget()->canvas()->unsetCursor();
+  // d_graph->plotWidget()->canvas()->unsetCursor();
 }
 
-void MultiPeakFitTool::selectPeak(QwtPlotCurve *curve, int point_index) {
+void MultiPeakFitTool::selectPeak(PlotData::AssociatedData *associateddata,
+                                  int point_index) {
   // TODO: warn user
-  if (!curve || (d_curve && d_curve != curve)) return;
-  d_curve = curve;
+  // if (!associateddata || (d_curve && d_curve != associateddata)) return;
+  // d_curve = associateddata;
 
-  d_fit->setInitialGuess(3 * d_selected_peaks, curve->y(point_index));
-  d_fit->setInitialGuess(3 * d_selected_peaks + 1, curve->x(point_index));
+  /*d_fit->setInitialGuess(3 * d_selected_peaks,
+  associateddata->y(point_index)); d_fit->setInitialGuess(3 * d_selected_peaks +
+  1, associateddata->x(point_index));
 
   QwtPlotMarker *m = new QwtPlotMarker();
   m->setLineStyle(QwtPlotMarker::VLine);
   m->setLinePen(QPen(Qt::green, 2, Qt::DashLine));
-  m->setXValue(curve->x(point_index));
+  m->setXValue(associateddata->x(point_index));
   d_graph->plotWidget()->insertMarker(m);
-  d_graph->plotWidget()->replot();
+  d_graph->plotWidget()->replot();*/
 
   d_selected_peaks++;
   if (d_selected_peaks == d_num_peaks)
@@ -92,9 +91,9 @@ void MultiPeakFitTool::selectPeak(QwtPlotCurve *curve, int point_index) {
 }
 
 void MultiPeakFitTool::finalize() {
-  delete d_picker_tool;
+  /*delete d_picker_tool;
   d_picker_tool = nullptr;
-  //d_graph->plotWidget()->canvas()->releaseMouse();
+  // d_graph->plotWidget()->canvas()->releaseMouse();
 
   if (d_fit->setDataFromCurve(d_curve->title().text())) {
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -102,16 +101,22 @@ void MultiPeakFitTool::finalize() {
     delete d_fit;
     d_fit = nullptr;
     QApplication::restoreOverrideCursor();
-  }
+  }*/
 
   // remove peak line markers
-  QList<int> mrks = d_graph->plotWidget()->markerKeys();
+  /*QList<int> mrks = d_graph->plotWidget()->markerKeys();
   int n = (int)mrks.count();
   for (int i = 0; i < d_num_peaks; i++)
     d_graph->plotWidget()->removeMarker(mrks[n - i - 1]);
 
   d_graph->plotWidget()->replot();
 
-  d_graph->setActiveTool(nullptr);
+  d_graph->setActiveTool(nullptr);*/
   // attention: I'm now deleted. Maybe there is a cleaner solution...
 }
+
+PlotToolInterface::PlotToolInterface(AxisRect2D *axisrect) {
+  axisrect_ = axisrect;
+}
+
+PlotToolInterface::~PlotToolInterface() {}

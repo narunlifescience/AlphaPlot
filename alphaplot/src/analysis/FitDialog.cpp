@@ -27,7 +27,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "FitDialog.h"
-#include <../../3rdparty/muparser/muParserError.h>
+#include <../3rdparty/muparser/muParserError.h>
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Plotcolumns.h"
 #include "ApplicationWindow.h"
 #include "ColorBox.h"
 #include "ExponentialFit.h"
@@ -64,7 +66,9 @@
 #define CONFS(string) \
   QString::number(QLocale().toDouble(string), 'g', boxPrecision->value())
 
-FitDialog::FitDialog(QWidget *parent, Qt::WFlags fl) : QDialog(parent, fl) {
+FitDialog::FitDialog(QWidget *parent, Qt::WindowFlags fl)
+    : QDialog(parent, fl), app_(qobject_cast<ApplicationWindow *>(parent)) {
+  Q_ASSERT(app_);
   setWindowTitle(tr("Fit Wizard"));
   setSizeGripEnabled(true);
 
@@ -72,7 +76,7 @@ FitDialog::FitDialog(QWidget *parent, Qt::WFlags fl) : QDialog(parent, fl) {
   d_user_functions = QStringList();
   d_user_function_params = QStringList();
 
-  d_fitter = 0;
+  d_fitter = nullptr;
 
   tw = new QStackedWidget();
 
@@ -112,16 +116,17 @@ void FitDialog::initFitPage() {
 
   boxParams = new QTableWidget();
   boxParams->setColumnCount(3);
-  boxParams->horizontalHeader()->setClickable(false);
-  boxParams->horizontalHeader()->setResizeMode(0,
-                                               QHeaderView::ResizeToContents);
-  boxParams->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
-  boxParams->horizontalHeader()->setResizeMode(2,
-                                               QHeaderView::ResizeToContents);
+  boxParams->horizontalHeader()->setSectionsClickable(false);
+  boxParams->horizontalHeader()->setSectionResizeMode(
+      0, QHeaderView::ResizeToContents);
+  boxParams->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+  boxParams->horizontalHeader()->setSectionResizeMode(
+      2, QHeaderView::ResizeToContents);
+  boxParams->verticalHeader()->setSectionResizeMode(
+      QHeaderView::ResizeToContents);
   QStringList header = QStringList()
                        << tr("Parameter") << tr("Value") << tr("Constant");
   boxParams->setHorizontalHeaderLabels(header);
-  boxParams->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   boxParams->verticalHeader()->hide();
   gl1->addWidget(boxParams, 3, 1);
 
@@ -335,10 +340,8 @@ void FitDialog::initEditPage() {
 }
 
 void FitDialog::initAdvancedPage() {
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
-
   generatePointsBtn = new QRadioButton(tr("&Uniform X Function"));
-  generatePointsBtn->setChecked(app->generateUniformFitPoints);
+  generatePointsBtn->setChecked(app_->generateUniformFitPoints);
   connect(generatePointsBtn, SIGNAL(clicked()), this,
           SLOT(enableApplyChanges()));
 
@@ -350,10 +353,10 @@ void FitDialog::initAdvancedPage() {
   generatePointsBox = new QSpinBox();
   generatePointsBox->setRange(0, 1000000);
   generatePointsBox->setSingleStep(10);
-  generatePointsBox->setValue(app->fitPoints);
+  generatePointsBox->setValue(app_->fitPoints);
   connect(generatePointsBox, SIGNAL(valueChanged(int)), this,
           SLOT(enableApplyChanges(int)));
-  showPointsBox(!app->generateUniformFitPoints);
+  showPointsBox(!app_->generateUniformFitPoints);
 
   QHBoxLayout *hb = new QHBoxLayout();
   hb->addStretch();
@@ -363,7 +366,7 @@ void FitDialog::initAdvancedPage() {
 
   samePointsBtn = new QRadioButton(tr("Same X as Fitting &Data"));
   gl1->addWidget(samePointsBtn, 1, 0);
-  samePointsBtn->setChecked(!app->generateUniformFitPoints);
+  samePointsBtn->setChecked(!app_->generateUniformFitPoints);
   connect(samePointsBtn, SIGNAL(clicked()), this, SLOT(enableApplyChanges()));
 
   QGroupBox *gb1 = new QGroupBox(tr("Generated Fit Curve"));
@@ -373,7 +376,7 @@ void FitDialog::initAdvancedPage() {
   gl2->addWidget(new QLabel(tr("Significant Digits")), 0, 1);
   boxPrecision = new QSpinBox();
   boxPrecision->setRange(0, 15);
-  boxPrecision->setValue(app->fit_output_precision);
+  boxPrecision->setValue(app_->fit_output_precision);
   connect(boxPrecision, SIGNAL(valueChanged(int)), this,
           SLOT(enableApplyChanges(int)));
   gl2->addWidget(boxPrecision, 0, 2);
@@ -389,7 +392,7 @@ void FitDialog::initAdvancedPage() {
   gl2->addWidget(covMatrixName, 2, 2);
 
   scaleErrorsBox = new QCheckBox(tr("Scale Errors with sqrt(Chi^2/doF)"));
-  scaleErrorsBox->setChecked(app->fit_scale_errors);
+  scaleErrorsBox->setChecked(app_->fit_scale_errors);
   connect(scaleErrorsBox, SIGNAL(stateChanged(int)), this,
           SLOT(enableApplyChanges(int)));
 
@@ -397,12 +400,12 @@ void FitDialog::initAdvancedPage() {
   gb2->setLayout(gl2);
 
   logBox = new QCheckBox(tr("&Write Parameters to Result Log"));
-  logBox->setChecked(app->writeFitResultsToLog);
+  logBox->setChecked(app_->writeFitResultsToLog);
   connect(logBox, SIGNAL(stateChanged(int)), this,
           SLOT(enableApplyChanges(int)));
 
   plotLabelBox = new QCheckBox(tr("&Paste Parameters to Plot"));
-  plotLabelBox->setChecked(app->pasteFitResultsToPlot);
+  plotLabelBox->setChecked(app_->pasteFitResultsToPlot);
   connect(plotLabelBox, SIGNAL(stateChanged(int)), this,
           SLOT(enableApplyChanges(int)));
 
@@ -445,14 +448,13 @@ void FitDialog::initAdvancedPage() {
 }
 
 void FitDialog::applyChanges() {
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
-  app->fit_output_precision = boxPrecision->value();
-  app->pasteFitResultsToPlot = plotLabelBox->isChecked();
-  app->writeFitResultsToLog = logBox->isChecked();
-  app->fitPoints = generatePointsBox->value();
-  app->generateUniformFitPoints = generatePointsBtn->isChecked();
-  app->fit_scale_errors = scaleErrorsBox->isChecked();
-  app->saveSettings();
+  app_->fit_output_precision = boxPrecision->value();
+  app_->pasteFitResultsToPlot = plotLabelBox->isChecked();
+  app_->writeFitResultsToLog = logBox->isChecked();
+  app_->fitPoints = generatePointsBox->value();
+  app_->generateUniformFitPoints = generatePointsBtn->isChecked();
+  app_->fit_scale_errors = scaleErrorsBox->isChecked();
+  app_->saveSettings();
   btnApply->setEnabled(false);
 }
 
@@ -470,9 +472,7 @@ void FitDialog::showParametersTable() {
                           tr("Please perform a fit first and try again."));
     return;
   }
-
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
-  tableName = app->generateUniqueName(tableName, false);
+  tableName = app_->generateUniqueName(tableName, false);
   d_fitter->parametersTable(tableName);
 }
 
@@ -490,9 +490,7 @@ void FitDialog::showCovarianceMatrix() {
                           tr("Please perform a fit first and try again."));
     return;
   }
-
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
-  matrixName = app->generateUniqueName(matrixName, false);
+  matrixName = app_->generateUniqueName(matrixName, false);
   d_fitter->covarianceMatrix(matrixName);
 }
 
@@ -506,30 +504,38 @@ void FitDialog::showPointsBox(bool) {
   }
 }
 
-void FitDialog::setGraph(Graph *g) {
-  if (!g) return;
+void FitDialog::setAxisRect(AxisRect2D *axisrect) {
+  if (!axisrect) return;
 
-  d_graph = g;
+  axisrect_ = axisrect;
   boxCurve->clear();
-  boxCurve->addItems(d_graph->analysableCurvesList());
+  boxCurve->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
 
-  QString selectedCurve = g->selectedCurveTitle();
+  QString selectedCurve = boxCurve->currentText();
   if (!selectedCurve.isEmpty()) {
     int index = boxCurve->findText(selectedCurve);
     boxCurve->setCurrentIndex(index);
   }
   activateCurve(boxCurve->currentText());
-
-  connect(d_graph, SIGNAL(closedGraph()), this, SLOT(close()));
-  connect(d_graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
 void FitDialog::activateCurve(const QString &curveName) {
-  QwtPlotCurve *c = d_graph->curve(curveName);
-  if (!c) return;
+  if (!axisrect_) return;
+  PlotData::AssociatedData *associateddata;
+  associateddata =
+      PlotColumns::getassociateddatafromstring(axisrect_, curveName);
+  if (!associateddata) return;
 
-  double start, end;
-  d_graph->range(d_graph->curveIndex(curveName), &start, &end);
+  Column *col = associateddata->xcol;
+  xmin_ = col->valueAt(associateddata->from);
+  xmax_ = col->valueAt(associateddata->from);
+  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
+    double value = col->valueAt(i);
+    if (xmin_ > value) xmin_ = value;
+    if (xmax_ < value) xmax_ = value;
+  }
+  double start = xmin_;
+  double end = xmax_;
   boxFrom->setText(QLocale().toString(std::min(start, end), 'g', 15));
   boxTo->setText(QLocale().toString(std::max(start, end), 'g', 15));
 };
@@ -843,7 +849,6 @@ void FitDialog::showFunctionsList(int category) {
 }
 
 void FitDialog::choosePluginsFolder() {
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
   QString dir = QFileDialog::getExistingDirectory(
       this, tr("Choose the plugins folder"), QDir::currentPath(),
       QFileDialog::ShowDirsOnly);
@@ -855,7 +860,7 @@ void FitDialog::choosePluginsFolder() {
     funcBox->clear();
     explainBox->clear();
 
-    app->fitPluginsPath = dir;
+    app_->fitPluginsPath = dir;
     loadPlugins();
     if (d_plugin_function_names.size() > 0) {
       funcBox->addItems(d_plugin_function_names);
@@ -869,9 +874,7 @@ void FitDialog::choosePluginsFolder() {
 
 void FitDialog::loadPlugins() {
   typedef char *(*fitFunc)();
-
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
-  QString path = app->fitPluginsPath + "/";
+  QString path = app_->fitPluginsPath + "/";
   QDir dir(path);
   QStringList lst = dir.entryList(QDir::Files | QDir::NoSymLinks);
 
@@ -991,7 +994,8 @@ void FitDialog::pasteFunctionName() {
 
 void FitDialog::accept() {
   QString curve = boxCurve->currentText();
-  QStringList curvesList = d_graph->curvesList();
+  QStringList curvesList =
+      PlotColumns::getstringlistfromassociateddata(axisrect_);
   if (curvesList.contains(curve) <= 0) {
     QMessageBox::critical(
         this, tr("Warning"),
@@ -1010,7 +1014,7 @@ void FitDialog::accept() {
   double start, end, eps;
   try {
     MyParser parser;
-    parser.SetExpr(CONFS(from).toAscii().constData());
+    parser.SetExpr(CONFS(from).toUtf8().constData());
     start = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(this, tr("Start limit error"),
@@ -1021,7 +1025,7 @@ void FitDialog::accept() {
 
   try {
     MyParser parser;
-    parser.SetExpr(CONFS(to).toAscii().constData());
+    parser.SetExpr(CONFS(to).toUtf8().constData());
     end = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(this, tr("End limit error"),
@@ -1032,7 +1036,7 @@ void FitDialog::accept() {
 
   if (start >= end) {
     QMessageBox::critical(
-        0, tr("Input error"),
+        app_, tr("Input error"),
         tr("Please enter x limits that satisfy: from < end!"));
     boxTo->setFocus();
     return;
@@ -1040,7 +1044,7 @@ void FitDialog::accept() {
 
   try {
     MyParser parser;
-    parser.SetExpr(CONFS(tolerance).toAscii().constData());
+    parser.SetExpr(CONFS(tolerance).toUtf8().constData());
     eps = parser.Eval();
   } catch (mu::ParserError &e) {
     QMessageBox::critical(0, tr("Tolerance input error"),
@@ -1051,7 +1055,7 @@ void FitDialog::accept() {
 
   if (eps < 0 || eps >= 1) {
     QMessageBox::critical(
-        0, tr("Tolerance input error"),
+        app_, tr("Tolerance input error"),
         tr("The tolerance value must be positive and less than 1!"));
     boxTolerance->setFocus();
     return;
@@ -1060,14 +1064,14 @@ void FitDialog::accept() {
   int i, n = 0, rows = boxParams->rowCount();
   if (!boxParams->isColumnHidden(2)) {
     for (i = 0; i < rows; i++) {  // count the non-constant parameters
-      QCheckBox *cb = (QCheckBox *)boxParams->cellWidget(i, 2);
+      QCheckBox *cb = qobject_cast<QCheckBox *>(boxParams->cellWidget(i, 2));
       if (!cb->isChecked()) n++;
     }
   } else
     n = rows;
 
   QStringList parameters;
-  double *paramsInit = new double[n];
+  double *paramsInit = new double[static_cast<size_t>(n)];
   QString formula;
 
   // recursively define variables for user functions used in formula
@@ -1093,7 +1097,7 @@ void FitDialog::accept() {
   if (!boxParams->isColumnHidden(2)) {
     int j = 0;
     for (i = 0; i < rows; i++) {
-      QCheckBox *cb = (QCheckBox *)boxParams->cellWidget(i, 2);
+      QCheckBox *cb = qobject_cast<QCheckBox *>(boxParams->cellWidget(i, 2));
       if (!cb->isChecked()) {
         paramsInit[j] = QLocale().toDouble(boxParams->item(i, 1)->text());
         parameters << boxParams->item(i, 0)->text();
@@ -1110,37 +1114,39 @@ void FitDialog::accept() {
     }
   }
 
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
-
   if (d_fitter) {
     delete d_fitter;
-    d_fitter = 0;
+    d_fitter = nullptr;
   }
 
   if (boxUseBuiltIn->isChecked() && categoryBox->currentRow() == 1)
     fitBuiltInFunction(funcBox->currentItem()->text(), paramsInit);
   else if (boxUseBuiltIn->isChecked() && categoryBox->currentRow() == 3) {
-    d_fitter = new PluginFit(app, d_graph);
-    if (!((PluginFit *)d_fitter)
-             ->load(d_plugin_files_list[funcBox->currentRow()])) {
-      d_fitter = 0;
+    d_fitter = new PluginFit(app_, axisrect_);
+    if (!qobject_cast<PluginFit *>(d_fitter)->load(
+            d_plugin_files_list[funcBox->currentRow()])) {
+      d_fitter = nullptr;
       return;
     }
     d_fitter->setInitialGuesses(paramsInit);
   } else {
-    d_fitter = new NonLinearFit(app, d_graph);
+    d_fitter = new NonLinearFit(app_, axisrect_);
     ((NonLinearFit *)d_fitter)->setParametersList(parameters);
     ((NonLinearFit *)d_fitter)->setFormula(formula);
     d_fitter->setInitialGuesses(paramsInit);
   }
   delete[] paramsInit;
 
-  if (!d_fitter->setDataFromCurve(curve, start, end) ||
+  PlotData::AssociatedData *associateddata;
+  associateddata = PlotColumns::getassociateddatafromstring(axisrect_, curve);
+  if (!associateddata) return;
+
+  if (!d_fitter->setDataFromCurve(associateddata, start, end) ||
       !d_fitter->setYErrorSource(
           (Fit::ErrorSource)boxYErrorSource->currentIndex(),
           tableNamesBox->currentText() + "_" + colNamesBox->currentText())) {
     delete d_fitter;
-    d_fitter = 0;
+    d_fitter = nullptr;
     return;
   }
 
@@ -1153,9 +1159,11 @@ void FitDialog::accept() {
   d_fitter->scaleErrors(scaleErrorsBox->isChecked());
 
   if (d_fitter->objectName() == tr("MultiPeak") &&
-      ((MultiPeakFit *)d_fitter)->peaks() > 1) {
-    ((MultiPeakFit *)d_fitter)->enablePeakCurves(app->generatePeakCurves);
-    ((MultiPeakFit *)d_fitter)->setPeakCurvesColor(app->peakCurvesColor);
+      qobject_cast<MultiPeakFit *>(d_fitter)->peaks() > 1) {
+    qobject_cast<MultiPeakFit *>(d_fitter)->enablePeakCurves(
+        app_->generatePeakCurves);
+    qobject_cast<MultiPeakFit *>(d_fitter)->setPeakCurvesColor(
+        app_->peakCurvesColor);
   }
 
   d_fitter->fit();
@@ -1163,7 +1171,7 @@ void FitDialog::accept() {
   if (!boxParams->isColumnHidden(2)) {
     int j = 0;
     for (i = 0; i < rows; i++) {
-      QCheckBox *cb = (QCheckBox *)boxParams->cellWidget(i, 2);
+      QCheckBox *cb = qobject_cast<QCheckBox *>(boxParams->cellWidget(i, 2));
       if (!cb->isChecked())
         boxParams->item(i, 1)->setText(
             QLocale().toString(res[j++], 'g', boxPrecision->value()));
@@ -1176,34 +1184,33 @@ void FitDialog::accept() {
 }
 
 void FitDialog::fitBuiltInFunction(const QString &function, double *initVal) {
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
   if (function == "ExpDecay1") {
     initVal[1] = 1 / initVal[1];
-    d_fitter = new ExponentialFit(app, d_graph);
+    d_fitter = new ExponentialFit(app_, axisrect_);
   } else if (function == "ExpGrowth") {
     initVal[1] = -1 / initVal[1];
-    d_fitter = new ExponentialFit(app, d_graph, true);
+    d_fitter = new ExponentialFit(app_, axisrect_, true);
   } else if (function == "ExpDecay2") {
     initVal[1] = 1 / initVal[1];
     initVal[3] = 1 / initVal[3];
-    d_fitter = new TwoExpFit(app, d_graph);
+    d_fitter = new TwoExpFit(app_, axisrect_);
   } else if (function == "ExpDecay3") {
     initVal[1] = 1 / initVal[1];
     initVal[3] = 1 / initVal[3];
     initVal[5] = 1 / initVal[5];
-    d_fitter = new ThreeExpFit(app, d_graph);
+    d_fitter = new ThreeExpFit(app_, axisrect_);
   } else if (function == "Boltzmann")
-    d_fitter = new SigmoidalFit(app, d_graph);
+    d_fitter = new SigmoidalFit(app_, axisrect_);
   else if (function == "GaussAmp")
-    d_fitter = new GaussAmpFit(app, d_graph);
+    d_fitter = new GaussAmpFit(app_, axisrect_);
   else if (function == "Gauss")
-    d_fitter = new MultiPeakFit(app, d_graph, MultiPeakFit::Gauss,
+    d_fitter = new MultiPeakFit(app_, axisrect_, MultiPeakFit::Gauss,
                                 polynomOrderBox->value());
   else if (function == "Lorentz")
-    d_fitter = new MultiPeakFit(app, d_graph, MultiPeakFit::Lorentz,
+    d_fitter = new MultiPeakFit(app_, axisrect_, MultiPeakFit::Lorentz,
                                 polynomOrderBox->value());
   else if (function == "Polynomial")
-    d_fitter = new PolynomialFit(app, d_graph, polynomOrderBox->value());
+    d_fitter = new PolynomialFit(app_, axisrect_, polynomOrderBox->value());
 
   if (function != "Polynomial") d_fitter->setInitialGuesses(initVal);
 }
@@ -1219,7 +1226,7 @@ bool FitDialog::validInitialValues() {
   for (int i = 0; i < boxParams->rowCount(); i++) {
     if (boxParams->item(i, 1)->text().isEmpty()) {
       QMessageBox::critical(
-          0, tr("Input error"),
+          app_, tr("Input error"),
           tr("Please enter initial guesses for your parameters!"));
       boxParams->setCurrentCell(i, 1);
       return false;
@@ -1227,11 +1234,10 @@ bool FitDialog::validInitialValues() {
 
     try {
       MyParser parser;
-      parser.SetExpr(
-          CONFS(boxParams->item(i, 1)->text()).toAscii().constData());
+      parser.SetExpr(CONFS(boxParams->item(i, 1)->text()).toUtf8().constData());
       parser.Eval();
     } catch (mu::ParserError &e) {
-      QMessageBox::critical(0, tr("Start limit error"),
+      QMessageBox::critical(app_, tr("Start limit error"),
                             QString::fromStdString(e.GetMsg()));
       boxParams->setCurrentCell(i, 1);
       return false;
@@ -1241,8 +1247,8 @@ bool FitDialog::validInitialValues() {
 }
 
 void FitDialog::changeDataRange() {
-  double start = d_graph->selectedXStartValue();
-  double end = d_graph->selectedXEndValue();
+  double start = xmin_;
+  double end = xmax_;
   boxFrom->setText(QString::number(std::min(start, end), 'g', 15));
   boxTo->setText(QString::number(std::max(start, end), 'g', 15));
 }
@@ -1268,7 +1274,7 @@ void FitDialog::selectSrcTable(int tabnr) {
   colNamesBox->clear();
 
   if (tabnr >= 0 && tabnr < d_src_table->count()) {
-    Table *t = (Table *)d_src_table->at(tabnr);
+    Table *t = qobject_cast<Table *>(d_src_table->at(tabnr));
     if (t) colNamesBox->addItems(t->colNames());
   }
 }
@@ -1283,18 +1289,16 @@ void FitDialog::yErrorSourceChanged(int index) {
   }
 }
 
-void FitDialog::closeEvent(QCloseEvent *e) {
-  if (d_fitter && plotLabelBox->isChecked()) d_fitter->showLegend();
+FitDialog::~FitDialog() {}
 
-  e->accept();
-}
+void FitDialog::closeEvent(QCloseEvent *e) { e->accept(); }
 
 void FitDialog::enableApplyChanges(int) { btnApply->setEnabled(true); }
 
 void FitDialog::deleteFitCurves() {
-  d_graph->deleteFitCurves();
+  // d_graph->deleteFitCurves();
   boxCurve->clear();
-  boxCurve->addItems(d_graph->curvesList());
+  boxCurve->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
 }
 
 void FitDialog::resetFunction() {

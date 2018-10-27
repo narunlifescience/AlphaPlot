@@ -15,7 +15,6 @@
    Description : Plot2D top level stuff */
 
 #include "Plot2D.h"
-
 #include <QSvgGenerator>
 
 Plot2D::Plot2D(QWidget *parent) : QCustomPlot(parent), canvasBrush_(Qt::white) {
@@ -79,66 +78,5 @@ bool Plot2D::saveSvg(const QString &fileName, int width, int height,
 bool Plot2D::savePs(const QString &fileName, int width, int height,
                     QCP::ExportPen exportPen, const QString &psCreator,
                     const QString &psTitle) {
- /* bool success = false;
-#ifdef QT_NO_PRINTER
-  Q_UNUSED(fileName)
-  Q_UNUSED(exportPen)
-  Q_UNUSED(width)
-  Q_UNUSED(height)
-  Q_UNUSED(pdfCreator)
-  Q_UNUSED(pdfTitle)
-  qDebug() << Q_FUNC_INFO
-           << "Qt was built without printer support (QT_NO_PRINTER). PS not "
-              "created.";
-#else
-  int newWidth, newHeight;
-  if (width == 0 || height == 0) {
-    newWidth = this->width();
-    newHeight = this->height();
-  } else {
-    newWidth = width;
-    newHeight = height;
-  }
-
-  QPrinter printer(QPrinter::ScreenResolution);
-  printer.setOutputFileName(fileName);
-  printer.setOutputFormat(QPrinter::PostScriptFormat);
-  printer.setColorMode(QPrinter::Color);
-  printer.printEngine()->setProperty(QPrintEngine::PPK_Creator, psCreator);
-  printer.printEngine()->setProperty(QPrintEngine::PPK_DocumentName, psTitle);
-  QRect oldViewport = viewport();
-  setViewport(QRect(0, 0, newWidth, newHeight));
-#if QT_VERSION < QT_VERSION_CHECK(5, 3, 0)
-  printer.setFullPage(true);
-  printer.setPaperSize(viewport().size(), QPrinter::DevicePixel);
-#else
-  QPageLayout pageLayout;
-  pageLayout.setMode(QPageLayout::FullPageMode);
-  pageLayout.setOrientation(QPageLayout::Portrait);
-  pageLayout.setMargins(QMarginsF(0, 0, 0, 0));
-  pageLayout.setPageSize(QPageSize(viewport().size(), QPageSize::Point,
-                                   QString(), QPageSize::ExactMatch));
-  printer.setPageLayout(pageLayout);
-#endif
-  QCPPainter printpainter;
-  if (printpainter.begin(&printer)) {
-    printpainter.setMode(QCPPainter::pmVectorized);
-    printpainter.setMode(QCPPainter::pmNoCaching);
-    printpainter.setMode(QCPPainter::pmNonCosmetic,
-                         exportPen == QCP::epNoCosmetic);
-    printpainter.setWindow(mViewport);
-    if (mBackgroundBrush.style() != Qt::NoBrush &&
-        mBackgroundBrush.color() != Qt::white &&
-        mBackgroundBrush.color() != Qt::transparent &&
-        mBackgroundBrush.color().alpha() >
-            0)  // draw pdf background color if not white/transparent
-      printpainter.fillRect(viewport(), mBackgroundBrush);
-    draw(&printpainter);
-    printpainter.end();
-    success = true;
-  }
-  setViewport(oldViewport);
-#endif  // QT_NO_PRINTER
-  return success;*/
   return false;
 }

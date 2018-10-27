@@ -63,6 +63,12 @@ HEADERS  += src/ApplicationWindow.h \
             src/analysis/PolynomFitDialog.h\
             src/analysis/ExponentialFit.h\
             src/analysis/ExpDecayDialog.h\
+            src/analysis/SigmoidalFit.h\
+            src/analysis/PluginFit.h\
+            src/analysis/MultiPeakFit.h\
+            src/analysis/MultiPeakFitTool.h\
+            src/analysis/NonLinearFit.h\
+            src/analysis/FitDialog.h\
             src/TranslateCurveTool.h\
             src/CurveRangeDialog.h\
             src/OpenProjectDialog.h\
@@ -159,6 +165,12 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/analysis/PolynomFitDialog.cpp\
             src/analysis/ExponentialFit.cpp\
             src/analysis/ExpDecayDialog.cpp\
+            src/analysis/SigmoidalFit.cpp\
+            src/analysis/PluginFit.cpp\
+            src/analysis/MultiPeakFit.cpp\
+            src/analysis/MultiPeakFitTool.cpp\
+            src/analysis/NonLinearFit.cpp\
+            src/analysis/FitDialog.cpp\
             src/TranslateCurveTool.cpp\
             src/CurveRangeDialog.cpp\
             src/OpenProjectDialog.cpp\

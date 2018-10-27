@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : NonLinearFit.h
+    File                 : PluginFit.h
     Project              : AlphaPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : NonLinearFit class
+    Description          : Plugin Fit class
 
  ***************************************************************************/
 
@@ -26,26 +26,30 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef NONLINEARFIT_H
-#define NONLINEARFIT_H
+#ifndef PLUGINFIT_H
+#define PLUGINFIT_H
 
 #include "Fit.h"
 
-class NonLinearFit : public Fit {
+class AxisRect2D;
+
+class PluginFit : public Fit {
   Q_OBJECT
 
  public:
-  NonLinearFit(ApplicationWindow *parent, Graph *g);
-  NonLinearFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
-  NonLinearFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
-               double start, double end);
+  PluginFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+  PluginFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+            PlotData::AssociatedData *associateddata);
+  PluginFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+            PlotData::AssociatedData *associateddata, double start, double end);
 
-  void setParametersList(const QStringList &lst);
-  void setFormula(const QString &s);
+  bool load(const QString &pluginName);
 
  private:
-  void calculateFitCurveData(double *par, double *X, double *Y);
   void init();
+  typedef double (*fitFunctionEval)(double, double *);
+  void calculateFitCurveData(double *par, double *X, double *Y);
+  fitFunctionEval f_eval;
 };
 
-#endif  // NONLINEARFIT_H
+#endif  // PLUGINFIT_H

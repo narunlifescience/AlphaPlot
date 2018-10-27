@@ -31,22 +31,24 @@
 #include <QLibrary>
 #include <QMessageBox>
 
-PluginFit::PluginFit(ApplicationWindow *parent, Graph *g) : Fit(parent, g) {
+PluginFit::PluginFit(ApplicationWindow *parent, AxisRect2D *axisrect)
+    : Fit(parent, axisrect) {
   init();
 }
 
-PluginFit::PluginFit(ApplicationWindow *parent, Graph *g,
-                     const QString &curveTitle)
-    : Fit(parent, g) {
+PluginFit::PluginFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                     PlotData::AssociatedData *associateddata)
+    : Fit(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(associateddata);
 }
 
-PluginFit::PluginFit(ApplicationWindow *parent, Graph *g,
-                     const QString &curveTitle, double start, double end)
-    : Fit(parent, g) {
+PluginFit::PluginFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                     PlotData::AssociatedData *associateddata, double start,
+                     double end)
+    : Fit(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle, start, end);
+  setDataFromCurve(associateddata, start, end);
 }
 
 void PluginFit::init() { d_explanation = tr("Plugin Fit"); }

@@ -29,7 +29,6 @@ class AddPlot2DDialog : public QDialog {
 Enables ("yes")/disables ("no") the following buttons, which are on the right
 besides
 the graph contents list, depending on the selected item in this list:
-
 <table>
 <tr>  <td>Selected Item</td><td>btnEditFunction</td>  <td>btnAssociations</td>
 <td>btnRange</td> </tr>
@@ -68,4 +67,4 @@ the graph contents list, depending on the selected item in this list:
   QCheckBox* boxShowCurrentFolder;
 };
 
-#endif  // ADDPLOT2DDIALOG_H
+#endif // ADDPLOT2DDIALOG_H

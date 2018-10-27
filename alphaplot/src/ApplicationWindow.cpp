@@ -29,33 +29,33 @@
 #include "CurveRangeDialog.h"
 #include "DataSetDialog.h"
 #include "ErrDialog.h"
-#include "analysis/Differentiation.h"
-#include "analysis/ExpDecayDialog.h"
 #include "FindDialog.h"
-#include "analysis/FFTDialog.h"
-#include "analysis/FFTFilter.h"
-#include "analysis/FilterDialog.h"
-#include "analysis/Fit.h"
-//#include "FitDialog.h"
 #include "Folder.h"
 #include "ImageDialog.h"
 #include "ImageExportDialog.h"
 #include "ImportASCIIDialog.h"
 #include "LayerDialog.h"
-#include "analysis/IntDialog.h"
-#include "analysis/InterpolationDialog.h"
-//#include "MultiPeakFit.h"
 #include "Note.h"
 #include "OpenProjectDialog.h"
 #include "PlotWizard.h"
 #include "RenameWindowDialog.h"
-#include "analysis/PolynomFitDialog.h"
-#include "analysis/PolynomialFit.h"
-//#include "SigmoidalFit.h"
 #include "Spectrogram.h"
 #include "TableStatistics.h"
 #include "analysis/Convolution.h"
 #include "analysis/Correlation.h"
+#include "analysis/Differentiation.h"
+#include "analysis/ExpDecayDialog.h"
+#include "analysis/FFTDialog.h"
+#include "analysis/FFTFilter.h"
+#include "analysis/FilterDialog.h"
+#include "analysis/Fit.h"
+#include "analysis/FitDialog.h"
+#include "analysis/IntDialog.h"
+#include "analysis/InterpolationDialog.h"
+#include "analysis/MultiPeakFit.h"
+#include "analysis/PolynomFitDialog.h"
+#include "analysis/PolynomialFit.h"
+#include "analysis/SigmoidalFit.h"
 #include "analysis/SmoothCurveDialog.h"
 #include "analysis/SmoothFilter.h"
 #include "core/IconLoader.h"
@@ -68,7 +68,7 @@
 #include "ui_ApplicationWindow.h"
 
 // TODO: move tool-specific code to an extension manager
-//#include "MultiPeakFitTool.h"
+#include "analysis/MultiPeakFitTool.h"
 #include "TranslateCurveTool.h"
 #include "ui/SettingsDialog.h"
 
@@ -4960,6 +4960,66 @@ QList<QPair<Table *, Column *>> ApplicationWindow::columnList(
   return list;
 }
 
+QList<QPair<Table *, QPair<Column *, Column *>>>
+ApplicationWindow::columnList() {
+  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
+  QList<Column *> ylist;
+  QList<Column *> xlist;
+  QList<QPair<Table *, QPair<Column *, Column *>>> columnpairlist;
+  foreach (QMdiSubWindow *subwindow, subwindowlist) {
+    if (!isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) continue;
+
+    Table *t = qobject_cast<Table *>(subwindow);
+    for (int i = 0; i < t->numCols(); i++) {
+      if (t->colPlotDesignation(i) == AlphaPlot::PlotDesignation::Y)
+        ylist << t->column(i);
+      else if (t->colPlotDesignation(i) == AlphaPlot::PlotDesignation::X)
+        xlist << t->column(i);
+    }
+
+    foreach (Column *xcol, xlist) {
+      foreach (Column *ycol, ylist) {
+        QPair<Table *, QPair<Column *, Column *>> columnpair;
+        columnpair.first = t;
+        columnpair.second.first = xcol;
+        columnpair.second.second = ycol;
+        columnpairlist << columnpair;
+      }
+    }
+  }
+  return columnpairlist;
+}
+
+QList<QPair<Table *, QPair<Column *, Column *>>> ApplicationWindow::columnList(
+    Folder *folder) {
+  QList<MyWidget *> subwindowlist = folder->windowsList();
+  QList<Column *> ylist;
+  QList<Column *> xlist;
+  QList<QPair<Table *, QPair<Column *, Column *>>> columnpairlist;
+  foreach (QMdiSubWindow *subwindow, subwindowlist) {
+    if (!isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) continue;
+
+    Table *t = qobject_cast<Table *>(subwindow);
+    for (int i = 0; i < t->numCols(); i++) {
+      if (t->colPlotDesignation(i) == AlphaPlot::PlotDesignation::Y)
+        ylist << t->column(i);
+      else if (t->colPlotDesignation(i) == AlphaPlot::PlotDesignation::X)
+        xlist << t->column(i);
+    }
+
+    foreach (Column *xcol, xlist) {
+      foreach (Column *ycol, ylist) {
+        QPair<Table *, QPair<Column *, Column *>> columnpair;
+        columnpair.first = t;
+        columnpair.second.first = xcol;
+        columnpair.second.second = ycol;
+        columnpairlist << columnpair;
+      }
+    }
+  }
+  return columnpairlist;
+}
+
 // TODO: string list -> Column * list
 QStringList ApplicationWindow::columnsList() {
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
@@ -4970,20 +5030,6 @@ QStringList ApplicationWindow::columnsList() {
     Table *t = qobject_cast<Table *>(subwindow);
     for (int i = 0; i < t->numCols(); i++) {
       list << QString(t->name()) + "_" + t->colLabel(i);
-    }
-  }
-  return list;
-}
-
-QList<QPair<Table *, Column *>> ApplicationWindow::columnList() {
-  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
-  QList<QPair<Table *, Column *>> list;
-  foreach (QMdiSubWindow *subwindow, subwindowlist) {
-    if (!isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) continue;
-
-    Table *t = qobject_cast<Table *>(subwindow);
-    for (int i = 0; i < t->numCols(); i++) {
-      list << QPair<Table *, Column *>(t, t->column(i));
     }
   }
   return list;
@@ -5543,12 +5589,12 @@ void ApplicationWindow::fitExponential(int type) {
   AxisRect2D *axisrect =
       qobject_cast<Layout2D *>(d_workspace->activeSubWindow())
           ->getCurrentAxisRect();
-  if(!axisrect) return;
+  if (!axisrect) return;
 
-   ExpDecayDialog *edd = new ExpDecayDialog(type, this);
-   edd->setAttribute(Qt::WA_DeleteOnClose);
-   edd->setAxisRect(axisrect);
-   edd->show();
+  ExpDecayDialog *edd = new ExpDecayDialog(type, this);
+  edd->setAttribute(Qt::WA_DeleteOnClose);
+  edd->setAxisRect(axisrect);
+  edd->show();
 }
 
 void ApplicationWindow::fitSecondOrderExponentialDecay() { fitExponential(2); }
@@ -5556,22 +5602,20 @@ void ApplicationWindow::fitSecondOrderExponentialDecay() { fitExponential(2); }
 void ApplicationWindow::fitThirdOrderExponentialDecay() { fitExponential(3); }
 
 void ApplicationWindow::showFitDialog() {
-  /*QMdiSubWindow *subwindow = d_workspace->activeSubWindow();
+  QMdiSubWindow *subwindow = d_workspace->activeSubWindow();
   if (!subwindow) return;
 
-  MultiLayer *plot = nullptr;
-  if (isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow))
-    plot = qobject_cast<MultiLayer *>(subwindow);
-  else if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow))
-    plot = multilayerPlot(
-        qobject_cast<Table *>(subwindow),
-        qobject_cast<Table *>(subwindow)->drawableColumnSelection(),
-        Graph::LineSymbols);
+  Layout2D *plot = nullptr;
+  AxisRect2D *axisrect = nullptr;
+  if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
+    plot = qobject_cast<Layout2D *>(subwindow);
+  } else if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
+    qDebug() << "not implimented";
+  }
 
   if (!plot) return;
-
-  Graph *g = qobject_cast<Graph *>(plot->activeGraph());
-  if (!g || !g->validCurvesDataSize()) return;
+  axisrect = plot->getCurrentAxisRect();
+  if (!axisrect) return;
 
   FitDialog *fd = new FitDialog(this);
   fd->setAttribute(Qt::WA_DeleteOnClose);
@@ -5582,9 +5626,9 @@ void ApplicationWindow::showFitDialog() {
   connect(plot, SIGNAL(destroyed()), fd, SLOT(close()));
 
   fd->addUserFunctions(fitFunctions);
-  fd->setGraph(g);
+  fd->setAxisRect(axisrect);
   fd->setSrcTables(tableList());
-  fd->exec();*/
+  fd->exec();
 }
 
 void ApplicationWindow::showFilterDialog(int filter) {
@@ -5699,6 +5743,7 @@ void ApplicationWindow::fitPolynomial() {
   PolynomFitDialog *pfd = new PolynomFitDialog(this);
   pfd->setAttribute(Qt::WA_DeleteOnClose);
   pfd->setAxisRect(axisrect);
+  pfd->changeDataRange();
   pfd->show();
 }
 
@@ -7714,76 +7759,81 @@ void ApplicationWindow::copyActiveLayer() {
 }
 
 void ApplicationWindow::showDataSetDialog(const QString &whichFit) {
-  /*if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-  Graph *g =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (!g) return;
+  AxisRect2D *axisrect =
+      qobject_cast<Layout2D *>(d_workspace->activeSubWindow())
+          ->getCurrentAxisRect();
+
+  if (!axisrect) return;
 
   DataSetDialog *ad = new DataSetDialog(tr("Curve") + ": ", this);
   ad->setAttribute(Qt::WA_DeleteOnClose);
-  ad->setGraph(g);
+  ad->setAxisRect(axisrect);
   ad->setOperationType(whichFit);
-  ad->exec();*/
+  ad->exec();
 }
 
 void ApplicationWindow::analyzeCurve(AxisRect2D *axisrect,
                                      const QString &whichFit,
                                      const QString &curveTitle) {
-  /*  if (whichFit == "fitLinear" || whichFit == "fitSigmoidal" ||
-        whichFit == "fitGauss" || whichFit == "fitLorentz") {
-      Fit *fitter = nullptr;
-      if (whichFit == "fitLinear")
-        fitter = new LinearFit(this, axisrect);
-      else if (whichFit == "fitSigmoidal")
-        fitter = new SigmoidalFit(this, axisrect);
-      else if (whichFit == "fitGauss")
-        fitter = new GaussFit(this, axisrect);
-      else if (whichFit == "fitLorentz")
-        fitter = new LorentzFit(this, axisrect);
+  if (whichFit == "fitLinear" || whichFit == "fitSigmoidal" ||
+      whichFit == "fitGauss" || whichFit == "fitLorentz") {
+    Fit *fitter = nullptr;
+    if (whichFit == "fitLinear")
+      fitter = new LinearFit(this, axisrect);
+    else if (whichFit == "fitSigmoidal")
+      fitter = new SigmoidalFit(this, axisrect);
+    else if (whichFit == "fitGauss")
+      fitter = new GaussFit(this, axisrect);
+    else if (whichFit == "fitLorentz")
+      fitter = new LorentzFit(this, axisrect);
 
-      if (fitter->setDataFromCurve(
-              PlotColumns::getassociateddatafromstring(curveTitle))) {
-        if (whichFit != "fitLinear") fitter->guessInitialValues();
+    if (fitter->setDataFromCurve(
+            PlotColumns::getassociateddatafromstring(axisrect, curveTitle),
+            axisrect)) {
+      if (whichFit != "fitLinear") fitter->guessInitialValues();
 
-        fitter->scaleErrors(fit_scale_errors);
-        fitter->setOutputPrecision(fit_output_precision);
+      fitter->scaleErrors(fit_scale_errors);
+      fitter->setOutputPrecision(fit_output_precision);
 
-        if (whichFit == "fitLinear" && d_2_linear_fit_points)
-          fitter->generateFunction(generateUniformFitPoints, 2);
-        else
-          fitter->generateFunction(generateUniformFitPoints, fitPoints);
-        fitter->fit();
-        if (pasteFitResultsToPlot) fitter->showLegend();
-        delete fitter;
-      }
-    } else if (whichFit == "differentiate") {
-      Differentiation *diff = new Differentiation(this, g, curveTitle);
-      diff->run();
-      delete diff;
-    }*/
+      if (whichFit == "fitLinear" && d_2_linear_fit_points)
+        fitter->generateFunction(generateUniformFitPoints, 2);
+      else
+        fitter->generateFunction(generateUniformFitPoints, fitPoints);
+      fitter->fit();
+      delete fitter;
+    }
+  } else if (whichFit == "differentiate") {
+    Differentiation *diff = new Differentiation(
+        this, axisrect,
+        PlotColumns::getassociateddatafromstring(axisrect, curveTitle));
+    diff->run();
+    delete diff;
+  }
 }
 
 void ApplicationWindow::analysis(const QString &whichFit) {
-  /*  if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
-    Graph *g =
-        qobject_cast<MultiLayer
-    *>(d_workspace->activeSubWindow())->activeGraph(); if (!g ||
-    !g->validCurvesDataSize()) return;
+  AxisRect2D *axisrect =
+      qobject_cast<Layout2D *>(d_workspace->activeSubWindow())
+          ->getCurrentAxisRect();
 
-    QString curve_title = g->selectedCurveTitle();
-    if (!curve_title.isNull()) {
-      analyzeCurve(g, whichFit, curve_title);
-      return;
-    }
+  if (!axisrect) return;
 
-    QStringList lst = g->analysableCurvesList();
-    if (lst.count() == 1) {
-      const QwtPlotCurve *c = g->curve(lst[0]);
-      if (c) analyzeCurve(g, whichFit, lst[0]);
-    } else
-      showDataSetDialog(whichFit);*/
+  QStringList lst = PlotColumns::getstringlistfromassociateddata(axisrect);
+  if (lst.count() == 0) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot(s) available in this layout.</h4>"
+           "<p><h4>Please add a plot and try again!</h4>"));
+  }
+  if (lst.count() == 1) {
+    QString analyzablecurve = lst.at(0);
+    if (!analyzablecurve.isEmpty()) analyzeCurve(axisrect, whichFit, lst.at(0));
+  } else
+    showDataSetDialog(whichFit);
 }
 
 void ApplicationWindow::pickPointerCursor() {

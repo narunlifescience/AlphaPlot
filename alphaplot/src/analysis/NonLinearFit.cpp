@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : SigmoidalFit.cpp
+    File                 : NonLinearFit.cpp
     Project              : AlphaPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Sigmoidal (Boltzmann) Fit class
+    Description          : NonLinearFit class
 
  ***************************************************************************/
 
@@ -26,77 +26,92 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "SigmoidalFit.h"
+#include "NonLinearFit.h"
 #include "fit_gsl.h"
+#include "scripting/MyParser.h"
 
 #include <QMessageBox>
 
-SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Graph *g)
-    : Fit(parent, g) {
+NonLinearFit::NonLinearFit(ApplicationWindow *parent, AxisRect2D *axisrect)
+    : Fit(parent, axisrect) {
   init();
 }
 
-SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Graph *g,
-                           const QString &curveTitle)
-    : Fit(parent, g) {
+NonLinearFit::NonLinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                           PlotData::AssociatedData *associateddata)
+    : Fit(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle);
+  setDataFromCurve(associateddata);
 }
 
-SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Graph *g,
-                           const QString &curveTitle, double start, double end)
-    : Fit(parent, g) {
+NonLinearFit::NonLinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                           PlotData::AssociatedData *associateddata,
+                           double start, double end)
+    : Fit(parent, axisrect) {
   init();
-  setDataFromCurve(curveTitle, start, end);
+  setDataFromCurve(associateddata, start, end);
 }
 
-void SigmoidalFit::init() {
-  setObjectName("Boltzmann");
-  d_f = boltzmann_f;
-  d_df = boltzmann_df;
-  d_fdf = boltzmann_fdf;
-  d_fsimplex = boltzmann_d;
-  d_p = 4;
+void NonLinearFit::init() {
+  setObjectName(tr("NonLinear"));
+  d_formula = QString::null;
+  d_f = user_f;
+  d_df = user_df;
+  d_fdf = user_fdf;
+  d_fsimplex = user_d;
+  d_explanation = tr("Non-linear");
+  d_init_err = false;
+}
+
+void NonLinearFit::setFormula(const QString &s) { d_formula = s; }
+
+void NonLinearFit::setParametersList(const QStringList &lst) {
+  if (lst.count() < 1) {
+    QMessageBox::critical(
+        app_, tr("Fit Error"),
+        tr("You must provide a list containing at least one parameter for this "
+           "type of fit. Operation aborted!"));
+    d_init_err = true;
+    return;
+  }
+
+  d_init_err = false;
+  d_param_names = lst;
+
+  if (d_p > 0) {  // free previously allocated memory
+    gsl_vector_free(d_param_init);
+    gsl_matrix_free(covar);
+    delete[] d_results;
+  }
+
+  d_p = lst.count();
   d_min_points = d_p;
-  d_param_init = gsl_vector_alloc(d_p);
+  d_param_init = gsl_vector_alloc(static_cast<size_t>(d_p));
   gsl_vector_set_all(d_param_init, 1.0);
-  covar = gsl_matrix_alloc(d_p, d_p);
-  d_results = new double[d_p];
-  d_param_explain << tr("(init value)") << tr("(final value)") << tr("(center)")
-                  << tr("(time constant)");
-  d_param_names << "A1"
-                << "A2"
-                << "x0"
-                << "dx";
-  d_explanation = tr("Boltzmann (Sigmoidal) Fit");
-  d_formula = "(A1-A2)/(1+exp((x-x0)/dx))+A2";
+
+  covar = gsl_matrix_alloc(static_cast<size_t>(d_p), static_cast<size_t>(d_p));
+  d_results = new double[static_cast<size_t>(d_p)];
+
+  for (int i = 0; i < d_p; i++) d_param_explain << "";
 }
 
-void SigmoidalFit::calculateFitCurveData(double *par, double *X, double *Y) {
+void NonLinearFit::calculateFitCurveData(double *par, double *X, double *Y) {
+  for (int i = 0; i < d_p; i++)
+    d_script->setDouble(par[i], d_param_names[i].toUtf8());
+
   if (d_gen_function) {
     double X0 = d_x[0];
     double step = (d_x[d_n - 1] - X0) / (d_points - 1);
     for (int i = 0; i < d_points; i++) {
       X[i] = X0 + i * step;
-      Y[i] = (par[0] - par[1]) / (1 + exp((X[i] - par[2]) / par[3])) + par[1];
+      d_script->setDouble(X[i], "x");
+      Y[i] = d_script->eval().toDouble();
     }
   } else {
     for (int i = 0; i < d_points; i++) {
       X[i] = d_x[i];
-      Y[i] = (par[0] - par[1]) / (1 + exp((X[i] - par[2]) / par[3])) + par[1];
+      d_script->setDouble(X[i], "x");
+      Y[i] = d_script->eval().toDouble();
     }
   }
-}
-
-void SigmoidalFit::guessInitialValues() {
-  gsl_vector_view x = gsl_vector_view_array(d_x, d_n);
-  gsl_vector_view y = gsl_vector_view_array(d_y, d_n);
-
-  double min_out, max_out;
-  gsl_vector_minmax(&y.vector, &min_out, &max_out);
-
-  gsl_vector_set(d_param_init, 0, min_out);
-  gsl_vector_set(d_param_init, 1, max_out);
-  gsl_vector_set(d_param_init, 2, gsl_vector_get(&x.vector, d_n / 2));
-  gsl_vector_set(d_param_init, 3, 1.0);
 }

@@ -76,10 +76,11 @@ DataSetDialog::DataSetDialog(const QString& text, QWidget* parent,
 }
 
 void DataSetDialog::accept() {
-  if (operation.isEmpty())
+  if (operation.isEmpty()) {
     emit options(boxName->currentText());
-  else if (axisrect_) {
-    ApplicationWindow* app = (ApplicationWindow*)this->parent();
+    qDebug() << "no analyzable curves";
+  } else if (axisrect_) {
+    ApplicationWindow* app = qobject_cast<ApplicationWindow*>(this->parent());
     if (app) app->analyzeCurve(axisrect_, operation, boxName->currentText());
   }
   close();

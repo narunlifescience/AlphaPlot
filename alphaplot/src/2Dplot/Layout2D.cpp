@@ -549,11 +549,8 @@ void Layout2D::refresh() {
 }
 
 bool Layout2D::exportGraph() {
-  ImageExportDialog2D *ied =
-      new ImageExportDialog2D(nullptr, plot2dCanvas_ != nullptr);
-  ied->setAttribute(Qt::WA_DeleteOnClose);
-  /* std::unique_ptr<ImageExportDialog2D> ied(
-       new ImageExportDialog2D(nullptr, plot2dCanvas_ != nullptr));*/
+  std::unique_ptr<ImageExportDialog2D> ied(
+       new ImageExportDialog2D(nullptr, plot2dCanvas_ != nullptr));
   ied->setraster_height(plot2dCanvas_->height());
   ied->setraster_width(plot2dCanvas_->width());
   ied->setvector_height(plot2dCanvas_->height());

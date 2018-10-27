@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : PluginFit.h
+    File                 : NonLinearFit.h
     Project              : AlphaPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Plugin Fit class
+    Description          : NonLinearFit class
 
  ***************************************************************************/
 
@@ -26,27 +26,28 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef PLUGINFIT_H
-#define PLUGINFIT_H
+#ifndef NONLINEARFIT_H
+#define NONLINEARFIT_H
 
 #include "Fit.h"
 
-class PluginFit : public Fit {
+class NonLinearFit : public Fit {
   Q_OBJECT
 
  public:
-  PluginFit(ApplicationWindow *parent, Graph *g);
-  PluginFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
-  PluginFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
-            double start, double end);
+  NonLinearFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+  NonLinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+               PlotData::AssociatedData *associateddata);
+  NonLinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+               PlotData::AssociatedData *associateddata,
+               double start, double end);
 
-  bool load(const QString &pluginName);
+  void setParametersList(const QStringList &lst);
+  void setFormula(const QString &s);
 
  private:
-  void init();
-  typedef double (*fitFunctionEval)(double, double *);
   void calculateFitCurveData(double *par, double *X, double *Y);
-  fitFunctionEval f_eval;
+  void init();
 };
 
-#endif  // PLUGINFIT_H
+#endif  // NONLINEARFIT_H

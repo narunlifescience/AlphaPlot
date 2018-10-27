@@ -449,8 +449,9 @@ class ApplicationWindow : public QMainWindow,
   QList<QPair<Table*, Column*>> columnList(AlphaPlot::PlotDesignation plotType);
   QList<QPair<Table*, Column*>> columnList(Folder* folder,
                                            AlphaPlot::PlotDesignation plotType);
+  QList<QPair<Table*, QPair<Column*, Column*>>> columnList();
+  QList<QPair<Table*, QPair<Column*, Column*>>> columnList(Folder* folder);
   QStringList columnsList();
-  QList<QPair<Table*, Column*>> columnList();
 
   void undo();
   void redo();

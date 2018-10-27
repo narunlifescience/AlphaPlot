@@ -35,9 +35,11 @@ class SigmoidalFit : public Fit {
   Q_OBJECT
 
  public:
-  SigmoidalFit(ApplicationWindow *parent, Graph *g);
-  SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle);
-  SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString &curveTitle,
+  SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+  SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+               PlotData::AssociatedData *associateddata);
+  SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+               PlotData::AssociatedData *associateddata,
                double start, double end);
   void guessInitialValues();
 

@@ -205,7 +205,7 @@ void Fit::setDataCurve(PlotData::AssociatedData *associateddata, double start,
   Filter::setDataCurve(associateddata, start, end);
 
   d_y_errors = new double[static_cast<size_t>(d_n)];
-  if (!setYErrorSource(AssociatedErrors, QString::null, true))
+  //if (!setYErrorSource(AssociatedErrors, QString::null, true))
     setYErrorSource(UnknownErrors);
 }
 
@@ -434,8 +434,8 @@ Table *Fit::parametersTable(const QString &tableName) {
   t->column(2)->setPlotDesignation(AlphaPlot::yErr);
 // TODO: replace or remove this
 #if 0
-	for (int j=0; j<3; j++)
-		t->table()->adjustColumn(j);
+for (int j=0; j<3; j++)
+t->table()->adjustColumn(j);
 #endif
   t->showNormal();
   return t;
@@ -632,13 +632,6 @@ void Fit::generateFitCurve(double *par) {
 
 void Fit::insertFitFunctionCurve(const QString &name, double *x, double *y,
                                  int penWidth) {
-  qDebug() << "insertFitFunctionCurve(const QString &name, double *x, double "
-              "*y, int penWidth)";
-  //QString title = axisrect_->generateFunctionName(name);
-
-  //c->setData(x, y, d_points);
-  //c->setRange(d_x[0], d_x[d_n - 1]);
-
   QString formula;
   for (int j = 0; j < d_p; j++)
     formula += QString("%1=%2\n")
@@ -646,12 +639,9 @@ void Fit::insertFitFunctionCurve(const QString &name, double *x, double *y,
                    .arg(d_results[j], 0, 'g', d_prec);
   formula += "\n";
   formula += d_formula;
-  qDebug() << formula << d_formula;
-  qDebug() << d_x[0] << d_x[d_n - 1];
-  //c->setFormula(formula);
-  //app_->addFunctionPlot(1, QStringList() << formula,
-  //                                    ui_->paramparameterLineEdit->text(), ranges,
-  //                                    ui_->normpointsSpinBox->value(), axisrect_);
+  app_->addFunctionPlot(0, QStringList() << formula, QString("x"),
+                        QList<double>() << d_x[0] << d_x[d_n - 1], d_points,
+                        axisrect_);
 }
 
 Fit::~Fit() {
