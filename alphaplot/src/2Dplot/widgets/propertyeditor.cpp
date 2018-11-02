@@ -2528,8 +2528,8 @@ void PropertyEditor::Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect) {
 }
 
 void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
-  Q_UNUSED(axisrect);
   populateObjectBrowser(widget);
+  axisrectConnections(axisrect);
 }
 
 void PropertyEditor::objectschanged() {
@@ -2834,13 +2834,10 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       }
 
       objectitems_.append(item);
-      // if (!elementslist.isEmpty()) {
-      // elementslist.at(0)->parentPlot()->replot();
-      //}
-      axisrectConnections(elementslist.at(i));
     }
-    connect(gd, SIGNAL(AxisRectCreated(AxisRect2D *, MyWidget *)), this,
-            SLOT(axisRectCreated(AxisRect2D *, MyWidget *)));
+    if (previouswidget_ != gd)
+      connect(gd, SIGNAL(AxisRectCreated(AxisRect2D *, MyWidget *)), this,
+              SLOT(axisRectCreated(AxisRect2D *, MyWidget *)));
     objectbrowser_->addTopLevelItems(objectitems_);
     previouswidget_ = gd;
     objectbrowser_->insertTopLevelItems(0, objectitems_);

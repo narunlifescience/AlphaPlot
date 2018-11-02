@@ -163,7 +163,7 @@ void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
   xAxis.at(0)->setLabel(xLabel);
   yAxis.at(0)->setLabel(yLabel);
 
-  QString name = "f(" + xLabel + ") = " + yLabel;
+  QString name = "f(" + xLabel + ") : " + yLabel;
   Curve2D *curve =
       element->addFunction2DPlot(xdata, ydata, xAxis.at(0), yAxis.at(0), name);
   curve->rescaleAxes();

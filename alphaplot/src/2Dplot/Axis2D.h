@@ -18,7 +18,6 @@
 #define AXIS2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "Properties2D.h"
 
 class AxisRect2D;
 
