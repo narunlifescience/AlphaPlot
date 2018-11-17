@@ -80,6 +80,7 @@ class XmlStreamReader : public QXmlStreamReader {
    * case *ok is false)
    */
   int readAttributeInt(const QString& name, bool* ok);
+  QXmlStreamAttributes readElements(const QString& element, bool* ok);
 
  private:
   QStringList d_warnings;

@@ -11,6 +11,7 @@
 
 #include "AxisRect2D.h"
 #include "Bar2D.h"
+#include "ColorMap2D.h"
 #include "Curve2D.h"
 #include "DataManager2D.h"
 #include "LayoutGrid2D.h"
@@ -19,6 +20,7 @@
 #include "Table.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
+#include "future/lib/XmlStreamWriter.h"
 #include "widgets/ImageExportDialog2D.h"
 #include "widgets/LayoutButton2D.h"
 
@@ -301,6 +303,21 @@ void Layout2D::generatePie2DPlot(Table *table, Column *xData, int from,
   pie->layer()->replot();
 }
 
+void Layout2D::generateColorMap2DPlot(Matrix *matrix) {
+  AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
+                                        AlphaPlot::ColumnDataType::TypeDouble);
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+  ColorMap2D *colormap =
+      element->addColorMap2DPlot(matrix, xAxis.at(0), yAxis.at(0));
+  colormap->rescaleAxes();
+  colormap->layer()->replot();
+}
+
 QList<AxisRect2D *> Layout2D::getAxisRectList() {
   QList<AxisRect2D *> elementslist;
   for (int i = 0; i < layout_->elementCount(); i++) {
@@ -550,7 +567,7 @@ void Layout2D::refresh() {
 
 bool Layout2D::exportGraph() {
   std::unique_ptr<ImageExportDialog2D> ied(
-       new ImageExportDialog2D(nullptr, plot2dCanvas_ != nullptr));
+      new ImageExportDialog2D(nullptr, plot2dCanvas_ != nullptr));
   ied->setraster_height(plot2dCanvas_->height());
   ied->setraster_width(plot2dCanvas_->width());
   ied->setvector_height(plot2dCanvas_->height());
@@ -697,7 +714,7 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
           ls->getdatablock_lsplot()->getassociateddata();
       if (data->table == table) {
         if (data->xcol == col || data->ycol == col) {
-          axisrect->removeLineScatter2D(ls);
+          axisrect->removeLineSpecial2D(ls);
           removed = true;
         }
       }
@@ -881,6 +898,18 @@ void Layout2D::print() {
   connect(&previewDialog, SIGNAL(paintRequested(QPrinter *)),
           SLOT(renderPlot(QPrinter *)));
   previewDialog.exec();
+}
+
+void Layout2D::save(XmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("plot2d");
+  xmlwriter->writeAttribute("creation_time", birthDate());
+  xmlwriter->writeAttribute("caption_spec", QString::number(captionPolicy()));
+  xmlwriter->writeAttribute("name", name());
+  xmlwriter->writeAttribute("label", windowLabel());
+  foreach (AxisRect2D *axisrect, getAxisRectList()) {
+    axisrect->save(xmlwriter, getAxisRectIndex(axisrect));
+  }
+  xmlwriter->writeEndElement();
 }
 
 AxisRect2D *Layout2D::addAxisRectItem() {

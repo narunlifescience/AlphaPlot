@@ -20,6 +20,7 @@
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 
 class AxisRect2D;
+class XmlStreamWriter;
 
 class Axis2D : public QCPAxis {
   Q_OBJECT
@@ -59,6 +60,7 @@ class Axis2D : public QCPAxis {
   double getto_axis() const;
   Axis2D::AxisScaleType getscaletype_axis();
   AxisOreantation getorientation_axis();
+  Axis2D::TickerType gettickertype_axis() const;
   bool getinverted_axis() const;
   QColor getstrokecolor_axis() const;
   double getstrokethickness_axis() const;
@@ -135,6 +137,8 @@ class Axis2D : public QCPAxis {
   void setticklabelside_axis(const AxisLabelSide &side);
   void setticklabelformat_axis(const AxisLabelFormat &axisformat);
   void setticklabelprecision_axis(const int value);
+
+  void save(XmlStreamWriter *xmlwriter);
 
  private:
   AxisRect2D *axisrect_;

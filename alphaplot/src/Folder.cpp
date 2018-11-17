@@ -37,7 +37,7 @@
 QStringList Folder::currentFolderNames = {};
 
 Folder::Folder(Folder *parent, const QString &name)
-    : QObject(parent), d_active_window(0) {
+    : QObject(parent), d_active_window(nullptr) {
   QObject::setObjectName(name);
   birthdate = QDateTime::currentDateTime().toString(Qt::LocalDate);
 }

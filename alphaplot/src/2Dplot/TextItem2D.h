@@ -22,6 +22,7 @@ class TextItem2D : public QCPItemText {
     BottomRight = 8
   };
 
+  AxisRect2D *getaxisrect_textitem() const;
   QColor getstrokecolor_textitem() const;
   double getstrokethickness_textitem() const;
   Qt::PenStyle getstrokestyle_textitem() const;

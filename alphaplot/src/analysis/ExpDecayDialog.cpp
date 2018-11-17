@@ -171,7 +171,8 @@ void ExpDecayDialog::activateCurve(const QString &curveName) {
   }
 
   int precision = app_->fit_output_precision;
-  double start, end;
+  double start = 0;
+  double end = 0;
   boxStart->setText(QString::number(std::min(start, end)));
   boxYOffset->setText(QString::number(ymin, 'g', precision));
   if (slopes < 2)

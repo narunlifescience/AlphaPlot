@@ -29,6 +29,7 @@
  ***************************************************************************/
 
 #include "lib/XmlStreamReader.h"
+#include <QObject>
 #include <QtDebug>
 
 XmlStreamReader::XmlStreamReader() { init(); }
@@ -101,6 +102,24 @@ int XmlStreamReader::readAttributeInt(const QString& name, bool* ok) {
     return 0;
   }
   return str.toInt(ok);
+}
+
+QXmlStreamAttributes XmlStreamReader::readElements(const QString& element,
+                                                   bool* ok) {
+  QXmlStreamAttributes attribs;
+  if (isStartElement()) {
+    if (name() == element) {
+      attribs = attributes();
+    } else {
+      // unknown element
+      raiseWarning(QObject::tr("unknown element '%1'").arg(name().toString()));
+      if (!skipToEndElement())
+        if (ok) *ok = false;
+    }
+  } else {
+    if (ok) *ok = false;
+  }
+  return attribs;
 }
 
 bool XmlStreamReader::skipToEndElement() {

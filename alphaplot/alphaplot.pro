@@ -1,7 +1,7 @@
 # Qt modules
 QT += core gui
-#QT += datavisualization
-QT += widgets opengl network svg xml script scripttools printsupport
+# QT += datavisualization
+QT += widgets opengl network svg xml script scripttools printsupport xmlpatterns
 
 # enable C++11 support
   CONFIG += c++14
@@ -51,6 +51,7 @@ RESOURCES      += ../data/styles/style.qrc
 
 ###################### ICONS ################################################
 RESOURCES      += ../data/icons.qrc
+RESOURCES      += ../data/xmlschema.qrc
 RC_FILE         = ../data/alphaplot.rc
 macx:ICON       = ../data/icons/app/alphaplot.icns
 

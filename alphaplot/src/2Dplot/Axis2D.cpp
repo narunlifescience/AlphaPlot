@@ -16,9 +16,10 @@
 
 #include "Axis2D.h"
 #include "AxisRect2D.h"
+#include "future/lib/XmlStreamWriter.h"
 
 Axis2D::Axis2D(AxisRect2D *parent, AxisType type, TickerType tickertype)
-    : QCPAxis(static_cast<QCPAxisRect *>(parent), type),
+    : QCPAxis(parent, type),
       axisrect_(parent),
       tickertype_(tickertype),
       ticker_(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker)) {
@@ -91,6 +92,8 @@ Axis2D::AxisOreantation Axis2D::getorientation_axis() {
   }
   return orientation;
 }
+
+Axis2D::TickerType Axis2D::gettickertype_axis() const { return tickertype_; }
 
 bool Axis2D::getinverted_axis() const { return rangeReversed(); }
 
@@ -366,4 +369,122 @@ void Axis2D::setticklabelformat_axis(
 
 void Axis2D::setticklabelprecision_axis(const int value) {
   setNumberPrecision(value);
+}
+
+void Axis2D::save(XmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("axis");
+  switch (getorientation_axis()) {
+    case Axis2D::AxisOreantation::Left:
+      xmlwriter->writeAttribute("position", "left");
+      break;
+    case Axis2D::AxisOreantation::Bottom:
+      xmlwriter->writeAttribute("position", "bottom");
+      break;
+    case Axis2D::AxisOreantation::Right:
+      xmlwriter->writeAttribute("position", "right");
+      break;
+    case Axis2D::AxisOreantation::Top:
+      xmlwriter->writeAttribute("position", "top");
+      break;
+  }
+  switch (gettickertype_axis()) {
+    case Axis2D::TickerType::Value:
+      xmlwriter->writeAttribute("tickertype", "value");
+      break;
+    case Axis2D::TickerType::Log:
+      xmlwriter->writeAttribute("tickertype", "log");
+      break;
+    case Axis2D::TickerType::Pi:
+      xmlwriter->writeAttribute("tickertype", "pi");
+      break;
+    case Axis2D::TickerType::Time:
+      xmlwriter->writeAttribute("tickertype", "time");
+      break;
+    case Axis2D::TickerType::DateTime:
+      xmlwriter->writeAttribute("tickertype", "datetime");
+      break;
+    case Axis2D::TickerType::Text:
+      xmlwriter->writeAttribute("tickertype", "text");
+      break;
+  }
+  (getshowhide_axis()) ? xmlwriter->writeAttribute("visible", "true")
+                       : xmlwriter->writeAttribute("visible", "false");
+  xmlwriter->writeAttribute("offset", QString::number(getoffset_axis()));
+  xmlwriter->writeAttribute("from", QString::number(getfrom_axis()));
+  xmlwriter->writeAttribute("to", QString::number(getto_axis()));
+  switch (getscaletype_axis()) {
+    case Axis2D::AxisScaleType::Linear:
+      xmlwriter->writeAttribute("scaletype", "linear");
+      break;
+    case Axis2D::AxisScaleType::Logarithmic:
+      xmlwriter->writeAttribute("scaletype", "logarithemic");
+      break;
+  }
+  (getinverted_axis()) ? xmlwriter->writeAttribute("inverted", "true")
+                       : xmlwriter->writeAttribute("inverted", "false");
+  xmlwriter->writeStartElement("label");
+  xmlwriter->writeAttribute("text", getlabeltext_axis());
+  xmlwriter->writeAttribute("padding", QString::number(getlabelpadding_axis()));
+  xmlwriter->writeFont(getlabelfont_axis(), getlabelcolor_axis());
+  xmlwriter->writeEndElement();
+  // Ticks
+  xmlwriter->writeStartElement("ticks");
+  xmlwriter->writeAttribute("in", QString::number(getticklengthin_axis()));
+  xmlwriter->writeAttribute("out", QString::number(getticklengthout_axis()));
+  xmlwriter->writePen(tickPen());
+  xmlwriter->writeEndElement();
+  // Subticks
+  xmlwriter->writeStartElement("subticks");
+  xmlwriter->writeAttribute("in", QString::number(getsubticklengthin_axis()));
+  xmlwriter->writeAttribute("out", QString::number(getsubticklengthout_axis()));
+  xmlwriter->writePen(subTickPen());
+  xmlwriter->writeEndElement();
+  // Tick Labels
+  xmlwriter->writeStartElement("ticklabels");
+  xmlwriter->writeFont(getticklabelfont_axis(), getticklabelcolor_axis());
+  xmlwriter->writeAttribute("padding",
+                            QString::number(getticklabelpadding_axis()));
+  xmlwriter->writeAttribute("rotation",
+                            QString::number(getticklabelrotation_axis()));
+  switch (getticklabelside_axis()) {
+    case Axis2D::AxisLabelSide::Inside:
+      xmlwriter->writeAttribute("side", "up");
+      break;
+    case Axis2D::AxisLabelSide::Outside:
+      xmlwriter->writeAttribute("side", "down");
+      break;
+  }
+  switch (getticklabelformat_axis()) {
+    case Axis2D::AxisLabelFormat::E:
+      xmlwriter->writeAttribute("format", "E");
+      break;
+    case Axis2D::AxisLabelFormat::G:
+      xmlwriter->writeAttribute("format", "G");
+      break;
+    case Axis2D::AxisLabelFormat::e:
+      xmlwriter->writeAttribute("format", "e");
+      break;
+    case Axis2D::AxisLabelFormat::eb:
+      xmlwriter->writeAttribute("format", "eb");
+      break;
+    case Axis2D::AxisLabelFormat::ebc:
+      xmlwriter->writeAttribute("format", "ebc");
+      break;
+    case Axis2D::AxisLabelFormat::f:
+      xmlwriter->writeAttribute("format", "f");
+      break;
+    case Axis2D::AxisLabelFormat::g:
+      xmlwriter->writeAttribute("format", "g");
+      break;
+    case Axis2D::AxisLabelFormat::gb:
+      xmlwriter->writeAttribute("format", "gb");
+      break;
+    case Axis2D::AxisLabelFormat::gbc:
+      xmlwriter->writeAttribute("format", "gbc");
+      break;
+  }
+  xmlwriter->writeAttribute("precision",
+                            QString::number(getticklabelprecision_axis()));
+  xmlwriter->writeEndElement();
+  xmlwriter->writeEndElement();
 }

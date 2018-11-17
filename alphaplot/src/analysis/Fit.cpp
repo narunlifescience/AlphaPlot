@@ -27,6 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "Fit.h"
+#include "2Dplot/Curve2D.h"
 #include "ColorBox.h"
 #include "Matrix.h"
 #include "Table.h"
@@ -205,8 +206,8 @@ void Fit::setDataCurve(PlotData::AssociatedData *associateddata, double start,
   Filter::setDataCurve(associateddata, start, end);
 
   d_y_errors = new double[static_cast<size_t>(d_n)];
-  //if (!setYErrorSource(AssociatedErrors, QString::null, true))
-    setYErrorSource(UnknownErrors);
+  // if (!setYErrorSource(AssociatedErrors, QString::null, true))
+  setYErrorSource(UnknownErrors);
 }
 
 void Fit::setInitialGuesses(double *x_init) {
@@ -639,9 +640,11 @@ void Fit::insertFitFunctionCurve(const QString &name, double *x, double *y,
                    .arg(d_results[j], 0, 'g', d_prec);
   formula += "\n";
   formula += d_formula;
-  app_->addFunctionPlot(0, QStringList() << formula, QString("x"),
-                        QList<double>() << d_x[0] << d_x[d_n - 1], d_points,
-                        axisrect_);
+  Curve2D *curve = app_->addFunctionPlot(
+      0, QStringList() << formula, QString("x"),
+      QList<double>() << d_x[0] << d_x[d_n - 1], d_points, axisrect_);
+  if (curve)
+    curve->setlinestrokecolor_cplot(ColorBox::color(d_curveColorIndex));
 }
 
 Fit::~Fit() {

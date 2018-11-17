@@ -1,0 +1,497 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="aproj">
+    <xs:annotation>
+      <xs:documentation>AlphaPlot project file</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded" minOccurs="0">
+        <xs:element name="table" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="comment"/>
+              <xs:element name="column" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="comment"/>
+                    <xs:element name="input_filter">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="simple_filter">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:string" name="comment"/>
+                              </xs:sequence>
+                              <xs:attribute type="xs:string" name="creation_time" use="optional"/>
+                              <xs:attribute type="xs:string" name="caption_spec" use="optional"/>
+                              <xs:attribute type="xs:string" name="name" use="optional"/>
+                              <xs:attribute type="xs:string" name="filter_name" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="output_filter">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="simple_filter">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:string" name="comment"/>
+                              </xs:sequence>
+                              <xs:attribute type="xs:string" name="creation_time" use="optional"/>
+                              <xs:attribute type="xs:string" name="caption_spec" use="optional"/>
+                              <xs:attribute type="xs:string" name="name" use="optional"/>
+                              <xs:attribute type="xs:string" name="format" use="optional"/>
+                              <xs:attribute type="xs:byte" name="digits" use="optional"/>
+                              <xs:attribute type="xs:string" name="filter_name" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="row" maxOccurs="unbounded" minOccurs="0">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:float">
+                            <xs:attribute type="xs:string" name="type" use="optional"/>
+                            <xs:attribute type="xs:byte" name="index" use="optional"/>
+                            <xs:attribute type="xs:string" name="invalid" use="optional"/>
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute type="xs:string" name="creation_time" use="optional"/>
+                  <xs:attribute type="xs:string" name="caption_spec" use="optional"/>
+                  <xs:attribute type="xs:string" name="name" use="optional"/>
+                  <xs:attribute type="xs:string" name="type" use="optional"/>
+                  <xs:attribute type="xs:string" name="mode" use="optional"/>
+                  <xs:attribute type="xs:string" name="plot_designation" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="column_width" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:short">
+                      <xs:attribute type="xs:byte" name="column" use="optional"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="creation_time" use="optional"/>
+            <xs:attribute type="xs:string" name="caption_spec" use="optional"/>
+            <xs:attribute type="xs:string" name="name" use="optional"/>
+            <xs:attribute type="xs:byte" name="columns" use="optional"/>
+            <xs:attribute type="xs:byte" name="rows" use="optional"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="matrix" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="comment"/>
+              <xs:element type="xs:string" name="formula"/>
+              <xs:element name="display">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="numeric_format"/>
+                      <xs:attribute type="xs:byte" name="displayed_digits"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="coordinates">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:byte" name="x_start"/>
+                      <xs:attribute type="xs:byte" name="x_end"/>
+                      <xs:attribute type="xs:byte" name="y_start"/>
+                      <xs:attribute type="xs:byte" name="y_end"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="cell" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:float">
+                      <xs:attribute type="xs:byte" name="row" use="optional"/>
+                      <xs:attribute type="xs:byte" name="column" use="optional"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="column_width" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:byte">
+                      <xs:attribute type="xs:byte" name="column" use="optional"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="row_height" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:byte">
+                      <xs:attribute type="xs:byte" name="row" use="optional"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="creation_time"/>
+            <xs:attribute type="xs:string" name="caption_spec"/>
+            <xs:attribute type="xs:string" name="name"/>
+            <xs:attribute type="xs:byte" name="columns"/>
+            <xs:attribute type="xs:byte" name="rows"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="note" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="content">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="value"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="creation_time"/>
+            <xs:attribute type="xs:string" name="caption_spec"/>
+            <xs:attribute type="xs:string" name="name"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="plot3d" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="surfacefunction" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="value"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="range" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:float" name="x_axis_lower"/>
+                      <xs:attribute type="xs:float" name="x_axis_upper"/>
+                      <xs:attribute type="xs:byte" name="y_axis_lower"/>
+                      <xs:attribute type="xs:float" name="y_axis_upper"/>
+                      <xs:attribute type="xs:float" name="z_axis_lower"/>
+                      <xs:attribute type="xs:float" name="z_axis_upper"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="style" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="coordstyle"/>
+                      <xs:attribute type="xs:string" name="floorstyle"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="plotstyle" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="plotstyle"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="grids" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:byte" name="grid"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="title" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="text"/>
+                      <xs:attribute type="xs:string" name="text_color"/>
+                      <xs:attribute type="xs:string" name="font_family"/>
+                      <xs:attribute type="xs:byte" name="font_size"/>
+                      <xs:attribute type="xs:byte" name="font_weight"/>
+                      <xs:attribute type="xs:byte" name="font_italic"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="colors" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="mesh_color"/>
+                      <xs:attribute type="xs:string" name="axes_color"/>
+                      <xs:attribute type="xs:string" name="num_color"/>
+                      <xs:attribute type="xs:string" name="labels_color"/>
+                      <xs:attribute type="xs:string" name="background_color"/>
+                      <xs:attribute type="xs:string" name="grid_color"/>
+                      <xs:attribute type="xs:string" name="from_color"/>
+                      <xs:attribute type="xs:string" name="to_color"/>
+                      <xs:attribute type="xs:byte" name="alpha"/>
+                      <xs:attribute type="xs:string" name="color_map"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="x_axis_label" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="x_axis"/>
+                      <xs:attribute type="xs:string" name="font_family"/>
+                      <xs:attribute type="xs:byte" name="font_size"/>
+                      <xs:attribute type="xs:byte" name="font_weight"/>
+                      <xs:attribute type="xs:byte" name="font_italic"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="y_axis_label" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="y_axis"/>
+                      <xs:attribute type="xs:string" name="font_family"/>
+                      <xs:attribute type="xs:byte" name="font_size"/>
+                      <xs:attribute type="xs:byte" name="font_weight"/>
+                      <xs:attribute type="xs:byte" name="font_italic"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="z_axis_label" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="z_axis"/>
+                      <xs:attribute type="xs:string" name="font_family"/>
+                      <xs:attribute type="xs:byte" name="font_size"/>
+                      <xs:attribute type="xs:byte" name="font_weight"/>
+                      <xs:attribute type="xs:byte" name="font_italic"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="rotation" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:byte" name="x_rotation"/>
+                      <xs:attribute type="xs:byte" name="y_rotation"/>
+                      <xs:attribute type="xs:byte" name="z_rotation"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="zoom" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:float" name="value"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="scaling" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:float" name="x_scale"/>
+                      <xs:attribute type="xs:float" name="y_scale"/>
+                      <xs:attribute type="xs:float" name="z_scale"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="shift" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:float" name="x_shift"/>
+                      <xs:attribute type="xs:byte" name="y_shift"/>
+                      <xs:attribute type="xs:byte" name="z_shift"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="content" minOccurs="0">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute type="xs:string" name="value"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="creation_time" use="optional"/>
+            <xs:attribute type="xs:string" name="caption_spec" use="optional"/>
+            <xs:attribute type="xs:string" name="name" use="optional"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="plot2d" maxOccurs="unbounded" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="layout">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="brush">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:string">
+                            <xs:attribute type="xs:string" name="color"/>
+                            <xs:attribute type="xs:byte" name="style"/>
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="axis" maxOccurs="unbounded" minOccurs="0">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="label">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="font">
+                                  <xs:complexType>
+                                    <xs:simpleContent>
+                                      <xs:extension base="xs:string">
+                                        <xs:attribute type="xs:string" name="family" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="size" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="weight" use="optional"/>
+                                        <xs:attribute type="xs:string" name="bold" use="optional"/>
+                                        <xs:attribute type="xs:string" name="italic" use="optional"/>
+                                        <xs:attribute type="xs:string" name="underline" use="optional"/>
+                                        <xs:attribute type="xs:string" name="overline" use="optional"/>
+                                        <xs:attribute type="xs:string" name="color" use="optional"/>
+                                      </xs:extension>
+                                    </xs:simpleContent>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute type="xs:string" name="text" use="optional"/>
+                              <xs:attribute type="xs:byte" name="padding" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="ticks">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="pen">
+                                  <xs:complexType>
+                                    <xs:simpleContent>
+                                      <xs:extension base="xs:string">
+                                        <xs:attribute type="xs:string" name="color" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="style" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="width" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="cap" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="join" use="optional"/>
+                                      </xs:extension>
+                                    </xs:simpleContent>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute type="xs:byte" name="in" use="optional"/>
+                              <xs:attribute type="xs:byte" name="out" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="subticks">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="pen">
+                                  <xs:complexType>
+                                    <xs:simpleContent>
+                                      <xs:extension base="xs:string">
+                                        <xs:attribute type="xs:string" name="color" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="style" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="width" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="cap" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="join" use="optional"/>
+                                      </xs:extension>
+                                    </xs:simpleContent>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute type="xs:byte" name="in" use="optional"/>
+                              <xs:attribute type="xs:byte" name="out" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="ticklabels">
+                            <xs:complexType mixed="true">
+                              <xs:sequence>
+                                <xs:element name="font">
+                                  <xs:complexType>
+                                    <xs:simpleContent>
+                                      <xs:extension base="xs:string">
+                                        <xs:attribute type="xs:string" name="family" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="size" use="optional"/>
+                                        <xs:attribute type="xs:byte" name="weight" use="optional"/>
+                                        <xs:attribute type="xs:string" name="bold" use="optional"/>
+                                        <xs:attribute type="xs:string" name="italic" use="optional"/>
+                                        <xs:attribute type="xs:string" name="underline" use="optional"/>
+                                        <xs:attribute type="xs:string" name="overline" use="optional"/>
+                                        <xs:attribute type="xs:string" name="color" use="optional"/>
+                                      </xs:extension>
+                                    </xs:simpleContent>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="position" use="optional"/>
+                        <xs:attribute type="xs:string" name="tickertype" use="optional"/>
+                        <xs:attribute type="xs:string" name="visible" use="optional"/>
+                        <xs:attribute type="xs:byte" name="offset" use="optional"/>
+                        <xs:attribute type="xs:byte" name="from" use="optional"/>
+                        <xs:attribute type="xs:byte" name="to" use="optional"/>
+                        <xs:attribute type="xs:string" name="scaletype" use="optional"/>
+                        <xs:attribute type="xs:string" name="inverted" use="optional"/>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute type="xs:byte" name="index"/>
+                  <xs:attribute type="xs:byte" name="row"/>
+                  <xs:attribute type="xs:byte" name="column"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="creation_time"/>
+            <xs:attribute type="xs:string" name="caption_spec"/>
+            <xs:attribute type="xs:string" name="name"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="log">
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="value"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+      <xs:attribute type="xs:int" name="version"/>
+      <xs:attribute type="xs:string" name="scripting"/>
+      <xs:attribute type="xs:byte" name="windows"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -263,6 +263,7 @@ Curve2D *Filter::addResultCurve(double *xdata, double *ydata) {
   Curve2D *curve = axisrect_->addCurve2DPlot(
       AxisRect2D::LineScatterType::Line2D, table, xCol, yCol, 0,
       xCol->rowCount() - 1, xaxes.at(0), yaxes.at(0));
+  curve->setlinestrokecolor_cplot(ColorBox::color(d_curveColorIndex));
   xaxes.at(0)->rescale();
   yaxes.at(0)->rescale();
 

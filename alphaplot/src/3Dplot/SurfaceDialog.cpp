@@ -159,7 +159,7 @@ void SurfaceDialog::accept() {
     parser.SetExpr(Xfrom.toUtf8().constData());
     fromX = parser.Eval();
   } catch (mu::ParserError &e) {
-    QMessageBox::critical(0, tr("X Start limit error"),
+    QMessageBox::critical(nullptr, tr("X Start limit error"),
                           QString::fromStdString(e.GetMsg()));
     boxXFrom->setFocus();
     return;
@@ -169,7 +169,7 @@ void SurfaceDialog::accept() {
     parser.SetExpr(Xto.toUtf8().constData());
     toX = parser.Eval();
   } catch (mu::ParserError &e) {
-    QMessageBox::critical(0, tr("X End limit error"),
+    QMessageBox::critical(nullptr, tr("X End limit error"),
                           QString::fromStdString(e.GetMsg()));
     boxXTo->setFocus();
     return;
@@ -180,7 +180,7 @@ void SurfaceDialog::accept() {
     parser.SetExpr(Yfrom.toUtf8().constData());
     fromY = parser.Eval();
   } catch (mu::ParserError &e) {
-    QMessageBox::critical(0, tr("Y Start limit error"),
+    QMessageBox::critical(nullptr, tr("Y Start limit error"),
                           QString::fromStdString(e.GetMsg()));
     boxYFrom->setFocus();
     return;
@@ -190,7 +190,7 @@ void SurfaceDialog::accept() {
     parser.SetExpr(Yto.toUtf8().constData());
     toY = parser.Eval();
   } catch (mu::ParserError &e) {
-    QMessageBox::critical(0, tr("Y End limit error"),
+    QMessageBox::critical(nullptr, tr("Y End limit error"),
                           QString::fromStdString(e.GetMsg()));
     boxYTo->setFocus();
     return;
@@ -200,7 +200,7 @@ void SurfaceDialog::accept() {
     parser.SetExpr(Zfrom.toUtf8().constData());
     fromZ = parser.Eval();
   } catch (mu::ParserError &e) {
-    QMessageBox::critical(0, tr("Z Start limit error"),
+    QMessageBox::critical(nullptr, tr("Z Start limit error"),
                           QString::fromStdString(e.GetMsg()));
     boxZFrom->setFocus();
     return;
@@ -210,14 +210,14 @@ void SurfaceDialog::accept() {
     parser.SetExpr(Zto.toUtf8().constData());
     toZ = parser.Eval();
   } catch (mu::ParserError &e) {
-    QMessageBox::critical(0, tr("Z End limit error"),
+    QMessageBox::critical(nullptr, tr("Z End limit error"),
                           QString::fromStdString(e.GetMsg()));
     boxZTo->setFocus();
     return;
   }
 
   if (fromX >= toX || fromY >= toY || fromZ >= toZ) {
-    QMessageBox::critical(0, tr("Input error"),
+    QMessageBox::critical(nullptr, tr("Input error"),
                           tr("Please enter limits that satisfy: from < end!"));
     boxXTo->setFocus();
     return;
@@ -239,7 +239,7 @@ void SurfaceDialog::accept() {
     y = toY;
     parser.Eval();
   } catch (mu::ParserError &e) {
-    QMessageBox::critical(0, tr("Input function error"),
+    QMessageBox::critical(nullptr, tr("Input function error"),
                           QString::fromStdString(e.GetMsg()));
     boxFunction->setFocus();
     error = true;
@@ -250,7 +250,7 @@ void SurfaceDialog::accept() {
                  toZ);
     emit custom3DToolBar();
 
-    ApplicationWindow *app = (ApplicationWindow *)this->parent();
+    ApplicationWindow *app = qobject_cast<ApplicationWindow *>(this->parent());
     app->updateSurfaceFuncList(boxFunction->currentText());
     close();
   }

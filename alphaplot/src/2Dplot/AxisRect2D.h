@@ -31,10 +31,13 @@
 class Legend2D;
 class Table;
 class Column;
+class Matrix;
 class TextItem2D;
 class StatBox2D;
 class LineItem2D;
 class ImageItem2D;
+class ColorMap2D;
+class XmlStreamWriter;
 
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
@@ -121,6 +124,7 @@ class AxisRect2D : public QCPAxisRect {
   Bar2D *addHistogram2DPlot(const BarType &type, Table *table, Column *yData,
                             int from, int to, Axis2D *xAxis, Axis2D *yAxis);
   Pie2D *addPie2DPlot(Table *table, Column *xData, int from, int to);
+  ColorMap2D *addColorMap2DPlot(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis);
   TextItem2D *addTextItem2D(QString text);
   LineItem2D *addLineItem2D();
   LineItem2D *addArrowItem2D();
@@ -142,7 +146,7 @@ class AxisRect2D : public QCPAxisRect {
   bool removeTextItem2D(TextItem2D *textitem);
   bool removeLineItem2D(LineItem2D *lineitem);
   bool removeImageItem2D(ImageItem2D *imageitem);
-  bool removeLineScatter2D(LineSpecial2D *ls);
+  bool removeLineSpecial2D(LineSpecial2D *ls);
   bool removeCurve2D(Curve2D *curve);
   bool removeStatBox2D(StatBox2D *statbox);
   bool removeVector2D(Vector2D *vector);
@@ -165,6 +169,7 @@ class AxisRect2D : public QCPAxisRect {
   Axis2D *addTopAxis2D() {
     return addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Pi);
   }
+  void save(XmlStreamWriter *xmlwriter,const int index);
 
  protected:
   void mousePressEvent(QMouseEvent *, const QVariant &);

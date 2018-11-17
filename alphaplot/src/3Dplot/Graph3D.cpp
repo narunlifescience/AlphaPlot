@@ -30,6 +30,7 @@
 #include "Bar.h"
 #include "Cone3D.h"
 #include "core/column/Column.h"
+#include "future/lib/XmlStreamWriter.h"
 #include "scripting/MyParser.h"
 
 #include <QApplication>
@@ -2344,6 +2345,290 @@ QString Graph3D::saveToString(const QString& geometry) {
   s += "Orthogonal\t" + QString::number(sp->ortho()) + "\n";
   s += "</SurfacePlot>\n";
   return s;
+}
+
+void Graph3D::save(XmlStreamWriter* xmlwriter) {
+  xmlwriter->writeStartElement("plot3d");
+  xmlwriter->writeAttribute("creation_time", birthDate());
+  xmlwriter->writeAttribute("caption_spec", QString::number(captionPolicy()));
+  xmlwriter->writeAttribute("name", name());
+  xmlwriter->writeAttribute("label", windowLabel());
+  xmlwriter->writeStartElement("surfacefunction");
+  sp->makeCurrent();
+  (func) ? xmlwriter->writeAttribute("value", func->function())
+         : xmlwriter->writeAttribute("value", plotAssociation);
+  xmlwriter->writeEndElement();
+
+  // Range
+  xmlwriter->writeStartElement("range");
+  double start, stop;
+  sp->coordinates()->axes[X1].limits(start, stop);
+  xmlwriter->writeAttribute("x_axis_lower", QString::number(start));
+  xmlwriter->writeAttribute("x_axis_upper", QString::number(stop));
+  sp->coordinates()->axes[Y1].limits(start, stop);
+  xmlwriter->writeAttribute("y_axis_lower", QString::number(start));
+  xmlwriter->writeAttribute("y_axis_upper", QString::number(stop));
+  sp->coordinates()->axes[Z1].limits(start, stop);
+  xmlwriter->writeAttribute("z_axis_lower", QString::number(start));
+  xmlwriter->writeAttribute("z_axis_upper", QString::number(stop));
+  xmlwriter->writeEndElement();
+  // Style
+  xmlwriter->writeStartElement("style");
+  if (sp->coordinates()->style() == Qwt3D::NOCOORD)
+    xmlwriter->writeAttribute("coordstyle", "nocoord");
+  else if (sp->coordinates()->style() == Qwt3D::BOX)
+    xmlwriter->writeAttribute("coordstyle", "box");
+  else
+    xmlwriter->writeAttribute("coordstyle", "frame");
+
+  switch (sp->floorStyle()) {
+    case NOFLOOR:
+      xmlwriter->writeAttribute("floorstyle", "nofloor");
+      break;
+    case FLOORISO:
+      xmlwriter->writeAttribute("floorstyle", "flooriso");
+      break;
+    case FLOORDATA:
+      xmlwriter->writeAttribute("floorstyle", "floordata");
+      break;
+  }
+  xmlwriter->writeEndElement();
+  // Plot style
+  xmlwriter->writeStartElement("plotstyle");
+  switch (sp->plotStyle()) {
+    case USER:
+      xmlwriter->writeAttribute("plotstyle", "user");
+      if (pointStyle == VerticalBars)
+        xmlwriter->writeAttribute("bars", QString::number(barsRad));
+      else if (pointStyle == Dots) {
+        xmlwriter->writeAttribute("points", QString::number(pointSize));
+        xmlwriter->writeAttribute("smooth", QString::number(smooth));
+      } else if (pointStyle == Cones) {
+        xmlwriter->writeAttribute("cones", QString::number(conesRad));
+        xmlwriter->writeAttribute("cones_quality",
+                                  QString::number(conesQuality));
+      } else if (pointStyle == HairCross) {
+        xmlwriter->writeAttribute("crosshair_rad",
+                                  QString::number(crossHairRad));
+        xmlwriter->writeAttribute("crosshair_line_width",
+                                  QString::number(crossHairLineWidth));
+        xmlwriter->writeAttribute("crosshair_smooth",
+                                  QString::number(crossHairSmooth));
+        xmlwriter->writeAttribute("crosshair_boxed",
+                                  QString::number(crossHairBoxed));
+      }
+      break;
+    case WIREFRAME:
+      xmlwriter->writeAttribute("plotstyle", "wireframe");
+      break;
+    case HIDDENLINE:
+      xmlwriter->writeAttribute("plotstyle", "hiddenline");
+      break;
+    case FILLED:
+      xmlwriter->writeAttribute("plotstyle", "filled");
+      break;
+    case FILLEDMESH:
+      xmlwriter->writeAttribute("plotstyle", "filledmesh");
+      break;
+    default:
+      qDebug() << "unknown plot style";
+  }
+  xmlwriter->writeEndElement();
+  // Grids
+  xmlwriter->writeStartElement("grids");
+  xmlwriter->writeAttribute("grid",
+                            QString::number(sp->coordinates()->grids()));
+  xmlwriter->writeEndElement();
+  // Title
+  xmlwriter->writeStartElement("title");
+  xmlwriter->writeAttribute("text", title);
+  xmlwriter->writeAttribute("text_color", titleCol.name());
+  xmlwriter->writeAttribute("font_family", titleFnt.family());
+  xmlwriter->writeAttribute("font_size", QString::number(titleFnt.pointSize()));
+  xmlwriter->writeAttribute("font_weight", QString::number(titleFnt.weight()));
+  xmlwriter->writeAttribute("font_italic", QString::number(titleFnt.italic()));
+  xmlwriter->writeEndElement();
+  // Colors
+  xmlwriter->writeStartElement("colors");
+  xmlwriter->writeAttribute("mesh_color", meshCol.name());
+  xmlwriter->writeAttribute("axes_color", axesCol.name());
+  xmlwriter->writeAttribute("num_color", numCol.name());
+  xmlwriter->writeAttribute("labels_color", labelsCol.name());
+  xmlwriter->writeAttribute("background_color", bgCol.name());
+  xmlwriter->writeAttribute("grid_color", gridCol.name());
+  xmlwriter->writeAttribute("from_color", fromColor.name());
+  xmlwriter->writeAttribute("to_color", toColor.name());
+  xmlwriter->writeAttribute("alpha", QString::number(alpha));
+  xmlwriter->writeAttribute("color_map", color_map);
+  xmlwriter->writeEndElement();
+  // X Axis Label
+  xmlwriter->writeStartElement("x_axis_label");
+  xmlwriter->writeAttribute("x_axis", labels.at(0));
+  QFont font = sp->coordinates()->axes[X1].labelFont();
+  xmlwriter->writeAttribute("font_family", font.family());
+  xmlwriter->writeAttribute("font_size", QString::number(font.pointSize()));
+  xmlwriter->writeAttribute("font_weight", QString::number(font.weight()));
+  xmlwriter->writeAttribute("font_italic", QString::number(font.italic()));
+  xmlwriter->writeEndElement();
+  // Y Axis Label
+  xmlwriter->writeStartElement("y_axis_label");
+  xmlwriter->writeAttribute("y_axis", labels.at(1));
+  font = sp->coordinates()->axes[Y1].labelFont();
+  xmlwriter->writeAttribute("font_family", font.family());
+  xmlwriter->writeAttribute("font_size", QString::number(font.pointSize()));
+  xmlwriter->writeAttribute("font_weight", QString::number(font.weight()));
+  xmlwriter->writeAttribute("font_italic", QString::number(font.italic()));
+  xmlwriter->writeEndElement();
+  // Z Axis Label
+  xmlwriter->writeStartElement("z_axis_label");
+  xmlwriter->writeAttribute("z_axis", labels.at(2));
+  font = sp->coordinates()->axes[Z1].labelFont();
+  xmlwriter->writeAttribute("font_family", font.family());
+  xmlwriter->writeAttribute("font_size", QString::number(font.pointSize()));
+  xmlwriter->writeAttribute("font_weight", QString::number(font.weight()));
+  xmlwriter->writeAttribute("font_italic", QString::number(font.italic()));
+  xmlwriter->writeEndElement();
+
+  // ticks scale and length
+  xmlwriter->writeStartElement("ticks");
+  int majors, minors;
+  xmlwriter->writeStartElement("scale");
+  majors = sp->coordinates()->axes[X1].majors();
+  minors = sp->coordinates()->axes[X1].minors();
+  xmlwriter->writeAttribute("x_major", QString::number(majors));
+  xmlwriter->writeAttribute("x_minor", QString::number(minors));
+  majors = sp->coordinates()->axes[Y1].majors();
+  minors = sp->coordinates()->axes[Y1].minors();
+  xmlwriter->writeAttribute("y_major", QString::number(majors));
+  xmlwriter->writeAttribute("y_minor", QString::number(minors));
+  majors = sp->coordinates()->axes[Z1].majors();
+  minors = sp->coordinates()->axes[Z1].minors();
+  xmlwriter->writeAttribute("z_major", QString::number(majors));
+  xmlwriter->writeAttribute("z_minor", QString::number(minors));
+  xmlwriter->writeEndElement();
+  double majorl, minorl;
+  xmlwriter->writeStartElement("length");
+  sp->coordinates()->axes[X1].ticLength(majorl, minorl);
+  xmlwriter->writeAttribute("x_major", QString::number(majorl));
+  xmlwriter->writeAttribute("x_minor", QString::number(minorl));
+  sp->coordinates()->axes[Y1].ticLength(majorl, minorl);
+  xmlwriter->writeAttribute("y_major", QString::number(majorl));
+  xmlwriter->writeAttribute("y_minor", QString::number(minorl));
+  sp->coordinates()->axes[Z1].ticLength(majorl, minorl);
+  xmlwriter->writeAttribute("z_major", QString::number(majorl));
+  xmlwriter->writeAttribute("z_minor", QString::number(minorl));
+  xmlwriter->writeEndElement();
+  xmlwriter->writeEndElement();
+
+  // other options
+  xmlwriter->writeStartElement("options");
+  (legendOn) ? xmlwriter->writeAttribute("legend", "true")
+             : xmlwriter->writeAttribute("legend", "false");
+  xmlwriter->writeAttribute("resolution", QString::number(sp->resolution()));
+  xmlwriter->writeAttribute("labeldist", QString::number(labelsDist));
+  xmlwriter->writeEndElement();
+
+  xmlwriter->writeStartElement("number_font");
+  font = sp->coordinates()->axes[X1].numberFont();
+  xmlwriter->writeAttribute("font_family", font.family());
+  xmlwriter->writeAttribute("font_size", QString::number(font.pointSize()));
+  xmlwriter->writeAttribute("font_weight", QString::number(font.weight()));
+  xmlwriter->writeAttribute("font_italic", QString::number(font.italic()));
+  xmlwriter->writeEndElement();
+
+  xmlwriter->writeStartElement("rotation");
+  xmlwriter->writeAttribute("x_rotation", QString::number(sp->xRotation()));
+  xmlwriter->writeAttribute("y_rotation", QString::number(sp->yRotation()));
+  xmlwriter->writeAttribute("z_rotation", QString::number(sp->zRotation()));
+  xmlwriter->writeEndElement();
+
+  xmlwriter->writeStartElement("zoom");
+  xmlwriter->writeAttribute("value", QString::number(sp->zoom()));
+  xmlwriter->writeEndElement();
+
+  xmlwriter->writeStartElement("scaling");
+  xmlwriter->writeAttribute("x_scale", QString::number(sp->xScale()));
+  xmlwriter->writeAttribute("y_scale", QString::number(sp->yScale()));
+  xmlwriter->writeAttribute("z_scale", QString::number(sp->zScale()));
+  xmlwriter->writeEndElement();
+
+  xmlwriter->writeStartElement("shift");
+  xmlwriter->writeAttribute("x_shift", QString::number(sp->xShift()));
+  xmlwriter->writeAttribute("y_shift", QString::number(sp->yShift()));
+  xmlwriter->writeAttribute("z_shift", QString::number(sp->zShift()));
+  xmlwriter->writeEndElement();
+
+  xmlwriter->writeStartElement("linewidth");
+  xmlwriter->writeAttribute("value", QString::number(sp->meshLineWidth()));
+  xmlwriter->writeEndElement();
+
+  xmlwriter->writeStartElement("linewidth");
+  xmlwriter->writeAttribute("value", QString::number(sp->ortho()));
+  xmlwriter->writeEndElement();
+
+  xmlwriter->writeEndElement();
+}
+
+bool Graph3D::load(XmlStreamReader* xmlreader) { 
+  if (xmlreader->isStartElement() && xmlreader->name() == "plot3d") {
+    QString prefix(tr("XML read error: ", "prefix for XML error messages"));
+    QString postfix(tr(" (non-critical)", "postfix for XML error messages"));
+
+    QXmlStreamAttributes attribs = xmlreader->attributes();
+    QString basicattr;
+
+    // read name
+    basicattr =
+        attribs.value(xmlreader->namespaceUri().toString(), "name").toString();
+    if (basicattr.isEmpty()) {
+      xmlreader->raiseWarning(prefix + tr("aspect name missing or empty") +
+                              postfix);
+    }
+    setName(basicattr);
+    // read creation time
+    basicattr =
+        attribs.value(xmlreader->namespaceUri().toString(), "creation_time")
+            .toString();
+    QDateTime creation_time =
+        QDateTime::fromString(basicattr, "yyyy-dd-MM hh:mm:ss:zzz");
+    if (basicattr.isEmpty() || !creation_time.isValid()) {
+      xmlreader->raiseWarning(
+          tr("Invalid creation time for '%1'. Using current time.")
+              .arg(name()));
+      setBirthDate(QDateTime::currentDateTime().toString());
+    } else
+      setBirthDate(creation_time.toString());
+    // read caption spec
+    basicattr =
+        attribs.value(xmlreader->namespaceUri().toString(), "caption_spec")
+            .toString();
+    setCaptionPolicy(static_cast<MyWidget::CaptionPolicy>(basicattr.toInt()));
+
+    // read child elements
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+
+      if (xmlreader->isEndElement()) break;
+
+      if (xmlreader->isStartElement()) {
+        if (xmlreader->name() == "content") {
+          QXmlStreamAttributes attribs = xmlreader->attributes();
+          QString value =
+              attribs.value(xmlreader->namespaceUri().toString(), "value")
+                  .toString();
+        } else {
+          // unknown element
+          xmlreader->raiseWarning(
+              tr("unknown element '%1'").arg(xmlreader->name().toString()));
+          if (!xmlreader->skipToEndElement()) return false;
+        }
+      }
+    }
+  } else  // no note element
+    xmlreader->raiseError(tr("no table element found"));
+
+  return !xmlreader->hasError();
+
 }
 
 void Graph3D::showColorLegend(bool show) {

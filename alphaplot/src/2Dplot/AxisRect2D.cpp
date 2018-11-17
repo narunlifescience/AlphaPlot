@@ -15,13 +15,15 @@
    Description : axis rect related stuff */
 
 #include "AxisRect2D.h"
-#include "../future/core/column/Column.h"
+#include "ColorMap2D.h"
 #include "ImageItem2D.h"
 #include "Legend2D.h"
 #include "LineItem2D.h"
 #include "QMessageBox"
 #include "Table.h"
 #include "TextItem2D.h"
+#include "future/core/column/Column.h"
+#include "future/lib/XmlStreamWriter.h"
 
 #include "core/Utilities.h"
 
@@ -446,6 +448,13 @@ Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
   return pie;
 }
 
+ColorMap2D *AxisRect2D::addColorMap2DPlot(Matrix *matrix, Axis2D *xAxis,
+                                          Axis2D *yAxis) {
+  ColorMap2D *colormap = new ColorMap2D(matrix, xAxis, yAxis);
+  getLegend()->setVisible(false);
+  return colormap;
+}
+
 TextItem2D *AxisRect2D::addTextItem2D(QString text) {
   TextItem2D *textitem = new TextItem2D(this, plot2d_);
   textitem->setText(text);
@@ -571,18 +580,17 @@ bool AxisRect2D::removeImageItem2D(ImageItem2D *imageitem) {
   return result;
 }
 
-bool AxisRect2D::removeLineScatter2D(LineSpecial2D *ls) {
+bool AxisRect2D::removeLineSpecial2D(LineSpecial2D *ls) {
   for (int i = 0; i < lsvec_.size(); i++) {
     if (lsvec_.at(i) == ls) {
       lsvec_.remove(i);
     }
   }
-
+  axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(ls));
   bool result = false;
   result = plot2d_->removeGraph(ls);
   // result = plot2d_->removePlottable(ls);
   if (!result) return result;
-
   emit LineScatter2DRemoved(this);
   return result;
 }
@@ -593,6 +601,7 @@ bool AxisRect2D::removeStatBox2D(StatBox2D *statbox) {
       statboxvec_.remove(i);
     }
   }
+  axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(statbox));
   bool result = false;
   result = plot2d_->removePlottable(statbox);
   emit StatBox2DRemoved(this);
@@ -605,6 +614,7 @@ bool AxisRect2D::removeVector2D(Vector2D *vector) {
       vectorvec_.remove(i);
     }
   }
+  axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(vector));
   bool result = false;
   result = plot2d_->removePlottable(vector);
   emit Vector2DRemoved(this);
@@ -617,6 +627,7 @@ bool AxisRect2D::removeCurve2D(Curve2D *curve) {
       curvevec_.remove(i);
     }
   }
+  axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(curve));
   bool result = false;
   result = plot2d_->removePlottable(curve);
   emit Curve2DRemoved(this);
@@ -629,6 +640,7 @@ bool AxisRect2D::removeBar2D(Bar2D *bar) {
       barvec_.remove(i);
     }
   }
+  axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(bar));
   bool result = false;
   result = plot2d_->removePlottable(bar);
   emit Bar2DRemoved(this);
@@ -654,6 +666,16 @@ void AxisRect2D::setGraphTool(const Graph2DCommon::Picker &picker) {
   foreach (StatBox2D *statbox, statboxvec_) {
     statbox->setpicker_statbox(picker);
   }
+}
+
+void AxisRect2D::save(XmlStreamWriter *xmlwriter, const int index) {
+  xmlwriter->writeStartElement("layout");
+  xmlwriter->writeAttribute("index", QString::number(index + 1));
+  xmlwriter->writeAttribute("row", QString::number(0));
+  xmlwriter->writeAttribute("column", QString::number(index + 1));
+  xmlwriter->writeBrush(backgroundBrush());
+  foreach (Axis2D *axis, getAxes2D()) { axis->save(xmlwriter); }
+  xmlwriter->writeEndElement();
 }
 
 void AxisRect2D::mousePressEvent(QMouseEvent *, const QVariant &) {

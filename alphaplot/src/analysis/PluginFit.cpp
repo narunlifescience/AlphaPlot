@@ -56,7 +56,7 @@ void PluginFit::init() { d_explanation = tr("Plugin Fit"); }
 bool PluginFit::load(const QString &pluginName) {
   if (!QFile::exists(pluginName)) {
     QMessageBox::critical(
-        (ApplicationWindow *)parent(), tr("File not found"),
+        app_, tr("File not found"),
         tr("Plugin file: <p><b> %1 </b> <p>not found. Operation aborted!")
             .arg(pluginName));
     return false;
@@ -67,7 +67,7 @@ bool PluginFit::load(const QString &pluginName) {
 
   d_fsimplex = (fit_function_simplex)lib.resolve("function_d");
   if (!d_fsimplex) {
-    QMessageBox::critical((ApplicationWindow *)parent(), tr("Plugin Error"),
+    QMessageBox::critical(app_, tr("Plugin Error"),
                           tr("The plugin does not implement a %1 method "
                              "necessary for simplex fitting.")
                               .arg("function_d"));
@@ -76,7 +76,7 @@ bool PluginFit::load(const QString &pluginName) {
 
   d_f = (fit_function)lib.resolve("function_f");
   if (!d_f) {
-    QMessageBox::critical((ApplicationWindow *)parent(), tr("Plugin Error"),
+    QMessageBox::critical(app_, tr("Plugin Error"),
                           tr("The plugin does not implement a %1 method "
                              "necessary for Levenberg-Marquardt fitting.")
                               .arg("function_f"));
@@ -85,7 +85,7 @@ bool PluginFit::load(const QString &pluginName) {
 
   d_df = (fit_function_df)lib.resolve("function_df");
   if (!d_df) {
-    QMessageBox::critical((ApplicationWindow *)parent(), tr("Plugin Error"),
+    QMessageBox::critical(app_, tr("Plugin Error"),
                           tr("The plugin does not implement a %1 method "
                              "necessary for Levenberg-Marquardt fitting.")
                               .arg("function_df"));
@@ -94,7 +94,7 @@ bool PluginFit::load(const QString &pluginName) {
 
   d_fdf = (fit_function_fdf)lib.resolve("function_fdf");
   if (!d_fdf) {
-    QMessageBox::critical((ApplicationWindow *)parent(), tr("Plugin Error"),
+    QMessageBox::critical(app_, tr("Plugin Error"),
                           tr("The plugin does not implement a %1 method "
                              "necessary for Levenberg-Marquardt fitting.")
                               .arg("function_fdf"));
@@ -108,11 +108,12 @@ bool PluginFit::load(const QString &pluginName) {
   fitFunc fitFunction = (fitFunc)lib.resolve("parameters");
   if (fitFunction) {
     d_param_names = QString(fitFunction()).split(",", QString::SkipEmptyParts);
-    d_p = (int)d_param_names.count();
+    d_p = d_param_names.count();
     d_min_points = d_p;
-    d_param_init = gsl_vector_alloc(d_p);
-    covar = gsl_matrix_alloc(d_p, d_p);
-    d_results = new double[d_p];
+    d_param_init = gsl_vector_alloc(static_cast<size_t>(d_p));
+    covar =
+        gsl_matrix_alloc(static_cast<size_t>(d_p), static_cast<size_t>(d_p));
+    d_results = new double[static_cast<size_t>(d_p)];
   } else
     return false;
 

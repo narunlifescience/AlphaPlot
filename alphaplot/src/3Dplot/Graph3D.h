@@ -42,6 +42,7 @@
 using namespace Qwt3D;
 
 class UserFunction;
+class XmlStreamWriter;
 
 /*!\brief 3D graph widget.
  *
@@ -257,6 +258,8 @@ class Graph3D : public MyWidget {
   void exportVector(const QString& fileName, const QString& fileType = "pdf");
 
   QString saveToString(const QString& geometry);
+  void save(XmlStreamWriter *xmlwriter);
+  bool load(XmlStreamReader *xmlreader);
   QString saveAsTemplate(const QString& geometryInfo);
 
   void zoomChanged(double);

@@ -15,6 +15,7 @@ class LineItem2D : public QCPItemLine {
     Stop = 1,
   };
 
+  AxisRect2D *getaxisrect_lineitem() const;
   QColor getstrokecolor_lineitem() const;
   double getstrokethickness_lineitem() const;
   Qt::PenStyle getstrokestyle_lineitem() const;

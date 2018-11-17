@@ -29,11 +29,13 @@
 #ifndef NOTE_H
 #define NOTE_H
 
+#include <qtextedit.h>
 #include "MyWidget.h"
 #include "scripting/ScriptEdit.h"
-#include <qtextedit.h>
 
 class ScriptingEnv;
+class QXmlStreamWriter;
+class XmlStreamReader;
 
 /*!\brief Notes window class.
  *
@@ -44,38 +46,41 @@ class Note : public MyWidget {
   Q_OBJECT
 
  public:
-  Note(ScriptingEnv *env, const QString &label, QWidget *parent = 0,
+  Note(ScriptingEnv *env, const QString &label, QWidget *parent = nullptr,
        const char *name = 0, Qt::WindowFlags f = 0);
-  ~Note() {}
+  ~Note();
 
   void init(ScriptingEnv *env);
+  QString getText();
 
  public slots:
   QString saveToString(const QString &info);
   void restore(const QStringList &);
 
-  QTextEdit *textWidget() { return (QTextEdit *)te; }
+  QTextEdit *textWidget() { return qobject_cast<QTextEdit *>(textedit_); }
   bool autoexec() const { return autoExec; }
   void setAutoexec(bool);
   void modifiedNote();
 
   // ScriptEdit methods
-  QString text() { return te->toPlainText(); }
-  void setText(const QString &s) { te->setText(s); }
-  void print() { te->print(); }
-  void exportPDF(const QString &fileName) { te->exportPDF(fileName); }
+  QString text() { return textedit_->toPlainText(); }
+  void setText(const QString &s) { textedit_->setText(s); }
+  void save(QXmlStreamWriter *xmlwriter);
+  bool load(XmlStreamReader *xmlreader);
+  void print() { textedit_->print(); }
+  void exportPDF(const QString &fileName) { textedit_->exportPDF(fileName); }
   QString exportASCII(const QString &file = QString::null) {
-    return te->exportASCII(file);
+    return textedit_->exportASCII(file);
   }
   QString importASCII(const QString &file = QString::null) {
-    return te->importASCII(file);
+    return textedit_->importASCII(file);
   }
-  void execute() { te->execute(); }
-  void executeAll() { te->executeAll(); }
-  void evaluate() { te->evaluate(); }
+  void execute() { textedit_->execute(); }
+  void executeAll() { textedit_->executeAll(); }
+  void evaluate() { textedit_->evaluate(); }
 
  private:
-  ScriptEdit *te;
+  ScriptEdit *textedit_;
   bool autoExec;
 };
 

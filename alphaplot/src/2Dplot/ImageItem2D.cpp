@@ -17,6 +17,8 @@ ImageItem2D::ImageItem2D(AxisRect2D *axisrect, Plot2D *plot,
 
 ImageItem2D::~ImageItem2D() { delete pixmap_; }
 
+AxisRect2D *ImageItem2D::getaxisrect_imageitem() const { return axisrect_; }
+
 QString ImageItem2D::getsource_imageitem() const { return imagefilename_; }
 
 QColor ImageItem2D::getstrokecolor_imageitem() const { return pen().color(); }

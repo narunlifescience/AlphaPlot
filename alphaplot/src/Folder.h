@@ -61,9 +61,9 @@ class Folder : public QObject {
     lstWindows.append(window);
   }
   void removeWindow(MyWidget *window) {
-    window->setFolder(0);
+    window->setFolder(nullptr);
     lstWindows.removeAll(window);
-    if (window == d_active_window) d_active_window = 0;
+    if (window == d_active_window) d_active_window = nullptr;
   }
 
   int windowCount(bool recursive = false) const {
@@ -182,7 +182,7 @@ class FolderTreeWidget : public QTreeWidget {
   Q_OBJECT
 
  public:
-  FolderTreeWidget(QWidget *parent = 0, const QString name = QString());
+  FolderTreeWidget(QWidget *parent = nullptr, const QString name = QString());
   ~FolderTreeWidget();
 
   // Item types

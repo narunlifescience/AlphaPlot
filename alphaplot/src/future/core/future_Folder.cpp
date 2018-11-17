@@ -27,16 +27,17 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "core/Project.h"
 #include "core/future_Folder.h"
-#include "lib/XmlStreamReader.h"
+#include "core/Project.h"
 #include "core/column/Column.h"
+#include "lib/XmlStreamReader.h"
 
-#include <QIcon>
 #include <QApplication>
+#include <QDomElement>
+#include <QIcon>
+#include <QPluginLoader>
 #include <QStyle>
 #include <QXmlStreamWriter>
-#include <QPluginLoader>
 #include <QtDebug>
 
 namespace future {
@@ -46,14 +47,16 @@ Folder::~Folder() {}
 
 QIcon Folder::icon() const {
   QIcon result;
-  result.addFile(":/folder_closed.xpm", QSize(), QIcon::Normal, QIcon::Off);
-  result.addFile(":/folder_open.xpm", QSize(), QIcon::Normal, QIcon::On);
+  result.addFile(":icons/common/22/folder-closed.png", QSize(), QIcon::Normal,
+                 QIcon::Off);
+  result.addFile(":icons/common/22/folder-open.png", QSize(), QIcon::Normal,
+                 QIcon::On);
   return result;
 }
 
 QMenu *Folder::createContextMenu() const {
   if (project()) return project()->createFolderContextMenu(this);
-  return 0;
+  return nullptr;
 }
 
 void Folder::save(QXmlStreamWriter *writer) const {
@@ -154,4 +157,4 @@ bool Folder::readChildAspectElement(XmlStreamReader *reader) {
   return !reader->hasError();
 }
 
-}  // namespace
+}  // namespace future

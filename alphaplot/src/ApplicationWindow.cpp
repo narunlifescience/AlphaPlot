@@ -58,6 +58,7 @@
 #include "analysis/SigmoidalFit.h"
 #include "analysis/SmoothCurveDialog.h"
 #include "analysis/SmoothFilter.h"
+#include "core/AprojHandler.h"
 #include "core/IconLoader.h"
 #include "core/Project.h"
 #include "core/column/Column.h"
@@ -68,8 +69,8 @@
 #include "ui_ApplicationWindow.h"
 
 // TODO: move tool-specific code to an extension manager
-#include "analysis/MultiPeakFitTool.h"
 #include "TranslateCurveTool.h"
+#include "analysis/MultiPeakFitTool.h"
 #include "ui/SettingsDialog.h"
 
 // Scripting
@@ -133,8 +134,6 @@
 #include <QVarLengthArray>
 #include <QtDebug>
 
-#include <zlib.h>
-
 #include <iostream>
 
 #ifdef Q_OS_WIN
@@ -144,10 +143,6 @@
 #endif
 
 using namespace Qwt3D;
-
-extern "C" {
-void file_compress(const char *file, const char *mode);
-}
 
 ApplicationWindow::ApplicationWindow()
     : scripted(ScriptingLangManager::newEnv(this)),
@@ -179,6 +174,7 @@ ApplicationWindow::ApplicationWindow()
 #ifdef SEARCH_FOR_UPDATES
       autoSearchUpdatesRequest(false),
 #endif
+      aprojhandler_(new AprojHandler(this)),
       graphToolsGroup(new QActionGroup(this)),
       d_plot_mapper(new QSignalMapper(this)),
       statusBarInfo(new QLabel(this)),
@@ -985,8 +981,8 @@ ApplicationWindow::ApplicationWindow()
   d_workspace->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setCentralWidget(d_workspace);
   setAcceptDrops(true);
-  connect(d_workspace, SIGNAL(subWindowActivated(QMdiSubWindow *)), this,
-          SLOT(windowActivated(QMdiSubWindow *)));
+  connect(d_workspace, &QMdiArea::subWindowActivated, this,
+          &ApplicationWindow::windowActivated);
 
   loadSettings();
   createLanguagesList();
@@ -2369,7 +2365,8 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
 }
 
 Layout3D *ApplicationWindow::newGraph3D(const QString &caption) {
-  Layout3D *layout3d = new Layout3D("", d_workspace, 0);
+  /*Layout3D *layout3d =
+      new Layout3D(Layout3D::Plot3DType::Surface, "", d_workspace, 0);
   layout3d->setAttribute(Qt::WA_DeleteOnClose);
   QString label = caption;
   while (alreadyUsedName(label)) label = generateUniqueName(tr("Graph"));
@@ -2397,7 +2394,8 @@ Layout3D *ApplicationWindow::newGraph3D(const QString &caption) {
   connect(layout3d, &MyWidget::showTitleBarMenu, this,
           &ApplicationWindow::showWindowTitleBarMenu);
 
-  return layout3d;
+  return layout3d;*/
+  return nullptr;
 }
 
 void ApplicationWindow::customizeTables(
@@ -2585,7 +2583,7 @@ void ApplicationWindow::initNote(Note *note, const QString &caption) {
   addListViewItem(note);
 
   connect(note, SIGNAL(modifiedWindow(MyWidget *)), this,
-          SLOT(modifiedProject(myWidget *)));
+          SLOT(modifiedProject(MyWidget *)));
   connect(note, SIGNAL(closedWindow(MyWidget *)), this,
           SLOT(closeWindow(MyWidget *)));
   connect(note, SIGNAL(hiddenWindow(MyWidget *)), this,
@@ -3271,7 +3269,7 @@ void ApplicationWindow::openAproj() {
       break;
     }
     case OpenProjectDialog::NewFolder:
-      appendProject(openDialog->selectedFiles()[0]);
+      aprojhandler_->appendproject(openDialog->selectedFiles()[0]);
       break;
   }
 }
@@ -3283,7 +3281,7 @@ ApplicationWindow *ApplicationWindow::openAproj(const QString &fileName) {
              fileName.endsWith(".aproj.gz", Qt::CaseInsensitive) ||
              fileName.endsWith(".aproj~", Qt::CaseInsensitive) ||
              fileName.endsWith(".aproj.gz~", Qt::CaseInsensitive)) {
-    return openProject(fileName);
+    return aprojhandler_->openproject(fileName);
   } else {
     return plotFile(fileName);
   }
@@ -3292,379 +3290,41 @@ ApplicationWindow *ApplicationWindow::openAproj(const QString &fileName) {
 void ApplicationWindow::openRecentAproj() {
   QAction *trigger = qobject_cast<QAction *>(sender());
   if (!trigger) return;
-  QString fn = trigger->text();
-  int pos = fn.indexOf(" ", 0);
-  fn = fn.right(fn.length() - pos - 1);
+  QString filename = trigger->text();
+  int pos = filename.indexOf(" ", 0);
+  filename = filename.right(filename.length() - pos - 1);
 
-  QFile f(fn);
-  if (!f.exists()) {
+  QFile file(filename);
+  if (!file.exists()) {
     QMessageBox::critical(this, tr("File Open Error"),
                           tr("The file: <b> %1 </b> <p>does not exist anymore!"
                              "<p>It will be removed from the list.")
-                              .arg(fn));
+                              .arg(filename));
 
-    recentProjects.removeAll(fn);
+    recentProjects.removeAll(filename);
     updateRecentProjectsList();
     return;
   }
 
   if (projectname != "untitled") {
-    QFileInfo fi(projectname);
-    QString pn = fi.absoluteFilePath();
-    if (fn == pn) {
+    QFileInfo fileinfo(projectname);
+    QString pathname = fileinfo.absoluteFilePath();
+    if (filename == pathname) {
       QMessageBox::warning(
           this, tr("File opening error"),
-          tr("The file: <p><b> %1 </b><p> is the current file!").arg(fn));
+          tr("The file: <p><b> %1 </b><p> is the current file!").arg(filename));
       return;
     }
   }
 
-  if (!fn.isEmpty()) {
+  if (!filename.isEmpty()) {
     saveSettings();  // the recent projects must be saved
-    ApplicationWindow *a = openAproj(fn);
-    if (a && (fn.endsWith(".aproj", Qt::CaseInsensitive) ||
-              fn.endsWith(".aproj~", Qt::CaseInsensitive) ||
-              fn.endsWith(".aproj.gz", Qt::CaseInsensitive)))
+    ApplicationWindow *app = openAproj(filename);
+    if (app && (filename.endsWith(".aproj", Qt::CaseInsensitive) ||
+                filename.endsWith(".aproj~", Qt::CaseInsensitive) ||
+                filename.endsWith(".aproj.gz", Qt::CaseInsensitive)))
       this->close();
   }
-}
-
-QFile *ApplicationWindow::openCompressedFile(const QString &fn) {
-  QTemporaryFile *file;
-  char buf[16384];
-  int len, err;
-
-  gzFile in = gzopen(QFile::encodeName(fn).constData(), "rb");
-  if (!in) {
-    QMessageBox::critical(this, tr("File opening error"),
-                          tr("zlib can't open %1.").arg(fn));
-    return nullptr;
-  }
-  file = new QTemporaryFile();
-  if (!file || !file->open()) {
-    gzclose(in);
-    QMessageBox::critical(
-        this, tr("File opening error"),
-        tr("Can't create temporary file for writing uncompressed copy of %1.")
-            .arg(fn));
-    return nullptr;
-  }
-
-  forever {
-    len = gzread(in, buf, sizeof(buf));
-    if (len == 0) break;
-    if (len < 0) {
-      QMessageBox::critical(this, tr("File opening error"), gzerror(in, &err));
-      gzclose(in);
-      file->close();
-      delete file;
-      return nullptr;
-    }
-    if (file->write(buf, len) != len) {
-      QMessageBox::critical(
-          this, tr("File opening error"),
-          tr("Error writing to temporary file: %1").arg(file->errorString()));
-      gzclose(in);
-      file->close();
-      delete file;
-      return nullptr;
-    }
-  }
-
-  gzclose(in);
-  file->reset();
-  return file;
-}
-
-ApplicationWindow *ApplicationWindow::openProject(const QString &fileName) {
-  QFile *file;
-  if (fileName.endsWith(".gz", Qt::CaseInsensitive) ||
-      fileName.endsWith(".gz~", Qt::CaseInsensitive)) {
-    file = openCompressedFile(fileName);
-    if (!file) return nullptr;
-  } else {
-    file = new QFile(fileName);
-    file->open(QIODevice::ReadOnly);
-  }
-
-  QTextStream aprojTextStream(file);
-  aprojTextStream.setCodec("UTF-8");
-
-  QString singleLine;
-  QStringList list;
-  singleLine = aprojTextStream.readLine();
-  list = singleLine.split(QRegExp("\\s"), QString::SkipEmptyParts);
-  if (list.count() < 2 || list[0] != "AlphaPlot") {
-    file->close();
-    delete file;
-    if (QFile::exists(fileName + "~")) {
-      int choice = QMessageBox::question(
-          this, tr("File opening error"),
-          tr("The file <b>%1</b> is corrupted, but there exists a backup "
-             "copy.<br>Do you want to open the backup instead?")
-              .arg(fileName),
-          QMessageBox::Yes | QMessageBox::Default,
-          QMessageBox::No | QMessageBox::Escape);
-      if (choice == QMessageBox::Yes) {
-        QMessageBox::information(this, tr("Opening backup copy"),
-                                 tr("The original (corrupt) file is being left "
-                                    "untouched, in case you want to "
-                                    "try rescuing data manually. If you want "
-                                    "to continue working with the "
-                                    "automatically restored backup copy, you "
-                                    "have to explicitly overwrite the "
-                                    "original file."));
-        return openProject(fileName + "~");
-      }
-    }
-    QMessageBox::critical(
-        this, tr("File opening error"),
-        tr("The file <b>%1</b> is not a valid project file.").arg(fileName));
-    return 0;
-  }
-
-  ApplicationWindow *app = new ApplicationWindow();
-  app->applyUserSettings();
-  app->projectname = fileName;
-  app->setWindowTitle(tr("AlphaPlot") + " - " + fileName);
-
-  QFileInfo fi(fileName);
-  QString baseName = fi.fileName();
-
-  singleLine = aprojTextStream.readLine();
-  list = singleLine.split("\t", QString::SkipEmptyParts);
-  if (list[0] == "<scripting-lang>") {
-    if (!app->setScriptingLang(list[1], true))
-      QMessageBox::warning(
-          app, tr("File opening error"),
-          tr("The file \"%1\" was created using \"%2\" as scripting "
-             "language.\n\n"
-             "Initializing support for this language FAILED; I'm using \"%3\" "
-             "instead.\n"
-             "Various parts of this file may not be displayed as expected.")
-              .arg(fileName)
-              .arg(list[1])
-              .arg(scriptEnv->objectName()));
-
-    singleLine = aprojTextStream.readLine();
-    list = singleLine.split("\t", QString::SkipEmptyParts);
-  }
-  int aux = 0, widgets = list[1].toInt();
-
-  QString titleBase = tr("Window") + ": ";
-  QString title = titleBase + "1/" + QString::number(widgets) + "  ";
-
-  QProgressDialog progress(this);
-  progress.setWindowModality(Qt::WindowModal);
-  progress.setRange(0, widgets);
-  progress.setMinimumWidth(app->width() / 2);
-  progress.setWindowTitle(tr("Opening file") + ": " + baseName);
-  progress.setLabelText(title);
-  progress.activateWindow();
-
-  Folder *cf = app->projectFolder();
-  app->ui_->folderView->blockSignals(true);
-  app->blockSignals(true);
-  // rename project folder item
-  FolderTreeWidgetItem *item = static_cast<FolderTreeWidgetItem *>(
-      app->ui_->folderView->topLevelItem(0));
-  item->setText(0, fi.baseName());
-  item->folder()->setName(fi.baseName());
-
-  // process tables and matrix information
-  while (!aprojTextStream.atEnd() && !progress.wasCanceled()) {
-    singleLine = aprojTextStream.readLine(4096);  // for reading big lines
-    list.clear();
-    if (singleLine.left(8) == "<folder>") {
-      list = singleLine.split("\t");
-      Folder *f = new Folder(app->current_folder, list[1]);
-      f->setBirthDate(list[2]);
-      f->setModificationDate(list[3]);
-      if (list.count() > 4)
-        if (list[4] == "current") cf = f;
-
-      FolderTreeWidgetItem *fli = new FolderTreeWidgetItem(
-          app->current_folder->folderTreeWidgetItem(), f);
-      fli->setText(0, list[1]);
-      f->setFolderTreeWidgetItem(fli);
-
-      app->current_folder = f;
-    } else if (singleLine == "<table>") {
-      title =
-          titleBase + QString::number(++aux) + "/" + QString::number(widgets);
-      progress.setLabelText(title);
-      openTableAproj(app, aprojTextStream);
-      progress.setValue(aux);
-    } else if (singleLine.left(17) == "<TableStatistics>") {
-      QStringList lst;
-      while (singleLine != "</TableStatistics>") {
-        singleLine = aprojTextStream.readLine();
-        lst << singleLine;
-      }
-      lst.pop_back();
-      app->openTableStatisticsAproj(lst);
-    } else if (singleLine == "<matrix>") {
-      title =
-          titleBase + QString::number(++aux) + "/" + QString::number(widgets);
-      progress.setLabelText(title);
-      QStringList lst;
-      while (singleLine != "</matrix>") {
-        singleLine = aprojTextStream.readLine();
-        lst << singleLine;
-      }
-      lst.pop_back();
-      openMatrixAproj(app, lst);
-      progress.setValue(aux);
-    } else if (singleLine == "<note>") {
-      title =
-          titleBase + QString::number(++aux) + "/" + QString::number(widgets);
-      progress.setLabelText(title);
-      for (int i = 0; i < 3; i++) {
-        singleLine = aprojTextStream.readLine();
-        list << singleLine;
-      }
-      Note *m = openNote(app, list);
-      QStringList cont;
-      while (singleLine != "</note>") {
-        singleLine = aprojTextStream.readLine();
-        cont << singleLine;
-      }
-      cont.pop_back();
-      m->restore(cont);
-      progress.setValue(aux);
-    } else if (singleLine == "</folder>") {
-      Folder *parent = qobject_cast<Folder *>(app->current_folder->parent());
-      if (!parent)
-        app->current_folder = app->projectFolder();
-      else
-        app->current_folder = parent;
-    }
-  }
-
-  if (progress.wasCanceled()) {
-    file->close();
-    delete file;
-    app->saved = true;
-    app->close();
-    return nullptr;
-  }
-
-  // process the rest
-  aprojTextStream.seek(0);
-
-  while (!aprojTextStream.atEnd() && !progress.wasCanceled()) {
-    singleLine = aprojTextStream.readLine(
-        4096);  // workaround for safely reading very big lines
-    if (singleLine.left(8) == "<folder>") {
-      list = singleLine.split("\t");
-      app->current_folder = app->current_folder->findSubfolder(list[1]);
-    }                                          /*else if (singleLine ==
-                                                        "<multiLayer>") {  // process multilayers information
-                                               title =
-                                                   titleBase + QString::number(++aux) + "/" + QString::number(widgets);
-                                               progress.setLabelText(title);
-
-                                               singleLine = aprojTextStream.readLine();
-                                               QStringList graph = singleLine.split("\t");
-                                               QString caption = graph[0];
-                                               plot = app->multilayerPlot(caption);
-                                               plot->setCols(graph[1].toInt());
-                                               plot->setRows(graph[2].toInt());
-
-                                               app->setListViewDate(caption, graph[3]);
-                                               plot->setBirthDate(graph[3]);
-
-                                               restoreWindowGeometry(app, plot, aprojTextStream.readLine());
-                                               plot->blockSignals(true);
-
-                                               QStringList lst = aprojTextStream.readLine().split("\t");
-                                               plot->setWindowLabel(lst[1]);
-                                               app->setListViewLabel(plot->name(), lst[1]);
-                                               plot->setCaptionPolicy(
-                                                   static_cast<MyWidget::CaptionPolicy>(lst[2].toInt()));
-                                               QStringList stringlst =
-                                                   aprojTextStream.readLine().split("\t", QString::SkipEmptyParts);
-                                               plot->setMargins(stringlst[1].toInt(), stringlst[2].toInt(),
-                                                                stringlst[3].toInt(), stringlst[4].toInt());
-                                               stringlst =
-                                                   aprojTextStream.readLine().split("\t", QString::SkipEmptyParts);
-                                               plot->setSpacing(stringlst[1].toInt(), stringlst[2].toInt());
-                                               stringlst =
-                                                   aprojTextStream.readLine().split("\t", QString::SkipEmptyParts);
-                                               plot->setLayerCanvasSize(stringlst[1].toInt(), stringlst[2].toInt());
-                                               stringlst =
-                                                   aprojTextStream.readLine().split("\t", QString::SkipEmptyParts);
-                                               plot->setAlignement(stringlst[1].toInt(), stringlst[2].toInt());
-
-                                               while (singleLine != "</multiLayer>") {  // open layers
-                                                 singleLine = aprojTextStream.readLine();
-                                                 if (singleLine.left(7) == "<graph>") {
-                                                   list.clear();
-                                                   while (singleLine != "</graph>") {
-                                                     singleLine = aprojTextStream.readLine();
-                                                     list << singleLine;
-                                                   }
-                                                   openGraphAproj(app, plot, list);
-                                                 }
-                                               }
-                                               plot->blockSignals(false);
-                                               progress.setValue(aux);
-                                             }*/
-    else if (singleLine == "<SurfacePlot>") {  // process 3D plots information
-      list.clear();
-      title =
-          titleBase + QString::number(++aux) + "/" + QString::number(widgets);
-      progress.setLabelText(title);
-      while (singleLine != "</SurfacePlot>") {
-        singleLine = aprojTextStream.readLine();
-        list << singleLine;
-      }
-      openSurfacePlotAproj(app, list);
-      progress.setValue(aux);
-    } else if (singleLine == "</folder>") {
-      Folder *parent = qobject_cast<Folder *>(app->current_folder->parent());
-      if (!parent)
-        app->current_folder = projectFolder();
-      else
-        app->current_folder = parent;
-    } else if (singleLine.left(5) == "<log>") {  // process analysis information
-      singleLine = aprojTextStream.readLine();
-      while (singleLine != "</log>") {
-        app->logInfo += singleLine + "\n";
-        singleLine = aprojTextStream.readLine();
-      }
-      app->ui_->resultLog->setText(app->logInfo);
-    }
-  }
-  file->close();
-  delete file;
-
-  if (progress.wasCanceled()) {
-    app->saved = true;
-    app->close();
-    return nullptr;
-  }
-
-  app->logInfo = app->logInfo.remove("</log>\n", Qt::CaseInsensitive);
-  app->ui_->folderView->blockSignals(false);
-
-  app->blockSignals(false);
-  app->renamedTables.clear();
-
-  app->show();
-  app->executeNotes();
-  app->savedProject();
-
-  app->recentProjects.removeAll(fileName);
-  app->recentProjects.push_front(fileName);
-  app->updateRecentProjectsList();
-
-  // change folder to user defined current folder
-  app->changeFolder(app->projectFolder(), true);  // force update
-  app->changeFolder(cf, false);                   // set current folder
-  app->ui_->folderView->setCurrentItem(cf->folderTreeWidgetItem());  // select
-
-  return app;
 }
 
 void ApplicationWindow::executeNotes() {
@@ -3801,7 +3461,7 @@ void ApplicationWindow::openTemplate() {
         t.skipWhiteSpace();
         QStringList lst;
         while (!t.atEnd()) lst << t.readLine();
-        w = openSurfacePlotAproj(this, lst);
+        // w = openSurfacePlotAproj(this, lst);
         if (w) qobject_cast<Graph3D *>(w)->clearData();
       } else {
         int rows, cols;
@@ -4719,25 +4379,8 @@ Folder *ApplicationWindow::projectFolder() {
 }
 
 bool ApplicationWindow::saveProject() {
-  if (projectname == "untitled" ||
-      projectname.endsWith(".opj", Qt::CaseInsensitive) ||
-      projectname.endsWith(".ogm", Qt::CaseInsensitive) ||
-      projectname.endsWith(".ogw", Qt::CaseInsensitive) ||
-      projectname.endsWith(".ogg", Qt::CaseInsensitive)) {
-    saveProjectAs();
-    return false;
-  }
-
-  bool compress = false;
-  QString fn = projectname;
-  if (fn.endsWith(".gz")) {
-    fn = fn.left(fn.length() - 3);
-    compress = true;
-  }
-
-  saveFolder(projectFolder(), fn);
-
-  if (compress) file_compress(QFile::encodeName(fn).constData(), "wb9");
+  const QString filename = projectname;
+  aprojhandler_->saveproject(filename, projectFolder());
 
   setWindowTitle("AlphaPlot - " + projectname);
   savedProject();
@@ -4755,28 +4398,31 @@ bool ApplicationWindow::saveProject() {
 }
 
 void ApplicationWindow::saveProjectAs() {
-  QString filter = tr("AlphaPlot project") + " (*.aproj);;";
-  filter += tr("Compressed AlphaPlot project") + " (*.aproj.gz)";
+  QString filter = QString(tr("AlphaPlot project %1")).arg("(*.aproj);;");
+  filter +=
+      QString(tr("Compressed AlphaPlot project %1")).arg("(*.aproj.gz);;");
+  filter += QString(tr("Backup files %1")).arg("(*.aproj~ *.aproj.gz~);;");
+  filter += QString(tr("All files %1")).arg("(*.*);;");
 
   QString selectedFilter;
-  QString fn = QFileDialog::getSaveFileName(
+  QString filename = QFileDialog::getSaveFileName(
       this, tr("Save Project As"), workingDir, filter, &selectedFilter);
-  if (!fn.isEmpty()) {
-    QFileInfo fi(fn);
+  if (!filename.isEmpty()) {
+    QFileInfo fi(filename);
     workingDir = fi.absolutePath();
     QString baseName = fi.fileName();
     if (!baseName.endsWith(".aproj") && !baseName.endsWith(".aproj.gz")) {
-      fn.append(".aproj");
-      if (selectedFilter.contains(".gz")) fn.append(".gz");
+      filename.append(".aproj");
+      if (selectedFilter.contains(".gz")) filename.append(".gz");
     }
-    projectname = fn;
+    projectname = filename;
 
-    if (saveProject()) {
-      recentProjects.removeAll(fn);
-      recentProjects.push_front(fn);
+    if (aprojhandler_->saveproject(filename, projectFolder())) {
+      recentProjects.removeAll(filename);
+      recentProjects.push_front(filename);
       updateRecentProjectsList();
 
-      QFileInfo fi(fn);
+      QFileInfo fi(filename);
       QString baseName = fi.baseName();
       FolderTreeWidgetItem *item =
           static_cast<FolderTreeWidgetItem *>(ui_->folderView->topLevelItem(0));
@@ -4800,13 +4446,13 @@ void ApplicationWindow::saveAsTemplate() {
 
   QString filter;
   if (isActiveSubWindow(w, SubWindowType::MatrixSubWindow))
-    filter = tr("AlphaPlot/QtiPlot Matrix Template") + " (*.qmt)";
+    filter = tr("AlphaPlot Matrix Template") + " (*.amt)";
   else if (isActiveSubWindow(w, SubWindowType::Plot2DSubWindow))
-    filter = tr("AlphaPlot/QtiPlot 2D Graph Template") + " (*.qpt)";
+    filter = tr("AlphaPlot2D Graph Template") + " (*.apt)";
   else if (isActiveSubWindow(w, SubWindowType::TableSubWindow))
-    filter = tr("AlphaPlot/QtiPlot Table Template") + " (*.qtt)";
+    filter = tr("AlphaPlot Table Template") + " (*.att)";
   else if (isActiveSubWindow(w, SubWindowType::Plot3DSubWindow))
-    filter = tr("AlphaPlot/QtiPlot 3D Surface Template") + " (*.qst)";
+    filter = tr("AlphaPlot 3D Surface Template") + " (*.ast)";
 
   QString selectedFilter;
   QString fn = QFileDialog::getSaveFileName(this, tr("Save Window As Template"),
@@ -5806,21 +5452,18 @@ void ApplicationWindow::differentiate() {
 
 void ApplicationWindow::showResults(bool ok) {
   if (ok) {
-    if (!logInfo.isEmpty())
-      ui_->resultLog->setText(logInfo);
-    else
-      ui_->resultLog->setText(tr("Sorry, there are no results to display!"));
+    if (!logInfo.isEmpty()) ui_->resultLog->setText(logInfo);
 
     ui_->logWindow->show();
-    QTextCursor cur = ui_->resultLog->textCursor();
-    cur.movePosition(QTextCursor::End);
-    ui_->resultLog->setTextCursor(cur);
+    QTextCursor cursor = ui_->resultLog->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui_->resultLog->setTextCursor(cursor);
   } else
     ui_->logWindow->hide();
 }
 
-void ApplicationWindow::showResults(const QString &s, bool ok) {
-  logInfo += s;
+void ApplicationWindow::showResults(const QString &text, bool ok) {
+  logInfo += text;
   if (!logInfo.isEmpty()) ui_->resultLog->setText(logInfo);
   showResults(ok);
 }
@@ -6451,15 +6094,15 @@ void ApplicationWindow::savedProject() {
 }
 
 void ApplicationWindow::modifiedProject() {
-  // ui_->actionSaveProject->setEnabled(true);
+  ui_->actionSaveProject->setEnabled(true);
   saved = false;
 }
 
-void ApplicationWindow::modifiedProject(MyWidget *w) {
+void ApplicationWindow::modifiedProject(MyWidget *widget) {
   modifiedProject();
 
   ui_->actionUndo->setEnabled(true);
-  lastModified = w;
+  lastModified = widget;
 }
 
 void ApplicationWindow::timerEvent(QTimerEvent *event) {
@@ -6961,17 +6604,18 @@ bool ApplicationWindow::newFunctionPlot(const int type,
   return false;
 }
 
-bool ApplicationWindow::addFunctionPlot(
+Curve2D *ApplicationWindow::addFunctionPlot(
     const int type, const QStringList &formulas, const QString &var,
     const QList<double> &ranges, const int points, AxisRect2D *axisrect) {
   Q_ASSERT(ranges.size() == 2);
+  Curve2D *curve = nullptr;
   switch (type) {
     case 0:
     case 1:
     case 2: {
       QPair<QVector<double> *, QVector<double> *> datapair;
       datapair = generateFunctiondata(type, formulas, var, ranges, points);
-      if (!datapair.first || !datapair.second) return false;
+      if (!datapair.first || !datapair.second) return curve;
 
       QString label;
       QString xlabel, ylabel;
@@ -6982,16 +6626,16 @@ bool ApplicationWindow::addFunctionPlot(
         xlabel = "x";
         ylabel = formulas.at(0);
       }
-      label = "f(" + xlabel + ") = " + ylabel;
-      axisrect->addFunction2DPlot(datapair.first, datapair.second,
-                                  axisrect->getXAxis(0), axisrect->getYAxis(0),
-                                  label);
-      return true;
+      label = "f(" + xlabel + "): " + ylabel;
+      curve = axisrect->addFunction2DPlot(datapair.first, datapair.second,
+                                          axisrect->getXAxis(0),
+                                          axisrect->getYAxis(0), label);
+      return curve;
     }
     default:
       qDebug() << "unknown function type!";
   }
-  return false;
+  return curve;
 }
 
 QPair<QVector<double> *, QVector<double> *>
@@ -7100,6 +6744,43 @@ ApplicationWindow::generateFunctiondata(const int type,
       qDebug() << "unknown function type!";
   }
   return datapair;
+}
+
+QList<QPair<QPair<double, double>, double>> *
+ApplicationWindow::generateFunction3ddata(const QString &formula,
+                                          const double xl, const double xr,
+                                          const double yl, const double yr,
+                                          const double zl, const double zr) {
+  QList<QPair<QPair<double, double>, double>> *data =
+      new QList<QPair<QPair<double, double>, double>>();
+  QString name = "surface3d";
+  std::unique_ptr<Script> script(scriptEnv->newScript(formula, 0, name));
+  QObject::connect(script.get(),
+                   SIGNAL(error(const QString &, const QString &, int)), this,
+                   SLOT(scriptError(const QString &, const QString &, int)));
+  const double points = 1000;
+  const double xstep = (xr - xl) / static_cast<double>(points - 1);
+  const double ystep = (yr - yl) / static_cast<double>(points - 1);
+  double x = xl;
+  double y = yl;
+
+  for (int i = 0; i < points; i++, x += xstep, y += ystep) {
+    script->setDouble(x, QString("x").toUtf8().constData());
+    script->setDouble(y, QString("y").toUtf8().constData());
+    QVariant result = script->eval();
+    if (result.type() != QVariant::Double) {
+      delete data;
+      data = nullptr;
+      return data;
+    } else {
+      QPair<QPair<double, double>, double> tuple;
+      tuple.first.first = x;
+      tuple.first.second = y;
+      tuple.second = result.toDouble();
+      data->append(tuple);
+    }
+  }
+  return data;
 }
 
 void ApplicationWindow::clearLogInfo() {
@@ -7501,258 +7182,6 @@ Note *ApplicationWindow::openNote(ApplicationWindow *app,
   return w;
 }
 
-// TODO: most of this code belongs into matrix
-Matrix *ApplicationWindow::openMatrixAproj(ApplicationWindow *app,
-                                           const QStringList &flist) {
-  Matrix *w = app->newMatrix("matrix", 1, 1);
-  int length = flist.at(0).toInt();
-  int index = 1;
-  QString xml(flist.at(index++));
-  while (xml.length() < length && index < flist.size())
-    xml += '\n' + flist.at(index++);
-  XmlStreamReader reader(xml);
-  reader.readNext();
-  reader.readNext();  // read the start document
-  if (w->d_future_matrix->load(&reader) == false) {
-    QString msg_text = reader.errorString();
-    QMessageBox::critical(this, tr("Error reading matrix from project file"),
-                          msg_text);
-  }
-  if (reader.hasWarnings()) {
-    QString msg_text =
-        tr("The following problems occured when loading the project file:\n");
-    QStringList warnings = reader.warningStrings();
-    foreach (QString str, warnings)
-      msg_text += str + "\n";
-    QMessageBox::warning(this, tr("Project loading partly failed"), msg_text);
-  }
-  restoreWindowGeometry(app, w, flist.at(index));
-
-  return w;
-}
-
-// TODO: most of this code belongs into Table
-Table *ApplicationWindow::openTableAproj(ApplicationWindow *app,
-                                         QTextStream &stream) {
-  QString s = stream.readLine();
-  int length = s.toInt();
-
-  // On Windows, loading large tables to a QString has been observed to crash
-  // (apparently due to excessive memory usage).
-  // => use temporary file if possible
-  QTemporaryFile tmp_file;
-  QString tmp_string;
-  if (tmp_file.open()) {
-    QTextStream tmp(&tmp_file);
-    tmp.setCodec("UTF-8");
-    int read = 0;
-    while (length - read >= 1024) {
-      tmp << stream.read(1024);
-      read += 1024;
-    }
-    tmp << stream.read(length - read);
-    tmp.flush();
-    tmp_file.seek(0);
-    stream.readLine();  // skip to next newline
-  } else
-    while (tmp_string.length() < length) tmp_string += '\n' + stream.readLine();
-
-  XmlStreamReader reader(tmp_string);
-  if (tmp_file.isOpen()) reader.setDevice(&tmp_file);
-
-  Table *w = app->newTable("table", 1, 1);
-  reader.readNext();
-  reader.readNext();  // read the start document
-  if (w->d_future_table->load(&reader) == false) {
-    QString msg_text = reader.errorString();
-    QMessageBox::critical(this, tr("Error reading table from project file"),
-                          msg_text);
-  }
-  if (reader.hasWarnings()) {
-    QString msg_text =
-        tr("The following problems occured when loading the project file:\n");
-    QStringList warnings = reader.warningStrings();
-    foreach (QString str, warnings)
-      msg_text += str + "\n";
-    QMessageBox::warning(this, tr("Project loading partly failed"), msg_text);
-  }
-  w->setBirthDate(w->d_future_table->creationTime().toString(Qt::LocalDate));
-
-  s = stream.readLine();
-  restoreWindowGeometry(app, w, s);
-
-  s = stream.readLine();  // </table>
-
-  return w;
-}
-
-TableStatistics *ApplicationWindow::openTableStatisticsAproj(
-    const QStringList &flist) {
-  QStringList::const_iterator line = flist.begin();
-
-  QStringList list = (*line++).split("\t");
-  QString caption = list[0];
-
-  QList<int> targets;
-  for (int i = 1; i <= (*line).count('\t'); i++)
-    targets << (*line).section('\t', i, i).toInt();
-
-  TableStatistics *w = newTableStatistics(
-      table(list[1]),
-      list[2] == "row" ? TableStatistics::StatRow : TableStatistics::StatColumn,
-      targets, caption);
-
-  setListViewDate(caption, list[3]);
-  w->setBirthDate(list[3]);
-
-  for (line++; line != flist.end(); line++) {
-    QStringList fields = (*line).split("\t");
-    if (fields[0] == "geometry") {
-      restoreWindowGeometry(this, w, *line);
-    } else if (fields[0] == "header") {
-      fields.pop_front();
-      w->importV0x0001XXHeader(fields);
-    } else if (fields[0] == "ColWidth") {
-      fields.pop_front();
-      w->setColWidths(fields);
-    } else if (fields[0] == "com") {  // legacy code
-      w->setCommands(*line);
-    } else if (fields[0] == "<com>") {
-      for (line++; line != flist.end() && *line != "</com>"; line++) {
-        int col = (*line).mid(9, (*line).length() - 11).toInt();
-        QString formula;
-        for (line++; line != flist.end() && *line != "</col>"; line++)
-          formula += *line + "\n";
-        formula.truncate(formula.length() - 1);
-        w->setCommand(col, formula);
-      }
-    } else if (fields[0] == "ColType") {  // d_file_version > 65
-      fields.pop_front();
-      w->setColumnTypes(fields);
-    } else if (fields[0] == "Comments") {  // d_file_version > 71
-      fields.pop_front();
-      w->setColComments(fields);
-    } else if (fields[0] == "WindowLabel") {  // d_file_version > 71
-      w->setWindowLabel(fields[1]);
-      w->setCaptionPolicy((MyWidget::CaptionPolicy)fields[2].toInt());
-      setListViewLabel(w->name(), fields[1]);
-    }
-  }
-  return w;
-}
-
-AxisRect2D *ApplicationWindow::openGraphAproj(ApplicationWindow *app,
-                                              Layout2D *layout,
-                                              const QStringList &list) {}
-
-Graph3D *ApplicationWindow::openSurfacePlotAproj(ApplicationWindow *app,
-                                                 const QStringList &lst) {
-  QStringList fList = lst[0].split("\t");
-  QString caption = fList[0];
-  QString date = fList[1];
-  if (date.isEmpty())
-    date = QDateTime::currentDateTime().toString(Qt::LocalDate);
-
-  fList = lst[2].split("\t", QString::SkipEmptyParts);
-  Graph3D *plot = nullptr;
-
-  if (fList[1].endsWith("(Y)", Qt::CaseSensitive))  // Ribbon plot
-    plot = app->dataPlot3D(caption, fList[1], fList[2].toDouble(),
-                           fList[3].toDouble(), fList[4].toDouble(),
-                           fList[5].toDouble(), fList[6].toDouble(),
-                           fList[7].toDouble());
-  else if (fList[1].contains("(Z)", Qt::CaseSensitive))
-    plot = app->dataPlotXYZ(caption, fList[1], fList[2].toDouble(),
-                            fList[3].toDouble(), fList[4].toDouble(),
-                            fList[5].toDouble(), fList[6].toDouble(),
-                            fList[7].toDouble());
-  else if (fList[1].startsWith("matrix<", Qt::CaseSensitive) &&
-           fList[1].endsWith(">", Qt::CaseInsensitive))
-    plot = app->openMatrixPlot3D(caption, fList[1], fList[2].toDouble(),
-                                 fList[3].toDouble(), fList[4].toDouble(),
-                                 fList[5].toDouble(), fList[6].toDouble(),
-                                 fList[7].toDouble());
-  else
-    plot = app->newPlot3D(caption, fList[1], fList[2].toDouble(),
-                          fList[3].toDouble(), fList[4].toDouble(),
-                          fList[5].toDouble(), fList[6].toDouble(),
-                          fList[7].toDouble());
-
-  if (!plot) return nullptr;
-
-  app->setListViewDate(caption, date);
-  plot->setBirthDate(date);
-  plot->setIgnoreFonts(true);
-  restoreWindowGeometry(app, plot, lst[1]);
-
-  fList = lst[3].split("\t", QString::SkipEmptyParts);
-  plot->setStyle(fList);
-
-  fList = lst[4].split("\t", QString::SkipEmptyParts);
-  plot->setGrid(fList[1].toInt());
-
-  fList = lst[5].split("\t");
-  plot->setTitle(fList);
-
-  fList = lst[6].split("\t", QString::SkipEmptyParts);
-  plot->setColors(fList);
-
-  fList = lst[7].split("\t", QString::SkipEmptyParts);
-  fList.pop_front();
-  plot->setAxesLabels(fList);
-
-  fList = lst[8].split("\t", QString::SkipEmptyParts);
-  plot->setTicks(fList);
-
-  fList = lst[9].split("\t", QString::SkipEmptyParts);
-  plot->setTickLengths(fList);
-
-  fList = lst[10].split("\t", QString::SkipEmptyParts);
-  plot->setOptions(fList);
-
-  fList = lst[11].split("\t", QString::SkipEmptyParts);
-  plot->setNumbersFont(fList);
-
-  fList = lst[12].split("\t", QString::SkipEmptyParts);
-  plot->setXAxisLabelFont(fList);
-
-  fList = lst[13].split("\t", QString::SkipEmptyParts);
-  plot->setYAxisLabelFont(fList);
-
-  fList = lst[14].split("\t", QString::SkipEmptyParts);
-  plot->setZAxisLabelFont(fList);
-
-  fList = lst[15].split("\t", QString::SkipEmptyParts);
-  plot->setRotation(fList[1].toDouble(), fList[2].toDouble(),
-                    fList[3].toDouble());
-
-  fList = lst[16].split("\t", QString::SkipEmptyParts);
-  plot->setZoom(fList[1].toDouble());
-
-  fList = lst[17].split("\t", QString::SkipEmptyParts);
-  plot->setScale(fList[1].toDouble(), fList[2].toDouble(), fList[3].toDouble());
-
-  fList = lst[18].split("\t", QString::SkipEmptyParts);
-  plot->setShift(fList[1].toDouble(), fList[2].toDouble(), fList[3].toDouble());
-
-  fList = lst[19].split("\t", QString::SkipEmptyParts);
-  plot->setMeshLineWidth(fList[1].toInt());
-
-  fList = lst[20].split("\t");  // using QString::SkipEmptyParts here causes a
-                                // crash for empty window labels
-  plot->setWindowLabel(fList[1]);
-  plot->setCaptionPolicy(
-      static_cast<MyWidget::CaptionPolicy>(fList[2].toInt()));
-  app->setListViewLabel(plot->name(), fList[1]);
-
-  fList = lst[21].split("\t", QString::SkipEmptyParts);
-  plot->setOrtho(fList[1].toInt());
-
-  plot->update();
-  plot->setIgnoreFonts(true);
-  return plot;
-}
-
 void ApplicationWindow::copyActiveLayer() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
   qDebug() << "not implimented";
@@ -7886,27 +7315,28 @@ void ApplicationWindow::connectSurfacePlot(Graph3D *plot) {
   plot->askOnCloseEvent(confirmClosePlot3D);
 }
 
-void ApplicationWindow::connectTable(Table *w) {
-  connect(w, SIGNAL(showTitleBarMenu()), this, SLOT(showWindowTitleBarMenu()));
-  connect(w, SIGNAL(statusChanged(MyWidget *)), this,
+void ApplicationWindow::connectTable(Table *table) {
+  connect(table, SIGNAL(showTitleBarMenu()), this,
+          SLOT(showWindowTitleBarMenu()));
+  connect(table, SIGNAL(statusChanged(MyWidget *)), this,
           SLOT(updateWindowStatus(MyWidget *)));
-  connect(w, SIGNAL(hiddenWindow(MyWidget *)), this,
+  connect(table, SIGNAL(hiddenWindow(MyWidget *)), this,
           SLOT(hideWindow(MyWidget *)));
-  connect(w, SIGNAL(closedWindow(MyWidget *)), this,
+  connect(table, SIGNAL(closedWindow(MyWidget *)), this,
           SLOT(closeWindow(MyWidget *)));
-  connect(w, SIGNAL(aboutToRemoveCol(Table *, const QString &)), this,
+  connect(table, SIGNAL(aboutToRemoveCol(Table *, const QString &)), this,
           SLOT(removeCurves(Table *, const QString &)));
-  connect(w, SIGNAL(modifiedData(Table *, const QString &)), this,
+  connect(table, SIGNAL(modifiedData(Table *, const QString &)), this,
           SLOT(updateCurves(Table *, const QString &)));
-  connect(w, SIGNAL(modifiedWindow(MyWidget *)), this,
+  connect(table, SIGNAL(modifiedWindow(MyWidget *)), this,
           SLOT(modifiedProject(MyWidget *)));
-  connect(w, SIGNAL(changedColHeader(const QString &, const QString &)), this,
-          SLOT(updateColNames(const QString &, const QString &)));
-  connect(w->d_future_table, SIGNAL(requestRowStatistics()), this,
+  connect(table, SIGNAL(changedColHeader(const QString &, const QString &)),
+          this, SLOT(updateColNames(const QString &, const QString &)));
+  connect(table->d_future_table, SIGNAL(requestRowStatistics()), this,
           SLOT(showRowStatistics()));
-  connect(w->d_future_table, SIGNAL(requestColumnStatistics()), this,
+  connect(table->d_future_table, SIGNAL(requestColumnStatistics()), this,
           SLOT(showColumnStatistics()));
-  w->askOnCloseEvent(confirmCloseTable);
+  table->askOnCloseEvent(confirmCloseTable);
 }
 
 /*void ApplicationWindow::setAppColors(const QColor &wc, const QColor &pc,
@@ -8016,6 +7446,9 @@ void ApplicationWindow::plotColorMap() {
   if (!isActiveSubwindow(SubWindowType::MatrixSubWindow)) return;
   plotSpectrogram(qobject_cast<Matrix *>(d_workspace->activeSubWindow()),
                   Graph::ColorMap);
+  Matrix *matrix = qobject_cast<Matrix *>(d_workspace->activeSubWindow());
+  Layout2D *layout = newGraph2D();
+  if (matrix) layout->generateColorMap2DPlot(matrix);
 }
 
 Layout2D *ApplicationWindow::plotColorMap(Matrix *m) {
@@ -8062,9 +7495,9 @@ void ApplicationWindow::deleteFitTables() {
 }
 
 QList<QMdiSubWindow *> ApplicationWindow::subWindowsList() {
-  /* QList<QMdiSubWindow *> subwindowlist;
-   return subWindowsListFromTreeRecursive(
-       subwindowlist, projectFolder()->folderTreeWidgetItem());*/
+  /*QList<QMdiSubWindow *> subwindowlist;
+  return subWindowsListFromTreeRecursive(
+      subwindowlist, projectFolder()->folderTreeWidgetItem());*/
   return d_workspace->subWindowList();
 }
 
@@ -8452,339 +7885,31 @@ void ApplicationWindow::appendProject() {
       open_dialog->selectedFiles().isEmpty())
     return;
   workingDir = open_dialog->directory().path();
-  appendProject(open_dialog->selectedFiles()[0]);
+  aprojhandler_->appendproject(open_dialog->selectedFiles()[0]);
 }
 
-void ApplicationWindow::appendProject(const QString &fn) {
-  if (fn.isEmpty()) return;
-
-  QFile *file;
-
-  QFileInfo fi(fn);
-  workingDir = fi.absolutePath();
-
-  if (fn.contains(".aproj")) {
-    QFileInfo f(fn);
-    if (!f.exists()) {
-      QMessageBox::critical(this, tr("File opening error"),
-                            tr("The file: <b>%1</b> doesn't exist!").arg(fn));
-      return;
-    }
-  } else {
-    QMessageBox::critical(
-        this, tr("File opening error"),
-        tr("The file: <b>%1</b> is not a AlphaPlot project file!").arg(fn));
-    return;
-  }
-
-  if (fn.endsWith(".gz", Qt::CaseInsensitive) ||
-      fn.endsWith(".gz~", Qt::CaseInsensitive)) {
-    file = openCompressedFile(fn);
-    if (!file) return;
-  } else {
-    file = new QFile(fn);
-    file->open(QIODevice::ReadOnly);
-  }
-
-  recentProjects.removeAll(fn);
-  recentProjects.push_front(fn);
-  updateRecentProjectsList();
-
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-  Folder *cf = current_folder;
-  FolderTreeWidgetItem *item = static_cast<FolderTreeWidgetItem *>(
-      current_folder->folderTreeWidgetItem());
-  ui_->folderView->blockSignals(true);
-  blockSignals(true);
-
-  QString baseName = fi.baseName();
-  QStringList lst = current_folder->subfolders();
-  int n = lst.count(baseName);
-  if (n) {  // avoid identical subfolder names
-    while (lst.count(baseName + QString::number(n))) n++;
-    baseName += QString::number(n);
-  }
-
-  current_folder = new Folder(current_folder, baseName);
-  FolderTreeWidgetItem *fli = new FolderTreeWidgetItem(item, current_folder);
-  current_folder->setFolderTreeWidgetItem(fli);
-
-  QTextStream t(file);
-  t.setCodec("UTF-8");
-
-  QString s = t.readLine();
-  lst = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
-  QString version = lst[1];
-  lst = version.split(".", QString::SkipEmptyParts);
-
-  t.readLine();
-
-  // process tables and matrix information
-  while (!t.atEnd()) {
-    s = t.readLine(4096);  // workaround for safely reading very big lines
-    lst.clear();
-    if (s.left(8) == "<folder>") {
-      lst = s.split("\t");
-      Folder *f = new Folder(current_folder, lst[1]);
-      f->setBirthDate(lst[2]);
-      f->setModificationDate(lst[3]);
-      if (lst.count() > 4)
-        if (lst[4] == "current") cf = f;
-
-      FolderTreeWidgetItem *fli =
-          new FolderTreeWidgetItem(current_folder->folderTreeWidgetItem(), f);
-      fli->setText(0, lst[1]);
-      f->setFolderTreeWidgetItem(fli);
-
-      current_folder = f;
-    } else if (s == "<table>") {
-      openTableAproj(this, t);
-    } else if (s == "<matrix>") {
-      while (s != "</matrix>") {
-        s = t.readLine();
-        lst << s;
-      }
-      lst.pop_back();
-      openMatrixAproj(this, lst);
-    } else if (s == "<note>") {
-      for (int i = 0; i < 3; i++) {
-        s = t.readLine();
-        lst << s;
-      }
-      Note *m = openNote(this, lst);
-      QStringList cont;
-      while (s != "</note>") {
-        s = t.readLine();
-        cont << s;
-      }
-      cont.pop_back();
-      m->restore(cont);
-    } else if (s == "</folder>") {
-      Folder *parent = dynamic_cast<Folder *>(current_folder->parent());
-      if (!parent)
-        current_folder = projectFolder();
-      else
-        current_folder = parent;
-    }
-  }
-
-  // process the rest
-  t.seek(0);
-
-  while (!t.atEnd()) {
-    s = t.readLine(4096);  // workaround for safely reading very big lines
-    if (s.left(8) == "<folder>") {
-      lst = s.split("\t");
-      current_folder = current_folder->findSubfolder(lst[1]);
-    } /*else if (s == "<multiLayer>") {  // process multilayers information
-      s = t.readLine();
-      QStringList graph = s.split("\t");
-      QString caption = graph[0];
-      plot = multilayerPlot(caption);
-      plot->setCols(graph[1].toInt());
-      plot->setRows(graph[2].toInt());
-      setListViewDate(caption, graph[3]);
-      plot->setBirthDate(graph[3]);
-      plot->blockSignals(true);
-
-      restoreWindowGeometry(this, plot, t.readLine());
-
-      QStringList strnglst = t.readLine().split("\t");
-      plot->setWindowLabel(strnglst[1]);
-      setListViewLabel(plot->name(), strnglst[1]);
-      plot->setCaptionPolicy(
-          static_cast<MyWidget::CaptionPolicy>(strnglst[2].toInt()));
-
-      QStringList strlist = t.readLine().split("\t", QString::SkipEmptyParts);
-      plot->setMargins(strlist[1].toInt(), strlist[2].toInt(),
-                       strlist[3].toInt(), strlist[4].toInt());
-      strlist = t.readLine().split("\t", QString::SkipEmptyParts);
-      plot->setSpacing(strlist[1].toInt(), strlist[2].toInt());
-      strlist = t.readLine().split("\t", QString::SkipEmptyParts);
-      plot->setLayerCanvasSize(strlist[1].toInt(), strlist[2].toInt());
-      strlist = t.readLine().split("\t", QString::SkipEmptyParts);
-      plot->setAlignement(strlist[1].toInt(), strlist[2].toInt());
-
-      while (s != "</multiLayer>") {  // open layers
-        s = t.readLine();
-        if (s.left(7) == "<graph>") {
-          lst.clear();
-          while (s != "</graph>") {
-            s = t.readLine();
-            lst << s;
-          }
-          openGraphAproj(this, plot, lst);
-        }
-      }
-      plot->blockSignals(false);
-    }*/
-    else if (s == "<SurfacePlot>") {  // process 3D plots information
-      lst.clear();
-      while (s != "</SurfacePlot>") {
-        s = t.readLine();
-        lst << s;
-      }
-      openSurfacePlotAproj(this, lst);
-    } else if (s == "</folder>") {
-      Folder *parent = dynamic_cast<Folder *>(current_folder->parent());
-      if (!parent)
-        current_folder = projectFolder();
-      else
-        current_folder = parent;
-    }
-  }
-
-  file->close();
-  delete file;
-
-  ui_->folderView->blockSignals(false);
-  // change folder to user defined current folder
-  changeFolder(cf);
-  blockSignals(false);
-  renamedTables = QStringList();
-  QApplication::restoreOverrideCursor();
-}
-
-void ApplicationWindow::rawSaveFolder(Folder *folder, QIODevice *device) {
-  QTextStream stream(device);
-  stream.setCodec("UTF-8");
-  foreach (MyWidget *w, folder->windowsList()) {
-    Table *t = qobject_cast<Table *>(w);
-    if (t)
-      t->saveToDevice(device, windowGeometryInfo(w));
-    else
-      stream << w->saveToString(windowGeometryInfo(w));
-  }
-  foreach (Folder *subfolder, folder->folders()) {
-    stream << "<folder>\t" + QString(subfolder->name()) + "\t" +
-                  subfolder->birthDate() + "\t" + subfolder->modificationDate();
-    if (subfolder == current_folder)
-      stream << "\tcurrent\n";
-    else
-      stream << "\n";  // FIXME: Having no 5th string here is not a good idea
-    stream.flush();
-    rawSaveFolder(subfolder, device);
-    stream << "</folder>\n";
-  }
-}
-
-void ApplicationWindow::saveFolder(Folder *folder, const QString &fn) {
-  // file saving procedure follows
-  // https://bugs.launchpad.net/ubuntu/+source/linux/+bug/317781/comments/54
-  QFile f(fn + ".new");
-  while (!f.open(QIODevice::WriteOnly)) {
-    if (f.isOpen()) f.close();
-    // The following message is slightly misleading, since it may be that fn.new
-    // can't be opened
-    // _at_all_. However, changing this would break translations, in a bugfix
-    // release.
-    // TODO: rephrase message for next minor release
-    switch (QMessageBox::critical(
-        this, tr("File save error"),
-        tr("The file: <br><b>%1</b> is opened in read-only mode")
-            .arg(fn + ".new"),
-        QMessageBox::Retry | QMessageBox::Default,
-        QMessageBox::Abort | QMessageBox::Escape)) {
-      case QMessageBox::Abort:
-        return;
-    }
-  }
-
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-  QTextStream t(&f);
-  t.setCodec("UTF-8");
-  ;
-  t << AlphaPlot::schemaVersion() + " project file\n";
-  t << "<scripting-lang>\t" + QString(scriptEnv->objectName()) + "\n";
-  t << "<windows>\t" + QString::number(folder->windowCount(true)) + "\n";
-  t.flush();
-  rawSaveFolder(folder, &f);
-  t << "<log>\n" + logInfo + "</log>";
-
-// second part of secure file saving (see comment at the start of this method)
-#ifdef Q_OS_WIN
-  // this one was taken from
-  // http://support.microsoft.com/kb/148505/en-us
-  // http://msdn.microsoft.com/en-us/library/17618685(VS.80).aspx
-  if (!f.flush() || _commit(f.handle()) != 0) {
-#else
-  if (!f.flush() || fsync(f.handle()) != 0) {
-#endif
-    QApplication::restoreOverrideCursor();
-    QMessageBox::critical(
-        this, tr("Error writing data to disk"),
-        tr("<html>%1<br><br>Your data may or may not have ended up in "
-           "<em>%2</em> (%3). If there already was a version of this "
-           "project on disk, it has not been touched.</html>")
-            .arg(QString::fromLocal8Bit(strerror(errno)))
-            .arg(fn + ".new")
-            .arg(f.handle()));
-    f.close();
-    return;
-  }
-  f.close();
-#ifdef Q_OS_WIN
-  // unfortunately, Windows doesn't support atomic renames; so Windows users
-  // will have to live with
-  // the risk of losing the file in case of a crash between remove and rename
-  if ((QFile::exists(fn) &&
-       ((QFile::exists(fn + "~") && !QFile::remove(fn + "~")) ||
-        !QFile::rename(fn, fn + "~"))) ||
-      !QFile::rename(fn + ".new", fn)) {
-#else
-  // we want to atomically replace existing files, so we can't use
-  // QFile::rename()
-  if ((QFile::exists(fn) &&
-       rename(QFile::encodeName(fn), QFile::encodeName(fn + "~")) != 0) ||
-      rename(QFile::encodeName(fn + ".new"), QFile::encodeName(fn)) != 0) {
-#endif
-    QApplication::restoreOverrideCursor();
-    QMessageBox::critical(
-        this, tr("Error renaming backup files"),
-        tr("<html>%1<br><br>Data was written to <em>%2</em>, "
-           "but saving the original file as <em>%3</em> and moving "
-           "the new file to <em>%4</em> failed. In case you wonder "
-           "why the original file hasn't been simply replaced, see here: "
-           "<a href=\"http://bugs.launchpad.net/ubuntu/+source/linux/+bug"
-           "/317781/comments/54\"> http://bugs.launchpad.net/ubuntu/+source"
-           "/linux/+bug/317781/comments/54</a>.</html>")
-            .arg(QString::fromLocal8Bit(strerror(errno)))
-            .arg(fn + ".new")
-            .arg(fn + "~")
-            .arg(fn));
-    return;
-  }
-
-  QApplication::restoreOverrideCursor();
-}
-
-void ApplicationWindow::saveAsProject() { saveFolderAsProject(current_folder); }
-
-void ApplicationWindow::saveFolderAsProject(Folder *f) {
+void ApplicationWindow::saveAsProject() {
   QString filter = tr("AlphaPlot project") + " (*.aproj);;";
   filter += tr("Compressed AlphaPlot project") + " (*.aproj.gz)";
 
   QString selectedFilter;
-  QString fn = QFileDialog::getSaveFileName(
+  QString filename = QFileDialog::getSaveFileName(
       this, tr("Save project as"), workingDir, filter, &selectedFilter);
-  if (!fn.isEmpty()) {
-    QFileInfo fi(fn);
+
+  if (!filename.isEmpty()) {
+    QFileInfo fi(filename);
     workingDir = fi.absolutePath();
     QString baseName = fi.fileName();
     if (!baseName.endsWith(".aproj") && !baseName.endsWith(".aproj.gz")) {
-      fn.append(".aproj");
-    }
-    bool compress = false;
-    if (fn.endsWith(".gz")) {
-      fn = fn.left(fn.length() - 3);
-      compress = true;
+      filename.append(".aproj");
+      if (selectedFilter.contains(".gz")) filename.append(".gz");
     }
 
-    saveFolder(f, fn);
-    if (selectedFilter.contains(".gz") || compress)
-      file_compress(QFile::encodeName(fn).constData(), "wb9");
+    if (aprojhandler_->saveproject(filename, current_folder)) {
+      recentProjects.removeAll(filename);
+      recentProjects.push_front(filename);
+      updateRecentProjectsList();
+    }
   }
 }
 
@@ -9164,7 +8289,6 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
 
   QList<MyWidget *> lst = newFolder->windowsList();
   foreach (MyWidget *w, lst) {
-    w->blockSignals(true);
     if (!hiddenWindows->contains(w) && !outWindows->contains(w) &&
         show_windows_policy != HideAll) {
       // show only windows in the current folder not hidden by the user
@@ -9205,9 +8329,6 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
     old_active_window->setStatus(old_active_window_state);
     oldFolder->setActiveWindow(old_active_window);
   }
-
-  foreach (MyWidget *w, newFolder->windowsList())
-    w->blockSignals(false);
 
   return true;
 }
@@ -9430,7 +8551,6 @@ void ApplicationWindow::windowProperties() {
   properties.created = window->birthDate();
   properties.modified = "";
   properties.label = window->windowLabel();
-  ;
 
   propertiesDialog->setupProperties(properties);
   propertiesDialog->exec();
@@ -9735,6 +8855,20 @@ QString ApplicationWindow::generateUniqueName(const QString &name,
 
   while (lst.contains(newName)) newName = name + QString::number(++index);
   return newName;
+}
+
+void ApplicationWindow::blockFolderviewsignals(bool value) {
+  ui_->folderView->blockSignals(value);
+}
+
+FolderTreeWidgetItem *ApplicationWindow::getProjectRootItem() {
+  return static_cast<FolderTreeWidgetItem *>(ui_->folderView->topLevelItem(0));
+}
+
+QString ApplicationWindow::getLogInfoText() const { return logInfo; }
+
+void ApplicationWindow::setCurrentFolderViewItem(FolderTreeWidgetItem *item) {
+  ui_->folderView->setCurrentItem(item);
 }
 
 void ApplicationWindow::clearTable() {

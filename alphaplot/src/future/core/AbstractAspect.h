@@ -165,12 +165,12 @@ class AbstractAspect : public QObject {
   //! Return the Project this Aspect belongs to, or 0 if it is currently not
   //! part of one.
   virtual const Project *project() const {
-    return parentAspect() ? parentAspect()->project() : 0;
+    return parentAspect() ? parentAspect()->project() : nullptr;
   }
   //! Return the Project this Aspect belongs to, or 0 if it is currently not
   //! part of one.
   virtual Project *project() {
-    return parentAspect() ? parentAspect()->project() : 0;
+    return parentAspect() ? parentAspect()->project() : nullptr;
   }
   //! Return the path that leads from the top-most Aspect (usually a Project) to
   //! me.
@@ -208,7 +208,7 @@ class AbstractAspect : public QObject {
    * parentAspect()).
    */
   virtual QUndoStack *undoStack() const {
-    return parentAspect() ? parentAspect()->undoStack() : 0;
+    return parentAspect() ? parentAspect()->undoStack() : nullptr;
   }
   //! Execute the given command, pushing it on the undoStack() if available.
   void exec(QUndoCommand *command);

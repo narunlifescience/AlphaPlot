@@ -40,6 +40,8 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QVBoxLayout>
+#include <QXmlStreamWriter>
+#include "future/lib/XmlStreamReader.h"
 
 Note::Note(ScriptingEnv* env, const QString& label, QWidget* parent,
            const char* name, Qt::WindowFlags f)
@@ -47,20 +49,98 @@ Note::Note(ScriptingEnv* env, const QString& label, QWidget* parent,
   init(env);
 }
 
+Note::~Note() {}
+
 void Note::init(ScriptingEnv* env) {
   autoExec = false;
   QDateTime dt = QDateTime::currentDateTime();
   setBirthDate(dt.toString(Qt::LocalDate));
 
-  te = new ScriptEdit(env, this, name());
-  te->setContext(this);
-  setWidget(te);
+  textedit_ = new ScriptEdit(env, this, name());
+  textedit_->setContext(this);
+  setWidget(textedit_);
 
   setGeometry(0, 0, 500, 200);
-  connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
+  connect(textedit_, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
 }
 
+QString Note::getText() { return textedit_->toPlainText().trimmed(); }
+
 void Note::modifiedNote() { emit modifiedWindow(this); }
+
+void Note::save(QXmlStreamWriter* xmlwriter) {
+  xmlwriter->writeStartElement("note");
+  xmlwriter->writeAttribute("creation_time", birthDate());
+  xmlwriter->writeAttribute("caption_spec", QString::number(captionPolicy()));
+  xmlwriter->writeAttribute("name", name());
+  xmlwriter->writeAttribute("label", windowLabel());
+  xmlwriter->writeStartElement("content");
+  xmlwriter->writeAttribute("value", getText());
+  xmlwriter->writeEndElement();
+  xmlwriter->writeEndElement();
+}
+
+bool Note::load(XmlStreamReader* xmlreader) {
+  if (xmlreader->isStartElement() && xmlreader->name() == "note") {
+    QString prefix(tr("XML read error: ", "prefix for XML error messages"));
+    QString postfix(tr(" (non-critical)", "postfix for XML error messages"));
+
+    QXmlStreamAttributes attribs = xmlreader->attributes();
+    QString basicattr;
+
+    // read name
+    basicattr =
+        attribs.value(xmlreader->namespaceUri().toString(), "name").toString();
+    if (basicattr.isEmpty()) {
+      xmlreader->raiseWarning(prefix + tr("aspect name missing or empty") +
+                              postfix);
+    }
+    setName(basicattr);
+    // read creation time
+    basicattr =
+        attribs.value(xmlreader->namespaceUri().toString(), "creation_time")
+            .toString();
+    QDateTime creation_time =
+        QDateTime::fromString(basicattr, "yyyy-dd-MM hh:mm:ss:zzz");
+    if (basicattr.isEmpty() || !creation_time.isValid()) {
+      xmlreader->raiseWarning(
+          tr("Invalid creation time for '%1'. Using current time.")
+              .arg(name()));
+      setBirthDate(QDateTime::currentDateTime().toString());
+    } else
+      setBirthDate(creation_time.toString());
+    // read caption spec
+    basicattr =
+        attribs.value(xmlreader->namespaceUri().toString(), "caption_spec")
+            .toString();
+    setCaptionPolicy(static_cast<MyWidget::CaptionPolicy>(basicattr.toInt()));
+
+    // read child elements
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+
+      if (xmlreader->isEndElement()) break;
+
+      if (xmlreader->isStartElement()) {
+        if (xmlreader->name() == "content") {
+          QXmlStreamAttributes attribs = xmlreader->attributes();
+          QString value =
+              attribs.value(xmlreader->namespaceUri().toString(), "value")
+                  .toString();
+          setText(value);
+        } else {
+          // unknown element
+          xmlreader->raiseWarning(
+              tr("unknown element '%1'").arg(xmlreader->name().toString()));
+          if (!xmlreader->skipToEndElement()) return false;
+        }
+      }
+    }
+  } else  // no note element
+    xmlreader->raiseError(tr("no table element found"));
+
+  return !xmlreader->hasError();
+}
 
 QString Note::saveToString(const QString& info) {
   QString s = "<note>\n";
@@ -69,7 +149,7 @@ QString Note::saveToString(const QString& info) {
   s += "WindowLabel\t" + windowLabel() + "\t" +
        QString::number(captionPolicy()) + "\n";
   s += "AutoExec\t" + QString(autoExec ? "1" : "0") + "\n";
-  s += "<content>\n" + te->toPlainText().trimmed() + "\n</content>";
+  s += "<content>\n" + textedit_->toPlainText().trimmed() + "\n</content>";
   s += "\n</note>\n";
   return s;
 }
@@ -86,7 +166,7 @@ void Note::restore(const QStringList& data) {
 
   if (*line == "<content>") line++;
   while (line != data.end() && *line != "</content>")
-    te->insertPlainText((*line++) + "\n");
+    textedit_->insertPlainText((*line++) + "\n");
 }
 
 void Note::setAutoexec(bool exec) { autoExec = exec; }

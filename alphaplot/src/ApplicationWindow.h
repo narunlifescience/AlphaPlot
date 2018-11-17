@@ -77,10 +77,12 @@ class AbstractAspect;
 
 class ConsoleWidget;
 class IconLoader;
+class AprojHandler;
 class SettingsDialog;
 class PropertiesDialog;
 class PropertyEditor;
 class AxisRect2D;
+class Curve2D;
 class Function2DDialog;
 
 #ifndef TS_PATH
@@ -196,6 +198,10 @@ class ApplicationWindow : public QMainWindow,
   even if 'name' is not used in the project, by setting /param increment = true
   (the default)*/
   QString generateUniqueName(const QString& name, bool increment = true);
+  void blockFolderviewsignals(bool value);
+  FolderTreeWidgetItem *getProjectRootItem();
+  QString getLogInfoText() const;
+  void setCurrentFolderViewItem(FolderTreeWidgetItem *item);
 
  public slots:
   //! Copy the status bar text to the clipboard
@@ -210,8 +216,6 @@ class ApplicationWindow : public QMainWindow,
   /**
    * Close and delete after you're done with it.
    */
-  QFile* openCompressedFile(const QString& fn);
-  ApplicationWindow* openProject(const QString& fileName);
   void showUndoRedoHistory();
 
   /* brief Create a new project from a data file.
@@ -240,7 +244,7 @@ class ApplicationWindow : public QMainWindow,
   // Set the project status to saved (not modified)
   void savedProject();
   // Set project status to modified and save 'w' as the last modified widget
-  void modifiedProject(MyWidget* w);
+  void modifiedProject(MyWidget* widget);
   //@}
 
   //! \name Settings
@@ -332,12 +336,15 @@ class ApplicationWindow : public QMainWindow,
   bool newFunctionPlot(const int type, const QStringList& formulas,
                        const QString& var, const QList<double>& ranges,
                        const int points);
-  bool addFunctionPlot(const int type, const QStringList& formulas,
-                       const QString& var, const QList<double>& ranges,
-                       const int points, AxisRect2D* axisrect);
+  Curve2D* addFunctionPlot(const int type, const QStringList& formulas,
+                           const QString& var, const QList<double>& ranges,
+                           const int points, AxisRect2D* axisrect);
   QPair<QVector<double>*, QVector<double>*> generateFunctiondata(
       const int type, const QStringList& formulas, const QString& var,
       const QList<double>& ranges, const int points);
+  QList<QPair<QPair<double, double>, double>>* generateFunction3ddata(
+      const QString& formula, const double xl, const double xr, const double yl,
+      const double yr, const double zl, const double zr);
 
   Function2DDialog* functionDialog();
   void addFunctionCurve();
@@ -394,7 +401,7 @@ class ApplicationWindow : public QMainWindow,
   Table* convertMatrixToTable();
   QList<QMdiSubWindow*>* tableList();
 
-  void connectTable(Table* w);
+  void connectTable(Table* table);
   void newWrksheetPlot(const QString& name, const QString& label,
                        QList<Column*> columns);
   void initTable(Table* table);
@@ -539,13 +546,6 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name Reading from a Project File
   //@{
-  Matrix* openMatrixAproj(ApplicationWindow* app, const QStringList& flist);
-  Table* openTableAproj(ApplicationWindow* app, QTextStream& stream);
-  TableStatistics* openTableStatisticsAproj(const QStringList& flist);
-  Graph3D* openSurfacePlotAproj(ApplicationWindow* app, const QStringList& lst);
-  AxisRect2D* openGraphAproj(ApplicationWindow* app, Layout2D* layout,
-                             const QStringList& list);
-
   void openRecentAproj();
   //@}
 
@@ -631,7 +631,7 @@ class ApplicationWindow : public QMainWindow,
   void findWindowOrFolderFromProjectExplorer();
   QDialog* showPlot3dDialog();
   void showResults(bool ok);
-  void showResults(const QString& s, bool ok = true);
+  void showResults(const QString& text, bool ok = true);
   void showExportASCIIDialog();
   void showCurvesDialog();
   void showCurveRangeDialog();
@@ -841,11 +841,7 @@ class ApplicationWindow : public QMainWindow,
   void appendProject();
   //! Open the specified project file and add it as a subfolder to the current
   //! folder.
-  void appendProject(const QString& file_name);
   void saveAsProject();
-  void saveFolderAsProject(Folder* f);
-  void saveFolder(Folder* folder, const QString& fn);
-  void rawSaveFolder(Folder* folder, QIODevice* device);
 
   //!  adds a folder list item to the list view "lv"
   void addFolderListViewItem(Folder* folder);
@@ -1055,6 +1051,7 @@ class ApplicationWindow : public QMainWindow,
   // Stores the pointers to the dragged items from the FolderListViews objects
   // QList<Q3ListViewItem*> draggedItems;
 
+  AprojHandler* aprojhandler_;
   QString helpFilePath;
 
 #ifdef SEARCH_FOR_UPDATES

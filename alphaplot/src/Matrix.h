@@ -121,6 +121,7 @@ class Matrix : public MatrixView, public scripted {
   void updateDecimalSeparators();
 
   virtual QWidget *view() { return d_future_matrix->view(); }
+  QAbstractItemModel *getmodel() { return d_view_widget->model(); }
 
  public slots:
   void exportPDF(const QString &fileName);

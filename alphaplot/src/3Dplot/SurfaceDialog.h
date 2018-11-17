@@ -41,7 +41,7 @@ class SurfaceDialog : public QDialog {
   Q_OBJECT
 
  public:
-  SurfaceDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);
+  SurfaceDialog(QWidget* parent = nullptr, Qt::WindowFlags fl = 0);
   ~SurfaceDialog();
 
  public slots:

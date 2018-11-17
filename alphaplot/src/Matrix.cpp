@@ -83,7 +83,7 @@ void Matrix::init(int rows, int cols) {
   d_future_matrix->setNumericFormat('f');
   d_future_matrix->setDisplayedDigits(6);
   d_future_matrix->setCoordinates(1.0, 10.0, 1.0, 10.0);
-  dMatrix = 0;
+  dMatrix = nullptr;
 
   birthdate = d_future_matrix->creationTime().toString(Qt::LocalDate);
 
@@ -627,7 +627,7 @@ void Matrix::copy(Matrix *m) {
 
 Matrix *Matrix::fromImage(const QImage &image, ScriptingEnv *env) {
   future::Matrix *fm = future::Matrix::fromImage(image);
-  if (!fm) return NULL;
+  if (!fm) return nullptr;
   return new Matrix(fm, env, image.height(), image.width(),
                     tr("Matrix %1").arg(1));
 }

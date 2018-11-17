@@ -10,11 +10,13 @@
 
 #include "StatBox2D.h"
 #include "future/core/column/Column.h"
+
 class QLabel;
 class Table;
 class AxisRect2D;
 class LayoutGrid2D;
 class LayoutButton2D;
+class XmlStreamWriter;
 
 class Layout2D : public MyWidget {
   Q_OBJECT
@@ -49,6 +51,7 @@ class Layout2D : public MyWidget {
                             Table *table, Column *x1Data, Column *y1Data,
                             Column *x2Data, Column *y2Data, int from, int to);
   void generatePie2DPlot(Table *table, Column *xData, int from, int to);
+  void generateColorMap2DPlot(Matrix *matrix);
 
   QList<AxisRect2D *> getAxisRectList();
   AxisRect2D *getSelectedAxisRect(int col, int row);
@@ -65,6 +68,7 @@ class Layout2D : public MyWidget {
   void setBackground(const QColor &background);
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void print();
+  void save(XmlStreamWriter *xmlwriter);
 
  public slots:
   bool exportGraph();

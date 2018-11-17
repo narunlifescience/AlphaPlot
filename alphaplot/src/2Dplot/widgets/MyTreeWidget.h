@@ -28,32 +28,41 @@ class MyTreeWidget : public QTreeWidget {
     PieGraph = 12,
   };
   MyTreeWidget(QWidget *parent = nullptr);
-  ~MyTreeWidget() {}
+  ~MyTreeWidget();
 
  private slots:
   void CurrentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
   void showContextMenu(const QPoint &pos);
-  void addfunctiongraph();
+  void addfunctionplot();
   void addplot();
-  void addaxis();
-  void removeaxis();
-  void removels();
-  void removecurve();
-  void removebar();
-  void removevector();
-  // void removepie();
+  void addAxis2D();
+  void removeAxis2D();
+  void removeLineSpecial2D();
+  void removeCurve2D();
+  void removeBar2D();
+  void removeVector2D();
+  void removeStatBox2D();
+  void removeTextItem2D();
+  void removeLineItem2D();
+  void removeImageItem2D();
 
  private:
   QWidget *widget_;
   QAction *addgraph_;
-  QAction *addfunctiongraph_;
-  QAction *addaxis_;
+  QAction *addfunctionplot_;
+  QAction *addleftaxis_;
+  QAction *addbottomaxis_;
+  QAction *addrightaxis_;
+  QAction *addtopaxis_;
   QAction *removeaxis_;
   QAction *removels_;
   QAction *removecurve_;
   QAction *removebar_;
   QAction *removevector_;
-  QAction *removepie_;
+  QAction *removestatbox_;
+  QAction *removetextitem_;
+  QAction *removelineitem_;
+  QAction *removeimageitem_;
 };
 
 #endif  // MYTREEWIDGET_H

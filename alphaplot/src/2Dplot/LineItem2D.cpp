@@ -23,6 +23,8 @@ LineItem2D::~LineItem2D() {
   delete ending_;
 }
 
+AxisRect2D *LineItem2D::getaxisrect_lineitem() const { return axisrect_; }
+
 QColor LineItem2D::getstrokecolor_lineitem() const { return pen().color(); }
 
 double LineItem2D::getstrokethickness_lineitem() const {

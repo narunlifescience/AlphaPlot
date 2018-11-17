@@ -32,6 +32,8 @@
 
 #include "core/AbstractAspect.h"
 
+class QDomElement;
+
 namespace future {
 //! Folder in a project
 class Folder : public AbstractAspect {
@@ -55,6 +57,7 @@ class Folder : public AbstractAspect {
   virtual void save(QXmlStreamWriter *) const;
   //! Load from XML
   virtual bool load(XmlStreamReader *);
+  bool load(QDomElement tablenode);
 
  protected:
   //! Read child aspect from XML

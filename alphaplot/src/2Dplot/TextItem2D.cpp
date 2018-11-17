@@ -17,6 +17,8 @@ TextItem2D::TextItem2D(AxisRect2D *axisrect, Plot2D *plot)
 
 TextItem2D::~TextItem2D() {}
 
+AxisRect2D *TextItem2D::getaxisrect_textitem() const { return axisrect_; }
+
 QColor TextItem2D::getstrokecolor_textitem() const { return pen().color(); }
 
 double TextItem2D::getstrokethickness_textitem() const {
