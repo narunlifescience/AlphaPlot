@@ -52,6 +52,7 @@ class AxisRect2D : public QCPAxisRect {
   typedef QVector<Bar2D *> BarVec;
   typedef QVector<StatBox2D *> StatBoxVec;
   typedef QVector<Pie2D *> PieVec;
+  typedef QVector<ColorMap2D *> ColorMapVec;
 
  public:
   explicit AxisRect2D(Plot2D *parent, bool setupDefaultAxis = false);
@@ -78,6 +79,7 @@ class AxisRect2D : public QCPAxisRect {
   BarVec getBarVec() const { return barvec_; }
   StatBoxVec getStatBoxVec() const { return statboxvec_; }
   PieVec getPieVec() const { return pievec_; }
+  ColorMapVec getColorMapVec() const { return colormapvec_; }
 
   Axis2D *getXAxis(int value);
   Axis2D *getYAxis(int value);
@@ -169,7 +171,7 @@ class AxisRect2D : public QCPAxisRect {
   Axis2D *addTopAxis2D() {
     return addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Pi);
   }
-  void save(XmlStreamWriter *xmlwriter,const int index);
+  void save(XmlStreamWriter *xmlwriter, const int index);
 
  protected:
   void mousePressEvent(QMouseEvent *, const QVariant &);
@@ -188,6 +190,7 @@ class AxisRect2D : public QCPAxisRect {
   void Vector2DCreated(Vector2D *);
   void Bar2DCreated(Bar2D *);
   void Pie2DCreated(Pie2D *);
+  void ColorMap2DCreated(ColorMap2D *);
   // Removed
   void Axis2DRemoved(AxisRect2D *);
   void TextItem2DRemoved(AxisRect2D *);
@@ -199,6 +202,7 @@ class AxisRect2D : public QCPAxisRect {
   void Vector2DRemoved(AxisRect2D *);
   void Bar2DRemoved(AxisRect2D *);
   void Pie2DRemoved(AxisRect2D *);
+  void ColorMap2DRemoved(AxisRect2D *);
   void showtooltip(QPointF position, double xval, double yval);
 
  private slots:
@@ -223,6 +227,7 @@ class AxisRect2D : public QCPAxisRect {
   BarVec barvec_;
   StatBoxVec statboxvec_;
   PieVec pievec_;
+  ColorMapVec colormapvec_;
   QList<Axis2D *> axes_;
   // QVector<QPair<StatBox2D *, QPair<Axis2D *, Axis2D *>>> statboxplots_;
   // Histogram

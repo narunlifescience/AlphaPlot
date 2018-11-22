@@ -8,7 +8,8 @@ ImageItem2D::ImageItem2D(AxisRect2D *axisrect, Plot2D *plot,
       axisrect_(axisrect),
       draggingimageitem_(false),
       imagefilename_(filename),
-      pixmap_(new QPixmap()) {
+      pixmap_(new QPixmap()),
+      cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setClipAxisRect(axisrect_);
   setClipToAxisRect(true);
@@ -61,7 +62,9 @@ void ImageItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
       draggingimageitem_ = true;
       dragimageitemorigin_ =
           event->localPos() - position("topLeft")->pixelPosition();
-      parentPlot()->setCursor(Qt::CursorShape::ClosedHandCursor);
+      cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
+      axisrect_->getParentPlot2D()->setCursor(
+          Qt::CursorShape::ClosedHandCursor);
     }
   }
 }
@@ -94,7 +97,7 @@ void ImageItem2D::mouseReleaseEvent(QMouseEvent *event,
   if (event->button() == Qt::LeftButton) {
     if (draggingimageitem_) {
       draggingimageitem_ = false;
-      parentPlot()->unsetCursor();
+      axisrect_->getParentPlot2D()->setCursor(cursorshape_);
     }
   }
 }

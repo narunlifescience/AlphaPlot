@@ -423,15 +423,19 @@ ApplicationWindow::ApplicationWindow()
   ui_->action3DHiddenLine->setIcon(
       IconLoader::load("graph3d-mesh", IconLoader::LightDark));
   ui_->action3DPolygons->setIcon(
-      IconLoader::load("graph3d-polygon", IconLoader::LightDark));
+      IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
   ui_->action3DWireSurface->setIcon(
       IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
   ui_->action3DBar->setIcon(
       IconLoader::load("graph3d-bar", IconLoader::LightDark));
-  ui_->action3DScatter->setIcon(QIcon(QPixmap(":/scatter.xpm")));
-  ui_->action3DCountourColorFill->setIcon(QIcon(QPixmap(":/color_map.xpm")));
-  ui_->action3DCountourLines->setIcon(QIcon(QPixmap(":/contour_map.xpm")));
-  ui_->action3DGreyScaleMap->setIcon(QIcon(QPixmap(":/gray_map.xpm")));
+  ui_->action3DScatter->setIcon(
+      IconLoader::load("graph3d-scatter", IconLoader::LightDark));
+  ui_->action3DCountourColorFill->setIcon(
+      IconLoader::load("edit-colormap3d", IconLoader::General));
+  ui_->action3DCountourLines->setIcon(
+      IconLoader::load("edit-contour3d", IconLoader::General));
+  ui_->action3DGreyScaleMap->setIcon(
+      IconLoader::load("edit-graymap3d", IconLoader::General));
   // Graph menu
   ui_->actionAddRemoveCurve->setIcon(
       IconLoader::load("edit-add-graph", IconLoader::LightDark));
@@ -1125,7 +1129,7 @@ void ApplicationWindow::makeToolBars() {
   btn_plot_linespoints->setMenu(menu_plot_linespoints);
   btn_plot_linespoints->setPopupMode(QToolButton::InstantPopup);
   btn_plot_linespoints->setIcon(
-      IconLoader::load("graph2d-line-scatter", IconLoader::LightDark));
+      IconLoader::load("graph2d-line", IconLoader::LightDark));
   btn_plot_linespoints->setToolTip(tr("Lines and/or symbols"));
   plot2DToolbar->addWidget(btn_plot_linespoints);
   menu_plot_linespoints->addAction(ui_->actionPlot2DLine);
@@ -1273,7 +1277,7 @@ void ApplicationWindow::makeToolBars() {
       IconLoader::load("graph3d-cross", IconLoader::LightDark));
   barstyle = new QAction(plotstyle);
   barstyle->setCheckable(true);
-  barstyle->setIcon(IconLoader::load("graph3d-bar", IconLoader::LightDark));
+  barstyle->setIcon(IconLoader::load("graph3d-bars", IconLoader::General));
   graph3DToolbar->addAction(barstyle);
   graph3DToolbar->addAction(pointstyle);
   graph3DToolbar->addAction(conestyle);
@@ -1315,7 +1319,7 @@ void ApplicationWindow::makeToolBars() {
   fileToolbar->setIconSize(QSize(24, 24));
   editToolbar->setIconSize(QSize(24, 24));
   graphToolsToolbar->setIconSize(QSize(24, 24));
-  plot2DToolbar->setIconSize(QSize(32, 32));
+  plot2DToolbar->setIconSize(QSize(24, 24));
   tableToolbar->setIconSize(QSize(24, 24));
   matrix3DPlotToolbar->setIconSize(QSize(24, 24));
   graph3DToolbar->setIconSize(QSize(24, 24));
@@ -2360,12 +2364,16 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
           SLOT(showWindowTitleBarMenu()));
   connect(layout2d, SIGNAL(AxisRectRemoved(MyWidget *)), propertyeditor,
           SLOT(populateObjectBrowser(MyWidget *)));
+  connect(layout2d, &Layout2D::ResetPicker, [&]() {
+    pickGraphTool(ui_->actionDisableGraphTools);
+    ui_->actionDisableGraphTools->setChecked(true);
+  });
 
   return layout2d;
 }
 
-Layout3D *ApplicationWindow::newGraph3D(const QString &caption) {
-  /*Layout3D *layout3d =
+/*Layout3D *ApplicationWindow::newGraph3D(const QString &caption) {
+  Layout3D *layout3d =
       new Layout3D(Layout3D::Plot3DType::Surface, "", d_workspace, 0);
   layout3d->setAttribute(Qt::WA_DeleteOnClose);
   QString label = caption;
@@ -2394,9 +2402,9 @@ Layout3D *ApplicationWindow::newGraph3D(const QString &caption) {
   connect(layout3d, &MyWidget::showTitleBarMenu, this,
           &ApplicationWindow::showWindowTitleBarMenu);
 
-  return layout3d;*/
+  return layout3d;
   return nullptr;
-}
+}*/
 
 void ApplicationWindow::customizeTables(
     const QColor &bgColor, const QColor &textColor, const QColor &headerColor,
@@ -7420,48 +7428,31 @@ void ApplicationWindow::plot3DMatrix(int style) {
   QApplication::restoreOverrideCursor();
 }
 
-void ApplicationWindow::plotGrayScale() {
-  if (!isActiveSubwindow(SubWindowType::MatrixSubWindow)) return;
-  plotSpectrogram(qobject_cast<Matrix *>(d_workspace->activeSubWindow()),
-                  Graph::GrayMap);
-}
-
-Layout2D *ApplicationWindow::plotGrayScale(Matrix *m) {
-  if (!m) return nullptr;
-  return plotSpectrogram(m, Graph::GrayMap);
-}
-
-void ApplicationWindow::plotContour() {
-  if (!isActiveSubwindow(SubWindowType::MatrixSubWindow)) return;
-  plotSpectrogram(qobject_cast<Matrix *>(d_workspace->activeSubWindow()),
-                  Graph::ContourMap);
-}
-
-Layout2D *ApplicationWindow::plotContour(Matrix *m) {
-  if (!m) return nullptr;
-  return plotSpectrogram(m, Graph::ContourMap);
-}
-
-void ApplicationWindow::plotColorMap() {
-  if (!isActiveSubwindow(SubWindowType::MatrixSubWindow)) return;
-  plotSpectrogram(qobject_cast<Matrix *>(d_workspace->activeSubWindow()),
-                  Graph::ColorMap);
+Layout2D *ApplicationWindow::plotGrayScale() {
+  if (!isActiveSubwindow(SubWindowType::MatrixSubWindow)) return nullptr;
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   Matrix *matrix = qobject_cast<Matrix *>(d_workspace->activeSubWindow());
   Layout2D *layout = newGraph2D();
-  if (matrix) layout->generateColorMap2DPlot(matrix);
-}
-
-Layout2D *ApplicationWindow::plotColorMap(Matrix *m) {
-  if (!m) return nullptr;
-  return plotSpectrogram(m, Graph::ColorMap);
-}
-
-Layout2D *ApplicationWindow::plotSpectrogram(Matrix *m, Graph type) {
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
+  if (matrix) layout->generateColorMap2DPlot(matrix, true);
   emit modified();
   QApplication::restoreOverrideCursor();
+  return layout;
+}
+
+Layout2D *ApplicationWindow::plotContour() {
+  qDebug() << "not implimented";
   return nullptr;
+}
+
+Layout2D *ApplicationWindow::plotColorMap() {
+  if (!isActiveSubwindow(SubWindowType::MatrixSubWindow)) return nullptr;
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  Matrix *matrix = qobject_cast<Matrix *>(d_workspace->activeSubWindow());
+  Layout2D *layout = newGraph2D();
+  if (matrix) layout->generateColorMap2DPlot(matrix, false);
+  emit modified();
+  QApplication::restoreOverrideCursor();
+  return layout;
 }
 
 void ApplicationWindow::deleteFitTables() {
@@ -7593,11 +7584,11 @@ void ApplicationWindow::verticalTranslate() {
 }
 
 void ApplicationWindow::fitMultiPeakGaussian() {
-  // fitMultiPeak(static_cast<int>(MultiPeakFit::Gauss));
+  fitMultiPeak(static_cast<int>(MultiPeakFit::Gauss));
 }
 
 void ApplicationWindow::fitMultiPeakLorentzian() {
-  // fitMultiPeak(static_cast<int>(MultiPeakFit::Lorentz));
+  fitMultiPeak(static_cast<int>(MultiPeakFit::Lorentz));
 }
 
 void ApplicationWindow::fitMultiPeak(int profile) {
@@ -9344,11 +9335,11 @@ bool ApplicationWindow::isActiveSubwindow(
             ? result = true
             : result = false;
         break;
-      case SubwindowPlot3D:
+      /*case SubwindowPlot3D:
         (qobject_cast<Layout3D *>(d_workspace->activeSubWindow()))
             ? result = true
             : result = false;
-        break;
+        break;*/
       case Plot3DSubWindow:
         (qobject_cast<Graph3D *>(d_workspace->activeSubWindow()))
             ? result = true
@@ -9377,9 +9368,9 @@ bool ApplicationWindow::isActiveSubWindow(
       case Plot2DSubWindow:
         (qobject_cast<Layout2D *>(subwindow)) ? result = true : result = false;
         break;
-      case SubwindowPlot3D:
+      /*case SubwindowPlot3D:
         (qobject_cast<Layout3D *>(subwindow)) ? result = true : result = false;
-        break;
+        break;*/
       case Plot3DSubWindow:
         (qobject_cast<Graph3D *>(subwindow)) ? result = true : result = false;
         break;

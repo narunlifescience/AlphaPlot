@@ -232,6 +232,10 @@
     <file>icons/common/16/edit-style-dashline.png</file>
     <file>icons/common/16/edit-style-dotline.png</file>
     <file>icons/common/16/edit-style-solidline.png</file>
+    <file>icons/common/16/edit-colormap3d.png</file>
+    <file>icons/common/16/edit-contour3d.png</file>
+    <file>icons/common/16/edit-graymap3d.png</file>
+    <file>icons/common/16/graph3d-bars.png</file>
     <file>icons/common/22/folder-closed.png</file>
     <file>icons/common/22/folder-open.png</file>
     <file>icons/common/22/application-exit.png</file>
@@ -241,6 +245,10 @@
     <file>icons/common/22/edit-hide.png</file>
     <file>icons/common/22/edit-unhide.png</file>
     <file>icons/common/22/alpha-logo.png</file>
+    <file>icons/common/22/edit-colormap3d.png</file>
+    <file>icons/common/22/edit-contour3d.png</file>
+    <file>icons/common/22/edit-graymap3d.png</file>
+    <file>icons/common/22/graph3d-bars.png</file>
     <file>icons/common/24/folder-closed.png</file>
     <file>icons/common/24/folder-open.png</file>
     <file>icons/common/24/application-exit.png</file>
@@ -252,6 +260,10 @@
     <file>icons/common/24/preferences-general-apperance.png</file>
     <file>icons/common/24/preferences-desktop-color.png</file>
     <file>icons/common/24/alpha-logo.png</file>
+    <file>icons/common/24/edit-colormap3d.png</file>
+    <file>icons/common/24/edit-contour3d.png</file>
+    <file>icons/common/24/edit-graymap3d.png</file>
+    <file>icons/common/24/graph3d-bars.png</file>
     <file>icons/common/32/folder-closed.png</file>
     <file>icons/common/32/folder-open.png</file>
     <file>icons/common/32/application-exit.png</file>
@@ -403,6 +415,10 @@
     <file>icons/light/16/graph2d-axis-right.png</file>
     <file>icons/light/16/graph2d-axis-top.png</file>
     <file>icons/light/16/graph2d-layout.png</file>
+    <file>icons/light/16/graph3d-bar.png</file>
+    <file>icons/light/16/graph3d-ribbon.png</file>
+    <file>icons/light/16/graph3d-scatter.png</file>
+    <file>icons/light/16/graph3d-trajectory.png</file>
     <file>icons/light/22/edit-copy.png</file>
     <file>icons/light/22/edit-cut.png</file>
     <file>icons/light/22/edit-paste.png</file>
@@ -530,6 +546,10 @@
     <file>icons/light/22/graph2d-axis-right.png</file>
     <file>icons/light/22/graph2d-axis-top.png</file>
     <file>icons/light/22/graph2d-layout.png</file>
+    <file>icons/light/22/graph3d-bar.png</file>
+    <file>icons/light/22/graph3d-ribbon.png</file>
+    <file>icons/light/22/graph3d-scatter.png</file>
+    <file>icons/light/22/graph3d-trajectory.png</file>
     <file>icons/light/24/edit-copy.png</file>
     <file>icons/light/24/edit-cut.png</file>
     <file>icons/light/24/edit-paste.png</file>
@@ -656,6 +676,10 @@
     <file>icons/light/24/graph2d-axis-right.png</file>
     <file>icons/light/24/graph2d-axis-top.png</file>
     <file>icons/light/24/graph2d-layout.png</file>
+    <file>icons/light/24/graph3d-bar.png</file>
+    <file>icons/light/24/graph3d-ribbon.png</file>
+    <file>icons/light/24/graph3d-scatter.png</file>
+    <file>icons/light/24/graph3d-trajectory.png</file>
     <file>icons/light/32/graph-x-error.png</file>
     <file>icons/light/32/graph-y-error.png</file>
     <file>icons/light/32/table-column-sum.png</file>
@@ -796,6 +820,10 @@
     <file>icons/dark/16/graph2d-axis-right.png</file>
     <file>icons/dark/16/graph2d-axis-top.png</file>
     <file>icons/dark/16/graph2d-layout.png</file>
+    <file>icons/dark/16/graph3d-bar.png</file>
+    <file>icons/dark/16/graph3d-ribbon.png</file>
+    <file>icons/dark/16/graph3d-scatter.png</file>
+    <file>icons/dark/16/graph3d-trajectory.png</file>
     <file>icons/dark/22/edit-copy.png</file>
     <file>icons/dark/22/edit-cut.png</file>
     <file>icons/dark/22/edit-paste.png</file>
@@ -923,6 +951,10 @@
     <file>icons/dark/22/graph2d-axis-right.png</file>
     <file>icons/dark/22/graph2d-axis-top.png</file>
     <file>icons/dark/22/graph2d-layout.png</file>
+    <file>icons/dark/22/graph3d-bar.png</file>
+    <file>icons/dark/22/graph3d-ribbon.png</file>
+    <file>icons/dark/22/graph3d-scatter.png</file>
+    <file>icons/dark/22/graph3d-trajectory.png</file>
     <file>icons/dark/24/edit-copy.png</file>
     <file>icons/dark/24/edit-cut.png</file>
     <file>icons/dark/24/edit-paste.png</file>
@@ -1049,6 +1081,10 @@
     <file>icons/dark/24/graph2d-axis-right.png</file>
     <file>icons/dark/24/graph2d-axis-top.png</file>
     <file>icons/dark/24/graph2d-layout.png</file>
+    <file>icons/dark/24/graph3d-bar.png</file>
+    <file>icons/dark/24/graph3d-ribbon.png</file>
+    <file>icons/dark/24/graph3d-scatter.png</file>
+    <file>icons/dark/24/graph3d-trajectory.png</file>
     <file>icons/dark/32/graph-x-error.png</file>
     <file>icons/dark/32/graph-y-error.png</file>
     <file>icons/dark/32/table-column-sum.png</file>

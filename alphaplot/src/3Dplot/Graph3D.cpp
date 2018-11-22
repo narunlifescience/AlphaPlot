@@ -2611,11 +2611,12 @@ bool Graph3D::load(XmlStreamReader* xmlreader) {
       if (xmlreader->isEndElement()) break;
 
       if (xmlreader->isStartElement()) {
-        if (xmlreader->name() == "content") {
+        if (xmlreader->name() == "surfacefunction") {
           QXmlStreamAttributes attribs = xmlreader->attributes();
           QString value =
               attribs.value(xmlreader->namespaceUri().toString(), "value")
                   .toString();
+          QStringList list = value.split(",");
         } else {
           // unknown element
           xmlreader->raiseWarning(

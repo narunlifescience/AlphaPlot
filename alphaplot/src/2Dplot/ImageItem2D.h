@@ -33,6 +33,7 @@ class ImageItem2D : public QCPItemPixmap {
   QPointF dragimageitemorigin_;
   QString imagefilename_;
   QPixmap *pixmap_;
+  Qt::CursorShape cursorshape_;
 };
 
 #endif  // IMAGEITEM2D_H

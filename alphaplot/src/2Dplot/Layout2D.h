@@ -51,7 +51,7 @@ class Layout2D : public MyWidget {
                             Table *table, Column *x1Data, Column *y1Data,
                             Column *x2Data, Column *y2Data, int from, int to);
   void generatePie2DPlot(Table *table, Column *xData, int from, int to);
-  void generateColorMap2DPlot(Matrix *matrix);
+  void generateColorMap2DPlot(Matrix *matrix, bool greyscale);
 
   QList<AxisRect2D *> getAxisRectList();
   AxisRect2D *getSelectedAxisRect(int col, int row);
@@ -117,6 +117,7 @@ class Layout2D : public MyWidget {
  signals:
   void AxisRectCreated(AxisRect2D *, MyWidget *);
   void AxisRectRemoved(MyWidget *);
+  void ResetPicker();
 };
 
 #endif  // LAYOUT2D_H

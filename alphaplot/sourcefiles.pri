@@ -105,11 +105,10 @@ HEADERS  += src/ApplicationWindow.h \
             src/2Dplot/ImageItem2D.h \
             src/2Dplot/Plotcolumns.h \
             src/3Dplot/Layout3D.h \
-    $$PWD/src/2Dplot/ColorMap2D.h \
-    $$PWD/src/core/AprojHandler.h \
-    $$PWD/src/future/lib/XmlStreamWriter.h \
-    $$PWD/src/3Dplot/Surface3D.h \
-    $$PWD/src/3Dplot/Custom3DInteractions.h
+            src/2Dplot/ColorMap2D.h \
+            src/core/AprojHandler.h \
+            src/future/lib/XmlStreamWriter.h \
+
 
 ###################### SOURCES ##############################################
 
@@ -212,11 +211,9 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/2Dplot/TextItem2D.cpp \
             src/2Dplot/ImageItem2D.cpp \
             src/3Dplot/Layout3D.cpp \
-    $$PWD/src/2Dplot/ColorMap2D.cpp \
-    $$PWD/src/core/AprojHandler.cpp \
-    $$PWD/src/future/lib/XmlStreamWriter.cpp \
-    $$PWD/src/3Dplot/Surface3D.cpp \
-    $$PWD/src/3Dplot/Custom3DInteractions.cpp
+            src/2Dplot/ColorMap2D.cpp \
+            src/core/AprojHandler.cpp \
+            src/future/lib/XmlStreamWriter.cpp \
 
 ###################### FORMS ##############################################
 FORMS        += src/ApplicationWindow.ui \

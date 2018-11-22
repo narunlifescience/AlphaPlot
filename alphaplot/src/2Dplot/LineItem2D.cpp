@@ -10,7 +10,8 @@ LineItem2D::LineItem2D(AxisRect2D *axisrect, Plot2D *plot)
       dragginglineitem_(false),
       draggingendlineitem_(false),
       draggingstartlineitem_(false),
-      lineitemclicked_(false) {
+      lineitemclicked_(false),
+      cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setClipAxisRect(axisrect_);
   setClipToAxisRect(true);
@@ -162,10 +163,13 @@ void LineItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
                  start->pixelPosition().y() <
                      (event->pos().y() + selectionpixelsize_)) {
         draggingstartlineitem_ = true;
-        parentPlot()->setCursor(Qt::CursorShape::CrossCursor);
+        cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
+        axisrect_->getParentPlot2D()->setCursor(Qt::CursorShape::CrossCursor);
       } else {
         draglineitemorigin_ = event->localPos() - end->pixelPosition();
-        parentPlot()->setCursor(Qt::CursorShape::ClosedHandCursor);
+        cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
+        axisrect_->getParentPlot2D()->setCursor(
+            Qt::CursorShape::ClosedHandCursor);
         dragginglineitem_ = true;
       }
     }
@@ -222,15 +226,15 @@ void LineItem2D::mouseReleaseEvent(QMouseEvent *event,
     lineitemclicked_ = false;
     if (draggingendlineitem_) {
       draggingendlineitem_ = false;
-      parentPlot()->unsetCursor();
+      axisrect_->getParentPlot2D()->setCursor(cursorshape_);
     }
     if (draggingstartlineitem_) {
       draggingstartlineitem_ = false;
-      parentPlot()->unsetCursor();
+      axisrect_->getParentPlot2D()->setCursor(cursorshape_);
     }
     if (dragginglineitem_) {
       dragginglineitem_ = false;
-      parentPlot()->unsetCursor();
+      axisrect_->getParentPlot2D()->setCursor(cursorshape_);
     }
   }
 }

@@ -303,9 +303,13 @@ void Layout2D::generatePie2DPlot(Table *table, Column *xData, int from,
   pie->layer()->replot();
 }
 
-void Layout2D::generateColorMap2DPlot(Matrix *matrix) {
+void Layout2D::generateColorMap2DPlot(Matrix *matrix, bool greyscale) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble);
+  addLayoutButton_->setDisabled(true);
+  removeLayoutButton_->setDisabled(true);
+  addLayoutButton_->setHidden(true);
+  removeLayoutButton_->setHidden(true);
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -314,6 +318,8 @@ void Layout2D::generateColorMap2DPlot(Matrix *matrix) {
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
   ColorMap2D *colormap =
       element->addColorMap2DPlot(matrix, xAxis.at(0), yAxis.at(0));
+  if (greyscale)
+    colormap->setgradient_colormap(ColorMap2D::Gradient::Grayscale);
   colormap->rescaleAxes();
   colormap->layer()->replot();
 }
@@ -525,9 +531,9 @@ void Layout2D::addTextToAxisTicker(Column *col, Axis2D *axis) {
   }
 }
 
-void Layout2D::mouseMoveSignal(QMouseEvent *event) { Q_UNUSED(event); }
+void Layout2D::mouseMoveSignal(QMouseEvent *event) { Q_UNUSED(event) }
 
-void Layout2D::mousePressSignal(QMouseEvent *event) { Q_UNUSED(event); }
+void Layout2D::mousePressSignal(QMouseEvent *event) { Q_UNUSED(event) }
 
 void Layout2D::mouseReleaseSignal(QMouseEvent *event) {
   if (event->button() == Qt::RightButton) {

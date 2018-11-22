@@ -50,6 +50,7 @@ class LineItem2D : public QCPItemLine {
   bool draggingendlineitem_;
   bool draggingstartlineitem_;
   bool lineitemclicked_;
+  Qt::CursorShape cursorshape_;
 };
 
 #endif  // LINEITEM2D_H

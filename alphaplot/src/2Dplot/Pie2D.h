@@ -7,7 +7,7 @@
 
 class Column;
 class Table;
-class LegendItem2D;
+class PieLegendItem2D;
 
 class Pie2D : public QCPAbstractItem {
   Q_OBJECT
@@ -37,6 +37,7 @@ class Pie2D : public QCPAbstractItem {
   AxisRect2D *axisrect_;
   QVector<double> *pieData_;
   QVector<QColor> *pieColors_;
+  QVector<PieLegendItem2D *> *pieLegendItems_;
   QPen mPen;
   QBrush mBrush;
   int marginpercent_;

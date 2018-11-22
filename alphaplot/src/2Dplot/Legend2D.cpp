@@ -2,11 +2,14 @@
 #include "LineSpecial2D.h"
 
 Legend2D::Legend2D(AxisRect2D *axisrect)
-    : QCPLegend(), axisrect_(axisrect), draggingLegend_(false) {}
+    : QCPLegend(),
+      axisrect_(axisrect),
+      draggingLegend_(false),
+      cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {}
 
 Legend2D::~Legend2D() {}
 
-bool Legend2D::gethidden_legend() const { return layer()->visible(); }
+bool Legend2D::gethidden_legend() const { return visible(); }
 
 QColor Legend2D::getborderstrokecolor_legend() const {
   return borderPen().color();
@@ -54,7 +57,8 @@ void Legend2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
                              static_cast<double>(axisrect_->height()));
       dragLegendOrigin_ =
           mousePoint - axisrect_->insetLayout()->insetRect(0).topLeft();
-      parentPlot()->setCursor(Qt::ClosedHandCursor);
+      cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
+      axisrect_->getParentPlot2D()->setCursor(Qt::ClosedHandCursor);
     }
   }
 }
@@ -100,7 +104,7 @@ void Legend2D::mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos) {
   if (event->button() == Qt::LeftButton) {
     if (draggingLegend_) {
       draggingLegend_ = false;
-      parentPlot()->unsetCursor();
+      axisrect_->getParentPlot2D()->setCursor(cursorshape_);
     }
   }
 }
@@ -153,22 +157,183 @@ void SplineLegendItem2D::draw(QCPPainter *painter) {
 }
 
 VectorLegendItem2D::VectorLegendItem2D(Legend2D *legend, Vector2D *plottable)
-    : LegendItem2D(legend, plottable), vector_(plottable), legend_(legend) {}
+    : LegendItem2D(legend, plottable),
+      vector_(plottable),
+      legend_(legend),
+      // lineitem_(new QCPItemLine(parentPlot())),
+      start_(new QCPLineEnding()),
+      stop_(new QCPLineEnding()) {}
 
-VectorLegendItem2D::~VectorLegendItem2D() {}
+VectorLegendItem2D::~VectorLegendItem2D() {
+  // parentPlot()->removeItem(lineitem_);
+  delete start_;
+  delete stop_;
+}
 
 void VectorLegendItem2D::draw(QCPPainter *painter) {
-  QPen mpen = vector_->pen();
-  QBrush mbrush = vector_->brush();
-  painter->setPen(mpen);
-  painter->setBrush(mbrush);
-  QPainterPath path;
-  QRectF icrect = QRectF(rect().topLeft(), legend_->iconSize());
-  double diff = (icrect.bottomLeft().y() - icrect.topLeft().y()) / 2;
-  QPointF point1 = QPointF(icrect.topLeft().x(), icrect.topLeft().y() + diff);
-  QPointF point2 = QPointF(icrect.topRight().x(), icrect.topRight().y() + diff);
-  path.moveTo(point1);
-  path.lineTo(point2);
-  painter->drawPath(path);
   LegendItem2D::draw(painter);
+  /*painter->setFont(getFont());
+  painter->setPen(QPen(getTextColor()));
+  QSizeF iconSize = mParentLegend->iconSize();
+  QRectF textRect = painter->fontMetrics().boundingRect(
+      0, 0, 0, static_cast<int>(iconSize.height()), Qt::TextDontClip,
+      vector_->name());
+  QRectF iconRect(mRect.topLeft(), iconSize);
+  // if text has smaller height than icon, center text
+  // vertically in icon height, else align tops
+  int textHeight = qMax(static_cast<int>(textRect.height()),
+                        static_cast<int>(iconSize.height()));
+  painter->drawText(static_cast<int>(mRect.x() + iconSize.width() +
+                                     mParentLegend->iconTextPadding()),
+                    mRect.y(), static_cast<int>(textRect.width()), textHeight,
+                    Qt::TextDontClip, vector_->name());
+  // draw icon:
+  painter->save();
+  painter->setClipRect(iconRect, Qt::IntersectClip);
+  painter->restore();
+  // draw icon border:
+  painter->setPen(getIconBorderPen());
+  int halfPen = qCeil(painter->pen().widthF() * 0.5) + 1;
+  // extend default clip rect so thicker pens (especially
+  // during selection) are not clipped
+  double diff = (iconRect.bottomLeft().y() - iconRect.topLeft().y()) / 2;
+  lineitem_->start->setPixelPosition(iconRect.topLeft() + QPointF(0, diff));
+  lineitem_->end->setPixelPosition(iconRect.topRight() + QPointF(0, diff));
+  painter->setClipRect(
+      mOuterRect.adjusted(-halfPen, -halfPen, halfPen, halfPen));
+  painter->drawRect(iconRect);*/
+}
+
+void VectorLegendItem2D::setLineEndings() {
+  lineitem_->setPen(vector_->pen());
+  switch (vector_->getendstyle_vecplot(Vector2D::LineEndLocation::Start)) {
+    case Vector2D::LineEnd::None:
+      start_->setStyle(QCPLineEnding::esNone);
+      break;
+    case Vector2D::LineEnd::FlatArrow:
+      start_->setStyle(QCPLineEnding::esFlatArrow);
+      break;
+    case Vector2D::LineEnd::SpikeArrow:
+      start_->setStyle(QCPLineEnding::esSpikeArrow);
+      break;
+    case Vector2D::LineEnd::LineArrow:
+      start_->setStyle(QCPLineEnding::esLineArrow);
+      break;
+    case Vector2D::LineEnd::Disc:
+      start_->setStyle(QCPLineEnding::esDisc);
+      break;
+    case Vector2D::LineEnd::Square:
+      start_->setStyle(QCPLineEnding::esSquare);
+      break;
+    case Vector2D::LineEnd::Diamond:
+      start_->setStyle(QCPLineEnding::esDiamond);
+      break;
+    case Vector2D::LineEnd::Bar:
+      start_->setStyle(QCPLineEnding::esBar);
+      break;
+    case Vector2D::LineEnd::HalfBar:
+      start_->setStyle(QCPLineEnding::esHalfBar);
+      break;
+    case Vector2D::LineEnd::SkewedBar:
+      start_->setStyle(QCPLineEnding::esSkewedBar);
+      break;
+  }
+  switch (vector_->getendstyle_vecplot(Vector2D::LineEndLocation::Stop)) {
+    case Vector2D::LineEnd::None:
+      stop_->setStyle(QCPLineEnding::esNone);
+      break;
+    case Vector2D::LineEnd::FlatArrow:
+      stop_->setStyle(QCPLineEnding::esFlatArrow);
+      break;
+    case Vector2D::LineEnd::SpikeArrow:
+      stop_->setStyle(QCPLineEnding::esSpikeArrow);
+      break;
+    case Vector2D::LineEnd::LineArrow:
+      stop_->setStyle(QCPLineEnding::esLineArrow);
+      break;
+    case Vector2D::LineEnd::Disc:
+      stop_->setStyle(QCPLineEnding::esDisc);
+      break;
+    case Vector2D::LineEnd::Square:
+      stop_->setStyle(QCPLineEnding::esSquare);
+      break;
+    case Vector2D::LineEnd::Diamond:
+      stop_->setStyle(QCPLineEnding::esDiamond);
+      break;
+    case Vector2D::LineEnd::Bar:
+      stop_->setStyle(QCPLineEnding::esBar);
+      break;
+    case Vector2D::LineEnd::HalfBar:
+      stop_->setStyle(QCPLineEnding::esHalfBar);
+      break;
+    case Vector2D::LineEnd::SkewedBar:
+      stop_->setStyle(QCPLineEnding::esSkewedBar);
+      break;
+  }
+  lineitem_->setHead(*start_);
+  lineitem_->setTail(*stop_);
+}
+
+PieLegendItem2D::PieLegendItem2D(Legend2D *parent, QColor color,
+                                 const QString &string)
+    : QCPAbstractLegendItem(parent), color_(color), string_(string) {
+  setAntialiased(false);
+}
+
+void PieLegendItem2D::draw(QCPPainter *painter) {
+  painter->setFont(getFont());
+  painter->setPen(QPen(getTextColor()));
+  QSizeF iconSize = mParentLegend->iconSize();
+  QRectF textRect = painter->fontMetrics().boundingRect(
+      0, 0, 0, static_cast<int>(iconSize.height()), Qt::TextDontClip, string_);
+  QRectF iconRect(mRect.topLeft(), iconSize);
+  // if text has smaller height than icon, center text
+  // vertically in icon height, else align tops
+  int textHeight = qMax(static_cast<int>(textRect.height()),
+                        static_cast<int>(iconSize.height()));
+  painter->drawText(static_cast<int>(mRect.x() + iconSize.width() +
+                                     mParentLegend->iconTextPadding()),
+                    mRect.y(), static_cast<int>(textRect.width()), textHeight,
+                    Qt::TextDontClip, string_);
+  // draw icon:
+  painter->save();
+  painter->setClipRect(iconRect, Qt::IntersectClip);
+  painter->restore();
+  // draw icon border:
+  painter->setPen(getIconBorderPen());
+  int halfPen = qCeil(painter->pen().widthF() * 0.5) + 1;
+  // extend default clip rect so thicker pens (especially
+  // during selection) are not clipped
+  painter->setClipRect(
+      mOuterRect.adjusted(-halfPen, -halfPen, halfPen, halfPen));
+  painter->setBrush(QBrush(color_));
+  painter->drawRect(iconRect);
+}
+
+QSize PieLegendItem2D::minimumOuterSizeHint() const {
+  QSize result(0, 0);
+  QRect textRect;
+  QFontMetrics fontMetrics(getFont());
+  QSize iconSize = mParentLegend->iconSize();
+  textRect = fontMetrics.boundingRect(0, 0, 0, iconSize.height(),
+                                      Qt::TextDontClip, string_);
+  result.setWidth(iconSize.width() + mParentLegend->iconTextPadding() +
+                  textRect.width());
+  result.setHeight(qMax(textRect.height(), iconSize.height()));
+  result.rwidth() += mMargins.left() + mMargins.right();
+  result.rheight() += mMargins.top() + mMargins.bottom();
+  return result;
+}
+
+QPen PieLegendItem2D::getIconBorderPen() const {
+  return mSelected ? mParentLegend->iconBorderPen()
+                   : mParentLegend->iconBorderPen();
+}
+
+QColor PieLegendItem2D::getTextColor() const {
+  return mSelected ? mSelectedTextColor : mTextColor;
+}
+
+QFont PieLegendItem2D::getFont() const {
+  return mSelected ? mSelectedFont : mFont;
 }

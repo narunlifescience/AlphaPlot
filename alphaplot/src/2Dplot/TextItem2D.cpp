@@ -3,7 +3,10 @@
 #include "core/Utilities.h"
 
 TextItem2D::TextItem2D(AxisRect2D *axisrect, Plot2D *plot)
-    : QCPItemText(plot), axisrect_(axisrect), draggingtextitem_(false) {
+    : QCPItemText(plot),
+      axisrect_(axisrect),
+      draggingtextitem_(false),
+      cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setClipAxisRect(axisrect_);
   setAntialiased(false);
@@ -89,7 +92,9 @@ void TextItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   if (event->button() == Qt::LeftButton) {
     if (selectTest(event->pos(), false) > 0) {
       draggingtextitem_ = true;
-      parentPlot()->setCursor(Qt::CursorShape::ClosedHandCursor);
+      cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
+      axisrect_->getParentPlot2D()->setCursor(
+          Qt::CursorShape::ClosedHandCursor);
     }
   }
 }
@@ -122,7 +127,7 @@ void TextItem2D::mouseReleaseEvent(QMouseEvent *event,
   if (event->button() == Qt::LeftButton) {
     if (draggingtextitem_) {
       draggingtextitem_ = false;
-      parentPlot()->unsetCursor();
+      axisrect_->getParentPlot2D()->setCursor(cursorshape_);
     }
   }
 }

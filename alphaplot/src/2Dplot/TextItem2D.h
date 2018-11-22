@@ -43,6 +43,7 @@ class TextItem2D : public QCPItemText {
   bool draggingtextitem_;
   QPointF dragtextitemorigin_;
   TextAlignment textalignment_;
+  Qt::CursorShape cursorshape_;
 };
 
 #endif  // TEXTITEM2D_H

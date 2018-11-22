@@ -74,6 +74,13 @@ void Note::save(QXmlStreamWriter* xmlwriter) {
   xmlwriter->writeAttribute("caption_spec", QString::number(captionPolicy()));
   xmlwriter->writeAttribute("name", name());
   xmlwriter->writeAttribute("label", windowLabel());
+  xmlwriter->writeAttribute("status", QString::number(status()));
+  xmlwriter->writeStartElement("geometry");
+  xmlwriter->writeAttribute("x1", QString::number(pos().x()));
+  xmlwriter->writeAttribute("y1", QString::number(pos().y()));
+  xmlwriter->writeAttribute("x2", QString::number(frameGeometry().width()));
+  xmlwriter->writeAttribute("y2", QString::number(frameGeometry().height()));
+  xmlwriter->writeEndElement();
   xmlwriter->writeStartElement("content");
   xmlwriter->writeAttribute("value", getText());
   xmlwriter->writeEndElement();
@@ -114,12 +121,15 @@ bool Note::load(XmlStreamReader* xmlreader) {
         attribs.value(xmlreader->namespaceUri().toString(), "caption_spec")
             .toString();
     setCaptionPolicy(static_cast<MyWidget::CaptionPolicy>(basicattr.toInt()));
+    basicattr = attribs.value(xmlreader->namespaceUri().toString(), "status")
+                    .toString();
+    setStatus(static_cast<MyWidget::Status>(basicattr.toInt()));
 
     // read child elements
     while (!xmlreader->atEnd()) {
       xmlreader->readNext();
 
-      if (xmlreader->isEndElement()) break;
+      if (xmlreader->isEndElement() && xmlreader->name() == "note") break;
 
       if (xmlreader->isStartElement()) {
         if (xmlreader->name() == "content") {
@@ -134,10 +144,33 @@ bool Note::load(XmlStreamReader* xmlreader) {
               tr("unknown element '%1'").arg(xmlreader->name().toString()));
           if (!xmlreader->skipToEndElement()) return false;
         }
+      } else if (xmlreader->isStartElement()) {
+        if (xmlreader->name() == "geometry") {
+          QXmlStreamAttributes attribs = xmlreader->attributes();
+          QString valuex1 =
+              attribs.value(xmlreader->namespaceUri().toString(), "x1")
+                  .toString();
+          QString valuey1 =
+              attribs.value(xmlreader->namespaceUri().toString(), "y1")
+                  .toString();
+          QString valuex2 =
+              attribs.value(xmlreader->namespaceUri().toString(), "x2")
+                  .toString();
+          QString valuey2 =
+              attribs.value(xmlreader->namespaceUri().toString(), "y2")
+                  .toString();
+          setGeometry(valuex1.toInt(), valuey1.toInt(), valuex2.toInt(),
+                      valuey2.toInt());
+        } else {
+          // unknown element
+          xmlreader->raiseWarning(
+              tr("unknown element '%1'").arg(xmlreader->name().toString()));
+          if (!xmlreader->skipToEndElement()) return false;
+        }
       }
     }
   } else  // no note element
-    xmlreader->raiseError(tr("no table element found"));
+    xmlreader->raiseError(tr("no note element found"));
 
   return !xmlreader->hasError();
 }

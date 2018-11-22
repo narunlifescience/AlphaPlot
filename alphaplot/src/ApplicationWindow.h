@@ -64,7 +64,7 @@ class ScalePicker;
 class Graph3D;
 class Note;
 class Layout2D;
-class Layout3D;
+// class Layout3D;
 class Folder;
 class FolderTreeWidget;
 class FolderTreeWidgetItem;
@@ -199,9 +199,9 @@ class ApplicationWindow : public QMainWindow,
   (the default)*/
   QString generateUniqueName(const QString& name, bool increment = true);
   void blockFolderviewsignals(bool value);
-  FolderTreeWidgetItem *getProjectRootItem();
+  FolderTreeWidgetItem* getProjectRootItem();
   QString getLogInfoText() const;
-  void setCurrentFolderViewItem(FolderTreeWidgetItem *item);
+  void setCurrentFolderViewItem(FolderTreeWidgetItem* item);
 
  public slots:
   //! Copy the status bar text to the clipboard
@@ -263,13 +263,9 @@ class ApplicationWindow : public QMainWindow,
   void deleteLayer();
 
   //! Creates a new spectrogram graph
-  Layout2D* plotSpectrogram(Matrix* m, Graph type);
-  void plotGrayScale();
-  Layout2D* plotGrayScale(Matrix* m);
-  void plotContour();
-  Layout2D* plotContour(Matrix* m);
-  void plotColorMap();
-  Layout2D* plotColorMap(Matrix* m);
+  Layout2D* plotGrayScale();
+  Layout2D* plotContour();
+  Layout2D* plotColorMap();
 
   //! Rearrange the layersin order to fit to the size of the plot window
   void autoArrangeLayers();
@@ -542,7 +538,7 @@ class ApplicationWindow : public QMainWindow,
   //! Creates a new empty 2d plot
   Layout2D* newGraph2D(const QString& caption = tr("Graph"));
   //! Creates a new empty 3d plot
-  Layout3D* newGraph3D(const QString& caption = tr("Graph"));
+  // Layout3D* newGraph3D(const QString& caption = tr("Graph"));
 
   //! \name Reading from a Project File
   //@{

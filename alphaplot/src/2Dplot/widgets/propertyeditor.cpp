@@ -9,6 +9,7 @@
 #include "../3rdparty/propertybrowser/qteditorfactory.h"
 #include "../3rdparty/propertybrowser/qtpropertymanager.h"
 #include "../3rdparty/propertybrowser/qttreepropertybrowser.h"
+#include "2Dplot/ColorMap2D.h"
 #include "2Dplot/ImageItem2D.h"
 #include "2Dplot/Layout2D.h"
 #include "2Dplot/Legend2D.h"
@@ -520,6 +521,33 @@ PropertyEditor::PropertyEditor(QWidget *parent)
       intManager_->addProperty("Margin Percent");
   intManager_->setRange(pieplotpropertymarginpercentitem_, 0, 100);
 
+  // Colormap Properties Block
+  QStringList datascaletypelist;
+  datascaletypelist << "Linear"
+                    << "Logarithmic";
+  QStringList gradientlist;
+  gradientlist << "Grayscale"
+               << "Hot"
+               << "Cold"
+               << "Night"
+               << "candy"
+               << "Geography"
+               << "Ion"
+               << "Thermal"
+               << "Polar"
+               << "Spectrum"
+               << "Jet"
+               << "Hues";
+  colormappropertyinterpolateitem_ = boolManager_->addProperty("Interpolate");
+  colormappropertytightboundaryitem_ =
+      boolManager_->addProperty("Tight Boundary");
+  colormappropertygradientitem_ = enumManager_->addProperty("Gradient");
+  enumManager_->setEnumNames(colormappropertygradientitem_, gradientlist);
+  colormappropertydatascaletypeitem_ = enumManager_->addProperty("Data Scale");
+  enumManager_->setEnumNames(colormappropertydatascaletypeitem_,
+                             datascaletypelist);
+  colormappropertylegendtextitem_ = stringManager_->addProperty("Name");
+
   // Axis Properties Major Grid Sub Block
   hgridaxispropertycomboitem_ = enumManager_->addProperty("Horizontal Axis");
   hmajgridpropertyvisibleitem_ = boolManager_->addProperty(tr("Major Grid"));
@@ -795,6 +823,16 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setlineantialiased_vecplot(value);
     vector->layer()->replot();
+  } else if (prop->compare(colormappropertyinterpolateitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->setInterpolate(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertytightboundaryitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->setTightBoundary(value);
+    colormap->layer()->replot();
   } else {
     qDebug() << "unknown bool property item";
   }
@@ -1261,6 +1299,11 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     axisrect->getLegend()->layer()->replot();
+  } else if (prop->compare(colormappropertylegendtextitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->setname_colormap(Utilities::splitstring(value));
+    colormap->layer()->replot();
   }
 }
 
@@ -1626,6 +1669,16 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
     pie->setstrokestyle_pieplot(static_cast<Qt::PenStyle>(value + 1));
     pie->layer()->replot();
+  } else if (prop->compare(colormappropertygradientitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->setgradient_colormap(static_cast<ColorMap2D::Gradient>(value));
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertydatascaletypeitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->setDataScaleType(static_cast<QCPAxis::ScaleType>(value));
+    colormap->layer()->replot();
   }
 }
 
@@ -1730,6 +1783,13 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       Pie2DPropertyBlock(pie, axisrect);
+    } break;
+    case MyTreeWidget::PropertyItemType::ColorMap: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      ColorMap2D *colormap = static_cast<ColorMap2D *>(ptr1);
+      void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
+      AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
+      ColorMap2DPropertyBlock(colormap, axisrect);
     } break;
   }
 }
@@ -2509,6 +2569,7 @@ void PropertyEditor::Vector2DPropertyBlock(Vector2D *vectorgraph,
 }
 
 void PropertyEditor::Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect) {
+  Q_UNUSED(axisrect)
   propertybrowser_->clear();
 
   // Pie Properties Block
@@ -2525,6 +2586,29 @@ void PropertyEditor::Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect) {
                          piegraph->getstrokestyle_pieplot() - 1);
   intManager_->setValue(pieplotpropertymarginpercentitem_,
                         piegraph->getmarginpercent_pieplot());
+}
+
+void PropertyEditor::ColorMap2DPropertyBlock(ColorMap2D *colormap,
+                                             AxisRect2D *axisrect) {
+  Q_UNUSED(axisrect)
+  propertybrowser_->clear();
+
+  // Colormap Properties Block
+  propertybrowser_->addProperty(colormappropertyinterpolateitem_);
+  propertybrowser_->addProperty(colormappropertytightboundaryitem_);
+  propertybrowser_->addProperty(colormappropertygradientitem_);
+  propertybrowser_->addProperty(colormappropertydatascaletypeitem_);
+  propertybrowser_->addProperty(colormappropertylegendtextitem_);
+  boolManager_->setValue(colormappropertyinterpolateitem_,
+                         colormap->interpolate());
+  boolManager_->setValue(colormappropertytightboundaryitem_,
+                         colormap->tightBoundary());
+  enumManager_->setValue(colormappropertygradientitem_,
+                         static_cast<int>(colormap->getgradient_colormap()));
+  enumManager_->setValue(colormappropertydatascaletypeitem_,
+                         static_cast<int>(colormap->dataScaleType()));
+  stringManager_->setValue(colormappropertylegendtextitem_,
+                           colormap->getname_colormap());
 }
 
 void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
@@ -2833,6 +2917,26 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         item->addChild(pieitem);
       }
 
+      // ColorMap Plot Items
+      QVector<ColorMap2D *> colormapvec = element->getColorMapVec();
+      for (int j = 0; j < colormapvec.size(); j++) {
+        ColorMap2D *colormap = colormapvec.at(j);
+
+        QString colormaptext = QString("ColorMap %1").arg(j + 1);
+        QTreeWidgetItem *colormapitem = new QTreeWidgetItem(
+            static_cast<QTreeWidget *>(nullptr), QStringList(colormaptext));
+        colormapitem->setIcon(
+            0, IconLoader::load("edit-colormap3d", IconLoader::General));
+        colormapitem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::ColorMap));
+        colormapitem->setData(0, Qt::UserRole + 1,
+                              QVariant::fromValue<void *>(colormap));
+        colormapitem->setData(0, Qt::UserRole + 2,
+                              QVariant::fromValue<void *>(element));
+        item->addChild(colormapitem);
+      }
+
       objectitems_.append(item);
     }
     if (previouswidget_ != gd)
@@ -2880,6 +2984,8 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
   connect(axisrect, SIGNAL(Bar2DCreated(Bar2D *)), this,
           SLOT(objectschanged()));
   connect(axisrect, SIGNAL(Pie2DCreated(Pie2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(ColorMap2DCreated(ColorMap2D *)), this,
           SLOT(objectschanged()));
 
   // Removed
@@ -3206,6 +3312,17 @@ void PropertyEditor::setObjectPropertyId() {
       "pieplotpropertylinestroketypeitem_");
   pieplotpropertymarginpercentitem_->setPropertyId(
       "pieplotpropertymarginpercentitem_");
+
+  // Colormap Properties Block
+  colormappropertyinterpolateitem_->setPropertyId(
+      "colormappropertyinterpolateitem_");
+  colormappropertytightboundaryitem_->setPropertyId(
+      "colormappropertytightboundaryitem_");
+  colormappropertygradientitem_->setPropertyId("colormappropertygradientitem_");
+  colormappropertydatascaletypeitem_->setPropertyId(
+      "colormappropertydatascaletypeitem_");
+  colormappropertylegendtextitem_->setPropertyId(
+      "colormappropertylegendtextitem_");
 
   // Grid Block
   hgridaxispropertycomboitem_->setPropertyId("hgridaxispropertycomboitem_");

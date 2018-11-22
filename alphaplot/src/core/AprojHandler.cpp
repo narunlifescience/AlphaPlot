@@ -240,7 +240,8 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
       qDebug() << xmlreader->name();
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "plot3d") {
-      qDebug() << xmlreader->name();
+      Graph3D *plot = app->newPlot3D();
+      plot->load(xmlreader.get());
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "log") {
       QXmlStreamAttributes attributes = xmlreader->attributes();

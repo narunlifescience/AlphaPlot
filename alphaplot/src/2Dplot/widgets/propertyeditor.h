@@ -75,6 +75,7 @@ class PropertyEditor : public QDockWidget {
   void StatBox2DPropertyBlock(StatBox2D *statbox, AxisRect2D *axisrect);
   void Vector2DPropertyBlock(Vector2D *vectorgraph, AxisRect2D *axisrect);
   void Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect);
+  void ColorMap2DPropertyBlock(ColorMap2D *colormap,AxisRect2D *axisrect);
 
  public slots:
   void populateObjectBrowser(MyWidget *widget);
@@ -142,7 +143,6 @@ class PropertyEditor : public QDockWidget {
   QtProperty *axispropertylabelcoloritem_;
   QtProperty *axispropertylabelpaddingitem_;
   // Axis Properties Ticks sub block
-
   QtProperty *axispropertytickvisibilityitem_;
   QtProperty *axispropertyticklengthinitem_;
   QtProperty *axispropertyticklengthoutitem_;
@@ -309,6 +309,13 @@ class PropertyEditor : public QDockWidget {
   QtProperty *pieplotpropertylinestrokethicknessitem_;
   QtProperty *pieplotpropertylinestroketypeitem_;
   QtProperty *pieplotpropertymarginpercentitem_;
+
+  // Colormap Properties Block
+  QtProperty *colormappropertyinterpolateitem_;
+  QtProperty *colormappropertytightboundaryitem_;
+  QtProperty *colormappropertygradientitem_;
+  QtProperty *colormappropertydatascaletypeitem_;
+  QtProperty *colormappropertylegendtextitem_;
 
   // Horizontal Major Grid Sub Block
   QtProperty *hgridaxispropertycomboitem_;

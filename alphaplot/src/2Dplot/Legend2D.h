@@ -34,6 +34,7 @@ class Legend2D : public QCPLegend {
   AxisRect2D *axisrect_;
   bool draggingLegend_;
   QPointF dragLegendOrigin_;
+  Qt::CursorShape cursorshape_;
 };
 
 class LegendItem2D : public QCPPlottableLegendItem {
@@ -74,8 +75,32 @@ class VectorLegendItem2D : public LegendItem2D {
   void draw(QCPPainter *painter);
 
  private:
+  void setLineEndings();
+
+ private:
   Vector2D *vector_;
   Legend2D *legend_;
+  QCPItemLine *lineitem_;
+  QCPLineEnding *start_;
+  QCPLineEnding *stop_;
+};
+
+class PieLegendItem2D : public QCPAbstractLegendItem {
+  Q_OBJECT
+ public:
+  PieLegendItem2D(Legend2D *parent, QColor color, const QString &string);
+
+ protected:
+  QColor color_;
+  QString string_;
+  // reimplemented virtual methods:
+  virtual void draw(QCPPainter *painter) Q_DECL_OVERRIDE;
+  virtual QSize minimumOuterSizeHint() const Q_DECL_OVERRIDE;
+
+  // non-virtual methods:
+  QPen getIconBorderPen() const;
+  QColor getTextColor() const;
+  QFont getFont() const;
 };
 
 #endif  // LEGEND2D_H

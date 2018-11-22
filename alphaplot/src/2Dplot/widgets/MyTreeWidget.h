@@ -26,6 +26,7 @@ class MyTreeWidget : public QTreeWidget {
     Vector = 10,
     BarGraph = 11,
     PieGraph = 12,
+    ColorMap = 13,
   };
   MyTreeWidget(QWidget *parent = nullptr);
   ~MyTreeWidget();
@@ -50,10 +51,30 @@ class MyTreeWidget : public QTreeWidget {
   QWidget *widget_;
   QAction *addgraph_;
   QAction *addfunctionplot_;
-  QAction *addleftaxis_;
-  QAction *addbottomaxis_;
-  QAction *addrightaxis_;
-  QAction *addtopaxis_;
+  QAction *leftvalueaxis_;
+  QAction *leftlogaxis_;
+  QAction *leftpiaxis_;
+  QAction *lefttextaxis_;
+  QAction *lefttimeaxis_;
+  QAction *leftdatetimeaxis_;
+  QAction *bottomvalueaxis_;
+  QAction *bottomlogaxis_;
+  QAction *bottompiaxis_;
+  QAction *bottomtextaxis_;
+  QAction *bottomtimeaxis_;
+  QAction *bottomdatetimeaxis_;
+  QAction *rightvalueaxis_;
+  QAction *rightlogaxis_;
+  QAction *rightpiaxis_;
+  QAction *righttextaxis_;
+  QAction *righttimeaxis_;
+  QAction *rightdatetimeaxis_;
+  QAction *topvalueaxis_;
+  QAction *toplogaxis_;
+  QAction *toppiaxis_;
+  QAction *toptextaxis_;
+  QAction *toptimeaxis_;
+  QAction *topdatetimeaxis_;
   QAction *removeaxis_;
   QAction *removels_;
   QAction *removecurve_;

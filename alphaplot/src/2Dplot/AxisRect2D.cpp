@@ -19,6 +19,7 @@
 #include "ImageItem2D.h"
 #include "Legend2D.h"
 #include "LineItem2D.h"
+#include "Matrix.h"
 #include "QMessageBox"
 #include "Table.h"
 #include "TextItem2D.h"
@@ -113,6 +114,16 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis) {
         nullptr, tr("Axis associated with plot"),
         tr("This axis is associated with a plot! eithor remove the plot or "
            "change the plot to anothor axis"));
+    return false;
+  }
+
+  if (gridpair_.first.second == axis) status = false;
+  if (gridpair_.second.second == axis) status = false;
+
+  if (!status) {
+    QMessageBox::warning(nullptr, tr("Axis associated with grid"),
+                         tr("This axis is associated with axis grid! please "
+                            "change the associated grid to anothor axis"));
     return false;
   }
 
@@ -451,7 +462,12 @@ Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
 ColorMap2D *AxisRect2D::addColorMap2DPlot(Matrix *matrix, Axis2D *xAxis,
                                           Axis2D *yAxis) {
   ColorMap2D *colormap = new ColorMap2D(matrix, xAxis, yAxis);
+  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, colormap);
+  axisRectLegend_->addItem(legendItem);
   getLegend()->setVisible(false);
+  colormapvec_.append(colormap);
+  colormap->setname_colormap(matrix->name());
+  emit ColorMap2DCreated(colormap);
   return colormap;
 }
 

@@ -7,15 +7,16 @@
 
 Pie2D::Pie2D(AxisRect2D *axisrect)
     : QCPAbstractItem(axisrect->parentPlot()),
-      //topLeft(createPosition(QLatin1String("topLeft"))),
-      //bottomRight(createPosition(QLatin1String("bottomRight"))),
+      // topLeft(createPosition(QLatin1String("topLeft"))),
+      // bottomRight(createPosition(QLatin1String("bottomRight"))),
       axisrect_(axisrect),
       pieData_(new QVector<double>()),
       pieColors_(new QVector<QColor>()),
+      pieLegendItems_(new QVector<PieLegendItem2D *>()),
       marginpercent_(2) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
-  //topLeft->setCoords(axisrect->topLeft());
-  //bottomRight->setCoords(axisrect->bottomRight());
+  // topLeft->setCoords(axisrect->topLeft());
+  // bottomRight->setCoords(axisrect->bottomRight());
   setClipAxisRect(axisrect_);
   mPen.setColor(Qt::white);
   mBrush.setColor(Qt::red);
@@ -27,8 +28,12 @@ Pie2D::Pie2D(AxisRect2D *axisrect)
 }
 
 Pie2D::~Pie2D() {
+  pieData_->clear();
   delete pieData_;
+  pieColors_->clear();
   delete pieColors_;
+  pieLegendItems_->clear();
+  delete pieLegendItems_;
 }
 
 void Pie2D::setGraphData(Table *table, Column *xData, int from, int to) {
@@ -40,8 +45,13 @@ void Pie2D::setGraphData(Table *table, Column *xData, int from, int to) {
   }
   for (int i = from; i <= to; i++) {
     pieData_->append((xData->valueAt(i) / sum) * (360 * 16));
-    pieColors_->append(
-        Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
+    QColor color =
+        Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light);
+    pieColors_->append(color);
+    PieLegendItem2D *pielegenditem = new PieLegendItem2D(
+        axisrect_->getLegend(), color, QString::number(xData->valueAt(i)));
+    pieLegendItems_->append(pielegenditem);
+    axisrect_->getLegend()->addItem(pielegenditem);
   }
 }
 
@@ -81,9 +91,9 @@ void Pie2D::draw(QCPPainter *painter) {
   if (pieData_->isEmpty()) return;
   int cumulativesum = 0;
 
-  //QPointF p1 = topLeft->pixelPosition();
-  //QPointF p2 = bottomRight->pixelPosition();
-  //if (p1.toPoint() == p2.toPoint()) return;
+  // QPointF p1 = topLeft->pixelPosition();
+  // QPointF p2 = bottomRight->pixelPosition();
+  // if (p1.toPoint() == p2.toPoint()) return;
   QRectF ellipseRect = axisrect_->rect();
   if (ellipseRect.width() > ellipseRect.height()) {
     double dif = ellipseRect.width() - ellipseRect.height();
