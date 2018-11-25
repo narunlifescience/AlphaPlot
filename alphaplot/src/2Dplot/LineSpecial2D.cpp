@@ -5,6 +5,7 @@
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
 //#include "PlotPoint.h"
+#include "AxisRect2D.h"
 #include "core/Utilities.h"
 
 LineSpecial2D::LineSpecial2D(Table *table, Column *xcol, Column *ycol, int from,
@@ -41,16 +42,26 @@ LineSpecial2D::~LineSpecial2D() {
 
 void LineSpecial2D::setXerrorBar(Table *table, Column *errorcol, int from,
                                  int to) {
+  if (xerroravailable_) {
+    qDebug() << "X error bar already defined";
+    return;
+  }
   xerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xAxis_, yAxis_,
                               QCPErrorBars::ErrorType::etKeyError, this);
   xerroravailable_ = true;
+  emit xAxis_->getaxisrect_axis()->ErrorBar2DCreated(xerrorbar_);
 }
 
 void LineSpecial2D::setYerrorBar(Table *table, Column *errorcol, int from,
                                  int to) {
+  if (yerroravailable_) {
+    qDebug() << "Y error bar already defined";
+    return;
+  }
   yerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xAxis_, yAxis_,
                               QCPErrorBars::ErrorType::etValueError, this);
   yerroravailable_ = true;
+  emit yAxis_->getaxisrect_axis()->ErrorBar2DCreated(yerrorbar_);
 }
 
 void LineSpecial2D::setGraphData(Table *table, Column *xcol, Column *ycol,
@@ -65,6 +76,8 @@ void LineSpecial2D::removeXerrorBar() {
   parentPlot()->removePlottable(xerrorbar_);
   xerrorbar_ = nullptr;
   xerroravailable_ = false;
+  emit xAxis_->getaxisrect_axis()->ErrorBar2DRemoved(
+      xAxis_->getaxisrect_axis());
 }
 
 void LineSpecial2D::removeYerrorBar() {
@@ -73,6 +86,8 @@ void LineSpecial2D::removeYerrorBar() {
   parentPlot()->removePlottable(yerrorbar_);
   yerrorbar_ = nullptr;
   yerroravailable_ = false;
+  emit yAxis_->getaxisrect_axis()->ErrorBar2DRemoved(
+      yAxis_->getaxisrect_axis());
 }
 
 Graph2DCommon::LineStyleType LineSpecial2D::getlinetype_lsplot() const {

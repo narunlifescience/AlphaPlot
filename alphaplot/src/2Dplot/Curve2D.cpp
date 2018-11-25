@@ -1,5 +1,7 @@
 #include "Curve2D.h"
+#include "AxisRect2D.h"
 #include "DataManager2D.h"
+#include "ErrorBar2D.h"
 #include "core/Utilities.h"
 
 Curve2D::Curve2D(Curve2D::Curve2DType curve2dtype, Table *table, Column *xcol,
@@ -15,6 +17,10 @@ Curve2D::Curve2D(Curve2D::Curve2DType curve2dtype, Table *table, Column *xcol,
       functionData_(nullptr),
       type_(Graph2DCommon::PlotType::Associated),
       curve2dtype_(curve2dtype),
+      xerrorbar_(nullptr),
+      yerrorbar_(nullptr),
+      xerroravailable_(false),
+      yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None) {
   setSelectable(QCP::SelectionType::stSingleData);
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
@@ -42,7 +48,12 @@ Curve2D::Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
       curvedata_(nullptr),
       functionData_(new QCPCurveDataContainer),
-      type_(Graph2DCommon::PlotType::Function) {
+      type_(Graph2DCommon::PlotType::Function),
+      xerrorbar_(nullptr),
+      yerrorbar_(nullptr),
+      xerroravailable_(false),
+      yerroravailable_(false),
+      picker_(Graph2DCommon::Picker::None) {
   Q_ASSERT(xdata->size() == ydata->size());
   setlinestrokecolor_cplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
@@ -77,6 +88,50 @@ Curve2D::~Curve2D() {
       delete splinecontrolpoints_;
       break;
   }
+  if (xerroravailable_) removeXerrorBar();
+  if (yerroravailable_) removeYerrorBar();
+}
+
+void Curve2D::setXerrorBar(Table *table, Column *errorcol, int from, int to) {
+  if (xerroravailable_ || type_ == Graph2DCommon::PlotType::Function) {
+    qDebug() << "X error bar already defined or unsupported plot type";
+    return;
+  }
+  xerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xAxis_, yAxis_,
+                              QCPErrorBars::ErrorType::etKeyError, this);
+  xerroravailable_ = true;
+  emit xAxis_->getaxisrect_axis()->ErrorBar2DCreated(xerrorbar_);
+}
+
+void Curve2D::setYerrorBar(Table *table, Column *errorcol, int from, int to) {
+  if (yerroravailable_ || type_ == Graph2DCommon::PlotType::Function) {
+    qDebug() << "Y error bar already defined or unsupported plot type";
+    return;
+  }
+  yerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xAxis_, yAxis_,
+                              QCPErrorBars::ErrorType::etValueError, this);
+  yerroravailable_ = true;
+  emit yAxis_->getaxisrect_axis()->ErrorBar2DCreated(yerrorbar_);
+}
+
+void Curve2D::removeXerrorBar() {
+  if (!xerroravailable_) return;
+
+  parentPlot()->removePlottable(xerrorbar_);
+  xerrorbar_ = nullptr;
+  xerroravailable_ = false;
+  emit xAxis_->getaxisrect_axis()->ErrorBar2DRemoved(
+      xAxis_->getaxisrect_axis());
+}
+
+void Curve2D::removeYerrorBar() {
+  if (!yerroravailable_) return;
+
+  parentPlot()->removePlottable(yerrorbar_);
+  yerrorbar_ = nullptr;
+  yerroravailable_ = false;
+  emit yAxis_->getaxisrect_axis()->ErrorBar2DRemoved(
+      yAxis_->getaxisrect_axis());
 }
 
 void Curve2D::setGraphData(QVector<double> *xdata, QVector<double> *ydata) {

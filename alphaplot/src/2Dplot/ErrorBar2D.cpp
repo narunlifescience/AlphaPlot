@@ -11,17 +11,19 @@
 ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
                        Axis2D *xAxis, Axis2D *yAxis,
                        QCPErrorBars::ErrorType errortype,
-                       LineSpecial2D *linescatter)
+                       LineSpecial2D *linespecial)
     : QCPErrorBars(xAxis, yAxis),
       xAxis_(xAxis),
       yAxis_(yAxis),
       errortype_(errortype),
-      linescatter_(linescatter),
+      linespecial_(linespecial),
+      curve_(nullptr),
+      bar_(nullptr),
       errordata_(new DataBlockError(table, errorcol, from, to)) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setErrorType(errortype_);
   setData(errordata_->data());
-  setDataPlottable(linescatter_);
+  setDataPlottable(linespecial_);
   setAntialiased(false);
 }
 
@@ -32,8 +34,11 @@ ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
       xAxis_(xAxis),
       yAxis_(yAxis),
       errortype_(errortype),
+      linespecial_(nullptr),
       curve_(curve),
+      bar_(nullptr),
       errordata_(new DataBlockError(table, errorcol, from, to)) {
+  setAntialiased(false);
   setErrorType(errortype_);
   setData(errordata_->data());
   setDataPlottable(curve_);
@@ -46,6 +51,8 @@ ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
       xAxis_(xAxis),
       yAxis_(yAxis),
       errortype_(errortype),
+      linespecial_(nullptr),
+      curve_(nullptr),
       bar_(bar),
       errordata_(new DataBlockError(table, errorcol, from, to)) {
   setErrorType(errortype_);
@@ -54,3 +61,23 @@ ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
 }
 
 ErrorBar2D::~ErrorBar2D() { delete errordata_; }
+
+bool ErrorBar2D::getfillstatus_errorbar() const {
+  if (brush().style() == Qt::NoBrush) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+void ErrorBar2D::setfillstatus_errorbar(const bool status) {
+  if (status) {
+    QBrush b = brush();
+    b.setStyle(Qt::SolidPattern);
+    setBrush(b);
+  } else {
+    QBrush b = brush();
+    b.setStyle(Qt::NoBrush);
+    setBrush(b);
+  }
+}

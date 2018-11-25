@@ -15,7 +15,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/3Dplot/Plot3DDialog.h \
             src/PlotWizard.h \
             src/3Dplot/SurfaceDialog.h \
-            src/ErrDialog.h \
             src/ImageDialog.h \
             src/LayerDialog.h \
             src/3Dplot/Bar.h \
@@ -99,6 +98,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/2Dplot/widgets/ImageExportDialog2D.h \
             src/2Dplot/Graph2DCommon.h \
             src/2Dplot/widgets/AddPlot2DDialog.h \
+            src/2Dplot/widgets/ErrDialog.h \
             src/2Dplot/LineItem2D.h \
             src/2Dplot/ErrorBar2D.h \
             src/2Dplot/TextItem2D.h \
@@ -121,7 +121,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/3Dplot/Plot3DDialog.cpp \
             src/PlotWizard.cpp \
             src/3Dplot/SurfaceDialog.cpp \
-            src/ErrDialog.cpp \
             src/ImageDialog.cpp \
             src/LayerDialog.cpp \
             src/3Dplot/Bar.cpp \
@@ -206,6 +205,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/2Dplot/widgets/AddAxisWidget.cpp \
             src/2Dplot/widgets/ImageExportDialog2D.cpp \
             src/2Dplot/widgets/AddPlot2DDialog.cpp \
+            src/2Dplot/widgets/ErrDialog.cpp \
             src/2Dplot/LineItem2D.cpp \
             src/2Dplot/ErrorBar2D.cpp \
             src/2Dplot/TextItem2D.cpp \

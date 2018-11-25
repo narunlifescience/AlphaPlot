@@ -10,6 +10,7 @@
 #include "../3rdparty/propertybrowser/qtpropertymanager.h"
 #include "../3rdparty/propertybrowser/qttreepropertybrowser.h"
 #include "2Dplot/ColorMap2D.h"
+#include "2Dplot/ErrorBar2D.h"
 #include "2Dplot/ImageItem2D.h"
 #include "2Dplot/Layout2D.h"
 #include "2Dplot/Legend2D.h"
@@ -543,10 +544,173 @@ PropertyEditor::PropertyEditor(QWidget *parent)
       boolManager_->addProperty("Tight Boundary");
   colormappropertygradientitem_ = enumManager_->addProperty("Gradient");
   enumManager_->setEnumNames(colormappropertygradientitem_, gradientlist);
-  colormappropertydatascaletypeitem_ = enumManager_->addProperty("Data Scale");
-  enumManager_->setEnumNames(colormappropertydatascaletypeitem_,
-                             datascaletypelist);
-  colormappropertylegendtextitem_ = stringManager_->addProperty("Name");
+  colormappropertyscalevisibleitem_ =
+      boolManager_->addProperty("Colormap Scale");
+  colormappropertyscalewidthitem_ = intManager_->addProperty("Scale Width");
+  colormappropertyscalevisibleitem_->addSubProperty(
+      colormappropertyscalewidthitem_);
+  // Colormap Axis general
+  colormappropertyscaleaxisvisibleitem_ =
+      boolManager_->addProperty("Scale Visible");
+  colormappropertyscaleaxisoffsetitem_ = intManager_->addProperty(tr("Offset"));
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxisoffsetitem_);
+  colormappropertyscaleaxisfromitem_ = doubleManager_->addProperty(tr("From"));
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxisfromitem_);
+  colormappropertyscaleaxistoitem_ = doubleManager_->addProperty(tr("To"));
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxistoitem_);
+  colormappropertyscaleaxislinlogitem_ = enumManager_->addProperty(tr("Type"));
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxislinlogitem_);
+  enumManager_->setEnumNames(colormappropertyscaleaxislinlogitem_,
+                             axistypelist);
+  colormappropertyscaleaxisinvertitem_ =
+      boolManager_->addProperty(tr("Inverted"));
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxisinvertitem_);
+  colormappropertyscaleaxisstrokecoloritem_ =
+      colorManager_->addProperty(tr("Stroke Color"));
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxisstrokecoloritem_);
+  colormappropertyscaleaxisstrokethicknessitem_ =
+      doubleManager_->addProperty(tr("Stroke Thickness"));
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxisstrokethicknessitem_);
+  colormappropertyscaleaxisstroketypeitem_ =
+      enumManager_->addProperty(tr("Stroke Type"));
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxisstroketypeitem_);
+  enumManager_->setEnumNames(colormappropertyscaleaxisstroketypeitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(colormappropertyscaleaxisstroketypeitem_,
+                             stroketypeiconslist);
+  colormappropertyscaleaxisantialiaseditem_ =
+      boolManager_->addProperty("Antialiased");
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxisantialiaseditem_);
+  // Colormap Axis Properties Label sub block
+  colormappropertyscaleaxislabeltextitem_ =
+      stringManager_->addProperty(tr("Label Text"));
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxislabeltextitem_);
+  colormappropertyscaleaxislabelfontitem_ =
+      fontManager_->addProperty("Label Font");
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxislabelfontitem_);
+  colormappropertyscaleaxislabelcoloritem_ =
+      colorManager_->addProperty("Label Color");
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxislabelcoloritem_);
+  colormappropertyscaleaxislabelpaddingitem_ =
+      intManager_->addProperty("Label Padding");
+  colormappropertyscaleaxisvisibleitem_->addSubProperty(
+      colormappropertyscaleaxislabelpaddingitem_);
+  // Colormap Axis Properties Ticks sub block
+  colormappropertyscaleaxistickvisibilityitem_ =
+      boolManager_->addProperty("Scale Axis Ticks");
+  colormappropertyscaleaxisticklengthinitem_ =
+      intManager_->addProperty("Length In");
+  colormappropertyscaleaxistickvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxisticklengthinitem_);
+  colormappropertyscaleaxisticklengthoutitem_ =
+      intManager_->addProperty("Length Out");
+  colormappropertyscaleaxistickvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxisticklengthoutitem_);
+  colormappropertyscaleaxistickstrokecoloritem_ =
+      colorManager_->addProperty("Stroke Color");
+  colormappropertyscaleaxistickvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxistickstrokecoloritem_);
+  colormappropertyscaleaxistickstrokethicknessitem_ =
+      doubleManager_->addProperty("Stroke Thickness");
+  colormappropertyscaleaxistickvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxistickstrokethicknessitem_);
+  colormappropertyscaleaxistickstroketypeitem_ =
+      enumManager_->addProperty("Stroke Type");
+  colormappropertyscaleaxistickvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxistickstroketypeitem_);
+  enumManager_->setEnumNames(colormappropertyscaleaxistickstroketypeitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(colormappropertyscaleaxistickstroketypeitem_,
+                             stroketypeiconslist);
+  // Colormap Axis Properties Sub-ticks sub block
+  colormappropertyscaleaxissubtickvisibilityitem_ =
+      boolManager_->addProperty("Scale Axis Sub-Ticks");
+  colormappropertyscaleaxissubticklengthinitem_ =
+      intManager_->addProperty("Length In");
+  colormappropertyscaleaxissubtickvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxissubticklengthinitem_);
+  colormappropertyscaleaxissubticklengthoutitem_ =
+      intManager_->addProperty("Length Out");
+  colormappropertyscaleaxissubtickvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxissubticklengthoutitem_);
+  colormappropertyscaleaxissubtickstrokecoloritem_ =
+      colorManager_->addProperty("Stroke Color");
+  colormappropertyscaleaxissubtickvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxissubtickstrokecoloritem_);
+  colormappropertyscaleaxissubtickstrokethicknessitem_ =
+      doubleManager_->addProperty("Stroke Thickness");
+  colormappropertyscaleaxissubtickvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxissubtickstrokethicknessitem_);
+  colormappropertyscaleaxissubtickstroketypeitem_ =
+      enumManager_->addProperty("Stroke Type");
+  colormappropertyscaleaxissubtickvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxissubtickstroketypeitem_);
+  enumManager_->setEnumNames(colormappropertyscaleaxissubtickstroketypeitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(colormappropertyscaleaxissubtickstroketypeitem_,
+                             stroketypeiconslist);
+  // Colormap Axis Properties Ticks Label sub block
+  colormappropertyscaleaxisticklabelvisibilityitem_ =
+      boolManager_->addProperty("Scale Tick Label");
+  colormappropertyscaleaxisticklabelfontitem_ =
+      fontManager_->addProperty("Font");
+  colormappropertyscaleaxisticklabelvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxisticklabelfontitem_);
+  colormappropertyscaleaxisticklabelcoloritem_ =
+      colorManager_->addProperty("Color");
+  colormappropertyscaleaxisticklabelvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxisticklabelcoloritem_);
+  colormappropertyscaleaxisticklabelpaddingitem_ =
+      intManager_->addProperty("Padding");
+  colormappropertyscaleaxisticklabelvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxisticklabelpaddingitem_);
+  colormappropertyscaleaxisticklabelrotationitem_ =
+      doubleManager_->addProperty("Rotation");
+  colormappropertyscaleaxisticklabelvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxisticklabelrotationitem_);
+  colormappropertyscaleaxisticklabelsideitem_ =
+      enumManager_->addProperty("Side");
+  colormappropertyscaleaxisticklabelvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxisticklabelsideitem_);
+  enumManager_->setEnumNames(colormappropertyscaleaxisticklabelsideitem_,
+                             axislabelsidelist);
+  colormappropertyscaleaxisticklabelformatitem_ =
+      enumManager_->addProperty("Format");
+  colormappropertyscaleaxisticklabelvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxisticklabelformatitem_);
+  enumManager_->setEnumNames(colormappropertyscaleaxisticklabelformatitem_,
+                             formatlist);
+  colormappropertyscaleaxisticklabelprecisionitem_ =
+      intManager_->addProperty("Precision");
+  colormappropertyscaleaxisticklabelvisibilityitem_->addSubProperty(
+      colormappropertyscaleaxisticklabelprecisionitem_);
+
+  errorbarpropertywhiskerwidthitem_ =
+      doubleManager_->addProperty("Whisker Width");
+  errorbarpropertysymbolgaptem_ = doubleManager_->addProperty("Symbol Gap");
+  errorbarpropertystrokecoloritem_ = colorManager_->addProperty("Stroke Color");
+  errorbarpropertystrokethicknessitem_ =
+      doubleManager_->addProperty("Stroke Thickness");
+  errorbarpropertystroketypeitem_ = enumManager_->addProperty("Stroke Type");
+  enumManager_->setEnumNames(errorbarpropertystroketypeitem_, stroketypelist);
+  enumManager_->setEnumIcons(errorbarpropertystroketypeitem_,
+                             stroketypeiconslist);
+  errorbarpropertyfillstatusitem_ = boolManager_->addProperty("Fill");
+  errorbarpropertyfillcoloritem_ = colorManager_->addProperty("Fill Color");
+  errorbarpropertyantialiaseditem_ =
+      boolManager_->addProperty("Antialiased Fill");
 
   // Axis Properties Major Grid Sub Block
   hgridaxispropertycomboitem_ = enumManager_->addProperty("Horizontal Axis");
@@ -833,6 +997,51 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
     colormap->setTightBoundary(value);
     colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscalevisibleitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->setVisible(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisvisibleitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setVisible(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisinvertitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setRangeReversed(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisantialiaseditem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setAntialiased(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxistickvisibilityitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setTicks(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxissubtickvisibilityitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setSubTicks(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisticklabelvisibilityitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setTickLabels(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(errorbarpropertyfillstatusitem_)) {
+    ErrorBar2D *errorbar =
+        getgraph2dobject<ErrorBar2D>(objectbrowser_->currentItem());
+    errorbar->setfillstatus_errorbar(value);
+    errorbar->layer()->replot();
+  } else if (prop->compare(errorbarpropertyantialiaseditem_)) {
+    ErrorBar2D *errorbar =
+        getgraph2dobject<ErrorBar2D>(objectbrowser_->currentItem());
+    errorbar->setAntialiasedFill(value);
+    errorbar->layer()->replot();
   } else {
     qDebug() << "unknown bool property item";
   }
@@ -1027,6 +1236,51 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
     Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
     pie->setstrokecolor_pieplot(color);
     pie->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisstrokecoloritem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    QPen p = colormap->getcolormapscale_colormap()->axis()->basePen();
+    p.setColor(color);
+    colormap->getcolormapscale_colormap()->axis()->setBasePen(p);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxislabelcoloritem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setLabelColor(color);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxistickstrokecoloritem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    QPen p = colormap->getcolormapscale_colormap()->axis()->tickPen();
+    p.setColor(color);
+    colormap->getcolormapscale_colormap()->axis()->setTickPen(p);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxissubtickstrokecoloritem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    QPen p = colormap->getcolormapscale_colormap()->axis()->subTickPen();
+    p.setColor(color);
+    colormap->getcolormapscale_colormap()->axis()->setSubTickPen(p);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisticklabelcoloritem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setTickLabelColor(color);
+    colormap->layer()->replot();
+  } else if (prop->compare(errorbarpropertystrokecoloritem_)) {
+    ErrorBar2D *errorbar =
+        getgraph2dobject<ErrorBar2D>(objectbrowser_->currentItem());
+    QPen p = errorbar->pen();
+    p.setColor(color);
+    errorbar->setPen(p);
+    errorbar->layer()->replot();
+  } else if (prop->compare(errorbarpropertyfillcoloritem_)) {
+    ErrorBar2D *errorbar =
+        getgraph2dobject<ErrorBar2D>(objectbrowser_->currentItem());
+    QBrush b = errorbar->brush();
+    b.setColor(color);
+    errorbar->setBrush(b);
+    errorbar->layer()->replot();
   }
   connect(colorManager_, SIGNAL(valueChanged(QtProperty *, QColor)), this,
           SLOT(valueChange(QtProperty *, const QColor &)));
@@ -1253,6 +1507,60 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
     Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
     pie->setstrokethickness_pieplot(value);
     pie->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisfromitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setRangeLower(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxistoitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setRangeUpper(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisstrokethicknessitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    QPen p = colormap->getcolormapscale_colormap()->axis()->basePen();
+    p.setWidthF(value);
+    colormap->getcolormapscale_colormap()->axis()->setBasePen(p);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxistickstrokethicknessitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    QPen p = colormap->getcolormapscale_colormap()->axis()->tickPen();
+    p.setWidthF(value);
+    colormap->getcolormapscale_colormap()->axis()->setTickPen(p);
+    colormap->layer()->replot();
+  } else if (prop->compare(
+                 colormappropertyscaleaxissubtickstrokethicknessitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    QPen p = colormap->getcolormapscale_colormap()->axis()->subTickPen();
+    p.setWidthF(value);
+    colormap->getcolormapscale_colormap()->axis()->setSubTickPen(p);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisticklabelrotationitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setTickLabelRotation(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(errorbarpropertywhiskerwidthitem_)) {
+    ErrorBar2D *errorbar =
+        getgraph2dobject<ErrorBar2D>(objectbrowser_->currentItem());
+    errorbar->setWhiskerWidth(value);
+    errorbar->layer()->replot();
+  } else if (prop->compare(errorbarpropertysymbolgaptem_)) {
+    ErrorBar2D *errorbar =
+        getgraph2dobject<ErrorBar2D>(objectbrowser_->currentItem());
+    errorbar->setSymbolGap(value);
+    errorbar->layer()->replot();
+  } else if (prop->compare(errorbarpropertystrokethicknessitem_)) {
+    ErrorBar2D *errorbar =
+        getgraph2dobject<ErrorBar2D>(objectbrowser_->currentItem());
+    QPen p = errorbar->pen();
+    p.setWidthF(value);
+    errorbar->setPen(p);
+    errorbar->layer()->replot();
   }
 }
 
@@ -1299,9 +1607,10 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
     axisrect->getLegend()->layer()->replot();
-  } else if (prop->compare(colormappropertylegendtextitem_)) {
+  } else if (prop->compare(colormappropertyscaleaxislabeltextitem_)) {
     ColorMap2D *colormap =
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->setLabel(value);
     colormap->setname_colormap(Utilities::splitstring(value));
     colormap->layer()->replot();
   }
@@ -1363,6 +1672,51 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
     Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
     pie->setmarginpercent_pieplot(value);
     pie->layer()->replot();
+  } else if (prop->compare(colormappropertyscalewidthitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->setcolormapscalewidth_colormap(value);
+    colormap->parentPlot()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisoffsetitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setOffset(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxislabelpaddingitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setLabelPadding(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisticklengthinitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setTickLengthIn(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisticklengthoutitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setTickLengthOut(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxissubticklengthinitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setSubTickLengthIn(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxissubticklengthoutitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setSubTickLengthOut(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisticklabelpaddingitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setTickLabelPadding(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisticklabelpaddingitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setNumberPrecision(value);
+    colormap->layer()->replot();
   }
 }
 
@@ -1674,11 +2028,52 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
     colormap->setgradient_colormap(static_cast<ColorMap2D::Gradient>(value));
     colormap->layer()->replot();
-  } else if (prop->compare(colormappropertydatascaletypeitem_)) {
+  } else if (prop->compare(colormappropertyscaleaxislinlogitem_)) {
     ColorMap2D *colormap =
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
-    colormap->setDataScaleType(static_cast<QCPAxis::ScaleType>(value));
+    colormap->getcolormapscale_colormap()->axis()->setScaleType(
+        static_cast<QCPAxis::ScaleType>(value));
     colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisstroketypeitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    QPen p = colormap->getcolormapscale_colormap()->axis()->basePen();
+    p.setStyle(static_cast<Qt::PenStyle>(value + 1));
+    colormap->getcolormapscale_colormap()->axis()->setBasePen(p);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxistickstroketypeitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    QPen p = colormap->getcolormapscale_colormap()->axis()->tickPen();
+    p.setStyle(static_cast<Qt::PenStyle>(value + 1));
+    colormap->getcolormapscale_colormap()->axis()->setTickPen(p);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxissubtickstroketypeitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    QPen p = colormap->getcolormapscale_colormap()->axis()->subTickPen();
+    p.setStyle(static_cast<Qt::PenStyle>(value + 1));
+    colormap->getcolormapscale_colormap()->axis()->setSubTickPen(p);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisticklabelsideitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setTickLabelSide(
+        static_cast<QCPAxis::LabelSide>(value));
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisticklabelformatitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->setcolormapscaleticklabelformat_axis(
+        static_cast<Axis2D::AxisLabelFormat>(value));
+    colormap->parentPlot()->replot();
+  } else if (prop->compare(errorbarpropertystroketypeitem_)) {
+    ErrorBar2D *errorbar =
+        getgraph2dobject<ErrorBar2D>(objectbrowser_->currentItem());
+    QPen p = errorbar->pen();
+    p.setStyle(static_cast<Qt::PenStyle>(value + 1));
+    errorbar->setPen(p);
+    errorbar->layer()->replot();
   }
 }
 
@@ -1701,6 +2096,16 @@ void PropertyEditor::valueChange(QtProperty *prop, const QFont &font) {
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->setFont(font);
     legend->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxislabelfontitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setLabelFont(font);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertyscaleaxisticklabelfontitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->getcolormapscale_colormap()->axis()->setTickLabelFont(font);
+    colormap->layer()->replot();
   }
 }
 
@@ -1790,6 +2195,13 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       ColorMap2DPropertyBlock(colormap, axisrect);
+    } break;
+    case MyTreeWidget::PropertyItemType::ErrorBar: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      ErrorBar2D *errorbar = static_cast<ErrorBar2D *>(ptr1);
+      void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
+      AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
+      ErrorBar2DPropertyBlock(errorbar, axisrect);
     } break;
   }
 }
@@ -2597,18 +3009,155 @@ void PropertyEditor::ColorMap2DPropertyBlock(ColorMap2D *colormap,
   propertybrowser_->addProperty(colormappropertyinterpolateitem_);
   propertybrowser_->addProperty(colormappropertytightboundaryitem_);
   propertybrowser_->addProperty(colormappropertygradientitem_);
-  propertybrowser_->addProperty(colormappropertydatascaletypeitem_);
-  propertybrowser_->addProperty(colormappropertylegendtextitem_);
+
+  propertybrowser_->addProperty(colormappropertyscalevisibleitem_);
+  propertybrowser_->addProperty(colormappropertyscaleaxisvisibleitem_);
+  propertybrowser_->addProperty(colormappropertyscaleaxistickvisibilityitem_);
+  propertybrowser_->addProperty(
+      colormappropertyscaleaxissubtickvisibilityitem_);
+  propertybrowser_->addProperty(
+      colormappropertyscaleaxisticklabelvisibilityitem_);
+
   boolManager_->setValue(colormappropertyinterpolateitem_,
                          colormap->interpolate());
   boolManager_->setValue(colormappropertytightboundaryitem_,
                          colormap->tightBoundary());
   enumManager_->setValue(colormappropertygradientitem_,
                          static_cast<int>(colormap->getgradient_colormap()));
-  enumManager_->setValue(colormappropertydatascaletypeitem_,
+  boolManager_->setValue(colormappropertyscalevisibleitem_,
+                         colormap->getcolormapscale_colormap()->visible());
+  intManager_->setValue(colormappropertyscalewidthitem_,
+                        colormap->getcolormapscalewidth_colormap());
+  boolManager_->setValue(
+      colormappropertyscaleaxisvisibleitem_,
+      colormap->getcolormapscale_colormap()->axis()->visible());
+  intManager_->setValue(
+      colormappropertyscaleaxisoffsetitem_,
+      colormap->getcolormapscale_colormap()->axis()->offset());
+  doubleManager_->setValue(
+      colormappropertyscaleaxisfromitem_,
+      colormap->getcolormapscale_colormap()->axis()->range().lower);
+  doubleManager_->setValue(
+      colormappropertyscaleaxistoitem_,
+      colormap->getcolormapscale_colormap()->axis()->range().upper);
+  enumManager_->setValue(colormappropertyscaleaxislinlogitem_,
                          static_cast<int>(colormap->dataScaleType()));
-  stringManager_->setValue(colormappropertylegendtextitem_,
+  boolManager_->setValue(
+      colormappropertyscaleaxisinvertitem_,
+      colormap->getcolormapscale_colormap()->axis()->rangeReversed());
+  colorManager_->setValue(
+      colormappropertyscaleaxisstrokecoloritem_,
+      colormap->getcolormapscale_colormap()->axis()->basePen().color());
+  doubleManager_->setValue(
+      colormappropertyscaleaxisstrokethicknessitem_,
+      colormap->getcolormapscale_colormap()->axis()->basePen().widthF());
+  enumManager_->setValue(
+      colormappropertyscaleaxisstroketypeitem_,
+      colormap->getcolormapscale_colormap()->axis()->basePen().style() - 1);
+  boolManager_->setValue(
+      colormappropertyscaleaxisantialiaseditem_,
+      colormap->getcolormapscale_colormap()->axis()->antialiased());
+  stringManager_->setValue(colormappropertyscaleaxislabeltextitem_,
                            colormap->getname_colormap());
+  fontManager_->setValue(
+      colormappropertyscaleaxislabelfontitem_,
+      colormap->getcolormapscale_colormap()->axis()->labelFont());
+  colorManager_->setValue(
+      colormappropertyscaleaxislabelcoloritem_,
+      colormap->getcolormapscale_colormap()->axis()->labelColor());
+  intManager_->setValue(
+      colormappropertyscaleaxislabelpaddingitem_,
+      colormap->getcolormapscale_colormap()->axis()->labelPadding());
+  boolManager_->setValue(
+      colormappropertyscaleaxistickvisibilityitem_,
+      colormap->getcolormapscale_colormap()->axis()->ticks());
+  intManager_->setValue(
+      colormappropertyscaleaxisticklengthinitem_,
+      colormap->getcolormapscale_colormap()->axis()->tickLengthIn());
+  intManager_->setValue(
+      colormappropertyscaleaxisticklengthoutitem_,
+      colormap->getcolormapscale_colormap()->axis()->tickLengthOut());
+  colorManager_->setValue(
+      colormappropertyscaleaxistickstrokecoloritem_,
+      colormap->getcolormapscale_colormap()->axis()->tickPen().color());
+  doubleManager_->setValue(
+      colormappropertyscaleaxistickstrokethicknessitem_,
+      colormap->getcolormapscale_colormap()->axis()->tickPen().widthF());
+  enumManager_->setValue(
+      colormappropertyscaleaxistickstroketypeitem_,
+      colormap->getcolormapscale_colormap()->axis()->tickPen().style() - 1);
+  boolManager_->setValue(
+      colormappropertyscaleaxissubtickvisibilityitem_,
+      colormap->getcolormapscale_colormap()->axis()->subTicks());
+  intManager_->setValue(
+      colormappropertyscaleaxissubticklengthinitem_,
+      colormap->getcolormapscale_colormap()->axis()->subTickLengthIn());
+  intManager_->setValue(
+      colormappropertyscaleaxissubticklengthoutitem_,
+      colormap->getcolormapscale_colormap()->axis()->subTickLengthOut());
+  colorManager_->setValue(
+      colormappropertyscaleaxissubtickstrokecoloritem_,
+      colormap->getcolormapscale_colormap()->axis()->subTickPen().color());
+  doubleManager_->setValue(
+      colormappropertyscaleaxissubtickstrokethicknessitem_,
+      colormap->getcolormapscale_colormap()->axis()->subTickPen().widthF());
+  enumManager_->setValue(
+      colormappropertyscaleaxissubtickstroketypeitem_,
+      colormap->getcolormapscale_colormap()->axis()->subTickPen().style() - 1);
+  boolManager_->setValue(
+      colormappropertyscaleaxisticklabelvisibilityitem_,
+      colormap->getcolormapscale_colormap()->axis()->tickLabels());
+  fontManager_->setValue(
+      colormappropertyscaleaxisticklabelfontitem_,
+      colormap->getcolormapscale_colormap()->axis()->tickLabelFont());
+  colorManager_->setValue(
+      colormappropertyscaleaxisticklabelcoloritem_,
+      colormap->getcolormapscale_colormap()->axis()->tickLabelColor());
+  intManager_->setValue(
+      colormappropertyscaleaxisticklabelpaddingitem_,
+      colormap->getcolormapscale_colormap()->axis()->tickLabelPadding());
+  doubleManager_->setValue(
+      colormappropertyscaleaxisticklabelrotationitem_,
+      colormap->getcolormapscale_colormap()->axis()->tickLabelRotation());
+  enumManager_->setValue(
+      colormappropertyscaleaxisticklabelsideitem_,
+      colormap->getcolormapscale_colormap()->axis()->tickLabelSide());
+  enumManager_->setValue(
+      colormappropertyscaleaxisticklabelformatitem_,
+      static_cast<int>(colormap->getcolormapscaleticklabelformat_axis()));
+  intManager_->setValue(
+      colormappropertyscaleaxisticklabelprecisionitem_,
+      colormap->getcolormapscale_colormap()->axis()->numberPrecision());
+}
+
+void PropertyEditor::ErrorBar2DPropertyBlock(ErrorBar2D *errorbar,
+                                             AxisRect2D *axisrect) {
+  Q_UNUSED(axisrect)
+  propertybrowser_->clear();
+  propertybrowser_->addProperty(errorbarpropertywhiskerwidthitem_);
+  propertybrowser_->addProperty(errorbarpropertysymbolgaptem_);
+  propertybrowser_->addProperty(errorbarpropertystrokecoloritem_);
+  propertybrowser_->addProperty(errorbarpropertystrokethicknessitem_);
+  propertybrowser_->addProperty(errorbarpropertystroketypeitem_);
+  propertybrowser_->addProperty(errorbarpropertyfillstatusitem_);
+  propertybrowser_->addProperty(errorbarpropertyfillcoloritem_);
+  propertybrowser_->addProperty(errorbarpropertyantialiaseditem_);
+  doubleManager_->setValue(errorbarpropertywhiskerwidthitem_,
+                           errorbar->whiskerWidth());
+  doubleManager_->setValue(errorbarpropertysymbolgaptem_,
+                           errorbar->symbolGap());
+  colorManager_->setValue(errorbarpropertystrokecoloritem_,
+                          errorbar->pen().color());
+  doubleManager_->setValue(errorbarpropertystrokethicknessitem_,
+                           errorbar->pen().widthF());
+  enumManager_->setValue(errorbarpropertystroketypeitem_,
+                         errorbar->pen().style() - 1);
+  boolManager_->setValue(errorbarpropertyfillstatusitem_,
+                         errorbar->getfillstatus_errorbar());
+  colorManager_->setValue(errorbarpropertyfillcoloritem_,
+                          errorbar->brush().color());
+  boolManager_->setValue(errorbarpropertyantialiaseditem_,
+                         errorbar->antialiased());
 }
 
 void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
@@ -2805,6 +3354,36 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         lsgraphitem->setData(0, Qt::UserRole + 2,
                              QVariant::fromValue<void *>(element));
         item->addChild(lsgraphitem);
+        // x error
+        ErrorBar2D *xerror = lsgraph->getxerrorbar_lsplot();
+        if (xerror) {
+          QString xerrortext = QString("X Error");
+          QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
+              static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
+          xerroritem->setIcon(
+              0, IconLoader::load("graph-x-error", IconLoader::LightDark));
+          xerroritem->setData(
+              0, Qt::UserRole,
+              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+          xerroritem->setData(0, Qt::UserRole + 1,
+                              QVariant::fromValue<void *>(xerror));
+          lsgraphitem->addChild(xerroritem);
+        }
+        // y error
+        ErrorBar2D *yerror = lsgraph->getyerrorbar_lsplot();
+        if (yerror) {
+          QString yerrortext = QString("Y Error");
+          QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
+              static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
+          yerroritem->setIcon(
+              0, IconLoader::load("graph-y-error", IconLoader::LightDark));
+          yerroritem->setData(
+              0, Qt::UserRole,
+              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+          yerroritem->setData(0, Qt::UserRole + 1,
+                              QVariant::fromValue<void *>(yerror));
+          lsgraphitem->addChild(yerroritem);
+        }
       }
 
       // Curve plot Items
@@ -2836,6 +3415,36 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         curvegraphitem->setData(0, Qt::UserRole + 2,
                                 QVariant::fromValue<void *>(element));
         item->addChild(curvegraphitem);
+        // x error
+        ErrorBar2D *xerror = curvegraph->getxerrorbar_curveplot();
+        if (xerror) {
+          QString xerrortext = QString("X Error");
+          QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
+              static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
+          xerroritem->setIcon(
+              0, IconLoader::load("graph-x-error", IconLoader::LightDark));
+          xerroritem->setData(
+              0, Qt::UserRole,
+              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+          xerroritem->setData(0, Qt::UserRole + 1,
+                              QVariant::fromValue<void *>(xerror));
+          curvegraphitem->addChild(xerroritem);
+        }
+        // y error
+        ErrorBar2D *yerror = curvegraph->getyerrorbar_curveplot();
+        if (yerror) {
+          QString yerrortext = QString("Y Error");
+          QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
+              static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
+          yerroritem->setIcon(
+              0, IconLoader::load("graph-y-error", IconLoader::LightDark));
+          yerroritem->setData(
+              0, Qt::UserRole,
+              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+          yerroritem->setData(0, Qt::UserRole + 1,
+                              QVariant::fromValue<void *>(yerror));
+          curvegraphitem->addChild(yerroritem);
+        }
       }
 
       // Statbox plot Items
@@ -2897,6 +3506,36 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         baritem->setData(0, Qt::UserRole + 2,
                          QVariant::fromValue<void *>(element));
         item->addChild(baritem);
+        // x error
+        ErrorBar2D *xerror = bar->getxerrorbar_barplot();
+        if (xerror) {
+          QString xerrortext = QString("X Error");
+          QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
+              static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
+          xerroritem->setIcon(
+              0, IconLoader::load("graph-x-error", IconLoader::LightDark));
+          xerroritem->setData(
+              0, Qt::UserRole,
+              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+          xerroritem->setData(0, Qt::UserRole + 1,
+                              QVariant::fromValue<void *>(xerror));
+          baritem->addChild(xerroritem);
+        }
+        // y error
+        ErrorBar2D *yerror = bar->getyerrorbar_barplot();
+        if (yerror) {
+          QString yerrortext = QString("Y Error");
+          QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
+              static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
+          yerroritem->setIcon(
+              0, IconLoader::load("graph-y-error", IconLoader::LightDark));
+          yerroritem->setData(
+              0, Qt::UserRole,
+              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+          yerroritem->setData(0, Qt::UserRole + 1,
+                              QVariant::fromValue<void *>(yerror));
+          baritem->addChild(yerroritem);
+        }
       }
 
       // Pie Plot Items
@@ -2987,6 +3626,8 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
           SLOT(objectschanged()));
   connect(axisrect, SIGNAL(ColorMap2DCreated(ColorMap2D *)), this,
           SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(ErrorBar2DCreated(ErrorBar2D *)), this,
+          SLOT(objectschanged()));
 
   // Removed
   connect(axisrect, SIGNAL(Axis2DRemoved(AxisRect2D *)), this,
@@ -3008,6 +3649,8 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
   connect(axisrect, SIGNAL(Bar2DRemoved(AxisRect2D *)), this,
           SLOT(objectschanged()));
   connect(axisrect, SIGNAL(Pie2DRemoved(AxisRect2D *)), this,
+          SLOT(objectschanged()));
+  connect(axisrect, SIGNAL(ErrorBar2DRemoved(AxisRect2D *)), this,
           SLOT(objectschanged()));
 }
 
@@ -3319,10 +3962,100 @@ void PropertyEditor::setObjectPropertyId() {
   colormappropertytightboundaryitem_->setPropertyId(
       "colormappropertytightboundaryitem_");
   colormappropertygradientitem_->setPropertyId("colormappropertygradientitem_");
-  colormappropertydatascaletypeitem_->setPropertyId(
-      "colormappropertydatascaletypeitem_");
-  colormappropertylegendtextitem_->setPropertyId(
-      "colormappropertylegendtextitem_");
+  colormappropertyscalevisibleitem_->setPropertyId(
+      "colormappropertyscalevisibleitem_");
+  colormappropertyscalewidthitem_->setPropertyId(
+      "colormappropertyscalewidthitem_");
+  // Colormap Axis general
+  colormappropertyscaleaxisvisibleitem_->setPropertyId(
+      "colormappropertyscaleaxisvisibleitem_");
+  colormappropertyscaleaxisoffsetitem_->setPropertyId(
+      "colormappropertyscaleaxisoffsetitem_");
+  colormappropertyscaleaxisfromitem_->setPropertyId(
+      "colormappropertyscaleaxisfromitem_");
+  colormappropertyscaleaxistoitem_->setPropertyId(
+      "colormappropertyscaleaxistoitem_");
+  colormappropertyscaleaxislinlogitem_->setPropertyId(
+      "colormappropertyscaleaxislinlogitem_");
+  colormappropertyscaleaxisinvertitem_->setPropertyId(
+      "colormappropertyscaleaxisinvertitem_");
+  colormappropertyscaleaxisstrokecoloritem_->setPropertyId(
+      "colormappropertyscaleaxisstrokecoloritem_");
+  colormappropertyscaleaxisstrokethicknessitem_->setPropertyId(
+      "colormappropertyscaleaxisstrokethicknessitem_");
+  colormappropertyscaleaxisstroketypeitem_->setPropertyId(
+      "colormappropertyscaleaxisstroketypeitem_");
+  colormappropertyscaleaxisantialiaseditem_->setPropertyId(
+      "colormappropertyscaleaxisantialiaseditem_");
+  // Colormap Axis Properties Label sub block
+  colormappropertyscaleaxislabeltextitem_->setPropertyId(
+      "colormappropertyscaleaxislabeltextitem_");
+  colormappropertyscaleaxislabelfontitem_->setPropertyId(
+      "colormappropertyscaleaxislabelfontitem_");
+  colormappropertyscaleaxislabelcoloritem_->setPropertyId(
+      "colormappropertyscaleaxislabelcoloritem_");
+  colormappropertyscaleaxislabelpaddingitem_->setPropertyId(
+      "colormappropertyscaleaxislabelpaddingitem_");
+  // Colormap Axis Properties Ticks sub block
+  colormappropertyscaleaxistickvisibilityitem_->setPropertyId(
+      "colormappropertyscaleaxistickvisibilityitem_");
+  colormappropertyscaleaxisticklengthinitem_->setPropertyId(
+      "colormappropertyscaleaxisticklengthinitem_");
+  colormappropertyscaleaxisticklengthoutitem_->setPropertyId(
+      "colormappropertyscaleaxisticklengthoutitem_");
+  colormappropertyscaleaxistickstrokecoloritem_->setPropertyId(
+      "colormappropertyscaleaxistickstrokecoloritem_");
+  colormappropertyscaleaxistickstrokethicknessitem_->setPropertyId(
+      "colormappropertyscaleaxistickstrokethicknessitem_");
+  colormappropertyscaleaxistickstroketypeitem_->setPropertyId(
+      "colormappropertyscaleaxistickstroketypeitem_");
+  // Colormap Axis Properties Sub-ticks sub block
+  colormappropertyscaleaxissubtickvisibilityitem_->setPropertyId(
+      "colormappropertyscaleaxissubtickvisibilityitem_");
+  colormappropertyscaleaxissubticklengthinitem_->setPropertyId(
+      "colormappropertyscaleaxissubticklengthinitem_");
+  colormappropertyscaleaxissubticklengthoutitem_->setPropertyId(
+      "colormappropertyscaleaxissubticklengthoutitem_");
+  colormappropertyscaleaxissubtickstrokecoloritem_->setPropertyId(
+      "colormappropertyscaleaxissubtickstrokecoloritem_");
+  colormappropertyscaleaxissubtickstrokethicknessitem_->setPropertyId(
+      "colormappropertyscaleaxissubtickstrokethicknessitem_");
+  colormappropertyscaleaxissubtickstroketypeitem_->setPropertyId(
+      "colormappropertyscaleaxissubtickstroketypeitem_");
+  // Colormap Axis Properties Ticks Label sub block
+  colormappropertyscaleaxisticklabelvisibilityitem_->setPropertyId(
+      "colormappropertyscaleaxisticklabelvisibilityitem_");
+  colormappropertyscaleaxisticklabelfontitem_->setPropertyId(
+      "colormappropertyscaleaxisticklabelfontitem_");
+  colormappropertyscaleaxisticklabelcoloritem_->setPropertyId(
+      "colormappropertyscaleaxisticklabelcoloritem_");
+  colormappropertyscaleaxisticklabelpaddingitem_->setPropertyId(
+      "colormappropertyscaleaxisticklabelpaddingitem_");
+  colormappropertyscaleaxisticklabelrotationitem_->setPropertyId(
+      "colormappropertyscaleaxisticklabelrotationitem_");
+  colormappropertyscaleaxisticklabelsideitem_->setPropertyId(
+      "colormappropertyscaleaxisticklabelsideitem_");
+  colormappropertyscaleaxisticklabelformatitem_->setPropertyId(
+      "colormappropertyscaleaxisticklabelformatitem_");
+  colormappropertyscaleaxisticklabelprecisionitem_->setPropertyId(
+      "colormappropertyscaleaxisticklabelprecisionitem_");
+
+  // ErrorBar2D
+  errorbarpropertywhiskerwidthitem_->setPropertyId(
+      "errorbarpropertywhiskerwidthitem_");
+  errorbarpropertysymbolgaptem_->setPropertyId("errorbarpropertysymbolgaptem_");
+  errorbarpropertystrokecoloritem_->setPropertyId(
+      "errorbarpropertystrokecoloritem_");
+  errorbarpropertystrokethicknessitem_->setPropertyId(
+      "errorbarpropertystrokethicknessitem_");
+  errorbarpropertystroketypeitem_->setPropertyId(
+      "errorbarpropertystroketypeitem_");
+  errorbarpropertyantialiaseditem_->setPropertyId(
+      "errorbarpropertyantialiaseditem_");
+  errorbarpropertyfillstatusitem_->setPropertyId(
+      "errorbarpropertyfillstatusitem_");
+  errorbarpropertyfillcoloritem_->setPropertyId(
+      "errorbarpropertyfillcoloritem_");
 
   // Grid Block
   hgridaxispropertycomboitem_->setPropertyId("hgridaxispropertycomboitem_");

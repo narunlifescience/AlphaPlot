@@ -606,10 +606,6 @@ class ApplicationWindow : public QMainWindow,
   //@}
 
   void addErrorBars();
-  void defineErrorBars(const QString& name, int type, const QString& percent,
-                       int direction);
-  void defineErrorBars(const QString& curveName, const QString& errColumnName,
-                       int direction);
   void movePoints();
   void removePoints();
 

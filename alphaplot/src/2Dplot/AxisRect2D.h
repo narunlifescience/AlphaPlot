@@ -174,7 +174,7 @@ class AxisRect2D : public QCPAxisRect {
   void save(XmlStreamWriter *xmlwriter, const int index);
 
  protected:
-  void mousePressEvent(QMouseEvent *, const QVariant &);
+  void mousePressEvent(QMouseEvent *, const QVariant &variant);
   void draw(QCPPainter *painter);
 
  signals:
@@ -191,6 +191,7 @@ class AxisRect2D : public QCPAxisRect {
   void Bar2DCreated(Bar2D *);
   void Pie2DCreated(Pie2D *);
   void ColorMap2DCreated(ColorMap2D *);
+  void ErrorBar2DCreated(ErrorBar2D *);
   // Removed
   void Axis2DRemoved(AxisRect2D *);
   void TextItem2DRemoved(AxisRect2D *);
@@ -203,6 +204,7 @@ class AxisRect2D : public QCPAxisRect {
   void Bar2DRemoved(AxisRect2D *);
   void Pie2DRemoved(AxisRect2D *);
   void ColorMap2DRemoved(AxisRect2D *);
+  void ErrorBar2DRemoved(AxisRect2D *);
   void showtooltip(QPointF position, double xval, double yval);
 
  private slots:

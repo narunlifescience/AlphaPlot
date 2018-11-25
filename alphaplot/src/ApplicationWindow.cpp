@@ -19,6 +19,7 @@
 
 #include "ApplicationWindow.h"
 #include "2Dplot/TextItem2D.h"
+#include "2Dplot/widgets/ErrDialog.h"
 #include "3Dplot/Graph3D.h"
 #include "3Dplot/Plot3DDialog.h"
 #include "3Dplot/SurfaceDialog.h"
@@ -28,7 +29,6 @@
 #include "ConfigDialog.h"
 #include "CurveRangeDialog.h"
 #include "DataSetDialog.h"
-#include "ErrDialog.h"
 #include "FindDialog.h"
 #include "Folder.h"
 #include "ImageDialog.h"
@@ -2809,49 +2809,7 @@ void ApplicationWindow::addErrorBars() {
 
   ErrDialog *ed = new ErrDialog(d_workspace, axisrect);
   ed->setAttribute(Qt::WA_DeleteOnClose);
-  connect(ed, SIGNAL(options(const QString &, int, const QString &, int)), this,
-          SLOT(defineErrorBars(const QString &, int, const QString &, int)));
-  connect(ed, SIGNAL(options(const QString &, const QString &, int)), this,
-          SLOT(defineErrorBars(const QString &, const QString &, int)));
   ed->exec();
-}
-
-void ApplicationWindow::defineErrorBars(const QString &name, int type,
-                                        const QString &percent, int direction) {
-  qDebug() << "not implimented";
-}
-
-void ApplicationWindow::defineErrorBars(const QString &curveName,
-                                        const QString &errColumnName,
-                                        int direction) {
-  Table *w = table(curveName);
-  if (!w) {  // user defined function --> no worksheet available
-    QMessageBox::critical(
-        this, tr("Error"),
-        tr("This feature is not available for user defined function curves!"));
-    return;
-  }
-
-  Table *errTable = table(errColumnName);
-  if (w->numRows() != errTable->numRows()) {
-    QMessageBox::critical(
-        this, tr("Error"),
-        tr("The selected columns have different numbers of rows!"));
-
-    addErrorBars();
-    return;
-  }
-
-  int errCol = errTable->colIndex(errColumnName);
-  if (errTable->d_future_table->column(errCol)->dataType() !=
-      AlphaPlot::TypeDouble) {
-    QMessageBox::critical(
-        this, tr("Error"),
-        tr("You can only define error bars for numeric columns."));
-    addErrorBars();
-    return;
-  }
-  emit modified();
 }
 
 void ApplicationWindow::removeCurves(Table *table, const QString &name) {
@@ -4387,6 +4345,11 @@ Folder *ApplicationWindow::projectFolder() {
 }
 
 bool ApplicationWindow::saveProject() {
+  if (projectname == "untitled") {
+    saveProjectAs();
+    return false;
+  }
+
   const QString filename = projectname;
   aprojhandler_->saveproject(filename, projectFolder());
 

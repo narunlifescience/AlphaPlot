@@ -694,8 +694,9 @@ void AxisRect2D::save(XmlStreamWriter *xmlwriter, const int index) {
   xmlwriter->writeEndElement();
 }
 
-void AxisRect2D::mousePressEvent(QMouseEvent *, const QVariant &) {
+void AxisRect2D::mousePressEvent(QMouseEvent *event, const QVariant &variant) {
   emit AxisRectClicked(this);
+  QCPAxisRect::mousePressEvent(event, variant);
 }
 
 void AxisRect2D::draw(QCPPainter *painter) {

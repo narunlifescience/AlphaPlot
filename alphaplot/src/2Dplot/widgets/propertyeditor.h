@@ -75,7 +75,8 @@ class PropertyEditor : public QDockWidget {
   void StatBox2DPropertyBlock(StatBox2D *statbox, AxisRect2D *axisrect);
   void Vector2DPropertyBlock(Vector2D *vectorgraph, AxisRect2D *axisrect);
   void Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect);
-  void ColorMap2DPropertyBlock(ColorMap2D *colormap,AxisRect2D *axisrect);
+  void ColorMap2DPropertyBlock(ColorMap2D *colormap, AxisRect2D *axisrect);
+  void ErrorBar2DPropertyBlock(ErrorBar2D *errorbar, AxisRect2D *axisrect);
 
  public slots:
   void populateObjectBrowser(MyWidget *widget);
@@ -314,8 +315,58 @@ class PropertyEditor : public QDockWidget {
   QtProperty *colormappropertyinterpolateitem_;
   QtProperty *colormappropertytightboundaryitem_;
   QtProperty *colormappropertygradientitem_;
-  QtProperty *colormappropertydatascaletypeitem_;
-  QtProperty *colormappropertylegendtextitem_;
+  // colormap scale
+  QtProperty *colormappropertyscalevisibleitem_;
+  QtProperty *colormappropertyscalewidthitem_;
+  // Colormap Axis general
+  QtProperty *colormappropertyscaleaxisvisibleitem_;
+  QtProperty *colormappropertyscaleaxisoffsetitem_;
+  QtProperty *colormappropertyscaleaxisfromitem_;
+  QtProperty *colormappropertyscaleaxistoitem_;
+  QtProperty *colormappropertyscaleaxislinlogitem_;
+  QtProperty *colormappropertyscaleaxisinvertitem_;
+  QtProperty *colormappropertyscaleaxisstrokecoloritem_;
+  QtProperty *colormappropertyscaleaxisstrokethicknessitem_;
+  QtProperty *colormappropertyscaleaxisstroketypeitem_;
+  QtProperty *colormappropertyscaleaxisantialiaseditem_;
+  // Colormap Axis Properties Label sub block
+  QtProperty *colormappropertyscaleaxislabeltextitem_;
+  QtProperty *colormappropertyscaleaxislabelfontitem_;
+  QtProperty *colormappropertyscaleaxislabelcoloritem_;
+  QtProperty *colormappropertyscaleaxislabelpaddingitem_;
+  // Colormap Axis Properties Ticks sub block
+  QtProperty *colormappropertyscaleaxistickvisibilityitem_;
+  QtProperty *colormappropertyscaleaxisticklengthinitem_;
+  QtProperty *colormappropertyscaleaxisticklengthoutitem_;
+  QtProperty *colormappropertyscaleaxistickstrokecoloritem_;
+  QtProperty *colormappropertyscaleaxistickstrokethicknessitem_;
+  QtProperty *colormappropertyscaleaxistickstroketypeitem_;
+  // Colormap Axis Properties Sub-ticks sub block
+  QtProperty *colormappropertyscaleaxissubtickvisibilityitem_;
+  QtProperty *colormappropertyscaleaxissubticklengthinitem_;
+  QtProperty *colormappropertyscaleaxissubticklengthoutitem_;
+  QtProperty *colormappropertyscaleaxissubtickstrokecoloritem_;
+  QtProperty *colormappropertyscaleaxissubtickstrokethicknessitem_;
+  QtProperty *colormappropertyscaleaxissubtickstroketypeitem_;
+  // Colormap Axis Properties Ticks Label sub block
+  QtProperty *colormappropertyscaleaxisticklabelvisibilityitem_;
+  QtProperty *colormappropertyscaleaxisticklabelfontitem_;
+  QtProperty *colormappropertyscaleaxisticklabelcoloritem_;
+  QtProperty *colormappropertyscaleaxisticklabelpaddingitem_;
+  QtProperty *colormappropertyscaleaxisticklabelrotationitem_;
+  QtProperty *colormappropertyscaleaxisticklabelsideitem_;
+  QtProperty *colormappropertyscaleaxisticklabelformatitem_;
+  QtProperty *colormappropertyscaleaxisticklabelprecisionitem_;
+
+  // ErrorBar2D
+  QtProperty *errorbarpropertywhiskerwidthitem_;
+  QtProperty *errorbarpropertysymbolgaptem_;
+  QtProperty *errorbarpropertystrokecoloritem_;
+  QtProperty *errorbarpropertystrokethicknessitem_;
+  QtProperty *errorbarpropertystroketypeitem_;
+  QtProperty *errorbarpropertyantialiaseditem_;
+  QtProperty *errorbarpropertyfillstatusitem_;
+  QtProperty *errorbarpropertyfillcoloritem_;
 
   // Horizontal Major Grid Sub Block
   QtProperty *hgridaxispropertycomboitem_;

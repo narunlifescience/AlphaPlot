@@ -29,9 +29,9 @@
 #ifndef ERRDIALOG_H
 #define ERRDIALOG_H
 
+#include <2Dplot/Graph2DCommon.h>
 #include <QDialog>
 #include <QList>
-#include <2Dplot/Graph2DCommon.h>
 
 class ApplicationWindow;
 class QLabel;
@@ -62,6 +62,7 @@ class ErrDialog : public QDialog {
   ~ErrDialog();
 
  private:
+  Column* getErrorCol(Table* parent);
   QLabel* textLabel1;
   QComboBox *nameLabel, *tableNamesBox;
   QGroupBox* groupBox2;

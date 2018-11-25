@@ -2607,9 +2607,7 @@ bool Graph3D::load(XmlStreamReader* xmlreader) {
     // read child elements
     while (!xmlreader->atEnd()) {
       xmlreader->readNext();
-
       if (xmlreader->isEndElement()) break;
-
       if (xmlreader->isStartElement()) {
         if (xmlreader->name() == "surfacefunction") {
           QXmlStreamAttributes attribs = xmlreader->attributes();

@@ -22,6 +22,7 @@ Plot2D::Plot2D(QWidget *parent) : QCustomPlot(parent), canvasBrush_(Qt::white) {
   setAutoAddPlottableToLegend(false);
   setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
                   QCP::iSelectLegend | QCP::iSelectPlottables);
+  setInteraction(QCP::iRangeDrag, true);
   plotLayout()->clear();
 }
 

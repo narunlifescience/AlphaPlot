@@ -27,6 +27,7 @@ class MyTreeWidget : public QTreeWidget {
     BarGraph = 11,
     PieGraph = 12,
     ColorMap = 13,
+    ErrorBar = 14,
   };
   MyTreeWidget(QWidget *parent = nullptr);
   ~MyTreeWidget();
@@ -43,6 +44,7 @@ class MyTreeWidget : public QTreeWidget {
   void removeBar2D();
   void removeVector2D();
   void removeStatBox2D();
+  void removeErrorBar2D();
   void removeTextItem2D();
   void removeLineItem2D();
   void removeImageItem2D();
@@ -81,6 +83,7 @@ class MyTreeWidget : public QTreeWidget {
   QAction *removebar_;
   QAction *removevector_;
   QAction *removestatbox_;
+  QAction *removeerrorbar_;
   QAction *removetextitem_;
   QAction *removelineitem_;
   QAction *removeimageitem_;

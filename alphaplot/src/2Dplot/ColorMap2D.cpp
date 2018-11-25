@@ -34,6 +34,7 @@ ColorMap2D::ColorMap2D(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis)
   }
   setDataRange(QCPRange(datamin, datamax));
   setData(data_);
+  colorScale_->setRangeDrag(true);
 }
 
 ColorMap2D::~ColorMap2D() {
@@ -46,6 +47,39 @@ ColorMap2D::Gradient ColorMap2D::getgradient_colormap() const {
 }
 
 QString ColorMap2D::getname_colormap() const { return colorScale_->label(); }
+
+int ColorMap2D::getcolormapscalewidth_colormap() const {
+  return colorScale_->barWidth();
+}
+
+Axis2D::AxisLabelFormat ColorMap2D::getcolormapscaleticklabelformat_axis()
+    const {
+  const QString format = colorScale_->axis()->numberFormat();
+  Axis2D::AxisLabelFormat axisformat;
+  if (format == "e") {
+    axisformat = Axis2D::AxisLabelFormat::e;
+  } else if (format == "eb") {
+    axisformat = Axis2D::AxisLabelFormat::eb;
+  } else if (format == "ebc") {
+    axisformat = Axis2D::AxisLabelFormat::ebc;
+  } else if (format == "E") {
+    axisformat = Axis2D::AxisLabelFormat::E;
+  } else if (format == "f") {
+    axisformat = Axis2D::AxisLabelFormat::f;
+  } else if (format == "g") {
+    axisformat = Axis2D::AxisLabelFormat::g;
+  } else if (format == "gb") {
+    axisformat = Axis2D::AxisLabelFormat::gb;
+  } else if (format == "gbc") {
+    axisformat = Axis2D::AxisLabelFormat::gbc;
+  } else if (format == "G") {
+    axisformat = Axis2D::AxisLabelFormat::G;
+  } else {
+    qDebug() << "unknown Axis2D::AxisLabelFormat: " << format;
+    axisformat = Axis2D::AxisLabelFormat::gbc;
+  }
+  return axisformat;
+}
 
 void ColorMap2D::setgradient_colormap(const ColorMap2D::Gradient &grad) {
   gradient_ = grad;
@@ -92,4 +126,41 @@ void ColorMap2D::setgradient_colormap(const ColorMap2D::Gradient &grad) {
 void ColorMap2D::setname_colormap(const QString &value) {
   setName(value);
   colorScale_->setLabel(value);
+}
+
+void ColorMap2D::setcolormapscalewidth_colormap(const int width) {
+  colorScale_->setBarWidth(width);
+}
+
+void ColorMap2D::setcolormapscaleticklabelformat_axis(
+    const Axis2D::AxisLabelFormat &axisformat) {
+  switch (axisformat) {
+    case Axis2D::AxisLabelFormat::e:
+      colorScale_->axis()->setNumberFormat("e");
+      break;
+    case Axis2D::AxisLabelFormat::eb:
+      colorScale_->axis()->setNumberFormat("eb");
+      break;
+    case Axis2D::AxisLabelFormat::ebc:
+      colorScale_->axis()->setNumberFormat("ebc");
+      break;
+    case Axis2D::AxisLabelFormat::E:
+      colorScale_->axis()->setNumberFormat("E");
+      break;
+    case Axis2D::AxisLabelFormat::f:
+      colorScale_->axis()->setNumberFormat("f");
+      break;
+    case Axis2D::AxisLabelFormat::g:
+      colorScale_->axis()->setNumberFormat("g");
+      break;
+    case Axis2D::AxisLabelFormat::gb:
+      colorScale_->axis()->setNumberFormat("gb");
+      break;
+    case Axis2D::AxisLabelFormat::gbc:
+      colorScale_->axis()->setNumberFormat("gbc");
+      break;
+    case Axis2D::AxisLabelFormat::G:
+      colorScale_->axis()->setNumberFormat("G");
+      break;
+  }
 }

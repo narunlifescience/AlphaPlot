@@ -8,6 +8,7 @@
 class Table;
 class Column;
 class DataBlockCurve;
+class ErrorBar2D;
 
 class Curve2D : public QCPCurve {
   Q_OBJECT
@@ -18,6 +19,11 @@ class Curve2D : public QCPCurve {
   Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
           Axis2D *yAxis);
   ~Curve2D();
+
+  void setXerrorBar(Table *table, Column *errorcol, int from, int to);
+  void setYerrorBar(Table *table, Column *errorcol, int from, int to);
+  void removeXerrorBar();
+  void removeYerrorBar();
 
   void setGraphData(QVector<double> *xdata, QVector<double> *ydata);
   void setCurveData(Table *table, Column *xcol, Column *ycol, int from, int to);
@@ -45,6 +51,8 @@ class Curve2D : public QCPCurve {
   DataBlockCurve *getdatablock_cplot() const { return curvedata_; }
   QPen getSplinePen() { return splinePen_; }
   QBrush getSplineBrush() { return splineBrush_; }
+  ErrorBar2D *getxerrorbar_curveplot() { return xerrorbar_; }
+  ErrorBar2D *getyerrorbar_curveplot() { return yerrorbar_; }
   // Setters
   void setxaxis_cplot(Axis2D *axis);
   void setyaxis_cplot(Axis2D *axis);
@@ -90,6 +98,10 @@ class Curve2D : public QCPCurve {
   QSharedPointer<QCPCurveDataContainer> functionData_;
   Graph2DCommon::PlotType type_;
   Curve2DType curve2dtype_;
+  ErrorBar2D *xerrorbar_;
+  ErrorBar2D *yerrorbar_;
+  bool xerroravailable_;
+  bool yerroravailable_;
   Graph2DCommon::Picker picker_;
   QPen splinePen_;
   QBrush splineBrush_;

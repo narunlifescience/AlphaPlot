@@ -1,5 +1,7 @@
 #include "Bar2D.h"
+#include "AxisRect2D.h"
 #include "DataManager2D.h"
+#include "ErrorBar2D.h"
 #include "Table.h"
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"
@@ -15,6 +17,10 @@ Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
       yaxis_(yAxis),
       bardata_(new DataBlockBar(table, xcol, ycol, from, to)),
       ishistogram_(false),
+      xerrorbar_(nullptr),
+      yerrorbar_(nullptr),
+      xerroravailable_(false),
+      yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setSelectable(QCP::SelectionType::stSingleData);
@@ -34,7 +40,12 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
       barwidth_(1),
       xaxis_(xAxis),
       yaxis_(yAxis),
-      ishistogram_(true) {
+      ishistogram_(true),
+      xerrorbar_(nullptr),
+      yerrorbar_(nullptr),
+      xerroravailable_(false),
+      yerroravailable_(false),
+      picker_(Graph2DCommon::Picker::None) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setSelectable(QCP::SelectionType::stSingleData);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);
@@ -146,6 +157,50 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
 
 Bar2D::~Bar2D() {
   if (!ishistogram_) delete bardata_;
+  if (xerroravailable_) removeXerrorBar();
+  if (yerroravailable_) removeYerrorBar();
+}
+
+void Bar2D::setXerrorBar(Table *table, Column *errorcol, int from, int to) {
+  if (xerroravailable_ || ishistogram_) {
+    qDebug() << "X error bar already defined or unsupported plot type";
+    return;
+  }
+  xerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xaxis_, yaxis_,
+                              QCPErrorBars::ErrorType::etKeyError, this);
+  xerroravailable_ = true;
+  emit xaxis_->getaxisrect_axis()->ErrorBar2DCreated(xerrorbar_);
+}
+
+void Bar2D::setYerrorBar(Table *table, Column *errorcol, int from, int to) {
+  if (yerroravailable_ || ishistogram_) {
+    qDebug() << "Y error bar already defined or unsupported plot type";
+    return;
+  }
+  yerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xaxis_, yaxis_,
+                              QCPErrorBars::ErrorType::etValueError, this);
+  yerroravailable_ = true;
+  emit yaxis_->getaxisrect_axis()->ErrorBar2DCreated(yerrorbar_);
+}
+
+void Bar2D::removeXerrorBar() {
+  if (!xerroravailable_) return;
+
+  parentPlot()->removePlottable(xerrorbar_);
+  xerrorbar_ = nullptr;
+  xerroravailable_ = false;
+  emit xaxis_->getaxisrect_axis()->ErrorBar2DRemoved(
+      xaxis_->getaxisrect_axis());
+}
+
+void Bar2D::removeYerrorBar() {
+  if (!yerroravailable_) return;
+
+  parentPlot()->removePlottable(yerrorbar_);
+  yerrorbar_ = nullptr;
+  yerroravailable_ = false;
+  emit yaxis_->getaxisrect_axis()->ErrorBar2DRemoved(
+      yaxis_->getaxisrect_axis());
 }
 
 Axis2D *Bar2D::getxaxis_barplot() const { return xaxis_; }

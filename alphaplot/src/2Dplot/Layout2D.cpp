@@ -767,6 +767,18 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
     plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
+void Layout2D::setAxisRangeDragZoom(bool value) {
+  foreach (AxisRect2D *axisrect, getAxisRectList()) {
+    if (value) {
+      axisrect->setRangeDrag(Qt::Horizontal | Qt::Vertical);
+      axisrect->setRangeZoom(Qt::Horizontal | Qt::Vertical);
+    } else {
+      axisrect->setRangeDrag(0);
+      axisrect->setRangeZoom(0);
+    }
+  }
+}
+
 void Layout2D::exportPDF(const QString &filename) {
   currentAxisRect_->setPrintorExportJob(true);
   plot2dCanvas_->savePdf(filename);

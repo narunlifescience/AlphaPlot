@@ -8,6 +8,7 @@
 class Column;
 class Table;
 class DataBlockBar;
+class ErrorBar2D;
 
 class Bar2D : public QCPBars {
   Q_OBJECT
@@ -17,6 +18,11 @@ class Bar2D : public QCPBars {
   Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
         Axis2D *yAxis);
   ~Bar2D();
+
+  void setXerrorBar(Table *table, Column *errorcol, int from, int to);
+  void setYerrorBar(Table *table, Column *errorcol, int from, int to);
+  void removeXerrorBar();
+  void removeYerrorBar();
 
   enum BarStyle {
     VerticalNormal,
@@ -32,6 +38,8 @@ class Bar2D : public QCPBars {
   QColor getfillcolor_barplot() const;
   DataBlockBar *getdatablock_barplot() const;
   bool ishistogram_barplot() const;
+  ErrorBar2D *getxerrorbar_barplot() { return xerrorbar_; }
+  ErrorBar2D *getyerrorbar_barplot() { return yerrorbar_; }
 
   void setxaxis_barplot(Axis2D *axis);
   void setyaxis_barplot(Axis2D *axis);
@@ -61,6 +69,10 @@ class Bar2D : public QCPBars {
   Axis2D *yaxis_;
   DataBlockBar *bardata_;
   bool ishistogram_;
+  ErrorBar2D *xerrorbar_;
+  ErrorBar2D *yerrorbar_;
+  bool xerroravailable_;
+  bool yerroravailable_;
   Graph2DCommon::Picker picker_;
 };
 

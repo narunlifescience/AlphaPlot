@@ -4,6 +4,7 @@
 
 #include "2Dplot/Axis2D.h"
 #include "2Dplot/AxisRect2D.h"
+#include "2Dplot/ErrorBar2D.h"
 #include "2Dplot/ImageItem2D.h"
 #include "2Dplot/LineItem2D.h"
 #include "2Dplot/TextItem2D.h"
@@ -47,6 +48,7 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       removebar_(new QAction("Remove", this)),
       removevector_(new QAction("Remove", this)),
       removestatbox_(new QAction("Remove", this)),
+      removeerrorbar_(new QAction("Remove", this)),
       removetextitem_(new QAction("Remove", this)),
       removelineitem_(new QAction("Remove", this)),
       removeimageitem_(new QAction("Remove", this)) {
@@ -83,7 +85,8 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   removecurve_->setText("Remove");
   removebar_->setText("Remove");
   removevector_->setText("Remove");
-  removestatbox_->setText("remove");
+  removestatbox_->setText("Remove");
+  removeerrorbar_->setText("Remove");
   removetextitem_->setText("Remove");
   removelineitem_->setText("Remove");
   removeimageitem_->setText("Remove");
@@ -98,6 +101,8 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   removevector_->setIcon(
       IconLoader::load("clear-loginfo", IconLoader::General));
   removestatbox_->setIcon(
+      IconLoader::load("clear-loginfo", IconLoader::General));
+  removeerrorbar_->setIcon(
       IconLoader::load("clear-loginfo", IconLoader::General));
   removetextitem_->setIcon(
       IconLoader::load("clear-loginfo", IconLoader::General));
@@ -147,6 +152,8 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   connect(removevector_, SIGNAL(triggered(bool)), this, SLOT(removeVector2D()));
   connect(removestatbox_, SIGNAL(triggered(bool)), this,
           SLOT(removeStatBox2D()));
+  connect(removeerrorbar_, SIGNAL(triggered(bool)), this,
+          SLOT(removeErrorBar2D()));
   connect(removetextitem_, SIGNAL(triggered(bool)), this,
           SLOT(removeTextItem2D()));
   connect(removelineitem_, SIGNAL(triggered(bool)), this,
@@ -352,6 +359,10 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
     case PropertyItemType::StatBox:
       menu.addAction(removestatbox_);
       removestatbox_->setData(item->data(0, Qt::UserRole + 1));
+      break;
+    case PropertyItemType::ErrorBar:
+      menu.addAction(removeerrorbar_);
+      removeerrorbar_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::TextItem:
       menu.addAction(removetextitem_);
@@ -584,6 +595,32 @@ void MyTreeWidget::removeStatBox2D() {
     return;
   }
   customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
+}
+
+void MyTreeWidget::removeErrorBar2D() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+  void *ptr = action->data().value<void *>();
+  ErrorBar2D *error = static_cast<ErrorBar2D *>(ptr);
+  LineSpecial2D *ls = error->getlinespecial2d_errorbar();
+  Curve2D *curve = error->getcurve2d_errorbar();
+  Bar2D *bar = error->getbar2d_errorbar();
+  if (ls) {
+    (error->geterrortype_errorbar() == QCPErrorBars::ErrorType::etKeyError)
+        ? ls->removeXerrorBar()
+        : ls->removeYerrorBar();
+    ls->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
+  } else if (curve) {
+    (error->geterrortype_errorbar() == QCPErrorBars::ErrorType::etKeyError)
+        ? curve->removeXerrorBar()
+        : curve->removeYerrorBar();
+    curve->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
+  } else if (bar) {
+    (error->geterrortype_errorbar() == QCPErrorBars::ErrorType::etKeyError)
+        ? bar->removeXerrorBar()
+        : bar->removeYerrorBar();
+    bar->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
+  }
 }
 
 void MyTreeWidget::removeTextItem2D() {

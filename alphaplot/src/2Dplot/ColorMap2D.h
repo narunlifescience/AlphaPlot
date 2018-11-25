@@ -28,11 +28,14 @@ class ColorMap2D : public QCPColorMap {
 
   Gradient getgradient_colormap() const;
   QString getname_colormap() const;
-  Axis2D *getcolormapscaleaxis_colormap() {
-    return qobject_cast<Axis2D *>(colorScale_->axis());
-  }
+  int getcolormapscalewidth_colormap() const;
+  QCPColorScale *getcolormapscale_colormap() { return colorScale_; }
+  Axis2D::AxisLabelFormat getcolormapscaleticklabelformat_axis() const;
   void setgradient_colormap(const Gradient &grad);
   void setname_colormap(const QString &value);
+  void setcolormapscalewidth_colormap(const int width);
+  void setcolormapscaleticklabelformat_axis(
+      const Axis2D::AxisLabelFormat &axisformat);
 
  private:
   QCPMarginGroup *margingroup_;

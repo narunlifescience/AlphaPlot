@@ -42,6 +42,8 @@ class LineSpecial2D : public QCPGraph {
   Axis2D *getxaxis_lsplot() const;
   Axis2D *getyaxis_lsplot() const;
   DataBlockGraph *getdatablock_lsplot() const { return graphdata_; }
+  ErrorBar2D *getxerrorbar_lsplot() { return xerrorbar_; }
+  ErrorBar2D *getyerrorbar_lsplot() { return yerrorbar_; }
   // Setters
   void setlinetype_lsplot(const Graph2DCommon::LineStyleType &line);
   void setlinestrokestyle_lsplot(const Qt::PenStyle &style);

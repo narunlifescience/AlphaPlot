@@ -74,6 +74,7 @@ class Layout2D : public MyWidget {
   bool exportGraph();
   void updateData(Table *table, const QString &name);
   void removeColumn(Table *table, const QString &name);
+  void setAxisRangeDragZoom(bool value);
 
  private slots:
   AxisRect2D *addAxisRectItem();
