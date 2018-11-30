@@ -1,4 +1,4 @@
-#![logo](data/icons/app/22/alphaplot.png)Alpha Plot
+![logo](data/icons/app/22/alphaplot.png)Alpha Plot
 
 [![License][license-badge]][license-page] [![Build Status](https://travis-ci.org/narunlifescience/AlphaPlot.svg?branch=master)](https://travis-ci.org/narunlifescience/AlphaPlot) [![Join the chat at https://gitter.im/narunlifescience/AlphaPlot](https://badges.gitter.im/narunlifescience/AlphaPlot.svg)](https://gitter.im/narunlifescience/AlphaPlot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -58,10 +58,14 @@ If there are no answers, it doesn't mean we don't care about your feature reques
 
 The following packages may be required by Alpha plot ...
 
-| Package   | Link                                         |
-|:----------|:---------------------------------------------|
-| Qt        | https://download.qt.io/archive/qt/4.8/4.8.5/ |
-| Qwt       | http://qwt.sourceforge.net/                  |
-| Qwtplot3D | http://qwtplot3d.sourceforge.net/            |
-| muParser  | http://muparser.beltoforion.de/              |
-| GSL       | http://www.gnu.org/software/gsl/             |
+| Package       | Link                                         |
+|:--------------|:---------------------------------------------|
+| Qt            | https://www.qt.io/                           |
+| QCustomPlot   | https://www.qcustomplot.com/                 |
+| Qwtplot3D     | http://qwtplot3d.sourceforge.net/            |
+| muParser      | http://muparser.beltoforion.de/              |
+| GSL           | http://www.gnu.org/software/gsl/             |
+| Zlib          | https://zlib.net/                            |
+
+Out of this QCustomPlot, Qwtplot3D and muParser sources(s) are already present in 3rdparty folder and will be statically built to alphaplot. so these packages need not be installed in your system.
+
