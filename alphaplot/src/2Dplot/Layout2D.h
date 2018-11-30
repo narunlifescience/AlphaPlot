@@ -69,6 +69,7 @@ class Layout2D : public MyWidget {
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void print();
   void save(XmlStreamWriter *xmlwriter);
+  void loadIcons();
 
  public slots:
   bool exportGraph();
@@ -113,7 +114,6 @@ class Layout2D : public MyWidget {
   void beforeReplot();
   void refresh();
   void exportPDF(const QString &filename);
-  void renderPlot(QPrinter *printer);
 
  signals:
   void AxisRectCreated(AxisRect2D *, MyWidget *);

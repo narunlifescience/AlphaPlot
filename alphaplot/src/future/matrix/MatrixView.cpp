@@ -107,25 +107,7 @@ void MatrixView::init() {
   d_control_tabs = new QWidget(d_main_widget);
   ui.setupUi(d_control_tabs);
   // Set icons
-  ui.tab_widget->setTabIcon(
-      0, IconLoader::load("edit-table-dimension", IconLoader::LightDark));
-  ui.tab_widget->setTabIcon(
-      1, IconLoader::load("number-type", IconLoader::LightDark));
-  ui.tab_widget->setTabIcon(
-      2, IconLoader::load("math-fofx", IconLoader::LightDark));
-  ui.button_set_coordinates->setIcon(
-      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
-  ui.button_set_format->setIcon(
-      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
-  ui.button_set_formula->setIcon(
-      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
-  ui.formula_label->setPixmap(
-      IconLoader::load("math-fofx", IconLoader::LightDark).pixmap(24));
-  ui.formula_label->setFixedSize(QSize(24, 24));
-  ui.add_cell_button->setIcon(
-      IconLoader::load("list-add", IconLoader::LightDark));
-  ui.add_function_button->setIcon(
-      IconLoader::load("list-add", IconLoader::LightDark));
+  loadIcons();
   ui.coordinates_tab_layout->setContentsMargins(0, 0, 0, 0);
   ui._2->setContentsMargins(0, 0, 0, 0);
   ui._3->setContentsMargins(0, 0, 0, 0);
@@ -527,6 +509,32 @@ int MatrixView::rowHeight(int row) const {
 int MatrixView::columnWidth(int col) const {
   QHeaderView *h_header = d_view_widget->horizontalHeader();
   return h_header->sectionSize(col);
+}
+
+void MatrixView::loadIcons() {
+  (d_control_tabs->isVisible()) ? d_hide_button->setIcon(IconLoader::load(
+                                      "edit-hide", IconLoader::LightDark))
+                                : d_hide_button->setIcon(IconLoader::load(
+                                      "edit-unhide", IconLoader::LightDark));
+  ui.tab_widget->setTabIcon(
+      0, IconLoader::load("edit-table-dimension", IconLoader::LightDark));
+  ui.tab_widget->setTabIcon(
+      1, IconLoader::load("number-type", IconLoader::LightDark));
+  ui.tab_widget->setTabIcon(
+      2, IconLoader::load("math-fofx", IconLoader::LightDark));
+  ui.button_set_coordinates->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  ui.button_set_format->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  ui.button_set_formula->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  ui.formula_label->setPixmap(
+      IconLoader::load("math-fofx", IconLoader::LightDark).pixmap(24));
+  ui.formula_label->setFixedSize(QSize(24, 24));
+  ui.add_cell_button->setIcon(
+      IconLoader::load("list-add", IconLoader::LightDark));
+  ui.add_function_button->setIcon(
+      IconLoader::load("list-add", IconLoader::LightDark));
 }
 
 void MatrixView::updateTypeInfo() {

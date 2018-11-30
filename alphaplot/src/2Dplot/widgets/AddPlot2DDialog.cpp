@@ -292,7 +292,7 @@ void AddPlot2DDialog::addCurves() {
             QCustomPlot::RefreshPriority::rpQueuedRefresh);
       } break;
       case 3: {
-        LineSpecial2D *ls = axisrect_->addLineScatter2DPlot(
+        LineSpecial2D *ls = axisrect_->addLineSpecial2DPlot(
             AxisRect2D::LineScatterSpecialType::VerticalDropLine2D, pair.first,
             pair.first->column(pair.first->firstXCol()), pair.second, 0,
             pair.second->rowCount() - 1, axisrect_->getXAxis(0),
@@ -309,7 +309,7 @@ void AddPlot2DDialog::addCurves() {
             QCustomPlot::RefreshPriority::rpQueuedRefresh);
       } break;
       case 5: {
-        LineSpecial2D *ls = axisrect_->addLineScatter2DPlot(
+        LineSpecial2D *ls = axisrect_->addLineSpecial2DPlot(
             AxisRect2D::LineScatterSpecialType::VerticalStep2D, pair.first,
             pair.first->column(pair.first->firstXCol()), pair.second, 0,
             pair.second->rowCount() - 1, axisrect_->getXAxis(0),
@@ -317,7 +317,7 @@ void AddPlot2DDialog::addCurves() {
         ls->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
       } break;
       case 6: {
-        LineSpecial2D *ls = axisrect_->addLineScatter2DPlot(
+        LineSpecial2D *ls = axisrect_->addLineSpecial2DPlot(
             AxisRect2D::LineScatterSpecialType::HorizontalStep2D, pair.first,
             pair.first->column(pair.first->firstXCol()), pair.second, 0,
             pair.second->rowCount() - 1, axisrect_->getXAxis(0),
@@ -325,13 +325,12 @@ void AddPlot2DDialog::addCurves() {
         ls->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
       } break;
       case 7: {
-        Curve2D *curve = axisrect_->addCurve2DPlot(
-            AxisRect2D::LineScatterType::Area2D, pair.first,
+        LineSpecial2D *ls = axisrect_->addLineSpecial2DPlot(
+            AxisRect2D::LineScatterSpecialType::Area2D, pair.first,
             pair.first->column(pair.first->firstXCol()), pair.second, 0,
             pair.second->rowCount() - 1, axisrect_->getXAxis(0),
             axisrect_->getYAxis(0));
-        curve->parentPlot()->replot(
-            QCustomPlot::RefreshPriority::rpQueuedRefresh);
+        ls->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
       } break;
       case 8: {
         Bar2D *bar = axisrect_->addBox2DPlot(

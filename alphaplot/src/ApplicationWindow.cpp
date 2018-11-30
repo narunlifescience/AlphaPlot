@@ -150,6 +150,7 @@ ApplicationWindow::ApplicationWindow()
 #ifdef SCRIPTING_CONSOLE
       consoleWindow(new ConsoleWidget(this)),
 #endif
+      propertyeditor(new PropertyEditor(this)),
       d_workspace(new QMdiArea(this)),
       hiddenWindows(new QList<QWidget *>()),
       outWindows(new QList<QWidget *>()),
@@ -175,18 +176,98 @@ ApplicationWindow::ApplicationWindow()
       autoSearchUpdatesRequest(false),
 #endif
       aprojhandler_(new AprojHandler(this)),
+      actionAnimate(new QAction(this)),
+      actionPerspective(new QAction(this)),
+      actionFitFrame(new QAction(this)),
+      actionResetRotation(new QAction(this)),
       graphToolsGroup(new QActionGroup(this)),
+      coord(new QActionGroup(this)),
+      Box(new QAction(coord)),
+      Frame(new QAction(coord)),
+      None(new QAction(coord)),
+      grids(new QActionGroup(this)),
+      front(new QAction(grids)),
+      back(new QAction(grids)),
+      right(new QAction(grids)),
+      left(new QAction(grids)),
+      ceil(new QAction(grids)),
+      floor(new QAction(grids)),
+      floorstyle(new QActionGroup(this)),
+      floordata(new QAction(floorstyle)),
+      flooriso(new QAction(floorstyle)),
+      floornone(new QAction(floorstyle)),
+      plotstyle(new QActionGroup(this)),
+      wireframe(new QAction(plotstyle)),
+      hiddenline(new QAction(plotstyle)),
+      polygon(new QAction(plotstyle)),
+      filledmesh(new QAction(plotstyle)),
+      pointstyle(new QAction(plotstyle)),
+      barstyle(new QAction(plotstyle)),
+      conestyle(new QAction(plotstyle)),
+      crossHairStyle(new QAction(plotstyle)),
       d_plot_mapper(new QSignalMapper(this)),
       statusBarInfo(new QLabel(this)),
+      actionShowPropertyEditor(new QAction(this)),
       actionShowProjectExplorer(new QAction(this)),
       actionShowResultsLog(new QAction(this)),
-      actionShowConsole(new QAction(this)) {
+      actionShowConsole(new QAction(this)),
+      btn_new_aspect_(new QToolButton(this)),
+      btn_layout_(new QToolButton(this)),
+      btn_curves_(new QToolButton(this)),
+      btn_plot_enrichments_(new QToolButton(this)),
+      btn_plot_linespoints_(new QToolButton(this)),
+      btn_plot_bars_(new QToolButton(this)),
+      btn_plot_vect_(new QToolButton(this)) {
   ui_->setupUi(this);
+  // store default workspace color for applying in style change
+  mdiareacolor = d_workspace->background().color();
+  // non menu qactions
+  actionSaveNote = new QAction(tr("Save Note As..."), this);
+  actionExportPDF = new QAction(tr("&Export PDF") + "...", this);
+  actionHideActiveWindow = new QAction(tr("&Hide Window"), this);
+  actionShowMoreWindows = new QAction(tr("More windows..."), this);
+  actionPixelLineProfile = new QAction(tr("&View Pixel Line Profile"), this);
+  actionIntensityTable = new QAction(tr("&Intensity Table"), this);
+  actionShowLineDialog = new QAction(tr("&Properties"), this);
+  actionShowImageDialog = new QAction(tr("&Properties"), this);
+  actionActivateWindow = new QAction(tr("&Activate Window"), this);
+  actionMinimizeWindow = new QAction(tr("Mi&nimize Window"), this);
+  actionMaximizeWindow = new QAction(tr("Ma&ximize Window"), this);
+  actionResizeWindow = new QAction(tr("Re&size Window..."), this);
+  actionPrintWindow = new QAction(tr("&Print Window"), this);
+  actionShowPlotGeometryDialog = new QAction(tr("&Layer Geometry"), this);
+  actionAdd3DData = new QAction(tr("&Data Set..."), this);
+  actionEditSurfacePlot = new QAction(tr("&Surface..."), this);
+  actionInvertMatrix = new QAction(tr("&Invert"), this);
+  actionMatrixDeterminant = new QAction(tr("&Determinant"), this);
+  actionConvertMatrix = new QAction(tr("&Convert to Table"), this);
+  actionConvertTable = new QAction(tr("Convert to &Matrix"), this);
+  actionEditCurveRange = new QAction(tr("Edit &Range..."), this);
+  actionCopyStatusBarText = new QAction(tr("&Copy status bar text"), this);
+  actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
+  // Load Style & color scheme here
+  QSettings settings;
+  settings.beginGroup("General");
+  changeAppStyle(settings.value("Style", appStyle).toString());
+  changeAppColorScheme(settings.value("ColorScheme", 0).toInt());
   // Initialize scripting environment.
   attachQtScript();
-
-  // need to be initiated here after IconLoader::init() for icons
+  // icons load needed so do it after setting Style & ColorScheme
   settings_ = new SettingsDialog(this);
+
+  // Toolbar QToolbuttons
+  btn_new_aspect_->setPopupMode(QToolButton::InstantPopup);
+  btn_new_aspect_->setToolTip(tr("New Aspect"));
+  btn_layout_->setPopupMode(QToolButton::InstantPopup);
+  btn_layout_->setToolTip(tr("Manage layers"));
+  btn_curves_->setPopupMode(QToolButton::InstantPopup);
+  btn_curves_->setToolTip(tr("Add curves / error bars"));
+  btn_plot_enrichments_->setPopupMode(QToolButton::InstantPopup);
+  btn_plot_enrichments_->setToolTip(tr("Enrichments"));
+  btn_plot_linespoints_->setPopupMode(QToolButton::InstantPopup);
+  btn_plot_linespoints_->setToolTip(tr("Lines and/or symbols"));
+  btn_plot_bars_->setPopupMode(QToolButton::InstantPopup);
+  btn_plot_vect_->setPopupMode(QToolButton::InstantPopup);
 
   // Mainwindow properties
   setWindowIcon(IconLoader::load("alpha-logo", IconLoader::General));
@@ -195,6 +276,7 @@ ApplicationWindow::ApplicationWindow()
   QPixmapCache::setCacheLimit(20 * QPixmapCache::cacheLimit());
 
   // Show/hide toggle Project Explorer, Result Log & Scripting Console
+  actionShowPropertyEditor = propertyeditor->toggleViewAction();
   actionShowProjectExplorer = ui_->explorerWindow->toggleViewAction();
   actionShowResultsLog = ui_->logWindow->toggleViewAction();
 #ifdef SCRIPTING_CONSOLE
@@ -259,7 +341,7 @@ ApplicationWindow::ApplicationWindow()
   ui_->listView->setHeaderLabels(QStringList()
                                  << tr("Name") << tr("Type") << tr("View")
                                  << tr("Created") << tr("Label"));
-  // ui_->listView->header()->setResizeMode(0, QHeaderView::Stretch);
+  ui_->listView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
   ui_->listView->setMinimumHeight(80);
   ui_->listView->setRootIsDecorated(false);
   ui_->listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -292,261 +374,14 @@ ApplicationWindow::ApplicationWindow()
   addDockWidget(Qt::TopDockWidgetArea, consoleWindow);
   consoleWindow->hide();
 #endif
-  propertyeditor = new PropertyEditor(this);
+  propertyeditor->setObjectName("propertyeditorWindow");
   addDockWidget(Qt::RightDockWidgetArea, propertyeditor);
   propertyeditor->show();
 
   disableActions();
   // After initialization of QDockWidget, for toggleViewAction() to work
   // Set icons for QActions
-  // File menu
-  ui_->actionNewProject->setIcon(
-      IconLoader::load("edit-new", IconLoader::LightDark));
-  ui_->actionNewGraph->setIcon(
-      IconLoader::load("edit-graph", IconLoader::LightDark));
-  ui_->actionNewNote->setIcon(
-      IconLoader::load("edit-note", IconLoader::LightDark));
-  ui_->actionNewTable->setIcon(
-      IconLoader::load("table", IconLoader::LightDark));
-  ui_->actionNewMatrix->setIcon(
-      IconLoader::load("matrix", IconLoader::LightDark));
-  ui_->actionNewFunctionPlot->setIcon(
-      IconLoader::load("graph2d-function-xy", IconLoader::LightDark));
-  ui_->actionNew3DSurfacePlot->setIcon(
-      IconLoader::load("graph3d-function-xyz", IconLoader::LightDark));
-  ui_->actionOpenAproj->setIcon(
-      IconLoader::load("project-open", IconLoader::LightDark));
-  ui_->actionOpenImage->setIcon(QIcon());
-  ui_->actionImportImage->setIcon(
-      IconLoader::load("view-image", IconLoader::LightDark));
-  ui_->actionSaveProject->setIcon(
-      IconLoader::load("document-save", IconLoader::LightDark));
-  ui_->actionSaveProjectAs->setIcon(QIcon());
-  ui_->actionOpenTemplate->setIcon(
-      IconLoader::load("template-open", IconLoader::LightDark));
-  ui_->actionSaveAsTemplate->setIcon(
-      IconLoader::load("template-save", IconLoader::LightDark));
-  ui_->actionExportCurrentGraph->setIcon(QIcon());
-  ui_->actionExportAllGraphs->setIcon(QIcon());
-  ui_->actionPrint->setIcon(
-      IconLoader::load("edit-print", IconLoader::LightDark));
-  ui_->actionPrintAllPlots->setIcon(QIcon());
-  ui_->actionExportASCII->setIcon(QIcon());
-  ui_->actionImportASCII->setIcon(
-      IconLoader::load("import-ascii-filter", IconLoader::LightDark));
-  ui_->actionQuit->setIcon(
-      IconLoader::load("application-exit", IconLoader::General));
-  // Edit menu
-  ui_->actionUndo->setIcon(
-      IconLoader::load("edit-undo", IconLoader::LightDark));
-  ui_->actionRedo->setIcon(
-      IconLoader::load("edit-redo", IconLoader::LightDark));
-  ui_->actionCutSelection->setIcon(
-      IconLoader::load("edit-cut", IconLoader::LightDark));
-  ui_->actionCopySelection->setIcon(
-      IconLoader::load("edit-copy", IconLoader::LightDark));
-  ui_->actionPasteSelection->setIcon(
-      IconLoader::load("edit-paste", IconLoader::LightDark));
-  ui_->actionClearSelection->setIcon(
-      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
-  ui_->actionDeleteFitTables->setIcon(
-      IconLoader::load("edit-delete", IconLoader::General));
-  ui_->actionClearLogInfo->setIcon(
-      IconLoader::load("clear-loginfo", IconLoader::General));
-  ui_->actionPreferences->setIcon(
-      IconLoader::load("edit-preference", IconLoader::LightDark));
-  // View menu
-  ui_->actionPlotWizard->setIcon(
-      IconLoader::load("tools-wizard", IconLoader::LightDark));
-  ui_->actionShowUndoRedoHistory->setIcon(QIcon());
-  ui_->actionLockToolbars->setIcon(
-      IconLoader::load("unlock", IconLoader::LightDark));
-  actionShowProjectExplorer->setIcon(
-      IconLoader::load("folder-explorer", IconLoader::LightDark));
-  actionShowResultsLog->setIcon(
-      IconLoader::load("view-console", IconLoader::LightDark));
-  actionShowConsole->setIcon(QIcon());
-  // Scripting menu
-  ui_->actionScriptingLanguage->setIcon(QIcon());
-  ui_->actionRestartScripting->setIcon(QIcon());
-  ui_->actionExecute->setIcon(QIcon());
-  ui_->actionExecuteAll->setIcon(QIcon());
-  ui_->actionEvaluateExpression->setIcon(QIcon());
-  // Plot menu
-  ui_->actionPlot2DLine->setIcon(
-      IconLoader::load("graph2d-line", IconLoader::LightDark));
-  ui_->actionPlot2DScatter->setIcon(
-      IconLoader::load("graph2d-scatter", IconLoader::LightDark));
-  ui_->actionPlot2DLineSymbol->setIcon(
-      IconLoader::load("graph2d-line-scatter", IconLoader::LightDark));
-  ui_->actionPlot2DVerticalDropLines->setIcon(
-      QIcon(IconLoader::load("graph2d-vertical-drop", IconLoader::LightDark)));
-  ui_->actionPlot2DSpline->setIcon(
-      IconLoader::load("graph2d-spline", IconLoader::LightDark));
-  ui_->actionPlot2DVerticalSteps->setIcon(
-      IconLoader::load("graph2d-vertical-step", IconLoader::LightDark));
-  ui_->actionPlot2DHorizontalSteps->setIcon(
-      IconLoader::load("graph2d-horizontal-step", IconLoader::LightDark));
-  ui_->actionPlot2DVerticalBars->setIcon(
-      IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
-  ui_->actionPlot2DHorizontalBars->setIcon(
-      IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark));
-  ui_->actionPlot2DArea->setIcon(
-      IconLoader::load("graph2d-area", IconLoader::LightDark));
-  ui_->actionPlot2DPie->setIcon(
-      IconLoader::load("graph2d-pie", IconLoader::LightDark));
-  ui_->actionPlot2DVectorsXYAM->setIcon(
-      IconLoader::load("graph2d-vector-xyam", IconLoader::LightDark));
-  ui_->actionPlot2DVectorsXYXY->setIcon(
-      IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
-  ui_->actionPlot2DStatBox->setIcon(
-      IconLoader::load("graph2d-box", IconLoader::LightDark));
-  ui_->actionPlot2DStatHistogram->setIcon(
-      IconLoader::load("graph2d-histogram", IconLoader::LightDark));
-  ui_->actionPlot2DStatStackedHistogram->setIcon(
-      QIcon(QPixmap(":/stacked_hist.xpm")));
-  ui_->actionPanelVertical2Layers->setIcon(QIcon(QPixmap(":/panel_v2.xpm")));
-  ui_->actionPanelHorizontal2Layers->setIcon(QIcon(QPixmap(":/panel_h2.xpm")));
-  ui_->actionPanel4Layers->setIcon(QIcon(QPixmap(":/panel_4.xpm")));
-  ui_->actionPanelStackedLayers->setIcon(QIcon(QPixmap(":/stacked.xpm")));
-  ui_->actionPlot3DRibbon->setIcon(
-      IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
-  ui_->actionPlot3DBar->setIcon(
-      IconLoader::load("graph3d-bar", IconLoader::LightDark));
-  ui_->actionPlot3DScatter->setIcon(
-      IconLoader::load("graph3d-scatter", IconLoader::LightDark));
-  ui_->actionPlot3DTrajectory->setIcon(
-      IconLoader::load("graph3d-trajectory", IconLoader::LightDark));
-  // 3D Plot menu
-  ui_->action3DWireFrame->setIcon(
-      IconLoader::load("graph3d-hidden-line", IconLoader::LightDark));
-  ui_->action3DHiddenLine->setIcon(
-      IconLoader::load("graph3d-mesh", IconLoader::LightDark));
-  ui_->action3DPolygons->setIcon(
-      IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
-  ui_->action3DWireSurface->setIcon(
-      IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
-  ui_->action3DBar->setIcon(
-      IconLoader::load("graph3d-bar", IconLoader::LightDark));
-  ui_->action3DScatter->setIcon(
-      IconLoader::load("graph3d-scatter", IconLoader::LightDark));
-  ui_->action3DCountourColorFill->setIcon(
-      IconLoader::load("edit-colormap3d", IconLoader::General));
-  ui_->action3DCountourLines->setIcon(
-      IconLoader::load("edit-contour3d", IconLoader::General));
-  ui_->action3DGreyScaleMap->setIcon(
-      IconLoader::load("edit-graymap3d", IconLoader::General));
-  // Graph menu
-  ui_->actionAddRemoveCurve->setIcon(
-      IconLoader::load("edit-add-graph", IconLoader::LightDark));
-  ui_->actionAddErrorBars->setIcon(
-      IconLoader::load("graph-y-error", IconLoader::LightDark));
-  ui_->actionAddFunctionCurve->setIcon(
-      IconLoader::load("math-fofx", IconLoader::LightDark));
-  ui_->actionAddText->setIcon(
-      IconLoader::load("draw-text", IconLoader::LightDark));
-  ui_->actionDrawArrow->setIcon(
-      IconLoader::load("edit-arrow", IconLoader::LightDark));
-  ui_->actionDrawLine->setIcon(
-      IconLoader::load("draw-line", IconLoader::LightDark));
-  ui_->actionAddTimeStamp->setIcon(
-      IconLoader::load("clock", IconLoader::LightDark));
-  ui_->actionAddImage->setIcon(
-      IconLoader::load("view-image", IconLoader::LightDark));
-  ui_->actionAutomaticLayout->setIcon(
-      IconLoader::load("auto-layout", IconLoader::LightDark));
-  ui_->actionAddLayer->setIcon(
-      IconLoader::load("layer-new", IconLoader::LightDark));
-  ui_->actionRemoveLayer->setIcon(
-      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
-  ui_->actionArrangeLayers->setIcon(
-      IconLoader::load("layer-arrange", IconLoader::LightDark));
-  // Tools menu
-  ui_->actionDisableGraphTools->setIcon(
-      IconLoader::load("edit-select", IconLoader::LightDark));
-  ui_->actionGraphZoomIn->setIcon(
-      IconLoader::load("zoom-in", IconLoader::LightDark));
-  ui_->actionGraphZoomOut->setIcon(
-      IconLoader::load("zoom-out", IconLoader::LightDark));
-  ui_->actionGraphRescaleShowAll->setIcon(
-      IconLoader::load("graph-unzoom", IconLoader::LightDark));
-  ui_->actionGraphScreenReader->setIcon(
-      IconLoader::load("edit-crosshair", IconLoader::LightDark));
-  ui_->actionGraphDataReader->setIcon(
-      IconLoader::load("edit-select-data", IconLoader::LightDark));
-  ui_->actionGraphSelectDataRange->setIcon(
-      IconLoader::load("edit-data-range", IconLoader::LightDark));
-  ui_->actionGraphMoveDataPoints->setIcon(
-      IconLoader::load("edit-hand", IconLoader::LightDark));
-  ui_->actionGraphRemoveBadDataPoints->setIcon(
-      IconLoader::load("edit-erasor", IconLoader::LightDark));
-  // Table Analysis menu
-  ui_->actionStatisticsOnColumns->setIcon(
-      IconLoader::load("table-column-sum", IconLoader::LightDark));
-  ui_->actionStatisticsOnRows->setIcon(
-      IconLoader::load("table-row-sum", IconLoader::LightDark));
-  ui_->actionTableFFT->setIcon(QIcon());
-  ui_->actionCorrelate->setIcon(QIcon());
-  ui_->actionAutocorrelate->setIcon(QIcon());
-  ui_->actionConvolute->setIcon(QIcon());
-  ui_->actionDeconvolute->setIcon(QIcon());
-  ui_->actionTableFitWizard->setIcon(QIcon());
-  // Graph Analysis menu
-  ui_->actionHorizontalTranslate->setIcon(QIcon());
-  ui_->actionVerticalTranslate->setIcon(QIcon());
-  ui_->actionDifferentiate->setIcon(QIcon());
-  ui_->actionIntegrate->setIcon(QIcon());
-  ui_->actionSavitzkySmooth->setIcon(QIcon());
-  ui_->actionMovingWindowAverageSmooth->setIcon(QIcon());
-  ui_->actionFFTFilterSmooth->setIcon(QIcon());
-  ui_->actionLowPassFFTFilter->setIcon(QIcon());
-  ui_->actionHighPassFFTFilter->setIcon(QIcon());
-  ui_->actionBandPassFFTFilter->setIcon(QIcon());
-  ui_->actionBandBlockFFTFilter->setIcon(QIcon());
-  ui_->actionInterpolate->setIcon(QIcon());
-  ui_->actionGraph2DFFT->setIcon(QIcon());
-  ui_->actionFitLinear->setIcon(QIcon());
-  ui_->actionFitPolynomial->setIcon(QIcon());
-  ui_->actionFirstOrderExponentialDecay->setIcon(QIcon());
-  ui_->actionSecondOrderExponentialDecay->setIcon(QIcon());
-  ui_->actionThirdOrderExponentialDecay->setIcon(QIcon());
-  ui_->actionFitExponentialGrowth->setIcon(QIcon());
-  ui_->actionFitBoltzmannSigmoid->setIcon(QIcon());
-  ui_->actionFitGaussian->setIcon(QIcon());
-  ui_->actionFitLorentzian->setIcon(QIcon());
-  ui_->actionMultiPeakGaussian->setIcon(QIcon());
-  ui_->actionMultiPeakLorentzian->setIcon(QIcon());
-  ui_->actionGraph2DFitWizard->setIcon(QIcon());
-  // Windows menu
-  ui_->actionCascadeWindow->setIcon(QIcon());
-  ui_->actionTileWindow->setIcon(QIcon());
-  ui_->actionNextWindow->setIcon(
-      IconLoader::load("go-next", IconLoader::LightDark));
-  ui_->actionPreviousWindow->setIcon(
-      IconLoader::load("go-previous", IconLoader::LightDark));
-  ui_->actionRenameWindow->setIcon(
-      IconLoader::load("edit-rename", IconLoader::LightDark));
-  ui_->actionDuplicateWindow->setIcon(
-      IconLoader::load("edit-duplicate", IconLoader::LightDark));
-  ui_->actionWindowGeometry->setIcon(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
-  ui_->actionHideWindow->setIcon(QIcon());
-  ui_->actionCloseWindow->setIcon(
-      IconLoader::load("edit-delete", IconLoader::General));
-  // Help menu
-  ui_->actionHelp->setIcon(
-      IconLoader::load("edit-help", IconLoader::LightDark));
-  ui_->actionChooseHelpFolder->setIcon(QIcon());
-  ui_->actionHomepage->setIcon(
-      IconLoader::load("go-home", IconLoader::LightDark));
-  ui_->actionCheckUpdates->setIcon(QIcon());
-  ui_->actionDownloadManual->setIcon(QIcon());
-  ui_->actionVisitForum->setIcon(
-      IconLoader::load("edit-help-forum", IconLoader::LightDark));
-  ui_->actionReportBug->setIcon(
-      IconLoader::load("tools-report-bug", IconLoader::LightDark));
-  ui_->actionAbout->setIcon(
-      IconLoader::load("help-about", IconLoader::LightDark));
+  loadIcons();
 
   // QAction Connections
   // File menu
@@ -623,16 +458,20 @@ ApplicationWindow::ApplicationWindow()
           graph3DToolbar, SLOT(setVisible(bool)));
   connect(ui_->actionLockToolbars, SIGNAL(toggled(bool)), this,
           SLOT(lockToolbars(bool)));
+  actionShowPropertyEditor->setText(tr("Property Editor"));
   actionShowProjectExplorer->setText(tr("Project Explorer"));
   actionShowResultsLog->setText(tr("Result Log"));
   actionShowConsole->setText(tr("Console"));
+  actionShowPropertyEditor->setToolTip(tr("Show Property Editor"));
   actionShowProjectExplorer->setToolTip(tr("Show Project Explorer"));
   actionShowResultsLog->setToolTip(tr("Show Result Log"));
   actionShowConsole->setToolTip(tr("Show Scripting Console"));
   actionShowProjectExplorer->setShortcut(tr("Ctrl+E"));
+  actionShowPropertyEditor->setCheckable(true);
   actionShowProjectExplorer->setCheckable(true);
   actionShowResultsLog->setCheckable(true);
   actionShowConsole->setCheckable(true);
+  ui_->menuView->addAction(actionShowPropertyEditor);
   ui_->menuView->addAction(actionShowProjectExplorer);
   ui_->menuView->addAction(actionShowResultsLog);
 #ifdef SCRIPTING_CONSOLE
@@ -902,71 +741,39 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->actionAbout, &QAction::triggered, this,
           &ApplicationWindow::about);
 
-  // non main menu QActions
-  actionSaveNote = new QAction(tr("Save Note As..."), this);
+  // non main menu QAction Connections
   connect(actionSaveNote, SIGNAL(triggered()), this, SLOT(saveNoteAs()));
-  actionExportPDF =
-      new QAction(IconLoader::load("application-pdf", IconLoader::LightDark),
-                  tr("&Export PDF") + "...", this);
-  actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
   connect(actionExportPDF, SIGNAL(triggered()), this, SLOT(exportPDF()));
-  actionHideActiveWindow = new QAction(tr("&Hide Window"), this);
   connect(actionHideActiveWindow, SIGNAL(triggered()), this,
           SLOT(hideActiveWindow()));
-  actionShowMoreWindows = new QAction(tr("More windows..."), this);
   connect(actionShowMoreWindows, SIGNAL(triggered()), this,
           SLOT(showMoreWindows()));
-  actionPixelLineProfile = new QAction(QIcon(QPixmap(":/pixelProfile.xpm")),
-                                       tr("&View Pixel Line Profile"), this);
   connect(actionPixelLineProfile, SIGNAL(triggered()), this,
           SLOT(pixelLineProfile()));
-  actionIntensityTable = new QAction(tr("&Intensity Table"), this);
   connect(actionIntensityTable, SIGNAL(triggered()), this,
           SLOT(intensityTable()));
-  actionShowLineDialog = new QAction(tr("&Properties"), this);
-  actionShowImageDialog = new QAction(tr("&Properties"), this);
   connect(actionShowImageDialog, SIGNAL(triggered()), this,
           SLOT(showImageDialog()));
-  actionActivateWindow = new QAction(tr("&Activate Window"), this);
   connect(actionActivateWindow, SIGNAL(triggered()), this,
           SLOT(activateWindow()));
-  actionMinimizeWindow = new QAction(tr("Mi&nimize Window"), this);
   connect(actionMinimizeWindow, SIGNAL(triggered()), this,
           SLOT(minimizeWindow()));
-  actionMaximizeWindow = new QAction(tr("Ma&ximize Window"), this);
   connect(actionMaximizeWindow, SIGNAL(triggered()), this,
           SLOT(maximizeWindow()));
-  actionResizeWindow = new QAction(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
-      tr("Re&size Window..."), this);
   connect(actionResizeWindow, SIGNAL(triggered()), this, SLOT(resizeWindow()));
-  actionPrintWindow =
-      new QAction(IconLoader::load("edit-print", IconLoader::LightDark),
-                  tr("&Print Window"), this);
   connect(actionPrintWindow, SIGNAL(triggered()), this, SLOT(printWindow()));
-  actionShowPlotGeometryDialog = new QAction(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
-      tr("&Layer Geometry"), this);
-  actionEditSurfacePlot = new QAction(tr("&Surface..."), this);
   connect(actionEditSurfacePlot, SIGNAL(triggered()), this,
           SLOT(editSurfacePlot()));
-  actionAdd3DData = new QAction(tr("&Data Set..."), this);
   connect(actionAdd3DData, SIGNAL(triggered()), this, SLOT(add3DData()));
-  actionInvertMatrix = new QAction(tr("&Invert"), this);
   connect(actionInvertMatrix, SIGNAL(triggered()), this, SLOT(invertMatrix()));
-  actionMatrixDeterminant = new QAction(tr("&Determinant"), this);
   connect(actionMatrixDeterminant, SIGNAL(triggered()), this,
           SLOT(matrixDeterminant()));
-  actionConvertMatrix = new QAction(tr("&Convert to Table"), this);
   connect(actionConvertMatrix, SIGNAL(triggered()), this,
           SLOT(convertMatrixToTable()));
-  actionConvertTable = new QAction(tr("Convert to &Matrix"), this);
   connect(actionConvertTable, SIGNAL(triggered()), this,
           SLOT(convertTableToMatrix()));
-  actionEditCurveRange = new QAction(tr("Edit &Range..."), this);
   connect(actionEditCurveRange, SIGNAL(triggered()), this,
           SLOT(showCurveRangeDialog()));
-  actionCopyStatusBarText = new QAction(tr("&Copy status bar text"), this);
   connect(actionCopyStatusBarText, SIGNAL(triggered()), this,
           SLOT(copyStatusBarText()));
 
@@ -1047,13 +854,8 @@ void ApplicationWindow::makeToolBars() {
   menu_new_aspect->addAction(ui_->actionNewGraph);
   menu_new_aspect->addAction(ui_->actionNewFunctionPlot);
   menu_new_aspect->addAction(ui_->actionNew3DSurfacePlot);
-  QToolButton *btn_new_aspect = new QToolButton(this);
-  btn_new_aspect->setMenu(menu_new_aspect);
-  btn_new_aspect->setPopupMode(QToolButton::InstantPopup);
-  btn_new_aspect->setIcon(
-      IconLoader::load("edit-new-aspect", IconLoader::LightDark));
-  btn_new_aspect->setToolTip(tr("New Aspect"));
-  fileToolbar->addWidget(btn_new_aspect);
+  btn_new_aspect_->setMenu(menu_new_aspect);
+  fileToolbar->addWidget(btn_new_aspect_);
   fileToolbar->addAction(ui_->actionOpenAproj);
   fileToolbar->addAction(ui_->actionOpenTemplate);
   fileToolbar->addAction(ui_->actionImportASCII);
@@ -1080,35 +882,21 @@ void ApplicationWindow::makeToolBars() {
   graphToolsToolbar->addAction(ui_->actionDisableGraphTools);
   graphToolsToolbar->addSeparator();
   QMenu *menu_layers = new QMenu(this);
-  QToolButton *btn_layers = new QToolButton(this);
-  btn_layers->setMenu(menu_layers);
-  btn_layers->setPopupMode(QToolButton::InstantPopup);
-  btn_layers->setIcon(IconLoader::load("layer-arrange", IconLoader::LightDark));
-  btn_layers->setToolTip(tr("Manage layers"));
-  graphToolsToolbar->addWidget(btn_layers);
+  btn_layout_->setMenu(menu_layers);
+  graphToolsToolbar->addWidget(btn_layout_);
   menu_layers->addAction(ui_->actionAutomaticLayout);
   menu_layers->addAction(ui_->actionAddLayer);
   menu_layers->addAction(ui_->actionRemoveLayer);
   menu_layers->addAction(ui_->actionArrangeLayers);
   QMenu *menu_curves = new QMenu(this);
-  QToolButton *btn_curves = new QToolButton(this);
-  btn_curves->setMenu(menu_curves);
-  btn_curves->setPopupMode(QToolButton::InstantPopup);
-  btn_curves->setIcon(
-      IconLoader::load("edit-add-graph", IconLoader::LightDark));
-  btn_curves->setToolTip(tr("Add curves / error bars"));
-  graphToolsToolbar->addWidget(btn_curves);
+  btn_curves_->setMenu(menu_curves);
+  graphToolsToolbar->addWidget(btn_curves_);
   menu_curves->addAction(ui_->actionAddRemoveCurve);
   menu_curves->addAction(ui_->actionAddErrorBars);
   menu_curves->addAction(ui_->actionAddFunctionCurve);
   QMenu *menu_plot_enrichments = new QMenu(this);
-  QToolButton *btn_plot_enrichments = new QToolButton(this);
-  btn_plot_enrichments->setMenu(menu_plot_enrichments);
-  btn_plot_enrichments->setPopupMode(QToolButton::InstantPopup);
-  btn_plot_enrichments->setIcon(
-      IconLoader::load("draw-text", IconLoader::LightDark));
-  btn_plot_enrichments->setToolTip(tr("Enrichments"));
-  graphToolsToolbar->addWidget(btn_plot_enrichments);
+  btn_plot_enrichments_->setMenu(menu_plot_enrichments);
+  graphToolsToolbar->addWidget(btn_plot_enrichments_);
   menu_plot_enrichments->addAction(ui_->actionAddText);
   menu_plot_enrichments->addAction(ui_->actionDrawArrow);
   menu_plot_enrichments->addAction(ui_->actionDrawLine);
@@ -1125,13 +913,8 @@ void ApplicationWindow::makeToolBars() {
 
   // 2D plots tool toolbar
   QMenu *menu_plot_linespoints = new QMenu(this);
-  QToolButton *btn_plot_linespoints = new QToolButton(this);
-  btn_plot_linespoints->setMenu(menu_plot_linespoints);
-  btn_plot_linespoints->setPopupMode(QToolButton::InstantPopup);
-  btn_plot_linespoints->setIcon(
-      IconLoader::load("graph2d-line", IconLoader::LightDark));
-  btn_plot_linespoints->setToolTip(tr("Lines and/or symbols"));
-  plot2DToolbar->addWidget(btn_plot_linespoints);
+  btn_plot_linespoints_->setMenu(menu_plot_linespoints);
+  plot2DToolbar->addWidget(btn_plot_linespoints_);
   menu_plot_linespoints->addAction(ui_->actionPlot2DLine);
   menu_plot_linespoints->addAction(ui_->actionPlot2DScatter);
   menu_plot_linespoints->addAction(ui_->actionPlot2DLineSymbol);
@@ -1140,24 +923,16 @@ void ApplicationWindow::makeToolBars() {
   menu_plot_linespoints->addAction(ui_->actionPlot2DVerticalSteps);
   menu_plot_linespoints->addAction(ui_->actionPlot2DHorizontalSteps);
   QMenu *menu_plot_bars = new QMenu(this);
-  QToolButton *btn_plot_bars = new QToolButton(this);
-  btn_plot_bars->setMenu(menu_plot_bars);
-  btn_plot_bars->setPopupMode(QToolButton::InstantPopup);
-  btn_plot_bars->setIcon(
-      IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
-  plot2DToolbar->addWidget(btn_plot_bars);
+  btn_plot_bars_->setMenu(menu_plot_bars);
+  plot2DToolbar->addWidget(btn_plot_bars_);
   menu_plot_bars->addAction(ui_->actionPlot2DVerticalBars);
   menu_plot_bars->addAction(ui_->actionPlot2DHorizontalBars);
   plot2DToolbar->addAction(ui_->actionPlot2DArea);
   plot2DToolbar->addAction(ui_->actionPlot2DStatHistogram);
   plot2DToolbar->addAction(ui_->actionPlot2DStatBox);
   QMenu *menu_plot_vect = new QMenu(this);
-  QToolButton *btn_plot_vect = new QToolButton(this);
-  btn_plot_vect->setMenu(menu_plot_vect);
-  btn_plot_vect->setPopupMode(QToolButton::InstantPopup);
-  btn_plot_vect->setIcon(
-      IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
-  plot2DToolbar->addWidget(btn_plot_vect);
+  btn_plot_vect_->setMenu(menu_plot_vect);
+  plot2DToolbar->addWidget(btn_plot_vect_);
   menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYXY);
   menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYAM);
   plot2DToolbar->addAction(ui_->actionPlot2DPie);
@@ -1182,15 +957,8 @@ void ApplicationWindow::makeToolBars() {
 
   // Graph 3D tools toolbar
   // Graph 3D axis type selection
-  coord = new QActionGroup(this);
-  Box = new QAction(coord);
-  Box->setIcon(IconLoader::load("graph3d-box-axis", IconLoader::LightDark));
   Box->setCheckable(true);
-  Frame = new QAction(coord);
-  Frame->setIcon(IconLoader::load("graph3d-free-axis", IconLoader::LightDark));
   Frame->setCheckable(true);
-  None = new QAction(coord);
-  None->setIcon(IconLoader::load("graph3d-no-axis", IconLoader::LightDark));
   None->setCheckable(true);
   graph3DToolbar->addAction(Frame);
   graph3DToolbar->addAction(Box);
@@ -1199,27 +967,14 @@ void ApplicationWindow::makeToolBars() {
   graph3DToolbar->addSeparator();
 
   // Graph 3D grid actions
-  grids = new QActionGroup(this);
   grids->setEnabled(true);
   grids->setExclusive(false);
-  front = new QAction(grids);
   front->setCheckable(true);
-  front->setIcon(IconLoader::load("graph3d-front-grid", IconLoader::LightDark));
-  back = new QAction(grids);
   back->setCheckable(true);
-  back->setIcon(IconLoader::load("graph3d-back-grid", IconLoader::LightDark));
-  right = new QAction(grids);
   right->setCheckable(true);
-  right->setIcon(IconLoader::load("graph3d-left-grid", IconLoader::LightDark));
-  left = new QAction(grids);
   left->setCheckable(true);
-  left->setIcon(IconLoader::load("graph3d-right-grid", IconLoader::LightDark));
-  ceil = new QAction(grids);
   ceil->setCheckable(true);
-  ceil->setIcon(IconLoader::load("graph3d-top-grid", IconLoader::LightDark));
-  floor = new QAction(grids);
   floor->setCheckable(true);
-  floor->setIcon(IconLoader::load("graph3d-floor-grid", IconLoader::LightDark));
   graph3DToolbar->addAction(front);
   graph3DToolbar->addAction(back);
   graph3DToolbar->addAction(right);
@@ -1229,55 +984,25 @@ void ApplicationWindow::makeToolBars() {
   graph3DToolbar->addSeparator();
 
   // Graph 3D orentation actions
-  actionPerspective = new QAction(this);
   actionPerspective->setCheckable(true);
-  actionPerspective->setIcon(
-      IconLoader::load("graph3d-perspective-view", IconLoader::LightDark));
   graph3DToolbar->addAction(actionPerspective);
   actionPerspective->setChecked(!orthogonal3DPlots);
-  actionResetRotation = new QAction(this);
-  actionResetRotation->setIcon(
-      IconLoader::load("graph3d-reset-rotation", IconLoader::LightDark));
   graph3DToolbar->addAction(actionResetRotation);
-  actionFitFrame = new QAction(this);
-  actionFitFrame->setIcon(
-      IconLoader::load("graph3d-fit-frame", IconLoader::LightDark));
   graph3DToolbar->addAction(actionFitFrame);
   graph3DToolbar->addSeparator();
 
   // Graph 3D plot style actions
-  plotstyle = new QActionGroup(this);
-  wireframe = new QAction(plotstyle);
   wireframe->setCheckable(true);
   wireframe->setEnabled(true);
-  wireframe->setIcon(
-      IconLoader::load("graph3d-hidden-line", IconLoader::LightDark));
-  hiddenline = new QAction(plotstyle);
   hiddenline->setCheckable(true);
   hiddenline->setEnabled(true);
-  hiddenline->setIcon(IconLoader::load("graph3d-mesh", IconLoader::LightDark));
-  polygon = new QAction(plotstyle);
   polygon->setCheckable(true);
   polygon->setEnabled(true);
-  polygon->setIcon(IconLoader::load("graph3d-polygon", IconLoader::LightDark));
-  filledmesh = new QAction(plotstyle);
   filledmesh->setCheckable(true);
-  filledmesh->setIcon(
-      IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
-  pointstyle = new QAction(plotstyle);
   pointstyle->setCheckable(true);
-  pointstyle->setIcon(
-      IconLoader::load("graph3d-point-mesh", IconLoader::LightDark));
-  conestyle = new QAction(plotstyle);
   conestyle->setCheckable(true);
-  conestyle->setIcon(IconLoader::load("graph3d-cone", IconLoader::LightDark));
-  crossHairStyle = new QAction(plotstyle);
   crossHairStyle->setCheckable(true);
-  crossHairStyle->setIcon(
-      IconLoader::load("graph3d-cross", IconLoader::LightDark));
-  barstyle = new QAction(plotstyle);
   barstyle->setCheckable(true);
-  barstyle->setIcon(IconLoader::load("graph3d-bars", IconLoader::General));
   graph3DToolbar->addAction(barstyle);
   graph3DToolbar->addAction(pointstyle);
   graph3DToolbar->addAction(conestyle);
@@ -1291,17 +1016,9 @@ void ApplicationWindow::makeToolBars() {
   graph3DToolbar->addSeparator();
 
   // Graph 3D floor actions
-  floorstyle = new QActionGroup(this);
-  floordata = new QAction(floorstyle);
   floordata->setCheckable(true);
-  floordata->setIcon(IconLoader::load("graph3d-floor", IconLoader::LightDark));
-  flooriso = new QAction(floorstyle);
   flooriso->setCheckable(true);
-  flooriso->setIcon(IconLoader::load("graph3d-isoline", IconLoader::LightDark));
-  floornone = new QAction(floorstyle);
   floornone->setCheckable(true);
-  floornone->setIcon(
-      IconLoader::load("graph3d-no-floor", IconLoader::LightDark));
   graph3DToolbar->addAction(floordata);
   graph3DToolbar->addAction(flooriso);
   graph3DToolbar->addAction(floornone);
@@ -1309,10 +1026,7 @@ void ApplicationWindow::makeToolBars() {
   graph3DToolbar->addSeparator();
 
   // Graph 3D animation actions
-  actionAnimate = new QAction(this);
   actionAnimate->setCheckable(true);
-  actionAnimate->setIcon(
-      IconLoader::load("view-3dplot-movie", IconLoader::LightDark));
   graph3DToolbar->addAction(actionAnimate);
 
   // Set toolbar icon size
@@ -2880,16 +2594,18 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
   // colorScheme = 0;  // disable color schemes for now
   switch (colorScheme) {
     case 0: {
-      setStyleSheet("");
+      qApp->setStyleSheet("");
       IconLoader::lumen_ =
           IconLoader::isLight(palette().color(QPalette::Window));
+      d_workspace->setBackground(mdiareacolor);
       appColorScheme = 0;
     } break;
     case 1: {
       QFile schemefile(":style/alpha/dark.qss");
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
-      setStyleSheet(schemeFileStream.readAll());
+      qApp->setStyleSheet(schemeFileStream.readAll());
+      d_workspace->setBackground(QBrush(QColor(32, 31, 31)));
       IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 1;
     } break;
@@ -2897,7 +2613,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       QFile schemefile(":style/smooth/dark-blue.qss");
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
-      setStyleSheet(schemeFileStream.readAll());
+      qApp->setStyleSheet(schemeFileStream.readAll());
       IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 2;
     } break;
@@ -2905,7 +2621,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       QFile schemefile(":style/smooth/dark-green.qss");
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
-      setStyleSheet(schemeFileStream.readAll());
+      qApp->setStyleSheet(schemeFileStream.readAll());
       IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 3;
     } break;
@@ -2913,7 +2629,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       QFile schemefile(":style/smooth/dark-orange.qss");
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
-      setStyleSheet(schemeFileStream.readAll());
+      qApp->setStyleSheet(schemeFileStream.readAll());
       IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 4;
     } break;
@@ -2921,7 +2637,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       QFile schemefile(":style/smooth/light-blue.qss");
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
-      setStyleSheet(schemeFileStream.readAll());
+      qApp->setStyleSheet(schemeFileStream.readAll());
       IconLoader::lumen_ = IconLoader::isLight(Qt::white);
       appColorScheme = 5;
     } break;
@@ -2929,7 +2645,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       QFile schemefile(":style/smooth/light-green.qss");
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
-      setStyleSheet(schemeFileStream.readAll());
+      qApp->setStyleSheet(schemeFileStream.readAll());
       IconLoader::lumen_ = IconLoader::isLight(Qt::white);
       appColorScheme = 6;
     } break;
@@ -2937,7 +2653,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       QFile schemefile(":style/smooth/light-orange.qss");
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
-      setStyleSheet(schemeFileStream.readAll());
+      qApp->setStyleSheet(schemeFileStream.readAll());
       IconLoader::lumen_ = IconLoader::isLight(Qt::white);
       appColorScheme = 7;
     } break;
@@ -2946,6 +2662,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       qDebug() << "color scheme index out of range";
       break;
   }
+  loadIcons();
 }
 
 void ApplicationWindow::changeAppFont(const QFont &font) {
@@ -3545,8 +3262,6 @@ void ApplicationWindow::loadSettings() {
 
   updateRecentProjectsList();
 
-  changeAppStyle(settings.value("Style", appStyle).toString());
-  changeAppColorScheme(settings.value("ColorScheme", 0).toInt());
   undoLimit = settings.value("UndoLimit", 10).toInt();
   d_project->undoStack()->setUndoLimit(undoLimit);
   autoSave = settings.value("AutoSave", true).toBool();
@@ -5188,13 +4903,49 @@ void ApplicationWindow::print() {
 void ApplicationWindow::printWindow() {
   WindowTableWidgetItem *it =
       static_cast<WindowTableWidgetItem *>(ui_->listView->currentItem());
-  MyWidget *w = it->window();
-  if (!w) return;
+  MyWidget *widget = it->window();
+  if (!widget) return;
 
-  print(w);
+  print(qobject_cast<QMdiSubWindow *>(widget));
 }
 
-void ApplicationWindow::printAllPlots() {}
+void ApplicationWindow::printAllPlots() {
+  std::unique_ptr<QPrinter> printer = std::unique_ptr<QPrinter>(new QPrinter);
+  std::unique_ptr<QPrintPreviewDialog> previewDialog =
+      std::unique_ptr<QPrintPreviewDialog>(
+          new QPrintPreviewDialog(printer.get(), this));
+  connect(
+      previewDialog.get(), &QPrintPreviewDialog::paintRequested,
+      [=](QPrinter *printer) {
+        printer->setPageSize(QPrinter::A4);
+        printer->setColorMode(QPrinter::Color);
+        std::unique_ptr<QCPPainter> painter =
+            std::unique_ptr<QCPPainter>(new QCPPainter(printer));
+
+        foreach (QMdiSubWindow *subwindow, subWindowsList()) {
+          if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
+            printer->newPage();
+            QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
+            Layout2D *layout = qobject_cast<Layout2D *>(subwindow);
+            int plotWidth = layout->getPlotCanwas()->viewport().width();
+            int plotHeight = layout->getPlotCanwas()->viewport().height();
+            double scale = pageRect.width() / static_cast<double>(plotWidth);
+
+            painter->setMode(QCPPainter::pmVectorized);
+            painter->setMode(QCPPainter::pmNoCaching);
+            // comment this out if you want cosmetic thin lines (always 1 pixel
+            // thick independent of pdf zoom level)
+            // painter.setMode(QCPPainter::pmNonCosmetic);
+            painter->scale(scale, scale);
+            layout->getCurrentAxisRect()->setPrintorExportJob(true);
+            layout->getPlotCanwas()->toPainter(painter.get(), plotWidth,
+                                               plotHeight);
+            layout->getCurrentAxisRect()->setPrintorExportJob(false);
+          }
+        }
+      });
+  previewDialog->exec();
+}
 
 void ApplicationWindow::fitExponentialGrowth() { fitExponential(-1); }
 
@@ -8362,10 +8113,11 @@ void ApplicationWindow::addListViewItem(MyWidget *widget) {
   } else if (isActiveSubWindow(widget, SubWindowType::Plot2DSubWindow)) {
     it->setIcon(0, IconLoader::load("edit-graph", IconLoader::LightDark));
     it->setText(1, tr("2D Graph"));
-  } else if (isActiveSubWindow(widget, SubWindowType::SubwindowPlot3D)) {
+  } /*else if (isActiveSubWindow(widget, SubWindowType::SubwindowPlot3D)) {
     it->setIcon(0, IconLoader::load("edit-graph3d", IconLoader::LightDark));
     it->setText(1, tr("3D Graph"));
-  } else if (isActiveSubWindow(widget, SubWindowType::Plot3DSubWindow)) {
+  }*/
+  else if (isActiveSubWindow(widget, SubWindowType::Plot3DSubWindow)) {
     it->setIcon(0, IconLoader::load("edit-graph3d", IconLoader::LightDark));
     it->setText(1, tr("3D Graph"));
   }
@@ -9153,8 +8905,9 @@ void ApplicationWindow::selectPlotType(int value) {
           ycollist, from, to);
       return;
     case Graph::Area:
-      layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Area2D, table,
-                                  xcol, ycollist, from, to);
+      layout->generateLineSpecial2DPlot(
+          AxisRect2D::LineScatterSpecialType::Area2D, table, xcol, ycollist,
+          from, to);
       return;
     case Graph::HorizontalBars:
       layout->generateBar2DPlot(AxisRect2D::BarType::HorizontalBars, table,
@@ -9235,43 +8988,358 @@ QStringList ApplicationWindow::tableWindows() {
   return result;
 }
 
-//----------------------------scripting related
-// code---------------------------
-void ApplicationWindow::attachQtScript() {
-  // pass mainwindow as global object
-  QScriptValue objectValue = consoleWindow->engine->newQObject(this);
-  consoleWindow->engine->globalObject().setProperty("Alpha", objectValue);
+void ApplicationWindow::loadIcons() {
+  // File menu
+  ui_->actionNewProject->setIcon(
+      IconLoader::load("edit-new", IconLoader::LightDark));
+  ui_->actionNewGraph->setIcon(
+      IconLoader::load("edit-graph", IconLoader::LightDark));
+  ui_->actionNewNote->setIcon(
+      IconLoader::load("edit-note", IconLoader::LightDark));
+  ui_->actionNewTable->setIcon(
+      IconLoader::load("table", IconLoader::LightDark));
+  ui_->actionNewMatrix->setIcon(
+      IconLoader::load("matrix", IconLoader::LightDark));
+  ui_->actionNewFunctionPlot->setIcon(
+      IconLoader::load("graph2d-function-xy", IconLoader::LightDark));
+  ui_->actionNew3DSurfacePlot->setIcon(
+      IconLoader::load("graph3d-function-xyz", IconLoader::LightDark));
+  ui_->actionOpenAproj->setIcon(
+      IconLoader::load("project-open", IconLoader::LightDark));
+  ui_->actionOpenImage->setIcon(QIcon());
+  ui_->actionImportImage->setIcon(
+      IconLoader::load("view-image", IconLoader::LightDark));
+  ui_->actionSaveProject->setIcon(
+      IconLoader::load("document-save", IconLoader::LightDark));
+  ui_->actionSaveProjectAs->setIcon(QIcon());
+  ui_->actionOpenTemplate->setIcon(
+      IconLoader::load("template-open", IconLoader::LightDark));
+  ui_->actionSaveAsTemplate->setIcon(
+      IconLoader::load("template-save", IconLoader::LightDark));
+  ui_->actionExportCurrentGraph->setIcon(QIcon());
+  ui_->actionExportAllGraphs->setIcon(QIcon());
+  ui_->actionPrint->setIcon(
+      IconLoader::load("edit-print", IconLoader::LightDark));
+  ui_->actionPrintAllPlots->setIcon(QIcon());
+  ui_->actionExportASCII->setIcon(QIcon());
+  ui_->actionImportASCII->setIcon(
+      IconLoader::load("import-ascii-filter", IconLoader::LightDark));
+  ui_->actionQuit->setIcon(
+      IconLoader::load("application-exit", IconLoader::General));
+  // Edit menu
+  ui_->actionUndo->setIcon(
+      IconLoader::load("edit-undo", IconLoader::LightDark));
+  ui_->actionRedo->setIcon(
+      IconLoader::load("edit-redo", IconLoader::LightDark));
+  ui_->actionCutSelection->setIcon(
+      IconLoader::load("edit-cut", IconLoader::LightDark));
+  ui_->actionCopySelection->setIcon(
+      IconLoader::load("edit-copy", IconLoader::LightDark));
+  ui_->actionPasteSelection->setIcon(
+      IconLoader::load("edit-paste", IconLoader::LightDark));
+  ui_->actionClearSelection->setIcon(
+      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
+  ui_->actionDeleteFitTables->setIcon(
+      IconLoader::load("edit-delete", IconLoader::General));
+  ui_->actionClearLogInfo->setIcon(
+      IconLoader::load("clear-loginfo", IconLoader::General));
+  ui_->actionPreferences->setIcon(
+      IconLoader::load("edit-preference", IconLoader::LightDark));
+  // View menu
+  ui_->actionPlotWizard->setIcon(
+      IconLoader::load("tools-wizard", IconLoader::LightDark));
+  ui_->actionShowUndoRedoHistory->setIcon(QIcon());
+  (fileToolbar->isMovable())
+      ? ui_->actionLockToolbars->setIcon(
+            IconLoader::load("unlock", IconLoader::LightDark))
+      : ui_->actionLockToolbars->setIcon(
+            IconLoader::load("lock", IconLoader::LightDark));
+  actionShowProjectExplorer->setIcon(
+      IconLoader::load("folder-explorer", IconLoader::LightDark));
+  actionShowResultsLog->setIcon(
+      IconLoader::load("view-console", IconLoader::LightDark));
+  actionShowConsole->setIcon(QIcon());
+  // Scripting menu
+  ui_->actionScriptingLanguage->setIcon(QIcon());
+  ui_->actionRestartScripting->setIcon(QIcon());
+  ui_->actionExecute->setIcon(QIcon());
+  ui_->actionExecuteAll->setIcon(QIcon());
+  ui_->actionEvaluateExpression->setIcon(QIcon());
+  // Plot menu
+  ui_->actionPlot2DLine->setIcon(
+      IconLoader::load("graph2d-line", IconLoader::LightDark));
+  ui_->actionPlot2DScatter->setIcon(
+      IconLoader::load("graph2d-scatter", IconLoader::LightDark));
+  ui_->actionPlot2DLineSymbol->setIcon(
+      IconLoader::load("graph2d-line-scatter", IconLoader::LightDark));
+  ui_->actionPlot2DVerticalDropLines->setIcon(
+      QIcon(IconLoader::load("graph2d-vertical-drop", IconLoader::LightDark)));
+  ui_->actionPlot2DSpline->setIcon(
+      IconLoader::load("graph2d-spline", IconLoader::LightDark));
+  ui_->actionPlot2DVerticalSteps->setIcon(
+      IconLoader::load("graph2d-vertical-step", IconLoader::LightDark));
+  ui_->actionPlot2DHorizontalSteps->setIcon(
+      IconLoader::load("graph2d-horizontal-step", IconLoader::LightDark));
+  ui_->actionPlot2DVerticalBars->setIcon(
+      IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
+  ui_->actionPlot2DHorizontalBars->setIcon(
+      IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark));
+  ui_->actionPlot2DArea->setIcon(
+      IconLoader::load("graph2d-area", IconLoader::LightDark));
+  ui_->actionPlot2DPie->setIcon(
+      IconLoader::load("graph2d-pie", IconLoader::LightDark));
+  ui_->actionPlot2DVectorsXYAM->setIcon(
+      IconLoader::load("graph2d-vector-xyam", IconLoader::LightDark));
+  ui_->actionPlot2DVectorsXYXY->setIcon(
+      IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
+  ui_->actionPlot2DStatBox->setIcon(
+      IconLoader::load("graph2d-box", IconLoader::LightDark));
+  ui_->actionPlot2DStatHistogram->setIcon(
+      IconLoader::load("graph2d-histogram", IconLoader::LightDark));
+  ui_->actionPlot2DStatStackedHistogram->setIcon(
+      QIcon(QPixmap(":/stacked_hist.xpm")));
+  ui_->actionPanelVertical2Layers->setIcon(QIcon(QPixmap(":/panel_v2.xpm")));
+  ui_->actionPanelHorizontal2Layers->setIcon(QIcon(QPixmap(":/panel_h2.xpm")));
+  ui_->actionPanel4Layers->setIcon(QIcon(QPixmap(":/panel_4.xpm")));
+  ui_->actionPanelStackedLayers->setIcon(QIcon(QPixmap(":/stacked.xpm")));
+  ui_->actionPlot3DRibbon->setIcon(
+      IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
+  ui_->actionPlot3DBar->setIcon(
+      IconLoader::load("graph3d-bar", IconLoader::LightDark));
+  ui_->actionPlot3DScatter->setIcon(
+      IconLoader::load("graph3d-scatter", IconLoader::LightDark));
+  ui_->actionPlot3DTrajectory->setIcon(
+      IconLoader::load("graph3d-trajectory", IconLoader::LightDark));
+  // 3D Plot menu
+  ui_->action3DWireFrame->setIcon(
+      IconLoader::load("graph3d-hidden-line", IconLoader::LightDark));
+  ui_->action3DHiddenLine->setIcon(
+      IconLoader::load("graph3d-mesh", IconLoader::LightDark));
+  ui_->action3DPolygons->setIcon(
+      IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
+  ui_->action3DWireSurface->setIcon(
+      IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
+  ui_->action3DBar->setIcon(
+      IconLoader::load("graph3d-bar", IconLoader::LightDark));
+  ui_->action3DScatter->setIcon(
+      IconLoader::load("graph3d-scatter", IconLoader::LightDark));
+  ui_->action3DCountourColorFill->setIcon(
+      IconLoader::load("edit-colormap3d", IconLoader::General));
+  ui_->action3DCountourLines->setIcon(
+      IconLoader::load("edit-contour3d", IconLoader::General));
+  ui_->action3DGreyScaleMap->setIcon(
+      IconLoader::load("edit-graymap3d", IconLoader::General));
+  // Graph menu
+  ui_->actionAddRemoveCurve->setIcon(
+      IconLoader::load("edit-add-graph", IconLoader::LightDark));
+  ui_->actionAddErrorBars->setIcon(
+      IconLoader::load("graph-y-error", IconLoader::LightDark));
+  ui_->actionAddFunctionCurve->setIcon(
+      IconLoader::load("math-fofx", IconLoader::LightDark));
+  ui_->actionAddText->setIcon(
+      IconLoader::load("draw-text", IconLoader::LightDark));
+  ui_->actionDrawArrow->setIcon(
+      IconLoader::load("edit-arrow", IconLoader::LightDark));
+  ui_->actionDrawLine->setIcon(
+      IconLoader::load("draw-line", IconLoader::LightDark));
+  ui_->actionAddTimeStamp->setIcon(
+      IconLoader::load("clock", IconLoader::LightDark));
+  ui_->actionAddImage->setIcon(
+      IconLoader::load("view-image", IconLoader::LightDark));
+  ui_->actionAutomaticLayout->setIcon(
+      IconLoader::load("auto-layout", IconLoader::LightDark));
+  ui_->actionAddLayer->setIcon(
+      IconLoader::load("layer-new", IconLoader::LightDark));
+  ui_->actionRemoveLayer->setIcon(
+      IconLoader::load("edit-delete-selection", IconLoader::LightDark));
+  ui_->actionArrangeLayers->setIcon(
+      IconLoader::load("layer-arrange", IconLoader::LightDark));
+  // Tools menu
+  ui_->actionDisableGraphTools->setIcon(
+      IconLoader::load("edit-select", IconLoader::LightDark));
+  ui_->actionGraphZoomIn->setIcon(
+      IconLoader::load("zoom-in", IconLoader::LightDark));
+  ui_->actionGraphZoomOut->setIcon(
+      IconLoader::load("zoom-out", IconLoader::LightDark));
+  ui_->actionGraphRescaleShowAll->setIcon(
+      IconLoader::load("graph-unzoom", IconLoader::LightDark));
+  ui_->actionGraphScreenReader->setIcon(
+      IconLoader::load("edit-crosshair", IconLoader::LightDark));
+  ui_->actionGraphDataReader->setIcon(
+      IconLoader::load("edit-select-data", IconLoader::LightDark));
+  ui_->actionGraphSelectDataRange->setIcon(
+      IconLoader::load("edit-data-range", IconLoader::LightDark));
+  ui_->actionGraphMoveDataPoints->setIcon(
+      IconLoader::load("edit-hand", IconLoader::LightDark));
+  ui_->actionGraphRemoveBadDataPoints->setIcon(
+      IconLoader::load("edit-erasor", IconLoader::LightDark));
+  // Table Analysis menu
+  ui_->actionStatisticsOnColumns->setIcon(
+      IconLoader::load("table-column-sum", IconLoader::LightDark));
+  ui_->actionStatisticsOnRows->setIcon(
+      IconLoader::load("table-row-sum", IconLoader::LightDark));
+  ui_->actionTableFFT->setIcon(QIcon());
+  ui_->actionCorrelate->setIcon(QIcon());
+  ui_->actionAutocorrelate->setIcon(QIcon());
+  ui_->actionConvolute->setIcon(QIcon());
+  ui_->actionDeconvolute->setIcon(QIcon());
+  ui_->actionTableFitWizard->setIcon(QIcon());
+  // Graph Analysis menu
+  ui_->actionHorizontalTranslate->setIcon(QIcon());
+  ui_->actionVerticalTranslate->setIcon(QIcon());
+  ui_->actionDifferentiate->setIcon(QIcon());
+  ui_->actionIntegrate->setIcon(QIcon());
+  ui_->actionSavitzkySmooth->setIcon(QIcon());
+  ui_->actionMovingWindowAverageSmooth->setIcon(QIcon());
+  ui_->actionFFTFilterSmooth->setIcon(QIcon());
+  ui_->actionLowPassFFTFilter->setIcon(QIcon());
+  ui_->actionHighPassFFTFilter->setIcon(QIcon());
+  ui_->actionBandPassFFTFilter->setIcon(QIcon());
+  ui_->actionBandBlockFFTFilter->setIcon(QIcon());
+  ui_->actionInterpolate->setIcon(QIcon());
+  ui_->actionGraph2DFFT->setIcon(QIcon());
+  ui_->actionFitLinear->setIcon(QIcon());
+  ui_->actionFitPolynomial->setIcon(QIcon());
+  ui_->actionFirstOrderExponentialDecay->setIcon(QIcon());
+  ui_->actionSecondOrderExponentialDecay->setIcon(QIcon());
+  ui_->actionThirdOrderExponentialDecay->setIcon(QIcon());
+  ui_->actionFitExponentialGrowth->setIcon(QIcon());
+  ui_->actionFitBoltzmannSigmoid->setIcon(QIcon());
+  ui_->actionFitGaussian->setIcon(QIcon());
+  ui_->actionFitLorentzian->setIcon(QIcon());
+  ui_->actionMultiPeakGaussian->setIcon(QIcon());
+  ui_->actionMultiPeakLorentzian->setIcon(QIcon());
+  ui_->actionGraph2DFitWizard->setIcon(QIcon());
+  // Windows menu
+  ui_->actionCascadeWindow->setIcon(QIcon());
+  ui_->actionTileWindow->setIcon(QIcon());
+  ui_->actionNextWindow->setIcon(
+      IconLoader::load("go-next", IconLoader::LightDark));
+  ui_->actionPreviousWindow->setIcon(
+      IconLoader::load("go-previous", IconLoader::LightDark));
+  ui_->actionRenameWindow->setIcon(
+      IconLoader::load("edit-rename", IconLoader::LightDark));
+  ui_->actionDuplicateWindow->setIcon(
+      IconLoader::load("edit-duplicate", IconLoader::LightDark));
+  ui_->actionWindowGeometry->setIcon(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
+  ui_->actionHideWindow->setIcon(QIcon());
+  ui_->actionCloseWindow->setIcon(
+      IconLoader::load("edit-delete", IconLoader::General));
+  // Help menu
+  ui_->actionHelp->setIcon(
+      IconLoader::load("edit-help", IconLoader::LightDark));
+  ui_->actionChooseHelpFolder->setIcon(QIcon());
+  ui_->actionHomepage->setIcon(
+      IconLoader::load("go-home", IconLoader::LightDark));
+  ui_->actionCheckUpdates->setIcon(QIcon());
+  ui_->actionDownloadManual->setIcon(QIcon());
+  ui_->actionVisitForum->setIcon(
+      IconLoader::load("edit-help-forum", IconLoader::LightDark));
+  ui_->actionReportBug->setIcon(
+      IconLoader::load("tools-report-bug", IconLoader::LightDark));
+  ui_->actionAbout->setIcon(
+      IconLoader::load("help-about", IconLoader::LightDark));
+  // Toolbutton
+  btn_new_aspect_->setIcon(
+      IconLoader::load("edit-new-aspect", IconLoader::LightDark));
+  btn_layout_->setIcon(
+      IconLoader::load("layer-arrange", IconLoader::LightDark));
+  btn_curves_->setIcon(
+      IconLoader::load("edit-add-graph", IconLoader::LightDark));
+  btn_plot_enrichments_->setIcon(
+      IconLoader::load("draw-text", IconLoader::LightDark));
+  btn_plot_linespoints_->setIcon(
+      IconLoader::load("graph2d-line", IconLoader::LightDark));
+  btn_plot_bars_->setIcon(
+      IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
+  btn_plot_vect_->setIcon(
+      IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
+  // 3d toolbars
+  Box->setIcon(IconLoader::load("graph3d-box-axis", IconLoader::LightDark));
+  Frame->setIcon(IconLoader::load("graph3d-free-axis", IconLoader::LightDark));
+  None->setIcon(IconLoader::load("graph3d-no-axis", IconLoader::LightDark));
+  front->setIcon(IconLoader::load("graph3d-front-grid", IconLoader::LightDark));
+  back->setIcon(IconLoader::load("graph3d-back-grid", IconLoader::LightDark));
+  right->setIcon(IconLoader::load("graph3d-left-grid", IconLoader::LightDark));
+  left->setIcon(IconLoader::load("graph3d-right-grid", IconLoader::LightDark));
+  ceil->setIcon(IconLoader::load("graph3d-top-grid", IconLoader::LightDark));
+  floor->setIcon(IconLoader::load("graph3d-floor-grid", IconLoader::LightDark));
+  floordata->setIcon(IconLoader::load("graph3d-floor", IconLoader::LightDark));
+  flooriso->setIcon(IconLoader::load("graph3d-isoline", IconLoader::LightDark));
+  floornone->setIcon(
+      IconLoader::load("graph3d-no-floor", IconLoader::LightDark));
+  wireframe->setIcon(
+      IconLoader::load("graph3d-hidden-line", IconLoader::LightDark));
+  hiddenline->setIcon(IconLoader::load("graph3d-mesh", IconLoader::LightDark));
+  polygon->setIcon(IconLoader::load("graph3d-polygon", IconLoader::LightDark));
+  filledmesh->setIcon(
+      IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
+  pointstyle->setIcon(
+      IconLoader::load("graph3d-point-mesh", IconLoader::LightDark));
+  conestyle->setIcon(IconLoader::load("graph3d-cone", IconLoader::LightDark));
+  crossHairStyle->setIcon(
+      IconLoader::load("graph3d-cross", IconLoader::LightDark));
+  barstyle->setIcon(IconLoader::load("graph3d-bars", IconLoader::General));
+  actionPerspective->setIcon(
+      IconLoader::load("graph3d-perspective-view", IconLoader::LightDark));
+  actionResetRotation->setIcon(
+      IconLoader::load("graph3d-reset-rotation", IconLoader::LightDark));
+  actionFitFrame->setIcon(
+      IconLoader::load("graph3d-fit-frame", IconLoader::LightDark));
+  actionAnimate->setIcon(
+      IconLoader::load("view-3dplot-movie", IconLoader::LightDark));
+  // non menu qaction icons
+  actionExportPDF->setIcon(
+      IconLoader::load("application-pdf", IconLoader::LightDark));
+  actionPixelLineProfile->setIcon(QIcon(QPixmap(":/pixelProfile.xpm")));
+  actionResizeWindow->setIcon(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
+  actionPrintWindow->setIcon(
+      IconLoader::load("edit-print", IconLoader::LightDark));
+  actionShowPlotGeometryDialog->setIcon(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
 
-  QScriptValue clearFunction = consoleWindow->engine->newFunction(&openProj);
-  clearFunction.setData(objectValue);
-  consoleWindow->engine->globalObject().setProperty("openAproj", clearFunction);
-
-  qScriptRegisterMetaType<Table *>(consoleWindow->engine,
-                                   tableObjectToScriptValue,
-                                   tableObjectFromScriptValue);
-  qScriptRegisterMetaType<Note *>(consoleWindow->engine,
-                                  tableObjectToScriptValue,
-                                  tableObjectFromScriptValue);
-  qScriptRegisterMetaType<Matrix *>(consoleWindow->engine,
-                                    tableObjectToScriptValue,
-                                    tableObjectFromScriptValue);
-  qScriptRegisterMetaType<Column *>(consoleWindow->engine,
-                                    tableObjectToScriptValue,
-                                    tableObjectFromScriptValue);
-  qScriptRegisterMetaType<QVector<int>>(consoleWindow->engine, toScriptValue,
-                                        fromScriptValue);
-  qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine, toScriptValue,
-                                          fromScriptValue);
-  qScriptRegisterMetaType<QVector<double>>(consoleWindow->engine, toScriptValue,
-                                           fromScriptValue);
-  qScriptRegisterMetaType<QVector<long>>(consoleWindow->engine, toScriptValue,
-                                         fromScriptValue);
-  qScriptRegisterMetaType<QVector<QString>>(consoleWindow->engine,
-                                            toScriptValue, fromScriptValue);
-  qScriptRegisterMetaType<QVector<QDate>>(consoleWindow->engine, toScriptValue,
-                                          fromScriptValue);
-  qScriptRegisterMetaType<QVector<QDateTime>>(consoleWindow->engine,
-                                              toScriptValue, fromScriptValue);
+  foreach (QMdiSubWindow *subwindow, subWindowsList()) {
+    QList<QTreeWidgetItem *> items = ui_->listView->findItems(
+        qobject_cast<MyWidget *>(subwindow)->name(), Qt::MatchExactly, 0);
+    if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
+      Table *table = qobject_cast<Table *>(subwindow);
+      if (items.count() > 0)
+        items.at(0)->setIcon(0,
+                             IconLoader::load("table", IconLoader::LightDark));
+      table->setWindowIcon(IconLoader::load("table", IconLoader::LightDark));
+      table->d_future_table->loadIcons();
+    } else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow)) {
+      Matrix *matrix = qobject_cast<Matrix *>(subwindow);
+      if (items.count() > 0)
+        items.at(0)->setIcon(0,
+                             IconLoader::load("matrix", IconLoader::LightDark));
+      matrix->setWindowIcon(IconLoader::load("matrix", IconLoader::LightDark));
+      matrix->d_future_matrix->loadIcons();
+    } else if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow)) {
+      Note *note = qobject_cast<Note *>(subwindow);
+      if (items.count() > 0)
+        items.at(0)->setIcon(
+            0, IconLoader::load("edit-note", IconLoader::LightDark));
+      note->setWindowIcon(IconLoader::load("edit-note", IconLoader::LightDark));
+    } else if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
+      Layout2D *layout = qobject_cast<Layout2D *>(subwindow);
+      if (items.count() > 0)
+        items.at(0)->setIcon(
+            0, IconLoader::load("edit-graph", IconLoader::LightDark));
+      layout->setWindowIcon(
+          IconLoader::load("edit-graph", IconLoader::LightDark));
+      layout->loadIcons();
+    } else if (isActiveSubWindow(subwindow, SubWindowType::Plot3DSubWindow)) {
+      Graph3D *graph = qobject_cast<Graph3D *>(subwindow);
+      if (items.count() > 0)
+        items.at(0)->setIcon(
+            0, IconLoader::load("edit-graph3d", IconLoader::LightDark));
+      graph->setWindowIcon(
+          IconLoader::load("edit-graph3d", IconLoader::LightDark));
+    }
+  }
 }
 
 bool ApplicationWindow::isActiveSubwindow(
@@ -9342,6 +9410,44 @@ bool ApplicationWindow::isActiveSubWindow(
   return result;
 }
 
+//----------------------------scripting related code---------------------------
+void ApplicationWindow::attachQtScript() {
+  // pass mainwindow as global object
+  QScriptValue objectValue = consoleWindow->engine->newQObject(this);
+  consoleWindow->engine->globalObject().setProperty("Alpha", objectValue);
+
+  QScriptValue clearFunction = consoleWindow->engine->newFunction(&openProj);
+  clearFunction.setData(objectValue);
+  consoleWindow->engine->globalObject().setProperty("openAproj", clearFunction);
+
+  qScriptRegisterMetaType<Table *>(consoleWindow->engine,
+                                   tableObjectToScriptValue,
+                                   tableObjectFromScriptValue);
+  qScriptRegisterMetaType<Note *>(consoleWindow->engine,
+                                  tableObjectToScriptValue,
+                                  tableObjectFromScriptValue);
+  qScriptRegisterMetaType<Matrix *>(consoleWindow->engine,
+                                    tableObjectToScriptValue,
+                                    tableObjectFromScriptValue);
+  qScriptRegisterMetaType<Column *>(consoleWindow->engine,
+                                    tableObjectToScriptValue,
+                                    tableObjectFromScriptValue);
+  qScriptRegisterMetaType<QVector<int>>(consoleWindow->engine, toScriptValue,
+                                        fromScriptValue);
+  qScriptRegisterMetaType<QVector<float>>(consoleWindow->engine, toScriptValue,
+                                          fromScriptValue);
+  qScriptRegisterMetaType<QVector<double>>(consoleWindow->engine, toScriptValue,
+                                           fromScriptValue);
+  qScriptRegisterMetaType<QVector<long>>(consoleWindow->engine, toScriptValue,
+                                         fromScriptValue);
+  qScriptRegisterMetaType<QVector<QString>>(consoleWindow->engine,
+                                            toScriptValue, fromScriptValue);
+  qScriptRegisterMetaType<QVector<QDate>>(consoleWindow->engine, toScriptValue,
+                                          fromScriptValue);
+  qScriptRegisterMetaType<QVector<QDateTime>>(consoleWindow->engine,
+                                              toScriptValue, fromScriptValue);
+}
+
 Table *ApplicationWindow::getTableHandle() {
   if (context()->argumentCount() != 1 || !context()->argument(0).isString()) {
     context()->throwError(tr("getTableHandle(string) take one argument!"));
@@ -9350,8 +9456,8 @@ Table *ApplicationWindow::getTableHandle() {
   bool namedWidgetPresent = false;
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
   foreach (QMdiSubWindow *subwindow, subwindowlist) {
-    if (subwindow->accessibleName() == context()->argument(0).toString()) {
-      if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
+    if (subwindow->objectName() == context()->argument(0).toString()) {
+      if (qobject_cast<Table *>(subwindow)) {
         namedWidgetPresent = true;
         Table *table = qobject_cast<Table *>(subwindow);
         return table;
@@ -9379,8 +9485,8 @@ Matrix *ApplicationWindow::getMatrixHandle() {
   bool namedWidgetPresent = false;
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
   foreach (QMdiSubWindow *subwindow, subwindowlist) {
-    if (subwindow->accessibleName() == context()->argument(0).toString()) {
-      if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow)) {
+    if (subwindow->objectName() == context()->argument(0).toString()) {
+      if (qobject_cast<Matrix *>(subwindow)) {
         namedWidgetPresent = true;
         Matrix *matrix = qobject_cast<Matrix *>(subwindow);
         return matrix;
@@ -9408,8 +9514,8 @@ Note *ApplicationWindow::getNoteHandle() {
   bool namedWidgetPresent = false;
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
   foreach (QMdiSubWindow *subwindow, subwindowlist) {
-    if (subwindow->accessibleName() == context()->argument(0).toString()) {
-      if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow)) {
+    if (subwindow->objectName() == context()->argument(0).toString()) {
+      if (qobject_cast<Note *>(subwindow)) {
         namedWidgetPresent = true;
         Note *note = qobject_cast<Note *>(subwindow);
         if (!note) {

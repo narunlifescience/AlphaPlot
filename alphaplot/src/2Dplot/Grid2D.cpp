@@ -123,20 +123,12 @@ Qt::PenStyle Grid2D::getZeroLineStyle() const { return zerolinestyle_; }
 
 double Grid2D::getZeroLinewidth() const { return zerolinethickness_; }
 
-bool Grid2D::getMajorGridVisible() const {
-  if (pen() == Qt::NoPen)
-    return false;
-  else
-    return true;
-}
+bool Grid2D::getMajorGridVisible() const { return (pen() != Qt::NoPen); }
 
 bool Grid2D::getMinorGridVisible() const { return subGridVisible(); }
 
 bool Grid2D::getZerothLineVisible() const {
-  if (zeroLinePen() == Qt::NoPen)
-    return false;
-  else
-    return true;
+  return (zeroLinePen() != Qt::NoPen);
 }
 
 QString Grid2D::saveToAproj() {

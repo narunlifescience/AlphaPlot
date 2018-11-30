@@ -91,9 +91,6 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   removelineitem_->setText("Remove");
   removeimageitem_->setText("Remove");
 
-  addgraph_->setIcon(IconLoader::load("edit-add-graph", IconLoader::LightDark));
-  addfunctionplot_->setIcon(
-      IconLoader::load("math-fofx", IconLoader::LightDark));
   removeaxis_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removels_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removecurve_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
@@ -240,6 +237,11 @@ void MyTreeWidget::CurrentItemChanged(QTreeWidgetItem *current,
             current->parent()->data(0, Qt::UserRole + 1).value<void *>();
         currentaxisrect = static_cast<AxisRect2D *>(ptr);
       } break;
+      case MyTreeWidget::PropertyItemType::ErrorBar: {
+        void *ptr =
+            current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+        currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      } break;
     }
   }
 
@@ -256,6 +258,9 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
   QMenu addbottomaxismenu;
   QMenu addrightaxismenu;
   QMenu addtopaxismenu;
+  addgraph_->setIcon(IconLoader::load("edit-add-graph", IconLoader::LightDark));
+  addfunctionplot_->setIcon(
+      IconLoader::load("math-fofx", IconLoader::LightDark));
 
   switch (static_cast<PropertyItemType>(item->data(0, Qt::UserRole).toInt())) {
     case PropertyItemType::Layout: {

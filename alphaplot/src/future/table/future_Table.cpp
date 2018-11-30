@@ -47,11 +47,11 @@
 #include <QMapIterator>
 #include <QMenu>
 #include <QMenuBar>
+#include <QMimeData>
 #include <QModelIndex>
 #include <QModelIndexList>
 #include <QShortcut>
 #include <QTime>
-#include <QMimeData>
 #include <QToolBar>
 #include <QtDebug>
 #include <QtGlobal>
@@ -1745,13 +1745,12 @@ void Table::goToCell() {
   if (!d_view) return;
   bool ok;
 
-  int col =
-      QInputDialog::getInt(nullptr, tr("Go to Cell"), tr("Enter column"), 1,
-                               1, columnCount(), 1, &ok);
+  int col = QInputDialog::getInt(nullptr, tr("Go to Cell"), tr("Enter column"),
+                                 1, 1, columnCount(), 1, &ok);
   if (!ok) return;
 
-  int row = QInputDialog::getInt(nullptr, tr("Go to Cell"), tr("Enter row"),
-                                     1, 1, rowCount(), 1, &ok);
+  int row = QInputDialog::getInt(nullptr, tr("Go to Cell"), tr("Enter row"), 1,
+                                 1, rowCount(), 1, &ok);
   if (!ok) return;
 
   d_view->goToCell(row - 1, col - 1);
@@ -2311,6 +2310,91 @@ bool Table::readColumnWidthElement(XmlStreamReader *reader) {
   else
     setColumnWidth(col, value);
   return true;
+}
+
+void Table::loadIcons() {
+  // selection related actions
+  action_cut_selection->setIcon(
+      IconLoader::load("edit-cut", IconLoader::LightDark));
+  action_copy_selection->setIcon(
+      IconLoader::load("edit-copy", IconLoader::LightDark));
+  action_paste_into_selection->setIcon(
+      IconLoader::load("edit-paste", IconLoader::LightDark));
+#ifndef LEGACY_CODE_0_2_x
+  action_mask_selection->setIcon(QIcon(QPixmap(":/mask.xpm")));
+  action_unmask_selection->setIcon(QIcon(QPixmap(":/unmask.xpm")));
+#endif
+  action_set_formula->setIcon(
+      IconLoader::load("math-fofx", IconLoader::LightDark));
+  action_clear_selection->setIcon(
+      IconLoader::load("clear-loginfo", IconLoader::General));
+  action_recalculate->setIcon(
+      IconLoader::load("edit-recalculate", IconLoader::LightDark));
+  action_fill_row_numbers->setIcon(
+      IconLoader::load("edit-row-number", IconLoader::LightDark));
+  action_fill_random->setIcon(
+      IconLoader::load("edit-random-number", IconLoader::LightDark));
+  action_fill_random_distribution->setIcon(
+      IconLoader::load("edit-random-dist", IconLoader::LightDark));
+  // table related actions
+  action_toggle_comments->setIcon(
+      IconLoader::load("table-show-comment", IconLoader::LightDark));
+  action_toggle_tabbar->setIcon(
+      IconLoader::load("edit-unhide", IconLoader::LightDark));
+  action_select_all->setIcon(
+      IconLoader::load("edit-table-select-all", IconLoader::LightDark));
+  action_add_column->setIcon(IconLoader::load("edit-table-insert-column-right",
+                                              IconLoader::LightDark));
+  action_clear_table->setIcon(
+      IconLoader::load("edit-table-clear", IconLoader::LightDark));
+  action_export_to_TeX->setIcon(
+      IconLoader::load("edit-tex", IconLoader::LightDark));
+#ifndef LEGACY_CODE_0_2_x
+  action_clear_masks->setIcon(QIcon(QPixmap(":/unmask.xpm")));
+#endif
+  action_sort_table->setIcon(
+      IconLoader::load("view-sort", IconLoader::LightDark));
+  action_go_to_cell->setIcon(
+      IconLoader::load("goto-cell", IconLoader::LightDark));
+  action_dimensions_dialog->setIcon(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
+  // column related actions
+  action_insert_columns->setIcon(
+      IconLoader::load("edit-table-insert-column", IconLoader::LightDark));
+  action_remove_columns->setIcon(
+      IconLoader::load("edit-table-delete-column", IconLoader::LightDark));
+  action_clear_columns->setIcon(
+      IconLoader::load("edit-table-clear-column", IconLoader::LightDark));
+  action_add_columns->setIcon(IconLoader::load("edit-table-insert-column-right",
+                                               IconLoader::LightDark));
+  action_set_as_xerr->setIcon(
+      IconLoader::load("graph-x-error", IconLoader::LightDark));
+  action_set_as_yerr->setIcon(
+      IconLoader::load("graph-y-error", IconLoader::LightDark));
+  action_normalize_columns->setIcon(
+      IconLoader::load("edit-normalize-random-number", IconLoader::LightDark));
+  action_normalize_selection->setIcon(
+      IconLoader::load("edit-normalize-random-number", IconLoader::LightDark));
+  action_sort_columns->setIcon(
+      IconLoader::load("view-sort", IconLoader::LightDark));
+  action_statistics_columns->setIcon(
+      IconLoader::load("table-column-sum", IconLoader::LightDark));
+  action_type_format->setIcon(
+      IconLoader::load("edit-change-type-format", IconLoader::LightDark));
+  action_edit_description->setIcon(
+      IconLoader::load("edit-column-description", IconLoader::LightDark));
+  // row related actions
+  action_insert_rows->setIcon(
+      IconLoader::load("edit-table-insert-row", IconLoader::LightDark));
+  action_remove_rows->setIcon(
+      IconLoader::load("edit-table-delete-row", IconLoader::LightDark));
+  action_clear_rows->setIcon(
+      IconLoader::load("edit-table-clear-row", IconLoader::LightDark));
+  action_add_rows->setIcon(
+      IconLoader::load("edit-table-add-row", IconLoader::LightDark));
+  action_statistics_rows->setIcon(
+      IconLoader::load("table-row-sum", IconLoader::LightDark));
+  d_view->loadIcons();
 }
 
 void Table::setColumnWidth(int col, int width) {

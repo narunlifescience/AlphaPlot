@@ -292,10 +292,10 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   enumManager_->setEnumIcons(itempropertyimagestroketypeitem_,
                              stroketypeiconslist);
 
-  // LineScatter Properties block
+  // LineSpecial Properties block
   QStringList lstylelist;
   lstylelist << tr("StepLeft") << tr("StepRight") << tr("StepCenter")
-             << tr("Impulse");
+             << tr("Impulse") << tr("Line");
   QStringList sstylelist;
   sstylelist << tr("None") << tr("Dot") << tr("Cross") << tr("Plus")
              << tr("Circle") << tr("Disc") << tr("Square") << tr("Diamond")
@@ -2703,6 +2703,7 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
                          curve->getlinefillstatus_cplot());
   colorManager_->setValue(cplotpropertylinefillcoloritem_,
                           curve->getlinefillcolor_cplot());
+
   boolManager_->setValue(cplotpropertylineantialiaseditem_,
                          curve->getlineantialiased_cplot());
   enumManager_->setValue(cplotpropertyscatterstyleitem_,

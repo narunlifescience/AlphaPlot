@@ -30,10 +30,10 @@
 #include "ScriptingLangDialog.h"
 #include "ApplicationWindow.h"
 
-#include <QListWidget>
-#include <QPushButton>
 #include <QLayout>
+#include <QListWidget>
 #include <QMessageBox>
+#include <QPushButton>
 
 ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env,
                                          ApplicationWindow *parent,
@@ -72,7 +72,7 @@ void ScriptingLangDialog::updateLangList() {
 }
 
 void ScriptingLangDialog::accept() {
-  ApplicationWindow *app = (ApplicationWindow *)parent();
+  ApplicationWindow *app = qobject_cast<ApplicationWindow *>(parent());
   if (app->setScriptingLang(langList->currentItem()->text()))
     close();
   else

@@ -37,10 +37,10 @@
 #include "lib/XmlStreamReader.h"
 #include "matrixcommands.h"
 
+#include <QFileDialog>
 #include <QInputDialog>
 #include <QMenu>
 #include <QProgressDialog>
-#include <QFileDialog>
 #include <QtCore>
 #include <QtDebug>
 #include <QtGui>
@@ -831,13 +831,13 @@ void Matrix::dimensionsDialog() {
   bool ok;
 
   int cols = QInputDialog::getInt(nullptr, tr("Set Matrix Dimensions"),
-                                      tr("Enter number of columns"),
-                                      columnCount(), 1, 1e9, 1, &ok);
+                                  tr("Enter number of columns"), columnCount(),
+                                  1, 1e9, 1, &ok);
   if (!ok) return;
 
   int rows = QInputDialog::getInt(nullptr, tr("Set Matrix Dimensions"),
-                                      tr("Enter number of rows"), rowCount(), 1,
-                                      1e9, 1, &ok);
+                                  tr("Enter number of rows"), rowCount(), 1,
+                                  1e9, 1, &ok);
   if (!ok) return;
 
   setDimensions(rows, cols);
@@ -1247,6 +1247,53 @@ int Matrix::rowHeight(int row) const {
 
 int Matrix::columnWidth(int col) const {
   return d_matrix_private->columnWidth(col);
+}
+
+void Matrix::loadIcons() {
+  action_cut_selection->setIcon(
+      IconLoader::load("edit-cut", IconLoader::LightDark));
+  action_copy_selection->setIcon(
+      IconLoader::load("edit-copy", IconLoader::LightDark));
+  action_paste_into_selection->setIcon(
+      IconLoader::load("edit-paste", IconLoader::LightDark));
+  action_clear_selection->setIcon(
+      IconLoader::load("clear-loginfo", IconLoader::General));
+  // matrix related actions
+  action_set_formula->setIcon(
+      IconLoader::load("math-fofx", IconLoader::LightDark));
+  action_recalculate->setIcon(
+      IconLoader::load("edit-recalculate", IconLoader::LightDark));
+  action_toggle_tabbar->setIcon(
+      IconLoader::load("edit-unhide", IconLoader::LightDark));
+  action_select_all->setIcon(
+      IconLoader::load("edit-matrix-select-all", IconLoader::LightDark));
+  action_clear_matrix->setIcon(
+      IconLoader::load("edit-matrix-clear", IconLoader::LightDark));
+  action_go_to_cell->setIcon(
+      IconLoader::load("goto-cell", IconLoader::LightDark));
+  action_duplicate->setIcon(
+      IconLoader::load("edit-duplicate", IconLoader::LightDark));
+  action_dimensions_dialog->setIcon(
+      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
+  // column related actions
+  action_insert_columns->setIcon(
+      IconLoader::load("edit-table-insert-column", IconLoader::LightDark));
+  action_remove_columns->setIcon(
+      IconLoader::load("edit-table-delete-column", IconLoader::LightDark));
+  action_clear_columns->setIcon(
+      IconLoader::load("edit-table-clear-column", IconLoader::LightDark));
+  action_add_columns->setIcon(IconLoader::load("edit-table-insert-column-right",
+                                               IconLoader::LightDark));
+  // row related actions
+  action_insert_rows->setIcon(
+      IconLoader::load("edit-table-insert-row", IconLoader::LightDark));
+  action_remove_rows->setIcon(
+      IconLoader::load("edit-table-delete-row", IconLoader::LightDark));
+  action_clear_rows->setIcon(
+      IconLoader::load("edit-table-clear-row", IconLoader::LightDark));
+  action_add_rows->setIcon(
+      IconLoader::load("edit-table-add-row", IconLoader::LightDark));
+  d_view->loadIcons();
 }
 
 void Matrix::adjustTabBarAction(bool visible) {

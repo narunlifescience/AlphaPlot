@@ -106,8 +106,10 @@ Graph2DCommon::LineStyleType LineSpecial2D::getlinetype_lsplot() const {
     case lsImpulse:
       linestyletype = Graph2DCommon::LineStyleType::Impulse;
       break;
-    case lsNone:
     case lsLine:
+      linestyletype = Graph2DCommon::LineStyleType::Line;
+      break;
+    case lsNone:
       linestyletype = Graph2DCommon::LineStyleType::StepLeft;
   }
   return linestyletype;
@@ -244,6 +246,9 @@ void LineSpecial2D::setlinetype_lsplot(
       break;
     case Graph2DCommon::LineStyleType::StepRight:
       setLineStyle(QCPGraph::lsStepRight);
+      break;
+    case Graph2DCommon::LineStyleType::Line:
+      setLineStyle(QCPGraph::lsLine);
       break;
   }
 }

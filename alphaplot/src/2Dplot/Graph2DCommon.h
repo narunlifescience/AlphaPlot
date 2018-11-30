@@ -10,6 +10,7 @@ enum class LineStyleType : int {
   StepRight = 1,
   StepCenter = 2,
   Impulse = 3,
+  Line = 4,
 };
 
 enum class ScatterStyle : int {

@@ -44,8 +44,6 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   layoutManagebuttonsBox_ = new QHBoxLayout();
   addLayoutButton_ = new QPushButton();
   addLayoutButton_->setToolTip(tr("Add layer"));
-  addLayoutButton_->setIcon(
-      IconLoader::load("list-add", IconLoader::LightDark));
   addLayoutButton_->setMaximumWidth(LayoutButton2D::btnSize());
   addLayoutButton_->setMaximumHeight(LayoutButton2D::btnSize());
   connect(addLayoutButton_, SIGNAL(clicked()), this, SLOT(addAxisRectItem()));
@@ -53,8 +51,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
 
   removeLayoutButton_ = new QPushButton();
   removeLayoutButton_->setToolTip(tr("Remove active layer"));
-  removeLayoutButton_->setIcon(
-      IconLoader::load("list-remove", IconLoader::General));
+  loadIcons();
   removeLayoutButton_->setMaximumWidth(LayoutButton2D::btnSize());
   removeLayoutButton_->setMaximumHeight(LayoutButton2D::btnSize());
   connect(removeLayoutButton_, SIGNAL(clicked()), this,
@@ -68,6 +65,10 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   hbox->addWidget(streachLabel_);
   hbox->addLayout(layoutManagebuttonsBox_);
   setBackground(plot2dCanvas_->getBackgroundColor().color());
+  layoutButtonsBox_->setContentsMargins(2, 2, 2, 2);
+  layoutManagebuttonsBox_->setContentsMargins(2, 2, 2, 2);
+  layoutButtonsBox_->setSpacing(2);
+  layoutManagebuttonsBox_->setSpacing(2);
 
   QVBoxLayout *layout = new QVBoxLayout(main_widget_);
   layout->addLayout(hbox);
@@ -346,7 +347,7 @@ void Layout2D::generateLineSpecial2DPlot(
   addTextToAxisTicker(xData, xAxis.at(0));
   addTextToAxisTicker(ycollist.at(0), yAxis.at(0));
   foreach (Column *col, ycollist) {
-    LineSpecial2D *linescatter = element->addLineScatter2DPlot(
+    LineSpecial2D *linescatter = element->addLineSpecial2DPlot(
         plotType, table, xData, col, from, to, xAxis.at(0), yAxis.at(0));
     linescatter->rescaleAxes();
   }
@@ -785,26 +786,6 @@ void Layout2D::exportPDF(const QString &filename) {
   currentAxisRect_->setPrintorExportJob(false);
 }
 
-void Layout2D::renderPlot(QPrinter *printer) {
-  printer->setPageSize(QPrinter::A4);
-  QCPPainter painter(printer);
-  QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
-
-  int plotWidth = plot2dCanvas_->viewport().width();
-  int plotHeight = plot2dCanvas_->viewport().height();
-  double scale = pageRect.width() / static_cast<double>(plotWidth);
-
-  painter.setMode(QCPPainter::pmVectorized);
-  painter.setMode(QCPPainter::pmNoCaching);
-  // comment this out if you want cosmetic thin lines (always 1 pixel thick
-  // independent of pdf zoom level)
-  // painter.setMode(QCPPainter::pmNonCosmetic);
-  painter.scale(scale, scale);
-  currentAxisRect_->setPrintorExportJob(true);
-  plot2dCanvas_->toPainter(&painter, plotWidth, plotHeight);
-  currentAxisRect_->setPrintorExportJob(false);
-}
-
 void Layout2D::setLayoutDimension(QPair<int, int> dimension) {
   layoutDimension_.first = dimension.first;
   layoutDimension_.second = dimension.second;
@@ -911,11 +892,33 @@ void Layout2D::setGraphTool(const Graph2DCommon::Picker &picker) {
 }
 
 void Layout2D::print() {
-  QPrinter printer;
-  QPrintPreviewDialog previewDialog(&printer, this);
-  connect(&previewDialog, SIGNAL(paintRequested(QPrinter *)),
-          SLOT(renderPlot(QPrinter *)));
-  previewDialog.exec();
+  std::unique_ptr<QPrinter> printer = std::unique_ptr<QPrinter>(new QPrinter);
+  std::unique_ptr<QPrintPreviewDialog> previewDialog =
+      std::unique_ptr<QPrintPreviewDialog>(
+          new QPrintPreviewDialog(printer.get(), this));
+  connect(previewDialog.get(), &QPrintPreviewDialog::paintRequested,
+          [=](QPrinter *printer) {
+            printer->setPageSize(QPrinter::A4);
+            printer->setColorMode(QPrinter::Color);
+            std::unique_ptr<QCPPainter> painter =
+                std::unique_ptr<QCPPainter>(new QCPPainter(printer));
+            QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
+
+            int plotWidth = plot2dCanvas_->viewport().width();
+            int plotHeight = plot2dCanvas_->viewport().height();
+            double scale = pageRect.width() / static_cast<double>(plotWidth);
+
+            painter->setMode(QCPPainter::pmVectorized);
+            painter->setMode(QCPPainter::pmNoCaching);
+            // comment this out if you want cosmetic thin lines (always 1 pixel
+            // thick independent of pdf zoom level)
+            // painter.setMode(QCPPainter::pmNonCosmetic);
+            painter->scale(scale, scale);
+            currentAxisRect_->setPrintorExportJob(true);
+            plot2dCanvas_->toPainter(painter.get(), plotWidth, plotHeight);
+            currentAxisRect_->setPrintorExportJob(false);
+          });
+  previewDialog->exec();
 }
 
 void Layout2D::save(XmlStreamWriter *xmlwriter) {
@@ -928,6 +931,13 @@ void Layout2D::save(XmlStreamWriter *xmlwriter) {
     axisrect->save(xmlwriter, getAxisRectIndex(axisrect));
   }
   xmlwriter->writeEndElement();
+}
+
+void Layout2D::loadIcons() {
+  addLayoutButton_->setIcon(
+      IconLoader::load("list-add", IconLoader::LightDark));
+  removeLayoutButton_->setIcon(
+      IconLoader::load("list-remove", IconLoader::General));
 }
 
 AxisRect2D *Layout2D::addAxisRectItem() {

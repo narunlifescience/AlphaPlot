@@ -89,11 +89,11 @@ class AxisRect2D : public QCPAxisRect {
     Line2D,
     Scatter2D,
     LineAndScatter2D,
-    Area2D,
     Spline2D,
   };
 
   enum class LineScatterSpecialType {
+    Area2D,
     VerticalDropLine2D,
     CentralStepAndScatter2D,
     HorizontalStep2D,
@@ -105,7 +105,7 @@ class AxisRect2D : public QCPAxisRect {
     VerticalBars,
   };
 
-  LineSpecial2D *addLineScatter2DPlot(const LineScatterSpecialType &type,
+  LineSpecial2D *addLineSpecial2DPlot(const LineScatterSpecialType &type,
                                       Table *table, Column *xData,
                                       Column *yData, int from, int to,
                                       Axis2D *xAxis, Axis2D *yAxis);

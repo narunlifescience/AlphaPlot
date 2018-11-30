@@ -37,7 +37,7 @@
 #endif
 
 ScriptingEnv::ScriptingEnv(ApplicationWindow *parent, const char *langName)
-    : QObject(0), d_parent(parent) {
+    : QObject(nullptr), d_parent(parent) {
   setObjectName(langName);
   d_initialized = false;
   d_refcount = 0;

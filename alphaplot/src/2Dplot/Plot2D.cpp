@@ -17,7 +17,9 @@
 #include "Plot2D.h"
 #include <QSvgGenerator>
 
-Plot2D::Plot2D(QWidget *parent) : QCustomPlot(parent), canvasBrush_(Qt::white) {
+Plot2D::Plot2D(QWidget *parent)
+    : QCustomPlot(parent),
+      canvasBrush_(Qt::white) {
   setBackgroundColor(canvasBrush_);
   setAutoAddPlottableToLegend(false);
   setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
@@ -79,5 +81,12 @@ bool Plot2D::saveSvg(const QString &fileName, int width, int height,
 bool Plot2D::savePs(const QString &fileName, int width, int height,
                     QCP::ExportPen exportPen, const QString &psCreator,
                     const QString &psTitle) {
+  Q_UNUSED(fileName)
+  Q_UNUSED(width)
+  Q_UNUSED(exportPen)
+  Q_UNUSED(height)
+  Q_UNUSED(&psCreator)
+  Q_UNUSED(psTitle)
+  qDebug() << "Post Script format(s) not supported in QT5";
   return false;
 }

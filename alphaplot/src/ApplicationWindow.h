@@ -145,7 +145,7 @@ class ApplicationWindow : public QMainWindow,
     NoteSubWindow,
     Plot2DSubWindow,
     Plot3DSubWindow,
-    SubwindowPlot3D,
+    // SubwindowPlot3D,
   };
 
   enum class Graph {
@@ -917,7 +917,8 @@ class ApplicationWindow : public QMainWindow,
   //! Specifies if only the Tables/Matrices in the current folder should be
   //! displayed in the Add/remove curve dialog.
   bool d_show_current_folder;
-  bool d_scale_plots_on_print, d_print_cropmarks;
+  bool d_scale_plots_on_print;
+  bool d_print_cropmarks;
   bool d_show_table_comments;
   bool d_extended_plot_dialog;
   bool d_extended_import_ASCII_dialog;
@@ -957,9 +958,13 @@ class ApplicationWindow : public QMainWindow,
   ShowWindowsPolicy show_windows_policy;
   enum { MaxRecentProjects = 10 };
 
-  QColor workspaceColor, panelsColor, panelsTextColor;
-  QString appStyle, workingDir;
+  QColor workspaceColor;
+  QColor panelsColor;
+  QColor panelsTextColor;
+  QString appStyle;
+  QString workingDir;
   int appColorScheme;
+  QColor mdiareacolor;
 
   // Path to the folder where the last template file was opened/saved
   QString templatesDir;
@@ -1025,6 +1030,8 @@ class ApplicationWindow : public QMainWindow,
 #endif
 
  private:
+  // Load icons
+  void loadIcons();
   // Show a context menu for the widget
   void showWindowMenu(MyWidget* widget);
 
@@ -1074,8 +1081,10 @@ class ApplicationWindow : public QMainWindow,
 
   QAction *actionClearTable, *actionGoToCell;
   QAction* actionSaveNote;
-  QAction *actionAnimate, *actionPerspective, *actionFitFrame,
-      *actionResetRotation;
+  QAction *actionAnimate;
+  QAction *actionPerspective;
+  QAction *actionFitFrame;
+  QAction *actionResetRotation;
 
   QActionGroup* graphToolsGroup;
 
@@ -1104,7 +1113,8 @@ class ApplicationWindow : public QMainWindow,
   QAction* filledmesh;
   QAction* pointstyle;
   QAction* barstyle;
-  QAction *conestyle, *crossHairStyle;
+  QAction *conestyle;
+  QAction *crossHairStyle;
 
   // Manages connection between 2dplot actions (not used by all 2dplot actions).
   QSignalMapper* d_plot_mapper;
@@ -1116,9 +1126,18 @@ class ApplicationWindow : public QMainWindow,
 
   bool was_maximized_;
 
+  QAction* actionShowPropertyEditor;
   QAction* actionShowProjectExplorer;
   QAction* actionShowResultsLog;
   QAction* actionShowConsole;
+
+  QToolButton* btn_new_aspect_;
+  QToolButton* btn_layout_;
+  QToolButton *btn_curves_;
+  QToolButton *btn_plot_enrichments_;
+  QToolButton *btn_plot_linespoints_;
+  QToolButton *btn_plot_bars_;
+  QToolButton *btn_plot_vect_;
 
  private slots:
   void removeDependentTableStatistics(const AbstractAspect* aspect);

@@ -33,7 +33,6 @@
 
 #include <QCloseEvent>
 #include <QEvent>
-#include <QIcon>
 #include <QLocale>
 #include <QMessageBox>
 #include <QString>

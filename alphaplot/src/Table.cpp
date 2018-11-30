@@ -1299,7 +1299,7 @@ void Table::setRowCount() {
 }
 
 void Table::setColCount() {
-  if (context()->argumentCount() != 3 || !context()->argument(0).isNumber()) {
+  if (context()->argumentCount() != 1 || !context()->argument(0).isNumber()) {
     context()->throwError(tr("setColCount(intiger) take one argument!"));
   } else if (context()->argument(0).toNumber() <= 0) {
     context()->throwError(tr("cannot set col count to 0 or -ve!"));

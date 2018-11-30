@@ -192,15 +192,17 @@ void ErrDialog::plotNames() {
     }
   }
   foreach (Bar2D *bar, barlist) {
-    DataBlockBar *bardata = bar->getdatablock_barplot();
-    PlotData::AssociatedData plotdata;
-    plotdata.table = bardata->gettable();
-    plotdata.xcol = bardata->getxcolumn();
-    plotdata.ycol = bardata->getycolumn();
-    plotted_columns_ << plotdata;
-    nameLabel->addItem(plotdata.table->name() + "_" + plotdata.ycol->name() +
-                       "[" + QString::number(bardata->getfrom() + 1) + ":" +
-                       QString::number(bardata->getto() + 1) + "]");
+    if (!bar->ishistogram_barplot()) {
+      DataBlockBar *bardata = bar->getdatablock_barplot();
+      PlotData::AssociatedData plotdata;
+      plotdata.table = bardata->gettable();
+      plotdata.xcol = bardata->getxcolumn();
+      plotdata.ycol = bardata->getycolumn();
+      plotted_columns_ << plotdata;
+      nameLabel->addItem(plotdata.table->name() + "_" + plotdata.ycol->name() +
+                         "[" + QString::number(bardata->getfrom() + 1) + ":" +
+                         QString::number(bardata->getto() + 1) + "]");
+    }
   }
 }
 
@@ -221,11 +223,17 @@ void ErrDialog::errorColumnNames() {
 }
 
 void ErrDialog::add() {
-  PlotData::AssociatedData selectplotdata =
-      plotted_columns_.at(nameLabel->currentIndex());
+  if (nameLabel->count() == 0 ||
+      nameLabel->currentText().trimmed().length() == 0) {
+    QMessageBox::critical(app_, tr("Error"),
+                          tr("No compatible plot(s) available!"));
+    return;
+  }
   QVector<LineSpecial2D *> lslist = axisrect_->getLsVec();
   QVector<Curve2D *> curvelist = axisrect_->getCurveVec();
   QVector<Bar2D *> barlist = axisrect_->getBarVec();
+  PlotData::AssociatedData selectplotdata =
+      plotted_columns_.at(nameLabel->currentIndex());
   if (columnBox->isChecked()) {
     foreach (LineSpecial2D *ls, lslist) {
       DataBlockGraph *graphdata = ls->getdatablock_lsplot();

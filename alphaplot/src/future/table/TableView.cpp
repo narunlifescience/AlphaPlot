@@ -122,8 +122,6 @@ void TableView::init() {
   d_hide_button->setSizePolicy(
       QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
   d_hide_button->setGeometry(0, 0, 16, 16);
-  d_hide_button->setIcon(
-      IconLoader::load("edit-unhide", IconLoader::LightDark));
   d_hide_button->setStyleSheet(
       "QToolButton {background-color : rgba(0, 0, 0, 0); "
       "border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0);}");
@@ -132,29 +130,7 @@ void TableView::init() {
   d_control_tabs = new QWidget(d_main_widget);
   ui.setupUi(d_control_tabs);
   // Set icons
-  ui.tab_widget->setTabIcon(
-      0, IconLoader::load("table-show-comment", IconLoader::LightDark));
-  ui.tab_widget->setTabIcon(
-      1, IconLoader::load("number-type", IconLoader::LightDark));
-  ui.tab_widget->setTabIcon(
-      2, IconLoader::load("math-fofx", IconLoader::LightDark));
-  ui.formula_label->setPixmap(
-      IconLoader::load("math-fofx", IconLoader::LightDark).pixmap(24));
-  ui.formula_label->setFixedSize(QSize(24, 24));
-  ui.add_reference_button->setIcon(
-      IconLoader::load("list-add", IconLoader::LightDark));
-  ui.add_function_button->setIcon(
-      IconLoader::load("list-add", IconLoader::LightDark));
-  ui.previous_column_button->setIcon(
-      IconLoader::load("go-previous", IconLoader::LightDark));
-  ui.next_column_button->setIcon(
-      IconLoader::load("go-next", IconLoader::LightDark));
-  ui.button_set_description->setIcon(
-      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
-  ui.button_set_type->setIcon(
-      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
-  ui.set_formula_button->setIcon(
-      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  loadIcons();
   ui.verticalLayout->setContentsMargins(0, 0, 0, 0);
   ui.format_tab_layout->setContentsMargins(0, 0, 0, 0);
   ui.formula_tab_layout->setContentsMargins(0, 0, 0, 0);
@@ -899,6 +875,36 @@ bool TableView::eventFilter(QObject *watched, QEvent *event) {
 
 bool TableView::formulaModeActive() const {
   return d_model->formulaModeActive();
+}
+
+void TableView::loadIcons() {
+  (d_control_tabs->isVisible()) ? d_hide_button->setIcon(IconLoader::load(
+                                      "edit-hide", IconLoader::LightDark))
+                                : d_hide_button->setIcon(IconLoader::load(
+                                      "edit-unhide", IconLoader::LightDark));
+  ui.tab_widget->setTabIcon(
+      0, IconLoader::load("table-show-comment", IconLoader::LightDark));
+  ui.tab_widget->setTabIcon(
+      1, IconLoader::load("number-type", IconLoader::LightDark));
+  ui.tab_widget->setTabIcon(
+      2, IconLoader::load("math-fofx", IconLoader::LightDark));
+  ui.formula_label->setPixmap(
+      IconLoader::load("math-fofx", IconLoader::LightDark).pixmap(24));
+  ui.formula_label->setFixedSize(QSize(24, 24));
+  ui.add_reference_button->setIcon(
+      IconLoader::load("list-add", IconLoader::LightDark));
+  ui.add_function_button->setIcon(
+      IconLoader::load("list-add", IconLoader::LightDark));
+  ui.previous_column_button->setIcon(
+      IconLoader::load("go-previous", IconLoader::LightDark));
+  ui.next_column_button->setIcon(
+      IconLoader::load("go-next", IconLoader::LightDark));
+  ui.button_set_description->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  ui.button_set_type->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
+  ui.set_formula_button->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
 }
 
 void TableView::activateFormulaMode(bool on) {

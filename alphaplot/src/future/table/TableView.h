@@ -179,6 +179,7 @@ class TableView : public MyWidget {
   void setColumnWidth(int col, int width);
   int columnWidth(int col) const;
   bool formulaModeActive() const;
+  void loadIcons();
 
  public slots:
   void activateFormulaMode(bool on);

@@ -158,6 +158,7 @@ class MatrixView : public MyWidget {
   void setColumnWidth(int col, int width);
   int rowHeight(int row) const;
   int columnWidth(int col) const;
+  void loadIcons();
 
  public slots:
   void rereadSectionSizes();

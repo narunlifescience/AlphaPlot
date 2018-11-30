@@ -50,7 +50,6 @@ the graph contents list, depending on the selected item in this list:
   void contextMenuEvent(QContextMenuEvent*);
 
   ApplicationWindow* app_;
-  int defaultCurveLineWidth, defaultSymbolSize;
   AxisRect2D* axisrect_;
   QList<QPair<Table*, Column*>> available_columns_;
   QList<QPair<Table*, Column*>> plotted_columns_;

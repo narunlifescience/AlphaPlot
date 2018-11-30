@@ -99,7 +99,7 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, QString name)
 
 void ScriptEdit::customEvent(QEvent *e) {
   if (e->type() == SCRIPTING_CHANGE_EVENT) {
-    scriptingChangeEvent((ScriptingChangeEvent *)e);
+    scriptingChangeEvent(dynamic_cast<ScriptingChangeEvent *>(e));
     delete myScript;
     myScript = scriptEnv->newScript("", this, objectName());
     connect(myScript, SIGNAL(error(const QString &, const QString &, int)),
@@ -366,7 +366,7 @@ QString ScriptEdit::exportASCII(const QString &filename) {
     QFile f(fn);
     if (!f.open(QIODevice::WriteOnly)) {
       QMessageBox::critical(
-          0, tr("File Save Error"),
+            nullptr, tr("File Save Error"),
           tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that "
              "you have the right to write to this location!")
               .arg(fn));

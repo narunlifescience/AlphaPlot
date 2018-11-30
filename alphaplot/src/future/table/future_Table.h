@@ -250,6 +250,7 @@ class Table : public AbstractPart
   virtual bool load(XmlStreamReader *);
   bool readColumnWidthElement(XmlStreamReader *reader);
   //@}
+  void loadIcons();
 
  public:
   static ActionManager *actionManager();

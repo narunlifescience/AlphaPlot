@@ -232,7 +232,7 @@ Axis2D *AxisRect2D::getYAxis(int value) {
   }
 }
 
-LineSpecial2D *AxisRect2D::addLineScatter2DPlot(
+LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
     const LineScatterSpecialType &type, Table *table, Column *xData,
     Column *yData, int from, int to, Axis2D *xAxis, Axis2D *yAxis) {
   LineSpecial2D *lineSpecial =
@@ -241,6 +241,13 @@ LineSpecial2D *AxisRect2D::addLineScatter2DPlot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
 
   switch (type) {
+    case LineScatterSpecialType::Area2D:
+      lineSpecial->setlinetype_lsplot(Graph2DCommon::LineStyleType::Line);
+      lineSpecial->setscattershape_lsplot(Graph2DCommon::ScatterStyle::None);
+      lineSpecial->setlinefillstatus_lsplot(true);
+      lineSpecial->setlineantialiased_lsplot(true);
+      lineSpecial->setscatterantialiased_lsplot(true);
+      break;
     case LineScatterSpecialType::VerticalDropLine2D:
       lineSpecial->setlinetype_lsplot(Graph2DCommon::LineStyleType::Impulse);
       lineSpecial->setscattershape_lsplot(Graph2DCommon::ScatterStyle::Disc);
@@ -293,7 +300,6 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
     case LineScatterType::Line2D:
     case LineScatterType::Scatter2D:
     case LineScatterType::LineAndScatter2D:
-    case LineScatterType::Area2D:
       curve = new Curve2D(Curve2D::Curve2DType::Curve, table, xcol, ycol, from,
                           to, xAxis, yAxis);
       break;
@@ -317,11 +323,6 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
     case LineScatterType::LineAndScatter2D:
       curve->setlinetype_cplot(1);
       curve->setscattershape_cplot(Graph2DCommon::ScatterStyle::Disc);
-      curve->setlinefillstatus_cplot(false);
-      break;
-    case LineScatterType::Area2D:
-      curve->setlinetype_cplot(1);
-      curve->setscattershape_cplot(Graph2DCommon::ScatterStyle::None);
       curve->setlinefillstatus_cplot(false);
       break;
     case LineScatterType::Spline2D:

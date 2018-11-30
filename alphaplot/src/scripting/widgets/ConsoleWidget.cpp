@@ -42,6 +42,8 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   ui_->tableView->verticalHeader()->setVisible(false);
   ui_->tableView->horizontalHeader()->setSelectionMode(
       QAbstractItemView::SingleSelection);
+  ui_->tableView->horizontalHeader()->setSectionResizeMode(
+      (0, QHeaderView::Stretch));
   scriptGlobalObjectsModel->setColumnCount(2);
   ui_->tableView->setModel(scriptGlobalObjectsModel);
   ui_->tableView->setItemDelegate(new Delegate(this));
@@ -117,7 +119,7 @@ void ConsoleWidget::addScriptGlobalsToTableView() {
       rowPair.second = arrayValue;
       appendRowToTableView(rowPair);
 
-    } else if (!it.value().isFunction() && !it.value().isObject())
+    } else if (!it.value().isFunction() && !it.value().isObject()) {
       if (it.name() != "NaN" && it.name() != "Infinity" &&
           it.name() != "undefined") {
         // Other variables
@@ -125,6 +127,11 @@ void ConsoleWidget::addScriptGlobalsToTableView() {
         rowPair.second = it.value().toString();
         appendRowToTableView(rowPair);
       }
+    } else if (it.value().isObject() && !it.value().isFunction()) {
+      rowPair.first = it.name();
+      rowPair.second = it.value().toString();
+      appendRowToTableView(rowPair);
+    }
   }
 }
 
