@@ -9,14 +9,15 @@ ColorMap2D::ColorMap2D(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis)
       yaxis_(yAxis),
       matrix_(matrix),
       colorScale_(new QCPColorScale(parentPlot())),
-      gradient_(Gradient::Spectrum) {
-  data_ = new QCPColorMapData(matrix_->numRows(), matrix_->numCols(),
-                              QCPRange(0, matrix_->numRows() - 1),
-                              QCPRange(0, matrix_->numCols() - 1));
+      gradient_(Gradient::Spectrum),
+      invertgradient_(false) {
+  rows_ = matrix_->numRows();
+  columns_ = matrix_->numCols();
+  data_ = new QCPColorMapData(rows_, columns_, QCPRange(0, rows_ - 1),
+                              QCPRange(0, columns_ - 1));
   parentPlot()->plotLayout()->addElement(0, 1, colorScale_);
   colorScale_->setType(QCPAxis::atRight);
   setColorScale(colorScale_);
-  // colorScale->axis()->setLabel("Magnetic Field Strength");
   setgradient_colormap(gradient_);
   xaxis_->getaxisrect_axis()->setMarginGroup(QCP::msBottom | QCP::msTop,
                                              margingroup_);
@@ -24,7 +25,7 @@ ColorMap2D::ColorMap2D(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis)
   double datamin = matrix->cell(0, 0);
   double datamax = matrix->cell(0, 0);
   double value = datamin;
-  for (int i = 0; i < matrix_->numCols(); i++) {
+  for (int i = 0; i < matrix_->numRows(); i++) {
     for (int j = 0; j < matrix_->numCols(); j++) {
       value = matrix_->cell(i, j);
       data_->setCell(i, j, value);
@@ -44,6 +45,18 @@ ColorMap2D::~ColorMap2D() {
 
 ColorMap2D::Gradient ColorMap2D::getgradient_colormap() const {
   return gradient_;
+}
+
+int ColorMap2D::getlevelcount_colormap() const {
+  return colorgradient_.levelCount();
+}
+
+bool ColorMap2D::getgradientinverted_colormap() const {
+  return invertgradient_;
+}
+
+bool ColorMap2D::getgradientperiodic_colormap() const {
+  return colorgradient_.periodic();
 }
 
 QString ColorMap2D::getname_colormap() const { return colorScale_->label(); }
@@ -85,42 +98,61 @@ void ColorMap2D::setgradient_colormap(const ColorMap2D::Gradient &grad) {
   gradient_ = grad;
   switch (gradient_) {
     case Gradient::Grayscale:
-      setGradient(QCPColorGradient::gpGrayscale);
+      colorgradient_.loadPreset(QCPColorGradient::gpGrayscale);
       break;
     case Gradient::Hot:
-      setGradient(QCPColorGradient::gpHot);
+      colorgradient_.loadPreset(QCPColorGradient::gpHot);
       break;
     case Gradient::Cold:
-      setGradient(QCPColorGradient::gpCold);
+      colorgradient_.loadPreset(QCPColorGradient::gpCold);
       break;
     case Gradient::Night:
-      setGradient(QCPColorGradient::gpNight);
+      colorgradient_.loadPreset(QCPColorGradient::gpNight);
       break;
     case Gradient::candy:
-      setGradient(QCPColorGradient::gpCandy);
+      colorgradient_.loadPreset(QCPColorGradient::gpCandy);
       break;
     case Gradient::Geography:
-      setGradient(QCPColorGradient::gpGeography);
+      colorgradient_.loadPreset(QCPColorGradient::gpGeography);
       break;
     case Gradient::Ion:
-      setGradient(QCPColorGradient::gpIon);
+      colorgradient_.loadPreset(QCPColorGradient::gpIon);
       break;
     case Gradient::Thermal:
-      setGradient(QCPColorGradient::gpThermal);
+      colorgradient_.loadPreset(QCPColorGradient::gpThermal);
       break;
     case Gradient::Polar:
-      setGradient(QCPColorGradient::gpPolar);
+      colorgradient_.loadPreset(QCPColorGradient::gpPolar);
       break;
     case Gradient::Spectrum:
-      setGradient(QCPColorGradient::gpSpectrum);
+      colorgradient_.loadPreset(QCPColorGradient::gpSpectrum);
       break;
     case Gradient::Jet:
-      setGradient(QCPColorGradient::gpJet);
+      colorgradient_.loadPreset(QCPColorGradient::gpJet);
       break;
     case Gradient::Hues:
-      setGradient(QCPColorGradient::gpHues);
+      colorgradient_.loadPreset(QCPColorGradient::gpHues);
       break;
   }
+  (invertgradient_) ? setGradient(colorgradient_.inverted())
+                    : setGradient(colorgradient_);
+}
+
+void ColorMap2D::setlevelcount_colormap(const int value) {
+  colorgradient_.setLevelCount(value);
+  (invertgradient_) ? setGradient(colorgradient_.inverted())
+                    : setGradient(colorgradient_);
+}
+
+void ColorMap2D::setgradientinverted_colormap(bool status) {
+  invertgradient_ = status;
+  setgradient_colormap(gradient_);
+}
+
+void ColorMap2D::setgradientperiodic_colormap(bool status) {
+  colorgradient_.setPeriodic(status);
+  (invertgradient_) ? setGradient(colorgradient_.inverted())
+                    : setGradient(colorgradient_);
 }
 
 void ColorMap2D::setname_colormap(const QString &value) {

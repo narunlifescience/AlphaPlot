@@ -10,6 +10,7 @@
 #include "../3rdparty/propertybrowser/qtpropertymanager.h"
 #include "../3rdparty/propertybrowser/qttreepropertybrowser.h"
 #include "2Dplot/ColorMap2D.h"
+#include "2Dplot/DataManager2D.h"
 #include "2Dplot/ErrorBar2D.h"
 #include "2Dplot/ImageItem2D.h"
 #include "2Dplot/Layout2D.h"
@@ -542,6 +543,11 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   colormappropertyinterpolateitem_ = boolManager_->addProperty("Interpolate");
   colormappropertytightboundaryitem_ =
       boolManager_->addProperty("Tight Boundary");
+  colormappropertylevelcountitem_ = intManager_->addProperty(tr("Level Count"));
+  colormappropertygradientinvertitem_ =
+      boolManager_->addProperty(tr("Gradient Invert"));
+  colormappropertygradientperiodicitem_ =
+      boolManager_->addProperty(tr("Gradient Periodic"));
   colormappropertygradientitem_ = enumManager_->addProperty("Gradient");
   enumManager_->setEnumNames(colormappropertygradientitem_, gradientlist);
   colormappropertyscalevisibleitem_ =
@@ -996,6 +1002,16 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     ColorMap2D *colormap =
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
     colormap->setTightBoundary(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertygradientinvertitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->setgradientinverted_colormap(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertygradientperiodicitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->setgradientperiodic_colormap(value);
     colormap->layer()->replot();
   } else if (prop->compare(colormappropertyscalevisibleitem_)) {
     ColorMap2D *colormap =
@@ -1716,6 +1732,11 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
     ColorMap2D *colormap =
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
     colormap->getcolormapscale_colormap()->axis()->setNumberPrecision(value);
+    colormap->layer()->replot();
+  } else if (prop->compare(colormappropertylevelcountitem_)) {
+    ColorMap2D *colormap =
+        getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
+    colormap->setlevelcount_colormap(value);
     colormap->layer()->replot();
   }
 }
@@ -3009,7 +3030,10 @@ void PropertyEditor::ColorMap2DPropertyBlock(ColorMap2D *colormap,
   // Colormap Properties Block
   propertybrowser_->addProperty(colormappropertyinterpolateitem_);
   propertybrowser_->addProperty(colormappropertytightboundaryitem_);
+  propertybrowser_->addProperty(colormappropertylevelcountitem_);
   propertybrowser_->addProperty(colormappropertygradientitem_);
+  propertybrowser_->addProperty(colormappropertygradientinvertitem_);
+  propertybrowser_->addProperty(colormappropertygradientperiodicitem_);
 
   propertybrowser_->addProperty(colormappropertyscalevisibleitem_);
   propertybrowser_->addProperty(colormappropertyscaleaxisvisibleitem_);
@@ -3023,8 +3047,14 @@ void PropertyEditor::ColorMap2DPropertyBlock(ColorMap2D *colormap,
                          colormap->interpolate());
   boolManager_->setValue(colormappropertytightboundaryitem_,
                          colormap->tightBoundary());
+  intManager_->setValue(colormappropertylevelcountitem_,
+                        colormap->getlevelcount_colormap());
   enumManager_->setValue(colormappropertygradientitem_,
                          static_cast<int>(colormap->getgradient_colormap()));
+  boolManager_->setValue(colormappropertygradientinvertitem_,
+                         colormap->getgradientinverted_colormap());
+  boolManager_->setValue(colormappropertygradientperiodicitem_,
+                         colormap->getgradientperiodic_colormap());
   boolManager_->setValue(colormappropertyscalevisibleitem_,
                          colormap->getcolormapscale_colormap()->visible());
   intManager_->setValue(colormappropertyscalewidthitem_,
@@ -3175,6 +3205,15 @@ void PropertyEditor::objectschanged() {
 }
 
 void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
+  // delete all TreeWidgetItems
+  while (objectbrowser_->topLevelItemCount()) {
+    QTreeWidgetItemIterator itr(objectbrowser_,
+                                QTreeWidgetItemIterator::NoChildren);
+    while (*itr) {
+      delete (*itr);
+      ++itr;
+    }
+  }
   objectbrowser_->clear();
   objectitems_.clear();
   propertybrowser_->clear();
@@ -3342,7 +3381,12 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       LsVec graphvec = element->getLsVec();
       for (int j = 0; j < graphvec.size(); j++) {
         LineSpecial2D *lsgraph = graphvec.at(j);
-        QString lsgraphtext = QString("Line Special %1").arg(j + 1);
+        DataBlockGraph *data = lsgraph->getdatablock_lsplot();
+        QString lsgraphtext = data->gettable()->name() + "_" +
+                              data->getxcolumn()->name() + "_" +
+                              data->getycolumn()->name() + "[" +
+                              QString::number(data->getfrom() + 1) + ":" +
+                              QString::number(data->getto() + 1) + "]";
         QTreeWidgetItem *lsgraphitem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(lsgraphtext));
         lsgraphitem->setIcon(
@@ -3358,7 +3402,11 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         // x error
         ErrorBar2D *xerror = lsgraph->getxerrorbar_lsplot();
         if (xerror) {
-          QString xerrortext = QString("X Error");
+          DataBlockError *data = xerror->getdatablock_error();
+          QString xerrortext = data->gettable()->name() + "_" +
+                               data->geterrorcolumn()->name() + "[" +
+                               QString::number(data->getfrom() + 1) + ":" +
+                               QString::number(data->getto() + 1) + "]";
           QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
               static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
           xerroritem->setIcon(
@@ -3373,7 +3421,11 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         // y error
         ErrorBar2D *yerror = lsgraph->getyerrorbar_lsplot();
         if (yerror) {
-          QString yerrortext = QString("Y Error");
+          DataBlockError *data = yerror->getdatablock_error();
+          QString yerrortext = data->gettable()->name() + "_" +
+                               data->geterrorcolumn()->name() + "[" +
+                               QString::number(data->getfrom() + 1) + ":" +
+                               QString::number(data->getto() + 1) + "]";
           QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
               static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
           yerroritem->setIcon(
@@ -3389,23 +3441,34 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
 
       // Curve plot Items
       CurveVec curvevec = element->getCurveVec();
+      int function = 1;
       for (int j = 0; j < curvevec.size(); j++) {
         Curve2D *curvegraph = curvevec.at(j);
-        QString curvegraphtext = QString("Line Scatter %1").arg(j + 1);
+        QString curvegraphtext = "curve";
         QTreeWidgetItem *curvegraphitem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(curvegraphtext));
         switch (curvegraph->getplottype_cplot()) {
-          case Graph2DCommon::PlotType::Associated:
-            if (curvegraph->getcurvetype_cplot() == Curve2D::Curve2DType::Curve)
+          case Graph2DCommon::PlotType::Associated: {
+            DataBlockCurve *data = curvegraph->getdatablock_cplot();
+            curvegraphtext = data->gettable()->name() + "_" +
+                             data->getxcolumn()->name() + "_" +
+                             data->getycolumn()->name() + "[" +
+                             QString::number(data->getfrom() + 1) + ":" +
+                             QString::number(data->getto() + 1) + "]";
+            curvegraphitem->setText(0, curvegraphtext);
+            if (curvegraph->getcurvetype_cplot() ==
+                Curve2D::Curve2DType::Curve) {
               curvegraphitem->setIcon(
                   0, IconLoader::load("graph2d-line", IconLoader::LightDark));
-            else
+            } else
               curvegraphitem->setIcon(
                   0, IconLoader::load("graph2d-spline", IconLoader::LightDark));
-            break;
+          } break;
           case Graph2DCommon::PlotType::Function:
+            curvegraphtext = QString("Function %1").arg(function++);
             curvegraphitem->setIcon(0, IconLoader::load("graph2d-function-xy",
                                                         IconLoader::LightDark));
+            curvegraphitem->setText(0, curvegraphtext);
             break;
         }
         curvegraphitem->setData(
@@ -3419,7 +3482,11 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         // x error
         ErrorBar2D *xerror = curvegraph->getxerrorbar_curveplot();
         if (xerror) {
-          QString xerrortext = QString("X Error");
+          DataBlockError *data = xerror->getdatablock_error();
+          QString xerrortext = data->gettable()->name() + "_" +
+                               data->geterrorcolumn()->name() + "[" +
+                               QString::number(data->getfrom() + 1) + ":" +
+                               QString::number(data->getto() + 1) + "]";
           QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
               static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
           xerroritem->setIcon(
@@ -3434,7 +3501,11 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         // y error
         ErrorBar2D *yerror = curvegraph->getyerrorbar_curveplot();
         if (yerror) {
-          QString yerrortext = QString("Y Error");
+          DataBlockError *data = yerror->getdatablock_error();
+          QString yerrortext = data->gettable()->name() + "_" +
+                               data->geterrorcolumn()->name() + "[" +
+                               QString::number(data->getfrom() + 1) + ":" +
+                               QString::number(data->getto() + 1) + "]";
           QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
               static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
           yerroritem->setIcon(
@@ -3452,7 +3523,11 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       QVector<StatBox2D *> statboxvec = element->getStatBoxVec();
       for (int j = 0; j < statboxvec.size(); j++) {
         StatBox2D *statbox = statboxvec.at(j);
-        QString statboxtext = QString("Statbox %1").arg(j + 1);
+        QString statboxtext =
+            statbox->gettable_statbox()->name() + "_" +
+            statbox->getcolumn_statbox()->name() + "[" +
+            QString::number(statbox->getfrom_statbox() + 1) + ":" +
+            QString::number(statbox->getto_statbox() + 1) + "]";
         QTreeWidgetItem *statboxitem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(statboxtext));
         statboxitem->setIcon(
@@ -3471,7 +3546,14 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       VectorVec vectorvec = element->getVectorVec();
       for (int j = 0; j < vectorvec.size(); j++) {
         Vector2D *vector = vectorvec.at(j);
-        QString vectortext = QString("Vector %1").arg(j + 1);
+        QString vectortext = vector->gettable_vecplot()->name() + "_" +
+                             vector->getfirstcol_vecplot()->name() + "_" +
+                             vector->getsecondcol_vecplot()->name() + "_" +
+                             vector->getthirdcol_vecplot()->name() + "_" +
+                             vector->getfourthcol_vecplot()->name() + "[" +
+                             QString::number(vector->getfrom_vecplot() + 1) +
+                             ":" +
+                             QString::number(vector->getto_vecplot() + 1) + "]";
         QTreeWidgetItem *vectoritem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(vectortext));
         vectoritem->setIcon(
@@ -3486,17 +3568,56 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         item->addChild(vectoritem);
       }
 
+      // LineSpecial plot Items
+      auto channelvec = element->getChannelVec();
+      for (int j = 0; j < channelvec.size(); j++) {
+        LineSpecial2D *lsgraph1 = channelvec.at(j).first;
+        LineSpecial2D *lsgraph2 = channelvec.at(j).second;
+        DataBlockGraph *data1 = lsgraph1->getdatablock_lsplot();
+        DataBlockGraph *data2 = lsgraph2->getdatablock_lsplot();
+        QString lsgraph1text = data1->gettable()->name() + "_" +
+                               data1->getxcolumn()->name() + "_" +
+                               data1->getycolumn()->name() + "_" +
+                               data2->getycolumn()->name() + "[" +
+                               QString::number(data1->getfrom() + 1) + ":" +
+                               QString::number(data1->getto() + 1) + "]";
+        QTreeWidgetItem *channelitem = new QTreeWidgetItem(
+            static_cast<QTreeWidget *>(nullptr), QStringList(lsgraph1text));
+        channelitem->setIcon(
+            0, IconLoader::load("graph2d-channel", IconLoader::LightDark));
+        channelitem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::LSGraph));
+        channelitem->setData(0, Qt::UserRole + 1,
+                             QVariant::fromValue<void *>(lsgraph1));
+        channelitem->setData(0, Qt::UserRole + 2,
+                             QVariant::fromValue<void *>(element));
+        item->addChild(channelitem);
+      }
+
       // Bar Plot items
       BarVec barvec = element->getBarVec();
       for (int j = 0; j < barvec.size(); j++) {
         Bar2D *bar = barvec.at(j);
-        QString bartext = QString("Bar %1").arg(j + 1);
+        QString bartext = QString("Histogram");
         QTreeWidgetItem *baritem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(bartext));
         if (bar->ishistogram_barplot()) {
+          bartext = bar->gettable_histogram()->name() + "_" +
+                    bar->getcolumn_histogram()->name() + "[" +
+                    QString::number(bar->getfrom_histogram() + 1) + ":" +
+                    QString::number(bar->getto_histogram() + 1) + "]";
+          baritem->setText(0, bartext);
           baritem->setIcon(
               0, IconLoader::load("graph2d-histogram", IconLoader::LightDark));
         } else {
+          DataBlockBar *data = bar->getdatablock_barplot();
+          bartext = data->gettable()->name() + "_" +
+                    data->getxcolumn()->name() + "_" +
+                    data->getycolumn()->name() + "[" +
+                    QString::number(data->getfrom() + 1) + ":" +
+                    QString::number(data->getto() + 1) + "]";
+          baritem->setText(0, bartext);
           baritem->setIcon(0, IconLoader::load("graph2d-vertical-bar",
                                                IconLoader::LightDark));
         }
@@ -3510,7 +3631,11 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         // x error
         ErrorBar2D *xerror = bar->getxerrorbar_barplot();
         if (xerror) {
-          QString xerrortext = QString("X Error");
+          DataBlockError *data = xerror->getdatablock_error();
+          QString xerrortext = data->gettable()->name() + "_" +
+                               data->geterrorcolumn()->name() + "[" +
+                               QString::number(data->getfrom() + 1) + ":" +
+                               QString::number(data->getto() + 1) + "]";
           QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
               static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
           xerroritem->setIcon(
@@ -3525,7 +3650,11 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         // y error
         ErrorBar2D *yerror = bar->getyerrorbar_barplot();
         if (yerror) {
-          QString yerrortext = QString("Y Error");
+          DataBlockError *data = yerror->getdatablock_error();
+          QString yerrortext = data->gettable()->name() + "_" +
+                               data->geterrorcolumn()->name() + "[" +
+                               QString::number(data->getfrom() + 1) + ":" +
+                               QString::number(data->getto() + 1) + "]";
           QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
               static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
           yerroritem->setIcon(
@@ -3543,7 +3672,10 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       QVector<Pie2D *> pievec = element->getPieVec();
       for (int j = 0; j < pievec.size(); j++) {
         Pie2D *pie = pievec.at(j);
-        QString pietext = QString("Pie %1").arg(j + 1);
+        QString pietext = pie->gettable_pieplot()->name() + "_" +
+                          pie->getxcolumn_pieplot()->name() + "[" +
+                          QString::number(pie->getfrom_pieplot() + 1) + ":" +
+                          QString::number(pie->getto_pieplot() + 1) + "]";
         QTreeWidgetItem *pieitem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(pietext));
         pieitem->setIcon(
@@ -3562,7 +3694,10 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       for (int j = 0; j < colormapvec.size(); j++) {
         ColorMap2D *colormap = colormapvec.at(j);
 
-        QString colormaptext = QString("ColorMap %1").arg(j + 1);
+        QString colormaptext =
+            colormap->getmatrix_colormap()->name() + "[" +
+            QString::number(colormap->getrows_colormap()) + "x" +
+            QString::number(colormap->getcolumns_colormap()) + "]";
         QTreeWidgetItem *colormapitem = new QTreeWidgetItem(
             static_cast<QTreeWidget *>(nullptr), QStringList(colormaptext));
         colormapitem->setIcon(
@@ -3605,54 +3740,128 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
 
 void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
   // created
-  connect(axisrect, SIGNAL(Axis2DCreated(Axis2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(TextItem2DCreated(TextItem2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(LineItem2DCreated(LineItem2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(ImageItem2DCreated(ImageItem2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(LineScatter2DCreated(LineSpecial2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(Curve2DCreated(Curve2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(StatBox2DCreated(StatBox2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(Vector2DCreated(Vector2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(Bar2DCreated(Bar2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(Pie2DCreated(Pie2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(ColorMap2DCreated(ColorMap2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(ErrorBar2DCreated(ErrorBar2D *)), this,
-          SLOT(objectschanged()));
+
+  connect(axisrect, &AxisRect2D::Axis2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::TextItem2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::LineItem2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::ImageItem2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::LineSpecial2DCreated, [=](LineSpecial2D *ls) {
+    ls->layer()->replot();
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::LineSpecialChannel2DCreated,
+          [=](QPair<LineSpecial2D *, LineSpecial2D *> pair) {
+            pair.first->layer()->replot();
+            pair.second->layer()->replot();
+            objectschanged();
+          });
+
+  connect(axisrect, &AxisRect2D::Curve2DCreated, [=](Curve2D *curve) {
+    curve->layer()->replot();
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::StatBox2DCreated, [=](StatBox2D *statbox) {
+    statbox->layer()->replot();
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::Vector2DCreated, [=](Vector2D *vector) {
+    vector->layer()->replot();
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::Bar2DCreated, [=](Bar2D *bar) {
+    bar->layer()->replot();
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::Pie2DCreated, [=](Pie2D *pie) {
+    pie->layer()->replot();
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::ColorMap2DCreated, [=](ColorMap2D *colormap) {
+    colormap->layer()->replot();
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::ErrorBar2DCreated, [=](ErrorBar2D *errorbar) {
+    errorbar->layer()->replot();
+    objectschanged();
+  });
 
   // Removed
-  connect(axisrect, SIGNAL(Axis2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(TextItem2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(LineItem2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(ImageItem2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(LineScatter2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(Curve2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(StatBox2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(Vector2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(Bar2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(Pie2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
-  connect(axisrect, SIGNAL(ErrorBar2DRemoved(AxisRect2D *)), this,
-          SLOT(objectschanged()));
+  connect(axisrect, &AxisRect2D::Axis2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::TextItem2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::LineItem2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::ImageItem2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::LineSpecial2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::LineSpecialChannel2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::Curve2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::StatBox2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::Vector2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::Bar2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::Pie2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect, &AxisRect2D::ErrorBar2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
 }
 
 void PropertyEditor::setObjectPropertyId() {
@@ -3962,7 +4171,13 @@ void PropertyEditor::setObjectPropertyId() {
       "colormappropertyinterpolateitem_");
   colormappropertytightboundaryitem_->setPropertyId(
       "colormappropertytightboundaryitem_");
+  colormappropertylevelcountitem_->setPropertyId(
+      "colormappropertylevelcountitem_");
   colormappropertygradientitem_->setPropertyId("colormappropertygradientitem_");
+  colormappropertygradientinvertitem_->setPropertyId(
+      "colormappropertygradientinvertitem_");
+  colormappropertygradientperiodicitem_->setPropertyId(
+      "colormappropertygradientperiodicitem_");
   colormappropertyscalevisibleitem_->setPropertyId(
       "colormappropertyscalevisibleitem_");
   colormappropertyscalewidthitem_->setPropertyId(

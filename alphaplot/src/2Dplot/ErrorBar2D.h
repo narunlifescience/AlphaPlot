@@ -27,6 +27,7 @@ class ErrorBar2D : public QCPErrorBars {
   LineSpecial2D *getlinespecial2d_errorbar() { return linespecial_; }
   Curve2D *getcurve2d_errorbar() { return curve_; }
   Bar2D *getbar2d_errorbar() { return bar_; }
+  DataBlockError *getdatablock_error() { return errordata_; }
   void setfillstatus_errorbar(const bool status);
 
  public:

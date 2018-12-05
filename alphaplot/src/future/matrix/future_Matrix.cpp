@@ -1263,8 +1263,6 @@ void Matrix::loadIcons() {
       IconLoader::load("math-fofx", IconLoader::LightDark));
   action_recalculate->setIcon(
       IconLoader::load("edit-recalculate", IconLoader::LightDark));
-  action_toggle_tabbar->setIcon(
-      IconLoader::load("edit-unhide", IconLoader::LightDark));
   action_select_all->setIcon(
       IconLoader::load("edit-matrix-select-all", IconLoader::LightDark));
   action_clear_matrix->setIcon(

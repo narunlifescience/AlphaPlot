@@ -5,7 +5,8 @@
 #include "Table.h"
 #include "core/Utilities.h"
 
-Pie2D::Pie2D(AxisRect2D *axisrect)
+Pie2D::Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, int from,
+             int to)
     : QCPAbstractItem(axisrect->parentPlot()),
       // topLeft(createPosition(QLatin1String("topLeft"))),
       // bottomRight(createPosition(QLatin1String("bottomRight"))),
@@ -13,7 +14,11 @@ Pie2D::Pie2D(AxisRect2D *axisrect)
       pieData_(new QVector<double>()),
       pieColors_(new QVector<QColor>()),
       pieLegendItems_(new QVector<PieLegendItem2D *>()),
-      marginpercent_(2) {
+      marginpercent_(2),
+      table_(table),
+      xcolumn_(xData),
+      from_(from),
+      to_(to) {
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   // topLeft->setCoords(axisrect->topLeft());
   // bottomRight->setCoords(axisrect->bottomRight());
@@ -25,6 +30,22 @@ Pie2D::Pie2D(AxisRect2D *axisrect)
   for (int i = 0; i < axes.size(); i++) {
     axes.at(i)->setshowhide_axis(false);
   }
+  double sum = 0.0;
+  pieData_->clear();
+  for (int i = from; i <= to; i++) {
+    sum += xData->valueAt(i);
+  }
+  for (int i = from; i <= to; i++) {
+    pieData_->append((xData->valueAt(i) / sum) * (360 * 16));
+    QColor color =
+        Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light);
+    pieColors_->append(color);
+    PieLegendItem2D *pielegenditem = new PieLegendItem2D(
+        axisrect_->getLegend(), color, QString::number(xData->valueAt(i)));
+    pieLegendItems_->append(pielegenditem);
+    axisrect_->getLegend()->addItem(pielegenditem);
+  }
+  setGraphData(table_, xcolumn_, from_, to_);
 }
 
 Pie2D::~Pie2D() {
@@ -37,7 +58,10 @@ Pie2D::~Pie2D() {
 }
 
 void Pie2D::setGraphData(Table *table, Column *xData, int from, int to) {
-  Q_UNUSED(table);
+  table_ = table;
+  xcolumn_ = xData;
+  from_ = from;
+  to_ = to;
   double sum = 0.0;
   pieData_->clear();
   for (int i = from; i <= to; i++) {

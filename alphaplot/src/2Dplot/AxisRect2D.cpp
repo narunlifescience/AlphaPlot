@@ -287,8 +287,40 @@ LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
   connect(lineSpecial, SIGNAL(showtooltip(QPointF, double, double)), this,
           SIGNAL(showtooltip(QPointF, double, double)));
 
-  emit LineScatter2DCreated(lineSpecial);
+  emit LineSpecial2DCreated(lineSpecial);
   return lineSpecial;
+}
+
+QPair<LineSpecial2D *, LineSpecial2D *> AxisRect2D::addLineSpecialChannel2DPlot(
+    Table *table, Column *xData, Column *yData1, Column *yData2, int from,
+    int to, Axis2D *xAxis, Axis2D *yAxis) {
+  LineSpecial2D *lineSpecial1 =
+      new LineSpecial2D(table, xData, yData1, from, to, xAxis, yAxis);
+  QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light);
+  color.setAlpha(155);
+  lineSpecial1->setlinefillcolor_lsplot(color);
+  lineSpecial1->setlinetype_lsplot(Graph2DCommon::LineStyleType::Line);
+  lineSpecial1->setscattershape_lsplot(Graph2DCommon::ScatterStyle::None);
+  lineSpecial1->setlinefillstatus_lsplot(true);
+  lineSpecial1->setlineantialiased_lsplot(true);
+  lineSpecial1->setscatterantialiased_lsplot(true);
+  LineSpecial2D *lineSpecial2 =
+      new LineSpecial2D(table, xData, yData2, from, to, xAxis, yAxis);
+  lineSpecial1->setChannelFillGraph(lineSpecial2);
+  lineSpecial1->setlinestrokecolor_lsplot(Qt::darkGray);
+  lineSpecial1->setlinestrokestyle_lsplot(Qt::PenStyle::DashLine);
+  lineSpecial2->setlinestrokecolor_lsplot(Qt::darkGray);
+  lineSpecial2->setlinestrokestyle_lsplot(Qt::PenStyle::DashLine);
+  LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineSpecial1);
+  axisRectLegend_->addItem(legendItem);
+  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  lineSpecial1->setName(table->name() + "_" + xData->name() + "_" +
+                        yData1->name() + "_" + yData2->name());
+  auto pair =
+      QPair<LineSpecial2D *, LineSpecial2D *>(lineSpecial1, lineSpecial2);
+  channelvec_.append(pair);
+  emit LineSpecialChannel2DCreated(pair);
+  return pair;
 }
 
 Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
@@ -408,10 +440,9 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
   return vec;
 }
 
-StatBox2D *AxisRect2D::addStatBox2DPlot(Table *table,
-                                        StatBox2D::BoxWhiskerData data,
+StatBox2D *AxisRect2D::addStatBox2DPlot(StatBox2D::BoxWhiskerData data,
                                         Axis2D *xAxis, Axis2D *yAxis) {
-  StatBox2D *statbox = new StatBox2D(xAxis, yAxis, table, data);
+  StatBox2D *statbox = new StatBox2D(data, xAxis, yAxis);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, statbox);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
@@ -451,7 +482,7 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
 }
 
 Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
-  Pie2D *pie = new Pie2D(this);
+  Pie2D *pie = new Pie2D(this, table, xData, from, to);
   pie->setGraphData(table, xData, from, to);
   getLegend()->setVisible(false);
   // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
@@ -608,7 +639,25 @@ bool AxisRect2D::removeLineSpecial2D(LineSpecial2D *ls) {
   result = plot2d_->removeGraph(ls);
   // result = plot2d_->removePlottable(ls);
   if (!result) return result;
-  emit LineScatter2DRemoved(this);
+  emit LineSpecial2DRemoved(this);
+  return result;
+}
+
+bool AxisRect2D::removeChannel2D(
+    QPair<LineSpecial2D *, LineSpecial2D *> channel) {
+  for (int i = 0; i < channelvec_.size(); i++) {
+    if (channelvec_.at(i) == channel) {
+      channelvec_.remove(i);
+    }
+  }
+  axisRectLegend_->removeItem(
+      axisRectLegend_->itemWithPlottable(channel.first));
+  bool result = false;
+  result = plot2d_->removeGraph(channel.second);
+  if (!result) return result;
+  result = plot2d_->removeGraph(channel.first);
+  if (!result) return result;
+  emit LineSpecialChannel2DRemoved(this);
   return result;
 }
 

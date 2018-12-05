@@ -27,11 +27,20 @@ class ColorMap2D : public QCPColorMap {
   };
 
   Gradient getgradient_colormap() const;
+  int getlevelcount_colormap() const;
+  bool getgradientinverted_colormap() const;
+  bool getgradientperiodic_colormap() const;
   QString getname_colormap() const;
   int getcolormapscalewidth_colormap() const;
   QCPColorScale *getcolormapscale_colormap() { return colorScale_; }
   Axis2D::AxisLabelFormat getcolormapscaleticklabelformat_axis() const;
+  Matrix *getmatrix_colormap() { return matrix_; }
+  int getrows_colormap() const { return rows_; }
+  int getcolumns_colormap() const { return columns_; }
   void setgradient_colormap(const Gradient &grad);
+  void setlevelcount_colormap(const int value);
+  void setgradientinverted_colormap(bool status);
+  void setgradientperiodic_colormap(bool status);
   void setname_colormap(const QString &value);
   void setcolormapscalewidth_colormap(const int width);
   void setcolormapscaleticklabelformat_axis(
@@ -42,9 +51,13 @@ class ColorMap2D : public QCPColorMap {
   Axis2D *xaxis_;
   Axis2D *yaxis_;
   Matrix *matrix_;
+  int rows_;
+  int columns_;
   QCPColorScale *colorScale_;
   QCPColorMapData *data_;
+  QCPColorGradient colorgradient_;
   Gradient gradient_;
+  bool invertgradient_;
 };
 
 #endif  // COLORMAP2D_H

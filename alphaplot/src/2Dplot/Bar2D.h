@@ -40,6 +40,10 @@ class Bar2D : public QCPBars {
   bool ishistogram_barplot() const;
   ErrorBar2D *getxerrorbar_barplot() { return xerrorbar_; }
   ErrorBar2D *getyerrorbar_barplot() { return yerrorbar_; }
+  Table *gettable_histogram() { return table_; }
+  Column *getcolumn_histogram() { return column_; }
+  int getfrom_histogram() const { return from_; }
+  int getto_histogram() const { return to_; }
 
   void setxaxis_barplot(Axis2D *axis);
   void setyaxis_barplot(Axis2D *axis);
@@ -49,6 +53,7 @@ class Bar2D : public QCPBars {
   void setfillcolor_barplot(const QColor &color);
 
   void setBarData(Table *table, Column *xcol, Column *ycol, int from, int to);
+  void setBarData(Table *table, Column *col, int from, int to);
   void setpicker_barplot(const Graph2DCommon::Picker picker);
 
  protected:
@@ -69,6 +74,10 @@ class Bar2D : public QCPBars {
   Axis2D *yaxis_;
   DataBlockBar *bardata_;
   bool ishistogram_;
+  Table *table_;
+  Column *column_;
+  int from_;
+  int to_;
   ErrorBar2D *xerrorbar_;
   ErrorBar2D *yerrorbar_;
   bool xerroravailable_;

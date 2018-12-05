@@ -202,6 +202,7 @@
     <addaction name="actionPlot2DVerticalBars"/>
     <addaction name="actionPlot2DHorizontalBars"/>
     <addaction name="actionPlot2DArea"/>
+    <addaction name="actionPlot2DChannelFill"/>
     <addaction name="actionPlot2DPie"/>
     <addaction name="actionPlot2DVectorsXYXY"/>
     <addaction name="actionPlot2DVectorsXYAM"/>
@@ -341,7 +342,6 @@
     <addaction name="actionConvolute"/>
     <addaction name="actionDeconvolute"/>
     <addaction name="separator"/>
-    <addaction name="actionTableFitWizard"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -1359,6 +1359,11 @@
   <action name="actionGraphRemoveBadDataPoints">
    <property name="text">
     <string>Remove Bad Data Points...</string>
+   </property>
+  </action>
+  <action name="actionPlot2DChannelFill">
+   <property name="text">
+    <string>&amp;Channel Fill</string>
    </property>
   </action>
  </widget>

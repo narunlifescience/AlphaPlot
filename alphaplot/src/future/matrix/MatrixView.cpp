@@ -97,7 +97,7 @@ void MatrixView::init() {
   d_hide_button->setCheckable(false);
   d_hide_button->setSizePolicy(
       QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-  d_hide_button->setGeometry(0, 0, 16, 16);
+  d_hide_button->setGeometry(0, 0, 24, 24);
   d_hide_button->setIcon(IconLoader::load("edit-unhide", IconLoader::General));
   d_hide_button->setStyleSheet(
       "QToolButton {background-color : rgba(0, 0, 0, 0); "
@@ -513,9 +513,9 @@ int MatrixView::columnWidth(int col) const {
 
 void MatrixView::loadIcons() {
   (d_control_tabs->isVisible()) ? d_hide_button->setIcon(IconLoader::load(
-                                      "edit-hide", IconLoader::LightDark))
+                                      "edit-hide", IconLoader::General))
                                 : d_hide_button->setIcon(IconLoader::load(
-                                      "edit-unhide", IconLoader::LightDark));
+                                      "edit-unhide", IconLoader::General));
   ui.tab_widget->setTabIcon(
       0, IconLoader::load("edit-table-dimension", IconLoader::LightDark));
   ui.tab_widget->setTabIcon(

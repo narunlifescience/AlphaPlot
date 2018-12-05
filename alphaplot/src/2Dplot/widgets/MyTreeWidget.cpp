@@ -412,106 +412,76 @@ void MyTreeWidget::addplot() {
   addplot2d->exec();
 }
 
-/*void MyTreeWidget::addAxis2D() {
-  AddAxisWidget *ad = new AddAxisWidget(nullptr);
-  ad->setAttribute(Qt::WA_DeleteOnClose);
-  ad->setModal(true);
-  ad->show();
-
-  QAction *action = qobject_cast<QAction *>(sender());
-  if (!action) return;
-  void *ptr = action->data().value<void *>();
-  AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
-  connect(ad, SIGNAL(addleftaxisclicked()), axisrect, SLOT(addLeftAxis2D()));
-  connect(ad, SIGNAL(addbottomaxisclicked()), axisrect,
-          SLOT(addBottomAxis2D()));
-  connect(ad, SIGNAL(addrightaxisclicked()), axisrect, SLOT(addRightAxis2D()));
-  connect(ad, SIGNAL(addtopaxisclicked()), axisrect, SLOT(addTopAxis2D()));
-  // axisrect->parentPlot()->replot();
-}*/
-
 void MyTreeWidget::addAxis2D() {
   QAction *action = qobject_cast<QAction *>(sender());
   if (!action) return;
   void *ptr = action->data().value<void *>();
   AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
-  Axis2D *axis = nullptr;
 
   if (action == leftvalueaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
-                               Axis2D::TickerType::Value);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
+                        Axis2D::TickerType::Value);
   else if (action == leftlogaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
-                               Axis2D::TickerType::Log);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left, Axis2D::TickerType::Log);
   else if (action == leftpiaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
-                               Axis2D::TickerType::Pi);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left, Axis2D::TickerType::Pi);
   else if (action == lefttextaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
-                               Axis2D::TickerType::Text);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
+                        Axis2D::TickerType::Text);
   else if (action == lefttimeaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
-                               Axis2D::TickerType::Time);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
+                        Axis2D::TickerType::Time);
   else if (action == leftdatetimeaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
-                               Axis2D::TickerType::DateTime);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
+                        Axis2D::TickerType::DateTime);
   else if (action == bottomvalueaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
-                               Axis2D::TickerType::Value);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
+                        Axis2D::TickerType::Value);
   else if (action == bottomlogaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
-                               Axis2D::TickerType::Log);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
+                        Axis2D::TickerType::Log);
   else if (action == bottompiaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
-                               Axis2D::TickerType::Pi);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left, Axis2D::TickerType::Pi);
   else if (action == bottomtextaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
-                               Axis2D::TickerType::Text);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
+                        Axis2D::TickerType::Text);
   else if (action == bottomtimeaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
-                               Axis2D::TickerType::Time);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
+                        Axis2D::TickerType::Time);
   else if (action == bottomdatetimeaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
-                               Axis2D::TickerType::DateTime);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
+                        Axis2D::TickerType::DateTime);
   else if (action == rightvalueaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
-                               Axis2D::TickerType::Value);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
+                        Axis2D::TickerType::Value);
   else if (action == rightlogaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
-                               Axis2D::TickerType::Log);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
+                        Axis2D::TickerType::Log);
   else if (action == rightpiaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
-                               Axis2D::TickerType::Pi);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right, Axis2D::TickerType::Pi);
   else if (action == righttextaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
-                               Axis2D::TickerType::Text);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
+                        Axis2D::TickerType::Text);
   else if (action == righttimeaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
-                               Axis2D::TickerType::Time);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
+                        Axis2D::TickerType::Time);
   else if (action == rightdatetimeaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
-                               Axis2D::TickerType::DateTime);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
+                        Axis2D::TickerType::DateTime);
   else if (action == topvalueaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
-                               Axis2D::TickerType::Value);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
+                        Axis2D::TickerType::Value);
   else if (action == toplogaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
-                               Axis2D::TickerType::Log);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Log);
   else if (action == toppiaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
-                               Axis2D::TickerType::Pi);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Pi);
   else if (action == toptextaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
-                               Axis2D::TickerType::Text);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Text);
   else if (action == toptimeaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
-                               Axis2D::TickerType::Time);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Time);
   else if (action == topdatetimeaxis_)
-    axis = axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
-                               Axis2D::TickerType::DateTime);
-  if (axis)
-    axisrect->parentPlot()->replot(
-        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
+                        Axis2D::TickerType::DateTime);
 }
 
 void MyTreeWidget::removeAxis2D() {
@@ -525,7 +495,6 @@ void MyTreeWidget::removeAxis2D() {
     qDebug() << "unable to remove line special 2d plot";
     return;
   }
-  axisrect->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removeLineSpecial2D() {
@@ -533,14 +502,12 @@ void MyTreeWidget::removeLineSpecial2D() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   LineSpecial2D *ls = static_cast<LineSpecial2D *>(ptr);
-  QCustomPlot *customplot = ls->parentPlot();
   bool result =
       ls->getxaxis_lsplot()->getaxisrect_axis()->removeLineSpecial2D(ls);
   if (!result) {
     qDebug() << "unable to remove line special 2d plot";
     return;
   }
-  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removeCurve2D() {
@@ -548,14 +515,12 @@ void MyTreeWidget::removeCurve2D() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   Curve2D *curve = static_cast<Curve2D *>(ptr);
-  QCustomPlot *customplot = curve->parentPlot();
   bool result =
       curve->getxaxis_cplot()->getaxisrect_axis()->removeCurve2D(curve);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
     return;
   }
-  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removeBar2D() {
@@ -563,13 +528,11 @@ void MyTreeWidget::removeBar2D() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   Bar2D *bar = static_cast<Bar2D *>(ptr);
-  QCustomPlot *customplot = bar->parentPlot();
   bool result = bar->getxaxis_barplot()->getaxisrect_axis()->removeBar2D(bar);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
     return;
   }
-  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removeVector2D() {
@@ -577,14 +540,12 @@ void MyTreeWidget::removeVector2D() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   Vector2D *vector = static_cast<Vector2D *>(ptr);
-  QCustomPlot *customplot = vector->parentPlot();
   bool result =
       vector->getxaxis_vecplot()->getaxisrect_axis()->removeVector2D(vector);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
     return;
   }
-  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removeStatBox2D() {
@@ -592,14 +553,12 @@ void MyTreeWidget::removeStatBox2D() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   StatBox2D *statbox = static_cast<StatBox2D *>(ptr);
-  QCustomPlot *customplot = statbox->parentPlot();
   bool result =
       statbox->getxaxis_statbox()->getaxisrect_axis()->removeStatBox2D(statbox);
   if (!result) {
     qDebug() << "unable to remove line scatter 2d plot";
     return;
   }
-  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removeErrorBar2D() {
@@ -614,17 +573,14 @@ void MyTreeWidget::removeErrorBar2D() {
     (error->geterrortype_errorbar() == QCPErrorBars::ErrorType::etKeyError)
         ? ls->removeXerrorBar()
         : ls->removeYerrorBar();
-    ls->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
   } else if (curve) {
     (error->geterrortype_errorbar() == QCPErrorBars::ErrorType::etKeyError)
         ? curve->removeXerrorBar()
         : curve->removeYerrorBar();
-    curve->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
   } else if (bar) {
     (error->geterrortype_errorbar() == QCPErrorBars::ErrorType::etKeyError)
         ? bar->removeXerrorBar()
         : bar->removeYerrorBar();
-    bar->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
   }
 }
 
@@ -633,13 +589,11 @@ void MyTreeWidget::removeTextItem2D() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   TextItem2D *textitem = static_cast<TextItem2D *>(ptr);
-  QCustomPlot *customplot = textitem->parentPlot();
   bool result = textitem->getaxisrect_textitem()->removeTextItem2D(textitem);
   if (!result) {
     qDebug() << "unable to remove line special 2d plot";
     return;
   }
-  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removeLineItem2D() {
@@ -647,13 +601,11 @@ void MyTreeWidget::removeLineItem2D() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   LineItem2D *lineitem = static_cast<LineItem2D *>(ptr);
-  QCustomPlot *customplot = lineitem->parentPlot();
   bool result = lineitem->getaxisrect_lineitem()->removeLineItem2D(lineitem);
   if (!result) {
     qDebug() << "unable to remove line special 2d plot";
     return;
   }
-  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }
 
 void MyTreeWidget::removeImageItem2D() {
@@ -661,12 +613,10 @@ void MyTreeWidget::removeImageItem2D() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   ImageItem2D *imageitem = static_cast<ImageItem2D *>(ptr);
-  QCustomPlot *customplot = imageitem->parentPlot();
   bool result =
       imageitem->getaxisrect_imageitem()->removeImageItem2D(imageitem);
   if (!result) {
     qDebug() << "unable to remove line special 2d plot";
     return;
   }
-  customplot->replot(QCustomPlot::RefreshPriority::rpQueuedRefresh);
 }

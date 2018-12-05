@@ -26,7 +26,6 @@ Curve2D::Curve2D(Curve2D::Curve2DType curve2dtype, Table *table, Column *xcol,
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setlinestrokecolor_cplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
-  setData(curvedata_->data());
   if (curve2dtype_ == Curve2DType::Spline) {
     setPen(Qt::NoPen);
     splinePen_.setColor(
@@ -35,6 +34,7 @@ Curve2D::Curve2D(Curve2D::Curve2DType curve2dtype, Table *table, Column *xcol,
     splinecontrolpoints_ = new QVector<QPointF>();
     loadSplineData();
   }
+  setData(curvedata_->data());
 }
 
 Curve2D::Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
@@ -163,6 +163,7 @@ void Curve2D::setCurveData(Table *table, Column *xcol, Column *ycol, int from,
   }
   curvedata_->regenerateDataBlock(table, xcol, ycol, from, to);
   setData(curvedata_->data());
+  if (curve2dtype_ == Curve2DType::Spline) loadSplineData();
 }
 
 int Curve2D::getlinetype_cplot() const {

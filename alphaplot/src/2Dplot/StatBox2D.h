@@ -66,6 +66,10 @@ class StatBox2D : public QCPStatisticalBox {
     double se;
     BoxWhiskerDataBounds boxWhiskerDataBounds;
     QString name;
+    Table *table_;
+    Column *column_;
+    int from_;
+    int to_;
     BoxWhiskerData() {
       key = 0;
       mean = 0;
@@ -73,11 +77,15 @@ class StatBox2D : public QCPStatisticalBox {
       sd = 0;
       se = 0;
       name = QString();
+      table_ = nullptr;
+      column_ = nullptr;
+      from_ = -1;
+      to_ = -1;
     }
   };
 
-  explicit StatBox2D(Axis2D *xAxis, Axis2D *yAxis, Table *table,
-                     BoxWhiskerData boxWhiskerData);
+  explicit StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
+                     Axis2D *yAxis);
   ~StatBox2D();
 
   Axis2D *getxaxis_statbox() const;
@@ -101,6 +109,11 @@ class StatBox2D : public QCPStatisticalBox {
   Qt::PenStyle getscatterstrokestyle_statbox() const;
   QColor getscatterstrokecolor_statbox() const;
   double getscatterstrokethickness_statbox() const;
+  BoxWhiskerData getboxwhiskerdata_statbox() const { return boxwhiskerdata_; }
+  Table *gettable_statbox() { return boxwhiskerdata_.table_; }
+  Column *getcolumn_statbox() { return boxwhiskerdata_.column_; }
+  int getfrom_statbox() const { return boxwhiskerdata_.from_; }
+  int getto_statbox() const { return boxwhiskerdata_.to_; }
 
   void setxaxis_statbox(Axis2D *axis);
   void setyaxis_statbox(Axis2D *axis);
@@ -127,17 +140,17 @@ class StatBox2D : public QCPStatisticalBox {
   void reloaddata_statbox();
   void setpicker_statbox(const Graph2DCommon::Picker picker);
 
-protected:
- void mousePressEvent(QMouseEvent *event, const QVariant &details);
+ protected:
+  void mousePressEvent(QMouseEvent *event, const QVariant &details);
 
-private:
- void datapicker(QMouseEvent *event, const QVariant &details);
- void graphpicker(QMouseEvent *event, const QVariant &);
- void movepicker(QMouseEvent *, const QVariant &);
- void removepicker(QMouseEvent *, const QVariant &);
+ private:
+  void datapicker(QMouseEvent *event, const QVariant &details);
+  void graphpicker(QMouseEvent *event, const QVariant &);
+  void movepicker(QMouseEvent *, const QVariant &);
+  void removepicker(QMouseEvent *, const QVariant &);
 
-signals:
- void showtooltip(QPointF, double, double);
+ signals:
+  void showtooltip(QPointF, double, double);
 
  private:
   Axis2D *xAxis_;

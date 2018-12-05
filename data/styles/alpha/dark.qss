@@ -214,7 +214,6 @@ QRadioButton::indicator:unchecked:disabled
     image: url(:/qss_icons/alpha/controls/radio_unchecked_disabled.png);
 }
 
-
 QMenuBar
 {
     background-color: #302F2F;

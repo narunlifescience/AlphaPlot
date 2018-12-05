@@ -17,6 +17,10 @@ Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
       yaxis_(yAxis),
       bardata_(new DataBlockBar(table, xcol, ycol, from, to)),
       ishistogram_(false),
+      table_(nullptr),
+      column_(nullptr),
+      from_(-1),
+      to_(-1),
       xerrorbar_(nullptr),
       yerrorbar_(nullptr),
       xerroravailable_(false),
@@ -41,6 +45,10 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
       xaxis_(xAxis),
       yaxis_(yAxis),
       ishistogram_(true),
+      table_(table),
+      column_(ycol),
+      from_(from),
+      to_(to),
       xerrorbar_(nullptr),
       yerrorbar_(nullptr),
       xerroravailable_(false),
@@ -52,107 +60,7 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
   setstrokecolor_barplot(color);
   color.setAlpha(100);
   setfillcolor_barplot(color);
-  int d_end_row = to;
-  int d_start_row = from;
-  bool d_autoBin = true;
-  int d_bin_size = 0;
-  double d_begin = 0.0;
-  double d_end = 0.0;
-  double d_mean = 0.0;
-  double d_standard_deviation = 0.0;
-  double d_min = 0.0;
-  double d_max = 0.0;
-
-  int r = abs(d_end_row - d_start_row) + 1;
-  QVarLengthArray<double> Y(r);
-
-  Column *y_col_ptr = ycol;
-  int yColType = table->columnType(table->colIndex(ycol->name()));
-  int size = 0;
-  for (int row = d_start_row; row <= d_end_row && row < y_col_ptr->rowCount();
-       row++) {
-    if (!y_col_ptr->isInvalid(row)) {
-      if (yColType == Table::Text) {
-        QString yval = y_col_ptr->textAt(row);
-        bool valid_data = true;
-        Y[size] = QLocale().toDouble(yval, &valid_data);
-        if (!valid_data) continue;
-      } else
-        Y[size] = y_col_ptr->valueAt(row);
-      size++;
-    }
-  }
-
-  if (size < 2 || (size == 2 && Y[0] == Y[1])) {  // non valid histogram
-    double X[2];
-    Y.resize(2);
-    for (int i = 0; i < 2; i++) {
-      Y[i] = 0;
-      X[i] = 0;
-    }
-    return;
-  }
-
-  int n;
-  gsl_histogram *h;
-  if (d_autoBin) {
-    n = 10;
-    h = gsl_histogram_alloc(n);
-    if (!h) return;
-
-    gsl_vector *v = gsl_vector_alloc(size);
-    for (int i = 0; i < size; i++) gsl_vector_set(v, i, Y[i]);
-
-    double min, max;
-    gsl_vector_minmax(v, &min, &max);
-    gsl_vector_free(v);
-
-    d_begin = floor(min);
-    d_end = ceil(max);
-    d_bin_size = (d_end - d_begin) / static_cast<double>(n);
-
-    gsl_histogram_set_ranges_uniform(h, floor(min), ceil(max));
-  } else {
-    n = int((d_end - d_begin) / d_bin_size + 1);
-    h = gsl_histogram_alloc(n);
-    if (!h) return;
-
-    double *range = new double[n + 2];
-    for (int i = 0; i <= n + 1; i++) range[i] = d_begin + i * d_bin_size;
-
-    gsl_histogram_set_ranges(h, range, n + 1);
-    delete[] range;
-  }
-
-  for (int i = 0; i < size; i++) gsl_histogram_increment(h, Y[i]);
-
-  double X[n];  // stores ranges (x) and bins (y)
-  Y.resize(n);
-  QSharedPointer<QCPBarsDataContainer> cont =
-      QSharedPointer<QCPBarsDataContainer>(new QCPBarsDataContainer);
-  for (int i = 0; i < n; i++) {
-    QCPBarsData dat;
-    Y[i] = gsl_histogram_get(h, i);
-    dat.value = gsl_histogram_get(h, i);
-    double lower, upper;
-    gsl_histogram_get_range(h, i, &lower, &upper);
-    X[i] = lower;
-    dat.key = lower;
-    cont.data()->add(dat);
-  }
-
-  setData(cont);
-
-  d_mean = gsl_histogram_mean(h);
-  d_standard_deviation = gsl_histogram_sigma(h);
-  d_min = gsl_histogram_min_val(h);
-  d_max = gsl_histogram_max_val(h);
-
-  gsl_histogram_free(h);
-  if (!cont.isNull() && cont.data()->size() > 1)
-    setWidth(cont.data()->at(1)->mainKey() - cont.data()->at(0)->mainKey());
-
-  return;
+  setBarData(table_, column_, from_, to_);
 }
 
 Bar2D::~Bar2D() {
@@ -265,6 +173,112 @@ void Bar2D::setBarData(Table *table, Column *xcol, Column *ycol, int from,
                        int to) {
   bardata_->regenerateDataBlock(table, xcol, ycol, from, to);
   setData(bardata_->data());
+}
+
+void Bar2D::setBarData(Table *table, Column *col, int from, int to) {
+  table_ = table;
+  column_ = col;
+  from_ = from;
+  to_ = to;
+  int d_end_row = to;
+  int d_start_row = from;
+  bool d_autoBin = true;
+  int d_bin_size = 0;
+  double d_begin = 0.0;
+  double d_end = 0.0;
+  double d_mean = 0.0;
+  double d_standard_deviation = 0.0;
+  double d_min = 0.0;
+  double d_max = 0.0;
+
+  int r = abs(d_end_row - d_start_row) + 1;
+  QVarLengthArray<double> Y(r);
+
+  Column *y_col_ptr = col;
+  int yColType = table->columnType(table->colIndex(col->name()));
+  int size = 0;
+  for (int row = d_start_row; row <= d_end_row && row < y_col_ptr->rowCount();
+       row++) {
+    if (!y_col_ptr->isInvalid(row)) {
+      if (yColType == Table::Text) {
+        QString yval = y_col_ptr->textAt(row);
+        bool valid_data = true;
+        Y[size] = QLocale().toDouble(yval, &valid_data);
+        if (!valid_data) continue;
+      } else
+        Y[size] = y_col_ptr->valueAt(row);
+      size++;
+    }
+  }
+
+  if (size < 2 || (size == 2 && Y[0] == Y[1])) {  // non valid histogram
+    double X[2];
+    Y.resize(2);
+    for (int i = 0; i < 2; i++) {
+      Y[i] = 0;
+      X[i] = 0;
+    }
+    return;
+  }
+
+  int n;
+  gsl_histogram *h;
+  if (d_autoBin) {
+    n = 10;
+    h = gsl_histogram_alloc(n);
+    if (!h) return;
+
+    gsl_vector *v = gsl_vector_alloc(size);
+    for (int i = 0; i < size; i++) gsl_vector_set(v, i, Y[i]);
+
+    double min, max;
+    gsl_vector_minmax(v, &min, &max);
+    gsl_vector_free(v);
+
+    d_begin = floor(min);
+    d_end = ceil(max);
+    d_bin_size = (d_end - d_begin) / static_cast<double>(n);
+
+    gsl_histogram_set_ranges_uniform(h, floor(min), ceil(max));
+  } else {
+    n = int((d_end - d_begin) / d_bin_size + 1);
+    h = gsl_histogram_alloc(n);
+    if (!h) return;
+
+    double *range = new double[n + 2];
+    for (int i = 0; i <= n + 1; i++) range[i] = d_begin + i * d_bin_size;
+
+    gsl_histogram_set_ranges(h, range, n + 1);
+    delete[] range;
+  }
+
+  for (int i = 0; i < size; i++) gsl_histogram_increment(h, Y[i]);
+
+  double X[n];  // stores ranges (x) and bins (y)
+  Y.resize(n);
+  QSharedPointer<QCPBarsDataContainer> cont =
+      QSharedPointer<QCPBarsDataContainer>(new QCPBarsDataContainer);
+  for (int i = 0; i < n; i++) {
+    QCPBarsData dat;
+    Y[i] = gsl_histogram_get(h, i);
+    dat.value = gsl_histogram_get(h, i);
+    double lower, upper;
+    gsl_histogram_get_range(h, i, &lower, &upper);
+    X[i] = lower;
+    dat.key = lower;
+    cont.data()->add(dat);
+  }
+
+  setData(cont);
+
+  d_mean = gsl_histogram_mean(h);
+  d_standard_deviation = gsl_histogram_sigma(h);
+  d_min = gsl_histogram_min_val(h);
+  d_max = gsl_histogram_max_val(h);
+
+  gsl_histogram_free(h);
+  if (!cont.isNull() && cont.data()->size() > 1)
+    setWidth(cont.data()->at(1)->mainKey() - cont.data()->at(0)->mainKey());
 }
 
 void Bar2D::setpicker_barplot(const Graph2DCommon::Picker picker) {

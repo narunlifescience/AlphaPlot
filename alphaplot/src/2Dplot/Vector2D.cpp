@@ -17,6 +17,8 @@ Vector2D::Vector2D(const VectorPlot &vectorplot, Table *table, Column *x1Data,
   start_->setStyle(QCPLineEnding::esSpikeArrow);
   stop_->setStyle(QCPLineEnding::esNone);
   setGraphData(table, x1Data, y1Data, x2Data, y2Data, from, to);
+  setlinestrokecolor_vecplot(
+      Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
 }
 
 Vector2D::~Vector2D() {
@@ -34,7 +36,15 @@ void Vector2D::setGraphData(Table *table, Column *x1Data, Column *y1Data,
   y2col_ = y2Data;
   from_ = from;
   to_ = to;
-  foreach (QCPItemLine *line, linelist_) { delete line; }
+  bool setcoloronce = true;
+  QColor color(Qt::black);
+  foreach (QCPItemLine *line, linelist_) {
+    if (setcoloronce) {
+      color = line->pen().color();
+      setcoloronce = false;
+    }
+    parentPlot()->removeItem(line);
+  }
   linelist_.clear();
   double min_x, max_x, min_y, max_y;
   min_x = x1Data->valueAt(from);
@@ -136,8 +146,7 @@ void Vector2D::setGraphData(Table *table, Column *x1Data, Column *y1Data,
   xaxis_->setto_axis(max_x);
   yaxis_->setfrom_axis(min_y);
   yaxis_->setto_axis(max_y);
-  setlinestrokecolor_vecplot(
-      Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
+  setlinestrokecolor_vecplot(color);
 }
 
 void Vector2D::drawLine(double x1, double y1, double x2, double y2) {

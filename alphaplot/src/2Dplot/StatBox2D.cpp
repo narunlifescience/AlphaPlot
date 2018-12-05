@@ -2,8 +2,8 @@
 #include "Table.h"
 #include "core/Utilities.h"
 
-StatBox2D::StatBox2D(Axis2D *xAxis, Axis2D *yAxis, Table *table,
-                     BoxWhiskerData boxWhiskerData)
+StatBox2D::StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
+                     Axis2D *yAxis)
     : QCPStatisticalBox(xAxis, yAxis),
       xAxis_(xAxis),
       yAxis_(yAxis),
@@ -15,7 +15,6 @@ StatBox2D::StatBox2D(Axis2D *xAxis, Axis2D *yAxis, Table *table,
       boxstyle_(StatBox2D::BoxWhiskerStyle::Perc_25_75),
       whiskerstyle_(StatBox2D::BoxWhiskerStyle::Perc_5_95),
       picker_(Graph2DCommon::Picker::None) {
-  Q_UNUSED(table);
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setWhiskerAntialiased(false);
   setAntialiased(false);
@@ -194,12 +193,14 @@ void StatBox2D::setyaxis_statbox(Axis2D *axis) {
 }
 
 void StatBox2D::setboxwhiskerdata(const BoxWhiskerData boxWhiskerData) {
+  boxwhiskerdata_ = boxWhiskerData;
   sBoxdata_.key = boxWhiskerData.key;
   sBoxdata_.median = boxWhiskerData.median;
   setboxstyle_statbox(Perc_25_75);
   setwhiskerstyle_statbox(Perc_5_95);
   sBoxdata_.outliers << boxWhiskerData.boxWhiskerDataBounds.min
                      << boxWhiskerData.boxWhiskerDataBounds.max;
+  data().data()->clear();
   addData(sBoxdata_.key, sBoxdata_.minimum, sBoxdata_.lowerQuartile,
           sBoxdata_.median, sBoxdata_.upperQuartile, sBoxdata_.maximum,
           sBoxdata_.outliers);

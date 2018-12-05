@@ -26,8 +26,8 @@ class Layout2D : public MyWidget {
            const QString name = QString(), Qt::WindowFlags f = Qt::Widget);
   ~Layout2D();
 
-  StatBox2D::BoxWhiskerData generateBoxWhiskerData(Column *data, int from,
-                                                   int to, int key);
+  StatBox2D::BoxWhiskerData generateBoxWhiskerData(Table *table, Column *data,
+                                                   int from, int to, int key);
 
   void generateFunction2DPlot(QVector<double> *xdata, QVector<double> *ydata,
                               const QString xLabel, const QString yLabel);
@@ -41,6 +41,9 @@ class Layout2D : public MyWidget {
   void generateLineSpecial2DPlot(
       const AxisRect2D::LineScatterSpecialType &plotType, Table *table,
       Column *xData, QList<Column *> ycollist, int from, int to);
+  void generateLineSpecialChannel2DPlot(Table *table, Column *xData,
+                                        QList<Column *> ycollist, int from,
+                                        int to);
   void generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
                            Table *table, Column *xcol, QList<Column *> ycollist,
                            int from, int to);
@@ -51,7 +54,7 @@ class Layout2D : public MyWidget {
                             Table *table, Column *x1Data, Column *y1Data,
                             Column *x2Data, Column *y2Data, int from, int to);
   void generatePie2DPlot(Table *table, Column *xData, int from, int to);
-  void generateColorMap2DPlot(Matrix *matrix, bool greyscale);
+  void generateColorMap2DPlot(Matrix *matrix, bool greyscale, bool contour);
 
   QList<AxisRect2D *> getAxisRectList();
   AxisRect2D *getSelectedAxisRect(int col, int row);

@@ -12,7 +12,7 @@ class PieLegendItem2D;
 class Pie2D : public QCPAbstractItem {
   Q_OBJECT
  public:
-  Pie2D(AxisRect2D *axisrect);
+  Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, int from, int to);
   ~Pie2D();
 
   void setGraphData(Table *table, Column *xData, int from, int to);
@@ -24,6 +24,10 @@ class Pie2D : public QCPAbstractItem {
   QColor getstrokecolor_pieplot() const;
   double getstrokethickness_pieplot() const;
   int getmarginpercent_pieplot() const;
+  Table *gettable_pieplot() { return table_; }
+  Column *getxcolumn_pieplot() { return xcolumn_; }
+  int getfrom_pieplot() const { return from_; }
+  int getto_pieplot() const { return to_; }
 
   void setstrokestyle_pieplot(const Qt::PenStyle &style);
   void setstrokecolor_pieplot(const QColor &color);
@@ -41,6 +45,10 @@ class Pie2D : public QCPAbstractItem {
   QPen mPen;
   QBrush mBrush;
   int marginpercent_;
+  Table *table_;
+  Column *xcolumn_;
+  int from_;
+  int to_;
 };
 
 #endif  // PIE2D_H

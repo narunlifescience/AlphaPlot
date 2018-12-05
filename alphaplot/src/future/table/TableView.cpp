@@ -121,7 +121,7 @@ void TableView::init() {
   d_hide_button->setCheckable(false);
   d_hide_button->setSizePolicy(
       QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-  d_hide_button->setGeometry(0, 0, 16, 16);
+  d_hide_button->setGeometry(0, 0, 24, 24);
   d_hide_button->setStyleSheet(
       "QToolButton {background-color : rgba(0, 0, 0, 0); "
       "border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0);}");

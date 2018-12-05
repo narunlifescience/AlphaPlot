@@ -168,7 +168,8 @@ class ApplicationWindow : public QMainWindow,
     ColorMap = 16,
     GrayMap = 17,
     ContourMap = 18,
-    Function = 19
+    Function = 19,
+    Channel = 20,
   };
 
   QTranslator* appTranslator;
@@ -484,7 +485,7 @@ class ApplicationWindow : public QMainWindow,
   void closeWindow(MyWidget* window);
 
   //!  Does all the cleaning work before actually deleting a window!
-  void removeWindowFromLists(MyWidget* w);
+  void removeWindowFromLists(MyWidget* widgrt);
 
   void hideWindow(MyWidget* window);
   void hideActiveWindow();
@@ -899,6 +900,7 @@ class ApplicationWindow : public QMainWindow,
 
   // TODO: a lot of this stuff should be private
  public:
+  QStringList tableWindows();
   //! Last selected filter in export image dialog
   QString d_image_export_filter;
   bool d_keep_plot_aspect;
@@ -964,43 +966,96 @@ class ApplicationWindow : public QMainWindow,
   QString appStyle;
   QString workingDir;
   int appColorScheme;
-  QColor mdiareacolor;
 
   // Path to the folder where the last template file was opened/saved
   QString templatesDir;
-  bool smooth3DMesh, autoScaleFonts, autoResizeLayers;
-  bool confirmCloseTable, confirmCloseMatrix, confirmClosePlot2D,
-      confirmClosePlot3D;
-  bool confirmCloseFolder, confirmCloseNotes;
-  bool canvasFrameOn, titleOn, autoSave, drawBackbones, allAxesOn,
-      autoscale2DPlots, antialiasing2DPlots;
-  int majTicksStyle, minTicksStyle, legendFrameStyle, autoSaveTime,
-      axesLineWidth, canvasFrameWidth;
-  QColor legendBackground, legendTextColor, defaultArrowColor;
-  int defaultArrowLineWidth, defaultArrowHeadLength, defaultArrowHeadAngle;
+  bool smooth3DMesh;
+  bool autoScaleFonts;
+  bool autoResizeLayers;
+  bool confirmCloseTable;
+  bool confirmCloseMatrix;
+  bool confirmClosePlot2D;
+  bool confirmClosePlot3D;
+  bool confirmCloseFolder;
+  bool confirmCloseNotes;
+  bool canvasFrameOn;
+  bool titleOn;
+  bool autoSave;
+  bool drawBackbones;
+  bool allAxesOn;
+  bool autoscale2DPlots;
+  bool antialiasing2DPlots;
+  int majTicksStyle;
+  int minTicksStyle;
+  int legendFrameStyle;
+  int autoSaveTime;
+  int axesLineWidth;
+  int canvasFrameWidth;
+  QColor legendBackground;
+  QColor legendTextColor;
+  QColor defaultArrowColor;
+  int defaultArrowLineWidth;
+  int defaultArrowHeadLength;
+  int defaultArrowHeadAngle;
   bool defaultArrowHeadFill;
   Qt::PenStyle defaultArrowLineStyle;
-  int majTicksLength, minTicksLength, defaultPlotMargin;
-  int defaultCurveStyle, defaultCurveLineWidth, defaultSymbolSize;
+  int majTicksLength;
+  int minTicksLength;
+  int defaultPlotMargin;
+  int defaultCurveStyle;
+  int defaultCurveLineWidth;
+  int defaultSymbolSize;
   int undoLimit;
-  QFont appFont, plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;
-  QFont tableTextFont, tableHeaderFont, plotAxesFont, plotLegendFont,
-      plotNumbersFont, plotTitleFont;
-  QColor tableBkgdColor, tableTextColor, tableHeaderColor;
-  QString projectname, columnSeparator, appLanguage;
-  QString configFilePath, logInfo, fitPluginsPath, asciiDirPath, imagesDirPath;
-  int logID, asciiID, printAllID, ignoredLines, savingTimerId, plot3DResolution;
-  bool renameColumns, copiedLayer, strip_spaces, simplify_spaces;
+  QFont appFont;
+  QFont plot3DTitleFont;
+  QFont plot3DNumbersFont;
+  QFont plot3DAxesFont;
+  QFont tableTextFont;
+  QFont tableHeaderFont;
+  QFont plotAxesFont;
+  QFont plotLegendFont;
+  QFont plotNumbersFont;
+  QFont plotTitleFont;
+  QColor tableBkgdColor;
+  QColor tableTextColor;
+  QColor tableHeaderColor;
+  QString projectname;
+  QString columnSeparator;
+  QString appLanguage;
+  QString configFilePath;
+  QString logInfo;
+  QString fitPluginsPath;
+  QString asciiDirPath;
+  QString imagesDirPath;
+  int logID;
+  int asciiID;
+  int printAllID;
+  int ignoredLines;
+  int savingTimerId;
+  int plot3DResolution;
+  bool renameColumns;
+  bool copiedLayer;
+  bool strip_spaces;
+  bool simplify_spaces;
   QStringList recentProjects;
-  QStringList tableWindows();
-  bool saved, showPlot3DProjection, showPlot3DLegend, orthogonal3DPlots,
-      autoscale3DPlots;
-  QStringList plot3DColors, locales;
-  QStringList functions;  // user-defined functions;
-  QStringList xFunctions, yFunctions, rFunctions,
-      thetaFunctions;        // user functions for parametric and polar plots
-  QStringList fitFunctions;  // user-defined fit functions;
-  QStringList surfaceFunc;   // user-defined surface functions;
+  bool saved;
+  bool showPlot3DProjection;
+  bool showPlot3DLegend;
+  bool orthogonal3DPlots;
+  bool autoscale3DPlots;
+  QStringList plot3DColors;
+  QStringList locales;
+  // user-defined functions;
+  QStringList functions;
+  // user functions for parametric and polar plots
+  QStringList xFunctions;
+  QStringList yFunctions;
+  QStringList rFunctions;
+  QStringList thetaFunctions;
+  // user-defined fit functions;
+  QStringList fitFunctions;
+  // user-defined surface functions;
+  QStringList surfaceFunc;
 
   // List of tables & matrices renamed in order to avoid conflicts when
   // appending a project to a folder
@@ -1009,15 +1064,23 @@ class ApplicationWindow : public QMainWindow,
   // name variables used when user copy/paste markers
   QString auxMrkText;
   QFont auxMrkFont;
-  QColor auxMrkColor, auxMrkBkgColor;
-  QPoint auxMrkStart, auxMrkEnd;
+  QColor auxMrkColor;
+  QColor auxMrkBkgColor;
+  QPoint auxMrkStart;
+  QPoint auxMrkEnd;
   Qt::PenStyle auxMrkStyle;
   QString auxMrkFileName;
-  int auxMrkBkg, auxMrkWidth;
+  int auxMrkBkg;
+  int auxMrkWidth;
 
-  bool startArrowOn, endArrowOn, fillArrowHead;
-  int arrowHeadLength, arrowHeadAngle;
-  int plotMenuID, setAsMenuID, fillMenuID;
+  bool startArrowOn;
+  bool endArrowOn;
+  bool fillArrowHead;
+  int arrowHeadLength;
+  int arrowHeadAngle;
+  int plotMenuID;
+  int setAsMenuID;
+  int fillMenuID;
 
   // The scripting language to use for new projects.
   QString defaultScriptingLang;
@@ -1069,22 +1132,30 @@ class ApplicationWindow : public QMainWindow,
   QAction* actionConvertTable;
   QAction* actionAddColToTable;
   QAction* actionHideActiveWindow;
-  QAction *actionShowMoreWindows, *actionPixelLineProfile,
-      *actionIntensityTable;
-  QAction *actionShowLineDialog, *actionShowImageDialog;
-  QAction *actionActivateWindow, *actionMinimizeWindow, *actionMaximizeWindow,
-      *actionResizeWindow, *actionPrintWindow;
-  QAction *actionShowPlotGeometryDialog, *actionEditSurfacePlot,
-      *actionAdd3DData;
+  QAction* actionShowMoreWindows;
+  QAction* actionPixelLineProfile;
+  QAction* actionIntensityTable;
+  QAction* actionShowLineDialog;
+  QAction* actionShowImageDialog;
+  QAction* actionActivateWindow;
+  QAction* actionMinimizeWindow;
+  QAction* actionMaximizeWindow;
+  QAction* actionResizeWindow;
+  QAction* actionPrintWindow;
+  QAction* actionShowPlotGeometryDialog;
+  QAction* actionEditSurfacePlot;
+  QAction* actionAdd3DData;
   QAction* actionMatrixDeterminant;
-  QAction *actionConvertMatrix, *actionInvertMatrix;
+  QAction* actionConvertMatrix;
+  QAction* actionInvertMatrix;
 
-  QAction *actionClearTable, *actionGoToCell;
+  QAction* actionClearTable;
+  QAction* actionGoToCell;
   QAction* actionSaveNote;
-  QAction *actionAnimate;
-  QAction *actionPerspective;
-  QAction *actionFitFrame;
-  QAction *actionResetRotation;
+  QAction* actionAnimate;
+  QAction* actionPerspective;
+  QAction* actionFitFrame;
+  QAction* actionResetRotation;
 
   QActionGroup* graphToolsGroup;
 
@@ -1113,8 +1184,8 @@ class ApplicationWindow : public QMainWindow,
   QAction* filledmesh;
   QAction* pointstyle;
   QAction* barstyle;
-  QAction *conestyle;
-  QAction *crossHairStyle;
+  QAction* conestyle;
+  QAction* crossHairStyle;
 
   // Manages connection between 2dplot actions (not used by all 2dplot actions).
   QSignalMapper* d_plot_mapper;
@@ -1122,7 +1193,7 @@ class ApplicationWindow : public QMainWindow,
   QLabel* statusBarInfo;
 
   Project* d_project;
-  SettingsDialog* settings_;
+  // SettingsDialog* settings_;
 
   bool was_maximized_;
 
@@ -1133,18 +1204,15 @@ class ApplicationWindow : public QMainWindow,
 
   QToolButton* btn_new_aspect_;
   QToolButton* btn_layout_;
-  QToolButton *btn_curves_;
-  QToolButton *btn_plot_enrichments_;
-  QToolButton *btn_plot_linespoints_;
-  QToolButton *btn_plot_bars_;
-  QToolButton *btn_plot_vect_;
+  QToolButton* btn_curves_;
+  QToolButton* btn_plot_enrichments_;
+  QToolButton* btn_plot_linespoints_;
+  QToolButton* btn_plot_bars_;
+  QToolButton* btn_plot_vect_;
 
  private slots:
   void removeDependentTableStatistics(const AbstractAspect* aspect);
   // Set the active window selected from the context menu's dependency list
-  // See also:
-  // http://doc.trolltech.com/4.3/mainwindows-recentfiles-mainwindow-cpp.html
-
   void setActiveWindowFromAction();
   void selectPlotType(int value);
 

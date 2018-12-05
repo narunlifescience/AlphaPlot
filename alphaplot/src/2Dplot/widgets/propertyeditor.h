@@ -314,6 +314,9 @@ class PropertyEditor : public QDockWidget {
   // Colormap Properties Block
   QtProperty *colormappropertyinterpolateitem_;
   QtProperty *colormappropertytightboundaryitem_;
+  QtProperty *colormappropertylevelcountitem_;
+  QtProperty *colormappropertygradientinvertitem_;
+  QtProperty *colormappropertygradientperiodicitem_;
   QtProperty *colormappropertygradientitem_;
   // colormap scale
   QtProperty *colormappropertyscalevisibleitem_;

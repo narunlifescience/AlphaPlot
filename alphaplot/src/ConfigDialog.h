@@ -44,6 +44,7 @@ class QRadioButton;
 class QListWidget;
 class ColorButton;
 class ColorBox;
+class ApplicationWindow;
 
 #ifndef TS_PATH
 #define TS_PATH (qApp->applicationDirPath() + "/translations")
@@ -188,6 +189,8 @@ class ConfigDialog : public QDialog {
   QLabel *lblScriptingLanguage;
   QComboBox *boxScriptingLanguage;
   QCheckBox *boxAntialiasing, *boxAutoscale3DPlots, *boxTableComments;
+
+  ApplicationWindow *app_;
 };
 
 #endif  // CONFIGDIALOG_H

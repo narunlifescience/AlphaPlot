@@ -47,6 +47,7 @@ class AxisRect2D : public QCPAxisRect {
   typedef QVector<LineItem2D *> LineItemVec;
   typedef QVector<ImageItem2D *> ImageItemVec;
   typedef QVector<LineSpecial2D *> LsVec;
+  typedef QVector<QPair<LineSpecial2D *, LineSpecial2D *>> ChannelVec;
   typedef QVector<Curve2D *> CurveVec;
   typedef QVector<Vector2D *> VectorVec;
   typedef QVector<Bar2D *> BarVec;
@@ -74,6 +75,7 @@ class AxisRect2D : public QCPAxisRect {
   LineItemVec getLineItemVec() const { return linevec_; }
   ImageItemVec getImageItemVec() const { return imagevec_; }
   LsVec getLsVec() const { return lsvec_; }
+  ChannelVec getChannelVec() const { return channelvec_; }
   CurveVec getCurveVec() const { return curvevec_; }
   VectorVec getVectorVec() const { return vectorvec_; }
   BarVec getBarVec() const { return barvec_; }
@@ -109,6 +111,9 @@ class AxisRect2D : public QCPAxisRect {
                                       Table *table, Column *xData,
                                       Column *yData, int from, int to,
                                       Axis2D *xAxis, Axis2D *yAxis);
+  QPair<LineSpecial2D *, LineSpecial2D *> addLineSpecialChannel2DPlot(
+      Table *table, Column *xData, Column *yData1, Column *yData2, int from,
+      int to, Axis2D *xAxis, Axis2D *yAxis);
   Curve2D *addCurve2DPlot(const AxisRect2D::LineScatterType &type, Table *table,
                           Column *xcol, Column *ycol, int from, int to,
                           Axis2D *xAxis, Axis2D *yAxis);
@@ -121,7 +126,7 @@ class AxisRect2D : public QCPAxisRect {
                           Column *x1Data, Column *y1Data, Column *x2Data,
                           Column *y2Data, int from, int to, Axis2D *xAxis,
                           Axis2D *yAxis);
-  StatBox2D *addStatBox2DPlot(Table *table, StatBox2D::BoxWhiskerData data,
+  StatBox2D *addStatBox2DPlot(StatBox2D::BoxWhiskerData data,
                               Axis2D *xAxis, Axis2D *yAxis);
   Bar2D *addHistogram2DPlot(const BarType &type, Table *table, Column *yData,
                             int from, int to, Axis2D *xAxis, Axis2D *yAxis);
@@ -149,6 +154,7 @@ class AxisRect2D : public QCPAxisRect {
   bool removeLineItem2D(LineItem2D *lineitem);
   bool removeImageItem2D(ImageItem2D *imageitem);
   bool removeLineSpecial2D(LineSpecial2D *ls);
+  bool removeChannel2D(QPair<LineSpecial2D *, LineSpecial2D *> channel);
   bool removeCurve2D(Curve2D *curve);
   bool removeStatBox2D(StatBox2D *statbox);
   bool removeVector2D(Vector2D *vector);
@@ -184,7 +190,8 @@ class AxisRect2D : public QCPAxisRect {
   void TextItem2DCreated(TextItem2D *);
   void LineItem2DCreated(LineItem2D *);
   void ImageItem2DCreated(ImageItem2D *);
-  void LineScatter2DCreated(LineSpecial2D *);
+  void LineSpecial2DCreated(LineSpecial2D *);
+  void LineSpecialChannel2DCreated(QPair<LineSpecial2D *, LineSpecial2D *>);
   void Curve2DCreated(Curve2D *);
   void StatBox2DCreated(StatBox2D *);
   void Vector2DCreated(Vector2D *);
@@ -197,7 +204,8 @@ class AxisRect2D : public QCPAxisRect {
   void TextItem2DRemoved(AxisRect2D *);
   void LineItem2DRemoved(AxisRect2D *);
   void ImageItem2DRemoved(AxisRect2D *);
-  void LineScatter2DRemoved(AxisRect2D *);
+  void LineSpecial2DRemoved(AxisRect2D *);
+  void LineSpecialChannel2DRemoved(AxisRect2D *);
   void Curve2DRemoved(AxisRect2D *);
   void StatBox2DRemoved(AxisRect2D *);
   void Vector2DRemoved(AxisRect2D *);
@@ -223,6 +231,7 @@ class AxisRect2D : public QCPAxisRect {
   TextItemVec textvec_;
   LineItemVec linevec_;
   ImageItemVec imagevec_;
+  ChannelVec channelvec_;
   LsVec lsvec_;
   CurveVec curvevec_;
   VectorVec vectorvec_;

@@ -100,7 +100,8 @@ Layout2D::~Layout2D() {
   // delete plot2dCanvas_;
 }
 
-StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Column *colData,
+StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Table *table,
+                                                           Column *colData,
                                                            int from, int to,
                                                            int key) {
   size_t size = static_cast<size_t>((to - from) + 1);
@@ -114,6 +115,10 @@ StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Column *colData,
   gsl_sort(data, 1, size);
 
   StatBox2D::BoxWhiskerData statBoxData;
+  statBoxData.table_ = table;
+  statBoxData.column_ = colData;
+  statBoxData.from_ = from;
+  statBoxData.to_ = to;
   statBoxData.key = key;
   // basic stats
   statBoxData.mean = gsl_stats_mean(data, 1, size);
@@ -170,14 +175,13 @@ void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
   Curve2D *curve =
       element->addFunction2DPlot(xdata, ydata, xAxis.at(0), yAxis.at(0), name);
   curve->rescaleAxes();
-  curve->layer()->replot();
 }
 
 void Layout2D::generateStatBox2DPlot(Table *table, QList<Column *> ycollist,
                                      int from, int to, int key) {
   QList<StatBox2D::BoxWhiskerData> statBoxData;
   foreach (Column *col, ycollist) {
-    statBoxData << generateBoxWhiskerData(col, from, to, key);
+    statBoxData << generateBoxWhiskerData(table, col, from, to, key);
   }
 
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeString,
@@ -194,7 +198,7 @@ void Layout2D::generateStatBox2DPlot(Table *table, QList<Column *> ycollist,
   for (int i = 0; i < statBoxData.size(); i++) {
     StatBox2D::BoxWhiskerData data = statBoxData.at(i);
     data.key = i + 1;
-    element->addStatBox2DPlot(table, data, xAxis.at(0), yAxis.at(0));
+    element->addStatBox2DPlot(data, xAxis.at(0), yAxis.at(0));
     textTicker->addTick(data.key, data.name);
   }
   xAxis.at(0)->setTicker(textTicker);
@@ -209,8 +213,6 @@ void Layout2D::generateStatBox2DPlot(Table *table, QList<Column *> ycollist,
                                  keyRange.upper + keyRangeSpan * 0.2));
   yAxis.at(0)->setRange(QCPRange(valueRange.lower - valueRangeSpan * 0.2,
                                  valueRange.upper + valueRangeSpan * 0.2));
-
-  plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
 void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
@@ -232,7 +234,6 @@ void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
                                   yAxis.at(0));
       xAxis.at(0)->rescale();
       yAxis.at(0)->rescale();
-      plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
     }
   } else {
     AxisRect2D *element =
@@ -250,7 +251,6 @@ void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
     }
     xAxis.at(0)->rescale();
     yAxis.at(0)->rescale();
-    plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   }
 }
 
@@ -272,7 +272,6 @@ void Layout2D::generateBar2DPlot(const AxisRect2D::BarType &barType,
                                        xAxis.at(0), yAxis.at(0));
     bar->rescaleAxes();
   }
-  plot2dCanvas_->replot();
 }
 
 void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
@@ -292,7 +291,6 @@ void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
       element->addVectorPlot(vectorplot, table, x1Data, y1Data, x2Data, y2Data,
                              from, to, xAxis.at(0), yAxis.at(0));
   vex->rescaleAxes();
-  vex->layer()->replot();
 }
 
 void Layout2D::generatePie2DPlot(Table *table, Column *xData, int from,
@@ -300,11 +298,11 @@ void Layout2D::generatePie2DPlot(Table *table, Column *xData, int from,
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble);
 
-  Pie2D *pie = element->addPie2DPlot(table, xData, from, to);
-  pie->layer()->replot();
+  element->addPie2DPlot(table, xData, from, to);
 }
 
-void Layout2D::generateColorMap2DPlot(Matrix *matrix, bool greyscale) {
+void Layout2D::generateColorMap2DPlot(Matrix *matrix, bool greyscale,
+                                      bool contour) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble);
   addLayoutButton_->setDisabled(true);
@@ -321,8 +319,10 @@ void Layout2D::generateColorMap2DPlot(Matrix *matrix, bool greyscale) {
       element->addColorMap2DPlot(matrix, xAxis.at(0), yAxis.at(0));
   if (greyscale)
     colormap->setgradient_colormap(ColorMap2D::Gradient::Grayscale);
+  if (contour) {
+    colormap->setlevelcount_colormap(5);
+  }
   colormap->rescaleAxes();
-  colormap->layer()->replot();
 }
 
 QList<AxisRect2D *> Layout2D::getAxisRectList() {
@@ -351,7 +351,28 @@ void Layout2D::generateLineSpecial2DPlot(
         plotType, table, xData, col, from, to, xAxis.at(0), yAxis.at(0));
     linescatter->rescaleAxes();
   }
-  plot2dCanvas_->replot();
+}
+
+void Layout2D::generateLineSpecialChannel2DPlot(Table *table, Column *xData,
+                                                QList<Column *> ycollist,
+                                                int from, int to) {
+  Q_ASSERT(ycollist.count() == 2);
+  AxisRect2D *element =
+      addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType());
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+  addTextToAxisTicker(xData, xAxis.at(0));
+  addTextToAxisTicker(ycollist.at(0), yAxis.at(0));
+
+  element->addLineSpecialChannel2DPlot(table, xData, ycollist.at(0),
+                                       ycollist.at(1), from, to, xAxis.at(0),
+                                       yAxis.at(0));
+  xAxis.at(0)->rescale();
+  yAxis.at(0)->rescale();
 }
 
 void Layout2D::generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
@@ -372,7 +393,6 @@ void Layout2D::generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
                                              to, xAxis.at(0), yAxis.at(0));
     curve->rescaleAxes();
   }
-  plot2dCanvas_->replot();
 }
 
 AxisRect2D *Layout2D::getSelectedAxisRect(int col, int row) {
@@ -470,7 +490,7 @@ AxisRect2D *Layout2D::addAxisRectItem(
   yAxis->setLabel("Y Axis Title");
   layout_->addElement(row, col, axisRect2d);
 
-  plot2dCanvas_->replot();
+  plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   addLayoutButton(col);
 
   connect(axisRect2d, SIGNAL(AxisRectClicked(AxisRect2D *)), this,
@@ -643,9 +663,13 @@ void Layout2D::updateData(Table *table, const QString &name) {
   bool modified = false;
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
     QVector<LineSpecial2D *> lslist = axisrect->getLsVec();
+    QVector<QPair<LineSpecial2D *, LineSpecial2D *>> channellist =
+        axisrect->getChannelVec();
     QVector<Curve2D *> curvelist = axisrect->getCurveVec();
     QVector<Bar2D *> barlist = axisrect->getBarVec();
+    QVector<StatBox2D *> statboxlist = axisrect->getStatBoxVec();
     QVector<Vector2D *> vectorlist = axisrect->getVectorVec();
+    QVector<Pie2D *> pieveclist = axisrect->getPieVec();
     foreach (LineSpecial2D *ls, lslist) {
       PlotData::AssociatedData *data =
           ls->getdatablock_lsplot()->getassociateddata();
@@ -653,6 +677,27 @@ void Layout2D::updateData(Table *table, const QString &name) {
         if (data->xcol == col || data->ycol == col) {
           ls->setGraphData(data->table, data->xcol, data->ycol, data->from,
                            data->to);
+          modified = true;
+        }
+      }
+    }
+    for (int i = 0; i < channellist.count(); i++) {
+      QPair<LineSpecial2D *, LineSpecial2D *> channel = channellist.at(i);
+      PlotData::AssociatedData *data1 =
+          channel.first->getdatablock_lsplot()->getassociateddata();
+      PlotData::AssociatedData *data2 =
+          channel.second->getdatablock_lsplot()->getassociateddata();
+      if (data1->table == table) {
+        if (data1->xcol == col || data1->ycol == col) {
+          channel.first->setGraphData(data1->table, data1->xcol, data1->ycol,
+                                      data1->from, data1->to);
+          modified = true;
+        }
+      }
+      if (data2->table == table) {
+        if (data2->xcol == col || data2->ycol == col) {
+          channel.second->setGraphData(data2->table, data2->xcol, data2->ycol,
+                                       data2->from, data2->to);
           modified = true;
         }
       }
@@ -670,7 +715,20 @@ void Layout2D::updateData(Table *table, const QString &name) {
         }
       }
     }
-
+    foreach (StatBox2D *statbox, statboxlist) {
+      if (statbox->gettable_statbox() == table) {
+        if (statbox->getcolumn_statbox() == col) {
+          int key = int(statbox->getboxwhiskerdata_statbox().key);
+          StatBox2D::BoxWhiskerData data = generateBoxWhiskerData(
+              statbox->getboxwhiskerdata_statbox().table_,
+              statbox->getboxwhiskerdata_statbox().column_,
+              statbox->getboxwhiskerdata_statbox().from_,
+              statbox->getboxwhiskerdata_statbox().to_, key);
+          statbox->setboxwhiskerdata(data);
+          modified = true;
+        }
+      }
+    }
     foreach (Bar2D *bar, barlist) {
       if (!bar->ishistogram_barplot()) {
         PlotData::AssociatedData *data =
@@ -682,9 +740,17 @@ void Layout2D::updateData(Table *table, const QString &name) {
             modified = true;
           }
         }
+      } else {
+        if (bar->gettable_histogram() == table) {
+          if (bar->getcolumn_histogram() == col) {
+            bar->setBarData(bar->gettable_histogram(),
+                            bar->getcolumn_histogram(),
+                            bar->getfrom_histogram(), bar->getto_histogram());
+            modified = true;
+          }
+        }
       }
     }
-
     foreach (Vector2D *vector, vectorlist) {
       if (vector->gettable_vecplot() == table) {
         if (vector->getfirstcol_vecplot() == col ||
@@ -696,6 +762,15 @@ void Layout2D::updateData(Table *table, const QString &name) {
               vector->getsecondcol_vecplot(), vector->getthirdcol_vecplot(),
               vector->getfourthcol_vecplot(), vector->getfrom_vecplot(),
               vector->getto_vecplot());
+          modified = true;
+        }
+      }
+    }
+    foreach (Pie2D *pie, pieveclist) {
+      if (pie->gettable_pieplot() == table) {
+        if (pie->getxcolumn_pieplot() == col) {
+          pie->setGraphData(pie->gettable_pieplot(), pie->getxcolumn_pieplot(),
+                            pie->getfrom_pieplot(), pie->getto_pieplot());
           modified = true;
         }
       }
@@ -713,15 +788,35 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
   bool removed = false;
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
     QVector<LineSpecial2D *> lslist = axisrect->getLsVec();
+    QVector<QPair<LineSpecial2D *, LineSpecial2D *>> channellist =
+        axisrect->getChannelVec();
     QVector<Curve2D *> curvelist = axisrect->getCurveVec();
     QVector<Bar2D *> barlist = axisrect->getBarVec();
+    QVector<StatBox2D *> statboxlist = axisrect->getStatBoxVec();
     QVector<Vector2D *> vectorlist = axisrect->getVectorVec();
+    QVector<Pie2D *> pieveclist = axisrect->getPieVec();
     foreach (LineSpecial2D *ls, lslist) {
       PlotData::AssociatedData *data =
           ls->getdatablock_lsplot()->getassociateddata();
       if (data->table == table) {
         if (data->xcol == col || data->ycol == col) {
           axisrect->removeLineSpecial2D(ls);
+          removed = true;
+        }
+      }
+    }
+    for (int i = 0; i < channellist.count(); i++) {
+      QPair<LineSpecial2D *, LineSpecial2D *> channel = channellist.at(i);
+      PlotData::AssociatedData *data1 =
+          channel.first->getdatablock_lsplot()->getassociateddata();
+      PlotData::AssociatedData *data2 =
+          channel.second->getdatablock_lsplot()->getassociateddata();
+      if (data1->table == table || data2->table == table) {
+        if (data1->xcol == col || data1->ycol == col || data2->xcol == col ||
+            data2->ycol == col) {
+          channel.first->setGraphData(data1->table, data1->xcol, data1->ycol,
+                                      data1->from, data1->to);
+          axisrect->removeChannel2D(channel);
           removed = true;
         }
       }
@@ -738,7 +833,14 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
         }
       }
     }
-
+    foreach (StatBox2D *statbox, statboxlist) {
+      if (statbox->gettable_statbox() == table) {
+        if (statbox->getcolumn_statbox() == col) {
+          axisrect->removeStatBox2D(statbox);
+          removed = true;
+        }
+      }
+    }
     foreach (Bar2D *bar, barlist) {
       if (!bar->ishistogram_barplot()) {
         PlotData::AssociatedData *data =
@@ -749,9 +851,15 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
             removed = true;
           }
         }
+      } else {
+        if (bar->gettable_histogram() == table) {
+          if (bar->getcolumn_histogram() == col) {
+            axisrect->removeBar2D(bar);
+            removed = true;
+          }
+        }
       }
     }
-
     foreach (Vector2D *vector, vectorlist) {
       if (vector->gettable_vecplot() == table) {
         if (vector->getfirstcol_vecplot() == col ||
@@ -759,6 +867,14 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
             vector->getthirdcol_vecplot() == col ||
             vector->getfourthcol_vecplot() == col) {
           axisrect->removeVector2D(vector);
+          removed = true;
+        }
+      }
+    }
+    foreach (Pie2D *pie, pieveclist) {
+      if (pie->gettable_pieplot() == table) {
+        if (pie->getxcolumn_pieplot() == col) {
+          axisrect->removePie2D(pie);
           removed = true;
         }
       }
@@ -824,7 +940,7 @@ void Layout2D::removeAxisRect(int index) {
   // remove the element & adjust layout accordingly
   layout_->remove(layout_->elementAt(index));
   layout_->simplify();
-  plot2dCanvas_->replot();
+  plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
 int Layout2D::getLayoutRectGridIndex(QPair<int, int> coord) {
