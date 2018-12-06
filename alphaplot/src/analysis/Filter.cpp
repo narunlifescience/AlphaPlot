@@ -167,7 +167,6 @@ bool Filter::run() {
   }
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
-
   output();  // data analysis and output
   app_->updateLog(logInfo());
 
@@ -181,7 +180,6 @@ void Filter::output() {
 
   // do the data analysis
   calculateOutputData(X, Y);
-
   addResultCurve(X, Y);
 }
 
@@ -207,7 +205,7 @@ int Filter::sortedCurveData(double start, double end, double **x, double **y) {
   int n = datasize;
   (*x) = new double[n];
   (*y) = new double[n];
-  for (int j = 0, i = from; i <= to + 1; i++, j++) {
+  for (int j = 0, i = from; i <= to; i++, j++) {
     (*x)[j] = associateddata_->xcol->valueAt(p[j] + from);
     (*y)[j] = associateddata_->ycol->valueAt(p[j] + from);
   }
@@ -250,6 +248,7 @@ Curve2D *Filter::addResultCurve(double *xdata, double *ydata) {
     xCol->setValueAt(i, xdata[i]);
     yCol->setValueAt(i, ydata[i]);
   }
+
   // first set the values, then add the columns to the table, otherwise, we
   // generate too many undo commands
   QString label = associateddata_->table->name() + "_" +

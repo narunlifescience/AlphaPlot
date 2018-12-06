@@ -3857,6 +3857,11 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
+  connect(axisrect, &AxisRect2D::ColorMap2DRemoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
   connect(axisrect, &AxisRect2D::ErrorBar2DRemoved, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);

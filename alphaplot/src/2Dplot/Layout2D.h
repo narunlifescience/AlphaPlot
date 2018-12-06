@@ -76,8 +76,13 @@ class Layout2D : public MyWidget {
 
  public slots:
   bool exportGraph();
+  bool exportGraphwithoutdialog(const QString &name,
+                                const QString &selected_filter);
+  void updateData(Matrix *matrix);
   void updateData(Table *table, const QString &name);
+  void removeMatrix(Matrix *matrix);
   void removeColumn(Table *table, const QString &name);
+  QStringList dependentTableMatrixNames();
   void setAxisRangeDragZoom(bool value);
 
  private slots:

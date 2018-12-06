@@ -1,9 +1,22 @@
+#ifdef PLOT3D_QT
 #include "Custom3DInteractions.h"
-
 #include <QtDataVisualization/Q3DCamera>
 
 Custom3DInteractions::Custom3DInteractions(QObject *parent)
-    : QAbstract3DInputHandler(parent) {}
+    : QAbstract3DInputHandler(parent), mouserotation_(false) {}
+
+void Custom3DInteractions::mousePressEvent(QMouseEvent *event,
+                                           const QPoint &mousePos) {
+  mousepoint_ = mousePos;
+  mouserotation_ = true;
+}
+
+void Custom3DInteractions::mouseReleaseEvent(QMouseEvent *event,
+                                             const QPoint &mousePos) {
+  if (mouserotation_)
+    scene()->activeCamera()->setCameraPosition(int(mousePos.x()),
+                                               int(mousePos.y()), 100);
+}
 
 void Custom3DInteractions::mouseMoveEvent(QMouseEvent *event,
                                           const QPoint &mousePos) {
@@ -27,3 +40,4 @@ void Custom3DInteractions::wheelEvent(QWheelEvent *event) {
 
   scene()->activeCamera()->setZoomLevel(zoomLevel);
 }
+#endif

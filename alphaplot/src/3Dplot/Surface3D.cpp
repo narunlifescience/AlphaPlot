@@ -1,3 +1,4 @@
+#ifdef PLOT3D_QT
 #include "Surface3D.h"
 #include <qmath.h>
 #include "Custom3DInteractions.h"
@@ -23,8 +24,8 @@ Surface3D::Surface3D(Q3DSurface *surface)
 
   sqrtSinProxy_ = new QSurfaceDataProxy();
   sqrtSinSeries_ = new QSurface3DSeries(sqrtSinProxy_);
-  fillSqrtSinProxy();
-  //graph_->addSeries(sqrtSinSeries_);
+  // fillSqrtSinProxy();
+  // graph_->addSeries(sqrtSinSeries_);
 }
 
 Surface3D::~Surface3D() {}
@@ -35,12 +36,24 @@ void Surface3D::fillfunctiondata(
   dataArray->reserve(data->size());
   for (int i = 0; i < data->size(); i++) {
     QSurfaceDataRow *newRow = new QSurfaceDataRow(data->size());
-    (*newRow)[i].setPosition(QVector3D(
-        data->at(i).first.first, data->at(i).first.second, data->at(i).second));
+    int index = 0;
+    for (int j = 0; j < data->size(); j++) {
+      (*newRow)[index++].setPosition(QVector3D(data->at(j).first.first,
+                                               data->at(i).first.second,
+                                               data->at(j).second));
+    }
     *dataArray << newRow;
   }
   sqrtSinProxy_->resetArray(dataArray);
   graph_->addSeries(sqrtSinSeries_);
+  QLinearGradient gr;
+  gr.setColorAt(0.0, Qt::black);
+  gr.setColorAt(0.33, Qt::blue);
+  gr.setColorAt(0.67, Qt::red);
+  gr.setColorAt(1.0, Qt::yellow);
+
+  graph_->seriesList().at(0)->setBaseGradient(gr);
+  graph_->seriesList().at(0)->setColorStyle(Q3DTheme::ColorStyleRangeGradient);
 }
 
 void Surface3D::fillSqrtSinProxy() {
@@ -62,11 +75,10 @@ void Surface3D::fillSqrtSinProxy() {
       float R = qSqrt(z * z + x * x) + 0.01f;
       float y = (qSin(R) / R + 0.24f) * 1.61f;
       (*newRow)[index++].setPosition(QVector3D(x, y, z));
-      qDebug() << "x = " << x;
-      qDebug() << "y = " << z;
     }
     *dataArray << newRow;
   }
 
   sqrtSinProxy_->resetArray(dataArray);
 }
+#endif

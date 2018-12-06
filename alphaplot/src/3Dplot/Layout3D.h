@@ -1,7 +1,8 @@
 #ifndef LAYOUT3D_H
 #define LAYOUT3D_H
+#ifdef PLOT3D_QT
 
-/*#include <QtDataVisualization>
+#include <QtDataVisualization>
 #include "MyWidget.h"
 
 class Matrix;
@@ -39,6 +40,6 @@ class Layout3D : public MyWidget {
   Q3DBars *graph3dbars_;
   Q3DScatter *graph3dscatter_;
   Surface3D *modifier_;
-};*/
-
+};
+#endif  // #PLOT3D_QT
 #endif  // LAYOUT3D_H

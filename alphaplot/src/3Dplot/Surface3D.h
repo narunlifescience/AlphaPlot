@@ -1,5 +1,6 @@
 #ifndef SURFACE3D_H
 #define SURFACE3D_H
+#ifdef PLOT3D_QT
 
 #include <QtDataVisualization/Q3DSurface>
 #include <QtDataVisualization/QHeightMapSurfaceDataProxy>
@@ -25,5 +26,5 @@ class Surface3D : public QObject {
   QSurfaceDataProxy *sqrtSinProxy_;
   QSurface3DSeries *sqrtSinSeries_;
 };
-
+#endif // PLOT3D_QT
 #endif  // SURFACE3D_H

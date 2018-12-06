@@ -22,6 +22,7 @@ class ErrorBar2D : public QCPErrorBars {
              Axis2D *yAxis, QCPErrorBars::ErrorType errortype, Bar2D *bar);
   ~ErrorBar2D();
 
+  void setErrorData(Table *table, Column *errorcol, int from, int to);
   bool getfillstatus_errorbar() const;
   QCPErrorBars::ErrorType geterrortype_errorbar() { return errortype_; }
   LineSpecial2D *getlinespecial2d_errorbar() { return linespecial_; }

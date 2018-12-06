@@ -1622,9 +1622,11 @@ void ApplicationWindow::remove3DMatrixPlots(Matrix *matrix) {
 
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
   foreach (QMdiSubWindow *subwindow, subwindowlist) {
-    if (isActiveSubWindow(subwindow, SubWindowType::Plot3DSubWindow) &&
+    if (qobject_cast<Graph3D *>(subwindow) &&
         qobject_cast<Graph3D *>(subwindow)->matrix() == matrix)
       qobject_cast<Graph3D *>(subwindow)->clearData();
+    else if (qobject_cast<Layout2D *>(subwindow))
+      qobject_cast<Layout2D *>(subwindow)->removeMatrix(matrix);
   }
   QApplication::restoreOverrideCursor();
 }
@@ -1637,9 +1639,11 @@ void ApplicationWindow::updateMatrixPlots(MyWidget *window) {
 
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
   foreach (QMdiSubWindow *subwindow, subwindowlist) {
-    if (isActiveSubWindow(subwindow, SubWindowType::Plot3DSubWindow) &&
+    if (qobject_cast<Graph3D *>(subwindow) &&
         qobject_cast<Graph3D *>(subwindow)->matrix() == matrix)
       qobject_cast<Graph3D *>(subwindow)->updateMatrixData(matrix);
+    else if (qobject_cast<Layout2D *>(subwindow))
+      qobject_cast<Layout2D *>(subwindow)->updateData(matrix);
   }
   QApplication::restoreOverrideCursor();
 }
@@ -1802,6 +1806,13 @@ Graph3D *ApplicationWindow::newPlot3D(const QString &formula, double xl,
   plot->update();
 
   initPlot3D(plot);
+
+#ifdef PLOT3D_QT
+  Layout3D *layout = newGraph3D();
+  layout->generateSurfacePlot3D(
+      generateFunction3ddata(formula, xl, xr, yl, yr, zl, zr));
+  // layout->generateSurfacePlot3D();
+#endif
 
   emit modified();
   return plot;
@@ -2087,7 +2098,8 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
   return layout2d;
 }
 
-/*Layout3D *ApplicationWindow::newGraph3D(const QString &caption) {
+#ifdef PLOT3D_QT
+Layout3D *ApplicationWindow::newGraph3D(const QString &caption) {
   Layout3D *layout3d =
       new Layout3D(Layout3D::Plot3DType::Surface, "", d_workspace, 0);
   layout3d->setAttribute(Qt::WA_DeleteOnClose);
@@ -2118,8 +2130,47 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
           &ApplicationWindow::showWindowTitleBarMenu);
 
   return layout3d;
-  return nullptr;
-}*/
+}
+
+QList<QPair<QPair<double, double>, double>>
+    *ApplicationWindow::generateFunctiondata(const QString &formula, double xl,
+                                             double xr, double yl, double yr,
+                                             double zl, double zr) {
+  auto *data = new QList<QPair<QPair<double, double>, double>>();
+
+  Q_ASSERT(!formula.isEmpty());
+  QString name = "3d-surface-function";
+  std::unique_ptr<Script> script(scriptEnv->newScript(formula, 0, name));
+  QObject::connect(script.get(),
+                   SIGNAL(error(const QString &, const QString &, int)), this,
+                   SLOT(scriptError(const QString &, const QString &, int)));
+
+  const int points = 1000;
+  const double xstep = (xr - xl) / static_cast<double>(points - 1);
+  const double ystep = (yr - yl) / static_cast<double>(points - 1);
+  double x = xl;
+  double y = yl;
+  double z = 0;
+  for (int i = 0; i < points; i++, x += xstep, y += ystep) {
+    script->setDouble(x, "x");
+    script->setDouble(y, "y");
+    QVariant result = script->eval();
+    if (result.type() != QVariant::Double) {
+      delete data;
+      data = nullptr;
+      return data;
+    }
+    QPair<QPair<double, double>, double> datapair;
+    datapair.first.first = x;
+    datapair.first.second = y;
+    datapair.second = result.toDouble();
+    z = result.toDouble();
+    data->append(datapair);
+    qDebug() << x << y << z;
+  }
+  return data;
+}
+#endif
 
 void ApplicationWindow::customizeTables(
     const QColor &bgColor, const QColor &textColor, const QColor &headerColor,
@@ -3966,6 +4017,8 @@ void ApplicationWindow::exportAllGraphs() {
           tr("&Yes"), tr("&All"), tr("&Cancel"), 0, 1)) {
         case 1:
           confirm_overwrite = false;
+          QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+          break;
         case 0:
           QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
           break;
@@ -3985,12 +4038,16 @@ void ApplicationWindow::exportAllGraphs() {
     if (file_suffix.contains(".eps") || file_suffix.contains(".pdf") ||
         file_suffix.contains(".ps")) {
       if (plot3D) plot3D->exportVector(file_name, file_suffix.remove("."));
+      if (plot2D) plot2D->exportGraphwithoutdialog(file_name, file_suffix);
     } else if (file_suffix.contains(".svg")) {
+      if (plot2D) plot2D->exportGraphwithoutdialog(file_name, file_suffix);
     } else {
       QList<QByteArray> list = QImageWriter::supportedImageFormats();
       for (int i = 0; i < static_cast<int>(list.count()); i++) {
         if (file_suffix.contains("." + (list[i]).toLower())) {
           if (plot3D) plot3D->exportImage(file_name, ied->quality());
+          if (plot2D) plot2D->exportGraphwithoutdialog(file_name, file_suffix);
+          ;
         }
       }
     }
@@ -5780,6 +5837,7 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
   if (subwindowlist.isEmpty()) {
     customMenu(nullptr);
     customToolBars(nullptr);
+    propertyeditor->populateObjectBrowser(nullptr);
   }
 
   emit modified();
@@ -8729,7 +8787,19 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
       depend_menu.setTitle(tr("D&epending 3D Graphs"));
       cm.addMenu(&depend_menu);
     }
-  } else if (isActiveSubWindow(widget, SubWindowType::Plot3DSubWindow)) {
+  } else if (isActiveSubWindow(widget, SubWindowType::Plot2DSubWindow)) {
+    Layout2D *layout = qobject_cast<Layout2D *>(widget);
+    if (layout->getCurrentAxisRect()) {
+      depend_menu.setTitle(tr("D&epends on"));
+      QStringList deplist = layout->dependentTableMatrixNames();
+      foreach (QString string, deplist) {
+        depend_menu.addAction(string, this, SLOT(setActiveWindowFromAction()));
+      }
+      cm.addMenu(&depend_menu);
+    }
+  }
+
+  else if (isActiveSubWindow(widget, SubWindowType::Plot3DSubWindow)) {
     Graph3D *sp = qobject_cast<Graph3D *>(widget);
     Matrix *m = sp->matrix();
     QString formula = sp->formula();
@@ -8757,7 +8827,9 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
 
 void ApplicationWindow::setActiveWindowFromAction() {
   QAction *action = qobject_cast<QAction *>(sender());
-  if (action) activateWindow(qobject_cast<MyWidget *>(window(action->text())));
+  if (action)
+    activateWindow(
+        qobject_cast<MyWidget *>(window(action->text().remove("&"))));
 }
 
 bool ApplicationWindow::validFor3DPlot(Table *table) {
@@ -9420,11 +9492,13 @@ bool ApplicationWindow::isActiveSubwindow(
             ? result = true
             : result = false;
         break;
-      /*case SubwindowPlot3D:
+#ifdef PLOT3D_QT
+      case SubwindowPlot3D:
         (qobject_cast<Layout3D *>(d_workspace->activeSubWindow()))
             ? result = true
             : result = false;
-        break;*/
+        break;
+#endif
       case Plot3DSubWindow:
         (qobject_cast<Graph3D *>(d_workspace->activeSubWindow()))
             ? result = true
@@ -9453,9 +9527,11 @@ bool ApplicationWindow::isActiveSubWindow(
       case Plot2DSubWindow:
         (qobject_cast<Layout2D *>(subwindow)) ? result = true : result = false;
         break;
-      /*case SubwindowPlot3D:
+#ifdef PLOT3D_QT
+      case SubwindowPlot3D:
         (qobject_cast<Layout3D *>(subwindow)) ? result = true : result = false;
-        break;*/
+        break;
+#endif
       case Plot3DSubWindow:
         (qobject_cast<Graph3D *>(subwindow)) ? result = true : result = false;
         break;

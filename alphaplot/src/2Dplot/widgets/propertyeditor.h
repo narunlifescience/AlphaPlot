@@ -213,7 +213,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *itempropertyimagestrokethicknessitem_;
   QtProperty *itempropertyimagestroketypeitem_;
 
-  // LineScatter Properties block
+  // LineSpecial Properties block
   QtProperty *lsplotpropertyxaxisitem_;
   QtProperty *lsplotpropertyyaxisitem_;
   QtProperty *lsplotpropertylinestyleitem_;

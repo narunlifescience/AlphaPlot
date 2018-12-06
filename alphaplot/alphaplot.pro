@@ -1,6 +1,11 @@
+# Aspect framework legacy code
+DEFINES += LEGACY_CODE_0_2_x
 # Qt modules
 QT += core gui
-# QT += datavisualization
+
+#QT += datavisualization
+#DEFINES += PLOT3D_QT
+
 QT += widgets opengl network svg xml script scripttools printsupport xmlpatterns
 
 # enable C++11 support
@@ -17,9 +22,6 @@ include(../config.pri)
 #############################################################################
 ###################### BASIC PROJECT PROPERTIES #############################
 #############################################################################
-
-# Aspect framework legacy code
-DEFINES += LEGACY_CODE_0_2_x
 
 TARGET         = alphaplot
 TEMPLATE       = app

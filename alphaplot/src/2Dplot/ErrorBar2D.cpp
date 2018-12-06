@@ -62,6 +62,12 @@ ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
 
 ErrorBar2D::~ErrorBar2D() { delete errordata_; }
 
+void ErrorBar2D::setErrorData(Table *table, Column *errorcol, int from,
+                              int to) {
+  errordata_->regenerateDataBlock(table, errorcol, from, to);
+  setData(errordata_->data());
+}
+
 bool ErrorBar2D::getfillstatus_errorbar() const {
   if (brush().style() == Qt::NoBrush) {
     return false;

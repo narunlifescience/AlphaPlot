@@ -725,6 +725,18 @@ bool AxisRect2D::removePie2D(Pie2D *pie) {
   return result;
 }
 
+bool AxisRect2D::removeColorMap2D(ColorMap2D *colormap) {
+  for (int i = 0; i < colormapvec_.size(); i++) {
+    if (colormapvec_.at(i) == colormap) {
+      colormapvec_.remove(i);
+    }
+  }
+  bool result = false;
+  result = plot2d_->removePlottable(colormap);
+  emit ColorMap2DRemoved(this);
+  return result;
+}
+
 void AxisRect2D::setGraphTool(const Graph2DCommon::Picker &picker) {
   foreach (LineSpecial2D *ls, lsvec_) { ls->setpicker_lsplot(picker); }
   foreach (Curve2D *curve, curvevec_) { curve->setpicker_cplot(picker); }

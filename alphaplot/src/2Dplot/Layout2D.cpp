@@ -14,10 +14,12 @@
 #include "ColorMap2D.h"
 #include "Curve2D.h"
 #include "DataManager2D.h"
+#include "ErrorBar2D.h"
 #include "LayoutGrid2D.h"
 #include "Legend2D.h"
 #include "LineSpecial2D.h"
 #include "Table.h"
+#include "Matrix.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "future/lib/XmlStreamWriter.h"
@@ -655,6 +657,55 @@ bool Layout2D::exportGraph() {
   return success;
 }
 
+bool Layout2D::exportGraphwithoutdialog(const QString &name,
+                                        const QString &selected_filter) {
+  int raster_width = plot2dCanvas_->width();
+  int raster_height = plot2dCanvas_->height();
+  double raster_scale = 1;
+  int raster_quality = 100;
+
+  int vector_width = plot2dCanvas_->width();
+  int vector_height = plot2dCanvas_->height();
+
+  bool success = false;
+  currentAxisRect_->setPrintorExportJob(true);
+  if (selected_filter.contains(".pdf")) {
+    success = plot2dCanvas_->savePdf(name, vector_width, vector_height);
+  } else if (selected_filter.contains(".svg")) {
+    success = plot2dCanvas_->saveSvg(name, vector_width, vector_height);
+  } else if (selected_filter.contains(".ps")) {
+    success = plot2dCanvas_->savePs(name, vector_width, vector_height);
+  } else {
+    QByteArray ba = selected_filter.toLatin1();
+    ba = ba.trimmed();
+    ba.remove(0, 1);
+    const char *c_char = ba.data();
+    success = plot2dCanvas_->saveRastered(name, raster_width, raster_height,
+                                          raster_scale, c_char, raster_quality);
+  }
+  currentAxisRect_->setPrintorExportJob(false);
+  if (!success) {
+    QMessageBox::critical(
+        this, tr("Export Error"),
+        tr("Unknown error exporting: <br><h4> %1 </h4><p>May be "
+           "the advanced image export parameters are not rightfully set!")
+            .arg(name));
+  }
+  return success;
+}
+
+void Layout2D::updateData(Matrix *matrix) {
+  foreach (AxisRect2D *axisrect, getAxisRectList()) {
+    QVector<ColorMap2D *> colormapvec = axisrect->getColorMapVec();
+    foreach (ColorMap2D *colormap, colormapvec) {
+      if (colormap->getmatrix_colormap() == matrix) {
+        colormap->setColorMapData(matrix);
+        plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+      }
+    }
+  }
+}
+
 void Layout2D::updateData(Table *table, const QString &name) {
   if (!currentAxisRect_) return;
   if (!table) return;
@@ -673,6 +724,30 @@ void Layout2D::updateData(Table *table, const QString &name) {
     foreach (LineSpecial2D *ls, lslist) {
       PlotData::AssociatedData *data =
           ls->getdatablock_lsplot()->getassociateddata();
+      if (ls->getxerrorbar_lsplot()) {
+        DataBlockError *xerror =
+            ls->getxerrorbar_lsplot()->getdatablock_error();
+        if (xerror->gettable() == table) {
+          if (xerror->geterrorcolumn() == col) {
+            ls->getxerrorbar_lsplot()->setErrorData(
+                xerror->gettable(), xerror->geterrorcolumn(), xerror->getfrom(),
+                xerror->getto());
+            modified = true;
+          }
+        }
+      }
+      if (ls->getyerrorbar_lsplot()) {
+        DataBlockError *yerror =
+            ls->getyerrorbar_lsplot()->getdatablock_error();
+        if (yerror->gettable() == table) {
+          if (yerror->geterrorcolumn() == col) {
+            ls->getyerrorbar_lsplot()->setErrorData(
+                yerror->gettable(), yerror->geterrorcolumn(), yerror->getfrom(),
+                yerror->getto());
+            modified = true;
+          }
+        }
+      }
       if (data->table == table) {
         if (data->xcol == col || data->ycol == col) {
           ls->setGraphData(data->table, data->xcol, data->ycol, data->from,
@@ -706,6 +781,30 @@ void Layout2D::updateData(Table *table, const QString &name) {
       if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
         PlotData::AssociatedData *data =
             curve->getdatablock_cplot()->getassociateddata();
+        if (curve->getxerrorbar_curveplot()) {
+          DataBlockError *xerror =
+              curve->getxerrorbar_curveplot()->getdatablock_error();
+          if (xerror->gettable() == table) {
+            if (xerror->geterrorcolumn() == col) {
+              curve->getxerrorbar_curveplot()->setErrorData(
+                  xerror->gettable(), xerror->geterrorcolumn(),
+                  xerror->getfrom(), xerror->getto());
+              modified = true;
+            }
+          }
+        }
+        if (curve->getyerrorbar_curveplot()) {
+          DataBlockError *yerror =
+              curve->getyerrorbar_curveplot()->getdatablock_error();
+          if (yerror->gettable() == table) {
+            if (yerror->geterrorcolumn() == col) {
+              curve->getyerrorbar_curveplot()->setErrorData(
+                  yerror->gettable(), yerror->geterrorcolumn(),
+                  yerror->getfrom(), yerror->getto());
+              modified = true;
+            }
+          }
+        }
         if (data->table == table) {
           if (data->xcol == col || data->ycol == col) {
             curve->setCurveData(data->table, data->xcol, data->ycol, data->from,
@@ -733,6 +832,30 @@ void Layout2D::updateData(Table *table, const QString &name) {
       if (!bar->ishistogram_barplot()) {
         PlotData::AssociatedData *data =
             bar->getdatablock_barplot()->getassociateddata();
+        if (bar->getxerrorbar_barplot()) {
+          DataBlockError *xerror =
+              bar->getxerrorbar_barplot()->getdatablock_error();
+          if (xerror->gettable() == table) {
+            if (xerror->geterrorcolumn() == col) {
+              bar->getxerrorbar_barplot()->setErrorData(
+                  xerror->gettable(), xerror->geterrorcolumn(),
+                  xerror->getfrom(), xerror->getto());
+              modified = true;
+            }
+          }
+        }
+        if (bar->getyerrorbar_barplot()) {
+          DataBlockError *yerror =
+              bar->getyerrorbar_barplot()->getdatablock_error();
+          if (yerror->gettable() == table) {
+            if (yerror->geterrorcolumn() == col) {
+              bar->getyerrorbar_barplot()->setErrorData(
+                  yerror->gettable(), yerror->geterrorcolumn(),
+                  yerror->getfrom(), yerror->getto());
+              modified = true;
+            }
+          }
+        }
         if (data->table == table) {
           if (data->xcol == col || data->ycol == col) {
             bar->setBarData(data->table, data->xcol, data->ycol, data->from,
@@ -780,6 +903,18 @@ void Layout2D::updateData(Table *table, const QString &name) {
     plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
+void Layout2D::removeMatrix(Matrix *matrix) {
+  foreach (AxisRect2D *axisrect, getAxisRectList()) {
+    QVector<ColorMap2D *> colormapvec = axisrect->getColorMapVec();
+    foreach (ColorMap2D *colormap, colormapvec) {
+      if (colormap->getmatrix_colormap() == matrix) {
+        axisrect->removeColorMap2D(colormap);
+        plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+      }
+    }
+  }
+}
+
 void Layout2D::removeColumn(Table *table, const QString &name) {
   if (!currentAxisRect_) return;
   if (!table) return;
@@ -798,6 +933,26 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
     foreach (LineSpecial2D *ls, lslist) {
       PlotData::AssociatedData *data =
           ls->getdatablock_lsplot()->getassociateddata();
+      if (ls->getxerrorbar_lsplot()) {
+        DataBlockError *xerror =
+            ls->getxerrorbar_lsplot()->getdatablock_error();
+        if (xerror->gettable() == table) {
+          if (xerror->geterrorcolumn() == col) {
+            ls->removeXerrorBar();
+            removed = true;
+          }
+        }
+      }
+      if (ls->getyerrorbar_lsplot()) {
+        DataBlockError *yerror =
+            ls->getyerrorbar_lsplot()->getdatablock_error();
+        if (yerror->gettable() == table) {
+          if (yerror->geterrorcolumn() == col) {
+            ls->removeYerrorBar();
+            removed = true;
+          }
+        }
+      }
       if (data->table == table) {
         if (data->xcol == col || data->ycol == col) {
           axisrect->removeLineSpecial2D(ls);
@@ -825,6 +980,26 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
       if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
         PlotData::AssociatedData *data =
             curve->getdatablock_cplot()->getassociateddata();
+        if (curve->getxerrorbar_curveplot()) {
+          DataBlockError *xerror =
+              curve->getxerrorbar_curveplot()->getdatablock_error();
+          if (xerror->gettable() == table) {
+            if (xerror->geterrorcolumn() == col) {
+              curve->removeXerrorBar();
+              removed = true;
+            }
+          }
+        }
+        if (curve->getyerrorbar_curveplot()) {
+          DataBlockError *yerror =
+              curve->getyerrorbar_curveplot()->getdatablock_error();
+          if (yerror->gettable() == table) {
+            if (yerror->geterrorcolumn() == col) {
+              curve->removeYerrorBar();
+              removed = true;
+            }
+          }
+        }
         if (data->table == table) {
           if (data->xcol == col || data->ycol == col) {
             axisrect->removeCurve2D(curve);
@@ -845,6 +1020,26 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
       if (!bar->ishistogram_barplot()) {
         PlotData::AssociatedData *data =
             bar->getdatablock_barplot()->getassociateddata();
+        if (bar->getxerrorbar_barplot()) {
+          DataBlockError *xerror =
+              bar->getxerrorbar_barplot()->getdatablock_error();
+          if (xerror->gettable() == table) {
+            if (xerror->geterrorcolumn() == col) {
+              bar->removeXerrorBar();
+              removed = true;
+            }
+          }
+        }
+        if (bar->getyerrorbar_barplot()) {
+          DataBlockError *yerror =
+              bar->getyerrorbar_barplot()->getdatablock_error();
+          if (yerror->gettable() == table) {
+            if (yerror->geterrorcolumn() == col) {
+              bar->removeYerrorBar();
+              removed = true;
+            }
+          }
+        }
         if (data->table == table) {
           if (data->xcol == col || data->ycol == col) {
             axisrect->removeBar2D(bar);
@@ -882,6 +1077,113 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
   }
   if (removed)
     plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+}
+
+QStringList Layout2D::dependentTableMatrixNames() {
+  QStringList dependeon;
+  foreach (AxisRect2D *axisrect, getAxisRectList()) {
+    QVector<LineSpecial2D *> lslist = axisrect->getLsVec();
+    QVector<QPair<LineSpecial2D *, LineSpecial2D *>> channellist =
+        axisrect->getChannelVec();
+    QVector<Curve2D *> curvelist = axisrect->getCurveVec();
+    QVector<Bar2D *> barlist = axisrect->getBarVec();
+    QVector<StatBox2D *> statboxlist = axisrect->getStatBoxVec();
+    QVector<Vector2D *> vectorlist = axisrect->getVectorVec();
+    QVector<Pie2D *> pieveclist = axisrect->getPieVec();
+    QVector<ColorMap2D *> colormapvec = axisrect->getColorMapVec();
+    foreach (LineSpecial2D *ls, lslist) {
+      PlotData::AssociatedData *data =
+          ls->getdatablock_lsplot()->getassociateddata();
+      if (!dependeon.contains(data->table->name()))
+        dependeon << data->table->name();
+      if (ls->getxerrorbar_lsplot()) {
+        DataBlockError *xerror =
+            ls->getxerrorbar_lsplot()->getdatablock_error();
+        if (!dependeon.contains(xerror->gettable()->name()))
+          dependeon << xerror->gettable()->name();
+      }
+      if (ls->getyerrorbar_lsplot()) {
+        DataBlockError *yerror =
+            ls->getyerrorbar_lsplot()->getdatablock_error();
+        if (!dependeon.contains(yerror->gettable()->name()))
+          dependeon << yerror->gettable()->name();
+      }
+    }
+    for (int i = 0; i < channellist.count(); i++) {
+      QPair<LineSpecial2D *, LineSpecial2D *> channel = channellist.at(i);
+      PlotData::AssociatedData *data1 =
+          channel.first->getdatablock_lsplot()->getassociateddata();
+      PlotData::AssociatedData *data2 =
+          channel.second->getdatablock_lsplot()->getassociateddata();
+      if (!dependeon.contains(data1->table->name()))
+        dependeon << data1->table->name();
+      if (!dependeon.contains(data2->table->name()))
+        dependeon << data2->table->name();
+    }
+    foreach (Curve2D *curve, curvelist) {
+      if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
+        PlotData::AssociatedData *data =
+            curve->getdatablock_cplot()->getassociateddata();
+        if (!dependeon.contains(data->table->name()))
+          dependeon << data->table->name();
+        if (curve->getxerrorbar_curveplot()) {
+          DataBlockError *xerror =
+              curve->getxerrorbar_curveplot()->getdatablock_error();
+          if (!dependeon.contains(xerror->gettable()->name()))
+            dependeon << xerror->gettable()->name();
+        }
+        if (curve->getyerrorbar_curveplot()) {
+          DataBlockError *yerror =
+              curve->getyerrorbar_curveplot()->getdatablock_error();
+          if (!dependeon.contains(yerror->gettable()->name()))
+            dependeon << yerror->gettable()->name();
+        }
+      }
+    }
+    foreach (StatBox2D *statbox, statboxlist) {
+      if (!dependeon.contains(
+              statbox->getboxwhiskerdata_statbox().table_->name()))
+        dependeon << statbox->getboxwhiskerdata_statbox().table_->name();
+    }
+
+    foreach (Bar2D *bar, barlist) {
+      if (!bar->ishistogram_barplot()) {
+        PlotData::AssociatedData *data =
+            bar->getdatablock_barplot()->getassociateddata();
+        if (!dependeon.contains(data->table->name()))
+          dependeon << data->table->name();
+        if (bar->getxerrorbar_barplot()) {
+          DataBlockError *xerror =
+              bar->getxerrorbar_barplot()->getdatablock_error();
+          if (!dependeon.contains(xerror->gettable()->name()))
+            dependeon << xerror->gettable()->name();
+        }
+        if (bar->getyerrorbar_barplot()) {
+          DataBlockError *yerror =
+              bar->getyerrorbar_barplot()->getdatablock_error();
+          if (!dependeon.contains(yerror->gettable()->name()))
+            dependeon << yerror->gettable()->name();
+        }
+      } else {
+        if (!dependeon.contains(bar->gettable_histogram()->name()))
+          dependeon << bar->gettable_histogram()->name();
+      }
+    }
+
+    foreach (Vector2D *vector, vectorlist) {
+      if (!dependeon.contains(vector->gettable_vecplot()->name()))
+        dependeon << vector->gettable_vecplot()->name();
+    }
+    foreach (Pie2D *pie, pieveclist) {
+      if (!dependeon.contains(pie->gettable_pieplot()->name()))
+        dependeon << pie->gettable_pieplot()->name();
+    }
+    foreach (ColorMap2D *colormap, colormapvec) {
+      if (!dependeon.contains(colormap->getmatrix_colormap()->name()))
+        dependeon << colormap->getmatrix_colormap()->name();
+    }
+  }
+  return dependeon;
 }
 
 void Layout2D::setAxisRangeDragZoom(bool value) {

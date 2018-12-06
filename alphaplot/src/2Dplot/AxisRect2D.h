@@ -160,6 +160,7 @@ class AxisRect2D : public QCPAxisRect {
   bool removeVector2D(Vector2D *vector);
   bool removeBar2D(Bar2D *bar);
   bool removePie2D(Pie2D *pie);
+  bool removeColorMap2D(ColorMap2D *colormap);
 
   void setPrintorExportJob(bool value) { printorexportjob_ = value; }
   void setGraphTool(const Graph2DCommon::Picker &picker);

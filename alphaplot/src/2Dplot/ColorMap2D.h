@@ -11,6 +11,8 @@ class ColorMap2D : public QCPColorMap {
   ColorMap2D(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis);
   ~ColorMap2D();
 
+  void setColorMapData(Matrix *matrix);
+
   enum class Gradient : int {
     Grayscale = 0,
     Hot = 1,

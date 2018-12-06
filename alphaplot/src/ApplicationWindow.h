@@ -64,7 +64,9 @@ class ScalePicker;
 class Graph3D;
 class Note;
 class Layout2D;
-// class Layout3D;
+#ifdef PLOT3D_QT
+class Layout3D;
+#endif
 class Folder;
 class FolderTreeWidget;
 class FolderTreeWidgetItem;
@@ -145,7 +147,9 @@ class ApplicationWindow : public QMainWindow,
     NoteSubWindow,
     Plot2DSubWindow,
     Plot3DSubWindow,
-    // SubwindowPlot3D,
+#ifdef PLOT3D_QT
+    SubwindowPlot3D,
+#endif
   };
 
   enum class Graph {
@@ -539,7 +543,12 @@ class ApplicationWindow : public QMainWindow,
   //! Creates a new empty 2d plot
   Layout2D* newGraph2D(const QString& caption = tr("Graph"));
   //! Creates a new empty 3d plot
-  // Layout3D* newGraph3D(const QString& caption = tr("Graph"));
+#ifdef PLOT3D_QT
+  Layout3D* newGraph3D(const QString& caption = tr("Graph"));
+  QList<QPair<QPair<double, double>, double> > *generateFunctiondata(
+      const QString& formula, double xl, double xr, double yl, double yr,
+      double zl, double zr);
+#endif
 
   //! \name Reading from a Project File
   //@{

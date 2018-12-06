@@ -1,5 +1,6 @@
+#ifdef PLOT3D_QT
 #include "Layout3D.h"
-/*#include "Surface3D.h"
+#include "Surface3D.h"
 
 #include <QtCore/qmath.h>
 #include <QDateTime>
@@ -58,4 +59,5 @@ void Layout3D::generateSurfacePlot3D(
 
 void Layout3D::generateBarPlot3D() {}
 
-void Layout3D::generateScatterPlot3D() {}*/
+void Layout3D::generateScatterPlot3D() {}
+#endif

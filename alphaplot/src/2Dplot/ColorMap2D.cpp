@@ -22,8 +22,24 @@ ColorMap2D::ColorMap2D(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis)
   xaxis_->getaxisrect_axis()->setMarginGroup(QCP::msBottom | QCP::msTop,
                                              margingroup_);
   colorScale_->setMarginGroup(QCP::msBottom | QCP::msTop, margingroup_);
-  double datamin = matrix->cell(0, 0);
-  double datamax = matrix->cell(0, 0);
+  colorScale_->setRangeDrag(true);
+  setColorMapData(matrix_);
+  setData(data_);
+}
+
+ColorMap2D::~ColorMap2D() {
+  delete colorScale_;
+  delete margingroup_;
+}
+
+void ColorMap2D::setColorMapData(Matrix *matrix) {
+  matrix_ = matrix;
+  rows_ = matrix_->numRows();
+  columns_ = matrix_->numCols();
+  data_->setSize(matrix_->numRows(), matrix_->numCols());
+  data_->setRange(QCPRange(0, rows_ - 1), QCPRange(0, columns_ - 1));
+  double datamin = matrix_->cell(0, 0);
+  double datamax = matrix_->cell(0, 0);
   double value = datamin;
   for (int i = 0; i < matrix_->numRows(); i++) {
     for (int j = 0; j < matrix_->numCols(); j++) {
@@ -34,13 +50,6 @@ ColorMap2D::ColorMap2D(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis)
     }
   }
   setDataRange(QCPRange(datamin, datamax));
-  setData(data_);
-  colorScale_->setRangeDrag(true);
-}
-
-ColorMap2D::~ColorMap2D() {
-  delete colorScale_;
-  delete margingroup_;
 }
 
 ColorMap2D::Gradient ColorMap2D::getgradient_colormap() const {
