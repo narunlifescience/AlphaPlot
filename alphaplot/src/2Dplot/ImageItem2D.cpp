@@ -6,19 +6,31 @@ ImageItem2D::ImageItem2D(AxisRect2D *axisrect, Plot2D *plot,
                          const QString &filename)
     : QCPItemPixmap(plot),
       axisrect_(axisrect),
+      layername_(
+          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       draggingimageitem_(false),
       imagefilename_(filename),
       pixmap_(new QPixmap()),
       cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {
+  // setting Layer
+  if (axisrect_->getAxes2D().count() > 0) {
+    QThread::msleep(1);
+    parentPlot()->addLayer(layername_, axisrect_->getAxes2D().at(0)->layer(),
+                           QCustomPlot::limBelow);
+    setLayer(layername_);
+  }
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setClipAxisRect(axisrect_);
   setClipToAxisRect(true);
   setpixmap_imageitem();
 }
 
-ImageItem2D::~ImageItem2D() { delete pixmap_; }
+ImageItem2D::~ImageItem2D() {
+  parentPlot()->removeLayer(layer());
+  delete pixmap_;
+}
 
-AxisRect2D *ImageItem2D::getaxisrect_imageitem() const { return axisrect_; }
+AxisRect2D *ImageItem2D::getaxisrect() const { return axisrect_; }
 
 QString ImageItem2D::getsource_imageitem() const { return imagefilename_; }
 

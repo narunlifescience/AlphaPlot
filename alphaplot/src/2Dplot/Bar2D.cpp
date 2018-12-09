@@ -26,7 +26,7 @@ Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
       xerroravailable_(false),
       yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None) {
-  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
+  init();
   setSelectable(QCP::SelectionType::stSingleData);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);
   setstrokecolor_barplot(color);
@@ -54,7 +54,7 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
       xerroravailable_(false),
       yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None) {
-  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
+  init();
   setSelectable(QCP::SelectionType::stSingleData);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);
   setstrokecolor_barplot(color);
@@ -63,10 +63,19 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
   setBarData(table_, column_, from_, to_);
 }
 
+void Bar2D::init() {
+  layername_ = QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz");
+  QThread::msleep(1);
+  parentPlot()->addLayer(layername_, xaxis_->layer(), QCustomPlot::limBelow);
+  setLayer(layername_);
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
+}
+
 Bar2D::~Bar2D() {
   if (!ishistogram_) delete bardata_;
   if (xerroravailable_) removeXerrorBar();
   if (yerroravailable_) removeYerrorBar();
+  parentPlot()->removeLayer(layer());
 }
 
 void Bar2D::setXerrorBar(Table *table, Column *errorcol, int from, int to) {
@@ -111,9 +120,9 @@ void Bar2D::removeYerrorBar() {
       yaxis_->getaxisrect_axis());
 }
 
-Axis2D *Bar2D::getxaxis_barplot() const { return xaxis_; }
+Axis2D *Bar2D::getxaxis() const { return xaxis_; }
 
-Axis2D *Bar2D::getyaxis_barplot() const { return yaxis_; }
+Axis2D *Bar2D::getyaxis() const { return yaxis_; }
 
 Qt::PenStyle Bar2D::getstrokestyle_barplot() const { return pen().style(); }
 
@@ -130,7 +139,7 @@ bool Bar2D::ishistogram_barplot() const { return ishistogram_; }
 void Bar2D::setxaxis_barplot(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Bottom ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Top);
-  if (axis == getxaxis_barplot()) return;
+  if (axis == getxaxis()) return;
 
   xaxis_ = axis;
   setKeyAxis(axis);
@@ -139,7 +148,7 @@ void Bar2D::setxaxis_barplot(Axis2D *axis) {
 void Bar2D::setyaxis_barplot(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Left ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Right);
-  if (axis == getyaxis_barplot()) return;
+  if (axis == getyaxis()) return;
 
   yaxis_ = axis;
   setValueAxis(axis);

@@ -101,7 +101,46 @@ int XmlStreamReader::readAttributeInt(const QString& name, bool* ok) {
     if (ok) *ok = false;
     return 0;
   }
+  *ok = true;
   return str.toInt(ok);
+}
+
+double XmlStreamReader::readAttributeDouble(const QString& name, bool* ok) {
+  QString str = attributes().value(namespaceUri().toString(), name).toString();
+  if (str.isEmpty()) {
+    if (ok) *ok = false;
+    return 0;
+  }
+  return str.toDouble(ok);
+}
+
+bool XmlStreamReader::readAttributeBool(const QString& name, bool* ok) {
+  QString str = attributes().value(namespaceUri().toString(), name).toString();
+  if (str.isEmpty()) {
+    if (ok) *ok = false;
+    return false;
+  }
+  bool value = false;
+  if (str == "true")
+    value = true;
+  else if (str == "false")
+    value = false;
+  else {
+    if (ok) *ok = false;
+    return false;
+  }
+  *ok = true;
+  return value;
+}
+
+QString XmlStreamReader::readAttributeString(const QString& name, bool* ok) {
+  QString str = attributes().value(namespaceUri().toString(), name).toString();
+  if (str.isEmpty()) {
+    if (ok) *ok = false;
+    return QString();
+  }
+  *ok = true;
+  return str;
 }
 
 QXmlStreamAttributes XmlStreamReader::readElements(const QString& element,

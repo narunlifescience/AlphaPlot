@@ -9,7 +9,7 @@ class ImageItem2D : public QCPItemPixmap {
   ImageItem2D(AxisRect2D *axisrect, Plot2D *plot, const QString &filename);
   ~ImageItem2D();
 
-  AxisRect2D *getaxisrect_imageitem() const;
+  AxisRect2D *getaxisrect() const;
   QString getsource_imageitem() const;
   QColor getstrokecolor_imageitem() const;
   double getstrokethickness_imageitem() const;
@@ -29,6 +29,7 @@ class ImageItem2D : public QCPItemPixmap {
  private:
   const static int selectionpixelsize_;
   AxisRect2D *axisrect_;
+  QString layername_;
   bool draggingimageitem_;
   QPointF dragimageitemorigin_;
   QString imagefilename_;

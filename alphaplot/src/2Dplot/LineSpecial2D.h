@@ -39,8 +39,8 @@ class LineSpecial2D : public QCPGraph {
   double getscatterstrokethickness_lsplot() const;
   bool getscatterantialiased_lsplot() const;
   QString getlegendtext_lsplot() const;
-  Axis2D *getxaxis_lsplot() const;
-  Axis2D *getyaxis_lsplot() const;
+  Axis2D *getxaxis() const;
+  Axis2D *getyaxis() const;
   DataBlockGraph *getdatablock_lsplot() const { return graphdata_; }
   ErrorBar2D *getxerrorbar_lsplot() { return xerrorbar_; }
   ErrorBar2D *getyerrorbar_lsplot() { return yerrorbar_; }
@@ -90,6 +90,7 @@ class LineSpecial2D : public QCPGraph {
   QSharedPointer<QCPGraphDataContainer> functionData_;
   ErrorBar2D *xerrorbar_;
   ErrorBar2D *yerrorbar_;
+  QString layername_;
   bool xerroravailable_;
   bool yerroravailable_;
   Graph2DCommon::Picker picker_;

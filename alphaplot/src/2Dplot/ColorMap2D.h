@@ -28,6 +28,8 @@ class ColorMap2D : public QCPColorMap {
     Hues = 11
   };
 
+  Axis2D *getxaxis() const;
+  Axis2D *getyaxis() const;
   Gradient getgradient_colormap() const;
   int getlevelcount_colormap() const;
   bool getgradientinverted_colormap() const;
@@ -57,6 +59,7 @@ class ColorMap2D : public QCPColorMap {
   int columns_;
   QCPColorScale *colorScale_;
   QCPColorMapData *data_;
+  QString layername_;
   QCPColorGradient colorgradient_;
   Gradient gradient_;
   bool invertgradient_;

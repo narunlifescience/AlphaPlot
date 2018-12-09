@@ -21,11 +21,16 @@ LineSpecial2D::LineSpecial2D(Table *table, Column *xcol, Column *ycol, int from,
       functionData_(nullptr),
       xerrorbar_(nullptr),
       yerrorbar_(nullptr),
+      layername_(
+          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       xerroravailable_(false),
       yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None)
 // mPointUnderCursor(new PlotPoint(parentPlot(), 5))
 {
+  QThread::msleep(1);
+  parentPlot()->addLayer(layername_, xAxis_->layer(), QCustomPlot::limBelow);
+  setLayer(layername_);
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setSelectable(QCP::SelectionType::stSingleData);
   setlinestrokecolor_lsplot(
@@ -38,6 +43,7 @@ LineSpecial2D::~LineSpecial2D() {
   delete graphdata_;
   if (xerroravailable_) removeXerrorBar();
   if (yerroravailable_) removeYerrorBar();
+  parentPlot()->removeLayer(layer());
 }
 
 void LineSpecial2D::setXerrorBar(Table *table, Column *errorcol, int from,
@@ -228,9 +234,9 @@ bool LineSpecial2D::getscatterantialiased_lsplot() const {
 
 QString LineSpecial2D::getlegendtext_lsplot() const { return name(); }
 
-Axis2D *LineSpecial2D::getxaxis_lsplot() const { return xAxis_; }
+Axis2D *LineSpecial2D::getxaxis() const { return xAxis_; }
 
-Axis2D *LineSpecial2D::getyaxis_lsplot() const { return yAxis_; }
+Axis2D *LineSpecial2D::getyaxis() const { return yAxis_; }
 
 void LineSpecial2D::setlinetype_lsplot(
     const Graph2DCommon::LineStyleType &line) {
@@ -392,7 +398,7 @@ void LineSpecial2D::setlegendtext_lsplot(const QString &legendtext) {
 void LineSpecial2D::setxaxis_lsplot(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Bottom ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Top);
-  if (axis == getxaxis_lsplot()) return;
+  if (axis == getxaxis()) return;
 
   xAxis_ = axis;
   setKeyAxis(axis);
@@ -401,7 +407,7 @@ void LineSpecial2D::setxaxis_lsplot(Axis2D *axis) {
 void LineSpecial2D::setyaxis_lsplot(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Left ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Right);
-  if (axis == getyaxis_lsplot()) return;
+  if (axis == getyaxis()) return;
 
   yAxis_ = axis;
   setValueAxis(axis);

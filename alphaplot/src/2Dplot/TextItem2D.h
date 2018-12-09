@@ -22,7 +22,7 @@ class TextItem2D : public QCPItemText {
     BottomRight = 8
   };
 
-  AxisRect2D *getaxisrect_textitem() const;
+  AxisRect2D *getaxisrect() const;
   QColor getstrokecolor_textitem() const;
   double getstrokethickness_textitem() const;
   Qt::PenStyle getstrokestyle_textitem() const;
@@ -40,6 +40,7 @@ class TextItem2D : public QCPItemText {
 
  private:
   AxisRect2D *axisrect_;
+  QString layername_;
   bool draggingtextitem_;
   QPointF dragtextitemorigin_;
   TextAlignment textalignment_;

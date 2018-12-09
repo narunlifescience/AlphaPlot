@@ -6464,6 +6464,8 @@ ApplicationWindow::generateFunctiondata(const int type,
 
       QVector<double> *xData = new QVector<double>();
       QVector<double> *yData = new QVector<double>();
+      xData->reserve(points);
+      yData->reserve(points);
 
       const double xMin = ranges.at(0), xMax = ranges.at(1);
       const double step = (xMax - xMin) / static_cast<double>(points - 1);
@@ -6510,6 +6512,8 @@ ApplicationWindow::generateFunctiondata(const int type,
 
       QVector<double> *xData = new QVector<double>();
       QVector<double> *yData = new QVector<double>();
+      xData->reserve(points);
+      yData->reserve(points);
 
       const double xMin = ranges.at(0), xMax = ranges.at(1);
       const double step = (xMax - xMin) / static_cast<double>(points - 1);
@@ -9380,7 +9384,7 @@ void ApplicationWindow::loadIcons() {
   btn_plot_bars_->setIcon(
       IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
   btn_plot_vect_->setIcon(
-      IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
+      IconLoader::load("graph2d-vector-xyam", IconLoader::LightDark));
   // 3d toolbars
   Box->setIcon(IconLoader::load("graph3d-box-axis", IconLoader::LightDark));
   Frame->setIcon(IconLoader::load("graph3d-free-axis", IconLoader::LightDark));

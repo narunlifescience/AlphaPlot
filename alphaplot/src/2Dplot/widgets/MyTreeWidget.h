@@ -5,41 +5,46 @@
 #include <QMouseEvent>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+#include "2Dplot/AxisRect2D.h"
 
 class AxisRect2D;
+class QCustomPlot;
 
 class MyTreeWidget : public QTreeWidget {
   Q_OBJECT
 
  public:
   enum class PropertyItemType : int {
-    Layout = 0,
-    Grid = 1,
-    Axis = 2,
-    Legend = 3,
-    TextItem = 4,
-    LineItem = 5,
-    ImageItem = 6,
-    LSGraph = 7,
-    Curve = 8,
-    StatBox = 9,
-    Vector = 10,
-    BarGraph = 11,
-    PieGraph = 12,
-    ColorMap = 13,
-    ErrorBar = 14,
+    PlotCanvas = 0,
+    Layout = 1,
+    Grid = 2,
+    Axis = 3,
+    Legend = 4,
+    TextItem = 5,
+    LineItem = 6,
+    ImageItem = 7,
+    LSGraph = 8,
+    ChannelGraph = 9,
+    Curve = 10,
+    StatBox = 11,
+    Vector = 12,
+    BarGraph = 13,
+    PieGraph = 14,
+    ColorMap = 15,
+    ErrorBar = 16,
   };
   MyTreeWidget(QWidget *parent = nullptr);
   ~MyTreeWidget();
 
  private slots:
-  void CurrentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+  void CurrentItemChanged(QTreeWidgetItem *current);
   void showContextMenu(const QPoint &pos);
   void addfunctionplot();
   void addplot();
   void addAxis2D();
   void removeAxis2D();
   void removeLineSpecial2D();
+  void removeLineSpecialChannel2D();
   void removeCurve2D();
   void removeBar2D();
   void removeVector2D();
@@ -48,6 +53,13 @@ class MyTreeWidget : public QTreeWidget {
   void removeTextItem2D();
   void removeLineItem2D();
   void removeImageItem2D();
+
+ private:
+  template <class T>
+  void moveplottablelayer(QAction *action,
+                          const QCustomPlot::LayerInsertMode &mode);
+  template <class T>
+  void moveitemlayer(QAction *action, const QCustomPlot::LayerInsertMode &mode);
 
  private:
   QWidget *widget_;
@@ -79,6 +91,7 @@ class MyTreeWidget : public QTreeWidget {
   QAction *topdatetimeaxis_;
   QAction *removeaxis_;
   QAction *removels_;
+  QAction *removechannel_;
   QAction *removecurve_;
   QAction *removebar_;
   QAction *removevector_;
@@ -87,6 +100,30 @@ class MyTreeWidget : public QTreeWidget {
   QAction *removetextitem_;
   QAction *removelineitem_;
   QAction *removeimageitem_;
+  // move layer up
+  QAction *moveupls_;
+  QAction *moveupchannel_;
+  QAction *moveupcurve_;
+  QAction *moveupbar_;
+  QAction *moveupvector_;
+  QAction *moveupstatbox_;
+  QAction *moveuppie_;
+  QAction *moveupcolormap_;
+  QAction *moveuptextitem_;
+  QAction *moveuplineitem_;
+  QAction *moveupimageitem_;
+  // move layer down
+  QAction *movedownls_;
+  QAction *movedownchannel_;
+  QAction *movedowncurve_;
+  QAction *movedownbar_;
+  QAction *movedownvector_;
+  QAction *movedownstatbox_;
+  QAction *movedownpie_;
+  QAction *movedowncolormap_;
+  QAction *movedowntextitem_;
+  QAction *movedownlineitem_;
+  QAction *movedownimageitem_;
 };
 
 #endif  // MYTREEWIDGET_H

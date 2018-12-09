@@ -56,6 +56,8 @@ class Grid2D : public QCPGrid {
 
  private:
   // Grid & zeroline settings
+  Axis2D *axis_;
+  QString layername_;
   QColor majorgridcolor_;
   Qt::PenStyle majorgridstyle_;
   double majorgridthickness_;

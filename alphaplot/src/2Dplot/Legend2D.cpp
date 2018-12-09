@@ -110,7 +110,9 @@ void Legend2D::mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos) {
 }
 
 LegendItem2D::LegendItem2D(Legend2D *legend, QCPAbstractPlottable *plottable)
-    : QCPPlottableLegendItem(legend, plottable) {}
+    : QCPPlottableLegendItem(legend, plottable) {
+  setLayer(legend->layer());
+}
 
 LegendItem2D::~LegendItem2D() {}
 
@@ -277,6 +279,7 @@ void VectorLegendItem2D::setLineEndings() {
 PieLegendItem2D::PieLegendItem2D(Legend2D *parent, QColor color,
                                  const QString &string)
     : QCPAbstractLegendItem(parent), color_(color), string_(string) {
+  setLayer(parent->layer());
   setAntialiased(false);
 }
 

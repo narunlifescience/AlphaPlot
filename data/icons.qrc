@@ -299,6 +299,8 @@
     <file>icons/light/16/edit-undo.png</file>
     <file>icons/light/16/edit-new.png</file>
     <file>icons/light/16/edit-print.png</file>
+    <file>icons/light/16/edit-down.png</file>
+    <file>icons/light/16/edit-up.png</file>
     <file>icons/light/16/lock.png</file>
     <file>icons/light/16/unlock.png</file>
     <file>icons/light/16/application-pdf.png</file>
@@ -427,6 +429,8 @@
     <file>icons/light/22/edit-undo.png</file>
     <file>icons/light/22/edit-new.png</file>
     <file>icons/light/22/edit-print.png</file>
+    <file>icons/light/22/edit-down.png</file>
+    <file>icons/light/22/edit-up.png</file>
     <file>icons/light/22/lock.png</file>
     <file>icons/light/22/unlock.png</file>
     <file>icons/light/22/application-pdf.png</file>
@@ -559,6 +563,8 @@
     <file>icons/light/24/edit-undo.png</file>
     <file>icons/light/24/edit-new.png</file>
     <file>icons/light/24/edit-print.png</file>
+    <file>icons/light/24/edit-down.png</file>
+    <file>icons/light/24/edit-up.png</file>
     <file>icons/light/24/lock.png</file>
     <file>icons/light/24/unlock.png</file>
     <file>icons/light/24/application-pdf.png</file>
@@ -707,6 +713,8 @@
     <file>icons/dark/16/edit-undo.png</file>
     <file>icons/dark/16/edit-new.png</file>
     <file>icons/dark/16/edit-print.png</file>
+    <file>icons/dark/16/edit-down.png</file>
+    <file>icons/dark/16/edit-up.png</file>
     <file>icons/dark/16/lock.png</file>
     <file>icons/dark/16/unlock.png</file>
     <file>icons/dark/16/application-pdf.png</file>
@@ -835,6 +843,8 @@
     <file>icons/dark/22/edit-undo.png</file>
     <file>icons/dark/22/edit-new.png</file>
     <file>icons/dark/22/edit-print.png</file>
+    <file>icons/dark/22/edit-down.png</file>
+    <file>icons/dark/22/edit-up.png</file>
     <file>icons/dark/22/lock.png</file>
     <file>icons/dark/22/unlock.png</file>
     <file>icons/dark/22/application-pdf.png</file>
@@ -967,6 +977,8 @@
     <file>icons/dark/24/edit-undo.png</file>
     <file>icons/dark/24/edit-new.png</file>
     <file>icons/dark/24/edit-print.png</file>
+    <file>icons/dark/24/edit-down.png</file>
+    <file>icons/dark/24/edit-up.png</file>
     <file>icons/dark/24/lock.png</file>
     <file>icons/dark/24/unlock.png</file>
     <file>icons/dark/24/application-pdf.png</file>
@@ -1162,6 +1174,7 @@
     <file>icons/dark/distribution/dist-lognormal.png</file>
     <file>icons/dark/distribution/dist-rayleigh-tail.png</file>
     <file>icons/dark/distribution/dist-rayleigh.png</file>
+    <file>pixmap/transparent-background.png</file>
     <file>splash/splash.png</file>
 </qresource>
 </RCC>

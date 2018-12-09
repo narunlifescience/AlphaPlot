@@ -15,7 +15,7 @@ class LineItem2D : public QCPItemLine {
     Stop = 1,
   };
 
-  AxisRect2D *getaxisrect_lineitem() const;
+  AxisRect2D *getaxisrect() const;
   QColor getstrokecolor_lineitem() const;
   double getstrokethickness_lineitem() const;
   Qt::PenStyle getstrokestyle_lineitem() const;
@@ -45,6 +45,7 @@ class LineItem2D : public QCPItemLine {
   AxisRect2D *axisrect_;
   QCPLineEnding *ending_;
   QCPLineEnding *starting_;
+  QString layername_;
   bool dragginglineitem_;
   QPointF draglineitemorigin_;
   bool draggingendlineitem_;

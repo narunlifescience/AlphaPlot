@@ -9,8 +9,16 @@ ColorMap2D::ColorMap2D(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis)
       yaxis_(yAxis),
       matrix_(matrix),
       colorScale_(new QCPColorScale(parentPlot())),
+      layername_(
+          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       gradient_(Gradient::Spectrum),
       invertgradient_(false) {
+  // setting layer
+  QThread::msleep(1);
+  parentPlot()->addLayer(layername_, xaxis_->layer(), QCustomPlot::limBelow);
+  setLayer(layername_);
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
+
   rows_ = matrix_->numRows();
   columns_ = matrix_->numCols();
   data_ = new QCPColorMapData(rows_, columns_, QCPRange(0, rows_ - 1),
@@ -30,6 +38,7 @@ ColorMap2D::ColorMap2D(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis)
 ColorMap2D::~ColorMap2D() {
   delete colorScale_;
   delete margingroup_;
+  parentPlot()->removeLayer(layer());
 }
 
 void ColorMap2D::setColorMapData(Matrix *matrix) {
@@ -51,6 +60,10 @@ void ColorMap2D::setColorMapData(Matrix *matrix) {
   }
   setDataRange(QCPRange(datamin, datamax));
 }
+
+Axis2D *ColorMap2D::getxaxis() const { return xaxis_; }
+
+Axis2D *ColorMap2D::getyaxis() const { return yaxis_; }
 
 ColorMap2D::Gradient ColorMap2D::getgradient_colormap() const {
   return gradient_;

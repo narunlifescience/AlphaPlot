@@ -62,6 +62,7 @@ class PropertyEditor : public QDockWidget {
   void objectschanged();
 
   // properties block handler
+  void Plot2DPropertyBlock(Plot2D *plotcanvas);
   void Layout2DPropertyBlock(AxisRect2D *axisrect);
   void Axis2DPropertyBlock(Axis2D *axis);
   void Grid2DPropertyBlock(AxisRect2D *axisrect);
@@ -69,7 +70,10 @@ class PropertyEditor : public QDockWidget {
   void TextItem2DPropertyBlock(TextItem2D *textitem);
   void LineItem2DPropertyBlock(LineItem2D *lineitem);
   void ImageItem2DPropertyBlock(ImageItem2D *imageitem);
-  void LineScatter2DPropertyBlock(LineSpecial2D *lsgraph, AxisRect2D *axisrect);
+  void LineSpecial2DPropertyBlock(LineSpecial2D *lsgraph, AxisRect2D *axisrect);
+  void LineSpecialChannel2DPropertyBlock(LineSpecial2D *lsgraph1,
+                                         LineSpecial2D *lsgraph2,
+                                         AxisRect2D *axisrect);
   void Curve2DPropertyBlock(Curve2D *curve, AxisRect2D *axisrect);
   void Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect);
   void StatBox2DPropertyBlock(StatBox2D *statbox, AxisRect2D *axisrect);
@@ -90,12 +94,6 @@ class PropertyEditor : public QDockWidget {
     T *object = static_cast<T *>(ptr);
     return object;
   }
-
-  typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
-  typedef QVector<LineSpecial2D *> LsVec;
-  typedef QVector<Curve2D *> CurveVec;
-  typedef QVector<Vector2D *> VectorVec;
-  typedef QVector<Bar2D *> BarVec;
 
  private:
   Ui_PropertyEditor *ui_;
@@ -123,6 +121,10 @@ class PropertyEditor : public QDockWidget {
   QtEnumEditorFactory *comboBoxFactory_;
   QtColorEditorFactory *colorFactory_;
   QtFontEditorFactory *fontFactory_;
+  // Plot Canvas properties
+  QtProperty *canvaspropertycoloritem_;
+  QtProperty *canvaspropertybufferdevicepixelratioitem_;
+  QtProperty *canvaspropertyopenglitem_;
   // Layout properties
   QtProperty *layoutpropertygroupitem_;
   QtProperty *layoutpropertyrectitem_;
@@ -231,6 +233,38 @@ class PropertyEditor : public QDockWidget {
   QtProperty *lsplotpropertyscatterstrokestyleitem_;
   QtProperty *lsplotpropertyscatterantialiaseditem_;
   QtProperty *lsplotpropertylegendtextitem_;
+
+  // LineSpecialChannel Properties block
+  QtProperty *channelplotpropertyxaxisitem_;
+  QtProperty *channelplotpropertyyaxisitem_;
+  QtProperty *channelplotpropertylegendtextitem_;
+  QtProperty *channel1plotpropertygroupitem_;
+  QtProperty *channel1plotpropertylinestyleitem_;
+  QtProperty *channel1plotpropertylinestrokecoloritem_;
+  QtProperty *channel1plotpropertylinestrokethicknessitem_;
+  QtProperty *channel1plotpropertylinestroketypeitem_;
+  QtProperty *channel1plotpropertylinefillcoloritem_;
+  QtProperty *channel1plotpropertylineantialiaseditem_;
+  QtProperty *channel1plotpropertyscatterstyleitem_;
+  QtProperty *channel1plotpropertyscatterthicknessitem_;
+  QtProperty *channel1plotpropertyscatterfillcoloritem_;
+  QtProperty *channel1plotpropertyscatterstrokecoloritem_;
+  QtProperty *channel1plotpropertyscatterstrokethicknessitem_;
+  QtProperty *channel1plotpropertyscatterstrokestyleitem_;
+  QtProperty *channel1plotpropertyscatterantialiaseditem_;
+  QtProperty *channel2plotpropertygroupitem_;
+  QtProperty *channel2plotpropertylinestyleitem_;
+  QtProperty *channel2plotpropertylinestrokecoloritem_;
+  QtProperty *channel2plotpropertylinestrokethicknessitem_;
+  QtProperty *channel2plotpropertylinestroketypeitem_;
+  QtProperty *channel2plotpropertylineantialiaseditem_;
+  QtProperty *channel2plotpropertyscatterstyleitem_;
+  QtProperty *channel2plotpropertyscatterthicknessitem_;
+  QtProperty *channel2plotpropertyscatterfillcoloritem_;
+  QtProperty *channel2plotpropertyscatterstrokecoloritem_;
+  QtProperty *channel2plotpropertyscatterstrokethicknessitem_;
+  QtProperty *channel2plotpropertyscatterstrokestyleitem_;
+  QtProperty *channel2plotpropertyscatterantialiaseditem_;
 
   // Curve Properties block
   QtProperty *cplotpropertyxaxisitem_;

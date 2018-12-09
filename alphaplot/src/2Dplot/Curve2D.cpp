@@ -22,8 +22,8 @@ Curve2D::Curve2D(Curve2D::Curve2DType curve2dtype, Table *table, Column *xcol,
       xerroravailable_(false),
       yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None) {
+  init();
   setSelectable(QCP::SelectionType::stSingleData);
-  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setlinestrokecolor_cplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
   if (curve2dtype_ == Curve2DType::Spline) {
@@ -55,6 +55,7 @@ Curve2D::Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
       yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None) {
   Q_ASSERT(xdata->size() == ydata->size());
+  init();
   setlinestrokecolor_cplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
 
@@ -68,6 +69,14 @@ Curve2D::Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
   // free those containers
   delete xdata;
   delete ydata;
+}
+
+void Curve2D::init() {
+  layername_ = QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz");
+  QThread::msleep(1);
+  parentPlot()->addLayer(layername_, xAxis_->layer(), QCustomPlot::limBelow);
+  setLayer(layername_);
+  layer()->setMode(QCPLayer::LayerMode::lmBuffered);
 }
 
 Curve2D::~Curve2D() {
@@ -90,6 +99,7 @@ Curve2D::~Curve2D() {
   }
   if (xerroravailable_) removeXerrorBar();
   if (yerroravailable_) removeYerrorBar();
+  parentPlot()->removeLayer(layer());
 }
 
 void Curve2D::setXerrorBar(Table *table, Column *errorcol, int from, int to) {
@@ -99,6 +109,7 @@ void Curve2D::setXerrorBar(Table *table, Column *errorcol, int from, int to) {
   }
   xerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xAxis_, yAxis_,
                               QCPErrorBars::ErrorType::etKeyError, this);
+  xerrorbar_->setLayer(layername_);
   xerroravailable_ = true;
   emit xAxis_->getaxisrect_axis()->ErrorBar2DCreated(xerrorbar_);
 }
@@ -110,6 +121,7 @@ void Curve2D::setYerrorBar(Table *table, Column *errorcol, int from, int to) {
   }
   yerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xAxis_, yAxis_,
                               QCPErrorBars::ErrorType::etValueError, this);
+  yerrorbar_->setLayer(layername_);
   yerroravailable_ = true;
   emit yAxis_->getaxisrect_axis()->ErrorBar2DCreated(yerrorbar_);
 }
@@ -319,14 +331,14 @@ bool Curve2D::getscatterantialiased_cplot() const {
 
 QString Curve2D::getlegendtext_cplot() const { return name(); }
 
-Axis2D *Curve2D::getxaxis_cplot() const { return xAxis_; }
+Axis2D *Curve2D::getxaxis() const { return xAxis_; }
 
-Axis2D *Curve2D::getyaxis_cplot() const { return yAxis_; }
+Axis2D *Curve2D::getyaxis() const { return yAxis_; }
 
 void Curve2D::setxaxis_cplot(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Bottom ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Top);
-  if (axis == getxaxis_cplot()) return;
+  if (axis == getxaxis()) return;
 
   xAxis_ = axis;
   setKeyAxis(axis);
@@ -335,7 +347,7 @@ void Curve2D::setxaxis_cplot(Axis2D *axis) {
 void Curve2D::setyaxis_cplot(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Left ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Right);
-  if (axis == getyaxis_cplot()) return;
+  if (axis == getyaxis()) return;
 
   yAxis_ = axis;
   setValueAxis(axis);

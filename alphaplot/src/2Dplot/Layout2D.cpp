@@ -18,8 +18,8 @@
 #include "LayoutGrid2D.h"
 #include "Legend2D.h"
 #include "LineSpecial2D.h"
-#include "Table.h"
 #include "Matrix.h"
+#include "Table.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "future/lib/XmlStreamWriter.h"
@@ -48,16 +48,12 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   addLayoutButton_->setToolTip(tr("Add layer"));
   addLayoutButton_->setMaximumWidth(LayoutButton2D::btnSize());
   addLayoutButton_->setMaximumHeight(LayoutButton2D::btnSize());
-  connect(addLayoutButton_, SIGNAL(clicked()), this, SLOT(addAxisRectItem()));
   layoutManagebuttonsBox_->addWidget(addLayoutButton_);
 
   removeLayoutButton_ = new QPushButton();
   removeLayoutButton_->setToolTip(tr("Remove active layer"));
-  loadIcons();
   removeLayoutButton_->setMaximumWidth(LayoutButton2D::btnSize());
   removeLayoutButton_->setMaximumHeight(LayoutButton2D::btnSize());
-  connect(removeLayoutButton_, SIGNAL(clicked()), this,
-          SLOT(removeAxisRectItem()));
   layoutManagebuttonsBox_->addWidget(removeLayoutButton_);
 
   layoutButtonsBox_ = new QHBoxLayout();
@@ -66,7 +62,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   streachLabel_ = new QLabel();
   hbox->addWidget(streachLabel_);
   hbox->addLayout(layoutManagebuttonsBox_);
-  setBackground(plot2dCanvas_->getBackgroundColor().color());
+  setBackground(plot2dCanvas_->getBackgroundColor());
   layoutButtonsBox_->setContentsMargins(2, 2, 2, 2);
   layoutManagebuttonsBox_->setContentsMargins(2, 2, 2, 2);
   layoutButtonsBox_->setSpacing(2);
@@ -83,18 +79,21 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   setFocusPolicy(Qt::StrongFocus);
 
   plot2dCanvas_->plotLayout()->addElement(0, 0, layout_);
+  loadIcons();
 
   // connections
-  connect(plot2dCanvas_, SIGNAL(mouseMove(QMouseEvent *)), this,
-          SLOT(mouseMoveSignal(QMouseEvent *)));
-  connect(plot2dCanvas_, SIGNAL(mousePress(QMouseEvent *)), this,
-          SLOT(mousePressSignal(QMouseEvent *)));
-  connect(plot2dCanvas_, SIGNAL(mouseRelease(QMouseEvent *)), this,
-          SLOT(mouseReleaseSignal(QMouseEvent *)));
-  connect(plot2dCanvas_, SIGNAL(beforeReplot()), this, SLOT(beforeReplot()));
-
-  connect(plot2dCanvas_, SIGNAL(mouseWheel(QWheelEvent *)), this,
-          SLOT(mouseWheel()));
+  connect(addLayoutButton_, SIGNAL(clicked()), this, SLOT(addAxisRectItem()));
+  connect(removeLayoutButton_, &QPushButton::clicked, this,
+          &Layout2D::removeAxisRectItem);
+  connect(plot2dCanvas_, &Plot2D::mouseMove, this, &Layout2D::mouseMoveSignal);
+  connect(plot2dCanvas_, &Plot2D::mousePress, this,
+          &Layout2D::mousePressSignal);
+  connect(plot2dCanvas_, &Plot2D::mouseRelease, this,
+          &Layout2D::mouseReleaseSignal);
+  connect(plot2dCanvas_, &Plot2D::mouseWheel, this, &Layout2D::mouseWheel);
+  connect(plot2dCanvas_, &Plot2D::beforeReplot, this, &Layout2D::beforeReplot);
+  connect(plot2dCanvas_, &Plot2D::backgroundColorChange, this,
+          &Layout2D::setBackground);
 }
 
 Layout2D::~Layout2D() {
@@ -495,10 +494,9 @@ AxisRect2D *Layout2D::addAxisRectItem(
   plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   addLayoutButton(col);
 
-  connect(axisRect2d, SIGNAL(AxisRectClicked(AxisRect2D *)), this,
-          SLOT(axisRectSetFocus(AxisRect2D *)));
-  connect(axisRect2d, SIGNAL(showtooltip(QPointF, double, double)), this,
-          SLOT(showtooltip(QPointF, double, double)));
+  connect(axisRect2d, &AxisRect2D::AxisRectClicked, this,
+          &Layout2D::axisRectSetFocus);
+  connect(axisRect2d, &AxisRect2D::showtooltip, this, &Layout2D::showtooltip);
 
   emit AxisRectCreated(axisRect2d, this);
   if (!currentAxisRect_) axisRectSetFocus(axisRect2d);
@@ -506,6 +504,44 @@ AxisRect2D *Layout2D::addAxisRectItem(
 }
 
 void Layout2D::removeAxisRectItem() {
+  if (!currentAxisRect_) return;
+  foreach (TextItem2D *item, currentAxisRect_->getTextItemVec()) {
+    currentAxisRect_->removeTextItem2D(item);
+  }
+  foreach (LineItem2D *item, currentAxisRect_->getLineItemVec()) {
+    currentAxisRect_->removeLineItem2D(item);
+  }
+  foreach (ImageItem2D *item, currentAxisRect_->getImageItemVec()) {
+    currentAxisRect_->removeImageItem2D(item);
+  }
+  foreach (LineSpecial2D *ls, currentAxisRect_->getLsVec()) {
+    currentAxisRect_->removeLineSpecial2D(ls);
+  }
+  foreach (Curve2D *curve, currentAxisRect_->getCurveVec()) {
+    currentAxisRect_->removeCurve2D(curve);
+  }
+  foreach (Bar2D *bar, currentAxisRect_->getBarVec()) {
+    currentAxisRect_->removeBar2D(bar);
+  }
+  foreach (StatBox2D *statbox, currentAxisRect_->getStatBoxVec()) {
+    currentAxisRect_->removeStatBox2D(statbox);
+  }
+  foreach (Vector2D *vector, currentAxisRect_->getVectorVec()) {
+    currentAxisRect_->removeVector2D(vector);
+  }
+  foreach (Pie2D *pie, currentAxisRect_->getPieVec()) {
+    currentAxisRect_->removePie2D(pie);
+  }
+  auto gridpair = currentAxisRect_->getGridPair();
+  delete gridpair.first.first;
+  delete gridpair.second.first;
+  foreach (Axis2D *axis, currentAxisRect_->getAxes2D()) {
+    currentAxisRect_->removeAxis2D(axis, true);
+  }
+  for (int i = 0; i < currentAxisRect_->getChannelVec().count(); i++) {
+    currentAxisRect_->removeChannel2D(currentAxisRect_->getChannelVec().at(i));
+  }
+
   removeAxisRect(getAxisRectIndex(currentAxisRect_));
   emit AxisRectRemoved(this);
 }
@@ -1260,8 +1296,7 @@ QPair<int, int> Layout2D::getLayoutRectGridCoordinate(int index) {
 LayoutButton2D *Layout2D::addLayoutButton(int num) {
   LayoutButton2D *button = new LayoutButton2D(QString::number(++num));
 
-  connect(button, SIGNAL(clicked(LayoutButton2D *)), this,
-          SLOT(activateLayout(LayoutButton2D *)));
+  connect(button, &LayoutButton2D::clicked, this, &Layout2D::activateLayout);
   /*connect(button, SIGNAL(showContextMenu()), this,
           SIGNAL(showLayoutButtonContextMenu()));
   connect(button, SIGNAL(showCurvesDialog()), this,

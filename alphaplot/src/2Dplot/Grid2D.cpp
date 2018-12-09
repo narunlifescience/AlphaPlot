@@ -16,9 +16,15 @@
 
 #include "Grid2D.h"
 #include "Axis2D.h"
+#include "AxisRect2D.h"
 
-Grid2D::Grid2D(Axis2D *parent) : QCPGrid(parent) {
+Grid2D::Grid2D(Axis2D *parent)
+    : QCPGrid(parent),
+      axis_(parent),
+      layername_(
+          parent->getaxisrect_axis()->getParentPlot2D()->getGrid2DLayerName()) {
   // Set Default grid values
+  setLayer(layername_);
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   majorgridcolor_ = pen().color();
   zerolinecolor_ = zeroLinePen().color();

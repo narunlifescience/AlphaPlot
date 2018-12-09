@@ -7,11 +7,19 @@ LineItem2D::LineItem2D(AxisRect2D *axisrect, Plot2D *plot)
       axisrect_(axisrect),
       ending_(new QCPLineEnding),
       starting_(new QCPLineEnding),
+      layername_(
+          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       dragginglineitem_(false),
       draggingendlineitem_(false),
       draggingstartlineitem_(false),
       lineitemclicked_(false),
       cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {
+  if (axisrect_->getAxes2D().count() > 0) {
+    QThread::msleep(1);
+    parentPlot()->addLayer(layername_, axisrect_->getAxes2D().at(0)->layer(),
+                           QCustomPlot::limBelow);
+    setLayer(layername_);
+  }
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setClipAxisRect(axisrect_);
   setClipToAxisRect(true);
@@ -22,9 +30,10 @@ LineItem2D::LineItem2D(AxisRect2D *axisrect, Plot2D *plot)
 LineItem2D::~LineItem2D() {
   delete starting_;
   delete ending_;
+  parentPlot()->removeLayer(layer());
 }
 
-AxisRect2D *LineItem2D::getaxisrect_lineitem() const { return axisrect_; }
+AxisRect2D *LineItem2D::getaxisrect() const { return axisrect_; }
 
 QColor LineItem2D::getstrokecolor_lineitem() const { return pen().color(); }
 

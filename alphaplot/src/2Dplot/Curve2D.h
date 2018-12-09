@@ -18,6 +18,7 @@ class Curve2D : public QCPCurve {
           int from, int to, Axis2D *xAxis, Axis2D *yAxis);
   Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
           Axis2D *yAxis);
+  void init();
   ~Curve2D();
 
   void setXerrorBar(Table *table, Column *errorcol, int from, int to);
@@ -44,8 +45,8 @@ class Curve2D : public QCPCurve {
   double getscatterstrokethickness_cplot() const;
   bool getscatterantialiased_cplot() const;
   QString getlegendtext_cplot() const;
-  Axis2D *getxaxis_cplot() const;
-  Axis2D *getyaxis_cplot() const;
+  Axis2D *getxaxis() const;
+  Axis2D *getyaxis() const;
   Graph2DCommon::PlotType getplottype_cplot() const { return type_; }
   Curve2D::Curve2DType getcurvetype_cplot() const { return curve2dtype_; }
   DataBlockCurve *getdatablock_cplot() const { return curvedata_; }
@@ -93,6 +94,7 @@ class Curve2D : public QCPCurve {
  private:
   Axis2D *xAxis_;
   Axis2D *yAxis_;
+  QString layername_;
   QCPScatterStyle *scatterstyle_;
   DataBlockCurve *curvedata_;
   QSharedPointer<QCPCurveDataContainer> functionData_;

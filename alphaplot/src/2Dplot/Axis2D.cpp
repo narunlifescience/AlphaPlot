@@ -16,13 +16,16 @@
 
 #include "Axis2D.h"
 #include "AxisRect2D.h"
+#include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
 Axis2D::Axis2D(AxisRect2D *parent, AxisType type, TickerType tickertype)
     : QCPAxis(parent, type),
       axisrect_(parent),
       tickertype_(tickertype),
-      ticker_(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker)) {
+      ticker_(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker)),
+      layername_(axisrect_->getParentPlot2D()->getAxis2DLayerName()) {
+  setLayer(layername_);
   switch (tickertype) {
     case Axis2D::TickerType::Value:
       ticker_ = ticker();
@@ -487,4 +490,104 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
                             QString::number(getticklabelprecision_axis()));
   xmlwriter->writeEndElement();
   xmlwriter->writeEndElement();
+}
+
+Axis2D *Axis2D::load(XmlStreamReader *xmlreader, AxisRect2D *axisrect) {
+  Axis2D *axis = nullptr;
+  if (xmlreader->isStartElement() && xmlreader->name() == "axis") {
+    bool ok;
+    AxisType type = AxisType::atLeft;
+    TickerType tickertype = TickerType::Value;
+    // Type property
+    QString position = xmlreader->readAttributeString("position", &ok);
+    if (ok) {
+      if (position == "left")
+        type = AxisType::atLeft;
+      else if (position == "bottom")
+        type = AxisType::atBottom;
+      else if (position == "right")
+        type = AxisType::atRight;
+      else if (position == "top")
+        type = AxisType::atTop;
+      else {
+        qDebug() << "(critical) Axis2D Position property setting error";
+        return axis;
+      }
+    } else
+      return axis;
+    // Tickertype property
+    QString ticker = xmlreader->readAttributeString("tickertype", &ok);
+    if (ok) {
+      if (ticker == "value")
+        tickertype = TickerType::Value;
+      else if (ticker == "log")
+        tickertype = TickerType::Log;
+      else if (ticker == "pi")
+        tickertype = TickerType::Pi;
+      else if (ticker == "time")
+        tickertype = TickerType::Time;
+      else if (ticker == "datetime")
+        tickertype = TickerType::DateTime;
+      else if (ticker == "text")
+        tickertype = TickerType::Text;
+      else {
+        qDebug() << "(critical) Axis2D Tickertype property setting error";
+        return axis;
+      }
+    } else
+      return axis;
+    axis = new Axis2D(axisrect, type, tickertype);
+    // visible property
+    bool visible = xmlreader->readAttributeBool("visible", &ok);
+    if (ok)
+      axis->setshowhide_axis(visible);
+    else
+      qDebug() << "Axis2D visible property setting error";
+    // offset property
+    int offset = xmlreader->readAttributeInt("offset", &ok);
+    if (ok)
+      axis->setoffset_axis(offset);
+    else
+      qDebug() << "Axis2D offset property setting error";
+    // from property
+    double from = xmlreader->readAttributeDouble("from", &ok);
+    if (ok)
+      axis->setfrom_axis(from);
+    else
+      qDebug() << "Axis2D from property setting error";
+    // to property
+    double to = xmlreader->readAttributeDouble("to", &ok);
+    if (ok)
+      axis->setto_axis(to);
+    else
+      qDebug() << "Axis2D to property setting error";
+    // Scaletype property
+    QString scaletype = xmlreader->readAttributeString("scaletype", &ok);
+    if (ok) {
+      if (scaletype == "linear")
+        axis->setscaletype_axis(AxisScaleType::Linear);
+      else if (scaletype == "bottom")
+        axis->setscaletype_axis(AxisScaleType::Logarithmic);
+      else
+        qDebug() << "Axis2D Scaletype property setting error";
+    } else
+      qDebug() << "Axis2D Scaletype property setting error";
+    // inverted property
+    bool inverted = xmlreader->readAttributeBool("inverted", &ok);
+    if (ok)
+      axis->setinverted_axis(inverted);
+    else
+      qDebug() << "Axis2D inverted property setting error";
+    // Loop through sub elements
+    while (!xmlreader->atEnd()) {
+      if (xmlreader->isStartElement() && xmlreader->name() == "axis") {
+      }
+      if (xmlreader->isEndElement() && xmlreader->name() == "axis") break;
+      xmlreader->readNext();
+    }
+  } else {  // no element
+    xmlreader->raiseError(tr("no axis element found"));
+    return axis;
+  }
+  return axis;
 }

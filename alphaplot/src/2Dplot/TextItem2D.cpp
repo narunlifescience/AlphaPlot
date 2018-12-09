@@ -5,8 +5,16 @@
 TextItem2D::TextItem2D(AxisRect2D *axisrect, Plot2D *plot)
     : QCPItemText(plot),
       axisrect_(axisrect),
+      layername_(
+          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       draggingtextitem_(false),
       cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {
+  if (axisrect_->getAxes2D().count() > 0) {
+    QThread::msleep(1);
+    parentPlot()->addLayer(layername_, axisrect_->getAxes2D().at(0)->layer(),
+                           QCustomPlot::limBelow);
+    setLayer(layername_);
+  }
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setClipAxisRect(axisrect_);
   setAntialiased(false);
@@ -18,9 +26,9 @@ TextItem2D::TextItem2D(AxisRect2D *axisrect, Plot2D *plot)
   settextalignment_textitem(TextAlignment::CenterCenter);
 }
 
-TextItem2D::~TextItem2D() {}
+TextItem2D::~TextItem2D() { parentPlot()->removeLayer(layer()); }
 
-AxisRect2D *TextItem2D::getaxisrect_textitem() const { return axisrect_; }
+AxisRect2D *TextItem2D::getaxisrect() const { return axisrect_; }
 
 QColor TextItem2D::getstrokecolor_textitem() const { return pen().color(); }
 

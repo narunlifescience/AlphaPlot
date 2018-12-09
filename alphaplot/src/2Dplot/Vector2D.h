@@ -37,8 +37,8 @@ class Vector2D : public QCPGraph {
   void drawLine(double x1, double y1, double x2, double y2);
 
   // Getters
-  Axis2D *getxaxis_vecplot();
-  Axis2D *getyaxis_vecplot();
+  Axis2D *getxaxis();
+  Axis2D *getyaxis();
   QColor getlinestrokecolor_vecplot() const;
   Qt::PenStyle getlinestrokestyle_vecplot() const;
   double getlinestrokethickness_vecplot() const;
@@ -89,6 +89,7 @@ class Vector2D : public QCPGraph {
   int to_;
   Axis2D *xaxis_;
   Axis2D *yaxis_;
+  QString layername_;
   QList<QCPItemLine *> linelist_;
   Position d_position_;
   QCPLineEnding *start_;

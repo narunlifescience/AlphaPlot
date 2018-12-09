@@ -14,11 +14,19 @@ Pie2D::Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, int from,
       pieData_(new QVector<double>()),
       pieColors_(new QVector<QColor>()),
       pieLegendItems_(new QVector<PieLegendItem2D *>()),
+      layername_(
+          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       marginpercent_(2),
       table_(table),
       xcolumn_(xData),
       from_(from),
       to_(to) {
+  if (axisrect_->getAxes2D().count() > 0) {
+    QThread::msleep(1);
+    parentPlot()->addLayer(layername_, axisrect_->getAxes2D().at(0)->layer(),
+                           QCustomPlot::limBelow);
+    setLayer(layername_);
+  }
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   // topLeft->setCoords(axisrect->topLeft());
   // bottomRight->setCoords(axisrect->bottomRight());
@@ -55,6 +63,7 @@ Pie2D::~Pie2D() {
   delete pieColors_;
   pieLegendItems_->clear();
   delete pieLegendItems_;
+  parentPlot()->removeLayer(layer());
 }
 
 void Pie2D::setGraphData(Table *table, Column *xData, int from, int to) {
@@ -86,6 +95,8 @@ double Pie2D::selectTest(const QPointF &pos, bool onlySelectable,
   Q_UNUSED(onlySelectable)
   return 0.0;
 }
+
+AxisRect2D *Pie2D::getaxisrect() const { return axisrect_; }
 
 Qt::PenStyle Pie2D::getstrokestyle_pieplot() const { return mPen.style(); }
 

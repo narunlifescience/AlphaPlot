@@ -10,9 +10,14 @@ Vector2D::Vector2D(const VectorPlot &vectorplot, Table *table, Column *x1Data,
       vectorplot_(vectorplot),
       xaxis_(xAxis),
       yaxis_(yAxis),
+      layername_(
+          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       d_position_(Position::Tail),
       start_(new QCPLineEnding()),
       stop_(new QCPLineEnding()) {
+  QThread::msleep(1);
+  parentPlot()->addLayer(layername_, xaxis_->layer(), QCustomPlot::limBelow);
+  setLayer(layername_);
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   start_->setStyle(QCPLineEnding::esSpikeArrow);
   stop_->setStyle(QCPLineEnding::esNone);
@@ -25,6 +30,7 @@ Vector2D::~Vector2D() {
   foreach (QCPItemLine *line, linelist_) { parentPlot()->removeItem(line); }
   delete start_;
   delete stop_;
+  parentPlot()->removeLayer(layer());
 }
 
 void Vector2D::setGraphData(Table *table, Column *x1Data, Column *y1Data,
@@ -159,9 +165,9 @@ void Vector2D::drawLine(double x1, double y1, double x2, double y2) {
   linelist_.append(arrow);
 }
 
-Axis2D *Vector2D::getxaxis_vecplot() { return xaxis_; }
+Axis2D *Vector2D::getxaxis() { return xaxis_; }
 
-Axis2D *Vector2D::getyaxis_vecplot() { return yaxis_; }
+Axis2D *Vector2D::getyaxis() { return yaxis_; }
 
 QColor Vector2D::getlinestrokecolor_vecplot() const {
   if (linelist_.size() > 0) {
@@ -284,7 +290,7 @@ QString Vector2D::getlegendtext_vecplot() const { return name(); }
 void Vector2D::setxaxis_vecplot(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Bottom ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Top);
-  if (axis == getxaxis_vecplot()) return;
+  if (axis == getxaxis()) return;
 
   xaxis_ = axis;
   setKeyAxis(axis);
@@ -293,7 +299,7 @@ void Vector2D::setxaxis_vecplot(Axis2D *axis) {
 void Vector2D::setyaxis_vecplot(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Left ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Right);
-  if (axis == getyaxis_vecplot()) return;
+  if (axis == getyaxis()) return;
 
   yaxis_ = axis;
   setValueAxis(axis);

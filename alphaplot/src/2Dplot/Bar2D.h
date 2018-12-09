@@ -17,6 +17,7 @@ class Bar2D : public QCPBars {
         Axis2D *xAxis, Axis2D *yAxis);
   Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
         Axis2D *yAxis);
+  void init();
   ~Bar2D();
 
   void setXerrorBar(Table *table, Column *errorcol, int from, int to);
@@ -30,8 +31,8 @@ class Bar2D : public QCPBars {
     VerticalStacked,
     HorizontalStacked,
   };
-  Axis2D *getxaxis_barplot() const;
-  Axis2D *getyaxis_barplot() const;
+  Axis2D *getxaxis() const;
+  Axis2D *getyaxis() const;
   Qt::PenStyle getstrokestyle_barplot() const;
   QColor getstrokecolor_barplot() const;
   double getstrokethickness_barplot() const;
@@ -80,6 +81,7 @@ class Bar2D : public QCPBars {
   int to_;
   ErrorBar2D *xerrorbar_;
   ErrorBar2D *yerrorbar_;
+  QString layername_;
   bool xerroravailable_;
   bool yerroravailable_;
   Graph2DCommon::Picker picker_;

@@ -44,11 +44,11 @@ AxisRect2D::AxisRect2D(Plot2D *parent, bool setupDefaultAxis)
   setAxisRectBackground(axisRectBackGround_);
   insetLayout()->addElement(axisRectLegend_, Qt::AlignTop | Qt::AlignLeft);
   insetLayout()->setInsetPlacement(0, QCPLayoutInset::ipFree);
-  axisRectLegend_->setLayer("legend");
+  axisRectLegend_->setLayer(plot2d_->getLegend2DLayerName());
   connect(axisRectLegend_, SIGNAL(legendClicked()), SLOT(legendClick()));
 }
 
-AxisRect2D::~AxisRect2D() {}
+AxisRect2D::~AxisRect2D() { delete axisRectLegend_; }
 
 void AxisRect2D::setAxisRectBackground(const QBrush &brush) {
   axisRectBackGround_ = brush;
@@ -81,32 +81,27 @@ Axis2D *AxisRect2D::addAxis2D(const Axis2D::AxisOreantation &orientation,
   return axis2D;
 }
 
-bool AxisRect2D::removeAxis2D(Axis2D *axis) {
+bool AxisRect2D::removeAxis2D(Axis2D *axis, bool force) {
   bool status = true;
   foreach (LineSpecial2D *ls, lsvec_) {
-    if (ls->getxaxis_lsplot() == axis || ls->getyaxis_lsplot() == axis)
-      status = false;
+    if (ls->getxaxis() == axis || ls->getyaxis() == axis) status = false;
   }
 
   foreach (Curve2D *curve, curvevec_) {
-    if (curve->getxaxis_cplot() == axis || curve->getyaxis_cplot() == axis)
-      status = false;
+    if (curve->getxaxis() == axis || curve->getyaxis() == axis) status = false;
   }
 
   foreach (StatBox2D *statbox, statboxvec_) {
-    if (statbox->getxaxis_statbox() == axis ||
-        statbox->getyaxis_statbox() == axis)
+    if (statbox->getxaxis() == axis || statbox->getyaxis() == axis)
       status = false;
   }
 
   foreach (Vector2D *vec, vectorvec_) {
-    if (vec->getxaxis_vecplot() == axis || vec->getyaxis_vecplot() == axis)
-      status = false;
+    if (vec->getxaxis() == axis || vec->getyaxis() == axis) status = false;
   }
 
   foreach (Bar2D *bar, barvec_) {
-    if (bar->getxaxis_barplot() == axis || bar->getyaxis_barplot() == axis)
-      status = false;
+    if (bar->getxaxis() == axis || bar->getyaxis() == axis) status = false;
   }
 
   if (!status) {
@@ -117,8 +112,10 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis) {
     return false;
   }
 
-  if (gridpair_.first.second == axis) status = false;
-  if (gridpair_.second.second == axis) status = false;
+  if (!force) {
+    if (gridpair_.first.second == axis) status = false;
+    if (gridpair_.second.second == axis) status = false;
+  }
 
   if (!status) {
     QMessageBox::warning(nullptr, tr("Axis associated with grid"),
@@ -284,6 +281,7 @@ LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
   lineSpecial->setName(table->name() + "_" + xData->name() + "_" +
                        yData->name());
   lsvec_.append(lineSpecial);
+  layers_.append(lineSpecial->layer());
   connect(lineSpecial, SIGNAL(showtooltip(QPointF, double, double)), this,
           SIGNAL(showtooltip(QPointF, double, double)));
 
@@ -306,11 +304,16 @@ QPair<LineSpecial2D *, LineSpecial2D *> AxisRect2D::addLineSpecialChannel2DPlot(
   lineSpecial1->setscatterantialiased_lsplot(true);
   LineSpecial2D *lineSpecial2 =
       new LineSpecial2D(table, xData, yData2, from, to, xAxis, yAxis);
+  lineSpecial2->setlinetype_lsplot(Graph2DCommon::LineStyleType::Line);
+  lineSpecial2->setscattershape_lsplot(Graph2DCommon::ScatterStyle::None);
+  lineSpecial2->setlinefillstatus_lsplot(false);
+  lineSpecial2->setlineantialiased_lsplot(true);
+  lineSpecial2->setscatterantialiased_lsplot(true);
   lineSpecial1->setChannelFillGraph(lineSpecial2);
   lineSpecial1->setlinestrokecolor_lsplot(Qt::darkGray);
-  lineSpecial1->setlinestrokestyle_lsplot(Qt::PenStyle::DashLine);
+  lineSpecial1->setlinestrokestyle_lsplot(Qt::PenStyle::DotLine);
   lineSpecial2->setlinestrokecolor_lsplot(Qt::darkGray);
-  lineSpecial2->setlinestrokestyle_lsplot(Qt::PenStyle::DashLine);
+  lineSpecial2->setlinestrokestyle_lsplot(Qt::PenStyle::DotLine);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineSpecial1);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
@@ -319,6 +322,7 @@ QPair<LineSpecial2D *, LineSpecial2D *> AxisRect2D::addLineSpecialChannel2DPlot(
   auto pair =
       QPair<LineSpecial2D *, LineSpecial2D *>(lineSpecial1, lineSpecial2);
   channelvec_.append(pair);
+  layers_.append(lineSpecial1->layer());
   emit LineSpecialChannel2DCreated(pair);
   return pair;
 }
@@ -368,6 +372,7 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   curve->setName(table->name() + "_" + xcol->name() + "_" + ycol->name());
   curvevec_.append(curve);
+  layers_.append(curve->layer());
   connect(curve, SIGNAL(showtooltip(QPointF, double, double)), this,
           SIGNAL(showtooltip(QPointF, double, double)));
 
@@ -386,6 +391,7 @@ Curve2D *AxisRect2D::addFunction2DPlot(QVector<double> *xdata,
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  layers_.append(curve->layer());
   curvevec_.append(curve);
   connect(curve, SIGNAL(showtooltip(QPointF, double, double)), this,
           SIGNAL(showtooltip(QPointF, double, double)));
@@ -414,6 +420,7 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   bar->setName(table->name() + "_" + xData->name() + "_" + yData->name());
+  layers_.append(bar->layer());
   barvec_.append(bar);
   connect(bar, SIGNAL(showtooltip(QPointF, double, double)), this,
           SIGNAL(showtooltip(QPointF, double, double)));
@@ -434,6 +441,7 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   vec->setName(table->name() + "_" + x1Data->name() + "_" + y1Data->name() +
                "_" + x2Data->name() + "_" + y2Data->name());
+  layers_.append(vec->layer());
   vectorvec_.append(vec);
 
   emit Vector2DCreated(vec);
@@ -447,6 +455,7 @@ StatBox2D *AxisRect2D::addStatBox2DPlot(StatBox2D::BoxWhiskerData data,
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   statbox->setName(data.name);
+  layers_.append(statbox->layer());
   statboxvec_.append(statbox);
   connect(statbox, SIGNAL(showtooltip(QPointF, double, double)), this,
           SIGNAL(showtooltip(QPointF, double, double)));
@@ -473,6 +482,7 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   bar->setName(table->name() + "_" + yData->name());
+  layers_.append(bar->layer());
   barvec_.append(bar);
   connect(bar, SIGNAL(showtooltip(QPointF, double, double)), this,
           SIGNAL(showtooltip(QPointF, double, double)));
@@ -486,6 +496,7 @@ Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
   pie->setGraphData(table, xData, from, to);
   getLegend()->setVisible(false);
   // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  layers_.append(pie->layer());
   pievec_.append(pie);
   emit Pie2DCreated(pie);
   return pie;
@@ -497,6 +508,7 @@ ColorMap2D *AxisRect2D::addColorMap2DPlot(Matrix *matrix, Axis2D *xAxis,
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, colormap);
   axisRectLegend_->addItem(legendItem);
   getLegend()->setVisible(false);
+  layers_.append(colormap->layer());
   colormapvec_.append(colormap);
   colormap->setname_colormap(matrix->name());
   emit ColorMap2DCreated(colormap);
@@ -507,6 +519,7 @@ TextItem2D *AxisRect2D::addTextItem2D(QString text) {
   TextItem2D *textitem = new TextItem2D(this, plot2d_);
   textitem->setText(text);
   textitem->position->setPixelPosition(this->rect().center());
+  layers_.append(textitem->layer());
   textvec_.append(textitem);
   emit TextItem2DCreated(textitem);
   return textitem;
@@ -520,6 +533,7 @@ LineItem2D *AxisRect2D::addLineItem2D() {
   rect.adjust(widthpercent, heightpercent, -widthpercent, -heightpercent);
   lineitem->start->setPixelPosition(rect.topLeft());
   lineitem->end->setPixelPosition(rect.bottomRight());
+  layers_.append(lineitem->layer());
   linevec_.append(lineitem);
   emit LineItem2DCreated(lineitem);
   return lineitem;
@@ -534,6 +548,7 @@ LineItem2D *AxisRect2D::addArrowItem2D() {
 
 ImageItem2D *AxisRect2D::addImageItem2D(const QString &filename) {
   ImageItem2D *imageitem = new ImageItem2D(this, plot2d_, filename);
+  layers_.append(imageitem->layer());
   imagevec_.append(imageitem);
   emit ImageItem2DCreated(imageitem);
   return imageitem;
@@ -590,6 +605,7 @@ bool AxisRect2D::removeTextItem2D(TextItem2D *textitem) {
   for (int i = 0; i < textvec_.size(); i++) {
     if (textvec_.at(i) == textitem) {
       textvec_.remove(i);
+      layers_.removeOne(textitem->layer());
     }
   }
   bool result = false;
@@ -604,6 +620,7 @@ bool AxisRect2D::removeLineItem2D(LineItem2D *lineitem) {
   for (int i = 0; i < linevec_.size(); i++) {
     if (linevec_.at(i) == lineitem) {
       linevec_.remove(i);
+      layers_.removeOne(lineitem->layer());
     }
   }
   bool result = false;
@@ -618,6 +635,7 @@ bool AxisRect2D::removeImageItem2D(ImageItem2D *imageitem) {
   for (int i = 0; i < imagevec_.size(); i++) {
     if (imagevec_.at(i) == imageitem) {
       imagevec_.remove(i);
+      layers_.removeOne(imageitem->layer());
     }
   }
   bool result = false;
@@ -632,6 +650,7 @@ bool AxisRect2D::removeLineSpecial2D(LineSpecial2D *ls) {
   for (int i = 0; i < lsvec_.size(); i++) {
     if (lsvec_.at(i) == ls) {
       lsvec_.remove(i);
+      layers_.removeOne(ls->layer());
     }
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(ls));
@@ -648,6 +667,7 @@ bool AxisRect2D::removeChannel2D(
   for (int i = 0; i < channelvec_.size(); i++) {
     if (channelvec_.at(i) == channel) {
       channelvec_.remove(i);
+      layers_.removeOne(channel.first->layer());
     }
   }
   axisRectLegend_->removeItem(
@@ -665,6 +685,7 @@ bool AxisRect2D::removeStatBox2D(StatBox2D *statbox) {
   for (int i = 0; i < statboxvec_.size(); i++) {
     if (statboxvec_.at(i) == statbox) {
       statboxvec_.remove(i);
+      layers_.removeOne(statbox->layer());
     }
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(statbox));
@@ -678,6 +699,7 @@ bool AxisRect2D::removeVector2D(Vector2D *vector) {
   for (int i = 0; i < vectorvec_.size(); i++) {
     if (vectorvec_.at(i) == vector) {
       vectorvec_.remove(i);
+      layers_.removeOne(vector->layer());
     }
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(vector));
@@ -691,6 +713,7 @@ bool AxisRect2D::removeCurve2D(Curve2D *curve) {
   for (int i = 0; i < curvevec_.size(); i++) {
     if (curvevec_.at(i) == curve) {
       curvevec_.remove(i);
+      layers_.removeOne(curve->layer());
     }
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(curve));
@@ -704,6 +727,7 @@ bool AxisRect2D::removeBar2D(Bar2D *bar) {
   for (int i = 0; i < barvec_.size(); i++) {
     if (barvec_.at(i) == bar) {
       barvec_.remove(i);
+      layers_.removeOne(bar->layer());
     }
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(bar));
@@ -717,6 +741,7 @@ bool AxisRect2D::removePie2D(Pie2D *pie) {
   for (int i = 0; i < pievec_.size(); i++) {
     if (pievec_.at(i) == pie) {
       pievec_.remove(i);
+      layers_.removeOne(pie->layer());
     }
   }
   bool result = false;
@@ -729,12 +754,80 @@ bool AxisRect2D::removeColorMap2D(ColorMap2D *colormap) {
   for (int i = 0; i < colormapvec_.size(); i++) {
     if (colormapvec_.at(i) == colormap) {
       colormapvec_.remove(i);
+      layers_.removeOne(colormap->layer());
     }
   }
   bool result = false;
   result = plot2d_->removePlottable(colormap);
   emit ColorMap2DRemoved(this);
   return result;
+}
+
+bool AxisRect2D::moveLayer(QCPLayer *layer,
+                           const QCustomPlot::LayerInsertMode &mode) {
+  bool layermoved = false;
+  QCPLayer *layerswamped = nullptr;
+  for (int i = 0; i < layers_.size(); i++) {
+    if (layers_.at(i) == layer) {
+      switch (mode) {
+        case QCustomPlot::LayerInsertMode::limAbove:
+          if (i + 1 < layers_.size()) {
+            layermoved =
+                parentPlot()->moveLayer(layers_.at(i), layers_.at(i + 1),
+                                        QCustomPlot::LayerInsertMode::limAbove);
+            if (layermoved) {
+              layerswamped = layers_.at(i + 1);
+              layers_.swap(i, i + 1);
+            }
+          } else {
+            qDebug() << "unable to move layer(s). this layer is already the "
+                        "top layer";
+          }
+          break;
+        case QCustomPlot::LayerInsertMode::limBelow:
+          if (i > 0) {
+            layermoved =
+                parentPlot()->moveLayer(layers_.at(i), layers_.at(i - 1),
+                                        QCustomPlot::LayerInsertMode::limBelow);
+            if (layermoved) {
+              layerswamped = layers_.at(i - 1);
+              layers_.swap(i, i - 1);
+            }
+          } else {
+            qDebug() << "unable to move layer(s). this layer is already the "
+                        "bottom layer";
+          }
+          break;
+      }
+      break;
+    }
+  }
+  if (layermoved) {
+    layermoved = movechannellayer(layer, layerswamped);
+    emit LayerMoved(this);
+  }
+  return layermoved;
+}
+
+bool AxisRect2D::movechannellayer(QCPLayer *layer, QCPLayer *layerswap) {
+  if (!layerswap) return false;
+  bool layermoved = true;
+  for (int i = 0; i < layers_.size(); i++) {
+    foreach (auto channel, channelvec_) {
+      if (channel.first->layer() == layer) {
+        layermoved =
+            parentPlot()->moveLayer(channel.second->layer(), layer,
+                                    QCustomPlot::LayerInsertMode::limBelow);
+        if (!layermoved) qDebug() << "unable to move channel layer(s). error ";
+      } else if (channel.first->layer() == layerswap) {
+        layermoved =
+            parentPlot()->moveLayer(channel.second->layer(), layerswap,
+                                    QCustomPlot::LayerInsertMode::limBelow);
+        if (!layermoved) qDebug() << "unable to move channel layer(s). error ";
+      }
+    }
+  }
+  return layermoved;
 }
 
 void AxisRect2D::setGraphTool(const Graph2DCommon::Picker &picker) {
@@ -768,39 +861,3 @@ void AxisRect2D::draw(QCPPainter *painter) {
 }
 
 void AxisRect2D::legendClick() { emit AxisRectClicked(this); }
-
-void AxisRect2D::addfunctionplot() {
-  /*FunctionDialog *fd = new FunctionDialog();
-  fd->setAttribute(Qt::WA_DeleteOnClose);
-  fd->setWindowTitle(tr("Edit function"));
-  fd->show();
-  fd->activateWindow();*/
-}
-
-void AxisRect2D::exportGraph() {
-  /*ImageExportDialog2D *ied =
-      new ImageExportDialog2D(this, plot2D != NULL, d_extended_export_dialog);
-  ied->setDirectory(workingDir);
-  ied->selectFilter(d_image_export_filter);
-  if (ied->exec() != QDialog::Accepted) return;
-  workingDir = ied->directory().path();
-  if (ied->selectedFiles().isEmpty()) return;
-
-  QString selected_filter = ied->selectedFilter();
-  QString file_name = ied->selectedFiles()[0];
-  QFileInfo file_info(file_name);
-  if (!file_info.fileName().contains("."))
-    file_name.append(selected_filter.remove("*"));
-
-  QFile file(file_name);
-  if (!file.open(QIODevice::WriteOnly)) {
-    QMessageBox::critical(
-        this, tr("Export Error"),
-        tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that "
-           "you have the right to write to this location!")
-            .arg(file_name));
-    return;
-  }*/
-}
-
-void AxisRect2D::addplot() {}

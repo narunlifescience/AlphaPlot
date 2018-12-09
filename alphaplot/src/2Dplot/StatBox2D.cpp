@@ -7,6 +7,8 @@ StatBox2D::StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
     : QCPStatisticalBox(xAxis, yAxis),
       xAxis_(xAxis),
       yAxis_(yAxis),
+      layername_(
+          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       boxwhiskerdata_(boxWhiskerData),
       scatterstyle_(new QCPScatterStyle(
           QCPScatterStyle::ssDisc,
@@ -15,6 +17,9 @@ StatBox2D::StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
       boxstyle_(StatBox2D::BoxWhiskerStyle::Perc_25_75),
       whiskerstyle_(StatBox2D::BoxWhiskerStyle::Perc_5_95),
       picker_(Graph2DCommon::Picker::None) {
+  QThread::msleep(1);
+  parentPlot()->addLayer(layername_, xAxis_->layer(), QCustomPlot::limBelow);
+  setLayer(layername_);
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setWhiskerAntialiased(false);
   setAntialiased(false);
@@ -33,11 +38,14 @@ StatBox2D::StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
           sBoxdata_.outliers);
 }
 
-StatBox2D::~StatBox2D() { delete scatterstyle_; }
+StatBox2D::~StatBox2D() {
+  delete scatterstyle_;
+  parentPlot()->removeLayer(layer());
+}
 
-Axis2D *StatBox2D::getxaxis_statbox() const { return xAxis_; }
+Axis2D *StatBox2D::getxaxis() const { return xAxis_; }
 
-Axis2D *StatBox2D::getyaxis_statbox() const { return yAxis_; }
+Axis2D *StatBox2D::getyaxis() const { return yAxis_; }
 
 StatBox2D::BoxWhiskerStyle StatBox2D::getboxstyle_statbox() const {
   return boxstyle_;
@@ -177,7 +185,7 @@ double StatBox2D::getscatterstrokethickness_statbox() const {
 void StatBox2D::setxaxis_statbox(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Bottom ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Top);
-  if (axis == getxaxis_statbox()) return;
+  if (axis == getxaxis()) return;
 
   xAxis_ = axis;
   setKeyAxis(axis);
@@ -186,7 +194,7 @@ void StatBox2D::setxaxis_statbox(Axis2D *axis) {
 void StatBox2D::setyaxis_statbox(Axis2D *axis) {
   Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Left ||
            axis->getorientation_axis() == Axis2D::AxisOreantation::Right);
-  if (axis == getyaxis_statbox()) return;
+  if (axis == getyaxis()) return;
 
   yAxis_ = axis;
   setValueAxis(axis);

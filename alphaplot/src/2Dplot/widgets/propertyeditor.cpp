@@ -17,6 +17,7 @@
 #include "2Dplot/Legend2D.h"
 #include "2Dplot/LineItem2D.h"
 #include "2Dplot/LineSpecial2D.h"
+#include "3Dplot/Graph3D.h"
 #include "Matrix.h"
 #include "MyWidget.h"
 #include "Note.h"
@@ -104,6 +105,11 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   propertybrowser_->setFactoryForManager(colorManager_, colorFactory_);
   propertybrowser_->setFactoryForManager(fontManager_, fontFactory_);
 
+  // Plot Canvas properties
+  canvaspropertycoloritem_ = colorManager_->addProperty("Background Color");
+  canvaspropertybufferdevicepixelratioitem_ =
+      doubleManager_->addProperty("Device Pixel Ratio");
+  canvaspropertyopenglitem_ = boolManager_->addProperty("OpenGL");
   // Layout Properties
   layoutpropertygroupitem_ = groupManager_->addProperty(tr("Layout"));
   layoutpropertyrectitem_ = rectManager_->addProperty(tr("Outer Rect"));
@@ -341,6 +347,135 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   lsplotpropertyscatterantialiaseditem_ =
       boolManager_->addProperty("Scatter Antialiased");
   lsplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
+  // LineSpecialChannel Properties block
+  channelplotpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
+  channelplotpropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
+  channelplotpropertylegendtextitem_ =
+      stringManager_->addProperty("Plot Legrad");
+  // channel 1st graph
+  channel1plotpropertygroupitem_ =
+      groupManager_->addProperty("Channel Border 1");
+  channel1plotpropertylinestyleitem_ = enumManager_->addProperty("Line Style");
+  enumManager_->setEnumNames(channel1plotpropertylinestyleitem_, lstylelist);
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertylinestyleitem_);
+  channel1plotpropertylinestrokecoloritem_ =
+      colorManager_->addProperty("Line Stroke Color");
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertylinestrokecoloritem_);
+  channel1plotpropertylinestrokethicknessitem_ =
+      doubleManager_->addProperty("Line Stroke Thickness");
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertylinestrokethicknessitem_);
+  channel1plotpropertylinestroketypeitem_ =
+      enumManager_->addProperty("Line Stroke Type");
+  enumManager_->setEnumNames(channel1plotpropertylinestroketypeitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(channel1plotpropertylinestroketypeitem_,
+                             stroketypeiconslist);
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertylinestroketypeitem_);
+  channel1plotpropertylinefillcoloritem_ =
+      colorManager_->addProperty("Area Fill Color");
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertylinefillcoloritem_);
+  channel1plotpropertylineantialiaseditem_ =
+      boolManager_->addProperty("Line Antialiased");
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertylineantialiaseditem_);
+  channel1plotpropertyscatterstyleitem_ =
+      enumManager_->addProperty("Scatter Style");
+  enumManager_->setEnumNames(channel1plotpropertyscatterstyleitem_, sstylelist);
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertyscatterstyleitem_);
+  channel1plotpropertyscatterthicknessitem_ =
+      doubleManager_->addProperty("Scatter Size");
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertyscatterthicknessitem_);
+  channel1plotpropertyscatterfillcoloritem_ =
+      colorManager_->addProperty("Scatter Fill Color");
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertyscatterfillcoloritem_);
+  channel1plotpropertyscatterstrokecoloritem_ =
+      colorManager_->addProperty("Scatter Outline Color");
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertyscatterstrokecoloritem_);
+  channel1plotpropertyscatterstrokethicknessitem_ =
+      doubleManager_->addProperty("Scatter Outline Thickness");
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertyscatterstrokethicknessitem_);
+  channel1plotpropertyscatterstrokestyleitem_ =
+      enumManager_->addProperty("Scatter Outline Type");
+  enumManager_->setEnumNames(channel1plotpropertyscatterstrokestyleitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(channel1plotpropertyscatterstrokestyleitem_,
+                             stroketypeiconslist);
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertyscatterstrokestyleitem_);
+  channel1plotpropertyscatterantialiaseditem_ =
+      boolManager_->addProperty("Scatter Antialiased");
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertyscatterantialiaseditem_);
+  // channe2 1st graph
+  channel2plotpropertygroupitem_ =
+      groupManager_->addProperty("Channel Border 2");
+  channel2plotpropertylinestyleitem_ = enumManager_->addProperty("Line Style");
+  enumManager_->setEnumNames(channel2plotpropertylinestyleitem_, lstylelist);
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertylinestyleitem_);
+  channel2plotpropertylinestrokecoloritem_ =
+      colorManager_->addProperty("Line Stroke Color");
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertylinestrokecoloritem_);
+  channel2plotpropertylinestrokethicknessitem_ =
+      doubleManager_->addProperty("Line Stroke Thickness");
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertylinestrokethicknessitem_);
+  channel2plotpropertylinestroketypeitem_ =
+      enumManager_->addProperty("Line Stroke Type");
+  enumManager_->setEnumNames(channel2plotpropertylinestroketypeitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(channel2plotpropertylinestroketypeitem_,
+                             stroketypeiconslist);
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertylinestroketypeitem_);
+  channel2plotpropertylineantialiaseditem_ =
+      boolManager_->addProperty("Line Antialiased");
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertylineantialiaseditem_);
+  channel2plotpropertyscatterstyleitem_ =
+      enumManager_->addProperty("Scatter Style");
+  enumManager_->setEnumNames(channel2plotpropertyscatterstyleitem_, sstylelist);
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertyscatterstyleitem_);
+  channel2plotpropertyscatterthicknessitem_ =
+      doubleManager_->addProperty("Scatter Size");
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertyscatterthicknessitem_);
+  channel2plotpropertyscatterfillcoloritem_ =
+      colorManager_->addProperty("Scatter Fill Color");
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertyscatterfillcoloritem_);
+  channel2plotpropertyscatterstrokecoloritem_ =
+      colorManager_->addProperty("Scatter Outline Color");
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertyscatterstrokecoloritem_);
+  channel2plotpropertyscatterstrokethicknessitem_ =
+      doubleManager_->addProperty("Scatter Outline Thickness");
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertyscatterstrokethicknessitem_);
+  channel2plotpropertyscatterstrokestyleitem_ =
+      enumManager_->addProperty("Scatter Outline Type");
+  enumManager_->setEnumNames(channel2plotpropertyscatterstrokestyleitem_,
+                             stroketypelist);
+  enumManager_->setEnumIcons(channel2plotpropertyscatterstrokestyleitem_,
+                             stroketypeiconslist);
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertyscatterstrokestyleitem_);
+  channel2plotpropertyscatterantialiaseditem_ =
+      boolManager_->addProperty("Scatter Antialiased");
+  channel2plotpropertygroupitem_->addSubProperty(
+      channel2plotpropertyscatterantialiaseditem_);
 
   // Curve property block
   QStringList clstylelist;
@@ -859,7 +994,11 @@ PropertyEditor::~PropertyEditor() { delete ui_; }
 MyTreeWidget *PropertyEditor::getObjectBrowser() { return objectbrowser_; }
 
 void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
-  if (prop->compare(axispropertyvisibleitem_)) {
+  if (prop->compare(canvaspropertyopenglitem_)) {
+    Plot2D *plot = getgraph2dobject<Plot2D>(objectbrowser_->currentItem());
+    plot->setOpenGl(value);
+    plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+  } else if (prop->compare(axispropertyvisibleitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setshowhide_axis(value);
     axis->layer()->replot();
@@ -941,6 +1080,34 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
   } else if (prop->compare(lsplotpropertyscatterantialiaseditem_)) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
+    lsgraph->setscatterantialiased_lsplot(value);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel1plotpropertylineantialiaseditem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlineantialiased_lsplot(value);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel1plotpropertyscatterantialiaseditem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setscatterantialiased_lsplot(value);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertylineantialiaseditem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlineantialiased_lsplot(value);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertyscatterantialiaseditem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
     lsgraph->setscatterantialiased_lsplot(value);
     lsgraph->layer()->replot();
   } else if (prop->compare(cplotpropertylinefillstatusitem_)) {
@@ -1066,7 +1233,12 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
 void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
   disconnect(colorManager_, SIGNAL(valueChanged(QtProperty *, QColor)), this,
              SLOT(valueChange(QtProperty *, const QColor &)));
-  if (prop->compare(layoutpropertycoloritem_)) {
+  if (prop->compare(canvaspropertycoloritem_)) {
+    Plot2D *plotcanvas =
+        getgraph2dobject<Plot2D>(objectbrowser_->currentItem());
+    plotcanvas->setBackgroundColor(color);
+    plotcanvas->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+  } else if (prop->compare(layoutpropertycoloritem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     QBrush brush = axisrect->backgroundBrush();
@@ -1187,6 +1359,55 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
   } else if (prop->compare(lsplotpropertyscatterstrokecoloritem_)) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
+    lsgraph->setscatterstrokecolor_lsplot(color);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel1plotpropertylinestrokecoloritem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlinestrokecolor_lsplot(color);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel1plotpropertylinefillcoloritem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlinefillcolor_lsplot(color);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel1plotpropertyscatterfillcoloritem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setscatterfillcolor_lsplot(color);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel1plotpropertyscatterstrokecoloritem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setscatterstrokecolor_lsplot(color);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertylinestrokecoloritem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlinestrokecolor_lsplot(color);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertyscatterfillcoloritem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setscatterfillcolor_lsplot(color);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertyscatterstrokecoloritem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
     lsgraph->setscatterstrokecolor_lsplot(color);
     lsgraph->layer()->replot();
   } else if (prop->compare(cplotpropertylinestrokecoloritem_)) {
@@ -1321,7 +1542,11 @@ void PropertyEditor::valueChange(QtProperty *prop, const QRect &rect) {
 }
 
 void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
-  if (prop->compare(hmajgridpropertystrokethicknessitem_)) {
+  if (prop->compare(canvaspropertybufferdevicepixelratioitem_)) {
+    Plot2D *plot = getgraph2dobject<Plot2D>(objectbrowser_->currentItem());
+    plot->setBufferDevicePixelRatio(value);
+    plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+  } else if (prop->compare(hmajgridpropertystrokethicknessitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     axisrect->getGridPair().first.first->setMajorGridThickness(value);
@@ -1447,6 +1672,50 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
   } else if (prop->compare(lsplotpropertyscatterstrokethicknessitem_)) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
+    lsgraph->setscatterstrokethickness_lsplot(value);
+    lsgraph->layer()->replot();
+  }
+
+  else if (prop->compare(channel1plotpropertylinestrokethicknessitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlinestrokethickness_lsplot(value);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel1plotpropertyscatterthicknessitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setscattersize_lsplot(value);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel1plotpropertyscatterstrokethicknessitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setscatterstrokethickness_lsplot(value);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertylinestrokethicknessitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlinestrokethickness_lsplot(value);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertyscatterthicknessitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setscattersize_lsplot(value);
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertyscatterstrokethicknessitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
     lsgraph->setscatterstrokethickness_lsplot(value);
     lsgraph->layer()->replot();
   } else if (prop->compare(cplotpropertylinestrokethicknessitem_)) {
@@ -1593,6 +1862,15 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
   } else if (prop->compare(lsplotpropertylegendtextitem_)) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
+    lsgraph->setlegendtext_lsplot(Utilities::splitstring(value));
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    axisrect->getLegend()->layer()->replot();
+  } else if (prop->compare(channelplotpropertylegendtextitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
     lsgraph->setlegendtext_lsplot(Utilities::splitstring(value));
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
@@ -1899,6 +2177,102 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setscatterstrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
     lsgraph->layer()->replot();
+  } else if (prop->compare(channelplotpropertyxaxisitem_)) {
+    void *ptr1 = objectbrowser_->currentItem()
+                     ->data(0, Qt::UserRole + 1)
+                     .value<void *>();
+    LineSpecial2D *lsgraph1 = static_cast<LineSpecial2D *>(ptr1);
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getXAxis(value);
+    if (!axis) return;
+    lsgraph1->setxaxis_lsplot(axis);
+    void *ptr2 = objectbrowser_->currentItem()
+                     ->data(0, Qt::UserRole + 3)
+                     .value<void *>();
+    LineSpecial2D *lsgraph2 = static_cast<LineSpecial2D *>(ptr2);
+    if (!axis) return;
+    lsgraph2->setxaxis_lsplot(axis);
+    lsgraph1->layer()->replot();
+    lsgraph2->layer()->replot();
+  } else if (prop->compare(channelplotpropertyyaxisitem_)) {
+    void *ptr1 = objectbrowser_->currentItem()
+                     ->data(0, Qt::UserRole + 1)
+                     .value<void *>();
+    LineSpecial2D *lsgraph1 = static_cast<LineSpecial2D *>(ptr1);
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem()->parent());
+    Axis2D *axis = axisrect->getYAxis(value);
+    if (!axis) return;
+    lsgraph1->setyaxis_lsplot(axis);
+    void *ptr2 = objectbrowser_->currentItem()
+                     ->data(0, Qt::UserRole + 3)
+                     .value<void *>();
+    LineSpecial2D *lsgraph2 = static_cast<LineSpecial2D *>(ptr2);
+    if (!axis) return;
+    lsgraph2->setyaxis_lsplot(axis);
+    lsgraph1->layer()->replot();
+    lsgraph2->layer()->replot();
+  } else if (prop->compare(channel1plotpropertylinestyleitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlinetype_lsplot(
+        static_cast<Graph2DCommon::LineStyleType>(value));
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel1plotpropertylinestroketypeitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlinestrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel1plotpropertyscatterstyleitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setscattershape_lsplot(
+        static_cast<Graph2DCommon::ScatterStyle>(value));
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel1plotpropertyscatterstrokestyleitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setscatterstrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertylinestyleitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlinetype_lsplot(
+        static_cast<Graph2DCommon::LineStyleType>(value));
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertylinestroketypeitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlinestrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertyscatterstyleitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setscattershape_lsplot(
+        static_cast<Graph2DCommon::ScatterStyle>(value));
+    lsgraph->layer()->replot();
+  } else if (prop->compare(channel2plotpropertyscatterstrokestyleitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 3)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setscatterstrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
+    lsgraph->layer()->replot();
   } else if (prop->compare(cplotpropertyxaxisitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     AxisRect2D *axisrect =
@@ -2133,6 +2507,11 @@ void PropertyEditor::valueChange(QtProperty *prop, const QFont &font) {
 void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
   switch (static_cast<MyTreeWidget::PropertyItemType>(
       item->data(0, Qt::UserRole).value<int>())) {
+    case MyTreeWidget::PropertyItemType::PlotCanvas: {
+      void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
+      Plot2D *plotcanvas = static_cast<Plot2D *>(ptr);
+      Plot2DPropertyBlock(plotcanvas);
+    } break;
     case MyTreeWidget::PropertyItemType::Layout: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
@@ -2173,7 +2552,16 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
       LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr1);
       void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
-      LineScatter2DPropertyBlock(lsgraph, axisrect);
+      LineSpecial2DPropertyBlock(lsgraph, axisrect);
+    } break;
+    case MyTreeWidget::PropertyItemType::ChannelGraph: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      LineSpecial2D *lsgraph1 = static_cast<LineSpecial2D *>(ptr1);
+      void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
+      AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
+      void *ptr3 = item->data(0, Qt::UserRole + 3).value<void *>();
+      LineSpecial2D *lsgraph2 = static_cast<LineSpecial2D *>(ptr3);
+      LineSpecialChannel2DPropertyBlock(lsgraph1, lsgraph2, axisrect);
     } break;
     case MyTreeWidget::PropertyItemType::Curve: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
@@ -2566,7 +2954,7 @@ void PropertyEditor::ImageItem2DPropertyBlock(ImageItem2D *imageitem) {
                          imageitem->getstrokestyle_imageitem() - 1);
 }
 
-void PropertyEditor::LineScatter2DPropertyBlock(LineSpecial2D *lsgraph,
+void PropertyEditor::LineSpecial2DPropertyBlock(LineSpecial2D *lsgraph,
                                                 AxisRect2D *axisrect) {
   propertybrowser_->clear();
 
@@ -2595,7 +2983,7 @@ void PropertyEditor::LineScatter2DPropertyBlock(LineSpecial2D *lsgraph,
 
     for (int i = 0; i < yaxes.size(); i++) {
       lsyaxislist << QString("Y Axis %1").arg(i + 1);
-      if (yaxes.at(i) == lsgraph->getyaxis_lsplot()) {
+      if (yaxes.at(i) == lsgraph->getyaxis()) {
         currentyaxis = ycount;
       }
       ycount++;
@@ -2611,7 +2999,7 @@ void PropertyEditor::LineScatter2DPropertyBlock(LineSpecial2D *lsgraph,
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
       lsxaxislist << QString("X Axis %1").arg(i + 1);
-      if (xaxes.at(i) == lsgraph->getxaxis_lsplot()) {
+      if (xaxes.at(i) == lsgraph->getxaxis()) {
         currentxaxis = xcount;
       }
       xcount++;
@@ -2656,6 +3044,109 @@ void PropertyEditor::LineScatter2DPropertyBlock(LineSpecial2D *lsgraph,
       Utilities::joinstring(lsgraph->getlegendtext_lsplot()));
 }
 
+void PropertyEditor::LineSpecialChannel2DPropertyBlock(LineSpecial2D *lsgraph1,
+                                                       LineSpecial2D *lsgraph2,
+                                                       AxisRect2D *axisrect) {
+  propertybrowser_->clear();
+  propertybrowser_->addProperty(channelplotpropertyxaxisitem_);
+  propertybrowser_->addProperty(channelplotpropertyyaxisitem_);
+  propertybrowser_->addProperty(channelplotpropertylegendtextitem_);
+  propertybrowser_->addProperty(channel1plotpropertygroupitem_);
+  propertybrowser_->addProperty(channel2plotpropertygroupitem_);
+
+  {
+    QStringList lsyaxislist;
+    int currentyaxis = 0;
+    int ycount = 0;
+    QList<Axis2D *> yaxes = axisrect->getYAxes2D();
+
+    for (int i = 0; i < yaxes.size(); i++) {
+      lsyaxislist << QString("Y Axis %1").arg(i + 1);
+      if (yaxes.at(i) == lsgraph1->getyaxis()) {
+        currentyaxis = ycount;
+      }
+      ycount++;
+    }
+    enumManager_->setEnumNames(channelplotpropertyyaxisitem_, lsyaxislist);
+    enumManager_->setValue(channelplotpropertyyaxisitem_, currentyaxis);
+  }
+
+  {
+    QStringList lsxaxislist;
+    int currentxaxis = 0;
+    int xcount = 0;
+    QList<Axis2D *> xaxes = axisrect->getXAxes2D();
+    for (int i = 0; i < xaxes.size(); i++) {
+      lsxaxislist << QString("X Axis %1").arg(i + 1);
+      if (xaxes.at(i) == lsgraph1->getxaxis()) {
+        currentxaxis = xcount;
+      }
+      xcount++;
+    }
+
+    enumManager_->setEnumNames(channelplotpropertyxaxisitem_, lsxaxislist);
+    enumManager_->setValue(channelplotpropertyxaxisitem_, currentxaxis);
+  }
+
+  stringManager_->setValue(
+      channelplotpropertylegendtextitem_,
+      Utilities::joinstring(lsgraph1->getlegendtext_lsplot()));
+  enumManager_->setValue(channel1plotpropertylinestyleitem_,
+                         static_cast<int>(lsgraph1->getlinetype_lsplot()));
+  colorManager_->setValue(channel1plotpropertylinestrokecoloritem_,
+                          lsgraph1->getlinestrokecolor_lsplot());
+  doubleManager_->setValue(channel1plotpropertylinestrokethicknessitem_,
+                           lsgraph1->getlinestrokethickness_lsplot());
+  enumManager_->setValue(
+      channel1plotpropertylinestroketypeitem_,
+      static_cast<int>(lsgraph1->getlinestrokestyle_lsplot() - 1));
+  colorManager_->setValue(channel1plotpropertylinefillcoloritem_,
+                          lsgraph1->getlinefillcolor_lsplot());
+  boolManager_->setValue(channel1plotpropertylineantialiaseditem_,
+                         lsgraph1->getlineantialiased_lsplot());
+  enumManager_->setValue(channel1plotpropertyscatterstyleitem_,
+                         static_cast<int>(lsgraph1->getscattershape_lsplot()));
+  doubleManager_->setValue(channel1plotpropertyscatterthicknessitem_,
+                           lsgraph1->getscattersize_lsplot());
+  colorManager_->setValue(channel1plotpropertyscatterfillcoloritem_,
+                          lsgraph1->getscatterfillcolor_lsplot());
+  colorManager_->setValue(channel1plotpropertyscatterstrokecoloritem_,
+                          lsgraph1->getscatterstrokecolor_lsplot());
+  enumManager_->setValue(
+      channel1plotpropertyscatterstrokestyleitem_,
+      static_cast<int>(lsgraph1->getscatterstrokestyle_lsplot() - 1));
+  doubleManager_->setValue(channel1plotpropertyscatterstrokethicknessitem_,
+                           lsgraph1->getscatterstrokethickness_lsplot());
+  boolManager_->setValue(channel1plotpropertyscatterantialiaseditem_,
+                         lsgraph1->getscatterantialiased_lsplot());
+  enumManager_->setValue(channel2plotpropertylinestyleitem_,
+                         static_cast<int>(lsgraph2->getlinetype_lsplot()));
+  colorManager_->setValue(channel2plotpropertylinestrokecoloritem_,
+                          lsgraph2->getlinestrokecolor_lsplot());
+  doubleManager_->setValue(channel2plotpropertylinestrokethicknessitem_,
+                           lsgraph2->getlinestrokethickness_lsplot());
+  enumManager_->setValue(
+      channel2plotpropertylinestroketypeitem_,
+      static_cast<int>(lsgraph2->getlinestrokestyle_lsplot() - 1));
+  boolManager_->setValue(channel2plotpropertylineantialiaseditem_,
+                         lsgraph2->getlineantialiased_lsplot());
+  enumManager_->setValue(channel2plotpropertyscatterstyleitem_,
+                         static_cast<int>(lsgraph2->getscattershape_lsplot()));
+  doubleManager_->setValue(channel2plotpropertyscatterthicknessitem_,
+                           lsgraph2->getscattersize_lsplot());
+  colorManager_->setValue(channel2plotpropertyscatterfillcoloritem_,
+                          lsgraph2->getscatterfillcolor_lsplot());
+  colorManager_->setValue(channel2plotpropertyscatterstrokecoloritem_,
+                          lsgraph2->getscatterstrokecolor_lsplot());
+  enumManager_->setValue(
+      channel2plotpropertyscatterstrokestyleitem_,
+      static_cast<int>(lsgraph2->getscatterstrokestyle_lsplot() - 1));
+  doubleManager_->setValue(channel2plotpropertyscatterstrokethicknessitem_,
+                           lsgraph2->getscatterstrokethickness_lsplot());
+  boolManager_->setValue(channel2plotpropertyscatterantialiaseditem_,
+                         lsgraph2->getscatterantialiased_lsplot());
+}
+
 void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
                                           AxisRect2D *axisrect) {
   propertybrowser_->clear();
@@ -2685,7 +3176,7 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
 
     for (int i = 0; i < yaxes.size(); i++) {
       cyaxislist << QString("Y Axis %1").arg(i + 1);
-      if (yaxes.at(i) == curve->getyaxis_cplot()) {
+      if (yaxes.at(i) == curve->getyaxis()) {
         currentyaxis = ycount;
       }
       ycount++;
@@ -2701,7 +3192,7 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
       cxaxislist << QString("X Axis %1").arg(i + 1);
-      if (xaxes.at(i) == curve->getxaxis_cplot()) {
+      if (xaxes.at(i) == curve->getxaxis()) {
         currentxaxis = xcount;
       }
       xcount++;
@@ -2767,7 +3258,7 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
 
     for (int i = 0; i < yaxes.size(); i++) {
       baryaxislist << QString("Y Axis %1").arg(i + 1);
-      if (yaxes.at(i) == bargraph->getyaxis_barplot()) {
+      if (yaxes.at(i) == bargraph->getyaxis()) {
         currentyaxis = ycount;
       }
       ycount++;
@@ -2783,7 +3274,7 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
       barxaxislist << QString("X Axis %1").arg(i + 1);
-      if (xaxes.at(i) == bargraph->getxaxis_barplot()) {
+      if (xaxes.at(i) == bargraph->getxaxis()) {
         currentxaxis = xcount;
       }
       xcount++;
@@ -2853,7 +3344,7 @@ void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
 
     for (int i = 0; i < yaxes.size(); i++) {
       statboxyaxislist << QString("Y Axis %1").arg(i + 1);
-      if (yaxes.at(i) == statbox->getyaxis_statbox()) {
+      if (yaxes.at(i) == statbox->getyaxis()) {
         currentyaxis = ycount;
       }
       ycount++;
@@ -2869,7 +3360,7 @@ void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
       statboxxaxislist << QString("X Axis %1").arg(i + 1);
-      if (xaxes.at(i) == statbox->getxaxis_statbox()) {
+      if (xaxes.at(i) == statbox->getxaxis()) {
         currentxaxis = xcount;
       }
       xcount++;
@@ -2954,7 +3445,7 @@ void PropertyEditor::Vector2DPropertyBlock(Vector2D *vectorgraph,
 
     for (int i = 0; i < yaxes.size(); i++) {
       vectoryaxislist << QString("Y Axis %1").arg(i + 1);
-      if (yaxes.at(i) == vectorgraph->getyaxis_vecplot()) {
+      if (yaxes.at(i) == vectorgraph->getyaxis()) {
         currentyaxis = ycount;
       }
       ycount++;
@@ -2970,7 +3461,7 @@ void PropertyEditor::Vector2DPropertyBlock(Vector2D *vectorgraph,
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
       vectorxaxislist << QString("X Axis %1").arg(i + 1);
-      if (xaxes.at(i) == vectorgraph->getxaxis_vecplot()) {
+      if (xaxes.at(i) == vectorgraph->getxaxis()) {
         currentxaxis = xcount;
       }
       xcount++;
@@ -3204,6 +3695,18 @@ void PropertyEditor::objectschanged() {
   }
 }
 
+void PropertyEditor::Plot2DPropertyBlock(Plot2D *plotcanvas) {
+  propertybrowser_->clear();
+  propertybrowser_->addProperty(canvaspropertycoloritem_);
+  propertybrowser_->addProperty(canvaspropertybufferdevicepixelratioitem_);
+  propertybrowser_->addProperty(canvaspropertyopenglitem_);
+  colorManager_->setValue(canvaspropertycoloritem_,
+                          plotcanvas->getBackgroundColor());
+  doubleManager_->setValue(canvaspropertybufferdevicepixelratioitem_,
+                           plotcanvas->bufferDevicePixelRatio());
+  boolManager_->setValue(canvaspropertyopenglitem_, plotcanvas->openGl());
+}
+
 void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
   // delete all TreeWidgetItems
   while (objectbrowser_->topLevelItemCount()) {
@@ -3218,34 +3721,86 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
   objectitems_.clear();
   propertybrowser_->clear();
 
+  QString tooltiptextx = QString(
+      "<tr> <td align=\"right\">Table :</td><td>%1</td></tr>"
+      "<tr> <td align=\"right\">Column :</td><td>%2</td></tr>"
+      "<tr> <td align=\"right\">From :</td><td>%4</td></tr>"
+      "<tr> <td align=\"right\">To :</td><td>%5</td></tr>");
+  QString tooltiptextxy = QString(
+      "<tr> <td align=\"right\">Table :</td><td>%1</td></tr>"
+      "<tr> <td align=\"right\">Column X :</td><td>%2</td></tr>"
+      "<tr> <td align=\"right\">Column Y :</td><td>%3</td></tr>"
+      "<tr> <td align=\"right\">From :</td><td>%4</td></tr>"
+      "<tr> <td align=\"right\">To :</td><td>%5</td></tr>");
+  QString tooltiptextxyyy = QString(
+      "<tr> <td align=\"right\">Table :</td><td>%1</td></tr>"
+      "<tr> <td align=\"right\">Column :</td><td>%2</td></tr>"
+      "<tr> <td align=\"right\">Column :</td><td>%3</td></tr>"
+      "<tr> <td align=\"right\">Column :</td><td>%4</td></tr>"
+      "<tr> <td align=\"right\">Column :</td><td>%5</td></tr>"
+      "<tr> <td align=\"right\">From :</td><td>%6</td></tr>"
+      "<tr> <td align=\"right\">To :</td><td>%7</td></tr>");
+  QString tooltiptextxyy = QString(
+      "<tr> <td align=\"right\">Table :</td><td>%1</td></tr>"
+      "<tr> <td align=\"right\">Column X :</td><td>%2</td></tr>"
+      "<tr> <td align=\"right\">Column Y1 :</td><td>%3</td></tr>"
+      "<tr> <td align=\"right\">Column Y2 :</td><td>%4</td></tr>"
+      "<tr> <td align=\"right\">From :</td><td>%6</td></tr>"
+      "<tr> <td align=\"right\">To :</td><td>%7</td></tr>");
+  QString tooltiptextmatrix = QString(
+      "<tr> <td align=\"right\">Matrix :</td><td>%1</td></tr>"
+      "<tr> <td align=\"right\">Rows :</td><td>%2</td></tr>"
+      "<tr> <td align=\"right\">Columns :</td><td>%4</td></tr>");
+
   if (qobject_cast<Layout2D *>(widget)) {
     Layout2D *gd = qobject_cast<Layout2D *>(widget);
-    objectbrowser_->setHeaderLabel("Graph2D");
+    objectbrowser_->setHeaderLabel(qobject_cast<Layout2D *>(widget)->name());
+    objectbrowser_->headerItem()->setIcon(
+        0, IconLoader::load("edit-graph", IconLoader::LightDark));
     QList<AxisRect2D *> elementslist = gd->getAxisRectList();
+
+    // canvas
+    QString canvasitemtext = QString("Canvas");
+    QTreeWidgetItem *canvasitem = new QTreeWidgetItem(
+        static_cast<QTreeWidget *>(nullptr), QStringList(canvasitemtext));
+    canvasitem->setToolTip(0, canvasitemtext);
+    canvasitem->setIcon(0,
+                        IconLoader::load("view-image", IconLoader::LightDark));
+    canvasitem->setData(
+        0, Qt::UserRole,
+        static_cast<int>(MyTreeWidget::PropertyItemType::PlotCanvas));
+    canvasitem->setData(0, Qt::UserRole + 1,
+                        QVariant::fromValue<void *>(gd->getPlotCanwas()));
+    objectitems_.append(canvasitem);
 
     // Layout items
     for (int i = 0; i < elementslist.size(); ++i) {
       AxisRect2D *element = elementslist.at(i);
-      QTreeWidgetItem *item =
-          new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
-                              QStringList(QString("Layout: %1").arg(i + 1)));
+      QString itemtext =
+          QString("Layout: %1 (%2x%3)").arg(i + 1).arg(1).arg(i + 1);
+      QTreeWidgetItem *item = new QTreeWidgetItem(
+          static_cast<QTreeWidget *>(nullptr), QStringList(itemtext));
+      item->setToolTip(0, itemtext);
       item->setIcon(0,
                     IconLoader::load("graph2d-layout", IconLoader::LightDark));
       item->setData(0, Qt::UserRole,
                     static_cast<int>(MyTreeWidget::PropertyItemType::Layout));
       item->setData(0, Qt::UserRole + 1, QVariant::fromValue<void *>(element));
 
-      // Grids
-      QTreeWidgetItem *griditem =
-          new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
-                              QStringList(QString("Axis Grids")));
-      griditem->setIcon(
-          0, IconLoader::load("graph3d-cross", IconLoader::LightDark));
-      griditem->setData(0, Qt::UserRole,
-                        static_cast<int>(MyTreeWidget::PropertyItemType::Grid));
-      griditem->setData(0, Qt::UserRole + 1,
-                        QVariant::fromValue<void *>(element));
-      item->addChild(griditem);
+      // Legend
+      QString legendtext = tr("Legend");
+      QTreeWidgetItem *legenditem = new QTreeWidgetItem(
+          static_cast<QTreeWidget *>(nullptr), QStringList(legendtext));
+      legenditem->setToolTip(0, legendtext);
+      legenditem->setIcon(
+          0, IconLoader::load("edit-legend", IconLoader::LightDark));
+      legenditem->setData(
+          0, Qt::UserRole,
+          static_cast<int>(MyTreeWidget::PropertyItemType::Legend));
+      Legend2D *legend = element->getLegend();
+      legenditem->setData(0, Qt::UserRole + 1,
+                          QVariant::fromValue<void *>(legend));
+      item->addChild(legenditem);
 
       // Axis items
       QList<Axis2D *> xaxes = element->getXAxes2D();
@@ -3274,6 +3829,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             break;
         }
         axisitem->setText(0, axistext);
+        axisitem->setToolTip(0, axistext);
         axisitem->setData(
             0, Qt::UserRole,
             static_cast<int>(MyTreeWidget::PropertyItemType::Axis));
@@ -3305,6 +3861,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             break;
         }
         axisitem->setText(0, axistext);
+        axisitem->setToolTip(0, axistext);
         axisitem->setData(
             0, Qt::UserRole,
             static_cast<int>(MyTreeWidget::PropertyItemType::Axis));
@@ -3313,404 +3870,589 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         item->addChild(axisitem);
       }
 
-      // Legend
-      QTreeWidgetItem *legenditem = new QTreeWidgetItem(
-          static_cast<QTreeWidget *>(nullptr), QStringList(QString("Legend")));
-      legenditem->setIcon(
-          0, IconLoader::load("edit-legend", IconLoader::LightDark));
-      legenditem->setData(
-          0, Qt::UserRole,
-          static_cast<int>(MyTreeWidget::PropertyItemType::Legend));
-      Legend2D *legend = element->getLegend();
-      legenditem->setData(0, Qt::UserRole + 1,
-                          QVariant::fromValue<void *>(legend));
-      item->addChild(legenditem);
-
-      // Text items
-      QVector<TextItem2D *> textitems = element->getTextItemVec();
-      for (int j = 0; j < textitems.size(); j++) {
-        QTreeWidgetItem *textitem =
-            new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
-        QString text = QString("Text Item: " + QString::number(j + 1));
-        textitem->setIcon(0,
-                          IconLoader::load("draw-text", IconLoader::LightDark));
-        textitem->setText(0, text);
-        textitem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::TextItem));
-        textitem->setData(0, Qt::UserRole + 1,
-                          QVariant::fromValue<void *>(textitems.at(j)));
-        item->addChild(textitem);
-      }
-
-      // Line items
-      QVector<LineItem2D *> lineitems = element->getLineItemVec();
-      for (int j = 0; j < lineitems.size(); j++) {
-        QTreeWidgetItem *lineitem =
-            new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
-        QString text = QString("Line Item: " + QString::number(j + 1));
-        lineitem->setIcon(0,
-                          IconLoader::load("draw-line", IconLoader::LightDark));
-        lineitem->setText(0, text);
-        lineitem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::LineItem));
-        lineitem->setData(0, Qt::UserRole + 1,
-                          QVariant::fromValue<void *>(lineitems.at(j)));
-        item->addChild(lineitem);
-      }
-
-      // Image items
-      QVector<ImageItem2D *> imageitems = element->getImageItemVec();
-      for (int j = 0; j < imageitems.size(); j++) {
-        QTreeWidgetItem *imageitem =
-            new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
-        QString text = QString("Image Item: " + QString::number(j + 1));
-        imageitem->setIcon(
-            0, IconLoader::load("view-image", IconLoader::LightDark));
-        imageitem->setText(0, text);
-        imageitem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::ImageItem));
-        imageitem->setData(0, Qt::UserRole + 1,
-                           QVariant::fromValue<void *>(imageitems.at(j)));
-        item->addChild(imageitem);
-      }
-
-      // LineSpecial plot Items
-      LsVec graphvec = element->getLsVec();
-      for (int j = 0; j < graphvec.size(); j++) {
-        LineSpecial2D *lsgraph = graphvec.at(j);
-        DataBlockGraph *data = lsgraph->getdatablock_lsplot();
-        QString lsgraphtext = data->gettable()->name() + "_" +
-                              data->getxcolumn()->name() + "_" +
-                              data->getycolumn()->name() + "[" +
-                              QString::number(data->getfrom() + 1) + ":" +
-                              QString::number(data->getto() + 1) + "]";
-        QTreeWidgetItem *lsgraphitem = new QTreeWidgetItem(
-            static_cast<QTreeWidget *>(nullptr), QStringList(lsgraphtext));
-        lsgraphitem->setIcon(
-            0, IconLoader::load("graph2d-line", IconLoader::LightDark));
-        lsgraphitem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::LSGraph));
-        lsgraphitem->setData(0, Qt::UserRole + 1,
-                             QVariant::fromValue<void *>(lsgraph));
-        lsgraphitem->setData(0, Qt::UserRole + 2,
-                             QVariant::fromValue<void *>(element));
-        item->addChild(lsgraphitem);
-        // x error
-        ErrorBar2D *xerror = lsgraph->getxerrorbar_lsplot();
-        if (xerror) {
-          DataBlockError *data = xerror->getdatablock_error();
-          QString xerrortext = data->gettable()->name() + "_" +
-                               data->geterrorcolumn()->name() + "[" +
-                               QString::number(data->getfrom() + 1) + ":" +
-                               QString::number(data->getto() + 1) + "]";
-          QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
-              static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
-          xerroritem->setIcon(
-              0, IconLoader::load("graph-x-error", IconLoader::LightDark));
-          xerroritem->setData(
-              0, Qt::UserRole,
-              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
-          xerroritem->setData(0, Qt::UserRole + 1,
-                              QVariant::fromValue<void *>(xerror));
-          lsgraphitem->addChild(xerroritem);
-        }
-        // y error
-        ErrorBar2D *yerror = lsgraph->getyerrorbar_lsplot();
-        if (yerror) {
-          DataBlockError *data = yerror->getdatablock_error();
-          QString yerrortext = data->gettable()->name() + "_" +
-                               data->geterrorcolumn()->name() + "[" +
-                               QString::number(data->getfrom() + 1) + ":" +
-                               QString::number(data->getto() + 1) + "]";
-          QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
-              static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
-          yerroritem->setIcon(
-              0, IconLoader::load("graph-y-error", IconLoader::LightDark));
-          yerroritem->setData(
-              0, Qt::UserRole,
-              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
-          yerroritem->setData(0, Qt::UserRole + 1,
-                              QVariant::fromValue<void *>(yerror));
-          lsgraphitem->addChild(yerroritem);
-        }
-      }
-
-      // Curve plot Items
-      CurveVec curvevec = element->getCurveVec();
-      int function = 1;
-      for (int j = 0; j < curvevec.size(); j++) {
-        Curve2D *curvegraph = curvevec.at(j);
-        QString curvegraphtext = "curve";
-        QTreeWidgetItem *curvegraphitem = new QTreeWidgetItem(
-            static_cast<QTreeWidget *>(nullptr), QStringList(curvegraphtext));
-        switch (curvegraph->getplottype_cplot()) {
-          case Graph2DCommon::PlotType::Associated: {
-            DataBlockCurve *data = curvegraph->getdatablock_cplot();
-            curvegraphtext = data->gettable()->name() + "_" +
-                             data->getxcolumn()->name() + "_" +
-                             data->getycolumn()->name() + "[" +
-                             QString::number(data->getfrom() + 1) + ":" +
-                             QString::number(data->getto() + 1) + "]";
-            curvegraphitem->setText(0, curvegraphtext);
-            if (curvegraph->getcurvetype_cplot() ==
-                Curve2D::Curve2DType::Curve) {
-              curvegraphitem->setIcon(
-                  0, IconLoader::load("graph2d-line", IconLoader::LightDark));
-            } else
-              curvegraphitem->setIcon(
-                  0, IconLoader::load("graph2d-spline", IconLoader::LightDark));
-          } break;
-          case Graph2DCommon::PlotType::Function:
-            curvegraphtext = QString("Function %1").arg(function++);
-            curvegraphitem->setIcon(0, IconLoader::load("graph2d-function-xy",
-                                                        IconLoader::LightDark));
-            curvegraphitem->setText(0, curvegraphtext);
-            break;
-        }
-        curvegraphitem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::Curve));
-        curvegraphitem->setData(0, Qt::UserRole + 1,
-                                QVariant::fromValue<void *>(curvegraph));
-        curvegraphitem->setData(0, Qt::UserRole + 2,
-                                QVariant::fromValue<void *>(element));
-        item->addChild(curvegraphitem);
-        // x error
-        ErrorBar2D *xerror = curvegraph->getxerrorbar_curveplot();
-        if (xerror) {
-          DataBlockError *data = xerror->getdatablock_error();
-          QString xerrortext = data->gettable()->name() + "_" +
-                               data->geterrorcolumn()->name() + "[" +
-                               QString::number(data->getfrom() + 1) + ":" +
-                               QString::number(data->getto() + 1) + "]";
-          QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
-              static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
-          xerroritem->setIcon(
-              0, IconLoader::load("graph-x-error", IconLoader::LightDark));
-          xerroritem->setData(
-              0, Qt::UserRole,
-              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
-          xerroritem->setData(0, Qt::UserRole + 1,
-                              QVariant::fromValue<void *>(xerror));
-          curvegraphitem->addChild(xerroritem);
-        }
-        // y error
-        ErrorBar2D *yerror = curvegraph->getyerrorbar_curveplot();
-        if (yerror) {
-          DataBlockError *data = yerror->getdatablock_error();
-          QString yerrortext = data->gettable()->name() + "_" +
-                               data->geterrorcolumn()->name() + "[" +
-                               QString::number(data->getfrom() + 1) + ":" +
-                               QString::number(data->getto() + 1) + "]";
-          QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
-              static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
-          yerroritem->setIcon(
-              0, IconLoader::load("graph-y-error", IconLoader::LightDark));
-          yerroritem->setData(
-              0, Qt::UserRole,
-              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
-          yerroritem->setData(0, Qt::UserRole + 1,
-                              QVariant::fromValue<void *>(yerror));
-          curvegraphitem->addChild(yerroritem);
-        }
-      }
-
-      // Statbox plot Items
-      QVector<StatBox2D *> statboxvec = element->getStatBoxVec();
-      for (int j = 0; j < statboxvec.size(); j++) {
-        StatBox2D *statbox = statboxvec.at(j);
-        QString statboxtext =
-            statbox->gettable_statbox()->name() + "_" +
-            statbox->getcolumn_statbox()->name() + "[" +
-            QString::number(statbox->getfrom_statbox() + 1) + ":" +
-            QString::number(statbox->getto_statbox() + 1) + "]";
-        QTreeWidgetItem *statboxitem = new QTreeWidgetItem(
-            static_cast<QTreeWidget *>(nullptr), QStringList(statboxtext));
-        statboxitem->setIcon(
-            0, IconLoader::load("graph2d-box", IconLoader::LightDark));
-        statboxitem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::StatBox));
-        statboxitem->setData(0, Qt::UserRole + 1,
-                             QVariant::fromValue<void *>(statbox));
-        statboxitem->setData(0, Qt::UserRole + 2,
-                             QVariant::fromValue<void *>(element));
-        item->addChild(statboxitem);
-      }
-
-      // Vector plot Items
-      VectorVec vectorvec = element->getVectorVec();
-      for (int j = 0; j < vectorvec.size(); j++) {
-        Vector2D *vector = vectorvec.at(j);
-        QString vectortext = vector->gettable_vecplot()->name() + "_" +
-                             vector->getfirstcol_vecplot()->name() + "_" +
-                             vector->getsecondcol_vecplot()->name() + "_" +
-                             vector->getthirdcol_vecplot()->name() + "_" +
-                             vector->getfourthcol_vecplot()->name() + "[" +
-                             QString::number(vector->getfrom_vecplot() + 1) +
-                             ":" +
-                             QString::number(vector->getto_vecplot() + 1) + "]";
-        QTreeWidgetItem *vectoritem = new QTreeWidgetItem(
-            static_cast<QTreeWidget *>(nullptr), QStringList(vectortext));
-        vectoritem->setIcon(
-            0, IconLoader::load("graph2d-vector-xy", IconLoader::LightDark));
-        vectoritem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::Vector));
-        vectoritem->setData(0, Qt::UserRole + 1,
-                            QVariant::fromValue<void *>(vector));
-        vectoritem->setData(0, Qt::UserRole + 2,
-                            QVariant::fromValue<void *>(element));
-        item->addChild(vectoritem);
-      }
-
-      // LineSpecial plot Items
+      // plottables & items vector of element
+      auto textitems = element->getTextItemVec();
+      auto lineitems = element->getLineItemVec();
+      auto imageitems = element->getImageItemVec();
+      auto graphvec = element->getLsVec();
+      auto curvevec = element->getCurveVec();
+      auto statboxvec = element->getStatBoxVec();
+      auto vectorvec = element->getVectorVec();
       auto channelvec = element->getChannelVec();
-      for (int j = 0; j < channelvec.size(); j++) {
-        LineSpecial2D *lsgraph1 = channelvec.at(j).first;
-        LineSpecial2D *lsgraph2 = channelvec.at(j).second;
-        DataBlockGraph *data1 = lsgraph1->getdatablock_lsplot();
-        DataBlockGraph *data2 = lsgraph2->getdatablock_lsplot();
-        QString lsgraph1text = data1->gettable()->name() + "_" +
-                               data1->getxcolumn()->name() + "_" +
-                               data1->getycolumn()->name() + "_" +
-                               data2->getycolumn()->name() + "[" +
-                               QString::number(data1->getfrom() + 1) + ":" +
-                               QString::number(data1->getto() + 1) + "]";
-        QTreeWidgetItem *channelitem = new QTreeWidgetItem(
-            static_cast<QTreeWidget *>(nullptr), QStringList(lsgraph1text));
-        channelitem->setIcon(
-            0, IconLoader::load("graph2d-channel", IconLoader::LightDark));
-        channelitem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::LSGraph));
-        channelitem->setData(0, Qt::UserRole + 1,
-                             QVariant::fromValue<void *>(lsgraph1));
-        channelitem->setData(0, Qt::UserRole + 2,
+      auto barvec = element->getBarVec();
+      auto pievec = element->getPieVec();
+      auto colormapvec = element->getColorMapVec();
+      auto layervec = element->getLayerVec();
+      // reverse layer list order
+      for (int k = 0, s = layervec.size(), max = (s / 2); k < max; k++)
+        layervec.swap(k, s - (1 + k));
+
+      foreach (QCPLayer *layer, layervec) {
+        bool layerfound = false;
+        // Text items
+        for (int j = 0; j < textitems.size(); j++) {
+          if (layer == textitems.at(j)->layer()) {
+            QTreeWidgetItem *textitem =
+                new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+            QString text = QString("Text Item: " + QString::number(j + 1));
+            textitem->setIcon(
+                0, IconLoader::load("draw-text", IconLoader::LightDark));
+            textitem->setText(0, text);
+            textitem->setToolTip(0, text);
+            textitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(MyTreeWidget::PropertyItemType::TextItem));
+            textitem->setData(0, Qt::UserRole + 1,
+                              QVariant::fromValue<void *>(textitems.at(j)));
+            item->addChild(textitem);
+            textitems.removeAt(j);
+            layerfound = true;
+            break;
+          }
+        }
+        if (layerfound) continue;
+
+        // Line items
+        for (int j = 0; j < lineitems.size(); j++) {
+          if (layer == lineitems.at(j)->layer()) {
+            QTreeWidgetItem *lineitem =
+                new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+            QString text = QString("Line Item: " + QString::number(j + 1));
+            lineitem->setIcon(
+                0, IconLoader::load("draw-line", IconLoader::LightDark));
+            lineitem->setText(0, text);
+            lineitem->setToolTip(0, text);
+            lineitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(MyTreeWidget::PropertyItemType::LineItem));
+            lineitem->setData(0, Qt::UserRole + 1,
+                              QVariant::fromValue<void *>(lineitems.at(j)));
+            item->addChild(lineitem);
+            lineitems.removeAt(j);
+            layerfound = true;
+            break;
+          }
+        }
+        if (layerfound) continue;
+
+        // Image items
+        for (int j = 0; j < imageitems.size(); j++) {
+          if (layer == imageitems.at(j)->layer()) {
+            QTreeWidgetItem *imageitem =
+                new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+            QString text = QString("Image Item: " + QString::number(j + 1));
+            imageitem->setIcon(
+                0, IconLoader::load("view-image", IconLoader::LightDark));
+            imageitem->setText(0, text);
+            imageitem->setToolTip(0, text);
+            imageitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(MyTreeWidget::PropertyItemType::ImageItem));
+            imageitem->setData(0, Qt::UserRole + 1,
+                               QVariant::fromValue<void *>(imageitems.at(j)));
+            item->addChild(imageitem);
+            imageitems.removeAt(j);
+            layerfound = true;
+            break;
+          }
+        }
+        if (layerfound) continue;
+
+        // LineSpecial plot Items
+        for (int j = 0; j < graphvec.size(); j++) {
+          if (layer == graphvec.at(j)->layer()) {
+            LineSpecial2D *lsgraph = graphvec.at(j);
+            DataBlockGraph *data = lsgraph->getdatablock_lsplot();
+            QString lsgraphtext = data->gettable()->name() + "_" +
+                                  data->getxcolumn()->name() + "_" +
+                                  data->getycolumn()->name() + "[" +
+                                  QString::number(data->getfrom() + 1) + ":" +
+                                  QString::number(data->getto() + 1) + "]";
+            QTreeWidgetItem *lsgraphitem = new QTreeWidgetItem(
+                static_cast<QTreeWidget *>(nullptr), QStringList(lsgraphtext));
+            QString tooltiptext = tooltiptextxy.arg(data->gettable()->name())
+                                      .arg(data->getxcolumn()->name())
+                                      .arg(data->getycolumn()->name())
+                                      .arg(QString::number(data->getfrom() + 1))
+                                      .arg(QString::number(data->getto() + 1));
+            lsgraphitem->setToolTip(0, tooltiptext);
+            lsgraphitem->setIcon(
+                0, IconLoader::load("graph2d-line", IconLoader::LightDark));
+            lsgraphitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(MyTreeWidget::PropertyItemType::LSGraph));
+            lsgraphitem->setData(0, Qt::UserRole + 1,
+                                 QVariant::fromValue<void *>(lsgraph));
+            lsgraphitem->setData(0, Qt::UserRole + 2,
+                                 QVariant::fromValue<void *>(element));
+            item->addChild(lsgraphitem);
+            // x error
+            ErrorBar2D *xerror = lsgraph->getxerrorbar_lsplot();
+            if (xerror) {
+              DataBlockError *data = xerror->getdatablock_error();
+              QString xerrortext = data->gettable()->name() + "_" +
+                                   data->geterrorcolumn()->name() + "[" +
+                                   QString::number(data->getfrom() + 1) + ":" +
+                                   QString::number(data->getto() + 1) + "]";
+              QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
+                  static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
+              QString tooltiperror =
+                  tooltiptextx.arg(data->gettable()->name())
+                      .arg(data->geterrorcolumn()->name())
+                      .arg(QString::number(data->getfrom() + 1))
+                      .arg(QString::number(data->getto() + 1));
+              xerroritem->setToolTip(0, tooltiperror);
+              xerroritem->setIcon(
+                  0, IconLoader::load("graph-x-error", IconLoader::LightDark));
+              xerroritem->setData(
+                  0, Qt::UserRole,
+                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+              xerroritem->setData(0, Qt::UserRole + 1,
+                                  QVariant::fromValue<void *>(xerror));
+              lsgraphitem->addChild(xerroritem);
+            }
+            // y error
+            ErrorBar2D *yerror = lsgraph->getyerrorbar_lsplot();
+            if (yerror) {
+              DataBlockError *data = yerror->getdatablock_error();
+              QString yerrortext = data->gettable()->name() + "_" +
+                                   data->geterrorcolumn()->name() + "[" +
+                                   QString::number(data->getfrom() + 1) + ":" +
+                                   QString::number(data->getto() + 1) + "]";
+              QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
+                  static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
+              QString tooltiperror =
+                  tooltiptextx.arg(data->gettable()->name())
+                      .arg(data->geterrorcolumn()->name())
+                      .arg(QString::number(data->getfrom() + 1))
+                      .arg(QString::number(data->getto() + 1));
+              yerroritem->setToolTip(0, tooltiperror);
+              yerroritem->setIcon(
+                  0, IconLoader::load("graph-y-error", IconLoader::LightDark));
+              yerroritem->setData(
+                  0, Qt::UserRole,
+                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+              yerroritem->setData(0, Qt::UserRole + 1,
+                                  QVariant::fromValue<void *>(yerror));
+              lsgraphitem->addChild(yerroritem);
+            }
+            graphvec.removeAt(j);
+            layerfound = true;
+            break;
+          }
+        }
+        if (layerfound) continue;
+
+        // Curve plot Items
+        int function = 1;
+        for (int j = 0; j < curvevec.size(); j++) {
+          if (layer == curvevec.at(j)->layer()) {
+            Curve2D *curvegraph = curvevec.at(j);
+            QString curvegraphtext = "curve";
+            QTreeWidgetItem *curvegraphitem =
+                new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
+                                    QStringList(curvegraphtext));
+            switch (curvegraph->getplottype_cplot()) {
+              case Graph2DCommon::PlotType::Associated: {
+                DataBlockCurve *data = curvegraph->getdatablock_cplot();
+                curvegraphtext = data->gettable()->name() + "_" +
+                                 data->getxcolumn()->name() + "_" +
+                                 data->getycolumn()->name() + "[" +
+                                 QString::number(data->getfrom() + 1) + ":" +
+                                 QString::number(data->getto() + 1) + "]";
+                curvegraphitem->setText(0, curvegraphtext);
+                QString tooltiptext =
+                    tooltiptextxy.arg(data->gettable()->name())
+                        .arg(data->getxcolumn()->name())
+                        .arg(data->getycolumn()->name())
+                        .arg(QString::number(data->getfrom() + 1))
+                        .arg(QString::number(data->getto() + 1));
+                curvegraphitem->setToolTip(0, tooltiptext);
+                if (curvegraph->getcurvetype_cplot() ==
+                    Curve2D::Curve2DType::Curve) {
+                  curvegraphitem->setIcon(
+                      0,
+                      IconLoader::load("graph2d-line", IconLoader::LightDark));
+                } else
+                  curvegraphitem->setIcon(
+                      0, IconLoader::load("graph2d-spline",
+                                          IconLoader::LightDark));
+              } break;
+              case Graph2DCommon::PlotType::Function:
+                curvegraphtext = QString("Function %1").arg(function++);
+                curvegraphitem->setIcon(
+                    0, IconLoader::load("graph2d-function-xy",
+                                        IconLoader::LightDark));
+                curvegraphitem->setText(0, curvegraphtext);
+                curvegraphitem->setToolTip(0, curvegraphtext);
+                break;
+            }
+            curvegraphitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(MyTreeWidget::PropertyItemType::Curve));
+            curvegraphitem->setData(0, Qt::UserRole + 1,
+                                    QVariant::fromValue<void *>(curvegraph));
+            curvegraphitem->setData(0, Qt::UserRole + 2,
+                                    QVariant::fromValue<void *>(element));
+            item->addChild(curvegraphitem);
+            // x error
+            ErrorBar2D *xerror = curvegraph->getxerrorbar_curveplot();
+            if (xerror) {
+              DataBlockError *data = xerror->getdatablock_error();
+              QString xerrortext = data->gettable()->name() + "_" +
+                                   data->geterrorcolumn()->name() + "[" +
+                                   QString::number(data->getfrom() + 1) + ":" +
+                                   QString::number(data->getto() + 1) + "]";
+              QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
+                  static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
+              QString tooltiperror =
+                  tooltiptextx.arg(data->gettable()->name())
+                      .arg(data->geterrorcolumn()->name())
+                      .arg(QString::number(data->getfrom() + 1))
+                      .arg(QString::number(data->getto() + 1));
+              xerroritem->setToolTip(0, tooltiperror);
+              xerroritem->setIcon(
+                  0, IconLoader::load("graph-x-error", IconLoader::LightDark));
+              xerroritem->setData(
+                  0, Qt::UserRole,
+                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+              xerroritem->setData(0, Qt::UserRole + 1,
+                                  QVariant::fromValue<void *>(xerror));
+              curvegraphitem->addChild(xerroritem);
+            }
+            // y error
+            ErrorBar2D *yerror = curvegraph->getyerrorbar_curveplot();
+            if (yerror) {
+              DataBlockError *data = yerror->getdatablock_error();
+              QString yerrortext = data->gettable()->name() + "_" +
+                                   data->geterrorcolumn()->name() + "[" +
+                                   QString::number(data->getfrom() + 1) + ":" +
+                                   QString::number(data->getto() + 1) + "]";
+              QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
+                  static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
+              QString tooltiperror =
+                  tooltiptextx.arg(data->gettable()->name())
+                      .arg(data->geterrorcolumn()->name())
+                      .arg(QString::number(data->getfrom() + 1))
+                      .arg(QString::number(data->getto() + 1));
+              yerroritem->setToolTip(0, tooltiperror);
+              yerroritem->setIcon(
+                  0, IconLoader::load("graph-y-error", IconLoader::LightDark));
+              yerroritem->setData(
+                  0, Qt::UserRole,
+                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+              yerroritem->setData(0, Qt::UserRole + 1,
+                                  QVariant::fromValue<void *>(yerror));
+              curvegraphitem->addChild(yerroritem);
+            }
+            curvevec.removeAt(j);
+            layerfound = true;
+            break;
+          }
+        }
+        if (layerfound) continue;
+
+        // Statbox plot Items
+        for (int j = 0; j < statboxvec.size(); j++) {
+          if (layer == statboxvec.at(j)->layer()) {
+            StatBox2D *statbox = statboxvec.at(j);
+            QString statboxtext =
+                statbox->gettable_statbox()->name() + "_" +
+                statbox->getcolumn_statbox()->name() + "[" +
+                QString::number(statbox->getfrom_statbox() + 1) + ":" +
+                QString::number(statbox->getto_statbox() + 1) + "]";
+            QTreeWidgetItem *statboxitem = new QTreeWidgetItem(
+                static_cast<QTreeWidget *>(nullptr), QStringList(statboxtext));
+            QString tooltip =
+                tooltiptextx.arg(statbox->gettable_statbox()->name())
+                    .arg(statbox->getcolumn_statbox()->name())
+                    .arg(QString::number(statbox->getfrom_statbox() + 1))
+                    .arg(QString::number(statbox->getto_statbox() + 1));
+            statboxitem->setToolTip(0, tooltip);
+            statboxitem->setIcon(
+                0, IconLoader::load("graph2d-box", IconLoader::LightDark));
+            statboxitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(MyTreeWidget::PropertyItemType::StatBox));
+            statboxitem->setData(0, Qt::UserRole + 1,
+                                 QVariant::fromValue<void *>(statbox));
+            statboxitem->setData(0, Qt::UserRole + 2,
+                                 QVariant::fromValue<void *>(element));
+            item->addChild(statboxitem);
+            statboxvec.removeAt(j);
+            layerfound = true;
+            break;
+          }
+        }
+        if (layerfound) continue;
+
+        // Vector plot Items
+        for (int j = 0; j < vectorvec.size(); j++) {
+          if (layer == vectorvec.at(j)->layer()) {
+            Vector2D *vector = vectorvec.at(j);
+            QString vectortext =
+                vector->gettable_vecplot()->name() + "_" +
+                vector->getfirstcol_vecplot()->name() + "_" +
+                vector->getsecondcol_vecplot()->name() + "_" +
+                vector->getthirdcol_vecplot()->name() + "_" +
+                vector->getfourthcol_vecplot()->name() + "[" +
+                QString::number(vector->getfrom_vecplot() + 1) + ":" +
+                QString::number(vector->getto_vecplot() + 1) + "]";
+            QTreeWidgetItem *vectoritem = new QTreeWidgetItem(
+                static_cast<QTreeWidget *>(nullptr), QStringList(vectortext));
+            QString tooltiptext =
+                tooltiptextxyyy.arg(vector->gettable_vecplot()->name())
+                    .arg(vector->getfirstcol_vecplot()->name())
+                    .arg(vector->getsecondcol_vecplot()->name())
+                    .arg(vector->getthirdcol_vecplot()->name())
+                    .arg(vector->getfourthcol_vecplot()->name())
+                    .arg(QString::number(vector->getfrom_vecplot() + 1))
+                    .arg(QString::number(vector->getto_vecplot() + 1));
+            vectoritem->setToolTip(0, tooltiptext);
+            vectoritem->setIcon(0, IconLoader::load("graph2d-vector-xy",
+                                                    IconLoader::LightDark));
+            vectoritem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(MyTreeWidget::PropertyItemType::Vector));
+            vectoritem->setData(0, Qt::UserRole + 1,
+                                QVariant::fromValue<void *>(vector));
+            vectoritem->setData(0, Qt::UserRole + 2,
+                                QVariant::fromValue<void *>(element));
+            item->addChild(vectoritem);
+            vectorvec.removeAt(j);
+            layerfound = true;
+            break;
+          }
+        }
+        if (layerfound) continue;
+
+        // LineSpecialchannel plot Items
+        for (int j = 0; j < channelvec.size(); j++) {
+          if (layer == channelvec.at(j).first->layer()) {
+            LineSpecial2D *lsgraph1 = channelvec.at(j).first;
+            LineSpecial2D *lsgraph2 = channelvec.at(j).second;
+            DataBlockGraph *data1 = lsgraph1->getdatablock_lsplot();
+            DataBlockGraph *data2 = lsgraph2->getdatablock_lsplot();
+            QString lsgraph1text = data1->gettable()->name() + "_" +
+                                   data1->getxcolumn()->name() + "_" +
+                                   data1->getycolumn()->name() + "_" +
+                                   data2->getycolumn()->name() + "[" +
+                                   QString::number(data1->getfrom() + 1) + ":" +
+                                   QString::number(data1->getto() + 1) + "]";
+            QTreeWidgetItem *channelitem = new QTreeWidgetItem(
+                static_cast<QTreeWidget *>(nullptr), QStringList(lsgraph1text));
+            QString tooltiptext =
+                tooltiptextxyy.arg(data1->gettable()->name())
+                    .arg(data1->getxcolumn()->name())
+                    .arg(data1->getycolumn()->name())
+                    .arg(data2->getycolumn()->name())
+                    .arg(QString::number(data1->getfrom() + 1))
+                    .arg(QString::number(data1->getto() + 1));
+            channelitem->setToolTip(0, tooltiptext);
+            channelitem->setIcon(
+                0, IconLoader::load("graph2d-channel", IconLoader::LightDark));
+            channelitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(MyTreeWidget::PropertyItemType::ChannelGraph));
+            channelitem->setData(0, Qt::UserRole + 1,
+                                 QVariant::fromValue<void *>(lsgraph1));
+            channelitem->setData(0, Qt::UserRole + 2,
+                                 QVariant::fromValue<void *>(element));
+            channelitem->setData(0, Qt::UserRole + 3,
+                                 QVariant::fromValue<void *>(lsgraph2));
+            item->addChild(channelitem);
+            channelvec.removeAt(j);
+            layerfound = true;
+            break;
+          }
+        }
+        if (layerfound) continue;
+
+        // Bar Plot items
+        for (int j = 0; j < barvec.size(); j++) {
+          if (layer == barvec.at(j)->layer()) {
+            Bar2D *bar = barvec.at(j);
+            QString bartext = QString("Histogram");
+            QTreeWidgetItem *baritem = new QTreeWidgetItem(
+                static_cast<QTreeWidget *>(nullptr), QStringList(bartext));
+            if (bar->ishistogram_barplot()) {
+              bartext = bar->gettable_histogram()->name() + "_" +
+                        bar->getcolumn_histogram()->name() + "[" +
+                        QString::number(bar->getfrom_histogram() + 1) + ":" +
+                        QString::number(bar->getto_histogram() + 1) + "]";
+              QString tooltiptext =
+                  tooltiptextx.arg(bar->gettable_histogram()->name())
+                      .arg(bar->getcolumn_histogram()->name())
+                      .arg(QString::number(bar->getfrom_histogram() + 1))
+                      .arg(QString::number(bar->getto_histogram() + 1));
+              baritem->setToolTip(0, tooltiptext);
+              baritem->setText(0, bartext);
+              baritem->setIcon(0, IconLoader::load("graph2d-histogram",
+                                                   IconLoader::LightDark));
+            } else {
+              DataBlockBar *data = bar->getdatablock_barplot();
+              bartext = data->gettable()->name() + "_" +
+                        data->getxcolumn()->name() + "_" +
+                        data->getycolumn()->name() + "[" +
+                        QString::number(data->getfrom() + 1) + ":" +
+                        QString::number(data->getto() + 1) + "]";
+              baritem->setText(0, bartext);
+              baritem->setIcon(0, IconLoader::load("graph2d-vertical-bar",
+                                                   IconLoader::LightDark));
+              QString tooltiptext =
+                  tooltiptextxy.arg(data->gettable()->name())
+                      .arg(data->getxcolumn()->name())
+                      .arg(data->getycolumn()->name())
+                      .arg(QString::number(data->getfrom() + 1))
+                      .arg(QString::number(data->getto() + 1));
+              baritem->setToolTip(0, tooltiptext);
+            }
+            baritem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(MyTreeWidget::PropertyItemType::BarGraph));
+            baritem->setData(0, Qt::UserRole + 1,
+                             QVariant::fromValue<void *>(bar));
+            baritem->setData(0, Qt::UserRole + 2,
                              QVariant::fromValue<void *>(element));
-        item->addChild(channelitem);
-      }
-
-      // Bar Plot items
-      BarVec barvec = element->getBarVec();
-      for (int j = 0; j < barvec.size(); j++) {
-        Bar2D *bar = barvec.at(j);
-        QString bartext = QString("Histogram");
-        QTreeWidgetItem *baritem = new QTreeWidgetItem(
-            static_cast<QTreeWidget *>(nullptr), QStringList(bartext));
-        if (bar->ishistogram_barplot()) {
-          bartext = bar->gettable_histogram()->name() + "_" +
-                    bar->getcolumn_histogram()->name() + "[" +
-                    QString::number(bar->getfrom_histogram() + 1) + ":" +
-                    QString::number(bar->getto_histogram() + 1) + "]";
-          baritem->setText(0, bartext);
-          baritem->setIcon(
-              0, IconLoader::load("graph2d-histogram", IconLoader::LightDark));
-        } else {
-          DataBlockBar *data = bar->getdatablock_barplot();
-          bartext = data->gettable()->name() + "_" +
-                    data->getxcolumn()->name() + "_" +
-                    data->getycolumn()->name() + "[" +
-                    QString::number(data->getfrom() + 1) + ":" +
-                    QString::number(data->getto() + 1) + "]";
-          baritem->setText(0, bartext);
-          baritem->setIcon(0, IconLoader::load("graph2d-vertical-bar",
-                                               IconLoader::LightDark));
+            item->addChild(baritem);
+            // x error
+            ErrorBar2D *xerror = bar->getxerrorbar_barplot();
+            if (xerror) {
+              DataBlockError *data = xerror->getdatablock_error();
+              QString xerrortext = data->gettable()->name() + "_" +
+                                   data->geterrorcolumn()->name() + "[" +
+                                   QString::number(data->getfrom() + 1) + ":" +
+                                   QString::number(data->getto() + 1) + "]";
+              QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
+                  static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
+              QString tooltiperror =
+                  tooltiptextx.arg(data->gettable()->name())
+                      .arg(data->geterrorcolumn()->name())
+                      .arg(QString::number(data->getfrom() + 1))
+                      .arg(QString::number(data->getto() + 1));
+              xerroritem->setToolTip(0, tooltiperror);
+              xerroritem->setIcon(
+                  0, IconLoader::load("graph-x-error", IconLoader::LightDark));
+              xerroritem->setData(
+                  0, Qt::UserRole,
+                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+              xerroritem->setData(0, Qt::UserRole + 1,
+                                  QVariant::fromValue<void *>(xerror));
+              baritem->addChild(xerroritem);
+            }
+            // y error
+            ErrorBar2D *yerror = bar->getyerrorbar_barplot();
+            if (yerror) {
+              DataBlockError *data = yerror->getdatablock_error();
+              QString yerrortext = data->gettable()->name() + "_" +
+                                   data->geterrorcolumn()->name() + "[" +
+                                   QString::number(data->getfrom() + 1) + ":" +
+                                   QString::number(data->getto() + 1) + "]";
+              QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
+                  static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
+              QString tooltiperror =
+                  tooltiptextx.arg(data->gettable()->name())
+                      .arg(data->geterrorcolumn()->name())
+                      .arg(QString::number(data->getfrom() + 1))
+                      .arg(QString::number(data->getto() + 1));
+              yerroritem->setToolTip(0, tooltiperror);
+              yerroritem->setIcon(
+                  0, IconLoader::load("graph-y-error", IconLoader::LightDark));
+              yerroritem->setData(
+                  0, Qt::UserRole,
+                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+              yerroritem->setData(0, Qt::UserRole + 1,
+                                  QVariant::fromValue<void *>(yerror));
+              baritem->addChild(yerroritem);
+            }
+            barvec.removeAt(j);
+            layerfound = true;
+            break;
+          }
         }
-        baritem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::BarGraph));
-        baritem->setData(0, Qt::UserRole + 1, QVariant::fromValue<void *>(bar));
-        baritem->setData(0, Qt::UserRole + 2,
-                         QVariant::fromValue<void *>(element));
-        item->addChild(baritem);
-        // x error
-        ErrorBar2D *xerror = bar->getxerrorbar_barplot();
-        if (xerror) {
-          DataBlockError *data = xerror->getdatablock_error();
-          QString xerrortext = data->gettable()->name() + "_" +
-                               data->geterrorcolumn()->name() + "[" +
-                               QString::number(data->getfrom() + 1) + ":" +
-                               QString::number(data->getto() + 1) + "]";
-          QTreeWidgetItem *xerroritem = new QTreeWidgetItem(
-              static_cast<QTreeWidget *>(nullptr), QStringList(xerrortext));
-          xerroritem->setIcon(
-              0, IconLoader::load("graph-x-error", IconLoader::LightDark));
-          xerroritem->setData(
-              0, Qt::UserRole,
-              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
-          xerroritem->setData(0, Qt::UserRole + 1,
-                              QVariant::fromValue<void *>(xerror));
-          baritem->addChild(xerroritem);
+        if (layerfound) continue;
+
+        // Pie Plot Items
+        for (int j = 0; j < pievec.size(); j++) {
+          if (layer == pievec.at(j)->layer()) {
+            Pie2D *pie = pievec.at(j);
+            QString pietext = pie->gettable_pieplot()->name() + "_" +
+                              pie->getxcolumn_pieplot()->name() + "[" +
+                              QString::number(pie->getfrom_pieplot() + 1) +
+                              ":" + QString::number(pie->getto_pieplot() + 1) +
+                              "]";
+            QTreeWidgetItem *pieitem = new QTreeWidgetItem(
+                static_cast<QTreeWidget *>(nullptr), QStringList(pietext));
+            QString tooltip =
+                tooltiptextx.arg(pie->gettable_pieplot()->name())
+                    .arg(pie->getxcolumn_pieplot()->name())
+                    .arg(QString::number(pie->getfrom_pieplot() + 1))
+                    .arg(QString::number(pie->getto_pieplot() + 1));
+            pieitem->setToolTip(0, tooltip);
+            pieitem->setIcon(
+                0, IconLoader::load("graph2d-pie", IconLoader::LightDark));
+            pieitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(MyTreeWidget::PropertyItemType::PieGraph));
+            pieitem->setData(0, Qt::UserRole + 1,
+                             QVariant::fromValue<void *>(pie));
+            pieitem->setData(0, Qt::UserRole + 2,
+                             QVariant::fromValue<void *>(element));
+            item->addChild(pieitem);
+            pievec.removeAt(j);
+            layerfound = true;
+            break;
+          }
         }
-        // y error
-        ErrorBar2D *yerror = bar->getyerrorbar_barplot();
-        if (yerror) {
-          DataBlockError *data = yerror->getdatablock_error();
-          QString yerrortext = data->gettable()->name() + "_" +
-                               data->geterrorcolumn()->name() + "[" +
-                               QString::number(data->getfrom() + 1) + ":" +
-                               QString::number(data->getto() + 1) + "]";
-          QTreeWidgetItem *yerroritem = new QTreeWidgetItem(
-              static_cast<QTreeWidget *>(nullptr), QStringList(yerrortext));
-          yerroritem->setIcon(
-              0, IconLoader::load("graph-y-error", IconLoader::LightDark));
-          yerroritem->setData(
-              0, Qt::UserRole,
-              static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
-          yerroritem->setData(0, Qt::UserRole + 1,
-                              QVariant::fromValue<void *>(yerror));
-          baritem->addChild(yerroritem);
+        if (layerfound) continue;
+
+        // ColorMap Plot Items
+        for (int j = 0; j < colormapvec.size(); j++) {
+          if (layer == colormapvec.at(j)->layer()) {
+            ColorMap2D *colormap = colormapvec.at(j);
+
+            QString colormaptext =
+                colormap->getmatrix_colormap()->name() + "[" +
+                QString::number(colormap->getrows_colormap()) + "x" +
+                QString::number(colormap->getcolumns_colormap()) + "]";
+            QTreeWidgetItem *colormapitem = new QTreeWidgetItem(
+                static_cast<QTreeWidget *>(nullptr), QStringList(colormaptext));
+            QString tooltip =
+                tooltiptextmatrix.arg(colormap->getmatrix_colormap()->name())
+                    .arg(QString::number(colormap->getrows_colormap()))
+                    .arg(QString::number(colormap->getcolumns_colormap()));
+            colormapitem->setToolTip(0, tooltip);
+            colormapitem->setIcon(
+                0, IconLoader::load("edit-colormap3d", IconLoader::General));
+            colormapitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(MyTreeWidget::PropertyItemType::ColorMap));
+            colormapitem->setData(0, Qt::UserRole + 1,
+                                  QVariant::fromValue<void *>(colormap));
+            colormapitem->setData(0, Qt::UserRole + 2,
+                                  QVariant::fromValue<void *>(element));
+            item->addChild(colormapitem);
+            colormapvec.removeAt(j);
+            layerfound = true;
+            break;
+          }
         }
+        if (layerfound) continue;
       }
 
-      // Pie Plot Items
-      QVector<Pie2D *> pievec = element->getPieVec();
-      for (int j = 0; j < pievec.size(); j++) {
-        Pie2D *pie = pievec.at(j);
-        QString pietext = pie->gettable_pieplot()->name() + "_" +
-                          pie->getxcolumn_pieplot()->name() + "[" +
-                          QString::number(pie->getfrom_pieplot() + 1) + ":" +
-                          QString::number(pie->getto_pieplot() + 1) + "]";
-        QTreeWidgetItem *pieitem = new QTreeWidgetItem(
-            static_cast<QTreeWidget *>(nullptr), QStringList(pietext));
-        pieitem->setIcon(
-            0, IconLoader::load("graph2d-pie", IconLoader::LightDark));
-        pieitem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::PieGraph));
-        pieitem->setData(0, Qt::UserRole + 1, QVariant::fromValue<void *>(pie));
-        pieitem->setData(0, Qt::UserRole + 2,
-                         QVariant::fromValue<void *>(element));
-        item->addChild(pieitem);
-      }
-
-      // ColorMap Plot Items
-      QVector<ColorMap2D *> colormapvec = element->getColorMapVec();
-      for (int j = 0; j < colormapvec.size(); j++) {
-        ColorMap2D *colormap = colormapvec.at(j);
-
-        QString colormaptext =
-            colormap->getmatrix_colormap()->name() + "[" +
-            QString::number(colormap->getrows_colormap()) + "x" +
-            QString::number(colormap->getcolumns_colormap()) + "]";
-        QTreeWidgetItem *colormapitem = new QTreeWidgetItem(
-            static_cast<QTreeWidget *>(nullptr), QStringList(colormaptext));
-        colormapitem->setIcon(
-            0, IconLoader::load("edit-colormap3d", IconLoader::General));
-        colormapitem->setData(
-            0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::ColorMap));
-        colormapitem->setData(0, Qt::UserRole + 1,
-                              QVariant::fromValue<void *>(colormap));
-        colormapitem->setData(0, Qt::UserRole + 2,
-                              QVariant::fromValue<void *>(element));
-        item->addChild(colormapitem);
-      }
+      // Grids
+      QString gridtext = "Axis Grids";
+      QTreeWidgetItem *griditem =
+          new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
+                              QStringList(QString("Axis Grids")));
+      griditem->setToolTip(0, gridtext);
+      griditem->setIcon(
+          0, IconLoader::load("graph3d-cross", IconLoader::LightDark));
+      griditem->setData(0, Qt::UserRole,
+                        static_cast<int>(MyTreeWidget::PropertyItemType::Grid));
+      griditem->setData(0, Qt::UserRole + 1,
+                        QVariant::fromValue<void *>(element));
+      item->addChild(griditem);
 
       objectitems_.append(item);
     }
@@ -3720,13 +4462,26 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     objectbrowser_->addTopLevelItems(objectitems_);
     previouswidget_ = gd;
     objectbrowser_->insertTopLevelItems(0, objectitems_);
+  } else if (qobject_cast<Graph3D *>(widget)) {
+    objectbrowser_->setHeaderLabel(qobject_cast<Graph3D *>(widget)->name());
+    objectbrowser_->headerItem()->setIcon(
+        0, IconLoader::load("edit-graph3d", IconLoader::LightDark));
   } else if (qobject_cast<Table *>(widget)) {
-    objectbrowser_->setHeaderLabel("Table");
+    objectbrowser_->setHeaderLabel(qobject_cast<Table *>(widget)->name());
+    objectbrowser_->headerItem()->setIcon(
+        0, IconLoader::load("table", IconLoader::LightDark));
   } else if (qobject_cast<Note *>(widget)) {
-    objectbrowser_->setHeaderLabel("Note");
+    objectbrowser_->setHeaderLabel(qobject_cast<Note *>(widget)->name());
+    objectbrowser_->headerItem()->setIcon(
+        0, IconLoader::load("edit-note", IconLoader::LightDark));
   } else if (qobject_cast<Matrix *>(widget)) {
-    objectbrowser_->setHeaderLabel("Matrix");
+    objectbrowser_->setHeaderLabel(qobject_cast<Matrix *>(widget)->name());
+    objectbrowser_->headerItem()->setIcon(
+        0, IconLoader::load("matrix", IconLoader::LightDark));
   } else {
+    objectbrowser_->setHeaderLabel("(none)");
+    objectbrowser_->headerItem()->setIcon(
+        0, IconLoader::load("clear-loginfo", IconLoader::General));
     qDebug() << "unknown Mywidget";
   }
   objectbrowser_->expandAll();
@@ -3867,9 +4622,22 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
+
+  // Layer moved
+  connect(axisrect, &AxisRect2D::LayerMoved, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
 }
 
 void PropertyEditor::setObjectPropertyId() {
+  // Plot Canvas properties
+  canvaspropertycoloritem_->setPropertyId("canvaspropertycoloritem_");
+  canvaspropertybufferdevicepixelratioitem_->setPropertyId(
+      "canvaspropertybufferdevicepixelratioitem_");
+  canvaspropertyopenglitem_->setPropertyId("canvaspropertyopenglitem_");
+  // Layout properties
   layoutpropertygroupitem_->setPropertyId("layoutpropertygroupitem_");
   layoutpropertyrectitem_->setPropertyId("layoutpropertyrectitem_");
   layoutpropertycoloritem_->setPropertyId("layoutpropertycoloritem_");
@@ -4037,6 +4805,65 @@ void PropertyEditor::setObjectPropertyId() {
       "lsplotpropertyscatterantialiaseditem_");
   lsplotpropertylegendtextitem_->setPropertyId(
       "lsplotpropertylelegendtextitem_");
+  // LineSpecialChannel Properties block
+  channelplotpropertyxaxisitem_->setPropertyId("channelplotpropertyxaxisitem_");
+  channelplotpropertyyaxisitem_->setPropertyId("channelplotpropertyyaxisitem_");
+  channelplotpropertylegendtextitem_->setPropertyId(
+      "channelplotpropertylegendtextitem_");
+  channel1plotpropertygroupitem_->setPropertyId(
+      "channel1plotpropertygroupitem_");
+  channel1plotpropertylinestyleitem_->setPropertyId(
+      "channel1plotpropertylinestyleitem_");
+  channel1plotpropertylinestrokecoloritem_->setPropertyId(
+      "channel1plotpropertylinestrokecoloritem_");
+  channel1plotpropertylinestrokethicknessitem_->setPropertyId(
+      "channel1plotpropertylinestrokethicknessitem_");
+  channel1plotpropertylinestroketypeitem_->setPropertyId(
+      "channel1plotpropertylinestroketypeitem_");
+  channel1plotpropertylinefillcoloritem_->setPropertyId(
+      "channel1plotpropertylinefillcoloritem_");
+  channel1plotpropertylineantialiaseditem_->setPropertyId(
+      "channel1plotpropertylineantialiaseditem_");
+  channel1plotpropertyscatterstyleitem_->setPropertyId(
+      "channel1plotpropertyscatterstyleitem_");
+  channel1plotpropertyscatterthicknessitem_->setPropertyId(
+      "channel1plotpropertyscatterthicknessitem_");
+  channel1plotpropertyscatterfillcoloritem_->setPropertyId(
+      "channel1plotpropertyscatterfillcoloritem_");
+  channel1plotpropertyscatterstrokecoloritem_->setPropertyId(
+      "channel1plotpropertyscatterstrokecoloritem_");
+  channel1plotpropertyscatterstrokethicknessitem_->setPropertyId(
+      "channel1plotpropertyscatterstrokethicknessitem_");
+  channel1plotpropertyscatterstrokestyleitem_->setPropertyId(
+      "channel1plotpropertyscatterstrokestyleitem_");
+  channel1plotpropertyscatterantialiaseditem_->setPropertyId(
+      "channel1plotpropertyscatterantialiaseditem_");
+  channel2plotpropertygroupitem_->setPropertyId(
+      "channel2plotpropertygroupitem_");
+  channel2plotpropertylinestyleitem_->setPropertyId(
+      "channel2plotpropertylinestyleitem_");
+  channel2plotpropertylinestrokecoloritem_->setPropertyId(
+      "channel2plotpropertylinestrokecoloritem_");
+  channel2plotpropertylinestrokethicknessitem_->setPropertyId(
+      "channel2plotpropertylinestrokethicknessitem_");
+  channel2plotpropertylinestroketypeitem_->setPropertyId(
+      "channel2plotpropertylinestroketypeitem_");
+  channel2plotpropertylineantialiaseditem_->setPropertyId(
+      "channel2plotpropertylineantialiaseditem_");
+  channel2plotpropertyscatterstyleitem_->setPropertyId(
+      "channel2plotpropertyscatterstyleitem_");
+  channel2plotpropertyscatterthicknessitem_->setPropertyId(
+      "channel2plotpropertyscatterthicknessitem_");
+  channel2plotpropertyscatterfillcoloritem_->setPropertyId(
+      "channel2plotpropertyscatterfillcoloritem_");
+  channel2plotpropertyscatterstrokecoloritem_->setPropertyId(
+      "channel2plotpropertyscatterstrokecoloritem_");
+  channel2plotpropertyscatterstrokethicknessitem_->setPropertyId(
+      "channel2plotpropertyscatterstrokethicknessitem_");
+  channel2plotpropertyscatterstrokestyleitem_->setPropertyId(
+      "channel2plotpropertyscatterstrokestyleitem_");
+  channel2plotpropertyscatterantialiaseditem_->setPropertyId(
+      "channel2plotpropertyscatterantialiaseditem_");
   // Curve Property Block
   cplotpropertyxaxisitem_->setPropertyId("cplotpropertyxaxisitem_");
   cplotpropertyyaxisitem_->setPropertyId("cplotpropertyyaxisitem_");

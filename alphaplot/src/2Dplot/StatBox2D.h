@@ -88,8 +88,8 @@ class StatBox2D : public QCPStatisticalBox {
                      Axis2D *yAxis);
   ~StatBox2D();
 
-  Axis2D *getxaxis_statbox() const;
-  Axis2D *getyaxis_statbox() const;
+  Axis2D *getxaxis() const;
+  Axis2D *getyaxis() const;
   BoxWhiskerStyle getboxstyle_statbox() const;
   BoxWhiskerStyle getwhiskerstyle_statbox() const;
   QColor getfillcolor_statbox() const;
@@ -155,6 +155,7 @@ class StatBox2D : public QCPStatisticalBox {
  private:
   Axis2D *xAxis_;
   Axis2D *yAxis_;
+  QString layername_;
   BoxWhiskerData boxwhiskerdata_;
   QCPStatisticalBoxData sBoxdata_;
   QCPScatterStyle *scatterstyle_;

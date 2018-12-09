@@ -21,6 +21,7 @@
 
 class AxisRect2D;
 class XmlStreamWriter;
+class XmlStreamReader;
 
 class Axis2D : public QCPAxis {
   Q_OBJECT
@@ -139,11 +140,13 @@ class Axis2D : public QCPAxis {
   void setticklabelprecision_axis(const int value);
 
   void save(XmlStreamWriter *xmlwriter);
+  Axis2D *load(XmlStreamReader *xmlreader, AxisRect2D *axisrect);
 
  private:
   AxisRect2D *axisrect_;
   Axis2D::TickerType tickertype_;
   QSharedPointer<QCPAxisTicker> ticker_;
+  QString layername_;
 };
 
 #endif  // AXIS2D_H

@@ -20,6 +20,7 @@ class Pie2D : public QCPAbstractItem {
   double selectTest(const QPointF &pos, bool onlySelectable,
                     QVariant *details = nullptr) const;
 
+  AxisRect2D *getaxisrect() const;
   Qt::PenStyle getstrokestyle_pieplot() const;
   QColor getstrokecolor_pieplot() const;
   double getstrokethickness_pieplot() const;
@@ -42,6 +43,7 @@ class Pie2D : public QCPAbstractItem {
   QVector<double> *pieData_;
   QVector<QColor> *pieColors_;
   QVector<PieLegendItem2D *> *pieLegendItems_;
+  QString layername_;
   QPen mPen;
   QBrush mBrush;
   int marginpercent_;

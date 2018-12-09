@@ -27,8 +27,8 @@ class Plot2D : public QCustomPlot {
   explicit Plot2D(QWidget *parent = nullptr);
   ~Plot2D();
 
-  void setBackgroundColor(const QBrush &brush);
-  QBrush getBackgroundColor() const;
+  void setBackgroundColor(const QColor &color);
+  QColor getBackgroundColor() const;
   bool saveSvg(const QString &fileName, int width = 0, int height = 0,
                QCP::ExportPen exportPen = QCP::epAllowCosmetic,
                const QString &svgTitle = QString(),
@@ -37,9 +37,18 @@ class Plot2D : public QCustomPlot {
               QCP::ExportPen exportPen = QCP::epAllowCosmetic,
               const QString &psCreator = QString(),
               const QString &psTitle = QString());
+  QString getGrid2DLayerName() const { return layernamegrid2d_; }
+  QString getAxis2DLayerName() const { return layernameaxis2d_; }
+  QString getLegend2DLayerName() const { return layernamelegend2d_; }
+
+ signals:
+  void backgroundColorChange(QColor color);
 
  private:
-  QBrush canvasBrush_;
+  QColor canvasBackground_;
+  QString layernamegrid2d_;
+  QString layernameaxis2d_;
+  QString layernamelegend2d_;
 };
 
 #endif  // PLOT2D_H

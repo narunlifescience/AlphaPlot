@@ -19,23 +19,41 @@
 
 Plot2D::Plot2D(QWidget *parent)
     : QCustomPlot(parent),
-      canvasBrush_(Qt::white) {
-  setBackgroundColor(canvasBrush_);
+      canvasBackground_(Qt::white),
+      layernamegrid2d_("grid2d"),
+      layernameaxis2d_("axis2d"),
+      layernamelegend2d_("legend2d") {
+  setOpenGl(false);
+  setBackgroundColor(canvasBackground_);
   setAutoAddPlottableToLegend(false);
   setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
                   QCP::iSelectLegend | QCP::iSelectPlottables);
   setInteraction(QCP::iRangeDrag, true);
   plotLayout()->clear();
+  addLayer(layernamegrid2d_, nullptr, LayerInsertMode::limBelow);
+  addLayer(layernameaxis2d_, layer(layernamegrid2d_),
+           LayerInsertMode::limAbove);
+  addLayer(layernamelegend2d_, layer(layernameaxis2d_),
+           LayerInsertMode::limAbove);
 }
 
 Plot2D::~Plot2D() {}
 
-void Plot2D::setBackgroundColor(const QBrush &brush) {
-  setBackground(brush);
-  canvasBrush_ = brush;
+void Plot2D::setBackgroundColor(const QColor &color) {
+  QPixmap pixmap(":pixmap/transparent-background.png");
+  QPainter paint(&pixmap);
+  QBrush pixmapbrush(color);
+  paint.setBrush(pixmapbrush);
+  paint.setPen(Qt::NoPen);
+  paint.drawRect(0, 0, pixmap.height(), pixmap.width());
+  QBrush b(pixmap);
+  setBackground(b);
+  setBackground(b);
+  canvasBackground_ = color;
+  backgroundColorChange(canvasBackground_);
 }
 
-QBrush Plot2D::getBackgroundColor() const { return canvasBrush_; }
+QColor Plot2D::getBackgroundColor() const { return canvasBackground_; }
 
 bool Plot2D::saveSvg(const QString &fileName, int width, int height,
                      QCP::ExportPen exportPen, const QString &svgTitle,
@@ -87,6 +105,6 @@ bool Plot2D::savePs(const QString &fileName, int width, int height,
   Q_UNUSED(height)
   Q_UNUSED(&psCreator)
   Q_UNUSED(psTitle)
-  qDebug() << "Post Script format(s) not supported in QT5";
+  qDebug() << "Post Script format(s) not supported in QT5 anymore";
   return false;
 }

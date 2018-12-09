@@ -62,7 +62,7 @@ class AxisRect2D : public QCPAxisRect {
   void setAxisRectBackground(const QBrush &brush);
   Axis2D *addAxis2D(const Axis2D::AxisOreantation &orientation,
                     const Axis2D::TickerType &tickertype);
-  bool removeAxis2D(Axis2D *axis);
+  bool removeAxis2D(Axis2D *axis, bool force = false);
   QBrush getAxisRectBackground() const;
   Grid2D *bindGridTo(Axis2D *axis);
 
@@ -82,6 +82,7 @@ class AxisRect2D : public QCPAxisRect {
   StatBoxVec getStatBoxVec() const { return statboxvec_; }
   PieVec getPieVec() const { return pievec_; }
   ColorMapVec getColorMapVec() const { return colormapvec_; }
+  QList<QCPLayer *> getLayerVec() const { return layers_; }
 
   Axis2D *getXAxis(int value);
   Axis2D *getYAxis(int value);
@@ -126,8 +127,8 @@ class AxisRect2D : public QCPAxisRect {
                           Column *x1Data, Column *y1Data, Column *x2Data,
                           Column *y2Data, int from, int to, Axis2D *xAxis,
                           Axis2D *yAxis);
-  StatBox2D *addStatBox2DPlot(StatBox2D::BoxWhiskerData data,
-                              Axis2D *xAxis, Axis2D *yAxis);
+  StatBox2D *addStatBox2DPlot(StatBox2D::BoxWhiskerData data, Axis2D *xAxis,
+                              Axis2D *yAxis);
   Bar2D *addHistogram2DPlot(const BarType &type, Table *table, Column *yData,
                             int from, int to, Axis2D *xAxis, Axis2D *yAxis);
   Pie2D *addPie2DPlot(Table *table, Column *xData, int from, int to);
@@ -161,6 +162,10 @@ class AxisRect2D : public QCPAxisRect {
   bool removeBar2D(Bar2D *bar);
   bool removePie2D(Pie2D *pie);
   bool removeColorMap2D(ColorMap2D *colormap);
+
+  // move layers
+  bool moveLayer(QCPLayer *layer, const QCustomPlot::LayerInsertMode &mode);
+  bool movechannellayer(QCPLayer *layer, QCPLayer *layerswap);
 
   void setPrintorExportJob(bool value) { printorexportjob_ = value; }
   void setGraphTool(const Graph2DCommon::Picker &picker);
@@ -215,12 +220,11 @@ class AxisRect2D : public QCPAxisRect {
   void ColorMap2DRemoved(AxisRect2D *);
   void ErrorBar2DRemoved(AxisRect2D *);
   void showtooltip(QPointF position, double xval, double yval);
+  // Layer moved
+  void LayerMoved(AxisRect2D *);
 
  private slots:
   void legendClick();
-  void addfunctionplot();
-  void exportGraph();
-  void addplot();
 
  private:
   Plot2D *plot2d_;
@@ -241,6 +245,7 @@ class AxisRect2D : public QCPAxisRect {
   PieVec pievec_;
   ColorMapVec colormapvec_;
   QList<Axis2D *> axes_;
+  QList<QCPLayer *> layers_;
   // QVector<QPair<StatBox2D *, QPair<Axis2D *, Axis2D *>>> statboxplots_;
   // Histogram
   // Other types

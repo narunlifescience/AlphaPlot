@@ -1,5 +1,6 @@
 # Aspect framework legacy code
 DEFINES += LEGACY_CODE_0_2_x
+DEFINES += QCUSTOMPLOT_USE_OPENGL
 # Qt modules
 QT += core gui
 
