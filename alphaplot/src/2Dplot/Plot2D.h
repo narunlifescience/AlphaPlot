@@ -40,12 +40,15 @@ class Plot2D : public QCustomPlot {
   QString getGrid2DLayerName() const { return layernamegrid2d_; }
   QString getAxis2DLayerName() const { return layernameaxis2d_; }
   QString getLegend2DLayerName() const { return layernamelegend2d_; }
+  QString getBackground2DLayerName() const { return layernamebackground2d_; }
 
  signals:
   void backgroundColorChange(QColor color);
 
  private:
   QColor canvasBackground_;
+  // Layers
+  QString layernamebackground2d_;
   QString layernamegrid2d_;
   QString layernameaxis2d_;
   QString layernamelegend2d_;

@@ -76,7 +76,8 @@ class Curve2D : public QCPCurve {
 
  protected:
   void draw(QCPPainter *painter);
-  void mousePressEvent(QMouseEvent *event, const QVariant &details);
+  void drawCurveLine(QCPPainter *painter, const QVector<QPointF> &lines) const;
+      void mousePressEvent(QMouseEvent *event, const QVariant &details);
 
  private:
   void drawSpline(QCPPainter *painter);

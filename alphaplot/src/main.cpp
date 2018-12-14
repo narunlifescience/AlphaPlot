@@ -26,8 +26,8 @@
 #include <QSplashScreen>
 #include <QTimer>
 
-#include <typeinfo>
 #include <QtMsgHandler>
+#include <typeinfo>
 
 #ifdef Q_OS_WIN
 #include <Windows.h>
@@ -56,6 +56,10 @@
     General format used through out the project should be
     Google style(clang format) with a line wrap of 80 characters.
 */
+class Delay : public QThread {
+ public:
+  static void sleep(unsigned long secs) { QThread::sleep(secs); }
+};
 
 struct Application : public QApplication {
   Application(int& argc, char** argv);
@@ -141,13 +145,14 @@ int main(int argc, char** argv) {
   QStringList args = app->arguments();
   args.removeFirst();  // remove application name
 
-  ApplicationWindow* mw = new ApplicationWindow();
-
   // Show splashscreen
   QPixmap pixmap(":splash/splash.png");
   QSplashScreen* splash = new QSplashScreen(pixmap);
   splash->show();
+  // Close splashscreen after 3 sec
+  Delay::sleep(3);
 
+  ApplicationWindow* mw = new ApplicationWindow();
   // Process more events here before starting app.
   mw->applyUserSettings();
   mw->newTable();
@@ -161,9 +166,8 @@ int main(int argc, char** argv) {
 #endif
   mw->parseCommandLineArguments(args);
 
-  // Close splashscreen after 1 sec & show mainwindow
-  QTimer::singleShot(3000, splash, SLOT(close()));
-  QTimer::singleShot(3000, mw, SLOT(activateWindow()));
+  mw->activateWindow();
+  splash->finish(mw);
 
   app->connect(app, SIGNAL(lastWindowClosed()), app, SLOT(quit()));
   return app->exec();

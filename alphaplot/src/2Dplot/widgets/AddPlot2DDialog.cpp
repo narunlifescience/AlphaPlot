@@ -334,7 +334,7 @@ void AddPlot2DDialog::addCurves() {
       } break;
     }
   }
-  axisrect_->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+  axisrect_->replotBareBones();
   loadplotcontents();
   showCurrentFolder(app_->d_show_current_folder);
   enableAddBtn();

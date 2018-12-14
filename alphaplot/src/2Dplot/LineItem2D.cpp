@@ -175,7 +175,8 @@ void LineItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
         cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
         axisrect_->getParentPlot2D()->setCursor(Qt::CursorShape::CrossCursor);
       } else {
-        draglineitemorigin_ = event->localPos() - end->pixelPosition();
+        draglineitemorigin_ = event->pos() - end->pixelPosition();
+        draglineitemendin_ = event->pos() - start->pixelPosition();
         cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
         axisrect_->getParentPlot2D()->setCursor(
             Qt::CursorShape::ClosedHandCursor);
@@ -222,7 +223,7 @@ void LineItem2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
     start->setPixelPosition(eventpos);
     this->layer()->replot();
   } else if (dragginglineitem_) {
-    start->setPixelPosition(eventpos + draglineitemorigin_);
+    start->setPixelPosition(eventpos - draglineitemendin_);
     end->setPixelPosition(eventpos - draglineitemorigin_);
     layer()->replot();
   }
@@ -245,5 +246,6 @@ void LineItem2D::mouseReleaseEvent(QMouseEvent *event,
       dragginglineitem_ = false;
       axisrect_->getParentPlot2D()->setCursor(cursorshape_);
     }
+    this->layer()->replot();
   }
 }

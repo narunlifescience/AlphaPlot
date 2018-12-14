@@ -20,21 +20,30 @@
 Plot2D::Plot2D(QWidget *parent)
     : QCustomPlot(parent),
       canvasBackground_(Qt::white),
-      layernamegrid2d_("grid2d"),
-      layernameaxis2d_("axis2d"),
-      layernamelegend2d_("legend2d") {
+      layernamebackground2d_("background"),
+      layernamegrid2d_("grid"),
+      layernameaxis2d_("axes"),
+      layernamelegend2d_("legend") {
   setOpenGl(false);
   setBackgroundColor(canvasBackground_);
   setAutoAddPlottableToLegend(false);
+  plotLayout()->clear();
   setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
                   QCP::iSelectLegend | QCP::iSelectPlottables);
-  setInteraction(QCP::iRangeDrag, true);
-  plotLayout()->clear();
-  addLayer(layernamegrid2d_, nullptr, LayerInsertMode::limBelow);
-  addLayer(layernameaxis2d_, layer(layernamegrid2d_),
-           LayerInsertMode::limAbove);
-  addLayer(layernamelegend2d_, layer(layernameaxis2d_),
-           LayerInsertMode::limAbove);
+  // set layer order
+  if (!layer(layernamebackground2d_))
+    addLayer(layernamebackground2d_, nullptr, LayerInsertMode::limBelow);
+  if (!layer(layernamegrid2d_))
+    addLayer(layernamegrid2d_, layer(layernamebackground2d_),
+             LayerInsertMode::limAbove);
+  if (!layer(layernameaxis2d_))
+    addLayer(layernameaxis2d_, layer(layernamegrid2d_),
+             LayerInsertMode::limAbove);
+  if (!layer(layernamelegend2d_))
+    addLayer(layernamelegend2d_, layer(layernameaxis2d_),
+             LayerInsertMode::limAbove);
+  // overlay layer not removed here
+  if (!removeLayer(layer("main"))) qDebug() << "unable to delete main layer";
 }
 
 Plot2D::~Plot2D() {}
@@ -82,6 +91,7 @@ bool Plot2D::saveSvg(const QString &fileName, int width, int height,
     painter.setMode(QCPPainter::pmNoCaching);
     painter.setMode(QCPPainter::pmNonCosmetic, exportPen == QCP::epNoCosmetic);
     painter.setWindow(mViewport);
+    mBackgroundBrush.setColor(getBackgroundColor());
     if (mBackgroundBrush.style() != Qt::NoBrush &&
         mBackgroundBrush.color() != Qt::white &&
         mBackgroundBrush.color() != Qt::transparent &&

@@ -15,6 +15,11 @@ class Pie2D : public QCPAbstractItem {
   Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, int from, int to);
   ~Pie2D();
 
+  enum class Style : int {
+    Pie = 0,
+    HalfPie = 1,
+  };
+
   void setGraphData(Table *table, Column *xData, int from, int to);
   // reimplemented virtual methods:
   double selectTest(const QPointF &pos, bool onlySelectable,
@@ -25,6 +30,7 @@ class Pie2D : public QCPAbstractItem {
   QColor getstrokecolor_pieplot() const;
   double getstrokethickness_pieplot() const;
   int getmarginpercent_pieplot() const;
+  Style getStyle_pieplot() const;
   Table *gettable_pieplot() { return table_; }
   Column *getxcolumn_pieplot() { return xcolumn_; }
   int getfrom_pieplot() const { return from_; }
@@ -34,6 +40,12 @@ class Pie2D : public QCPAbstractItem {
   void setstrokecolor_pieplot(const QColor &color);
   void setstrokethickness_pieplot(const double value);
   void setmarginpercent_pieplot(const int value);
+  void setstyle_pieplot(const Style &style);
+
+  void drawdoughnutslice(QPainter &painter, double startangle, double stopangle,
+                         double outerradius, double innerradius, double offset,
+                         QColor strokecolor, QColor fillcolor,
+                         double strokethikness);
 
  protected:
   void draw(QCPPainter *painter);
@@ -41,6 +53,7 @@ class Pie2D : public QCPAbstractItem {
  private:
   AxisRect2D *axisrect_;
   QVector<double> *pieData_;
+  Style style_;
   QVector<QColor> *pieColors_;
   QVector<PieLegendItem2D *> *pieLegendItems_;
   QString layername_;

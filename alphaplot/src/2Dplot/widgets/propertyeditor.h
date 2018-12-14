@@ -340,6 +340,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *vectorpropertylegendtextitem_;
 
   // Pie Properties Block
+  QtProperty *pieplotpropertystyleitem_;
   QtProperty *pieplotpropertylinestrokecoloritem_;
   QtProperty *pieplotpropertylinestrokethicknessitem_;
   QtProperty *pieplotpropertylinestroketypeitem_;

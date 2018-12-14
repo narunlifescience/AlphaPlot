@@ -48,7 +48,10 @@ AxisRect2D::AxisRect2D(Plot2D *parent, bool setupDefaultAxis)
   connect(axisRectLegend_, SIGNAL(legendClicked()), SLOT(legendClick()));
 }
 
-AxisRect2D::~AxisRect2D() { delete axisRectLegend_; }
+AxisRect2D::~AxisRect2D() {
+  insetLayout()->take(axisRectLegend_);
+  delete axisRectLegend_;
+}
 
 void AxisRect2D::setAxisRectBackground(const QBrush &brush) {
   axisRectBackGround_ = brush;
@@ -76,6 +79,7 @@ Axis2D *AxisRect2D::addAxis2D(const Axis2D::AxisOreantation &orientation,
       addAxis(QCPAxis::atTop, axis2D);
       break;
   }
+
   axes_.append(axis2D);
   emit Axis2DCreated(axis2D);
   return axis2D;
@@ -112,9 +116,19 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis, bool force) {
     return false;
   }
 
-  if (!force) {
-    if (gridpair_.first.second == axis) status = false;
-    if (gridpair_.second.second == axis) status = false;
+  if (gridpair_.first.second == axis) {
+    if (!force) {
+      status = false;
+    } else {
+      gridpair_.first.second = nullptr;
+    }
+  }
+  if (gridpair_.second.second == axis) {
+    if (!force) {
+      status = false;
+    } else {
+      gridpair_.second.second = nullptr;
+    }
   }
 
   if (!status) {
@@ -830,6 +844,13 @@ bool AxisRect2D::movechannellayer(QCPLayer *layer, QCPLayer *layerswap) {
   return layermoved;
 }
 
+void AxisRect2D::replotBareBones() const {
+  plot2d_->layer(plot2d_->getBackground2DLayerName())->replot();
+  plot2d_->layer(plot2d_->getGrid2DLayerName())->replot();
+  plot2d_->layer(plot2d_->getAxis2DLayerName())->replot();
+  plot2d_->layer(plot2d_->getLegend2DLayerName())->replot();
+}
+
 void AxisRect2D::setGraphTool(const Graph2DCommon::Picker &picker) {
   foreach (LineSpecial2D *ls, lsvec_) { ls->setpicker_lsplot(picker); }
   foreach (Curve2D *curve, curvevec_) { curve->setpicker_cplot(picker); }
@@ -847,6 +868,79 @@ void AxisRect2D::save(XmlStreamWriter *xmlwriter, const int index) {
   xmlwriter->writeBrush(backgroundBrush());
   foreach (Axis2D *axis, getAxes2D()) { axis->save(xmlwriter); }
   xmlwriter->writeEndElement();
+}
+
+bool AxisRect2D::load(XmlStreamReader *xmlreader) {
+  if (xmlreader->isStartElement() && xmlreader->name() == "layout") {
+    bool ok = false;
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "brush") break;
+      // brush
+      if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+        QBrush b = xmlreader->readBrush(&ok);
+        if (ok)
+          setBackground(b);
+        else
+          xmlreader->raiseWarning(tr("Layout brush property setting error"));
+      }
+    }
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "layout") break;
+      if (xmlreader->isStartElement() && xmlreader->name() == "axis") {
+        Axis2D::AxisOreantation type = Axis2D::AxisOreantation::Left;
+        Axis2D::TickerType tickertype = Axis2D::TickerType::Value;
+        // Type property
+        QString position = xmlreader->readAttributeString("position", &ok);
+        if (ok) {
+          if (position == "left")
+            type = Axis2D::AxisOreantation::Left;
+          else if (position == "bottom")
+            type = Axis2D::AxisOreantation::Bottom;
+          else if (position == "right")
+            type = Axis2D::AxisOreantation::Right;
+          else if (position == "top")
+            type = Axis2D::AxisOreantation::Top;
+          else
+            xmlreader->raiseError(
+                tr("(critical) Axis2D Position property setting error"));
+        } else
+          xmlreader->raiseError(
+              tr("(critical) Axis2D Position property setting error"));
+        // Tickertype property
+        QString ticker = xmlreader->readAttributeString("tickertype", &ok);
+        if (ok) {
+          if (ticker == "value")
+            tickertype = Axis2D::TickerType::Value;
+          else if (ticker == "log")
+            tickertype = Axis2D::TickerType::Log;
+          else if (ticker == "pi")
+            tickertype = Axis2D::TickerType::Pi;
+          else if (ticker == "time")
+            tickertype = Axis2D::TickerType::Time;
+          else if (ticker == "datetime")
+            tickertype = Axis2D::TickerType::DateTime;
+          else if (ticker == "text")
+            tickertype = Axis2D::TickerType::Text;
+          else {
+            xmlreader->raiseError(
+                tr("(critical) Axis2D Tickertype property setting error"));
+          }
+        } else
+          xmlreader->raiseError(
+              tr("(critical) Axis2D Tickertype property setting error"));
+        Axis2D *axis = addAxis2D(type, tickertype);
+        axis->load(xmlreader);
+      } else
+        // unknown element
+        xmlreader->raiseWarning(
+            tr("unknown element '%1'").arg(xmlreader->name().toString()));
+    }
+  } else  // no plot2d element
+    xmlreader->raiseError(tr("no axisrect2d element found"));
+
+  return !xmlreader->hasError();
 }
 
 void AxisRect2D::mousePressEvent(QMouseEvent *event, const QVariant &variant) {

@@ -48,6 +48,7 @@ class LineItem2D : public QCPItemLine {
   QString layername_;
   bool dragginglineitem_;
   QPointF draglineitemorigin_;
+  QPointF draglineitemendin_;
   bool draggingendlineitem_;
   bool draggingstartlineitem_;
   bool lineitemclicked_;

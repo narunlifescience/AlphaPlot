@@ -538,6 +538,19 @@ void Curve2D::draw(QCPPainter *painter) {
   QCPCurve::draw(painter);
 }
 
+void Curve2D::drawCurveLine(QCPPainter *painter,
+                            const QVector<QPointF> &lines) const {
+  QCPCurve::drawCurveLine(painter, lines);
+
+  // draw base fill under graph, fill goes all the way to the zero-value-line:
+  /*painter->setBrush(QBrush(Qt::red));
+  QPolygonF result(lines.size() + 2);
+  result[0] = QPointF(0, lines.at(0).y());
+  result.append(lines);
+  result.append(QPointF(0, lines.at(lines.size() - 1).y()));
+  painter->drawPolygon(result);*/
+}
+
 void Curve2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   if (event->button() == Qt::LeftButton) {
     switch (picker_) {

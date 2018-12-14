@@ -72,6 +72,7 @@ class Layout2D : public MyWidget {
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void print();
   void save(XmlStreamWriter *xmlwriter);
+  bool load(XmlStreamReader *xmlreader);
   void loadIcons();
 
  public slots:

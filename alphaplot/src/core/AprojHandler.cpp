@@ -237,7 +237,8 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
       note->load(xmlreader.get());
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "plot2d") {
-      qDebug() << xmlreader->name();
+      Layout2D *plot2d = app->newGraph2D();
+      plot2d->load(xmlreader.get());
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "plot3d") {
       Graph3D *plot = app->newPlot3D();

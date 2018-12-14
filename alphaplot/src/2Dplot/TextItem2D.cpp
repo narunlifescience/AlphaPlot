@@ -16,6 +16,7 @@ TextItem2D::TextItem2D(AxisRect2D *axisrect, Plot2D *plot)
     setLayer(layername_);
   }
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
+  setClipToAxisRect(true);
   setClipAxisRect(axisrect_);
   setAntialiased(false);
   setstrokestyle_textitem(Qt::SolidLine);
@@ -100,6 +101,7 @@ void TextItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   if (event->button() == Qt::LeftButton) {
     if (selectTest(event->pos(), false) > 0) {
       draggingtextitem_ = true;
+      dragtextitemorigin_ = event->localPos() - position->pixelPosition();
       cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
       axisrect_->getParentPlot2D()->setCursor(
           Qt::CursorShape::ClosedHandCursor);
@@ -124,7 +126,7 @@ void TextItem2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
     if (event->pos().y() > axisrect_->bottom()) {
       eventpos.setY(axisrect_->bottom());
     }
-    position->setPixelPosition(eventpos);
+    position->setPixelPosition(eventpos - dragtextitemorigin_);
     this->layer()->replot();
   }
 }

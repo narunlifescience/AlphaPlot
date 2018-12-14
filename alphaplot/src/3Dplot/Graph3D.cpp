@@ -2624,7 +2624,7 @@ bool Graph3D::load(XmlStreamReader* xmlreader) {
       }
     }
   } else  // no note element
-    xmlreader->raiseError(tr("no table element found"));
+    xmlreader->raiseError(tr("no plot3d element found"));
 
   return !xmlreader->hasError();
 

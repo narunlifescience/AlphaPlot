@@ -20,6 +20,7 @@
 #include "LineSpecial2D.h"
 #include "Matrix.h"
 #include "Table.h"
+#include "TextItem2D.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "future/lib/XmlStreamWriter.h"
@@ -28,6 +29,7 @@
 
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
+#include "future/core/datatypes/DateTime2StringFilter.h"
 
 Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
                    Qt::WindowFlags f)
@@ -329,7 +331,11 @@ void Layout2D::generateColorMap2DPlot(Matrix *matrix, bool greyscale,
 QList<AxisRect2D *> Layout2D::getAxisRectList() {
   QList<AxisRect2D *> elementslist;
   for (int i = 0; i < layout_->elementCount(); i++) {
-    elementslist.append(static_cast<AxisRect2D *>(layout_->elementAt(i)));
+    AxisRect2D *axisrect = dynamic_cast<AxisRect2D *>(layout_->elementAt(i));
+    if (axisrect)
+      elementslist.append(axisrect);
+    else
+      qDebug() << "unable to cast AxisRect2D";
   }
   return elementslist;
 }
@@ -517,6 +523,9 @@ void Layout2D::removeAxisRectItem() {
   foreach (LineSpecial2D *ls, currentAxisRect_->getLsVec()) {
     currentAxisRect_->removeLineSpecial2D(ls);
   }
+  for (int i = 0; i < currentAxisRect_->getChannelVec().count(); i++) {
+    currentAxisRect_->removeChannel2D(currentAxisRect_->getChannelVec().at(i));
+  }
   foreach (Curve2D *curve, currentAxisRect_->getCurveVec()) {
     currentAxisRect_->removeCurve2D(curve);
   }
@@ -538,9 +547,6 @@ void Layout2D::removeAxisRectItem() {
   foreach (Axis2D *axis, currentAxisRect_->getAxes2D()) {
     currentAxisRect_->removeAxis2D(axis, true);
   }
-  for (int i = 0; i < currentAxisRect_->getChannelVec().count(); i++) {
-    currentAxisRect_->removeChannel2D(currentAxisRect_->getChannelVec().at(i));
-  }
 
   removeAxisRect(getAxisRectIndex(currentAxisRect_));
   emit AxisRectRemoved(this);
@@ -549,7 +555,7 @@ void Layout2D::removeAxisRectItem() {
 void Layout2D::axisRectSetFocus(AxisRect2D *rect) {
   if (!rect) return;
 
-  LayoutButton2D *button;
+  LayoutButton2D *button = nullptr;
   if (currentAxisRect_) {
     if (currentAxisRect_ != rect) {
       currentAxisRect_->setSelected(false);
@@ -557,11 +563,13 @@ void Layout2D::axisRectSetFocus(AxisRect2D *rect) {
       if (button) button->setActive(false);
     }
   }
+
   currentAxisRect_ = rect;
   currentAxisRect_->setSelected(true);
-  button = buttionlist_.at(getAxisRectIndex(rect));
+  if (getAxisRectIndex(rect) < buttionlist_.size())
+    button = buttionlist_.at(getAxisRectIndex(rect));
   if (button) button->setActive(true);
-  plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+  plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpImmediateRefresh);
 }
 
 void Layout2D::activateLayout(LayoutButton2D *button) {
@@ -609,16 +617,7 @@ void Layout2D::mouseReleaseSignal(QMouseEvent *event) {
   }
 }
 
-void Layout2D::mouseWheel() {
-  // zoom axis individually or in group
-  //  if (currentAxisRect_->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
-  //    currentAxisRect_->setRangeZoom(ui->customPlot->xAxis->orientation());
-  //  else if
-  //  (ui->customPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
-  //    currentAxisRect_->setRangeZoom(ui->customPlot->yAxis->orientation());
-  //  else
-  currentAxisRect_->setRangeZoom(Qt::Horizontal | Qt::Vertical);
-}
+void Layout2D::mouseWheel() {}
 
 void Layout2D::beforeReplot() {
   if (currentAxisRect_) {
@@ -627,7 +626,7 @@ void Layout2D::beforeReplot() {
 }
 
 void Layout2D::refresh() {
-  plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+  plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpImmediateRefresh);
 }
 
 bool Layout2D::exportGraph() {
@@ -736,7 +735,8 @@ void Layout2D::updateData(Matrix *matrix) {
     foreach (ColorMap2D *colormap, colormapvec) {
       if (colormap->getmatrix_colormap() == matrix) {
         colormap->setColorMapData(matrix);
-        plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+        colormap->layer()->replot();
+        colormap->getxaxis()->getaxisrect_axis()->replotBareBones();
       }
     }
   }
@@ -1247,29 +1247,25 @@ void Layout2D::setLayoutDimension(QPair<int, int> dimension) {
 
 void Layout2D::removeAxisRect(int index) {
   // if no elements to remove
-  if (index < 0) {
-    qDebug() << "no element to remove from the layout";
+  if (index < 0 || index >= getAxisRectList().count()) {
     return;
   }
 
   // if removed element is the currently selected element
-  AxisRect2D *axrect = static_cast<AxisRect2D *>(layout_->elementAt(index));
-
+  AxisRect2D *axrect = dynamic_cast<AxisRect2D *>(layout_->elementAt(index));
   if (!axrect) return;
-
-  if (axrect->isSelected()) {
+  axrect = nullptr;
+  if (index == 0 && index + 1 < getAxisRectList().count())
+    axrect = dynamic_cast<AxisRect2D *>(layout_->elementAt(index + 1));
+  else if (index > 0)
+    axrect = dynamic_cast<AxisRect2D *>(layout_->elementAt(index - 1));
+  else
     axrect = nullptr;
-    if (index == 0) {
-      axrect = static_cast<AxisRect2D *>(layout_->elementAt(index + 1));
-    } else {
-      axrect = static_cast<AxisRect2D *>(layout_->elementAt(index - 1));
-    }
 
-    if (axrect) {
-      axisRectSetFocus(axrect);
-    } else {
-      currentAxisRect_ = nullptr;
-    }
+  if (axrect) {
+    axisRectSetFocus(axrect);
+  } else {
+    currentAxisRect_ = nullptr;
   }
 
   // remove layout button
@@ -1278,6 +1274,7 @@ void Layout2D::removeAxisRect(int index) {
   // remove the element & adjust layout accordingly
   layout_->remove(layout_->elementAt(index));
   layout_->simplify();
+  if (axrect) axisRectSetFocus(axrect);
   plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
@@ -1380,10 +1377,97 @@ void Layout2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeAttribute("caption_spec", QString::number(captionPolicy()));
   xmlwriter->writeAttribute("name", name());
   xmlwriter->writeAttribute("label", windowLabel());
+  xmlwriter->writeStartElement("canvas");
+  xmlwriter->writeAttribute(
+      "devicepixelratio",
+      QString::number(plot2dCanvas_->bufferDevicePixelRatio()));
+  (plot2dCanvas_->openGl()) ? xmlwriter->writeAttribute("opengl", "true")
+                            : xmlwriter->writeAttribute("opengl", "false");
+  xmlwriter->writeAttribute(
+      "backgroundcolor",
+      plot2dCanvas_->getBackgroundColor().name(QColor::HexArgb));
+  xmlwriter->writeEndElement();
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
     axisrect->save(xmlwriter, getAxisRectIndex(axisrect));
   }
   xmlwriter->writeEndElement();
+}
+
+bool Layout2D::load(XmlStreamReader *xmlreader) {
+  if (xmlreader->isStartElement() && xmlreader->name() == "plot2d") {
+    bool ok = false;
+    // read name
+    QString name = xmlreader->readAttributeString("name", &ok);
+    if (ok) {
+      setName(name);
+    } else
+      xmlreader->raiseWarning(tr("Layout2D name missing or empty"));
+    // read name
+    QString label = xmlreader->readAttributeString("label", &ok);
+    if (ok) {
+      setWindowLabel(name);
+    } else
+      xmlreader->raiseWarning(tr("Layout2D label missing or empty"));
+    // read creation time
+    QString time = xmlreader->readAttributeString("creation_time", &ok);
+    QDateTime creation_time =
+        QDateTime::fromString(time, "yyyy-dd-MM hh:mm:ss:zzz");
+    if (!time.isEmpty() && creation_time.isValid() && ok) {
+      setBirthDate(creation_time.toString());
+    } else {
+      xmlreader->raiseWarning(
+          tr("Invalid creation time. Using current time insted."));
+      setBirthDate(QDateTime::currentDateTime().toString());
+    }
+    // read caption spec
+    int captionspec = xmlreader->readAttributeInt("caption_spec", &ok);
+    if (ok)
+      setCaptionPolicy(static_cast<MyWidget::CaptionPolicy>(captionspec));
+    else
+      xmlreader->raiseWarning(tr("Invalid caption policy or read error."));
+
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "canvas") break;
+      if (xmlreader->isStartElement() && xmlreader->name() == "canvas") {
+        double dpr = xmlreader->readAttributeDouble("devicepixelratio", &ok);
+        if (ok)
+          plot2dCanvas_->setBufferDevicePixelRatio(dpr);
+        else
+          xmlreader->raiseWarning(
+              tr("Layout2D devicepixelratio missing or empty"));
+        bool opgl = xmlreader->readAttributeBool("opengl", &ok);
+        if (ok)
+          plot2dCanvas_->setOpenGl(opgl);
+        else
+          xmlreader->raiseWarning(tr("Layout2D opengl missing or empty"));
+        //
+        QString bkcol = xmlreader->readAttributeString("backgroundcolor", &ok);
+        if (ok)
+          plot2dCanvas_->setBackgroundColor(bkcol);
+        else
+          xmlreader->raiseWarning(
+              tr("Layout2D background color missing or empty"));
+      }
+    }
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "plot2d") break;
+      if (xmlreader->isStartElement() && xmlreader->name() == "layout") {
+        AxisRect2D *axisrect = addAxisRectItem();
+        foreach (Axis2D *axis, axisrect->getAxes2D()) {
+          axisrect->removeAxis2D(axis, true);
+        }
+        axisrect->load(xmlreader);
+      } else
+        // unknown element
+        xmlreader->raiseWarning(
+            tr("unknown element '%1'").arg(xmlreader->name().toString()));
+    }
+  } else  // no plot2d element
+    xmlreader->raiseError(tr("no plot2d element found"));
+
+  return !xmlreader->hasError();
 }
 
 void Layout2D::loadIcons() {

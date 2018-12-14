@@ -31,6 +31,7 @@ Axis2D::Axis2D(AxisRect2D *parent, AxisType type, TickerType tickertype)
       ticker_ = ticker();
       break;
     case Axis2D::TickerType::Log:
+      setscaletype_axis(Axis2D::AxisScaleType::Logarithmic);
       ticker_ = QSharedPointer<QCPAxisTicker>(new QCPAxisTickerLog);
       break;
     case Axis2D::TickerType::Pi:
@@ -41,8 +42,6 @@ Axis2D::Axis2D(AxisRect2D *parent, AxisType type, TickerType tickertype)
       break;
     case Axis2D::TickerType::Time:
       ticker_ = QSharedPointer<QCPAxisTicker>(new QCPAxisTickerTime);
-      qSharedPointerCast<QCPAxisTickerDateTime>(ticker_)->setDateTimeFormat(
-          "d. MMMM\nyyyy");
       break;
     case Axis2D::TickerType::DateTime:
       ticker_ = QSharedPointer<QCPAxisTicker>(new QCPAxisTickerDateTime);
@@ -376,6 +375,8 @@ void Axis2D::setticklabelprecision_axis(const int value) {
 
 void Axis2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeStartElement("axis");
+  (getshowhide_axis()) ? xmlwriter->writeAttribute("visible", "true")
+                       : xmlwriter->writeAttribute("visible", "false");
   switch (getorientation_axis()) {
     case Axis2D::AxisOreantation::Left:
       xmlwriter->writeAttribute("position", "left");
@@ -410,8 +411,6 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
       xmlwriter->writeAttribute("tickertype", "text");
       break;
   }
-  (getshowhide_axis()) ? xmlwriter->writeAttribute("visible", "true")
-                       : xmlwriter->writeAttribute("visible", "false");
   xmlwriter->writeAttribute("offset", QString::number(getoffset_axis()));
   xmlwriter->writeAttribute("from", QString::number(getfrom_axis()));
   xmlwriter->writeAttribute("to", QString::number(getto_axis()));
@@ -425,6 +424,9 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
   }
   (getinverted_axis()) ? xmlwriter->writeAttribute("inverted", "true")
                        : xmlwriter->writeAttribute("inverted", "false");
+  (getantialiased_axis()) ? xmlwriter->writeAttribute("antialias", "true")
+                          : xmlwriter->writeAttribute("antialias", "false");
+  xmlwriter->writePen(basePen());
   xmlwriter->writeStartElement("label");
   xmlwriter->writeAttribute("text", getlabeltext_axis());
   xmlwriter->writeAttribute("padding", QString::number(getlabelpadding_axis()));
@@ -432,19 +434,25 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeEndElement();
   // Ticks
   xmlwriter->writeStartElement("ticks");
+  (gettickvisibility_axis()) ? xmlwriter->writeAttribute("visible", "true")
+                             : xmlwriter->writeAttribute("visible", "false");
   xmlwriter->writeAttribute("in", QString::number(getticklengthin_axis()));
   xmlwriter->writeAttribute("out", QString::number(getticklengthout_axis()));
   xmlwriter->writePen(tickPen());
   xmlwriter->writeEndElement();
   // Subticks
   xmlwriter->writeStartElement("subticks");
+  (getsubtickvisibility_axis()) ? xmlwriter->writeAttribute("visible", "true")
+                                : xmlwriter->writeAttribute("visible", "false");
   xmlwriter->writeAttribute("in", QString::number(getsubticklengthin_axis()));
   xmlwriter->writeAttribute("out", QString::number(getsubticklengthout_axis()));
   xmlwriter->writePen(subTickPen());
   xmlwriter->writeEndElement();
   // Tick Labels
   xmlwriter->writeStartElement("ticklabels");
-  xmlwriter->writeFont(getticklabelfont_axis(), getticklabelcolor_axis());
+  (getticklabelvisibility_axis())
+      ? xmlwriter->writeAttribute("visible", "true")
+      : xmlwriter->writeAttribute("visible", "false");
   xmlwriter->writeAttribute("padding",
                             QString::number(getticklabelpadding_axis()));
   xmlwriter->writeAttribute("rotation",
@@ -488,106 +496,268 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
   }
   xmlwriter->writeAttribute("precision",
                             QString::number(getticklabelprecision_axis()));
+  xmlwriter->writeFont(getticklabelfont_axis(), getticklabelcolor_axis());
   xmlwriter->writeEndElement();
   xmlwriter->writeEndElement();
 }
 
-Axis2D *Axis2D::load(XmlStreamReader *xmlreader, AxisRect2D *axisrect) {
-  Axis2D *axis = nullptr;
+bool Axis2D::load(XmlStreamReader *xmlreader) {
   if (xmlreader->isStartElement() && xmlreader->name() == "axis") {
     bool ok;
-    AxisType type = AxisType::atLeft;
-    TickerType tickertype = TickerType::Value;
-    // Type property
-    QString position = xmlreader->readAttributeString("position", &ok);
-    if (ok) {
-      if (position == "left")
-        type = AxisType::atLeft;
-      else if (position == "bottom")
-        type = AxisType::atBottom;
-      else if (position == "right")
-        type = AxisType::atRight;
-      else if (position == "top")
-        type = AxisType::atTop;
-      else {
-        qDebug() << "(critical) Axis2D Position property setting error";
-        return axis;
-      }
-    } else
-      return axis;
-    // Tickertype property
-    QString ticker = xmlreader->readAttributeString("tickertype", &ok);
-    if (ok) {
-      if (ticker == "value")
-        tickertype = TickerType::Value;
-      else if (ticker == "log")
-        tickertype = TickerType::Log;
-      else if (ticker == "pi")
-        tickertype = TickerType::Pi;
-      else if (ticker == "time")
-        tickertype = TickerType::Time;
-      else if (ticker == "datetime")
-        tickertype = TickerType::DateTime;
-      else if (ticker == "text")
-        tickertype = TickerType::Text;
-      else {
-        qDebug() << "(critical) Axis2D Tickertype property setting error";
-        return axis;
-      }
-    } else
-      return axis;
-    axis = new Axis2D(axisrect, type, tickertype);
     // visible property
     bool visible = xmlreader->readAttributeBool("visible", &ok);
     if (ok)
-      axis->setshowhide_axis(visible);
+      setshowhide_axis(visible);
     else
-      qDebug() << "Axis2D visible property setting error";
+      xmlreader->raiseWarning(tr("Axis2D visible property setting error"));
     // offset property
     int offset = xmlreader->readAttributeInt("offset", &ok);
     if (ok)
-      axis->setoffset_axis(offset);
+      setoffset_axis(offset);
     else
-      qDebug() << "Axis2D offset property setting error";
+      xmlreader->raiseWarning(tr("Axis2D offset property setting error"));
     // from property
     double from = xmlreader->readAttributeDouble("from", &ok);
     if (ok)
-      axis->setfrom_axis(from);
+      setfrom_axis(from);
     else
-      qDebug() << "Axis2D from property setting error";
+      xmlreader->raiseWarning(tr("Axis2D from property setting error"));
     // to property
     double to = xmlreader->readAttributeDouble("to", &ok);
     if (ok)
-      axis->setto_axis(to);
+      setto_axis(to);
     else
-      qDebug() << "Axis2D to property setting error";
+      xmlreader->raiseWarning(tr("Axis2D to property setting error"));
     // Scaletype property
     QString scaletype = xmlreader->readAttributeString("scaletype", &ok);
     if (ok) {
       if (scaletype == "linear")
-        axis->setscaletype_axis(AxisScaleType::Linear);
-      else if (scaletype == "bottom")
-        axis->setscaletype_axis(AxisScaleType::Logarithmic);
+        setscaletype_axis(AxisScaleType::Linear);
+      else if (scaletype == "logarithemic")
+        setscaletype_axis(AxisScaleType::Logarithmic);
       else
-        qDebug() << "Axis2D Scaletype property setting error";
+        xmlreader->raiseWarning(tr("Axis2D Scaletype property setting error"));
     } else
-      qDebug() << "Axis2D Scaletype property setting error";
+      xmlreader->raiseWarning(tr("Axis2D Scaletype property setting error"));
     // inverted property
     bool inverted = xmlreader->readAttributeBool("inverted", &ok);
     if (ok)
-      axis->setinverted_axis(inverted);
+      setinverted_axis(inverted);
     else
-      qDebug() << "Axis2D inverted property setting error";
+      xmlreader->raiseWarning(tr("Axis2D inverted property setting error"));
+    // antialias property
+    bool antialias = xmlreader->readAttributeBool("antialias", &ok);
+    if (ok)
+      setantialiased_axis(antialias);
+    else
+      xmlreader->raiseWarning(tr("Axis2D antialias property setting error"));
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+      // pen
+      if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+        QPen basep = xmlreader->readPen(&ok);
+        if (ok)
+          setBasePen(basep);
+        else
+          xmlreader->raiseWarning(tr("Axis2D pen property setting error"));
+      }
+    }
     // Loop through sub elements
     while (!xmlreader->atEnd()) {
-      if (xmlreader->isStartElement() && xmlreader->name() == "axis") {
-      }
-      if (xmlreader->isEndElement() && xmlreader->name() == "axis") break;
       xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "axis") break;
+      // Label element
+      if (xmlreader->isStartElement() && xmlreader->name() == "label") {
+        // Label text
+        QString text = xmlreader->readAttributeString("text", &ok);
+        if (ok)
+          setlabeltext_axis(text);
+        else
+          xmlreader->raiseWarning(tr("Axis2D label property setting error"));
+        // Label padding
+        int padding = xmlreader->readAttributeInt("padding", &ok);
+        if (ok)
+          setlabelpadding_axis(padding);
+        else
+          xmlreader->raiseWarning(tr("Axis2D padding property setting error"));
+        while (!xmlreader->atEnd()) {
+          xmlreader->readNext();
+          if (xmlreader->isEndElement() && xmlreader->name() == "label") break;
+          if (xmlreader->isStartElement() && xmlreader->name() == "font") {
+            QPair<QFont, QColor> fontpair = xmlreader->readFont(&ok);
+            if (ok) {
+              setlabelfont_axis(fontpair.first);
+              setlabelcolor_axis(fontpair.second);
+            } else
+              xmlreader->raiseWarning(
+                  tr("Axis2D font & color property setting error"));
+          }
+        }
+      }
+      // Ticks element
+      if (xmlreader->isStartElement() && xmlreader->name() == "ticks") {
+        // tick visible property
+        bool tickvisible = xmlreader->readAttributeBool("visible", &ok);
+        if (ok)
+          settickvisibility_axis(tickvisible);
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D tick visible property setting error"));
+        // Ticks in
+        int in = xmlreader->readAttributeInt("in", &ok);
+        if (ok)
+          setticklengthin_axis(in);
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D Tick length in property setting error"));
+        // Tick out
+        int out = xmlreader->readAttributeInt("out", &ok);
+        if (ok)
+          setticklengthout_axis(out);
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D Tick Length out property setting error"));
+        while (!xmlreader->atEnd()) {
+          xmlreader->readNext();
+          if (xmlreader->isEndElement() && xmlreader->name() == "ticks") break;
+          if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+            QPen p = xmlreader->readPen(&ok);
+            if (ok) {
+              setTickPen(p);
+            } else
+              xmlreader->raiseWarning(
+                  tr("Axis2D tick pen property setting error"));
+          }
+        }
+      }
+      // Sub Ticks element
+      if (xmlreader->isStartElement() && xmlreader->name() == "subticks") {
+        // visible property
+        bool subtickvisible = xmlreader->readAttributeBool("visible", &ok);
+        if (ok)
+          setsubtickvisibility_axis(subtickvisible);
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D subtick visible property setting error"));
+        // Ticks in
+        int in = xmlreader->readAttributeInt("in", &ok);
+        if (ok)
+          setsubticklengthin_axis(in);
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D subTick length in property setting error"));
+        // out length
+        int out = xmlreader->readAttributeInt("out", &ok);
+        if (ok)
+          setsubticklengthout_axis(out);
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D subTick Length out property setting error"));
+        while (!xmlreader->atEnd()) {
+          xmlreader->readNext();
+          if (xmlreader->isEndElement() && xmlreader->name() == "subticks")
+            break;
+          if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+            QPen p = xmlreader->readPen(&ok);
+            if (ok) {
+              setSubTickPen(p);
+            } else
+              xmlreader->raiseWarning(
+                  tr("Axis2D subtick pen property setting error"));
+          }
+        }
+      }
+      // Tick label element
+      if (xmlreader->isStartElement() && xmlreader->name() == "ticklabels") {
+        // visible property
+        bool ticklabelvisible = xmlreader->readAttributeBool("visible", &ok);
+        if (ok)
+          setticklabelvisibility_axis(ticklabelvisible);
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D tick label visible property setting error"));
+        // Tick label padding
+        int ticklabelpadding = xmlreader->readAttributeInt("padding", &ok);
+        if (ok)
+          setticklabelpadding_axis(ticklabelpadding);
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D tick label padding in property setting error"));
+        // Tick Label Rotation
+        double ticklabelrotation =
+            xmlreader->readAttributeDouble("rotation", &ok);
+        if (ok)
+          setticklabelrotation_axis(ticklabelrotation);
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D tick label rotation property setting error"));
+        // Tick label side
+        QString ticklabelside = xmlreader->readAttributeString("side", &ok);
+        if (ok)
+          if (ticklabelside == "up")
+            setticklabelside_axis(Axis2D::AxisLabelSide::Inside);
+          else if (ticklabelside == "down")
+            setticklabelside_axis(Axis2D::AxisLabelSide::Outside);
+          else
+            xmlreader->raiseWarning(
+                tr("Axis2D tick label side property setting error"));
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D tick label side property setting error"));
+        // tick label format
+        QString ticklabelformat = xmlreader->readAttributeString("format", &ok);
+        if (ok)
+          if (ticklabelformat == "E")
+            setticklabelformat_axis(Axis2D::AxisLabelFormat::E);
+          else if (ticklabelformat == "G")
+            setticklabelformat_axis(Axis2D::AxisLabelFormat::G);
+          else if (ticklabelformat == "e")
+            setticklabelformat_axis(Axis2D::AxisLabelFormat::e);
+          else if (ticklabelformat == "eb")
+            setticklabelformat_axis(Axis2D::AxisLabelFormat::eb);
+          else if (ticklabelformat == "ebc")
+            setticklabelformat_axis(Axis2D::AxisLabelFormat::ebc);
+          else if (ticklabelformat == "f")
+            setticklabelformat_axis(Axis2D::AxisLabelFormat::f);
+          else if (ticklabelformat == "g")
+            setticklabelformat_axis(Axis2D::AxisLabelFormat::g);
+          else if (ticklabelformat == "gb")
+            setticklabelformat_axis(Axis2D::AxisLabelFormat::gb);
+          else if (ticklabelformat == "gbc")
+            setticklabelformat_axis(Axis2D::AxisLabelFormat::gbc);
+          else
+            xmlreader->raiseWarning(
+                tr("Axis2D tick label format property setting error"));
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D tick label format property setting error"));
+        // Tick label precision
+        int ticklabelprecision = xmlreader->readAttributeInt("precision", &ok);
+        if (ok)
+          setticklabelprecision_axis(ticklabelprecision);
+        else
+          xmlreader->raiseWarning(
+              tr("Axis2D tick label precision property setting error"));
+        while (!xmlreader->atEnd()) {
+          xmlreader->readNext();
+          if (xmlreader->isEndElement() && xmlreader->name() == "ticklabels")
+            break;
+          if (xmlreader->isStartElement() && xmlreader->name() == "font") {
+            QPair<QFont, QColor> fontpair = xmlreader->readFont(&ok);
+            if (ok) {
+              setticklabelfont_axis(fontpair.first);
+              setticklabelcolor_axis(fontpair.second);
+            } else
+              xmlreader->raiseWarning(
+                  tr("Axis2D font & color property setting error"));
+          }
+        }
+      }
     }
-  } else {  // no element
+  } else  // no element
     xmlreader->raiseError(tr("no axis element found"));
-    return axis;
-  }
-  return axis;
+
+  return !xmlreader->hasError();
+  ;
 }

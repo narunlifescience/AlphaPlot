@@ -85,6 +85,10 @@ class XmlStreamReader : public QXmlStreamReader {
   QString readAttributeString(const QString& name, bool* ok);
   QXmlStreamAttributes readElements(const QString& element, bool* ok);
 
+  QPair<QFont, QColor> readFont(bool* ok);
+  QPen readPen(bool* ok);
+  QBrush readBrush(bool* ok);
+
  private:
   QStringList d_warnings;
   QString d_error_prefix;

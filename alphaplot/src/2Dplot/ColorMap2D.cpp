@@ -54,8 +54,8 @@ void ColorMap2D::setColorMapData(Matrix *matrix) {
     for (int j = 0; j < matrix_->numCols(); j++) {
       value = matrix_->cell(i, j);
       data_->setCell(i, j, value);
-      if (datamin > value) datamin = value;
-      if (datamax < value) datamax = value;
+      datamin = qMin(datamin, value);
+      datamax = qMax(datamax, value);
     }
   }
   setDataRange(QCPRange(datamin, datamax));

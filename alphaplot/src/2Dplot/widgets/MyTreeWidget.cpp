@@ -270,8 +270,42 @@ MyTreeWidget::~MyTreeWidget() {}
 
 void MyTreeWidget::CurrentItemChanged(QTreeWidgetItem *current) {
   if (!current) return;
-  void *ptr = current->data(0, Qt::UserRole + 1).value<void *>();
-  AxisRect2D *currentaxisrect = static_cast<AxisRect2D *>(ptr);
+  AxisRect2D *currentaxisrect = nullptr;
+
+  switch (static_cast<MyTreeWidget::PropertyItemType>(
+      current->data(0, Qt::UserRole).value<int>())) {
+    case MyTreeWidget::PropertyItemType::Layout: {
+      void *ptr = current->data(0, Qt::UserRole + 1).value<void *>();
+      currentaxisrect = static_cast<AxisRect2D *>(ptr);
+    } break;
+    case MyTreeWidget::PropertyItemType::Grid:
+    case MyTreeWidget::PropertyItemType::Axis:
+    case MyTreeWidget::PropertyItemType::Legend:
+    case MyTreeWidget::PropertyItemType::TextItem:
+    case MyTreeWidget::PropertyItemType::LineItem:
+    case MyTreeWidget::PropertyItemType::ImageItem:
+    case MyTreeWidget::PropertyItemType::LSGraph:
+    case MyTreeWidget::PropertyItemType::ChannelGraph:
+    case MyTreeWidget::PropertyItemType::Curve:
+    case MyTreeWidget::PropertyItemType::BarGraph:
+    case MyTreeWidget::PropertyItemType::StatBox:
+    case MyTreeWidget::PropertyItemType::Vector:
+    case MyTreeWidget::PropertyItemType::PieGraph:
+    case MyTreeWidget::PropertyItemType::ColorMap: {
+      void *ptr = current->parent()->data(0, Qt::UserRole + 1).value<void *>();
+      currentaxisrect = static_cast<AxisRect2D *>(ptr);
+    } break;
+    case MyTreeWidget::PropertyItemType::ErrorBar: {
+      void *ptr = current->parent()
+                      ->parent()
+                      ->data(0, Qt::UserRole + 1)
+                      .value<void *>();
+      currentaxisrect = static_cast<AxisRect2D *>(ptr);
+    } break;
+    case MyTreeWidget::PropertyItemType::PlotCanvas:
+      break;
+  }
+
   if (currentaxisrect) currentaxisrect->selectAxisRect();
 }
 

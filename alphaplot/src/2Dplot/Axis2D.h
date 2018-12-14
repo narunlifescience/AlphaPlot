@@ -140,7 +140,7 @@ class Axis2D : public QCPAxis {
   void setticklabelprecision_axis(const int value);
 
   void save(XmlStreamWriter *xmlwriter);
-  Axis2D *load(XmlStreamReader *xmlreader, AxisRect2D *axisrect);
+  bool load(XmlStreamReader *xmlreader);
 
  private:
   AxisRect2D *axisrect_;

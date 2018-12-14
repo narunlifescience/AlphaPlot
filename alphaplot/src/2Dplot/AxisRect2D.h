@@ -167,6 +167,8 @@ class AxisRect2D : public QCPAxisRect {
   bool moveLayer(QCPLayer *layer, const QCustomPlot::LayerInsertMode &mode);
   bool movechannellayer(QCPLayer *layer, QCPLayer *layerswap);
 
+  void replotBareBones() const;
+
   void setPrintorExportJob(bool value) { printorexportjob_ = value; }
   void setGraphTool(const Graph2DCommon::Picker &picker);
 
@@ -184,6 +186,7 @@ class AxisRect2D : public QCPAxisRect {
     return addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Pi);
   }
   void save(XmlStreamWriter *xmlwriter, const int index);
+  bool load(XmlStreamReader *xmlreader);
 
  protected:
   void mousePressEvent(QMouseEvent *, const QVariant &variant);

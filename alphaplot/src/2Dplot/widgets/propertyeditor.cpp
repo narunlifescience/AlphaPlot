@@ -644,6 +644,11 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   vectorpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
 
   // Pie Properties Block
+  QStringList piestyle;
+  piestyle << "Pie"
+           << "Half Pie";
+  pieplotpropertystyleitem_ = enumManager_->addProperty("Style");
+  enumManager_->setEnumNames(pieplotpropertystyleitem_, piestyle);
   pieplotpropertylinestrokecoloritem_ =
       colorManager_->addProperty("Stroke Color");
   pieplotpropertylinestrokethicknessitem_ =
@@ -2414,6 +2419,11 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     vector->setendstyle_vecplot(static_cast<Vector2D::LineEnd>(value),
                                 Vector2D::LineEndLocation::Start);
     vector->layer()->replot();
+  } else if (prop->compare(pieplotpropertystyleitem_)) {
+    Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
+    pie->setstyle_pieplot(static_cast<Pie2D::Style>(value));
+    pie->layer()->replot();
+    pie->getaxisrect()->replotBareBones();
   } else if (prop->compare(pieplotpropertylinestroketypeitem_)) {
     Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
     pie->setstrokestyle_pieplot(static_cast<Qt::PenStyle>(value + 1));
@@ -3498,11 +3508,14 @@ void PropertyEditor::Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect) {
   propertybrowser_->clear();
 
   // Pie Properties Block
+  propertybrowser_->addProperty(pieplotpropertystyleitem_);
   propertybrowser_->addProperty(pieplotpropertylinestrokecoloritem_);
   propertybrowser_->addProperty(pieplotpropertylinestrokethicknessitem_);
   propertybrowser_->addProperty(pieplotpropertylinestroketypeitem_);
   propertybrowser_->addProperty(pieplotpropertymarginpercentitem_);
 
+  enumManager_->setValue(pieplotpropertystyleitem_,
+                         static_cast<int>(piegraph->getStyle_pieplot()));
   colorManager_->setValue(pieplotpropertylinestrokecoloritem_,
                           piegraph->getstrokecolor_pieplot());
   doubleManager_->setValue(pieplotpropertylinestrokethicknessitem_,
@@ -4516,43 +4529,50 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::LineSpecial2DCreated, [=](LineSpecial2D *ls) {
-    ls->layer()->replot();
+  connect(axisrect, &AxisRect2D::LineSpecial2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::LineSpecialChannel2DCreated,
-          [=](QPair<LineSpecial2D *, LineSpecial2D *> pair) {
-            pair.first->layer()->replot();
-            pair.second->layer()->replot();
-            objectschanged();
-          });
+  connect(axisrect, &AxisRect2D::LineSpecialChannel2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
 
-  connect(axisrect, &AxisRect2D::Curve2DCreated, [=](Curve2D *curve) {
-    curve->layer()->replot();
+  connect(axisrect, &AxisRect2D::Curve2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::StatBox2DCreated, [=](StatBox2D *statbox) {
-    statbox->layer()->replot();
+  connect(axisrect, &AxisRect2D::StatBox2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::Vector2DCreated, [=](Vector2D *vector) {
-    vector->layer()->replot();
+  connect(axisrect, &AxisRect2D::Vector2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::Bar2DCreated, [=](Bar2D *bar) {
-    bar->layer()->replot();
+  connect(axisrect, &AxisRect2D::Bar2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::Pie2DCreated, [=](Pie2D *pie) {
-    pie->layer()->replot();
+  connect(axisrect, &AxisRect2D::Pie2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::ColorMap2DCreated, [=](ColorMap2D *colormap) {
-    colormap->layer()->replot();
+  connect(axisrect, &AxisRect2D::ColorMap2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::ErrorBar2DCreated, [=](ErrorBar2D *errorbar) {
-    errorbar->layer()->replot();
+  connect(axisrect, &AxisRect2D::ErrorBar2DCreated, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
 
@@ -4989,6 +5009,7 @@ void PropertyEditor::setObjectPropertyId() {
   vectorpropertylegendtextitem_->setPropertyId("vectorpropertylegendtextitem_");
 
   // Pie Properties Block
+  pieplotpropertystyleitem_->setPropertyId("pieplotpropertystyleitem_");
   pieplotpropertylinestrokecoloritem_->setPropertyId(
       "pieplotpropertylinestrokecoloritem_");
   pieplotpropertylinestrokethicknessitem_->setPropertyId(
