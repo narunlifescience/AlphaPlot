@@ -84,18 +84,20 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent,
     setName(QString(d_base->name()) + "-" + tr("RowStats"));
     setWindowLabel(tr("Row Statistics of %1").arg(base->name()));
     d_future_table->setRowCount(d_targets.size());
-    d_future_table->setColumnCount(9);
+    d_future_table->setColumnCount(10);
     setColName(0, tr("Row"));
     setColName(1, tr("Cols"));
     setColName(2, tr("Mean"));
     setColName(3, tr("StandardDev"));
-    setColName(4, tr("Variance"));
-    setColName(5, tr("Sum"));
-    setColName(6, tr("Max"));
-    setColName(7, tr("Min"));
-    setColName(8, "N");
+    setColName(4, tr("StandardErr"));
+    setColName(5, tr("Variance"));
+    setColName(6, tr("Sum"));
+    setColName(7, tr("Max"));
+    setColName(8, tr("Min"));
+    setColName(9, "N");
 
-    for (int i = 0; i < 9; i++) setColumnType(i, AlphaPlot::Numeric);
+
+    for (int i = 0; i < 10; i++) setColumnType(i, AlphaPlot::Numeric);
 
     Double2StringFilter *pFilter =
         qobject_cast<Double2StringFilter *>(column(0)->outputFilter());
@@ -106,7 +108,7 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent,
     Q_ASSERT(pFilter != NULL);
     pFilter->setNumDigits(0);
     pFilter->setNumericFormat('f');
-    pFilter = qobject_cast<Double2StringFilter *>(column(8)->outputFilter());
+    pFilter = qobject_cast<Double2StringFilter *>(column(9)->outputFilter());
     Q_ASSERT(pFilter != NULL);
     pFilter->setNumDigits(0);
     pFilter->setNumericFormat('f');
@@ -116,33 +118,34 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent,
     setName(QString(d_base->name()) + "-" + tr("ColStats"));
     setWindowLabel(tr("Column Statistics of %1").arg(base->name()));
     d_future_table->setRowCount(d_targets.size());
-    d_future_table->setColumnCount(11);
+    d_future_table->setColumnCount(12);
     setColName(0, tr("Col"));
     setColName(1, tr("Rows"));
     setColName(2, tr("Mean"));
     setColName(3, tr("StandardDev"));
-    setColName(4, tr("Variance"));
-    setColName(5, tr("Sum"));
-    setColName(6, tr("iMax"));
-    setColName(7, tr("Max"));
-    setColName(8, tr("iMin"));
-    setColName(9, tr("Min"));
-    setColName(10, "N");
+    setColName(4, tr("StandardErr"));
+    setColName(5, tr("Variance"));
+    setColName(6, tr("Sum"));
+    setColName(7, tr("iMax"));
+    setColName(8, tr("Max"));
+    setColName(9, tr("iMin"));
+    setColName(10, tr("Min"));
+    setColName(11, "N");
 
     for (int i = 0; i < 2; i++) setColumnType(i, AlphaPlot::Text);
 
-    for (int i = 2; i < 11; i++) setColumnType(i, AlphaPlot::Numeric);
+    for (int i = 2; i < 12; i++) setColumnType(i, AlphaPlot::Numeric);
 
     Double2StringFilter *pFilter =
-        qobject_cast<Double2StringFilter *>(column(6)->outputFilter());
+        qobject_cast<Double2StringFilter *>(column(7)->outputFilter());
     Q_ASSERT(pFilter != NULL);
     pFilter->setNumDigits(0);
     pFilter->setNumericFormat('f');
-    pFilter = qobject_cast<Double2StringFilter *>(column(8)->outputFilter());
+    pFilter = qobject_cast<Double2StringFilter *>(column(9)->outputFilter());
     Q_ASSERT(pFilter != NULL);
     pFilter->setNumDigits(0);
     pFilter->setNumericFormat('f');
-    pFilter = qobject_cast<Double2StringFilter *>(column(10)->outputFilter());
+    pFilter = qobject_cast<Double2StringFilter *>(column(11)->outputFilter());
     Q_ASSERT(pFilter != NULL);
     pFilter->setNumDigits(0);
     pFilter->setNumericFormat('f');
@@ -183,24 +186,26 @@ void TableStatistics::update(Table *t, const QString &colName) {
             data[index++] = val;
           }
           double mean = gsl_stats_mean(data, 1, validCells.count());
+          double sd = gsl_stats_sd(data, 1, validCells.count());
           double min, max;
           gsl_vector_minmax(y, &min, &max);
 
           column(2)->setValueAt(destRow, mean);
           column(3)
-              ->setValueAt(destRow, gsl_stats_sd(data, 1, validCells.count()));
-          column(4)->setValueAt(
+              ->setValueAt(destRow, sd);
+          column(4)->setValueAt(destRow, sd/sqrt(validCells.count()));
+          column(5)->setValueAt(
               destRow, gsl_stats_variance(data, 1, validCells.count()));
-          column(5)->setValueAt(destRow, mean * validCells.count());
-          column(6)->setValueAt(destRow, max);
-          column(7)->setValueAt(destRow, min);
-          column(8)->setValueAt(destRow, validCells.count());
+          column(6)->setValueAt(destRow, mean * validCells.count());
+          column(7)->setValueAt(destRow, max);
+          column(8)->setValueAt(destRow, min);
+          column(9)->setValueAt(destRow, validCells.count());
 
           gsl_vector_free(y);
           delete[] data;
         } else {
-          for (int i = 2; i < 8; i++) column(i)->setInvalid(destRow, true);
-          column(8)->setValueAt(destRow, 0);
+          for (int i = 2; i < 9; i++) column(i)->setInvalid(destRow, true);
+          column(9)->setValueAt(destRow, 0);
         }
       }
     }
@@ -250,20 +255,21 @@ void TableStatistics::update(Table *t, const QString &colName) {
           index++;
         }
         double mean = gsl_stats_mean(data, 1, validCells.count());
+        double sd = gsl_stats_sd(data, 1, validCells.count());
 
         column(0)->setTextAt(destRow, d_base->colLabel(colIndex));
         column(1)->setTextAt(destRow, "[1:" + QString::number(rows) + "]");
         column(2)->setValueAt(destRow, mean);
-        column(3)
-            ->setValueAt(destRow, gsl_stats_sd(data, 1, validCells.count()));
-        column(4)->setValueAt(destRow,
+        column(3)->setValueAt(destRow, sd);
+        column(4)->setValueAt(destRow, sd/sqrt(validCells.count()));
+        column(5)->setValueAt(destRow,
                               gsl_stats_variance(data, 1, validCells.count()));
-        column(5)->setValueAt(destRow, mean * validCells.count());
-        column(6)->setValueAt(destRow, maxIndex + 1);
-        column(7)->setValueAt(destRow, max);
-        column(8)->setValueAt(destRow, minIndex + 1);
-        column(9)->setValueAt(destRow, min);
-        column(10)->setValueAt(destRow, validCells.count());
+        column(6)->setValueAt(destRow, mean * validCells.count());
+        column(7)->setValueAt(destRow, maxIndex + 1);
+        column(8)->setValueAt(destRow, max);
+        column(9)->setValueAt(destRow, minIndex + 1);
+        column(10)->setValueAt(destRow, min);
+        column(11)->setValueAt(destRow, validCells.count());
 
         gsl_vector_free(y);
         delete[] data;
@@ -379,3 +385,4 @@ bool TableStatistics::eventFilter(QObject *watched, QEvent *event) {
   } else
     return TableView::eventFilter(watched, event);
 }
+
