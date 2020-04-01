@@ -62,6 +62,7 @@ class AxisRect2D : public QCPAxisRect {
   void setAxisRectBackground(const QBrush &brush);
   Axis2D *addAxis2D(const Axis2D::AxisOreantation &orientation,
                     const Axis2D::TickerType &tickertype);
+  Axis2D *addAxis2DifNeeded(Column *col);
   bool removeAxis2D(Axis2D *axis, bool force = false);
   QBrush getAxisRectBackground() const;
   Grid2D *bindGridTo(Axis2D *axis);
@@ -85,7 +86,9 @@ class AxisRect2D : public QCPAxisRect {
   QList<QCPLayer *> getLayerVec() const { return layers_; }
 
   Axis2D *getXAxis(int value);
+  int getXAxisNo(Axis2D *axis);
   Axis2D *getYAxis(int value);
+  int getYAxisNo(Axis2D *axis);
   Plot2D *getParentPlot2D() { return plot2d_; }
 
   enum class LineScatterType {
@@ -171,22 +174,15 @@ class AxisRect2D : public QCPAxisRect {
 
   void setPrintorExportJob(bool value) { printorexportjob_ = value; }
   void setGraphTool(const Graph2DCommon::Picker &picker);
+  void setGridPairToNullptr();
+
+  Table *getTableByName(QList<Table*>tabs, const QString name);
+  Matrix *getMatrixByName(QList<Matrix *>mats, const QString name);
 
  public slots:
-  Axis2D *addLeftAxis2D() {
-    return addAxis2D(Axis2D::AxisOreantation::Left, Axis2D::TickerType::Pi);
-  }
-  Axis2D *addBottomAxis2D() {
-    return addAxis2D(Axis2D::AxisOreantation::Bottom, Axis2D::TickerType::Pi);
-  }
-  Axis2D *addRightAxis2D() {
-    return addAxis2D(Axis2D::AxisOreantation::Right, Axis2D::TickerType::Pi);
-  }
-  Axis2D *addTopAxis2D() {
-    return addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Pi);
-  }
   void save(XmlStreamWriter *xmlwriter, const int index);
-  bool load(XmlStreamReader *xmlreader);
+  bool load(XmlStreamReader *xmlreader, QList<Table *> tabs,
+            QList<Matrix *> mats);
 
  protected:
   void mousePressEvent(QMouseEvent *, const QVariant &variant);

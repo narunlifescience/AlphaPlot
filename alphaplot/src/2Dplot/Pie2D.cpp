@@ -1,9 +1,12 @@
 #include "Pie2D.h"
+
 #include "../future/core/column/Column.h"
 #include "AxisRect2D.h"
 #include "Legend2D.h"
 #include "Table.h"
 #include "core/Utilities.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 Pie2D::Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, int from,
              int to)
@@ -127,6 +130,12 @@ void Pie2D::setstyle_pieplot(const Pie2D::Style &style) {
                getto_pieplot());
 }
 
+void Pie2D::setstrokepen_pieplot(const QPen pen) {
+  setstrokecolor_pieplot(pen.color());
+  setstrokethickness_pieplot(pen.widthF());
+  setstrokestyle_pieplot(pen.style());
+}
+
 void Pie2D::draw(QCPPainter *painter) {
   if (pieData_->isEmpty()) return;
   int cumulativesum = 0;
@@ -185,4 +194,67 @@ void Pie2D::drawdoughnutslice(QPainter &painter, double startangle,
   painter.setPen(QPen(strokecolor, strokethikness, Qt::SolidLine, Qt::FlatCap,
                       Qt::MiterJoin));
   painter.drawPath(path);
+}
+
+void Pie2D::save(XmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("pie");
+  // data
+  xmlwriter->writeAttribute("table", table_->name());
+  xmlwriter->writeAttribute("xcolumn", xcolumn_->name());
+  xmlwriter->writeAttribute("from", QString::number(from_));
+  xmlwriter->writeAttribute("to", QString::number(to_));
+  // style
+  switch (style_) {
+    case Pie2D::Style::Pie:
+      xmlwriter->writeAttribute("style", "pie");
+      break;
+    case Pie2D::Style::HalfPie:
+      xmlwriter->writeAttribute("style", "halfpie");
+  }
+  xmlwriter->writeAttribute("marginpercent", QString::number(marginpercent_));
+  xmlwriter->writePen(mPen);
+  xmlwriter->writeEndElement();
+}
+
+bool Pie2D::load(XmlStreamReader *xmlreader) {
+  if (xmlreader->isStartElement() && xmlreader->name() == "pie") {
+    bool ok;
+
+    // style property
+    QString style = xmlreader->readAttributeString("style", &ok);
+    if (ok) {
+      if (style == "pie")
+        setstyle_pieplot(Pie2D::Style::Pie);
+      else if (style == "halfpie")
+        setstyle_pieplot(Pie2D::Style::HalfPie);
+      else
+        xmlreader->raiseWarning(tr("Pie2D style property setting error"));
+    } else
+      xmlreader->raiseWarning(tr("Pie2D style property setting error"));
+
+    // marginpercent property
+    int marginpercent = xmlreader->readAttributeInt("marginpercent", &ok);
+    if (ok)
+      setmarginpercent_pieplot(marginpercent);
+    else
+      xmlreader->raiseWarning(tr("Pie2D marginpercent property setting error"));
+
+    // strokepen property
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+      // pen
+      if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+        QPen strokep = xmlreader->readPen(&ok);
+        if (ok)
+          setstrokepen_pieplot(strokep);
+        else
+          xmlreader->raiseWarning(tr("Pie2D strokepen property setting error"));
+      }
+    }
+
+  } else  // no element
+    xmlreader->raiseError(tr("no Pie2D item element found"));
+
+  return !xmlreader->hasError();
 }

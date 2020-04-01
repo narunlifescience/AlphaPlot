@@ -1,5 +1,8 @@
 #include "LineItem2D.h"
 
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
+
 const int LineItem2D::selectionpixelsize_ = 10;
 
 LineItem2D::LineItem2D(AxisRect2D *axisrect, Plot2D *plot)
@@ -130,6 +133,152 @@ void LineItem2D::setendlength_lineitem(
       setTail(*ending_);
       break;
   }
+}
+
+QString LineItem2D::getendstylestring_lineitem(
+    const QCPLineEnding::EndingStyle endstyle) const {
+  QString end = "none";
+  switch (endstyle) {
+    case QCPLineEnding::EndingStyle::esBar:
+      end = "bar";
+      break;
+    case QCPLineEnding::EndingStyle::esDisc:
+      end = "disc";
+      break;
+    case QCPLineEnding::EndingStyle::esNone:
+      end = "none";
+      break;
+    case QCPLineEnding::EndingStyle::esSquare:
+      end = "square";
+      break;
+    case QCPLineEnding::EndingStyle::esDiamond:
+      end = "diamond";
+      break;
+    case QCPLineEnding::EndingStyle::esHalfBar:
+      end = "halfbar";
+      break;
+    case QCPLineEnding::EndingStyle::esFlatArrow:
+      end = "flatarrow";
+      break;
+    case QCPLineEnding::EndingStyle::esLineArrow:
+      end = "linearrow";
+      break;
+    case QCPLineEnding::EndingStyle::esSkewedBar:
+      end = "skewedbar";
+      break;
+    case QCPLineEnding::EndingStyle::esSpikeArrow:
+      end = "spikearrow";
+      break;
+  }
+  return end;
+}
+
+QCPLineEnding::EndingStyle LineItem2D::getendstyleenum_lineitem(
+    const QString end) const {
+  QCPLineEnding::EndingStyle endstyle = QCPLineEnding::EndingStyle::esNone;
+  if (end == "bar") {
+    endstyle = QCPLineEnding::EndingStyle::esBar;
+  } else if (end == "disc") {
+    endstyle = QCPLineEnding::EndingStyle::esDisc;
+  } else if (end == "none") {
+    endstyle = QCPLineEnding::EndingStyle::esNone;
+  } else if (end == "square") {
+    endstyle = QCPLineEnding::EndingStyle::esSquare;
+  } else if (end == "diamond") {
+    endstyle = QCPLineEnding::EndingStyle::esDiamond;
+  } else if (end == "halfbar") {
+    endstyle = QCPLineEnding::EndingStyle::esHalfBar;
+  } else if (end == "flatarrow") {
+    endstyle = QCPLineEnding::EndingStyle::esFlatArrow;
+  } else if (end == "linearrow") {
+    endstyle = QCPLineEnding::EndingStyle::esLineArrow;
+  } else if (end == "skewedbar") {
+    endstyle = QCPLineEnding::EndingStyle::esSkewedBar;
+  } else if (end == "spikearrow") {
+    endstyle = QCPLineEnding::EndingStyle::esSpikeArrow;
+  }
+  return endstyle;
+}
+
+void LineItem2D::save(XmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("lineitem");
+  (antialiased()) ? xmlwriter->writeAttribute("antialias", "true")
+                  : xmlwriter->writeAttribute("antialias", "false");
+  xmlwriter->writeAttribute(
+      "startstyle",
+      getendstylestring_lineitem(getendstyle_lineitem(LineEndLocation::Start)));
+  xmlwriter->writeAttribute("startwidth", QString::number(starting_->width()));
+  xmlwriter->writeAttribute("startlength",
+                            QString::number(starting_->length()));
+  xmlwriter->writeAttribute(
+      "endstyle",
+      getendstylestring_lineitem(getendstyle_lineitem(LineEndLocation::Stop)));
+  xmlwriter->writeAttribute("endwidth", QString::number(ending_->width()));
+  xmlwriter->writeAttribute("endlength", QString::number(ending_->length()));
+  xmlwriter->writePen(pen());
+  xmlwriter->writeEndElement();
+}
+
+bool LineItem2D::load(XmlStreamReader *xmlreader) {
+  if (xmlreader->isStartElement() && xmlreader->name() == "lineitem") {
+    bool ok;
+
+    // antialias property
+    bool antialias = xmlreader->readAttributeInt("antialias", &ok);
+    (ok) ? setAntialiased(antialias)
+         : xmlreader->raiseWarning(
+               tr("LineItem2D antialias property setting error"));
+
+    QString startstyle = xmlreader->readAttributeString("startstyle", &ok);
+    (ok) ? setendstyle_lineitem(LineEndLocation::Start,
+                                getendstyleenum_lineitem(startstyle))
+         : xmlreader->raiseWarning(
+               tr("LineItem2D startstyle property setting error"));
+
+    int startwidth = xmlreader->readAttributeInt("startwidth", &ok);
+    (ok) ? setendwidth_lineitem(startwidth, LineEndLocation::Start)
+         : xmlreader->raiseWarning(
+               tr("LineItem2D startwidth property setting error"));
+
+    int startlength = xmlreader->readAttributeInt("startlength", &ok);
+    (ok) ? setendlength_lineitem(startlength, LineEndLocation::Start)
+         : xmlreader->raiseWarning(
+               tr("LineItem2D startlength property setting error"));
+
+    QString endstyle = xmlreader->readAttributeString("endstyle", &ok);
+    (ok) ? setendstyle_lineitem(LineEndLocation::Stop,
+                                getendstyleenum_lineitem(endstyle))
+         : xmlreader->raiseWarning(
+               tr("LineItem2D endstyle property setting error"));
+
+    int endwidth = xmlreader->readAttributeInt("endwidth", &ok);
+    (ok) ? setendwidth_lineitem(endwidth, LineEndLocation::Stop)
+         : xmlreader->raiseWarning(
+               tr("LineItem2D endwidth property setting error"));
+
+    int endlength = xmlreader->readAttributeInt("endlength", &ok);
+    (ok) ? setendlength_lineitem(endlength, LineEndLocation::Stop)
+         : xmlreader->raiseWarning(
+               tr("LineItem2D endlength property setting error"));
+
+    // strokepen property
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+      // pen
+      if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+        QPen strokep = xmlreader->readPen(&ok);
+        if (ok)
+          setPen(strokep);
+        else
+          xmlreader->raiseWarning(
+              tr("LineItem2D strokepen property setting error"));
+      }
+    }
+  } else  // no element
+    xmlreader->raiseError(tr("no LineItem2D element found"));
+
+  return !xmlreader->hasError();
 }
 
 void LineItem2D::draw(QCPPainter *painter) {

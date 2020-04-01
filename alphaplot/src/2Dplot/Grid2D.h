@@ -20,6 +20,8 @@
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 
 class Axis2D;
+class XmlStreamReader;
+class XmlStreamWriter;
 
 class Grid2D : public QCPGrid {
   Q_OBJECT
@@ -52,7 +54,8 @@ class Grid2D : public QCPGrid {
   bool getMinorGridVisible() const;
   bool getZerothLineVisible() const;
 
-  QString saveToAproj();
+  void save(XmlStreamWriter *xmlwriter, const QString tag);
+  bool load(XmlStreamReader *xmlreader, const QString tag);
 
  private:
   // Grid & zeroline settings

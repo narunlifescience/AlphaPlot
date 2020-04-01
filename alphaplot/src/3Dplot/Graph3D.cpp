@@ -27,11 +27,12 @@
  *                                                                         *
  ***************************************************************************/
 #include "Graph3D.h"
-#include "Bar.h"
-#include "Cone3D.h"
-#include "core/column/Column.h"
-#include "future/lib/XmlStreamWriter.h"
-#include "scripting/MyParser.h"
+
+#include <../3rdparty/muparser/muParser.h>
+#include <../3rdparty/muparser/muParserBase.h>
+#include <../3rdparty/qwtplot3d/qwt3d_coordsys.h>
+#include <../3rdparty/qwtplot3d/qwt3d_io_gl2ps.h>
+#include <gsl/gsl_vector.h>
 
 #include <QApplication>
 #include <QBitmap>
@@ -44,13 +45,14 @@
 #include <QPixmap>
 #include <QPrintDialog>
 #include <QPrinter>
-
-#include <../3rdparty/qwtplot3d/qwt3d_coordsys.h>
-#include <../3rdparty/qwtplot3d/qwt3d_io_gl2ps.h>
-
-#include <gsl/gsl_vector.h>
 #include <fstream>
 #include <stdexcept>
+
+#include "Bar.h"
+#include "Cone3D.h"
+#include "core/column/Column.h"
+#include "future/lib/XmlStreamWriter.h"
+#include "scripting/MyParser.h"
 
 UserFunction::UserFunction(const QString& s, SurfacePlot& pw) : Function(pw) {
   formula = s;
@@ -65,10 +67,11 @@ double UserFunction::operator()(double x, double y) {
     parser.DefineVar("x", &x);
     parser.DefineVar("y", &y);
 
-    parser.SetExpr((const std::string)formula.toUtf8().constData());
+    parser.SetExpr(
+        static_cast<const std::string>(formula.toUtf8().constData()));
     result = parser.Eval();
   } catch (mu::ParserError& e) {
-    QMessageBox::critical(0, "Input function error",
+    QMessageBox::critical(nullptr, "Input function error",
                           QString::fromStdString(e.GetMsg()));
   }
   return result;
@@ -80,6 +83,12 @@ Graph3D::Graph3D(const QString& label, QWidget* parent, const char* name,
                  Qt::WindowFlags f)
     : MyWidget(label, parent, name, f) {
   initPlot();
+}
+
+Graph3D::~Graph3D() {
+  if (func) delete func;
+
+  delete sp;
 }
 
 void Graph3D::initPlot() {
@@ -132,7 +141,7 @@ void Graph3D::initPlot() {
   fromColor = QColor(Qt::red);
   toColor = QColor(Qt::blue);
 
-  col_ = 0;
+  col_ = nullptr;
 
   legendOn = false;
   legendMajorTicks = 5;
@@ -146,7 +155,7 @@ void Graph3D::initPlot() {
   for (int j = 0; j < 3; j++) scaleType[j] = 0;
 
   pointStyle = None;
-  func = 0;
+  func = nullptr;
   alpha = 1.0;
   barsRad = 0.007;
   pointSize = 5;
@@ -2569,7 +2578,7 @@ void Graph3D::save(XmlStreamWriter* xmlwriter) {
   xmlwriter->writeEndElement();
 }
 
-bool Graph3D::load(XmlStreamReader* xmlreader) { 
+bool Graph3D::load(XmlStreamReader* xmlreader) {
   if (xmlreader->isStartElement() && xmlreader->name() == "plot3d") {
     QString prefix(tr("XML read error: ", "prefix for XML error messages"));
     QString postfix(tr(" (non-critical)", "postfix for XML error messages"));
@@ -2627,7 +2636,6 @@ bool Graph3D::load(XmlStreamReader* xmlreader) {
     xmlreader->raiseError(tr("no plot3d element found"));
 
   return !xmlreader->hasError();
-
 }
 
 void Graph3D::showColorLegend(bool show) {
@@ -2977,10 +2985,4 @@ void Graph3D::copy(Graph3D* g) {
   setOrtho(g->isOrthogonal());
   update();
   animate(g->isAnimated());
-}
-
-Graph3D::~Graph3D() {
-  if (func) delete func;
-
-  delete sp;
 }

@@ -9,6 +9,8 @@ class QFile;
 class Folder;
 class FolderTreeWidgetItem;
 class XmlStreamWriter;
+class Table;
+class Matrix;
 
 class AprojHandler : public QObject {
   Q_OBJECT
@@ -23,6 +25,8 @@ class AprojHandler : public QObject {
 
   bool saveproject(const QString &filename, Folder *folder);
   void saveTreeRecursive(Folder *folder, XmlStreamWriter *xmlwriter);
+  QList<Table *> tables(ApplicationWindow *app);
+  QList<Matrix *>matrixs(ApplicationWindow *app);
 
  private:
   QFile *openCompressedFile(const QString &filename);

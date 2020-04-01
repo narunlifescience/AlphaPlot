@@ -760,9 +760,6 @@
    </property>
   </action>
   <action name="actionAddText">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Add Te&amp;xt</string>
    </property>
@@ -772,7 +769,7 @@
   </action>
   <action name="actionDrawArrow">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>&amp;Draw Arrow</string>
@@ -783,7 +780,7 @@
   </action>
   <action name="actionDrawLine">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Dra&amp;w Line</string>

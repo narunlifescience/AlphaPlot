@@ -11,8 +11,6 @@ HEADERS += ../3rdparty/muparser/muParser.h \
 	       ../3rdparty/muparser/muParserToken.h \
 	       ../3rdparty/muparser/muParserTokenReader.h \
 	       ../3rdparty/muparser/muParserTemplateMagic.h \
-           src/scripting/MuParserScript.h \
-           src/scripting/MuParserScripting.h \
 
 SOURCES += ../3rdparty/muparser/muParser.cpp \
 	       ../3rdparty/muparser/muParserBase.cpp \
@@ -20,8 +18,6 @@ SOURCES += ../3rdparty/muparser/muParser.cpp \
 	       ../3rdparty/muparser/muParserCallback.cpp \
 	       ../3rdparty/muparser/muParserError.cpp \
            ../3rdparty/muparser/muParserTokenReader.cpp \
-           src/scripting/MuParserScript.cpp \
-           src/scripting/MuParserScripting.cpp \
 
 SOURCES += ../3rdparty/qwtplot3d/qwt3d_axis.cpp \
            ../3rdparty/qwtplot3d/qwt3d_color.cpp \

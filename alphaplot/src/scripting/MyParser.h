@@ -29,7 +29,7 @@
 #ifndef MYPARSER_H
 #define MYPARSER_H
 
-#include <../../3rdparty/muparser/muParser.h>
+#include <../3rdparty/muparser/muParser.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf.h>
 
@@ -61,14 +61,14 @@ class MyParser : public Parser {
   static double bessel_J1(double x) { return gsl_sf_bessel_J1(x); }
 
   static double bessel_Jn(double x, double n) {
-    return gsl_sf_bessel_Jn((int)n, x);
+    return gsl_sf_bessel_Jn(static_cast<int>(n), x);
   }
 
   static double bessel_Y0(double x) { return gsl_sf_bessel_Y0(x); }
 
   static double bessel_Y1(double x) { return gsl_sf_bessel_Y1(x); }
   static double bessel_Yn(double x, double n) {
-    return gsl_sf_bessel_Yn((int)n, x);
+    return gsl_sf_bessel_Yn(static_cast<int>(n), x);
   }
   static double beta(double a, double b) { return gsl_sf_beta(a, b); }
   static double erf(double x) { return gsl_sf_erf(x); }

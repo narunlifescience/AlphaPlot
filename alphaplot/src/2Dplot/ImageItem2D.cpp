@@ -1,5 +1,8 @@
 #include "ImageItem2D.h"
 
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
+
 const int ImageItem2D::selectionpixelsize_ = 10;
 
 ImageItem2D::ImageItem2D(AxisRect2D *axisrect, Plot2D *plot,
@@ -65,6 +68,38 @@ void ImageItem2D::setstrokestyle_imageitem(const Qt::PenStyle &style) {
 void ImageItem2D::setpixmap_imageitem() {
   pixmap_->load(imagefilename_);
   setPixmap(*pixmap_);
+}
+
+void ImageItem2D::save(XmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("imageitem");
+  xmlwriter->writeAttribute("file", imagefilename_);
+  xmlwriter->writePen(pen());
+  xmlwriter->writeEndElement();
+}
+
+bool ImageItem2D::load(XmlStreamReader *xmlreader) {
+  if (xmlreader->isStartElement() && xmlreader->name() == "imageitem") {
+    bool ok;
+
+    // strokepen property
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+      // pen
+      if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+        QPen strokep = xmlreader->readPen(&ok);
+        if (ok)
+          setPen(strokep);
+        else
+          xmlreader->raiseWarning(
+              tr("ImageItem2D strokepen property setting error"));
+      }
+    }
+
+  } else  // no element
+    xmlreader->raiseError(tr("no ImageItem2D item element found"));
+
+  return !xmlreader->hasError();
 }
 
 void ImageItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {

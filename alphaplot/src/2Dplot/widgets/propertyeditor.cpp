@@ -1,10 +1,9 @@
 #include "propertyeditor.h"
-#include "ui_propertyeditor.h"
 
+#include <QDebug>
 #include <QSplitter>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
-#include <QtDebug>
 
 #include "../3rdparty/propertybrowser/qteditorfactory.h"
 #include "../3rdparty/propertybrowser/qtpropertymanager.h"
@@ -24,6 +23,7 @@
 #include "Table.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
+#include "ui_propertyeditor.h"
 
 PropertyEditor::PropertyEditor(QWidget *parent)
     : QDockWidget(parent),
@@ -1615,14 +1615,14 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     QPointF point = textitem->position->pixelPosition();
     point.setX(value);
-    textitem->position->setPixelPosition(point);
+    textitem->setpixelposition_textitem(point);
     textitem->layer()->replot();
   } else if (prop->compare(itempropertytextpixelpositionyitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     QPointF point = textitem->position->pixelPosition();
     point.setY(value);
-    textitem->position->setPixelPosition(point);
+    textitem->setpixelposition_textitem(point);
     textitem->layer()->replot();
   } else if (prop->compare(itempropertytextstrokethicknessitem_)) {
     TextItem2D *textitem =
@@ -2417,7 +2417,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setendstyle_vecplot(static_cast<Vector2D::LineEnd>(value),
-                                Vector2D::LineEndLocation::Start);
+                                Vector2D::LineEndLocation::Stop);
     vector->layer()->replot();
   } else if (prop->compare(pieplotpropertystyleitem_)) {
     Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());

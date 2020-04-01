@@ -1,4 +1,13 @@
 #include "AprojHandler.h"
+
+#include <zlib.h>
+
+#include <QFile>
+#include <QMdiSubWindow>
+#include <QXmlAttributes>
+#include <QXmlSchema>
+#include <QXmlSchemaValidator>
+
 #include "2Dplot/Layout2D.h"
 #include "3Dplot/Graph3D.h"
 #include "ApplicationWindow.h"
@@ -8,13 +17,6 @@
 #include "Table.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
-
-#include <zlib.h>
-#include <QFile>
-#include <QMdiSubWindow>
-#include <QXmlAttributes>
-#include <QXmlSchema>
-#include <QXmlSchemaValidator>
 
 const QString AprojHandler::xmlschemafile_ = ":xmlschema/aproj.xsd";
 
@@ -238,7 +240,7 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "plot2d") {
       Layout2D *plot2d = app->newGraph2D();
-      plot2d->load(xmlreader.get());
+      plot2d->load(xmlreader.get(), tables(app), matrixs(app));
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "plot3d") {
       Graph3D *plot = app->newPlot3D();
@@ -262,6 +264,11 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
         }
         recursivecount_--;
       }
+    }
+  }
+  if (xmlreader->hasWarnings()) {
+    foreach (QString warning, xmlreader->warningStrings()) {
+      qDebug() << warning;
     }
   }
   return cfolder;
@@ -392,6 +399,30 @@ void AprojHandler::saveTreeRecursive(Folder *folder,
       recursivecount_--;
     }
   }
+}
+
+QList<Table *> AprojHandler::tables(ApplicationWindow *app) {
+  QList<QMdiSubWindow *> subwindowlist = app->subWindowsList();
+  QList<Table *> tables;
+  foreach (QMdiSubWindow *subwindow, subwindowlist) {
+    Table *tab = qobject_cast<Table *>(subwindow);
+    if (tab) {
+      tables << tab;
+    }
+  }
+  return tables;
+}
+
+QList<Matrix *> AprojHandler::matrixs(ApplicationWindow *app) {
+  QList<QMdiSubWindow *> subwindowlist = app->subWindowsList();
+  QList<Matrix *> matrixs;
+  foreach (QMdiSubWindow *subwindow, subwindowlist) {
+    Matrix *mat = qobject_cast<Matrix *>(subwindow);
+    if (mat) {
+      matrixs << mat;
+    }
+  }
+  return matrixs;
 }
 
 bool AprojHandler::checkXmlSchema(const QString &filename) {

@@ -1,5 +1,8 @@
 #include "Legend2D.h"
+
 #include "LineSpecial2D.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 Legend2D::Legend2D(AxisRect2D *axisrect)
     : QCPLegend(),
@@ -41,6 +44,93 @@ void Legend2D::setborderstrokestyle_legend(const Qt::PenStyle &style) {
   QPen p = borderPen();
   p.setStyle(style);
   setBorderPen(p);
+}
+
+void Legend2D::save(XmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("legend");
+  (gethidden_legend()) ? xmlwriter->writeAttribute("visible", "false")
+                       : xmlwriter->writeAttribute("visible", "true");
+  xmlwriter->writeAttribute("iconwidth", QString::number(iconSize().width()));
+  xmlwriter->writeAttribute("iconheight", QString::number(iconSize().height()));
+  xmlwriter->writeAttribute("icontextpadding",
+                            QString::number(iconTextPadding()));
+  xmlwriter->writeFont(font(), textColor());
+  xmlwriter->writePen(borderPen());
+  xmlwriter->writeBrush(brush());
+  xmlwriter->writeEndElement();
+}
+
+bool Legend2D::load(XmlStreamReader *xmlreader) {
+  if (xmlreader->isStartElement() && xmlreader->name() == "legend") {
+    bool ok;
+    bool visible = xmlreader->readAttributeBool("visible", &ok);
+    (ok) ? sethidden_legend(!visible)
+         : xmlreader->raiseError(
+               tr("no Legend2D visible property element found"));
+    int iconwidth = xmlreader->readAttributeInt("iconwidth", &ok);
+    if (ok) {
+      QSize size = iconSize();
+      size.setWidth(iconwidth);
+      setIconSize(size);
+    } else
+      xmlreader->raiseError(
+          tr("no Legend2D icon width property element found"));
+    int iconheight = xmlreader->readAttributeInt("iconheight", &ok);
+    if (ok) {
+      QSize size = iconSize();
+      size.setHeight(iconheight);
+      setIconSize(size);
+    } else
+      xmlreader->raiseError(
+          tr("no Legend2D icon height property element found"));
+    int icontextpadding = xmlreader->readAttributeInt("icontextpadding", &ok);
+    (ok) ? setIconTextPadding(icontextpadding)
+         : xmlreader->raiseError(
+               tr("no Legend2D icon text padding property element found"));
+    // font
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "font") break;
+      // font
+      if (xmlreader->isStartElement() && xmlreader->name() == "font") {
+        QPair<QFont, QColor> fontpair = xmlreader->readFont(&ok);
+        if (ok) {
+          setFont(fontpair.first);
+          setTextColor(fontpair.second);
+        } else
+          xmlreader->raiseWarning(tr("Legend2D font property setting error"));
+      }
+    }
+    // pen
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+      // pen
+      if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+        QPen basep = xmlreader->readPen(&ok);
+        if (ok)
+          setBorderPen(basep);
+        else
+          xmlreader->raiseWarning(
+              tr("Legend2D borderpen property setting error"));
+      }
+    }
+    // brush
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "brush") break;
+      if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+        QBrush brush = xmlreader->readBrush(&ok);
+        if (ok)
+          setBrush(brush);
+        else
+          xmlreader->raiseWarning(tr("Legend2D brush property setting error"));
+      }
+    }
+  } else  // no element
+    xmlreader->raiseError(tr("no Legend2D item element found"));
+
+  return !xmlreader->hasError();
 }
 
 void Legend2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {

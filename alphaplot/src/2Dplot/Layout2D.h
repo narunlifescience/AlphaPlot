@@ -1,13 +1,12 @@
 #ifndef LAYOUT2D_H
 #define LAYOUT2D_H
 
-#include "AxisRect2D.h"
-#include "MyWidget.h"
-#include "Plot2D.h"
-
 #include <QHBoxLayout>
 #include <QPushButton>
 
+#include "AxisRect2D.h"
+#include "MyWidget.h"
+#include "Plot2D.h"
 #include "StatBox2D.h"
 #include "future/core/column/Column.h"
 
@@ -72,7 +71,8 @@ class Layout2D : public MyWidget {
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void print();
   void save(XmlStreamWriter *xmlwriter);
-  bool load(XmlStreamReader *xmlreader);
+  bool load(XmlStreamReader *xmlreader, QList<Table *> tabs,
+            QList<Matrix *> mats);
   void loadIcons();
 
  public slots:
@@ -87,7 +87,7 @@ class Layout2D : public MyWidget {
   void setAxisRangeDragZoom(bool value);
 
  private slots:
-  AxisRect2D *addAxisRectItem();
+  AxisRect2D *addAxisRectWithAxis();
   AxisRect2D *addAxisRectItem(const AlphaPlot::ColumnDataType &xcoldatatype,
                               const AlphaPlot::ColumnDataType &ycoldatatype);
   void removeAxisRectItem();

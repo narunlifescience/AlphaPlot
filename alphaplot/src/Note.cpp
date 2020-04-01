@@ -30,7 +30,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "Note.h"
-#include "scripting/ScriptEdit.h"
 
 #include <QApplication>
 #include <QDateTime>
@@ -41,7 +40,9 @@
 #include <QPrinter>
 #include <QVBoxLayout>
 #include <QXmlStreamWriter>
+
 #include "future/lib/XmlStreamReader.h"
+#include "scripting/ScriptEdit.h"
 
 Note::Note(ScriptingEnv* env, const QString& label, QWidget* parent,
            const char* name, Qt::WindowFlags f)
@@ -113,9 +114,9 @@ bool Note::load(XmlStreamReader* xmlreader) {
       xmlreader->raiseWarning(
           tr("Invalid creation time for '%1'. Using current time.")
               .arg(name()));
-      setBirthDate(QDateTime::currentDateTime().toString());
+      setBirthDate(QDateTime::currentDateTime().toString(Qt::LocalDate));
     } else
-      setBirthDate(creation_time.toString());
+      setBirthDate(creation_time.toString(Qt::LocalDate));
     // read caption spec
     basicattr =
         attribs.value(xmlreader->namespaceUri().toString(), "caption_spec")

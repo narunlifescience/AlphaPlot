@@ -8,7 +8,10 @@ HEADERS  += src/ApplicationWindow.h \
             src/core/IconLoader.h \
             src/core/Utilities.h \
             src/globals.h\
+            src/scripting/MuParserScript.h \
+            src/scripting/MuParserScripting.h \
             src/scripting/ScriptingFunctions.h\
+            src/scripting/MyParser.h \
             src/3Dplot/Graph3D.h \
             src/3Dplot/TextDialog.h \
             src/Table.h \
@@ -22,7 +25,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/ConfigDialog.h \
             src/Matrix.h \
             src/DataSetDialog.h \
-            src/scripting/MyParser.h \
             src/ColorBox.h \
             src/PatternBox.h \
             src/ColorButton.h \
@@ -117,6 +119,9 @@ HEADERS  += src/ApplicationWindow.h \
 SOURCES  += src/ApplicationWindow.cpp \
             src/core/IconLoader.cpp \
             src/core/Utilities.cpp \
+            src/scripting/MuParserScript.cpp \
+            src/scripting/MuParserScripting.cpp \
+            src/scripting/MyParser.cpp\
             src/3Dplot/Graph3D.cpp \
             src/3Dplot/TextDialog.cpp \
             src/Table.cpp \
@@ -130,7 +135,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/DataSetDialog.cpp \
             src/ConfigDialog.cpp \
             src/Matrix.cpp \
-            src/scripting/MyParser.cpp\
             src/ColorBox.cpp \
             src/PatternBox.cpp \
             src/ColorButton.cpp \

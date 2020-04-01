@@ -34,15 +34,19 @@ class Curve2D : public QCPCurve {
   Qt::PenStyle getlinestrokestyle_cplot() const;
   QColor getlinestrokecolor_cplot() const;
   double getlinestrokethickness_cplot() const;
+  QPen getlinepen_cplot() const;
   QColor getlinefillcolor_cplot() const;
+  QBrush getlinebrush_cplot() const;
   bool getlineantialiased_cplot() const;
   bool getlinefillstatus_cplot() const;
   Graph2DCommon::ScatterStyle getscattershape_cplot() const;
   QColor getscatterfillcolor_cplot() const;
+  QBrush getscatterbrush_cplot() const;
   double getscattersize_cplot() const;
   Qt::PenStyle getscatterstrokestyle_cplot() const;
   QColor getscatterstrokecolor_cplot() const;
   double getscatterstrokethickness_cplot() const;
+  QPen getscatterpen_cplot() const;
   bool getscatterantialiased_cplot() const;
   QString getlegendtext_cplot() const;
   Axis2D *getxaxis() const;
@@ -73,6 +77,9 @@ class Curve2D : public QCPCurve {
   void setlinefillstatus_cplot(const bool value);
   void setlegendtext_cplot(const QString &text);
   void setpicker_cplot(const Graph2DCommon::Picker picker);
+
+  void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);
+  bool load(XmlStreamReader *xmlreader);
 
  protected:
   void draw(QCPPainter *painter);

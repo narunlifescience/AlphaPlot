@@ -1,4 +1,8 @@
 #include "Layout2D.h"
+
+#include <gsl/gsl_sort.h>
+#include <gsl/gsl_statistics.h>
+
 #include <QDateTime>
 #include <QInputDialog>
 #include <QLabel>
@@ -23,13 +27,10 @@
 #include "TextItem2D.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
+#include "future/core/datatypes/DateTime2StringFilter.h"
 #include "future/lib/XmlStreamWriter.h"
 #include "widgets/ImageExportDialog2D.h"
 #include "widgets/LayoutButton2D.h"
-
-#include <gsl/gsl_sort.h>
-#include <gsl/gsl_statistics.h>
-#include "future/core/datatypes/DateTime2StringFilter.h"
 
 Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
                    Qt::WindowFlags f)
@@ -84,7 +85,8 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   loadIcons();
 
   // connections
-  connect(addLayoutButton_, SIGNAL(clicked()), this, SLOT(addAxisRectItem()));
+  connect(addLayoutButton_, SIGNAL(clicked()), this,
+          SLOT(addAxisRectWithAxis()));
   connect(removeLayoutButton_, &QPushButton::clicked, this,
           &Layout2D::removeAxisRectItem);
   connect(plot2dCanvas_, &Plot2D::mouseMove, this, &Layout2D::mouseMoveSignal);
@@ -98,10 +100,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
           &Layout2D::setBackground);
 }
 
-Layout2D::~Layout2D() {
-  delete layout_;
-  // delete plot2dCanvas_;
-}
+Layout2D::~Layout2D() { delete layout_; }
 
 StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Table *table,
                                                            Column *colData,
@@ -1248,19 +1247,25 @@ void Layout2D::setLayoutDimension(QPair<int, int> dimension) {
 void Layout2D::removeAxisRect(int index) {
   // if no elements to remove
   if (index < 0 || index >= getAxisRectList().count()) {
+    qDebug() << "unable to remove axisrect2D at index :" << index;
     return;
   }
 
   // if removed element is the currently selected element
   AxisRect2D *axrect = dynamic_cast<AxisRect2D *>(layout_->elementAt(index));
-  if (!axrect) return;
+  if (!axrect) {
+    qDebug() << "unable to remove axisrect2D at index :" << index;
+    return;
+  }
   axrect = nullptr;
   if (index == 0 && index + 1 < getAxisRectList().count())
     axrect = dynamic_cast<AxisRect2D *>(layout_->elementAt(index + 1));
   else if (index > 0)
     axrect = dynamic_cast<AxisRect2D *>(layout_->elementAt(index - 1));
-  else
+  else {
+    qDebug() << "unable to remove axisrect2D at index :" << index;
     axrect = nullptr;
+  }
 
   if (axrect) {
     axisRectSetFocus(axrect);
@@ -1393,7 +1398,8 @@ void Layout2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeEndElement();
 }
 
-bool Layout2D::load(XmlStreamReader *xmlreader) {
+bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
+                    QList<Matrix *> mats) {
   if (xmlreader->isStartElement() && xmlreader->name() == "plot2d") {
     bool ok = false;
     // read name
@@ -1413,11 +1419,11 @@ bool Layout2D::load(XmlStreamReader *xmlreader) {
     QDateTime creation_time =
         QDateTime::fromString(time, "yyyy-dd-MM hh:mm:ss:zzz");
     if (!time.isEmpty() && creation_time.isValid() && ok) {
-      setBirthDate(creation_time.toString());
+      setBirthDate(creation_time.toString(Qt::LocalDate));
     } else {
       xmlreader->raiseWarning(
           tr("Invalid creation time. Using current time insted."));
-      setBirthDate(QDateTime::currentDateTime().toString());
+      setBirthDate(QDateTime::currentDateTime().toString(Qt::LocalDate));
     }
     // read caption spec
     int captionspec = xmlreader->readAttributeInt("caption_spec", &ok);
@@ -1454,11 +1460,12 @@ bool Layout2D::load(XmlStreamReader *xmlreader) {
       xmlreader->readNext();
       if (xmlreader->isEndElement() && xmlreader->name() == "plot2d") break;
       if (xmlreader->isStartElement() && xmlreader->name() == "layout") {
-        AxisRect2D *axisrect = addAxisRectItem();
+        AxisRect2D *axisrect = addAxisRectWithAxis();
         foreach (Axis2D *axis, axisrect->getAxes2D()) {
           axisrect->removeAxis2D(axis, true);
         }
-        axisrect->load(xmlreader);
+        axisrect->setGridPairToNullptr();
+        axisrect->load(xmlreader, tabs, mats);
       } else
         // unknown element
         xmlreader->raiseWarning(
@@ -1477,7 +1484,7 @@ void Layout2D::loadIcons() {
       IconLoader::load("list-remove", IconLoader::General));
 }
 
-AxisRect2D *Layout2D::addAxisRectItem() {
+AxisRect2D *Layout2D::addAxisRectWithAxis() {
   return addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                          AlphaPlot::ColumnDataType::TypeDouble);
 }

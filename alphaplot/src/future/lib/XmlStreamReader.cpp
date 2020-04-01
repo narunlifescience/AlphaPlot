@@ -29,6 +29,7 @@
  ***************************************************************************/
 
 #include "lib/XmlStreamReader.h"
+
 #include <QBrush>
 #include <QFont>
 #include <QObject>

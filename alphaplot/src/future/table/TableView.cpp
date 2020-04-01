@@ -276,12 +276,12 @@ void TableView::retranslateStrings() {
                        tr("Numeric"), QVariant(int(AlphaPlot::Numeric)));
   ui.type_box->addItem(IconLoader::load("text-type", IconLoader::LightDark),
                        tr("Text"), QVariant(int(AlphaPlot::Text)));
-  ui.type_box->addItem(
+  /*ui.type_box->addItem(
       IconLoader::load("view-calendar-month", IconLoader::LightDark),
       tr("Month names"), QVariant(int(AlphaPlot::Month)));
   ui.type_box->addItem(
       IconLoader::load("view-calendar-day", IconLoader::LightDark),
-      tr("Day names"), QVariant(int(AlphaPlot::Day)));
+      tr("Day names"), QVariant(int(AlphaPlot::Day)));*/
   ui.type_box->addItem(IconLoader::load("view-calendar", IconLoader::LightDark),
                        tr("Date and time"), QVariant(int(AlphaPlot::DateTime)));
   ui.type_box->setCurrentIndex(0);
@@ -465,26 +465,22 @@ void TableView::updateFormatBox() {
       break;
     case AlphaPlot::DateTime: {
       // TODO: allow adding of the combo box entries here
-      const char *date_strings[] = {
-          "yyyy-MM-dd", "yyyy/MM/dd", "dd/MM/yyyy", "dd/MM/yy", "dd.MM.yyyy",
-          "dd.MM.yy",   "MM/yyyy",    "dd.MM.",     "yyyyMMdd", 0};
-
-      const char *time_strings[] = {
+      QStringList date_stringlist = {"yyyy-MM-dd", "yyyy/MM/dd", "dd/MM/yyyy",
+                                     "dd/MM/yy",   "dd.MM.yyyy", "dd.MM.yy",
+                                     "MM/yyyy",    "dd.MM.",     "yyyyMMdd"};
+      QStringList time_stringlist = {
           "hh",           "hh ap",        "hh:mm",     "hh:mm ap", "hh:mm:ss",
-          "hh:mm:ss.zzz", "hh:mm:ss:zzz", "mm:ss.zzz", "hhmmss",   0};
-      int j, i;
-      for (i = 0; date_strings[i] != 0; i++)
-        ui.format_box->addItem(QString(date_strings[i]),
-                               QVariant(date_strings[i]));
-      for (j = 0; time_strings[j] != 0; j++)
-        ui.format_box->addItem(QString(time_strings[j]),
-                               QVariant(time_strings[j]));
-      for (i = 0; date_strings[i] != 0; i++)
-        for (j = 0; time_strings[j] != 0; j++)
-          ui.format_box->addItem(
-              QString("%1 %2").arg(date_strings[i]).arg(time_strings[j]),
-              QVariant(QString(date_strings[i]) + " " +
-                       QString(time_strings[j])));
+          "hh:mm:ss.zzz", "hh:mm:ss:zzz", "mm:ss.zzz", "hhmmss"};
+      QStringList unionlist;
+      for (int i = 0; i < date_stringlist.size(); i++) {
+        for (int j = 0; j < time_stringlist.size(); j++)
+          unionlist.append(QString("%1 %2")
+                               .arg(date_stringlist.at(i))
+                               .arg(time_stringlist.at(j)));
+      }
+      ui.format_box->addItems(date_stringlist);
+      ui.format_box->addItems(time_stringlist);
+      ui.format_box->addItems(unionlist);
       ui.formatLineEdit->setEnabled(true);
       ui.date_time_interval->setEnabled(true);
       ui.date_time_0->setEnabled(true);

@@ -1,7 +1,10 @@
 #include "Vector2D.h"
+
 #include "../core/Utilities.h"
 #include "../future/core/column/Column.h"
 #include "Table.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 Vector2D::Vector2D(const VectorPlot &vectorplot, Table *table, Column *x1Data,
                    Column *y1Data, Column *x2Data, Column *y2Data, int from,
@@ -19,8 +22,8 @@ Vector2D::Vector2D(const VectorPlot &vectorplot, Table *table, Column *x1Data,
   parentPlot()->addLayer(layername_, xaxis_->layer(), QCustomPlot::limBelow);
   setLayer(layername_);
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
-  start_->setStyle(QCPLineEnding::esSpikeArrow);
-  stop_->setStyle(QCPLineEnding::esNone);
+  start_->setStyle(QCPLineEnding::esNone);
+  stop_->setStyle(QCPLineEnding::esSpikeArrow);
   setGraphData(table, x1Data, y1Data, x2Data, y2Data, from, to);
   setlinestrokecolor_vecplot(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark));
@@ -160,8 +163,8 @@ void Vector2D::drawLine(double x1, double y1, double x2, double y2) {
   // addItem(arrow);
   arrow->start->setCoords(x1, y1);
   arrow->end->setCoords(x2, y2);
-  arrow->setHead(*start_);
-  arrow->setTail(*stop_);
+  arrow->setHead(*stop_);
+  arrow->setTail(*start_);
   linelist_.append(arrow);
 }
 
@@ -436,6 +439,156 @@ void Vector2D::setendinverted_vecplot(
 }
 
 void Vector2D::setlegendtext_vecplot(const QString &name) { setName(name); }
+
+void Vector2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
+  xmlwriter->writeStartElement("vector");
+  // axis
+  xmlwriter->writeAttribute("xaxis", QString::number(xaxis));
+  xmlwriter->writeAttribute("yaxis", QString::number(yaxis));
+  (vectorplot_ == VectorPlot::XYAM) ? xmlwriter->writeAttribute("type", "xyam")
+                                    : xmlwriter->writeAttribute("type", "xyxy");
+  // data
+  xmlwriter->writeAttribute("table", table_->name());
+  xmlwriter->writeAttribute("x1column", x1col_->name());
+  xmlwriter->writeAttribute("y1column", y1col_->name());
+  xmlwriter->writeAttribute("x2column", x2col_->name());
+  xmlwriter->writeAttribute("y2column", y2col_->name());
+  xmlwriter->writeAttribute("from", QString::number(from_));
+  xmlwriter->writeAttribute("to", QString::number(to_));
+  xmlwriter->writeAttribute("legend", getlegendtext_vecplot());
+  (getlineantialiased_vecplot())
+      ? xmlwriter->writeAttribute("antialias", "true")
+      : xmlwriter->writeAttribute("antialias", "false");
+  switch (getendstyle_vecplot(Vector2D::LineEndLocation::Stop)) {
+    case Vector2D::LineEnd::Bar:
+      xmlwriter->writeAttribute("endstyle", "bar");
+      break;
+    case Vector2D::LineEnd::Disc:
+      xmlwriter->writeAttribute("endstyle", "disc");
+      break;
+    case Vector2D::LineEnd::None:
+      xmlwriter->writeAttribute("endstyle", "none");
+      break;
+    case Vector2D::LineEnd::Square:
+      xmlwriter->writeAttribute("endstyle", "square");
+      break;
+    case Vector2D::LineEnd::Diamond:
+      xmlwriter->writeAttribute("endstyle", "diamond");
+      break;
+    case Vector2D::LineEnd::HalfBar:
+      xmlwriter->writeAttribute("endstyle", "halfbar");
+      break;
+    case Vector2D::LineEnd::FlatArrow:
+      xmlwriter->writeAttribute("endstyle", "flatarrow");
+      break;
+    case Vector2D::LineEnd::LineArrow:
+      xmlwriter->writeAttribute("endstyle", "linearrow");
+      break;
+    case Vector2D::LineEnd::SkewedBar:
+      xmlwriter->writeAttribute("endstyle", "skewedbar");
+      break;
+    case Vector2D::LineEnd::SpikeArrow:
+      xmlwriter->writeAttribute("endstyle", "spikearrow");
+      break;
+  }
+  xmlwriter->writeAttribute(
+      "endwidth",
+      QString::number(getendwidth_vecplot(Vector2D::LineEndLocation::Stop)));
+  xmlwriter->writeAttribute(
+      "endheight",
+      QString::number(getendheight_vecplot(Vector2D::LineEndLocation::Stop)));
+  QPen p;
+  p.setColor(getlinestrokecolor_vecplot());
+  p.setStyle(getlinestrokestyle_vecplot());
+  p.setWidthF(getlinestrokethickness_vecplot());
+  xmlwriter->writePen(p);
+  xmlwriter->writeEndElement();
+}
+
+bool Vector2D::load(XmlStreamReader *xmlreader) {
+  if (xmlreader->isStartElement() && xmlreader->name() == "vector") {
+    bool ok;
+
+    // line antialias
+    QString legend = xmlreader->readAttributeString("legend", &ok);
+    (ok) ? setlegendtext_vecplot(legend)
+         : xmlreader->raiseWarning(
+               tr("Vector2D legend text property setting error"));
+
+    // line antialias
+    bool lineantialias = xmlreader->readAttributeBool("antialias", &ok);
+    (ok) ? setlineantialiased_vecplot(lineantialias)
+         : xmlreader->raiseWarning(
+               tr("Vector2D line antialias property setting error"));
+
+    // ending style
+    QString style = xmlreader->readAttributeString("style", &ok);
+    if (style == "bar") {
+      setendstyle_vecplot(Vector2D::LineEnd::Bar,
+                          Vector2D::LineEndLocation::Stop);
+    } else if (style == "disc") {
+      setendstyle_vecplot(Vector2D::LineEnd::Disc,
+                          Vector2D::LineEndLocation::Stop);
+    } else if (style == "none") {
+      setendstyle_vecplot(Vector2D::LineEnd::None,
+                          Vector2D::LineEndLocation::Stop);
+    } else if (style == "square") {
+      setendstyle_vecplot(Vector2D::LineEnd::Square,
+                          Vector2D::LineEndLocation::Stop);
+    } else if (style == "diamond") {
+      setendstyle_vecplot(Vector2D::LineEnd::Diamond,
+                          Vector2D::LineEndLocation::Stop);
+    } else if (style == "halfbar") {
+      setendstyle_vecplot(Vector2D::LineEnd::HalfBar,
+                          Vector2D::LineEndLocation::Stop);
+    } else if (style == "flatarrow") {
+      setendstyle_vecplot(Vector2D::LineEnd::FlatArrow,
+                          Vector2D::LineEndLocation::Stop);
+    } else if (style == "linearrow") {
+      setendstyle_vecplot(Vector2D::LineEnd::LineArrow,
+                          Vector2D::LineEndLocation::Stop);
+    } else if (style == "skewedbar") {
+      setendstyle_vecplot(Vector2D::LineEnd::SkewedBar,
+                          Vector2D::LineEndLocation::Stop);
+    } else if (style == "spikearrow") {
+      setendstyle_vecplot(Vector2D::LineEnd::SpikeArrow,
+                          Vector2D::LineEndLocation::Stop);
+    }
+
+    // endwidth property
+    int endwidth = xmlreader->readAttributeInt("endwidth", &ok);
+    (ok) ? setendwidth_vecplot(endwidth, Vector2D::LineEndLocation::Stop)
+         : xmlreader->raiseWarning(
+               tr("Vector2D endwidth property setting error"));
+
+    // endheight property
+    int endheight = xmlreader->readAttributeInt("endheight", &ok);
+    (ok) ? setendheight_vecplot(endheight, Vector2D::LineEndLocation::Stop)
+         : xmlreader->raiseWarning(
+               tr("Vector2D endheight property setting error"));
+
+    // strokepen property
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+      // pen
+      if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+        QPen strokep = xmlreader->readPen(&ok);
+        if (ok) {
+          setlinestrokecolor_vecplot(strokep.color());
+          setlinestrokestyle_vecplot(strokep.style());
+          setlinestrokethickness_vecplot(strokep.widthF());
+        } else
+          xmlreader->raiseWarning(
+              tr("Vector2D strokepen property setting error"));
+      }
+    }
+
+  } else  // no element
+    xmlreader->raiseError(tr("no Vector2D item element found"));
+
+  return !xmlreader->hasError();
+}
 
 void Vector2D::reloadendings(const Vector2D::LineEndLocation &location) {
   switch (location) {

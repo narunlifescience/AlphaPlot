@@ -21,6 +21,9 @@ class ImageItem2D : public QCPItemPixmap {
 
   void setpixmap_imageitem();
 
+  void save(XmlStreamWriter *xmlwriter);
+  bool load(XmlStreamReader *xmlreader);
+
  protected:
   void mousePressEvent(QMouseEvent *event, const QVariant &details);
   void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);

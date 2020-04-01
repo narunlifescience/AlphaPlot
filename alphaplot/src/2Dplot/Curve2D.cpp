@@ -1,8 +1,13 @@
 #include "Curve2D.h"
+
 #include "AxisRect2D.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
+#include "Table.h"
 #include "core/Utilities.h"
+#include "future/core/column/Column.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 Curve2D::Curve2D(Curve2D::Curve2DType curve2dtype, Table *table, Column *xcol,
                  Column *ycol, int from, int to, Axis2D *xAxis, Axis2D *yAxis)
@@ -218,6 +223,16 @@ double Curve2D::getlinestrokethickness_cplot() const {
   return QPen().widthF();
 }
 
+QPen Curve2D::getlinepen_cplot() const {
+  switch (curve2dtype_) {
+    case Curve2D::Curve2DType::Curve:
+      return pen();
+    case Curve2D::Curve2DType::Spline:
+      return splinePen_;
+  }
+  return QPen();
+}
+
 QColor Curve2D::getlinefillcolor_cplot() const {
   switch (curve2dtype_) {
     case Curve2D::Curve2DType::Curve:
@@ -225,7 +240,17 @@ QColor Curve2D::getlinefillcolor_cplot() const {
     case Curve2D::Curve2DType::Spline:
       return splineBrush_.color();
   }
-  return QBrush().style();
+  return QBrush().color();
+}
+
+QBrush Curve2D::getlinebrush_cplot() const {
+  switch (curve2dtype_) {
+    case Curve2D::Curve2DType::Curve:
+      return brush();
+    case Curve2D::Curve2DType::Spline:
+      return splineBrush_;
+  }
+  return QBrush();
 }
 
 bool Curve2D::getlineantialiased_cplot() const { return antialiased(); }
@@ -311,6 +336,8 @@ QColor Curve2D::getscatterfillcolor_cplot() const {
   return scatterStyle().brush().color();
 }
 
+QBrush Curve2D::getscatterbrush_cplot() const { return scatterStyle().brush(); }
+
 double Curve2D::getscattersize_cplot() const { return scatterStyle().size(); }
 
 Qt::PenStyle Curve2D::getscatterstrokestyle_cplot() const {
@@ -324,6 +351,8 @@ QColor Curve2D::getscatterstrokecolor_cplot() const {
 double Curve2D::getscatterstrokethickness_cplot() const {
   return scatterStyle().pen().widthF();
 }
+
+QPen Curve2D::getscatterpen_cplot() const { return scatterStyle().pen(); }
 
 bool Curve2D::getscatterantialiased_cplot() const {
   return antialiasedScatters();
@@ -531,6 +560,281 @@ void Curve2D::setlegendtext_cplot(const QString &text) { setName(text); }
 
 void Curve2D::setpicker_cplot(const Graph2DCommon::Picker picker) {
   picker_ = picker;
+}
+
+void Curve2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
+  xmlwriter->writeStartElement("curve");
+  // axis
+  xmlwriter->writeAttribute("xaxis", QString::number(xaxis));
+  xmlwriter->writeAttribute("yaxis", QString::number(yaxis));
+
+  switch (getcurvetype_cplot()) {
+    case Curve2D::Curve2DType::Curve:
+      xmlwriter->writeAttribute("type", "curve");
+      break;
+    case Curve2D::Curve2DType::Spline:
+      xmlwriter->writeAttribute("type", "spline");
+      break;
+  }
+
+  xmlwriter->writeAttribute("legend", getlegendtext_cplot());
+  // data
+  if (curvedata_) {
+    xmlwriter->writeAttribute("data", "table");
+    xmlwriter->writeAttribute("table", curvedata_->gettable()->name());
+    xmlwriter->writeAttribute("xcolumn", curvedata_->getxcolumn()->name());
+    xmlwriter->writeAttribute("ycolumn", curvedata_->getycolumn()->name());
+    xmlwriter->writeAttribute("from", QString::number(curvedata_->getfrom()));
+    xmlwriter->writeAttribute("to", QString::number(curvedata_->getto()));
+  } else if (functionData_) {
+    xmlwriter->writeAttribute("data", "function");
+    xmlwriter->writeStartElement("functiondata");
+
+    for (int i = 0; i < functionData_.data()->size(); ++i) {
+      xmlwriter->writeStartElement("data");
+      xmlwriter->writeAttribute(
+          "xdata", QString::number(functionData_.data()->at(i)->key));
+      xmlwriter->writeAttribute(
+          "ydata", QString::number(functionData_.data()->at(i)->value));
+      xmlwriter->writeEndElement();
+    }
+    xmlwriter->writeEndElement();
+  }
+  // line
+  xmlwriter->writeStartElement("line");
+  switch (getlinetype_cplot()) {
+    case 0:
+      xmlwriter->writeAttribute("style", "none");
+      break;
+    case 1:
+      xmlwriter->writeAttribute("style", "line");
+      break;
+  }
+  (getlinefillstatus_cplot()) ? xmlwriter->writeAttribute("fill", "true")
+                              : xmlwriter->writeAttribute("fill", "false");
+  (getlineantialiased_cplot())
+      ? xmlwriter->writeAttribute("antialias", "true")
+      : xmlwriter->writeAttribute("antialias", "false");
+  xmlwriter->writePen(getlinepen_cplot());
+  xmlwriter->writeBrush(getlinebrush_cplot());
+  xmlwriter->writeEndElement();
+
+  // scatter
+  xmlwriter->writeStartElement("scatter");
+  switch (getscattershape_cplot()) {
+    case Graph2DCommon::ScatterStyle::None:
+      xmlwriter->writeAttribute("style", "none");
+      break;
+    case Graph2DCommon::ScatterStyle::Dot:
+      xmlwriter->writeAttribute("style", "dot");
+      break;
+    case Graph2DCommon::ScatterStyle::Disc:
+      xmlwriter->writeAttribute("style", "disc");
+      break;
+    case Graph2DCommon::ScatterStyle::Plus:
+      xmlwriter->writeAttribute("style", "plus");
+      break;
+    case Graph2DCommon::ScatterStyle::Star:
+      xmlwriter->writeAttribute("style", "star");
+      break;
+    case Graph2DCommon::ScatterStyle::Cross:
+      xmlwriter->writeAttribute("style", "cross");
+      break;
+    case Graph2DCommon::ScatterStyle::Peace:
+      xmlwriter->writeAttribute("style", "peace");
+      break;
+    case Graph2DCommon::ScatterStyle::Circle:
+      xmlwriter->writeAttribute("style", "circle");
+      break;
+    case Graph2DCommon::ScatterStyle::Square:
+      xmlwriter->writeAttribute("style", "square");
+      break;
+    case Graph2DCommon::ScatterStyle::Diamond:
+      xmlwriter->writeAttribute("style", "diamond");
+      break;
+    case Graph2DCommon::ScatterStyle::Triangle:
+      xmlwriter->writeAttribute("style", "triangle");
+      break;
+    case Graph2DCommon::ScatterStyle::PlusCircle:
+      xmlwriter->writeAttribute("style", "pluscircle");
+      break;
+    case Graph2DCommon::ScatterStyle::PlusSquare:
+      xmlwriter->writeAttribute("style", "plussquare");
+      break;
+    case Graph2DCommon::ScatterStyle::CrossCircle:
+      xmlwriter->writeAttribute("style", "crosscircle");
+      break;
+    case Graph2DCommon::ScatterStyle::CrossSquare:
+      xmlwriter->writeAttribute("style", "crosssquare");
+      break;
+    case Graph2DCommon::ScatterStyle::TriangleInverted:
+      xmlwriter->writeAttribute("style", "triangleinverted");
+      break;
+  }
+  xmlwriter->writeAttribute("size", QString::number(getscattersize_cplot()));
+  (getscatterantialiased_cplot())
+      ? xmlwriter->writeAttribute("antialias", "true")
+      : xmlwriter->writeAttribute("antialias", "false");
+  xmlwriter->writePen(getscatterpen_cplot());
+  xmlwriter->writeBrush(getscatterbrush_cplot());
+  xmlwriter->writeEndElement();
+  xmlwriter->writeEndElement();
+}
+
+bool Curve2D::load(XmlStreamReader *xmlreader) {
+  bool ok;
+  while (!xmlreader->atEnd()) {
+    xmlreader->readNext();
+    if (xmlreader->isEndElement() && xmlreader->name() == "curve") break;
+
+    // line
+    if (xmlreader->isStartElement() && xmlreader->name() == "line") {
+      // line style
+      QString style = xmlreader->readAttributeString("style", &ok);
+      if (ok) {
+        if (style == "none") {
+          setlinetype_cplot(0);
+        } else if (style == "line") {
+          setlinetype_cplot(1);
+        }
+      } else
+        xmlreader->raiseWarning(
+            tr("Curve2D line style property setting error"));
+
+      // line fill status
+      bool fill = xmlreader->readAttributeBool("fill", &ok);
+      (ok) ? setlinefillstatus_cplot(fill)
+           : xmlreader->raiseWarning(
+                 tr("Curve2D line fill status property setting error"));
+
+      // line antialias
+      bool lineantialias = xmlreader->readAttributeBool("antialias", &ok);
+      (ok) ? setAntialiased(lineantialias)
+           : xmlreader->raiseWarning(
+                 tr("Curve2D line antialias property setting error"));
+
+      // line pen property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+        // pen
+        if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+          QPen strokep = xmlreader->readPen(&ok);
+          if (ok) {
+            setlinestrokecolor_cplot(strokep.color());
+            setlinestrokestyle_cplot(strokep.style());
+            setlinestrokethickness_cplot(strokep.widthF());
+          } else
+            xmlreader->raiseWarning(
+                tr("Curve2D line pen property setting error"));
+        }
+      }
+
+      // line brush property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "brush") break;
+        // brush
+        if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+          QBrush b = xmlreader->readBrush(&ok);
+          if (ok) {
+            setlinefillcolor_cplot(b.color());
+          } else
+            xmlreader->raiseWarning(
+                tr("Curve2D linebrush property setting error"));
+        }
+      }
+    }
+
+    // scatter
+    if (xmlreader->isStartElement() && xmlreader->name() == "scatter") {
+      // scatter shape
+      QString scattershape = xmlreader->readAttributeString("style", &ok);
+      if (ok) {
+        if (scattershape == "dot") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::Dot);
+        } else if (scattershape == "disc") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::Disc);
+        } else if (scattershape == "none") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::None);
+        } else if (scattershape == "plus") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::Plus);
+        } else if (scattershape == "star") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::Star);
+        } else if (scattershape == "cross") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::Cross);
+        } else if (scattershape == "peace") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::Peace);
+        } else if (scattershape == "circle") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::Circle);
+        } else if (scattershape == "square") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::Square);
+        } else if (scattershape == "diamond") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::Diamond);
+        } else if (scattershape == "triangle") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::Triangle);
+        } else if (scattershape == "pluscircle") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::PlusCircle);
+        } else if (scattershape == "plussquare") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::PlusSquare);
+        } else if (scattershape == "crosscircle") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::CrossCircle);
+        } else if (scattershape == "crosssquare") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::CrossSquare);
+        } else if (scattershape == "triangleinverted") {
+          setscattershape_cplot(Graph2DCommon::ScatterStyle::TriangleInverted);
+        }
+      } else
+        xmlreader->raiseWarning(
+            tr("Curve2D scatter shape property setting error"));
+
+      // scatter size
+      int scattersize = xmlreader->readAttributeInt("size", &ok);
+      (ok) ? setscattersize_cplot(scattersize)
+           : xmlreader->raiseWarning(
+                 tr("Curve2D scatter size property setting error"));
+
+      // scatter antialias
+      bool scatterantialias = xmlreader->readAttributeBool("antialias", &ok);
+      (ok) ? setscatterantialiased_cplot(scatterantialias)
+           : xmlreader->raiseWarning(
+                 tr("Curve2D scatter antialias property setting error"));
+
+      // scatter pen property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+        // pen
+        if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+          QPen strokep = xmlreader->readPen(&ok);
+          if (ok) {
+            setscatterstrokecolor_cplot(strokep.color());
+            setscatterstrokestyle_cplot(strokep.style());
+            setscatterstrokethickness_cplot(strokep.widthF());
+          } else
+            xmlreader->raiseWarning(
+                tr("Curve2D scatter pen property setting error"));
+        }
+      }
+
+      // scatter brush property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "brush") break;
+        // brush
+        if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+          QBrush b = xmlreader->readBrush(&ok);
+          if (ok) {
+            setscatterfillcolor_cplot(b.color());
+          } else
+            xmlreader->raiseWarning(
+                tr("Curve2D scatterbrush property setting error"));
+        }
+      }
+    }
+  }
+
+  return !xmlreader->hasError();
 }
 
 void Curve2D::draw(QCPPainter *painter) {

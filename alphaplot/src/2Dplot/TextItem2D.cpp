@@ -1,6 +1,10 @@
 #include "TextItem2D.h"
+
 #include <QPen>
+
 #include "core/Utilities.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 TextItem2D::TextItem2D(AxisRect2D *axisrect, Plot2D *plot)
     : QCPItemText(plot),
@@ -96,6 +100,103 @@ void TextItem2D::settextalignment_textitem(const TextAlignment &value) {
   }
 }
 
+void TextItem2D::setpixelposition_textitem(const QPointF &point) {
+  position->setPixelPosition(point);
+}
+
+void TextItem2D::save(XmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("textitem");
+  xmlwriter->writeAttribute("xposition",
+                            QString::number(position->pixelPosition().x()));
+  xmlwriter->writeAttribute("yposition",
+                            QString::number(position->pixelPosition().y()));
+  switch (gettextalignment_textitem()) {
+    case TextAlignment::TopLeft:
+      xmlwriter->writeAttribute("textalignment", "topleft");
+      break;
+    case TextAlignment::TopCenter:
+      xmlwriter->writeAttribute("textalignment", "topcenter");
+      break;
+    case TextAlignment::TopRight:
+      xmlwriter->writeAttribute("textalignment", "topright");
+      break;
+    case TextAlignment::CenterLeft:
+      xmlwriter->writeAttribute("textalignment", "centerleft");
+      break;
+    case TextAlignment::CenterCenter:
+      xmlwriter->writeAttribute("textalignment", "centercenter");
+      break;
+    case TextAlignment::CenterRight:
+      xmlwriter->writeAttribute("textalignment", "centerright");
+      break;
+    case TextAlignment::BottomLeft:
+      xmlwriter->writeAttribute("textalignment", "bottomleft");
+      break;
+    case TextAlignment::BottomCenter:
+      xmlwriter->writeAttribute("textalignment", "bottomcenter");
+      break;
+    case TextAlignment::BottomRight:
+      xmlwriter->writeAttribute("textalignment", "bottomright");
+      break;
+  }
+  xmlwriter->writeAttribute("text", text());
+  (antialiased()) ? xmlwriter->writeAttribute("antialiased", "true")
+                  : xmlwriter->writeAttribute("antialiased", "false");
+  xmlwriter->writeStartElement("margin");
+  xmlwriter->writeAttribute("left", QString::number(padding().left()));
+  xmlwriter->writeAttribute("top", QString::number(padding().top()));
+  xmlwriter->writeAttribute("right", QString::number(padding().right()));
+  xmlwriter->writeAttribute("bottom", QString::number(padding().bottom()));
+  xmlwriter->writeEndElement();
+  xmlwriter->writeFont(font(), color());
+  xmlwriter->writePen(pen());
+  xmlwriter->writeBrush(brush());
+  xmlwriter->writeEndElement();
+}
+
+bool TextItem2D::load(XmlStreamReader *xmlreader) {
+  if (xmlreader->isStartElement() && xmlreader->name() == "textitem") {
+    bool ok;
+    QPoint itemposition;
+    // item X position property
+    double positionx = xmlreader->readAttributeDouble("xposition", &ok);
+    if (ok) {
+      itemposition.setX(static_cast<int>(positionx));
+    } else {
+      itemposition.setX(axisrect_->center().x());
+      xmlreader->raiseWarning(
+          tr("TextItem2D x position property setting error"));
+    }
+    // item Y position property
+    double positiony = xmlreader->readAttributeDouble("yposition", &ok);
+    if (ok) {
+      itemposition.setY(static_cast<int>(positiony));
+    } else {
+      itemposition.setY(axisrect_->center().y());
+      xmlreader->raiseWarning(
+          tr("TextItem2D y position property setting error"));
+    }
+
+    // item text property
+    QString itemtext = xmlreader->readAttributeString("text", &ok);
+    if (ok)
+      setText(itemtext);
+    else {
+      setText("Text");
+      xmlreader->raiseWarning(
+          tr("TextItem2D y position property setting error"));
+    }
+    setpixelposition_textitem(itemposition);
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "textitem") break;
+    }
+  } else  // no element
+    xmlreader->raiseError(tr("no text item element found"));
+
+  return !xmlreader->hasError();
+}
+
 void TextItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   Q_UNUSED(details);
   if (event->button() == Qt::LeftButton) {
@@ -126,7 +227,7 @@ void TextItem2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
     if (event->pos().y() > axisrect_->bottom()) {
       eventpos.setY(axisrect_->bottom());
     }
-    position->setPixelPosition(eventpos - dragtextitemorigin_);
+    setpixelposition_textitem(eventpos - dragtextitemorigin_);
     this->layer()->replot();
   }
 }

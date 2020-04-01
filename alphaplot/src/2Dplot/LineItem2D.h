@@ -34,6 +34,12 @@ class LineItem2D : public QCPItemLine {
   void setendlength_lineitem(const double value,
                              const LineEndLocation &location);
 
+  QString getendstylestring_lineitem(
+      const QCPLineEnding::EndingStyle endstyle) const;
+  QCPLineEnding::EndingStyle getendstyleenum_lineitem(const QString end) const;
+  void save(XmlStreamWriter *xmlwriter);
+  bool load(XmlStreamReader *xmlreader);
+
  protected:
   void draw(QCPPainter *painter);
   void mousePressEvent(QMouseEvent *event, const QVariant &details);

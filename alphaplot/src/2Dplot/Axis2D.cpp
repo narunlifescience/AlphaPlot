@@ -15,6 +15,7 @@
    Description : Plot2D axis related stuff */
 
 #include "Axis2D.h"
+
 #include "AxisRect2D.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
@@ -411,6 +412,10 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
       xmlwriter->writeAttribute("tickertype", "text");
       break;
   }
+  (axisrect_->getGridPair().first.second == this ||
+   axisrect_->getGridPair().second.second == this)
+      ? xmlwriter->writeAttribute("grid", "true")
+      : xmlwriter->writeAttribute("grid", "false");
   xmlwriter->writeAttribute("offset", QString::number(getoffset_axis()));
   xmlwriter->writeAttribute("from", QString::number(getfrom_axis()));
   xmlwriter->writeAttribute("to", QString::number(getto_axis()));
@@ -759,5 +764,4 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
     xmlreader->raiseError(tr("no axis element found"));
 
   return !xmlreader->hasError();
-  ;
 }

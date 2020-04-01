@@ -15,8 +15,11 @@
    Description : Plot2D grid related stuff */
 
 #include "Grid2D.h"
+
 #include "Axis2D.h"
 #include "AxisRect2D.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 Grid2D::Grid2D(Axis2D *parent)
     : QCPGrid(parent),
@@ -137,10 +140,115 @@ bool Grid2D::getZerothLineVisible() const {
   return (zeroLinePen() != Qt::NoPen);
 }
 
-QString Grid2D::saveToAproj() {
-  QString s = "<grid>/n";
-  /* use a xml tree to save it to aproj
-   * will impliment later */
-  s = +"</grid>/n";
-  return s;
+void Grid2D::save(XmlStreamWriter *xmlwriter, const QString tag) {
+  xmlwriter->writeStartElement(tag);
+  xmlwriter->writeStartElement("major");
+  (getMajorGridVisible()) ? xmlwriter->writeAttribute("visible", "true")
+                          : xmlwriter->writeAttribute("visible", "false");
+  xmlwriter->writePen(pen());
+  xmlwriter->writeEndElement();
+  xmlwriter->writeStartElement("zero");
+  (getZerothLineVisible()) ? xmlwriter->writeAttribute("visible", "true")
+                           : xmlwriter->writeAttribute("visible", "false");
+  xmlwriter->writePen(zeroLinePen());
+  xmlwriter->writeEndElement();
+  xmlwriter->writeStartElement("minor");
+  (getMinorGridVisible()) ? xmlwriter->writeAttribute("visible", "true")
+                          : xmlwriter->writeAttribute("visible", "false");
+  xmlwriter->writePen(subGridPen());
+  xmlwriter->writeEndElement();
+  xmlwriter->writeEndElement();
+}
+
+bool Grid2D::load(XmlStreamReader *xmlreader, const QString tag) {
+  if (xmlreader->isStartElement() && xmlreader->name() == tag) {
+    bool ok;
+    // major
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "major") break;
+      // visible
+      if (xmlreader->isStartElement() && xmlreader->name() == "major") {
+        bool visible = xmlreader->readAttributeBool("visible", &ok);
+        (ok) ? setMajorGridVisible(visible)
+             : xmlreader->raiseWarning(
+                   tr("Grid2D majorgrid visible property setting error"));
+        // strokepen property
+        while (!xmlreader->atEnd()) {
+          xmlreader->readNext();
+          if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+          // pen
+          if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+            QPen strokep = xmlreader->readPen(&ok);
+            if (ok) {
+              setMajorGridColor(strokep.color());
+              setMajorGridStyle(strokep.style());
+              setMajorGridThickness(strokep.widthF());
+            } else
+              xmlreader->raiseWarning(
+                  tr("Grid2D majorgrid pen property setting error"));
+          }
+        }
+      }
+    }
+    // zeroth line
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "zero") break;
+      // visible
+      if (xmlreader->isStartElement() && xmlreader->name() == "zero") {
+        bool visible = xmlreader->readAttributeBool("visible", &ok);
+        (ok) ? setZerothLineVisible(visible)
+             : xmlreader->raiseWarning(
+                   tr("Grid2D zerothline visible property setting error"));
+        // strokepen property
+        while (!xmlreader->atEnd()) {
+          xmlreader->readNext();
+          if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+          // pen
+          if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+            QPen strokep = xmlreader->readPen(&ok);
+            if (ok) {
+              setZerothLineColor(strokep.color());
+              setZerothLineStyle(strokep.style());
+              setZerothLineThickness(strokep.widthF());
+            } else
+              xmlreader->raiseWarning(
+                  tr("Grid2D zerothline pen property setting error"));
+          }
+        }
+      }
+    }
+    // minor
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "minor") break;
+      // visible
+      if (xmlreader->isStartElement() && xmlreader->name() == "minor") {
+        bool visible = xmlreader->readAttributeBool("visible", &ok);
+        (ok) ? setMinorGridVisible(visible)
+             : xmlreader->raiseWarning(
+                   tr("Grid2D minorgrid visible property setting error"));
+        // strokepen property
+        while (!xmlreader->atEnd()) {
+          xmlreader->readNext();
+          if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+          // pen
+          if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+            QPen strokep = xmlreader->readPen(&ok);
+            if (ok) {
+              setMinorGridColor(strokep.color());
+              setMinorGridStyle(strokep.style());
+              setMinorGridThickness(strokep.widthF());
+            } else
+              xmlreader->raiseWarning(
+                  tr("Grid2D majorgrid pen property setting error"));
+          }
+        }
+      }
+    }
+  } else  // no element
+    xmlreader->raiseError(tr("no Grid2D item element found"));
+
+  return !xmlreader->hasError();
 }

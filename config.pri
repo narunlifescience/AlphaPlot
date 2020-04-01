@@ -110,10 +110,6 @@ contains(PRESET, osx_dist) {
   message(Build configuration: OSX Distro)
 
   INCLUDEPATH  += /usr/local/include
-
-  INCLUDEPATH  += ../3rdparty/qwtplot3d/include
-  LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
-
   LIBS         += -lgsl -lgslcblas -lz
 }
 
@@ -123,9 +119,6 @@ win32: {
     message(Build configuration: Win32)
 
     isEmpty(LIBPATH): LIBPATH = ../3rdparty
-
-    INCLUDEPATH  += "$${LIBPATH}/qwtplot3d/include"
-    LIBS         += "$${LIBPATH}/qwtplot3d/lib/qwtplot3d.dll"
 
     INCLUDEPATH  += "$${LIBPATH}/gsl/include"
     LIBS         += "$${LIBPATH}/gsl/lib/libgsl.a"
@@ -140,13 +133,11 @@ mxe {
   QMAKE_CXXFLAGS +=-g
   DEFINES        += CONSOLE
     
-  INCLUDEPATH  += "../3rdparty/include"
-  LIBS         += "../3rdparty/lib/libqwtplot3d.a"
-
   LIBS           +=  -mwindows -lgsl -lgslcblas
 
   # Qt libs specified here to get around a dependency bug in qmake
-  LIBS += -lQtOpenGL -lQtGui -lQtNetwork -lQtCore
+  LIBS += -lQt5OpenGL -lQt5Gui -lQt5Widgets -lQt5Network -lQt5Core
+  LIBS += -lQt5PrintSupport -lQt5Svg -lQt5Xml -lQt5XmlPatterns
   LIBS += -lole32 -loleaut32 -limm32 -lcomdlg32 -luuid 
   LIBS += -lwinspool -lssl -lcrypto -lwinmm -lgdi32 -lws2_32
   LIBS += -ljpeg -lpng -lmng -ltiff -lz -llzma -llcms2

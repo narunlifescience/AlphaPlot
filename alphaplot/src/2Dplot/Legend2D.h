@@ -22,6 +22,9 @@ class Legend2D : public QCPLegend {
   void setborderstrokethickness_legend(const double value);
   void setborderstrokestyle_legend(const Qt::PenStyle &style);
 
+  void save(XmlStreamWriter *xmlwriter);
+  bool load(XmlStreamReader *xmlreader);
+
  signals:
   void legendClicked();
 

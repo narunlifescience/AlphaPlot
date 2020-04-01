@@ -32,6 +32,10 @@ class TextItem2D : public QCPItemText {
   void setstrokethickness_textitem(const double value);
   void setstrokestyle_textitem(const Qt::PenStyle &style);
   void settextalignment_textitem(const TextAlignment &value);
+  void setpixelposition_textitem(const QPointF &point);
+
+  void save(XmlStreamWriter *xmlwriter);
+  bool load(XmlStreamReader *xmlreader);
 
  protected:
   void mousePressEvent(QMouseEvent *event, const QVariant &details);

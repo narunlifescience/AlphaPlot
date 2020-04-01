@@ -71,6 +71,9 @@ class Vector2D : public QCPGraph {
                               const LineEndLocation &location);
   void setlegendtext_vecplot(const QString &name);
 
+  void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);
+  bool load(XmlStreamReader *xmlreader);
+
  private:
   void reloadendings(const LineEndLocation &location);
  void datapicker(QMouseEvent *, const QVariant &);

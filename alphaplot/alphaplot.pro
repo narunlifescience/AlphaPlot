@@ -16,8 +16,8 @@ QT += widgets opengl network svg xml script scripttools printsupport xmlpatterns
 
 INCLUDEPATH += alphaplot alphaplot/src ../data/translations
 
-include(sourcefiles.pri)
 include(muparser.pri)
+include(sourcefiles.pri)
 include(../config.pri)
 
 #############################################################################
