@@ -102,8 +102,6 @@ Curve2D::~Curve2D() {
       delete splinecontrolpoints_;
       break;
   }
-  if (xerroravailable_) removeXerrorBar();
-  if (yerroravailable_) removeYerrorBar();
   parentPlot()->removeLayer(layer());
 }
 
@@ -600,6 +598,9 @@ void Curve2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
     }
     xmlwriter->writeEndElement();
   }
+  // error bar
+  if (xerroravailable_) xerrorbar_->save(xmlwriter);
+  if (yerroravailable_) yerrorbar_->save(xmlwriter);
   // line
   xmlwriter->writeStartElement("line");
   switch (getlinetype_cplot()) {
@@ -684,7 +685,6 @@ void Curve2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
 bool Curve2D::load(XmlStreamReader *xmlreader) {
   bool ok;
   while (!xmlreader->atEnd()) {
-    xmlreader->readNext();
     if (xmlreader->isEndElement() && xmlreader->name() == "curve") break;
 
     // line
@@ -832,6 +832,7 @@ bool Curve2D::load(XmlStreamReader *xmlreader) {
         }
       }
     }
+    xmlreader->readNext();
   }
 
   return !xmlreader->hasError();

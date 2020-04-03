@@ -17,17 +17,16 @@
    Description : AlphaPlot main function
 */
 
-#include "ApplicationWindow.h"
-#include "core/IconLoader.h"
-#include "globals.h"
-
 #include <QAction>
 #include <QApplication>
 #include <QSplashScreen>
 #include <QTimer>
-
 #include <QtMsgHandler>
 #include <typeinfo>
+
+#include "ApplicationWindow.h"
+#include "core/IconLoader.h"
+#include "globals.h"
 
 #ifdef Q_OS_WIN
 #include <Windows.h>
@@ -148,9 +147,11 @@ int main(int argc, char** argv) {
   // Show splashscreen
   QPixmap pixmap(":splash/splash.png");
   QSplashScreen* splash = new QSplashScreen(pixmap);
-  splash->show();
-  // Close splashscreen after 3 sec
-  Delay::sleep(3);
+  if (args.count() == 0) {
+    splash->show();
+    // Close splashscreen after 3 sec
+    Delay::sleep(3);
+  }
 
   ApplicationWindow* mw = new ApplicationWindow();
   // Process more events here before starting app.

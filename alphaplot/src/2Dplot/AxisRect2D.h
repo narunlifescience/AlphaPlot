@@ -175,6 +175,7 @@ class AxisRect2D : public QCPAxisRect {
   void setPrintorExportJob(bool value) { printorexportjob_ = value; }
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void setGridPairToNullptr();
+  void setItemAxes(Axis2D *xaxis, Axis2D *yaxis);
 
   Table *getTableByName(QList<Table*>tabs, const QString name);
   Matrix *getMatrixByName(QList<Matrix *>mats, const QString name);

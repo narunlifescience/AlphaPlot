@@ -73,8 +73,6 @@ void Bar2D::init() {
 
 Bar2D::~Bar2D() {
   if (!ishistogram_) delete bardata_;
-  if (xerroravailable_) removeXerrorBar();
-  if (yerroravailable_) removeYerrorBar();
   parentPlot()->removeLayer(layer());
 }
 

@@ -9,6 +9,7 @@
 #include <QXmlSchemaValidator>
 
 #include "2Dplot/Layout2D.h"
+#include "2Dplot/widgets/propertyeditor.h"
 #include "3Dplot/Graph3D.h"
 #include "ApplicationWindow.h"
 #include "Folder.h"
@@ -241,6 +242,11 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
                xmlreader->name() == "plot2d") {
       Layout2D *plot2d = app->newGraph2D();
       plot2d->load(xmlreader.get(), tables(app), matrixs(app));
+      // (hack) for some unknown reason this connection need to be manually set
+      // here
+      foreach (AxisRect2D *axisrect, plot2d->getAxisRectList()) {
+        app->propertyeditor->axisrectConnections(axisrect);
+      }
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "plot3d") {
       Graph3D *plot = app->newPlot3D();
@@ -266,11 +272,13 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
       }
     }
   }
+
   if (xmlreader->hasWarnings()) {
     foreach (QString warning, xmlreader->warningStrings()) {
       qDebug() << warning;
     }
   }
+
   return cfolder;
 }
 

@@ -46,6 +46,7 @@ class PropertyEditor : public QDockWidget {
   explicit PropertyEditor(QWidget *parent = nullptr);
   ~PropertyEditor();
   MyTreeWidget *getObjectBrowser();
+  void axisrectConnections(AxisRect2D *axisrect);
 
  private slots:
   void valueChange(QtProperty *prop, const bool value);
@@ -86,7 +87,6 @@ class PropertyEditor : public QDockWidget {
   void populateObjectBrowser(MyWidget *widget);
 
  private:
-  void axisrectConnections(AxisRect2D *axisrect);
   void setObjectPropertyId();
   template <class T>
   T *getgraph2dobject(QTreeWidgetItem *item) {

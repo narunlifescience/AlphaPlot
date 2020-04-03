@@ -18,6 +18,7 @@
    Description : Main part of UI & project management related stuff */
 
 #include "ApplicationWindow.h"
+
 #include "2Dplot/TextItem2D.h"
 #include "2Dplot/widgets/ErrDialog.h"
 #include "3Dplot/Graph3D.h"
@@ -74,20 +75,6 @@
 #include "ui/SettingsDialog.h"
 
 // Scripting
-#include "scripting/ScriptingFunctions.h"
-#include "scripting/ScriptingLangDialog.h"
-#include "scripting/widgets/ConsoleWidget.h"
-
-#include "2Dplot/Graph2DCommon.h"
-#include "2Dplot/Layout2D.h"
-#include "2Dplot/Plotcolumns.h"
-#include "2Dplot/widgets/AddPlot2DDialog.h"
-#include "2Dplot/widgets/Function2DDialog.h"
-#include "2Dplot/widgets/propertyeditor.h"
-#include "ui/PropertiesDialog.h"
-
-#include "3Dplot/Layout3D.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -133,8 +120,19 @@
 #include <QUrl>
 #include <QVarLengthArray>
 #include <QtDebug>
-
 #include <iostream>
+
+#include "2Dplot/Graph2DCommon.h"
+#include "2Dplot/Layout2D.h"
+#include "2Dplot/Plotcolumns.h"
+#include "2Dplot/widgets/AddPlot2DDialog.h"
+#include "2Dplot/widgets/Function2DDialog.h"
+#include "2Dplot/widgets/propertyeditor.h"
+#include "3Dplot/Layout3D.h"
+#include "scripting/ScriptingFunctions.h"
+#include "scripting/ScriptingLangDialog.h"
+#include "scripting/widgets/ConsoleWidget.h"
+#include "ui/PropertiesDialog.h"
 
 #ifdef Q_OS_WIN
 #include <io.h>  // for _commit()
@@ -3977,7 +3975,7 @@ void ApplicationWindow::exportAllGraphs() {
 
   QString output_dir = ied->selectedFiles()[0];
   QString file_suffix = ied->selectedNameFilter();
-  file_suffix.toLower();
+  file_suffix = file_suffix.toLower();
   file_suffix.remove("*");
 
   QList<QMdiSubWindow *> windows = subWindowsList();
@@ -5573,7 +5571,9 @@ MyWidget *ApplicationWindow::clone(MyWidget *w) {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
   if (isActiveSubWindow(w, SubWindowType::Plot2DSubWindow)) {
-    qDebug() << "not implimented";
+    QMessageBox::warning(
+        this, tr("Duplicate window error"),
+        tr("Plot2D windows cannot be duplicated! (not implimented yet)"));
   } else if (isActiveSubWindow(w, SubWindowType::TableSubWindow)) {
     Table *t = qobject_cast<Table *>(w);
     QString caption = generateUniqueName(tr("Table"));
@@ -6948,7 +6948,7 @@ Matrix *ApplicationWindow::importImage(const QString &fileName) {
 
   Matrix *m = Matrix::fromImage(image, scriptEnv);
   if (!m) {
-    QMessageBox::information(0, tr("Error importing image"),
+    QMessageBox::information(nullptr, tr("Error importing image"),
                              tr("Import of image '%1' failed").arg(fileName));
     return nullptr;
   }
@@ -7477,6 +7477,9 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
       QString s = "\n" + tr("Usage") + ": " + "AlphaPlot [" + tr("options") +
                   "] [" + tr("file") + "_" + tr("name") + "]\n\n";
       s + tr("Valid options are") + ":\n";
+      s += "-a " + tr("or") +
+           " --about: " + tr("about AlphaPlot application") +
+           "\n";
       s += "-h " + tr("or") + " --help: " + tr("show command line options") +
            "\n";
       s += "-l=XX " + tr("or") +
@@ -7485,9 +7488,6 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
       s += "-v " + tr("or") +
            " --version: " + tr("print AlphaPlot version and release date") +
            "\n";
-      s += "-x " + tr("or") +
-           " --execute: " + tr("execute the script file given as argument") +
-           "\n\n";
       s += "'" + tr("file") + "_" + tr("name") + "' " +
            tr("can be any .aproj, .aproj.gz, .py or ASCII "
               "file") +
@@ -7509,14 +7509,35 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
             this, tr("Error"),
             tr("<b> %1 </b>: Wrong locale option or no translation available!")
                 .arg(locale));
-    } else if (str.startsWith("--execute") || str.startsWith("-x"))
-      exec = true;
-    else if (str.startsWith("-") || str.startsWith("--")) {
-      QMessageBox::critical(
-          this, tr("Error"),
-          tr("<b> %1 </b> unknown command line option!").arg(str) + "\n" +
-              tr("Type %1 to see the list of the valid options.")
-                  .arg("'AlphaPlot -h'"));
+    } else if (str.startsWith("--about") || str.startsWith("-a")) {
+      QString abt =
+          tr("AlphaPlot is a free cross-platform program for two- and "
+             "three-dimensional graphical presentation of data sets and for "
+             "data analysis. The plots can be produced from data sets stored "
+             "in tables or from analytical functions.") +
+          "\n" +
+          tr("AlphaPlot uses code from SciDAVis, which consisted (at the time "
+             "of the fork, i.e. SciDAVis 1.D9) which inturn is the fork of "
+             "QtiPlot 0.9-rc.");
+#ifdef Q_OS_WIN
+      hide();
+      QMessageBox::information(this, tr("AlphaPlot - about"), abt);
+#else
+      std::cout << abt.toStdString();
+#endif
+      exit(0);
+    } else if (str.startsWith("-") || str.startsWith("--")) {
+      QString err = tr("(%1) unknown command line option!").arg(str) +
+                    "\n" +
+                    tr("Type %1 to see the list of the valid options.")
+                        .arg("'AlphaPlot -h'") + "\n";
+
+#ifdef Q_OS_WIN
+      QMessageBox::critical(this, tr("Error"), err);
+#else
+      std::cout << err.toStdString();
+#endif
+      exit(0);
     }
   }
 
@@ -8241,7 +8262,7 @@ void ApplicationWindow::folderProperties() {
       (saved) ? properties.status = tr("Saved")
               : properties.status = tr("Not Saved");
       properties.size = QString::number(fileInfo.size());
-      properties.created = fileInfo.created().toString(Qt::LocalDate);
+      properties.created = fileInfo.birthTime().toString(Qt::LocalDate);
       properties.modified = fileInfo.lastModified().toString(Qt::LocalDate);
       properties.label = "";
     } else {

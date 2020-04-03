@@ -1,6 +1,8 @@
 #include "LineSpecial2D.h"
+
 #include <QApplication>
 #include <QCursor>
+
 #include "../future/core/column/Column.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
@@ -41,8 +43,6 @@ LineSpecial2D::LineSpecial2D(Table *table, Column *xcol, Column *ycol, int from,
 LineSpecial2D::~LineSpecial2D() {
   delete scatterstyle_;
   delete graphdata_;
-  if (xerroravailable_) removeXerrorBar();
-  if (yerroravailable_) removeYerrorBar();
   parentPlot()->removeLayer(layer());
 }
 

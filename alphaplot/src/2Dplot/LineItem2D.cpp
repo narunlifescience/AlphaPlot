@@ -224,7 +224,7 @@ bool LineItem2D::load(XmlStreamReader *xmlreader) {
     bool ok;
 
     // antialias property
-    bool antialias = xmlreader->readAttributeInt("antialias", &ok);
+    bool antialias = xmlreader->readAttributeBool("antialias", &ok);
     (ok) ? setAntialiased(antialias)
          : xmlreader->raiseWarning(
                tr("LineItem2D antialias property setting error"));

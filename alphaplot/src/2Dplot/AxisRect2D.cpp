@@ -19,6 +19,7 @@
 #include <QMenu>
 
 #include "ColorMap2D.h"
+#include "ErrorBar2D.h"
 #include "ImageItem2D.h"
 #include "Legend2D.h"
 #include "LineItem2D.h"
@@ -210,6 +211,7 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis, bool force) {
 QBrush AxisRect2D::getAxisRectBackground() const { return axisRectBackGround_; }
 
 Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
+  Grid2D *grid = nullptr;
   switch (axis->getorientation_axis()) {
     case Axis2D::AxisOreantation::Bottom:
     case Axis2D::AxisOreantation::Top:
@@ -219,7 +221,8 @@ Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
       gridpair_.first.second = nullptr;
       gridpair_.first.first = new Grid2D(axis);
       gridpair_.first.second = axis;
-      return gridpair_.first.first;
+      grid = gridpair_.first.first;
+      break;
     case Axis2D::AxisOreantation::Left:
     case Axis2D::AxisOreantation::Right:
       if (gridpair_.second.second == axis) return gridpair_.second.first;
@@ -228,9 +231,14 @@ Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
       gridpair_.second.second = nullptr;
       gridpair_.second.first = new Grid2D(axis);
       gridpair_.second.second = axis;
-      return gridpair_.second.first;
+      grid = gridpair_.second.first;
+      break;
   }
-  return nullptr;
+
+  if (gridpair_.first.second && gridpair_.second.second)
+    setItemAxes(gridpair_.first.second, gridpair_.second.second);
+
+  return grid;
 }
 
 QList<Axis2D *> AxisRect2D::getAxes2D() const { return axes_; }
@@ -610,6 +618,7 @@ ColorMap2D *AxisRect2D::addColorMap2DPlot(Matrix *matrix, Axis2D *xAxis,
 
 TextItem2D *AxisRect2D::addTextItem2D(QString text) {
   TextItem2D *textitem = new TextItem2D(this, plot2d_);
+  textitem->position->setAxes(gridpair_.first.second, gridpair_.second.second);
   textitem->setText(text);
   textitem->setpixelposition_textitem(this->rect().center());
   layers_.append(textitem->layer());
@@ -620,6 +629,9 @@ TextItem2D *AxisRect2D::addTextItem2D(QString text) {
 
 LineItem2D *AxisRect2D::addLineItem2D() {
   LineItem2D *lineitem = new LineItem2D(this, plot2d_);
+  foreach (QCPItemPosition *position, lineitem->positions()) {
+    position->setAxes(gridpair_.first.second, gridpair_.second.second);
+  }
   QRectF rect = this->rect();
   int widthpercent = static_cast<int>((rect.width() * 20) / 100);
   int heightpercent = static_cast<int>((rect.height() * 20) / 100);
@@ -641,6 +653,9 @@ LineItem2D *AxisRect2D::addArrowItem2D() {
 
 ImageItem2D *AxisRect2D::addImageItem2D(const QString &filename) {
   ImageItem2D *imageitem = new ImageItem2D(this, plot2d_, filename);
+  foreach (QCPItemPosition *position, imageitem->positions()) {
+    position->setAxes(gridpair_.first.second, gridpair_.second.second);
+  }
   layers_.append(imageitem->layer());
   imagevec_.append(imageitem);
   emit ImageItem2DCreated(imageitem);
@@ -748,6 +763,8 @@ bool AxisRect2D::removeLineSpecial2D(LineSpecial2D *ls) {
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(ls));
   bool result = false;
+  ls->removeXerrorBar();
+  ls->removeYerrorBar();
   result = plot2d_->removeGraph(ls);
   // result = plot2d_->removePlottable(ls);
   if (!result) return result;
@@ -811,6 +828,8 @@ bool AxisRect2D::removeCurve2D(Curve2D *curve) {
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(curve));
   bool result = false;
+  curve->removeXerrorBar();
+  curve->removeYerrorBar();
   result = plot2d_->removePlottable(curve);
   emit Curve2DRemoved(this);
   return result;
@@ -825,6 +844,8 @@ bool AxisRect2D::removeBar2D(Bar2D *bar) {
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(bar));
   bool result = false;
+  bar->removeXerrorBar();
+  bar->removeYerrorBar();
   result = plot2d_->removePlottable(bar);
   emit Bar2DRemoved(this);
   return result;
@@ -946,6 +967,29 @@ void AxisRect2D::setGridPairToNullptr() {
   gridpair_.second.second = nullptr;
 }
 
+void AxisRect2D::setItemAxes(Axis2D *xaxis, Axis2D *yaxis) {
+  // change to new axis before you delete the associated axis
+  // we always keep grid axis associated with Items
+  if (!xaxis && !yaxis) {
+    qDebug() << "QCPAbstractItem unable to set to new Axis2D";
+    return;
+  }
+
+  foreach (TextItem2D *textitem, textvec_) {
+    textitem->position->setAxes(xaxis, yaxis);
+  }
+  foreach (LineItem2D *lineitem, linevec_) {
+    foreach (QCPItemPosition *position, lineitem->positions()) {
+      position->setAxes(xaxis, yaxis);
+    }
+  }
+  foreach (ImageItem2D *imageitem, imagevec_) {
+    foreach (QCPItemPosition *position, imageitem->positions()) {
+      position->setAxes(xaxis, yaxis);
+    }
+  }
+}
+
 Table *AxisRect2D::getTableByName(QList<Table *> tabs, const QString name) {
   Table *table = nullptr;
   foreach (Table *tab, tabs) {
@@ -1057,35 +1101,26 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           xmlreader->raiseWarning(tr("Axis2D unable to set Grid2D error"));
         axis->load(xmlreader);
       } else
-        // unknown element
-        xmlreader->raiseWarning(
-            tr("unknown element '%1'").arg(xmlreader->name().toString()));
-      // xgrid
-      if (xmlreader->isStartElement() && xmlreader->name() == "xgrid") {
+          // xgrid
+          if (xmlreader->isStartElement() && xmlreader->name() == "xgrid") {
         gridpair_.first.first->load(xmlreader, "xgrid");
       } else
-        // unknown element
-        xmlreader->raiseWarning(
-            tr("unknown element '%1'").arg(xmlreader->name().toString()));
-      // ygrid
-      if (xmlreader->isStartElement() && xmlreader->name() == "ygrid") {
+          // ygrid
+          if (xmlreader->isStartElement() && xmlreader->name() == "ygrid") {
         gridpair_.second.first->load(xmlreader, "ygrid");
       } else
-        // unknown element
-        xmlreader->raiseWarning(
-            tr("unknown element '%1'").arg(xmlreader->name().toString()));
-      // textitem
-      if (xmlreader->isStartElement() && xmlreader->name() == "textitem") {
+          // textitem
+          if (xmlreader->isStartElement() && xmlreader->name() == "textitem") {
         TextItem2D *textitem = addTextItem2D("Text");
         textitem->load(xmlreader);
-      }
-
-      if (xmlreader->isStartElement() && xmlreader->name() == "lineitem") {
+      } else
+          // lineitem
+          if (xmlreader->isStartElement() && xmlreader->name() == "lineitem") {
         LineItem2D *lineitem = addLineItem2D();
         lineitem->load(xmlreader);
-      }
-
-      if (xmlreader->isStartElement() && xmlreader->name() == "imageitem") {
+      } else
+          // imageitem
+          if (xmlreader->isStartElement() && xmlreader->name() == "imageitem") {
         // source property
         QString file = xmlreader->readAttributeString("file", &ok);
         if (ok && QFile(file).exists()) {
@@ -1094,9 +1129,10 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         } else
           xmlreader->raiseWarning(
               tr("ImageItem2D file property setting error"));
-      }
-
-      if (xmlreader->isStartElement() && xmlreader->name() == "curve") {
+      } else
+          // curve
+          if (xmlreader->isStartElement() && xmlreader->name() == "curve") {
+        Curve2D *curve = nullptr;
         Axis2D *xaxis = nullptr;
         Axis2D *yaxis = nullptr;
         LineScatterType ctype = LineScatterType::Scatter2D;
@@ -1150,9 +1186,9 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           if (!ok) xmlreader->raiseError(tr("Curve2D to not found error"));
 
           if (table && xcolumn && ycolumn && xaxis && yaxis) {
-            Curve2D *curve = addCurve2DPlot(ctype, table, xcolumn, ycolumn,
-                                            from, to, xaxis, yaxis);
-            curve->load(xmlreader);
+            curve = addCurve2DPlot(ctype, table, xcolumn, ycolumn, from, to,
+                                   xaxis, yaxis);
+            // curve->load(xmlreader);
           }
         } else if (ok && datatype == "function") {
           QVector<double> *xdata = new QVector<double>();
@@ -1177,10 +1213,9 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           }
           if (xdata->size() > 0 && ydata->size() > 0 &&
               xdata->size() == ydata->size() && xaxis && yaxis) {
-            Curve2D *curve =
-                addFunction2DPlot(xdata, ydata, xaxis, yaxis, legend);
+            curve = addFunction2DPlot(xdata, ydata, xaxis, yaxis, legend);
             curve->setlegendtext_cplot(legend);
-            curve->load(xmlreader);
+            // curve->load(xmlreader);
           } else {
             xmlreader->raiseError(tr("Curve2D function skipped due to error"));
             delete xdata;
@@ -1189,10 +1224,54 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
 
         } else
           xmlreader->raiseError(tr("Curve2D data not found error"));
-      }
 
-      // vector
-      if (xmlreader->isStartElement() && xmlreader->name() == "vector") {
+        while (!xmlreader->atEnd()) {
+          xmlreader->readNextStartElement();
+          if (xmlreader->isStartElement() && xmlreader->name() != "errorbar") {
+            curve->load(xmlreader);
+            break;
+          }
+
+          if (xmlreader->isStartElement() && xmlreader->name() == "errorbar") {
+            Table *table = nullptr;
+            Column *column = nullptr;
+            QString type = xmlreader->readAttributeString("type", &ok);
+            if (!ok) {
+              xmlreader->raiseError(tr("ErrorBar2D type not found error"));
+            }
+            QString tablename = xmlreader->readAttributeString("table", &ok);
+            if (ok) {
+              table = getTableByName(tabs, tablename);
+            } else
+              xmlreader->raiseError(tr("ErrorBar2D Table not found error"));
+            QString colname = xmlreader->readAttributeString("errcolumn", &ok);
+            if (ok) {
+              (table) ? column = table->column(colname) : column = nullptr;
+            } else
+              xmlreader->raiseError(
+                  tr("ErrorBar2D Table column not found error"));
+            int from = xmlreader->readAttributeInt("from", &ok);
+            if (!ok)
+              xmlreader->raiseError(tr("ErrorBar2D from not found error"));
+            int to = xmlreader->readAttributeInt("to", &ok);
+            if (!ok) xmlreader->raiseError(tr("ErrorBar2D to not found error"));
+
+            if (table && column && !type.isEmpty() &&
+                curve->getcurvetype_cplot() == Curve2D::Curve2DType::Curve) {
+              if (type == "x") {
+                curve->setXerrorBar(table, column, from, to);
+                curve->getxerrorbar_curveplot()->load(xmlreader);
+              } else if (type == "y") {
+                curve->setYerrorBar(table, column, from, to);
+                curve->getyerrorbar_curveplot()->load(xmlreader);
+              }
+            }
+          }
+        }
+      } else
+
+          // vector
+          if (xmlreader->isStartElement() && xmlreader->name() == "vector") {
         Axis2D *xaxis = nullptr;
         Axis2D *yaxis = nullptr;
         Vector2D::VectorPlot type;
@@ -1264,10 +1343,10 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
                             from, to, xaxis, yaxis);
           curve->load(xmlreader);
         }
-      }
+      } else
 
-      // pie
-      if (xmlreader->isStartElement() && xmlreader->name() == "pie") {
+          // pie
+          if (xmlreader->isStartElement() && xmlreader->name() == "pie") {
         Table *table = nullptr;
         Column *xcolumn = nullptr;
         QString tablename = xmlreader->readAttributeString("table", &ok);
@@ -1294,7 +1373,7 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
       }
     }
   } else  // no plot2d element
-    xmlreader->raiseError(tr("no axisrect2d element found"));
+    xmlreader->raiseError(tr("unknown element %1").arg(xmlreader->name()));
 
   return !xmlreader->hasError();
 }

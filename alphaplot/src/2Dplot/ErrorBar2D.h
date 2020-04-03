@@ -31,6 +31,9 @@ class ErrorBar2D : public QCPErrorBars {
   DataBlockError *getdatablock_error() { return errordata_; }
   void setfillstatus_errorbar(const bool status);
 
+  void save(XmlStreamWriter *xmlwriter);
+  bool load(XmlStreamReader *xmlreader);
+
  public:
   Axis2D *xAxis_;
   Axis2D *yAxis_;

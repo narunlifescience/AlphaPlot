@@ -1,4 +1,5 @@
 #include "ErrorBar2D.h"
+
 #include "Axis2D.h"
 #include "Bar2D.h"
 #include "Curve2D.h"
@@ -7,6 +8,8 @@
 #include "Table.h"
 #include "core/Utilities.h"
 #include "core/column/Column.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
                        Axis2D *xAxis, Axis2D *yAxis,
@@ -86,4 +89,96 @@ void ErrorBar2D::setfillstatus_errorbar(const bool status) {
     b.setStyle(Qt::NoBrush);
     setBrush(b);
   }
+}
+
+void ErrorBar2D::save(XmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("errorbar");
+  switch (errortype_) {
+    case QCPErrorBars::ErrorType::etKeyError:
+      xmlwriter->writeAttribute("type", "x");
+      break;
+    case QCPErrorBars::ErrorType::etValueError:
+      xmlwriter->writeAttribute("type", "y");
+      break;
+  }
+
+  // data
+  xmlwriter->writeAttribute("table", errordata_->gettable()->name());
+  xmlwriter->writeAttribute("errcolumn", errordata_->geterrorcolumn()->name());
+  xmlwriter->writeAttribute("from", QString::number(errordata_->getfrom()));
+  xmlwriter->writeAttribute("to", QString::number(errordata_->getto()));
+
+  xmlwriter->writeAttribute("whiskerwidth", QString::number(whiskerWidth()));
+  xmlwriter->writeAttribute("symbolgap", QString::number(symbolGap()));
+  (getfillstatus_errorbar()) ? xmlwriter->writeAttribute("fill", "true")
+                             : xmlwriter->writeAttribute("fill", "false");
+  (antialiasedFill()) ? xmlwriter->writeAttribute("antialiasfill", "true")
+                      : xmlwriter->writeAttribute("antialiasfill", "false");
+  xmlwriter->writePen(pen());
+  xmlwriter->writeBrush(brush());
+  xmlwriter->writeEndElement();
+}
+
+bool ErrorBar2D::load(XmlStreamReader *xmlreader) {
+  if (xmlreader->isStartElement() && xmlreader->name() == "errorbar") {
+    bool ok;
+
+    // whiskerwidth property
+    int whiskerwdth = xmlreader->readAttributeInt("whiskerwidth", &ok);
+    (ok) ? setWhiskerWidth(whiskerwdth)
+         : xmlreader->raiseWarning(
+               tr("ErrorBar2D whiskerwidth property setting error"));
+
+    // symbolgap property
+    int symbolgp = xmlreader->readAttributeInt("symbolgap", &ok);
+    (ok) ? setSymbolGap(symbolgp)
+         : xmlreader->raiseWarning(
+               tr("ErrorBar2D symbolgap property setting error"));
+
+    // fill status property
+    bool fill = xmlreader->readAttributeBool("fill", &ok);
+    (ok) ? setfillstatus_errorbar(fill)
+         : xmlreader->raiseWarning(
+               tr("ErrorBar2D fill status property setting error"));
+
+    // antialiasfill status property
+    bool antialiasf = xmlreader->readAttributeBool("antialiasfill", &ok);
+    (ok) ? setAntialiasedFill(antialiasf)
+         : xmlreader->raiseWarning(
+               tr("ErrorBar2D antialias fill property setting error"));
+
+    // strokepen property
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+      // pen
+      if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+        QPen strokep = xmlreader->readPen(&ok);
+        if (ok)
+          setPen(strokep);
+        else
+          xmlreader->raiseWarning(
+              tr("ErrorBar2D strokepen property setting error"));
+      }
+    }
+
+    // strokepen property
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "brush") break;
+      // pen
+      if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+        QBrush b = xmlreader->readBrush(&ok);
+        if (ok)
+          setBrush(b);
+        else
+          xmlreader->raiseWarning(
+              tr("ErrorBar2D brush property setting error"));
+      }
+    }
+
+  } else  // no element
+    xmlreader->raiseError(tr("no ErrorBar2D item element found"));
+
+  return !xmlreader->hasError();
 }

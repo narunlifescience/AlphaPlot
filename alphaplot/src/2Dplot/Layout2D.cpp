@@ -1378,6 +1378,10 @@ void Layout2D::print() {
 
 void Layout2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeStartElement("plot2d");
+  xmlwriter->writeAttribute("x", QString::number(pos().x()));
+  xmlwriter->writeAttribute("y", QString::number(pos().y()));
+  xmlwriter->writeAttribute("width", QString::number(width()));
+  xmlwriter->writeAttribute("height", QString::number(height()));
   xmlwriter->writeAttribute("creation_time", birthDate());
   xmlwriter->writeAttribute("caption_spec", QString::number(captionPolicy()));
   xmlwriter->writeAttribute("name", name());
@@ -1402,18 +1406,23 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
                     QList<Matrix *> mats) {
   if (xmlreader->isStartElement() && xmlreader->name() == "plot2d") {
     bool ok = false;
-    // read name
-    QString name = xmlreader->readAttributeString("name", &ok);
+
+    // read caption spec
+    int x = xmlreader->readAttributeInt("x", &ok);
     if (ok) {
-      setName(name);
+      int y = xmlreader->readAttributeInt("y", &ok);
+      if (ok) {
+        int width = xmlreader->readAttributeInt("width", &ok);
+        if (ok) {
+          int height = xmlreader->readAttributeInt("height", &ok);
+          if (ok) {
+            setGeometry(x, y, width, height);
+          }
+        }
+      }
     } else
-      xmlreader->raiseWarning(tr("Layout2D name missing or empty"));
-    // read name
-    QString label = xmlreader->readAttributeString("label", &ok);
-    if (ok) {
-      setWindowLabel(name);
-    } else
-      xmlreader->raiseWarning(tr("Layout2D label missing or empty"));
+      xmlreader->raiseWarning(tr("Plot2D geometry setting error."));
+
     // read creation time
     QString time = xmlreader->readAttributeString("creation_time", &ok);
     QDateTime creation_time =
@@ -1431,6 +1440,18 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
       setCaptionPolicy(static_cast<MyWidget::CaptionPolicy>(captionspec));
     else
       xmlreader->raiseWarning(tr("Invalid caption policy or read error."));
+    // read name
+    QString name = xmlreader->readAttributeString("name", &ok);
+    if (ok) {
+      setName(name);
+    } else
+      xmlreader->raiseWarning(tr("Layout2D name missing or empty"));
+    // read name
+    QString label = xmlreader->readAttributeString("label", &ok);
+    if (ok) {
+      setWindowLabel(name);
+    } else
+      xmlreader->raiseWarning(tr("Layout2D label missing or empty"));
 
     while (!xmlreader->atEnd()) {
       xmlreader->readNext();
