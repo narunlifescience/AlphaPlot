@@ -139,6 +139,10 @@ class StatBox2D : public QCPStatisticalBox {
   void setscatterstrokethickness_statbox(const double value);
   void reloaddata_statbox();
   void setpicker_statbox(const Graph2DCommon::Picker picker);
+  void setlegendtext_statbox(const QString name);
+
+  void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);
+  bool load(XmlStreamReader *xmlreader);
 
  protected:
   void mousePressEvent(QMouseEvent *event, const QVariant &details);

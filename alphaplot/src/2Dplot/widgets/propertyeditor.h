@@ -2,6 +2,7 @@
 #define PROPERTYEDITOR_H
 
 #include <QDockWidget>
+
 #include "../Axis2D.h"
 #include "2Dplot/TextItem2D.h"
 #include "ApplicationWindow.h"
@@ -83,6 +84,10 @@ class PropertyEditor : public QDockWidget {
   void ColorMap2DPropertyBlock(ColorMap2D *colormap, AxisRect2D *axisrect);
   void ErrorBar2DPropertyBlock(ErrorBar2D *errorbar, AxisRect2D *axisrect);
 
+ signals:
+  void refreshCanvasRect();
+  void adderrorbar();
+
  public slots:
   void populateObjectBrowser(MyWidget *widget);
 
@@ -125,6 +130,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *canvaspropertycoloritem_;
   QtProperty *canvaspropertybufferdevicepixelratioitem_;
   QtProperty *canvaspropertyopenglitem_;
+  QtProperty *canvaspropertyrectitem_;
   // Layout properties
   QtProperty *layoutpropertygroupitem_;
   QtProperty *layoutpropertyrectitem_;
@@ -170,6 +176,8 @@ class PropertyEditor : public QDockWidget {
   QtProperty *axispropertyticklabelprecisionitem_;
 
   // Legend Properties
+  QtProperty *itempropertylegendoriginxitem_;
+  QtProperty *itempropertylegendoriginyitem_;
   QtProperty *itempropertylegendvisibleitem_;
   QtProperty *itempropertylegendfontitem_;
   QtProperty *itempropertylegendtextcoloritem_;
@@ -198,6 +206,10 @@ class PropertyEditor : public QDockWidget {
   QtProperty *itempropertytexttextalignmentitem_;
 
   // Line Item Properties
+  QtProperty *itempropertylinepixelpositionx1item_;
+  QtProperty *itempropertylinepixelpositiony1item_;
+  QtProperty *itempropertylinepixelpositionx2item_;
+  QtProperty *itempropertylinepixelpositiony2item_;
   QtProperty *itempropertylineantialiaseditem_;
   QtProperty *itempropertylinestrokecoloritem_;
   QtProperty *itempropertylinestrokethicknessitem_;
@@ -210,6 +222,8 @@ class PropertyEditor : public QDockWidget {
   QtProperty *itempropertylinestartinglengthitem_;
 
   // Image Item Properties
+  QtProperty *itempropertyimagepixelpositionxitem_;
+  QtProperty *itempropertyimagepixelpositionyitem_;
   QtProperty *itempropertyimagesourceitem_;
   QtProperty *itempropertyimagestrokecoloritem_;
   QtProperty *itempropertyimagestrokethicknessitem_;
@@ -289,6 +303,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *barplotpropertyxaxisitem_;
   QtProperty *barplotpropertyyaxisitem_;
   QtProperty *barplotpropertywidthitem_;
+  QtProperty *barplotpropertystackgapitem_;
   QtProperty *barplotpropertyfillantialiaseditem_;
   QtProperty *barplotpropertyfillcoloritem_;
   QtProperty *barplotpropertyantialiaseditem_;
@@ -303,6 +318,9 @@ class PropertyEditor : public QDockWidget {
   QtProperty *statboxplotpropertywidthitem_;
   QtProperty *statboxplotpropertywhiskerwidthitem_;
   QtProperty *statboxplotpropertyboxstyleitem_;
+  QtProperty *statboxplotpropertyboxoutlinecoloritem_;
+  QtProperty *statboxplotpropertyboxoutlinethicknessitem_;
+  QtProperty *statboxplotpropertyboxoutlinestyleitem_;
   QtProperty *statboxplotpropertywhiskerstyleitem_;
   QtProperty *statboxplotpropertyantialiaseditem_;
   QtProperty *statboxplotpropertyfillantialiaseditem_;

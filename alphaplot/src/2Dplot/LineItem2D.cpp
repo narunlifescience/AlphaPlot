@@ -202,6 +202,14 @@ QCPLineEnding::EndingStyle LineItem2D::getendstyleenum_lineitem(
 
 void LineItem2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeStartElement("lineitem");
+  xmlwriter->writeAttribute("x1",
+                            QString::number(position("start")->coords().x()));
+  xmlwriter->writeAttribute("y1",
+                            QString::number(position("start")->coords().y()));
+  xmlwriter->writeAttribute(
+      "x2", QString::number(position("end")->coords().x()));
+  xmlwriter->writeAttribute(
+      "y2", QString::number(position("end")->coords().y()));
   (antialiased()) ? xmlwriter->writeAttribute("antialias", "true")
                   : xmlwriter->writeAttribute("antialias", "false");
   xmlwriter->writeAttribute(
@@ -222,6 +230,30 @@ void LineItem2D::save(XmlStreamWriter *xmlwriter) {
 bool LineItem2D::load(XmlStreamReader *xmlreader) {
   if (xmlreader->isStartElement() && xmlreader->name() == "lineitem") {
     bool ok;
+
+    // position
+    double x1 = xmlreader->readAttributeDouble("x1", &ok);
+    if (ok) {
+      double y1 = xmlreader->readAttributeDouble("y1", &ok);
+      if (ok) {
+        double x2 = xmlreader->readAttributeDouble("x2", &ok);
+        if (ok) {
+          double y2 = xmlreader->readAttributeDouble("y2", &ok);
+          if (ok) {
+            position("start")->setCoords(QPointF(x1, y1));
+            position("end")->setCoords(QPointF(x2, y2));
+          } else
+            xmlreader->raiseWarning(
+                tr("LineItem2D set position y2 property setting error"));
+        } else
+          xmlreader->raiseWarning(
+              tr("LineItem2D set position x2 property setting error"));
+      } else
+        xmlreader->raiseWarning(
+            tr("LineItem2D set position y1 property setting error"));
+    } else
+      xmlreader->raiseWarning(
+          tr("LineItem2D set position x1 property setting error"));
 
     // antialias property
     bool antialias = xmlreader->readAttributeBool("antialias", &ok);
@@ -386,15 +418,20 @@ void LineItem2D::mouseReleaseEvent(QMouseEvent *event,
     if (draggingendlineitem_) {
       draggingendlineitem_ = false;
       axisrect_->getParentPlot2D()->setCursor(cursorshape_);
+      this->layer()->replot();
+      emit axisrect_->LineItem2DMoved();
     }
     if (draggingstartlineitem_) {
       draggingstartlineitem_ = false;
       axisrect_->getParentPlot2D()->setCursor(cursorshape_);
+      this->layer()->replot();
+      emit axisrect_->LineItem2DMoved();
     }
     if (dragginglineitem_) {
       dragginglineitem_ = false;
       axisrect_->getParentPlot2D()->setCursor(cursorshape_);
+      this->layer()->replot();
+      emit axisrect_->LineItem2DMoved();
     }
-    this->layer()->replot();
   }
 }

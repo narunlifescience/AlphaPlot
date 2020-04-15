@@ -373,6 +373,8 @@ ApplicationWindow::ApplicationWindow()
   propertyeditor->setObjectName("propertyeditorWindow");
   addDockWidget(Qt::RightDockWidgetArea, propertyeditor);
   propertyeditor->show();
+  connect(propertyeditor, &PropertyEditor::adderrorbar, this,
+          &ApplicationWindow::addErrorBars);
 
   disableActions();
   // After initialization of QDockWidget, for toggleViewAction() to work
@@ -523,10 +525,18 @@ ApplicationWindow::ApplicationWindow()
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalBars,
                             static_cast<int>(Graph::VerticalBars));
+  connect(ui_->actionPlot2DVerticalStackedBars, SIGNAL(triggered()),
+          d_plot_mapper, SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DVerticalStackedBars,
+                            static_cast<int>(Graph::VerticalStackedBars));
   connect(ui_->actionPlot2DHorizontalBars, SIGNAL(triggered()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalBars,
                             static_cast<int>(Graph::HorizontalBars));
+  connect(ui_->actionPlot2DHorizontalStackedBars, SIGNAL(triggered()),
+          d_plot_mapper, SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalStackedBars,
+                            static_cast<int>(Graph::HorizontalStackedBars));
   connect(ui_->actionPlot2DArea, SIGNAL(triggered()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DArea,
@@ -878,6 +888,9 @@ void ApplicationWindow::makeToolBars() {
   // 2D Graph tools toolbar
   ui_->actionDisableGraphTools->setChecked(true);
   graphToolsToolbar->addAction(ui_->actionDisableGraphTools);
+  graphToolsToolbar->addAction(ui_->actionGraphScreenReader);
+  graphToolsToolbar->addAction(ui_->actionGraphDataReader);
+  graphToolsToolbar->addAction(ui_->actionGraphSelectDataRange);
   graphToolsToolbar->addSeparator();
   QMenu *menu_layers = new QMenu(this);
   btn_layout_->setMenu(menu_layers);
@@ -904,10 +917,6 @@ void ApplicationWindow::makeToolBars() {
   graphToolsToolbar->addAction(ui_->actionGraphZoomIn);
   graphToolsToolbar->addAction(ui_->actionGraphZoomOut);
   graphToolsToolbar->addAction(ui_->actionGraphRescaleShowAll);
-  graphToolsToolbar->addSeparator();
-  graphToolsToolbar->addAction(ui_->actionGraphScreenReader);
-  graphToolsToolbar->addAction(ui_->actionGraphDataReader);
-  graphToolsToolbar->addAction(ui_->actionGraphSelectDataRange);
 
   // 2D plots tool toolbar
   QMenu *menu_plot_linespoints = new QMenu(this);
@@ -924,7 +933,9 @@ void ApplicationWindow::makeToolBars() {
   btn_plot_bars_->setMenu(menu_plot_bars);
   plot2DToolbar->addWidget(btn_plot_bars_);
   menu_plot_bars->addAction(ui_->actionPlot2DVerticalBars);
+  menu_plot_bars->addAction(ui_->actionPlot2DVerticalStackedBars);
   menu_plot_bars->addAction(ui_->actionPlot2DHorizontalBars);
+  menu_plot_bars->addAction(ui_->actionPlot2DHorizontalStackedBars);
   plot2DToolbar->addAction(ui_->actionPlot2DArea);
   plot2DToolbar->addAction(ui_->actionPlot2DChannelFill);
   plot2DToolbar->addAction(ui_->actionPlot2DStatHistogram);
@@ -2092,6 +2103,8 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
     pickGraphTool(ui_->actionDisableGraphTools);
     ui_->actionDisableGraphTools->setChecked(true);
   });
+  connect(layout2d, &Layout2D::layout2DResized, propertyeditor,
+          &PropertyEditor::refreshCanvasRect);
 
   return layout2d;
 }
@@ -2545,7 +2558,10 @@ Matrix *ApplicationWindow::matrix(const QString &name) {
 }
 
 void ApplicationWindow::windowActivated(QMdiSubWindow *subwindow) {
-  if (!subwindow || !qobject_cast<MyWidget *>(subwindow)) return;
+  if (!subwindow || !qobject_cast<MyWidget *>(subwindow)) {
+    propertyeditor->populateObjectBrowser(nullptr);
+    return;
+  }
 
   customToolBars(subwindow);
   customMenu(subwindow);
@@ -5737,7 +5753,7 @@ void ApplicationWindow::activateWindow() {
 
 void ApplicationWindow::activateWindow(MyWidget *w) {
   if (!w) return;
-
+  qDebug() << "activating window" << w->name();
   w->setNormal();
   d_workspace->setActiveSubWindow(w);
 
@@ -7477,8 +7493,7 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
       QString s = "\n" + tr("Usage") + ": " + "AlphaPlot [" + tr("options") +
                   "] [" + tr("file") + "_" + tr("name") + "]\n\n";
       s + tr("Valid options are") + ":\n";
-      s += "-a " + tr("or") +
-           " --about: " + tr("about AlphaPlot application") +
+      s += "-a " + tr("or") + " --about: " + tr("about AlphaPlot application") +
            "\n";
       s += "-h " + tr("or") + " --help: " + tr("show command line options") +
            "\n";
@@ -7527,10 +7542,10 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
 #endif
       exit(0);
     } else if (str.startsWith("-") || str.startsWith("--")) {
-      QString err = tr("(%1) unknown command line option!").arg(str) +
-                    "\n" +
+      QString err = tr("(%1) unknown command line option!").arg(str) + "\n" +
                     tr("Type %1 to see the list of the valid options.")
-                        .arg("'AlphaPlot -h'") + "\n";
+                        .arg("'AlphaPlot -h'") +
+                    "\n";
 
 #ifdef Q_OS_WIN
       QMessageBox::critical(this, tr("Error"), err);
@@ -8094,7 +8109,7 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
   MyWidget *active_window = newFolder->activeWindow();
   if (active_window) active_window_state = active_window->status();
 
-  d_workspace->blockSignals(true);
+  // d_workspace->blockSignals(true);
   hideFolderWindows(oldFolder);
   current_folder = newFolder;
 
@@ -8125,7 +8140,7 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
     refreshFolderTreeWidgetItemsRecursive(newFolder->folderTreeWidgetItem());
   }
 
-  d_workspace->blockSignals(false);
+  // d_workspace->blockSignals(false);
 
   if (active_window) {
     d_workspace->setActiveSubWindow(active_window);
@@ -8140,6 +8155,10 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
         qobject_cast<Graph3D *>(active_window)->setIgnoreFonts(false);
     }
     current_folder->setActiveWindow(active_window);
+    customMenu(active_window);
+    customToolBars(active_window);
+  } else {
+    d_workspace->setActiveSubWindow(active_window);
     customMenu(active_window);
     customToolBars(active_window);
   }
@@ -9058,9 +9077,19 @@ void ApplicationWindow::selectPlotType(int value) {
       layout->generateBar2DPlot(AxisRect2D::BarType::HorizontalBars, table,
                                 xcol, ycollist, from, to);
       return;
+    case Graph::HorizontalStackedBars:
+      layout->generateStakedBar2DPlot(AxisRect2D::BarType::HorizontalBars,
+                                      table, xcol, ycollist, from, to);
+      setAutoScale();
+      return;
     case Graph::VerticalBars:
       layout->generateBar2DPlot(AxisRect2D::BarType::VerticalBars, table, xcol,
                                 ycollist, from, to);
+      return;
+    case Graph::VerticalStackedBars:
+      layout->generateStakedBar2DPlot(AxisRect2D::BarType::VerticalBars, table,
+                                      xcol, ycollist, from, to);
+      setAutoScale();
       return;
     case Graph::Channel:
       layout->generateLineSpecialChannel2DPlot(table, xcol, ycollist, from, to);
@@ -9232,8 +9261,12 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("graph2d-horizontal-step", IconLoader::LightDark));
   ui_->actionPlot2DVerticalBars->setIcon(
       IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
+  ui_->actionPlot2DVerticalStackedBars->setIcon(
+      IconLoader::load("graph2d-vertical-stack-bar", IconLoader::LightDark));
   ui_->actionPlot2DHorizontalBars->setIcon(
       IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark));
+  ui_->actionPlot2DHorizontalStackedBars->setIcon(
+      IconLoader::load("graph2d-horizontal-stack-bar", IconLoader::LightDark));
   ui_->actionPlot2DArea->setIcon(
       IconLoader::load("graph2d-area", IconLoader::LightDark));
   ui_->actionPlot2DChannelFill->setIcon(

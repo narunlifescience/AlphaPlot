@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+
 #include "2Dplot/AxisRect2D.h"
 
 class AxisRect2D;
@@ -35,13 +36,15 @@ class MyTreeWidget : public QTreeWidget {
   };
   MyTreeWidget(QWidget *parent = nullptr);
   ~MyTreeWidget();
-
+ signals:
+  void adderrorbar();
  private slots:
   void CurrentItemChanged(QTreeWidgetItem *current);
   void showContextMenu(const QPoint &pos);
   void addfunctionplot();
   void addplot();
   void addAxis2D();
+  void cloneAxis2D();
   void removeAxis2D();
   void removeLineSpecial2D();
   void removeLineSpecialChannel2D();
@@ -100,6 +103,13 @@ class MyTreeWidget : public QTreeWidget {
   QAction *removetextitem_;
   QAction *removelineitem_;
   QAction *removeimageitem_;
+  //  clone axis
+  QAction *clonetotopaxis_;
+  QAction *clonetobottomaxis_;
+  QAction *clonetoleftaxis_;
+  QAction *clonetorightaxis_;
+  // Errorbar
+  QAction *adderrorbar_;
   // move layer up
   QAction *moveupls_;
   QAction *moveupchannel_;

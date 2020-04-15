@@ -106,10 +106,10 @@ void TextItem2D::setpixelposition_textitem(const QPointF &point) {
 
 void TextItem2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeStartElement("textitem");
-  xmlwriter->writeAttribute("xposition",
-                            QString::number(position->pixelPosition().x()));
-  xmlwriter->writeAttribute("yposition",
-                            QString::number(position->pixelPosition().y()));
+  double xposition = position->coords().x();
+  double yposition = position->coords().y();
+  xmlwriter->writeAttribute("xposition", QString::number(xposition));
+  xmlwriter->writeAttribute("yposition", QString::number(yposition));
   switch (gettextalignment_textitem()) {
     case TextAlignment::TopLeft:
       xmlwriter->writeAttribute("textalignment", "topleft");
@@ -157,11 +157,11 @@ void TextItem2D::save(XmlStreamWriter *xmlwriter) {
 bool TextItem2D::load(XmlStreamReader *xmlreader) {
   if (xmlreader->isStartElement() && xmlreader->name() == "textitem") {
     bool ok;
-    QPoint itemposition;
+    QPointF itemposition;
     // item X position property
     double positionx = xmlreader->readAttributeDouble("xposition", &ok);
     if (ok) {
-      itemposition.setX(static_cast<int>(positionx));
+      itemposition.setX(positionx);
     } else {
       itemposition.setX(axisrect_->center().x());
       xmlreader->raiseWarning(
@@ -170,7 +170,7 @@ bool TextItem2D::load(XmlStreamReader *xmlreader) {
     // item Y position property
     double positiony = xmlreader->readAttributeDouble("yposition", &ok);
     if (ok) {
-      itemposition.setY(static_cast<int>(positiony));
+      itemposition.setY(positiony);
     } else {
       itemposition.setY(axisrect_->center().y());
       xmlreader->raiseWarning(
@@ -186,7 +186,7 @@ bool TextItem2D::load(XmlStreamReader *xmlreader) {
       xmlreader->raiseWarning(
           tr("TextItem2D y position property setting error"));
     }
-    setpixelposition_textitem(itemposition);
+    position->setCoords(itemposition);
     while (!xmlreader->atEnd()) {
       xmlreader->readNext();
       if (xmlreader->isEndElement() && xmlreader->name() == "textitem") break;
@@ -239,6 +239,7 @@ void TextItem2D::mouseReleaseEvent(QMouseEvent *event,
     if (draggingtextitem_) {
       draggingtextitem_ = false;
       axisrect_->getParentPlot2D()->setCursor(cursorshape_);
+      emit  axisrect_->TextItem2DMoved();
     }
   }
 }

@@ -14,10 +14,12 @@ class ImageItem2D : public QCPItemPixmap {
   QColor getstrokecolor_imageitem() const;
   double getstrokethickness_imageitem() const;
   Qt::PenStyle getstrokestyle_imageitem() const;
+  QPointF getposition_imageitem() const;
 
   void setstrokecolor_imageitem(const QColor &color);
   void setstrokethickness_imageitem(const double value);
   void setstrokestyle_imageitem(const Qt::PenStyle &style);
+  void setposition_imageitem(const QPointF origin);
 
   void setpixmap_imageitem();
 

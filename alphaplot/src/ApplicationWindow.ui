@@ -200,7 +200,9 @@
     <addaction name="menuPlot2DSpecialLineSymbol"/>
     <addaction name="separator"/>
     <addaction name="actionPlot2DVerticalBars"/>
+    <addaction name="actionPlot2DVerticalStackedBars"/>
     <addaction name="actionPlot2DHorizontalBars"/>
+    <addaction name="actionPlot2DHorizontalStackedBars"/>
     <addaction name="actionPlot2DArea"/>
     <addaction name="actionPlot2DChannelFill"/>
     <addaction name="actionPlot2DPie"/>
@@ -1361,6 +1363,16 @@
   <action name="actionPlot2DChannelFill">
    <property name="text">
     <string>&amp;Channel Fill</string>
+   </property>
+  </action>
+  <action name="actionPlot2DVerticalStackedBars">
+   <property name="text">
+    <string>Vertical Stacked Bars</string>
+   </property>
+  </action>
+  <action name="actionPlot2DHorizontalStackedBars">
+   <property name="text">
+    <string>Horizontal Stacked Bars</string>
    </property>
   </action>
  </widget>

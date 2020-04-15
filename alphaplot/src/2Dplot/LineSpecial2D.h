@@ -64,6 +64,9 @@ class LineSpecial2D : public QCPGraph {
   void setyaxis_lsplot(Axis2D *axis);
   void setpicker_lsplot(const Graph2DCommon::Picker picker);
 
+  void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);
+  bool load(XmlStreamReader *xmlreader);
+
  protected:
   // void mousePressEvent(QMouseEvent *event, const QVariant &details);
   // void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);

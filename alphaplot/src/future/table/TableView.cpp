@@ -554,7 +554,8 @@ void TableView::updateTypeInfo() {
         break;
       case AlphaPlot::DateTime:
         ui.formatLineEdit->setText(
-            ui.format_box->itemData(format_index).toString());
+              ui.format_box->currentText());
+            //ui.format_box->itemData(format_index).toString());
         ui.date_time_0->setDisplayFormat(
             ui.format_box->itemData(format_index).toString());
         str += QDateTime(QDate(1900, 1, 1), QTime(23, 59, 59, 999))

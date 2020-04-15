@@ -27,13 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "Fit.h"
-#include "2Dplot/Curve2D.h"
-#include "ColorBox.h"
-#include "Matrix.h"
-#include "Table.h"
-#include "core/column/Column.h"
-#include "fit_gsl.h"
-#include "scripting/Script.h"
 
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_deriv.h>
@@ -44,6 +37,15 @@
 #include <QDateTime>
 #include <QLocale>
 #include <QMessageBox>
+
+#include "2Dplot/Curve2D.h"
+#include "2Dplot/Legend2D.h"
+#include "ColorBox.h"
+#include "Matrix.h"
+#include "Table.h"
+#include "core/column/Column.h"
+#include "fit_gsl.h"
+#include "scripting/Script.h"
 
 Fit::Fit(ApplicationWindow *parent, AxisRect2D *axisrect, QString name)
     : Filter(parent, axisrect, name),
@@ -645,6 +647,8 @@ void Fit::insertFitFunctionCurve(const QString &name, double *x, double *y,
       QList<double>() << d_x[0] << d_x[d_n - 1], d_points, axisrect_);
   if (curve)
     curve->setlinestrokecolor_cplot(ColorBox::color(d_curveColorIndex));
+  curve->layer()->replot();
+  axisrect_->getLegend()->layer()->replot();
 }
 
 Fit::~Fit() {

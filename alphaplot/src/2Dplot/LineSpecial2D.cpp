@@ -8,7 +8,10 @@
 #include "ErrorBar2D.h"
 //#include "PlotPoint.h"
 #include "AxisRect2D.h"
+#include "Table.h"
 #include "core/Utilities.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 LineSpecial2D::LineSpecial2D(Table *table, Column *xcol, Column *ycol, int from,
                              int to, Axis2D *xAxis, Axis2D *yAxis)
@@ -415,6 +418,274 @@ void LineSpecial2D::setyaxis_lsplot(Axis2D *axis) {
 
 void LineSpecial2D::setpicker_lsplot(const Graph2DCommon::Picker picker) {
   picker_ = picker;
+}
+
+void LineSpecial2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
+  xmlwriter->writeStartElement("linespecial");
+  // axis
+  xmlwriter->writeAttribute("xaxis", QString::number(xaxis));
+  xmlwriter->writeAttribute("yaxis", QString::number(yaxis));
+
+  xmlwriter->writeAttribute("legend", getlegendtext_lsplot());
+  // data
+  xmlwriter->writeAttribute("table", graphdata_->gettable()->name());
+  xmlwriter->writeAttribute("xcolumn", graphdata_->getxcolumn()->name());
+  xmlwriter->writeAttribute("ycolumn", graphdata_->getycolumn()->name());
+  xmlwriter->writeAttribute("from", QString::number(graphdata_->getfrom()));
+  xmlwriter->writeAttribute("to", QString::number(graphdata_->getto()));
+  // error bar
+  if (xerroravailable_) xerrorbar_->save(xmlwriter);
+  if (yerroravailable_) yerrorbar_->save(xmlwriter);
+  // line
+  xmlwriter->writeStartElement("line");
+  switch (getlinetype_lsplot()) {
+    case Graph2DCommon::LineStyleType::Line:
+      xmlwriter->writeAttribute("style", "line");
+      break;
+    case Graph2DCommon::LineStyleType::Impulse:
+      xmlwriter->writeAttribute("style", "impulse");
+      break;
+    case Graph2DCommon::LineStyleType::StepLeft:
+      xmlwriter->writeAttribute("style", "stepleft");
+      break;
+    case Graph2DCommon::LineStyleType::StepRight:
+      xmlwriter->writeAttribute("style", "stepright");
+      break;
+    case Graph2DCommon::LineStyleType::StepCenter:
+      xmlwriter->writeAttribute("style", "stepcenter");
+      break;
+  }
+  (getlinefillstatus_lsplot()) ? xmlwriter->writeAttribute("fill", "true")
+                               : xmlwriter->writeAttribute("fill", "false");
+  (getlineantialiased_lsplot())
+      ? xmlwriter->writeAttribute("antialias", "true")
+      : xmlwriter->writeAttribute("antialias", "false");
+  xmlwriter->writePen(pen());
+  xmlwriter->writeBrush(brush());
+  xmlwriter->writeEndElement();
+
+  // scatter
+  xmlwriter->writeStartElement("scatter");
+  switch (getscattershape_lsplot()) {
+    case Graph2DCommon::ScatterStyle::None:
+      xmlwriter->writeAttribute("style", "none");
+      break;
+    case Graph2DCommon::ScatterStyle::Dot:
+      xmlwriter->writeAttribute("style", "dot");
+      break;
+    case Graph2DCommon::ScatterStyle::Disc:
+      xmlwriter->writeAttribute("style", "disc");
+      break;
+    case Graph2DCommon::ScatterStyle::Plus:
+      xmlwriter->writeAttribute("style", "plus");
+      break;
+    case Graph2DCommon::ScatterStyle::Star:
+      xmlwriter->writeAttribute("style", "star");
+      break;
+    case Graph2DCommon::ScatterStyle::Cross:
+      xmlwriter->writeAttribute("style", "cross");
+      break;
+    case Graph2DCommon::ScatterStyle::Peace:
+      xmlwriter->writeAttribute("style", "peace");
+      break;
+    case Graph2DCommon::ScatterStyle::Circle:
+      xmlwriter->writeAttribute("style", "circle");
+      break;
+    case Graph2DCommon::ScatterStyle::Square:
+      xmlwriter->writeAttribute("style", "square");
+      break;
+    case Graph2DCommon::ScatterStyle::Diamond:
+      xmlwriter->writeAttribute("style", "diamond");
+      break;
+    case Graph2DCommon::ScatterStyle::Triangle:
+      xmlwriter->writeAttribute("style", "triangle");
+      break;
+    case Graph2DCommon::ScatterStyle::PlusCircle:
+      xmlwriter->writeAttribute("style", "pluscircle");
+      break;
+    case Graph2DCommon::ScatterStyle::PlusSquare:
+      xmlwriter->writeAttribute("style", "plussquare");
+      break;
+    case Graph2DCommon::ScatterStyle::CrossCircle:
+      xmlwriter->writeAttribute("style", "crosscircle");
+      break;
+    case Graph2DCommon::ScatterStyle::CrossSquare:
+      xmlwriter->writeAttribute("style", "crosssquare");
+      break;
+    case Graph2DCommon::ScatterStyle::TriangleInverted:
+      xmlwriter->writeAttribute("style", "triangleinverted");
+      break;
+  }
+  xmlwriter->writeAttribute("size", QString::number(getscattersize_lsplot()));
+  (getscatterantialiased_lsplot())
+      ? xmlwriter->writeAttribute("antialias", "true")
+      : xmlwriter->writeAttribute("antialias", "false");
+  xmlwriter->writePen(scatterstyle_->pen());
+  xmlwriter->writeBrush(scatterstyle_->brush());
+  xmlwriter->writeEndElement();
+  xmlwriter->writeEndElement();
+}
+
+bool LineSpecial2D::load(XmlStreamReader *xmlreader) {
+  bool ok;
+  while (!xmlreader->atEnd()) {
+    if (xmlreader->isEndElement() && xmlreader->name() == "linespecial") break;
+
+    // line
+    if (xmlreader->isStartElement() && xmlreader->name() == "line") {
+      // line style
+      QString style = xmlreader->readAttributeString("style", &ok);
+      if (ok) {
+        if (style == "line") {
+          setlinetype_lsplot(Graph2DCommon::LineStyleType::Line);
+        } else if (style == "impulse") {
+          setlinetype_lsplot(Graph2DCommon::LineStyleType::Impulse);
+        } else if (style == "stepleft") {
+          setlinetype_lsplot(Graph2DCommon::LineStyleType::StepLeft);
+        } else if (style == "stepright") {
+          setlinetype_lsplot(Graph2DCommon::LineStyleType::StepRight);
+        } else if (style == "stepcenter") {
+          setlinetype_lsplot(Graph2DCommon::LineStyleType::StepCenter);
+        }
+      } else
+        xmlreader->raiseWarning(
+            tr("LineSpecial2D line style property setting error"));
+
+      // line fill status
+      bool fill = xmlreader->readAttributeBool("fill", &ok);
+      (ok) ? setlinefillstatus_lsplot(fill)
+           : xmlreader->raiseWarning(
+                 tr("LineSpecial2D line fill status property setting error"));
+
+      // line antialias
+      bool lineantialias = xmlreader->readAttributeBool("antialias", &ok);
+      (ok) ? setAntialiased(lineantialias)
+           : xmlreader->raiseWarning(
+                 tr("LineSpecial2D line antialias property setting error"));
+
+      // line pen property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+        // pen
+        if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+          QPen strokep = xmlreader->readPen(&ok);
+          if (ok) {
+            setlinestrokecolor_lsplot(strokep.color());
+            setlinestrokestyle_lsplot(strokep.style());
+            setlinestrokethickness_lsplot(strokep.widthF());
+          } else
+            xmlreader->raiseWarning(
+                tr("LineSpecial2D line pen property setting error"));
+        }
+      }
+
+      // line brush property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "brush") break;
+        // brush
+        if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+          QBrush b = xmlreader->readBrush(&ok);
+          if (ok) {
+            setlinefillcolor_lsplot(b.color());
+          } else
+            xmlreader->raiseWarning(
+                tr("LineSpecial2D linebrush property setting error"));
+        }
+      }
+    }
+
+    // scatter
+    if (xmlreader->isStartElement() && xmlreader->name() == "scatter") {
+      // scatter shape
+      QString scattershape = xmlreader->readAttributeString("style", &ok);
+      if (ok) {
+        if (scattershape == "dot") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::Dot);
+        } else if (scattershape == "disc") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::Disc);
+        } else if (scattershape == "none") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::None);
+        } else if (scattershape == "plus") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::Plus);
+        } else if (scattershape == "star") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::Star);
+        } else if (scattershape == "cross") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::Cross);
+        } else if (scattershape == "peace") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::Peace);
+        } else if (scattershape == "circle") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::Circle);
+        } else if (scattershape == "square") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::Square);
+        } else if (scattershape == "diamond") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::Diamond);
+        } else if (scattershape == "triangle") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::Triangle);
+        } else if (scattershape == "pluscircle") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::PlusCircle);
+        } else if (scattershape == "plussquare") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::PlusSquare);
+        } else if (scattershape == "crosscircle") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::CrossCircle);
+        } else if (scattershape == "crosssquare") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::CrossSquare);
+        } else if (scattershape == "triangleinverted") {
+          setscattershape_lsplot(Graph2DCommon::ScatterStyle::TriangleInverted);
+        }
+      } else
+        xmlreader->raiseWarning(
+            tr("LineSpecial2D scatter shape property setting error"));
+
+      // scatter size
+      int scattersize = xmlreader->readAttributeInt("size", &ok);
+      (ok) ? setscattersize_lsplot(scattersize)
+           : xmlreader->raiseWarning(
+                 tr("LineSpecial2D scatter size property setting error"));
+
+      // scatter antialias
+      bool scatterantialias = xmlreader->readAttributeBool("antialias", &ok);
+      (ok) ? setscatterantialiased_lsplot(scatterantialias)
+           : xmlreader->raiseWarning(
+                 tr("LineSpecialD scatter antialias property setting error"));
+
+      // scatter pen property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+        // pen
+        if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+          QPen strokep = xmlreader->readPen(&ok);
+          if (ok) {
+            setscatterstrokecolor_lsplot(strokep.color());
+            setscatterstrokestyle_lsplot(strokep.style());
+            setscatterstrokethickness_lsplot(strokep.widthF());
+          } else
+            xmlreader->raiseWarning(
+                tr("LineSpecial2D scatter pen property setting error"));
+        }
+      }
+
+      // scatter brush property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "brush") break;
+        // brush
+        if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+          QBrush b = xmlreader->readBrush(&ok);
+          if (ok) {
+            setscatterfillcolor_lsplot(b.color());
+          } else
+            xmlreader->raiseWarning(
+                tr("LineSpecial2D scatterbrush property setting error"));
+        }
+      }
+    }
+    xmlreader->readNext();
+  }
+
+  return !xmlreader->hasError();
 }
 
 void LineSpecial2D::mousePressEvent(QMouseEvent *event,

@@ -1,16 +1,19 @@
 #include "Bar2D.h"
+
+#include <gsl/gsl_histogram.h>
+#include <gsl/gsl_vector.h>
+
 #include "AxisRect2D.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
 #include "Table.h"
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"
-
-#include <gsl/gsl_histogram.h>
-#include <gsl/gsl_vector.h>
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
-             Axis2D *xAxis, Axis2D *yAxis)
+             Axis2D *xAxis, Axis2D *yAxis, int stackposition)
     : QCPBars(xAxis, yAxis),
       barwidth_(1),
       xaxis_(xAxis),
@@ -25,7 +28,8 @@ Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
       yerrorbar_(nullptr),
       xerroravailable_(false),
       yerroravailable_(false),
-      picker_(Graph2DCommon::Picker::None) {
+      picker_(Graph2DCommon::Picker::None),
+      stackposition_(stackposition) {
   init();
   setSelectable(QCP::SelectionType::stSingleData);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);
@@ -53,7 +57,11 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
       yerrorbar_(nullptr),
       xerroravailable_(false),
       yerroravailable_(false),
-      picker_(Graph2DCommon::Picker::None) {
+      picker_(Graph2DCommon::Picker::None),
+      auto_binning_(true),
+      bin_size_(0),
+      begin_(0),
+      end_(0) {
   init();
   setSelectable(QCP::SelectionType::stSingleData);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);
@@ -83,6 +91,8 @@ void Bar2D::setXerrorBar(Table *table, Column *errorcol, int from, int to) {
   }
   xerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xaxis_, yaxis_,
                               QCPErrorBars::ErrorType::etKeyError, this);
+  parentPlot()->moveLayer(layer(), xerrorbar_->layer(),
+                          QCustomPlot::LayerInsertMode::limAbove);
   xerroravailable_ = true;
   emit xaxis_->getaxisrect_axis()->ErrorBar2DCreated(xerrorbar_);
 }
@@ -94,6 +104,8 @@ void Bar2D::setYerrorBar(Table *table, Column *errorcol, int from, int to) {
   }
   yerrorbar_ = new ErrorBar2D(table, errorcol, from, to, xaxis_, yaxis_,
                               QCPErrorBars::ErrorType::etValueError, this);
+  parentPlot()->moveLayer(layer(), yerrorbar_->layer(),
+                          QCustomPlot::LayerInsertMode::limAbove);
   yerroravailable_ = true;
   emit yaxis_->getaxisrect_axis()->ErrorBar2DCreated(yerrorbar_);
 }
@@ -134,18 +146,20 @@ DataBlockBar *Bar2D::getdatablock_barplot() const { return bardata_; }
 
 bool Bar2D::ishistogram_barplot() const { return ishistogram_; }
 
-void Bar2D::setxaxis_barplot(Axis2D *axis) {
-  Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Bottom ||
-           axis->getorientation_axis() == Axis2D::AxisOreantation::Top);
+void Bar2D::setxaxis_barplot(Axis2D *axis, bool override) {
+  if (!override)
+    Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Bottom ||
+             axis->getorientation_axis() == Axis2D::AxisOreantation::Top);
   if (axis == getxaxis()) return;
 
   xaxis_ = axis;
   setKeyAxis(axis);
 }
 
-void Bar2D::setyaxis_barplot(Axis2D *axis) {
-  Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Left ||
-           axis->getorientation_axis() == Axis2D::AxisOreantation::Right);
+void Bar2D::setyaxis_barplot(Axis2D *axis, bool override) {
+  if (!override)
+    Q_ASSERT(axis->getorientation_axis() == Axis2D::AxisOreantation::Left ||
+             axis->getorientation_axis() == Axis2D::AxisOreantation::Right);
   if (axis == getyaxis()) return;
 
   yaxis_ = axis;
@@ -189,7 +203,6 @@ void Bar2D::setBarData(Table *table, Column *col, int from, int to) {
   to_ = to;
   int d_end_row = to;
   int d_start_row = from;
-  bool d_autoBin = true;
   int d_bin_size = 0;
   double d_begin = 0.0;
   double d_end = 0.0;
@@ -230,7 +243,7 @@ void Bar2D::setBarData(Table *table, Column *col, int from, int to) {
 
   int n;
   gsl_histogram *h;
-  if (d_autoBin) {
+  if (auto_binning_) {
     n = 10;
     h = gsl_histogram_alloc(n);
     if (!h) return;
@@ -286,10 +299,113 @@ void Bar2D::setBarData(Table *table, Column *col, int from, int to) {
   gsl_histogram_free(h);
   if (!cont.isNull() && cont.data()->size() > 1)
     setWidth(cont.data()->at(1)->mainKey() - cont.data()->at(0)->mainKey());
+  bin_size_ = d_bin_size;
+  begin_ = d_begin;
+  end_ = d_end;
 }
 
 void Bar2D::setpicker_barplot(const Graph2DCommon::Picker picker) {
   picker_ = picker;
+}
+
+void Bar2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
+  xmlwriter->writeStartElement("bar");
+  // axis
+  (getxaxis()->getorientation_axis() == Axis2D::AxisOreantation::Top ||
+   getxaxis()->getorientation_axis() == Axis2D::AxisOreantation::Bottom)
+      ? xmlwriter->writeAttribute("orientation", "vertical")
+      : xmlwriter->writeAttribute("orientation", "horizontal");
+  xmlwriter->writeAttribute("xaxis", QString::number(xaxis));
+  xmlwriter->writeAttribute("yaxis", QString::number(yaxis));
+  xmlwriter->writeAttribute("legend", name());
+  (ishistogram_) ? xmlwriter->writeAttribute("type", "histogram")
+                 : xmlwriter->writeAttribute("type", "barxy");
+  if (ishistogram_) {
+    xmlwriter->writeAttribute("table", table_->name());
+    xmlwriter->writeAttribute("column", column_->name());
+  } else {
+    xmlwriter->writeAttribute("table", bardata_->gettable()->name());
+    xmlwriter->writeAttribute("xcolumn", bardata_->getxcolumn()->name());
+    xmlwriter->writeAttribute("ycolumn", bardata_->getycolumn()->name());
+    xmlwriter->writeAttribute("from", QString::number(bardata_->getfrom()));
+    xmlwriter->writeAttribute("to", QString::number(bardata_->getto()));
+    xmlwriter->writeAttribute("stackorder",
+                              QString::number(getstackposition_barplot()));
+  }
+  xmlwriter->writeAttribute("stackgap", QString::number(stackingGap()));
+  // error bar
+  if (xerroravailable_) xerrorbar_->save(xmlwriter);
+  if (yerroravailable_) yerrorbar_->save(xmlwriter);
+
+  // line
+  xmlwriter->writeStartElement("box");
+  xmlwriter->writeAttribute("width", QString::number(width()));
+  (antialiased()) ? xmlwriter->writeAttribute("antialias", "true")
+                  : xmlwriter->writeAttribute("antialias", "false");
+  (antialiasedFill()) ? xmlwriter->writeAttribute("antialiasfill", "true")
+                      : xmlwriter->writeAttribute("antialiasfill", "false");
+  xmlwriter->writePen(pen());
+  xmlwriter->writeBrush(brush());
+  xmlwriter->writeEndElement();
+  xmlwriter->writeEndElement();
+}
+
+bool Bar2D::load(XmlStreamReader *xmlreader) {
+  bool ok;
+  while (!xmlreader->atEnd()) {
+    if (xmlreader->isEndElement() && xmlreader->name() == "bar") break;
+
+    if (xmlreader->isStartElement() && xmlreader->name() == "box") {
+      // width
+      double w = xmlreader->readAttributeDouble("width", &ok);
+      (ok) ? setWidth(w)
+           : xmlreader->raiseWarning(tr("Bar2D width property setting error"));
+
+      // antialias
+      bool ant = xmlreader->readAttributeBool("antialias", &ok);
+      (ok) ? setAntialiased(ant)
+           : xmlreader->raiseWarning(
+                 tr("Bar2D antialias property setting error"));
+
+      // antialias fill
+      bool antfill = xmlreader->readAttributeBool("antialiasfill", &ok);
+      (ok) ? setAntialiasedFill(antfill)
+           : xmlreader->raiseWarning(
+                 tr("Bar2D antialias fill property setting error"));
+
+      // pen property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+        // pen
+        if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+          QPen strokep = xmlreader->readPen(&ok);
+          if (ok) {
+            setPen(strokep);
+          } else
+            xmlreader->raiseWarning(tr("Bar2D pen property setting error"));
+        }
+      }
+
+      // brush property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "brush") break;
+        // brush
+        if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+          QBrush b = xmlreader->readBrush(&ok);
+          if (ok) {
+            setBrush(b);
+          } else
+            xmlreader->raiseWarning(tr("Bar2D brush property setting error"));
+        }
+      }
+    }
+
+    xmlreader->readNext();
+  }
+
+  return !xmlreader->hasError();
 }
 
 void Bar2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {

@@ -174,6 +174,8 @@ class ApplicationWindow : public QMainWindow,
     ContourMap = 18,
     Function = 19,
     Channel = 20,
+    VerticalStackedBars = 21,
+    HorizontalStackedBars = 22,
   };
 
   QTranslator* appTranslator;

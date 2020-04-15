@@ -14,7 +14,7 @@ class Bar2D : public QCPBars {
   Q_OBJECT
  public:
   Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
-        Axis2D *xAxis, Axis2D *yAxis);
+        Axis2D *xAxis, Axis2D *yAxis, int stackposition);
   Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
         Axis2D *yAxis);
   void init();
@@ -41,13 +41,14 @@ class Bar2D : public QCPBars {
   bool ishistogram_barplot() const;
   ErrorBar2D *getxerrorbar_barplot() { return xerrorbar_; }
   ErrorBar2D *getyerrorbar_barplot() { return yerrorbar_; }
+  int getstackposition_barplot() const { return stackposition_; }
   Table *gettable_histogram() { return table_; }
   Column *getcolumn_histogram() { return column_; }
   int getfrom_histogram() const { return from_; }
   int getto_histogram() const { return to_; }
 
-  void setxaxis_barplot(Axis2D *axis);
-  void setyaxis_barplot(Axis2D *axis);
+  void setxaxis_barplot(Axis2D *axis, bool override = false);
+  void setyaxis_barplot(Axis2D *axis, bool override = false);
   void setstrokestyle_barplot(const Qt::PenStyle &style);
   void setstrokecolor_barplot(const QColor &color);
   void setstrokethickness_barplot(const double value);
@@ -56,6 +57,9 @@ class Bar2D : public QCPBars {
   void setBarData(Table *table, Column *xcol, Column *ycol, int from, int to);
   void setBarData(Table *table, Column *col, int from, int to);
   void setpicker_barplot(const Graph2DCommon::Picker picker);
+
+  void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);
+  bool load(XmlStreamReader *xmlreader);
 
  protected:
   void mousePressEvent(QMouseEvent *event, const QVariant &details);
@@ -85,6 +89,11 @@ class Bar2D : public QCPBars {
   bool xerroravailable_;
   bool yerroravailable_;
   Graph2DCommon::Picker picker_;
+  bool auto_binning_;
+  double bin_size_;
+  double begin_;
+  double end_;
+  int stackposition_;
 };
 
 #endif  // BAR2D_H

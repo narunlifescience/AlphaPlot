@@ -126,6 +126,8 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
   vl3->addWidget(boxShowCurrentFolder);
 
   init();
+  boxShowCurrentFolder->setChecked(true);
+  boxShowCurrentFolder->setEnabled(false);
 
   connect(boxShowCurrentFolder, SIGNAL(toggled(bool)), this,
           SLOT(showCurrentFolder(bool)));

@@ -179,8 +179,10 @@ void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
   curve->rescaleAxes();
 }
 
-void Layout2D::generateStatBox2DPlot(Table *table, QList<Column *> ycollist,
-                                     int from, int to, int key) {
+QList<StatBox2D *> Layout2D::generateStatBox2DPlot(Table *table,
+                                                   QList<Column *> ycollist,
+                                                   int from, int to, int key) {
+  QList<StatBox2D *> statboxs;
   QList<StatBox2D::BoxWhiskerData> statBoxData;
   foreach (Column *col, ycollist) {
     statBoxData << generateBoxWhiskerData(table, col, from, to, key);
@@ -200,7 +202,7 @@ void Layout2D::generateStatBox2DPlot(Table *table, QList<Column *> ycollist,
   for (int i = 0; i < statBoxData.size(); i++) {
     StatBox2D::BoxWhiskerData data = statBoxData.at(i);
     data.key = i + 1;
-    element->addStatBox2DPlot(data, xAxis.at(0), yAxis.at(0));
+    statboxs << element->addStatBox2DPlot(data, xAxis.at(0), yAxis.at(0));
     textTicker->addTick(data.key, data.name);
   }
   xAxis.at(0)->setTicker(textTicker);
@@ -215,6 +217,7 @@ void Layout2D::generateStatBox2DPlot(Table *table, QList<Column *> ycollist,
                                  keyRange.upper + keyRangeSpan * 0.2));
   yAxis.at(0)->setRange(QCPRange(valueRange.lower - valueRangeSpan * 0.2,
                                  valueRange.upper + valueRangeSpan * 0.2));
+  return statboxs;
 }
 
 void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
@@ -259,20 +262,77 @@ void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
 void Layout2D::generateBar2DPlot(const AxisRect2D::BarType &barType,
                                  Table *table, Column *xData,
                                  QList<Column *> ycollist, int from, int to) {
-  AxisRect2D *element =
-      addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType());
-  QList<Axis2D *> xAxis =
-      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
-  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
-  QList<Axis2D *> yAxis =
-      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
-  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
-  addTextToAxisTicker(xData, xAxis.at(0));
-  addTextToAxisTicker(ycollist.at(0), yAxis.at(0));
+  AxisRect2D *element = nullptr;
+  QList<Axis2D *> xAxis;
+  QList<Axis2D *> yAxis;
+  switch (barType) {
+    case AxisRect2D::BarType::HorizontalBars: {
+      element = addAxisRectItem(ycollist.at(0)->dataType(), xData->dataType());
+      xAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+      xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+      yAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+      yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+      addTextToAxisTicker(xData, yAxis.at(0), from, to);
+      addTextToAxisTicker(ycollist.at(0), xAxis.at(0), from, to);
+    } break;
+    case AxisRect2D::BarType::VerticalBars: {
+      element = addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType());
+      xAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+      xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+      yAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+      yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+      addTextToAxisTicker(xData, xAxis.at(0), from, to);
+      addTextToAxisTicker(ycollist.at(0), yAxis.at(0), from, to);
+    } break;
+  }
+
   foreach (Column *col, ycollist) {
     Bar2D *bar = element->addBox2DPlot(barType, table, xData, col, from, to,
                                        xAxis.at(0), yAxis.at(0));
     bar->rescaleAxes();
+  }
+}
+
+void Layout2D::generateStakedBar2DPlot(const AxisRect2D::BarType &barType,
+                                       Table *table, Column *xData,
+                                       QList<Column *> ycollist, int from,
+                                       int to) {
+  AxisRect2D *element = nullptr;
+  QList<Axis2D *> xAxis;
+  QList<Axis2D *> yAxis;
+  switch (barType) {
+    case AxisRect2D::BarType::HorizontalBars: {
+      element = addAxisRectItem(ycollist.at(0)->dataType(), xData->dataType());
+      xAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+      xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+      yAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+      yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+      addTextToAxisTicker(xData, yAxis.at(0), from, to);
+      addTextToAxisTicker(ycollist.at(0), xAxis.at(0), from, to);
+    } break;
+    case AxisRect2D::BarType::VerticalBars: {
+      element = addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType());
+      xAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+      xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+      yAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+      yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+      addTextToAxisTicker(xData, xAxis.at(0), from, to);
+      addTextToAxisTicker(ycollist.at(0), yAxis.at(0), from, to);
+    } break;
+  }
+
+  QList<Bar2D *> bars;
+  for (int i = 0; i < ycollist.size(); i++) {
+    Bar2D *bar = element->addBox2DPlot(barType, table, xData, ycollist.at(i),
+                                       from, to, xAxis.at(0), yAxis.at(0), i);
+    bars.append(bar);
+    bar->setStackingGap(1);
+  }
+  // create the stack
+  Bar2D *basebar = nullptr;
+  foreach (Bar2D *bar, bars) {
+    if (basebar) bar->moveAbove(basebar);
+    basebar = bar;
   }
 }
 
@@ -350,8 +410,8 @@ void Layout2D::generateLineSpecial2DPlot(
   QList<Axis2D *> yAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
-  addTextToAxisTicker(xData, xAxis.at(0));
-  addTextToAxisTicker(ycollist.at(0), yAxis.at(0));
+  addTextToAxisTicker(xData, xAxis.at(0), from, to);
+  addTextToAxisTicker(ycollist.at(0), yAxis.at(0), from, to);
   foreach (Column *col, ycollist) {
     LineSpecial2D *linescatter = element->addLineSpecial2DPlot(
         plotType, table, xData, col, from, to, xAxis.at(0), yAxis.at(0));
@@ -371,8 +431,8 @@ void Layout2D::generateLineSpecialChannel2DPlot(Table *table, Column *xData,
   QList<Axis2D *> yAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
-  addTextToAxisTicker(xData, xAxis.at(0));
-  addTextToAxisTicker(ycollist.at(0), yAxis.at(0));
+  addTextToAxisTicker(xData, xAxis.at(0), from, to);
+  addTextToAxisTicker(ycollist.at(0), yAxis.at(0), from, to);
 
   element->addLineSpecialChannel2DPlot(table, xData, ycollist.at(0),
                                        ycollist.at(1), from, to, xAxis.at(0),
@@ -392,8 +452,8 @@ void Layout2D::generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
   QList<Axis2D *> yAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
-  addTextToAxisTicker(xcol, xAxis.at(0));
-  addTextToAxisTicker(ycollist.at(0), yAxis.at(0));
+  addTextToAxisTicker(xcol, xAxis.at(0), from, to);
+  addTextToAxisTicker(ycollist.at(0), yAxis.at(0), from, to);
   foreach (Column *col, ycollist) {
     Curve2D *curve = element->addCurve2DPlot(plotType, table, xcol, col, from,
                                              to, xAxis.at(0), yAxis.at(0));
@@ -586,15 +646,22 @@ void Layout2D::showtooltip(QPointF position, double xval, double yval) {
                      QString::number(xval) + ", " + QString::number(yval));
 }
 
-void Layout2D::addTextToAxisTicker(Column *col, Axis2D *axis) {
+void Layout2D::addTextToAxisTicker(Column *col, Axis2D *axis, int from,
+                                   int to) {
   if (col->dataType() == AlphaPlot::ColumnDataType::TypeString) {
-    QSharedPointer<QCPAxisTickerText> textticker =
-        qSharedPointerCast<QCPAxisTickerText>(axis->getticker_axis());
-    for (int i = 0; i < col->rowCount(); i++) {
-      textticker->addTick(i, col->textAt(i));
-    }
-    axis->setticklabelrotation_axis(45);
+    axis->settickertext(col, from, to);
+  } else if (col->dataType() == AlphaPlot::ColumnDataType::TypeDateTime) {
+    QSharedPointer<QCPAxisTicker> ticker = axis->getticker_axis();
+    ticker.staticCast<QCPAxisTickerDateTime>()->setDateTimeFormat(
+        Utilities::splitstring(
+            static_cast<DateTime2StringFilter *>(col->outputFilter())
+                ->format()));
   }
+}
+
+void Layout2D::resizeEvent(QResizeEvent *event) {
+  emit layout2DResized();
+  MyWidget::resizeEvent(event);
 }
 
 void Layout2D::mouseMoveSignal(QMouseEvent *event) { Q_UNUSED(event) }

@@ -54,6 +54,11 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       removetextitem_(new QAction("Remove", this)),
       removelineitem_(new QAction("Remove", this)),
       removeimageitem_(new QAction("Remove", this)),
+      clonetotopaxis_(new QAction(tr("Clone To new Top Axis"), this)),
+      clonetobottomaxis_(new QAction(tr("Clone To new Bottom Axis"), this)),
+      clonetoleftaxis_(new QAction(tr("Clone To new Left Axis"), this)),
+      clonetorightaxis_(new QAction(tr("Clone To new Right Axis"), this)),
+      adderrorbar_(new QAction(tr("Add Error Bar"), this)),
       moveupls_(new QAction("Layer Up", this)),
       moveupchannel_(new QAction("Layer Up", this)),
       moveupcurve_(new QAction("Layer Up", this)),
@@ -96,6 +101,16 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       IconLoader::load("clear-loginfo", IconLoader::General));
   removeimageitem_->setIcon(
       IconLoader::load("clear-loginfo", IconLoader::General));
+  clonetotopaxis_->setIcon(
+      IconLoader::load("graph2d-axis-top", IconLoader::LightDark));
+  clonetobottomaxis_->setIcon(
+      IconLoader::load("graph2d-axis-bottom", IconLoader::LightDark));
+  clonetoleftaxis_->setIcon(
+      IconLoader::load("graph2d-axis-left", IconLoader::LightDark));
+  clonetorightaxis_->setIcon(
+      IconLoader::load("graph2d-axis-right", IconLoader::LightDark));
+  adderrorbar_->setIcon(
+        IconLoader::load("graph-y-error", IconLoader::LightDark));
   moveupls_->setIcon(IconLoader::load("edit-up", IconLoader::LightDark));
   moveupchannel_->setIcon(IconLoader::load("edit-up", IconLoader::LightDark));
   moveupcurve_->setIcon(IconLoader::load("edit-up", IconLoader::LightDark));
@@ -132,6 +147,7 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
           SLOT(showContextMenu(const QPoint &)));
   connect(addfunctionplot_, SIGNAL(triggered(bool)), this,
           SLOT(addfunctionplot()));
+  connect(adderrorbar_, &QAction::triggered, this, &MyTreeWidget::adderrorbar);
   connect(addgraph_, SIGNAL(triggered(bool)), this, SLOT(addplot()));
   connect(leftvalueaxis_, SIGNAL(triggered(bool)), this, SLOT(addAxis2D()));
   connect(leftlogaxis_, SIGNAL(triggered(bool)), this, SLOT(addAxis2D()));
@@ -158,6 +174,14 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   connect(toptextaxis_, SIGNAL(triggered(bool)), this, SLOT(addAxis2D()));
   connect(toptimeaxis_, SIGNAL(triggered(bool)), this, SLOT(addAxis2D()));
   connect(topdatetimeaxis_, SIGNAL(triggered(bool)), this, SLOT(addAxis2D()));
+  connect(clonetotopaxis_, &QAction::triggered, this,
+          &MyTreeWidget::cloneAxis2D);
+  connect(clonetobottomaxis_, &QAction::triggered, this,
+          &MyTreeWidget::cloneAxis2D);
+  connect(clonetoleftaxis_, &QAction::triggered, this,
+          &MyTreeWidget::cloneAxis2D);
+  connect(clonetorightaxis_, &QAction::triggered, this,
+          &MyTreeWidget::cloneAxis2D);
   connect(removeaxis_, SIGNAL(triggered(bool)), this, SLOT(removeAxis2D()));
   connect(removels_, SIGNAL(triggered(bool)), this,
           SLOT(removeLineSpecial2D()));
@@ -301,6 +325,10 @@ void MyTreeWidget::CurrentItemChanged(QTreeWidgetItem *current) {
                       ->data(0, Qt::UserRole + 1)
                       .value<void *>();
       currentaxisrect = static_cast<AxisRect2D *>(ptr);
+      // void *errorptr = current->data(0, Qt::UserRole + 1)
+      //    .value<void *>();
+      // ErrorBar2D *errorbar = static_cast<ErrorBar2D *>(errorptr);
+      // errorbar->setSelectable(QCP::SelectionType::stWhole);
     } break;
     case MyTreeWidget::PropertyItemType::PlotCanvas:
       break;
@@ -319,6 +347,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
   QMenu addbottomaxismenu;
   QMenu addrightaxismenu;
   QMenu addtopaxismenu;
+  QMenu cloneaxismenu;
   addgraph_->setIcon(IconLoader::load("edit-add-graph", IconLoader::LightDark));
   addfunctionplot_->setIcon(
       IconLoader::load("math-fofx", IconLoader::LightDark));
@@ -329,6 +358,8 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       addgraph_->setData(item->data(0, Qt::UserRole + 1));
       menu.addAction(addfunctionplot_);
       addfunctionplot_->setData(item->data(0, Qt::UserRole + 1));
+      menu.addAction(adderrorbar_);
+      adderrorbar_->setData(item->data(0, Qt::UserRole + 1));
       menu.addMenu(&addleftaxismenu);
       addleftaxismenu.setTitle("Add Left Axis");
       addleftaxismenu.setIcon(
@@ -394,10 +425,26 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       toptimeaxis_->setData(item->data(0, Qt::UserRole + 1));
       topdatetimeaxis_->setData(item->data(0, Qt::UserRole + 1));
     } break;
-    case PropertyItemType::Axis:
+    case PropertyItemType::Axis: {
+      void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
+      Axis2D *ax = static_cast<Axis2D *>(ptr);
+      cloneaxismenu.setTitle(tr("Clone Axis..."));
+      menu.addMenu(&cloneaxismenu);
+      if (ax->getorientation_axis() == Axis2D::AxisOreantation::Top ||
+          ax->getorientation_axis() == Axis2D::AxisOreantation::Bottom) {
+        cloneaxismenu.addAction(clonetotopaxis_);
+        cloneaxismenu.addAction(clonetobottomaxis_);
+        clonetotopaxis_->setData(item->data(0, Qt::UserRole + 1));
+        clonetobottomaxis_->setData(item->data(0, Qt::UserRole + 1));
+      } else {
+        cloneaxismenu.addAction(clonetoleftaxis_);
+        cloneaxismenu.addAction(clonetorightaxis_);
+        clonetoleftaxis_->setData(item->data(0, Qt::UserRole + 1));
+        clonetorightaxis_->setData(item->data(0, Qt::UserRole + 1));
+      }
       menu.addAction(removeaxis_);
       removeaxis_->setData(item->data(0, Qt::UserRole + 1));
-      break;
+    } break;
     case PropertyItemType::LSGraph:
       menu.addAction("Edit Data");
       menu.addAction(moveupls_);
@@ -591,6 +638,29 @@ void MyTreeWidget::addAxis2D() {
   else if (action == topdatetimeaxis_)
     axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
                         Axis2D::TickerType::DateTime);
+}
+
+void MyTreeWidget::cloneAxis2D() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+  void *ptr = action->data().value<void *>();
+  Axis2D *axis = static_cast<Axis2D *>(ptr);
+  AxisRect2D *axisrect = axis->getaxisrect_axis();
+  Axis2D *newaxis = nullptr;
+  if (action == clonetotopaxis_)
+    newaxis = axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
+                                  axis->gettickertype_axis());
+  else if (action == clonetobottomaxis_)
+    newaxis = axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
+                                  axis->gettickertype_axis());
+  else if (action == clonetoleftaxis_)
+    newaxis = axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
+                                  axis->gettickertype_axis());
+  else if (action == clonetorightaxis_)
+    newaxis = axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
+                                  axis->gettickertype_axis());
+
+  axis->clone(newaxis);
 }
 
 void MyTreeWidget::removeAxis2D() {

@@ -28,6 +28,8 @@ ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
   setData(errordata_->data());
   setDataPlottable(linespecial_);
   setAntialiased(false);
+  setAntialiasedFill(false);
+  setAntialiasedScatters(false);
 }
 
 ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
@@ -45,6 +47,9 @@ ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
   setErrorType(errortype_);
   setData(errordata_->data());
   setDataPlottable(curve_);
+  setAntialiased(false);
+  setAntialiasedFill(false);
+  setAntialiasedScatters(false);
 }
 
 ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
@@ -61,6 +66,9 @@ ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
   setErrorType(errortype_);
   setData(errordata_->data());
   setDataPlottable(bar_);
+  setAntialiased(false);
+  setAntialiasedFill(false);
+  setAntialiasedScatters(false);
 }
 
 ErrorBar2D::~ErrorBar2D() { delete errordata_; }

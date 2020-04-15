@@ -32,6 +32,7 @@
 #include <../3rdparty/qwtplot3d/qwt3d_surfaceplot.h>
 #include <../3rdparty/qwtplot3d/qwt3d_function.h>
 
+#include <memory>
 #include <QTimer>
 #include <QVector>
 #include <QEvent>

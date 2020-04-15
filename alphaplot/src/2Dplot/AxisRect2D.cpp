@@ -21,6 +21,7 @@
 #include "ColorMap2D.h"
 #include "ErrorBar2D.h"
 #include "ImageItem2D.h"
+#include "Layout2D.h"
 #include "Legend2D.h"
 #include "LineItem2D.h"
 #include "Matrix.h"
@@ -239,6 +240,36 @@ Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
     setItemAxes(gridpair_.first.second, gridpair_.second.second);
 
   return grid;
+}
+
+void AxisRect2D::setstackbar() {
+  // set stack
+  QVector<Bar2D *> bvec;
+  QVector<Bar2D *> sortedbvec;
+  foreach (Bar2D *bar, barvec_) {
+    if (bar->getstackposition_barplot() != -1) bvec << bar;
+  }
+  // sort the order
+  if (!bvec.isEmpty()) {
+    int j = 0;
+    while (!bvec.isEmpty()) {
+      for (int i = 0; i < bvec.size(); i++) {
+        if (bvec.at(i)->getstackposition_barplot() == j) {
+          sortedbvec << bvec.at(i);
+          bvec.removeOne(bvec.at(i));
+          j++;
+          break;
+        }
+      }
+    }
+  }
+
+  // set stack
+  Bar2D *basebar = nullptr;
+  foreach (Bar2D *bar, sortedbvec) {
+    if (basebar) bar->moveAbove(basebar);
+    basebar = bar;
+  }
 }
 
 QList<Axis2D *> AxisRect2D::getAxes2D() const { return axes_; }
@@ -503,14 +534,17 @@ Curve2D *AxisRect2D::addFunction2DPlot(QVector<double> *xdata,
 
 Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
                                 Column *xData, Column *yData, int from, int to,
-                                Axis2D *xAxis, Axis2D *yAxis) {
+                                Axis2D *xAxis, Axis2D *yAxis,
+                                int stackposition) {
   Bar2D *bar;
   switch (type) {
     case AxisRect2D::BarType::HorizontalBars:
-      bar = new Bar2D(table, xData, yData, from, to, yAxis, xAxis);
+      bar =
+          new Bar2D(table, xData, yData, from, to, yAxis, xAxis, stackposition);
       break;
     case AxisRect2D::BarType::VerticalBars:
-      bar = new Bar2D(table, xData, yData, from, to, xAxis, yAxis);
+      bar =
+          new Bar2D(table, xData, yData, from, to, xAxis, yAxis, stackposition);
       break;
   }
 
@@ -556,6 +590,7 @@ StatBox2D *AxisRect2D::addStatBox2DPlot(StatBox2D::BoxWhiskerData data,
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   statbox->setName(data.name);
+  getLegend()->setVisible(false);
   layers_.append(statbox->layer());
   statboxvec_.append(statbox);
   connect(statbox, SIGNAL(showtooltip(QPointF, double, double)), this,
@@ -645,9 +680,21 @@ LineItem2D *AxisRect2D::addLineItem2D() {
 }
 
 LineItem2D *AxisRect2D::addArrowItem2D() {
-  LineItem2D *lineitem = addLineItem2D();
+  LineItem2D *lineitem = new LineItem2D(this, plot2d_);
   lineitem->setendstyle_lineitem(LineItem2D::LineEndLocation::Stop,
                                  QCPLineEnding::EndingStyle::esFlatArrow);
+  foreach (QCPItemPosition *position, lineitem->positions()) {
+    position->setAxes(gridpair_.first.second, gridpair_.second.second);
+  }
+  QRectF rect = this->rect();
+  int widthpercent = static_cast<int>((rect.width() * 20) / 100);
+  int heightpercent = static_cast<int>((rect.height() * 20) / 100);
+  rect.adjust(widthpercent, heightpercent, -widthpercent, -heightpercent);
+  lineitem->start->setPixelPosition(rect.topLeft());
+  lineitem->end->setPixelPosition(rect.bottomRight());
+  layers_.append(lineitem->layer());
+  linevec_.append(lineitem);
+  emit LineItem2DCreated(lineitem);
   return lineitem;
 }
 
@@ -1006,28 +1053,636 @@ Matrix *AxisRect2D::getMatrixByName(QList<Matrix *> mats, const QString name) {
   return matrix;
 }
 
+bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
+                                          QList<Table *> tabs) {
+  bool ok = false;
+  // ls1
+  Axis2D *xaxis1 = nullptr;
+  Axis2D *yaxis1 = nullptr;
+  AxisRect2D::LineScatterSpecialType ltype1;
+  QString legend1;
+  Table *table1 = nullptr;
+  Column *xcolumn1 = nullptr;
+  Column *ycolumn1 = nullptr;
+  int from1;
+  int to1;
+  Graph2DCommon::LineStyleType lstype1;
+  bool linefill1;
+  bool lineantialias1;
+  QPen linepen1;
+  QBrush linebrush1;
+  Graph2DCommon::ScatterStyle scatterstyle1;
+  int scattersize1;
+  bool scatterantialias1;
+  QPen scatterpen1;
+  QBrush scatterbrush1;
+  // ls2
+  Axis2D *xaxis2 = nullptr;
+  Axis2D *yaxis2 = nullptr;
+  AxisRect2D::LineScatterSpecialType ltype2;
+  QString legend2;
+  Table *table2 = nullptr;
+  Column *xcolumn2 = nullptr;
+  Column *ycolumn2 = nullptr;
+  int from2;
+  int to2;
+  Graph2DCommon::LineStyleType lstype2;
+  bool linefill2;
+  bool lineantialias2;
+  QPen linepen2;
+  QBrush linebrush2;
+  Graph2DCommon::ScatterStyle scatterstyle2;
+  int scattersize2;
+  bool scatterantialias2;
+  QPen scatterpen2;
+  QBrush scatterbrush2;
+  // linespecialchannel
+  if (xmlreader->isStartElement() && xmlreader->name() == "channel") {
+    xmlreader->readNextStartElement();
+    while (!xmlreader->atEnd()) {
+      if (xmlreader->isEndElement() && xmlreader->name() == "linespecial") {
+        break;
+      }
+      if (xmlreader->isStartElement() && xmlreader->name() == "linespecial") {
+        int xax = xmlreader->readAttributeInt("xaxis", &ok);
+        if (ok) {
+          xaxis1 = getXAxis(xax);
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D X axis not found error"));
+        int yax = xmlreader->readAttributeInt("yaxis", &ok);
+        if (ok) {
+          yaxis1 = getYAxis(yax);
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D Y axis not found error"));
+
+        QString lstype = xmlreader->readAttributeString("type", &ok);
+        if (lstype == "line" && ok) {
+          ltype1 = AxisRect2D::LineScatterSpecialType::Area2D;
+        } else
+          xmlreader->raiseWarning(
+              tr("LineSpecialChannel2D line type not found"));
+
+        // legend
+        legend1 = xmlreader->readAttributeString("legend", &ok);
+        if (!ok)
+          xmlreader->raiseWarning(
+              tr("LineSpecialChannel2D legendtext not found"));
+
+        QString tablename = xmlreader->readAttributeString("table", &ok);
+        if (ok) {
+          table1 = getTableByName(tabs, tablename);
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D Table not found error"));
+        QString xcolname = xmlreader->readAttributeString("xcolumn", &ok);
+        if (ok) {
+          (table1) ? xcolumn1 = table1->column(xcolname) : xcolumn1 = nullptr;
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D Table X column not found error"));
+        QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
+        if (ok) {
+          (table1) ? ycolumn1 = table1->column(ycolname) : ycolumn1 = nullptr;
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D Table Y column not found error"));
+        from1 = xmlreader->readAttributeInt("from", &ok);
+        if (!ok)
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D from not found error"));
+        to1 = xmlreader->readAttributeInt("to", &ok);
+        if (!ok)
+          xmlreader->raiseError(tr("LineSpecialChannel2D to not found error"));
+
+        xmlreader->readNextStartElement();
+        // line
+        if (xmlreader->isStartElement() && xmlreader->name() == "line") {
+          // line style
+          QString style = xmlreader->readAttributeString("style", &ok);
+          if (ok) {
+            if (style == "line") {
+              lstype1 = Graph2DCommon::LineStyleType::Line;
+            } else if (style == "impulse") {
+              lstype1 = Graph2DCommon::LineStyleType::Impulse;
+            } else if (style == "stepleft") {
+              lstype1 = Graph2DCommon::LineStyleType::StepLeft;
+            } else if (style == "stepright") {
+              lstype1 = Graph2DCommon::LineStyleType::StepRight;
+            } else if (style == "stepcenter") {
+              lstype1 = Graph2DCommon::LineStyleType::StepCenter;
+            }
+          } else
+            xmlreader->raiseWarning(
+                tr("LineSpecialChannel2D line style property setting error"));
+
+          // line fill status
+          linefill1 = xmlreader->readAttributeBool("fill", &ok);
+          if (!ok)
+            xmlreader->raiseWarning(
+                tr("LineSpecialChannel2D line fill status property setting "
+                   "error"));
+
+          // line antialias
+          lineantialias1 = xmlreader->readAttributeBool("antialias", &ok);
+          if (!ok)
+            xmlreader->raiseWarning(
+                tr("LineSpecialChannel2D line antialias "
+                   "property setting error"));
+
+          // line pen property
+          while (!xmlreader->atEnd()) {
+            xmlreader->readNext();
+            if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+            // pen
+            if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+              linepen1 = xmlreader->readPen(&ok);
+              if (!ok)
+                xmlreader->raiseWarning(
+                    tr("LineSpecialChannel2D line pen property setting error"));
+            }
+          }
+
+          // line brush property
+          while (!xmlreader->atEnd()) {
+            xmlreader->readNext();
+            if (xmlreader->isEndElement() && xmlreader->name() == "brush")
+              break;
+            // brush
+            if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+              linebrush1 = xmlreader->readBrush(&ok);
+              if (!ok)
+                xmlreader->raiseWarning(tr(
+                    "LineSpecialChannel2D linebrush property setting error"));
+            }
+          }
+        }
+
+        xmlreader->readNext();
+        xmlreader->readNext();
+        // scatter
+        if (xmlreader->isStartElement() && xmlreader->name() == "scatter") {
+          // scatter shape
+          QString scattershape = xmlreader->readAttributeString("style", &ok);
+          if (ok) {
+            if (scattershape == "dot") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::Dot;
+            } else if (scattershape == "disc") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::Disc;
+            } else if (scattershape == "none") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::None;
+            } else if (scattershape == "plus") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::Plus;
+            } else if (scattershape == "star") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::Star;
+            } else if (scattershape == "cross") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::Cross;
+            } else if (scattershape == "peace") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::Peace;
+            } else if (scattershape == "circle") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::Circle;
+            } else if (scattershape == "square") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::Square;
+            } else if (scattershape == "diamond") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::Diamond;
+            } else if (scattershape == "triangle") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::Triangle;
+            } else if (scattershape == "pluscircle") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::PlusCircle;
+            } else if (scattershape == "plussquare") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::PlusSquare;
+            } else if (scattershape == "crosscircle") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::CrossCircle;
+            } else if (scattershape == "crosssquare") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::CrossSquare;
+            } else if (scattershape == "triangleinverted") {
+              scatterstyle1 = Graph2DCommon::ScatterStyle::TriangleInverted;
+            }
+          } else
+            xmlreader->raiseWarning(tr(
+                "LineSpecialChannel2D scatter shape property setting error"));
+
+          // scatter size
+          scattersize1 = xmlreader->readAttributeInt("size", &ok);
+          if (!ok)
+            xmlreader->raiseWarning(
+                tr("LineSpecialChannel2D scatter size property setting error"));
+
+          // scatter antialias
+          scatterantialias1 = xmlreader->readAttributeBool("antialias", &ok);
+          if (!ok)
+            xmlreader->raiseWarning(
+                tr("LineSpecialChannelD scatter antialias property setting "
+                   "error"));
+
+          // scatter pen property
+          while (!xmlreader->atEnd()) {
+            xmlreader->readNext();
+            if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+            // pen
+            if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+              scatterpen1 = xmlreader->readPen(&ok);
+              if (!ok)
+                xmlreader->raiseWarning(tr(
+                    "LineSpecialChannel2D scatter pen property setting error"));
+            }
+          }
+
+          // scatter brush property
+          while (!xmlreader->atEnd()) {
+            xmlreader->readNext();
+            if (xmlreader->isEndElement() && xmlreader->name() == "brush")
+              break;
+            // brush
+            if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+              scatterbrush1 = xmlreader->readBrush(&ok);
+              if (!ok)
+                xmlreader->raiseWarning(
+                    tr("LineSpecialChannel2D scatterbrush property setting "
+                       "error"));
+            }
+          }
+        }
+      }
+      xmlreader->readNext();
+    }
+
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "linespecial")
+        break;
+      if (xmlreader->isStartElement() && xmlreader->name() == "linespecial") {
+        int xax = xmlreader->readAttributeInt("xaxis", &ok);
+        if (ok) {
+          xaxis2 = getXAxis(xax);
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D X axis not found error"));
+        int yax = xmlreader->readAttributeInt("yaxis", &ok);
+        if (ok) {
+          yaxis2 = getYAxis(yax);
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D Y axis not found error"));
+
+        QString lstype = xmlreader->readAttributeString("type", &ok);
+        if (lstype == "line" && ok) {
+          ltype2 = AxisRect2D::LineScatterSpecialType::Area2D;
+        } else
+          xmlreader->raiseWarning(
+              tr("LineSpecialChannel2D line type not found"));
+
+        // legend
+        legend2 = xmlreader->readAttributeString("legend", &ok);
+        if (!ok)
+          xmlreader->raiseWarning(
+              tr("LineSpecialChannel2D legendtext not found"));
+
+        QString tablename = xmlreader->readAttributeString("table", &ok);
+        if (ok) {
+          table2 = getTableByName(tabs, tablename);
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D Table not found error"));
+        QString xcolname = xmlreader->readAttributeString("xcolumn", &ok);
+        if (ok) {
+          (table2) ? xcolumn2 = table2->column(xcolname) : xcolumn2 = nullptr;
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D Table X column not found error"));
+        QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
+        if (ok) {
+          (table2) ? ycolumn2 = table2->column(ycolname) : ycolumn2 = nullptr;
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D Table Y column not found error"));
+        from2 = xmlreader->readAttributeInt("from", &ok);
+        if (!ok)
+          xmlreader->raiseError(
+              tr("LineSpecialChannel2D from not found error"));
+        to2 = xmlreader->readAttributeInt("to", &ok);
+        if (!ok)
+          xmlreader->raiseError(tr("LineSpecialChannel2D to not found error"));
+
+        xmlreader->readNextStartElement();
+        // line
+        if (xmlreader->isStartElement() && xmlreader->name() == "line") {
+          // line style
+          QString style = xmlreader->readAttributeString("style", &ok);
+          if (ok) {
+            if (style == "line") {
+              lstype2 = Graph2DCommon::LineStyleType::Line;
+            } else if (style == "impulse") {
+              lstype2 = Graph2DCommon::LineStyleType::Impulse;
+            } else if (style == "stepleft") {
+              lstype2 = Graph2DCommon::LineStyleType::StepLeft;
+            } else if (style == "stepright") {
+              lstype2 = Graph2DCommon::LineStyleType::StepRight;
+            } else if (style == "stepcenter") {
+              lstype2 = Graph2DCommon::LineStyleType::StepCenter;
+            }
+          } else
+            xmlreader->raiseWarning(
+                tr("LineSpecialChannel2D line style property setting error"));
+
+          // line fill status
+          linefill2 = xmlreader->readAttributeBool("fill", &ok);
+          if (!ok)
+            xmlreader->raiseWarning(
+                tr("LineSpecialChannel2D line fill status property setting "
+                   "error"));
+
+          // line antialias
+          lineantialias2 = xmlreader->readAttributeBool("antialias", &ok);
+          if (!ok)
+            xmlreader->raiseWarning(
+                tr("LineSpecialChannel2D line antialias "
+                   "property setting error"));
+
+          // line pen property
+          while (!xmlreader->atEnd()) {
+            xmlreader->readNext();
+            if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+            // pen
+            if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+              linepen2 = xmlreader->readPen(&ok);
+              if (!ok)
+                xmlreader->raiseWarning(
+                    tr("LineSpecialChannel2D line pen property setting error"));
+            }
+          }
+
+          // line brush property
+          while (!xmlreader->atEnd()) {
+            xmlreader->readNext();
+            if (xmlreader->isEndElement() && xmlreader->name() == "brush")
+              break;
+            // brush
+            if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+              linebrush2 = xmlreader->readBrush(&ok);
+              if (!ok)
+                xmlreader->raiseWarning(tr(
+                    "LineSpecialChannel2D linebrush property setting error"));
+            }
+          }
+        }
+
+        xmlreader->readNext();
+        xmlreader->readNext();
+        // scatter
+        if (xmlreader->isStartElement() && xmlreader->name() == "scatter") {
+          // scatter shape
+          QString scattershape = xmlreader->readAttributeString("style", &ok);
+          if (ok) {
+            if (scattershape == "dot") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::Dot;
+            } else if (scattershape == "disc") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::Disc;
+            } else if (scattershape == "none") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::None;
+            } else if (scattershape == "plus") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::Plus;
+            } else if (scattershape == "star") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::Star;
+            } else if (scattershape == "cross") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::Cross;
+            } else if (scattershape == "peace") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::Peace;
+            } else if (scattershape == "circle") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::Circle;
+            } else if (scattershape == "square") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::Square;
+            } else if (scattershape == "diamond") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::Diamond;
+            } else if (scattershape == "triangle") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::Triangle;
+            } else if (scattershape == "pluscircle") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::PlusCircle;
+            } else if (scattershape == "plussquare") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::PlusSquare;
+            } else if (scattershape == "crosscircle") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::CrossCircle;
+            } else if (scattershape == "crosssquare") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::CrossSquare;
+            } else if (scattershape == "triangleinverted") {
+              scatterstyle2 = Graph2DCommon::ScatterStyle::TriangleInverted;
+            }
+          } else
+            xmlreader->raiseWarning(tr(
+                "LineSpecialChannel2D scatter shape property setting error"));
+
+          // scatter size
+          scattersize2 = xmlreader->readAttributeInt("size", &ok);
+          if (!ok)
+            xmlreader->raiseWarning(
+                tr("LineSpecialChannel2D scatter size property setting error"));
+
+          // scatter antialias
+          scatterantialias2 = xmlreader->readAttributeBool("antialias", &ok);
+          if (!ok)
+            xmlreader->raiseWarning(
+                tr("LineSpecialChannelD scatter antialias property setting "
+                   "error"));
+
+          // scatter pen property
+          while (!xmlreader->atEnd()) {
+            xmlreader->readNext();
+            if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+            // pen
+            if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+              scatterpen2 = xmlreader->readPen(&ok);
+              if (!ok)
+                xmlreader->raiseWarning(tr(
+                    "LineSpecialChannel2D scatter pen property setting error"));
+            }
+          }
+
+          // scatter brush property
+          while (!xmlreader->atEnd()) {
+            xmlreader->readNext();
+            if (xmlreader->isEndElement() && xmlreader->name() == "brush")
+              break;
+            // brush
+            if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+              scatterbrush2 = xmlreader->readBrush(&ok);
+              if (!ok)
+                xmlreader->raiseWarning(
+                    tr("LineSpecialChannel2D scatterbrush property setting "
+                       "error"));
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (table1 && table2 && xcolumn1 && xcolumn2 && ycolumn1 && ycolumn2 &&
+      xaxis1 && xaxis2 && yaxis1 && yaxis2 && xaxis1 == xaxis2 &&
+      yaxis1 == yaxis2 && xcolumn1 == xcolumn2 && table1 == table2 &&
+      from1 == from2 && to1 == to2) {
+    QPair<LineSpecial2D *, LineSpecial2D *> lspair =
+        addLineSpecialChannel2DPlot(table1, xcolumn1, ycolumn1, ycolumn2, from1,
+                                    to1, xaxis1, yaxis1);
+    // ls1
+    lspair.first->setlinetype_lsplot(lstype1);
+    lspair.first->setlegendtext_lsplot(legend1);
+    lspair.first->setlinefillstatus_lsplot(linefill1);
+    lspair.first->setlineantialiased_lsplot(lineantialias1);
+    lspair.first->setlinestrokethickness_lsplot(linepen1.widthF());
+    lspair.first->setlinestrokestyle_lsplot(linepen1.style());
+    lspair.first->setlinestrokecolor_lsplot(linepen1.color());
+    lspair.first->setlinefillcolor_lsplot(linebrush1.color());
+    lspair.first->setscattershape_lsplot(scatterstyle1);
+    lspair.first->setscattersize_lsplot(scattersize1);
+    lspair.first->setscatterantialiased_lsplot(scatterantialias1);
+    lspair.first->setscatterstrokethickness_lsplot(scatterpen1.widthF());
+    lspair.first->setscatterstrokestyle_lsplot(scatterpen1.style());
+    lspair.first->setscatterstrokecolor_lsplot(scatterpen1.color());
+    lspair.first->setscatterfillcolor_lsplot(scatterbrush1.color());
+    // ls2
+    lspair.second->setlinetype_lsplot(lstype2);
+    lspair.second->setlegendtext_lsplot(legend2);
+    lspair.second->setlinefillstatus_lsplot(linefill2);
+    lspair.second->setlineantialiased_lsplot(lineantialias2);
+    lspair.second->setlinestrokethickness_lsplot(linepen2.widthF());
+    lspair.second->setlinestrokestyle_lsplot(linepen2.style());
+    lspair.second->setlinestrokecolor_lsplot(linepen2.color());
+    lspair.second->setlinefillcolor_lsplot(linebrush2.color());
+    lspair.second->setscattershape_lsplot(scatterstyle2);
+    lspair.second->setscattersize_lsplot(scattersize2);
+    lspair.second->setscatterantialiased_lsplot(scatterantialias2);
+    lspair.second->setscatterstrokethickness_lsplot(scatterpen2.widthF());
+    lspair.second->setscatterstrokestyle_lsplot(scatterpen2.style());
+    lspair.second->setscatterstrokecolor_lsplot(scatterpen2.color());
+    lspair.second->setscatterfillcolor_lsplot(scatterbrush2.color());
+  }
+
+  return ok;
+}
+
 void AxisRect2D::save(XmlStreamWriter *xmlwriter, const int index) {
   xmlwriter->writeStartElement("layout");
   xmlwriter->writeAttribute("index", QString::number(index + 1));
   xmlwriter->writeAttribute("row", QString::number(0));
   xmlwriter->writeAttribute("column", QString::number(index + 1));
   xmlwriter->writeBrush(backgroundBrush());
+  getLegend()->save(xmlwriter);
   foreach (Axis2D *axis, getAxes2D()) { axis->save(xmlwriter); }
   gridpair_.first.first->save(xmlwriter, "xgrid");
   gridpair_.second.first->save(xmlwriter, "ygrid");
-  foreach (TextItem2D *textitem, textvec_) { textitem->save(xmlwriter); }
-  foreach (LineItem2D *lineitem, linevec_) { lineitem->save(xmlwriter); }
-  foreach (ImageItem2D *imageitem, imagevec_) { imageitem->save(xmlwriter); }
-  foreach (Curve2D *curve, curvevec_) {
-    curve->save(xmlwriter, getXAxisNo(curve->getxaxis()),
-                getYAxisNo(curve->getyaxis()));
+  // assign to a new variable
+  CurveVec cvec = curvevec_;
+  LsVec lvec = lsvec_;
+  ChannelVec chvec = channelvec_;
+  BarVec bvec = barvec_;
+  VectorVec vvec = vectorvec_;
+  PieVec pvec = pievec_;
+  ColorMapVec colvec = colormapvec_;
+  StatBoxVec stvec = statboxvec_;
+  TextItemVec txvec = textvec_;
+  LineItemVec livec = linevec_;
+  ImageItemVec imvec = imagevec_;
+
+  foreach (QCPLayer *layer, layers_) {
+    foreach (Curve2D *curve, cvec) {
+      if (layer == curve->layer()) {
+        curve->save(xmlwriter, getXAxisNo(curve->getxaxis()),
+                    getYAxisNo(curve->getyaxis()));
+        cvec.removeOne(curve);
+        continue;
+      }
+    }
+    foreach (LineSpecial2D *ls, lvec) {
+      if (layer == ls->layer()) {
+        ls->save(xmlwriter, getXAxisNo(ls->getxaxis()),
+                 getYAxisNo(ls->getyaxis()));
+        lvec.removeOne(ls);
+        continue;
+      }
+    }
+    for (int i = 0; i < chvec.size(); i++) {
+      if (layer == chvec.at(i).first->layer()) {
+        xmlwriter->writeStartElement("channel");
+        chvec.at(i).first->save(xmlwriter,
+                                getXAxisNo(chvec.at(i).first->getxaxis()),
+                                getYAxisNo(chvec.at(i).first->getyaxis()));
+        chvec.at(i).second->save(xmlwriter,
+                                 getXAxisNo(chvec.at(i).second->getxaxis()),
+                                 getYAxisNo(chvec.at(i).second->getyaxis()));
+        xmlwriter->writeEndElement();
+        chvec.remove(i);
+        continue;
+      }
+    }
+    foreach (Bar2D *bar, bvec) {
+      if (layer == bar->layer()) {
+        (bar->getxaxis()->getorientation_axis() ==
+             Axis2D::AxisOreantation::Top ||
+         bar->getxaxis()->getorientation_axis() ==
+             Axis2D::AxisOreantation::Bottom)
+            ? bar->save(xmlwriter, getXAxisNo(bar->getxaxis()),
+                        getYAxisNo(bar->getyaxis()))
+            : bar->save(xmlwriter, getYAxisNo(bar->getxaxis()),
+                        getXAxisNo(bar->getyaxis()));
+        bvec.removeOne(bar);
+        continue;
+      }
+    }
+    foreach (Vector2D *vector, vvec) {
+      if (layer == vector->layer()) {
+        vector->save(xmlwriter, getXAxisNo(vector->getxaxis()),
+                     getYAxisNo(vector->getyaxis()));
+        vvec.removeOne(vector);
+        continue;
+      }
+    }
+    foreach (Pie2D *pie, pvec) {
+      if (layer == pie->layer()) {
+        pie->save(xmlwriter);
+        pvec.removeOne(pie);
+        continue;
+      }
+    }
+    foreach (StatBox2D *statbox, stvec) {
+      if (layer == statbox->layer()) {
+        statbox->save(xmlwriter, getXAxisNo(statbox->getxaxis()),
+                      getYAxisNo(statbox->getyaxis()));
+        stvec.removeOne(statbox);
+        continue;
+      }
+    }
+    foreach (ColorMap2D *colmap, colvec) {
+      if (layer == colmap->layer()) {
+        colmap->save(xmlwriter);
+        colvec.removeOne(colmap);
+        continue;
+      }
+    }
+    // items
+    foreach (TextItem2D *textitem, txvec) {
+      if (layer == textitem->layer()) {
+        textitem->save(xmlwriter);
+        txvec.removeOne(textitem);
+        continue;
+      }
+    }
+    foreach (LineItem2D *lineitem, livec) {
+      if (layer == lineitem->layer()) {
+        lineitem->save(xmlwriter);
+        livec.removeOne(lineitem);
+        continue;
+      }
+    }
+    foreach (ImageItem2D *imageitem, imvec) {
+      if (layer == imageitem->layer()) {
+        imageitem->save(xmlwriter);
+        imvec.removeOne(imageitem);
+        continue;
+      }
+    }
+    qDebug() << "unknown layer: " << layer->name();
   }
-  foreach (Vector2D *vector, vectorvec_) {
-    vector->save(xmlwriter, getXAxisNo(vector->getxaxis()),
-                 getYAxisNo(vector->getyaxis()));
-  }
-  foreach (Pie2D *pie, pievec_) { pie->save(xmlwriter); }
-  getLegend()->save(xmlwriter);
   xmlwriter->writeEndElement();
 }
 
@@ -1188,7 +1843,6 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           if (table && xcolumn && ycolumn && xaxis && yaxis) {
             curve = addCurve2DPlot(ctype, table, xcolumn, ycolumn, from, to,
                                    xaxis, yaxis);
-            // curve->load(xmlreader);
           }
         } else if (ok && datatype == "function") {
           QVector<double> *xdata = new QVector<double>();
@@ -1264,6 +1918,273 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
               } else if (type == "y") {
                 curve->setYerrorBar(table, column, from, to);
                 curve->getyerrorbar_curveplot()->load(xmlreader);
+              }
+            }
+          }
+        }
+      } else
+
+          // linespecial
+          if (xmlreader->isStartElement() &&
+              xmlreader->name() == "linespecial") {
+        LineSpecial2D *ls = nullptr;
+        Axis2D *xaxis = nullptr;
+        Axis2D *yaxis = nullptr;
+        AxisRect2D::LineScatterSpecialType ltype;
+
+        int xax = xmlreader->readAttributeInt("xaxis", &ok);
+        if (ok) {
+          xaxis = getXAxis(xax);
+        } else
+          xmlreader->raiseError(tr("LineSpecial2D X axis not found error"));
+        int yax = xmlreader->readAttributeInt("yaxis", &ok);
+        if (ok) {
+          yaxis = getYAxis(yax);
+        } else
+          xmlreader->raiseError(tr("LineSpecial2D Y axis not found error"));
+
+        QString lstype = xmlreader->readAttributeString("type", &ok);
+        if (lstype == "line" && ok) {
+          ltype = AxisRect2D::LineScatterSpecialType::Area2D;
+        } else if (lstype == "impulse" && ok) {
+          ltype = AxisRect2D::LineScatterSpecialType::VerticalDropLine2D;
+        } else if (lstype == "stepleft" && ok) {
+          ltype = AxisRect2D::LineScatterSpecialType::VerticalStep2D;
+        } else if (lstype == "stepright" && ok) {
+          ltype = AxisRect2D::LineScatterSpecialType::HorizontalStep2D;
+        } else if (lstype == "stepcenter" && ok) {
+          ltype = AxisRect2D::LineScatterSpecialType::CentralStepAndScatter2D;
+        } else
+          xmlreader->raiseWarning(tr("LineSpecial2D line type not found"));
+
+        // legend
+        QString legend = xmlreader->readAttributeString("legend", &ok);
+        if (!ok)
+          xmlreader->raiseWarning(tr("LineSpecial2D legendtext not found"));
+
+        Table *table = nullptr;
+        Column *xcolumn = nullptr;
+        Column *ycolumn = nullptr;
+
+        QString tablename = xmlreader->readAttributeString("table", &ok);
+        if (ok) {
+          table = getTableByName(tabs, tablename);
+        } else
+          xmlreader->raiseError(tr("LineSpecial2D Table not found error"));
+        QString xcolname = xmlreader->readAttributeString("xcolumn", &ok);
+        if (ok) {
+          (table) ? xcolumn = table->column(xcolname) : xcolumn = nullptr;
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecial2D Table X column not found error"));
+        QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
+        if (ok) {
+          (table) ? ycolumn = table->column(ycolname) : ycolumn = nullptr;
+        } else
+          xmlreader->raiseError(
+              tr("LineSpecial2D Table Y column not found error"));
+        int from = xmlreader->readAttributeInt("from", &ok);
+        if (!ok)
+          xmlreader->raiseError(tr("LineSpecial2D from not found error"));
+        int to = xmlreader->readAttributeInt("to", &ok);
+        if (!ok) xmlreader->raiseError(tr("LineSpecial2D to not found error"));
+
+        if (table && xcolumn && ycolumn && xaxis && yaxis) {
+          ls = addLineSpecial2DPlot(ltype, table, xcolumn, ycolumn, from, to,
+                                    xaxis, yaxis);
+          ls->setName(legend);
+
+          while (!xmlreader->atEnd()) {
+            xmlreader->readNextStartElement();
+            if (xmlreader->isStartElement() &&
+                xmlreader->name() != "errorbar") {
+              ls->load(xmlreader);
+              break;
+            }
+
+            if (xmlreader->isStartElement() &&
+                xmlreader->name() == "errorbar") {
+              Table *table = nullptr;
+              Column *column = nullptr;
+              QString type = xmlreader->readAttributeString("type", &ok);
+              if (!ok) {
+                xmlreader->raiseError(tr("ErrorBar2D type not found error"));
+              }
+              QString tablename = xmlreader->readAttributeString("table", &ok);
+              if (ok) {
+                table = getTableByName(tabs, tablename);
+              } else
+                xmlreader->raiseError(tr("ErrorBar2D Table not found error"));
+              QString colname =
+                  xmlreader->readAttributeString("errcolumn", &ok);
+              if (ok) {
+                (table) ? column = table->column(colname) : column = nullptr;
+              } else
+                xmlreader->raiseError(
+                    tr("ErrorBar2D Table column not found error"));
+              int from = xmlreader->readAttributeInt("from", &ok);
+              if (!ok)
+                xmlreader->raiseError(tr("ErrorBar2D from not found error"));
+              int to = xmlreader->readAttributeInt("to", &ok);
+              if (!ok)
+                xmlreader->raiseError(tr("ErrorBar2D to not found error"));
+
+              if (table && column && !type.isEmpty()) {
+                if (type == "x") {
+                  ls->setXerrorBar(table, column, from, to);
+                  ls->getxerrorbar_lsplot()->load(xmlreader);
+                } else if (type == "y") {
+                  ls->setYerrorBar(table, column, from, to);
+                  ls->getyerrorbar_lsplot()->load(xmlreader);
+                }
+              }
+            }
+          }
+        }
+      } else
+
+          // channel
+          if (xmlreader->isStartElement() && xmlreader->name() == "channel") {
+        loadLineSpecialChannel2D(xmlreader, tabs);
+      } else
+
+          // bar
+          if (xmlreader->isStartElement() && xmlreader->name() == "bar") {
+        Bar2D *bar = nullptr;
+        Axis2D *xaxis = nullptr;
+        Axis2D *yaxis = nullptr;
+        AxisRect2D::BarType barorientation = AxisRect2D::BarType::VerticalBars;
+
+        QString orientation =
+            xmlreader->readAttributeString("orientation", &ok);
+        if (ok) {
+          (orientation == "vertical")
+              ? barorientation = AxisRect2D::BarType::VerticalBars
+              : barorientation = AxisRect2D::BarType::HorizontalBars;
+        } else
+          xmlreader->raiseError(tr("Bar2D orientation not found error"));
+
+        int xax = xmlreader->readAttributeInt("xaxis", &ok);
+        if (ok) {
+          xaxis = getXAxis(xax);
+        } else
+          xmlreader->raiseError(tr("Bar2D X axis not found error"));
+        int yax = xmlreader->readAttributeInt("yaxis", &ok);
+        if (ok) {
+          yaxis = getYAxis(yax);
+        } else
+          xmlreader->raiseError(tr("Bar2D Y axis not found error"));
+
+        // legend
+        QString legend = xmlreader->readAttributeString("legend", &ok);
+        if (!ok) xmlreader->raiseWarning(tr("Bar2D legendtext not found"));
+
+        QString bartype = xmlreader->readAttributeString("type", &ok);
+        if (!ok) xmlreader->raiseError(tr("Bar2D type not found"));
+
+        if (bartype == "barxy") {
+          Table *table = nullptr;
+          Column *xcolumn = nullptr;
+          Column *ycolumn = nullptr;
+
+          QString tablename = xmlreader->readAttributeString("table", &ok);
+          if (ok) {
+            table = getTableByName(tabs, tablename);
+          } else
+            xmlreader->raiseError(tr("Bar2D Table not found error"));
+          QString xcolname = xmlreader->readAttributeString("xcolumn", &ok);
+          if (ok) {
+            (table) ? xcolumn = table->column(xcolname) : xcolumn = nullptr;
+          } else
+            xmlreader->raiseError(tr("Bar2D Table X column not found error"));
+          QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
+          if (ok) {
+            (table) ? ycolumn = table->column(ycolname) : ycolumn = nullptr;
+          } else
+            xmlreader->raiseError(tr("Bar2D Table Y column not found error"));
+          int from = xmlreader->readAttributeInt("from", &ok);
+          if (!ok) xmlreader->raiseError(tr("Bar2D from not found error"));
+          int to = xmlreader->readAttributeInt("to", &ok);
+          if (!ok) xmlreader->raiseError(tr("Bar2D to not found error"));
+          int stackorder = xmlreader->readAttributeInt("stackorder", &ok);
+          if (!ok)
+            xmlreader->raiseWarning(tr("Bar2D stackorder not found error"));
+
+          if (table && xcolumn && ycolumn && xaxis && yaxis) {
+            bar = addBox2DPlot(barorientation, table, xcolumn, ycolumn, from,
+                               to, xaxis, yaxis, stackorder);
+          }
+        } else if (ok && bartype == "histogram") {
+          Table *table = nullptr;
+          Column *column = nullptr;
+
+          QString tablename = xmlreader->readAttributeString("table", &ok);
+          if (ok) {
+            table = getTableByName(tabs, tablename);
+          } else
+            xmlreader->raiseError(tr("Bar2D Table not found error"));
+          QString colname = xmlreader->readAttributeString("column", &ok);
+          if (ok) {
+            (table) ? column = table->column(colname) : column = nullptr;
+          } else
+            xmlreader->raiseError(tr("Bar2D Table column not found error"));
+          int from = xmlreader->readAttributeInt("from", &ok);
+          if (!ok) xmlreader->raiseError(tr("Bar2D from not found error"));
+          int to = xmlreader->readAttributeInt("to", &ok);
+          if (!ok) xmlreader->raiseError(tr("Bar2D to not found error"));
+
+          if (table && column && xaxis && yaxis) {
+            bar = addHistogram2DPlot(barorientation, table, column, from, to,
+                                     xaxis, yaxis);
+          }
+        } else
+          xmlreader->raiseError(tr("Bar2D type not found error"));
+        // stackgap
+        int stackgap = xmlreader->readAttributeInt("stackgap", &ok);
+        if (ok) {
+          bar->setStackingGap(stackgap);
+        } else
+          xmlreader->raiseWarning(tr("Bar2D Stacking Gap not found"));
+        // error bars
+        while (!xmlreader->atEnd()) {
+          xmlreader->readNextStartElement();
+          if (xmlreader->isStartElement() && xmlreader->name() != "errorbar") {
+            bar->load(xmlreader);
+            break;
+          }
+
+          if (xmlreader->isStartElement() && xmlreader->name() == "errorbar") {
+            Table *table = nullptr;
+            Column *column = nullptr;
+            QString type = xmlreader->readAttributeString("type", &ok);
+            if (!ok) {
+              xmlreader->raiseError(tr("ErrorBar2D type not found error"));
+            }
+            QString tablename = xmlreader->readAttributeString("table", &ok);
+            if (ok) {
+              table = getTableByName(tabs, tablename);
+            } else
+              xmlreader->raiseError(tr("ErrorBar2D Table not found error"));
+            QString colname = xmlreader->readAttributeString("errcolumn", &ok);
+            if (ok) {
+              (table) ? column = table->column(colname) : column = nullptr;
+            } else
+              xmlreader->raiseError(
+                  tr("ErrorBar2D Table column not found error"));
+            int from = xmlreader->readAttributeInt("from", &ok);
+            if (!ok)
+              xmlreader->raiseError(tr("ErrorBar2D from not found error"));
+            int to = xmlreader->readAttributeInt("to", &ok);
+            if (!ok) xmlreader->raiseError(tr("ErrorBar2D to not found error"));
+
+            if (table && column && !type.isEmpty() &&
+                !bar->ishistogram_barplot()) {
+              if (type == "x") {
+                bar->setXerrorBar(table, column, from, to);
+                bar->getxerrorbar_barplot()->load(xmlreader);
+              } else if (type == "y") {
+                bar->setYerrorBar(table, column, from, to);
+                bar->getyerrorbar_barplot()->load(xmlreader);
               }
             }
           }
@@ -1368,12 +2289,89 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           pie->load(xmlreader);
         }
       }
+
+      // statbox
+      if (xmlreader->isStartElement() && xmlreader->name() == "statbox") {
+        Axis2D *xaxis = nullptr;
+        Axis2D *yaxis = nullptr;
+
+        // axis
+        int xax = xmlreader->readAttributeInt("xaxis", &ok);
+        if (ok) {
+          xaxis = getXAxis(xax);
+        } else
+          xmlreader->raiseError(tr("StatBox2D X axis not found error"));
+        int yax = xmlreader->readAttributeInt("yaxis", &ok);
+        if (ok) {
+          yaxis = getYAxis(yax);
+        } else
+          xmlreader->raiseError(tr("StatBox2D Y axis not found error"));
+
+        QString legendtext = xmlreader->readAttributeString("legend", &ok);
+        if (!ok)
+          xmlreader->raiseWarning(tr("StatBox2D legend text not found error"));
+
+        Table *table = nullptr;
+        Column *column = nullptr;
+
+        QString tablename = xmlreader->readAttributeString("table", &ok);
+        if (ok) {
+          table = getTableByName(tabs, tablename);
+        } else
+          xmlreader->raiseError(tr("StatBox2D Table not found error"));
+        QString colname = xmlreader->readAttributeString("column", &ok);
+        if (ok) {
+          (table) ? column = table->column(colname) : column = nullptr;
+        } else
+          xmlreader->raiseError(tr("StatBox2D Table column not found error"));
+
+        int from = xmlreader->readAttributeInt("from", &ok);
+        if (!ok) xmlreader->raiseError(tr("StatBox2D from not found error"));
+        int to = xmlreader->readAttributeInt("to", &ok);
+        if (!ok) xmlreader->raiseError(tr("StatBox2D to not found error"));
+        int key = xmlreader->readAttributeInt("key", &ok);
+        if (!ok) xmlreader->raiseError(tr("StatBox2D key not found error"));
+
+        if (table && column && xaxis && yaxis) {
+          Layout2D *lout =
+              qobject_cast<Layout2D *>(plot2d_->parent()->parent());
+          if (lout) {
+            StatBox2D::BoxWhiskerData sbdata =
+                lout->generateBoxWhiskerData(table, column, from, to, key);
+            QSharedPointer<QCPAxisTickerText> textTicker =
+                qSharedPointerCast<QCPAxisTickerText>(xaxis->getticker_axis());
+            StatBox2D *statbox = addStatBox2DPlot(sbdata, xaxis, yaxis);
+            textTicker->addTick(sbdata.key, sbdata.name);
+            xaxis->setTicker(textTicker);
+            statbox->load(xmlreader);
+          }
+        }
+      } else
+
+          // colormap
+          if (xmlreader->isStartElement() && xmlreader->name() == "colormap") {
+        Matrix *matrix = nullptr;
+        QString matname = xmlreader->readAttributeString("matrix", &ok);
+        if (ok) {
+          matrix = getMatrixByName(mats, matname);
+        } else
+          xmlreader->raiseError(tr("ColorMap2D Matrix not found error"));
+
+        if (matrix) {
+          ColorMap2D *colmap =
+              addColorMap2DPlot(matrix, getXAxes2D().at(0), getYAxes2D().at(0));
+          colmap->load(xmlreader);
+        }
+      }
+
       if (xmlreader->isStartElement() && xmlreader->name() == "legend") {
         getLegend()->load(xmlreader);
       }
     }
   } else  // no plot2d element
     xmlreader->raiseError(tr("unknown element %1").arg(xmlreader->name()));
+
+  setstackbar();
 
   return !xmlreader->hasError();
 }

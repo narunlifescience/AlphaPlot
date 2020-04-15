@@ -47,6 +47,10 @@ Qt::PenStyle ImageItem2D::getstrokestyle_imageitem() const {
   return pen().style();
 }
 
+QPointF ImageItem2D::getposition_imageitem() const {
+  return position("topLeft")->pixelPosition();
+}
+
 void ImageItem2D::setstrokecolor_imageitem(const QColor &color) {
   QPen p = pen();
   p.setColor(color);
@@ -65,6 +69,10 @@ void ImageItem2D::setstrokestyle_imageitem(const Qt::PenStyle &style) {
   setPen(p);
 }
 
+void ImageItem2D::setposition_imageitem(const QPointF origin) {
+  position("topLeft")->setPixelPosition(origin);
+}
+
 void ImageItem2D::setpixmap_imageitem() {
   pixmap_->load(imagefilename_);
   setPixmap(*pixmap_);
@@ -73,6 +81,10 @@ void ImageItem2D::setpixmap_imageitem() {
 void ImageItem2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeStartElement("imageitem");
   xmlwriter->writeAttribute("file", imagefilename_);
+  xmlwriter->writeAttribute("x",
+                            QString::number(position("topLeft")->coords().x()));
+  xmlwriter->writeAttribute("y",
+                            QString::number(position("topLeft")->coords().y()));
   xmlwriter->writePen(pen());
   xmlwriter->writeEndElement();
 }
@@ -80,6 +92,18 @@ void ImageItem2D::save(XmlStreamWriter *xmlwriter) {
 bool ImageItem2D::load(XmlStreamReader *xmlreader) {
   if (xmlreader->isStartElement() && xmlreader->name() == "imageitem") {
     bool ok;
+
+    double orix = xmlreader->readAttributeDouble("x", &ok);
+    if (ok) {
+      double oriy = xmlreader->readAttributeDouble("y", &ok);
+      if (ok) {
+        position("topLeft")->setCoords(QPointF(orix, oriy));
+      } else
+        xmlreader->raiseWarning(
+            tr("ImageItem2D set position property y setting error"));
+    } else
+      xmlreader->raiseWarning(
+          tr("ImageItem2D set position property x setting error"));
 
     // strokepen property
     while (!xmlreader->atEnd()) {
@@ -145,6 +169,7 @@ void ImageItem2D::mouseReleaseEvent(QMouseEvent *event,
     if (draggingimageitem_) {
       draggingimageitem_ = false;
       axisrect_->getParentPlot2D()->setCursor(cursorshape_);
+      emit axisrect_->ImageItem2DMoved();
     }
   }
 }

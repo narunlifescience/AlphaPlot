@@ -50,6 +50,9 @@ class ColorMap2D : public QCPColorMap {
   void setcolormapscaleticklabelformat_axis(
       const Axis2D::AxisLabelFormat &axisformat);
 
+  void save(XmlStreamWriter *xmlwriter);
+  bool load(XmlStreamReader *xmlreader);
+
  private:
   QCPMarginGroup *margingroup_;
   Axis2D *xaxis_;

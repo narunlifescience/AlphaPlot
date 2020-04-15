@@ -47,8 +47,7 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
           xdata = xcol->valueAt(row);
           break;
         case AlphaPlot::ColumnDataType::TypeDateTime:
-          xdata = xcol->dateTimeAt(row).toTime_t() +
-                  static_cast<uint>(24 * 3600 * i);
+          xdata = QCPAxisTickerDateTime::dateTimeToKey(xcol->dateTimeAt(row));
           break;
         case AlphaPlot::ColumnDataType::TypeString:
           xdata = i;
@@ -59,8 +58,7 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
           ydata = ycol->valueAt(row);
           break;
         case AlphaPlot::ColumnDataType::TypeDateTime:
-          ydata = ycol->dateTimeAt(row).toTime_t() +
-                  static_cast<uint>(24 * 3600 * i);
+          ydata = QCPAxisTickerDateTime::dateTimeToKey(ycol->dateTimeAt(row));
           break;
         case AlphaPlot::ColumnDataType::TypeString:
           ydata = i;
@@ -134,8 +132,7 @@ void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
           xdata = xcol->valueAt(row);
           break;
         case AlphaPlot::ColumnDataType::TypeDateTime:
-          xdata = xcol->dateTimeAt(row).toTime_t() +
-                  static_cast<uint>(24 * 3600 * i);
+          xdata = QCPAxisTickerDateTime::dateTimeToKey(xcol->dateTimeAt(row));
           break;
         case AlphaPlot::ColumnDataType::TypeString:
           xdata = i;
@@ -146,8 +143,7 @@ void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
           ydata = ycol->valueAt(row);
           break;
         case AlphaPlot::ColumnDataType::TypeDateTime:
-          ydata = ycol->dateTimeAt(row).toTime_t() +
-                  static_cast<uint>(24 * 3600 * i);
+          ydata = QCPAxisTickerDateTime::dateTimeToKey(ycol->dateTimeAt(row));
           break;
         case AlphaPlot::ColumnDataType::TypeString:
           ydata = i;
@@ -220,8 +216,8 @@ void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
           xdata = xcolumn->valueAt(row);
           break;
         case AlphaPlot::ColumnDataType::TypeDateTime:
-          xdata = xcolumn->dateTimeAt(row).toTime_t() +
-                  static_cast<uint>(24 * 3600 * i);
+          xdata =
+              QCPAxisTickerDateTime::dateTimeToKey(xcolumn->dateTimeAt(row));
           break;
         case AlphaPlot::ColumnDataType::TypeString:
           xdata = i;
@@ -232,8 +228,8 @@ void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
           ydata = ycolumn->valueAt(row);
           break;
         case AlphaPlot::ColumnDataType::TypeDateTime:
-          ydata = ycolumn->dateTimeAt(row).toTime_t() +
-                  static_cast<uint>(24 * 3600 * i);
+          ydata =
+              QCPAxisTickerDateTime::dateTimeToKey(ycolumn->dateTimeAt(row));
           break;
         case AlphaPlot::ColumnDataType::TypeString:
           ydata = i;

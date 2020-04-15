@@ -28,13 +28,14 @@
  *                                                                         *
  ***************************************************************************/
 #include "MultiPeakFit.h"
-#include "ColorBox.h"
-#include "core/column/Column.h"
-#include "fit_gsl.h"
-#include "2Dplot/AxisRect2D.h"
 
 #include <QLocale>
 #include <QMessageBox>
+
+#include "2Dplot/AxisRect2D.h"
+#include "ColorBox.h"
+#include "core/column/Column.h"
+#include "fit_gsl.h"
 
 MultiPeakFit::MultiPeakFit(ApplicationWindow *parent, AxisRect2D *axisrect,
                            PeakProfile profile, int peaks)
@@ -259,75 +260,74 @@ void MultiPeakFit::generateFitCurve(double *par) {
         insertPeakFunctionCurve(X, Y, i);
       }
     }
-  } else {}/*{
-    QString tableName = app_->generateUniqueName(tr("Fit"));
-    QString label = d_explanation + " " + tr("fit of") + " " +
-                    associateddata_->table->name() + "_" +
-                    associateddata_->xcol->name() + "_" +
-                    associateddata_->ycol->name();
+  } else {
+  } /*{
+QString tableName = app_->generateUniqueName(tr("Fit"));
+QString label = d_explanation + " " + tr("fit of") + " " +
+             associateddata_->table->name() + "_" +
+             associateddata_->xcol->name() + "_" +
+             associateddata_->ycol->name();
 
-    QList<Column *> columns;
-    columns << new Column(tr("1", "multipeak fit table first column name"),
-                          AlphaPlot::Numeric);
-    for (i = 0; i < peaks_aux; i++)
-      columns << new Column(tr("peak%1").arg(QString::number(i + 1)),
-                            AlphaPlot::Numeric);
-    columns << new Column(tr("2", "multipeak fit table last column name"),
-                          AlphaPlot::Numeric);
-    Table *t = app_->newHiddenTable(tableName, label, columns);
+QList<Column *> columns;
+columns << new Column(tr("1", "multipeak fit table first column name"),
+                   AlphaPlot::Numeric);
+for (i = 0; i < peaks_aux; i++)
+columns << new Column(tr("peak%1").arg(QString::number(i + 1)),
+                     AlphaPlot::Numeric);
+columns << new Column(tr("2", "multipeak fit table last column name"),
+                   AlphaPlot::Numeric);
+Table *t = app_->newHiddenTable(tableName, label, columns);
 
-    for (i = 0; i < d_points; i++) {
-      X[i] = d_x[i];
-      columns.at(0)->setValueAt(i, X[i]);
+for (i = 0; i < d_points; i++) {
+X[i] = d_x[i];
+columns.at(0)->setValueAt(i, X[i]);
 
-      double yi = 0;
-      for (j = 0; j < d_peaks; j++) {
-        double diff = X[i] - par[3 * j + 1];
-        double w = par[3 * j + 2];
-        double y_aux = 0;
-        if (d_profile == Gauss)
-          y_aux +=
-              sqrt(M_2_PI) * par[3 * j] / w * exp(-2 * diff * diff / (w * w));
-        else
-          y_aux += par[3 * j] * w / (4 * diff * diff + w * w);
+double yi = 0;
+for (j = 0; j < d_peaks; j++) {
+ double diff = X[i] - par[3 * j + 1];
+ double w = par[3 * j + 2];
+ double y_aux = 0;
+ if (d_profile == Gauss)
+   y_aux +=
+       sqrt(M_2_PI) * par[3 * j] / w * exp(-2 * diff * diff / (w * w));
+ else
+   y_aux += par[3 * j] * w / (4 * diff * diff + w * w);
 
-        yi += y_aux;
-        y_aux += par[d_p - 1];
-        columns.at(j + 1)->setValueAt(i, y_aux);
-        gsl_matrix_set(m, static_cast<size_t>(i), static_cast<size_t>(j),
-                       y_aux);
-      }
-      Y[i] = yi + par[d_p - 1];  // add offset
-      if (d_peaks > 1) columns.at(d_peaks + 1)->setValueAt(i, Y[i]);
-    }
+ yi += y_aux;
+ y_aux += par[d_p - 1];
+ columns.at(j + 1)->setValueAt(i, y_aux);
+ gsl_matrix_set(m, static_cast<size_t>(i), static_cast<size_t>(j),
+                y_aux);
+}
+Y[i] = yi + par[d_p - 1];  // add offset
+if (d_peaks > 1) columns.at(d_peaks + 1)->setValueAt(i, Y[i]);
+}
 
-    label = tableName + "_2";
-    Curve2D *curve = axisrect_->addCurve2DPlot(AxisRect2D::LineScatterType::Line2D, t, )
-    DataCurve *c =
-        new DataCurve(t, tableName + "_" + columns.at(0)->name(), label);
-    if (d_peaks > 1)
-      c->setPen(QPen(ColorBox::color(d_curveColorIndex), 2));
-    else
-      c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
-    c->setData(X, Y, d_points);
-    axisrect_->insertPlotItem(c, Graph::Line);
-    axisrect_->addFitCurve(c);
+label = tableName + "_2";
+Curve2D *curve = axisrect_->addCurve2DPlot(AxisRect2D::LineScatterType::Line2D,
+t, ) DataCurve *c = new DataCurve(t, tableName + "_" + columns.at(0)->name(),
+label); if (d_peaks > 1) c->setPen(QPen(ColorBox::color(d_curveColorIndex), 2));
+else
+c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
+c->setData(X, Y, d_points);
+axisrect_->insertPlotItem(c, Graph::Line);
+axisrect_->addFitCurve(c);
 
-    if (generate_peak_curves) {
-      for (i = 0; i < peaks_aux; i++) {  // add the peak curves
-        for (j = 0; j < d_points; j++)
-          Y[j] =
-              gsl_matrix_get(m, static_cast<size_t>(j), static_cast<size_t>(i));
+if (generate_peak_curves) {
+for (i = 0; i < peaks_aux; i++) {  // add the peak curves
+ for (j = 0; j < d_points; j++)
+   Y[j] =
+       gsl_matrix_get(m, static_cast<size_t>(j), static_cast<size_t>(i));
 
-        label = tableName + "_" + tr("peak") + QString::number(i + 1);
-        c = new DataCurve(t, tableName + "_" + columns.at(0)->name(), label);
-        c->setPen(QPen(ColorBox::color(d_peaks_color), 1));
-        c->setData(X, Y, d_points);
-        axisrect_->insertPlotItem(c, Graph::Line);
-        axisrect_->addFitCurve(c);
-      }
-    }
-  }*/
+ label = tableName + "_" + tr("peak") + QString::number(i + 1);
+ c = new DataCurve(t, tableName + "_" + columns.at(0)->name(), label);
+ c->setPen(QPen(ColorBox::color(d_peaks_color), 1));
+ c->setData(X, Y, d_points);
+ axisrect_->insertPlotItem(c, Graph::Line);
+ axisrect_->addFitCurve(c);
+}
+}
+}*/
 
   delete[] X;
   delete[] Y;

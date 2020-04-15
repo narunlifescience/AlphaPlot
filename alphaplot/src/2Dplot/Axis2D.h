@@ -18,7 +18,9 @@
 #define AXIS2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
+#include "memory"
 
+class Column;
 class AxisRect2D;
 class XmlStreamWriter;
 class XmlStreamReader;
@@ -138,15 +140,18 @@ class Axis2D : public QCPAxis {
   void setticklabelside_axis(const AxisLabelSide &side);
   void setticklabelformat_axis(const AxisLabelFormat &axisformat);
   void setticklabelprecision_axis(const int value);
+  void settickertext(Column *col, int from, int to);
 
   void save(XmlStreamWriter *xmlwriter);
   bool load(XmlStreamReader *xmlreader);
+  void clone(Axis2D *axis);
 
  private:
   AxisRect2D *axisrect_;
   Axis2D::TickerType tickertype_;
   QSharedPointer<QCPAxisTicker> ticker_;
   QString layername_;
+  std::unique_ptr<QVector<QString>> tickertext_;
 };
 
 #endif  // AXIS2D_H

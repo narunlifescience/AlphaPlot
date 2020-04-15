@@ -125,7 +125,7 @@ class AxisRect2D : public QCPAxisRect {
                              Axis2D *xAxis, Axis2D *yAxis, const QString &name);
   Bar2D *addBox2DPlot(const BarType &type, Table *table, Column *xData,
                       Column *yData, int from, int to, Axis2D *xAxis,
-                      Axis2D *yAxis);
+                      Axis2D *yAxis, int stackposition = -1);
   Vector2D *addVectorPlot(const Vector2D::VectorPlot &vectorplot, Table *table,
                           Column *x1Data, Column *y1Data, Column *x2Data,
                           Column *y2Data, int from, int to, Axis2D *xAxis,
@@ -177,8 +177,11 @@ class AxisRect2D : public QCPAxisRect {
   void setGridPairToNullptr();
   void setItemAxes(Axis2D *xaxis, Axis2D *yaxis);
 
-  Table *getTableByName(QList<Table*>tabs, const QString name);
-  Matrix *getMatrixByName(QList<Matrix *>mats, const QString name);
+  Table *getTableByName(QList<Table *> tabs, const QString name);
+  Matrix *getMatrixByName(QList<Matrix *> mats, const QString name);
+
+  bool loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
+                                QList<Table *> tabs);
 
  public slots:
   void save(XmlStreamWriter *xmlwriter, const int index);
@@ -222,9 +225,15 @@ class AxisRect2D : public QCPAxisRect {
   void showtooltip(QPointF position, double xval, double yval);
   // Layer moved
   void LayerMoved(AxisRect2D *);
+  void TextItem2DMoved();
+  void LineItem2DMoved();
+  void ImageItem2DMoved();
 
  private slots:
   void legendClick();
+
+ private:
+  void setstackbar();
 
  private:
   Plot2D *plot2d_;

@@ -27,18 +27,19 @@
  *                                                                         *
  ***************************************************************************/
 #include "Filter.h"
-#include "2Dplot/AxisRect2D.h"
-#include "ColorBox.h"
-#include "Table.h"
-#include "core/column/Column.h"
+
+#include <gsl/gsl_sort.h>
 
 #include <QApplication>
 #include <QLocale>
 #include <QMessageBox>
-
-#include <gsl/gsl_sort.h>
-
 #include <algorithm>
+
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Legend2D.h"
+#include "ColorBox.h"
+#include "Table.h"
+#include "core/column/Column.h"
 using namespace std;
 
 Filter::Filter(ApplicationWindow *parent, AxisRect2D *axisrect, QString name)
@@ -263,6 +264,8 @@ Curve2D *Filter::addResultCurve(double *xdata, double *ydata) {
       AxisRect2D::LineScatterType::Line2D, table, xCol, yCol, 0,
       xCol->rowCount() - 1, xaxes.at(0), yaxes.at(0));
   curve->setlinestrokecolor_cplot(ColorBox::color(d_curveColorIndex));
+  curve->layer()->replot();
+  axisrect_->getLegend()->layer()->replot();
   xaxes.at(0)->rescale();
   yaxes.at(0)->rescale();
 

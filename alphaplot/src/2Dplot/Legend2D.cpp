@@ -26,6 +26,10 @@ Qt::PenStyle Legend2D::getborderstrokestyle_legend() const {
   return borderPen().style();
 }
 
+QPointF Legend2D::getposition_legend() const {
+  return axisrect_->insetLayout()->insetRect(0).topLeft();
+}
+
 void Legend2D::sethidden_legend(const bool status) { setVisible(status); }
 
 void Legend2D::setborderstrokecolor_legend(const QColor &color) {
@@ -46,8 +50,26 @@ void Legend2D::setborderstrokestyle_legend(const Qt::PenStyle &style) {
   setBorderPen(p);
 }
 
+void Legend2D::setposition_legend(QPointF origin) {
+  QRectF rect = axisrect_->insetLayout()->insetRect(0);
+  rect.setTopLeft(origin);
+  axisrect_->insetLayout()->setInsetRect(0, rect);
+}
+
 void Legend2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeStartElement("legend");
+  xmlwriter->writeAttribute(
+      "x",
+      QString::number(axisrect_->insetLayout()->insetRect(0).topLeft().x()));
+  xmlwriter->writeAttribute(
+      "y",
+      QString::number(axisrect_->insetLayout()->insetRect(0).topLeft().y()));
+  xmlwriter->writeAttribute(
+      "width", QString::number(axisrect_->insetLayout()->insetRect(0).width()));
+  xmlwriter->writeAttribute(
+      "height",
+      QString::number(axisrect_->insetLayout()->insetRect(0).height()));
+
   (gethidden_legend()) ? xmlwriter->writeAttribute("visible", "false")
                        : xmlwriter->writeAttribute("visible", "true");
   xmlwriter->writeAttribute("iconwidth", QString::number(iconSize().width()));
@@ -63,6 +85,24 @@ void Legend2D::save(XmlStreamWriter *xmlwriter) {
 bool Legend2D::load(XmlStreamReader *xmlreader) {
   if (xmlreader->isStartElement() && xmlreader->name() == "legend") {
     bool ok;
+    double orix = xmlreader->readAttributeDouble("x", &ok);
+    if (ok) {
+      double oriy = xmlreader->readAttributeDouble("y", &ok);
+      if (ok) {
+        double width = xmlreader->readAttributeDouble("width", &ok);
+        if (ok) {
+          double height = xmlreader->readAttributeDouble("height", &ok);
+          if (ok) {
+            QRectF rect;
+            rect.setTopLeft(QPointF(orix, oriy));
+            rect.setHeight(height);
+            rect.setWidth(width);
+            axisrect_->insetLayout()->setInsetRect(0, rect);
+          }
+        }
+      }
+    }
+
     bool visible = xmlreader->readAttributeBool("visible", &ok);
     (ok) ? sethidden_legend(!visible)
          : xmlreader->raiseError(
@@ -195,6 +235,7 @@ void Legend2D::mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos) {
     if (draggingLegend_) {
       draggingLegend_ = false;
       axisrect_->getParentPlot2D()->setCursor(cursorshape_);
+      emit legendMoved();
     }
   }
 }

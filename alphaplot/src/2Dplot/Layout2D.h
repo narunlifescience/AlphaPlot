@@ -31,8 +31,9 @@ class Layout2D : public MyWidget {
   void generateFunction2DPlot(QVector<double> *xdata, QVector<double> *ydata,
                               const QString xLabel, const QString yLabel);
   void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
-  void generateStatBox2DPlot(Table *table, QList<Column *> ycollist, int from,
-                             int to, int key);
+  QList<StatBox2D *> generateStatBox2DPlot(Table *table,
+                                           QList<Column *> ycollist, int from,
+                                           int to, int key);
   void generateHistogram2DPlot(const AxisRect2D::BarType &barType,
                                bool multilayout, Table *table,
                                QList<Column *> collist, int from, int to);
@@ -49,6 +50,9 @@ class Layout2D : public MyWidget {
   void generateBar2DPlot(const AxisRect2D::BarType &barType, Table *table,
                          Column *xData, QList<Column *> ycollist, int from,
                          int to);
+  void generateStakedBar2DPlot(const AxisRect2D::BarType &barType, Table *table,
+                               Column *xData, QList<Column *> ycollist,
+                               int from, int to);
   void generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
                             Table *table, Column *x1Data, Column *y1Data,
                             Column *x2Data, Column *y2Data, int from, int to);
@@ -96,7 +100,10 @@ class Layout2D : public MyWidget {
   void showtooltip(QPointF position, double xval, double yval);
 
  private:
-  void addTextToAxisTicker(Column *col, Axis2D *axis);
+  void addTextToAxisTicker(Column *col, Axis2D *axis, int from, int to);
+
+ protected:
+  void resizeEvent(QResizeEvent *event);
 
  private:
   QWidget *main_widget_;
@@ -128,6 +135,7 @@ class Layout2D : public MyWidget {
   void AxisRectCreated(AxisRect2D *, MyWidget *);
   void AxisRectRemoved(MyWidget *);
   void ResetPicker();
+  void layout2DResized();
 };
 
 #endif  // LAYOUT2D_H

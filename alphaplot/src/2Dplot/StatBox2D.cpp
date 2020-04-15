@@ -1,6 +1,13 @@
 #include "StatBox2D.h"
+
+#include <gsl/gsl_sort.h>
+#include <gsl/gsl_statistics.h>
+
 #include "Table.h"
 #include "core/Utilities.h"
+#include "future/core/column/Column.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 StatBox2D::StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
                      Axis2D *yAxis)
@@ -22,6 +29,7 @@ StatBox2D::StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
   setLayer(layername_);
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
   setWhiskerAntialiased(false);
+  setAntialiasedFill(false);
   setAntialiased(false);
   setOutlierStyle(*scatterstyle_);
   setfillcolor_statbox(
@@ -464,6 +472,365 @@ void StatBox2D::setscatterstrokethickness_statbox(const double value) {
 
 void StatBox2D::setpicker_statbox(const Graph2DCommon::Picker picker) {
   picker_ = picker;
+}
+
+void StatBox2D::setlegendtext_statbox(const QString name) {
+  QSharedPointer<QCPAxisTickerText> textTicker =
+      qSharedPointerCast<QCPAxisTickerText>(getxaxis()->getticker_axis());
+  boxwhiskerdata_.name = name;
+  textTicker->addTick(boxwhiskerdata_.key, boxwhiskerdata_.name);
+  getxaxis()->setTicker(textTicker);
+  setName(boxwhiskerdata_.name);
+}
+
+void StatBox2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
+  xmlwriter->writeStartElement("statbox");
+  // axis
+  xmlwriter->writeAttribute("xaxis", QString::number(xaxis));
+  xmlwriter->writeAttribute("yaxis", QString::number(yaxis));
+  xmlwriter->writeAttribute("legend", name());
+  // data
+  xmlwriter->writeAttribute("table", boxwhiskerdata_.table_->name());
+  xmlwriter->writeAttribute("column", boxwhiskerdata_.column_->name());
+  xmlwriter->writeAttribute("from", QString::number(boxwhiskerdata_.from_));
+  xmlwriter->writeAttribute("to", QString::number(boxwhiskerdata_.to_));
+  xmlwriter->writeAttribute("key", QString::number(boxwhiskerdata_.key));
+
+  // box
+  xmlwriter->writeStartElement("box");
+  (getfillstatus_statbox()) ? xmlwriter->writeAttribute("fill", "true")
+                            : xmlwriter->writeAttribute("fill", "true");
+  (antialiased()) ? xmlwriter->writeAttribute("antialias", "true")
+                  : xmlwriter->writeAttribute("antialias", "false");
+  (antialiasedFill()) ? xmlwriter->writeAttribute("antialiasfill", "true")
+                      : xmlwriter->writeAttribute("antialiasfill", "false");
+  xmlwriter->writeAttribute("width", QString::number(width()));
+
+  switch (getboxstyle_statbox()) {
+    case StatBox2D::BoxWhiskerStyle::SE:
+      xmlwriter->writeAttribute("boxstyle", "se");
+      break;
+    case StatBox2D::BoxWhiskerStyle::SD:
+      xmlwriter->writeAttribute("boxstyle", "sd");
+      break;
+    case StatBox2D::BoxWhiskerStyle::MinMax:
+      xmlwriter->writeAttribute("boxstyle", "minmax");
+      break;
+    case StatBox2D::BoxWhiskerStyle::Constant:
+      xmlwriter->writeAttribute("boxstyle", "constant");
+      break;
+    case StatBox2D::BoxWhiskerStyle::Perc_1_99:
+      xmlwriter->writeAttribute("boxstyle", "perc_1_99");
+      break;
+    case StatBox2D::BoxWhiskerStyle::Perc_5_95:
+      xmlwriter->writeAttribute("boxstyle", "perc_5_95");
+      break;
+    case StatBox2D::BoxWhiskerStyle::Perc_10_90:
+      xmlwriter->writeAttribute("boxstyle", "perc_10_90");
+      break;
+    case StatBox2D::BoxWhiskerStyle::Perc_25_75:
+      xmlwriter->writeAttribute("boxstyle", "perc_25_75");
+      break;
+  }
+  xmlwriter->writePen(pen());
+  xmlwriter->writeBrush(brush());
+  xmlwriter->writeEndElement();
+  // median
+  xmlwriter->writeStartElement("median");
+  xmlwriter->writePen(medianPen());
+  xmlwriter->writeEndElement();
+  // whisker
+  xmlwriter->writeStartElement("whisker");
+  (whiskerAntialiased()) ? xmlwriter->writeAttribute("antialias", "true")
+                         : xmlwriter->writeAttribute("antialias", "false");
+  xmlwriter->writeAttribute("width", QString::number(whiskerWidth()));
+  xmlwriter->writePen(whiskerPen());
+  xmlwriter->writeEndElement();
+  // whisker bar
+  xmlwriter->writeStartElement("whiskerbar");
+  xmlwriter->writePen(whiskerBarPen());
+  xmlwriter->writeEndElement();
+  // scatter
+  xmlwriter->writeStartElement("scatter");
+  switch (getscattershape_statbox()) {
+    case Graph2DCommon::ScatterStyle::None:
+      xmlwriter->writeAttribute("style", "none");
+      break;
+    case Graph2DCommon::ScatterStyle::Dot:
+      xmlwriter->writeAttribute("style", "dot");
+      break;
+    case Graph2DCommon::ScatterStyle::Disc:
+      xmlwriter->writeAttribute("style", "disc");
+      break;
+    case Graph2DCommon::ScatterStyle::Plus:
+      xmlwriter->writeAttribute("style", "plus");
+      break;
+    case Graph2DCommon::ScatterStyle::Star:
+      xmlwriter->writeAttribute("style", "star");
+      break;
+    case Graph2DCommon::ScatterStyle::Cross:
+      xmlwriter->writeAttribute("style", "cross");
+      break;
+    case Graph2DCommon::ScatterStyle::Peace:
+      xmlwriter->writeAttribute("style", "peace");
+      break;
+    case Graph2DCommon::ScatterStyle::Circle:
+      xmlwriter->writeAttribute("style", "circle");
+      break;
+    case Graph2DCommon::ScatterStyle::Square:
+      xmlwriter->writeAttribute("style", "square");
+      break;
+    case Graph2DCommon::ScatterStyle::Diamond:
+      xmlwriter->writeAttribute("style", "diamond");
+      break;
+    case Graph2DCommon::ScatterStyle::Triangle:
+      xmlwriter->writeAttribute("style", "triangle");
+      break;
+    case Graph2DCommon::ScatterStyle::PlusCircle:
+      xmlwriter->writeAttribute("style", "pluscircle");
+      break;
+    case Graph2DCommon::ScatterStyle::PlusSquare:
+      xmlwriter->writeAttribute("style", "plussquare");
+      break;
+    case Graph2DCommon::ScatterStyle::CrossCircle:
+      xmlwriter->writeAttribute("style", "crosscircle");
+      break;
+    case Graph2DCommon::ScatterStyle::CrossSquare:
+      xmlwriter->writeAttribute("style", "crosssquare");
+      break;
+    case Graph2DCommon::ScatterStyle::TriangleInverted:
+      xmlwriter->writeAttribute("style", "triangleinverted");
+      break;
+  }
+  xmlwriter->writeAttribute("size", QString::number(scatterstyle_->size()));
+  (antialiasedScatters()) ? xmlwriter->writeAttribute("antialias", "true")
+                          : xmlwriter->writeAttribute("antialias", "false");
+  xmlwriter->writePen(scatterstyle_->pen());
+  xmlwriter->writeBrush(scatterstyle_->brush());
+  xmlwriter->writeEndElement();
+  xmlwriter->writeEndElement();
+}
+
+bool StatBox2D::load(XmlStreamReader *xmlreader) {
+  bool ok;
+  while (!xmlreader->atEnd()) {
+    if (xmlreader->isEndElement() && xmlreader->name() == "statbox") break;
+
+    // box
+    if (xmlreader->isStartElement() && xmlreader->name() == "box") {
+      // box fill status
+      bool fill = xmlreader->readAttributeBool("fill", &ok);
+      (ok) ? setfillstatus_statbox(fill)
+           : xmlreader->raiseWarning(
+                 tr("StatBox2D box fill status property setting error"));
+
+      // box antialias
+      bool boxantialias = xmlreader->readAttributeBool("antialias", &ok);
+      (ok) ? setAntialiased(boxantialias)
+           : xmlreader->raiseWarning(
+                 tr("StatBox2D box antialias property setting error"));
+
+      // box antialias fill
+      bool boxantialiasfill =
+          xmlreader->readAttributeBool("antialiasfill", &ok);
+      (ok) ? setAntialiasedFill(boxantialiasfill)
+           : xmlreader->raiseWarning(
+                 tr("StatBox2D box antialias propfill erty setting error"));
+
+      // box width
+      double boxwidth = xmlreader->readAttributeDouble("width", &ok);
+      if (ok) {
+        setWidth(boxwidth);
+      } else
+        xmlreader->raiseWarning(
+            tr("StatBox2D box width property setting error"));
+
+      // box style
+      QString boxstyle = xmlreader->readAttributeString("boxstyle", &ok);
+      if (ok) {
+        if (boxstyle == "sd") {
+          setboxstyle_statbox(StatBox2D::BoxWhiskerStyle::SD);
+        } else if (boxstyle == "se") {
+          setboxstyle_statbox(StatBox2D::BoxWhiskerStyle::SE);
+        } else if (boxstyle == "minmax") {
+          setboxstyle_statbox(StatBox2D::BoxWhiskerStyle::MinMax);
+        } else if (boxstyle == "constant") {
+          setboxstyle_statbox(StatBox2D::BoxWhiskerStyle::Constant);
+        } else if (boxstyle == "perc_1_99") {
+          setboxstyle_statbox(StatBox2D::BoxWhiskerStyle::Perc_1_99);
+        } else if (boxstyle == "perc_5_95") {
+          setboxstyle_statbox(StatBox2D::BoxWhiskerStyle::Perc_5_95);
+        } else if (boxstyle == "perc_10_90") {
+          setboxstyle_statbox(StatBox2D::BoxWhiskerStyle::Perc_10_90);
+        } else if (boxstyle == "perc_25_75") {
+          setboxstyle_statbox(StatBox2D::BoxWhiskerStyle::Perc_25_75);
+        }
+      } else
+        xmlreader->raiseWarning(
+            tr("StatBox2D box style property setting error"));
+
+      // box pen property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+        // pen
+        if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+          QPen boxpen = xmlreader->readPen(&ok);
+          (ok) ? setPen(boxpen)
+               : xmlreader->raiseWarning(
+                     tr("StatBox2D box pen property setting error"));
+        }
+      }
+
+      // box brush property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "brush") break;
+        // brush
+        if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+          QBrush boxbrush = xmlreader->readBrush(&ok);
+          (ok) ? setBrush(boxbrush)
+               : xmlreader->raiseWarning(
+                     tr("Curve2D linebrush property setting error"));
+        }
+      }
+    }
+
+    // median
+    if (xmlreader->isStartElement() && xmlreader->name() == "median") {
+      // box pen property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+        // pen
+        if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+          QPen mpen = xmlreader->readPen(&ok);
+          (ok) ? setMedianPen(mpen)
+               : xmlreader->raiseWarning(
+                     tr("StatBox2D median pen property setting error"));
+        }
+      }
+    }
+
+    // whiskerbar
+    if (xmlreader->isStartElement() && xmlreader->name() == "whisker") {
+      // whisker antialias
+      bool boxantialias = xmlreader->readAttributeBool("antialias", &ok);
+      (ok) ? setWhiskerAntialiased(boxantialias)
+           : xmlreader->raiseWarning(
+                 tr("StatBox2D whisker antialias property setting error"));
+
+      // whisker width
+      double whiskerwidth = xmlreader->readAttributeDouble("width", &ok);
+      (ok) ? setWhiskerWidth(whiskerwidth)
+           : xmlreader->raiseWarning(
+                 tr("StatBox2D whisker width property setting error"));
+
+      // pen property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+        // pen
+        if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+          QPen wpen = xmlreader->readPen(&ok);
+          (ok) ? setWhiskerPen(wpen)
+               : xmlreader->raiseWarning(
+                     tr("StatBox2D whisker pen property setting error"));
+        }
+      }
+    }
+
+    // whiskerbar
+    if (xmlreader->isStartElement() && xmlreader->name() == "whiskerbar") {
+      // pen property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+        // pen
+        if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+          QPen wbpen = xmlreader->readPen(&ok);
+          (ok) ? setWhiskerBarPen(wbpen)
+               : xmlreader->raiseWarning(
+                     tr("StatBox2D whiskerbar pen property setting error"));
+        }
+      }
+    }
+
+    // scatter
+    if (xmlreader->isStartElement() && xmlreader->name() == "scatter") {
+      // scatter shape
+      QString scattershape = xmlreader->readAttributeString("style", &ok);
+      if (ok) {
+        if (scattershape == "dot") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::Dot);
+        } else if (scattershape == "disc") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::Disc);
+        } else if (scattershape == "none") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::None);
+        } else if (scattershape == "plus") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::Plus);
+        } else if (scattershape == "star") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::Star);
+        } else if (scattershape == "cross") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::Cross);
+        } else if (scattershape == "peace") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::Peace);
+        } else if (scattershape == "circle") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::Circle);
+        } else if (scattershape == "square") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::Square);
+        } else if (scattershape == "diamond") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::Diamond);
+        } else if (scattershape == "triangle") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::Triangle);
+        } else if (scattershape == "pluscircle") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::PlusCircle);
+        } else if (scattershape == "plussquare") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::PlusSquare);
+        } else if (scattershape == "crosscircle") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::CrossCircle);
+        } else if (scattershape == "crosssquare") {
+          setscattershape_statbox(Graph2DCommon::ScatterStyle::CrossSquare);
+        } else if (scattershape == "triangleinverted") {
+          setscattershape_statbox(
+              Graph2DCommon::ScatterStyle::TriangleInverted);
+        }
+      } else
+        xmlreader->raiseWarning(
+            tr("StatBox2D scatter shape property setting error"));
+
+      // scatter size
+      int scattersize = xmlreader->readAttributeInt("size", &ok);
+      (ok) ? setscattersize_statbox(scattersize)
+           : xmlreader->raiseWarning(
+                 tr("Scatter2D scatter size property setting error"));
+
+      // scatter antialias
+      bool scatterantialias = xmlreader->readAttributeBool("antialias", &ok);
+      (ok) ? setAntialiasedScatters(scatterantialias)
+           : xmlreader->raiseWarning(
+                 tr("ScatterBox2D scatter antialias property setting error"));
+
+      // scatter pen property
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+        // pen
+        if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+          QPen strokep = xmlreader->readPen(&ok);
+          if (ok) {
+            setscatterstrokecolor_statbox(strokep.color());
+            setscatterstrokestyle_statbox(strokep.style());
+            setscatterstrokethickness_statbox(strokep.widthF());
+          } else
+            xmlreader->raiseWarning(
+                tr("ScatterBox2D scatter pen property setting error"));
+        }
+      }
+    }
+    xmlreader->readNext();
+  }
+  return !xmlreader->hasError();
 }
 
 void StatBox2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {

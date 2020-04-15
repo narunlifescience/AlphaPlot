@@ -371,7 +371,16 @@ bool AprojHandler::saveproject(const QString &filename, Folder *folder) {
 
 void AprojHandler::saveTreeRecursive(Folder *folder,
                                      XmlStreamWriter *xmlwriter) {
+  // make sure that plots are saved after tables & metrices
+  QList<MyWidget *> others;
+  QList<MyWidget *> plots;
   foreach (MyWidget *subwindow, folder->windowsList()) {
+    (qobject_cast<Layout2D *>(subwindow) || qobject_cast<Graph3D *>(subwindow))
+        ? plots << subwindow
+        : others << subwindow;
+  }
+  others.append(plots);
+  foreach (MyWidget *subwindow, others) {
     if (qobject_cast<Table *>(subwindow)) {
       Table *table = qobject_cast<Table *>(subwindow);
       table->d_future_table->save(xmlwriter);

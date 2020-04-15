@@ -163,8 +163,8 @@ void Vector2D::drawLine(double x1, double y1, double x2, double y2) {
   // addItem(arrow);
   arrow->start->setCoords(x1, y1);
   arrow->end->setCoords(x2, y2);
-  arrow->setHead(*stop_);
-  arrow->setTail(*start_);
+  arrow->setHead(*start_);
+  arrow->setTail(*stop_);
   linelist_.append(arrow);
 }
 

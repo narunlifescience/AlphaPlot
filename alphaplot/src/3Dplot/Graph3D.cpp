@@ -88,7 +88,9 @@ Graph3D::Graph3D(const QString& label, QWidget* parent, const char* name,
 Graph3D::~Graph3D() {
   if (func) delete func;
 
-  delete sp;
+  if (sp) {
+    delete sp;
+  }
 }
 
 void Graph3D::initPlot() {
