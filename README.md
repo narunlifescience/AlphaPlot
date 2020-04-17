@@ -16,7 +16,7 @@ Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalys
 | Test builds | http://alphaplot.sourceforge.net/test-build.html |
 
 # Watch the Video
-[![AlphaPlot Plotting Basics](http://img.youtube.com/vi/U3DE_ObVLeU/0.jpg)](http://www.youtube.com/watch?v=U3DE_ObVLeU "AlphaPlot Plotting Basics")
+[![AlphaPlot Plotting Basics](data/screenshots/alphaplot1.png)](http://www.youtube.com/watch?v=U3DE_ObVLeU "AlphaPlot Plotting Basics")
 
 # Installation
 Get the code (if you haven't already):
