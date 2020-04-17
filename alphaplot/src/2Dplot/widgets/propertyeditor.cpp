@@ -4384,7 +4384,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                     Curve2D::Curve2DType::Curve) {
                   curvegraphitem->setIcon(
                       0,
-                      IconLoader::load("graph2d-line", IconLoader::LightDark));
+                      IconLoader::load("graph2d-curve", IconLoader::LightDark));
                 } else
                   curvegraphitem->setIcon(
                       0, IconLoader::load("graph2d-spline",

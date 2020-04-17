@@ -88,6 +88,7 @@
 #include <QDialogButtonBox>
 #include <QDockWidget>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QImageReader>
 #include <QImageWriter>
 #include <QInputDialog>

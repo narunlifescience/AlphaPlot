@@ -387,6 +387,7 @@
     <file>icons/light/16/graph2d-line.png</file>
     <file>icons/light/16/graph2d-pie.png</file>
     <file>icons/light/16/graph2d-scatter.png</file>
+    <file>icons/light/16/graph2d-curve.png</file>
     <file>icons/light/16/graph2d-spline.png</file>
     <file>icons/light/16/graph2d-channel.png</file>
     <file>icons/light/16/graph2d-vector-xy.png</file>
@@ -523,6 +524,7 @@
     <file>icons/light/22/graph2d-line.png</file>
     <file>icons/light/22/graph2d-pie.png</file>
     <file>icons/light/22/graph2d-scatter.png</file>
+    <file>icons/light/22/graph2d-curve.png</file>
     <file>icons/light/22/graph2d-spline.png</file>
     <file>icons/light/22/graph2d-channel.png</file>
     <file>icons/light/22/graph2d-vector-xy.png</file>
@@ -658,6 +660,7 @@
     <file>icons/light/24/graph2d-line.png</file>
     <file>icons/light/24/graph2d-pie.png</file>
     <file>icons/light/24/graph2d-scatter.png</file>
+    <file>icons/light/24/graph2d-curve.png</file>
     <file>icons/light/24/graph2d-spline.png</file>
     <file>icons/light/24/graph2d-channel.png</file>
     <file>icons/light/24/graph2d-vector-xy.png</file>
@@ -809,6 +812,7 @@
     <file>icons/dark/16/graph2d-line.png</file>
     <file>icons/dark/16/graph2d-pie.png</file>
     <file>icons/dark/16/graph2d-scatter.png</file>
+    <file>icons/dark/16/graph2d-curve.png</file>
     <file>icons/dark/16/graph2d-spline.png</file>
     <file>icons/dark/16/graph2d-channel.png</file>
     <file>icons/dark/16/graph2d-vector-xy.png</file>
@@ -945,6 +949,7 @@
     <file>icons/dark/22/graph2d-line.png</file>
     <file>icons/dark/22/graph2d-pie.png</file>
     <file>icons/dark/22/graph2d-scatter.png</file>
+    <file>icons/dark/22/graph2d-curve.png</file>
     <file>icons/dark/22/graph2d-spline.png</file>
     <file>icons/dark/22/graph2d-channel.png</file>
     <file>icons/dark/22/graph2d-vector-xy.png</file>
@@ -1080,6 +1085,7 @@
     <file>icons/dark/24/graph2d-line.png</file>
     <file>icons/dark/24/graph2d-pie.png</file>
     <file>icons/dark/24/graph2d-scatter.png</file>
+    <file>icons/dark/24/graph2d-curve.png</file>
     <file>icons/dark/24/graph2d-spline.png</file>
     <file>icons/dark/24/graph2d-channel.png</file>
     <file>icons/dark/24/graph2d-vector-xy.png</file>
