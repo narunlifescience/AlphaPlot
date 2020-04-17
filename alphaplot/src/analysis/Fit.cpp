@@ -124,9 +124,10 @@ double *Fit::fitGslMultifit(int &iterations, int &status) {
   gsl_multifit_covar(s->J, 0.0, covar);
 #else
   {
-    gsl_matrix J;
-    gsl_multifit_fdfsolver_jac(s, &J);
-    gsl_multifit_covar(&J, 0.0, covar);
+    gsl_matrix *J = gsl_matrix_alloc(d_n, d_p);
+    gsl_multifit_fdfsolver_jac(s,J);
+    gsl_multifit_covar (J, 0.0, covar);
+    gsl_matrix_free (J);
   }
 #endif
   if (d_y_error_source == UnknownErrors) {
