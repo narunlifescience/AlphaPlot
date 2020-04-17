@@ -81,6 +81,7 @@ class Axis2D : public QCPAxis {
   QColor gettickstrokecolor_axis() const;
   double gettickstrokethickness_axis() const;
   Qt::PenStyle gettickstrokestyle_axis() const;
+  int gettickscount_axis() const;
   // Sub-tick properties
   bool getsubtickvisibility_axis() const;
   int getsubticklengthin_axis() const;
@@ -124,6 +125,7 @@ class Axis2D : public QCPAxis {
   void settickstrokecolor_axis(const QColor &color);
   void settickstrokethickness_axis(const double value);
   void settickstrokestyle_axis(const Qt::PenStyle &style);
+  void settickscount_axis(const int count);
   // Sub-tick properties
   void setsubtickvisibility_axis(const bool value);
   void setsubticklengthin_axis(const int value);

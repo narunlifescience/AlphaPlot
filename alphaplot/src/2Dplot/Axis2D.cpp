@@ -137,6 +137,8 @@ Qt::PenStyle Axis2D::gettickstrokestyle_axis() const {
   return tickPen().style();
 }
 
+int Axis2D::gettickscount_axis() const { return ticker_->tickCount(); }
+
 bool Axis2D::getsubtickvisibility_axis() const { return subTicks(); }
 
 int Axis2D::getsubticklengthin_axis() const { return subTickLengthIn(); }
@@ -281,6 +283,11 @@ void Axis2D::settickstrokestyle_axis(const Qt::PenStyle &style) {
   QPen pen = tickPen();
   pen.setStyle(style);
   setTickPen(pen);
+}
+
+void Axis2D::settickscount_axis(const int count) {
+  ticker_->setTickCount(count);
+  setTicker(ticker_);
 }
 
 void Axis2D::setsubtickvisibility_axis(const bool value) { setSubTicks(value); }
@@ -486,6 +493,7 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeStartElement("ticks");
   (gettickvisibility_axis()) ? xmlwriter->writeAttribute("visible", "true")
                              : xmlwriter->writeAttribute("visible", "false");
+  xmlwriter->writeAttribute("count", QString::number(gettickscount_axis()));
   xmlwriter->writeAttribute("in", QString::number(getticklengthin_axis()));
   xmlwriter->writeAttribute("out", QString::number(getticklengthout_axis()));
   xmlwriter->writePen(tickPen());
@@ -674,6 +682,11 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
         else
           xmlreader->raiseWarning(
               tr("Axis2D tick visible property setting error"));
+        // Tick count
+        int count = xmlreader->readAttributeInt("count", &ok);
+        (ok) ? settickscount_axis(count)
+             : xmlreader->raiseWarning(
+                   tr("Axis2D Tick count in property setting error"));
         // Ticks in
         int in = xmlreader->readAttributeInt("in", &ok);
         if (ok)

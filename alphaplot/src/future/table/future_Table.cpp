@@ -56,6 +56,7 @@
 #include <QtDebug>
 #include <QtGlobal>
 #include <climits>  // for RAND_MAX
+#include <cmath>
 
 #include "TeXTableExportDialog.h"
 #include "TeXTableSettings.h"

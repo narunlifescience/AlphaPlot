@@ -29,7 +29,7 @@
 #include "globals.h"
 
 #ifdef Q_OS_WIN
-#include <Windows.h>
+#include <windows.h>
 #endif  // Q_OS_WIN
 
 /*page style Coding Style
@@ -124,11 +124,12 @@ int main(int argc, char** argv) {
 #ifdef Q_OS_WIN
   // solves high density dpi scaling in windows
   // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
-  SetProcessDPIAware();  // call before the main event loop
+  // SetProcessDPIAware();
+  // call before the main event loop
 #endif                   // Q_OS_WIN
 
   // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
-  QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
+  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   Application* app = new Application(argc, argv);
 
   // icon initiation (mandatory)

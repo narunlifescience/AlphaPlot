@@ -1843,6 +1843,7 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           if (table && xcolumn && ycolumn && xaxis && yaxis) {
             curve = addCurve2DPlot(ctype, table, xcolumn, ycolumn, from, to,
                                    xaxis, yaxis);
+            curve->setlegendtext_cplot(legend);
           }
         } else if (ok && datatype == "function") {
           QVector<double> *xdata = new QVector<double>();
@@ -1869,7 +1870,6 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
               xdata->size() == ydata->size() && xaxis && yaxis) {
             curve = addFunction2DPlot(xdata, ydata, xaxis, yaxis, legend);
             curve->setlegendtext_cplot(legend);
-            // curve->load(xmlreader);
           } else {
             xmlreader->raiseError(tr("Curve2D function skipped due to error"));
             delete xdata;
@@ -2139,6 +2139,7 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           }
         } else
           xmlreader->raiseError(tr("Bar2D type not found error"));
+        bar->setName(legend);
         // stackgap
         int stackgap = xmlreader->readAttributeInt("stackgap", &ok);
         if (ok) {

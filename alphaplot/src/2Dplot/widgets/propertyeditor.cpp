@@ -140,6 +140,8 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   axispropertylabelpaddingitem_ = intManager_->addProperty("Label Padding");
   // Axis Properties Ticks sub block
   axispropertytickvisibilityitem_ = boolManager_->addProperty("Axis Ticks");
+  axispropertytickcountitem_ = intManager_->addProperty("Count");
+  axispropertytickvisibilityitem_->addSubProperty(axispropertytickcountitem_);
   axispropertyticklengthinitem_ = intManager_->addProperty("Length In");
   axispropertytickvisibilityitem_->addSubProperty(
       axispropertyticklengthinitem_);
@@ -2115,6 +2117,10 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setlabelpadding_axis(value);
     axis->layer()->replot();
+  } else if (prop->compare(axispropertytickcountitem_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    axis->settickscount_axis(value);
+    axis->layer()->replot();
   } else if (prop->compare(axispropertyticklengthinitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklengthin_axis(value);
@@ -2913,6 +2919,7 @@ void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
                         axis->getlabelpadding_axis());
   boolManager_->setValue(axispropertytickvisibilityitem_,
                          axis->gettickvisibility_axis());
+  intManager_->setValue(axispropertytickcountitem_, axis->gettickscount_axis());
   intManager_->setValue(axispropertyticklengthinitem_,
                         axis->getticklengthin_axis());
   intManager_->setValue(axispropertyticklengthoutitem_,
@@ -5058,6 +5065,7 @@ void PropertyEditor::setObjectPropertyId() {
   // Axis Properties Ticks sub block
   axispropertytickvisibilityitem_->setPropertyId(
       "axispropertytickvisibilityitem_");
+  axispropertytickcountitem_->setPropertyId("axispropertytickcountitem_");
   axispropertyticklengthinitem_->setPropertyId("axispropertyticklengthinitem_");
   axispropertyticklengthoutitem_->setPropertyId(
       "axispropertyticklengthoutitem_");
