@@ -66,18 +66,18 @@ class ScriptingEnv : public QObject {
 
   //! Instantiate the Script subclass matching the ScriptEnv subclass.
   virtual Script *newScript(const QString &, QObject *, const QString &) {
-    return 0;
+    return nullptr;
   }
 
   //! If an exception / error occured, return a nicely formated stack backtrace.
-  virtual QString stackTraceString() { return QString::null; }
+  virtual QString stackTraceString() { return QString(); }
 
   //! Return a list of supported mathematical functions. These should be
   //! imported into the global namespace.
   virtual const QStringList mathFunctions() const { return QStringList(); }
   //! Return a documentation string for the given mathematical function.
   virtual const QString mathFunctionDoc(const QString &) const {
-    return QString::null;
+    return QString();
   }
   //! Return a list of file extensions commonly used for this language.
   virtual const QStringList fileExtensions() const { return QStringList(); }

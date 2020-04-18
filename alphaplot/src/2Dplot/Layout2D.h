@@ -56,7 +56,8 @@ class Layout2D : public MyWidget {
   void generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
                             Table *table, Column *x1Data, Column *y1Data,
                             Column *x2Data, Column *y2Data, int from, int to);
-  void generatePie2DPlot(Table *table, Column *xData, int from, int to);
+  void generatePie2DPlot(Table *table, Column *xData, Column *yData, int from,
+                         int to);
   void generateColorMap2DPlot(Matrix *matrix, bool greyscale, bool contour);
 
   QList<AxisRect2D *> getAxisRectList();

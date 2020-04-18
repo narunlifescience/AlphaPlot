@@ -627,10 +627,10 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
   return bar;
 }
 
-Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, int from, int to) {
-  Pie2D *pie = new Pie2D(this, table, xData, from, to);
-  pie->setGraphData(table, xData, from, to);
-  getLegend()->setVisible(false);
+Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, Column *yData,
+                                int from, int to) {
+  Pie2D *pie = new Pie2D(this, table, xData, yData, from, to);
+  pie->setGraphData(table, xData, yData, from, to);
   // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   layers_.append(pie->layer());
   pievec_.append(pie);
@@ -2271,6 +2271,7 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           if (xmlreader->isStartElement() && xmlreader->name() == "pie") {
         Table *table = nullptr;
         Column *xcolumn = nullptr;
+        Column *ycolumn = nullptr;
         QString tablename = xmlreader->readAttributeString("table", &ok);
         if (ok) {
           table = getTableByName(tabs, tablename);
@@ -2281,12 +2282,19 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           (table) ? xcolumn = table->column(xcolname) : xcolumn = nullptr;
         } else
           xmlreader->raiseError(tr("Pie2D Table X column not found error"));
+
+        QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
+        if (ok) {
+          (table) ? ycolumn = table->column(ycolname) : ycolumn = nullptr;
+        } else
+          xmlreader->raiseError(tr("Pie2D Table Y column not found error"));
+
         int from = xmlreader->readAttributeInt("from", &ok);
         if (!ok) xmlreader->raiseError(tr("Pie2D from not found error"));
         int to = xmlreader->readAttributeInt("to", &ok);
         if (!ok) xmlreader->raiseError(tr("Pie2D to not found error"));
         if (table && xcolumn) {
-          Pie2D *pie = addPie2DPlot(table, xcolumn, from, to);
+          Pie2D *pie = addPie2DPlot(table, xcolumn, ycolumn, from, to);
           pie->load(xmlreader);
         }
       }

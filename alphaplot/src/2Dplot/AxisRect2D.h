@@ -134,7 +134,8 @@ class AxisRect2D : public QCPAxisRect {
                               Axis2D *yAxis);
   Bar2D *addHistogram2DPlot(const BarType &type, Table *table, Column *yData,
                             int from, int to, Axis2D *xAxis, Axis2D *yAxis);
-  Pie2D *addPie2DPlot(Table *table, Column *xData, int from, int to);
+  Pie2D *addPie2DPlot(Table *table, Column *xData, Column *yData, int from,
+                      int to);
   ColorMap2D *addColorMap2DPlot(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis);
   TextItem2D *addTextItem2D(QString text);
   LineItem2D *addLineItem2D();

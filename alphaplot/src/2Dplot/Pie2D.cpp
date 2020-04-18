@@ -8,8 +8,8 @@
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
-Pie2D::Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, int from,
-             int to)
+Pie2D::Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, Column *yData,
+             int from, int to)
     : QCPAbstractItem(axisrect->parentPlot()),
       // topLeft(createPosition(QLatin1String("topLeft"))),
       // bottomRight(createPosition(QLatin1String("bottomRight"))),
@@ -23,6 +23,7 @@ Pie2D::Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, int from,
       marginpercent_(2),
       table_(table),
       xcolumn_(xData),
+      ycolumn_(yData),
       from_(from),
       to_(to) {
   if (axisrect_->getAxes2D().count() > 0) {
@@ -42,7 +43,7 @@ Pie2D::Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, int from,
   for (int i = 0; i < axes.size(); i++) {
     axes.at(i)->setshowhide_axis(false);
   }
-  setGraphData(table_, xcolumn_, from_, to_);
+  setGraphData(table_, xcolumn_, ycolumn_, from_, to_);
 }
 
 Pie2D::~Pie2D() {
@@ -58,7 +59,8 @@ Pie2D::~Pie2D() {
   parentPlot()->removeLayer(layer());
 }
 
-void Pie2D::setGraphData(Table *table, Column *xData, int from, int to) {
+void Pie2D::setGraphData(Table *table, Column *xData, Column *yData, int from,
+                         int to) {
   foreach (PieLegendItem2D *item, *pieLegendItems_) {
     axisrect_->getLegend()->removeItem(item);
   }
@@ -66,23 +68,23 @@ void Pie2D::setGraphData(Table *table, Column *xData, int from, int to) {
   pieLegendItems_->clear();
   table_ = table;
   xcolumn_ = xData;
+  ycolumn_ = yData;
   from_ = from;
   to_ = to;
   double sum = 0.0;
   pieData_->clear();
   for (int i = from; i <= to; i++) {
-    sum += xData->valueAt(i);
+    sum += yData->valueAt(i);
   }
   for (int i = from; i <= to; i++) {
-    if (style_ == Style::Pie)
-      pieData_->append((xData->valueAt(i) / sum) * (360 * 16));
-    else
-      pieData_->append((xData->valueAt(i) / sum) * (180 * 16));
+    (style_ == Style::Pie)
+        ? pieData_->append((yData->valueAt(i) / sum) * (360 * 16))
+        : pieData_->append((yData->valueAt(i) / sum) * (180 * 16));
     QColor color =
         Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light);
     pieColors_->append(color);
-    PieLegendItem2D *pielegenditem = new PieLegendItem2D(
-        axisrect_->getLegend(), color, QString::number(xData->valueAt(i)));
+    PieLegendItem2D *pielegenditem =
+        new PieLegendItem2D(axisrect_->getLegend(), color, xData->textAt(i));
     pieLegendItems_->append(pielegenditem);
     axisrect_->getLegend()->addItem(pielegenditem);
   }
@@ -126,8 +128,8 @@ void Pie2D::setmarginpercent_pieplot(const int value) {
 
 void Pie2D::setstyle_pieplot(const Pie2D::Style &style) {
   style_ = style;
-  setGraphData(gettable_pieplot(), getxcolumn_pieplot(), getfrom_pieplot(),
-               getto_pieplot());
+  setGraphData(gettable_pieplot(), getxcolumn_pieplot(), getycolumn_pieplot(),
+               getfrom_pieplot(), getto_pieplot());
 }
 
 void Pie2D::setstrokepen_pieplot(const QPen pen) {
@@ -201,6 +203,7 @@ void Pie2D::save(XmlStreamWriter *xmlwriter) {
   // data
   xmlwriter->writeAttribute("table", table_->name());
   xmlwriter->writeAttribute("xcolumn", xcolumn_->name());
+  xmlwriter->writeAttribute("ycolumn", ycolumn_->name());
   xmlwriter->writeAttribute("from", QString::number(from_));
   xmlwriter->writeAttribute("to", QString::number(to_));
   // style

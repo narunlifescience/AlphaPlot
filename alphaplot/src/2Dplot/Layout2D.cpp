@@ -355,12 +355,12 @@ void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
   vex->rescaleAxes();
 }
 
-void Layout2D::generatePie2DPlot(Table *table, Column *xData, int from,
-                                 int to) {
+void Layout2D::generatePie2DPlot(Table *table, Column *xData, Column *yData,
+                                 int from, int to) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble);
 
-  element->addPie2DPlot(table, xData, from, to);
+  element->addPie2DPlot(table, xData, yData, from, to);
 }
 
 void Layout2D::generateColorMap2DPlot(Matrix *matrix, bool greyscale,
@@ -995,7 +995,8 @@ void Layout2D::updateData(Table *table, const QString &name) {
       if (pie->gettable_pieplot() == table) {
         if (pie->getxcolumn_pieplot() == col) {
           pie->setGraphData(pie->gettable_pieplot(), pie->getxcolumn_pieplot(),
-                            pie->getfrom_pieplot(), pie->getto_pieplot());
+                            pie->getycolumn_pieplot(), pie->getfrom_pieplot(),
+                            pie->getto_pieplot());
           modified = true;
         }
       }

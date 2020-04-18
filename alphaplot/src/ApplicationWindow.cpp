@@ -1443,28 +1443,47 @@ void ApplicationWindow::plotPie() {
   Table *table = qobject_cast<Table *>(d_workspace->activeSubWindow());
 
   QStringList selectedcolumns = table->selectedColumns();
-  if (selectedcolumns.count() != 1) {
+  if (selectedcolumns.count() != 2) {
     QMessageBox::warning(
         this, tr("Plot error"),
-        tr("You must select exactly one column for plotting!"));
-    return;
-  }
-  if (table->noXColumn()) {
-    QMessageBox::critical(
-        this, tr("Error"),
-        tr("Please set a default X column for this table, first!"));
+        tr("Please select an X column with labels and Y column "
+           "with values to plot!"));
     return;
   }
 
-  if (selectedcolumns.count() == 1) {
+  Column *xcol = nullptr;
+  Column *ycol = nullptr;
+  foreach (QString colname, selectedcolumns) {
+    (table->YColumns().contains(colname))
+        ? ycol = table->column(table->colIndex(colname))
+        : xcol = table->column(table->colIndex(colname));
+  }
+
+  if (!xcol || !ycol) {
+    QMessageBox::warning(
+        this, tr("Error"),
+        tr("Please select an X column with labels and Y column "
+           "with values to plot!"));
+    return;
+  }
+
+  if (xcol->dataType() != AlphaPlot::ColumnDataType::TypeString) {
+    QMessageBox::warning(this, tr("Error"),
+                         tr("Please select an X column with labels and set the "
+                            "column type as Text!"));
+    return;
+  }
+
+  if (selectedcolumns.count() == 2) {
     Layout2D *layout = newGraph2D();
     layout->generatePie2DPlot(
-        table, table->column(table->firstSelectedColumn()),
+        table, xcol, ycol,
         table->firstSelectedRow(),
         table->firstSelectedRow() + table->selectedRowCount() - 1);
   } else
     QMessageBox::warning(this, tr("Error"),
-                         tr("Please select a column to plot!"));
+                         tr("Please select a X column wth labels and Y column "
+                            "with values to plot!"));
 }
 
 void ApplicationWindow::plotVectXYXY() {

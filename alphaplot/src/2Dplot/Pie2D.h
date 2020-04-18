@@ -2,6 +2,7 @@
 #define PIE2D_H
 
 #include <QObject>
+
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
 
@@ -12,7 +13,8 @@ class PieLegendItem2D;
 class Pie2D : public QCPAbstractItem {
   Q_OBJECT
  public:
-  Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, int from, int to);
+  Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, Column *yData,
+        int from, int to);
   ~Pie2D();
 
   enum class Style : int {
@@ -20,7 +22,8 @@ class Pie2D : public QCPAbstractItem {
     HalfPie = 1,
   };
 
-  void setGraphData(Table *table, Column *xData, int from, int to);
+  void setGraphData(Table *table, Column *xData, Column *yData, int from,
+                    int to);
   // reimplemented virtual methods:
   double selectTest(const QPointF &pos, bool onlySelectable,
                     QVariant *details = nullptr) const;
@@ -33,6 +36,7 @@ class Pie2D : public QCPAbstractItem {
   Style getStyle_pieplot() const;
   Table *gettable_pieplot() { return table_; }
   Column *getxcolumn_pieplot() { return xcolumn_; }
+  Column *getycolumn_pieplot() { return ycolumn_; }
   int getfrom_pieplot() const { return from_; }
   int getto_pieplot() const { return to_; }
 
@@ -66,6 +70,7 @@ class Pie2D : public QCPAbstractItem {
   int marginpercent_;
   Table *table_;
   Column *xcolumn_;
+  Column *ycolumn_;
   int from_;
   int to_;
 };
