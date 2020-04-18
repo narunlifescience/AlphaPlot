@@ -21,9 +21,7 @@ Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalys
 # Installation
 Get the code (if you haven't already):
 
-Note: please clone release-0.01A-alpha branch insted of master
-
-    git clone -b release-0.01A-alpha --single-branch https://github.com/narunlifescience/AlphaPlot.git 
+    git clone https://github.com/narunlifescience/AlphaPlot.git 
 
 Compile and install:
 
@@ -69,5 +67,5 @@ The following packages may be required by Alpha plot ...
 | GSL           | http://www.gnu.org/software/gsl/             |
 | Zlib          | https://zlib.net/                            |
 
-Out of this QCustomPlot, Qwtplot3D and muParser sources(s) are already present in 3rdparty folder and will be statically built to alphaplot. so these packages need not be installed in your system.
+Out of this QCustomPlot, Qwtplot3D and muParser sources(s) are already present in 3rdparty folder and will be statically built to alphaplot. so these packages need not be installed on your system.
 
