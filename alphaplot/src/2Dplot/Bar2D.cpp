@@ -72,7 +72,8 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
 }
 
 void Bar2D::init() {
-  layername_ = QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz");
+  layername_ = QString("<Bar2D>") +
+      QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz");
   QThread::msleep(1);
   parentPlot()->addLayer(layername_, xaxis_->layer(), QCustomPlot::limBelow);
   setLayer(layername_);

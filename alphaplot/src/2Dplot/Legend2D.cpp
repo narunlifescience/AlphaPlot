@@ -30,6 +30,8 @@ QPointF Legend2D::getposition_legend() const {
   return axisrect_->insetLayout()->insetRect(0).topLeft();
 }
 
+AxisRect2D *Legend2D::getaxisrect_legend() const { return axisrect_; }
+
 void Legend2D::sethidden_legend(const bool status) { setVisible(status); }
 
 void Legend2D::setborderstrokecolor_legend(const QColor &color) {

@@ -110,7 +110,7 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   clonetorightaxis_->setIcon(
       IconLoader::load("graph2d-axis-right", IconLoader::LightDark));
   adderrorbar_->setIcon(
-        IconLoader::load("graph-y-error", IconLoader::LightDark));
+      IconLoader::load("graph-y-error", IconLoader::LightDark));
   moveupls_->setIcon(IconLoader::load("edit-up", IconLoader::LightDark));
   moveupchannel_->setIcon(IconLoader::load("edit-up", IconLoader::LightDark));
   moveupcurve_->setIcon(IconLoader::load("edit-up", IconLoader::LightDark));

@@ -9,8 +9,8 @@
 TextItem2D::TextItem2D(AxisRect2D *axisrect, Plot2D *plot)
     : QCPItemText(plot),
       axisrect_(axisrect),
-      layername_(
-          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
+      layername_(QString("<TextItem>") + QDateTime::currentDateTime().toString(
+                                             "yyyy:MM:dd:hh:mm:ss:zzz")),
       draggingtextitem_(false),
       cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {
   if (axisrect_->getAxes2D().count() > 0) {
@@ -140,8 +140,9 @@ void TextItem2D::save(XmlStreamWriter *xmlwriter) {
       break;
   }
   xmlwriter->writeAttribute("text", text());
-  (antialiased()) ? xmlwriter->writeAttribute("antialiased", "true")
-                  : xmlwriter->writeAttribute("antialiased", "false");
+  xmlwriter->writeAttribute("rotation", QString::number(rotation()));
+  (antialiased()) ? xmlwriter->writeAttribute("antialias", "true")
+                  : xmlwriter->writeAttribute("antialias", "false");
   xmlwriter->writeStartElement("margin");
   xmlwriter->writeAttribute("left", QString::number(padding().left()));
   xmlwriter->writeAttribute("top", QString::number(padding().top()));
@@ -176,6 +177,34 @@ bool TextItem2D::load(XmlStreamReader *xmlreader) {
       xmlreader->raiseWarning(
           tr("TextItem2D y position property setting error"));
     }
+    position->setCoords(itemposition);
+
+    QString txtalign = xmlreader->readAttributeString("textalignment", &ok);
+    if (ok) {
+      if (txtalign == "topleft")
+        settextalignment_textitem(TextAlignment::TopLeft);
+      else if (txtalign == "topcenter")
+        settextalignment_textitem(TextAlignment::TopCenter);
+      else if (txtalign == "topright")
+        settextalignment_textitem(TextAlignment::TopRight);
+      else if (txtalign == "centerleft")
+        settextalignment_textitem(TextAlignment::CenterLeft);
+      else if (txtalign == "centercenter")
+        settextalignment_textitem(TextAlignment::CenterCenter);
+      else if (txtalign == "centerright")
+        settextalignment_textitem(TextAlignment::CenterRight);
+      else if (txtalign == "bottomleft")
+        settextalignment_textitem(TextAlignment::BottomLeft);
+      else if (txtalign == "bottomcenter")
+        settextalignment_textitem(TextAlignment::BottomCenter);
+      else if (txtalign == "bottomright")
+        settextalignment_textitem(TextAlignment::BottomRight);
+      else
+        xmlreader->raiseWarning(tr("TextItem2D unknown TextAlignment"));
+
+    } else
+      xmlreader->raiseWarning(
+          tr("TextItem2D text alignment property setting error"));
 
     // item text property
     QString itemtext = xmlreader->readAttributeString("text", &ok);
@@ -186,7 +215,92 @@ bool TextItem2D::load(XmlStreamReader *xmlreader) {
       xmlreader->raiseWarning(
           tr("TextItem2D y position property setting error"));
     }
-    position->setCoords(itemposition);
+
+    // rotation
+    double rotn = xmlreader->readAttributeDouble("rotation", &ok);
+    (ok) ? setRotation(rotn)
+         : xmlreader->raiseWarning(
+               tr("TextItem2D rotation property setting error"));
+
+    // line antialias
+    bool antial = xmlreader->readAttributeBool("antialias", &ok);
+    (ok) ? setAntialiased(antial)
+         : xmlreader->raiseWarning(
+               tr("TextItem2D antialias property setting error"));
+
+    // margin property
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "margin") break;
+      // brush
+      if (xmlreader->isStartElement() && xmlreader->name() == "margin") {
+        int left = xmlreader->readAttributeInt("left", &ok);
+        if (ok) {
+          int top = xmlreader->readAttributeInt("top", &ok);
+          if (ok) {
+            int right = xmlreader->readAttributeInt("right", &ok);
+            if (ok) {
+              int bottom = xmlreader->readAttributeInt("bottom", &ok);
+              if (ok)
+                setPadding(QMargins(left, top, right, bottom));
+              else
+                xmlreader->raiseWarning(
+                    tr("TextItem2D bottom margin property setting error"));
+            } else
+              xmlreader->raiseWarning(
+                  tr("TextItem2D right margin property setting error"));
+          } else
+            xmlreader->raiseWarning(
+                tr("TextItem2D top margin property setting error"));
+        } else
+          xmlreader->raiseWarning(
+              tr("TextItem2D left margin property setting error"));
+      }
+    }
+
+    // font and color
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "font") break;
+      if (xmlreader->isStartElement() && xmlreader->name() == "font") {
+        QPair<QFont, QColor> fontpair = xmlreader->readFont(&ok);
+        if (ok) {
+          setFont(fontpair.first);
+          setColor(fontpair.second);
+        } else
+          xmlreader->raiseWarning(
+              tr("TextItem2D font & color property setting error"));
+      }
+    }
+
+    // strokepen property
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "pen") break;
+      // pen
+      if (xmlreader->isStartElement() && xmlreader->name() == "pen") {
+        QPen strokep = xmlreader->readPen(&ok);
+        if (ok)
+          setPen(strokep);
+        else
+          xmlreader->raiseWarning(
+              tr("TextItem2D strokepen property setting error"));
+      }
+    }
+
+    // brush property
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() && xmlreader->name() == "brush") break;
+      // brush
+      if (xmlreader->isStartElement() && xmlreader->name() == "brush") {
+        QBrush b = xmlreader->readBrush(&ok);
+        (ok) ? setBrush(b)
+             : xmlreader->raiseWarning(
+                   tr("TextItem2D brush property setting error"));
+      }
+    }
+
     while (!xmlreader->atEnd()) {
       xmlreader->readNext();
       if (xmlreader->isEndElement() && xmlreader->name() == "textitem") break;
@@ -239,7 +353,7 @@ void TextItem2D::mouseReleaseEvent(QMouseEvent *event,
     if (draggingtextitem_) {
       draggingtextitem_ = false;
       axisrect_->getParentPlot2D()->setCursor(cursorshape_);
-      emit  axisrect_->TextItem2DMoved();
+      emit axisrect_->TextItem2DMoved();
     }
   }
 }

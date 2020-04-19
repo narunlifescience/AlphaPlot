@@ -13,6 +13,7 @@ ColorMap2D::ColorMap2D(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis)
       matrix_(matrix),
       colorScale_(new QCPColorScale(parentPlot())),
       layername_(
+          QString("<ColorMap2D>") +
           QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       gradient_(Gradient::Spectrum),
       invertgradient_(false) {

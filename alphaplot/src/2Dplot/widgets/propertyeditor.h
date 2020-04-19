@@ -58,6 +58,7 @@ class PropertyEditor : public QDockWidget {
   void valueChange(QtProperty *prop, const int value);
   void enumValueChange(QtProperty *prop, const int value);
   void valueChange(QtProperty *prop, const QFont &font);
+  void valueChange(QtProperty *prop, const QSize &size);
 
   void selectObjectItem(QTreeWidgetItem *item);
   void axisRectCreated(AxisRect2D *axisrect, MyWidget *widget);
@@ -130,7 +131,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *canvaspropertycoloritem_;
   QtProperty *canvaspropertybufferdevicepixelratioitem_;
   QtProperty *canvaspropertyopenglitem_;
-  QtProperty *canvaspropertyrectitem_;
+  QtProperty *canvaspropertysizeitem_;
   // Layout properties
   QtProperty *layoutpropertygroupitem_;
   QtProperty *layoutpropertyrectitem_;

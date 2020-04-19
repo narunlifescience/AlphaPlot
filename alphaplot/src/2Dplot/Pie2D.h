@@ -47,10 +47,9 @@ class Pie2D : public QCPAbstractItem {
   void setstyle_pieplot(const Style &style);
   void setstrokepen_pieplot(const QPen pen);
 
-  void drawdoughnutslice(QPainter &painter, double startangle, double stopangle,
+  void drawdoughnutslice(QPainter *painter, double startangle, double stopangle,
                          double outerradius, double innerradius, double offset,
-                         QColor strokecolor, QColor fillcolor,
-                         double strokethikness);
+                         QPen strokepen, QBrush fillbrush);
 
   void save(XmlStreamWriter *xmlwriter);
   bool load(XmlStreamReader *xmlreader);

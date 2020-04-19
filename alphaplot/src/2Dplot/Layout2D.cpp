@@ -32,6 +32,8 @@
 #include "widgets/ImageExportDialog2D.h"
 #include "widgets/LayoutButton2D.h"
 
+const int Layout2D::buttonboxmargin_ = 2;
+
 Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
                    Qt::WindowFlags f)
     : MyWidget(label, parent, name, f),
@@ -66,10 +68,12 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   hbox->addWidget(streachLabel_);
   hbox->addLayout(layoutManagebuttonsBox_);
   setBackground(plot2dCanvas_->getBackgroundColor());
-  layoutButtonsBox_->setContentsMargins(2, 2, 2, 2);
-  layoutManagebuttonsBox_->setContentsMargins(2, 2, 2, 2);
-  layoutButtonsBox_->setSpacing(2);
-  layoutManagebuttonsBox_->setSpacing(2);
+  layoutButtonsBox_->setContentsMargins(buttonboxmargin_, buttonboxmargin_,
+                                        buttonboxmargin_, buttonboxmargin_);
+  layoutManagebuttonsBox_->setContentsMargins(
+      buttonboxmargin_, buttonboxmargin_, buttonboxmargin_, buttonboxmargin_);
+  layoutButtonsBox_->setSpacing(buttonboxmargin_);
+  layoutManagebuttonsBox_->setSpacing(buttonboxmargin_);
 
   QVBoxLayout *layout = new QVBoxLayout(main_widget_);
   layout->addLayout(hbox);
@@ -1295,8 +1299,8 @@ void Layout2D::setAxisRangeDragZoom(bool value) {
       axisrect->setRangeDrag(Qt::Horizontal | Qt::Vertical);
       axisrect->setRangeZoom(Qt::Horizontal | Qt::Vertical);
     } else {
-      axisrect->setRangeDrag(0);
-      axisrect->setRangeZoom(0);
+      axisrect->setRangeDrag(nullptr);
+      axisrect->setRangeZoom(nullptr);
     }
   }
 }

@@ -14,8 +14,8 @@ StatBox2D::StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
     : QCPStatisticalBox(xAxis, yAxis),
       xAxis_(xAxis),
       yAxis_(yAxis),
-      layername_(
-          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
+      layername_(QString("<StatBox2D>") + QDateTime::currentDateTime().toString(
+                                              "yyyy:MM:dd:hh:mm:ss:zzz")),
       boxwhiskerdata_(boxWhiskerData),
       scatterstyle_(new QCPScatterStyle(
           QCPScatterStyle::ssDisc,

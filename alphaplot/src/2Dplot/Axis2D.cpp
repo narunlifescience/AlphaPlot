@@ -390,7 +390,7 @@ void Axis2D::settickertext(Column *col, int from, int to) {
   QSharedPointer<QCPAxisTickerText> textticker =
       qSharedPointerCast<QCPAxisTickerText>(ticker_);
   for (int i = 0, row = from; row <= to; row++, i++) {
-    textticker->addTick(i, col->textAt(row));
+    textticker->addTick(i, Utilities::splitstring(col->textAt(row)));
     tickertext_->append(col->textAt(row));
   }
   setticklabelrotation_axis(45);
@@ -478,7 +478,8 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
       xmlwriter->writeAttribute("type", "text");
       for (int i = 0; i < tickertext_->count(); i++) {
         xmlwriter->writeStartElement("tick");
-        xmlwriter->writeAttribute("value", tickertext_->at(i));
+        xmlwriter->writeAttribute("value",
+                                  Utilities::joinstring(tickertext_->at(i)));
         xmlwriter->writeEndElement();
       }
     } break;
@@ -846,7 +847,7 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
     QSharedPointer<QCPAxisTickerText> textticker =
         qSharedPointerCast<QCPAxisTickerText>(ticker_);
     for (int i = 0; i < tickertext_->size(); i++) {
-      textticker->addTick(i, tickertext_->at(i));
+      textticker->addTick(i, Utilities::splitstring(tickertext_->at(i)));
     }
     setticklabelrotation_axis(45);
   }
@@ -862,7 +863,7 @@ void Axis2D::clone(Axis2D *axis) {
   QSharedPointer<QCPAxisTickerText> textticker =
       qSharedPointerCast<QCPAxisTickerText>(axis->ticker_);
   for (int i = 0; i < axis->tickertext_->count(); i++) {
-    textticker->addTick(i, axis->tickertext_->at(i));
+    textticker->addTick(i, Utilities::splitstring(axis->tickertext_->at(i)));
   }
   // set ticker date time format
   if (gettickertype_axis() == Axis2D::TickerType::DateTime) {

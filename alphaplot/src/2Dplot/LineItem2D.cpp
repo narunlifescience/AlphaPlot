@@ -10,8 +10,8 @@ LineItem2D::LineItem2D(AxisRect2D *axisrect, Plot2D *plot)
       axisrect_(axisrect),
       ending_(new QCPLineEnding),
       starting_(new QCPLineEnding),
-      layername_(
-          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
+      layername_(QString("<LineItem>") + QDateTime::currentDateTime().toString(
+                                             "yyyy:MM:dd:hh:mm:ss:zzz")),
       dragginglineitem_(false),
       draggingendlineitem_(false),
       draggingstartlineitem_(false),
@@ -206,10 +206,10 @@ void LineItem2D::save(XmlStreamWriter *xmlwriter) {
                             QString::number(position("start")->coords().x()));
   xmlwriter->writeAttribute("y1",
                             QString::number(position("start")->coords().y()));
-  xmlwriter->writeAttribute(
-      "x2", QString::number(position("end")->coords().x()));
-  xmlwriter->writeAttribute(
-      "y2", QString::number(position("end")->coords().y()));
+  xmlwriter->writeAttribute("x2",
+                            QString::number(position("end")->coords().x()));
+  xmlwriter->writeAttribute("y2",
+                            QString::number(position("end")->coords().y()));
   (antialiased()) ? xmlwriter->writeAttribute("antialias", "true")
                   : xmlwriter->writeAttribute("antialias", "false");
   xmlwriter->writeAttribute(

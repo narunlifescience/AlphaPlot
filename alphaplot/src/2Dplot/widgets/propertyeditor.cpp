@@ -110,7 +110,7 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   canvaspropertybufferdevicepixelratioitem_ =
       doubleManager_->addProperty("Device Pixel Ratio");
   canvaspropertyopenglitem_ = boolManager_->addProperty("OpenGL");
-  canvaspropertyrectitem_ = rectManager_->addProperty(tr("Plot Dimension"));
+  canvaspropertysizeitem_ = sizeManager_->addProperty(tr("Plot Dimension"));
 
   // Layout Properties
   layoutpropertygroupitem_ = groupManager_->addProperty(tr("Layout"));
@@ -1028,6 +1028,8 @@ PropertyEditor::PropertyEditor(QWidget *parent)
           SLOT(enumValueChange(QtProperty *, const int)));
   connect(fontManager_, SIGNAL(valueChanged(QtProperty *, QFont)), this,
           SLOT(valueChange(QtProperty *, const QFont &)));
+  connect(sizeManager_, SIGNAL(valueChanged(QtProperty *, QSize)), this,
+          SLOT(valueChange(QtProperty *, const QSize &)));
   connect(this, &PropertyEditor::refreshCanvasRect, [=]() {
     QTreeWidgetItem *item = objectbrowser_->currentItem();
     if (item && static_cast<MyTreeWidget::PropertyItemType>(
@@ -1035,7 +1037,9 @@ PropertyEditor::PropertyEditor(QWidget *parent)
                     MyTreeWidget::PropertyItemType::PlotCanvas) {
       Plot2D *plotcanvas =
           getgraph2dobject<Plot2D>(objectbrowser_->currentItem());
-      rectManager_->setValue(canvaspropertyrectitem_, plotcanvas->geometry());
+      sizeManager_->setValue(canvaspropertysizeitem_,
+                             QSize(plotcanvas->geometry().width(),
+                                   plotcanvas->geometry().height()));
     }
     if (item && static_cast<MyTreeWidget::PropertyItemType>(
                     item->data(0, Qt::UserRole).value<int>()) ==
@@ -1618,18 +1622,7 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
 }
 
 void PropertyEditor::valueChange(QtProperty *prop, const QRect &rect) {
-  if (prop->compare(canvaspropertyrectitem_)) {
-    Plot2D *plot = getgraph2dobject<Plot2D>(objectbrowser_->currentItem());
-    QRect oldrect = plot->geometry();
-    plot->setGeometry(rect);
-    MyWidget *widget = qobject_cast<MyWidget *>(plot->parentWidget()->parent());
-    if (widget) {
-      QRect wrect = widget->geometry();
-      widget->resize(wrect.width() + (rect.width() - oldrect.width()),
-                     wrect.height() + (rect.height() - oldrect.height()));
-    }
-    plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
-  } else if (prop->compare(itempropertytextmarginitem_)) {
+  if (prop->compare(itempropertytextmarginitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     QMargins margin;
@@ -2748,6 +2741,24 @@ void PropertyEditor::valueChange(QtProperty *prop, const QFont &font) {
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
     colormap->getcolormapscale_colormap()->axis()->setTickLabelFont(font);
     colormap->layer()->replot();
+  }
+}
+
+void PropertyEditor::valueChange(QtProperty *prop, const QSize &size) {
+  if (prop->compare(canvaspropertysizeitem_)) {
+    Plot2D *plot = getgraph2dobject<Plot2D>(objectbrowser_->currentItem());
+    QRect oldrect = plot->geometry();
+    QRect rect = oldrect;
+    rect.setWidth(size.width());
+    rect.setHeight(size.height());
+    plot->setGeometry(rect);
+    MyWidget *widget = qobject_cast<MyWidget *>(plot->parentWidget()->parent());
+    if (widget) {
+      QRect wrect = widget->geometry();
+      widget->resize(wrect.width() + (rect.width() - oldrect.width()),
+                     wrect.height() + (rect.height() - oldrect.height()));
+    }
+    plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   }
 }
 
@@ -4007,16 +4018,17 @@ void PropertyEditor::objectschanged() {
 
 void PropertyEditor::Plot2DPropertyBlock(Plot2D *plotcanvas) {
   propertybrowser_->clear();
+  propertybrowser_->addProperty(canvaspropertysizeitem_);
   propertybrowser_->addProperty(canvaspropertycoloritem_);
   propertybrowser_->addProperty(canvaspropertybufferdevicepixelratioitem_);
   propertybrowser_->addProperty(canvaspropertyopenglitem_);
-  propertybrowser_->addProperty(canvaspropertyrectitem_);
   colorManager_->setValue(canvaspropertycoloritem_,
                           plotcanvas->getBackgroundColor());
   doubleManager_->setValue(canvaspropertybufferdevicepixelratioitem_,
                            plotcanvas->bufferDevicePixelRatio());
   boolManager_->setValue(canvaspropertyopenglitem_, plotcanvas->openGl());
-  rectManager_->setValue(canvaspropertyrectitem_, plotcanvas->geometry());
+  sizeManager_->setValue(canvaspropertysizeitem_,
+                         QSize(plotcanvas->width(), plotcanvas->height()));
 }
 
 void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
@@ -4032,6 +4044,13 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
   objectbrowser_->clear();
   objectitems_.clear();
   propertybrowser_->clear();
+
+  if (!widget) {
+    objectbrowser_->setHeaderLabel("(none)");
+    objectbrowser_->headerItem()->setIcon(
+        0, IconLoader::load("clear-loginfo", IconLoader::General));
+    return;
+  }
 
   QString tooltiptextx = QString(
       "<tr> <td align=\"right\">Table :</td><td>%1</td></tr>"
@@ -4815,7 +4834,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     objectbrowser_->headerItem()->setIcon(
         0, IconLoader::load("matrix", IconLoader::LightDark));
   } else {
-    objectbrowser_->setHeaderLabel("(none)");
+    objectbrowser_->setHeaderLabel("(Unknown)");
     objectbrowser_->headerItem()->setIcon(
         0, IconLoader::load("clear-loginfo", IconLoader::General));
     qDebug() << "unknown Mywidget";
@@ -4842,11 +4861,15 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
             objectbrowser_->currentItem()
                 ->data(0, Qt::UserRole)
                 .value<int>()) == MyTreeWidget::PropertyItemType::Legend) {
-      QPointF origin = axisrect->getLegend()->getposition_legend();
-      doubleManager_->setValue(itempropertylegendoriginxitem_, origin.x());
-      doubleManager_->setValue(itempropertylegendoriginyitem_, origin.y());
-      axisrect->parentPlot()->replot(
-          QCustomPlot::RefreshPriority::rpQueuedRefresh);
+      Legend2D *lgnd =
+          getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
+      if (axisrect == lgnd->getaxisrect_legend()) {
+        QPointF origin = axisrect->getLegend()->getposition_legend();
+        doubleManager_->setValue(itempropertylegendoriginxitem_, origin.x());
+        doubleManager_->setValue(itempropertylegendoriginyitem_, origin.y());
+        axisrect->parentPlot()->replot(
+            QCustomPlot::RefreshPriority::rpQueuedRefresh);
+      }
     }
   });
   connect(axisrect, &AxisRect2D::TextItem2DMoved, [=]() {
@@ -4857,9 +4880,13 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
                 .value<int>()) == MyTreeWidget::PropertyItemType::TextItem) {
       TextItem2D *textitem =
           getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
-      QPointF origin = textitem->position->pixelPosition();
-      doubleManager_->setValue(itempropertytextpixelpositionxitem_, origin.x());
-      doubleManager_->setValue(itempropertytextpixelpositionyitem_, origin.y());
+      if (axisrect == textitem->getaxisrect()) {
+        QPointF origin = textitem->position->pixelPosition();
+        doubleManager_->setValue(itempropertytextpixelpositionxitem_,
+                                 origin.x());
+        doubleManager_->setValue(itempropertytextpixelpositionyitem_,
+                                 origin.y());
+      }
     }
   });
   connect(axisrect, &AxisRect2D::LineItem2DMoved, [=]() {
@@ -4870,16 +4897,18 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
                 .value<int>()) == MyTreeWidget::PropertyItemType::LineItem) {
       LineItem2D *lineitem =
           getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
-      QPointF origin1 = lineitem->position("start")->pixelPosition();
-      QPointF origin2 = lineitem->position("end")->pixelPosition();
-      doubleManager_->setValue(itempropertylinepixelpositionx1item_,
-                               origin1.x());
-      doubleManager_->setValue(itempropertylinepixelpositiony1item_,
-                               origin1.y());
-      doubleManager_->setValue(itempropertylinepixelpositionx2item_,
-                               origin2.x());
-      doubleManager_->setValue(itempropertylinepixelpositiony2item_,
-                               origin2.y());
+      if (axisrect == lineitem->getaxisrect()) {
+        QPointF origin1 = lineitem->position("start")->pixelPosition();
+        QPointF origin2 = lineitem->position("end")->pixelPosition();
+        doubleManager_->setValue(itempropertylinepixelpositionx1item_,
+                                 origin1.x());
+        doubleManager_->setValue(itempropertylinepixelpositiony1item_,
+                                 origin1.y());
+        doubleManager_->setValue(itempropertylinepixelpositionx2item_,
+                                 origin2.x());
+        doubleManager_->setValue(itempropertylinepixelpositiony2item_,
+                                 origin2.y());
+      }
     }
   });
   connect(axisrect, &AxisRect2D::ImageItem2DMoved, [=]() {
@@ -4890,11 +4919,13 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
                 .value<int>()) == MyTreeWidget::PropertyItemType::ImageItem) {
       ImageItem2D *imageitem =
           getgraph2dobject<ImageItem2D>(objectbrowser_->currentItem());
-      QPointF origin = imageitem->position("topLeft")->pixelPosition();
-      doubleManager_->setValue(itempropertyimagepixelpositionxitem_,
-                               origin.x());
-      doubleManager_->setValue(itempropertyimagepixelpositionyitem_,
-                               origin.y());
+      if (axisrect == imageitem->getaxisrect()) {
+        QPointF origin = imageitem->position("topLeft")->pixelPosition();
+        doubleManager_->setValue(itempropertyimagepixelpositionxitem_,
+                                 origin.x());
+        doubleManager_->setValue(itempropertyimagepixelpositionyitem_,
+                                 origin.y());
+      }
     }
   });
   connect(axisrect, &AxisRect2D::TextItem2DCreated, [=]() {
@@ -5040,7 +5071,7 @@ void PropertyEditor::setObjectPropertyId() {
   canvaspropertybufferdevicepixelratioitem_->setPropertyId(
       "canvaspropertybufferdevicepixelratioitem_");
   canvaspropertyopenglitem_->setPropertyId("canvaspropertyopenglitem_");
-  canvaspropertyrectitem_->setPropertyId("canvaspropertyrectitem_");
+  canvaspropertysizeitem_->setPropertyId("canvaspropertysizeitem_");
   // Layout properties
   layoutpropertygroupitem_->setPropertyId("layoutpropertygroupitem_");
   layoutpropertyrectitem_->setPropertyId("layoutpropertyrectitem_");

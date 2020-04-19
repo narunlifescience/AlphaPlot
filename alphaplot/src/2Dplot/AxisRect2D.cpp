@@ -40,6 +40,8 @@ AxisRect2D::AxisRect2D(Plot2D *parent, bool setupDefaultAxis)
       axisRectLegend_(new Legend2D(this)),
       isAxisRectSelected_(false),
       printorexportjob_(false) {
+  setRangeDrag(Qt::Horizontal | Qt::Vertical);
+  setRangeZoom(Qt::Horizontal | Qt::Vertical);
   gridpair_.first.first = nullptr;
   gridpair_.first.second = nullptr;
   gridpair_.second.first = nullptr;

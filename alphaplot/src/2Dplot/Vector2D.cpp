@@ -13,8 +13,8 @@ Vector2D::Vector2D(const VectorPlot &vectorplot, Table *table, Column *x1Data,
       vectorplot_(vectorplot),
       xaxis_(xAxis),
       yaxis_(yAxis),
-      layername_(
-          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
+      layername_(QString("<Vector2D>") + QDateTime::currentDateTime().toString(
+                                             "yyyy:MM:dd:hh:mm:ss:zzz")),
       d_position_(Position::Tail),
       start_(new QCPLineEnding()),
       stop_(new QCPLineEnding()) {

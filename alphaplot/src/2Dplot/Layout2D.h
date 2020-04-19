@@ -65,6 +65,9 @@ class Layout2D : public MyWidget {
   int getAxisRectIndex(AxisRect2D *axisRect2d);
   AxisRect2D *getCurrentAxisRect();
   Plot2D *getPlotCanwas() const;
+  int getbuttonboxheight() const {
+    return addLayoutButton_->height() + (buttonboxmargin_ * 2);
+  }
 
   void setLayoutDimension(QPair<int, int> dimension);
   void removeAxisRect(int index);
@@ -122,6 +125,7 @@ class Layout2D : public MyWidget {
 
   AxisRect2D *currentAxisRect_;
   Graph2DCommon::Picker picker_;
+  static const int buttonboxmargin_;
 
  private slots:
   void mouseMoveSignal(QMouseEvent *event);

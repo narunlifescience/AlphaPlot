@@ -18,8 +18,8 @@ Pie2D::Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, Column *yData,
       style_(Style::Pie),
       pieColors_(new QVector<QColor>()),
       pieLegendItems_(new QVector<PieLegendItem2D *>()),
-      layername_(
-          QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
+      layername_(QString("<Pie2D>") + QDateTime::currentDateTime().toString(
+                                          "yyyy:MM:dd:hh:mm:ss:zzz")),
       marginpercent_(2),
       table_(table),
       xcolumn_(xData),
@@ -170,11 +170,10 @@ void Pie2D::draw(QCPPainter *painter) {
   }
 }
 
-void Pie2D::drawdoughnutslice(QPainter &painter, double startangle,
+void Pie2D::drawdoughnutslice(QPainter *painter, double startangle,
                               double stopangle, double outerradius,
-                              double innerradius, double offset,
-                              QColor strokecolor, QColor fillcolor,
-                              double strokethikness) {
+                              double innerradius, double offset, QPen strokepen,
+                              QBrush fillbrush) {
   int dim = 400;
   double op1, op2, ip1, ip2;
   op1 = ((1 - outerradius) * dim) / 2;
@@ -192,10 +191,9 @@ void Pie2D::drawdoughnutslice(QPainter &painter, double startangle,
   path.arcTo(ip1 + offset, ip1 + offset, ip2 + offset, ip2 + offset, stopangle,
              -(stopangle - startangle));
   path.closeSubpath();
-  painter.setBrush(fillcolor);
-  painter.setPen(QPen(strokecolor, strokethikness, Qt::SolidLine, Qt::FlatCap,
-                      Qt::MiterJoin));
-  painter.drawPath(path);
+  painter->setBrush(fillbrush);
+  painter->setPen(strokepen);
+  painter->drawPath(path);
 }
 
 void Pie2D::save(XmlStreamWriter *xmlwriter) {

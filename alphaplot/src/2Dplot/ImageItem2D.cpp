@@ -10,6 +10,7 @@ ImageItem2D::ImageItem2D(AxisRect2D *axisrect, Plot2D *plot,
     : QCPItemPixmap(plot),
       axisrect_(axisrect),
       layername_(
+          QString("<Image2DItem>") +
           QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       draggingimageitem_(false),
       imagefilename_(filename),

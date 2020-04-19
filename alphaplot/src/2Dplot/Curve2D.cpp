@@ -77,7 +77,8 @@ Curve2D::Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
 }
 
 void Curve2D::init() {
-  layername_ = QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz");
+  layername_ = QString("<Curve2D>") +
+      QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz");
   QThread::msleep(1);
   parentPlot()->addLayer(layername_, xAxis_->layer(), QCustomPlot::limBelow);
   setLayer(layername_);

@@ -27,6 +27,7 @@ LineSpecial2D::LineSpecial2D(Table *table, Column *xcol, Column *ycol, int from,
       xerrorbar_(nullptr),
       yerrorbar_(nullptr),
       layername_(
+          QString("<LineSpecial2D>") +
           QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       xerroravailable_(false),
       yerroravailable_(false),
