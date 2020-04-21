@@ -92,7 +92,8 @@ class Layout2D : public MyWidget {
   void removeMatrix(Matrix *matrix);
   void removeColumn(Table *table, const QString &name);
   QStringList dependentTableMatrixNames();
-  void setAxisRangeDragZoom(bool value);
+  void setAxisRangeDrag(bool value);
+  void setAxisRangeZoom(bool value);
 
  private slots:
   AxisRect2D *addAxisRectWithAxis();
@@ -101,7 +102,8 @@ class Layout2D : public MyWidget {
   void removeAxisRectItem();
   void axisRectSetFocus(AxisRect2D *rect);
   void activateLayout(LayoutButton2D *button);
-  void showtooltip(QPointF position, double xval, double yval);
+  void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
+                   Axis2D *yaxis);
 
  private:
   void addTextToAxisTicker(Column *col, Axis2D *axis, int from, int to);
@@ -126,6 +128,13 @@ class Layout2D : public MyWidget {
   AxisRect2D *currentAxisRect_;
   Graph2DCommon::Picker picker_;
   static const int buttonboxmargin_;
+  static const int defaultlayout2dwidth_;
+  static const int defaultlayout2dheight_;
+  static const int minimumlayout2dwidth_;
+  static const int minimumlayout2dheight_;
+
+  QCPItemStraightLine *xpickerline_;
+  QCPItemStraightLine *ypickerline_;
 
  private slots:
   void mouseMoveSignal(QMouseEvent *event);

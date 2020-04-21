@@ -350,16 +350,16 @@
      <string>Tools</string>
     </property>
     <addaction name="actionDisableGraphTools"/>
-    <addaction name="actionGraphZoomIn"/>
-    <addaction name="actionGraphZoomOut"/>
-    <addaction name="actionGraphRescaleShowAll"/>
-    <addaction name="separator"/>
-    <addaction name="actionGraphScreenReader"/>
     <addaction name="actionGraphDataReader"/>
+    <addaction name="actionGraphScreenReader"/>
     <addaction name="actionGraphSelectDataRange"/>
-    <addaction name="separator"/>
     <addaction name="actionGraphMoveDataPoints"/>
     <addaction name="actionGraphRemoveBadDataPoints"/>
+    <addaction name="separator"/>
+    <addaction name="actionGraphDragRange"/>
+    <addaction name="actionGraphZoomRange"/>
+    <addaction name="separator"/>
+    <addaction name="actionGraphRescaleShowAll"/>
    </widget>
    <widget class="QMenu" name="menuTable">
     <property name="title">
@@ -1320,16 +1320,6 @@
     <string>Disable Tools</string>
    </property>
   </action>
-  <action name="actionGraphZoomIn">
-   <property name="text">
-    <string>Zoom In</string>
-   </property>
-  </action>
-  <action name="actionGraphZoomOut">
-   <property name="text">
-    <string>Zoom Out</string>
-   </property>
-  </action>
   <action name="actionGraphRescaleShowAll">
    <property name="text">
     <string>Rescale to Show All</string>
@@ -1373,6 +1363,16 @@
   <action name="actionPlot2DHorizontalStackedBars">
    <property name="text">
     <string>Horizontal Stacked Bars</string>
+   </property>
+  </action>
+  <action name="actionGraphDragRange">
+   <property name="text">
+    <string>Drag Range</string>
+   </property>
+  </action>
+  <action name="actionGraphZoomRange">
+   <property name="text">
+    <string>Zoom Range</string>
    </property>
   </action>
  </widget>

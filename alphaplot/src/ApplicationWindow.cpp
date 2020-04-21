@@ -622,12 +622,12 @@ ApplicationWindow::ApplicationWindow()
   // Tools menu
   ui_->actionDisableGraphTools->setActionGroup(graphToolsGroup);
   ui_->actionDisableGraphTools->setCheckable(true);
-  ui_->actionGraphZoomIn->setActionGroup(graphToolsGroup);
-  ui_->actionGraphZoomIn->setCheckable(true);
-  ui_->actionGraphZoomOut->setActionGroup(graphToolsGroup);
-  ui_->actionGraphZoomOut->setCheckable(true);
   connect(ui_->actionGraphRescaleShowAll, SIGNAL(triggered()), this,
           SLOT(setAutoScale()));
+  ui_->actionGraphDragRange->setActionGroup(graphToolsGroup);
+  ui_->actionGraphDragRange->setCheckable(true);
+  ui_->actionGraphZoomRange->setActionGroup(graphToolsGroup);
+  ui_->actionGraphZoomRange->setCheckable(true);
   ui_->actionGraphScreenReader->setActionGroup(graphToolsGroup);
   ui_->actionGraphScreenReader->setCheckable(true);
   ui_->actionGraphDataReader->setActionGroup(graphToolsGroup);
@@ -889,9 +889,14 @@ void ApplicationWindow::makeToolBars() {
   // 2D Graph tools toolbar
   ui_->actionDisableGraphTools->setChecked(true);
   graphToolsToolbar->addAction(ui_->actionDisableGraphTools);
-  graphToolsToolbar->addAction(ui_->actionGraphScreenReader);
   graphToolsToolbar->addAction(ui_->actionGraphDataReader);
+  graphToolsToolbar->addAction(ui_->actionGraphScreenReader);
   graphToolsToolbar->addAction(ui_->actionGraphSelectDataRange);
+  graphToolsToolbar->addAction(ui_->actionGraphMoveDataPoints);
+  graphToolsToolbar->addAction(ui_->actionGraphRemoveBadDataPoints);
+  graphToolsToolbar->addAction(ui_->actionGraphDragRange);
+  graphToolsToolbar->addAction(ui_->actionGraphZoomRange);
+  graphToolsToolbar->addAction(ui_->actionGraphRescaleShowAll);
   graphToolsToolbar->addSeparator();
   QMenu *menu_layers = new QMenu(this);
   btn_layout_->setMenu(menu_layers);
@@ -914,10 +919,6 @@ void ApplicationWindow::makeToolBars() {
   menu_plot_enrichments->addAction(ui_->actionDrawLine);
   menu_plot_enrichments->addAction(ui_->actionAddTimeStamp);
   menu_plot_enrichments->addAction(ui_->actionAddImage);
-  graphToolsToolbar->addSeparator();
-  graphToolsToolbar->addAction(ui_->actionGraphZoomIn);
-  graphToolsToolbar->addAction(ui_->actionGraphZoomOut);
-  graphToolsToolbar->addAction(ui_->actionGraphRescaleShowAll);
 
   // 2D plots tool toolbar
   QMenu *menu_plot_linespoints = new QMenu(this);
@@ -1222,60 +1223,6 @@ void ApplicationWindow::customToolBars(QMdiSubWindow *subwindow) {
       tableToolbar->setEnabled(false);
       matrix3DPlotToolbar->setEnabled(false);
 
-      /*if (g) {
-        graphToolsGroup->blockSignals(true);
-        if (g->rangeSelectorsEnabled())
-          ui_->actionGraphSelectDataRange->setChecked(true);
-        else if (g->zoomOn())
-          ui_->actionGraphZoomIn->setChecked(true);
-        else if (g->drawArrow())
-          ui_->actionDrawArrow->setChecked(true);
-        else if (g->drawLineActive())
-          ui_->actionDrawLine->setChecked(true);
-        else if (g->activeTool() == 0)
-          ui_->actionDisableGraphTools->setChecked(true);
-        else
-          switch (g->activeTool()->rtti()) {
-            case PlotToolInterface::DataPicker:
-              switch (static_cast<DataPickerTool *>(g->activeTool())->mode()) {
-                case DataPickerTool::Display:
-                  ui_->actionGraphDataReader->setChecked(true);
-                  break;
-                case DataPickerTool::Move:
-                  ui_->actionGraphMoveDataPoints->setChecked(true);
-                  break;
-                case DataPickerTool::Remove:
-                  ui_->actionGraphRemoveBadDataPoints->setChecked(true);
-                  break;
-              }
-              break;
-            case PlotToolInterface::ScreenPicker:
-              ui_->actionGraphScreenReader->setChecked(true);
-              break;
-            default:
-              ui_->actionDisableGraphTools->setChecked(true);
-              break;
-          }
-        graphToolsGroup->blockSignals(false);
-      }*/
-      /* if (g && g->curves() > 0) {
-         plot2DToolbar->setEnabled(true);
-         QwtPlotCurve *c = g->curve(g->curves() - 1);
-         // plot tools managed by d_plot_mapper
-         for (int i = 0; i <= static_cast<int>(Graph::VerticalSteps); i++) {
-           QAction *a = static_cast<QAction *>(d_plot_mapper->mapping(i));
-           if (a)
-             a->setEnabled(
-                 Graph::canConvertTo(c, static_cast<Graph::CurveType>(i)));
-         }
-         // others
-         ui_->actionPlot2DPie->setEnabled(Graph::canConvertTo(c, Graph::Pie));
-         ui_->actionPlot2DVectorsXYAM->setEnabled(
-             Graph::canConvertTo(c, Graph::VectXYAM));
-         ui_->actionPlot2DVectorsXYXY->setEnabled(
-             Graph::canConvertTo(c, Graph::VectXYXY));
-         ui_->actionPlot2DStatBox->setEnabled(
-             Graph::canConvertTo(c, Graph::Box));*/
       // 3D plots
       ui_->actionPlot3DRibbon->setEnabled(false);
       ui_->actionPlot3DScatter->setEnabled(false);
@@ -1477,8 +1424,7 @@ void ApplicationWindow::plotPie() {
   if (selectedcolumns.count() == 2) {
     Layout2D *layout = newGraph2D();
     layout->generatePie2DPlot(
-        table, xcol, ycol,
-        table->firstSelectedRow(),
+        table, xcol, ycol, table->firstSelectedRow(),
         table->firstSelectedRow() + table->selectedRowCount() - 1);
   } else
     QMessageBox::warning(this, tr("Error"),
@@ -4854,40 +4800,6 @@ QDialog *ApplicationWindow::showPlot3dDialog() {
     return nullptr;
 }
 
-void ApplicationWindow::zoomIn() {
-  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
-  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
-  AxisRect2D *axisrect = layout->getCurrentAxisRect();
-  if (!axisrect) {
-    QMessageBox::warning(
-        this, tr("Warning"),
-        tr("<h4>There are no plot layout elements "
-           "selected/available in this window.</h4>"
-           "<p><h4>Please add/select a layout element and try again!</h4>"));
-    ui_->actionDisableGraphTools->setChecked(true);
-    return;
-  }
-  ui_->actionDisableGraphTools->setChecked(true);
-  qDebug() << "not implimented";
-}
-
-void ApplicationWindow::zoomOut() {
-  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
-  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
-  AxisRect2D *axisrect = layout->getCurrentAxisRect();
-  if (!axisrect) {
-    QMessageBox::warning(
-        this, tr("Warning"),
-        tr("<h4>There are no plot layout elements "
-           "selected/available in this window.</h4>"
-           "<p><h4>Please add/select a layout element and try again!</h4>"));
-    ui_->actionDisableGraphTools->setChecked(true);
-    return;
-  }
-  ui_->actionDisableGraphTools->setChecked(true);
-  qDebug() << "not implimented";
-}
-
 void ApplicationWindow::setAutoScale() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
   Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
@@ -4935,7 +4847,8 @@ void ApplicationWindow::movePoints() {
     ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
-
+  layout->setGraphTool(Graph2DCommon::Picker::None);
+  ui_->actionDisableGraphTools->setChecked(true);
   QMessageBox::warning(this, tr("Warning"), tr("<h4>not implimented!</h4>"));
 }
 
@@ -5329,8 +5242,19 @@ void ApplicationWindow::showScreenReader() {
 
 void ApplicationWindow::showRangeSelectors() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
+    ui_->actionDisableGraphTools->setChecked(true);
+    return;
+  }
+  layout->setGraphTool(Graph2DCommon::Picker::None);
   ui_->actionDisableGraphTools->setChecked(true);
-  qDebug() << "not implimented";
+  QMessageBox::warning(this, tr("Warning"), tr("<h4>not implimented!</h4>"));
 }
 
 void ApplicationWindow::showDataReader() {
@@ -5347,6 +5271,38 @@ void ApplicationWindow::showDataReader() {
     return;
   }
   layout->setGraphTool(Graph2DCommon::Picker::DataPoint);
+}
+
+void ApplicationWindow::dragRange() {
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
+
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
+    ui_->actionDisableGraphTools->setChecked(true);
+    return;
+  }
+  layout->setGraphTool(Graph2DCommon::Picker::DragRange);
+}
+
+void ApplicationWindow::zoomRange() {
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
+
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot layout available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
+    ui_->actionDisableGraphTools->setChecked(true);
+    return;
+  }
+  layout->setGraphTool(Graph2DCommon::Picker::ZoomRange);
 }
 
 void ApplicationWindow::drawEllipse() {
@@ -7126,16 +7082,16 @@ void ApplicationWindow::pickGraphTool(QAction *action) {
     showDataReader();
   else if (action == ui_->actionGraphSelectDataRange)
     showRangeSelectors();
+  else if (action == ui_->actionGraphDragRange)
+    dragRange();
+  else if (action == ui_->actionGraphZoomRange)
+    zoomRange();
   else if (action == ui_->actionGraphScreenReader)
     showScreenReader();
   else if (action == ui_->actionGraphMoveDataPoints)
     movePoints();
   else if (action == ui_->actionGraphRemoveBadDataPoints)
     removePoints();
-  else if (action == ui_->actionGraphZoomIn)
-    zoomIn();
-  else if (action == ui_->actionGraphZoomOut)
-    zoomOut();
   else if (action == ui_->actionDrawArrow)
     drawArrow();
   else if (action == ui_->actionDrawLine)
@@ -9362,12 +9318,12 @@ void ApplicationWindow::loadIcons() {
   // Tools menu
   ui_->actionDisableGraphTools->setIcon(
       IconLoader::load("edit-select", IconLoader::LightDark));
-  ui_->actionGraphZoomIn->setIcon(
-      IconLoader::load("zoom-in", IconLoader::LightDark));
-  ui_->actionGraphZoomOut->setIcon(
-      IconLoader::load("zoom-out", IconLoader::LightDark));
   ui_->actionGraphRescaleShowAll->setIcon(
       IconLoader::load("graph-unzoom", IconLoader::LightDark));
+  ui_->actionGraphDragRange->setIcon(
+      IconLoader::load("drag-move", IconLoader::LightDark));
+  ui_->actionGraphZoomRange->setIcon(
+      IconLoader::load("zoom-in", IconLoader::LightDark));
   ui_->actionGraphScreenReader->setIcon(
       IconLoader::load("edit-crosshair", IconLoader::LightDark));
   ui_->actionGraphDataReader->setIcon(

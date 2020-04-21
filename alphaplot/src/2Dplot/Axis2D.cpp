@@ -139,6 +139,8 @@ Qt::PenStyle Axis2D::gettickstrokestyle_axis() const {
 
 int Axis2D::gettickscount_axis() const { return ticker_->tickCount(); }
 
+double Axis2D::getticksorigin() const { return ticker_->tickOrigin(); }
+
 bool Axis2D::getsubtickvisibility_axis() const { return subTicks(); }
 
 int Axis2D::getsubticklengthin_axis() const { return subTickLengthIn(); }
@@ -288,6 +290,10 @@ void Axis2D::settickstrokestyle_axis(const Qt::PenStyle &style) {
 void Axis2D::settickscount_axis(const int count) {
   ticker_->setTickCount(count);
   setTicker(ticker_);
+}
+
+void Axis2D::setticksorigin(const double value) {
+  ticker_->setTickOrigin(value);
 }
 
 void Axis2D::setsubtickvisibility_axis(const bool value) { setSubTicks(value); }
@@ -449,6 +455,72 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
       xmlwriter->writeAttribute("scaletype", "logarithemic");
       break;
   }
+  // upperending style
+  switch (upperEnding().style()) {
+    case QCPLineEnding::EndingStyle::esNone:
+      xmlwriter->writeAttribute("upperending", "none");
+      break;
+    case QCPLineEnding::EndingStyle::esBar:
+      xmlwriter->writeAttribute("upperending", "bar");
+      break;
+    case QCPLineEnding::EndingStyle::esDisc:
+      xmlwriter->writeAttribute("upperending", "disc");
+      break;
+    case QCPLineEnding::EndingStyle::esSquare:
+      xmlwriter->writeAttribute("upperending", "square");
+      break;
+    case QCPLineEnding::EndingStyle::esDiamond:
+      xmlwriter->writeAttribute("upperending", "diamond");
+      break;
+    case QCPLineEnding::EndingStyle::esHalfBar:
+      xmlwriter->writeAttribute("upperending", "halfbar");
+      break;
+    case QCPLineEnding::EndingStyle::esFlatArrow:
+      xmlwriter->writeAttribute("upperending", "flatarrow");
+      break;
+    case QCPLineEnding::EndingStyle::esLineArrow:
+      xmlwriter->writeAttribute("upperending", "linearrow");
+      break;
+    case QCPLineEnding::EndingStyle::esSkewedBar:
+      xmlwriter->writeAttribute("upperending", "skewedbar");
+      break;
+    case QCPLineEnding::EndingStyle::esSpikeArrow:
+      xmlwriter->writeAttribute("upperending", "spikearrow");
+      break;
+  }
+  // lowerending style
+  switch (lowerEnding().style()) {
+    case QCPLineEnding::EndingStyle::esNone:
+      xmlwriter->writeAttribute("lowerending", "none");
+      break;
+    case QCPLineEnding::EndingStyle::esBar:
+      xmlwriter->writeAttribute("lowerending", "bar");
+      break;
+    case QCPLineEnding::EndingStyle::esDisc:
+      xmlwriter->writeAttribute("lowerending", "disc");
+      break;
+    case QCPLineEnding::EndingStyle::esSquare:
+      xmlwriter->writeAttribute("lowerending", "square");
+      break;
+    case QCPLineEnding::EndingStyle::esDiamond:
+      xmlwriter->writeAttribute("lowerending", "diamond");
+      break;
+    case QCPLineEnding::EndingStyle::esHalfBar:
+      xmlwriter->writeAttribute("lowerending", "halfbar");
+      break;
+    case QCPLineEnding::EndingStyle::esFlatArrow:
+      xmlwriter->writeAttribute("lowerending", "flatarrow");
+      break;
+    case QCPLineEnding::EndingStyle::esLineArrow:
+      xmlwriter->writeAttribute("lowerending", "linearrow");
+      break;
+    case QCPLineEnding::EndingStyle::esSkewedBar:
+      xmlwriter->writeAttribute("lowerending", "skewedbar");
+      break;
+    case QCPLineEnding::EndingStyle::esSpikeArrow:
+      xmlwriter->writeAttribute("lowerending", "spikearrow");
+      break;
+  }
   (getinverted_axis()) ? xmlwriter->writeAttribute("inverted", "true")
                        : xmlwriter->writeAttribute("inverted", "false");
   (getantialiased_axis()) ? xmlwriter->writeAttribute("antialias", "true")
@@ -495,6 +567,7 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
   (gettickvisibility_axis()) ? xmlwriter->writeAttribute("visible", "true")
                              : xmlwriter->writeAttribute("visible", "false");
   xmlwriter->writeAttribute("count", QString::number(gettickscount_axis()));
+  xmlwriter->writeAttribute("origin", QString::number(getticksorigin()));
   xmlwriter->writeAttribute("in", QString::number(getticklengthin_axis()));
   xmlwriter->writeAttribute("out", QString::number(getticklengthout_axis()));
   xmlwriter->writePen(tickPen());
@@ -582,14 +655,71 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
     // Scaletype property
     QString scaletype = xmlreader->readAttributeString("scaletype", &ok);
     if (ok) {
-      if (scaletype == "linear")
-        setscaletype_axis(AxisScaleType::Linear);
-      else if (scaletype == "logarithemic")
-        setscaletype_axis(AxisScaleType::Logarithmic);
-      else
-        xmlreader->raiseWarning(tr("Axis2D Scaletype property setting error"));
+      (scaletype == "linear")
+          ? setscaletype_axis(AxisScaleType::Linear)
+          : (scaletype == "logarithemic")
+                ? setscaletype_axis(AxisScaleType::Logarithmic)
+                : xmlreader->raiseWarning(
+                      tr("Axis2D Scaletype property setting error"));
     } else
       xmlreader->raiseWarning(tr("Axis2D Scaletype property setting error"));
+
+    // upperending
+    QString upperending = xmlreader->readAttributeString("upperending", &ok);
+    if (ok) {
+      if (upperending == "none")
+        setUpperEnding(QCPLineEnding::EndingStyle::esNone);
+      else if (upperending == "bar")
+        setUpperEnding(QCPLineEnding::EndingStyle::esBar);
+      else if (upperending == "disc")
+        setUpperEnding(QCPLineEnding::EndingStyle::esDisc);
+      else if (upperending == "square")
+        setUpperEnding(QCPLineEnding::EndingStyle::esSquare);
+      else if (upperending == "diamond")
+        setUpperEnding(QCPLineEnding::EndingStyle::esDiamond);
+      else if (upperending == "halfbar")
+        setUpperEnding(QCPLineEnding::EndingStyle::esHalfBar);
+      else if (upperending == "flatarrow")
+        setUpperEnding(QCPLineEnding::EndingStyle::esFlatArrow);
+      else if (upperending == "linearrow")
+        setUpperEnding(QCPLineEnding::EndingStyle::esLineArrow);
+      else if (upperending == "skewedbar")
+        setUpperEnding(QCPLineEnding::EndingStyle::esSkewedBar);
+      else if (upperending == "spikearrow")
+        setUpperEnding(QCPLineEnding::EndingStyle::esSpikeArrow);
+      else
+        xmlreader->raiseWarning(tr("Axis2D unknown upper ending property"));
+    } else
+      xmlreader->raiseWarning(tr("Axis2D upper ending property setting error"));
+
+    // lowerending
+    QString lowerending = xmlreader->readAttributeString("lowerending", &ok);
+    if (ok) {
+      if (lowerending == "none")
+        setLowerEnding(QCPLineEnding::EndingStyle::esNone);
+      else if (lowerending == "bar")
+        setLowerEnding(QCPLineEnding::EndingStyle::esBar);
+      else if (lowerending == "disc")
+        setLowerEnding(QCPLineEnding::EndingStyle::esDisc);
+      else if (lowerending == "square")
+        setLowerEnding(QCPLineEnding::EndingStyle::esSquare);
+      else if (lowerending == "diamond")
+        setLowerEnding(QCPLineEnding::EndingStyle::esDiamond);
+      else if (lowerending == "halfbar")
+        setLowerEnding(QCPLineEnding::EndingStyle::esHalfBar);
+      else if (lowerending == "flatarrow")
+        setLowerEnding(QCPLineEnding::EndingStyle::esFlatArrow);
+      else if (lowerending == "linearrow")
+        setLowerEnding(QCPLineEnding::EndingStyle::esLineArrow);
+      else if (lowerending == "skewedbar")
+        setLowerEnding(QCPLineEnding::EndingStyle::esSkewedBar);
+      else if (lowerending == "spikearrow")
+        setLowerEnding(QCPLineEnding::EndingStyle::esSpikeArrow);
+      else
+        xmlreader->raiseWarning(tr("Axis2D unknown lower ending property"));
+    } else
+      xmlreader->raiseWarning(tr("Axis2D lower ending property setting error"));
+
     // inverted property
     bool inverted = xmlreader->readAttributeBool("inverted", &ok);
     (ok)
@@ -688,6 +818,11 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
         (ok) ? settickscount_axis(count)
              : xmlreader->raiseWarning(
                    tr("Axis2D Tick count in property setting error"));
+        // Tick count
+        double origin = xmlreader->readAttributeInt("origin", &ok);
+        (ok) ? setticksorigin(origin)
+             : xmlreader->raiseWarning(
+                   tr("Axis2D Tick origin in property setting error"));
         // Ticks in
         int in = xmlreader->readAttributeInt("in", &ok);
         if (ok)

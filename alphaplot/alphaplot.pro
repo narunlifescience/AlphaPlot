@@ -20,6 +20,14 @@ include(muparser.pri)
 include(sourcefiles.pri)
 include(../config.pri)
 
+# detect application build mode(not proper)
+contains(QMAKE_HOST.arch, x86_64):{
+DEFINES += Q_BUILD_64
+}
+contains(QMAKE_HOST.arch, i386):{
+DEFINES += Q_BUILD_32
+}
+
 #############################################################################
 ###################### BASIC PROJECT PROPERTIES #############################
 #############################################################################

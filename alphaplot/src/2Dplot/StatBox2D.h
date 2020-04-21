@@ -149,12 +149,11 @@ class StatBox2D : public QCPStatisticalBox {
 
  private:
   void datapicker(QMouseEvent *event, const QVariant &details);
-  void graphpicker(QMouseEvent *event, const QVariant &);
   void movepicker(QMouseEvent *, const QVariant &);
   void removepicker(QMouseEvent *, const QVariant &);
 
  signals:
-  void showtooltip(QPointF, double, double);
+  void showtooltip(QPointF, double, double, Axis2D *xaxis, Axis2D *yaxis);
 
  private:
   Axis2D *xAxis_;

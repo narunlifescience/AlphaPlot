@@ -191,6 +191,7 @@ class AxisRect2D : public QCPAxisRect {
 
  protected:
   void mousePressEvent(QMouseEvent *, const QVariant &variant);
+  void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
   void draw(QCPPainter *painter);
 
  signals:
@@ -223,7 +224,8 @@ class AxisRect2D : public QCPAxisRect {
   void Pie2DRemoved(AxisRect2D *);
   void ColorMap2DRemoved(AxisRect2D *);
   void ErrorBar2DRemoved(AxisRect2D *);
-  void showtooltip(QPointF position, double xval, double yval);
+  void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
+                   Axis2D *yaxis);
   // Layer moved
   void LayerMoved(AxisRect2D *);
   void TextItem2DMoved();
@@ -256,6 +258,7 @@ class AxisRect2D : public QCPAxisRect {
   ColorMapVec colormapvec_;
   QList<Axis2D *> axes_;
   QList<QCPLayer *> layers_;
+  Graph2DCommon::Picker picker_;
   // QVector<QPair<StatBox2D *, QPair<Axis2D *, Axis2D *>>> statboxplots_;
   // Histogram
   // Other types

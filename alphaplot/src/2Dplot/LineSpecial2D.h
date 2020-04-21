@@ -78,12 +78,12 @@ class LineSpecial2D : public QCPGraph {
 
  private:
   void datapicker(QMouseEvent *event, const QVariant &details);
-  void graphpicker(QMouseEvent *event, const QVariant &details);
   void movepicker(QMouseEvent *event, const QVariant &details);
   void removepicker(QMouseEvent *event, const QVariant &details);
 
  signals:
-  void showtooltip(QPointF position, double xval, double yval);
+  void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
+                   Axis2D *yaxos);
 
  private:
   Axis2D *xAxis_;

@@ -33,6 +33,10 @@
 #include "widgets/LayoutButton2D.h"
 
 const int Layout2D::buttonboxmargin_ = 2;
+const int Layout2D::defaultlayout2dwidth_ = 500;
+const int Layout2D::defaultlayout2dheight_ = 400;
+const int Layout2D::minimumlayout2dwidth_ = 100;
+const int Layout2D::minimumlayout2dheight_ = 100;
 
 Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
                    Qt::WindowFlags f)
@@ -42,7 +46,9 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
       layout_(new LayoutGrid2D()),
       buttionlist_(QList<LayoutButton2D *>()),
       currentAxisRect_(nullptr),
-      picker_(Graph2DCommon::Picker::None) {
+      picker_(Graph2DCommon::Picker::None),
+      xpickerline_(nullptr),
+      ypickerline_(nullptr) {
   main_widget_->setContentsMargins(0, 0, 0, 0);
   if (name.isEmpty()) setObjectName("multilayout2d plot");
   QDateTime birthday = QDateTime::currentDateTime();
@@ -81,8 +87,8 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   setWidget(main_widget_);
   layout->setMargin(0);
   layout->setSpacing(0);
-  setGeometry(QRect(0, 0, 500, 400));
-  setMinimumSize(QSize(100, 100));
+  setGeometry(QRect(0, 0, defaultlayout2dwidth_, defaultlayout2dheight_));
+  setMinimumSize(QSize(minimumlayout2dwidth_, minimumlayout2dheight_));
   setFocusPolicy(Qt::StrongFocus);
 
   plot2dCanvas_->plotLayout()->addElement(0, 0, layout_);
@@ -104,7 +110,17 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
           &Layout2D::setBackground);
 }
 
-Layout2D::~Layout2D() { delete layout_; }
+Layout2D::~Layout2D() {
+  delete layout_;
+  if (xpickerline_) {
+    plot2dCanvas_->removeItem(xpickerline_);
+    xpickerline_ = nullptr;
+  }
+  if (ypickerline_) {
+    plot2dCanvas_->removeItem(ypickerline_);
+    ypickerline_ = nullptr;
+  }
+}
 
 StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Table *table,
                                                            Column *colData,
@@ -644,10 +660,31 @@ void Layout2D::activateLayout(LayoutButton2D *button) {
   }
 }
 
-void Layout2D::showtooltip(QPointF position, double xval, double yval) {
+void Layout2D::showtooltip(QPointF position, double xval, double yval,
+                           Axis2D *xaxis, Axis2D *yaxis) {
   QToolTip::showText(mapToGlobal(QPoint(static_cast<int>(position.x()),
                                         static_cast<int>(position.y()))),
                      QString::number(xval) + ", " + QString::number(yval));
+  xpickerline_->setPen(QPen(Qt::red, 1));
+  ypickerline_->setPen(QPen(Qt::red, 1));
+  xpickerline_->setAntialiased(false);
+  ypickerline_->setAntialiased(false);
+  xpickerline_->setVisible(true);
+  ypickerline_->setVisible(true);
+  foreach (QCPItemPosition *position, xpickerline_->positions()) {
+    position->setAxes(xaxis, yaxis);
+  }
+  xpickerline_->setClipAxisRect(xaxis->axisRect());
+  xpickerline_->setClipToAxisRect(true);
+  xpickerline_->position("point1")->setCoords(xval, yaxis->range().lower);
+  xpickerline_->position("point2")->setCoords(xval, yaxis->range().upper);
+  foreach (QCPItemPosition *position, ypickerline_->positions()) {
+    position->setAxes(xaxis, yaxis);
+  }
+  ypickerline_->setClipAxisRect(xaxis->axisRect());
+  ypickerline_->setClipToAxisRect(true);
+  ypickerline_->position("point1")->setCoords(xaxis->range().lower, yval);
+  ypickerline_->position("point2")->setCoords(xaxis->range().upper, yval);
 }
 
 void Layout2D::addTextToAxisTicker(Column *col, Axis2D *axis, int from,
@@ -1293,15 +1330,17 @@ QStringList Layout2D::dependentTableMatrixNames() {
   return dependeon;
 }
 
-void Layout2D::setAxisRangeDragZoom(bool value) {
+void Layout2D::setAxisRangeZoom(bool value) {
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
-    if (value) {
-      axisrect->setRangeDrag(Qt::Horizontal | Qt::Vertical);
-      axisrect->setRangeZoom(Qt::Horizontal | Qt::Vertical);
-    } else {
-      axisrect->setRangeDrag(nullptr);
-      axisrect->setRangeZoom(nullptr);
-    }
+    (value) ? axisrect->setRangeZoomAxes(axisrect->axes())
+            : axisrect->setRangeZoomAxes(QList<QCPAxis *>());
+  }
+}
+
+void Layout2D::setAxisRangeDrag(bool value) {
+  foreach (AxisRect2D *axisrect, getAxisRectList()) {
+    (value) ? axisrect->setRangeDragAxes(axisrect->axes())
+            : axisrect->setRangeDragAxes(QList<QCPAxis *>());
   }
 }
 
@@ -1396,21 +1435,96 @@ void Layout2D::setBackground(const QColor &background) {
 void Layout2D::setGraphTool(const Graph2DCommon::Picker &picker) {
   picker_ = picker;
   switch (picker_) {
-    case Graph2DCommon::Picker::None:
+    case Graph2DCommon::Picker::None: {
+      if (xpickerline_) {
+        plot2dCanvas_->removeItem(xpickerline_);
+        xpickerline_ = nullptr;
+      }
+      if (ypickerline_) {
+        plot2dCanvas_->removeItem(ypickerline_);
+        ypickerline_ = nullptr;
+      }
       plot2dCanvas_->unsetCursor();
-      break;
-    case Graph2DCommon::Picker::DataPoint:
+      plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+      setAxisRangeDrag(false);
+      setAxisRangeZoom(false);
+    } break;
+    case Graph2DCommon::Picker::DataPoint: {
+      if (!xpickerline_) xpickerline_ = new QCPItemStraightLine(plot2dCanvas_);
+      if (!ypickerline_) ypickerline_ = new QCPItemStraightLine(plot2dCanvas_);
+      xpickerline_->setVisible(false);
+      ypickerline_->setVisible(false);
       plot2dCanvas_->setCursor(Qt::CursorShape::CrossCursor);
-      break;
-    case Graph2DCommon::Picker::DataGraph:
+      plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+      setAxisRangeDrag(false);
+      setAxisRangeZoom(false);
+    } break;
+    case Graph2DCommon::Picker::DataGraph: {
+      if (!xpickerline_) xpickerline_ = new QCPItemStraightLine(plot2dCanvas_);
+      if (!ypickerline_) ypickerline_ = new QCPItemStraightLine(plot2dCanvas_);
+      xpickerline_->setVisible(false);
+      ypickerline_->setVisible(false);
       plot2dCanvas_->setCursor(Qt::CursorShape::CrossCursor);
-      break;
-    case Graph2DCommon::Picker::DataMove:
+      plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+      setAxisRangeDrag(false);
+      setAxisRangeZoom(false);
+    } break;
+    case Graph2DCommon::Picker::DataMove: {
+      if (xpickerline_) {
+        plot2dCanvas_->removeItem(xpickerline_);
+        xpickerline_ = nullptr;
+      }
+      if (ypickerline_) {
+        plot2dCanvas_->removeItem(ypickerline_);
+        ypickerline_ = nullptr;
+      }
       plot2dCanvas_->setCursor(Qt::CursorShape::OpenHandCursor);
-      break;
-    case Graph2DCommon::Picker::DataRemove:
+      plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+      setAxisRangeDrag(false);
+      setAxisRangeZoom(false);
+    } break;
+    case Graph2DCommon::Picker::DataRemove: {
+      if (xpickerline_) {
+        plot2dCanvas_->removeItem(xpickerline_);
+        xpickerline_ = nullptr;
+      }
+      if (ypickerline_) {
+        plot2dCanvas_->removeItem(ypickerline_);
+        ypickerline_ = nullptr;
+      }
       plot2dCanvas_->setCursor(Qt::CursorShape::PointingHandCursor);
-      break;
+      plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+      setAxisRangeDrag(false);
+      setAxisRangeZoom(false);
+    } break;
+    case Graph2DCommon::Picker::DragRange: {
+      if (xpickerline_) {
+        plot2dCanvas_->removeItem(xpickerline_);
+        xpickerline_ = nullptr;
+      }
+      if (ypickerline_) {
+        plot2dCanvas_->removeItem(ypickerline_);
+        ypickerline_ = nullptr;
+      }
+      plot2dCanvas_->setCursor(Qt::CursorShape::SizeAllCursor);
+      plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+      setAxisRangeDrag(true);
+      setAxisRangeZoom(false);
+    } break;
+    case Graph2DCommon::Picker::ZoomRange: {
+      if (xpickerline_) {
+        plot2dCanvas_->removeItem(xpickerline_);
+        xpickerline_ = nullptr;
+      }
+      if (ypickerline_) {
+        plot2dCanvas_->removeItem(ypickerline_);
+        ypickerline_ = nullptr;
+      }
+      plot2dCanvas_->setCursor(Qt::CursorShape::UpArrowCursor);
+      plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+      setAxisRangeDrag(false);
+      setAxisRangeZoom(true);
+    } break;
   }
   QList<AxisRect2D *> axisrectlist = getAxisRectList();
   foreach (AxisRect2D *axisrect, axisrectlist) {

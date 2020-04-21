@@ -84,7 +84,7 @@ class Curve2D : public QCPCurve {
  protected:
   void draw(QCPPainter *painter);
   void drawCurveLine(QCPPainter *painter, const QVector<QPointF> &lines) const;
-      void mousePressEvent(QMouseEvent *event, const QVariant &details);
+  void mousePressEvent(QMouseEvent *event, const QVariant &details);
 
  private:
   void drawSpline(QCPPainter *painter);
@@ -92,12 +92,12 @@ class Curve2D : public QCPCurve {
   QVector<QPointF> calculateControlPoints(const QVector<QPointF> &points);
   QVector<qreal> firstControlPoints(const QVector<qreal> &vector);
   void datapicker(QMouseEvent *event, const QVariant &details);
-  void graphpicker(QMouseEvent *event, const QVariant &details);
   void movepicker(QMouseEvent *event, const QVariant &details);
   void removepicker(QMouseEvent *event, const QVariant &details);
 
  signals:
-  void showtooltip(QPointF position, double xval, double yval);
+  void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
+                   Axis2D *yaxis);
 
  private:
   Axis2D *xAxis_;

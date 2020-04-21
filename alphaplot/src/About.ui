@@ -67,6 +67,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="buildLabelCaption">
+         <property name="text">
+          <string>Build :</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="releaseDateLabelCaption">
          <property name="text">
           <string>Released :</string>
@@ -95,6 +102,13 @@
         <widget class="QLabel" name="versionLabel">
          <property name="text">
           <string>XX.XX.XX-alphaXX</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="buildLabel">
+         <property name="text">
+          <string>XX-bit</string>
          </property>
         </widget>
        </item>

@@ -694,12 +694,12 @@ void LineSpecial2D::mousePressEvent(QMouseEvent *event,
   if (event->button() == Qt::LeftButton) {
     switch (picker_) {
       case Graph2DCommon::Picker::None:
+      case Graph2DCommon::Picker::DataGraph:
+      case Graph2DCommon::Picker::DragRange:
+      case Graph2DCommon::Picker::ZoomRange:
         break;
       case Graph2DCommon::Picker::DataPoint:
         datapicker(event, details);
-        break;
-      case Graph2DCommon::Picker::DataGraph:
-        graphpicker(event, details);
         break;
       case Graph2DCommon::Picker::DataMove:
         movepicker(event, details);
@@ -723,17 +723,14 @@ void LineSpecial2D::datapicker(QMouseEvent *event, const QVariant &details) {
         point.x() < event->localPos().x() + 10 &&
         point.y() > event->localPos().y() - 10 &&
         point.y() < event->localPos().y() + 10)
-      emit showtooltip(point, it->mainKey(), it->mainValue());
+      emit showtooltip(point, it->mainKey(), it->mainValue(), getxaxis(),
+                       getyaxis());
   }
 }
 
-void LineSpecial2D::graphpicker(QMouseEvent *event, const QVariant &details) {
-  double xvalue, yvalue;
-  pixelsToCoords(event->localPos(), xvalue, yvalue);
-  emit showtooltip(event->localPos(), xvalue, yvalue);
-}
+void LineSpecial2D::movepicker(QMouseEvent *event, const QVariant &details) {
 
-void LineSpecial2D::movepicker(QMouseEvent *event, const QVariant &details) {}
+}
 
 void LineSpecial2D::removepicker(QMouseEvent *event, const QVariant &details) {
   QCPGraphDataContainer::const_iterator it = data()->constEnd();

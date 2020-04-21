@@ -73,7 +73,7 @@ Bar2D::Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
 
 void Bar2D::init() {
   layername_ = QString("<Bar2D>") +
-      QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz");
+               QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz");
   QThread::msleep(1);
   parentPlot()->addLayer(layername_, xaxis_->layer(), QCustomPlot::limBelow);
   setLayer(layername_);
@@ -413,12 +413,12 @@ void Bar2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   if (event->button() == Qt::LeftButton) {
     switch (picker_) {
       case Graph2DCommon::Picker::None:
+      case Graph2DCommon::Picker::DataGraph:
+      case Graph2DCommon::Picker::DragRange:
+      case Graph2DCommon::Picker::ZoomRange:
         break;
       case Graph2DCommon::Picker::DataPoint:
         datapicker(event, details);
-        break;
-      case Graph2DCommon::Picker::DataGraph:
-        graphpicker(event, details);
         break;
       case Graph2DCommon::Picker::DataMove:
         movepicker(event, details);
@@ -438,14 +438,9 @@ void Bar2D::datapicker(QMouseEvent *, const QVariant &details) {
     dataPoints.dataRange();
     it = data()->at(dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
-    emit showtooltip(point, it->mainKey(), it->mainValue());
+    emit showtooltip(point, it->mainKey(), it->mainValue(), getxaxis(),
+                     getyaxis());
   }
-}
-
-void Bar2D::graphpicker(QMouseEvent *event, const QVariant &) {
-  double xvalue, yvalue;
-  pixelsToCoords(event->localPos(), xvalue, yvalue);
-  emit showtooltip(event->localPos(), xvalue, yvalue);
 }
 
 void Bar2D::movepicker(QMouseEvent *event, const QVariant &details) {}

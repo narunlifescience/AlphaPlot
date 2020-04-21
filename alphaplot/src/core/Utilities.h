@@ -23,6 +23,7 @@
 class Utilities {
  public:
   enum class ColorPal { Light, Dark };
+  static int getWordSizeApp();
   static QString getOperatingSystem();
   static int getWordSizeOfOS();
   static QColor getRandColorGoldenRatio(ColorPal colpal);

@@ -292,6 +292,7 @@
     <file>icons/common/128/preferences-general-apperance.png</file>
     <file>icons/common/128/preferences-desktop-color.png</file>
     <file>icons/common/128/alpha-logo.png</file>
+    <file>icons/light/16/drag-move.png</file>
     <file>icons/light/16/edit-copy.png</file>
     <file>icons/light/16/edit-cut.png</file>
     <file>icons/light/16/edit-paste.png</file>
@@ -425,6 +426,7 @@
     <file>icons/light/16/graph3d-ribbon.png</file>
     <file>icons/light/16/graph3d-scatter.png</file>
     <file>icons/light/16/graph3d-trajectory.png</file>
+    <file>icons/light/22/drag-move.png</file>
     <file>icons/light/22/edit-copy.png</file>
     <file>icons/light/22/edit-cut.png</file>
     <file>icons/light/22/edit-paste.png</file>
@@ -562,6 +564,7 @@
     <file>icons/light/22/graph3d-ribbon.png</file>
     <file>icons/light/22/graph3d-scatter.png</file>
     <file>icons/light/22/graph3d-trajectory.png</file>
+    <file>icons/light/24/drag-move.png</file>
     <file>icons/light/24/edit-copy.png</file>
     <file>icons/light/24/edit-cut.png</file>
     <file>icons/light/24/edit-paste.png</file>
@@ -717,6 +720,7 @@
     <file>icons/light/32/graph3d-scatter.png</file>
     <file>icons/light/32/graph3d-trajectory.png</file>
     <file>icons/light/32/alpha-project.png</file>
+    <file>icons/dark/16/drag-move.png</file>
     <file>icons/dark/16/edit-copy.png</file>
     <file>icons/dark/16/edit-cut.png</file>
     <file>icons/dark/16/edit-paste.png</file>
@@ -850,6 +854,7 @@
     <file>icons/dark/16/graph3d-ribbon.png</file>
     <file>icons/dark/16/graph3d-scatter.png</file>
     <file>icons/dark/16/graph3d-trajectory.png</file>
+    <file>icons/dark/22/drag-move.png</file>
     <file>icons/dark/22/edit-copy.png</file>
     <file>icons/dark/22/edit-cut.png</file>
     <file>icons/dark/22/edit-paste.png</file>
@@ -987,6 +992,7 @@
     <file>icons/dark/22/graph3d-ribbon.png</file>
     <file>icons/dark/22/graph3d-scatter.png</file>
     <file>icons/dark/22/graph3d-trajectory.png</file>
+    <file>icons/dark/24/drag-move.png</file>
     <file>icons/dark/24/edit-copy.png</file>
     <file>icons/dark/24/edit-cut.png</file>
     <file>icons/dark/24/edit-paste.png</file>

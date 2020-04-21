@@ -18,6 +18,11 @@ Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalys
 # Watch the Video
 [![AlphaPlot Plotting Basics](data/screenshots/alphaplot1.png)](http://www.youtube.com/watch?v=U3DE_ObVLeU "AlphaPlot Plotting Basics")
 
+# Examples
+| | | |
+|:-------------------------:|:-------------------------:|:-------------------------:|
+|<img width="500" alt="" src="data/screenshots/example1.png">|  <img width="500" alt="" src="data/screenshots/example2.png">|<img width="500" alt="" src="data/screenshots/example3.png">|
+
 # Installation
 Get the code (if you haven't already):
 

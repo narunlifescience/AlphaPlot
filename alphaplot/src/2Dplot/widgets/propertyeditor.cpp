@@ -91,6 +91,11 @@ PropertyEditor::PropertyEditor(QWidget *parent)
              << "Automatic(gb)"
              << "Automatic(gbc)"
              << "Automatic(G)";
+  QStringList endingstylelist;
+  endingstylelist << tr("None") << tr("Flat Arrow") << tr("Spike Arrow")
+                  << tr("Line Arrow") << tr("Disc") << tr("Square")
+                  << tr("Diamond") << tr("Bar") << tr("Half Bar")
+                  << tr("Skewed Bar");
 
   // Property browser set up appropriate widget factory
   propertybrowser_->setFactoryForManager(boolManager_, checkBoxFactory_);
@@ -124,6 +129,14 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   axispropertyoffsetitem_ = intManager_->addProperty(tr("Offset"));
   axispropertyfromitem_ = doubleManager_->addProperty(tr("From"));
   axispropertytoitem_ = doubleManager_->addProperty(tr("To"));
+  axispropertyupperendingstyleitem_ =
+      enumManager_->addProperty(tr("Upper Ending"));
+  enumManager_->setEnumNames(axispropertyupperendingstyleitem_,
+                             endingstylelist);
+  axispropertylowerendingstyleitem_ =
+      enumManager_->addProperty(tr("Lower Ending"));
+  enumManager_->setEnumNames(axispropertylowerendingstyleitem_,
+                             endingstylelist);
   axispropertylinlogitem_ = enumManager_->addProperty(tr("Type"));
   enumManager_->setEnumNames(axispropertylinlogitem_, axistypelist);
   axispropertyinvertitem_ = boolManager_->addProperty(tr("Inverted"));
@@ -142,6 +155,8 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   axispropertytickvisibilityitem_ = boolManager_->addProperty("Axis Ticks");
   axispropertytickcountitem_ = intManager_->addProperty("Count");
   axispropertytickvisibilityitem_->addSubProperty(axispropertytickcountitem_);
+  axispropertytickoriginitem_ = doubleManager_->addProperty("Origin");
+  axispropertytickvisibilityitem_->addSubProperty(axispropertytickoriginitem_);
   axispropertyticklengthinitem_ = intManager_->addProperty("Length In");
   axispropertytickvisibilityitem_->addSubProperty(
       axispropertyticklengthinitem_);
@@ -270,11 +285,6 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   enumManager_->setEnumNames(itempropertytexttextalignmentitem_, alignlist);
 
   // Line Item Properties
-  QStringList endingstylelist;
-  endingstylelist << tr("None") << tr("Flat Arrow") << tr("Spike Arrow")
-                  << tr("Line Arrow") << tr("Disc") << tr("Square")
-                  << tr("Diamond") << tr("Bar") << tr("Half Bar")
-                  << tr("Skewed Bar");
   itempropertylinepixelpositionx1item_ =
       doubleManager_->addProperty("Pixel Position X1");
   itempropertylinepixelpositiony1item_ =
@@ -1683,6 +1693,10 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setstrokethickness_axis(value);
     axis->layer()->replot();
+  } else if (prop->compare(axispropertytickoriginitem_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    axis->setticksorigin(value);
+    axis->layer()->replot();
   } else if (prop->compare(axispropertytickstrokethicknessitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->settickstrokethickness_axis(value);
@@ -2263,6 +2277,14 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     axisrect->getGridPair().second.first->setMinorGridStyle(
         static_cast<Qt::PenStyle>(value + 1));
     axisrect->getGridPair().second.first->layer()->replot();
+  } else if (prop->compare(axispropertyupperendingstyleitem_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    axis->setUpperEnding(static_cast<QCPLineEnding::EndingStyle>(value));
+    axis->layer()->replot();
+  } else if (prop->compare(axispropertylowerendingstyleitem_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    axis->setLowerEnding(static_cast<QCPLineEnding::EndingStyle>(value));
+    axis->layer()->replot();
   } else if (prop->compare(axispropertylinlogitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setscaletype_axis(static_cast<Axis2D::AxisScaleType>(value));
@@ -2892,6 +2914,8 @@ void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
   propertybrowser_->addProperty(axispropertyoffsetitem_);
   propertybrowser_->addProperty(axispropertyfromitem_);
   propertybrowser_->addProperty(axispropertytoitem_);
+  propertybrowser_->addProperty(axispropertyupperendingstyleitem_);
+  propertybrowser_->addProperty(axispropertylowerendingstyleitem_);
   propertybrowser_->addProperty(axispropertylinlogitem_);
   propertybrowser_->addProperty(axispropertyinvertitem_);
   propertybrowser_->addProperty(axispropertystrokecoloritem_);
@@ -2910,6 +2934,10 @@ void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
   intManager_->setValue(axispropertyoffsetitem_, axis->getoffset_axis());
   doubleManager_->setValue(axispropertyfromitem_, axis->getfrom_axis());
   doubleManager_->setValue(axispropertytoitem_, axis->getto_axis());
+  enumManager_->setValue(axispropertyupperendingstyleitem_,
+                         axis->upperEnding().style());
+  enumManager_->setValue(axispropertylowerendingstyleitem_,
+                         axis->lowerEnding().style());
   enumManager_->setValue(axispropertylinlogitem_,
                          static_cast<int>(axis->getscaletype_axis()));
   boolManager_->setValue(axispropertyinvertitem_, axis->getinverted_axis());
@@ -2931,6 +2959,7 @@ void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
   boolManager_->setValue(axispropertytickvisibilityitem_,
                          axis->gettickvisibility_axis());
   intManager_->setValue(axispropertytickcountitem_, axis->gettickscount_axis());
+  doubleManager_->setValue(axispropertytickoriginitem_, axis->getticksorigin());
   intManager_->setValue(axispropertyticklengthinitem_,
                         axis->getticklengthin_axis());
   intManager_->setValue(axispropertyticklengthoutitem_,
@@ -5081,6 +5110,10 @@ void PropertyEditor::setObjectPropertyId() {
   axispropertyoffsetitem_->setPropertyId("axispropertyoffsetitem_");
   axispropertyfromitem_->setPropertyId("axispropertyfromitem_");
   axispropertytoitem_->setPropertyId("axispropertytoitem_");
+  axispropertyupperendingstyleitem_->setPropertyId(
+      "axispropertyupperendingstyleitem_");
+  axispropertylowerendingstyleitem_->setPropertyId(
+      "axispropertylowerendingstyleitem_");
   axispropertylinlogitem_->setPropertyId("axispropertylinlogitem_");
   axispropertyinvertitem_->setPropertyId("axispropertyinvertitem_");
   axispropertystrokecoloritem_->setPropertyId("axispropertystrokecoloritem_");
@@ -5097,6 +5130,7 @@ void PropertyEditor::setObjectPropertyId() {
   axispropertytickvisibilityitem_->setPropertyId(
       "axispropertytickvisibilityitem_");
   axispropertytickcountitem_->setPropertyId("axispropertytickcountitem_");
+  axispropertytickoriginitem_->setPropertyId("axispropertytickoriginitem_");
   axispropertyticklengthinitem_->setPropertyId("axispropertyticklengthinitem_");
   axispropertyticklengthoutitem_->setPropertyId(
       "axispropertyticklengthoutitem_");

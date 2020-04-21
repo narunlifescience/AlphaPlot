@@ -584,11 +584,11 @@ class ApplicationWindow : public QMainWindow,
   void addText();
   void disableAddText();
   void addImage();
-  void zoomIn();
-  void zoomOut();
   void setAutoScale();
   void showRangeSelectors();
   void showDataReader();
+  void dragRange();
+  void zoomRange();
   void showScreenReader();
   void pickPointerCursor();
   void pickGraphTool(QAction* action);

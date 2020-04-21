@@ -32,6 +32,16 @@
 double Utilities::rgbRandomSeed_ = static_cast<double>(rand()) / RAND_MAX;
 int Utilities::rgbCounter_ = 0;
 
+int Utilities::getWordSizeApp() {
+#if defined(Q_BUILD_64)
+  return 64;
+#elif defined(Q_BUILD_32)
+  return 32;
+#else
+  return 0;
+#endif
+}
+
 QString Utilities::getOperatingSystem() {
 #if defined(Q_OS_WIN32)
   switch (QSysInfo::windowsVersion()) {

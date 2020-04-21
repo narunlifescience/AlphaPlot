@@ -136,11 +136,14 @@ class PropertyEditor : public QDockWidget {
   QtProperty *layoutpropertygroupitem_;
   QtProperty *layoutpropertyrectitem_;
   QtProperty *layoutpropertycoloritem_;
+
   // Axis Properties General Block
   QtProperty *axispropertyvisibleitem_;
   QtProperty *axispropertyoffsetitem_;
   QtProperty *axispropertyfromitem_;
   QtProperty *axispropertytoitem_;
+  QtProperty *axispropertyupperendingstyleitem_;
+  QtProperty *axispropertylowerendingstyleitem_;
   QtProperty *axispropertylinlogitem_;
   QtProperty *axispropertyinvertitem_;
   QtProperty *axispropertystrokecoloritem_;
@@ -155,6 +158,7 @@ class PropertyEditor : public QDockWidget {
   // Axis Properties Ticks sub block
   QtProperty *axispropertytickvisibilityitem_;
   QtProperty *axispropertytickcountitem_;
+    QtProperty *axispropertytickoriginitem_;
   QtProperty *axispropertyticklengthinitem_;
   QtProperty *axispropertyticklengthoutitem_;
   QtProperty *axispropertytickstrokecoloritem_;

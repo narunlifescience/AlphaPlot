@@ -78,7 +78,7 @@ Curve2D::Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
 
 void Curve2D::init() {
   layername_ = QString("<Curve2D>") +
-      QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz");
+               QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz");
   QThread::msleep(1);
   parentPlot()->addLayer(layername_, xAxis_->layer(), QCustomPlot::limBelow);
   setLayer(layername_);
@@ -861,12 +861,12 @@ void Curve2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   if (event->button() == Qt::LeftButton) {
     switch (picker_) {
       case Graph2DCommon::Picker::None:
+      case Graph2DCommon::Picker::DataGraph:
+      case Graph2DCommon::Picker::DragRange:
+      case Graph2DCommon::Picker::ZoomRange:
         break;
       case Graph2DCommon::Picker::DataPoint:
         datapicker(event, details);
-        break;
-      case Graph2DCommon::Picker::DataGraph:
-        graphpicker(event, details);
         break;
       case Graph2DCommon::Picker::DataMove:
         movepicker(event, details);
@@ -1006,16 +1006,10 @@ void Curve2D::datapicker(QMouseEvent *event, const QVariant &details) {
         point.x() < event->localPos().x() + 10 &&
         point.y() > event->localPos().y() - 10 &&
         point.y() < event->localPos().y() + 10) {
-      emit showtooltip(point, it->mainKey(), it->mainValue());
+      emit showtooltip(point, it->mainKey(), it->mainValue(), getxaxis(),
+                       getyaxis());
     }
   }
-}
-
-void Curve2D::graphpicker(QMouseEvent *event, const QVariant &details) {
-  Q_UNUSED(details);
-  double xvalue, yvalue;
-  pixelsToCoords(event->localPos(), xvalue, yvalue);
-  emit showtooltip(event->localPos(), xvalue, yvalue);
 }
 
 void Curve2D::movepicker(QMouseEvent *event, const QVariant &details) {}
