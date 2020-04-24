@@ -52,6 +52,8 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
         case AlphaPlot::ColumnDataType::TypeString:
           xdata = i;
           break;
+        default:
+          break;
       }
       switch (ycol->dataType()) {
         case AlphaPlot::ColumnDataType::TypeDouble:
@@ -62,6 +64,8 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
           break;
         case AlphaPlot::ColumnDataType::TypeString:
           ydata = i;
+          break;
+        default:
           break;
       }
       QCPGraphData data(xdata, ydata);
@@ -137,6 +141,8 @@ void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
         case AlphaPlot::ColumnDataType::TypeString:
           xdata = i;
           break;
+        default:
+          break;
       }
       switch (ycol->dataType()) {
         case AlphaPlot::ColumnDataType::TypeDouble:
@@ -147,6 +153,8 @@ void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
           break;
         case AlphaPlot::ColumnDataType::TypeString:
           ydata = i;
+          break;
+        default:
           break;
       }
 
@@ -222,6 +230,8 @@ void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
         case AlphaPlot::ColumnDataType::TypeString:
           xdata = i;
           break;
+        default:
+          break;
       }
       switch (ycolumn->dataType()) {
         case AlphaPlot::ColumnDataType::TypeDouble:
@@ -233,6 +243,8 @@ void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
           break;
         case AlphaPlot::ColumnDataType::TypeString:
           ydata = i;
+          break;
+        default:
           break;
       }
       QCPBarsData data(xdata, ydata);

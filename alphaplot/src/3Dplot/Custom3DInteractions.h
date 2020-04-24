@@ -1,6 +1,5 @@
 #ifndef CUSTOM3DINTERACTIONS_H
 #define CUSTOM3DINTERACTIONS_H
-#ifdef PLOT3D_QT
 
 #include <QtDataVisualization/QAbstract3DInputHandler>
 
@@ -19,7 +18,8 @@ class Custom3DInteractions : public QAbstract3DInputHandler {
  private:
   QPointF mousepoint_;
   bool mouserotation_;
+  float zoomfactor_;
+  static const int deltazoom_;
 };
 
-#endif  // PLOT3D_QT
 #endif  // CUSTOM3DINTERACTIONS_H

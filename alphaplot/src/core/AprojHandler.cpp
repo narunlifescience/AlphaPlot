@@ -10,7 +10,7 @@
 
 #include "2Dplot/Layout2D.h"
 #include "2Dplot/widgets/propertyeditor.h"
-#include "3Dplot/Graph3D.h"
+#include "3Dplot/Layout3D.h"
 #include "ApplicationWindow.h"
 #include "Folder.h"
 #include "Matrix.h"
@@ -249,7 +249,7 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
       }
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "plot3d") {
-      Graph3D *plot = app->newPlot3D();
+      Layout3D *plot = app->newGraph3D(Graph3DCommon::Plot3DType::Surface);
       plot->load(xmlreader.get());
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "log") {
@@ -375,7 +375,7 @@ void AprojHandler::saveTreeRecursive(Folder *folder,
   QList<MyWidget *> others;
   QList<MyWidget *> plots;
   foreach (MyWidget *subwindow, folder->windowsList()) {
-    (qobject_cast<Layout2D *>(subwindow) || qobject_cast<Graph3D *>(subwindow))
+    (qobject_cast<Layout2D *>(subwindow) || qobject_cast<Layout3D *>(subwindow))
         ? plots << subwindow
         : others << subwindow;
   }
@@ -393,8 +393,8 @@ void AprojHandler::saveTreeRecursive(Folder *folder,
     } else if (qobject_cast<Layout2D *>(subwindow)) {
       Layout2D *graph = qobject_cast<Layout2D *>(subwindow);
       graph->save(xmlwriter);
-    } else if (qobject_cast<Graph3D *>(subwindow)) {
-      Graph3D *graph = qobject_cast<Graph3D *>(subwindow);
+    } else if (qobject_cast<Layout3D *>(subwindow)) {
+      Layout3D *graph = qobject_cast<Layout3D *>(subwindow);
       graph->save(xmlwriter);
     }
   }

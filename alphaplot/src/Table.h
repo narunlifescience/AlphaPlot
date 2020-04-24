@@ -36,15 +36,15 @@
 #include <QMap>
 #include <QVarLengthArray>
 #include <QtScript>
+
 #include "MyWidget.h"
 
 // Scripting
-#include "scripting/Script.h"
-#include "scripting/ScriptingEnv.h"
-
 #include "future/table/TableView.h"
 #include "future/table/future_Table.h"
 #include "globals.h"
+#include "scripting/Script.h"
+#include "scripting/ScriptingEnv.h"
 /*!\brief MDI window providing a spreadsheet table with column logic.
  */
 class Table : public TableView, public scripted, public QScriptable {
@@ -67,9 +67,10 @@ class Table : public TableView, public scripted, public QScriptable {
         int ignoredLines, bool renameCols, bool stripSpaces,
         bool simplifySpaces, bool convertToNumeric, QLocale numericFormat,
         const QString& label, QWidget* parent = 0, const char* name = 0,
-        Qt::WindowFlags f = 0);
+        Qt::WindowFlags f = Qt::SubWindow);
   Table(ScriptingEnv* env, int r, int c, const QString& label,
-        QWidget* parent = 0, const char* name = 0, Qt::WindowFlags f = 0);
+        QWidget* parent = 0, const char* name = 0,
+        Qt::WindowFlags f = Qt::SubWindow);
 
   //! Sets the number of significant digits
   void setNumericPrecision(int prec);

@@ -230,8 +230,7 @@
      <string>&amp;3D Plot</string>
     </property>
     <addaction name="action3DWireFrame"/>
-    <addaction name="action3DHiddenLine"/>
-    <addaction name="action3DPolygons"/>
+    <addaction name="action3DSurface"/>
     <addaction name="action3DWireSurface"/>
     <addaction name="separator"/>
     <addaction name="action3DBar"/>
@@ -1034,19 +1033,14 @@
     <string>&amp;3D Wire Frame</string>
    </property>
   </action>
-  <action name="action3DHiddenLine">
+  <action name="action3DSurface">
    <property name="text">
-    <string>3D &amp;Hidden Line</string>
-   </property>
-  </action>
-  <action name="action3DPolygons">
-   <property name="text">
-    <string>3D &amp;Polygons</string>
+    <string>3D &amp;Surface</string>
    </property>
   </action>
   <action name="action3DWireSurface">
    <property name="text">
-    <string>3D &amp;Wire Surface</string>
+    <string>3D &amp;Wire Frame Surface</string>
    </property>
   </action>
   <action name="action3DBar">

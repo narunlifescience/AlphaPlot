@@ -793,11 +793,11 @@ void ConfigDialog::languageChange() {
   itemsList->addItem(tr("3D Plots"));
   itemsList->addItem(tr("Fitting"));
   itemsList->setCurrentRow(0);
-  itemsList->item(0)->setIcon(QIcon(QPixmap(":/general.xpm")));
-  itemsList->item(1)->setIcon(QIcon(QPixmap(":/configTable.xpm")));
-  itemsList->item(2)->setIcon(QIcon(QPixmap(":/config_curves.xpm")));
-  itemsList->item(3)->setIcon(QIcon(QPixmap(":/3dplots.xpm")));
-  itemsList->item(4)->setIcon(QIcon(QPixmap(":/fit.xpm")));
+  itemsList->item(0)->setIcon(QIcon(QPixmap(":/config_general.xpm")));
+  itemsList->item(1)->setIcon(QIcon(QPixmap(":/config_table.xpm")));
+  itemsList->item(2)->setIcon(QIcon(QPixmap(":/config_plot2d.xpm")));
+  itemsList->item(3)->setIcon(QIcon(QPixmap(":/config_plot3d.xpm")));
+  itemsList->item(4)->setIcon(QIcon(QPixmap(":/config_fit.xpm")));
   itemsList->setIconSize(QSize(32, 32));
   // calculate a sensible width for the items list
   // (default QListWidget size is 256 which looks too big)
@@ -1144,7 +1144,7 @@ void ConfigDialog::apply() {
   app_->orthogonal3DPlots = boxOrthogonal->isChecked();
   app_->smooth3DMesh = boxSmoothMesh->isChecked();
   app_->autoscale3DPlots = boxAutoscale3DPlots->isChecked();
-  app_->setPlot3DOptions();
+  //app_->setPlot3DOptions();
 
   // fitting page
   app_->fit_output_precision = boxPrecision->value();

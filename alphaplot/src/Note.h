@@ -47,7 +47,7 @@ class Note : public MyWidget {
 
  public:
   Note(ScriptingEnv *env, const QString &label, QWidget *parent = nullptr,
-       const char *name = 0, Qt::WindowFlags f = 0);
+       const char *name = 0, Qt::WindowFlags f = Qt::SubWindow);
   ~Note();
 
   void init(ScriptingEnv *env);
@@ -69,10 +69,10 @@ class Note : public MyWidget {
   bool load(XmlStreamReader *xmlreader);
   void print() { textedit_->print(); }
   void exportPDF(const QString &fileName) { textedit_->exportPDF(fileName); }
-  QString exportASCII(const QString &file = QString::null) {
+  QString exportASCII(const QString &file = QString()) {
     return textedit_->exportASCII(file);
   }
-  QString importASCII(const QString &file = QString::null) {
+  QString importASCII(const QString &file = QString()) {
     return textedit_->importASCII(file);
   }
   void execute() { textedit_->execute(); }

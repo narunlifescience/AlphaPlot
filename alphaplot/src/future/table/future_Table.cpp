@@ -30,12 +30,10 @@
  *                                                                         *
  ***************************************************************************/
 #include "table/future_Table.h"
-#include "../core/IconLoader.h"
-#include "core/Project.h"
-#include "lib/ActionManager.h"
 
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_rng.h>
+
 #include <QApplication>
 #include <QClipboard>
 #include <QContextMenuEvent>
@@ -58,9 +56,11 @@
 #include <climits>  // for RAND_MAX
 #include <cmath>
 
+#include "../core/IconLoader.h"
 #include "TeXTableExportDialog.h"
 #include "TeXTableSettings.h"
 #include "core/AbstractFilter.h"
+#include "core/Project.h"
 #include "core/column/Column.h"
 #include "core/datatypes/DateTime2DoubleFilter.h"
 #include "core/datatypes/DateTime2StringFilter.h"
@@ -73,11 +73,11 @@
 #include "core/datatypes/String2DayOfWeekFilter.h"
 #include "core/datatypes/String2DoubleFilter.h"
 #include "core/datatypes/String2MonthFilter.h"
+#include "lib/ActionManager.h"
 #include "table/TableModel.h"
 #include "table/TableView.h"
 #include "table/future_SortDialog.h"
 #include "table/tablecommands.h"
-
 #include "ui_DimensionsDialog.h"
 
 #define WAIT_CURSOR QApplication::setOverrideCursor(QCursor(Qt::WaitCursor))
@@ -737,6 +737,8 @@ void Table::generateRandomDistribution(
       rndDistLmd = [](gsl_rng *rnd, const QVector<double> &prm) -> double {
         return gsl_ran_chisq(rnd, prm.at(0) /*nu*/);
       };
+      break;
+    default:
       break;
   }
 
@@ -1899,7 +1901,7 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
   WAIT_CURSOR;
   beginMacro(tr("%1: sort column(s)").arg(name()));
 
-  if (leading == 0)  // sort separately
+  if (leading == nullptr)  // sort separately
   {
     for (int i = 0; i < cols.size(); i++) {
       Column *col = cols.at(i);

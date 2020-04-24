@@ -100,7 +100,7 @@ class Matrix : public MatrixView, public scripted {
    */
   Matrix(ScriptingEnv *env, int r, int c, const QString &label,
          QWidget *parent = nullptr, const char *name = 0,
-         Qt::WindowFlags f = 0);
+         Qt::WindowFlags f = Qt::SubWindow);
   ~Matrix();
 
   //! Return the number of rows
@@ -314,7 +314,7 @@ class Matrix : public MatrixView, public scripted {
 
   Matrix(future::Matrix *future_matrix, ScriptingEnv *env, int r, int c,
          const QString &label, QWidget *parent = 0, const char *name = 0,
-         Qt::WindowFlags f = 0);
+         Qt::WindowFlags f = Qt::SubWindow);
 };
 
 #endif  // MATRIX_H

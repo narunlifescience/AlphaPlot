@@ -12,16 +12,10 @@ HEADERS  += src/ApplicationWindow.h \
             src/scripting/MuParserScripting.h \
             src/scripting/ScriptingFunctions.h\
             src/scripting/MyParser.h \
-            src/3Dplot/Graph3D.h \
-            src/3Dplot/TextDialog.h \
             src/Table.h \
-            src/3Dplot/Plot3DDialog.h \
             src/PlotWizard.h \
-            src/3Dplot/SurfaceDialog.h \
             src/ImageDialog.h \
             src/LayerDialog.h \
-            src/3Dplot/Bar.h \
-            src/3Dplot/Cone3D.h \
             src/ConfigDialog.h \
             src/Matrix.h \
             src/DataSetDialog.h \
@@ -32,7 +26,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/RenameWindowDialog.h \
             src/MyWidget.h \
             src/ImportASCIIDialog.h \
-            src/ImageExportDialog.h\
+            src/ImageExportDlg.h\
             src/analysis/FilterDialog.h\
             src/analysis/FFTDialog.h\
             src/Note.h\
@@ -90,26 +84,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/ui/PropertiesDialog.h \
             src/ui/RandomDistributionDialog.h \
             src/About.h \
-            src/2Dplot/Vector2D.h \
-            src/2Dplot/DataManager2D.h \
-            src/2Dplot/Curve2D.h \
-            src/2Dplot/PlotPoint.h \
-            src/2Dplot/Pie2D.h \
-            src/2Dplot/widgets/MyTreeWidget.h \
-            src/2Dplot/widgets/AddAxisWidget.h \
-            src/2Dplot/widgets/ImageExportDialog2D.h \
-            src/2Dplot/Graph2DCommon.h \
-            src/2Dplot/widgets/AddPlot2DDialog.h \
-            src/2Dplot/widgets/ErrDialog.h \
-            src/2Dplot/LineItem2D.h \
-            src/2Dplot/ErrorBar2D.h \
-            src/2Dplot/TextItem2D.h \
-            src/2Dplot/ImageItem2D.h \
-            src/2Dplot/Plotcolumns.h \
-            src/3Dplot/Layout3D.h \
-            src/3Dplot/Surface3D.h \
-            src/3Dplot/Custom3DInteractions.h \
-            src/2Dplot/ColorMap2D.h \
             src/core/AprojHandler.h \
             src/future/lib/XmlStreamWriter.h \
 
@@ -122,16 +96,10 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/scripting/MuParserScript.cpp \
             src/scripting/MuParserScripting.cpp \
             src/scripting/MyParser.cpp\
-            src/3Dplot/Graph3D.cpp \
-            src/3Dplot/TextDialog.cpp \
             src/Table.cpp \
-            src/3Dplot/Plot3DDialog.cpp \
             src/PlotWizard.cpp \
-            src/3Dplot/SurfaceDialog.cpp \
             src/ImageDialog.cpp \
             src/LayerDialog.cpp \
-            src/3Dplot/Bar.cpp \
-            src/3Dplot/Cone3D.cpp \
             src/DataSetDialog.cpp \
             src/ConfigDialog.cpp \
             src/Matrix.cpp \
@@ -149,7 +117,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/TextFormatButtons.cpp\
             src/scripting/ScriptEdit.cpp\
             src/ImportASCIIDialog.cpp\
-            src/ImageExportDialog.cpp\
+            src/ImageExportDlg.cpp\
             src/scripting/ScriptingFunctions.cpp\
             src/scripting/ScriptingEnv.cpp\
             src/scripting/Script.cpp\
@@ -202,24 +170,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ui/RandomDistributionDialog.cpp \
             src/About.cpp \
             src/main.cpp \
-            src/2Dplot/Vector2D.cpp \
-            src/2Dplot/DataManager2D.cpp \
-            src/2Dplot/Curve2D.cpp \
-            src/2Dplot/PlotPoint.cpp \
-            src/2Dplot/Pie2D.cpp \
-            src/2Dplot/widgets/MyTreeWidget.cpp \
-            src/2Dplot/widgets/AddAxisWidget.cpp \
-            src/2Dplot/widgets/ImageExportDialog2D.cpp \
-            src/2Dplot/widgets/AddPlot2DDialog.cpp \
-            src/2Dplot/widgets/ErrDialog.cpp \
-            src/2Dplot/LineItem2D.cpp \
-            src/2Dplot/ErrorBar2D.cpp \
-            src/2Dplot/TextItem2D.cpp \
-            src/2Dplot/ImageItem2D.cpp \
-            src/3Dplot/Layout3D.cpp \
-            src/3Dplot/Surface3D.cpp \
-            src/3Dplot/Custom3DInteractions.cpp \
-            src/2Dplot/ColorMap2D.cpp \
             src/core/AprojHandler.cpp \
             src/future/lib/XmlStreamWriter.cpp \
 
@@ -231,7 +181,6 @@ FORMS        += src/ApplicationWindow.ui \
                 src/ui/SettingsDialog.ui \
                 src/ui/PropertiesDialog.ui \
                 src/ui/RandomDistributionDialog.ui \
-                src/2Dplot/widgets/AddAxisWidget.ui \
                 src/About.ui \
 
 ########### Future code backported from the aspect framework ##################
@@ -359,6 +308,14 @@ SOURCES     += ../3rdparty/qcustomplot/qcustomplot.cpp
     RESOURCES += ../3rdparty/propertybrowser/qtpropertybrowser.qrc
 
 ##############################################################
+####################### PlotCommon ###########################
+##############################################################
+
+HEADERS     += src/plotcommon/widgets/ImageExportDialog.h \
+
+SOURCES     += src/plotcommon/widgets/ImageExportDialog.cpp \
+
+##############################################################
 ####################### 2DPlot ###############################
 ##############################################################
 
@@ -375,6 +332,22 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/LineSpecial2D.h \
                src/2Dplot/Plot2D.h \
                src/2Dplot/StatBox2D.h \
+               src/2Dplot/Vector2D.h \
+               src/2Dplot/DataManager2D.h \
+               src/2Dplot/Curve2D.h \
+               src/2Dplot/PlotPoint.h \
+               src/2Dplot/Pie2D.h \
+               src/2Dplot/ColorMap2D.h \
+               src/2Dplot/widgets/MyTreeWidget.h \
+               src/2Dplot/widgets/AddAxisWidget.h \
+               src/2Dplot/Graph2DCommon.h \
+               src/2Dplot/widgets/AddPlot2DDialog.h \
+               src/2Dplot/widgets/ErrDialog.h \
+               src/2Dplot/LineItem2D.h \
+               src/2Dplot/ErrorBar2D.h \
+               src/2Dplot/TextItem2D.h \
+               src/2Dplot/ImageItem2D.h \
+               src/2Dplot/Plotcolumns.h \
 
 SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/widgets/propertyeditor.cpp \
@@ -389,6 +362,40 @@ SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/LineSpecial2D.cpp \
                src/2Dplot/Plot2D.cpp \
                src/2Dplot/StatBox2D.cpp \
+               src/2Dplot/Vector2D.cpp \
+               src/2Dplot/DataManager2D.cpp \
+               src/2Dplot/Curve2D.cpp \
+               src/2Dplot/PlotPoint.cpp \
+               src/2Dplot/Pie2D.cpp \
+               src/2Dplot/ColorMap2D.cpp \
+               src/2Dplot/widgets/MyTreeWidget.cpp \
+               src/2Dplot/widgets/AddAxisWidget.cpp \
+               src/2Dplot/widgets/AddPlot2DDialog.cpp \
+               src/2Dplot/widgets/ErrDialog.cpp \
+               src/2Dplot/LineItem2D.cpp \
+               src/2Dplot/ErrorBar2D.cpp \
+               src/2Dplot/TextItem2D.cpp \
+               src/2Dplot/ImageItem2D.cpp \
 
 FORMS       += src/2Dplot/widgets/propertyeditor.ui \
                src/2Dplot/widgets/Function2DDialog.ui \
+               src/2Dplot/widgets/AddAxisWidget.ui \
+
+##############################################################
+####################### 3DPlot ###############################
+##############################################################
+
+HEADERS     += src/3Dplot/Layout3D.h \
+               src/3Dplot/Surface3D.h \
+               src/3Dplot/Custom3DInteractions.h \
+               src/3Dplot/Bar3D.h \
+               src/3Dplot/Graph3DCommon.h \
+               src/3Dplot/Scatter3D.h \
+               src/3Dplot/SurfaceDialog.h \
+
+SOURCES     += src/3Dplot/Layout3D.cpp \
+               src/3Dplot/Surface3D.cpp \
+               src/3Dplot/Custom3DInteractions.cpp \
+               src/3Dplot/Bar3D.cpp \
+               src/3Dplot/Scatter3D.cpp \
+               src/3Dplot/SurfaceDialog.cpp \

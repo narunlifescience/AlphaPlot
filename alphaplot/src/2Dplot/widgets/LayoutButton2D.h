@@ -7,7 +7,7 @@ class LayoutButton2D : public QPushButton {
   Q_OBJECT
 
  public:
-  LayoutButton2D(const QString &text = QString::null,
+  LayoutButton2D(const QString &text = QString(),
                  QWidget *parent = nullptr);
   ~LayoutButton2D();
 

@@ -34,6 +34,7 @@
 
 // Scripting
 #include "../3rdparty/qcustomplot/qcustomplot.h"
+#include "3Dplot/Graph3DCommon.h"
 #include "scripting/Script.h"
 #include "scripting/ScriptingEnv.h"
 
@@ -61,12 +62,9 @@ class Ui_ApplicationWindow;
 class Matrix;
 class Table;
 class ScalePicker;
-class Graph3D;
 class Note;
 class Layout2D;
-#ifdef PLOT3D_QT
 class Layout3D;
-#endif
 class Folder;
 class FolderTreeWidget;
 class FolderTreeWidgetItem;
@@ -147,9 +145,6 @@ class ApplicationWindow : public QMainWindow,
     NoteSubWindow,
     Plot2DSubWindow,
     Plot3DSubWindow,
-#ifdef PLOT3D_QT
-    SubwindowPlot3D,
-#endif
   };
 
   enum class Graph {
@@ -285,48 +280,35 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name 3D Data Plots
   //@{
-  Graph3D* openMatrixPlot3D(const QString& caption, const QString& matrix_name,
-                            double xl, double xr, double yl, double yr,
-                            double zl, double zr);
-  Graph3D* dataPlot3D(Table* table, const QString& colName);
-  Graph3D* dataPlotXYZ(Table* table, const QString& zColName, int type);
-  Graph3D* dataPlot3D(const QString& caption, const QString& formula, double xl,
-                      double xr, double yl, double yr, double zl, double zr);
-  Graph3D* dataPlotXYZ(const QString& caption, const QString& formula,
+  Layout3D* dataPlot3D(Table* table, const QString& colName);
+  Layout3D* dataPlotXYZ(Table* table, const QString& zColName,
+                        const Graph3DCommon::Plot3DType& type);
+  Layout3D* dataPlot3D(const QString& caption, const QString& formula,
                        double xl, double xr, double yl, double yr, double zl,
                        double zr);
+  Layout3D* dataPlotXYZ(const QString& caption, const QString& formula,
+                        double xl, double xr, double yl, double yr, double zl,
+                        double zr);
   //@}
 
   //! \name Surface Plots
   //@{
-  Graph3D* newPlot3D();
-  Graph3D* newPlot3D(const QString& formula, double xl, double xr, double yl,
-                     double yr, double zl, double zr);
-  Graph3D* newPlot3D(const QString& caption, const QString& formula, double xl,
-                     double xr, double yl, double yr, double zl, double zr);
-  void connectSurfacePlot(Graph3D* plot);
+  Layout3D* newPlot3D(const QString& formula, const double xl, const double xr,
+                      const double yl, const double yr, const double zl,
+                      const double zr);
+  Layout3D* newPlot3D(const QString& caption, const QString& formula,
+                      const double xl, const double xr, const double yl,
+                      const double yr, const double zl, const double zr);
   void newSurfacePlot();
   void editSurfacePlot();
-  void remove3DMatrixPlots(Matrix* m);
-  void updateMatrixPlots(MyWidget*);
   void add3DData();
   void change3DData();
   void change3DData(const QString& colName);
   void change3DMatrix();
   void change3DMatrix(const QString& matrix_name);
-  void insertNew3DData(const QString& colName);
   void add3DMatrixPlot();
-  void insert3DMatrixPlot(const QString& matrix_name);
-  void initPlot3D(Graph3D* plot);
-  void customPlot3D(Graph3D* plot);
-  void setPlot3DOptions();
 
-  void plot3DWireframe();
-  void plot3DHiddenLine();
-  void plot3DPolygons();
-  void plot3DWireSurface();
-
-  void plot3DMatrix(int style);
+  void plot3DMatrix(const Graph3DCommon::Plot3DType& plottype);
 
   void plot3DRibbon();
   void plot3DScatter();
@@ -346,8 +328,7 @@ class ApplicationWindow : public QMainWindow,
       const int type, const QStringList& formulas, const QString& var,
       const QList<double>& ranges, const int points);
   QList<QPair<QPair<double, double>, double>>* generateFunction3ddata(
-      const QString& formula, const double xl, const double xr, const double yl,
-      const double yr, const double zl, const double zr);
+      const Graph3DCommon::Function3DData& funcdata);
 
   Function2DDialog* functionDialog();
   void addFunctionCurve();
@@ -424,7 +405,7 @@ class ApplicationWindow : public QMainWindow,
                    bool expSelection);
 
   TableStatistics* newTableStatistics(Table* base, int type, QList<int>,
-                                      const QString& caption = QString::null);
+                                      const QString& caption = QString());
   //@}
 
   //! \name Graphs
@@ -525,10 +506,6 @@ class ApplicationWindow : public QMainWindow,
   QString listViewDate(const QString& caption);
   void setListViewLabel(const QString& caption, const QString& label);
   //@}
-
-  void updateColNames(const QString& oldName, const QString& newName);
-  void updateTableNames(const QString& oldName, const QString& newName);
-  void changeMatrixName(const QString& oldName, const QString& newName);
   void updateCurves(Table* t, const QString& name);
 
   void showTable(const QString& curve);
@@ -545,12 +522,11 @@ class ApplicationWindow : public QMainWindow,
   //! Creates a new empty 2d plot
   Layout2D* newGraph2D(const QString& caption = tr("Graph"));
   //! Creates a new empty 3d plot
-#ifdef PLOT3D_QT
-  Layout3D* newGraph3D(const QString& caption = tr("Graph"));
-  QList<QPair<QPair<double, double>, double> > *generateFunctiondata(
+  Layout3D* newGraph3D(const Graph3DCommon::Plot3DType& type,
+                       const QString& caption = tr("Graph"));
+  QList<QPair<QPair<double, double>, double>>* generateFunctiondata(
       const QString& formula, double xl, double xr, double yl, double yr,
       double zl, double zr);
-#endif
 
   //! \name Reading from a Project File
   //@{
@@ -633,7 +609,6 @@ class ApplicationWindow : public QMainWindow,
   //! \name Dialogs
   //@{
   void findWindowOrFolderFromProjectExplorer();
-  QDialog* showPlot3dDialog();
   void showResults(bool ok);
   void showResults(const QString& text, bool ok = true);
   void showExportASCIIDialog();

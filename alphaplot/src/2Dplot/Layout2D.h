@@ -22,7 +22,7 @@ class Layout2D : public MyWidget {
 
  public:
   Layout2D(const QString &label, QWidget *parent = nullptr,
-           const QString name = QString(), Qt::WindowFlags f = Qt::Widget);
+           const QString name = QString(), Qt::WindowFlags f = Qt::SubWindow);
   ~Layout2D();
 
   StatBox2D::BoxWhiskerData generateBoxWhiskerData(Table *table, Column *data,

@@ -16,7 +16,7 @@
 #include "2Dplot/Legend2D.h"
 #include "2Dplot/LineItem2D.h"
 #include "2Dplot/LineSpecial2D.h"
-#include "3Dplot/Graph3D.h"
+#include "3Dplot/Layout3D.h"
 #include "Matrix.h"
 #include "MyWidget.h"
 #include "Note.h"
@@ -4846,10 +4846,27 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     objectbrowser_->addTopLevelItems(objectitems_);
     previouswidget_ = gd;
     objectbrowser_->insertTopLevelItems(0, objectitems_);
-  } else if (qobject_cast<Graph3D *>(widget)) {
-    objectbrowser_->setHeaderLabel(qobject_cast<Graph3D *>(widget)->name());
+  } else if (qobject_cast<Layout3D *>(widget)) {
+    objectbrowser_->setHeaderLabel(qobject_cast<Layout3D *>(widget)->name());
     objectbrowser_->headerItem()->setIcon(
         0, IconLoader::load("edit-graph3d", IconLoader::LightDark));
+
+    Layout3D *lout = qobject_cast<Layout3D *>(widget);
+
+    // canvas
+    QString canvasitemtext = QString("Canvas");
+    QTreeWidgetItem *canvasitem = new QTreeWidgetItem(
+        static_cast<QTreeWidget *>(nullptr), QStringList(canvasitemtext));
+    canvasitem->setToolTip(0, canvasitemtext);
+    canvasitem->setIcon(0,
+                        IconLoader::load("view-image", IconLoader::LightDark));
+   /* canvasitem->setData(
+        0, Qt::UserRole,
+        static_cast<int>(MyTreeWidget::PropertyItemType::PlotCanvas));
+    canvasitem->setData(0, Qt::UserRole + 1,
+                        QVariant::fromValue<void *>(lout->));*/
+    objectitems_.append(canvasitem);
+
   } else if (qobject_cast<Table *>(widget)) {
     objectbrowser_->setHeaderLabel(qobject_cast<Table *>(widget)->name());
     objectbrowser_->headerItem()->setIcon(

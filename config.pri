@@ -6,8 +6,8 @@ unix:isEmpty(PRESET) {                     # command-line argument to override
   ### Link dynamically against system-wide installed libraries(default).
   if(!macx) {
     PRESET = linux_all_dynamic
-    ### Link statically against Qwtplot3D in 3rdparty folder.
-    #PRESET = linux_qwtplot3d_static
+    ### Link statically against all.
+    #PRESET = linux_static
     ### Link statically as much as possible.except Qt.
     #PRESET = linux_all_static
   } else {
@@ -77,7 +77,7 @@ DEFINES         += SEARCH_FOR_UPDATES
 ################################################################################
 
 contains(PRESET, linux_all_dynamic) {
-  ### dynamically link against Qwt(3D) installed system-wide
+  ### dynamically link against installed system-wide
   message(Build configuration: Linux all dynamic)
 
   INCLUDEPATH   = "$(HOME)/usr/include" $$INCLUDEPATH
@@ -87,20 +87,14 @@ contains(PRESET, linux_all_dynamic) {
   LIBS         += -lgsl -lgslcblas
 }
 
-contains(PRESET, linux_qwtplot3d_static) {
-  ### Link statically against Qwt and Qwtplot3D dynamically against rest.
-  message(Build configuration: Linux all dynamic except QwtPlot3D)
-  INCLUDEPATH  += ../3rdparty/qwtplot3d/include
-  LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
+contains(PRESET, linux_static) {
+  ### Link statically and dynamically against rest.
   LIBS         += -lgsl -lgslcblas -lz -lGLU
 }
 
 contains(PRESET, linux_all_static) {
   ### mostly static linking, for self-contained binaries
   message(Build configuration: Linux all static)
-
-  INCLUDEPATH  += ../3rdparty/qwtplot3d/include
-  LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
 
   LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
 }
@@ -115,7 +109,7 @@ contains(PRESET, osx_dist) {
 
 win32: {
   !mxe {
-    ### Static linking mostly, except Qt and QwtPlot3D.
+    ### Static linking mostly.
     message(Build configuration: Win32)
 
     isEmpty(LIBPATH): LIBPATH = ../3rdparty

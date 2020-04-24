@@ -29,7 +29,7 @@
 #include "core/Utilities.h"
 #include "future/core/datatypes/DateTime2StringFilter.h"
 #include "future/lib/XmlStreamWriter.h"
-#include "widgets/ImageExportDialog2D.h"
+#include "plotcommon/widgets/ImageExportDialog.h"
 #include "widgets/LayoutButton2D.h"
 
 const int Layout2D::buttonboxmargin_ = 2;
@@ -737,8 +737,9 @@ void Layout2D::refresh() {
 }
 
 bool Layout2D::exportGraph() {
-  std::unique_ptr<ImageExportDialog2D> ied(
-      new ImageExportDialog2D(nullptr, plot2dCanvas_ != nullptr));
+  std::unique_ptr<ImageExportDialog> ied(new ImageExportDialog(nullptr));
+  ied->enableraster_antialias(false);
+  ied->setraster_antialias(16);
   ied->setraster_height(plot2dCanvas_->height());
   ied->setraster_width(plot2dCanvas_->width());
   ied->setvector_height(plot2dCanvas_->height());

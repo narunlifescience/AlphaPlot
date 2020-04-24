@@ -29,36 +29,36 @@
  *                                                                         *
  ***************************************************************************/
 #include "Matrix.h"
-#include "future/matrix/MatrixView.h"
-#include "scripting/ScriptEdit.h"
-
-#include <QtGlobal>
-#include <QTextStream>
-#include <QList>
-#include <QEvent>
-#include <QContextMenuEvent>
-#include <QVBoxLayout>
-#include <QMouseEvent>
-#include <QHeaderView>
-#include <QDateTime>
-#include <QApplication>
-#include <QMessageBox>
-#include <QVarLengthArray>
-#include <QClipboard>
-#include <QShortcut>
-#include <QPrinter>
-#include <QPrintDialog>
-#include <QPainter>
-#include <QLocale>
-#include <QXmlStreamWriter>
-#include <QtDebug>
-
-#include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
 
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_math.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <QApplication>
+#include <QClipboard>
+#include <QContextMenuEvent>
+#include <QDateTime>
+#include <QEvent>
+#include <QHeaderView>
+#include <QList>
+#include <QLocale>
+#include <QMessageBox>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QPrintDialog>
+#include <QPrinter>
+#include <QShortcut>
+#include <QTextStream>
+#include <QVBoxLayout>
+#include <QVarLengthArray>
+#include <QXmlStreamWriter>
+#include <QtDebug>
+#include <QtGlobal>
+
+#include "future/matrix/MatrixView.h"
+#include "scripting/ScriptEdit.h"
 
 Matrix::Matrix(ScriptingEnv *env, int r, int c, const QString &label,
                QWidget *parent, const char *name, Qt::WindowFlags f)
@@ -465,10 +465,11 @@ void Matrix::customEvent(QEvent *e) {
 
 void Matrix::closeEvent(QCloseEvent *e) {
   if (askOnClose) {
-    switch (QMessageBox::information(
-        this, tr("AlphaPlot"), tr("Do you want to hide or delete") + "<p><b>'" +
-                                  objectName() + "'</b> ?",
-        tr("Delete"), tr("Hide"), tr("Cancel"), 0, 2)) {
+    switch (QMessageBox::information(this, tr("AlphaPlot"),
+                                     tr("Do you want to hide or delete") +
+                                         "<p><b>'" + objectName() + "'</b> ?",
+                                     tr("Delete"), tr("Hide"), tr("Cancel"), 0,
+                                     2)) {
       case 0:
         e->accept();
         d_future_matrix->remove();

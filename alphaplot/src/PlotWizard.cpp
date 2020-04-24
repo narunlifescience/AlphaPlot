@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "PlotWizard.h"
-#include "3Dplot/Graph3D.h"
+#include "3Dplot/Layout3D.h"
 #include "ApplicationWindow.h"
 #include "Table.h"
 
@@ -304,7 +304,7 @@ bool PlotWizard::noCurves() {
 }
 
 void PlotWizard::plot3DRibbon(const QStringList &lst) {
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
+  /*ApplicationWindow *app = (ApplicationWindow *)this->parent();
   if (!app) return;
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -329,11 +329,11 @@ void PlotWizard::plot3DRibbon(const QStringList &lst) {
       }
     }
   }
-  QApplication::restoreOverrideCursor();
+  QApplication::restoreOverrideCursor();*/
 }
 
 void PlotWizard::plot3D(const QStringList &lst) {
-  ApplicationWindow *app = (ApplicationWindow *)this->parent();
+  /*ApplicationWindow *app = (ApplicationWindow *)this->parent();
   if (!app) return;
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -367,7 +367,7 @@ void PlotWizard::plot3D(const QStringList &lst) {
       }
     }
   }
-  QApplication::restoreOverrideCursor();
+  QApplication::restoreOverrideCursor();*/
 }
 
 PlotWizard::~PlotWizard() {}

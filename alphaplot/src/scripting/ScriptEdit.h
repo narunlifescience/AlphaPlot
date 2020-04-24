@@ -60,8 +60,8 @@ class ScriptEdit : public QTextEdit, public scripted {
   void evaluate();
   void print();
   void exportPDF(const QString &fileName);
-  QString exportASCII(const QString &file = QString::null);
-  QString importASCII(const QString &file = QString::null);
+  QString exportASCII(const QString &file = QString());
+  QString importASCII(const QString &file = QString());
   void insertFunction(const QString &);
   void insertFunction(QAction *action);
   void setContext(QObject *context) { myScript->setContext(context); }
