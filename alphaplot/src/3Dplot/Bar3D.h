@@ -14,11 +14,12 @@ using namespace QtDataVisualization;
 class Bar3D : public QObject {
   Q_OBJECT
  public:
-  Bar3D(Q3DBars *bar, const Graph3DCommon::Plot3DType &type);
+  Bar3D(Q3DBars *bar);
   ~Bar3D();
 
   void setmatrixdatamodel(Matrix *matrix);
   Matrix *getMatrix();
+  Q3DBars *getGraph() const;
 
  private:
   void setGradient();

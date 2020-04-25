@@ -32,17 +32,15 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
       scattermodifier_(nullptr),
       matrix_(nullptr) {
   switch (plottype_) {
-    case Graph3DCommon::Plot3DType::Wireframe:
-    case Graph3DCommon::Plot3DType::Surface:
-    case Graph3DCommon::Plot3DType::WireframeAndSurface: {
+    case Graph3DCommon::Plot3DType::Surface: {
       graph3dsurface_ = new Q3DSurface();
       main_widget_ = createWindowContainer(graph3dsurface_);
-      surfacemodifier_ = new Surface3D(graph3dsurface_, plottype_);
+      surfacemodifier_ = new Surface3D(graph3dsurface_);
     } break;
     case Graph3DCommon::Plot3DType::Bar: {
       graph3dbars_ = new Q3DBars();
       main_widget_ = createWindowContainer(graph3dbars_);
-      barmodifier_ = new Bar3D(graph3dbars_, plottype_);
+      barmodifier_ = new Bar3D(graph3dbars_);
     } break;
     case Graph3DCommon::Plot3DType::Scatter: {
       graph3dscatter_ = new Q3DScatter();
@@ -64,6 +62,33 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
 }
 
 Layout3D::~Layout3D() {}
+
+Surface3D *Layout3D::getSurface3DModifier() const {
+  if (plottype_ == Graph3DCommon::Plot3DType::Surface)
+    return surfacemodifier_;
+  else {
+    qDebug() << "getSurface3DModifier() is null: this is not Surface3D";
+    return nullptr;
+  }
+}
+
+Bar3D *Layout3D::getBar3DModifier() const {
+  if (plottype_ == Graph3DCommon::Plot3DType::Bar)
+    return barmodifier_;
+  else {
+    qDebug() << "getBar3DModifier() is null: this is not Bar3D";
+    return nullptr;
+  }
+}
+
+Scatter3D *Layout3D::getScatter3DModifier() const {
+  if (plottype_ == Graph3DCommon::Plot3DType::Scatter)
+    return scattermodifier_;
+  else {
+    qDebug() << "getScatter3DModifier() is null: this is not Scatter3D";
+    return nullptr;
+  }
+}
 
 void Layout3D::exportGraph() {
   std::unique_ptr<ImageExportDialog> ied(new ImageExportDialog(this));
@@ -123,9 +148,7 @@ void Layout3D::saveRastered(const QString &filename, const char *format,
                             const QSize &size) {
   QImage image = QImage();
   switch (plottype_) {
-    case Graph3DCommon::Plot3DType::Wireframe:
     case Graph3DCommon::Plot3DType::Surface:
-    case Graph3DCommon::Plot3DType::WireframeAndSurface:
       image = graph3dsurface_->renderToImage(maa, size);
       break;
     case Graph3DCommon::Plot3DType::Bar:
@@ -173,9 +196,7 @@ void Layout3D::generateSurfacePlot3D(
 
 void Layout3D::setMatrixDataModel(Matrix *matrix) {
   switch (plottype_) {
-    case Graph3DCommon::Plot3DType::Wireframe:
     case Graph3DCommon::Plot3DType::Surface:
-    case Graph3DCommon::Plot3DType::WireframeAndSurface:
       surfacemodifier_->setmatrixdatamodel(matrix);
       break;
     case Graph3DCommon::Plot3DType::Bar:
@@ -189,9 +210,7 @@ void Layout3D::setMatrixDataModel(Matrix *matrix) {
 
 Matrix *Layout3D::getMatrix() const {
   switch (plottype_) {
-    case Graph3DCommon::Plot3DType::Wireframe:
     case Graph3DCommon::Plot3DType::Surface:
-    case Graph3DCommon::Plot3DType::WireframeAndSurface:
       return surfacemodifier_->getMatrix();
     case Graph3DCommon::Plot3DType::Bar:
       return barmodifier_->getMatrix();
@@ -203,6 +222,8 @@ Matrix *Layout3D::getMatrix() const {
 }
 
 QSize Layout3D::getContainerSize() const { return main_widget_->size(); }
+
+Graph3DCommon::Plot3DType Layout3D::getPlotType() const { return plottype_; }
 
 void Layout3D::load(XmlStreamReader *reader) {}
 

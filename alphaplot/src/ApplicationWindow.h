@@ -308,7 +308,7 @@ class ApplicationWindow : public QMainWindow,
   void change3DMatrix(const QString& matrix_name);
   void add3DMatrixPlot();
 
-  void plot3DMatrix(const Graph3DCommon::Plot3DType& plottype);
+  Layout3D* plot3DMatrix(const Graph3DCommon::Plot3DType& plottype);
 
   void plot3DRibbon();
   void plot3DScatter();

@@ -15,24 +15,25 @@ using namespace QtDataVisualization;
 class Surface3D : public QObject {
   Q_OBJECT
  public:
-  Surface3D(Q3DSurface *surface, const Graph3DCommon::Plot3DType &type);
+  Surface3D(Q3DSurface *surface);
   ~Surface3D();
 
   void setGradient();
-  void setSurfaceMeshType(const Graph3DCommon::Plot3DType &type);
+  void setSurfaceMeshType(const QSurface3DSeries::DrawFlag &type);
 
-  Graph3DCommon::Plot3DType getSurfaceMeshType();
+  QSurface3DSeries::DrawFlag getSurfaceMeshType() const;
 
   void setfunctiondata(QList<QPair<QPair<double, double>, double>> *data,
                        const Graph3DCommon::Function3DData &funcdata);
   void setmatrixdatamodel(Matrix *matrix);
   Matrix *getMatrix();
+  Q3DSurface *getGraph() const;
 
  private:
   Q3DSurface *graph_;
   Matrix *matrix_;
   Graph3DCommon::Function3DData functionData_;
-  Graph3DCommon::Plot3DType plotType_;
+  QSurface3DSeries::DrawFlag plotType_;
   Custom3DInteractions *custominter_;
   std::unique_ptr<QSurfaceDataProxy> functionDataProxy_;
   std::unique_ptr<QSurface3DSeries> dataSeries_;

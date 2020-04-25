@@ -129,6 +129,7 @@
 #include "2Dplot/widgets/propertyeditor.h"
 #include "3Dplot/Graph3DCommon.h"
 #include "3Dplot/Layout3D.h"
+#include "3Dplot/Surface3D.h"
 #include "scripting/ScriptingFunctions.h"
 #include "scripting/ScriptingLangDialog.h"
 #include "scripting/widgets/ConsoleWidget.h"
@@ -574,12 +575,23 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->actionPlot3DTrajectory, SIGNAL(triggered()), this,
           SLOT(plot3DTrajectory()));
   // 3D Plot menu
-  connect(ui_->action3DWireFrame, &QAction::triggered,
-          [=]() { plot3DMatrix(Graph3DCommon::Plot3DType::Wireframe); });
-  connect(ui_->action3DSurface, &QAction::triggered,
-          [=]() { plot3DMatrix(Graph3DCommon::Plot3DType::Surface); });
+  connect(ui_->action3DWireFrame, &QAction::triggered, [=]() {
+    Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
+    if (layout && layout->getSurface3DModifier())
+      layout->getSurface3DModifier()->setSurfaceMeshType(
+          QSurface3DSeries::DrawFlag::DrawWireframe);
+  });
+  connect(ui_->action3DSurface, &QAction::triggered, [=]() {
+    Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
+    if (layout && layout->getSurface3DModifier())
+      layout->getSurface3DModifier()->setSurfaceMeshType(
+          QSurface3DSeries::DrawFlag::DrawSurface);
+  });
   connect(ui_->action3DWireSurface, &QAction::triggered, [=]() {
-    plot3DMatrix(Graph3DCommon::Plot3DType::WireframeAndSurface);
+    Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
+    if (layout && layout->getSurface3DModifier())
+      layout->getSurface3DModifier()->setSurfaceMeshType(
+          QSurface3DSeries::DrawFlag::DrawSurfaceAndWireframe);
   });
   connect(ui_->action3DBar, SIGNAL(triggered()), ui_->actionPlot3DBar,
           SIGNAL(triggered()));
@@ -1636,8 +1648,7 @@ Layout3D *ApplicationWindow::newPlot3D(const QString &formula, const double xl,
                                        const double zr) {
   QString label = generateUniqueName(tr("Graph"));
 
-  Layout3D *layout =
-      newGraph3D(Graph3DCommon::Plot3DType::WireframeAndSurface, label);
+  Layout3D *layout = newGraph3D(Graph3DCommon::Plot3DType::Surface, label);
   Graph3DCommon::Function3DData funcdata;
   funcdata.function = formula;
   funcdata.xl = xl;
@@ -6679,9 +6690,9 @@ void ApplicationWindow::connectTable(Table *table) {
   results->setPalette(QPalette(cg, cg, cg));
 }*/
 
-void ApplicationWindow::plot3DMatrix(
+Layout3D *ApplicationWindow::plot3DMatrix(
     const Graph3DCommon::Plot3DType &plottype) {
-  if (!isActiveSubwindow(SubWindowType::MatrixSubWindow)) return;
+  if (!isActiveSubwindow(SubWindowType::MatrixSubWindow)) return nullptr;
 
   Matrix *matrix = qobject_cast<Matrix *>(d_workspace->activeSubWindow());
   QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -6692,6 +6703,7 @@ void ApplicationWindow::plot3DMatrix(
 
   emit modified();
   QApplication::restoreOverrideCursor();
+  return layout;
 }
 
 Layout2D *ApplicationWindow::plotGrayScale() {
@@ -8723,8 +8735,7 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("graph2d-box", IconLoader::LightDark));
   ui_->actionPlot2DStatHistogram->setIcon(
       IconLoader::load("graph2d-histogram", IconLoader::LightDark));
-  ui_->actionPlot2DStatStackedHistogram->setIcon(
-      QIcon(QPixmap()));
+  ui_->actionPlot2DStatStackedHistogram->setIcon(QIcon(QPixmap()));
   ui_->actionPanelVertical2Layers->setIcon(QIcon(QPixmap()));
   ui_->actionPanelHorizontal2Layers->setIcon(QIcon(QPixmap()));
   ui_->actionPanel4Layers->setIcon(QIcon(QPixmap()));

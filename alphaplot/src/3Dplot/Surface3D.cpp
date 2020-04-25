@@ -5,10 +5,10 @@
 #include "Custom3DInteractions.h"
 #include "Matrix.h"
 
-Surface3D::Surface3D(Q3DSurface *surface, const Graph3DCommon::Plot3DType &type)
+Surface3D::Surface3D(Q3DSurface *surface)
     : graph_(surface),
       matrix_(nullptr),
-      plotType_(type),
+      plotType_(QSurface3DSeries::DrawFlag::DrawSurfaceAndWireframe),
       custominter_(new Custom3DInteractions),
       functionDataProxy_(new QSurfaceDataProxy()),
       dataSeries_(new QSurface3DSeries),
@@ -22,9 +22,9 @@ Surface3D::Surface3D(Q3DSurface *surface, const Graph3DCommon::Plot3DType &type)
   graph_->setAxisX(new QValue3DAxis);
   graph_->setAxisY(new QValue3DAxis);
   graph_->setAxisZ(new QValue3DAxis);
-  graph_->axisX()->setTitle("X");
-  graph_->axisY()->setTitle("Y");
-  graph_->axisZ()->setTitle("Z");
+  graph_->axisX()->setTitleVisible(true);
+  graph_->axisY()->setTitleVisible(true);
+  graph_->axisZ()->setTitleVisible(true);
 }
 
 Surface3D::~Surface3D() {}
@@ -71,6 +71,8 @@ void Surface3D::setmatrixdatamodel(Matrix *matrix) {
 
 Matrix *Surface3D::getMatrix() { return matrix_; }
 
+Q3DSurface *Surface3D::getGraph() const { return graph_; }
+
 void Surface3D::setGradient() {
   QLinearGradient gr;
   gr.setColorAt(0.0, Qt::black);
@@ -79,28 +81,16 @@ void Surface3D::setGradient() {
   gr.setColorAt(1.0, Qt::yellow);
 
   graph_->seriesList().at(0)->setBaseGradient(gr);
-  setSurfaceMeshType(plotType_);
+  setSurfaceMeshType(QSurface3DSeries::DrawFlag::DrawSurfaceAndWireframe);
   graph_->seriesList().at(0)->setColorStyle(Q3DTheme::ColorStyleRangeGradient);
 }
 
-void Surface3D::setSurfaceMeshType(const Graph3DCommon::Plot3DType &type) {
+void Surface3D::setSurfaceMeshType(const QSurface3DSeries::DrawFlag &type) {
   if (graph_->seriesList().isEmpty()) return;
   plotType_ = type;
-  switch (plotType_) {
-    case Graph3DCommon::Plot3DType::Wireframe:
-      graph_->seriesList().at(0)->setDrawMode(QSurface3DSeries::DrawWireframe);
-      break;
-    case Graph3DCommon::Plot3DType::Surface:
-      graph_->seriesList().at(0)->setDrawMode(QSurface3DSeries::DrawSurface);
-      break;
-    case Graph3DCommon::Plot3DType::WireframeAndSurface:
-      graph_->seriesList().at(0)->setDrawMode(
-          QSurface3DSeries::DrawSurfaceAndWireframe);
-      break;
-    default:
-      qDebug() << "unknown Graph3DCommon::Plot3DType Surface·D";
-      break;
-  }
+  graph_->seriesList().at(0)->setDrawMode(type);
 }
 
-Graph3DCommon::Plot3DType Surface3D::getSurfaceMeshType() { return plotType_; }
+QSurface3DSeries::DrawFlag Surface3D::getSurfaceMeshType() const {
+  return plotType_;
+}

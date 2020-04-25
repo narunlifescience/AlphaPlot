@@ -23,9 +23,7 @@ class Layout3D : public MyWidget {
   template <class T>
   T *getGraph3d() {
     switch (plottype_) {
-      case Graph3DCommon::Plot3DType::Wireframe:
       case Graph3DCommon::Plot3DType::Surface:
-      case Graph3DCommon::Plot3DType::WireframeAndSurface:
         return graph3dsurface_;
       case Graph3DCommon::Plot3DType::Bar:
         return graph3dbars_;
@@ -33,6 +31,10 @@ class Layout3D : public MyWidget {
         return graph3dscatter_;
     }
   }
+
+  Surface3D *getSurface3DModifier() const;
+  Bar3D *getBar3DModifier() const;
+  Scatter3D *getScatter3DModifier() const;
 
   void exportGraph();
   void saveRastered(const QString &filename, const char *format,
@@ -47,6 +49,7 @@ class Layout3D : public MyWidget {
 
   Matrix *getMatrix() const;
   QSize getContainerSize() const;
+  Graph3DCommon::Plot3DType getPlotType() const;
   void load(XmlStreamReader *reader);
   void save(QXmlStreamWriter *writer);
 

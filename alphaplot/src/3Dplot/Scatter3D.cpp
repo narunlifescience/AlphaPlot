@@ -23,6 +23,9 @@ Scatter3D::Scatter3D(Q3DScatter *scatter)
   graph_->axisX()->setTitle("X");
   graph_->axisY()->setTitle("Y");
   graph_->axisZ()->setTitle("Z");
+  graph_->axisX()->setTitleVisible(true);
+  graph_->axisY()->setTitleVisible(true);
+  graph_->axisZ()->setTitleVisible(true);
 }
 
 Scatter3D::~Scatter3D() {}
@@ -65,6 +68,10 @@ void Scatter3D::setGradient() {
 
   dataSeries_->setBaseColor(Qt::red);
   dataSeries_->setColorStyle(Q3DTheme::ColorStyleRangeGradient);
+  graph_->setSelectionMode(QAbstract3DGraph::SelectionItemAndRow |
+                           QAbstract3DGraph::SelectionSlice);
 }
 
 Matrix *Scatter3D::getMatrix() { return matrix_; }
+
+Q3DScatter *Scatter3D::getGraph() const { return graph_; }

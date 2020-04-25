@@ -5,11 +5,9 @@
 
 namespace Graph3DCommon {
 enum class Plot3DType : int {
-  Wireframe = 0,
-  Surface = 1,
-  WireframeAndSurface = 2,
-  Bar = 3,
-  Scatter = 4
+  Surface = 0,
+  Bar = 1,
+  Scatter = 2,
 };
 
 struct Function3DData {

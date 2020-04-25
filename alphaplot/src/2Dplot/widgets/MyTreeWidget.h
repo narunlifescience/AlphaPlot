@@ -33,6 +33,12 @@ class MyTreeWidget : public QTreeWidget {
     PieGraph = 14,
     ColorMap = 15,
     ErrorBar = 16,
+    Plot3DCanvas = 17,
+    Plot3DAxisValue = 18,
+    Plot3DAxisCatagory = 19,
+    Plot3DSurface = 20,
+    Plot3DBar = 21,
+    Plot3DScatter = 22,
   };
   MyTreeWidget(QWidget *parent = nullptr);
   ~MyTreeWidget();

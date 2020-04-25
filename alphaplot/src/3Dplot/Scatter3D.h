@@ -22,6 +22,7 @@ class Scatter3D : public QObject {
   void setmatrixdatamodel(Matrix *matrix);
   void setGradient();
   Matrix *getMatrix();
+  Q3DScatter *getGraph() const;
 
  private:
   Q3DScatter *graph_;

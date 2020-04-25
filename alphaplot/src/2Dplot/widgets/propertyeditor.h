@@ -21,6 +21,10 @@ class LineSpecial2D;
 class Curve2D;
 class Vector2D;
 class Bar2D;
+// 3D plot
+class Surface3D;
+class Bar3D;
+class Scatter3D;
 // Property
 class QtProperty;
 class QtBoolPropertyManager;
@@ -40,6 +44,13 @@ class QtLineEditFactory;
 class QtEnumEditorFactory;
 class QtColorEditorFactory;
 class QtFontEditorFactory;
+
+namespace QtDataVisualization {
+class Q3DTheme;
+class QValue3DAxis;
+class QValue3DAxis;
+class QCategory3DAxis;
+}  // namespace QtDataVisualization
 
 class PropertyEditor : public QDockWidget {
   Q_OBJECT
@@ -84,6 +95,13 @@ class PropertyEditor : public QDockWidget {
   void Pie2DPropertyBlock(Pie2D *piegraph, AxisRect2D *axisrect);
   void ColorMap2DPropertyBlock(ColorMap2D *colormap, AxisRect2D *axisrect);
   void ErrorBar2DPropertyBlock(ErrorBar2D *errorbar, AxisRect2D *axisrect);
+  // 3dplot
+  void Canvas3DPropertyBlock(QtDataVisualization::Q3DTheme *theme);
+  void Axis3DValuePropertyBlock(QtDataVisualization::QValue3DAxis *axis);
+  void Axis3DCatagoryPropertyBlock(QtDataVisualization::QCategory3DAxis *axis);
+  void Surface3DPropertyBlock(Surface3D *surface);
+  void Bar3DPropertyBlock(Bar3D *bar);
+  void Scatter3DPropertyBlock(Scatter3D *scatter);
 
  signals:
   void refreshCanvasRect();
@@ -158,7 +176,7 @@ class PropertyEditor : public QDockWidget {
   // Axis Properties Ticks sub block
   QtProperty *axispropertytickvisibilityitem_;
   QtProperty *axispropertytickcountitem_;
-    QtProperty *axispropertytickoriginitem_;
+  QtProperty *axispropertytickoriginitem_;
   QtProperty *axispropertyticklengthinitem_;
   QtProperty *axispropertyticklengthoutitem_;
   QtProperty *axispropertytickstrokecoloritem_;
@@ -460,6 +478,40 @@ class PropertyEditor : public QDockWidget {
   QtProperty *vmingridpropertystrokecoloritem_;
   QtProperty *vmingridpropertystrokethicknessitem_;
   QtProperty *vmingridpropertystroketypeitem_;
+  // Plot3D Canvas properties
+  QtProperty *plot3dcanvaswindowcoloritem_;
+  QtProperty *plot3dcanvasbackgroundvisibleitem_;
+  QtProperty *plot3dcanvasbackgroundcoloritem_;
+  QtProperty *plot3dcanvasambientlightstrengthitem_;
+  QtProperty *plot3dcanvaslightstrengthitem_;
+  QtProperty *plot3dcanvaslightcoloritem_;
+  QtProperty *plot3dcanvasgridvisibleitem_;
+  QtProperty *plot3dcanvasgridcoloritem_;
+  QtProperty *plot3dcanvasfontitem_;
+  QtProperty *plot3dcanvaslabelbackgroundvisibleitem_;
+  QtProperty *plot3dcanvaslabelbackgroundcoloritem_;
+  QtProperty *plot3dcanvaslabelbordervisibleitem_;
+  QtProperty *plot3dcanvaslabeltextcoloritem_;
+  // Plot3D Value Axis
+  QtProperty *plot3daxisvalueautoadjustrangeitem_;
+  QtProperty *plot3daxisvaluerangeloweritem_;
+  QtProperty *plot3daxisvaluerangeupperitem_;
+  QtProperty *plot3daxisvalueticklabelrotationitem_;
+  QtProperty *plot3daxisvaluetitlevisibleitem_;
+  QtProperty *plot3daxisvaluetitlefixeditem_;
+  QtProperty *plot3daxisvaluetitletextitem_;
+  QtProperty *plot3dvalueaxislabelformatitem_;
+  QtProperty *plot3dvalueaxisreverseitem_;
+  QtProperty *plot3dvalueaxistickcountitem_;
+  QtProperty *plot3dvalueaxissubtickcountitem_;
+  // Plot3D Catagory Axis
+  QtProperty *plot3daxiscatagoryautoadjustrangeitem_;
+  QtProperty *plot3daxiscatagoryrangeloweritem_;
+  QtProperty *plot3daxiscatagoryrangeupperitem_;
+  QtProperty *plot3daxiscatagoryticklabelrotationitem_;
+  QtProperty *plot3daxiscatagorytitlevisibleitem_;
+  QtProperty *plot3daxiscatagorytitlefixeditem_;
+  QtProperty *plot3daxiscatagorytitletextitem_;
 };
 
 #endif  // PROPERTYEDITOR_H

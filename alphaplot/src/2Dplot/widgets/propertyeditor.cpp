@@ -16,7 +16,11 @@
 #include "2Dplot/Legend2D.h"
 #include "2Dplot/LineItem2D.h"
 #include "2Dplot/LineSpecial2D.h"
+#include "3Dplot/Bar3D.h"
+#include "3Dplot/Graph3DCommon.h"
 #include "3Dplot/Layout3D.h"
+#include "3Dplot/Scatter3D.h"
+#include "3Dplot/Surface3D.h"
 #include "Matrix.h"
 #include "MyWidget.h"
 #include "Note.h"
@@ -1015,6 +1019,72 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   enumManager_->setEnumIcons(vmingridpropertystroketypeitem_,
                              stroketypeiconslist);
 
+  // Plot3D Canvas properties
+  plot3dcanvaswindowcoloritem_ =
+      colorManager_->addProperty(tr("Background Color"));
+  plot3dcanvasbackgroundvisibleitem_ =
+      boolManager_->addProperty(tr("Graph Background Visible"));
+  plot3dcanvasbackgroundcoloritem_ =
+      colorManager_->addProperty(tr("Graph Background Color"));
+  plot3dcanvasbackgroundvisibleitem_->addSubProperty(
+      plot3dcanvasbackgroundcoloritem_);
+  plot3dcanvasambientlightstrengthitem_ =
+      doubleManager_->addProperty(tr("Ambient Light Strength"));
+  plot3dcanvaslightstrengthitem_ =
+      doubleManager_->addProperty(tr("Light Strength"));
+  plot3dcanvaslightcoloritem_ = colorManager_->addProperty(tr("Light Color"));
+  plot3dcanvasgridvisibleitem_ = boolManager_->addProperty(tr("Grid Visible"));
+  plot3dcanvasgridcoloritem_ = colorManager_->addProperty(tr("Grid Color"));
+  plot3dcanvasgridvisibleitem_->addSubProperty(plot3dcanvasgridcoloritem_);
+  plot3dcanvaslabelbackgroundvisibleitem_ =
+      boolManager_->addProperty(tr("Label Background Visible"));
+  plot3dcanvaslabelbackgroundcoloritem_ =
+      colorManager_->addProperty(tr("Label Background Color"));
+  plot3dcanvaslabelbackgroundvisibleitem_->addSubProperty(
+      plot3dcanvaslabelbackgroundcoloritem_);
+  plot3dcanvaslabelbordervisibleitem_ =
+      boolManager_->addProperty(tr("Label Border Visible"));
+  plot3dcanvaslabelbackgroundvisibleitem_->addSubProperty(
+      plot3dcanvaslabelbordervisibleitem_);
+  plot3dcanvaslabeltextcoloritem_ =
+      colorManager_->addProperty(tr("Label Text Color"));
+  plot3dcanvaslabelbackgroundvisibleitem_->addSubProperty(
+      plot3dcanvaslabeltextcoloritem_);
+  plot3dcanvasfontitem_ = fontManager_->addProperty(tr("General Font"));
+  plot3dcanvaslabelbackgroundvisibleitem_->addSubProperty(
+      plot3dcanvasfontitem_);
+
+  // Plot3D Value Axis
+  plot3daxisvalueautoadjustrangeitem_ =
+      boolManager_->addProperty(tr("Auto Adjust Range"));
+  plot3daxisvaluerangeloweritem_ = doubleManager_->addProperty(tr("From"));
+  plot3daxisvaluerangeupperitem_ = doubleManager_->addProperty(tr("To"));
+  plot3dvalueaxislabelformatitem_ =
+      stringManager_->addProperty("Tick Label Format");
+  plot3dvalueaxisreverseitem_ = boolManager_->addProperty(tr("Invert"));
+  plot3dvalueaxistickcountitem_ = intManager_->addProperty(tr("Tick Count"));
+  plot3dvalueaxissubtickcountitem_ =
+      intManager_->addProperty(tr("Sub Tick Count"));
+  plot3daxisvalueticklabelrotationitem_ =
+      doubleManager_->addProperty(tr("Tick Label Rotation"));
+  plot3daxisvaluetitlevisibleitem_ =
+      boolManager_->addProperty(tr("Title Visible"));
+  plot3daxisvaluetitlefixeditem_ = boolManager_->addProperty(tr("Title Fixed"));
+  plot3daxisvaluetitletextitem_ = stringManager_->addProperty("Label Text");
+
+  // Plot3D Catagory Axis
+  plot3daxiscatagoryautoadjustrangeitem_ =
+      boolManager_->addProperty(tr("Auto Adjust Range"));
+  plot3daxiscatagoryrangeloweritem_ = doubleManager_->addProperty(tr("From"));
+  plot3daxiscatagoryrangeupperitem_ = doubleManager_->addProperty(tr("To"));
+  plot3daxiscatagoryticklabelrotationitem_ =
+      doubleManager_->addProperty(tr("Tick Label Rotation"));
+  plot3daxiscatagorytitlevisibleitem_ =
+      boolManager_->addProperty(tr("Title Visible"));
+  plot3daxiscatagorytitlefixeditem_ =
+      boolManager_->addProperty(tr("Title Fixed"));
+  plot3daxiscatagorytitletextitem_ = stringManager_->addProperty("Label Text");
+
   // initiate property ID required for compare()
   setObjectPropertyId();
 
@@ -1300,6 +1370,46 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     errorbar->setAntialiasedScatters(value);
     errorbar->setAntialiased(value);
     errorbar->layer()->replot();
+  } else if (prop->compare(plot3dcanvasbackgroundvisibleitem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setBackgroundEnabled(value);
+  } else if (prop->compare(plot3dcanvasgridvisibleitem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setGridEnabled(value);
+  } else if (prop->compare(plot3dcanvaslabelbackgroundvisibleitem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setLabelBackgroundEnabled(value);
+  } else if (prop->compare(plot3dcanvaslabelbordervisibleitem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setLabelBorderEnabled(value);
+  } else if (prop->compare(plot3daxisvalueautoadjustrangeitem_)) {
+    QValue3DAxis *axis =
+        getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
+    axis->setAutoAdjustRange(value);
+  } else if (prop->compare(plot3daxisvaluetitlevisibleitem_)) {
+    QValue3DAxis *axis =
+        getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
+    axis->setTitleVisible(value);
+  } else if (prop->compare(plot3daxisvaluetitlefixeditem_)) {
+    QValue3DAxis *axis =
+        getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
+    axis->setTitleFixed(value);
+  } else if (prop->compare(plot3dvalueaxisreverseitem_)) {
+    QValue3DAxis *axis =
+        getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
+    axis->setReversed(value);
+  } else if (prop->compare(plot3daxiscatagoryautoadjustrangeitem_)) {
+    QCategory3DAxis *axis =
+        getgraph2dobject<QCategory3DAxis>(objectbrowser_->currentItem());
+    axis->setAutoAdjustRange(value);
+  } else if (prop->compare(plot3daxiscatagorytitlevisibleitem_)) {
+    QCategory3DAxis *axis =
+        getgraph2dobject<QCategory3DAxis>(objectbrowser_->currentItem());
+    axis->setTitleVisible(value);
+  } else if (prop->compare(plot3daxiscatagorytitlefixeditem_)) {
+    QCategory3DAxis *axis =
+        getgraph2dobject<QCategory3DAxis>(objectbrowser_->currentItem());
+    axis->setTitleFixed(value);
   } else {
     qDebug() << "unknown bool property item";
   }
@@ -1626,7 +1736,26 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
     b.setColor(color);
     errorbar->setBrush(b);
     errorbar->layer()->replot();
+  } else if (prop->compare(plot3dcanvaswindowcoloritem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setWindowColor(color);
+  } else if (prop->compare(plot3dcanvasbackgroundcoloritem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setBackgroundColor(color);
+  } else if (prop->compare(plot3dcanvaslightcoloritem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setLightColor(color);
+  } else if (prop->compare(plot3dcanvasgridcoloritem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setGridLineColor(color);
+  } else if (prop->compare(plot3dcanvaslabelbackgroundcoloritem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setLabelBackgroundColor(color);
+  } else if (prop->compare(plot3dcanvaslabeltextcoloritem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setLabelTextColor(color);
   }
+
   connect(colorManager_, SIGNAL(valueChanged(QtProperty *, QColor)), this,
           SLOT(valueChange(QtProperty *, const QColor &)));
 }
@@ -2051,6 +2180,36 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
     p.setWidthF(value);
     errorbar->setPen(p);
     errorbar->layer()->replot();
+  } else if (prop->compare(plot3dcanvasambientlightstrengthitem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setAmbientLightStrength(value);
+  } else if (prop->compare(plot3dcanvaslightstrengthitem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setLightStrength(value);
+  } else if (prop->compare(plot3daxisvaluerangeloweritem_)) {
+    QValue3DAxis *axis =
+        getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
+    axis->setMin(value);
+  } else if (prop->compare(plot3daxisvaluerangeupperitem_)) {
+    QValue3DAxis *axis =
+        getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
+    axis->setMax(value);
+  } else if (prop->compare(plot3daxisvalueticklabelrotationitem_)) {
+    QValue3DAxis *axis =
+        getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
+    axis->setLabelAutoRotation(value);
+  } else if (prop->compare(plot3daxiscatagoryrangeloweritem_)) {
+    QCategory3DAxis *axis =
+        getgraph2dobject<QCategory3DAxis>(objectbrowser_->currentItem());
+    axis->setMin(value);
+  } else if (prop->compare(plot3daxiscatagoryrangeupperitem_)) {
+    QCategory3DAxis *axis =
+        getgraph2dobject<QCategory3DAxis>(objectbrowser_->currentItem());
+    axis->setMax(value);
+  } else if (prop->compare(plot3daxiscatagoryticklabelrotationitem_)) {
+    QCategory3DAxis *axis =
+        getgraph2dobject<QCategory3DAxis>(objectbrowser_->currentItem());
+    axis->setLabelAutoRotation(value);
   }
 }
 
@@ -2112,6 +2271,18 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
     colormap->getcolormapscale_colormap()->setLabel(value);
     colormap->setname_colormap(Utilities::splitstring(value));
     colormap->layer()->replot();
+  } else if (prop->compare(plot3daxisvaluetitletextitem_)) {
+    QValue3DAxis *axis =
+        getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
+    axis->setTitle(value);
+  } else if (prop->compare(plot3dvalueaxislabelformatitem_)) {
+    QValue3DAxis *axis =
+        getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
+    axis->setLabelFormat(value);
+  } else if (prop->compare(plot3daxiscatagorytitletextitem_)) {
+    QCategory3DAxis *axis =
+        getgraph2dobject<QCategory3DAxis>(objectbrowser_->currentItem());
+    axis->setTitle(value);
   }
 }
 
@@ -2225,6 +2396,14 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
     colormap->setlevelcount_colormap(value);
     colormap->layer()->replot();
+  } else if (prop->compare(plot3dvalueaxistickcountitem_)) {
+    QValue3DAxis *axis =
+        getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
+    axis->setSegmentCount(value);
+  } else if (prop->compare(plot3dvalueaxissubtickcountitem_)) {
+    QValue3DAxis *axis =
+        getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
+    axis->setSubSegmentCount(value);
   }
 }
 
@@ -2763,6 +2942,9 @@ void PropertyEditor::valueChange(QtProperty *prop, const QFont &font) {
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
     colormap->getcolormapscale_colormap()->axis()->setTickLabelFont(font);
     colormap->layer()->replot();
+  } else if (prop->compare(plot3dcanvasfontitem_)) {
+    Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
+    theme->setFont(font);
   }
 }
 
@@ -2891,6 +3073,36 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       ErrorBar2DPropertyBlock(errorbar, axisrect);
+    } break;
+    case MyTreeWidget::PropertyItemType::Plot3DCanvas: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      Q3DTheme *theme = static_cast<Q3DTheme *>(ptr1);
+      Canvas3DPropertyBlock(theme);
+    } break;
+    case MyTreeWidget::PropertyItemType::Plot3DAxisValue: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      QValue3DAxis *axis = static_cast<QValue3DAxis *>(ptr1);
+      Axis3DValuePropertyBlock(axis);
+    } break;
+    case MyTreeWidget::PropertyItemType::Plot3DAxisCatagory: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      QCategory3DAxis *axis = static_cast<QCategory3DAxis *>(ptr1);
+      Axis3DCatagoryPropertyBlock(axis);
+    } break;
+    case MyTreeWidget::PropertyItemType::Plot3DSurface: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      Surface3D *surface = static_cast<Surface3D *>(ptr1);
+      Surface3DPropertyBlock(surface);
+    } break;
+    case MyTreeWidget::PropertyItemType::Plot3DBar: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      Bar3D *bar = static_cast<Bar3D *>(ptr1);
+      Bar3DPropertyBlock(bar);
+    } break;
+    case MyTreeWidget::PropertyItemType::Plot3DScatter: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      Scatter3D *scatter = static_cast<Scatter3D *>(ptr1);
+      Scatter3DPropertyBlock(scatter);
     } break;
   }
 }
@@ -4032,6 +4244,103 @@ void PropertyEditor::ErrorBar2DPropertyBlock(ErrorBar2D *errorbar,
                          errorbar->antialiased());
 }
 
+void PropertyEditor::Canvas3DPropertyBlock(Q3DTheme *theme) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(plot3dcanvaswindowcoloritem_);
+  propertybrowser_->addProperty(plot3dcanvasbackgroundvisibleitem_);
+  propertybrowser_->addProperty(plot3dcanvaslightcoloritem_);
+  propertybrowser_->addProperty(plot3dcanvasgridvisibleitem_);
+  propertybrowser_->addProperty(plot3dcanvaslabelbackgroundvisibleitem_);
+  propertybrowser_->addProperty(plot3dcanvasambientlightstrengthitem_);
+  propertybrowser_->addProperty(plot3dcanvaslightstrengthitem_);
+
+  colorManager_->setValue(plot3dcanvaswindowcoloritem_, theme->windowColor());
+  boolManager_->setValue(plot3dcanvasbackgroundvisibleitem_,
+                         theme->isBackgroundEnabled());
+  colorManager_->setValue(plot3dcanvasbackgroundcoloritem_,
+                          theme->backgroundColor());
+  doubleManager_->setValue(plot3dcanvasambientlightstrengthitem_,
+                           theme->ambientLightStrength());
+  doubleManager_->setValue(plot3dcanvaslightstrengthitem_,
+                           theme->lightStrength());
+  colorManager_->setValue(plot3dcanvaslightcoloritem_, theme->lightColor());
+  boolManager_->setValue(plot3dcanvasgridvisibleitem_, theme->isGridEnabled());
+  colorManager_->setValue(plot3dcanvasgridcoloritem_, theme->gridLineColor());
+  fontManager_->setValue(plot3dcanvasfontitem_, theme->font());
+  boolManager_->setValue(plot3dcanvaslabelbackgroundvisibleitem_,
+                         theme->isLabelBackgroundEnabled());
+  colorManager_->setValue(plot3dcanvaslabelbackgroundcoloritem_,
+                          theme->labelBackgroundColor());
+  boolManager_->setValue(plot3dcanvaslabelbordervisibleitem_,
+                         theme->isLabelBorderEnabled());
+  colorManager_->setValue(plot3dcanvaslabeltextcoloritem_,
+                          theme->labelTextColor());
+}
+
+void PropertyEditor::Axis3DValuePropertyBlock(QValue3DAxis *axis) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(plot3daxisvalueautoadjustrangeitem_);
+  propertybrowser_->addProperty(plot3daxisvaluerangeloweritem_);
+  propertybrowser_->addProperty(plot3daxisvaluerangeupperitem_);
+  propertybrowser_->addProperty(plot3dvalueaxislabelformatitem_);
+  propertybrowser_->addProperty(plot3dvalueaxisreverseitem_);
+  propertybrowser_->addProperty(plot3dvalueaxistickcountitem_);
+  propertybrowser_->addProperty(plot3dvalueaxissubtickcountitem_);
+  propertybrowser_->addProperty(plot3daxisvalueticklabelrotationitem_);
+  propertybrowser_->addProperty(plot3daxisvaluetitlevisibleitem_);
+  propertybrowser_->addProperty(plot3daxisvaluetitlefixeditem_);
+  propertybrowser_->addProperty(plot3daxisvaluetitletextitem_);
+
+  boolManager_->setValue(plot3daxisvalueautoadjustrangeitem_,
+                         axis->isAutoAdjustRange());
+  doubleManager_->setValue(plot3daxisvaluerangeloweritem_, axis->min());
+  doubleManager_->setValue(plot3daxisvaluerangeupperitem_, axis->max());
+  stringManager_->setValue(plot3dvalueaxislabelformatitem_,
+                           axis->labelFormat());
+  boolManager_->setValue(plot3dvalueaxisreverseitem_, axis->reversed());
+  intManager_->setValue(plot3dvalueaxistickcountitem_, axis->segmentCount());
+  intManager_->setValue(plot3dvalueaxissubtickcountitem_,
+                        axis->subSegmentCount());
+  doubleManager_->setValue(plot3daxisvalueticklabelrotationitem_,
+                           axis->labelAutoRotation());
+  boolManager_->setValue(plot3daxisvaluetitlevisibleitem_,
+                         axis->isTitleVisible());
+  boolManager_->setValue(plot3daxisvaluetitlefixeditem_, axis->isTitleFixed());
+  stringManager_->setValue(plot3daxisvaluetitletextitem_, axis->title());
+}
+
+void PropertyEditor::Axis3DCatagoryPropertyBlock(QCategory3DAxis *axis) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(plot3daxiscatagoryautoadjustrangeitem_);
+  propertybrowser_->addProperty(plot3daxiscatagoryrangeloweritem_);
+  propertybrowser_->addProperty(plot3daxiscatagoryrangeupperitem_);
+  propertybrowser_->addProperty(plot3daxiscatagoryticklabelrotationitem_);
+  propertybrowser_->addProperty(plot3daxiscatagorytitlevisibleitem_);
+  propertybrowser_->addProperty(plot3daxiscatagorytitlefixeditem_);
+  propertybrowser_->addProperty(plot3daxiscatagorytitletextitem_);
+
+  boolManager_->setValue(plot3daxiscatagoryautoadjustrangeitem_,
+                         axis->isAutoAdjustRange());
+  doubleManager_->setValue(plot3daxiscatagoryrangeloweritem_, axis->min());
+  doubleManager_->setValue(plot3daxiscatagoryrangeupperitem_, axis->max());
+  doubleManager_->setValue(plot3daxiscatagoryticklabelrotationitem_,
+                           axis->labelAutoRotation());
+  boolManager_->setValue(plot3daxiscatagorytitlevisibleitem_,
+                         axis->isTitleVisible());
+  boolManager_->setValue(plot3daxiscatagorytitlefixeditem_,
+                         axis->isTitleFixed());
+  stringManager_->setValue(plot3daxiscatagorytitletextitem_, axis->title());
+}
+
+void PropertyEditor::Surface3DPropertyBlock(Surface3D *surface) {}
+
+void PropertyEditor::Bar3DPropertyBlock(Bar3D *bar) {}
+
+void PropertyEditor::Scatter3DPropertyBlock(Scatter3D *scatter) {}
+
 void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
   populateObjectBrowser(widget);
   axisrectConnections(axisrect);
@@ -4852,20 +5161,172 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         0, IconLoader::load("edit-graph3d", IconLoader::LightDark));
 
     Layout3D *lout = qobject_cast<Layout3D *>(widget);
+    const Graph3DCommon::Plot3DType plottype = lout->getPlotType();
+    QVariant plot3dptvar;
+    switch (plottype) {
+      case Graph3DCommon::Plot3DType::Surface:
+        plot3dptvar = QVariant::fromValue<void *>(lout->getSurface3DModifier());
+        break;
+      case Graph3DCommon::Plot3DType::Bar:
+        plot3dptvar = QVariant::fromValue<void *>(lout->getBar3DModifier());
+        break;
+      case Graph3DCommon::Plot3DType::Scatter:
+        plot3dptvar = QVariant::fromValue<void *>(lout->getScatter3DModifier());
+        break;
+    }
+    // plot axis type
+    QString axisxitemtext;
+    QString axisyitemtext;
+    QVariant axis3dxptvar;
+    QVariant axis3dyptvar;
+    QVariant axis3dzptvar;
+    MyTreeWidget::PropertyItemType propertyitemtype;
+    switch (plottype) {
+      case Graph3DCommon::Plot3DType::Surface: {
+        axisxitemtext = QString("X Axis(val)");
+        axisyitemtext = QString("Y Axis(val)");
+        propertyitemtype = MyTreeWidget::PropertyItemType::Plot3DAxisValue;
+        axis3dxptvar = QVariant::fromValue<void *>(
+            lout->getSurface3DModifier()->getGraph()->axisX());
+        axis3dyptvar = QVariant::fromValue<void *>(
+            lout->getSurface3DModifier()->getGraph()->axisY());
+        axis3dzptvar = QVariant::fromValue<void *>(
+            lout->getSurface3DModifier()->getGraph()->axisZ());
+      } break;
+      case Graph3DCommon::Plot3DType::Scatter: {
+        axisxitemtext = QString("X Axis(val)");
+        axisyitemtext = QString("Y Axis(val)");
+        propertyitemtype = MyTreeWidget::PropertyItemType::Plot3DAxisValue;
+        axis3dxptvar = QVariant::fromValue<void *>(
+            lout->getScatter3DModifier()->getGraph()->axisX());
+        axis3dyptvar = QVariant::fromValue<void *>(
+            lout->getScatter3DModifier()->getGraph()->axisY());
+        axis3dzptvar = QVariant::fromValue<void *>(
+            lout->getScatter3DModifier()->getGraph()->axisZ());
+      } break;
+      case Graph3DCommon::Plot3DType::Bar: {
+        axisxitemtext = QString("X Axis(cat)");
+        axisyitemtext = QString("Y Axis(cat)");
+        propertyitemtype = MyTreeWidget::PropertyItemType::Plot3DAxisCatagory;
+        axis3dxptvar = QVariant::fromValue<void *>(
+            lout->getBar3DModifier()->getGraph()->rowAxis());
+        axis3dyptvar = QVariant::fromValue<void *>(
+            lout->getBar3DModifier()->getGraph()->columnAxis());
+        axis3dzptvar = QVariant::fromValue<void *>(
+            lout->getBar3DModifier()->getGraph()->valueAxis());
+      } break;
+    }
 
     // canvas
-    QString canvasitemtext = QString("Canvas");
-    QTreeWidgetItem *canvasitem = new QTreeWidgetItem(
-        static_cast<QTreeWidget *>(nullptr), QStringList(canvasitemtext));
-    canvasitem->setToolTip(0, canvasitemtext);
-    canvasitem->setIcon(0,
-                        IconLoader::load("view-image", IconLoader::LightDark));
-   /* canvasitem->setData(
-        0, Qt::UserRole,
-        static_cast<int>(MyTreeWidget::PropertyItemType::PlotCanvas));
-    canvasitem->setData(0, Qt::UserRole + 1,
-                        QVariant::fromValue<void *>(lout->));*/
-    objectitems_.append(canvasitem);
+    {
+      QString canvasitemtext = QString("Canvas");
+      QTreeWidgetItem *canvasitem = new QTreeWidgetItem(
+          static_cast<QTreeWidget *>(nullptr), QStringList(canvasitemtext));
+      canvasitem->setToolTip(0, canvasitemtext);
+      canvasitem->setIcon(
+          0, IconLoader::load("view-image", IconLoader::LightDark));
+      canvasitem->setData(
+          0, Qt::UserRole,
+          static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DCanvas));
+      QVariant plot3dpttheme;
+      switch (plottype) {
+        case Graph3DCommon::Plot3DType::Surface:
+          plot3dpttheme = QVariant::fromValue<void *>(
+              lout->getSurface3DModifier()->getGraph()->activeTheme());
+          break;
+        case Graph3DCommon::Plot3DType::Bar:
+          plot3dpttheme = QVariant::fromValue<void *>(
+              lout->getBar3DModifier()->getGraph()->activeTheme());
+          break;
+        case Graph3DCommon::Plot3DType::Scatter:
+          plot3dpttheme = QVariant::fromValue<void *>(
+              lout->getScatter3DModifier()->getGraph()->activeTheme());
+          break;
+      }
+      canvasitem->setData(0, Qt::UserRole + 1, plot3dpttheme);
+      canvasitem->setData(0, Qt::UserRole + 2, plot3dptvar);
+      objectitems_.append(canvasitem);
+    }
+
+    // Axis X
+    {
+      QTreeWidgetItem *axisxitem = new QTreeWidgetItem(
+          static_cast<QTreeWidget *>(nullptr), QStringList(axisxitemtext));
+      axisxitem->setToolTip(0, axisxitemtext);
+      axisxitem->setIcon(
+          0, IconLoader::load("graph2d-axis-bottom", IconLoader::LightDark));
+      axisxitem->setData(0, Qt::UserRole, static_cast<int>(propertyitemtype));
+      axisxitem->setData(0, Qt::UserRole + 1, axis3dxptvar);
+      objectitems_.append(axisxitem);
+    }
+
+    // Axis Y
+    {
+      QTreeWidgetItem *axisyitem = new QTreeWidgetItem(
+          static_cast<QTreeWidget *>(nullptr), QStringList(axisyitemtext));
+      axisyitem->setToolTip(0, axisyitemtext);
+      axisyitem->setIcon(
+          0, IconLoader::load("graph2d-axis-left", IconLoader::LightDark));
+      axisyitem->setData(0, Qt::UserRole, static_cast<int>(propertyitemtype));
+      axisyitem->setData(0, Qt::UserRole + 1, axis3dyptvar);
+      objectitems_.append(axisyitem);
+    }
+
+    // Axis Z
+    {
+      QString axiszitemtext = QString("Z Axis(val)");
+      QTreeWidgetItem *axiszitem = new QTreeWidgetItem(
+          static_cast<QTreeWidget *>(nullptr), QStringList(axiszitemtext));
+      axiszitem->setToolTip(0, axiszitemtext);
+      axiszitem->setIcon(
+          0, IconLoader::load("graph2d-axis-right", IconLoader::LightDark));
+      axiszitem->setData(
+          0, Qt::UserRole,
+          static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DAxisValue));
+      axiszitem->setData(0, Qt::UserRole + 1, axis3dzptvar);
+      objectitems_.append(axiszitem);
+    }
+
+    // 3D plot
+    {
+      QString plot3ditemtext = QString();
+      QTreeWidgetItem *plot3ditem =
+          new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+      switch (plottype) {
+        case Graph3DCommon::Plot3DType::Surface: {
+          plot3ditemtext = tr("Surface");
+          plot3ditem->setIcon(
+              0, IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
+          plot3ditem->setData(
+              0, Qt::UserRole,
+              static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DSurface));
+        } break;
+        case Graph3DCommon::Plot3DType::Bar: {
+          plot3ditemtext = tr("Bar");
+          plot3ditem->setIcon(
+              0, IconLoader::load("graph3d-bar", IconLoader::LightDark));
+          plot3ditem->setData(
+              0, Qt::UserRole,
+              static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DBar));
+        } break;
+        case Graph3DCommon::Plot3DType::Scatter: {
+          plot3ditemtext = tr("Scatter");
+          plot3ditem->setIcon(
+              0, IconLoader::load("graph3d-scatter", IconLoader::LightDark));
+          plot3ditem->setData(
+              0, Qt::UserRole,
+              static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DScatter));
+        } break;
+      }
+      plot3ditem->setText(0, plot3ditemtext);
+      plot3ditem->setToolTip(0, plot3ditemtext);
+      plot3ditem->setData(0, Qt::UserRole + 1, plot3dptvar);
+      objectitems_.append(plot3ditem);
+    }
+
+    // add to Tree
+    objectbrowser_->addTopLevelItems(objectitems_);
+    objectbrowser_->insertTopLevelItems(0, objectitems_);
 
   } else if (qobject_cast<Table *>(widget)) {
     objectbrowser_->setHeaderLabel(qobject_cast<Table *>(widget)->name());
@@ -5663,4 +6124,64 @@ void PropertyEditor::setObjectPropertyId() {
       "vmingridpropertystrokethicknessitem_");
   vmingridpropertystroketypeitem_->setPropertyId(
       "vmingridpropertystroketypeitem_");
+
+  // Plot3D Canvas properties
+  plot3dcanvaswindowcoloritem_->setPropertyId("plot3dcanvaswindowcoloritem_");
+  plot3dcanvasbackgroundvisibleitem_->setPropertyId(
+      "plot3dcanvasbackgroundvisibleitem_");
+  plot3dcanvasbackgroundcoloritem_->setPropertyId(
+      "plot3dcanvasbackgroundcoloritem_");
+  plot3dcanvasambientlightstrengthitem_->setPropertyId(
+      "plot3dcanvasambientlightstrengthitem_");
+  plot3dcanvaslightstrengthitem_->setPropertyId(
+      "plot3dcanvaslightstrengthitem_");
+  plot3dcanvaslightcoloritem_->setPropertyId("plot3dcanvaslightcoloritem_");
+  plot3dcanvasgridvisibleitem_->setPropertyId("plot3dcanvasgridvisibleitem_");
+  plot3dcanvasgridcoloritem_->setPropertyId("plot3dcanvasgridcoloritem_");
+  plot3dcanvasfontitem_->setPropertyId("plot3dcanvasfontitem_");
+  plot3dcanvaslabelbackgroundvisibleitem_->setPropertyId(
+      "plot3dcanvaslabelbackgroundvisibleitem_");
+  plot3dcanvaslabelbackgroundcoloritem_->setPropertyId(
+      "plot3dcanvaslabelbackgroundcoloritem_");
+  plot3dcanvaslabelbordervisibleitem_->setPropertyId(
+      "plot3dcanvaslabelbordervisibleitem_");
+  plot3dcanvaslabeltextcoloritem_->setPropertyId(
+      "plot3dcanvaslabeltextcoloritem_");
+
+  // Plot3d value axis
+  plot3daxisvalueautoadjustrangeitem_->setPropertyId(
+      "plot3daxisvalueautoadjustrangeitem_");
+  plot3daxisvaluerangeloweritem_->setPropertyId(
+      "plot3daxisvaluerangeloweritem_");
+  plot3daxisvaluerangeupperitem_->setPropertyId(
+      "plot3daxisvaluerangeupperitem_");
+  plot3dvalueaxislabelformatitem_->setPropertyId(
+      "plot3dvalueaxislabelformatitem_");
+  plot3dvalueaxisreverseitem_->setPropertyId("plot3dvalueaxisreverseitem_");
+  plot3dvalueaxistickcountitem_->setPropertyId("plot3dvalueaxistickcountitem_");
+  plot3dvalueaxissubtickcountitem_->setPropertyId(
+      "plot3dvalueaxissubtickcountitem_");
+  plot3daxisvalueticklabelrotationitem_->setPropertyId(
+      "plot3daxisvalueticklabelrotationitem_");
+  plot3daxisvaluetitlevisibleitem_->setPropertyId(
+      "plot3daxisvaluetitlevisibleitem_");
+  plot3daxisvaluetitlefixeditem_->setPropertyId(
+      "plot3daxisvaluetitlefixeditem_");
+  plot3daxisvaluetitletextitem_->setPropertyId("plot3daxisvaluetitletextitem_");
+
+  // Plot3d catagory axis
+  plot3daxiscatagoryautoadjustrangeitem_->setPropertyId(
+      "plot3daxiscatagoryautoadjustrangeitem_");
+  plot3daxiscatagoryrangeloweritem_->setPropertyId(
+      "plot3daxiscatagoryrangeloweritem_");
+  plot3daxiscatagoryrangeupperitem_->setPropertyId(
+      "plot3daxiscatagoryrangeupperitem_");
+  plot3daxiscatagoryticklabelrotationitem_->setPropertyId(
+      "plot3daxiscatagoryticklabelrotationitem_");
+  plot3daxiscatagorytitlevisibleitem_->setPropertyId(
+      "plot3daxiscatagorytitlevisibleitem_");
+  plot3daxiscatagorytitlefixeditem_->setPropertyId(
+      "plot3daxiscatagorytitlefixeditem_");
+  plot3daxiscatagorytitletextitem_->setPropertyId(
+      "plot3daxiscatagorytitletextitem_");
 }
