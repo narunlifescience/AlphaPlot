@@ -215,6 +215,7 @@ class Table : public TableView, public scripted, public QScriptable {
   void init();
   QStringList selectedColumns();
   QStringList selectedYColumns();
+  QStringList selectedZColumns();
   QStringList selectedErrColumns();
   QMap<int, QString> selectedYLabels();
   QStringList drawableColumnSelection();

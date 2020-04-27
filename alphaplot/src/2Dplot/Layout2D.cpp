@@ -50,7 +50,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
       xpickerline_(nullptr),
       ypickerline_(nullptr) {
   main_widget_->setContentsMargins(0, 0, 0, 0);
-  if (name.isEmpty()) setObjectName("multilayout2d plot");
+  if (name.isEmpty()) setObjectName("layout2d plot");
   QDateTime birthday = QDateTime::currentDateTime();
   setBirthDate(birthday.toString(Qt::LocalDate));
 
@@ -387,10 +387,7 @@ void Layout2D::generateColorMap2DPlot(Matrix *matrix, bool greyscale,
                                       bool contour) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble);
-  addLayoutButton_->setDisabled(true);
-  removeLayoutButton_->setDisabled(true);
-  addLayoutButton_->setHidden(true);
-  removeLayoutButton_->setHidden(true);
+  setLayoutButtonBoxVisible(false);
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -1633,7 +1630,8 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
       setName(name);
     } else
       xmlreader->raiseWarning(tr("Layout2D name missing or empty"));
-    // read name
+
+    // read label
     QString label = xmlreader->readAttributeString("label", &ok);
     if (ok) {
       setWindowLabel(name);
@@ -1690,6 +1688,20 @@ void Layout2D::loadIcons() {
       IconLoader::load("list-add", IconLoader::LightDark));
   removeLayoutButton_->setIcon(
       IconLoader::load("list-remove", IconLoader::General));
+}
+
+void Layout2D::setLayoutButtonBoxVisible(const bool value) {
+  if (value) {
+    addLayoutButton_->setEnabled(true);
+    removeLayoutButton_->setEnabled(true);
+    addLayoutButton_->setVisible(true);
+    removeLayoutButton_->setVisible(true);
+  } else {
+    addLayoutButton_->setDisabled(true);
+    removeLayoutButton_->setDisabled(true);
+    addLayoutButton_->setHidden(true);
+    removeLayoutButton_->setHidden(true);
+  }
 }
 
 AxisRect2D *Layout2D::addAxisRectWithAxis() {

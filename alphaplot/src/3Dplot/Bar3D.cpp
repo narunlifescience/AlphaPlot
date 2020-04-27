@@ -3,16 +3,13 @@
 #include <qmath.h>
 
 #include "Custom3DInteractions.h"
+#include "DataManager3D.h"
 #include "Matrix.h"
+#include "Table.h"
+#include "future/core/column/Column.h"
 
 Bar3D::Bar3D(Q3DBars *bar)
-    : graph_(bar),
-      matrix_(nullptr),
-      plotType_(),
-      custominter_(new Custom3DInteractions),
-      functionDataProxy_(new QBarDataProxy()),
-      dataSeries_(new QBar3DSeries),
-      modelDataProxy_(new QItemModelBarDataProxy) {
+    : graph_(bar), custominter_(new Custom3DInteractions), data_(nullptr) {
   graph_->activeTheme()->setType(Q3DTheme::ThemeDigia);
   graph_->setActiveInputHandler(custominter_);
   graph_->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
@@ -22,31 +19,36 @@ Bar3D::Bar3D(Q3DBars *bar)
   graph_->setColumnAxis(new QCategory3DAxis);
   graph_->setRowAxis(new QCategory3DAxis);
   graph_->setValueAxis(new QValue3DAxis);
-  graph_->columnAxis()->setTitle("X");
-  graph_->columnAxis()->setTitleVisible(true);
-  graph_->rowAxis()->setTitle("Y");
-  graph_->rowAxis()->setTitleVisible(true);
-  graph_->valueAxis()->setTitle("Z");
-  graph_->valueAxis()->setTitleVisible(true);
 }
 
 Bar3D::~Bar3D() {}
 
-void Bar3D::setmatrixdatamodel(Matrix *matrix) {
-  matrix_ = matrix;
-  modelDataProxy_.get()->setItemModel(matrix->getmodel());
-  modelDataProxy_.get()->setUseModelCategories(true);
-  dataSeries_.get()->setDataProxy(modelDataProxy_.get());
-  dataSeries_->setMesh(QAbstract3DSeries::Mesh::MeshBar);
-  graph_->addSeries(dataSeries_.get());
+void Bar3D::settabledata(Table *table, Column *xcolumn, Column *ycolumn,
+                         QList<Column *> zcolumns) {
+  if (data_ != nullptr) return;
+  data_ = new DataBlockBar3D(table, xcolumn, ycolumn, zcolumns);
+  graph_->addSeries(data_->getdataseries());
   setGradient();
-  graph_->setBarThickness(1.0f);
-  graph_->setBarSpacing(QSizeF(0.2, 0.2));
 }
 
-Matrix *Bar3D::getMatrix() { return matrix_; }
+void Bar3D::settabledata(Table *table, Column *xcolumn, Column *ycolumn,
+                         Column *zcolumn) {
+  if (data_ != nullptr) return;
+  data_ = new DataBlockBar3D(table, xcolumn, ycolumn, zcolumn);
+  graph_->addSeries(data_->getdataseries());
+  setGradient();
+}
+
+void Bar3D::setmatrixdatamodel(Matrix *matrix) {
+  if (data_ != nullptr) return;
+  data_ = new DataBlockBar3D(matrix);
+  graph_->addSeries(data_->getdataseries());
+  setGradient();
+}
 
 Q3DBars *Bar3D::getGraph() const { return graph_; }
+
+DataBlockBar3D *Bar3D::getData() const { return data_; }
 
 void Bar3D::setGradient() {
   QLinearGradient gr;
@@ -55,8 +57,8 @@ void Bar3D::setGradient() {
   gr.setColorAt(0.67, Qt::red);
   gr.setColorAt(1.0, Qt::yellow);
 
-  dataSeries_->setBaseGradient(gr);
-  dataSeries_->setColorStyle(Q3DTheme::ColorStyleRangeGradient);
+  graph_->seriesList().at(0)->setBaseGradient(gr);
+  graph_->seriesList().at(0)->setColorStyle(Q3DTheme::ColorStyleRangeGradient);
   graph_->setSelectionMode(QAbstract3DGraph::SelectionItemAndRow |
                            QAbstract3DGraph::SelectionSlice);
 }

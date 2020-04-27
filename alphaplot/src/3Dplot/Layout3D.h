@@ -7,6 +7,7 @@
 #include "MyWidget.h"
 
 class Matrix;
+class Table;
 class Surface3D;
 class Bar3D;
 class Scatter3D;
@@ -45,13 +46,12 @@ class Layout3D : public MyWidget {
                                 const QSize &size);
   void generateSurfacePlot3D(QList<QPair<QPair<double, double>, double>> *data,
                              const Graph3DCommon::Function3DData &funcdata);
-  void setMatrixDataModel(Matrix *matrix);
 
-  Matrix *getMatrix() const;
   QSize getContainerSize() const;
   Graph3DCommon::Plot3DType getPlotType() const;
-  void load(XmlStreamReader *reader);
-  void save(QXmlStreamWriter *writer);
+  void load(XmlStreamReader *xmlreader, QList<Table *> tabs,
+            QList<Matrix *> mats);
+  void save(QXmlStreamWriter *xmlwriter);
 
  private:
   Graph3DCommon::Plot3DType plottype_;

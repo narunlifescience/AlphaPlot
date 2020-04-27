@@ -10,6 +10,9 @@
 
 class Custom3DInteractions;
 class Matrix;
+class Table;
+class Column;
+class DataBlockSurface3D;
 using namespace QtDataVisualization;
 
 class Surface3D : public QObject {
@@ -25,19 +28,17 @@ class Surface3D : public QObject {
 
   void setfunctiondata(QList<QPair<QPair<double, double>, double>> *data,
                        const Graph3DCommon::Function3DData &funcdata);
+  void settabledata(Table *table, Column *xcolumn, Column *ycolumn,
+                    QList<Column *> zcolumns);
   void setmatrixdatamodel(Matrix *matrix);
-  Matrix *getMatrix();
   Q3DSurface *getGraph() const;
+  DataBlockSurface3D * getData() const;
 
  private:
   Q3DSurface *graph_;
-  Matrix *matrix_;
-  Graph3DCommon::Function3DData functionData_;
   QSurface3DSeries::DrawFlag plotType_;
   Custom3DInteractions *custominter_;
-  std::unique_ptr<QSurfaceDataProxy> functionDataProxy_;
-  std::unique_ptr<QSurface3DSeries> dataSeries_;
-  std::unique_ptr<QItemModelSurfaceDataProxy> modelDataProxy_;
+  DataBlockSurface3D *data_;
 };
 
 #endif  // SURFACE3D_H

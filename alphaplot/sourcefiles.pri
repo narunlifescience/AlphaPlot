@@ -5,6 +5,7 @@
 ###################### HEADERS ##############################################
 
 HEADERS  += src/ApplicationWindow.h \
+    $$PWD/src/3Dplot/DataManager3D.h \
             src/core/IconLoader.h \
             src/core/Utilities.h \
             src/globals.h\
@@ -91,6 +92,7 @@ HEADERS  += src/ApplicationWindow.h \
 ###################### SOURCES ##############################################
 
 SOURCES  += src/ApplicationWindow.cpp \
+    $$PWD/src/3Dplot/DataManager3D.cpp \
             src/core/IconLoader.cpp \
             src/core/Utilities.cpp \
             src/scripting/MuParserScript.cpp \

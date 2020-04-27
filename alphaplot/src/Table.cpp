@@ -29,14 +29,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "Table.h"
-#include "core/column/Column.h"
-#include "core/datatypes/DateTime2StringFilter.h"
-#include "core/datatypes/Double2StringFilter.h"
-#include "core/datatypes/String2DoubleFilter.h"
-#include "lib/Interval.h"
-#include "scripting/ScriptEdit.h"
-#include "table/AsciiTableImportFilter.h"
-#include "table/TableModel.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -54,8 +46,16 @@
 #include <QShortcut>
 #include <QTemporaryFile>
 #include <QTextStream>
-
 #include <cmath>
+
+#include "core/column/Column.h"
+#include "core/datatypes/DateTime2StringFilter.h"
+#include "core/datatypes/Double2StringFilter.h"
+#include "core/datatypes/String2DoubleFilter.h"
+#include "lib/Interval.h"
+#include "scripting/ScriptEdit.h"
+#include "table/AsciiTableImportFilter.h"
+#include "table/TableModel.h"
 
 Table::Table(ScriptingEnv *env, const QString &fname, const QString &sep,
              int ignoredLines, bool renameCols, bool stripSpaces,
@@ -616,6 +616,15 @@ QStringList Table::selectedYColumns() {
   QStringList names;
   for (int i = 0; i < numCols(); i++) {
     if (isColumnSelected(i) && column(i)->plotDesignation() == AlphaPlot::Y)
+      names << name() + "_" + column(i)->name();
+  }
+  return names;
+}
+
+QStringList Table::selectedZColumns() {
+  QStringList names;
+  for (int i = 0; i < numCols(); i++) {
+    if (isColumnSelected(i) && column(i)->plotDesignation() == AlphaPlot::Z)
       names << name() + "_" + column(i)->name();
   }
   return names;

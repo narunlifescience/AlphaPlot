@@ -82,6 +82,7 @@ class Layout2D : public MyWidget {
   bool load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             QList<Matrix *> mats);
   void loadIcons();
+  void setLayoutButtonBoxVisible(const bool value);
 
  public slots:
   bool exportGraph();

@@ -3,16 +3,16 @@
 #include <qmath.h>
 
 #include "Custom3DInteractions.h"
+#include "DataManager3D.h"
 #include "Matrix.h"
+#include "Table.h"
+#include "future/core/column/Column.h"
 
 Surface3D::Surface3D(Q3DSurface *surface)
     : graph_(surface),
-      matrix_(nullptr),
       plotType_(QSurface3DSeries::DrawFlag::DrawSurfaceAndWireframe),
       custominter_(new Custom3DInteractions),
-      functionDataProxy_(new QSurfaceDataProxy()),
-      dataSeries_(new QSurface3DSeries),
-      modelDataProxy_(new QItemModelSurfaceDataProxy) {
+      data_(nullptr) {
   graph_->activeTheme()->setType(Q3DTheme::ThemeDigia);
   graph_->setActiveInputHandler(custominter_);
   graph_->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
@@ -22,9 +22,6 @@ Surface3D::Surface3D(Q3DSurface *surface)
   graph_->setAxisX(new QValue3DAxis);
   graph_->setAxisY(new QValue3DAxis);
   graph_->setAxisZ(new QValue3DAxis);
-  graph_->axisX()->setTitleVisible(true);
-  graph_->axisY()->setTitleVisible(true);
-  graph_->axisZ()->setTitleVisible(true);
 }
 
 Surface3D::~Surface3D() {}
@@ -32,46 +29,30 @@ Surface3D::~Surface3D() {}
 void Surface3D::setfunctiondata(
     QList<QPair<QPair<double, double>, double>> *data,
     const Graph3DCommon::Function3DData &funcdata) {
-  functionData_ = funcdata;
-  int points = funcdata.xpoints;
-  QSurfaceDataArray *dataArray = new QSurfaceDataArray;
-  dataArray->reserve(points);
-  for (int i = 0; i < points * points;) {
-    // create a new row
-    QSurfaceDataRow *newRow = new QSurfaceDataRow(points);
-    // get pointer to firsr row
-    QSurfaceDataItem *newRowPtr = &newRow->first();
-    for (int j = 0; j < points; j++) {
-      double x = data->at(i).first.first;
-      double y = data->at(i).first.second;
-      double z = data->at(i).second;
-      newRowPtr->setPosition(QVector3D(y, z, x));
-      newRowPtr++;
-      i++;
-    }
-    *dataArray << newRow;
-  }
-  // delete data
-  data->clear();
-  delete data;
-  functionDataProxy_->resetArray(dataArray);
-  dataSeries_.get()->setDataProxy(functionDataProxy_.get());
-  graph_->addSeries(dataSeries_.get());
+  if (data_ != nullptr) return;
+  data_ = new DataBlockSurface3D(data, funcdata);
+  graph_->addSeries(data_->getdataseries());
+  setGradient();
+}
+
+void Surface3D::settabledata(Table *table, Column *xcolumn, Column *ycolumn,
+                             QList<Column *> zcolumns) {
+  if (data_ != nullptr) return;
+  data_ = new DataBlockSurface3D(table, xcolumn, ycolumn, zcolumns);
+  graph_->addSeries(data_->getdataseries());
   setGradient();
 }
 
 void Surface3D::setmatrixdatamodel(Matrix *matrix) {
-  matrix_ = matrix;
-  modelDataProxy_.get()->setItemModel(matrix->getmodel());
-  modelDataProxy_->setUseModelCategories(true);
-  dataSeries_.get()->setDataProxy(modelDataProxy_.get());
-  graph_->addSeries(dataSeries_.get());
+  if (data_ != nullptr) return;
+  data_ = new DataBlockSurface3D(matrix);
+  graph_->addSeries(data_->getdataseries());
   setGradient();
 }
 
-Matrix *Surface3D::getMatrix() { return matrix_; }
-
 Q3DSurface *Surface3D::getGraph() const { return graph_; }
+
+DataBlockSurface3D *Surface3D::getData() const { return data_; }
 
 void Surface3D::setGradient() {
   QLinearGradient gr;

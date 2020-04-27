@@ -2,6 +2,8 @@
 
 #include "Custom3DInteractions.h"
 #include "Matrix.h"
+#include "Table.h"
+#include "future/core/column/Column.h"
 
 Scatter3D::Scatter3D(Q3DScatter *scatter)
     : graph_(scatter),
@@ -29,6 +31,14 @@ Scatter3D::Scatter3D(Q3DScatter *scatter)
 }
 
 Scatter3D::~Scatter3D() {}
+
+void Scatter3D::settabledata(Table *table, Column *xcolumn, Column *ycolumn, QList<Column *> zcolumns)
+{
+
+}
+
+void Scatter3D::settabledata(Table *table, Column *xcolumn, Column *ycolumn,
+                             Column *zcolumn) {}
 
 void Scatter3D::setmatrixdatamodel(Matrix *matrix) {
   matrix_ = matrix;

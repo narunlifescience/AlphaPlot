@@ -9,6 +9,10 @@
 
 class Custom3DInteractions;
 class Matrix;
+class Table;
+class Column;
+class DataBlockBar3D;
+
 using namespace QtDataVisualization;
 
 class Bar3D : public QObject {
@@ -17,21 +21,22 @@ class Bar3D : public QObject {
   Bar3D(Q3DBars *bar);
   ~Bar3D();
 
+  void settabledata(Table *table, Column *xcolumn, Column *ycolumn,
+                    QList<Column *> zcolumns);
+  void settabledata(Table *table, Column *xcolumn, Column *ycolumn,
+                    Column *zcolumn);
   void setmatrixdatamodel(Matrix *matrix);
-  Matrix *getMatrix();
+
   Q3DBars *getGraph() const;
+  DataBlockBar3D * getData() const;
 
  private:
   void setGradient();
 
  private:
   Q3DBars *graph_;
-  Matrix *matrix_;
-  Graph3DCommon::Plot3DType plotType_;
   Custom3DInteractions *custominter_;
-  std::unique_ptr<QBarDataProxy> functionDataProxy_;
-  std::unique_ptr<QBar3DSeries> dataSeries_;
-  std::unique_ptr<QItemModelBarDataProxy> modelDataProxy_;
+  DataBlockBar3D *data_;
 };
 
 #endif  // BAR3D_H

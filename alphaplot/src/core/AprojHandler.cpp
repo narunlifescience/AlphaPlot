@@ -249,8 +249,21 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
       }
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "plot3d") {
-      Layout3D *plot = app->newGraph3D(Graph3DCommon::Plot3DType::Surface);
-      plot->load(xmlreader.get());
+      bool ok = false;
+      Layout3D *plot = nullptr;
+      QString ptype = xmlreader->readAttributeString("type", &ok);
+      if (ok) {
+        if (ptype == "surface")
+          plot = app->newGraph3D(Graph3DCommon::Plot3DType::Surface);
+        else if (ptype == "bar")
+          plot = app->newGraph3D(Graph3DCommon::Plot3DType::Bar);
+        else if (ptype == "scatter")
+          plot = app->newGraph3D(Graph3DCommon::Plot3DType::Scatter);
+        else
+          xmlreader->raiseError(tr("Layout3D PlotType unknown %1").arg(ptype));
+      } else
+        xmlreader->raiseError(tr("Layout3D PlotType missing or empty"));
+      plot->load(xmlreader.get(), tables(app), matrixs(app));
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "log") {
       QXmlStreamAttributes attributes = xmlreader->attributes();

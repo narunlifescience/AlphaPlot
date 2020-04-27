@@ -127,9 +127,12 @@
 #include "2Dplot/widgets/AddPlot2DDialog.h"
 #include "2Dplot/widgets/Function2DDialog.h"
 #include "2Dplot/widgets/propertyeditor.h"
+#include "3Dplot/Bar3D.h"
 #include "3Dplot/Graph3DCommon.h"
 #include "3Dplot/Layout3D.h"
+#include "3Dplot/Scatter3D.h"
 #include "3Dplot/Surface3D.h"
+#include "3Dplot/DataManager3D.h"
 #include "scripting/ScriptingFunctions.h"
 #include "scripting/ScriptingLangDialog.h"
 #include "scripting/widgets/ConsoleWidget.h"
@@ -1312,13 +1315,8 @@ void ApplicationWindow::plot3DRibbon() {
   if (!isActiveSubwindow(SubWindowType::TableSubWindow)) return;
 
   Table *table = qobject_cast<Table *>(d_workspace->activeSubWindow());
-  if (table->selectedColumns().count() == 1) {
-    if (!validFor3DPlot(table)) return;
-    dataPlot3D(table, table->colName(table->firstSelectedColumn()));
-  } else
-    QMessageBox::warning(
-        this, tr("Plot error"),
-        tr("You must select exactly one column for plotting!"));
+  if (!validFor3DPlot(table)) return;
+  dataPlot3D(table, Graph3DCommon::Plot3DType::Surface);
 }
 
 void ApplicationWindow::plot3DBars() {
@@ -1329,13 +1327,12 @@ void ApplicationWindow::plot3DBars() {
     Table *table = qobject_cast<Table *>(subwindow);
     if (!validFor3DPlot(table)) return;
 
-    if (table->selectedColumns().count() == 1)
-      dataPlotXYZ(table, table->colName(table->firstSelectedColumn()),
-                  Graph3DCommon::Plot3DType::Bar);
+    if (table->selectedZColumns().count() == 1)
+      dataPlotXYZ(table, Graph3DCommon::Plot3DType::Bar);
     else
       QMessageBox::warning(
           this, tr("Plot error"),
-          tr("You must select exactly one column for plotting!"));
+          tr("You must select only one Z column for plotting!"));
   } else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
     plot3DMatrix(Graph3DCommon::Plot3DType::Bar);
 }
@@ -1348,13 +1345,12 @@ void ApplicationWindow::plot3DScatter() {
     Table *table = qobject_cast<Table *>(subwindow);
     if (!validFor3DPlot(table)) return;
 
-    if (table->selectedColumns().count() == 1)
-      dataPlotXYZ(table, table->colName(table->firstSelectedColumn()),
-                  Graph3DCommon::Plot3DType::Scatter);
+    if (table->selectedZColumns().count() == 1)
+      dataPlotXYZ(table, Graph3DCommon::Plot3DType::Scatter);
     else
       QMessageBox::warning(
           this, tr("Plot error"),
-          tr("You must select exactly one column for plotting!"));
+          tr("You must select only one Z column for plotting!"));
   } else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
     plot3DMatrix(Graph3DCommon::Plot3DType::Scatter);
 }
@@ -1367,13 +1363,12 @@ void ApplicationWindow::plot3DTrajectory() {
     Table *table = qobject_cast<Table *>(subwindow);
     if (!validFor3DPlot(table)) return;
 
-    if (table->selectedColumns().count() == 1)
-      dataPlotXYZ(table, table->colName(table->firstSelectedColumn()),
-                  Graph3DCommon::Plot3DType::Scatter);
+    if (table->selectedZColumns().count() == 1)
+      dataPlotXYZ(table, Graph3DCommon::Plot3DType::Scatter);
     else
       QMessageBox::warning(
           this, tr("Plot error"),
-          tr("You must select exactly one column for plotting!"));
+          tr("You must select only one Z column for plotting!"));
   }
 }
 
@@ -1584,8 +1579,8 @@ void ApplicationWindow::change3DMatrix() {
   ad->setCurveNames(matrixNames());
 
   Layout3D *layout = qobject_cast<Layout3D *>(d_workspace->activeSubWindow());
-  if (layout && layout->getMatrix())
-    ad->setCurentDataSet(layout->getMatrix()->name());
+  // if (layout && layout->getMatrix())
+  //  ad->setCurentDataSet(layout->getMatrix()->name());
   ad->exec();
 }
 
@@ -1659,7 +1654,8 @@ Layout3D *ApplicationWindow::newPlot3D(const QString &formula, const double xl,
   funcdata.zu = zr;
   funcdata.xpoints = 50;
   funcdata.ypoints = 50;
-  layout->generateSurfacePlot3D(generateFunction3ddata(funcdata), funcdata);
+  layout->getSurface3DModifier()->setfunctiondata(
+      generateFunction3ddata(funcdata), funcdata);
 
   emit modified();
   return layout;
@@ -1687,96 +1683,99 @@ Layout3D *ApplicationWindow::newPlot3D(const QString &caption,
   return layout;
 }
 
-Layout3D *ApplicationWindow::dataPlot3D(Table *table, const QString &colName) {
+Layout3D *ApplicationWindow::dataPlot3D(Table *table,
+                                        const Graph3DCommon::Plot3DType &type) {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  // prepare edata
+  QList<Column *> selectedcols;
+  Column *xcol = nullptr;
+  Column *ycol = nullptr;
+  QList<Column *> zcols;
+  QStringList list = table->selectedColumns();
+  foreach (QString colname, list)
+    selectedcols << table->column(table->colIndex(colname));
+  foreach (Column *col, selectedcols) {
+    if (col->plotDesignation() == AlphaPlot::PlotDesignation::X)
+      xcol = col;
+    else if (col->plotDesignation() == AlphaPlot::PlotDesignation::Y)
+      ycol = col;
+    else if (col->plotDesignation() == AlphaPlot::PlotDesignation::Z)
+      zcols << col;
+  }
+
+  Layout3D *layout = nullptr;
   QString label = generateUniqueName(tr("Graph"));
-  Layout3D *layout = newGraph3D(Graph3DCommon::Plot3DType::Scatter, label);
+  switch (type) {
+    case Graph3DCommon::Plot3DType::Surface:
+      layout = newGraph3D(Graph3DCommon::Plot3DType::Surface, label);
+      layout->getSurface3DModifier()->settabledata(table, xcol, ycol, zcols);
+      break;
+    case Graph3DCommon::Plot3DType::Bar:
+      layout = newGraph3D(Graph3DCommon::Plot3DType::Bar, label);
+      layout->getBar3DModifier()->settabledata(table, xcol, ycol, zcols);
+      break;
+    case Graph3DCommon::Plot3DType::Scatter:
+      layout = newGraph3D(Graph3DCommon::Plot3DType::Scatter, label);
+      layout->getScatter3DModifier()->settabledata(table, xcol, ycol, zcols);
+      break;
+  }
 
   emit modified();
   QApplication::restoreOverrideCursor();
-  return layout;
-}
-
-Layout3D *ApplicationWindow::dataPlot3D(const QString &caption,
-                                        const QString &formula, double xl,
-                                        double xr, double yl, double yr,
-                                        double zl, double zr) {
-  int pos = formula.indexOf("_", 0);
-  QString wCaption = formula.left(pos);
-
-  Table *w = table(wCaption);
-  if (!w) return nullptr;
-
-  int posX = formula.indexOf("(", pos);
-  QString xCol = formula.mid(pos + 1, posX - pos - 1);
-
-  pos = formula.indexOf(",", posX);
-  posX = formula.indexOf("(", pos);
-  QString yCol = formula.mid(pos + 1, posX - pos - 1);
-
-  QString label = caption;
-  while (alreadyUsedName(label)) label = generateUniqueName(tr("Graph"));
-
-  Layout3D *layout = newGraph3D(Graph3DCommon::Plot3DType::Scatter, label);
   return layout;
 }
 
 Layout3D *ApplicationWindow::dataPlotXYZ(
-    Table *table, const QString &zColName,
-    const Graph3DCommon::Plot3DType &type) {
+    Table *table, const Graph3DCommon::Plot3DType &type) {
+  Q_ASSERT(type != Graph3DCommon::Plot3DType::Surface);
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  // prepare edata
+  QList<Column *> selectedcols;
+  Column *xcol = nullptr;
+  Column *ycol = nullptr;
+  Column *zcol = nullptr;
+  QStringList list = table->selectedColumns();
+  foreach (QString colname, list)
+    selectedcols << table->column(table->colIndex(colname));
+  foreach (Column *col, selectedcols) {
+    if (col->plotDesignation() == AlphaPlot::PlotDesignation::X)
+      xcol = col;
+    else if (col->plotDesignation() == AlphaPlot::PlotDesignation::Y)
+      ycol = col;
+    else if (col->plotDesignation() == AlphaPlot::PlotDesignation::Z)
+      zcol = col;
+  }
 
+  Layout3D *layout = nullptr;
   QString label = generateUniqueName(tr("Graph"));
-  int zCol = table->colIndex(zColName);
-  int yCol = table->colY(zCol);
-  int xCol = table->colX(zCol);
-
-  Layout3D *layout = newGraph3D(type, label);
+  switch (type) {
+    case Graph3DCommon::Plot3DType::Surface:
+      layout = nullptr;
+      qDebug() << "dataplot XYZ not supported for Surface3D";
+      break;
+    case Graph3DCommon::Plot3DType::Bar:
+      layout = newGraph3D(Graph3DCommon::Plot3DType::Bar, label);
+      layout->getBar3DModifier()->settabledata(table, xcol, ycol, zcol);
+      break;
+    case Graph3DCommon::Plot3DType::Scatter:
+      layout = newGraph3D(Graph3DCommon::Plot3DType::Scatter, label);
+      layout->getScatter3DModifier()->settabledata(table, xcol, ycol, zcol);
+      break;
+  }
 
   emit modified();
   QApplication::restoreOverrideCursor();
-  return layout;
-}
-
-Layout3D *ApplicationWindow::dataPlotXYZ(const QString &caption,
-                                         const QString &formula, double xl,
-                                         double xr, double yl, double yr,
-                                         double zl, double zr) {
-  int pos = formula.indexOf("_", 0);
-  QString wCaption = formula.left(pos);
-
-  Table *w = table(wCaption);
-  if (!w) return nullptr;
-
-  int posX = formula.indexOf("(X)", pos);
-  QString xColName = formula.mid(pos + 1, posX - pos - 1);
-
-  pos = formula.indexOf(",", posX);
-
-  posX = formula.indexOf("(Y)", pos);
-  QString yColName = formula.mid(pos + 1, posX - pos - 1);
-
-  pos = formula.indexOf(",", posX);
-  posX = formula.indexOf("(Z)", pos);
-  QString zColName = formula.mid(pos + 1, posX - pos - 1);
-
-  int xCol = w->colIndex(xColName);
-  int yCol = w->colIndex(yColName);
-  int zCol = w->colIndex(zColName);
-
-  QString label = caption;
-  if (alreadyUsedName(label)) label = generateUniqueName(tr("Graph"));
-
-  Layout3D *layout = newGraph3D(Graph3DCommon::Plot3DType::Scatter, label);
   return layout;
 }
 
 Matrix *ApplicationWindow::importImage() {
   QList<QByteArray> list = QImageReader::supportedImageFormats();
-  QString filter = tr("Images") + " (", aux1, aux2;
-  for (int i = 0; i < static_cast<int>(list.count()); i++) {
-    aux1 = " *." + list[i] + " ";
-    aux2 += " *." + list[i] + ";;";
+  QString filter = tr("Images") + " (";
+  QString aux1;
+  QString aux2;
+  foreach (QByteArray item, list) {
+    aux1 = " *." + item + " ";
+    aux2 += " *." + item + ";;";
     filter += aux1;
   }
   filter += ");;" + aux2;
@@ -1793,10 +1792,12 @@ Matrix *ApplicationWindow::importImage() {
 
 void ApplicationWindow::loadImage() {
   QList<QByteArray> list = QImageReader::supportedImageFormats();
-  QString filter = tr("Images") + " (", aux1, aux2;
-  for (int i = 0; i < static_cast<int>(list.count()); i++) {
-    aux1 = " *." + list[i] + " ";
-    aux2 += " *." + list[i] + ";;";
+  QString filter = tr("Images") + " (";
+  QString aux1;
+  QString aux2;
+  foreach (QByteArray item, list) {
+    aux1 = " *." + item + " ";
+    aux2 += " *." + item + ";;";
     filter += aux1;
   }
   filter += ");;" + aux2;
@@ -1812,7 +1813,11 @@ void ApplicationWindow::loadImage() {
 
 void ApplicationWindow::loadImage(const QString &fn) {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  qDebug() << "not implimented";
+  QPixmap pixmap = QPixmap(fn);
+  Layout2D *layout = newGraph2D();
+  layout->getPlotCanwas()->setBackground(
+      pixmap, true, Qt::AspectRatioMode::IgnoreAspectRatio);
+  layout->setLayoutButtonBoxVisible(false);
   QApplication::restoreOverrideCursor();
 }
 
@@ -1824,7 +1829,6 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
 
   current_folder->addWindow(layout2d);
   layout2d->setFolder(current_folder);
-
   d_workspace->addSubWindow(layout2d);
 
   layout2d->setWindowTitle(label);
@@ -1859,7 +1863,7 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
 
 Layout3D *ApplicationWindow::newGraph3D(const Graph3DCommon::Plot3DType &type,
                                         const QString &caption) {
-  Layout3D *layout3d = new Layout3D(type, "", d_workspace);
+  Layout3D *layout3d = new Layout3D(type, "", d_workspace, 0);
   layout3d->setAttribute(Qt::WA_DeleteOnClose);
   QString label = caption;
   while (alreadyUsedName(label)) label = generateUniqueName(tr("Graph"));
@@ -1894,7 +1898,8 @@ QList<QPair<QPair<double, double>, double>>
                                              double xr, double yl, double yr,
                                              double zl, double zr) {
   auto *data = new QList<QPair<QPair<double, double>, double>>();
-
+  Q_UNUSED(zl);
+  Q_UNUSED(zr);
   Q_ASSERT(!formula.isEmpty());
   QString name = "3d-surface-function";
   std::unique_ptr<Script> script(scriptEnv->newScript(formula, 0, name));
@@ -5677,9 +5682,9 @@ QStringList ApplicationWindow::depending3DPlots(Matrix *m) {
   QStringList plots;
   for (int i = 0; i < static_cast<int>(subwindowlist.count()); i++) {
     MyWidget *w = qobject_cast<MyWidget *>(subwindowlist.at(i));
-    if (isActiveSubWindow(w, SubWindowType::Plot3DSubWindow) &&
-        qobject_cast<Layout3D *>(w)->getMatrix() == m)
-      plots << w->name();
+    // if (isActiveSubWindow(w, SubWindowType::Plot3DSubWindow) &&
+    //     qobject_cast<Layout3D *>(w)->getMatrix() == m)
+    plots << w->name();
   }
   return plots;
 }
@@ -6699,7 +6704,17 @@ Layout3D *ApplicationWindow::plot3DMatrix(
   QString label = generateUniqueName(tr("Graph"));
 
   Layout3D *layout = newGraph3D(plottype, label);
-  layout->setMatrixDataModel(matrix);
+  switch (plottype) {
+    case Graph3DCommon::Plot3DType::Surface:
+      layout->getSurface3DModifier()->setmatrixdatamodel(matrix);
+      break;
+    case Graph3DCommon::Plot3DType::Bar:
+      layout->getBar3DModifier()->setmatrixdatamodel(matrix);
+      break;
+    case Graph3DCommon::Plot3DType::Scatter:
+      layout->getScatter3DModifier()->setmatrixdatamodel(matrix);
+      break;
+  }
 
   emit modified();
   QApplication::restoreOverrideCursor();
@@ -8299,7 +8314,19 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
 
   else if (isActiveSubWindow(widget, SubWindowType::Plot3DSubWindow)) {
     Layout3D *layout = qobject_cast<Layout3D *>(widget);
-    Matrix *matrix = layout->getMatrix();
+    Matrix *matrix = nullptr;
+    switch (layout->getPlotType()) {
+      case Graph3DCommon::Plot3DType::Surface:
+        matrix = layout->getSurface3DModifier()->getData()->getmatrix();
+        break;
+      case Graph3DCommon::Plot3DType::Bar:
+        //matrix = layout->getBar3DModifier()->getData()->getmatrix();
+        break;
+      case Graph3DCommon::Plot3DType::Scatter:
+        //matrix = layout->getScatter3DModifier()->getData()->getmatrix();
+        break;
+      }
+
     QString formula;
     if (!formula.isEmpty()) {
       cm.addSeparator();
@@ -8331,28 +8358,74 @@ void ApplicationWindow::setActiveWindowFromAction() {
 }
 
 bool ApplicationWindow::validFor3DPlot(Table *table) {
-  if (table->numCols() < 2) {
+  int ncolx = 0;
+  int ncoly = 0;
+  int ncolz = 0;
+  int ncolunknown = 0;
+  QList<Column *> selectedcols;
+  QStringList list = table->selectedColumns();
+  foreach (QString colname, list)
+    selectedcols << table->column(table->colIndex(colname));
+  foreach (Column *col, selectedcols) {
+    if (col->plotDesignation() == AlphaPlot::PlotDesignation::X)
+      ncolx++;
+    else if (col->plotDesignation() == AlphaPlot::PlotDesignation::Y)
+      ncoly++;
+    else if (col->plotDesignation() == AlphaPlot::PlotDesignation::Z)
+      ncolz++;
+    else
+      ncolunknown++;
+  }
+
+  if (ncolunknown > 0) {
     QMessageBox::critical(
-        this, tr("Error"),
-        tr("You need at least two columns for this operation!"));
+        this, tr("Error (non X/Y/Z column selected)"),
+        tr("Please select X,Y & Z column(s) only for this operation!"));
     return false;
   }
-  if (table->firstSelectedColumn() < 0 ||
-      table->colPlotDesignation(table->firstSelectedColumn()) != AlphaPlot::Z) {
-    QMessageBox::critical(this, tr("Error"),
-                          tr("Please select a Z column for this operation!"));
+
+  if (ncolx == 0) {
+    QMessageBox::critical(
+        this, tr("Error (no X column)"),
+        tr("Please select 1X,1Y & Z column(s) for this operation!"));
     return false;
   }
-  if (table->noXColumn()) {
-    QMessageBox::critical(this, tr("Error"),
-                          tr("You need to define a X column first!"));
+
+  if (ncolx > 1) {
+    QMessageBox::critical(
+        this, tr("Error (multiple X column)"),
+        tr("Please select 1X,1Y & Z column(s) for this operation!"));
     return false;
   }
-  if (table->noYColumn()) {
-    QMessageBox::critical(this, tr("Error"),
-                          tr("You need to define a Y column first!"));
+
+  if (ncoly == 0) {
+    QMessageBox::critical(
+        this, tr("Error (no Y column)"),
+        tr("Please select 1X,1Y & Z column(s) for this operation!"));
     return false;
   }
+
+  if (ncoly > 1) {
+    QMessageBox::critical(
+        this, tr("Error (multiple Y column)"),
+        tr("Please select 1X,1Y & Z column(s) for this operation!"));
+    return false;
+  }
+
+  if (ncolz == 0) {
+    QMessageBox::critical(
+        this, tr("Error (no Z column)"),
+        tr("Please select 1X,1Y & Z column(s) for this operation!"));
+    return false;
+  }
+
+  if (ncolz > table->rowCnt()) {
+    QMessageBox::critical(this, tr("Error (X column too short)"),
+                          tr("X Column should contain rows equal to or more "
+                             "than number of Z colum(s)!"));
+    return false;
+  }
+
   return true;
 }
 

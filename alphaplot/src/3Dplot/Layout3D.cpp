@@ -52,13 +52,12 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
   if (name.isEmpty()) setObjectName("layout3d plot");
   QDateTime birthday = QDateTime::currentDateTime();
   setBirthDate(birthday.toString(Qt::LocalDate));
+  setFocusPolicy(Qt::TabFocus);
 
   setWidget(main_widget_);
   setGeometry(QRect(0, 0, 500, 400));
   setMinimumSize(QSize(100, 100));
   setFocusPolicy(Qt::StrongFocus);
-  main_widget_->setStyleSheet(
-      ".QWidget { background-color:rgba(255,255,255,255);}");
 }
 
 Layout3D::~Layout3D() {}
@@ -103,7 +102,7 @@ void Layout3D::exportGraph() {
   if (ied->selectedFiles().isEmpty()) return;
   QString selected_filter = ied->selectedNameFilter();
 
-  QString file_name = ied->selectedFiles()[0];
+  QString file_name = ied->selectedFiles().at(0);
   QFileInfo file_info(file_name);
   if (!file_info.fileName().contains("."))
     file_name.append(selected_filter.remove("*"));
@@ -124,8 +123,8 @@ void Layout3D::exportGraph() {
   int raster_quality = ied->raster_quality();
   int raster_antialias = ied->raster_antialias();
 
-  int vector_width = ied->vector_width();
-  int vector_height = ied->vector_height();
+  //int vector_width = ied->vector_width();
+  //int vector_height = ied->vector_height();
 
   if (selected_filter.contains(".pdf")) {
     // plot2dCanvas_->savePdf(file_name, vector_width, vector_height);
@@ -188,43 +187,84 @@ void Layout3D::exportGraphwithoutdialog(const QString &name,
   }
 }
 
-void Layout3D::generateSurfacePlot3D(
-    QList<QPair<QPair<double, double>, double> > *data,
-    const Graph3DCommon::Function3DData &funcdata) {
-  surfacemodifier_->setfunctiondata(data, funcdata);
-}
-
-void Layout3D::setMatrixDataModel(Matrix *matrix) {
-  switch (plottype_) {
-    case Graph3DCommon::Plot3DType::Surface:
-      surfacemodifier_->setmatrixdatamodel(matrix);
-      break;
-    case Graph3DCommon::Plot3DType::Bar:
-      barmodifier_->setmatrixdatamodel(matrix);
-      break;
-    case Graph3DCommon::Plot3DType::Scatter:
-      scattermodifier_->setmatrixdatamodel(matrix);
-      break;
-  }
-}
-
-Matrix *Layout3D::getMatrix() const {
-  switch (plottype_) {
-    case Graph3DCommon::Plot3DType::Surface:
-      return surfacemodifier_->getMatrix();
-    case Graph3DCommon::Plot3DType::Bar:
-      return barmodifier_->getMatrix();
-    case Graph3DCommon::Plot3DType::Scatter:
-      return scattermodifier_->getMatrix();
-    default:
-      return nullptr;
-  }
-}
-
 QSize Layout3D::getContainerSize() const { return main_widget_->size(); }
 
 Graph3DCommon::Plot3DType Layout3D::getPlotType() const { return plottype_; }
 
-void Layout3D::load(XmlStreamReader *reader) {}
+void Layout3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
+                    QList<Matrix *> mats) {
+  if (xmlreader->isStartElement() && xmlreader->name() == "plot3d") {
+    bool ok = false;
 
-void Layout3D::save(QXmlStreamWriter *writer) {}
+    // read caption spec
+    int x = xmlreader->readAttributeInt("x", &ok);
+    if (ok) {
+      int y = xmlreader->readAttributeInt("y", &ok);
+      if (ok) {
+        int width = xmlreader->readAttributeInt("width", &ok);
+        if (ok) {
+          int height = xmlreader->readAttributeInt("height", &ok);
+          if (ok) {
+            setGeometry(x, y, width, height);
+          }
+        }
+      }
+    } else
+      xmlreader->raiseWarning(tr("Plot3D geometry setting error."));
+
+    // read creation time
+    QString time = xmlreader->readAttributeString("creation_time", &ok);
+    QDateTime creation_time =
+        QDateTime::fromString(time, "yyyy-dd-MM hh:mm:ss:zzz");
+    if (!time.isEmpty() && creation_time.isValid() && ok) {
+      setBirthDate(creation_time.toString(Qt::LocalDate));
+    } else {
+      xmlreader->raiseWarning(
+          tr("Invalid creation time. Using current time insted."));
+      setBirthDate(QDateTime::currentDateTime().toString(Qt::LocalDate));
+    }
+    // read caption spec
+    int captionspec = xmlreader->readAttributeInt("caption_spec", &ok);
+    if (ok)
+      setCaptionPolicy(static_cast<MyWidget::CaptionPolicy>(captionspec));
+    else
+      xmlreader->raiseWarning(tr("Invalid caption policy or read error."));
+    // read name
+    QString name = xmlreader->readAttributeString("name", &ok);
+    if (ok) {
+      setName(name);
+    } else
+      xmlreader->raiseWarning(tr("Layout3D name missing or empty"));
+
+    // read label
+    QString label = xmlreader->readAttributeString("label", &ok);
+    if (ok) {
+      setWindowLabel(name);
+    } else
+      xmlreader->raiseWarning(tr("Layout3D label missing or empty"));
+  }
+}
+
+void Layout3D::save(QXmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("plot3d");
+  switch (plottype_) {
+    case Graph3DCommon::Plot3DType::Surface:
+      xmlwriter->writeAttribute("type", "surface");
+      break;
+    case Graph3DCommon::Plot3DType::Bar:
+      xmlwriter->writeAttribute("type", "bar");
+      break;
+    case Graph3DCommon::Plot3DType::Scatter:
+      xmlwriter->writeAttribute("type", "scatter");
+      break;
+  }
+  xmlwriter->writeAttribute("x", QString::number(pos().x()));
+  xmlwriter->writeAttribute("y", QString::number(pos().y()));
+  xmlwriter->writeAttribute("width", QString::number(width()));
+  xmlwriter->writeAttribute("height", QString::number(height()));
+  xmlwriter->writeAttribute("creation_time", birthDate());
+  xmlwriter->writeAttribute("caption_spec", QString::number(captionPolicy()));
+  xmlwriter->writeAttribute("name", name());
+  xmlwriter->writeAttribute("label", windowLabel());
+  xmlwriter->writeEndElement();
+}

@@ -280,15 +280,9 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name 3D Data Plots
   //@{
-  Layout3D* dataPlot3D(Table* table, const QString& colName);
-  Layout3D* dataPlotXYZ(Table* table, const QString& zColName,
+  Layout3D* dataPlot3D(Table* table, const Graph3DCommon::Plot3DType& type);
+  Layout3D* dataPlotXYZ(Table* table,
                         const Graph3DCommon::Plot3DType& type);
-  Layout3D* dataPlot3D(const QString& caption, const QString& formula,
-                       double xl, double xr, double yl, double yr, double zl,
-                       double zr);
-  Layout3D* dataPlotXYZ(const QString& caption, const QString& formula,
-                        double xl, double xr, double yl, double yr, double zl,
-                        double zr);
   //@}
 
   //! \name Surface Plots
