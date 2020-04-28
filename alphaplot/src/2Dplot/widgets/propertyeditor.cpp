@@ -1020,6 +1020,19 @@ PropertyEditor::PropertyEditor(QWidget *parent)
                              stroketypeiconslist);
 
   // Plot3D Canvas properties
+  QStringList themelist;
+  themelist << "ThemeQt"
+            << "ThemePrimaryColors"
+            << "ThemeDigia"
+            << "ThemeStoneMoss"
+            << "ThemeArmyBlue"
+            << "ThemeRetro"
+            << "ThemeEbony"
+            << "ThemeIsabelle"
+            << "ThemeUserDefined";
+  plot3dcanvasthemeitem_ = enumManager_->addProperty(tr("Theme"));
+  enumManager_->setEnumNames(plot3dcanvasthemeitem_, themelist);
+  plot3dcanvassizeitem_ = sizeManager_->addProperty(tr("Plot Dimension"));
   plot3dcanvaswindowcoloritem_ =
       colorManager_->addProperty(tr("Background Color"));
   plot3dcanvasbackgroundvisibleitem_ =
@@ -1114,7 +1127,7 @@ PropertyEditor::PropertyEditor(QWidget *parent)
     QTreeWidgetItem *item = objectbrowser_->currentItem();
     if (item && static_cast<MyTreeWidget::PropertyItemType>(
                     item->data(0, Qt::UserRole).value<int>()) ==
-                    MyTreeWidget::PropertyItemType::PlotCanvas) {
+                    MyTreeWidget::PropertyItemType::Plot2DCanvas) {
       Plot2D *plotcanvas =
           getgraph2dobject<Plot2D>(objectbrowser_->currentItem());
       sizeManager_->setValue(canvaspropertysizeitem_,
@@ -1123,7 +1136,7 @@ PropertyEditor::PropertyEditor(QWidget *parent)
     }
     if (item && static_cast<MyTreeWidget::PropertyItemType>(
                     item->data(0, Qt::UserRole).value<int>()) ==
-                    MyTreeWidget::PropertyItemType::Layout) {
+                    MyTreeWidget::PropertyItemType::Plot2DLayout) {
       AxisRect2D *axisrect =
           getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
       rectManager_->setValue(layoutpropertyrectitem_, axisrect->outerRect());
@@ -2910,7 +2923,12 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     p.setStyle(static_cast<Qt::PenStyle>(value + 1));
     errorbar->setPen(p);
     errorbar->layer()->replot();
-  }
+  } else if (prop->compare(plot3dcanvasthemeitem_)) {
+    QAbstract3DGraph *graph =
+        getgraph2dobject<QAbstract3DGraph>(objectbrowser_->currentItem());
+    graph->activeTheme()->setType(static_cast<Q3DTheme::Theme>(value));
+  } else
+    qDebug() << "unknown enum property";
 }
 
 void PropertyEditor::valueChange(QtProperty *prop, const QFont &font) {
@@ -2964,59 +2982,71 @@ void PropertyEditor::valueChange(QtProperty *prop, const QSize &size) {
     }
     plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   }
+  if (prop->compare(plot3dcanvassizeitem_)) {
+    QAbstract3DGraph *graph =
+        getgraph2dobject<QAbstract3DGraph>(objectbrowser_->currentItem());
+    QSize oldsize = graph->size();
+    QSize sizediff = size - oldsize;
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 2)
+                    .value<void *>();
+    MyWidget *widget = static_cast<MyWidget *>(ptr);
+    widget->resize(widget->size() + sizediff);
+  } else
+    qDebug() << "unknown size property";
 }
 
 void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
   switch (static_cast<MyTreeWidget::PropertyItemType>(
       item->data(0, Qt::UserRole).value<int>())) {
-    case MyTreeWidget::PropertyItemType::PlotCanvas: {
+    case MyTreeWidget::PropertyItemType::Plot2DCanvas: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       Plot2D *plotcanvas = static_cast<Plot2D *>(ptr);
       Plot2DPropertyBlock(plotcanvas);
     } break;
-    case MyTreeWidget::PropertyItemType::Layout: {
+    case MyTreeWidget::PropertyItemType::Plot2DLayout: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
       Layout2DPropertyBlock(axisrect);
     } break;
-    case MyTreeWidget::PropertyItemType::Grid: {
+    case MyTreeWidget::PropertyItemType::Plot2DGrid: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
       Grid2DPropertyBlock(axisrect);
     } break;
-    case MyTreeWidget::PropertyItemType::Axis: {
+    case MyTreeWidget::PropertyItemType::Plot2DAxis: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       Axis2D *axis = static_cast<Axis2D *>(ptr);
       Axis2DPropertyBlock(axis);
     } break;
-    case MyTreeWidget::PropertyItemType::Legend: {
+    case MyTreeWidget::PropertyItemType::Plot2DLegend: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Legend2D *legend = static_cast<Legend2D *>(ptr1);
       Legend2DPropertyBlock(legend);
     } break;
-    case MyTreeWidget::PropertyItemType::TextItem: {
+    case MyTreeWidget::PropertyItemType::Plot2DTextItem: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       TextItem2D *textitem = static_cast<TextItem2D *>(ptr1);
       TextItem2DPropertyBlock(textitem);
     } break;
-    case MyTreeWidget::PropertyItemType::LineItem: {
+    case MyTreeWidget::PropertyItemType::Plot2DLineItem: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       LineItem2D *lineitem = static_cast<LineItem2D *>(ptr1);
       LineItem2DPropertyBlock(lineitem);
     } break;
-    case MyTreeWidget::PropertyItemType::ImageItem: {
+    case MyTreeWidget::PropertyItemType::Plot2DImageItem: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       ImageItem2D *imageitem = static_cast<ImageItem2D *>(ptr1);
       ImageItem2DPropertyBlock(imageitem);
     } break;
-    case MyTreeWidget::PropertyItemType::LSGraph: {
+    case MyTreeWidget::PropertyItemType::Plot2DLSGraph: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr1);
       void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       LineSpecial2DPropertyBlock(lsgraph, axisrect);
     } break;
-    case MyTreeWidget::PropertyItemType::ChannelGraph: {
+    case MyTreeWidget::PropertyItemType::Plot2DChannelGraph: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       LineSpecial2D *lsgraph1 = static_cast<LineSpecial2D *>(ptr1);
       void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
@@ -3025,49 +3055,49 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
       LineSpecial2D *lsgraph2 = static_cast<LineSpecial2D *>(ptr3);
       LineSpecialChannel2DPropertyBlock(lsgraph1, lsgraph2, axisrect);
     } break;
-    case MyTreeWidget::PropertyItemType::Curve: {
+    case MyTreeWidget::PropertyItemType::Plot2DCurve: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Curve2D *curve = static_cast<Curve2D *>(ptr1);
       void *ptr2 = item->data(0, Qt::UserRole + 2).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       Curve2DPropertyBlock(curve, axisrect);
     } break;
-    case MyTreeWidget::PropertyItemType::BarGraph: {
+    case MyTreeWidget::PropertyItemType::Plot2DBarGraph: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Bar2D *bar = static_cast<Bar2D *>(ptr1);
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       Bar2DPropertyBlock(bar, axisrect);
     } break;
-    case MyTreeWidget::PropertyItemType::StatBox: {
+    case MyTreeWidget::PropertyItemType::Plot2DStatBox: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       StatBox2D *statbox = static_cast<StatBox2D *>(ptr1);
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       StatBox2DPropertyBlock(statbox, axisrect);
     } break;
-    case MyTreeWidget::PropertyItemType::Vector: {
+    case MyTreeWidget::PropertyItemType::Plot2DVector: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Vector2D *vector = static_cast<Vector2D *>(ptr1);
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       Vector2DPropertyBlock(vector, axisrect);
     } break;
-    case MyTreeWidget::PropertyItemType::PieGraph: {
+    case MyTreeWidget::PropertyItemType::Plot2DPieGraph: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Pie2D *pie = static_cast<Pie2D *>(ptr1);
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       Pie2DPropertyBlock(pie, axisrect);
     } break;
-    case MyTreeWidget::PropertyItemType::ColorMap: {
+    case MyTreeWidget::PropertyItemType::Plot2DColorMap: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       ColorMap2D *colormap = static_cast<ColorMap2D *>(ptr1);
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr2);
       ColorMap2DPropertyBlock(colormap, axisrect);
     } break;
-    case MyTreeWidget::PropertyItemType::ErrorBar: {
+    case MyTreeWidget::PropertyItemType::Plot2DErrorBar: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       ErrorBar2D *errorbar = static_cast<ErrorBar2D *>(ptr1);
       void *ptr2 = item->parent()->data(0, Qt::UserRole + 1).value<void *>();
@@ -3076,8 +3106,13 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
     } break;
     case MyTreeWidget::PropertyItemType::Plot3DCanvas: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      QAbstract3DGraph *graph = static_cast<QAbstract3DGraph *>(ptr1);
+      Canvas3DPropertyBlock(graph);
+    } break;
+    case MyTreeWidget::PropertyItemType::Plot3DTheme: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Q3DTheme *theme = static_cast<Q3DTheme *>(ptr1);
-      Canvas3DPropertyBlock(theme);
+      Theme3DPropertyBlock(theme);
     } break;
     case MyTreeWidget::PropertyItemType::Plot3DAxisValue: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
@@ -4244,7 +4279,17 @@ void PropertyEditor::ErrorBar2DPropertyBlock(ErrorBar2D *errorbar,
                          errorbar->antialiased());
 }
 
-void PropertyEditor::Canvas3DPropertyBlock(Q3DTheme *theme) {
+void PropertyEditor::Canvas3DPropertyBlock(QAbstract3DGraph *graph) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(plot3dcanvasthemeitem_);
+  propertybrowser_->addProperty(plot3dcanvassizeitem_);
+
+  enumManager_->setValue(plot3dcanvasthemeitem_, graph->activeTheme()->type());
+  sizeManager_->setValue(plot3dcanvassizeitem_, graph->size());
+}
+
+void PropertyEditor::Theme3DPropertyBlock(Q3DTheme *theme) {
   propertybrowser_->clear();
 
   propertybrowser_->addProperty(plot3dcanvaswindowcoloritem_);
@@ -4437,7 +4482,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                         IconLoader::load("view-image", IconLoader::LightDark));
     canvasitem->setData(
         0, Qt::UserRole,
-        static_cast<int>(MyTreeWidget::PropertyItemType::PlotCanvas));
+        static_cast<int>(MyTreeWidget::PropertyItemType::Plot2DCanvas));
     canvasitem->setData(0, Qt::UserRole + 1,
                         QVariant::fromValue<void *>(gd->getPlotCanwas()));
     objectitems_.append(canvasitem);
@@ -4452,8 +4497,9 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       item->setToolTip(0, itemtext);
       item->setIcon(0,
                     IconLoader::load("graph2d-layout", IconLoader::LightDark));
-      item->setData(0, Qt::UserRole,
-                    static_cast<int>(MyTreeWidget::PropertyItemType::Layout));
+      item->setData(
+          0, Qt::UserRole,
+          static_cast<int>(MyTreeWidget::PropertyItemType::Plot2DLayout));
       item->setData(0, Qt::UserRole + 1, QVariant::fromValue<void *>(element));
 
       // Legend
@@ -4465,7 +4511,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
           0, IconLoader::load("edit-legend", IconLoader::LightDark));
       legenditem->setData(
           0, Qt::UserRole,
-          static_cast<int>(MyTreeWidget::PropertyItemType::Legend));
+          static_cast<int>(MyTreeWidget::PropertyItemType::Plot2DLegend));
       Legend2D *legend = element->getLegend();
       legenditem->setData(0, Qt::UserRole + 1,
                           QVariant::fromValue<void *>(legend));
@@ -4501,7 +4547,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         axisitem->setToolTip(0, axistext);
         axisitem->setData(
             0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::Axis));
+            static_cast<int>(MyTreeWidget::PropertyItemType::Plot2DAxis));
         axisitem->setData(0, Qt::UserRole + 1,
                           QVariant::fromValue<void *>(axis));
         item->addChild(axisitem);
@@ -4533,7 +4579,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         axisitem->setToolTip(0, axistext);
         axisitem->setData(
             0, Qt::UserRole,
-            static_cast<int>(MyTreeWidget::PropertyItemType::Axis));
+            static_cast<int>(MyTreeWidget::PropertyItemType::Plot2DAxis));
         axisitem->setData(0, Qt::UserRole + 1,
                           QVariant::fromValue<void *>(axis));
         item->addChild(axisitem);
@@ -4570,7 +4616,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             textitem->setToolTip(0, text);
             textitem->setData(
                 0, Qt::UserRole,
-                static_cast<int>(MyTreeWidget::PropertyItemType::TextItem));
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot2DTextItem));
             textitem->setData(0, Qt::UserRole + 1,
                               QVariant::fromValue<void *>(textitems.at(j)));
             item->addChild(textitem);
@@ -4593,7 +4640,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             lineitem->setToolTip(0, text);
             lineitem->setData(
                 0, Qt::UserRole,
-                static_cast<int>(MyTreeWidget::PropertyItemType::LineItem));
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot2DLineItem));
             lineitem->setData(0, Qt::UserRole + 1,
                               QVariant::fromValue<void *>(lineitems.at(j)));
             item->addChild(lineitem);
@@ -4616,7 +4664,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             imageitem->setToolTip(0, text);
             imageitem->setData(
                 0, Qt::UserRole,
-                static_cast<int>(MyTreeWidget::PropertyItemType::ImageItem));
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot2DImageItem));
             imageitem->setData(0, Qt::UserRole + 1,
                                QVariant::fromValue<void *>(imageitems.at(j)));
             item->addChild(imageitem);
@@ -4649,7 +4698,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                 0, IconLoader::load("graph2d-line", IconLoader::LightDark));
             lsgraphitem->setData(
                 0, Qt::UserRole,
-                static_cast<int>(MyTreeWidget::PropertyItemType::LSGraph));
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot2DLSGraph));
             lsgraphitem->setData(0, Qt::UserRole + 1,
                                  QVariant::fromValue<void *>(lsgraph));
             lsgraphitem->setData(0, Qt::UserRole + 2,
@@ -4675,7 +4725,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                   0, IconLoader::load("graph-x-error", IconLoader::LightDark));
               xerroritem->setData(
                   0, Qt::UserRole,
-                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+                  static_cast<int>(
+                      MyTreeWidget::PropertyItemType::Plot2DErrorBar));
               xerroritem->setData(0, Qt::UserRole + 1,
                                   QVariant::fromValue<void *>(xerror));
               lsgraphitem->addChild(xerroritem);
@@ -4700,7 +4751,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                   0, IconLoader::load("graph-y-error", IconLoader::LightDark));
               yerroritem->setData(
                   0, Qt::UserRole,
-                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+                  static_cast<int>(
+                      MyTreeWidget::PropertyItemType::Plot2DErrorBar));
               yerroritem->setData(0, Qt::UserRole + 1,
                                   QVariant::fromValue<void *>(yerror));
               lsgraphitem->addChild(yerroritem);
@@ -4758,7 +4810,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             }
             curvegraphitem->setData(
                 0, Qt::UserRole,
-                static_cast<int>(MyTreeWidget::PropertyItemType::Curve));
+                static_cast<int>(MyTreeWidget::PropertyItemType::Plot2DCurve));
             curvegraphitem->setData(0, Qt::UserRole + 1,
                                     QVariant::fromValue<void *>(curvegraph));
             curvegraphitem->setData(0, Qt::UserRole + 2,
@@ -4784,7 +4836,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                   0, IconLoader::load("graph-x-error", IconLoader::LightDark));
               xerroritem->setData(
                   0, Qt::UserRole,
-                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+                  static_cast<int>(
+                      MyTreeWidget::PropertyItemType::Plot2DErrorBar));
               xerroritem->setData(0, Qt::UserRole + 1,
                                   QVariant::fromValue<void *>(xerror));
               curvegraphitem->addChild(xerroritem);
@@ -4809,7 +4862,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                   0, IconLoader::load("graph-y-error", IconLoader::LightDark));
               yerroritem->setData(
                   0, Qt::UserRole,
-                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+                  static_cast<int>(
+                      MyTreeWidget::PropertyItemType::Plot2DErrorBar));
               yerroritem->setData(0, Qt::UserRole + 1,
                                   QVariant::fromValue<void *>(yerror));
               curvegraphitem->addChild(yerroritem);
@@ -4842,7 +4896,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                 0, IconLoader::load("graph2d-box", IconLoader::LightDark));
             statboxitem->setData(
                 0, Qt::UserRole,
-                static_cast<int>(MyTreeWidget::PropertyItemType::StatBox));
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot2DStatBox));
             statboxitem->setData(0, Qt::UserRole + 1,
                                  QVariant::fromValue<void *>(statbox));
             statboxitem->setData(0, Qt::UserRole + 2,
@@ -4882,7 +4937,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                                                     IconLoader::LightDark));
             vectoritem->setData(
                 0, Qt::UserRole,
-                static_cast<int>(MyTreeWidget::PropertyItemType::Vector));
+                static_cast<int>(MyTreeWidget::PropertyItemType::Plot2DVector));
             vectoritem->setData(0, Qt::UserRole + 1,
                                 QVariant::fromValue<void *>(vector));
             vectoritem->setData(0, Qt::UserRole + 2,
@@ -4922,7 +4977,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                 0, IconLoader::load("graph2d-channel", IconLoader::LightDark));
             channelitem->setData(
                 0, Qt::UserRole,
-                static_cast<int>(MyTreeWidget::PropertyItemType::ChannelGraph));
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot2DChannelGraph));
             channelitem->setData(0, Qt::UserRole + 1,
                                  QVariant::fromValue<void *>(lsgraph1));
             channelitem->setData(0, Qt::UserRole + 2,
@@ -5002,7 +5058,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             }
             baritem->setData(
                 0, Qt::UserRole,
-                static_cast<int>(MyTreeWidget::PropertyItemType::BarGraph));
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot2DBarGraph));
             baritem->setData(0, Qt::UserRole + 1,
                              QVariant::fromValue<void *>(bar));
             baritem->setData(0, Qt::UserRole + 2,
@@ -5028,7 +5085,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                   0, IconLoader::load("graph-x-error", IconLoader::LightDark));
               xerroritem->setData(
                   0, Qt::UserRole,
-                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+                  static_cast<int>(
+                      MyTreeWidget::PropertyItemType::Plot2DErrorBar));
               xerroritem->setData(0, Qt::UserRole + 1,
                                   QVariant::fromValue<void *>(xerror));
               baritem->addChild(xerroritem);
@@ -5053,7 +5111,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                   0, IconLoader::load("graph-y-error", IconLoader::LightDark));
               yerroritem->setData(
                   0, Qt::UserRole,
-                  static_cast<int>(MyTreeWidget::PropertyItemType::ErrorBar));
+                  static_cast<int>(
+                      MyTreeWidget::PropertyItemType::Plot2DErrorBar));
               yerroritem->setData(0, Qt::UserRole + 1,
                                   QVariant::fromValue<void *>(yerror));
               baritem->addChild(yerroritem);
@@ -5086,7 +5145,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                 0, IconLoader::load("graph2d-pie", IconLoader::LightDark));
             pieitem->setData(
                 0, Qt::UserRole,
-                static_cast<int>(MyTreeWidget::PropertyItemType::PieGraph));
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot2DPieGraph));
             pieitem->setData(0, Qt::UserRole + 1,
                              QVariant::fromValue<void *>(pie));
             pieitem->setData(0, Qt::UserRole + 2,
@@ -5119,7 +5179,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                 0, IconLoader::load("edit-colormap3d", IconLoader::General));
             colormapitem->setData(
                 0, Qt::UserRole,
-                static_cast<int>(MyTreeWidget::PropertyItemType::ColorMap));
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot2DColorMap));
             colormapitem->setData(0, Qt::UserRole + 1,
                                   QVariant::fromValue<void *>(colormap));
             colormapitem->setData(0, Qt::UserRole + 2,
@@ -5141,8 +5202,9 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       griditem->setToolTip(0, gridtext);
       griditem->setIcon(
           0, IconLoader::load("graph3d-cross", IconLoader::LightDark));
-      griditem->setData(0, Qt::UserRole,
-                        static_cast<int>(MyTreeWidget::PropertyItemType::Grid));
+      griditem->setData(
+          0, Qt::UserRole,
+          static_cast<int>(MyTreeWidget::PropertyItemType::Plot2DGrid));
       griditem->setData(0, Qt::UserRole + 1,
                         QVariant::fromValue<void *>(element));
       item->addChild(griditem);
@@ -5163,17 +5225,6 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     Layout3D *lout = qobject_cast<Layout3D *>(widget);
     const Graph3DCommon::Plot3DType plottype = lout->getPlotType();
     QVariant plot3dptvar;
-    switch (plottype) {
-      case Graph3DCommon::Plot3DType::Surface:
-        plot3dptvar = QVariant::fromValue<void *>(lout->getSurface3DModifier());
-        break;
-      case Graph3DCommon::Plot3DType::Bar:
-        plot3dptvar = QVariant::fromValue<void *>(lout->getBar3DModifier());
-        break;
-      case Graph3DCommon::Plot3DType::Scatter:
-        plot3dptvar = QVariant::fromValue<void *>(lout->getScatter3DModifier());
-        break;
-    }
     // plot axis type
     QString axisxitemtext;
     QString axisyitemtext;
@@ -5183,6 +5234,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     MyTreeWidget::PropertyItemType propertyitemtype;
     switch (plottype) {
       case Graph3DCommon::Plot3DType::Surface: {
+        plot3dptvar = QVariant::fromValue<void *>(lout->getSurface3DModifier());
         axisxitemtext = QString("X Axis(val)");
         axisyitemtext = QString("Y Axis(val)");
         propertyitemtype = MyTreeWidget::PropertyItemType::Plot3DAxisValue;
@@ -5194,6 +5246,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             lout->getSurface3DModifier()->getGraph()->axisZ());
       } break;
       case Graph3DCommon::Plot3DType::Scatter: {
+        plot3dptvar = QVariant::fromValue<void *>(lout->getScatter3DModifier());
         axisxitemtext = QString("X Axis(val)");
         axisyitemtext = QString("Y Axis(val)");
         propertyitemtype = MyTreeWidget::PropertyItemType::Plot3DAxisValue;
@@ -5205,6 +5258,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             lout->getScatter3DModifier()->getGraph()->axisZ());
       } break;
       case Graph3DCommon::Plot3DType::Bar: {
+        plot3dptvar = QVariant::fromValue<void *>(lout->getBar3DModifier());
         axisxitemtext = QString("X Axis(cat)");
         axisyitemtext = QString("Y Axis(cat)");
         propertyitemtype = MyTreeWidget::PropertyItemType::Plot3DAxisCatagory;
@@ -5219,6 +5273,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
 
     // canvas
     {
+      QVariant plot3dptcanvas;
       QString canvasitemtext = QString("Canvas");
       QTreeWidgetItem *canvasitem = new QTreeWidgetItem(
           static_cast<QTreeWidget *>(nullptr), QStringList(canvasitemtext));
@@ -5228,6 +5283,40 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       canvasitem->setData(
           0, Qt::UserRole,
           static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DCanvas));
+      switch (plottype) {
+        case Graph3DCommon::Plot3DType::Surface:
+          plot3dptcanvas =
+              QVariant::fromValue<void *>(static_cast<QAbstract3DGraph *>(
+                  lout->getSurface3DModifier()->getGraph()));
+          break;
+        case Graph3DCommon::Plot3DType::Bar:
+          plot3dptcanvas =
+              QVariant::fromValue<void *>(static_cast<QAbstract3DGraph *>(
+                  lout->getBar3DModifier()->getGraph()));
+          break;
+        case Graph3DCommon::Plot3DType::Scatter:
+          plot3dptcanvas =
+              QVariant::fromValue<void *>(static_cast<QAbstract3DGraph *>(
+                  lout->getScatter3DModifier()->getGraph()));
+          break;
+      }
+      canvasitem->setData(0, Qt::UserRole + 1, plot3dptcanvas);
+      canvasitem->setData(
+          0, Qt::UserRole + 2,
+          QVariant::fromValue<void *>(static_cast<MyWidget *>(lout)));
+      objectitems_.append(canvasitem);
+    }
+
+    // theme
+    {
+      QString themeitemtext = QString("Theme");
+      QTreeWidgetItem *themeitem = new QTreeWidgetItem(
+          static_cast<QTreeWidget *>(nullptr), QStringList(themeitemtext));
+      themeitem->setToolTip(0, themeitemtext);
+      themeitem->setIcon(0, IconLoader::load("theme", IconLoader::General));
+      themeitem->setData(
+          0, Qt::UserRole,
+          static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DTheme));
       QVariant plot3dpttheme;
       switch (plottype) {
         case Graph3DCommon::Plot3DType::Surface:
@@ -5243,9 +5332,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
               lout->getScatter3DModifier()->getGraph()->activeTheme());
           break;
       }
-      canvasitem->setData(0, Qt::UserRole + 1, plot3dpttheme);
-      canvasitem->setData(0, Qt::UserRole + 2, plot3dptvar);
-      objectitems_.append(canvasitem);
+      themeitem->setData(0, Qt::UserRole + 1, plot3dpttheme);
+      objectitems_.append(themeitem);
     }
 
     // Axis X
@@ -5367,7 +5455,8 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
         static_cast<MyTreeWidget::PropertyItemType>(
             objectbrowser_->currentItem()
                 ->data(0, Qt::UserRole)
-                .value<int>()) == MyTreeWidget::PropertyItemType::Legend) {
+                .value<int>()) ==
+            MyTreeWidget::PropertyItemType::Plot2DLegend) {
       Legend2D *lgnd =
           getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
       if (axisrect == lgnd->getaxisrect_legend()) {
@@ -5384,7 +5473,8 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
         static_cast<MyTreeWidget::PropertyItemType>(
             objectbrowser_->currentItem()
                 ->data(0, Qt::UserRole)
-                .value<int>()) == MyTreeWidget::PropertyItemType::TextItem) {
+                .value<int>()) ==
+            MyTreeWidget::PropertyItemType::Plot2DTextItem) {
       TextItem2D *textitem =
           getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
       if (axisrect == textitem->getaxisrect()) {
@@ -5401,7 +5491,8 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
         static_cast<MyTreeWidget::PropertyItemType>(
             objectbrowser_->currentItem()
                 ->data(0, Qt::UserRole)
-                .value<int>()) == MyTreeWidget::PropertyItemType::LineItem) {
+                .value<int>()) ==
+            MyTreeWidget::PropertyItemType::Plot2DLineItem) {
       LineItem2D *lineitem =
           getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
       if (axisrect == lineitem->getaxisrect()) {
@@ -5423,7 +5514,8 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
         static_cast<MyTreeWidget::PropertyItemType>(
             objectbrowser_->currentItem()
                 ->data(0, Qt::UserRole)
-                .value<int>()) == MyTreeWidget::PropertyItemType::ImageItem) {
+                .value<int>()) ==
+            MyTreeWidget::PropertyItemType::Plot2DImageItem) {
       ImageItem2D *imageitem =
           getgraph2dobject<ImageItem2D>(objectbrowser_->currentItem());
       if (axisrect == imageitem->getaxisrect()) {
@@ -6126,6 +6218,8 @@ void PropertyEditor::setObjectPropertyId() {
       "vmingridpropertystroketypeitem_");
 
   // Plot3D Canvas properties
+  plot3dcanvasthemeitem_->setPropertyId("plot3dcanvasthemeitem_");
+  plot3dcanvassizeitem_->setPropertyId("plot3dcanvassizeitem_");
   plot3dcanvaswindowcoloritem_->setPropertyId("plot3dcanvaswindowcoloritem_");
   plot3dcanvasbackgroundvisibleitem_->setPropertyId(
       "plot3dcanvasbackgroundvisibleitem_");

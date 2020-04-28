@@ -63,5 +63,9 @@ class Layout3D : public MyWidget {
   Bar3D *barmodifier_;
   Scatter3D *scattermodifier_;
   Matrix *matrix_;
+  static const int defaultlayout2dwidth_;
+  static const int defaultlayout2dheight_;
+  static const int minimumlayout2dwidth_;
+  static const int minimumlayout2dheight_;
 };
 #endif  // LAYOUT3D_H

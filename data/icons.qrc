@@ -40,6 +40,7 @@
     <file>icons/common/16/edit-graymap3d.png</file>
     <file>icons/common/16/graph3d-bars.png</file>
     <file>icons/common/16/color-management.png</file>
+    <file>icons/common/16/theme.png</file>
     <file>icons/common/22/folder-closed.png</file>
     <file>icons/common/22/folder-open.png</file>
     <file>icons/common/22/application-exit.png</file>
@@ -54,6 +55,7 @@
     <file>icons/common/22/edit-graymap3d.png</file>
     <file>icons/common/22/graph3d-bars.png</file>
     <file>icons/common/22/color-management.png</file>
+    <file>icons/common/22/theme.png</file>
     <file>icons/common/24/folder-closed.png</file>
     <file>icons/common/24/folder-open.png</file>
     <file>icons/common/24/application-exit.png</file>

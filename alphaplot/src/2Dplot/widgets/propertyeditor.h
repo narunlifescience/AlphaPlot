@@ -46,6 +46,7 @@ class QtColorEditorFactory;
 class QtFontEditorFactory;
 
 namespace QtDataVisualization {
+class QAbstract3DGraph;
 class Q3DTheme;
 class QValue3DAxis;
 class QValue3DAxis;
@@ -96,7 +97,8 @@ class PropertyEditor : public QDockWidget {
   void ColorMap2DPropertyBlock(ColorMap2D *colormap, AxisRect2D *axisrect);
   void ErrorBar2DPropertyBlock(ErrorBar2D *errorbar, AxisRect2D *axisrect);
   // 3dplot
-  void Canvas3DPropertyBlock(QtDataVisualization::Q3DTheme *theme);
+  void Canvas3DPropertyBlock(QtDataVisualization::QAbstract3DGraph *graph);
+  void Theme3DPropertyBlock(QtDataVisualization::Q3DTheme *theme);
   void Axis3DValuePropertyBlock(QtDataVisualization::QValue3DAxis *axis);
   void Axis3DCatagoryPropertyBlock(QtDataVisualization::QCategory3DAxis *axis);
   void Surface3DPropertyBlock(Surface3D *surface);
@@ -479,6 +481,9 @@ class PropertyEditor : public QDockWidget {
   QtProperty *vmingridpropertystrokethicknessitem_;
   QtProperty *vmingridpropertystroketypeitem_;
   // Plot3D Canvas properties
+  QtProperty *plot3dcanvasthemeitem_;
+  QtProperty *plot3dcanvassizeitem_;
+  // Plot3D Theme properties
   QtProperty *plot3dcanvaswindowcoloritem_;
   QtProperty *plot3dcanvasbackgroundvisibleitem_;
   QtProperty *plot3dcanvasbackgroundcoloritem_;
@@ -512,6 +517,22 @@ class PropertyEditor : public QDockWidget {
   QtProperty *plot3daxiscatagorytitlevisibleitem_;
   QtProperty *plot3daxiscatagorytitlefixeditem_;
   QtProperty *plot3daxiscatagorytitletextitem_;
+  // Plot3D Surface
+  QtProperty *plot3dsurfacefliphorizontalgriditem_;
+  QtProperty *plot3dsurfaceaspectratioitem_;
+  QtProperty *plot3dsurfacehorizontalaspectratioitem_;
+  QtProperty *plot3dsurfaceshadowqualityitem_;
+  // plot3D Bar
+  QtProperty *plot3dbarspacingitem_;
+  QtProperty *plot3dbarspacingrelativeitem_;
+  QtProperty *plot3dbarthicknessitem_;
+  QtProperty *plot3dbaraspectratioitem_;
+  QtProperty *plot3dbarhorizontalaspectratioitem_;
+  QtProperty *plot3dbarshadowqualityitem_;
+  // Plot3D Scatter
+  QtProperty *plot3dscatteraspectratioitem_;
+  QtProperty *plot3dscatterhorizontalaspectratioitem_;
+  QtProperty *plot3dscattershadowqualityitem_;
 };
 
 #endif  // PROPERTYEDITOR_H

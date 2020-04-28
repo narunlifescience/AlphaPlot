@@ -298,28 +298,28 @@ void MyTreeWidget::CurrentItemChanged(QTreeWidgetItem *current) {
 
   switch (static_cast<MyTreeWidget::PropertyItemType>(
       current->data(0, Qt::UserRole).value<int>())) {
-    case MyTreeWidget::PropertyItemType::Layout: {
+    case MyTreeWidget::PropertyItemType::Plot2DLayout: {
       void *ptr = current->data(0, Qt::UserRole + 1).value<void *>();
       currentaxisrect = static_cast<AxisRect2D *>(ptr);
     } break;
-    case MyTreeWidget::PropertyItemType::Grid:
-    case MyTreeWidget::PropertyItemType::Axis:
-    case MyTreeWidget::PropertyItemType::Legend:
-    case MyTreeWidget::PropertyItemType::TextItem:
-    case MyTreeWidget::PropertyItemType::LineItem:
-    case MyTreeWidget::PropertyItemType::ImageItem:
-    case MyTreeWidget::PropertyItemType::LSGraph:
-    case MyTreeWidget::PropertyItemType::ChannelGraph:
-    case MyTreeWidget::PropertyItemType::Curve:
-    case MyTreeWidget::PropertyItemType::BarGraph:
-    case MyTreeWidget::PropertyItemType::StatBox:
-    case MyTreeWidget::PropertyItemType::Vector:
-    case MyTreeWidget::PropertyItemType::PieGraph:
-    case MyTreeWidget::PropertyItemType::ColorMap: {
+    case MyTreeWidget::PropertyItemType::Plot2DGrid:
+    case MyTreeWidget::PropertyItemType::Plot2DAxis:
+    case MyTreeWidget::PropertyItemType::Plot2DLegend:
+    case MyTreeWidget::PropertyItemType::Plot2DTextItem:
+    case MyTreeWidget::PropertyItemType::Plot2DLineItem:
+    case MyTreeWidget::PropertyItemType::Plot2DImageItem:
+    case MyTreeWidget::PropertyItemType::Plot2DLSGraph:
+    case MyTreeWidget::PropertyItemType::Plot2DChannelGraph:
+    case MyTreeWidget::PropertyItemType::Plot2DCurve:
+    case MyTreeWidget::PropertyItemType::Plot2DBarGraph:
+    case MyTreeWidget::PropertyItemType::Plot2DStatBox:
+    case MyTreeWidget::PropertyItemType::Plot2DVector:
+    case MyTreeWidget::PropertyItemType::Plot2DPieGraph:
+    case MyTreeWidget::PropertyItemType::Plot2DColorMap: {
       void *ptr = current->parent()->data(0, Qt::UserRole + 1).value<void *>();
       currentaxisrect = static_cast<AxisRect2D *>(ptr);
     } break;
-    case MyTreeWidget::PropertyItemType::ErrorBar: {
+    case MyTreeWidget::PropertyItemType::Plot2DErrorBar: {
       void *ptr = current->parent()
                       ->parent()
                       ->data(0, Qt::UserRole + 1)
@@ -330,7 +330,7 @@ void MyTreeWidget::CurrentItemChanged(QTreeWidgetItem *current) {
       // ErrorBar2D *errorbar = static_cast<ErrorBar2D *>(errorptr);
       // errorbar->setSelectable(QCP::SelectionType::stWhole);
     } break;
-    case MyTreeWidget::PropertyItemType::PlotCanvas:
+    case MyTreeWidget::PropertyItemType::Plot2DCanvas:
       break;
   }
 
@@ -353,7 +353,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       IconLoader::load("math-fofx", IconLoader::LightDark));
 
   switch (static_cast<PropertyItemType>(item->data(0, Qt::UserRole).toInt())) {
-    case PropertyItemType::Layout: {
+    case PropertyItemType::Plot2DLayout: {
       menu.addAction(addgraph_);
       addgraph_->setData(item->data(0, Qt::UserRole + 1));
       menu.addAction(addfunctionplot_);
@@ -425,7 +425,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       toptimeaxis_->setData(item->data(0, Qt::UserRole + 1));
       topdatetimeaxis_->setData(item->data(0, Qt::UserRole + 1));
     } break;
-    case PropertyItemType::Axis: {
+    case PropertyItemType::Plot2DAxis: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       Axis2D *ax = static_cast<Axis2D *>(ptr);
       cloneaxismenu.setTitle(tr("Clone Axis..."));
@@ -445,7 +445,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       menu.addAction(removeaxis_);
       removeaxis_->setData(item->data(0, Qt::UserRole + 1));
     } break;
-    case PropertyItemType::LSGraph:
+    case PropertyItemType::Plot2DLSGraph:
       menu.addAction("Edit Data");
       menu.addAction(moveupls_);
       menu.addAction(movedownls_);
@@ -454,7 +454,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       moveupls_->setData(item->data(0, Qt::UserRole + 1));
       movedownls_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::ChannelGraph:
+    case PropertyItemType::Plot2DChannelGraph:
       menu.addAction("Edit Data");
       menu.addAction(moveupchannel_);
       menu.addAction(movedownchannel_);
@@ -463,7 +463,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       moveupchannel_->setData(item->data(0, Qt::UserRole + 1));
       movedownchannel_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::Curve:
+    case PropertyItemType::Plot2DCurve:
       menu.addAction("Edit Data");
       menu.addAction(moveupcurve_);
       menu.addAction(movedowncurve_);
@@ -472,7 +472,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       moveupcurve_->setData(item->data(0, Qt::UserRole + 1));
       movedowncurve_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::BarGraph:
+    case PropertyItemType::Plot2DBarGraph:
       menu.addAction("Edit Data");
       menu.addAction(moveupbar_);
       menu.addAction(movedownbar_);
@@ -481,7 +481,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       moveupbar_->setData(item->data(0, Qt::UserRole + 1));
       movedownbar_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::Vector:
+    case PropertyItemType::Plot2DVector:
       menu.addAction("Edit Data");
       menu.addAction(moveupvector_);
       menu.addAction(movedownvector_);
@@ -490,7 +490,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       moveupvector_->setData(item->data(0, Qt::UserRole + 1));
       movedownvector_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::StatBox:
+    case PropertyItemType::Plot2DStatBox:
       menu.addAction(moveupstatbox_);
       menu.addAction(movedownstatbox_);
       menu.addAction(removestatbox_);
@@ -498,11 +498,11 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       moveupstatbox_->setData(item->data(0, Qt::UserRole + 1));
       movedownstatbox_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::ErrorBar:
+    case PropertyItemType::Plot2DErrorBar:
       menu.addAction(removeerrorbar_);
       removeerrorbar_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::TextItem:
+    case PropertyItemType::Plot2DTextItem:
       menu.addAction(moveuptextitem_);
       menu.addAction(movedowntextitem_);
       menu.addAction(removetextitem_);
@@ -510,7 +510,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       moveuptextitem_->setData(item->data(0, Qt::UserRole + 1));
       movedowntextitem_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::LineItem:
+    case PropertyItemType::Plot2DLineItem:
       menu.addAction(moveuplineitem_);
       menu.addAction(movedownlineitem_);
       menu.addAction(removelineitem_);
@@ -518,7 +518,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       moveuplineitem_->setData(item->data(0, Qt::UserRole + 1));
       movedownlineitem_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::ImageItem:
+    case PropertyItemType::Plot2DImageItem:
       menu.addAction(moveupimageitem_);
       menu.addAction(movedownimageitem_);
       menu.addAction(removeimageitem_);
@@ -526,21 +526,21 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       moveupimageitem_->setData(item->data(0, Qt::UserRole + 1));
       movedownimageitem_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::PieGraph:
+    case PropertyItemType::Plot2DPieGraph:
       menu.addAction(moveuppie_);
       menu.addAction(movedownpie_);
       moveuppie_->setData(item->data(0, Qt::UserRole + 1));
       movedownpie_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::ColorMap:
+    case PropertyItemType::Plot2DColorMap:
       menu.addAction(moveupcolormap_);
       menu.addAction(movedowncolormap_);
       moveupcolormap_->setData(item->data(0, Qt::UserRole + 1));
       movedowncolormap_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::PlotCanvas:
-    case PropertyItemType::Grid:
-    case PropertyItemType::Legend:
+    case PropertyItemType::Plot2DCanvas:
+    case PropertyItemType::Plot2DGrid:
+    case PropertyItemType::Plot2DLegend:
       break;
   }
   menu.exec(globalPos);

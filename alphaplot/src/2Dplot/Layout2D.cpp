@@ -50,7 +50,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
       xpickerline_(nullptr),
       ypickerline_(nullptr) {
   main_widget_->setContentsMargins(0, 0, 0, 0);
-  if (name.isEmpty()) setObjectName("layout2d plot");
+  if (name.isEmpty()) setObjectName("layout2d");
   QDateTime birthday = QDateTime::currentDateTime();
   setBirthDate(birthday.toString(Qt::LocalDate));
 

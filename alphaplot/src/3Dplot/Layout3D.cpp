@@ -19,6 +19,11 @@
 #include "future/lib/XmlStreamWriter.h"
 #include "plotcommon/widgets/ImageExportDialog.h"
 
+const int Layout3D::defaultlayout2dwidth_ = 500;
+const int Layout3D::defaultlayout2dheight_ = 400;
+const int Layout3D::minimumlayout2dwidth_ = 100;
+const int Layout3D::minimumlayout2dheight_ = 100;
+
 Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
                    const QString &label, QWidget *parent, const QString name,
                    Qt::WindowFlags flag)
@@ -49,14 +54,14 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
     } break;
   }
   main_widget_->setContentsMargins(0, 0, 0, 0);
-  if (name.isEmpty()) setObjectName("layout3d plot");
+  if (name.isEmpty()) setObjectName("layout3d");
   QDateTime birthday = QDateTime::currentDateTime();
   setBirthDate(birthday.toString(Qt::LocalDate));
   setFocusPolicy(Qt::TabFocus);
 
   setWidget(main_widget_);
-  setGeometry(QRect(0, 0, 500, 400));
-  setMinimumSize(QSize(100, 100));
+  setGeometry(QRect(0, 0, defaultlayout2dwidth_, defaultlayout2dheight_));
+  setMinimumSize(QSize(minimumlayout2dwidth_, minimumlayout2dheight_));
   setFocusPolicy(Qt::StrongFocus);
 }
 
@@ -123,8 +128,8 @@ void Layout3D::exportGraph() {
   int raster_quality = ied->raster_quality();
   int raster_antialias = ied->raster_antialias();
 
-  //int vector_width = ied->vector_width();
-  //int vector_height = ied->vector_height();
+  // int vector_width = ied->vector_width();
+  // int vector_height = ied->vector_height();
 
   if (selected_filter.contains(".pdf")) {
     // plot2dCanvas_->savePdf(file_name, vector_width, vector_height);
