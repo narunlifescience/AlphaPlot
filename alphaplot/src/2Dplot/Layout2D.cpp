@@ -375,12 +375,13 @@ void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
   vex->rescaleAxes();
 }
 
-void Layout2D::generatePie2DPlot(Table *table, Column *xData, Column *yData,
+void Layout2D::generatePie2DPlot(const Graph2DCommon::PieStyle &style,
+                                 Table *table, Column *xData, Column *yData,
                                  int from, int to) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble);
 
-  element->addPie2DPlot(table, xData, yData, from, to);
+  element->addPie2DPlot(style, table, xData, yData, from, to);
 }
 
 void Layout2D::generateColorMap2DPlot(Matrix *matrix, bool greyscale,
@@ -579,6 +580,7 @@ AxisRect2D *Layout2D::addAxisRectItem(
   connect(axisRect2d, &AxisRect2D::AxisRectClicked, this,
           &Layout2D::axisRectSetFocus);
   connect(axisRect2d, &AxisRect2D::showtooltip, this, &Layout2D::showtooltip);
+  connect(axisRect2d, &AxisRect2D::datapoint, this, &Layout2D::datapoint);
 
   emit AxisRectCreated(axisRect2d, this);
   if (!currentAxisRect_) axisRectSetFocus(axisRect2d);
@@ -682,6 +684,7 @@ void Layout2D::showtooltip(QPointF position, double xval, double yval,
   ypickerline_->setClipToAxisRect(true);
   ypickerline_->position("point1")->setCoords(xaxis->range().lower, yval);
   ypickerline_->position("point2")->setCoords(xaxis->range().upper, yval);
+  streachLabel_->setText(QString(" x=%1 y=%2").arg(xval).arg(yval));
 }
 
 void Layout2D::addTextToAxisTicker(Column *col, Axis2D *axis, int from,
@@ -771,6 +774,7 @@ bool Layout2D::exportGraph() {
 
   bool success = false;
   currentAxisRect_->setPrintorExportJob(true);
+  plot2dCanvas_->setBackgroundColor(plot2dCanvas_->getBackgroundColor(), false);
   if (selected_filter.contains(".pdf")) {
     success = plot2dCanvas_->savePdf(file_name, vector_width, vector_height);
   } else if (selected_filter.contains(".svg")) {
@@ -786,6 +790,7 @@ bool Layout2D::exportGraph() {
                                           raster_height, raster_scale, c_char,
                                           raster_quality, raster_resolution);
   }
+  plot2dCanvas_->setBackgroundColor(plot2dCanvas_->getBackgroundColor());
   currentAxisRect_->setPrintorExportJob(false);
   if (!success) {
     QMessageBox::critical(
@@ -809,6 +814,7 @@ bool Layout2D::exportGraphwithoutdialog(const QString &name,
 
   bool success = false;
   currentAxisRect_->setPrintorExportJob(true);
+  plot2dCanvas_->setBackgroundColor(plot2dCanvas_->getBackgroundColor(), false);
   if (selected_filter.contains(".pdf")) {
     success = plot2dCanvas_->savePdf(name, vector_width, vector_height);
   } else if (selected_filter.contains(".svg")) {
@@ -823,6 +829,7 @@ bool Layout2D::exportGraphwithoutdialog(const QString &name,
     success = plot2dCanvas_->saveRastered(name, raster_width, raster_height,
                                           raster_scale, c_char, raster_quality);
   }
+  plot2dCanvas_->setBackgroundColor(plot2dCanvas_->getBackgroundColor());
   currentAxisRect_->setPrintorExportJob(false);
   if (!success) {
     QMessageBox::critical(
@@ -1423,15 +1430,16 @@ void Layout2D::setBackground(const QColor &background) {
                           .arg(background.red())
                           .arg(background.green())
                           .arg(background.blue())
-                          .arg(background.alpha());
+                          .arg(255);
   streachLabel_->setStyleSheet(".QLabel { background-color:" + baseColor +
-                               ";}");
+                               "; color:red;}");
   main_widget_->setStyleSheet(".QWidget { background-color:" + baseColor +
                               ";}");
 }
 
 void Layout2D::setGraphTool(const Graph2DCommon::Picker &picker) {
   picker_ = picker;
+  streachLabel_->setText(QString());
   switch (picker_) {
     case Graph2DCommon::Picker::None: {
       if (xpickerline_) {

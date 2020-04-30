@@ -30,14 +30,12 @@
 #include "DataSetDialog.h"
 #include "FindDialog.h"
 #include "Folder.h"
-#include "ImageDialog.h"
 #include "ImageExportDlg.h"
 #include "ImportASCIIDialog.h"
 #include "LayerDialog.h"
 #include "Note.h"
 #include "OpenProjectDialog.h"
 #include "PlotWizard.h"
-#include "RenameWindowDialog.h"
 #include "Spectrogram.h"
 #include "TableStatistics.h"
 #include "analysis/Convolution.h"
@@ -128,11 +126,11 @@
 #include "2Dplot/widgets/Function2DDialog.h"
 #include "2Dplot/widgets/propertyeditor.h"
 #include "3Dplot/Bar3D.h"
+#include "3Dplot/DataManager3D.h"
 #include "3Dplot/Graph3DCommon.h"
 #include "3Dplot/Layout3D.h"
 #include "3Dplot/Scatter3D.h"
 #include "3Dplot/Surface3D.h"
-#include "3Dplot/DataManager3D.h"
 #include "scripting/ScriptingFunctions.h"
 #include "scripting/ScriptingLangDialog.h"
 #include "scripting/widgets/ConsoleWidget.h"
@@ -150,7 +148,7 @@ ApplicationWindow::ApplicationWindow()
 #ifdef SCRIPTING_CONSOLE
       consoleWindow(new ConsoleWidget(this)),
 #endif
-      propertyeditor(new PropertyEditor(this)),
+      propertyeditor(new PropertyEditor(this, this)),
       d_workspace(new QMdiArea(this)),
       hiddenWindows(new QList<QWidget *>()),
       outWindows(new QList<QWidget *>()),
@@ -217,7 +215,11 @@ ApplicationWindow::ApplicationWindow()
       btn_plot_enrichments_(new QToolButton(this)),
       btn_plot_linespoints_(new QToolButton(this)),
       btn_plot_bars_(new QToolButton(this)),
-      btn_plot_vect_(new QToolButton(this)) {
+      btn_plot_vect_(new QToolButton(this)),
+      btn_plot_pie_(new QToolButton(this)),
+      multiPeakfitactive_(false),
+      multiPeakfitpoints_(0),
+      multiPeakfittype_(0) {
   ui_->setupUi(this);
   // non menu qactions
   actionSaveNote = new QAction(tr("Save Note As..."), this);
@@ -226,14 +228,10 @@ ApplicationWindow::ApplicationWindow()
   actionShowMoreWindows = new QAction(tr("More windows..."), this);
   actionPixelLineProfile = new QAction(tr("&View Pixel Line Profile"), this);
   actionIntensityTable = new QAction(tr("&Intensity Table"), this);
-  actionShowLineDialog = new QAction(tr("&Properties"), this);
-  actionShowImageDialog = new QAction(tr("&Properties"), this);
   actionActivateWindow = new QAction(tr("&Activate Window"), this);
   actionMinimizeWindow = new QAction(tr("Mi&nimize Window"), this);
   actionMaximizeWindow = new QAction(tr("Ma&ximize Window"), this);
-  actionResizeWindow = new QAction(tr("Re&size Window..."), this);
   actionPrintWindow = new QAction(tr("&Print Window"), this);
-  actionShowPlotGeometryDialog = new QAction(tr("&Layer Geometry"), this);
   actionAdd3DData = new QAction(tr("&Data Set..."), this);
   actionEditSurfacePlot = new QAction(tr("&Surface..."), this);
   actionInvertMatrix = new QAction(tr("&Invert"), this);
@@ -266,6 +264,7 @@ ApplicationWindow::ApplicationWindow()
   btn_plot_linespoints_->setToolTip(tr("Lines and/or symbols"));
   btn_plot_bars_->setPopupMode(QToolButton::InstantPopup);
   btn_plot_vect_->setPopupMode(QToolButton::InstantPopup);
+  btn_plot_pie_->setPopupMode(QToolButton::InstantPopup);
 
   // Mainwindow properties
   setWindowIcon(IconLoader::load("alpha-logo", IconLoader::General));
@@ -547,7 +546,10 @@ ApplicationWindow::ApplicationWindow()
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DChannelFill,
                             static_cast<int>(Graph::Channel));
-  connect(ui_->actionPlot2DPie, SIGNAL(triggered()), this, SLOT(plotPie()));
+  connect(ui_->actionPlot2DPie, &QAction::triggered,
+          [&]() { plotPie(Graph2DCommon::PieStyle::Pie); });
+  connect(ui_->actionPlot2DHalfPie, &QAction::triggered,
+          [&]() { plotPie(Graph2DCommon::PieStyle::HalfPie); });
   connect(ui_->actionPlot2DVectorsXYAM, SIGNAL(triggered()), this,
           SLOT(plotVectXYAM()));
   connect(ui_->actionPlot2DVectorsXYXY, SIGNAL(triggered()), this,
@@ -722,11 +724,7 @@ ApplicationWindow::ApplicationWindow()
           SLOT(activateNextSubWindow()));
   connect(ui_->actionPreviousWindow, SIGNAL(triggered()), d_workspace,
           SLOT(activatePreviousSubWindow()));
-  connect(ui_->actionRenameWindow, SIGNAL(triggered()), this,
-          SLOT(renameActiveWindow()));
   connect(ui_->actionDuplicateWindow, SIGNAL(triggered()), this, SLOT(clone()));
-  connect(ui_->actionWindowGeometry, SIGNAL(triggered()), this,
-          SLOT(resizeActiveWindow()));
   connect(ui_->actionHideWindow, SIGNAL(triggered()), this,
           SLOT(hideActiveWindow()));
   connect(ui_->actionCloseWindow, SIGNAL(triggered()), this,
@@ -772,15 +770,12 @@ ApplicationWindow::ApplicationWindow()
           SLOT(pixelLineProfile()));
   connect(actionIntensityTable, SIGNAL(triggered()), this,
           SLOT(intensityTable()));
-  connect(actionShowImageDialog, SIGNAL(triggered()), this,
-          SLOT(showImageDialog()));
   connect(actionActivateWindow, SIGNAL(triggered()), this,
           SLOT(activateWindow()));
   connect(actionMinimizeWindow, SIGNAL(triggered()), this,
           SLOT(minimizeWindow()));
   connect(actionMaximizeWindow, SIGNAL(triggered()), this,
           SLOT(maximizeWindow()));
-  connect(actionResizeWindow, SIGNAL(triggered()), this, SLOT(resizeWindow()));
   connect(actionPrintWindow, SIGNAL(triggered()), this, SLOT(printWindow()));
   connect(actionEditSurfacePlot, SIGNAL(triggered()), this,
           SLOT(editSurfacePlot()));
@@ -958,7 +953,11 @@ void ApplicationWindow::makeToolBars() {
   plot2DToolbar->addWidget(btn_plot_vect_);
   menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYXY);
   menu_plot_vect->addAction(ui_->actionPlot2DVectorsXYAM);
-  plot2DToolbar->addAction(ui_->actionPlot2DPie);
+  QMenu *menu_plot_pie = new QMenu(this);
+  btn_plot_pie_->setMenu(menu_plot_pie);
+  plot2DToolbar->addWidget(btn_plot_pie_);
+  menu_plot_pie->addAction(ui_->actionPlot2DPie);
+  menu_plot_pie->addAction(ui_->actionPlot2DHalfPie);
   plot2DToolbar->addSeparator();
   plot2DToolbar->addAction(ui_->actionPlot3DScatter);
   plot2DToolbar->addAction(ui_->actionPlot3DTrajectory);
@@ -1372,7 +1371,7 @@ void ApplicationWindow::plot3DTrajectory() {
   }
 }
 
-void ApplicationWindow::plotPie() {
+void ApplicationWindow::plotPie(const Graph2DCommon::PieStyle &style) {
   if (!isActiveSubwindow(SubWindowType::TableSubWindow)) return;
 
   Table *table = qobject_cast<Table *>(d_workspace->activeSubWindow());
@@ -1412,7 +1411,7 @@ void ApplicationWindow::plotPie() {
   if (selectedcolumns.count() == 2) {
     Layout2D *layout = newGraph2D();
     layout->generatePie2DPlot(
-        table, xcol, ycol, table->firstSelectedRow(),
+        style, table, xcol, ycol, table->firstSelectedRow(),
         table->firstSelectedRow() + table->selectedRowCount() - 1);
   } else
     QMessageBox::warning(this, tr("Error"),
@@ -1857,6 +1856,8 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
   });
   connect(layout2d, &Layout2D::layout2DResized, propertyeditor,
           &PropertyEditor::refreshCanvasRect);
+  connect(layout2d, &Layout2D::datapoint, this,
+          &ApplicationWindow::multipeakfitappendpoints);
 
   return layout2d;
 }
@@ -1950,7 +1951,7 @@ void ApplicationWindow::customizeTables(
   }
 }
 
-void ApplicationWindow::customTable(Table *w) {
+void ApplicationWindow::customTable(Table *table) {
   // comment out color handling
   /*QColorGroup cg;
   cg.setColor(QColorGroup::Base, QColor(tableBkgdColor));
@@ -1958,15 +1959,9 @@ void ApplicationWindow::customTable(Table *w) {
   w->setPalette(QPalette(cg, cg, cg));
 
   w->setHeaderColor (tableHeaderColor);*/
-  w->setTextFont(tableTextFont);
-  w->setHeaderFont(tableHeaderFont);
-  w->showComments(d_show_table_comments);
-}
-
-void ApplicationWindow::newWrksheetPlot(const QString &name,
-                                        const QString &label,
-                                        QList<Column *> columns) {
-  Table *w = newTable(name, label, columns);
+  table->setTextFont(tableTextFont);
+  table->setHeaderFont(tableHeaderFont);
+  table->showComments(d_show_table_comments);
 }
 
 // Used when importing an ASCII file
@@ -3116,8 +3111,9 @@ void ApplicationWindow::loadSettings() {
 
   QStringList applicationFont = settings.value("Font").toStringList();
   if (applicationFont.size() == 4)
-    appFont = QFont(applicationFont[0], applicationFont[1].toInt(),
-                    applicationFont[2].toInt(), applicationFont[3].toInt());
+    appFont =
+        QFont(applicationFont.at(0), applicationFont.at(1).toInt(),
+              applicationFont.at(2).toInt(), applicationFont.at(3).toInt());
 
   settings.beginGroup("Dialogs");
   d_extended_open_dialog = settings.value("ExtendedOpenDialog", true).toBool();
@@ -3960,17 +3956,6 @@ void ApplicationWindow::saveAsTemplate() {
   }
 }
 
-void ApplicationWindow::renameActiveWindow() {
-  if (!d_workspace->activeSubWindow()) return;
-  MyWidget *m = qobject_cast<MyWidget *>(d_workspace->activeSubWindow());
-  if (!m) return;
-
-  RenameWindowDialog *rwd = new RenameWindowDialog(this);
-  rwd->setAttribute(Qt::WA_DeleteOnClose);
-  rwd->setWidget(m);
-  rwd->exec();
-}
-
 void ApplicationWindow::renameWindow(QTreeWidgetItem *item, int,
                                      const QString &text) {
   if (!item) return;
@@ -3983,29 +3968,27 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text) {
   if (!w) return false;
 
   QString name = w->name();
-
   QString newName = text;
-  newName.replace("-", "_");
+  if (name == newName) return false;
+
   if (newName.isEmpty()) {
     QMessageBox::critical(this, tr("Error"), tr("Please enter a valid name!"));
     return false;
-  } else if (newName.contains(QRegExp("\\W"))) {
+  } else if (!newName.contains(QRegExp("^[a-zA-Z0-9-]*$"))) {
     QMessageBox::critical(this, tr("Error"),
-                          tr("The name you chose is not valid: only letters "
-                             "and digits are allowed!") +
+                          tr("The name you chose is not valid: only letters, "
+                             "digits and hyphen are allowed!") +
                               "<p>" + tr("Please choose another name!"));
     return false;
   }
-
-  newName.replace("_", "-");
 
   while (alreadyUsedName(newName)) {
     QMessageBox::critical(
         this, tr("Error"),
         tr("Name <b>%1</b> already exists!").arg(newName) + "<p>" +
             tr("Please choose another name!") + "<p>" +
-            tr("Warning: for internal consistency reasons the underscore "
-               "character is replaced with a minus sign."));
+            tr("Warning: for internal consistency reasons only alphabets "
+               "numbers and hyphen can be used for naming."));
     return false;
   }
 
@@ -5034,26 +5017,6 @@ void ApplicationWindow::drawArrow() {
   axisrect->addArrowItem2D();
 }
 
-void ApplicationWindow::showImageDialog() {
-  /*if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-  Graph *graph =
-      qobject_cast<MultiLayer *>(d_workspace->activeSubWindow())->activeGraph();
-  if (graph) {
-    ImageMarker *im = dynamic_cast<ImageMarker *>(graph->selectedMarkerPtr());
-    if (!im) return;
-
-    ImageDialog *id = new ImageDialog(this);
-    id->setAttribute(Qt::WA_DeleteOnClose);
-    connect(id, SIGNAL(setGeometry(int, int, int, int)), graph,
-            SLOT(updateImageMarker(int, int, int, int)));
-    id->setWindowIcon(IconLoader::load("alpha-logo", IconLoader::General));
-    id->setOrigin(im->origin());
-    id->setSize(im->size());
-    id->exec();
-  }*/
-}
-
 void ApplicationWindow::showLayerDialog() {
   /*if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
 
@@ -5251,38 +5214,6 @@ void ApplicationWindow::hideWindow(MyWidget *w) {
   hiddenWindows->append(w);
   w->setHidden();
   emit modified();
-}
-
-void ApplicationWindow::resizeActiveWindow() {
-  MyWidget *w = qobject_cast<MyWidget *>(d_workspace->activeSubWindow());
-  if (!w) return;
-
-  ImageDialog *id = new ImageDialog(this);
-  id->setAttribute(Qt::WA_DeleteOnClose);
-  connect(id, SIGNAL(setGeometry(int, int, int, int)), this,
-          SLOT(setWindowGeometry(int, int, int, int)));
-
-  id->setWindowTitle(tr("Window Geometry"));
-  id->setOrigin(w->pos());
-  id->setSize(w->size());
-  id->exec();
-}
-
-void ApplicationWindow::resizeWindow() {
-  MyWidget *w = qobject_cast<MyWidget *>(d_workspace->activeSubWindow());
-  if (!w) return;
-
-  d_workspace->setActiveSubWindow(w);
-
-  ImageDialog *id = new ImageDialog(this);
-  id->setAttribute(Qt::WA_DeleteOnClose);
-  connect(id, SIGNAL(setGeometry(int, int, int, int)), this,
-          SLOT(setWindowGeometry(int, int, int, int)));
-
-  id->setWindowTitle(tr("Window Geometry"));
-  id->setOrigin(w->pos());
-  id->setSize(w->size());
-  id->exec();
 }
 
 void ApplicationWindow::setWindowGeometry(int x, int y, int w, int h) {
@@ -6584,11 +6515,10 @@ void ApplicationWindow::analyzeCurve(AxisRect2D *axisrect,
       delete fitter;
     }
   } else if (whichFit == "differentiate") {
-    Differentiation *diff = new Differentiation(
+    std::unique_ptr<Differentiation> diff(new Differentiation(
         this, axisrect,
-        PlotColumns::getassociateddatafromstring(axisrect, curveTitle));
+        PlotColumns::getassociateddatafromstring(axisrect, curveTitle)));
     diff->run();
-    delete diff;
   }
 }
 
@@ -6891,38 +6821,83 @@ void ApplicationWindow::fitMultiPeakLorentzian() {
 }
 
 void ApplicationWindow::fitMultiPeak(int profile) {
-  /*  QMdiSubWindow *subwindow = d_workspace->activeSubWindow();
-    if (!isActiveSubWindow(subwindow, SubWindowType::MultiLayerSubWindow))
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+
+  if (layout->getAxisRectList().size() == 0) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot layouts available in this window.</h4>"
+           "<p><h4>Please add a layout and try again!</h4>"));
+    ui_->actionDisableGraphTools->setChecked(true);
     return;
+  }
 
-    MultiLayer *plot = qobject_cast<MultiLayer *>(subwindow);
-    if (plot->isEmpty()) {
-      QMessageBox::warning(
-          this, tr("Warning"),
-          tr("<h4>There are no plot layers available in this window.</h4>"
-             "<p><h4>Please add a layer and try again!</h4>"));
-      ui_->actionDisableGraphTools->setChecked(true);
-      return;
-    }
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  QVector<LineSpecial2D *> lsvec = axisrect->getLsVec();
+  QVector<Curve2D *> curvevec = axisrect->getCurveVec();
+  if (lsvec.size() + curvevec.size() == 0) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no compatible plots available in this layout.</h4>"
+           "<p><h4>Please add Line Special or Line Scatter plot to the layout "
+           "and try again!</h4>"));
+    ui_->actionDisableGraphTools->setChecked(true);
+    return;
+  }
 
-    Graph *graph = qobject_cast<Graph *>(plot->activeGraph());
-    if (!graph || !graph->validCurvesDataSize()) return;
+  bool ok;
+  int peaks = QInputDialog::getInt(this, tr("Enter the number of peaks"),
+                                   tr("Peaks"), 2, 2, 1000000, 1, &ok);
 
-    if (graph->isPiePlot()) {
-      QMessageBox::warning(
-          this, tr("Warning"),
-          tr("This functionality is not available for pie plots!"));
-      return;
+  if (ok && peaks) {
+    multiPeakfitactive_ = true;
+    multiPeakfitpoints_ = peaks;
+    multiPeakfittype_ = profile;
+  }
+}
+
+void ApplicationWindow::multipeakfitappendpoints(Curve2D *curve, double x,
+                                                 double y) {
+  /*if (!multiPeakfitactive_ || multiPeakfitpoints_ == 0) return;
+
+  QPair<Curve2D *, QPair<double, double>> newpair;
+  newpair.first = curve;
+  newpair.second.first = x;
+  newpair.second.second = y;
+  qDebug() << "entered";
+  if (multipeakfitvalues_.size() == 0) {
+    multipeakfitvalues_ << newpair;
+  } else {
+    if (multipeakfitvalues_.last().first == curve) {
+      multipeakfitvalues_ << newpair;
     } else {
-      bool ok;
-      int peaks = QInputDialog::getInt(this, tr("Enter the number of peaks"),
-                                       tr("Peaks"), 2, 2, 1000000, 1, &ok);
-      if (ok && peaks) {
-        graph->setActiveTool(new MultiPeakFitTool(
-            graph, this, static_cast<MultiPeakFit::PeakProfile>(profile), peaks,
-            statusBarInfo, SLOT(setText(const QString &))));
-      }
-    }*/
+      multipeakfitvalues_.empty();
+      multiPeakfitactive_ = false;
+    }
+  }
+  multiPeakfitpoints_ = 2;
+  multipeakfitvalues_ << newpair;
+  if (multipeakfitvalues_.size() == multiPeakfitpoints_) {
+    AxisRect2D *axisrect =
+        multipeakfitvalues_.first().first->getxaxis()->getaxisrect_axis();
+    MultiPeakFit *d_fit = new MultiPeakFit(
+        this, axisrect, MultiPeakFit::PeakProfile::Gauss, multiPeakfitpoints_);
+    d_fit->enablePeakCurves(generatePeakCurves);
+    d_fit->setPeakCurvesColor(peakCurvesColor);
+    d_fit->generateFunction(generateUniformFitPoints, fitPoints);
+    d_fit->setDataFromCurve(curve->getdatablock_cplot()->getassociateddata());
+    for (int i = 0; i < multipeakfitvalues_.size(); i++) {
+      qDebug() << multipeakfitvalues_.at(i).second.second
+               << multipeakfitvalues_.at(i).second.first;
+      d_fit->setInitialGuess(3 * i, multipeakfitvalues_.at(i).second.second);
+      d_fit->setInitialGuess(3 * i + 1,
+                             multipeakfitvalues_.at(i).second.second);
+    }
+    d_fit->fit();
+    delete d_fit;
+    qDebug() << "fit";
+  }*/
 }
 
 #ifdef DOWNLOAD_LINKS
@@ -8262,7 +8237,6 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
     cm.addAction(ui_->actionPrint);
     cm.addAction(ui_->actionDuplicateWindow);
     cm.addSeparator();
-    cm.addAction(ui_->actionRenameWindow);
     cm.addAction(ui_->actionCloseWindow);
     cm.addAction(actionHideActiveWindow);
   }
@@ -8270,7 +8244,6 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
   if (!hidden(widget)) {
     cm.addAction(actionMinimizeWindow);
     cm.addAction(actionMaximizeWindow);
-    cm.addAction(actionResizeWindow);
     cm.addSeparator();
     cm.addAction(tr("&Properties..."), this, SLOT(windowProperties()));
   }
@@ -8320,12 +8293,12 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
         matrix = layout->getSurface3DModifier()->getData()->getmatrix();
         break;
       case Graph3DCommon::Plot3DType::Bar:
-        //matrix = layout->getBar3DModifier()->getData()->getmatrix();
+        // matrix = layout->getBar3DModifier()->getData()->getmatrix();
         break;
       case Graph3DCommon::Plot3DType::Scatter:
-        //matrix = layout->getScatter3DModifier()->getData()->getmatrix();
+        // matrix = layout->getScatter3DModifier()->getData()->getmatrix();
         break;
-      }
+    }
 
     QString formula;
     if (!formula.isEmpty()) {
@@ -8800,6 +8773,8 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("graph2d-channel", IconLoader::LightDark));
   ui_->actionPlot2DPie->setIcon(
       IconLoader::load("graph2d-pie", IconLoader::LightDark));
+  ui_->actionPlot2DHalfPie->setIcon(
+      IconLoader::load("graph2d-halfpie", IconLoader::LightDark));
   ui_->actionPlot2DVectorsXYAM->setIcon(
       IconLoader::load("graph2d-vector-xyam", IconLoader::LightDark));
   ui_->actionPlot2DVectorsXYXY->setIcon(
@@ -8925,12 +8900,8 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("go-next", IconLoader::LightDark));
   ui_->actionPreviousWindow->setIcon(
       IconLoader::load("go-previous", IconLoader::LightDark));
-  ui_->actionRenameWindow->setIcon(
-      IconLoader::load("edit-rename", IconLoader::LightDark));
   ui_->actionDuplicateWindow->setIcon(
       IconLoader::load("edit-duplicate", IconLoader::LightDark));
-  ui_->actionWindowGeometry->setIcon(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
   ui_->actionHideWindow->setIcon(QIcon());
   ui_->actionCloseWindow->setIcon(
       IconLoader::load("edit-delete", IconLoader::General));
@@ -8963,6 +8934,8 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
   btn_plot_vect_->setIcon(
       IconLoader::load("graph2d-vector-xyam", IconLoader::LightDark));
+  btn_plot_pie_->setIcon(
+      IconLoader::load("graph2d-pie", IconLoader::LightDark));
   // 3d toolbars
   Box->setIcon(IconLoader::load("graph3d-box-axis", IconLoader::LightDark));
   Frame->setIcon(IconLoader::load("graph3d-free-axis", IconLoader::LightDark));
@@ -9001,12 +8974,8 @@ void ApplicationWindow::loadIcons() {
   actionExportPDF->setIcon(
       IconLoader::load("application-pdf", IconLoader::LightDark));
   actionPixelLineProfile->setIcon(QIcon(QPixmap()));
-  actionResizeWindow->setIcon(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
   actionPrintWindow->setIcon(
       IconLoader::load("edit-print", IconLoader::LightDark));
-  actionShowPlotGeometryDialog->setIcon(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
 
   foreach (QMdiSubWindow *subwindow, subWindowsList()) {
     QList<QTreeWidgetItem *> items = ui_->listView->findItems(

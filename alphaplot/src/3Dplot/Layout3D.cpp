@@ -39,16 +39,22 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
   switch (plottype_) {
     case Graph3DCommon::Plot3DType::Surface: {
       graph3dsurface_ = new Q3DSurface();
+      graph3dsurface_->setFlags(Qt::FramelessWindowHint);
+      graph3dsurface_->setFlag(Qt::WindowType::SubWindow, true);
       main_widget_ = createWindowContainer(graph3dsurface_);
       surfacemodifier_ = new Surface3D(graph3dsurface_);
     } break;
     case Graph3DCommon::Plot3DType::Bar: {
       graph3dbars_ = new Q3DBars();
+      graph3dbars_->setFlags(Qt::FramelessWindowHint);
+      graph3dbars_->setFlag(Qt::WindowType::SubWindow, true);
       main_widget_ = createWindowContainer(graph3dbars_);
       barmodifier_ = new Bar3D(graph3dbars_);
     } break;
     case Graph3DCommon::Plot3DType::Scatter: {
       graph3dscatter_ = new Q3DScatter();
+      graph3dscatter_->setFlags(Qt::FramelessWindowHint);
+      graph3dscatter_->setFlag(Qt::WindowType::SubWindow, true);
       main_widget_ = createWindowContainer(graph3dscatter_);
       scattermodifier_ = new Scatter3D(graph3dscatter_);
     } break;

@@ -1,3 +1,19 @@
+/* This file is part of AlphaPlot.
+   Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+
+   AlphaPlot is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   AlphaPlot is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
+
+   Description : PropertyEditor */
+
 #ifndef PROPERTYEDITOR_H
 #define PROPERTYEDITOR_H
 
@@ -56,9 +72,12 @@ class QCategory3DAxis;
 class PropertyEditor : public QDockWidget {
   Q_OBJECT
  public:
-  explicit PropertyEditor(QWidget *parent = nullptr);
+  PropertyEditor(QWidget *parent = nullptr, ApplicationWindow *app = nullptr);
   ~PropertyEditor();
   MyTreeWidget *getObjectBrowser();
+  void myWidgetConnections(MyWidget *widget);
+  void tableConnections(Table *table);
+  void matrixConnections(Matrix *matrix);
   void axisrectConnections(AxisRect2D *axisrect);
 
  private slots:
@@ -77,6 +96,7 @@ class PropertyEditor : public QDockWidget {
   void objectschanged();
 
   // properties block handler
+  void WindowPropertyBlock(MyWidget *widget);
   void Plot2DPropertyBlock(Plot2D *plotcanvas);
   void Layout2DPropertyBlock(AxisRect2D *axisrect);
   void Axis2DPropertyBlock(Axis2D *axis);
@@ -104,6 +124,10 @@ class PropertyEditor : public QDockWidget {
   void Surface3DPropertyBlock(Surface3D *surface);
   void Bar3DPropertyBlock(Bar3D *bar);
   void Scatter3DPropertyBlock(Scatter3D *scatter);
+  // Table
+  void TablePropertyBlock(Table *table);
+  // Table
+  void MatrixPropertyBlock(Matrix *matrix);
 
  signals:
   void refreshCanvasRect();
@@ -122,6 +146,7 @@ class PropertyEditor : public QDockWidget {
   }
 
  private:
+  ApplicationWindow *app_;
   Ui_PropertyEditor *ui_;
   QSplitter *splitter_;
   MyTreeWidget *objectbrowser_;
@@ -147,6 +172,10 @@ class PropertyEditor : public QDockWidget {
   QtEnumEditorFactory *comboBoxFactory_;
   QtColorEditorFactory *colorFactory_;
   QtFontEditorFactory *fontFactory_;
+  // window properties
+  QtProperty *mywidgetwindowrectitem_;
+  QtProperty *mywidgetwindownameitem_;
+  QtProperty *mywidgetwindowlabelitem_;
   // Plot Canvas properties
   QtProperty *canvaspropertycoloritem_;
   QtProperty *canvaspropertybufferdevicepixelratioitem_;
@@ -533,6 +562,12 @@ class PropertyEditor : public QDockWidget {
   QtProperty *plot3dscatteraspectratioitem_;
   QtProperty *plot3dscatterhorizontalaspectratioitem_;
   QtProperty *plot3dscattershadowqualityitem_;
+  // Table
+  QtProperty *tablewindowrowcountitem_;
+  QtProperty *tablewindowcolcountitem_;
+  // Matrix
+  QtProperty *matrixwindowrowcountitem_;
+  QtProperty *matrixwindowcolcountitem_;
 };
 
 #endif  // PROPERTYEDITOR_H

@@ -148,7 +148,7 @@ class MyWidget : public QMdiSubWindow {
   //! Emitted when the window was hidden
   void hiddenWindow(MyWidget *);
   void modifiedWindow(MyWidget *);
-  void resizedWindow(MyWidget *);
+  void geometrychange(MyWidget *);
   //! Emitted when the window status changed
   void statusChanged(MyWidget *);
   //! Emitted when the title bar recieves a QContextMenuEvent
@@ -162,6 +162,8 @@ class MyWidget : public QMdiSubWindow {
   virtual void changeEvent(QEvent *event);
   //! Catches parent changes (in order to gain access to the title bar)
   virtual void contextMenuEvent(QContextMenuEvent *event);
+  virtual void resizeEvent(QResizeEvent *resizeEvent);
+  virtual void moveEvent(QMoveEvent *moveEvent);
 
   //! Pointer to the parent folder of the window
   Folder *parentFolder;

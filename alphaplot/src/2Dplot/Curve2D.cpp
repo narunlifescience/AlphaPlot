@@ -1008,6 +1008,7 @@ void Curve2D::datapicker(QMouseEvent *event, const QVariant &details) {
         point.y() < event->localPos().y() + 10) {
       emit showtooltip(point, it->mainKey(), it->mainValue(), getxaxis(),
                        getyaxis());
+      emit getxaxis()->getaxisrect_axis()->datapoint(this, it->mainKey(), it->mainValue());
     }
   }
 }

@@ -206,6 +206,7 @@
     <addaction name="actionPlot2DArea"/>
     <addaction name="actionPlot2DChannelFill"/>
     <addaction name="actionPlot2DPie"/>
+    <addaction name="actionPlot2DHalfPie"/>
     <addaction name="actionPlot2DVectorsXYXY"/>
     <addaction name="actionPlot2DVectorsXYAM"/>
     <addaction name="separator"/>
@@ -250,10 +251,8 @@
     <addaction name="actionNextWindow"/>
     <addaction name="actionPreviousWindow"/>
     <addaction name="separator"/>
-    <addaction name="actionRenameWindow"/>
     <addaction name="actionDuplicateWindow"/>
     <addaction name="separator"/>
-    <addaction name="actionWindowGeometry"/>
     <addaction name="actionHideWindow"/>
     <addaction name="actionCloseWindow"/>
    </widget>
@@ -1088,19 +1087,9 @@
     <string>&amp;Previous</string>
    </property>
   </action>
-  <action name="actionRenameWindow">
-   <property name="text">
-    <string>&amp;Rename Window</string>
-   </property>
-  </action>
   <action name="actionDuplicateWindow">
    <property name="text">
     <string>&amp;Duplicate</string>
-   </property>
-  </action>
-  <action name="actionWindowGeometry">
-   <property name="text">
-    <string>&amp;Window Geometry...</string>
    </property>
   </action>
   <action name="actionHideWindow">
@@ -1367,6 +1356,11 @@
   <action name="actionGraphZoomRange">
    <property name="text">
     <string>Zoom Range</string>
+   </property>
+  </action>
+  <action name="actionPlot2DHalfPie">
+   <property name="text">
+    <string>&amp;Half Pie</string>
    </property>
   </action>
  </widget>

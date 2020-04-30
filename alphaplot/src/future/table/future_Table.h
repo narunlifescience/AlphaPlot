@@ -318,7 +318,6 @@ class Table : public AbstractPart
   void insertEmptyRows();
   void removeSelectedRows();
   void selectAll();
-  void dimensionsDialog();
   void editTypeAndFormatOfSelectedColumns();
   void editDescriptionOfCurrentColumn();
   void moveColumn(int from, int to);
@@ -455,7 +454,6 @@ class Table : public AbstractPart
 #endif
   QAction *action_sort_table;
   QAction *action_go_to_cell;
-  QAction *action_dimensions_dialog;
   QAction *action_formula_mode;
   //@}
   //! \name column related actions

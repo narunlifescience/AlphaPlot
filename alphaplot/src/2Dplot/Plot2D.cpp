@@ -15,6 +15,7 @@
    Description : Plot2D top level stuff */
 
 #include "Plot2D.h"
+
 #include <QSvgGenerator>
 
 Plot2D::Plot2D(QWidget *parent)
@@ -48,17 +49,21 @@ Plot2D::Plot2D(QWidget *parent)
 
 Plot2D::~Plot2D() {}
 
-void Plot2D::setBackgroundColor(const QColor &color) {
-  QPixmap pixmap(":pixmap/transparent-background.png");
-  QPainter paint(&pixmap);
-  QBrush pixmapbrush(color);
-  paint.setBrush(pixmapbrush);
-  paint.setPen(Qt::NoPen);
-  paint.drawRect(0, 0, pixmap.height(), pixmap.width());
-  QBrush b(pixmap);
-  setBackground(b);
-  setBackground(b);
+void Plot2D::setBackgroundColor(const QColor &color, const bool backpixmap) {
   canvasBackground_ = color;
+  if (backpixmap) {
+    QPixmap pixmap(":pixmap/transparent-background.png");
+    QPainter paint(&pixmap);
+    QBrush pixmapbrush(canvasBackground_);
+    paint.setBrush(pixmapbrush);
+    paint.setPen(Qt::NoPen);
+    paint.drawRect(0, 0, pixmap.height(), pixmap.width());
+    QBrush b(pixmap);
+    setBackground(b);
+  } else {
+    QBrush b(canvasBackground_);
+    setBackground(b);
+  }
   backgroundColorChange(canvasBackground_);
 }
 

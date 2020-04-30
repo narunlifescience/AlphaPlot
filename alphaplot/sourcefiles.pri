@@ -5,7 +5,6 @@
 ###################### HEADERS ##############################################
 
 HEADERS  += src/ApplicationWindow.h \
-    $$PWD/src/3Dplot/DataManager3D.h \
             src/core/IconLoader.h \
             src/core/Utilities.h \
             src/globals.h\
@@ -15,7 +14,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/scripting/MyParser.h \
             src/Table.h \
             src/PlotWizard.h \
-            src/ImageDialog.h \
             src/LayerDialog.h \
             src/ConfigDialog.h \
             src/Matrix.h \
@@ -24,7 +22,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/PatternBox.h \
             src/ColorButton.h \
             src/AssociationsDialog.h \
-            src/RenameWindowDialog.h \
             src/MyWidget.h \
             src/ImportASCIIDialog.h \
             src/ImageExportDlg.h\
@@ -92,7 +89,6 @@ HEADERS  += src/ApplicationWindow.h \
 ###################### SOURCES ##############################################
 
 SOURCES  += src/ApplicationWindow.cpp \
-    $$PWD/src/3Dplot/DataManager3D.cpp \
             src/core/IconLoader.cpp \
             src/core/Utilities.cpp \
             src/scripting/MuParserScript.cpp \
@@ -100,7 +96,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/scripting/MyParser.cpp\
             src/Table.cpp \
             src/PlotWizard.cpp \
-            src/ImageDialog.cpp \
             src/LayerDialog.cpp \
             src/DataSetDialog.cpp \
             src/ConfigDialog.cpp \
@@ -109,7 +104,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/PatternBox.cpp \
             src/ColorButton.cpp \
             src/AssociationsDialog.cpp \
-            src/RenameWindowDialog.cpp \
             src/MyWidget.cpp\
             src/analysis/FilterDialog.cpp\
             src/analysis/FFTDialog.cpp\
@@ -192,7 +186,6 @@ INCLUDEPATH  += src/future
 FORMS        += src/future/matrix/matrixcontroltabs.ui \
                 src/future/core/ProjectConfigPage.ui \
                 src/future/table/controltabs.ui \
-                src/future/table/DimensionsDialog.ui
 
 HEADERS     += src/future/core/AbstractAspect.h \
                src/future/core/AbstractPart.h \
@@ -388,6 +381,7 @@ FORMS       += src/2Dplot/widgets/propertyeditor.ui \
 ##############################################################
 
 HEADERS     += src/3Dplot/Layout3D.h \
+               src/3Dplot/DataManager3D.h \
                src/3Dplot/Surface3D.h \
                src/3Dplot/Custom3DInteractions.h \
                src/3Dplot/Bar3D.h \
@@ -396,6 +390,7 @@ HEADERS     += src/3Dplot/Layout3D.h \
                src/3Dplot/SurfaceDialog.h \
 
 SOURCES     += src/3Dplot/Layout3D.cpp \
+               src/3Dplot/DataManager3D.cpp \
                src/3Dplot/Surface3D.cpp \
                src/3Dplot/Custom3DInteractions.cpp \
                src/3Dplot/Bar3D.cpp \

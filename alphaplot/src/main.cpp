@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
   // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
   // SetProcessDPIAware();
   // call before the main event loop
-#endif                   // Q_OS_WIN
+#endif  // Q_OS_WIN
 
   // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

@@ -78,7 +78,6 @@
 #include "table/TableView.h"
 #include "table/future_SortDialog.h"
 #include "table/tablecommands.h"
-#include "ui_DimensionsDialog.h"
 
 #define WAIT_CURSOR QApplication::setOverrideCursor(QCursor(Qt::WaitCursor))
 #define RESET_CURSOR QApplication::restoreOverrideCursor()
@@ -1054,7 +1053,6 @@ bool Table::fillProjectMenu(QMenu *menu) {
   menu->addAction(action_recalculate);
   menu->addSeparator();
   menu->addAction(action_add_column);
-  menu->addAction(action_dimensions_dialog);
   menu->addSeparator();
   menu->addAction(action_go_to_cell);
 
@@ -1066,7 +1064,6 @@ bool Table::fillProjectMenu(QMenu *menu) {
 }
 
 bool Table::fillProjectToolBar(QToolBar *bar) {
-  bar->addAction(action_dimensions_dialog);
   bar->addAction(action_add_column);
   bar->addAction(action_statistics_columns);
   bar->addAction(action_statistics_rows);
@@ -1207,12 +1204,6 @@ void Table::createActions() {
                   tr("&Go to Cell"), this);
   action_go_to_cell->setShortcut(tr("Ctrl+Alt+G"));
   actionManager()->addAction(action_go_to_cell, "go_to_cell");
-
-  action_dimensions_dialog = new QAction(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
-      tr("&Dimensions", "table size"), this);
-  action_dimensions_dialog->setToolTip(tr("change the table size"));
-  actionManager()->addAction(action_dimensions_dialog, "dimensions_dialog");
 
   // column related actions
   action_insert_columns = new QAction(
@@ -1359,8 +1350,6 @@ void Table::connectActions() {
 #endif
   connect(action_sort_table, SIGNAL(triggered()), this, SLOT(sortTable()));
   connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
-  connect(action_dimensions_dialog, SIGNAL(triggered()), this,
-          SLOT(dimensionsDialog()));
   connect(action_insert_columns, SIGNAL(triggered()), this,
           SLOT(insertEmptyColumns()));
   connect(action_remove_columns, SIGNAL(triggered()), this,
@@ -1436,7 +1425,6 @@ void Table::addActionsToView() {
 #endif
   d_view->addAction(action_sort_table);
   d_view->addAction(action_go_to_cell);
-  d_view->addAction(action_dimensions_dialog);
   d_view->addAction(action_insert_columns);
   d_view->addAction(action_remove_columns);
   d_view->addAction(action_clear_columns);
@@ -1757,22 +1745,6 @@ void Table::goToCell() {
   if (!ok) return;
 
   d_view->goToCell(row - 1, col - 1);
-}
-
-void Table::dimensionsDialog() {
-  Ui::DimensionsDialog ui;
-  QDialog dialog;
-  ui.setupUi(&dialog);
-  dialog.setWindowTitle(tr("Set Table Dimensions"));
-  ui.columnsSpinBox->setValue(columnCount());
-  ui.rowsSpinBox->setValue(rowCount());
-  connect(ui.buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
-  connect(ui.buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
-
-  if (dialog.exec()) {
-    setColumnCount(ui.columnsSpinBox->value());
-    setRowCount(ui.rowsSpinBox->value());
-  }
 }
 
 void Table::moveColumn(int from, int to) {
@@ -2359,8 +2331,6 @@ void Table::loadIcons() {
       IconLoader::load("view-sort", IconLoader::LightDark));
   action_go_to_cell->setIcon(
       IconLoader::load("goto-cell", IconLoader::LightDark));
-  action_dimensions_dialog->setIcon(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
   // column related actions
   action_insert_columns->setIcon(
       IconLoader::load("edit-table-insert-column", IconLoader::LightDark));

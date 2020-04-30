@@ -61,7 +61,6 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent,
   d_future_table->action_add_column->setEnabled(false);
   d_future_table->action_clear_table->setEnabled(false);
   d_future_table->action_sort_table->setEnabled(false);
-  d_future_table->action_dimensions_dialog->setEnabled(false);
   d_future_table->action_insert_columns->setEnabled(false);
   d_future_table->action_remove_columns->setEnabled(false);
   d_future_table->action_clear_columns->setEnabled(false);

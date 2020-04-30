@@ -626,9 +626,10 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
   return bar;
 }
 
-Pie2D *AxisRect2D::addPie2DPlot(Table *table, Column *xData, Column *yData,
+Pie2D *AxisRect2D::addPie2DPlot(const Graph2DCommon::PieStyle &style,
+                                Table *table, Column *xData, Column *yData,
                                 int from, int to) {
-  Pie2D *pie = new Pie2D(this, table, xData, yData, from, to);
+  Pie2D *pie = new Pie2D(this, style, table, xData, yData, from, to);
   pie->setGraphData(table, xData, yData, from, to);
   // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   layers_.append(pie->layer());
@@ -2294,7 +2295,8 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         int to = xmlreader->readAttributeInt("to", &ok);
         if (!ok) xmlreader->raiseError(tr("Pie2D to not found error"));
         if (table && xcolumn) {
-          Pie2D *pie = addPie2DPlot(table, xcolumn, ycolumn, from, to);
+          Pie2D *pie = addPie2DPlot(Graph2DCommon::PieStyle::Pie, table,
+                                    xcolumn, ycolumn, from, to);
           pie->load(xmlreader);
         }
       }
@@ -2408,8 +2410,8 @@ void AxisRect2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
 }
 
 void AxisRect2D::draw(QCPPainter *painter) {
-  if (printorexportjob_) return;
   QCPAxisRect::draw(painter);
+  if (printorexportjob_) return;
   if (isAxisRectSelected_) drawSelection(painter);
 }
 

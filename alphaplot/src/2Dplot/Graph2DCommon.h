@@ -5,6 +5,11 @@ class Column;
 class Table;
 
 namespace Graph2DCommon {
+enum class PieStyle : int {
+  Pie = 0,
+  HalfPie = 1,
+};
+
 enum class LineStyleType : int {
   StepLeft = 0,
   StepRight = 1,

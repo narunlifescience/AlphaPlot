@@ -574,11 +574,6 @@ void Matrix::createActions() {
                   tr("&Duplicate", "duplicate matrix"), this);
   actionManager()->addAction(action_duplicate, "duplicate");
 
-  action_dimensions_dialog = new QAction(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark),
-      tr("&Dimensions", "matrix size"), this);
-  actionManager()->addAction(action_dimensions_dialog, "dimensions_dialog");
-
   action_edit_coordinates = new QAction(tr("Set &Coordinates"), this);
   actionManager()->addAction(action_edit_coordinates, "edit_coordinates");
 
@@ -653,8 +648,6 @@ void Matrix::connectActions() {
   connect(action_mirror_vertically, SIGNAL(triggered()), this,
           SLOT(mirrorVertically()));
   connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
-  connect(action_dimensions_dialog, SIGNAL(triggered()), this,
-          SLOT(dimensionsDialog()));
   connect(action_import_image, SIGNAL(triggered()), this,
           SLOT(importImageDialog()));
   connect(action_duplicate, SIGNAL(triggered()), this, SLOT(duplicate()));
@@ -693,7 +686,6 @@ void Matrix::addActionsToView() {
   d_view->addAction(action_mirror_horizontally);
   d_view->addAction(action_mirror_vertically);
   d_view->addAction(action_go_to_cell);
-  d_view->addAction(action_dimensions_dialog);
   d_view->addAction(action_import_image);
 #ifndef LEGACY_CODE_0_2_x
   d_view->addAction(action_duplicate);
@@ -714,7 +706,6 @@ bool Matrix::fillProjectMenu(QMenu *menu) {
   menu->addAction(action_toggle_tabbar);
   menu->addSeparator();
   menu->addAction(action_edit_coordinates);
-  menu->addAction(action_dimensions_dialog);
   menu->addAction(action_edit_format);
   menu->addSeparator();
   menu->addAction(action_set_formula);
@@ -825,22 +816,6 @@ void Matrix::setCell(int row, int col, double value) {
   if (row < 0 || row >= rowCount()) return;
   if (col < 0 || col >= columnCount()) return;
   exec(new MatrixSetCellValueCmd(d_matrix_private, row, col, value));
-}
-
-void Matrix::dimensionsDialog() {
-  bool ok;
-
-  int cols = QInputDialog::getInt(nullptr, tr("Set Matrix Dimensions"),
-                                  tr("Enter number of columns"), columnCount(),
-                                  1, 1e9, 1, &ok);
-  if (!ok) return;
-
-  int rows = QInputDialog::getInt(nullptr, tr("Set Matrix Dimensions"),
-                                  tr("Enter number of rows"), rowCount(), 1,
-                                  1e9, 1, &ok);
-  if (!ok) return;
-
-  setDimensions(rows, cols);
 }
 
 void Matrix::importImageDialog() {
@@ -1271,8 +1246,6 @@ void Matrix::loadIcons() {
       IconLoader::load("goto-cell", IconLoader::LightDark));
   action_duplicate->setIcon(
       IconLoader::load("edit-duplicate", IconLoader::LightDark));
-  action_dimensions_dialog->setIcon(
-      IconLoader::load("edit-table-dimension", IconLoader::LightDark));
   // column related actions
   action_insert_columns->setIcon(
       IconLoader::load("edit-table-insert-column", IconLoader::LightDark));

@@ -34,6 +34,7 @@
 
 // Scripting
 #include "../3rdparty/qcustomplot/qcustomplot.h"
+#include "2Dplot/Graph2DCommon.h"
 #include "3Dplot/Graph3DCommon.h"
 #include "scripting/Script.h"
 #include "scripting/ScriptingEnv.h"
@@ -281,8 +282,7 @@ class ApplicationWindow : public QMainWindow,
   //! \name 3D Data Plots
   //@{
   Layout3D* dataPlot3D(Table* table, const Graph3DCommon::Plot3DType& type);
-  Layout3D* dataPlotXYZ(Table* table,
-                        const Graph3DCommon::Plot3DType& type);
+  Layout3D* dataPlotXYZ(Table* table, const Graph3DCommon::Plot3DType& type);
   //@}
 
   //! \name Surface Plots
@@ -380,10 +380,8 @@ class ApplicationWindow : public QMainWindow,
   QList<QMdiSubWindow*>* tableList();
 
   void connectTable(Table* table);
-  void newWrksheetPlot(const QString& name, const QString& label,
-                       QList<Column*> columns);
   void initTable(Table* table);
-  void customTable(Table* w);
+  void customTable(Table* table);
   void customizeTables(const QColor& bgColor, const QColor& textColor,
                        const QColor& headerColor, const QFont& textFont,
                        const QFont& headerFont, bool showComments);
@@ -404,7 +402,7 @@ class ApplicationWindow : public QMainWindow,
 
   //! \name Graphs
   //@{
-  void plotPie();
+  void plotPie(const Graph2DCommon::PieStyle& style);
   void plotVectXYXY();
   void plotVectXYAM();
   //@}
@@ -445,7 +443,6 @@ class ApplicationWindow : public QMainWindow,
   //@{
   MyWidget* clone();
   MyWidget* clone(MyWidget*);
-  void renameActiveWindow();
 
   //!  Called when the user presses F2 and an item is selected in lv.
   void renameWindow(QTreeWidgetItem* item, int, const QString& text);
@@ -488,9 +485,6 @@ class ApplicationWindow : public QMainWindow,
   QString windowGeometryInfo(MyWidget* w);
   void restoreWindowGeometry(ApplicationWindow* app, MyWidget* w,
                              const QString s);
-
-  void resizeActiveWindow();
-  void resizeWindow();
 
   //! \name List View in Project Explorer
   //@{
@@ -637,7 +631,6 @@ class ApplicationWindow : public QMainWindow,
   void showRowStatistics();
   void showColumnStatistics();
   void showFitDialog();
-  void showImageDialog();
   void showLayerDialog();
   void showPreferencesDialog();
   void savitzkySmooth();
@@ -1115,14 +1108,10 @@ class ApplicationWindow : public QMainWindow,
   QAction* actionShowMoreWindows;
   QAction* actionPixelLineProfile;
   QAction* actionIntensityTable;
-  QAction* actionShowLineDialog;
-  QAction* actionShowImageDialog;
   QAction* actionActivateWindow;
   QAction* actionMinimizeWindow;
   QAction* actionMaximizeWindow;
-  QAction* actionResizeWindow;
   QAction* actionPrintWindow;
-  QAction* actionShowPlotGeometryDialog;
   QAction* actionEditSurfacePlot;
   QAction* actionAdd3DData;
   QAction* actionMatrixDeterminant;
@@ -1189,8 +1178,14 @@ class ApplicationWindow : public QMainWindow,
   QToolButton* btn_plot_linespoints_;
   QToolButton* btn_plot_bars_;
   QToolButton* btn_plot_vect_;
+  QToolButton* btn_plot_pie_;
+  bool multiPeakfitactive_;
+  int multiPeakfitpoints_;
+  int multiPeakfittype_;
+  QVector<QPair<Curve2D*, QPair<double, double>>> multipeakfitvalues_;
 
  private slots:
+  void multipeakfitappendpoints(Curve2D* curve, double x, double y);
   void removeDependentTableStatistics(const AbstractAspect* aspect);
   // Set the active window selected from the context menu's dependency list
   void setActiveWindowFromAction();

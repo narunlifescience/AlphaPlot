@@ -27,7 +27,7 @@ class Plot2D : public QCustomPlot {
   explicit Plot2D(QWidget *parent = nullptr);
   ~Plot2D();
 
-  void setBackgroundColor(const QColor &color);
+  void setBackgroundColor(const QColor &color, const bool backpixmap = true);
   QColor getBackgroundColor() const;
   bool saveSvg(const QString &fileName, int width = 0, int height = 0,
                QCP::ExportPen exportPen = QCP::epAllowCosmetic,

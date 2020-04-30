@@ -134,8 +134,8 @@ class AxisRect2D : public QCPAxisRect {
                               Axis2D *yAxis);
   Bar2D *addHistogram2DPlot(const BarType &type, Table *table, Column *yData,
                             int from, int to, Axis2D *xAxis, Axis2D *yAxis);
-  Pie2D *addPie2DPlot(Table *table, Column *xData, Column *yData, int from,
-                      int to);
+  Pie2D *addPie2DPlot(const Graph2DCommon::PieStyle &style, Table *table,
+                      Column *xData, Column *yData, int from, int to);
   ColorMap2D *addColorMap2DPlot(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis);
   TextItem2D *addTextItem2D(QString text);
   LineItem2D *addLineItem2D();
@@ -226,6 +226,7 @@ class AxisRect2D : public QCPAxisRect {
   void ErrorBar2DRemoved(AxisRect2D *);
   void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
                    Axis2D *yaxis);
+  void datapoint(Curve2D *curve, double xval, double yval);
   // Layer moved
   void LayerMoved(AxisRect2D *);
   void TextItem2DMoved();

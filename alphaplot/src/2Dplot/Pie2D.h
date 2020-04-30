@@ -1,3 +1,19 @@
+/* This file is part of AlphaPlot.
+   Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+
+   AlphaPlot is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   AlphaPlot is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
+
+   Description : Pie2D */
+
 #ifndef PIE2D_H
 #define PIE2D_H
 
@@ -5,6 +21,7 @@
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
+#include "Graph2DCommon.h"
 
 class Column;
 class Table;
@@ -13,14 +30,9 @@ class PieLegendItem2D;
 class Pie2D : public QCPAbstractItem {
   Q_OBJECT
  public:
-  Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, Column *yData,
-        int from, int to);
+  Pie2D(AxisRect2D *axisrect, const Graph2DCommon::PieStyle &style,
+        Table *table, Column *xData, Column *yData, int from, int to);
   ~Pie2D();
-
-  enum class Style : int {
-    Pie = 0,
-    HalfPie = 1,
-  };
 
   void setGraphData(Table *table, Column *xData, Column *yData, int from,
                     int to);
@@ -33,7 +45,7 @@ class Pie2D : public QCPAbstractItem {
   QColor getstrokecolor_pieplot() const;
   double getstrokethickness_pieplot() const;
   int getmarginpercent_pieplot() const;
-  Style getStyle_pieplot() const;
+  Graph2DCommon::PieStyle getStyle_pieplot() const;
   Table *gettable_pieplot() { return table_; }
   Column *getxcolumn_pieplot() { return xcolumn_; }
   Column *getycolumn_pieplot() { return ycolumn_; }
@@ -44,7 +56,7 @@ class Pie2D : public QCPAbstractItem {
   void setstrokecolor_pieplot(const QColor &color);
   void setstrokethickness_pieplot(const double value);
   void setmarginpercent_pieplot(const int value);
-  void setstyle_pieplot(const Style &style);
+  void setstyle_pieplot(const Graph2DCommon::PieStyle &style);
   void setstrokepen_pieplot(const QPen pen);
 
   void drawdoughnutslice(QPainter *painter, double startangle, double stopangle,
@@ -60,7 +72,7 @@ class Pie2D : public QCPAbstractItem {
  private:
   AxisRect2D *axisrect_;
   QVector<double> *pieData_;
-  Style style_;
+  Graph2DCommon::PieStyle style_;
   QVector<QColor> *pieColors_;
   QVector<PieLegendItem2D *> *pieLegendItems_;
   QString layername_;

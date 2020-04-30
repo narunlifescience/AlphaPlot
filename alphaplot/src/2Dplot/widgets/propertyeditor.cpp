@@ -1,3 +1,19 @@
+/* This file is part of AlphaPlot.
+   Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+
+   AlphaPlot is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   AlphaPlot is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
+
+   Description : PropertyEditor */
+
 #include "propertyeditor.h"
 
 #include <QDebug>
@@ -29,8 +45,9 @@
 #include "core/Utilities.h"
 #include "ui_propertyeditor.h"
 
-PropertyEditor::PropertyEditor(QWidget *parent)
+PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
     : QDockWidget(parent),
+      app_(app),
       ui_(new Ui_PropertyEditor),
       splitter_(new QSplitter(Qt::Vertical)),
       objectbrowser_(new MyTreeWidget(this)),
@@ -56,6 +73,7 @@ PropertyEditor::PropertyEditor(QWidget *parent)
       comboBoxFactory_(new QtEnumEditorFactory(propertybrowser_)),
       colorFactory_(new QtColorEditorFactory(propertybrowser_)),
       fontFactory_(new QtFontEditorFactory(propertybrowser_)) {
+  Q_ASSERT(app_);
   ui_->setupUi(this);
   setWindowTitle(tr("Property Editor"));
   setWindowIcon(QIcon());
@@ -113,6 +131,13 @@ PropertyEditor::PropertyEditor(QWidget *parent)
   propertybrowser_->setFactoryForManager(enumManager_, comboBoxFactory_);
   propertybrowser_->setFactoryForManager(colorManager_, colorFactory_);
   propertybrowser_->setFactoryForManager(fontManager_, fontFactory_);
+
+  // MyWidget window Properties
+  mywidgetwindowrectitem_ = rectManager_->addProperty(tr("Geometry"));
+  mywidgetwindownameitem_ = stringManager_->addProperty(tr("Name"));
+  mywidgetwindowlabelitem_ = stringManager_->addProperty(tr("Label"));
+  stringManager_->setRegExp(mywidgetwindownameitem_,
+                            QRegExp("^[a-zA-Z0-9-]*$"));
 
   // Plot Canvas properties
   canvaspropertycoloritem_ = colorManager_->addProperty("Background Color");
@@ -1098,6 +1123,17 @@ PropertyEditor::PropertyEditor(QWidget *parent)
       boolManager_->addProperty(tr("Title Fixed"));
   plot3daxiscatagorytitletextitem_ = stringManager_->addProperty("Label Text");
 
+  // Table
+  tablewindowrowcountitem_ = intManager_->addProperty("Row Count");
+  tablewindowcolcountitem_ = intManager_->addProperty("Column Count");
+  // Matrix
+  matrixwindowrowcountitem_ = intManager_->addProperty("Row Count");
+  matrixwindowcolcountitem_ = intManager_->addProperty("Column Count");
+  intManager_->setRange(tablewindowrowcountitem_, 0, 100000000);
+  intManager_->setRange(tablewindowcolcountitem_, 0, 100000);
+  intManager_->setRange(matrixwindowrowcountitem_, 0, 100000);
+  intManager_->setRange(matrixwindowcolcountitem_, 0, 100000);
+
   // initiate property ID required for compare()
   setObjectPropertyId();
 
@@ -1147,6 +1183,55 @@ PropertyEditor::PropertyEditor(QWidget *parent)
 PropertyEditor::~PropertyEditor() { delete ui_; }
 
 MyTreeWidget *PropertyEditor::getObjectBrowser() { return objectbrowser_; }
+
+void PropertyEditor::myWidgetConnections(MyWidget *widget) {
+  connect(widget, &MyWidget::geometrychange, [=]() {
+    if (objectbrowser_->currentItem() &&
+        static_cast<MyTreeWidget::PropertyItemType>(
+            objectbrowser_->currentItem()
+                ->data(0, Qt::UserRole)
+                .value<int>()) ==
+            MyTreeWidget::PropertyItemType::MyWidgetWindow) {
+      MyWidget *mw = getgraph2dobject<MyWidget>(objectbrowser_->currentItem());
+      if (widget == mw) {
+        rectManager_->setValue(mywidgetwindowrectitem_, widget->geometry());
+      }
+    }
+  });
+}
+
+void PropertyEditor::tableConnections(Table *table) {
+  connect(table, &Table::modifiedWindow, [=]() {
+    if (objectbrowser_->currentItem() &&
+        static_cast<MyTreeWidget::PropertyItemType>(
+            objectbrowser_->currentItem()
+                ->data(0, Qt::UserRole)
+                .value<int>()) == MyTreeWidget::PropertyItemType::TableWindow) {
+      Table *tab = getgraph2dobject<Table>(objectbrowser_->currentItem());
+      if (table == tab) {
+        intManager_->setValue(tablewindowrowcountitem_, table->numRows());
+        intManager_->setValue(tablewindowcolcountitem_, table->numCols());
+      }
+    }
+  });
+}
+
+void PropertyEditor::matrixConnections(Matrix *matrix) {
+  connect(matrix, &Matrix::modifiedWindow, [=]() {
+    if (objectbrowser_->currentItem() &&
+        static_cast<MyTreeWidget::PropertyItemType>(
+            objectbrowser_->currentItem()
+                ->data(0, Qt::UserRole)
+                .value<int>()) ==
+            MyTreeWidget::PropertyItemType::MatrixWindow) {
+      Matrix *mat = getgraph2dobject<Matrix>(objectbrowser_->currentItem());
+      if (matrix == mat) {
+        intManager_->setValue(matrixwindowrowcountitem_, matrix->numRows());
+        intManager_->setValue(matrixwindowcolcountitem_, matrix->numCols());
+      }
+    }
+  });
+}
 
 void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
   if (prop->compare(canvaspropertyopenglitem_)) {
@@ -1774,7 +1859,12 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
 }
 
 void PropertyEditor::valueChange(QtProperty *prop, const QRect &rect) {
-  if (prop->compare(itempropertytextmarginitem_)) {
+  if (prop->compare(mywidgetwindowrectitem_)) {
+    MyWidget *widget =
+        getgraph2dobject<MyWidget>(objectbrowser_->currentItem());
+    if (widget->geometry() == rect) return;
+    widget->setGeometry(rect);
+  } else if (prop->compare(itempropertytextmarginitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     QMargins margin;
@@ -2227,7 +2317,20 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
 }
 
 void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
-  if (prop->compare(axispropertylabeltextitem_)) {
+  if (prop->compare(mywidgetwindownameitem_)) {
+    MyWidget *widget =
+        getgraph2dobject<MyWidget>(objectbrowser_->currentItem());
+    bool status = app_->renameWindow(widget, value);
+    if (!status)
+      stringManager_->setValue(mywidgetwindownameitem_, widget->name());
+  } else if (prop->compare(mywidgetwindowlabelitem_)) {
+    MyWidget *widget =
+        getgraph2dobject<MyWidget>(objectbrowser_->currentItem());
+    QString label = value;
+    label.replace("\n", " ").replace("\t", " ");
+    widget->setWindowLabel(value);
+    app_->setListViewLabel(widget->name(), value);
+  } else if (prop->compare(axispropertylabeltextitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setLabel(Utilities::splitstring(value));
     axis->layer()->replot();
@@ -2417,6 +2520,18 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
     QValue3DAxis *axis =
         getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
     axis->setSubSegmentCount(value);
+  } else if (prop->compare(tablewindowrowcountitem_)) {
+    Table *table = getgraph2dobject<Table>(objectbrowser_->currentItem());
+    table->setNumRows(value);
+  } else if (prop->compare(tablewindowcolcountitem_)) {
+    Table *table = getgraph2dobject<Table>(objectbrowser_->currentItem());
+    table->setNumCols(value);
+  } else if (prop->compare(matrixwindowrowcountitem_)) {
+    Matrix *matrix = getgraph2dobject<Matrix>(objectbrowser_->currentItem());
+    matrix->setNumRows(value);
+  } else if (prop->compare(matrixwindowcolcountitem_)) {
+    Matrix *matrix = getgraph2dobject<Matrix>(objectbrowser_->currentItem());
+    matrix->setNumCols(value);
   }
 }
 
@@ -2863,7 +2978,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     vector->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(pieplotpropertystyleitem_)) {
     Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
-    pie->setstyle_pieplot(static_cast<Pie2D::Style>(value));
+    pie->setstyle_pieplot(static_cast<Graph2DCommon::PieStyle>(value));
     pie->layer()->replot();
     pie->getaxisrect()->replotBareBones();
     pie->getaxisrect()->getLegend()->layer()->replot();
@@ -2999,6 +3114,11 @@ void PropertyEditor::valueChange(QtProperty *prop, const QSize &size) {
 void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
   switch (static_cast<MyTreeWidget::PropertyItemType>(
       item->data(0, Qt::UserRole).value<int>())) {
+    case MyTreeWidget::PropertyItemType::MyWidgetWindow: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      MyWidget *widget = static_cast<MyWidget *>(ptr1);
+      WindowPropertyBlock(widget);
+    } break;
     case MyTreeWidget::PropertyItemType::Plot2DCanvas: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       Plot2D *plotcanvas = static_cast<Plot2D *>(ptr);
@@ -3138,6 +3258,16 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Scatter3D *scatter = static_cast<Scatter3D *>(ptr1);
       Scatter3DPropertyBlock(scatter);
+    } break;
+    case MyTreeWidget::PropertyItemType::TableWindow: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      Table *table = static_cast<Table *>(ptr1);
+      TablePropertyBlock(table);
+    } break;
+    case MyTreeWidget::PropertyItemType::MatrixWindow: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      Matrix *matrix = static_cast<Matrix *>(ptr1);
+      MatrixPropertyBlock(matrix);
     } break;
   }
 }
@@ -4380,11 +4510,35 @@ void PropertyEditor::Axis3DCatagoryPropertyBlock(QCategory3DAxis *axis) {
   stringManager_->setValue(plot3daxiscatagorytitletextitem_, axis->title());
 }
 
-void PropertyEditor::Surface3DPropertyBlock(Surface3D *surface) {}
+void PropertyEditor::Surface3DPropertyBlock(Surface3D *surface) {
+  propertybrowser_->clear();
+}
 
-void PropertyEditor::Bar3DPropertyBlock(Bar3D *bar) {}
+void PropertyEditor::Bar3DPropertyBlock(Bar3D *bar) {
+  propertybrowser_->clear();
+}
 
-void PropertyEditor::Scatter3DPropertyBlock(Scatter3D *scatter) {}
+void PropertyEditor::Scatter3DPropertyBlock(Scatter3D *scatter) {
+  propertybrowser_->clear();
+}
+
+void PropertyEditor::TablePropertyBlock(Table *table) {
+  propertybrowser_->clear();
+  propertybrowser_->addProperty(tablewindowrowcountitem_);
+  propertybrowser_->addProperty(tablewindowcolcountitem_);
+
+  intManager_->setValue(tablewindowrowcountitem_, table->numRows());
+  intManager_->setValue(tablewindowcolcountitem_, table->numCols());
+}
+
+void PropertyEditor::MatrixPropertyBlock(Matrix *matrix) {
+  propertybrowser_->clear();
+  propertybrowser_->addProperty(matrixwindowrowcountitem_);
+  propertybrowser_->addProperty(matrixwindowcolcountitem_);
+
+  intManager_->setValue(matrixwindowrowcountitem_, matrix->numRows());
+  intManager_->setValue(matrixwindowcolcountitem_, matrix->numCols());
+}
 
 void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
   populateObjectBrowser(widget);
@@ -4392,11 +4546,19 @@ void PropertyEditor::axisRectCreated(AxisRect2D *axisrect, MyWidget *widget) {
 }
 
 void PropertyEditor::objectschanged() {
-  ApplicationWindow *app_ = qobject_cast<ApplicationWindow *>(parent());
-  if (app_) {
-    MyWidget *mywidget = app_->getactiveMyWidget();
-    populateObjectBrowser(mywidget);
-  }
+  MyWidget *mywidget = app_->getactiveMyWidget();
+  populateObjectBrowser(mywidget);
+}
+
+void PropertyEditor::WindowPropertyBlock(MyWidget *widget) {
+  propertybrowser_->clear();
+  propertybrowser_->addProperty(mywidgetwindownameitem_);
+  propertybrowser_->addProperty(mywidgetwindowlabelitem_);
+  propertybrowser_->addProperty(mywidgetwindowrectitem_);
+
+  stringManager_->setValue(mywidgetwindownameitem_, widget->name());
+  stringManager_->setValue(mywidgetwindowlabelitem_, widget->windowLabel());
+  rectManager_->setValue(mywidgetwindowrectitem_, widget->geometry());
 }
 
 void PropertyEditor::Plot2DPropertyBlock(Plot2D *plotcanvas) {
@@ -4465,6 +4627,22 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       "<tr> <td align=\"right\">Matrix :</td><td>%1</td></tr>"
       "<tr> <td align=\"right\">Rows :</td><td>%2</td></tr>"
       "<tr> <td align=\"right\">Columns :</td><td>%4</td></tr>");
+
+  // window
+  {
+    QString windowitemtext = QString("Window");
+    QTreeWidgetItem *windowitem = new QTreeWidgetItem(
+        static_cast<QTreeWidget *>(nullptr), QStringList(windowitemtext));
+    windowitem->setToolTip(0, windowitemtext);
+    windowitem->setIcon(
+        0, IconLoader::load("edit-table-dimension", IconLoader::LightDark));
+    windowitem->setData(
+        0, Qt::UserRole,
+        static_cast<int>(MyTreeWidget::PropertyItemType::MyWidgetWindow));
+    windowitem->setData(0, Qt::UserRole + 1,
+                        QVariant::fromValue<void *>(widget));
+    objectitems_.append(windowitem);
+  }
 
   if (qobject_cast<Layout2D *>(widget)) {
     Layout2D *gd = qobject_cast<Layout2D *>(widget);
@@ -5214,9 +5392,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     if (previouswidget_ != gd)
       connect(gd, SIGNAL(AxisRectCreated(AxisRect2D *, MyWidget *)), this,
               SLOT(axisRectCreated(AxisRect2D *, MyWidget *)));
-    objectbrowser_->addTopLevelItems(objectitems_);
     previouswidget_ = gd;
-    objectbrowser_->insertTopLevelItems(0, objectitems_);
   } else if (qobject_cast<Layout3D *>(widget)) {
     objectbrowser_->setHeaderLabel(qobject_cast<Layout3D *>(widget)->name());
     objectbrowser_->headerItem()->setIcon(
@@ -5411,30 +5587,63 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       plot3ditem->setData(0, Qt::UserRole + 1, plot3dptvar);
       objectitems_.append(plot3ditem);
     }
-
-    // add to Tree
-    objectbrowser_->addTopLevelItems(objectitems_);
-    objectbrowser_->insertTopLevelItems(0, objectitems_);
-
   } else if (qobject_cast<Table *>(widget)) {
-    objectbrowser_->setHeaderLabel(qobject_cast<Table *>(widget)->name());
+    Table *table = qobject_cast<Table *>(widget);
+    objectbrowser_->setHeaderLabel(table->name());
     objectbrowser_->headerItem()->setIcon(
         0, IconLoader::load("table", IconLoader::LightDark));
+    // table window
+    {
+      QString tableitemtext = QString("Rows x Cols");
+      QTreeWidgetItem *tableitem = new QTreeWidgetItem(
+          static_cast<QTreeWidget *>(nullptr), QStringList(tableitemtext));
+      tableitem->setToolTip(0, tableitemtext);
+      tableitem->setIcon(0,
+                         IconLoader::load("goto-cell", IconLoader::LightDark));
+      tableitem->setData(
+          0, Qt::UserRole,
+          static_cast<int>(MyTreeWidget::PropertyItemType::TableWindow));
+      tableitem->setData(0, Qt::UserRole + 1,
+                         QVariant::fromValue<void *>(table));
+      objectitems_.append(tableitem);
+    }
+    tableConnections(table);
   } else if (qobject_cast<Note *>(widget)) {
     objectbrowser_->setHeaderLabel(qobject_cast<Note *>(widget)->name());
     objectbrowser_->headerItem()->setIcon(
         0, IconLoader::load("edit-note", IconLoader::LightDark));
   } else if (qobject_cast<Matrix *>(widget)) {
-    objectbrowser_->setHeaderLabel(qobject_cast<Matrix *>(widget)->name());
+    Matrix *matrix = qobject_cast<Matrix *>(widget);
+    objectbrowser_->setHeaderLabel(matrix->name());
     objectbrowser_->headerItem()->setIcon(
         0, IconLoader::load("matrix", IconLoader::LightDark));
+    // matrix window
+    {
+      QString matrixitemtext = QString(tr("Rows x Cols"));
+      QTreeWidgetItem *matrixitem = new QTreeWidgetItem(
+          static_cast<QTreeWidget *>(nullptr), QStringList(matrixitemtext));
+      matrixitem->setToolTip(0, matrixitemtext);
+      matrixitem->setIcon(0,
+                          IconLoader::load("goto-cell", IconLoader::LightDark));
+      matrixitem->setData(
+          0, Qt::UserRole,
+          static_cast<int>(MyTreeWidget::PropertyItemType::MatrixWindow));
+      matrixitem->setData(0, Qt::UserRole + 1,
+                          QVariant::fromValue<void *>(matrix));
+      objectitems_.append(matrixitem);
+    }
+    matrixConnections(matrix);
   } else {
     objectbrowser_->setHeaderLabel("(Unknown)");
     objectbrowser_->headerItem()->setIcon(
         0, IconLoader::load("clear-loginfo", IconLoader::General));
     qDebug() << "unknown Mywidget";
   }
+  // add to Tree
+  objectbrowser_->addTopLevelItems(objectitems_);
+  objectbrowser_->insertTopLevelItems(0, objectitems_);
   objectbrowser_->expandAll();
+  myWidgetConnections(widget);
   // always select toplevel item 0
   /*if (objectbrowser_->selectedItems().size() == 0 &&
       objectbrowser_->topLevelItemCount() > 0) {
@@ -5527,6 +5736,7 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
       }
     }
   });
+
   connect(axisrect, &AxisRect2D::TextItem2DCreated, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
@@ -5665,6 +5875,10 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
 }
 
 void PropertyEditor::setObjectPropertyId() {
+  // MyWidget Properties
+  mywidgetwindowrectitem_->setPropertyId("mywidgetwindowrectitem_");
+  mywidgetwindownameitem_->setPropertyId("mywidgetwindownameitem_");
+  mywidgetwindowlabelitem_->setPropertyId("mywidgetwindowlabelitem_");
   // Plot Canvas properties
   canvaspropertycoloritem_->setPropertyId("canvaspropertycoloritem_");
   canvaspropertybufferdevicepixelratioitem_->setPropertyId(
@@ -6278,4 +6492,11 @@ void PropertyEditor::setObjectPropertyId() {
       "plot3daxiscatagorytitlefixeditem_");
   plot3daxiscatagorytitletextitem_->setPropertyId(
       "plot3daxiscatagorytitletextitem_");
+
+  // Table
+  tablewindowrowcountitem_->setPropertyId("tablewindowrowcountitem_");
+  tablewindowcolcountitem_->setPropertyId("tablewindowcolcountitem_");
+  // Matrix
+  matrixwindowrowcountitem_->setPropertyId("matrixwindowrowcountitem_");
+  matrixwindowcolcountitem_->setPropertyId("matrixwindowcolcountitem_");
 }

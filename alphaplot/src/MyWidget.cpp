@@ -29,7 +29,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "MyWidget.h"
-#include "Folder.h"
 
 #include <QCloseEvent>
 #include <QEvent>
@@ -37,6 +36,8 @@
 #include <QMessageBox>
 #include <QString>
 #include <QtDebug>
+
+#include "Folder.h"
 
 MyWidget::MyWidget(const QString &label, QWidget *parent, const QString name,
                    Qt::WindowFlags f)
@@ -71,7 +72,7 @@ void MyWidget::updateCaption() {
 }
 
 void MyWidget::changeEvent(QEvent *event) {
-   if (!isHidden() && event->type() == QEvent::WindowStateChange) {
+  if (!isHidden() && event->type() == QEvent::WindowStateChange) {
     if (static_cast<QWindowStateChangeEvent *>(event)->oldState() ==
         windowState())
       return;
@@ -136,6 +137,16 @@ void MyWidget::contextMenuEvent(QContextMenuEvent *event) {
     emit showTitleBarMenu();
     event->accept();
   }
+}
+
+void MyWidget::resizeEvent(QResizeEvent *resizeEvent) {
+  emit geometrychange(this);
+  QMdiSubWindow::resizeEvent(resizeEvent);
+}
+
+void MyWidget::moveEvent(QMoveEvent *moveEvent) {
+  emit geometrychange(this);
+  QMdiSubWindow::moveEvent(moveEvent);
 }
 
 void MyWidget::setStatus(Status status) {

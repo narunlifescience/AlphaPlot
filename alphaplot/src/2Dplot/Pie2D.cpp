@@ -1,3 +1,19 @@
+/* This file is part of AlphaPlot.
+   Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+
+   AlphaPlot is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   AlphaPlot is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
+
+   Description : Pie2D */
+
 #include "Pie2D.h"
 
 #include "../future/core/column/Column.h"
@@ -8,14 +24,14 @@
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
-Pie2D::Pie2D(AxisRect2D *axisrect, Table *table, Column *xData, Column *yData,
-             int from, int to)
+Pie2D::Pie2D(AxisRect2D *axisrect, const Graph2DCommon::PieStyle &style,
+             Table *table, Column *xData, Column *yData, int from, int to)
     : QCPAbstractItem(axisrect->parentPlot()),
       // topLeft(createPosition(QLatin1String("topLeft"))),
       // bottomRight(createPosition(QLatin1String("bottomRight"))),
       axisrect_(axisrect),
       pieData_(new QVector<double>()),
-      style_(Style::Pie),
+      style_(style),
       pieColors_(new QVector<QColor>()),
       pieLegendItems_(new QVector<PieLegendItem2D *>()),
       layername_(QString("<Pie2D>") + QDateTime::currentDateTime().toString(
@@ -77,7 +93,7 @@ void Pie2D::setGraphData(Table *table, Column *xData, Column *yData, int from,
     sum += yData->valueAt(i);
   }
   for (int i = from; i <= to; i++) {
-    (style_ == Style::Pie)
+    (style_ == Graph2DCommon::PieStyle::Pie)
         ? pieData_->append((yData->valueAt(i) / sum) * (360 * 16))
         : pieData_->append((yData->valueAt(i) / sum) * (180 * 16));
     QColor color =
@@ -108,7 +124,7 @@ double Pie2D::getstrokethickness_pieplot() const { return mPen.widthF(); }
 
 int Pie2D::getmarginpercent_pieplot() const { return marginpercent_; }
 
-Pie2D::Style Pie2D::getStyle_pieplot() const { return style_; }
+Graph2DCommon::PieStyle Pie2D::getStyle_pieplot() const { return style_; }
 
 void Pie2D::setstrokestyle_pieplot(const Qt::PenStyle &style) {
   mPen.setStyle(style);
@@ -126,7 +142,7 @@ void Pie2D::setmarginpercent_pieplot(const int value) {
   marginpercent_ = value;
 }
 
-void Pie2D::setstyle_pieplot(const Pie2D::Style &style) {
+void Pie2D::setstyle_pieplot(const Graph2DCommon::PieStyle &style) {
   style_ = style;
   setGraphData(gettable_pieplot(), getxcolumn_pieplot(), getycolumn_pieplot(),
                getfrom_pieplot(), getto_pieplot());
@@ -206,10 +222,10 @@ void Pie2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeAttribute("to", QString::number(to_));
   // style
   switch (style_) {
-    case Pie2D::Style::Pie:
+    case Graph2DCommon::PieStyle::Pie:
       xmlwriter->writeAttribute("style", "pie");
       break;
-    case Pie2D::Style::HalfPie:
+    case Graph2DCommon::PieStyle::HalfPie:
       xmlwriter->writeAttribute("style", "halfpie");
   }
   xmlwriter->writeAttribute("marginpercent", QString::number(marginpercent_));
@@ -225,9 +241,9 @@ bool Pie2D::load(XmlStreamReader *xmlreader) {
     QString style = xmlreader->readAttributeString("style", &ok);
     if (ok) {
       if (style == "pie")
-        setstyle_pieplot(Pie2D::Style::Pie);
+        setstyle_pieplot(Graph2DCommon::PieStyle::Pie);
       else if (style == "halfpie")
-        setstyle_pieplot(Pie2D::Style::HalfPie);
+        setstyle_pieplot(Graph2DCommon::PieStyle::HalfPie);
       else
         xmlreader->raiseWarning(tr("Pie2D style property setting error"));
     } else

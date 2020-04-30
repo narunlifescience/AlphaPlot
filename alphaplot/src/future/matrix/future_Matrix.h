@@ -235,7 +235,6 @@ class Matrix : public AbstractPart
   void copySelection();
   void pasteIntoSelection();
   void clearSelectedCells();
-  void dimensionsDialog();
   void goToCell();
   //! Insert columns depending on the selection
   void insertEmptyColumns();
@@ -326,7 +325,6 @@ class Matrix : public AbstractPart
   QAction *action_select_all;
   QAction *action_clear_matrix;
   QAction *action_go_to_cell;
-  QAction *action_dimensions_dialog;
   QAction *action_edit_format;
   QAction *action_edit_coordinates;
   QAction *action_set_formula;
