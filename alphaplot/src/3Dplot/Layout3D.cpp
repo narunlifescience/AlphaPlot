@@ -2,9 +2,12 @@
 
 #include <ApplicationWindow.h>
 #include <QtCore/qmath.h>
+#include <QtDataVisualization/qutils.h>
 
 #include <Q3DInputHandler>
 #include <QDateTime>
+#include <QPropertyAnimation>
+#include <QSurfaceFormat>
 #include <QtDataVisualization/Q3DBars>
 #include <QtDataVisualization/Q3DScatter>
 #include <QtDataVisualization/Q3DSurface>
@@ -13,6 +16,8 @@
 #include <QtDataVisualization/QSurfaceDataProxy>
 
 #include "Bar3D.h"
+#include "Custom3DInteractions.h"
+#include "MyWidget.h"
 #include "Scatter3D.h"
 #include "Surface3D.h"
 #include "future/lib/XmlStreamReader.h"
@@ -35,40 +40,85 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
       surfacemodifier_(nullptr),
       barmodifier_(nullptr),
       scattermodifier_(nullptr),
-      matrix_(nullptr) {
+      custominter_(new Custom3DInteractions) {
   switch (plottype_) {
     case Graph3DCommon::Plot3DType::Surface: {
       graph3dsurface_ = new Q3DSurface();
-      graph3dsurface_->setFlags(Qt::FramelessWindowHint);
-      graph3dsurface_->setFlag(Qt::WindowType::SubWindow, true);
-      main_widget_ = createWindowContainer(graph3dsurface_);
+      main_widget_ = QWidget::createWindowContainer(graph3dsurface_);
       surfacemodifier_ = new Surface3D(graph3dsurface_);
+      graph_ = static_cast<QAbstract3DGraph *>(graph3dsurface_);
+      connect(surfacemodifier_, &Surface3D::dataAdded, this,
+              [&]() { emit dataAdded(this); });
     } break;
     case Graph3DCommon::Plot3DType::Bar: {
       graph3dbars_ = new Q3DBars();
-      graph3dbars_->setFlags(Qt::FramelessWindowHint);
-      graph3dbars_->setFlag(Qt::WindowType::SubWindow, true);
-      main_widget_ = createWindowContainer(graph3dbars_);
+      main_widget_ = QWidget::createWindowContainer(graph3dbars_);
       barmodifier_ = new Bar3D(graph3dbars_);
+      graph_ = static_cast<QAbstract3DGraph *>(graph3dbars_);
+      connect(barmodifier_, &Bar3D::dataAdded, this,
+              [&]() { emit dataAdded(this); });
     } break;
     case Graph3DCommon::Plot3DType::Scatter: {
       graph3dscatter_ = new Q3DScatter();
-      graph3dscatter_->setFlags(Qt::FramelessWindowHint);
-      graph3dscatter_->setFlag(Qt::WindowType::SubWindow, true);
-      main_widget_ = createWindowContainer(graph3dscatter_);
+      main_widget_ = QWidget::createWindowContainer(graph3dscatter_);
       scattermodifier_ = new Scatter3D(graph3dscatter_);
+      graph_ = static_cast<QAbstract3DGraph *>(graph3dscatter_);
+      connect(scattermodifier_, &Scatter3D::dataAdded, this,
+              [&]() { emit dataAdded(this); });
     } break;
   }
+
   main_widget_->setContentsMargins(0, 0, 0, 0);
+  QWidget *widget = new QWidget(this);
+  widget->setContentsMargins(0, 0, 0, 0);
+  QHBoxLayout *hLayout = new QHBoxLayout(widget);
+  hLayout->setMargin(0);
+  hLayout->addWidget(main_widget_, 1);
+  hLayout->setAlignment(Qt::AlignTop);
+  widget->setLayout(hLayout);
+  setWidget(widget);
+  main_widget_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  main_widget_->setFocusPolicy(Qt::StrongFocus);
+  widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  widget->setFocusPolicy(Qt::StrongFocus);
+
   if (name.isEmpty()) setObjectName("layout3d");
   QDateTime birthday = QDateTime::currentDateTime();
   setBirthDate(birthday.toString(Qt::LocalDate));
   setFocusPolicy(Qt::TabFocus);
 
-  setWidget(main_widget_);
   setGeometry(QRect(0, 0, defaultlayout2dwidth_, defaultlayout2dheight_));
   setMinimumSize(QSize(minimumlayout2dwidth_, minimumlayout2dheight_));
   setFocusPolicy(Qt::StrongFocus);
+
+  // setting general graph properties;
+  graph_->setFlags(graph_->flags() ^ Qt::FramelessWindowHint);
+  graph_->setActiveInputHandler(custominter_);
+  graph_->activeTheme()->setType(Q3DTheme::ThemeDigia);
+  graph_->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
+  graph_->scene()->activeCamera()->setCameraPreset(
+      Q3DCamera::CameraPresetFront);
+  // set animations
+  m_animationCameraX_ =
+      new QPropertyAnimation(graph_->scene()->activeCamera(), "xRotation");
+  m_animationCameraX_->setDuration(20000);
+  m_animationCameraX_->setStartValue(QVariant::fromValue(0.0f));
+  m_animationCameraX_->setEndValue(QVariant::fromValue(360.0f));
+  m_animationCameraX_->setLoopCount(-1);
+  upAnimation_ =
+      new QPropertyAnimation(graph_->scene()->activeCamera(), "yRotation");
+  upAnimation_->setDuration(10000);
+  upAnimation_->setStartValue(QVariant::fromValue(0.0f));
+  upAnimation_->setEndValue(QVariant::fromValue(65.0f));
+  downAnimation_ =
+      new QPropertyAnimation(graph_->scene()->activeCamera(), "yRotation");
+  downAnimation_->setDuration(10000);
+  downAnimation_->setStartValue(QVariant::fromValue(65.0f));
+  downAnimation_->setEndValue(QVariant::fromValue(0.0f));
+  m_animationCameraY_ = new QSequentialAnimationGroup();
+  m_animationCameraY_->setLoopCount(-1);
+  m_animationCameraY_->addAnimation(upAnimation_);
+  m_animationCameraY_->addAnimation(downAnimation_);
 }
 
 Layout3D::~Layout3D() {}
@@ -100,8 +150,24 @@ Scatter3D *Layout3D::getScatter3DModifier() const {
   }
 }
 
+void Layout3D::setCustomInteractions(QAbstract3DGraph *graph, bool status) {
+  std::unique_ptr<Q3DSurface> gg(new Q3DSurface);
+  (status) ? graph->setActiveInputHandler(custominter_)
+           : graph->setActiveInputHandler(gg->activeInputHandler());
+}
+
+void Layout3D::setAnimation(bool status) {
+  if (status) {
+    m_animationCameraX_->start();
+    m_animationCameraY_->start();
+  } else {
+    m_animationCameraX_->pause();
+    m_animationCameraY_->pause();
+  }
+}
+
 void Layout3D::exportGraph() {
-  std::unique_ptr<ImageExportDialog> ied(new ImageExportDialog(this));
+  std::unique_ptr<ImageExportDialog> ied(new ImageExportDialog(this, false));
   ied->enableraster_scale(false);
   ied->setraster_scale(1);
   ied->setraster_antialias(16);

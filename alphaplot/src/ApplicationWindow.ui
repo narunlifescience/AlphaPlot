@@ -106,10 +106,10 @@
      </property>
      <addaction name="actionShowFileToolbar"/>
      <addaction name="actionShowEditToolbar"/>
-     <addaction name="actionShowGraphToolbar"/>
-     <addaction name="actionShowPlotToolbar"/>
      <addaction name="actionShowTableToolbar"/>
+     <addaction name="actionShowPlotToolbar"/>
      <addaction name="actionShowMatrixPlotToolbar"/>
+     <addaction name="actionShowGraphToolbar"/>
      <addaction name="actionShow3DSurfacePlotToolbar"/>
     </widget>
     <addaction name="actionPlotWizard"/>
@@ -679,7 +679,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Graph</string>
+    <string>&amp;Plot2D Tools</string>
    </property>
   </action>
   <action name="actionShowPlotToolbar">
@@ -687,7 +687,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Plot</string>
+    <string>&amp;Table Plot</string>
    </property>
   </action>
   <action name="actionShowTableToolbar">
@@ -711,7 +711,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;3D Surface Plot</string>
+    <string>&amp;Plot3D Tools</string>
    </property>
   </action>
   <action name="actionLockToolbars">

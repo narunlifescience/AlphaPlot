@@ -273,6 +273,8 @@ class Matrix : public AbstractPart
 #ifdef LEGACY_CODE_0_2_x
   void recalculateSelectedCells();
 #endif
+  void showOnlyValues(const bool status);
+  bool getShowOnlyValues() const;
 
  signals:
   void columnsAboutToBeInserted(int before, int count);
@@ -352,6 +354,7 @@ class Matrix : public AbstractPart
 
   MatrixView *d_view;
   Private *d_matrix_private;
+  bool showonlyvalues_;
 };
 
 /**

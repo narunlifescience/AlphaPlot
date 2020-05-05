@@ -2,8 +2,8 @@
 #define DATAMANAGER3D_H
 
 #include <QList>
-#include <QtDataVisualization/QScatterDataArray>
 #include <QtDataVisualization/QBarDataArray>
+#include <QtDataVisualization/QScatterDataArray>
 #include <QtDataVisualization/QSurfaceDataArray>
 
 #include "Graph3DCommon.h"
@@ -22,6 +22,7 @@ class QItemModelBarDataProxy;
 class QScatterDataProxy;
 class QScatter3DSeries;
 class QItemModelScatterDataProxy;
+class QAbstract3DSeries;
 }  // namespace QtDataVisualization
 
 class DataBlockAbstract3D {
@@ -31,36 +32,38 @@ class DataBlockAbstract3D {
   Table *gettable() const { return table_; }
   Column *getxcolumn() const { return xcolumn_; }
   Column *getycolumn() { return ycolumn_; }
-  QList<Column *> getzcolumns() { return zcolumns_; }
+  Column *getzcolumn() { return zcolumn_; }
+  Graph3DCommon::Gradient getgradient() { return gradient_; }
 
   // setters
   void setmatrix(Matrix *matrix) { matrix_ = matrix; }
   void settable(Table *table) { table_ = table; }
   void setxcolumn(Column *column) { xcolumn_ = column; }
   void setycolumn(Column *column) { ycolumn_ = column; }
-  void setzcolumns(QList<Column *> columns) { zcolumns_ = columns; }
+  void setzcolumns(Column *column) { zcolumn_ = column; }
+  void setgradient(QtDataVisualization::QAbstract3DSeries *series,
+                   const Graph3DCommon::Gradient &gradient);
 
  protected:
   DataBlockAbstract3D();
   DataBlockAbstract3D(Matrix *matrix);
   DataBlockAbstract3D(Table *table, Column *xcolumn, Column *ycolumn,
                       Column *zcolumn);
-  DataBlockAbstract3D(Table *table, Column *xcolumn, Column *ycolumn,
-                      QList<Column *> zcolumns);
   ~DataBlockAbstract3D();
 
   Matrix *matrix_;
   Table *table_;
   Column *xcolumn_;
   Column *ycolumn_;
-  QList<Column *> zcolumns_;
+  Column *zcolumn_;
+  Graph3DCommon::Gradient gradient_;
 };
 
 class DataBlockSurface3D : public DataBlockAbstract3D {
  public:
   DataBlockSurface3D(Matrix *matrix);
   DataBlockSurface3D(Table *table, Column *xcolumn, Column *ycolumn,
-                     QList<Column *> zcolumns);
+                     Column *zcolumn);
   DataBlockSurface3D(QList<QPair<QPair<double, double>, double>> *data,
                      const Graph3DCommon::Function3DData &funcdata);
   ~DataBlockSurface3D();
@@ -97,13 +100,10 @@ class DataBlockBar3D : public DataBlockAbstract3D {
   DataBlockBar3D(Matrix *matrix);
   DataBlockBar3D(Table *table, Column *xcolumn, Column *ycolumn,
                  Column *zcolumn);
-  DataBlockBar3D(Table *table, Column *xcolumn, Column *ycolumn,
-                 QList<Column *> zcolumns);
   ~DataBlockBar3D();
 
   void regenerateDataBlockModel();
   void regenerateDataBlockXYZValue();
-  void regenerateDataBlockXYnZValue();
 
   // getters
   QtDataVisualization::QBarDataArray *getvaluedataarray() {
@@ -129,14 +129,11 @@ class DataBlockScatter3D : public DataBlockAbstract3D {
  public:
   DataBlockScatter3D(Matrix *matrix);
   DataBlockScatter3D(Table *table, Column *xcolumn, Column *ycolumn,
-                 Column *zcolumn);
-  DataBlockScatter3D(Table *table, Column *xcolumn, Column *ycolumn,
-                 QList<Column *> zcolumns);
+                     Column *zcolumn);
   ~DataBlockScatter3D();
 
   void regenerateDataBlockModel();
   void regenerateDataBlockXYZValue();
-  void regenerateDataBlockXYnZValue();
 
   // getters
   QtDataVisualization::QScatterDataArray *getvaluedataarray() {
@@ -146,16 +143,12 @@ class DataBlockScatter3D : public DataBlockAbstract3D {
     return valueDataProxy_;
   }
   QtDataVisualization::QScatter3DSeries *getdataseries() { return dataSeries_; }
-  QtDataVisualization::QItemModelScatterDataProxy *getmodeldataproxy() {
-    return modelDataProxy_;
-  }
   bool ismatrix();
 
  private:
   QtDataVisualization::QScatterDataArray *valueDataArray_;
   QtDataVisualization::QScatterDataProxy *valueDataProxy_;
   QtDataVisualization::QScatter3DSeries *dataSeries_;
-  QtDataVisualization::QItemModelScatterDataProxy *modelDataProxy_;
 };
 
 #endif  // DATAMANAGER3D_H

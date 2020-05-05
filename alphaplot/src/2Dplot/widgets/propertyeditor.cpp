@@ -20,6 +20,9 @@
 #include <QSplitter>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+#include <QtDataVisualization/QBar3DSeries>
+#include <QtDataVisualization/QScatter3DSeries>
+#include <QtDataVisualization/QSurface3DSeries>
 
 #include "../3rdparty/propertybrowser/qteditorfactory.h"
 #include "../3rdparty/propertybrowser/qtpropertymanager.h"
@@ -33,6 +36,7 @@
 #include "2Dplot/LineItem2D.h"
 #include "2Dplot/LineSpecial2D.h"
 #include "3Dplot/Bar3D.h"
+#include "3Dplot/DataManager3D.h"
 #include "3Dplot/Graph3DCommon.h"
 #include "3Dplot/Layout3D.h"
 #include "3Dplot/Scatter3D.h"
@@ -44,6 +48,8 @@
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "ui_propertyeditor.h"
+
+using namespace QtDataVisualization;
 
 PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
     : QDockWidget(parent),
@@ -1123,6 +1129,141 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
       boolManager_->addProperty(tr("Title Fixed"));
   plot3daxiscatagorytitletextitem_ = stringManager_->addProperty("Label Text");
 
+  // Plot3D Surface
+  QStringList shadowquality;
+  shadowquality << "ShadowQualityNone"
+                << "ShadowQualityLow"
+                << "ShadowQualityMedium"
+                << "ShadowQualityHigh"
+                << "ShadowQualitySoftLow"
+                << "ShadowQualitySoftMedium"
+                << "ShadowQualitySoftHigh";
+  plot3dsurfacefliphorizontalgriditem_ =
+      boolManager_->addProperty(tr("Flip Horizontal Grid"));
+  plot3dsurfaceaspectratioitem_ =
+      doubleManager_->addProperty(tr("Aspectratio"));
+  plot3dsurfacehorizontalaspectratioitem_ =
+      doubleManager_->addProperty(tr("Horizontal Aspectratio"));
+  plot3dsurfaceshadowqualityitem_ =
+      enumManager_->addProperty(tr("Shadow Quality"));
+  enumManager_->setEnumNames(plot3dsurfaceshadowqualityitem_, shadowquality);
+  plot3dsurfaceorthoprojectionstatusitem_ =
+      boolManager_->addProperty(tr("Ortho Projection"));
+  ;
+  plot3dsurfacepolarstatusitem_ =
+      boolManager_->addProperty(tr("Polar Coords X"));
+  // plot3D Bar
+  plot3dbarspacingxitem_ = doubleManager_->addProperty(tr("Spacing X"));
+  plot3dbarspacingyitem_ = doubleManager_->addProperty(tr("Spacing Y"));
+  plot3dbarspacingrelativeitem_ =
+      boolManager_->addProperty(tr("Relative Spacing"));
+  plot3dbarthicknessitem_ = doubleManager_->addProperty(tr("Thickness"));
+  plot3dbaraspectratioitem_ = doubleManager_->addProperty(tr("Aspectratio"));
+  plot3dbarhorizontalaspectratioitem_ =
+      doubleManager_->addProperty(tr("Horizontal Aspectratio"));
+  plot3dbarshadowqualityitem_ = enumManager_->addProperty(tr("Shadow Quality"));
+  enumManager_->setEnumNames(plot3dbarshadowqualityitem_, shadowquality);
+  plot3dbarorthoprojectionstatusitem_ =
+      boolManager_->addProperty(tr("Ortho Projection"));
+  ;
+  plot3dbarpolarstatusitem_ = boolManager_->addProperty(tr("Polar Coords X"));
+  // Plot3D Scatter
+  plot3dscatteraspectratioitem_ =
+      doubleManager_->addProperty(tr("Aspectratio"));
+  plot3dscatterhorizontalaspectratioitem_ =
+      doubleManager_->addProperty(tr("Horizontal Aspectratio"));
+  plot3dscattershadowqualityitem_ =
+      enumManager_->addProperty(tr("Shadow Quality"));
+  enumManager_->setEnumNames(plot3dscattershadowqualityitem_, shadowquality);
+  plot3dscatterorthoprojectionstatusitem_ =
+      boolManager_->addProperty(tr("Ortho Projection"));
+  ;
+  plot3dscatterpolarstatusitem_ =
+      boolManager_->addProperty(tr("Polar Coords X"));
+  // Plot3D Surface Series
+  QStringList drawmodelist;
+  QStringList meshlist;
+  QStringList colorstylelist;
+  drawmodelist << "Wireframe"
+               << "Surface"
+               << "WireframeAndSurface";
+  meshlist << "MeshBar"
+           << "MeshCube"
+           << "MeshPyramid"
+           << "MeshCone"
+           << "MeshCylinder"
+           << "MeshBevelBar"
+           << "MeshBevelCube"
+           << "MeshSphere"
+           << "MeshMinimal"
+           << "MeshArrow"
+           << "MeshPoint";
+  colorstylelist << "Solid Color"
+                 << "Gradient Full"
+                 << "Gradient Range";
+  QStringList gradientlist3d;
+  gradientlist3d << "Grayscale"
+                 << "Hot"
+                 << "Cold"
+                 << "Night"
+                 << "Candy"
+                 << "Geography"
+                 << "Ion"
+                 << "Thermal"
+                 << "Polar"
+                 << "Spectrum"
+                 << "Jet"
+                 << "Hues"
+                 << "BBRY"
+                 << "GYRD";
+  plot3dsurfaceseriesvisibleitem_ = boolManager_->addProperty(tr("Visible"));
+  plot3dsurfaceseriesflatshadingstatusitem_ =
+      boolManager_->addProperty(tr("Flat Shading"));
+  plot3dsurfaceseriesdrawitem_ = enumManager_->addProperty("Draw");
+  enumManager_->setEnumNames(plot3dsurfaceseriesdrawitem_, drawmodelist);
+  plot3dsurfaceseriesmeshsmoothitem_ =
+      boolManager_->addProperty(tr("Mesh Smooth"));
+  plot3dsurfaceseriescolorstyleitem_ = enumManager_->addProperty("Color Style");
+  enumManager_->setEnumNames(plot3dsurfaceseriescolorstyleitem_,
+                             colorstylelist);
+  plot3dsurfaceseriesbasecoloritem_ = colorManager_->addProperty("Color");
+  plot3dsurfaceseriesbasegradiantitem_ =
+      enumManager_->addProperty("Gradient Color");
+  enumManager_->setEnumNames(plot3dsurfaceseriesbasegradiantitem_,
+                             gradientlist3d);
+  plot3dsurfaceserieshighlightcoloritem_ =
+      colorManager_->addProperty("Highlight Color");
+  // Plot3D Bar Series
+  plot3dbarseriesvisibleitem_ = boolManager_->addProperty(tr("Visible"));
+  plot3dbarseriesmeshitem_ = enumManager_->addProperty("Mesh");
+  enumManager_->setEnumNames(plot3dbarseriesmeshitem_, meshlist);
+  plot3dbarseriesmeshsmoothitem_ = boolManager_->addProperty(tr("Mesh Smooth"));
+  plot3dbarseriescolorstyleitem_ = enumManager_->addProperty("Color Style");
+  enumManager_->setEnumNames(plot3dbarseriescolorstyleitem_, colorstylelist);
+  plot3dbarseriesbasecoloritem_ = colorManager_->addProperty("Color");
+  plot3dbarseriesbasegradiantitem_ =
+      enumManager_->addProperty("Gradient Color");
+  enumManager_->setEnumNames(plot3dbarseriesbasegradiantitem_, gradientlist3d);
+  plot3dbarserieshighlightcoloritem_ =
+      colorManager_->addProperty("Highlight Color");
+  // Plot3D Scatter Series
+  plot3dscatterseriesvisibleitem_ = boolManager_->addProperty(tr("Visible"));
+  plot3dscatterseriessizeitem_ = doubleManager_->addProperty(tr("Size"));
+  plot3dscatterseriesmeshitem_ = enumManager_->addProperty("Mesh");
+  enumManager_->setEnumNames(plot3dscatterseriesmeshitem_, meshlist);
+  plot3dscatterseriesmeshsmoothitem_ =
+      boolManager_->addProperty(tr("Mesh Smooth"));
+  plot3dscatterseriescolorstyleitem_ = enumManager_->addProperty("Color Style");
+  enumManager_->setEnumNames(plot3dscatterseriescolorstyleitem_,
+                             colorstylelist);
+  plot3dscatterseriesbasecoloritem_ = colorManager_->addProperty("Color");
+  plot3dscatterseriesbasegradiantitem_ =
+      enumManager_->addProperty("Gradient Color");
+  enumManager_->setEnumNames(plot3dscatterseriesbasegradiantitem_,
+                             gradientlist3d);
+  plot3dscatterserieshighlightcoloritem_ =
+      colorManager_->addProperty("Highlight Color");
+
   // Table
   tablewindowrowcountitem_ = intManager_->addProperty("Row Count");
   tablewindowcolcountitem_ = intManager_->addProperty("Column Count");
@@ -1508,6 +1649,63 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     QCategory3DAxis *axis =
         getgraph2dobject<QCategory3DAxis>(objectbrowser_->currentItem());
     axis->setTitleFixed(value);
+  } else if (prop->compare(plot3dsurfacefliphorizontalgriditem_)) {
+    Surface3D *surface =
+        getgraph2dobject<Surface3D>(objectbrowser_->currentItem());
+    surface->getGraph()->setFlipHorizontalGrid(value);
+  } else if (prop->compare(plot3dbarspacingrelativeitem_)) {
+    Bar3D *bar = getgraph2dobject<Bar3D>(objectbrowser_->currentItem());
+    bar->getGraph()->setBarSpacingRelative(value);
+  } else if (prop->compare(plot3dsurfaceorthoprojectionstatusitem_)) {
+    Surface3D *surface =
+        getgraph2dobject<Surface3D>(objectbrowser_->currentItem());
+    surface->getGraph()->setOrthoProjection(value);
+  } else if (prop->compare(plot3dsurfacepolarstatusitem_)) {
+    Surface3D *surface =
+        getgraph2dobject<Surface3D>(objectbrowser_->currentItem());
+    surface->getGraph()->setPolar(value);
+  } else if (prop->compare(plot3dbarorthoprojectionstatusitem_)) {
+    Bar3D *bar = getgraph2dobject<Bar3D>(objectbrowser_->currentItem());
+    bar->getGraph()->setOrthoProjection(value);
+  } else if (prop->compare(plot3dbarpolarstatusitem_)) {
+    Bar3D *bar = getgraph2dobject<Bar3D>(objectbrowser_->currentItem());
+    bar->getGraph()->setPolar(value);
+  } else if (prop->compare(plot3dscatterorthoprojectionstatusitem_)) {
+    Scatter3D *scatter =
+        getgraph2dobject<Scatter3D>(objectbrowser_->currentItem());
+    scatter->getGraph()->setOrthoProjection(value);
+  } else if (prop->compare(plot3dscatterpolarstatusitem_)) {
+    Scatter3D *scatter =
+        getgraph2dobject<Scatter3D>(objectbrowser_->currentItem());
+    scatter->getGraph()->setPolar(value);
+  } else if (prop->compare(plot3dsurfaceseriesvisibleitem_)) {
+    DataBlockSurface3D *block =
+        getgraph2dobject<DataBlockSurface3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setVisible(value);
+  } else if (prop->compare(plot3dsurfaceseriesflatshadingstatusitem_)) {
+    DataBlockSurface3D *block =
+        getgraph2dobject<DataBlockSurface3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setFlatShadingEnabled(value);
+  } else if (prop->compare(plot3dsurfaceseriesmeshsmoothitem_)) {
+    DataBlockSurface3D *block =
+        getgraph2dobject<DataBlockSurface3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setMeshSmooth(value);
+  } else if (prop->compare(plot3dbarseriesvisibleitem_)) {
+    DataBlockBar3D *block =
+        getgraph2dobject<DataBlockBar3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setVisible(value);
+  } else if (prop->compare(plot3dbarseriesmeshsmoothitem_)) {
+    DataBlockBar3D *block =
+        getgraph2dobject<DataBlockBar3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setMeshSmooth(value);
+  } else if (prop->compare(plot3dscatterseriesvisibleitem_)) {
+    DataBlockScatter3D *block =
+        getgraph2dobject<DataBlockScatter3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setVisible(value);
+  } else if (prop->compare(plot3dscatterseriesmeshsmoothitem_)) {
+    DataBlockScatter3D *block =
+        getgraph2dobject<DataBlockScatter3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setMeshSmooth(value);
   } else {
     qDebug() << "unknown bool property item";
   }
@@ -1852,7 +2050,32 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
   } else if (prop->compare(plot3dcanvaslabeltextcoloritem_)) {
     Q3DTheme *theme = getgraph2dobject<Q3DTheme>(objectbrowser_->currentItem());
     theme->setLabelTextColor(color);
-  }
+  } else if (prop->compare(plot3dsurfaceseriesbasecoloritem_)) {
+    DataBlockSurface3D *block =
+        getgraph2dobject<DataBlockSurface3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setBaseColor(color);
+  } else if (prop->compare(plot3dsurfaceserieshighlightcoloritem_)) {
+    DataBlockSurface3D *block =
+        getgraph2dobject<DataBlockSurface3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setSingleHighlightColor(color);
+  } else if (prop->compare(plot3dbarseriesbasecoloritem_)) {
+    DataBlockBar3D *block =
+        getgraph2dobject<DataBlockBar3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setBaseColor(color);
+  } else if (prop->compare(plot3dbarserieshighlightcoloritem_)) {
+    DataBlockBar3D *block =
+        getgraph2dobject<DataBlockBar3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setSingleHighlightColor(color);
+  } else if (prop->compare(plot3dscatterseriesbasecoloritem_)) {
+    DataBlockScatter3D *block =
+        getgraph2dobject<DataBlockScatter3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setBaseColor(color);
+  } else if (prop->compare(plot3dscatterserieshighlightcoloritem_)) {
+    DataBlockScatter3D *block =
+        getgraph2dobject<DataBlockScatter3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setSingleHighlightColor(color);
+  } else
+    qDebug() << "unknown color item";
 
   connect(colorManager_, SIGNAL(valueChanged(QtProperty *, QColor)), this,
           SLOT(valueChange(QtProperty *, const QColor &)));
@@ -2313,7 +2536,47 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
     QCategory3DAxis *axis =
         getgraph2dobject<QCategory3DAxis>(objectbrowser_->currentItem());
     axis->setLabelAutoRotation(value);
-  }
+  } else if (prop->compare(plot3dsurfaceaspectratioitem_)) {
+    Surface3D *surface =
+        getgraph2dobject<Surface3D>(objectbrowser_->currentItem());
+    surface->getGraph()->setAspectRatio(value);
+  } else if (prop->compare(plot3dsurfacehorizontalaspectratioitem_)) {
+    Surface3D *surface =
+        getgraph2dobject<Surface3D>(objectbrowser_->currentItem());
+    surface->getGraph()->setHorizontalAspectRatio(value);
+  } else if (prop->compare(plot3dbarspacingxitem_)) {
+    Bar3D *bar = getgraph2dobject<Bar3D>(objectbrowser_->currentItem());
+    QSizeF size = bar->getGraph()->barSpacing();
+    size.setWidth(value);
+    bar->getGraph()->setBarSpacing(size);
+  } else if (prop->compare(plot3dbarspacingyitem_)) {
+    Bar3D *bar = getgraph2dobject<Bar3D>(objectbrowser_->currentItem());
+    QSizeF size = bar->getGraph()->barSpacing();
+    size.setHeight(value);
+    bar->getGraph()->setBarSpacing(size);
+  } else if (prop->compare(plot3dbarthicknessitem_)) {
+    Bar3D *bar = getgraph2dobject<Bar3D>(objectbrowser_->currentItem());
+    bar->getGraph()->setBarThickness(value);
+  } else if (prop->compare(plot3dbaraspectratioitem_)) {
+    Bar3D *bar = getgraph2dobject<Bar3D>(objectbrowser_->currentItem());
+    bar->getGraph()->setAspectRatio(value);
+  } else if (prop->compare(plot3dbarhorizontalaspectratioitem_)) {
+    Bar3D *bar = getgraph2dobject<Bar3D>(objectbrowser_->currentItem());
+    bar->getGraph()->setHorizontalAspectRatio(value);
+  } else if (prop->compare(plot3dscatteraspectratioitem_)) {
+    Scatter3D *scatter =
+        getgraph2dobject<Scatter3D>(objectbrowser_->currentItem());
+    scatter->getGraph()->setAspectRatio(value);
+  } else if (prop->compare(plot3dscatterhorizontalaspectratioitem_)) {
+    Scatter3D *scatter =
+        getgraph2dobject<Scatter3D>(objectbrowser_->currentItem());
+    scatter->getGraph()->setHorizontalAspectRatio(value);
+  } else if (prop->compare(plot3dscatterseriessizeitem_)) {
+    DataBlockScatter3D *block =
+        getgraph2dobject<DataBlockScatter3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setItemSize(value);
+  } else
+    qDebug() << "unknown double property item";
 }
 
 void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
@@ -3042,6 +3305,65 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     QAbstract3DGraph *graph =
         getgraph2dobject<QAbstract3DGraph>(objectbrowser_->currentItem());
     graph->activeTheme()->setType(static_cast<Q3DTheme::Theme>(value));
+  } else if (prop->compare(plot3dsurfaceshadowqualityitem_)) {
+    Surface3D *surface =
+        getgraph2dobject<Surface3D>(objectbrowser_->currentItem());
+    surface->getGraph()->setShadowQuality(
+        static_cast<QAbstract3DGraph::ShadowQuality>(value));
+  } else if (prop->compare(plot3dbarshadowqualityitem_)) {
+    Bar3D *bar = getgraph2dobject<Bar3D>(objectbrowser_->currentItem());
+    bar->getGraph()->setShadowQuality(
+        static_cast<QAbstract3DGraph::ShadowQuality>(value));
+  } else if (prop->compare(plot3dscattershadowqualityitem_)) {
+    Scatter3D *scatter =
+        getgraph2dobject<Scatter3D>(objectbrowser_->currentItem());
+    scatter->getGraph()->setShadowQuality(
+        static_cast<QAbstract3DGraph::ShadowQuality>(value));
+  } else if (prop->compare(plot3dsurfaceseriesdrawitem_)) {
+    DataBlockSurface3D *block =
+        getgraph2dobject<DataBlockSurface3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setDrawMode(
+        static_cast<QSurface3DSeries::DrawFlag>(value + 1));
+  } else if (prop->compare(plot3dsurfaceseriescolorstyleitem_)) {
+    DataBlockSurface3D *block =
+        getgraph2dobject<DataBlockSurface3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setColorStyle(
+        static_cast<Q3DTheme::ColorStyle>(value));
+  } else if (prop->compare(plot3dsurfaceseriesbasegradiantitem_)) {
+    DataBlockSurface3D *block =
+        getgraph2dobject<DataBlockSurface3D>(objectbrowser_->currentItem());
+    block->setgradient(block->getdataseries(),
+                       static_cast<Graph3DCommon::Gradient>(value));
+  } else if (prop->compare(plot3dbarseriesmeshitem_)) {
+    DataBlockBar3D *block =
+        getgraph2dobject<DataBlockBar3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setMesh(
+        static_cast<QAbstract3DSeries::Mesh>(value - 1));
+  } else if (prop->compare(plot3dbarseriescolorstyleitem_)) {
+    DataBlockBar3D *block =
+        getgraph2dobject<DataBlockBar3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setColorStyle(
+        static_cast<Q3DTheme::ColorStyle>(value));
+  } else if (prop->compare(plot3dbarseriesbasegradiantitem_)) {
+    DataBlockBar3D *block =
+        getgraph2dobject<DataBlockBar3D>(objectbrowser_->currentItem());
+    block->setgradient(block->getdataseries(),
+                       static_cast<Graph3DCommon::Gradient>(value));
+  } else if (prop->compare(plot3dscatterseriesmeshitem_)) {
+    DataBlockScatter3D *block =
+        getgraph2dobject<DataBlockScatter3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setMesh(
+        static_cast<QAbstract3DSeries::Mesh>(value - 1));
+  } else if (prop->compare(plot3dscatterseriescolorstyleitem_)) {
+    DataBlockScatter3D *block =
+        getgraph2dobject<DataBlockScatter3D>(objectbrowser_->currentItem());
+    block->getdataseries()->setColorStyle(
+        static_cast<Q3DTheme::ColorStyle>(value));
+  } else if (prop->compare(plot3dscatterseriesbasegradiantitem_)) {
+    DataBlockScatter3D *block =
+        getgraph2dobject<DataBlockScatter3D>(objectbrowser_->currentItem());
+    block->setgradient(block->getdataseries(),
+                       static_cast<Graph3DCommon::Gradient>(value));
   } else
     qDebug() << "unknown enum property";
 }
@@ -3258,6 +3580,21 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
       Scatter3D *scatter = static_cast<Scatter3D *>(ptr1);
       Scatter3DPropertyBlock(scatter);
+    } break;
+    case MyTreeWidget::PropertyItemType::Plot3DSurfaceDataBlock: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      DataBlockSurface3D *block = static_cast<DataBlockSurface3D *>(ptr1);
+      Surface3DSeriesPropertyBlock(block);
+    } break;
+    case MyTreeWidget::PropertyItemType::Plot3DBarDataBlock: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      DataBlockBar3D *block = static_cast<DataBlockBar3D *>(ptr1);
+      Bar3DSeriesPropertyBlock(block);
+    } break;
+    case MyTreeWidget::PropertyItemType::Plot3DScatterDataBlock: {
+      void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
+      DataBlockScatter3D *block = static_cast<DataBlockScatter3D *>(ptr1);
+      Scatter3DSeriesPropertyBlock(block);
     } break;
     case MyTreeWidget::PropertyItemType::TableWindow: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
@@ -4512,14 +4849,168 @@ void PropertyEditor::Axis3DCatagoryPropertyBlock(QCategory3DAxis *axis) {
 
 void PropertyEditor::Surface3DPropertyBlock(Surface3D *surface) {
   propertybrowser_->clear();
+
+  propertybrowser_->addProperty(plot3dsurfaceaspectratioitem_);
+  propertybrowser_->addProperty(plot3dsurfacehorizontalaspectratioitem_);
+  propertybrowser_->addProperty(plot3dsurfaceshadowqualityitem_);
+  propertybrowser_->addProperty(plot3dsurfacefliphorizontalgriditem_);
+  propertybrowser_->addProperty(plot3dsurfaceorthoprojectionstatusitem_);
+  propertybrowser_->addProperty(plot3dsurfacepolarstatusitem_);
+
+  doubleManager_->setValue(plot3dsurfaceaspectratioitem_,
+                           surface->getGraph()->aspectRatio());
+  doubleManager_->setValue(plot3dsurfacehorizontalaspectratioitem_,
+                           surface->getGraph()->horizontalAspectRatio());
+  enumManager_->setValue(
+      plot3dsurfaceshadowqualityitem_,
+      static_cast<int>(surface->getGraph()->shadowQuality()));
+  boolManager_->setValue(plot3dsurfacefliphorizontalgriditem_,
+                         surface->getGraph()->flipHorizontalGrid());
+  boolManager_->setValue(plot3dsurfaceorthoprojectionstatusitem_,
+                         surface->getGraph()->isOrthoProjection());
+  boolManager_->setValue(plot3dsurfacepolarstatusitem_,
+                         surface->getGraph()->isPolar());
 }
 
 void PropertyEditor::Bar3DPropertyBlock(Bar3D *bar) {
   propertybrowser_->clear();
+
+  propertybrowser_->addProperty(plot3dbaraspectratioitem_);
+  propertybrowser_->addProperty(plot3dbarhorizontalaspectratioitem_);
+  propertybrowser_->addProperty(plot3dbarshadowqualityitem_);
+  propertybrowser_->addProperty(plot3dbarspacingxitem_);
+  propertybrowser_->addProperty(plot3dbarspacingyitem_);
+  propertybrowser_->addProperty(plot3dbarspacingrelativeitem_);
+  propertybrowser_->addProperty(plot3dbarthicknessitem_);
+  propertybrowser_->addProperty(plot3dbarorthoprojectionstatusitem_);
+  propertybrowser_->addProperty(plot3dbarpolarstatusitem_);
+
+  doubleManager_->setValue(plot3dbaraspectratioitem_,
+                           bar->getGraph()->aspectRatio());
+  doubleManager_->setValue(plot3dbarhorizontalaspectratioitem_,
+                           bar->getGraph()->horizontalAspectRatio());
+  enumManager_->setValue(plot3dbarshadowqualityitem_,
+                         static_cast<int>(bar->getGraph()->shadowQuality()));
+  doubleManager_->setValue(plot3dbarspacingxitem_,
+                           bar->getGraph()->barSpacing().width());
+  doubleManager_->setValue(plot3dbarspacingyitem_,
+                           bar->getGraph()->barSpacing().height());
+  boolManager_->setValue(plot3dbarspacingrelativeitem_,
+                         bar->getGraph()->isBarSpacingRelative());
+  doubleManager_->setValue(plot3dbarthicknessitem_,
+                           bar->getGraph()->barThickness());
+  boolManager_->setValue(plot3dbarorthoprojectionstatusitem_,
+                         bar->getGraph()->isOrthoProjection());
+  boolManager_->setValue(plot3dbarpolarstatusitem_, bar->getGraph()->isPolar());
 }
 
 void PropertyEditor::Scatter3DPropertyBlock(Scatter3D *scatter) {
   propertybrowser_->clear();
+
+  propertybrowser_->addProperty(plot3dscatteraspectratioitem_);
+  propertybrowser_->addProperty(plot3dscatterhorizontalaspectratioitem_);
+  propertybrowser_->addProperty(plot3dscattershadowqualityitem_);
+  propertybrowser_->addProperty(plot3dscatterorthoprojectionstatusitem_);
+  propertybrowser_->addProperty(plot3dscatterpolarstatusitem_);
+
+  doubleManager_->setValue(plot3dscatteraspectratioitem_,
+                           scatter->getGraph()->aspectRatio());
+  doubleManager_->setValue(plot3dscatterhorizontalaspectratioitem_,
+                           scatter->getGraph()->horizontalAspectRatio());
+  enumManager_->setValue(
+      plot3dscattershadowqualityitem_,
+      static_cast<int>(scatter->getGraph()->shadowQuality()));
+  boolManager_->setValue(plot3dscatterorthoprojectionstatusitem_,
+                         scatter->getGraph()->isOrthoProjection());
+  boolManager_->setValue(plot3dscatterpolarstatusitem_,
+                         scatter->getGraph()->isPolar());
+}
+
+void PropertyEditor::Surface3DSeriesPropertyBlock(DataBlockSurface3D *block) {
+  propertybrowser_->clear();
+
+  propertybrowser_->addProperty(plot3dsurfaceseriesvisibleitem_);
+  if (block->getdataseries()->isFlatShadingSupported())
+    propertybrowser_->addProperty(plot3dsurfaceseriesflatshadingstatusitem_);
+  propertybrowser_->addProperty(plot3dsurfaceseriesdrawitem_);
+  propertybrowser_->addProperty(plot3dsurfaceseriesmeshsmoothitem_);
+  propertybrowser_->addProperty(plot3dsurfaceseriescolorstyleitem_);
+  propertybrowser_->addProperty(plot3dsurfaceseriesbasecoloritem_);
+  propertybrowser_->addProperty(plot3dsurfaceseriesbasegradiantitem_);
+  propertybrowser_->addProperty(plot3dsurfaceserieshighlightcoloritem_);
+
+  boolManager_->setValue(plot3dsurfaceseriesvisibleitem_,
+                         block->getdataseries()->isVisible());
+  if (block->getdataseries()->isFlatShadingSupported())
+    boolManager_->setValue(plot3dsurfaceseriesflatshadingstatusitem_,
+                           block->getdataseries()->isFlatShadingEnabled());
+  enumManager_->setValue(plot3dsurfaceseriesdrawitem_,
+                         block->getdataseries()->drawMode() - 1);
+  boolManager_->setValue(plot3dsurfaceseriesmeshsmoothitem_,
+                         block->getdataseries()->isMeshSmooth());
+  enumManager_->setValue(plot3dsurfaceseriescolorstyleitem_,
+                         block->getdataseries()->colorStyle());
+  colorManager_->setValue(plot3dsurfaceseriesbasecoloritem_,
+                          block->getdataseries()->baseColor());
+  enumManager_->setValue(plot3dsurfaceseriesbasegradiantitem_,
+                         static_cast<int>(block->getgradient()));
+  colorManager_->setValue(plot3dsurfaceserieshighlightcoloritem_,
+                          block->getdataseries()->singleHighlightColor());
+}
+
+void PropertyEditor::Bar3DSeriesPropertyBlock(DataBlockBar3D *block) {
+  propertybrowser_->clear();
+  propertybrowser_->addProperty(plot3dbarseriesvisibleitem_);
+  propertybrowser_->addProperty(plot3dbarseriesmeshitem_);
+  propertybrowser_->addProperty(plot3dbarseriesmeshsmoothitem_);
+  propertybrowser_->addProperty(plot3dbarseriescolorstyleitem_);
+  propertybrowser_->addProperty(plot3dbarseriesbasecoloritem_);
+  propertybrowser_->addProperty(plot3dbarseriesbasegradiantitem_);
+  propertybrowser_->addProperty(plot3dbarserieshighlightcoloritem_);
+
+  boolManager_->setValue(plot3dbarseriesvisibleitem_,
+                         block->getdataseries()->isVisible());
+  enumManager_->setValue(plot3dbarseriesmeshitem_,
+                         block->getdataseries()->mesh() + 1);
+  boolManager_->setValue(plot3dbarseriesmeshsmoothitem_,
+                         block->getdataseries()->isMeshSmooth());
+  enumManager_->setValue(plot3dbarseriescolorstyleitem_,
+                         block->getdataseries()->colorStyle());
+  colorManager_->setValue(plot3dbarseriesbasecoloritem_,
+                          block->getdataseries()->baseColor());
+  enumManager_->setValue(plot3dbarseriesbasegradiantitem_,
+                         static_cast<int>(block->getgradient()));
+  colorManager_->setValue(plot3dbarserieshighlightcoloritem_,
+                          block->getdataseries()->singleHighlightColor());
+}
+
+void PropertyEditor::Scatter3DSeriesPropertyBlock(DataBlockScatter3D *block) {
+  propertybrowser_->clear();
+  propertybrowser_->addProperty(plot3dscatterseriesvisibleitem_);
+  propertybrowser_->addProperty(plot3dscatterseriessizeitem_);
+  propertybrowser_->addProperty(plot3dscatterseriesmeshitem_);
+  propertybrowser_->addProperty(plot3dscatterseriesmeshsmoothitem_);
+  propertybrowser_->addProperty(plot3dscatterseriescolorstyleitem_);
+  propertybrowser_->addProperty(plot3dscatterseriesbasecoloritem_);
+  propertybrowser_->addProperty(plot3dscatterseriesbasegradiantitem_);
+  propertybrowser_->addProperty(plot3dscatterserieshighlightcoloritem_);
+
+  boolManager_->setValue(plot3dscatterseriesvisibleitem_,
+                         block->getdataseries()->isVisible());
+  doubleManager_->setValue(plot3dscatterseriessizeitem_,
+                           block->getdataseries()->itemSize());
+  enumManager_->setValue(plot3dscatterseriesmeshitem_,
+                         block->getdataseries()->mesh() + 1);
+  boolManager_->setValue(plot3dscatterseriesmeshsmoothitem_,
+                         block->getdataseries()->isMeshSmooth());
+  enumManager_->setValue(plot3dscatterseriescolorstyleitem_,
+                         block->getdataseries()->colorStyle());
+  colorManager_->setValue(plot3dscatterseriesbasecoloritem_,
+                          block->getdataseries()->baseColor());
+  enumManager_->setValue(plot3dscatterseriesbasegradiantitem_,
+                         static_cast<int>(block->getgradient()));
+  colorManager_->setValue(plot3dscatterserieshighlightcoloritem_,
+                          block->getdataseries()->singleHighlightColor());
 }
 
 void PropertyEditor::TablePropertyBlock(Table *table) {
@@ -5552,40 +6043,118 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     }
 
     // 3D plot
+    QString plot3ditemtext = QString();
+    QTreeWidgetItem *plot3ditem =
+        new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+    switch (plottype) {
+      case Graph3DCommon::Plot3DType::Surface: {
+        plot3ditemtext = tr("Surface");
+        plot3ditem->setIcon(
+            0, IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
+        plot3ditem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DSurface));
+      } break;
+      case Graph3DCommon::Plot3DType::Bar: {
+        plot3ditemtext = tr("Bar");
+        plot3ditem->setIcon(
+            0, IconLoader::load("graph3d-bar", IconLoader::LightDark));
+        plot3ditem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DBar));
+      } break;
+      case Graph3DCommon::Plot3DType::Scatter: {
+        plot3ditemtext = tr("Scatter");
+        plot3ditem->setIcon(
+            0, IconLoader::load("graph3d-scatter", IconLoader::LightDark));
+        plot3ditem->setData(
+            0, Qt::UserRole,
+            static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DScatter));
+      } break;
+    }
+    plot3ditem->setText(0, plot3ditemtext);
+    plot3ditem->setToolTip(0, plot3ditemtext);
+    plot3ditem->setData(0, Qt::UserRole + 1, plot3dptvar);
+    objectitems_.append(plot3ditem);
+
+    // 3D series
     {
-      QString plot3ditemtext = QString();
-      QTreeWidgetItem *plot3ditem =
-          new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
       switch (plottype) {
         case Graph3DCommon::Plot3DType::Surface: {
-          plot3ditemtext = tr("Surface");
-          plot3ditem->setIcon(
-              0, IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
-          plot3ditem->setData(
-              0, Qt::UserRole,
-              static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DSurface));
+          int count = 1;
+          foreach (DataBlockSurface3D *block,
+                   lout->getSurface3DModifier()->getData()) {
+            QString surfaceseriesitemtext;
+            (block->ismatrix())
+                ? surfaceseriesitemtext =
+                      tr("%1").arg(block->getmatrix()->name())
+                : surfaceseriesitemtext = tr("function %1").arg(count++);
+            QTreeWidgetItem *surfaceseriesitem =
+                new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+            surfaceseriesitem->setIcon(0,
+                                       IconLoader::load("graph3d-polygon-mesh",
+                                                        IconLoader::LightDark));
+            surfaceseriesitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot3DSurfaceDataBlock));
+            surfaceseriesitem->setText(0, surfaceseriesitemtext);
+            surfaceseriesitem->setToolTip(0, surfaceseriesitemtext);
+            surfaceseriesitem->setData(0, Qt::UserRole + 1,
+                                       QVariant::fromValue<void *>(block));
+            plot3ditem->addChild(surfaceseriesitem);
+          }
         } break;
         case Graph3DCommon::Plot3DType::Bar: {
-          plot3ditemtext = tr("Bar");
-          plot3ditem->setIcon(
-              0, IconLoader::load("graph3d-bar", IconLoader::LightDark));
-          plot3ditem->setData(
-              0, Qt::UserRole,
-              static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DBar));
+          foreach (DataBlockBar3D *block, lout->getBar3DModifier()->getData()) {
+            QString barseriesitemtext;
+            (block->ismatrix())
+                ? barseriesitemtext = tr("%1").arg(block->getmatrix()->name())
+                : barseriesitemtext = tr("%1_%2")
+                                          .arg(block->gettable()->name())
+                                          .arg(block->getzcolumn()->name());
+            QTreeWidgetItem *barseriesitem =
+                new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+            barseriesitem->setIcon(
+                0, IconLoader::load("graph3d-bar", IconLoader::LightDark));
+            barseriesitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot3DBarDataBlock));
+            barseriesitem->setText(0, barseriesitemtext);
+            barseriesitem->setToolTip(0, barseriesitemtext);
+            barseriesitem->setData(0, Qt::UserRole + 1,
+                                   QVariant::fromValue<void *>(block));
+            plot3ditem->addChild(barseriesitem);
+          }
         } break;
         case Graph3DCommon::Plot3DType::Scatter: {
-          plot3ditemtext = tr("Scatter");
-          plot3ditem->setIcon(
-              0, IconLoader::load("graph3d-scatter", IconLoader::LightDark));
-          plot3ditem->setData(
-              0, Qt::UserRole,
-              static_cast<int>(MyTreeWidget::PropertyItemType::Plot3DScatter));
+          foreach (DataBlockScatter3D *block,
+                   lout->getScatter3DModifier()->getData()) {
+            QString scatterseriesitemtext;
+            (block->ismatrix())
+                ? scatterseriesitemtext =
+                      tr("%1").arg(block->getmatrix()->name())
+                : scatterseriesitemtext = tr("%1_%2")
+                                              .arg(block->gettable()->name())
+                                              .arg(block->getzcolumn()->name());
+            QTreeWidgetItem *scatterseriesitem =
+                new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
+            scatterseriesitem->setIcon(
+                0,
+                IconLoader::load("graph3d-point-mesh", IconLoader::LightDark));
+            scatterseriesitem->setData(
+                0, Qt::UserRole,
+                static_cast<int>(
+                    MyTreeWidget::PropertyItemType::Plot3DScatterDataBlock));
+            scatterseriesitem->setText(0, scatterseriesitemtext);
+            scatterseriesitem->setToolTip(0, scatterseriesitemtext);
+            scatterseriesitem->setData(0, Qt::UserRole + 1,
+                                       QVariant::fromValue<void *>(block));
+            plot3ditem->addChild(scatterseriesitem);
+          }
         } break;
       }
-      plot3ditem->setText(0, plot3ditemtext);
-      plot3ditem->setToolTip(0, plot3ditemtext);
-      plot3ditem->setData(0, Qt::UserRole + 1, plot3dptvar);
-      objectitems_.append(plot3ditem);
     }
   } else if (qobject_cast<Table *>(widget)) {
     Table *table = qobject_cast<Table *>(widget);
@@ -6492,6 +7061,83 @@ void PropertyEditor::setObjectPropertyId() {
       "plot3daxiscatagorytitlefixeditem_");
   plot3daxiscatagorytitletextitem_->setPropertyId(
       "plot3daxiscatagorytitletextitem_");
+
+  // Plot3D Surface
+  plot3dsurfacefliphorizontalgriditem_->setPropertyId(
+      "plot3dsurfacefliphorizontalgriditem_");
+  plot3dsurfaceaspectratioitem_->setPropertyId("plot3dsurfaceaspectratioitem_");
+  plot3dsurfacehorizontalaspectratioitem_->setPropertyId(
+      "plot3dsurfacehorizontalaspectratioitem_");
+  plot3dsurfaceshadowqualityitem_->setPropertyId(
+      "plot3dsurfaceshadowqualityitem_");
+  plot3dsurfaceorthoprojectionstatusitem_->setPropertyId(
+      "plot3dsurfaceorthoprojectionstatusitem_");
+  plot3dsurfacepolarstatusitem_->setPropertyId("plot3dsurfacepolarstatusitem_");
+  // plot3D Bar
+  plot3dbarspacingxitem_->setPropertyId("plot3dbarspacingxitem_");
+  plot3dbarspacingyitem_->setPropertyId("plot3dbarspacingyitem_");
+  plot3dbarspacingrelativeitem_->setPropertyId("plot3dbarspacingrelativeitem_");
+  plot3dbarthicknessitem_->setPropertyId("plot3dbarthicknessitem_");
+  plot3dbaraspectratioitem_->setPropertyId("plot3dbaraspectratioitem_");
+  plot3dbarhorizontalaspectratioitem_->setPropertyId(
+      "plot3dbarhorizontalaspectratioitem_");
+  plot3dbarshadowqualityitem_->setPropertyId("plot3dbarshadowqualityitem_");
+  plot3dbarorthoprojectionstatusitem_->setPropertyId(
+      "plot3dbarorthoprojectionstatusitem_");
+  plot3dbarpolarstatusitem_->setPropertyId("plot3dbarpolarstatusitem_");
+  // Plot3D Scatter
+  plot3dscatteraspectratioitem_->setPropertyId(
+      " plot3dscatteraspectratioitem_");
+  plot3dscatterhorizontalaspectratioitem_->setPropertyId(
+      "plot3dscatterhorizontalaspectratioitem_");
+  plot3dscattershadowqualityitem_->setPropertyId(
+      "plot3dscattershadowqualityitem_");
+  plot3dscatterorthoprojectionstatusitem_->setPropertyId(
+      "plot3dscatterorthoprojectionstatusitem_");
+  plot3dscatterpolarstatusitem_->setPropertyId("plot3dscatterpolarstatusitem_");
+  // Plot3D Surface Series
+  plot3dsurfaceseriesvisibleitem_->setPropertyId(
+      "plot3dsurfaceseriesvisibleitem_");
+  plot3dsurfaceseriesflatshadingstatusitem_->setPropertyId(
+      "plot3dsurfaceseriesflatshadingstatusitem_");
+  plot3dsurfaceseriesdrawitem_->setPropertyId("plot3dsurfaceseriesdrawitem_");
+  plot3dsurfaceseriesmeshsmoothitem_->setPropertyId(
+      "plot3dsurfaceseriesmeshsmoothitem_");
+  plot3dsurfaceseriescolorstyleitem_->setPropertyId(
+      "plot3dsurfaceseriescolorstyleitem_");
+  plot3dsurfaceseriesbasecoloritem_->setPropertyId(
+      "plot3dsurfaceseriesbasecoloritem_");
+  plot3dsurfaceseriesbasegradiantitem_->setPropertyId(
+      "plot3dsurfaceseriesbasegradiantitem_");
+  plot3dsurfaceserieshighlightcoloritem_->setPropertyId(
+      "plot3dsurfaceserieshighlightcoloritem_");
+  // Plot3D Bar Series
+  plot3dbarseriesvisibleitem_->setPropertyId("plot3dbarseriesvisibleitem_");
+  plot3dbarseriesmeshitem_->setPropertyId("plot3dbarseriesmeshitem_");
+  plot3dbarseriesmeshsmoothitem_->setPropertyId(
+      "plot3dbarseriesmeshsmoothitem_");
+  plot3dbarseriescolorstyleitem_->setPropertyId(
+      "plot3dbarseriescolorstyleitem_");
+  plot3dbarseriesbasecoloritem_->setPropertyId("plot3dbarseriesbasecoloritem_");
+  plot3dbarseriesbasegradiantitem_->setPropertyId(
+      "plot3dbarseriesbasegradiantitem_");
+  plot3dbarserieshighlightcoloritem_->setPropertyId(
+      "plot3dbarserieshighlightcoloritem_");
+  // Plot3D Scatter Series
+  plot3dscatterseriesvisibleitem_->setPropertyId(
+      "plot3dscatterseriesvisibleitem_");
+  plot3dscatterseriessizeitem_->setPropertyId("plot3dscatterseriessizeitem_");
+  plot3dscatterseriesmeshitem_->setPropertyId("plot3dscatterseriesmeshitem_");
+  plot3dscatterseriesmeshsmoothitem_->setPropertyId(
+      "plot3dscatterseriesmeshsmoothitem_");
+  plot3dscatterseriescolorstyleitem_->setPropertyId(
+      "plot3dscatterseriescolorstyleitem_");
+  plot3dscatterseriesbasecoloritem_->setPropertyId(
+      "plot3dscatterseriesbasecoloritem_");
+  plot3dscatterseriesbasegradiantitem_->setPropertyId(
+      "plot3dscatterseriesbasegradiantitem_");
+  plot3dscatterserieshighlightcoloritem_->setPropertyId(
+      "plot3dscatterserieshighlightcoloritem_");
 
   // Table
   tablewindowrowcountitem_->setPropertyId("tablewindowrowcountitem_");

@@ -41,8 +41,11 @@ class MyTreeWidget : public QTreeWidget {
     Plot3DSurface = 22,
     Plot3DBar = 23,
     Plot3DScatter = 24,
-    TableWindow = 25,
-    MatrixWindow = 26,
+    Plot3DSurfaceDataBlock = 25,
+    Plot3DBarDataBlock = 26,
+    Plot3DScatterDataBlock = 27,
+    TableWindow = 28,
+    MatrixWindow = 29,
   };
   MyTreeWidget(QWidget *parent = nullptr);
   ~MyTreeWidget();

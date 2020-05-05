@@ -1526,7 +1526,8 @@ void Layout2D::setGraphTool(const Graph2DCommon::Picker &picker) {
         plot2dCanvas_->removeItem(ypickerline_);
         ypickerline_ = nullptr;
       }
-      plot2dCanvas_->setCursor(Qt::CursorShape::UpArrowCursor);
+      QCursor cursorTarget = QCursor(QPixmap(":icons/cursor/cursor-zoom.png"));
+      plot2dCanvas_->setCursor(cursorTarget);
       plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
       setAxisRangeDrag(false);
       setAxisRangeZoom(true);

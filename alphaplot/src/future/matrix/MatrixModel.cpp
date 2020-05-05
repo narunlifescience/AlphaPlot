@@ -27,12 +27,14 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "Matrix.h"
-#include "matrix/future_Matrix.h"
 #include "matrix/MatrixModel.h"
-#include <QString>
+
 #include <QBrush>
 #include <QColor>
+#include <QString>
+
+#include "Matrix.h"
+#include "matrix/future_Matrix.h"
 
 MatrixModel::MatrixModel(future::Matrix *matrix)
     : QAbstractItemModel(0), d_matrix(matrix) {
@@ -98,7 +100,8 @@ QVariant MatrixModel::headerData(int section, Qt::Orientation orientation,
       switch (role) {
         case Qt::DisplayRole:
         case Qt::ToolTipRole:
-          result += QString::number(section + 1) + QString(" (");
+          if (!d_matrix->getShowOnlyValues())
+            result += QString::number(section + 1) + QString(" (");
           double diff = d_matrix->xEnd() - d_matrix->xStart();
           double step = 0.0;
           if (d_matrix->columnCount() > 1)
@@ -107,14 +110,15 @@ QVariant MatrixModel::headerData(int section, Qt::Orientation orientation,
               d_matrix->xStart() + double(section) * step,
               d_matrix->numericFormat(), d_matrix->displayedDigits());
 
-          result += QString(")");
+          if (!d_matrix->getShowOnlyValues()) result += QString(")");
           return QVariant(result);
       }
     case Qt::Vertical:
       switch (role) {
         case Qt::DisplayRole:
         case Qt::ToolTipRole:
-          result += QString::number(section + 1) + QString(" (");
+          if (!d_matrix->getShowOnlyValues())
+            result += QString::number(section + 1) + QString(" (");
           double diff = d_matrix->yEnd() - d_matrix->yStart();
           double step = 0.0;
           if (d_matrix->rowCount() > 1)
@@ -129,7 +133,7 @@ QVariant MatrixModel::headerData(int section, Qt::Orientation orientation,
                 d_matrix->yStart() + double(section) * step,
                 d_matrix->numericFormat(), d_matrix->displayedDigits());
 
-          result += QString(")");
+          if (!d_matrix->getShowOnlyValues()) result += QString(")");
           return QVariant(result);
       }
   }

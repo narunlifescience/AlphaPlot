@@ -30,12 +30,12 @@
  *                                                                         *
  ***************************************************************************/
 #include "matrix/future_Matrix.h"
-#include "../core/IconLoader.h"
-#include "Matrix.h"
-#include "core/future_Folder.h"
-#include "lib/ActionManager.h"
-#include "lib/XmlStreamReader.h"
-#include "matrixcommands.h"
+
+#include <gsl/gsl_linalg.h>
+#include <gsl/gsl_math.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <QFileDialog>
 #include <QInputDialog>
@@ -45,12 +45,12 @@
 #include <QtDebug>
 #include <QtGui>
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <gsl/gsl_linalg.h>
-#include <gsl/gsl_math.h>
+#include "../core/IconLoader.h"
+#include "Matrix.h"
+#include "core/future_Folder.h"
+#include "lib/ActionManager.h"
+#include "lib/XmlStreamReader.h"
+#include "matrixcommands.h"
 
 namespace future {
 
@@ -69,7 +69,8 @@ Matrix::Matrix(AbstractScriptingEngine *engine, int rows, int cols,
 #else
 Matrix::Matrix(void *, int rows, int cols, const QString &name)
     : AbstractPart(name),
-      d_plot_menu(nullptr)
+      d_plot_menu(nullptr),
+      showonlyvalues_(false)
 #endif
 {
   d_matrix_private = new Private(this);
@@ -88,7 +89,8 @@ Matrix::Matrix()
       scripted(0)
 #else
 Matrix::Matrix()
-    : AbstractPart("temp")
+    : AbstractPart("temp"),
+      showonlyvalues_(false)
 #endif
 {
   d_view = nullptr;
@@ -1331,6 +1333,10 @@ void Matrix::recalculateSelectedCells() {
   RESET_CURSOR;
 #endif
 }
+
+void Matrix::showOnlyValues(const bool status) { showonlyvalues_ = status; }
+
+bool Matrix::getShowOnlyValues() const { return showonlyvalues_; }
 
 /* ========================= static methods ======================= */
 ActionManager *Matrix::action_manager = nullptr;

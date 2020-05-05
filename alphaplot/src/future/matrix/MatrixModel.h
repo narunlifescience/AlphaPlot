@@ -31,8 +31,8 @@
 #define MATRIXMODEL_H
 
 #include <QAbstractItemModel>
-#include <QVector>
 #include <QColor>
+#include <QVector>
 
 namespace future {
 class Matrix;

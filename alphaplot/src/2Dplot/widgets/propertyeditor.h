@@ -41,6 +41,9 @@ class Bar2D;
 class Surface3D;
 class Bar3D;
 class Scatter3D;
+class DataBlockSurface3D;
+class DataBlockBar3D;
+class DataBlockScatter3D;
 // Property
 class QtProperty;
 class QtBoolPropertyManager;
@@ -124,6 +127,9 @@ class PropertyEditor : public QDockWidget {
   void Surface3DPropertyBlock(Surface3D *surface);
   void Bar3DPropertyBlock(Bar3D *bar);
   void Scatter3DPropertyBlock(Scatter3D *scatter);
+  void Surface3DSeriesPropertyBlock(DataBlockSurface3D *block);
+  void Bar3DSeriesPropertyBlock(DataBlockBar3D *block);
+  void Scatter3DSeriesPropertyBlock(DataBlockScatter3D *block);
   // Table
   void TablePropertyBlock(Table *table);
   // Table
@@ -551,17 +557,50 @@ class PropertyEditor : public QDockWidget {
   QtProperty *plot3dsurfaceaspectratioitem_;
   QtProperty *plot3dsurfacehorizontalaspectratioitem_;
   QtProperty *plot3dsurfaceshadowqualityitem_;
+  QtProperty *plot3dsurfaceorthoprojectionstatusitem_;
+  QtProperty *plot3dsurfacepolarstatusitem_;
   // plot3D Bar
-  QtProperty *plot3dbarspacingitem_;
+  QtProperty *plot3dbarspacingxitem_;
+  QtProperty *plot3dbarspacingyitem_;
   QtProperty *plot3dbarspacingrelativeitem_;
   QtProperty *plot3dbarthicknessitem_;
   QtProperty *plot3dbaraspectratioitem_;
   QtProperty *plot3dbarhorizontalaspectratioitem_;
   QtProperty *plot3dbarshadowqualityitem_;
+  QtProperty *plot3dbarorthoprojectionstatusitem_;
+  QtProperty *plot3dbarpolarstatusitem_;
   // Plot3D Scatter
   QtProperty *plot3dscatteraspectratioitem_;
   QtProperty *plot3dscatterhorizontalaspectratioitem_;
   QtProperty *plot3dscattershadowqualityitem_;
+  QtProperty *plot3dscatterorthoprojectionstatusitem_;
+  QtProperty *plot3dscatterpolarstatusitem_;
+  // Plot3D Surface Series
+  QtProperty *plot3dsurfaceseriesvisibleitem_;
+  QtProperty *plot3dsurfaceseriesflatshadingstatusitem_;
+  QtProperty *plot3dsurfaceseriesdrawitem_;
+  QtProperty *plot3dsurfaceseriesmeshsmoothitem_;
+  QtProperty *plot3dsurfaceseriescolorstyleitem_;
+  QtProperty *plot3dsurfaceseriesbasecoloritem_;
+  QtProperty *plot3dsurfaceseriesbasegradiantitem_;
+  QtProperty *plot3dsurfaceserieshighlightcoloritem_;
+  // Plot3D Bar Series
+  QtProperty *plot3dbarseriesvisibleitem_;
+  QtProperty *plot3dbarseriesmeshitem_;
+  QtProperty *plot3dbarseriesmeshsmoothitem_;
+  QtProperty *plot3dbarseriescolorstyleitem_;
+  QtProperty *plot3dbarseriesbasecoloritem_;
+  QtProperty *plot3dbarseriesbasegradiantitem_;
+  QtProperty *plot3dbarserieshighlightcoloritem_;
+  // Plot3D Scatter Series
+  QtProperty *plot3dscatterseriesvisibleitem_;
+  QtProperty *plot3dscatterseriessizeitem_;
+  QtProperty *plot3dscatterseriesmeshitem_;
+  QtProperty *plot3dscatterseriesmeshsmoothitem_;
+  QtProperty *plot3dscatterseriescolorstyleitem_;
+  QtProperty *plot3dscatterseriesbasecoloritem_;
+  QtProperty *plot3dscatterseriesbasegradiantitem_;
+  QtProperty *plot3dscatterserieshighlightcoloritem_;
   // Table
   QtProperty *tablewindowrowcountitem_;
   QtProperty *tablewindowcolcountitem_;

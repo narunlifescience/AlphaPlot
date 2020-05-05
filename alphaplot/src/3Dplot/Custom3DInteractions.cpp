@@ -11,6 +11,7 @@ Custom3DInteractions::Custom3DInteractions(QObject *parent)
 
 void Custom3DInteractions::mousePressEvent(QMouseEvent *event,
                                            const QPoint &mousePos) {
+  setInputPosition(mousePos);
   if (event->button() == Qt::MouseButton::LeftButton) {
     mousepoint_ = mousepoint_ - mousePos;
     mouserotation_ = true;

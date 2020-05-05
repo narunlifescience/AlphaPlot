@@ -78,6 +78,7 @@ Matrix::Matrix(future::Matrix *future_matrix, ScriptingEnv *env, int r, int c,
 void Matrix::init(int rows, int cols) {
   Q_UNUSED(rows);
   Q_UNUSED(cols);
+  d_future_matrix->showOnlyValues(true);
   MatrixView::setMatrix(d_future_matrix);
   d_future_matrix->setView(this);
   d_future_matrix->setNumericFormat('f');

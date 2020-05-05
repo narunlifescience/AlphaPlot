@@ -12,6 +12,7 @@ class Surface3D;
 class Bar3D;
 class Scatter3D;
 class XmlStreamReader;
+class Custom3DInteractions;
 using namespace QtDataVisualization;
 
 class Layout3D : public MyWidget {
@@ -36,6 +37,8 @@ class Layout3D : public MyWidget {
   Surface3D *getSurface3DModifier() const;
   Bar3D *getBar3DModifier() const;
   Scatter3D *getScatter3DModifier() const;
+  void setCustomInteractions(QAbstract3DGraph *graph, bool status);
+  void setAnimation(bool status);
 
   void exportGraph();
   void saveRastered(const QString &filename, const char *format,
@@ -53,6 +56,9 @@ class Layout3D : public MyWidget {
             QList<Matrix *> mats);
   void save(QXmlStreamWriter *xmlwriter);
 
+ signals:
+  void dataAdded(MyWidget *mywidget);
+
  private:
   Graph3DCommon::Plot3DType plottype_;
   QWidget *main_widget_;
@@ -62,7 +68,12 @@ class Layout3D : public MyWidget {
   Surface3D *surfacemodifier_;
   Bar3D *barmodifier_;
   Scatter3D *scattermodifier_;
-  Matrix *matrix_;
+  QAbstract3DGraph *graph_;
+  Custom3DInteractions *custominter_;
+  QPropertyAnimation *m_animationCameraX_;
+  QSequentialAnimationGroup *m_animationCameraY_;
+  QPropertyAnimation *upAnimation_;
+  QPropertyAnimation *downAnimation_;
   static const int defaultlayout2dwidth_;
   static const int defaultlayout2dheight_;
   static const int minimumlayout2dwidth_;

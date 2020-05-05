@@ -14,6 +14,7 @@
 	<file alias="appicon-96">icons/app/96/alphaplot.png</file>
 	<file alias="appicon-128">icons/app/128/alphaplot.png</file>
     <file alias="applogo">alphaplot-logo.png</file>
+    <file>icons/cursor/cursor-zoom.png</file>
     <file>icons/common/64/folder-properties.png</file>
     <file>icons/common/64/graph2D-properties.png</file>
     <file>icons/common/64/graph3D-properties.png</file>
@@ -180,6 +181,9 @@
     <file>icons/light/16/graph3d-floor.png</file>
     <file>icons/light/16/graph3d-isoline.png</file>
     <file>icons/light/16/graph3d-no-floor.png</file>
+    <file>icons/light/16/graph3d-select-item.png</file>
+    <file>icons/light/16/graph3d-column-slice.png</file>
+    <file>icons/light/16/graph3d-row-slice.png</file>
     <file>icons/light/16/matrix.png</file>
     <file>icons/light/16/list-add.png</file>
     <file>icons/light/16/edit-normalize-random-number.png</file>
@@ -319,6 +323,9 @@
     <file>icons/light/22/graph3d-floor.png</file>
     <file>icons/light/22/graph3d-isoline.png</file>
     <file>icons/light/22/graph3d-no-floor.png</file>
+    <file>icons/light/22/graph3d-select-item.png</file>
+    <file>icons/light/22/graph3d-column-slice.png</file>
+    <file>icons/light/22/graph3d-row-slice.png</file>
     <file>icons/light/22/matrix.png</file>
     <file>icons/light/22/list-add.png</file>
     <file>icons/light/22/edit-normalize-random-number.png</file>
@@ -457,6 +464,9 @@
     <file>icons/light/24/graph3d-floor.png</file>
     <file>icons/light/24/graph3d-isoline.png</file>
     <file>icons/light/24/graph3d-no-floor.png</file>
+    <file>icons/light/24/graph3d-select-item.png</file>
+    <file>icons/light/24/graph3d-column-slice.png</file>
+    <file>icons/light/24/graph3d-row-slice.png</file>
     <file>icons/light/24/matrix.png</file>
     <file>icons/light/24/list-add.png</file>
     <file>icons/light/24/edit-normalize-random-number.png</file>
@@ -611,6 +621,9 @@
     <file>icons/dark/16/graph3d-floor.png</file>
     <file>icons/dark/16/graph3d-isoline.png</file>
     <file>icons/dark/16/graph3d-no-floor.png</file>
+    <file>icons/dark/16/graph3d-select-item.png</file>
+    <file>icons/dark/16/graph3d-column-slice.png</file>
+    <file>icons/dark/16/graph3d-row-slice.png</file>
     <file>icons/dark/16/matrix.png</file>
     <file>icons/dark/16/list-add.png</file>
     <file>icons/dark/16/edit-normalize-random-number.png</file>
@@ -750,6 +763,9 @@
     <file>icons/dark/22/graph3d-floor.png</file>
     <file>icons/dark/22/graph3d-isoline.png</file>
     <file>icons/dark/22/graph3d-no-floor.png</file>
+    <file>icons/dark/22/graph3d-select-item.png</file>
+    <file>icons/dark/22/graph3d-column-slice.png</file>
+    <file>icons/dark/22/graph3d-row-slice.png</file>
     <file>icons/dark/22/matrix.png</file>
     <file>icons/dark/22/list-add.png</file>
     <file>icons/dark/22/edit-normalize-random-number.png</file>
@@ -888,6 +904,9 @@
     <file>icons/dark/24/graph3d-floor.png</file>
     <file>icons/dark/24/graph3d-isoline.png</file>
     <file>icons/dark/24/graph3d-no-floor.png</file>
+    <file>icons/dark/24/graph3d-select-item.png</file>
+    <file>icons/dark/24/graph3d-column-slice.png</file>
+    <file>icons/dark/24/graph3d-row-slice.png</file>
     <file>icons/dark/24/matrix.png</file>
     <file>icons/dark/24/list-add.png</file>
     <file>icons/dark/24/edit-normalize-random-number.png</file>

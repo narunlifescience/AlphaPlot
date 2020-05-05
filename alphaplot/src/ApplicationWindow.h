@@ -658,34 +658,10 @@ class ApplicationWindow : public QMainWindow,
   void togglePerspective(bool on = true);
   //! Resets rotation of 3D plots to default values
   void resetRotation();
-  //! Finds best layout for the 3D plot
-  void fitFrameToLayer();
-  void setFramed3DPlot();
-  void setBoxed3DPlot();
   void removeAxes3DPlot();
-  void removeGrid3DPlot();
-  void setHiddenLineGrid3DPlot();
-  void setLineGrid3DPlot();
-  void setPoints3DPlot();
-  void setCrosses3DPlot();
-  void setCones3DPlot();
-  void setBars3DPlot();
-  void setFilledMesh3DPlot();
-  void setEmptyFloor3DPlot();
-  void setFloorData3DPlot();
-  void setFloorIso3DPlot();
-  void setFloorGrid3DPlot(bool on);
-  void setCeilGrid3DPlot(bool on);
-  void setRightGrid3DPlot(bool on);
-  void setLeftGrid3DPlot(bool on);
-  void setFrontGrid3DPlot(bool on);
-  void setBackGrid3DPlot(bool on);
-  void pickPlotStyle(QAction* action);
-  void pickCoordSystem(QAction* action);
-  void pickFloorStyle(QAction* action);
+
+  void pickSelectionType(QAction* action);
   void custom3DActions(QMdiSubWindow* subwindow);
-  void custom3DGrids(int grids);
-  //@}
 
   void updateRecentProjectsList();
 
@@ -1121,40 +1097,17 @@ class ApplicationWindow : public QMainWindow,
   QAction* actionClearTable;
   QAction* actionGoToCell;
   QAction* actionSaveNote;
-  QAction* actionAnimate;
+  QAction* actionplot3dAnimate_;
   QAction* actionPerspective;
-  QAction* actionFitFrame;
   QAction* actionResetRotation;
 
   QActionGroup* graphToolsGroup;
 
-  QActionGroup* coord;
-  QAction* Box;
-  QAction* Frame;
-  QAction* None;
-
-  QActionGroup* grids;
-  QAction* front;
-  QAction* back;
-  QAction* right;
-  QAction* left;
-  QAction* ceil;
-  QAction* floor;
-
-  QActionGroup* floorstyle;
-  QAction* floordata;
-  QAction* flooriso;
-  QAction* floornone;
-
-  QActionGroup* plotstyle;
-  QAction* wireframe;
-  QAction* hiddenline;
-  QAction* polygon;
-  QAction* filledmesh;
-  QAction* pointstyle;
-  QAction* barstyle;
-  QAction* conestyle;
-  QAction* crossHairStyle;
+  QActionGroup* groupplot3dselectionmode_;
+  QAction* actionplot3dmodecolumnselect_;
+  QAction* actionplot3dmoderowselect_;
+  QAction* actionplot3dmodeitemselect_;
+  QAction* actionplot3dmodenoneselect_;
 
   // Manages connection between 2dplot actions (not used by all 2dplot actions).
   QSignalMapper* d_plot_mapper;

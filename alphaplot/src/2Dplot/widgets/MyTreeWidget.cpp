@@ -330,7 +330,7 @@ void MyTreeWidget::CurrentItemChanged(QTreeWidgetItem *current) {
       // ErrorBar2D *errorbar = static_cast<ErrorBar2D *>(errorptr);
       // errorbar->setSelectable(QCP::SelectionType::stWhole);
     } break;
-    case MyTreeWidget::PropertyItemType::Plot2DCanvas:
+    default:
       break;
   }
 
@@ -538,9 +538,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       moveupcolormap_->setData(item->data(0, Qt::UserRole + 1));
       movedowncolormap_->setData(item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::Plot2DCanvas:
-    case PropertyItemType::Plot2DGrid:
-    case PropertyItemType::Plot2DLegend:
+    default:
       break;
   }
   menu.exec(globalPos);

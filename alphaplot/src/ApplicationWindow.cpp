@@ -174,35 +174,15 @@ ApplicationWindow::ApplicationWindow()
       autoSearchUpdatesRequest(false),
 #endif
       aprojhandler_(new AprojHandler(this)),
-      actionAnimate(new QAction(this)),
+      actionplot3dAnimate_(new QAction(this)),
       actionPerspective(new QAction(this)),
-      actionFitFrame(new QAction(this)),
       actionResetRotation(new QAction(this)),
       graphToolsGroup(new QActionGroup(this)),
-      coord(new QActionGroup(this)),
-      Box(new QAction(coord)),
-      Frame(new QAction(coord)),
-      None(new QAction(coord)),
-      grids(new QActionGroup(this)),
-      front(new QAction(grids)),
-      back(new QAction(grids)),
-      right(new QAction(grids)),
-      left(new QAction(grids)),
-      ceil(new QAction(grids)),
-      floor(new QAction(grids)),
-      floorstyle(new QActionGroup(this)),
-      floordata(new QAction(floorstyle)),
-      flooriso(new QAction(floorstyle)),
-      floornone(new QAction(floorstyle)),
-      plotstyle(new QActionGroup(this)),
-      wireframe(new QAction(plotstyle)),
-      hiddenline(new QAction(plotstyle)),
-      polygon(new QAction(plotstyle)),
-      filledmesh(new QAction(plotstyle)),
-      pointstyle(new QAction(plotstyle)),
-      barstyle(new QAction(plotstyle)),
-      conestyle(new QAction(plotstyle)),
-      crossHairStyle(new QAction(plotstyle)),
+      groupplot3dselectionmode_(new QActionGroup(this)),
+      actionplot3dmodecolumnselect_(new QAction(groupplot3dselectionmode_)),
+      actionplot3dmoderowselect_(new QAction(groupplot3dselectionmode_)),
+      actionplot3dmodeitemselect_(new QAction(groupplot3dselectionmode_)),
+      actionplot3dmodenoneselect_(new QAction(groupplot3dselectionmode_)),
       d_plot_mapper(new QSignalMapper(this)),
       statusBarInfo(new QLabel(this)),
       actionShowPropertyEditor(new QAction(this)),
@@ -572,11 +552,13 @@ ApplicationWindow::ApplicationWindow()
           SLOT(plot4Layers()));
   connect(ui_->actionPanelStackedLayers, SIGNAL(triggered()), this,
           SLOT(plotStackedLayers()));
+  ui_->actionPlot3DRibbon->setVisible(false);
   connect(ui_->actionPlot3DRibbon, SIGNAL(triggered()), this,
           SLOT(plot3DRibbon()));
   connect(ui_->actionPlot3DBar, SIGNAL(triggered()), this, SLOT(plot3DBars()));
   connect(ui_->actionPlot3DScatter, SIGNAL(triggered()), this,
           SLOT(plot3DScatter()));
+  ui_->actionPlot3DTrajectory->setVisible(false);
   connect(ui_->actionPlot3DTrajectory, SIGNAL(triggered()), this,
           SLOT(plot3DTrajectory()));
   // 3D Plot menu
@@ -976,79 +958,28 @@ void ApplicationWindow::makeToolBars() {
   matrix3DPlotToolbar->addAction(ui_->action3DCountourLines);
   matrix3DPlotToolbar->addAction(ui_->action3DGreyScaleMap);
 
-  // Graph 3D tools toolbar
-  // Graph 3D axis type selection
-  Box->setCheckable(true);
-  Frame->setCheckable(true);
-  None->setCheckable(true);
-  graph3DToolbar->addAction(Frame);
-  graph3DToolbar->addAction(Box);
-  graph3DToolbar->addAction(None);
-  Box->setChecked(true);
-  graph3DToolbar->addSeparator();
-
-  // Graph 3D grid actions
-  grids->setEnabled(true);
-  grids->setExclusive(false);
-  front->setCheckable(true);
-  back->setCheckable(true);
-  right->setCheckable(true);
-  left->setCheckable(true);
-  ceil->setCheckable(true);
-  floor->setCheckable(true);
-  graph3DToolbar->addAction(front);
-  graph3DToolbar->addAction(back);
-  graph3DToolbar->addAction(right);
-  graph3DToolbar->addAction(left);
-  graph3DToolbar->addAction(ceil);
-  graph3DToolbar->addAction(floor);
-  graph3DToolbar->addSeparator();
-
   // Graph 3D orentation actions
   actionPerspective->setCheckable(true);
   graph3DToolbar->addAction(actionPerspective);
   actionPerspective->setChecked(!orthogonal3DPlots);
   graph3DToolbar->addAction(actionResetRotation);
-  graph3DToolbar->addAction(actionFitFrame);
-  graph3DToolbar->addSeparator();
-
-  // Graph 3D plot style actions
-  wireframe->setCheckable(true);
-  wireframe->setEnabled(true);
-  hiddenline->setCheckable(true);
-  hiddenline->setEnabled(true);
-  polygon->setCheckable(true);
-  polygon->setEnabled(true);
-  filledmesh->setCheckable(true);
-  pointstyle->setCheckable(true);
-  conestyle->setCheckable(true);
-  crossHairStyle->setCheckable(true);
-  barstyle->setCheckable(true);
-  graph3DToolbar->addAction(barstyle);
-  graph3DToolbar->addAction(pointstyle);
-  graph3DToolbar->addAction(conestyle);
-  graph3DToolbar->addAction(crossHairStyle);
-  graph3DToolbar->addSeparator();
-  graph3DToolbar->addAction(wireframe);
-  graph3DToolbar->addAction(hiddenline);
-  graph3DToolbar->addAction(polygon);
-  graph3DToolbar->addAction(filledmesh);
-  filledmesh->setChecked(true);
   graph3DToolbar->addSeparator();
 
   // Graph 3D floor actions
-  floordata->setCheckable(true);
-  flooriso->setCheckable(true);
-  floornone->setCheckable(true);
-  graph3DToolbar->addAction(floordata);
-  graph3DToolbar->addAction(flooriso);
-  graph3DToolbar->addAction(floornone);
-  floornone->setChecked(true);
+  actionplot3dmodecolumnselect_->setCheckable(true);
+  actionplot3dmoderowselect_->setCheckable(true);
+  actionplot3dmodeitemselect_->setCheckable(true);
+  actionplot3dmodenoneselect_->setCheckable(true);
+  graph3DToolbar->addAction(actionplot3dmodecolumnselect_);
+  graph3DToolbar->addAction(actionplot3dmoderowselect_);
+  graph3DToolbar->addAction(actionplot3dmodeitemselect_);
+  graph3DToolbar->addAction(actionplot3dmodenoneselect_);
+  actionplot3dmodenoneselect_->setChecked(true);
   graph3DToolbar->addSeparator();
 
   // Graph 3D animation actions
-  actionAnimate->setCheckable(true);
-  graph3DToolbar->addAction(actionAnimate);
+  actionplot3dAnimate_->setCheckable(true);
+  graph3DToolbar->addAction(actionplot3dAnimate_);
 
   // Set toolbar icon size
   fileToolbar->setIconSize(QSize(24, 24));
@@ -1080,25 +1011,11 @@ void ApplicationWindow::makeToolBars() {
           SLOT(togglePerspective(bool)));
   connect(actionResetRotation, SIGNAL(triggered()), this,
           SLOT(resetRotation()));
-  connect(actionFitFrame, SIGNAL(triggered()), this, SLOT(fitFrameToLayer()));
-  // Graph 3D Axis type selection Actions
-  connect(coord, SIGNAL(triggered(QAction *)), this,
-          SLOT(pickCoordSystem(QAction *)));
   // Graph 3D floor Actions
-  connect(floorstyle, SIGNAL(triggered(QAction *)), this,
-          SLOT(pickFloorStyle(QAction *)));
-  // Graph 3D plot style
-  connect(plotstyle, SIGNAL(triggered(QAction *)), this,
-          SLOT(pickPlotStyle(QAction *)));
-  // Graph 3D Grid
-  connect(left, SIGNAL(triggered(bool)), this, SLOT(setLeftGrid3DPlot(bool)));
-  connect(right, SIGNAL(triggered(bool)), this, SLOT(setRightGrid3DPlot(bool)));
-  connect(ceil, SIGNAL(triggered(bool)), this, SLOT(setCeilGrid3DPlot(bool)));
-  connect(floor, SIGNAL(triggered(bool)), this, SLOT(setFloorGrid3DPlot(bool)));
-  connect(back, SIGNAL(triggered(bool)), this, SLOT(setBackGrid3DPlot(bool)));
-  connect(front, SIGNAL(triggered(bool)), this, SLOT(setFrontGrid3DPlot(bool)));
+  connect(groupplot3dselectionmode_, SIGNAL(triggered(QAction *)), this,
+          SLOT(pickSelectionType(QAction *)));
   // Graph 3D animation actions
-  connect(actionAnimate, SIGNAL(toggled(bool)), this,
+  connect(actionplot3dAnimate_, SIGNAL(toggled(bool)), this,
           SLOT(toggle3DAnimation(bool)));
 }
 
@@ -1326,12 +1243,7 @@ void ApplicationWindow::plot3DBars() {
     Table *table = qobject_cast<Table *>(subwindow);
     if (!validFor3DPlot(table)) return;
 
-    if (table->selectedZColumns().count() == 1)
-      dataPlotXYZ(table, Graph3DCommon::Plot3DType::Bar);
-    else
-      QMessageBox::warning(
-          this, tr("Plot error"),
-          tr("You must select only one Z column for plotting!"));
+    dataPlotXYZ(table, Graph3DCommon::Plot3DType::Bar);
   } else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
     plot3DMatrix(Graph3DCommon::Plot3DType::Bar);
 }
@@ -1344,12 +1256,7 @@ void ApplicationWindow::plot3DScatter() {
     Table *table = qobject_cast<Table *>(subwindow);
     if (!validFor3DPlot(table)) return;
 
-    if (table->selectedZColumns().count() == 1)
-      dataPlotXYZ(table, Graph3DCommon::Plot3DType::Scatter);
-    else
-      QMessageBox::warning(
-          this, tr("Plot error"),
-          tr("You must select only one Z column for plotting!"));
+    dataPlotXYZ(table, Graph3DCommon::Plot3DType::Scatter);
   } else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
     plot3DMatrix(Graph3DCommon::Plot3DType::Scatter);
 }
@@ -1362,12 +1269,7 @@ void ApplicationWindow::plot3DTrajectory() {
     Table *table = qobject_cast<Table *>(subwindow);
     if (!validFor3DPlot(table)) return;
 
-    if (table->selectedZColumns().count() == 1)
-      dataPlotXYZ(table, Graph3DCommon::Plot3DType::Scatter);
-    else
-      QMessageBox::warning(
-          this, tr("Plot error"),
-          tr("You must select only one Z column for plotting!"));
+    dataPlotXYZ(table, Graph3DCommon::Plot3DType::Scatter);
   }
 }
 
@@ -1689,7 +1591,7 @@ Layout3D *ApplicationWindow::dataPlot3D(Table *table,
   QList<Column *> selectedcols;
   Column *xcol = nullptr;
   Column *ycol = nullptr;
-  QList<Column *> zcols;
+  Column *zcol = nullptr;
   QStringList list = table->selectedColumns();
   foreach (QString colname, list)
     selectedcols << table->column(table->colIndex(colname));
@@ -1699,23 +1601,22 @@ Layout3D *ApplicationWindow::dataPlot3D(Table *table,
     else if (col->plotDesignation() == AlphaPlot::PlotDesignation::Y)
       ycol = col;
     else if (col->plotDesignation() == AlphaPlot::PlotDesignation::Z)
-      zcols << col;
+      zcol = col;
   }
 
   Layout3D *layout = nullptr;
   QString label = generateUniqueName(tr("Graph"));
   switch (type) {
     case Graph3DCommon::Plot3DType::Surface:
-      layout = newGraph3D(Graph3DCommon::Plot3DType::Surface, label);
-      layout->getSurface3DModifier()->settabledata(table, xcol, ycol, zcols);
+      qDebug() << "cannot plot surface using XYZ data";
       break;
     case Graph3DCommon::Plot3DType::Bar:
       layout = newGraph3D(Graph3DCommon::Plot3DType::Bar, label);
-      layout->getBar3DModifier()->settabledata(table, xcol, ycol, zcols);
+      layout->getBar3DModifier()->settabledata(table, xcol, ycol, zcol);
       break;
     case Graph3DCommon::Plot3DType::Scatter:
       layout = newGraph3D(Graph3DCommon::Plot3DType::Scatter, label);
-      layout->getScatter3DModifier()->settabledata(table, xcol, ycol, zcols);
+      layout->getScatter3DModifier()->settabledata(table, xcol, ycol, zcol);
       break;
   }
 
@@ -1890,6 +1791,8 @@ Layout3D *ApplicationWindow::newGraph3D(const Graph3DCommon::Plot3DType &type,
           &ApplicationWindow::updateWindowStatus);
   connect(layout3d, &MyWidget::showTitleBarMenu, this,
           &ApplicationWindow::showWindowTitleBarMenu);
+  connect(layout3d, &Layout3D::dataAdded, propertyeditor,
+          &PropertyEditor::populateObjectBrowser);
 
   return layout3d;
 }
@@ -6088,155 +5991,46 @@ void ApplicationWindow::saveFitFunctionsList(const QStringList &l) {
 
 void ApplicationWindow::clearSurfaceFunctionsList() { surfaceFunc.clear(); }
 
-void ApplicationWindow::setFramed3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setFramed();
-}
-
-void ApplicationWindow::setBoxed3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setBoxed();
-}
-
 void ApplicationWindow::removeAxes3DPlot() {
   if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
   // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setNoAxes();
 }
 
-void ApplicationWindow::removeGrid3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setNoGrid();
-}
-
-void ApplicationWindow::setHiddenLineGrid3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D
-  // *>(d_workspace->activeSubWindow())->setHiddenLineGrid();
-}
-
-void ApplicationWindow::setPoints3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setPointsMesh();
-}
-
-void ApplicationWindow::setCones3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setConesMesh();
-}
-
-void ApplicationWindow::setCrosses3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setCrossMesh();
-}
-
-void ApplicationWindow::setBars3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setBarsPlot();
-}
-
-void ApplicationWindow::setLineGrid3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setLineGrid();
-}
-
-void ApplicationWindow::setFilledMesh3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setFilledMesh();
-}
-
-void ApplicationWindow::setFloorData3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setFloorData();
-}
-
-void ApplicationWindow::setFloorIso3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D
-  // *>(d_workspace->activeSubWindow())->setFloorIsolines();
-}
-
-void ApplicationWindow::setEmptyFloor3DPlot() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setEmptyFloor();
-}
-
-void ApplicationWindow::setFrontGrid3DPlot(bool on) {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setFrontGrid(on);
-}
-
-void ApplicationWindow::setBackGrid3DPlot(bool on) {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setBackGrid(on);
-}
-
-void ApplicationWindow::setFloorGrid3DPlot(bool on) {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setFloorGrid(on);
-}
-
-void ApplicationWindow::setCeilGrid3DPlot(bool on) {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setCeilGrid(on);
-}
-
-void ApplicationWindow::setRightGrid3DPlot(bool on) {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setRightGrid(on);
-}
-
-void ApplicationWindow::setLeftGrid3DPlot(bool on) {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setLeftGrid(on);
-}
-
-void ApplicationWindow::pickPlotStyle(QAction *action) {
+void ApplicationWindow::pickSelectionType(QAction *action) {
   if (!action) return;
 
-  if (action == polygon) {
-    removeGrid3DPlot();
-  } else if (action == filledmesh) {
-    setFilledMesh3DPlot();
-  } else if (action == wireframe) {
-    setLineGrid3DPlot();
-  } else if (action == hiddenline) {
-    setHiddenLineGrid3DPlot();
-  } else if (action == pointstyle) {
-    setPoints3DPlot();
-  } else if (action == conestyle) {
-    setCones3DPlot();
-  } else if (action == crossHairStyle) {
-    setCrosses3DPlot();
-  } else if (action == barstyle) {
-    setBars3DPlot();
-  }
-  emit modified();
-}
-
-void ApplicationWindow::pickCoordSystem(QAction *action) {
-  if (!action) return;
-
-  if (action == Box || action == Frame) {
-    if (action == Box) setBoxed3DPlot();
-    if (action == Frame) setFramed3DPlot();
-    grids->setEnabled(true);
-  } else if (action == None) {
-    removeAxes3DPlot();
-    grids->setEnabled(false);
+  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
+  Layout3D *lout = qobject_cast<Layout3D *>(d_workspace->activeSubWindow());
+  QAbstract3DGraph *graph = nullptr;
+  switch (lout->getPlotType()) {
+    case Graph3DCommon::Plot3DType::Surface:
+      graph = static_cast<QAbstract3DGraph *>(
+          lout->getSurface3DModifier()->getGraph());
+      break;
+    case Graph3DCommon::Plot3DType::Bar:
+      graph =
+          static_cast<QAbstract3DGraph *>(lout->getBar3DModifier()->getGraph());
+      break;
+    case Graph3DCommon::Plot3DType::Scatter:
+      graph = static_cast<QAbstract3DGraph *>(
+          lout->getScatter3DModifier()->getGraph());
+      break;
   }
 
-  emit modified();
-}
-
-void ApplicationWindow::pickFloorStyle(QAction *action) {
-  if (!action) return;
-
-  if (action == floordata) {
-    setFloorData3DPlot();
-  } else if (action == flooriso) {
-    setFloorIso3DPlot();
-  } else {
-    setEmptyFloor3DPlot();
+  if (action == actionplot3dmodecolumnselect_) {
+    lout->setCustomInteractions(graph, false);
+    graph->setSelectionMode(QAbstract3DGraph::SelectionItemAndColumn |
+                            QAbstract3DGraph::SelectionSlice);
+  } else if (action == actionplot3dmoderowselect_) {
+    lout->setCustomInteractions(graph, false);
+    graph->setSelectionMode(QAbstract3DGraph::SelectionItemAndRow |
+                            QAbstract3DGraph::SelectionSlice);
+  } else if (action == actionplot3dmodeitemselect_) {
+    lout->setCustomInteractions(graph, false);
+    graph->setSelectionMode(QAbstract3DGraph::SelectionItem);
+  } else if (action == actionplot3dmodenoneselect_) {
+    lout->setCustomInteractions(graph, true);
+    graph->setSelectionMode(QAbstract3DGraph::SelectionNone);
   }
 
   emit modified();
@@ -6246,158 +6040,6 @@ void ApplicationWindow::custom3DActions(QMdiSubWindow *subwindow) {
   if (!isActiveSubWindow(subwindow, SubWindowType::Plot3DSubWindow)) return;
 
   Layout3D *layout = qobject_cast<Layout3D *>(subwindow);
-  /*actionAnimate->setChecked(plot->isAnimated());
-  actionPerspective->setChecked(!plot->isOrthogonal());
-  switch (plot->plotStyle()) {
-    case FILLEDMESH:
-      wireframe->setChecked(false);
-      hiddenline->setChecked(false);
-      polygon->setChecked(false);
-      filledmesh->setChecked(true);
-      pointstyle->setChecked(false);
-      barstyle->setChecked(false);
-      conestyle->setChecked(false);
-      crossHairStyle->setChecked(false);
-      break;
-
-    case FILLED:
-      wireframe->setChecked(false);
-      hiddenline->setChecked(false);
-      polygon->setChecked(true);
-      filledmesh->setChecked(false);
-      pointstyle->setChecked(false);
-      barstyle->setChecked(false);
-      conestyle->setChecked(false);
-      crossHairStyle->setChecked(false);
-      break;
-
-    case Qwt3D::USER:
-      wireframe->setChecked(false);
-      hiddenline->setChecked(false);
-      polygon->setChecked(false);
-      filledmesh->setChecked(false);
-
-      if (plot->pointType() == Graph3D::VerticalBars) {
-        pointstyle->setChecked(false);
-        conestyle->setChecked(false);
-        crossHairStyle->setChecked(false);
-        barstyle->setChecked(true);
-      } else if (plot->pointType() == Graph3D::Dots) {
-        pointstyle->setChecked(true);
-        barstyle->setChecked(false);
-        conestyle->setChecked(false);
-        crossHairStyle->setChecked(false);
-      } else if (plot->pointType() == Graph3D::HairCross) {
-        pointstyle->setChecked(false);
-        barstyle->setChecked(false);
-        conestyle->setChecked(false);
-        crossHairStyle->setChecked(true);
-      } else if (plot->pointType() == Graph3D::Cones) {
-        pointstyle->setChecked(false);
-        barstyle->setChecked(false);
-        conestyle->setChecked(true);
-        crossHairStyle->setChecked(false);
-      }
-      break;
-
-    case WIREFRAME:
-      wireframe->setChecked(true);
-      hiddenline->setChecked(false);
-      polygon->setChecked(false);
-      filledmesh->setChecked(false);
-      pointstyle->setChecked(false);
-      barstyle->setChecked(false);
-      conestyle->setChecked(false);
-      crossHairStyle->setChecked(false);
-      break;
-
-    case HIDDENLINE:
-      wireframe->setChecked(false);
-      hiddenline->setChecked(true);
-      polygon->setChecked(false);
-      filledmesh->setChecked(false);
-      pointstyle->setChecked(false);
-      barstyle->setChecked(false);
-      conestyle->setChecked(false);
-      crossHairStyle->setChecked(false);
-      break;
-
-    default:
-      break;
-  }
-
-  switch (plot->coordStyle()) {
-    case Qwt3D::NOCOORD:
-      None->setChecked(true);
-      Box->setChecked(false);
-      Frame->setChecked(false);
-      break;
-
-    case Qwt3D::BOX:
-      None->setChecked(false);
-      Box->setChecked(true);
-      Frame->setChecked(false);
-      break;
-
-    case Qwt3D::FRAME:
-      None->setChecked(false);
-      Box->setChecked(false);
-      Frame->setChecked(true);
-      break;
-  }
-
-  switch (plot->floorStyle()) {
-    case NOFLOOR:
-      floornone->setChecked(true);
-      flooriso->setChecked(false);
-      floordata->setChecked(false);
-      break;
-
-    case FLOORISO:
-      floornone->setChecked(false);
-      flooriso->setChecked(true);
-      floordata->setChecked(false);
-      break;
-
-    case FLOORDATA:
-      floornone->setChecked(false);
-      flooriso->setChecked(false);
-      floordata->setChecked(true);
-      break;
-  }
-  custom3DGrids(plot->grids());*/
-}
-
-void ApplicationWindow::custom3DGrids(int grids) {
-  /* if (Qwt3D::BACK & grids)
-     back->setChecked(true);
-   else
-     back->setChecked(false);
-
-   if (Qwt3D::FRONT & grids)
-     front->setChecked(true);
-   else
-     front->setChecked(false);
-
-   if (Qwt3D::CEIL & grids)
-     ceil->setChecked(true);
-   else
-     ceil->setChecked(false);
-
-   if (Qwt3D::FLOOR & grids)
-     floor->setChecked(true);
-   else
-     floor->setChecked(false);
-
-   if (Qwt3D::RIGHT & grids)
-     right->setChecked(true);
-   else
-     right->setChecked(false);
-
-   if (Qwt3D::LEFT & grids)
-     left->setChecked(true);
-   else
-     left->setChecked(false);*/
 }
 
 void ApplicationWindow::pixelLineProfile() {
@@ -8113,7 +7755,8 @@ void ApplicationWindow::receivedVersionFile(QNetworkReply *reply) {
 // Turns 3D animation on or off
 void ApplicationWindow::toggle3DAnimation(bool on) {
   if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->animate(on);
+  Layout3D *lout = qobject_cast<Layout3D *>(d_workspace->activeSubWindow());
+  lout->setAnimation(on);
 }
 
 QString ApplicationWindow::generateUniqueName(const QString &name,
@@ -8181,14 +7824,6 @@ void ApplicationWindow::resetRotation() {
   if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
   // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->setRotation(30, 0,
   // 15);
-}
-
-/*!
-  Finds best layout for the 3D plot
-  */
-void ApplicationWindow::fitFrameToLayer() {
-  if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  // qobject_cast<Graph3D *>(d_workspace->activeSubWindow())->findBestLayout();
 }
 
 QString ApplicationWindow::versionString() {
@@ -8290,7 +7925,7 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
     Matrix *matrix = nullptr;
     switch (layout->getPlotType()) {
       case Graph3DCommon::Plot3DType::Surface:
-        matrix = layout->getSurface3DModifier()->getData()->getmatrix();
+        // matrix = layout->getSurface3DModifier()->getData()->getmatrix();
         break;
       case Graph3DCommon::Plot3DType::Bar:
         // matrix = layout->getBar3DModifier()->getData()->getmatrix();
@@ -8387,15 +8022,15 @@ bool ApplicationWindow::validFor3DPlot(Table *table) {
 
   if (ncolz == 0) {
     QMessageBox::critical(
-        this, tr("Error (no Z column)"),
-        tr("Please select 1X,1Y & Z column(s) for this operation!"));
+        this, tr("Error (multiple Z column)"),
+        tr("Please select 1X,1Y & 1Z column for this operation!"));
     return false;
   }
 
-  if (ncolz > table->rowCnt()) {
-    QMessageBox::critical(this, tr("Error (X column too short)"),
-                          tr("X Column should contain rows equal to or more "
-                             "than number of Z colum(s)!"));
+  if (ncolz > 1) {
+    QMessageBox::critical(
+        this, tr("Error (no Z column)"),
+        tr("Please select 1X,1Y & 1Z column for this operation!"));
     return false;
   }
 
@@ -8937,38 +8572,19 @@ void ApplicationWindow::loadIcons() {
   btn_plot_pie_->setIcon(
       IconLoader::load("graph2d-pie", IconLoader::LightDark));
   // 3d toolbars
-  Box->setIcon(IconLoader::load("graph3d-box-axis", IconLoader::LightDark));
-  Frame->setIcon(IconLoader::load("graph3d-free-axis", IconLoader::LightDark));
-  None->setIcon(IconLoader::load("graph3d-no-axis", IconLoader::LightDark));
-  front->setIcon(IconLoader::load("graph3d-front-grid", IconLoader::LightDark));
-  back->setIcon(IconLoader::load("graph3d-back-grid", IconLoader::LightDark));
-  right->setIcon(IconLoader::load("graph3d-left-grid", IconLoader::LightDark));
-  left->setIcon(IconLoader::load("graph3d-right-grid", IconLoader::LightDark));
-  ceil->setIcon(IconLoader::load("graph3d-top-grid", IconLoader::LightDark));
-  floor->setIcon(IconLoader::load("graph3d-floor-grid", IconLoader::LightDark));
-  floordata->setIcon(IconLoader::load("graph3d-floor", IconLoader::LightDark));
-  flooriso->setIcon(IconLoader::load("graph3d-isoline", IconLoader::LightDark));
-  floornone->setIcon(
-      IconLoader::load("graph3d-no-floor", IconLoader::LightDark));
-  wireframe->setIcon(
-      IconLoader::load("graph3d-hidden-line", IconLoader::LightDark));
-  hiddenline->setIcon(IconLoader::load("graph3d-mesh", IconLoader::LightDark));
-  polygon->setIcon(IconLoader::load("graph3d-polygon", IconLoader::LightDark));
-  filledmesh->setIcon(
-      IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark));
-  pointstyle->setIcon(
-      IconLoader::load("graph3d-point-mesh", IconLoader::LightDark));
-  conestyle->setIcon(IconLoader::load("graph3d-cone", IconLoader::LightDark));
-  crossHairStyle->setIcon(
-      IconLoader::load("graph3d-cross", IconLoader::LightDark));
-  barstyle->setIcon(IconLoader::load("graph3d-bars", IconLoader::General));
+  actionplot3dmodecolumnselect_->setIcon(
+      IconLoader::load("graph3d-column-slice", IconLoader::LightDark));
+  actionplot3dmoderowselect_->setIcon(
+      IconLoader::load("graph3d-row-slice", IconLoader::LightDark));
+  actionplot3dmodeitemselect_->setIcon(
+      IconLoader::load("graph3d-select-item", IconLoader::LightDark));
+  actionplot3dmodenoneselect_->setIcon(
+      IconLoader::load("list-remove", IconLoader::General));
   actionPerspective->setIcon(
       IconLoader::load("graph3d-perspective-view", IconLoader::LightDark));
   actionResetRotation->setIcon(
       IconLoader::load("graph3d-reset-rotation", IconLoader::LightDark));
-  actionFitFrame->setIcon(
-      IconLoader::load("graph3d-fit-frame", IconLoader::LightDark));
-  actionAnimate->setIcon(
+  actionplot3dAnimate_->setIcon(
       IconLoader::load("view-3dplot-movie", IconLoader::LightDark));
   // non menu qaction icons
   actionExportPDF->setIcon(
