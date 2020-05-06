@@ -823,7 +823,7 @@
   </action>
   <action name="actionAddLayer">
    <property name="text">
-    <string>Add &amp;Layer</string>
+    <string>Add &amp;Layout</string>
    </property>
   </action>
   <action name="actionRemoveLayer">
@@ -833,7 +833,7 @@
   </action>
   <action name="actionArrangeLayers">
    <property name="text">
-    <string>Arran&amp;ge Layers...</string>
+    <string>Arran&amp;ge Layouts...</string>
    </property>
   </action>
   <action name="actionHelp">

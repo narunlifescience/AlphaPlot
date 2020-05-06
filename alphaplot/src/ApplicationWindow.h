@@ -654,10 +654,9 @@ class ApplicationWindow : public QMainWindow,
   //! \name Plot3D Tools
   //@{
   void toggle3DAnimation(bool on = true);
-  //! Turns perspective mode on or off
-  void togglePerspective(bool on = true);
-  //! Resets rotation of 3D plots to default values
-  void resetRotation();
+  // Resets rotation of 3D plots to default values
+  void setCameraPresetFront();
+  void resetZoomfactor();
   void removeAxes3DPlot();
 
   void pickSelectionType(QAction* action);
@@ -1098,8 +1097,8 @@ class ApplicationWindow : public QMainWindow,
   QAction* actionGoToCell;
   QAction* actionSaveNote;
   QAction* actionplot3dAnimate_;
-  QAction* actionPerspective;
-  QAction* actionResetRotation;
+  QAction* actionResetCameraFront_;
+  QAction* actionResetZoomfactor_;
 
   QActionGroup* graphToolsGroup;
 

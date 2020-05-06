@@ -150,6 +150,8 @@ Scatter3D *Layout3D::getScatter3DModifier() const {
   }
 }
 
+QAbstract3DGraph *Layout3D::getAbstractGraph() const { return graph_; }
+
 void Layout3D::setCustomInteractions(QAbstract3DGraph *graph, bool status) {
   std::unique_ptr<Q3DSurface> gg(new Q3DSurface);
   (status) ? graph->setActiveInputHandler(custominter_)
@@ -322,7 +324,7 @@ void Layout3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
   }
 }
 
-void Layout3D::save(QXmlStreamWriter *xmlwriter) {
+void Layout3D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeStartElement("plot3d");
   switch (plottype_) {
     case Graph3DCommon::Plot3DType::Surface:
@@ -343,5 +345,117 @@ void Layout3D::save(QXmlStreamWriter *xmlwriter) {
   xmlwriter->writeAttribute("caption_spec", QString::number(captionPolicy()));
   xmlwriter->writeAttribute("name", name());
   xmlwriter->writeAttribute("label", windowLabel());
+  xmlwriter->writeStartElement("Theme");
+  Q3DTheme *theme = graph_->activeTheme();
+  switch (theme->type()) {
+    case Q3DTheme::Theme::ThemeQt:
+      xmlwriter->writeAttribute("name", "themeqt");
+      break;
+    case Q3DTheme::Theme::ThemeDigia:
+      xmlwriter->writeAttribute("name", "themedigia");
+      break;
+    case Q3DTheme::Theme::ThemeEbony:
+      xmlwriter->writeAttribute("name", "themeebony");
+      break;
+    case Q3DTheme::Theme::ThemeRetro:
+      xmlwriter->writeAttribute("name", "themeretro");
+      break;
+    case Q3DTheme::Theme::ThemeArmyBlue:
+      xmlwriter->writeAttribute("name", "themearmyblue");
+      break;
+    case Q3DTheme::Theme::ThemeIsabelle:
+      xmlwriter->writeAttribute("name", "themeisabelle");
+      break;
+    case Q3DTheme::Theme::ThemeStoneMoss:
+      xmlwriter->writeAttribute("name", "themestonemoss");
+      break;
+    case Q3DTheme::Theme::ThemeUserDefined:
+      xmlwriter->writeAttribute("name", "themeuserdefined");
+      break;
+    case Q3DTheme::Theme::ThemePrimaryColors:
+      xmlwriter->writeAttribute("name", "themeprimarycolors");
+      break;
+  }
+  xmlwriter->writeAttribute("canvascolor",
+                            theme->windowColor().name(QColor::HexArgb));
+  xmlwriter->writeStartElement("background");
+  (theme->isBackgroundEnabled())
+      ? xmlwriter->writeAttribute("visible", "true")
+      : xmlwriter->writeAttribute("visible", "false");
+  xmlwriter->writeAttribute("color",
+                            theme->backgroundColor().name(QColor::HexArgb));
+  xmlwriter->writeEndElement();
+  xmlwriter->writeStartElement("light");
+  xmlwriter->writeAttribute("color", theme->lightColor().name(QColor::HexArgb));
+  xmlwriter->writeAttribute("strength",
+                            QString::number(theme->lightStrength()));
+  xmlwriter->writeAttribute("ambientstrength",
+                            QString::number(theme->ambientLightStrength()));
+  xmlwriter->writeEndElement();
+  xmlwriter->writeStartElement("grid");
+  (theme->isGridEnabled()) ? xmlwriter->writeAttribute("visible", "true")
+                           : xmlwriter->writeAttribute("visible", "false");
+  xmlwriter->writeAttribute("color",
+                            theme->gridLineColor().name(QColor::HexArgb));
+  xmlwriter->writeEndElement();
+  xmlwriter->writeStartElement("label");
+  (theme->isLabelBackgroundEnabled())
+      ? xmlwriter->writeAttribute("backgroundvisible", "true")
+      : xmlwriter->writeAttribute("backgroundvisible", "false");
+  xmlwriter->writeAttribute(
+      "backgroundcolor", theme->labelBackgroundColor().name(QColor::HexArgb));
+  (theme->isLabelBorderEnabled())
+      ? xmlwriter->writeAttribute("bordervisible", "true")
+      : xmlwriter->writeAttribute("bordervisible", "false");
+  xmlwriter->writeFont(theme->font(), theme->labelTextColor());
+  xmlwriter->writeEndElement();
+  xmlwriter->writeEndElement();
+  xmlwriter->writeEndElement();
+}
+
+void Layout3D::saveValueAxis(XmlStreamWriter *xmlwriter, QValue3DAxis *axis) {
+  xmlwriter->writeStartElement("axis");
+  xmlwriter->writeAttribute("type", "value");
+  switch (plottype_) {
+    case Graph3DCommon::Plot3DType::Surface:
+      if (surfacemodifier_->getGraph()->axisX() == axis)
+        xmlwriter->writeAttribute("orientation", "x");
+      else if (surfacemodifier_->getGraph()->axisY() == axis)
+        xmlwriter->writeAttribute("orientation", "y");
+      else if (surfacemodifier_->getGraph()->axisZ() == axis)
+        xmlwriter->writeAttribute("orientation", "z");
+      break;
+    case Graph3DCommon::Plot3DType::Bar:
+      if (barmodifier_->getGraph()->valueAxis() == axis)
+        xmlwriter->writeAttribute("orientation", "z");
+      break;
+    case Graph3DCommon::Plot3DType::Scatter:
+      if (scattermodifier_->getGraph()->axisX() == axis)
+        xmlwriter->writeAttribute("orientation", "x");
+      else if (scattermodifier_->getGraph()->axisY() == axis)
+        xmlwriter->writeAttribute("orientation", "y");
+      else if (scattermodifier_->getGraph()->axisZ() == axis)
+        xmlwriter->writeAttribute("orientation", "z");
+      break;
+  }
+  xmlwriter->writeEndElement();
+}
+
+void Layout3D::saveCategoryAxis(XmlStreamWriter *xmlwriter,
+                                QCategory3DAxis *axis) {
+  xmlwriter->writeStartElement("axis");
+  xmlwriter->writeAttribute("type", "category");
+  switch (plottype_) {
+    case Graph3DCommon::Plot3DType::Surface:
+      break;
+    case Graph3DCommon::Plot3DType::Bar:
+      if (barmodifier_->getGraph()->rowAxis() == axis)
+        xmlwriter->writeAttribute("orientation", "x");
+      else if (barmodifier_->getGraph()->columnAxis() == axis)
+        xmlwriter->writeAttribute("orientation", "y");
+      break;
+    case Graph3DCommon::Plot3DType::Scatter:
+      break;
+  }
   xmlwriter->writeEndElement();
 }

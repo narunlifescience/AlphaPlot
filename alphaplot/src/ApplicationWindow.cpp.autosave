@@ -239,7 +239,7 @@ ApplicationWindow::ApplicationWindow()
   btn_new_aspect_->setPopupMode(QToolButton::InstantPopup);
   btn_new_aspect_->setToolTip(tr("New Aspect"));
   btn_layout_->setPopupMode(QToolButton::InstantPopup);
-  btn_layout_->setToolTip(tr("Manage layers"));
+  btn_layout_->setToolTip(tr("Manage Layouts"));
   btn_curves_->setPopupMode(QToolButton::InstantPopup);
   btn_curves_->setToolTip(tr("Add curves / error bars"));
   btn_plot_enrichments_->setPopupMode(QToolButton::InstantPopup);

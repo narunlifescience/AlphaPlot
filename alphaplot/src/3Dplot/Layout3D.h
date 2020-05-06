@@ -12,6 +12,7 @@ class Surface3D;
 class Bar3D;
 class Scatter3D;
 class XmlStreamReader;
+class XmlStreamWriter;
 class Custom3DInteractions;
 using namespace QtDataVisualization;
 
@@ -37,6 +38,7 @@ class Layout3D : public MyWidget {
   Surface3D *getSurface3DModifier() const;
   Bar3D *getBar3DModifier() const;
   Scatter3D *getScatter3DModifier() const;
+  QAbstract3DGraph *getAbstractGraph() const;
   void setCustomInteractions(QAbstract3DGraph *graph, bool status);
   void setAnimation(bool status);
 
@@ -54,7 +56,9 @@ class Layout3D : public MyWidget {
   Graph3DCommon::Plot3DType getPlotType() const;
   void load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             QList<Matrix *> mats);
-  void save(QXmlStreamWriter *xmlwriter);
+  void save(XmlStreamWriter *xmlwriter);
+  void saveValueAxis(XmlStreamWriter *xmlwriter, QValue3DAxis *axis);
+  void saveCategoryAxis(XmlStreamWriter *xmlwriter, QCategory3DAxis *axis);
 
  signals:
   void dataAdded(MyWidget *mywidget);

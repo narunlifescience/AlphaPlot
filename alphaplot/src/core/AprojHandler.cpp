@@ -249,7 +249,7 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
       }
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "plot3d") {
-      bool ok = false;
+      /*bool ok = false;
       Layout3D *plot = nullptr;
       QString ptype = xmlreader->readAttributeString("type", &ok);
       if (ok) {
@@ -263,7 +263,7 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
           xmlreader->raiseError(tr("Layout3D PlotType unknown %1").arg(ptype));
       } else
         xmlreader->raiseError(tr("Layout3D PlotType missing or empty"));
-      plot->load(xmlreader.get(), tables(app), matrixs(app));
+      plot->load(xmlreader.get(), tables(app), matrixs(app));*/
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "log") {
       QXmlStreamAttributes attributes = xmlreader->attributes();
@@ -407,8 +407,8 @@ void AprojHandler::saveTreeRecursive(Folder *folder,
       Layout2D *graph = qobject_cast<Layout2D *>(subwindow);
       graph->save(xmlwriter);
     } else if (qobject_cast<Layout3D *>(subwindow)) {
-      Layout3D *graph = qobject_cast<Layout3D *>(subwindow);
-      graph->save(xmlwriter);
+      //Layout3D *graph = qobject_cast<Layout3D *>(subwindow);
+      //graph->save(xmlwriter);
     }
   }
   foreach (Folder *subfolder, folder->folders()) {

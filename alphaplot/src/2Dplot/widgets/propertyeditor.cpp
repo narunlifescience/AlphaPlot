@@ -4961,7 +4961,7 @@ void PropertyEditor::Surface3DSeriesPropertyBlock(DataBlockSurface3D *block) {
 void PropertyEditor::Bar3DSeriesPropertyBlock(DataBlockBar3D *block) {
   propertybrowser_->clear();
   propertybrowser_->addProperty(plot3dbarseriesvisibleitem_);
-  propertybrowser_->addProperty(plot3dbarseriesmeshitem_);
+  //propertybrowser_->addProperty(plot3dbarseriesmeshitem_);
   propertybrowser_->addProperty(plot3dbarseriesmeshsmoothitem_);
   propertybrowser_->addProperty(plot3dbarseriescolorstyleitem_);
   propertybrowser_->addProperty(plot3dbarseriesbasecoloritem_);
@@ -4970,8 +4970,8 @@ void PropertyEditor::Bar3DSeriesPropertyBlock(DataBlockBar3D *block) {
 
   boolManager_->setValue(plot3dbarseriesvisibleitem_,
                          block->getdataseries()->isVisible());
-  enumManager_->setValue(plot3dbarseriesmeshitem_,
-                         block->getdataseries()->mesh() + 1);
+  //enumManager_->setValue(plot3dbarseriesmeshitem_,
+  //                       block->getdataseries()->mesh());
   boolManager_->setValue(plot3dbarseriesmeshsmoothitem_,
                          block->getdataseries()->isMeshSmooth());
   enumManager_->setValue(plot3dbarseriescolorstyleitem_,
@@ -4988,7 +4988,7 @@ void PropertyEditor::Scatter3DSeriesPropertyBlock(DataBlockScatter3D *block) {
   propertybrowser_->clear();
   propertybrowser_->addProperty(plot3dscatterseriesvisibleitem_);
   propertybrowser_->addProperty(plot3dscatterseriessizeitem_);
-  propertybrowser_->addProperty(plot3dscatterseriesmeshitem_);
+  //propertybrowser_->addProperty(plot3dscatterseriesmeshitem_);
   propertybrowser_->addProperty(plot3dscatterseriesmeshsmoothitem_);
   propertybrowser_->addProperty(plot3dscatterseriescolorstyleitem_);
   propertybrowser_->addProperty(plot3dscatterseriesbasecoloritem_);
@@ -4999,8 +4999,8 @@ void PropertyEditor::Scatter3DSeriesPropertyBlock(DataBlockScatter3D *block) {
                          block->getdataseries()->isVisible());
   doubleManager_->setValue(plot3dscatterseriessizeitem_,
                            block->getdataseries()->itemSize());
-  enumManager_->setValue(plot3dscatterseriesmeshitem_,
-                         block->getdataseries()->mesh() + 1);
+  //enumManager_->setValue(plot3dscatterseriesmeshitem_,
+  //                       block->getdataseries()->mesh() + 1);
   boolManager_->setValue(plot3dscatterseriesmeshsmoothitem_,
                          block->getdataseries()->isMeshSmooth());
   enumManager_->setValue(plot3dscatterseriescolorstyleitem_,

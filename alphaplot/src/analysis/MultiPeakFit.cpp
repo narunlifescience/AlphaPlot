@@ -200,7 +200,7 @@ void MultiPeakFit::insertPeakFunctionCurve(double *x, double *y, int peak) {
                  .arg(d_param_names[d_p - 1])
                  .arg(d_results[d_p - 1], 1, 'g', d_prec)
                  .arg(peakFormula(peak + 1, d_profile));
-  app_->addFunctionPlot(1, QStringList() << formula, QString("x"),
+  app_->addFunctionPlot(0, QStringList() << formula, QString("x"),
                         QList<double>() << d_x[0] << d_x[d_n - 1], d_points,
                         axisrect_);
 }
