@@ -35,10 +35,10 @@
 #include <QMetaEnum>
 #include <QtDebug>
 
-const int AlphaPlot::AlphaPlot_versionNo = 102020;
-const char* AlphaPlot::AlphaPlot_version = "1.01A";
+const int AlphaPlot::AlphaPlot_versionNo = 112020;
+const char* AlphaPlot::AlphaPlot_version = "1.011A";
 const char* AlphaPlot::extra_version = "-alpha";
-const char* AlphaPlot::release_date = "April 15, 2020";
+const char* AlphaPlot::release_date = "May 07, 2020";
 const char* AlphaPlot::homepage_Uri =
     "http://alphaplot.sourceforge.net/";
 const char* AlphaPlot::manual_Uri =
