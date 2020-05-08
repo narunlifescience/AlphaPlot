@@ -3,10 +3,6 @@
 
 [![License][license-badge]][license-page] [![Build Status](https://travis-ci.org/narunlifescience/AlphaPlot.svg?branch=master)](https://travis-ci.org/narunlifescience/AlphaPlot) [![Join the chat at https://gitter.im/narunlifescience/AlphaPlot](https://badges.gitter.im/narunlifescience/AlphaPlot.svg)](https://gitter.im/narunlifescience/AlphaPlot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-# Donate
-
-AlphaPlot is an open source project that has been made possible due to the generous contributions by community backers. If you are interested in supporting this project, please consider becoming a sponsor or becoming a patron https://www.patreon.com/alphaplot
-
 [license-page]: COPYING
 [license-badge]: http://img.shields.io/badge/License-GPL2-blue.svg
 
@@ -18,6 +14,10 @@ Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalys
 | Github      | https://github.com/narunlifescience/AlphaPlot    |
 | Sourceforge | https://sourceforge.net/projects/alphaplot/      |
 | Test builds | http://alphaplot.sourceforge.net/test-build.html |
+
+
+# Donate
+AlphaPlot is an open source project that has been made possible due to the generous contributions by community backers. If you are interested in supporting this project, please consider becoming a sponsor or becoming a patron https://www.patreon.com/alphaplot
 
 # Watch the Video
 [![AlphaPlot Plotting Basics](data/screenshots/alphaplot1.png)](http://www.youtube.com/watch?v=U3DE_ObVLeU "AlphaPlot Plotting Basics")
