@@ -8,6 +8,7 @@
 class Column;
 class Table;
 class DataBlockBar;
+class DataBlockHist;
 class ErrorBar2D;
 
 class Bar2D : public QCPBars {
@@ -15,7 +16,7 @@ class Bar2D : public QCPBars {
  public:
   Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
         Axis2D *xAxis, Axis2D *yAxis, int stackposition);
-  Bar2D(Table *table, Column *ycol, int from, int to, Axis2D *xAxis,
+  Bar2D(Table *table, Column *col, int from, int to, Axis2D *xAxis,
         Axis2D *yAxis);
   void init();
   ~Bar2D();
@@ -42,10 +43,7 @@ class Bar2D : public QCPBars {
   ErrorBar2D *getxerrorbar_barplot() { return xerrorbar_; }
   ErrorBar2D *getyerrorbar_barplot() { return yerrorbar_; }
   int getstackposition_barplot() const { return stackposition_; }
-  Table *gettable_histogram() { return table_; }
-  Column *getcolumn_histogram() { return column_; }
-  int getfrom_histogram() const { return from_; }
-  int getto_histogram() const { return to_; }
+  DataBlockHist *getdatablock_histplot() const;
 
   void setxaxis_barplot(Axis2D *axis, bool override = false);
   void setyaxis_barplot(Axis2D *axis, bool override = false);
@@ -54,6 +52,10 @@ class Bar2D : public QCPBars {
   void setstrokethickness_barplot(const double value);
   void setfillcolor_barplot(const QColor &color);
 
+  void setHistAutoBin(const bool status);
+  void setHistBinSize(const double binsize);
+  void setHistBegin(const double begin);
+  void setHistEnd(const double end);
   void setBarData(Table *table, Column *xcol, Column *ycol, int from, int to);
   void setBarData(Table *table, Column *col, int from, int to);
   void setpicker_barplot(const Graph2DCommon::Picker picker);
@@ -78,21 +80,14 @@ class Bar2D : public QCPBars {
   Axis2D *xaxis_;
   Axis2D *yaxis_;
   DataBlockBar *bardata_;
+  DataBlockHist *histdata_;
   bool ishistogram_;
-  Table *table_;
-  Column *column_;
-  int from_;
-  int to_;
   ErrorBar2D *xerrorbar_;
   ErrorBar2D *yerrorbar_;
   QString layername_;
   bool xerroravailable_;
   bool yerroravailable_;
   Graph2DCommon::Picker picker_;
-  bool auto_binning_;
-  double bin_size_;
-  double begin_;
-  double end_;
   int stackposition_;
 };
 

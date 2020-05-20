@@ -98,6 +98,8 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
   graph_->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
   graph_->scene()->activeCamera()->setCameraPreset(
       Q3DCamera::CameraPresetFront);
+  graph_->setAspectRatio(1.0);
+  graph_->setHorizontalAspectRatio(1.0);
   // set animations
   m_animationCameraX_ =
       new QPropertyAnimation(graph_->scene()->activeCamera(), "xRotation");

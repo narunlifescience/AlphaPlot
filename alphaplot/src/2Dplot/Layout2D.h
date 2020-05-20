@@ -122,6 +122,7 @@ class Layout2D : public MyWidget {
 
   QHBoxLayout *layoutButtonsBox_;
   QHBoxLayout *layoutManagebuttonsBox_;
+  QPushButton *refreshPlotButton_;
   QPushButton *addLayoutButton_;
   QPushButton *removeLayoutButton_;
   QLabel *streachLabel_;

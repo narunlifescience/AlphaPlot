@@ -372,6 +372,10 @@ class PropertyEditor : public QDockWidget {
   QtProperty *barplotpropertystrokethicknessitem_;
   QtProperty *barplotpropertystrokestyleitem_;
   QtProperty *barplotpropertylegendtextitem_;
+  QtProperty *barplotpropertyhistautobinstatusitem_;
+  QtProperty *barplotpropertyhistbinitem_;
+  QtProperty *barplotpropertyhistbeginitem_;
+  QtProperty *barplotpropertyhistenditem_;
 
   // StatBox Properties block
   QtProperty *statboxplotpropertyxaxisitem_;

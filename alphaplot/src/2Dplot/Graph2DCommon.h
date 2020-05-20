@@ -59,6 +59,24 @@ struct AssociatedData {
   int to;
   AssociatedData() : table(nullptr), xcol(nullptr), ycol(nullptr) {}
 };
+
+struct HistData {
+  Table *table;
+  Column *col;
+  int from;
+  int to;
+  bool autobin;
+  double binsize;
+  double begin;
+  double end;
+  HistData()
+      : table(nullptr),
+        col(nullptr),
+        autobin(true),
+        binsize(0),
+        begin(0),
+        end(0) {}
+};
 }  // namespace PlotData
 
 #endif  // GRAPH2DCOMMON_H

@@ -29,8 +29,7 @@ Plot2D::Plot2D(QWidget *parent)
   setBackgroundColor(canvasBackground_);
   setAutoAddPlottableToLegend(false);
   plotLayout()->clear();
-  setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes |
-                  QCP::iSelectLegend | QCP::iSelectPlottables);
+  setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
   // set layer order
   if (!layer(layernamebackground2d_))
     addLayer(layernamebackground2d_, nullptr, LayerInsertMode::limBelow);

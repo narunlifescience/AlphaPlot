@@ -606,6 +606,21 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
                              stroketypeiconslist);
   barplotpropertylegendtextitem_ = stringManager_->addProperty("Legend Text");
   doubleManager_->setSingleStep(barplotpropertywidthitem_, 0.01);
+  barplotpropertyhistautobinstatusitem_ =
+      boolManager_->addProperty(tr("Auto Bin"));
+  barplotpropertyhistbinitem_ = doubleManager_->addProperty(tr("Bin Size"));
+  barplotpropertyhistautobinstatusitem_->addSubProperty(
+      barplotpropertyhistbinitem_);
+  barplotpropertyhistbeginitem_ = doubleManager_->addProperty(tr("Begin"));
+  barplotpropertyhistautobinstatusitem_->addSubProperty(
+      barplotpropertyhistbeginitem_);
+  barplotpropertyhistenditem_ = doubleManager_->addProperty(tr("End"));
+  barplotpropertyhistautobinstatusitem_->addSubProperty(
+      barplotpropertyhistenditem_);
+  doubleManager_->setDecimals(barplotpropertyhistbinitem_, 10);
+  doubleManager_->setMinimum(barplotpropertyhistbinitem_, 0.0000000001);
+  doubleManager_->setDecimals(barplotpropertyhistbeginitem_, 10);
+  doubleManager_->setDecimals(barplotpropertyhistenditem_, 10);
 
   // StatBox Properties block
   QStringList boxwhiskerstylelist;
@@ -1512,6 +1527,19 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
     bar->setAntialiased(value);
     bar->layer()->replot();
+  } else if (prop->compare(barplotpropertyhistautobinstatusitem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    bar->setHistAutoBin(value);
+    if (bar->getdatablock_histplot()->getautobin()) {
+      barplotpropertyhistbeginitem_->setEnabled(false);
+      barplotpropertyhistenditem_->setEnabled(false);
+      barplotpropertyhistbinitem_->setEnabled(false);
+    } else {
+      barplotpropertyhistbeginitem_->setEnabled(true);
+      barplotpropertyhistenditem_->setEnabled(true);
+      barplotpropertyhistbinitem_->setEnabled(true);
+    }
+    bar->layer()->replot();
   } else if (prop->compare(statboxplotpropertyantialiaseditem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
@@ -2379,6 +2407,32 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
     bar->setstrokethickness_barplot(value);
     bar->layer()->replot();
     bar->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
+  } else if (prop->compare(barplotpropertyhistbinitem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    if (!bar->getdatablock_histplot()->getautobin()) bar->setHistBinSize(value);
+    bar->layer()->replot();
+  } else if (prop->compare(barplotpropertyhistbeginitem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    if (bar->getdatablock_histplot()->getend() > value) {
+      if (!bar->getdatablock_histplot()->getautobin()) {
+        bar->setHistBegin(value);
+        bar->layer()->replot();
+      }
+    } else {
+      doubleManager_->setValue(barplotpropertyhistbeginitem_,
+                               bar->getdatablock_histplot()->getbegin());
+    }
+  } else if (prop->compare(barplotpropertyhistenditem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    if (bar->getdatablock_histplot()->getbegin() < value) {
+      if (!bar->getdatablock_histplot()->getautobin()) {
+        bar->setHistEnd(value);
+        bar->layer()->replot();
+      }
+    } else {
+      doubleManager_->setValue(barplotpropertyhistenditem_,
+                               bar->getdatablock_histplot()->getend());
+    }
   } else if (prop->compare(statboxplotpropertywidthitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
@@ -4277,6 +4331,8 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
   propertybrowser_->addProperty(barplotpropertystrokethicknessitem_);
   propertybrowser_->addProperty(barplotpropertystrokestyleitem_);
   propertybrowser_->addProperty(barplotpropertylegendtextitem_);
+  if (bargraph->ishistogram_barplot())
+    propertybrowser_->addProperty(barplotpropertyhistautobinstatusitem_);
   QStringList baryaxislist;
   int currentyaxis = 0;
   int ycount = 0;
@@ -4350,6 +4406,16 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
                          bargraph->getstrokestyle_barplot() - 1);
   stringManager_->setValue(barplotpropertylegendtextitem_,
                            Utilities::joinstring(bargraph->name()));
+  if (bargraph->ishistogram_barplot()) {
+    boolManager_->setValue(barplotpropertyhistautobinstatusitem_,
+                           bargraph->getdatablock_histplot()->getautobin());
+    doubleManager_->setValue(barplotpropertyhistbeginitem_,
+                             bargraph->getdatablock_histplot()->getbegin());
+    doubleManager_->setValue(barplotpropertyhistenditem_,
+                             bargraph->getdatablock_histplot()->getend());
+    doubleManager_->setValue(barplotpropertyhistbinitem_,
+                             bargraph->getdatablock_histplot()->getbinsize());
+  }
 }
 
 void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
@@ -4961,7 +5027,7 @@ void PropertyEditor::Surface3DSeriesPropertyBlock(DataBlockSurface3D *block) {
 void PropertyEditor::Bar3DSeriesPropertyBlock(DataBlockBar3D *block) {
   propertybrowser_->clear();
   propertybrowser_->addProperty(plot3dbarseriesvisibleitem_);
-  //propertybrowser_->addProperty(plot3dbarseriesmeshitem_);
+  // propertybrowser_->addProperty(plot3dbarseriesmeshitem_);
   propertybrowser_->addProperty(plot3dbarseriesmeshsmoothitem_);
   propertybrowser_->addProperty(plot3dbarseriescolorstyleitem_);
   propertybrowser_->addProperty(plot3dbarseriesbasecoloritem_);
@@ -4970,7 +5036,7 @@ void PropertyEditor::Bar3DSeriesPropertyBlock(DataBlockBar3D *block) {
 
   boolManager_->setValue(plot3dbarseriesvisibleitem_,
                          block->getdataseries()->isVisible());
-  //enumManager_->setValue(plot3dbarseriesmeshitem_,
+  // enumManager_->setValue(plot3dbarseriesmeshitem_,
   //                       block->getdataseries()->mesh());
   boolManager_->setValue(plot3dbarseriesmeshsmoothitem_,
                          block->getdataseries()->isMeshSmooth());
@@ -4988,7 +5054,7 @@ void PropertyEditor::Scatter3DSeriesPropertyBlock(DataBlockScatter3D *block) {
   propertybrowser_->clear();
   propertybrowser_->addProperty(plot3dscatterseriesvisibleitem_);
   propertybrowser_->addProperty(plot3dscatterseriessizeitem_);
-  //propertybrowser_->addProperty(plot3dscatterseriesmeshitem_);
+  // propertybrowser_->addProperty(plot3dscatterseriesmeshitem_);
   propertybrowser_->addProperty(plot3dscatterseriesmeshsmoothitem_);
   propertybrowser_->addProperty(plot3dscatterseriescolorstyleitem_);
   propertybrowser_->addProperty(plot3dscatterseriesbasecoloritem_);
@@ -4999,7 +5065,7 @@ void PropertyEditor::Scatter3DSeriesPropertyBlock(DataBlockScatter3D *block) {
                          block->getdataseries()->isVisible());
   doubleManager_->setValue(plot3dscatterseriessizeitem_,
                            block->getdataseries()->itemSize());
-  //enumManager_->setValue(plot3dscatterseriesmeshitem_,
+  // enumManager_->setValue(plot3dscatterseriesmeshitem_,
   //                       block->getdataseries()->mesh() + 1);
   boolManager_->setValue(plot3dscatterseriesmeshsmoothitem_,
                          block->getdataseries()->isMeshSmooth());
@@ -5670,15 +5736,21 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             QTreeWidgetItem *baritem = new QTreeWidgetItem(
                 static_cast<QTreeWidget *>(nullptr), QStringList(bartext));
             if (bar->ishistogram_barplot()) {
-              bartext = bar->gettable_histogram()->name() + "_" +
-                        bar->getcolumn_histogram()->name() + "[" +
-                        QString::number(bar->getfrom_histogram() + 1) + ":" +
-                        QString::number(bar->getto_histogram() + 1) + "]";
+              bartext =
+                  bar->getdatablock_histplot()->gettable()->name() + "_" +
+                  bar->getdatablock_histplot()->getcolumn()->name() + "[" +
+                  QString::number(bar->getdatablock_histplot()->getfrom() + 1) +
+                  ":" +
+                  QString::number(bar->getdatablock_histplot()->getto() + 1) +
+                  "]";
               QString tooltiptext =
-                  tooltiptextx.arg(bar->gettable_histogram()->name())
-                      .arg(bar->getcolumn_histogram()->name())
-                      .arg(QString::number(bar->getfrom_histogram() + 1))
-                      .arg(QString::number(bar->getto_histogram() + 1));
+                  tooltiptextx
+                      .arg(bar->getdatablock_histplot()->gettable()->name())
+                      .arg(bar->getdatablock_histplot()->getcolumn()->name())
+                      .arg(QString::number(
+                          bar->getdatablock_histplot()->getfrom() + 1))
+                      .arg(QString::number(
+                          bar->getdatablock_histplot()->getto() + 1));
               baritem->setToolTip(0, tooltiptext);
               baritem->setText(0, bartext);
               baritem->setIcon(0, IconLoader::load("graph2d-histogram",
@@ -6753,6 +6825,11 @@ void PropertyEditor::setObjectPropertyId() {
       "barplotpropertystrokestyleitem_");
   barplotpropertylegendtextitem_->setPropertyId(
       "barplotpropertylegendtextitem_");
+  barplotpropertyhistautobinstatusitem_->setPropertyId(
+      "barplotpropertyhistautobinstatusitem_");
+  barplotpropertyhistbinitem_->setPropertyId("barplotpropertyhistbinitem_");
+  barplotpropertyhistbeginitem_->setPropertyId("barplotpropertyhistbeginitem_");
+  barplotpropertyhistenditem_->setPropertyId("barplotpropertyhistenditem_");
 
   // StatBox Properties block
   statboxplotpropertyxaxisitem_->setPropertyId("statboxplotpropertyxaxisitem_");

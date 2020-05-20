@@ -55,6 +55,12 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   setBirthDate(birthday.toString(Qt::LocalDate));
 
   layoutManagebuttonsBox_ = new QHBoxLayout();
+  refreshPlotButton_ = new QPushButton();
+  refreshPlotButton_->setToolTip(tr("Refresh"));
+  refreshPlotButton_->setMaximumWidth(LayoutButton2D::btnSize());
+  refreshPlotButton_->setMaximumHeight(LayoutButton2D::btnSize());
+  layoutManagebuttonsBox_->addWidget(refreshPlotButton_);
+
   addLayoutButton_ = new QPushButton();
   addLayoutButton_->setToolTip(tr("Add layer"));
   addLayoutButton_->setMaximumWidth(LayoutButton2D::btnSize());
@@ -95,8 +101,10 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   loadIcons();
 
   // connections
-  connect(addLayoutButton_, SIGNAL(clicked()), this,
-          SLOT(addAxisRectWithAxis()));
+  connect(refreshPlotButton_, &QPushButton::clicked,
+          [&]() { plot2dCanvas_->replot(); });
+  connect(addLayoutButton_, &QPushButton::clicked, this,
+          &Layout2D::addAxisRectWithAxis);
   connect(removeLayoutButton_, &QPushButton::clicked, this,
           &Layout2D::removeAxisRectItem);
   connect(plot2dCanvas_, &Plot2D::mouseMove, this, &Layout2D::mouseMoveSignal);
@@ -1012,11 +1020,12 @@ void Layout2D::updateData(Table *table, const QString &name) {
           }
         }
       } else {
-        if (bar->gettable_histogram() == table) {
-          if (bar->getcolumn_histogram() == col) {
-            bar->setBarData(bar->gettable_histogram(),
-                            bar->getcolumn_histogram(),
-                            bar->getfrom_histogram(), bar->getto_histogram());
+        if (bar->getdatablock_histplot()->gettable() == table) {
+          if (bar->getdatablock_histplot()->getcolumn() == col) {
+            bar->setBarData(bar->getdatablock_histplot()->gettable(),
+                            bar->getdatablock_histplot()->getcolumn(),
+                            bar->getdatablock_histplot()->getfrom(),
+                            bar->getdatablock_histplot()->getto());
             modified = true;
           }
         }
@@ -1196,8 +1205,8 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
           }
         }
       } else {
-        if (bar->gettable_histogram() == table) {
-          if (bar->getcolumn_histogram() == col) {
+        if (bar->getdatablock_histplot()->gettable() == table) {
+          if (bar->getdatablock_histplot()->getcolumn() == col) {
             axisrect->removeBar2D(bar);
             removed = true;
           }
@@ -1314,8 +1323,9 @@ QStringList Layout2D::dependentTableMatrixNames() {
             dependeon << yerror->gettable()->name();
         }
       } else {
-        if (!dependeon.contains(bar->gettable_histogram()->name()))
-          dependeon << bar->gettable_histogram()->name();
+        if (!dependeon.contains(
+                bar->getdatablock_histplot()->gettable()->name()))
+          dependeon << bar->getdatablock_histplot()->gettable()->name();
       }
     }
 
@@ -1693,6 +1703,8 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
 }
 
 void Layout2D::loadIcons() {
+  refreshPlotButton_->setIcon(
+      IconLoader::load("edit-recalculate", IconLoader::LightDark));
   addLayoutButton_->setIcon(
       IconLoader::load("list-add", IconLoader::LightDark));
   removeLayoutButton_->setIcon(
@@ -1701,13 +1713,17 @@ void Layout2D::loadIcons() {
 
 void Layout2D::setLayoutButtonBoxVisible(const bool value) {
   if (value) {
+    refreshPlotButton_->setEnabled(true);
     addLayoutButton_->setEnabled(true);
     removeLayoutButton_->setEnabled(true);
+    refreshPlotButton_->setVisible(true);
     addLayoutButton_->setVisible(true);
     removeLayoutButton_->setVisible(true);
   } else {
+    refreshPlotButton_->setDisabled(true);
     addLayoutButton_->setDisabled(true);
     removeLayoutButton_->setDisabled(true);
+    refreshPlotButton_->setHidden(true);
     addLayoutButton_->setHidden(true);
     removeLayoutButton_->setHidden(true);
   }
