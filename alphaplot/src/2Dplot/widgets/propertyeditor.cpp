@@ -5335,7 +5335,11 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       auto layervec = element->getLayerVec();
       // reverse layer list order
       for (int k = 0, s = layervec.size(), max = (s / 2); k < max; k++)
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
         layervec.swapItemsAt(k, s - (1 + k));
+#else
+        layervec.swap(k, s - (1 + k));
+#endif
 
       foreach (QCPLayer *layer, layervec) {
         bool layerfound = false;
