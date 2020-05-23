@@ -1,0 +1,119 @@
+name: Build Testing
+
+on: [push, pull_request]
+
+jobs:
+  Ubuntu-GCC:
+
+    name: gcc-${{ matrix.version }}-${{ matrix.config }}
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [9, 10]
+        config: [Debug, Release]
+
+    env:
+      CC: gcc-${{ matrix.version }}
+      CXX: g++-${{ matrix.version }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ../Qt
+        key: ${{ runner.os }}-QtCache
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        modules: 'qtdatavis3d qtscript'
+
+    - name: Install Prerequisties
+      run: |
+        sudo apt update
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt install -y --no-install-recommends libmuparser-dev libgsl-dev \
+          g++-${{ matrix.version }}
+    - name: Configuring and Building
+      run: |
+        mkdir build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+        make -j$(nproc)
+
+  Ubuntu-Clang:
+
+    name:  clang-${{ matrix.version }}-${{ matrix.config }}
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [9, 10]
+        config: [Debug, Release]
+
+    env:
+      CC: clang-${{ matrix.version }}
+      CXX: clang++-${{ matrix.version }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ../Qt
+        key: ${{ runner.os }}-QtCache
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        modules: 'qtdatavis3d qtscript'
+
+    - name: Install Prerequisties
+      run: |
+        export DEBIAN_FRONTEND=noninteractive
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo add-apt-repository -y \
+          "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-${{ matrix.version }} main"
+        sudo apt install -y --no-install-recommends libmuparser-dev libgsl-dev \
+          clang-${{ matrix.version }}
+    - name: Configuring and Building
+      run: |
+        mkdir build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+        make -j$(nproc)
+
+  Windows-MinGW64:
+
+    name:  mingw64-${{ matrix.config }}
+
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [Debug, Release]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Prerequisties
+      run: |
+        $ENV:PATH = "C:\msys64\usr\bin;C:\msys64\mingw64\bin;$ENV:PATH"
+        pacman -Syu --noconfirm
+        pacman -S --noconfirm --needed mingw-w64-x86_64-qt5 mingw-w64-x86_64-muparser `
+          mingw-w64-x86_64-gsl mingw-w64-x86_64-mesa
+    - name: Configuring and Building
+      run: |
+        $ENV:PATH = "C:\msys64\usr\bin;C:\msys64\mingw64\bin;$ENV:PATH"
+        mkdir build ; cd build
+        cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+        make -j $(nproc)
