@@ -118,6 +118,7 @@ endif()
 
 # AlphaPlot
 add_executable( AlphaPlot
+  WIN32
   ${SRCS}
   ${FORMS}
   ${HEADERS}
@@ -126,9 +127,8 @@ add_executable( AlphaPlot
   )
 target_link_libraries( AlphaPlot
   ZLIB::ZLIB
-  gsl
-  gslcblas
-  muparser
+  GSL::gsl
+  GSL::gslcblas
   minigzip
   qcustomplot
   propertybrowser
@@ -144,10 +144,10 @@ target_link_libraries( AlphaPlot
   Qt5::XmlPatterns
   Qt5::Script
   )
+
 target_compile_definitions( AlphaPlot PRIVATE
   SCRIPTING_DIALOG
   SCRIPTING_CONSOLE
-  SCRIPTING_MUPARSER
   LEGACY_CODE_0_2_x
   )
 set_target_properties( AlphaPlot
@@ -157,12 +157,13 @@ set_target_properties( AlphaPlot
   AUTORCC ON
   )
 
-if( MINGW )
-  target_link_options( AlphaPlot PRIVATE "-mwindows" )
-endif()
-
 if( SEARCH_FOR_UPDATES OR DOWNLOAD_LINKS )
   target_link_libraries( AlphaPlot Qt5::Network )
+endif()
+if( SCRIPTING_MUPARSER AND (NOT MUPARSER_LIB) )
+  target_link_libraries( AlphaPlot muparser )
+elseif( SCRIPTING_MUPARSER )
+  target_link_libraries( AlphaPlot ${MUPARSER_LIB} )
 endif()
 
 if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
@@ -174,9 +175,11 @@ endif()
 if( SEARCH_FOR_UPDATES )
   target_compile_definitions( AlphaPlot PRIVATE SEARCH_FOR_UPDATES )
 endif()
-
 if( DOWNLOAD_LINKS )
   target_compile_definitions( AlphaPlot PRIVATE DOWNLOAD_LINKS )
+endif()
+if( SCRIPTING_MUPARSER )
+  target_compile_definitions( AlphaPlot PRIVATE SCRIPTING_MUPARSER )
 endif()
 
 if( WIN32 )

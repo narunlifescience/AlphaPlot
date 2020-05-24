@@ -1,6 +1,10 @@
 # MuParser
-find_library( MUPARSER_FOUND muparser )
-if( NOT MUPARSER_FOUND )
+if( SCRIPTING_MUPARSER )
+  find_library( MUPARSER_LIB muparser )
+endif()
+message( STATUS "muparser library: ${MUPARSER_LIB}" )
+
+if( SCRIPTING_MUPARSER AND (NOT MUPARSER_LIB) )
   set( muparser_dir ${CMAKE_CURRENT_SOURCE_DIR}/muparser )
   set( HEADERS
     ${muparser_dir}/muParser.h

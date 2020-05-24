@@ -23,9 +23,13 @@ find_package( Qt5
   REQUIRED
   )
 
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -Wall -Wextra" )
-
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra" )
+if( MSVC )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Wall" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall" )
+else()
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -Wall -Wextra" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra" )
+endif()
 
 # Searching for updates
 option( SEARCH_FOR_UPDATES "Enable Searching for updates" ON )
@@ -34,13 +38,11 @@ option( DOWNLOAD_LINKS "Enable Download links" ON )
 if( SEARCH_FOR_UPDATES OR DOWNLOAD_LINKS )
   find_package( Qt5 COMPONENTS Network REQUIRED )
 endif()
+# Enable MuParser scripting
+option( SCRIPTING_MUPARSER "Enable MuParser Scritpting" ON )
 
 # GSL
-find_library( GSL_FOUND gsl REQUIRED )
-find_library( GSLCBLAS_FOUND gslcblas REQUIRED )
-if( NOT GSL_FOUND OR NOT GSLCBLAS_FOUND )
-  message( FATAL_ERROR "gsl library not found" )
-endif()
+find_package( GSL REQUIRED )
 
 # ZLIB
 find_package( ZLIB "1.2.3" REQUIRED )
