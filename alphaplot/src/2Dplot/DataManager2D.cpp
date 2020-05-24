@@ -407,7 +407,7 @@ void DataBlockHist::regenerateDataBlock(Table *table, Column *col,
 
   for (int i = 0; i < size; i++) gsl_histogram_increment(h, Y[i]);
 
-  double X[n];  // stores ranges (x) and bins (y)
+  QScopedArrayPointer<double> X(new double[n]); // stores ranges (x) and bins (y)
   Y.resize(n);
   QSharedPointer<QCPBarsDataContainer> cont =
       QSharedPointer<QCPBarsDataContainer>(new QCPBarsDataContainer);

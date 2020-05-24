@@ -38,18 +38,19 @@ void Spectrogram::updateData(Matrix *m) {}
 
 void Spectrogram::setLevelsNumber(int levels) {}
 
-bool Spectrogram::hasColorScale() {}
+// Disable some functions as Spectrogram is not yet implemented.
+//bool Spectrogram::hasColorScale() {}
 
 void Spectrogram::showColorScale(int axis, bool on) {}
 
-int Spectrogram::colorBarWidth() {}
+//int Spectrogram::colorBarWidth() {}
 
 void Spectrogram::setColorBarWidth(int width) {}
 
-Spectrogram *Spectrogram::copy() {}
+//Spectrogram *Spectrogram::copy() {}
 
 void Spectrogram::setGrayScale() {}
 
 void Spectrogram::setDefaultColorMap() {}
 
-QString Spectrogram::saveToString() {}
+//QString Spectrogram::saveToString() {}
