@@ -1,9 +1,7 @@
 
 include_directories(
-  "${CMAKE_SOURCE_DIR}/alphaplot"
-  "${CMAKE_SOURCE_DIR}/alphaplot/src"
-  "${CMAKE_SOURCE_DIR}/alphaplot/src/future"
-  "${CMAKE_BINARY_DIR}/alphaplot/src/alphaplot_autogen/include"
+  "${CMAKE_SOURCE_DIR}/src"
+  "${CMAKE_BINARY_DIR}/src/AlphaPlot_autogen/include"
   )
 
 find_package( Qt5 COMPONENTS Test REQUIRED )

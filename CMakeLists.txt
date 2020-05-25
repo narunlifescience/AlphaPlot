@@ -49,7 +49,7 @@ find_package( ZLIB "1.2.3" REQUIRED )
 
 add_subdirectory( 3rdparty )
 
-add_subdirectory( alphaplot/src )
+add_subdirectory( src )
 
 add_subdirectory( fitPlugins )
 

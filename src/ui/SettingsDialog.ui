@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsDialog</class>
+ <widget class="QDialog" name="SettingsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="settingGridLayout">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="headerHorizontalLayout">
+     <item>
+      <widget class="QPushButton" name="settingsButton">
+       <property name="text">
+        <string>All Settings</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="configureButton">
+       <property name="text">
+        <string>Configure</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="headerHorizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>36</width>
+         <height>23</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="searchBox">
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="statusTip">
+        <string/>
+       </property>
+       <property name="accessibleName">
+        <string/>
+       </property>
+       <property name="accessibleDescription">
+        <string/>
+       </property>
+       <property name="inputMethodHints">
+        <set>Qt::ImhNone</set>
+       </property>
+       <property name="inputMask">
+        <string/>
+       </property>
+       <property name="placeholderText">
+        <string>Search</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QStackedWidget" name="stackedWidget">
+     <widget class="QWidget" name="page_0">
+      <layout class="QGridLayout" name="stackGridLayout">
+       <item row="1" column="0">
+        <widget class="QScrollArea" name="scrollArea">
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>-390</y>
+            <width>348</width>
+            <height>618</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="scrollVerticalLayout">
+           <item>
+            <widget class="QLabel" name="generalLabel">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <italic>true</italic>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string>General</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="aSettingsListView" name="generalListView">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="tableLabel">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <italic>true</italic>
+               <bold>true</bold>
+               <kerning>false</kerning>
+              </font>
+             </property>
+             <property name="text">
+              <string>Table</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="aSettingsListView" name="tableListView"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="plot2dLabel">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <italic>true</italic>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>2D Plot</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="aSettingsListView" name="plot2dListView"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="plot3dLabel">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <italic>true</italic>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>3D Plot</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="aSettingsListView" name="plot3dListView"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="fittingLabel">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <italic>true</italic>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Fitting</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="aSettingsListView" name="fittingListView"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="scriptingLabel">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <italic>true</italic>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Scripting</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="aSettingsListView" name="scriptingListView"/>
+           </item>
+           <item>
+            <spacer name="scrollAreaVerticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_1"/>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>aSettingsListView</class>
+   <extends>QListView</extends>
+   <header>widgets/aSettingsListView.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
