@@ -41,11 +41,13 @@ jobs:
         sudo apt install -y --no-install-recommends libmuparser-dev libgsl-dev \
           g++-${{ matrix.version }}
 
-    - name: Configuring and Building
+    - name: Configuring
       run: |
         mkdir build && cd build
         cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.config }}
-        make -j$(nproc)
+
+    - name: Building
+      run: make -j $(nproc) -C build
 
   Ubuntu-Clang:
 
@@ -87,11 +89,13 @@ jobs:
         sudo apt install -y --no-install-recommends libmuparser-dev libgsl-dev \
           clang-${{ matrix.version }}
 
-    - name: Configuring and Building
+    - name: Configuring
       run: |
         mkdir build && cd build
         cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.config }}
-        make -j$(nproc)
+
+    - name: Building
+      run: make -j $(nproc) -C build
 
   Windows-MinGW64:
 
@@ -107,25 +111,30 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Add MSYS2 to Path
+      run: |
+        "::add-path::C:\msys64\usr\bin"
+        "::add-path::C:\msys64\mingw64\bin"
+
     - name: Install Prerequisties
       run: |
-        $ENV:PATH = "C:\msys64\usr\bin;C:\msys64\mingw64\bin;$ENV:PATH"
         pacman -Syu --noconfirm
         pacman -S --noconfirm --needed mingw-w64-x86_64-qt5 mingw-w64-x86_64-muparser `
           mingw-w64-x86_64-gsl mingw-w64-x86_64-mesa
 
-    - name: Configuring and Building
+    - name: Configuring
       run: |
-        $ENV:PATH = "C:\msys64\usr\bin;C:\msys64\mingw64\bin;$ENV:PATH"
         mkdir build ; cd build
         cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=${{ matrix.config }}
-        make -j $(nproc)
+
+    - name: Building
+      run: make -j $(nproc) -C build
 
   Windows-MSVC:
 
     name:  msvc-${{ matrix.config }}
 
-    runs-on: windows-2019
+    runs-on: windows-latest
 
     strategy:
       fail-fast: false
@@ -148,12 +157,25 @@ jobs:
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
         modules: 'qtdatavis3d qtscript'
 
+    - name: Cache vcpkg
+      id: cache-vcpkg
+      uses: actions/cache@v1
+      with:
+        path: C:\vcpkg
+        key: vcpkg
+
+    - name: Clean vcpkg
+      if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+      run: Remove-Item 'C:\vcpkg\.git' -Recurse -Force
+
     - name: Install Prerequisties
       run: |
         vcpkg install gsl muparser zlib --triplet x64-windows
 
-    - name: Configuring and Building
+    - name: Configuring
       run: |
         mkdir build ; cd build
         cmake .. -DCMAKE_TOOLCHAIN_FILE="${env:VCPKG_INSTALLATION_ROOT}\scripts\buildsystems\vcpkg.cmake"
-        cmake --build . --config ${{ matrix.config }} -j $(nproc)
+
+    - name: Building
+      run: cmake --build build --config ${{ matrix.config }} -j $(nproc)
