@@ -133,6 +133,7 @@ target_link_libraries( AlphaPlot
   ZLIB::ZLIB
   GSL::gsl
   GSL::gslcblas
+  ${MUPARSER_LIB}
   minigzip
   qcustomplot
   propertybrowser
@@ -163,11 +164,6 @@ set_target_properties( AlphaPlot
 
 if( SEARCH_FOR_UPDATES OR DOWNLOAD_LINKS )
   target_link_libraries( AlphaPlot Qt5::Network )
-endif()
-if( SCRIPTING_MUPARSER AND (NOT MUPARSER_LIB) )
-  target_link_libraries( AlphaPlot muparser )
-elseif( SCRIPTING_MUPARSER )
-  target_link_libraries( AlphaPlot ${MUPARSER_LIB} )
 endif()
 
 if( CMAKE_SIZEOF_VOID_P EQUAL 8 )

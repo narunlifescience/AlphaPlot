@@ -1,35 +1,3 @@
-# MuParser
-if( SCRIPTING_MUPARSER )
-  find_library( MUPARSER_LIB muparser )
-endif()
-message( STATUS "muparser library: ${MUPARSER_LIB}" )
-
-if( SCRIPTING_MUPARSER AND (NOT MUPARSER_LIB) )
-  set( muparser_dir ${CMAKE_CURRENT_SOURCE_DIR}/muparser )
-  set( HEADERS
-    ${muparser_dir}/muParser.h
-    ${muparser_dir}/muParserBase.h
-    ${muparser_dir}/muParserBytecode.h
-    ${muparser_dir}/muParserCallback.h
-    ${muparser_dir}/muParserDef.h
-    ${muparser_dir}/muParserError.h
-    ${muparser_dir}/muParserFixes.h
-    ${muparser_dir}/muParserStack.h
-    ${muparser_dir}/muParserToken.h
-    ${muparser_dir}/muParserTokenReader.h
-    ${muparser_dir}/muParserTemplateMagic.h
-    )
-  set_source_files_properties( ${HEADERS} PROPERTIES HEADER_FILE_ONLY ON )
-  set( SRCS
-    ${muparser_dir}/muParser.cpp
-    ${muparser_dir}/muParserBase.cpp
-    ${muparser_dir}/muParserBytecode.cpp
-    ${muparser_dir}/muParserCallback.cpp
-    ${muparser_dir}/muParserError.cpp
-    ${muparser_dir}/muParserTokenReader.cpp
-    )
-  add_library( muparser STATIC ${SRCS} )
-endif()
 
 # minigzip
 add_library( minigzip STATIC "${CMAKE_CURRENT_SOURCE_DIR}/minigzip/minigzip.c" )

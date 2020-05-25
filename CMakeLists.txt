@@ -38,14 +38,22 @@ option( DOWNLOAD_LINKS "Enable Download links" ON )
 if( SEARCH_FOR_UPDATES OR DOWNLOAD_LINKS )
   find_package( Qt5 COMPONENTS Network REQUIRED )
 endif()
-# Enable MuParser scripting
-option( SCRIPTING_MUPARSER "Enable MuParser Scritpting" ON )
+# Enable muparser scripting
+option( SCRIPTING_MUPARSER "Enable muparser Scritpting" ON )
 
 # GSL
 find_package( GSL REQUIRED )
 
 # ZLIB
 find_package( ZLIB "1.2.3" REQUIRED )
+
+# muparser
+find_library( MUPARSER_LIB muparser )
+if( NOT MUPARSER_LIB )
+  message( SEND_ERROR "muparser library not found" )
+else()
+  message( STATUS "Found muparser : ${MUPARSER_LIB}" )
+endif()
 
 add_subdirectory( 3rdparty )
 
