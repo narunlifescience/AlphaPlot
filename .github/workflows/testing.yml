@@ -118,7 +118,7 @@ jobs:
 
     - name: Install Prerequisties
       run: |
-        pacman -Syu --noconfirm
+        pacman -Sy
         pacman -S --noconfirm --needed mingw-w64-x86_64-qt5 mingw-w64-x86_64-muparser `
           mingw-w64-x86_64-gsl mingw-w64-x86_64-mesa
 
@@ -162,7 +162,8 @@ jobs:
       uses: actions/cache@v1
       with:
         path: C:\vcpkg
-        key: vcpkg
+        key: vcpkg-${{ github.sha }}
+        restore-keys: vcpkg-
 
     - name: Clean vcpkg
       if: steps.cache-vcpkg.outputs.cache-hit != 'true'
@@ -171,6 +172,7 @@ jobs:
     - name: Install Prerequisties
       run: |
         vcpkg install gsl muparser zlib --triplet x64-windows
+        vcpkg list
 
     - name: Configuring
       run: |
