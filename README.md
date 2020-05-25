@@ -1,27 +1,22 @@
 ![alt text](data/icons/app/alphaplot-name.png "AlphaPlot")
 
-[![License][license-badge]][license-page] [![Build Status](https://travis-ci.org/narunlifescience/AlphaPlot.svg?branch=master)](https://travis-ci.org/narunlifescience/AlphaPlot) [![Join the chat at https://gitter.im/narunlifescience/AlphaPlot](https://badges.gitter.im/narunlifescience/AlphaPlot.svg)](https://gitter.im/narunlifescience/AlphaPlot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
-[![Download AlphaPlot](https://img.shields.io/sourceforge/dt/alphaplot.svg)](https://sourceforge.net/projects/alphaplot/files/latest/download) [![Download AlphaPlot](https://img.shields.io/sourceforge/dm/alphaplot.svg)](https://sourceforge.net/projects/alphaplot/files/latest/download) [![Download AlphaPlot](https://img.shields.io/sourceforge/dw/alphaplot.svg)](https://sourceforge.net/projects/alphaplot/files/latest/download) [![Download AlphaPlot](https://img.shields.io/sourceforge/dd/alphaplot.svg)](https://sourceforge.net/projects/alphaplot/files/latest/download)
+[![License][license-badge]][license-page]
+![Build Testing](https://github.com/ChinouneMehdi/AlphaPlot/workflows/Build%20Testing/badge.svg )
 
 [license-page]: COPYING
 [license-badge]: http://img.shields.io/badge/License-GPL2-blue.svg
 
-Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalysis and <i>Vis</i>ualization for Windows, Linux and Mac OS X (probably BSD also).
+Alpha Plot is a free application for Scientific Data Analysis and Visualization for Linux ,Windows and Mac OS X (probably BSD also).
 
 | Web         | Link                                             |
 |:------------|:-------------------------------------------------|
-| Website     | http://alphaplot.sourceforge.net/                |
-| Wiki        | http://alphaplot.sourceforge.net/wiki                |
+| Website     | https://alphaplot.sourceforge.net/               |
+| Wiki        | https://alphaplot.sourceforge.net/wiki           |
 | Github      | https://github.com/narunlifescience/AlphaPlot    |
 | Sourceforge | https://sourceforge.net/projects/alphaplot/      |
-| Test builds | http://alphaplot.sourceforge.net/test-build.html |
-
-
-# Donate
-AlphaPlot is an open source project that has been made possible due to the generous contributions by community backers. If you are interested in supporting this project, please consider becoming a sponsor or becoming a patron https://www.patreon.com/alphaplot
 
 # Watch the Video
-[![AlphaPlot Plotting Basics](data/screenshots/alphaplot1.png)](http://www.youtube.com/watch?v=U3DE_ObVLeU "AlphaPlot Plotting Basics")
+[![AlphaPlot Plotting Basics](data/screenshots/alphaplot1.png)](https://www.youtube.com/watch?v=U3DE_ObVLeU "AlphaPlot Plotting Basics")
 
 # Examples
 | | | |
@@ -36,11 +31,10 @@ Get the code (if you haven't already):
 
 Compile and install:
 
-    qmake
-    make 
-    sudo make install
-
-For Windows/OSX see [installation notes](data/INSTALL.md)
+    mkdir build && cd build
+    cmake .. <CMAKE OPTIONS>
+    make
+    make install
 
 
 Opening an issue
@@ -61,21 +55,21 @@ Please:
  * Check if another person has already opened the same issue to avoid duplicates
  * If there already is an open issue you could comment on it to add precisions about the problem or confirm it
  * In case there isn't, you can open a new issue with an explicit title and as much information as possible (OS, Alpha Plot version, how to reproduce the problem...)
- * Please use http://pastebin.com/ for logs/debug
+ * Please use https://pastebin.com/ for logs/debug
  
-If there are no answers, it doesn't mean we don't care about your feature request/bug. It just means we can't reproduce the bug or haven't had time to implement it :smiley:
+If there are no answers, it doesn't mean we don't care about your feature request/bug. It just means we can't reproduce the bug or haven't had time to implement it
 
 ## Dependencies
 
-The following packages may be required by Alpha plot ...
+The following packages may be required by AlphaPlot ...
 
-| Package       | Link                                         |
-|:--------------|:---------------------------------------------|
-| Qt            | https://www.qt.io/                           |
-| QCustomPlot   | https://www.qcustomplot.com/                 |
-| muParser      | http://muparser.beltoforion.de/              |
-| GSL           | http://www.gnu.org/software/gsl/             |
-| Zlib          | https://zlib.net/                            |
+| Package       | Link                                           |
+|:--------------|:-----------------------------------------------|
+| Qt            | https://www.qt.io/                             |
+| QCustomPlot   | https://www.qcustomplot.com/                   |
+| muParser      | https://beltoforion.de/article.php?a=muparser  |
+| GSL           | https://www.gnu.org/software/gsl/              |
+| Zlib          | https://zlib.net/                              |
 
-Out of this QCustomPlot and muParser sources(s) are already present in 3rdparty folder and will be statically built to alphaplot. so these packages need not be installed on your system.
+Out of this QCustomPlot source is already present in 3rdparty folder and will be statically built to AlphaPlot.
 
