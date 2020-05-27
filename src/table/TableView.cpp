@@ -55,6 +55,7 @@
 #include <QMenu>
 #include <QModelIndex>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPoint>
 #include <QRect>
 #include <QResizeEvent>
