@@ -101,7 +101,7 @@ void LineSpecial2D::removeYerrorBar() {
 }
 
 Graph2DCommon::LineStyleType LineSpecial2D::getlinetype_lsplot() const {
-  Graph2DCommon::LineStyleType linestyletype;
+  Graph2DCommon::LineStyleType linestyletype{};
 
   switch (lineStyle()) {
     case lsStepLeft:
@@ -152,7 +152,7 @@ QColor LineSpecial2D::getlinefillcolor_lsplot() const {
 bool LineSpecial2D::getlineantialiased_lsplot() const { return antialiased(); }
 
 Graph2DCommon::ScatterStyle LineSpecial2D::getscattershape_lsplot() const {
-  Graph2DCommon::ScatterStyle scatterstyle;
+  Graph2DCommon::ScatterStyle scatterstyle{};
   switch (scatterStyle().shape()) {
     case QCPScatterStyle::ssNone:
       scatterstyle = Graph2DCommon::ScatterStyle::None;

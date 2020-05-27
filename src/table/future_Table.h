@@ -418,6 +418,8 @@ class Table : public AbstractPart
 #endif
 
  private:
+  // Silent warning about hiding overloaded virtual function
+  using AbstractPart::copy;
   void createActions();
   void connectActions();
   void addActionsToView();

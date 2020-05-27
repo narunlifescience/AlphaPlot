@@ -5974,7 +5974,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     QVariant axis3dxptvar;
     QVariant axis3dyptvar;
     QVariant axis3dzptvar;
-    MyTreeWidget::PropertyItemType propertyitemtype;
+    MyTreeWidget::PropertyItemType propertyitemtype{};
     switch (plottype) {
       case Graph3DCommon::Plot3DType::Surface: {
         plot3dptvar = QVariant::fromValue<void *>(lout->getSurface3DModifier());

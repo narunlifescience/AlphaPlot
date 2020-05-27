@@ -27,8 +27,8 @@ if( MSVC )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Wall" )
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall" )
 else()
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -Wall -Wextra" )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -Wall" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall" )
 endif()
 
 # Searching for updates

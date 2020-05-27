@@ -144,7 +144,7 @@ bool Function2DDialog::acceptFunction() {
   }
   app->updateFunctionLists(type, formulas);
 
-  bool result;
+  /* bool result;
 
   if (!axisrect_) {
     result = app->newFunctionPlot(type, formulas, "x", ranges,
@@ -156,7 +156,7 @@ bool Function2DDialog::acceptFunction() {
     } else {
       // result = app->editFunctionPlot();
     }
-  }
+  } */
 
   emit updateFunctionLists(type, formulas);
   return true;

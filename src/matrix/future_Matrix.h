@@ -297,6 +297,8 @@ class Matrix : public AbstractPart
   void adjustTabBarAction(bool visible);
 
  private:
+  // Silent warning about hiding overloaded virtual function
+  using AbstractPart::copy;
   void createActions();
   void connectActions();
   void addActionsToView();

@@ -110,7 +110,7 @@ double StatBox2D::getmedianstrokethickness_statbox() const {
 }
 
 Graph2DCommon::ScatterStyle StatBox2D::getscattershape_statbox() const {
-  Graph2DCommon::ScatterStyle scatterstyle;
+  Graph2DCommon::ScatterStyle scatterstyle{};
   switch (outlierStyle().shape()) {
     case QCPScatterStyle::ssNone:
       scatterstyle = Graph2DCommon::ScatterStyle::None;

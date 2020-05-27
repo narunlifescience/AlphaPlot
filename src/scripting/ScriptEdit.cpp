@@ -325,12 +325,12 @@ QString ScriptEdit::importASCII(const QString &filename) {
                                      objectName(), filter, 0);
   else
     f = filename;
-  if (f.isEmpty()) return QString::null;
+  if (f.isEmpty()) return QString();
   QFile file(f);
   if (!file.open(QIODevice::ReadOnly)) {
     QMessageBox::critical(this, tr("Error Opening File"),
                           tr("Could not open file \"%1\" for reading.").arg(f));
-    return QString::null;
+    return QString();
   }
   QTextStream s(&file);
   s.setCodec(QTextCodec::codecForName("UTF-8"));
@@ -370,7 +370,7 @@ QString ScriptEdit::exportASCII(const QString &filename) {
           tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that "
              "you have the right to write to this location!")
               .arg(fn));
-      return QString::null;
+      return QString();
     }
 
     QTextStream t(&f);

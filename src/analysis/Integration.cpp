@@ -98,7 +98,7 @@ bool Integration::isDataAcceptable() {
 }
 
 QString Integration::logInfo() {
-  const gsl_interp_type *method_t;
+  const gsl_interp_type *method_t{};
   QString method_name;
   switch (d_method) {
     case Linear:

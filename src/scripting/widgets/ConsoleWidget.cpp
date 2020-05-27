@@ -42,8 +42,9 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   ui_->tableView->verticalHeader()->setVisible(false);
   ui_->tableView->horizontalHeader()->setSelectionMode(
       QAbstractItemView::SingleSelection);
+  /* horizontalHeader has property stretchLastSection=true
   ui_->tableView->horizontalHeader()->setSectionResizeMode(
-      (0, QHeaderView::Stretch));
+      (0, QHeaderView::Stretch)); */
   scriptGlobalObjectsModel->setColumnCount(2);
   ui_->tableView->setModel(scriptGlobalObjectsModel);
   ui_->tableView->setItemDelegate(new Delegate(this));

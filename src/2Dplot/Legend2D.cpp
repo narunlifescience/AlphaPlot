@@ -261,8 +261,8 @@ SplineLegendItem2D::SplineLegendItem2D(Legend2D *legend, Curve2D *plottable)
       curve_(plottable),
       legend_(legend) {
   isspline_ = (plottable->getcurvetype_cplot() == Curve2D::Curve2DType::Spline)
-                  ? isspline_ = true
-                  : isspline_ = false;
+                  ? true
+                  : false;
 }
 
 SplineLegendItem2D::~SplineLegendItem2D() {}

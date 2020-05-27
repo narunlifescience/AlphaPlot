@@ -205,7 +205,7 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
   void* old_data = d_data;
   // remark: the deletion of the old data will be done in the dtor of a command
 
-  AbstractSimpleFilter *new_in_filter, *new_out_filter;
+  AbstractSimpleFilter *new_in_filter{}, *new_out_filter{};
   bool filter_is_temporary;  // it can also become outputFilter(), which we may
                              // not delete here
   Column* temp_col = 0;

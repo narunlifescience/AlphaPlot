@@ -36,7 +36,7 @@ static QList<PlotData::AssociatedData *> plottedcolumns(AxisRect2D *axisrect) {
   return associateddata;
 }
 
-static PlotData::AssociatedData *getassociateddatafromstring(
+static inline PlotData::AssociatedData *getassociateddatafromstring(
     AxisRect2D *axisrect, const QString string) {
   PlotData::AssociatedData *data = nullptr;
   if (!axisrect) return data;
@@ -53,7 +53,7 @@ static PlotData::AssociatedData *getassociateddatafromstring(
   return data;
 }
 
-static QStringList getstringlistfromassociateddata(AxisRect2D *axisrect) {
+static inline QStringList getstringlistfromassociateddata(AxisRect2D *axisrect) {
   QStringList namelist;
   if (!axisrect) return namelist;
   QList<PlotData::AssociatedData *> list =

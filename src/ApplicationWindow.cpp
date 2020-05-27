@@ -1481,7 +1481,7 @@ void ApplicationWindow::change3DMatrix() {
   ad->setWindowTitle(tr("Choose matrix to plot"));
   ad->setCurveNames(matrixNames());
 
-  Layout3D *layout = qobject_cast<Layout3D *>(d_workspace->activeSubWindow());
+  // Layout3D *layout = qobject_cast<Layout3D *>(d_workspace->activeSubWindow());
   // if (layout && layout->getMatrix())
   //  ad->setCurentDataSet(layout->getMatrix()->name());
   ad->exec();
@@ -1489,8 +1489,8 @@ void ApplicationWindow::change3DMatrix() {
 
 void ApplicationWindow::change3DMatrix(const QString &matrix_name) {
   if (!isActiveSubwindow(SubWindowType::Plot3DSubWindow)) return;
-  Layout3D *layout = qobject_cast<Layout3D *>(d_workspace->activeSubWindow());
-  Matrix *mat = matrix(matrix_name);
+  // Layout3D *layout = qobject_cast<Layout3D *>(d_workspace->activeSubWindow());
+  // Matrix *mat = matrix(matrix_name);
   // if (m && g) g->changeMatrix(m);
   emit modified();
 }
@@ -6041,16 +6041,16 @@ void ApplicationWindow::pickSelectionType(QAction *action) {
 void ApplicationWindow::custom3DActions(QMdiSubWindow *subwindow) {
   if (!isActiveSubWindow(subwindow, SubWindowType::Plot3DSubWindow)) return;
 
-  Layout3D *layout = qobject_cast<Layout3D *>(subwindow);
+  // Layout3D *layout = qobject_cast<Layout3D *>(subwindow);
 }
 
 void ApplicationWindow::pixelLineProfile() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
 
   bool ok;
-  int res =
-      QInputDialog::getInt(this, tr("Set the number of pixels to average"),
-                           tr("Number of averaged pixels"), 1, 1, 2000, 2, &ok);
+  // int res =
+  QInputDialog::getInt(this, tr("Set the number of pixels to average"),
+                       tr("Number of averaged pixels"), 1, 1, 2000, 2, &ok);
   if (!ok) return;
 
   qDebug() << "not implimented";

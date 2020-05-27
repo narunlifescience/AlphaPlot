@@ -874,7 +874,7 @@ bool Table::exportASCII(const QString &fname, const QString &separator,
   int cols = numCols();
   int selectedCols = 0;
   int topRow = 0, bottomRow = 0;
-  int *sCols;
+  int *sCols{};
   if (exportSelection) {
     for (i = 0; i < cols; i++) {
       if (isColumnSelected(i)) selectedCols++;

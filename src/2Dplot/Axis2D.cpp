@@ -70,7 +70,7 @@ double Axis2D::getfrom_axis() const { return range().lower; }
 double Axis2D::getto_axis() const { return range().upper; }
 
 Axis2D::AxisScaleType Axis2D::getscaletype_axis() {
-  AxisScaleType scaletype;
+  AxisScaleType scaletype{};
   switch (scaleType()) {
     case QCPAxis::stLinear:
       scaletype = AxisScaleType::Linear;
@@ -83,7 +83,7 @@ Axis2D::AxisScaleType Axis2D::getscaletype_axis() {
 }
 
 Axis2D::AxisOreantation Axis2D::getorientation_axis() {
-  AxisOreantation orientation;
+  AxisOreantation orientation{};
   switch (axisType()) {
     case QCPAxis::atLeft:
       orientation = AxisOreantation::Left;
@@ -170,7 +170,7 @@ QColor Axis2D::getticklabelcolor_axis() const { return tickLabelColor(); }
 double Axis2D::getticklabelrotation_axis() const { return tickLabelRotation(); }
 
 Axis2D::AxisLabelSide Axis2D::getticklabelside_axis() const {
-  AxisLabelSide side;
+  AxisLabelSide side{};
   switch (tickLabelSide()) {
     case lsInside:
       side = AxisLabelSide::Inside;

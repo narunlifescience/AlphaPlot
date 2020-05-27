@@ -74,6 +74,8 @@ class MuParserScript : public Script {
   bool translateLegacyFunctions(QString &input);
 
  private:
+  // Silent warning about hiding overloaded virtual function
+  using Script::setQObject;
   mu::Parser m_parser;
   QMap<QByteArray, double> m_variables;
 

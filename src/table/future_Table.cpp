@@ -1886,9 +1886,9 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
           map.append(QPair<double, int>(col->valueAt(j), j));
 
         if (ascending)
-          qStableSort(map.begin(), map.end(), CompareFunctions::doubleLess);
+          std::stable_sort(map.begin(), map.end(), CompareFunctions::doubleLess);
         else
-          qStableSort(map.begin(), map.end(), CompareFunctions::doubleGreater);
+          std::stable_sort(map.begin(), map.end(), CompareFunctions::doubleGreater);
 
         QListIterator<QPair<double, int> > it(map);
         Column *temp_col = new Column("temp", col->columnMode());
@@ -1911,9 +1911,9 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
           map.append(QPair<QString, int>(col->textAt(j), j));
 
         if (ascending)
-          qStableSort(map.begin(), map.end(), CompareFunctions::QStringLess);
+          std::stable_sort(map.begin(), map.end(), CompareFunctions::QStringLess);
         else
-          qStableSort(map.begin(), map.end(), CompareFunctions::QStringGreater);
+          std::stable_sort(map.begin(), map.end(), CompareFunctions::QStringGreater);
 
         QListIterator<QPair<QString, int> > it(map);
         Column *temp_col = new Column("temp", col->columnMode());
@@ -1936,9 +1936,9 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
           map.append(QPair<QDateTime, int>(col->dateTimeAt(j), j));
 
         if (ascending)
-          qStableSort(map.begin(), map.end(), CompareFunctions::QDateTimeLess);
+          std::stable_sort(map.begin(), map.end(), CompareFunctions::QDateTimeLess);
         else
-          qStableSort(map.begin(), map.end(),
+          std::stable_sort(map.begin(), map.end(),
                       CompareFunctions::QDateTimeGreater);
 
         QListIterator<QPair<QDateTime, int> > it(map);
@@ -1967,9 +1967,9 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
         map.append(QPair<double, int>(leading->valueAt(i), i));
 
       if (ascending)
-        qStableSort(map.begin(), map.end(), CompareFunctions::doubleLess);
+        std::stable_sort(map.begin(), map.end(), CompareFunctions::doubleLess);
       else
-        qStableSort(map.begin(), map.end(), CompareFunctions::doubleGreater);
+        std::stable_sort(map.begin(), map.end(), CompareFunctions::doubleGreater);
       QListIterator<QPair<double, int> > it(map);
 
       for (int i = 0; i < cols.size(); i++) {
@@ -1994,9 +1994,9 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
         map.append(QPair<QString, int>(leading->textAt(i), i));
 
       if (ascending)
-        qStableSort(map.begin(), map.end(), CompareFunctions::QStringLess);
+        std::stable_sort(map.begin(), map.end(), CompareFunctions::QStringLess);
       else
-        qStableSort(map.begin(), map.end(), CompareFunctions::QStringGreater);
+        std::stable_sort(map.begin(), map.end(), CompareFunctions::QStringGreater);
       QListIterator<QPair<QString, int> > it(map);
 
       for (int i = 0; i < cols.size(); i++) {
@@ -2021,9 +2021,9 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
         map.append(QPair<QDateTime, int>(leading->dateTimeAt(i), i));
 
       if (ascending)
-        qStableSort(map.begin(), map.end(), CompareFunctions::QDateTimeLess);
+        std::stable_sort(map.begin(), map.end(), CompareFunctions::QDateTimeLess);
       else
-        qStableSort(map.begin(), map.end(), CompareFunctions::QDateTimeGreater);
+        std::stable_sort(map.begin(), map.end(), CompareFunctions::QDateTimeGreater);
       QListIterator<QPair<QDateTime, int> > it(map);
 
       for (int i = 0; i < cols.size(); i++) {

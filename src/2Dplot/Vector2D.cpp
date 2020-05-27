@@ -210,7 +210,7 @@ Vector2D::LineEnd Vector2D::getendstyle_vecplot(
       break;
   }
 
-  LineEnd end;
+  LineEnd end{};
   switch (ending->style()) {
     case QCPLineEnding::esNone:
       end = LineEnd::None;
@@ -344,7 +344,7 @@ void Vector2D::setlinestrokethickness_vecplot(const double value) {
 
 void Vector2D::setendstyle_vecplot(const Vector2D::LineEnd &end,
                                    const LineEndLocation &location) {
-  QCPLineEnding *ending;
+  QCPLineEnding *ending{};
   switch (location) {
     case LineEndLocation::Start:
       ending = start_;
@@ -392,7 +392,7 @@ void Vector2D::setendstyle_vecplot(const Vector2D::LineEnd &end,
 
 void Vector2D::setendwidth_vecplot(const double value,
                                    const Vector2D::LineEndLocation &location) {
-  QCPLineEnding *ending;
+  QCPLineEnding *ending{};
   switch (location) {
     case LineEndLocation::Start:
       ending = start_;
@@ -408,7 +408,7 @@ void Vector2D::setendwidth_vecplot(const double value,
 
 void Vector2D::setendheight_vecplot(const double value,
                                     const Vector2D::LineEndLocation &location) {
-  QCPLineEnding *ending;
+  QCPLineEnding *ending{};
   switch (location) {
     case LineEndLocation::Start:
       ending = start_;
@@ -424,7 +424,7 @@ void Vector2D::setendheight_vecplot(const double value,
 
 void Vector2D::setendinverted_vecplot(
     const bool value, const Vector2D::LineEndLocation &location) {
-  QCPLineEnding *ending;
+  QCPLineEnding *ending{};
   switch (location) {
     case LineEndLocation::Start:
       ending = start_;

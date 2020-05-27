@@ -147,7 +147,7 @@ QString AbstractAspect::Private::caption() const {
   for (int pos = magic.indexIn(result, 0); pos >= 0;
        pos = magic.indexIn(result, pos)) {
     QString replacement;
-    int length;
+    int length{};
     switch (magic.cap(1).at(0).toLatin1()) {
       case '%':
         replacement = "%";

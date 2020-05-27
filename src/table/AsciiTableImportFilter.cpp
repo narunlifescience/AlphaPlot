@@ -97,10 +97,10 @@ template <>
 double conv<double>(const QString& x) {
   return x.toDouble();
 }
-template <>
+/* template <>
 float conv<float>(const QString& x) {
   return x.toFloat();
-}
+} */
 
 template <class T>
 struct AP : public std::unique_ptr<T> {

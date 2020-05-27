@@ -538,7 +538,7 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
                                 Column *xData, Column *yData, int from, int to,
                                 Axis2D *xAxis, Axis2D *yAxis,
                                 int stackposition) {
-  Bar2D *bar;
+  Bar2D *bar{};
   switch (type) {
     case AxisRect2D::BarType::HorizontalBars:
       bar =
@@ -603,7 +603,7 @@ StatBox2D *AxisRect2D::addStatBox2DPlot(StatBox2D::BoxWhiskerData data,
 Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
                                       Table *table, Column *yData, int from,
                                       int to, Axis2D *xAxis, Axis2D *yAxis) {
-  Bar2D *bar;
+  Bar2D *bar{};
   switch (type) {
     case AxisRect2D::BarType::HorizontalBars:
       bar = new Bar2D(table, yData, from, to, yAxis, xAxis);
@@ -1068,7 +1068,7 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
   // ls1
   Axis2D *xaxis1 = nullptr;
   Axis2D *yaxis1 = nullptr;
-  AxisRect2D::LineScatterSpecialType ltype1;
+  // AxisRect2D::LineScatterSpecialType ltype1;
   QString legend1;
   Table *table1 = nullptr;
   Column *xcolumn1 = nullptr;
@@ -1088,7 +1088,7 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
   // ls2
   Axis2D *xaxis2 = nullptr;
   Axis2D *yaxis2 = nullptr;
-  AxisRect2D::LineScatterSpecialType ltype2;
+  // AxisRect2D::LineScatterSpecialType ltype2;
   QString legend2;
   Table *table2 = nullptr;
   Column *xcolumn2 = nullptr;
@@ -1128,7 +1128,7 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
 
         QString lstype = xmlreader->readAttributeString("type", &ok);
         if (lstype == "line" && ok) {
-          ltype1 = AxisRect2D::LineScatterSpecialType::Area2D;
+          // ltype1 = AxisRect2D::LineScatterSpecialType::Area2D;
         } else
           xmlreader->raiseWarning(
               tr("LineSpecialChannel2D line type not found"));
@@ -1337,7 +1337,7 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
 
         QString lstype = xmlreader->readAttributeString("type", &ok);
         if (lstype == "line" && ok) {
-          ltype2 = AxisRect2D::LineScatterSpecialType::Area2D;
+          // ltype2 = AxisRect2D::LineScatterSpecialType::Area2D;
         } else
           xmlreader->raiseWarning(
               tr("LineSpecialChannel2D line type not found"));

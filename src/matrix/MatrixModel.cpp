@@ -113,6 +113,7 @@ QVariant MatrixModel::headerData(int section, Qt::Orientation orientation,
           if (!d_matrix->getShowOnlyValues()) result += QString(")");
           return QVariant(result);
       }
+      break;
     case Qt::Vertical:
       switch (role) {
         case Qt::DisplayRole:

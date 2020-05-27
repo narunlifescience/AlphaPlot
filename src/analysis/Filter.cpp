@@ -219,7 +219,7 @@ int Filter::curveData(double start, double end, double **x, double **y) {
 
   int from = associateddata_->from;
   int to = associateddata_->to;
-  int datasize = (to - from) + 1;
+  // int datasize = (to - from) + 1;
   int i_start = from, i_end = to;
   /*for (i_start = from; i_start < datasize; i_start++)
     if (associateddata_->xcol->valueAt(i_start) >= start) break;

@@ -73,7 +73,7 @@ QDateTime Double2DateTimeFilter::dateTimeAt(int row) const {
       else {
         result.setDate(QDate::fromJulianDay(int(floor(input_value)) / 24));
         result.setTime(QTime(12, 0, 0, 0));
-        result.addSecs((int(floor(input_value)) % 24) * 3600);
+        result = result.addSecs((int(floor(input_value)) % 24) * 3600);
         return result.addMSecs(
             qRound64((input_value - int(floor(input_value))) * 3600000.0));
       }
@@ -84,7 +84,7 @@ QDateTime Double2DateTimeFilter::dateTimeAt(int row) const {
         result.setDate(
             QDate::fromJulianDay(int(floor(input_value)) / (24 * 60)));
         result.setTime(QTime(12, 0, 0, 0));
-        result.addSecs((int(floor(input_value)) % (24 * 60)) * 60);
+        result = result.addSecs((int(floor(input_value)) % (24 * 60)) * 60);
         return result.addMSecs(
             qRound64((input_value - int(floor(input_value))) * 60000.0));
       }
@@ -95,7 +95,7 @@ QDateTime Double2DateTimeFilter::dateTimeAt(int row) const {
         result.setDate(
             QDate::fromJulianDay(int(floor(input_value)) / (24 * 60 * 60)));
         result.setTime(QTime(12, 0, 0, 0));
-        result.addSecs(int(floor(input_value)) % (24 * 60 * 60));
+        result = result.addSecs(int(floor(input_value)) % (24 * 60 * 60));
         return result.addMSecs(
             qRound64((input_value - int(floor(input_value))) * 1000.0));
       }
@@ -106,7 +106,7 @@ QDateTime Double2DateTimeFilter::dateTimeAt(int row) const {
         result.setDate(
             QDate::fromJulianDay(int(floor(input_value)) / (24 * 60 * 60)));
         result.setTime(QTime(12, 0, 0, 0));
-        result.addSecs(int(floor(input_value)) % (24 * 60 * 60));
+        result = result.addSecs(int(floor(input_value)) % (24 * 60 * 60));
         return result.addMSecs(
             qRound64((input_value - int(floor(input_value))) * 1000.0));
       }

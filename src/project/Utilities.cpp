@@ -190,7 +190,7 @@ QColor Utilities::getRandColorGoldenRatio(ColorPal colpal) {
   double hue = rgbRandomSeed_;
   hue += goldenRatioConjugate * rgbCounter_;
   hue = fmod(hue, 1);
-  double saturation;
+  double saturation{};
   switch (colpal) {
     case ColorPal::Light:
       saturation = 0.5;

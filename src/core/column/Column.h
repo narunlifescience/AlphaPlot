@@ -116,7 +116,12 @@ class Column : public AbstractColumn {
    * necessary, converts it to another datatype.
    */
   void setColumnMode(AlphaPlot::ColumnMode mode,
-                     AbstractFilter* conversion_filter = 0);
+                     AbstractFilter* conversion_filter);
+  // Silent warning about hiding overloaded virtual function
+  void setColumnMode(AlphaPlot::ColumnMode mode) {
+      AbstractFilter* conversion_filter = 0;
+      setColumnMode(mode, conversion_filter);
+  }
   //! Copy another column of the same type
   /**
    * This function will return false if the data type

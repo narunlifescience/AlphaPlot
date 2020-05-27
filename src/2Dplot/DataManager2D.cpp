@@ -336,10 +336,10 @@ void DataBlockHist::regenerateDataBlock(Table *table, Column *col,
   int d_end_row = to;
   int d_start_row = from;
 
-  double d_mean = 0.0;
-  double d_standard_deviation = 0.0;
-  double d_min = 0.0;
-  double d_max = 0.0;
+  // double d_mean = 0.0;
+  // double d_standard_deviation = 0.0;
+  // double d_min = 0.0;
+  // double d_max = 0.0;
 
   int r = abs(d_end_row - d_start_row) + 1;
   QVarLengthArray<double> Y(r);
@@ -362,11 +362,11 @@ void DataBlockHist::regenerateDataBlock(Table *table, Column *col,
   }
 
   if (size < 2 || (size == 2 && Y[0] == Y[1])) {  // non valid histogram
-    double X[2];
+    // double X[2];
     Y.resize(2);
     for (int i = 0; i < 2; i++) {
       Y[i] = 0;
-      X[i] = 0;
+      // X[i] = 0;
     }
     return;
   }
@@ -424,10 +424,10 @@ void DataBlockHist::regenerateDataBlock(Table *table, Column *col,
 
   data_ = cont;
 
-  d_mean = gsl_histogram_mean(h);
-  d_standard_deviation = gsl_histogram_sigma(h);
-  d_min = gsl_histogram_min_val(h);
-  d_max = gsl_histogram_max_val(h);
+  // d_mean = gsl_histogram_mean(h);
+  // d_standard_deviation = gsl_histogram_sigma(h);
+  // d_min = gsl_histogram_min_val(h);
+  // d_max = gsl_histogram_max_val(h);
 
   gsl_histogram_free(h);
 }

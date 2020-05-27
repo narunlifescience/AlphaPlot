@@ -271,7 +271,7 @@ bool Curve2D::getlinefillstatus_cplot() const {
 }
 
 Graph2DCommon::ScatterStyle Curve2D::getscattershape_cplot() const {
-  Graph2DCommon::ScatterStyle scatterstyle;
+  Graph2DCommon::ScatterStyle scatterstyle{};
   switch (scatterStyle().shape()) {
     case QCPScatterStyle::ssNone:
       scatterstyle = Graph2DCommon::ScatterStyle::None;
