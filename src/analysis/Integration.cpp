@@ -145,7 +145,7 @@ QString Integration::logInfo() {
   gsl_vector *aux = gsl_vector_alloc(static_cast<size_t>(d_n));
   for (int i = 0; i < d_n; i++)
     gsl_vector_set(aux, static_cast<size_t>(i), d_y[i]);
-  int maxID = gsl_vector_max_index(aux);
+  size_t maxID = gsl_vector_max_index(aux);
   gsl_vector_free(aux);
 
   // calculate result

@@ -3899,7 +3899,7 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text) {
 
   if (isActiveSubWindow(w, SubWindowType::TableSubWindow)) {
     QStringList labels = qobject_cast<Table *>(w)->colNames();
-    if (labels.contains(newName) > 0) {
+    if (labels.contains(newName) == true) {
       QMessageBox::critical(this, tr("Error"),
                             tr("The table name must be different from the "
                                "names of its columns!") +

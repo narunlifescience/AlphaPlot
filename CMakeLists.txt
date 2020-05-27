@@ -24,8 +24,9 @@ find_package( Qt5
   )
 
 if( MSVC )
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Wall" )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /W3" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W3" )
+  add_compile_options( "/MP" )
 else()
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -Wall" )
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall" )

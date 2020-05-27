@@ -998,7 +998,7 @@ void FitDialog::accept() {
   QString curve = boxCurve->currentText();
   QStringList curvesList =
       PlotColumns::getstringlistfromassociateddata(axisrect_);
-  if (curvesList.contains(curve) <= 0) {
+  if (curvesList.contains(curve) == false) {
     QMessageBox::critical(
         this, tr("Warning"),
         tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!")
