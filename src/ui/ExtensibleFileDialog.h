@@ -45,40 +45,44 @@
  * strange outlook,
  * although the functionality should stay intact.
  */
-class ExtensibleFileDialog : public QFileDialog {
-  Q_OBJECT
+class ExtensibleFileDialog : public QFileDialog
+{
+    Q_OBJECT
 
- public:
-  //! Constructor.
-  /**
-   * \param parent parent widget (only affects placement of the dialog)
-   * \param extended flag: show/hide the advanced options on start-up
-   * \param flags window flags
-   */
-  ExtensibleFileDialog(QWidget *parent = nullptr, bool extended = true,
-                       Qt::WindowFlags flags = Qt::Widget);
-  //! Set the extension widget to be displayed when the user presses the toggle
-  //! button.
-  void setExtensionWidget(QWidget *extension);
+public:
+    //! Constructor.
+    /**
+     * \param parent parent widget (only affects placement of the dialog)
+     * \param extended flag: show/hide the advanced options on start-up
+     * \param flags window flags
+     */
+    ExtensibleFileDialog(QWidget *parent = nullptr, bool extended = true,
+                         Qt::WindowFlags flags = Qt::Widget);
+    //! Set the extension widget to be displayed when the user presses the toggle
+    //! button.
+    void setExtensionWidget(QWidget *extension);
 
-  //! Tells weather the dialog has a valid extension widget
-  bool isExtendable() { return d_extension != nullptr; }
-  bool isExtended() { return d_extension_toggle->isChecked(); }
-  void setExtended(bool extended) { d_extension_toggle->setChecked(extended); }
+    //! Tells weather the dialog has a valid extension widget
+    bool isExtendable() { return d_extension != nullptr; }
+    bool isExtended() { return d_extension_toggle->isChecked(); }
+    void setExtended(bool extended)
+    {
+        d_extension_toggle->setChecked(extended);
+    }
 
- protected:
-  //! Button for toggling display of extension on/off.
-  QPushButton *d_extension_toggle;
+protected:
+    //! Button for toggling display of extension on/off.
+    QPushButton *d_extension_toggle;
 
- private slots:
-  //! Resize to make/take space for the extension widget.
-  void resize(bool extension_on);
+private slots:
+    //! Resize to make/take space for the extension widget.
+    void resize(bool extension_on);
 
- private:
-  //! The extension widget
-  QWidget *d_extension;
-  //! The layout row (of the assumed QGridLayout) used for extensions
-  int d_extension_row;
+private:
+    //! The extension widget
+    QWidget *d_extension;
+    //! The layout row (of the assumed QGridLayout) used for extensions
+    int d_extension_row;
 };
 
-#endif  // EXTENSIBLE_FILE_DIALOG_H
+#endif // EXTENSIBLE_FILE_DIALOG_H

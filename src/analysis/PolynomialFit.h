@@ -31,45 +31,49 @@
 
 #include "Fit.h"
 
-class PolynomialFit : public Fit {
-  Q_OBJECT
+class PolynomialFit : public Fit
+{
+    Q_OBJECT
 
- public:
-  PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect, int order = 2);
-  PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-                PlotData::AssociatedData *associateddata, int order = 2);
-  PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-                PlotData::AssociatedData *associateddata, double start,
-                double end, int order = 2);
+public:
+    PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                  int order = 2);
+    PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                  PlotData::AssociatedData *associateddata, int order = 2);
+    PolynomialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                  PlotData::AssociatedData *associateddata, double start,
+                  double end, int order = 2);
 
-  virtual QString legendInfo();
-  void fit();
+    virtual QString legendInfo();
+    void fit();
 
-  static QString generateFormula(int order);
-  static QStringList generateParameterList(int order);
+    static QString generateFormula(int order);
+    static QStringList generateParameterList(int order);
 
- private:
-  void init();
-  void calculateFitCurveData(double *par, double *X, double *Y);
+private:
+    void init();
+    void calculateFitCurveData(double *par, double *X, double *Y);
 
-  int d_order;
+    int d_order;
 };
 
-class LinearFit : public Fit {
-  Q_OBJECT
+class LinearFit : public Fit
+{
+    Q_OBJECT
 
- public:
-  LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect);
-  LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-            PlotData::AssociatedData *associateddata);
-  LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-            PlotData::AssociatedData *associateddata, double start, double end);
+public:
+    LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+    LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+              PlotData::AssociatedData *associateddata);
+    LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+              PlotData::AssociatedData *associateddata, double start,
+              double end);
 
-  void fit();
+    void fit();
 
- private:
-  void init();
-  void calculateFitCurveData(double *par, double *X, double *Y);
+private:
+    void init();
+    void calculateFitCurveData(double *par, double *X, double *Y);
 };
 
-#endif  // POLYNOMIALFIT_H
+#endif // POLYNOMIALFIT_H

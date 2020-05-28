@@ -36,34 +36,35 @@ class QDomElement;
 
 namespace future {
 //! Folder in a project
-class Folder : public AbstractAspect {
-  Q_OBJECT
+class Folder : public AbstractAspect
+{
+    Q_OBJECT
 
- public:
-  Folder(const QString &name);
+public:
+    Folder(const QString &name);
 
-  virtual ~Folder();
+    virtual ~Folder();
 
-  virtual QIcon icon() const;
-  //! Return a new context menu.
-  /**
-   * The caller takes ownership of the menu.
-   */
-  virtual QMenu *createContextMenu() const;
+    virtual QIcon icon() const;
+    //! Return a new context menu.
+    /**
+     * The caller takes ownership of the menu.
+     */
+    virtual QMenu *createContextMenu() const;
 
-  //! \name serialize/deserialize
-  //@{
-  //! Save as XML
-  virtual void save(QXmlStreamWriter *) const;
-  //! Load from XML
-  virtual bool load(XmlStreamReader *);
-  bool load(QDomElement tablenode);
+    //! \name serialize/deserialize
+    //@{
+    //! Save as XML
+    virtual void save(QXmlStreamWriter *) const;
+    //! Load from XML
+    virtual bool load(XmlStreamReader *);
+    bool load(QDomElement tablenode);
 
- protected:
-  //! Read child aspect from XML
-  bool readChildAspectElement(XmlStreamReader *reader);
-  //@}
+protected:
+    //! Read child aspect from XML
+    bool readChildAspectElement(XmlStreamReader *reader);
+    //@}
 };
-}  // namespace
+} // namespace
 
-#endif  // FUTURE_FOLDER_H
+#endif // FUTURE_FOLDER_H

@@ -36,24 +36,25 @@ class QLabel;
 class QSpinBox;
 
 //! Curve range dialog
-class CurveRangeDialog : public QDialog {
-  Q_OBJECT
+class CurveRangeDialog : public QDialog
+{
+    Q_OBJECT
 
- public:
-  CurveRangeDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);
-  ~CurveRangeDialog() {}
+public:
+    CurveRangeDialog(QWidget *parent = 0, Qt::WindowFlags fl = 0);
+    ~CurveRangeDialog() { }
 
-  QPushButton* buttonOK;
-  QPushButton* buttonCancel;
-  QLabel* boxName;
-  QSpinBox* boxStart;
-  QSpinBox* boxEnd;
+    QPushButton *buttonOK;
+    QPushButton *buttonCancel;
+    QLabel *boxName;
+    QSpinBox *boxStart;
+    QSpinBox *boxEnd;
 
- public slots:
-  //void setCurveToModify(Graph* g, int curve);
-  void accept();
+public slots:
+    // void setCurveToModify(Graph* g, int curve);
+    void accept();
 
- private:
+private:
 };
 
-#endif  // CURVERANGEDIALOG_H
+#endif // CURVERANGEDIALOG_H

@@ -44,17 +44,18 @@
  * a master-slave relationship to it. This would be an inner class
  * of TableDoubleHeaderView if Qt allowed this.
  */
-class TableCommentsHeaderView : public QHeaderView {
-  Q_OBJECT
+class TableCommentsHeaderView : public QHeaderView
+{
+    Q_OBJECT
 
- public:
-  TableCommentsHeaderView(QWidget *parent = 0);
-  virtual ~TableCommentsHeaderView();
+public:
+    TableCommentsHeaderView(QWidget *parent = 0);
+    virtual ~TableCommentsHeaderView();
 
-  virtual void setModel(QAbstractItemModel *model);
-  virtual QSize sizeHint() const;
+    virtual void setModel(QAbstractItemModel *model);
+    virtual QSize sizeHint() const;
 
-  friend class TableDoubleHeaderView;  // access to paintSection (protected)
+    friend class TableDoubleHeaderView; // access to paintSection (protected)
 };
 
 //! Horizontal header for TableView displaying comments in a second header
@@ -68,44 +69,45 @@ class TableCommentsHeaderView : public QHeaderView {
  * \sa TableCommentsHeaderView
  * \sa QHeaderView
  */
-class TableDoubleHeaderView : public QHeaderView {
-  Q_OBJECT
+class TableDoubleHeaderView : public QHeaderView
+{
+    Q_OBJECT
 
- private:
-  TableCommentsHeaderView *d_slave;
-  static int tableHeaderHeight;
+private:
+    TableCommentsHeaderView *d_slave;
+    static int tableHeaderHeight;
 
- public:
-  TableDoubleHeaderView(QWidget *parent = 0);
-  ~TableDoubleHeaderView();
+public:
+    TableDoubleHeaderView(QWidget *parent = 0);
+    ~TableDoubleHeaderView();
 
-  virtual void setModel(QAbstractItemModel *model);
-  virtual QSize sizeHint() const;
-  //! Show or hide (if on = false) the column comments
-  void showComments(bool on = true);
-  //! Return whether comments are show currently
-  bool areCommentsShown() const;
+    virtual void setModel(QAbstractItemModel *model);
+    virtual QSize sizeHint() const;
+    //! Show or hide (if on = false) the column comments
+    void showComments(bool on = true);
+    //! Return whether comments are show currently
+    bool areCommentsShown() const;
 
- protected:
-  //void mouseMoveEvent(QMouseEvent *event);
+protected:
+    // void mouseMoveEvent(QMouseEvent *event);
 
- public slots:
-  // adjust geometry and repaint header
-  void refresh();
-  // React to a header data change
-  void headerDataChanged(Qt::Orientation orientation, int logicalFirst,
-                         int logicalLast);
+public slots:
+    // adjust geometry and repaint header
+    void refresh();
+    // React to a header data change
+    void headerDataChanged(Qt::Orientation orientation, int logicalFirst,
+                           int logicalLast);
 
- protected slots:
-  void sectionsInserted(const QModelIndex &parent, int logicalFirst,
-                        int logicalLast);
+protected slots:
+    void sectionsInserted(const QModelIndex &parent, int logicalFirst,
+                          int logicalLast);
 
- protected:
-  virtual void paintSection(QPainter *painter, const QRect &rect,
-                            int logicalIndex) const;
+protected:
+    virtual void paintSection(QPainter *painter, const QRect &rect,
+                              int logicalIndex) const;
 
-  //! Flag: show/high column comments
-  bool d_show_comments;
+    //! Flag: show/high column comments
+    bool d_show_comments;
 };
 
-#endif  // TABLEDOUBLEHEADERVIEW_H
+#endif // TABLEDOUBLEHEADERVIEW_H

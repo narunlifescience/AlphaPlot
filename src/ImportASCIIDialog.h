@@ -41,81 +41,83 @@ class QGroupBox;
 class QPushButton;
 
 //! Import ASCII file(s) dialog
-class ImportASCIIDialog : public ExtensibleFileDialog {
-  Q_OBJECT
+class ImportASCIIDialog : public ExtensibleFileDialog
+{
+    Q_OBJECT
 
- public:
-  //! Possible destinations for the imported data.
-  /**
-   * Important: Keep this in sync with the initialization of #d_import_mode in
-   * initAdvancedOptions().
-   */
-  enum ImportMode {
-    NewTables,   //!< create a new table for each file (default)
-    NewColumns,  //!< add each file as new columns to the current table
-    NewRows,     //!< add each file as new rows to the current table
-    Overwrite    //!< replace content of current table with the selected file
-                 //!(like importing a single file in previous versions of
-                 //!AlphaPlot)
-  };
+public:
+    //! Possible destinations for the imported data.
+    /**
+     * Important: Keep this in sync with the initialization of #d_import_mode in
+     * initAdvancedOptions().
+     */
+    enum ImportMode {
+        NewTables, //!< create a new table for each file (default)
+        NewColumns, //!< add each file as new columns to the current table
+        NewRows, //!< add each file as new rows to the current table
+        Overwrite //!< replace content of current table with the selected file
+        //!(like importing a single file in previous versions of
+        //!AlphaPlot)
+    };
 
-  //! Constructor
-  /**
-   * \param importModeEnabled flag: enable/disable import mode combo box
-   * \param parent parent widget (only affects placement of the dialog)
-   * \param extended flag: show/hide the advanced options on start-up
-   * \param flags window flags
-   */
-  ImportASCIIDialog(bool importModeEnabled, QWidget *parent = 0,
-                    bool extended = true, Qt::WindowFlags flags = 0);
+    //! Constructor
+    /**
+     * \param importModeEnabled flag: enable/disable import mode combo box
+     * \param parent parent widget (only affects placement of the dialog)
+     * \param extended flag: show/hide the advanced options on start-up
+     * \param flags window flags
+     */
+    ImportASCIIDialog(bool importModeEnabled, QWidget *parent = 0,
+                      bool extended = true, Qt::WindowFlags flags = 0);
 
-  //! Return the selected import mode
-  /**
-   * \sa ImportMode
-   */
-  ImportMode importMode() const {
-    return (ImportMode)d_import_mode->currentIndex();
-  }
-  //! Return the selected column separator.
-  const QString columnSeparator() const;
-  //! Return the number of lines to be skipped at the start of each file.
-  int ignoredLines() const { return d_ignored_lines->value(); }
-  //! Whether to rename columns based on the first (non-skipped) line.
-  bool renameColumns() const { return d_rename_columns->isChecked(); }
-  //! Whether to replace sequences of whitespace charecters with a single space.
-  bool simplifySpaces() const { return d_simplify_spaces->isChecked(); }
-  //! Whether to remove whitespace from beginning and end of lines.
-  bool stripSpaces() const { return d_strip_spaces->isChecked(); }
-  //! Whether the user wants the import options to be saved.
-  bool rememberOptions() const { return d_remember_options->isChecked(); }
+    //! Return the selected import mode
+    /**
+     * \sa ImportMode
+     */
+    ImportMode importMode() const
+    {
+        return (ImportMode)d_import_mode->currentIndex();
+    }
+    //! Return the selected column separator.
+    const QString columnSeparator() const;
+    //! Return the number of lines to be skipped at the start of each file.
+    int ignoredLines() const { return d_ignored_lines->value(); }
+    //! Whether to rename columns based on the first (non-skipped) line.
+    bool renameColumns() const { return d_rename_columns->isChecked(); }
+    //! Whether to replace sequences of whitespace charecters with a single space.
+    bool simplifySpaces() const { return d_simplify_spaces->isChecked(); }
+    //! Whether to remove whitespace from beginning and end of lines.
+    bool stripSpaces() const { return d_strip_spaces->isChecked(); }
+    //! Whether the user wants the import options to be saved.
+    bool rememberOptions() const { return d_remember_options->isChecked(); }
 
-  //! Set the selected columns separator.
-  void setColumnSeparator(const QString &sep);
+    //! Set the selected columns separator.
+    void setColumnSeparator(const QString &sep);
 
-  //! Returns the locale chosen for conversion to numeric format
-  QLocale decimalSeparators();
-  //! Returns whether imported data should be interpreted as numbers
-  bool convertToNumeric() const { return d_convert_to_numeric->isChecked(); }
+    //! Returns the locale chosen for conversion to numeric format
+    QLocale decimalSeparators();
+    //! Returns whether imported data should be interpreted as numbers
+    bool convertToNumeric() const { return d_convert_to_numeric->isChecked(); }
 
- private slots:
-  //! Display help for advanced options.
-  void displayHelp();
-  //! For #Overwrite mode, allow only one file to be selected.
-  void updateImportMode(int mode);
+private slots:
+    //! Display help for advanced options.
+    void displayHelp();
+    //! For #Overwrite mode, allow only one file to be selected.
+    void updateImportMode(int mode);
 
- private:
-  void closeEvent(QCloseEvent *);
-  //! Initialise #d_advanced_options and everything it contains.
-  void initAdvancedOptions();
+private:
+    void closeEvent(QCloseEvent *);
+    //! Initialise #d_advanced_options and everything it contains.
+    void initAdvancedOptions();
 
-  //! Container widget for all advanced options.
-  QGroupBox *d_advanced_options;
-  QCheckBox *d_remember_options, *d_convert_to_numeric;
-  QPushButton *d_help_button;
-  // the actual options
-  QComboBox *d_import_mode, *d_column_separator, *boxDecimalSeparator;
-  QSpinBox *d_ignored_lines;
-  QCheckBox *d_rename_columns, *d_simplify_spaces, *d_strip_spaces;
+    //! Container widget for all advanced options.
+    QGroupBox *d_advanced_options;
+    QCheckBox *d_remember_options, *d_convert_to_numeric;
+    QPushButton *d_help_button;
+    // the actual options
+    QComboBox *d_import_mode, *d_column_separator, *boxDecimalSeparator;
+    QSpinBox *d_ignored_lines;
+    QCheckBox *d_rename_columns, *d_simplify_spaces, *d_strip_spaces;
 };
 
-#endif  // IMPORTFILESDIALOG_H
+#endif // IMPORTFILESDIALOG_H

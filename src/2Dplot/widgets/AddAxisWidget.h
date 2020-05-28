@@ -7,25 +7,26 @@ class Ui_AddAxisWidget;
 
 class AddAxisWidget : public QDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  explicit AddAxisWidget(QWidget *parent);
-  ~AddAxisWidget();
+    explicit AddAxisWidget(QWidget *parent);
+    ~AddAxisWidget();
 
 signals:
-  void addleftaxisclicked();
-  void addbottomaxisclicked();
-  void addrightaxisclicked();
-  void addtopaxisclicked();
+    void addleftaxisclicked();
+    void addbottomaxisclicked();
+    void addrightaxisclicked();
+    void addtopaxisclicked();
 
 private slots:
-  void leftaxis();
-  void bottomaxis();
-  void rightaxis();
-  void topaxis();
+    void leftaxis();
+    void bottomaxis();
+    void rightaxis();
+    void topaxis();
+
 private:
-  Ui_AddAxisWidget *ui_;
+    Ui_AddAxisWidget *ui_;
 };
 
 #endif // ADDAXISWIDGET_H

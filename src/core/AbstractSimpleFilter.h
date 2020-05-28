@@ -143,210 +143,242 @@ class SimpleFilterColumn;
  * 14 	}
  * \endcode
  */
-class AbstractSimpleFilter : public AbstractFilter {
-  Q_OBJECT
+class AbstractSimpleFilter : public AbstractFilter
+{
+    Q_OBJECT
 
- public:
-  //! Ctor
-  AbstractSimpleFilter();
-  //! Default to one input port.
-  virtual int inputCount() const { return 1; }
-  //! We manage only one output port (don't override unless you really know what
-  //! you are doing).
-  virtual int outputCount() const { return 1; }
-  //! Return a pointer to #d_output_column on port 0 (don't override unless you
-  //! really know what you are doing).
-  virtual AbstractColumn *output(int port);
-  virtual const AbstractColumn *output(int port) const;
-  //! Copy plot designation of input port 0.
-  virtual AlphaPlot::PlotDesignation plotDesignation() const {
-    return d_inputs.value(0) ? d_inputs.at(0)->plotDesignation()
-                             : AlphaPlot::noDesignation;
-  }
-  //! Return the data type of the input
-  virtual AlphaPlot::ColumnDataType dataType() const {
-    // calling this function while d_input is empty is a sign of very bad code
-    // nevertheless it will return some rather meaningless value to
-    // avoid crashes
-    return d_inputs.value(0) ? d_inputs.at(0)->dataType()
-                             : AlphaPlot::TypeString;
-  }
-  //! Return the column mode
-  /**
-   * This function is most used by tables but can also be used
-   * by plots. The column mode specifies how to interpret
-   * the values in the column additional to the data type.
-   */
-  virtual AlphaPlot::ColumnMode columnMode() const {
-    // calling this function while d_input is empty is a sign of very bad code
-    // nevertheless it will return some rather meaningless value to
-    // avoid crashes
-    return d_inputs.value(0) ? d_inputs.at(0)->columnMode() : AlphaPlot::Text;
-  }
-  //! Return the content of row 'row'.
-  /**
-   * Use this only when dataType() is QString
-   */
-  virtual QString textAt(int row) const {
-    return d_inputs.value(0) ? d_inputs.at(0)->textAt(row) : QString();
-  }
-  //! Return the date part of row 'row'
-  /**
-   * Use this only when dataType() is QDateTime
-   */
-  virtual QDate dateAt(int row) const {
-    return d_inputs.value(0) ? d_inputs.at(0)->dateAt(row) : QDate();
-  }
-  //! Return the time part of row 'row'
-  /**
-   * Use this only when dataType() is QDateTime
-   */
-  virtual QTime timeAt(int row) const {
-    return d_inputs.value(0) ? d_inputs.at(0)->timeAt(row) : QTime();
-  }
-  //! Set the content of row 'row'
-  /**
-   * Use this only when dataType() is QDateTime
-   */
-  virtual QDateTime dateTimeAt(int row) const {
-    return d_inputs.value(0) ? d_inputs.at(0)->dateTimeAt(row) : QDateTime();
-  }
-  //! Return the double value in row 'row'
-  /**
-   * Use this only when dataType() is double
-   */
-  virtual double valueAt(int row) const {
-    return d_inputs.value(0) ? d_inputs.at(0)->valueAt(row) : 0.0;
-  }
+public:
+    //! Ctor
+    AbstractSimpleFilter();
+    //! Default to one input port.
+    virtual int inputCount() const { return 1; }
+    //! We manage only one output port (don't override unless you really know what
+    //! you are doing).
+    virtual int outputCount() const { return 1; }
+    //! Return a pointer to #d_output_column on port 0 (don't override unless you
+    //! really know what you are doing).
+    virtual AbstractColumn *output(int port);
+    virtual const AbstractColumn *output(int port) const;
+    //! Copy plot designation of input port 0.
+    virtual AlphaPlot::PlotDesignation plotDesignation() const
+    {
+        return d_inputs.value(0) ? d_inputs.at(0)->plotDesignation()
+                                 : AlphaPlot::noDesignation;
+    }
+    //! Return the data type of the input
+    virtual AlphaPlot::ColumnDataType dataType() const
+    {
+        // calling this function while d_input is empty is a sign of very bad
+        // code nevertheless it will return some rather meaningless value to
+        // avoid crashes
+        return d_inputs.value(0) ? d_inputs.at(0)->dataType()
+                                 : AlphaPlot::TypeString;
+    }
+    //! Return the column mode
+    /**
+     * This function is most used by tables but can also be used
+     * by plots. The column mode specifies how to interpret
+     * the values in the column additional to the data type.
+     */
+    virtual AlphaPlot::ColumnMode columnMode() const
+    {
+        // calling this function while d_input is empty is a sign of very bad
+        // code nevertheless it will return some rather meaningless value to
+        // avoid crashes
+        return d_inputs.value(0) ? d_inputs.at(0)->columnMode()
+                                 : AlphaPlot::Text;
+    }
+    //! Return the content of row 'row'.
+    /**
+     * Use this only when dataType() is QString
+     */
+    virtual QString textAt(int row) const
+    {
+        return d_inputs.value(0) ? d_inputs.at(0)->textAt(row) : QString();
+    }
+    //! Return the date part of row 'row'
+    /**
+     * Use this only when dataType() is QDateTime
+     */
+    virtual QDate dateAt(int row) const
+    {
+        return d_inputs.value(0) ? d_inputs.at(0)->dateAt(row) : QDate();
+    }
+    //! Return the time part of row 'row'
+    /**
+     * Use this only when dataType() is QDateTime
+     */
+    virtual QTime timeAt(int row) const
+    {
+        return d_inputs.value(0) ? d_inputs.at(0)->timeAt(row) : QTime();
+    }
+    //! Set the content of row 'row'
+    /**
+     * Use this only when dataType() is QDateTime
+     */
+    virtual QDateTime dateTimeAt(int row) const
+    {
+        return d_inputs.value(0) ? d_inputs.at(0)->dateTimeAt(row)
+                                 : QDateTime();
+    }
+    //! Return the double value in row 'row'
+    /**
+     * Use this only when dataType() is double
+     */
+    virtual double valueAt(int row) const
+    {
+        return d_inputs.value(0) ? d_inputs.at(0)->valueAt(row) : 0.0;
+    }
 
-  //!\name assuming a 1:1 correspondence between input and output rows
-  //@{
-  virtual int rowCount() const {
-    return d_inputs.value(0) ? d_inputs.at(0)->rowCount() : 0;
-  }
-  virtual QList<Interval<int> > dependentRows(Interval<int> input_range) const {
-    return QList<Interval<int> >() << input_range;
-  }
-  //@}
+    //!\name assuming a 1:1 correspondence between input and output rows
+    //@{
+    virtual int rowCount() const
+    {
+        return d_inputs.value(0) ? d_inputs.at(0)->rowCount() : 0;
+    }
+    virtual QList<Interval<int>> dependentRows(Interval<int> input_range) const
+    {
+        return QList<Interval<int>>() << input_range;
+    }
+    //@}
 
-  //!\name Masking
-  //@{
-  //! Return whether a certain row is masked
-  virtual bool isMasked(int row) const { return d_masking.isSet(row); }
-  //! Return whether a certain interval of rows rows is fully masked
-  virtual bool isMasked(Interval<int> i) const { return d_masking.isSet(i); }
-  //! Return all intervals of masked rows
-  virtual QList<Interval<int> > maskedIntervals() const {
-    return d_masking.intervals();
-  }
-  //! Clear all masking information
-  virtual void clearMasks();
-  //! Set an interval masked
-  /**
-   * \param i the interval
-   * \param mask true: mask, false: unmask
-   */
-  virtual void setMasked(Interval<int> i, bool mask = true);
-  //! Overloaded function for convenience
-  virtual void setMasked(int row, bool mask = true) {
-    setMasked(Interval<int>(row, row), mask);
-  }
-  //@}
+    //!\name Masking
+    //@{
+    //! Return whether a certain row is masked
+    virtual bool isMasked(int row) const { return d_masking.isSet(row); }
+    //! Return whether a certain interval of rows rows is fully masked
+    virtual bool isMasked(Interval<int> i) const { return d_masking.isSet(i); }
+    //! Return all intervals of masked rows
+    virtual QList<Interval<int>> maskedIntervals() const
+    {
+        return d_masking.intervals();
+    }
+    //! Clear all masking information
+    virtual void clearMasks();
+    //! Set an interval masked
+    /**
+     * \param i the interval
+     * \param mask true: mask, false: unmask
+     */
+    virtual void setMasked(Interval<int> i, bool mask = true);
+    //! Overloaded function for convenience
+    virtual void setMasked(int row, bool mask = true)
+    {
+        setMasked(Interval<int>(row, row), mask);
+    }
+    //@}
 
-  //! Return whether a certain row contains an invalid value
-  virtual bool isInvalid(int row) const {
-    return d_inputs.value(0) ? d_inputs.at(0)->isInvalid(row) : false;
-  }
-  //! Return whether a certain interval of rows contains only invalid values
-  virtual bool isInvalid(Interval<int> i) const {
-    return d_inputs.value(0) ? d_inputs.at(0)->isInvalid(i) : false;
-  }
-  //! Return all intervals of invalid rows
-  virtual QList<Interval<int> > invalidIntervals() const {
-    return d_inputs.value(0) ? d_inputs.at(0)->invalidIntervals()
-                             : QList<Interval<int> >();
-  }
+    //! Return whether a certain row contains an invalid value
+    virtual bool isInvalid(int row) const
+    {
+        return d_inputs.value(0) ? d_inputs.at(0)->isInvalid(row) : false;
+    }
+    //! Return whether a certain interval of rows contains only invalid values
+    virtual bool isInvalid(Interval<int> i) const
+    {
+        return d_inputs.value(0) ? d_inputs.at(0)->isInvalid(i) : false;
+    }
+    //! Return all intervals of invalid rows
+    virtual QList<Interval<int>> invalidIntervals() const
+    {
+        return d_inputs.value(0) ? d_inputs.at(0)->invalidIntervals()
+                                 : QList<Interval<int>>();
+    }
 
-  //! \name XML related functions
-  //@{
-  //! Save to XML
-  virtual void save(QXmlStreamWriter *writer) const;
-  //! Load from XML
-  virtual bool load(XmlStreamReader *reader);
-  //! Override this in derived classes if they have other attributes than
-  //! filter_name
-  virtual void writeExtraAttributes(QXmlStreamWriter *writer) const {
-    Q_UNUSED(writer)
-  }
-  //@}
+    //! \name XML related functions
+    //@{
+    //! Save to XML
+    virtual void save(QXmlStreamWriter *writer) const;
+    //! Load from XML
+    virtual bool load(XmlStreamReader *reader);
+    //! Override this in derived classes if they have other attributes than
+    //! filter_name
+    virtual void writeExtraAttributes(QXmlStreamWriter *writer) const
+    {
+        Q_UNUSED(writer)
+    }
+    //@}
 
- protected:
-  IntervalAttribute<bool> d_masking;
+protected:
+    IntervalAttribute<bool> d_masking;
 
-  //!\name signal handlers
-  //@{
-  virtual void inputPlotDesignationAboutToChange(const AbstractColumn *);
-  virtual void inputPlotDesignationChanged(const AbstractColumn *);
-  virtual void inputModeAboutToChange(const AbstractColumn *);
-  virtual void inputModeChanged(const AbstractColumn *);
-  virtual void inputDataAboutToChange(const AbstractColumn *);
-  virtual void inputDataChanged(const AbstractColumn *);
+    //!\name signal handlers
+    //@{
+    virtual void inputPlotDesignationAboutToChange(const AbstractColumn *);
+    virtual void inputPlotDesignationChanged(const AbstractColumn *);
+    virtual void inputModeAboutToChange(const AbstractColumn *);
+    virtual void inputModeChanged(const AbstractColumn *);
+    virtual void inputDataAboutToChange(const AbstractColumn *);
+    virtual void inputDataChanged(const AbstractColumn *);
 
-  virtual void inputRowsAboutToBeInserted(const AbstractColumn *source,
-                                          int before, int count);
-  virtual void inputRowsInserted(const AbstractColumn *source, int before,
-                                 int count);
-  virtual void inputRowsAboutToBeRemoved(const AbstractColumn *source,
-                                         int first, int count);
-  virtual void inputRowsRemoved(const AbstractColumn *source, int first,
-                                int count);
-  //@}
+    virtual void inputRowsAboutToBeInserted(const AbstractColumn *source,
+                                            int before, int count);
+    virtual void inputRowsInserted(const AbstractColumn *source, int before,
+                                   int count);
+    virtual void inputRowsAboutToBeRemoved(const AbstractColumn *source,
+                                           int first, int count);
+    virtual void inputRowsRemoved(const AbstractColumn *source, int first,
+                                  int count);
+    //@}
 
-  SimpleFilterColumn *d_output_column;
+    SimpleFilterColumn *d_output_column;
 };
 
-class SimpleFilterColumn : public AbstractColumn {
-  Q_OBJECT
+class SimpleFilterColumn : public AbstractColumn
+{
+    Q_OBJECT
 
- public:
-  SimpleFilterColumn(AbstractSimpleFilter *owner)
-      : AbstractColumn(owner->name()), d_owner(owner) {}
+public:
+    SimpleFilterColumn(AbstractSimpleFilter *owner)
+        : AbstractColumn(owner->name()), d_owner(owner)
+    {
+    }
 
-  virtual AlphaPlot::ColumnDataType dataType() const {
-    return d_owner->dataType();
-  }
-  virtual AlphaPlot::ColumnMode columnMode() const {
-    return d_owner->columnMode();
-  }
-  virtual int rowCount() const { return d_owner->rowCount(); }
-  virtual AlphaPlot::PlotDesignation plotDesignation() const {
-    return d_owner->plotDesignation();
-  }
-  virtual bool isInvalid(int row) const { return d_owner->isInvalid(row); }
-  virtual bool isInvalid(Interval<int> i) const {
-    return d_owner->isInvalid(i);
-  }
-  virtual QList<Interval<int> > invalidIntervals() const {
-    return d_owner->invalidIntervals();
-  }
-  virtual bool isMasked(int row) const { return d_owner->isMasked(row); }
-  virtual bool isMasked(Interval<int> i) const { return d_owner->isMasked(i); }
-  virtual QList<Interval<int> > maskedIntervals() const {
-    return d_owner->maskedIntervals();
-  }
-  virtual void clearMasks() { d_owner->clearMasks(); }
-  virtual QString textAt(int row) const { return d_owner->textAt(row); }
-  virtual QDate dateAt(int row) const { return d_owner->dateAt(row); }
-  virtual QTime timeAt(int row) const { return d_owner->timeAt(row); }
-  virtual QDateTime dateTimeAt(int row) const {
-    return d_owner->dateTimeAt(row);
-  }
-  virtual double valueAt(int row) const { return d_owner->valueAt(row); }
+    virtual AlphaPlot::ColumnDataType dataType() const
+    {
+        return d_owner->dataType();
+    }
+    virtual AlphaPlot::ColumnMode columnMode() const
+    {
+        return d_owner->columnMode();
+    }
+    virtual int rowCount() const { return d_owner->rowCount(); }
+    virtual AlphaPlot::PlotDesignation plotDesignation() const
+    {
+        return d_owner->plotDesignation();
+    }
+    virtual bool isInvalid(int row) const { return d_owner->isInvalid(row); }
+    virtual bool isInvalid(Interval<int> i) const
+    {
+        return d_owner->isInvalid(i);
+    }
+    virtual QList<Interval<int>> invalidIntervals() const
+    {
+        return d_owner->invalidIntervals();
+    }
+    virtual bool isMasked(int row) const { return d_owner->isMasked(row); }
+    virtual bool isMasked(Interval<int> i) const
+    {
+        return d_owner->isMasked(i);
+    }
+    virtual QList<Interval<int>> maskedIntervals() const
+    {
+        return d_owner->maskedIntervals();
+    }
+    virtual void clearMasks() { d_owner->clearMasks(); }
+    virtual QString textAt(int row) const { return d_owner->textAt(row); }
+    virtual QDate dateAt(int row) const { return d_owner->dateAt(row); }
+    virtual QTime timeAt(int row) const { return d_owner->timeAt(row); }
+    virtual QDateTime dateTimeAt(int row) const
+    {
+        return d_owner->dateTimeAt(row);
+    }
+    virtual double valueAt(int row) const { return d_owner->valueAt(row); }
 
- private:
-  AbstractSimpleFilter *d_owner;
+private:
+    AbstractSimpleFilter *d_owner;
 
-  friend class AbstractSimpleFilter;
+    friend class AbstractSimpleFilter;
 };
 
-#endif  // ABSTRACT_SIMPLE_FILTER
+#endif // ABSTRACT_SIMPLE_FILTER

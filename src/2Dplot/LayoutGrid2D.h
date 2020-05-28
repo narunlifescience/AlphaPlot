@@ -5,10 +5,10 @@
 
 class LayoutGrid2D : public QCPLayoutGrid
 {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  LayoutGrid2D();
-  ~LayoutGrid2D();
+    LayoutGrid2D();
+    ~LayoutGrid2D();
 };
 
 #endif // LAYOUTGRID2D_H

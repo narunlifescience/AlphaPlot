@@ -44,34 +44,39 @@
  * January 1st, 4713 BC
  * as per Julian Day Number convention.
  */
-class Double2DateTimeFilter : public AbstractSimpleFilter {
-  Q_OBJECT
+class Double2DateTimeFilter : public AbstractSimpleFilter
+{
+    Q_OBJECT
 
- public:
-  enum UnitInterval { Year, Month, Day, Hour, Minute, Second, Millisecond };
+public:
+    enum UnitInterval { Year, Month, Day, Hour, Minute, Second, Millisecond };
 
-  Double2DateTimeFilter() : m_unit_interval(Day) {}
-  Double2DateTimeFilter(UnitInterval unit, QDateTime date_time_0)
-      : m_unit_interval(unit), m_date_time_0(date_time_0) {}
+    Double2DateTimeFilter() : m_unit_interval(Day) { }
+    Double2DateTimeFilter(UnitInterval unit, QDateTime date_time_0)
+        : m_unit_interval(unit), m_date_time_0(date_time_0)
+    {
+    }
 
-  virtual QDate dateAt(int row) const { return dateTimeAt(row).date(); }
-  virtual QTime timeAt(int row) const { return dateTimeAt(row).time(); }
-  virtual QDateTime dateTimeAt(int row) const;
+    virtual QDate dateAt(int row) const { return dateTimeAt(row).date(); }
+    virtual QTime timeAt(int row) const { return dateTimeAt(row).time(); }
+    virtual QDateTime dateTimeAt(int row) const;
 
-  //! Return the data type of the column
-  virtual AlphaPlot::ColumnDataType dataType() const {
-    return AlphaPlot::TypeDateTime;
-  }
+    //! Return the data type of the column
+    virtual AlphaPlot::ColumnDataType dataType() const
+    {
+        return AlphaPlot::TypeDateTime;
+    }
 
- protected:
-  //! Using typed ports: only double inputs are accepted.
-  virtual bool inputAcceptable(int, const AbstractColumn *source) {
-    return source->dataType() == AlphaPlot::TypeDouble;
-  }
+protected:
+    //! Using typed ports: only double inputs are accepted.
+    virtual bool inputAcceptable(int, const AbstractColumn *source)
+    {
+        return source->dataType() == AlphaPlot::TypeDouble;
+    }
 
- private:
-  UnitInterval m_unit_interval;
-  QDateTime m_date_time_0;
+private:
+    UnitInterval m_unit_interval;
+    QDateTime m_date_time_0;
 };
 
-#endif  // DOUBLE2DATE_TIME_FILTER_H
+#endif // DOUBLE2DATE_TIME_FILTER_H

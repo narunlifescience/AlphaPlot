@@ -71,56 +71,57 @@ class ImageMarker;
  * (if that's really needed).
  * [ postponed until after the redesign of project handling ]
  */
-class LineProfileTool : public QWidget, public PlotToolInterface {
-  Q_OBJECT
+class LineProfileTool : public QWidget, public PlotToolInterface
+{
+    Q_OBJECT
 
- public:
-  //! Standard constructor.
-  LineProfileTool(Graph *graph, int average_pixels);
-  virtual RTTI rtti() const { return LineProfile; }
-  void calculateLineProfile(const QPoint &start, const QPoint &end);
+public:
+    //! Standard constructor.
+    LineProfileTool(Graph *graph, int average_pixels);
+    virtual RTTI rtti() const { return LineProfile; }
+    void calculateLineProfile(const QPoint &start, const QPoint &end);
 
- signals:
-  /*! Emitted whenever a new message should be presented to the user.
-   *
-   * You don't have to connect to this signal if you alreay specified a reciever
-   * during initialization.
-   */
-  void statusText(const QString &);
-  void createTablePlot(const QString &, const QString &, QList<Column *>);
+signals:
+    /*! Emitted whenever a new message should be presented to the user.
+     *
+     * You don't have to connect to this signal if you alreay specified a
+     * reciever during initialization.
+     */
+    void statusText(const QString &);
+    void createTablePlot(const QString &, const QString &, QList<Column *>);
 
- protected:
-  int averageImagePixel(const QImage &image, int px, int py,
-                        bool moreHorizontal);
-  void addLineMarker(const QPoint &start, const QPoint &end);
-  /*!\brief Draw line during operation (replaced by a LineMarker at the end).
-   */
-  virtual void paintEvent(QPaintEvent *e);
-  /*!\brief Pressing the left mouse button starts line selection.
-   *
-   * Clicks with anything else than the left button are propagated to the parent
-   * as usual.
-   */
-  virtual void mousePressEvent(QMouseEvent *e);
-  /*!\brief Mouse movements need to be monitored for updating the line during
-   * operation.
-   */
-  virtual void mouseMoveEvent(QMouseEvent *e);
-  /*!\brief Mouse releases end line selection and cause the profile to be
-   * displayed.
-   */
-  virtual void mouseReleaseEvent(QMouseEvent *e);
+protected:
+    int averageImagePixel(const QImage &image, int px, int py,
+                          bool moreHorizontal);
+    void addLineMarker(const QPoint &start, const QPoint &end);
+    /*!\brief Draw line during operation (replaced by a LineMarker at the end).
+     */
+    virtual void paintEvent(QPaintEvent *e);
+    /*!\brief Pressing the left mouse button starts line selection.
+     *
+     * Clicks with anything else than the left button are propagated to the
+     * parent as usual.
+     */
+    virtual void mousePressEvent(QMouseEvent *e);
+    /*!\brief Mouse movements need to be monitored for updating the line during
+     * operation.
+     */
+    virtual void mouseMoveEvent(QMouseEvent *e);
+    /*!\brief Mouse releases end line selection and cause the profile to be
+     * displayed.
+     */
+    virtual void mouseReleaseEvent(QMouseEvent *e);
 
- private:
-  //! Number of image pixels over which to average.
-  int d_average_pixels;
-  //! The image marker to operate on.
-  ImageMarker *d_target;
-  /*!\brief Mouse position where an operation started.
-   */
-  QPoint d_op_start;
-  //! Difference between current and start position during operation.
-  QPoint d_op_dp;
+private:
+    //! Number of image pixels over which to average.
+    int d_average_pixels;
+    //! The image marker to operate on.
+    ImageMarker *d_target;
+    /*!\brief Mouse position where an operation started.
+     */
+    QPoint d_op_start;
+    //! Difference between current and start position during operation.
+    QPoint d_op_dp;
 };
 
-#endif  // LINE_PROFILE_TOOL_H
+#endif // LINE_PROFILE_TOOL_H

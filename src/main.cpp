@@ -29,8 +29,8 @@
 #include "globals.h"
 
 #ifdef Q_OS_WIN
-#include <windows.h>
-#endif  // Q_OS_WIN
+#    include <windows.h>
+#endif // Q_OS_WIN
 
 /*page style Coding Style
   The following rules are not used everywhere (yet), but are
@@ -55,122 +55,129 @@
     General format used through out the project should be
     Google style(clang format) with a line wrap of 80 characters.
 */
-class Delay : public QThread {
- public:
-  static void sleep(unsigned long secs) { QThread::sleep(secs); }
+class Delay : public QThread
+{
+public:
+    static void sleep(unsigned long secs) { QThread::sleep(secs); }
 };
 
-struct Application : public QApplication {
-  Application(int& argc, char** argv);
+struct Application : public QApplication
+{
+    Application(int &argc, char **argv);
 
-  // catch exception, and display their contents as msg box.
-  bool notify(QObject* receiver, QEvent* event);
+    // catch exception, and display their contents as msg box.
+    bool notify(QObject *receiver, QEvent *event);
 };
 
-Application::Application(int& argc, char** argv) : QApplication(argc, argv) {}
+Application::Application(int &argc, char **argv) : QApplication(argc, argv) { }
 
-bool Application::notify(QObject* receiver, QEvent* event) {
-  {
-    try {
-      return QApplication::notify(receiver, event);
-    } catch (const std::exception& e) {
-      QMessageBox::critical(nullptr, tr("Error!"),
-                            tr("Error ") + e.what() + tr(" sending event ") +
-                                typeid(*event).name() + tr(" to object ") +
-                                qPrintable(receiver->objectName()) + " \"" +
-                                typeid(*receiver).name() + "\"");
-    } catch (...) /* shouldn't happen..*/ {
-      QMessageBox::critical(nullptr, tr("Error!"),
-                            tr("Error <unknown> sending event") +
-                                typeid(*event).name() + tr(" to object ") +
-                                qPrintable(receiver->objectName()) + " \"" +
-                                typeid(*receiver).name() + "\"");
+bool Application::notify(QObject *receiver, QEvent *event)
+{
+    {
+        try {
+            return QApplication::notify(receiver, event);
+        } catch (const std::exception &e) {
+            QMessageBox::critical(
+                    nullptr, tr("Error!"),
+                    tr("Error ") + e.what() + tr(" sending event ")
+                            + typeid(*event).name() + tr(" to object ")
+                            + qPrintable(receiver->objectName()) + " \""
+                            + typeid(*receiver).name() + "\"");
+        } catch (...) /* shouldn't happen..*/ {
+            QMessageBox::critical(
+                    nullptr, tr("Error!"),
+                    tr("Error <unknown> sending event") + typeid(*event).name()
+                            + tr(" to object ")
+                            + qPrintable(receiver->objectName()) + " \""
+                            + typeid(*receiver).name() + "\"");
+        }
+        // qFatal aborts, so this isn't really necessary.
+        return false;
     }
-    // qFatal aborts, so this isn't really necessary.
-    return false;
-  }
 }
 
 // Custom message handler for total control
-void logOutput(QtMsgType type, const QMessageLogContext& context,
-               const QString& msg) {
-  QByteArray localMsg = msg.toLocal8Bit();
-  switch (type) {
+void logOutput(QtMsgType type, const QMessageLogContext &context,
+               const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    switch (type) {
     case QtDebugMsg:
-      fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(),
-              context.file, context.line, context.function);
-      break;
+        fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(),
+                context.file, context.line, context.function);
+        break;
     case QtInfoMsg:
-      fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(),
-              context.file, context.line, context.function);
-      break;
+        fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(),
+                context.file, context.line, context.function);
+        break;
     case QtWarningMsg:
-      fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(),
-              context.file, context.line, context.function);
-      break;
+        fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(),
+                context.file, context.line, context.function);
+        break;
     case QtCriticalMsg:
-      fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(),
-              context.file, context.line, context.function);
-      break;
+        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(),
+                context.file, context.line, context.function);
+        break;
     case QtFatalMsg:
-      fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(),
-              context.file, context.line, context.function);
-      abort();
-  }
+        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(),
+                context.file, context.line, context.function);
+        abort();
+    }
 }
 
-int main(int argc, char** argv) {
-  qInstallMessageHandler(logOutput);
+int main(int argc, char **argv)
+{
+    qInstallMessageHandler(logOutput);
 #ifdef Q_OS_WIN
-  // solves high density dpi scaling in windows
-  // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
-  // SetProcessDPIAware();
-  // call before the main event loop
-#endif  // Q_OS_WIN
+    // solves high density dpi scaling in windows
+    // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
+    // SetProcessDPIAware();
+    // call before the main event loop
+#endif // Q_OS_WIN
 
-  // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
-  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  Application* app = new Application(argc, argv);
+    // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    Application *app = new Application(argc, argv);
 
-  // icon initiation (mandatory)
-  IconLoader::init();
-  IconLoader::lumen_ =
-      IconLoader::isLight(app->palette().color(QPalette::Window));
+    // icon initiation (mandatory)
+    IconLoader::init();
+    IconLoader::lumen_ =
+            IconLoader::isLight(app->palette().color(QPalette::Window));
 
-  app->setApplicationName("AlphaPlot");
-  app->setApplicationVersion(AlphaPlot::versionString());
-  app->setOrganizationName("AlphaPlot");
-  app->setOrganizationDomain("alphaplot.sourceforge.net");
+    app->setApplicationName("AlphaPlot");
+    app->setApplicationVersion(AlphaPlot::versionString());
+    app->setOrganizationName("AlphaPlot");
+    app->setOrganizationDomain("alphaplot.sourceforge.net");
 
-  QStringList args = app->arguments();
-  args.removeFirst();  // remove application name
+    QStringList args = app->arguments();
+    args.removeFirst(); // remove application name
 
-  // Show splashscreen
-  QPixmap pixmap(":splash/splash.png");
-  QSplashScreen* splash = new QSplashScreen(pixmap);
-  if (args.count() == 0) {
-    splash->show();
-    // Close splashscreen after 3 sec
-    Delay::sleep(3);
-  }
+    // Show splashscreen
+    QPixmap pixmap(":splash/splash.png");
+    QSplashScreen *splash = new QSplashScreen(pixmap);
+    if (args.count() == 0) {
+        splash->show();
+        // Close splashscreen after 3 sec
+        Delay::sleep(3);
+    }
 
-  ApplicationWindow* mw = new ApplicationWindow();
-  // Process more events here before starting app.
-  mw->applyUserSettings();
-  mw->newTable();
-  mw->savedProject();
+    ApplicationWindow *mw = new ApplicationWindow();
+    // Process more events here before starting app.
+    mw->applyUserSettings();
+    mw->newTable();
+    mw->savedProject();
 
 #ifdef SEARCH_FOR_UPDATES
-  if (mw->autoSearchUpdates) {
-    mw->autoSearchUpdatesRequest = true;
-    mw->searchForUpdates();
-  }
+    if (mw->autoSearchUpdates) {
+        mw->autoSearchUpdatesRequest = true;
+        mw->searchForUpdates();
+    }
 #endif
-  mw->parseCommandLineArguments(args);
+    mw->parseCommandLineArguments(args);
 
-  mw->activateWindow();
-  splash->finish(mw);
+    mw->activateWindow();
+    splash->finish(mw);
 
-  app->connect(app, SIGNAL(lastWindowClosed()), app, SLOT(quit()));
-  return app->exec();
+    app->connect(app, SIGNAL(lastWindowClosed()), app, SLOT(quit()));
+    return app->exec();
 }

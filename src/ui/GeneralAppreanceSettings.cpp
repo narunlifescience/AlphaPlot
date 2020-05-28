@@ -22,61 +22,66 @@
 #include <QStyleFactory>
 
 GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
-    : SettingsPage(dialog), ui(new Ui_GeneralAppreanceSettings) {
-  ui->setupUi(this);
-  setWindowIcon(IconLoader::load("preferences-general-apperance",
-   IconLoader::General));
-  setWindowTitle(tr("Apperance"));
-  ui->scrollArea->setFrameShape(QFrame::NoFrame);
-  ui->gridLayout->setContentsMargins(3, 3, 3, 3);
-  QStringList styles = QStyleFactory::keys();
-  styles.sort();
-  ui->styleComboBox->addItems(styles);
-  connect(ui->styleComboBox, SIGNAL(currentIndexChanged(QString)),
-          SLOT(stylePreview(QString)));
+    : SettingsPage(dialog), ui(new Ui_GeneralAppreanceSettings)
+{
+    ui->setupUi(this);
+    setWindowIcon(IconLoader::load("preferences-general-apperance",
+                                   IconLoader::General));
+    setWindowTitle(tr("Apperance"));
+    ui->scrollArea->setFrameShape(QFrame::NoFrame);
+    ui->gridLayout->setContentsMargins(3, 3, 3, 3);
+    QStringList styles = QStyleFactory::keys();
+    styles.sort();
+    ui->styleComboBox->addItems(styles);
+    connect(ui->styleComboBox, SIGNAL(currentIndexChanged(QString)),
+            SLOT(stylePreview(QString)));
 }
 
-GeneralAppreanceSettings::~GeneralAppreanceSettings() { delete ui; }
-
-void GeneralAppreanceSettings::Load() {}
-
-void GeneralAppreanceSettings::Save() {}
-
-void GeneralAppreanceSettings::setTitle(QString title) {
-  QFont font = ui->titleLabel->font();
-
-  font.setPointSize(font.pointSize() + 2);
-  font.setBold(true);
-  font.setItalic(true);
-
-  ui->titleLabel->setStyleSheet(
-      "QLabel {padding-left: 5px;"
-      " padding-right: 5px;"
-      " padding-top: 5px;"
-      " padding-bottom: 5px }");
-  ui->titleLabel->setFont(font);
-  ui->titleLabel->setText(title);
+GeneralAppreanceSettings::~GeneralAppreanceSettings()
+{
+    delete ui;
 }
 
-void GeneralAppreanceSettings::stylePreview(QString style) {
-  QStyle *stylefinal = QStyleFactory::create(style.toLower());
+void GeneralAppreanceSettings::Load() { }
 
-  if (!stylefinal) {
-    return;
-  }
+void GeneralAppreanceSettings::Save() { }
 
-  ui->previewTabWidget->setStyle(stylefinal);
-  ui->previewTab->setStyle(stylefinal);
-  ui->previewGroupBox->setStyle(stylefinal);
-  ui->previewRadioButton1->setStyle(stylefinal);
-  ui->previewRadioButton2->setStyle(stylefinal);
-  ui->previewLine->setStyle(stylefinal);
-  ui->previewCheckBox->setStyle(stylefinal);
-  ui->previewComboBox->setStyle(stylefinal);
-  ui->previewProgressBar->setStyle(stylefinal);
-  ui->previewSlider->setStyle(stylefinal);
-  ui->previewSpinBox->setStyle(stylefinal);
-  ui->previewPushButton->setStyle(stylefinal);
-  ui->previewScrollBar->setStyle(stylefinal);
-  ui->previewTableWidget->setStyle(stylefinal);
+void GeneralAppreanceSettings::setTitle(QString title)
+{
+    QFont font = ui->titleLabel->font();
+
+    font.setPointSize(font.pointSize() + 2);
+    font.setBold(true);
+    font.setItalic(true);
+
+    ui->titleLabel->setStyleSheet("QLabel {padding-left: 5px;"
+                                  " padding-right: 5px;"
+                                  " padding-top: 5px;"
+                                  " padding-bottom: 5px }");
+    ui->titleLabel->setFont(font);
+    ui->titleLabel->setText(title);
+}
+
+void GeneralAppreanceSettings::stylePreview(QString style)
+{
+    QStyle *stylefinal = QStyleFactory::create(style.toLower());
+
+    if (!stylefinal) {
+        return;
+    }
+
+    ui->previewTabWidget->setStyle(stylefinal);
+    ui->previewTab->setStyle(stylefinal);
+    ui->previewGroupBox->setStyle(stylefinal);
+    ui->previewRadioButton1->setStyle(stylefinal);
+    ui->previewRadioButton2->setStyle(stylefinal);
+    ui->previewLine->setStyle(stylefinal);
+    ui->previewCheckBox->setStyle(stylefinal);
+    ui->previewComboBox->setStyle(stylefinal);
+    ui->previewProgressBar->setStyle(stylefinal);
+    ui->previewSlider->setStyle(stylefinal);
+    ui->previewSpinBox->setStyle(stylefinal);
+    ui->previewPushButton->setStyle(stylefinal);
+    ui->previewScrollBar->setStyle(stylefinal);
+    ui->previewTableWidget->setStyle(stylefinal);
 }

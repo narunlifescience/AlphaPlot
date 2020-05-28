@@ -41,13 +41,14 @@
 class Fit;
 
 //! Structure for fitting data
-struct FitData {
-  size_t n;
-  size_t p;
-  double *X;
-  double *Y;
-  double *sigma;  // standard deviation of Y (for weighting)
-  Fit *fit;
+struct FitData
+{
+    size_t n;
+    size_t p;
+    double *X;
+    double *Y;
+    double *sigma; // standard deviation of Y (for weighting)
+    Fit *fit;
 };
 
 int expd3_fdf(const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J);
@@ -93,4 +94,4 @@ double user_d(const gsl_vector *x, void *params);
 int user_df(const gsl_vector *x, void *params, gsl_matrix *J);
 int user_fdf(const gsl_vector *x, void *params, gsl_vector *f, gsl_matrix *J);
 
-#endif  // FIT_GSL_H
+#endif // FIT_GSL_H

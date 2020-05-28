@@ -18,5 +18,7 @@
 #include "SettingsDialog.h"
 #include "SettingsPage.h"
 
-SettingsPage::SettingsPage(SettingsDialog* dialog)
-    : QWidget(dialog), dialog_(dialog) {}
+SettingsPage::SettingsPage(SettingsDialog *dialog)
+    : QWidget(dialog), dialog_(dialog)
+{
+}

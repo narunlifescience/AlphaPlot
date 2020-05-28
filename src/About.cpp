@@ -21,29 +21,30 @@
 #include "project/Utilities.h"
 #include "globals.h"
 
-About::About(QWidget* parent) : QDialog(parent) {
-  ui_.setupUi(this);
-  setWindowIcon(IconLoader::load("help-about", IconLoader::LightDark));
+About::About(QWidget *parent) : QDialog(parent)
+{
+    ui_.setupUi(this);
+    setWindowIcon(IconLoader::load("help-about", IconLoader::LightDark));
 
-  ui_.gridLayout->setContentsMargins(0, 0, 0, 0);
-  ui_.verticalLayout_2->setSpacing(0);
-  ui_.verticalLayout_2->setContentsMargins(0, 0, 0, 0);
-  ui_.horizontalLayout->setContentsMargins(0, 10, 0, 10);
-  ui_.horizontalLayout->setSpacing(10);
-  ui_.verticalLayout->setContentsMargins(0, 0, 0, 0);
-  ui_.verticalLayout->setSpacing(0);
+    ui_.gridLayout->setContentsMargins(0, 0, 0, 0);
+    ui_.verticalLayout_2->setSpacing(0);
+    ui_.verticalLayout_2->setContentsMargins(0, 0, 0, 0);
+    ui_.horizontalLayout->setContentsMargins(0, 10, 0, 10);
+    ui_.horizontalLayout->setSpacing(10);
+    ui_.verticalLayout->setContentsMargins(0, 0, 0, 0);
+    ui_.verticalLayout->setSpacing(0);
 
-  ui_.versionLabel->setText(AlphaPlot::versionString() +
-                            AlphaPlot::extraVersion());
-  ui_.releaseDateLabel->setText(AlphaPlot::releaseDateString());
-  (Utilities::getWordSizeApp() == 0)
-      ? ui_.buildLabel->setText(tr("Unknown"))
-      : (Utilities::getWordSizeApp() == 32) ? ui_.buildLabel->setText("x86")
-                                            : ui_.buildLabel->setText("x86_64");
-  ui_.buildLabel->setVisible(false);
-  ui_.buildLabelCaption->setVisible(false);
-  ui_.originalAuthorLabel->setText(AlphaPlot::originalAuthor());
-  ui_.osLabel->setText(QString("%1 %2-bit")
-                           .arg(Utilities::getOperatingSystem())
-                           .arg(Utilities::getWordSizeOfOS()));
+    ui_.versionLabel->setText(AlphaPlot::versionString()
+                              + AlphaPlot::extraVersion());
+    ui_.releaseDateLabel->setText(AlphaPlot::releaseDateString());
+    (Utilities::getWordSizeApp() == 0) ? ui_.buildLabel->setText(tr("Unknown"))
+                                       : (Utilities::getWordSizeApp() == 32)
+                    ? ui_.buildLabel->setText("x86")
+                    : ui_.buildLabel->setText("x86_64");
+    ui_.buildLabel->setVisible(false);
+    ui_.buildLabelCaption->setVisible(false);
+    ui_.originalAuthorLabel->setText(AlphaPlot::originalAuthor());
+    ui_.osLabel->setText(QString("%1 %2-bit")
+                                 .arg(Utilities::getOperatingSystem())
+                                 .arg(Utilities::getWordSizeOfOS()));
 }

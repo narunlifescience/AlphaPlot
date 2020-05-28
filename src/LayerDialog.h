@@ -39,30 +39,31 @@ class QCheckBox;
 class QComboBox;
 
 //! Arrange layers dialog
-class LayerDialog : public QDialog {
-  Q_OBJECT
+class LayerDialog : public QDialog
+{
+    Q_OBJECT
 
- public:
-  LayerDialog(QWidget *parent = 0, Qt::WindowFlags fl = 0);
-  void setLayout2D(Layout2D *layout);
+public:
+    LayerDialog(QWidget *parent = 0, Qt::WindowFlags fl = 0);
+    void setLayout2D(Layout2D *layout);
 
- protected slots:
-  void accept();
-  void update();
-  void enableLayoutOptions(bool ok);
+protected slots:
+    void accept();
+    void update();
+    void enableLayoutOptions(bool ok);
 
- private:
-  Layout2D *layout2d_;
+private:
+    Layout2D *layout2d_;
 
-  QPushButton *buttonOk;
-  QPushButton *buttonCancel;
-  QPushButton *buttonApply;
-  QGroupBox *GroupCanvasSize, *GroupGrid;
-  QSpinBox *boxX, *boxY, *boxColsGap, *boxRowsGap;
-  QSpinBox *boxRightSpace, *boxLeftSpace, *boxTopSpace, *boxBottomSpace;
-  QSpinBox *boxCanvasWidth, *boxCanvasHeight, *layersBox;
-  QCheckBox *fitBox;
-  QComboBox *alignHorBox, *alignVertBox;
+    QPushButton *buttonOk;
+    QPushButton *buttonCancel;
+    QPushButton *buttonApply;
+    QGroupBox *GroupCanvasSize, *GroupGrid;
+    QSpinBox *boxX, *boxY, *boxColsGap, *boxRowsGap;
+    QSpinBox *boxRightSpace, *boxLeftSpace, *boxTopSpace, *boxBottomSpace;
+    QSpinBox *boxCanvasWidth, *boxCanvasHeight, *layersBox;
+    QCheckBox *fitBox;
+    QComboBox *alignHorBox, *alignVertBox;
 };
 
-#endif  // LAYERDIALOG_H
+#endif // LAYERDIALOG_H

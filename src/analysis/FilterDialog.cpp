@@ -43,135 +43,139 @@
 #include <QPushButton>
 
 FilterDialog::FilterDialog(int type, QWidget *parent, Qt::WindowFlags flag)
-    : QDialog(parent, flag) {
-  setWindowTitle(tr("Filter options"));
-  filter_type = type;
+    : QDialog(parent, flag)
+{
+    setWindowTitle(tr("Filter options"));
+    filter_type = type;
 
-  QGroupBox *gb1 = new QGroupBox();
-  QGridLayout *gl1 = new QGridLayout(gb1);
-  gl1->addWidget(new QLabel(tr("Filter curve: ")), 0, 0);
+    QGroupBox *gb1 = new QGroupBox();
+    QGridLayout *gl1 = new QGridLayout(gb1);
+    gl1->addWidget(new QLabel(tr("Filter curve: ")), 0, 0);
 
-  boxName = new QComboBox();
-  gl1->addWidget(boxName, 0, 1);
+    boxName = new QComboBox();
+    gl1->addWidget(boxName, 0, 1);
 
-  if (type <= FFTFilter::HighPass)
-    gl1->addWidget(new QLabel(tr("Frequency cutoff (Hz)")), 1, 0);
-  else
-    gl1->addWidget(new QLabel(tr("Low Frequency (Hz)")), 1, 0);
-
-  boxStart = new QLineEdit();
-  boxStart->setText(tr("0"));
-  gl1->addWidget(boxStart, 1, 1);
-
-  boxColor = new ColorBox();
-  boxColor->setColor(QColor(Qt::red));
-  if (type >= FFTFilter::BandPass) {
-    gl1->addWidget(new QLabel(tr("High Frequency (Hz)")), 2, 0);
-
-    boxEnd = new QLineEdit();
-    boxEnd->setText(tr("0"));
-    gl1->addWidget(boxEnd, 2, 1);
-
-    if (type == FFTFilter::BandPass)
-      gl1->addWidget(new QLabel(tr("Add DC Offset")), 3, 0);
+    if (type <= FFTFilter::HighPass)
+        gl1->addWidget(new QLabel(tr("Frequency cutoff (Hz)")), 1, 0);
     else
-      gl1->addWidget(new QLabel(tr("Substract DC Offset")), 3, 0);
+        gl1->addWidget(new QLabel(tr("Low Frequency (Hz)")), 1, 0);
 
-    boxOffset = new QCheckBox();
-    gl1->addWidget(boxOffset, 3, 1);
+    boxStart = new QLineEdit();
+    boxStart->setText(tr("0"));
+    gl1->addWidget(boxStart, 1, 1);
 
-    gl1->addWidget(new QLabel(tr("Color")), 4, 0);
-    gl1->addWidget(boxColor, 4, 1);
-    gl1->setRowStretch(5, 1);
-  } else {
-    gl1->addWidget(new QLabel(tr("Color")), 2, 0);
-    gl1->addWidget(boxColor, 2, 1);
-    gl1->setRowStretch(3, 1);
-  }
+    boxColor = new ColorBox();
+    boxColor->setColor(QColor(Qt::red));
+    if (type >= FFTFilter::BandPass) {
+        gl1->addWidget(new QLabel(tr("High Frequency (Hz)")), 2, 0);
 
-  buttonFilter = new QPushButton(tr("&Filter"));
-  buttonFilter->setDefault(true);
-  buttonCancel = new QPushButton(tr("&Close"));
+        boxEnd = new QLineEdit();
+        boxEnd->setText(tr("0"));
+        gl1->addWidget(boxEnd, 2, 1);
 
-  QVBoxLayout *vl = new QVBoxLayout();
-  vl->addWidget(buttonFilter);
-  vl->addWidget(buttonCancel);
-  vl->addStretch();
+        if (type == FFTFilter::BandPass)
+            gl1->addWidget(new QLabel(tr("Add DC Offset")), 3, 0);
+        else
+            gl1->addWidget(new QLabel(tr("Substract DC Offset")), 3, 0);
 
-  QHBoxLayout *hb = new QHBoxLayout(this);
-  hb->addWidget(gb1);
-  hb->addLayout(vl);
+        boxOffset = new QCheckBox();
+        gl1->addWidget(boxOffset, 3, 1);
 
-  connect(buttonFilter, SIGNAL(clicked()), this, SLOT(filter()));
-  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+        gl1->addWidget(new QLabel(tr("Color")), 4, 0);
+        gl1->addWidget(boxColor, 4, 1);
+        gl1->setRowStretch(5, 1);
+    } else {
+        gl1->addWidget(new QLabel(tr("Color")), 2, 0);
+        gl1->addWidget(boxColor, 2, 1);
+        gl1->setRowStretch(3, 1);
+    }
+
+    buttonFilter = new QPushButton(tr("&Filter"));
+    buttonFilter->setDefault(true);
+    buttonCancel = new QPushButton(tr("&Close"));
+
+    QVBoxLayout *vl = new QVBoxLayout();
+    vl->addWidget(buttonFilter);
+    vl->addWidget(buttonCancel);
+    vl->addStretch();
+
+    QHBoxLayout *hb = new QHBoxLayout(this);
+    hb->addWidget(gb1);
+    hb->addLayout(vl);
+
+    connect(buttonFilter, SIGNAL(clicked()), this, SLOT(filter()));
+    connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
-void FilterDialog::filter() {
-  double from = 0.0, to = 0.0;
-  try {
-    MyParser parser;
-    parser.SetExpr(boxStart->text().replace(",", ".").toUtf8().constData());
-    from = parser.Eval();
-  } catch (mu::ParserError &e) {
-    QMessageBox::critical(this, tr("Frequency input error"),
-                          QString::fromStdString(e.GetMsg()));
-    boxStart->setFocus();
-    return;
-  }
-
-  if (from < 0) {
-    QMessageBox::critical(this, tr("Frequency input error"),
-                          tr("Please enter positive frequency values!"));
-    boxStart->setFocus();
-    return;
-  }
-
-  if (filter_type >= FFTFilter::BandPass) {
+void FilterDialog::filter()
+{
+    double from = 0.0, to = 0.0;
     try {
-      MyParser parser;
-      parser.SetExpr(boxEnd->text().replace(",", ".").toStdString());
-      to = parser.Eval();
+        MyParser parser;
+        parser.SetExpr(boxStart->text().replace(",", ".").toUtf8().constData());
+        from = parser.Eval();
     } catch (mu::ParserError &e) {
-      QMessageBox::critical(this, tr("High Frequency input error"),
-                            QString::fromStdString(e.GetMsg()));
-      boxEnd->setFocus();
-      return;
+        QMessageBox::critical(this, tr("Frequency input error"),
+                              QString::fromStdString(e.GetMsg()));
+        boxStart->setFocus();
+        return;
     }
 
-    if (to < 0) {
-      QMessageBox::critical(this, tr("High Frequency input error"),
-                            tr("Please enter positive frequency values!"));
-      boxEnd->setFocus();
-      return;
+    if (from < 0) {
+        QMessageBox::critical(this, tr("Frequency input error"),
+                              tr("Please enter positive frequency values!"));
+        boxStart->setFocus();
+        return;
     }
 
-    if (from >= to) {
-      QMessageBox::critical(
-          this, tr("Frequency input error"),
-          tr("Please enter frequency limits that satisfy: Low < High !"));
-      boxEnd->setFocus();
-      return;
+    if (filter_type >= FFTFilter::BandPass) {
+        try {
+            MyParser parser;
+            parser.SetExpr(boxEnd->text().replace(",", ".").toStdString());
+            to = parser.Eval();
+        } catch (mu::ParserError &e) {
+            QMessageBox::critical(this, tr("High Frequency input error"),
+                                  QString::fromStdString(e.GetMsg()));
+            boxEnd->setFocus();
+            return;
+        }
+
+        if (to < 0) {
+            QMessageBox::critical(
+                    this, tr("High Frequency input error"),
+                    tr("Please enter positive frequency values!"));
+            boxEnd->setFocus();
+            return;
+        }
+
+        if (from >= to) {
+            QMessageBox::critical(this, tr("Frequency input error"),
+                                  tr("Please enter frequency limits that "
+                                     "satisfy: Low < High !"));
+            boxEnd->setFocus();
+            return;
+        }
     }
-  }
 
-  FFTFilter *f =
-      new FFTFilter(qobject_cast<ApplicationWindow *>(this->parent()),
-                    axisrect_, boxName->currentText(), filter_type);
-  if (filter_type == FFTFilter::BandPass) {
-    f->setBand(from, to);
-    f->enableOffset(boxOffset->isChecked());
-  } else if (filter_type == FFTFilter::BandBlock) {
-    f->setBand(from, to);
-    f->enableOffset(!boxOffset->isChecked());
-  } else
-    f->setCutoff(from);
+    FFTFilter *f =
+            new FFTFilter(qobject_cast<ApplicationWindow *>(this->parent()),
+                          axisrect_, boxName->currentText(), filter_type);
+    if (filter_type == FFTFilter::BandPass) {
+        f->setBand(from, to);
+        f->enableOffset(boxOffset->isChecked());
+    } else if (filter_type == FFTFilter::BandBlock) {
+        f->setBand(from, to);
+        f->enableOffset(!boxOffset->isChecked());
+    } else
+        f->setCutoff(from);
 
-  f->setColor(boxColor->currentIndex());
-  f->run();
-  delete f;
+    f->setColor(boxColor->currentIndex());
+    f->run();
+    delete f;
 }
 
-void FilterDialog::setAxisRect(AxisRect2D *axisrect) {
-  axisrect_ = axisrect;
-  boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
+void FilterDialog::setAxisRect(AxisRect2D *axisrect)
+{
+    axisrect_ = axisrect;
+    boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
 }

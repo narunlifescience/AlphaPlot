@@ -42,20 +42,21 @@ class TeXTableSettings;
  * the TeX table parameters and file in wich the table data will be exported in
  * the TeX format.
  */
-class TeXTableExportDialog : public ExtensibleFileDialog {
-  Q_OBJECT
+class TeXTableExportDialog : public ExtensibleFileDialog
+{
+    Q_OBJECT
 
- public:
-  TeXTableExportDialog(QWidget* parent = 0);
-  //! Returns the TeX table settings choosed by the user
-  TeXTableSettings tex_TableSettings(void);
+public:
+    TeXTableExportDialog(QWidget *parent = 0);
+    //! Returns the TeX table settings choosed by the user
+    TeXTableSettings tex_TableSettings(void);
 
- private:
-  //! tex_settings_Widget is a pointer to the a TeX table settings widget.
-  /**
-   *  The TeX table settings widget is inserted in the current layout.
-   */
-  TeXTableSettingsWidget* tex_settings_Widget;
+private:
+    //! tex_settings_Widget is a pointer to the a TeX table settings widget.
+    /**
+     *  The TeX table settings widget is inserted in the current layout.
+     */
+    TeXTableSettingsWidget *tex_settings_Widget;
 };
 
-#endif  // TEX_TABLE_EXPORT_DIALOG_H
+#endif // TEX_TABLE_EXPORT_DIALOG_H

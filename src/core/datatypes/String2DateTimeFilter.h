@@ -46,87 +46,100 @@
  * formats (#date_formats
  * and #time_formats).
  */
-class String2DateTimeFilter : public AbstractSimpleFilter {
-  Q_OBJECT
+class String2DateTimeFilter : public AbstractSimpleFilter
+{
+    Q_OBJECT
 
- public:
-  //! Standard constructor.
-  explicit String2DateTimeFilter(QString format = "yyyy-MM-dd hh:mm:ss.zzz")
-      : d_format(format) {}
-  //! Set the format string to be used for conversion.
-  void setFormat(const QString& format);
-  //! Return the format string
-  /**
-   * The default format string is "yyyy-MM-dd hh:mm:ss.zzz".
-   * \sa QDate::toString()
-   */
-  QString format() const { return d_format; }
-
-  //! Return the data type of the column
-  virtual AlphaPlot::ColumnDataType dataType() const {
-    return AlphaPlot::TypeDateTime;
-  }
-
-  //! \name XML related functions
-  //@{
-  virtual void writeExtraAttributes(QXmlStreamWriter* writer) const;
-  virtual bool load(XmlStreamReader* reader);
-  //@}
-
- signals:
-  void formatChanged();
-
- private:
-  friend class String2DateTimeFilterSetFormatCmd;
-  //! The format string.
-  QString d_format;
-
-  static const char* date_formats[];
-  static const char* time_formats[];
-
- public:
-  virtual QDateTime dateTimeAt(int row) const;
-  virtual QDate dateAt(int row) const { return dateTimeAt(row).date(); }
-  virtual QTime timeAt(int row) const { return dateTimeAt(row).time(); }
-  virtual bool isInvalid(int row) const {
-    const AbstractColumn* col = d_inputs.value(0);
-    if (!col) return false;
-    return !(dateTimeAt(row).isValid()) || col->isInvalid(row);
-  }
-  virtual bool isInvalid(Interval<int> i) const {
-    if (!d_inputs.value(0)) return false;
-    for (int row = i.start(); row <= i.end(); row++) {
-      if (!isInvalid(row)) return false;
+public:
+    //! Standard constructor.
+    explicit String2DateTimeFilter(QString format = "yyyy-MM-dd hh:mm:ss.zzz")
+        : d_format(format)
+    {
     }
-    return true;
-  }
-  virtual QList<Interval<int> > invalidIntervals() const {
-    IntervalAttribute<bool> validity;
-    if (d_inputs.value(0)) {
-      int rows = d_inputs.value(0)->rowCount();
-      for (int i = 0; i < rows; i++) validity.setValue(i, isInvalid(i));
-    }
-    return validity.intervals();
-  }
+    //! Set the format string to be used for conversion.
+    void setFormat(const QString &format);
+    //! Return the format string
+    /**
+     * The default format string is "yyyy-MM-dd hh:mm:ss.zzz".
+     * \sa QDate::toString()
+     */
+    QString format() const { return d_format; }
 
- protected:
-  //! Using typed ports: only string inputs are accepted.
-  virtual bool inputAcceptable(int, const AbstractColumn* source) {
-    return source->dataType() == AlphaPlot::TypeString;
-  }
+    //! Return the data type of the column
+    virtual AlphaPlot::ColumnDataType dataType() const
+    {
+        return AlphaPlot::TypeDateTime;
+    }
+
+    //! \name XML related functions
+    //@{
+    virtual void writeExtraAttributes(QXmlStreamWriter *writer) const;
+    virtual bool load(XmlStreamReader *reader);
+    //@}
+
+signals:
+    void formatChanged();
+
+private:
+    friend class String2DateTimeFilterSetFormatCmd;
+    //! The format string.
+    QString d_format;
+
+    static const char *date_formats[];
+    static const char *time_formats[];
+
+public:
+    virtual QDateTime dateTimeAt(int row) const;
+    virtual QDate dateAt(int row) const { return dateTimeAt(row).date(); }
+    virtual QTime timeAt(int row) const { return dateTimeAt(row).time(); }
+    virtual bool isInvalid(int row) const
+    {
+        const AbstractColumn *col = d_inputs.value(0);
+        if (!col)
+            return false;
+        return !(dateTimeAt(row).isValid()) || col->isInvalid(row);
+    }
+    virtual bool isInvalid(Interval<int> i) const
+    {
+        if (!d_inputs.value(0))
+            return false;
+        for (int row = i.start(); row <= i.end(); row++) {
+            if (!isInvalid(row))
+                return false;
+        }
+        return true;
+    }
+    virtual QList<Interval<int>> invalidIntervals() const
+    {
+        IntervalAttribute<bool> validity;
+        if (d_inputs.value(0)) {
+            int rows = d_inputs.value(0)->rowCount();
+            for (int i = 0; i < rows; i++)
+                validity.setValue(i, isInvalid(i));
+        }
+        return validity.intervals();
+    }
+
+protected:
+    //! Using typed ports: only string inputs are accepted.
+    virtual bool inputAcceptable(int, const AbstractColumn *source)
+    {
+        return source->dataType() == AlphaPlot::TypeString;
+    }
 };
 
-class String2DateTimeFilterSetFormatCmd : public QUndoCommand {
- public:
-  String2DateTimeFilterSetFormatCmd(String2DateTimeFilter* target,
-                                    const QString& new_format);
+class String2DateTimeFilterSetFormatCmd : public QUndoCommand
+{
+public:
+    String2DateTimeFilterSetFormatCmd(String2DateTimeFilter *target,
+                                      const QString &new_format);
 
-  virtual void redo();
-  virtual void undo();
+    virtual void redo();
+    virtual void undo();
 
- private:
-  String2DateTimeFilter* d_target;
-  QString d_other_format;
+private:
+    String2DateTimeFilter *d_target;
+    QString d_other_format;
 };
 
-#endif  // STRING2DATE_TIME_FILTER_H
+#endif // STRING2DATE_TIME_FILTER_H

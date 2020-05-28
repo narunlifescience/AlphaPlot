@@ -31,59 +31,62 @@
 
 #include "Fit.h"
 
-class ExponentialFit : public Fit {
-  Q_OBJECT
+class ExponentialFit : public Fit
+{
+    Q_OBJECT
 
- public:
-  ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-                 bool expGrowth = false);
-  ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-                 PlotData::AssociatedData *associateddata,
-                 bool expGrowth = false);
-  ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-                 PlotData::AssociatedData *associateddata,
-                 double start, double end, bool expGrowth = false);
+public:
+    ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                   bool expGrowth = false);
+    ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                   PlotData::AssociatedData *associateddata,
+                   bool expGrowth = false);
+    ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                   PlotData::AssociatedData *associateddata, double start,
+                   double end, bool expGrowth = false);
 
- private:
-  void init();
-  void storeCustomFitResults(double *par);
-  void calculateFitCurveData(double *par, double *X, double *Y);
+private:
+    void init();
+    void storeCustomFitResults(double *par);
+    void calculateFitCurveData(double *par, double *X, double *Y);
 
-  bool is_exp_growth;
+    bool is_exp_growth;
 };
 
-class TwoExpFit : public Fit {
-  Q_OBJECT
+class TwoExpFit : public Fit
+{
+    Q_OBJECT
 
- public:
-  TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect);
-  TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-            PlotData::AssociatedData *associateddata);
-  TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-            PlotData::AssociatedData *associateddata,
-            double start, double end);
-
- private:
-  void init();
-  void storeCustomFitResults(double *par);
-  void calculateFitCurveData(double *par, double *X, double *Y);
-};
-
-class ThreeExpFit : public Fit {
-  Q_OBJECT
-
- public:
-  ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect);
-  ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+public:
+    TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+    TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
               PlotData::AssociatedData *associateddata);
-  ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-              PlotData::AssociatedData *associateddata,
-              double start, double end);
+    TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+              PlotData::AssociatedData *associateddata, double start,
+              double end);
 
- private:
-  void init();
-  void storeCustomFitResults(double *par);
-  void calculateFitCurveData(double *par, double *X, double *Y);
+private:
+    void init();
+    void storeCustomFitResults(double *par);
+    void calculateFitCurveData(double *par, double *X, double *Y);
 };
 
-#endif  // EXPONENTIALFIT_H
+class ThreeExpFit : public Fit
+{
+    Q_OBJECT
+
+public:
+    ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+    ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                PlotData::AssociatedData *associateddata);
+    ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                PlotData::AssociatedData *associateddata, double start,
+                double end);
+
+private:
+    void init();
+    void storeCustomFitResults(double *par);
+    void calculateFitCurveData(double *par, double *X, double *Y);
+};
+
+#endif // EXPONENTIALFIT_H

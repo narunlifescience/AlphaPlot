@@ -23,51 +23,51 @@ class Axis2D;
 class XmlStreamReader;
 class XmlStreamWriter;
 
-class Grid2D : public QCPGrid {
-  Q_OBJECT
- public:
-  explicit Grid2D(Axis2D *parent);
-  ~Grid2D();
-  // Grid & Zeroline
-  void setMajorGridColor(const QColor &color);
-  void setMajorGridStyle(const Qt::PenStyle &penstyle);
-  void setMajorGridThickness(const double thickness);
-  void setMinorGridColor(const QColor &color);
-  void setMinorGridStyle(const Qt::PenStyle &penstyle);
-  void setMinorGridThickness(const double thickness);
-  void setZerothLineColor(const QColor &color);
-  void setZerothLineStyle(const Qt::PenStyle &penstyle);
-  void setZerothLineThickness(const double thickness);
-  void setMajorGridVisible(const bool status);
-  void setMinorGridVisible(const bool status);
-  void setZerothLineVisible(const bool status);
-  QColor getMajorGridColor() const;
-  Qt::PenStyle getMajorGridStyle() const;
-  double getMajorGridwidth() const;
-  QColor getMinorGridColor() const;
-  Qt::PenStyle getMinorGridStyle() const;
-  double getMinorGridwidth() const;
-  QColor getZerothLineColor() const;
-  Qt::PenStyle getZeroLineStyle() const;
-  double getZeroLinewidth() const;
-  bool getMajorGridVisible() const;
-  bool getMinorGridVisible() const;
-  bool getZerothLineVisible() const;
+class Grid2D : public QCPGrid
+{
+    Q_OBJECT
+public:
+    explicit Grid2D(Axis2D *parent);
+    ~Grid2D();
+    // Grid & Zeroline
+    void setMajorGridColor(const QColor &color);
+    void setMajorGridStyle(const Qt::PenStyle &penstyle);
+    void setMajorGridThickness(const double thickness);
+    void setMinorGridColor(const QColor &color);
+    void setMinorGridStyle(const Qt::PenStyle &penstyle);
+    void setMinorGridThickness(const double thickness);
+    void setZerothLineColor(const QColor &color);
+    void setZerothLineStyle(const Qt::PenStyle &penstyle);
+    void setZerothLineThickness(const double thickness);
+    void setMajorGridVisible(const bool status);
+    void setMinorGridVisible(const bool status);
+    void setZerothLineVisible(const bool status);
+    QColor getMajorGridColor() const;
+    Qt::PenStyle getMajorGridStyle() const;
+    double getMajorGridwidth() const;
+    QColor getMinorGridColor() const;
+    Qt::PenStyle getMinorGridStyle() const;
+    double getMinorGridwidth() const;
+    QColor getZerothLineColor() const;
+    Qt::PenStyle getZeroLineStyle() const;
+    double getZeroLinewidth() const;
+    bool getMajorGridVisible() const;
+    bool getMinorGridVisible() const;
+    bool getZerothLineVisible() const;
 
-  void save(XmlStreamWriter *xmlwriter, const QString tag);
-  bool load(XmlStreamReader *xmlreader, const QString tag);
+    void save(XmlStreamWriter *xmlwriter, const QString tag);
+    bool load(XmlStreamReader *xmlreader, const QString tag);
 
- private:
-  // Grid & zeroline settings
-  Axis2D *axis_;
-  QString layername_;
-  QColor majorgridcolor_;
-  Qt::PenStyle majorgridstyle_;
-  double majorgridthickness_;
-  QColor zerolinecolor_;
-  Qt::PenStyle zerolinestyle_;
-  double zerolinethickness_;
-
+private:
+    // Grid & zeroline settings
+    Axis2D *axis_;
+    QString layername_;
+    QColor majorgridcolor_;
+    Qt::PenStyle majorgridstyle_;
+    double majorgridthickness_;
+    QColor zerolinecolor_;
+    Qt::PenStyle zerolinestyle_;
+    double zerolinethickness_;
 };
 
-#endif  // GRID2D_H
+#endif // GRID2D_H

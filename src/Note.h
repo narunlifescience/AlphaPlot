@@ -42,46 +42,49 @@ class XmlStreamReader;
  * \section future_plans Future Plans
  * - Search and replace
  */
-class Note : public MyWidget {
-  Q_OBJECT
+class Note : public MyWidget
+{
+    Q_OBJECT
 
- public:
-  Note(ScriptingEnv *env, const QString &label, QWidget *parent = nullptr,
-       const char *name = 0, Qt::WindowFlags f = Qt::SubWindow);
-  ~Note();
+public:
+    Note(ScriptingEnv *env, const QString &label, QWidget *parent = nullptr,
+         const char *name = 0, Qt::WindowFlags f = Qt::SubWindow);
+    ~Note();
 
-  void init(ScriptingEnv *env);
-  QString getText();
+    void init(ScriptingEnv *env);
+    QString getText();
 
- public slots:
-  QString saveToString(const QString &info);
-  void restore(const QStringList &);
+public slots:
+    QString saveToString(const QString &info);
+    void restore(const QStringList &);
 
-  QTextEdit *textWidget() { return qobject_cast<QTextEdit *>(textedit_); }
-  bool autoexec() const { return autoExec; }
-  void setAutoexec(bool);
-  void modifiedNote();
+    QTextEdit *textWidget() { return qobject_cast<QTextEdit *>(textedit_); }
+    bool autoexec() const { return autoExec; }
+    void setAutoexec(bool);
+    void modifiedNote();
 
-  // ScriptEdit methods
-  QString text() { return textedit_->toPlainText(); }
-  void setText(const QString &s) { textedit_->setText(s); }
-  void save(QXmlStreamWriter *xmlwriter);
-  bool load(XmlStreamReader *xmlreader);
-  void print() { textedit_->print(); }
-  void exportPDF(const QString &fileName) { textedit_->exportPDF(fileName); }
-  QString exportASCII(const QString &file = QString()) {
-    return textedit_->exportASCII(file);
-  }
-  QString importASCII(const QString &file = QString()) {
-    return textedit_->importASCII(file);
-  }
-  void execute() { textedit_->execute(); }
-  void executeAll() { textedit_->executeAll(); }
-  void evaluate() { textedit_->evaluate(); }
+    // ScriptEdit methods
+    QString text() { return textedit_->toPlainText(); }
+    void setText(const QString &s) { textedit_->setText(s); }
+    void save(QXmlStreamWriter *xmlwriter);
+    bool load(XmlStreamReader *xmlreader);
+    void print() { textedit_->print(); }
+    void exportPDF(const QString &fileName) { textedit_->exportPDF(fileName); }
+    QString exportASCII(const QString &file = QString())
+    {
+        return textedit_->exportASCII(file);
+    }
+    QString importASCII(const QString &file = QString())
+    {
+        return textedit_->importASCII(file);
+    }
+    void execute() { textedit_->execute(); }
+    void executeAll() { textedit_->executeAll(); }
+    void evaluate() { textedit_->evaluate(); }
 
- private:
-  ScriptEdit *textedit_;
-  bool autoExec;
+private:
+    ScriptEdit *textedit_;
+    bool autoExec;
 };
 
-#endif  // NOTE_H
+#endif // NOTE_H

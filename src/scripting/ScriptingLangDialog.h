@@ -39,20 +39,21 @@ class ApplicationWindow;
 class QListWidget;
 class QPushButton;
 
-class ScriptingLangDialog : public QDialog, public scripted {
-  Q_OBJECT
+class ScriptingLangDialog : public QDialog, public scripted
+{
+    Q_OBJECT
 
- public:
-  ScriptingLangDialog(ScriptingEnv *env, ApplicationWindow *parent,
-                      Qt::WindowFlags fl = 0);
+public:
+    ScriptingLangDialog(ScriptingEnv *env, ApplicationWindow *parent,
+                        Qt::WindowFlags fl = 0);
 
- public slots:
-  void updateLangList();
-  void accept();
+public slots:
+    void updateLangList();
+    void accept();
 
- private:
-  QListWidget *langList;
-  QPushButton *btnOK, *btnCancel;
+private:
+    QListWidget *langList;
+    QPushButton *btnOK, *btnCancel;
 };
 
-#endif  // SCRIPTING_LANG_DIALOG_H
+#endif // SCRIPTING_LANG_DIALOG_H

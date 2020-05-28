@@ -22,22 +22,23 @@
 
 class Ui_GeneralAppreanceSettings;
 
-class GeneralAppreanceSettings : public SettingsPage {
-  Q_OBJECT
+class GeneralAppreanceSettings : public SettingsPage
+{
+    Q_OBJECT
 
- public:
-  explicit GeneralAppreanceSettings(SettingsDialog *dialog);
-  ~GeneralAppreanceSettings();
+public:
+    explicit GeneralAppreanceSettings(SettingsDialog *dialog);
+    ~GeneralAppreanceSettings();
 
-  void Load();
-  void Save();
-  void setTitle(QString title);
+    void Load();
+    void Save();
+    void setTitle(QString title);
 
- private:
-  Ui_GeneralAppreanceSettings *ui;
+private:
+    Ui_GeneralAppreanceSettings *ui;
 
- private slots:
-  void stylePreview(QString style);
+private slots:
+    void stylePreview(QString style);
 };
 
-#endif  // GENERALAPPREANCESETTINGS_H
+#endif // GENERALAPPREANCESETTINGS_H

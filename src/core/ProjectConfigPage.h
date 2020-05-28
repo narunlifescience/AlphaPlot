@@ -33,17 +33,18 @@
 #include "lib/ConfigPageWidget.h"
 
 //! Helper class for Project
-class ProjectConfigPage : public ConfigPageWidget {
-  Q_OBJECT
+class ProjectConfigPage : public ConfigPageWidget
+{
+    Q_OBJECT
 
- public:
-  ProjectConfigPage();
+public:
+    ProjectConfigPage();
 
- public slots:
-  virtual void apply();
+public slots:
+    virtual void apply();
 
- private:
-  Ui::ProjectConfigPage ui;
+private:
+    Ui::ProjectConfigPage ui;
 };
 
-#endif  // PROJECT_CONFIG_PAGE_H
+#endif // PROJECT_CONFIG_PAGE_H

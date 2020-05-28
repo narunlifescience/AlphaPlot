@@ -13,32 +13,33 @@ class Column;
 class DataBlockSurface3D;
 using namespace QtDataVisualization;
 
-class Surface3D : public QObject {
-  Q_OBJECT
- public:
-  Surface3D(Q3DSurface *surface);
-  ~Surface3D();
+class Surface3D : public QObject
+{
+    Q_OBJECT
+public:
+    Surface3D(Q3DSurface *surface);
+    ~Surface3D();
 
-  void setSurfaceMeshType(const QSurface3DSeries::DrawFlag &type);
-  void setSurfaceMeshType(const QSurface3DSeries::DrawFlag &type,
-                          QSurface3DSeries *series);
+    void setSurfaceMeshType(const QSurface3DSeries::DrawFlag &type);
+    void setSurfaceMeshType(const QSurface3DSeries::DrawFlag &type,
+                            QSurface3DSeries *series);
 
-  QtDataVisualization::QSurface3DSeries::DrawFlag getSurfaceMeshType(
-      QSurface3DSeries *series) const;
+    QtDataVisualization::QSurface3DSeries::DrawFlag
+    getSurfaceMeshType(QSurface3DSeries *series) const;
 
-  void setfunctiondata(QList<QPair<QPair<double, double>, double>> *data,
-                       const Graph3DCommon::Function3DData &funcdata);
-  void setmatrixdatamodel(Matrix *matrix);
-  Q3DSurface *getGraph() const;
-  QVector<DataBlockSurface3D *> getData() const;
+    void setfunctiondata(QList<QPair<QPair<double, double>, double>> *data,
+                         const Graph3DCommon::Function3DData &funcdata);
+    void setmatrixdatamodel(Matrix *matrix);
+    Q3DSurface *getGraph() const;
+    QVector<DataBlockSurface3D *> getData() const;
 
- signals:
-  void dataAdded();
+signals:
+    void dataAdded();
 
- private:
-  Q3DSurface *graph_;
-  QSurface3DSeries::DrawFlag plotType_;
-  QVector<DataBlockSurface3D *> data_;
+private:
+    Q3DSurface *graph_;
+    QSurface3DSeries::DrawFlag plotType_;
+    QVector<DataBlockSurface3D *> data_;
 };
 
-#endif  // SURFACE3D_H
+#endif // SURFACE3D_H

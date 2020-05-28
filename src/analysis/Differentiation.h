@@ -33,19 +33,20 @@
 
 class AxisRect2D;
 
-class Differentiation : public Filter {
-  Q_OBJECT
+class Differentiation : public Filter
+{
+    Q_OBJECT
 
- public:
-  Differentiation(ApplicationWindow *parent, AxisRect2D *axisrect);
-  Differentiation(ApplicationWindow *parent, AxisRect2D *axisrect,
-                  PlotData::AssociatedData *associateddata);
-  Differentiation(ApplicationWindow *parent, AxisRect2D *axisrect,
-                  PlotData::AssociatedData *associateddata, double start,
-                  double end);
+public:
+    Differentiation(ApplicationWindow *parent, AxisRect2D *axisrect);
+    Differentiation(ApplicationWindow *parent, AxisRect2D *axisrect,
+                    PlotData::AssociatedData *associateddata);
+    Differentiation(ApplicationWindow *parent, AxisRect2D *axisrect,
+                    PlotData::AssociatedData *associateddata, double start,
+                    double end);
 
- private:
-  void init();
-  void output();
+private:
+    void init();
+    void output();
 };
-#endif  // DIFFERENTIATION_H
+#endif // DIFFERENTIATION_H

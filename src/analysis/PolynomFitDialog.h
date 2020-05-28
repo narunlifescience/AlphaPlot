@@ -41,32 +41,34 @@ class AxisRect2D;
 class ApplicationWindow;
 
 //! Fit polynomial dialog
-class PolynomFitDialog : public QDialog {
-  Q_OBJECT
+class PolynomFitDialog : public QDialog
+{
+    Q_OBJECT
 
- public:
-  PolynomFitDialog(QWidget* parent = nullptr, Qt::WindowFlags fl = Qt::Widget);
+public:
+    PolynomFitDialog(QWidget *parent = nullptr,
+                     Qt::WindowFlags fl = Qt::Widget);
 
- public slots:
-  void fit();
-  void setAxisRect(AxisRect2D* axisrect);
-  void activateCurve(const QString& curveName);
-  void changeDataRange();
+public slots:
+    void fit();
+    void setAxisRect(AxisRect2D *axisrect);
+    void activateCurve(const QString &curveName);
+    void changeDataRange();
 
- private:
-  AxisRect2D* axisrect_;
-  ApplicationWindow *app_;
-  double xmin_;
-  double xmax_;
+private:
+    AxisRect2D *axisrect_;
+    ApplicationWindow *app_;
+    double xmin_;
+    double xmax_;
 
-  QPushButton* buttonFit;
-  QPushButton* buttonCancel;
-  QCheckBox* boxShowFormula;
-  QComboBox* boxName;
-  QSpinBox* boxOrder;
-  QLineEdit* boxStart;
-  QLineEdit* boxEnd;
-  ColorBox* boxColor;
+    QPushButton *buttonFit;
+    QPushButton *buttonCancel;
+    QCheckBox *boxShowFormula;
+    QComboBox *boxName;
+    QSpinBox *boxOrder;
+    QLineEdit *boxStart;
+    QLineEdit *boxEnd;
+    ColorBox *boxColor;
 };
 
-#endif  // POLINOMFITDIALOG_H
+#endif // POLINOMFITDIALOG_H

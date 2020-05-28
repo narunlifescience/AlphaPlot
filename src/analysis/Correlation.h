@@ -31,22 +31,23 @@
 
 #include "Filter.h"
 
-class Correlation : public Filter {
-  Q_OBJECT
+class Correlation : public Filter
+{
+    Q_OBJECT
 
- public:
-  Correlation(ApplicationWindow* parent, Table* t, const QString& colName1,
-              const QString& colName2);
+public:
+    Correlation(ApplicationWindow *parent, Table *t, const QString &colName1,
+                const QString &colName2);
 
-  void setDataFromTable(Table* t, const QString& colName1,
-                        const QString& colName2);
+    void setDataFromTable(Table *t, const QString &colName1,
+                          const QString &colName2);
 
- protected:
-  //! Handles the graphical output
-  void addResultCurve();
+protected:
+    //! Handles the graphical output
+    void addResultCurve();
 
- private:
-  virtual void output();
+private:
+    virtual void output();
 };
 
-#endif  // CORRELATION_H
+#endif // CORRELATION_H

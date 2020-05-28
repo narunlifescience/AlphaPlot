@@ -39,4 +39,4 @@
 
 #define SCRIPTING_CHANGE_EVENT QEvent::User
 
-#endif  // CUSTOM_EVENTS_H
+#endif // CUSTOM_EVENTS_H

@@ -3,14 +3,15 @@
 
 #include <QXmlStreamWriter>
 
-class XmlStreamWriter : public QXmlStreamWriter {
- public:
-  XmlStreamWriter();
-  XmlStreamWriter(QIODevice* device);
+class XmlStreamWriter : public QXmlStreamWriter
+{
+public:
+    XmlStreamWriter();
+    XmlStreamWriter(QIODevice *device);
 
-  void writeFont(const QFont &font, const QColor &color);
-  void writePen(const QPen &pen);
-  void writeBrush(const QBrush &brush);
+    void writeFont(const QFont &font, const QColor &color);
+    void writePen(const QPen &pen);
+    void writeBrush(const QBrush &brush);
 };
 
-#endif  // XMLSTREAMWRITER_H
+#endif // XMLSTREAMWRITER_H

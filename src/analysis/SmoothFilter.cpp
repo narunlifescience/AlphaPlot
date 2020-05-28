@@ -40,121 +40,132 @@
 
 SmoothFilter::SmoothFilter(ApplicationWindow *parent, AxisRect2D *axisrect,
                            PlotData::AssociatedData *associateddata, int m)
-    : Filter(parent, axisrect) {
-  setDataFromCurve(associateddata);
-  init(m);
+    : Filter(parent, axisrect)
+{
+    setDataFromCurve(associateddata);
+    init(m);
 }
 
 SmoothFilter::SmoothFilter(ApplicationWindow *parent, AxisRect2D *axisrect,
                            PlotData::AssociatedData *associateddata,
                            double start, double end, int m)
-    : Filter(parent, axisrect) {
-  setDataFromCurve(associateddata, start, end);
-  init(m);
+    : Filter(parent, axisrect)
+{
+    setDataFromCurve(associateddata, start, end);
+    init(m);
 }
 
-void SmoothFilter::init(int m) {
-  setObjectName(tr("Smoothed"));
-  setMethod(m);
-  d_points = d_n;
-  d_right_points = 2;
-  d_left_points = 2;
-  d_polynom_order = 2;
+void SmoothFilter::init(int m)
+{
+    setObjectName(tr("Smoothed"));
+    setMethod(m);
+    d_points = d_n;
+    d_right_points = 2;
+    d_left_points = 2;
+    d_polynom_order = 2;
 }
 
-void SmoothFilter::setMethod(int m) {
-  if (m < 1 || m > 3) {
-    QMessageBox::critical(
-        app_, tr("AlphaPlot") + " - " + tr("Error"),
-        tr("Unknown smooth filter. Valid values are: 1 - Savitky-Golay, 2 - "
-           "FFT, 3 - Moving Window Average."));
-    d_init_err = true;
-    return;
-  }
-  d_method = static_cast<SmoothMethod>(m);
+void SmoothFilter::setMethod(int m)
+{
+    if (m < 1 || m > 3) {
+        QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
+                              tr("Unknown smooth filter. Valid values are: 1 - "
+                                 "Savitky-Golay, 2 - "
+                                 "FFT, 3 - Moving Window Average."));
+        d_init_err = true;
+        return;
+    }
+    d_method = static_cast<SmoothMethod>(m);
 }
 
-void SmoothFilter::calculateOutputData(double *x, double *y) {
-  for (int i = 0; i < d_points; i++) {
-    x[i] = d_x[i];
-    y[i] = d_y[i];  // filtering frequencies
-  }
+void SmoothFilter::calculateOutputData(double *x, double *y)
+{
+    for (int i = 0; i < d_points; i++) {
+        x[i] = d_x[i];
+        y[i] = d_y[i]; // filtering frequencies
+    }
 
-  switch (static_cast<int>(d_method)) {
+    switch (static_cast<int>(d_method)) {
     case 1:
-      d_explanation = QString::number(d_right_points) + " " + tr("points") +
-                      " " + tr("Savitzky-Golay smoothing");
-      smoothSavGol(x, y);
-      break;
+        d_explanation = QString::number(d_right_points) + " " + tr("points")
+                + " " + tr("Savitzky-Golay smoothing");
+        smoothSavGol(x, y);
+        break;
     case 2:
-      d_explanation = QString::number(d_right_points) + " " + tr("points") +
-                      " " + tr("FFT smoothing");
-      smoothFFT(x, y);
-      break;
+        d_explanation = QString::number(d_right_points) + " " + tr("points")
+                + " " + tr("FFT smoothing");
+        smoothFFT(x, y);
+        break;
     case 3:
-      d_explanation = QString::number(d_right_points) + " " + tr("points") +
-                      " " + tr("average smoothing");
-      smoothAverage(x, y);
-      break;
-  }
+        d_explanation = QString::number(d_right_points) + " " + tr("points")
+                + " " + tr("average smoothing");
+        smoothAverage(x, y);
+        break;
+    }
 }
 
-void SmoothFilter::smoothFFT(double *x, double *y) {
-  gsl_fft_real_workspace *work =
-      gsl_fft_real_workspace_alloc(static_cast<size_t>(d_n));
-  gsl_fft_real_wavetable *real =
-      gsl_fft_real_wavetable_alloc(static_cast<size_t>(d_n));
-  // FFT forward
-  gsl_fft_real_transform(y, 1, static_cast<size_t>(d_n), real, work);
-  gsl_fft_real_wavetable_free(real);
+void SmoothFilter::smoothFFT(double *x, double *y)
+{
+    gsl_fft_real_workspace *work =
+            gsl_fft_real_workspace_alloc(static_cast<size_t>(d_n));
+    gsl_fft_real_wavetable *real =
+            gsl_fft_real_wavetable_alloc(static_cast<size_t>(d_n));
+    // FFT forward
+    gsl_fft_real_transform(y, 1, static_cast<size_t>(d_n), real, work);
+    gsl_fft_real_wavetable_free(real);
 
-  double df = 1.0 / static_cast<double>(x[1] - x[0]);
-  double lf = df / static_cast<double>(d_right_points);  // frequency cutoff
-  df = 0.5 * df / static_cast<double>(d_n);
+    double df = 1.0 / static_cast<double>(x[1] - x[0]);
+    double lf = df / static_cast<double>(d_right_points); // frequency cutoff
+    df = 0.5 * df / static_cast<double>(d_n);
 
-  for (int i = 0; i < d_n; i++) {
-    x[i] = d_x[i];
-    y[i] = i * df > lf ? 0 : y[i];  // filtering frequencies
-  }
+    for (int i = 0; i < d_n; i++) {
+        x[i] = d_x[i];
+        y[i] = i * df > lf ? 0 : y[i]; // filtering frequencies
+    }
 
-  gsl_fft_halfcomplex_wavetable *hc =
-      gsl_fft_halfcomplex_wavetable_alloc(static_cast<size_t>(d_n));
-  // FFT inverse
-  gsl_fft_halfcomplex_inverse(y, 1, static_cast<size_t>(d_n), hc, work);
-  gsl_fft_halfcomplex_wavetable_free(hc);
-  gsl_fft_real_workspace_free(work);
+    gsl_fft_halfcomplex_wavetable *hc =
+            gsl_fft_halfcomplex_wavetable_alloc(static_cast<size_t>(d_n));
+    // FFT inverse
+    gsl_fft_halfcomplex_inverse(y, 1, static_cast<size_t>(d_n), hc, work);
+    gsl_fft_halfcomplex_wavetable_free(hc);
+    gsl_fft_real_workspace_free(work);
 }
 
-void SmoothFilter::smoothAverage(double *, double *y) {
-  int p2 = d_right_points / 2;
-  double m = double(2 * p2 + 1);
-  double aux = 0.0;
-  double *s = new double[static_cast<size_t>(d_n)];
+void SmoothFilter::smoothAverage(double *, double *y)
+{
+    int p2 = d_right_points / 2;
+    double m = double(2 * p2 + 1);
+    double aux = 0.0;
+    double *s = new double[static_cast<size_t>(d_n)];
 
-  s[0] = y[0];
-  for (int i = 1; i < p2; i++) {
-    aux = 0.0;
-    for (int j = -i; j <= i; j++) aux += y[i + j];
+    s[0] = y[0];
+    for (int i = 1; i < p2; i++) {
+        aux = 0.0;
+        for (int j = -i; j <= i; j++)
+            aux += y[i + j];
 
-    s[i] = aux / static_cast<double>(2 * i + 1);
-  }
-  for (int i = p2; i < d_n - p2; i++) {
-    aux = 0.0;
-    for (int j = -p2; j <= p2; j++) aux += y[i + j];
+        s[i] = aux / static_cast<double>(2 * i + 1);
+    }
+    for (int i = p2; i < d_n - p2; i++) {
+        aux = 0.0;
+        for (int j = -p2; j <= p2; j++)
+            aux += y[i + j];
 
-    s[i] = aux / m;
-  }
-  for (int i = d_n - p2; i < d_n - 1; i++) {
-    aux = 0.0;
-    for (int j = d_n - i - 1; j >= i - d_n + 1; j--) aux += y[i + j];
+        s[i] = aux / m;
+    }
+    for (int i = d_n - p2; i < d_n - 1; i++) {
+        aux = 0.0;
+        for (int j = d_n - i - 1; j >= i - d_n + 1; j--)
+            aux += y[i + j];
 
-    s[i] = aux / static_cast<double>(2 * (d_n - i - 1) + 1);
-  }
-  s[d_n - 1] = y[d_n - 1];
+        s[i] = aux / static_cast<double>(2 * (d_n - i - 1) + 1);
+    }
+    s[d_n - 1] = y[d_n - 1];
 
-  for (int i = 0; i < d_n; i++) y[i] = s[i];
+    for (int i = 0; i < d_n; i++)
+        y[i] = s[i];
 
-  delete[] s;
+    delete[] s;
 }
 
 /**
@@ -176,54 +187,56 @@ void SmoothFilter::smoothAverage(double *, double *y) {
  * http://www.statistics4u.info/fundstat_eng/cc_filter_savgol_math.html
  */
 int SmoothFilter::savitzkyGolayCoefficients(int points, int polynom_order,
-                                            gsl_matrix *h) {
-  int error = 0;  // catch GSL error codes
+                                            gsl_matrix *h)
+{
+    int error = 0; // catch GSL error codes
 
-  // compute Vandermonde matrix
-  gsl_matrix *vandermonde = gsl_matrix_alloc(points, polynom_order + 1);
-  for (int i = 0; i < points; ++i) {
-    gsl_matrix_set(vandermonde, i, 0, 1.0);
-    for (int j = 1; j <= polynom_order; ++j)
-      gsl_matrix_set(vandermonde, i, j,
-                     gsl_matrix_get(vandermonde, i, j - 1) * i);
-  }
+    // compute Vandermonde matrix
+    gsl_matrix *vandermonde = gsl_matrix_alloc(points, polynom_order + 1);
+    for (int i = 0; i < points; ++i) {
+        gsl_matrix_set(vandermonde, i, 0, 1.0);
+        for (int j = 1; j <= polynom_order; ++j)
+            gsl_matrix_set(vandermonde, i, j,
+                           gsl_matrix_get(vandermonde, i, j - 1) * i);
+    }
 
-  // compute V^TV
-  gsl_matrix *vtv = gsl_matrix_alloc(polynom_order + 1, polynom_order + 1);
-  error = gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0, vandermonde,
-                         vandermonde, 0.0, vtv);
-
-  if (!error) {
-    // compute (V^TV)^(-1) using LU decomposition
-    gsl_permutation *p = gsl_permutation_alloc(polynom_order + 1);
-    int signum;
-    error = gsl_linalg_LU_decomp(vtv, p, &signum);
+    // compute V^TV
+    gsl_matrix *vtv = gsl_matrix_alloc(polynom_order + 1, polynom_order + 1);
+    error = gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0, vandermonde,
+                           vandermonde, 0.0, vtv);
 
     if (!error) {
-      gsl_matrix *vtv_inv =
-          gsl_matrix_alloc(polynom_order + 1, polynom_order + 1);
-      error = gsl_linalg_LU_invert(vtv, p, vtv_inv);
-      if (!error) {
-        // compute (V^TV)^(-1)V^T
-        gsl_matrix *vtv_inv_vt = gsl_matrix_alloc(polynom_order + 1, points);
-        error = gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, vtv_inv,
-                               vandermonde, 0.0, vtv_inv_vt);
+        // compute (V^TV)^(-1) using LU decomposition
+        gsl_permutation *p = gsl_permutation_alloc(polynom_order + 1);
+        int signum;
+        error = gsl_linalg_LU_decomp(vtv, p, &signum);
 
         if (!error) {
-          // finally, compute H = V(V^TV)^(-1)V^T
-          error = gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, vandermonde,
-                                 vtv_inv_vt, 0.0, h);
-        }
-        gsl_matrix_free(vtv_inv_vt);
-      }
-      gsl_matrix_free(vtv_inv);
-    }
-    gsl_permutation_free(p);
-  }
-  gsl_matrix_free(vtv);
-  gsl_matrix_free(vandermonde);
+            gsl_matrix *vtv_inv =
+                    gsl_matrix_alloc(polynom_order + 1, polynom_order + 1);
+            error = gsl_linalg_LU_invert(vtv, p, vtv_inv);
+            if (!error) {
+                // compute (V^TV)^(-1)V^T
+                gsl_matrix *vtv_inv_vt =
+                        gsl_matrix_alloc(polynom_order + 1, points);
+                error = gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, vtv_inv,
+                                       vandermonde, 0.0, vtv_inv_vt);
 
-  return error;
+                if (!error) {
+                    // finally, compute H = V(V^TV)^(-1)V^T
+                    error = gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0,
+                                           vandermonde, vtv_inv_vt, 0.0, h);
+                }
+                gsl_matrix_free(vtv_inv_vt);
+            }
+            gsl_matrix_free(vtv_inv);
+        }
+        gsl_permutation_free(p);
+    }
+    gsl_matrix_free(vtv);
+    gsl_matrix_free(vandermonde);
+
+    return error;
 }
 
 /**
@@ -258,94 +271,96 @@ int SmoothFilter::savitzkyGolayCoefficients(int points, int polynom_order,
  * would it help
  * to add an "edge behaviour" option to the UI?)
  */
-void SmoothFilter::smoothSavGol(double *, double *y_inout) {
-  // total number of points in smoothing window
-  int points = d_left_points + d_right_points + 1;
+void SmoothFilter::smoothSavGol(double *, double *y_inout)
+{
+    // total number of points in smoothing window
+    int points = d_left_points + d_right_points + 1;
 
-  if (points < d_polynom_order + 1) {
-    QMessageBox::critical(
-        app_, tr("AlphaPlot") + " - " + tr("Error"),
-        tr("The polynomial order must be lower than the number of left points "
-           "plus the number of right points!"));
-    return;
-  }
+    if (points < d_polynom_order + 1) {
+        QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
+                              tr("The polynomial order must be lower than the "
+                                 "number of left points "
+                                 "plus the number of right points!"));
+        return;
+    }
 
-  if (d_n < points) {
-    QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
-                          tr("Tried to smooth over more points "
-                             "(left+right+1=%1) than given as input (%2).")
-                              .arg(points)
-                              .arg(d_n));
-    return;
-  }
+    if (d_n < points) {
+        QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
+                              tr("Tried to smooth over more points "
+                                 "(left+right+1=%1) than given as input (%2).")
+                                      .arg(points)
+                                      .arg(d_n));
+        return;
+    }
 
-  // Savitzky-Golay coefficient matrix, y' = H y
-  gsl_matrix *h = gsl_matrix_alloc(static_cast<size_t>(points),
-                                   static_cast<size_t>(points));
-  if (int error = savitzkyGolayCoefficients(points, d_polynom_order, h)) {
-    QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
-                          tr("Internal error in Savitzky-Golay algorithm.\n") +
-                              gsl_strerror(error));
+    // Savitzky-Golay coefficient matrix, y' = H y
+    gsl_matrix *h = gsl_matrix_alloc(static_cast<size_t>(points),
+                                     static_cast<size_t>(points));
+    if (int error = savitzkyGolayCoefficients(points, d_polynom_order, h)) {
+        QMessageBox::critical(
+                app_, tr("AlphaPlot") + " - " + tr("Error"),
+                tr("Internal error in Savitzky-Golay algorithm.\n")
+                        + gsl_strerror(error));
+        gsl_matrix_free(h);
+        return;
+    }
+
+    // allocate memory for the result (temporary; don't overwrite y_inout while
+    // we still read from it)
+    QVector<double> result(d_n);
+
+    // near left edge: use interpolation of (points) left-most input values
+    // i.e. we deviate from the specified left/right points to use
+    /*
+    for (int i=0; i<d_left_points; i++) {
+            double convolution = 0.0;
+            for (int k=0; k<points; k++)
+                    convolution += gsl_matrix_get(h, i, k) * y_inout[k];
+            result[i] =  convolution;
+    }
+    */
+    // legacy behaviour: handle left edge by zero padding
+    for (int i = 0; i < d_left_points; i++) {
+        double convolution = 0.0;
+        for (int k = d_left_points - i; k < points; k++)
+            convolution += gsl_matrix_get(h, d_left_points, k)
+                    * y_inout[i - d_left_points + k];
+        result[i] = convolution;
+    }
+    // central part: convolve with fixed row of h (as given by number of left
+    // points to use)
+    for (int i = d_left_points; i < d_n - d_right_points; i++) {
+        double convolution = 0.0;
+        for (int k = 0; k < points; k++)
+            convolution += gsl_matrix_get(h, d_left_points, k)
+                    * y_inout[i - d_left_points + k];
+        result[i] = convolution;
+    }
+    // near right edge: use interpolation of (points) right-most input values
+    // i.e. we deviate from the specified left/right points to use
+    /*
+    for (int i=d_n-d_right_points; i<d_n; i++) {
+            double convolution = 0.0;
+            for (int k=0; k<points; k++)
+                    convolution += gsl_matrix_get(h, points-d_n+i, k) *
+    y_inout[d_n-points+k];
+            result[i] = convolution;
+    }
+    */
+    // legacy behaviour: handle right edge by zero padding
+    for (int i = d_n - d_right_points; i < d_n; i++) {
+        double convolution = 0.0;
+        for (int k = 0; i - d_left_points + k < d_n; k++)
+            convolution += gsl_matrix_get(h, d_left_points, k)
+                    * y_inout[i - d_left_points + k];
+        result[i] = convolution;
+    }
+
+    // deallocate memory
     gsl_matrix_free(h);
-    return;
-  }
 
-  // allocate memory for the result (temporary; don't overwrite y_inout while we
-  // still read from it)
-  QVector<double> result(d_n);
-
-  // near left edge: use interpolation of (points) left-most input values
-  // i.e. we deviate from the specified left/right points to use
-  /*
-  for (int i=0; i<d_left_points; i++) {
-          double convolution = 0.0;
-          for (int k=0; k<points; k++)
-                  convolution += gsl_matrix_get(h, i, k) * y_inout[k];
-          result[i] =  convolution;
-  }
-  */
-  // legacy behaviour: handle left edge by zero padding
-  for (int i = 0; i < d_left_points; i++) {
-    double convolution = 0.0;
-    for (int k = d_left_points - i; k < points; k++)
-      convolution +=
-          gsl_matrix_get(h, d_left_points, k) * y_inout[i - d_left_points + k];
-    result[i] = convolution;
-  }
-  // central part: convolve with fixed row of h (as given by number of left
-  // points to use)
-  for (int i = d_left_points; i < d_n - d_right_points; i++) {
-    double convolution = 0.0;
-    for (int k = 0; k < points; k++)
-      convolution +=
-          gsl_matrix_get(h, d_left_points, k) * y_inout[i - d_left_points + k];
-    result[i] = convolution;
-  }
-  // near right edge: use interpolation of (points) right-most input values
-  // i.e. we deviate from the specified left/right points to use
-  /*
-  for (int i=d_n-d_right_points; i<d_n; i++) {
-          double convolution = 0.0;
-          for (int k=0; k<points; k++)
-                  convolution += gsl_matrix_get(h, points-d_n+i, k) *
-  y_inout[d_n-points+k];
-          result[i] = convolution;
-  }
-  */
-  // legacy behaviour: handle right edge by zero padding
-  for (int i = d_n - d_right_points; i < d_n; i++) {
-    double convolution = 0.0;
-    for (int k = 0; i - d_left_points + k < d_n; k++)
-      convolution +=
-          gsl_matrix_get(h, d_left_points, k) * y_inout[i - d_left_points + k];
-    result[i] = convolution;
-  }
-
-  // deallocate memory
-  gsl_matrix_free(h);
-
-  // write result into *y_inout
-  std::copy(result.begin(), result.end(), y_inout);
+    // write result into *y_inout
+    std::copy(result.begin(), result.end(), y_inout);
 }
 
 /**
@@ -360,119 +375,125 @@ void SmoothFilter::smoothSavGol(double *, double *y_inout) {
  *
  * TODO: integrate this option into the GUI.
  */
-void SmoothFilter::smoothModifiedSavGol(double *x_in, double *y_inout) {
-  // total number of points in smoothing window
-  int points = d_left_points + d_right_points + 1;
+void SmoothFilter::smoothModifiedSavGol(double *x_in, double *y_inout)
+{
+    // total number of points in smoothing window
+    int points = d_left_points + d_right_points + 1;
 
-  if (points < d_polynom_order + 1) {
-    QMessageBox::critical(
-        app_, tr("AlphaPlot") + " - " + tr("Error"),
-        tr("The polynomial order must be lower than the number of left points "
-           "plus the number of right points!"));
-    return;
-  }
-
-  // allocate memory for the result
-  QVector<double> result(d_n);
-
-  // allocate memory for the linear algegra computations
-  // Vandermonde matrix for x values of points in the current smoothing window
-  gsl_matrix *vandermonde = gsl_matrix_alloc(points, d_polynom_order + 1);
-  // stores part of the QR decomposition of vandermonde
-  gsl_vector *tau = gsl_vector_alloc(qMin(points, d_polynom_order + 1));
-  // coefficients of polynomial approximation computed for each smoothing window
-  gsl_vector *poly = gsl_vector_alloc(d_polynom_order + 1);
-  // residual of the (least-squares) approximation (by-product of GSL's
-  // algorithm)
-  gsl_vector *residual = gsl_vector_alloc(static_cast<size_t>(points));
-
-  for (int target_index = 0; target_index < d_n; target_index++) {
-    int offset = target_index - d_left_points;
-    // use a fixed number of points; near left/right borders, use offset to
-    // change
-    // effective number of left/right points considered
-    if (target_index < d_left_points)
-      offset += d_left_points - target_index;
-    else if (target_index + d_right_points >= d_n)
-      offset += d_n - 1 - (target_index + d_right_points);
-
-    // fill Vandermonde matrix
-    for (int i = 0; i < points; ++i) {
-      gsl_matrix_set(vandermonde, i, 0, 1.0);
-      for (int j = 1; j <= d_polynom_order; ++j)
-        gsl_matrix_set(
-            vandermonde, i, j,
-            gsl_matrix_get(vandermonde, i, j - 1) * x_in[offset + i]);
+    if (points < d_polynom_order + 1) {
+        QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
+                              tr("The polynomial order must be lower than the "
+                                 "number of left points "
+                                 "plus the number of right points!"));
+        return;
     }
 
-    // Y values within current smoothing window
-    gsl_vector_view y_slice =
-        gsl_vector_view_array(y_inout + offset, static_cast<size_t>(points));
+    // allocate memory for the result
+    QVector<double> result(d_n);
 
-    // compute QR decomposition of Vandermonde matrix
-    if (int error = gsl_linalg_QR_decomp(vandermonde, tau))
-      QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
-                            tr("Internal error in Savitzky-Golay algorithm: QR "
-                               "decomposition failed.\n") +
-                                gsl_strerror(error));
-    // least-squares-solve vandermonde*poly=y_slice using the QR decomposition
-    // now stored in
-    // vandermonde and tau
-    else if (int error = gsl_linalg_QR_lssolve(vandermonde, tau,
-                                               &y_slice.vector, poly, residual))
-      QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
-                            tr("Internal error in Savitzky-Golay algorithm: "
-                               "least-squares solution failed.\n") +
-                                gsl_strerror(error));
-    else
-      result[target_index] =
-          gsl_poly_eval(poly->data, d_polynom_order + 1, x_in[target_index]);
-  }
+    // allocate memory for the linear algegra computations
+    // Vandermonde matrix for x values of points in the current smoothing window
+    gsl_matrix *vandermonde = gsl_matrix_alloc(points, d_polynom_order + 1);
+    // stores part of the QR decomposition of vandermonde
+    gsl_vector *tau = gsl_vector_alloc(qMin(points, d_polynom_order + 1));
+    // coefficients of polynomial approximation computed for each smoothing
+    // window
+    gsl_vector *poly = gsl_vector_alloc(d_polynom_order + 1);
+    // residual of the (least-squares) approximation (by-product of GSL's
+    // algorithm)
+    gsl_vector *residual = gsl_vector_alloc(static_cast<size_t>(points));
 
-  // deallocate memory
-  gsl_vector_free(residual);
-  gsl_vector_free(poly);
-  gsl_vector_free(tau);
-  gsl_matrix_free(vandermonde);
+    for (int target_index = 0; target_index < d_n; target_index++) {
+        int offset = target_index - d_left_points;
+        // use a fixed number of points; near left/right borders, use offset to
+        // change
+        // effective number of left/right points considered
+        if (target_index < d_left_points)
+            offset += d_left_points - target_index;
+        else if (target_index + d_right_points >= d_n)
+            offset += d_n - 1 - (target_index + d_right_points);
 
-  // write result into *y_inout
-  std::copy(result.begin(), result.end(), y_inout);
+        // fill Vandermonde matrix
+        for (int i = 0; i < points; ++i) {
+            gsl_matrix_set(vandermonde, i, 0, 1.0);
+            for (int j = 1; j <= d_polynom_order; ++j)
+                gsl_matrix_set(vandermonde, i, j,
+                               gsl_matrix_get(vandermonde, i, j - 1)
+                                       * x_in[offset + i]);
+        }
+
+        // Y values within current smoothing window
+        gsl_vector_view y_slice = gsl_vector_view_array(
+                y_inout + offset, static_cast<size_t>(points));
+
+        // compute QR decomposition of Vandermonde matrix
+        if (int error = gsl_linalg_QR_decomp(vandermonde, tau))
+            QMessageBox::critical(
+                    app_, tr("AlphaPlot") + " - " + tr("Error"),
+                    tr("Internal error in Savitzky-Golay algorithm: QR "
+                       "decomposition failed.\n")
+                            + gsl_strerror(error));
+        // least-squares-solve vandermonde*poly=y_slice using the QR
+        // decomposition now stored in vandermonde and tau
+        else if (int error = gsl_linalg_QR_lssolve(
+                         vandermonde, tau, &y_slice.vector, poly, residual))
+            QMessageBox::critical(
+                    app_, tr("AlphaPlot") + " - " + tr("Error"),
+                    tr("Internal error in Savitzky-Golay algorithm: "
+                       "least-squares solution failed.\n")
+                            + gsl_strerror(error));
+        else
+            result[target_index] = gsl_poly_eval(
+                    poly->data, d_polynom_order + 1, x_in[target_index]);
+    }
+
+    // deallocate memory
+    gsl_vector_free(residual);
+    gsl_vector_free(poly);
+    gsl_vector_free(tau);
+    gsl_matrix_free(vandermonde);
+
+    // write result into *y_inout
+    std::copy(result.begin(), result.end(), y_inout);
 }
 
-void SmoothFilter::setSmoothPoints(int points, int left_points) {
-  if (points < 0 || left_points < 0) {
-    QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
-                          tr("The number of points must be positive!"));
-    d_init_err = true;
-    return;
-  } else if (d_polynom_order > points + left_points) {
-    QMessageBox::critical(
-        app_, tr("AlphaPlot") + " - " + tr("Error"),
-        tr("The polynomial order must be lower than the number of left points "
-           "plus the number of right points!"));
-    d_init_err = true;
-    return;
-  }
+void SmoothFilter::setSmoothPoints(int points, int left_points)
+{
+    if (points < 0 || left_points < 0) {
+        QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
+                              tr("The number of points must be positive!"));
+        d_init_err = true;
+        return;
+    } else if (d_polynom_order > points + left_points) {
+        QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
+                              tr("The polynomial order must be lower than the "
+                                 "number of left points "
+                                 "plus the number of right points!"));
+        d_init_err = true;
+        return;
+    }
 
-  d_right_points = points;
-  d_left_points = left_points;
+    d_right_points = points;
+    d_left_points = left_points;
 }
 
-void SmoothFilter::setPolynomOrder(int order) {
-  if (d_method != SavitzkyGolay) {
-    QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
-                          tr("Setting polynomial order is only available for "
-                             "Savitzky-Golay smooth filters! Ignored option!"));
-    return;
-  }
+void SmoothFilter::setPolynomOrder(int order)
+{
+    if (d_method != SavitzkyGolay) {
+        QMessageBox::critical(
+                app_, tr("AlphaPlot") + " - " + tr("Error"),
+                tr("Setting polynomial order is only available for "
+                   "Savitzky-Golay smooth filters! Ignored option!"));
+        return;
+    }
 
-  if (order > d_right_points + d_left_points) {
-    QMessageBox::critical(
-        app_, tr("AlphaPlot") + " - " + tr("Error"),
-        tr("The polynomial order must be lower than the number of left points "
-           "plus the number of right points!"));
-    d_init_err = true;
-    return;
-  }
-  d_polynom_order = order;
+    if (order > d_right_points + d_left_points) {
+        QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
+                              tr("The polynomial order must be lower than the "
+                                 "number of left points "
+                                 "plus the number of right points!"));
+        d_init_err = true;
+        return;
+    }
+    d_polynom_order = order;
 }

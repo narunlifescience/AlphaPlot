@@ -32,25 +32,27 @@
 #include <qpen.h>
 
 Spectrogram::Spectrogram()
-    : d_matrix(nullptr), color_axis(), color_map_policy(Default) {}
+    : d_matrix(nullptr), color_axis(), color_map_policy(Default)
+{
+}
 
-void Spectrogram::updateData(Matrix *m) {}
+void Spectrogram::updateData(Matrix *m) { }
 
-void Spectrogram::setLevelsNumber(int levels) {}
+void Spectrogram::setLevelsNumber(int levels) { }
 
 // Disable some functions as Spectrogram is not yet implemented.
-//bool Spectrogram::hasColorScale() {}
+// bool Spectrogram::hasColorScale() {}
 
-void Spectrogram::showColorScale(int axis, bool on) {}
+void Spectrogram::showColorScale(int axis, bool on) { }
 
-//int Spectrogram::colorBarWidth() {}
+// int Spectrogram::colorBarWidth() {}
 
-void Spectrogram::setColorBarWidth(int width) {}
+void Spectrogram::setColorBarWidth(int width) { }
 
-//Spectrogram *Spectrogram::copy() {}
+// Spectrogram *Spectrogram::copy() {}
 
-void Spectrogram::setGrayScale() {}
+void Spectrogram::setGrayScale() { }
 
-void Spectrogram::setDefaultColorMap() {}
+void Spectrogram::setDefaultColorMap() { }
 
-//QString Spectrogram::saveToString() {}
+// QString Spectrogram::saveToString() {}

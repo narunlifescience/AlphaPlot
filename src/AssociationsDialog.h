@@ -41,39 +41,40 @@ class QMdiSubWindow;
 class AxisRect2D;
 
 //! Plot associations dialog
-class AssociationsDialog : public QDialog {
-  Q_OBJECT
+class AssociationsDialog : public QDialog
+{
+    Q_OBJECT
 
- public:
-  AssociationsDialog(QWidget *parent = 0, Qt::WindowFlags fl = 0);
-  ~AssociationsDialog();
+public:
+    AssociationsDialog(QWidget *parent = 0, Qt::WindowFlags fl = 0);
+    ~AssociationsDialog();
 
-  void initTablesList(QList<QMdiSubWindow *> *lst, int curve);
-  void setAxisRect(AxisRect2D *axisrect);
+    void initTablesList(QList<QMdiSubWindow *> *lst, int curve);
+    void setAxisRect(AxisRect2D *axisrect);
 
- private slots:
-  void updateTable(int index);
-  void updateCurves();
-  void accept();
+private slots:
+    void updateTable(int index);
+    void updateCurves();
+    void accept();
 
- private:
-  void changePlotAssociation(int curve, const QString &text);
-  void updateColumnTypes();
-  void uncheckCol(int col);
-  void updatePlotAssociation(int row, int col);
-  QString plotAssociation(const QString &text);
-  Table *findTable(int index);
-  bool eventFilter(QObject *object, QEvent *e);
+private:
+    void changePlotAssociation(int curve, const QString &text);
+    void updateColumnTypes();
+    void uncheckCol(int col);
+    void updatePlotAssociation(int row, int col);
+    QString plotAssociation(const QString &text);
+    Table *findTable(int index);
+    bool eventFilter(QObject *object, QEvent *e);
 
-  QList<QMdiSubWindow *> *tables;
-  Table *active_table;
-  AxisRect2D *axisrect_;
-  QStringList plotAssociationsList;
+    QList<QMdiSubWindow *> *tables;
+    Table *active_table;
+    AxisRect2D *axisrect_;
+    QStringList plotAssociationsList;
 
-  QLabel *tableCaptionLabel;
-  QTableWidget *table;
-  QPushButton *btnOK, *btnCancel, *btnApply;
-  QListWidget *associations;
+    QLabel *tableCaptionLabel;
+    QTableWidget *table;
+    QPushButton *btnOK, *btnCancel, *btnApply;
+    QListWidget *associations;
 };
 
-#endif  // ASSOCIATIONSDIALOG_H
+#endif // ASSOCIATIONSDIALOG_H

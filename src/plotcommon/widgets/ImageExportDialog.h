@@ -42,64 +42,68 @@ class QStackedWidget;
 class QGroupBox;
 
 //! QFileDialog extended with options for image export
-class ImageExportDialog : public ExtensibleFileDialog {
-  Q_OBJECT
+class ImageExportDialog : public ExtensibleFileDialog
+{
+    Q_OBJECT
 
- public:
-  explicit ImageExportDialog(QWidget *parent = nullptr,
-                             bool vector_options = true, bool extended = true,
-                             Qt::WindowFlags flags = Qt::Widget);
+public:
+    explicit ImageExportDialog(QWidget *parent = nullptr,
+                               bool vector_options = true, bool extended = true,
+                               Qt::WindowFlags flags = Qt::Widget);
 
-  // getters
-  int raster_resolution() const { return d_raster_resolution->value(); }
-  int raster_width() const { return d_raster_width->value(); }
-  int raster_height() const { return d_raster_height->value(); }
-  double raster_scale() const { return d_raster_scale->value(); }
-  int raster_antialias() const { return d_raster_maa->value(); }
-  int raster_quality() const { return d_raster_quality->value(); }
-  int vector_width() const { return d_vector_width->value(); }
-  int vector_height() const { return d_vector_height->value(); }
+    // getters
+    int raster_resolution() const { return d_raster_resolution->value(); }
+    int raster_width() const { return d_raster_width->value(); }
+    int raster_height() const { return d_raster_height->value(); }
+    double raster_scale() const { return d_raster_scale->value(); }
+    int raster_antialias() const { return d_raster_maa->value(); }
+    int raster_quality() const { return d_raster_quality->value(); }
+    int vector_width() const { return d_vector_width->value(); }
+    int vector_height() const { return d_vector_height->value(); }
 
-  // setters
-  void setraster_resolution(int value) { d_raster_resolution->setValue(value); }
-  void setraster_width(int value) { d_raster_width->setValue(value); }
-  void setraster_height(int value) { d_raster_height->setValue(value); }
-  void setraster_scale(double value) { d_raster_scale->setValue(value); }
-  void setraster_quality(int value) { d_raster_quality->setValue(value); }
-  void setraster_antialias(int value) { d_raster_maa->setValue(value); }
-  void setvector_width(int value) { d_vector_width->setValue(value); }
-  void setvector_height(int value) { d_vector_height->setValue(value); }
-  // enable scale or antialias
-  void enableraster_scale(bool value) { d_raster_scale->setEnabled(value); }
-  void enableraster_antialias(bool value) { d_raster_maa->setEnabled(value); }
+    // setters
+    void setraster_resolution(int value)
+    {
+        d_raster_resolution->setValue(value);
+    }
+    void setraster_width(int value) { d_raster_width->setValue(value); }
+    void setraster_height(int value) { d_raster_height->setValue(value); }
+    void setraster_scale(double value) { d_raster_scale->setValue(value); }
+    void setraster_quality(int value) { d_raster_quality->setValue(value); }
+    void setraster_antialias(int value) { d_raster_maa->setValue(value); }
+    void setvector_width(int value) { d_vector_width->setValue(value); }
+    void setvector_height(int value) { d_vector_height->setValue(value); }
+    // enable scale or antialias
+    void enableraster_scale(bool value) { d_raster_scale->setEnabled(value); }
+    void enableraster_antialias(bool value) { d_raster_maa->setEnabled(value); }
 
-  void selectFilter(const QString &filter);
+    void selectFilter(const QString &filter);
 
- protected slots:
-  void closeEvent(QCloseEvent *event);
-  // Update which options are visible and enabled based on the output format.
-  void updateAdvancedOptions(const QString &filter);
+protected slots:
+    void closeEvent(QCloseEvent *event);
+    // Update which options are visible and enabled based on the output format.
+    void updateAdvancedOptions(const QString &filter);
 
- private:
-  // Create #d_advanced_options and everything it contains.
-  void initAdvancedOptions();
+private:
+    // Create #d_advanced_options and everything it contains.
+    void initAdvancedOptions();
 
-  //! Container widget for all advanced options.
-  QStackedWidget *d_advanced_options;
-  // vector format options
-  //! Container widget for all options available for vector formats.
-  QGroupBox *d_vector_options;
-  QSpinBox *d_vector_width;
-  QSpinBox *d_vector_height;
-  // raster format options
-  //! Container widget for all options available for raster formats.
-  QGroupBox *d_raster_options;
-  QSpinBox *d_raster_resolution;
-  QSpinBox *d_raster_width;
-  QSpinBox *d_raster_height;
-  QDoubleSpinBox *d_raster_scale;
-  QSpinBox *d_raster_maa;
-  QSpinBox *d_raster_quality;
+    //! Container widget for all advanced options.
+    QStackedWidget *d_advanced_options;
+    // vector format options
+    //! Container widget for all options available for vector formats.
+    QGroupBox *d_vector_options;
+    QSpinBox *d_vector_width;
+    QSpinBox *d_vector_height;
+    // raster format options
+    //! Container widget for all options available for raster formats.
+    QGroupBox *d_raster_options;
+    QSpinBox *d_raster_resolution;
+    QSpinBox *d_raster_width;
+    QSpinBox *d_raster_height;
+    QDoubleSpinBox *d_raster_scale;
+    QSpinBox *d_raster_maa;
+    QSpinBox *d_raster_quality;
 };
 
-#endif  // IMAGEEXPORTDIALOG_H
+#endif // IMAGEEXPORTDIALOG_H

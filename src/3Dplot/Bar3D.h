@@ -13,25 +13,26 @@ class DataBlockBar3D;
 
 using namespace QtDataVisualization;
 
-class Bar3D : public QObject {
-  Q_OBJECT
- public:
-  Bar3D(Q3DBars *bar);
-  ~Bar3D();
+class Bar3D : public QObject
+{
+    Q_OBJECT
+public:
+    Bar3D(Q3DBars *bar);
+    ~Bar3D();
 
-  void settabledata(Table *table, Column *xcolumn, Column *ycolumn,
-                    Column *zcolumn);
-  void setmatrixdatamodel(Matrix *matrix);
+    void settabledata(Table *table, Column *xcolumn, Column *ycolumn,
+                      Column *zcolumn);
+    void setmatrixdatamodel(Matrix *matrix);
 
-  Q3DBars *getGraph() const;
-  QVector<DataBlockBar3D *> getData() const;
+    Q3DBars *getGraph() const;
+    QVector<DataBlockBar3D *> getData() const;
 
- signals:
-  void dataAdded();
+signals:
+    void dataAdded();
 
- private:
-  Q3DBars *graph_;
-  QVector<DataBlockBar3D *> data_;
+private:
+    Q3DBars *graph_;
+    QVector<DataBlockBar3D *> data_;
 };
 
-#endif  // BAR3D_H
+#endif // BAR3D_H

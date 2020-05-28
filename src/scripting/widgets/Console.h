@@ -25,62 +25,63 @@
 #include <QTextDocumentFragment>
 #include <QStack>
 
-class Console : public QTextEdit {
-  Q_OBJECT
+class Console : public QTextEdit
+{
+    Q_OBJECT
 
- public:
-  Console(QWidget *parent = nullptr);
-  ~Console();
-  QString prompt() const;
-  void setPrompt(const QString &prompt);
+public:
+    Console(QWidget *parent = nullptr);
+    ~Console();
+    QString prompt() const;
+    void setPrompt(const QString &prompt);
 
-  enum ResultType { Success, Error };
+    enum ResultType { Success, Error };
 
- protected:
-  void insertFromMimeData(const QMimeData * source);
-  void keyPressEvent(QKeyEvent *e);
+protected:
+    void insertFromMimeData(const QMimeData *source);
+    void keyPressEvent(QKeyEvent *e);
 
-  // Do not handle other events
-  void mousePressEvent(QMouseEvent *) {}
-  void mouseDoubleClickEvent(QMouseEvent *) {}
-  void mouseMoveEvent(QMouseEvent *) {}
-  void mouseReleaseEvent(QMouseEvent *) {}
+    // Do not handle other events
+    void mousePressEvent(QMouseEvent *) { }
+    void mouseDoubleClickEvent(QMouseEvent *) { }
+    void mouseMoveEvent(QMouseEvent *) { }
+    void mouseReleaseEvent(QMouseEvent *) { }
 
- private:
-  void handleLeft(QKeyEvent *event);
-  void handleEnter();
-  void handleHistoryUp();
-  void handleHistoryDown();
-  void handleHome();
+private:
+    void handleLeft(QKeyEvent *event);
+    void handleEnter();
+    void handleHistoryUp();
+    void handleHistoryDown();
+    void handleHome();
 
-  void moveToEndOfLine();
-  void clearLine();
-  QString getCommand() const;
+    void moveToEndOfLine();
+    void clearLine();
+    QString getCommand() const;
 
-  int getIndex(const QTextCursor &crQTextCursor);
+    int getIndex(const QTextCursor &crQTextCursor);
 
-  QString userPrompt;
-  QString partialUserPrompt;
-  QString activeUserPromptPrefix;
-  QString partialUserPromptPrefix;
-  QStack<QString> historyUp;
-  QStack<QString> historyDown;
-  bool partialPromptVisible;
-  bool locked;
-  bool historySkip;
+    QString userPrompt;
+    QString partialUserPrompt;
+    QString activeUserPromptPrefix;
+    QString partialUserPromptPrefix;
+    QStack<QString> historyUp;
+    QStack<QString> historyDown;
+    bool partialPromptVisible;
+    bool locked;
+    bool historySkip;
 
-  // The command signal is fired when a user input is entered
- signals:
-  void command(QString command);
+    // The command signal is fired when a user input is entered
+signals:
+    void command(QString command);
 
-  // The result slot displays the result of a command in the terminal
- public slots:
-  void result(QString result, ResultType type);
-  void partialResult();
-  void promptWithoutResult();
-  void append(QString text);
-  void clearConsole();
-  void setConsoleFont(QFont font);
+    // The result slot displays the result of a command in the terminal
+public slots:
+    void result(QString result, ResultType type);
+    void partialResult();
+    void promptWithoutResult();
+    void append(QString text);
+    void clearConsole();
+    void setConsoleFont(QFont font);
 };
 
-#endif  // CONSOLE_H
+#endif // CONSOLE_H

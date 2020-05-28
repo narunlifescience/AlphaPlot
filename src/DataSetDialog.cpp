@@ -41,63 +41,71 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-DataSetDialog::DataSetDialog(const QString& text, QWidget* parent,
+DataSetDialog::DataSetDialog(const QString &text, QWidget *parent,
                              Qt::WindowFlags fl)
-    : QDialog(parent, fl), axisrect_(nullptr) {
-  setWindowTitle(tr("Select data set"));
+    : QDialog(parent, fl), axisrect_(nullptr)
+{
+    setWindowTitle(tr("Select data set"));
 
-  operation = QString();
+    operation = QString();
 
-  QVBoxLayout* mainLayout = new QVBoxLayout(this);
-  QHBoxLayout* bottomLayout = new QHBoxLayout();
-  bottomLayout->addStretch();
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QHBoxLayout *bottomLayout = new QHBoxLayout();
+    bottomLayout->addStretch();
 
-  groupBox1 = new QGroupBox();
-  QHBoxLayout* topLayout = new QHBoxLayout(groupBox1);
+    groupBox1 = new QGroupBox();
+    QHBoxLayout *topLayout = new QHBoxLayout(groupBox1);
 
-  topLayout->addWidget(new QLabel(text));
-  boxName = new QComboBox();
-  topLayout->addWidget(boxName);
+    topLayout->addWidget(new QLabel(text));
+    boxName = new QComboBox();
+    topLayout->addWidget(boxName);
 
-  buttonOk = new QPushButton(tr("&OK"));
-  buttonOk->setAutoDefault(true);
-  buttonOk->setDefault(true);
-  bottomLayout->addWidget(buttonOk);
+    buttonOk = new QPushButton(tr("&OK"));
+    buttonOk->setAutoDefault(true);
+    buttonOk->setDefault(true);
+    bottomLayout->addWidget(buttonOk);
 
-  buttonCancel = new QPushButton(tr("&Cancel"));
-  buttonCancel->setAutoDefault(true);
-  bottomLayout->addWidget(buttonCancel);
+    buttonCancel = new QPushButton(tr("&Cancel"));
+    buttonCancel->setAutoDefault(true);
+    bottomLayout->addWidget(buttonCancel);
 
-  mainLayout->addWidget(groupBox1);
-  mainLayout->addLayout(bottomLayout);
+    mainLayout->addWidget(groupBox1);
+    mainLayout->addLayout(bottomLayout);
 
-  connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
-void DataSetDialog::accept() {
-  if (operation.isEmpty()) {
-    emit options(boxName->currentText());
-    qDebug() << "no analyzable curves";
-  } else if (axisrect_) {
-    ApplicationWindow* app = qobject_cast<ApplicationWindow*>(this->parent());
-    if (app) app->analyzeCurve(axisrect_, operation, boxName->currentText());
-  }
-  close();
+void DataSetDialog::accept()
+{
+    if (operation.isEmpty()) {
+        emit options(boxName->currentText());
+        qDebug() << "no analyzable curves";
+    } else if (axisrect_) {
+        ApplicationWindow *app =
+                qobject_cast<ApplicationWindow *>(this->parent());
+        if (app)
+            app->analyzeCurve(axisrect_, operation, boxName->currentText());
+    }
+    close();
 }
 
-void DataSetDialog::setCurveNames(const QStringList& names) {
-  boxName->addItems(names);
+void DataSetDialog::setCurveNames(const QStringList &names)
+{
+    boxName->addItems(names);
 }
 
-void DataSetDialog::setCurentDataSet(const QString& s) {
-  int row = boxName->findText(s);
-  boxName->setCurrentIndex(row);
+void DataSetDialog::setCurentDataSet(const QString &s)
+{
+    int row = boxName->findText(s);
+    boxName->setCurrentIndex(row);
 }
 
-void DataSetDialog::setAxisRect(AxisRect2D* axisrect) {
-  if (!axisrect) return;
+void DataSetDialog::setAxisRect(AxisRect2D *axisrect)
+{
+    if (!axisrect)
+        return;
 
-  axisrect_ = axisrect;
-  boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
+    axisrect_ = axisrect;
+    boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
 }

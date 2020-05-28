@@ -37,41 +37,39 @@ class ApplicationWindow;
 class QwtPlotCurve;
 
 //! Plot tool for translating curves.
-class TranslateCurveTool : public QObject {
-  Q_OBJECT
- public:
-  enum Direction { Vertical, Horizontal };
-  /*!\brief Standard constructor.
-   * \param graph the Graph to operate on (or rather, on whose image markers to
-   * operate on)
-   * \param app parent window of graph
-   * \param dir the direction in which to translate curves
-   * \param status_target target to which the statusText(const QString&) signal
-   * will be connected
-   * \param status_slot slot on status_target to which the statusText(const
-   * QString&) signal will be connected
-   * The status_target/status_slot arguments are provided, because
-   * statusText(const QString&) is emitted
-   * during initialization, before there's any other chance of connecting to it.
-   */
-  /*TranslateCurveTool(Graph *graph, ApplicationWindow *app, Direction dir,
-                     const QObject *status_target = NULL,
-                     const char *status_slot = "");
-  virtual RTTI rtti() const { return TranslateCurve; }
- signals:
+class TranslateCurveTool : public QObject
+{
+    Q_OBJECT
+public:
+    enum Direction { Vertical, Horizontal };
+    /*!\brief Standard constructor.
+     * \param graph the Graph to operate on (or rather, on whose image markers
+     * to operate on) \param app parent window of graph \param dir the direction
+     * in which to translate curves \param status_target target to which the
+     * statusText(const QString&) signal will be connected \param status_slot
+     * slot on status_target to which the statusText(const QString&) signal will
+     * be connected The status_target/status_slot arguments are provided,
+     * because statusText(const QString&) is emitted during initialization,
+     * before there's any other chance of connecting to it.
+     */
+    /*TranslateCurveTool(Graph *graph, ApplicationWindow *app, Direction dir,
+                       const QObject *status_target = NULL,
+                       const char *status_slot = "");
+    virtual RTTI rtti() const { return TranslateCurve; }
+   signals:
 
-  void statusText(const QString &);
- public slots:
+    void statusText(const QString &);
+   public slots:
 
-  void selectCurvePoint(QwtPlotCurve *curve, int point_index);
-  void selectDestination(const QwtDoublePoint &point);
+    void selectCurvePoint(QwtPlotCurve *curve, int point_index);
+    void selectDestination(const QwtDoublePoint &point);
 
- private:
-  Direction d_dir;
-  PlotToolInterface *d_sub_tool;
-  QwtPlotCurve *d_selected_curve;
-  QwtDoublePoint d_curve_point;
-  ApplicationWindow *d_app;*/
+   private:
+    Direction d_dir;
+    PlotToolInterface *d_sub_tool;
+    QwtPlotCurve *d_selected_curve;
+    QwtDoublePoint d_curve_point;
+    ApplicationWindow *d_app;*/
 };
 
-#endif  // TRANSLATE_CURVE_TOOL_H
+#endif // TRANSLATE_CURVE_TOOL_H

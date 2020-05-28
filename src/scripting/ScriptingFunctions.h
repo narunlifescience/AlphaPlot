@@ -24,20 +24,22 @@ Q_DECLARE_METATYPE(QVector<QDate>)
 Q_DECLARE_METATYPE(QVector<QDateTime>)
 
 // Registered type to from conversion
-template <class AlphaWindowObject>
+template<class AlphaWindowObject>
 QScriptValue tableObjectToScriptValue(QScriptEngine *engine,
-                                      const AlphaWindowObject &in) {
-  return engine->newQObject(in);
+                                      const AlphaWindowObject &in)
+{
+    return engine->newQObject(in);
 }
 
-template <class AlphaWindowObject>
+template<class AlphaWindowObject>
 void tableObjectFromScriptValue(const QScriptValue &object,
-                                AlphaWindowObject &out) {
-  out = qobject_cast<AlphaWindowObject>(object.toQObject());
+                                AlphaWindowObject &out)
+{
+    out = qobject_cast<AlphaWindowObject>(object.toQObject());
 }
 
 // Register QVector<>
-template <class Container>
+template<class Container>
 QScriptValue toScriptValue(QScriptEngine *eng, const Container &cont)
 {
     QScriptValue a = eng->newArray();
@@ -49,7 +51,7 @@ QScriptValue toScriptValue(QScriptEngine *eng, const Container &cont)
     return a;
 }
 
-template <class Container>
+template<class Container>
 void fromScriptValue(const QScriptValue &value, Container &cont)
 {
     quint32 len = value.property("length").toUInt32();
@@ -68,4 +70,4 @@ QScriptValue attachDebugger(QScriptContext *context, QScriptEngine *egne);
 // Core functions
 QScriptValue openProj(QScriptContext *context, QScriptEngine *egne);
 
-#endif  // SCRIPTINGFUNCTIONS_H
+#endif // SCRIPTINGFUNCTIONS_H

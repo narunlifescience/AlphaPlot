@@ -37,37 +37,39 @@ class QLineEdit;
 class QComboBox;
 
 //! Define surface plot dialog
-class SurfaceDialog : public QDialog {
-  Q_OBJECT
+class SurfaceDialog : public QDialog
+{
+    Q_OBJECT
 
- public:
-  SurfaceDialog(QWidget* parent = nullptr, Qt::WindowFlags fl = 0);
-  ~SurfaceDialog();
+public:
+    SurfaceDialog(QWidget *parent = nullptr, Qt::WindowFlags fl = 0);
+    ~SurfaceDialog();
 
- public slots:
-  void accept();
-  void insertFunctionsList(const QStringList& list);
-  void clearList();
-  void setFunction(const QString& s);
-  void setLimits(double xs, double xe, double ys, double ye, double zs,
-                 double ze);
+public slots:
+    void accept();
+    void insertFunctionsList(const QStringList &list);
+    void clearList();
+    void setFunction(const QString &s);
+    void setLimits(double xs, double xe, double ys, double ye, double zs,
+                   double ze);
 
- signals:
-  void options(const QString&, double, double, double, double, double, double);
-  void clearFunctionsList();
-  void custom3DToolBar();
+signals:
+    void options(const QString &, double, double, double, double, double,
+                 double);
+    void clearFunctionsList();
+    void custom3DToolBar();
 
- private:
-  QPushButton* buttonOk;
-  QPushButton* buttonCancel;
-  QPushButton* buttonClear;
-  QComboBox* boxFunction;
-  QLineEdit* boxXFrom;
-  QLineEdit* boxXTo;
-  QLineEdit* boxYFrom;
-  QLineEdit* boxYTo;
-  QLineEdit* boxZFrom;
-  QLineEdit* boxZTo;
+private:
+    QPushButton *buttonOk;
+    QPushButton *buttonCancel;
+    QPushButton *buttonClear;
+    QComboBox *boxFunction;
+    QLineEdit *boxXFrom;
+    QLineEdit *boxXTo;
+    QLineEdit *boxYFrom;
+    QLineEdit *boxYTo;
+    QLineEdit *boxZFrom;
+    QLineEdit *boxZTo;
 };
 
-#endif  // SURFACEDIALOG_H
+#endif // SURFACEDIALOG_H

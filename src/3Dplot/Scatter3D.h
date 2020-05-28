@@ -13,23 +13,24 @@ class Column;
 class DataBlockScatter3D;
 using namespace QtDataVisualization;
 
-class Scatter3D : public QObject {
-  Q_OBJECT
- public:
-  Scatter3D(Q3DScatter *scatter);
-  ~Scatter3D();
+class Scatter3D : public QObject
+{
+    Q_OBJECT
+public:
+    Scatter3D(Q3DScatter *scatter);
+    ~Scatter3D();
 
-  void settabledata(Table *table, Column *xcolumn, Column *ycolumn,
-                    Column *zcolumn);
-  void setmatrixdatamodel(Matrix *matrix);
-  Q3DScatter *getGraph() const;
-  QVector<DataBlockScatter3D *> getData() const;
+    void settabledata(Table *table, Column *xcolumn, Column *ycolumn,
+                      Column *zcolumn);
+    void setmatrixdatamodel(Matrix *matrix);
+    Q3DScatter *getGraph() const;
+    QVector<DataBlockScatter3D *> getData() const;
 
- signals:
-  void dataAdded();
+signals:
+    void dataAdded();
 
- private:
-  Q3DScatter *graph_;
-  QVector<DataBlockScatter3D *> data_;
+private:
+    Q3DScatter *graph_;
+    QVector<DataBlockScatter3D *> data_;
 };
-#endif  // SCATTER3D_H
+#endif // SCATTER3D_H

@@ -38,37 +38,38 @@ class QComboBox;
 class QLabel;
 
 //! Find dialog
-class FindDialog : public QDialog {
-  Q_OBJECT
+class FindDialog : public QDialog
+{
+    Q_OBJECT
 
- public:
-  FindDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);
-  ~FindDialog();
+public:
+    FindDialog(QWidget *parent = 0, Qt::WindowFlags fl = 0);
+    ~FindDialog();
 
- private:
-  QPushButton* buttonFind;
-  QPushButton* buttonCancel;
-  QPushButton* buttonReset;
+private:
+    QPushButton *buttonFind;
+    QPushButton *buttonCancel;
+    QPushButton *buttonReset;
 
-  QLabel* labelStart;
-  QComboBox* boxFind;
+    QLabel *labelStart;
+    QComboBox *boxFind;
 
-  QCheckBox* boxWindowNames;
-  QCheckBox* boxWindowLabels;
-  QCheckBox* boxFolderNames;
+    QCheckBox *boxWindowNames;
+    QCheckBox *boxWindowLabels;
+    QCheckBox *boxFolderNames;
 
-  QCheckBox* boxCaseSensitive;
-  QCheckBox* boxPartialMatch;
-  QCheckBox* boxSubfolders;
+    QCheckBox *boxCaseSensitive;
+    QCheckBox *boxPartialMatch;
+    QCheckBox *boxSubfolders;
 
- public slots:
+public slots:
 
-  //! Displays the project current folder path
-  void setStartPath();
+    //! Displays the project current folder path
+    void setStartPath();
 
- protected slots:
+protected slots:
 
-  void accept();
+    void accept();
 };
 
-#endif  // FINDDIALOG_H
+#endif // FINDDIALOG_H

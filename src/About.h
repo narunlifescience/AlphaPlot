@@ -21,13 +21,14 @@
 #include <QDialog>
 #include "ui_About.h"
 
-class About : public QDialog {
-  Q_OBJECT
- public:
-  About(QWidget* parent = nullptr);
+class About : public QDialog
+{
+    Q_OBJECT
+public:
+    About(QWidget *parent = nullptr);
 
- private:
-  Ui_About ui_;
+private:
+    Ui_About ui_;
 };
 
-#endif  // ABOUT_H
+#endif // ABOUT_H

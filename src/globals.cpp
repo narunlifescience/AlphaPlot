@@ -36,19 +36,18 @@
 #include <QtDebug>
 
 const int AlphaPlot::AlphaPlot_versionNo = 112020;
-const char* AlphaPlot::AlphaPlot_version = "1.011A";
-const char* AlphaPlot::extra_version = "-alpha";
-const char* AlphaPlot::release_date = "May 07, 2020";
-const char* AlphaPlot::homepage_Uri =
-    "http://alphaplot.sourceforge.net/";
-const char* AlphaPlot::manual_Uri =
-    "https://sourceforge.net/projects/scidavis/files/";
-const char* AlphaPlot::forum_Uri =
-    "https://sourceforge.net/p/alphaplot/discussion/";
-const char* AlphaPlot::bugreport_Uri =
-    "https://github.com/narunlifescience/AlphaPlot/issues/new";
-const char* AlphaPlot::download_Uri =
-    "https://sourceforge.net/projects/alphaplot/";
+const char *AlphaPlot::AlphaPlot_version = "1.011A";
+const char *AlphaPlot::extra_version = "-alpha";
+const char *AlphaPlot::release_date = "May 07, 2020";
+const char *AlphaPlot::homepage_Uri = "http://alphaplot.sourceforge.net/";
+const char *AlphaPlot::manual_Uri =
+        "https://sourceforge.net/projects/scidavis/files/";
+const char *AlphaPlot::forum_Uri =
+        "https://sourceforge.net/p/alphaplot/discussion/";
+const char *AlphaPlot::bugreport_Uri =
+        "https://github.com/narunlifescience/AlphaPlot/issues/new";
+const char *AlphaPlot::download_Uri =
+        "https://sourceforge.net/projects/alphaplot/";
 
 int AlphaPlot::headerHeight = 40;
 int AlphaPlot::commentHeaderHeight = 40;
@@ -63,39 +62,58 @@ int AlphaPlot::colorCodeThickness = 0;
 int AlphaPlot::colorCodeXPadding = 4;
 int AlphaPlot::colorCodeYPadding = (AlphaPlot::colorCodeThickness / 2) + 6;
 
-int AlphaPlot::version() { return AlphaPlot_versionNo; }
-
-QString AlphaPlot::schemaVersion() {
-  return "AlphaPlot " + QString::number((version() & 0xFF0000) >> 16) + "." +
-         QString::number((version() & 0x00FF00) >> 8) + "." +
-         QString::number(version() & 0x0000FF);
+int AlphaPlot::version()
+{
+    return AlphaPlot_versionNo;
 }
 
-QString AlphaPlot::versionString() { return AlphaPlot_version; }
-
-QString AlphaPlot::extraVersion() { return QString(extra_version); }
-
-QString AlphaPlot::releaseDateString() { return release_date; }
-
-QString AlphaPlot::originalAuthor() {
-  return "Arun Narayanankutty";
+QString AlphaPlot::schemaVersion()
+{
+    return "AlphaPlot " + QString::number((version() & 0xFF0000) >> 16) + "."
+            + QString::number((version() & 0x00FF00) >> 8) + "."
+            + QString::number(version() & 0x0000FF);
 }
 
-QString AlphaPlot::originalAuthorWithMail() {
-  return "Arun Narayanankutty: <n.arun.lifescience@gmail.com";
+QString AlphaPlot::versionString()
+{
+    return AlphaPlot_version;
 }
 
-QString AlphaPlot::enumValueToString(int key, const QString& enum_name) {
-  int index = staticMetaObject.indexOfEnumerator(enum_name.toUtf8());
-  if (index == -1) return QString("invalid");
-  QMetaEnum meta_enum = staticMetaObject.enumerator(index);
-  return QString(meta_enum.valueToKey(key));
+QString AlphaPlot::extraVersion()
+{
+    return QString(extra_version);
 }
 
-int AlphaPlot::enumStringToValue(const QString& string,
-                                 const QString& enum_name) {
-  int index = staticMetaObject.indexOfEnumerator(enum_name.toUtf8());
-  if (index == -1) return -1;
-  QMetaEnum meta_enum = staticMetaObject.enumerator(index);
-  return meta_enum.keyToValue(string.toUtf8());
+QString AlphaPlot::releaseDateString()
+{
+    return release_date;
+}
+
+QString AlphaPlot::originalAuthor()
+{
+    return "Arun Narayanankutty";
+}
+
+QString AlphaPlot::originalAuthorWithMail()
+{
+    return "Arun Narayanankutty: <n.arun.lifescience@gmail.com";
+}
+
+QString AlphaPlot::enumValueToString(int key, const QString &enum_name)
+{
+    int index = staticMetaObject.indexOfEnumerator(enum_name.toUtf8());
+    if (index == -1)
+        return QString("invalid");
+    QMetaEnum meta_enum = staticMetaObject.enumerator(index);
+    return QString(meta_enum.valueToKey(key));
+}
+
+int AlphaPlot::enumStringToValue(const QString &string,
+                                 const QString &enum_name)
+{
+    int index = staticMetaObject.indexOfEnumerator(enum_name.toUtf8());
+    if (index == -1)
+        return -1;
+    QMetaEnum meta_enum = staticMetaObject.enumerator(index);
+    return meta_enum.keyToValue(string.toUtf8());
 }

@@ -47,49 +47,51 @@ class ApplicationWindow;
  * the peak profile) could be moved here as well.
  */
 
-class PlotToolInterface {
- public:
-  enum RTTI {
-    DataPicker,
-    ScreenPicker,
-    LineProfile,
-    MultiPeak,
-    RangeSelector,
-    TranslateCurve
-  };
-  virtual RTTI rtti() const = 0;
+class PlotToolInterface
+{
+public:
+    enum RTTI {
+        DataPicker,
+        ScreenPicker,
+        LineProfile,
+        MultiPeak,
+        RangeSelector,
+        TranslateCurve
+    };
+    virtual RTTI rtti() const = 0;
 
-  PlotToolInterface(AxisRect2D *axisrect);
-  virtual ~PlotToolInterface();
+    PlotToolInterface(AxisRect2D *axisrect);
+    virtual ~PlotToolInterface();
 
- protected:
-  AxisRect2D *axisrect_;
+protected:
+    AxisRect2D *axisrect_;
 };
 
-class MultiPeakFitTool : public QObject, public PlotToolInterface {
-  Q_OBJECT
- public:
-  MultiPeakFitTool(AxisRect2D *axisrect, ApplicationWindow *app,
-                   MultiPeakFit::PeakProfile profile, int num_peaks,
-                   const QObject *status_target, const char *status_slot);
-  virtual RTTI rtti() const { return MultiPeak; }
-  virtual ~MultiPeakFitTool();
- signals:
-  /*! Emitted whenever a new message should be presented to the user.
-   *
-   * You don't have to connect to this signal if you alreay specified a reciever
-   * during initialization.
-   */
-  void statusText(const QString &);
- protected slots:
-  void selectPeak(PlotData::AssociatedData *associateddata, int point_index);
+class MultiPeakFitTool : public QObject, public PlotToolInterface
+{
+    Q_OBJECT
+public:
+    MultiPeakFitTool(AxisRect2D *axisrect, ApplicationWindow *app,
+                     MultiPeakFit::PeakProfile profile, int num_peaks,
+                     const QObject *status_target, const char *status_slot);
+    virtual RTTI rtti() const { return MultiPeak; }
+    virtual ~MultiPeakFitTool();
+signals:
+    /*! Emitted whenever a new message should be presented to the user.
+     *
+     * You don't have to connect to this signal if you alreay specified a
+     * reciever during initialization.
+     */
+    void statusText(const QString &);
+protected slots:
+    void selectPeak(PlotData::AssociatedData *associateddata, int point_index);
 
- private:
-  void finalize();
-  MultiPeakFit::PeakProfile d_profile;
-  int d_num_peaks, d_selected_peaks;
-  //DataPickerTool *d_picker_tool;
-  MultiPeakFit *d_fit;
+private:
+    void finalize();
+    MultiPeakFit::PeakProfile d_profile;
+    int d_num_peaks, d_selected_peaks;
+    // DataPickerTool *d_picker_tool;
+    MultiPeakFit *d_fit;
 };
 
-#endif  // MULTI_PEAK_FIT_TOOL
+#endif // MULTI_PEAK_FIT_TOOL

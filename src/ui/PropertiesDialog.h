@@ -24,30 +24,32 @@
 class Folder;
 class Ui_PropertiesDialog;
 
-class PropertiesDialog : public QDialog {
-  Q_OBJECT
- public:
-  explicit PropertiesDialog(QWidget *parent = nullptr);
-  ~PropertiesDialog();
+class PropertiesDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit PropertiesDialog(QWidget *parent = nullptr);
+    ~PropertiesDialog();
 
-  struct Properties {
-    QPixmap icon;
-    QString name;
-    QString type;
-    QString status;
-    QString path;
-    QString size;
-    QString content;
-    QString created;
-    QString modified;
-    QString label;
-    QString description;
-  };
+    struct Properties
+    {
+        QPixmap icon;
+        QString name;
+        QString type;
+        QString status;
+        QString path;
+        QString size;
+        QString content;
+        QString created;
+        QString modified;
+        QString label;
+        QString description;
+    };
 
-  void setupProperties(const Properties &properties)  const;
+    void setupProperties(const Properties &properties) const;
 
- private:
-  Ui_PropertiesDialog *ui_;
+private:
+    Ui_PropertiesDialog *ui_;
 };
 
-#endif  // PROPERTIESDIALOG_H
+#endif // PROPERTIESDIALOG_H

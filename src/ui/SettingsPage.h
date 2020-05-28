@@ -22,27 +22,28 @@
 
 class SettingsDialog;
 
-class SettingsPage : public QWidget {
-  Q_OBJECT
+class SettingsPage : public QWidget
+{
+    Q_OBJECT
 
- public:
-  SettingsPage(SettingsDialog* dialog = nullptr);
+public:
+    SettingsPage(SettingsDialog *dialog = nullptr);
 
-  // Return false to grey out the page's item in the list.
-  virtual bool IsEnabled() const { return true; }
+    // Return false to grey out the page's item in the list.
+    virtual bool IsEnabled() const { return true; }
 
-  // Load is called when the dialog is shown, Save when the user clicks
-  // Apply, & Cancel when the user clicks on Cancel
-  virtual void Load() = 0;
-  virtual void Save() = 0;
-  virtual void Cancel() {}
-  virtual void setTitle(QString title) = 0;
+    // Load is called when the dialog is shown, Save when the user clicks
+    // Apply, & Cancel when the user clicks on Cancel
+    virtual void Load() = 0;
+    virtual void Save() = 0;
+    virtual void Cancel() { }
+    virtual void setTitle(QString title) = 0;
 
-  // The dialog that this page belongs to.
-  SettingsDialog* dialog() const { return dialog_; }
+    // The dialog that this page belongs to.
+    SettingsDialog *dialog() const { return dialog_; }
 
- private:
-  SettingsDialog* dialog_;
+private:
+    SettingsDialog *dialog_;
 };
 
-#endif  // SETTINGSPAGE_H
+#endif // SETTINGSPAGE_H

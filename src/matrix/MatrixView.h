@@ -58,162 +58,165 @@ class Matrix;
 class MatrixModel;
 
 //! Helper class for MatrixView
-class MatrixViewWidget : public QTableView {
-  Q_OBJECT
+class MatrixViewWidget : public QTableView
+{
+    Q_OBJECT
 
- public:
-  //! Constructor
-  MatrixViewWidget(QWidget* parent = 0) : QTableView(parent) {}
+public:
+    //! Constructor
+    MatrixViewWidget(QWidget *parent = 0) : QTableView(parent) { }
 
- protected:
-  //! Overloaded function (cf. Qt documentation)
-  virtual void keyPressEvent(QKeyEvent* event);
+protected:
+    //! Overloaded function (cf. Qt documentation)
+    virtual void keyPressEvent(QKeyEvent *event);
 
- signals:
-  void advanceCell();
+signals:
+    void advanceCell();
 
- public slots:
-  void selectAll();
+public slots:
+    void selectAll();
 };
 
 //! View class for Matrix
-class MatrixView : public MyWidget {
-  Q_OBJECT
+class MatrixView : public MyWidget
+{
+    Q_OBJECT
 
- public:
+public:
 //! Constructor
 #ifndef LEGACY_CODE_0_2_x
-  MatrixView(future::Matrix* matrix);
+    MatrixView(future::Matrix *matrix);
 #else
-  MatrixView(const QString& label, QWidget* parent = 0, const QString name = 0,
-             Qt::WindowFlags f = 0);
-  void setMatrix(future::Matrix* matrix);
+    MatrixView(const QString &label, QWidget *parent = 0,
+               const QString name = 0, Qt::WindowFlags f = 0);
+    void setMatrix(future::Matrix *matrix);
 #endif
-  //! Destructor
-  virtual ~MatrixView();
-  bool isControlTabBarVisible() { return d_control_tabs->isVisible(); }
+    //! Destructor
+    virtual ~MatrixView();
+    bool isControlTabBarVisible() { return d_control_tabs->isVisible(); }
 
-  //! \name selection related functions
-  //@{
-  //! Return how many columns are selected
-  /**
-   * If full is true, this function only returns the number of fully
-   * selected columns.
-   */
-  int selectedColumnCount(bool full = false);
-  //! Returns true if column 'col' is selected; otherwise false
-  /**
-   * If full is true, this function only returns true if the whole
-   * column is selected.
-   */
-  bool isColumnSelected(int col, bool full = false);
-  //! Return how many rows are (at least partly) selected
-  /**
-   * If full is true, this function only returns the number of fully
-   * selected rows.
-   */
-  int selectedRowCount(bool full = false);
-  //! Returns true if row 'row' is selected; otherwise false
-  /**
-   * If full is true, this function only returns true if the whole
-   * row is selected.
-   */
-  bool isRowSelected(int row, bool full = false);
-  //! Return the index of the first selected column
-  /**
-   * If full is true, this function only looks for fully
-   * selected columns.
-   */
-  int firstSelectedColumn(bool full = false);
-  //! Return the index of the last selected column
-  /**
-   * If full is true, this function only looks for fully
-   * selected columns.
-   */
-  int lastSelectedColumn(bool full = false);
-  //! Return the index of the first selected row
-  /**
-   * If full is true, this function only looks for fully
-   * selected rows.
-   */
-  int firstSelectedRow(bool full = false);
-  //! Return the index of the last selected row
-  /**
-   * If full is true, this function only looks for fully
-   * selected rows.
-   */
-  int lastSelectedRow(bool full = false);
-  //! Return whether a cell is selected
-  bool isCellSelected(int row, int col);
-  //! Select a cell
-  void setCellSelected(int row, int col);
-  //! Select a range of cells
-  void setCellsSelected(int first_row, int first_col, int last_row,
-                        int last_col);
-  //! Determine the current cell (-1 if no cell is designated as the current)
-  void getCurrentCell(int* row, int* col);
-  //@}
+    //! \name selection related functions
+    //@{
+    //! Return how many columns are selected
+    /**
+     * If full is true, this function only returns the number of fully
+     * selected columns.
+     */
+    int selectedColumnCount(bool full = false);
+    //! Returns true if column 'col' is selected; otherwise false
+    /**
+     * If full is true, this function only returns true if the whole
+     * column is selected.
+     */
+    bool isColumnSelected(int col, bool full = false);
+    //! Return how many rows are (at least partly) selected
+    /**
+     * If full is true, this function only returns the number of fully
+     * selected rows.
+     */
+    int selectedRowCount(bool full = false);
+    //! Returns true if row 'row' is selected; otherwise false
+    /**
+     * If full is true, this function only returns true if the whole
+     * row is selected.
+     */
+    bool isRowSelected(int row, bool full = false);
+    //! Return the index of the first selected column
+    /**
+     * If full is true, this function only looks for fully
+     * selected columns.
+     */
+    int firstSelectedColumn(bool full = false);
+    //! Return the index of the last selected column
+    /**
+     * If full is true, this function only looks for fully
+     * selected columns.
+     */
+    int lastSelectedColumn(bool full = false);
+    //! Return the index of the first selected row
+    /**
+     * If full is true, this function only looks for fully
+     * selected rows.
+     */
+    int firstSelectedRow(bool full = false);
+    //! Return the index of the last selected row
+    /**
+     * If full is true, this function only looks for fully
+     * selected rows.
+     */
+    int lastSelectedRow(bool full = false);
+    //! Return whether a cell is selected
+    bool isCellSelected(int row, int col);
+    //! Select a cell
+    void setCellSelected(int row, int col);
+    //! Select a range of cells
+    void setCellsSelected(int first_row, int first_col, int last_row,
+                          int last_col);
+    //! Determine the current cell (-1 if no cell is designated as the current)
+    void getCurrentCell(int *row, int *col);
+    //@}
 
-  void setRowHeight(int row, int height);
-  void setColumnWidth(int col, int width);
-  int rowHeight(int row) const;
-  int columnWidth(int col) const;
-  void loadIcons();
+    void setRowHeight(int row, int height);
+    void setColumnWidth(int col, int width);
+    int rowHeight(int row) const;
+    int columnWidth(int col) const;
+    void loadIcons();
 
- public slots:
-  void rereadSectionSizes();
-  void goToCell(int row, int col);
-  void selectAll();
-  void toggleControlTabBar();
-  void showControlCoordinatesTab();
-  void showControlFormatTab();
-  void showControlFormulaTab();
-  void applyCoordinates();
-  void updateCoordinatesTab();
-  void updateFormulaTab();
+public slots:
+    void rereadSectionSizes();
+    void goToCell(int row, int col);
+    void selectAll();
+    void toggleControlTabBar();
+    void showControlCoordinatesTab();
+    void showControlFormatTab();
+    void showControlFormulaTab();
+    void applyCoordinates();
+    void updateCoordinatesTab();
+    void updateFormulaTab();
 #ifndef LEGACY_CODE_0_2_x
-  void applyFormula();
+    void applyFormula();
 #endif
-  void updateFormatTab();
-  void applyFormat();
-  void handleHorizontalSectionResized(int logicalIndex, int oldSize,
+    void updateFormatTab();
+    void applyFormat();
+    void handleHorizontalSectionResized(int logicalIndex, int oldSize,
+                                        int newSize);
+    void handleVerticalSectionResized(int logicalIndex, int oldSize,
                                       int newSize);
-  void handleVerticalSectionResized(int logicalIndex, int oldSize, int newSize);
 
- signals:
-  void controlTabBarStatusChanged(bool visible);
+signals:
+    void controlTabBarStatusChanged(bool visible);
 
- protected slots:
-  //! Advance current cell after [Return] or [Enter] was pressed
-  void advanceCell();
-  void updateTypeInfo();
+protected slots:
+    //! Advance current cell after [Return] or [Enter] was pressed
+    void advanceCell();
+    void updateTypeInfo();
 
- protected:
-  Ui::MatrixControlTabs ui;
-  //! The matrix view (first part of the UI)
-  MatrixViewWidget* d_view_widget;
-  //! Widget that contains the control tabs UI from #ui
-  QWidget* d_control_tabs;
-  //! Button to toogle the visibility of #d_tool_box
-  QToolButton* d_hide_button;
-  QHBoxLayout* d_main_layout;
-  QWidget *d_main_widget;
-  future::Matrix* d_matrix;
+protected:
+    Ui::MatrixControlTabs ui;
+    //! The matrix view (first part of the UI)
+    MatrixViewWidget *d_view_widget;
+    //! Widget that contains the control tabs UI from #ui
+    QWidget *d_control_tabs;
+    //! Button to toogle the visibility of #d_tool_box
+    QToolButton *d_hide_button;
+    QHBoxLayout *d_main_layout;
+    QWidget *d_main_widget;
+    future::Matrix *d_matrix;
 
-  //! Pointer to the current underlying model
-  MatrixModel* d_model;
+    //! Pointer to the current underlying model
+    MatrixModel *d_model;
 
-  virtual void changeEvent(QEvent* event);
-  virtual void resizeEvent(QResizeEvent*event);
-  void retranslateStrings();
+    virtual void changeEvent(QEvent *event);
+    virtual void resizeEvent(QResizeEvent *event);
+    void retranslateStrings();
 
-  bool eventFilter(QObject* watched, QEvent* event);
+    bool eventFilter(QObject *watched, QEvent *event);
 
-  //! Initialization
-  void init();
+    //! Initialization
+    void init();
 
- private:
-  void moveFloatingButton();
+private:
+    void moveFloatingButton();
 };
 
-#endif  // MATRIXVIEW_H
+#endif // MATRIXVIEW_H

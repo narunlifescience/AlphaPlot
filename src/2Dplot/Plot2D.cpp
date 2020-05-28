@@ -24,101 +24,110 @@ Plot2D::Plot2D(QWidget *parent)
       layernamebackground2d_("background"),
       layernamegrid2d_("grid"),
       layernameaxis2d_("axes"),
-      layernamelegend2d_("legend") {
-  setOpenGl(false);
-  setBackgroundColor(canvasBackground_);
-  setAutoAddPlottableToLegend(false);
-  plotLayout()->clear();
-  setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-  // set layer order
-  if (!layer(layernamebackground2d_))
-    addLayer(layernamebackground2d_, nullptr, LayerInsertMode::limBelow);
-  if (!layer(layernamegrid2d_))
-    addLayer(layernamegrid2d_, layer(layernamebackground2d_),
-             LayerInsertMode::limAbove);
-  if (!layer(layernameaxis2d_))
-    addLayer(layernameaxis2d_, layer(layernamegrid2d_),
-             LayerInsertMode::limAbove);
-  if (!layer(layernamelegend2d_))
-    addLayer(layernamelegend2d_, layer(layernameaxis2d_),
-             LayerInsertMode::limAbove);
-  // overlay layer not removed here
-  if (!removeLayer(layer("main"))) qDebug() << "unable to delete main layer";
+      layernamelegend2d_("legend")
+{
+    setOpenGl(false);
+    setBackgroundColor(canvasBackground_);
+    setAutoAddPlottableToLegend(false);
+    plotLayout()->clear();
+    setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    // set layer order
+    if (!layer(layernamebackground2d_))
+        addLayer(layernamebackground2d_, nullptr, LayerInsertMode::limBelow);
+    if (!layer(layernamegrid2d_))
+        addLayer(layernamegrid2d_, layer(layernamebackground2d_),
+                 LayerInsertMode::limAbove);
+    if (!layer(layernameaxis2d_))
+        addLayer(layernameaxis2d_, layer(layernamegrid2d_),
+                 LayerInsertMode::limAbove);
+    if (!layer(layernamelegend2d_))
+        addLayer(layernamelegend2d_, layer(layernameaxis2d_),
+                 LayerInsertMode::limAbove);
+    // overlay layer not removed here
+    if (!removeLayer(layer("main")))
+        qDebug() << "unable to delete main layer";
 }
 
-Plot2D::~Plot2D() {}
+Plot2D::~Plot2D() { }
 
-void Plot2D::setBackgroundColor(const QColor &color, const bool backpixmap) {
-  canvasBackground_ = color;
-  if (backpixmap) {
-    QPixmap pixmap(":pixmap/transparent-background.png");
-    QPainter paint(&pixmap);
-    QBrush pixmapbrush(canvasBackground_);
-    paint.setBrush(pixmapbrush);
-    paint.setPen(Qt::NoPen);
-    paint.drawRect(0, 0, pixmap.height(), pixmap.width());
-    QBrush b(pixmap);
-    setBackground(b);
-  } else {
-    QBrush b(canvasBackground_);
-    setBackground(b);
-  }
-  backgroundColorChange(canvasBackground_);
+void Plot2D::setBackgroundColor(const QColor &color, const bool backpixmap)
+{
+    canvasBackground_ = color;
+    if (backpixmap) {
+        QPixmap pixmap(":pixmap/transparent-background.png");
+        QPainter paint(&pixmap);
+        QBrush pixmapbrush(canvasBackground_);
+        paint.setBrush(pixmapbrush);
+        paint.setPen(Qt::NoPen);
+        paint.drawRect(0, 0, pixmap.height(), pixmap.width());
+        QBrush b(pixmap);
+        setBackground(b);
+    } else {
+        QBrush b(canvasBackground_);
+        setBackground(b);
+    }
+    backgroundColorChange(canvasBackground_);
 }
 
-QColor Plot2D::getBackgroundColor() const { return canvasBackground_; }
+QColor Plot2D::getBackgroundColor() const
+{
+    return canvasBackground_;
+}
 
 bool Plot2D::saveSvg(const QString &fileName, int width, int height,
                      QCP::ExportPen exportPen, const QString &svgTitle,
-                     const QString &svgDescription) {
-  bool success = false;
-  int newWidth;
-  int newHeight;
-  if (width == 0 || height == 0) {
-    newWidth = this->width();
-    newHeight = this->height();
-  } else {
-    newWidth = width;
-    newHeight = height;
-  }
+                     const QString &svgDescription)
+{
+    bool success = false;
+    int newWidth;
+    int newHeight;
+    if (width == 0 || height == 0) {
+        newWidth = this->width();
+        newHeight = this->height();
+    } else {
+        newWidth = width;
+        newHeight = height;
+    }
 
-  QSvgGenerator generator;
-  generator.setFileName(fileName);
-  generator.setSize(QSize(newWidth, newHeight));
-  generator.setViewBox(QRect(0, 0, newWidth, newHeight));
-  generator.setTitle(svgTitle.toUtf8());
-  generator.setDescription(svgDescription.toUtf8());
+    QSvgGenerator generator;
+    generator.setFileName(fileName);
+    generator.setSize(QSize(newWidth, newHeight));
+    generator.setViewBox(QRect(0, 0, newWidth, newHeight));
+    generator.setTitle(svgTitle.toUtf8());
+    generator.setDescription(svgDescription.toUtf8());
 
-  QCPPainter painter;
-  if (painter.begin(&generator)) {
-    painter.setMode(QCPPainter::pmVectorized);
-    painter.setMode(QCPPainter::pmNoCaching);
-    painter.setMode(QCPPainter::pmNonCosmetic, exportPen == QCP::epNoCosmetic);
-    painter.setWindow(mViewport);
-    mBackgroundBrush.setColor(getBackgroundColor());
-    if (mBackgroundBrush.style() != Qt::NoBrush &&
-        mBackgroundBrush.color() != Qt::white &&
-        mBackgroundBrush.color() != Qt::transparent &&
-        mBackgroundBrush.color().alpha() > 0)
-      painter.fillRect(viewport(), mBackgroundBrush);
+    QCPPainter painter;
+    if (painter.begin(&generator)) {
+        painter.setMode(QCPPainter::pmVectorized);
+        painter.setMode(QCPPainter::pmNoCaching);
+        painter.setMode(QCPPainter::pmNonCosmetic,
+                        exportPen == QCP::epNoCosmetic);
+        painter.setWindow(mViewport);
+        mBackgroundBrush.setColor(getBackgroundColor());
+        if (mBackgroundBrush.style() != Qt::NoBrush
+            && mBackgroundBrush.color() != Qt::white
+            && mBackgroundBrush.color() != Qt::transparent
+            && mBackgroundBrush.color().alpha() > 0)
+            painter.fillRect(viewport(), mBackgroundBrush);
 
-    toPainter(&painter, newWidth, newHeight);
-    painter.end();
-    success = true;
-  }
-  return success;
+        toPainter(&painter, newWidth, newHeight);
+        painter.end();
+        success = true;
+    }
+    return success;
 }
 
 // PS not supported from QT 5 onwards
 bool Plot2D::savePs(const QString &fileName, int width, int height,
                     QCP::ExportPen exportPen, const QString &psCreator,
-                    const QString &psTitle) {
-  Q_UNUSED(fileName)
-  Q_UNUSED(width)
-  Q_UNUSED(exportPen)
-  Q_UNUSED(height)
-  Q_UNUSED(&psCreator)
-  Q_UNUSED(psTitle)
-  qDebug() << "Post Script format(s) not supported in QT5 anymore";
-  return false;
+                    const QString &psTitle)
+{
+    Q_UNUSED(fileName)
+    Q_UNUSED(width)
+    Q_UNUSED(exportPen)
+    Q_UNUSED(height)
+    Q_UNUSED(&psCreator)
+    Q_UNUSED(psTitle)
+    qDebug() << "Post Script format(s) not supported in QT5 anymore";
+    return false;
 }

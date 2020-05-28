@@ -28,41 +28,43 @@ class Ui_ConsoleWidget;
 class QStandardItem;
 class QStandardItemModel;
 
-class ConsoleWidget : public QDockWidget {
-  Q_OBJECT
+class ConsoleWidget : public QDockWidget
+{
+    Q_OBJECT
 
- public:
-  explicit ConsoleWidget(QWidget *parent = nullptr);
-  ~ConsoleWidget();
-  QScriptEngine *engine;
-  QScriptEngineDebugger *debugger;
-  QWidget *normalTitleWidget;
-  QWidget *hiddenTitleWidget;
-  void printError(QString err);
-  void setSplitterPosition(QByteArray state);
-  QByteArray getSplitterPosition();
+public:
+    explicit ConsoleWidget(QWidget *parent = nullptr);
+    ~ConsoleWidget();
+    QScriptEngine *engine;
+    QScriptEngineDebugger *debugger;
+    QWidget *normalTitleWidget;
+    QWidget *hiddenTitleWidget;
+    void printError(QString err);
+    void setSplitterPosition(QByteArray state);
+    QByteArray getSplitterPosition();
 
- signals:
-  void printResult(QString);
+signals:
+    void printResult(QString);
 
- private slots:
-  void evaluate(QString line);
+private slots:
+    void evaluate(QString line);
 
- private:
-  Ui_ConsoleWidget *ui_;
-  QString snippet;
-  QStandardItemModel *scriptGlobalObjectsModel;
+private:
+    Ui_ConsoleWidget *ui_;
+    QString snippet;
+    QStandardItemModel *scriptGlobalObjectsModel;
 
-  void addScriptGlobalsToTableView();
-  void appendRowToTableView(QPair<QString, QString> rowPair);
+    void addScriptGlobalsToTableView();
+    void appendRowToTableView(QPair<QString, QString> rowPair);
 };
 
-class Delegate : public QItemDelegate {
-  Q_OBJECT
- public:
-  Delegate(QWidget *parent = 0) : QItemDelegate(parent) {}
-  void paint(QPainter *painter, const QStyleOptionViewItem &option,
-             const QModelIndex &index) const;
+class Delegate : public QItemDelegate
+{
+    Q_OBJECT
+public:
+    Delegate(QWidget *parent = 0) : QItemDelegate(parent) { }
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
 };
 
-#endif  // CONSOLEWIDGET_H
+#endif // CONSOLEWIDGET_H

@@ -49,47 +49,48 @@ class Matrix;
    calls
         in the public API of Matrix.
 */
-class MatrixModel : public QAbstractItemModel {
-  Q_OBJECT
+class MatrixModel : public QAbstractItemModel
+{
+    Q_OBJECT
 
- public:
-  //! Constructor
-  explicit MatrixModel(future::Matrix *matrix);
-  //! Destructor
-  ~MatrixModel();
+public:
+    //! Constructor
+    explicit MatrixModel(future::Matrix *matrix);
+    //! Destructor
+    ~MatrixModel();
 
-  //! \name Overloaded functions from QAbstractItemModel
-  //@{
-  Qt::ItemFlags flags(const QModelIndex &index) const;
-  QVariant data(const QModelIndex &index, int role) const;
-  QVariant headerData(int section, Qt::Orientation orientation,
-                      int role = Qt::DisplayRole) const;
-  int rowCount(const QModelIndex &parent = QModelIndex()) const;
-  int columnCount(const QModelIndex &parent = QModelIndex()) const;
-  bool setData(const QModelIndex &index, const QVariant &value, int role);
-  QModelIndex index(int row, int column,
-                    const QModelIndex &parent = QModelIndex()) const;
-  QModelIndex parent(const QModelIndex &child) const;
-  //@}
+    //! \name Overloaded functions from QAbstractItemModel
+    //@{
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    QModelIndex index(int row, int column,
+                      const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    //@}
 
- private slots:
-  //! \name Handlers for events from Matrix
-  //@{
-  void handleColumnsAboutToBeInserted(int before, int count);
-  void handleColumnsInserted(int first, int count);
-  void handleColumnsAboutToBeRemoved(int first, int count);
-  void handleColumnsRemoved(int first, int count);
-  void handleRowsAboutToBeInserted(int before, int count);
-  void handleRowsInserted(int first, int count);
-  void handleRowsAboutToBeRemoved(int first, int count);
-  void handleRowsRemoved(int first, int count);
-  void handleDataChanged(int top, int left, int bottom, int right);
-  void handleCoordinatesChanged();
-  void handleFormatChanged();
-  //@}
+private slots:
+    //! \name Handlers for events from Matrix
+    //@{
+    void handleColumnsAboutToBeInserted(int before, int count);
+    void handleColumnsInserted(int first, int count);
+    void handleColumnsAboutToBeRemoved(int first, int count);
+    void handleColumnsRemoved(int first, int count);
+    void handleRowsAboutToBeInserted(int before, int count);
+    void handleRowsInserted(int first, int count);
+    void handleRowsAboutToBeRemoved(int first, int count);
+    void handleRowsRemoved(int first, int count);
+    void handleDataChanged(int top, int left, int bottom, int right);
+    void handleCoordinatesChanged();
+    void handleFormatChanged();
+    //@}
 
- private:
-  future::Matrix *d_matrix;
+private:
+    future::Matrix *d_matrix;
 };
 
-#endif  // MATRIXMODEL_H
+#endif // MATRIXMODEL_H

@@ -37,25 +37,30 @@
 
 //! Conversion filter QDateTime -> double, translating dates into days of the
 //! week (Monday -> 1).
-class DayOfWeek2DoubleFilter : public AbstractSimpleFilter {
-  Q_OBJECT
+class DayOfWeek2DoubleFilter : public AbstractSimpleFilter
+{
+    Q_OBJECT
 
- public:
-  virtual double valueAt(int row) const {
-    if (!d_inputs.value(0)) return 0;
-    return double(d_inputs.value(0)->dateAt(row).dayOfWeek());
-  }
+public:
+    virtual double valueAt(int row) const
+    {
+        if (!d_inputs.value(0))
+            return 0;
+        return double(d_inputs.value(0)->dateAt(row).dayOfWeek());
+    }
 
-  //! Return the data type of the column
-  virtual AlphaPlot::ColumnDataType dataType() const {
-    return AlphaPlot::TypeDouble;
-  }
+    //! Return the data type of the column
+    virtual AlphaPlot::ColumnDataType dataType() const
+    {
+        return AlphaPlot::TypeDouble;
+    }
 
- protected:
-  //! Using typed ports: only date-time inputs are accepted.
-  virtual bool inputAcceptable(int, const AbstractColumn *source) {
-    return source->dataType() == AlphaPlot::TypeDateTime;
-  }
+protected:
+    //! Using typed ports: only date-time inputs are accepted.
+    virtual bool inputAcceptable(int, const AbstractColumn *source)
+    {
+        return source->dataType() == AlphaPlot::TypeDateTime;
+    }
 };
 
-#endif  // DAY_OF_WEEK2DOUBLE_FILTER_H
+#endif // DAY_OF_WEEK2DOUBLE_FILTER_H

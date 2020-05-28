@@ -32,31 +32,32 @@
 #include "Filter.h"
 
 class AxisRect2D;
-class Interpolation : public Filter {
-  Q_OBJECT
+class Interpolation : public Filter
+{
+    Q_OBJECT
 
- public:
-  enum InterpolationMethod { Linear, Cubic, Akima };
+public:
+    enum InterpolationMethod { Linear, Cubic, Akima };
 
-  Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
-                PlotData::AssociatedData *associateddata, int m = 0);
-  Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
-                PlotData::AssociatedData *associateddata, double start,
-                double end, int m = 0);
+    Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
+                  PlotData::AssociatedData *associateddata, int m = 0);
+    Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
+                  PlotData::AssociatedData *associateddata, double start,
+                  double end, int m = 0);
 
-  int method() { return d_method; }
-  void setMethod(int m);
-  void setMethod(InterpolationMethod m) { setMethod(static_cast<int>(m)); }
+    int method() { return d_method; }
+    void setMethod(int m);
+    void setMethod(InterpolationMethod m) { setMethod(static_cast<int>(m)); }
 
- protected:
-  virtual bool isDataAcceptable();
+protected:
+    virtual bool isDataAcceptable();
 
- private:
-  void init(int m);
-  void calculateOutputData(double *x, double *y);
+private:
+    void init(int m);
+    void calculateOutputData(double *x, double *y);
 
-  //! the interpolation method
-  int d_method;
+    //! the interpolation method
+    int d_method;
 };
 
-#endif  // INTERPOLATION_H
+#endif // INTERPOLATION_H

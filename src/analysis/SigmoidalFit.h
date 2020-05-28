@@ -31,21 +31,22 @@
 
 #include "Fit.h"
 
-class SigmoidalFit : public Fit {
-  Q_OBJECT
+class SigmoidalFit : public Fit
+{
+    Q_OBJECT
 
- public:
-  SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect);
-  SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-               PlotData::AssociatedData *associateddata);
-  SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-               PlotData::AssociatedData *associateddata,
-               double start, double end);
-  void guessInitialValues();
+public:
+    SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect);
+    SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                 PlotData::AssociatedData *associateddata);
+    SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect,
+                 PlotData::AssociatedData *associateddata, double start,
+                 double end);
+    void guessInitialValues();
 
- private:
-  void init();
-  void calculateFitCurveData(double *par, double *X, double *Y);
+private:
+    void init();
+    void calculateFitCurveData(double *par, double *X, double *Y);
 };
 
-#endif  // SIGMOIDALFIT_H
+#endif // SIGMOIDALFIT_H

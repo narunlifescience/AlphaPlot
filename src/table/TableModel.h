@@ -56,68 +56,71 @@ class Table;
    using the
         public API of column.
   */
-class TableModel : public QAbstractItemModel {
-  Q_OBJECT
+class TableModel : public QAbstractItemModel
+{
+    Q_OBJECT
 
- public:
-  //! Constructor
-  explicit TableModel(future::Table *table);
-  //! Destructor
-  ~TableModel();
+public:
+    //! Constructor
+    explicit TableModel(future::Table *table);
+    //! Destructor
+    ~TableModel();
 
-  //! Custom data roles used in addition to Qt::ItemDataRole
-  enum CustomDataRole {
-    MaskingRole = Qt::UserRole,      //!< bool determining if the cell is masked
-    FormulaRole = Qt::UserRole + 1,  //!< the cells formula
-    CommentRole = Qt::UserRole + 2,  //!< the column comment (for headerData())
-  };
+    //! Custom data roles used in addition to Qt::ItemDataRole
+    enum CustomDataRole {
+        MaskingRole = Qt::UserRole, //!< bool determining if the cell is masked
+        FormulaRole = Qt::UserRole + 1, //!< the cells formula
+        CommentRole =
+                Qt::UserRole + 2, //!< the column comment (for headerData())
+    };
 
-  //! \name Overloaded functions from QAbstractItemModel
-  //@{
-  Qt::ItemFlags flags(const QModelIndex &index) const;
-  QVariant data(const QModelIndex &index, int role) const;
-  QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-  int rowCount(const QModelIndex &parent = QModelIndex()) const;
-  int columnCount(const QModelIndex &parent = QModelIndex()) const;
-  bool setData(const QModelIndex &index, const QVariant &value, int role);
-  QModelIndex index(int row, int column,
-                    const QModelIndex &parent = QModelIndex()) const;
-  QModelIndex parent(const QModelIndex &child) const;
-  //@}
-  QColor headerDataColorCode(int logicalIndex) const;
-
-#ifdef LEGACY_CODE_0_2_x
-  bool isReadOnly() const { return d_read_only; }
-  void setReadOnly(bool read_only) { d_read_only = read_only; }
-#endif
-
-  Column *column(int index);  // this is needed for the comment header view
-
-  void activateFormulaMode(bool on) { d_formula_mode = on; }
-  bool formulaModeActive() const { return d_formula_mode; }
-
- private slots:
-  //! \name Handlers for events from Table
-  //@{
-  void handleColumnsAboutToBeInserted(int, QList<Column *>);
-  void handleColumnsInserted(int first, int count);
-  void handleColumnsAboutToBeRemoved(int first, int count);
-  void handleColumnsRemoved(int first, int count);
-  void handleRowsAboutToBeInserted(int before, int count);
-  void handleRowsInserted(int first, int count);
-  void handleRowsAboutToBeRemoved(int first, int count);
-  void handleRowsRemoved(int first, int count);
-  void handleDataChanged(int top, int left, int bottom, int right);
-  //@}
-
- private:
-  future::Table *d_table;
+    //! \name Overloaded functions from QAbstractItemModel
+    //@{
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    QModelIndex index(int row, int column,
+                      const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    //@}
+    QColor headerDataColorCode(int logicalIndex) const;
 
 #ifdef LEGACY_CODE_0_2_x
-  bool d_read_only;
+    bool isReadOnly() const { return d_read_only; }
+    void setReadOnly(bool read_only) { d_read_only = read_only; }
 #endif
-  //! Toggle flag for formula mode
-  bool d_formula_mode;
+
+    Column *column(int index); // this is needed for the comment header view
+
+    void activateFormulaMode(bool on) { d_formula_mode = on; }
+    bool formulaModeActive() const { return d_formula_mode; }
+
+private slots:
+    //! \name Handlers for events from Table
+    //@{
+    void handleColumnsAboutToBeInserted(int, QList<Column *>);
+    void handleColumnsInserted(int first, int count);
+    void handleColumnsAboutToBeRemoved(int first, int count);
+    void handleColumnsRemoved(int first, int count);
+    void handleRowsAboutToBeInserted(int before, int count);
+    void handleRowsInserted(int first, int count);
+    void handleRowsAboutToBeRemoved(int first, int count);
+    void handleRowsRemoved(int first, int count);
+    void handleDataChanged(int top, int left, int bottom, int right);
+    //@}
+
+private:
+    future::Table *d_table;
+
+#ifdef LEGACY_CODE_0_2_x
+    bool d_read_only;
+#endif
+    //! Toggle flag for formula mode
+    bool d_formula_mode;
 };
 
-#endif  // TABLEMODEL_H
+#endif // TABLEMODEL_H

@@ -21,37 +21,38 @@
 #include "Axis2D.h"
 #include "Grid2D.h"
 
-class Plot2D : public QCustomPlot {
-  Q_OBJECT
- public:
-  explicit Plot2D(QWidget *parent = nullptr);
-  ~Plot2D();
+class Plot2D : public QCustomPlot
+{
+    Q_OBJECT
+public:
+    explicit Plot2D(QWidget *parent = nullptr);
+    ~Plot2D();
 
-  void setBackgroundColor(const QColor &color, const bool backpixmap = true);
-  QColor getBackgroundColor() const;
-  bool saveSvg(const QString &fileName, int width = 0, int height = 0,
-               QCP::ExportPen exportPen = QCP::epAllowCosmetic,
-               const QString &svgTitle = QString(),
-               const QString &svgDescription = QString());
-  bool savePs(const QString &fileName, int width = 0, int height = 0,
-              QCP::ExportPen exportPen = QCP::epAllowCosmetic,
-              const QString &psCreator = QString(),
-              const QString &psTitle = QString());
-  QString getGrid2DLayerName() const { return layernamegrid2d_; }
-  QString getAxis2DLayerName() const { return layernameaxis2d_; }
-  QString getLegend2DLayerName() const { return layernamelegend2d_; }
-  QString getBackground2DLayerName() const { return layernamebackground2d_; }
+    void setBackgroundColor(const QColor &color, const bool backpixmap = true);
+    QColor getBackgroundColor() const;
+    bool saveSvg(const QString &fileName, int width = 0, int height = 0,
+                 QCP::ExportPen exportPen = QCP::epAllowCosmetic,
+                 const QString &svgTitle = QString(),
+                 const QString &svgDescription = QString());
+    bool savePs(const QString &fileName, int width = 0, int height = 0,
+                QCP::ExportPen exportPen = QCP::epAllowCosmetic,
+                const QString &psCreator = QString(),
+                const QString &psTitle = QString());
+    QString getGrid2DLayerName() const { return layernamegrid2d_; }
+    QString getAxis2DLayerName() const { return layernameaxis2d_; }
+    QString getLegend2DLayerName() const { return layernamelegend2d_; }
+    QString getBackground2DLayerName() const { return layernamebackground2d_; }
 
- signals:
-  void backgroundColorChange(QColor color);
+signals:
+    void backgroundColorChange(QColor color);
 
- private:
-  QColor canvasBackground_;
-  // Layers
-  QString layernamebackground2d_;
-  QString layernamegrid2d_;
-  QString layernameaxis2d_;
-  QString layernamelegend2d_;
+private:
+    QColor canvasBackground_;
+    // Layers
+    QString layernamebackground2d_;
+    QString layernamegrid2d_;
+    QString layernameaxis2d_;
+    QString layernamelegend2d_;
 };
 
-#endif  // PLOT2D_H
+#endif // PLOT2D_H

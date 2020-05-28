@@ -84,30 +84,31 @@ class QKeySequence;
  * application
  * startup, create all actions for it, and immediately delete it again.
  */
-class ActionManager : public QObject {
-  Q_OBJECT
+class ActionManager : public QObject
+{
+    Q_OBJECT
 
- public:
-  ActionManager();
-  ~ActionManager();
+public:
+    ActionManager();
+    ~ActionManager();
 
-  void addAction(QAction* action, const QString& internal_name);
-  QList<QKeySequence> shortcuts(const QString& internal_name) const;
-  void setShortcuts(const QString& internal_name,
-                    const QList<QKeySequence>& sequences);
-  QString actionText(const QString& internal_name) const;
-  QList<QString> internalNames() const;
-  CLASS_ACCESSOR(QString, d_title, title, Title)
+    void addAction(QAction *action, const QString &internal_name);
+    QList<QKeySequence> shortcuts(const QString &internal_name) const;
+    void setShortcuts(const QString &internal_name,
+                      const QList<QKeySequence> &sequences);
+    QString actionText(const QString &internal_name) const;
+    QList<QString> internalNames() const;
+    CLASS_ACCESSOR(QString, d_title, title, Title)
 
- public slots:
-  void removeAction(QAction* action);
-  void removeAction(QObject* action);
+public slots:
+    void removeAction(QAction *action);
+    void removeAction(QObject *action);
 
- private:
-  QMap<QString, QList<QAction*>*> d_action_registry;
-  QMap<QString, QList<QKeySequence> > d_action_shortcuts;
-  QMap<QString, QString> d_action_texts;
-  QString d_title;
+private:
+    QMap<QString, QList<QAction *> *> d_action_registry;
+    QMap<QString, QList<QKeySequence>> d_action_shortcuts;
+    QMap<QString, QString> d_action_texts;
+    QString d_title;
 };
 
-#endif  // ACTIONMANAGER_H
+#endif // ACTIONMANAGER_H

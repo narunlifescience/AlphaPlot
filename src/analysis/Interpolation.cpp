@@ -36,105 +36,113 @@
 
 Interpolation::Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
                              PlotData::AssociatedData *associateddata, int m)
-    : Filter(parent, axisrect) {
-  init(m);
-  setDataFromCurve(associateddata);
+    : Filter(parent, axisrect)
+{
+    init(m);
+    setDataFromCurve(associateddata);
 }
 
 Interpolation::Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
                              PlotData::AssociatedData *associateddata,
                              double start, double end, int m)
-    : Filter(parent, axisrect) {
-  init(m);
-  setDataFromCurve(associateddata, start, end);
+    : Filter(parent, axisrect)
+{
+    init(m);
+    setDataFromCurve(associateddata, start, end);
 }
 
-void Interpolation::init(int m) {
-  if (m < 0 || m > 2) {
-    QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
-                          tr("Unknown interpolation method. Valid values are: "
-                             "0 - Linear, 1 - Cubic, 2 - Akima."));
-    d_init_err = true;
-    return;
-  }
-  d_method = m;
-  switch (d_method) {
+void Interpolation::init(int m)
+{
+    if (m < 0 || m > 2) {
+        QMessageBox::critical(
+                app_, tr("AlphaPlot") + " - " + tr("Error"),
+                tr("Unknown interpolation method. Valid values are: "
+                   "0 - Linear, 1 - Cubic, 2 - Akima."));
+        d_init_err = true;
+        return;
+    }
+    d_method = m;
+    switch (d_method) {
     case 0:
-      setObjectName(tr("Linear") + tr("Int"));
-      d_explanation = tr("Linear") + " " + tr("Interpolation");
-      break;
+        setObjectName(tr("Linear") + tr("Int"));
+        d_explanation = tr("Linear") + " " + tr("Interpolation");
+        break;
     case 1:
-      setObjectName(tr("Cubic") + tr("Int"));
-      d_explanation = tr("Cubic") + " " + tr("Interpolation");
-      break;
+        setObjectName(tr("Cubic") + tr("Int"));
+        d_explanation = tr("Cubic") + " " + tr("Interpolation");
+        break;
     case 2:
-      setObjectName(tr("Akima") + tr("Int"));
-      d_explanation = tr("Akima") + " " + tr("Interpolation");
-      break;
-  }
-  d_sort_data = true;
-  d_min_points = d_method + 3;
+        setObjectName(tr("Akima") + tr("Int"));
+        d_explanation = tr("Akima") + " " + tr("Interpolation");
+        break;
+    }
+    d_sort_data = true;
+    d_min_points = d_method + 3;
 }
 
-void Interpolation::setMethod(int m) {
-  if (m < 0 || m > 2) {
-    QMessageBox::critical(app_, tr("Error"),
-                          tr("Unknown interpolation method, valid values are: "
-                             "0 - Linear, 1 - Cubic, 2 - Akima."));
-    d_init_err = true;
-    return;
-  }
-  int min_points = m + 3;
-  if (d_n < min_points) {
-    QMessageBox::critical(
-        app_, tr("AlphaPlot") + " - " + tr("Error"),
-        tr("You need at least %1 points in order to perform this operation!")
-            .arg(min_points));
-    d_init_err = true;
-    return;
-  }
-  d_method = m;
-  d_min_points = min_points;
+void Interpolation::setMethod(int m)
+{
+    if (m < 0 || m > 2) {
+        QMessageBox::critical(
+                app_, tr("Error"),
+                tr("Unknown interpolation method, valid values are: "
+                   "0 - Linear, 1 - Cubic, 2 - Akima."));
+        d_init_err = true;
+        return;
+    }
+    int min_points = m + 3;
+    if (d_n < min_points) {
+        QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
+                              tr("You need at least %1 points in order to "
+                                 "perform this operation!")
+                                      .arg(min_points));
+        d_init_err = true;
+        return;
+    }
+    d_method = m;
+    d_min_points = min_points;
 }
 
-void Interpolation::calculateOutputData(double *x, double *y) {
-  gsl_interp_accel *acc = gsl_interp_accel_alloc();
-  const gsl_interp_type *method = nullptr;
-  switch (d_method) {
+void Interpolation::calculateOutputData(double *x, double *y)
+{
+    gsl_interp_accel *acc = gsl_interp_accel_alloc();
+    const gsl_interp_type *method = nullptr;
+    switch (d_method) {
     case 0:
-      method = gsl_interp_linear;
-      break;
+        method = gsl_interp_linear;
+        break;
     case 1:
-      method = gsl_interp_cspline;
-      break;
+        method = gsl_interp_cspline;
+        break;
     case 2:
-      method = gsl_interp_akima;
-      break;
-  }
-
-  gsl_spline *interp = gsl_spline_alloc(method, static_cast<size_t>(d_n));
-  gsl_spline_init(interp, d_x, d_y, static_cast<size_t>(d_n));
-
-  double step = (d_to - d_from) / static_cast<double>(d_points - 1);
-  for (int j = 0; j < d_points; j++) {
-    x[j] = d_from + j * step;
-    y[j] = gsl_spline_eval(interp, x[j], acc);
-  }
-
-  gsl_spline_free(interp);
-  gsl_interp_accel_free(acc);
-}
-
-bool Interpolation::isDataAcceptable() {
-  // GSL interpolation routines fail with division by zero on such data
-  for (int i = 1; i < d_n; i++)
-    if (d_x[i - 1] == d_x[i]) {
-      QMessageBox::critical(
-          app_, tr("AlphaPlot") + " - " + tr("Error"),
-          tr("Several data points have the same x value causing divisions by "
-             "zero, operation aborted!"));
-      return false;
+        method = gsl_interp_akima;
+        break;
     }
 
-  return Filter::isDataAcceptable();
+    gsl_spline *interp = gsl_spline_alloc(method, static_cast<size_t>(d_n));
+    gsl_spline_init(interp, d_x, d_y, static_cast<size_t>(d_n));
+
+    double step = (d_to - d_from) / static_cast<double>(d_points - 1);
+    for (int j = 0; j < d_points; j++) {
+        x[j] = d_from + j * step;
+        y[j] = gsl_spline_eval(interp, x[j], acc);
+    }
+
+    gsl_spline_free(interp);
+    gsl_interp_accel_free(acc);
+}
+
+bool Interpolation::isDataAcceptable()
+{
+    // GSL interpolation routines fail with division by zero on such data
+    for (int i = 1; i < d_n; i++)
+        if (d_x[i - 1] == d_x[i]) {
+            QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
+                                  tr("Several data points have the same x "
+                                     "value causing divisions by "
+                                     "zero, operation aborted!"));
+            return false;
+        }
+
+    return Filter::isDataAcceptable();
 }

@@ -39,27 +39,33 @@
 #include <QXmlStreamWriter>
 
 //! Conversion filter QDateTime -> double (using Julian day).
-class DateTime2DoubleFilter : public AbstractSimpleFilter {
-  Q_OBJECT
+class DateTime2DoubleFilter : public AbstractSimpleFilter
+{
+    Q_OBJECT
 
- public:
-  virtual double valueAt(int row) const {
-    if (!d_inputs.value(0)) return 0;
-    QDateTime input_value = d_inputs.value(0)->dateTimeAt(row);
-    return double(input_value.date().toJulianDay()) +
-           double(-input_value.time().msecsTo(QTime(12, 0, 0, 0))) / 86400000.0;
-  }
+public:
+    virtual double valueAt(int row) const
+    {
+        if (!d_inputs.value(0))
+            return 0;
+        QDateTime input_value = d_inputs.value(0)->dateTimeAt(row);
+        return double(input_value.date().toJulianDay())
+                + double(-input_value.time().msecsTo(QTime(12, 0, 0, 0)))
+                / 86400000.0;
+    }
 
-  //! Return the data type of the column
-  virtual AlphaPlot::ColumnDataType dataType() const {
-    return AlphaPlot::TypeDouble;
-  }
+    //! Return the data type of the column
+    virtual AlphaPlot::ColumnDataType dataType() const
+    {
+        return AlphaPlot::TypeDouble;
+    }
 
- protected:
-  //! Using typed ports: only DateTime inputs are accepted.
-  virtual bool inputAcceptable(int, const AbstractColumn *source) {
-    return source->dataType() == AlphaPlot::TypeDateTime;
-  }
+protected:
+    //! Using typed ports: only DateTime inputs are accepted.
+    virtual bool inputAcceptable(int, const AbstractColumn *source)
+    {
+        return source->dataType() == AlphaPlot::TypeDateTime;
+    }
 };
 
-#endif  // DATE_TIME2DOUBLE_FILTER_H
+#endif // DATE_TIME2DOUBLE_FILTER_H

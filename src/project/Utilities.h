@@ -20,20 +20,21 @@
 #include <QImage>
 #include <QString>
 
-class Utilities {
- public:
-  enum class ColorPal { Light, Dark };
-  static int getWordSizeApp();
-  static QString getOperatingSystem();
-  static int getWordSizeOfOS();
-  static QColor getRandColorGoldenRatio(ColorPal colpal);
-  static QString splitstring(QString string);
-  static QString joinstring(QString string);
-  static QImage convertToGrayScale(const QImage &srcImage);
-  static QImage convertToGrayScaleFast(const QImage &srcImage);
+class Utilities
+{
+public:
+    enum class ColorPal { Light, Dark };
+    static int getWordSizeApp();
+    static QString getOperatingSystem();
+    static int getWordSizeOfOS();
+    static QColor getRandColorGoldenRatio(ColorPal colpal);
+    static QString splitstring(QString string);
+    static QString joinstring(QString string);
+    static QImage convertToGrayScale(const QImage &srcImage);
+    static QImage convertToGrayScaleFast(const QImage &srcImage);
 
- private:
-  Utilities() {}
-  static double rgbRandomSeed_;
-  static int rgbCounter_;
+private:
+    Utilities() { }
+    static double rgbRandomSeed_;
+    static int rgbCounter_;
 };
