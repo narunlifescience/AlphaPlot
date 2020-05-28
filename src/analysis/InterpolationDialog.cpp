@@ -166,7 +166,7 @@ void InterpolationDialog::setAxisRect(AxisRect2D *axisrect) {
   axisrect_ = axisrect;
   boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
   activateCurve(boxName->currentText());
-};
+}
 
 void InterpolationDialog::activateCurve(const QString &curveName) {
   if (!axisrect_) return;
@@ -187,7 +187,7 @@ void InterpolationDialog::activateCurve(const QString &curveName) {
       QString::number(std::min(xmin_, xmax_), 'g', app_->d_decimal_digits));
   boxEnd->setText(
       QString::number(std::max(xmin_, xmax_), 'g', app_->d_decimal_digits));
-};
+}
 
 void InterpolationDialog::changeDataRange() {
   double start = xmin_;

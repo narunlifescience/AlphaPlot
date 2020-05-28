@@ -246,7 +246,7 @@ void IntDialog::activateCurve(const QString &curveName) {
       QString::number(std::min(xmin_, xmax_), 'g', app_->d_decimal_digits));
   boxEnd->setText(
       QString::number(std::max(xmin_, xmax_), 'g', app_->d_decimal_digits));
-};
+}
 
 void IntDialog::changeDataRange() {
   double start = xmin_;

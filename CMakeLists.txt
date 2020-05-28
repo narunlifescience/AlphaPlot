@@ -2,9 +2,13 @@ cmake_minimum_required( VERSION 3.16 )
 
 project( AlphaPlot CXX C )
 
-set( CMAKE_CXX_STANDARD 11)
+set( CMAKE_CXX_STANDARD 17)
 set( CMAKE_CXX_STANDARD_REQUIRED TRUE )
 set( CMAKE_CXX_EXTENSIONS OFF )
+
+set( CMAKE_C_STANDARD 11)
+set( CMAKE_C_STANDARD_REQUIRED TRUE )
+set( CMAKE_C_EXTENSIONS OFF )
 
 find_package( Qt5
   COMPONENTS
@@ -28,8 +32,8 @@ if( MSVC )
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W3" )
   add_compile_options( "/MP" )
 else()
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -Wall" )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -Wall -pedantic" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic" )
 endif()
 
 # Searching for updates

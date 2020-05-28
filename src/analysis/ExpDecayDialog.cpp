@@ -143,7 +143,7 @@ void ExpDecayDialog::setAxisRect(AxisRect2D *axisrect) {
 
   boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
   activateCurve(boxName->currentText());
-};
+}
 
 void ExpDecayDialog::activateCurve(const QString &curveName) {
   if (!axisrect_) return;
@@ -177,7 +177,7 @@ void ExpDecayDialog::activateCurve(const QString &curveName) {
   boxYOffset->setText(QString::number(ymin, 'g', precision));
   if (slopes < 2)
     boxAmplitude->setText(QString::number(ymax - ymin, 'g', precision));
-};
+}
 
 void ExpDecayDialog::changeDataRange() {
   double start = xmin_;

@@ -154,8 +154,8 @@ void ColorBox::init() {
 }
 
 void ColorBox::setColor(const QColor& c) {
-  const QColor* ite = std::find(colors, colors + sizeof(colors), c);
-  if (ite == colors + sizeof(colors))
+  const QColor* ite = std::find(colors, colors + std::size(colors), c);
+  if (ite == colors + std::size(colors))
     this->setCurrentIndex(0);  // default color is black.
   else
     this->setCurrentIndex(ite - colors);
@@ -170,7 +170,7 @@ QColor ColorBox::color() const {
 }
 
 int ColorBox::colorIndex(const QColor& c) {
-  const QColor* ite = std::find(colors, colors + sizeof(colors), c);
+  const QColor* ite = std::find(colors, colors + std::size(colors), c);
   return (ite - colors);
 }
 

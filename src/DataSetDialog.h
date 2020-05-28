@@ -67,7 +67,7 @@ class DataSetDialog : public QDialog {
  private:
   QString operation;
   QString windowTitle;
-  AxisRect2D* axisrect_;;
+  AxisRect2D* axisrect_;
 };
 
 #endif  // DATASETDIALOG_H

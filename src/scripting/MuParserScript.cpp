@@ -811,7 +811,7 @@ QVariant MuParserScript::eval() {
     // see documentation of s_currentInstance for explanation
     s_currentInstance = this;
     return m_parser.Eval();
-  } catch (EmptySourceError *e) {
+  } catch (EmptySourceError*) {
     // formula tried to access a table cell marked as invalid
     return "";
   } catch (mu::ParserError &e) {

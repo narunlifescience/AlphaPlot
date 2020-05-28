@@ -517,7 +517,7 @@ void FitDialog::setAxisRect(AxisRect2D *axisrect) {
     boxCurve->setCurrentIndex(index);
   }
   activateCurve(boxCurve->currentText());
-};
+}
 
 void FitDialog::activateCurve(const QString &curveName) {
   if (!axisrect_) return;
@@ -538,7 +538,7 @@ void FitDialog::activateCurve(const QString &curveName) {
   double end = xmax_;
   boxFrom->setText(QLocale().toString(std::min(start, end), 'g', 15));
   boxTo->setText(QLocale().toString(std::max(start, end), 'g', 15));
-};
+}
 
 void FitDialog::saveUserFunction() {
   if (editBox->toPlainText().isEmpty()) {
