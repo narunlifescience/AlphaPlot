@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
+      with:
+        modules: 'qtdatavis3d qtopengl qtnetwork qtsvg qtxml qtscript qtscripttools qtprintsupport'
       
     - name: clone repository
       uses: actions/checkout@v2
