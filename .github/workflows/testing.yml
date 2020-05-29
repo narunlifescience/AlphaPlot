@@ -13,7 +13,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
-        modules: 'qtdatavis3d qtopengl qtnetwork qtsvg qtxml qtscript qtscripttools qtprintsupport'
+        modules: 'qtcore qtgui qtwidgets qtopengl qtnetwork qtsvg qtxml qtscript qtscripttools qtprintsupport qtdatavisualization qtxmlpatterns'
       
     - name: clone repository
       uses: actions/checkout@v2
@@ -23,7 +23,7 @@ jobs:
       if: startsWith(matrix.os, 'ubuntu')
       run: |
         sudo apt-get update -qq
-        sudo apt-get install -y libgsl-dev 
+        sudo apt-get install -y libgsl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev
         qmake
         make
  
