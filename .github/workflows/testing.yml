@@ -20,9 +20,8 @@ jobs:
     - name: Install Dependantcies And Make
       if: startsWith(matrix.os, 'ubuntu')
       run: |
-        sudo apt update
-        export DEBIAN_FRONTEND=noninteractive
-        sudo apt install -y --no-install-recommends libgsl-dev          
+        sudo apt-get update -qq
+        sudo apt-get install -y libgsl-dev 
         qmake
         make
  
