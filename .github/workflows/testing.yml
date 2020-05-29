@@ -13,7 +13,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
-        modules: 'qtcore qtgui qtwidgets qtopengl qtnetwork qtsvg qtxml qtscript qtscripttools qtprintsupport qtdatavisualization qtxmlpatterns'
+        modules: 'qtcore qtgui qtwidgets qtopengl qtnetwork qtsvg qtxml qtscript qtscripttools qtprintsupport qtdatavis3d qtxmlpatterns'
       
     - name: clone repository
       uses: actions/checkout@v2
