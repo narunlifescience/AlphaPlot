@@ -938,7 +938,11 @@ bool AxisRect2D::moveLayer(QCPLayer *layer,
                                         QCustomPlot::LayerInsertMode::limAbove);
             if (layermoved) {
               layerswamped = layers_.at(i + 1);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
               layers_.swapItemsAt(i, i + 1);
+#else
+              layers_.swap(i, i + 1);
+#endif
             }
           } else {
             qDebug() << "unable to move layer(s). this layer is already the "
@@ -952,7 +956,11 @@ bool AxisRect2D::moveLayer(QCPLayer *layer,
                                         QCustomPlot::LayerInsertMode::limBelow);
             if (layermoved) {
               layerswamped = layers_.at(i - 1);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
               layers_.swapItemsAt(i, i - 1);
+#else
+              layers_.swap(i, i + 1);
+#endif
             }
           } else {
             qDebug() << "unable to move layer(s). this layer is already the "

@@ -1,6 +1,6 @@
 ![alt text](data/icons/app/alphaplot-name.png "AlphaPlot")
 
-[![License][license-badge]][license-page] [![Build Status](https://travis-ci.org/narunlifescience/AlphaPlot.svg?branch=master)](https://travis-ci.org/narunlifescience/AlphaPlot) [![Join the chat at https://gitter.im/narunlifescience/AlphaPlot](https://badges.gitter.im/narunlifescience/AlphaPlot.svg)](https://gitter.im/narunlifescience/AlphaPlot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
+[![License][license-badge]][license-page] ![Build Testing](https://github.com/narunlifescience/AlphaPlot/workflows/Test%20Build/badge.svg ) [![Join the chat at https://gitter.im/narunlifescience/AlphaPlot](https://badges.gitter.im/narunlifescience/AlphaPlot.svg)](https://gitter.im/narunlifescience/AlphaPlot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Download AlphaPlot](https://img.shields.io/sourceforge/dt/alphaplot.svg)](https://sourceforge.net/projects/alphaplot/files/latest/download) [![Download AlphaPlot](https://img.shields.io/sourceforge/dm/alphaplot.svg)](https://sourceforge.net/projects/alphaplot/files/latest/download) [![Download AlphaPlot](https://img.shields.io/sourceforge/dw/alphaplot.svg)](https://sourceforge.net/projects/alphaplot/files/latest/download) [![Download AlphaPlot](https://img.shields.io/sourceforge/dd/alphaplot.svg)](https://sourceforge.net/projects/alphaplot/files/latest/download)
 
 [license-page]: COPYING
