@@ -1,11 +1,48 @@
-AlphaPlot changelog 
+=== 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
+* multipeak fitting fixed
+* ditch QwtPlot3D for qdatavis3d
+	* reimpliment all the graphs except trajectory in qdatavis3d
+	* integrate customization to property editor
+	* seperate data manager class to handle inputs to the graph
+	* xml save part incomplete
+* add ability to customize Axis2D line endings
+* fix some issues with legend move updating in property editor and ability to break individual legend text
+* pie charts take 2 columns X as label and Y as values
 
-=== Most important/unimportant changes ===
-- Add a custom icon handler class
-- Rewrite settings dialog & break down to smaller modules
-- Move to c++ 11
-- Use a floating qbutton for table tab
-- Rewrite console widget
-- Fix drag n drop
-- alphaplot project file .aproj (remove scidavis, qtiplot & origin project files)
-- Lots of other bug fixes
+
+=== 17-04-20 Third release of AlphaPlot (Alpha stage) - major release ===
+* Completed porting to QT5
+* Replace QWorkSpace with QMDIarea as a step towards Qt5
+* Add more random number generators with specific distribution profiles (gaussian, exponential etc)
+* Drop Qt3 Support and rewrite project explorer to Qt5 standards
+* added a function to show column data spikiness to get an idea about general data
+* color code X, Y, Z, Xerr, Yerr and none column types with a line under them for easy identification
+* add some utilities like detection of OS and its type, Random color generation based on golden ratio etc
+* use a QDialog wit much more information to show mdiwindow properties
+* add a declared variable view list for QtScript scripting console like matlab
+* use xml to store alphaplot files for better structuring and handling
+* added a property editor to browse property of all QMdiWidgetItems (2dplot, 3dplot, table, matrix, note)
+* introduce QCustomplot to replace the aging qwt4 library
+    * use a seperate datahandler class for 2D plots
+	* add a basic layout management system like a queue
+	* draggable legend, graph items (line, text), axis, zoom axis
+	* reimpliment all the 2D plotting functionality in qcustomplot
+	* reimpliment all the fitting functionality in qcustomplot
+
+=== 2016 - First 2 test release of AlphaPlot (unusable/ment only for development & not ment for users) - This is not much different from SciDavis except for Scripting ===
+* add basic error detection to Qt Script
+* add a basic Syntax highlighter for scripts and functions
+* add QtScript with debugging to Alphaplot basic data structures with cell to cell data manipulation ability(Table & Matrix)
+* add add/remove layer to graph2d window
+* use default cascade function
+* fix mxe compile errors
+* drop QT3 related stuff
+* use a float button insted in table & matrix to access control UI
+* remember normal window state when user closes a window in maximized state
+* added c++ 11 Support
+* remove liborigin and python support for now
+* make scripting console interactive (rewrite the entire class)
+* modernise icons & an icon handling class
+* add a lock unlock functanality for toolbars and dock widgets
+* compartmentalise various aspects like scripting, 3d plots etc to seperate directories
+* fix old code warnings (replace old C style casting, remove hardcoded colors, use initializer list when possible, Clean up Application window class, give better meaningful names for variables etc)
