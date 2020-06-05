@@ -23,6 +23,12 @@
    </item>
    <item>
     <widget class="QScrollArea" name="scrollArea">
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
@@ -32,7 +38,7 @@
         <x>0</x>
         <y>0</y>
         <width>512</width>
-        <height>300</height>
+        <height>314</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -47,6 +53,20 @@
          </item>
          <item>
           <widget class="QComboBox" name="styleComboBox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QLabel" name="colorSchemeLabel">
+           <property name="text">
+            <string>Color Scheme</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="colorSchemeComboBox"/>
          </item>
         </layout>
        </item>

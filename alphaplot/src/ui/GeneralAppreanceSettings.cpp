@@ -32,8 +32,21 @@ GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
   QStringList styles = QStyleFactory::keys();
   styles.sort();
   ui->styleComboBox->addItems(styles);
+  QStringList colorSchemes;
+  colorSchemes << "default"
+               << "alpha dark"
+               << "smooth dark blue"
+               << "smooth dark green"
+               << "smooth dark orange"
+               << "smooth light blue"
+               << "smooth light green"
+               << "smooth light orange";
+  ui->colorSchemeComboBox->addItems(colorSchemes);
   connect(ui->styleComboBox, SIGNAL(currentIndexChanged(QString)),
           SLOT(stylePreview(QString)));
+  connect(ui->colorSchemeComboBox, &QComboBox::currentTextChanged, [&](QString index){
+
+  });
 }
 
 GeneralAppreanceSettings::~GeneralAppreanceSettings() { delete ui; }

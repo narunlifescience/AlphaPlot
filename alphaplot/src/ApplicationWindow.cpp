@@ -594,6 +594,46 @@ ApplicationWindow::ApplicationWindow()
           SLOT(plotContour()));
   connect(ui_->action3DGreyScaleMap, SIGNAL(triggered()), this,
           SLOT(plotGrayScale()));
+  connect(ui_->action3DWireFramePolar, &QAction::triggered, [=]() {
+    Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
+    if (layout && layout->getSurface3DModifier())
+      layout->getSurface3DModifier()->setSurfaceMeshType(
+          QSurface3DSeries::DrawFlag::DrawWireframe);
+    layout->getSurface3DModifier()->getGraph()->setPolar(true);
+  });
+  connect(ui_->action3DSurfacePolar, &QAction::triggered, [=]() {
+    Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
+    if (layout && layout->getSurface3DModifier())
+      layout->getSurface3DModifier()->setSurfaceMeshType(
+          QSurface3DSeries::DrawFlag::DrawSurface);
+    layout->getSurface3DModifier()->getGraph()->setPolar(true);
+  });
+  connect(ui_->action3DWireFrameSurfacePolar, &QAction::triggered, [=]() {
+    Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
+    if (layout && layout->getSurface3DModifier())
+      layout->getSurface3DModifier()->setSurfaceMeshType(
+          QSurface3DSeries::DrawFlag::DrawSurfaceAndWireframe);
+    layout->getSurface3DModifier()->getGraph()->setPolar(true);
+  });
+  connect(ui_->action3DScatterPolar, &QAction::triggered, [=]() {
+    Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Scatter);
+    if (layout && layout->getScatter3DModifier())
+      layout->getScatter3DModifier()->getGraph()->setPolar(true);
+  });
+  connect(ui_->action3DPolarSpectrogram, &QAction::triggered, [=]() {
+    Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
+    if (layout && layout->getSurface3DModifier())
+      layout->getSurface3DModifier()->setSurfaceMeshType(
+          QSurface3DSeries::DrawFlag::DrawSurface);
+    layout->getSurface3DModifier()->getGraph()->setOrthoProjection(true);
+    layout->getSurface3DModifier()->getGraph()->setPolar(true);
+    layout->getSurface3DModifier()->getGraph()->setFlipHorizontalGrid(true);
+    layout->getSurface3DModifier()
+        ->getGraph()
+        ->scene()
+        ->activeCamera()
+        ->setCameraPreset(Q3DCamera::CameraPreset::CameraPresetDirectlyAbove);
+  });
   // Graph menu
   connect(ui_->actionAddRemoveCurve, SIGNAL(triggered()), this,
           SLOT(showCurvesDialog()));
@@ -2270,7 +2310,8 @@ void ApplicationWindow::showPreferencesDialog() {
   cd->setAttribute(Qt::WA_DeleteOnClose);
   cd->setColumnSeparator(columnSeparator);
   cd->exec();
-  // settings_->exec();
+  std::unique_ptr<SettingsDialog> settings_(new SettingsDialog);
+  settings_->exec();
 }
 
 void ApplicationWindow::setSaveSettings(bool autoSaving, int min) {

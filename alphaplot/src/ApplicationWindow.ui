@@ -240,6 +240,14 @@
     <addaction name="action3DCountourColorFill"/>
     <addaction name="action3DCountourLines"/>
     <addaction name="action3DGreyScaleMap"/>
+    <addaction name="separator"/>
+    <addaction name="action3DWireFramePolar"/>
+    <addaction name="action3DSurfacePolar"/>
+    <addaction name="action3DWireFrameSurfacePolar"/>
+    <addaction name="separator"/>
+    <addaction name="action3DScatterPolar"/>
+    <addaction name="separator"/>
+    <addaction name="action3DPolarSpectrogram"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -1361,6 +1369,31 @@
   <action name="actionPlot2DHalfPie">
    <property name="text">
     <string>&amp;Half Pie</string>
+   </property>
+  </action>
+  <action name="action3DPolarSpectrogram">
+   <property name="text">
+    <string>Polar Spectrogram</string>
+   </property>
+  </action>
+  <action name="action3DWireFramePolar">
+   <property name="text">
+    <string>3D Wire Frame Polar</string>
+   </property>
+  </action>
+  <action name="action3DSurfacePolar">
+   <property name="text">
+    <string>3D Surface Polar</string>
+   </property>
+  </action>
+  <action name="action3DWireFrameSurfacePolar">
+   <property name="text">
+    <string>3D Wire Frame Surface Polar</string>
+   </property>
+  </action>
+  <action name="action3DScatterPolar">
+   <property name="text">
+    <string>3D Scatter Polar</string>
    </property>
   </action>
  </widget>

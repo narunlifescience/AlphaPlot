@@ -1,3 +1,7 @@
+== progress ==
+* add 3D polar plot options and a 2D polar spectogrm with camera position on top
+* 2D axis from to precision setting based on axis tick precision
+
 === 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
 * multipeak fitting fixed
 * ditch QwtPlot3D for qdatavis3d

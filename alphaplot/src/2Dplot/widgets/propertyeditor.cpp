@@ -261,6 +261,7 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   axispropertyticklabelprecisionitem_ = intManager_->addProperty("Precision");
   axispropertyticklabelvisibilityitem_->addSubProperty(
       axispropertyticklabelprecisionitem_);
+  intManager_->setRange(axispropertyticklabelprecisionitem_, 0, 16);
   // Legend Properties
   itempropertylegendoriginxitem_ = doubleManager_->addProperty("Position X");
   itempropertylegendoriginyitem_ = doubleManager_->addProperty("Position Y");
@@ -2755,6 +2756,8 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
   } else if (prop->compare(axispropertyticklabelprecisionitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelprecision_axis(value);
+    doubleManager_->setDecimals(axispropertyfromitem_, value);
+    doubleManager_->setDecimals(axispropertytoitem_, value);
     axis->layer()->replot();
   } else if (prop->compare(itempropertylegendiconwidthitem_)) {
     Legend2D *legend =
