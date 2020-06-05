@@ -11,6 +11,8 @@ class Matrix;
 class Table;
 class Column;
 class DataBlockSurface3D;
+class XmlStreamWriter;
+class XmlStreamReader;
 using namespace QtDataVisualization;
 
 class Surface3D : public QObject {
@@ -31,6 +33,9 @@ class Surface3D : public QObject {
   void setmatrixdatamodel(Matrix *matrix);
   Q3DSurface *getGraph() const;
   QVector<DataBlockSurface3D *> getData() const;
+
+  void save(XmlStreamWriter *xmlwriter);
+  void load(XmlStreamReader *xmlreader);
 
  signals:
   void dataAdded();

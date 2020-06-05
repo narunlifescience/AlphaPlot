@@ -6,6 +6,8 @@
 #include "Matrix.h"
 #include "Table.h"
 #include "future/core/column/Column.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 using namespace QtDataVisualization;
 
@@ -43,6 +45,16 @@ void Surface3D::setmatrixdatamodel(Matrix *matrix) {
 Q3DSurface *Surface3D::getGraph() const { return graph_; }
 
 QVector<DataBlockSurface3D *> Surface3D::getData() const { return data_; }
+
+void Surface3D::save(XmlStreamWriter *xmlwriter)
+{
+
+}
+
+void Surface3D::load(XmlStreamReader *xmlreader)
+{
+
+}
 
 void Surface3D::setSurfaceMeshType(const QSurface3DSeries::DrawFlag &type) {
   if (graph_->seriesList().isEmpty()) return;

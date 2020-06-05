@@ -1121,15 +1121,15 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   plot3daxisvaluerangeupperitem_ = doubleManager_->addProperty(tr("To"));
   plot3dvalueaxislabelformatitem_ =
       stringManager_->addProperty("Tick Label Format");
-  plot3dvalueaxisreverseitem_ = boolManager_->addProperty(tr("Invert"));
+  plot3dvalueaxisreverseitem_ = boolManager_->addProperty(tr("Inverted"));
   plot3dvalueaxistickcountitem_ = intManager_->addProperty(tr("Tick Count"));
   plot3dvalueaxissubtickcountitem_ =
       intManager_->addProperty(tr("Sub Tick Count"));
   plot3daxisvalueticklabelrotationitem_ =
       doubleManager_->addProperty(tr("Tick Label Rotation"));
   plot3daxisvaluetitlevisibleitem_ =
-      boolManager_->addProperty(tr("Title Visible"));
-  plot3daxisvaluetitlefixeditem_ = boolManager_->addProperty(tr("Title Fixed"));
+      boolManager_->addProperty(tr("Label Visible"));
+  plot3daxisvaluetitlefixeditem_ = boolManager_->addProperty(tr("Label Fixed"));
   plot3daxisvaluetitletextitem_ = stringManager_->addProperty("Label Text");
 
   // Plot3D Catagory Axis
@@ -1140,9 +1140,9 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   plot3daxiscatagoryticklabelrotationitem_ =
       doubleManager_->addProperty(tr("Tick Label Rotation"));
   plot3daxiscatagorytitlevisibleitem_ =
-      boolManager_->addProperty(tr("Title Visible"));
+      boolManager_->addProperty(tr("Label Visible"));
   plot3daxiscatagorytitlefixeditem_ =
-      boolManager_->addProperty(tr("Title Fixed"));
+      boolManager_->addProperty(tr("Label Fixed"));
   plot3daxiscatagorytitletextitem_ = stringManager_->addProperty("Label Text");
 
   // Plot3D Surface
@@ -4865,10 +4865,10 @@ void PropertyEditor::Axis3DValuePropertyBlock(QValue3DAxis *axis) {
   propertybrowser_->addProperty(plot3daxisvalueautoadjustrangeitem_);
   propertybrowser_->addProperty(plot3daxisvaluerangeloweritem_);
   propertybrowser_->addProperty(plot3daxisvaluerangeupperitem_);
-  propertybrowser_->addProperty(plot3dvalueaxislabelformatitem_);
   propertybrowser_->addProperty(plot3dvalueaxisreverseitem_);
   propertybrowser_->addProperty(plot3dvalueaxistickcountitem_);
   propertybrowser_->addProperty(plot3dvalueaxissubtickcountitem_);
+  propertybrowser_->addProperty(plot3dvalueaxislabelformatitem_);
   propertybrowser_->addProperty(plot3daxisvalueticklabelrotationitem_);
   propertybrowser_->addProperty(plot3daxisvaluetitlevisibleitem_);
   propertybrowser_->addProperty(plot3daxisvaluetitlefixeditem_);

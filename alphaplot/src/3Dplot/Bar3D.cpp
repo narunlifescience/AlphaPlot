@@ -6,6 +6,8 @@
 #include "Matrix.h"
 #include "Table.h"
 #include "future/core/column/Column.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 Bar3D::Bar3D(Q3DBars *bar) : graph_(bar), data_(QVector<DataBlockBar3D *>()) {
   graph_->setColumnAxis(new QCategory3DAxis);
@@ -37,3 +39,13 @@ void Bar3D::setmatrixdatamodel(Matrix *matrix) {
 Q3DBars *Bar3D::getGraph() const { return graph_; }
 
 QVector<DataBlockBar3D *> Bar3D::getData() const { return data_; }
+
+void Bar3D::save(XmlStreamWriter *xmlwriter)
+{
+
+}
+
+void Bar3D::load(XmlStreamReader *xmlreader)
+{
+
+}

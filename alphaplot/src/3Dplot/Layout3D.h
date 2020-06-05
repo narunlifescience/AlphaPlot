@@ -56,7 +56,13 @@ class Layout3D : public MyWidget {
   Graph3DCommon::Plot3DType getPlotType() const;
   void load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             QList<Matrix *> mats);
+  void loadCanvas(XmlStreamReader *xmlreader);
+  void loadTheme(XmlStreamReader *xmlreader);
+  void loadValueAxis(XmlStreamReader *xmlreader);
+  void loadcategoryAxis(XmlStreamReader *xmlreader);
   void save(XmlStreamWriter *xmlwriter);
+  void saveCanvas(XmlStreamWriter *xmlwriter);
+  void saveTheme(XmlStreamWriter *xmlwriter);
   void saveValueAxis(XmlStreamWriter *xmlwriter, QValue3DAxis *axis);
   void saveCategoryAxis(XmlStreamWriter *xmlwriter, QCategory3DAxis *axis);
 

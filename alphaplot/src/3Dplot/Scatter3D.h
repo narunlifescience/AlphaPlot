@@ -11,6 +11,8 @@ class Matrix;
 class Table;
 class Column;
 class DataBlockScatter3D;
+class XmlStreamWriter;
+class XmlStreamReader;
 using namespace QtDataVisualization;
 
 class Scatter3D : public QObject {
@@ -24,6 +26,8 @@ class Scatter3D : public QObject {
   void setmatrixdatamodel(Matrix *matrix);
   Q3DScatter *getGraph() const;
   QVector<DataBlockScatter3D *> getData() const;
+  void save(XmlStreamWriter *xmlwriter);
+  void load(XmlStreamReader *xmlreader);
 
  signals:
   void dataAdded();

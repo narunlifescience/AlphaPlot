@@ -4,6 +4,8 @@
 #include "Matrix.h"
 #include "Table.h"
 #include "future/core/column/Column.h"
+#include "future/lib/XmlStreamReader.h"
+#include "future/lib/XmlStreamWriter.h"
 
 Scatter3D::Scatter3D(Q3DScatter *scatter)
     : graph_(scatter), data_(QVector<DataBlockScatter3D *>()) {
@@ -37,3 +39,13 @@ void Scatter3D::setmatrixdatamodel(Matrix *matrix) {
 Q3DScatter *Scatter3D::getGraph() const { return graph_; }
 
 QVector<DataBlockScatter3D *> Scatter3D::getData() const { return data_; }
+
+void Scatter3D::save(XmlStreamWriter *xmlwriter)
+{
+
+}
+
+void Scatter3D::load(XmlStreamReader *xmlreader)
+{
+
+}

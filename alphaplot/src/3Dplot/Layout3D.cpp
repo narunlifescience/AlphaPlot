@@ -304,12 +304,14 @@ void Layout3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           tr("Invalid creation time. Using current time insted."));
       setBirthDate(QDateTime::currentDateTime().toString(Qt::LocalDate));
     }
+
     // read caption spec
     int captionspec = xmlreader->readAttributeInt("caption_spec", &ok);
     if (ok)
       setCaptionPolicy(static_cast<MyWidget::CaptionPolicy>(captionspec));
     else
       xmlreader->raiseWarning(tr("Invalid caption policy or read error."));
+
     // read name
     QString name = xmlreader->readAttributeString("name", &ok);
     if (ok) {
@@ -320,11 +322,205 @@ void Layout3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
     // read label
     QString label = xmlreader->readAttributeString("label", &ok);
     if (ok) {
-      setWindowLabel(name);
+      setWindowLabel(label);
     } else
       xmlreader->raiseWarning(tr("Layout3D label missing or empty"));
+
+    loadCanvas(xmlreader);
+    loadTheme(xmlreader);
   }
 }
+
+void Layout3D::loadCanvas(XmlStreamReader *xmlreader) {
+  while (!xmlreader->atEnd()) {
+    xmlreader->readNext();
+    if (xmlreader->isEndElement() && xmlreader->name() == "canvas") break;
+    if (xmlreader->isStartElement() && xmlreader->name() == "canvas") {
+      bool ok = false;
+      Q3DTheme::Theme theme = Q3DTheme::Theme::ThemeQt;
+      QString themename = xmlreader->readAttributeString("themename", &ok);
+      if (!ok) xmlreader->raiseWarning("Plot3D theme unknown!");
+
+      // theme
+      if (themename == "themeqt")
+        theme = Q3DTheme::Theme::ThemeQt;
+      else if (themename == "themedigia")
+        theme = Q3DTheme::Theme::ThemeDigia;
+      else if (themename == "themeebony")
+        theme = Q3DTheme::Theme::ThemeEbony;
+      else if (themename == "themeretro")
+        theme = Q3DTheme::Theme::ThemeRetro;
+      else if (themename == "themearmyblue")
+        theme = Q3DTheme::Theme::ThemeArmyBlue;
+      else if (themename == "themeisabelle")
+        theme = Q3DTheme::Theme::ThemeIsabelle;
+      else if (themename == "themestonemoss")
+        theme = Q3DTheme::Theme::ThemeStoneMoss;
+      else if (themename == "themeuserdefined")
+        theme = Q3DTheme::Theme::ThemeUserDefined;
+      else if (themename == "themeprimarycolors")
+        theme = Q3DTheme::Theme::ThemePrimaryColors;
+      else
+        xmlreader->raiseWarning("Plot3D theme setting unknown!");
+      graph_->activeTheme()->setType(theme);
+    }
+  }
+}
+
+void Layout3D::loadTheme(XmlStreamReader *xmlreader) {
+  while (!xmlreader->atEnd()) {
+    xmlreader->readNext();
+    if (xmlreader->isEndElement() && xmlreader->name() == "theme") break;
+    if (xmlreader->isStartElement() && xmlreader->name() == "theme") {
+      bool ok = false;
+      Q3DTheme *theme = graph_->activeTheme();
+
+      // canvas color
+      QString canvascolor = xmlreader->readAttributeString("canvascolor", &ok);
+      if (ok)
+        theme->setWindowColor(canvascolor);
+      else
+        xmlreader->raiseWarning("Plot3D canvas color property setting error");
+
+      // background
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "background")
+          break;
+        if (xmlreader->isStartElement() && xmlreader->name() == "background") {
+          bool ok = false;
+
+          // background visible
+          bool visible = xmlreader->readAttributeBool("visible", &ok);
+          if (ok)
+            theme->setBackgroundEnabled(visible);
+          else
+            xmlreader->raiseWarning(
+                "Plot3D background visible property setting error");
+
+          // background color
+          QString bkcolor = xmlreader->readAttributeString("color", &ok);
+          if (ok)
+            theme->setBackgroundColor(bkcolor);
+          else
+            xmlreader->raiseWarning(
+                "Plot3D background color property setting error");
+        }
+      }
+
+      // light
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "light") break;
+        if (xmlreader->isStartElement() && xmlreader->name() == "light") {
+          bool ok = false;
+
+          // light color
+          QString lightcolor = xmlreader->readAttributeString("color", &ok);
+          if (ok)
+            theme->setLightColor(lightcolor);
+          else
+            xmlreader->raiseWarning(
+                "Plot3D light color property setting error");
+
+          // light strength
+          int strength = xmlreader->readAttributeInt("strength", &ok);
+          if (ok)
+            theme->setLightStrength(strength);
+          else
+            xmlreader->raiseWarning(
+                "Plot3D light strength property setting error");
+
+          // ambient light strength
+          int ambstrength = xmlreader->readAttributeInt("ambientstrength", &ok);
+          if (ok)
+            theme->setAmbientLightStrength(ambstrength);
+          else
+            xmlreader->raiseWarning(
+                "Plot3D ambient light strength property setting error");
+        }
+      }
+
+      // grid
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "grid") break;
+        if (xmlreader->isStartElement() && xmlreader->name() == "grid") {
+          bool ok = false;
+
+          // grid visible
+          bool visible = xmlreader->readAttributeBool("visible", &ok);
+          if (ok)
+            theme->setGridEnabled(visible);
+          else
+            xmlreader->raiseWarning(
+                "Plot3D grid visible property setting error");
+
+          // grid line color
+          QString gdcolor = xmlreader->readAttributeString("color", &ok);
+          if (ok)
+            theme->setGridLineColor(gdcolor);
+          else
+            xmlreader->raiseWarning(
+                "Plot3D grid line color property setting error");
+        }
+      }
+
+      // label
+      while (!xmlreader->atEnd()) {
+        xmlreader->readNext();
+        if (xmlreader->isEndElement() && xmlreader->name() == "label") break;
+        if (xmlreader->isStartElement() && xmlreader->name() == "label") {
+          bool ok = false;
+
+          // label background visible
+          bool visible = xmlreader->readAttributeBool("backgroundvisible", &ok);
+          if (ok)
+            theme->setLabelBackgroundEnabled(visible);
+          else
+            xmlreader->raiseWarning(
+                "Plot3D label background visible property setting error");
+
+          // label background color
+          QString bkcolor =
+              xmlreader->readAttributeString("backgroundcolor", &ok);
+          if (ok)
+            theme->setLabelBackgroundColor(bkcolor);
+          else
+            xmlreader->raiseWarning(
+                "Plot3D label background color property setting error");
+
+          // label border visible
+          bool lbbovisible = xmlreader->readAttributeBool("bordervisible", &ok);
+          if (ok)
+            theme->setLabelBorderEnabled(lbbovisible);
+          else
+            xmlreader->raiseWarning(
+                "Plot3D label border visible property setting error");
+
+          // label font
+          while (!xmlreader->atEnd()) {
+            xmlreader->readNext();
+            if (xmlreader->isEndElement() && xmlreader->name() == "font") break;
+            if (xmlreader->isStartElement() && xmlreader->name() == "font") {
+              QPair<QFont, QColor> fontpair = xmlreader->readFont(&ok);
+              if (ok) {
+                theme->setFont(fontpair.first);
+                theme->setLabelTextColor(fontpair.second);
+              } else
+                xmlreader->raiseWarning(
+                    tr("Plot3D label font & color property setting error"));
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void Layout3D::loadValueAxis(XmlStreamReader *xmlreader) {}
+
+void Layout3D::loadcategoryAxis(XmlStreamReader *xmlreader) {}
 
 void Layout3D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeStartElement("plot3d");
@@ -347,37 +543,69 @@ void Layout3D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeAttribute("caption_spec", QString::number(captionPolicy()));
   xmlwriter->writeAttribute("name", name());
   xmlwriter->writeAttribute("label", windowLabel());
-  xmlwriter->writeStartElement("Theme");
+  saveCanvas(xmlwriter);
+  saveTheme(xmlwriter);
+  switch (plottype_) {
+    case Graph3DCommon::Plot3DType::Surface:
+      saveValueAxis(xmlwriter, surfacemodifier_->getGraph()->axisX());
+      saveValueAxis(xmlwriter, surfacemodifier_->getGraph()->axisY());
+      saveValueAxis(xmlwriter, surfacemodifier_->getGraph()->axisZ());
+      surfacemodifier_->save(xmlwriter);
+      break;
+    case Graph3DCommon::Plot3DType::Bar:
+      saveCategoryAxis(xmlwriter, barmodifier_->getGraph()->columnAxis());
+      saveCategoryAxis(xmlwriter, barmodifier_->getGraph()->rowAxis());
+      saveValueAxis(xmlwriter, barmodifier_->getGraph()->valueAxis());
+      barmodifier_->save(xmlwriter);
+      break;
+    case Graph3DCommon::Plot3DType::Scatter:
+      saveValueAxis(xmlwriter, scattermodifier_->getGraph()->axisX());
+      saveValueAxis(xmlwriter, scattermodifier_->getGraph()->axisY());
+      saveValueAxis(xmlwriter, scattermodifier_->getGraph()->axisZ());
+      scattermodifier_->save(xmlwriter);
+      break;
+  }
+  xmlwriter->writeEndElement();
+}
+
+void Layout3D::saveCanvas(XmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("canvas");
   Q3DTheme *theme = graph_->activeTheme();
   switch (theme->type()) {
     case Q3DTheme::Theme::ThemeQt:
-      xmlwriter->writeAttribute("name", "themeqt");
+      xmlwriter->writeAttribute("themename", "themeqt");
       break;
     case Q3DTheme::Theme::ThemeDigia:
-      xmlwriter->writeAttribute("name", "themedigia");
+      xmlwriter->writeAttribute("themename", "themedigia");
       break;
     case Q3DTheme::Theme::ThemeEbony:
-      xmlwriter->writeAttribute("name", "themeebony");
+      xmlwriter->writeAttribute("themename", "themeebony");
       break;
     case Q3DTheme::Theme::ThemeRetro:
-      xmlwriter->writeAttribute("name", "themeretro");
+      xmlwriter->writeAttribute("themename", "themeretro");
       break;
     case Q3DTheme::Theme::ThemeArmyBlue:
-      xmlwriter->writeAttribute("name", "themearmyblue");
+      xmlwriter->writeAttribute("themename", "themearmyblue");
       break;
     case Q3DTheme::Theme::ThemeIsabelle:
-      xmlwriter->writeAttribute("name", "themeisabelle");
+      xmlwriter->writeAttribute("themename", "themeisabelle");
       break;
     case Q3DTheme::Theme::ThemeStoneMoss:
-      xmlwriter->writeAttribute("name", "themestonemoss");
+      xmlwriter->writeAttribute("themename", "themestonemoss");
       break;
     case Q3DTheme::Theme::ThemeUserDefined:
-      xmlwriter->writeAttribute("name", "themeuserdefined");
+      xmlwriter->writeAttribute("themename", "themeuserdefined");
       break;
     case Q3DTheme::Theme::ThemePrimaryColors:
-      xmlwriter->writeAttribute("name", "themeprimarycolors");
+      xmlwriter->writeAttribute("themename", "themeprimarycolors");
       break;
   }
+  xmlwriter->writeEndElement();
+}
+
+void Layout3D::saveTheme(XmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("theme");
+  Q3DTheme *theme = graph_->activeTheme();
   xmlwriter->writeAttribute("canvascolor",
                             theme->windowColor().name(QColor::HexArgb));
   xmlwriter->writeStartElement("background");
@@ -412,7 +640,6 @@ void Layout3D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeFont(theme->font(), theme->labelTextColor());
   xmlwriter->writeEndElement();
   xmlwriter->writeEndElement();
-  xmlwriter->writeEndElement();
 }
 
 void Layout3D::saveValueAxis(XmlStreamWriter *xmlwriter, QValue3DAxis *axis) {
@@ -440,6 +667,23 @@ void Layout3D::saveValueAxis(XmlStreamWriter *xmlwriter, QValue3DAxis *axis) {
         xmlwriter->writeAttribute("orientation", "z");
       break;
   }
+  (axis->isAutoAdjustRange()) ? xmlwriter->writeAttribute("autorange", "true")
+                              : xmlwriter->writeAttribute("autorange", "false");
+  xmlwriter->writeAttribute("from", QString::number(axis->min()));
+  xmlwriter->writeAttribute("to", QString::number(axis->max()));
+  (axis->reversed()) ? xmlwriter->writeAttribute("reverse", "true")
+                     : xmlwriter->writeAttribute("reverse", "false");
+  xmlwriter->writeAttribute("tickcount", QString::number(axis->segmentCount()));
+  xmlwriter->writeAttribute("subtickcount",
+                            QString::number(axis->subSegmentCount()));
+  xmlwriter->writeAttribute("ticklabelformat", axis->labelFormat());
+  xmlwriter->writeAttribute("ticklabelrotation",
+                            QString::number(axis->labelAutoRotation()));
+  (axis->isTitleVisible()) ? xmlwriter->writeAttribute("labelvisible", "true")
+                           : xmlwriter->writeAttribute("labelvisible", "false");
+  (axis->isTitleFixed()) ? xmlwriter->writeAttribute("labelfixed", "true")
+                         : xmlwriter->writeAttribute("labelfixed", "false");
+  xmlwriter->writeAttribute("label", axis->title());
   xmlwriter->writeEndElement();
 }
 
@@ -459,5 +703,16 @@ void Layout3D::saveCategoryAxis(XmlStreamWriter *xmlwriter,
     case Graph3DCommon::Plot3DType::Scatter:
       break;
   }
+  (axis->isAutoAdjustRange()) ? xmlwriter->writeAttribute("autorange", "true")
+                              : xmlwriter->writeAttribute("autorange", "false");
+  xmlwriter->writeAttribute("from", QString::number(axis->min()));
+  xmlwriter->writeAttribute("to", QString::number(axis->max()));
+  xmlwriter->writeAttribute("ticklabelrotation",
+                            QString::number(axis->labelAutoRotation()));
+  (axis->isTitleVisible()) ? xmlwriter->writeAttribute("labelvisible", "true")
+                           : xmlwriter->writeAttribute("labelvisible", "false");
+  (axis->isTitleFixed()) ? xmlwriter->writeAttribute("labelfixed", "true")
+                         : xmlwriter->writeAttribute("labelfixed", "false");
+  xmlwriter->writeAttribute("label", axis->title());
   xmlwriter->writeEndElement();
 }

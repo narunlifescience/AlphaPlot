@@ -10,6 +10,8 @@ class Matrix;
 class Table;
 class Column;
 class DataBlockBar3D;
+class XmlStreamWriter;
+class XmlStreamReader;
 
 using namespace QtDataVisualization;
 
@@ -25,6 +27,9 @@ class Bar3D : public QObject {
 
   Q3DBars *getGraph() const;
   QVector<DataBlockBar3D *> getData() const;
+
+  void save(XmlStreamWriter *xmlwriter);
+  void load(XmlStreamReader *xmlreader);
 
  signals:
   void dataAdded();
