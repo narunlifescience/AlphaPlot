@@ -59,7 +59,7 @@ class Layout3D : public MyWidget {
   void loadCanvas(XmlStreamReader *xmlreader);
   void loadTheme(XmlStreamReader *xmlreader);
   void loadValueAxis(XmlStreamReader *xmlreader);
-  void loadcategoryAxis(XmlStreamReader *xmlreader);
+  void loadCategoryAxis(XmlStreamReader *xmlreader);
   void save(XmlStreamWriter *xmlwriter);
   void saveCanvas(XmlStreamWriter *xmlwriter);
   void saveTheme(XmlStreamWriter *xmlwriter);

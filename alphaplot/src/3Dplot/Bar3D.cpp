@@ -40,12 +40,51 @@ Q3DBars *Bar3D::getGraph() const { return graph_; }
 
 QVector<DataBlockBar3D *> Bar3D::getData() const { return data_; }
 
-void Bar3D::save(XmlStreamWriter *xmlwriter)
-{
-
+void Bar3D::save(XmlStreamWriter *xmlwriter) {
+  xmlwriter->writeStartElement("plot");
+  xmlwriter->writeAttribute("aspectratio",
+                            QString::number(graph_->aspectRatio()));
+  xmlwriter->writeAttribute("horizontalaspectratio",
+                            QString::number(graph_->horizontalAspectRatio()));
+  switch (graph_->shadowQuality()) {
+    case QAbstract3DGraph::ShadowQuality::ShadowQualityLow:
+      xmlwriter->writeAttribute("shadowquality", "low");
+      break;
+    case QAbstract3DGraph::ShadowQuality::ShadowQualityHigh:
+      xmlwriter->writeAttribute("shadowquality", "high");
+      break;
+    case QAbstract3DGraph::ShadowQuality::ShadowQualityNone:
+      xmlwriter->writeAttribute("shadowquality", "none");
+      break;
+    case QAbstract3DGraph::ShadowQuality::ShadowQualityMedium:
+      xmlwriter->writeAttribute("shadowquality", "medium");
+      break;
+    case QAbstract3DGraph::ShadowQuality::ShadowQualitySoftLow:
+      xmlwriter->writeAttribute("shadowquality", "softlow");
+      break;
+    case QAbstract3DGraph::ShadowQuality::ShadowQualitySoftHigh:
+      xmlwriter->writeAttribute("shadowquality", "softhigh");
+      break;
+    case QAbstract3DGraph::ShadowQuality::ShadowQualitySoftMedium:
+      xmlwriter->writeAttribute("shadowquality", "softmedium");
+      break;
+  }
+  (graph_->isBarSpacingRelative())
+      ? xmlwriter->writeAttribute("relativespacing", "true")
+      : xmlwriter->writeAttribute("relativespacing", "false");
+  xmlwriter->writeAttribute("spacingx",
+                            QString::number(graph_->barSpacing().rwidth()));
+  xmlwriter->writeAttribute("spacingy",
+                            QString::number(graph_->barSpacing().rheight()));
+  xmlwriter->writeAttribute("thickness",
+                            QString::number(graph_->barThickness()));
+  (graph_->isOrthoProjection())
+      ? xmlwriter->writeAttribute("orthoprojection", "true")
+      : xmlwriter->writeAttribute("orthoprojection", "false");
+  (graph_->isPolar()) ? xmlwriter->writeAttribute("polar", "true")
+                      : xmlwriter->writeAttribute("polar", "false");
+  xmlwriter->writeEndElement();
 }
 
-void Bar3D::load(XmlStreamReader *xmlreader)
-{
-
-}
+void Bar3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
+                 QList<Matrix *> mats) {}

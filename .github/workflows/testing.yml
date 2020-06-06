@@ -24,7 +24,7 @@ jobs:
       run: |
         sudo apt-get update -qq
         sudo apt-get install -y libgsl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev
-        qmake
+        qmake CONFIG+=linux_all_dynamic
         make
         
         

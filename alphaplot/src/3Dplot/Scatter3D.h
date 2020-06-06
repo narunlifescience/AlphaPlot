@@ -27,7 +27,8 @@ class Scatter3D : public QObject {
   Q3DScatter *getGraph() const;
   QVector<DataBlockScatter3D *> getData() const;
   void save(XmlStreamWriter *xmlwriter);
-  void load(XmlStreamReader *xmlreader);
+  void load(XmlStreamReader *xmlreader, QList<Table *> tabs,
+            QList<Matrix *> mats);
 
  signals:
   void dataAdded();
