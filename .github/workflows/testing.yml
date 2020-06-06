@@ -19,11 +19,19 @@ jobs:
       uses: actions/checkout@v2
 
 
-    - name: Install Dependantcies And Make
+    - name: Install Dependantcies And Make Linux
       if: startsWith(matrix.os, 'ubuntu')
       run: |
         sudo apt-get update -qq
         sudo apt-get install -y libgsl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev
         qmake
+        make
+        
+        
+    - name: Install Dependantcies And Make Mac
+      if: startsWith(matrix.os, 'mac')
+      run: |
+        brew install gsl
+        qmake CONFIG+=osx_dist
         make
  
