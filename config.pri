@@ -104,6 +104,7 @@ contains(PRESET, osx_dist) {
   message(Build configuration: OSX Distro)
 
   INCLUDEPATH  += /usr/local/include
+  QMAKE_LIBDIR += /usr/local/lib
   LIBS         += -lgsl -lgslcblas -lz
 }
 
