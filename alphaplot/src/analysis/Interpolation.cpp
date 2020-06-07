@@ -1,90 +1,106 @@
-/***************************************************************************
-    File                 : Interpolation.cpp
-    Project              : AlphaPlot
-    --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Ion Vasilief
-    Email (use @ for *)  : ion_vasilief*yahoo.fr
-    Description          : Numerical interpolation of data sets
+/*This file is part of AlphaPlot.
 
- ***************************************************************************/
+   Copyright 2016 - 2020, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+   Copyright 2006 - 2007, Ion Vasilief <ion_vasilief@yahoo.fr>
 
-/***************************************************************************
- *                                                                         *
- *  This program is free software; you can redistribute it and/or modify   *
- *  it under the terms of the GNU General Public License as published by   *
- *  the Free Software Foundation; either version 2 of the License, or      *
- *  (at your option) any later version.                                    *
- *                                                                         *
- *  This program is distributed in the hope that it will be useful,        *
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- *  GNU General Public License for more details.                           *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the Free Software           *
- *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
- *   Boston, MA  02110-1301  USA                                           *
- *                                                                         *
- ***************************************************************************/
+   AlphaPlot is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   AlphaPlot is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
+
+   Description : Numerical interpolation of data sets*/
+
 #include "Interpolation.h"
-
-#include <QMessageBox>
 
 #include <gsl/gsl_interp.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_spline.h>
 
+#include <QMessageBox>
+
 Interpolation::Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
-                             PlotData::AssociatedData *associateddata, int m)
+                             PlotData::AssociatedData *associateddata,
+                             const InterpolationMethod &method)
     : Filter(parent, axisrect) {
-  init(m);
+  init(method);
   setDataFromCurve(associateddata);
 }
 
 Interpolation::Interpolation(ApplicationWindow *parent, AxisRect2D *axisrect,
                              PlotData::AssociatedData *associateddata,
-                             double start, double end, int m)
+                             double start, double end,
+                             const InterpolationMethod &method)
     : Filter(parent, axisrect) {
-  init(m);
+  init(method);
   setDataFromCurve(associateddata, start, end);
 }
 
-void Interpolation::init(int m) {
-  if (m < 0 || m > 2) {
-    QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
-                          tr("Unknown interpolation method. Valid values are: "
-                             "0 - Linear, 1 - Cubic, 2 - Akima."));
-    d_init_err = true;
-    return;
-  }
-  d_method = m;
+void Interpolation::init(const InterpolationMethod &method) {
+  d_method = method;
   switch (d_method) {
-    case 0:
+    case Interpolation::InterpolationMethod::Linear:
       setObjectName(tr("Linear") + tr("Int"));
       d_explanation = tr("Linear") + " " + tr("Interpolation");
+      d_min_points = 3;
       break;
-    case 1:
+    case Interpolation::InterpolationMethod::Polynomial:
+      setObjectName(tr("Polynomial") + tr("Int"));
+      d_explanation = tr("Polynomial") + " " + tr("Interpolation");
+      d_min_points = 4;
+      break;
+    case Interpolation::InterpolationMethod::Cubic:
       setObjectName(tr("Cubic") + tr("Int"));
       d_explanation = tr("Cubic") + " " + tr("Interpolation");
+      d_min_points = 4;
       break;
-    case 2:
+    case Interpolation::InterpolationMethod::CubicPeriodic:
+      setObjectName(tr("CubicPeriodic") + tr("Int"));
+      d_explanation = tr("CubicPeriodic") + " " + tr("Interpolation");
+      d_min_points = 4;
+      break;
+    case Interpolation::InterpolationMethod::Akima:
       setObjectName(tr("Akima") + tr("Int"));
       d_explanation = tr("Akima") + " " + tr("Interpolation");
+      d_min_points = 5;
+      break;
+    case Interpolation::InterpolationMethod::AkimaPeriodic:
+      setObjectName(tr("AkimaPeriodic") + tr("Int"));
+      d_explanation = tr("AkimaPeriodic") + " " + tr("Interpolation");
+      d_min_points = 5;
+      break;
+    case Interpolation::InterpolationMethod::Steffen:
+      setObjectName(tr("Steffen") + tr("Int"));
+      d_explanation = tr("Steffen") + " " + tr("Interpolation");
+      d_min_points = 4;
       break;
   }
   d_sort_data = true;
-  d_min_points = d_method + 3;
 }
 
-void Interpolation::setMethod(int m) {
-  if (m < 0 || m > 2) {
-    QMessageBox::critical(app_, tr("Error"),
-                          tr("Unknown interpolation method, valid values are: "
-                             "0 - Linear, 1 - Cubic, 2 - Akima."));
-    d_init_err = true;
-    return;
+void Interpolation::setMethod(const InterpolationMethod &method) {
+  int min_points = 3;
+  switch (method) {
+    case Interpolation::InterpolationMethod::Linear:
+      min_points = 3;
+      break;
+    case Interpolation::InterpolationMethod::Polynomial:
+    case Interpolation::InterpolationMethod::Cubic:
+    case Interpolation::InterpolationMethod::CubicPeriodic:
+    case Interpolation::InterpolationMethod::Steffen:
+      min_points = 4;
+      break;
+    case Interpolation::InterpolationMethod::Akima:
+    case Interpolation::InterpolationMethod::AkimaPeriodic:
+      min_points = 5;
+      break;
   }
-  int min_points = m + 3;
+
   if (d_n < min_points) {
     QMessageBox::critical(
         app_, tr("AlphaPlot") + " - " + tr("Error"),
@@ -93,7 +109,7 @@ void Interpolation::setMethod(int m) {
     d_init_err = true;
     return;
   }
-  d_method = m;
+  d_method = method;
   d_min_points = min_points;
 }
 
@@ -101,14 +117,26 @@ void Interpolation::calculateOutputData(double *x, double *y) {
   gsl_interp_accel *acc = gsl_interp_accel_alloc();
   const gsl_interp_type *method = nullptr;
   switch (d_method) {
-    case 0:
+    case Interpolation::InterpolationMethod::Linear:
       method = gsl_interp_linear;
       break;
-    case 1:
+    case Interpolation::InterpolationMethod::Polynomial:
+      method = gsl_interp_polynomial;
+      break;
+    case Interpolation::InterpolationMethod::Cubic:
       method = gsl_interp_cspline;
       break;
-    case 2:
+    case Interpolation::InterpolationMethod::CubicPeriodic:
+      method = gsl_interp_cspline_periodic;
+      break;
+    case Interpolation::InterpolationMethod::Akima:
       method = gsl_interp_akima;
+      break;
+    case Interpolation::InterpolationMethod::AkimaPeriodic:
+      method = gsl_interp_akima_periodic;
+      break;
+    case Interpolation::InterpolationMethod::Steffen:
+      method = gsl_interp_steffen;
       break;
   }
 
@@ -135,6 +163,17 @@ bool Interpolation::isDataAcceptable() {
              "zero, operation aborted!"));
       return false;
     }
+
+  // y(0) and y(n) should be same for periodic data
+  if (d_method == Interpolation::InterpolationMethod::CubicPeriodic ||
+      d_method == Interpolation::InterpolationMethod::AkimaPeriodic) {
+    if (d_y[0] != d_y[d_n - 1]) {
+      QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
+                            tr("Periodic data should have "
+                               "y(0) = y(n), operation aborted!"));
+      return false;
+    }
+  }
 
   return Filter::isDataAcceptable();
 }

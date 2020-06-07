@@ -1,5 +1,5 @@
 /* This file is part of AlphaPlot.
-   Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+   Copyright 2016 - 2020, Arun Narayanankutty <n.arun.lifescience@gmail.com>
    Copyright 2006 - 2007, Ion Vasilief <ion_vasilief@yahoo.fr>
    Copyright 2006 - 2009, Knut Franke <knut.franke@gmx.de>
    Copyright 2006 - 2009, Tilman Benkert <thzs@gmx.net>

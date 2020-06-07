@@ -35,8 +35,8 @@
 #  else
 #    define QCP_OPENGL_FBO
 #  endif
-#  if QT_VERSION >= QT_VERSION_CHECK(5, 3, 0)
 #    define QCP_OPENGL_OFFSCREENSURFACE
+#  if QT_VERSION >= QT_VERSION_CHECK(5, 3, 0)
 #  endif
 #endif
 

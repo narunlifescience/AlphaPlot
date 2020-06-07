@@ -27,11 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "InterpolationDialog.h"
-#include "2Dplot/AxisRect2D.h"
-#include "2Dplot/Plotcolumns.h"
-#include "ColorBox.h"
-#include "Interpolation.h"
-#include "scripting/MyParser.h"
 
 #include <QComboBox>
 #include <QGroupBox>
@@ -41,6 +36,12 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSpinBox>
+
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Plotcolumns.h"
+#include "ColorBox.h"
+#include "Interpolation.h"
+#include "scripting/MyParser.h"
 
 InterpolationDialog::InterpolationDialog(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl),
@@ -59,8 +60,12 @@ InterpolationDialog::InterpolationDialog(QWidget *parent, Qt::WindowFlags fl)
   gl1->addWidget(new QLabel(tr("Spline")), 1, 0);
   boxMethod = new QComboBox();
   boxMethod->addItem(tr("Linear"));
+  boxMethod->addItem(tr("Polynomial"));
   boxMethod->addItem(tr("Cubic"));
+  boxMethod->addItem(tr("Cubic Periodic"));
   boxMethod->addItem(tr("Non-rounded Akima"));
+  boxMethod->addItem(tr("Non-rounded Akima Periodic"));
+  boxMethod->addItem(tr("Steffen"));
   gl1->addWidget(boxMethod, 1, 1);
 
   gl1->addWidget(new QLabel(tr("Points")), 2, 0);
@@ -153,8 +158,10 @@ void InterpolationDialog::interpolate() {
     return;
   }
 
-  Interpolation *i = new Interpolation(app_, axisrect_, associateddata, from,
-                                       to, boxMethod->currentIndex());
+  Interpolation *i =
+      new Interpolation(app_, axisrect_, associateddata, from, to,
+                        static_cast<Interpolation::InterpolationMethod>(
+                            boxMethod->currentIndex()));
   i->setOutputPoints(boxPoints->value());
   i->setColor(boxColor->currentIndex());
   i->run();
