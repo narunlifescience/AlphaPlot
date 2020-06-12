@@ -33,7 +33,6 @@
 #include "lib/XmlStreamReader.h"
 
 #include <QApplication>
-#include <QDomElement>
 #include <QIcon>
 #include <QPluginLoader>
 #include <QStyle>

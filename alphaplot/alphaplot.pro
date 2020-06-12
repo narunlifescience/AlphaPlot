@@ -4,8 +4,8 @@ DEFINES += QCUSTOMPLOT_USE_OPENGL
 # Qt modules
 QT += core gui
 
-QT += widgets opengl network svg xml script scripttools printsupport
-QT += datavisualization xmlpatterns
+QT += widgets opengl network svg script scripttools printsupport
+QT += datavisualization
 
 # enable C++11 support
   CONFIG += c++11

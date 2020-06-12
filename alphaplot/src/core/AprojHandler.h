@@ -1,7 +1,7 @@
 #ifndef APROJHANDLER_H
 #define APROJHANDLER_H
 
-#include <QAbstractMessageHandler>
+//#include <QAbstractMessageHandler>
 #include <QObject>
 
 class ApplicationWindow;
@@ -38,7 +38,7 @@ class AprojHandler : public QObject {
   static const QString xmlschemafile_;
 };
 
-class MessageHandler : public QAbstractMessageHandler {
+/*class MessageHandler : public QAbstractMessageHandler {
  public:
   MessageHandler(QObject *parent = nullptr);
   QString statusMessage() const;
@@ -53,6 +53,6 @@ class MessageHandler : public QAbstractMessageHandler {
  private:
   QString m_description;
   QSourceLocation m_sourceLocation;
-};
+};*/
 
 #endif  // APROJHANDLER_H

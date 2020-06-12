@@ -4,9 +4,6 @@
 
 #include <QFile>
 #include <QMdiSubWindow>
-#include <QXmlAttributes>
-#include <QXmlSchema>
-#include <QXmlSchemaValidator>
 
 #include "2Dplot/Layout2D.h"
 #include "2Dplot/widgets/propertyeditor.h"
@@ -456,7 +453,8 @@ QList<Matrix *> AprojHandler::matrixs(ApplicationWindow *app) {
 }
 
 bool AprojHandler::checkXmlSchema(const QString &filename) {
-  std::unique_ptr<MessageHandler> messageHandler =
+  Q_UNUSED(filename);
+  /*std::unique_ptr<MessageHandler> messageHandler =
       std::unique_ptr<MessageHandler>(new MessageHandler);
   std::unique_ptr<QFile> xsdfile =
       std::unique_ptr<QFile>(new QFile(xmlschemafile_));
@@ -496,11 +494,12 @@ bool AprojHandler::checkXmlSchema(const QString &filename) {
     return false;
   } else {
     return true;
-  }
+  }*/
+  return false;
 }
 
 // xml schema message handling class
-MessageHandler::MessageHandler(QObject *parent)
+/*MessageHandler::MessageHandler(QObject *parent)
     : QAbstractMessageHandler(parent) {}
 
 QString MessageHandler::statusMessage() const { return m_description; }
@@ -520,4 +519,4 @@ void MessageHandler::handleMessage(QtMsgType type, const QString &description,
   Q_UNUSED(identifier);
   m_description = description;
   m_sourceLocation = sourceLocation;
-}
+}*/

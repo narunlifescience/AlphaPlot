@@ -33,10 +33,7 @@
 
 #include "../AbstractSimpleFilter.h"
 #include <QDateTime>
-#include <QDate>
-#include <QTime>
-#include "lib/XmlStreamReader.h"
-#include <QXmlStreamWriter>
+#include <cmath>
 
 //! Conversion filter QDateTime -> double (using Julian day).
 class DateTime2DoubleFilter : public AbstractSimpleFilter {
@@ -44,10 +41,11 @@ class DateTime2DoubleFilter : public AbstractSimpleFilter {
 
  public:
   virtual double valueAt(int row) const {
-    if (!d_inputs.value(0)) return 0;
-    QDateTime input_value = d_inputs.value(0)->dateTimeAt(row);
-    return double(input_value.date().toJulianDay()) +
-           double(-input_value.time().msecsTo(QTime(12, 0, 0, 0))) / 86400000.0;
+    if (!d_inputs.value(0)) return NAN;
+    QDateTime inputDate = d_inputs.value(0)->dateTimeAt(row);
+    if (!inputDate.isValid()) return NAN;
+    return double(inputDate.date().toJulianDay()) +
+           double(-inputDate.time().msecsTo(QTime(12, 0, 0, 0))) / 86400000.0;
   }
 
   //! Return the data type of the column
