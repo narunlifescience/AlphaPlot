@@ -1,5 +1,5 @@
 /* This file is part of AlphaPlot.
-   Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+   Copyright 2016 - 2020, Arun Narayanankutty <n.arun.lifescience@gmail.com>
 
    AlphaPlot is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -150,6 +150,7 @@ class PropertyEditor : public QDockWidget {
     T *object = static_cast<T *>(ptr);
     return object;
   }
+  void blockManagers(bool value);
 
  private:
   ApplicationWindow *app_;
@@ -188,9 +189,14 @@ class PropertyEditor : public QDockWidget {
   QtProperty *canvaspropertyopenglitem_;
   QtProperty *canvaspropertysizeitem_;
   // Layout properties
-  QtProperty *layoutpropertygroupitem_;
+  QtProperty *layoutpropertymargingroupitem_;
   QtProperty *layoutpropertyrectitem_;
   QtProperty *layoutpropertycoloritem_;
+  QtProperty *layoutpropertyautomarginstatusitem_;
+  QtProperty *layoutpropertyleftmarginitem_;
+  QtProperty *layoutpropertyrightmarginitem_;
+  QtProperty *layoutpropertytopmarginitem_;
+  QtProperty *layoutpropertybottommarginitem_;
 
   // Axis Properties General Block
   QtProperty *axispropertyvisibleitem_;

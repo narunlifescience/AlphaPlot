@@ -153,12 +153,23 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   canvaspropertysizeitem_ = sizeManager_->addProperty(tr("Plot Dimension"));
 
   // Layout Properties
-  layoutpropertygroupitem_ = groupManager_->addProperty(tr("Layout"));
+  layoutpropertymargingroupitem_ = groupManager_->addProperty(tr("Margin"));
   layoutpropertyrectitem_ = rectManager_->addProperty(tr("Outer Rect"));
-  layoutpropertygroupitem_->addSubProperty(layoutpropertyrectitem_);
   layoutpropertycoloritem_ = colorManager_->addProperty(tr("Background Color"));
-  layoutpropertygroupitem_->addSubProperty(layoutpropertycoloritem_);
   layoutpropertyrectitem_->setEnabled(false);
+  layoutpropertyautomarginstatusitem_ = boolManager_->addProperty(tr("Auto"));
+  layoutpropertyleftmarginitem_ = intManager_->addProperty(tr("Left"));
+  layoutpropertyrightmarginitem_ = intManager_->addProperty(tr("Right"));
+  layoutpropertytopmarginitem_ = intManager_->addProperty(tr("Top"));
+  layoutpropertybottommarginitem_ = intManager_->addProperty(tr("Bottom"));
+  layoutpropertymargingroupitem_->addSubProperty(
+      layoutpropertyautomarginstatusitem_);
+  layoutpropertymargingroupitem_->addSubProperty(layoutpropertyleftmarginitem_);
+  layoutpropertymargingroupitem_->addSubProperty(
+      layoutpropertyrightmarginitem_);
+  layoutpropertymargingroupitem_->addSubProperty(layoutpropertytopmarginitem_);
+  layoutpropertymargingroupitem_->addSubProperty(
+      layoutpropertybottommarginitem_);
   // Axis Properties
   axispropertyvisibleitem_ = boolManager_->addProperty(tr("Visible"));
   axispropertyoffsetitem_ = intManager_->addProperty(tr("Offset"));
@@ -1395,6 +1406,32 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     Plot2D *plot = getgraph2dobject<Plot2D>(objectbrowser_->currentItem());
     plot->setOpenGl(value);
     plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+  } else if (prop->compare(layoutpropertyautomarginstatusitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    (value) ? axisrect->setAutoMargins(QCP::MarginSide::msAll)
+            : axisrect->setAutoMargins(QCP::MarginSide::msNone);
+    intManager_->setValue(layoutpropertyleftmarginitem_,
+                          axisrect->margins().left());
+    intManager_->setValue(layoutpropertyrightmarginitem_,
+                          axisrect->margins().right());
+    intManager_->setValue(layoutpropertytopmarginitem_,
+                          axisrect->margins().top());
+    intManager_->setValue(layoutpropertybottommarginitem_,
+                          axisrect->margins().bottom());
+    if (value) {
+      layoutpropertytopmarginitem_->setEnabled(false);
+      layoutpropertyleftmarginitem_->setEnabled(false);
+      layoutpropertybottommarginitem_->setEnabled(false);
+      layoutpropertyrightmarginitem_->setEnabled(false);
+    } else {
+      layoutpropertytopmarginitem_->setEnabled(true);
+      layoutpropertyleftmarginitem_->setEnabled(true);
+      layoutpropertybottommarginitem_->setEnabled(true);
+      layoutpropertyrightmarginitem_->setEnabled(true);
+    }
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedReplot);
   } else if (prop->compare(axispropertyvisibleitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setshowhide_axis(value);
@@ -2721,7 +2758,47 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
 }
 
 void PropertyEditor::valueChange(QtProperty *prop, const int value) {
-  if (prop->compare(axispropertyoffsetitem_)) {
+  if (prop->compare(layoutpropertyleftmarginitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    QMargins mar = axisrect->margins();
+    if (mar.left() != value) {
+      mar.setLeft(value);
+      axisrect->setMargins(mar);
+      axisrect->parentPlot()->replot(
+          QCustomPlot::RefreshPriority::rpQueuedReplot);
+    }
+  } else if (prop->compare(layoutpropertytopmarginitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    QMargins mar = axisrect->margins();
+    if (mar.top() != value) {
+      mar.setTop(value);
+      axisrect->setMargins(mar);
+      axisrect->parentPlot()->replot(
+          QCustomPlot::RefreshPriority::rpQueuedReplot);
+    }
+  } else if (prop->compare(layoutpropertyrightmarginitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    QMargins mar = axisrect->margins();
+    if (mar.right() != value) {
+      mar.setRight(value);
+      axisrect->setMargins(mar);
+      axisrect->parentPlot()->replot(
+          QCustomPlot::RefreshPriority::rpQueuedReplot);
+    }
+  } else if (prop->compare(layoutpropertybottommarginitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    QMargins mar = axisrect->margins();
+    if (mar.bottom() != value) {
+      mar.setBottom(value);
+      axisrect->setMargins(mar);
+      axisrect->parentPlot()->replot(
+          QCustomPlot::RefreshPriority::rpQueuedReplot);
+    }
+  } else if (prop->compare(axispropertyoffsetitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setoffset_axis(value);
     axis->layer()->replot();
@@ -3668,14 +3745,23 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
 
 void PropertyEditor::Layout2DPropertyBlock(AxisRect2D *axisrect) {
   propertybrowser_->clear();
-  colorManager_->blockSignals(true);
 
-  layoutpropertygroupitem_->setPropertyName(QString("Layout 1x%1").arg(1));
   rectManager_->setValue(layoutpropertyrectitem_, axisrect->outerRect());
   colorManager_->setValue(layoutpropertycoloritem_,
                           axisrect->backgroundBrush().color());
-  propertybrowser_->addProperty(layoutpropertygroupitem_);
-  colorManager_->blockSignals(false);
+  propertybrowser_->addProperty(layoutpropertycoloritem_);
+  propertybrowser_->addProperty(layoutpropertyrectitem_);
+  propertybrowser_->addProperty(layoutpropertymargingroupitem_);
+  boolManager_->setValue(layoutpropertyautomarginstatusitem_,
+                         axisrect->autoMargins());
+  intManager_->setValue(layoutpropertyleftmarginitem_,
+                        axisrect->margins().left());
+  intManager_->setValue(layoutpropertyrightmarginitem_,
+                        axisrect->margins().right());
+  intManager_->setValue(layoutpropertytopmarginitem_,
+                        axisrect->margins().top());
+  intManager_->setValue(layoutpropertybottommarginitem_,
+                        axisrect->margins().bottom());
 }
 
 void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
@@ -6534,9 +6620,18 @@ void PropertyEditor::setObjectPropertyId() {
   canvaspropertyopenglitem_->setPropertyId("canvaspropertyopenglitem_");
   canvaspropertysizeitem_->setPropertyId("canvaspropertysizeitem_");
   // Layout properties
-  layoutpropertygroupitem_->setPropertyId("layoutpropertygroupitem_");
+  layoutpropertymargingroupitem_->setPropertyId(
+      "layoutpropertymargingroupitem_");
   layoutpropertyrectitem_->setPropertyId("layoutpropertyrectitem_");
   layoutpropertycoloritem_->setPropertyId("layoutpropertycoloritem_");
+  layoutpropertyautomarginstatusitem_->setPropertyId(
+      "layoutpropertyautomarginstatusitem_");
+  layoutpropertyleftmarginitem_->setPropertyId("layoutpropertyleftmarginitem_");
+  layoutpropertyrightmarginitem_->setPropertyId(
+      "layoutpropertyrightmarginitem_");
+  layoutpropertytopmarginitem_->setPropertyId("layoutpropertytopmarginitem_");
+  layoutpropertybottommarginitem_->setPropertyId(
+      "layoutpropertybottommarginitem_");
   // Axis Properties General Block
   axispropertyvisibleitem_->setPropertyId("axispropertyvisibleitem_");
   axispropertyoffsetitem_->setPropertyId("axispropertyoffsetitem_");
@@ -7229,4 +7324,17 @@ void PropertyEditor::setObjectPropertyId() {
   // Matrix
   matrixwindowrowcountitem_->setPropertyId("matrixwindowrowcountitem_");
   matrixwindowcolcountitem_->setPropertyId("matrixwindowcolcountitem_");
+}
+
+void PropertyEditor::blockManagers(bool value) {
+  groupManager_->blockSignals(value);
+  boolManager_->blockSignals(value);
+  intManager_->blockSignals(value);
+  doubleManager_->blockSignals(value);
+  stringManager_->blockSignals(value);
+  sizeManager_->blockSignals(value);
+  rectManager_->blockSignals(value);
+  enumManager_->blockSignals(value);
+  colorManager_->blockSignals(value);
+  fontManager_->blockSignals(value);
 }

@@ -1,4 +1,5 @@
 == progress ==
+* add margin adjustment for layout elements
 * add Polynomial, Cubic Periodic, Akima Periodic and Steffen Interpolation
 * add 3D polar plot options and a 2D polar spectogrm with camera position on top
 * 2D axis from to precision setting based on axis tick precision

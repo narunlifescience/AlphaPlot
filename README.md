@@ -79,3 +79,4 @@ The following packages may be required by Alpha plot ...
 
 Out of this QCustomPlot and muParser sources(s) are already present in 3rdparty folder and will be statically built to alphaplot. so these packages need not be installed on your system.
 
+Note: AlphaPlot uses QtDataVisualization module for 3D plotting. You may have to install its equivalent manually if the build fails with the following ERROR: Unknown module(s) in QT: datavisualization. If you are building with a local Qt installation, you may install the module with Qt maintenance tool.
