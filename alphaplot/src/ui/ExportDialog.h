@@ -44,7 +44,7 @@ class ExportDialog : public QDialog {
    * \param parent parent widget
    * \param fl window flags
    */
-  ExportDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);
+  ExportDialog(QWidget* parent = nullptr, Qt::WindowFlags fl = Qt::Widget);
   //! Destructor
   ~ExportDialog();
 

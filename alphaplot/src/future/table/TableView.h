@@ -93,7 +93,7 @@ class TableView : public MyWidget {
   TableView(future::Table *table);
 #else
   TableView(const QString &label, QWidget *parent = nullptr,
-            const QString name = 0, Qt::WindowFlags f = 0);
+            const QString name = QString(), Qt::WindowFlags f = Qt::Widget);
   void setTable(future::Table *table);
 #endif
   //! Destructor

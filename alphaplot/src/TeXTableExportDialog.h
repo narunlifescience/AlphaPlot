@@ -46,7 +46,7 @@ class TeXTableExportDialog : public ExtensibleFileDialog {
   Q_OBJECT
 
  public:
-  TeXTableExportDialog(QWidget* parent = 0);
+  TeXTableExportDialog(QWidget* parent = nullptr);
   //! Returns the TeX table settings choosed by the user
   TeXTableSettings tex_TableSettings(void);
 

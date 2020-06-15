@@ -40,7 +40,7 @@ class ColorBox : public QComboBox {
   /**
    * \param parent parent widget
    */
-  ColorBox(QWidget* parent = 0);
+  ColorBox(QWidget* parent = nullptr);
   //! Set the current color
   void setColor(const QColor& c);
   //! Return the current color

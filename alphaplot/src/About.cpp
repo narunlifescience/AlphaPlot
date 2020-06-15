@@ -36,14 +36,12 @@ About::About(QWidget* parent) : QDialog(parent) {
   ui_.versionLabel->setText(AlphaPlot::versionString() +
                             AlphaPlot::extraVersion());
   ui_.releaseDateLabel->setText(AlphaPlot::releaseDateString());
-  (Utilities::getWordSizeApp() == 0)
-      ? ui_.buildLabel->setText(tr("Unknown"))
-      : (Utilities::getWordSizeApp() == 32) ? ui_.buildLabel->setText("x86")
-                                            : ui_.buildLabel->setText("x86_64");
+  ui_.buildLabel->setText(QSysInfo::buildCpuArchitecture());
+
   ui_.buildLabel->setVisible(false);
   ui_.buildLabelCaption->setVisible(false);
   ui_.originalAuthorLabel->setText(AlphaPlot::originalAuthor());
   ui_.osLabel->setText(QString("%1 %2-bit")
-                           .arg(Utilities::getOperatingSystem())
-                           .arg(Utilities::getWordSizeOfOS()));
+                           .arg(QSysInfo::prettyProductName())
+                           .arg(QSysInfo::currentCpuArchitecture()));
 }

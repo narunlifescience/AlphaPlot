@@ -43,7 +43,7 @@ class LayerDialog : public QDialog {
   Q_OBJECT
 
  public:
-  LayerDialog(QWidget *parent = 0, Qt::WindowFlags fl = 0);
+  LayerDialog(QWidget *parent = nullptr, Qt::WindowFlags fl = Qt::Widget);
   void setLayout2D(Layout2D *layout);
 
  protected slots:

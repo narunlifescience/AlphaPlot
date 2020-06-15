@@ -30,26 +30,26 @@
 #ifndef MATRIXVIEW_H
 #define MATRIXVIEW_H
 
-#include <QWidget>
-#include <QTableView>
-#include <QMessageBox>
-#include <QHeaderView>
-#include <QSize>
-#include <QTabWidget>
-#include <QPushButton>
-#include <QToolButton>
+#include <QComboBox>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
-#include <QTextEdit>
+#include <QMessageBox>
 #include <QPushButton>
-#include <QComboBox>
-#include <QSpinBox>
 #include <QScrollArea>
+#include <QSize>
+#include <QSpinBox>
+#include <QTabWidget>
+#include <QTableView>
+#include <QTextEdit>
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <QWidget>
+
+#include "MyWidget.h"
 #include "globals.h"
 #include "ui_matrixcontroltabs.h"
-#include "MyWidget.h"
 
 namespace future {
 class Matrix;
@@ -85,8 +85,8 @@ class MatrixView : public MyWidget {
 #ifndef LEGACY_CODE_0_2_x
   MatrixView(future::Matrix* matrix);
 #else
-  MatrixView(const QString& label, QWidget* parent = 0, const QString name = 0,
-             Qt::WindowFlags f = 0);
+  MatrixView(const QString& label, QWidget* parent = nullptr,
+             const QString name = QString(), Qt::WindowFlags f = Qt::Widget);
   void setMatrix(future::Matrix* matrix);
 #endif
   //! Destructor
@@ -197,14 +197,14 @@ class MatrixView : public MyWidget {
   //! Button to toogle the visibility of #d_tool_box
   QToolButton* d_hide_button;
   QHBoxLayout* d_main_layout;
-  QWidget *d_main_widget;
+  QWidget* d_main_widget;
   future::Matrix* d_matrix;
 
   //! Pointer to the current underlying model
   MatrixModel* d_model;
 
   virtual void changeEvent(QEvent* event);
-  virtual void resizeEvent(QResizeEvent*event);
+  virtual void resizeEvent(QResizeEvent* event);
   void retranslateStrings();
 
   bool eventFilter(QObject* watched, QEvent* event);

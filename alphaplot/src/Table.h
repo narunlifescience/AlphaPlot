@@ -66,10 +66,10 @@ class Table : public TableView, public scripted, public QScriptable {
   Table(ScriptingEnv* env, const QString& fname, const QString& sep,
         int ignoredLines, bool renameCols, bool stripSpaces,
         bool simplifySpaces, bool convertToNumeric, QLocale numericFormat,
-        const QString& label, QWidget* parent = 0, const char* name = 0,
+        const QString& label, QWidget* parent = nullptr, const char* name = 0,
         Qt::WindowFlags f = Qt::SubWindow);
   Table(ScriptingEnv* env, int r, int c, const QString& label,
-        QWidget* parent = 0, const char* name = 0,
+        QWidget* parent = nullptr, const char* name = 0,
         Qt::WindowFlags f = Qt::SubWindow);
 
   //! Sets the number of significant digits

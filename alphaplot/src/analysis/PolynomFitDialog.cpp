@@ -131,7 +131,7 @@ void PolynomFitDialog::setAxisRect(AxisRect2D *axisrect) {
   axisrect_ = axisrect;
   boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
   activateCurve(boxName->currentText());
-};
+}
 
 void PolynomFitDialog::activateCurve(const QString &curveName) {
   Q_UNUSED(curveName);
@@ -153,7 +153,7 @@ void PolynomFitDialog::activateCurve(const QString &curveName) {
 
   boxStart->setText(QString::number(start, 'g', 15));
   boxEnd->setText(QString::number(end, 'g', 15));
-};
+}
 
 void PolynomFitDialog::changeDataRange() {
   double start = xmin_;

@@ -30,6 +30,7 @@
 #define ERRDIALOG_H
 
 #include <2Dplot/Graph2DCommon.h>
+
 #include <QDialog>
 #include <QList>
 
@@ -57,7 +58,8 @@ class ErrDialog : public QDialog {
    * \param parent parent widget
    * \param fl window flags
    */
-  ErrDialog(QWidget* parent, AxisRect2D* axisrect, Qt::WindowFlags fl = 0);
+  ErrDialog(QWidget* parent, AxisRect2D* axisrect,
+            Qt::WindowFlags fl = Qt::Widget);
   //! Destructor
   ~ErrDialog();
 

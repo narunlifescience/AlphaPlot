@@ -39,7 +39,8 @@ void Custom3DInteractions::mouseMoveEvent(QMouseEvent *event,
 }
 
 void Custom3DInteractions::wheelEvent(QWheelEvent *event) {
-  (event->delta() > 0) ? zoomfactor_ += deltazoom_ : zoomfactor_ -= deltazoom_;
+  (event->angleDelta().y() > 0) ? zoomfactor_ += deltazoom_
+                                : zoomfactor_ -= deltazoom_;
   scene()->activeCamera()->setZoomLevel(zoomfactor_);
   QAbstract3DInputHandler::wheelEvent(event);
 }

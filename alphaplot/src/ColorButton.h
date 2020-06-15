@@ -46,7 +46,7 @@ class ColorButton : public QWidget {
 
  public:
   //! Constructor
-  ColorButton(QWidget *parent = 0);
+  ColorButton(QWidget *parent = nullptr);
   //! Set the color of the display part
   void setColor(const QColor &c);
   //! Get the color of the display part

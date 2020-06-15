@@ -1916,7 +1916,7 @@ Table *ApplicationWindow::newTable(const QString &fname, const QString &sep,
                                    QLocale numericLocale) {
   Table *table = new Table(scriptEnv, fname, sep, lines, renameCols,
                            stripSpaces, simplifySpaces, convertToNumeric,
-                           numericLocale, fname, d_workspace, 0, 0);
+                           numericLocale, fname, d_workspace, 0, Qt::Widget);
   if (table) {
     table->setName(generateUniqueName(tr("Table")));
     d_project->addChild(table->d_future_table);
@@ -2566,10 +2566,11 @@ void ApplicationWindow::importASCII(const QStringList &files, int import_mode,
   if (!table) return;
 
   foreach (QString file, files) {
-    Table *temp = new Table(
-        scriptEnv, file, local_column_separator, local_ignored_lines,
-        local_rename_columns, local_strip_spaces, local_simplify_spaces,
-        local_convert_to_numeric, local_numeric_locale, "temp", 0, 0, 0);
+    Table *temp =
+        new Table(scriptEnv, file, local_column_separator, local_ignored_lines,
+                  local_rename_columns, local_strip_spaces,
+                  local_simplify_spaces, local_convert_to_numeric,
+                  local_numeric_locale, "temp", 0, 0, Qt::Widget);
     if (!temp) continue;
 
     // need to check data types of columns for append/overwrite

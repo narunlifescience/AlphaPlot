@@ -45,7 +45,7 @@ class TextFormatButtons : public QWidget {
    * \param textEdit the QTextEdit that the buttons shall affect
    * \param parent parent widget
    */
-  TextFormatButtons(QTextEdit *textEdit, QWidget *parent = 0);
+  TextFormatButtons(QTextEdit *textEdit, QWidget *parent = nullptr);
   //! Show/Hide the "add curve" button
   void toggleCurveButton(bool enable);
 

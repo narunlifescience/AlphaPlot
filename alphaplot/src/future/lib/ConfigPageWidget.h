@@ -37,7 +37,7 @@ class ConfigPageWidget : public QWidget {
   Q_OBJECT
 
  public:
-  ConfigPageWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
+  ConfigPageWidget(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::Widget);
 
  public slots:
   virtual void apply() = 0;

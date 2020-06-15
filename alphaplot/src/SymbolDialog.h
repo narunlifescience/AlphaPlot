@@ -58,7 +58,8 @@ class SymbolDialog : public QDialog {
    * \param parent parent widget
    * \param fl window flags
    */
-  SymbolDialog(CharSet charSet, QWidget* parent = 0, Qt::WindowFlags fl = 0);
+  SymbolDialog(CharSet charSet, QWidget* parent = nullptr,
+               Qt::WindowFlags fl = Qt::Widget);
   //! Destructor
   ~SymbolDialog();
 
@@ -98,5 +99,4 @@ class SymbolDialog : public QDialog {
   void addLetter(const QString&);
 };
 
-#endif // SYMBOLDIALOG_H
- 
+#endif  // SYMBOLDIALOG_H

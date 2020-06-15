@@ -1,38 +1,7 @@
 /* minigzip.c -- simulate gzip using the zlib compression library
- * Copyright (C) 1995-2005 Jean-loup Gailly.
+ * Copyright (C) 1995-2006, 2010, 2011, 2016 Jean-loup Gailly
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
-
-/* Copyright notice from zlib.h: 
-  zlib.h -- interface of the 'zlib' general purpose compression library
-  version 1.2.3, July 18th, 2005
-
-  Copyright (C) 1995-2005 Jean-loup Gailly and Mark Adler
-
-  This software is provided 'as-is', without any express or implied
-  warranty.  In no event will the authors be held liable for any damages
-  arising from the use of this software.
-
-  Permission is granted to anyone to use this software for any purpose,
-  including commercial applications, and to alter it and redistribute it
-  freely, subject to the following restrictions:
-
-  1. The origin of this software must not be misrepresented; you must not
-     claim that you wrote the original software. If you use this software
-     in a product, an acknowledgment in the product documentation would be
-     appreciated but is not required.
-  2. Altered source versions must be plainly marked as such, and must not be
-     misrepresented as being the original software.
-  3. This notice may not be removed or altered from any source distribution.
-
-  Jean-loup Gailly        Mark Adler
-  jloup@gzip.org          madler@alumni.caltech.edu
-
-
-  The data format used by the zlib library is described by RFCs (Request for
-  Comments) 1950 to 1952 in the files http://www.ietf.org/rfc/rfc1950.txt
-  (zlib format), rfc1951.txt (deflate format) and rfc1952.txt (gzip format).
-*/
 
 /*
  * minigzip is a minimal implementation of the gzip utility. This is
@@ -46,8 +15,8 @@
 
 /* @(#) $Id$ */
 
-#include <stdio.h>
 #include "zlib.h"
+#include <stdio.h>
 
 #ifdef STDC
 #  include <string.h>
@@ -63,9 +32,16 @@
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
+#  ifdef UNDER_CE
+#    include <stdlib.h>
+#  endif
 #  define SET_BINARY_MODE(file) setmode(fileno(file), O_BINARY)
 #else
 #  define SET_BINARY_MODE(file)
+#endif
+
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#  define snprintf _snprintf
 #endif
 
 #ifdef VMS
@@ -81,9 +57,75 @@
 #  include <unix.h> /* for fileno */
 #endif
 
+#if !defined(Z_HAVE_UNISTD_H) && !defined(_LARGEFILE64_SOURCE)
 #ifndef WIN32 /* unlink already in stdio.h for WIN32 */
   extern int unlink OF((const char *));
 #endif
+#endif
+
+#if defined(UNDER_CE)
+#  include <windows.h>
+#  define perror(s) pwinerror(s)
+
+/* Map the Windows error number in ERROR to a locale-dependent error
+   message string and return a pointer to it.  Typically, the values
+   for ERROR come from GetLastError.
+
+   The string pointed to shall not be modified by the application,
+   but may be overwritten by a subsequent call to strwinerror
+
+   The strwinerror function does not change the current setting
+   of GetLastError.  */
+
+static char *strwinerror (error)
+     DWORD error;
+{
+    static char buf[1024];
+
+    wchar_t *msgbuf;
+    DWORD lasterr = GetLastError();
+    DWORD chars = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM
+        | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+        NULL,
+        error,
+        0, /* Default language */
+        (LPVOID)&msgbuf,
+        0,
+        NULL);
+    if (chars != 0) {
+        /* If there is an \r\n appended, zap it.  */
+        if (chars >= 2
+            && msgbuf[chars - 2] == '\r' && msgbuf[chars - 1] == '\n') {
+            chars -= 2;
+            msgbuf[chars] = 0;
+        }
+
+        if (chars > sizeof (buf) - 1) {
+            chars = sizeof (buf) - 1;
+            msgbuf[chars] = 0;
+        }
+
+        wcstombs(buf, msgbuf, chars + 1);
+        LocalFree(msgbuf);
+    }
+    else {
+        sprintf(buf, "unknown win32 error (%ld)", error);
+    }
+
+    SetLastError(lasterr);
+    return buf;
+}
+
+static void pwinerror (s)
+    const char *s;
+{
+    if (s && *s)
+        fprintf(stderr, "%s: %s\n", s, strwinerror(GetLastError ()));
+    else
+        fprintf(stderr, "%s\n", strwinerror(GetLastError ()));
+}
+
+#endif /* UNDER_CE */
 
 #ifndef GZ_SUFFIX
 #  define GZ_SUFFIX ".gz"
@@ -100,7 +142,198 @@
 #  define local
 #endif
 
-char *prog;
+#ifdef Z_SOLO
+/* for Z_SOLO, create simplified gz* functions using deflate and inflate */
+
+#if defined(Z_HAVE_UNISTD_H) || defined(Z_LARGE)
+#  include <unistd.h>       /* for unlink() */
+#endif
+
+void *myalloc OF((void *, unsigned, unsigned));
+void myfree OF((void *, void *));
+
+void *myalloc(q, n, m)
+    void *q;
+    unsigned n, m;
+{
+    (void)q;
+    return calloc(n, m);
+}
+
+void myfree(q, p)
+    void *q, *p;
+{
+    (void)q;
+    free(p);
+}
+
+typedef struct gzFile_s {
+    FILE *file;
+    int write;
+    int err;
+    char *msg;
+    z_stream strm;
+} *gzFile;
+
+gzFile gzopen OF((const char *, const char *));
+gzFile gzdopen OF((int, const char *));
+gzFile gz_open OF((const char *, int, const char *));
+
+gzFile gzopen(path, mode)
+const char *path;
+const char *mode;
+{
+    return gz_open(path, -1, mode);
+}
+
+gzFile gzdopen(fd, mode)
+int fd;
+const char *mode;
+{
+    return gz_open(NULL, fd, mode);
+}
+
+gzFile gz_open(path, fd, mode)
+    const char *path;
+    int fd;
+    const char *mode;
+{
+    gzFile gz;
+    int ret;
+
+    gz = malloc(sizeof(struct gzFile_s));
+    if (gz == NULL)
+        return NULL;
+    gz->write = strchr(mode, 'w') != NULL;
+    gz->strm.zalloc = myalloc;
+    gz->strm.zfree = myfree;
+    gz->strm.opaque = Z_NULL;
+    if (gz->write)
+        ret = deflateInit2(&(gz->strm), -1, 8, 15 + 16, 8, 0);
+    else {
+        gz->strm.next_in = 0;
+        gz->strm.avail_in = Z_NULL;
+        ret = inflateInit2(&(gz->strm), 15 + 16);
+    }
+    if (ret != Z_OK) {
+        free(gz);
+        return NULL;
+    }
+    gz->file = path == NULL ? fdopen(fd, gz->write ? "wb" : "rb") :
+                              fopen(path, gz->write ? "wb" : "rb");
+    if (gz->file == NULL) {
+        gz->write ? deflateEnd(&(gz->strm)) : inflateEnd(&(gz->strm));
+        free(gz);
+        return NULL;
+    }
+    gz->err = 0;
+    gz->msg = "";
+    return gz;
+}
+
+int gzwrite OF((gzFile, const void *, unsigned));
+
+int gzwrite(gz, buf, len)
+    gzFile gz;
+    const void *buf;
+    unsigned len;
+{
+    z_stream *strm;
+    unsigned char out[BUFLEN];
+
+    if (gz == NULL || !gz->write)
+        return 0;
+    strm = &(gz->strm);
+    strm->next_in = (void *)buf;
+    strm->avail_in = len;
+    do {
+        strm->next_out = out;
+        strm->avail_out = BUFLEN;
+        (void)deflate(strm, Z_NO_FLUSH);
+        fwrite(out, 1, BUFLEN - strm->avail_out, gz->file);
+    } while (strm->avail_out == 0);
+    return len;
+}
+
+int gzread OF((gzFile, void *, unsigned));
+
+int gzread(gz, buf, len)
+    gzFile gz;
+    void *buf;
+    unsigned len;
+{
+    int ret;
+    unsigned got;
+    unsigned char in[1];
+    z_stream *strm;
+
+    if (gz == NULL || gz->write)
+        return 0;
+    if (gz->err)
+        return 0;
+    strm = &(gz->strm);
+    strm->next_out = (void *)buf;
+    strm->avail_out = len;
+    do {
+        got = fread(in, 1, 1, gz->file);
+        if (got == 0)
+            break;
+        strm->next_in = in;
+        strm->avail_in = 1;
+        ret = inflate(strm, Z_NO_FLUSH);
+        if (ret == Z_DATA_ERROR) {
+            gz->err = Z_DATA_ERROR;
+            gz->msg = strm->msg;
+            return 0;
+        }
+        if (ret == Z_STREAM_END)
+            inflateReset(strm);
+    } while (strm->avail_out);
+    return len - strm->avail_out;
+}
+
+int gzclose OF((gzFile));
+
+int gzclose(gz)
+    gzFile gz;
+{
+    z_stream *strm;
+    unsigned char out[BUFLEN];
+
+    if (gz == NULL)
+        return Z_STREAM_ERROR;
+    strm = &(gz->strm);
+    if (gz->write) {
+        strm->next_in = Z_NULL;
+        strm->avail_in = 0;
+        do {
+            strm->next_out = out;
+            strm->avail_out = BUFLEN;
+            (void)deflate(strm, Z_FINISH);
+            fwrite(out, 1, BUFLEN - strm->avail_out, gz->file);
+        } while (strm->avail_out == 0);
+        deflateEnd(strm);
+    }
+    else
+        inflateEnd(strm);
+    fclose(gz->file);
+    free(gz);
+    return Z_OK;
+}
+
+const char *gzerror OF((gzFile, int *));
+
+const char *gzerror(gz, err)
+    gzFile gz;
+    int *err;
+{
+    *err = gz->err;
+    return gz->msg;
+}
+
+#endif
+
+static char *prog;
 
 void error            OF((const char *msg));
 void gz_compress      OF((FILE   *in, gzFile out));
@@ -108,7 +341,7 @@ void gz_compress      OF((FILE   *in, gzFile out));
 int  gz_compress_mmap OF((FILE   *in, gzFile out));
 #endif
 void gz_uncompress    OF((gzFile in, FILE   *out));
-void file_compress    OF((const char  *file, const char *mode));
+void file_compress    OF((char  *file, char *mode));
 void file_uncompress  OF((char  *file));
 int  main             OF((int argc, char *argv[]));
 
@@ -222,15 +455,24 @@ void gz_uncompress(in, out)
  * original.
  */
 void file_compress(file, mode)
-    const char  *file;
-    const char  *mode;
+    char  *file;
+    char  *mode;
 {
     local char outfile[MAX_NAME_LEN];
     FILE  *in;
     gzFile out;
 
+    if (strlen(file) + strlen(GZ_SUFFIX) >= sizeof(outfile)) {
+        fprintf(stderr, "%s: filename too long\n", prog);
+        exit(1);
+    }
+
+#if !defined(NO_snprintf) && !defined(NO_vsnprintf)
+    snprintf(outfile, sizeof(outfile), "%s%s", file, GZ_SUFFIX);
+#else
     strcpy(outfile, file);
     strcat(outfile, GZ_SUFFIX);
+#endif
 
     in = fopen(file, "rb");
     if (in == NULL) {
@@ -258,9 +500,18 @@ void file_uncompress(file)
     char *infile, *outfile;
     FILE  *out;
     gzFile in;
-    uInt len = (uInt)strlen(file);
+    unsigned len = strlen(file);
 
+    if (len + strlen(GZ_SUFFIX) >= sizeof(buf)) {
+        fprintf(stderr, "%s: filename too long\n", prog);
+        exit(1);
+    }
+
+#if !defined(NO_snprintf) && !defined(NO_vsnprintf)
+    snprintf(buf, sizeof(buf), "%s", file);
+#else
     strcpy(buf, file);
+#endif
 
     if (len > SUFFIX_LEN && strcmp(file+len-SUFFIX_LEN, GZ_SUFFIX) == 0) {
         infile = file;
@@ -269,7 +520,11 @@ void file_uncompress(file)
     } else {
         outfile = file;
         infile = buf;
+#if !defined(NO_snprintf) && !defined(NO_vsnprintf)
+        snprintf(buf + len, sizeof(buf) - len, "%s", GZ_SUFFIX);
+#else
         strcat(infile, GZ_SUFFIX);
+#endif
     }
     in = gzopen(infile, "rb");
     if (in == NULL) {
@@ -286,4 +541,3 @@ void file_uncompress(file)
 
     unlink(infile);
 }
-

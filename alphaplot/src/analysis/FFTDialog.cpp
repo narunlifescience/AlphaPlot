@@ -170,7 +170,7 @@ void FFTDialog::setAxisrect(AxisRect2D *axisrect) {
   axisrect_ = axisrect;
   boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
   activateCurve(boxName->currentText());
-};
+}
 
 void FFTDialog::activateCurve(const QString &curveName) {
   if (axisrect_) {
@@ -188,7 +188,7 @@ void FFTDialog::activateCurve(const QString &curveName) {
     double x1 = d_table->text(1, col).toDouble();
     boxSampling->setText(QString::number(x1 - x0));
   }
-};
+}
 
 void FFTDialog::setTable(Table *table) {
   d_table = table;
@@ -218,4 +218,4 @@ void FFTDialog::setTable(Table *table) {
     boxReal->setCurrentIndex(table->colIndex(l[0]));
     boxImaginary->setCurrentIndex(table->colIndex(l[1]));
   }
-};
+}
