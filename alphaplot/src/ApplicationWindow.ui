@@ -134,10 +134,10 @@
     <addaction name="actionAddTimeStamp"/>
     <addaction name="actionAddImage"/>
     <addaction name="separator"/>
-    <addaction name="actionAutomaticLayout"/>
-    <addaction name="actionAddLayer"/>
-    <addaction name="actionRemoveLayer"/>
-    <addaction name="actionArrangeLayers"/>
+    <addaction name="actionAddNestedLayout"/>
+    <addaction name="actionAddLayout"/>
+    <addaction name="actionRemoveLayout"/>
+    <addaction name="actionArrangeLayout"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -824,22 +824,22 @@
     <string>Ctrl+L</string>
    </property>
   </action>
-  <action name="actionAutomaticLayout">
+  <action name="actionAddNestedLayout">
    <property name="text">
-    <string>A&amp;utomatic Layout</string>
+    <string>Add Nested Layout</string>
    </property>
   </action>
-  <action name="actionAddLayer">
+  <action name="actionAddLayout">
    <property name="text">
     <string>Add &amp;Layout</string>
    </property>
   </action>
-  <action name="actionRemoveLayer">
+  <action name="actionRemoveLayout">
    <property name="text">
-    <string>&amp;Remove Layer</string>
+    <string>&amp;Remove Layout</string>
    </property>
   </action>
-  <action name="actionArrangeLayers">
+  <action name="actionArrangeLayout">
    <property name="text">
     <string>Arran&amp;ge Layouts...</string>
    </property>

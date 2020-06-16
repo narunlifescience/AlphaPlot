@@ -95,12 +95,12 @@ class Layout2D : public MyWidget {
   QStringList dependentTableMatrixNames();
   void setAxisRangeDrag(bool value);
   void setAxisRangeZoom(bool value);
+  AxisRect2D *addAxisRectWithAxis();
+  void removeAxisRectItem();
 
  private slots:
-  AxisRect2D *addAxisRectWithAxis();
   AxisRect2D *addAxisRectItem(const AlphaPlot::ColumnDataType &xcoldatatype,
                               const AlphaPlot::ColumnDataType &ycoldatatype);
-  void removeAxisRectItem();
   void axisRectSetFocus(AxisRect2D *rect);
   void activateLayout(LayoutButton2D *button);
   void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,

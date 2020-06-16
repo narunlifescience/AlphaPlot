@@ -651,12 +651,12 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->actionAddImage, SIGNAL(triggered()), this, SLOT(addImage()));
   connect(ui_->actionDrawEllipse, SIGNAL(triggered()), this,
           SLOT(drawEllipse()));
-  connect(ui_->actionAutomaticLayout, SIGNAL(triggered()), this,
-          SLOT(autoArrangeLayers()));
-  connect(ui_->actionAddLayer, SIGNAL(triggered()), this, SLOT(addLayer()));
-  connect(ui_->actionRemoveLayer, SIGNAL(triggered()), this,
-          SLOT(deleteLayer()));
-  connect(ui_->actionArrangeLayers, SIGNAL(triggered()), this,
+  connect(ui_->actionAddNestedLayout, SIGNAL(triggered()), this,
+          SLOT(addNestedLayout()));
+  connect(ui_->actionAddLayout, SIGNAL(triggered()), this, SLOT(addLayout()));
+  connect(ui_->actionRemoveLayout, SIGNAL(triggered()), this,
+          SLOT(deleteLayout()));
+  connect(ui_->actionArrangeLayout, SIGNAL(triggered()), this,
           SLOT(showLayerDialog()));
   // Tools menu
   ui_->actionDisableGraphTools->setActionGroup(graphToolsGroup);
@@ -933,10 +933,10 @@ void ApplicationWindow::makeToolBars() {
   QMenu *menu_layers = new QMenu(this);
   btn_layout_->setMenu(menu_layers);
   graphToolsToolbar->addWidget(btn_layout_);
-  menu_layers->addAction(ui_->actionAutomaticLayout);
-  menu_layers->addAction(ui_->actionAddLayer);
-  menu_layers->addAction(ui_->actionRemoveLayer);
-  menu_layers->addAction(ui_->actionArrangeLayers);
+  menu_layers->addAction(ui_->actionAddNestedLayout);
+  menu_layers->addAction(ui_->actionAddLayout);
+  menu_layers->addAction(ui_->actionRemoveLayout);
+  menu_layers->addAction(ui_->actionArrangeLayout);
   QMenu *menu_curves = new QMenu(this);
   btn_curves_->setMenu(menu_curves);
   graphToolsToolbar->addWidget(btn_curves_);
@@ -6116,37 +6116,21 @@ Matrix *ApplicationWindow::importImage(const QString &fileName) {
   return m;
 }
 
-void ApplicationWindow::autoArrangeLayers() {
+void ApplicationWindow::addNestedLayout() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
   qDebug() << "not implimented";
 }
 
-void ApplicationWindow::addLayer() {
+void ApplicationWindow::addLayout() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
-  qDebug() << "not implimented";
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  layout->addAxisRectWithAxis();
 }
 
-void ApplicationWindow::deleteLayer() {
+void ApplicationWindow::deleteLayout() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
-  qDebug() << "not implimented";
-}
-
-Note *ApplicationWindow::openNote(ApplicationWindow *app,
-                                  const QStringList &flist) {
-  QStringList lst = flist[0].split("\t", QString::SkipEmptyParts);
-  QString caption = lst[0];
-  Note *w = app->newNote(caption);
-  if (lst.count() == 2) {
-    app->setListViewDate(caption, lst[1]);
-    w->setBirthDate(lst[1]);
-  }
-  restoreWindowGeometry(app, w, flist[1]);
-
-  lst = flist[2].split("\t");
-  w->setWindowLabel(lst[1]);
-  w->setCaptionPolicy(static_cast<MyWidget::CaptionPolicy>(lst[2].toInt()));
-  app->setListViewLabel(w->name(), lst[1]);
-  return w;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  layout->removeAxisRectItem();
 }
 
 void ApplicationWindow::copyActiveLayer() {
@@ -8549,13 +8533,13 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("clock", IconLoader::LightDark));
   ui_->actionAddImage->setIcon(
       IconLoader::load("view-image", IconLoader::LightDark));
-  ui_->actionAutomaticLayout->setIcon(
+  ui_->actionAddNestedLayout->setIcon(
       IconLoader::load("auto-layout", IconLoader::LightDark));
-  ui_->actionAddLayer->setIcon(
+  ui_->actionAddLayout->setIcon(
       IconLoader::load("layer-new", IconLoader::LightDark));
-  ui_->actionRemoveLayer->setIcon(
+  ui_->actionRemoveLayout->setIcon(
       IconLoader::load("edit-delete-selection", IconLoader::LightDark));
-  ui_->actionArrangeLayers->setIcon(
+  ui_->actionArrangeLayout->setIcon(
       IconLoader::load("layer-arrange", IconLoader::LightDark));
   // Tools menu
   ui_->actionDisableGraphTools->setIcon(

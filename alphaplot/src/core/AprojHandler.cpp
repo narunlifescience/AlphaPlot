@@ -1,7 +1,5 @@
 #include "AprojHandler.h"
 
-#include <zlib.h>
-
 #include <QFile>
 #include <QMdiSubWindow>
 
@@ -17,10 +15,6 @@
 #include "future/lib/XmlStreamWriter.h"
 
 const QString AprojHandler::xmlschemafile_ = ":xmlschema/aproj.xsd";
-
-extern "C" {
-void file_compress(const char *file, const char *mode);
-}
 
 AprojHandler::AprojHandler(ApplicationWindow *app)
     : QObject(app), app_(app), recursivecount_(0) {
@@ -73,6 +67,11 @@ ApplicationWindow *AprojHandler::openproject(const QString &filename) {
         tr("The file <b>%1</b> is not a valid project file.").arg(filename));
     return nullptr;
   }*/
+
+  if (!file) {
+    qDebug() << "unable to open " << filename;
+    return nullptr;
+  }
 
   recursivecount_ = 0;
   ApplicationWindow *app = new ApplicationWindow();
@@ -293,67 +292,46 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
 }
 
 QFile *AprojHandler::openCompressedFile(const QString &filename) {
-  QTemporaryFile *file;
-  char buf[16384];
-  int len = 0;
-  int err = 0;
-
-  gzFile in = gzopen(QFile::encodeName(filename).constData(), "rb");
-  if (!in) {
-    QMessageBox::critical(app_, tr("File opening error"),
-                          tr("zlib can't open %1.").arg(filename));
+  QTemporaryFile *tempfile = new QTemporaryFile;
+  std::unique_ptr<QFile> file = std::unique_ptr<QFile>(new QFile(filename));
+  if (!file->open(QIODevice::ReadOnly) || !tempfile->open()) {
+    qDebug() << "unable to open " << filename;
     return nullptr;
   }
-  file = new QTemporaryFile();
-  if (!file || !file->open()) {
-    gzclose(in);
-    QMessageBox::critical(
-        app_, tr("File opening error"),
-        tr("Can't create temporary file for writing uncompressed copy of %1.")
-            .arg(filename));
-    return nullptr;
-  }
+  std::unique_ptr<QByteArray> bytearray =
+      std::unique_ptr<QByteArray>(new QByteArray);
 
-  forever {
-    len = gzread(in, buf, sizeof(buf));
-    if (len == 0) break;
-    if (len < 0) {
-      QMessageBox::critical(app_, tr("File opening error"), gzerror(in, &err));
-      gzclose(in);
-      file->close();
-      delete file;
-      return nullptr;
-    }
-    if (file->write(buf, len) != len) {
-      QMessageBox::critical(
-          app_, tr("File opening error"),
-          tr("Error writing to temporary file: %1").arg(file->errorString()));
-      gzclose(in);
-      file->close();
-      delete file;
-      return nullptr;
-    }
-  }
-
-  gzclose(in);
-  file->reset();
-  return file;
+  *bytearray.get() = file->readAll();
+  tempfile->write(qUncompress(*bytearray.get()));
+  bytearray->clear();
+  tempfile->reset();
+  return tempfile;
 }
 
 bool AprojHandler::saveproject(const QString &filename, Folder *folder) {
   bool compress = false;
-  QString fname = filename;
-  if (fname.endsWith(".gz")) {
-    fname = fname.left(fname.length() - 3);
-    compress = true;
-  }
-  std::unique_ptr<QFile> file = std::unique_ptr<QFile>(new QFile(fname));
+  if (filename.endsWith(".gz")) compress = true;
+
+  std::unique_ptr<XmlStreamWriter> xmlwriter;
+  std::unique_ptr<QFile> file = std::unique_ptr<QFile>(new QFile(filename));
   if (!file->open(QIODevice::WriteOnly | QIODevice::Text)) {
     qDebug() << "failed to open xml file for writing";
     return false;
   }
-  std::unique_ptr<XmlStreamWriter> xmlwriter =
-      std::unique_ptr<XmlStreamWriter>(new XmlStreamWriter(file.get()));
+  std::unique_ptr<QByteArray> bytearray =
+      std::unique_ptr<QByteArray>(new QByteArray);
+
+  if (!compress) {
+    // Uncompressed file save
+    xmlwriter =
+        std::unique_ptr<XmlStreamWriter>(new XmlStreamWriter(file.get()));
+  } else {
+    // Compressed file save
+    bytearray = std::unique_ptr<QByteArray>(new QByteArray);
+    xmlwriter =
+        std::unique_ptr<XmlStreamWriter>(new XmlStreamWriter(bytearray.get()));
+  }
+
   xmlwriter->setCodec("UTF-8");
 
   xmlwriter->setAutoFormatting(false);
@@ -373,9 +351,11 @@ bool AprojHandler::saveproject(const QString &filename, Folder *folder) {
   xmlwriter->writeEndElement();
   xmlwriter->writeEndElement();
   xmlwriter->writeEndDocument();
-
-  if (compress) file_compress(QFile::encodeName(fname).constData(), "wb9");
-  file->close();
+  // Compressed file
+  if (compress) {
+    file->write(qCompress(*bytearray.get()));
+  }
+  file->commitTransaction();
   return true;
 }
 

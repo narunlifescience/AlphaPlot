@@ -262,8 +262,8 @@ class ApplicationWindow : public QMainWindow,
   // void setAppColors(const QColor& wc, const QColor& pc, const QColor& tpc);
   //@}
 
-  void addLayer();
-  void deleteLayer();
+  void addLayout();
+  void deleteLayout();
 
   //! Creates a new spectrogram graph
   Layout2D* plotGrayScale();
@@ -271,7 +271,7 @@ class ApplicationWindow : public QMainWindow,
   Layout2D* plotColorMap();
 
   //! Rearrange the layersin order to fit to the size of the plot window
-  void autoArrangeLayers();
+  void addNestedLayout();
   void plot2VerticalLayers();
   void plot2HorizontalLayers();
   void plot4Layers();
@@ -702,7 +702,6 @@ class ApplicationWindow : public QMainWindow,
   //@{
   //! Creates a new empty note window
   Note* newNote(const QString& caption = QString());
-  Note* openNote(ApplicationWindow* app, const QStringList& flist);
   void initNote(Note* note, const QString& caption);
   void saveNoteAs();
   //@}

@@ -62,13 +62,13 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   layoutManagebuttonsBox_->addWidget(refreshPlotButton_);
 
   addLayoutButton_ = new QPushButton();
-  addLayoutButton_->setToolTip(tr("Add layer"));
+  addLayoutButton_->setToolTip(tr("Add layout"));
   addLayoutButton_->setMaximumWidth(LayoutButton2D::btnSize());
   addLayoutButton_->setMaximumHeight(LayoutButton2D::btnSize());
   layoutManagebuttonsBox_->addWidget(addLayoutButton_);
 
   removeLayoutButton_ = new QPushButton();
-  removeLayoutButton_->setToolTip(tr("Remove active layer"));
+  removeLayoutButton_->setToolTip(tr("Remove active layout"));
   removeLayoutButton_->setMaximumWidth(LayoutButton2D::btnSize());
   removeLayoutButton_->setMaximumHeight(LayoutButton2D::btnSize());
   layoutManagebuttonsBox_->addWidget(removeLayoutButton_);

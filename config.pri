@@ -83,13 +83,12 @@ contains(PRESET, linux_all_dynamic) {
   INCLUDEPATH   = "$(HOME)/usr/include" $$INCLUDEPATH
   QMAKE_LIBDIR  = "$(HOME)/usr/lib" $$QMAKE_LIBDIR
 
-  LIBS         += -lz -lGLU
-  LIBS         += -lgsl -lgslcblas
+  LIBS         += -lGLU -lgsl -lgslcblas
 }
 
 contains(PRESET, linux_static) {
   ### Link statically and dynamically against rest.
-  LIBS         += -lgsl -lgslcblas -lz -lGLU
+  LIBS         += -lgsl -lgslcblas -lGLU
 }
 
 contains(PRESET, linux_all_static) {
@@ -105,7 +104,7 @@ contains(PRESET, osx_dist) {
 
   INCLUDEPATH  += /usr/local/include
   QMAKE_LIBDIR += /usr/local/lib
-  LIBS         += -lgsl -lgslcblas -lz
+  LIBS         += -lgsl -lgslcblas
 }
 
 win32: {
@@ -135,20 +134,6 @@ mxe {
   LIBS += -lQt5PrintSupport -lQt5Xml -lQt5XmlPatterns -lQt5DataVisualization
   LIBS += -lole32 -loleaut32 -limm32 -lcomdlg32 -luuid 
   LIBS += -lwinspool -lssl -lcrypto -lwinmm -lgdi32 -lws2_32
-  LIBS += -ljpeg -lpng -lmng -ltiff -lz -llzma -llcms2
+  LIBS += -ljpeg -lpng -lmng -ltiff -llzma -llcms2
   LIBS += -lopengl32 -lglu32 
 }
-
-#############################################################################
-### Names of the lupdate and lrelease programs                              #
-#############################################################################
-
-#exists(/usr/bin/lupdate-qt4) {
-  # Debian, Ubuntu, Fedora
-  #LUPDATE_BIN  = lupdate-qt4
-  #LRELEASE_BIN = lrelease-qt4
-#} else {
-  # anything else
-  #LUPDATE_BIN  = lupdate
-  #LRELEASE_BIN = lrelease
-#}

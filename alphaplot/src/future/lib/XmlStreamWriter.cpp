@@ -9,6 +9,9 @@ XmlStreamWriter::XmlStreamWriter() : QXmlStreamWriter() {}
 XmlStreamWriter::XmlStreamWriter(QIODevice *device)
     : QXmlStreamWriter(device) {}
 
+XmlStreamWriter::XmlStreamWriter(QByteArray *bytearray)
+    : QXmlStreamWriter(bytearray) {}
+
 void XmlStreamWriter::writeFont(const QFont &font, const QColor &color) {
   writeStartElement("font");
   writeAttribute("family", font.family());

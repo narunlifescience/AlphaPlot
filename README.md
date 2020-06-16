@@ -75,7 +75,6 @@ The following packages may be required by Alpha plot ...
 | QCustomPlot   | https://www.qcustomplot.com/                 |
 | muParser      | http://muparser.beltoforion.de/              |
 | GSL           | http://www.gnu.org/software/gsl/             |
-| Zlib          | https://zlib.net/                            |
 
 Out of this QCustomPlot and muParser sources(s) are already present in 3rdparty folder and will be statically built to alphaplot. so these packages need not be installed on your system.
 

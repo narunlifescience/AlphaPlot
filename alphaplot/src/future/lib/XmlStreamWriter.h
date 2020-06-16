@@ -7,6 +7,7 @@ class XmlStreamWriter : public QXmlStreamWriter {
  public:
   XmlStreamWriter();
   XmlStreamWriter(QIODevice* device);
+  XmlStreamWriter(QByteArray* bytearray);
 
   void writeFont(const QFont &font, const QColor &color);
   void writePen(const QPen &pen);
