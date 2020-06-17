@@ -42,7 +42,6 @@ Compile and install:
 
 For Windows/OSX see [installation notes](data/INSTALL.md)
 
-
 Opening an issue
 ----------------
 ### Ask for a new feature
@@ -79,3 +78,52 @@ The following packages may be required by Alpha plot ...
 Out of this QCustomPlot and muParser sources(s) are already present in 3rdparty folder and will be statically built to alphaplot. so these packages need not be installed on your system.
 
 Note: AlphaPlot uses QtDataVisualization module for 3D plotting. You may have to install its equivalent manually if the build fails with the following ERROR: Unknown module(s) in QT: datavisualization. If you are building with a local Qt installation, you may install the module with Qt maintenance tool.
+
+# Credits
+
+## Packagers
+
+The following people have made installing AlphaPlot easier by providing specialized binary packages.
+In alphabetical order.
+- [Filipe](https://github.com/filipestevao) ([Linux AppImage](https://github.com/filipestevao/AlphaPlot-AppImage/releases/download/v1.011/AlphaPlot-1.011.glibc2.29-x86_64.AppImage))
+
+## SciDAVis & QtiPlot Developers
+
+The following people have written parts of the SciDAVis source code, ranging from a few lines to large chunks.
+In alphabetical order.
+
+- Tilman Benkert, 
+- Knut Franke,
+- Miquel Garriga,
+- Arun Narayanankutty,
+- Russell Standish,
+- Shen Chen,
+- Borries Demeler,
+- José Antonio Lorenzo Fernández,
+- Vasileios Gkanis,
+- Gudjon Gudjonsson,
+- Alex Kargovsky,
+- Michael Mac-Vicar,
+- Tomomasa Ohkubo,
+- Aaron Van Tassle,
+- Branimir Vasilic,
+- Ion Vasilief,
+- Vincent Wagelaar
+
+
+The AlphaPlot manual is based on the QtiPlot and SciDAVis manual, written by (in alphabetical order):
+
+- Knut Franke, 
+- Roger Gadiou, 
+- Ion Vasilief
+
+We also thank all the tools and library devolopers & contributors used by AlphaPlot (in no perticular order):
+
+- Qt (https://www.qt.io/),
+- Qt Creator (https://www.qt.io/product/development-tools),
+- QCustomPlot (https://www.qcustomplot.com/),
+- muParser (https://beltoforion.de/en/muparser/),
+- Sublime Text editor (https://www.sublimetext.com/),
+- GSL (http://www.gnu.org/software/gsl/)
+
+... and many more we just forgot to mention.
