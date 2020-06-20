@@ -255,6 +255,10 @@ class PropertyEditor : public QDockWidget {
   QtProperty *itempropertylegendborderstrokethicknessitem_;
   QtProperty *itempropertylegendborderstroketypeitem_;
   QtProperty *itempropertylegendbackgroundcoloritem_;
+  QtProperty *itempropertylegendtitlevisibleitem_;
+  QtProperty *itempropertylegendtitletextitem_;
+  QtProperty *itempropertylegendtitlefontitem_;
+  QtProperty *itempropertylegendtitlecoloritem_;
 
   // Text Item Properties
   QtProperty *itempropertytextpixelpositionxitem_;

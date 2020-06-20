@@ -18,7 +18,7 @@ Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalys
 
 
 # Donate
-AlphaPlot is an open source project that has been made possible due to the generous contributions by community backers. If you are interested in supporting this project, please consider becoming a sponsor or becoming a patron https://www.patreon.com/alphaplot
+AlphaPlot is an open-source project that has been made possible due to the generous contributions by community backers. If you are interested in supporting this project, please consider becoming a sponsor or becoming a patron https://www.patreon.com/alphaplot
 
 # Watch the Video
 [![AlphaPlot Plotting Basics](data/screenshots/alphaplot1.png)](http://www.youtube.com/watch?v=U3DE_ObVLeU "AlphaPlot Plotting Basics")
@@ -50,7 +50,7 @@ Please:
 
  * Check if the new feature is not already implemented (Changelog)
  * Check if another person didn't already open an issue
- * If there is already an opened issue there is no need to comment unless you have more information, it won't help. Instead, you can click on :thumbsup: and subscribe to the issue to be notified of anything new about it 
+ * If there is already an opened issue, there is no need to comment unless you have more information, it won't help. Instead, you can click on :thumbsup: and subscribe to the issue to be notified of anything new about it 
 
 ### Report a bug
 
@@ -66,7 +66,7 @@ If there are no answers, it doesn't mean we don't care about your feature reques
 
 ## Dependencies
 
-The following packages may be required by Alpha plot ...
+AlphaPlot may require the following packages ...
 
 | Package       | Link                                         |
 |:--------------|:---------------------------------------------|
@@ -75,11 +75,15 @@ The following packages may be required by Alpha plot ...
 | muParser      | http://muparser.beltoforion.de/              |
 | GSL           | http://www.gnu.org/software/gsl/             |
 
-Out of this QCustomPlot and muParser sources(s) are already present in 3rdparty folder and will be statically built to alphaplot. so these packages need not be installed on your system.
+Out of this, QCustomPlot and muParser sources(s) are already present in 3rdparty folder and will be statically built to AlphaPlot. So these packages need not be installed on your system.
 
 Note: AlphaPlot uses QtDataVisualization module for 3D plotting. You may have to install its equivalent manually if the build fails with the following ERROR: Unknown module(s) in QT: datavisualization. If you are building with a local Qt installation, you may install the module with Qt maintenance tool.
 
 # Credits
+
+## Author
+
+- **Arun Narayanankutty**
 
 ## Packagers
 
@@ -89,41 +93,41 @@ In alphabetical order.
 
 ## SciDAVis & QtiPlot Developers
 
-The following people have written parts of the SciDAVis source code, ranging from a few lines to large chunks.
-In alphabetical order.
+AlphaPlot is a fork of SciDAVis(at the time of the fork, i.e. SciDAVis 1.D009) which in turn is a fork of QtiPlot(at the time of the fork, i.e. QtiPlot 0.9-rc2). The following people have written parts of the SciDAVis & QtiPlot source code, ranging from a few lines to large chunks(in alphabetical order).
 
-- Tilman Benkert, 
-- Knut Franke,
-- Miquel Garriga,
-- Arun Narayanankutty,
-- Russell Standish,
+- Tilman Benkert,
 - Shen Chen,
 - Borries Demeler,
 - José Antonio Lorenzo Fernández,
+- Knut Franke,
+- Miquel Garriga,
 - Vasileios Gkanis,
 - Gudjon Gudjonsson,
 - Alex Kargovsky,
 - Michael Mac-Vicar,
+- **Arun Narayanankutty,**
 - Tomomasa Ohkubo,
+- Russell Standish,
 - Aaron Van Tassle,
 - Branimir Vasilic,
 - Ion Vasilief,
 - Vincent Wagelaar
 
 
-The AlphaPlot manual is based on the QtiPlot and SciDAVis manual, written by (in alphabetical order):
+The AlphaPlot manual is based on the QtiPlot and SciDAVis manual, written by(in alphabetical order):
 
 - Knut Franke, 
 - Roger Gadiou, 
 - Ion Vasilief
 
-We also thank all the tools and library devolopers & contributors used by AlphaPlot (in no perticular order):
+We thank all the tools and library developers & contributors used by AlphaPlot(in no particular order):
 
 - Qt (https://www.qt.io/),
 - Qt Creator (https://www.qt.io/product/development-tools),
 - QCustomPlot (https://www.qcustomplot.com/),
 - muParser (https://beltoforion.de/en/muparser/),
 - Sublime Text editor (https://www.sublimetext.com/),
-- GSL (http://www.gnu.org/software/gsl/)
+- GSL (http://www.gnu.org/software/gsl/),
+- GIT (https://git-scm.com/)
 
 ... and many more we just forgot to mention.

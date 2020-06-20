@@ -295,6 +295,16 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
                              stroketypeiconslist);
   itempropertylegendbackgroundcoloritem_ =
       colorManager_->addProperty("Background color");
+  itempropertylegendtitlevisibleitem_ = boolManager_->addProperty(tr("Title"));
+  itempropertylegendtitletextitem_ = stringManager_->addProperty(tr("Text"));
+  itempropertylegendtitlevisibleitem_->addSubProperty(
+      itempropertylegendtitletextitem_);
+  itempropertylegendtitlefontitem_ = fontManager_->addProperty(tr("Font"));
+  itempropertylegendtitlevisibleitem_->addSubProperty(
+      itempropertylegendtitlefontitem_);
+  itempropertylegendtitlecoloritem_ = colorManager_->addProperty(tr("Color"));
+  itempropertylegendtitlevisibleitem_->addSubProperty(
+      itempropertylegendtitlecoloritem_);
   doubleManager_->setRange(itempropertylegendoriginxitem_, 0, 1);
   doubleManager_->setRange(itempropertylegendoriginyitem_, 0, 1);
   doubleManager_->setSingleStep(itempropertylegendoriginxitem_, 0.01);
@@ -1491,6 +1501,14 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->sethidden_legend(value);
     legend->layer()->replot();
+  } else if (prop->compare(itempropertylegendtitlevisibleitem_)) {
+    Legend2D *legend =
+        getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
+    itempropertylegendtitletextitem_->setEnabled(value);
+    itempropertylegendtitlefontitem_->setEnabled(value);
+    itempropertylegendtitlecoloritem_->setEnabled(value);
+    (value) ? legend->addtitle_legend() : legend->removetitle_legend();
+    legend->layer()->replot();
   } else if (prop->compare(itempropertytextantialiaseditem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
@@ -1859,6 +1877,16 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
     QBrush b = legend->brush();
     b.setColor(color);
     legend->setBrush(b);
+    legend->layer()->replot();
+  } else if (prop->compare(itempropertylegendtitlecoloritem_)) {
+    Legend2D *legend =
+        getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
+    legend->settitlecolor_legend(color);
+    legend->layer()->replot();
+  } else if (prop->compare(itempropertylegendtitlecoloritem_)) {
+    Legend2D *legend =
+        getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
+    legend->settitlecolor_legend(color);
     legend->layer()->replot();
   } else if (prop->compare(itempropertytextcoloritem_)) {
     TextItem2D *textitem =
@@ -2689,6 +2717,11 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setLabel(Utilities::splitstring(value));
     axis->layer()->replot();
+  } else if (prop->compare(itempropertylegendtitletextitem_)) {
+    Legend2D *legend =
+        getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
+    legend->settitletext_legend(value);
+    legend->layer()->replot();
   } else if (prop->compare(itempropertytexttextitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
@@ -3521,6 +3554,11 @@ void PropertyEditor::valueChange(QtProperty *prop, const QFont &font) {
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
     legend->setFont(font);
     legend->layer()->replot();
+  } else if (prop->compare(itempropertylegendtitlefontitem_)) {
+    Legend2D *legend =
+        getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
+    legend->settitlefont_legend(font);
+    legend->layer()->replot();
   } else if (prop->compare(colormappropertyscaleaxislabelfontitem_)) {
     ColorMap2D *colormap =
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
@@ -3972,6 +4010,7 @@ void PropertyEditor::Legend2DPropertyBlock(Legend2D *legend) {
   propertybrowser_->addProperty(itempropertylegendborderstrokethicknessitem_);
   propertybrowser_->addProperty(itempropertylegendborderstroketypeitem_);
   propertybrowser_->addProperty(itempropertylegendbackgroundcoloritem_);
+  propertybrowser_->addProperty(itempropertylegendtitlevisibleitem_);
 
   doubleManager_->setValue(itempropertylegendoriginxitem_,
                            legend->getposition_legend().x());
@@ -3996,6 +4035,14 @@ void PropertyEditor::Legend2DPropertyBlock(Legend2D *legend) {
                          legend->getborderstrokestyle_legend() - 1);
   colorManager_->setValue(itempropertylegendbackgroundcoloritem_,
                           legend->brush().color());
+  boolManager_->setValue(itempropertylegendtitlevisibleitem_,
+                         legend->istitle_legend());
+  stringManager_->setValue(itempropertylegendtitletextitem_,
+                           legend->titletext_legend());
+  fontManager_->setValue(itempropertylegendtitlefontitem_,
+                         legend->titlefont_legend());
+  colorManager_->setValue(itempropertylegendtitlecoloritem_,
+                          legend->titlecolor_legend());
 }
 
 void PropertyEditor::TextItem2DPropertyBlock(TextItem2D *textitem) {
@@ -6721,6 +6768,14 @@ void PropertyEditor::setObjectPropertyId() {
       "itempropertylegendborderstroketypeitem_");
   itempropertylegendbackgroundcoloritem_->setPropertyId(
       "itempropertylegendbackgroundcoloritem_");
+  itempropertylegendtitlevisibleitem_->setPropertyId(
+      "itempropertylegendtitlevisibleitem_");
+  itempropertylegendtitletextitem_->setPropertyId(
+      "itempropertylegendtitletextitem_");
+  itempropertylegendtitlefontitem_->setPropertyId(
+      "itempropertylegendtitlefontitem_");
+  itempropertylegendtitlecoloritem_->setPropertyId(
+      "itempropertylegendtitlecoloritem_");
   // Text Item Properties block
   itempropertytextpixelpositionxitem_->setPropertyId(
       "itempropertytextpixelpositionxitem_");

@@ -50,7 +50,7 @@ AxisRect2D::AxisRect2D(Plot2D *parent, bool setupDefaultAxis)
   setAxisRectBackground(axisRectBackGround_);
   insetLayout()->addElement(axisRectLegend_, Qt::AlignTop | Qt::AlignLeft);
   insetLayout()->setInsetPlacement(0, QCPLayoutInset::ipFree);
-  axisRectLegend_->setLayer(plot2d_->getLegend2DLayerName());
+  axisRectLegend_->setlayer_legend(plot2d_->getLegend2DLayerName());
   connect(axisRectLegend_, SIGNAL(legendClicked()), SLOT(legendClick()));
 }
 

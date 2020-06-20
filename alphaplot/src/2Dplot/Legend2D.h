@@ -24,6 +24,18 @@ class Legend2D : public QCPLegend {
   void setborderstrokethickness_legend(const double value);
   void setborderstrokestyle_legend(const Qt::PenStyle &style);
   void setposition_legend(QPointF origin);
+  void addtitle_legend();
+  void removetitle_legend();
+  // getters
+  bool istitle_legend() const;
+  QString titletext_legend() const;
+  QFont titlefont_legend() const;
+  QColor titlecolor_legend() const;
+  // setters
+  void settitletext_legend(const QString &text);
+  void settitlefont_legend(const QFont &font);
+  void settitlecolor_legend(const QColor &color);
+  void setlayer_legend(QString lname);
 
   void save(XmlStreamWriter *xmlwriter);
   bool load(XmlStreamReader *xmlreader);
@@ -42,6 +54,10 @@ class Legend2D : public QCPLegend {
   bool draggingLegend_;
   QPointF dragLegendOrigin_;
   Qt::CursorShape cursorshape_;
+  QCPTextElement *title_element_;
+  QString title_text_;
+  QColor title_color_;
+  QFont title_font_;
 };
 
 class LegendItem2D : public QCPPlottableLegendItem {

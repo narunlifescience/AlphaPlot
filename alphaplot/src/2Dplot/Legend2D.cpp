@@ -8,7 +8,11 @@ Legend2D::Legend2D(AxisRect2D *axisrect)
     : QCPLegend(),
       axisrect_(axisrect),
       draggingLegend_(false),
-      cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {}
+      cursorshape_(axisrect->getParentPlot2D()->cursor().shape()),
+      title_element_(nullptr),
+      title_text_("Title"),
+      title_color_(this->textColor()),
+      title_font_(this->font()) {}
 
 Legend2D::~Legend2D() {}
 
@@ -56,6 +60,74 @@ void Legend2D::setposition_legend(QPointF origin) {
   QRectF rect = axisrect_->insetLayout()->insetRect(0);
   rect.setTopLeft(origin);
   axisrect_->insetLayout()->setInsetRect(0, rect);
+}
+
+void Legend2D::addtitle_legend() {
+  if (istitle_legend()) {
+    qDebug() << "Legend Title already exists! you cannot add new title element";
+    return;
+  }
+
+  title_element_ = new QCPTextElement(axisrect_->getParentPlot2D());
+  title_element_->setLayer(this->layer());
+  title_element_->setText(title_text_);
+  title_element_->setFont(title_font_);
+  title_element_->setTextColor(title_color_);
+  if (this->hasElement(0, 0)) this->insertRow(0);
+  this->addElement(0, 0, title_element_);
+  this->simplify();
+}
+
+void Legend2D::removetitle_legend() {
+  if (!istitle_legend()) {
+    qDebug() << "you cannot add new title element! no Legend title.";
+    return;
+  }
+
+  bool status = false;
+  status = this->removeAt(0);
+  if (status) title_element_ = nullptr;
+  this->simplify();
+}
+
+bool Legend2D::istitle_legend() const {
+  if (title_element_) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+QString Legend2D::titletext_legend() const { return title_text_; }
+
+QFont Legend2D::titlefont_legend() const { return title_font_; }
+
+QColor Legend2D::titlecolor_legend() const { return title_color_; }
+
+void Legend2D::settitletext_legend(const QString &text) {
+  if (istitle_legend()) {
+    title_element_->setText(text);
+    title_text_ = text;
+  }
+}
+
+void Legend2D::settitlefont_legend(const QFont &font) {
+  if (istitle_legend()) {
+    title_element_->setFont(font);
+    title_font_ = font;
+  }
+}
+
+void Legend2D::settitlecolor_legend(const QColor &color) {
+  if (istitle_legend()) {
+    title_element_->setTextColor(color);
+    title_color_ = color;
+  }
+}
+
+void Legend2D::setlayer_legend(QString lname) {
+  setLayer(lname);
+  if (title_element_) title_element_->setLayer(lname);
 }
 
 void Legend2D::save(XmlStreamWriter *xmlwriter) {
