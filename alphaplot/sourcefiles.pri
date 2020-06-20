@@ -7,6 +7,8 @@
 HEADERS  += src/ApplicationWindow.h \
             src/core/IconLoader.h \
             src/core/Utilities.h \
+            src/core/widgets/MyTreeWidget.h \
+            src/core/widgets/propertyeditor.h \
             src/globals.h\
             src/scripting/MuParserScript.h \
             src/scripting/MuParserScripting.h \
@@ -91,6 +93,8 @@ HEADERS  += src/ApplicationWindow.h \
 SOURCES  += src/ApplicationWindow.cpp \
             src/core/IconLoader.cpp \
             src/core/Utilities.cpp \
+            src/core/widgets/MyTreeWidget.cpp \
+            src/core/widgets/propertyeditor.cpp \
             src/scripting/MuParserScript.cpp \
             src/scripting/MuParserScripting.cpp \
             src/scripting/MyParser.cpp\
@@ -171,6 +175,7 @@ SOURCES  += src/ApplicationWindow.cpp \
 
 ###################### FORMS ##############################################
 FORMS        += src/ApplicationWindow.ui \
+                src/core/widgets/propertyeditor.ui \
                 src/scripting/widgets/ConsoleWidget.ui \
                 src/ui/GeneralApplicationSettings.ui \
                 src/ui/GeneralAppreanceSettings.ui \
@@ -307,7 +312,6 @@ SOURCES     += src/plotcommon/widgets/ImageExportDialog.cpp \
 ##############################################################
 
 HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
-               src/2Dplot/widgets/propertyeditor.h \
                src/2Dplot/widgets/Function2DDialog.h \
                src/2Dplot/Axis2D.h \
                src/2Dplot/AxisRect2D.h \
@@ -322,11 +326,8 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/Vector2D.h \
                src/2Dplot/DataManager2D.h \
                src/2Dplot/Curve2D.h \
-               src/2Dplot/PlotPoint.h \
                src/2Dplot/Pie2D.h \
                src/2Dplot/ColorMap2D.h \
-               src/2Dplot/widgets/MyTreeWidget.h \
-               src/2Dplot/widgets/AddAxisWidget.h \
                src/2Dplot/Graph2DCommon.h \
                src/2Dplot/widgets/AddPlot2DDialog.h \
                src/2Dplot/widgets/ErrDialog.h \
@@ -337,7 +338,6 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/Plotcolumns.h \
 
 SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
-               src/2Dplot/widgets/propertyeditor.cpp \
                src/2Dplot/widgets/Function2DDialog.cpp \
                src/2Dplot/Axis2D.cpp \
                src/2Dplot/AxisRect2D.cpp \
@@ -352,11 +352,8 @@ SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/Vector2D.cpp \
                src/2Dplot/DataManager2D.cpp \
                src/2Dplot/Curve2D.cpp \
-               src/2Dplot/PlotPoint.cpp \
                src/2Dplot/Pie2D.cpp \
                src/2Dplot/ColorMap2D.cpp \
-               src/2Dplot/widgets/MyTreeWidget.cpp \
-               src/2Dplot/widgets/AddAxisWidget.cpp \
                src/2Dplot/widgets/AddPlot2DDialog.cpp \
                src/2Dplot/widgets/ErrDialog.cpp \
                src/2Dplot/LineItem2D.cpp \
@@ -364,9 +361,7 @@ SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/TextItem2D.cpp \
                src/2Dplot/ImageItem2D.cpp \
 
-FORMS       += src/2Dplot/widgets/propertyeditor.ui \
-               src/2Dplot/widgets/Function2DDialog.ui \
-               src/2Dplot/widgets/AddAxisWidget.ui \
+FORMS       += src/2Dplot/widgets/Function2DDialog.ui \
 
 ##############################################################
 ####################### 3DPlot ###############################

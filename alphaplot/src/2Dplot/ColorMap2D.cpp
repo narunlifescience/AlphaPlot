@@ -50,7 +50,8 @@ void ColorMap2D::setColorMapData(Matrix *matrix) {
   rows_ = matrix_->numRows();
   columns_ = matrix_->numCols();
   data_->setSize(matrix_->numRows(), matrix_->numCols());
-  data_->setRange(QCPRange(0, rows_ - 1), QCPRange(0, columns_ - 1));
+  data_->setRange(QCPRange(matrix_->xStart(), matrix_->xEnd()),
+                  QCPRange(matrix_->yStart(), matrix_->yEnd()));
   double datamin = matrix_->cell(0, 0);
   double datamax = matrix_->cell(0, 0);
   double value = datamin;

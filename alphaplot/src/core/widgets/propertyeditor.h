@@ -19,7 +19,7 @@
 
 #include <QDockWidget>
 
-#include "../Axis2D.h"
+#include "2Dplot/Axis2D.h"
 #include "2Dplot/TextItem2D.h"
 #include "ApplicationWindow.h"
 #include "MyTreeWidget.h"

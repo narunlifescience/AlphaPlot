@@ -124,7 +124,7 @@
 #include "2Dplot/Plotcolumns.h"
 #include "2Dplot/widgets/AddPlot2DDialog.h"
 #include "2Dplot/widgets/Function2DDialog.h"
-#include "2Dplot/widgets/propertyeditor.h"
+#include "core/widgets/propertyeditor.h"
 #include "3Dplot/Bar3D.h"
 #include "3Dplot/DataManager3D.h"
 #include "3Dplot/Graph3DCommon.h"

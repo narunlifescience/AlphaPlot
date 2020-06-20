@@ -9,9 +9,8 @@
 #include "2Dplot/ImageItem2D.h"
 #include "2Dplot/LineItem2D.h"
 #include "2Dplot/TextItem2D.h"
-#include "AddAxisWidget.h"
-#include "AddPlot2DDialog.h"
-#include "Function2DDialog.h"
+#include "2Dplot/widgets/AddPlot2DDialog.h"
+#include "2Dplot/widgets/Function2DDialog.h"
 #include "core/IconLoader.h"
 
 MyTreeWidget::MyTreeWidget(QWidget *parent)

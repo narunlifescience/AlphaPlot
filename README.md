@@ -128,6 +128,9 @@ We thank all the tools and library developers & contributors used by AlphaPlot(i
 - muParser (https://beltoforion.de/en/muparser/),
 - Sublime Text editor (https://www.sublimetext.com/),
 - GSL (http://www.gnu.org/software/gsl/),
-- GIT (https://git-scm.com/)
+- Git (https://git-scm.com/),
+- Breeze Icons (https://github.com/KDE/breeze-icons),
+- Inno Setup (https://jrsoftware.org/isinfo.php),
+- AppImage (https://appimage.org/)
 
 ... and many more we just forgot to mention.
