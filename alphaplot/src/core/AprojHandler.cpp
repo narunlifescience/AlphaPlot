@@ -4,7 +4,7 @@
 #include <QMdiSubWindow>
 
 #include "2Dplot/Layout2D.h"
-#include "2Dplot/widgets/propertyeditor.h"
+#include "widgets/propertyeditor.h"
 #include "3Dplot/Layout3D.h"
 #include "ApplicationWindow.h"
 #include "Folder.h"
