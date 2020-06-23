@@ -124,13 +124,13 @@
 #include "2Dplot/Plotcolumns.h"
 #include "2Dplot/widgets/AddPlot2DDialog.h"
 #include "2Dplot/widgets/Function2DDialog.h"
-#include "core/widgets/propertyeditor.h"
 #include "3Dplot/Bar3D.h"
 #include "3Dplot/DataManager3D.h"
 #include "3Dplot/Graph3DCommon.h"
 #include "3Dplot/Layout3D.h"
 #include "3Dplot/Scatter3D.h"
 #include "3Dplot/Surface3D.h"
+#include "core/widgets/propertyeditor.h"
 #include "scripting/ScriptingFunctions.h"
 #include "scripting/ScriptingLangDialog.h"
 #include "scripting/widgets/ConsoleWidget.h"
@@ -7642,30 +7642,30 @@ bool ApplicationWindow::findRecursive(FolderTreeWidgetItem *item,
   return false;
 }
 
-/*void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
+void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
   if (!dest || draggedItems.isEmpty()) return;
 
-  Folder *dest_f = ((FolderListItem *)dest)->folder();
+  Folder *dest_f = ((FolderTreeWidgetItem *)dest)->folder();
 
   QTreeWidgetItem *it;
   QStringList subfolders = dest_f->subfolders();
 
   foreach (it, draggedItems) {
-    if (it->rtti() == FolderListItem::RTTI) {
-      Folder *f = ((FolderListItem *)it)->folder();
-      FolderListItem *src = f->folderListItem();
+    if (it->type() == FolderTreeWidget::ItemType::Folders) {
+      Folder *f = ((FolderTreeWidgetItem *)it)->folder();
+      FolderTreeWidgetItem *src = f->folderTreeWidgetItem();
       if (dest_f == f) {
         QMessageBox::critical(this, "Error",
                               tr("Cannot move an object to itself!"));
         return;
       }
 
-      if (((FolderListItem *)dest)->isChildOf(src)) {
+      if (((FolderTreeWidgetItem *)dest)->isChildOf(src)) {
         QMessageBox::critical(
             this, "Error",
             tr("Cannot move a parent folder into a child folder!"));
         draggedItems.clear();
-        folders->setCurrentItem(current_folder->folderListItem());
+        ui_->folderView->setCurrentItem(current_folder->folderTreeWidgetItem());
         return;
       }
 
@@ -7675,16 +7675,16 @@ bool ApplicationWindow::findRecursive(FolderTreeWidgetItem *item,
 
       if (subfolders.contains(f->name())) {
         QMessageBox::critical(
-            this, tr("AlphaPlot") + " - " + tr("Skipped moving folder"),
+            this, tr("SciDAVis") + " - " + tr("Skipped moving folder"),
             tr("The destination folder already contains a folder called '%1'! "
                "Folder skipped!")
                 .arg(f->name()));
       } else
-        moveFolder(src, (FolderListItem *)dest);
+        moveFolder(src, (FolderTreeWidgetItem *)dest);
     } else {
       if (dest_f == current_folder) return;
 
-      MyWidget *w = ((WindowListItem *)it)->window();
+      MyWidget *w = ((WindowTableWidgetItem *)it)->window();
       if (w) {
         current_folder->removeWindow(w);
         w->hide();
@@ -7696,15 +7696,15 @@ bool ApplicationWindow::findRecursive(FolderTreeWidgetItem *item,
 
   draggedItems.clear();
   current_folder = dest_f;
-  folders->setCurrentItem(dest_f->folderListItem());
+  ui_->folderView->setCurrentItem(dest_f->folderTreeWidgetItem());
   changeFolder(dest_f, true);
-  folders->setFocus();
+  ui_->folderView->setFocus();
   modifiedProject();
 }
 
 void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
                                    FolderTreeWidgetItem *dest) {
-  folders->blockSignals(true);
+  ui_->folderView->blockSignals(true);
 
   Folder *dest_f = dest->folder();
   Folder *src_f = src->folder();
@@ -7755,8 +7755,8 @@ void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
   src_f = src->folder();
   delete src_f;
   delete src;
-  folders->blockSignals(false);
-}*/
+  ui_->folderView->blockSignals(false);
+}
 
 #ifdef SEARCH_FOR_UPDATES
 // Check for upates

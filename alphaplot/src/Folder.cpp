@@ -18,7 +18,6 @@
    Description : Folder, items & widgets for the project explorer */
 
 #include "Folder.h"
-#include "core/IconLoader.h"
 
 #include <QCursor>
 #include <QDateTime>
@@ -26,13 +25,14 @@
 #include <QEvent>
 #include <QKeyEvent>
 #include <QMessageBox>
-#include <QMessageBox>
 #include <QMouseEvent>
 #include <QObject>
 #include <QPixmap>
 #include <QPoint>
 #include <QStringList>
 #include <QTime>
+
+#include "core/IconLoader.h"
 
 QStringList Folder::currentFolderNames = {};
 
@@ -101,8 +101,7 @@ MyWidget *Folder::findWindow(const QString &name, bool windowNames, bool labels,
   if (lstWindows.isEmpty()) return nullptr;
 
   Qt::CaseSensitivity casesen = Qt::CaseSensitive;
-  if(!caseSensitive)
-    casesen = Qt::CaseInsensitive;
+  if (!caseSensitive) casesen = Qt::CaseInsensitive;
 
   foreach (MyWidget *window, lstWindows) {
     if (windowNames) {
@@ -204,6 +203,17 @@ bool FolderTreeWidgetItem::isChildOf(FolderTreeWidgetItem *src) {
     parent = static_cast<FolderTreeWidgetItem *>(parent->parent());
   }
   return false;
+}
+
+int FolderTreeWidgetItem::depth() {
+  int dep = 0;
+  FolderTreeWidgetItem *parent =
+      dynamic_cast<FolderTreeWidgetItem *>(this->parent());
+  while (parent) {
+    dep++;
+    parent = dynamic_cast<FolderTreeWidgetItem *>(parent->parent());
+  }
+  return dep;
 }
 
 //--------------------------class FolderTreeWidget-----------------------------

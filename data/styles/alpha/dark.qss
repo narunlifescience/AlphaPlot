@@ -1078,10 +1078,40 @@ QToolButton::menu-arrow:open {
     border: 1px solid #3A3939;
 }
 
-QPushButton::menu-indicator  {
-    subcontrol-origin: padding;
-    subcontrol-position: bottom right;
-    left: 8px;
+ToolButton {
+    background-color: #302F2F;
+    border: 1px #4A4949;
+    border-radius: 2px;
+    margin: 0px;
+    padding: 0px;
+}
+
+ToolButton[popupMode="1"] { /* only for MenuButtonPopup */
+    background-color: #302F2F;
+    border: 1px #4A4949;
+    border-radius: 2px;
+    margin: 0px;
+    padding: 0px;
+}
+
+ToolButton[popupMode="2"] { /* only for InstantPopup */
+    background-color: #302F2F;
+    border: 1px #4A4949;
+    border-radius: 2px;
+    margin: 0px;
+    padding: 0px;
+}
+
+ToolButton:focus, ToolButton[popupMode="2"]:focus {
+    background-color: #3d8ec9;
+    color: white;
+}
+
+
+ToolButton:hover, ToolButton[popupMode="2"]:focus
+{
+    border: 1px solid #78879b;
+    color: silver;
 }
 
 QTableView

@@ -807,14 +807,14 @@ class ApplicationWindow : public QMainWindow,
 
   //!  Drop the objects in the list draggedItems to the folder of the
   //!  destination item
-  // void dropFolderItems(QTreeWidgetItem* dest);
+  void dropFolderItems(QTreeWidgetItem* dest);
 
   //!  moves a folder item to another
   /**
    * \param src source folder item
    * \param dest destination folder item
    */
-  // void moveFolder(FolderTreeWidgetItem* src, FolderTreeWidgetItem* dest);
+  void moveFolder(FolderTreeWidgetItem* src, FolderTreeWidgetItem* dest);
   //@}
 
   //! \name Scripting
@@ -1058,7 +1058,7 @@ class ApplicationWindow : public QMainWindow,
                          const SubWindowType& subwindowtype);
 
   // Stores the pointers to the dragged items from the FolderListViews objects
-  // QList<Q3ListViewItem*> draggedItems;
+  QList<QTreeWidgetItem*> draggedItems;
 
   AprojHandler* aprojhandler_;
   QString helpFilePath;

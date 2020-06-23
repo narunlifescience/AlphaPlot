@@ -735,7 +735,7 @@ QTreeView::item:hover  {
 
 QListView::item:selected,
 QTreeView::item:selected  {
-    color: white; /* should be similar to QListView selection-color */
+    color: #808080; /* should be similar to QListView selection-color */
     background-color: #5e90fa; /* should be similar to QListView selection-background-color */
     show-decoration-selected: 1; /* make the selection span the entire width of the view */
 }

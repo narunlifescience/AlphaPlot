@@ -171,6 +171,7 @@ class FolderTreeWidgetItem : public QTreeWidgetItem {
 
   // Checks weather the folder item is a grandchild of the source folder
   bool isChildOf(FolderTreeWidgetItem *src);
+  int depth();
 
  protected:
   Folder *myFolder;

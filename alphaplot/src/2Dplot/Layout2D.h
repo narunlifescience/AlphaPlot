@@ -8,12 +8,14 @@
 #include "MyWidget.h"
 #include "Plot2D.h"
 #include "StatBox2D.h"
+#include "LayoutGrid2D.h"
 #include "future/core/column/Column.h"
 
 class QLabel;
 class Table;
 class AxisRect2D;
 class LayoutGrid2D;
+class ToolButton;
 class LayoutButton2D;
 class XmlStreamWriter;
 
@@ -62,19 +64,17 @@ class Layout2D : public MyWidget {
 
   QList<AxisRect2D *> getAxisRectList();
   AxisRect2D *getSelectedAxisRect(int col, int row);
-  int getAxisRectIndex(AxisRect2D *axisRect2d);
+  QPair<int, int> getAxisRectRowCol(AxisRect2D *axisRect2d);
   AxisRect2D *getCurrentAxisRect();
   Plot2D *getPlotCanwas() const;
-  int getbuttonboxheight() const {
-    return addLayoutButton_->height() + (buttonboxmargin_ * 2);
-  }
+  int getbuttonboxheight() const;
 
   void setLayoutDimension(QPair<int, int> dimension);
-  void removeAxisRect(int index);
+  void removeAxisRect(const QPair<int, int> rowcol);
 
   int getLayoutRectGridIndex(QPair<int, int> coord);
   QPair<int, int> getLayoutRectGridCoordinate(int index);
-  LayoutButton2D *addLayoutButton(int num);
+  LayoutButton2D *addLayoutButton(const QPair<int, int> rowcol);
   void setBackground(const QColor &background);
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void print();
@@ -100,7 +100,8 @@ class Layout2D : public MyWidget {
 
  private slots:
   AxisRect2D *addAxisRectItem(const AlphaPlot::ColumnDataType &xcoldatatype,
-                              const AlphaPlot::ColumnDataType &ycoldatatype);
+                              const AlphaPlot::ColumnDataType &ycoldatatype,
+                              const LayoutGrid2D::AddElement &addelement);
   void axisRectSetFocus(AxisRect2D *rect);
   void activateLayout(LayoutButton2D *button);
   void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
@@ -122,10 +123,15 @@ class Layout2D : public MyWidget {
 
   QHBoxLayout *layoutButtonsBox_;
   QHBoxLayout *layoutManagebuttonsBox_;
-  QPushButton *refreshPlotButton_;
-  QPushButton *addLayoutButton_;
-  QPushButton *removeLayoutButton_;
+  ToolButton *refreshPlotButton_;
+  ToolButton *addLayoutButton_;
+  ToolButton *removeLayoutButton_;
   QLabel *streachLabel_;
+  QMenu *addlayoutmenu_;
+  QAction *addLayoutupaction;
+  QAction *addLayoutdownaction;
+  QAction *addLayoutleftaction;
+  QAction *addLayoutrightaction;
 
   AxisRect2D *currentAxisRect_;
   Graph2DCommon::Picker picker_;

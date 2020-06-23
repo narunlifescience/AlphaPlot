@@ -2,22 +2,32 @@
 
 #include <QMouseEvent>
 #include <QPainter>
+#include <QSize>
 
-const int LayoutButton2D::layoutButtonSize_ = 22;
+const int ToolButton::layoutButtonSize_ = 22;
 QRect LayoutButton2D::highLightRect_;
+const QColor LayoutButton2D::highlightColor_ = QColor(255, 59, 59, 255);
 
-LayoutButton2D::LayoutButton2D(const QString &text, QWidget *parent)
-    : QPushButton(parent), active_(false), buttonText_(text) {
+LayoutButton2D::LayoutButton2D(const QPair<int, int> rowcol, QWidget *parent)
+    : ToolButton(parent),
+      active_(false),
+      rowcol_(rowcol),
+      buttonText_(
+          QString("%1,%2").arg(rowcol.first + 1).arg(rowcol.second + 1)) {
   setCheckable(true);
-  setMaximumWidth(LayoutButton2D::btnSize());
-  setMaximumHeight(LayoutButton2D::btnSize());
-  setFixedSize(QSize(layoutButtonSize_, layoutButtonSize_));
-  setFocusPolicy(Qt::NoFocus);
+  setFixedWidth(height() * 1.5);
 }
 
 LayoutButton2D::~LayoutButton2D() {}
 
-int LayoutButton2D::btnSize() { return layoutButtonSize_; }
+int LayoutButton2D::btnSize() { return height(); }
+
+QPair<int, int> LayoutButton2D::getRowCol() const { return rowcol_; }
+
+void LayoutButton2D::resetRowCol(const QPair<int, int> rowcol) {
+  buttonText_ = QString("%1,%2").arg(rowcol.first + 1).arg(rowcol.second + 1);
+  repaint();
+}
 
 void LayoutButton2D::setActive(bool status) {
   active_ = status;
@@ -45,10 +55,10 @@ void LayoutButton2D::resizeEvent(QResizeEvent *) {
 }
 
 void LayoutButton2D::paintEvent(QPaintEvent *event) {
-  QPushButton::paintEvent(event);
+  QToolButton::paintEvent(event);
   if (active_) {
     QPainter painter(this);
-    painter.setPen(QPen(QColor(255,59,59, 255)));
+    painter.setPen(QPen(highlightColor_));
     painter.drawRect(highLightRect_);
     painter.drawText(highLightRect_, Qt::AlignCenter, buttonText_);
   } else {
@@ -56,3 +66,12 @@ void LayoutButton2D::paintEvent(QPaintEvent *event) {
     painter.drawText(highLightRect_, Qt::AlignCenter, buttonText_);
   }
 }
+
+ToolButton::ToolButton(QWidget *parent) : QToolButton(parent) {
+  setMaximumWidth(LayoutButton2D::btnSize());
+  setMaximumHeight(LayoutButton2D::btnSize());
+  setFixedSize(QSize(layoutButtonSize_, layoutButtonSize_));
+  setFocusPolicy(Qt::NoFocus);
+}
+
+ToolButton::~ToolButton() {}
