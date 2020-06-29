@@ -13,12 +13,12 @@
 #include <QToolTip>
 #include <QVBoxLayout>
 
-#include "LayoutGrid2D.h"
 #include "Bar2D.h"
 #include "ColorMap2D.h"
 #include "Curve2D.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
+#include "LayoutGrid2D.h"
 #include "Legend2D.h"
 #include "LineSpecial2D.h"
 #include "Matrix.h"
@@ -693,6 +693,18 @@ void Layout2D::removeAxisRectItem() {
     return;
   }
 
+  // warning before removing layout
+  QPair<int, int> rowcol = getAxisRectRowCol(currentAxisRect_);
+  int result = QMessageBox::warning(
+      nullptr,
+      tr("Remove layout") +
+          QString(" %1x%2").arg(rowcol.first + 1).arg(rowcol.second + 1),
+      tr("Are you sure to remove the layout") +
+          QString(": %1x%2?").arg(rowcol.first + 1).arg(rowcol.second + 1),
+      QMessageBox::Yes, QMessageBox::No | QMessageBox::Default,
+      QMessageBox::Cancel | QMessageBox::Escape);
+  if (result != QMessageBox::Yes) return;
+
   foreach (TextItem2D *item, currentAxisRect_->getTextItemVec()) {
     currentAxisRect_->removeTextItem2D(item);
   }
@@ -730,7 +742,7 @@ void Layout2D::removeAxisRectItem() {
     currentAxisRect_->removeAxis2D(axis, true);
   }
 
-  removeAxisRect(getAxisRectRowCol(currentAxisRect_));
+  removeAxisRect(rowcol);
   emit AxisRectRemoved(this);
 }
 
