@@ -185,7 +185,8 @@ class AxisRect2D : public QCPAxisRect {
                                 QList<Table *> tabs);
 
  public slots:
-  void save(XmlStreamWriter *xmlwriter, const int index);
+  void save(XmlStreamWriter *xmlwriter, const QPair<int, int> rowcol,
+            const int index);
   bool load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             QList<Matrix *> mats);
 

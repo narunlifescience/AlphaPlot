@@ -25,7 +25,8 @@ int LayoutButton2D::btnSize() { return height(); }
 QPair<int, int> LayoutButton2D::getRowCol() const { return rowcol_; }
 
 void LayoutButton2D::resetRowCol(const QPair<int, int> rowcol) {
-  buttonText_ = QString("%1,%2").arg(rowcol.first + 1).arg(rowcol.second + 1);
+  rowcol_ = rowcol;
+  buttonText_ = QString("%1,%2").arg(rowcol_.first + 1).arg(rowcol_.second + 1);
   repaint();
 }
 

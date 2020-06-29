@@ -653,9 +653,16 @@ ApplicationWindow::ApplicationWindow()
           SLOT(drawEllipse()));
   connect(ui_->actionAddNestedLayout, SIGNAL(triggered()), this,
           SLOT(addNestedLayout()));
-  connect(ui_->actionAddLayout, SIGNAL(triggered()), this, SLOT(addLayout()));
-  connect(ui_->actionRemoveLayout, SIGNAL(triggered()), this,
-          SLOT(deleteLayout()));
+  connect(ui_->actionAddLayoutUp, &QAction::triggered, this,
+          [&]() { addLayout(Graph2DCommon::AddLayoutElement::Top); });
+  connect(ui_->actionAddLayoutDown, &QAction::triggered, this,
+          [&]() { addLayout(Graph2DCommon::AddLayoutElement::Bottom); });
+  connect(ui_->actionAddLayoutLeft, &QAction::triggered, this,
+          [&]() { addLayout(Graph2DCommon::AddLayoutElement::Left); });
+  connect(ui_->actionAddLayoutRight, &QAction::triggered, this,
+          [&]() { addLayout(Graph2DCommon::AddLayoutElement::Right); });
+  connect(ui_->actionRemoveLayout, &QAction::triggered, this,
+          &ApplicationWindow::deleteLayout);
   connect(ui_->actionArrangeLayout, SIGNAL(triggered()), this,
           SLOT(showLayerDialog()));
   // Tools menu
@@ -934,7 +941,7 @@ void ApplicationWindow::makeToolBars() {
   btn_layout_->setMenu(menu_layers);
   graphToolsToolbar->addWidget(btn_layout_);
   menu_layers->addAction(ui_->actionAddNestedLayout);
-  menu_layers->addAction(ui_->actionAddLayout);
+  menu_layers->addMenu(ui_->menuAddLayout);
   menu_layers->addAction(ui_->actionRemoveLayout);
   menu_layers->addAction(ui_->actionArrangeLayout);
   QMenu *menu_curves = new QMenu(this);
@@ -6121,10 +6128,11 @@ void ApplicationWindow::addNestedLayout() {
   qDebug() << "not implimented";
 }
 
-void ApplicationWindow::addLayout() {
+void ApplicationWindow::addLayout(
+    const Graph2DCommon::AddLayoutElement &position) {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
   Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
-  layout->addAxisRectWithAxis();
+  layout->addAxisRectWithAxis(position);
 }
 
 void ApplicationWindow::deleteLayout() {
@@ -7675,7 +7683,7 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
 
       if (subfolders.contains(f->name())) {
         QMessageBox::critical(
-            this, tr("SciDAVis") + " - " + tr("Skipped moving folder"),
+            this, tr("AlphaPlot") + " - " + tr("Skipped moving folder"),
             tr("The destination folder already contains a folder called '%1'! "
                "Folder skipped!")
                 .arg(f->name()));
@@ -8535,8 +8543,16 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("view-image", IconLoader::LightDark));
   ui_->actionAddNestedLayout->setIcon(
       IconLoader::load("auto-layout", IconLoader::LightDark));
-  ui_->actionAddLayout->setIcon(
+  ui_->menuAddLayout->setIcon(
       IconLoader::load("layer-new", IconLoader::LightDark));
+  ui_->actionAddLayoutUp->setIcon(
+      IconLoader::load("edit-up", IconLoader::LightDark));
+  ui_->actionAddLayoutDown->setIcon(
+      IconLoader::load("edit-down", IconLoader::LightDark));
+  ui_->actionAddLayoutLeft->setIcon(
+      IconLoader::load("go-previous", IconLoader::LightDark));
+  ui_->actionAddLayoutRight->setIcon(
+      IconLoader::load("go-next", IconLoader::LightDark));
   ui_->actionRemoveLayout->setIcon(
       IconLoader::load("edit-delete-selection", IconLoader::LightDark));
   ui_->actionArrangeLayout->setIcon(

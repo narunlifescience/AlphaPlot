@@ -1570,11 +1570,12 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
   return ok;
 }
 
-void AxisRect2D::save(XmlStreamWriter *xmlwriter, const int index) {
+void AxisRect2D::save(XmlStreamWriter *xmlwriter, const QPair<int, int> rowcol,
+                      const int index) {
   xmlwriter->writeStartElement("layout");
   xmlwriter->writeAttribute("index", QString::number(index + 1));
-  xmlwriter->writeAttribute("row", QString::number(0));
-  xmlwriter->writeAttribute("column", QString::number(index + 1));
+  xmlwriter->writeAttribute("row", QString::number(rowcol.first + 1));
+  xmlwriter->writeAttribute("column", QString::number(rowcol.second + 1));
   xmlwriter->writeBrush(backgroundBrush());
   getLegend()->save(xmlwriter);
   foreach (Axis2D *axis, getAxes2D()) { axis->save(xmlwriter); }

@@ -13,7 +13,7 @@
 #include <QToolTip>
 #include <QVBoxLayout>
 
-#include "AxisRect2D.h"
+#include "LayoutGrid2D.h"
 #include "Bar2D.h"
 #include "ColorMap2D.h"
 #include "Curve2D.h"
@@ -43,7 +43,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
       main_widget_(new QWidget(this)),
       plot2dCanvas_(new Plot2D(main_widget_)),
       layout_(new LayoutGrid2D()),
-      buttionlist_(QList<LayoutButton2D *>()),
+      buttionlist_(QList<QPair<LayoutButton2D *, AxisRect2D *>>()),
       currentAxisRect_(nullptr),
       picker_(Graph2DCommon::Picker::None),
       xpickerline_(nullptr),
@@ -83,22 +83,22 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   connect(addLayoutleftaction, &QAction::triggered, [&]() {
     addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                     AlphaPlot::ColumnDataType::TypeDouble,
-                    LayoutGrid2D::AddElement::Left);
+                    Graph2DCommon::AddLayoutElement::Left);
   });
   connect(addLayoutupaction, &QAction::triggered, [&]() {
     addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                     AlphaPlot::ColumnDataType::TypeDouble,
-                    LayoutGrid2D::AddElement::Top);
+                    Graph2DCommon::AddLayoutElement::Top);
   });
   connect(addLayoutrightaction, &QAction::triggered, [&]() {
     addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                     AlphaPlot::ColumnDataType::TypeDouble,
-                    LayoutGrid2D::AddElement::Right);
+                    Graph2DCommon::AddLayoutElement::Right);
   });
   connect(addLayoutdownaction, &QAction::triggered, [&]() {
     addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                     AlphaPlot::ColumnDataType::TypeDouble,
-                    LayoutGrid2D::AddElement::Bottom);
+                    Graph2DCommon::AddLayoutElement::Bottom);
   });
 
   addLayoutButton_->setToolTip(tr("Add layout"));
@@ -142,8 +142,6 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   // connections
   connect(refreshPlotButton_, &QPushButton::clicked,
           [&]() { plot2dCanvas_->replot(); });
-  connect(addLayoutButton_, &QPushButton::clicked, this,
-          &Layout2D::addAxisRectWithAxis);
   connect(removeLayoutButton_, &QPushButton::clicked, this,
           &Layout2D::removeAxisRectItem);
   connect(plot2dCanvas_, &Plot2D::mouseMove, this, &Layout2D::mouseMoveSignal);
@@ -231,7 +229,7 @@ void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
                                       const QString yLabel) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble,
-                                        LayoutGrid2D::AddElement::Right);
+                                        Graph2DCommon::AddLayoutElement::Right);
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -258,7 +256,7 @@ QList<StatBox2D *> Layout2D::generateStatBox2DPlot(Table *table,
 
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeString,
                                         AlphaPlot::ColumnDataType::TypeDouble,
-                                        LayoutGrid2D::AddElement::Right);
+                                        Graph2DCommon::AddLayoutElement::Right);
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -298,7 +296,7 @@ void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
       AxisRect2D *element =
           addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                           AlphaPlot::ColumnDataType::TypeDouble,
-                          LayoutGrid2D::AddElement::Right);
+                          Graph2DCommon::AddLayoutElement::Right);
       QList<Axis2D *> xAxis =
           element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
       xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -311,9 +309,10 @@ void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
       yAxis.at(0)->rescale();
     }
   } else {
-    AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
-                                          AlphaPlot::ColumnDataType::TypeDouble,
-                                          LayoutGrid2D::AddElement::Right);
+    AxisRect2D *element =
+        addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
+                        AlphaPlot::ColumnDataType::TypeDouble,
+                        Graph2DCommon::AddLayoutElement::Right);
     QList<Axis2D *> xAxis =
         element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
     xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -338,7 +337,7 @@ void Layout2D::generateBar2DPlot(const AxisRect2D::BarType &barType,
   switch (barType) {
     case AxisRect2D::BarType::HorizontalBars: {
       element = addAxisRectItem(ycollist.at(0)->dataType(), xData->dataType(),
-                                LayoutGrid2D::AddElement::Right);
+                                Graph2DCommon::AddLayoutElement::Right);
       xAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
       xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
       yAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
@@ -348,7 +347,7 @@ void Layout2D::generateBar2DPlot(const AxisRect2D::BarType &barType,
     } break;
     case AxisRect2D::BarType::VerticalBars: {
       element = addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType(),
-                                LayoutGrid2D::AddElement::Right);
+                                Graph2DCommon::AddLayoutElement::Right);
       xAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
       xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
       yAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
@@ -375,7 +374,7 @@ void Layout2D::generateStakedBar2DPlot(const AxisRect2D::BarType &barType,
   switch (barType) {
     case AxisRect2D::BarType::HorizontalBars: {
       element = addAxisRectItem(ycollist.at(0)->dataType(), xData->dataType(),
-                                LayoutGrid2D::AddElement::Right);
+                                Graph2DCommon::AddLayoutElement::Right);
       xAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
       xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
       yAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
@@ -385,7 +384,7 @@ void Layout2D::generateStakedBar2DPlot(const AxisRect2D::BarType &barType,
     } break;
     case AxisRect2D::BarType::VerticalBars: {
       element = addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType(),
-                                LayoutGrid2D::AddElement::Right);
+                                Graph2DCommon::AddLayoutElement::Right);
       xAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
       xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
       yAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
@@ -416,7 +415,7 @@ void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
                                     Column *y2Data, int from, int to) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble,
-                                        LayoutGrid2D::AddElement::Right);
+                                        Graph2DCommon::AddLayoutElement::Right);
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -435,7 +434,7 @@ void Layout2D::generatePie2DPlot(const Graph2DCommon::PieStyle &style,
                                  int from, int to) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble,
-                                        LayoutGrid2D::AddElement::Right);
+                                        Graph2DCommon::AddLayoutElement::Right);
 
   element->addPie2DPlot(style, table, xData, yData, from, to);
 }
@@ -444,7 +443,7 @@ void Layout2D::generateColorMap2DPlot(Matrix *matrix, bool greyscale,
                                       bool contour) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble,
-                                        LayoutGrid2D::AddElement::Right);
+                                        Graph2DCommon::AddLayoutElement::Right);
   setLayoutButtonBoxVisible(false);
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
@@ -479,7 +478,7 @@ void Layout2D::generateLineSpecial2DPlot(
     Column *xData, QList<Column *> ycollist, int from, int to) {
   AxisRect2D *element =
       addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType(),
-                      LayoutGrid2D::AddElement::Right);
+                      Graph2DCommon::AddLayoutElement::Right);
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -501,7 +500,7 @@ void Layout2D::generateLineSpecialChannel2DPlot(Table *table, Column *xData,
   Q_ASSERT(ycollist.count() == 2);
   AxisRect2D *element =
       addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType(),
-                      LayoutGrid2D::AddElement::Right);
+                      Graph2DCommon::AddLayoutElement::Right);
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -523,7 +522,7 @@ void Layout2D::generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
                                    QList<Column *> ycollist, int from, int to) {
   AxisRect2D *element =
       addAxisRectItem(xcol->dataType(), ycollist.at(0)->dataType(),
-                      LayoutGrid2D::AddElement::Right);
+                      Graph2DCommon::AddLayoutElement::Right);
   QList<Axis2D *> xAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
   xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
@@ -569,7 +568,7 @@ int Layout2D::getbuttonboxheight() const {
 AxisRect2D *Layout2D::addAxisRectItem(
     const AlphaPlot::ColumnDataType &xcoldatatype,
     const AlphaPlot::ColumnDataType &ycoldatatype,
-    const LayoutGrid2D::AddElement &addelement) {
+    const Graph2DCommon::AddLayoutElement &addelement) {
   Q_ASSERT(xcoldatatype != AlphaPlot::ColumnDataType::TypeDay &&
            ycoldatatype != AlphaPlot::ColumnDataType::TypeDay &&
            xcoldatatype != AlphaPlot::ColumnDataType::TypeMonth &&
@@ -578,51 +577,51 @@ AxisRect2D *Layout2D::addAxisRectItem(
   int row = -1;
   int col = -1;
   switch (addelement) {
-    case LayoutGrid2D::AddElement::Left: {
+    case Graph2DCommon::AddLayoutElement::Left: {
       if (currentAxisRect_) {
         row = getAxisRectRowCol(currentAxisRect_).first;
         col = getAxisRectRowCol(currentAxisRect_).second - 1;
         if (col == -1) {
           col = 0;
         }
-        if (layout_->hasElement(row, col)) layout_->insertColumn(col);
       } else {
         row = 0;
         col = 0;
       }
+      if (layout_->hasElement(row, col)) layout_->insertColumn(col);
     } break;
-    case LayoutGrid2D::AddElement::Top: {
+    case Graph2DCommon::AddLayoutElement::Top: {
       if (currentAxisRect_) {
         row = getAxisRectRowCol(currentAxisRect_).first - 1;
         col = getAxisRectRowCol(currentAxisRect_).second;
         if (row == -1) {
           row = 0;
         }
-        if (layout_->hasElement(row, col)) layout_->insertRow(row);
       } else {
         row = 0;
         col = 0;
       }
+      if (layout_->hasElement(row, col)) layout_->insertRow(row);
     } break;
-    case LayoutGrid2D::AddElement::Right: {
+    case Graph2DCommon::AddLayoutElement::Right: {
       if (currentAxisRect_) {
         row = getAxisRectRowCol(currentAxisRect_).first;
         col = getAxisRectRowCol(currentAxisRect_).second + 1;
-        if (layout_->hasElement(row, col)) layout_->insertColumn(col);
       } else {
         row = 0;
         col = 0;
       }
+      if (layout_->hasElement(row, col)) layout_->insertColumn(col);
     } break;
-    case LayoutGrid2D::AddElement::Bottom: {
+    case Graph2DCommon::AddLayoutElement::Bottom: {
       if (currentAxisRect_) {
         row = getAxisRectRowCol(currentAxisRect_).first + 1;
         col = getAxisRectRowCol(currentAxisRect_).second;
-        if (layout_->hasElement(row, col)) layout_->insertRow(row);
       } else {
         row = 0;
         col = 0;
       }
+      if (layout_->hasElement(row, col)) layout_->insertRow(row);
     } break;
   }
 
@@ -676,7 +675,7 @@ AxisRect2D *Layout2D::addAxisRectItem(
 
   plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   QPair<int, int> num = QPair<int, int>(row, col);
-  addLayoutButton(num);
+  addLayoutButton(num, axisRect2d);
 
   connect(axisRect2d, &AxisRect2D::AxisRectClicked, this,
           &Layout2D::axisRectSetFocus);
@@ -738,36 +737,38 @@ void Layout2D::removeAxisRectItem() {
 void Layout2D::axisRectSetFocus(AxisRect2D *rect) {
   if (!rect) return;
 
-  LayoutButton2D *button = nullptr;
+  QPair<LayoutButton2D *, AxisRect2D *> button;
+  button.first = nullptr;
+  button.second = nullptr;
   if (currentAxisRect_) {
     if (currentAxisRect_ != rect) {
       currentAxisRect_->setSelected(false);
-      foreach (LayoutButton2D *loutbt, buttionlist_) {
-        if (loutbt->getRowCol() == getAxisRectRowCol(currentAxisRect_)) {
+      foreach (auto loutbt, buttionlist_) {
+        if (loutbt.second == currentAxisRect_) {
           button = loutbt;
           break;
         }
       }
-      if (button) button->setActive(false);
+      if (button.first) button.first->setActive(false);
     }
   }
 
   currentAxisRect_ = rect;
   currentAxisRect_->setSelected(true);
-  foreach (LayoutButton2D *loutbt, buttionlist_) {
-    if (loutbt->getRowCol() == getAxisRectRowCol(currentAxisRect_)) {
+  foreach (auto loutbt, buttionlist_) {
+    if (loutbt.second == currentAxisRect_) {
       button = loutbt;
       break;
     }
   }
-  if (button) button->setActive(true);
+  if (button.first) button.first->setActive(true);
   plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpImmediateRefresh);
 }
 
 void Layout2D::activateLayout(LayoutButton2D *button) {
-  for (int i = 0; i < buttionlist_.size(); i++) {
-    if (buttionlist_.at(i) == button) {
-      axisRectSetFocus(static_cast<AxisRect2D *>(layout_->elementAt(i)));
+  foreach (auto loutbt, buttionlist_) {
+    if (loutbt.first == button) {
+      axisRectSetFocus(loutbt.second);
       break;
     }
   }
@@ -1486,23 +1487,30 @@ void Layout2D::removeAxisRect(const QPair<int, int> rowcol) {
   }
 
   // if removed element is the currently selected element
-  AxisRect2D *axrect =
+  AxisRect2D *axrecttoremove =
       dynamic_cast<AxisRect2D *>(layout_->element(rowcol.first, rowcol.second));
-  if (!axrect) {
+  if (!axrecttoremove) {
     qDebug() << "unable to remove axisrect2D at row, col :" << rowcol.first
              << ", " << rowcol.second;
     return;
   }
-  axrect = nullptr;
-  int index = layout_->rowColToIndex(rowcol.first, rowcol.second);
-  if (index == 0 && index + 1 < getAxisRectList().count())
-    axrect = dynamic_cast<AxisRect2D *>(layout_->elementAt(index + 1));
-  else if (index > 0)
-    axrect = dynamic_cast<AxisRect2D *>(layout_->elementAt(index - 1));
-  else {
-    qDebug() << "unable to remove axisrect2D at row, col :" << rowcol.first
-             << ", " << rowcol.second;
-    axrect = nullptr;
+
+  AxisRect2D *axrect = nullptr;
+  QList<AxisRect2D *> axisrectlist = getAxisRectList();
+  // focus chage logic after axisrect removal
+  for (int i = 0; i < axisrectlist.size(); i++) {
+    if (axisrectlist.at(i) == axrecttoremove) {
+      if (i == 0 && axisrectlist.size() > 1) {
+        axrect = axisrectlist.at(i + 1);
+        break;
+      } else if (i > 0) {
+        axrect = axisrectlist.at(i - 1);
+        break;
+      } else {
+        qDebug() << "unable to set focus after axisrect2D removal";
+        break;
+      }
+    }
   }
 
   if (axrect) {
@@ -1512,12 +1520,21 @@ void Layout2D::removeAxisRect(const QPair<int, int> rowcol) {
   }
 
   // remove layout button
-  buttionlist_.takeLast()->close();
+  foreach (auto lobutton, buttionlist_) {
+    if (lobutton.first->getRowCol() == rowcol) {
+      buttionlist_.removeOne(lobutton);
+      layoutButtonsBox_->removeWidget(lobutton.first);
+      delete lobutton.first;
+    }
+  }
 
   // remove the element & adjust layout accordingly
-  layout_->remove(layout_->element(rowcol.first, rowcol.second));
+  layout_->remove(axrecttoremove);
   layout_->simplify();
   if (axrect) axisRectSetFocus(axrect);
+
+  // reset the rowcol buttons
+  arrangeLayoutButtons();
   plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
@@ -1533,13 +1550,51 @@ QPair<int, int> Layout2D::getLayoutRectGridCoordinate(int index) {
   return pair;
 }
 
-LayoutButton2D *Layout2D::addLayoutButton(const QPair<int, int> rowcol) {
+LayoutButton2D *Layout2D::addLayoutButton(const QPair<int, int> rowcol,
+                                          AxisRect2D *axisrect) {
   LayoutButton2D *button = new LayoutButton2D(rowcol);
-
   connect(button, &LayoutButton2D::clicked, this, &Layout2D::activateLayout);
-  buttionlist_ << button;
+  buttionlist_ << QPair<LayoutButton2D *, AxisRect2D *>(button, axisrect);
   layoutButtonsBox_->addWidget(button);
+  arrangeLayoutButtons();
+
   return button;
+}
+
+void Layout2D::arrangeLayoutButtons() {
+  // reset the rowcol values on all buttons
+  foreach (auto btn, buttionlist_) {
+    btn.first->resetRowCol(getAxisRectRowCol(btn.second));
+  }
+
+  // sort buttons list
+  for (int i = 0; i < buttionlist_.size(); i++) {
+    QPair<int, int> seedrowcol = getAxisRectRowCol(buttionlist_.at(i).second);
+    int seedindex = layout_->rowColToIndex(seedrowcol.first, seedrowcol.second);
+    for (int j = i; j < buttionlist_.size(); j++) {
+      QPair<int, int> axisrectrowcol =
+          getAxisRectRowCol(buttionlist_.at(j).second);
+      int index =
+          layout_->rowColToIndex(axisrectrowcol.first, axisrectrowcol.second);
+      if (index < seedindex) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+        buttionlist_.swapItemsAt(i, j);
+#else
+        buttionlist_.swap(i, j);
+#endif
+      }
+    }
+  }
+
+  // Clear the buttonbox layout
+  while (layoutButtonsBox_->count()) {
+    layoutButtonsBox_->takeAt(0);
+  }
+
+  // reset layoutbuttonbox order based on the sorted list
+  foreach (auto buttonpair, buttionlist_) {
+    layoutButtonsBox_->addWidget(buttonpair.first);
+  }
 }
 
 void Layout2D::setBackground(const QColor &background) {
@@ -1707,7 +1762,9 @@ void Layout2D::save(XmlStreamWriter *xmlwriter) {
       plot2dCanvas_->getBackgroundColor().name(QColor::HexArgb));
   xmlwriter->writeEndElement();
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
-    // axisrect->save(xmlwriter, getAxisRectRowCol(axisrect));
+    const QPair<int, int> rowcol = getAxisRectRowCol(axisrect);
+    axisrect->save(xmlwriter, rowcol,
+                   layout_->rowColToIndex(rowcol.first, rowcol.second));
   }
   xmlwriter->writeEndElement();
 }
@@ -1792,7 +1849,35 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
       xmlreader->readNext();
       if (xmlreader->isEndElement() && xmlreader->name() == "plot2d") break;
       if (xmlreader->isStartElement() && xmlreader->name() == "layout") {
-        AxisRect2D *axisrect = addAxisRectWithAxis();
+        // read index
+        int index = xmlreader->readAttributeInt("index", &ok);
+        if (!ok) {
+          index = -1;
+          xmlreader->raiseWarning(tr("Layout2D axisrect index read error"));
+        }
+        // read row
+        int row = xmlreader->readAttributeInt("row", &ok);
+        if (!ok) {
+          row = -1;
+          xmlreader->raiseWarning(tr("Layout2D axisrect row read error"));
+        }
+        // read col
+        int col = xmlreader->readAttributeInt("col", &ok);
+        if (!ok) {
+          col = -1;
+          xmlreader->raiseWarning(tr("Layout2D axisrect col read error"));
+        }
+        AxisRect2D *axisrect = nullptr;
+        row = -1;
+        col = -1;
+        if (row != -1 && col != -1) {
+          // handle layout creation here
+        } else {
+          axisrect = addAxisRectWithAxis();
+        }
+        if (axisrect == nullptr)
+          xmlreader->raiseError(
+              tr("no plot2d axisrect2d layout element initialization error"));
         foreach (Axis2D *axis, axisrect->getAxes2D()) {
           axisrect->removeAxis2D(axis, true);
         }
@@ -1839,5 +1924,11 @@ void Layout2D::setLayoutButtonBoxVisible(const bool value) {
 AxisRect2D *Layout2D::addAxisRectWithAxis() {
   return addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                          AlphaPlot::ColumnDataType::TypeDouble,
-                         LayoutGrid2D::AddElement::Bottom);
+                         Graph2DCommon::AddLayoutElement::Right);
+}
+
+AxisRect2D *Layout2D::addAxisRectWithAxis(
+    const Graph2DCommon::AddLayoutElement &position) {
+  return addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
+                         AlphaPlot::ColumnDataType::TypeDouble, position);
 }

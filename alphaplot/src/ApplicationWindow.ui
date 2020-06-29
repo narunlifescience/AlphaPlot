@@ -123,6 +123,15 @@
     <property name="title">
      <string>&amp;Graph</string>
     </property>
+    <widget class="QMenu" name="menuAddLayout">
+     <property name="title">
+      <string>Add &amp;Layout</string>
+     </property>
+     <addaction name="actionAddLayoutUp"/>
+     <addaction name="actionAddLayoutDown"/>
+     <addaction name="actionAddLayoutLeft"/>
+     <addaction name="actionAddLayoutRight"/>
+    </widget>
     <addaction name="actionAddRemoveCurve"/>
     <addaction name="actionAddErrorBars"/>
     <addaction name="actionAddFunctionCurve"/>
@@ -135,7 +144,7 @@
     <addaction name="actionAddImage"/>
     <addaction name="separator"/>
     <addaction name="actionAddNestedLayout"/>
-    <addaction name="actionAddLayout"/>
+    <addaction name="menuAddLayout"/>
     <addaction name="actionRemoveLayout"/>
     <addaction name="actionArrangeLayout"/>
    </widget>
@@ -829,11 +838,6 @@
     <string>Add Nested Layout</string>
    </property>
   </action>
-  <action name="actionAddLayout">
-   <property name="text">
-    <string>Add &amp;Layout</string>
-   </property>
-  </action>
   <action name="actionRemoveLayout">
    <property name="text">
     <string>&amp;Remove Layout</string>
@@ -1394,6 +1398,26 @@
   <action name="action3DScatterPolar">
    <property name="text">
     <string>3D Scatter Polar</string>
+   </property>
+  </action>
+  <action name="actionAddLayoutUp">
+   <property name="text">
+    <string>Add Up</string>
+   </property>
+  </action>
+  <action name="actionAddLayoutDown">
+   <property name="text">
+    <string>Add Down</string>
+   </property>
+  </action>
+  <action name="actionAddLayoutLeft">
+   <property name="text">
+    <string>Add Left</string>
+   </property>
+  </action>
+  <action name="actionAddLayoutRight">
+   <property name="text">
+    <string>Add Right</string>
    </property>
   </action>
  </widget>

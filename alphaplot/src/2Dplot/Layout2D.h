@@ -6,9 +6,8 @@
 
 #include "AxisRect2D.h"
 #include "MyWidget.h"
-#include "Plot2D.h"
-#include "StatBox2D.h"
-#include "LayoutGrid2D.h"
+//#include "Plot2D.h"
+//#include "StatBox2D.h"
 #include "future/core/column/Column.h"
 
 class QLabel;
@@ -74,7 +73,8 @@ class Layout2D : public MyWidget {
 
   int getLayoutRectGridIndex(QPair<int, int> coord);
   QPair<int, int> getLayoutRectGridCoordinate(int index);
-  LayoutButton2D *addLayoutButton(const QPair<int, int> rowcol);
+  LayoutButton2D *addLayoutButton(const QPair<int, int> rowcol,
+                                  AxisRect2D *axisrect);
   void setBackground(const QColor &background);
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void print();
@@ -96,12 +96,15 @@ class Layout2D : public MyWidget {
   void setAxisRangeDrag(bool value);
   void setAxisRangeZoom(bool value);
   AxisRect2D *addAxisRectWithAxis();
+  AxisRect2D *addAxisRectWithAxis(
+      const Graph2DCommon::AddLayoutElement &position);
   void removeAxisRectItem();
 
  private slots:
-  AxisRect2D *addAxisRectItem(const AlphaPlot::ColumnDataType &xcoldatatype,
-                              const AlphaPlot::ColumnDataType &ycoldatatype,
-                              const LayoutGrid2D::AddElement &addelement);
+  AxisRect2D *addAxisRectItem(
+      const AlphaPlot::ColumnDataType &xcoldatatype,
+      const AlphaPlot::ColumnDataType &ycoldatatype,
+      const Graph2DCommon::AddLayoutElement &addelement);
   void axisRectSetFocus(AxisRect2D *rect);
   void activateLayout(LayoutButton2D *button);
   void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
@@ -109,6 +112,7 @@ class Layout2D : public MyWidget {
 
  private:
   void addTextToAxisTicker(Column *col, Axis2D *axis, int from, int to);
+  void arrangeLayoutButtons();
 
  protected:
   void resizeEvent(QResizeEvent *event);
@@ -119,7 +123,7 @@ class Layout2D : public MyWidget {
 
   LayoutGrid2D *layout_;
   QPair<int, int> layoutDimension_;
-  QList<LayoutButton2D *> buttionlist_;
+  QList<QPair<LayoutButton2D *, AxisRect2D *>> buttionlist_;
 
   QHBoxLayout *layoutButtonsBox_;
   QHBoxLayout *layoutManagebuttonsBox_;

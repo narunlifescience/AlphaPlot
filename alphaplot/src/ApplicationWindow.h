@@ -262,7 +262,7 @@ class ApplicationWindow : public QMainWindow,
   // void setAppColors(const QColor& wc, const QColor& pc, const QColor& tpc);
   //@}
 
-  void addLayout();
+  void addLayout(const Graph2DCommon::AddLayoutElement &position);
   void deleteLayout();
 
   //! Creates a new spectrogram graph

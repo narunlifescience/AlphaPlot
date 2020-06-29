@@ -5,6 +5,8 @@ class Column;
 class Table;
 
 namespace Graph2DCommon {
+enum class AddLayoutElement : int { Left = 0, Top = 1, Right = 2, Bottom = 3 };
+
 enum class PieStyle : int {
   Pie = 0,
   HalfPie = 1,

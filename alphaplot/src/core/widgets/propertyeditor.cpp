@@ -5361,8 +5361,11 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     // Layout items
     for (int i = 0; i < elementslist.size(); ++i) {
       AxisRect2D *element = elementslist.at(i);
-      QString itemtext =
-          QString("Layout: %1 (%2x%3)").arg(i + 1).arg(1).arg(i + 1);
+      QPair<int, int> rowcol = gd->getAxisRectRowCol(element);
+      QString itemtext = QString("Layout: %1 (%2x%3)")
+                             .arg(i + 1)
+                             .arg(rowcol.first + 1)
+                             .arg(rowcol.second + 1);
       QTreeWidgetItem *item = new QTreeWidgetItem(
           static_cast<QTreeWidget *>(nullptr), QStringList(itemtext));
       item->setToolTip(0, itemtext);
