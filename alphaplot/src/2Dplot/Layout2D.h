@@ -26,6 +26,8 @@ class Layout2D : public MyWidget {
            const QString name = QString(), Qt::WindowFlags f = Qt::SubWindow);
   ~Layout2D();
 
+  LayoutGrid2D *getLayoutGrid() const { return layout_; }
+
   StatBox2D::BoxWhiskerData generateBoxWhiskerData(Table *table, Column *data,
                                                    int from, int to, int key);
 
@@ -54,6 +56,9 @@ class Layout2D : public MyWidget {
   void generateStakedBar2DPlot(const AxisRect2D::BarType &barType, Table *table,
                                Column *xData, QList<Column *> ycollist,
                                int from, int to);
+  void generateGroupedBar2DPlot(const AxisRect2D::BarType &barType,
+                                Table *table, Column *xData,
+                                QList<Column *> ycollist, int from, int to);
   void generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
                             Table *table, Column *x1Data, Column *y1Data,
                             Column *x2Data, Column *y2Data, int from, int to);

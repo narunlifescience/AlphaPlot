@@ -150,6 +150,12 @@ void Legend2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeAttribute("iconheight", QString::number(iconSize().height()));
   xmlwriter->writeAttribute("icontextpadding",
                             QString::number(iconTextPadding()));
+  xmlwriter->writeStartElement("legend");
+  (istitle_legend()) ? xmlwriter->writeAttribute("visible", "true")
+                     : xmlwriter->writeAttribute("visible", "false");
+  xmlwriter->writeAttribute("text", titletext_legend());
+  xmlwriter->writeFont(titlefont_legend(), titlecolor_legend());
+  xmlwriter->writeEndElement();
   xmlwriter->writeFont(font(), textColor());
   xmlwriter->writePen(borderPen());
   xmlwriter->writeBrush(brush());

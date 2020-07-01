@@ -888,6 +888,12 @@ bool AxisRect2D::removeBar2D(Bar2D *bar) {
       barvec_.remove(i);
       layers_.removeOne(bar->layer());
     }
+    foreach (auto bargroup, bargroupvec_) {
+      if (bargroup->isEmpty()) {
+        bargroupvec_.removeOne(bargroup);
+        delete bargroup;
+      }
+    }
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(bar));
   bool result = false;

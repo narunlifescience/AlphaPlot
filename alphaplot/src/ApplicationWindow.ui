@@ -210,8 +210,10 @@
     <addaction name="separator"/>
     <addaction name="actionPlot2DVerticalBars"/>
     <addaction name="actionPlot2DVerticalStackedBars"/>
+    <addaction name="actionPlot2DVerticalGroupedBars"/>
     <addaction name="actionPlot2DHorizontalBars"/>
     <addaction name="actionPlot2DHorizontalStackedBars"/>
+    <addaction name="actionPlot2DHorizontalGroupedBars"/>
     <addaction name="actionPlot2DArea"/>
     <addaction name="actionPlot2DChannelFill"/>
     <addaction name="actionPlot2DPie"/>
@@ -223,6 +225,7 @@
     <addaction name="menuPlot2DPanel"/>
     <addaction name="separator"/>
     <addaction name="menuPlot3D"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuScripting">
     <property name="title">
@@ -1418,6 +1421,16 @@
   <action name="actionAddLayoutRight">
    <property name="text">
     <string>Add Right</string>
+   </property>
+  </action>
+  <action name="actionPlot2DVerticalGroupedBars">
+   <property name="text">
+    <string>Vertical Grouped Bars</string>
+   </property>
+  </action>
+  <action name="actionPlot2DHorizontalGroupedBars">
+   <property name="text">
+    <string>Horizontal Grouped Bars</string>
    </property>
   </action>
  </widget>

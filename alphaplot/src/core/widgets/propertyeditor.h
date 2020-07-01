@@ -100,8 +100,8 @@ class PropertyEditor : public QDockWidget {
 
   // properties block handler
   void WindowPropertyBlock(MyWidget *widget);
-  void Plot2DPropertyBlock(Plot2D *plotcanvas);
-  void Layout2DPropertyBlock(AxisRect2D *axisrect);
+  void Plot2DPropertyBlock(Layout2D *layout2d, Plot2D *plotcanvas);
+  void Layout2DPropertyBlock(Layout2D *layout2d, AxisRect2D *axisrect);
   void Axis2DPropertyBlock(Axis2D *axis);
   void Grid2DPropertyBlock(AxisRect2D *axisrect);
   void Legend2DPropertyBlock(Legend2D *legend);
@@ -188,6 +188,8 @@ class PropertyEditor : public QDockWidget {
   QtProperty *canvaspropertybufferdevicepixelratioitem_;
   QtProperty *canvaspropertyopenglitem_;
   QtProperty *canvaspropertysizeitem_;
+  QtProperty *canvaspropertyrowsapcingitem_;
+  QtProperty *canvaspropertycolumnsapcingitem_;
   // Layout properties
   QtProperty *layoutpropertymargingroupitem_;
   QtProperty *layoutpropertyrectitem_;
@@ -197,6 +199,8 @@ class PropertyEditor : public QDockWidget {
   QtProperty *layoutpropertyrightmarginitem_;
   QtProperty *layoutpropertytopmarginitem_;
   QtProperty *layoutpropertybottommarginitem_;
+  QtProperty *layoutpropertyrowstreachfactoritem_;
+  QtProperty *layoutpropertycolumnstreachfactoritem_;
 
   // Axis Properties General Block
   QtProperty *axispropertyvisibleitem_;

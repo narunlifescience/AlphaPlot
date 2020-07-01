@@ -409,6 +409,56 @@ void Layout2D::generateStakedBar2DPlot(const AxisRect2D::BarType &barType,
   }
 }
 
+void Layout2D::generateGroupedBar2DPlot(const AxisRect2D::BarType &barType,
+                                        Table *table, Column *xData,
+                                        QList<Column *> ycollist, int from,
+                                        int to) {
+  AxisRect2D *element = nullptr;
+  QList<Axis2D *> xAxis;
+  QList<Axis2D *> yAxis;
+  switch (barType) {
+    case AxisRect2D::BarType::HorizontalBars: {
+      element = addAxisRectItem(ycollist.at(0)->dataType(), xData->dataType(),
+                                Graph2DCommon::AddLayoutElement::Right);
+      xAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+      xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+      yAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+      yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+      addTextToAxisTicker(xData, yAxis.at(0), from, to);
+      addTextToAxisTicker(ycollist.at(0), xAxis.at(0), from, to);
+    } break;
+    case AxisRect2D::BarType::VerticalBars: {
+      element = addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType(),
+                                Graph2DCommon::AddLayoutElement::Right);
+      xAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+      xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+      yAxis = element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+      yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+      addTextToAxisTicker(xData, xAxis.at(0), from, to);
+      addTextToAxisTicker(ycollist.at(0), yAxis.at(0), from, to);
+    } break;
+  }
+
+  QCPBarsGroup *bargroup = new QCPBarsGroup(plot2dCanvas_);
+  element->getBarGroupVec() << bargroup;
+  QList<Bar2D *> bars;
+  for (int i = 0; i < ycollist.size(); i++) {
+    Bar2D *bar = element->addBox2DPlot(barType, table, xData, ycollist.at(i),
+                                       from, to, xAxis.at(0), yAxis.at(0), i);
+    bars.append(bar);
+  }
+
+  double spacing = 0.0;
+  foreach (QCPBars *bar, bars) {
+    bar->setWidthType(QCPBars::wtPlotCoords);
+    spacing = bar->width() * 0.1;
+    bar->setWidth((bar->width() / bars.size()) - spacing * 2);
+    bargroup->append(bar);
+  }
+  bargroup->setSpacingType(QCPBarsGroup::stPlotCoords);
+  bargroup->setSpacing(spacing);
+}
+
 void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
                                     Table *table, Column *x1Data,
                                     Column *y1Data, Column *x2Data,
@@ -1772,6 +1822,10 @@ void Layout2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeAttribute(
       "backgroundcolor",
       plot2dCanvas_->getBackgroundColor().name(QColor::HexArgb));
+  xmlwriter->writeAttribute("rowspacing",
+                            QString::number(layout_->rowSpacing()));
+  xmlwriter->writeAttribute("columnspacing",
+                            QString::number(layout_->columnSpacing()));
   xmlwriter->writeEndElement();
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
     const QPair<int, int> rowcol = getAxisRectRowCol(axisrect);
@@ -1855,6 +1909,20 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         else
           xmlreader->raiseWarning(
               tr("Layout2D background color missing or empty"));
+        // row spacing
+        int rowsp = xmlreader->readAttributeInt("rowspacing", &ok);
+        if (ok)
+          layout_->setRowSpacing(rowsp);
+        else
+          xmlreader->raiseWarning(
+              tr("Layout2D gridlayout rowspacing missing or empty"));
+        // column spacing
+        int colsp = xmlreader->readAttributeInt("columnspacing", &ok);
+        if (ok)
+          layout_->setColumnSpacing(colsp);
+        else
+          xmlreader->raiseWarning(
+              tr("Layout2D gridlayout columnspacing missing or empty"));
       }
     }
     while (!xmlreader->atEnd()) {

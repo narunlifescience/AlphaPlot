@@ -514,6 +514,10 @@ ApplicationWindow::ApplicationWindow()
           d_plot_mapper, SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalStackedBars,
                             static_cast<int>(Graph::VerticalStackedBars));
+  connect(ui_->actionPlot2DVerticalGroupedBars, SIGNAL(triggered()),
+          d_plot_mapper, SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DVerticalGroupedBars,
+                            static_cast<int>(Graph::VerticalGroupedBars));
   connect(ui_->actionPlot2DHorizontalBars, SIGNAL(triggered()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalBars,
@@ -522,6 +526,10 @@ ApplicationWindow::ApplicationWindow()
           d_plot_mapper, SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalStackedBars,
                             static_cast<int>(Graph::HorizontalStackedBars));
+  connect(ui_->actionPlot2DHorizontalGroupedBars, SIGNAL(triggered()),
+          d_plot_mapper, SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalGroupedBars,
+                            static_cast<int>(Graph::HorizontalGroupedBars));
   connect(ui_->actionPlot2DArea, SIGNAL(triggered()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DArea,
@@ -975,8 +983,10 @@ void ApplicationWindow::makeToolBars() {
   plot2DToolbar->addWidget(btn_plot_bars_);
   menu_plot_bars->addAction(ui_->actionPlot2DVerticalBars);
   menu_plot_bars->addAction(ui_->actionPlot2DVerticalStackedBars);
+  menu_plot_bars->addAction(ui_->actionPlot2DVerticalGroupedBars);
   menu_plot_bars->addAction(ui_->actionPlot2DHorizontalBars);
   menu_plot_bars->addAction(ui_->actionPlot2DHorizontalStackedBars);
+  menu_plot_bars->addAction(ui_->actionPlot2DHorizontalGroupedBars);
   plot2DToolbar->addAction(ui_->actionPlot2DArea);
   plot2DToolbar->addAction(ui_->actionPlot2DChannelFill);
   plot2DToolbar->addAction(ui_->actionPlot2DStatHistogram);
@@ -2349,7 +2359,6 @@ void ApplicationWindow::changeAppStyle(const QString &s) {
 }
 
 void ApplicationWindow::changeAppColorScheme(int colorScheme) {
-  // colorScheme = 0;  // disable color schemes for now
   switch (colorScheme) {
     case 0: {
       qApp->setStyleSheet("");
@@ -8266,6 +8275,11 @@ void ApplicationWindow::selectPlotType(int value) {
                                       table, xcol, ycollist, from, to);
       setAutoScale();
       return;
+    case Graph::HorizontalGroupedBars:
+      layout->generateGroupedBar2DPlot(AxisRect2D::BarType::HorizontalBars,
+                                       table, xcol, ycollist, from, to);
+      setAutoScale();
+      return;
     case Graph::VerticalBars:
       layout->generateBar2DPlot(AxisRect2D::BarType::VerticalBars, table, xcol,
                                 ycollist, from, to);
@@ -8273,6 +8287,11 @@ void ApplicationWindow::selectPlotType(int value) {
     case Graph::VerticalStackedBars:
       layout->generateStakedBar2DPlot(AxisRect2D::BarType::VerticalBars, table,
                                       xcol, ycollist, from, to);
+      setAutoScale();
+      return;
+    case Graph::VerticalGroupedBars:
+      layout->generateGroupedBar2DPlot(AxisRect2D::BarType::VerticalBars, table,
+                                       xcol, ycollist, from, to);
       setAutoScale();
       return;
     case Graph::Channel:

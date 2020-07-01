@@ -15,17 +15,20 @@
    Description : General appearance settings page.
 */
 
-#include "../core/IconLoader.h"
 #include "GeneralAppreanceSettings.h"
-#include "ui_GeneralAppreanceSettings.h"
 
+#include <QFile>
 #include <QStyleFactory>
+#include <QtDebug>
+
+#include "../core/IconLoader.h"
+#include "ui_GeneralAppreanceSettings.h"
 
 GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
     : SettingsPage(dialog), ui(new Ui_GeneralAppreanceSettings) {
   ui->setupUi(this);
-  setWindowIcon(IconLoader::load("preferences-general-apperance",
-   IconLoader::General));
+  setWindowIcon(
+      IconLoader::load("preferences-general-apperance", IconLoader::General));
   setWindowTitle(tr("Apperance"));
   ui->scrollArea->setFrameShape(QFrame::NoFrame);
   ui->gridLayout->setContentsMargins(3, 3, 3, 3);
@@ -44,9 +47,8 @@ GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
   ui->colorSchemeComboBox->addItems(colorSchemes);
   connect(ui->styleComboBox, SIGNAL(currentIndexChanged(QString)),
           SLOT(stylePreview(QString)));
-  connect(ui->colorSchemeComboBox, &QComboBox::currentTextChanged, [&](QString index){
-
-  });
+  connect(ui->colorSchemeComboBox, &QComboBox::currentTextChanged,
+          [&](QString index) {});
 }
 
 GeneralAppreanceSettings::~GeneralAppreanceSettings() { delete ui; }

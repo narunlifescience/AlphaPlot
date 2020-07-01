@@ -172,6 +172,8 @@ class ApplicationWindow : public QMainWindow,
     Channel = 20,
     VerticalStackedBars = 21,
     HorizontalStackedBars = 22,
+    VerticalGroupedBars = 23,
+    HorizontalGroupedBars = 24,
   };
 
   QTranslator* appTranslator;

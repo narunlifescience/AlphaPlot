@@ -51,6 +51,7 @@ class AxisRect2D : public QCPAxisRect {
   typedef QVector<Curve2D *> CurveVec;
   typedef QVector<Vector2D *> VectorVec;
   typedef QVector<Bar2D *> BarVec;
+  typedef QVector<QCPBarsGroup *> BarGroupVec;
   typedef QVector<StatBox2D *> StatBoxVec;
   typedef QVector<Pie2D *> PieVec;
   typedef QVector<ColorMap2D *> ColorMapVec;
@@ -80,6 +81,7 @@ class AxisRect2D : public QCPAxisRect {
   CurveVec getCurveVec() const { return curvevec_; }
   VectorVec getVectorVec() const { return vectorvec_; }
   BarVec getBarVec() const { return barvec_; }
+  BarGroupVec getBarGroupVec() const { return bargroupvec_; }
   StatBoxVec getStatBoxVec() const { return statboxvec_; }
   PieVec getPieVec() const { return pievec_; }
   ColorMapVec getColorMapVec() const { return colormapvec_; }
@@ -255,6 +257,7 @@ class AxisRect2D : public QCPAxisRect {
   CurveVec curvevec_;
   VectorVec vectorvec_;
   BarVec barvec_;
+  BarGroupVec bargroupvec_;
   StatBoxVec statboxvec_;
   PieVec pievec_;
   ColorMapVec colormapvec_;

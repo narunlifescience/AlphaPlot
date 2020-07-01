@@ -32,6 +32,7 @@
 #include "2Dplot/ErrorBar2D.h"
 #include "2Dplot/ImageItem2D.h"
 #include "2Dplot/Layout2D.h"
+#include "2Dplot/LayoutGrid2D.h"
 #include "2Dplot/Legend2D.h"
 #include "2Dplot/LineItem2D.h"
 #include "2Dplot/LineSpecial2D.h"
@@ -146,11 +147,16 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
                             QRegExp("^[a-zA-Z0-9-]*$"));
 
   // Plot Canvas properties
-  canvaspropertycoloritem_ = colorManager_->addProperty("Background Color");
+  canvaspropertycoloritem_ = colorManager_->addProperty(tr("Background Color"));
   canvaspropertybufferdevicepixelratioitem_ =
-      doubleManager_->addProperty("Device Pixel Ratio");
+      doubleManager_->addProperty(tr("Device Pixel Ratio"));
   canvaspropertyopenglitem_ = boolManager_->addProperty("OpenGL");
   canvaspropertysizeitem_ = sizeManager_->addProperty(tr("Plot Dimension"));
+  canvaspropertyrowsapcingitem_ = intManager_->addProperty(tr("Row Spacing"));
+  canvaspropertycolumnsapcingitem_ =
+      intManager_->addProperty(tr("Column Spacing"));
+  intManager_->setMinimum(canvaspropertyrowsapcingitem_, 0);
+  intManager_->setMinimum(canvaspropertycolumnsapcingitem_, 0);
 
   // Layout Properties
   layoutpropertymargingroupitem_ = groupManager_->addProperty(tr("Margin"));
@@ -170,6 +176,12 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   layoutpropertymargingroupitem_->addSubProperty(layoutpropertytopmarginitem_);
   layoutpropertymargingroupitem_->addSubProperty(
       layoutpropertybottommarginitem_);
+  layoutpropertyrowstreachfactoritem_ =
+      doubleManager_->addProperty(tr("Row Streach Factor"));
+  layoutpropertycolumnstreachfactoritem_ =
+      doubleManager_->addProperty(tr("Column Streach Factor"));
+  doubleManager_->setMinimum(layoutpropertyrowstreachfactoritem_, 0.0);
+  doubleManager_->setMinimum(layoutpropertycolumnstreachfactoritem_, 0.0);
   // Axis Properties
   axispropertyvisibleitem_ = boolManager_->addProperty(tr("Visible"));
   axispropertyoffsetitem_ = intManager_->addProperty(tr("Offset"));
@@ -2200,6 +2212,28 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
     Plot2D *plot = getgraph2dobject<Plot2D>(objectbrowser_->currentItem());
     plot->setBufferDevicePixelRatio(value);
     plot->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+  } else if (prop->compare(layoutpropertyrowstreachfactoritem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 2)
+                    .value<void *>();
+    Layout2D *layout2d = static_cast<Layout2D *>(ptr);
+    QPair<int, int> rowcol = layout2d->getAxisRectRowCol(axisrect);
+    layout2d->getLayoutGrid()->setRowStretchFactor(rowcol.first, value);
+    layout2d->getPlotCanwas()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedReplot);
+  } else if (prop->compare(layoutpropertycolumnstreachfactoritem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 2)
+                    .value<void *>();
+    Layout2D *layout2d = static_cast<Layout2D *>(ptr);
+    QPair<int, int> rowcol = layout2d->getAxisRectRowCol(axisrect);
+    layout2d->getLayoutGrid()->setColumnStretchFactor(rowcol.second, value);
+    layout2d->getPlotCanwas()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedReplot);
   } else if (prop->compare(hmajgridpropertystrokethicknessitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
@@ -2791,7 +2825,21 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
 }
 
 void PropertyEditor::valueChange(QtProperty *prop, const int value) {
-  if (prop->compare(layoutpropertyleftmarginitem_)) {
+  if (prop->compare(canvaspropertyrowsapcingitem_)) {
+    void *ptr1 = objectbrowser_->currentItem()
+                     ->data(0, Qt::UserRole + 2)
+                     .value<void *>();
+    Layout2D *layout = static_cast<Layout2D *>(ptr1);
+    layout->getLayoutGrid()->setRowSpacing(value);
+    layout->getPlotCanwas()->replot();
+  } else if (prop->compare(canvaspropertycolumnsapcingitem_)) {
+    void *ptr1 = objectbrowser_->currentItem()
+                     ->data(0, Qt::UserRole + 2)
+                     .value<void *>();
+    Layout2D *layout = static_cast<Layout2D *>(ptr1);
+    layout->getLayoutGrid()->setColumnSpacing(value);
+    layout->getPlotCanwas()->replot();
+  } else if (prop->compare(layoutpropertyleftmarginitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     QMargins mar = axisrect->margins();
@@ -3616,12 +3664,16 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
     case MyTreeWidget::PropertyItemType::Plot2DCanvas: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       Plot2D *plotcanvas = static_cast<Plot2D *>(ptr);
-      Plot2DPropertyBlock(plotcanvas);
+      ptr = item->data(0, Qt::UserRole + 2).value<void *>();
+      Layout2D *layout2d = static_cast<Layout2D *>(ptr);
+      Plot2DPropertyBlock(layout2d, plotcanvas);
     } break;
     case MyTreeWidget::PropertyItemType::Plot2DLayout: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
       AxisRect2D *axisrect = static_cast<AxisRect2D *>(ptr);
-      Layout2DPropertyBlock(axisrect);
+      ptr = item->data(0, Qt::UserRole + 2).value<void *>();
+      Layout2D *layout2d = static_cast<Layout2D *>(ptr);
+      Layout2DPropertyBlock(layout2d, axisrect);
     } break;
     case MyTreeWidget::PropertyItemType::Plot2DGrid: {
       void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
@@ -3781,13 +3833,16 @@ void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
   }
 }
 
-void PropertyEditor::Layout2DPropertyBlock(AxisRect2D *axisrect) {
+void PropertyEditor::Layout2DPropertyBlock(Layout2D *layout2d,
+                                           AxisRect2D *axisrect) {
   propertybrowser_->clear();
 
   rectManager_->setValue(layoutpropertyrectitem_, axisrect->outerRect());
   colorManager_->setValue(layoutpropertycoloritem_,
                           axisrect->backgroundBrush().color());
   propertybrowser_->addProperty(layoutpropertycoloritem_);
+  propertybrowser_->addProperty(layoutpropertyrowstreachfactoritem_);
+  propertybrowser_->addProperty(layoutpropertycolumnstreachfactoritem_);
   propertybrowser_->addProperty(layoutpropertyrectitem_);
   propertybrowser_->addProperty(layoutpropertymargingroupitem_);
   boolManager_->setValue(layoutpropertyautomarginstatusitem_,
@@ -3800,6 +3855,12 @@ void PropertyEditor::Layout2DPropertyBlock(AxisRect2D *axisrect) {
                         axisrect->margins().top());
   intManager_->setValue(layoutpropertybottommarginitem_,
                         axisrect->margins().bottom());
+  LayoutGrid2D *loutgrid = layout2d->getLayoutGrid();
+  QPair<int, int> rowcol = layout2d->getAxisRectRowCol(axisrect);
+  doubleManager_->setValue(layoutpropertyrowstreachfactoritem_,
+                           loutgrid->rowStretchFactors().at(rowcol.first));
+  doubleManager_->setValue(layoutpropertycolumnstreachfactoritem_,
+                           loutgrid->columnStretchFactors().at(rowcol.second));
 }
 
 void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
@@ -5254,12 +5315,15 @@ void PropertyEditor::WindowPropertyBlock(MyWidget *widget) {
   rectManager_->setValue(mywidgetwindowrectitem_, widget->geometry());
 }
 
-void PropertyEditor::Plot2DPropertyBlock(Plot2D *plotcanvas) {
+void PropertyEditor::Plot2DPropertyBlock(Layout2D *layout2d,
+                                         Plot2D *plotcanvas) {
   propertybrowser_->clear();
   propertybrowser_->addProperty(canvaspropertysizeitem_);
   propertybrowser_->addProperty(canvaspropertycoloritem_);
   propertybrowser_->addProperty(canvaspropertybufferdevicepixelratioitem_);
   propertybrowser_->addProperty(canvaspropertyopenglitem_);
+  propertybrowser_->addProperty(canvaspropertyrowsapcingitem_);
+  propertybrowser_->addProperty(canvaspropertycolumnsapcingitem_);
   colorManager_->setValue(canvaspropertycoloritem_,
                           plotcanvas->getBackgroundColor());
   doubleManager_->setValue(canvaspropertybufferdevicepixelratioitem_,
@@ -5267,6 +5331,10 @@ void PropertyEditor::Plot2DPropertyBlock(Plot2D *plotcanvas) {
   boolManager_->setValue(canvaspropertyopenglitem_, plotcanvas->openGl());
   sizeManager_->setValue(canvaspropertysizeitem_,
                          QSize(plotcanvas->width(), plotcanvas->height()));
+  intManager_->setValue(canvaspropertyrowsapcingitem_,
+                        layout2d->getLayoutGrid()->rowSpacing());
+  intManager_->setValue(canvaspropertycolumnsapcingitem_,
+                        layout2d->getLayoutGrid()->columnSpacing());
 }
 
 void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
@@ -5356,6 +5424,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
         static_cast<int>(MyTreeWidget::PropertyItemType::Plot2DCanvas));
     canvasitem->setData(0, Qt::UserRole + 1,
                         QVariant::fromValue<void *>(gd->getPlotCanwas()));
+    canvasitem->setData(0, Qt::UserRole + 2, QVariant::fromValue<void *>(gd));
     objectitems_.append(canvasitem);
 
     // Layout items
@@ -5375,6 +5444,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
           0, Qt::UserRole,
           static_cast<int>(MyTreeWidget::PropertyItemType::Plot2DLayout));
       item->setData(0, Qt::UserRole + 1, QVariant::fromValue<void *>(element));
+      item->setData(0, Qt::UserRole + 2, QVariant::fromValue<void *>(gd));
 
       // Legend
       QString legendtext = tr("Legend");
@@ -6669,6 +6739,9 @@ void PropertyEditor::setObjectPropertyId() {
       "canvaspropertybufferdevicepixelratioitem_");
   canvaspropertyopenglitem_->setPropertyId("canvaspropertyopenglitem_");
   canvaspropertysizeitem_->setPropertyId("canvaspropertysizeitem_");
+  canvaspropertyrowsapcingitem_->setPropertyId("canvaspropertyrowsapcingitem_");
+  canvaspropertycolumnsapcingitem_->setPropertyId(
+      "canvaspropertycolumnsapcingitem_");
   // Layout properties
   layoutpropertymargingroupitem_->setPropertyId(
       "layoutpropertymargingroupitem_");
@@ -6682,6 +6755,10 @@ void PropertyEditor::setObjectPropertyId() {
   layoutpropertytopmarginitem_->setPropertyId("layoutpropertytopmarginitem_");
   layoutpropertybottommarginitem_->setPropertyId(
       "layoutpropertybottommarginitem_");
+  layoutpropertyrowstreachfactoritem_->setPropertyId(
+      "layoutpropertyrowstreachfactoritem_");
+  layoutpropertycolumnstreachfactoritem_->setPropertyId(
+      "layoutpropertycolumnstreachfactoritem_");
   // Axis Properties General Block
   axispropertyvisibleitem_->setPropertyId("axispropertyvisibleitem_");
   axispropertyoffsetitem_->setPropertyId("axispropertyoffsetitem_");
