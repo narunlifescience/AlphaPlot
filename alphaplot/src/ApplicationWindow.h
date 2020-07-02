@@ -264,7 +264,7 @@ class ApplicationWindow : public QMainWindow,
   // void setAppColors(const QColor& wc, const QColor& pc, const QColor& tpc);
   //@}
 
-  void addLayout(const Graph2DCommon::AddLayoutElement &position);
+  void addLayout(const Graph2DCommon::AddLayoutElement& position);
   void deleteLayout();
 
   //! Creates a new spectrogram graph
@@ -274,10 +274,6 @@ class ApplicationWindow : public QMainWindow,
 
   //! Rearrange the layersin order to fit to the size of the plot window
   void addNestedLayout();
-  void plot2VerticalLayers();
-  void plot2HorizontalLayers();
-  void plot4Layers();
-  void plotStackedLayers();
   void plotStackedHistograms();
   //@}
 

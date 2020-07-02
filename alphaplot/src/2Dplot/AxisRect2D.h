@@ -38,6 +38,7 @@ class LineItem2D;
 class ImageItem2D;
 class ColorMap2D;
 class XmlStreamWriter;
+class LayoutGrid2D;
 
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
@@ -188,7 +189,7 @@ class AxisRect2D : public QCPAxisRect {
 
  public slots:
   void save(XmlStreamWriter *xmlwriter, const QPair<int, int> rowcol,
-            const int index);
+            LayoutGrid2D *layoutgrid);
   bool load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             QList<Matrix *> mats);
 

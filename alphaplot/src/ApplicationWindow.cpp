@@ -556,14 +556,23 @@ ApplicationWindow::ApplicationWindow()
                             static_cast<int>(Graph::Histogram));
   connect(ui_->actionPlot2DStatStackedHistogram, SIGNAL(triggered()), this,
           SLOT(plotStackedHistograms()));
-  connect(ui_->actionPanelVertical2Layers, SIGNAL(triggered()), this,
-          SLOT(plot2VerticalLayers()));
-  connect(ui_->actionPanelHorizontal2Layers, SIGNAL(triggered()), this,
-          SLOT(plot2HorizontalLayers()));
-  connect(ui_->actionPanel4Layers, SIGNAL(triggered()), this,
-          SLOT(plot4Layers()));
-  connect(ui_->actionPanelStackedLayers, SIGNAL(triggered()), this,
-          SLOT(plotStackedLayers()));
+  connect(ui_->actionPanelVertical2Layouts, &QAction::triggered, [&]() {
+    Layout2D *layout = newGraph2D();
+    layout->addAxisRectWithAxis(QPair<int, int>(0, 0));
+    layout->addAxisRectWithAxis(QPair<int, int>(1, 0));
+  });
+  connect(ui_->actionPanelHorizontal2Layouts, &QAction::triggered, [&]() {
+    Layout2D *layout = newGraph2D();
+    layout->addAxisRectWithAxis(QPair<int, int>(0, 0));
+    layout->addAxisRectWithAxis(QPair<int, int>(0, 1));
+  });
+  connect(ui_->actionPanel4Layouts, &QAction::triggered, [&]() {
+    Layout2D *layout = newGraph2D();
+    layout->addAxisRectWithAxis(QPair<int, int>(0, 0));
+    layout->addAxisRectWithAxis(QPair<int, int>(0, 1));
+    layout->addAxisRectWithAxis(QPair<int, int>(1, 0));
+    layout->addAxisRectWithAxis(QPair<int, int>(1, 1));
+  });
   ui_->actionPlot3DRibbon->setVisible(false);
   connect(ui_->actionPlot3DRibbon, SIGNAL(triggered()), this,
           SLOT(plot3DRibbon()));
@@ -4326,16 +4335,6 @@ void ApplicationWindow::showRowStatistics() {
     QMessageBox::warning(this, tr("Row selection error"),
                          tr("Please select a row first!"));
 }
-
-void ApplicationWindow::plot2VerticalLayers() { qDebug() << "not implimented"; }
-
-void ApplicationWindow::plot2HorizontalLayers() {
-  qDebug() << "not implimented";
-}
-
-void ApplicationWindow::plot4Layers() { qDebug() << "not implimented"; }
-
-void ApplicationWindow::plotStackedLayers() { qDebug() << "not implimented"; }
 
 void ApplicationWindow::plotStackedHistograms() {
   if (!d_workspace->activeSubWindow()) return;
@@ -8487,10 +8486,9 @@ void ApplicationWindow::loadIcons() {
   ui_->actionPlot2DStatHistogram->setIcon(
       IconLoader::load("graph2d-histogram", IconLoader::LightDark));
   ui_->actionPlot2DStatStackedHistogram->setIcon(QIcon(QPixmap()));
-  ui_->actionPanelVertical2Layers->setIcon(QIcon(QPixmap()));
-  ui_->actionPanelHorizontal2Layers->setIcon(QIcon(QPixmap()));
-  ui_->actionPanel4Layers->setIcon(QIcon(QPixmap()));
-  ui_->actionPanelStackedLayers->setIcon(QIcon(QPixmap()));
+  ui_->actionPanelVertical2Layouts->setIcon(QIcon(QPixmap()));
+  ui_->actionPanelHorizontal2Layouts->setIcon(QIcon(QPixmap()));
+  ui_->actionPanel4Layouts->setIcon(QIcon(QPixmap()));
   ui_->actionPlot3DRibbon->setIcon(
       IconLoader::load("graph3d-ribbon", IconLoader::LightDark));
   ui_->actionPlot3DBar->setIcon(

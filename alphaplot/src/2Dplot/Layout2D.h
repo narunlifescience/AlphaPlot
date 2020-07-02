@@ -103,6 +103,7 @@ class Layout2D : public MyWidget {
   AxisRect2D *addAxisRectWithAxis();
   AxisRect2D *addAxisRectWithAxis(
       const Graph2DCommon::AddLayoutElement &position);
+  AxisRect2D *addAxisRectWithAxis(const QPair<int, int> rowcol);
   void removeAxisRectItem();
 
  private slots:
@@ -110,6 +111,9 @@ class Layout2D : public MyWidget {
       const AlphaPlot::ColumnDataType &xcoldatatype,
       const AlphaPlot::ColumnDataType &ycoldatatype,
       const Graph2DCommon::AddLayoutElement &addelement);
+  AxisRect2D *addAxisRectItemAtRowCol(
+      const AlphaPlot::ColumnDataType &xcoldatatype,
+      const AlphaPlot::ColumnDataType &ycoldatatype, QPair<int, int> rowcol);
   void axisRectSetFocus(AxisRect2D *rect);
   void activateLayout(LayoutButton2D *button);
   void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,

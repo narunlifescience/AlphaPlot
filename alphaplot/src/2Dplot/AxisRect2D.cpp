@@ -22,6 +22,7 @@
 #include "ErrorBar2D.h"
 #include "ImageItem2D.h"
 #include "Layout2D.h"
+#include "LayoutGrid2D.h"
 #include "Legend2D.h"
 #include "LineItem2D.h"
 #include "Matrix.h"
@@ -1577,11 +1578,19 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
 }
 
 void AxisRect2D::save(XmlStreamWriter *xmlwriter, const QPair<int, int> rowcol,
-                      const int index) {
+                      LayoutGrid2D *layoutgrid) {
   xmlwriter->writeStartElement("layout");
-  xmlwriter->writeAttribute("index", QString::number(index + 1));
+  xmlwriter->writeAttribute(
+      "index", QString::number(
+                   layoutgrid->rowColToIndex(rowcol.first, rowcol.second) + 1));
   xmlwriter->writeAttribute("row", QString::number(rowcol.first + 1));
   xmlwriter->writeAttribute("column", QString::number(rowcol.second + 1));
+  xmlwriter->writeAttribute(
+      "rowstreachfactor",
+      QString::number(layoutgrid->rowStretchFactors().at(rowcol.first)));
+  xmlwriter->writeAttribute(
+      "columnstreachfactor",
+      QString::number(layoutgrid->columnStretchFactors().at(rowcol.second)));
   xmlwriter->writeBrush(backgroundBrush());
   getLegend()->save(xmlwriter);
   foreach (Axis2D *axis, getAxes2D()) { axis->save(xmlwriter); }

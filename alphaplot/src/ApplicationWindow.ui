@@ -185,14 +185,13 @@
      <addaction name="actionPlot2DStatHistogram"/>
      <addaction name="actionPlot2DStatStackedHistogram"/>
     </widget>
-    <widget class="QMenu" name="menuPlot2DPanel">
+    <widget class="QMenu" name="menuPlot2DLayoutGrids">
      <property name="title">
-      <string>Pa&amp;nel</string>
+      <string>Layout Grids</string>
      </property>
-     <addaction name="actionPanelVertical2Layers"/>
-     <addaction name="actionPanelHorizontal2Layers"/>
-     <addaction name="actionPanel4Layers"/>
-     <addaction name="actionPanelStackedLayers"/>
+     <addaction name="actionPanelVertical2Layouts"/>
+     <addaction name="actionPanelHorizontal2Layouts"/>
+     <addaction name="actionPanel4Layouts"/>
     </widget>
     <widget class="QMenu" name="menuPlot3D">
      <property name="title">
@@ -222,10 +221,10 @@
     <addaction name="actionPlot2DVectorsXYAM"/>
     <addaction name="separator"/>
     <addaction name="menuPlot2DStatisticalGraphs"/>
-    <addaction name="menuPlot2DPanel"/>
     <addaction name="separator"/>
     <addaction name="menuPlot3D"/>
     <addaction name="separator"/>
+    <addaction name="menuPlot2DLayoutGrids"/>
    </widget>
    <widget class="QMenu" name="menuScripting">
     <property name="title">
@@ -848,7 +847,7 @@
   </action>
   <action name="actionArrangeLayout">
    <property name="text">
-    <string>Arran&amp;ge Layouts...</string>
+    <string>Swap Layouts...</string>
    </property>
   </action>
   <action name="actionHelp">
@@ -972,24 +971,19 @@
     <string>&amp;Stacked Histogram</string>
    </property>
   </action>
-  <action name="actionPanelVertical2Layers">
+  <action name="actionPanelVertical2Layouts">
    <property name="text">
-    <string>&amp;Vertical 2 Layers</string>
+    <string>&amp;Vertical 2 Layouts</string>
    </property>
   </action>
-  <action name="actionPanelHorizontal2Layers">
+  <action name="actionPanelHorizontal2Layouts">
    <property name="text">
-    <string>&amp;Horizontal 2 Layers</string>
+    <string>&amp;Horizontal 2 Layouts</string>
    </property>
   </action>
-  <action name="actionPanel4Layers">
+  <action name="actionPanel4Layouts">
    <property name="text">
-    <string>&amp;4 Layers</string>
-   </property>
-  </action>
-  <action name="actionPanelStackedLayers">
-   <property name="text">
-    <string>&amp;Stacked Layers</string>
+    <string>&amp;4(2x2) Layouts</string>
    </property>
   </action>
   <action name="actionPlot3DRibbon">

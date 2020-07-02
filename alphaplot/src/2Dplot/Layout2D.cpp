@@ -628,30 +628,42 @@ AxisRect2D *Layout2D::addAxisRectItem(
   int col = -1;
   switch (addelement) {
     case Graph2DCommon::AddLayoutElement::Left: {
+      bool wasnegativeone = false;
       if (currentAxisRect_) {
         row = getAxisRectRowCol(currentAxisRect_).first;
         col = getAxisRectRowCol(currentAxisRect_).second - 1;
         if (col == -1) {
           col = 0;
+        } else if (col == 0) {
+          wasnegativeone = true;
         }
       } else {
         row = 0;
         col = 0;
       }
-      if (layout_->hasElement(row, col)) layout_->insertColumn(col);
+      if (layout_->hasElement(row, col)) {
+        if (col != 0 || wasnegativeone) col = col + 1;
+        layout_->insertColumn(col);
+      }
     } break;
     case Graph2DCommon::AddLayoutElement::Top: {
+      bool wasnegativeone = false;
       if (currentAxisRect_) {
         row = getAxisRectRowCol(currentAxisRect_).first - 1;
         col = getAxisRectRowCol(currentAxisRect_).second;
         if (row == -1) {
           row = 0;
+        } else if (row == 0) {
+          wasnegativeone = true;
         }
       } else {
         row = 0;
         col = 0;
       }
-      if (layout_->hasElement(row, col)) layout_->insertRow(row);
+      if (layout_->hasElement(row, col)) {
+        if (row != 0 || wasnegativeone) row = row + 1;
+        layout_->insertRow(row);
+      }
     } break;
     case Graph2DCommon::AddLayoutElement::Right: {
       if (currentAxisRect_) {
@@ -674,9 +686,22 @@ AxisRect2D *Layout2D::addAxisRectItem(
       if (layout_->hasElement(row, col)) layout_->insertRow(row);
     } break;
   }
+  return addAxisRectItemAtRowCol(xcoldatatype, ycoldatatype,
+                                 QPair<int, int>(row, col));
+}
+
+AxisRect2D *Layout2D::addAxisRectItemAtRowCol(
+    const AlphaPlot::ColumnDataType &xcoldatatype,
+    const AlphaPlot::ColumnDataType &ycoldatatype, QPair<int, int> rowcol) {
+  // insert row or column if absent
+  if (layout_->hasElement(rowcol.first, rowcol.second)) {
+    qDebug() << QString("layout already have element at %1%2")
+                    .arg(rowcol.first)
+                    .arg(rowcol.second);
+    return nullptr;
+  }
 
   AxisRect2D *axisRect2d = new AxisRect2D(plot2dCanvas_);
-  // axisrectitem->setData(0, Qt::UserRole, 3);
   Axis2D *xAxis = nullptr;
   switch (xcoldatatype) {
     case AlphaPlot::ColumnDataType::TypeDouble:
@@ -721,11 +746,10 @@ AxisRect2D *Layout2D::addAxisRectItem(
   yAxis->setRange(0, 100);
   xAxis->setLabel("X Axis Title");
   yAxis->setLabel("Y Axis Title");
-  layout_->addElement(row, col, axisRect2d);
+  layout_->addElement(rowcol.first, rowcol.second, axisRect2d);
 
   plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
-  QPair<int, int> num = QPair<int, int>(row, col);
-  addLayoutButton(num, axisRect2d);
+  addLayoutButton(rowcol, axisRect2d);
 
   connect(axisRect2d, &AxisRect2D::AxisRectClicked, this,
           &Layout2D::axisRectSetFocus);
@@ -1829,8 +1853,7 @@ void Layout2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeEndElement();
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
     const QPair<int, int> rowcol = getAxisRectRowCol(axisrect);
-    axisrect->save(xmlwriter, rowcol,
-                   layout_->rowColToIndex(rowcol.first, rowcol.second));
+    axisrect->save(xmlwriter, rowcol, layout_);
   }
   xmlwriter->writeEndElement();
 }
@@ -1942,22 +1965,41 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           xmlreader->raiseWarning(tr("Layout2D axisrect row read error"));
         }
         // read col
-        int col = xmlreader->readAttributeInt("col", &ok);
+        int col = xmlreader->readAttributeInt("column", &ok);
         if (!ok) {
           col = -1;
           xmlreader->raiseWarning(tr("Layout2D axisrect col read error"));
         }
+        // row streach factor
+        double rowstreach =
+            xmlreader->readAttributeDouble("rowstreachfactor", &ok);
+        if (!ok) {
+          rowstreach = 1;
+          xmlreader->raiseWarning(
+              tr("Layout2D axisrect row streach factor read error"));
+        }
+        // row streach factor
+        double colstreach =
+            xmlreader->readAttributeDouble("columnstreachfactor", &ok);
+        if (!ok) {
+          colstreach = 1;
+          xmlreader->raiseWarning(
+              tr("Layout2D axisrect column streach factor read error"));
+        }
+        // substract 1 from row and col (added while saving)
+        row--;
+        col--;
         AxisRect2D *axisrect = nullptr;
-        row = -1;
-        col = -1;
         if (row != -1 && col != -1) {
-          // handle layout creation here
+          axisrect = addAxisRectWithAxis(QPair<int, int>(row, col));
         } else {
           axisrect = addAxisRectWithAxis();
         }
         if (axisrect == nullptr)
           xmlreader->raiseError(
               tr("no plot2d axisrect2d layout element initialization error"));
+        layout_->setRowStretchFactor(row, rowstreach);
+        layout_->setColumnStretchFactor(col, colstreach);
         foreach (Axis2D *axis, axisrect->getAxes2D()) {
           axisrect->removeAxis2D(axis, true);
         }
@@ -2011,4 +2053,9 @@ AxisRect2D *Layout2D::addAxisRectWithAxis(
     const Graph2DCommon::AddLayoutElement &position) {
   return addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                          AlphaPlot::ColumnDataType::TypeDouble, position);
+}
+
+AxisRect2D *Layout2D::addAxisRectWithAxis(const QPair<int, int> rowcol) {
+  return addAxisRectItemAtRowCol(AlphaPlot::ColumnDataType::TypeDouble,
+                                 AlphaPlot::ColumnDataType::TypeDouble, rowcol);
 }
