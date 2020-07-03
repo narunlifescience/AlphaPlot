@@ -2,8 +2,11 @@
 #define TEXTITEM2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "AxisRect2D.h"
-#include "Plot2D.h"
+
+class AxisRect2D;
+class Plot2D;
+class XmlStreamReader;
+class XmlStreamWriter;
 
 class TextItem2D : public QCPItemText {
  public:

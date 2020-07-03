@@ -195,6 +195,7 @@
     <file>icons/light/16/graph2d-histogram.png</file>
     <file>icons/light/16/graph2d-horizontal-bar.png</file>
     <file>icons/light/16/graph2d-horizontal-stack-bar.png</file>
+    <file>icons/light/16/graph2d-horizontal-group-bar.png</file>
     <file>icons/light/16/graph2d-horizontal-step.png</file>
     <file>icons/light/16/graph2d-line-scatter.png</file>
     <file>icons/light/16/graph2d-line.png</file>
@@ -208,6 +209,7 @@
     <file>icons/light/16/graph2d-vector-xyam.png</file>
     <file>icons/light/16/graph2d-vertical-bar.png</file>
     <file>icons/light/16/graph2d-vertical-stack-bar.png</file>
+    <file>icons/light/16/graph2d-vertical-group-bar.png</file>
     <file>icons/light/16/graph2d-vertical-drop.png</file>
     <file>icons/light/16/graph2d-vertical-step.png</file>
     <file>icons/light/16/graph3d-function-xyz.png</file>
@@ -337,6 +339,7 @@
     <file>icons/light/22/graph2d-histogram.png</file>
     <file>icons/light/22/graph2d-horizontal-bar.png</file>
     <file>icons/light/22/graph2d-horizontal-stack-bar.png</file>
+    <file>icons/light/22/graph2d-horizontal-group-bar.png</file>
     <file>icons/light/22/graph2d-horizontal-step.png</file>
     <file>icons/light/22/graph2d-line-scatter.png</file>
     <file>icons/light/22/graph2d-line.png</file>
@@ -350,6 +353,7 @@
     <file>icons/light/22/graph2d-vector-xyam.png</file>
     <file>icons/light/22/graph2d-vertical-bar.png</file>
     <file>icons/light/22/graph2d-vertical-stack-bar.png</file>
+    <file>icons/light/22/graph2d-vertical-group-bar.png</file>
     <file>icons/light/22/graph2d-vertical-drop.png</file>
     <file>icons/light/22/graph2d-vertical-step.png</file>
     <file>icons/light/22/graph3d-function-xyz.png</file>
@@ -478,6 +482,7 @@
     <file>icons/light/24/graph2d-histogram.png</file>
     <file>icons/light/24/graph2d-horizontal-bar.png</file>
     <file>icons/light/24/graph2d-horizontal-stack-bar.png</file>
+    <file>icons/light/24/graph2d-horizontal-group-bar.png</file>
     <file>icons/light/24/graph2d-horizontal-step.png</file>
     <file>icons/light/24/graph2d-line-scatter.png</file>
     <file>icons/light/24/graph2d-line.png</file>
@@ -491,6 +496,7 @@
     <file>icons/light/24/graph2d-vector-xyam.png</file>
     <file>icons/light/24/graph2d-vertical-bar.png</file>
     <file>icons/light/24/graph2d-vertical-stack-bar.png</file>
+    <file>icons/light/24/graph2d-vertical-group-bar.png</file>
     <file>icons/light/24/graph2d-vertical-drop.png</file>
     <file>icons/light/24/graph2d-vertical-step.png</file>
     <file>icons/light/24/graph3d-function-xyz.png</file>
@@ -635,6 +641,7 @@
     <file>icons/dark/16/graph2d-histogram.png</file>
     <file>icons/dark/16/graph2d-horizontal-bar.png</file>
     <file>icons/dark/16/graph2d-horizontal-stack-bar.png</file>
+    <file>icons/dark/16/graph2d-horizontal-group-bar.png</file>
     <file>icons/dark/16/graph2d-horizontal-step.png</file>
     <file>icons/dark/16/graph2d-line-scatter.png</file>
     <file>icons/dark/16/graph2d-line.png</file>
@@ -648,6 +655,7 @@
     <file>icons/dark/16/graph2d-vector-xyam.png</file>
     <file>icons/dark/16/graph2d-vertical-bar.png</file>
     <file>icons/dark/16/graph2d-vertical-stack-bar.png</file>
+    <file>icons/dark/16/graph2d-vertical-group-bar.png</file>
     <file>icons/dark/16/graph2d-vertical-drop.png</file>
     <file>icons/dark/16/graph2d-vertical-step.png</file>
     <file>icons/dark/16/graph3d-function-xyz.png</file>
@@ -777,6 +785,7 @@
     <file>icons/dark/22/graph2d-histogram.png</file>
     <file>icons/dark/22/graph2d-horizontal-bar.png</file>
     <file>icons/dark/22/graph2d-horizontal-stack-bar.png</file>
+    <file>icons/dark/22/graph2d-horizontal-group-bar.png</file>
     <file>icons/dark/22/graph2d-horizontal-step.png</file>
     <file>icons/dark/22/graph2d-line-scatter.png</file>
     <file>icons/dark/22/graph2d-line.png</file>
@@ -790,6 +799,7 @@
     <file>icons/dark/22/graph2d-vector-xyam.png</file>
     <file>icons/dark/22/graph2d-vertical-bar.png</file>
     <file>icons/dark/22/graph2d-vertical-stack-bar.png</file>
+    <file>icons/dark/22/graph2d-vertical-group-bar.png</file>
     <file>icons/dark/22/graph2d-vertical-drop.png</file>
     <file>icons/dark/22/graph2d-vertical-step.png</file>
     <file>icons/dark/22/graph3d-function-xyz.png</file>
@@ -918,6 +928,7 @@
     <file>icons/dark/24/graph2d-histogram.png</file>
     <file>icons/dark/24/graph2d-horizontal-bar.png</file>
     <file>icons/dark/24/graph2d-horizontal-stack-bar.png</file>
+    <file>icons/dark/24/graph2d-horizontal-group-bar.png</file>
     <file>icons/dark/24/graph2d-horizontal-step.png</file>
     <file>icons/dark/24/graph2d-line-scatter.png</file>
     <file>icons/dark/24/graph2d-line.png</file>
@@ -931,6 +942,7 @@
     <file>icons/dark/24/graph2d-vector-xyam.png</file>
     <file>icons/dark/24/graph2d-vertical-bar.png</file>
     <file>icons/dark/24/graph2d-vertical-stack-bar.png</file>
+    <file>icons/dark/24/graph2d-vertical-group-bar.png</file>
     <file>icons/dark/24/graph2d-vertical-drop.png</file>
     <file>icons/dark/24/graph2d-vertical-step.png</file>
     <file>icons/dark/24/graph3d-function-xyz.png</file>

@@ -18,14 +18,18 @@
 #include "Curve2D.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
+#include "Grid2D.h"
 #include "LayoutGrid2D.h"
 #include "Legend2D.h"
 #include "LineSpecial2D.h"
 #include "Matrix.h"
+#include "Pie2D.h"
+#include "Plot2D.h"
 #include "Table.h"
 #include "TextItem2D.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
+#include "future/core/column/Column.h"
 #include "future/core/datatypes/DateTime2StringFilter.h"
 #include "future/lib/XmlStreamWriter.h"
 #include "plotcommon/widgets/ImageExportDialog.h"
@@ -628,40 +632,40 @@ AxisRect2D *Layout2D::addAxisRectItem(
   int col = -1;
   switch (addelement) {
     case Graph2DCommon::AddLayoutElement::Left: {
-      bool wasnegativeone = false;
+      bool waszero = false;
       if (currentAxisRect_) {
         row = getAxisRectRowCol(currentAxisRect_).first;
         col = getAxisRectRowCol(currentAxisRect_).second - 1;
         if (col == -1) {
           col = 0;
         } else if (col == 0) {
-          wasnegativeone = true;
+          waszero = true;
         }
       } else {
         row = 0;
         col = 0;
       }
       if (layout_->hasElement(row, col)) {
-        if (col != 0 || wasnegativeone) col = col + 1;
+        if (col != 0 || waszero) col = col + 1;
         layout_->insertColumn(col);
       }
     } break;
     case Graph2DCommon::AddLayoutElement::Top: {
-      bool wasnegativeone = false;
+      bool waszero = false;
       if (currentAxisRect_) {
         row = getAxisRectRowCol(currentAxisRect_).first - 1;
         col = getAxisRectRowCol(currentAxisRect_).second;
         if (row == -1) {
           row = 0;
         } else if (row == 0) {
-          wasnegativeone = true;
+          waszero = true;
         }
       } else {
         row = 0;
         col = 0;
       }
       if (layout_->hasElement(row, col)) {
-        if (row != 0 || wasnegativeone) row = row + 1;
+        if (row != 0 || waszero) row = row + 1;
         layout_->insertRow(row);
       }
     } break;
@@ -812,6 +816,8 @@ void Layout2D::removeAxisRectItem() {
   auto gridpair = currentAxisRect_->getGridPair();
   delete gridpair.first.first;
   delete gridpair.second.first;
+  gridpair.first.first = nullptr;
+  gridpair.second.first = nullptr;
   foreach (Axis2D *axis, currentAxisRect_->getAxes2D()) {
     currentAxisRect_->removeAxis2D(axis, true);
   }
@@ -1958,6 +1964,7 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           index = -1;
           xmlreader->raiseWarning(tr("Layout2D axisrect index read error"));
         }
+        Q_UNUSED(index);
         // read row
         int row = xmlreader->readAttributeInt("row", &ok);
         if (!ok) {

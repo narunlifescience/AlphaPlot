@@ -19,12 +19,7 @@
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
-#include "Bar2D.h"
-#include "Curve2D.h"
-#include "Grid2D.h"
-#include "LineSpecial2D.h"
-#include "Pie2D.h"
-#include "Plot2D.h"
+#include "Graph2DCommon.h"
 #include "StatBox2D.h"
 #include "Vector2D.h"
 
@@ -39,6 +34,14 @@ class ImageItem2D;
 class ColorMap2D;
 class XmlStreamWriter;
 class LayoutGrid2D;
+class Pie2D;
+class Plot2D;
+class Grid2D;
+class Bar2D;
+class Curve2D;
+class LineSpecial2D;
+class ErrorBar2D;
+class StatBox2D;
 
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
@@ -265,9 +268,6 @@ class AxisRect2D : public QCPAxisRect {
   QList<Axis2D *> axes_;
   QList<QCPLayer *> layers_;
   Graph2DCommon::Picker picker_;
-  // QVector<QPair<StatBox2D *, QPair<Axis2D *, Axis2D *>>> statboxplots_;
-  // Histogram
-  // Other types
 };
 
 #endif  // AXISRECT2D_H

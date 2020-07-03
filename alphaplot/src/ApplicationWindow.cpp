@@ -121,6 +121,7 @@
 
 #include "2Dplot/Graph2DCommon.h"
 #include "2Dplot/Layout2D.h"
+#include "2Dplot/Plot2D.h"
 #include "2Dplot/Plotcolumns.h"
 #include "2Dplot/widgets/AddPlot2DDialog.h"
 #include "2Dplot/widgets/Function2DDialog.h"
@@ -8465,10 +8466,14 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark));
   ui_->actionPlot2DVerticalStackedBars->setIcon(
       IconLoader::load("graph2d-vertical-stack-bar", IconLoader::LightDark));
+  ui_->actionPlot2DVerticalGroupedBars->setIcon(
+      IconLoader::load("graph2d-vertical-group-bar", IconLoader::LightDark));
   ui_->actionPlot2DHorizontalBars->setIcon(
       IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark));
   ui_->actionPlot2DHorizontalStackedBars->setIcon(
       IconLoader::load("graph2d-horizontal-stack-bar", IconLoader::LightDark));
+  ui_->actionPlot2DHorizontalGroupedBars->setIcon(
+      IconLoader::load("graph2d-horizontal-group-bar", IconLoader::LightDark));
   ui_->actionPlot2DArea->setIcon(
       IconLoader::load("graph2d-area", IconLoader::LightDark));
   ui_->actionPlot2DChannelFill->setIcon(

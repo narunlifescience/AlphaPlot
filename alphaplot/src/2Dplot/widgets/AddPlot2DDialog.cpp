@@ -5,6 +5,9 @@
 #include "Folder.h"
 #include "Matrix.h"
 #include "Table.h"
+#include "2Dplot/LineSpecial2D.h"
+#include "2Dplot/Curve2D.h"
+#include "2Dplot/Bar2D.h"
 #include "core/IconLoader.h"
 #include "core/column/Column.h"
 

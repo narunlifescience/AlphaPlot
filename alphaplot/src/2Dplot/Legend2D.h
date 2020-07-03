@@ -2,9 +2,13 @@
 #define LEGEND2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "AxisRect2D.h"
 
+class AxisRect2D;
+class Curve2D;
 class LineSpecial2D;
+class Vector2D;
+class XmlStreamReader;
+class XmlStreamWriter;
 
 class Legend2D : public QCPLegend {
   Q_OBJECT

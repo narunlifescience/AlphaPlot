@@ -2,14 +2,15 @@
 #define LINESCATTER2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "Axis2D.h"
 #include "Graph2DCommon.h"
-//#include "PlotPoint.h"
 
+class Axis2D;
 class Column;
 class Table;
 class DataBlockGraph;
 class ErrorBar2D;
+class XmlStreamReader;
+class XmlStreamWriter;
 
 class LineSpecial2D : public QCPGraph {
   Q_OBJECT

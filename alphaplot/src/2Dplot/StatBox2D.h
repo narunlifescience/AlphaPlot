@@ -2,10 +2,12 @@
 #define STATBOX2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "Axis2D.h"
 #include "Graph2DCommon.h"
 
+class Axis2D;
 class Table;
+class XmlStreamReader;
+class XmlStreamWriter;
 
 class StatBox2D : public QCPStatisticalBox {
   Q_OBJECT

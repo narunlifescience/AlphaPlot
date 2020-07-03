@@ -2,6 +2,7 @@
 
 #include "../core/Utilities.h"
 #include "../future/core/column/Column.h"
+#include "Axis2D.h"
 #include "Table.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"

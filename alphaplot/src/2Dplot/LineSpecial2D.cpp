@@ -6,7 +6,6 @@
 #include "../future/core/column/Column.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
-//#include "PlotPoint.h"
 #include "AxisRect2D.h"
 #include "Table.h"
 #include "core/Utilities.h"

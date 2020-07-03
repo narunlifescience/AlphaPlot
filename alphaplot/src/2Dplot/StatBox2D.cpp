@@ -3,6 +3,7 @@
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
 
+#include "Axis2D.h"
 #include "Table.h"
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"

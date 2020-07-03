@@ -1,4 +1,5 @@
 == progress ==
+* grouped bar charts (vertical & horizontal)
 * rewrite the layout system to a grid type one (with row & column streach factor adjustment)
 * add title element to legend
 * remove Zlib dependency and use Qt equivalent

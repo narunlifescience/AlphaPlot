@@ -1,10 +1,12 @@
 #ifndef VECTOR2D_H
 #define VECTOR2D_H
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "Axis2D.h"
 
+class Axis2D;
 class Column;
 class Table;
+class XmlStreamReader;
+class XmlStreamWriter;
 
 class Vector2D : public QCPGraph {
   Q_OBJECT

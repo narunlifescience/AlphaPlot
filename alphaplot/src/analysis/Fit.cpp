@@ -40,6 +40,7 @@
 
 #include "2Dplot/Curve2D.h"
 #include "2Dplot/Legend2D.h"
+#include "2Dplot/AxisRect2D.h"
 #include "ColorBox.h"
 #include "Matrix.h"
 #include "Table.h"

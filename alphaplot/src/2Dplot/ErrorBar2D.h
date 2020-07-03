@@ -2,14 +2,16 @@
 #define ERRORBAR2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "Axis2D.h"
 
 class Table;
 class Column;
+class Axis2D;
 class Curve2D;
 class LineSpecial2D;
 class Bar2D;
 class DataBlockError;
+class XmlStreamWriter;
+class XmlStreamReader;
 
 class ErrorBar2D : public QCPErrorBars {
  public:

@@ -4,6 +4,10 @@
 
 #include "2Dplot/Axis2D.h"
 #include "2Dplot/AxisRect2D.h"
+#include "2Dplot/LineSpecial2D.h"
+#include "2Dplot/Curve2D.h"
+#include "2Dplot/Bar2D.h"
+#include "2Dplot/Pie2D.h"
 #include "2Dplot/ColorMap2D.h"
 #include "2Dplot/ErrorBar2D.h"
 #include "2Dplot/ImageItem2D.h"

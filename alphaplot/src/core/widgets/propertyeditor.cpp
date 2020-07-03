@@ -27,6 +27,11 @@
 #include "../3rdparty/propertybrowser/qteditorfactory.h"
 #include "../3rdparty/propertybrowser/qtpropertymanager.h"
 #include "../3rdparty/propertybrowser/qttreepropertybrowser.h"
+#include "2Dplot/Curve2D.h"
+#include "2Dplot/Bar2D.h"
+#include "2Dplot/Grid2D.h"
+#include "2Dplot/Pie2D.h"
+#include "2Dplot/Plot2D.h"
 #include "2Dplot/ColorMap2D.h"
 #include "2Dplot/DataManager2D.h"
 #include "2Dplot/ErrorBar2D.h"
@@ -49,6 +54,7 @@
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "ui_propertyeditor.h"
+#include "future/core/column/Column.h"
 
 using namespace QtDataVisualization;
 

@@ -2,7 +2,11 @@
 #define IMAGEITEM2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "AxisRect2D.h"
+
+class AxisRect2D;
+class Plot2D;
+class XmlStreamWriter;
+class XmlStreamReader;
 
 class ImageItem2D : public QCPItemPixmap {
  public:

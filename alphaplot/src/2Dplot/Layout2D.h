@@ -6,9 +6,7 @@
 
 #include "AxisRect2D.h"
 #include "MyWidget.h"
-//#include "Plot2D.h"
-//#include "StatBox2D.h"
-#include "future/core/column/Column.h"
+#include "globals.h"
 
 class QLabel;
 class Table;

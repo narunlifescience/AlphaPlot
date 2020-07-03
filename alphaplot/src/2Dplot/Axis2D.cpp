@@ -19,6 +19,7 @@
 #include <QVector>
 
 #include "AxisRect2D.h"
+#include "Plot2D.h"
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"

@@ -20,12 +20,14 @@
 #include <QObject>
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "Axis2D.h"
 #include "Graph2DCommon.h"
 
+class AxisRect2D;
 class Column;
 class Table;
 class PieLegendItem2D;
+class XmlStreamReader;
+class XmlStreamWriter;
 
 class Pie2D : public QCPAbstractItem {
   Q_OBJECT

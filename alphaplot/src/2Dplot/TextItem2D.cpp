@@ -1,10 +1,12 @@
 #include "TextItem2D.h"
 
-#include <QPen>
-
+#include "AxisRect2D.h"
+#include "Plot2D.h"
 #include "core/Utilities.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
+
+#include <QPen>
 
 TextItem2D::TextItem2D(AxisRect2D *axisrect, Plot2D *plot)
     : QCPItemText(plot),

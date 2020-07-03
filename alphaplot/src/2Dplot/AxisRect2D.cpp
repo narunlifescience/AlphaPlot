@@ -18,6 +18,11 @@
 
 #include <QMenu>
 
+#include "Plot2D.h"
+#include "Bar2D.h"
+#include "Curve2D.h"
+#include "Grid2D.h"
+#include "LineSpecial2D.h"
 #include "ColorMap2D.h"
 #include "ErrorBar2D.h"
 #include "ImageItem2D.h"

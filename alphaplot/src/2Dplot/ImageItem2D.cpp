@@ -2,6 +2,8 @@
 
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
+#include "2Dplot/Plot2D.h"
+#include "2Dplot/AxisRect2D.h"
 
 const int ImageItem2D::selectionpixelsize_ = 10;
 

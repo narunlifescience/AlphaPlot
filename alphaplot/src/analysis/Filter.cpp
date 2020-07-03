@@ -37,6 +37,7 @@
 
 #include "2Dplot/AxisRect2D.h"
 #include "2Dplot/Legend2D.h"
+#include "2Dplot/Curve2D.h"
 #include "ColorBox.h"
 #include "Table.h"
 #include "core/column/Column.h"

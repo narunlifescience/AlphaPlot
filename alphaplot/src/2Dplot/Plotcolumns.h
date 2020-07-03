@@ -2,6 +2,9 @@
 #define PLOTCOLUMNS_H
 #include <QList>
 #include "2Dplot/AxisRect2D.h"
+#include "2Dplot/LineSpecial2D.h"
+#include "2Dplot/Bar2D.h"
+#include "2Dplot/Curve2D.h"
 #include "DataManager2D.h"
 #include "future/core/column/Column.h"
 #include "Table.h"

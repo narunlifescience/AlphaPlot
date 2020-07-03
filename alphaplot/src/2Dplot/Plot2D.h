@@ -18,8 +18,6 @@
 #define PLOT2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "Axis2D.h"
-#include "Grid2D.h"
 
 class Plot2D : public QCustomPlot {
   Q_OBJECT
