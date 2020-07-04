@@ -18,20 +18,20 @@
 
 #include <QMenu>
 
-#include "Plot2D.h"
 #include "Bar2D.h"
-#include "Curve2D.h"
-#include "Grid2D.h"
-#include "LineSpecial2D.h"
 #include "ColorMap2D.h"
+#include "Curve2D.h"
 #include "ErrorBar2D.h"
+#include "Grid2D.h"
 #include "ImageItem2D.h"
 #include "Layout2D.h"
 #include "LayoutGrid2D.h"
 #include "Legend2D.h"
 #include "LineItem2D.h"
+#include "LineSpecial2D.h"
 #include "Matrix.h"
 #include "Pie2D.h"
+#include "Plot2D.h"
 #include "QMessageBox"
 #include "Table.h"
 #include "TextItem2D.h"
@@ -1583,7 +1583,7 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
 }
 
 void AxisRect2D::save(XmlStreamWriter *xmlwriter, const QPair<int, int> rowcol,
-                      LayoutGrid2D *layoutgrid) {
+                      LayoutGrid2D *layoutgrid, const bool saveastemplate) {
   xmlwriter->writeStartElement("layout");
   xmlwriter->writeAttribute(
       "index", QString::number(
@@ -1601,117 +1601,120 @@ void AxisRect2D::save(XmlStreamWriter *xmlwriter, const QPair<int, int> rowcol,
   foreach (Axis2D *axis, getAxes2D()) { axis->save(xmlwriter); }
   gridpair_.first.first->save(xmlwriter, "xgrid");
   gridpair_.second.first->save(xmlwriter, "ygrid");
-  // assign to a new variable
-  CurveVec cvec = curvevec_;
-  LsVec lvec = lsvec_;
-  ChannelVec chvec = channelvec_;
-  BarVec bvec = barvec_;
-  VectorVec vvec = vectorvec_;
-  PieVec pvec = pievec_;
-  ColorMapVec colvec = colormapvec_;
-  StatBoxVec stvec = statboxvec_;
-  TextItemVec txvec = textvec_;
-  LineItemVec livec = linevec_;
-  ImageItemVec imvec = imagevec_;
 
-  foreach (QCPLayer *layer, layers_) {
-    foreach (Curve2D *curve, cvec) {
-      if (layer == curve->layer()) {
-        curve->save(xmlwriter, getXAxisNo(curve->getxaxis()),
-                    getYAxisNo(curve->getyaxis()));
-        cvec.removeOne(curve);
-        continue;
+  if (!saveastemplate) {
+    // assign to a new variable
+    CurveVec cvec = curvevec_;
+    LsVec lvec = lsvec_;
+    ChannelVec chvec = channelvec_;
+    BarVec bvec = barvec_;
+    VectorVec vvec = vectorvec_;
+    PieVec pvec = pievec_;
+    ColorMapVec colvec = colormapvec_;
+    StatBoxVec stvec = statboxvec_;
+    TextItemVec txvec = textvec_;
+    LineItemVec livec = linevec_;
+    ImageItemVec imvec = imagevec_;
+
+    foreach (QCPLayer *layer, layers_) {
+      foreach (Curve2D *curve, cvec) {
+        if (layer == curve->layer()) {
+          curve->save(xmlwriter, getXAxisNo(curve->getxaxis()),
+                      getYAxisNo(curve->getyaxis()));
+          cvec.removeOne(curve);
+          continue;
+        }
       }
-    }
-    foreach (LineSpecial2D *ls, lvec) {
-      if (layer == ls->layer()) {
-        ls->save(xmlwriter, getXAxisNo(ls->getxaxis()),
-                 getYAxisNo(ls->getyaxis()));
-        lvec.removeOne(ls);
-        continue;
+      foreach (LineSpecial2D *ls, lvec) {
+        if (layer == ls->layer()) {
+          ls->save(xmlwriter, getXAxisNo(ls->getxaxis()),
+                   getYAxisNo(ls->getyaxis()));
+          lvec.removeOne(ls);
+          continue;
+        }
       }
-    }
-    for (int i = 0; i < chvec.size(); i++) {
-      if (layer == chvec.at(i).first->layer()) {
-        xmlwriter->writeStartElement("channel");
-        chvec.at(i).first->save(xmlwriter,
-                                getXAxisNo(chvec.at(i).first->getxaxis()),
-                                getYAxisNo(chvec.at(i).first->getyaxis()));
-        chvec.at(i).second->save(xmlwriter,
-                                 getXAxisNo(chvec.at(i).second->getxaxis()),
-                                 getYAxisNo(chvec.at(i).second->getyaxis()));
-        xmlwriter->writeEndElement();
-        chvec.remove(i);
-        continue;
+      for (int i = 0; i < chvec.size(); i++) {
+        if (layer == chvec.at(i).first->layer()) {
+          xmlwriter->writeStartElement("channel");
+          chvec.at(i).first->save(xmlwriter,
+                                  getXAxisNo(chvec.at(i).first->getxaxis()),
+                                  getYAxisNo(chvec.at(i).first->getyaxis()));
+          chvec.at(i).second->save(xmlwriter,
+                                   getXAxisNo(chvec.at(i).second->getxaxis()),
+                                   getYAxisNo(chvec.at(i).second->getyaxis()));
+          xmlwriter->writeEndElement();
+          chvec.remove(i);
+          continue;
+        }
       }
-    }
-    foreach (Bar2D *bar, bvec) {
-      if (layer == bar->layer()) {
-        (bar->getxaxis()->getorientation_axis() ==
-             Axis2D::AxisOreantation::Top ||
-         bar->getxaxis()->getorientation_axis() ==
-             Axis2D::AxisOreantation::Bottom)
-            ? bar->save(xmlwriter, getXAxisNo(bar->getxaxis()),
-                        getYAxisNo(bar->getyaxis()))
-            : bar->save(xmlwriter, getYAxisNo(bar->getxaxis()),
-                        getXAxisNo(bar->getyaxis()));
-        bvec.removeOne(bar);
-        continue;
+      foreach (Bar2D *bar, bvec) {
+        if (layer == bar->layer()) {
+          (bar->getxaxis()->getorientation_axis() ==
+               Axis2D::AxisOreantation::Top ||
+           bar->getxaxis()->getorientation_axis() ==
+               Axis2D::AxisOreantation::Bottom)
+              ? bar->save(xmlwriter, getXAxisNo(bar->getxaxis()),
+                          getYAxisNo(bar->getyaxis()))
+              : bar->save(xmlwriter, getYAxisNo(bar->getxaxis()),
+                          getXAxisNo(bar->getyaxis()));
+          bvec.removeOne(bar);
+          continue;
+        }
       }
-    }
-    foreach (Vector2D *vector, vvec) {
-      if (layer == vector->layer()) {
-        vector->save(xmlwriter, getXAxisNo(vector->getxaxis()),
-                     getYAxisNo(vector->getyaxis()));
-        vvec.removeOne(vector);
-        continue;
+      foreach (Vector2D *vector, vvec) {
+        if (layer == vector->layer()) {
+          vector->save(xmlwriter, getXAxisNo(vector->getxaxis()),
+                       getYAxisNo(vector->getyaxis()));
+          vvec.removeOne(vector);
+          continue;
+        }
       }
-    }
-    foreach (Pie2D *pie, pvec) {
-      if (layer == pie->layer()) {
-        pie->save(xmlwriter);
-        pvec.removeOne(pie);
-        continue;
+      foreach (Pie2D *pie, pvec) {
+        if (layer == pie->layer()) {
+          pie->save(xmlwriter);
+          pvec.removeOne(pie);
+          continue;
+        }
       }
-    }
-    foreach (StatBox2D *statbox, stvec) {
-      if (layer == statbox->layer()) {
-        statbox->save(xmlwriter, getXAxisNo(statbox->getxaxis()),
-                      getYAxisNo(statbox->getyaxis()));
-        stvec.removeOne(statbox);
-        continue;
+      foreach (StatBox2D *statbox, stvec) {
+        if (layer == statbox->layer()) {
+          statbox->save(xmlwriter, getXAxisNo(statbox->getxaxis()),
+                        getYAxisNo(statbox->getyaxis()));
+          stvec.removeOne(statbox);
+          continue;
+        }
       }
-    }
-    foreach (ColorMap2D *colmap, colvec) {
-      if (layer == colmap->layer()) {
-        colmap->save(xmlwriter);
-        colvec.removeOne(colmap);
-        continue;
+      foreach (ColorMap2D *colmap, colvec) {
+        if (layer == colmap->layer()) {
+          colmap->save(xmlwriter);
+          colvec.removeOne(colmap);
+          continue;
+        }
       }
-    }
-    // items
-    foreach (TextItem2D *textitem, txvec) {
-      if (layer == textitem->layer()) {
-        textitem->save(xmlwriter);
-        txvec.removeOne(textitem);
-        continue;
+      // items
+      foreach (TextItem2D *textitem, txvec) {
+        if (layer == textitem->layer()) {
+          textitem->save(xmlwriter);
+          txvec.removeOne(textitem);
+          continue;
+        }
       }
-    }
-    foreach (LineItem2D *lineitem, livec) {
-      if (layer == lineitem->layer()) {
-        lineitem->save(xmlwriter);
-        livec.removeOne(lineitem);
-        continue;
+      foreach (LineItem2D *lineitem, livec) {
+        if (layer == lineitem->layer()) {
+          lineitem->save(xmlwriter);
+          livec.removeOne(lineitem);
+          continue;
+        }
       }
-    }
-    foreach (ImageItem2D *imageitem, imvec) {
-      if (layer == imageitem->layer()) {
-        imageitem->save(xmlwriter);
-        imvec.removeOne(imageitem);
-        continue;
+      foreach (ImageItem2D *imageitem, imvec) {
+        if (layer == imageitem->layer()) {
+          imageitem->save(xmlwriter);
+          imvec.removeOne(imageitem);
+          continue;
+        }
       }
+      qDebug() << "unknown layer: " << layer->name();
     }
-    qDebug() << "unknown layer: " << layer->name();
   }
   xmlwriter->writeEndElement();
 }

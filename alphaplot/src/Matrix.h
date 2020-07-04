@@ -211,14 +211,6 @@ class Matrix : public MatrixView, public scripted {
   //! Set the matrix forumla
   void setFormula(const QString &s);
 
-  //! Format the matrix format in a string to save it in a template file
-  QString saveAsTemplate(const QString &info);
-
-  //! Return a string to save the matrix in a project file (\<matrix\> section)
-  QString saveToString(const QString &info);
-  //! Return a string conaining the data of the matrix (\<data\> section)
-  QString saveText();
-
   // selection operations
   //! Standard cut operation
   void cutSelection();

@@ -175,67 +175,6 @@ void Matrix::setCoordinates(double xs, double xe, double ys, double ye) {
   d_future_matrix->setCoordinates(xs, xe, ys, ye);
 }
 
-QString Matrix::saveToString(const QString &geometry) {
-  QString s = "<matrix>\n";
-  QString xml;
-  QXmlStreamWriter writer(&xml);
-  d_future_matrix->save(&writer);
-  s += QString::number(xml.length()) +
-       "\n";  // this is need in case there are newlines in the XML
-  s += xml + "\n";
-  s += geometry + "\n";
-  s += "</matrix>\n";
-  return s;
-
-#if 0
-	QString s = "<matrix>\n";
-	s += QString(name()) + "\t";
-	s += QString::number(numRows())+"\t";
-	s += QString::number(numCols())+"\t";
-	s += birthDate() + "\n";
-	s += info;
-	s += "ColWidth\t" + QString::number(columnWidth(0))+"\n";
-	s += "<formula>\n" + formula() + "\n</formula>\n";
-	s += "TextFormat\t" + QString(d_future_matrix->numericFormat()) + "\t" + QString::number(d_future_matrix->displayedDigits()) + "\n";
-	s += "WindowLabel\t" + windowLabel() + "\t" + QString::number(captionPolicy()) + "\n";
-	s += "Coordinates\t" + QString::number(xStart(),'g',15) + "\t" +QString::number(xEnd(),'g',15) + "\t";
-	s += QString::number(yStart(),'g',15) + "\t" + QString::number(yEnd(),'g',15) + "\n";
-	s += saveText();
-	s +="</matrix>\n";
-	return s;
-#endif
-}
-
-QString Matrix::saveAsTemplate(const QString &info) {
-  QString s = "<matrix>\t";
-  s += QString::number(numRows()) + "\t";
-  s += QString::number(numCols()) + "\n";
-  s += info;
-  s += "ColWidth\t" + QString::number(columnWidth(0)) + "\n";
-  s += "<formula>\n" + formula() + "\n</formula>\n";
-  s += "TextFormat\t" + QString(d_future_matrix->numericFormat()) + "\t" +
-       QString::number(d_future_matrix->displayedDigits()) + "\n";
-  s += "Coordinates\t" + QString::number(xStart(), 'g', 15) + "\t" +
-       QString::number(xEnd(), 'g', 15) + "\t";
-  s += QString::number(yStart(), 'g', 15) + "\t" +
-       QString::number(yEnd(), 'g', 15) + "\n";
-  s += "</matrix>\n";
-  return s;
-}
-
-QString Matrix::saveText() {
-  QString out_text = "<data>\n";
-  int cols = d_future_matrix->columnCount();
-  for (int i = 0; i < d_future_matrix->rowCount(); i++) {
-    out_text += QString::number(i) + "\t";
-    for (int j = 0; j < cols - 1; j++)
-      out_text += QString::number(cell(i, j), 'e', 16) + "\t";
-
-    out_text += QString::number(cell(i, cols - 1), 'e', 16) + "\n";
-  }
-  return out_text + "</data>\n";
-}
-
 void Matrix::setFormula(const QString &s) { d_future_matrix->setFormula(s); }
 
 QString Matrix::formula() { return d_future_matrix->formula(); }

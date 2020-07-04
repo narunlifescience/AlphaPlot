@@ -348,23 +348,6 @@ void Table::setColumnTypes(const QStringList &ctl) {
   }
 }
 
-QString Table::saveColumnWidths() {
-  // TODO: obsolete, remove in 0.3.0
-  QString s = "ColWidth\t";
-  for (int i = 0; i < numCols(); i++)
-    s += QString::number(columnWidth(i)) + "\t";
-
-  return s + "\n";
-}
-
-QString Table::saveColumnTypes() {
-  // TODO: obsolete, remove in 0.3.0
-  QString s = "ColType";
-  for (int i = 0; i < numCols(); i++)
-    s += "\t" + QString::number(column(i)->columnMode()) + ";0/6";
-  return s + "\n";
-}
-
 void Table::setCommands(const QStringList &com) {
   for (int i = 0; i < static_cast<int>(com.size()) && i < numCols(); i++)
     column(i)->setFormula(Interval<int>(0, numRows() - 1), com.at(i).trimmed());
@@ -464,115 +447,6 @@ bool Table::recalculate(int col, bool only_selected_rows) {
   }
   QApplication::restoreOverrideCursor();
   return true;
-}
-
-QString Table::saveCommands() {
-  // TODO: obsolete, remove for 0.3.0, only needed for template saving
-  QString s = "<com>\n";
-  for (int col = 0; col < numCols(); col++)
-    if (!column(col)->formula(0).isEmpty()) {
-      s += "<col nr=\"" + QString::number(col) + "\">\n";
-      s += column(col)->formula(0);
-      s += "\n</col>\n";
-    }
-  s += "</com>\n";
-  return s;
-}
-
-QString Table::saveComments() {
-  // TODO: obsolete, remove for 0.3.0, only needed for template saving
-  QString s = "Comments\t";
-  for (int i = 0; i < numCols(); i++) {
-    s += column(i)->comment() + "\t";
-  }
-  return s + "\n";
-}
-
-QString Table::saveToString(const QString &geometry) {
-  QString s = "<table>\n";
-  QString xml;
-  QXmlStreamWriter writer(&xml);
-  d_future_table->save(&writer);
-  s += QString::number(xml.length()) +
-       "\n";  // this is need in case there are newlines in the XML
-  s += xml + "\n";
-  s += geometry + "\n";
-  s += "</table>\n";
-  return s;
-}
-
-void Table::saveToDevice(QIODevice *device, const QString &geometry) {
-  QTextStream stream(device);
-  stream.setCodec(QTextCodec::codecForName("UTF-8"));
-
-  // write start tag
-  stream << "<table>\n";
-  stream.flush();
-
-  // On Windows, writing to a QString has been observed to crash for large
-  // tables
-  // (apparently due to excessive memory usage).
-  // => use temporary file if possible
-  QTemporaryFile tmp_file;
-  QString tmp_string;
-  QXmlStreamWriter xml(&tmp_string);
-  if (tmp_file.open()) xml.setDevice(&tmp_file);
-  d_future_table->save(&xml);
-
-  // write number of characters of QXmlStreamWriter's output
-  // this is needed in case there are newlines in the XML
-  int xml_chars = 0;
-  if (tmp_file.isOpen()) {
-    tmp_file.seek(0);
-    QTextStream count(&tmp_file);
-    count.setCodec(QTextCodec::codecForName("UTF-8"));
-    while (!count.atEnd()) xml_chars += count.read(1024).length();
-  } else
-    xml_chars = tmp_string.length();
-  stream << xml_chars << "\n";
-  stream.flush();
-
-  // Copy QXmlStreamWriter's output to device
-  if (tmp_file.isOpen()) {
-    tmp_file.seek(0);
-    qint64 bytes_read;
-    char buffer[1024];
-    while ((bytes_read = tmp_file.read(buffer, 1024)) > 0)
-      device->write(buffer, bytes_read);
-  } else
-    stream << tmp_string;
-  stream << "\n";
-
-  // write geometry and end tag
-  stream << geometry << "\n";
-  stream << "</table>\n";
-}
-
-QString Table::saveHeader() {
-  // TODO: obsolete, remove for 0.3.0, only needed for template saving
-  QString s = "header";
-  for (int j = 0; j < numCols(); j++) {
-    switch (column(j)->plotDesignation()) {
-      case AlphaPlot::X:
-        s += "\t" + colLabel(j) + "[X]";
-        break;
-      case AlphaPlot::Y:
-        s += "\t" + colLabel(j) + "[Y]";
-        break;
-      case AlphaPlot::Z:
-        s += "\t" + colLabel(j) + "[Z]";
-        break;
-      case AlphaPlot::xErr:
-        s += "\t" + colLabel(j) + "[xEr]";
-        break;
-      case AlphaPlot::yErr:
-        s += "\t" + colLabel(j) + "[yEr]";
-        break;
-      default:
-        s += "\t" + colLabel(j);
-    }
-  }
-  return s += "\n";
 }
 
 int Table::firstXCol() {
@@ -784,50 +658,6 @@ void Table::setText(int row, int col, const QString &text) {
   column(col)->asStringColumn()->setTextAt(row, text);
 }
 
-void Table::importV0x0001XXHeader(QStringList header) {
-  QStringList col_label = QStringList();
-  QList<AlphaPlot::PlotDesignation> col_plot_type =
-      QList<AlphaPlot::PlotDesignation>();
-  for (int i = 0; i < header.count(); i++) {
-    if (header[i].isEmpty()) continue;
-
-    QString s = header[i].replace("_", "-");
-    if (s.contains("[X]")) {
-      col_label << s.remove("[X]");
-      col_plot_type << AlphaPlot::X;
-    } else if (s.contains("[Y]")) {
-      col_label << s.remove("[Y]");
-      col_plot_type << AlphaPlot::Y;
-    } else if (s.contains("[Z]")) {
-      col_label << s.remove("[Z]");
-      col_plot_type << AlphaPlot::Z;
-    } else if (s.contains("[xEr]")) {
-      col_label << s.remove("[xEr]");
-      col_plot_type << AlphaPlot::xErr;
-    } else if (s.contains("[yEr]")) {
-      col_label << s.remove("[yEr]");
-      col_plot_type << AlphaPlot::yErr;
-    } else {
-      col_label << s;
-      col_plot_type << AlphaPlot::noDesignation;
-    }
-  }
-  QList<Column *> quarantine;
-  for (int i = 0; i < col_label.count() && i < d_future_table->columnCount();
-       i++)
-    quarantine << column(i);
-  int i = 0;
-  foreach (Column *col, quarantine) {
-    d_future_table->removeChild(col, true);
-    // setting column name while col is still part of table triggers renaming
-    // to prevent name clashes
-    col->setName(col_label.at(i));
-    col->setPlotDesignation(col_plot_type.at(i));
-    i++;
-  }
-  d_future_table->appendColumns(quarantine);
-}
-
 void Table::setHeader(QStringList header) {
   QList<Column *> quarantine;
   for (int i = 0; i < header.count() && i < d_future_table->columnCount(); i++)
@@ -986,62 +816,6 @@ void Table::copy(Table *m) {
   if (!m) return;
 
   d_future_table->copy(m->d_future_table);
-}
-
-QString Table::saveAsTemplate(const QString &geometryInfo) {
-  QString s = "<table>\t" + QString::number(numRows()) + "\t";
-  s += QString::number(numCols()) + "\n";
-  s += geometryInfo;
-  s += saveHeader();
-  s += saveColumnWidths();
-  s += saveCommands();
-  s += saveColumnTypes();
-  s += saveComments();
-  s += "</table>\n";
-  return s;
-}
-
-void Table::restore(const QStringList &list_in) {
-  // TODO: obsolete, remove in 0.3.0, only needed for template loading
-  QStringList temp_list;
-  QStringList::const_iterator iterator = list_in.begin();
-
-  temp_list = (*iterator++).split("\t");
-  temp_list.removeFirst();
-  importV0x0001XXHeader(temp_list);
-
-  setColWidths((*iterator)
-                   .right((*iterator).length() - 9)
-                   .split("\t", QString::SkipEmptyParts));
-  iterator++;
-
-  temp_list = (*iterator++).split("\t");
-  if (temp_list[0] == "com") {
-    temp_list.removeFirst();
-    setCommands(temp_list);
-  } else if (temp_list[0] == "<com>") {
-    QStringList commands;
-    for (int col = 0; col < numCols(); col++) commands << "";
-    for (; iterator != list_in.end() && *iterator != "</com>"; iterator++) {
-      int col = (*iterator).mid(9, (*iterator).length() - 11).toInt();
-      QString formula;
-      for (iterator++; iterator != list_in.end() && *iterator != "</col>";
-           iterator++)
-        formula += *iterator + "\n";
-      formula.truncate(formula.length() - 1);
-      commands[col] = formula;
-    }
-    iterator++;
-    setCommands(commands);
-  }
-
-  temp_list = (*iterator++).split("\t");
-  temp_list.removeFirst();
-  setColumnTypes(temp_list);
-
-  temp_list = (*iterator++).split("\t");
-  temp_list.removeFirst();
-  setColComments(temp_list);
 }
 
 void Table::clear() { d_future_table->clear(); }

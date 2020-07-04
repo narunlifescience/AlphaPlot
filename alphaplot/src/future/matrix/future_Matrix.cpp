@@ -962,7 +962,7 @@ int Matrix::displayedDigits() const {
   return d_matrix_private->displayedDigits();
 }
 
-void Matrix::save(QXmlStreamWriter *writer) const {
+void Matrix::save(QXmlStreamWriter *writer, const bool saveastemplate) const {
   int cols = columnCount();
   int rows = rowCount();
   writer->writeStartElement("matrix");
@@ -985,14 +985,15 @@ void Matrix::save(QXmlStreamWriter *writer) const {
   writer->writeAttribute("y_end", QString::number(yEnd()));
   writer->writeEndElement();
 
-  for (int col = 0; col < cols; col++)
-    for (int row = 0; row < rows; row++) {
-      writer->writeStartElement("cell");
-      writer->writeAttribute("row", QString::number(row));
-      writer->writeAttribute("column", QString::number(col));
-      writer->writeCharacters(QString::number(cell(row, col), 'e', 16));
-      writer->writeEndElement();
-    }
+  if (!saveastemplate)
+    for (int col = 0; col < cols; col++)
+      for (int row = 0; row < rows; row++) {
+        writer->writeStartElement("cell");
+        writer->writeAttribute("row", QString::number(row));
+        writer->writeAttribute("column", QString::number(col));
+        writer->writeCharacters(QString::number(cell(row, col), 'e', 16));
+        writer->writeEndElement();
+      }
   for (int col = 0; col < cols; col++) {
     writer->writeStartElement("column_width");
     writer->writeAttribute("column", QString::number(col));

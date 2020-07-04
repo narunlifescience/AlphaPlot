@@ -81,7 +81,7 @@ class Layout2D : public MyWidget {
   void setBackground(const QColor &background);
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void print();
-  void save(XmlStreamWriter *xmlwriter);
+  void save(XmlStreamWriter *xmlwriter, const bool saveastemplate = false);
   bool load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             QList<Matrix *> mats);
   void loadIcons();

@@ -298,7 +298,7 @@ class Column : public AbstractColumn {
   //! \name XML related functions
   //@{
   //! Save the column as XML
-  void save(QXmlStreamWriter* writer) const;
+  void save(QXmlStreamWriter* writer, const bool saveastemplate = false) const;
   //! Load the column from XML
   bool load(XmlStreamReader* reader);
 

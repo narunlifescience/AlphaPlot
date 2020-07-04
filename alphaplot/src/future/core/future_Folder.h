@@ -54,7 +54,7 @@ class Folder : public AbstractAspect {
   //! \name serialize/deserialize
   //@{
   //! Save as XML
-  virtual void save(QXmlStreamWriter *) const;
+  virtual void save(QXmlStreamWriter *, bool) const;
   //! Load from XML
   virtual bool load(XmlStreamReader *);
   bool load(QDomElement tablenode);

@@ -2169,7 +2169,7 @@ void Table::prepareAspectRemoval(AbstractAspect *aspect) {
   exec(new TableRemoveColumnsCmd(d_table_private, first, 1, cols));
 }
 
-void Table::save(QXmlStreamWriter *writer) const {
+void Table::save(QXmlStreamWriter *writer, const bool saveastemplate) const {
   int cols = columnCount();
   int rows = rowCount();
   writer->writeStartElement("table");
@@ -2178,7 +2178,9 @@ void Table::save(QXmlStreamWriter *writer) const {
   writer->writeAttribute("rows", QString::number(rows));
   writeCommentElement(writer);
 
-  for (int col = 0; col < cols; col++) column(col)->save(writer);
+  for (int col = 0; col < cols; col++)
+    column(col)->save(writer, saveastemplate);
+
   for (int col = 0; col < cols; col++) {
     writer->writeStartElement("column_width");
     writer->writeAttribute("column", QString::number(col));

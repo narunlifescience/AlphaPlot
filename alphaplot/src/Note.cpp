@@ -176,31 +176,4 @@ bool Note::load(XmlStreamReader* xmlreader) {
   return !xmlreader->hasError();
 }
 
-QString Note::saveToString(const QString& info) {
-  QString s = "<note>\n";
-  s += QString(name()) + "\t" + birthDate() + "\n";
-  s += info;
-  s += "WindowLabel\t" + windowLabel() + "\t" +
-       QString::number(captionPolicy()) + "\n";
-  s += "AutoExec\t" + QString(autoExec ? "1" : "0") + "\n";
-  s += "<content>\n" + textedit_->toPlainText().trimmed() + "\n</content>";
-  s += "\n</note>\n";
-  return s;
-}
-
-void Note::restore(const QStringList& data) {
-  QStringList::ConstIterator line = data.begin();
-  QStringList fields;
-
-  fields = (*line).split("\t");
-  if (fields[0] == "AutoExec") {
-    setAutoexec(fields[1] == "1");
-    line++;
-  }
-
-  if (*line == "<content>") line++;
-  while (line != data.end() && *line != "</content>")
-    textedit_->insertPlainText((*line++) + "\n");
-}
-
 void Note::setAutoexec(bool exec) { autoExec = exec; }

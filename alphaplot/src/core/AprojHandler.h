@@ -11,6 +11,7 @@ class FolderTreeWidgetItem;
 class XmlStreamWriter;
 class Table;
 class Matrix;
+class MyWidget;
 
 class AprojHandler : public QObject {
   Q_OBJECT
@@ -19,14 +20,16 @@ class AprojHandler : public QObject {
   ~AprojHandler();
   ApplicationWindow *openproject(const QString &filename);
   void appendproject(const QString &filename);
+  MyWidget *opentemplate(const QString &filename);
   Folder *readxmlstream(ApplicationWindow *app, QFile *file,
                         const QString &filename,
                         FolderTreeWidgetItem *rootitem);
 
   bool saveproject(const QString &filename, Folder *folder);
   void saveTreeRecursive(Folder *folder, XmlStreamWriter *xmlwriter);
+  bool saveTemplate(const QString &filename, MyWidget *mywidget);
   QList<Table *> tables(ApplicationWindow *app);
-  QList<Matrix *>matrixs(ApplicationWindow *app);
+  QList<Matrix *> matrixs(ApplicationWindow *app);
 
  private:
   QFile *openCompressedFile(const QString &filename);

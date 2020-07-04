@@ -58,7 +58,7 @@ QMenu *Folder::createContextMenu() const {
   return nullptr;
 }
 
-void Folder::save(QXmlStreamWriter *writer) const {
+void Folder::save(QXmlStreamWriter *writer, bool) const {
   writer->writeStartElement("folder");
   writeBasicAttributes(writer);
   writeCommentElement(writer);
@@ -66,7 +66,7 @@ void Folder::save(QXmlStreamWriter *writer) const {
   int child_count = childCount();
   for (int i = 0; i < child_count; i++) {
     writer->writeStartElement("child_aspect");
-    child(i)->save(writer);
+    child(i)->save(writer, false);
     writer->writeEndElement();  // "child_aspect"
   }
   writer->writeEndElement();  // "folder"

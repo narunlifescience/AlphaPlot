@@ -725,7 +725,7 @@ void Layout3D::loadCategoryAxis(XmlStreamReader *xmlreader) {
   }
 }
 
-void Layout3D::save(XmlStreamWriter *xmlwriter) {
+void Layout3D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
   xmlwriter->writeStartElement("plot3d");
   switch (plottype_) {
     case Graph3DCommon::Plot3DType::Surface:

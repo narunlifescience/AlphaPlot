@@ -2883,140 +2883,18 @@ void ApplicationWindow::restartScriptingEnv() {
                               .arg(scriptEnv->objectName()));
 }
 
-// TODO: rewrite the template system
 void ApplicationWindow::openTemplate() {
-  QString filter = "AlphaPlot/QtiPlot 2D Graph Template (*.qpt);;";
-  filter += "AlphaPlot/QtiPlot 3D Surface Template (*.qst);;";
-  filter += "AlphaPlot/QtiPlot Table Template (*.qtt);;";
-  filter += "AlphaPlot/QtiPlot Matrix Template (*.qmt)";
+  QString filter = tr("AlphaPlot Matrix Template") + " (*.apt);;";
+  filter += tr("AlphaPlot 3D Surface Template") + " (*.ast);;";
+  filter += tr("AlphaPlot Table Template") + " (*.att);;";
+  filter += tr("AlphaPlot Matrix Template") + " (*.amt);;";
 
-  QString fn = QFileDialog::getOpenFileName(this, tr("Open Template File"),
-                                            templatesDir, filter);
-  if (!fn.isEmpty()) {
-    QFileInfo fi(fn);
-    templatesDir = fi.absolutePath();
-    if (fn.contains(".qmt", Qt::CaseSensitive) ||
-        fn.contains(".qpt", Qt::CaseSensitive) ||
-        fn.contains(".qtt", Qt::CaseSensitive) ||
-        fn.contains(".qst", Qt::CaseSensitive)) {
-      if (!fi.exists()) {
-        QMessageBox::critical(this, tr("File opening error"),
-                              tr("The file: <b>%1</b> doesn't exist!").arg(fn));
-        return;
-      }
-      QFile f(fn);
-      QTextStream t(&f);
-      t.setCodec("UTF-8");
-      f.open(QIODevice::ReadOnly);
-      QStringList l =
-          t.readLine().split(QRegExp("\\s"), QString::SkipEmptyParts);
-      QString fileType = l[0];
-      if ((fileType != "AlphaPlot") && (fileType != "QtiPlot")) {
-        QMessageBox::critical(
-            this, tr("File opening error"),
-            tr("The file: <b> %1 </b> was not created using AlphaPlot!")
-                .arg(fn));
-        return;
-      }
-      QStringList vl = l[1].split(".", QString::SkipEmptyParts);
-
-      QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-      MyWidget *w = nullptr;
-      QString templateType;
-      t >> templateType;
-
-      if (templateType == "<SurfacePlot>") {
-        // t.skipWhiteSpace();
-        // QStringList lst;
-        // while (!t.atEnd()) lst << t.readLine();
-        // w = openSurfacePlotAproj(this, lst);
-        // if (w) qobject_cast<Graph3D *>(w)->clearData();
-      } else {
-        int rows, cols;
-        t >> rows;
-        t >> cols;
-        t.skipWhiteSpace();
-        QString geometry = t.readLine();
-
-        /*if (templateType ==
-            "<multiLayer>") {  // FIXME: workarounds for template
-          w = new MultiLayer("", d_workspace, 0);
-          w->setAttribute(Qt::WA_DeleteOnClose);
-          QString label = generateUniqueName(tr("Graph"));
-          initBareMultilayerPlot(qobject_cast<MultiLayer *>(w),
-                                 label.replace(QRegExp("_"), "-"));
-          if (w) {
-            qobject_cast<MultiLayer *>(w)->setCols(cols);
-            qobject_cast<MultiLayer *>(w)->setRows(rows);
-            restoreWindowGeometry(this, w, geometry);
-            QStringList strlst =
-                t.readLine().split("\t", QString::SkipEmptyParts);
-            qobject_cast<MultiLayer *>(w)->setMargins(
-                strlst[1].toInt(), strlst[2].toInt(), strlst[3].toInt(),
-                strlst[4].toInt());
-            strlst = t.readLine().split("\t", QString::SkipEmptyParts);
-            qobject_cast<MultiLayer *>(w)->setSpacing(strlst[1].toInt(),
-                                                      strlst[2].toInt());
-            strlst = t.readLine().split("\t", QString::SkipEmptyParts);
-            qobject_cast<MultiLayer *>(w)->setLayerCanvasSize(
-                strlst[1].toInt(), strlst[2].toInt());
-            strlst = t.readLine().split("\t", QString::SkipEmptyParts);
-            qobject_cast<MultiLayer *>(w)->setAlignement(strlst[1].toInt(),
-                                                         strlst[2].toInt());
-            while (!t.atEnd()) {  // open layers
-              QString s = t.readLine();
-              if (s.left(7) == "<graph>") {
-                QStringList lst;
-                while (s != "</graph>") {
-                  s = t.readLine();
-                  lst << s;
-                }
-                openGraphAproj(this, qobject_cast<MultiLayer *>(w), lst);
-              }
-            }
-          }
-        }*/
-        if (templateType != "<multiLayer>") {
-          if (templateType == "<table>")
-            w = newTable(tr("Table1"), rows, cols);
-          else if (templateType == "<matrix>")
-            w = newMatrix(rows, cols);
-          if (w) {
-            QStringList lst;
-            while (!t.atEnd()) lst << t.readLine();
-            w->restore(lst);
-            restoreWindowGeometry(this, w, geometry);
-          }
-        }
-      }
-
-      f.close();
-      if (w) {
-        switch (w->status()) {
-          case MyWidget::Maximized:
-            w->setMaximized();
-            break;
-          case MyWidget::Minimized:
-            w->setMinimized();
-            break;
-          case MyWidget::Hidden:
-            w->setHidden();
-            break;
-          case MyWidget::Normal:
-            w->setNormal();
-            break;
-        }
-        customMenu(w);
-        customToolBars(w);
-      }
-      QApplication::restoreOverrideCursor();
-    } else {
-      QMessageBox::critical(
-          this, tr("File opening error"),
-          tr("The file: <b>%1</b> is not a AlphaPlot template file!").arg(fn));
-      return;
-    }
+  QString filename = QFileDialog::getOpenFileName(
+      this, tr("Open Template File"), templatesDir, filter);
+  if (!filename.isEmpty() &&
+      (filename.endsWith(".apt") || filename.endsWith(".ast") ||
+       filename.endsWith(".att") || filename.endsWith(".amt"))) {
+    aprojhandler_->opentemplate(filename);
   }
 }
 
@@ -3870,6 +3748,12 @@ void ApplicationWindow::saveProjectAs() {
           static_cast<FolderTreeWidgetItem *>(ui_->folderView->topLevelItem(0));
       item->setText(0, baseName);
       item->folder()->setName(baseName);
+    } else {
+      QMessageBox::critical(
+          this, tr("Export Error"),
+          tr("Could not write to file: <br><h4> %1 </h4><p>Please verify "
+             "that you have the right to write to this location!")
+              .arg(filename));
     }
   }
 }
@@ -3888,43 +3772,35 @@ void ApplicationWindow::saveAsTemplate() {
 
   QString filter;
   if (isActiveSubWindow(mywidget, SubWindowType::MatrixSubWindow))
-    filter = tr("AlphaPlot Matrix Template") + " (*.amt)";
+    filter = tr("AlphaPlot Matrix Template") + " (*.amt);;";
   else if (isActiveSubWindow(mywidget, SubWindowType::Plot2DSubWindow))
-    filter = tr("AlphaPlot2D Graph Template") + " (*.apt)";
+    filter = tr("AlphaPlot2D Graph Template") + " (*.apt);;";
   else if (isActiveSubWindow(mywidget, SubWindowType::TableSubWindow))
-    filter = tr("AlphaPlot Table Template") + " (*.att)";
+    filter = tr("AlphaPlot Table Template") + " (*.att);;";
   else if (isActiveSubWindow(mywidget, SubWindowType::Plot3DSubWindow))
-    filter = tr("AlphaPlot 3D Surface Template") + " (*.ast)";
+    filter = tr("AlphaPlot 3D Surface Template") + " (*.ast);;";
 
   QString selectedFilter;
-  QString fn = QFileDialog::getSaveFileName(
+  QString filename = QFileDialog::getSaveFileName(
       this, tr("Save Window As Template"),
       templatesDir + "/" + mywidget->name(), filter, &selectedFilter);
-  if (!fn.isEmpty()) {
-    QFileInfo fi(fn);
-    workingDir = fi.absolutePath();
-    QString baseName = fi.fileName();
+  if (!filename.isEmpty()) {
+    QFileInfo fileinfo(filename);
+    workingDir = fileinfo.absolutePath();
+    QString baseName = fileinfo.fileName();
     if (!baseName.contains(".")) {
       selectedFilter = selectedFilter.right(5).left(4);
-      fn.append(selectedFilter);
+      filename.append(selectedFilter);
     }
 
-    QFile f(fn);
-    if (!f.open(QIODevice::WriteOnly)) {
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    if (!aprojhandler_->saveTemplate(filename, mywidget)) {
       QMessageBox::critical(
           this, tr("Export Error"),
-          tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that "
-             "you have the right to write to this location!")
-              .arg(fn));
-      return;
+          tr("Could not write to file: <br><h4> %1 </h4><p>Please verify "
+             "that you have the right to write to this location!")
+              .arg(filename));
     }
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    QString text = AlphaPlot::schemaVersion() + " template file\n";
-    text += mywidget->saveAsTemplate(windowGeometryInfo(mywidget));
-    QTextStream t(&f);
-    t.setCodec("UTF-8");
-    t << text;
-    f.close();
     QApplication::restoreOverrideCursor();
   }
 }
@@ -7997,11 +7873,13 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
     if (!formula.isEmpty()) {
       cm.addSeparator();
       if (formula.contains("_")) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+        QStringList tl = formula.split("_", Qt::SkipEmptyParts);
+#else
         QStringList tl = formula.split("_", QString::SkipEmptyParts);
-
+#endif
         depend_menu.addAction(tl.at(0), this,
                               SLOT(setActiveWindowFromAction()));
-
         depend_menu.setTitle(tr("D&epends on"));
         cm.addMenu(&depend_menu);
       } else if (matrix) {

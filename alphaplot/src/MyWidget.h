@@ -106,15 +106,8 @@ class MyWidget : public QMdiSubWindow {
   //! Set the window status flag (hidden, normal, minimized or maximized)
   void setStatus(Status status);
 
-  virtual QString saveAsTemplate(const QString &) { return QString(); }
-  // TODO:
-  //! Not implemented yet
-  virtual void restore(const QStringList &) {}
-
   virtual void print() {}
   virtual void exportPDF(const QString &) {}
-
-  virtual QString saveToString(const QString &) { return QString(); }
 
   //! Notifies that a window was hidden by a direct user action
   virtual void setHidden();

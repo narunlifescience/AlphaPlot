@@ -1833,7 +1833,7 @@ void Layout2D::print() {
   previewDialog->exec();
 }
 
-void Layout2D::save(XmlStreamWriter *xmlwriter) {
+void Layout2D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
   xmlwriter->writeStartElement("plot2d");
   xmlwriter->writeAttribute("x", QString::number(pos().x()));
   xmlwriter->writeAttribute("y", QString::number(pos().y()));
@@ -1859,7 +1859,7 @@ void Layout2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeEndElement();
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
     const QPair<int, int> rowcol = getAxisRectRowCol(axisrect);
-    axisrect->save(xmlwriter, rowcol, layout_);
+    axisrect->save(xmlwriter, rowcol, layout_, saveastemplate);
   }
   xmlwriter->writeEndElement();
 }

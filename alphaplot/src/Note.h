@@ -54,9 +54,6 @@ class Note : public MyWidget {
   QString getText();
 
  public slots:
-  QString saveToString(const QString &info);
-  void restore(const QStringList &);
-
   QTextEdit *textWidget() { return qobject_cast<QTextEdit *>(textedit_); }
   bool autoexec() const { return autoExec; }
   void setAutoexec(bool);

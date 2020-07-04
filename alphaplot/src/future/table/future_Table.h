@@ -245,7 +245,8 @@ class Table : public AbstractPart
   //! \name serialize/deserialize
   //@{
   //! Save as XML
-  virtual void save(QXmlStreamWriter *) const;
+  virtual void save(QXmlStreamWriter *,
+                    const bool saveastemplate = false) const;
   //! Load from XML
   virtual bool load(XmlStreamReader *);
   bool readColumnWidthElement(XmlStreamReader *reader);
@@ -329,17 +330,17 @@ class Table : public AbstractPart
   //! Show a context menu for the selected cells
   /**
    * \param pos global position of the event
-  */
+   */
   void showTableViewContextMenu(const QPoint &pos);
   //! Show a context menu for the selected columns
   /**
    * \param pos global position of the event
-  */
+   */
   void showTableViewColumnContextMenu(const QPoint &pos);
   //! Show a context menu for the selected rows
   /**
    * \param pos global position of the event
-  */
+   */
   void showTableViewRowContextMenu(const QPoint &pos);
 
   //! Open export to TeX dialog
@@ -349,7 +350,7 @@ class Table : public AbstractPart
   /*
    * \param file name
    * \param TeX tale settings
-  */
+   */
   bool export_to_TeX(QString fileName, TeXTableSettings &tex_settings);
 
  protected:
@@ -612,6 +613,6 @@ class Table::Private {
   QList<int> d_column_widths;
 };
 
-}  // namespace
+}  // namespace future
 
 #endif  // FUTURE_TABLE_H

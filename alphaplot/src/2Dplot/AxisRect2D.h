@@ -192,7 +192,7 @@ class AxisRect2D : public QCPAxisRect {
 
  public slots:
   void save(XmlStreamWriter *xmlwriter, const QPair<int, int> rowcol,
-            LayoutGrid2D *layoutgrid);
+            LayoutGrid2D *layoutgrid, const bool saveastemplate = false);
   bool load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             QList<Matrix *> mats);
 

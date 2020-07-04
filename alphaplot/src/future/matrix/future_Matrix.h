@@ -186,7 +186,7 @@ class Matrix : public AbstractPart
   //! \name serialize/deserialize
   //@{
   //! Save as XML
-  virtual void save(QXmlStreamWriter *) const;
+  virtual void save(QXmlStreamWriter *, const bool saveastemplate = false) const;
   //! Load from XML
   virtual bool load(XmlStreamReader *);
   //@}

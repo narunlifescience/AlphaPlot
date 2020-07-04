@@ -100,15 +100,15 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent,
 
     Double2StringFilter *pFilter =
         qobject_cast<Double2StringFilter *>(column(0)->outputFilter());
-    Q_ASSERT(pFilter != NULL);
+    Q_ASSERT(pFilter != nullptr);
     pFilter->setNumDigits(0);
     pFilter->setNumericFormat('f');
     pFilter = qobject_cast<Double2StringFilter *>(column(1)->outputFilter());
-    Q_ASSERT(pFilter != NULL);
+    Q_ASSERT(pFilter != nullptr);
     pFilter->setNumDigits(0);
     pFilter->setNumericFormat('f');
     pFilter = qobject_cast<Double2StringFilter *>(column(9)->outputFilter());
-    Q_ASSERT(pFilter != NULL);
+    Q_ASSERT(pFilter != nullptr);
     pFilter->setNumDigits(0);
     pFilter->setNumericFormat('f');
 
@@ -137,15 +137,15 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent,
 
     Double2StringFilter *pFilter =
         qobject_cast<Double2StringFilter *>(column(7)->outputFilter());
-    Q_ASSERT(pFilter != NULL);
+    Q_ASSERT(pFilter != nullptr);
     pFilter->setNumDigits(0);
     pFilter->setNumericFormat('f');
     pFilter = qobject_cast<Double2StringFilter *>(column(9)->outputFilter());
-    Q_ASSERT(pFilter != NULL);
+    Q_ASSERT(pFilter != nullptr);
     pFilter->setNumDigits(0);
     pFilter->setNumericFormat('f');
     pFilter = qobject_cast<Double2StringFilter *>(column(11)->outputFilter());
-    Q_ASSERT(pFilter != NULL);
+    Q_ASSERT(pFilter != nullptr);
     pFilter->setNumDigits(0);
     pFilter->setNumericFormat('f');
 
@@ -302,27 +302,6 @@ void TableStatistics::removeCol(const QString &col) {
     }
 }
 
-QString TableStatistics::saveToString(const QString &geometry) {
-  QString s = "<TableStatistics>\n";
-  s += QString(name()) + "\t";
-  s += QString(d_base->name()) + "\t";
-  s += QString(d_type == StatRow ? "row" : "col") + "\t";
-  s += birthDate() + "\n";
-  s += "Targets";
-  for (QList<int>::iterator i = d_targets.begin(); i != d_targets.end(); ++i)
-    s += "\t" + QString::number(*i);
-  s += "\n";
-  s += geometry;
-  s += saveHeader();
-  s += saveColumnWidths();
-  s += saveCommands();
-  s += saveColumnTypes();
-  s += saveComments();
-  s += "WindowLabel\t" + windowLabel() + "\t" +
-       QString::number(captionPolicy()) + "\n";
-  return s + "</TableStatistics>\n";
-}
-
 bool TableStatistics::eventFilter(QObject *watched, QEvent *event) {
   QHeaderView *v_header = d_view_widget->verticalHeader();
 
@@ -384,4 +363,3 @@ bool TableStatistics::eventFilter(QObject *watched, QEvent *event) {
   } else
     return TableView::eventFilter(watched, event);
 }
-

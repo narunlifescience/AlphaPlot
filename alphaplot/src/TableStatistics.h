@@ -49,8 +49,6 @@ class TableStatistics : public Table {
   Type type() const { return d_type; }
   //! return the base table of which statistics are displayed
   Table *base() const { return d_base; }
-  // saving
-  virtual QString saveToString(const QString &geometry);
 
  public slots:
   //! update statistics after a column has changed (to be connected with

@@ -28,9 +28,11 @@
  ***************************************************************************/
 
 #include "core/column/Column.h"
+
 #include <QIcon>
 #include <QXmlStreamWriter>
 #include <QtDebug>
+
 #include "core/IconLoader.h"
 #include "core/column/ColumnPrivate.h"
 #include "core/column/columncommands.h"
@@ -235,7 +237,7 @@ QIcon Column::icon() const {
   return QIcon();
 }
 
-void Column::save(QXmlStreamWriter* writer) const {
+void Column::save(QXmlStreamWriter* writer, const bool saveastemplate) const {
   writer->writeStartElement("column");
   writeBasicAttributes(writer);
   writer->writeAttribute(
@@ -268,44 +270,46 @@ void Column::save(QXmlStreamWriter* writer) const {
     writer->writeEndElement();
   }
   int i;
-  switch (dataType()) {
-    case AlphaPlot::TypeDouble:
-      for (i = 0; i < rowCount(); i++) {
-        writer->writeStartElement("row");
-        writer->writeAttribute(
-            "type", AlphaPlot::enumValueToString(dataType(), "ColumnDataType"));
-        writer->writeAttribute("index", QString::number(i));
-        writer->writeAttribute("invalid", isInvalid(i) ? "yes" : "no");
-        writer->writeCharacters(QString::number(valueAt(i), 'e', 16));
-        writer->writeEndElement();
-      }
-      break;
-    case AlphaPlot::TypeString:
-      for (i = 0; i < rowCount(); i++) {
-        writer->writeStartElement("row");
-        writer->writeAttribute(
-            "type", AlphaPlot::enumValueToString(dataType(), "ColumnDataType"));
-        writer->writeAttribute("index", QString::number(i));
-        writer->writeAttribute("invalid", isInvalid(i) ? "yes" : "no");
-        writer->writeCharacters(textAt(i));
-        writer->writeEndElement();
-      }
-      break;
+  if (!saveastemplate) {
+    switch (dataType()) {
+      case AlphaPlot::TypeDouble:
+        for (i = 0; i < rowCount(); i++) {
+          writer->writeStartElement("row");
+          writer->writeAttribute("type", AlphaPlot::enumValueToString(
+                                             dataType(), "ColumnDataType"));
+          writer->writeAttribute("index", QString::number(i));
+          writer->writeAttribute("invalid", isInvalid(i) ? "yes" : "no");
+          writer->writeCharacters(QString::number(valueAt(i), 'e', 16));
+          writer->writeEndElement();
+        }
+        break;
+      case AlphaPlot::TypeString:
+        for (i = 0; i < rowCount(); i++) {
+          writer->writeStartElement("row");
+          writer->writeAttribute("type", AlphaPlot::enumValueToString(
+                                             dataType(), "ColumnDataType"));
+          writer->writeAttribute("index", QString::number(i));
+          writer->writeAttribute("invalid", isInvalid(i) ? "yes" : "no");
+          writer->writeCharacters(textAt(i));
+          writer->writeEndElement();
+        }
+        break;
 
-    case AlphaPlot::TypeDateTime:
-    case AlphaPlot::TypeDay:
-    case AlphaPlot::TypeMonth:
-      for (i = 0; i < rowCount(); i++) {
-        writer->writeStartElement("row");
-        writer->writeAttribute(
-            "type", AlphaPlot::enumValueToString(dataType(), "ColumnDataType"));
-        writer->writeAttribute("index", QString::number(i));
-        writer->writeAttribute("invalid", isInvalid(i) ? "yes" : "no");
-        writer->writeCharacters(
-            dateTimeAt(i).toString("yyyy-dd-MM hh:mm:ss:zzz"));
-        writer->writeEndElement();
-      }
-      break;
+      case AlphaPlot::TypeDateTime:
+      case AlphaPlot::TypeDay:
+      case AlphaPlot::TypeMonth:
+        for (i = 0; i < rowCount(); i++) {
+          writer->writeStartElement("row");
+          writer->writeAttribute("type", AlphaPlot::enumValueToString(
+                                             dataType(), "ColumnDataType"));
+          writer->writeAttribute("index", QString::number(i));
+          writer->writeAttribute("invalid", isInvalid(i) ? "yes" : "no");
+          writer->writeCharacters(
+              dateTimeAt(i).toString("yyyy-dd-MM hh:mm:ss:zzz"));
+          writer->writeEndElement();
+        }
+        break;
+    }
   }
   writer->writeEndElement();  // "column"
 }

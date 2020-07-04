@@ -157,7 +157,6 @@ class Table : public TableView, public scripted, public QScriptable {
 
   void setColName(int col, const QString& text);
   void setHeader(QStringList header);
-  void importV0x0001XXHeader(QStringList header);
   void setText(int row, int col, const QString& text);
 
   void clearCell(int row, int col);
@@ -242,17 +241,6 @@ class Table : public TableView, public scripted, public QScriptable {
   bool exportASCII(const QString& fname, const QString& separator,
                    bool withLabels = false, bool exportSelection = false);
 
-  //! \name Saving and Restoring
-  //@{
-  virtual QString saveToString(const QString& geometry);
-  void saveToDevice(QIODevice* device, const QString& geometry);
-  QString saveHeader();
-  QString saveComments();
-  QString saveCommands();
-  QString saveColumnWidths();
-  QString saveColumnTypes();
-  //@}
-
   void setTableBackgroundColor(const QColor& col);
   void setTableTextColor(const QColor& col);
   void setHeaderColor(const QColor& col);
@@ -266,9 +254,6 @@ class Table : public TableView, public scripted, public QScriptable {
   QStringList colComments();
   void setColComments(const QStringList& lst);
   bool commentsEnabled();
-
-  QString saveAsTemplate(const QString& geometryInfo);
-  void restore(const QStringList& lst);
 
  signals:
   void changedColHeader(const QString&, const QString&);

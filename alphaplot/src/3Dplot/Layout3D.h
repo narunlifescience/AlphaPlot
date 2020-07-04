@@ -60,7 +60,7 @@ class Layout3D : public MyWidget {
   void loadTheme(XmlStreamReader *xmlreader);
   void loadValueAxis(XmlStreamReader *xmlreader);
   void loadCategoryAxis(XmlStreamReader *xmlreader);
-  void save(XmlStreamWriter *xmlwriter);
+  void save(XmlStreamWriter *xmlwriter, const bool saveastemplate = false);
   void saveCanvas(XmlStreamWriter *xmlwriter);
   void saveTheme(XmlStreamWriter *xmlwriter);
   void saveValueAxis(XmlStreamWriter *xmlwriter, QValue3DAxis *axis);

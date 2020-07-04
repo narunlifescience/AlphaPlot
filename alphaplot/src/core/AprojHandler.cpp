@@ -2,9 +2,9 @@
 
 #include <QFile>
 #include <QMdiSubWindow>
+#include <QMessageBox>
 
 #include "2Dplot/Layout2D.h"
-#include "widgets/propertyeditor.h"
 #include "3Dplot/Layout3D.h"
 #include "ApplicationWindow.h"
 #include "Folder.h"
@@ -13,6 +13,7 @@
 #include "Table.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
+#include "widgets/propertyeditor.h"
 
 const QString AprojHandler::xmlschemafile_ = ":xmlschema/aproj.xsd";
 
@@ -173,6 +174,82 @@ void AprojHandler::appendproject(const QString &filename) {
   app_->blockSignals(false);
   app_->renamedTables = QStringList();
   QApplication::restoreOverrideCursor();
+}
+
+MyWidget *AprojHandler::opentemplate(const QString &filename) {
+  QFile *file = new QFile(filename);
+  if (!file->open(QIODevice::ReadOnly | QFile::Text)) {
+    qDebug() << "unable to open " << filename;
+    delete file;
+    return nullptr;
+  }
+
+  MyWidget *mywidget = nullptr;
+  std::unique_ptr<XmlStreamReader> xmlreader =
+      std::unique_ptr<XmlStreamReader>(new XmlStreamReader(file));
+  QXmlStreamReader::TokenType token;
+  bool istemplate = false;
+  while (!xmlreader->atEnd()) {
+    token = xmlreader->readNext();
+    if (token == QXmlStreamReader::StartElement &&
+        (xmlreader->name() == "amt" || xmlreader->name() == "apt" ||
+         xmlreader->name() == "att" || xmlreader->name() == "ast")) {
+      QXmlStreamAttributes attributes = xmlreader->attributes();
+      istemplate = true;
+    } else if (token == QXmlStreamReader::StartElement &&
+               xmlreader->name() == "table" && istemplate) {
+      Table *table = app_->newTable("table", 1, 1);
+      table->d_future_table->load(xmlreader.get());
+      mywidget = table;
+    } else if (token == QXmlStreamReader::StartElement &&
+               xmlreader->name() == "matrix" && istemplate) {
+      Matrix *matrix = app_->newMatrix("matrix", 1, 1);
+      matrix->d_future_matrix->load(xmlreader.get());
+      mywidget = matrix;
+    } else if (token == QXmlStreamReader::StartElement &&
+               xmlreader->name() == "plot2d" && istemplate) {
+      Layout2D *plot2d = app_->newGraph2D();
+      plot2d->load(xmlreader.get(), tables(app_), matrixs(app_));
+      // (hack) for some unknown reason this connection need to be manually set
+      // here
+      foreach (AxisRect2D *axisrect, plot2d->getAxisRectList()) {
+        app_->propertyeditor->axisrectConnections(axisrect);
+      }
+      mywidget = plot2d;
+    } else if (token == QXmlStreamReader::StartElement &&
+               xmlreader->name() == "plot3d" && istemplate) {
+      bool ok = false;
+      Layout3D *plot = nullptr;
+      QString ptype = xmlreader->readAttributeString("type", &ok);
+      if (ok) {
+        if (ptype == "surface")
+          plot = app_->newGraph3D(Graph3DCommon::Plot3DType::Surface);
+        else if (ptype == "bar")
+          plot = app_->newGraph3D(Graph3DCommon::Plot3DType::Bar);
+        else if (ptype == "scatter")
+          plot = app_->newGraph3D(Graph3DCommon::Plot3DType::Scatter);
+        else
+          xmlreader->raiseError(tr("Layout3D PlotType unknown %1").arg(ptype));
+      } else
+        xmlreader->raiseError(tr("Layout3D PlotType missing or empty"));
+      plot->load(xmlreader.get(), tables(app_), matrixs(app_));
+      mywidget = plot;
+    } else if (token == QXmlStreamReader::StartElement && !istemplate) {
+      QMessageBox::critical(
+          app_, tr("File opening error"),
+          tr("The file: <b>%1</b> is not a AlphaPlot template file!")
+              .arg(filename));
+      return nullptr;
+    }
+  }
+
+  if (xmlreader->hasWarnings()) {
+    foreach (QString warning, xmlreader->warningStrings()) {
+      qDebug() << warning;
+    }
+  }
+
+  return mywidget;
 }
 
 Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
@@ -406,6 +483,54 @@ void AprojHandler::saveTreeRecursive(Folder *folder,
       recursivecount_--;
     }
   }
+}
+
+bool AprojHandler::saveTemplate(const QString &filename, MyWidget *mywidget) {
+  QString fname = filename;
+  std::unique_ptr<QFile> file = std::unique_ptr<QFile>(new QFile(fname));
+  if (!file->open(QIODevice::WriteOnly | QIODevice::Text)) {
+    qDebug() << "failed to open xml file for writing";
+    return false;
+  }
+  QString selectedfilter = QString();
+  (fname.endsWith(".amt"))
+      ? selectedfilter = "amt"
+      : (fname.endsWith(".apt"))
+            ? selectedfilter = "apt"
+            : (fname.endsWith(".att"))
+                  ? selectedfilter = "att"
+                  : (fname.endsWith(".ast")) ? selectedfilter = "att"
+                                             : selectedfilter = QString();
+  if (selectedfilter.isEmpty()) {
+    qDebug() << "unknown selected filter: ." << selectedfilter;
+    return false;
+  }
+  std::unique_ptr<XmlStreamWriter> xmlwriter =
+      std::unique_ptr<XmlStreamWriter>(new XmlStreamWriter(file.get()));
+  xmlwriter->setCodec("UTF-8");
+  xmlwriter->setAutoFormatting(false);
+
+  xmlwriter->writeStartDocument();
+  xmlwriter->writeComment("AlphaPlot Template file");
+  xmlwriter->writeStartElement(selectedfilter);
+  xmlwriter->writeAttribute("version", QString::number(AlphaPlot::version()));
+  if (qobject_cast<Table *>(mywidget)) {
+    Table *table = qobject_cast<Table *>(mywidget);
+    table->d_future_table->save(xmlwriter.get(), true);
+  } else if (qobject_cast<Matrix *>(mywidget)) {
+    Matrix *matrix = qobject_cast<Matrix *>(mywidget);
+    matrix->d_future_matrix->save(xmlwriter.get(), true);
+  } else if (qobject_cast<Layout2D *>(mywidget)) {
+    Layout2D *graph = qobject_cast<Layout2D *>(mywidget);
+    graph->save(xmlwriter.get(), true);
+  } else if (qobject_cast<Layout3D *>(mywidget)) {
+    Layout3D *graph = qobject_cast<Layout3D *>(mywidget);
+    graph->save(xmlwriter.get(), true);
+  }
+  xmlwriter->writeEndElement();
+  xmlwriter->writeEndDocument();
+  file->close();
+  return true;
 }
 
 QList<Table *> AprojHandler::tables(ApplicationWindow *app) {

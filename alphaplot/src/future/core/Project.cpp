@@ -144,7 +144,7 @@ void Project::save(QXmlStreamWriter *writer) const {
   writer->writeAttribute("version", QString::number(AlphaPlot::version()));
   // TODO: write project attributes
   writer->writeStartElement("project_root");
-  future::Folder::save(writer);
+  future::Folder::save(writer, false);
   writer->writeEndElement();  // "project_root"
   writer->writeEndElement();  // "AlphaPlot_project"
   writer->writeEndDocument();

@@ -220,7 +220,7 @@ class AbstractAspect : public QObject {
   //! \name serialize/deserialize
   //@{
   //! Save as XML
-  virtual void save(QXmlStreamWriter *) const {}
+  virtual void save(QXmlStreamWriter *, bool) const {}
   //! Load from XML
   /**
    * XmlStreamReader supports errors as well as warnings. If only
