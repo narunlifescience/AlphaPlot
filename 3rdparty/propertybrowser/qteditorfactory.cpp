@@ -2207,7 +2207,7 @@ void QtColorEditWidget::buttonClicked()
 {
     bool ok = false;
     QRgb oldRgba = m_color.rgba();
-    QRgb newRgba = QColorDialog::getRgba(oldRgba, &ok, this);
+    QRgb newRgba = QColorDialog::getRgba(oldRgba, &ok, nullptr);
     if (ok && newRgba != oldRgba) {
         setValue(QColor::fromRgba(newRgba));
         emit valueChanged(m_color);
@@ -2415,7 +2415,7 @@ void QtFontEditWidget::setValue(const QFont &f)
 void QtFontEditWidget::buttonClicked()
 {
     bool ok = false;
-    QFont newFont = QFontDialog::getFont(&ok, m_font, this, tr("Select Font"));
+    QFont newFont = QFontDialog::getFont(&ok, m_font, nullptr, tr("Select Font"));
     if (ok && newFont != m_font) {
         QFont f = m_font;
         // prevent mask for unchanged attributes, don't change other attributes (like kerning, etc...)
