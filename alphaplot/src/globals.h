@@ -121,6 +121,7 @@ class AlphaPlot : public QObject {
 
   // Return the release date as a string
   static QString releaseDateString();
+  static QDate releaseDate();
 
   // Returns original author
   static QString originalAuthor();
@@ -136,8 +137,8 @@ class AlphaPlot : public QObject {
   static const char* AlphaPlot_version;
   // Extra version information string (like "-alpha", "-beta", "-rc1", etc...)
   static const char* extra_version;
-  // Release date as a string
-  static const char* release_date;
+  // Release date
+  static const QDate release_date;
 };
 
 #endif  // ALPHA_PLOT_GLOBALS_H

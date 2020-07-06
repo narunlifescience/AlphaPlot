@@ -33,7 +33,7 @@ About::About(QWidget* parent) : QDialog(parent) {
   ui_.verticalLayout->setContentsMargins(0, 0, 0, 0);
   ui_.verticalLayout->setSpacing(0);
 
-  ui_.versionLabel->setText(AlphaPlot::versionString() +
+  ui_.versionLabel->setText(AlphaPlot::versionString() + "-" +
                             AlphaPlot::extraVersion());
   ui_.releaseDateLabel->setText(AlphaPlot::releaseDateString());
   ui_.buildLabel->setText(QSysInfo::buildCpuArchitecture());

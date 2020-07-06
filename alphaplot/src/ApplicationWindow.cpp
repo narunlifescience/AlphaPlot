@@ -314,6 +314,10 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->folderView, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
   connect(ui_->folderView, SIGNAL(deleteSelection()), this,
           SLOT(deleteSelectedItems()));
+  connect(ui_->folderView, &FolderTreeWidget::dragItems, this,
+          &ApplicationWindow::dragFolderItems);
+  connect(ui_->folderView, &FolderTreeWidget::dropItems, this,
+          &ApplicationWindow::dropFolderItems);
   // Explorer window folderview list item
   FolderTreeWidgetItem *folderTreeItem =
       new FolderTreeWidgetItem(ui_->folderView, current_folder);
@@ -323,7 +327,7 @@ ApplicationWindow::ApplicationWindow()
   ui_->listView->setHeaderLabels(QStringList()
                                  << tr("Name") << tr("Type") << tr("View")
                                  << tr("Created") << tr("Label"));
-  ui_->listView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+  ui_->listView->header()->setStretchLastSection(true);
   ui_->listView->setMinimumHeight(80);
   ui_->listView->setRootIsDecorated(false);
   ui_->listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -337,12 +341,24 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->listView, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
   connect(ui_->listView, SIGNAL(deleteSelection()), this,
           SLOT(deleteSelectedItems()));
+  connect(ui_->listView, &FolderTreeWidget::dragItems, this,
+          &ApplicationWindow::dragFolderItems);
+  connect(ui_->listView, &FolderTreeWidget::dropItems, this,
+          &ApplicationWindow::dropFolderItems);
   // Explorer window set folder & listview
   ui_->folderView->setFrameShape(QFrame::NoFrame);
   ui_->listView->setFrameShape(QFrame::NoFrame);
   ui_->explorerSplitter->setFrameShape(QFrame::NoFrame);
   ui_->explorerSplitter->setSizes(QList<int>() << 30 << 70);
   ui_->explorerWindow->hide();
+
+  // drag n drop
+  ui_->listView->setDragEnabled(true);
+  ui_->listView->setAcceptDrops(true);
+  ui_->listView->setDefaultDropAction(Qt::MoveAction);
+  ui_->folderView->setDragEnabled(true);
+  ui_->folderView->setAcceptDrops(true);
+  ui_->folderView->setDefaultDropAction(Qt::MoveAction);
 
   // Results log window
   ui_->resultLogGridLayout->setContentsMargins(0, 0, 0, 0);
@@ -7511,22 +7527,68 @@ bool ApplicationWindow::findRecursive(FolderTreeWidgetItem *item,
 void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
   if (!dest || draggedItems.isEmpty()) return;
 
-  Folder *dest_f = ((FolderTreeWidgetItem *)dest)->folder();
+  Folder *dest_f = static_cast<FolderTreeWidgetItem *>(dest)->folder();
 
   QTreeWidgetItem *it;
   QStringList subfolders = dest_f->subfolders();
+  bool stopdrag = false;
+  QList<MyWidget *> draggedwidgets;
+
+  foreach (it, draggedItems) {
+    MyWidget *w = dynamic_cast<WindowTableWidgetItem *>(it)->window();
+    if (w) {
+      draggedwidgets << w;
+    }
+  }
+
+  // incomplete
+  foreach (it, draggedItems) {
+    MyWidget *w = dynamic_cast<WindowTableWidgetItem *>(it)->window();
+    if (w && qobject_cast<Layout2D *>(w)) {
+      Layout2D *layout = qobject_cast<Layout2D *>(w);
+      QList<MyWidget *> dependson = layout->dependentTableMatrix();
+      foreach (QTreeWidgetItem *depitems, draggedItems) {
+        MyWidget *depw =
+            dynamic_cast<WindowTableWidgetItem *>(depitems)->window();
+        if (depw) {
+          if (dependson.contains(depw)) dependson.removeOne(depw);
+        }
+      }
+      if (dependson.size() == 0) stopdrag = true;
+    }
+    if (w && qobject_cast<Table *>(w)) {
+      QList<MyWidget *> widgetlist = current_folder->windowsList();
+      foreach (MyWidget *widget, widgetlist) {
+        if (qobject_cast<Layout2D *>(widget)) {
+          QList<MyWidget *> dependson =
+              qobject_cast<Layout2D *>(widget)->dependentTableMatrix();
+          if (dependson.contains(w) && !draggedwidgets.contains(w))
+            stopdrag = true;
+        }
+      }
+    }
+  }
+
+  if (stopdrag) {
+    QMessageBox::critical(this, "Error",
+                          tr("Cannot move an object which depends "
+                             "on another object!"));
+    draggedItems.clear();
+    return;
+  }
 
   foreach (it, draggedItems) {
     if (it->type() == FolderTreeWidget::ItemType::Folders) {
-      Folder *f = ((FolderTreeWidgetItem *)it)->folder();
+      Folder *f = static_cast<FolderTreeWidgetItem *>(it)->folder();
       FolderTreeWidgetItem *src = f->folderTreeWidgetItem();
       if (dest_f == f) {
         QMessageBox::critical(this, "Error",
                               tr("Cannot move an object to itself!"));
+        draggedItems.clear();
         return;
       }
 
-      if (((FolderTreeWidgetItem *)dest)->isChildOf(src)) {
+      if (static_cast<FolderTreeWidgetItem *>(dest)->isChildOf(src)) {
         QMessageBox::critical(
             this, "Error",
             tr("Cannot move a parent folder into a child folder!"));
@@ -7535,9 +7597,12 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
         return;
       }
 
-      Folder *parent = (Folder *)f->parent();
+      Folder *parent = dynamic_cast<Folder *>(f->parent());
       if (!parent) parent = projectFolder();
-      if (dest_f == parent) return;
+      if (dest_f == parent) {
+        draggedItems.clear();
+        return;
+      }
 
       if (subfolders.contains(f->name())) {
         QMessageBox::critical(
@@ -7546,11 +7611,11 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
                "Folder skipped!")
                 .arg(f->name()));
       } else
-        moveFolder(src, (FolderTreeWidgetItem *)dest);
+        moveFolder(src, static_cast<FolderTreeWidgetItem *>(dest));
     } else {
       if (dest_f == current_folder) return;
 
-      MyWidget *w = ((WindowTableWidgetItem *)it)->window();
+      MyWidget *w = dynamic_cast<WindowTableWidgetItem *>(it)->window();
       if (w) {
         current_folder->removeWindow(w);
         w->hide();
@@ -7637,8 +7702,8 @@ void ApplicationWindow::searchForUpdates() {
       QMessageBox::No | QMessageBox::Escape);
 
   if (choice == QMessageBox::Yes) {
-    http.get(QNetworkRequest(
-        QUrl("http://AlphaPlot.sourceforge.net/current_version.txt")));
+    http.get(
+        QNetworkRequest(QUrl("https://alphaplot.sourceforge.io/update.xml")));
   }
 }
 
@@ -7653,33 +7718,58 @@ void ApplicationWindow::receivedVersionFile(QNetworkReply *reply) {
 
   version_buffer = reply->readAll();
 
-  if (version_buffer.size() > 0) {
-    QTextStream t(&version_buffer);
-    t.setCodec(QTextCodec::codecForName("UTF-8"));
-    QString version_line = t.readLine();
-
-    if (version_line.count() == 6) {
-      int available_version = version_line.toInt();
-      if (available_version > AlphaPlot::version()) {
-        if (QMessageBox::question(
-                this, tr("Updates Available"),
-                tr("There is a newer version of AlphaPlot available for "
-                   "download. Would you like to download it now?"),
-                QMessageBox::Yes | QMessageBox::Default,
-                QMessageBox::No | QMessageBox::Escape) == QMessageBox::Yes)
-          QDesktopServices::openUrl(QUrl(AlphaPlot::download_Uri));
-      } else {
-        QMessageBox::information(this,
-                                 versionString() + AlphaPlot::extraVersion(),
-                                 tr("No updates available. You are already "
-                                    "running the latest version."));
+  if (version_buffer.size()) {
+    QString application;
+    QString version;
+    QString extraversion;
+    QDate date;
+    std::unique_ptr<QXmlStreamReader> xmlreader =
+        std::unique_ptr<QXmlStreamReader>(new QXmlStreamReader(version_buffer));
+    QXmlStreamReader::TokenType token;
+    while (!xmlreader->atEnd()) {
+      token = xmlreader->readNext();
+      if (token == QXmlStreamReader::StartElement &&
+          xmlreader->name() == "update") {
+        QXmlStreamAttributes attributes = xmlreader->attributes();
+        if (attributes.hasAttribute("application") &&
+            attributes.hasAttribute("version") &&
+            attributes.hasAttribute("extraversion") &&
+            attributes.hasAttribute("date")) {
+          application = attributes.value("application").toString();
+          version = attributes.value("version").toString();
+          extraversion = attributes.value("extraversion").toString();
+          QString datestr = attributes.value("date").toString();
+          date = QDate::fromString(datestr, "dd-MM-yyyy");
+          qDebug() << date << AlphaPlot::releaseDate();
+          if (date < AlphaPlot::releaseDate()) {
+            if (QMessageBox::question(
+                    this, tr("Updates Available"),
+                    tr("There is a newer version of AlphaPlot %1-%2 released "
+                       "on %3 available for download. Would you like to "
+                       "download it now?")
+                        .arg(version)
+                        .arg(extraversion)
+                        .arg(datestr),
+                    QMessageBox::Yes | QMessageBox::Default,
+                    QMessageBox::No | QMessageBox::Escape) == QMessageBox::Yes)
+              QDesktopServices::openUrl(QUrl(AlphaPlot::download_Uri));
+          } else {
+            QMessageBox::information(
+                this, versionString() + "-" + AlphaPlot::extraVersion(),
+                tr("No updates available. You are already "
+                   "running the latest version %1-%2 released on %3.")
+                    .arg(version)
+                    .arg(extraversion)
+                    .arg(datestr));
+            autoSearchUpdatesRequest = false;
+          }
+        } else {
+          QMessageBox::information(
+              this, tr("Invalid update checking file"),
+              tr("The updatecheck(.xml) file is missing multiple fields."));
+        }
       }
-    } else
-      QMessageBox::information(this, tr("Invalid version file"),
-                               tr("The version file (contents: \"%1\") could "
-                                  "not be decoded into a valid version number.")
-                                   .arg(version_line));
-    autoSearchUpdatesRequest = false;
+    }
   }
 }
 #endif  // defined SEARCH_FOR_UPDATES
@@ -7846,9 +7936,9 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
     Layout2D *layout = qobject_cast<Layout2D *>(widget);
     if (layout->getCurrentAxisRect()) {
       depend_menu.setTitle(tr("D&epends on"));
-      QStringList deplist = layout->dependentTableMatrixNames();
-      foreach (QString string, deplist) {
-        depend_menu.addAction(string, this, SLOT(setActiveWindowFromAction()));
+      foreach (MyWidget *widget, layout->dependentTableMatrix()) {
+        depend_menu.addAction(widget->name(), this,
+                              SLOT(setActiveWindowFromAction()));
       }
       cm.addMenu(&depend_menu);
     }

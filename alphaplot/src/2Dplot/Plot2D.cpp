@@ -117,7 +117,7 @@ bool Plot2D::savePs(const QString &fileName, int width, int height,
   Q_UNUSED(width)
   Q_UNUSED(exportPen)
   Q_UNUSED(height)
-  Q_UNUSED(&psCreator)
+  Q_UNUSED(psCreator)
   Q_UNUSED(psTitle)
   qDebug() << "Post Script format(s) not supported in QT5 anymore";
   return false;

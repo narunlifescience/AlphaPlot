@@ -198,7 +198,7 @@ class FolderTreeWidget : public QTreeWidget {
   void invalidFolderNameMsgBox(const QString &name);
 
  protected:
-  void startDrag(Qt::DropActions);
+  void startDrag(Qt::DropActions supportedActions);
   void dropEvent(QDropEvent *event);
   void keyPressEvent(QKeyEvent *event);
   void mouseDoubleClickEvent(QMouseEvent *event);

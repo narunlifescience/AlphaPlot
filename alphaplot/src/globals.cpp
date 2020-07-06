@@ -28,19 +28,21 @@
  ***************************************************************************/
 
 #include "globals.h"
-#include <QMessageBox>
+
+#include <QDate>
 #include <QIcon>
-#include <QObject>
-#include <QMetaObject>
+#include <QMessageBox>
 #include <QMetaEnum>
+#include <QMetaObject>
+#include <QObject>
 #include <QtDebug>
 
 const int AlphaPlot::AlphaPlot_versionNo = 112020;
 const char* AlphaPlot::AlphaPlot_version = "1.011A";
-const char* AlphaPlot::extra_version = "-alpha";
-const char* AlphaPlot::release_date = "May 07, 2020";
-const char* AlphaPlot::homepage_Uri =
-    "https://alphaplot.sourceforge.io/";
+const char* AlphaPlot::extra_version = "alpha";
+const QDate AlphaPlot::release_date =
+    QDate::fromString(QString("07-05-2020"), "dd-MM-yyyy");
+const char* AlphaPlot::homepage_Uri = "https://alphaplot.sourceforge.io/";
 const char* AlphaPlot::manual_Uri =
     "https://alphaplot.sourceforge.io/wiki/index.php";
 const char* AlphaPlot::forum_Uri =
@@ -75,11 +77,13 @@ QString AlphaPlot::versionString() { return AlphaPlot_version; }
 
 QString AlphaPlot::extraVersion() { return QString(extra_version); }
 
-QString AlphaPlot::releaseDateString() { return release_date; }
-
-QString AlphaPlot::originalAuthor() {
-  return "Arun Narayanankutty";
+QString AlphaPlot::releaseDateString() {
+  return release_date.toString("dd-MM-yyyy");
 }
+
+QDate AlphaPlot::releaseDate() { return release_date; }
+
+QString AlphaPlot::originalAuthor() { return "Arun Narayanankutty"; }
 
 QString AlphaPlot::originalAuthorWithMail() {
   return "Arun Narayanankutty: <n.arun.lifescience@gmail.com";

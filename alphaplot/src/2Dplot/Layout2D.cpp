@@ -950,12 +950,12 @@ bool Layout2D::exportGraph() {
   ied->setraster_height(plot2dCanvas_->height());
   ied->setraster_width(plot2dCanvas_->width());
   ied->setvector_height(plot2dCanvas_->height());
-  ied->setraster_width(plot2dCanvas_->width());
+  ied->setvector_width(plot2dCanvas_->width());
   if (ied->exec() != QDialog::Accepted) return false;
   if (ied->selectedFiles().isEmpty()) return false;
   QString selected_filter = ied->selectedNameFilter();
 
-  QString file_name = ied->selectedFiles()[0];
+  QString file_name = ied->selectedFiles().at(0);
   QFileInfo file_info(file_name);
   if (!file_info.fileName().contains("."))
     file_name.append(selected_filter.remove("*"));
@@ -1436,8 +1436,8 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
     plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
-QStringList Layout2D::dependentTableMatrixNames() {
-  QStringList dependeon;
+QList<MyWidget *> Layout2D::dependentTableMatrix() {
+  QList<MyWidget *> dependeon;
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
     QVector<LineSpecial2D *> lslist = axisrect->getLsVec();
     QVector<QPair<LineSpecial2D *, LineSpecial2D *>> channellist =
@@ -1451,19 +1451,19 @@ QStringList Layout2D::dependentTableMatrixNames() {
     foreach (LineSpecial2D *ls, lslist) {
       PlotData::AssociatedData *data =
           ls->getdatablock_lsplot()->getassociateddata();
-      if (!dependeon.contains(data->table->name()))
-        dependeon << data->table->name();
+      if (!dependeon.contains(data->table))
+        dependeon << data->table;
       if (ls->getxerrorbar_lsplot()) {
         DataBlockError *xerror =
             ls->getxerrorbar_lsplot()->getdatablock_error();
-        if (!dependeon.contains(xerror->gettable()->name()))
-          dependeon << xerror->gettable()->name();
+        if (!dependeon.contains(xerror->gettable()))
+          dependeon << xerror->gettable();
       }
       if (ls->getyerrorbar_lsplot()) {
         DataBlockError *yerror =
             ls->getyerrorbar_lsplot()->getdatablock_error();
-        if (!dependeon.contains(yerror->gettable()->name()))
-          dependeon << yerror->gettable()->name();
+        if (!dependeon.contains(yerror->gettable()))
+          dependeon << yerror->gettable();
       }
     }
     for (int i = 0; i < channellist.count(); i++) {
@@ -1472,73 +1472,73 @@ QStringList Layout2D::dependentTableMatrixNames() {
           channel.first->getdatablock_lsplot()->getassociateddata();
       PlotData::AssociatedData *data2 =
           channel.second->getdatablock_lsplot()->getassociateddata();
-      if (!dependeon.contains(data1->table->name()))
-        dependeon << data1->table->name();
-      if (!dependeon.contains(data2->table->name()))
-        dependeon << data2->table->name();
+      if (!dependeon.contains(data1->table))
+        dependeon << data1->table;
+      if (!dependeon.contains(data2->table))
+        dependeon << data2->table;
     }
     foreach (Curve2D *curve, curvelist) {
       if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
         PlotData::AssociatedData *data =
             curve->getdatablock_cplot()->getassociateddata();
-        if (!dependeon.contains(data->table->name()))
-          dependeon << data->table->name();
+        if (!dependeon.contains(data->table))
+          dependeon << data->table;
         if (curve->getxerrorbar_curveplot()) {
           DataBlockError *xerror =
               curve->getxerrorbar_curveplot()->getdatablock_error();
-          if (!dependeon.contains(xerror->gettable()->name()))
-            dependeon << xerror->gettable()->name();
+          if (!dependeon.contains(xerror->gettable()))
+            dependeon << xerror->gettable();
         }
         if (curve->getyerrorbar_curveplot()) {
           DataBlockError *yerror =
               curve->getyerrorbar_curveplot()->getdatablock_error();
-          if (!dependeon.contains(yerror->gettable()->name()))
-            dependeon << yerror->gettable()->name();
+          if (!dependeon.contains(yerror->gettable()))
+            dependeon << yerror->gettable();
         }
       }
     }
     foreach (StatBox2D *statbox, statboxlist) {
       if (!dependeon.contains(
-              statbox->getboxwhiskerdata_statbox().table_->name()))
-        dependeon << statbox->getboxwhiskerdata_statbox().table_->name();
+              statbox->getboxwhiskerdata_statbox().table_))
+        dependeon << statbox->getboxwhiskerdata_statbox().table_;
     }
 
     foreach (Bar2D *bar, barlist) {
       if (!bar->ishistogram_barplot()) {
         PlotData::AssociatedData *data =
             bar->getdatablock_barplot()->getassociateddata();
-        if (!dependeon.contains(data->table->name()))
-          dependeon << data->table->name();
+        if (!dependeon.contains(data->table))
+          dependeon << data->table;
         if (bar->getxerrorbar_barplot()) {
           DataBlockError *xerror =
               bar->getxerrorbar_barplot()->getdatablock_error();
-          if (!dependeon.contains(xerror->gettable()->name()))
-            dependeon << xerror->gettable()->name();
+          if (!dependeon.contains(xerror->gettable()))
+            dependeon << xerror->gettable();
         }
         if (bar->getyerrorbar_barplot()) {
           DataBlockError *yerror =
               bar->getyerrorbar_barplot()->getdatablock_error();
-          if (!dependeon.contains(yerror->gettable()->name()))
-            dependeon << yerror->gettable()->name();
+          if (!dependeon.contains(yerror->gettable()))
+            dependeon << yerror->gettable();
         }
       } else {
         if (!dependeon.contains(
-                bar->getdatablock_histplot()->gettable()->name()))
-          dependeon << bar->getdatablock_histplot()->gettable()->name();
+                bar->getdatablock_histplot()->gettable()))
+          dependeon << bar->getdatablock_histplot()->gettable();
       }
     }
 
     foreach (Vector2D *vector, vectorlist) {
-      if (!dependeon.contains(vector->gettable_vecplot()->name()))
-        dependeon << vector->gettable_vecplot()->name();
+      if (!dependeon.contains(vector->gettable_vecplot()))
+        dependeon << vector->gettable_vecplot();
     }
     foreach (Pie2D *pie, pieveclist) {
-      if (!dependeon.contains(pie->gettable_pieplot()->name()))
-        dependeon << pie->gettable_pieplot()->name();
+      if (!dependeon.contains(pie->gettable_pieplot()))
+        dependeon << pie->gettable_pieplot();
     }
     foreach (ColorMap2D *colormap, colormapvec) {
-      if (!dependeon.contains(colormap->getmatrix_colormap()->name()))
-        dependeon << colormap->getmatrix_colormap()->name();
+      if (!dependeon.contains(colormap->getmatrix_colormap()))
+        dependeon << colormap->getmatrix_colormap();
     }
   }
   return dependeon;

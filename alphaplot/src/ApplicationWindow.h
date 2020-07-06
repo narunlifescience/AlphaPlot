@@ -800,8 +800,7 @@ class ApplicationWindow : public QMainWindow,
                      bool labels, bool caseSensitive, bool partialMatch);
 
   //!  initializes the list of items dragged by the user
-  // void dragFolderItems(QList<Q3ListViewItem*> items) { draggedItems = items;
-  // }
+  void dragFolderItems(QList<QTreeWidgetItem*> items) { draggedItems = items; }
 
   //!  Drop the objects in the list draggedItems to the folder of the
   //!  destination item

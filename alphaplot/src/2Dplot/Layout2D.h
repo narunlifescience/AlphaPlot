@@ -95,7 +95,7 @@ class Layout2D : public MyWidget {
   void updateData(Table *table, const QString &name);
   void removeMatrix(Matrix *matrix);
   void removeColumn(Table *table, const QString &name);
-  QStringList dependentTableMatrixNames();
+  QList<MyWidget *> dependentTableMatrix();
   void setAxisRangeDrag(bool value);
   void setAxisRangeZoom(bool value);
   AxisRect2D *addAxisRectWithAxis();

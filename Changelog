@@ -1,4 +1,5 @@
 == progress ==
+* xml file based new update checking
 * Template savinng and loading (for matrix, table, plot2d, plot3d)
 * grouped bar charts (vertical & horizontal)
 * rewrite the layout system to a grid type one (with row & column streach factor adjustment)

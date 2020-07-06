@@ -64,7 +64,7 @@ ImageExportDialog::ImageExportDialog(QWidget *parent, bool vector_options,
 
   QStringList filters;
   for (int i = 0; i < list.count(); i++) {
-    filters << "*." + list[i].toLower();
+    filters << "*." + list.at(i).toLower();
   }
 
   // remove duplicates after toLower()

@@ -159,14 +159,16 @@ Folder *Folder::rootFolder() {
 //--------------------------class WindowTreeWidgetItem-------------------------
 
 WindowTableWidgetItem::WindowTableWidgetItem(QTreeWidget *parent, MyWidget *w)
-    : QTreeWidgetItem(parent, FolderTreeWidget::Windows), myWindow(w) {
+    : QTreeWidgetItem(parent, FolderTreeWidget::ItemType::Windows),
+      myWindow(w) {
   setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
 }
 
 //--------------------------class FolderTreeWidgetItem-------------------------
 
 FolderTreeWidgetItem::FolderTreeWidgetItem(QTreeWidget *parent, Folder *dir)
-    : QTreeWidgetItem(parent, FolderTreeWidget::Folders), myFolder(dir) {
+    : QTreeWidgetItem(parent, FolderTreeWidget::ItemType::Folders),
+      myFolder(dir) {
   setText(0, dir->name());
   setExpanded(true);
   setActive(true);
@@ -176,7 +178,8 @@ FolderTreeWidgetItem::FolderTreeWidgetItem(QTreeWidget *parent, Folder *dir)
 
 FolderTreeWidgetItem::FolderTreeWidgetItem(FolderTreeWidgetItem *parent,
                                            Folder *dir)
-    : QTreeWidgetItem(parent, FolderTreeWidget::Folders), myFolder(dir) {
+    : QTreeWidgetItem(parent, FolderTreeWidget::ItemType::Folders),
+      myFolder(dir) {
   setText(0, dir->name());
   setExpanded(true);
   setActive(true);
@@ -246,26 +249,49 @@ void FolderTreeWidget::invalidFolderNameMsgBox(const QString &name) {
                             "\n" + tr("Please choose another name!"));
 }
 
-void FolderTreeWidget::startDrag(Qt::DropActions) {
+void FolderTreeWidget::startDrag(Qt::DropActions supportedActions) {
   QTreeWidgetItem *item = currentItem();
   if (!item) return;
 
   if (item == topLevelItem(0) && item->treeWidget()->rootIsDecorated())
     return;  // it's the project folder so we don't want a drag
 
-  //  QList<QTreeWidgetItem *> lst;
-  //  for (item = firstChild(); item; item = item->itemBelow()) {
-  //    if (item->isSelected()) lst.append(item);
-  //  }
+  QPixmap pix = QPixmap();
+  if (item->type() == FolderTreeWidget::ItemType::Folders)
+    pix = IconLoader::load("folder-open", IconLoader::IconMode::General)
+              .pixmap(24, 24);
+  else
+    pix = IconLoader::load("edit-copy", IconLoader::IconMode::LightDark)
+              .pixmap(QSize(24, 24));
 
-  //  emit dragItems(lst);
+  QDrag *drag = new QDrag(viewport());
+  drag->setPixmap(pix);
+  drag->setHotSpot(QPoint(pix.width() / 2, pix.height() / 2));
+
+  QList<QTreeWidgetItem *> lst;
+  QTreeWidgetItemIterator it(this);
+  while (*it) {
+    if ((*it)->isSelected()) lst.append(*it);
+    it++;
+  }
+
+  emit dragItems(lst);
+  drag->setMimeData(mimeData(lst));
+  drag->exec(supportedActions);
 }
 
 void FolderTreeWidget::dropEvent(QDropEvent *event) {
-  QTreeWidgetItem *dest = itemAt(mapToGlobal(event->pos()));
-  if (dest && dest->type() == FolderTreeWidget::Folders) {
-    emit dropItems(dest);
-    event->accept();
+  QTreeWidgetItem *dest = itemAt(event->pos());
+  if (dest && dest->type() == FolderTreeWidget::ItemType::Folders) {
+    if (dropIndicatorPosition() != QAbstractItemView::OnItem) {
+      event->ignore();
+    } else {
+      emit dropItems(dest);
+      event->accept();
+      this->setState(
+          QAbstractItemView::NoState);  // hack to clear DraggingState
+    }
+    mousePressed = false;
   } else {
     event->ignore();
   }
@@ -278,7 +304,7 @@ void FolderTreeWidget::keyPressEvent(QKeyEvent *event) {
     return;
   }
 
-  if (item->type() == FolderTreeWidget::Folders &&
+  if (item->type() == FolderTreeWidget::ItemType::Folders &&
       (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)) {
     // note: we always sent 0 as the default colum
     emit itemDoubleClicked(item, 0);
