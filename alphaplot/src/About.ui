@@ -83,7 +83,7 @@
        <item>
         <widget class="QLabel" name="osLabelCaption">
          <property name="text">
-          <string>Operating Syatem :</string>
+          <string>Operating System :</string>
          </property>
         </widget>
        </item>

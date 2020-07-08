@@ -7542,9 +7542,8 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
   }
 
   // incomplete
-  foreach (it, draggedItems) {
-    MyWidget *w = dynamic_cast<WindowTableWidgetItem *>(it)->window();
-    if (w && qobject_cast<Layout2D *>(w)) {
+  foreach (MyWidget *w, draggedwidgets) {
+    if (qobject_cast<Layout2D *>(w)) {
       Layout2D *layout = qobject_cast<Layout2D *>(w);
       QList<MyWidget *> dependson = layout->dependentTableMatrix();
       foreach (QTreeWidgetItem *depitems, draggedItems) {
@@ -7554,9 +7553,15 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
           if (dependson.contains(depw)) dependson.removeOne(depw);
         }
       }
-      if (dependson.size() == 0) stopdrag = true;
-    }
-    if (w && qobject_cast<Table *>(w)) {
+      if (dependson.size() > 0) {
+        stopdrag = true;
+        QMessageBox::critical(this, "Error",
+                              tr("Cannot move an object which depends "
+                                 "on another object!"));
+        draggedItems.clear();
+        return;
+      }
+    } /*else if (w && qobject_cast<Table *>(w)) {
       QList<MyWidget *> widgetlist = current_folder->windowsList();
       foreach (MyWidget *widget, widgetlist) {
         if (qobject_cast<Layout2D *>(widget)) {
@@ -7566,16 +7571,16 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
             stopdrag = true;
         }
       }
-    }
+    }*/
   }
 
-  if (stopdrag) {
+  /*if (stopdrag) {
     QMessageBox::critical(this, "Error",
                           tr("Cannot move an object which depends "
                              "on another object!"));
     draggedItems.clear();
     return;
-  }
+  }*/
 
   foreach (it, draggedItems) {
     if (it->type() == FolderTreeWidget::ItemType::Folders) {
@@ -7740,7 +7745,6 @@ void ApplicationWindow::receivedVersionFile(QNetworkReply *reply) {
           extraversion = attributes.value("extraversion").toString();
           QString datestr = attributes.value("date").toString();
           date = QDate::fromString(datestr, "dd-MM-yyyy");
-          qDebug() << date << AlphaPlot::releaseDate();
           if (date < AlphaPlot::releaseDate()) {
             if (QMessageBox::question(
                     this, tr("Updates Available"),

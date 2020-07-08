@@ -28,16 +28,16 @@
  ***************************************************************************/
 
 #include "table/AsciiTableImportFilter.h"
-#include "table/future_Table.h"
-#include "lib/IntervalAttribute.h"
+
+#include <QStringList>
+#include <QTextStream>
+#include <iostream>
+#include <vector>
+
 #include "core/column/Column.h"
 #include "core/datatypes/String2DoubleFilter.h"
-
-#include <QTextStream>
-#include <QStringList>
-
-#include <vector>
-#include <iostream>
+#include "lib/IntervalAttribute.h"
+#include "table/future_Table.h"
 using namespace std;
 
 QStringList AsciiTableImportFilter::fileExtensions() const {
@@ -97,10 +97,11 @@ template <>
 double conv<double>(const QString& x) {
   return x.toDouble();
 }
-template <>
+// we are not using float for now
+/*template <>
 float conv<float>(const QString& x) {
   return x.toFloat();
-}
+}*/
 
 template <class T>
 struct AP : public std::unique_ptr<T> {
@@ -112,7 +113,7 @@ template <class C>
 void readCols(QList<Column*>& cols, AlphaPlotTextStream& stream,
               bool readColNames) {
   QStringList row, column_names;
-  int i;
+  int i = 0;
 
   // read first row
   row = stream.readRow();
@@ -151,7 +152,7 @@ void readCols(QList<Column*>& cols, AlphaPlotTextStream& stream,
       cols.back()->setPlotDesignation(AlphaPlot::Y);
   }
 }
-}
+}  // namespace
 
 AbstractAspect* AsciiTableImportFilter::importAspect(QIODevice& input) {
   AlphaPlotTextStream stream(input, d_separator);

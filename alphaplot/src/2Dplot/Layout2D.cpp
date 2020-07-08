@@ -300,7 +300,7 @@ void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
       AxisRect2D *element =
           addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                           AlphaPlot::ColumnDataType::TypeDouble,
-                          Graph2DCommon::AddLayoutElement::Right);
+                          Graph2DCommon::AddLayoutElement::Bottom);
       QList<Axis2D *> xAxis =
           element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
       xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
