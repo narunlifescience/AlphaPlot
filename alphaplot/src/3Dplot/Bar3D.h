@@ -28,7 +28,7 @@ class Bar3D : public QObject {
   Q3DBars *getGraph() const;
   QVector<DataBlockBar3D *> getData() const;
 
-  void save(XmlStreamWriter *xmlwriter);
+  void save(XmlStreamWriter *xmlwriter, const bool saveastemplate = false);
   void load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             QList<Matrix *> mats);
 

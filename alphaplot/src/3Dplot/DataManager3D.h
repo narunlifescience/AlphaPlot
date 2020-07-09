@@ -86,6 +86,15 @@ class DataBlockSurface3D : public DataBlockAbstract3D {
   }
   bool ismatrix();
   bool istable();
+  QString getfunction();
+  double getxlower();
+  double getxupper();
+  double getylower();
+  double getyupper();
+  double getzlower();
+  double getzupper();
+  double getxpoints();
+  double getypoints();
 
  private:
   Graph3DCommon::Function3DData funcData_;

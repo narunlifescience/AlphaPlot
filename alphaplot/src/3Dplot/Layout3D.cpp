@@ -753,19 +753,19 @@ void Layout3D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
       saveValueAxis(xmlwriter, surfacemodifier_->getGraph()->axisX());
       saveValueAxis(xmlwriter, surfacemodifier_->getGraph()->axisY());
       saveValueAxis(xmlwriter, surfacemodifier_->getGraph()->axisZ());
-      surfacemodifier_->save(xmlwriter);
+      surfacemodifier_->save(xmlwriter, saveastemplate);
       break;
     case Graph3DCommon::Plot3DType::Bar:
       saveCategoryAxis(xmlwriter, barmodifier_->getGraph()->columnAxis());
       saveCategoryAxis(xmlwriter, barmodifier_->getGraph()->rowAxis());
       saveValueAxis(xmlwriter, barmodifier_->getGraph()->valueAxis());
-      barmodifier_->save(xmlwriter);
+      barmodifier_->save(xmlwriter, saveastemplate);
       break;
     case Graph3DCommon::Plot3DType::Scatter:
       saveValueAxis(xmlwriter, scattermodifier_->getGraph()->axisX());
       saveValueAxis(xmlwriter, scattermodifier_->getGraph()->axisY());
       saveValueAxis(xmlwriter, scattermodifier_->getGraph()->axisZ());
-      scattermodifier_->save(xmlwriter);
+      scattermodifier_->save(xmlwriter, saveastemplate);
       break;
   }
   xmlwriter->writeEndElement();

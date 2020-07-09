@@ -101,8 +101,8 @@ void DataBlockAbstract3D::setgradient(QAbstract3DSeries *series,
       break;
     case Graph3DCommon::Gradient::Hues:
       gr.setColorAt(0, QColor(255, 0, 0));
-      gr.setColorAt(1.0/3.0, QColor(0, 0, 255));
-      gr.setColorAt(2.0/3.0, QColor(0, 255, 0));
+      gr.setColorAt(1.0 / 3.0, QColor(0, 0, 255));
+      gr.setColorAt(2.0 / 3.0, QColor(0, 255, 0));
       gr.setColorAt(1, QColor(255, 0, 0));
       break;
     case Graph3DCommon::Gradient::BBRY:
@@ -233,6 +233,69 @@ void DataBlockSurface3D::regenerateDataBlockFunction(
 bool DataBlockSurface3D::ismatrix() { return (matrix_ != nullptr); }
 
 bool DataBlockSurface3D::istable() { return (table_ != nullptr); }
+
+QString DataBlockSurface3D::getfunction() {
+  if (!ismatrix() && !istable()) {
+    return funcData_.function;
+  }
+  return QString();
+}
+
+double DataBlockSurface3D::getxlower() {
+  if (!ismatrix() && !istable()) {
+    return funcData_.xl;
+  }
+  return 0.0;
+}
+
+double DataBlockSurface3D::getxupper() {
+  if (!ismatrix() && !istable()) {
+    return funcData_.xu;
+  }
+  return 0.0;
+}
+
+double DataBlockSurface3D::getylower() {
+  if (!ismatrix() && !istable()) {
+    return funcData_.yl;
+  }
+  return 0.0;
+}
+
+double DataBlockSurface3D::getyupper() {
+  if (!ismatrix() && !istable()) {
+    return funcData_.yu;
+  }
+  return 0.0;
+}
+
+double DataBlockSurface3D::getzlower() {
+  if (!ismatrix() && !istable()) {
+    return funcData_.zl;
+  }
+  return 0.0;
+}
+
+double DataBlockSurface3D::getzupper() {
+  if (!ismatrix() && !istable()) {
+    return funcData_.zu;
+  }
+  return 0.0;
+}
+
+double DataBlockSurface3D::getxpoints() {
+  if (!ismatrix() && !istable()) {
+    return funcData_.xpoints;
+  }
+  return 0.0;
+}
+
+double DataBlockSurface3D::getypoints() {
+  if (!ismatrix() && !istable()) {
+    return funcData_.ypoints;
+  }
+  return 0.0;
+}
 
 DataBlockBar3D::DataBlockBar3D(Matrix *matrix)
     : DataBlockAbstract3D(matrix),
