@@ -31,7 +31,15 @@ class Layout2D : public MyWidget {
 
   void generateFunction2DPlot(QVector<double> *xdata, QVector<double> *ydata,
                               const QString xLabel, const QString yLabel);
-  void generateScatter2DPlot(Column *xData, Column *yData, int from, int to);
+  void generateScatterWithXerror2DPlot(Table *table, Column *xData,
+                                       Column *yData, Column *xErr, int from,
+                                       int to);
+  void generateScatterWithYerror2DPlot(Table *table, Column *xData,
+                                       Column *yData, Column *yErr, int from,
+                                       int to);
+  void generateScatterWithXYerror2DPlot(Table *table, Column *xData,
+                                        Column *yData, Column *xErr,
+                                        Column *yErr, int from, int to);
   QList<StatBox2D *> generateStatBox2DPlot(Table *table,
                                            QList<Column *> ycollist, int from,
                                            int to, int key);
@@ -118,6 +126,8 @@ class Layout2D : public MyWidget {
                    Axis2D *yaxis);
 
  private:
+  Curve2D *generateScatter2DPlot(Table *table, Column *xcol, Column *ycol,
+                                 int from, int to);
   void addTextToAxisTicker(Column *col, Axis2D *axis, int from, int to);
   void arrangeLayoutButtons();
 

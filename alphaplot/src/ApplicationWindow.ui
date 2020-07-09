@@ -202,8 +202,17 @@
      <addaction name="actionPlot3DScatter"/>
      <addaction name="actionPlot3DTrajectory"/>
     </widget>
+    <widget class="QMenu" name="menuPlot2DScatter">
+     <property name="title">
+      <string>Scatter</string>
+     </property>
+     <addaction name="actionPlot2DScatter"/>
+     <addaction name="actionPlot2DScatterXErr"/>
+     <addaction name="actionPlot2DScatterYErr"/>
+     <addaction name="actionPlot2DScatterXYErr"/>
+    </widget>
     <addaction name="actionPlot2DLine"/>
-    <addaction name="actionPlot2DScatter"/>
+    <addaction name="menuPlot2DScatter"/>
     <addaction name="actionPlot2DLineSymbol"/>
     <addaction name="menuPlot2DSpecialLineSymbol"/>
     <addaction name="separator"/>
@@ -901,11 +910,6 @@
     <string>&amp;Line</string>
    </property>
   </action>
-  <action name="actionPlot2DScatter">
-   <property name="text">
-    <string>&amp;Scatter</string>
-   </property>
-  </action>
   <action name="actionPlot2DVerticalBars">
    <property name="text">
     <string>&amp;Vertical Bars</string>
@@ -1425,6 +1429,26 @@
   <action name="actionPlot2DHorizontalGroupedBars">
    <property name="text">
     <string>Horizontal Grouped Bars</string>
+   </property>
+  </action>
+  <action name="actionPlot2DScatterXErr">
+   <property name="text">
+    <string>Scatter With X Err</string>
+   </property>
+  </action>
+  <action name="actionPlot2DScatterYErr">
+   <property name="text">
+    <string>Scatter With Y Err</string>
+   </property>
+  </action>
+  <action name="actionPlot2DScatterXYErr">
+   <property name="text">
+    <string>Scatter With XY Err</string>
+   </property>
+  </action>
+  <action name="actionPlot2DScatter">
+   <property name="text">
+    <string>Scatter</string>
    </property>
   </action>
  </widget>

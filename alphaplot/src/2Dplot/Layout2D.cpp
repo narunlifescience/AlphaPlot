@@ -249,6 +249,29 @@ void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
   curve->rescaleAxes();
 }
 
+void Layout2D::generateScatterWithXerror2DPlot(Table *table, Column *xData,
+                                               Column *yData, Column *xErr,
+                                               int from, int to) {
+  Curve2D *curve = generateScatter2DPlot(table, xData, yData, from, to);
+  curve->setXerrorBar(table, xErr, from, to);
+}
+
+void Layout2D::generateScatterWithYerror2DPlot(Table *table, Column *xData,
+                                               Column *yData, Column *yErr,
+                                               int from, int to) {
+  Curve2D *curve = generateScatter2DPlot(table, xData, yData, from, to);
+  curve->setYerrorBar(table, yErr, from, to);
+}
+
+void Layout2D::generateScatterWithXYerror2DPlot(Table *table, Column *xData,
+                                                Column *yData, Column *xErr,
+                                                Column *yErr, int from,
+                                                int to) {
+  Curve2D *curve = generateScatter2DPlot(table, xData, yData, from, to);
+  curve->setXerrorBar(table, xErr, from, to);
+  curve->setYerrorBar(table, yErr, from, to);
+}
+
 QList<StatBox2D *> Layout2D::generateStatBox2DPlot(Table *table,
                                                    QList<Column *> ycollist,
                                                    int from, int to, int key) {
@@ -894,6 +917,25 @@ void Layout2D::showtooltip(QPointF position, double xval, double yval,
   streachLabel_->setText(QString(" x=%1 y=%2").arg(xval).arg(yval));
 }
 
+Curve2D *Layout2D::generateScatter2DPlot(Table *table, Column *xcol,
+                                         Column *ycol, int from, int to) {
+  AxisRect2D *element = addAxisRectItem(xcol->dataType(), ycol->dataType(),
+                                        Graph2DCommon::AddLayoutElement::Right);
+  QList<Axis2D *> xAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Bottom);
+  xAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Top);
+  QList<Axis2D *> yAxis =
+      element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
+  yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+  addTextToAxisTicker(xcol, xAxis.at(0), from, to);
+  addTextToAxisTicker(ycol, yAxis.at(0), from, to);
+  Curve2D *curve =
+      element->addCurve2DPlot(AxisRect2D::LineScatterType::Scatter2D, table,
+                              xcol, ycol, from, to, xAxis.at(0), yAxis.at(0));
+  curve->rescaleAxes();
+  return curve;
+}
+
 void Layout2D::addTextToAxisTicker(Column *col, Axis2D *axis, int from,
                                    int to) {
   if (col->dataType() == AlphaPlot::ColumnDataType::TypeString) {
@@ -1451,8 +1493,7 @@ QList<MyWidget *> Layout2D::dependentTableMatrix() {
     foreach (LineSpecial2D *ls, lslist) {
       PlotData::AssociatedData *data =
           ls->getdatablock_lsplot()->getassociateddata();
-      if (!dependeon.contains(data->table))
-        dependeon << data->table;
+      if (!dependeon.contains(data->table)) dependeon << data->table;
       if (ls->getxerrorbar_lsplot()) {
         DataBlockError *xerror =
             ls->getxerrorbar_lsplot()->getdatablock_error();
@@ -1472,17 +1513,14 @@ QList<MyWidget *> Layout2D::dependentTableMatrix() {
           channel.first->getdatablock_lsplot()->getassociateddata();
       PlotData::AssociatedData *data2 =
           channel.second->getdatablock_lsplot()->getassociateddata();
-      if (!dependeon.contains(data1->table))
-        dependeon << data1->table;
-      if (!dependeon.contains(data2->table))
-        dependeon << data2->table;
+      if (!dependeon.contains(data1->table)) dependeon << data1->table;
+      if (!dependeon.contains(data2->table)) dependeon << data2->table;
     }
     foreach (Curve2D *curve, curvelist) {
       if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
         PlotData::AssociatedData *data =
             curve->getdatablock_cplot()->getassociateddata();
-        if (!dependeon.contains(data->table))
-          dependeon << data->table;
+        if (!dependeon.contains(data->table)) dependeon << data->table;
         if (curve->getxerrorbar_curveplot()) {
           DataBlockError *xerror =
               curve->getxerrorbar_curveplot()->getdatablock_error();
@@ -1498,8 +1536,7 @@ QList<MyWidget *> Layout2D::dependentTableMatrix() {
       }
     }
     foreach (StatBox2D *statbox, statboxlist) {
-      if (!dependeon.contains(
-              statbox->getboxwhiskerdata_statbox().table_))
+      if (!dependeon.contains(statbox->getboxwhiskerdata_statbox().table_))
         dependeon << statbox->getboxwhiskerdata_statbox().table_;
     }
 
@@ -1507,8 +1544,7 @@ QList<MyWidget *> Layout2D::dependentTableMatrix() {
       if (!bar->ishistogram_barplot()) {
         PlotData::AssociatedData *data =
             bar->getdatablock_barplot()->getassociateddata();
-        if (!dependeon.contains(data->table))
-          dependeon << data->table;
+        if (!dependeon.contains(data->table)) dependeon << data->table;
         if (bar->getxerrorbar_barplot()) {
           DataBlockError *xerror =
               bar->getxerrorbar_barplot()->getdatablock_error();
@@ -1522,8 +1558,7 @@ QList<MyWidget *> Layout2D::dependentTableMatrix() {
             dependeon << yerror->gettable();
         }
       } else {
-        if (!dependeon.contains(
-                bar->getdatablock_histplot()->gettable()))
+        if (!dependeon.contains(bar->getdatablock_histplot()->gettable()))
           dependeon << bar->getdatablock_histplot()->gettable();
       }
     }

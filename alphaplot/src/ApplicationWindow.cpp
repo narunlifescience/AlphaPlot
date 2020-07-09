@@ -198,6 +198,7 @@ ApplicationWindow::ApplicationWindow()
       btn_layout_(new QToolButton(this)),
       btn_curves_(new QToolButton(this)),
       btn_plot_enrichments_(new QToolButton(this)),
+      btn_plot_scatters_(new QToolButton(this)),
       btn_plot_linespoints_(new QToolButton(this)),
       btn_plot_bars_(new QToolButton(this)),
       btn_plot_vect_(new QToolButton(this)),
@@ -245,6 +246,8 @@ ApplicationWindow::ApplicationWindow()
   btn_curves_->setToolTip(tr("Add curves / error bars"));
   btn_plot_enrichments_->setPopupMode(QToolButton::InstantPopup);
   btn_plot_enrichments_->setToolTip(tr("Enrichments"));
+  btn_plot_scatters_->setPopupMode(QToolButton::InstantPopup);
+  btn_plot_scatters_->setToolTip(tr("Scatters"));
   btn_plot_linespoints_->setPopupMode(QToolButton::InstantPopup);
   btn_plot_linespoints_->setToolTip(tr("Lines and/or symbols"));
   btn_plot_bars_->setPopupMode(QToolButton::InstantPopup);
@@ -503,6 +506,18 @@ ApplicationWindow::ApplicationWindow()
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DScatter,
                             static_cast<int>(Graph::Scatter));
+  connect(ui_->actionPlot2DScatterXErr, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DScatterXErr,
+                            static_cast<int>(Graph::ScatterXError));
+  connect(ui_->actionPlot2DScatterYErr, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DScatterYErr,
+                            static_cast<int>(Graph::ScatterYError));
+  connect(ui_->actionPlot2DScatterXYErr, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
+  d_plot_mapper->setMapping(ui_->actionPlot2DScatterXYErr,
+                            static_cast<int>(Graph::ScatterXYError));
   connect(ui_->actionPlot2DLineSymbol, SIGNAL(triggered()), d_plot_mapper,
           SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DLineSymbol,
@@ -994,6 +1009,13 @@ void ApplicationWindow::makeToolBars() {
   menu_plot_enrichments->addAction(ui_->actionAddImage);
 
   // 2D plots tool toolbar
+  QMenu *menu_plot_scatters = new QMenu(this);
+  btn_plot_scatters_->setMenu(menu_plot_scatters);
+  plot2DToolbar->addWidget(btn_plot_scatters_);
+  menu_plot_scatters->addAction(ui_->actionPlot2DScatter);
+  menu_plot_scatters->addAction(ui_->actionPlot2DScatterXErr);
+  menu_plot_scatters->addAction(ui_->actionPlot2DScatterYErr);
+  menu_plot_scatters->addAction(ui_->actionPlot2DScatterXYErr);
   QMenu *menu_plot_linespoints = new QMenu(this);
   btn_plot_linespoints_->setMenu(menu_plot_linespoints);
   plot2DToolbar->addWidget(btn_plot_linespoints_);
@@ -8108,6 +8130,95 @@ bool ApplicationWindow::validFor2DPlot(Table *table, Graph type) {
         return false;
       }
     } break;
+    case Graph::VerticalStackedBars:
+    case Graph::HorizontalStackedBars:
+    case Graph::VerticalGroupedBars:
+    case Graph::HorizontalGroupedBars:
+      if (table->selectedColumnCount(AlphaPlot::X) != 1 ||
+          table->selectedColumnCount(AlphaPlot::Y) < 2) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Please select one X & nultiple Y column(s) to plot!"));
+        return false;
+      } else if (table->selectedColumnCount(AlphaPlot::Z) > 0) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Please dont select Z column for this operation!"));
+        return false;
+      }
+      break;
+    case Graph::ScatterYError: {
+      if (table->selectedColumnCount(AlphaPlot::X) == 0 ||
+          table->selectedColumnCount(AlphaPlot::Y) == 0 ||
+          table->selectedColumnCount(AlphaPlot::yErr) == 0) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Please select one X, Y & yErr column to plot!"));
+        return false;
+      } else if (table->selectedColumnCount(AlphaPlot::X) > 1 ||
+                 table->selectedColumnCount(AlphaPlot::Y) > 1 ||
+                 table->selectedColumnCount(AlphaPlot::yErr) > 1 ||
+                 table->selectedColumns().count() != 3) {
+        QMessageBox::warning(this, tr("Error"),
+                             tr("You can only select one X, Y & yErr column "
+                                "for this operation!"));
+        return false;
+      } else if (table->selectedColumnCount(AlphaPlot::Z) > 0) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Please dont select Z column for this operation!"));
+        return false;
+      }
+    } break;
+    case Graph::ScatterXError: {
+      if (table->selectedColumnCount(AlphaPlot::X) == 0 ||
+          table->selectedColumnCount(AlphaPlot::Y) == 0 ||
+          table->selectedColumnCount(AlphaPlot::xErr) == 0) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Please select one X, Y & xErr column to plot!"));
+        return false;
+      } else if (table->selectedColumnCount(AlphaPlot::X) > 1 ||
+                 table->selectedColumnCount(AlphaPlot::Y) > 1 ||
+                 table->selectedColumnCount(AlphaPlot::xErr) > 1 ||
+                 table->selectedColumns().count() != 3) {
+        QMessageBox::warning(this, tr("Error"),
+                             tr("You can only select one X, Y & xErr column "
+                                "for this operation!"));
+        return false;
+      } else if (table->selectedColumnCount(AlphaPlot::Z) > 0) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Please dont select Z column for this operation!"));
+        return false;
+      }
+    } break;
+    case Graph::ScatterXYError: {
+      if (table->selectedColumnCount(AlphaPlot::X) == 0 ||
+          table->selectedColumnCount(AlphaPlot::Y) == 0 ||
+          table->selectedColumnCount(AlphaPlot::xErr) == 0 ||
+          table->selectedColumnCount(AlphaPlot::yErr) == 0) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Please select one X, Y, xErr & yErr column to plot!"));
+        return false;
+      } else if (table->selectedColumnCount(AlphaPlot::X) > 1 ||
+                 table->selectedColumnCount(AlphaPlot::Y) > 1 ||
+                 table->selectedColumnCount(AlphaPlot::xErr) > 1 ||
+                 table->selectedColumnCount(AlphaPlot::yErr) > 1 ||
+                 table->selectedColumns().count() != 4) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("You can only select one X, Y, xErr & yErr column "
+               "for this operation!"));
+        return false;
+      } else if (table->selectedColumnCount(AlphaPlot::Z) > 0) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Please dont select Z column for this operation!"));
+        return false;
+      }
+    } break;
     default:
       if (table->selectedColumnCount(AlphaPlot::X) == 0 ||
           table->selectedColumnCount(AlphaPlot::Y) == 0) {
@@ -8151,7 +8262,69 @@ void ApplicationWindow::selectPlotType(int value) {
   int from = table->firstSelectedRow();
   int to = table->firstSelectedRow() + table->numSelectedRows() - 1;
 
-  if (type == Graph::Box) {
+  if (type == Graph::ScatterXError) {
+    Column *xcol = nullptr;
+    Column *ycol = nullptr;
+    Column *xerr = nullptr;
+    Layout2D *layout = newGraph2D();
+    QStringList list = table->selectedColumns();
+    foreach (QString col, list) {
+      if (table->YColumns().contains(col)) {
+        ycol = table->column(table->colIndex(col));
+      } else if (table->column(table->colIndex(col))->plotDesignation() ==
+                 AlphaPlot::X) {
+        xcol = table->column(table->colIndex(col));
+      } else if (table->column(table->colIndex(col))->plotDesignation() ==
+                 AlphaPlot::xErr) {
+        xerr = table->column(table->colIndex(col));
+      }
+    }
+    layout->generateScatterWithXerror2DPlot(table, xcol, ycol, xerr, from, to);
+    return;
+  } else if (type == Graph::ScatterYError) {
+    Column *xcol = nullptr;
+    Column *ycol = nullptr;
+    Column *yerr = nullptr;
+    Layout2D *layout = newGraph2D();
+    QStringList list = table->selectedColumns();
+    foreach (QString col, list) {
+      if (table->YColumns().contains(col)) {
+        ycol = table->column(table->colIndex(col));
+      } else if (table->column(table->colIndex(col))->plotDesignation() ==
+                 AlphaPlot::X) {
+        xcol = table->column(table->colIndex(col));
+      } else if (table->column(table->colIndex(col))->plotDesignation() ==
+                 AlphaPlot::yErr) {
+        yerr = table->column(table->colIndex(col));
+      }
+    }
+    layout->generateScatterWithYerror2DPlot(table, xcol, ycol, yerr, from, to);
+    return;
+  } else if (type == Graph::ScatterXYError) {
+    Column *xcol = nullptr;
+    Column *ycol = nullptr;
+    Column *xerr = nullptr;
+    Column *yerr = nullptr;
+    Layout2D *layout = newGraph2D();
+    QStringList list = table->selectedColumns();
+    foreach (QString col, list) {
+      if (table->YColumns().contains(col)) {
+        ycol = table->column(table->colIndex(col));
+      } else if (table->column(table->colIndex(col))->plotDesignation() ==
+                 AlphaPlot::X) {
+        xcol = table->column(table->colIndex(col));
+      } else if (table->column(table->colIndex(col))->plotDesignation() ==
+                 AlphaPlot::xErr) {
+        xerr = table->column(table->colIndex(col));
+      } else if (table->column(table->colIndex(col))->plotDesignation() ==
+                 AlphaPlot::yErr) {
+        yerr = table->column(table->colIndex(col));
+      }
+    }
+    layout->generateScatterWithXYerror2DPlot(table, xcol, ycol, xerr, yerr,
+                                             from, to);
+    return;
+  } else if (type == Graph::Box) {
     QList<Column *> ycollist;
     Layout2D *layout = newGraph2D();
     QStringList list = table->selectedColumns();
@@ -8422,6 +8595,8 @@ void ApplicationWindow::loadIcons() {
   // Plot menu
   ui_->actionPlot2DLine->setIcon(
       IconLoader::load("graph2d-line", IconLoader::LightDark));
+  ui_->menuPlot2DScatter->setIcon(
+      IconLoader::load("graph2d-scatter", IconLoader::LightDark));
   ui_->actionPlot2DScatter->setIcon(
       IconLoader::load("graph2d-scatter", IconLoader::LightDark));
   ui_->actionPlot2DLineSymbol->setIcon(
@@ -8614,6 +8789,8 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("edit-add-graph", IconLoader::LightDark));
   btn_plot_enrichments_->setIcon(
       IconLoader::load("draw-text", IconLoader::LightDark));
+  btn_plot_scatters_->setIcon(
+      IconLoader::load("graph2d-scatter", IconLoader::LightDark));
   btn_plot_linespoints_->setIcon(
       IconLoader::load("graph2d-line-scatter", IconLoader::LightDark));
   btn_plot_bars_->setIcon(

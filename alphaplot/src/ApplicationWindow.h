@@ -174,6 +174,9 @@ class ApplicationWindow : public QMainWindow,
     HorizontalStackedBars = 22,
     VerticalGroupedBars = 23,
     HorizontalGroupedBars = 24,
+    ScatterYError = 25,
+    ScatterXError = 26,
+    ScatterXYError =27
   };
 
   QTranslator* appTranslator;
@@ -1123,6 +1126,7 @@ class ApplicationWindow : public QMainWindow,
   QToolButton* btn_layout_;
   QToolButton* btn_curves_;
   QToolButton* btn_plot_enrichments_;
+  QToolButton* btn_plot_scatters_;
   QToolButton* btn_plot_linespoints_;
   QToolButton* btn_plot_bars_;
   QToolButton* btn_plot_vect_;
