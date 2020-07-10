@@ -194,6 +194,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *layoutpropertymargingroupitem_;
   QtProperty *layoutpropertyrectitem_;
   QtProperty *layoutpropertycoloritem_;
+  QtProperty *layoutpropertyfillstyleitem_;
   QtProperty *layoutpropertyautomarginstatusitem_;
   QtProperty *layoutpropertyleftmarginitem_;
   QtProperty *layoutpropertyrightmarginitem_;
@@ -259,6 +260,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *itempropertylegendborderstrokethicknessitem_;
   QtProperty *itempropertylegendborderstroketypeitem_;
   QtProperty *itempropertylegendbackgroundcoloritem_;
+  QtProperty *itempropertylegendbackgroundfillstyleitem_;
   QtProperty *itempropertylegendtitlevisibleitem_;
   QtProperty *itempropertylegendtitletextitem_;
   QtProperty *itempropertylegendtitlefontitem_;
@@ -276,6 +278,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *itempropertytextstrokethicknessitem_;
   QtProperty *itempropertytextstroketypeitem_;
   QtProperty *itempropertytextbackgroundcoloritem_;
+  QtProperty *itempropertytextbackgroundfillstyleitem_;
   QtProperty *itempropertytextrotationitem_;
   QtProperty *itempropertytextpositionalignmentitem_;
   QtProperty *itempropertytexttextalignmentitem_;
@@ -313,6 +316,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *lsplotpropertylinestroketypeitem_;
   QtProperty *lsplotpropertylinefillstatusitem_;
   QtProperty *lsplotpropertylinefillcoloritem_;
+  QtProperty *lsplotpropertylinefillstyleitem_;
   QtProperty *lsplotpropertylineantialiaseditem_;
   QtProperty *lsplotpropertyscatterstyleitem_;
   QtProperty *lsplotpropertyscatterthicknessitem_;
@@ -333,6 +337,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *channel1plotpropertylinestrokethicknessitem_;
   QtProperty *channel1plotpropertylinestroketypeitem_;
   QtProperty *channel1plotpropertylinefillcoloritem_;
+  QtProperty *channel1plotpropertylinefillstylritem_;
   QtProperty *channel1plotpropertylineantialiaseditem_;
   QtProperty *channel1plotpropertyscatterstyleitem_;
   QtProperty *channel1plotpropertyscatterthicknessitem_;
@@ -364,6 +369,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *cplotpropertylinestroketypeitem_;
   QtProperty *cplotpropertylinefillstatusitem_;
   QtProperty *cplotpropertylinefillcoloritem_;
+  QtProperty *cplotpropertylinefillstyleitem_;
   QtProperty *cplotpropertylineantialiaseditem_;
   QtProperty *cplotpropertyscatterstyleitem_;
   QtProperty *cplotpropertyscatterthicknessitem_;
@@ -381,6 +387,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *barplotpropertystackgapitem_;
   QtProperty *barplotpropertyfillantialiaseditem_;
   QtProperty *barplotpropertyfillcoloritem_;
+  QtProperty *barplotpropertyfillstyleitem_;
   QtProperty *barplotpropertyantialiaseditem_;
   QtProperty *barplotpropertystrokecoloritem_;
   QtProperty *barplotpropertystrokethicknessitem_;
@@ -405,6 +412,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *statboxplotpropertyfillantialiaseditem_;
   QtProperty *statboxplotpropertyfillstatusitem_;
   QtProperty *statboxplotpropertyfillcoloritem_;
+  QtProperty *statboxplotpropertyfillstyleitem_;
   QtProperty *statboxplotpropertywhiskerantialiaseditem_;
   QtProperty *statboxplotpropertywhiskerstrokecoloritem_;
   QtProperty *statboxplotpropertywhiskerstrokethicknessitem_;

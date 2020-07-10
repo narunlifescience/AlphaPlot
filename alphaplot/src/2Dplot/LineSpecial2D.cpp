@@ -4,9 +4,9 @@
 #include <QCursor>
 
 #include "../future/core/column/Column.h"
+#include "AxisRect2D.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
-#include "AxisRect2D.h"
 #include "Table.h"
 #include "core/Utilities.h"
 #include "future/lib/XmlStreamReader.h"
@@ -146,6 +146,10 @@ bool LineSpecial2D::getlinefillstatus_lsplot() const {
 
 QColor LineSpecial2D::getlinefillcolor_lsplot() const {
   return brush().color();
+}
+
+Qt::BrushStyle LineSpecial2D::getlinefillstyle_lsplot() const {
+  return brush().style();
 }
 
 bool LineSpecial2D::getlineantialiased_lsplot() const { return antialiased(); }
@@ -296,6 +300,14 @@ void LineSpecial2D::setlinefillcolor_lsplot(const QColor &color) {
   QBrush b = brush();
   b.setColor(color);
   setBrush(b);
+}
+
+void LineSpecial2D::setlinefillstyle_lsplot(const Qt::BrushStyle &style) {
+  QBrush b = brush();
+  if (b.style() != Qt::BrushStyle::NoBrush) {
+    b.setStyle(style);
+    setBrush(b);
+  }
 }
 
 void LineSpecial2D::setlineantialiased_lsplot(const bool value) {
@@ -589,6 +601,7 @@ bool LineSpecial2D::load(XmlStreamReader *xmlreader) {
           QBrush b = xmlreader->readBrush(&ok);
           if (ok) {
             setlinefillcolor_lsplot(b.color());
+            setlinefillstyle_lsplot(b.style());
           } else
             xmlreader->raiseWarning(
                 tr("LineSpecial2D linebrush property setting error"));
@@ -727,9 +740,7 @@ void LineSpecial2D::datapicker(QMouseEvent *event, const QVariant &details) {
   }
 }
 
-void LineSpecial2D::movepicker(QMouseEvent *event, const QVariant &details) {
-
-}
+void LineSpecial2D::movepicker(QMouseEvent *event, const QVariant &details) {}
 
 void LineSpecial2D::removepicker(QMouseEvent *event, const QVariant &details) {
   QCPGraphDataContainer::const_iterator it = data()->constEnd();

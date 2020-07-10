@@ -47,7 +47,7 @@ Q3DSurface *Surface3D::getGraph() const { return graph_; }
 QVector<DataBlockSurface3D *> Surface3D::getData() const { return data_; }
 
 void Surface3D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
-  xmlwriter->writeStartElement("plotbasic");
+  xmlwriter->writeStartElement("surface");
   xmlwriter->writeAttribute("aspectratio",
                             QString::number(graph_->aspectRatio()));
   xmlwriter->writeAttribute("horizontalaspectratio",
@@ -199,7 +199,84 @@ void Surface3D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
 }
 
 void Surface3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
-                     QList<Matrix *> mats) {}
+                     QList<Matrix *> mats) {
+  while (!xmlreader->atEnd()) {
+    xmlreader->readNext();
+    if (xmlreader->isEndElement() && xmlreader->name() == "surface") break;
+    if (xmlreader->isStartElement() && xmlreader->name() == "surface") {
+      bool ok = false;
+
+      // aspect ratio
+      double aspectratio = xmlreader->readAttributeDouble("aspectratio", &ok);
+      if (ok)
+        graph_->setAspectRatio(aspectratio);
+      else
+        xmlreader->raiseWarning("Surface3D aspectratio property setting error");
+
+      // horizontal aspect ratio
+      double haspectratio =
+          xmlreader->readAttributeDouble("horizontalaspectratio", &ok);
+      if (ok)
+        graph_->setHorizontalAspectRatio(haspectratio);
+      else
+        xmlreader->raiseWarning(
+            "Surface3D horizontal aspectratio property setting error");
+
+      // shadow quality
+      QString shadowquality =
+          xmlreader->readAttributeString("shadowquality", &ok);
+      if (ok) {
+        if (shadowquality == "low") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualityLow);
+        } else if (shadowquality == "high") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualityHigh);
+        } else if (shadowquality == "none") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualityNone);
+        } else if (shadowquality == "medium") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualityMedium);
+        } else if (shadowquality == "softlow") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualitySoftLow);
+        } else if (shadowquality == "softhigh") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualitySoftHigh);
+        } else if (shadowquality == "softmedium") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualitySoftMedium);
+        }
+      } else
+        xmlreader->raiseWarning(
+            "Surface3D shadow quality property setting error");
+
+      // flip horizontal grid
+      bool fliphgrid = xmlreader->readAttributeBool("fliphorizontalgrid", &ok);
+      if (ok)
+        graph_->setFlipHorizontalGrid(fliphgrid);
+      else
+        xmlreader->raiseWarning(
+            "Surface3D flip horizontal grid property setting error");
+
+      // ortho projection
+      bool orthoproj = xmlreader->readAttributeBool("orthoprojection", &ok);
+      if (ok)
+        graph_->setOrthoProjection(orthoproj);
+      else
+        xmlreader->raiseWarning(
+            "Surface3D ortho projection property setting error");
+
+      // flip horizontal grid
+      bool polar = xmlreader->readAttributeBool("polar", &ok);
+      if (ok)
+        graph_->setPolar(polar);
+      else
+        xmlreader->raiseWarning("Surface3D polar property setting error");
+    }
+  }
+}
 
 void Surface3D::setSurfaceMeshType(const QSurface3DSeries::DrawFlag &type) {
   if (graph_->seriesList().isEmpty()) return;

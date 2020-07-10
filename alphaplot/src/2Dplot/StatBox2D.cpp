@@ -66,6 +66,10 @@ StatBox2D::BoxWhiskerStyle StatBox2D::getwhiskerstyle_statbox() const {
 
 QColor StatBox2D::getfillcolor_statbox() const { return brush().color(); }
 
+Qt::BrushStyle StatBox2D::getfillstyle_statbox() const {
+  return brush().style();
+}
+
 bool StatBox2D::getfillstatus_statbox() const {
   if (brush().style() == Qt::NoBrush) {
     return false;
@@ -315,6 +319,14 @@ void StatBox2D::setfillcolor_statbox(const QColor &color) {
   QBrush b = brush();
   b.setColor(color);
   setBrush(b);
+}
+
+void StatBox2D::setfillstyle_statbox(const Qt::BrushStyle &style) {
+  QBrush b = brush();
+  if (b.style() != Qt::BrushStyle::NoBrush) {
+    b.setStyle(style);
+    setBrush(b);
+  }
 }
 
 void StatBox2D::setfillstatus_statbox(const bool status) {

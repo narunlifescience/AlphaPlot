@@ -1554,6 +1554,7 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
     lspair.first->setlinestrokestyle_lsplot(linepen1.style());
     lspair.first->setlinestrokecolor_lsplot(linepen1.color());
     lspair.first->setlinefillcolor_lsplot(linebrush1.color());
+    lspair.first->setlinefillstyle_lsplot(linebrush1.style());
     lspair.first->setscattershape_lsplot(scatterstyle1);
     lspair.first->setscattersize_lsplot(scattersize1);
     lspair.first->setscatterantialiased_lsplot(scatterantialias1);

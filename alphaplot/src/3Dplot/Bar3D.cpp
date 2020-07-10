@@ -41,7 +41,7 @@ Q3DBars *Bar3D::getGraph() const { return graph_; }
 QVector<DataBlockBar3D *> Bar3D::getData() const { return data_; }
 
 void Bar3D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
-  xmlwriter->writeStartElement("plot");
+  xmlwriter->writeStartElement("bar");
   xmlwriter->writeAttribute("aspectratio",
                             QString::number(graph_->aspectRatio()));
   xmlwriter->writeAttribute("horizontalaspectratio",
@@ -170,4 +170,98 @@ void Bar3D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
 }
 
 void Bar3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
-                 QList<Matrix *> mats) {}
+                 QList<Matrix *> mats) {
+  while (!xmlreader->atEnd()) {
+    xmlreader->readNext();
+    if (xmlreader->isEndElement() && xmlreader->name() == "bar") break;
+    if (xmlreader->isStartElement() && xmlreader->name() == "bar") {
+      bool ok = false;
+
+      // aspect ratio
+      double aspectratio = xmlreader->readAttributeDouble("aspectratio", &ok);
+      if (ok)
+        graph_->setAspectRatio(aspectratio);
+      else
+        xmlreader->raiseWarning("Bar3D aspectratio property setting error");
+
+      // horizontal aspect ratio
+      double haspectratio =
+          xmlreader->readAttributeDouble("horizontalaspectratio", &ok);
+      if (ok)
+        graph_->setHorizontalAspectRatio(haspectratio);
+      else
+        xmlreader->raiseWarning(
+            "Bar3D horizontal aspectratio property setting error");
+
+      // shadow quality
+      QString shadowquality =
+          xmlreader->readAttributeString("shadowquality", &ok);
+      if (ok) {
+        if (shadowquality == "low") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualityLow);
+        } else if (shadowquality == "high") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualityHigh);
+        } else if (shadowquality == "none") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualityNone);
+        } else if (shadowquality == "medium") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualityMedium);
+        } else if (shadowquality == "softlow") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualitySoftLow);
+        } else if (shadowquality == "softhigh") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualitySoftHigh);
+        } else if (shadowquality == "softmedium") {
+          graph_->setShadowQuality(
+              QAbstract3DGraph::ShadowQuality::ShadowQualitySoftMedium);
+        }
+      } else
+        xmlreader->raiseWarning("Bar3D shadow quality property setting error");
+
+      // relative bar spacing
+      bool relsp = xmlreader->readAttributeBool("relativespacing", &ok);
+      if (ok)
+        graph_->setBarSpacingRelative(relsp);
+      else
+        xmlreader->raiseWarning(
+            "Bar3D relative bar spacing property setting error");
+
+      // bar spacing
+      double spx = xmlreader->readAttributeDouble("spacingx", &ok);
+      if (ok) {
+        double spy = xmlreader->readAttributeDouble("spacingy", &ok);
+        if (ok) {
+          graph_->setBarSpacing(QSizeF(spx, spy));
+        } else
+          xmlreader->raiseWarning("Bar3D bar spacing Y property setting error");
+      } else
+        xmlreader->raiseWarning("Bar3D bar spacing X property setting error");
+
+      // bar thickness
+      double barthickness = xmlreader->readAttributeDouble("thickness", &ok);
+      if (ok)
+        graph_->setBarThickness(barthickness);
+      else
+        xmlreader->raiseWarning("Bar3D bar thickness property setting error");
+
+      // ortho projection
+      bool orthoproj = xmlreader->readAttributeBool("orthoprojection", &ok);
+      if (ok)
+        graph_->setOrthoProjection(orthoproj);
+      else
+        xmlreader->raiseWarning(
+            "Bar3D ortho projection property setting error");
+
+      // flip horizontal grid
+      bool polar = xmlreader->readAttributeBool("polar", &ok);
+      if (ok)
+        graph_->setPolar(polar);
+      else
+        xmlreader->raiseWarning("Bar3D polar property setting error");
+    }
+  }
+}

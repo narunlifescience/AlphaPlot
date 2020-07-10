@@ -36,6 +36,7 @@ class Curve2D : public QCPCurve {
   double getlinestrokethickness_cplot() const;
   QPen getlinepen_cplot() const;
   QColor getlinefillcolor_cplot() const;
+  Qt::BrushStyle getlinefillstyle_cplot() const;
   QBrush getlinebrush_cplot() const;
   bool getlineantialiased_cplot() const;
   bool getlinefillstatus_cplot() const;
@@ -66,6 +67,7 @@ class Curve2D : public QCPCurve {
   void setlinestrokecolor_cplot(const QColor &color);
   void setlinestrokethickness_cplot(const double value);
   void setlinefillcolor_cplot(const QColor &color);
+  void setlinefillstyle_cplot(const Qt::BrushStyle &style);
   void setlineantialiased_cplot(const bool value);
   void setscattershape_cplot(const Graph2DCommon::ScatterStyle &shape);
   void setscatterfillcolor_cplot(const QColor &color);

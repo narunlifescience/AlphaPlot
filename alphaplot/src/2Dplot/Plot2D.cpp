@@ -26,7 +26,7 @@ Plot2D::Plot2D(QWidget *parent)
       layernameaxis2d_("axes"),
       layernamelegend2d_("legend") {
   setOpenGl(false);
-  setBackgroundColor(canvasBackground_);
+  setBackgroundColor(canvasBackground_, Qt::SolidPattern);
   setAutoAddPlottableToLegend(false);
   plotLayout()->clear();
   setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);

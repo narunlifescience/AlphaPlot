@@ -27,20 +27,20 @@
 #include "../3rdparty/propertybrowser/qteditorfactory.h"
 #include "../3rdparty/propertybrowser/qtpropertymanager.h"
 #include "../3rdparty/propertybrowser/qttreepropertybrowser.h"
-#include "2Dplot/Curve2D.h"
 #include "2Dplot/Bar2D.h"
-#include "2Dplot/Grid2D.h"
-#include "2Dplot/Pie2D.h"
-#include "2Dplot/Plot2D.h"
 #include "2Dplot/ColorMap2D.h"
+#include "2Dplot/Curve2D.h"
 #include "2Dplot/DataManager2D.h"
 #include "2Dplot/ErrorBar2D.h"
+#include "2Dplot/Grid2D.h"
 #include "2Dplot/ImageItem2D.h"
 #include "2Dplot/Layout2D.h"
 #include "2Dplot/LayoutGrid2D.h"
 #include "2Dplot/Legend2D.h"
 #include "2Dplot/LineItem2D.h"
 #include "2Dplot/LineSpecial2D.h"
+#include "2Dplot/Pie2D.h"
+#include "2Dplot/Plot2D.h"
 #include "3Dplot/Bar3D.h"
 #include "3Dplot/DataManager3D.h"
 #include "3Dplot/Graph3DCommon.h"
@@ -53,8 +53,8 @@
 #include "Table.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
-#include "ui_propertyeditor.h"
 #include "future/core/column/Column.h"
+#include "ui_propertyeditor.h"
 
 using namespace QtDataVisualization;
 
@@ -106,6 +106,29 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   QStringList stroketypelist;
   stroketypelist << tr("Solid Line") << tr("Dash Line") << tr("Dot Line")
                  << tr("Dash Dot Line") << tr("Dash Dot Dot Line");
+  QStringList fillstylelist;
+  fillstylelist << tr("Solid Color") << tr("Dense Point 1")
+                << tr("Dense Point 2") << tr("Dense Point 3")
+                << tr("Dense Point 4") << tr("Dense Point 5")
+                << tr("Dense Point 6") << tr("Dense Point 7") << tr("Hor Line")
+                << tr("Ver Line") << tr("Cross Line") << tr("B Diag Line")
+                << tr("F Diag Line") << tr("Diag Cross Line");
+  QMap<int, QIcon> fillstyleiconslist;
+  fillstyleiconslist[0] = QIcon(":/icons/common/16/edit-solid-pattern.png");
+  fillstyleiconslist[1] = QIcon(":/icons/common/16/edit-dense1-pattern.png");
+  fillstyleiconslist[2] = QIcon(":/icons/common/16/edit-dense2-pattern.png");
+  fillstyleiconslist[3] = QIcon(":/icons/common/16/edit-dense3-pattern.png");
+  fillstyleiconslist[4] = QIcon(":/icons/common/16/edit-dense4-pattern.png");
+  fillstyleiconslist[5] = QIcon(":/icons/common/16/edit-dense5-pattern.png");
+  fillstyleiconslist[6] = QIcon(":/icons/common/16/edit-dense6-pattern.png");
+  fillstyleiconslist[7] = QIcon(":/icons/common/16/edit-dense7-pattern.png");
+  fillstyleiconslist[8] = QIcon(":/icons/common/16/edit-hor-pattern.png");
+  fillstyleiconslist[9] = QIcon(":/icons/common/16/edit-ver-pattern.png");
+  fillstyleiconslist[10] = QIcon(":/icons/common/16/edit-cross-pattern.png");
+  fillstyleiconslist[11] = QIcon(":/icons/common/16/edit-bdiag-pattern.png");
+  fillstyleiconslist[12] = QIcon(":/icons/common/16/edit-fdiag-pattern.png");
+  fillstyleiconslist[13] =
+      QIcon(":/icons/common/16/edit-diagcross-pattern.png");
   QStringList axislabelsidelist;
   axislabelsidelist << tr("Down") << tr("Up");
   QMap<int, QIcon> stroketypeiconslist;
@@ -168,6 +191,9 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   layoutpropertymargingroupitem_ = groupManager_->addProperty(tr("Margin"));
   layoutpropertyrectitem_ = rectManager_->addProperty(tr("Outer Rect"));
   layoutpropertycoloritem_ = colorManager_->addProperty(tr("Background Color"));
+  layoutpropertyfillstyleitem_ = enumManager_->addProperty(tr("Fill Style"));
+  enumManager_->setEnumNames(layoutpropertyfillstyleitem_, fillstylelist);
+  enumManager_->setEnumIcons(layoutpropertyfillstyleitem_, fillstyleiconslist);
   layoutpropertyrectitem_->setEnabled(false);
   layoutpropertyautomarginstatusitem_ = boolManager_->addProperty(tr("Auto"));
   layoutpropertyleftmarginitem_ = intManager_->addProperty(tr("Left"));
@@ -312,7 +338,13 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   enumManager_->setEnumIcons(itempropertylegendborderstroketypeitem_,
                              stroketypeiconslist);
   itempropertylegendbackgroundcoloritem_ =
-      colorManager_->addProperty("Background color");
+      colorManager_->addProperty(tr("Background color"));
+  itempropertylegendbackgroundfillstyleitem_ =
+      enumManager_->addProperty(tr("Fill Style"));
+  enumManager_->setEnumNames(itempropertylegendbackgroundfillstyleitem_,
+                             fillstylelist);
+  enumManager_->setEnumIcons(itempropertylegendbackgroundfillstyleitem_,
+                             fillstyleiconslist);
   itempropertylegendtitlevisibleitem_ = boolManager_->addProperty(tr("Title"));
   itempropertylegendtitletextitem_ = stringManager_->addProperty(tr("Text"));
   itempropertylegendtitlevisibleitem_->addSubProperty(
@@ -350,13 +382,20 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   enumManager_->setEnumIcons(itempropertytextstroketypeitem_,
                              stroketypeiconslist);
   itempropertytextbackgroundcoloritem_ =
-      colorManager_->addProperty("Background color");
-  itempropertytextrotationitem_ = doubleManager_->addProperty("Text Rotation");
+      colorManager_->addProperty(tr("Background color"));
+  itempropertytextbackgroundfillstyleitem_ =
+      enumManager_->addProperty(tr("Fill Style"));
+  enumManager_->setEnumNames(itempropertytextbackgroundfillstyleitem_,
+                             fillstylelist);
+  enumManager_->setEnumIcons(itempropertytextbackgroundfillstyleitem_,
+                             fillstyleiconslist);
+  itempropertytextrotationitem_ =
+      doubleManager_->addProperty(tr("Text Rotation"));
   itempropertytextpositionalignmentitem_ =
-      enumManager_->addProperty("Positional alignment");
+      enumManager_->addProperty(tr("Positional alignment"));
   enumManager_->setEnumNames(itempropertytextpositionalignmentitem_, alignlist);
   itempropertytexttextalignmentitem_ =
-      enumManager_->addProperty("Text alignment");
+      enumManager_->addProperty(tr("Text alignment"));
   enumManager_->setEnumNames(itempropertytexttextalignmentitem_, alignlist);
 
   // Line Item Properties
@@ -434,6 +473,11 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
       boolManager_->addProperty("Fill Under Area");
   lsplotpropertylinefillcoloritem_ =
       colorManager_->addProperty("Area Fill Color");
+  lsplotpropertylinefillstyleitem_ =
+      enumManager_->addProperty(tr("Area Fill Style"));
+  enumManager_->setEnumNames(lsplotpropertylinefillstyleitem_, fillstylelist);
+  enumManager_->setEnumIcons(lsplotpropertylinefillstyleitem_,
+                             fillstyleiconslist);
   lsplotpropertylineantialiaseditem_ =
       boolManager_->addProperty("Line Antialiased");
   lsplotpropertyscatterstyleitem_ = enumManager_->addProperty("Scatter Style");
@@ -487,6 +531,14 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
       colorManager_->addProperty("Area Fill Color");
   channel1plotpropertygroupitem_->addSubProperty(
       channel1plotpropertylinefillcoloritem_);
+  channel1plotpropertylinefillstylritem_ =
+      enumManager_->addProperty(tr("Area Fill Style"));
+  enumManager_->setEnumNames(channel1plotpropertylinefillstylritem_,
+                             fillstylelist);
+  enumManager_->setEnumIcons(channel1plotpropertylinefillstylritem_,
+                             fillstyleiconslist);
+  channel1plotpropertygroupitem_->addSubProperty(
+      channel1plotpropertylinefillstylritem_);
   channel1plotpropertylineantialiaseditem_ =
       boolManager_->addProperty("Line Antialiased");
   channel1plotpropertygroupitem_->addSubProperty(
@@ -604,7 +656,12 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   cplotpropertylinefillstatusitem_ =
       boolManager_->addProperty("Fill Under Area");
   cplotpropertylinefillcoloritem_ =
-      colorManager_->addProperty("Area Fill Color");
+      colorManager_->addProperty(tr("Area Fill Color"));
+  cplotpropertylinefillstyleitem_ =
+      enumManager_->addProperty(tr("Area Fill Style"));
+  enumManager_->setEnumNames(cplotpropertylinefillstyleitem_, fillstylelist);
+  enumManager_->setEnumIcons(cplotpropertylinefillstyleitem_,
+                             fillstyleiconslist);
   cplotpropertylineantialiaseditem_ =
       boolManager_->addProperty("Line Antialiased");
   cplotpropertyscatterstyleitem_ = enumManager_->addProperty("Scatter Style");
@@ -635,6 +692,9 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   barplotpropertyfillantialiaseditem_ =
       boolManager_->addProperty("Fill Antialiased");
   barplotpropertyfillcoloritem_ = colorManager_->addProperty("Fill Color");
+  barplotpropertyfillstyleitem_ = enumManager_->addProperty(tr("Fill Style"));
+  enumManager_->setEnumNames(barplotpropertyfillstyleitem_, fillstylelist);
+  enumManager_->setEnumIcons(barplotpropertyfillcoloritem_, fillstyleiconslist);
   barplotpropertyantialiaseditem_ =
       boolManager_->addProperty("Stroke Antialiased");
   barplotpropertystrokecoloritem_ = colorManager_->addProperty("Stroke Color");
@@ -700,6 +760,10 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
                              stroketypeiconslist);
   statboxplotpropertyfillstatusitem_ = boolManager_->addProperty("Fill Status");
   statboxplotpropertyfillcoloritem_ = colorManager_->addProperty("Fill Color");
+  statboxplotpropertyfillstyleitem_ = enumManager_->addProperty("Fill Style");
+  enumManager_->setEnumNames(statboxplotpropertyfillstyleitem_, fillstylelist);
+  enumManager_->setEnumIcons(statboxplotpropertyfillstyleitem_,
+                             fillstyleiconslist);
   statboxplotpropertywhiskerantialiaseditem_ =
       boolManager_->addProperty("Whisker Antialiased");
   statboxplotpropertywhiskerstrokecoloritem_ =
@@ -1541,6 +1605,8 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setlinefillstatus_lsplot(value);
+    lsgraph->setlinefillstyle_lsplot(static_cast<Qt::BrushStyle>(
+        enumManager_->value(lsplotpropertylinefillstyleitem_) + 1));
     lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertylineantialiaseditem_)) {
     LineSpecial2D *lsgraph =
@@ -1583,6 +1649,8 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
   } else if (prop->compare(cplotpropertylinefillstatusitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlinefillstatus_cplot(value);
+    curve->setlinefillstyle_cplot(static_cast<Qt::BrushStyle>(
+        enumManager_->value(cplotpropertylinefillstyleitem_) + 1));
     curve->layer()->replot();
     curve->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(cplotpropertylineantialiaseditem_)) {
@@ -1628,6 +1696,8 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
     statbox->setfillstatus_statbox(value);
+    statbox->setfillstyle_statbox(static_cast<Qt::BrushStyle>(
+        enumManager_->value(statboxplotpropertyfillstyleitem_) + 1));
     statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertywhiskerantialiaseditem_)) {
     StatBox2D *statbox =
@@ -1920,7 +1990,6 @@ void PropertyEditor::valueChange(QtProperty *prop, const QColor &color) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     QBrush b = textitem->brush();
-    b.setStyle(Qt::SolidPattern);
     b.setColor(color);
     textitem->setBrush(b);
     textitem->layer()->replot();
@@ -3020,7 +3089,21 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
 }
 
 void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
-  if (prop->compare(hgridaxispropertycomboitem_)) {
+  if (prop->compare(layoutpropertyfillstyleitem_)) {
+    AxisRect2D *axisrect =
+        getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
+    QBrush b = axisrect->backgroundBrush();
+    b.setStyle(static_cast<Qt::BrushStyle>(value + 1));
+    axisrect->setBackground(b);
+    axisrect->layer()->replot();
+  } else if (prop->compare(itempropertylegendbackgroundfillstyleitem_)) {
+    Legend2D *legend =
+        getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
+    QBrush b = legend->brush();
+    b.setStyle(static_cast<Qt::BrushStyle>(value + 1));
+    legend->setBrush(b);
+    legend->layer()->replot();
+  } else if (prop->compare(hgridaxispropertycomboitem_)) {
     AxisRect2D *axisrect =
         getgraph2dobject<AxisRect2D>(objectbrowser_->currentItem());
     Axis2D *axis = axisrect->getXAxes2D().at(value);
@@ -3116,6 +3199,13 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     textitem->setstrokestyle_textitem(static_cast<Qt::PenStyle>(value + 1));
     textitem->layer()->replot();
+  } else if (prop->compare(itempropertytextbackgroundfillstyleitem_)) {
+    TextItem2D *textitem =
+        getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
+    QBrush b = textitem->brush();
+    b.setStyle(static_cast<Qt::BrushStyle>(value + 1));
+    textitem->setBrush(b);
+    textitem->layer()->replot();
   } else if (prop->compare(itempropertylinestroketypeitem_)) {
     LineItem2D *lineitem =
         getgraph2dobject<LineItem2D>(objectbrowser_->currentItem());
@@ -3174,6 +3264,12 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     LineSpecial2D *lsgraph =
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setlinestrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
+    lsgraph->layer()->replot();
+    lsgraph->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
+  } else if (prop->compare(lsplotpropertylinefillstyleitem_)) {
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
+    lsgraph->setlinefillstyle_lsplot(static_cast<Qt::BrushStyle>(value + 1));
     lsgraph->layer()->replot();
     lsgraph->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(lsplotpropertyscatterstyleitem_)) {
@@ -3240,6 +3336,14 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
                     .value<void *>();
     LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
     lsgraph->setlinestrokestyle_lsplot(static_cast<Qt::PenStyle>(value + 1));
+    lsgraph->layer()->replot();
+    lsgraph->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
+  } else if (prop->compare(channel1plotpropertylinefillstylritem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    lsgraph->setlinefillstyle_lsplot(static_cast<Qt::BrushStyle>(value + 1));
     lsgraph->layer()->replot();
     lsgraph->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(channel1plotpropertyscatterstyleitem_)) {
@@ -3317,6 +3421,10 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlinestrokestyle_cplot(static_cast<Qt::PenStyle>(value + 1));
     curve->layer()->replot();
+  } else if (prop->compare(cplotpropertylinefillstyleitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    curve->setlinefillstyle_cplot(static_cast<Qt::BrushStyle>(value + 1));
+    curve->layer()->replot();
   } else if (prop->compare(cplotpropertyscatterstyleitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscattershape_cplot(
@@ -3353,6 +3461,11 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
   } else if (prop->compare(barplotpropertystrokestyleitem_)) {
     Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
     bar->setstrokestyle_barplot(static_cast<Qt::PenStyle>(value + 1));
+    bar->layer()->replot();
+    bar->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
+  } else if (prop->compare(barplotpropertyfillstyleitem_)) {
+    Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
+    bar->setfillstyle_barplot(static_cast<Qt::BrushStyle>(value + 1));
     bar->layer()->replot();
     bar->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(statboxplotpropertyxaxisitem_)) {
@@ -3393,6 +3506,12 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     QPen p = statbox->pen();
     p.setStyle(static_cast<Qt::PenStyle>(value + 1));
     statbox->setPen(p);
+    statbox->layer()->replot();
+    statbox->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
+  } else if (prop->compare(statboxplotpropertyfillstyleitem_)) {
+    StatBox2D *statbox =
+        getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
+    statbox->setfillstyle_statbox(static_cast<Qt::BrushStyle>(value + 1));
     statbox->layer()->replot();
     statbox->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(statboxplotpropertywhiskerstrokestyleitem_)) {
@@ -3847,10 +3966,13 @@ void PropertyEditor::Layout2DPropertyBlock(Layout2D *layout2d,
   colorManager_->setValue(layoutpropertycoloritem_,
                           axisrect->backgroundBrush().color());
   propertybrowser_->addProperty(layoutpropertycoloritem_);
+  propertybrowser_->addProperty(layoutpropertyfillstyleitem_);
   propertybrowser_->addProperty(layoutpropertyrowstreachfactoritem_);
   propertybrowser_->addProperty(layoutpropertycolumnstreachfactoritem_);
   propertybrowser_->addProperty(layoutpropertyrectitem_);
   propertybrowser_->addProperty(layoutpropertymargingroupitem_);
+  enumManager_->setValue(layoutpropertyfillstyleitem_,
+                         axisrect->backgroundBrush().style() - 1);
   boolManager_->setValue(layoutpropertyautomarginstatusitem_,
                          axisrect->autoMargins());
   intManager_->setValue(layoutpropertyleftmarginitem_,
@@ -4077,6 +4199,7 @@ void PropertyEditor::Legend2DPropertyBlock(Legend2D *legend) {
   propertybrowser_->addProperty(itempropertylegendborderstrokethicknessitem_);
   propertybrowser_->addProperty(itempropertylegendborderstroketypeitem_);
   propertybrowser_->addProperty(itempropertylegendbackgroundcoloritem_);
+  propertybrowser_->addProperty(itempropertylegendbackgroundfillstyleitem_);
   propertybrowser_->addProperty(itempropertylegendtitlevisibleitem_);
 
   doubleManager_->setValue(itempropertylegendoriginxitem_,
@@ -4102,6 +4225,8 @@ void PropertyEditor::Legend2DPropertyBlock(Legend2D *legend) {
                          legend->getborderstrokestyle_legend() - 1);
   colorManager_->setValue(itempropertylegendbackgroundcoloritem_,
                           legend->brush().color());
+  enumManager_->setValue(itempropertylegendbackgroundfillstyleitem_,
+                         legend->brush().style() - 1);
   boolManager_->setValue(itempropertylegendtitlevisibleitem_,
                          legend->istitle_legend());
   stringManager_->setValue(itempropertylegendtitletextitem_,
@@ -4127,6 +4252,7 @@ void PropertyEditor::TextItem2DPropertyBlock(TextItem2D *textitem) {
   propertybrowser_->addProperty(itempropertytextstrokethicknessitem_);
   propertybrowser_->addProperty(itempropertytextstroketypeitem_);
   propertybrowser_->addProperty(itempropertytextbackgroundcoloritem_);
+  propertybrowser_->addProperty(itempropertytextbackgroundfillstyleitem_);
   propertybrowser_->addProperty(itempropertytextrotationitem_);
 
   doubleManager_->setValue(itempropertytextpixelpositionxitem_,
@@ -4153,6 +4279,8 @@ void PropertyEditor::TextItem2DPropertyBlock(TextItem2D *textitem) {
                          textitem->getstrokestyle_textitem() - 1);
   colorManager_->setValue(itempropertytextbackgroundcoloritem_,
                           textitem->brush().color());
+  enumManager_->setValue(itempropertytextbackgroundfillstyleitem_,
+                         textitem->brush().style() - 1);
   doubleManager_->setValue(itempropertytextrotationitem_, textitem->rotation());
   enumManager_->setValue(
       itempropertytexttextalignmentitem_,
@@ -4249,6 +4377,7 @@ void PropertyEditor::LineSpecial2DPropertyBlock(LineSpecial2D *lsgraph,
   propertybrowser_->addProperty(lsplotpropertylinestroketypeitem_);
   propertybrowser_->addProperty(lsplotpropertylinefillstatusitem_);
   propertybrowser_->addProperty(lsplotpropertylinefillcoloritem_);
+  propertybrowser_->addProperty(lsplotpropertylinefillstyleitem_);
   propertybrowser_->addProperty(lsplotpropertylineantialiaseditem_);
   propertybrowser_->addProperty(lsplotpropertyscatterstyleitem_);
   propertybrowser_->addProperty(lsplotpropertyscatterthicknessitem_);
@@ -4305,6 +4434,8 @@ void PropertyEditor::LineSpecial2DPropertyBlock(LineSpecial2D *lsgraph,
                          lsgraph->getlinefillstatus_lsplot());
   colorManager_->setValue(lsplotpropertylinefillcoloritem_,
                           lsgraph->getlinefillcolor_lsplot());
+  enumManager_->setValue(lsplotpropertylinefillstyleitem_,
+                         lsgraph->getlinefillstyle_lsplot() - 1);
   boolManager_->setValue(lsplotpropertylineantialiaseditem_,
                          lsgraph->getlineantialiased_lsplot());
   enumManager_->setValue(lsplotpropertyscatterstyleitem_,
@@ -4385,6 +4516,8 @@ void PropertyEditor::LineSpecialChannel2DPropertyBlock(LineSpecial2D *lsgraph1,
       static_cast<int>(lsgraph1->getlinestrokestyle_lsplot() - 1));
   colorManager_->setValue(channel1plotpropertylinefillcoloritem_,
                           lsgraph1->getlinefillcolor_lsplot());
+  enumManager_->setValue(channel1plotpropertylinefillstylritem_,
+                         lsgraph1->getlinefillstyle_lsplot() - 1);
   boolManager_->setValue(channel1plotpropertylineantialiaseditem_,
                          lsgraph1->getlineantialiased_lsplot());
   enumManager_->setValue(channel1plotpropertyscatterstyleitem_,
@@ -4442,6 +4575,7 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
   propertybrowser_->addProperty(cplotpropertylinestroketypeitem_);
   propertybrowser_->addProperty(cplotpropertylinefillstatusitem_);
   propertybrowser_->addProperty(cplotpropertylinefillcoloritem_);
+  propertybrowser_->addProperty(cplotpropertylinefillstyleitem_);
   propertybrowser_->addProperty(cplotpropertylineantialiaseditem_);
   propertybrowser_->addProperty(cplotpropertyscatterstyleitem_);
   propertybrowser_->addProperty(cplotpropertyscatterthicknessitem_);
@@ -4498,7 +4632,8 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
                          curve->getlinefillstatus_cplot());
   colorManager_->setValue(cplotpropertylinefillcoloritem_,
                           curve->getlinefillcolor_cplot());
-
+  enumManager_->setValue(cplotpropertylinefillstyleitem_,
+                         curve->getlinefillstyle_cplot() - 1);
   boolManager_->setValue(cplotpropertylineantialiaseditem_,
                          curve->getlineantialiased_cplot());
   enumManager_->setValue(cplotpropertyscatterstyleitem_,
@@ -4529,6 +4664,7 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
   propertybrowser_->addProperty(barplotpropertystackgapitem_);
   propertybrowser_->addProperty(barplotpropertyfillantialiaseditem_);
   propertybrowser_->addProperty(barplotpropertyfillcoloritem_);
+  propertybrowser_->addProperty(barplotpropertyfillstyleitem_);
   propertybrowser_->addProperty(barplotpropertyantialiaseditem_);
   propertybrowser_->addProperty(barplotpropertystrokecoloritem_);
   propertybrowser_->addProperty(barplotpropertystrokethicknessitem_);
@@ -4599,6 +4735,8 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
                          bargraph->antialiasedFill());
   colorManager_->setValue(barplotpropertyfillcoloritem_,
                           bargraph->getfillcolor_barplot());
+  enumManager_->setValue(barplotpropertyfillstyleitem_,
+                         bargraph->getfillstyle_barplot() - 1);
   boolManager_->setValue(barplotpropertyantialiaseditem_,
                          bargraph->antialiased());
   colorManager_->setValue(barplotpropertystrokecoloritem_,
@@ -4636,6 +4774,7 @@ void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
   propertybrowser_->addProperty(statboxplotpropertyfillantialiaseditem_);
   propertybrowser_->addProperty(statboxplotpropertyfillstatusitem_);
   propertybrowser_->addProperty(statboxplotpropertyfillcoloritem_);
+  propertybrowser_->addProperty(statboxplotpropertyfillstyleitem_);
   propertybrowser_->addProperty(statboxplotpropertywhiskerwidthitem_);
   propertybrowser_->addProperty(statboxplotpropertywhiskerstyleitem_);
   propertybrowser_->addProperty(statboxplotpropertywhiskerantialiaseditem_);
@@ -4715,6 +4854,10 @@ void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
                          statbox->getfillstatus_statbox());
   colorManager_->setValue(statboxplotpropertyfillcoloritem_,
                           statbox->getfillcolor_statbox());
+  enumManager_->setValue(statboxplotpropertyfillstyleitem_,
+                         statbox->getfillstyle_statbox() - 1);
+  enumManager_->setValue(statboxplotpropertyfillstyleitem_,
+                         statbox->getfillstatus_statbox() - 1);
   boolManager_->setValue(statboxplotpropertywhiskerantialiaseditem_,
                          statbox->whiskerAntialiased());
   colorManager_->setValue(statboxplotpropertywhiskerstrokecoloritem_,
@@ -6753,6 +6896,7 @@ void PropertyEditor::setObjectPropertyId() {
       "layoutpropertymargingroupitem_");
   layoutpropertyrectitem_->setPropertyId("layoutpropertyrectitem_");
   layoutpropertycoloritem_->setPropertyId("layoutpropertycoloritem_");
+  layoutpropertyfillstyleitem_->setPropertyId("layoutpropertyfillstyleitem_");
   layoutpropertyautomarginstatusitem_->setPropertyId(
       "layoutpropertyautomarginstatusitem_");
   layoutpropertyleftmarginitem_->setPropertyId("layoutpropertyleftmarginitem_");
@@ -6854,6 +6998,8 @@ void PropertyEditor::setObjectPropertyId() {
       "itempropertylegendborderstroketypeitem_");
   itempropertylegendbackgroundcoloritem_->setPropertyId(
       "itempropertylegendbackgroundcoloritem_");
+  itempropertylegendbackgroundfillstyleitem_->setPropertyId(
+      "itempropertylegendbackgroundfillstyleitem_");
   itempropertylegendtitlevisibleitem_->setPropertyId(
       "itempropertylegendtitlevisibleitem_");
   itempropertylegendtitletextitem_->setPropertyId(
@@ -6881,6 +7027,8 @@ void PropertyEditor::setObjectPropertyId() {
       "itempropertytextstroketypeitem_");
   itempropertytextbackgroundcoloritem_->setPropertyId(
       "itempropertytextbackgroundcoloritem_");
+  itempropertytextbackgroundfillstyleitem_->setPropertyId(
+      "itempropertytextbackgroundfillstyleitem_");
   itempropertytextrotationitem_->setPropertyId("itempropertytextrotationitem_");
   itempropertytextpositionalignmentitem_->setPropertyId(
       "itempropertytextpositionalignmentitem_");
@@ -6941,6 +7089,8 @@ void PropertyEditor::setObjectPropertyId() {
       "lsplotpropertylinefillstatusitem_");
   lsplotpropertylinefillcoloritem_->setPropertyId(
       "lsplotpropertylinefillcoloritem_");
+  lsplotpropertylinefillstyleitem_->setPropertyId(
+      "lsplotpropertylinefillstyleitem_");
   lsplotpropertylineantialiaseditem_->setPropertyId(
       "lsplotpropertylineantialiaseditem_");
   lsplotpropertyscatterstyleitem_->setPropertyId(
@@ -6976,6 +7126,8 @@ void PropertyEditor::setObjectPropertyId() {
       "channel1plotpropertylinestroketypeitem_");
   channel1plotpropertylinefillcoloritem_->setPropertyId(
       "channel1plotpropertylinefillcoloritem_");
+  channel1plotpropertylinefillstylritem_->setPropertyId(
+      "channel1plotpropertylinefillstylritem_");
   channel1plotpropertylineantialiaseditem_->setPropertyId(
       "channel1plotpropertylineantialiaseditem_");
   channel1plotpropertyscatterstyleitem_->setPropertyId(
@@ -7032,6 +7184,8 @@ void PropertyEditor::setObjectPropertyId() {
       "cplotpropertylinefillstatusitem_");
   cplotpropertylinefillcoloritem_->setPropertyId(
       "cplotpropertylinefillcoloritem_");
+  cplotpropertylinefillstyleitem_->setPropertyId(
+      "cplotpropertylinefillstyleitem_");
   cplotpropertylineantialiaseditem_->setPropertyId(
       "cplotpropertylineantialiaseditem_");
   cplotpropertyscatterstyleitem_->setPropertyId(
@@ -7058,6 +7212,7 @@ void PropertyEditor::setObjectPropertyId() {
   barplotpropertyfillantialiaseditem_->setPropertyId(
       "barplotpropertyfillantialiaseditem_");
   barplotpropertyfillcoloritem_->setPropertyId("barplotpropertyfillcoloritem_");
+  barplotpropertyfillstyleitem_->setPropertyId("barplotpropertyfillstyleitem_");
   barplotpropertyantialiaseditem_->setPropertyId(
       "barplotpropertyantialiaseditem_");
   barplotpropertystrokecoloritem_->setPropertyId(
@@ -7098,6 +7253,8 @@ void PropertyEditor::setObjectPropertyId() {
       "statboxplotpropertyfillstatusitem_");
   statboxplotpropertyfillcoloritem_->setPropertyId(
       "statboxplotpropertyfillcoloritem_");
+  statboxplotpropertyfillstyleitem_->setPropertyId(
+      "statboxplotpropertyfillstyleitem_");
   statboxplotpropertywhiskerantialiaseditem_->setPropertyId(
       "statboxplotpropertywhiskerantialiaseditem_");
   statboxplotpropertywhiskerstrokecoloritem_->setPropertyId(

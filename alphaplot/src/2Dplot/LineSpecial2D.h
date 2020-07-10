@@ -31,6 +31,7 @@ class LineSpecial2D : public QCPGraph {
   double getlinestrokethickness_lsplot() const;
   bool getlinefillstatus_lsplot() const;
   QColor getlinefillcolor_lsplot() const;
+  Qt::BrushStyle getlinefillstyle_lsplot() const;
   bool getlineantialiased_lsplot() const;
   Graph2DCommon::ScatterStyle getscattershape_lsplot() const;
   QColor getscatterfillcolor_lsplot() const;
@@ -52,6 +53,7 @@ class LineSpecial2D : public QCPGraph {
   void setlinestrokethickness_lsplot(const double value);
   void setlinefillstatus_lsplot(bool status);
   void setlinefillcolor_lsplot(const QColor &color);
+  void  setlinefillstyle_lsplot(const Qt::BrushStyle &style);
   void setlineantialiased_lsplot(const bool value);
   void setscattershape_lsplot(const Graph2DCommon::ScatterStyle &shape);
   void setscatterfillcolor_lsplot(const QColor &color);

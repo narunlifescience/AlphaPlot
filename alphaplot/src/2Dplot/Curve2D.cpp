@@ -242,6 +242,16 @@ QColor Curve2D::getlinefillcolor_cplot() const {
   return QBrush().color();
 }
 
+Qt::BrushStyle Curve2D::getlinefillstyle_cplot() const {
+  switch (curve2dtype_) {
+    case Curve2D::Curve2DType::Curve:
+      return brush().style();
+    case Curve2D::Curve2DType::Spline:
+      return splineBrush_.style();
+  }
+  return QBrush().style();
+}
+
 QBrush Curve2D::getlinebrush_cplot() const {
   switch (curve2dtype_) {
     case Curve2D::Curve2DType::Curve:
@@ -437,6 +447,19 @@ void Curve2D::setlinefillcolor_cplot(const QColor &color) {
     setBrush(b);
   } else {
     splineBrush_.setColor(color);
+  }
+}
+
+void Curve2D::setlinefillstyle_cplot(const Qt::BrushStyle &style) {
+  if (curve2dtype_ == Curve2D::Curve2DType::Curve) {
+    QBrush b = brush();
+    if (b.style() != Qt::BrushStyle::NoBrush) {
+      b.setStyle(style);
+      setBrush(b);
+    }
+  } else {
+    if (splineBrush_.style() != Qt::BrushStyle::NoBrush)
+      splineBrush_.setStyle(style);
   }
 }
 
@@ -740,6 +763,7 @@ bool Curve2D::load(XmlStreamReader *xmlreader) {
           QBrush b = xmlreader->readBrush(&ok);
           if (ok) {
             setlinefillcolor_cplot(b.color());
+            setlinefillstyle_cplot(b.style());
           } else
             xmlreader->raiseWarning(
                 tr("Curve2D linebrush property setting error"));

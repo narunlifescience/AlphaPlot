@@ -38,6 +38,7 @@ class Bar2D : public QCPBars {
   QColor getstrokecolor_barplot() const;
   double getstrokethickness_barplot() const;
   QColor getfillcolor_barplot() const;
+  Qt::BrushStyle getfillstyle_barplot() const;
   DataBlockBar *getdatablock_barplot() const;
   bool ishistogram_barplot() const;
   ErrorBar2D *getxerrorbar_barplot() { return xerrorbar_; }
@@ -51,6 +52,7 @@ class Bar2D : public QCPBars {
   void setstrokecolor_barplot(const QColor &color);
   void setstrokethickness_barplot(const double value);
   void setfillcolor_barplot(const QColor &color);
+  void setfillstyle_barplot(const Qt::BrushStyle &style);
 
   void setHistAutoBin(const bool status);
   void setHistBinSize(const double binsize);

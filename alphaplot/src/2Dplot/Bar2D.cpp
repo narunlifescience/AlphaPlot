@@ -130,6 +130,8 @@ double Bar2D::getstrokethickness_barplot() const { return pen().widthF(); }
 
 QColor Bar2D::getfillcolor_barplot() const { return brush().color(); }
 
+Qt::BrushStyle Bar2D::getfillstyle_barplot() const { return brush().style(); }
+
 DataBlockBar *Bar2D::getdatablock_barplot() const { return bardata_; }
 
 bool Bar2D::ishistogram_barplot() const { return ishistogram_; }
@@ -177,6 +179,12 @@ void Bar2D::setstrokethickness_barplot(const double value) {
 void Bar2D::setfillcolor_barplot(const QColor &color) {
   QBrush b = brush();
   b.setColor(color);
+  setBrush(b);
+}
+
+void Bar2D::setfillstyle_barplot(const Qt::BrushStyle &style) {
+  QBrush b = brush();
+  b.setStyle(style);
   setBrush(b);
 }
 

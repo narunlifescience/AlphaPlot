@@ -95,6 +95,7 @@ class StatBox2D : public QCPStatisticalBox {
   BoxWhiskerStyle getboxstyle_statbox() const;
   BoxWhiskerStyle getwhiskerstyle_statbox() const;
   QColor getfillcolor_statbox() const;
+  Qt::BrushStyle getfillstyle_statbox() const;
   bool getfillstatus_statbox() const;
   Qt::PenStyle getwhiskerstrokestyle_statbox() const;
   QColor getwhiskerstrokecolor_statbox() const;
@@ -123,6 +124,7 @@ class StatBox2D : public QCPStatisticalBox {
   void setboxstyle_statbox(const BoxWhiskerStyle &boxStyle);
   void setwhiskerstyle_statbox(const BoxWhiskerStyle &whiskerStyle);
   void setfillcolor_statbox(const QColor &color);
+  void setfillstyle_statbox(const Qt::BrushStyle &style);
   void setfillstatus_statbox(const bool status);
   void setwhiskerstrokestyle_statbox(const Qt::PenStyle &style);
   void setwhiskerstrokecolor_statbox(const QColor &color);

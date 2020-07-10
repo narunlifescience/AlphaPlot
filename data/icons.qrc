@@ -31,6 +31,20 @@
     <file>icons/common/16/edit-hide.png</file>
     <file>icons/common/16/edit-unhide.png</file>
     <file>icons/common/16/alpha-logo.png</file>
+    <file>icons/common/16/edit-solid-pattern.png</file>
+    <file>icons/common/16/edit-dense1-pattern.png</file>
+    <file>icons/common/16/edit-dense2-pattern.png</file>
+    <file>icons/common/16/edit-dense3-pattern.png</file>
+    <file>icons/common/16/edit-dense4-pattern.png</file>
+    <file>icons/common/16/edit-dense5-pattern.png</file>
+    <file>icons/common/16/edit-dense6-pattern.png</file>
+    <file>icons/common/16/edit-dense7-pattern.png</file>
+    <file>icons/common/16/edit-hor-pattern.png</file>
+    <file>icons/common/16/edit-ver-pattern.png</file>
+    <file>icons/common/16/edit-cross-pattern.png</file>
+    <file>icons/common/16/edit-bdiag-pattern.png</file>
+    <file>icons/common/16/edit-fdiag-pattern.png</file>
+    <file>icons/common/16/edit-diagcross-pattern.png</file>
     <file>icons/common/16/edit-style-dashdotdotline.png</file>
     <file>icons/common/16/edit-style-dashdotline.png</file>
     <file>icons/common/16/edit-style-dashline.png</file>
