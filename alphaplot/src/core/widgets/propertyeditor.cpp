@@ -4430,12 +4430,12 @@ void PropertyEditor::LineSpecial2DPropertyBlock(LineSpecial2D *lsgraph,
   enumManager_->setValue(
       lsplotpropertylinestroketypeitem_,
       static_cast<int>(lsgraph->getlinestrokestyle_lsplot() - 1));
+  enumManager_->setValue(lsplotpropertylinefillstyleitem_,
+                         lsgraph->getlinefillstyle_lsplot() - 1);
   boolManager_->setValue(lsplotpropertylinefillstatusitem_,
                          lsgraph->getlinefillstatus_lsplot());
   colorManager_->setValue(lsplotpropertylinefillcoloritem_,
                           lsgraph->getlinefillcolor_lsplot());
-  enumManager_->setValue(lsplotpropertylinefillstyleitem_,
-                         lsgraph->getlinefillstyle_lsplot() - 1);
   boolManager_->setValue(lsplotpropertylineantialiaseditem_,
                          lsgraph->getlineantialiased_lsplot());
   enumManager_->setValue(lsplotpropertyscatterstyleitem_,
@@ -4628,12 +4628,12 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
   enumManager_->setValue(
       cplotpropertylinestroketypeitem_,
       static_cast<int>(curve->getlinestrokestyle_cplot() - 1));
+  enumManager_->setValue(cplotpropertylinefillstyleitem_,
+                         curve->getlinefillstyle_cplot() - 1);
   boolManager_->setValue(cplotpropertylinefillstatusitem_,
                          curve->getlinefillstatus_cplot());
   colorManager_->setValue(cplotpropertylinefillcoloritem_,
                           curve->getlinefillcolor_cplot());
-  enumManager_->setValue(cplotpropertylinefillstyleitem_,
-                         curve->getlinefillstyle_cplot() - 1);
   boolManager_->setValue(cplotpropertylineantialiaseditem_,
                          curve->getlineantialiased_cplot());
   enumManager_->setValue(cplotpropertyscatterstyleitem_,
@@ -4850,14 +4850,12 @@ void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
                            statbox->pen().widthF());
   enumManager_->setValue(statboxplotpropertyboxoutlinestyleitem_,
                          statbox->pen().style() - 1);
+  enumManager_->setValue(statboxplotpropertyfillstyleitem_,
+                         statbox->getfillstyle_statbox() - 1);
   boolManager_->setValue(statboxplotpropertyfillstatusitem_,
                          statbox->getfillstatus_statbox());
   colorManager_->setValue(statboxplotpropertyfillcoloritem_,
                           statbox->getfillcolor_statbox());
-  enumManager_->setValue(statboxplotpropertyfillstyleitem_,
-                         statbox->getfillstyle_statbox() - 1);
-  enumManager_->setValue(statboxplotpropertyfillstyleitem_,
-                         statbox->getfillstatus_statbox() - 1);
   boolManager_->setValue(statboxplotpropertywhiskerantialiaseditem_,
                          statbox->whiskerAntialiased());
   colorManager_->setValue(statboxplotpropertywhiskerstrokecoloritem_,
