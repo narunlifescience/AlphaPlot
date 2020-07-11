@@ -48,7 +48,8 @@ Bar2D::Bar2D(Table *table, Column *col, int from, int to, Axis2D *xAxis,
       yerrorbar_(nullptr),
       xerroravailable_(false),
       yerroravailable_(false),
-      picker_(Graph2DCommon::Picker::None) {
+      picker_(Graph2DCommon::Picker::None),
+      stackposition_(-1) {
   init();
   setSelectable(QCP::SelectionType::stSingleData);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);

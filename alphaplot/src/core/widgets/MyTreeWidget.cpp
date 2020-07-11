@@ -449,7 +449,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       removeaxis_->setData(item->data(0, Qt::UserRole + 1));
     } break;
     case PropertyItemType::Plot2DLSGraph:
-      menu.addAction("Edit Data");
+      menu.addAction("Go To Data Columns...");
       menu.addAction(moveupls_);
       menu.addAction(movedownls_);
       menu.addAction(removels_);
@@ -458,7 +458,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       movedownls_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DChannelGraph:
-      menu.addAction("Edit Data");
+      menu.addAction("Go To Data Columns...");
       menu.addAction(moveupchannel_);
       menu.addAction(movedownchannel_);
       menu.addAction(removechannel_);
@@ -467,7 +467,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       movedownchannel_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DCurve:
-      menu.addAction("Edit Data");
+      menu.addAction("Go To Data Columns...");
       menu.addAction(moveupcurve_);
       menu.addAction(movedowncurve_);
       menu.addAction(removecurve_);
@@ -476,7 +476,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       movedowncurve_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DBarGraph:
-      menu.addAction("Edit Data");
+      menu.addAction("Go To Data Columns...");
       menu.addAction(moveupbar_);
       menu.addAction(movedownbar_);
       menu.addAction(removebar_);
@@ -485,7 +485,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       movedownbar_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DVector:
-      menu.addAction("Edit Data");
+      menu.addAction("Go To Data Columns...");
       menu.addAction(moveupvector_);
       menu.addAction(movedownvector_);
       menu.addAction(removevector_);

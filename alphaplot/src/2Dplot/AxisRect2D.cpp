@@ -269,6 +269,8 @@ void AxisRect2D::setstackbar() {
           bvec.removeOne(bvec.at(i));
           j++;
           break;
+        } else {
+            qDebug() << bvec.at(i)->getstackposition_barplot();
         }
       }
     }
@@ -2162,24 +2164,55 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             (table) ? column = table->column(colname) : column = nullptr;
           } else
             xmlreader->raiseError(tr("Bar2D Table column not found error"));
+          // from
           int from = xmlreader->readAttributeInt("from", &ok);
           if (!ok) xmlreader->raiseError(tr("Bar2D from not found error"));
+          // to
           int to = xmlreader->readAttributeInt("to", &ok);
           if (!ok) xmlreader->raiseError(tr("Bar2D to not found error"));
 
           if (table && column && xaxis && yaxis) {
             bar = addHistogram2DPlot(barorientation, table, column, from, to,
                                      xaxis, yaxis);
+            // autobin
+            bool autobin = xmlreader->readAttributeBool("autobin", &ok);
+            if (ok)
+              bar->setHistAutoBin(autobin);
+            else
+              xmlreader->raiseWarning(tr("Bar2D histogram auto bin not found"));
+
+            // binsize
+            double binsize = xmlreader->readAttributeDouble("binsize", &ok);
+            if (ok)
+              bar->setHistBinSize(binsize);
+            else
+              xmlreader->raiseWarning(tr("Bar2D histogram bin size not found"));
+
+            // begin
+            double begin = xmlreader->readAttributeDouble("begin", &ok);
+            if (ok)
+              bar->setHistBegin(begin);
+            else
+              xmlreader->raiseWarning(tr("Bar2D histogram begin not found"));
+
+            // end
+            double end = xmlreader->readAttributeDouble("end", &ok);
+            if (ok)
+              bar->setHistEnd(end);
+            else
+              xmlreader->raiseWarning(tr("Bar2D histogram end not found"));
           }
         } else
           xmlreader->raiseError(tr("Bar2D type not found error"));
         bar->setName(legend);
+
         // stackgap
         int stackgap = xmlreader->readAttributeInt("stackgap", &ok);
         if (ok) {
           bar->setStackingGap(stackgap);
         } else
           xmlreader->raiseWarning(tr("Bar2D Stacking Gap not found"));
+
         // error bars
         while (!xmlreader->atEnd()) {
           xmlreader->readNextStartElement();
@@ -2187,7 +2220,6 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             bar->load(xmlreader);
             break;
           }
-
           if (xmlreader->isStartElement() && xmlreader->name() == "errorbar") {
             Table *table = nullptr;
             Column *column = nullptr;
@@ -2407,7 +2439,6 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           colmap->load(xmlreader);
         }
       }
-
       if (xmlreader->isStartElement() && xmlreader->name() == "legend") {
         getLegend()->load(xmlreader);
       }
