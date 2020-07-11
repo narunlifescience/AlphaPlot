@@ -269,8 +269,6 @@ void AxisRect2D::setstackbar() {
           bvec.removeOne(bvec.at(i));
           j++;
           break;
-        } else {
-            qDebug() << bvec.at(i)->getstackposition_barplot();
         }
       }
     }

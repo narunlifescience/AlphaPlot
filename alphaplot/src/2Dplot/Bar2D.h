@@ -15,7 +15,7 @@ class Bar2D : public QCPBars {
   Q_OBJECT
  public:
   Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
-        Axis2D *xAxis, Axis2D *yAxis, int stackposition = 0);
+        Axis2D *xAxis, Axis2D *yAxis, int stackposition);
   Bar2D(Table *table, Column *col, int from, int to, Axis2D *xAxis,
         Axis2D *yAxis);
   void init();
