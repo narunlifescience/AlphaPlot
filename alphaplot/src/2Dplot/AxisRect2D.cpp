@@ -1597,6 +1597,14 @@ void AxisRect2D::save(XmlStreamWriter *xmlwriter, const QPair<int, int> rowcol,
   xmlwriter->writeAttribute(
       "columnstreachfactor",
       QString::number(layoutgrid->columnStretchFactors().at(rowcol.second)));
+  (autoMargins() == QCP::MarginSide::msAll)
+      ? xmlwriter->writeAttribute("automargin", "true")
+      : xmlwriter->writeAttribute("automargin", "false");
+  xmlwriter->writeAttribute("leftmargin", QString::number(margins().left()));
+  xmlwriter->writeAttribute("topmargin", QString::number(margins().top()));
+  xmlwriter->writeAttribute("rightmargin", QString::number(margins().right()));
+  xmlwriter->writeAttribute("bottommargin",
+                            QString::number(margins().bottom()));
   xmlwriter->writeBrush(backgroundBrush());
   getLegend()->save(xmlwriter);
   foreach (Axis2D *axis, getAxes2D()) { axis->save(xmlwriter); }
@@ -1724,6 +1732,34 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
                       QList<Matrix *> mats) {
   if (xmlreader->isStartElement() && xmlreader->name() == "layout") {
     bool ok = false;
+    // auto margins
+    bool automar = xmlreader->readAttributeBool("automargin", &ok);
+    if (ok) {
+      (automar) ? setAutoMargins(QCP::MarginSide::msAll)
+                : setAutoMargins(QCP::MarginSide::msNone);
+    } else
+      xmlreader->raiseWarning(tr("Layout automargin missing or empty"));
+    // margins
+    QMargins mar = QMargins();
+    mar.setLeft(xmlreader->readAttributeInt("leftmargin", &ok));
+    if (ok) {
+      mar.setTop(xmlreader->readAttributeInt("topmargin", &ok));
+      if (ok) {
+        mar.setRight(xmlreader->readAttributeInt("rightmargin", &ok));
+        if (ok) {
+          mar.setBottom(xmlreader->readAttributeInt("bottommargin", &ok));
+          if (ok) {
+            setMargins(mar);
+          } else
+            xmlreader->raiseWarning(
+                tr("Layout bottom margin missing or empty"));
+        } else
+          xmlreader->raiseWarning(tr("Layout right margin missing or empty"));
+      } else
+        xmlreader->raiseWarning(tr("Layout top margin missing or empty"));
+    } else
+      xmlreader->raiseWarning(tr("Layout left margin missing or empty"));
+
     while (!xmlreader->atEnd()) {
       xmlreader->readNext();
       if (xmlreader->isEndElement() && xmlreader->name() == "brush") break;

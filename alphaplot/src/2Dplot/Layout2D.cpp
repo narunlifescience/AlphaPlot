@@ -2020,7 +2020,7 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           xmlreader->raiseWarning(
               tr("Layout2D axisrect row streach factor read error"));
         }
-        // row streach factor
+        // column streach factor
         double colstreach =
             xmlreader->readAttributeDouble("columnstreachfactor", &ok);
         if (!ok) {
