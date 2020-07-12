@@ -11,7 +11,7 @@ Legend2D::Legend2D(AxisRect2D *axisrect)
     : QCPLegend(),
       axisrect_(axisrect),
       draggingLegend_(false),
-      cursorshape_(axisrect->getParentPlot2D()->cursor().shape()),
+      cursorshape_(axisrect->getParentPlot2D()->cursor()),
       title_element_(nullptr),
       title_text_("Title"),
       title_color_(this->textColor()),
@@ -270,7 +270,7 @@ void Legend2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
                              static_cast<double>(axisrect_->height()));
       dragLegendOrigin_ =
           mousePoint - axisrect_->insetLayout()->insetRect(0).topLeft();
-      cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
+      cursorshape_ = axisrect_->getParentPlot2D()->cursor();
       axisrect_->getParentPlot2D()->setCursor(Qt::ClosedHandCursor);
     }
   }

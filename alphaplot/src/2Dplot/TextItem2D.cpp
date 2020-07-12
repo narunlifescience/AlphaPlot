@@ -14,7 +14,7 @@ TextItem2D::TextItem2D(AxisRect2D *axisrect, Plot2D *plot)
       layername_(QString("<TextItem>") + QDateTime::currentDateTime().toString(
                                              "yyyy:MM:dd:hh:mm:ss:zzz")),
       draggingtextitem_(false),
-      cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {
+      cursorshape_(axisrect->getParentPlot2D()->cursor()) {
   if (axisrect_->getAxes2D().count() > 0) {
     QThread::msleep(1);
     parentPlot()->addLayer(layername_, axisrect_->getAxes2D().at(0)->layer(),
@@ -319,7 +319,7 @@ void TextItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
     if (selectTest(event->pos(), false) > 0) {
       draggingtextitem_ = true;
       dragtextitemorigin_ = event->localPos() - position->pixelPosition();
-      cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
+      cursorshape_ = axisrect_->getParentPlot2D()->cursor();
       axisrect_->getParentPlot2D()->setCursor(
           Qt::CursorShape::ClosedHandCursor);
     }

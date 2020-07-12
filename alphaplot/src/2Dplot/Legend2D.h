@@ -57,7 +57,7 @@ class Legend2D : public QCPLegend {
   AxisRect2D *axisrect_;
   bool draggingLegend_;
   QPointF dragLegendOrigin_;
-  Qt::CursorShape cursorshape_;
+  QCursor cursorshape_;
   QCPTextElement *title_element_;
   QString title_text_;
   QColor title_color_;

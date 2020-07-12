@@ -18,7 +18,7 @@ LineItem2D::LineItem2D(AxisRect2D *axisrect, Plot2D *plot)
       draggingendlineitem_(false),
       draggingstartlineitem_(false),
       lineitemclicked_(false),
-      cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {
+      cursorshape_(axisrect->getParentPlot2D()->cursor()) {
   if (axisrect_->getAxes2D().count() > 0) {
     QThread::msleep(1);
     parentPlot()->addLayer(layername_, axisrect_->getAxes2D().at(0)->layer(),
@@ -355,12 +355,12 @@ void LineItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
                  start->pixelPosition().y() <
                      (event->pos().y() + selectionpixelsize_)) {
         draggingstartlineitem_ = true;
-        cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
+        cursorshape_ = axisrect_->getParentPlot2D()->cursor();
         axisrect_->getParentPlot2D()->setCursor(Qt::CursorShape::CrossCursor);
       } else {
         draglineitemorigin_ = event->pos() - end->pixelPosition();
         draglineitemendin_ = event->pos() - start->pixelPosition();
-        cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
+        cursorshape_ = axisrect_->getParentPlot2D()->cursor();
         axisrect_->getParentPlot2D()->setCursor(
             Qt::CursorShape::ClosedHandCursor);
         dragginglineitem_ = true;

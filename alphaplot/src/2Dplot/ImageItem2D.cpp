@@ -1,9 +1,9 @@
 #include "ImageItem2D.h"
 
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Plot2D.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
-#include "2Dplot/Plot2D.h"
-#include "2Dplot/AxisRect2D.h"
 
 const int ImageItem2D::selectionpixelsize_ = 10;
 
@@ -17,7 +17,7 @@ ImageItem2D::ImageItem2D(AxisRect2D *axisrect, Plot2D *plot,
       draggingimageitem_(false),
       imagefilename_(filename),
       pixmap_(new QPixmap()),
-      cursorshape_(axisrect->getParentPlot2D()->cursor().shape()) {
+      cursorshape_(axisrect->getParentPlot2D()->cursor()) {
   // setting Layer
   if (axisrect_->getAxes2D().count() > 0) {
     QThread::msleep(1);
@@ -136,7 +136,7 @@ void ImageItem2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
       draggingimageitem_ = true;
       dragimageitemorigin_ =
           event->localPos() - position("topLeft")->pixelPosition();
-      cursorshape_ = axisrect_->getParentPlot2D()->cursor().shape();
+      cursorshape_ = axisrect_->getParentPlot2D()->cursor();
       axisrect_->getParentPlot2D()->setCursor(
           Qt::CursorShape::ClosedHandCursor);
     }
