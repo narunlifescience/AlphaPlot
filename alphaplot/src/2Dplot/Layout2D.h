@@ -110,6 +110,7 @@ class Layout2D : public MyWidget {
   AxisRect2D *addAxisRectWithAxis(
       const Graph2DCommon::AddLayoutElement &position);
   AxisRect2D *addAxisRectWithAxis(const QPair<int, int> rowcol);
+  void swapAxisRect(AxisRect2D *axisrect1, AxisRect2D *axisrect2);
   void removeAxisRectItem();
 
  private slots:
@@ -177,6 +178,7 @@ class Layout2D : public MyWidget {
  signals:
   void AxisRectCreated(AxisRect2D *, MyWidget *);
   void AxisRectRemoved(MyWidget *);
+  void AxisRectSwap(AxisRect2D *, AxisRect2D *);
   void ResetPicker();
   void layout2DResized();
   void datapoint(Curve2D *curve, double xval, double yval);

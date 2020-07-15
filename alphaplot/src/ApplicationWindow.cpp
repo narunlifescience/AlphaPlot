@@ -125,6 +125,7 @@
 #include "2Dplot/Plotcolumns.h"
 #include "2Dplot/widgets/AddPlot2DDialog.h"
 #include "2Dplot/widgets/Function2DDialog.h"
+#include "2Dplot/widgets/SwapLayout2DDialog.h"
 #include "3Dplot/Bar3D.h"
 #include "3Dplot/DataManager3D.h"
 #include "3Dplot/Graph3DCommon.h"
@@ -712,8 +713,8 @@ ApplicationWindow::ApplicationWindow()
           [&]() { addLayout(Graph2DCommon::AddLayoutElement::Right); });
   connect(ui_->actionRemoveLayout, &QAction::triggered, this,
           &ApplicationWindow::deleteLayout);
-  connect(ui_->actionArrangeLayout, SIGNAL(triggered()), this,
-          SLOT(showLayerDialog()));
+  connect(ui_->actionArrangeLayout, &QAction::triggered, this,
+          &ApplicationWindow::showSwapLayoutDialog);
   // Tools menu
   ui_->actionDisableGraphTools->setActionGroup(graphToolsGroup);
   ui_->actionDisableGraphTools->setCheckable(true);
@@ -1848,16 +1849,20 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
   layout2d->setFocus();
 
   // window connections
-  connect(layout2d, SIGNAL(closedWindow(MyWidget *)), this,
-          SLOT(closeWindow(MyWidget *)));
-  connect(layout2d, SIGNAL(hiddenWindow(MyWidget *)), this,
-          SLOT(hideWindow(MyWidget *)));
-  connect(layout2d, SIGNAL(statusChanged(MyWidget *)), this,
-          SLOT(updateWindowStatus(MyWidget *)));
-  connect(layout2d, SIGNAL(showTitleBarMenu()), this,
-          SLOT(showWindowTitleBarMenu()));
-  connect(layout2d, SIGNAL(AxisRectRemoved(MyWidget *)), propertyeditor,
-          SLOT(populateObjectBrowser(MyWidget *)));
+  connect(layout2d, &Layout2D::closedWindow, this,
+          &ApplicationWindow::closeWindow);
+  connect(layout2d, &Layout2D::hiddenWindow, this,
+          &ApplicationWindow::hideWindow);
+  connect(layout2d, &Layout2D::statusChanged, this,
+          &ApplicationWindow::updateWindowStatus);
+  connect(layout2d, &Layout2D::showTitleBarMenu, this,
+          &ApplicationWindow::showWindowTitleBarMenu);
+  connect(layout2d, &Layout2D::AxisRectRemoved, propertyeditor,
+          &PropertyEditor::populateObjectBrowser);
+  connect(layout2d, &Layout2D::AxisRectSwap, [=]() {
+    propertyeditor->populateObjectBrowser(static_cast<MyWidget *>(layout2d));
+  });
+
   connect(layout2d, &Layout2D::ResetPicker, [&]() {
     pickGraphTool(ui_->actionDisableGraphTools);
     ui_->actionDisableGraphTools->setChecked(true);
@@ -4894,21 +4899,23 @@ void ApplicationWindow::drawArrow() {
   axisrect->addArrowItem2D();
 }
 
-void ApplicationWindow::showLayerDialog() {
-  /*if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
+void ApplicationWindow::showSwapLayoutDialog() {
+  if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  if (!layout) return;
 
-  MultiLayer *plot = qobject_cast<MultiLayer *>(d_workspace->activeSubWindow());
-  if (plot->isEmpty()) {
+  if (layout->getAxisRectList().count() < 2) {
     QMessageBox::warning(
         this, tr("Warning"),
-        tr("There are no plot layers available in this window."));
+        tr("There are no more than 2 layout elements available in this Graph2D "
+           "window. Swamp needs atleast 2 layout elements!"));
     return;
   }
 
-  LayerDialog *id = new LayerDialog(this);
-  id->setAttribute(Qt::WA_DeleteOnClose);
-  id->setMultiLayer(plot);
-  id->exec();*/
+  std::unique_ptr<SwapLayout2DDialog> swapdlg =
+      std::unique_ptr<SwapLayout2DDialog>(new SwapLayout2DDialog(layout));
+  swapdlg->setModal(true);
+  swapdlg->exec();
 }
 
 void ApplicationWindow::addColToTable() {

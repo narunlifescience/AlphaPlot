@@ -632,7 +632,7 @@ class ApplicationWindow : public QMainWindow,
   void showRowStatistics();
   void showColumnStatistics();
   void showFitDialog();
-  void showLayerDialog();
+  void showSwapLayoutDialog();
   void showPreferencesDialog();
   void savitzkySmooth();
   void fFTFilterSmooth();

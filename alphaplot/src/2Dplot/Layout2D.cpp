@@ -2101,3 +2101,36 @@ AxisRect2D *Layout2D::addAxisRectWithAxis(const QPair<int, int> rowcol) {
   return addAxisRectItemAtRowCol(AlphaPlot::ColumnDataType::TypeDouble,
                                  AlphaPlot::ColumnDataType::TypeDouble, rowcol);
 }
+
+void Layout2D::swapAxisRect(AxisRect2D *axisrect1, AxisRect2D *axisrect2) {
+  Q_ASSERT(axisrect1);
+  Q_ASSERT(axisrect2);
+  if (axisrect1 == axisrect2) return;
+
+  // swap the layout elements
+  QPair<int, int> rowcol1 = getAxisRectRowCol(axisrect1);
+  QPair<int, int> rowcol2 = getAxisRectRowCol(axisrect2);
+  layout_->take(axisrect1);
+  layout_->take(axisrect1);
+  layout_->addElement(rowcol1.first, rowcol1.second, axisrect2);
+  layout_->addElement(rowcol2.first, rowcol2.second, axisrect1);
+
+  // swap in the button list
+  for (int i = 0; i < buttionlist_.size(); i++) {
+    QPair<LayoutButton2D *, AxisRect2D *> btnpair = buttionlist_.at(i);
+    if (axisrect1 == btnpair.second) {
+      btnpair.second = axisrect2;
+      (axisrect2 == currentAxisRect_) ? btnpair.first->setActive(true)
+                                      : btnpair.first->setActive(false);
+      buttionlist_.replace(i, btnpair);
+    } else if (axisrect2 == btnpair.second) {
+      btnpair.second = axisrect1;
+      (axisrect1 == currentAxisRect_) ? btnpair.first->setActive(true)
+                                      : btnpair.first->setActive(false);
+      buttionlist_.replace(i, btnpair);
+    }
+  }
+  plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+  // refresh object browser
+  emit AxisRectSwap(axisrect1, axisrect2);
+}
