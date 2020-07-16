@@ -16,6 +16,7 @@ Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalys
 | Sourceforge | https://sourceforge.net/projects/alphaplot/      |
 | Test builds | http://alphaplot.sourceforge.net/test-build.html |
 
+[![Packaging status](https://repology.org/badge/vertical-allrepos/alphaplot.svg)](https://repology.org/project/alphaplot/versions)
 
 # Donate
 AlphaPlot is an open-source project that has been made possible due to the generous contributions by community backers. If you are interested in supporting this project, please consider becoming a sponsor or becoming a patron https://www.patreon.com/alphaplot
