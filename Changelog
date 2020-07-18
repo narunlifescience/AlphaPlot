@@ -1,4 +1,5 @@
 == progress ==
+* add layout element swap functionality
 * add the ability to customize brush patterns on all graph typefills, text item fill and layout element fills
 * xml file based new update checking
 * Template savinng and loading (for matrix, table, plot2d, plot3d)

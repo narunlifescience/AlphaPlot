@@ -2131,6 +2131,6 @@ void Layout2D::swapAxisRect(AxisRect2D *axisrect1, AxisRect2D *axisrect2) {
     }
   }
   plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
-  // refresh object browser
+  // refresh object browser after swap
   emit AxisRectSwap(axisrect1, axisrect2);
 }

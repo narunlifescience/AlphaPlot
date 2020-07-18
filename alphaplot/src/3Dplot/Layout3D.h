@@ -23,17 +23,6 @@ class Layout3D : public MyWidget {
            QWidget *parent = nullptr, const QString name = QString(),
            Qt::WindowFlags flag = Qt::SubWindow);
   ~Layout3D();
-  template <class T>
-  T *getGraph3d() {
-    switch (plottype_) {
-      case Graph3DCommon::Plot3DType::Surface:
-        return graph3dsurface_;
-      case Graph3DCommon::Plot3DType::Bar:
-        return graph3dbars_;
-      case Graph3DCommon::Plot3DType::Scatter:
-        return graph3dscatter_;
-    }
-  }
 
   Surface3D *getSurface3DModifier() const;
   Bar3D *getBar3DModifier() const;
