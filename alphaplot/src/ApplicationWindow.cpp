@@ -1,5 +1,5 @@
 /* This file is part of AlphaPlot.
-   Copyright 2016, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+   Copyright 2016 - 2020, Arun Narayanankutty <n.arun.lifescience@gmail.com>
    Copyright 2006 - 2007, Ion Vasilief <ion_vasilief@yahoo.fr>
    Copyright 2006 - 2009, Knut Franke <knut.franke@gmx.de>
    Copyright 2006 - 2009, Tilman Benkert <thzs@gmx.net>
@@ -206,7 +206,11 @@ ApplicationWindow::ApplicationWindow()
       btn_plot_pie_(new QToolButton(this)),
       multiPeakfitactive_(false),
       multiPeakfitpoints_(0),
-      multiPeakfittype_(0) {
+      multiPeakfittype_(0),
+      glowcolor_(Qt::red),
+      glowxoffset_(0),
+      glowyoffset_(0),
+      glowradius_(10) {
   ui_->setupUi(this);
   // non menu qactions
   actionSaveNote = new QAction(tr("Save Note As..."), this);
@@ -2320,6 +2324,19 @@ void ApplicationWindow::windowActivated(QMdiSubWindow *subwindow) {
     propertyeditor->populateObjectBrowser(nullptr);
     return;
   }
+
+  // glow effect
+  foreach (QMdiSubWindow *window, subWindowsList()) {
+    window->setGraphicsEffect(nullptr);
+  }
+  // will be destroyed when parent set graphicseffect to nullptr
+  QGraphicsDropShadowEffect *gloweffect = new QGraphicsDropShadowEffect;
+  // Set glow effect values
+  gloweffect->setColor(glowcolor_);
+  gloweffect->setXOffset(glowxoffset_);
+  gloweffect->setYOffset(glowyoffset_);
+  gloweffect->setBlurRadius(glowradius_);
+  subwindow->setGraphicsEffect(gloweffect);
 
   customToolBars(subwindow);
   customMenu(subwindow);

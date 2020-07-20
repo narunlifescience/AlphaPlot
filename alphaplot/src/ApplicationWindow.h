@@ -1135,6 +1135,11 @@ class ApplicationWindow : public QMainWindow,
   int multiPeakfitpoints_;
   int multiPeakfittype_;
   QVector<QPair<Curve2D*, QPair<double, double>>> multipeakfitvalues_;
+  QColor glowcolor_;
+  double glowxoffset_;
+  double glowyoffset_;
+  double glowradius_;
+
 
  private slots:
   void multipeakfitappendpoints(Curve2D* curve, double x, double y);

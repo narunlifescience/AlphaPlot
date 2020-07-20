@@ -1,4 +1,6 @@
 == progress ==
+* selected mdi subwindow glow indication
+* fix vector plot related orientation issue and antialiasing issue
 * add layout element swap functionality
 * add the ability to customize brush patterns on all graph typefills, text item fill and layout element fills
 * xml file based new update checking
