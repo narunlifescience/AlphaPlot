@@ -164,8 +164,8 @@ void Vector2D::drawLine(double x1, double y1, double x2, double y2) {
   // addItem(arrow);
   arrow->start->setCoords(x1, y1);
   arrow->end->setCoords(x2, y2);
-  arrow->setHead(*start_);
-  arrow->setTail(*stop_);
+  arrow->setHead(*stop_);
+  arrow->setTail(*start_);
   linelist_.append(arrow);
 }
 
@@ -197,16 +197,19 @@ double Vector2D::getlinestrokethickness_vecplot() const {
   }
 }
 
-bool Vector2D::getlineantialiased_vecplot() const { return antialiased(); }
+bool Vector2D::getlineantialiased_vecplot() const {
+  foreach (QCPItemLine *line, linelist_) { return line->antialiased(); }
+  return false;
+}
 
 Vector2D::LineEnd Vector2D::getendstyle_vecplot(
     const Vector2D::LineEndLocation &location) const {
   QCPLineEnding *ending;
   switch (location) {
-    case LineEndLocation::Start:
+    case LineEndLocation::Tail:
       ending = start_;
       break;
-    case LineEndLocation::Stop:
+    case LineEndLocation::Head:
       ending = stop_;
       break;
   }
@@ -251,10 +254,10 @@ double Vector2D::getendwidth_vecplot(
     const Vector2D::LineEndLocation &location) const {
   QCPLineEnding *ending;
   switch (location) {
-    case LineEndLocation::Start:
+    case LineEndLocation::Tail:
       ending = start_;
       break;
-    case LineEndLocation::Stop:
+    case LineEndLocation::Head:
       ending = stop_;
       break;
   }
@@ -265,10 +268,10 @@ double Vector2D::getendheight_vecplot(
     const Vector2D::LineEndLocation &location) const {
   QCPLineEnding *ending;
   switch (location) {
-    case LineEndLocation::Start:
+    case LineEndLocation::Tail:
       ending = start_;
       break;
-    case LineEndLocation::Stop:
+    case LineEndLocation::Head:
       ending = stop_;
       break;
   }
@@ -279,10 +282,10 @@ bool Vector2D::getendinverted_vecplot(
     const Vector2D::LineEndLocation &location) const {
   QCPLineEnding *ending;
   switch (location) {
-    case LineEndLocation::Start:
+    case LineEndLocation::Tail:
       ending = start_;
       break;
-    case LineEndLocation::Stop:
+    case LineEndLocation::Head:
       ending = stop_;
       break;
   }
@@ -310,7 +313,7 @@ void Vector2D::setyaxis_vecplot(Axis2D *axis) {
 }
 
 void Vector2D::setlineantialiased_vecplot(bool status) {
-  setAntialiased(status);
+  foreach (QCPItemLine *line, linelist_) { line->setAntialiased(status); }
 }
 
 void Vector2D::setlinestrokecolor_vecplot(const QColor &color) {
@@ -347,10 +350,10 @@ void Vector2D::setendstyle_vecplot(const Vector2D::LineEnd &end,
                                    const LineEndLocation &location) {
   QCPLineEnding *ending;
   switch (location) {
-    case LineEndLocation::Start:
+    case LineEndLocation::Tail:
       ending = start_;
       break;
-    case LineEndLocation::Stop:
+    case LineEndLocation::Head:
       ending = stop_;
       break;
   }
@@ -395,10 +398,10 @@ void Vector2D::setendwidth_vecplot(const double value,
                                    const Vector2D::LineEndLocation &location) {
   QCPLineEnding *ending;
   switch (location) {
-    case LineEndLocation::Start:
+    case LineEndLocation::Tail:
       ending = start_;
       break;
-    case LineEndLocation::Stop:
+    case LineEndLocation::Head:
       ending = stop_;
       break;
   }
@@ -411,10 +414,10 @@ void Vector2D::setendheight_vecplot(const double value,
                                     const Vector2D::LineEndLocation &location) {
   QCPLineEnding *ending;
   switch (location) {
-    case LineEndLocation::Start:
+    case LineEndLocation::Tail:
       ending = start_;
       break;
-    case LineEndLocation::Stop:
+    case LineEndLocation::Head:
       ending = stop_;
       break;
   }
@@ -427,10 +430,10 @@ void Vector2D::setendinverted_vecplot(
     const bool value, const Vector2D::LineEndLocation &location) {
   QCPLineEnding *ending;
   switch (location) {
-    case LineEndLocation::Start:
+    case LineEndLocation::Tail:
       ending = start_;
       break;
-    case LineEndLocation::Stop:
+    case LineEndLocation::Head:
       ending = stop_;
       break;
   }
@@ -460,7 +463,7 @@ void Vector2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   (getlineantialiased_vecplot())
       ? xmlwriter->writeAttribute("antialias", "true")
       : xmlwriter->writeAttribute("antialias", "false");
-  switch (getendstyle_vecplot(Vector2D::LineEndLocation::Stop)) {
+  switch (getendstyle_vecplot(Vector2D::LineEndLocation::Head)) {
     case Vector2D::LineEnd::Bar:
       xmlwriter->writeAttribute("endstyle", "bar");
       break;
@@ -494,10 +497,10 @@ void Vector2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   }
   xmlwriter->writeAttribute(
       "endwidth",
-      QString::number(getendwidth_vecplot(Vector2D::LineEndLocation::Stop)));
+      QString::number(getendwidth_vecplot(Vector2D::LineEndLocation::Head)));
   xmlwriter->writeAttribute(
       "endheight",
-      QString::number(getendheight_vecplot(Vector2D::LineEndLocation::Stop)));
+      QString::number(getendheight_vecplot(Vector2D::LineEndLocation::Head)));
   QPen p;
   p.setColor(getlinestrokecolor_vecplot());
   p.setStyle(getlinestrokestyle_vecplot());
@@ -526,45 +529,45 @@ bool Vector2D::load(XmlStreamReader *xmlreader) {
     QString style = xmlreader->readAttributeString("style", &ok);
     if (style == "bar") {
       setendstyle_vecplot(Vector2D::LineEnd::Bar,
-                          Vector2D::LineEndLocation::Stop);
+                          Vector2D::LineEndLocation::Head);
     } else if (style == "disc") {
       setendstyle_vecplot(Vector2D::LineEnd::Disc,
-                          Vector2D::LineEndLocation::Stop);
+                          Vector2D::LineEndLocation::Head);
     } else if (style == "none") {
       setendstyle_vecplot(Vector2D::LineEnd::None,
-                          Vector2D::LineEndLocation::Stop);
+                          Vector2D::LineEndLocation::Head);
     } else if (style == "square") {
       setendstyle_vecplot(Vector2D::LineEnd::Square,
-                          Vector2D::LineEndLocation::Stop);
+                          Vector2D::LineEndLocation::Head);
     } else if (style == "diamond") {
       setendstyle_vecplot(Vector2D::LineEnd::Diamond,
-                          Vector2D::LineEndLocation::Stop);
+                          Vector2D::LineEndLocation::Head);
     } else if (style == "halfbar") {
       setendstyle_vecplot(Vector2D::LineEnd::HalfBar,
-                          Vector2D::LineEndLocation::Stop);
+                          Vector2D::LineEndLocation::Head);
     } else if (style == "flatarrow") {
       setendstyle_vecplot(Vector2D::LineEnd::FlatArrow,
-                          Vector2D::LineEndLocation::Stop);
+                          Vector2D::LineEndLocation::Head);
     } else if (style == "linearrow") {
       setendstyle_vecplot(Vector2D::LineEnd::LineArrow,
-                          Vector2D::LineEndLocation::Stop);
+                          Vector2D::LineEndLocation::Head);
     } else if (style == "skewedbar") {
       setendstyle_vecplot(Vector2D::LineEnd::SkewedBar,
-                          Vector2D::LineEndLocation::Stop);
+                          Vector2D::LineEndLocation::Head);
     } else if (style == "spikearrow") {
       setendstyle_vecplot(Vector2D::LineEnd::SpikeArrow,
-                          Vector2D::LineEndLocation::Stop);
+                          Vector2D::LineEndLocation::Head);
     }
 
     // endwidth property
     int endwidth = xmlreader->readAttributeInt("endwidth", &ok);
-    (ok) ? setendwidth_vecplot(endwidth, Vector2D::LineEndLocation::Stop)
+    (ok) ? setendwidth_vecplot(endwidth, Vector2D::LineEndLocation::Head)
          : xmlreader->raiseWarning(
                tr("Vector2D endwidth property setting error"));
 
     // endheight property
     int endheight = xmlreader->readAttributeInt("endheight", &ok);
-    (ok) ? setendheight_vecplot(endheight, Vector2D::LineEndLocation::Stop)
+    (ok) ? setendheight_vecplot(endheight, Vector2D::LineEndLocation::Head)
          : xmlreader->raiseWarning(
                tr("Vector2D endheight property setting error"));
 
@@ -593,11 +596,11 @@ bool Vector2D::load(XmlStreamReader *xmlreader) {
 
 void Vector2D::reloadendings(const Vector2D::LineEndLocation &location) {
   switch (location) {
-    case LineEndLocation::Start:
-      foreach (QCPItemLine *line, linelist_) { line->setHead(*start_); }
+    case LineEndLocation::Head:
+      foreach (QCPItemLine *line, linelist_) { line->setHead(*stop_); }
       break;
-    case LineEndLocation::Stop:
-      foreach (QCPItemLine *line, linelist_) { line->setTail(*stop_); }
+    case LineEndLocation::Tail:
+      foreach (QCPItemLine *line, linelist_) { line->setTail(*start_); }
       break;
   }
 }

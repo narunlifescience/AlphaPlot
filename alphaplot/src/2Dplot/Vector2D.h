@@ -31,8 +31,8 @@ class Vector2D : public QCPGraph {
     SkewedBar = 9,
   };
   enum class LineEndLocation : int {
-    Start = 0,
-    Stop = 1,
+    Tail = 0,
+    Head = 1,
   };
   void setGraphData(Table *table, Column *x1Data, Column *y1Data,
                     Column *x2Data, Column *y2Data, int from, int to);

@@ -1,15 +1,15 @@
 # Aspect framework legacy code
 DEFINES += LEGACY_CODE_0_2_x
+# Enable OpenGL for QCustomPlot
 DEFINES += QCUSTOMPLOT_USE_OPENGL
-# Qt modules
-QT += core gui
 
-QT += widgets opengl network svg script scripttools printsupport
-QT += datavisualization
+# Qt modules
+QT += core gui widgets opengl network svg
+QT += script scripttools printsupport datavisualization
 
 # enable C++11 support
-  CONFIG += c++11
-  CONFIG += qt warn_on exceptions opengl thread zlib
+CONFIG += c++11
+CONFIG += qt warn_on exceptions opengl thread
 
 
 INCLUDEPATH += alphaplot alphaplot/src ../data/translations

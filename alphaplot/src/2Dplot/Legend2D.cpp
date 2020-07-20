@@ -422,7 +422,7 @@ void VectorLegendItem2D::draw(QCPPainter *painter) {
 
 void VectorLegendItem2D::setLineEndings() {
   lineitem_->setPen(vector_->pen());
-  switch (vector_->getendstyle_vecplot(Vector2D::LineEndLocation::Start)) {
+  switch (vector_->getendstyle_vecplot(Vector2D::LineEndLocation::Head)) {
     case Vector2D::LineEnd::None:
       start_->setStyle(QCPLineEnding::esNone);
       break;
@@ -454,7 +454,7 @@ void VectorLegendItem2D::setLineEndings() {
       start_->setStyle(QCPLineEnding::esSkewedBar);
       break;
   }
-  switch (vector_->getendstyle_vecplot(Vector2D::LineEndLocation::Stop)) {
+  switch (vector_->getendstyle_vecplot(Vector2D::LineEndLocation::Tail)) {
     case Vector2D::LineEnd::None:
       stop_->setStyle(QCPLineEnding::esNone);
       break;
@@ -486,8 +486,8 @@ void VectorLegendItem2D::setLineEndings() {
       stop_->setStyle(QCPLineEnding::esSkewedBar);
       break;
   }
-  lineitem_->setHead(*start_);
-  lineitem_->setTail(*stop_);
+  lineitem_->setHead(*stop_);
+  lineitem_->setTail(*start_);
 }
 
 PieLegendItem2D::PieLegendItem2D(Legend2D *parent, QColor color,

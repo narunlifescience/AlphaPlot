@@ -1713,7 +1713,7 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setlineantialiased_vecplot(value);
-    vector->layer()->replot();
+    vector->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   } else if (prop->compare(colormappropertyinterpolateitem_)) {
     ColorMap2D *colormap =
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
@@ -2667,13 +2667,13 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
   } else if (prop->compare(vectorpropertylineendingheightitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
-    vector->setendheight_vecplot(value, Vector2D::LineEndLocation::Stop);
+    vector->setendheight_vecplot(value, Vector2D::LineEndLocation::Head);
     vector->layer()->replot();
     vector->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(vectorpropertylineendingwidthitem_)) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
-    vector->setendwidth_vecplot(value, Vector2D::LineEndLocation::Stop);
+    vector->setendwidth_vecplot(value, Vector2D::LineEndLocation::Head);
     vector->layer()->replot();
     vector->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(pieplotpropertylinestrokethicknessitem_)) {
@@ -3576,7 +3576,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Vector2D *vector =
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setendstyle_vecplot(static_cast<Vector2D::LineEnd>(value),
-                                Vector2D::LineEndLocation::Stop);
+                                Vector2D::LineEndLocation::Head);
     vector->layer()->replot();
     vector->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(pieplotpropertystyleitem_)) {
@@ -4950,13 +4950,13 @@ void PropertyEditor::Vector2DPropertyBlock(Vector2D *vectorgraph,
       static_cast<int>(vectorgraph->getlinestrokestyle_vecplot() - 1));
   enumManager_->setValue(vectorpropertylineendingtypeitem_,
                          static_cast<int>(vectorgraph->getendstyle_vecplot(
-                             Vector2D::LineEndLocation::Stop)));
+                             Vector2D::LineEndLocation::Head)));
   doubleManager_->setValue(
       vectorpropertylineendingheightitem_,
-      vectorgraph->getendheight_vecplot(Vector2D::LineEndLocation::Stop));
+      vectorgraph->getendheight_vecplot(Vector2D::LineEndLocation::Head));
   doubleManager_->setValue(
       vectorpropertylineendingwidthitem_,
-      vectorgraph->getendwidth_vecplot(Vector2D::LineEndLocation::Stop));
+      vectorgraph->getendwidth_vecplot(Vector2D::LineEndLocation::Head));
   boolManager_->setValue(vectorpropertylineantialiaseditem_,
                          vectorgraph->getlineantialiased_vecplot());
   stringManager_->setValue(
