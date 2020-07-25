@@ -4,8 +4,7 @@
 
 ###################### HEADERS ##############################################
 
-HEADERS  += src/ApplicationWindow.h \\
-    $$PWD/src/2Dplot/LayoutInset2D.h \
+HEADERS  += src/ApplicationWindow.h \
             src/core/IconLoader.h \
             src/core/Utilities.h \
             src/core/widgets/MyTreeWidget.h \
@@ -92,7 +91,6 @@ HEADERS  += src/ApplicationWindow.h \\
 ###################### SOURCES ##############################################
 
 SOURCES  += src/ApplicationWindow.cpp \
-    $$PWD/src/2Dplot/LayoutInset2D.cpp \
             src/core/IconLoader.cpp \
             src/core/Utilities.cpp \
             src/core/widgets/MyTreeWidget.cpp \
@@ -322,6 +320,7 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/Grid2D.h \
                src/2Dplot/Layout2D.h \
                src/2Dplot/LayoutGrid2D.h \
+               src/2Dplot/LayoutInset2D.h \
                src/2Dplot/Legend2D.h \
                src/2Dplot/LineSpecial2D.h \
                src/2Dplot/Plot2D.h \
@@ -349,6 +348,7 @@ SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/Grid2D.cpp \
                src/2Dplot/Layout2D.cpp \
                src/2Dplot/LayoutGrid2D.cpp \
+               src/2Dplot/LayoutInset2D.cpp \
                src/2Dplot/Legend2D.cpp \
                src/2Dplot/LineSpecial2D.cpp \
                src/2Dplot/Plot2D.cpp \
