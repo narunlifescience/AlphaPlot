@@ -28,8 +28,8 @@ AlphaPlot is an open-source project that has been made possible due to the gener
 | | | |
 |:-------------------------:|:-------------------------:|:-------------------------:|
 |<img width="500" alt="" src="data/screenshots/example1.png">|  <img width="500" alt="" src="data/screenshots/example2.png">|<img width="500" alt="" src="data/screenshots/example3.png">|
-|<img width="500" alt="" src="data/screenshots/example4.png">|  <img width="500" alt="" src="data/screenshots/example5.png">|<img width="500" alt="" src="data/screenshots/example6.tiff">|
-|<img width="500" alt="" src="data/screenshots/example7.png">|  <img width="500" alt="" src="data/screenshots/example8.png">|<img width="500" alt="" src="data/screenshots/example9.tiff">|
+|<img width="500" alt="" src="data/screenshots/example4.png">|  <img width="500" alt="" src="data/screenshots/example5.png">|<img width="500" alt="" src="data/screenshots/example6.png">|
+|<img width="500" alt="" src="data/screenshots/example7.png">|  <img width="500" alt="" src="data/screenshots/example8.png">|<img width="500" alt="" src="data/screenshots/example9.png">|
 
 # Installation
 Get the code (if you haven't already):
