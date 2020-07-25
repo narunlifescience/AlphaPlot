@@ -9,6 +9,7 @@
 #include "2Dplot/AxisRect2D.h"
 
 class AxisRect2D;
+class MyWidget;
 class QCustomPlot;
 
 class MyTreeWidget : public QTreeWidget {
@@ -49,8 +50,11 @@ class MyTreeWidget : public QTreeWidget {
   };
   MyTreeWidget(QWidget *parent = nullptr);
   ~MyTreeWidget();
+
  signals:
   void adderrorbar();
+  void activate(MyWidget *widget);
+
  private slots:
   void CurrentItemChanged(QTreeWidgetItem *current);
   void showContextMenu(const QPoint &pos);
@@ -76,11 +80,23 @@ class MyTreeWidget : public QTreeWidget {
                           const QCustomPlot::LayerInsertMode &mode);
   template <class T>
   void moveitemlayer(QAction *action, const QCustomPlot::LayerInsertMode &mode);
+  void selectData(QAction *action);
 
  private:
   QWidget *widget_;
   QAction *addgraph_;
   QAction *addfunctionplot_;
+  // slect data
+  QAction *selectdatacolumnslsgraph2d_;
+  QAction *selectdatacolumnschannelgraph2d_;
+  QAction *selectdatacolumnscurvegraph2d_;
+  QAction *selectdatacolumnsbargraph2d_;
+  QAction *selectdatacolumnsvectorgraph2d_;
+  QAction *selectdatacolumnsstatboxgraph2d_;
+  QAction *selectdatacolumnserrorgraph2d_;
+  QAction *selectdatacolumnspiegraph2d_;
+  QAction *selectdatacolumnscolormapgraph2d_;
+  // Axis
   QAction *leftvalueaxis_;
   QAction *leftlogaxis_;
   QAction *leftpiaxis_;

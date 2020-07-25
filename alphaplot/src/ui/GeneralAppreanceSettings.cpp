@@ -45,10 +45,10 @@ GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
                << "smooth light green"
                << "smooth light orange";
   ui->colorSchemeComboBox->addItems(colorSchemes);
-  connect(ui->styleComboBox, SIGNAL(currentIndexChanged(QString)),
-          SLOT(stylePreview(QString)));
-  connect(ui->colorSchemeComboBox, &QComboBox::currentTextChanged,
-          [&](QString index) {});
+  /*connect(ui->colorSchemeComboBox, &QComboBox::currentIndexChanged, this,
+          &GeneralAppreanceSettings::colorStylePreview);*/
+  connect(ui->styleComboBox, &QComboBox::currentTextChanged,
+          this, &GeneralAppreanceSettings::stylePreview);
 }
 
 GeneralAppreanceSettings::~GeneralAppreanceSettings() { delete ui; }
@@ -80,6 +80,7 @@ void GeneralAppreanceSettings::stylePreview(QString style) {
     return;
   }
 
+  ui->groupBox->setStyle(stylefinal);
   ui->previewTabWidget->setStyle(stylefinal);
   ui->previewTab->setStyle(stylefinal);
   ui->previewGroupBox->setStyle(stylefinal);
@@ -94,4 +95,9 @@ void GeneralAppreanceSettings::stylePreview(QString style) {
   ui->previewPushButton->setStyle(stylefinal);
   ui->previewScrollBar->setStyle(stylefinal);
   ui->previewTableWidget->setStyle(stylefinal);
+}
+
+void GeneralAppreanceSettings::colorStylePreview(int index)
+{
+
 }

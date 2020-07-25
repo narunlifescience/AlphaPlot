@@ -538,6 +538,14 @@ void Layout2D::generateColorMap2DPlot(Matrix *matrix, bool greyscale,
   colormap->rescaleAxes();
 }
 
+void Layout2D::generateLayoutInset2D() {
+  if (!currentAxisRect_) {
+    qDebug() << "no axisrect item selected to add layoutinset";
+    return;
+  }
+  currentAxisRect_->addLayoutInset2D();
+}
+
 QList<AxisRect2D *> Layout2D::getAxisRectList() {
   QList<AxisRect2D *> elementslist;
   for (int i = 0; i < layout_->elementCount(); i++) {

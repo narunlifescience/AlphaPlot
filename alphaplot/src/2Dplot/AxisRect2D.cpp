@@ -26,6 +26,7 @@
 #include "ImageItem2D.h"
 #include "Layout2D.h"
 #include "LayoutGrid2D.h"
+#include "LayoutInset2D.h"
 #include "Legend2D.h"
 #include "LineItem2D.h"
 #include "LineSpecial2D.h"
@@ -713,6 +714,11 @@ ImageItem2D *AxisRect2D::addImageItem2D(const QString &filename) {
   imagevec_.append(imageitem);
   emit ImageItem2DCreated(imageitem);
   return imageitem;
+}
+
+LayoutInset2D *AxisRect2D::addLayoutInset2D() {
+  LayoutInset2D *inset = new LayoutInset2D(this);
+  return inset;
 }
 
 // Should not use for other than populating axis map

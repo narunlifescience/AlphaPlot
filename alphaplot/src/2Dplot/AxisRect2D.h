@@ -42,6 +42,7 @@ class Curve2D;
 class LineSpecial2D;
 class ErrorBar2D;
 class StatBox2D;
+class LayoutInset2D;
 
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
@@ -147,6 +148,7 @@ class AxisRect2D : public QCPAxisRect {
   LineItem2D *addLineItem2D();
   LineItem2D *addArrowItem2D();
   ImageItem2D *addImageItem2D(const QString &filename);
+  LayoutInset2D *addLayoutInset2D();
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;

@@ -4,24 +4,44 @@
 
 #include "2Dplot/Axis2D.h"
 #include "2Dplot/AxisRect2D.h"
-#include "2Dplot/LineSpecial2D.h"
-#include "2Dplot/Curve2D.h"
 #include "2Dplot/Bar2D.h"
-#include "2Dplot/Pie2D.h"
 #include "2Dplot/ColorMap2D.h"
+#include "2Dplot/Curve2D.h"
+#include "2Dplot/DataManager2D.h"
 #include "2Dplot/ErrorBar2D.h"
 #include "2Dplot/ImageItem2D.h"
 #include "2Dplot/LineItem2D.h"
+#include "2Dplot/LineSpecial2D.h"
+#include "2Dplot/Pie2D.h"
 #include "2Dplot/TextItem2D.h"
 #include "2Dplot/widgets/AddPlot2DDialog.h"
 #include "2Dplot/widgets/Function2DDialog.h"
+#include "Matrix.h"
+#include "MyWidget.h"
+#include "Table.h"
 #include "core/IconLoader.h"
+#include "future/core/column/Column.h"
 
 MyTreeWidget::MyTreeWidget(QWidget *parent)
     : QTreeWidget(parent),
       widget_(parent),
       addgraph_(new QAction("Add Plot xy...", this)),
       addfunctionplot_(new QAction("Add Function Plot ...", this)),
+      selectdatacolumnslsgraph2d_(new QAction("Go To Data Columns...", this)),
+      selectdatacolumnschannelgraph2d_(
+          new QAction("Go To Data Columns...", this)),
+      selectdatacolumnscurvegraph2d_(
+          new QAction("Go To Data Columns...", this)),
+      selectdatacolumnsbargraph2d_(new QAction("Go To Data Columns...", this)),
+      selectdatacolumnsvectorgraph2d_(
+          new QAction("Go To Data Columns...", this)),
+      selectdatacolumnsstatboxgraph2d_(
+          new QAction("Go To Data Columns...", this)),
+      selectdatacolumnserrorgraph2d_(
+          new QAction("Go To Data Columns...", this)),
+      selectdatacolumnspiegraph2d_(new QAction("Go To Data Columns...", this)),
+      selectdatacolumnscolormapgraph2d_(
+          new QAction("Go To Data Columns...", this)),
       leftvalueaxis_(new QAction("Value", this)),
       leftlogaxis_(new QAction("Log", this)),
       leftpiaxis_(new QAction("Pi", this)),
@@ -203,6 +223,25 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
           SLOT(removeLineItem2D()));
   connect(removeimageitem_, SIGNAL(triggered(bool)), this,
           SLOT(removeImageItem2D()));
+  // select data
+  connect(selectdatacolumnslsgraph2d_, &QAction::triggered, this,
+          [=]() { selectData(qobject_cast<QAction *>(sender())); });
+  connect(selectdatacolumnschannelgraph2d_, &QAction::triggered, this,
+          [=]() { selectData(qobject_cast<QAction *>(sender())); });
+  connect(selectdatacolumnscurvegraph2d_, &QAction::triggered, this,
+          [=]() { selectData(qobject_cast<QAction *>(sender())); });
+  connect(selectdatacolumnsbargraph2d_, &QAction::triggered, this,
+          [=]() { selectData(qobject_cast<QAction *>(sender())); });
+  connect(selectdatacolumnsvectorgraph2d_, &QAction::triggered, this,
+          [=]() { selectData(qobject_cast<QAction *>(sender())); });
+  connect(selectdatacolumnsstatboxgraph2d_, &QAction::triggered, this,
+          [=]() { selectData(qobject_cast<QAction *>(sender())); });
+  connect(selectdatacolumnspiegraph2d_, &QAction::triggered, this,
+          [=]() { selectData(qobject_cast<QAction *>(sender())); });
+  connect(selectdatacolumnserrorgraph2d_, &QAction::triggered, this,
+          [=]() { selectData(qobject_cast<QAction *>(sender())); });
+  connect(selectdatacolumnscolormapgraph2d_, &QAction::triggered, this,
+          [=]() { selectData(qobject_cast<QAction *>(sender())); });
   // move up layer
   connect(moveupls_, &QAction::triggered, this, [=]() {
     moveplottablelayer<LineSpecial2D>(qobject_cast<QAction *>(sender()),
@@ -449,61 +488,72 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       removeaxis_->setData(item->data(0, Qt::UserRole + 1));
     } break;
     case PropertyItemType::Plot2DLSGraph:
-      menu.addAction("Go To Data Columns...");
+      menu.addAction(selectdatacolumnslsgraph2d_);
       menu.addAction(moveupls_);
       menu.addAction(movedownls_);
       menu.addAction(removels_);
       removels_->setData(item->data(0, Qt::UserRole + 1));
       moveupls_->setData(item->data(0, Qt::UserRole + 1));
       movedownls_->setData(item->data(0, Qt::UserRole + 1));
+      selectdatacolumnslsgraph2d_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DChannelGraph:
-      menu.addAction("Go To Data Columns...");
+      menu.addAction(selectdatacolumnschannelgraph2d_);
       menu.addAction(moveupchannel_);
       menu.addAction(movedownchannel_);
       menu.addAction(removechannel_);
       removechannel_->setData(item->data(0, Qt::UserRole + 1));
       moveupchannel_->setData(item->data(0, Qt::UserRole + 1));
       movedownchannel_->setData(item->data(0, Qt::UserRole + 1));
+      selectdatacolumnschannelgraph2d_->setData(
+          item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DCurve:
-      menu.addAction("Go To Data Columns...");
+      menu.addAction(selectdatacolumnscurvegraph2d_);
       menu.addAction(moveupcurve_);
       menu.addAction(movedowncurve_);
       menu.addAction(removecurve_);
       removecurve_->setData(item->data(0, Qt::UserRole + 1));
       moveupcurve_->setData(item->data(0, Qt::UserRole + 1));
       movedowncurve_->setData(item->data(0, Qt::UserRole + 1));
+      selectdatacolumnscurvegraph2d_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DBarGraph:
-      menu.addAction("Go To Data Columns...");
+      menu.addAction(selectdatacolumnsbargraph2d_);
       menu.addAction(moveupbar_);
       menu.addAction(movedownbar_);
       menu.addAction(removebar_);
       removebar_->setData(item->data(0, Qt::UserRole + 1));
       moveupbar_->setData(item->data(0, Qt::UserRole + 1));
       movedownbar_->setData(item->data(0, Qt::UserRole + 1));
+      selectdatacolumnsbargraph2d_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DVector:
-      menu.addAction("Go To Data Columns...");
+      menu.addAction(selectdatacolumnsvectorgraph2d_);
       menu.addAction(moveupvector_);
       menu.addAction(movedownvector_);
       menu.addAction(removevector_);
       removevector_->setData(item->data(0, Qt::UserRole + 1));
       moveupvector_->setData(item->data(0, Qt::UserRole + 1));
       movedownvector_->setData(item->data(0, Qt::UserRole + 1));
+      selectdatacolumnsvectorgraph2d_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DStatBox:
+      menu.addAction(selectdatacolumnsstatboxgraph2d_);
       menu.addAction(moveupstatbox_);
       menu.addAction(movedownstatbox_);
       menu.addAction(removestatbox_);
       removestatbox_->setData(item->data(0, Qt::UserRole + 1));
       moveupstatbox_->setData(item->data(0, Qt::UserRole + 1));
       movedownstatbox_->setData(item->data(0, Qt::UserRole + 1));
+      selectdatacolumnsstatboxgraph2d_->setData(
+          item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DErrorBar:
+      menu.addAction(selectdatacolumnserrorgraph2d_);
       menu.addAction(removeerrorbar_);
       removeerrorbar_->setData(item->data(0, Qt::UserRole + 1));
+      selectdatacolumnserrorgraph2d_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DTextItem:
       menu.addAction(moveuptextitem_);
@@ -530,16 +580,21 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       movedownimageitem_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DPieGraph:
+      menu.addAction(selectdatacolumnspiegraph2d_);
       menu.addAction(moveuppie_);
       menu.addAction(movedownpie_);
       moveuppie_->setData(item->data(0, Qt::UserRole + 1));
       movedownpie_->setData(item->data(0, Qt::UserRole + 1));
+      selectdatacolumnspiegraph2d_->setData(item->data(0, Qt::UserRole + 1));
       break;
     case PropertyItemType::Plot2DColorMap:
+      menu.addAction(selectdatacolumnscolormapgraph2d_);
       menu.addAction(moveupcolormap_);
       menu.addAction(movedowncolormap_);
       moveupcolormap_->setData(item->data(0, Qt::UserRole + 1));
       movedowncolormap_->setData(item->data(0, Qt::UserRole + 1));
+      selectdatacolumnscolormapgraph2d_->setData(
+          item->data(0, Qt::UserRole + 1));
       break;
     default:
       break;
@@ -812,6 +867,121 @@ void MyTreeWidget::removeImageItem2D() {
   if (!result) {
     qDebug() << "unable to remove line special 2d plot";
     return;
+  }
+}
+
+void MyTreeWidget::selectData(QAction *action) {
+  if (!action) return;
+  if (action == selectdatacolumnslsgraph2d_) {
+    void *ptr = action->data().value<void *>();
+    LineSpecial2D *ls = static_cast<LineSpecial2D *>(ptr);
+    DataBlockGraph *data = ls->getdatablock_lsplot();
+    Table *table = data->gettable();
+    Column *xcol = data->getxcolumn();
+    Column *ycol = data->getycolumn();
+    MyWidget *widget = static_cast<MyWidget *>(table);
+    table->deselectAll();
+    table->selectColumn(table->colIndex(xcol->name()));
+    table->selectColumn(table->colIndex(ycol->name()));
+    emit activate(widget);
+  } else if (action == selectdatacolumnschannelgraph2d_) {
+    void *ptr = action->data().value<void *>();
+    LineSpecial2D *ls = static_cast<LineSpecial2D *>(ptr);
+    DataBlockGraph *data = ls->getdatablock_lsplot();
+    Table *table = data->gettable();
+    Column *xcol = data->getxcolumn();
+    Column *ycol = data->getycolumn();
+    MyWidget *widget = static_cast<MyWidget *>(table);
+    table->deselectAll();
+    table->selectColumn(table->colIndex(xcol->name()));
+    table->selectColumn(table->colIndex(ycol->name()));
+    emit activate(widget);
+  } else if (action == selectdatacolumnscurvegraph2d_) {
+    void *ptr = action->data().value<void *>();
+    Curve2D *curve = static_cast<Curve2D *>(ptr);
+    DataBlockCurve *data = curve->getdatablock_cplot();
+    Table *table = data->gettable();
+    Column *xcol = data->getxcolumn();
+    Column *ycol = data->getycolumn();
+    MyWidget *widget = static_cast<MyWidget *>(table);
+    table->deselectAll();
+    table->selectColumn(table->colIndex(xcol->name()));
+    table->selectColumn(table->colIndex(ycol->name()));
+    emit activate(widget);
+  } else if (action == selectdatacolumnsbargraph2d_) {
+    void *ptr = action->data().value<void *>();
+    Bar2D *bar = static_cast<Bar2D *>(ptr);
+    if (bar->ishistogram_barplot()) {
+      DataBlockHist *data = bar->getdatablock_histplot();
+      Table *table = data->gettable();
+      Column *col = data->getcolumn();
+      MyWidget *widget = static_cast<MyWidget *>(table);
+      table->deselectAll();
+      table->selectColumn(table->colIndex(col->name()));
+      emit activate(widget);
+    } else {
+      DataBlockBar *data = bar->getdatablock_barplot();
+      Table *table = data->gettable();
+      Column *xcol = data->getxcolumn();
+      Column *ycol = data->getycolumn();
+      MyWidget *widget = static_cast<MyWidget *>(table);
+      table->deselectAll();
+      table->selectColumn(table->colIndex(xcol->name()));
+      table->selectColumn(table->colIndex(ycol->name()));
+      emit activate(widget);
+    }
+  } else if (action == selectdatacolumnsvectorgraph2d_) {
+    void *ptr = action->data().value<void *>();
+    Vector2D *vector = static_cast<Vector2D *>(ptr);
+    Table *table = vector->gettable_vecplot();
+    Column *xcol1 = vector->getfirstcol_vecplot();
+    Column *ycol1 = vector->getsecondcol_vecplot();
+    Column *ycol2 = vector->getthirdcol_vecplot();
+    Column *ycol3 = vector->getfourthcol_vecplot();
+    MyWidget *widget = static_cast<MyWidget *>(table);
+    table->deselectAll();
+    table->selectColumn(table->colIndex(xcol1->name()));
+    table->selectColumn(table->colIndex(ycol1->name()));
+    table->selectColumn(table->colIndex(ycol2->name()));
+    table->selectColumn(table->colIndex(ycol3->name()));
+    emit activate(widget);
+  } else if (action == selectdatacolumnsstatboxgraph2d_) {
+    void *ptr = action->data().value<void *>();
+    StatBox2D *statbox = static_cast<StatBox2D *>(ptr);
+    Table *table = statbox->gettable_statbox();
+    Column *col = statbox->getcolumn_statbox();
+    MyWidget *widget = static_cast<MyWidget *>(table);
+    table->deselectAll();
+    table->selectColumn(table->colIndex(col->name()));
+    emit activate(widget);
+  } else if (action == selectdatacolumnspiegraph2d_) {
+    void *ptr = action->data().value<void *>();
+    Pie2D *pie = static_cast<Pie2D *>(ptr);
+    Table *table = pie->gettable_pieplot();
+    Column *xcol = pie->getxcolumn_pieplot();
+    Column *ycol = pie->getycolumn_pieplot();
+    MyWidget *widget = static_cast<MyWidget *>(table);
+    table->deselectAll();
+    table->selectColumn(table->colIndex(xcol->name()));
+    table->selectColumn(table->colIndex(ycol->name()));
+    emit activate(widget);
+  } else if (action == selectdatacolumnserrorgraph2d_) {
+    void *ptr = action->data().value<void *>();
+    ErrorBar2D *err = static_cast<ErrorBar2D *>(ptr);
+    DataBlockError *data = err->getdatablock_error();
+    Table *table = data->gettable();
+    Column *col = data->geterrorcolumn();
+    MyWidget *widget = static_cast<MyWidget *>(table);
+    table->deselectAll();
+    table->selectColumn(table->colIndex(col->name()));
+    emit activate(widget);
+  } else if (action == selectdatacolumnscolormapgraph2d_) {
+    void *ptr = action->data().value<void *>();
+    ColorMap2D *colormap = static_cast<ColorMap2D *>(ptr);
+    Matrix *matrix = colormap->getmatrix_colormap();
+    MyWidget *widget = static_cast<MyWidget *>(matrix);
+    matrix->selectAll();
+    emit activate(widget);
   }
 }
 

@@ -1399,6 +1399,8 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
 
   connect(objectbrowser_, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
           SLOT(selectObjectItem(QTreeWidgetItem *)));
+  connect(objectbrowser_, &MyTreeWidget::activate,
+          [=](MyWidget *widget) { app_->activateWindow(widget); });
   connect(objectbrowser_, &MyTreeWidget::adderrorbar, this,
           &PropertyEditor::adderrorbar);
   connect(boolManager_, SIGNAL(valueChanged(QtProperty *, bool)), this,

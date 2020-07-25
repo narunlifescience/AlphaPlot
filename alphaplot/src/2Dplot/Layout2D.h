@@ -71,6 +71,7 @@ class Layout2D : public MyWidget {
   void generatePie2DPlot(const Graph2DCommon::PieStyle &style, Table *table,
                          Column *xData, Column *yData, int from, int to);
   void generateColorMap2DPlot(Matrix *matrix, bool greyscale, bool contour);
+  void generateLayoutInset2D();
 
   QList<AxisRect2D *> getAxisRectList();
   AxisRect2D *getSelectedAxisRect(int col, int row);

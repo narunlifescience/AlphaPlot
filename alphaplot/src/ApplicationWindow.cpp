@@ -210,7 +210,7 @@ ApplicationWindow::ApplicationWindow()
       glowcolor_(Qt::red),
       glowxoffset_(0),
       glowyoffset_(0),
-      glowradius_(10) {
+      glowradius_(8) {
   ui_->setupUi(this);
   // non menu qactions
   actionSaveNote = new QAction(tr("Save Note As..."), this);
@@ -5136,7 +5136,7 @@ void ApplicationWindow::activateWindow() {
 
 void ApplicationWindow::activateWindow(MyWidget *w) {
   if (!w) return;
-  qDebug() << "activating window" << w->name();
+
   w->setNormal();
   d_workspace->setActiveSubWindow(w);
 
@@ -6044,6 +6044,8 @@ Matrix *ApplicationWindow::importImage(const QString &fileName) {
 
 void ApplicationWindow::addNestedLayout() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
+  Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
+  // layout->generateLayoutInset2D();
   qDebug() << "not implimented";
 }
 

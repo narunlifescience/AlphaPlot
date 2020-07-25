@@ -38,6 +38,7 @@ class GeneralAppreanceSettings : public SettingsPage {
 
  private slots:
   void stylePreview(QString style);
+  void colorStylePreview(int index);
 };
 
 #endif  // GENERALAPPREANCESETTINGS_H
