@@ -1579,7 +1579,7 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
   } else if (prop->compare(axispropertyticklabelvisibilityitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelvisibility_axis(value);
-    axis->layer()->replot();
+    axis->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   } else if (prop->compare(itempropertylegendvisibleitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
