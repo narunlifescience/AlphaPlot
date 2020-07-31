@@ -146,6 +146,7 @@ class MyWidget : public QMdiSubWindow {
   void statusChanged(MyWidget *);
   //! Emitted when the title bar recieves a QContextMenuEvent
   void showTitleBarMenu();
+  void mousepressevent(MyWidget *);
 
  protected slots:
   //! Set caption according to current CaptionPolicy, name and label
@@ -157,6 +158,7 @@ class MyWidget : public QMdiSubWindow {
   virtual void contextMenuEvent(QContextMenuEvent *event);
   virtual void resizeEvent(QResizeEvent *resizeEvent);
   virtual void moveEvent(QMoveEvent *moveEvent);
+  virtual void mousePressEvent(QMouseEvent *event);
 
   //! Pointer to the parent folder of the window
   Folder *parentFolder;

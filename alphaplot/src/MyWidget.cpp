@@ -149,6 +149,12 @@ void MyWidget::moveEvent(QMoveEvent *moveEvent) {
   QMdiSubWindow::moveEvent(moveEvent);
 }
 
+void MyWidget::mousePressEvent(QMouseEvent *event)
+{
+  emit mousepressevent(this);
+  QMdiSubWindow::mousePressEvent(event);
+}
+
 void MyWidget::setStatus(Status status) {
   if (w_status == status) return;
 

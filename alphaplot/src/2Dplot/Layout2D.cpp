@@ -1857,18 +1857,19 @@ void Layout2D::print() {
             printer->setColorMode(QPrinter::Color);
             std::unique_ptr<QCPPainter> painter =
                 std::unique_ptr<QCPPainter>(new QCPPainter(printer));
-            QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
+            // QRectF pageRect = printer->pageRect(QPrinter::DevicePixel);
 
             int plotWidth = plot2dCanvas_->viewport().width();
             int plotHeight = plot2dCanvas_->viewport().height();
-            double scale = pageRect.width() / static_cast<double>(plotWidth);
+            // double scale = pageRect.width() / static_cast<double>(plotWidth);
 
-            painter->setMode(QCPPainter::pmVectorized);
-            painter->setMode(QCPPainter::pmNoCaching);
+            //painter->setMode(QCPPainter::pmDefault, true);
+            painter->setMode(QCPPainter::pmNonCosmetic, true);
+            painter->setMode(QCPPainter::pmNoCaching, true);
             // comment this out if you want cosmetic thin lines (always 1 pixel
             // thick independent of pdf zoom level)
             // painter.setMode(QCPPainter::pmNonCosmetic);
-            painter->scale(scale, scale);
+            //painter->scale(scale, scale);
             currentAxisRect_->setPrintorExportJob(true);
             plot2dCanvas_->toPainter(painter.get(), plotWidth, plotHeight);
             currentAxisRect_->setPrintorExportJob(false);

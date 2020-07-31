@@ -1866,7 +1866,11 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
   connect(layout2d, &Layout2D::AxisRectSwap, [=]() {
     propertyeditor->populateObjectBrowser(static_cast<MyWidget *>(layout2d));
   });
-
+  connect(layout2d, &Layout2D::mousepressevent, [=](MyWidget *widget) {
+    if (d_workspace->activeSubWindow() == widget) return;
+    widget->setNormal();
+    d_workspace->setActiveSubWindow(widget);
+  });
   connect(layout2d, &Layout2D::ResetPicker, [&]() {
     pickGraphTool(ui_->actionDisableGraphTools);
     ui_->actionDisableGraphTools->setChecked(true);
@@ -1909,6 +1913,11 @@ Layout3D *ApplicationWindow::newGraph3D(const Graph3DCommon::Plot3DType &type,
           &ApplicationWindow::showWindowTitleBarMenu);
   connect(layout3d, &Layout3D::dataAdded, propertyeditor,
           &PropertyEditor::populateObjectBrowser);
+  connect(layout3d, &Layout3D::mousepressevent, [=](MyWidget *widget) {
+    if (d_workspace->activeSubWindow() == widget) return;
+    widget->setNormal();
+    d_workspace->setActiveSubWindow(widget);
+  });
 
   return layout3d;
 }
@@ -2141,6 +2150,11 @@ void ApplicationWindow::initNote(Note *note, const QString &caption) {
           SLOT(updateWindowStatus(MyWidget *)));
   connect(note, SIGNAL(showTitleBarMenu()), this,
           SLOT(showWindowTitleBarMenu()));
+  connect(note, &Note::mousepressevent, [=](MyWidget *widget) {
+    if (d_workspace->activeSubWindow() == widget) return;
+    widget->setNormal();
+    d_workspace->setActiveSubWindow(widget);
+  });
 
   emit modified();
 }
@@ -2244,6 +2258,11 @@ void ApplicationWindow::initMatrix(Matrix *matrix) {
           SLOT(updateWindowStatus(MyWidget *)));
   connect(matrix, SIGNAL(showContextMenu()), this,
           SLOT(showWindowContextMenu()));
+  connect(matrix, &Matrix::mousepressevent, [=](MyWidget *widget) {
+    if (d_workspace->activeSubWindow() == widget) return;
+    widget->setNormal();
+    d_workspace->setActiveSubWindow(widget);
+  });
   emit modified();
 }
 
@@ -5136,7 +5155,6 @@ void ApplicationWindow::activateWindow() {
 
 void ApplicationWindow::activateWindow(MyWidget *w) {
   if (!w) return;
-
   w->setNormal();
   d_workspace->setActiveSubWindow(w);
 
@@ -6203,6 +6221,11 @@ void ApplicationWindow::connectTable(Table *table) {
           SLOT(showRowStatistics()));
   connect(table->d_future_table, SIGNAL(requestColumnStatistics()), this,
           SLOT(showColumnStatistics()));
+  connect(table, &Table::mousepressevent, [=](MyWidget *widget) {
+    if (d_workspace->activeSubWindow() == widget) return;
+    widget->setNormal();
+    d_workspace->setActiveSubWindow(widget);
+  });
   table->askOnCloseEvent(confirmCloseTable);
 }
 
