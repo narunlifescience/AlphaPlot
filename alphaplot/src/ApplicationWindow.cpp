@@ -293,10 +293,10 @@ ApplicationWindow::ApplicationWindow()
   connect(d_project,
           SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)), this,
           SLOT(handleAspectAboutToBeRemoved(const AbstractAspect *, int)));
-  connect(d_project->undoStack(), SIGNAL(canUndoChanged(bool)), ui_->actionUndo,
-          SLOT(setEnabled(bool)));
-  connect(d_project->undoStack(), SIGNAL(canRedoChanged(bool)), ui_->actionRedo,
-          SLOT(setEnabled(bool)));
+  connect(d_project->undoStack(), &QUndoStack::canUndoChanged, ui_->actionUndo,
+          &QAction::setEnabled);
+  connect(d_project->undoStack(), &QUndoStack::canRedoChanged, ui_->actionRedo,
+          &QAction::setEnabled);
 
   // Explorer window
   ui_->explorerGridLayout->setContentsMargins(0, 0, 0, 0);
