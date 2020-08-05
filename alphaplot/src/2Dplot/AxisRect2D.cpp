@@ -58,7 +58,8 @@ AxisRect2D::AxisRect2D(Plot2D *parent, bool setupDefaultAxis)
   insetLayout()->addElement(axisRectLegend_, Qt::AlignTop | Qt::AlignLeft);
   insetLayout()->setInsetPlacement(0, QCPLayoutInset::ipFree);
   axisRectLegend_->setlayer_legend(plot2d_->getLegend2DLayerName());
-  connect(axisRectLegend_, SIGNAL(legendClicked()), SLOT(legendClick()));
+  connect(axisRectLegend_, &Legend2D::legendClicked, this,
+          &AxisRect2D::legendClick);
 }
 
 AxisRect2D::~AxisRect2D() {
@@ -420,7 +421,8 @@ LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
 
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineSpecial);
   axisRectLegend_->addItem(legendItem);
-  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  connect(legendItem, &LegendItem2D::legendItemClicked, this,
+          &AxisRect2D::legendClick);
   lineSpecial->setName(table->name() + "_" + xData->name() + "_" +
                        yData->name());
   lsvec_.append(lineSpecial);
@@ -459,7 +461,8 @@ QPair<LineSpecial2D *, LineSpecial2D *> AxisRect2D::addLineSpecialChannel2DPlot(
   lineSpecial2->setlinestrokestyle_lsplot(Qt::PenStyle::DotLine);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, lineSpecial1);
   axisRectLegend_->addItem(legendItem);
-  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  connect(legendItem, &LegendItem2D::legendItemClicked, this,
+          &AxisRect2D::legendClick);
   lineSpecial1->setName(table->name() + "_" + xData->name() + "_" +
                         yData1->name() + "_" + yData2->name());
   auto pair =
@@ -512,7 +515,8 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
   SplineLegendItem2D *legendItem =
       new SplineLegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
-  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  connect(legendItem, &LegendItem2D::legendItemClicked, this,
+          &AxisRect2D::legendClick);
   curve->setName(table->name() + "_" + xcol->name() + "_" + ycol->name());
   curvevec_.append(curve);
   layers_.append(curve->layer());
@@ -532,7 +536,8 @@ Curve2D *AxisRect2D::addFunction2DPlot(QVector<double> *xdata,
   curve->setName(name);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
   axisRectLegend_->addItem(legendItem);
-  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  connect(legendItem, &LegendItem2D::legendItemClicked, this,
+          &AxisRect2D::legendClick);
   layers_.append(curve->layer());
   curvevec_.append(curve);
   connect(curve, &Curve2D::showtooltip, this, &AxisRect2D::showtooltip);
@@ -562,7 +567,8 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
   bar->setAntialiasedFill(false);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, bar);
   axisRectLegend_->addItem(legendItem);
-  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  connect(legendItem, &LegendItem2D::legendItemClicked, this,
+          &AxisRect2D::legendClick);
   bar->setName(table->name() + "_" + xData->name() + "_" + yData->name());
   layers_.append(bar->layer());
   barvec_.append(bar);
@@ -581,7 +587,8 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
                                y2Data, from, to, xAxis, yAxis);
   VectorLegendItem2D *legendItem = new VectorLegendItem2D(axisRectLegend_, vec);
   axisRectLegend_->addItem(legendItem);
-  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
+  connect(legendItem, &LegendItem2D::legendItemClicked, this,
+          &AxisRect2D::legendClick);
   vec->setName(table->name() + "_" + x1Data->name() + "_" + y1Data->name() +
                "_" + x2Data->name() + "_" + y2Data->name());
   layers_.append(vec->layer());

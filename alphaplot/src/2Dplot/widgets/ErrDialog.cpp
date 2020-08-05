@@ -27,16 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "ErrDialog.h"
-#include "2Dplot/AxisRect2D.h"
-#include "2Dplot/Bar2D.h"
-#include "2Dplot/Curve2D.h"
-#include "2Dplot/DataManager2D.h"
-#include "2Dplot/ErrorBar2D.h"
-#include "2Dplot/LineSpecial2D.h"
-#include "ApplicationWindow.h"
-#include "Table.h"
-#include "core/IconLoader.h"
-#include "core/column/Column.h"
 
 #include <QButtonGroup>
 #include <QComboBox>
@@ -51,6 +41,17 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 #include <QWidget>
+
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Bar2D.h"
+#include "2Dplot/Curve2D.h"
+#include "2Dplot/DataManager2D.h"
+#include "2Dplot/ErrorBar2D.h"
+#include "2Dplot/LineSpecial2D.h"
+#include "ApplicationWindow.h"
+#include "Table.h"
+#include "core/IconLoader.h"
+#include "core/column/Column.h"
 
 ErrDialog::ErrDialog(QWidget *parent, AxisRect2D *axisrect, Qt::WindowFlags fl)
     : QDialog(parent, fl),
@@ -152,11 +153,11 @@ ErrDialog::ErrDialog(QWidget *parent, AxisRect2D *axisrect, Qt::WindowFlags fl)
   errorColumnNames();
 
   // signals and slots connections
-  connect(buttonAdd, SIGNAL(clicked()), this, SLOT(add()));
-  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
-  connect(percentBox, SIGNAL(toggled(bool)), valueBox, SLOT(setEnabled(bool)));
-  connect(columnBox, SIGNAL(toggled(bool)), tableNamesBox,
-          SLOT(setEnabled(bool)));
+  connect(buttonAdd, &QPushButton::clicked, this, &ErrDialog::add);
+  connect(buttonCancel, &QPushButton::clicked, this, &ErrDialog::reject);
+  connect(percentBox, &QRadioButton::toggled, valueBox, &QLineEdit::setEnabled);
+  connect(columnBox, &QRadioButton::toggled, tableNamesBox,
+          &QComboBox::setEnabled);
   connect(buttonGroup2, SIGNAL(buttonClicked(int)), this,
           SLOT(errorColumnNames()));
 }
