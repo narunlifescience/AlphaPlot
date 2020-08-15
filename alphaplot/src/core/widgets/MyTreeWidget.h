@@ -52,6 +52,7 @@ class MyTreeWidget : public QTreeWidget {
   ~MyTreeWidget();
 
  signals:
+  void swaplayout();
   void adderrorbar();
   void activate(MyWidget *widget);
 
@@ -84,6 +85,7 @@ class MyTreeWidget : public QTreeWidget {
 
  private:
   QWidget *widget_;
+  QAction *swaplayout_;
   QAction *addgraph_;
   QAction *addfunctionplot_;
   // slect data

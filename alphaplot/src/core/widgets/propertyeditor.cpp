@@ -1403,6 +1403,8 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
           [=](MyWidget *widget) { app_->activateWindow(widget); });
   connect(objectbrowser_, &MyTreeWidget::adderrorbar, this,
           &PropertyEditor::adderrorbar);
+  connect(objectbrowser_, &MyTreeWidget::swaplayout, app_,
+          &ApplicationWindow::showSwapLayoutDialog);
   connect(boolManager_, SIGNAL(valueChanged(QtProperty *, bool)), this,
           SLOT(valueChange(QtProperty *, const bool &)));
   connect(colorManager_, SIGNAL(valueChanged(QtProperty *, QColor)), this,

@@ -25,6 +25,7 @@
 MyTreeWidget::MyTreeWidget(QWidget *parent)
     : QTreeWidget(parent),
       widget_(parent),
+      swaplayout_(new QAction("Swap Layouts...", this)),
       addgraph_(new QAction("Add Plot xy...", this)),
       addfunctionplot_(new QAction("Add Function Plot ...", this)),
       selectdatacolumnslsgraph2d_(new QAction("Go To Data Columns...", this)),
@@ -106,6 +107,8 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       movedownimageitem_(new QAction("Layer Down", this)) {
   setContextMenuPolicy(Qt::CustomContextMenu);
   // Icons
+  swaplayout_->setIcon(
+      IconLoader::load("layer-arrange", IconLoader::LightDark));
   removeaxis_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removels_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removechannel_->setIcon(
@@ -168,6 +171,7 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
           &MyTreeWidget::CurrentItemChanged);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
           SLOT(showContextMenu(const QPoint &)));
+  connect(swaplayout_, &QAction::triggered, this, &MyTreeWidget::swaplayout);
   connect(addfunctionplot_, SIGNAL(triggered(bool)), this,
           SLOT(addfunctionplot()));
   connect(adderrorbar_, &QAction::triggered, this, &MyTreeWidget::adderrorbar);
@@ -395,6 +399,9 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       IconLoader::load("math-fofx", IconLoader::LightDark));
 
   switch (static_cast<PropertyItemType>(item->data(0, Qt::UserRole).toInt())) {
+    case PropertyItemType::Plot2DCanvas:
+      menu.addAction(swaplayout_);
+      break;
     case PropertyItemType::Plot2DLayout: {
       menu.addAction(addgraph_);
       addgraph_->setData(item->data(0, Qt::UserRole + 1));
