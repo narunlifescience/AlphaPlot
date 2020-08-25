@@ -4974,7 +4974,10 @@ void ApplicationWindow::clearSelection() {
   else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
     qobject_cast<Matrix *>(subwindow)->clearSelection();
   else if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
-    QMessageBox::warning(this, tr("Error"), tr("Cannot use this on Graph2D!"));
+    // QMessageBox::warning(this, tr("Error"), tr("Cannot use this on
+    // Graph2D!")); resizing subwindows unintentionally activate this for some
+    // unknown reason issue #19
+    qDebug() << "Cannot use this on Graph2D!";
     return;
   } else if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow))
     qobject_cast<Note *>(subwindow)->textWidget()->clear();
@@ -4995,7 +4998,10 @@ void ApplicationWindow::copySelection() {
   else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
     qobject_cast<Matrix *>(subwindow)->copySelection();
   else if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
-    QMessageBox::warning(this, tr("Error"), tr("Cannot use this on Graph2D!"));
+    // QMessageBox::warning(this, tr("Error"), tr("Cannot use this on
+    // Graph2D!")); resizing subwindows unintentionally activate this for some
+    // unknown reason issue #19
+    qDebug() << "Cannot use this on Graph2D!";
     return;
   } else if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow))
     qobject_cast<Note *>(subwindow)->textWidget()->copy();
@@ -5010,7 +5016,10 @@ void ApplicationWindow::cutSelection() {
   else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
     qobject_cast<Matrix *>(subwindow)->cutSelection();
   else if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
-    QMessageBox::warning(this, tr("Error"), tr("Cannot use this on Graph2D!"));
+    // QMessageBox::warning(this, tr("Error"), tr("Cannot use this on
+    // Graph2D!")); resizing subwindows unintentionally activate this for some
+    // unknown reason issue #19
+    qDebug() << "Cannot use this on Graph2D!";
     return;
   } else if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow))
     qobject_cast<Note *>(subwindow)->textWidget()->cut();
@@ -5030,7 +5039,10 @@ void ApplicationWindow::pasteSelection() {
   else if (isActiveSubWindow(m, SubWindowType::NoteSubWindow))
     qobject_cast<Note *>(m)->textWidget()->paste();
   else if (isActiveSubWindow(m, SubWindowType::Plot2DSubWindow)) {
-    QMessageBox::warning(this, tr("Error"), tr("Cannot use this on Graph2D!"));
+    // QMessageBox::warning(this, tr("Error"), tr("Cannot use this on
+    // Graph2D!")); resizing subwindows unintentionally activate this for some
+    // unknown reason issue #19
+    qDebug() << "Cannot use this on Graph2D!";
     return;
   }
 

@@ -1,4 +1,5 @@
 == progress ==
+* fixed multiple crash issues thus increasing the stability
 * go to data column from property editor graph2d
 * selected mdi subwindow glow indication
 * fix vector plot related orientation issue and antialiasing issue
