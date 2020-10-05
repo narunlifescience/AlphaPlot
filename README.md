@@ -17,6 +17,7 @@ Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalys
 | Test builds | http://alphaplot.sourceforge.net/test-build.html |
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/alphaplot.svg)](https://repology.org/project/alphaplot/versions)
+<a href='https://flathub.org/apps/details/io.github.narunlifescience.AlphaPlot'><img width='120' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
 # Donate
 AlphaPlot is an open-source project that has been made possible due to the generous contributions by community backers. If you are interested in supporting this project, please consider becoming a sponsor or becoming a patron https://www.patreon.com/alphaplot
@@ -91,6 +92,8 @@ Note: AlphaPlot uses QtDataVisualization module for 3D plotting. You may have to
 
 The following people have made installing AlphaPlot easier by providing specialized binary packages.
 In alphabetical order.
+
+- [Filipe](https://github.com/filipestevao) ([Flatpak](https://flathub.org/apps/details/io.github.narunlifescience.AlphaPlot))
 - [Filipe](https://github.com/filipestevao) ([Linux AppImage](https://github.com/filipestevao/AlphaPlot-AppImage/releases/download/v1.011/AlphaPlot-1.011.glibc2.29-x86_64.AppImage))
 
 ## SciDAVis & QtiPlot Developers
@@ -134,5 +137,6 @@ We thank all the tools and library developers & contributors used by AlphaPlot(i
 - Breeze Icons (https://github.com/KDE/breeze-icons),
 - Inno Setup (https://jrsoftware.org/isinfo.php),
 - AppImage (https://appimage.org/)
+- Flatpak (https://flatpak.org/)
 
 ... and many more we just forgot to mention.
