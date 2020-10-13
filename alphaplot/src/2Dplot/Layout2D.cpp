@@ -2056,10 +2056,11 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         }
         axisrect->setGridPairToNullptr();
         axisrect->load(xmlreader, tabs, mats);
-      } else
+      } else if (xmlreader->name() != "") {
         // unknown element
         xmlreader->raiseWarning(
             tr("unknown element '%1'").arg(xmlreader->name().toString()));
+        }
     }
   } else  // no plot2d element
     xmlreader->raiseError(tr("no plot2d element found"));

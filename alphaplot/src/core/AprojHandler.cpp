@@ -411,7 +411,8 @@ bool AprojHandler::saveproject(const QString &filename, Folder *folder) {
 
   xmlwriter->setCodec("UTF-8");
 
-  xmlwriter->setAutoFormatting(false);
+  xmlwriter->setAutoFormatting(true);
+  xmlwriter->setAutoFormattingIndent(2);
   Folder *root = folder;
   xmlwriter->writeStartDocument();
   xmlwriter->writeComment("AlphaPlot project file");
@@ -508,7 +509,8 @@ bool AprojHandler::saveTemplate(const QString &filename, MyWidget *mywidget) {
   std::unique_ptr<XmlStreamWriter> xmlwriter =
       std::unique_ptr<XmlStreamWriter>(new XmlStreamWriter(file.get()));
   xmlwriter->setCodec("UTF-8");
-  xmlwriter->setAutoFormatting(false);
+  xmlwriter->setAutoFormatting(true);
+  xmlwriter->setAutoFormattingIndent(2);
 
   xmlwriter->writeStartDocument();
   xmlwriter->writeComment("AlphaPlot Template file");
