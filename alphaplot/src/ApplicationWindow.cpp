@@ -3331,10 +3331,8 @@ void ApplicationWindow::saveSettings() {
 
   was_maximized_ = isMaximized();
   settings.setValue("Maximized", was_maximized_);
-  // Save the geometry only when mainwindow is not in maximized state
-  if (!was_maximized_) {
-    settings.setValue("ProjectWindowGeometry", saveGeometry());
-  }
+  // Save the mainwindow geometry
+  settings.setValue("ProjectWindowGeometry", saveGeometry());
 
   settings.setValue("DockWindows", saveState());
   settings.setValue("ExplorerSplitter", ui_->explorerSplitter->saveState());

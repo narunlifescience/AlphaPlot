@@ -647,8 +647,11 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
          : xmlreader->raiseWarning(tr("Axis2D offset property setting error"));
     // from property
     double from = xmlreader->readAttributeDouble("from", &ok);
-    (ok) ? setfrom_axis(from)
-         : xmlreader->raiseWarning(tr("Axis2D from property setting error"));
+    if (ok) {
+      setfrom_axis(from);
+      setRangeLower(from); // temporary fix the rescaling of axes
+    } else
+      xmlreader->raiseWarning(tr("Axis2D from property setting error"));
     // to property
     double to = xmlreader->readAttributeDouble("to", &ok);
     (ok) ? setto_axis(to)

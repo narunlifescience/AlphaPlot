@@ -599,7 +599,7 @@ class ApplicationWindow : public QMainWindow,
   //@{
   void findWindowOrFolderFromProjectExplorer();
   void showResults(bool ok);
-  void showResults(const QString& text, bool ok = true);
+  void showResults(const QString& text, bool ok = false);
   void showExportASCIIDialog();
   void showCurvesDialog();
   void showCurveRangeDialog();
