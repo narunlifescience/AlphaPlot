@@ -649,7 +649,7 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
     double from = xmlreader->readAttributeDouble("from", &ok);
     if (ok) {
       setfrom_axis(from);
-      setRangeLower(from); // fix the rescaling of axes
+      setRangeLower(from); // temporary fix the rescaling of axes
     } else
       xmlreader->raiseWarning(tr("Axis2D from property setting error"));
     // to property
