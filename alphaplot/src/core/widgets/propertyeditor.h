@@ -379,6 +379,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *cplotpropertyscatterstrokestyleitem_;
   QtProperty *cplotpropertyscatterantialiaseditem_;
   QtProperty *cplotpropertylegendtextitem_;
+  QtProperty *cplotpropertylegendvisibleitem_;
 
   // Box Properties block
   QtProperty *barplotpropertyxaxisitem_;

@@ -3,6 +3,7 @@
 #include "AxisRect2D.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
+#include "Legend2D.h"
 #include "Table.h"
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"
@@ -369,6 +370,10 @@ bool Curve2D::getscatterantialiased_cplot() const {
 
 QString Curve2D::getlegendtext_cplot() const { return name(); }
 
+bool Curve2D::getlegendvisible_cplot() const {
+  return mParentPlot->legend->hasItemWithPlottable(this);
+}
+
 Axis2D *Curve2D::getxaxis() const { return xAxis_; }
 
 Axis2D *Curve2D::getyaxis() const { return yAxis_; }
@@ -579,6 +584,10 @@ void Curve2D::setlinefillstatus_cplot(const bool value) {
 }
 
 void Curve2D::setlegendtext_cplot(const QString &text) { setName(text); }
+
+void Curve2D::setlegendvisible_cplot(const bool value) {
+  (value) ? addToLegend() : removeFromLegend();
+}
 
 void Curve2D::setpicker_cplot(const Graph2DCommon::Picker picker) {
   picker_ = picker;
