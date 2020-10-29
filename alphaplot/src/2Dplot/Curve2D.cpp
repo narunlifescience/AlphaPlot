@@ -3,7 +3,6 @@
 #include "AxisRect2D.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
-#include "Legend2D.h"
 #include "Table.h"
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"

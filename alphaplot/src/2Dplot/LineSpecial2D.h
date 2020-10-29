@@ -40,6 +40,7 @@ class LineSpecial2D : public QCPGraph {
   QColor getscatterstrokecolor_lsplot() const;
   double getscatterstrokethickness_lsplot() const;
   bool getscatterantialiased_lsplot() const;
+  bool getlegendvisible_lsplot() const;
   QString getlegendtext_lsplot() const;
   Axis2D *getxaxis() const;
   Axis2D *getyaxis() const;
@@ -62,6 +63,7 @@ class LineSpecial2D : public QCPGraph {
   void setscatterstrokecolor_lsplot(const QColor &color);
   void setscatterstrokethickness_lsplot(const double value);
   void setscatterantialiased_lsplot(const bool value);
+  void setlegendvisible_lsplot(const bool value);
   void setlegendtext_lsplot(const QString &legendtext);
   void setxaxis_lsplot(Axis2D *axis);
   void setyaxis_lsplot(Axis2D *axis);

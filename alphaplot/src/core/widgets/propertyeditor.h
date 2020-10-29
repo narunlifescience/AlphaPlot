@@ -325,6 +325,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *lsplotpropertyscatterstrokethicknessitem_;
   QtProperty *lsplotpropertyscatterstrokestyleitem_;
   QtProperty *lsplotpropertyscatterantialiaseditem_;
+  QtProperty *lsplotpropertylegendvisibleitem_;
   QtProperty *lsplotpropertylegendtextitem_;
 
   // LineSpecialChannel Properties block
