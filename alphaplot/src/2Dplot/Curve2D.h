@@ -49,8 +49,8 @@ class Curve2D : public QCPCurve {
   double getscatterstrokethickness_cplot() const;
   QPen getscatterpen_cplot() const;
   bool getscatterantialiased_cplot() const;
-  QString getlegendtext_cplot() const;
   bool getlegendvisible_cplot() const;
+  QString getlegendtext_cplot() const;
   Axis2D *getxaxis() const;
   Axis2D *getyaxis() const;
   Graph2DCommon::PlotType getplottype_cplot() const { return type_; }
@@ -78,8 +78,8 @@ class Curve2D : public QCPCurve {
   void setscatterstrokethickness_cplot(const double value);
   void setscatterantialiased_cplot(const bool value);
   void setlinefillstatus_cplot(const bool value);
-  void setlegendtext_cplot(const QString &text);
   void setlegendvisible_cplot(const bool value);
+  void setlegendtext_cplot(const QString &text);
   void setpicker_cplot(const Graph2DCommon::Picker picker);
 
   void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);

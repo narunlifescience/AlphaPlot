@@ -1962,6 +1962,11 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         } else
           xmlreader->raiseError(tr("Curve2D data not found error"));
 
+        bool legendvisible = xmlreader->readAttributeBool("legendvisible", &ok);
+        (ok) ? curve->setlegendvisible_cplot(legendvisible)
+             : xmlreader->raiseWarning(
+                 tr("Curve2D legend visible property setting error"));
+
         while (!xmlreader->atEnd()) {
           xmlreader->readNextStartElement();
           if (xmlreader->isStartElement() && xmlreader->name() != "errorbar") {

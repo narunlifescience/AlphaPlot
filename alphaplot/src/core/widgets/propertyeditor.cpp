@@ -682,9 +682,11 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
                              stroketypeiconslist);
   cplotpropertyscatterantialiaseditem_ =
       boolManager_->addProperty("Scatter Antialiased");
-  cplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legend");
   cplotpropertylegendvisibleitem_ =
-      boolManager_->addProperty("Legend Visible");
+      boolManager_->addProperty("Legend");
+  cplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legend");
+  cplotpropertylegendvisibleitem_->addSubProperty(
+      cplotpropertylegendtextitem_);
 
   // Box Properties block
   barplotpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
@@ -1669,6 +1671,7 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     curve->layer()->replot();
   } else if (prop->compare(cplotpropertylegendvisibleitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    cplotpropertylegendtextitem_->setEnabled(value);
     curve->setlegendvisible_cplot(value);
     curve->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(barplotpropertyfillantialiaseditem_)) {
@@ -4594,7 +4597,6 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
   propertybrowser_->addProperty(cplotpropertyscatterstrokestyleitem_);
   propertybrowser_->addProperty(cplotpropertyscatterstrokethicknessitem_);
   propertybrowser_->addProperty(cplotpropertyscatterantialiaseditem_);
-  propertybrowser_->addProperty(cplotpropertylegendtextitem_);
   propertybrowser_->addProperty(cplotpropertylegendvisibleitem_);
   {
     QStringList cyaxislist;
@@ -4662,10 +4664,10 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
                            curve->getscatterstrokethickness_cplot());
   boolManager_->setValue(cplotpropertyscatterantialiaseditem_,
                          curve->getscatterantialiased_cplot());
-  stringManager_->setValue(cplotpropertylegendtextitem_,
-                           Utilities::joinstring(curve->getlegendtext_cplot()));
   boolManager_->setValue(cplotpropertylegendvisibleitem_,
                          curve->getlegendvisible_cplot());
+  stringManager_->setValue(cplotpropertylegendtextitem_,
+                           Utilities::joinstring(curve->getlegendtext_cplot()));
 }
 
 void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
@@ -7213,9 +7215,9 @@ void PropertyEditor::setObjectPropertyId() {
       "cplotpropertyscatterstrokestyleitem_");
   cplotpropertyscatterantialiaseditem_->setPropertyId(
       "cplotpropertyscatterantialiaseditem_");
-  cplotpropertylegendtextitem_->setPropertyId("cplotpropertylegendtextitem_");
   cplotpropertylegendvisibleitem_->setPropertyId(
       "cplotpropertylegendvisibleitem_");
+  cplotpropertylegendtextitem_->setPropertyId("cplotpropertylegendtextitem_");
 
   // Box Properties block
   barplotpropertyxaxisitem_->setPropertyId("barplotpropertyxaxisitem_");
