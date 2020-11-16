@@ -331,6 +331,7 @@ class PropertyEditor : public QDockWidget {
   // LineSpecialChannel Properties block
   QtProperty *channelplotpropertyxaxisitem_;
   QtProperty *channelplotpropertyyaxisitem_;
+  QtProperty *channelplotpropertylegendvisibleitem_;
   QtProperty *channelplotpropertylegendtextitem_;
   QtProperty *channel1plotpropertygroupitem_;
   QtProperty *channel1plotpropertylinestyleitem_;
@@ -444,6 +445,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *vectorpropertylineendingheightitem_;
   QtProperty *vectorpropertylineendingwidthitem_;
   QtProperty *vectorpropertylineantialiaseditem_;
+  QtProperty *vectorpropertylegendvisibleitem_;
   QtProperty *vectorpropertylegendtextitem_;
 
   // Pie Properties Block

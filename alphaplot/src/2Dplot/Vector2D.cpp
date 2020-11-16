@@ -292,6 +292,10 @@ bool Vector2D::getendinverted_vecplot(
   return ending->inverted();
 }
 
+bool Vector2D::getlegendvisible_vecplot() const {
+  return mParentPlot->legend->hasItemWithPlottable(this);
+}
+
 QString Vector2D::getlegendtext_vecplot() const { return name(); }
 
 void Vector2D::setxaxis_vecplot(Axis2D *axis) {
@@ -442,6 +446,10 @@ void Vector2D::setendinverted_vecplot(
   reloadendings(location);
 }
 
+void Vector2D::setlegendvisible_vecplot(const bool value) {
+  (value) ? addToLegend() : removeFromLegend();
+}
+
 void Vector2D::setlegendtext_vecplot(const QString &name) { setName(name); }
 
 void Vector2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
@@ -459,6 +467,9 @@ void Vector2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   xmlwriter->writeAttribute("y2column", y2col_->name());
   xmlwriter->writeAttribute("from", QString::number(from_));
   xmlwriter->writeAttribute("to", QString::number(to_));
+  (getlegendvisible_vecplot())
+    ? xmlwriter->writeAttribute("legendvisible", "true")
+    : xmlwriter->writeAttribute("legendvisible", "false");
   xmlwriter->writeAttribute("legend", getlegendtext_vecplot());
   (getlineantialiased_vecplot())
       ? xmlwriter->writeAttribute("antialias", "true")
@@ -513,7 +524,7 @@ bool Vector2D::load(XmlStreamReader *xmlreader) {
   if (xmlreader->isStartElement() && xmlreader->name() == "vector") {
     bool ok;
 
-    // line antialias
+    // legend text
     QString legend = xmlreader->readAttributeString("legend", &ok);
     (ok) ? setlegendtext_vecplot(legend)
          : xmlreader->raiseWarning(
@@ -587,6 +598,12 @@ bool Vector2D::load(XmlStreamReader *xmlreader) {
               tr("Vector2D strokepen property setting error"));
       }
     }
+
+    // legend visible
+    bool legendvisible = xmlreader->readAttributeBool("legendvisible", &ok);
+    (ok) ? setlegendvisible_vecplot(legendvisible)
+         : xmlreader->raiseWarning(
+           tr("Curve2D legend visible property setting error"));
 
   } else  // no element
     xmlreader->raiseError(tr("no Vector2D item element found"));

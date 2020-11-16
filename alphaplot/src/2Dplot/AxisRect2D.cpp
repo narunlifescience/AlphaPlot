@@ -1586,7 +1586,7 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
     lspair.first->setscatterfillcolor_lsplot(scatterbrush1.color());
     // ls2
     lspair.second->setlinetype_lsplot(lstype2);
-    lspair.second->setlegendvisible_lsplot(legendvisible1);
+    lspair.second->setlegendvisible_lsplot(legendvisible2);
     lspair.second->setlegendtext_lsplot(legend2);
     lspair.second->setlinefillstatus_lsplot(linefill2);
     lspair.second->setlineantialiased_lsplot(lineantialias2);
