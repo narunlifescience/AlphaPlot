@@ -251,6 +251,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *itempropertylegendoriginxitem_;
   QtProperty *itempropertylegendoriginyitem_;
   QtProperty *itempropertylegendvisibleitem_;
+  QtProperty *itempropertylegendmarginitem_;
   QtProperty *itempropertylegendfontitem_;
   QtProperty *itempropertylegendtextcoloritem_;
   QtProperty *itempropertylegendiconwidthitem_;
