@@ -153,6 +153,10 @@ void Legend2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeAttribute("iconheight", QString::number(iconSize().height()));
   xmlwriter->writeAttribute("icontextpadding",
                             QString::number(iconTextPadding()));
+  xmlwriter->writeAttribute("marginleft", QString::number(margins().left()));
+  xmlwriter->writeAttribute("margintop", QString::number(margins().top()));
+  xmlwriter->writeAttribute("marginright", QString::number(margins().right()));
+  xmlwriter->writeAttribute("marginbottom", QString::number(margins().bottom()));
   xmlwriter->writeStartElement("legend");
   (istitle_legend()) ? xmlwriter->writeAttribute("visible", "true")
                      : xmlwriter->writeAttribute("visible", "false");
@@ -210,6 +214,30 @@ bool Legend2D::load(XmlStreamReader *xmlreader) {
     (ok) ? setIconTextPadding(icontextpadding)
          : xmlreader->raiseError(
                tr("no Legend2D icon text padding property element found"));
+    // margin property
+    if (ok) {
+      int left = xmlreader->readAttributeInt("marginleft", &ok);
+      if (ok) {
+        int top = xmlreader->readAttributeInt("margintop", &ok);
+        if (ok) {
+          int right = xmlreader->readAttributeInt("marginright", &ok);
+          if (ok) {
+            int bottom = xmlreader->readAttributeInt("marginbottom", &ok);
+            if (ok)
+              setMargins(QMargins(left, top, right, bottom));
+            else
+              xmlreader->raiseWarning(
+                  tr("Legend2D bottom margin property setting error"));
+          } else
+            xmlreader->raiseWarning(
+                tr("Legend2D right margin property setting error"));
+        } else
+          xmlreader->raiseWarning(
+              tr("Legend2D top margin property setting error"));
+      } else
+        xmlreader->raiseWarning(
+            tr("Legend2D left margin property setting error"));
+    }
     // font
     while (!xmlreader->atEnd()) {
       xmlreader->readNext();
