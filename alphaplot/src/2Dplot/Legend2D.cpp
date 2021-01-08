@@ -21,6 +21,13 @@ Legend2D::~Legend2D() {}
 
 bool Legend2D::gethidden_legend() const { return visible(); }
 
+int Legend2D::getdirection_legend() const {
+  switch (mFillOrder) {
+    case foRowsFirst: return 0;
+    case foColumnsFirst: return 1;
+  }
+}
+
 QColor Legend2D::getborderstrokecolor_legend() const {
   return borderPen().color();
 }
@@ -40,6 +47,17 @@ QPointF Legend2D::getposition_legend() const {
 AxisRect2D *Legend2D::getaxisrect_legend() const { return axisrect_; }
 
 void Legend2D::sethidden_legend(const bool status) { setVisible(status); }
+
+void Legend2D::setdirection_legend(const int type) {
+  switch (type) {
+    case 0:
+      setFillOrder(QCPLegend::foRowsFirst);
+      break;
+    case 1:
+      setFillOrder(QCPLegend::foColumnsFirst);
+      break;
+  }
+}
 
 void Legend2D::setborderstrokecolor_legend(const QColor &color) {
   QPen p = borderPen();
@@ -153,6 +171,14 @@ void Legend2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeAttribute("iconheight", QString::number(iconSize().height()));
   xmlwriter->writeAttribute("icontextpadding",
                             QString::number(iconTextPadding()));
+  switch (getdirection_legend()) {
+    case QCPLegend::foRowsFirst:
+      xmlwriter->writeAttribute("direction", "rows");
+      break;
+    case QCPLegend::foColumnsFirst:
+      xmlwriter->writeAttribute("direction", "columns");
+      break;
+  }
   xmlwriter->writeAttribute("marginleft", QString::number(margins().left()));
   xmlwriter->writeAttribute("margintop", QString::number(margins().top()));
   xmlwriter->writeAttribute("marginright", QString::number(margins().right()));
@@ -214,6 +240,18 @@ bool Legend2D::load(XmlStreamReader *xmlreader) {
     (ok) ? setIconTextPadding(icontextpadding)
          : xmlreader->raiseError(
                tr("no Legend2D icon text padding property element found"));
+    // direction
+    QString direction = xmlreader->readAttributeString("direction", &ok);
+    if (ok) {
+      if (direction == "rows")
+        setdirection_legend(0);
+      else if (direction == "columns")
+        setdirection_legend(1);
+      else
+        xmlreader->raiseWarning(tr("Legend2D unknown direction"));
+    } else
+      xmlreader->raiseWarning(
+          tr("Legend2D direction property setting error"));
     // margin property
     if (ok) {
       int left = xmlreader->readAttributeInt("marginleft", &ok);

@@ -318,9 +318,13 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
       axispropertyticklabelprecisionitem_);
   intManager_->setRange(axispropertyticklabelprecisionitem_, 0, 16);
   // Legend Properties
+  QStringList directionlist;
+  directionlist << tr("Rows") << tr("Columns");
   itempropertylegendoriginxitem_ = doubleManager_->addProperty("Position X");
   itempropertylegendoriginyitem_ = doubleManager_->addProperty("Position Y");
   itempropertylegendvisibleitem_ = boolManager_->addProperty("Visible");
+  itempropertylegenddirectionitem_ = enumManager_->addProperty("Direction");
+  enumManager_->setEnumNames(itempropertylegenddirectionitem_, directionlist);
   itempropertylegendmarginitem_ = rectManager_->addProperty("Margin");
   itempropertylegendfontitem_ = fontManager_->addProperty("Font");
   itempropertylegendtextcoloritem_ = colorManager_->addProperty("Text color");
@@ -3148,6 +3152,11 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     b.setStyle(static_cast<Qt::BrushStyle>(value + 1));
     axisrect->setBackground(b);
     axisrect->layer()->replot();
+  } else if (prop->compare(itempropertylegenddirectionitem_)) {
+    Legend2D *legend =
+        getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
+    legend->setdirection_legend(value);
+    legend->layer()->replot();
   } else if (prop->compare(itempropertylegendbackgroundfillstyleitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
@@ -4242,6 +4251,7 @@ void PropertyEditor::Legend2DPropertyBlock(Legend2D *legend) {
   propertybrowser_->addProperty(itempropertylegendoriginxitem_);
   propertybrowser_->addProperty(itempropertylegendoriginyitem_);
   propertybrowser_->addProperty(itempropertylegendvisibleitem_);
+  propertybrowser_->addProperty(itempropertylegenddirectionitem_);
   propertybrowser_->addProperty(itempropertylegendmarginitem_);
   propertybrowser_->addProperty(itempropertylegendfontitem_);
   propertybrowser_->addProperty(itempropertylegendtextcoloritem_);
@@ -4261,6 +4271,8 @@ void PropertyEditor::Legend2DPropertyBlock(Legend2D *legend) {
                            legend->getposition_legend().y());
   boolManager_->setValue(itempropertylegendvisibleitem_,
                          legend->gethidden_legend());
+  enumManager_->setValue(itempropertylegenddirectionitem_,
+                         static_cast<int>(legend->getdirection_legend()));
   QRect rect;
   rect.setLeft(legend->margins().left());
   rect.setTop(legend->margins().top());
@@ -7046,6 +7058,8 @@ void PropertyEditor::setObjectPropertyId() {
       "itempropertylegendoriginyitem_");
   itempropertylegendvisibleitem_->setPropertyId(
       "itempropertylegendvisibleitem_");
+  itempropertylegenddirectionitem_->setPropertyId(
+      "itempropertylegenddirectionitem_");
   itempropertylegendmarginitem_->setPropertyId("itempropertylegendmarginitem_");
   itempropertylegendfontitem_->setPropertyId("itempropertylegendfontitem_");
   itempropertylegendtextcoloritem_->setPropertyId(
