@@ -215,7 +215,7 @@ bool TextItem2D::load(XmlStreamReader *xmlreader) {
     else {
       setText("Text");
       xmlreader->raiseWarning(
-          tr("TextItem2D y position property setting error"));
+          tr("TextItem2D text property setting error"));
     }
 
     // rotation

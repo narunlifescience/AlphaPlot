@@ -8197,7 +8197,7 @@ bool ApplicationWindow::validFor2DPlot(Table *table, Graph type) {
           table->selectedColumnCount(AlphaPlot::Y) < 2) {
         QMessageBox::warning(
             this, tr("Error"),
-            tr("Please select one X & nultiple Y column(s) to plot!"));
+            tr("Please select one X & multiple Y column(s) to plot!"));
         return false;
       } else if (table->selectedColumnCount(AlphaPlot::Z) > 0) {
         QMessageBox::warning(

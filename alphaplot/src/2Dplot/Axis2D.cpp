@@ -400,7 +400,6 @@ void Axis2D::settickertext(Column *col, int from, int to) {
     textticker->addTick(i, Utilities::splitstring(col->textAt(row)));
     tickertext_->append(col->textAt(row));
   }
-  setticklabelrotation_axis(45);
 }
 
 void Axis2D::save(XmlStreamWriter *xmlwriter) {
@@ -988,7 +987,6 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
     for (int i = 0; i < tickertext_->size(); i++) {
       textticker->addTick(i, Utilities::splitstring(tickertext_->at(i)));
     }
-    setticklabelrotation_axis(45);
   }
 
   return !xmlreader->hasError();
