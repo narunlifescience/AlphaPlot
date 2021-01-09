@@ -276,33 +276,6 @@ bool Legend2D::load(XmlStreamReader *xmlreader) {
         xmlreader->raiseWarning(
             tr("Legend2D left margin property setting error"));
     }
-    // legend title
-    while (!xmlreader->atEnd()) {
-      xmlreader->readNext();
-      if (xmlreader->isEndElement() && xmlreader->name() == "legend") break;
-      if (xmlreader->isStartElement() && xmlreader->name() == "legend") {
-        bool visible = xmlreader->readAttributeBool("visible", &ok);
-        if (visible) addtitle_legend();
-        QString itemtext = xmlreader->readAttributeString("text", &ok);
-        if (ok)
-          settitletext_legend(itemtext);
-        else {
-          settitletext_legend("Title");
-          xmlreader->raiseWarning(
-              tr("Legend2D title text property setting error"));
-        }
-      }
-      // title font
-      if (xmlreader->isStartElement() && xmlreader->name() == "font") {
-        QPair<QFont, QColor> fontpair = xmlreader->readFont(&ok);
-        if (ok) {
-          settitlefont_legend(fontpair.first);
-          settitlecolor_legend(fontpair.second);
-        } else
-          xmlreader->raiseWarning(
-              tr("Legend2D title font property setting error"));
-      }
-    }
     // font
     while (!xmlreader->atEnd()) {
       xmlreader->readNext();
