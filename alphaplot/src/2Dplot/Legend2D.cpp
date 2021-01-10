@@ -183,7 +183,7 @@ void Legend2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeAttribute("margintop", QString::number(margins().top()));
   xmlwriter->writeAttribute("marginright", QString::number(margins().right()));
   xmlwriter->writeAttribute("marginbottom", QString::number(margins().bottom()));
-  xmlwriter->writeStartElement("legendtitle");
+  xmlwriter->writeStartElement("title");
   (istitle_legend()) ? xmlwriter->writeAttribute("visible", "true")
                      : xmlwriter->writeAttribute("visible", "false");
   xmlwriter->writeAttribute("text", titletext_legend());
