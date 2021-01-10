@@ -251,6 +251,8 @@ class PropertyEditor : public QDockWidget {
   QtProperty *itempropertylegendoriginxitem_;
   QtProperty *itempropertylegendoriginyitem_;
   QtProperty *itempropertylegendvisibleitem_;
+  QtProperty *itempropertylegenddirectionitem_;
+  QtProperty *itempropertylegendmarginitem_;
   QtProperty *itempropertylegendfontitem_;
   QtProperty *itempropertylegendtextcoloritem_;
   QtProperty *itempropertylegendiconwidthitem_;
@@ -325,11 +327,13 @@ class PropertyEditor : public QDockWidget {
   QtProperty *lsplotpropertyscatterstrokethicknessitem_;
   QtProperty *lsplotpropertyscatterstrokestyleitem_;
   QtProperty *lsplotpropertyscatterantialiaseditem_;
+  QtProperty *lsplotpropertylegendvisibleitem_;
   QtProperty *lsplotpropertylegendtextitem_;
 
   // LineSpecialChannel Properties block
   QtProperty *channelplotpropertyxaxisitem_;
   QtProperty *channelplotpropertyyaxisitem_;
+  QtProperty *channelplotpropertylegendvisibleitem_;
   QtProperty *channelplotpropertylegendtextitem_;
   QtProperty *channel1plotpropertygroupitem_;
   QtProperty *channel1plotpropertylinestyleitem_;
@@ -378,6 +382,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *cplotpropertyscatterstrokethicknessitem_;
   QtProperty *cplotpropertyscatterstrokestyleitem_;
   QtProperty *cplotpropertyscatterantialiaseditem_;
+  QtProperty *cplotpropertylegendvisibleitem_;
   QtProperty *cplotpropertylegendtextitem_;
 
   // Box Properties block
@@ -442,6 +447,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *vectorpropertylineendingheightitem_;
   QtProperty *vectorpropertylineendingwidthitem_;
   QtProperty *vectorpropertylineantialiaseditem_;
+  QtProperty *vectorpropertylegendvisibleitem_;
   QtProperty *vectorpropertylegendtextitem_;
 
   // Pie Properties Block

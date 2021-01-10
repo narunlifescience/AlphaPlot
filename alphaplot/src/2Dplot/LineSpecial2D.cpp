@@ -239,6 +239,10 @@ bool LineSpecial2D::getscatterantialiased_lsplot() const {
   return antialiasedScatters();
 }
 
+bool LineSpecial2D::getlegendvisible_lsplot() const {
+  return mParentPlot->legend->hasItemWithPlottable(this);
+}
+
 QString LineSpecial2D::getlegendtext_lsplot() const { return name(); }
 
 Axis2D *LineSpecial2D::getxaxis() const { return xAxis_; }
@@ -406,6 +410,10 @@ void LineSpecial2D::setscatterantialiased_lsplot(const bool value) {
   setAntialiasedScatters(value);
 }
 
+void LineSpecial2D::setlegendvisible_lsplot(const bool value) {
+  (value) ? addToLegend() : removeFromLegend();
+}
+
 void LineSpecial2D::setlegendtext_lsplot(const QString &legendtext) {
   setName(legendtext);
 }
@@ -438,6 +446,9 @@ void LineSpecial2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   xmlwriter->writeAttribute("xaxis", QString::number(xaxis));
   xmlwriter->writeAttribute("yaxis", QString::number(yaxis));
 
+  (getlegendvisible_lsplot())
+    ? xmlwriter->writeAttribute("legendvisible", "true")
+    : xmlwriter->writeAttribute("legendvisible", "false");
   xmlwriter->writeAttribute("legend", getlegendtext_lsplot());
   // data
   xmlwriter->writeAttribute("table", graphdata_->gettable()->name());

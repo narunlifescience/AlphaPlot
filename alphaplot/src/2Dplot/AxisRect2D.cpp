@@ -1094,6 +1094,7 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
   Axis2D *xaxis1 = nullptr;
   Axis2D *yaxis1 = nullptr;
   AxisRect2D::LineScatterSpecialType ltype1;
+  bool legendvisible1 = true;
   QString legend1;
   Table *table1 = nullptr;
   Column *xcolumn1 = nullptr;
@@ -1114,6 +1115,7 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
   Axis2D *xaxis2 = nullptr;
   Axis2D *yaxis2 = nullptr;
   AxisRect2D::LineScatterSpecialType ltype2;
+  bool legendvisible2 = true;
   QString legend2;
   Table *table2 = nullptr;
   Column *xcolumn2 = nullptr;
@@ -1159,11 +1161,14 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
               tr("LineSpecialChannel2D line type not found"));
 
         // legend
+        legendvisible1 = xmlreader->readAttributeBool("legendvisible", &ok);
+        if (!ok)
+          xmlreader->raiseWarning(
+              tr("LineSpecialChannel2D legend visible property setting error"));
         legend1 = xmlreader->readAttributeString("legend", &ok);
         if (!ok)
           xmlreader->raiseWarning(
               tr("LineSpecialChannel2D legendtext not found"));
-
         QString tablename = xmlreader->readAttributeString("table", &ok);
         if (ok) {
           table1 = getTableByName(tabs, tablename);
@@ -1368,11 +1373,14 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
               tr("LineSpecialChannel2D line type not found"));
 
         // legend
+        legendvisible2 = xmlreader->readAttributeBool("legendvisible", &ok);
+        if (!ok)
+          xmlreader->raiseWarning(
+              tr("LineSpecialChannel2D legend visible property setting error"));
         legend2 = xmlreader->readAttributeString("legend", &ok);
         if (!ok)
           xmlreader->raiseWarning(
               tr("LineSpecialChannel2D legendtext not found"));
-
         QString tablename = xmlreader->readAttributeString("table", &ok);
         if (ok) {
           table2 = getTableByName(tabs, tablename);
@@ -1560,6 +1568,7 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
                                     to1, xaxis1, yaxis1);
     // ls1
     lspair.first->setlinetype_lsplot(lstype1);
+    lspair.first->setlegendvisible_lsplot(legendvisible1);
     lspair.first->setlegendtext_lsplot(legend1);
     lspair.first->setlinefillstatus_lsplot(linefill1);
     lspair.first->setlineantialiased_lsplot(lineantialias1);
@@ -1577,6 +1586,7 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
     lspair.first->setscatterfillcolor_lsplot(scatterbrush1.color());
     // ls2
     lspair.second->setlinetype_lsplot(lstype2);
+    lspair.second->setlegendvisible_lsplot(legendvisible2);
     lspair.second->setlegendtext_lsplot(legend2);
     lspair.second->setlinefillstatus_lsplot(linefill2);
     lspair.second->setlineantialiased_lsplot(lineantialias2);
@@ -1961,6 +1971,11 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
 
         } else
           xmlreader->raiseError(tr("Curve2D data not found error"));
+
+        bool legendvisible = xmlreader->readAttributeBool("legendvisible", &ok);
+        (ok) ? curve->setlegendvisible_cplot(legendvisible)
+             : xmlreader->raiseWarning(
+                 tr("Curve2D legend visible property setting error"));
 
         while (!xmlreader->atEnd()) {
           xmlreader->readNextStartElement();

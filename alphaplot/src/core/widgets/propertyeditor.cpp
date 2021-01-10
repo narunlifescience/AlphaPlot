@@ -318,9 +318,14 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
       axispropertyticklabelprecisionitem_);
   intManager_->setRange(axispropertyticklabelprecisionitem_, 0, 16);
   // Legend Properties
+  QStringList directionlist;
+  directionlist << tr("Rows") << tr("Columns");
   itempropertylegendoriginxitem_ = doubleManager_->addProperty("Position X");
   itempropertylegendoriginyitem_ = doubleManager_->addProperty("Position Y");
   itempropertylegendvisibleitem_ = boolManager_->addProperty("Visible");
+  itempropertylegenddirectionitem_ = enumManager_->addProperty("Direction");
+  enumManager_->setEnumNames(itempropertylegenddirectionitem_, directionlist);
+  itempropertylegendmarginitem_ = rectManager_->addProperty("Margin");
   itempropertylegendfontitem_ = fontManager_->addProperty("Font");
   itempropertylegendtextcoloritem_ = colorManager_->addProperty("Text color");
   itempropertylegendiconwidthitem_ = intManager_->addProperty("Icon width");
@@ -498,12 +503,18 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
                              stroketypeiconslist);
   lsplotpropertyscatterantialiaseditem_ =
       boolManager_->addProperty("Scatter Antialiased");
-  lsplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
+  lsplotpropertylegendvisibleitem_ = boolManager_->addProperty("Legend");
+  lsplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legend");
+  lsplotpropertylegendvisibleitem_->addSubProperty(
+      lsplotpropertylegendtextitem_);
   // LineSpecialChannel Properties block
   channelplotpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
   channelplotpropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
+  channelplotpropertylegendvisibleitem_ = boolManager_->addProperty("Legend");
   channelplotpropertylegendtextitem_ =
-      stringManager_->addProperty("Plot Legrad");
+      stringManager_->addProperty("Plot Legend");
+  channelplotpropertylegendvisibleitem_->addSubProperty(
+      channelplotpropertylegendtextitem_);
   // channel 1st graph
   channel1plotpropertygroupitem_ =
       groupManager_->addProperty("Channel Border 1");
@@ -682,7 +693,10 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
                              stroketypeiconslist);
   cplotpropertyscatterantialiaseditem_ =
       boolManager_->addProperty("Scatter Antialiased");
-  cplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
+  cplotpropertylegendvisibleitem_ = boolManager_->addProperty("Legend");
+  cplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legend");
+  cplotpropertylegendvisibleitem_->addSubProperty(
+      cplotpropertylegendtextitem_);
 
   // Box Properties block
   barplotpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
@@ -840,7 +854,10 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
       doubleManager_->addProperty("Line Ending Width");
   vectorpropertylineantialiaseditem_ =
       boolManager_->addProperty("Line Antialiased");
-  vectorpropertylegendtextitem_ = stringManager_->addProperty("Plot Legrad");
+  vectorpropertylegendvisibleitem_ = boolManager_->addProperty("Legend");
+  vectorpropertylegendtextitem_ = stringManager_->addProperty("Plot Legend");
+  vectorpropertylegendvisibleitem_->addSubProperty(
+    vectorpropertylegendtextitem_);
 
   // Pie Properties Block
   QStringList piestyle;
@@ -1622,6 +1639,12 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setscatterantialiased_lsplot(value);
     lsgraph->layer()->replot();
+  } else if (prop->compare(lsplotpropertylegendvisibleitem_)) {
+    LineSpecial2D *lsgraph =
+        getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
+    lsplotpropertylegendtextitem_->setEnabled(value);
+    lsgraph->setlegendvisible_lsplot(value);
+    lsgraph->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(channel1plotpropertylineantialiaseditem_)) {
     void *ptr = objectbrowser_->currentItem()
                     ->data(0, Qt::UserRole + 1)
@@ -1650,6 +1673,14 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
     lsgraph->setscatterantialiased_lsplot(value);
     lsgraph->layer()->replot();
+  } else if (prop->compare(channelplotpropertylegendvisibleitem_)) {
+    void *ptr = objectbrowser_->currentItem()
+                    ->data(0, Qt::UserRole + 1)
+                    .value<void *>();
+    LineSpecial2D *lsgraph = static_cast<LineSpecial2D *>(ptr);
+    channelplotpropertylegendtextitem_->setEnabled(value);
+    lsgraph->setlegendvisible_lsplot(value);
+    lsgraph->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(cplotpropertylinefillstatusitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlinefillstatus_cplot(value);
@@ -1665,6 +1696,11 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscatterantialiased_cplot(value);
     curve->layer()->replot();
+  } else if (prop->compare(cplotpropertylegendvisibleitem_)) {
+    Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
+    cplotpropertylegendtextitem_->setEnabled(value);
+    curve->setlegendvisible_cplot(value);
+    curve->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(barplotpropertyfillantialiaseditem_)) {
     Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
     bar->setAntialiasedFill(value);
@@ -1718,6 +1754,12 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
         getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
     vector->setlineantialiased_vecplot(value);
     vector->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+  } else if (prop->compare(vectorpropertylegendvisibleitem_)) {
+    Vector2D *vector =
+        getgraph2dobject<Vector2D>(objectbrowser_->currentItem());
+    vectorpropertylegendtextitem_->setEnabled(value);
+    vector->setlegendvisible_vecplot(value);
+    vector->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(colormappropertyinterpolateitem_)) {
     ColorMap2D *colormap =
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
@@ -2272,7 +2314,17 @@ void PropertyEditor::valueChange(QtProperty *prop, const QRect &rect) {
         getgraph2dobject<MyWidget>(objectbrowser_->currentItem());
     if (widget->geometry() == rect) return;
     widget->setGeometry(rect);
-  } else if (prop->compare(itempropertytextmarginitem_)) {
+  } else if (prop->compare(itempropertylegendmarginitem_)) {
+    Legend2D *legend =
+        getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
+    QMargins margin;
+    margin.setLeft(rect.left());
+    margin.setTop(rect.top());
+    margin.setRight(rect.right());
+    margin.setBottom(rect.bottom());
+    legend->setMargins(margin);
+    legend->layer()->replot();
+    } else if (prop->compare(itempropertytextmarginitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     QMargins margin;
@@ -3100,6 +3152,11 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     b.setStyle(static_cast<Qt::BrushStyle>(value + 1));
     axisrect->setBackground(b);
     axisrect->layer()->replot();
+  } else if (prop->compare(itempropertylegenddirectionitem_)) {
+    Legend2D *legend =
+        getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
+    legend->setdirection_legend(value);
+    legend->layer()->replot();
   } else if (prop->compare(itempropertylegendbackgroundfillstyleitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
@@ -4194,6 +4251,8 @@ void PropertyEditor::Legend2DPropertyBlock(Legend2D *legend) {
   propertybrowser_->addProperty(itempropertylegendoriginxitem_);
   propertybrowser_->addProperty(itempropertylegendoriginyitem_);
   propertybrowser_->addProperty(itempropertylegendvisibleitem_);
+  propertybrowser_->addProperty(itempropertylegenddirectionitem_);
+  propertybrowser_->addProperty(itempropertylegendmarginitem_);
   propertybrowser_->addProperty(itempropertylegendfontitem_);
   propertybrowser_->addProperty(itempropertylegendtextcoloritem_);
   propertybrowser_->addProperty(itempropertylegendiconwidthitem_);
@@ -4212,6 +4271,14 @@ void PropertyEditor::Legend2DPropertyBlock(Legend2D *legend) {
                            legend->getposition_legend().y());
   boolManager_->setValue(itempropertylegendvisibleitem_,
                          legend->gethidden_legend());
+  enumManager_->setValue(itempropertylegenddirectionitem_,
+                         static_cast<int>(legend->getdirection_legend()));
+  QRect rect;
+  rect.setLeft(legend->margins().left());
+  rect.setTop(legend->margins().top());
+  rect.setRight(legend->margins().right());
+  rect.setBottom(legend->margins().bottom());
+  rectManager_->setValue(itempropertylegendmarginitem_, rect);
   fontManager_->setValue(itempropertylegendfontitem_, legend->font());
   colorManager_->setValue(itempropertylegendtextcoloritem_,
                           legend->textColor());
@@ -4390,7 +4457,7 @@ void PropertyEditor::LineSpecial2DPropertyBlock(LineSpecial2D *lsgraph,
   propertybrowser_->addProperty(lsplotpropertyscatterstrokestyleitem_);
   propertybrowser_->addProperty(lsplotpropertyscatterstrokethicknessitem_);
   propertybrowser_->addProperty(lsplotpropertyscatterantialiaseditem_);
-  propertybrowser_->addProperty(lsplotpropertylegendtextitem_);
+  propertybrowser_->addProperty(lsplotpropertylegendvisibleitem_);
   {
     QStringList lsyaxislist;
     int currentyaxis = 0;
@@ -4457,6 +4524,8 @@ void PropertyEditor::LineSpecial2DPropertyBlock(LineSpecial2D *lsgraph,
                            lsgraph->getscatterstrokethickness_lsplot());
   boolManager_->setValue(lsplotpropertyscatterantialiaseditem_,
                          lsgraph->getscatterantialiased_lsplot());
+  boolManager_->setValue(lsplotpropertylegendvisibleitem_,
+                         lsgraph->getlegendvisible_lsplot());
   stringManager_->setValue(
       lsplotpropertylegendtextitem_,
       Utilities::joinstring(lsgraph->getlegendtext_lsplot()));
@@ -4468,7 +4537,7 @@ void PropertyEditor::LineSpecialChannel2DPropertyBlock(LineSpecial2D *lsgraph1,
   propertybrowser_->clear();
   propertybrowser_->addProperty(channelplotpropertyxaxisitem_);
   propertybrowser_->addProperty(channelplotpropertyyaxisitem_);
-  propertybrowser_->addProperty(channelplotpropertylegendtextitem_);
+  propertybrowser_->addProperty(channelplotpropertylegendvisibleitem_);
   propertybrowser_->addProperty(channel1plotpropertygroupitem_);
   propertybrowser_->addProperty(channel2plotpropertygroupitem_);
 
@@ -4506,6 +4575,8 @@ void PropertyEditor::LineSpecialChannel2DPropertyBlock(LineSpecial2D *lsgraph1,
     enumManager_->setValue(channelplotpropertyxaxisitem_, currentxaxis);
   }
 
+  boolManager_->setValue(channelplotpropertylegendvisibleitem_,
+                         lsgraph1->getlegendvisible_lsplot());
   stringManager_->setValue(
       channelplotpropertylegendtextitem_,
       Utilities::joinstring(lsgraph1->getlegendtext_lsplot()));
@@ -4588,7 +4659,7 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
   propertybrowser_->addProperty(cplotpropertyscatterstrokestyleitem_);
   propertybrowser_->addProperty(cplotpropertyscatterstrokethicknessitem_);
   propertybrowser_->addProperty(cplotpropertyscatterantialiaseditem_);
-  propertybrowser_->addProperty(cplotpropertylegendtextitem_);
+  propertybrowser_->addProperty(cplotpropertylegendvisibleitem_);
   {
     QStringList cyaxislist;
     int currentyaxis = 0;
@@ -4655,6 +4726,8 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
                            curve->getscatterstrokethickness_cplot());
   boolManager_->setValue(cplotpropertyscatterantialiaseditem_,
                          curve->getscatterantialiased_cplot());
+  boolManager_->setValue(cplotpropertylegendvisibleitem_,
+                         curve->getlegendvisible_cplot());
   stringManager_->setValue(cplotpropertylegendtextitem_,
                            Utilities::joinstring(curve->getlegendtext_cplot()));
 }
@@ -4911,7 +4984,7 @@ void PropertyEditor::Vector2DPropertyBlock(Vector2D *vectorgraph,
   propertybrowser_->addProperty(vectorpropertylineendingheightitem_);
   propertybrowser_->addProperty(vectorpropertylineendingwidthitem_);
   propertybrowser_->addProperty(vectorpropertylineantialiaseditem_);
-  propertybrowser_->addProperty(vectorpropertylegendtextitem_);
+  propertybrowser_->addProperty(vectorpropertylegendvisibleitem_);
   {
     QStringList vectoryaxislist;
     int currentyaxis = 0;
@@ -4963,6 +5036,8 @@ void PropertyEditor::Vector2DPropertyBlock(Vector2D *vectorgraph,
       vectorgraph->getendwidth_vecplot(Vector2D::LineEndLocation::Head));
   boolManager_->setValue(vectorpropertylineantialiaseditem_,
                          vectorgraph->getlineantialiased_vecplot());
+  boolManager_->setValue(vectorpropertylegendvisibleitem_,
+                         vectorgraph->getlegendvisible_vecplot());
   stringManager_->setValue(
       vectorpropertylegendtextitem_,
       Utilities::joinstring(vectorgraph->getlegendtext_vecplot()));
@@ -6983,6 +7058,9 @@ void PropertyEditor::setObjectPropertyId() {
       "itempropertylegendoriginyitem_");
   itempropertylegendvisibleitem_->setPropertyId(
       "itempropertylegendvisibleitem_");
+  itempropertylegenddirectionitem_->setPropertyId(
+      "itempropertylegenddirectionitem_");
+  itempropertylegendmarginitem_->setPropertyId("itempropertylegendmarginitem_");
   itempropertylegendfontitem_->setPropertyId("itempropertylegendfontitem_");
   itempropertylegendtextcoloritem_->setPropertyId(
       "itempropertylegendtextcoloritem_");
@@ -7109,11 +7187,15 @@ void PropertyEditor::setObjectPropertyId() {
       "lsplotpropertyscatterstrokestyleitem_");
   lsplotpropertyscatterantialiaseditem_->setPropertyId(
       "lsplotpropertyscatterantialiaseditem_");
+  lsplotpropertylegendvisibleitem_->setPropertyId(
+      "lsplotpropertylegendvisibleitem_");
   lsplotpropertylegendtextitem_->setPropertyId(
-      "lsplotpropertylelegendtextitem_");
+      "lsplotpropertylegendtextitem_");
   // LineSpecialChannel Properties block
   channelplotpropertyxaxisitem_->setPropertyId("channelplotpropertyxaxisitem_");
   channelplotpropertyyaxisitem_->setPropertyId("channelplotpropertyyaxisitem_");
+  channelplotpropertylegendvisibleitem_->setPropertyId(
+      "channelplotpropertylegendvisibleitem_");
   channelplotpropertylegendtextitem_->setPropertyId(
       "channelplotpropertylegendtextitem_");
   channel1plotpropertygroupitem_->setPropertyId(
@@ -7204,7 +7286,9 @@ void PropertyEditor::setObjectPropertyId() {
       "cplotpropertyscatterstrokestyleitem_");
   cplotpropertyscatterantialiaseditem_->setPropertyId(
       "cplotpropertyscatterantialiaseditem_");
-  cplotpropertylegendtextitem_->setPropertyId("cplotpropertylelegendtextitem_");
+  cplotpropertylegendvisibleitem_->setPropertyId(
+      "cplotpropertylegendvisibleitem_");
+  cplotpropertylegendtextitem_->setPropertyId("cplotpropertylegendtextitem_");
 
   // Box Properties block
   barplotpropertyxaxisitem_->setPropertyId("barplotpropertyxaxisitem_");
@@ -7311,6 +7395,8 @@ void PropertyEditor::setObjectPropertyId() {
       "vectorpropertylineendingwidthitem_");
   vectorpropertylineantialiaseditem_->setPropertyId(
       "vectorpropertylineantialiaseditem_");
+  vectorpropertylegendvisibleitem_->setPropertyId(
+      "vectorpropertylegendvisibleitem_");
   vectorpropertylegendtextitem_->setPropertyId("vectorpropertylegendtextitem_");
 
   // Pie Properties Block

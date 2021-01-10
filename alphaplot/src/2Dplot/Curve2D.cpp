@@ -367,6 +367,10 @@ bool Curve2D::getscatterantialiased_cplot() const {
   return antialiasedScatters();
 }
 
+bool Curve2D::getlegendvisible_cplot() const {
+  return mParentPlot->legend->hasItemWithPlottable(this);
+}
+
 QString Curve2D::getlegendtext_cplot() const { return name(); }
 
 Axis2D *Curve2D::getxaxis() const { return xAxis_; }
@@ -578,6 +582,10 @@ void Curve2D::setlinefillstatus_cplot(const bool value) {
   }
 }
 
+void Curve2D::setlegendvisible_cplot(const bool value) {
+  (value) ? addToLegend() : removeFromLegend();
+}
+
 void Curve2D::setlegendtext_cplot(const QString &text) { setName(text); }
 
 void Curve2D::setpicker_cplot(const Graph2DCommon::Picker picker) {
@@ -599,6 +607,9 @@ void Curve2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
       break;
   }
 
+  (getlegendvisible_cplot())
+    ? xmlwriter->writeAttribute("legendvisible", "true")
+    : xmlwriter->writeAttribute("legendvisible", "false");
   xmlwriter->writeAttribute("legend", getlegendtext_cplot());
   // data
   if (curvedata_) {

@@ -49,6 +49,7 @@ class Vector2D : public QCPGraph {
   double getendwidth_vecplot(const LineEndLocation &location) const;
   double getendheight_vecplot(const LineEndLocation &location) const;
   bool getendinverted_vecplot(const LineEndLocation &location) const;
+  bool getlegendvisible_vecplot() const;
   QString getlegendtext_vecplot() const;
   Table *gettable_vecplot() const { return table_; }
   Column *getfirstcol_vecplot() const { return x1col_; }
@@ -71,6 +72,7 @@ class Vector2D : public QCPGraph {
                             const LineEndLocation &location);
   void setendinverted_vecplot(const bool value,
                               const LineEndLocation &location);
+  void setlegendvisible_vecplot(const bool value);
   void setlegendtext_vecplot(const QString &name);
 
   void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);

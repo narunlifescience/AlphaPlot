@@ -17,6 +17,7 @@ class Legend2D : public QCPLegend {
   ~Legend2D();
 
   bool gethidden_legend() const;
+  int getdirection_legend() const;
   QColor getborderstrokecolor_legend() const;
   double getborderstrokethickness_legend() const;
   Qt::PenStyle getborderstrokestyle_legend() const;
@@ -24,6 +25,7 @@ class Legend2D : public QCPLegend {
   AxisRect2D *getaxisrect_legend() const;
 
   void sethidden_legend(const bool status);
+  void setdirection_legend(const int type);
   void setborderstrokecolor_legend(const QColor &color);
   void setborderstrokethickness_legend(const double value);
   void setborderstrokestyle_legend(const Qt::PenStyle &style);
