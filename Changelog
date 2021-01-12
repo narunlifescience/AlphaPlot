@@ -1,4 +1,6 @@
 == progress ==
+* project explorer drag n drop
+* add 2D legend visiblity per plot, legend margins and legend direction property
 * fixed multiple crash issues thus increasing the stability
 * go to data column from property editor graph2d
 * selected mdi subwindow glow indication

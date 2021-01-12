@@ -54,6 +54,7 @@ class Layout3D : public MyWidget {
   void saveTheme(XmlStreamWriter *xmlwriter);
   void saveValueAxis(XmlStreamWriter *xmlwriter, QValue3DAxis *axis);
   void saveCategoryAxis(XmlStreamWriter *xmlwriter, QCategory3DAxis *axis);
+  QList<MyWidget *> dependentTableMatrix();
 
  signals:
   void dataAdded(MyWidget *mywidget);

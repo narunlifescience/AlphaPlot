@@ -7622,7 +7622,7 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
     }
   }
 
-  // incomplete
+  // check the data structure is moving along with the graphs and viceversa
   foreach (MyWidget *w, draggedwidgets) {
     if (qobject_cast<Layout2D *>(w)) {
       Layout2D *layout = qobject_cast<Layout2D *>(w);
@@ -7634,34 +7634,43 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
           if (dependson.contains(depw)) dependson.removeOne(depw);
         }
       }
-      if (dependson.size() > 0) {
-        stopdrag = true;
-        QMessageBox::critical(this, "Error",
-                              tr("Cannot move an object which depends "
-                                 "on another object!"));
-        draggedItems.clear();
-        return;
+      if (dependson.size() > 0) stopdrag = true;
+    } else if (qobject_cast<Layout3D *>(w)) {
+      Layout3D *layout = qobject_cast<Layout3D *>(w);
+      QList<MyWidget *> dependson = layout->dependentTableMatrix();
+      foreach (QTreeWidgetItem *depitems, draggedItems) {
+        MyWidget *depw =
+            dynamic_cast<WindowTableWidgetItem *>(depitems)->window();
+        if (depw) {
+          if (dependson.contains(depw)) dependson.removeOne(depw);
+        }
       }
-    } /*else if (w && qobject_cast<Table *>(w)) {
+      if (dependson.size() > 0) stopdrag = true;
+    } else if (w && (qobject_cast<Table *>(w) || qobject_cast<Matrix *>(w))) {
       QList<MyWidget *> widgetlist = current_folder->windowsList();
       foreach (MyWidget *widget, widgetlist) {
         if (qobject_cast<Layout2D *>(widget)) {
           QList<MyWidget *> dependson =
               qobject_cast<Layout2D *>(widget)->dependentTableMatrix();
-          if (dependson.contains(w) && !draggedwidgets.contains(w))
+          if (dependson.contains(w) && !draggedwidgets.contains(widget))
+            stopdrag = true;
+        } else if (qobject_cast<Layout3D *>(widget)) {
+          QList<MyWidget *> dependson =
+              qobject_cast<Layout3D *>(widget)->dependentTableMatrix();
+          if (dependson.contains(w) && !draggedwidgets.contains(widget))
             stopdrag = true;
         }
       }
-    }*/
+    }
   }
 
-  /*if (stopdrag) {
+  if (stopdrag) {
     QMessageBox::critical(this, "Error",
                           tr("Cannot move an object which depends "
                              "on another object!"));
     draggedItems.clear();
     return;
-  }*/
+  }
 
   foreach (it, draggedItems) {
     if (it->type() == FolderTreeWidget::ItemType::Folders) {

@@ -17,6 +17,8 @@
 
 #include "Bar3D.h"
 #include "Custom3DInteractions.h"
+#include "DataManager3D.h"
+#include "Matrix.h"
 #include "MyWidget.h"
 #include "Scatter3D.h"
 #include "Surface3D.h"
@@ -918,4 +920,38 @@ void Layout3D::saveCategoryAxis(XmlStreamWriter *xmlwriter,
                          : xmlwriter->writeAttribute("labelfixed", "false");
   xmlwriter->writeAttribute("label", axis->title());
   xmlwriter->writeEndElement();
+}
+
+QList<MyWidget *> Layout3D::dependentTableMatrix() {
+  QList<MyWidget *> dependeon;
+  switch (plottype_) {
+    case Graph3DCommon::Plot3DType::Surface: {
+      QVector<DataBlockSurface3D *> sdata = surfacemodifier_->getData();
+      foreach (DataBlockSurface3D *block, sdata) {
+        if (block->ismatrix() && block->getmatrix())
+          dependeon << block->getmatrix();
+        else if (block->istable() && block->gettable())
+          dependeon << block->gettable();
+      }
+    } break;
+    case Graph3DCommon::Plot3DType::Bar: {
+      QVector<DataBlockBar3D *> sdata = barmodifier_->getData();
+      foreach (DataBlockBar3D *block, sdata) {
+        if (block->ismatrix() && block->getmatrix())
+          dependeon << block->getmatrix();
+        else if (block->gettable())
+          dependeon << block->gettable();
+      }
+    } break;
+    case Graph3DCommon::Plot3DType::Scatter: {
+      QVector<DataBlockScatter3D *> sdata = scattermodifier_->getData();
+      foreach (DataBlockScatter3D *block, sdata) {
+        if (block->ismatrix() && block->getmatrix())
+          dependeon << block->getmatrix();
+        else if (block->gettable())
+          dependeon << block->gettable();
+      }
+    } break;
+  }
+  return dependeon;
 }
