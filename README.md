@@ -96,6 +96,11 @@ In alphabetical order.
 - [Filipe](https://github.com/filipestevao) ([Flatpak](https://flathub.org/apps/details/io.github.narunlifescience.AlphaPlot))
 - [Filipe](https://github.com/filipestevao) ([Linux AppImage](https://github.com/filipestevao/AlphaPlot-AppImage/releases/download/v1.011/AlphaPlot-1.011.glibc2.29-x86_64.AppImage))
 
+Ubuntu package 
+sudo add-apt-repository ppa:devacom/science
+sudo apt-get update
+sudo apt install alphaplot
+
 ## SciDAVis & QtiPlot Developers
 
 AlphaPlot is a fork of SciDAVis(at the time of the fork, i.e. SciDAVis 1.D009) which in turn is a fork of QtiPlot(at the time of the fork, i.e. QtiPlot 0.9-rc2). The following people have written parts of the SciDAVis & QtiPlot source code, ranging from a few lines to large chunks(in alphabetical order).
