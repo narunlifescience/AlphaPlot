@@ -93,13 +93,15 @@ Note: AlphaPlot uses QtDataVisualization module for 3D plotting. You may have to
 The following people have made installing AlphaPlot easier by providing specialized binary packages.
 In alphabetical order.
 
-- [Filipe](https://github.com/filipestevao) ([Flatpak](https://flathub.org/apps/details/io.github.narunlifescience.AlphaPlot))
-- [Filipe](https://github.com/filipestevao) ([Linux AppImage](https://github.com/filipestevao/AlphaPlot-AppImage/releases/download/v1.011/AlphaPlot-1.011.glibc2.29-x86_64.AppImage))
+- [Filipe](https://github.com/filipestevao) ([Flatpak stable](https://flathub.org/apps/details/io.github.narunlifescience.AlphaPlot) / [Flatpak beta](https://github.com/narunlifescience/AlphaPlot/issues/20#issuecomment-808984764))
+- [Filipe](https://github.com/filipestevao) ([Linux AppImage](https://github.com/filipestevao/AlphaPlot-AppImage/releases/download/v1.011/AlphaPlot-1.011.glibc2.29-x86_64.AppImage)) - *Archived repository*
+- [devacom](https://github.com/devacom) ([Ubuntu package](https://launchpad.net/~devacom/+archive/ubuntu/science))
 
-Ubuntu package 
+```
 sudo add-apt-repository ppa:devacom/science
 sudo apt-get update
 sudo apt install alphaplot
+```
 
 ## SciDAVis & QtiPlot Developers
 
