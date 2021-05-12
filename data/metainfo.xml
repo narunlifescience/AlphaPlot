@@ -50,7 +50,7 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="1.011" date="2020-05-06"/>
+    <release version="1.011" date="2020-05-06">
     <description>
       <p>Overview of changes in AlphaPlot 1.011</p>
       <ul>
@@ -66,7 +66,7 @@
       </ul>
     </description>
   </release>
-  <release version="1.01" date="2020-04-17"/>
+  <release version="1.01" date="2020-04-17">
   <description>
     <p>Overview of changes in AlphaPlot 1.01</p>
     <ul>
@@ -90,7 +90,7 @@
     </ul>
   </description>
 </release>
-<release version="alpha-test2" date="2016-05-04"/>
+<release version="alpha-test2" date="2016-05-04">
 <description>
   <p>Overview of changes in AlphaPlot alpha-test2</p>
   <ul>
