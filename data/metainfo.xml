@@ -4,8 +4,9 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-2.0</project_license>
   <name>AlphaPlot</name>
+  <developer_name>Arun Narayanankutty</developer_name>
   <url type="homepage">https://alphaplot.sourceforge.io/</url>
-  <url type="bugtracker">https://github.com/narunlifescience/AlphaPlot#report-a-bug</url>
+  <url type="bugtracker">https://github.com/narunlifescience/AlphaPlot/issues</url>
   <url type="donation">https://www.patreon.com/alphaplot</url>
   <summary>AlphaPlot is a free application for Scientific Data Analysis and Visualization</summary>
   <description>
@@ -20,14 +21,102 @@
     <screenshot type="default">
       <image>https://github.com/narunlifescience/AlphaPlot/raw/master/data/screenshots/alphaplot3.png</image>
     </screenshot>
+    <screenshot>
+      <image>https://github.com/narunlifescience/AlphaPlot/raw/master/data/screenshots/example1.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/narunlifescience/AlphaPlot/raw/master/data/screenshots/example2.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/narunlifescience/AlphaPlot/raw/master/data/screenshots/example3.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/narunlifescience/AlphaPlot/raw/master/data/screenshots/example4.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/narunlifescience/AlphaPlot/raw/master/data/screenshots/example5.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/narunlifescience/AlphaPlot/raw/master/data/screenshots/example6.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/narunlifescience/AlphaPlot/raw/master/data/screenshots/example7.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/narunlifescience/AlphaPlot/raw/master/data/screenshots/example8.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/narunlifescience/AlphaPlot/raw/master/data/screenshots/example9.png</image>
+    </screenshot>
   </screenshots>
   <releases>
-    <release version="1.011" date="2020-05-06"/>
-    <release version="1.01" date="2020-04-17"/>
-  </releases>
-  <categories>
-    <category>Education</category>
-    <category>Science</category>
-  </categories>
-  <content_rating type="oars-1.1" />
+    <release version="1.011" date="2020-05-06">
+    <description>
+      <p>Overview of changes in AlphaPlot 1.011</p>
+      <ul>
+        <li>multipeak fitting fixed</li>
+        <li>ditch QwtPlot3D for qdatavis3d</li>
+        <li>reimplement all the graphs except trajectory in qdatavis3d</li>
+        <li>integrate customization to property editor</li>
+        <li>separate data manager class to handle inputs to the graph</li>
+        <li>XML save part incomplete</li>
+        <li>add the ability to customize Axis2D line endings</li>
+        <li>fix some issues with legend move updating in property editor and ability to break individual legend text</li>
+        <li>pie charts take 2 columns X as label and Y as values</li>
+      </ul>
+    </description>
+  </release>
+  <release version="1.01" date="2020-04-17">
+  <description>
+    <p>Overview of changes in AlphaPlot 1.01</p>
+    <ul>
+      <li>Completed porting to QT5</li>
+      <li>Replace QWorkSpace with QMDIarea as a step towards Qt5</li>
+      <li>Add more random number generators with specific distribution profiles (Gaussian, exponential, etc.)</li>
+      <li>Drop Qt3 Support and rewrite project explorer to Qt5 standards</li>
+      <li>Added a function to show column data spikiness to get an idea about general data</li>
+      <li>color code X, Y, Z, Xerr, Yerr and none column types with a line under them for easy identification</li>
+      <li>add some utilities like detection of OS and its kind, Random color generation based on the golden ratio, etc</li>
+      <li>use a QDialog wit much more information to show mdiwindow properties</li>
+      <li>add a declared variable view list for QtScript scripting console-like Matlab</li>
+      <li>use xml to store AlphaPlot files for better structuring and handling</li>
+      <li>added a property editor to browse property of all QMdiWidgetItems (2dplot, 3dplot, table, matrix, note)</li>
+      <li>introduce QCustomplot to replace the aging qwt4 library</li>
+      <li>use a separate data handler class for 2D plots</li>
+      <li>add a basic layout management system like a queue</li>
+      <li>draggable legend, graph items (line, text), axis, zoom axis</li>
+      <li>reimplement all the 2D plotting functionality in qcustomplot</li>
+      <li>reimplement all the fitting functionality in qcustomplot</li>
+    </ul>
+  </description>
+</release>
+<release version="alpha-test2" date="2016-05-04">
+<description>
+  <p>Overview of changes in AlphaPlot alpha-test2</p>
+  <ul>
+    <li>add basic error detection to Qt Script</li>
+    <li>add a basic Syntax highlighter for scripts and functions</li>
+    <li>add QtScript with debugging to Alphaplot basic data structures with cell to cell data manipulation ability(Table and Matrix)</li>
+    <li>add add/remove layer to graph2d window</li>
+    <li>use default cascade function</li>
+    <li>fix mxe compile errors</li>
+    <li>drop QT3 related stuff</li>
+    <li>use a float button instead of old block one in table and matrix to access control UI</li>
+    <li>remember normal window state when a user closes a window in maximized state</li>
+    <li>added c++ 11 Support</li>
+    <li>remove liborigin and python support for now</li>
+    <li>make scripting console interactive (rewrite the entire class)</li>
+    <li>modernize icons and an icon handling class</li>
+    <li>add a lock-unlock functionality for toolbars and dock widgets</li>
+    <li>compartmentalize various aspects like scripting, 3d plots, etc. to separate directories</li>
+    <li>fix old code warnings (replace old C style casting, remove hardcoded colors, use initializer list when possible, Clean up Application window class, give better meaningful names for variables, etc.)</li>
+  </ul>
+</description>
+</release>
+</releases>
+<categories>
+<category>Education</category>
+<category>Science</category>
+</categories>
+<content_rating type="oars-1.1"/>
 </component> 
