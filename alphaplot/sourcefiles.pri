@@ -79,6 +79,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/ui/ExtensibleFileDialog.h \
             src/ui/GeneralApplicationSettings.h \
             src/ui/GeneralAppreanceSettings.h \
+            src/ui/GeneralConfirmationSettings.h \
             src/ui/SettingsPage.h \
             src/ui/SettingsDialog.h \
             src/ui/PropertiesDialog.h \
@@ -164,6 +165,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ui/ExtensibleFileDialog.cpp \
             src/ui/GeneralApplicationSettings.cpp \
             src/ui/GeneralAppreanceSettings.cpp \
+            src/ui/GeneralConfirmationSettings.cpp \
             src/ui/SettingsPage.cpp \
             src/ui/SettingsDialog.cpp \
             src/ui/PropertiesDialog.cpp \
@@ -179,6 +181,7 @@ FORMS        += src/ApplicationWindow.ui \
                 src/scripting/widgets/ConsoleWidget.ui \
                 src/ui/GeneralApplicationSettings.ui \
                 src/ui/GeneralAppreanceSettings.ui \
+                src/ui/GeneralConfirmationSettings.ui \
                 src/ui/SettingsDialog.ui \
                 src/ui/PropertiesDialog.ui \
                 src/ui/RandomDistributionDialog.ui \

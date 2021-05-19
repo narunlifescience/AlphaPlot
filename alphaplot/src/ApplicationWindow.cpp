@@ -6511,27 +6511,40 @@ void ApplicationWindow::multipeakfitappendpoints(Curve2D *curve, double x,
     multipeakfitvalues_ << newpair;
     ui_->statusBar->showMessage(
         QString("Selected Points << x=%1, y=%2").arg(x).arg(y));
+    QMessageBox::information(
+        this, tr("Multi Peakfit"),
+        tr("Data point selected") + QString(" x=%1, y=%2. ").arg(x).arg(y) +
+            tr("Data point") + QString(" %1 ").arg(multipeakfitvalues_.size()) +
+            tr("out of") + QString(" %1 ").arg(multiPeakfitpoints_));
   } else {
     if (multipeakfitvalues_.last().first == curve) {
+      bool duplicate = false;
       foreach (auto p, multipeakfitvalues_) {
-        if (p.second.first == x && p.second.second == y) {
-          pickGraphTool(ui_->actionDisableGraphTools);
-          QMessageBox::critical(
-              this, tr("Error"),
-              tr("Same data points selected twice! "
-                 "Please select different data points from the plot."
-                 "Aborting Multipeakfit!"));
-          multipeakfitvalues_.erase(multipeakfitvalues_.begin(),
-                                    multipeakfitvalues_.end());
-          multiPeakfitactive_ = false;
-          multiPeakfitpoints_ = 0;
-          ui_->statusBar->clearMessage();
-          return;
-        }
+        if (p.second.first == x && p.second.second == y) duplicate = true;
+      }
+      if (duplicate) {
+        pickGraphTool(ui_->actionDisableGraphTools);
+        multipeakfitvalues_.erase(multipeakfitvalues_.begin(),
+                                  multipeakfitvalues_.end());
+        multiPeakfitactive_ = false;
+        multiPeakfitpoints_ = 0;
+        ui_->statusBar->clearMessage();
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Same data points selected twice! "
+               "Please select different data points from the plot."
+               "Aborting Multipeakfit!"));
+        return;
       }
       multipeakfitvalues_ << newpair;
       ui_->statusBar->showMessage(ui_->statusBar->currentMessage() +
                                   QString(" << x=%1, y=%2").arg(x).arg(y));
+      QMessageBox::information(
+          this, tr("Multi Peakfit"),
+          tr("Data point selected") + QString(" x=%1, y=%2. ").arg(x).arg(y) +
+              tr("Data point") +
+              QString(" %1 ").arg(multipeakfitvalues_.size()) + tr("out of") +
+              QString(" %1 ").arg(multiPeakfitpoints_));
     } else {
       pickGraphTool(ui_->actionDisableGraphTools);
       multipeakfitvalues_.erase(multipeakfitvalues_.begin(),
@@ -6539,10 +6552,10 @@ void ApplicationWindow::multipeakfitappendpoints(Curve2D *curve, double x,
       multiPeakfitactive_ = false;
       multiPeakfitpoints_ = 0;
       ui_->statusBar->clearMessage();
-      QMessageBox::critical(this, tr("Error"),
-                            tr("Data Points from different plots selected. "
-                               "Please select data points from the same plot."
-                               "Aborting Multipeakfit!"));
+      QMessageBox::warning(this, tr("Error"),
+                           tr("Data Points from different plots selected. "
+                              "Please select data points from the same plot."
+                              "Aborting Multipeakfit!"));
       return;
     }
   }
@@ -7616,9 +7629,11 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
   QList<MyWidget *> draggedwidgets;
 
   foreach (it, draggedItems) {
-    MyWidget *w = dynamic_cast<WindowTableWidgetItem *>(it)->window();
-    if (w) {
-      draggedwidgets << w;
+    if (it->type() != FolderTreeWidget::ItemType::Folders) {
+      MyWidget *w = dynamic_cast<WindowTableWidgetItem *>(it)->window();
+      if (w) {
+        draggedwidgets << w;
+      }
     }
   }
 
@@ -7628,10 +7643,12 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
       Layout2D *layout = qobject_cast<Layout2D *>(w);
       QList<MyWidget *> dependson = layout->dependentTableMatrix();
       foreach (QTreeWidgetItem *depitems, draggedItems) {
-        MyWidget *depw =
-            dynamic_cast<WindowTableWidgetItem *>(depitems)->window();
-        if (depw) {
-          if (dependson.contains(depw)) dependson.removeOne(depw);
+        if (it->type() != FolderTreeWidget::ItemType::Folders) {
+          MyWidget *depw =
+              dynamic_cast<WindowTableWidgetItem *>(depitems)->window();
+          if (depw) {
+            if (dependson.contains(depw)) dependson.removeOne(depw);
+          }
         }
       }
       if (dependson.size() > 0) stopdrag = true;
@@ -7639,10 +7656,12 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
       Layout3D *layout = qobject_cast<Layout3D *>(w);
       QList<MyWidget *> dependson = layout->dependentTableMatrix();
       foreach (QTreeWidgetItem *depitems, draggedItems) {
-        MyWidget *depw =
-            dynamic_cast<WindowTableWidgetItem *>(depitems)->window();
-        if (depw) {
-          if (dependson.contains(depw)) dependson.removeOne(depw);
+        if (it->type() != FolderTreeWidget::ItemType::Folders) {
+          MyWidget *depw =
+              dynamic_cast<WindowTableWidgetItem *>(depitems)->window();
+          if (depw) {
+            if (dependson.contains(depw)) dependson.removeOne(depw);
+          }
         }
       }
       if (dependson.size() > 0) stopdrag = true;
@@ -7739,9 +7758,9 @@ void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
   dest_f->setBirthDate(src_f->birthDate());
   dest_f->setModificationDate(src_f->modificationDate());
 
-  FolderTreeWidgetItem *copy_item = new FolderTreeWidgetItem(dest, dest_f);
-  copy_item->setText(0, src_f->name());
-  dest_f->setFolderTreeWidgetItem(copy_item);
+  // FolderTreeWidgetItem *copy_item = new FolderTreeWidgetItem(dest, dest_f);
+  // copy_item->setText(0, src_f->name());
+  // dest_f->setFolderTreeWidgetItem(copy_item);
 
   QList<MyWidget *> lst = QList<MyWidget *>(src_f->windowsList());
   foreach (MyWidget *w, lst) {
@@ -7762,9 +7781,9 @@ void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
       dest_f->setBirthDate(src_f->birthDate());
       dest_f->setModificationDate(src_f->modificationDate());
 
-      copy_item = new FolderTreeWidgetItem(copy_item, dest_f);
-      copy_item->setText(0, src_f->name());
-      dest_f->setFolderTreeWidgetItem(copy_item);
+      // copy_item = new FolderTreeWidgetItem(copy_item, dest_f);
+      // copy_item->setText(0, src_f->name());
+      // dest_f->setFolderTreeWidgetItem(copy_item);
 
       lst = QList<MyWidget *>(src_f->windowsList());
       foreach (MyWidget *w, lst) {

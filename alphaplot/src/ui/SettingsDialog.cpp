@@ -14,17 +14,19 @@
 
    Description : central settings dialog */
 
-#include "../widgets/aSettingsListView.h"
-#include "../core/IconLoader.h"
 #include "SettingsDialog.h"
-#include "SettingsPage.h"
-#include "ui_SettingsDialog.h"
+
+#include <QDebug>
+#include <QStandardItem>
+#include <QStandardItemModel>
+
+#include "../core/IconLoader.h"
+#include "../widgets/aSettingsListView.h"
 #include "GeneralApplicationSettings.h"
 #include "GeneralAppreanceSettings.h"
-
-#include <QStandardItemModel>
-#include <QStandardItem>
-#include <QDebug>
+#include "GeneralConfirmationSettings.h"
+#include "SettingsPage.h"
+#include "ui_SettingsDialog.h"
 
 SettingsDialog::SettingsDialog(QWidget* parent)
     : QDialog(parent),
@@ -113,13 +115,18 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   ui_->scriptingLabel->hide();
 
   // Add pages to stack widget
-  addPage(General, Page_GeneralApplication, new ApplicationSettingsPage(this));
-  addPage(General, Page_GeneralConfirmation, new ApplicationSettingsPage(this));
-  addPage(General, Page_GeneralAppearance, new GeneralAppreanceSettings(this));
+  // addPage(General, Page_RootSettings, new ApplicationSettingsPage(this));
+  SettingsPage* applicationsettingspage = new ApplicationSettingsPage(this);
+  SettingsPage* generalconfirmationsettings =
+      new GeneralConfirmationSettings(this);
+  SettingsPage *generalappearancesettings = new GeneralAppreanceSettings(this);
+  addPage(General, Page_GeneralApplication, applicationsettingspage);
+  addPage(General, Page_GeneralConfirmation, generalconfirmationsettings);
+  addPage(General, Page_GeneralAppearance, generalappearancesettings);
 
   // Make standard item models for listviews & add items
-  QStandardItemModel* iStandardModel = new QStandardItemModel(this);
-  QStandardItem* item1 =
+  // QStandardItemModel* iStandardModel = new QStandardItemModel(this);
+  /*QStandardItem* item1 =
       new QStandardItem(QIcon(":/data/document-open-remote.png"), "Open");
   QStandardItem* item2 =
       new QStandardItem(QIcon(":/data/document-save.png"), "Save");
@@ -139,12 +146,12 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   iStandardModel->appendRow(item4);
   iStandardModel->appendRow(item5);
   iStandardModel->appendRow(item6);
-  iStandardModel->appendRow(item7);
+  iStandardModel->appendRow(item7);*/
 
   // Set model to the view
   ui_->generalListView->setModel(generalSettingsModel_);
   ui_->tableListView->setModel(tableSettingsModel_);
-  ui_->plot2dListView->setModel(iStandardModel);
+  ui_->plot2dListView->setModel(plot2dSettingsModel_);
   ui_->plot3dListView->setModel(plot3dSettingsModel_);
   ui_->fittingListView->setModel(fittingSettingsModel_);
   ui_->scriptingListView->setModel(scriptingSettingsModel_);
@@ -235,6 +242,7 @@ void SettingsDialog::addPage(Catagory catogory, Page id, SettingsPage* page) {
 
   // Add page to stackwidget at position id
   ui_->stackedWidget->insertWidget(id, page);
+  // ui_->stackedWidget->addWidget(page);
 }
 
 void SettingsDialog::handleResizeBeforeListviewVisible(

@@ -1,11 +1,14 @@
 #include "GeneralApplicationSettings.h"
+
+#include "../core/IconLoader.h"
 #include "ui_GeneralApplicationSettings.h"
 
 ApplicationSettingsPage::ApplicationSettingsPage(SettingsDialog *dialog)
     : SettingsPage(dialog), ui(new Ui_ApplicationSettingsPage) {
   ui->setupUi(this);
-  setWindowIcon(QIcon(":/data/document-open-remote.png"));
-  setWindowTitle(tr("Application"));
+  setWindowIcon(
+      IconLoader::load("preferences-general", IconLoader::General));
+  setWindowTitle(tr("Basic"));
   ui->scrollArea->setFrameShape(QFrame::NoFrame);
 }
 
