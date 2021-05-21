@@ -117,13 +117,16 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   // Add pages to stack widget
   // addPage(General, Page_RootSettings, new ApplicationSettingsPage(this));
   SettingsPage* applicationsettingspage = new ApplicationSettingsPage(this);
-  SettingsPage* generalconfirmationsettings =
+  GeneralConfirmationSettings* generalconfirmationsettings =
       new GeneralConfirmationSettings(this);
-  SettingsPage *generalappearancesettings = new GeneralAppreanceSettings(this);
+  SettingsPage* generalappearancesettings = new GeneralAppreanceSettings(this);
   addPage(General, Page_GeneralApplication, applicationsettingspage);
   addPage(General, Page_GeneralConfirmation, generalconfirmationsettings);
   addPage(General, Page_GeneralAppearance, generalappearancesettings);
 
+  connect(generalconfirmationsettings,
+          &GeneralConfirmationSettings::generalconfirmationsettingsupdate, this,
+          &SettingsDialog::generalconfirmationsettingsupdates);
   // Make standard item models for listviews & add items
   // QStandardItemModel* iStandardModel = new QStandardItemModel(this);
   /*QStandardItem* item1 =
@@ -269,10 +272,18 @@ void SettingsDialog::clearAllSelection() {
 }
 
 void SettingsDialog::getBackToRootSettingsPage() {
-  ui_->stackedWidget->setCurrentIndex(Page_RootSettings);
-  ui_->searchBox->show();
-  ui_->configureButton->show();
-  ui_->settingsButton->setEnabled(false);
+  QWidget* w = ui_->stackedWidget->currentWidget();
+  SettingsPage* sp = dynamic_cast<SettingsPage*>(w);
+  bool result = true;
+  if (sp) {
+    result = sp->settingsChangeCheck();
+  }
+  if (result) {
+    ui_->stackedWidget->setCurrentIndex(Page_RootSettings);
+    ui_->searchBox->show();
+    ui_->configureButton->show();
+    ui_->settingsButton->setEnabled(false);
+  }
 }
 
 void SettingsDialog::test(QModelIndex mod) {

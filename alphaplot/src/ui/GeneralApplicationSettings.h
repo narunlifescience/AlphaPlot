@@ -15,6 +15,7 @@ class ApplicationSettingsPage : public SettingsPage {
   void Load();
   void Save();
   void setTitle(QString title);
+  bool settingsChangeCheck() { return true; }
 
  private:
   Ui_ApplicationSettingsPage *ui;

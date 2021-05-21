@@ -65,6 +65,9 @@ class SettingsDialog : public QDialog {
     Page_ScriptingColor = 17
   };
 
+ signals:
+  void generalconfirmationsettingsupdates();
+
  protected:
   QSize sizeHint() const;
   void resizeEvent(QResizeEvent *);

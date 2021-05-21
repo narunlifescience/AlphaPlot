@@ -1836,6 +1836,7 @@ void ApplicationWindow::loadImage(const QString &fn) {
 Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
   Layout2D *layout2d = new Layout2D("", d_workspace, 0);
   layout2d->setAttribute(Qt::WA_DeleteOnClose);
+  layout2d->askOnCloseEvent(confirmClosePlot2D);
   QString label = caption;
   while (alreadyUsedName(label)) label = generateUniqueName(tr("Graph"));
 
@@ -1887,6 +1888,7 @@ Layout3D *ApplicationWindow::newGraph3D(const Graph3DCommon::Plot3DType &type,
                                         const QString &caption) {
   Layout3D *layout3d = new Layout3D(type, "", d_workspace, 0);
   layout3d->setAttribute(Qt::WA_DeleteOnClose);
+  layout3d->askOnCloseEvent(confirmClosePlot3D);
   QString label = caption;
   while (alreadyUsedName(label)) label = generateUniqueName(tr("Graph"));
 
@@ -2417,6 +2419,8 @@ void ApplicationWindow::showPreferencesDialog() {
   cd->setColumnSeparator(columnSeparator);
   cd->exec();
   std::unique_ptr<SettingsDialog> settings_(new SettingsDialog);
+  connect(settings_.get(), &SettingsDialog::generalconfirmationsettingsupdates,
+          this, &ApplicationWindow::updateConfirmOptions);
   settings_->exec();
 }
 
@@ -2537,12 +2541,21 @@ void ApplicationWindow::changeAppFont(const QFont &font) {
   this->setFont(appFont);
 }
 
-void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices,
-                                             bool askPlots2D, bool askPlots3D,
-                                             bool askNotes) {
+void ApplicationWindow::updateConfirmOptions() {
+  QSettings settings;
+  settings.beginGroup("Confirmations");
+  bool nconfirmCloseFolder = settings.value("Folder", true).toBool();
+  bool nconfirmCloseTable = settings.value("Table", true).toBool();
+  bool nconfirmCloseMatrix = settings.value("Matrix", true).toBool();
+  bool nconfirmClosePlot2D = settings.value("Plot2D", true).toBool();
+  bool nconfirmClosePlot3D = settings.value("Plot3D", true).toBool();
+  bool nconfirmCloseNotes = settings.value("Note", true).toBool();
+  settings.endGroup();  // Confirmations
+
+  confirmCloseFolder = nconfirmCloseFolder;
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
-  if (confirmCloseTable != askTables) {
-    confirmCloseTable = askTables;
+  if (confirmCloseTable != nconfirmCloseTable) {
+    confirmCloseTable = nconfirmCloseTable;
     for (int i = 0; i < int(subwindowlist.count()); i++) {
       if (isActiveSubWindow(subwindowlist.at(i), SubWindowType::TableSubWindow))
         qobject_cast<MyWidget *>(subwindowlist.at(i))
@@ -2550,8 +2563,8 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices,
     }
   }
 
-  if (confirmCloseMatrix != askMatrices) {
-    confirmCloseMatrix = askMatrices;
+  if (confirmCloseMatrix != nconfirmCloseMatrix) {
+    confirmCloseMatrix = nconfirmCloseMatrix;
     for (int i = 0; i < int(subwindowlist.count()); i++) {
       if (isActiveSubWindow(subwindowlist.at(i),
                             SubWindowType::MatrixSubWindow))
@@ -2560,8 +2573,8 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices,
     }
   }
 
-  if (confirmClosePlot2D != askPlots2D) {
-    confirmClosePlot2D = askPlots2D;
+  if (confirmClosePlot2D != nconfirmClosePlot2D) {
+    confirmClosePlot2D = nconfirmClosePlot2D;
     for (int i = 0; i < int(subwindowlist.count()); i++) {
       if (isActiveSubWindow(subwindowlist.at(i),
                             SubWindowType::Plot2DSubWindow))
@@ -2570,8 +2583,8 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices,
     }
   }
 
-  if (confirmClosePlot3D != askPlots3D) {
-    confirmClosePlot3D = askPlots3D;
+  if (confirmClosePlot3D != nconfirmClosePlot3D) {
+    confirmClosePlot3D = nconfirmClosePlot3D;
     for (int i = 0; i < int(subwindowlist.count()); i++) {
       if (isActiveSubWindow(subwindowlist.at(i),
                             SubWindowType::Plot3DSubWindow))
@@ -2580,8 +2593,8 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices,
     }
   }
 
-  if (confirmCloseNotes != askNotes) {
-    confirmCloseNotes = askNotes;
+  if (confirmCloseNotes != nconfirmCloseNotes) {
+    confirmCloseNotes = nconfirmCloseNotes;
     for (int i = 0; i < int(subwindowlist.count()); i++) {
       if (isActiveSubWindow(subwindowlist.at(i), SubWindowType::NoteSubWindow))
         qobject_cast<MyWidget *>(subwindowlist.at(i))

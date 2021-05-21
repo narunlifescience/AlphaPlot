@@ -649,8 +649,7 @@ class ApplicationWindow : public QMainWindow,
   void horizontalTranslate();
   void verticalTranslate();
 
-  void updateConfirmOptions(bool askTables, bool askMatrixes, bool askPlots2D,
-                            bool askPlots3D, bool askNotes);
+  void updateConfirmOptions();
 
   //! \name Plot3D Tools
   //@{

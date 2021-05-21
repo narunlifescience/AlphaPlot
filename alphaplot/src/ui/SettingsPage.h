@@ -37,9 +37,13 @@ class SettingsPage : public QWidget {
   virtual void Save() = 0;
   virtual void Cancel() {}
   virtual void setTitle(QString title) = 0;
+  virtual bool settingsChangeCheck() = 0;
 
   // The dialog that this page belongs to.
   SettingsDialog* dialog() const { return dialog_; }
+
+ protected:
+  bool settingsChanged();
 
  private:
   SettingsDialog* dialog_;

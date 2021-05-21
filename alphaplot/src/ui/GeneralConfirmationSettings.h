@@ -5,20 +5,30 @@
 
 class Ui_GeneralConfirmationSettings;
 
-class GeneralConfirmationSettings : public SettingsPage
-{
+class GeneralConfirmationSettings : public SettingsPage {
   Q_OBJECT
 
-public:
+ public:
   explicit GeneralConfirmationSettings(SettingsDialog *dialog);
   ~GeneralConfirmationSettings();
 
   void Load();
   void Save();
   void setTitle(QString title);
+  bool settingsChangeCheck();
 
-private:
+ signals:
+  void generalconfirmationsettingsupdate();
+
+ private:
+  void loadQsettingsValues();
   Ui_GeneralConfirmationSettings *ui;
+  bool confirmCloseFolder_;
+  bool confirmCloseTable_;
+  bool confirmCloseMatrix_;
+  bool confirmClosePlot2D_;
+  bool confirmClosePlot3D_;
+  bool confirmCloseNotes_;
 };
 
-#endif // GENERALCONFIRMATIONSETTINGS_H
+#endif  // GENERALCONFIRMATIONSETTINGS_H

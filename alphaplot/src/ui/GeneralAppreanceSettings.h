@@ -32,6 +32,7 @@ class GeneralAppreanceSettings : public SettingsPage {
   void Load();
   void Save();
   void setTitle(QString title);
+  bool settingsChangeCheck() { return true; }
 
  private:
   Ui_GeneralAppreanceSettings *ui;

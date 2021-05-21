@@ -15,8 +15,35 @@
    Description : Class inherited by all settings pages
 */
 
-#include "SettingsDialog.h"
 #include "SettingsPage.h"
+
+#include <QMessageBox>
+
+#include "SettingsDialog.h"
 
 SettingsPage::SettingsPage(SettingsDialog* dialog)
     : QWidget(dialog), dialog_(dialog) {}
+
+bool SettingsPage::settingsChanged() {
+  bool result = true;
+  int ret = QMessageBox::warning(
+      this, tr("Apply Sttings"),
+      tr("Settings of current module have changed. Do you want to apply the "
+         "changes or discard them?"),
+      QMessageBox::Apply | QMessageBox::Discard | QMessageBox::Cancel);
+  switch (ret) {
+    case QMessageBox::Apply:
+      Save();
+      break;
+    case QMessageBox::Discard:
+      Load();
+      break;
+    case QMessageBox::Cancel:
+      result = false;
+      break;
+    default:
+      Load();
+      break;
+  }
+  return result;
+}

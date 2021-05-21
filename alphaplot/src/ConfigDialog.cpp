@@ -1127,9 +1127,9 @@ void ConfigDialog::apply() {
 
   // general page: confirmations tab
   app_->confirmCloseFolder = boxFolders->isChecked();
-  app_->updateConfirmOptions(boxTables->isChecked(), boxMatrices->isChecked(),
-                             boxPlots2D->isChecked(), boxPlots3D->isChecked(),
-                             boxNotes->isChecked());
+  //app_->updateConfirmOptions(boxTables->isChecked(), boxMatrices->isChecked(),
+  //                           boxPlots2D->isChecked(), boxPlots3D->isChecked(),
+  //                           boxNotes->isChecked());
   // general page: colors tab
   // app->setAppColors(btnWorkspace->color(), btnPanels->color(),
   //                  btnPanelsText->color());
