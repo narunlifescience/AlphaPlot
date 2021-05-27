@@ -52,6 +52,16 @@ const char* AlphaPlot::bugreport_Uri =
 const char* AlphaPlot::download_Uri =
     "https://sourceforge.net/projects/alphaplot/";
 
+const QStringList AlphaPlot::colorschemes_ = QStringList()
+                                             << "default"
+                                             << "alpha dark"
+                                             << "smooth dark blue"
+                                             << "smooth dark green"
+                                             << "smooth dark orange"
+                                             << "smooth light blue"
+                                             << "smooth light green"
+                                             << "smooth light orange";
+
 int AlphaPlot::headerHeight = 40;
 int AlphaPlot::commentHeaderHeight = 40;
 QColor AlphaPlot::xColorCode = QColor(0, 172, 109, 100);
@@ -88,6 +98,8 @@ QString AlphaPlot::originalAuthor() { return "Arun Narayanankutty"; }
 QString AlphaPlot::originalAuthorWithMail() {
   return "Arun Narayanankutty: <n.arun.lifescience@gmail.com";
 }
+
+QStringList AlphaPlot::appColorScheme() { return colorschemes_; }
 
 QString AlphaPlot::enumValueToString(int key, const QString& enum_name) {
   int index = staticMetaObject.indexOfEnumerator(enum_name.toUtf8());

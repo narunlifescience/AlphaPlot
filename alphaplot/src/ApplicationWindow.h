@@ -176,7 +176,7 @@ class ApplicationWindow : public QMainWindow,
     HorizontalGroupedBars = 24,
     ScatterYError = 25,
     ScatterXError = 26,
-    ScatterXYError =27
+    ScatterXYError = 27
   };
 
   QTranslator* appTranslator;
@@ -264,7 +264,7 @@ class ApplicationWindow : public QMainWindow,
   void changeAppStyle(const QString& s);
   void changeAppColorScheme(int colorScheme);
   void changeAppFont(const QFont& font);
-  // void setAppColors(const QColor& wc, const QColor& pc, const QColor& tpc);
+  void setAppColors();
   //@}
 
   void addLayout(const Graph2DCommon::AddLayoutElement& position);
@@ -649,7 +649,8 @@ class ApplicationWindow : public QMainWindow,
   void horizontalTranslate();
   void verticalTranslate();
 
-  void updateConfirmOptions();
+  void updateGeneralConfirmOptions();
+  void updateGeneralAppearanceOptions();
 
   //! \name Plot3D Tools
   //@{
@@ -906,6 +907,7 @@ class ApplicationWindow : public QMainWindow,
   ShowWindowsPolicy show_windows_policy;
   enum { MaxRecentProjects = 10 };
 
+  bool appCustomColor;
   QColor workspaceColor;
   QColor panelsColor;
   QColor panelsTextColor;
@@ -1138,7 +1140,6 @@ class ApplicationWindow : public QMainWindow,
   double glowxoffset_;
   double glowyoffset_;
   double glowradius_;
-
 
  private slots:
   void multipeakfitappendpoints(Curve2D* curve, double x, double y);

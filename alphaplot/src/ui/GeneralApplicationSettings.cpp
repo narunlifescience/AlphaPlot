@@ -2,6 +2,7 @@
 
 #include "../core/IconLoader.h"
 #include "ui_GeneralApplicationSettings.h"
+#include <QSettings>
 
 ApplicationSettingsPage::ApplicationSettingsPage(SettingsDialog *dialog)
     : SettingsPage(dialog), ui(new Ui_ApplicationSettingsPage) {

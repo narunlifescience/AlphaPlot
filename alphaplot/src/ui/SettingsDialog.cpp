@@ -119,7 +119,8 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   SettingsPage* applicationsettingspage = new ApplicationSettingsPage(this);
   GeneralConfirmationSettings* generalconfirmationsettings =
       new GeneralConfirmationSettings(this);
-  SettingsPage* generalappearancesettings = new GeneralAppreanceSettings(this);
+  GeneralAppreanceSettings* generalappearancesettings =
+      new GeneralAppreanceSettings(this);
   addPage(General, Page_GeneralApplication, applicationsettingspage);
   addPage(General, Page_GeneralConfirmation, generalconfirmationsettings);
   addPage(General, Page_GeneralAppearance, generalappearancesettings);
@@ -127,6 +128,9 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   connect(generalconfirmationsettings,
           &GeneralConfirmationSettings::generalconfirmationsettingsupdate, this,
           &SettingsDialog::generalconfirmationsettingsupdates);
+  connect(generalappearancesettings,
+          &GeneralAppreanceSettings::generalappreancesettingsupdate, this,
+          &SettingsDialog::generalappreancesettingsupdates);
   // Make standard item models for listviews & add items
   // QStandardItemModel* iStandardModel = new QStandardItemModel(this);
   /*QStandardItem* item1 =

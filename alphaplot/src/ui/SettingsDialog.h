@@ -67,6 +67,7 @@ class SettingsDialog : public QDialog {
 
  signals:
   void generalconfirmationsettingsupdates();
+  void generalappreancesettingsupdates();
 
  protected:
   QSize sizeHint() const;

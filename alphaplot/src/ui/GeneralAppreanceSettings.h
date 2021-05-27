@@ -21,6 +21,8 @@
 #include "SettingsPage.h"
 
 class Ui_GeneralAppreanceSettings;
+class QLabel;
+class QToolButton;
 
 class GeneralAppreanceSettings : public SettingsPage {
   Q_OBJECT
@@ -32,10 +34,24 @@ class GeneralAppreanceSettings : public SettingsPage {
   void Load();
   void Save();
   void setTitle(QString title);
-  bool settingsChangeCheck() { return true; }
+  bool settingsChangeCheck();
+
+ signals:
+  void generalappreancesettingsupdate();
 
  private:
+  void setupColorLabel(QLabel *label, QToolButton *button);
+  void pickColor(QLabel *label);
+  void loadQsettingsValues();
   Ui_GeneralAppreanceSettings *ui;
+  QString appstyle_;
+  int colorscheme_;
+  bool customcolors_;
+  QColor workspacecolor_;
+  QColor panelcolor_;
+  QColor paneltextcolor_;
+  static const int btn_size;
+  static const int lbl_line_width;
 
  private slots:
   void stylePreview(QString style);

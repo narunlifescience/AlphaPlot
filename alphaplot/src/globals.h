@@ -127,6 +127,7 @@ class AlphaPlot : public QObject {
   static QString originalAuthor();
 
   static QString originalAuthorWithMail();
+  static QStringList appColorScheme();
 
  private:
   /* 0xMMmmbb means MM.mm.bb with<br>
@@ -139,6 +140,7 @@ class AlphaPlot : public QObject {
   static const char* extra_version;
   // Release date
   static const QDate release_date;
+  static const QStringList colorschemes_;
 };
 
 #endif  // ALPHA_PLOT_GLOBALS_H

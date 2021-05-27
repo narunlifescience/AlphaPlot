@@ -164,6 +164,7 @@ ApplicationWindow::ApplicationWindow()
       graph3DToolbar(new QToolBar(tr("3D Surface"), this)),
       current_folder(new Folder(nullptr, tr("Untitled"))),
       show_windows_policy(ActiveFolder),
+      appCustomColor(false),
       appStyle(qApp->style()->objectName()),
       appColorScheme(0),
       appFont(QFont()),
@@ -898,6 +899,7 @@ ApplicationWindow::ApplicationWindow()
           &ApplicationWindow::windowActivated);
 
   loadSettings();
+  setAppColors();
   createLanguagesList();
 
   connect(scriptEnv, SIGNAL(error(const QString &, const QString &, int)), this,
@@ -2420,7 +2422,9 @@ void ApplicationWindow::showPreferencesDialog() {
   cd->exec();
   std::unique_ptr<SettingsDialog> settings_(new SettingsDialog);
   connect(settings_.get(), &SettingsDialog::generalconfirmationsettingsupdates,
-          this, &ApplicationWindow::updateConfirmOptions);
+          this, &ApplicationWindow::updateGeneralConfirmOptions);
+  connect(settings_.get(), &SettingsDialog::generalappreancesettingsupdates,
+          this, &ApplicationWindow::updateGeneralAppearanceOptions);
   settings_->exec();
 }
 
@@ -2454,7 +2458,7 @@ void ApplicationWindow::changeAppStyle(const QString &s) {
 void ApplicationWindow::changeAppColorScheme(int colorScheme) {
   switch (colorScheme) {
     case 0: {
-      qApp->setStyleSheet("");
+      qApp->setStyleSheet(styleSheet());
       QPalette pal = qApp->palette();
       QColor color = pal.color(QPalette::Active, QPalette::Base);
       d_workspace->setBackground(QBrush(color));
@@ -2512,7 +2516,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       qApp->setStyleSheet(schemeFileStream.readAll());
-      d_workspace->setBackground(QColor(230, 230, 230));
+      // d_workspace->setBackground(QColor(230, 230, 230));
       IconLoader::lumen_ = IconLoader::isLight(Qt::white);
       appColorScheme = 6;
     } break;
@@ -2541,7 +2545,7 @@ void ApplicationWindow::changeAppFont(const QFont &font) {
   this->setFont(appFont);
 }
 
-void ApplicationWindow::updateConfirmOptions() {
+void ApplicationWindow::updateGeneralConfirmOptions() {
   QSettings settings;
   settings.beginGroup("Confirmations");
   bool nconfirmCloseFolder = settings.value("Folder", true).toBool();
@@ -2600,6 +2604,42 @@ void ApplicationWindow::updateConfirmOptions() {
         qobject_cast<MyWidget *>(subwindowlist.at(i))
             ->askOnCloseEvent(confirmCloseNotes);
     }
+  }
+}
+
+void ApplicationWindow::updateGeneralAppearanceOptions() {
+  QSettings settings;
+  settings.beginGroup("General");
+  QString nappstyle_ =
+      settings.value("Style", qApp->style()->objectName()).toString();
+  int ncolorscheme_ = settings.value("ColorScheme", 0).toInt();
+
+  settings.beginGroup("Colors");
+  bool ncustomcolors_ = settings.value("Custom", false).toBool();
+  QColor nworkspacecolor_ =
+      settings.value("Workspace", "darkGray").value<QColor>();
+  QColor npanelcolor_ =
+      settings.value("Panels", palette().window().color()).value<QColor>();
+  QColor npaneltextcolor_ =
+      settings.value("PanelsText", palette().windowText().color())
+          .value<QColor>();
+  settings.endGroup();
+  settings.endGroup();
+
+  if (nappstyle_ != appStyle) {
+    changeAppStyle(nappstyle_);
+  }
+
+  if (ncolorscheme_ != appColorScheme) {
+    changeAppColorScheme(ncolorscheme_);
+  }
+
+  if (ncustomcolors_ != appCustomColor) {
+    appCustomColor = ncustomcolors_;
+    workspaceColor = nworkspacecolor_;
+    panelsColor = npanelcolor_;
+    panelsTextColor = npaneltextcolor_;
+    setAppColors();
   }
 }
 
@@ -2976,7 +3016,7 @@ void ApplicationWindow::restartScriptingEnv() {
 }
 
 void ApplicationWindow::openTemplate() {
-  QString filter = tr("AlphaPlot Matrix Template") + " (*.apt);;";
+  QString filter = tr("AlphaPlot 2D Graph Template") + " (*.apt);;";
   filter += tr("AlphaPlot 3D Surface Template") + " (*.ast);;";
   filter += tr("AlphaPlot Table Template") + " (*.att);;";
   filter += tr("AlphaPlot Matrix Template") + " (*.amt);;";
@@ -3075,11 +3115,16 @@ void ApplicationWindow::loadSettings() {
   settings.endGroup();  // Dialogs
 
   settings.beginGroup("Colors");
-  workspaceColor = settings.value("Workspace", "darkGray").value<QColor>();
+  appCustomColor = settings.value("Custom", false).toBool();
+  workspaceColor =
+      settings.value("Workspace", d_workspace->background().color())
+          .value<QColor>();
   // see http://doc.trolltech.com/4.2/qvariant.html for instructions on qcolor
   // <-> qvariant conversion
-  panelsColor = settings.value("Panels", "#ffffff").value<QColor>();
-  panelsTextColor = settings.value("PanelsText", "#000000").value<QColor>();
+  panelsColor =
+      settings.value("Panels", palette().window().color()).value<QColor>();
+  panelsTextColor = settings.value("PanelsText", palette().windowText().color())
+                        .value<QColor>();
   settings.endGroup();  // Colors
 
   settings.beginGroup("Paths");
@@ -3373,6 +3418,7 @@ void ApplicationWindow::saveSettings() {
   settings.endGroup();  // Dialogs
 
   settings.beginGroup("Colors");
+  settings.setValue("Custon", appCustomColor);
   settings.setValue("Workspace", workspaceColor);
   settings.setValue("Panels", panelsColor);
   settings.setValue("PanelsText", panelsTextColor);
@@ -6252,31 +6298,34 @@ void ApplicationWindow::connectTable(Table *table) {
   table->askOnCloseEvent(confirmCloseTable);
 }
 
-/*void ApplicationWindow::setAppColors(const QColor &wc, const QColor &pc,
-                                     const QColor &tpc) {
+void ApplicationWindow::setAppColors() {
   // comment out setting color for now
-  if (workspaceColor != wc)
-  {
-          workspaceColor = wc;
-          d_workspace->setPaletteBackgroundColor (wc);
+  if (appCustomColor) {
+    QPalette pale = qApp->palette();
+    pale.setColor(QPalette::Base, panelsColor);
+    // pal.setColor(QPalette::Window, panelsColor);
+    pale.setColor(QPalette::Button, panelsColor);
+    pale.setColor(QPalette::ToolTipBase, panelsColor);
+    qApp->setPalette(pale);
+    QPalette palet = qApp->palette();
+    palet.setColor(QPalette::Text, panelsTextColor);
+    palet.setColor(QPalette::WindowText, panelsTextColor);
+    palet.setColor(QPalette::Foreground, panelsTextColor);
+    palet.setColor(QPalette::ToolTipText, panelsTextColor);
+    palet.setColor(QPalette::PlaceholderText, panelsTextColor);
+    palet.setColor(QPalette::ButtonText, panelsTextColor);
+    palet.setColor(QPalette::BrightText, panelsTextColor);
+    qApp->setPalette(palet);
+    QPalette pal = d_workspace->palette();
+    pal.setColor(QPalette::Window, workspaceColor);
+    pal.setColor(QPalette::Base, workspaceColor);
+    d_workspace->setPalette(pal);
+  } else {
+    qApp->setStyle(appStyle);
+    qApp->setStyleSheet(styleSheet());
+    changeAppColorScheme(appColorScheme);
   }
-
-  if (panelsColor == pc && panelsTextColor == tpc)
-          return;
-
-  panelsColor = pc;
-  panelsTextColor = tpc;
-
-  QColorGroup cg;
-  cg.setColor(QColorGroup::Base, QColor(panelsColor) );
-  qApp->setPalette(QPalette(cg, cg, cg));
-
-  cg.setColor(QColorGroup::Text, QColor(panelsTextColor) );
-  cg.setColor(QColorGroup::WindowText, QColor(panelsTextColor) );
-  cg.setColor(QColorGroup::HighlightedText, QColor(panelsTextColor) );
-  lv->setPalette(QPalette(cg, cg, cg));
-  results->setPalette(QPalette(cg, cg, cg));
-}*/
+}
 
 Layout3D *ApplicationWindow::plot3DMatrix(
     const Graph3DCommon::Plot3DType &plottype) {
