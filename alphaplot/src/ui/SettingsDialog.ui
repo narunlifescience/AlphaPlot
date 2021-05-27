@@ -16,20 +16,22 @@
   <layout class="QGridLayout" name="settingGridLayout">
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="headerHorizontalLayout">
+     <property name="leftMargin">
+      <number>2</number>
+     </property>
+     <property name="topMargin">
+      <number>2</number>
+     </property>
+     <property name="rightMargin">
+      <number>2</number>
+     </property>
+     <property name="bottomMargin">
+      <number>2</number>
+     </property>
      <item>
       <widget class="QPushButton" name="settingsButton">
        <property name="text">
         <string>All Settings</string>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="configureButton">
-       <property name="text">
-        <string>Configure</string>
        </property>
        <property name="flat">
         <bool>true</bool>
@@ -89,9 +91,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-390</y>
+            <y>0</y>
             <width>348</width>
-            <height>618</height>
+            <height>612</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="scrollVerticalLayout">
@@ -99,9 +101,9 @@
             <widget class="QLabel" name="generalLabel">
              <property name="font">
               <font>
-               <weight>75</weight>
+               <weight>50</weight>
                <italic>true</italic>
-               <bold>true</bold>
+               <bold>false</bold>
               </font>
              </property>
              <property name="layoutDirection">
@@ -132,9 +134,9 @@
             <widget class="QLabel" name="tableLabel">
              <property name="font">
               <font>
-               <weight>75</weight>
+               <weight>50</weight>
                <italic>true</italic>
-               <bold>true</bold>
+               <bold>false</bold>
                <kerning>false</kerning>
               </font>
              </property>
@@ -150,9 +152,9 @@
             <widget class="QLabel" name="plot2dLabel">
              <property name="font">
               <font>
-               <weight>75</weight>
+               <weight>50</weight>
                <italic>true</italic>
-               <bold>true</bold>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -167,9 +169,9 @@
             <widget class="QLabel" name="plot3dLabel">
              <property name="font">
               <font>
-               <weight>75</weight>
+               <weight>50</weight>
                <italic>true</italic>
-               <bold>true</bold>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -184,9 +186,9 @@
             <widget class="QLabel" name="fittingLabel">
              <property name="font">
               <font>
-               <weight>75</weight>
+               <weight>50</weight>
                <italic>true</italic>
-               <bold>true</bold>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -201,9 +203,9 @@
             <widget class="QLabel" name="scriptingLabel">
              <property name="font">
               <font>
-               <weight>75</weight>
+               <weight>50</weight>
                <italic>true</italic>
-               <bold>true</bold>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">

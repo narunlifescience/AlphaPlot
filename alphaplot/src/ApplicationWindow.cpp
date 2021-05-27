@@ -2516,7 +2516,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       qApp->setStyleSheet(schemeFileStream.readAll());
-      // d_workspace->setBackground(QColor(230, 230, 230));
+      d_workspace->setBackground(QColor(230, 230, 230));
       IconLoader::lumen_ = IconLoader::isLight(Qt::white);
       appColorScheme = 6;
     } break;
@@ -6317,9 +6317,7 @@ void ApplicationWindow::setAppColors() {
     palet.setColor(QPalette::BrightText, panelsTextColor);
     qApp->setPalette(palet);
     QPalette pal = d_workspace->palette();
-    pal.setColor(QPalette::Window, workspaceColor);
-    pal.setColor(QPalette::Base, workspaceColor);
-    d_workspace->setPalette(pal);
+    d_workspace->setBackground(QBrush(workspaceColor));
   } else {
     qApp->setStyle(appStyle);
     qApp->setStyleSheet(styleSheet());

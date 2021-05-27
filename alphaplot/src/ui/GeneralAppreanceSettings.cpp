@@ -41,7 +41,7 @@ GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
   QStringList styles = QStyleFactory::keys();
   styles.sort();
   ui->styleComboBox->addItems(styles);
-  ui->colorSchemeComboBox->addItems(AlphaPlot::appColorScheme());
+  ui->colorSchemeComboBox->addItems(AlphaPlot::appColorSchemeName());
   ui->customColorGroupBox->setCheckable(true);
   ui->customColorGroupBox->setAlignment(Qt::AlignLeft);
   setupColorLabel(ui->panelColorLabel, ui->panelColorButton);
@@ -51,8 +51,9 @@ GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
           &GeneralAppreanceSettings::Save);
   connect(ui->defaultsPushButton, &QPushButton::clicked, this,
           &GeneralAppreanceSettings::Load);
-  /*connect(ui->colorSchemeComboBox, &QComboBox::currentIndexChanged, this,
-          &GeneralAppreanceSettings::colorStylePreview);*/
+  connect(ui->colorSchemeComboBox,
+          QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+          &GeneralAppreanceSettings::colorStylePreview);
   connect(ui->styleComboBox, &QComboBox::currentTextChanged, this,
           &GeneralAppreanceSettings::stylePreview);
   connect(ui->panelColorButton, &QToolButton::clicked,
@@ -72,15 +73,9 @@ void GeneralAppreanceSettings::Load() {
       ui->styleComboBox->findText(appstyle_, Qt::MatchWildcard));
   ui->colorSchemeComboBox->setCurrentIndex(colorscheme_);
   ui->customColorGroupBox->setChecked(customcolors_);
-  QPalette wpal = ui->workspaceColorLabel->palette();
-  wpal.setColor(ui->workspaceColorLabel->backgroundRole(), workspacecolor_);
-  ui->workspaceColorLabel->setPalette(wpal);
-  QPalette ppal = ui->panelColorLabel->palette();
-  ppal.setColor(ui->panelColorLabel->backgroundRole(), panelcolor_);
-  ui->panelColorLabel->setPalette(ppal);
-  QPalette ptpal = ui->paneltextColorLabel->palette();
-  ptpal.setColor(ui->paneltextColorLabel->backgroundRole(), paneltextcolor_);
-  ui->paneltextColorLabel->setPalette(ptpal);
+  ui->workspaceColorLabel->setStyleSheet(setStyleSheetString(workspacecolor_));
+  ui->panelColorLabel->setStyleSheet(setStyleSheetString(panelcolor_));
+  ui->paneltextColorLabel->setStyleSheet(setStyleSheetString(paneltextcolor_));
 }
 
 void GeneralAppreanceSettings::Save() {
@@ -131,12 +126,9 @@ bool GeneralAppreanceSettings::settingsChangeCheck() {
 
 void GeneralAppreanceSettings::setupColorLabel(QLabel *label,
                                                QToolButton *button) {
-  label->setFrameStyle(QFrame::Shape::Box);
-  label->setLineWidth(lbl_line_width);
   label->setFixedSize(btn_size, btn_size);
   (label->height() > label->width()) ? label->setFixedWidth(label->height())
                                      : label->setFixedHeight(label->width());
-  label->setAutoFillBackground(true);
   button->setIcon(IconLoader::load("color-management", IconLoader::General));
   button->setStyleSheet("QToolButton {border: 0px;}");
 }
@@ -145,8 +137,7 @@ void GeneralAppreanceSettings::pickColor(QLabel *label) {
   QPalette pal = label->palette();
   QColor color = QColorDialog::getColor(pal.window().color(), this);
   if (!color.isValid() || color == pal.window().color()) return;
-  pal.setColor(label->backgroundRole(), color);
-  label->setPalette(pal);
+  label->setStyleSheet(setStyleSheetString(color));
 }
 
 void GeneralAppreanceSettings::loadQsettingsValues() {
@@ -165,7 +156,22 @@ void GeneralAppreanceSettings::loadQsettingsValues() {
   settings.endGroup();
 }
 
-void GeneralAppreanceSettings::stylePreview(QString style) {
+QString GeneralAppreanceSettings::setStyleSheetString(const QColor &color) {
+  QString stylesheetstring =
+      "QLabel:!disabled{background : rgba(%1,%2, %3, %4); border: 1px solid "
+      "rgba(%5, %6, %7, %8);}";
+  QColor bordercolor = qApp->palette().windowText().color();
+  return stylesheetstring.arg(color.red())
+      .arg(color.green())
+      .arg(color.blue())
+      .arg(color.alpha())
+      .arg(bordercolor.red())
+      .arg(bordercolor.green())
+      .arg(bordercolor.blue())
+      .arg(bordercolor.alpha());
+}
+
+void GeneralAppreanceSettings::stylePreview(const QString &style) {
   QStyle *stylefinal = QStyleFactory::create(style.toLower());
 
   if (!stylefinal) {
@@ -189,4 +195,56 @@ void GeneralAppreanceSettings::stylePreview(QString style) {
   ui->previewTableWidget->setStyle(stylefinal);
 }
 
-void GeneralAppreanceSettings::colorStylePreview(int index) {}
+void GeneralAppreanceSettings::colorStylePreview(int index) {
+  switch (index) {
+    case 0: {
+      ui->groupBox->setStyleSheet(styleSheet());
+    } break;
+    case 1: {
+      QFile schemefile(":style/alpha/dark.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      ui->groupBox->setStyleSheet(schemeFileStream.readAll());
+    } break;
+    case 2: {
+      QFile schemefile(":style/smooth/dark-blue.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      ui->groupBox->setStyleSheet(schemeFileStream.readAll());
+    } break;
+    case 3: {
+      QFile schemefile(":style/smooth/dark-green.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      ui->groupBox->setStyleSheet(schemeFileStream.readAll());
+    } break;
+    case 4: {
+      QFile schemefile(":style/smooth/dark-orange.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      ui->groupBox->setStyleSheet(schemeFileStream.readAll());
+    } break;
+    case 5: {
+      QFile schemefile(":style/smooth/light-blue.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      ui->groupBox->setStyleSheet(schemeFileStream.readAll());
+    } break;
+    case 6: {
+      QFile schemefile(":style/smooth/light-green.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      ui->groupBox->setStyleSheet(schemeFileStream.readAll());
+    } break;
+    case 7: {
+      QFile schemefile(":style/smooth/light-orange.qss");
+      schemefile.open(QFile::ReadOnly | QFile::Text);
+      QTextStream schemeFileStream(&schemefile);
+      ui->groupBox->setStyleSheet(schemeFileStream.readAll());
+    } break;
+    default:
+      // should not reach
+      qDebug() << "color scheme index out of range";
+      break;
+  }
+}

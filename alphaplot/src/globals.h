@@ -31,9 +31,9 @@
 #ifndef ALPHA_PLOT_GLOBALS_H
 #define ALPHA_PLOT_GLOBALS_H
 
+#include <QColor>
 #include <QObject>
 #include <QString>
-#include <QColor>
 
 //! Definition of global constants and enums
 /**
@@ -127,7 +127,7 @@ class AlphaPlot : public QObject {
   static QString originalAuthor();
 
   static QString originalAuthorWithMail();
-  static QStringList appColorScheme();
+  static QStringList appColorSchemeName();
 
  private:
   /* 0xMMmmbb means MM.mm.bb with<br>

@@ -21,11 +21,9 @@
 
 aSettingsListView::aSettingsListView(QWidget *parent) : QListView(parent) {
   // Set listview color to window base color & set alpha to 0
-  QString listview_color = "QListView{background-color : rgba(%1,%2,%3,%4);}";
-  setStyleSheet(listview_color.arg(palette().color(QPalette::Base).red())
-                    .arg(palette().color(QPalette::Base).green())
-                    .arg(palette().color(QPalette::Base).blue())
-                    .arg(0));
+  QString listview_color =
+      "QListView{background-color : rgba(0,0,0,0); border: 0 rgba(0,0,0,0);}";
+  setStyleSheet(listview_color);
 
   // General settings for grid icon view
   setViewMode(QListView::IconMode);

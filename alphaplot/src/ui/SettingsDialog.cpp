@@ -66,8 +66,6 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   ui_->searchBox->setToolTip(tr("search"));
 
   // Prepare buttons
-  ui_->configureButton->setIcon(
-      IconLoader::load("edit-preference", IconLoader::LightDark));
   ui_->settingsButton->setIcon(
       IconLoader::load("go-previous", IconLoader::LightDark));
   ui_->settingsButton->setEnabled(false);
@@ -81,32 +79,23 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   iconView_->setCheckable(true);
   settingsViewMenu_->addAction(treeView_);
   settingsViewMenu_->addAction(iconView_);
-  ui_->configureButton->setMenu(settingsViewMenu_);
 
   // Prepare scrollarea.
-  QString scrollbackcol =
-      "QScrollArea {background-color : "
-      "rgba(%1,%2,%3,%4); border: 0;}";
-  ui_->scrollArea->setStyleSheet(scrollbackcol.arg(baseColor_.red())
-                                     .arg(baseColor_.green())
-                                     .arg(baseColor_.blue())
-                                     .arg(baseColor_.alpha()));
+  QString scrollbackcol = "QScrollArea {border: 0;}";
+  ui_->scrollArea->setStyleSheet(scrollbackcol);
+  ui_->settingsButton->setStyleSheet(
+      "QPushButton {background-color : rgba(0,0,0,0);border: 0 "
+      "rgba(0,0,0,0);}");
 
   // Prepare label.
   QString label_font_color =
-      "QLabel {color : rgba(%1,%2,%3,%4);"
+      "QLabel {background-color : rgba(0,0,0,0);"
       " padding-left: 10px;"
       " padding-right: 10px;"
       " padding-top: 10px;"
-      " padding-bottom: 10px}";
-  ui_->generalLabel->setStyleSheet(label_font_color.arg(fontColor_.red())
-                                       .arg(fontColor_.green())
-                                       .arg(fontColor_.blue())
-                                       .arg(150));
-  ui_->plot2dLabel->setStyleSheet(label_font_color.arg(fontColor_.red())
-                                      .arg(fontColor_.green())
-                                      .arg(fontColor_.blue())
-                                      .arg(150));
+      " padding-bottom: 10px; border: 0 rgba(0,0,0,0);}";
+  ui_->generalLabel->setStyleSheet(label_font_color);
+  ui_->plot2dLabel->setStyleSheet(label_font_color);
   ui_->generalLabel->hide();
   ui_->tableLabel->hide();
   ui_->plot2dLabel->hide();
@@ -285,7 +274,6 @@ void SettingsDialog::getBackToRootSettingsPage() {
   if (result) {
     ui_->stackedWidget->setCurrentIndex(Page_RootSettings);
     ui_->searchBox->show();
-    ui_->configureButton->show();
     ui_->settingsButton->setEnabled(false);
   }
 }
@@ -294,7 +282,6 @@ void SettingsDialog::test(QModelIndex mod) {
   qDebug() << "sugnal recived " << mod.row() << mod.data().toString();
   ui_->stackedWidget->setCurrentIndex(mod.row() + 1);
   ui_->searchBox->hide();
-  ui_->configureButton->hide();
   ui_->settingsButton->setEnabled(true);
 }
 

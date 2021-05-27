@@ -43,6 +43,7 @@ class GeneralAppreanceSettings : public SettingsPage {
   void setupColorLabel(QLabel *label, QToolButton *button);
   void pickColor(QLabel *label);
   void loadQsettingsValues();
+  QString setStyleSheetString(const QColor &color);
   Ui_GeneralAppreanceSettings *ui;
   QString appstyle_;
   int colorscheme_;
@@ -54,7 +55,7 @@ class GeneralAppreanceSettings : public SettingsPage {
   static const int lbl_line_width;
 
  private slots:
-  void stylePreview(QString style);
+  void stylePreview(const QString &style);
   void colorStylePreview(int index);
 };
 

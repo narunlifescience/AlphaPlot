@@ -99,7 +99,7 @@ QString AlphaPlot::originalAuthorWithMail() {
   return "Arun Narayanankutty: <n.arun.lifescience@gmail.com";
 }
 
-QStringList AlphaPlot::appColorScheme() { return colorschemes_; }
+QStringList AlphaPlot::appColorSchemeName() { return colorschemes_; }
 
 QString AlphaPlot::enumValueToString(int key, const QString& enum_name) {
   int index = staticMetaObject.indexOfEnumerator(enum_name.toUtf8());
