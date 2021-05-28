@@ -81,8 +81,12 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   settingsViewMenu_->addAction(iconView_);
 
   // Prepare scrollarea.
-  QString scrollbackcol = "QScrollArea {border: 0;}";
-  ui_->scrollArea->setStyleSheet(scrollbackcol);
+  QString scrollbackcol =
+      "QScrollArea {border: 0; background-color: rgba(%1,%2,%3,%4);}";
+  ui_->scrollArea->setStyleSheet(scrollbackcol.arg(baseColor_.red())
+                                     .arg(baseColor_.green())
+                                     .arg(baseColor_.blue())
+                                     .arg(baseColor_.alpha()));
   ui_->settingsButton->setStyleSheet(
       "QPushButton {background-color : rgba(0,0,0,0);border: 0 "
       "rgba(0,0,0,0);}");

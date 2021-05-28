@@ -37,6 +37,8 @@ GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
       IconLoader::load("preferences-general-apperance", IconLoader::General));
   setWindowTitle(tr("Apperance"));
   ui->scrollArea->setFrameShape(QFrame::NoFrame);
+  ui->scrollArea->setVerticalScrollBarPolicy(
+      Qt::ScrollBarPolicy::ScrollBarAsNeeded);
   ui->gridLayout->setContentsMargins(3, 3, 3, 3);
   QStringList styles = QStyleFactory::keys();
   styles.sort();
@@ -98,7 +100,7 @@ void GeneralAppreanceSettings::Save() {
 
 void GeneralAppreanceSettings::setTitle(QString title) {
   QFont font = ui->titleLabel->font();
-  font.setPointSize(font.pointSize() + 2);
+  //font.setPointSize(font.pointSize() + 2);
   font.setItalic(true);
 
   ui->titleLabel->setStyleSheet(

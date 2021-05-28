@@ -13,6 +13,9 @@ GeneralConfirmationSettings::GeneralConfirmationSettings(SettingsDialog *dialog)
   setWindowIcon(IconLoader::load("preferences-general-confirmation",
                                  IconLoader::General));
   setWindowTitle(tr("Confirmation"));
+  ui->scrollArea->setFrameShape(QFrame::NoFrame);
+  ui->scrollArea->setVerticalScrollBarPolicy(
+      Qt::ScrollBarPolicy::ScrollBarAsNeeded);
   connect(ui->applyPushButton, &QPushButton::clicked, this,
           &GeneralConfirmationSettings::Save);
   connect(ui->defaultsPushButton, &QPushButton::clicked, this,
@@ -50,7 +53,7 @@ void GeneralConfirmationSettings::Save() {
 void GeneralConfirmationSettings::setTitle(QString title) {
   QFont font = ui->label->font();
 
-  font.setPointSize(font.pointSize() + 2);
+  //font.setPointSize(font.pointSize() + 2);
   // font.setBold(true);
   font.setItalic(true);
 
