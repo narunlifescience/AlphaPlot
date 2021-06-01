@@ -633,6 +633,7 @@ class ApplicationWindow : public QMainWindow,
   void showColumnStatistics();
   void showFitDialog();
   void showSwapLayoutDialog();
+  void showAddGlyphs();
   void showPreferencesDialog();
   void savitzkySmooth();
   void fFTFilterSmooth();

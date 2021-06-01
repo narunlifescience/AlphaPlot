@@ -22,6 +22,7 @@
 #include "2Dplot/TextItem2D.h"
 #include "2Dplot/widgets/ErrDialog.h"
 #include "3Dplot/SurfaceDialog.h"
+#include "ui/CharacterMapWidget.h"
 #include "About.h"
 #include "AssociationsDialog.h"
 #include "ColorBox.h"
@@ -444,6 +445,8 @@ ApplicationWindow::ApplicationWindow()
           SLOT(clearLogInfo()));
   connect(ui_->actionDeleteFitTables, SIGNAL(triggered()), this,
           SLOT(deleteFitTables()));
+  connect(ui_->actionAddGlyphs, &QAction::triggered, this,
+          &ApplicationWindow::showAddGlyphs);
   connect(ui_->actionPreferences, SIGNAL(triggered()), this,
           SLOT(showPreferencesDialog()));
   // View menu
@@ -5009,6 +5012,13 @@ void ApplicationWindow::showSwapLayoutDialog() {
       std::unique_ptr<SwapLayout2DDialog>(new SwapLayout2DDialog(layout));
   swapdlg->setModal(true);
   swapdlg->exec();
+}
+
+void ApplicationWindow::showAddGlyphs() {
+  std::unique_ptr<CharacterMapWidget> charmap =
+      std::unique_ptr<CharacterMapWidget>(new CharacterMapWidget(nullptr));
+  charmap->setModal(false);
+  charmap->exec();
 }
 
 void ApplicationWindow::addColToTable() {

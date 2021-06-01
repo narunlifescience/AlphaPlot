@@ -94,6 +94,7 @@
     <addaction name="actionDeleteFitTables"/>
     <addaction name="actionClearLogInfo"/>
     <addaction name="separator"/>
+    <addaction name="actionAddGlyphs"/>
     <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -1449,6 +1450,11 @@
   <action name="actionPlot2DScatter">
    <property name="text">
     <string>Scatter</string>
+   </property>
+  </action>
+  <action name="actionAddGlyphs">
+   <property name="text">
+    <string>Add Symbols/Glyphs</string>
    </property>
   </action>
  </widget>
