@@ -33,7 +33,8 @@ class CharacterWidget : public QWidget {
     NumberSymbol = 2,
     SubSuperSymbol = 3,
     MathSymbol = 4,
-    ArrowSymbol = 5
+    ArrowSymbol = 5,
+    OtherSymbol = 6
   };
 
  public slots:
@@ -65,6 +66,7 @@ class CharacterWidget : public QWidget {
   bool subsupersymbolchar_;
   bool mathsymbolchar_;
   bool arrowsymbolchar_;
+  bool othersymbolchar_;
 };
 
 #endif  // CHARACTERWIDGET_H

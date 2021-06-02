@@ -76,6 +76,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/scripting/SyntaxHighlighter.h \
             src/widgets/aSettingsListView.h \
             src/widgets/CharacterWidget.h \
+            src/widgets/CustomCharacterDialog.h \
             src/ui/CharacterMapWidget.h \
             src/ui/ExportDialog.h \
             src/ui/ExtensibleFileDialog.h \
@@ -164,6 +165,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/scripting/SyntaxHighlighter.cpp \
             src/widgets/aSettingsListView.cpp \
             src/widgets/CharacterWidget.cpp \
+            src/widgets/CustomCharacterDialog.cpp \
             src/ui/CharacterMapWidget.cpp \
             src/ui/ExportDialog.cpp \
             src/ui/ExtensibleFileDialog.cpp \
@@ -183,6 +185,7 @@ SOURCES  += src/ApplicationWindow.cpp \
 FORMS        += src/ApplicationWindow.ui \
                 src/core/widgets/propertyeditor.ui \
                 src/scripting/widgets/ConsoleWidget.ui \
+                src/widgets/CustomCharacterDialog.ui \
                 src/ui/GeneralApplicationSettings.ui \
                 src/ui/GeneralAppreanceSettings.ui \
                 src/ui/GeneralConfirmationSettings.ui \

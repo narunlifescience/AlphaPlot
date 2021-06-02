@@ -13,6 +13,8 @@ ApplicationSettingsPage::ApplicationSettingsPage(SettingsDialog *dialog)
   ui->scrollArea->setFrameShape(QFrame::NoFrame);
   ui->scrollArea->setVerticalScrollBarPolicy(
       Qt::ScrollBarPolicy::ScrollBarAsNeeded);
+  ui->activeWindowGroupBox->setCheckable(true);
+  ui->activeWindowGroupBox->setAlignment(Qt::AlignLeft);
 }
 
 ApplicationSettingsPage::~ApplicationSettingsPage() { delete ui; }
@@ -23,9 +25,6 @@ void ApplicationSettingsPage::Save() {}
 
 void ApplicationSettingsPage::setTitle(QString title) {
   QFont font = ui->titleLabel->font();
-
-  //font.setPointSize(font.pointSize() + 2);
-  // font.setBold(true);
   font.setItalic(true);
 
   ui->titleLabel->setStyleSheet(

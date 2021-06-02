@@ -15,6 +15,9 @@ public:
   explicit CustomCharacterDialog(QWidget *parent = nullptr);
   ~CustomCharacterDialog();
 
+signals:
+  void customChar(int value);
+
 private:
   Ui::CustomCharacterDialog *ui;
 };

@@ -28,7 +28,8 @@ CharacterWidget::CharacterWidget(QWidget *parent)
       numbersymbolchar_(true),
       subsupersymbolchar_(true),
       mathsymbolchar_(true),
-      arrowsymbolchar_(true) {
+      arrowsymbolchar_(true),
+      othersymbolchar_(true) {
   updateChars(Chars::All);
   calculateSquareSize();
   setMouseTracking(true);
@@ -76,6 +77,7 @@ void CharacterWidget::updateChars(CharacterWidget::Chars chars) {
       subsupersymbolchar_ = true;
       mathsymbolchar_ = true;
       arrowsymbolchar_ = true;
+      othersymbolchar_ = true;
       break;
     case Chars::GreekSymbol:
       greeksymbolchar_ = true;
@@ -83,6 +85,7 @@ void CharacterWidget::updateChars(CharacterWidget::Chars chars) {
       subsupersymbolchar_ = false;
       mathsymbolchar_ = false;
       arrowsymbolchar_ = false;
+      othersymbolchar_ = false;
       break;
     case Chars::NumberSymbol:
       greeksymbolchar_ = false;
@@ -90,6 +93,7 @@ void CharacterWidget::updateChars(CharacterWidget::Chars chars) {
       subsupersymbolchar_ = false;
       mathsymbolchar_ = false;
       arrowsymbolchar_ = false;
+      othersymbolchar_ = false;
       break;
     case Chars::SubSuperSymbol:
       greeksymbolchar_ = false;
@@ -97,6 +101,7 @@ void CharacterWidget::updateChars(CharacterWidget::Chars chars) {
       subsupersymbolchar_ = true;
       mathsymbolchar_ = false;
       arrowsymbolchar_ = false;
+      othersymbolchar_ = false;
       break;
     case Chars::MathSymbol:
       greeksymbolchar_ = false;
@@ -104,6 +109,7 @@ void CharacterWidget::updateChars(CharacterWidget::Chars chars) {
       subsupersymbolchar_ = false;
       mathsymbolchar_ = true;
       arrowsymbolchar_ = false;
+      othersymbolchar_ = false;
       break;
     case Chars::ArrowSymbol:
       greeksymbolchar_ = false;
@@ -111,6 +117,15 @@ void CharacterWidget::updateChars(CharacterWidget::Chars chars) {
       subsupersymbolchar_ = false;
       mathsymbolchar_ = false;
       arrowsymbolchar_ = true;
+      othersymbolchar_ = false;
+      break;
+    case Chars::OtherSymbol:
+      greeksymbolchar_ = false;
+      numbersymbolchar_ = false;
+      subsupersymbolchar_ = false;
+      mathsymbolchar_ = false;
+      arrowsymbolchar_ = false;
+      othersymbolchar_ = true;
       break;
   }
   loadCharsList();
@@ -232,6 +247,10 @@ void CharacterWidget::loadCharsList() {
     for (i = 0; i <= (0x21A7 - 0x21A4); i++) charsList_.append(i + 0x21A4);
     for (i = 0; i <= (0x21D5 - 0x21CD); i++) charsList_.append(i + 0x21CD);
     for (i = 0; i <= (0x21E9 - 0x21E6); i++) charsList_.append(i + 0x21E6);
+  }
+  if (othersymbolchar_) {
+    charsList_ << 0xa9 << 0xae << 0x2122 << 0x2713 << 0x2103 << 0x2109 << 0x24
+               << 0xa2 << 0xa3 << 0x20AC << 0xA5 << 0x20B9 << 0x20BD << 0x5143;
   }
 
   calculateSquareSize();

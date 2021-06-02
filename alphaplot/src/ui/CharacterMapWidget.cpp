@@ -27,6 +27,7 @@
 #include <QtGui/QtGui>
 
 #include "widgets/CharacterWidget.h"
+#include "widgets/CustomCharacterDialog.h"
 
 const int CharacterMapWidget::glyphSize_ = 16;
 
@@ -39,7 +40,7 @@ CharacterMapWidget::CharacterMapWidget(QDialog *parent)
   QStringList list = QStringList()
                      << tr("All") << tr("Greek Symbol") << tr("Number Symbol")
                      << tr("Sub/Super Script") << tr("Math Symbol")
-                     << tr("Arrow Symbol");
+                     << tr("Arrow Symbol") << tr("Other Symbols");
   charlist_->addItems(list);
 
   scrollArea_ = new QScrollArea;
@@ -47,9 +48,11 @@ CharacterMapWidget::CharacterMapWidget(QDialog *parent)
   scrollArea_->setWidget(characterWidget_);
   characterWidget_->updateSize(CharacterMapWidget::glyphSize_);
 
+  QPushButton *addCustomSymbolButton = new QPushButton(tr("+ Custom Char"));
+  addCustomSymbolButton->setToolTip(tr("Add custom characters"));
   lineEdit_ = new QLineEdit;
   lineEdit_->setClearButtonEnabled(true);
-  QPushButton *clipboardButton = new QPushButton(tr("&To clipboard"));
+  QPushButton *clipboardButton = new QPushButton(tr("&Copy"));
 
   connect(fontCombo_, &QFontComboBox::currentFontChanged, characterWidget_,
           &CharacterWidget::updateFont);
@@ -62,6 +65,13 @@ CharacterMapWidget::CharacterMapWidget(QDialog *parent)
         characterWidget_->updateChars(
             static_cast<CharacterWidget::Chars>(index));
       });
+  connect(addCustomSymbolButton, &QPushButton::clicked, [=]() {
+    std::unique_ptr<CustomCharacterDialog> customchar =
+        std::unique_ptr<CustomCharacterDialog>(new CustomCharacterDialog);
+    connect(customchar.get(), &CustomCharacterDialog::customChar,
+            [=](int value) { insertCharacter(QString(QChar(value))); });
+    customchar->exec();
+  });
 
   connect(clipboardButton, &QAbstractButton::clicked, this,
           &CharacterMapWidget::updateClipboard);
@@ -75,6 +85,7 @@ CharacterMapWidget::CharacterMapWidget(QDialog *parent)
 
   QHBoxLayout *lineLayout = new QHBoxLayout;
   lineLayout->addWidget(lineEdit_, 1);
+  lineLayout->addWidget(addCustomSymbolButton);
   lineLayout->addSpacing(12);
   lineLayout->addWidget(clipboardButton);
 
@@ -84,7 +95,7 @@ CharacterMapWidget::CharacterMapWidget(QDialog *parent)
   centralLayout->addSpacing(4);
   centralLayout->addLayout(lineLayout);
   setLayout(centralLayout);
-  setWindowTitle(tr("Character Map"));
+  setWindowTitle(tr("Symbols/Glyphs"));
 }
 
 void CharacterMapWidget::insertCharacter(const QString &character) {
