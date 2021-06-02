@@ -363,10 +363,10 @@ ApplicationWindow::ApplicationWindow()
   ui_->explorerWindow->hide();
 
   // drag n drop
-  ui_->listView->setEnabled(true);
+  ui_->listView->setDragEnabled(true);
   ui_->listView->setAcceptDrops(true);
   ui_->listView->setDefaultDropAction(Qt::MoveAction);
-  ui_->folderView->setEnabled(true);
+  ui_->folderView->setDragEnabled(true);
   ui_->folderView->setAcceptDrops(true);
   ui_->folderView->setDefaultDropAction(Qt::MoveAction);
 
