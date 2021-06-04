@@ -3,9 +3,7 @@
 
 #include <QDialog>
 
-namespace Ui {
-  class CustomCharacterDialog;
-}
+class Ui_CustomCharacterDialog;
 
 class CustomCharacterDialog : public QDialog
 {
@@ -19,7 +17,7 @@ signals:
   void customChar(int value);
 
 private:
-  Ui::CustomCharacterDialog *ui;
+  Ui_CustomCharacterDialog *ui;
 };
 
 #endif // CUSTOMCHARACTERDIALOG_H

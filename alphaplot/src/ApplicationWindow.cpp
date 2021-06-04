@@ -22,7 +22,6 @@
 #include "2Dplot/TextItem2D.h"
 #include "2Dplot/widgets/ErrDialog.h"
 #include "3Dplot/SurfaceDialog.h"
-#include "ui/CharacterMapWidget.h"
 #include "About.h"
 #include "AssociationsDialog.h"
 #include "ColorBox.h"
@@ -63,6 +62,7 @@
 #include "globals.h"
 #include "lib/XmlStreamReader.h"
 #include "table/future_Table.h"
+#include "ui/CharacterMapWidget.h"
 #include "ui/ExportDialog.h"
 #include "ui_ApplicationWindow.h"
 

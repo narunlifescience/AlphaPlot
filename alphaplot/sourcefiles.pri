@@ -87,6 +87,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/ui/SettingsDialog.h \
             src/ui/PropertiesDialog.h \
             src/ui/RandomDistributionDialog.h \
+            src/ui/FittingSettings.h \
+            src/ui/GeneralNumericFormatSettings.h \
             src/About.h \
             src/core/AprojHandler.h \
             src/future/lib/XmlStreamWriter.h \
@@ -176,6 +178,8 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ui/SettingsDialog.cpp \
             src/ui/PropertiesDialog.cpp \
             src/ui/RandomDistributionDialog.cpp \
+            src/ui/FittingSettings.cpp \
+            src/ui/GeneralNumericFormatSettings.cpp \
             src/About.cpp \
             src/main.cpp \
             src/core/AprojHandler.cpp \
@@ -189,6 +193,8 @@ FORMS        += src/ApplicationWindow.ui \
                 src/ui/GeneralApplicationSettings.ui \
                 src/ui/GeneralAppreanceSettings.ui \
                 src/ui/GeneralConfirmationSettings.ui \
+                src/ui/FittingSettings.ui \
+                src/ui/GeneralNumericFormatSettings.ui \
                 src/ui/SettingsDialog.ui \
                 src/ui/PropertiesDialog.ui \
                 src/ui/RandomDistributionDialog.ui \

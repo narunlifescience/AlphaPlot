@@ -35,7 +35,14 @@ GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
   ui->setupUi(this);
   setWindowIcon(
       IconLoader::load("preferences-general-apperance", IconLoader::General));
+  ui->defaultsPushButton->setIcon(
+      IconLoader::load("edit-column-description", IconLoader::LightDark));
+  ui->resetPushButton->setIcon(
+      IconLoader::load("edit-undo", IconLoader::LightDark));
+  ui->applyPushButton->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
   setWindowTitle(tr("Apperance"));
+  setTitle(ui->titleLabel, windowTitle());
   ui->scrollArea->setFrameShape(QFrame::NoFrame);
   ui->scrollArea->setVerticalScrollBarPolicy(
       Qt::ScrollBarPolicy::ScrollBarAsNeeded);
@@ -51,8 +58,10 @@ GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
   setupColorLabel(ui->workspaceColorLabel, ui->workspaceColorButton);
   connect(ui->applyPushButton, &QPushButton::clicked, this,
           &GeneralAppreanceSettings::Save);
-  connect(ui->defaultsPushButton, &QPushButton::clicked, this,
+  connect(ui->resetPushButton, &QPushButton::clicked, this,
           &GeneralAppreanceSettings::Load);
+  connect(ui->defaultsPushButton, &QPushButton::clicked, this,
+          &GeneralAppreanceSettings::LoadDefault);
   connect(ui->colorSchemeComboBox,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           &GeneralAppreanceSettings::colorStylePreview);
@@ -80,6 +89,12 @@ void GeneralAppreanceSettings::Load() {
   ui->paneltextColorLabel->setStyleSheet(setStyleSheetString(paneltextcolor_));
 }
 
+void GeneralAppreanceSettings::LoadDefault() {
+  ui->styleComboBox->setCurrentIndex(0);
+  ui->colorSchemeComboBox->setCurrentIndex(0);
+  ui->customColorGroupBox->setChecked(false);
+}
+
 void GeneralAppreanceSettings::Save() {
   QSettings settings;
   settings.beginGroup("General");
@@ -96,20 +111,6 @@ void GeneralAppreanceSettings::Save() {
   settings.endGroup();
 
   emit generalappreancesettingsupdate();
-}
-
-void GeneralAppreanceSettings::setTitle(QString title) {
-  QFont font = ui->titleLabel->font();
-  //font.setPointSize(font.pointSize() + 2);
-  font.setItalic(true);
-
-  ui->titleLabel->setStyleSheet(
-      "QLabel {padding-left: 5px;"
-      " padding-right: 5px;"
-      " padding-top: 5px;"
-      " padding-bottom: 5px }");
-  ui->titleLabel->setFont(font);
-  ui->titleLabel->setText(title);
 }
 
 bool GeneralAppreanceSettings::settingsChangeCheck() {

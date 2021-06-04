@@ -1079,8 +1079,8 @@ void ConfigDialog::apply() {
   // general page: application tab
   app_->changeAppFont(appFont);
   setFont(appFont);
-  app_->changeAppStyle(boxStyle->currentText());
-  app_->changeAppColorScheme(boxColorScheme->currentIndex());
+  //app_->changeAppStyle(boxStyle->currentText());
+  //app_->changeAppColorScheme(boxColorScheme->currentIndex());
 #ifdef SEARCH_FOR_UPDATES
   app_->autoSearchUpdates = boxSearchUpdates->isChecked();
 #endif

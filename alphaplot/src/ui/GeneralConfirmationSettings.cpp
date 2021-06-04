@@ -12,14 +12,23 @@ GeneralConfirmationSettings::GeneralConfirmationSettings(SettingsDialog *dialog)
   ui->setupUi(this);
   setWindowIcon(IconLoader::load("preferences-general-confirmation",
                                  IconLoader::General));
+  ui->defaultsPushButton->setIcon(
+      IconLoader::load("edit-column-description", IconLoader::LightDark));
+  ui->resetPushButton->setIcon(
+      IconLoader::load("edit-undo", IconLoader::LightDark));
+  ui->applyPushButton->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
   setWindowTitle(tr("Confirmation"));
+  setTitle(ui->titleLabel, windowTitle());
   ui->scrollArea->setFrameShape(QFrame::NoFrame);
   ui->scrollArea->setVerticalScrollBarPolicy(
       Qt::ScrollBarPolicy::ScrollBarAsNeeded);
   connect(ui->applyPushButton, &QPushButton::clicked, this,
           &GeneralConfirmationSettings::Save);
-  connect(ui->defaultsPushButton, &QPushButton::clicked, this,
+  connect(ui->resetPushButton, &QPushButton::clicked, this,
           &GeneralConfirmationSettings::Load);
+  connect(ui->defaultsPushButton, &QPushButton::clicked, this,
+          &GeneralConfirmationSettings::LoadDefault);
   Load();
 }
 
@@ -36,6 +45,15 @@ void GeneralConfirmationSettings::Load() {
   ui->notesCheckBox->setChecked(confirmCloseNotes_);
 }
 
+void GeneralConfirmationSettings::LoadDefault() {
+  ui->foldersCheckBox->setChecked(true);
+  ui->tablesCheckBox->setChecked(true);
+  ui->matricesCheckBox->setChecked(true);
+  ui->plot2dCheckBox->setChecked(true);
+  ui->plot3dCheckBox->setChecked(true);
+  ui->notesCheckBox->setChecked(true);
+}
+
 void GeneralConfirmationSettings::Save() {
   QSettings settings;
   settings.beginGroup("Confirmations");
@@ -48,22 +66,6 @@ void GeneralConfirmationSettings::Save() {
   settings.endGroup();  // Confirmations
 
   emit generalconfirmationsettingsupdate();
-}
-
-void GeneralConfirmationSettings::setTitle(QString title) {
-  QFont font = ui->label->font();
-
-  //font.setPointSize(font.pointSize() + 2);
-  // font.setBold(true);
-  font.setItalic(true);
-
-  ui->label->setStyleSheet(
-      "QLabel {padding-left: 5px;"
-      " padding-right: 5px;"
-      " padding-top: 5px;"
-      " padding-bottom: 5px }");
-  ui->label->setFont(font);
-  ui->label->setText(title);
 }
 
 bool GeneralConfirmationSettings::settingsChangeCheck() {

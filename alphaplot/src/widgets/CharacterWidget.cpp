@@ -250,7 +250,8 @@ void CharacterWidget::loadCharsList() {
   }
   if (othersymbolchar_) {
     charsList_ << 0xa9 << 0xae << 0x2122 << 0x2713 << 0x2103 << 0x2109 << 0x24
-               << 0xa2 << 0xa3 << 0x20AC << 0xA5 << 0x20B9 << 0x20BD << 0x5143;
+               << 0xa2 << 0xa3 << 0x20AC << 0xA5 << 0x20B9 << 0x20BD << 0x5143
+               << 0x20BF;
   }
 
   calculateSquareSize();
@@ -335,7 +336,7 @@ void CharacterWidget::paintEvent(QPaintEvent *event) {
 
       if (key == lastKey_)
         painter.fillRect(column * squareSize_ + 1, row * squareSize_ + 1,
-                         squareSize_, squareSize_, QBrush(Qt::red));
+                         squareSize_, squareSize_, QBrush(Qt::green));
 
       painter.drawText(column * squareSize_ + (squareSize_ / 2) -
                            fontMetrics.horizontalAdvance(QChar(key)) / 2,

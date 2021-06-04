@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GeneralConfirmationSettings</class>
- <widget class="QWidget" name="GeneralConfirmationSettings">
+ <class>FittingSettings</class>
+ <widget class="QWidget" name="FittingSettings">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>411</width>
-    <height>313</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,8 +24,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>391</width>
-        <height>260</height>
+        <width>380</width>
+        <height>247</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -34,57 +34,6 @@
          <property name="text">
           <string/>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Confirmations</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QCheckBox" name="foldersCheckBox">
-            <property name="text">
-             <string>Folders</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="tablesCheckBox">
-            <property name="text">
-             <string>Tables</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="matricesCheckBox">
-            <property name="text">
-             <string>Matrices</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="notesCheckBox">
-            <property name="text">
-             <string>Notes</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="plot2dCheckBox">
-            <property name="text">
-             <string>2D Plots</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="plot3dCheckBox">
-            <property name="text">
-             <string>3D Plots</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </widget>
        </item>
        <item>

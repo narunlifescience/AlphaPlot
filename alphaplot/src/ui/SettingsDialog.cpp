@@ -25,6 +25,8 @@
 #include "GeneralApplicationSettings.h"
 #include "GeneralAppreanceSettings.h"
 #include "GeneralConfirmationSettings.h"
+#include "GeneralNumericFormatSettings.h"
+#include "FittingSettings.h"
 #include "SettingsPage.h"
 #include "ui_SettingsDialog.h"
 
@@ -100,6 +102,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
       " padding-bottom: 10px; border: 0 rgba(0,0,0,0);}";
   ui_->generalLabel->setStyleSheet(label_font_color);
   ui_->plot2dLabel->setStyleSheet(label_font_color);
+  ui_->fittingLabel->setStyleSheet(label_font_color);
   ui_->generalLabel->hide();
   ui_->tableLabel->hide();
   ui_->plot2dLabel->hide();
@@ -109,14 +112,20 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 
   // Add pages to stack widget
   // addPage(General, Page_RootSettings, new ApplicationSettingsPage(this));
-  SettingsPage* applicationsettingspage = new ApplicationSettingsPage(this);
+  ApplicationSettingsPage* applicationsettingspage =
+      new ApplicationSettingsPage(this);
   GeneralConfirmationSettings* generalconfirmationsettings =
       new GeneralConfirmationSettings(this);
   GeneralAppreanceSettings* generalappearancesettings =
       new GeneralAppreanceSettings(this);
+  GeneralNumericFormatSettings* generalnumericformatsettings =
+      new GeneralNumericFormatSettings(this);
+  FittingSettings *fittingsettings = new FittingSettings(this);
   addPage(General, Page_GeneralApplication, applicationsettingspage);
   addPage(General, Page_GeneralConfirmation, generalconfirmationsettings);
   addPage(General, Page_GeneralAppearance, generalappearancesettings);
+  addPage(General, Page_GeneralNumericFormat, generalnumericformatsettings);
+  addPage(Fitting, Page_FittingParameter, fittingsettings);
 
   connect(generalconfirmationsettings,
           &GeneralConfirmationSettings::generalconfirmationsettingsupdate, this,
@@ -204,32 +213,32 @@ void SettingsDialog::addPage(Catagory catogory, Page id, SettingsPage* page) {
   switch (catogory) {
     case General:
       generalSettingsModel_->appendRow(item);
-      page->setTitle(tr("General ") + page->windowTitle());
+      //page->setTitle(tr("General ") + page->getTitle());
       if (ui_->generalLabel->isHidden()) ui_->generalLabel->show();
       break;
     case Table:
       tableSettingsModel_->appendRow(item);
-      page->setTitle(tr("Table ") + page->windowTitle());
+      //page->setTitle(tr("Table ") + page->windowTitle());
       if (ui_->tableLabel->isHidden()) ui_->tableLabel->show();
       break;
     case Plot2d:
       plot2dSettingsModel_->appendRow(item);
-      page->setTitle(tr("2DPlot ") + page->windowTitle());
+      //page->setTitle(tr("2DPlot ") + page->windowTitle());
       if (ui_->plot2dLabel->isHidden()) ui_->plot2dLabel->show();
       break;
     case Plot3d:
       plot3dSettingsModel_->appendRow(item);
-      page->setTitle(tr("3DPlot ") + page->windowTitle());
+      //page->setTitle(tr("3DPlot ") + page->windowTitle());
       if (ui_->plot3dLabel->isHidden()) ui_->plot3dLabel->show();
       break;
     case Fitting:
       fittingSettingsModel_->appendRow(item);
-      page->setTitle(tr("Fitting ") + page->windowTitle());
+      //page->setTitle(tr("Fitting ") + page->windowTitle());
       if (ui_->fittingLabel->isHidden()) ui_->fittingLabel->show();
       break;
     case Scripting:
       scriptingSettingsModel_->appendRow(item);
-      page->setTitle(tr("Scripting ") + page->windowTitle());
+      //page->setTitle(tr("Scripting ") + page->windowTitle());
       if (ui_->scriptingLabel->isHidden()) ui_->scriptingLabel->show();
       break;
     default:

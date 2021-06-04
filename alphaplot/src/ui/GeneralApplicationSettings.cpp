@@ -9,7 +9,14 @@ ApplicationSettingsPage::ApplicationSettingsPage(SettingsDialog *dialog)
     : SettingsPage(dialog), ui(new Ui_ApplicationSettingsPage) {
   ui->setupUi(this);
   setWindowIcon(IconLoader::load("preferences-general", IconLoader::General));
+  ui->defaultsPushButton->setIcon(
+      IconLoader::load("edit-column-description", IconLoader::LightDark));
+  ui->resetPushButton->setIcon(
+      IconLoader::load("edit-undo", IconLoader::LightDark));
+  ui->applyPushButton->setIcon(
+      IconLoader::load("dialog-ok-apply", IconLoader::LightDark));
   setWindowTitle(tr("Basic"));
+  setTitle(ui->titleLabel, windowTitle());
   ui->scrollArea->setFrameShape(QFrame::NoFrame);
   ui->scrollArea->setVerticalScrollBarPolicy(
       Qt::ScrollBarPolicy::ScrollBarAsNeeded);
@@ -21,17 +28,6 @@ ApplicationSettingsPage::~ApplicationSettingsPage() { delete ui; }
 
 void ApplicationSettingsPage::Load() {}
 
+void ApplicationSettingsPage::LoadDefault() {}
+
 void ApplicationSettingsPage::Save() {}
-
-void ApplicationSettingsPage::setTitle(QString title) {
-  QFont font = ui->titleLabel->font();
-  font.setItalic(true);
-
-  ui->titleLabel->setStyleSheet(
-      "QLabel {padding-left: 5px;"
-      " padding-right: 5px;"
-      " padding-top: 5px;"
-      " padding-bottom: 5px }");
-  ui->titleLabel->setFont(font);
-  ui->titleLabel->setText(title);
-}

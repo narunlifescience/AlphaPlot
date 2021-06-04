@@ -13,8 +13,8 @@ class ApplicationSettingsPage : public SettingsPage {
   ~ApplicationSettingsPage();
 
   void Load();
+  void LoadDefault();
   void Save();
-  void setTitle(QString title);
   bool settingsChangeCheck() { return true; }
 
  private:

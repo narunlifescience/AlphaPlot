@@ -13,8 +13,8 @@ class GeneralConfirmationSettings : public SettingsPage {
   ~GeneralConfirmationSettings();
 
   void Load();
+  void LoadDefault();
   void Save();
-  void setTitle(QString title);
   bool settingsChangeCheck();
 
  signals:
