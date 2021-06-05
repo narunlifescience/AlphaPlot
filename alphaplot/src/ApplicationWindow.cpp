@@ -2070,6 +2070,7 @@ Table *ApplicationWindow::newHiddenTable(const QString &name,
 
 void ApplicationWindow::initTable(Table *table) {
   table->setWindowIcon(IconLoader::load("table", IconLoader::LightDark));
+  table->askOnCloseEvent(confirmCloseTable);
   current_folder->addWindow(table);
   table->setFolder(current_folder);
   d_workspace->addSubWindow(table);
@@ -2428,6 +2429,8 @@ void ApplicationWindow::showPreferencesDialog() {
           this, &ApplicationWindow::updateGeneralConfirmOptions);
   connect(settings_.get(), &SettingsDialog::generalappreancesettingsupdates,
           this, &ApplicationWindow::updateGeneralAppearanceOptions);
+  connect(settings_.get(), &SettingsDialog::generalnumericformatsettingsupdates,
+          this, &ApplicationWindow::updateGeneralNumericFormatOptions);
   settings_->exec();
 }
 
@@ -2643,6 +2646,46 @@ void ApplicationWindow::updateGeneralAppearanceOptions() {
     panelsColor = npanelcolor_;
     panelsTextColor = npaneltextcolor_;
     setAppColors();
+  }
+}
+
+void ApplicationWindow::updateGeneralNumericFormatOptions() {
+  QSettings settings;
+  settings.beginGroup("General");
+  QString localestring =
+      settings.value("Locale", QLocale::system().name()).toString();
+  bool usegroupseperator =
+      settings.value("LocaleUseGroupSeparator", true).toBool();
+  int precision = settings.value("DecimalDigits", 6).toInt();
+  char defaultnumericformat =
+      settings.value("DefaultNumericFormat", 'g').toChar().toLatin1();
+  settings.endGroup();
+  QLocale locale;
+  (localestring == QLocale::system().name()) ? locale = QLocale::system()
+  : (localestring == QLocale::c().name())    ? locale = QLocale::c()
+  : (localestring == QLocale(QLocale::German).name())
+      ? locale = QLocale(QLocale::German)
+  : (localestring == QLocale(QLocale::French).name())
+      ? locale = QLocale(QLocale::French)
+      : locale = QLocale::system();
+
+  if (usegroupseperator)
+    locale.setNumberOptions(locale.numberOptions() &
+                            ~QLocale::OmitGroupSeparator);
+  else
+    locale.setNumberOptions(locale.numberOptions() |
+                            QLocale::OmitGroupSeparator);
+
+  if (QLocale() != locale) {
+    QLocale::setDefault(locale);
+  }
+
+  if (d_decimal_digits != precision) {
+    d_decimal_digits = precision;
+  }
+
+  if (d_default_numeric_format != defaultnumericformat) {
+    d_default_numeric_format = defaultnumericformat;
   }
 }
 

@@ -652,6 +652,7 @@ class ApplicationWindow : public QMainWindow,
 
   void updateGeneralConfirmOptions();
   void updateGeneralAppearanceOptions();
+  void updateGeneralNumericFormatOptions();
 
   //! \name Plot3D Tools
   //@{

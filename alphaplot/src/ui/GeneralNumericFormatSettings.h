@@ -20,7 +20,10 @@ class GeneralNumericFormatSettings : public SettingsPage {
   void Save();
   bool settingsChangeCheck();
 
-private slots:
+ signals:
+  void generalnumericformatsettingsupdate();
+
+ private slots:
   void updatePreview();
 
  private:

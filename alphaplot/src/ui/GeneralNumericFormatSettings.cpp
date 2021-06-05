@@ -77,38 +77,62 @@ void GeneralNumericFormatSettings::Load() {
   ui->defaultNumberSpinBox->setValue(precision_);
   int index = ui->numberFormatComboBox->findData(defaultnumericformat_);
   ui->numberFormatComboBox->setCurrentIndex(index);
-  if (QLocale().name() == QLocale::c().name())
+  if (localestring_ == QLocale::system().name()) {
+    ui->decimalSeparatorComboBox->setCurrentIndex(0);
+  } else if (localestring_ == QLocale::c().name())
     ui->decimalSeparatorComboBox->setCurrentIndex(1);
-  else if (QLocale().name() == QLocale(QLocale::German).name())
+  else if (localestring_ == QLocale(QLocale::German).name())
     ui->decimalSeparatorComboBox->setCurrentIndex(2);
-  else if (QLocale().name() == QLocale(QLocale::French).name())
+  else if (localestring_ == QLocale(QLocale::French).name())
     ui->decimalSeparatorComboBox->setCurrentIndex(3);
   ui->groupSeparatorCheckBox->setChecked(usegroupseperator_);
 }
 
 void GeneralNumericFormatSettings::LoadDefault() {
   ui->defaultNumberSpinBox->setValue(6);
-  int index = ui->decimalSeparatorComboBox->findData('f');
-  ui->decimalSeparatorComboBox->setCurrentIndex(index);
-  ui->decimalSeparatorComboBox->setCurrentIndex(1);
+  int index = ui->numberFormatComboBox->findData('g');
+  ui->numberFormatComboBox->setCurrentIndex(index);
+  ui->decimalSeparatorComboBox->setCurrentIndex(0);
   ui->groupSeparatorCheckBox->setChecked(true);
 }
 
 void GeneralNumericFormatSettings::Save() {
+  QLocale locale;
+  switch (ui->decimalSeparatorComboBox->currentIndex()) {
+    case 0:
+      locale = QLocale::system();
+      break;
+    case 1:
+      locale = QLocale::c();
+      break;
+    case 2:
+      locale = QLocale(QLocale::German);
+      break;
+    case 3:
+      locale = QLocale(QLocale::French);
+      break;
+    default:
+      locale = QLocale::system();
+      qDebug() << "decimal separator index out of range";
+  }
   QSettings settings;
   settings.beginGroup("General");
-  settings.setValue("Locale", localestring_);
-  settings.setValue("LocaleUseGroupSeparator", usegroupseperator_);
-  settings.setValue("DecimalDigits", precision_);
-  settings.setValue("DefaultNumericFormat", QChar(defaultnumericformat_));
+  settings.setValue("Locale", locale.name());
+  settings.setValue("LocaleUseGroupSeparator",
+                    ui->groupSeparatorCheckBox->isChecked());
+  settings.setValue("DecimalDigits", ui->defaultNumberSpinBox->value());
+  settings.setValue(
+      "DefaultNumericFormat",
+      ui->numberFormatComboBox->currentData().toChar().toLatin1());
   settings.endGroup();
+
+  emit generalnumericformatsettingsupdate();
 }
 
 bool GeneralNumericFormatSettings::settingsChangeCheck() {
   loadQsettingsValues();
   bool result = true;
-  int formatindex =
-      ui->decimalSeparatorComboBox->findData(defaultnumericformat_);
+  int formatindex = ui->numberFormatComboBox->findData(defaultnumericformat_);
   int localeindex = 0;
   (QLocale::system().name() == localestring_)          ? localeindex = 0
   : (QLocale::c().name() == localestring_)             ? localeindex = 1
@@ -118,7 +142,7 @@ bool GeneralNumericFormatSettings::settingsChangeCheck() {
   if (localeindex != ui->decimalSeparatorComboBox->currentIndex() ||
       usegroupseperator_ != ui->groupSeparatorCheckBox->isChecked() ||
       precision_ != ui->defaultNumberSpinBox->value() ||
-      formatindex != ui->decimalSeparatorComboBox->currentIndex()) {
+      formatindex != ui->numberFormatComboBox->currentIndex()) {
     result = settingsChanged();
   }
   return result;
@@ -140,6 +164,7 @@ void GeneralNumericFormatSettings::updatePreview() {
       locale = QLocale(QLocale::French);
       break;
     default:
+      locale = QLocale::system();
       qDebug() << "decimal separator index out of range";
   }
 
