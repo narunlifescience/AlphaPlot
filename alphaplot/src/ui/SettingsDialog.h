@@ -66,6 +66,7 @@ class SettingsDialog : public QDialog {
   };
 
  signals:
+  void generalapplicationsettingsupdates();
   void generalconfirmationsettingsupdates();
   void generalappreancesettingsupdates();
   void generalnumericformatsettingsupdates();

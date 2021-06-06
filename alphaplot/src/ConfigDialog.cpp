@@ -485,7 +485,7 @@ void ConfigDialog::initAppPage() {
   topBoxLayout->addWidget(lblLanguage, 0, 0);
   boxLanguage = new QComboBox();
   insertLanguagesList();
-  boxLanguage->addItem("English");
+  //boxLanguage->addItem("English");
   topBoxLayout->addWidget(boxLanguage, 0, 1);
 
   lblStyle = new QLabel();
@@ -1408,7 +1408,7 @@ void ConfigDialog::insertLanguagesList() {
       languages.push_back("English");
     else {
       QTranslator translator;
-      translator.load("AlphaPlot_" + locales[i], app_->qmPath);
+      translator.load("alphaplot_" + locales[i], app_->qmPath);
 
       QString language = translator.translate("ApplicationWindow", "English",
                                               "translate this to the language "

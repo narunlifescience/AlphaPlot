@@ -15,10 +15,29 @@ class ApplicationSettingsPage : public SettingsPage {
   void Load();
   void LoadDefault();
   void Save();
-  bool settingsChangeCheck() { return true; }
+  bool settingsChangeCheck();
+
+ signals:
+  void generalapplicationsettingsupdate();
 
  private:
+  void loadQsettingsValues();
+  void pickColor();
+  void pickApplicationFont();
+  QString setStyleSheetString(const QColor &color);
+  void insertLanguagesList();
   Ui_ApplicationSettingsPage *ui;
+  bool glowstatus_;
+  QColor glowcolor_;
+  double glowradius_;
+  QString applanguage_;
+  QString defaultscriptinglang_;
+  bool autosave_;
+  int autosavetime_;
+  int undolimit_;
+  QFont applicationfont_;
+  bool autosearchupdates_;
+  static const int btn_size;
 };
 
 #endif  // APPLICATIONSETTINGSPAGE_H

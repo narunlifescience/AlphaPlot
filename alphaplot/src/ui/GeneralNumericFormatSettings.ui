@@ -46,19 +46,6 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QSpinBox" name="defaultNumberSpinBox"/>
          </item>
         </layout>
@@ -73,47 +60,7 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QComboBox" name="decimalSeparatorComboBox"/>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <widget class="QCheckBox" name="groupSeparatorCheckBox">
-           <property name="text">
-            <string>Use Group Separators</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="groupSeparatorLineEdit"/>
          </item>
         </layout>
        </item>
@@ -127,7 +74,21 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_5">
+          <widget class="QComboBox" name="numberFormatComboBox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QCheckBox" name="groupSeparatorCheckBox">
+           <property name="text">
+            <string>Use Group Separators</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -140,7 +101,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QComboBox" name="numberFormatComboBox"/>
+          <widget class="QLineEdit" name="groupSeparatorLineEdit"/>
          </item>
         </layout>
        </item>

@@ -209,6 +209,7 @@ ApplicationWindow::ApplicationWindow()
       multiPeakfitactive_(false),
       multiPeakfitpoints_(0),
       multiPeakfittype_(0),
+      glowstatus_(true),
       glowcolor_(Qt::red),
       glowxoffset_(0),
       glowyoffset_(0),
@@ -2352,18 +2353,20 @@ void ApplicationWindow::windowActivated(QMdiSubWindow *subwindow) {
     return;
   }
 
-  // glow effect
+  // will be destroyed when parent set graphicseffect to nullptr
   foreach (QMdiSubWindow *window, subWindowsList()) {
     window->setGraphicsEffect(nullptr);
   }
-  // will be destroyed when parent set graphicseffect to nullptr
-  QGraphicsDropShadowEffect *gloweffect = new QGraphicsDropShadowEffect;
-  // Set glow effect values
-  gloweffect->setColor(glowcolor_);
-  gloweffect->setXOffset(glowxoffset_);
-  gloweffect->setYOffset(glowyoffset_);
-  gloweffect->setBlurRadius(glowradius_);
-  subwindow->setGraphicsEffect(gloweffect);
+  // glow effect
+  if (glowstatus_) {
+    QGraphicsDropShadowEffect *gloweffect = new QGraphicsDropShadowEffect;
+    // Set glow effect values
+    gloweffect->setColor(glowcolor_);
+    gloweffect->setXOffset(glowxoffset_);
+    gloweffect->setYOffset(glowyoffset_);
+    gloweffect->setBlurRadius(glowradius_);
+    subwindow->setGraphicsEffect(gloweffect);
+  }
 
   customToolBars(subwindow);
   customMenu(subwindow);
@@ -2425,6 +2428,8 @@ void ApplicationWindow::showPreferencesDialog() {
   cd->setColumnSeparator(columnSeparator);
   cd->exec();
   std::unique_ptr<SettingsDialog> settings_(new SettingsDialog);
+  connect(settings_.get(), &SettingsDialog::generalapplicationsettingsupdates,
+          this, &ApplicationWindow::updateGeneralApplicationOptions);
   connect(settings_.get(), &SettingsDialog::generalconfirmationsettingsupdates,
           this, &ApplicationWindow::updateGeneralConfirmOptions);
   connect(settings_.get(), &SettingsDialog::generalappreancesettingsupdates,
@@ -3084,6 +3089,11 @@ void ApplicationWindow::loadSettings() {
 #ifdef SEARCH_FOR_UPDATES
   autoSearchUpdates = settings.value("AutoSearchUpdates", false).toBool();
 #endif
+  settings.beginGroup("GlowIndicator");
+  glowstatus_ = settings.value("Show", false).toBool();
+  glowcolor_ = settings.value("Color", "red").value<QColor>();
+  glowradius_ = settings.value("Radius", 8).toDouble();
+  settings.endGroup();
   appLanguage =
       settings.value("Language", QLocale::system().name().section('_', 0, 0))
           .toString();
@@ -3417,6 +3427,11 @@ void ApplicationWindow::saveSettings() {
 #ifdef SEARCH_FOR_UPDATES
   settings.setValue("AutoSearchUpdates", autoSearchUpdates);
 #endif
+  settings.beginGroup("GlowIndicator");
+  settings.setValue("Show", glowstatus_);
+  settings.setValue("Color", glowcolor_);
+  settings.setValue("Radius", glowradius_);
+  settings.endGroup();
   settings.setValue("Language", appLanguage);
   settings.setValue("ShowWindowsPolicy", show_windows_policy);
   settings.setValue("RecentProjects", recentProjects);
@@ -6565,6 +6580,41 @@ void ApplicationWindow::verticalTranslate() {
   }*/
 }
 
+void ApplicationWindow::updateGeneralApplicationOptions() {
+  QSettings settings;
+  settings.beginGroup("General");
+  settings.beginGroup("GlowIndicator");
+  bool nglowstatus = settings.value("Show", false).toBool();
+  QColor nglowcolor = settings.value("Color", "red").value<QColor>();
+  double nglowradius = settings.value("Radius", 8).toDouble();
+  settings.endGroup();
+  QString napplanguage =
+      settings.value("Language", QLocale::system().name().section('_', 0, 0))
+          .toString();
+  QString ndefaultscriptinglang =
+      settings.value("ScriptingLang", "muParser").toString();
+  bool nautosave = settings.value("AutoSave", true).toBool();
+  int nautosavetime = settings.value("AutoSaveTime", 15).toInt();
+  int nundolimit = settings.value("UndoLimit", 10).toInt();
+  QStringList applicationFont = settings.value("Font").toStringList();
+  if (applicationFont.size() == 4)
+    QFont napplicationfont_ =
+        QFont(applicationFont.at(0), applicationFont.at(1).toInt(),
+              applicationFont.at(2).toInt(), applicationFont.at(3).toInt());
+#ifdef SEARCH_FOR_UPDATES
+  bool nautosearchupdates_ =
+      settings.value("AutoSearchUpdates", false).toBool();
+  autoSearchUpdatesRequest = nautosearchupdates_;
+#endif
+  settings.endGroup();
+  glowcolor_ = nglowcolor;
+  glowradius_ = nglowradius;
+  if (nglowstatus != glowstatus_) {
+    glowstatus_ = nglowstatus;
+    windowActivated(d_workspace->activeSubWindow());
+  }
+}
+
 void ApplicationWindow::fitMultiPeakGaussian() {
   fitMultiPeak(static_cast<int>(MultiPeakFit::Gauss));
 }
@@ -6845,37 +6895,61 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
 }
 
 void ApplicationWindow::createLanguagesList() {
-  //  appTranslator = new QTranslator(this);
-  //  qtTranslator = new QTranslator(this);
-  //  qApp->installTranslator(appTranslator);
-  //  qApp->installTranslator(qtTranslator);
+  appTranslator = new QTranslator(this);
+  qtTranslator = new QTranslator(this);
+  qApp->installTranslator(appTranslator);
+  qApp->installTranslator(qtTranslator);
 
-  //  qmPath = TS_PATH;
+  qmPath = TS_PATH;
 
-  //  QDir dir(qmPath);
-  //  QStringList fileNames = dir.entryList("AlphaPlot_*.qm");
-  //  if (fileNames.size() == 0) {
-  //    // fall back to looking in the executable's directory
-  //    qmPath = QFileInfo(QCoreApplication::applicationFilePath()).path() +
-  //             "/translations";
-  //    dir.setPath(qmPath);
-  //    fileNames = dir.entryList("AlphaPlot_*.qm");
-  //  }
-  //  for (int i = 0; i < static_cast<int>(fileNames.size()); i++) {
-  //    QString locale = fileNames[i];
-  //    locale = locale.mid(locale.find('_') + 1);
-  //    locale.truncate(locale.find('.'));
-  //    locales.push_back(locale);
-  //  }
-  //  locales.push_back("en");
-  //  locales.sort();
+  QString lng;   // lang, as en_GB
+  QString slng;  // short lang, as en
+  lng = QLocale().name();
+  {
+    if (lng == "C") lng = "en";
+    int i = lng.indexOf(QString("."));
+    if (i >= 0) lng = lng.left(i);
+    i = lng.indexOf(QString("_"));
+    if (i >= 0)
+      slng = lng.left(i);
+    else
+      slng = lng;
+  }
+  if (slng.size() > 2) slng = slng.left(2);
 
-  //  if (appLanguage != "en") {
-  //    if (!appTranslator->load("AlphaPlot_" + appLanguage, qmPath))
-  //      appTranslator->load("AlphaPlot_" + appLanguage);
-  //    if (!qtTranslator->load("qt_" + appLanguage, qmPath + "/qt"))
-  //      qtTranslator->load("qt_" + appLanguage);
-  //  }
+  QDir dir(qmPath);
+  QStringList fileNames = dir.entryList(QStringList("alphaplot_*.qm"));
+  if (fileNames.size() == 0) {
+    // fall back to looking in the executable's directory
+    qmPath = QFileInfo(QCoreApplication::applicationFilePath()).path() +
+             "/translations";
+    dir.setPath(qmPath);
+    fileNames = dir.entryList(QStringList("alphaplot_*.qm"));
+  }
+  for (int i = 0; i < static_cast<int>(fileNames.size()); i++) {
+    QString locale = fileNames[i];
+    locale = locale.mid(locale.indexOf('_') + 1);
+    locale.truncate(locale.indexOf('.'));
+    locales.push_back(locale);
+  }
+  locales.push_back("en");
+  locales.sort();
+  AlphaPlot::setLocales(locales);
+
+  if (appLanguage != "en") {
+    if (!appTranslator->load("alphaplot_" + appLanguage, qmPath))
+      if (!appTranslator->load("alphaplot_" + appLanguage))
+        if (!appTranslator->load("alphaplot_" + lng, qmPath))
+          if (!appTranslator->load("alphaplot_" + lng))
+            if (!appTranslator->load("alphaplot_" + slng, qmPath))
+              appTranslator->load("alphaplot_" + slng);
+    if (!qtTranslator->load("qt_" + appLanguage, qmPath + "/qt"))
+      if (!qtTranslator->load("qt_" + appLanguage))
+        if (!qtTranslator->load("qt_" + lng, qmPath + "/qt"))
+          if (!qtTranslator->load("qt_" + lng))
+            if (!qtTranslator->load("qt_" + slng, qmPath + "/qt"))
+              qtTranslator->load("qt_" + slng);
+  }
 }
 
 void ApplicationWindow::switchToLanguage(int param) {

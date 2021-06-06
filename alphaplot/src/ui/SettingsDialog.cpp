@@ -50,7 +50,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   setMinimumSize(sizeHint());
 
   // Colors (TODO: use some central qpalette handling)
-  baseColor_ = palette().color(QPalette::Base);
+  baseColor_ = palette().color(QPalette::AlternateBase);
   fontColor_ = palette().color(QPalette::Text);
 
   // adjust layout spacing & margins.
@@ -112,7 +112,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 
   // Add pages to stack widget
   // addPage(General, Page_RootSettings, new ApplicationSettingsPage(this));
-  ApplicationSettingsPage* applicationsettingspage =
+  ApplicationSettingsPage* generalapplicationsettings =
       new ApplicationSettingsPage(this);
   GeneralConfirmationSettings* generalconfirmationsettings =
       new GeneralConfirmationSettings(this);
@@ -121,18 +121,33 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   GeneralNumericFormatSettings* generalnumericformatsettings =
       new GeneralNumericFormatSettings(this);
   FittingSettings* fittingsettings = new FittingSettings(this);
-  addPage(General, Page_GeneralApplication, applicationsettingspage);
+  addPage(General, Page_GeneralApplication, generalapplicationsettings);
   addPage(General, Page_GeneralConfirmation, generalconfirmationsettings);
   addPage(General, Page_GeneralAppearance, generalappearancesettings);
   addPage(General, Page_GeneralNumericFormat, generalnumericformatsettings);
   addPage(Fitting, Page_FittingParameter, fittingsettings);
 
+  connect(generalapplicationsettings,
+          &ApplicationSettingsPage::generalapplicationsettingsupdate, this,
+          &SettingsDialog::generalapplicationsettingsupdates);
   connect(generalconfirmationsettings,
           &GeneralConfirmationSettings::generalconfirmationsettingsupdate, this,
           &SettingsDialog::generalconfirmationsettingsupdates);
   connect(generalappearancesettings,
           &GeneralAppreanceSettings::generalappreancesettingsupdate, this,
           &SettingsDialog::generalappreancesettingsupdates);
+  connect(generalappearancesettings,
+          &GeneralAppreanceSettings::generalappreancesettingsupdate, this,
+          [=]() {
+            baseColor_ = palette().color(QPalette::AlternateBase);
+            fontColor_ = palette().color(QPalette::Text);
+            QString scrollbackcol =
+                "QScrollArea {border: 0; background-color: rgba(%1,%2,%3,%4);}";
+            ui_->scrollArea->setStyleSheet(scrollbackcol.arg(baseColor_.red())
+                                               .arg(baseColor_.green())
+                                               .arg(baseColor_.blue())
+                                               .arg(baseColor_.alpha()));
+          });
   connect(generalnumericformatsettings,
           &GeneralNumericFormatSettings::generalnumericformatsettingsupdate,
           this, &SettingsDialog::generalnumericformatsettingsupdates);

@@ -128,6 +128,8 @@ class AlphaPlot : public QObject {
 
   static QString originalAuthorWithMail();
   static QStringList appColorSchemeName();
+  static QStringList getLocales();
+  static void setLocales(QStringList locales);
 
  private:
   /* 0xMMmmbb means MM.mm.bb with<br>
@@ -141,6 +143,7 @@ class AlphaPlot : public QObject {
   // Release date
   static const QDate release_date;
   static const QStringList colorschemes_;
+  static QStringList locales_;
 };
 
 #endif  // ALPHA_PLOT_GLOBALS_H

@@ -650,6 +650,7 @@ class ApplicationWindow : public QMainWindow,
   void horizontalTranslate();
   void verticalTranslate();
 
+  void updateGeneralApplicationOptions();
   void updateGeneralConfirmOptions();
   void updateGeneralAppearanceOptions();
   void updateGeneralNumericFormatOptions();
@@ -1138,6 +1139,7 @@ class ApplicationWindow : public QMainWindow,
   int multiPeakfitpoints_;
   int multiPeakfittype_;
   QVector<QPair<Curve2D*, QPair<double, double>>> multipeakfitvalues_;
+  bool glowstatus_;
   QColor glowcolor_;
   double glowxoffset_;
   double glowyoffset_;
