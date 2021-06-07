@@ -29,7 +29,7 @@ class ApplicationSettingsPage : public SettingsPage {
   Ui_ApplicationSettingsPage *ui;
   bool glowstatus_;
   QColor glowcolor_;
-  double glowradius_;
+  int glowradius_;
   QString applanguage_;
   QString defaultscriptinglang_;
   bool autosave_;

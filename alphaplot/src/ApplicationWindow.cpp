@@ -2447,10 +2447,11 @@ void ApplicationWindow::setSaveSettings(bool autoSaving, int min) {
 
   killTimer(savingTimerId);
 
-  if (autoSave)
+  if (autoSave) {
     savingTimerId = startTimer(autoSaveTime * 60000);
-  else
+  } else {
     savingTimerId = 0;
+  }
 }
 
 void ApplicationWindow::changeAppStyle(const QString &s) {
@@ -6604,7 +6605,7 @@ void ApplicationWindow::updateGeneralApplicationOptions() {
 #ifdef SEARCH_FOR_UPDATES
   bool nautosearchupdates_ =
       settings.value("AutoSearchUpdates", false).toBool();
-  autoSearchUpdatesRequest = nautosearchupdates_;
+  autoSearchUpdates = nautosearchupdates_;
 #endif
   settings.endGroup();
   glowcolor_ = nglowcolor;
@@ -6612,6 +6613,21 @@ void ApplicationWindow::updateGeneralApplicationOptions() {
   if (nglowstatus != glowstatus_) {
     glowstatus_ = nglowstatus;
     windowActivated(d_workspace->activeSubWindow());
+  }
+
+  setSaveSettings(nautosave, nautosavetime);
+  if (undoLimit != nundolimit) {
+    undoLimit = nundolimit;
+    d_project->undoStack()->setUndoLimit(undoLimit);
+  }
+  QFont applicationfontfont =
+      QFont(applicationFont.at(0), applicationFont.at(1).toInt(),
+            applicationFont.at(2).toInt(), applicationFont.at(3).toInt());
+  if (applicationfontfont.family() != appFont.family() ||
+      applicationfontfont.pointSize() != appFont.pointSize() ||
+      applicationfontfont.weight() != appFont.weight() ||
+      applicationfontfont.italic() != appFont.italic()) {
+    changeAppFont(applicationfontfont);
   }
 }
 

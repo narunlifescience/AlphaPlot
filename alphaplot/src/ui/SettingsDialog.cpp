@@ -236,27 +236,22 @@ void SettingsDialog::addPage(Catagory catogory, Page id, SettingsPage* page) {
       break;
     case Table:
       tableSettingsModel_->appendRow(item);
-      // page->setTitle(tr("Table ") + page->windowTitle());
       if (ui_->tableLabel->isHidden()) ui_->tableLabel->show();
       break;
     case Plot2d:
       plot2dSettingsModel_->appendRow(item);
-      // page->setTitle(tr("2DPlot ") + page->windowTitle());
       if (ui_->plot2dLabel->isHidden()) ui_->plot2dLabel->show();
       break;
     case Plot3d:
       plot3dSettingsModel_->appendRow(item);
-      // page->setTitle(tr("3DPlot ") + page->windowTitle());
       if (ui_->plot3dLabel->isHidden()) ui_->plot3dLabel->show();
       break;
     case Fitting:
       fittingSettingsModel_->appendRow(item);
-      // page->setTitle(tr("Fitting ") + page->windowTitle());
       if (ui_->fittingLabel->isHidden()) ui_->fittingLabel->show();
       break;
     case Scripting:
       scriptingSettingsModel_->appendRow(item);
-      // page->setTitle(tr("Scripting ") + page->windowTitle());
       if (ui_->scriptingLabel->isHidden()) ui_->scriptingLabel->show();
       break;
     default:

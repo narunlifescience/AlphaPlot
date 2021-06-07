@@ -40,6 +40,9 @@ ApplicationSettingsPage::ApplicationSettingsPage(SettingsDialog *dialog)
       IconLoader::load("color-management", IconLoader::General));
   ui->glowColorButton->setStyleSheet("QToolButton {border: 0px;}");
   ui->scriptingComboBox->addItems(ScriptingLangManager::languages());
+  ui->saveSpinBox->setRange(1, 120);
+  ui->saveSpinBox->setSuffix(tr(" minutes"));
+  ui->undoSpinBox->setRange(1, 1000);
   ui->versionCheckBox->hide();
 #ifdef SEARCH_FOR_UPDATES
   ui->versionCheckBox->show();
@@ -134,7 +137,11 @@ bool ApplicationSettingsPage::settingsChangeCheck() {
   if (glowstatus_ != ui->glowIndicatorGroupBox->isChecked() ||
       glowcolor_ != ui->glowColorLabel->palette().window().color() ||
       glowradius_ != ui->glowThicknessSpinBox->value() ||
-      applicationfont_ != ui->fontvalueLabel->font() ||
+      // these fonts donot match for some unknown reason so check each values
+      applicationfont_.family() != ui->fontvalueLabel->font().family() ||
+      applicationfont_.pointSize() != ui->fontvalueLabel->font().pointSize() ||
+      applicationfont_.weight() != ui->fontvalueLabel->font().weight() ||
+      applicationfont_.italic() != ui->fontvalueLabel->font().italic() ||
       defaultscriptinglang_.toLower() !=
           ui->scriptingComboBox->currentText().toLower() ||
       autosave_ != ui->saveCheckBox->isChecked() ||
@@ -232,7 +239,7 @@ void ApplicationSettingsPage::insertLanguagesList() {
         languages.push_back(locales.at(i));
     }
 
-    if (locales[i] ==
+    if (locales.at(i) ==
         settings.value("Language", QLocale::system().name().section('_', 0, 0))
             .toString())
       lang = i;
