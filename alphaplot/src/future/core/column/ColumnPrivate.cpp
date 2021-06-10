@@ -48,6 +48,7 @@
 #include "core/datatypes/String2DayOfWeekFilter.h"
 #include "core/datatypes/String2DoubleFilter.h"
 #include "core/datatypes/String2MonthFilter.h"
+#include "core/AppearanceManager.h"
 
 Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
     : d_owner(owner) {
@@ -112,7 +113,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
   }  // switch(mode)
 
   d_plot_designation = AlphaPlot::noDesignation;
-  d_plot_designation_color = AlphaPlot::noneColorCode;
+  d_plot_designation_color = AppearanceManager::noneColorCode;
   d_input_filter->setName("InputFilter");
   d_output_filter->setName("OutputFilter");
 }
@@ -173,7 +174,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnDataType type,
   }  // switch(mode)
 
   d_plot_designation = AlphaPlot::noDesignation;
-  d_plot_designation_color = AlphaPlot::noneColorCode;
+  d_plot_designation_color = AppearanceManager::noneColorCode;
   d_input_filter->setName("InputFilter");
   d_output_filter->setName("OutputFilter");
 }
@@ -761,22 +762,22 @@ void Column::Private::setPlotDesignation(AlphaPlot::PlotDesignation pd) {
 void Column::Private::setPlotDesignationColor(AlphaPlot::PlotDesignation pd) {
   switch (pd) {
     case AlphaPlot::X:
-      d_plot_designation_color = AlphaPlot::xColorCode;
+      d_plot_designation_color = AppearanceManager::xColorCode;
       break;
     case AlphaPlot::Y:
-      d_plot_designation_color = AlphaPlot::yColorCode;
+      d_plot_designation_color = AppearanceManager::yColorCode;
       break;
     case AlphaPlot::Z:
-      d_plot_designation_color = AlphaPlot::zColorCode;
+      d_plot_designation_color = AppearanceManager::zColorCode;
       break;
     case AlphaPlot::xErr:
-      d_plot_designation_color = AlphaPlot::xErrColorCode;
+      d_plot_designation_color = AppearanceManager::xErrColorCode;
       break;
     case AlphaPlot::yErr:
-      d_plot_designation_color = AlphaPlot::yErrColorCode;
+      d_plot_designation_color = AppearanceManager::yErrColorCode;
       break;
     case AlphaPlot::noDesignation:
-      d_plot_designation_color = AlphaPlot::noneColorCode;
+      d_plot_designation_color = AppearanceManager::noneColorCode;
       break;
   }
 }

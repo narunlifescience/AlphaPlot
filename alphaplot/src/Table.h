@@ -63,6 +63,14 @@ class Table : public TableView, public scripted, public QScriptable {
     DateTime = 6
   };  // TODO: remove this in favor of AlphaPlot::columnMode
 
+  enum class Custom : int {
+    BackgroundColor = 0,
+    HeaderColor = 1,
+    TextColor = 2,
+    HeaderFont = 3,
+    TextFont = 4
+  };
+
   Table(ScriptingEnv* env, const QString& fname, const QString& sep,
         int ignoredLines, bool renameCols, bool stripSpaces,
         bool simplifySpaces, bool convertToNumeric, QLocale numericFormat,

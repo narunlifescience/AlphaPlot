@@ -183,8 +183,10 @@ void Table::handleRowChange() {
 }
 
 void Table::setTableBackgroundColor(const QColor &col) {
-  QPalette palette;
+  QPalette palette = d_view_widget->palette();
+  palette.setColor(QPalette::Base, col);
   palette.setColor(QPalette::Window, col);
+  palette.setColor(QPalette::Background, col);
   d_view_widget->setPalette(palette);
 }
 

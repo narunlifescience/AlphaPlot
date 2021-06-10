@@ -5,6 +5,7 @@
 ###################### HEADERS ##############################################
 
 HEADERS  += src/ApplicationWindow.h \
+            src/core/AppearanceManager.h \
             src/core/IconLoader.h \
             src/core/Utilities.h \
             src/core/widgets/MyTreeWidget.h \
@@ -89,6 +90,9 @@ HEADERS  += src/ApplicationWindow.h \
             src/ui/RandomDistributionDialog.h \
             src/ui/FittingSettings.h \
             src/ui/GeneralNumericFormatSettings.h \
+            src/ui/TableBasicSettings.h \
+            src/ui/TableColorSettings.h \
+            src/ui/TableFontSettings.h \
             src/About.h \
             src/core/AprojHandler.h \
             src/future/lib/XmlStreamWriter.h \
@@ -97,6 +101,7 @@ HEADERS  += src/ApplicationWindow.h \
 ###################### SOURCES ##############################################
 
 SOURCES  += src/ApplicationWindow.cpp \
+            src/core/AppearanceManager.cpp \
             src/core/IconLoader.cpp \
             src/core/Utilities.cpp \
             src/core/widgets/MyTreeWidget.cpp \
@@ -180,6 +185,9 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ui/RandomDistributionDialog.cpp \
             src/ui/FittingSettings.cpp \
             src/ui/GeneralNumericFormatSettings.cpp \
+            src/ui/TableBasicSettings.cpp \
+            src/ui/TableColorSettings.cpp \
+            src/ui/TableFontSettings.cpp \
             src/About.cpp \
             src/main.cpp \
             src/core/AprojHandler.cpp \
@@ -195,6 +203,9 @@ FORMS        += src/ApplicationWindow.ui \
                 src/ui/GeneralConfirmationSettings.ui \
                 src/ui/FittingSettings.ui \
                 src/ui/GeneralNumericFormatSettings.ui \
+                src/ui/TableBasicSettings.ui \
+                src/ui/TableColorSettings.ui \
+                src/ui/TableFontSettings.ui \
                 src/ui/SettingsDialog.ui \
                 src/ui/PropertiesDialog.ui \
                 src/ui/RandomDistributionDialog.ui \

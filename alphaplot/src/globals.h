@@ -58,23 +58,6 @@ class AlphaPlot : public QObject {
   static const char* bugreport_Uri;
   static const char* download_Uri;
 
-  // Table header/comment height
-  static int headerHeight;
-  static int commentHeaderHeight;
-
-  // Table header color codes
-  static QColor xColorCode;
-  static QColor yColorCode;
-  static QColor zColorCode;
-  static QColor xErrColorCode;
-  static QColor yErrColorCode;
-  static QColor noneColorCode;
-
-  // Table header color code geometry
-  static int colorCodeThickness;
-  static int colorCodeXPadding;
-  static int colorCodeYPadding;
-
   //! Types of plot designations
   enum PlotDesignation {
     noDesignation = 0,  //!< no plot designation
@@ -127,7 +110,6 @@ class AlphaPlot : public QObject {
   static QString originalAuthor();
 
   static QString originalAuthorWithMail();
-  static QStringList appColorSchemeName();
   static QStringList getLocales();
   static void setLocales(QStringList locales);
 
@@ -142,7 +124,6 @@ class AlphaPlot : public QObject {
   static const char* extra_version;
   // Release date
   static const QDate release_date;
-  static const QStringList colorschemes_;
   static QStringList locales_;
 };
 

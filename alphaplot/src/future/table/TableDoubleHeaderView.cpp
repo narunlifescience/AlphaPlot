@@ -29,13 +29,16 @@
  ***************************************************************************/
 
 #include "TableDoubleHeaderView.h"
+
 #include <QApplication>
 #include <QDebug>
 #include <QEvent>
 #include <QLayout>
 #include <QPainter>
+
 #include "../../globals.h"
 #include "TableCommentsHeaderModel.h"
+#include "core/AppearanceManager.h"
 
 TableCommentsHeaderView::TableCommentsHeaderView(QWidget *parent)
     : QHeaderView(Qt::Horizontal, parent) {}
@@ -60,7 +63,7 @@ void TableCommentsHeaderView::setModel(QAbstractItemModel *model) {
 QSize TableCommentsHeaderView::sizeHint() const {
   QSize comment_size;
   comment_size = QHeaderView::sizeHint();
-  comment_size.setHeight(AlphaPlot::commentHeaderHeight);
+  comment_size.setHeight(AppearanceManager::commentHeaderHeight);
   return comment_size;
 }
 
@@ -77,7 +80,7 @@ TableDoubleHeaderView::~TableDoubleHeaderView() { delete d_slave; }
 QSize TableDoubleHeaderView::sizeHint() const {
   QSize master_size, slave_size;
   master_size = QHeaderView::sizeHint();
-  master_size.setHeight(AlphaPlot::headerHeight);
+  master_size.setHeight(AppearanceManager::headerHeight);
   slave_size = d_slave->sizeHint();
   if (d_show_comments) {
     master_size.setHeight(master_size.height() + slave_size.height());
@@ -110,11 +113,12 @@ void TableDoubleHeaderView::paintSection(QPainter *painter, const QRect &rect,
   // Color code column decorations
   painter->setPen(QPen(
       static_cast<TableModel *>(model())->headerDataColorCode(logicalIndex),
-      AlphaPlot::colorCodeThickness, Qt::SolidLine, Qt::RoundCap));
-  painter->drawLine(rect.bottomLeft().x() + AlphaPlot::colorCodeXPadding,
-                    rect.bottomLeft().y() - AlphaPlot::colorCodeYPadding,
-                    rect.bottomRight().x() - AlphaPlot::colorCodeXPadding,
-                    rect.bottomRight().y() - AlphaPlot::colorCodeYPadding);
+      AppearanceManager::colorCodeThickness, Qt::SolidLine, Qt::RoundCap));
+  painter->drawLine(
+      rect.bottomLeft().x() + AppearanceManager::colorCodeXPadding,
+      rect.bottomLeft().y() - AppearanceManager::colorCodeYPadding,
+      rect.bottomRight().x() - AppearanceManager::colorCodeXPadding,
+      rect.bottomRight().y() - AppearanceManager::colorCodeYPadding);
 }
 
 bool TableDoubleHeaderView::areCommentsShown() const { return d_show_comments; }

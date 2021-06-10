@@ -382,10 +382,9 @@ class ApplicationWindow : public QMainWindow,
 
   void connectTable(Table* table);
   void initTable(Table* table);
-  void customTable(Table* table);
-  void customizeTables(const QColor& bgColor, const QColor& textColor,
-                       const QColor& headerColor, const QFont& textFont,
-                       const QFont& headerFont, bool showComments);
+  void customTable(Table* table, const Table::Custom &custom);
+  void customizeTables(const Table::Custom &custom);
+  void customizeCommentsTables();
 
   void importASCII();
   void importASCII(const QStringList& files, int import_mode,
@@ -654,6 +653,9 @@ class ApplicationWindow : public QMainWindow,
   void updateGeneralConfirmOptions();
   void updateGeneralAppearanceOptions();
   void updateGeneralNumericFormatOptions();
+  void updateTableBasicOptions();
+  void updateTableColorOptions();
+  void updateTableFontOptions();
 
   //! \name Plot3D Tools
   //@{
@@ -988,6 +990,7 @@ class ApplicationWindow : public QMainWindow,
   bool copiedLayer;
   bool strip_spaces;
   bool simplify_spaces;
+  bool tableCustomColor;
   QStringList recentProjects;
   bool saved;
   bool showPlot3DProjection;

@@ -55,6 +55,7 @@
 #include "analysis/SigmoidalFit.h"
 #include "analysis/SmoothCurveDialog.h"
 #include "analysis/SmoothFilter.h"
+#include "core/AppearanceManager.h"
 #include "core/AprojHandler.h"
 #include "core/IconLoader.h"
 #include "core/Project.h"
@@ -1970,34 +1971,50 @@ QList<QPair<QPair<double, double>, double>>
   return data;
 }
 
-void ApplicationWindow::customizeTables(
-    const QColor &bgColor, const QColor &textColor, const QColor &headerColor,
-    const QFont &textFont, const QFont &headerFont, bool showComments) {
-  // tableBkgdColor = bgColor;
-  // tableTextColor = textColor;
-  // tableHeaderColor = headerColor;
-  // tableTextFont = textFont;
-  // tableHeaderFont = headerFont;
-  d_show_table_comments = showComments;
-
+void ApplicationWindow::customizeTables(const Table::Custom &custom) {
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
   foreach (QMdiSubWindow *subwindow, subwindowlist) {
     if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow))
-      customTable(qobject_cast<Table *>(subwindow));
+      customTable(qobject_cast<Table *>(subwindow), custom);
   }
 }
 
-void ApplicationWindow::customTable(Table *table) {
-  // comment out color handling
-  /*QColorGroup cg;
-  cg.setColor(QColorGroup::Base, QColor(tableBkgdColor));
-  cg.setColor(QColorGroup::Text, QColor(tableTextColor));
-  w->setPalette(QPalette(cg, cg, cg));
+void ApplicationWindow::customizeCommentsTables() {
+  QList<QMdiSubWindow *> subwindowlist = subWindowsList();
+  foreach (QMdiSubWindow *subwindow, subwindowlist) {
+    if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
+      Table *table = qobject_cast<Table *>(subwindow);
+      if (table) table->showComments(d_show_table_comments);
+    }
+  }
+}
 
-  w->setHeaderColor (tableHeaderColor);*/
-  table->setTextFont(tableTextFont);
-  table->setHeaderFont(tableHeaderFont);
-  table->showComments(d_show_table_comments);
+void ApplicationWindow::customTable(Table *table, const Table::Custom &custom) {
+  if (!table) return;
+
+  switch (custom) {
+    case Table::Custom::BackgroundColor:
+      (tableCustomColor) ? table->setTableBackgroundColor(tableBkgdColor)
+                         : table->setTableBackgroundColor(
+                               qApp->palette().color(QPalette::Window));
+      break;
+    case Table::Custom::HeaderColor:
+      (tableCustomColor)
+          ? table->setHeaderColor(tableHeaderColor)
+          : table->setHeaderColor(qApp->palette().color(QPalette::Text));
+      break;
+    case Table::Custom::TextColor:
+      (tableCustomColor)
+          ? table->setTableTextColor(tableBkgdColor)
+          : table->setTableTextColor(qApp->palette().color(QPalette::Text));
+      break;
+    case Table::Custom::HeaderFont:
+      table->setHeaderFont(tableHeaderFont);
+      break;
+    case Table::Custom::TextFont:
+      table->setTextFont(tableTextFont);
+      break;
+  }
 }
 
 // Used when importing an ASCII file
@@ -2079,7 +2096,12 @@ void ApplicationWindow::initTable(Table *table) {
   table->showNormal();
 
   connectTable(table);
-  customTable(table);
+  customTable(table, Table::Custom::BackgroundColor);
+  customTable(table, Table::Custom::HeaderColor);
+  customTable(table, Table::Custom::TextColor);
+  customTable(table, Table::Custom::HeaderFont);
+  customTable(table, Table::Custom::TextFont);
+  table->showComments(d_show_table_comments);
 
   table->d_future_table->setPlotMenu(ui_->menuPlot);
   emit modified();
@@ -2423,10 +2445,6 @@ void ApplicationWindow::updateCurves(Table *t, const QString &name) {
 }
 
 void ApplicationWindow::showPreferencesDialog() {
-  ConfigDialog *cd = new ConfigDialog(this);
-  cd->setAttribute(Qt::WA_DeleteOnClose);
-  cd->setColumnSeparator(columnSeparator);
-  cd->exec();
   std::unique_ptr<SettingsDialog> settings_(new SettingsDialog);
   connect(settings_.get(), &SettingsDialog::generalapplicationsettingsupdates,
           this, &ApplicationWindow::updateGeneralApplicationOptions);
@@ -2436,6 +2454,12 @@ void ApplicationWindow::showPreferencesDialog() {
           this, &ApplicationWindow::updateGeneralAppearanceOptions);
   connect(settings_.get(), &SettingsDialog::generalnumericformatsettingsupdates,
           this, &ApplicationWindow::updateGeneralNumericFormatOptions);
+  connect(settings_.get(), &SettingsDialog::tablebasicsettingsupdates, this,
+          &ApplicationWindow::updateTableBasicOptions);
+  connect(settings_.get(), &SettingsDialog::tablecolorsettingsupdates, this,
+          &ApplicationWindow::updateTableColorOptions);
+  connect(settings_.get(), &SettingsDialog::tablefontsettingsupdates, this,
+          &ApplicationWindow::updateTableFontOptions);
   settings_->exec();
 }
 
@@ -2471,6 +2495,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
   switch (colorScheme) {
     case 0: {
       qApp->setStyleSheet(styleSheet());
+      setStyleSheet(styleSheet());
       QPalette pal = qApp->palette();
       QColor color = pal.color(QPalette::Active, QPalette::Base);
       d_workspace->setBackground(QBrush(color));
@@ -2483,6 +2508,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       qApp->setStyleSheet(schemeFileStream.readAll());
+      setStyleSheet(schemeFileStream.readAll());
       d_workspace->setBackground(QBrush(QColor(32, 31, 31)));
       IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 1;
@@ -2492,6 +2518,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       qApp->setStyleSheet(schemeFileStream.readAll());
+      setStyleSheet(schemeFileStream.readAll());
       d_workspace->setBackground(QColor(200, 200, 200));
       IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 2;
@@ -2501,6 +2528,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       qApp->setStyleSheet(schemeFileStream.readAll());
+      setStyleSheet(schemeFileStream.readAll());
       d_workspace->setBackground(QColor(200, 200, 200));
       IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 3;
@@ -2510,6 +2538,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       qApp->setStyleSheet(schemeFileStream.readAll());
+      setStyleSheet(schemeFileStream.readAll());
       d_workspace->setBackground(QColor(200, 200, 200));
       IconLoader::lumen_ = IconLoader::isLight(Qt::black);
       appColorScheme = 4;
@@ -2519,6 +2548,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       qApp->setStyleSheet(schemeFileStream.readAll());
+      setStyleSheet(schemeFileStream.readAll());
       d_workspace->setBackground(QColor(230, 230, 230));
       IconLoader::lumen_ = IconLoader::isLight(Qt::white);
       appColorScheme = 5;
@@ -2528,6 +2558,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       qApp->setStyleSheet(schemeFileStream.readAll());
+      setStyleSheet(schemeFileStream.readAll());
       d_workspace->setBackground(QColor(230, 230, 230));
       IconLoader::lumen_ = IconLoader::isLight(Qt::white);
       appColorScheme = 6;
@@ -2537,6 +2568,7 @@ void ApplicationWindow::changeAppColorScheme(int colorScheme) {
       schemefile.open(QFile::ReadOnly | QFile::Text);
       QTextStream schemeFileStream(&schemefile);
       qApp->setStyleSheet(schemeFileStream.readAll());
+      setStyleSheet(schemeFileStream.readAll());
       d_workspace->setBackground(QColor(230, 230, 230));
       IconLoader::lumen_ = IconLoader::isLight(Qt::white);
       appColorScheme = 7;
@@ -2692,6 +2724,106 @@ void ApplicationWindow::updateGeneralNumericFormatOptions() {
 
   if (d_default_numeric_format != defaultnumericformat) {
     d_default_numeric_format = defaultnumericformat;
+  }
+}
+
+void ApplicationWindow::updateTableBasicOptions() {
+  QSettings settings;
+  settings.beginGroup("Tables");
+  bool nshow_table_comments = settings.value("DisplayComments", false).toBool();
+  settings.endGroup();
+  settings.beginGroup("ImportASCII");
+  QString ncolumnseparator =
+      settings.value("ColumnSeparator", "\\t").toString();
+  settings.endGroup();
+
+  if (d_show_table_comments != nshow_table_comments) {
+    d_show_table_comments = nshow_table_comments;
+    customizeCommentsTables();
+  }
+  columnSeparator = ncolumnseparator;
+}
+
+void ApplicationWindow::updateTableColorOptions() {
+  QSettings settings;
+  settings.beginGroup("Tables");
+  settings.beginGroup("ColumnColorIndicator");
+  QColor nxColorCode =
+      settings.value("xColorCode", QColor(0, 172, 109, 100)).value<QColor>();
+  QColor nyColorCode =
+      settings.value("yColorCode", QColor(204, 140, 91, 100)).value<QColor>();
+  QColor nzColorCode =
+      settings.value("zColorCode", QColor(174, 129, 255, 100)).value<QColor>();
+  QColor nxErrColorCode =
+      settings.value("xErrColorCode", QColor(255, 0, 0, 100)).value<QColor>();
+  QColor nyErrColorCode =
+      settings.value("yErrColorCode", QColor(255, 0, 0, 100)).value<QColor>();
+  QColor nnoneColorCode =
+      settings.value("noneColorCode", QColor(150, 150, 150, 100))
+          .value<QColor>();
+  settings.endGroup();
+  settings.beginGroup("Colors");
+  bool ncustomColor = settings.value("Custom", false).toBool();
+  QColor nbkgdColor =
+      settings.value("Background", qApp->palette().color(QPalette::Base))
+          .value<QColor>();
+  QColor ntextColor =
+      settings.value("Text", qApp->palette().color(QPalette::Text))
+          .value<QColor>();
+  QColor nlabelColor =
+      settings.value("Header", qApp->palette().color(QPalette::Text))
+          .value<QColor>();
+  settings.endGroup();  // Colors
+  settings.endGroup();
+  AppearanceManager::xColorCode = nxColorCode;
+  AppearanceManager::yColorCode = nyColorCode;
+  AppearanceManager::zColorCode = nzColorCode;
+  AppearanceManager::xErrColorCode = nxErrColorCode;
+  AppearanceManager::yErrColorCode = nyErrColorCode;
+  AppearanceManager::noneColorCode = nnoneColorCode;
+
+  bool customcolor = false;
+  if (tableCustomColor != ncustomColor) {
+    customcolor = true;
+    tableCustomColor = ncustomColor;
+  }
+  if (tableBkgdColor != nbkgdColor || customcolor != false) {
+    tableBkgdColor = nbkgdColor;
+    customizeTables(Table::Custom::BackgroundColor);
+  }
+  if (tableBkgdColor != tableHeaderColor || customcolor != false) {
+    tableHeaderColor = nlabelColor;
+    customizeTables(Table::Custom::HeaderColor);
+  }
+  if (tableTextColor != ntextColor || customcolor != false) {
+    tableTextColor = ntextColor;
+    customizeTables(Table::Custom::TextColor);
+  }
+}
+
+void ApplicationWindow::updateTableFontOptions() {
+  QSettings settings;
+  settings.beginGroup("Tables");
+  QStringList tableFonts = settings.value("Fonts").toStringList();
+  QFont ntableTextFont;
+  QFont ntableHeaderFont;
+  if (tableFonts.size() == 8) {
+    ntableTextFont = QFont(tableFonts[0], tableFonts[1].toInt(),
+                           tableFonts[2].toInt(), tableFonts[3].toInt());
+    ntableHeaderFont = QFont(tableFonts[4], tableFonts[5].toInt(),
+                             tableFonts[6].toInt(), tableFonts[7].toInt());
+  } else {
+    ntableTextFont = qApp->font();
+    ntableHeaderFont = qApp->font();
+  }
+  settings.endGroup();
+  if (tableTextFont != ntableTextFont) {
+    tableTextFont = ntableTextFont;
+    customizeTables(Table::Custom::TextFont);
+  }
+  if (tableHeaderFont != ntableHeaderFont) {
+    tableHeaderFont = ntableHeaderFont;
+    customizeTables(Table::Custom::HeaderFont);
   }
 }
 
@@ -3272,13 +3404,33 @@ void ApplicationWindow::loadSettings() {
     tableHeaderFont = QFont(tableFonts[4], tableFonts[5].toInt(),
                             tableFonts[6].toInt(), tableFonts[7].toInt());
   }
-
+  settings.beginGroup("ColumnColorIndicator");
+  AppearanceManager::xColorCode =
+      settings.value("xColorCode", QColor(0, 172, 109, 100)).value<QColor>();
+  AppearanceManager::yColorCode =
+      settings.value("yColorCode", QColor(204, 140, 91, 100)).value<QColor>();
+  AppearanceManager::zColorCode =
+      settings.value("zColorCode", QColor(174, 129, 255, 100)).value<QColor>();
+  AppearanceManager::xErrColorCode =
+      settings.value("xErrColorCode", QColor(255, 0, 0, 100)).value<QColor>();
+  AppearanceManager::yErrColorCode =
+      settings.value("yErrColorCode", QColor(255, 0, 0, 100)).value<QColor>();
+  AppearanceManager::noneColorCode =
+      settings.value("noneColorCode", QColor(150, 150, 150, 100))
+          .value<QColor>();
+  settings.endGroup();  // ColumnColorIndicator
   settings.beginGroup("Colors");
-  // tableBkgdColor = settings.value("Background", "#ffffff").value<QColor>();
-  // tableTextColor = settings.value("Text", "#000000").value<QColor>();
-  tableHeaderColor = settings.value("Header", "#000000").value<QColor>();
+  tableCustomColor = settings.value("Custom", false).toBool();
+  tableBkgdColor =
+      settings.value("Background", qApp->palette().color(QPalette::Base))
+          .value<QColor>();
+  tableTextColor = settings.value("Text", qApp->palette().color(QPalette::Text))
+                       .value<QColor>();
+  tableHeaderColor =
+      settings.value("Header", qApp->palette().color(QPalette::Text))
+          .value<QColor>();
   settings.endGroup();  // Colors
-  settings.endGroup();
+  settings.endGroup();  // Tables
   /* --------------- end group Tables ------------------------ */
 
   /* --------------- group 2D Plots ----------------------------- */
@@ -3546,10 +3698,19 @@ void ApplicationWindow::saveSettings() {
   tableFonts << QString::number(tableHeaderFont.weight());
   tableFonts << QString::number(tableHeaderFont.italic());
   settings.setValue("Fonts", tableFonts);
+  settings.beginGroup("ColumnColorIndicator");
+  settings.setValue("xColorCode", AppearanceManager::xColorCode);
+  settings.setValue("yColorCode", AppearanceManager::yColorCode);
+  settings.setValue("zColorCode", AppearanceManager::zColorCode);
+  settings.setValue("xErrColorCode", AppearanceManager::xErrColorCode);
+  settings.setValue("yErrColorCode", AppearanceManager::yErrColorCode);
+  settings.setValue("noneColorCode", AppearanceManager::noneColorCode);
+  settings.endGroup();
 
   settings.beginGroup("Colors");
+  settings.setValue("Custom", tableCustomColor);
   settings.setValue("Background", tableBkgdColor);
-  // settings.setValue("Text", tableTextColor);
+  settings.setValue("Text", tableTextColor);
   settings.setValue("Header", tableHeaderColor);
   settings.endGroup();  // Colors
   settings.endGroup();
@@ -6390,6 +6551,7 @@ void ApplicationWindow::setAppColors() {
   } else {
     qApp->setStyle(appStyle);
     qApp->setStyleSheet(styleSheet());
+    setStyleSheet(styleSheet());
     changeAppColorScheme(appColorScheme);
   }
 }

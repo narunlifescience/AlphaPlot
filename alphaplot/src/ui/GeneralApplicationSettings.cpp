@@ -182,7 +182,9 @@ void ApplicationSettingsPage::loadQsettingsValues() {
 
 void ApplicationSettingsPage::pickColor() {
   QPalette pal = ui->glowColorLabel->palette();
-  QColor color = QColorDialog::getColor(pal.window().color(), this);
+  QColor color =
+      QColorDialog::getColor(pal.window().color(), this, tr("Colors"),
+                             QColorDialog::ColorDialogOption::ShowAlphaChannel);
   if (!color.isValid() || color == pal.window().color()) return;
   ui->glowColorLabel->setStyleSheet(setStyleSheetString(color));
 }

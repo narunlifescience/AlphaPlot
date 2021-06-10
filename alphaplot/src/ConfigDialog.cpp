@@ -1047,9 +1047,9 @@ void ConfigDialog::apply() {
   }
 
   app_->columnSeparator = sep;
-  app_->customizeTables(buttonBackground->color(), buttonText->color(),
+  /*app_->customizeTables(buttonBackground->color(), buttonText->color(),
                         buttonHeader->color(), textFont, headerFont,
-                        boxTableComments->isChecked());
+                        boxTableComments->isChecked());*/
   // 2D plots page: options tab
   app_->titleOn = boxTitle->isChecked();
   app_->allAxesOn = boxAllAxes->isChecked();

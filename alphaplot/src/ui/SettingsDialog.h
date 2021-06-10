@@ -46,10 +46,11 @@ class SettingsDialog : public QDialog {
     Page_GeneralAppearance = 3,
     Page_GeneralNumericFormat = 4,
     // Table
-    Page_TableFont = 5,
+    Page_TableBasic = 5,
     Page_TableColor = 6,
+    Page_TableFont = 7,
     // 2D Plots
-    Page_Plot2dFont = 7,
+    /*Page_Plot2dFont = 7,
     Page_Plot2dPrint = 8,
     Page_Plot2dTick = 9,
     Page_Plot2dDefaultStyle = 10,
@@ -57,12 +58,12 @@ class SettingsDialog : public QDialog {
     // 3D Plots
     Page_Plot3dOption = 12,
     Page_Plot3dColor = 13,
-    Page_Plot3dFont = 14,
+    Page_Plot3dFont = 14,*/
     // Fitting
-    Page_FittingParameter = 15,
-    Page_FittingOutput = 16,
+    Page_Fitting = 8,
+    //Page_FittingOutput = 16,
     // Scripting
-    Page_ScriptingColor = 17
+    Page_ScriptingColor = 9
   };
 
  signals:
@@ -70,6 +71,9 @@ class SettingsDialog : public QDialog {
   void generalconfirmationsettingsupdates();
   void generalappreancesettingsupdates();
   void generalnumericformatsettingsupdates();
+  void tablebasicsettingsupdates();
+  void tablecolorsettingsupdates();
+  void tablefontsettingsupdates();
 
  protected:
   QSize sizeHint() const;
@@ -96,7 +100,6 @@ class SettingsDialog : public QDialog {
 
  private slots:
   void getBackToRootSettingsPage();
-  void test(QModelIndex mod);
   // aListView selection (porting to QT5 should make this lambda functions)
   void generalEnsureSelection(const QModelIndex &index);
   void tableEnsureSelection(const QModelIndex &index);

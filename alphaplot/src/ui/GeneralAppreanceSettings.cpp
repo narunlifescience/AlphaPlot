@@ -23,7 +23,8 @@
 #include <QSettings>
 #include <QStyleFactory>
 
-#include "../core/IconLoader.h"
+#include "core/AppearanceManager.h"
+#include "core/IconLoader.h"
 #include "globals.h"
 #include "ui_GeneralAppreanceSettings.h"
 
@@ -50,7 +51,7 @@ GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
   QStringList styles = QStyleFactory::keys();
   styles.sort();
   ui->styleComboBox->addItems(styles);
-  ui->colorSchemeComboBox->addItems(AlphaPlot::appColorSchemeName());
+  ui->colorSchemeComboBox->addItems(AppearanceManager::colorSchemeNames());
   ui->customColorGroupBox->setCheckable(true);
   ui->customColorGroupBox->setAlignment(Qt::AlignLeft);
   setupColorLabel(ui->panelColorLabel, ui->panelColorButton);
@@ -138,7 +139,9 @@ void GeneralAppreanceSettings::setupColorLabel(QLabel *label,
 
 void GeneralAppreanceSettings::pickColor(QLabel *label) {
   QPalette pal = label->palette();
-  QColor color = QColorDialog::getColor(pal.window().color(), this);
+  QColor color =
+      QColorDialog::getColor(pal.window().color(), this, tr("Colors"),
+                             QColorDialog::ColorDialogOption::ShowAlphaChannel);
   if (!color.isValid() || color == pal.window().color()) return;
   label->setStyleSheet(setStyleSheetString(color));
 }
@@ -150,7 +153,8 @@ void GeneralAppreanceSettings::loadQsettingsValues() {
   colorscheme_ = settings.value("ColorScheme", 0).toInt();
   settings.beginGroup("Colors");
   customcolors_ = settings.value("Custom", false).toBool();
-  workspacecolor_ = settings.value("Workspace", "darkGray").value<QColor>();
+  workspacecolor_ =
+      settings.value("Workspace", palette().base().color()).value<QColor>();
   panelcolor_ =
       settings.value("Panels", palette().window().color()).value<QColor>();
   paneltextcolor_ = settings.value("PanelsText", palette().windowText().color())
