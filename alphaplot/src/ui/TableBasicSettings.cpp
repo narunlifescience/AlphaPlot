@@ -75,7 +75,6 @@ bool TableBasicSettings::settingsChangeCheck() {
       columnseparator_ != ui->columnSeparatorComboBox->currentText()
                               .replace(tr("TAB"), "\t")
                               .replace(tr("SPACE"), " ")) {
-    qDebug() << columnseparator_ << ui->columnSeparatorComboBox->currentText();
     result = settingsChanged();
   }
   return result;

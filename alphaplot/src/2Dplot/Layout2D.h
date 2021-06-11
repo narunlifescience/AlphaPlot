@@ -176,6 +176,7 @@ class Layout2D : public MyWidget {
   void beforeReplot();
   void refresh();
   void exportPDF(const QString &filename);
+  void copyToClipbord();
 
  signals:
   void AxisRectCreated(AxisRect2D *, MyWidget *);

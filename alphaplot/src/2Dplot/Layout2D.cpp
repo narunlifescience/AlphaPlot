@@ -973,10 +973,15 @@ void Layout2D::mouseReleaseSignal(QMouseEvent *event) {
     QMenu *menu = new QMenu();
     menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->addAction(IconLoader::load("edit-recalculate", IconLoader::LightDark),
-                    "Refresh", this, &Layout2D::refresh);
-    menu->addAction("Export", this, &Layout2D::exportGraph);
+                    tr("Refresh"), this, &Layout2D::refresh);
+    menu->addAction(IconLoader::load("edit-select", IconLoader::LightDark),
+                    tr("Disable Tools"), this, &Layout2D::ResetPicker);
+    menu->addAction(IconLoader::load("view-image", IconLoader::LightDark),
+                    tr("Copy"), this, &Layout2D::copyToClipbord);
+    menu->addAction(IconLoader::load("document-save", IconLoader::LightDark),
+                    tr("Export"), this, &Layout2D::exportGraph);
     menu->addAction(IconLoader::load("edit-print", IconLoader::LightDark),
-                    "Print", this, &Layout2D::print);
+                    tr("Print"), this, &Layout2D::print);
     menu->popup(plot2dCanvas_->mapToGlobal(QPoint(
         static_cast<int>(startPos.x()), static_cast<int>(startPos.y()))));
   }
@@ -1606,6 +1611,14 @@ void Layout2D::exportPDF(const QString &filename) {
   currentAxisRect_->setPrintorExportJob(true);
   plot2dCanvas_->savePdf(filename);
   currentAxisRect_->setPrintorExportJob(false);
+}
+
+void Layout2D::copyToClipbord() {
+  currentAxisRect_->setPrintorExportJob(true);
+  QPixmap buffer = plot2dCanvas_->toPixmap(plot2dCanvas_->width(),
+                                           plot2dCanvas_->height(), 1);
+  currentAxisRect_->setPrintorExportJob(false);
+  QGuiApplication::clipboard()->setPixmap(buffer, QClipboard::Clipboard);
 }
 
 void Layout2D::setLayoutDimension(QPair<int, int> dimension) {
