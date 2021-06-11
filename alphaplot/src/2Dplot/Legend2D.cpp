@@ -1,9 +1,9 @@
 #include "Legend2D.h"
 
 #include "AxisRect2D.h"
+#include "Curve2D.h"
 #include "LineSpecial2D.h"
 #include "Plot2D.h"
-#include "Curve2D.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
@@ -23,8 +23,10 @@ bool Legend2D::gethidden_legend() const { return visible(); }
 
 int Legend2D::getdirection_legend() const {
   switch (mFillOrder) {
-    case foRowsFirst: return 0;
-    case foColumnsFirst: return 1;
+    case foRowsFirst:
+      return 0;
+    case foColumnsFirst:
+      return 1;
   }
 }
 
@@ -182,16 +184,17 @@ void Legend2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeAttribute("marginleft", QString::number(margins().left()));
   xmlwriter->writeAttribute("margintop", QString::number(margins().top()));
   xmlwriter->writeAttribute("marginright", QString::number(margins().right()));
-  xmlwriter->writeAttribute("marginbottom", QString::number(margins().bottom()));
+  xmlwriter->writeAttribute("marginbottom",
+                            QString::number(margins().bottom()));
+  xmlwriter->writeFont(font(), textColor());
+  xmlwriter->writePen(borderPen());
+  xmlwriter->writeBrush(brush());
   xmlwriter->writeStartElement("title");
   (istitle_legend()) ? xmlwriter->writeAttribute("visible", "true")
                      : xmlwriter->writeAttribute("visible", "false");
   xmlwriter->writeAttribute("text", titletext_legend());
   xmlwriter->writeFont(titlefont_legend(), titlecolor_legend());
   xmlwriter->writeEndElement();
-  xmlwriter->writeFont(font(), textColor());
-  xmlwriter->writePen(borderPen());
-  xmlwriter->writeBrush(brush());
   xmlwriter->writeEndElement();
 }
 
@@ -250,8 +253,7 @@ bool Legend2D::load(XmlStreamReader *xmlreader) {
       else
         xmlreader->raiseWarning(tr("Legend2D unknown direction"));
     } else
-      xmlreader->raiseWarning(
-          tr("Legend2D direction property setting error"));
+      xmlreader->raiseWarning(tr("Legend2D direction property setting error"));
     // margin property
     if (ok) {
       int left = xmlreader->readAttributeInt("marginleft", &ok);
@@ -276,6 +278,7 @@ bool Legend2D::load(XmlStreamReader *xmlreader) {
         xmlreader->raiseWarning(
             tr("Legend2D left margin property setting error"));
     }
+
     // font
     while (!xmlreader->atEnd()) {
       xmlreader->readNext();
@@ -290,6 +293,7 @@ bool Legend2D::load(XmlStreamReader *xmlreader) {
           xmlreader->raiseWarning(tr("Legend2D font property setting error"));
       }
     }
+
     // pen
     while (!xmlreader->atEnd()) {
       xmlreader->readNext();
@@ -304,6 +308,7 @@ bool Legend2D::load(XmlStreamReader *xmlreader) {
               tr("Legend2D borderpen property setting error"));
       }
     }
+
     // brush
     while (!xmlreader->atEnd()) {
       xmlreader->readNext();
@@ -314,6 +319,39 @@ bool Legend2D::load(XmlStreamReader *xmlreader) {
           setBrush(brush);
         else
           xmlreader->raiseWarning(tr("Legend2D brush property setting error"));
+      }
+    }
+
+    // title
+    while (!xmlreader->atEnd()) {
+      xmlreader->readNext();
+      if (xmlreader->isEndElement() &&
+          (xmlreader->name() == "title" || xmlreader->name() == "legend"))
+        break;
+      if (xmlreader->isStartElement() && xmlreader->name() == "title") {
+        // title visible
+        bool titlevisible = xmlreader->readAttributeBool("visible", &ok);
+        (ok) ? (titlevisible) ? addtitle_legend() : removetitle_legend()
+             : xmlreader->raiseWarning(
+                   tr("no Legend2D title visible property element found"));
+        QString titletext = xmlreader->readAttributeString("text", &ok);
+        (ok) ? settitletext_legend(titletext)
+             : xmlreader->raiseWarning(
+                   tr("no Legend2D title text property element found"));
+        while (!xmlreader->atEnd()) {
+          xmlreader->readNext();
+          if (xmlreader->isEndElement() && xmlreader->name() == "font") break;
+          // font
+          if (xmlreader->isStartElement() && xmlreader->name() == "font") {
+            QPair<QFont, QColor> fontpair = xmlreader->readFont(&ok);
+            if (ok) {
+              settitlefont_legend(fontpair.first);
+              settitlecolor_legend(fontpair.second);
+            } else
+              xmlreader->raiseWarning(
+                  tr("Legend2D title font property setting error"));
+          }
+        }
       }
     }
   } else  // no element
