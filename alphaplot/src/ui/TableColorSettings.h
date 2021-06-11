@@ -5,6 +5,7 @@
 
 class Ui_TableColorSettings;
 class QToolButton;
+class ColorLabel;
 
 class TableColorSettings : public SettingsPage {
   Q_OBJECT
@@ -22,13 +23,10 @@ class TableColorSettings : public SettingsPage {
   void tablecolorsettingsupdate();
 
  private:
-  void setupColorLabel(QLabel *label, QToolButton *button);
-  void pickColor(QLabel *label);
+  void setupColorButton(QToolButton *button);
+  void pickColor(ColorLabel *label);
   void loadQsettingsValues();
-  QString setStyleSheetString(const QColor &color);
   Ui_TableColorSettings *ui;
-  static const int btn_size;
-  static const int lbl_line_width;
   QColor xColorCode_;
   QColor yColorCode_;
   QColor zColorCode_;

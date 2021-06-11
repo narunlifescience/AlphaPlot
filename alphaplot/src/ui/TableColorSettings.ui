@@ -70,7 +70,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="columnxColorLabel">
+               <widget class="ColorLabel" name="columnxColorLabel">
                 <property name="text">
                  <string/>
                 </property>
@@ -108,7 +108,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="columnxerrColorLabel">
+               <widget class="ColorLabel" name="columnxerrColorLabel">
                 <property name="text">
                  <string/>
                 </property>
@@ -150,7 +150,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="columnyColorLabel">
+               <widget class="ColorLabel" name="columnyColorLabel">
                 <property name="text">
                  <string/>
                 </property>
@@ -188,7 +188,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="columnyerrColorLabel">
+               <widget class="ColorLabel" name="columnyerrColorLabel">
                 <property name="text">
                  <string/>
                 </property>
@@ -230,7 +230,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="columnzColorLabel">
+               <widget class="ColorLabel" name="columnzColorLabel">
                 <property name="text">
                  <string/>
                 </property>
@@ -268,7 +268,7 @@
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="noneColorLabel">
+               <widget class="ColorLabel" name="noneColorLabel">
                 <property name="text">
                  <string/>
                 </property>
@@ -320,7 +320,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="backgroundColorLabel">
+             <widget class="ColorLabel" name="backgroundColorLabel">
               <property name="text">
                <string/>
               </property>
@@ -358,7 +358,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="textColorLabel">
+             <widget class="ColorLabel" name="textColorLabel">
               <property name="text">
                <string/>
               </property>
@@ -396,7 +396,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="labelColorLabel">
+             <widget class="ColorLabel" name="labelColorLabel">
               <property name="text">
                <string/>
               </property>
@@ -471,6 +471,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ColorLabel</class>
+   <extends>QLabel</extends>
+   <header>../widgets/ColorLabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

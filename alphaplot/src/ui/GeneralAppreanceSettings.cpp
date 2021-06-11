@@ -25,11 +25,9 @@
 
 #include "core/AppearanceManager.h"
 #include "core/IconLoader.h"
+#include "widgets/ColorLabel.h"
 #include "globals.h"
 #include "ui_GeneralAppreanceSettings.h"
-
-const int GeneralAppreanceSettings::btn_size = 24;
-const int GeneralAppreanceSettings::lbl_line_width = 1;
 
 GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
     : SettingsPage(dialog), ui(new Ui_GeneralAppreanceSettings) {
@@ -54,9 +52,9 @@ GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
   ui->colorSchemeComboBox->addItems(AppearanceManager::colorSchemeNames());
   ui->customColorGroupBox->setCheckable(true);
   ui->customColorGroupBox->setAlignment(Qt::AlignLeft);
-  setupColorLabel(ui->panelColorLabel, ui->panelColorButton);
-  setupColorLabel(ui->paneltextColorLabel, ui->paneltextColorButton);
-  setupColorLabel(ui->workspaceColorLabel, ui->workspaceColorButton);
+  setupColorButton(ui->panelColorButton);
+  setupColorButton(ui->paneltextColorButton);
+  setupColorButton(ui->workspaceColorButton);
   connect(ui->applyPushButton, &QPushButton::clicked, this,
           &GeneralAppreanceSettings::Save);
   connect(ui->resetPushButton, &QPushButton::clicked, this,
@@ -85,15 +83,18 @@ void GeneralAppreanceSettings::Load() {
       ui->styleComboBox->findText(appstyle_, Qt::MatchWildcard));
   ui->colorSchemeComboBox->setCurrentIndex(colorscheme_);
   ui->customColorGroupBox->setChecked(customcolors_);
-  ui->workspaceColorLabel->setStyleSheet(setStyleSheetString(workspacecolor_));
-  ui->panelColorLabel->setStyleSheet(setStyleSheetString(panelcolor_));
-  ui->paneltextColorLabel->setStyleSheet(setStyleSheetString(paneltextcolor_));
+  ui->workspaceColorLabel->setColor(workspacecolor_);
+  ui->panelColorLabel->setColor(panelcolor_);
+  ui->paneltextColorLabel->setColor(paneltextcolor_);
 }
 
 void GeneralAppreanceSettings::LoadDefault() {
   ui->styleComboBox->setCurrentIndex(0);
   ui->colorSchemeComboBox->setCurrentIndex(0);
   ui->customColorGroupBox->setChecked(false);
+  ui->workspaceColorLabel->setColor(palette().base().color());
+  ui->panelColorLabel->setColor(palette().window().color());
+  ui->paneltextColorLabel->setColor(palette().windowText().color());
 }
 
 void GeneralAppreanceSettings::Save() {
@@ -104,10 +105,10 @@ void GeneralAppreanceSettings::Save() {
   settings.beginGroup("Colors");
   settings.setValue("Custom", ui->customColorGroupBox->isChecked());
   settings.setValue("Workspace",
-                    ui->workspaceColorLabel->palette().window().color());
-  settings.setValue("Panels", ui->panelColorLabel->palette().window().color());
+                    ui->workspaceColorLabel->getColor());
+  settings.setValue("Panels", ui->panelColorLabel->getColor());
   settings.setValue("PanelsText",
-                    ui->paneltextColorLabel->palette().window().color());
+                    ui->paneltextColorLabel->getColor());
   settings.endGroup();
   settings.endGroup();
 
@@ -120,30 +121,25 @@ bool GeneralAppreanceSettings::settingsChangeCheck() {
   if (appstyle_.toLower() != ui->styleComboBox->currentText().toLower() ||
       colorscheme_ != ui->colorSchemeComboBox->currentIndex() ||
       customcolors_ != ui->customColorGroupBox->isChecked() ||
-      workspacecolor_ != ui->workspaceColorLabel->palette().window().color() ||
-      panelcolor_ != ui->panelColorLabel->palette().window().color() ||
-      paneltextcolor_ != ui->paneltextColorLabel->palette().window().color()) {
+      workspacecolor_ != ui->workspaceColorLabel->getColor() ||
+      panelcolor_ != ui->panelColorLabel->getColor()||
+      paneltextcolor_ != ui->paneltextColorLabel->getColor()) {
     result = settingsChanged();
   }
   return result;
 }
 
-void GeneralAppreanceSettings::setupColorLabel(QLabel *label,
-                                               QToolButton *button) {
-  label->setFixedSize(btn_size, btn_size);
-  (label->height() > label->width()) ? label->setFixedWidth(label->height())
-                                     : label->setFixedHeight(label->width());
+void GeneralAppreanceSettings::setupColorButton(QToolButton *button) {
   button->setIcon(IconLoader::load("color-management", IconLoader::General));
   button->setStyleSheet("QToolButton {border: 0px;}");
 }
 
-void GeneralAppreanceSettings::pickColor(QLabel *label) {
-  QPalette pal = label->palette();
+void GeneralAppreanceSettings::pickColor(ColorLabel *label) {
   QColor color =
-      QColorDialog::getColor(pal.window().color(), this, tr("Colors"),
+      QColorDialog::getColor(label->getColor(), this, tr("Colors"),
                              QColorDialog::ColorDialogOption::ShowAlphaChannel);
-  if (!color.isValid() || color == pal.window().color()) return;
-  label->setStyleSheet(setStyleSheetString(color));
+  if (!color.isValid() || color == label->getColor()) return;
+  label->setColor(color);
 }
 
 void GeneralAppreanceSettings::loadQsettingsValues() {
@@ -161,21 +157,6 @@ void GeneralAppreanceSettings::loadQsettingsValues() {
                         .value<QColor>();
   settings.endGroup();
   settings.endGroup();
-}
-
-QString GeneralAppreanceSettings::setStyleSheetString(const QColor &color) {
-  QString stylesheetstring =
-      "QLabel:!disabled{background : rgba(%1,%2, %3, %4); border: 1px solid "
-      "rgba(%5, %6, %7, %8);}";
-  QColor bordercolor = qApp->palette().windowText().color();
-  return stylesheetstring.arg(color.red())
-      .arg(color.green())
-      .arg(color.blue())
-      .arg(color.alpha())
-      .arg(bordercolor.red())
-      .arg(bordercolor.green())
-      .arg(bordercolor.blue())
-      .arg(bordercolor.alpha());
 }
 
 void GeneralAppreanceSettings::stylePreview(const QString &style) {

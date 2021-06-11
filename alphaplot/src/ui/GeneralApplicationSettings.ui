@@ -61,7 +61,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="glowColorLabel">
+             <widget class="ColorLabel" name="glowColorLabel">
               <property name="text">
                <string/>
               </property>
@@ -271,6 +271,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ColorLabel</class>
+   <extends>QLabel</extends>
+   <header>../widgets/ColorLabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

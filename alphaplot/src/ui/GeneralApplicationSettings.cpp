@@ -12,8 +12,6 @@
 #include "scripting/ScriptingEnv.h"
 #include "ui_GeneralApplicationSettings.h"
 
-const int ApplicationSettingsPage::btn_size = 24;
-
 ApplicationSettingsPage::ApplicationSettingsPage(SettingsDialog *dialog)
     : SettingsPage(dialog), ui(new Ui_ApplicationSettingsPage) {
   ui->setupUi(this);
@@ -31,11 +29,6 @@ ApplicationSettingsPage::ApplicationSettingsPage(SettingsDialog *dialog)
       Qt::ScrollBarPolicy::ScrollBarAsNeeded);
   ui->glowIndicatorGroupBox->setCheckable(true);
   ui->glowIndicatorGroupBox->setAlignment(Qt::AlignLeft);
-  // seup glow setting stylesheet
-  ui->glowColorLabel->setFixedSize(btn_size, btn_size);
-  (ui->glowColorLabel->height() > ui->glowColorLabel->width())
-      ? ui->glowColorLabel->setFixedWidth(ui->glowColorLabel->height())
-      : ui->glowColorLabel->setFixedHeight(ui->glowColorLabel->width());
   ui->glowColorButton->setIcon(
       IconLoader::load("color-management", IconLoader::General));
   ui->glowColorButton->setStyleSheet("QToolButton {border: 0px;}");
@@ -73,7 +66,7 @@ void ApplicationSettingsPage::Load() {
                                   .arg(applicationfont_.pointSize()));
   ui->glowIndicatorGroupBox->setChecked(glowstatus_);
   ui->glowThicknessSpinBox->setValue(glowradius_);
-  ui->glowColorLabel->setStyleSheet(setStyleSheetString(glowcolor_));
+  ui->glowColorLabel->setColor(glowcolor_);
   // ToDo: language
   ui->scriptingComboBox->setCurrentIndex(
       ScriptingLangManager::languages().indexOf(defaultscriptinglang_));
@@ -93,7 +86,7 @@ void ApplicationSettingsPage::LoadDefault() {
                                   .arg(applicationfont_.pointSize()));
   ui->glowIndicatorGroupBox->setChecked(false);
   ui->glowThicknessSpinBox->setValue(8);
-  ui->glowColorLabel->setStyleSheet(setStyleSheetString(Qt::red));
+  ui->glowColorLabel->setColor(Qt::red);
   ui->scriptingComboBox->setCurrentIndex(
       ScriptingLangManager::languages().indexOf("muParser"));
   ui->saveCheckBox->setChecked(true);
@@ -109,7 +102,7 @@ void ApplicationSettingsPage::Save() {
   settings.beginGroup("General");
   settings.beginGroup("GlowIndicator");
   settings.setValue("Show", ui->glowIndicatorGroupBox->isChecked());
-  settings.setValue("Color", ui->glowColorLabel->palette().window().color());
+  settings.setValue("Color", ui->glowColorLabel->getColor());
   settings.setValue("Radius", ui->glowThicknessSpinBox->value());
   settings.endGroup();
   QStringList applicationFont;
@@ -135,7 +128,7 @@ bool ApplicationSettingsPage::settingsChangeCheck() {
   loadQsettingsValues();
   bool result = true;
   if (glowstatus_ != ui->glowIndicatorGroupBox->isChecked() ||
-      glowcolor_ != ui->glowColorLabel->palette().window().color() ||
+      glowcolor_ != ui->glowColorLabel->getColor() ||
       glowradius_ != ui->glowThicknessSpinBox->value() ||
       // these fonts donot match for some unknown reason so check each values
       applicationfont_.family() != ui->fontvalueLabel->font().family() ||
@@ -181,12 +174,11 @@ void ApplicationSettingsPage::loadQsettingsValues() {
 }
 
 void ApplicationSettingsPage::pickColor() {
-  QPalette pal = ui->glowColorLabel->palette();
   QColor color =
-      QColorDialog::getColor(pal.window().color(), this, tr("Colors"),
+      QColorDialog::getColor(ui->glowColorLabel->getColor(), this, tr("Colors"),
                              QColorDialog::ColorDialogOption::ShowAlphaChannel);
-  if (!color.isValid() || color == pal.window().color()) return;
-  ui->glowColorLabel->setStyleSheet(setStyleSheetString(color));
+  if (!color.isValid() || color == ui->glowColorLabel->getColor()) return;
+  ui->glowColorLabel->setColor(color);
 }
 
 void ApplicationSettingsPage::pickApplicationFont() {
@@ -200,21 +192,6 @@ void ApplicationSettingsPage::pickApplicationFont() {
   ui->fontvalueLabel->setText(QString("%1 %2")
                                   .arg(applicationfont_.family())
                                   .arg(applicationfont_.pointSize()));
-}
-
-QString ApplicationSettingsPage::setStyleSheetString(const QColor &color) {
-  QString stylesheetstring =
-      "QLabel:!disabled{background : rgba(%1,%2, %3, %4); border: 1px solid "
-      "rgba(%5, %6, %7, %8);}";
-  QColor bordercolor = qApp->palette().windowText().color();
-  return stylesheetstring.arg(color.red())
-      .arg(color.green())
-      .arg(color.blue())
-      .arg(color.alpha())
-      .arg(bordercolor.red())
-      .arg(bordercolor.green())
-      .arg(bordercolor.blue())
-      .arg(bordercolor.alpha());
 }
 
 void ApplicationSettingsPage::insertLanguagesList() {

@@ -6,9 +6,7 @@
 #include "core/IconLoader.h"
 #include "globals.h"
 #include "ui_TableColorSettings.h"
-
-const int TableColorSettings::btn_size = 24;
-const int TableColorSettings::lbl_line_width = 1;
+#include "widgets/ColorLabel.h"
 
 TableColorSettings::TableColorSettings(SettingsDialog *dialog)
     : SettingsPage(dialog), ui(new Ui_TableColorSettings) {
@@ -27,15 +25,15 @@ TableColorSettings::TableColorSettings(SettingsDialog *dialog)
   ui->scrollArea->setVerticalScrollBarPolicy(
       Qt::ScrollBarPolicy::ScrollBarAsNeeded);
   ui->customColorGroupBox->setCheckable(true);
-  setupColorLabel(ui->columnxColorLabel, ui->columnxColorButton);
-  setupColorLabel(ui->columnyColorLabel, ui->columnyColorButton);
-  setupColorLabel(ui->columnzColorLabel, ui->columnzColorButton);
-  setupColorLabel(ui->columnxerrColorLabel, ui->columnxerrColorButton);
-  setupColorLabel(ui->columnyerrColorLabel, ui->columnyerrColorButton);
-  setupColorLabel(ui->noneColorLabel, ui->noneColorButton);
-  setupColorLabel(ui->backgroundColorLabel, ui->backgroundColorButton);
-  setupColorLabel(ui->textColorLabel, ui->textColorButton);
-  setupColorLabel(ui->labelColorLabel, ui->labelColorButton);
+  setupColorButton(ui->columnxColorButton);
+  setupColorButton(ui->columnyColorButton);
+  setupColorButton(ui->columnzColorButton);
+  setupColorButton(ui->columnxerrColorButton);
+  setupColorButton(ui->columnyerrColorButton);
+  setupColorButton(ui->noneColorButton);
+  setupColorButton(ui->backgroundColorButton);
+  setupColorButton(ui->textColorButton);
+  setupColorButton(ui->labelColorButton);
   connect(ui->applyPushButton, &QPushButton::clicked, this,
           &TableColorSettings::Save);
   connect(ui->resetPushButton, &QPushButton::clicked, this,
@@ -67,38 +65,29 @@ TableColorSettings::~TableColorSettings() { delete ui; }
 
 void TableColorSettings::Load() {
   loadQsettingsValues();
-  ui->columnxColorLabel->setStyleSheet(setStyleSheetString(xColorCode_));
-  ui->columnyColorLabel->setStyleSheet(setStyleSheetString(yColorCode_));
-  ui->columnzColorLabel->setStyleSheet(setStyleSheetString(zColorCode_));
-  ui->columnxerrColorLabel->setStyleSheet(setStyleSheetString(xErrColorCode_));
-  ui->columnyerrColorLabel->setStyleSheet(setStyleSheetString(yErrColorCode_));
-  ui->noneColorLabel->setStyleSheet(setStyleSheetString(noneColorCode_));
+  ui->columnxColorLabel->setColor(xColorCode_);
+  ui->columnyColorLabel->setColor(yColorCode_);
+  ui->columnzColorLabel->setColor(zColorCode_);
+  ui->columnxerrColorLabel->setColor(xErrColorCode_);
+  ui->columnyerrColorLabel->setColor(yErrColorCode_);
+  ui->noneColorLabel->setColor(noneColorCode_);
   ui->customColorGroupBox->setChecked(customColor_);
-  ui->backgroundColorLabel->setStyleSheet(setStyleSheetString(bkgdColor_));
-  ui->textColorLabel->setStyleSheet(setStyleSheetString(textColor_));
-  ui->labelColorLabel->setStyleSheet(setStyleSheetString(labelColor_));
+  ui->backgroundColorLabel->setColor(bkgdColor_);
+  ui->textColorLabel->setColor(textColor_);
+  ui->labelColorLabel->setColor(labelColor_);
 }
 
 void TableColorSettings::LoadDefault() {
-  ui->columnxColorLabel->setStyleSheet(
-      setStyleSheetString(QColor(0, 172, 109, 100)));
-  ui->columnyColorLabel->setStyleSheet(
-      setStyleSheetString(QColor(204, 140, 91, 100)));
-  ui->columnzColorLabel->setStyleSheet(
-      setStyleSheetString(QColor(174, 129, 255, 100)));
-  ui->columnxerrColorLabel->setStyleSheet(
-      setStyleSheetString(QColor(255, 0, 0, 100)));
-  ui->columnyerrColorLabel->setStyleSheet(
-      setStyleSheetString(QColor(255, 0, 0, 100)));
-  ui->noneColorLabel->setStyleSheet(
-      setStyleSheetString(QColor(150, 150, 150, 100)));
+  ui->columnxColorLabel->setColor(QColor(0, 172, 109, 100));
+  ui->columnyColorLabel->setColor(QColor(204, 140, 91, 100));
+  ui->columnzColorLabel->setColor(QColor(174, 129, 255, 100));
+  ui->columnxerrColorLabel->setColor(QColor(255, 0, 0, 100));
+  ui->columnyerrColorLabel->setColor(QColor(255, 0, 0, 100));
+  ui->noneColorLabel->setColor(QColor(150, 150, 150, 100));
   ui->customColorGroupBox->setChecked(false);
-  ui->backgroundColorLabel->setStyleSheet(
-      setStyleSheetString(qApp->palette().color(QPalette::Base)));
-  ui->textColorLabel->setStyleSheet(
-      setStyleSheetString(qApp->palette().color(QPalette::Text)));
-  ui->labelColorLabel->setStyleSheet(
-      setStyleSheetString(qApp->palette().color(QPalette::Text)));
+  ui->backgroundColorLabel->setColor(qApp->palette().color(QPalette::Base));
+  ui->textColorLabel->setColor(qApp->palette().color(QPalette::Text));
+  ui->labelColorLabel->setColor(qApp->palette().color(QPalette::Text));
 }
 
 void TableColorSettings::Save() {
@@ -106,24 +95,24 @@ void TableColorSettings::Save() {
   settings.beginGroup("Tables");
   settings.beginGroup("ColumnColorIndicator");
   settings.setValue("xColorCode",
-                    ui->columnxColorLabel->palette().window().color());
+                    ui->columnxColorLabel->getColor());
   settings.setValue("yColorCode",
-                    ui->columnyColorLabel->palette().window().color());
+                    ui->columnyColorLabel->getColor());
   settings.setValue("zColorCode",
-                    ui->columnzColorLabel->palette().window().color());
+                    ui->columnzColorLabel->getColor());
   settings.setValue("xErrColorCode",
-                    ui->columnxerrColorLabel->palette().window().color());
+                    ui->columnxerrColorLabel->getColor());
   settings.setValue("yErrColorCode",
-                    ui->columnyerrColorLabel->palette().window().color());
+                    ui->columnyerrColorLabel->getColor());
   settings.setValue("noneColorCode",
-                    ui->noneColorLabel->palette().window().color());
+                    ui->noneColorLabel->getColor());
   settings.endGroup();  // ColumnColorIndicator
   settings.beginGroup("Colors");
   settings.setValue("Custom", ui->customColorGroupBox->isChecked());
   settings.setValue("Background",
-                    ui->backgroundColorLabel->palette().window().color());
-  settings.setValue("Text", ui->textColorLabel->palette().window().color());
-  settings.setValue("Header", ui->labelColorLabel->palette().window().color());
+                    ui->backgroundColorLabel->getColor());
+  settings.setValue("Text", ui->textColorLabel->getColor());
+  settings.setValue("Header", ui->labelColorLabel->getColor());
   settings.endGroup();  // Colors
   settings.endGroup();
 
@@ -133,36 +122,32 @@ void TableColorSettings::Save() {
 bool TableColorSettings::settingsChangeCheck() {
   loadQsettingsValues();
   bool result = true;
-  if (xColorCode_ != ui->columnxColorLabel->palette().window().color() ||
-      yColorCode_ != ui->columnyColorLabel->palette().window().color() ||
-      zColorCode_ != ui->columnzColorLabel->palette().window().color() ||
-      xErrColorCode_ != ui->columnxerrColorLabel->palette().window().color() ||
-      yErrColorCode_ != ui->columnyerrColorLabel->palette().window().color() ||
-      noneColorCode_ != ui->noneColorLabel->palette().window().color() ||
+  if (xColorCode_ != ui->columnxColorLabel->getColor() ||
+      yColorCode_ != ui->columnyColorLabel->getColor() ||
+      zColorCode_ != ui->columnzColorLabel->getColor() ||
+      xErrColorCode_ != ui->columnxerrColorLabel->getColor() ||
+      yErrColorCode_ != ui->columnyerrColorLabel->getColor() ||
+      noneColorCode_ != ui->noneColorLabel->getColor() ||
       customColor_ != ui->customColorGroupBox->isChecked() ||
-      bkgdColor_ != ui->backgroundColorLabel->palette().window().color() ||
-      textColor_ != ui->textColorLabel->palette().window().color() ||
-      labelColor_ != ui->labelColorLabel->palette().window().color()) {
+      bkgdColor_ != ui->backgroundColorLabel->getColor() ||
+      textColor_ != ui->textColorLabel->getColor() ||
+      labelColor_ != ui->labelColorLabel->getColor()) {
     result = settingsChanged();
   }
   return result;
 }
 
-void TableColorSettings::setupColorLabel(QLabel *label, QToolButton *button) {
-  label->setFixedSize(btn_size, btn_size);
-  (label->height() > label->width()) ? label->setFixedWidth(label->height())
-                                     : label->setFixedHeight(label->width());
+void TableColorSettings::setupColorButton(QToolButton *button) {
   button->setIcon(IconLoader::load("color-management", IconLoader::General));
   button->setStyleSheet("QToolButton {border: 0px;}");
 }
 
-void TableColorSettings::pickColor(QLabel *label) {
-  QPalette pal = label->palette();
+void TableColorSettings::pickColor(ColorLabel *label) {
   QColor color =
-      QColorDialog::getColor(pal.window().color(), this, tr("Colors"),
+      QColorDialog::getColor(label->getColor(), this, tr("Colors"),
                              QColorDialog::ColorDialogOption::ShowAlphaChannel);
-  if (!color.isValid() || color == pal.window().color()) return;
-  label->setStyleSheet(setStyleSheetString(color));
+  if (!color.isValid() || color == label->getColor()) return;
+  label->setColor(color);
 }
 
 void TableColorSettings::loadQsettingsValues() {
@@ -193,19 +178,4 @@ void TableColorSettings::loadQsettingsValues() {
                     .value<QColor>();
   settings.endGroup();  // Colors
   settings.endGroup();
-}
-
-QString TableColorSettings::setStyleSheetString(const QColor &color) {
-  QString stylesheetstring =
-      "QLabel:!disabled{background : rgba(%1,%2, %3, %4); border: 1px solid "
-      "rgba(%5, %6, %7, %8);}";
-  QColor bordercolor = qApp->palette().windowText().color();
-  return stylesheetstring.arg(color.red())
-      .arg(color.green())
-      .arg(color.blue())
-      .arg(color.alpha())
-      .arg(bordercolor.red())
-      .arg(bordercolor.green())
-      .arg(bordercolor.blue())
-      .arg(bordercolor.alpha());
 }

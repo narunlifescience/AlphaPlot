@@ -102,7 +102,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="panelColorLabel">
+             <widget class="ColorLabel" name="panelColorLabel">
               <property name="text">
                <string/>
               </property>
@@ -140,7 +140,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="paneltextColorLabel">
+             <widget class="ColorLabel" name="paneltextColorLabel">
               <property name="text">
                <string/>
               </property>
@@ -178,7 +178,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="workspaceColorLabel">
+             <widget class="ColorLabel" name="workspaceColorLabel">
               <property name="text">
                <string/>
               </property>
@@ -495,6 +495,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ColorLabel</class>
+   <extends>QLabel</extends>
+   <header>../widgets/ColorLabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

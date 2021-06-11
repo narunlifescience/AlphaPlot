@@ -1,5 +1,6 @@
 #include "TableBasicSettings.h"
 
+#include <QDebug>
 #include <QSettings>
 
 #include "core/IconLoader.h"
@@ -60,8 +61,8 @@ void TableBasicSettings::Save() {
   settings.beginGroup("ImportASCII");
   settings.setValue("ColumnSeparator",
                     ui->columnSeparatorComboBox->currentText()
-                        .replace("\\t", "\t")
-                        .replace("\\s", " "));
+                        .replace(tr("TAB"), "\t")
+                        .replace(tr("SPACE"), " "));
   settings.endGroup();
 
   emit tablebasicsettingsupdate();
@@ -72,8 +73,9 @@ bool TableBasicSettings::settingsChangeCheck() {
   bool result = true;
   if (show_table_comments_ != ui->commentsCheckBox->isChecked() ||
       columnseparator_ != ui->columnSeparatorComboBox->currentText()
-                              .replace("\\t", "\t")
-                              .replace("\\s", " ")) {
+                              .replace(tr("TAB"), "\t")
+                              .replace(tr("SPACE"), " ")) {
+    qDebug() << columnseparator_ << ui->columnSeparatorComboBox->currentText();
     result = settingsChanged();
   }
   return result;
@@ -86,7 +88,7 @@ void TableBasicSettings::loadQsettingsValues() {
   settings.endGroup();
   settings.beginGroup("ImportASCII");
   columnseparator_ = settings.value("ColumnSeparator", "\\t").toString();
-  columnseparator_.replace("\\t", "\t").replace("\\s", " ");
+  columnseparator_.replace(tr("TAB"), "\t").replace(tr("SPACE"), " ");
   settings.endGroup();
 }
 

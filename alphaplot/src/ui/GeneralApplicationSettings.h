@@ -24,7 +24,6 @@ class ApplicationSettingsPage : public SettingsPage {
   void loadQsettingsValues();
   void pickColor();
   void pickApplicationFont();
-  QString setStyleSheetString(const QColor &color);
   void insertLanguagesList();
   Ui_ApplicationSettingsPage *ui;
   bool glowstatus_;
@@ -37,7 +36,6 @@ class ApplicationSettingsPage : public SettingsPage {
   int undolimit_;
   QFont applicationfont_;
   bool autosearchupdates_;
-  static const int btn_size;
 };
 
 #endif  // APPLICATIONSETTINGSPAGE_H

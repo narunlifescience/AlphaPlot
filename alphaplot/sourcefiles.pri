@@ -10,6 +10,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/core/Utilities.h \
             src/core/widgets/MyTreeWidget.h \
             src/core/widgets/propertyeditor.h \
+            src/widgets/ColorLabel.h \
             src/globals.h\
             src/scripting/MuParserScript.h \
             src/scripting/MuParserScripting.h \
@@ -106,6 +107,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/core/Utilities.cpp \
             src/core/widgets/MyTreeWidget.cpp \
             src/core/widgets/propertyeditor.cpp \
+            src/widgets/ColorLabel.cpp \
             src/scripting/MuParserScript.cpp \
             src/scripting/MuParserScripting.cpp \
             src/scripting/MyParser.cpp\
