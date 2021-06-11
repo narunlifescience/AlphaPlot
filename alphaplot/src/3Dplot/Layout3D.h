@@ -44,7 +44,7 @@ class Layout3D : public MyWidget {
   QSize getContainerSize() const;
   Graph3DCommon::Plot3DType getPlotType() const;
   void load(XmlStreamReader *xmlreader, QList<Table *> tabs,
-            QList<Matrix *> mats);
+            QList<Matrix *> mats, bool setname = true);
   void loadCanvas(XmlStreamReader *xmlreader);
   void loadTheme(XmlStreamReader *xmlreader);
   void loadValueAxis(XmlStreamReader *xmlreader);
@@ -55,12 +55,13 @@ class Layout3D : public MyWidget {
   void saveValueAxis(XmlStreamWriter *xmlwriter, QValue3DAxis *axis);
   void saveCategoryAxis(XmlStreamWriter *xmlwriter, QCategory3DAxis *axis);
   QList<MyWidget *> dependentTableMatrix();
+  void copy(Layout3D *layout, QList<Table *> tables, QList<Matrix *> matrixs);
 
  signals:
   void dataAdded(MyWidget *mywidget);
 
  private:
-  Graph3DCommon::Plot3DType plottype_;
+  const Graph3DCommon::Plot3DType plottype_;
   QWidget *main_widget_;
   Q3DSurface *graph3dsurface_;
   Q3DBars *graph3dbars_;

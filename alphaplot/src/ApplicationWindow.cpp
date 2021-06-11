@@ -135,6 +135,7 @@
 #include "3Dplot/Scatter3D.h"
 #include "3Dplot/Surface3D.h"
 #include "core/widgets/propertyeditor.h"
+#include "future/lib/XmlStreamWriter.h"
 #include "scripting/ScriptingFunctions.h"
 #include "scripting/ScriptingLangDialog.h"
 #include "scripting/widgets/ConsoleWidget.h"
@@ -5316,16 +5317,16 @@ void ApplicationWindow::cutSelection() {
 
 void ApplicationWindow::pasteSelection() {
   if (!d_workspace->activeSubWindow()) return;
-  MyWidget *m = qobject_cast<MyWidget *>(d_workspace->activeSubWindow());
-  if (!m) return;
+  MyWidget *widget = qobject_cast<MyWidget *>(d_workspace->activeSubWindow());
+  if (!widget) return;
 
-  if (isActiveSubWindow(m, SubWindowType::TableSubWindow))
-    qobject_cast<Table *>(m)->pasteSelection();
-  else if (isActiveSubWindow(m, SubWindowType::MatrixSubWindow))
-    qobject_cast<Matrix *>(m)->pasteSelection();
-  else if (isActiveSubWindow(m, SubWindowType::NoteSubWindow))
-    qobject_cast<Note *>(m)->textWidget()->paste();
-  else if (isActiveSubWindow(m, SubWindowType::Plot2DSubWindow)) {
+  if (isActiveSubWindow(widget, SubWindowType::TableSubWindow))
+    qobject_cast<Table *>(widget)->pasteSelection();
+  else if (isActiveSubWindow(widget, SubWindowType::MatrixSubWindow))
+    qobject_cast<Matrix *>(widget)->pasteSelection();
+  else if (isActiveSubWindow(widget, SubWindowType::NoteSubWindow))
+    qobject_cast<Note *>(widget)->textWidget()->paste();
+  else if (isActiveSubWindow(widget, SubWindowType::Plot2DSubWindow)) {
     // QMessageBox::warning(this, tr("Error"), tr("Cannot use this on
     // Graph2D!")); resizing subwindows unintentionally activate this for some
     // unknown reason issue #19
@@ -5338,57 +5339,66 @@ void ApplicationWindow::pasteSelection() {
 
 MyWidget *ApplicationWindow::clone() {
   if (!d_workspace->activeSubWindow()) return nullptr;
-  MyWidget *w = qobject_cast<MyWidget *>(d_workspace->activeSubWindow());
-  if (!w) {
+  MyWidget *widget = qobject_cast<MyWidget *>(d_workspace->activeSubWindow());
+  if (!widget) {
     QMessageBox::critical(
         this, tr("Duplicate window error"),
         tr("There are no windows available in this project!"));
     return nullptr;
   }
 
-  return clone(w);
+  return clone(widget);
 }
 
-MyWidget *ApplicationWindow::clone(MyWidget *w) {
-  if (!w) return nullptr;
+MyWidget *ApplicationWindow::clone(MyWidget *widget) {
+  if (!widget) return nullptr;
 
-  MyWidget *nw = nullptr;
+  MyWidget *newWidget = nullptr;
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-  if (isActiveSubWindow(w, SubWindowType::Plot2DSubWindow)) {
-    QMessageBox::warning(
-        this, tr("Duplicate window error"),
-        tr("Plot2D windows cannot be duplicated! (not implimented yet)"));
-  } else if (isActiveSubWindow(w, SubWindowType::TableSubWindow)) {
-    Table *t = qobject_cast<Table *>(w);
+  if (isActiveSubWindow(widget, SubWindowType::Plot2DSubWindow)) {
+    Layout2D *layout = newGraph2D(qobject_cast<Layout2D *>(widget)->name());
+    layout->copy(qobject_cast<Layout2D *>(widget), aprojhandler_->tables(this),
+                 aprojhandler_->matrixs(this));
+    newWidget = layout;
+  } else if (isActiveSubWindow(widget, SubWindowType::TableSubWindow)) {
+    Table *t = qobject_cast<Table *>(widget);
     QString caption = generateUniqueName(tr("Table"));
-    nw = newTable(caption, t->numRows(), t->numCols());
-    qobject_cast<Table *>(nw)->copy(t);
-  } else if (isActiveSubWindow(w, SubWindowType::Plot3DSubWindow)) {
-  } else if (isActiveSubWindow(w, SubWindowType::MatrixSubWindow)) {
-    nw = newMatrix(qobject_cast<Matrix *>(w)->numRows(),
-                   qobject_cast<Matrix *>(w)->numCols());
-    qobject_cast<Matrix *>(nw)->copy(qobject_cast<Matrix *>(w));
-  } else if (isActiveSubWindow(w, SubWindowType::NoteSubWindow)) {
-    nw = newNote();
-    if (nw) qobject_cast<Note *>(nw)->setText(qobject_cast<Note *>(w)->text());
+    newWidget = newTable(caption, t->numRows(), t->numCols());
+    qobject_cast<Table *>(newWidget)->copy(t);
+  } else if (isActiveSubWindow(widget, SubWindowType::Plot3DSubWindow)) {
+    Layout3D *layout =
+        newGraph3D(qobject_cast<Layout3D *>(widget)->getPlotType(),
+                   qobject_cast<Layout3D *>(widget)->name());
+    layout->copy(qobject_cast<Layout3D *>(widget), aprojhandler_->tables(this),
+                 aprojhandler_->matrixs(this));
+    newWidget = layout;
+  } else if (isActiveSubWindow(widget, SubWindowType::MatrixSubWindow)) {
+    newWidget = newMatrix(qobject_cast<Matrix *>(widget)->numRows(),
+                          qobject_cast<Matrix *>(widget)->numCols());
+    qobject_cast<Matrix *>(newWidget)->copy(qobject_cast<Matrix *>(widget));
+  } else if (isActiveSubWindow(widget, SubWindowType::NoteSubWindow)) {
+    newWidget = newNote();
+    if (newWidget)
+      qobject_cast<Note *>(newWidget)->setText(
+          qobject_cast<Note *>(widget)->text());
   }
 
-  if (nw) {
-    if (isActiveSubWindow(w, SubWindowType::Plot2DSubWindow)) {
-      if (w->status() == MyWidget::Maximized) nw->showMaximized();
-    } else if (isActiveSubWindow(w, SubWindowType::Plot3DSubWindow)) {
+  if (newWidget) {
+    if (isActiveSubWindow(widget, SubWindowType::Plot2DSubWindow)) {
+      if (widget->status() == MyWidget::Maximized) newWidget->showMaximized();
+    } else if (isActiveSubWindow(widget, SubWindowType::Plot3DSubWindow)) {
     } else {
-      nw->resize(w->size());
-      nw->showNormal();
+      newWidget->resize(widget->size());
+      newWidget->showNormal();
     }
 
-    nw->setWindowLabel(w->windowLabel());
-    nw->setCaptionPolicy(w->captionPolicy());
-    setListViewLabel(nw->name(), w->windowLabel());
+    newWidget->setWindowLabel(widget->windowLabel());
+    newWidget->setCaptionPolicy(widget->captionPolicy());
+    setListViewLabel(newWidget->name(), widget->windowLabel());
   }
   QApplication::restoreOverrideCursor();
-  return nw;
+  return newWidget;
 }
 
 void ApplicationWindow::undo() {
@@ -8418,6 +8428,7 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
         depend_menu.addAction(widget->name(), this,
                               SLOT(setActiveWindowFromAction()));
       }
+      cm.addAction(ui_->actionArrangeLayout);
       cm.addMenu(&depend_menu);
     }
   }

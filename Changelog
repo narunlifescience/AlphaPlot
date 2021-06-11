@@ -18,6 +18,9 @@
 * add 3D polar plot options and a 2D polar spectrogram with camera position on top
 * 2D axis from to precision setting based on axis tick precision
 * add symbol/glyph browser
+* new settings dialog
+* duplicate plot2D and plot3D windows
+* swap plot2D layouts
 
 === 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
 * multipeak fitting fixed

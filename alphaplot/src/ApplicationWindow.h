@@ -442,7 +442,7 @@ class ApplicationWindow : public QMainWindow,
   //! \name MDI Windows
   //@{
   MyWidget* clone();
-  MyWidget* clone(MyWidget*);
+  MyWidget* clone(MyWidget*widget);
 
   //!  Called when the user presses F2 and an item is selected in lv.
   void renameWindow(QTreeWidgetItem* item, int, const QString& text);

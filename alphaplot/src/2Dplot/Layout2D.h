@@ -92,9 +92,10 @@ class Layout2D : public MyWidget {
   void print();
   void save(XmlStreamWriter *xmlwriter, const bool saveastemplate = false);
   bool load(XmlStreamReader *xmlreader, QList<Table *> tabs,
-            QList<Matrix *> mats);
+            QList<Matrix *> mats, bool setname = true);
   void loadIcons();
   void setLayoutButtonBoxVisible(const bool value);
+  void copy(Layout2D *layout, QList<Table *> tables, QList<Matrix *> matrixs);
 
  public slots:
   bool exportGraph();

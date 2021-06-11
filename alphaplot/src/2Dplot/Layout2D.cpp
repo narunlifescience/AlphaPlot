@@ -31,6 +31,7 @@
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"
 #include "future/core/datatypes/DateTime2StringFilter.h"
+#include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 #include "plotcommon/widgets/ImageExportDialog.h"
 #include "widgets/LayoutButton2D.h"
@@ -1863,13 +1864,13 @@ void Layout2D::print() {
             int plotHeight = plot2dCanvas_->viewport().height();
             // double scale = pageRect.width() / static_cast<double>(plotWidth);
 
-            //painter->setMode(QCPPainter::pmDefault, true);
+            // painter->setMode(QCPPainter::pmDefault, true);
             painter->setMode(QCPPainter::pmNonCosmetic, true);
             painter->setMode(QCPPainter::pmNoCaching, true);
             // comment this out if you want cosmetic thin lines (always 1 pixel
             // thick independent of pdf zoom level)
             // painter.setMode(QCPPainter::pmNonCosmetic);
-            //painter->scale(scale, scale);
+            // painter->scale(scale, scale);
             currentAxisRect_->setPrintorExportJob(true);
             plot2dCanvas_->toPainter(painter.get(), plotWidth, plotHeight);
             currentAxisRect_->setPrintorExportJob(false);
@@ -1909,7 +1910,7 @@ void Layout2D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
 }
 
 bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
-                    QList<Matrix *> mats) {
+                    QList<Matrix *> mats, bool setname) {
   if (xmlreader->isStartElement() && xmlreader->name() == "plot2d") {
     bool ok = false;
 
@@ -1948,10 +1949,12 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
       xmlreader->raiseWarning(tr("Invalid caption policy or read error."));
     // read name
     QString name = xmlreader->readAttributeString("name", &ok);
-    if (ok) {
-      setName(name);
-    } else
-      xmlreader->raiseWarning(tr("Layout2D name missing or empty"));
+    if (setname) {
+      if (ok) {
+        setName(name);
+      } else
+        xmlreader->raiseWarning(tr("Layout2D name missing or empty"));
+    }
 
     // read label
     QString label = xmlreader->readAttributeString("label", &ok);
@@ -2092,6 +2095,38 @@ void Layout2D::setLayoutButtonBoxVisible(const bool value) {
     addLayoutButton_->setHidden(true);
     removeLayoutButton_->setHidden(true);
   }
+}
+
+void Layout2D::copy(Layout2D *layout, QList<Table *> tables,
+                    QList<Matrix *> matrixs) {
+  std::unique_ptr<QTemporaryFile> file =
+      std::unique_ptr<QTemporaryFile>(new QTemporaryFile("temp"));
+  if (!file->open()) {
+    qDebug() << "failed to open xml file for writing";
+    return;
+  }
+  std::unique_ptr<XmlStreamWriter> xmlwriter =
+      std::unique_ptr<XmlStreamWriter>(new XmlStreamWriter(file.get()));
+  xmlwriter->setCodec("UTF-8");
+  xmlwriter->setAutoFormatting(false);
+  layout->save(xmlwriter.get());
+  file->close();
+  if (!file->open()) {
+    qDebug() << "failed to read xml file for writing";
+    return;
+  }
+  std::unique_ptr<XmlStreamReader> xmlreader =
+      std::unique_ptr<XmlStreamReader>(new XmlStreamReader(file.get()));
+
+  QXmlStreamReader::TokenType token;
+  while (!xmlreader->atEnd()) {
+    token = xmlreader->readNext();
+    if (token == QXmlStreamReader::StartElement &&
+        xmlreader->name() == "plot2d") {
+      load(xmlreader.get(), tables, matrixs, false);
+    }
+  }
+  file->close();
 }
 
 AxisRect2D *Layout2D::addAxisRectWithAxis() {

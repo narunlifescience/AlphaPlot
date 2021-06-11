@@ -275,7 +275,7 @@ QSize Layout3D::getContainerSize() const { return main_widget_->size(); }
 Graph3DCommon::Plot3DType Layout3D::getPlotType() const { return plottype_; }
 
 void Layout3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
-                    QList<Matrix *> mats) {
+                    QList<Matrix *> mats, bool setname) {
   if (xmlreader->isStartElement() && xmlreader->name() == "plot3d") {
     bool ok = false;
 
@@ -316,10 +316,12 @@ void Layout3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
 
     // read name
     QString name = xmlreader->readAttributeString("name", &ok);
-    if (ok) {
-      setName(name);
-    } else
-      xmlreader->raiseWarning(tr("Layout3D name missing or empty"));
+    if (setname) {
+      if (ok) {
+        setName(name);
+      } else
+        xmlreader->raiseWarning(tr("Layout3D name missing or empty"));
+    }
 
     // read label
     QString label = xmlreader->readAttributeString("label", &ok);
@@ -954,4 +956,36 @@ QList<MyWidget *> Layout3D::dependentTableMatrix() {
     } break;
   }
   return dependeon;
+}
+
+void Layout3D::copy(Layout3D *layout, QList<Table *> tables,
+                    QList<Matrix *> matrixs) {
+  std::unique_ptr<QTemporaryFile> file =
+      std::unique_ptr<QTemporaryFile>(new QTemporaryFile("temp"));
+  if (!file->open()) {
+    qDebug() << "failed to open xml file for writing";
+    return;
+  }
+  std::unique_ptr<XmlStreamWriter> xmlwriter =
+      std::unique_ptr<XmlStreamWriter>(new XmlStreamWriter(file.get()));
+  xmlwriter->setCodec("UTF-8");
+  xmlwriter->setAutoFormatting(false);
+  layout->save(xmlwriter.get());
+  file->close();
+  if (!file->open()) {
+    qDebug() << "failed to read xml file for writing";
+    return;
+  }
+  std::unique_ptr<XmlStreamReader> xmlreader =
+      std::unique_ptr<XmlStreamReader>(new XmlStreamReader(file.get()));
+
+  QXmlStreamReader::TokenType token;
+  while (!xmlreader->atEnd()) {
+    token = xmlreader->readNext();
+    if (token == QXmlStreamReader::StartElement &&
+        xmlreader->name() == "plot3d") {
+      load(xmlreader.get(), tables, matrixs);
+    }
+  }
+  file->close();
 }
