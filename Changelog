@@ -22,6 +22,7 @@
 * duplicate plot2D and plot3D windows
 * swap plot2D layouts
 * optional legend title
+* center plot on print plot2D 
 
 === 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
 * multipeak fitting fixed

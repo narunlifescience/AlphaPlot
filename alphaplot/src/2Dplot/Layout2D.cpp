@@ -1867,7 +1867,6 @@ void Layout2D::print() {
           new QPrintPreviewDialog(printer.get(), this));
   connect(previewDialog.get(), &QPrintPreviewDialog::paintRequested,
           [=](QPrinter *printer) {
-            printer->setPageSize(QPrinter::A4);
             printer->setColorMode(QPrinter::Color);
             std::unique_ptr<QCPPainter> painter =
                 std::unique_ptr<QCPPainter>(new QCPPainter(printer));
@@ -1880,6 +1879,18 @@ void Layout2D::print() {
             // painter->setMode(QCPPainter::pmDefault, true);
             painter->setMode(QCPPainter::pmNonCosmetic, true);
             painter->setMode(QCPPainter::pmNoCaching, true);
+
+            QPointF point = QPointF((printer->pageLayout()
+                                         .paintRectPixels(printer->resolution())
+                                         .width() /
+                                     2) -
+                                        (plotWidth / 2),
+                                    (printer->pageLayout()
+                                         .paintRectPixels(printer->resolution())
+                                         .height() /
+                                     2) -
+                                        (plotHeight / 2));
+            painter->translate(point);
             // comment this out if you want cosmetic thin lines (always 1 pixel
             // thick independent of pdf zoom level)
             // painter.setMode(QCPPainter::pmNonCosmetic);
