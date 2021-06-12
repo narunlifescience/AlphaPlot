@@ -14,7 +14,8 @@ using namespace QtDataVisualization;
 Surface3D::Surface3D(Q3DSurface *surface)
     : graph_(surface),
       plotType_(QSurface3DSeries::DrawFlag::DrawSurfaceAndWireframe),
-      data_(QVector<DataBlockSurface3D *>()) {
+      data_(QVector<DataBlockSurface3D *>()),
+      counter_(0) {
   graph_->setAxisX(new QValue3DAxis);
   graph_->setAxisY(new QValue3DAxis);
   graph_->setAxisZ(new QValue3DAxis);
@@ -201,6 +202,7 @@ void Surface3D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
 void Surface3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
                      QList<Matrix *> mats) {
   while (!xmlreader->atEnd()) {
+    if (xmlreader->isEndElement() && xmlreader->name() == "surface") break;
     xmlreader->readNext();
     if (xmlreader->isEndElement() && xmlreader->name() == "surface") break;
     if (xmlreader->isStartElement() && xmlreader->name() == "surface") {
@@ -274,8 +276,286 @@ void Surface3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         graph_->setPolar(polar);
       else
         xmlreader->raiseWarning("Surface3D polar property setting error");
+
+      counter_ = 0;
+      loadplot(xmlreader, tabs, mats);
     }
   }
+}
+
+void Surface3D::loadplot(XmlStreamReader *xmlreader, QList<Table *> tabs,
+                         QList<Matrix *> mats) {
+  while (!xmlreader->atEnd()) {
+    if (xmlreader->isEndElement() && xmlreader->name() == "plot") break;
+    xmlreader->readNext();
+    if (xmlreader->isEndElement() && xmlreader->name() == "plot") break;
+    bool ok = false;
+    // data
+    QString data = xmlreader->readAttributeString("data", &ok);
+    if (!ok) xmlreader->raiseError("Surface3D data property setting error");
+
+    bool loadseries = false;
+    // matrix data
+    if (data == "matrix") {
+      Matrix *matrix = nullptr;
+      QString matname = xmlreader->readAttributeString("matrix", &ok);
+      if (ok) {
+        matrix = getMatrixByName(mats, matname);
+      } else
+        xmlreader->raiseError(tr("Surface3D Matrix not found error"));
+      if (matrix) {
+        setmatrixdatamodel(matrix);
+        loadseries = true;
+      }
+      // Table data
+    } else if (data == "table") {
+      Table *table = nullptr;
+      Column *xcolumn = nullptr;
+      Column *ycolumn = nullptr;
+      Column *zcolumn = nullptr;
+      QString tablename = xmlreader->readAttributeString("table", &ok);
+      if (ok) {
+        table = getTableByName(tabs, tablename);
+      } else
+        xmlreader->raiseError(tr("Surface3D Table not found error"));
+      QString xcolname = xmlreader->readAttributeString("xcolumn", &ok);
+      if (ok) {
+        (table) ? xcolumn = table->column(xcolname) : xcolumn = nullptr;
+      } else
+        xmlreader->raiseWarning(tr("Surface3D Table X column not found error"));
+      QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
+      if (ok) {
+        (table) ? ycolumn = table->column(ycolname) : ycolumn = nullptr;
+      } else
+        xmlreader->raiseWarning(tr("Surface3D Table Y column not found error"));
+      QString zcolname = xmlreader->readAttributeString("zcolumn", &ok);
+      if (ok) {
+        (table) ? zcolumn = table->column(zcolname) : zcolumn = nullptr;
+      } else
+        xmlreader->raiseWarning(tr("Surface3D Table Z column not found error"));
+      if (table && xcolumn && ycolumn && zcolumn) {
+        qDebug() << "table is not a valid data structure for Surface3D";
+        loadseries = false;
+      }
+    } else if (data == "function") {
+      bool funcstatus = false;
+      bool xlstatus = false;
+      bool xustatus = false;
+      bool ylstatus = false;
+      bool yustatus = false;
+      bool zlstatus = false;
+      bool zustatus = false;
+      bool xpointstatus = false;
+      bool ypointstatus = false;
+
+      // function
+      QString func = xmlreader->readAttributeString("function", &ok);
+      if (ok)
+        funcstatus = true;
+      else
+        xmlreader->raiseWarning(tr("Surface3D function not found error"));
+
+      // xl
+      double xl = xmlreader->readAttributeDouble("xl", &ok);
+      if (ok)
+        xlstatus = true;
+      else
+        xmlreader->raiseWarning(tr("Surface3D xl not found error"));
+
+      // xu
+      double xu = xmlreader->readAttributeDouble("xu", &ok);
+      if (ok)
+        xustatus = true;
+      else
+        xmlreader->raiseWarning(tr("Surface3D xu not found error"));
+
+      // yl
+      double yl = xmlreader->readAttributeDouble("yl", &ok);
+      if (ok)
+        ylstatus = true;
+      else
+        xmlreader->raiseWarning(tr("Surface3D yl not found error"));
+
+      // yu
+      double yu = xmlreader->readAttributeDouble("yu", &ok);
+      if (ok)
+        yustatus = true;
+      else
+        xmlreader->raiseWarning(tr("Surface3D yu not found error"));
+
+      // zl
+      double zl = xmlreader->readAttributeDouble("zl", &ok);
+      if (ok)
+        zlstatus = true;
+      else
+        xmlreader->raiseWarning(tr("Surface3D zl not found error"));
+
+      // zu
+      double zu = xmlreader->readAttributeDouble("zu", &ok);
+      if (ok)
+        zustatus = true;
+      else
+        xmlreader->raiseWarning(tr("Surface3D zu not found error"));
+
+      // xpoints
+      int xpoints = xmlreader->readAttributeInt("xpoints", &ok);
+      if (ok)
+        xpointstatus = true;
+      else
+        xmlreader->raiseWarning(tr("Surface3D xpoints not found error"));
+
+      // ypoints
+      int ypoints = xmlreader->readAttributeInt("ypoints", &ok);
+      if (ok)
+        ypointstatus = true;
+      else
+        xmlreader->raiseWarning(tr("Surface3D ypoints not found error"));
+      if (funcstatus && xlstatus && xustatus && ylstatus && yustatus &&
+          zlstatus && zustatus && xpointstatus && ypointstatus) {
+        Graph3DCommon::Function3DData funcdata;
+        funcdata.function = func;
+        funcdata.xl = xl;
+        funcdata.xu = xu;
+        funcdata.yl = yl;
+        funcdata.yu = yu;
+        funcdata.zl = zl;
+        funcdata.zu = zu;
+        funcdata.xpoints = xpoints;
+        funcdata.ypoints = ypoints;
+        /*layout->getSurface3DModifier()->setfunctiondata(
+            generateFunction3ddata(funcdata), funcdata);*/
+        qDebug() << "function is not a valid data structure for Surface3D";
+        loadseries = false;
+      }
+    }
+
+    if (loadseries) {
+      // visible
+      QSurface3DSeries *series = data_.at(counter_)->getdataseries();
+      bool vis = xmlreader->readAttributeBool("visible", &ok);
+      (ok) ? series->setVisible(vis)
+           : xmlreader->raiseWarning(
+                 "Surface3D visible series property setting error");
+
+      // flatshade
+      bool flatshade = xmlreader->readAttributeDouble("flatshading", &ok);
+      (ok) ? series->setFlatShadingEnabled(flatshade)
+           : xmlreader->raiseWarning(
+                 "Surface3D series flatshading property setting error");
+
+      // draw mode
+      QString dmode = xmlreader->readAttributeString("drawmode", &ok);
+      if (ok) {
+        if (dmode == "surface")
+          series->setDrawMode(QSurface3DSeries::DrawFlag::DrawSurface);
+        else if (dmode == "wireframe")
+          series->setDrawMode(QSurface3DSeries::DrawFlag::DrawWireframe);
+        else if (dmode == "surfaceandwireframe")
+          series->setDrawMode(
+              QSurface3DSeries::DrawFlag::DrawSurfaceAndWireframe);
+      } else
+        xmlreader->raiseWarning(
+            "Surface3D drawmode series property setting error");
+
+      // smooth
+      bool smooth = xmlreader->readAttributeBool("meshsmooth", &ok);
+      (ok) ? series->setMeshSmooth(smooth)
+           : xmlreader->raiseWarning(
+                 "Surface3D meshsmooth series property setting error");
+
+      // color style
+      QString colorstyle = xmlreader->readAttributeString("colorstyle", &ok);
+      if (ok) {
+        if (colorstyle == "solidcolor")
+          series->setColorStyle(Q3DTheme::ColorStyle::ColorStyleUniform);
+        else if (colorstyle == "rangegradient")
+          series->setColorStyle(Q3DTheme::ColorStyle::ColorStyleRangeGradient);
+        else if (colorstyle == "objectgradient")
+          series->setColorStyle(Q3DTheme::ColorStyle::ColorStyleObjectGradient);
+      } else
+        xmlreader->raiseWarning(
+            "Surface3D colorstyle series property setting error");
+
+      // gradient
+      QString gradient = xmlreader->readAttributeString("gradientcolor", &ok);
+      if (ok) {
+        if (gradient == "grayscale")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Grayscale);
+        else if (gradient == "hot")
+          data_.at(counter_)->setgradient(series, Graph3DCommon::Gradient::Hot);
+        else if (gradient == "ion")
+          data_.at(counter_)->setgradient(series, Graph3DCommon::Gradient::Ion);
+        else if (gradient == "jet")
+          data_.at(counter_)->setgradient(series, Graph3DCommon::Gradient::Jet);
+        else if (gradient == "bbry")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::BBRY);
+        else if (gradient == "cold")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Cold);
+        else if (gradient == "gyrd")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::GYRD);
+        else if (gradient == "hues")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Hues);
+        else if (gradient == "candy")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Candy);
+        else if (gradient == "night")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Night);
+        else if (gradient == "polar")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Polar);
+        else if (gradient == "thermal")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Thermal);
+        else if (gradient == "spectrum")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Spectrum);
+        else if (gradient == "geography")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Geography);
+      } else
+        xmlreader->raiseWarning(
+            "Surface3D gradient color series property setting error");
+
+      // Solid Color
+      QString solidcolor = xmlreader->readAttributeString("solidcolor", &ok);
+      (ok) ? series->setBaseColor(QColor(solidcolor))
+           : xmlreader->raiseWarning(
+                 "Surface3D series solid color property setting error");
+
+      // Highlight Color
+      QString hcolor = xmlreader->readAttributeString("highlightcolor", &ok);
+      (ok) ? series->setSingleHighlightColor(QColor(hcolor))
+           : xmlreader->raiseWarning(
+                 "Surface3D series highlight color property setting error");
+    }
+  }
+  xmlreader->readNext();
+  if (xmlreader->isStartElement() && xmlreader->name() == "plot") {
+    loadplot(xmlreader, tabs, mats);
+    counter_++;
+  }
+}
+
+Table *Surface3D::getTableByName(QList<Table *> tabs, const QString name) {
+  Table *table = nullptr;
+  foreach (Table *tab, tabs) {
+    if (tab->name() == name) table = tab;
+  }
+  return table;
+}
+
+Matrix *Surface3D::getMatrixByName(QList<Matrix *> mats, const QString name) {
+  Matrix *matrix = nullptr;
+  foreach (Matrix *mat, mats) {
+    if (mat->name() == name) matrix = mat;
+  }
+  return matrix;
 }
 
 void Surface3D::setSurfaceMeshType(const QSurface3DSeries::DrawFlag &type) {

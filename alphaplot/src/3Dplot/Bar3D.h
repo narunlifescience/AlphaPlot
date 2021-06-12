@@ -36,8 +36,13 @@ class Bar3D : public QObject {
   void dataAdded();
 
  private:
+  void loadplot(XmlStreamReader *xmlreader, QList<Table *> tabs,
+                QList<Matrix *> mats);
+  Table *getTableByName(QList<Table *> tabs, const QString name);
+  Matrix *getMatrixByName(QList<Matrix *> mats, const QString name);
   Q3DBars *graph_;
   QVector<DataBlockBar3D *> data_;
+  int counter_;
 };
 
 #endif  // BAR3D_H

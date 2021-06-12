@@ -42,9 +42,14 @@ class Surface3D : public QObject {
   void dataAdded();
 
  private:
+  void loadplot(XmlStreamReader *xmlreader, QList<Table *> tabs,
+                QList<Matrix *> mats);
+  Table *getTableByName(QList<Table *> tabs, const QString name);
+  Matrix *getMatrixByName(QList<Matrix *> mats, const QString name);
   Q3DSurface *graph_;
   QSurface3DSeries::DrawFlag plotType_;
   QVector<DataBlockSurface3D *> data_;
+  int counter_;
 };
 
 #endif  // SURFACE3D_H

@@ -8,7 +8,7 @@
 #include "future/lib/XmlStreamWriter.h"
 
 Scatter3D::Scatter3D(Q3DScatter *scatter)
-    : graph_(scatter), data_(QVector<DataBlockScatter3D *>()) {
+    : graph_(scatter), data_(QVector<DataBlockScatter3D *>()), counter_(0) {
   graph_->setAxisX(new QValue3DAxis);
   graph_->setAxisY(new QValue3DAxis);
   graph_->setAxisZ(new QValue3DAxis);
@@ -164,6 +164,7 @@ void Scatter3D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
 void Scatter3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
                      QList<Matrix *> mats) {
   while (!xmlreader->atEnd()) {
+    if (xmlreader->isEndElement() && xmlreader->name() == "scatter") break;
     xmlreader->readNext();
     if (xmlreader->isEndElement() && xmlreader->name() == "scatter") break;
     if (xmlreader->isStartElement() && xmlreader->name() == "scatter") {
@@ -229,6 +230,180 @@ void Scatter3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         graph_->setPolar(polar);
       else
         xmlreader->raiseWarning("Scatter3D polar property setting error");
+
+      counter_ = 0;
+      loadplot(xmlreader, tabs, mats);
     }
   }
+}
+
+void Scatter3D::loadplot(XmlStreamReader *xmlreader, QList<Table *> tabs,
+                         QList<Matrix *> mats) {
+  while (!xmlreader->atEnd()) {
+    if (xmlreader->isEndElement() && xmlreader->name() == "plot") break;
+    xmlreader->readNext();
+    if (xmlreader->isEndElement() && xmlreader->name() == "plot") break;
+    bool ok = false;
+    // data
+    QString data = xmlreader->readAttributeString("data", &ok);
+    if (!ok) xmlreader->raiseError("Scatter3D data property setting error");
+
+    bool loadseries = false;
+    // matrix data
+    if (data == "matrix") {
+      Matrix *matrix = nullptr;
+      QString matname = xmlreader->readAttributeString("matrix", &ok);
+      if (ok) {
+        matrix = getMatrixByName(mats, matname);
+      } else
+        xmlreader->raiseError(tr("Scatter3D Matrix not found error"));
+      if (matrix) {
+        setmatrixdatamodel(matrix);
+        loadseries = true;
+      }
+      // Table data
+    } else if (data == "table") {
+      Table *table = nullptr;
+      Column *xcolumn = nullptr;
+      Column *ycolumn = nullptr;
+      Column *zcolumn = nullptr;
+      QString tablename = xmlreader->readAttributeString("table", &ok);
+      if (ok) {
+        table = getTableByName(tabs, tablename);
+      } else
+        xmlreader->raiseError(tr("Scatter3D Table not found error"));
+      QString xcolname = xmlreader->readAttributeString("xcolumn", &ok);
+      if (ok) {
+        (table) ? xcolumn = table->column(xcolname) : xcolumn = nullptr;
+      } else
+        xmlreader->raiseWarning(tr("Scatter3D Table X column not found error"));
+      QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
+      if (ok) {
+        (table) ? ycolumn = table->column(ycolname) : ycolumn = nullptr;
+      } else
+        xmlreader->raiseWarning(tr("Scatter3D Table Y column not found error"));
+      QString zcolname = xmlreader->readAttributeString("zcolumn", &ok);
+      if (ok) {
+        (table) ? zcolumn = table->column(zcolname) : zcolumn = nullptr;
+      } else
+        xmlreader->raiseWarning(tr("Scatter3D Table Z column not found error"));
+      if (table && xcolumn && ycolumn && zcolumn) {
+        settabledata(table, xcolumn, ycolumn, zcolumn);
+        loadseries = true;
+      }
+    }
+
+    if (loadseries) {
+      // visible
+      QScatter3DSeries *series = data_.at(counter_)->getdataseries();
+      bool vis = xmlreader->readAttributeBool("visible", &ok);
+      (ok) ? series->setVisible(vis)
+           : xmlreader->raiseWarning(
+                 "Scatter3D visible series property setting error");
+
+      // size
+      double size = xmlreader->readAttributeDouble("size", &ok);
+      (ok) ? series->setItemSize(size)
+           : xmlreader->raiseWarning(
+                 "Scatter3D series size property setting error");
+
+      // smooth
+      bool smooth = xmlreader->readAttributeBool("meshsmooth", &ok);
+      (ok) ? series->setMeshSmooth(smooth)
+           : xmlreader->raiseWarning(
+                 "Scatter3D meshsmooth series property setting error");
+
+      // color style
+      QString colorstyle = xmlreader->readAttributeString("colorstyle", &ok);
+      if (ok) {
+        if (colorstyle == "solidcolor")
+          series->setColorStyle(Q3DTheme::ColorStyle::ColorStyleUniform);
+        else if (colorstyle == "rangegradient")
+          series->setColorStyle(Q3DTheme::ColorStyle::ColorStyleRangeGradient);
+        else if (colorstyle == "objectgradient")
+          series->setColorStyle(Q3DTheme::ColorStyle::ColorStyleObjectGradient);
+      } else
+        xmlreader->raiseWarning(
+            "Scatter3D colorstyle series property setting error");
+
+      // gradient
+      QString gradient = xmlreader->readAttributeString("gradientcolor", &ok);
+      if (ok) {
+        if (gradient == "grayscale")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Grayscale);
+        else if (gradient == "hot")
+          data_.at(counter_)->setgradient(series, Graph3DCommon::Gradient::Hot);
+        else if (gradient == "ion")
+          data_.at(counter_)->setgradient(series, Graph3DCommon::Gradient::Ion);
+        else if (gradient == "jet")
+          data_.at(counter_)->setgradient(series, Graph3DCommon::Gradient::Jet);
+        else if (gradient == "bbry")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::BBRY);
+        else if (gradient == "cold")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Cold);
+        else if (gradient == "gyrd")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::GYRD);
+        else if (gradient == "hues")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Hues);
+        else if (gradient == "candy")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Candy);
+        else if (gradient == "night")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Night);
+        else if (gradient == "polar")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Polar);
+        else if (gradient == "thermal")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Thermal);
+        else if (gradient == "spectrum")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Spectrum);
+        else if (gradient == "geography")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Geography);
+      } else
+        xmlreader->raiseWarning(
+            "Scatter3D gradient color series property setting error");
+
+      // Solid Color
+      QString solidcolor = xmlreader->readAttributeString("solidcolor", &ok);
+      (ok) ? series->setBaseColor(QColor(solidcolor))
+           : xmlreader->raiseWarning(
+                 "Scatter3D series solid color property setting error");
+
+      // Highlight Color
+      QString hcolor = xmlreader->readAttributeString("highlightcolor", &ok);
+      (ok) ? series->setSingleHighlightColor(QColor(hcolor))
+           : xmlreader->raiseWarning(
+                 "Scatter3D series highlight color property setting error");
+    }
+  }
+  xmlreader->readNext();
+  if (xmlreader->isStartElement() && xmlreader->name() == "plot") {
+    loadplot(xmlreader, tabs, mats);
+    counter_++;
+  }
+}
+
+Table *Scatter3D::getTableByName(QList<Table *> tabs, const QString name) {
+  Table *table = nullptr;
+  foreach (Table *tab, tabs) {
+    if (tab->name() == name) table = tab;
+  }
+  return table;
+}
+
+Matrix *Scatter3D::getMatrixByName(QList<Matrix *> mats, const QString name) {
+  Matrix *matrix = nullptr;
+  foreach (Matrix *mat, mats) {
+    if (mat->name() == name) matrix = mat;
+  }
+  return matrix;
 }

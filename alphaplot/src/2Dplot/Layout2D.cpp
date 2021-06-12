@@ -977,7 +977,7 @@ void Layout2D::mouseReleaseSignal(QMouseEvent *event) {
     menu->addAction(IconLoader::load("edit-select", IconLoader::LightDark),
                     tr("Disable Tools"), this, &Layout2D::ResetPicker);
     menu->addAction(IconLoader::load("view-image", IconLoader::LightDark),
-                    tr("Copy"), this, &Layout2D::copyToClipbord);
+                    tr("Copy as Pixmap"), this, &Layout2D::copyToClipbord);
     menu->addAction(IconLoader::load("document-save", IconLoader::LightDark),
                     tr("Export"), this, &Layout2D::exportGraph);
     menu->addAction(IconLoader::load("edit-print", IconLoader::LightDark),
@@ -1615,10 +1615,12 @@ void Layout2D::exportPDF(const QString &filename) {
 
 void Layout2D::copyToClipbord() {
   currentAxisRect_->setPrintorExportJob(true);
-  QPixmap buffer = plot2dCanvas_->toPixmap(plot2dCanvas_->width(),
-                                           plot2dCanvas_->height(), 1);
+  QImage buffer =
+      plot2dCanvas_
+          ->toPixmap(plot2dCanvas_->width(), plot2dCanvas_->height(), 1)
+          .toImage();
   currentAxisRect_->setPrintorExportJob(false);
-  QGuiApplication::clipboard()->setPixmap(buffer, QClipboard::Clipboard);
+  QGuiApplication::clipboard()->setImage(buffer, QClipboard::Clipboard);
 }
 
 void Layout2D::setLayoutDimension(QPair<int, int> dimension) {

@@ -9,7 +9,8 @@
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
-Bar3D::Bar3D(Q3DBars *bar) : graph_(bar), data_(QVector<DataBlockBar3D *>()) {
+Bar3D::Bar3D(Q3DBars *bar)
+    : graph_(bar), data_(QVector<DataBlockBar3D *>()), counter_(0) {
   graph_->setColumnAxis(new QCategory3DAxis);
   graph_->setRowAxis(new QCategory3DAxis);
   graph_->setValueAxis(new QValue3DAxis);
@@ -172,6 +173,7 @@ void Bar3D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
 void Bar3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
                  QList<Matrix *> mats) {
   while (!xmlreader->atEnd()) {
+    if (xmlreader->isEndElement() && xmlreader->name() == "bar") break;
     xmlreader->readNext();
     if (xmlreader->isEndElement() && xmlreader->name() == "bar") break;
     if (xmlreader->isStartElement() && xmlreader->name() == "bar") {
@@ -262,6 +264,174 @@ void Bar3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         graph_->setPolar(polar);
       else
         xmlreader->raiseWarning("Bar3D polar property setting error");
+
+      counter_ = 0;
+      loadplot(xmlreader, tabs, mats);
     }
   }
+}
+
+void Bar3D::loadplot(XmlStreamReader *xmlreader, QList<Table *> tabs,
+                     QList<Matrix *> mats) {
+  while (!xmlreader->atEnd()) {
+    if (xmlreader->isEndElement() && xmlreader->name() == "plot") break;
+    xmlreader->readNext();
+    if (xmlreader->isEndElement() && xmlreader->name() == "plot") break;
+    bool ok = false;
+    // data
+    QString data = xmlreader->readAttributeString("data", &ok);
+    if (!ok) xmlreader->raiseError("Bar3D data property setting error");
+
+    bool loadseries = false;
+    // matrix data
+    if (data == "matrix") {
+      Matrix *matrix = nullptr;
+      QString matname = xmlreader->readAttributeString("matrix", &ok);
+      if (ok) {
+        matrix = getMatrixByName(mats, matname);
+      } else
+        xmlreader->raiseError(tr("Bar3D Matrix not found error"));
+      if (matrix) {
+        setmatrixdatamodel(matrix);
+        loadseries = true;
+      }
+      // Table data
+    } else if (data == "table") {
+      Table *table = nullptr;
+      Column *xcolumn = nullptr;
+      Column *ycolumn = nullptr;
+      Column *zcolumn = nullptr;
+      QString tablename = xmlreader->readAttributeString("table", &ok);
+      if (ok) {
+        table = getTableByName(tabs, tablename);
+      } else
+        xmlreader->raiseError(tr("Bar3D Table not found error"));
+      QString xcolname = xmlreader->readAttributeString("xcolumn", &ok);
+      if (ok) {
+        (table) ? xcolumn = table->column(xcolname) : xcolumn = nullptr;
+      } else
+        xmlreader->raiseWarning(tr("Bar3D Table X column not found error"));
+      QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
+      if (ok) {
+        (table) ? ycolumn = table->column(ycolname) : ycolumn = nullptr;
+      } else
+        xmlreader->raiseWarning(tr("Bar3D Table Y column not found error"));
+      QString zcolname = xmlreader->readAttributeString("zcolumn", &ok);
+      if (ok) {
+        (table) ? zcolumn = table->column(zcolname) : zcolumn = nullptr;
+      } else
+        xmlreader->raiseWarning(tr("Bar3D Table Z column not found error"));
+      if (table && xcolumn && ycolumn && zcolumn) {
+        settabledata(table, xcolumn, ycolumn, zcolumn);
+        loadseries = true;
+      }
+    }
+
+    if (loadseries) {
+      // visible
+      QBar3DSeries *series = data_.at(counter_)->getdataseries();
+      bool vis = xmlreader->readAttributeBool("visible", &ok);
+      (ok) ? series->setVisible(vis)
+           : xmlreader->raiseWarning(
+                 "Bar3D visible series property setting error");
+
+      // smooth
+      bool smooth = xmlreader->readAttributeBool("meshsmooth", &ok);
+      (ok) ? series->setMeshSmooth(smooth)
+           : xmlreader->raiseWarning(
+                 "Bar3D meshsmooth series property setting error");
+
+      // color style
+      QString colorstyle = xmlreader->readAttributeString("colorstyle", &ok);
+      if (ok) {
+        if (colorstyle == "solidcolor")
+          series->setColorStyle(Q3DTheme::ColorStyle::ColorStyleUniform);
+        else if (colorstyle == "rangegradient")
+          series->setColorStyle(Q3DTheme::ColorStyle::ColorStyleRangeGradient);
+        else if (colorstyle == "objectgradient")
+          series->setColorStyle(Q3DTheme::ColorStyle::ColorStyleObjectGradient);
+      } else
+        xmlreader->raiseWarning(
+            "Bar3D colorstyle series property setting error");
+
+      // gradient
+      QString gradient = xmlreader->readAttributeString("gradientcolor", &ok);
+      if (ok) {
+        if (gradient == "grayscale")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Grayscale);
+        else if (gradient == "hot")
+          data_.at(counter_)->setgradient(series, Graph3DCommon::Gradient::Hot);
+        else if (gradient == "ion")
+          data_.at(counter_)->setgradient(series, Graph3DCommon::Gradient::Ion);
+        else if (gradient == "jet")
+          data_.at(counter_)->setgradient(series, Graph3DCommon::Gradient::Jet);
+        else if (gradient == "bbry")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::BBRY);
+        else if (gradient == "cold")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Cold);
+        else if (gradient == "gyrd")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::GYRD);
+        else if (gradient == "hues")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Hues);
+        else if (gradient == "candy")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Candy);
+        else if (gradient == "night")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Night);
+        else if (gradient == "polar")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Polar);
+        else if (gradient == "thermal")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Thermal);
+        else if (gradient == "spectrum")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Spectrum);
+        else if (gradient == "geography")
+          data_.at(counter_)->setgradient(series,
+                                          Graph3DCommon::Gradient::Geography);
+      } else
+        xmlreader->raiseWarning(
+            "Bar3D gradient color series property setting error");
+
+      // Solid Color
+      QString solidcolor = xmlreader->readAttributeString("solidcolor", &ok);
+      (ok) ? series->setBaseColor(QColor(solidcolor))
+           : xmlreader->raiseWarning(
+                 "Bar3D series solid color property setting error");
+
+      // Highlight Color
+      QString hcolor = xmlreader->readAttributeString("highlightcolor", &ok);
+      (ok) ? series->setSingleHighlightColor(QColor(hcolor))
+           : xmlreader->raiseWarning(
+                 "Bar3D series highlight color property setting error");
+    }
+  }
+  xmlreader->readNext();
+  if (xmlreader->isStartElement() && xmlreader->name() == "plot") {
+    loadplot(xmlreader, tabs, mats);
+    counter_++;
+  }
+}
+
+Table *Bar3D::getTableByName(QList<Table *> tabs, const QString name) {
+  Table *table = nullptr;
+  foreach (Table *tab, tabs) {
+    if (tab->name() == name) table = tab;
+  }
+  return table;
+}
+
+Matrix *Bar3D::getMatrixByName(QList<Matrix *> mats, const QString name) {
+  Matrix *matrix = nullptr;
+  foreach (Matrix *mat, mats) {
+    if (mat->name() == name) matrix = mat;
+  }
+  return matrix;
 }
