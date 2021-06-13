@@ -990,3 +990,46 @@ void Layout3D::copy(Layout3D *layout, QList<Table *> tables,
   }
   file->close();
 }
+
+void Layout3D::print() {
+  std::unique_ptr<QPrinter> printer = std::unique_ptr<QPrinter>(new QPrinter);
+  std::unique_ptr<QPrintPreviewDialog> previewDialog =
+      std::unique_ptr<QPrintPreviewDialog>(
+          new QPrintPreviewDialog(printer.get(), this));
+  connect(previewDialog.get(), &QPrintPreviewDialog::paintRequested,
+          [=](QPrinter *printer) {
+            printer->setColorMode(QPrinter::Color);
+            std::unique_ptr<QPainter> painter =
+                std::unique_ptr<QPainter>(new QPainter(printer));
+
+            QImage image = QImage();
+            QSize size = QSize(main_widget_->width(), main_widget_->height());
+            switch (plottype_) {
+              case Graph3DCommon::Plot3DType::Surface:
+                image = graph3dsurface_->renderToImage(64, size);
+                break;
+              case Graph3DCommon::Plot3DType::Bar:
+                image = graph3dbars_->renderToImage(64, size);
+                break;
+              case Graph3DCommon::Plot3DType::Scatter:
+                image = graph3dscatter_->renderToImage(64, size);
+                break;
+            }
+            // int dpm = 72 / 0.0254;
+            // image.setDotsPerMeterX(dpm);
+            // image.setDotsPerMeterY(dpm);
+
+            QPointF point = QPointF((printer->pageLayout()
+                                         .paintRectPixels(printer->resolution())
+                                         .width() /
+                                     2) -
+                                        (size.width() / 2),
+                                    (printer->pageLayout()
+                                         .paintRectPixels(printer->resolution())
+                                         .height() /
+                                     2) -
+                                        (size.height() / 2));
+            painter->drawImage(point.x(), point.y(), image);
+          });
+  previewDialog->exec();
+}

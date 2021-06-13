@@ -24,7 +24,8 @@
 * optional legend title
 * center plot on print plot2D
 * clone plot2D and Plot3D
-* svae plot3D complete
+* svae plot3D
+* print plot3D
 
 === 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
 * multipeak fitting fixed

@@ -58,6 +58,7 @@ class Layout3D : public MyWidget {
   QList<MyWidget *> dependentTableMatrix();
   void copy(Layout3D *layout, QList<Table *> tables, QList<Matrix *> matrixs,
             ApplicationWindow *app);
+  void print();
 
  signals:
   void dataAdded(MyWidget *mywidget);
