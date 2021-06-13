@@ -5,9 +5,12 @@
 #include "DataManager3D.h"
 #include "Matrix.h"
 #include "Table.h"
+#include "ApplicationWindow.h"
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
+#include "scripting/Script.h"
+#include "scripting/ScriptingEnv.h"
 
 using namespace QtDataVisualization;
 
@@ -200,7 +203,7 @@ void Surface3D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
 }
 
 void Surface3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
-                     QList<Matrix *> mats) {
+                     QList<Matrix *> mats, ApplicationWindow *app) {
   while (!xmlreader->atEnd()) {
     if (xmlreader->isEndElement() && xmlreader->name() == "surface") break;
     xmlreader->readNext();
@@ -278,13 +281,13 @@ void Surface3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         xmlreader->raiseWarning("Surface3D polar property setting error");
 
       counter_ = 0;
-      loadplot(xmlreader, tabs, mats);
+      loadplot(xmlreader, tabs, mats, app);
     }
   }
 }
 
 void Surface3D::loadplot(XmlStreamReader *xmlreader, QList<Table *> tabs,
-                         QList<Matrix *> mats) {
+                         QList<Matrix *> mats, ApplicationWindow *app) {
   while (!xmlreader->atEnd()) {
     if (xmlreader->isEndElement() && xmlreader->name() == "plot") break;
     xmlreader->readNext();
@@ -422,6 +425,7 @@ void Surface3D::loadplot(XmlStreamReader *xmlreader, QList<Table *> tabs,
         funcdata.zu = zu;
         funcdata.xpoints = xpoints;
         funcdata.ypoints = ypoints;
+        setfunctiondata(app->generateFunction3ddata(funcdata), funcdata);
         /*layout->getSurface3DModifier()->setfunctiondata(
             generateFunction3ddata(funcdata), funcdata);*/
         qDebug() << "function is not a valid data structure for Surface3D";
@@ -537,7 +541,7 @@ void Surface3D::loadplot(XmlStreamReader *xmlreader, QList<Table *> tabs,
   }
   xmlreader->readNext();
   if (xmlreader->isStartElement() && xmlreader->name() == "plot") {
-    loadplot(xmlreader, tabs, mats);
+    loadplot(xmlreader, tabs, mats, app);
     counter_++;
   }
 }

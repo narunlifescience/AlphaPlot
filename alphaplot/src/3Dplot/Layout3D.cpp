@@ -275,7 +275,8 @@ QSize Layout3D::getContainerSize() const { return main_widget_->size(); }
 Graph3DCommon::Plot3DType Layout3D::getPlotType() const { return plottype_; }
 
 void Layout3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
-                    QList<Matrix *> mats, bool setname) {
+                    QList<Matrix *> mats, ApplicationWindow *app,
+                    bool setname) {
   if (xmlreader->isStartElement() && xmlreader->name() == "plot3d") {
     bool ok = false;
 
@@ -337,7 +338,7 @@ void Layout3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         loadValueAxis(xmlreader);
         loadValueAxis(xmlreader);
         loadValueAxis(xmlreader);
-        surfacemodifier_->load(xmlreader, tabs, mats);
+        surfacemodifier_->load(xmlreader, tabs, mats, app);
         break;
       case Graph3DCommon::Plot3DType::Bar:
         loadCategoryAxis(xmlreader);
@@ -959,7 +960,7 @@ QList<MyWidget *> Layout3D::dependentTableMatrix() {
 }
 
 void Layout3D::copy(Layout3D *layout, QList<Table *> tables,
-                    QList<Matrix *> matrixs) {
+                    QList<Matrix *> matrixs, ApplicationWindow *app) {
   std::unique_ptr<QTemporaryFile> file =
       std::unique_ptr<QTemporaryFile>(new QTemporaryFile("temp"));
   if (!file->open()) {
@@ -984,7 +985,7 @@ void Layout3D::copy(Layout3D *layout, QList<Table *> tables,
     token = xmlreader->readNext();
     if (token == QXmlStreamReader::StartElement &&
         xmlreader->name() == "plot3d") {
-      load(xmlreader.get(), tables, matrixs);
+      load(xmlreader.get(), tables, matrixs, app, false);
     }
   }
   file->close();

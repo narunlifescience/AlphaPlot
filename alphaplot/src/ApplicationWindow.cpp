@@ -5371,7 +5371,7 @@ MyWidget *ApplicationWindow::clone(MyWidget *widget) {
         newGraph3D(qobject_cast<Layout3D *>(widget)->getPlotType(),
                    qobject_cast<Layout3D *>(widget)->name());
     layout->copy(qobject_cast<Layout3D *>(widget), aprojhandler_->tables(this),
-                 aprojhandler_->matrixs(this));
+                 aprojhandler_->matrixs(this), this);
     newWidget = layout;
   } else if (isActiveSubWindow(widget, SubWindowType::MatrixSubWindow)) {
     newWidget = newMatrix(qobject_cast<Matrix *>(widget)->numRows(),

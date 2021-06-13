@@ -232,7 +232,7 @@ MyWidget *AprojHandler::opentemplate(const QString &filename) {
           xmlreader->raiseError(tr("Layout3D PlotType unknown %1").arg(ptype));
       } else
         xmlreader->raiseError(tr("Layout3D PlotType missing or empty"));
-      plot->load(xmlreader.get(), tables(app_), matrixs(app_));
+      plot->load(xmlreader.get(), tables(app_), matrixs(app_), app_);
       mywidget = plot;
     } else if (token == QXmlStreamReader::StartElement && !istemplate) {
       QMessageBox::critical(
@@ -336,7 +336,7 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
           xmlreader->raiseError(tr("Layout3D PlotType unknown %1").arg(ptype));
       } else
         xmlreader->raiseError(tr("Layout3D PlotType missing or empty"));
-      plot->load(xmlreader.get(), tables(app), matrixs(app));
+      plot->load(xmlreader.get(), tables(app), matrixs(app), app);
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "log") {
       QXmlStreamAttributes attributes = xmlreader->attributes();
