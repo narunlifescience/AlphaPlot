@@ -4744,7 +4744,6 @@ void ApplicationWindow::printAllPlots() {
   connect(
       previewDialog.get(), &QPrintPreviewDialog::paintRequested,
       [=](QPrinter *printer) {
-        printer->setPageSize(QPrinter::A4);
         printer->setColorMode(QPrinter::Color);
         std::unique_ptr<QCPPainter> painter =
             std::unique_ptr<QCPPainter>(new QCPPainter(printer));
