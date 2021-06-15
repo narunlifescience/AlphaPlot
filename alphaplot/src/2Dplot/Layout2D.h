@@ -114,6 +114,8 @@ class Layout2D : public MyWidget {
   AxisRect2D *addAxisRectWithAxis(const QPair<int, int> rowcol);
   void swapAxisRect(AxisRect2D *axisrect1, AxisRect2D *axisrect2);
   void removeAxisRectItem();
+  void refresh();
+  void copyToClipbord();
 
  private slots:
   AxisRect2D *addAxisRectItem(
@@ -174,9 +176,7 @@ class Layout2D : public MyWidget {
   void mouseReleaseSignal(QMouseEvent *event);
   void mouseWheel();
   void beforeReplot();
-  void refresh();
   void exportPDF(const QString &filename);
-  void copyToClipbord();
 
  signals:
   void AxisRectCreated(AxisRect2D *, MyWidget *);
@@ -185,6 +185,7 @@ class Layout2D : public MyWidget {
   void ResetPicker();
   void layout2DResized();
   void datapoint(Curve2D *curve, double xval, double yval);
+  void showContextMenu();
 };
 
 #endif  // LAYOUT2D_H

@@ -969,21 +969,7 @@ void Layout2D::mousePressSignal(QMouseEvent *event) { Q_UNUSED(event) }
 
 void Layout2D::mouseReleaseSignal(QMouseEvent *event) {
   if (event->button() == Qt::RightButton) {
-    QPointF startPos = event->localPos();
-    QMenu *menu = new QMenu();
-    menu->setAttribute(Qt::WA_DeleteOnClose);
-    menu->addAction(IconLoader::load("edit-recalculate", IconLoader::LightDark),
-                    tr("Refresh"), this, &Layout2D::refresh);
-    menu->addAction(IconLoader::load("edit-select", IconLoader::LightDark),
-                    tr("Disable Tools"), this, &Layout2D::ResetPicker);
-    menu->addAction(IconLoader::load("view-image", IconLoader::LightDark),
-                    tr("Copy as Pixmap"), this, &Layout2D::copyToClipbord);
-    menu->addAction(IconLoader::load("document-save", IconLoader::LightDark),
-                    tr("Export"), this, &Layout2D::exportGraph);
-    menu->addAction(IconLoader::load("edit-print", IconLoader::LightDark),
-                    tr("Print"), this, &Layout2D::print);
-    menu->popup(plot2dCanvas_->mapToGlobal(QPoint(
-        static_cast<int>(startPos.x()), static_cast<int>(startPos.y()))));
+    emit showContextMenu();
   }
 }
 

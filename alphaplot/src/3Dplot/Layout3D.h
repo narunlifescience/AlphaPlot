@@ -59,9 +59,11 @@ class Layout3D : public MyWidget {
   void copy(Layout3D *layout, QList<Table *> tables, QList<Matrix *> matrixs,
             ApplicationWindow *app);
   void print();
+  void copyToClipbord();
 
  signals:
   void dataAdded(MyWidget *mywidget);
+  void showContextMenu();
 
  private:
   const Graph3DCommon::Plot3DType plottype_;

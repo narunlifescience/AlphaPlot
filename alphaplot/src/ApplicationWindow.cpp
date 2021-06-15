@@ -1888,6 +1888,8 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
           &PropertyEditor::refreshCanvasRect);
   connect(layout2d, &Layout2D::datapoint, this,
           &ApplicationWindow::multipeakfitappendpoints);
+  connect(layout2d, &Layout2D::showContextMenu, this,
+          &ApplicationWindow::showWindowContextMenu);
 
   return layout2d;
 }
@@ -1928,6 +1930,8 @@ Layout3D *ApplicationWindow::newGraph3D(const Graph3DCommon::Plot3DType &type,
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
   });
+  connect(layout3d, &Layout3D::showContextMenu, this,
+          &ApplicationWindow::showWindowContextMenu);
 
   return layout3d;
 }
@@ -5870,6 +5874,8 @@ void ApplicationWindow::showWindowContextMenu() {
   if (!subwindow) return;
 
   QMenu cm(this);
+  cm.setAttribute(Qt::WA_DeleteOnClose);
+  QMenu itemsubmenu(&cm);
   QMenu plot3D(this);
   if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow)) {
     Matrix *matrix = qobject_cast<Matrix *>(subwindow);
@@ -5893,6 +5899,44 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.addAction(
         IconLoader::load("edit-delete-selection", IconLoader::LightDark),
         tr("Clea&r"), matrix, SLOT(clearSelection()));
+  } else if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
+    Layout2D *layout = qobject_cast<Layout2D *>(subwindow);
+    cm.addAction(IconLoader::load("edit-recalculate", IconLoader::LightDark),
+                 tr("Refresh"), layout, &Layout2D::refresh);
+    cm.addAction(IconLoader::load("edit-select", IconLoader::LightDark),
+                 tr("Disable Tools"), layout, &Layout2D::ResetPicker);
+    cm.addSeparator();
+    cm.addAction(ui_->actionAddRemoveCurve);
+    cm.addAction(ui_->actionAddFunctionCurve);
+    cm.addAction(ui_->actionAddErrorBars);
+    cm.addSeparator();
+    itemsubmenu.setTitle(tr("Add Items ..."));
+    itemsubmenu.addAction(ui_->actionAddText);
+    itemsubmenu.addAction(ui_->actionAddTimeStamp);
+    itemsubmenu.addAction(ui_->actionAddImage);
+    itemsubmenu.addAction(ui_->actionDrawLine);
+    itemsubmenu.addAction(ui_->actionDrawArrow);
+    itemsubmenu.addAction(ui_->actionDrawEllipse);
+    cm.addMenu(&itemsubmenu);
+    cm.addAction(ui_->actionAddNestedLayout);
+    cm.addMenu(ui_->menuAddLayout);
+    cm.addAction(ui_->actionRemoveLayout);
+    cm.addAction(ui_->actionArrangeLayout);
+    cm.addSeparator();
+    cm.addAction(IconLoader::load("edit-copy", IconLoader::LightDark),
+                 tr("Copy as Pixmap"), layout, &Layout2D::copyToClipbord);
+    cm.addAction(IconLoader::load("document-save", IconLoader::LightDark),
+                 tr("Export"), layout, &Layout2D::exportGraph);
+    cm.addAction(IconLoader::load("edit-print", IconLoader::LightDark),
+                 tr("Print"), layout, &Layout2D::print);
+  } else if (isActiveSubWindow(subwindow, SubWindowType::Plot3DSubWindow)) {
+    Layout3D *layout = qobject_cast<Layout3D *>(subwindow);
+    cm.addAction(IconLoader::load("edit-copy", IconLoader::LightDark),
+                 tr("Copy as Pixmap"), layout, &Layout3D::copyToClipbord);
+    cm.addAction(IconLoader::load("document-save", IconLoader::LightDark),
+                 tr("Export"), layout, &Layout3D::exportGraph);
+    cm.addAction(IconLoader::load("edit-print", IconLoader::LightDark),
+                 tr("Print"), layout, &Layout3D::print);
   }
   cm.exec(QCursor::pos());
 }
@@ -7997,7 +8041,7 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
 
   Folder *dest_f = static_cast<FolderTreeWidgetItem *>(dest)->folder();
 
-  QTreeWidgetItem *it;
+  QTreeWidgetItem *it = nullptr;
   QStringList subfolders = dest_f->subfolders();
   bool stopdrag = false;
   QList<MyWidget *> draggedwidgets;

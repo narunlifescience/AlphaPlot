@@ -15,6 +15,8 @@ void Custom3DInteractions::mousePressEvent(QMouseEvent *event,
   if (event->button() == Qt::MouseButton::LeftButton) {
     mousepoint_ = mousepoint_ - mousePos;
     mouserotation_ = true;
+  } else if (event->button() == Qt::MouseButton::RightButton) {
+    emit showContextMenu();
   }
   QAbstract3DInputHandler::mousePressEvent(event, mousePos);
 }

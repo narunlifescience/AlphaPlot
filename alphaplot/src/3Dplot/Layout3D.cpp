@@ -123,6 +123,9 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
   m_animationCameraY_->setLoopCount(-1);
   m_animationCameraY_->addAnimation(upAnimation_);
   m_animationCameraY_->addAnimation(downAnimation_);
+
+  connect(custominter_, &Custom3DInteractions::showContextMenu, this,
+          &Layout3D::showContextMenu);
 }
 
 Layout3D::~Layout3D() {}
@@ -1032,4 +1035,21 @@ void Layout3D::print() {
             painter->drawImage(point.x(), point.y(), image);
           });
   previewDialog->exec();
+}
+
+void Layout3D::copyToClipbord() {
+  QImage image = QImage();
+  QSize size = QSize(main_widget_->width(), main_widget_->height());
+  switch (plottype_) {
+    case Graph3DCommon::Plot3DType::Surface:
+      image = graph3dsurface_->renderToImage(64, size);
+      break;
+    case Graph3DCommon::Plot3DType::Bar:
+      image = graph3dbars_->renderToImage(64, size);
+      break;
+    case Graph3DCommon::Plot3DType::Scatter:
+      image = graph3dscatter_->renderToImage(64, size);
+      break;
+  }
+  QGuiApplication::clipboard()->setImage(image, QClipboard::Clipboard);
 }

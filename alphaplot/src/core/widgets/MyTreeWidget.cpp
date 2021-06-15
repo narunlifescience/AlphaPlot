@@ -724,6 +724,7 @@ void MyTreeWidget::cloneAxis2D() {
                                   axis->gettickertype_axis());
 
   axis->clone(newaxis);
+  axisrect->parentPlot()->replot();
 }
 
 void MyTreeWidget::removeAxis2D() {
