@@ -36,7 +36,8 @@ class Axis2D : public QCPAxis {
     Time = 5,
     DateTime = 6
   };
-  Axis2D(AxisRect2D *parent, AxisType type, Axis2D::TickerType tickertype);
+  Axis2D(AxisRect2D *parent, const AxisType type,
+         const Axis2D::TickerType tickertype);
   ~Axis2D();
 
   enum class AxisOreantation { Left = 0, Bottom = 1, Right = 2, Top = 3 };
@@ -144,7 +145,7 @@ class Axis2D : public QCPAxis {
   void setticklabelside_axis(const AxisLabelSide &side);
   void setticklabelformat_axis(const AxisLabelFormat &axisformat);
   void setticklabelprecision_axis(const int value);
-  void settickertext(Column *col, int from, int to);
+  void settickertext(Column *col, const int from, const int to);
 
   void save(XmlStreamWriter *xmlwriter);
   bool load(XmlStreamReader *xmlreader);

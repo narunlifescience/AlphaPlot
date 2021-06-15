@@ -92,11 +92,11 @@ class AxisRect2D : public QCPAxisRect {
   ColorMapVec getColorMapVec() const { return colormapvec_; }
   QList<QCPLayer *> getLayerVec() const { return layers_; }
 
-  Axis2D *getXAxis(int value);
+  Axis2D *getXAxis(const int value);
   int getXAxisNo(Axis2D *axis);
-  Axis2D *getYAxis(int value);
+  Axis2D *getYAxis(const int value);
   int getYAxisNo(Axis2D *axis);
-  Plot2D *getParentPlot2D() { return plot2d_; }
+  Plot2D *getParentPlot2D() const { return plot2d_; }
 
   enum class LineScatterType {
     Line2D,
@@ -120,31 +120,34 @@ class AxisRect2D : public QCPAxisRect {
 
   LineSpecial2D *addLineSpecial2DPlot(const LineScatterSpecialType &type,
                                       Table *table, Column *xData,
-                                      Column *yData, int from, int to,
-                                      Axis2D *xAxis, Axis2D *yAxis);
+                                      Column *yData, const int from,
+                                      const int to, Axis2D *xAxis,
+                                      Axis2D *yAxis);
   QPair<LineSpecial2D *, LineSpecial2D *> addLineSpecialChannel2DPlot(
-      Table *table, Column *xData, Column *yData1, Column *yData2, int from,
-      int to, Axis2D *xAxis, Axis2D *yAxis);
+      Table *table, Column *xData, Column *yData1, Column *yData2,
+      const int from, const int to, Axis2D *xAxis, Axis2D *yAxis);
   Curve2D *addCurve2DPlot(const AxisRect2D::LineScatterType &type, Table *table,
-                          Column *xcol, Column *ycol, int from, int to,
-                          Axis2D *xAxis, Axis2D *yAxis);
+                          Column *xcol, Column *ycol, const int from,
+                          const int to, Axis2D *xAxis, Axis2D *yAxis);
   Curve2D *addFunction2DPlot(QVector<double> *xdata, QVector<double> *ydata,
                              Axis2D *xAxis, Axis2D *yAxis, const QString &name);
   Bar2D *addBox2DPlot(const BarType &type, Table *table, Column *xData,
-                      Column *yData, int from, int to, Axis2D *xAxis,
-                      Axis2D *yAxis, int stackposition = -1);
+                      Column *yData, const int from, const int to,
+                      Axis2D *xAxis, Axis2D *yAxis, int stackposition = -1);
   Vector2D *addVectorPlot(const Vector2D::VectorPlot &vectorplot, Table *table,
                           Column *x1Data, Column *y1Data, Column *x2Data,
-                          Column *y2Data, int from, int to, Axis2D *xAxis,
-                          Axis2D *yAxis);
-  StatBox2D *addStatBox2DPlot(StatBox2D::BoxWhiskerData data, Axis2D *xAxis,
-                              Axis2D *yAxis);
+                          Column *y2Data, const int from, const int to,
+                          Axis2D *xAxis, Axis2D *yAxis);
+  StatBox2D *addStatBox2DPlot(const StatBox2D::BoxWhiskerData data,
+                              Axis2D *xAxis, Axis2D *yAxis);
   Bar2D *addHistogram2DPlot(const BarType &type, Table *table, Column *yData,
-                            int from, int to, Axis2D *xAxis, Axis2D *yAxis);
+                            const int from, const int to, Axis2D *xAxis,
+                            Axis2D *yAxis);
   Pie2D *addPie2DPlot(const Graph2DCommon::PieStyle &style, Table *table,
-                      Column *xData, Column *yData, int from, int to);
+                      Column *xData, Column *yData, const int from,
+                      const int to);
   ColorMap2D *addColorMap2DPlot(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis);
-  TextItem2D *addTextItem2D(QString text);
+  TextItem2D *addTextItem2D(const QString text);
   LineItem2D *addLineItem2D();
   LineItem2D *addArrowItem2D();
   ImageItem2D *addImageItem2D(const QString &filename);
@@ -160,7 +163,7 @@ class AxisRect2D : public QCPAxisRect {
   // select axisrect with mouse click
   void setSelected(const bool status);
   void drawSelection(QCPPainter *painter);
-  bool isSelected() { return isAxisRectSelected_; }
+  bool isSelected() const { return isAxisRectSelected_; }
 
   // remove
   bool removeTextItem2D(TextItem2D *textitem);
@@ -181,7 +184,7 @@ class AxisRect2D : public QCPAxisRect {
 
   void replotBareBones() const;
 
-  void setPrintorExportJob(bool value) { printorexportjob_ = value; }
+  void setPrintorExportJob(const bool value) { printorexportjob_ = value; }
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void setGridPairToNullptr();
   void setItemAxes(Axis2D *xaxis, Axis2D *yaxis);
@@ -233,9 +236,9 @@ class AxisRect2D : public QCPAxisRect {
   void Pie2DRemoved(AxisRect2D *);
   void ColorMap2DRemoved(AxisRect2D *);
   void ErrorBar2DRemoved(AxisRect2D *);
-  void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
-                   Axis2D *yaxis);
-  void datapoint(Curve2D *curve, double xval, double yval);
+  void showtooltip(const QPointF position, const double xval, const double yval,
+                   Axis2D *xaxis, Axis2D *yaxis);
+  void datapoint(Curve2D *curve, const double xval, const double yval);
   // Layer moved
   void LayerMoved(AxisRect2D *);
   void TextItem2DMoved();

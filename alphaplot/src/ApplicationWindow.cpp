@@ -4768,10 +4768,10 @@ void ApplicationWindow::printAllPlots() {
             // comment this out if you want cosmetic thin lines (always 1 pixel
             // thick independent of pdf zoom level)
             // painter.setMode(QCPPainter::pmNonCosmetic);
-            layout->getCurrentAxisRect()->setPrintorExportJob(true);
+            layout->hideCurrentAxisRectIndicator(true);
             layout->getPlotCanwas()->toPainter(painter.get(), plotWidth,
                                                plotHeight);
-            layout->getCurrentAxisRect()->setPrintorExportJob(false);
+            layout->hideCurrentAxisRectIndicator(false);
             newpage = true;
           }
         }

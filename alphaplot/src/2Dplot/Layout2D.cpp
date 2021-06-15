@@ -174,8 +174,9 @@ Layout2D::~Layout2D() {
 
 StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Table *table,
                                                            Column *colData,
-                                                           int from, int to,
-                                                           int key) {
+                                                           const int from,
+                                                           const int to,
+                                                           const int key) {
   size_t size = static_cast<size_t>((to - from) + 1);
 
   double *data = new double[size];
@@ -252,22 +253,22 @@ void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
 
 void Layout2D::generateScatterWithXerror2DPlot(Table *table, Column *xData,
                                                Column *yData, Column *xErr,
-                                               int from, int to) {
+                                               int from, const int to) {
   Curve2D *curve = generateScatter2DPlot(table, xData, yData, from, to);
   curve->setXerrorBar(table, xErr, from, to);
 }
 
 void Layout2D::generateScatterWithYerror2DPlot(Table *table, Column *xData,
                                                Column *yData, Column *yErr,
-                                               int from, int to) {
+                                               int from, const int to) {
   Curve2D *curve = generateScatter2DPlot(table, xData, yData, from, to);
   curve->setYerrorBar(table, yErr, from, to);
 }
 
 void Layout2D::generateScatterWithXYerror2DPlot(Table *table, Column *xData,
                                                 Column *yData, Column *xErr,
-                                                Column *yErr, int from,
-                                                int to) {
+                                                Column *yErr, const int from,
+                                                const int to) {
   Curve2D *curve = generateScatter2DPlot(table, xData, yData, from, to);
   curve->setXerrorBar(table, xErr, from, to);
   curve->setYerrorBar(table, yErr, from, to);
@@ -275,7 +276,8 @@ void Layout2D::generateScatterWithXYerror2DPlot(Table *table, Column *xData,
 
 QList<StatBox2D *> Layout2D::generateStatBox2DPlot(Table *table,
                                                    QList<Column *> ycollist,
-                                                   int from, int to, int key) {
+                                                   int from, const int to,
+                                                   const int key) {
   QList<StatBox2D *> statboxs;
   QList<StatBox2D::BoxWhiskerData> statBoxData;
   foreach (Column *col, ycollist) {
@@ -316,9 +318,9 @@ QList<StatBox2D *> Layout2D::generateStatBox2DPlot(Table *table,
 }
 
 void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
-                                       bool multilayout, Table *table,
-                                       QList<Column *> collist, int from,
-                                       int to) {
+                                       const bool multilayout, Table *table,
+                                       QList<Column *> collist, const int from,
+                                       const int to) {
   if (multilayout) {
     foreach (Column *col, collist) {
       AxisRect2D *element =
@@ -358,7 +360,8 @@ void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
 
 void Layout2D::generateBar2DPlot(const AxisRect2D::BarType &barType,
                                  Table *table, Column *xData,
-                                 QList<Column *> ycollist, int from, int to) {
+                                 QList<Column *> ycollist, const int from,
+                                 const int to) {
   AxisRect2D *element = nullptr;
   QList<Axis2D *> xAxis;
   QList<Axis2D *> yAxis;
@@ -394,8 +397,8 @@ void Layout2D::generateBar2DPlot(const AxisRect2D::BarType &barType,
 
 void Layout2D::generateStakedBar2DPlot(const AxisRect2D::BarType &barType,
                                        Table *table, Column *xData,
-                                       QList<Column *> ycollist, int from,
-                                       int to) {
+                                       QList<Column *> ycollist, const int from,
+                                       const int to) {
   AxisRect2D *element = nullptr;
   QList<Axis2D *> xAxis;
   QList<Axis2D *> yAxis;
@@ -439,8 +442,8 @@ void Layout2D::generateStakedBar2DPlot(const AxisRect2D::BarType &barType,
 
 void Layout2D::generateGroupedBar2DPlot(const AxisRect2D::BarType &barType,
                                         Table *table, Column *xData,
-                                        QList<Column *> ycollist, int from,
-                                        int to) {
+                                        QList<Column *> ycollist,
+                                        const int from, const int to) {
   AxisRect2D *element = nullptr;
   QList<Axis2D *> xAxis;
   QList<Axis2D *> yAxis;
@@ -490,7 +493,7 @@ void Layout2D::generateGroupedBar2DPlot(const AxisRect2D::BarType &barType,
 void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
                                     Table *table, Column *x1Data,
                                     Column *y1Data, Column *x2Data,
-                                    Column *y2Data, int from, int to) {
+                                    Column *y2Data, int from, const int to) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble,
                                         Graph2DCommon::AddLayoutElement::Right);
@@ -509,7 +512,7 @@ void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
 
 void Layout2D::generatePie2DPlot(const Graph2DCommon::PieStyle &style,
                                  Table *table, Column *xData, Column *yData,
-                                 int from, int to) {
+                                 int from, const int to) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble,
                                         Graph2DCommon::AddLayoutElement::Right);
@@ -517,8 +520,8 @@ void Layout2D::generatePie2DPlot(const Graph2DCommon::PieStyle &style,
   element->addPie2DPlot(style, table, xData, yData, from, to);
 }
 
-void Layout2D::generateColorMap2DPlot(Matrix *matrix, bool greyscale,
-                                      bool contour) {
+void Layout2D::generateColorMap2DPlot(Matrix *matrix, const bool greyscale,
+                                      const bool contour) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble,
                                         Graph2DCommon::AddLayoutElement::Right);
@@ -561,7 +564,7 @@ QList<AxisRect2D *> Layout2D::getAxisRectList() {
 
 void Layout2D::generateLineSpecial2DPlot(
     const AxisRect2D::LineScatterSpecialType &plotType, Table *table,
-    Column *xData, QList<Column *> ycollist, int from, int to) {
+    Column *xData, QList<Column *> ycollist, const int from, const int to) {
   AxisRect2D *element =
       addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType(),
                       Graph2DCommon::AddLayoutElement::Right);
@@ -582,7 +585,7 @@ void Layout2D::generateLineSpecial2DPlot(
 
 void Layout2D::generateLineSpecialChannel2DPlot(Table *table, Column *xData,
                                                 QList<Column *> ycollist,
-                                                int from, int to) {
+                                                int from, const int to) {
   Q_ASSERT(ycollist.count() == 2);
   AxisRect2D *element =
       addAxisRectItem(xData->dataType(), ycollist.at(0)->dataType(),
@@ -624,7 +627,7 @@ void Layout2D::generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
   }
 }
 
-AxisRect2D *Layout2D::getSelectedAxisRect(int col, int row) {
+AxisRect2D *Layout2D::getSelectedAxisRect(const int col, const int row) {
   return static_cast<AxisRect2D *>(layout_->element(row, col));
 }
 
@@ -728,7 +731,8 @@ AxisRect2D *Layout2D::addAxisRectItem(
 
 AxisRect2D *Layout2D::addAxisRectItemAtRowCol(
     const AlphaPlot::ColumnDataType &xcoldatatype,
-    const AlphaPlot::ColumnDataType &ycoldatatype, QPair<int, int> rowcol) {
+    const AlphaPlot::ColumnDataType &ycoldatatype,
+    const QPair<int, int> rowcol) {
   // insert row or column if absent
   if (layout_->hasElement(rowcol.first, rowcol.second)) {
     qDebug() << QString("layout already have element at %1%2")
@@ -898,8 +902,8 @@ void Layout2D::activateLayout(LayoutButton2D *button) {
   }
 }
 
-void Layout2D::showtooltip(QPointF position, double xval, double yval,
-                           Axis2D *xaxis, Axis2D *yaxis) {
+void Layout2D::showtooltip(const QPointF position, const double xval,
+                           const double yval, Axis2D *xaxis, Axis2D *yaxis) {
   QToolTip::showText(mapToGlobal(QPoint(static_cast<int>(position.x()),
                                         static_cast<int>(position.y()))),
                      QString::number(xval) + ", " + QString::number(yval));
@@ -927,7 +931,7 @@ void Layout2D::showtooltip(QPointF position, double xval, double yval,
 }
 
 Curve2D *Layout2D::generateScatter2DPlot(Table *table, Column *xcol,
-                                         Column *ycol, int from, int to) {
+                                         Column *ycol, int from, const int to) {
   AxisRect2D *element = addAxisRectItem(xcol->dataType(), ycol->dataType(),
                                         Graph2DCommon::AddLayoutElement::Right);
   QList<Axis2D *> xAxis =
@@ -945,8 +949,8 @@ Curve2D *Layout2D::generateScatter2DPlot(Table *table, Column *xcol,
   return curve;
 }
 
-void Layout2D::addTextToAxisTicker(Column *col, Axis2D *axis, int from,
-                                   int to) {
+void Layout2D::addTextToAxisTicker(Column *col, Axis2D *axis, const int from,
+                                   const int to) {
   if (col->dataType() == AlphaPlot::ColumnDataType::TypeString) {
     axis->settickertext(col, from, to);
   } else if (col->dataType() == AlphaPlot::ColumnDataType::TypeDateTime) {
@@ -981,7 +985,7 @@ void Layout2D::beforeReplot() {
   }
 }
 
-void Layout2D::refresh() {
+void Layout2D::refresh() const {
   plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpImmediateRefresh);
 }
 
@@ -1022,7 +1026,7 @@ bool Layout2D::exportGraph() {
   int vector_height = ied->vector_height();
 
   bool success = false;
-  currentAxisRect_->setPrintorExportJob(true);
+  hideCurrentAxisRectIndicator(true);
   plot2dCanvas_->setBackgroundColor(plot2dCanvas_->getBackgroundColor(), false);
   if (selected_filter.contains(".pdf")) {
     success = plot2dCanvas_->savePdf(file_name, vector_width, vector_height);
@@ -1040,7 +1044,7 @@ bool Layout2D::exportGraph() {
                                           raster_quality, raster_resolution);
   }
   plot2dCanvas_->setBackgroundColor(plot2dCanvas_->getBackgroundColor());
-  currentAxisRect_->setPrintorExportJob(false);
+  hideCurrentAxisRectIndicator(false);
   if (!success) {
     QMessageBox::critical(
         this, tr("Export Error"),
@@ -1062,7 +1066,7 @@ bool Layout2D::exportGraphwithoutdialog(const QString &name,
   int vector_height = plot2dCanvas_->height();
 
   bool success = false;
-  currentAxisRect_->setPrintorExportJob(true);
+  hideCurrentAxisRectIndicator(true);
   plot2dCanvas_->setBackgroundColor(plot2dCanvas_->getBackgroundColor(), false);
   if (selected_filter.contains(".pdf")) {
     success = plot2dCanvas_->savePdf(name, vector_width, vector_height);
@@ -1079,7 +1083,7 @@ bool Layout2D::exportGraphwithoutdialog(const QString &name,
                                           raster_scale, c_char, raster_quality);
   }
   plot2dCanvas_->setBackgroundColor(plot2dCanvas_->getBackgroundColor());
-  currentAxisRect_->setPrintorExportJob(false);
+  hideCurrentAxisRectIndicator(false);
   if (!success) {
     QMessageBox::critical(
         this, tr("Export Error"),
@@ -1579,14 +1583,14 @@ QList<MyWidget *> Layout2D::dependentTableMatrix() {
   return dependeon;
 }
 
-void Layout2D::setAxisRangeZoom(bool value) {
+void Layout2D::setAxisRangeZoom(const bool value) {
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
     (value) ? axisrect->setRangeZoomAxes(axisrect->axes())
             : axisrect->setRangeZoomAxes(QList<QCPAxis *>());
   }
 }
 
-void Layout2D::setAxisRangeDrag(bool value) {
+void Layout2D::setAxisRangeDrag(const bool value) {
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
     (value) ? axisrect->setRangeDragAxes(axisrect->axes())
             : axisrect->setRangeDragAxes(QList<QCPAxis *>());
@@ -1594,22 +1598,26 @@ void Layout2D::setAxisRangeDrag(bool value) {
 }
 
 void Layout2D::exportPDF(const QString &filename) {
-  currentAxisRect_->setPrintorExportJob(true);
+  hideCurrentAxisRectIndicator(true);
   plot2dCanvas_->savePdf(filename);
-  currentAxisRect_->setPrintorExportJob(false);
+  hideCurrentAxisRectIndicator(false);
 }
 
 void Layout2D::copyToClipbord() {
-  currentAxisRect_->setPrintorExportJob(true);
+  if (currentAxisRect_) hideCurrentAxisRectIndicator(true);
   QImage buffer =
       plot2dCanvas_
           ->toPixmap(plot2dCanvas_->width(), plot2dCanvas_->height(), 1)
           .toImage();
-  currentAxisRect_->setPrintorExportJob(false);
+  if (currentAxisRect_) hideCurrentAxisRectIndicator(false);
   QGuiApplication::clipboard()->setImage(buffer, QClipboard::Clipboard);
 }
 
-void Layout2D::setLayoutDimension(QPair<int, int> dimension) {
+void Layout2D::hideCurrentAxisRectIndicator(const bool status) {
+  if (currentAxisRect_) currentAxisRect_->setPrintorExportJob(status);
+}
+
+void Layout2D::setLayoutDimension(const QPair<int, int> dimension) {
   layoutDimension_.first = dimension.first;
   layoutDimension_.second = dimension.second;
 }
@@ -1675,12 +1683,12 @@ void Layout2D::removeAxisRect(const QPair<int, int> rowcol) {
   plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
-int Layout2D::getLayoutRectGridIndex(QPair<int, int> coord) {
+int Layout2D::getLayoutRectGridIndex(const QPair<int, int> coord) {
   int index = ((colorCount()) * coord.second) + coord.first;
   return index;
 }
 
-QPair<int, int> Layout2D::getLayoutRectGridCoordinate(int index) {
+QPair<int, int> Layout2D::getLayoutRectGridCoordinate(const int index) {
   QPair<int, int> pair;
   pair.first = index / (layout_->columnCount());
   pair.second = index % (layout_->columnCount());
@@ -1883,9 +1891,9 @@ void Layout2D::print() {
             // thick independent of pdf zoom level)
             // painter.setMode(QCPPainter::pmNonCosmetic);
             // painter->scale(scale, scale);
-            currentAxisRect_->setPrintorExportJob(true);
+            hideCurrentAxisRectIndicator(true);
             plot2dCanvas_->toPainter(painter.get(), plotWidth, plotHeight);
-            currentAxisRect_->setPrintorExportJob(false);
+            hideCurrentAxisRectIndicator(false);
           });
   previewDialog->exec();
 }
@@ -2082,7 +2090,7 @@ bool Layout2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
   return !xmlreader->hasError();
 }
 
-void Layout2D::loadIcons() {
+void Layout2D::loadIcons() const {
   refreshPlotButton_->setIcon(
       IconLoader::load("edit-recalculate", IconLoader::LightDark));
   addLayoutButton_->setIcon(

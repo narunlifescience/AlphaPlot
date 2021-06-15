@@ -25,7 +25,8 @@
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
-Axis2D::Axis2D(AxisRect2D *parent, AxisType type, TickerType tickertype)
+Axis2D::Axis2D(AxisRect2D *parent, const AxisType type,
+               const TickerType tickertype)
     : QCPAxis(parent, type),
       axisrect_(parent),
       tickertype_(tickertype),
@@ -393,7 +394,7 @@ void Axis2D::setticklabelprecision_axis(const int value) {
   setNumberPrecision(value);
 }
 
-void Axis2D::settickertext(Column *col, int from, int to) {
+void Axis2D::settickertext(Column *col, const int from, const int to) {
   QSharedPointer<QCPAxisTickerText> textticker =
       qSharedPointerCast<QCPAxisTickerText>(ticker_);
   for (int i = 0, row = from; row <= to; row++, i++) {
@@ -648,7 +649,7 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
     double from = xmlreader->readAttributeDouble("from", &ok);
     if (ok) {
       setfrom_axis(from);
-      setRangeLower(from); // temporary fix the rescaling of axes
+      setRangeLower(from);  // temporary fix the rescaling of axes
     } else
       xmlreader->raiseWarning(tr("Axis2D from property setting error"));
     // to property
@@ -658,12 +659,11 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
     // Scaletype property
     QString scaletype = xmlreader->readAttributeString("scaletype", &ok);
     if (ok) {
-      (scaletype == "linear")
-          ? setscaletype_axis(AxisScaleType::Linear)
-          : (scaletype == "logarithemic")
-                ? setscaletype_axis(AxisScaleType::Logarithmic)
-                : xmlreader->raiseWarning(
-                      tr("Axis2D Scaletype property setting error"));
+      (scaletype == "linear") ? setscaletype_axis(AxisScaleType::Linear)
+      : (scaletype == "logarithemic")
+          ? setscaletype_axis(AxisScaleType::Logarithmic)
+          : xmlreader->raiseWarning(
+                tr("Axis2D Scaletype property setting error"));
     } else
       xmlreader->raiseWarning(tr("Axis2D Scaletype property setting error"));
 

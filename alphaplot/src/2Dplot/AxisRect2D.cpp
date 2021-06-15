@@ -334,7 +334,7 @@ QList<Axis2D *> AxisRect2D::getYAxes2D() const {
   return axes2d;
 }
 
-Axis2D *AxisRect2D::getXAxis(int value) {
+Axis2D *AxisRect2D::getXAxis(const int value) {
   QList<Axis2D *> xaxes = getXAxes2D();
   if (value > -1 && value < xaxes.size()) {
     return xaxes.at(value);
@@ -354,7 +354,7 @@ int AxisRect2D::getXAxisNo(Axis2D *axis) {
   }
 }
 
-Axis2D *AxisRect2D::getYAxis(int value) {
+Axis2D *AxisRect2D::getYAxis(const int value) {
   QList<Axis2D *> yaxes = getYAxes2D();
   if (value > -1 && value < yaxes.size()) {
     return yaxes.at(value);
@@ -375,7 +375,7 @@ int AxisRect2D::getYAxisNo(Axis2D *axis) {
 
 LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
     const LineScatterSpecialType &type, Table *table, Column *xData,
-    Column *yData, int from, int to, Axis2D *xAxis, Axis2D *yAxis) {
+    Column *yData, int from, const int to, Axis2D *xAxis, Axis2D *yAxis) {
   LineSpecial2D *lineSpecial =
       new LineSpecial2D(table, xData, yData, from, to, xAxis, yAxis);
   lineSpecial->setlinefillcolor_lsplot(
@@ -435,8 +435,8 @@ LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
 }
 
 QPair<LineSpecial2D *, LineSpecial2D *> AxisRect2D::addLineSpecialChannel2DPlot(
-    Table *table, Column *xData, Column *yData1, Column *yData2, int from,
-    int to, Axis2D *xAxis, Axis2D *yAxis) {
+    Table *table, Column *xData, Column *yData1, Column *yData2, const int from,
+    const int to, Axis2D *xAxis, Axis2D *yAxis) {
   LineSpecial2D *lineSpecial1 =
       new LineSpecial2D(table, xData, yData1, from, to, xAxis, yAxis);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light);
@@ -475,7 +475,7 @@ QPair<LineSpecial2D *, LineSpecial2D *> AxisRect2D::addLineSpecialChannel2DPlot(
 
 Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
                                     Table *table, Column *xcol, Column *ycol,
-                                    int from, int to, Axis2D *xAxis,
+                                    const int from, const int to, Axis2D *xAxis,
                                     Axis2D *yAxis) {
   Curve2D *curve = nullptr;
   switch (type) {
@@ -547,8 +547,8 @@ Curve2D *AxisRect2D::addFunction2DPlot(QVector<double> *xdata,
 }
 
 Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
-                                Column *xData, Column *yData, int from, int to,
-                                Axis2D *xAxis, Axis2D *yAxis,
+                                Column *xData, Column *yData, const int from,
+                                const int to, Axis2D *xAxis, Axis2D *yAxis,
                                 int stackposition) {
   Bar2D *bar;
   switch (type) {
@@ -581,8 +581,9 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
 Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
                                     Table *table, Column *x1Data,
                                     Column *y1Data, Column *x2Data,
-                                    Column *y2Data, int from, int to,
-                                    Axis2D *xAxis, Axis2D *yAxis) {
+                                    Column *y2Data, const int from,
+                                    const int to, Axis2D *xAxis,
+                                    Axis2D *yAxis) {
   Vector2D *vec = new Vector2D(vectorplot, table, x1Data, y1Data, x2Data,
                                y2Data, from, to, xAxis, yAxis);
   VectorLegendItem2D *legendItem = new VectorLegendItem2D(axisRectLegend_, vec);
@@ -598,7 +599,7 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
   return vec;
 }
 
-StatBox2D *AxisRect2D::addStatBox2DPlot(StatBox2D::BoxWhiskerData data,
+StatBox2D *AxisRect2D::addStatBox2DPlot(const StatBox2D::BoxWhiskerData data,
                                         Axis2D *xAxis, Axis2D *yAxis) {
   StatBox2D *statbox = new StatBox2D(data, xAxis, yAxis);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, statbox);
@@ -615,8 +616,9 @@ StatBox2D *AxisRect2D::addStatBox2DPlot(StatBox2D::BoxWhiskerData data,
 }
 
 Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
-                                      Table *table, Column *yData, int from,
-                                      int to, Axis2D *xAxis, Axis2D *yAxis) {
+                                      Table *table, Column *yData,
+                                      const int from, const int to,
+                                      Axis2D *xAxis, Axis2D *yAxis) {
   Bar2D *bar;
   switch (type) {
     case AxisRect2D::BarType::HorizontalBars:
@@ -642,7 +644,7 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
 
 Pie2D *AxisRect2D::addPie2DPlot(const Graph2DCommon::PieStyle &style,
                                 Table *table, Column *xData, Column *yData,
-                                int from, int to) {
+                                const int from, const int to) {
   Pie2D *pie = new Pie2D(this, style, table, xData, yData, from, to);
   pie->setGraphData(table, xData, yData, from, to);
   // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
@@ -665,7 +667,7 @@ ColorMap2D *AxisRect2D::addColorMap2DPlot(Matrix *matrix, Axis2D *xAxis,
   return colormap;
 }
 
-TextItem2D *AxisRect2D::addTextItem2D(QString text) {
+TextItem2D *AxisRect2D::addTextItem2D(const QString text) {
   TextItem2D *textitem = new TextItem2D(this, plot2d_);
   textitem->position->setAxes(gridpair_.first.second, gridpair_.second.second);
   textitem->setText(text);
@@ -1975,7 +1977,7 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         bool legendvisible = xmlreader->readAttributeBool("legendvisible", &ok);
         (ok) ? curve->setlegendvisible_cplot(legendvisible)
              : xmlreader->raiseWarning(
-                 tr("Curve2D legend visible property setting error"));
+                   tr("Curve2D legend visible property setting error"));
 
         while (!xmlreader->atEnd()) {
           xmlreader->readNextStartElement();
