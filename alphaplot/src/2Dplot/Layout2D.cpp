@@ -1604,12 +1604,12 @@ void Layout2D::exportPDF(const QString &filename) {
 }
 
 void Layout2D::copyToClipbord() {
-  if (currentAxisRect_) hideCurrentAxisRectIndicator(true);
+  hideCurrentAxisRectIndicator(true);
   QImage buffer =
       plot2dCanvas_
           ->toPixmap(plot2dCanvas_->width(), plot2dCanvas_->height(), 1)
           .toImage();
-  if (currentAxisRect_) hideCurrentAxisRectIndicator(false);
+  hideCurrentAxisRectIndicator(false);
   QGuiApplication::clipboard()->setImage(buffer, QClipboard::Clipboard);
 }
 

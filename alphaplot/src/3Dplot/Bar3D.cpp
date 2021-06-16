@@ -43,6 +43,15 @@ QVector<DataBlockBar3D *> Bar3D::getData() const { return data_; }
 
 void Bar3D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
   xmlwriter->writeStartElement("bar");
+  xmlwriter->writeAttribute(
+      "xrotation",
+      QString::number(graph_->scene()->activeCamera()->xRotation()));
+  xmlwriter->writeAttribute(
+      "yrotation",
+      QString::number(graph_->scene()->activeCamera()->yRotation()));
+  xmlwriter->writeAttribute(
+      "zoomlevel",
+      QString::number(graph_->scene()->activeCamera()->zoomLevel()));
   xmlwriter->writeAttribute("aspectratio",
                             QString::number(graph_->aspectRatio()));
   xmlwriter->writeAttribute("horizontalaspectratio",
@@ -178,6 +187,28 @@ void Bar3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
     if (xmlreader->isEndElement() && xmlreader->name() == "bar") break;
     if (xmlreader->isStartElement() && xmlreader->name() == "bar") {
       bool ok = false;
+      bool xrstatus = false;
+      bool yrstatus = false;
+      bool zlstatus = false;
+
+      // x rotation
+      double xrotation = xmlreader->readAttributeDouble("xrotation", &ok);
+      if (ok) xrstatus = true;
+
+      // y rotation
+      double yrotation = xmlreader->readAttributeDouble("yrotation", &ok);
+      if (ok) yrstatus = true;
+
+      // zoomlevel
+      double zoomlevel = xmlreader->readAttributeDouble("zoomlevel", &ok);
+      if (ok) zlstatus = true;
+
+      if (xrstatus && yrstatus && zlstatus)
+        graph_->scene()->activeCamera()->setCameraPosition(xrotation, yrotation,
+                                                           zoomlevel);
+      else
+        xmlreader->raiseWarning(
+            "Bar3D cameraposition property setting error");
 
       // aspect ratio
       double aspectratio = xmlreader->readAttributeDouble("aspectratio", &ok);

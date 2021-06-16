@@ -94,7 +94,6 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
   setFocusPolicy(Qt::StrongFocus);
 
   // setting general graph properties;
-  graph_->setFlags(graph_->flags() ^ Qt::FramelessWindowHint);
   graph_->setActiveInputHandler(custominter_);
   graph_->activeTheme()->setType(Q3DTheme::ThemeDigia);
   graph_->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
@@ -106,24 +105,25 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
   m_animationCameraX_ =
       new QPropertyAnimation(graph_->scene()->activeCamera(), "xRotation");
   m_animationCameraX_->setDuration(20000);
-  m_animationCameraX_->setStartValue(QVariant::fromValue(0.0f));
-  m_animationCameraX_->setEndValue(QVariant::fromValue(360.0f));
+  m_animationCameraX_->setStartValue(QVariant::fromValue(-180.0f));
+  m_animationCameraX_->setEndValue(QVariant::fromValue(180.0f));
   m_animationCameraX_->setLoopCount(-1);
   upAnimation_ =
       new QPropertyAnimation(graph_->scene()->activeCamera(), "yRotation");
   upAnimation_->setDuration(10000);
   upAnimation_->setStartValue(QVariant::fromValue(0.0f));
-  upAnimation_->setEndValue(QVariant::fromValue(65.0f));
+  upAnimation_->setEndValue(QVariant::fromValue(90.0f));
   downAnimation_ =
       new QPropertyAnimation(graph_->scene()->activeCamera(), "yRotation");
   downAnimation_->setDuration(10000);
-  downAnimation_->setStartValue(QVariant::fromValue(65.0f));
+  downAnimation_->setStartValue(QVariant::fromValue(90.0f));
   downAnimation_->setEndValue(QVariant::fromValue(0.0f));
   m_animationCameraY_ = new QSequentialAnimationGroup();
   m_animationCameraY_->setLoopCount(-1);
   m_animationCameraY_->addAnimation(upAnimation_);
   m_animationCameraY_->addAnimation(downAnimation_);
 
+  graph_->scene()->activeCamera()->setCameraPosition(45, 30, 130);
   connect(custominter_, &Custom3DInteractions::showContextMenu, this,
           &Layout3D::showContextMenu);
 }

@@ -19,9 +19,11 @@ signals:
   void showContextMenu();
 
  private:
-  QPointF mousepoint_;
+  QPoint mousepoint_;
   bool mouserotation_;
   float zoomfactor_;
+  float xrotation_;
+  float yrotation_;
   static const int deltazoom_;
 };
 
