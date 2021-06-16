@@ -327,6 +327,7 @@ class ApplicationWindow : public QMainWindow,
 
   Function2DDialog* functionDialog();
   void addFunctionCurve();
+  void addGraph2DAxis();
   void clearFitFunctionsList();
   void saveFitFunctionsList(const QStringList& l);
   void clearSurfaceFunctionsList();

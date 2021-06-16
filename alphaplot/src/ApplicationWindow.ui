@@ -133,9 +133,63 @@
      <addaction name="actionAddLayoutLeft"/>
      <addaction name="actionAddLayoutRight"/>
     </widget>
+    <widget class="QMenu" name="menuAddAxis">
+     <property name="title">
+      <string>Add Axis...</string>
+     </property>
+     <widget class="QMenu" name="menuAddLeftAxis">
+      <property name="title">
+       <string>Add Left Axis</string>
+      </property>
+      <addaction name="actionLeftValue"/>
+      <addaction name="actionLeftLog"/>
+      <addaction name="actionLeftPi"/>
+      <addaction name="actionLeftText"/>
+      <addaction name="actionLeftTime"/>
+      <addaction name="actionLeftDateTime"/>
+     </widget>
+     <widget class="QMenu" name="menuAddBottomAxis">
+      <property name="title">
+       <string>Add Bottom Axis</string>
+      </property>
+      <addaction name="actionBottomValue"/>
+      <addaction name="actionBottomLog"/>
+      <addaction name="actionBottomPi"/>
+      <addaction name="actionBottomText"/>
+      <addaction name="actionBottomTime"/>
+      <addaction name="actionBottomDateTime"/>
+     </widget>
+     <widget class="QMenu" name="menuAddRightAxis">
+      <property name="title">
+       <string>Add Right Axis</string>
+      </property>
+      <addaction name="actionRightValue"/>
+      <addaction name="actionRightLog"/>
+      <addaction name="actionRightPi"/>
+      <addaction name="actionRightText"/>
+      <addaction name="actionRightTime"/>
+      <addaction name="actionRightDateTime"/>
+     </widget>
+     <widget class="QMenu" name="menuAddTopAxis">
+      <property name="title">
+       <string>Add Top Axis</string>
+      </property>
+      <addaction name="actionTopValue"/>
+      <addaction name="actionTopPi"/>
+      <addaction name="actionTopLog"/>
+      <addaction name="actionTopText"/>
+      <addaction name="actionTopTime"/>
+      <addaction name="actionTopDateTime"/>
+     </widget>
+     <addaction name="menuAddLeftAxis"/>
+     <addaction name="menuAddBottomAxis"/>
+     <addaction name="menuAddRightAxis"/>
+     <addaction name="menuAddTopAxis"/>
+    </widget>
     <addaction name="actionAddRemoveCurve"/>
     <addaction name="actionAddFunctionCurve"/>
     <addaction name="actionAddErrorBars"/>
+    <addaction name="menuAddAxis"/>
     <addaction name="separator"/>
     <addaction name="actionAddText"/>
     <addaction name="actionAddTimeStamp"/>
@@ -1455,6 +1509,126 @@
   <action name="actionAddGlyphs">
    <property name="text">
     <string>Add Symbols/Glyphs</string>
+   </property>
+  </action>
+  <action name="actionLeftValue">
+   <property name="text">
+    <string>Value</string>
+   </property>
+  </action>
+  <action name="actionLeftLog">
+   <property name="text">
+    <string>Log</string>
+   </property>
+  </action>
+  <action name="actionLeftPi">
+   <property name="text">
+    <string>Pi</string>
+   </property>
+  </action>
+  <action name="actionLeftText">
+   <property name="text">
+    <string>Text</string>
+   </property>
+  </action>
+  <action name="actionLeftTime">
+   <property name="text">
+    <string>Time</string>
+   </property>
+  </action>
+  <action name="actionLeftDateTime">
+   <property name="text">
+    <string>DateTime</string>
+   </property>
+  </action>
+  <action name="actionBottomValue">
+   <property name="text">
+    <string>Value</string>
+   </property>
+  </action>
+  <action name="actionBottomLog">
+   <property name="text">
+    <string>Log</string>
+   </property>
+  </action>
+  <action name="actionBottomPi">
+   <property name="text">
+    <string>Pi</string>
+   </property>
+  </action>
+  <action name="actionBottomText">
+   <property name="text">
+    <string>Text</string>
+   </property>
+  </action>
+  <action name="actionBottomTime">
+   <property name="text">
+    <string>Time</string>
+   </property>
+  </action>
+  <action name="actionBottomDateTime">
+   <property name="text">
+    <string>DateTime</string>
+   </property>
+  </action>
+  <action name="actionRightValue">
+   <property name="text">
+    <string>Value</string>
+   </property>
+  </action>
+  <action name="actionRightLog">
+   <property name="text">
+    <string>Log</string>
+   </property>
+  </action>
+  <action name="actionRightPi">
+   <property name="text">
+    <string>Pi</string>
+   </property>
+  </action>
+  <action name="actionRightText">
+   <property name="text">
+    <string>Text</string>
+   </property>
+  </action>
+  <action name="actionRightTime">
+   <property name="text">
+    <string>Time</string>
+   </property>
+  </action>
+  <action name="actionRightDateTime">
+   <property name="text">
+    <string>DateTime</string>
+   </property>
+  </action>
+  <action name="actionTopValue">
+   <property name="text">
+    <string>Value</string>
+   </property>
+  </action>
+  <action name="actionTopPi">
+   <property name="text">
+    <string>Pi</string>
+   </property>
+  </action>
+  <action name="actionTopLog">
+   <property name="text">
+    <string>Log</string>
+   </property>
+  </action>
+  <action name="actionTopText">
+   <property name="text">
+    <string>Text</string>
+   </property>
+  </action>
+  <action name="actionTopTime">
+   <property name="text">
+    <string>Time</string>
+   </property>
+  </action>
+  <action name="actionTopDateTime">
+   <property name="text">
+    <string>DateTime</string>
    </property>
   </action>
  </widget>

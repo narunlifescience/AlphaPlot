@@ -702,6 +702,54 @@ ApplicationWindow::ApplicationWindow()
           SLOT(addErrorBars()));
   connect(ui_->actionAddFunctionCurve, SIGNAL(triggered()), this,
           SLOT(addFunctionCurve()));
+  connect(ui_->actionLeftValue, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionLeftLog, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionLeftPi, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionLeftText, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionLeftTime, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionLeftDateTime, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionBottomValue, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionBottomLog, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionBottomPi, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionBottomText, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionBottomTime, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionBottomDateTime, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionRightValue, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionRightLog, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionRightPi, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionRightText, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionRightTime, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionRightDateTime, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionTopValue, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionTopLog, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionTopPi, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionTopText, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionTopTime, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionTopDateTime, &QAction::triggered, this,
+          &ApplicationWindow::addGraph2DAxis);
   connect(ui_->actionAddText, SIGNAL(triggered()), this, SLOT(addText()));
   graphToolsGroup->setExclusive(true);
   ui_->actionDrawArrow->setActionGroup(graphToolsGroup);
@@ -5909,6 +5957,7 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.addAction(ui_->actionAddRemoveCurve);
     cm.addAction(ui_->actionAddFunctionCurve);
     cm.addAction(ui_->actionAddErrorBars);
+    cm.addMenu(ui_->menuAddAxis);
     cm.addSeparator();
     itemsubmenu.setTitle(tr("Add Items ..."));
     itemsubmenu.addAction(ui_->actionAddText);
@@ -6059,6 +6108,90 @@ void ApplicationWindow::addFunctionCurve() {
   fd->setLayout2DToModify(axisrect, -1);
   fd->setModal(true);
   fd->exec();
+}
+
+void ApplicationWindow::addGraph2DAxis() {
+  QMdiSubWindow *subwindow = d_workspace->activeSubWindow();
+  if (!isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) return;
+
+  Layout2D *layout = qobject_cast<Layout2D *>(subwindow);
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot layout elements "
+           "selected/available in this window.</h4>"
+           "<p><h4>Please add/select a layout element and try again!</h4>"));
+    return;
+  }
+
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+
+  if (action == ui_->actionLeftValue)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
+                        Axis2D::TickerType::Value);
+  else if (action == ui_->actionLeftLog)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left, Axis2D::TickerType::Log);
+  else if (action == ui_->actionLeftPi)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left, Axis2D::TickerType::Pi);
+  else if (action == ui_->actionLeftText)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
+                        Axis2D::TickerType::Text);
+  else if (action == ui_->actionLeftTime)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
+                        Axis2D::TickerType::Time);
+  else if (action == ui_->actionLeftDateTime)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left,
+                        Axis2D::TickerType::DateTime);
+  else if (action == ui_->actionBottomValue)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
+                        Axis2D::TickerType::Value);
+  else if (action == ui_->actionBottomLog)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
+                        Axis2D::TickerType::Log);
+  else if (action == ui_->actionBottomPi)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Left, Axis2D::TickerType::Pi);
+  else if (action == ui_->actionBottomText)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
+                        Axis2D::TickerType::Text);
+  else if (action == ui_->actionBottomTime)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
+                        Axis2D::TickerType::Time);
+  else if (action == ui_->actionBottomDateTime)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Bottom,
+                        Axis2D::TickerType::DateTime);
+  else if (action == ui_->actionRightValue)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
+                        Axis2D::TickerType::Value);
+  else if (action == ui_->actionRightLog)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
+                        Axis2D::TickerType::Log);
+  else if (action == ui_->actionRightPi)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right, Axis2D::TickerType::Pi);
+  else if (action == ui_->actionRightText)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
+                        Axis2D::TickerType::Text);
+  else if (action == ui_->actionRightTime)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
+                        Axis2D::TickerType::Time);
+  else if (action == ui_->actionRightDateTime)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Right,
+                        Axis2D::TickerType::DateTime);
+  else if (action == ui_->actionTopValue)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
+                        Axis2D::TickerType::Value);
+  else if (action == ui_->actionTopLog)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Log);
+  else if (action == ui_->actionTopPi)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Pi);
+  else if (action == ui_->actionTopText)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Text);
+  else if (action == ui_->actionTopTime)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top, Axis2D::TickerType::Time);
+  else if (action == ui_->actionTopDateTime)
+    axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
+                        Axis2D::TickerType::DateTime);
 }
 
 void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas) {
@@ -9179,6 +9312,16 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("graph-y-error", IconLoader::LightDark));
   ui_->actionAddFunctionCurve->setIcon(
       IconLoader::load("math-fofx", IconLoader::LightDark));
+  ui_->menuAddAxis->setIcon(
+      IconLoader::load("graph2d-axis-left", IconLoader::LightDark));
+  ui_->menuAddTopAxis->setIcon(
+      IconLoader::load("graph2d-axis-top", IconLoader::LightDark));
+  ui_->menuAddBottomAxis->setIcon(
+      IconLoader::load("graph2d-axis-bottom", IconLoader::LightDark));
+  ui_->menuAddLeftAxis->setIcon(
+      IconLoader::load("graph2d-axis-left", IconLoader::LightDark));
+  ui_->menuAddRightAxis->setIcon(
+      IconLoader::load("graph2d-axis-right", IconLoader::LightDark));
   ui_->actionAddText->setIcon(
       IconLoader::load("draw-text", IconLoader::LightDark));
   ui_->actionDrawArrow->setIcon(
