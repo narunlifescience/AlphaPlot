@@ -301,8 +301,22 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
       if (current.trimmed() == "true") cfolder = folder;
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "table") {
+      bool ok;
+      QString time = xmlreader->readAttributeString("creation_time", &ok);
       Table *table = app->newTable("table", 1, 1);
       table->d_future_table->load(xmlreader.get());
+      // unable to set datetime via above method for some unknown reason. Thus
+      // had to do it here (find the cause of this issue and remove this later)
+      if (ok) {
+        table->setBirthDate(
+            QDateTime::fromString(time, "yyyy-dd-MM hh:mm:ss:zzz")
+                .toString(Qt::LocalDate));
+      } else {
+        table->setBirthDate(
+            QDateTime::currentDateTime().toString(Qt::LocalDate));
+        xmlreader->raiseWarning(
+            tr("Invalid creation time. Using current time insted."));
+      }
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "matrix") {
       Matrix *matrix = app->newMatrix("matrix", 1, 1);
@@ -493,14 +507,11 @@ bool AprojHandler::saveTemplate(const QString &filename, MyWidget *mywidget) {
     return false;
   }
   QString selectedfilter = QString();
-  (fname.endsWith(".amt"))
-      ? selectedfilter = "amt"
-      : (fname.endsWith(".apt"))
-            ? selectedfilter = "apt"
-            : (fname.endsWith(".att"))
-                  ? selectedfilter = "att"
-                  : (fname.endsWith(".ast")) ? selectedfilter = "att"
-                                             : selectedfilter = QString();
+  (fname.endsWith(".amt"))   ? selectedfilter = "amt"
+  : (fname.endsWith(".apt")) ? selectedfilter = "apt"
+  : (fname.endsWith(".att")) ? selectedfilter = "att"
+  : (fname.endsWith(".ast")) ? selectedfilter = "att"
+                             : selectedfilter = QString();
   if (selectedfilter.isEmpty()) {
     qDebug() << "unknown selected filter: ." << selectedfilter;
     return false;

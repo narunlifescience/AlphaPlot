@@ -71,7 +71,9 @@ void Note::modifiedNote() { emit modifiedWindow(this); }
 
 void Note::save(QXmlStreamWriter* xmlwriter) {
   xmlwriter->writeStartElement("note");
-  xmlwriter->writeAttribute("creation_time", birthDate());
+  QDateTime datetime = QDateTime::fromString(birthDate(), Qt::LocalDate);
+  xmlwriter->writeAttribute("creation_time",
+                            datetime.toString("yyyy-dd-MM hh:mm:ss:zzz"));
   xmlwriter->writeAttribute("caption_spec", QString::number(captionPolicy()));
   xmlwriter->writeAttribute("name", name());
   xmlwriter->writeAttribute("label", windowLabel());

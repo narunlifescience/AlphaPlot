@@ -1904,7 +1904,9 @@ void Layout2D::save(XmlStreamWriter *xmlwriter, const bool saveastemplate) {
   xmlwriter->writeAttribute("y", QString::number(pos().y()));
   xmlwriter->writeAttribute("width", QString::number(width()));
   xmlwriter->writeAttribute("height", QString::number(height()));
-  xmlwriter->writeAttribute("creation_time", birthDate());
+  QDateTime datetime = QDateTime::fromString(birthDate(), Qt::LocalDate);
+  xmlwriter->writeAttribute("creation_time",
+                            datetime.toString("yyyy-dd-MM hh:mm:ss:zzz"));
   xmlwriter->writeAttribute("caption_spec", QString::number(captionPolicy()));
   xmlwriter->writeAttribute("name", name());
   xmlwriter->writeAttribute("label", windowLabel());

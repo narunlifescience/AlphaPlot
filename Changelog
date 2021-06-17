@@ -28,6 +28,7 @@
 * print plot3D
 * upgrade qcustomplot library to 2.1.0
 * improve plot3D mouse interactions
+* subwindow creation time load/save fixed
 
 === 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
 * multipeak fitting fixed

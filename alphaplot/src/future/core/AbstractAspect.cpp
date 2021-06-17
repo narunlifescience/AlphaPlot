@@ -74,12 +74,6 @@ bool AbstractAspect::readBasicAttributes(XmlStreamReader *reader) {
   QXmlStreamAttributes attribs = reader->attributes();
   QString str;
 
-  // read name
-  str = attribs.value(reader->namespaceUri().toString(), "name").toString();
-  if (str.isEmpty()) {
-    reader->raiseWarning(prefix + tr("aspect name missing or empty") + postfix);
-  }
-  setName(str);
   // read creation time
   str = attribs.value(reader->namespaceUri().toString(), "creation_time")
             .toString();
@@ -95,6 +89,12 @@ bool AbstractAspect::readBasicAttributes(XmlStreamReader *reader) {
   str = attribs.value(reader->namespaceUri().toString(), "caption_spec")
             .toString();
   setCaptionSpec(str);
+  // read name
+  str = attribs.value(reader->namespaceUri().toString(), "name").toString();
+  if (str.isEmpty()) {
+    reader->raiseWarning(prefix + tr("aspect name missing or empty") + postfix);
+  }
+  setName(str);
 
   return true;
 }

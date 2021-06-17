@@ -2,10 +2,10 @@
 
 #include <qmath.h>
 
+#include "ApplicationWindow.h"
 #include "DataManager3D.h"
 #include "Matrix.h"
 #include "Table.h"
-#include "ApplicationWindow.h"
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
@@ -457,10 +457,7 @@ void Surface3D::loadplot(XmlStreamReader *xmlreader, QList<Table *> tabs,
         funcdata.xpoints = xpoints;
         funcdata.ypoints = ypoints;
         setfunctiondata(app->generateFunction3ddata(funcdata), funcdata);
-        /*layout->getSurface3DModifier()->setfunctiondata(
-            generateFunction3ddata(funcdata), funcdata);*/
-        qDebug() << "function is not a valid data structure for Surface3D";
-        loadseries = false;
+        loadseries = true;
       }
     }
 
