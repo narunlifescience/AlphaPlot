@@ -21,6 +21,7 @@ void Custom3DInteractions::mousePressEvent(QMouseEvent *event,
   } else if (event->button() == Qt::MouseButton::RightButton) {
     emit showContextMenu();
   }
+  emit activateParentWindow();
   QAbstract3DInputHandler::mousePressEvent(event, mousePos);
 }
 

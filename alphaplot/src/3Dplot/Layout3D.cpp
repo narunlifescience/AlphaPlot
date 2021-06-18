@@ -126,6 +126,10 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
   graph_->scene()->activeCamera()->setCameraPosition(45, 30, 130);
   connect(custominter_, &Custom3DInteractions::showContextMenu, this,
           &Layout3D::showContextMenu);
+  // QWindow doesnt pass mousepressevent to the container widget
+  // so do it here manually
+  connect(custominter_, &Custom3DInteractions::activateParentWindow, this,
+          [=]() { emit mousepressevent(this); });
 }
 
 Layout3D::~Layout3D() {}

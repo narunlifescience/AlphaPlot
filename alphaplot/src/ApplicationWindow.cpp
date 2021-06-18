@@ -1962,6 +1962,7 @@ Layout3D *ApplicationWindow::newGraph3D(const Graph3DCommon::Plot3DType &type,
 
   layout3d->show();
   layout3d->setFocus();
+
   // window connections
   connect(layout3d, &MyWidget::closedWindow, this,
           &ApplicationWindow::closeWindow);
@@ -1973,13 +1974,14 @@ Layout3D *ApplicationWindow::newGraph3D(const Graph3DCommon::Plot3DType &type,
           &ApplicationWindow::showWindowTitleBarMenu);
   connect(layout3d, &Layout3D::dataAdded, propertyeditor,
           &PropertyEditor::populateObjectBrowser);
-  connect(layout3d, &Layout3D::mousepressevent, [=](MyWidget *widget) {
-    if (d_workspace->activeSubWindow() == widget) return;
-    widget->setNormal();
-    d_workspace->setActiveSubWindow(widget);
-  });
   connect(layout3d, &Layout3D::showContextMenu, this,
           &ApplicationWindow::showWindowContextMenu);
+  // QWindow doesnt pass mousepressevent to the container widget
+  // so do it here manually
+  connect(layout3d, &Layout3D::mousepressevent, this, [=]() {
+    if (d_workspace->activeSubWindow() == layout3d) return;
+    d_workspace->setActiveSubWindow(layout3d);
+  });
 
   return layout3d;
 }

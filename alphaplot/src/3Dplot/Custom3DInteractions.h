@@ -17,6 +17,7 @@ class Custom3DInteractions : public QAbstract3DInputHandler {
 
 signals:
   void showContextMenu();
+  void activateParentWindow();
 
  private:
   QPoint mousepoint_;
