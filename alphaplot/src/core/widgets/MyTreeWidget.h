@@ -8,6 +8,7 @@
 
 #include "2Dplot/AxisRect2D.h"
 
+class Layout2D;
 class AxisRect2D;
 class MyWidget;
 class QCustomPlot;
@@ -52,16 +53,13 @@ class MyTreeWidget : public QTreeWidget {
   ~MyTreeWidget();
 
  signals:
-  void swaplayout();
-  void adderrorbar();
   void activate(MyWidget *widget);
+  void itemRootContextMenuRequested();
+  void itemContextMenuRequested(Layout2D *layout, AxisRect2D *axisrect);
 
  private slots:
   void CurrentItemChanged(QTreeWidgetItem *current);
   void showContextMenu(const QPoint &pos);
-  void addfunctionplot();
-  void addplot();
-  void addAxis2D();
   void cloneAxis2D();
   void removeAxis2D();
   void removeLineSpecial2D();
@@ -85,9 +83,6 @@ class MyTreeWidget : public QTreeWidget {
 
  private:
   QWidget *widget_;
-  QAction *swaplayout_;
-  QAction *addgraph_;
-  QAction *addfunctionplot_;
   // slect data
   QAction *selectdatacolumnslsgraph2d_;
   QAction *selectdatacolumnschannelgraph2d_;
@@ -98,31 +93,7 @@ class MyTreeWidget : public QTreeWidget {
   QAction *selectdatacolumnserrorgraph2d_;
   QAction *selectdatacolumnspiegraph2d_;
   QAction *selectdatacolumnscolormapgraph2d_;
-  // Axis
-  QAction *leftvalueaxis_;
-  QAction *leftlogaxis_;
-  QAction *leftpiaxis_;
-  QAction *lefttextaxis_;
-  QAction *lefttimeaxis_;
-  QAction *leftdatetimeaxis_;
-  QAction *bottomvalueaxis_;
-  QAction *bottomlogaxis_;
-  QAction *bottompiaxis_;
-  QAction *bottomtextaxis_;
-  QAction *bottomtimeaxis_;
-  QAction *bottomdatetimeaxis_;
-  QAction *rightvalueaxis_;
-  QAction *rightlogaxis_;
-  QAction *rightpiaxis_;
-  QAction *righttextaxis_;
-  QAction *righttimeaxis_;
-  QAction *rightdatetimeaxis_;
-  QAction *topvalueaxis_;
-  QAction *toplogaxis_;
-  QAction *toppiaxis_;
-  QAction *toptextaxis_;
-  QAction *toptimeaxis_;
-  QAction *topdatetimeaxis_;
+  // Remove
   QAction *removeaxis_;
   QAction *removels_;
   QAction *removechannel_;
@@ -139,8 +110,6 @@ class MyTreeWidget : public QTreeWidget {
   QAction *clonetobottomaxis_;
   QAction *clonetoleftaxis_;
   QAction *clonetorightaxis_;
-  // Errorbar
-  QAction *adderrorbar_;
   // move layer up
   QAction *moveupls_;
   QAction *moveupchannel_;

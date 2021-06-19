@@ -388,8 +388,6 @@ ApplicationWindow::ApplicationWindow()
   propertyeditor->setObjectName("propertyeditorWindow");
   addDockWidget(Qt::RightDockWidgetArea, propertyeditor);
   propertyeditor->show();
-  connect(propertyeditor, &PropertyEditor::adderrorbar, this,
-          &ApplicationWindow::addErrorBars);
 
   disableActions();
   // After initialization of QDockWidget, for toggleViewAction() to work
@@ -5992,6 +5990,32 @@ void ApplicationWindow::showWindowContextMenu() {
   cm.exec(QCursor::pos());
 }
 
+void ApplicationWindow::itemContextMenuRequested(Layout2D *layout,
+                                                 AxisRect2D *axisrect) {
+  layout->axisRectSetFocus(axisrect);
+  QMenu cm(this);
+  cm.setAttribute(Qt::WA_DeleteOnClose);
+  QMenu itemsubmenu(&cm);
+  cm.addAction(ui_->actionAddRemoveCurve);
+  cm.addAction(ui_->actionAddFunctionCurve);
+  cm.addAction(ui_->actionAddErrorBars);
+  cm.addMenu(ui_->menuAddAxis);
+  cm.addSeparator();
+  itemsubmenu.setTitle(tr("Add Items ..."));
+  itemsubmenu.addAction(ui_->actionAddText);
+  itemsubmenu.addAction(ui_->actionAddTimeStamp);
+  itemsubmenu.addAction(ui_->actionAddImage);
+  itemsubmenu.addAction(ui_->actionDrawLine);
+  itemsubmenu.addAction(ui_->actionDrawArrow);
+  itemsubmenu.addAction(ui_->actionDrawEllipse);
+  cm.addMenu(&itemsubmenu);
+  cm.addAction(ui_->actionAddNestedLayout);
+  cm.addMenu(ui_->menuAddLayout);
+  cm.addAction(ui_->actionRemoveLayout);
+  cm.addAction(ui_->actionArrangeLayout);
+  cm.exec(QCursor::pos());
+}
+
 void ApplicationWindow::showWindowTitleBarMenu() {
   if (!qobject_cast<MyWidget *>(d_workspace->activeSubWindow())) return;
   showWindowMenu(qobject_cast<MyWidget *>(d_workspace->activeSubWindow()));
@@ -8606,7 +8630,6 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
         depend_menu.addAction(widget->name(), this,
                               SLOT(setActiveWindowFromAction()));
       }
-      cm.addAction(ui_->actionArrangeLayout);
       cm.addMenu(&depend_menu);
     }
   }

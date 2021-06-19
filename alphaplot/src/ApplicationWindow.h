@@ -607,6 +607,7 @@ class ApplicationWindow : public QMainWindow,
   void showPlotAssociations(int curve);
 
   void showWindowContextMenu();
+  void itemContextMenuRequested(Layout2D *layout, AxisRect2D *axisrect);
   void showWindowTitleBarMenu();
   void showWindowPopupMenu(const QPoint& p);
 

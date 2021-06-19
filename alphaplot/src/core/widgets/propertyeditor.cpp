@@ -1418,10 +1418,10 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
           SLOT(selectObjectItem(QTreeWidgetItem *)));
   connect(objectbrowser_, &MyTreeWidget::activate,
           [=](MyWidget *widget) { app_->activateWindow(widget); });
-  connect(objectbrowser_, &MyTreeWidget::adderrorbar, this,
-          &PropertyEditor::adderrorbar);
-  connect(objectbrowser_, &MyTreeWidget::swaplayout, app_,
-          &ApplicationWindow::showSwapLayoutDialog);
+  connect(objectbrowser_, &MyTreeWidget::itemRootContextMenuRequested, app_,
+          &ApplicationWindow::showWindowTitleBarMenu);
+  connect(objectbrowser_, &MyTreeWidget::itemContextMenuRequested, app_,
+          &ApplicationWindow::itemContextMenuRequested);
   connect(boolManager_, SIGNAL(valueChanged(QtProperty *, bool)), this,
           SLOT(valueChange(QtProperty *, const bool &)));
   connect(colorManager_, SIGNAL(valueChanged(QtProperty *, QColor)), this,

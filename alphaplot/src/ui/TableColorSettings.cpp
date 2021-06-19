@@ -1,6 +1,7 @@
 #include "TableColorSettings.h"
 
 #include <QColorDialog>
+#include <QMessageBox>
 #include <QSettings>
 
 #include "core/IconLoader.h"
@@ -34,6 +35,23 @@ TableColorSettings::TableColorSettings(SettingsDialog *dialog)
   setupColorButton(ui->backgroundColorButton);
   setupColorButton(ui->textColorButton);
   setupColorButton(ui->labelColorButton);
+  connect(ui->customColorGroupBox, &QGroupBox::toggled, this,
+          [=](const bool status) {
+            if (status) {
+              QMessageBox::StandardButton reply;
+              reply = QMessageBox::warning(
+                  this, tr("Table custom color setting"),
+                  tr("This feature is highly experimental and can result in "
+                     "unintended table colors. If you wish to proceed with the "
+                     "same and apply the settings, make sure that you close "
+                     "alphaplot and reopen again to reflect the changes.") +
+                      "\n\n" + tr("Do you wish to continue ?"),
+              QMessageBox::Yes | QMessageBox::No);
+              (reply == QMessageBox::Yes)
+                  ? ui->customColorGroupBox->setChecked(true)
+                  : ui->customColorGroupBox->setChecked(false);
+            }
+          });
   connect(ui->applyPushButton, &QPushButton::clicked, this,
           &TableColorSettings::Save);
   connect(ui->resetPushButton, &QPushButton::clicked, this,
@@ -94,23 +112,16 @@ void TableColorSettings::Save() {
   QSettings settings;
   settings.beginGroup("Tables");
   settings.beginGroup("ColumnColorIndicator");
-  settings.setValue("xColorCode",
-                    ui->columnxColorLabel->getColor());
-  settings.setValue("yColorCode",
-                    ui->columnyColorLabel->getColor());
-  settings.setValue("zColorCode",
-                    ui->columnzColorLabel->getColor());
-  settings.setValue("xErrColorCode",
-                    ui->columnxerrColorLabel->getColor());
-  settings.setValue("yErrColorCode",
-                    ui->columnyerrColorLabel->getColor());
-  settings.setValue("noneColorCode",
-                    ui->noneColorLabel->getColor());
+  settings.setValue("xColorCode", ui->columnxColorLabel->getColor());
+  settings.setValue("yColorCode", ui->columnyColorLabel->getColor());
+  settings.setValue("zColorCode", ui->columnzColorLabel->getColor());
+  settings.setValue("xErrColorCode", ui->columnxerrColorLabel->getColor());
+  settings.setValue("yErrColorCode", ui->columnyerrColorLabel->getColor());
+  settings.setValue("noneColorCode", ui->noneColorLabel->getColor());
   settings.endGroup();  // ColumnColorIndicator
   settings.beginGroup("Colors");
   settings.setValue("Custom", ui->customColorGroupBox->isChecked());
-  settings.setValue("Background",
-                    ui->backgroundColorLabel->getColor());
+  settings.setValue("Background", ui->backgroundColorLabel->getColor());
   settings.setValue("Text", ui->textColorLabel->getColor());
   settings.setValue("Header", ui->labelColorLabel->getColor());
   settings.endGroup();  // Colors

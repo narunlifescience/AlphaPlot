@@ -125,6 +125,7 @@ class Layout2D : public MyWidget {
   void refresh() const;
   void copyToClipbord();
   void hideCurrentAxisRectIndicator(const bool status);
+  void axisRectSetFocus(AxisRect2D *rect);
 
  private slots:
   AxisRect2D *addAxisRectItem(
@@ -135,7 +136,6 @@ class Layout2D : public MyWidget {
       const AlphaPlot::ColumnDataType &xcoldatatype,
       const AlphaPlot::ColumnDataType &ycoldatatype,
       const QPair<int, int> rowcol);
-  void axisRectSetFocus(AxisRect2D *rect);
   void activateLayout(LayoutButton2D *button);
   void showtooltip(const QPointF position, const double xval, const double yval,
                    Axis2D *xaxis, Axis2D *yaxis);

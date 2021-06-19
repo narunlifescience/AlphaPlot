@@ -137,7 +137,6 @@ class PropertyEditor : public QDockWidget {
 
  signals:
   void refreshCanvasRect();
-  void adderrorbar();
 
  public slots:
   void populateObjectBrowser(MyWidget *widget);

@@ -22,12 +22,13 @@
 #include <QFile>
 #include <QSettings>
 #include <QStyleFactory>
+#include <QMessageBox>
 
 #include "core/AppearanceManager.h"
 #include "core/IconLoader.h"
-#include "widgets/ColorLabel.h"
 #include "globals.h"
 #include "ui_GeneralAppreanceSettings.h"
+#include "widgets/ColorLabel.h"
 
 GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
     : SettingsPage(dialog), ui(new Ui_GeneralAppreanceSettings) {
@@ -55,6 +56,24 @@ GeneralAppreanceSettings::GeneralAppreanceSettings(SettingsDialog *dialog)
   setupColorButton(ui->panelColorButton);
   setupColorButton(ui->paneltextColorButton);
   setupColorButton(ui->workspaceColorButton);
+  connect(
+      ui->customColorGroupBox, &QGroupBox::toggled, this,
+      [=](const bool status) {
+        if (status) {
+          QMessageBox::StandardButton reply;
+          reply = QMessageBox::warning(
+              this, tr("Table custom color setting"),
+              tr("This feature is highly experimental and can result in "
+                 "unintended application colors. If you wish to proceed "
+                 "with the same and apply the settings, make sure that you "
+                 "close alphaplot and reopen again to reflect the changes.") +
+                  "\n\n" + tr("Do you wish to continue ?"),
+              QMessageBox::Yes | QMessageBox::No);
+          (reply == QMessageBox::Yes)
+              ? ui->customColorGroupBox->setChecked(true)
+              : ui->customColorGroupBox->setChecked(false);
+        }
+      });
   connect(ui->applyPushButton, &QPushButton::clicked, this,
           &GeneralAppreanceSettings::Save);
   connect(ui->resetPushButton, &QPushButton::clicked, this,
@@ -104,11 +123,9 @@ void GeneralAppreanceSettings::Save() {
   settings.setValue("ColorScheme", ui->colorSchemeComboBox->currentIndex());
   settings.beginGroup("Colors");
   settings.setValue("Custom", ui->customColorGroupBox->isChecked());
-  settings.setValue("Workspace",
-                    ui->workspaceColorLabel->getColor());
+  settings.setValue("Workspace", ui->workspaceColorLabel->getColor());
   settings.setValue("Panels", ui->panelColorLabel->getColor());
-  settings.setValue("PanelsText",
-                    ui->paneltextColorLabel->getColor());
+  settings.setValue("PanelsText", ui->paneltextColorLabel->getColor());
   settings.endGroup();
   settings.endGroup();
 
@@ -122,7 +139,7 @@ bool GeneralAppreanceSettings::settingsChangeCheck() {
       colorscheme_ != ui->colorSchemeComboBox->currentIndex() ||
       customcolors_ != ui->customColorGroupBox->isChecked() ||
       workspacecolor_ != ui->workspaceColorLabel->getColor() ||
-      panelcolor_ != ui->panelColorLabel->getColor()||
+      panelcolor_ != ui->panelColorLabel->getColor() ||
       paneltextcolor_ != ui->paneltextColorLabel->getColor()) {
     result = settingsChanged();
   }
