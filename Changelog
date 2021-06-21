@@ -29,6 +29,8 @@
 * upgrade qcustomplot library to 2.1.0
 * improve plot3D mouse interactions
 * subwindow creation time load/save fixed
+* show function details on property browser function plot item
+* make property browser plo2D items dynamically change icons based on plot property change
 
 === 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
 * multipeak fitting fixed

@@ -1,15 +1,4 @@
 #include "AddPlot2DDialog.h"
-#include "../DataManager2D.h"
-
-#include "ApplicationWindow.h"
-#include "Folder.h"
-#include "Matrix.h"
-#include "Table.h"
-#include "2Dplot/LineSpecial2D.h"
-#include "2Dplot/Curve2D.h"
-#include "2Dplot/Bar2D.h"
-#include "core/IconLoader.h"
-#include "core/column/Column.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -17,15 +6,25 @@
 #include <QKeySequence>
 #include <QLabel>
 #include <QLayout>
+#include <QList>
 #include <QListWidget>
 #include <QMenu>
+#include <QMessageBox>
+#include <QPair>
 #include <QPixmap>
 #include <QPushButton>
 #include <QShortcut>
 
-#include <QList>
-#include <QMessageBox>
-#include <QPair>
+#include "../DataManager2D.h"
+#include "2Dplot/Bar2D.h"
+#include "2Dplot/Curve2D.h"
+#include "2Dplot/LineSpecial2D.h"
+#include "ApplicationWindow.h"
+#include "Folder.h"
+#include "Matrix.h"
+#include "Table.h"
+#include "core/IconLoader.h"
+#include "core/column/Column.h"
 
 AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
                                  Qt::WindowFlags fl)
@@ -220,10 +219,13 @@ void AddPlot2DDialog::loadplotcontents() {
     QPair<Table *, Column *> columnpair = QPair<Table *, Column *>(
         graphdata->gettable(), graphdata->getycolumn());
     plotted_columns_ << columnpair;
-    contents->addItem(columnpair.first->name() + "_" +
-                      columnpair.second->name() + "[" +
-                      QString::number(graphdata->getfrom() + 1) + ":" +
-                      QString::number(graphdata->getto() + 1) + "]");
+    QListWidgetItem *item = new QListWidgetItem(
+        ls->getIcon(),
+        columnpair.first->name() + "_" + columnpair.second->name() + "[" +
+            QString::number(graphdata->getfrom() + 1) + ":" +
+            QString::number(graphdata->getto() + 1) + "]",
+        contents);
+    contents->addItem(item);
   }
   foreach (Curve2D *curve, curvelist) {
     if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
@@ -231,23 +233,28 @@ void AddPlot2DDialog::loadplotcontents() {
       QPair<Table *, Column *> columnpair = QPair<Table *, Column *>(
           curvedata->gettable(), curvedata->getycolumn());
       plotted_columns_ << columnpair;
-      contents->addItem(columnpair.first->name() + "_" +
-                        columnpair.second->name() + "[" +
-                        QString::number(curvedata->getfrom() + 1) + ":" +
-                        QString::number(curvedata->getto() + 1) + "]");
+      QListWidgetItem *item = new QListWidgetItem(
+          curve->getIcon(),
+          columnpair.first->name() + "_" + columnpair.second->name() + "[" +
+              QString::number(curvedata->getfrom() + 1) + ":" +
+              QString::number(curvedata->getto() + 1) + "]",
+          contents);
+      contents->addItem(item);
     }
   }
-
   foreach (Bar2D *bar, barlist) {
     if (!bar->ishistogram_barplot()) {
       DataBlockBar *bardata = bar->getdatablock_barplot();
       QPair<Table *, Column *> columnpair =
           QPair<Table *, Column *>(bardata->gettable(), bardata->getycolumn());
       plotted_columns_ << columnpair;
-      contents->addItem(columnpair.first->name() + "_" +
-                        columnpair.second->name() + "[" +
-                        QString::number(bardata->getfrom() + 1) + ":" +
-                        QString::number(bardata->getto() + 1) + "]");
+      QListWidgetItem *item = new QListWidgetItem(
+          bar->getIcon(),
+          columnpair.first->name() + "_" + columnpair.second->name() + "[" +
+              QString::number(bardata->getfrom() + 1) + ":" +
+              QString::number(bardata->getto() + 1) + "]",
+          contents);
+      contents->addItem(item);
     }
   }
 }

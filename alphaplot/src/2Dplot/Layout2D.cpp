@@ -231,8 +231,7 @@ StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Table *table,
 
 void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
                                       QVector<double> *ydata,
-                                      const QString xLabel,
-                                      const QString yLabel) {
+                                      const PlotData::FunctionData funcdata) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                                         AlphaPlot::ColumnDataType::TypeDouble,
                                         Graph2DCommon::AddLayoutElement::Right);
@@ -242,12 +241,21 @@ void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
   QList<Axis2D *> yAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
-  xAxis.at(0)->setLabel(xLabel);
-  yAxis.at(0)->setLabel(yLabel);
+  QString xlabel, ylabel;
+  if (funcdata.functions.size() == 2) {
+    xlabel = funcdata.functions.at(0);
+    ylabel = funcdata.functions.at(1);
+  } else if (funcdata.functions.size() == 1) {
+    xlabel = "x";
+    ylabel = funcdata.functions.at(0);
+  }
 
-  QString name = "f(" + xLabel + ") : " + yLabel;
-  Curve2D *curve =
-      element->addFunction2DPlot(xdata, ydata, xAxis.at(0), yAxis.at(0), name);
+  xAxis.at(0)->setLabel(xlabel);
+  yAxis.at(0)->setLabel(ylabel);
+
+  QString name = "f(" + xlabel + ") : " + ylabel;
+  Curve2D *curve = element->addFunction2DPlot(funcdata, xdata, ydata,
+                                              xAxis.at(0), yAxis.at(0), name);
   curve->rescaleAxes();
 }
 

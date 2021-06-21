@@ -526,10 +526,11 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
   return curve;
 }
 
-Curve2D *AxisRect2D::addFunction2DPlot(QVector<double> *xdata,
+Curve2D *AxisRect2D::addFunction2DPlot(const PlotData::FunctionData funcdata,
+                                       QVector<double> *xdata,
                                        QVector<double> *ydata, Axis2D *xAxis,
                                        Axis2D *yAxis, const QString &name) {
-  Curve2D *curve = new Curve2D(xdata, ydata, xAxis, yAxis);
+  Curve2D *curve = new Curve2D(funcdata, xdata, ydata, xAxis, yAxis);
   curve->setlinetype_cplot(1);
   curve->setscattershape_cplot(Graph2DCommon::ScatterStyle::None);
 
@@ -1941,6 +1942,108 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             curve->setlegendtext_cplot(legend);
           }
         } else if (ok && datatype == "function") {
+          PlotData::FunctionData funcdata;
+          int functiontype = 0;
+          // function type
+          QString functype =
+              xmlreader->readAttributeString("functiontype", &ok);
+          if (!ok)
+            xmlreader->raiseWarning(tr("Curve2D function type not found"));
+
+          (functype == "normal")       ? functiontype = 0
+          : (functype == "parametric") ? functiontype = 1
+          : (functype == "polar")      ? functiontype = 2
+                                       : functiontype = 0;
+
+          switch (functiontype) {
+            case 0: {
+              funcdata.type = 0;
+              // function function
+              QString funcfunc =
+                  xmlreader->readAttributeString("function", &ok);
+              if (ok)
+                funcdata.functions << funcfunc;
+              else
+                xmlreader->raiseWarning(
+                    tr("Curve2D function function not found"));
+            } break;
+            case 1: {
+              funcdata.type = 1;
+              // function functionx
+              QString funcfuncx =
+                  xmlreader->readAttributeString("functionx", &ok);
+              if (ok)
+                funcdata.functions << funcfuncx;
+              else
+                xmlreader->raiseWarning(
+                    tr("Curve2D function functionx not found"));
+              // function functiony
+              QString funcfuncy =
+                  xmlreader->readAttributeString("functiony", &ok);
+              if (ok)
+                funcdata.functions << funcfuncy;
+              else
+                xmlreader->raiseWarning(
+                    tr("Curve2D function functiony not found"));
+              // function parameter
+              QString funcparam =
+                  xmlreader->readAttributeString("parameter", &ok);
+              if (ok)
+                funcdata.parameter = funcparam;
+              else
+                xmlreader->raiseWarning(
+                    tr("Curve2D function parameter not found"));
+            } break;
+            case 2: {
+              funcdata.type = 2;
+              // function functionr
+              QString funcfuncr =
+                  xmlreader->readAttributeString("functionr", &ok);
+              if (ok)
+                funcdata.functions << funcfuncr;
+              else
+                xmlreader->raiseWarning(
+                    tr("Curve2D function functionr not found"));
+              // function functiontheta
+              QString funcfunctheta =
+                  xmlreader->readAttributeString("functiontheta", &ok);
+              if (ok)
+                funcdata.functions << funcfunctheta;
+              else
+                xmlreader->raiseWarning(
+                    tr("Curve2D function functiontheta not found"));
+              // function parameter
+              QString funcparam =
+                  xmlreader->readAttributeString("parameter", &ok);
+              if (ok)
+                funcdata.parameter = funcparam;
+              else
+                xmlreader->raiseWarning(
+                    tr("Curve2D function parameter not found"));
+            } break;
+          }
+
+          // Function from
+          double funcfrom = xmlreader->readAttributeDouble("from", &ok);
+          if (ok)
+            funcdata.from = funcfrom;
+          else
+            xmlreader->raiseWarning(tr("Curve2D function from not found"));
+
+          // Function to
+          double functo = xmlreader->readAttributeDouble("to", &ok);
+          if (ok)
+            funcdata.to = functo;
+          else
+            xmlreader->raiseWarning(tr("Curve2D function to not found"));
+
+          // Function points
+          int funcpoints = xmlreader->readAttributeInt("points", &ok);
+          if (ok)
+            funcdata.points = funcpoints;
+          else
+            xmlreader->raiseWarning(tr("Curve2D function points not found"));
+
           QVector<double> *xdata = new QVector<double>();
           QVector<double> *ydata = new QVector<double>();
 
@@ -1963,7 +2066,8 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           }
           if (xdata->size() > 0 && ydata->size() > 0 &&
               xdata->size() == ydata->size() && xaxis && yaxis) {
-            curve = addFunction2DPlot(xdata, ydata, xaxis, yaxis, legend);
+            curve =
+                addFunction2DPlot(funcdata, xdata, ydata, xaxis, yaxis, legend);
             curve->setlegendtext_cplot(legend);
           } else {
             xmlreader->raiseError(tr("Curve2D function skipped due to error"));

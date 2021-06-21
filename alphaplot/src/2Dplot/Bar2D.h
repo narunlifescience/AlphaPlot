@@ -45,6 +45,7 @@ class Bar2D : public QCPBars {
   ErrorBar2D *getyerrorbar_barplot() { return yerrorbar_; }
   int getstackposition_barplot() const { return stackposition_; }
   DataBlockHist *getdatablock_histplot() const;
+  QIcon getIcon() const { return icon_; }
 
   void setxaxis_barplot(Axis2D *axis, bool override = false);
   void setyaxis_barplot(Axis2D *axis, bool override = false);
@@ -91,6 +92,7 @@ class Bar2D : public QCPBars {
   bool yerroravailable_;
   Graph2DCommon::Picker picker_;
   int stackposition_;
+  QIcon icon_;
 };
 
 #endif  // BAR2D_H

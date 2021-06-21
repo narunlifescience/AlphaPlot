@@ -58,6 +58,7 @@ class Vector2D : public QCPGraph {
   Column *getfourthcol_vecplot() const { return y2col_; }
   int getfrom_vecplot() const { return from_; }
   int getto_vecplot() const { return to_; }
+  QIcon getIcon() const { return icon_; }
 
   // Setters
   void setxaxis_vecplot(Axis2D *axis);
@@ -101,6 +102,7 @@ class Vector2D : public QCPGraph {
   Position d_position_;
   QCPLineEnding *start_;
   QCPLineEnding *stop_;
+  QIcon icon_;
 };
 
 #endif  // VECTOR2D_H

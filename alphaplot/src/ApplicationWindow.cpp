@@ -6261,16 +6261,14 @@ bool ApplicationWindow::newFunctionPlot(const int type,
       datapair = generateFunctiondata(type, formulas, var, ranges, points);
       if (!datapair.first && !datapair.second) return false;
       Layout2D *layout = newGraph2D();
-      QString xlabel, ylabel;
-      if (formulas.size() == 2) {
-        xlabel = formulas.at(0);
-        ylabel = formulas.at(1);
-      } else if (formulas.size() == 1) {
-        xlabel = "x";
-        ylabel = formulas.at(0);
-      }
-      layout->generateFunction2DPlot(datapair.first, datapair.second, xlabel,
-                                     ylabel);
+      PlotData::FunctionData funcdata;
+      funcdata.type = type;
+      funcdata.functions = formulas;
+      funcdata.parameter = var;
+      funcdata.from = ranges.at(0);
+      funcdata.to = ranges.at(1);
+      funcdata.points = points;
+      layout->generateFunction2DPlot(datapair.first, datapair.second, funcdata);
       return true;
     }
     default:
@@ -6302,9 +6300,17 @@ Curve2D *ApplicationWindow::addFunctionPlot(
         ylabel = formulas.at(0);
       }
       label = "f(" + xlabel + "): " + ylabel;
-      curve = axisrect->addFunction2DPlot(datapair.first, datapair.second,
-                                          axisrect->getXAxis(0),
-                                          axisrect->getYAxis(0), label);
+      // func data
+      PlotData::FunctionData funcdata;
+      funcdata.type = type;
+      funcdata.functions = formulas;
+      funcdata.parameter = var;
+      funcdata.from = ranges.at(0);
+      funcdata.to = ranges.at(1);
+      funcdata.points =  points;
+      curve = axisrect->addFunction2DPlot(
+          funcdata, datapair.first, datapair.second, axisrect->getXAxis(0),
+          axisrect->getYAxis(0), label);
       return curve;
     }
     default:

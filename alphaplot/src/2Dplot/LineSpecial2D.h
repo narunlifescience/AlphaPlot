@@ -47,6 +47,7 @@ class LineSpecial2D : public QCPGraph {
   DataBlockGraph *getdatablock_lsplot() const { return graphdata_; }
   ErrorBar2D *getxerrorbar_lsplot() { return xerrorbar_; }
   ErrorBar2D *getyerrorbar_lsplot() { return yerrorbar_; }
+  QIcon getIcon() const { return icon_; }
   // Setters
   void setlinetype_lsplot(const Graph2DCommon::LineStyleType &line);
   void setlinestrokestyle_lsplot(const Qt::PenStyle &style);
@@ -85,6 +86,7 @@ class LineSpecial2D : public QCPGraph {
   void datapicker(QMouseEvent *event, const QVariant &details);
   void movepicker(QMouseEvent *event, const QVariant &details);
   void removepicker(QMouseEvent *event, const QVariant &details);
+  void reloadIcon();
 
  signals:
   void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
@@ -102,6 +104,7 @@ class LineSpecial2D : public QCPGraph {
   bool xerroravailable_;
   bool yerroravailable_;
   Graph2DCommon::Picker picker_;
+  QIcon icon_;
   // PlotPoint *mPointUnderCursor;
 };
 

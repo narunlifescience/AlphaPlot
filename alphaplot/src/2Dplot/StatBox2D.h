@@ -117,6 +117,7 @@ class StatBox2D : public QCPStatisticalBox {
   Column *getcolumn_statbox() { return boxwhiskerdata_.column_; }
   int getfrom_statbox() const { return boxwhiskerdata_.from_; }
   int getto_statbox() const { return boxwhiskerdata_.to_; }
+  QIcon getIcon() const { return icon_; }
 
   void setxaxis_statbox(Axis2D *axis);
   void setyaxis_statbox(Axis2D *axis);
@@ -169,6 +170,7 @@ class StatBox2D : public QCPStatisticalBox {
   BoxWhiskerStyle boxstyle_;
   BoxWhiskerStyle whiskerstyle_;
   Graph2DCommon::Picker picker_;
+  QIcon icon_;
 };
 
 #endif  // STATBOX2D_H

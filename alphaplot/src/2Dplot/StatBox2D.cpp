@@ -5,6 +5,7 @@
 
 #include "Axis2D.h"
 #include "Table.h"
+#include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
@@ -25,6 +26,9 @@ StatBox2D::StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
       boxstyle_(StatBox2D::BoxWhiskerStyle::Perc_25_75),
       whiskerstyle_(StatBox2D::BoxWhiskerStyle::Perc_5_95),
       picker_(Graph2DCommon::Picker::None) {
+  // setting icon
+  icon_ = IconLoader::load("graph2d-box", IconLoader::LightDark);
+
   QThread::msleep(1);
   parentPlot()->addLayer(layername_, xAxis_->layer(), QCustomPlot::limBelow);
   setLayer(layername_);

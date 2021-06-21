@@ -20,6 +20,7 @@
 #include "AxisRect2D.h"
 #include "Legend2D.h"
 #include "Table.h"
+#include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
@@ -42,6 +43,11 @@ Pie2D::Pie2D(AxisRect2D *axisrect, const Graph2DCommon::PieStyle &style,
       ycolumn_(yData),
       from_(from),
       to_(to) {
+  // set Icon
+  (style == Graph2DCommon::PieStyle::Pie)
+      ? icon_ = IconLoader::load("graph2d-pie", IconLoader::LightDark)
+      : icon_ = IconLoader::load("graph2d-halfpie", IconLoader::LightDark);
+
   if (axisrect_->getAxes2D().count() > 0) {
     QThread::msleep(1);
     parentPlot()->addLayer(layername_, axisrect_->getAxes2D().at(0)->layer(),
@@ -146,6 +152,10 @@ void Pie2D::setstyle_pieplot(const Graph2DCommon::PieStyle &style) {
   style_ = style;
   setGraphData(gettable_pieplot(), getxcolumn_pieplot(), getycolumn_pieplot(),
                getfrom_pieplot(), getto_pieplot());
+  // set Icon
+  (style == Graph2DCommon::PieStyle::Pie)
+      ? icon_ = IconLoader::load("graph2d-pie", IconLoader::LightDark)
+      : icon_ = IconLoader::load("graph2d-halfpie", IconLoader::LightDark);
 }
 
 void Pie2D::setstrokepen_pieplot(const QPen pen) {

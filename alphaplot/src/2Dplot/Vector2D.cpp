@@ -4,6 +4,7 @@
 #include "../future/core/column/Column.h"
 #include "Axis2D.h"
 #include "Table.h"
+#include "core/IconLoader.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
@@ -19,6 +20,11 @@ Vector2D::Vector2D(const VectorPlot &vectorplot, Table *table, Column *x1Data,
       d_position_(Position::Tail),
       start_(new QCPLineEnding()),
       stop_(new QCPLineEnding()) {
+  // setting icon
+  (vectorplot == VectorPlot::XYXY)
+      ? icon_ = IconLoader::load("graph2d-vector-xy", IconLoader::LightDark)
+      : icon_ = IconLoader::load("graph2d-vector-xyam", IconLoader::LightDark);
+
   QThread::msleep(1);
   parentPlot()->addLayer(layername_, xaxis_->layer(), QCustomPlot::limBelow);
   setLayer(layername_);
@@ -468,8 +474,8 @@ void Vector2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   xmlwriter->writeAttribute("from", QString::number(from_));
   xmlwriter->writeAttribute("to", QString::number(to_));
   (getlegendvisible_vecplot())
-    ? xmlwriter->writeAttribute("legendvisible", "true")
-    : xmlwriter->writeAttribute("legendvisible", "false");
+      ? xmlwriter->writeAttribute("legendvisible", "true")
+      : xmlwriter->writeAttribute("legendvisible", "false");
   xmlwriter->writeAttribute("legend", getlegendtext_vecplot());
   (getlineantialiased_vecplot())
       ? xmlwriter->writeAttribute("antialias", "true")
@@ -603,7 +609,7 @@ bool Vector2D::load(XmlStreamReader *xmlreader) {
     bool legendvisible = xmlreader->readAttributeBool("legendvisible", &ok);
     (ok) ? setlegendvisible_vecplot(legendvisible)
          : xmlreader->raiseWarning(
-           tr("Curve2D legend visible property setting error"));
+               tr("Curve2D legend visible property setting error"));
 
   } else  // no element
     xmlreader->raiseError(tr("no Vector2D item element found"));

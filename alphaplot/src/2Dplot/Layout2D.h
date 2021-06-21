@@ -31,7 +31,7 @@ class Layout2D : public MyWidget {
                                                    const int key);
 
   void generateFunction2DPlot(QVector<double> *xdata, QVector<double> *ydata,
-                              const QString xLabel, const QString yLabel);
+                              const PlotData::FunctionData funcdata);
   void generateScatterWithXerror2DPlot(Table *table, Column *xData,
                                        Column *yData, Column *xErr,
                                        const int from, const int to);

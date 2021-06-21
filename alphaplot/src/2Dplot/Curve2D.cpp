@@ -4,6 +4,7 @@
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
 #include "Table.h"
+#include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
@@ -27,6 +28,7 @@ Curve2D::Curve2D(Curve2D::Curve2DType curve2dtype, Table *table, Column *xcol,
       xerroravailable_(false),
       yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None) {
+  reloadIcon();
   init();
   setSelectable(QCP::SelectionType::stSingleData);
   setlinestrokecolor_cplot(
@@ -42,8 +44,8 @@ Curve2D::Curve2D(Curve2D::Curve2DType curve2dtype, Table *table, Column *xcol,
   setData(curvedata_->data());
 }
 
-Curve2D::Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
-                 Axis2D *yAxis)
+Curve2D::Curve2D(const PlotData::FunctionData funcdata, QVector<double> *xdata,
+                 QVector<double> *ydata, Axis2D *xAxis, Axis2D *yAxis)
     : QCPCurve(xAxis, yAxis),
       xAxis_(xAxis),
       yAxis_(yAxis),
@@ -52,6 +54,7 @@ Curve2D::Curve2D(QVector<double> *xdata, QVector<double> *ydata, Axis2D *xAxis,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
       curvedata_(nullptr),
+      funcdata_(funcdata),
       functionData_(new QCPCurveDataContainer),
       type_(Graph2DCommon::PlotType::Function),
       xerrorbar_(nullptr),
@@ -412,6 +415,7 @@ void Curve2D::setlinetype_cplot(const int type) {
       }
       break;
   }
+  reloadIcon();
 }
 
 void Curve2D::setlinestrokestyle_cplot(const Qt::PenStyle &style) {
@@ -523,6 +527,7 @@ void Curve2D::setscattershape_cplot(const Graph2DCommon::ScatterStyle &shape) {
       break;
   }
   setScatterStyle(*scatterstyle_);
+  reloadIcon();
 }
 
 void Curve2D::setscatterfillcolor_cplot(const QColor &color) {
@@ -580,6 +585,7 @@ void Curve2D::setlinefillstatus_cplot(const bool value) {
       splineBrush_.setStyle(Qt::NoBrush);
     }
   }
+  reloadIcon();
 }
 
 void Curve2D::setlegendvisible_cplot(const bool value) {
@@ -608,8 +614,8 @@ void Curve2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   }
 
   (getlegendvisible_cplot())
-    ? xmlwriter->writeAttribute("legendvisible", "true")
-    : xmlwriter->writeAttribute("legendvisible", "false");
+      ? xmlwriter->writeAttribute("legendvisible", "true")
+      : xmlwriter->writeAttribute("legendvisible", "false");
   xmlwriter->writeAttribute("legend", getlegendtext_cplot());
   // data
   if (curvedata_) {
@@ -621,6 +627,39 @@ void Curve2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
     xmlwriter->writeAttribute("to", QString::number(curvedata_->getto()));
   } else if (functionData_) {
     xmlwriter->writeAttribute("data", "function");
+    switch (funcdata_.type) {
+      case 0:
+        xmlwriter->writeAttribute("functiontype", "normal");
+        (funcdata_.functions.size() == 1)
+            ? xmlwriter->writeAttribute("function", funcdata_.functions.at(0))
+            : xmlwriter->writeAttribute("function", "unknown");
+        break;
+      case 1:
+        xmlwriter->writeAttribute("functiontype", "parametric");
+        if (funcdata_.functions.size() == 2) {
+          xmlwriter->writeAttribute("functionx", funcdata_.functions.at(0));
+          xmlwriter->writeAttribute("functiony", funcdata_.functions.at(1));
+        } else {
+          xmlwriter->writeAttribute("functionx", "unknown");
+          xmlwriter->writeAttribute("functiony", "unknown");
+        }
+        xmlwriter->writeAttribute("parameter", funcdata_.parameter);
+        break;
+      case 2:
+        xmlwriter->writeAttribute("functiontype", "polar");
+        if (funcdata_.functions.size() == 2) {
+          xmlwriter->writeAttribute("functionr", funcdata_.functions.at(0));
+          xmlwriter->writeAttribute("functiontheta", funcdata_.functions.at(1));
+        } else {
+          xmlwriter->writeAttribute("functionr", "unknown");
+          xmlwriter->writeAttribute("functiontheta", "unknown");
+        }
+        xmlwriter->writeAttribute("parameter", funcdata_.parameter);
+        break;
+    }
+    xmlwriter->writeAttribute("from", QString::number(funcdata_.from));
+    xmlwriter->writeAttribute("to", QString::number(funcdata_.to));
+    xmlwriter->writeAttribute("points", QString::number(funcdata_.points));
     xmlwriter->writeStartElement("functiondata");
 
     for (int i = 0; i < functionData_.data()->size(); ++i) {
@@ -1067,4 +1106,48 @@ void Curve2D::removepicker(QMouseEvent *event, const QVariant &details) {
       }
     }
   }
+}
+
+void Curve2D::reloadIcon() {
+  if (curve2dtype_ == Curve2DType::Spline) {
+    icon_ = IconLoader::load("graph2d-spline", IconLoader::LightDark);
+    return;
+  }
+  if (type_ == Graph2DCommon::PlotType::Function) {
+    icon_ = IconLoader::load("graph2d-function-xy", IconLoader::LightDark);
+    return;
+  }
+  (getlinetype_cplot() == 0 &&
+   getscattershape_cplot() == Graph2DCommon::ScatterStyle::None &&
+   getlinefillstatus_cplot() == false)
+      ? icon_ = IconLoader::load("graph2d-scatter", IconLoader::LightDark)
+  : (getlinetype_cplot() == 0 &&
+     getscattershape_cplot() == Graph2DCommon::ScatterStyle::None &&
+     getlinefillstatus_cplot() == true)
+      ? icon_ = IconLoader::load("graph2d-scatter", IconLoader::LightDark)
+  : (getlinetype_cplot() == 0 &&
+     getscattershape_cplot() != Graph2DCommon::ScatterStyle::None &&
+     getlinefillstatus_cplot() == false)
+      ? icon_ = IconLoader::load("graph2d-scatter", IconLoader::LightDark)
+  : (getlinetype_cplot() == 0 &&
+     getscattershape_cplot() != Graph2DCommon::ScatterStyle::None &&
+     getlinefillstatus_cplot() == true)
+      ? icon_ = IconLoader::load("graph2d-scatter", IconLoader::LightDark)
+  : (getlinetype_cplot() == 1 &&
+     getscattershape_cplot() == Graph2DCommon::ScatterStyle::None &&
+     getlinefillstatus_cplot() == false)
+      ? icon_ = IconLoader::load("graph2d-line", IconLoader::LightDark)
+  : (getlinetype_cplot() == 1 &&
+     getscattershape_cplot() == Graph2DCommon::ScatterStyle::None &&
+     getlinefillstatus_cplot() == true)
+      ? icon_ = IconLoader::load("graph2d-area", IconLoader::LightDark)
+  : (getlinetype_cplot() == 1 &&
+     getscattershape_cplot() != Graph2DCommon::ScatterStyle::None &&
+     getlinefillstatus_cplot() == false)
+      ? icon_ = IconLoader::load("graph2d-line-scatter", IconLoader::LightDark)
+  : (getlinetype_cplot() == 1 &&
+     getscattershape_cplot() != Graph2DCommon::ScatterStyle::None &&
+     getlinefillstatus_cplot() == true)
+      ? icon_ = IconLoader::load("graph2d-area", IconLoader::LightDark)
+      : IconLoader::load("graph2d-line-scatter", IconLoader::LightDark);
 }

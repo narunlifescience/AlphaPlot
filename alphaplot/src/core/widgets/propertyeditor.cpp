@@ -695,8 +695,7 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
       boolManager_->addProperty("Scatter Antialiased");
   cplotpropertylegendvisibleitem_ = boolManager_->addProperty("Legend");
   cplotpropertylegendtextitem_ = stringManager_->addProperty("Plot Legend");
-  cplotpropertylegendvisibleitem_->addSubProperty(
-      cplotpropertylegendtextitem_);
+  cplotpropertylegendvisibleitem_->addSubProperty(cplotpropertylegendtextitem_);
 
   // Box Properties block
   barplotpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
@@ -857,7 +856,7 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   vectorpropertylegendvisibleitem_ = boolManager_->addProperty("Legend");
   vectorpropertylegendtextitem_ = stringManager_->addProperty("Plot Legend");
   vectorpropertylegendvisibleitem_->addSubProperty(
-    vectorpropertylegendtextitem_);
+      vectorpropertylegendtextitem_);
 
   // Pie Properties Block
   QStringList piestyle;
@@ -1628,6 +1627,7 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     lsgraph->setlinefillstatus_lsplot(value);
     lsgraph->setlinefillstyle_lsplot(static_cast<Qt::BrushStyle>(
         enumManager_->value(lsplotpropertylinefillstyleitem_) + 1));
+    objectbrowser_->currentItem()->setIcon(0, lsgraph->getIcon());
     lsgraph->layer()->replot();
   } else if (prop->compare(lsplotpropertylineantialiaseditem_)) {
     LineSpecial2D *lsgraph =
@@ -1686,6 +1686,7 @@ void PropertyEditor::valueChange(QtProperty *prop, const bool value) {
     curve->setlinefillstatus_cplot(value);
     curve->setlinefillstyle_cplot(static_cast<Qt::BrushStyle>(
         enumManager_->value(cplotpropertylinefillstyleitem_) + 1));
+    objectbrowser_->currentItem()->setIcon(0, curve->getIcon());
     curve->layer()->replot();
     curve->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(cplotpropertylineantialiaseditem_)) {
@@ -2324,7 +2325,7 @@ void PropertyEditor::valueChange(QtProperty *prop, const QRect &rect) {
     margin.setBottom(rect.bottom());
     legend->setMargins(margin);
     legend->layer()->replot();
-    } else if (prop->compare(itempropertytextmarginitem_)) {
+  } else if (prop->compare(itempropertytextmarginitem_)) {
     TextItem2D *textitem =
         getgraph2dobject<TextItem2D>(objectbrowser_->currentItem());
     QMargins margin;
@@ -3319,6 +3320,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
         getgraph2dobject<LineSpecial2D>(objectbrowser_->currentItem());
     lsgraph->setlinetype_lsplot(
         static_cast<Graph2DCommon::LineStyleType>(value));
+    objectbrowser_->currentItem()->setIcon(0, lsgraph->getIcon());
     lsgraph->layer()->replot();
     lsgraph->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(lsplotpropertylinestroketypeitem_)) {
@@ -3477,6 +3479,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
   } else if (prop->compare(cplotpropertylinestyleitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setlinetype_cplot(value);
+    objectbrowser_->currentItem()->setIcon(0, curve->getIcon());
     curve->layer()->replot();
   } else if (prop->compare(cplotpropertylinestroketypeitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
@@ -3490,6 +3493,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
     curve->setscattershape_cplot(
         static_cast<Graph2DCommon::ScatterStyle>(value));
+    objectbrowser_->currentItem()->setIcon(0, curve->getIcon());
     curve->layer()->replot();
   } else if (prop->compare(cplotpropertyscatterstrokestyleitem_)) {
     Curve2D *curve = getgraph2dobject<Curve2D>(objectbrowser_->currentItem());
@@ -3643,6 +3647,7 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
   } else if (prop->compare(pieplotpropertystyleitem_)) {
     Pie2D *pie = getgraph2dobject<Pie2D>(objectbrowser_->currentItem());
     pie->setstyle_pieplot(static_cast<Graph2DCommon::PieStyle>(value));
+    objectbrowser_->currentItem()->setIcon(0, pie->getIcon());
     pie->layer()->replot();
     pie->getaxisrect()->replotBareBones();
     pie->getaxisrect()->getLegend()->layer()->replot();
@@ -5595,6 +5600,28 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       "<tr> <td align=\"right\">Column Y :</td><td>%3</td></tr>"
       "<tr> <td align=\"right\">From :</td><td>%4</td></tr>"
       "<tr> <td align=\"right\">To :</td><td>%5</td></tr>");
+  QString tooltiptextfuncxy = QString(
+      "<tr> <td align=\"right\">Type :</td><td>%1</td></tr>"
+      "<tr> <td align=\"right\">Function :</td><td>%2</td></tr>"
+      "<tr> <td align=\"right\">From :</td><td>%3</td></tr>"
+      "<tr> <td align=\"right\">To :</td><td>%4</td></tr>"
+      "<tr> <td align=\"right\">Points :</td><td>%5</td></tr>");
+  QString tooltiptextfuncparam = QString(
+      "<tr> <td align=\"right\">Type :</td><td>%1</td></tr>"
+      "<tr> <td align=\"right\">Function X :</td><td>%2</td></tr>"
+      "<tr> <td align=\"right\">Function Y :</td><td>%3</td></tr>"
+      "<tr> <td align=\"right\">Parameter :</td><td>%4</td></tr>"
+      "<tr> <td align=\"right\">From :</td><td>%5</td></tr>"
+      "<tr> <td align=\"right\">To :</td><td>%6</td></tr>"
+      "<tr> <td align=\"right\">Points :</td><td>%7</td></tr>");
+  QString tooltiptextfuncpolar = QString(
+      "<tr> <td align=\"right\">Type :</td><td>%1</td></tr>"
+      "<tr> <td align=\"right\">Function R :</td><td>%2</td></tr>"
+      "<tr> <td align=\"right\">Function Theta :</td><td>%3</td></tr>"
+      "<tr> <td align=\"right\">Parameter :</td><td>%4</td></tr>"
+      "<tr> <td align=\"right\">From :</td><td>%5</td></tr>"
+      "<tr> <td align=\"right\">To :</td><td>%6</td></tr>"
+      "<tr> <td align=\"right\">Points :</td><td>%7</td></tr>");
   QString tooltiptextxyyy = QString(
       "<tr> <td align=\"right\">Table :</td><td>%1</td></tr>"
       "<tr> <td align=\"right\">Column :</td><td>%2</td></tr>"
@@ -5868,8 +5895,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                                       .arg(QString::number(data->getfrom() + 1))
                                       .arg(QString::number(data->getto() + 1));
             lsgraphitem->setToolTip(0, tooltiptext);
-            lsgraphitem->setIcon(
-                0, IconLoader::load("graph2d-line", IconLoader::LightDark));
+            lsgraphitem->setIcon(0, lsgraph->getIcon());
             lsgraphitem->setData(
                 0, Qt::UserRole,
                 static_cast<int>(
@@ -5947,6 +5973,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             QTreeWidgetItem *curvegraphitem =
                 new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
                                     QStringList(curvegraphtext));
+            curvegraphitem->setIcon(0, curvegraph->getIcon());
             switch (curvegraph->getplottype_cplot()) {
               case Graph2DCommon::PlotType::Associated: {
                 DataBlockCurve *data = curvegraph->getdatablock_cplot();
@@ -5963,24 +5990,71 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                         .arg(QString::number(data->getfrom() + 1))
                         .arg(QString::number(data->getto() + 1));
                 curvegraphitem->setToolTip(0, tooltiptext);
-                if (curvegraph->getcurvetype_cplot() ==
-                    Curve2D::Curve2DType::Curve) {
-                  curvegraphitem->setIcon(
-                      0,
-                      IconLoader::load("graph2d-curve", IconLoader::LightDark));
-                } else
-                  curvegraphitem->setIcon(
-                      0, IconLoader::load("graph2d-spline",
-                                          IconLoader::LightDark));
               } break;
-              case Graph2DCommon::PlotType::Function:
+              case Graph2DCommon::PlotType::Function: {
                 curvegraphtext = QString("Function %1").arg(function++);
-                curvegraphitem->setIcon(
-                    0, IconLoader::load("graph2d-function-xy",
-                                        IconLoader::LightDark));
                 curvegraphitem->setText(0, curvegraphtext);
-                curvegraphitem->setToolTip(0, curvegraphtext);
-                break;
+                PlotData::FunctionData funcdata =
+                    curvegraph->getfuncdata_cplot();
+                switch (funcdata.type) {
+                  case 0: {
+                    QString functype, func;
+                    if (funcdata.functions.size() == 1) {
+                      functype = QString(tr("Normal XY"));
+                      func = funcdata.functions.at(0);
+                    } else {
+                      functype = QString(tr("Unknown"));
+                      func = QString(tr("unknown"));
+                    }
+                    curvegraphitem->setToolTip(0, QString(tooltiptextfuncxy)
+                                                      .arg(functype)
+                                                      .arg(func)
+                                                      .arg(funcdata.from)
+                                                      .arg(funcdata.to)
+                                                      .arg(funcdata.points));
+                  } break;
+                  case 1: {
+                    QString functype, func1, func2;
+                    if (funcdata.functions.size() == 2) {
+                      functype = QString(tr("Parametric"));
+                      func1 = funcdata.functions.at(0);
+                      func2 = funcdata.functions.at(1);
+                    } else {
+                      functype = QString(tr("Unknown"));
+                      func1 = QString(tr("unknown"));
+                      func2 = QString(tr("unknown"));
+                    }
+                    curvegraphitem->setToolTip(0, QString(tooltiptextfuncparam)
+                                                      .arg(functype)
+                                                      .arg(func1)
+                                                      .arg(func2)
+                                                      .arg(funcdata.parameter)
+                                                      .arg(funcdata.from)
+                                                      .arg(funcdata.to)
+                                                      .arg(funcdata.points));
+                  } break;
+                  case 2: {
+                    QString functype, func1, func2;
+                    if (funcdata.functions.size() == 2) {
+                      functype = QString(tr("Polar"));
+                      func1 = funcdata.functions.at(0);
+                      func2 = funcdata.functions.at(1);
+                    } else {
+                      functype = QString(tr("Unknown"));
+                      func1 = QString(tr("unknown"));
+                      func2 = QString(tr("unknown"));
+                    }
+                    curvegraphitem->setToolTip(0, QString(tooltiptextfuncpolar)
+                                                      .arg(functype)
+                                                      .arg(func1)
+                                                      .arg(func2)
+                                                      .arg(funcdata.parameter)
+                                                      .arg(funcdata.from)
+                                                      .arg(funcdata.to)
+                                                      .arg(funcdata.points));
+                  } break;
+                }
+              } break;
             }
             curvegraphitem->setData(
                 0, Qt::UserRole,
@@ -6066,8 +6140,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                     .arg(QString::number(statbox->getfrom_statbox() + 1))
                     .arg(QString::number(statbox->getto_statbox() + 1));
             statboxitem->setToolTip(0, tooltip);
-            statboxitem->setIcon(
-                0, IconLoader::load("graph2d-box", IconLoader::LightDark));
+            statboxitem->setIcon(0, statbox->getIcon());
             statboxitem->setData(
                 0, Qt::UserRole,
                 static_cast<int>(
@@ -6107,8 +6180,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                     .arg(QString::number(vector->getfrom_vecplot() + 1))
                     .arg(QString::number(vector->getto_vecplot() + 1));
             vectoritem->setToolTip(0, tooltiptext);
-            vectoritem->setIcon(0, IconLoader::load("graph2d-vector-xy",
-                                                    IconLoader::LightDark));
+            vectoritem->setIcon(0, vector->getIcon());
             vectoritem->setData(
                 0, Qt::UserRole,
                 static_cast<int>(MyTreeWidget::PropertyItemType::Plot2DVector));
@@ -6174,6 +6246,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             QString bartext = QString("Histogram");
             QTreeWidgetItem *baritem = new QTreeWidgetItem(
                 static_cast<QTreeWidget *>(nullptr), QStringList(bartext));
+            baritem->setIcon(0, bar->getIcon());
             if (bar->ishistogram_barplot()) {
               bartext =
                   bar->getdatablock_histplot()->gettable()->name() + "_" +
@@ -6192,8 +6265,6 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                           bar->getdatablock_histplot()->getto() + 1));
               baritem->setToolTip(0, tooltiptext);
               baritem->setText(0, bartext);
-              baritem->setIcon(0, IconLoader::load("graph2d-histogram",
-                                                   IconLoader::LightDark));
             } else {
               DataBlockBar *data = bar->getdatablock_barplot();
               bartext = data->gettable()->name() + "_" +
@@ -6202,32 +6273,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                         QString::number(data->getfrom() + 1) + ":" +
                         QString::number(data->getto() + 1) + "]";
               baritem->setText(0, bartext);
-              if ((bar->getxaxis()->getorientation_axis() ==
-                       Axis2D::AxisOreantation::Top ||
-                   bar->getxaxis()->getorientation_axis() ==
-                       Axis2D::AxisOreantation::Bottom) &&
-                  bar->getstackposition_barplot() == -1) {
-                baritem->setIcon(0, IconLoader::load("graph2d-vertical-bar",
-                                                     IconLoader::LightDark));
-              } else if ((bar->getxaxis()->getorientation_axis() ==
-                              Axis2D::AxisOreantation::Top ||
-                          bar->getxaxis()->getorientation_axis() ==
-                              Axis2D::AxisOreantation::Bottom) &&
-                         bar->getstackposition_barplot() != -1) {
-                baritem->setIcon(0,
-                                 IconLoader::load("graph2d-vertical-stack-bar",
-                                                  IconLoader::LightDark));
-              } else if ((bar->getxaxis()->getorientation_axis() !=
-                              Axis2D::AxisOreantation::Top &&
-                          bar->getxaxis()->getorientation_axis() !=
-                              Axis2D::AxisOreantation::Bottom) &&
-                         bar->getstackposition_barplot() == -1) {
-                baritem->setIcon(0, IconLoader::load("graph2d-horizontal-bar",
-                                                     IconLoader::LightDark));
-              } else
-                baritem->setIcon(
-                    0, IconLoader::load("graph2d-horizontal-stack-bar",
-                                        IconLoader::LightDark));
+
               QString tooltiptext =
                   tooltiptextxy.arg(data->gettable()->name())
                       .arg(data->getxcolumn()->name())
@@ -6321,8 +6367,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                     .arg(QString::number(pie->getfrom_pieplot() + 1))
                     .arg(QString::number(pie->getto_pieplot() + 1));
             pieitem->setToolTip(0, tooltip);
-            pieitem->setIcon(
-                0, IconLoader::load("graph2d-pie", IconLoader::LightDark));
+            pieitem->setIcon(0, pie->getIcon());
             pieitem->setData(
                 0, Qt::UserRole,
                 static_cast<int>(
@@ -7189,8 +7234,7 @@ void PropertyEditor::setObjectPropertyId() {
       "lsplotpropertyscatterantialiaseditem_");
   lsplotpropertylegendvisibleitem_->setPropertyId(
       "lsplotpropertylegendvisibleitem_");
-  lsplotpropertylegendtextitem_->setPropertyId(
-      "lsplotpropertylegendtextitem_");
+  lsplotpropertylegendtextitem_->setPropertyId("lsplotpropertylegendtextitem_");
   // LineSpecialChannel Properties block
   channelplotpropertyxaxisitem_->setPropertyId("channelplotpropertyxaxisitem_");
   channelplotpropertyyaxisitem_->setPropertyId("channelplotpropertyyaxisitem_");

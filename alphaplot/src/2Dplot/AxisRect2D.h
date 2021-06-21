@@ -129,7 +129,8 @@ class AxisRect2D : public QCPAxisRect {
   Curve2D *addCurve2DPlot(const AxisRect2D::LineScatterType &type, Table *table,
                           Column *xcol, Column *ycol, const int from,
                           const int to, Axis2D *xAxis, Axis2D *yAxis);
-  Curve2D *addFunction2DPlot(QVector<double> *xdata, QVector<double> *ydata,
+  Curve2D *addFunction2DPlot(const PlotData::FunctionData funcdata,
+                             QVector<double> *xdata, QVector<double> *ydata,
                              Axis2D *xAxis, Axis2D *yAxis, const QString &name);
   Bar2D *addBox2DPlot(const BarType &type, Table *table, Column *xData,
                       Column *yData, const int from, const int to,

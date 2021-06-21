@@ -4,6 +4,7 @@
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
 #include "Table.h"
+#include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
@@ -24,6 +25,41 @@ Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
       yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None),
       stackposition_(stackposition) {
+  // set Icon
+  if ((xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Top ||
+       xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Bottom) &&
+      stackposition_ == -1) {
+    icon_ = IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark);
+  } else if ((xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Top ||
+              xaxis_->getorientation_axis() ==
+                  Axis2D::AxisOreantation::Bottom) &&
+             stackposition_ != -1) {
+    bool isgroup = false;
+    foreach (QCPBarsGroup *group,
+             xaxis_->getaxisrect_axis()->getBarGroupVec()) {
+      (group->contains(this)) ? isgroup = true : isgroup = false;
+    }
+    (isgroup) ? icon_ = IconLoader::load("graph2d-vertical-group-bar",
+                                         IconLoader::LightDark)
+              : icon_ = IconLoader::load("graph2d-vertical-stack-bar",
+                                         IconLoader::LightDark);
+  } else if ((xaxis_->getorientation_axis() != Axis2D::AxisOreantation::Top &&
+              xaxis_->getorientation_axis() !=
+                  Axis2D::AxisOreantation::Bottom) &&
+             stackposition_ == -1) {
+    icon_ = IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark);
+  } else {
+    bool isgroup = false;
+    foreach (QCPBarsGroup *group,
+             xaxis_->getaxisrect_axis()->getBarGroupVec()) {
+      (group->contains(this)) ? isgroup = true : isgroup = false;
+    }
+    (isgroup) ? icon_ = IconLoader::load("graph2d-horizontal-group-bar",
+                                         IconLoader::LightDark)
+              : icon_ = IconLoader::load("graph2d-horizontal-stack-bar",
+                                         IconLoader::LightDark);
+  }
+
   init();
   setSelectable(QCP::SelectionType::stSingleData);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);
@@ -50,6 +86,7 @@ Bar2D::Bar2D(Table *table, Column *col, int from, int to, Axis2D *xAxis,
       yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None),
       stackposition_(-1) {
+  icon_ = IconLoader::load("graph2d-histogram", IconLoader::LightDark);
   init();
   setSelectable(QCP::SelectionType::stSingleData);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);

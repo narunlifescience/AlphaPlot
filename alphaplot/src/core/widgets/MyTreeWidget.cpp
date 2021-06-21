@@ -26,6 +26,8 @@
 MyTreeWidget::MyTreeWidget(QWidget *parent)
     : QTreeWidget(parent),
       widget_(parent),
+      showfunctiondetailscurve2d_(
+          new QAction("Show function details...", this)),
       selectdatacolumnslsgraph2d_(new QAction("Go To Data Columns...", this)),
       selectdatacolumnschannelgraph2d_(
           new QAction("Go To Data Columns...", this)),
@@ -80,6 +82,8 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       movedownimageitem_(new QAction("Layer Down", this)) {
   setContextMenuPolicy(Qt::CustomContextMenu);
   // Icons
+  showfunctiondetailscurve2d_->setIcon(
+      IconLoader::load("math-fofx", IconLoader::LightDark));
   removeaxis_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removels_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removechannel_->setIcon(
@@ -140,6 +144,8 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
           &MyTreeWidget::CurrentItemChanged);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
           SLOT(showContextMenu(const QPoint &)));
+  connect(showfunctiondetailscurve2d_, &QAction::triggered, this,
+          &MyTreeWidget::showFunctionDetails);
   connect(clonetotopaxis_, &QAction::triggered, this,
           &MyTreeWidget::cloneAxis2D);
   connect(clonetobottomaxis_, &QAction::triggered, this,
@@ -386,7 +392,13 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       selectdatacolumnschannelgraph2d_->setData(
           item->data(0, Qt::UserRole + 1));
       break;
-    case PropertyItemType::Plot2DCurve:
+    case PropertyItemType::Plot2DCurve: {
+      void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
+      Curve2D *curve = static_cast<Curve2D *>(ptr);
+      if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Function) {
+        menu.addAction(showfunctiondetailscurve2d_);
+        showfunctiondetailscurve2d_->setData(item->data(0, Qt::UserRole + 1));
+      }
       menu.addAction(selectdatacolumnscurvegraph2d_);
       menu.addAction(moveupcurve_);
       menu.addAction(movedowncurve_);
@@ -395,7 +407,7 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       moveupcurve_->setData(item->data(0, Qt::UserRole + 1));
       movedowncurve_->setData(item->data(0, Qt::UserRole + 1));
       selectdatacolumnscurvegraph2d_->setData(item->data(0, Qt::UserRole + 1));
-      break;
+    } break;
     case PropertyItemType::Plot2DBarGraph:
       menu.addAction(selectdatacolumnsbargraph2d_);
       menu.addAction(moveupbar_);
@@ -652,6 +664,97 @@ void MyTreeWidget::removeImageItem2D() {
   if (!result) {
     qDebug() << "unable to remove line special 2d plot";
     return;
+  }
+}
+
+void MyTreeWidget::showFunctionDetails() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action || action != showfunctiondetailscurve2d_) return;
+  void *ptr = action->data().value<void *>();
+  Curve2D *curve = static_cast<Curve2D *>(ptr);
+  const PlotData::FunctionData funcdata = curve->getfuncdata_cplot();
+  switch (funcdata.type) {
+    case 0: {
+      QString functype, func;
+      QString funcxy = QString(
+          "<tr> <td align=\"right\">Type :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">Function :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">From :</td><td>%3</td></tr>"
+          "<tr> <td align=\"right\">To :</td><td>%4</td></tr>"
+          "<tr> <td align=\"right\">Points :</td><td>%5</td></tr>");
+      if (funcdata.functions.size() == 1) {
+        functype = QString(tr("Normal XY"));
+        func = funcdata.functions.at(0);
+      } else {
+        functype = QString(tr("Unknown"));
+        func = QString(tr("unknown"));
+      }
+      QMessageBox::information(this, tr("Function: %1").arg(functype),
+                               QString(funcxy)
+                                   .arg(functype)
+                                   .arg(func)
+                                   .arg(funcdata.from)
+                                   .arg(funcdata.to)
+                                   .arg(funcdata.points));
+    } break;
+    case 1: {
+      QString functype, func1, func2;
+      QString funcparam = QString(
+          "<tr> <td align=\"right\">Type :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">Function X :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">Function Y :</td><td>%3</td></tr>"
+          "<tr> <td align=\"right\">Parameter :</td><td>%4</td></tr>"
+          "<tr> <td align=\"right\">From :</td><td>%5</td></tr>"
+          "<tr> <td align=\"right\">To :</td><td>%6</td></tr>"
+          "<tr> <td align=\"right\">Points :</td><td>%7</td></tr>");
+      if (funcdata.functions.size() == 2) {
+        functype = QString(tr("Parametric"));
+        func1 = funcdata.functions.at(0);
+        func2 = funcdata.functions.at(1);
+      } else {
+        functype = QString(tr("Unknown"));
+        func1 = QString(tr("unknown"));
+        func2 = QString(tr("unknown"));
+      }
+      QMessageBox::information(this, tr("Function: %1").arg(functype),
+                               QString(funcparam)
+                                   .arg(functype)
+                                   .arg(func1)
+                                   .arg(func2)
+                                   .arg(funcdata.parameter)
+                                   .arg(funcdata.from)
+                                   .arg(funcdata.to)
+                                   .arg(funcdata.points));
+    } break;
+    case 2: {
+      QString functype, func1, func2;
+      QString funcpolar = QString(
+          "<tr> <td align=\"right\">Type :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">Function R :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">Function Theta :</td><td>%3</td></tr>"
+          "<tr> <td align=\"right\">Parameter :</td><td>%4</td></tr>"
+          "<tr> <td align=\"right\">From :</td><td>%5</td></tr>"
+          "<tr> <td align=\"right\">To :</td><td>%6</td></tr>"
+          "<tr> <td align=\"right\">Points :</td><td>%7</td></tr>");
+      if (funcdata.functions.size() == 2) {
+        functype = QString(tr("Polar"));
+        func1 = funcdata.functions.at(0);
+        func2 = funcdata.functions.at(1);
+      } else {
+        functype = QString(tr("Unknown"));
+        func1 = QString(tr("unknown"));
+        func2 = QString(tr("unknown"));
+      }
+      QMessageBox::information(this, tr("Function: %1").arg(functype),
+                               QString(funcpolar)
+                                   .arg(functype)
+                                   .arg(func1)
+                                   .arg(func2)
+                                   .arg(funcdata.parameter)
+                                   .arg(funcdata.from)
+                                   .arg(funcdata.to)
+                                   .arg(funcdata.points));
+    } break;
   }
 }
 

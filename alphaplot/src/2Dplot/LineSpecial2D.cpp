@@ -8,6 +8,7 @@
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
 #include "Table.h"
+#include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
@@ -33,6 +34,7 @@ LineSpecial2D::LineSpecial2D(Table *table, Column *xcol, Column *ycol, int from,
       picker_(Graph2DCommon::Picker::None)
 // mPointUnderCursor(new PlotPoint(parentPlot(), 5))
 {
+  reloadIcon();
   QThread::msleep(1);
   parentPlot()->addLayer(layername_, xAxis_->layer(), QCustomPlot::limBelow);
   setLayer(layername_);
@@ -268,6 +270,7 @@ void LineSpecial2D::setlinetype_lsplot(
       setLineStyle(QCPGraph::lsLine);
       break;
   }
+  reloadIcon();
 }
 
 void LineSpecial2D::setlinestrokestyle_lsplot(const Qt::PenStyle &style) {
@@ -298,6 +301,7 @@ void LineSpecial2D::setlinefillstatus_lsplot(bool status) {
     b.setStyle(Qt::NoBrush);
     setBrush(b);
   }
+  reloadIcon();
 }
 
 void LineSpecial2D::setlinefillcolor_lsplot(const QColor &color) {
@@ -447,8 +451,8 @@ void LineSpecial2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   xmlwriter->writeAttribute("yaxis", QString::number(yaxis));
 
   (getlegendvisible_lsplot())
-    ? xmlwriter->writeAttribute("legendvisible", "true")
-    : xmlwriter->writeAttribute("legendvisible", "false");
+      ? xmlwriter->writeAttribute("legendvisible", "true")
+      : xmlwriter->writeAttribute("legendvisible", "false");
   xmlwriter->writeAttribute("legend", getlegendtext_lsplot());
   // data
   xmlwriter->writeAttribute("table", graphdata_->gettable()->name());
@@ -766,6 +770,37 @@ void LineSpecial2D::removepicker(QMouseEvent *event, const QVariant &details) {
         point.y() < event->localPos().y() + 10) {
       graphdata_->removedatafromtable(it->mainKey(), it->mainValue());
     }
+  }
+}
+
+void LineSpecial2D::reloadIcon() {
+  switch (getlinetype_lsplot()) {
+    case Graph2DCommon::LineStyleType::Impulse:
+      icon_ = IconLoader::load("graph2d-vertical-drop", IconLoader::LightDark);
+      break;
+    case Graph2DCommon::LineStyleType::StepCenter:
+      (getlinefillstatus_lsplot())
+          ? icon_ = IconLoader::load("graph2d-area", IconLoader::LightDark)
+          : icon_ = IconLoader::load("graph2d-vertical-step",
+                                     IconLoader::LightDark);
+      break;
+    case Graph2DCommon::LineStyleType::StepLeft:
+      (getlinefillstatus_lsplot())
+          ? icon_ = IconLoader::load("graph2d-area", IconLoader::LightDark)
+          : icon_ = IconLoader::load("graph2d-horizontal-step",
+                                     IconLoader::LightDark);
+      break;
+    case Graph2DCommon::LineStyleType::StepRight:
+      (getlinefillstatus_lsplot())
+          ? icon_ = IconLoader::load("graph2d-area", IconLoader::LightDark)
+          : icon_ = IconLoader::load("graph2d-vertical-step",
+                                     IconLoader::LightDark);
+      break;
+    case Graph2DCommon::LineStyleType::Line:
+      (getlinefillstatus_lsplot())
+          ? icon_ = IconLoader::load("graph2d-area", IconLoader::LightDark)
+          : icon_ = IconLoader::load("graph2d-line", IconLoader::LightDark);
+      break;
   }
 }
 

@@ -53,6 +53,7 @@ class Pie2D : public QCPAbstractItem {
   Column *getycolumn_pieplot() { return ycolumn_; }
   int getfrom_pieplot() const { return from_; }
   int getto_pieplot() const { return to_; }
+  QIcon getIcon() const { return icon_; }
 
   void setstrokestyle_pieplot(const Qt::PenStyle &style);
   void setstrokecolor_pieplot(const QColor &color);
@@ -86,6 +87,7 @@ class Pie2D : public QCPAbstractItem {
   Column *ycolumn_;
   int from_;
   int to_;
+  QIcon icon_;
 };
 
 #endif  // PIE2D_H
