@@ -5967,6 +5967,8 @@ void ApplicationWindow::showWindowContextMenu() {
     itemsubmenu.addAction(ui_->actionDrawArrow);
     itemsubmenu.addAction(ui_->actionDrawEllipse);
     cm.addMenu(&itemsubmenu);
+    cm.addMenu(ui_->menuGraph2DAnalysis);
+    cm.addSeparator();
     cm.addAction(ui_->actionAddNestedLayout);
     cm.addMenu(ui_->menuAddLayout);
     cm.addAction(ui_->actionRemoveLayout);

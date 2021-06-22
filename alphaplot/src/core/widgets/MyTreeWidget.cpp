@@ -17,6 +17,7 @@
 #include "2Dplot/TextItem2D.h"
 #include "2Dplot/widgets/AddPlot2DDialog.h"
 #include "2Dplot/widgets/Function2DDialog.h"
+#include "3Dplot/DataManager3D.h"
 #include "Matrix.h"
 #include "MyWidget.h"
 #include "Table.h"
@@ -27,6 +28,8 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
     : QTreeWidget(parent),
       widget_(parent),
       showfunctiondetailscurve2d_(
+          new QAction("Show function details...", this)),
+      showfunctiondetailssurface3d_(
           new QAction("Show function details...", this)),
       selectdatacolumnslsgraph2d_(new QAction("Go To Data Columns...", this)),
       selectdatacolumnschannelgraph2d_(
@@ -83,6 +86,8 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   setContextMenuPolicy(Qt::CustomContextMenu);
   // Icons
   showfunctiondetailscurve2d_->setIcon(
+      IconLoader::load("math-fofx", IconLoader::LightDark));
+  showfunctiondetailssurface3d_->setIcon(
       IconLoader::load("math-fofx", IconLoader::LightDark));
   removeaxis_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removels_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
@@ -144,8 +149,12 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
           &MyTreeWidget::CurrentItemChanged);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
           SLOT(showContextMenu(const QPoint &)));
+  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
+          SLOT(showContextMenu(const QPoint &)));
   connect(showfunctiondetailscurve2d_, &QAction::triggered, this,
-          &MyTreeWidget::showFunctionDetails);
+          &MyTreeWidget::showFunction2dDetails);
+  connect(showfunctiondetailssurface3d_, &QAction::triggered, this,
+          &MyTreeWidget::showFunction3dDetails);
   connect(clonetotopaxis_, &QAction::triggered, this,
           &MyTreeWidget::cloneAxis2D);
   connect(clonetobottomaxis_, &QAction::triggered, this,
@@ -486,6 +495,14 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       selectdatacolumnscolormapgraph2d_->setData(
           item->data(0, Qt::UserRole + 1));
       break;
+    case PropertyItemType::Plot3DSurfaceDataBlock: {
+      void *ptr = item->data(0, Qt::UserRole + 1).value<void *>();
+      DataBlockSurface3D *block = static_cast<DataBlockSurface3D *>(ptr);
+      if (!block->ismatrix()) {
+        menu.addAction(showfunctiondetailssurface3d_);
+        showfunctiondetailssurface3d_->setData(item->data(0, Qt::UserRole + 1));
+      }
+    } break;
     default:
       break;
   }
@@ -667,7 +684,33 @@ void MyTreeWidget::removeImageItem2D() {
   }
 }
 
-void MyTreeWidget::showFunctionDetails() {
+void MyTreeWidget::showFunction3dDetails() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action || action != showfunctiondetailssurface3d_) return;
+  void *ptr = action->data().value<void *>();
+  DataBlockSurface3D *block = static_cast<DataBlockSurface3D *>(ptr);
+  QString funcsurface = QString(
+      "<tr> <td align=\"right\">Function :</td><td>%1</td></tr>"
+      "<tr> <td align=\"right\">xl :</td><td>%2</td></tr>"
+      "<tr> <td align=\"right\">xu :</td><td>%3</td></tr>"
+      "<tr> <td align=\"right\">yl :</td><td>%4</td></tr>"
+      "<tr> <td align=\"right\">yu :</td><td>%5</td></tr>"
+      "<tr> <td align=\"right\">zl :</td><td>%6</td></tr>"
+      "<tr> <td align=\"right\">zu :</td><td>%7</td></tr>"
+      "<tr> <td align=\"right\">Points :</td><td>%8</td></tr>");
+  QMessageBox::information(this, tr("Function Surface3D"),
+                           QString(funcsurface)
+                               .arg(block->getfunction())
+                               .arg(QString::number(block->getxlower()))
+                               .arg(QString::number(block->getxupper()))
+                               .arg(QString::number(block->getylower()))
+                               .arg(QString::number(block->getyupper()))
+                               .arg(QString::number(block->getzlower()))
+                               .arg(QString::number(block->getzupper()))
+                               .arg(QString::number(block->getxpoints())));
+}
+
+void MyTreeWidget::showFunction2dDetails() {
   QAction *action = qobject_cast<QAction *>(sender());
   if (!action || action != showfunctiondetailscurve2d_) return;
   void *ptr = action->data().value<void *>();

@@ -5641,6 +5641,15 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
       "<tr> <td align=\"right\">Matrix :</td><td>%1</td></tr>"
       "<tr> <td align=\"right\">Rows :</td><td>%2</td></tr>"
       "<tr> <td align=\"right\">Columns :</td><td>%4</td></tr>");
+  QString tooltiptextfuncsurface = QString(
+      "<tr> <td align=\"right\">Function :</td><td>%1</td></tr>"
+      "<tr> <td align=\"right\">xl :</td><td>%2</td></tr>"
+      "<tr> <td align=\"right\">xu :</td><td>%3</td></tr>"
+      "<tr> <td align=\"right\">yl :</td><td>%4</td></tr>"
+      "<tr> <td align=\"right\">yu :</td><td>%5</td></tr>"
+      "<tr> <td align=\"right\">zl :</td><td>%6</td></tr>"
+      "<tr> <td align=\"right\">zu :</td><td>%7</td></tr>"
+      "<tr> <td align=\"right\">Points :</td><td>%8</td></tr>");
 
   // window
   {
@@ -6641,10 +6650,21 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
           foreach (DataBlockSurface3D *block,
                    lout->getSurface3DModifier()->getData()) {
             QString surfaceseriesitemtext;
-            (block->ismatrix())
-                ? surfaceseriesitemtext =
-                      tr("%1").arg(block->getmatrix()->name())
-                : surfaceseriesitemtext = tr("function %1").arg(count++);
+            if (block->ismatrix()) {
+              surfaceseriesitemtext = tr("%1").arg(block->getmatrix()->name());
+              tooltiptextfuncsurface = surfaceseriesitemtext;
+            } else {
+              surfaceseriesitemtext = tr("function %1").arg(count++);
+              tooltiptextfuncsurface =
+                  tooltiptextfuncsurface.arg(block->getfunction())
+                      .arg(QString::number(block->getxlower()))
+                      .arg(QString::number(block->getxupper()))
+                      .arg(QString::number(block->getylower()))
+                      .arg(QString::number(block->getyupper()))
+                      .arg(QString::number(block->getzlower()))
+                      .arg(QString::number(block->getzupper()))
+                      .arg(QString::number(block->getxpoints()));
+            }
             QTreeWidgetItem *surfaceseriesitem =
                 new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr));
             surfaceseriesitem->setIcon(0,
@@ -6655,7 +6675,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
                 static_cast<int>(
                     MyTreeWidget::PropertyItemType::Plot3DSurfaceDataBlock));
             surfaceseriesitem->setText(0, surfaceseriesitemtext);
-            surfaceseriesitem->setToolTip(0, surfaceseriesitemtext);
+            surfaceseriesitem->setToolTip(0, tooltiptextfuncsurface);
             surfaceseriesitem->setData(0, Qt::UserRole + 1,
                                        QVariant::fromValue<void *>(block));
             plot3ditem->addChild(surfaceseriesitem);

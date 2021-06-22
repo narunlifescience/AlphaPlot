@@ -74,7 +74,8 @@ class MyTreeWidget : public QTreeWidget {
   void removeImageItem2D();
 
  private:
-  void showFunctionDetails();
+  void showFunction2dDetails();
+  void showFunction3dDetails();
   template <class T>
   void moveplottablelayer(QAction *action,
                           const QCustomPlot::LayerInsertMode &mode);
@@ -86,6 +87,7 @@ class MyTreeWidget : public QTreeWidget {
   QWidget *widget_;
   // Show function
   QAction *showfunctiondetailscurve2d_;
+  QAction *showfunctiondetailssurface3d_;
   // slect data
   QAction *selectdatacolumnslsgraph2d_;
   QAction *selectdatacolumnschannelgraph2d_;

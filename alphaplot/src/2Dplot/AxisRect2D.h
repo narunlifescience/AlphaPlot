@@ -160,6 +160,7 @@ class AxisRect2D : public QCPAxisRect {
   Legend2D *getLegend() const { return axisRectLegend_; }
   void updateLegendRect();
   void selectAxisRect();
+  void addBarsGroup(QCPBarsGroup *bargroup) { bargroupvec_ << bargroup; }
 
   // select axisrect with mouse click
   void setSelected(const bool status);

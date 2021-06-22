@@ -479,7 +479,7 @@ void Layout2D::generateGroupedBar2DPlot(const AxisRect2D::BarType &barType,
   }
 
   QCPBarsGroup *bargroup = new QCPBarsGroup(plot2dCanvas_);
-  element->getBarGroupVec() << bargroup;
+  element->addBarsGroup(bargroup);
   QList<Bar2D *> bars;
   for (int i = 0; i < ycollist.size(); i++) {
     Bar2D *bar = element->addBox2DPlot(barType, table, xData, ycollist.at(i),
