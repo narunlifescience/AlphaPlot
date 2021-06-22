@@ -13,11 +13,12 @@ INSTALLS += target
 unix:  target.path = /usr/lib$${libsuff}/AlphaPlot/plugins
 win32: target.path = ../../output/plugins
 
-win32:INCLUDEPATH += ../../3rdparty/gsl-1.8/include
-win32:LIBS        += ../../3rdparty/gsl-1.8/lib/libgsl.a
+win32:INCLUDEPATH += ../../3rdparty/gsl/include
+win32:LIBS        += ../../3rdparty/gsl/lib/libgsl.a
+win32:LIBS        += ../../3rdparty/gsl/lib/libgslcblas.a
 
 unix:LIBS += -L/usr/lib$${libsuff} -lgsl -lgslcblas
-#unix:LIBS         += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
+#unix:LIBS += /usr/lib/libgsl.a /usr/lib/libgslcblas.a
 
 SOURCES = explin.c
 
