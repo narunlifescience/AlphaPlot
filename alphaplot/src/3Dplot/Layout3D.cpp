@@ -129,7 +129,10 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
   // QWindow doesnt pass mousepressevent to the container widget
   // so do it here manually
   connect(custominter_, &Custom3DInteractions::activateParentWindow, this,
-          [=]() { emit mousepressevent(this); });
+          [=]() {
+            emit mousepressevent(this);
+            unsetCursor();
+          });
 }
 
 Layout3D::~Layout3D() {}

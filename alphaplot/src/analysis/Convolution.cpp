@@ -129,10 +129,10 @@ void Convolution::addResultCurve() {
 
   d_table->addCol();
   d_table->addCol();
-  double x_temp[d_n];
+  //double x_temp[d_n];
   for (int i = 0; i < d_n; i++) {
     double x = i + 1;
-    x_temp[i] = x;
+    //x_temp[i] = x;
 
     d_table->column(cols)->setValueAt(i, x);
     d_table->column(cols2)->setValueAt(i, d_x[i]);

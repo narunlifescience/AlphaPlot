@@ -27,6 +27,7 @@
  ***************************************************************************/
 
 #include "Spectrogram.h"
+
 #include <math.h>
 #include <qmessagebox.h>
 #include <qpen.h>
@@ -38,18 +39,18 @@ void Spectrogram::updateData(Matrix *m) {}
 
 void Spectrogram::setLevelsNumber(int levels) {}
 
-bool Spectrogram::hasColorScale() {}
+bool Spectrogram::hasColorScale() { return false; }
 
 void Spectrogram::showColorScale(int axis, bool on) {}
 
-int Spectrogram::colorBarWidth() {}
+int Spectrogram::colorBarWidth() { return 0; }
 
 void Spectrogram::setColorBarWidth(int width) {}
 
-Spectrogram *Spectrogram::copy() {}
+Spectrogram *Spectrogram::copy() { return nullptr; }
 
 void Spectrogram::setGrayScale() {}
 
 void Spectrogram::setDefaultColorMap() {}
 
-QString Spectrogram::saveToString() {}
+QString Spectrogram::saveToString() { return QString(); }
