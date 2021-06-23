@@ -8,6 +8,7 @@
   <url type="homepage">https://alphaplot.sourceforge.io/</url>
   <url type="bugtracker">https://github.com/narunlifescience/AlphaPlot/issues</url>
   <url type="donation">https://www.patreon.com/alphaplot</url>
+  <url type="help">https://alphaplot.sourceforge.io/wiki/index.php</url>
   <summary>AlphaPlot is a free application for Scientific Data Analysis and Visualization</summary>
   <description>
     <p>
@@ -50,9 +51,9 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="1.012" date="2021-06-15">
+    <release version="1.02" date="2021-07-15">
       <description>
-        <p>Overview of changes in AlphaPlot 1.012</p>
+        <p>Overview of changes in AlphaPlot 1.02</p>
         <ul>
           <li>project explorer drag n drop</li>
           <li>add 2D legend visibility per plot, legend margins and legend direction property</li>
@@ -84,6 +85,8 @@
           <li>upgrade qcustomplot library to 2.1.0</li>
           <li>improve plot3D mouse interactions</li>
           <li>subwindow creation time load/save fixed</li>
+          <li>show function details on property browser function plot item</li>
+          <li>smake property browser plo2D items dynamically change icons based on plot property change</li>
         </ul>
       </description>
     </release>
