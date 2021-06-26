@@ -18,7 +18,6 @@
 
 #include <QMenu>
 
-#include "Bar2D.h"
 #include "ColorMap2D.h"
 #include "Curve2D.h"
 #include "ErrorBar2D.h"
@@ -254,19 +253,27 @@ Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
   return grid;
 }
 
-void AxisRect2D::setstackbar() {
+void AxisRect2D::setbarsstyle() {
   // set stack
-  QVector<Bar2D *> bvec;
-  QVector<Bar2D *> sortedbvec;
+  QList<Bar2D *> bvec;
+  QList<Bar2D *> sortedbvec;
+  Bar2D::BarStyle style;
   foreach (Bar2D *bar, barvec_) {
     if (bar->getstackposition_barplot() != -1) bvec << bar;
   }
+
+  if (bvec.size() < 2) {
+    qDebug() << "less than 2 bars for stacked/grouped port";
+    return;
+  } else
+    style = bvec.first()->getBarStyle();
   // sort the order
   if (!bvec.isEmpty()) {
     int j = 0;
     while (!bvec.isEmpty()) {
       for (int i = 0; i < bvec.size(); i++) {
         if (bvec.at(i)->getstackposition_barplot() == j) {
+          if (style != bvec.at(i)->getBarStyle()) return;
           sortedbvec << bvec.at(i);
           bvec.removeOne(bvec.at(i));
           j++;
@@ -276,12 +283,8 @@ void AxisRect2D::setstackbar() {
     }
   }
 
-  // set stack
-  Bar2D *basebar = nullptr;
-  foreach (Bar2D *bar, sortedbvec) {
-    if (basebar) bar->moveAbove(basebar);
-    basebar = bar;
-  }
+  (style == Bar2D::BarStyle::Grouped) ? addBarsToBarsGroup(sortedbvec, false)
+                                      : addBarsToStackGroup(sortedbvec);
 }
 
 QList<Axis2D *> AxisRect2D::getAxes2D() const { return axes_; }
@@ -550,16 +553,17 @@ Curve2D *AxisRect2D::addFunction2DPlot(const PlotData::FunctionData funcdata,
 Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
                                 Column *xData, Column *yData, const int from,
                                 const int to, Axis2D *xAxis, Axis2D *yAxis,
+                                const Bar2D::BarStyle &style,
                                 int stackposition) {
   Bar2D *bar;
   switch (type) {
     case AxisRect2D::BarType::HorizontalBars:
-      bar =
-          new Bar2D(table, xData, yData, from, to, yAxis, xAxis, stackposition);
+      bar = new Bar2D(table, xData, yData, from, to, yAxis, xAxis, style,
+                      stackposition);
       break;
     case AxisRect2D::BarType::VerticalBars:
-      bar =
-          new Bar2D(table, xData, yData, from, to, xAxis, yAxis, stackposition);
+      bar = new Bar2D(table, xData, yData, from, to, xAxis, yAxis, style,
+                      stackposition);
       break;
   }
 
@@ -763,6 +767,36 @@ void AxisRect2D::updateLegendRect() {
 }
 
 void AxisRect2D::selectAxisRect() { emit AxisRectClicked(this); }
+
+void AxisRect2D::addBarsToBarsGroup(QList<Bar2D *> bars,
+                                    bool autowidthsettins) {
+  QCPBarsGroup *bargroup = new QCPBarsGroup(plot2d_);
+  addBarsGroup(bargroup);
+  double spacing = 0.0;
+  foreach (Bar2D *bar, bars) {
+    if (autowidthsettins) {
+      bar->setWidthType(QCPBars::wtPlotCoords);
+      spacing = bar->width() * 0.1;
+      bar->setWidth((bar->width() / bars.size()) - spacing * 2);
+    } else {
+      spacing = bar->stackingGap();
+    }
+    bargroup->append(bar);
+    bar->setBarGroup(bargroup);
+  }
+  bargroup->setSpacingType(QCPBarsGroup::stPlotCoords);
+  bargroup->setSpacing(spacing);
+}
+
+void AxisRect2D::addBarsToStackGroup(QList<Bar2D *> bars) {
+  // create the stack
+  Bar2D *basebar = nullptr;
+  foreach (Bar2D *bar, bars) {
+    bar->setStackingGap(1);
+    if (basebar) bar->moveAbove(basebar);
+    basebar = bar;
+  }
+}
 
 void AxisRect2D::setSelected(const bool status) {
   isAxisRectSelected_ = status;
@@ -2310,14 +2344,34 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           if (!ok) xmlreader->raiseError(tr("Bar2D from not found error"));
           int to = xmlreader->readAttributeInt("to", &ok);
           if (!ok) xmlreader->raiseError(tr("Bar2D to not found error"));
+
+          Bar2D::BarStyle barstyleenum;
+          bool barstylstatus = false;
+          QString barstyle = xmlreader->readAttributeString("style", &ok);
+          if (ok) {
+            barstylstatus = true;
+            (barstyle == "individual")
+                ? barstyleenum = Bar2D::BarStyle::Individual
+            : (barstyle == "grouped") ? barstyleenum = Bar2D::BarStyle::Grouped
+            : (barstyle == "stacked")
+                ? barstyleenum = Bar2D::BarStyle::Stacked
+                : barstyleenum = Bar2D::BarStyle::Individual;
+          } else
+            xmlreader->raiseWarning(tr("Bar2D xy style not found error"));
+
           int stackorder = xmlreader->readAttributeInt("stackorder", &ok);
           if (!ok)
             xmlreader->raiseWarning(tr("Bar2D stackorder not found error"));
 
-          if (table && xcolumn && ycolumn && xaxis && yaxis) {
+          // compatibility with previous version
+          if (!barstylstatus)
+            (stackorder == -1) ? barstyleenum = Bar2D::BarStyle::Individual
+                               : barstyleenum = Bar2D::BarStyle::Stacked;
+
+          if (table && xcolumn && ycolumn && xaxis && yaxis)
             bar = addBox2DPlot(barorientation, table, xcolumn, ycolumn, from,
-                               to, xaxis, yaxis, stackorder);
-          }
+                               to, xaxis, yaxis, barstyleenum, stackorder);
+
         } else if (ok && bartype == "histogram") {
           Table *table = nullptr;
           Column *column = nullptr;
@@ -2375,7 +2429,7 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         bar->setName(legend);
 
         // stackgap
-        int stackgap = xmlreader->readAttributeInt("stackgap", &ok);
+        double stackgap = xmlreader->readAttributeDouble("stackgap", &ok);
         if (ok) {
           bar->setStackingGap(stackgap);
         } else
@@ -2614,7 +2668,7 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
   } else  // no plot2d element
     xmlreader->raiseError(tr("unknown element %1").arg(xmlreader->name()));
 
-  setstackbar();
+  setbarsstyle();
 
   return !xmlreader->hasError();
 }

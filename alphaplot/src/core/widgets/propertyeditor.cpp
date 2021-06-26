@@ -701,7 +701,7 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   barplotpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
   barplotpropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
   barplotpropertywidthitem_ = doubleManager_->addProperty("Width");
-  barplotpropertystackgapitem_ = doubleManager_->addProperty("Stack Gap");
+  barplotpropertystackgapitem_ = doubleManager_->addProperty("Stack/Group Gap");
   barplotpropertyfillantialiaseditem_ =
       boolManager_->addProperty("Fill Antialiased");
   barplotpropertyfillcoloritem_ = colorManager_->addProperty("Fill Color");
@@ -2631,7 +2631,9 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
     bar->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(barplotpropertystackgapitem_)) {
     Bar2D *bar = getgraph2dobject<Bar2D>(objectbrowser_->currentItem());
-    bar->setStackingGap(value);
+    (bar->getBarStyle() == Bar2D::BarStyle::Grouped)
+        ? bar->getBarGroup()->setSpacing(value)
+        : bar->setStackingGap(value);
     bar->layer()->replot();
     bar->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
   } else if (prop->compare(barplotpropertystrokethicknessitem_)) {
@@ -4811,8 +4813,11 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
   enumManager_->setValue(barplotpropertyxaxisitem_, currentxaxis);
 
   doubleManager_->setValue(barplotpropertywidthitem_, bargraph->width());
-  doubleManager_->setValue(barplotpropertystackgapitem_,
-                           bargraph->stackingGap());
+  double spacing;
+  (bargraph->getBarStyle() == Bar2D::BarStyle::Grouped)
+      ? spacing = bargraph->getBarGroup()->spacing()
+      : spacing = bargraph->stackingGap();
+  doubleManager_->setValue(barplotpropertystackgapitem_, spacing);
   boolManager_->setValue(barplotpropertyfillantialiaseditem_,
                          bargraph->antialiasedFill());
   colorManager_->setValue(barplotpropertyfillcoloritem_,

@@ -31,6 +31,7 @@
 * subwindow creation time load/save fixed
 * show function details on property browser function plot item
 * make property browser plo2D items dynamically change icons based on plot property change
+* save/load grouped bars plot2D
 
 === 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
 * multipeak fitting fixed

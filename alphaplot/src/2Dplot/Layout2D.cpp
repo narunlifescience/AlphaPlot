@@ -397,8 +397,9 @@ void Layout2D::generateBar2DPlot(const AxisRect2D::BarType &barType,
   }
 
   foreach (Column *col, ycollist) {
-    Bar2D *bar = element->addBox2DPlot(barType, table, xData, col, from, to,
-                                       xAxis.at(0), yAxis.at(0));
+    Bar2D *bar =
+        element->addBox2DPlot(barType, table, xData, col, from, to, xAxis.at(0),
+                              yAxis.at(0), Bar2D::BarStyle::Individual);
     bar->rescaleAxes();
   }
 }
@@ -436,16 +437,12 @@ void Layout2D::generateStakedBar2DPlot(const AxisRect2D::BarType &barType,
   QList<Bar2D *> bars;
   for (int i = 0; i < ycollist.size(); i++) {
     Bar2D *bar = element->addBox2DPlot(barType, table, xData, ycollist.at(i),
-                                       from, to, xAxis.at(0), yAxis.at(0), i);
+                                       from, to, xAxis.at(0), yAxis.at(0),
+                                       Bar2D::BarStyle::Stacked, i);
     bars.append(bar);
-    bar->setStackingGap(1);
   }
-  // create the stack
-  Bar2D *basebar = nullptr;
-  foreach (Bar2D *bar, bars) {
-    if (basebar) bar->moveAbove(basebar);
-    basebar = bar;
-  }
+
+  element->addBarsToStackGroup(bars);
 }
 
 void Layout2D::generateGroupedBar2DPlot(const AxisRect2D::BarType &barType,
@@ -478,24 +475,15 @@ void Layout2D::generateGroupedBar2DPlot(const AxisRect2D::BarType &barType,
     } break;
   }
 
-  QCPBarsGroup *bargroup = new QCPBarsGroup(plot2dCanvas_);
-  element->addBarsGroup(bargroup);
   QList<Bar2D *> bars;
   for (int i = 0; i < ycollist.size(); i++) {
     Bar2D *bar = element->addBox2DPlot(barType, table, xData, ycollist.at(i),
-                                       from, to, xAxis.at(0), yAxis.at(0), i);
+                                       from, to, xAxis.at(0), yAxis.at(0),
+                                       Bar2D::BarStyle::Grouped, i);
     bars.append(bar);
   }
 
-  double spacing = 0.0;
-  foreach (QCPBars *bar, bars) {
-    bar->setWidthType(QCPBars::wtPlotCoords);
-    spacing = bar->width() * 0.1;
-    bar->setWidth((bar->width() / bars.size()) - spacing * 2);
-    bargroup->append(bar);
-  }
-  bargroup->setSpacingType(QCPBarsGroup::stPlotCoords);
-  bargroup->setSpacing(spacing);
+  element->addBarsToBarsGroup(bars);
 }
 
 void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,

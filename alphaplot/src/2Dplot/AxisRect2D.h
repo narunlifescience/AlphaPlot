@@ -19,6 +19,7 @@
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 #include "Axis2D.h"
+#include "Bar2D.h"
 #include "Graph2DCommon.h"
 #include "StatBox2D.h"
 #include "Vector2D.h"
@@ -37,7 +38,6 @@ class LayoutGrid2D;
 class Pie2D;
 class Plot2D;
 class Grid2D;
-class Bar2D;
 class Curve2D;
 class LineSpecial2D;
 class ErrorBar2D;
@@ -134,7 +134,8 @@ class AxisRect2D : public QCPAxisRect {
                              Axis2D *xAxis, Axis2D *yAxis, const QString &name);
   Bar2D *addBox2DPlot(const BarType &type, Table *table, Column *xData,
                       Column *yData, const int from, const int to,
-                      Axis2D *xAxis, Axis2D *yAxis, int stackposition = -1);
+                      Axis2D *xAxis, Axis2D *yAxis,
+                      const Bar2D::BarStyle &style, int stackposition = -1);
   Vector2D *addVectorPlot(const Vector2D::VectorPlot &vectorplot, Table *table,
                           Column *x1Data, Column *y1Data, Column *x2Data,
                           Column *y2Data, const int from, const int to,
@@ -161,6 +162,8 @@ class AxisRect2D : public QCPAxisRect {
   void updateLegendRect();
   void selectAxisRect();
   void addBarsGroup(QCPBarsGroup *bargroup) { bargroupvec_ << bargroup; }
+  void addBarsToBarsGroup(QList<Bar2D *> bars, bool autowidthsettins = true);
+  void addBarsToStackGroup(QList<Bar2D *> bars);
 
   // select axisrect with mouse click
   void setSelected(const bool status);
@@ -251,7 +254,7 @@ class AxisRect2D : public QCPAxisRect {
   void legendClick();
 
  private:
-  void setstackbar();
+  void setbarsstyle();
 
  private:
   Plot2D *plot2d_;

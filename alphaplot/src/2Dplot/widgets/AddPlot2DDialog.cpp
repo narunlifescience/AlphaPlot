@@ -336,13 +336,15 @@ void AddPlot2DDialog::addCurves() {
         axisrect_->addBox2DPlot(AxisRect2D::BarType::VerticalBars, pair.first,
                                 pair.first->column(pair.first->firstXCol()),
                                 pair.second, 0, pair.second->rowCount() - 1,
-                                axisrect_->getXAxis(0), axisrect_->getYAxis(0));
+                                axisrect_->getXAxis(0), axisrect_->getYAxis(0),
+                                Bar2D::BarStyle::Individual);
       } break;
       case 9: {
         axisrect_->addBox2DPlot(AxisRect2D::BarType::HorizontalBars, pair.first,
                                 pair.first->column(pair.first->firstXCol()),
                                 pair.second, 0, pair.second->rowCount() - 1,
-                                axisrect_->getXAxis(0), axisrect_->getYAxis(0));
+                                axisrect_->getXAxis(0), axisrect_->getYAxis(0),
+                                Bar2D::BarStyle::Individual);
       } break;
     }
   }

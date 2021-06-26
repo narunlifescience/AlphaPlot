@@ -11,14 +11,17 @@
 #include "future/lib/XmlStreamWriter.h"
 
 Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
-             Axis2D *xAxis, Axis2D *yAxis, int stackposition)
+             Axis2D *xAxis, Axis2D *yAxis, const BarStyle &style,
+             int stackposition)
     : QCPBars(xAxis, yAxis),
       barwidth_(1),
       xaxis_(xAxis),
       yaxis_(yAxis),
+      ishistogram_(false),
+      style_(style),
+      group_(nullptr),
       bardata_(new DataBlockBar(table, xcol, ycol, from, to)),
       histdata_(nullptr),
-      ishistogram_(false),
       xerrorbar_(nullptr),
       yerrorbar_(nullptr),
       xerroravailable_(false),
@@ -78,8 +81,10 @@ Bar2D::Bar2D(Table *table, Column *col, int from, int to, Axis2D *xAxis,
       barwidth_(1),
       xaxis_(xAxis),
       yaxis_(yAxis),
-      histdata_(new DataBlockHist(table, col, from, to)),
       ishistogram_(true),
+      style_(BarStyle::Individual),
+      group_(nullptr),
+      histdata_(new DataBlockHist(table, col, from, to)),
       xerrorbar_(nullptr),
       yerrorbar_(nullptr),
       xerroravailable_(false),
@@ -172,7 +177,12 @@ Qt::BrushStyle Bar2D::getfillstyle_barplot() const { return brush().style(); }
 
 DataBlockBar *Bar2D::getdatablock_barplot() const { return bardata_; }
 
-bool Bar2D::ishistogram_barplot() const { return ishistogram_; }
+bool Bar2D::ishistogram_barplot() const {
+  if (ishistogram_)
+    return true;
+  else
+    return false;
+}
 
 DataBlockHist *Bar2D::getdatablock_histplot() const { return histdata_; }
 
@@ -301,10 +311,25 @@ void Bar2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
     xmlwriter->writeAttribute("ycolumn", bardata_->getycolumn()->name());
     xmlwriter->writeAttribute("from", QString::number(bardata_->getfrom()));
     xmlwriter->writeAttribute("to", QString::number(bardata_->getto()));
+    switch (style_) {
+      case Bar2D::BarStyle::Individual:
+        xmlwriter->writeAttribute("style", "individual");
+        break;
+      case Bar2D::BarStyle::Grouped:
+        xmlwriter->writeAttribute("style", "grouped");
+        break;
+      case Bar2D::BarStyle::Stacked:
+        xmlwriter->writeAttribute("style", "stacked");
+        break;
+    }
     xmlwriter->writeAttribute("stackorder",
                               QString::number(getstackposition_barplot()));
   }
-  xmlwriter->writeAttribute("stackgap", QString::number(stackingGap()));
+  double stackorgroupgap;
+  (style_ == BarStyle::Grouped) ? stackorgroupgap = getBarGroup()->spacing()
+                                : stackorgroupgap = stackingGap();
+  xmlwriter->writeAttribute("stackgap",
+                            QString::number(stackorgroupgap));
   // error bar
   if (xerroravailable_) xerrorbar_->save(xmlwriter);
   if (yerroravailable_) yerrorbar_->save(xmlwriter);
