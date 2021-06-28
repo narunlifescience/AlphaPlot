@@ -48,6 +48,7 @@ enum class Picker : int {
   DataRemove = 4,
   DragRange = 5,
   ZoomRange = 6,
+  DataRange = 7,
 };
 
 enum class PlotType { Associated, Function };

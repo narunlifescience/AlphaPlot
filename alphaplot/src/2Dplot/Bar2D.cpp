@@ -28,41 +28,7 @@ Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
       yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None),
       stackposition_(stackposition) {
-  // set Icon
-  if ((xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Top ||
-       xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Bottom) &&
-      stackposition_ == -1) {
-    icon_ = IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark);
-  } else if ((xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Top ||
-              xaxis_->getorientation_axis() ==
-                  Axis2D::AxisOreantation::Bottom) &&
-             stackposition_ != -1) {
-    bool isgroup = false;
-    foreach (QCPBarsGroup *group,
-             xaxis_->getaxisrect_axis()->getBarGroupVec()) {
-      (group->contains(this)) ? isgroup = true : isgroup = false;
-    }
-    (isgroup) ? icon_ = IconLoader::load("graph2d-vertical-group-bar",
-                                         IconLoader::LightDark)
-              : icon_ = IconLoader::load("graph2d-vertical-stack-bar",
-                                         IconLoader::LightDark);
-  } else if ((xaxis_->getorientation_axis() != Axis2D::AxisOreantation::Top &&
-              xaxis_->getorientation_axis() !=
-                  Axis2D::AxisOreantation::Bottom) &&
-             stackposition_ == -1) {
-    icon_ = IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark);
-  } else {
-    bool isgroup = false;
-    foreach (QCPBarsGroup *group,
-             xaxis_->getaxisrect_axis()->getBarGroupVec()) {
-      (group->contains(this)) ? isgroup = true : isgroup = false;
-    }
-    (isgroup) ? icon_ = IconLoader::load("graph2d-horizontal-group-bar",
-                                         IconLoader::LightDark)
-              : icon_ = IconLoader::load("graph2d-horizontal-stack-bar",
-                                         IconLoader::LightDark);
-  }
-
+  reloadIcon();
   init();
   setSelectable(QCP::SelectionType::stSingleData);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);
@@ -91,7 +57,7 @@ Bar2D::Bar2D(Table *table, Column *col, int from, int to, Axis2D *xAxis,
       yerroravailable_(false),
       picker_(Graph2DCommon::Picker::None),
       stackposition_(-1) {
-  icon_ = IconLoader::load("graph2d-histogram", IconLoader::LightDark);
+  reloadIcon();
   init();
   setSelectable(QCP::SelectionType::stSingleData);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark);
@@ -328,8 +294,7 @@ void Bar2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   double stackorgroupgap;
   (style_ == BarStyle::Grouped) ? stackorgroupgap = getBarGroup()->spacing()
                                 : stackorgroupgap = stackingGap();
-  xmlwriter->writeAttribute("stackgap",
-                            QString::number(stackorgroupgap));
+  xmlwriter->writeAttribute("stackgap", QString::number(stackorgroupgap));
   // error bar
   if (xerroravailable_) xerrorbar_->save(xmlwriter);
   if (yerroravailable_) yerrorbar_->save(xmlwriter);
@@ -449,4 +414,42 @@ void Bar2D::removepicker(QMouseEvent *, const QVariant &details) {
     it = data()->at(dataPoints.dataRange().begin());
     bardata_->removedatafromtable(it->mainKey(), it->mainValue());
   }
+}
+
+void Bar2D::reloadIcon() {
+  if (ishistogram_) {
+    icon_ = IconLoader::load("graph2d-histogram", IconLoader::LightDark);
+    return;
+  }
+
+  ((xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Top ||
+    xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Bottom) &&
+   style_ == BarStyle::Individual)
+      ? icon_ = IconLoader::load("graph2d-vertical-bar", IconLoader::LightDark)
+  : ((xaxis_->getorientation_axis() != Axis2D::AxisOreantation::Top &&
+      xaxis_->getorientation_axis() != Axis2D::AxisOreantation::Bottom) &&
+     style_ == BarStyle::Individual)
+      ? icon_ =
+            IconLoader::load("graph2d-horizontal-bar", IconLoader::LightDark)
+  : ((xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Top ||
+      xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Bottom) &&
+     style_ == BarStyle::Grouped)
+      ? icon_ = IconLoader::load("graph2d-vertical-group-bar",
+                                 IconLoader::LightDark)
+  : ((xaxis_->getorientation_axis() != Axis2D::AxisOreantation::Top &&
+      xaxis_->getorientation_axis() != Axis2D::AxisOreantation::Bottom) &&
+     style_ == BarStyle::Grouped)
+      ? icon_ = IconLoader::load("graph2d-horizontal-group-bar",
+                                 IconLoader::LightDark)
+  : ((xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Top ||
+      xaxis_->getorientation_axis() == Axis2D::AxisOreantation::Bottom) &&
+     style_ == BarStyle::Stacked)
+      ? icon_ = IconLoader::load("graph2d-vertical-stack-bar",
+                                 IconLoader::LightDark)
+  : ((xaxis_->getorientation_axis() != Axis2D::AxisOreantation::Top &&
+      xaxis_->getorientation_axis() != Axis2D::AxisOreantation::Bottom) &&
+     style_ == BarStyle::Stacked)
+      ? icon_ = IconLoader::load("graph2d-horizontal-stack-bar",
+                                 IconLoader::LightDark)
+      : icon_ = QIcon();
 }

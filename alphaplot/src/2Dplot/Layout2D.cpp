@@ -1769,6 +1769,14 @@ void Layout2D::setGraphTool(const Graph2DCommon::Picker &picker) {
       setAxisRangeZoom(false);
     } break;
     case Graph2DCommon::Picker::DataPoint: {
+      if (xpickerline_) {
+        plot2dCanvas_->removeItem(xpickerline_);
+        xpickerline_ = nullptr;
+      }
+      if (ypickerline_) {
+        plot2dCanvas_->removeItem(ypickerline_);
+        ypickerline_ = nullptr;
+      }
       if (!xpickerline_) xpickerline_ = new QCPItemStraightLine(plot2dCanvas_);
       if (!ypickerline_) ypickerline_ = new QCPItemStraightLine(plot2dCanvas_);
       xpickerline_->setVisible(false);
@@ -1779,8 +1787,16 @@ void Layout2D::setGraphTool(const Graph2DCommon::Picker &picker) {
       setAxisRangeZoom(false);
     } break;
     case Graph2DCommon::Picker::DataGraph: {
-      if (!xpickerline_) xpickerline_ = new QCPItemStraightLine(plot2dCanvas_);
-      if (!ypickerline_) ypickerline_ = new QCPItemStraightLine(plot2dCanvas_);
+      if (xpickerline_) {
+        plot2dCanvas_->removeItem(xpickerline_);
+        xpickerline_ = nullptr;
+      }
+      if (ypickerline_) {
+        plot2dCanvas_->removeItem(ypickerline_);
+        ypickerline_ = nullptr;
+      }
+      xpickerline_ = new QCPItemStraightLine(plot2dCanvas_);
+      ypickerline_ = new QCPItemStraightLine(plot2dCanvas_);
       xpickerline_->setVisible(false);
       ypickerline_->setVisible(false);
       plot2dCanvas_->setCursor(Qt::CursorShape::CrossCursor);
@@ -1844,6 +1860,58 @@ void Layout2D::setGraphTool(const Graph2DCommon::Picker &picker) {
       plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
       setAxisRangeDrag(false);
       setAxisRangeZoom(true);
+    } break;
+    case Graph2DCommon::Picker::DataRange: {
+      if (xpickerline_) {
+        plot2dCanvas_->removeItem(xpickerline_);
+        xpickerline_ = nullptr;
+      }
+      if (ypickerline_) {
+        plot2dCanvas_->removeItem(ypickerline_);
+        ypickerline_ = nullptr;
+      }
+      AxisRect2D *axisrect = currentAxisRect_;
+      Curve2D *curve = nullptr;
+      if (axisrect) {
+        if (axisrect->getCurveVec().isEmpty())
+          return;
+        else
+          curve = axisrect->getCurveVec().first();
+      }
+      plot2dCanvas_->unsetCursor();
+      xpickerline_ = new QCPItemStraightLine(plot2dCanvas_);
+      ypickerline_ = new QCPItemStraightLine(plot2dCanvas_);
+      plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+      setAxisRangeDrag(false);
+      setAxisRangeZoom(false);
+
+      xpickerline_->setPen(QPen(Qt::red, 1, Qt::DashLine));
+      ypickerline_->setPen(QPen(Qt::red, 1, Qt::DashLine));
+      xpickerline_->setAntialiased(false);
+      ypickerline_->setAntialiased(false);
+      xpickerline_->setVisible(true);
+      ypickerline_->setVisible(true);
+
+      foreach (QCPItemPosition *position, xpickerline_->positions()) {
+        position->setAxes(curve->getxaxis(), curve->getyaxis());
+      }
+      xpickerline_->setClipAxisRect(axisrect);
+      xpickerline_->setClipToAxisRect(true);
+      double start = curve->getdatablock_cplot()->getxcolumn()->valueAt(2);
+      xpickerline_->position("point1")->setCoords(
+          start, curve->getyaxis()->range().lower);
+      xpickerline_->position("point2")->setCoords(
+          start, curve->getyaxis()->range().upper);
+      foreach (QCPItemPosition *position, ypickerline_->positions()) {
+        position->setAxes(curve->getxaxis(), curve->getyaxis());
+      }
+      ypickerline_->setClipAxisRect(axisrect);
+      ypickerline_->setClipToAxisRect(true);
+      double stop = curve->getdatablock_cplot()->getxcolumn()->valueAt(3);
+      ypickerline_->position("point1")->setCoords(
+          stop, curve->getyaxis()->range().lower);
+      ypickerline_->position("point2")->setCoords(
+          stop, curve->getyaxis()->range().upper);
     } break;
   }
   QList<AxisRect2D *> axisrectlist = getAxisRectList();

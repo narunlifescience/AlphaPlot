@@ -75,6 +75,7 @@ class Bar2D : public QCPBars {
   void datapicker(QMouseEvent *, const QVariant &details);
   void movepicker(QMouseEvent *event, const QVariant &details);
   void removepicker(QMouseEvent *, const QVariant &details);
+  void reloadIcon();
 
  signals:
   void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,

@@ -2431,7 +2431,17 @@ void ApplicationWindow::windowActivated(QMdiSubWindow *subwindow) {
   // will be destroyed when parent set graphicseffect to nullptr
   foreach (QMdiSubWindow *window, subWindowsList()) {
     window->setGraphicsEffect(nullptr);
+    // disable picker
+    if (isActiveSubWindow(window, SubWindowType::Plot2DSubWindow)) {
+      Layout2D *layout = qobject_cast<Layout2D *>(window);
+      layout->setGraphTool(Graph2DCommon::Picker::None);
+    }
   }
+
+  // reset picker menu
+  pickGraphTool(ui_->actionDisableGraphTools);
+  ui_->actionDisableGraphTools->setChecked(true);
+
   // glow effect
   if (glowstatus_) {
     QGraphicsDropShadowEffect *gloweffect = new QGraphicsDropShadowEffect;
@@ -5095,10 +5105,26 @@ void ApplicationWindow::showRangeSelectors() {
            "<p><h4>Please add a layout and try again!</h4>"));
     ui_->actionDisableGraphTools->setChecked(true);
     return;
+  } else if (axisrect->getCurveVec().isEmpty()) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no compatible plots available in this layout "
+           "element.</h4><p><h4>Please add a compatible plot and try "
+           "again!</h4>"));
+    ui_->actionDisableGraphTools->setChecked(true);
+    return;
   }
-  layout->setGraphTool(Graph2DCommon::Picker::None);
-  ui_->actionDisableGraphTools->setChecked(true);
-  QMessageBox::warning(this, tr("Warning"), tr("<h4>not implimented!</h4>"));
+
+  /*QVector<Curve2D *> cvec = axisrect->getCurveVec();
+  bool compatibleplot = false;
+  foreach (Curve2D *curve, cvec) {
+    if (curve->getdatablock_cplot() != nullptr) {
+      compatibleplot = true;
+      break;
+    }
+  }*/
+
+  layout->setGraphTool(Graph2DCommon::Picker::DataRange);
 }
 
 void ApplicationWindow::showDataReader() {
@@ -5602,6 +5628,10 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
   foreach (QTreeWidgetItem *item, items) {
     if (item) delete item;
   }
+
+  // reset picktools after deleting
+  if (isActiveSubwindow(SubWindowType::Plot2DSubWindow))
+    pickGraphTool(ui_->actionDisableGraphTools);
 
   (isActiveSubwindow(SubWindowType::MatrixSubWindow) ||
    isActiveSubwindow(SubWindowType::TableSubWindow))
@@ -6309,7 +6339,7 @@ Curve2D *ApplicationWindow::addFunctionPlot(
       funcdata.parameter = var;
       funcdata.from = ranges.at(0);
       funcdata.to = ranges.at(1);
-      funcdata.points =  points;
+      funcdata.points = points;
       curve = axisrect->addFunction2DPlot(
           funcdata, datapair.first, datapair.second, axisrect->getXAxis(0),
           axisrect->getYAxis(0), label);
