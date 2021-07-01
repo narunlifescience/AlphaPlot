@@ -12,6 +12,7 @@ class QLabel;
 class Table;
 class AxisRect2D;
 class LayoutGrid2D;
+class PickerTool2D;
 class ToolButton;
 class LayoutButton2D;
 class XmlStreamWriter;
@@ -87,6 +88,7 @@ class Layout2D : public MyWidget {
   AxisRect2D *getCurrentAxisRect();
   Plot2D *getPlotCanwas() const;
   int getbuttonboxheight() const;
+  PickerTool2D *getPickerTool() { return picker_; }
 
   void setLayoutDimension(const QPair<int, int> dimension);
   void removeAxisRect(const QPair<int, int> rowcol);
@@ -97,6 +99,7 @@ class Layout2D : public MyWidget {
                                   AxisRect2D *axisrect);
   void setBackground(const QColor &background);
   void setGraphTool(const Graph2DCommon::Picker &picker);
+  void streachLabelSetText(const QString &text);
   void print();
   void save(XmlStreamWriter *xmlwriter, const bool saveastemplate = false);
   bool load(XmlStreamReader *xmlreader, QList<Table *> tabs,
@@ -137,8 +140,6 @@ class Layout2D : public MyWidget {
       const AlphaPlot::ColumnDataType &ycoldatatype,
       const QPair<int, int> rowcol);
   void activateLayout(LayoutButton2D *button);
-  void showtooltip(const QPointF position, const double xval, const double yval,
-                   Axis2D *xaxis, Axis2D *yaxis);
 
  private:
   Curve2D *generateScatter2DPlot(Table *table, Column *xcol, Column *ycol,
@@ -151,6 +152,7 @@ class Layout2D : public MyWidget {
   void resizeEvent(QResizeEvent *event);
 
  private:
+  PickerTool2D *picker_;
   QWidget *main_widget_;
   Plot2D *plot2dCanvas_;
 
@@ -171,15 +173,11 @@ class Layout2D : public MyWidget {
   QAction *addLayoutrightaction;
 
   AxisRect2D *currentAxisRect_;
-  Graph2DCommon::Picker picker_;
   static const int buttonboxmargin_;
   static const int defaultlayout2dwidth_;
   static const int defaultlayout2dheight_;
   static const int minimumlayout2dwidth_;
   static const int minimumlayout2dheight_;
-
-  QCPItemStraightLine *xpickerline_;
-  QCPItemStraightLine *ypickerline_;
 
  private slots:
   void mouseMoveSignal(QMouseEvent *event);

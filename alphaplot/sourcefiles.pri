@@ -352,6 +352,7 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/LayoutInset2D.h \
                src/2Dplot/Legend2D.h \
                src/2Dplot/LineSpecial2D.h \
+               src/2Dplot/PickerTool2D.h \
                src/2Dplot/Plot2D.h \
                src/2Dplot/StatBox2D.h \
                src/2Dplot/Vector2D.h \
@@ -380,6 +381,7 @@ SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/LayoutInset2D.cpp \
                src/2Dplot/Legend2D.cpp \
                src/2Dplot/LineSpecial2D.cpp \
+               src/2Dplot/PickerTool2D.cpp \
                src/2Dplot/Plot2D.cpp \
                src/2Dplot/StatBox2D.cpp \
                src/2Dplot/Vector2D.cpp \

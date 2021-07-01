@@ -2681,6 +2681,7 @@ void AxisRect2D::mousePressEvent(QMouseEvent *event, const QVariant &variant) {
         gridpair_.first.second->pixelToCoord(event->localPos().x()),
         gridpair_.second.second->pixelToCoord(event->localPos().y()),
         gridpair_.first.second, gridpair_.second.second);
+
   emit AxisRectClicked(this);
   QCPAxisRect::mousePressEvent(event, variant);
 }
@@ -2692,7 +2693,17 @@ void AxisRect2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
         gridpair_.first.second->pixelToCoord(event->localPos().x()),
         gridpair_.second.second->pixelToCoord(event->localPos().y()),
         gridpair_.first.second, gridpair_.second.second);
+  if (picker_ == Graph2DCommon::Picker::DataRange)
+    emit datarangelinedrag(
+        gridpair_.first.second->pixelToCoord(event->localPos().x()),
+        gridpair_.second.second->pixelToCoord(event->localPos().y()));
+
   QCPAxisRect::mouseMoveEvent(event, startPos);
+}
+
+void AxisRect2D::mouseReleaseEvent(QMouseEvent *event, const QPointF &) {
+  if (picker_ == Graph2DCommon::Picker::DataRange)
+    emit datarangemouserelease(event->localPos());
 }
 
 void AxisRect2D::draw(QCPPainter *painter) {

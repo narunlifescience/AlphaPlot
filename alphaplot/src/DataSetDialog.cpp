@@ -27,10 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "DataSetDialog.h"
-#include "2Dplot/AxisRect2D.h"
-#include "2Dplot/Graph2DCommon.h"
-#include "2Dplot/Plotcolumns.h"
-#include "ApplicationWindow.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -40,6 +36,11 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
+
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Graph2DCommon.h"
+#include "2Dplot/Plotcolumns.h"
+#include "ApplicationWindow.h"
 
 DataSetDialog::DataSetDialog(const QString& text, QWidget* parent,
                              Qt::WindowFlags fl)
@@ -78,7 +79,6 @@ DataSetDialog::DataSetDialog(const QString& text, QWidget* parent,
 void DataSetDialog::accept() {
   if (operation.isEmpty()) {
     emit options(boxName->currentText());
-    qDebug() << "no analyzable curves";
   } else if (axisrect_) {
     ApplicationWindow* app = qobject_cast<ApplicationWindow*>(this->parent());
     if (app) app->analyzeCurve(axisrect_, operation, boxName->currentText());

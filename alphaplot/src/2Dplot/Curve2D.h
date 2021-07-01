@@ -100,6 +100,7 @@ class Curve2D : public QCPCurve {
   void datapicker(QMouseEvent *event, const QVariant &details);
   void movepicker(QMouseEvent *event, const QVariant &details);
   void removepicker(QMouseEvent *event, const QVariant &details);
+  void dataRangePicker(QMouseEvent *event, const QVariant &details);
   void reloadIcon();
 
  signals:

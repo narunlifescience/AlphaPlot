@@ -123,6 +123,7 @@
 
 #include "2Dplot/Graph2DCommon.h"
 #include "2Dplot/Layout2D.h"
+#include "2Dplot/PickerTool2D.h"
 #include "2Dplot/Plot2D.h"
 #include "2Dplot/Plotcolumns.h"
 #include "2Dplot/widgets/AddPlot2DDialog.h"
@@ -5105,7 +5106,14 @@ void ApplicationWindow::showRangeSelectors() {
            "<p><h4>Please add a layout and try again!</h4>"));
     ui_->actionDisableGraphTools->setChecked(true);
     return;
-  } else if (axisrect->getCurveVec().isEmpty()) {
+  }
+
+  QVector<Curve2D *> cvec;
+  foreach (Curve2D *curve, axisrect->getCurveVec()) {
+    if (curve->getplottype_cplot() != Graph2DCommon::PlotType::Function)
+      cvec.append(curve);
+  }
+  if (cvec.isEmpty()) {
     QMessageBox::warning(
         this, tr("Warning"),
         tr("<h4>There are no compatible plots available in this layout "
@@ -5114,17 +5122,26 @@ void ApplicationWindow::showRangeSelectors() {
     ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
-
-  /*QVector<Curve2D *> cvec = axisrect->getCurveVec();
-  bool compatibleplot = false;
-  foreach (Curve2D *curve, cvec) {
-    if (curve->getdatablock_cplot() != nullptr) {
-      compatibleplot = true;
-      break;
+  if (cvec.size() == 1) {
+    layout->getPickerTool()->setRangePickerCurve(cvec.at(0));
+    layout->setGraphTool(Graph2DCommon::Picker::DataRange);
+  } else {
+    QStringList list;
+    foreach (Curve2D *curve, cvec) {
+      list << curve->getdatablock_cplot()->gettable()->name() + "_" +
+                  curve->getdatablock_cplot()->getxcolumn()->name() + "_" +
+                  curve->getdatablock_cplot()->getycolumn()->name();
     }
-  }*/
-
-  layout->setGraphTool(Graph2DCommon::Picker::DataRange);
+    DataSetDialog *ad = new DataSetDialog(tr("Curve") + " : ", nullptr);
+    ad->setAttribute(Qt::WA_DeleteOnClose);
+    ad->setWindowTitle(tr("Choose curve"));
+    ad->setCurveNames(list);
+    connect(ad, &DataSetDialog::options, this, [=](QString text) {
+      layout->getPickerTool()->setRangePickerCurve(cvec.at(list.indexOf(text)));
+      layout->setGraphTool(Graph2DCommon::Picker::DataRange);
+    });
+    ad->exec();
+  }
 }
 
 void ApplicationWindow::showDataReader() {

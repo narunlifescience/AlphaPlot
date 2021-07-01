@@ -209,6 +209,7 @@ class AxisRect2D : public QCPAxisRect {
  protected:
   void mousePressEvent(QMouseEvent *, const QVariant &variant);
   void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
+  void mouseReleaseEvent(QMouseEvent *event, const QPointF &);
   void draw(QCPPainter *painter);
 
  signals:
@@ -244,6 +245,10 @@ class AxisRect2D : public QCPAxisRect {
   void showtooltip(const QPointF position, const double xval, const double yval,
                    Axis2D *xaxis, Axis2D *yaxis);
   void datapoint(Curve2D *curve, const double xval, const double yval);
+  void datarangemousepress(Curve2D *curve, const double xval,
+                           const double yval);
+  void datarangelinedrag(const double xval, const double yval);
+  void datarangemouserelease(QPointF pos);
   // Layer moved
   void LayerMoved(AxisRect2D *);
   void TextItem2DMoved();

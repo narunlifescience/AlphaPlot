@@ -948,6 +948,11 @@ void Curve2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
       case Graph2DCommon::Picker::DataRemove:
         removepicker(event, details);
         break;
+      case Graph2DCommon::Picker::DataRange:
+        dataRangePicker(event, details);
+        break;
+      default:
+        break;
     }
   }
   QCPCurve::mousePressEvent(event, details);
@@ -960,7 +965,6 @@ void Curve2D::drawSpline(QCPPainter *painter) {
   QPointF point = QPointF(xAxis_->coordToPixel(splinepoints_->at(0).x()),
                           yAxis_->coordToPixel(splinepoints_->at(0).y()));
   path.moveTo(point);
-  ;
   for (int i = 0, j = 0; i < splinepoints_->size() - 1; i++, j++) {
     QPointF ctrlpoint1 =
         QPointF(xAxis_->coordToPixel(splinecontrolpoints_->at(i + j).x()),
@@ -992,7 +996,6 @@ QVector<QPointF> Curve2D::calculateControlPoints(
     const QVector<QPointF> &points) {
   QVector<QPointF> controlPoints;
   controlPoints.resize(points.count() * 2 - 2);
-
   int n = points.count() - 1;
 
   if (n == 1) {
@@ -1008,31 +1011,20 @@ QVector<QPointF> Curve2D::calculateControlPoints(
   // Set of equations for P0 to Pn points.
   QVector<qreal> vector;
   vector.resize(n);
-
   vector[0] = points[0].x() + 2 * points[1].x();
-
   for (int i = 1; i < n - 1; ++i)
     vector[i] = 4 * points[i].x() + 2 * points[i + 1].x();
-
   vector[n - 1] = (8 * points[n - 1].x() + points[n].x()) / 2.0;
-
   QVector<qreal> xControl = firstControlPoints(vector);
-
   vector[0] = points[0].y() + 2 * points[1].y();
-
   for (int i = 1; i < n - 1; ++i)
     vector[i] = 4 * points[i].y() + 2 * points[i + 1].y();
-
   vector[n - 1] = (8 * points[n - 1].y() + points[n].y()) / 2.0;
-
   QVector<qreal> yControl = firstControlPoints(vector);
-
   for (int i = 0, j = 0; i < n; ++i, ++j) {
     controlPoints[j].setX(xControl[i]);
     controlPoints[j].setY(yControl[i]);
-
     j++;
-
     if (i < n - 1) {
       controlPoints[j].setX(2 * points[i + 1].x() - xControl[i + 1]);
       controlPoints[j].setY(2 * points[i + 1].y() - yControl[i + 1]);
@@ -1046,26 +1038,20 @@ QVector<QPointF> Curve2D::calculateControlPoints(
 
 QVector<qreal> Curve2D::firstControlPoints(const QVector<qreal> &vector) {
   QVector<qreal> result;
-
   int count = vector.count();
   result.resize(count);
   result[0] = vector[0] / 2.0;
-
   QVector<qreal> temp;
   temp.resize(count);
   temp[0] = 0;
-
   qreal b = 2.0;
-
   for (int i = 1; i < count; i++) {
     temp[i] = 1 / b;
     b = (i < count - 1 ? 4.0 : 3.5) - temp[i];
     result[i] = (vector[i] - result[i - 1]) / b;
   }
-
   for (int i = 1; i < count; i++)
     result[count - i - 1] -= temp[count - i] * result[count - i];
-
   return result;
 }
 
@@ -1104,6 +1090,23 @@ void Curve2D::removepicker(QMouseEvent *event, const QVariant &details) {
       if (curvedata_->removedatafromtable(it->mainKey(), it->mainValue())) {
         if (curve2dtype_ == Curve2D::Curve2DType::Spline) loadSplineData();
       }
+    }
+  }
+}
+
+void Curve2D::dataRangePicker(QMouseEvent *event, const QVariant &details) {
+  QCPCurveDataContainer::const_iterator it = data()->constEnd();
+  QCPDataSelection dataPoints = details.value<QCPDataSelection>();
+  if (dataPoints.dataPointCount() > 0) {
+    dataPoints.dataRange();
+    it = data()->at(dataPoints.dataRange().begin());
+    QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
+    if (point.x() > event->localPos().x() - 10 &&
+        point.x() < event->localPos().x() + 10 &&
+        point.y() > event->localPos().y() - 10 &&
+        point.y() < event->localPos().y() + 10) {
+      emit getxaxis()->getaxisrect_axis()->datarangemousepress(
+          this, it->mainKey(), it->mainValue());
     }
   }
 }
