@@ -247,7 +247,8 @@ class AxisRect2D : public QCPAxisRect {
   void datapoint(Curve2D *curve, const double xval, const double yval);
   void datarangemousepress(Curve2D *curve, const double xval,
                            const double yval);
-  void datarangelinedrag(const double xval, const double yval);
+  void datarangelinedrag(const QPointF &pos, const double xval,
+                         const double yval);
   void datarangemouserelease(QPointF pos);
   // Layer moved
   void LayerMoved(AxisRect2D *);

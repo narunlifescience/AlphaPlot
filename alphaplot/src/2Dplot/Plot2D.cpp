@@ -24,6 +24,7 @@ Plot2D::Plot2D(QWidget *parent)
       layernamebackground2d_("background"),
       layernamegrid2d_("grid"),
       layernameaxis2d_("axes"),
+      layernamepicker2d_("picker"),
       layernamelegend2d_("legend") {
   setOpenGl(false);
   setBackgroundColor(canvasBackground_, Qt::SolidPattern);
@@ -38,6 +39,9 @@ Plot2D::Plot2D(QWidget *parent)
              LayerInsertMode::limAbove);
   if (!layer(layernameaxis2d_))
     addLayer(layernameaxis2d_, layer(layernamegrid2d_),
+             LayerInsertMode::limAbove);
+  if (!layer(layernamepicker2d_))
+    addLayer(layernamepicker2d_, layer(layernameaxis2d_),
              LayerInsertMode::limAbove);
   if (!layer(layernamelegend2d_))
     addLayer(layernamelegend2d_, layer(layernameaxis2d_),

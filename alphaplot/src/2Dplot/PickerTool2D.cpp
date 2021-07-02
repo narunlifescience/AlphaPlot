@@ -1,8 +1,25 @@
+/* This file is part of AlphaPlot.
+   Copyright 2021, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+
+   AlphaPlot is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   AlphaPlot is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
+
+   Description : graph picker tools */
+
 #include "PickerTool2D.h"
 
 #include "Curve2D.h"
 #include "DataManager2D.h"
 #include "Plot2D.h"
+#include "Legend2D.h"
 
 const int PickerTool2D::ellipseradius_ = 10;
 
@@ -32,6 +49,8 @@ void PickerTool2D::setPicker(const Graph2DCommon::Picker &picker) {
       removePickerLinesAndEllipses();
       xpickerline_ = new QCPItemStraightLine(layout_->getPlotCanwas());
       ypickerline_ = new QCPItemStraightLine(layout_->getPlotCanwas());
+      xpickerline_->setLayer("picker");
+      ypickerline_->setLayer("picker");
       xpickerline_->setVisible(false);
       ypickerline_->setVisible(false);
       layout_->getPlotCanwas()->setCursor(Qt::CursorShape::CrossCursor);
@@ -42,6 +61,8 @@ void PickerTool2D::setPicker(const Graph2DCommon::Picker &picker) {
       removePickerLinesAndEllipses();
       xpickerline_ = new QCPItemStraightLine(layout_->getPlotCanwas());
       ypickerline_ = new QCPItemStraightLine(layout_->getPlotCanwas());
+      xpickerline_->setLayer("picker");
+      ypickerline_->setLayer("picker");
       xpickerline_->setVisible(false);
       ypickerline_->setVisible(false);
       layout_->getPlotCanwas()->setCursor(Qt::CursorShape::CrossCursor);
@@ -82,6 +103,10 @@ void PickerTool2D::setPicker(const Graph2DCommon::Picker &picker) {
         ypickerline_ = new QCPItemStraightLine(layout_->getPlotCanwas());
         xpickerellipse_ = new QCPItemEllipse(layout_->getPlotCanwas());
         ypickerellipse_ = new QCPItemEllipse(layout_->getPlotCanwas());
+        xpickerline_->setLayer("picker");
+        ypickerline_->setLayer("picker");
+        xpickerellipse_->setLayer("picker");
+        ypickerellipse_->setLayer("picker");
         layout_->setAxisRangeDrag(false);
         layout_->setAxisRangeZoom(false);
         setupRangepicker();
@@ -155,20 +180,21 @@ void PickerTool2D::datarangemousepress(Curve2D *curve, const double xval,
     rangepicker_.active = false;
 }
 
-void PickerTool2D::datarangelinedrag(const double xval, const double yval) {
-  if (!rangepicker_.active && !rangepicker_.line) return;
+void PickerTool2D::datarangelinedrag(const QPointF &position, const double xval,
+                                     const double yval) {
+  Q_UNUSED(position);
+  if (!rangepicker_.active || !rangepicker_.line) return;
   moveLineEllipseItenTo(xval, yval, false);
 }
 
 void PickerTool2D::datarangemouserelease(const QPointF position) {
-  if (!rangepicker_.active && !rangepicker_.line) return;
+  if (!rangepicker_.active || !rangepicker_.line) return;
   QVariant variant;
   rangepicker_.curve->selectTest(position, false, &variant);
   QCPCurveDataContainer::const_iterator it;
   QCPDataSelection dataPoints = variant.value<QCPDataSelection>();
   bool sucess = false;
   if (dataPoints.dataPointCount() > 0) {
-    dataPoints.dataRange();
     it = rangepicker_.curve->data()->at(dataPoints.dataRange().begin());
     QPointF point =
         rangepicker_.curve->coordsToPixels(it->mainKey(), it->mainValue());
@@ -209,7 +235,9 @@ void PickerTool2D::datarangemouserelease(const QPointF position) {
 void PickerTool2D::setupRangepicker() {
   AxisRect2D *axisrect = layout_->getCurrentAxisRect();
   QPen pen = QPen(Qt::red, 1, Qt::DashLine);
-  QBrush brush = QBrush(Qt::yellow);
+  QColor color = Qt::yellow;
+  color.setAlpha(100);
+  QBrush brush = QBrush(color);
   xpickerline_->setPen(pen);
   ypickerline_->setPen(pen);
   xpickerellipse_->setPen(pen);
@@ -230,10 +258,10 @@ void PickerTool2D::setupRangepicker() {
   xpickerline_->setClipToAxisRect(true);
   double startx = curve_->data()->at(0)->mainKey();
   double starty = curve_->data()->at(0)->mainValue();
-  xpickerline_->position("point1")->setCoords(startx,
-                                              curve_->getyaxis()->range().lower);
-  xpickerline_->position("point2")->setCoords(startx,
-                                              curve_->getyaxis()->range().upper);
+  xpickerline_->position("point1")->setCoords(
+      startx, curve_->getyaxis()->range().lower);
+  xpickerline_->position("point2")->setCoords(
+      startx, curve_->getyaxis()->range().upper);
   foreach (QCPItemPosition *position, ypickerline_->positions()) {
     position->setAxes(curve_->getxaxis(), curve_->getyaxis());
   }
@@ -241,10 +269,10 @@ void PickerTool2D::setupRangepicker() {
   ypickerline_->setClipToAxisRect(true);
   double stopx = curve_->data()->at(curve_->data()->size() - 1)->mainKey();
   double stopy = curve_->data()->at(curve_->data()->size() - 1)->mainValue();
-  ypickerline_->position("point1")->setCoords(stopx,
-                                              curve_->getyaxis()->range().lower);
-  ypickerline_->position("point2")->setCoords(stopx,
-                                              curve_->getyaxis()->range().upper);
+  ypickerline_->position("point1")->setCoords(
+      stopx, curve_->getyaxis()->range().lower);
+  ypickerline_->position("point2")->setCoords(
+      stopx, curve_->getyaxis()->range().upper);
 
   // ellipse
   foreach (QCPItemPosition *position, xpickerellipse_->positions()) {
@@ -317,11 +345,15 @@ void PickerTool2D::moveLineEllipseItenTo(double xval, double yval,
   if (active) {
     rangepicker_.line->setPen(QPen(Qt::red, 1, Qt::DashLine));
     ellipse->setPen(QPen(Qt::red, 1, Qt::DashLine));
-    ellipse->setBrush(QBrush(Qt::yellow));
+    QColor color = Qt::yellow;
+    color.setAlpha(100);
+    ellipse->setBrush(QBrush(color));
   } else {
     rangepicker_.line->setPen(QPen(Qt::gray, 1, Qt::DashLine));
     ellipse->setPen(QPen(Qt::gray, 1, Qt::DashLine));
-    ellipse->setBrush(QBrush(Qt::lightGray));
+    QColor color = Qt::lightGray;
+    color.setAlpha(100);
+    ellipse->setBrush(QBrush(color));
   }
   // line
   rangepicker_.line->position("point1")->setCoords(

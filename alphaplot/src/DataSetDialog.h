@@ -57,8 +57,8 @@ class DataSetDialog : public QDialog {
  public slots:
   void accept();
   void setCurveNames(const QStringList& names);
-  void setOperationType(const QString& s) { operation = s; }
-  void setCurentDataSet(const QString& s);
+  void setOperationType(const QString& op) { operation = op; }
+  void setCurentDataSet(const QString& set);
   void setAxisRect(AxisRect2D* axisrect);
 
  signals:

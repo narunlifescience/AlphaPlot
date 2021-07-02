@@ -2689,12 +2689,13 @@ void AxisRect2D::mousePressEvent(QMouseEvent *event, const QVariant &variant) {
 void AxisRect2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
   if (picker_ == Graph2DCommon::Picker::DataGraph)
     emit showtooltip(
-        event->pos(),
+        event->localPos(),
         gridpair_.first.second->pixelToCoord(event->localPos().x()),
         gridpair_.second.second->pixelToCoord(event->localPos().y()),
         gridpair_.first.second, gridpair_.second.second);
   if (picker_ == Graph2DCommon::Picker::DataRange)
     emit datarangelinedrag(
+        event->pos(),
         gridpair_.first.second->pixelToCoord(event->localPos().x()),
         gridpair_.second.second->pixelToCoord(event->localPos().y()));
 

@@ -1,3 +1,19 @@
+/* This file is part of AlphaPlot.
+   Copyright 2021, Arun Narayanankutty <n.arun.lifescience@gmail.com>
+
+   AlphaPlot is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   AlphaPlot is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with AlphaPlot.  If not, see <http://www.gnu.org/licenses/>.
+
+   Description : graph picker tools */
+
 #ifndef PICKERTOOL2D_H
 #define PICKERTOOL2D_H
 
@@ -25,7 +41,8 @@ class PickerTool2D : public QObject {
   // drag range
   void datarangemousepress(Curve2D *curve, const double xval,
                            const double yval);
-  void datarangelinedrag(const double xval, const double yval);
+  void datarangelinedrag(const QPointF &position, const double xval,
+                         const double yval);
   void datarangemouserelease(const QPointF position);
 
  private:

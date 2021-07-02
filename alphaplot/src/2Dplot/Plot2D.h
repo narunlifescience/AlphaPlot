@@ -49,6 +49,7 @@ class Plot2D : public QCustomPlot {
   QString layernamebackground2d_;
   QString layernamegrid2d_;
   QString layernameaxis2d_;
+  QString layernamepicker2d_;
   QString layernamelegend2d_;
 };
 

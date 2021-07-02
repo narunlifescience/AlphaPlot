@@ -72,8 +72,8 @@ DataSetDialog::DataSetDialog(const QString& text, QWidget* parent,
   mainLayout->addWidget(groupBox1);
   mainLayout->addLayout(bottomLayout);
 
-  connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+  connect(buttonOk, &QPushButton::clicked, this, &DataSetDialog::accept);
+  connect(buttonCancel, &QPushButton::clicked, this, &DataSetDialog::reject);
 }
 
 void DataSetDialog::accept() {
@@ -90,8 +90,8 @@ void DataSetDialog::setCurveNames(const QStringList& names) {
   boxName->addItems(names);
 }
 
-void DataSetDialog::setCurentDataSet(const QString& s) {
-  int row = boxName->findText(s);
+void DataSetDialog::setCurentDataSet(const QString& set) {
+  int row = boxName->findText(set);
   boxName->setCurrentIndex(row);
 }
 
