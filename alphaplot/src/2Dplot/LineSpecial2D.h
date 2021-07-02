@@ -55,7 +55,7 @@ class LineSpecial2D : public QCPGraph {
   void setlinestrokethickness_lsplot(const double value);
   void setlinefillstatus_lsplot(bool status);
   void setlinefillcolor_lsplot(const QColor &color);
-  void  setlinefillstyle_lsplot(const Qt::BrushStyle &style);
+  void setlinefillstyle_lsplot(const Qt::BrushStyle &style);
   void setlineantialiased_lsplot(const bool value);
   void setscattershape_lsplot(const Graph2DCommon::ScatterStyle &shape);
   void setscatterfillcolor_lsplot(const QColor &color);
@@ -68,16 +68,9 @@ class LineSpecial2D : public QCPGraph {
   void setlegendtext_lsplot(const QString &legendtext);
   void setxaxis_lsplot(Axis2D *axis);
   void setyaxis_lsplot(Axis2D *axis);
-  void setpicker_lsplot(const Graph2DCommon::Picker picker);
 
   void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);
   bool load(XmlStreamReader *xmlreader);
-
- protected:
-  // void mousePressEvent(QMouseEvent *event, const QVariant &details);
-  // void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
-  void keyPressEvent(QKeyEvent *event);
-  void keyreleaseEvent(QKeyEvent *event);
 
  protected:
   void mousePressEvent(QMouseEvent *event, const QVariant &details);
@@ -87,10 +80,6 @@ class LineSpecial2D : public QCPGraph {
   void movepicker(QMouseEvent *event, const QVariant &details);
   void removepicker(QMouseEvent *event, const QVariant &details);
   void reloadIcon();
-
- signals:
-  void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
-                   Axis2D *yaxos);
 
  private:
   Axis2D *xAxis_;
@@ -103,9 +92,7 @@ class LineSpecial2D : public QCPGraph {
   QString layername_;
   bool xerroravailable_;
   bool yerroravailable_;
-  Graph2DCommon::Picker picker_;
   QIcon icon_;
-  // PlotPoint *mPointUnderCursor;
 };
 
 #endif  // LINESCATTER2D_H

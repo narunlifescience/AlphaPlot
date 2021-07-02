@@ -30,6 +30,7 @@
 #include "LineItem2D.h"
 #include "LineSpecial2D.h"
 #include "Matrix.h"
+#include "PickerTool2D.h"
 #include "Pie2D.h"
 #include "Plot2D.h"
 #include "QMessageBox"
@@ -39,14 +40,15 @@
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamWriter.h"
 
-AxisRect2D::AxisRect2D(Plot2D *parent, bool setupDefaultAxis)
+AxisRect2D::AxisRect2D(Plot2D *parent, PickerTool2D *picker,
+                       bool setupDefaultAxis)
     : QCPAxisRect(parent, setupDefaultAxis),
       plot2d_(parent),
       axisRectBackGround_(Qt::white),
       axisRectLegend_(new Legend2D(this)),
       isAxisRectSelected_(false),
       printorexportjob_(false),
-      picker_(Graph2DCommon::Picker::None) {
+      picker_(picker) {
   setRangeDrag(Qt::Horizontal | Qt::Vertical);
   setRangeZoom(Qt::Horizontal | Qt::Vertical);
   gridpair_.first.first = nullptr;
@@ -430,8 +432,6 @@ LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
                        yData->name());
   lsvec_.append(lineSpecial);
   layers_.append(lineSpecial->layer());
-  connect(lineSpecial, &LineSpecial2D::showtooltip, this,
-          &AxisRect2D::showtooltip);
 
   emit LineSpecial2DCreated(lineSpecial);
   return lineSpecial;
@@ -523,7 +523,6 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
   curve->setName(table->name() + "_" + xcol->name() + "_" + ycol->name());
   curvevec_.append(curve);
   layers_.append(curve->layer());
-  connect(curve, &Curve2D::showtooltip, this, &AxisRect2D::showtooltip);
 
   emit Curve2DCreated(curve);
   return curve;
@@ -544,7 +543,6 @@ Curve2D *AxisRect2D::addFunction2DPlot(const PlotData::FunctionData funcdata,
           &AxisRect2D::legendClick);
   layers_.append(curve->layer());
   curvevec_.append(curve);
-  connect(curve, &Curve2D::showtooltip, this, &AxisRect2D::showtooltip);
 
   emit Curve2DCreated(curve);
   return curve;
@@ -577,7 +575,6 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
   bar->setName(table->name() + "_" + xData->name() + "_" + yData->name());
   layers_.append(bar->layer());
   barvec_.append(bar);
-  connect(bar, &Bar2D::showtooltip, this, &AxisRect2D::showtooltip);
 
   emit Bar2DCreated(bar);
   return bar;
@@ -614,8 +611,6 @@ StatBox2D *AxisRect2D::addStatBox2DPlot(const StatBox2D::BoxWhiskerData data,
   getLegend()->setVisible(false);
   layers_.append(statbox->layer());
   statboxvec_.append(statbox);
-  connect(statbox, &StatBox2D::showtooltip, this, &AxisRect2D::showtooltip);
-
   emit StatBox2DCreated(statbox);
   return statbox;
 }
@@ -641,8 +636,6 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
   bar->setName(table->name() + "_" + yData->name());
   layers_.append(bar->layer());
   barvec_.append(bar);
-  connect(bar, &Bar2D::showtooltip, this, &AxisRect2D::showtooltip);
-
   emit Bar2DCreated(bar);
   return bar;
 }
@@ -1066,16 +1059,6 @@ void AxisRect2D::replotBareBones() const {
   plot2d_->layer(plot2d_->getGrid2DLayerName())->replot();
   plot2d_->layer(plot2d_->getAxis2DLayerName())->replot();
   plot2d_->layer(plot2d_->getLegend2DLayerName())->replot();
-}
-
-void AxisRect2D::setGraphTool(const Graph2DCommon::Picker &picker) {
-  picker_ = picker;
-  foreach (LineSpecial2D *ls, lsvec_) { ls->setpicker_lsplot(picker); }
-  foreach (Curve2D *curve, curvevec_) { curve->setpicker_cplot(picker); }
-  foreach (Bar2D *bar, barvec_) { bar->setpicker_barplot(picker); }
-  foreach (StatBox2D *statbox, statboxvec_) {
-    statbox->setpicker_statbox(picker);
-  }
 }
 
 void AxisRect2D::setGridPairToNullptr() {
@@ -2674,9 +2657,9 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
 }
 
 void AxisRect2D::mousePressEvent(QMouseEvent *event, const QVariant &variant) {
-  if (picker_ == Graph2DCommon::Picker::DataGraph &&
+  if (picker_->getPicker() == Graph2DCommon::Picker::DataGraph &&
       event->button() == Qt::MouseButton::LeftButton)
-    emit showtooltip(
+    picker_->showtooltip(
         event->pos(),
         gridpair_.first.second->pixelToCoord(event->localPos().x()),
         gridpair_.second.second->pixelToCoord(event->localPos().y()),
@@ -2687,14 +2670,14 @@ void AxisRect2D::mousePressEvent(QMouseEvent *event, const QVariant &variant) {
 }
 
 void AxisRect2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
-  if (picker_ == Graph2DCommon::Picker::DataGraph)
-    emit showtooltip(
+  if (picker_->getPicker() == Graph2DCommon::Picker::DataGraph)
+    picker_->showtooltip(
         event->localPos(),
         gridpair_.first.second->pixelToCoord(event->localPos().x()),
         gridpair_.second.second->pixelToCoord(event->localPos().y()),
         gridpair_.first.second, gridpair_.second.second);
-  if (picker_ == Graph2DCommon::Picker::DataRange)
-    emit datarangelinedrag(
+  if (picker_->getPicker() == Graph2DCommon::Picker::DataRange)
+    picker_->datarangelinedrag(
         event->pos(),
         gridpair_.first.second->pixelToCoord(event->localPos().x()),
         gridpair_.second.second->pixelToCoord(event->localPos().y()));
@@ -2703,8 +2686,8 @@ void AxisRect2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
 }
 
 void AxisRect2D::mouseReleaseEvent(QMouseEvent *event, const QPointF &) {
-  if (picker_ == Graph2DCommon::Picker::DataRange)
-    emit datarangemouserelease(event->localPos());
+  if (picker_->getPicker() == Graph2DCommon::Picker::DataRange)
+    picker_->datarangemouserelease(event->localPos());
 }
 
 void AxisRect2D::draw(QCPPainter *painter) {

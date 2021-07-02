@@ -3,13 +3,14 @@
 #include <QApplication>
 #include <QCursor>
 
-#include "../future/core/column/Column.h"
 #include "AxisRect2D.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
+#include "PickerTool2D.h"
 #include "Table.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
+#include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
@@ -30,10 +31,7 @@ LineSpecial2D::LineSpecial2D(Table *table, Column *xcol, Column *ycol, int from,
           QString("<LineSpecial2D>") +
           QDateTime::currentDateTime().toString("yyyy:MM:dd:hh:mm:ss:zzz")),
       xerroravailable_(false),
-      yerroravailable_(false),
-      picker_(Graph2DCommon::Picker::None)
-// mPointUnderCursor(new PlotPoint(parentPlot(), 5))
-{
+      yerroravailable_(false) {
   reloadIcon();
   QThread::msleep(1);
   parentPlot()->addLayer(layername_, xAxis_->layer(), QCustomPlot::limBelow);
@@ -440,10 +438,6 @@ void LineSpecial2D::setyaxis_lsplot(Axis2D *axis) {
   setValueAxis(axis);
 }
 
-void LineSpecial2D::setpicker_lsplot(const Graph2DCommon::Picker picker) {
-  picker_ = picker;
-}
-
 void LineSpecial2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   xmlwriter->writeStartElement("linespecial");
   // axis
@@ -719,11 +713,12 @@ bool LineSpecial2D::load(XmlStreamReader *xmlreader) {
 void LineSpecial2D::mousePressEvent(QMouseEvent *event,
                                     const QVariant &details) {
   if (event->button() == Qt::LeftButton) {
-    switch (picker_) {
+    switch (xAxis_->getaxisrect_axis()->getPickerTool()->getPicker()) {
       case Graph2DCommon::Picker::None:
       case Graph2DCommon::Picker::DataGraph:
       case Graph2DCommon::Picker::DragRange:
       case Graph2DCommon::Picker::ZoomRange:
+      case Graph2DCommon::Picker::DataRange:
         break;
       case Graph2DCommon::Picker::DataPoint:
         datapicker(event, details);
@@ -750,8 +745,8 @@ void LineSpecial2D::datapicker(QMouseEvent *event, const QVariant &details) {
         point.x() < event->localPos().x() + 10 &&
         point.y() > event->localPos().y() - 10 &&
         point.y() < event->localPos().y() + 10)
-      emit showtooltip(point, it->mainKey(), it->mainValue(), getxaxis(),
-                       getyaxis());
+      xAxis_->getaxisrect_axis()->getPickerTool()->showtooltip(
+          point, it->mainKey(), it->mainValue(), getxaxis(), getyaxis());
   }
 }
 
@@ -803,43 +798,3 @@ void LineSpecial2D::reloadIcon() {
       break;
   }
 }
-
-/*void LineScatter2D::mousePressEvent(QMouseEvent *event,
-                                    const QVariant &details) {
-  if (event->button() == Qt::LeftButton && mPointUnderCursor) {
-    // localpos()
-    mPointUnderCursor->startMoving(
-        event->pos(), event->modifiers().testFlag(Qt::ShiftModifier));
-    return;
-  }
-
-  QCPGraph::mousePressEvent(event, details);
-}*/
-
-/*void LineSpecial2D::mouseMoveEvent(QMouseEvent *event,
-                                   const QPointF &startPos) {
-  if (event->buttons() == Qt::NoButton) {
-    PlotPoint *plotPoint =
-        qobject_cast<PlotPoint *>(parentPlot()->itemAt(event->pos(), true));
-    if (plotPoint != mPointUnderCursor) {
-      if (mPointUnderCursor == nullptr) {
-        // cursor moved from empty space to item
-        plotPoint->setActive(true);
-        parentPlot()->setCursor(Qt::CursorShape::CrossCursor);
-      } else if (plotPoint == nullptr) {
-        // cursor move from item to empty space
-        qDebug() << "elipse not active";
-        mPointUnderCursor->setActive(false);
-        parentPlot()->unsetCursor();
-      } else {
-        // cursor moved from item to item
-        qDebug() << "point under cursor";
-        mPointUnderCursor->setActive(false);
-        plotPoint->setActive(true);
-      }
-      mPointUnderCursor = plotPoint;
-      parentPlot()->replot(QCustomPlot::RefreshPriority::rpImmediateRefresh);
-    }
-  }
-  QCPGraph::mouseMoveEvent(event, event->pos());
-}*/

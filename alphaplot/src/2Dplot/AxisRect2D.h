@@ -43,6 +43,7 @@ class LineSpecial2D;
 class ErrorBar2D;
 class StatBox2D;
 class LayoutInset2D;
+class PickerTool2D;
 
 class AxisRect2D : public QCPAxisRect {
   Q_OBJECT
@@ -62,7 +63,8 @@ class AxisRect2D : public QCPAxisRect {
   typedef QVector<ColorMap2D *> ColorMapVec;
 
  public:
-  explicit AxisRect2D(Plot2D *parent, bool setupDefaultAxis = false);
+  explicit AxisRect2D(Plot2D *parent, PickerTool2D *picker,
+                      bool setupDefaultAxis = false);
   ~AxisRect2D();
 
   void setAxisRectBackground(const QBrush &brush);
@@ -97,6 +99,7 @@ class AxisRect2D : public QCPAxisRect {
   Axis2D *getYAxis(const int value);
   int getYAxisNo(Axis2D *axis);
   Plot2D *getParentPlot2D() const { return plot2d_; }
+  PickerTool2D *getPickerTool() { return picker_; }
 
   enum class LineScatterType {
     Line2D,
@@ -190,7 +193,6 @@ class AxisRect2D : public QCPAxisRect {
   void replotBareBones() const;
 
   void setPrintorExportJob(const bool value) { printorexportjob_ = value; }
-  void setGraphTool(const Graph2DCommon::Picker &picker);
   void setGridPairToNullptr();
   void setItemAxes(Axis2D *xaxis, Axis2D *yaxis);
 
@@ -242,14 +244,6 @@ class AxisRect2D : public QCPAxisRect {
   void Pie2DRemoved(AxisRect2D *);
   void ColorMap2DRemoved(AxisRect2D *);
   void ErrorBar2DRemoved(AxisRect2D *);
-  void showtooltip(const QPointF position, const double xval, const double yval,
-                   Axis2D *xaxis, Axis2D *yaxis);
-  void datapoint(Curve2D *curve, const double xval, const double yval);
-  void datarangemousepress(Curve2D *curve, const double xval,
-                           const double yval);
-  void datarangelinedrag(const QPointF &pos, const double xval,
-                         const double yval);
-  void datarangemouserelease(QPointF pos);
   // Layer moved
   void LayerMoved(AxisRect2D *);
   void TextItem2DMoved();
@@ -283,7 +277,7 @@ class AxisRect2D : public QCPAxisRect {
   ColorMapVec colormapvec_;
   QList<Axis2D *> axes_;
   QList<QCPLayer *> layers_;
-  Graph2DCommon::Picker picker_;
+  PickerTool2D *picker_;
 };
 
 #endif  // AXISRECT2D_H

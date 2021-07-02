@@ -4,6 +4,7 @@
 #include <gsl/gsl_statistics.h>
 
 #include "Axis2D.h"
+#include "PickerTool2D.h"
 #include "Table.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
@@ -24,8 +25,7 @@ StatBox2D::StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
       boxstyle_(StatBox2D::BoxWhiskerStyle::Perc_25_75),
-      whiskerstyle_(StatBox2D::BoxWhiskerStyle::Perc_5_95),
-      picker_(Graph2DCommon::Picker::None) {
+      whiskerstyle_(StatBox2D::BoxWhiskerStyle::Perc_5_95) {
   // setting icon
   icon_ = IconLoader::load("graph2d-box", IconLoader::LightDark);
 
@@ -487,10 +487,6 @@ void StatBox2D::setscatterstrokethickness_statbox(const double value) {
   setOutlierStyle(*scatterstyle_);
 }
 
-void StatBox2D::setpicker_statbox(const Graph2DCommon::Picker picker) {
-  picker_ = picker;
-}
-
 void StatBox2D::setlegendtext_statbox(const QString name) {
   QSharedPointer<QCPAxisTickerText> textTicker =
       qSharedPointerCast<QCPAxisTickerText>(getxaxis()->getticker_axis());
@@ -852,11 +848,12 @@ bool StatBox2D::load(XmlStreamReader *xmlreader) {
 
 void StatBox2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   if (event->button() == Qt::LeftButton) {
-    switch (picker_) {
+    switch (xAxis_->getaxisrect_axis()->getPickerTool()->getPicker()) {
       case Graph2DCommon::Picker::None:
       case Graph2DCommon::Picker::DataGraph:
       case Graph2DCommon::Picker::DragRange:
       case Graph2DCommon::Picker::ZoomRange:
+      case Graph2DCommon::Picker::DataRange:
         break;
       case Graph2DCommon::Picker::DataPoint:
         datapicker(event, details);
@@ -883,8 +880,8 @@ void StatBox2D::datapicker(QMouseEvent *event, const QVariant &details) {
         point.x() < event->localPos().x() + 10 &&
         point.y() > event->localPos().y() - 10 &&
         point.y() < event->localPos().y() + 10) {
-      emit showtooltip(point, it->mainKey(), it->mainValue(), getxaxis(),
-                       getyaxis());
+      xAxis_->getaxisrect_axis()->getPickerTool()->showtooltip(
+          point, it->mainKey(), it->mainValue(), getxaxis(), getyaxis());
     }
   }
 }

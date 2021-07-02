@@ -3,6 +3,7 @@
 #include "AxisRect2D.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
+#include "PickerTool2D.h"
 #include "Table.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
@@ -26,7 +27,6 @@ Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
       yerrorbar_(nullptr),
       xerroravailable_(false),
       yerroravailable_(false),
-      picker_(Graph2DCommon::Picker::None),
       stackposition_(stackposition) {
   reloadIcon();
   init();
@@ -55,7 +55,6 @@ Bar2D::Bar2D(Table *table, Column *col, int from, int to, Axis2D *xAxis,
       yerrorbar_(nullptr),
       xerroravailable_(false),
       yerroravailable_(false),
-      picker_(Graph2DCommon::Picker::None),
       stackposition_(-1) {
   reloadIcon();
   init();
@@ -244,10 +243,6 @@ void Bar2D::setBarData(Table *table, Column *col, int from, int to) {
              histdata_->data()->at(0)->mainKey());
 }
 
-void Bar2D::setpicker_barplot(const Graph2DCommon::Picker picker) {
-  picker_ = picker;
-}
-
 void Bar2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   xmlwriter->writeStartElement("bar");
   // axis
@@ -372,11 +367,12 @@ bool Bar2D::load(XmlStreamReader *xmlreader) {
 
 void Bar2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   if (event->button() == Qt::LeftButton) {
-    switch (picker_) {
+    switch (xaxis_->getaxisrect_axis()->getPickerTool()->getPicker()) {
       case Graph2DCommon::Picker::None:
       case Graph2DCommon::Picker::DataGraph:
       case Graph2DCommon::Picker::DragRange:
       case Graph2DCommon::Picker::ZoomRange:
+      case Graph2DCommon::Picker::DataRange:
         break;
       case Graph2DCommon::Picker::DataPoint:
         datapicker(event, details);
@@ -399,8 +395,8 @@ void Bar2D::datapicker(QMouseEvent *, const QVariant &details) {
     dataPoints.dataRange();
     it = data()->at(dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
-    emit showtooltip(point, it->mainKey(), it->mainValue(), getxaxis(),
-                     getyaxis());
+    xaxis_->getaxisrect_axis()->getPickerTool()->showtooltip(
+        point, it->mainKey(), it->mainValue(), getxaxis(), getyaxis());
   }
 }
 

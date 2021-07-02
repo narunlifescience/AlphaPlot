@@ -3,6 +3,7 @@
 #include "AxisRect2D.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
+#include "PickerTool2D.h"
 #include "Table.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
@@ -26,8 +27,7 @@ Curve2D::Curve2D(Curve2D::Curve2DType curve2dtype, Table *table, Column *xcol,
       xerrorbar_(nullptr),
       yerrorbar_(nullptr),
       xerroravailable_(false),
-      yerroravailable_(false),
-      picker_(Graph2DCommon::Picker::None) {
+      yerroravailable_(false) {
   reloadIcon();
   init();
   setSelectable(QCP::SelectionType::stSingleData);
@@ -60,8 +60,7 @@ Curve2D::Curve2D(const PlotData::FunctionData funcdata, QVector<double> *xdata,
       xerrorbar_(nullptr),
       yerrorbar_(nullptr),
       xerroravailable_(false),
-      yerroravailable_(false),
-      picker_(Graph2DCommon::Picker::None) {
+      yerroravailable_(false) {
   Q_ASSERT(xdata->size() == ydata->size());
   init();
   setlinestrokecolor_cplot(
@@ -594,10 +593,6 @@ void Curve2D::setlegendvisible_cplot(const bool value) {
 
 void Curve2D::setlegendtext_cplot(const QString &text) { setName(text); }
 
-void Curve2D::setpicker_cplot(const Graph2DCommon::Picker picker) {
-  picker_ = picker;
-}
-
 void Curve2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   xmlwriter->writeStartElement("curve");
   // axis
@@ -933,7 +928,7 @@ void Curve2D::drawCurveLine(QCPPainter *painter,
 
 void Curve2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   if (event->button() == Qt::LeftButton) {
-    switch (picker_) {
+    switch (xAxis_->getaxisrect_axis()->getPickerTool()->getPicker()) {
       case Graph2DCommon::Picker::None:
       case Graph2DCommon::Picker::DataGraph:
       case Graph2DCommon::Picker::DragRange:
@@ -1066,10 +1061,10 @@ void Curve2D::datapicker(QMouseEvent *event, const QVariant &details) {
         point.x() < event->localPos().x() + 10 &&
         point.y() > event->localPos().y() - 10 &&
         point.y() < event->localPos().y() + 10) {
-      emit showtooltip(point, it->mainKey(), it->mainValue(), getxaxis(),
-                       getyaxis());
-      emit getxaxis()->getaxisrect_axis()->datapoint(this, it->mainKey(),
-                                                     it->mainValue());
+      xAxis_->getaxisrect_axis()->getPickerTool()->showtooltip(
+          point, it->mainKey(), it->mainValue(), getxaxis(), getyaxis());
+      xAxis_->getaxisrect_axis()->getPickerTool()->datapoint(
+          this, it->mainKey(), it->mainValue());
     }
   }
 }
@@ -1105,7 +1100,7 @@ void Curve2D::dataRangePicker(QMouseEvent *event, const QVariant &details) {
         point.x() < event->localPos().x() + 10 &&
         point.y() > event->localPos().y() - 10 &&
         point.y() < event->localPos().y() + 10) {
-      emit getxaxis()->getaxisrect_axis()->datarangemousepress(
+      xAxis_->getaxisrect_axis()->getPickerTool()->datarangemousepress(
           this, it->mainKey(), it->mainValue());
     }
   }

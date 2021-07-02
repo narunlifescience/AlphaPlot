@@ -35,7 +35,6 @@ class PickerTool2D : public QObject {
   QPair<double, double> getRangePickerLower() const;
   QPair<double, double> getRangePickerUpper() const;
 
- public slots:
   void showtooltip(const QPointF position, const double xval, const double yval,
                    Axis2D *xaxis, Axis2D *yaxis);
   // drag range
@@ -44,6 +43,7 @@ class PickerTool2D : public QObject {
   void datarangelinedrag(const QPointF &position, const double xval,
                          const double yval);
   void datarangemouserelease(const QPointF position);
+  void datapoint(Curve2D *curve, const double xval, const double yval);
 
  private:
   struct DatarangePicker {

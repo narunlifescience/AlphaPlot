@@ -18,8 +18,8 @@
 
 #include "Curve2D.h"
 #include "DataManager2D.h"
-#include "Plot2D.h"
 #include "Legend2D.h"
+#include "Plot2D.h"
 
 const int PickerTool2D::ellipseradius_ = 10;
 
@@ -112,10 +112,6 @@ void PickerTool2D::setPicker(const Graph2DCommon::Picker &picker) {
         setupRangepicker();
       }
     } break;
-  }
-  QList<AxisRect2D *> axisrectlist = layout_->getAxisRectList();
-  foreach (AxisRect2D *axisrect, axisrectlist) {
-    axisrect->setGraphTool(picker_);
   }
   layout_->getPlotCanwas()->replot(
       QCustomPlot::RefreshPriority::rpQueuedReplot);
@@ -232,6 +228,11 @@ void PickerTool2D::datarangemouserelease(const QPointF position) {
   rangepicker_.active = false;
 }
 
+void PickerTool2D::datapoint(Curve2D *curve, const double xval,
+                             const double yval) {
+  emit layout_->datapoint(curve, xval, yval);
+}
+
 void PickerTool2D::setupRangepicker() {
   AxisRect2D *axisrect = layout_->getCurrentAxisRect();
   QPen pen = QPen(Qt::red, 1, Qt::DashLine);
@@ -250,7 +251,10 @@ void PickerTool2D::setupRangepicker() {
   ypickerellipse_->setAntialiased(true);
   xpickerline_->setVisible(true);
   ypickerline_->setVisible(true);
+  xpickerellipse_->setVisible(true);
+  ypickerellipse_->setVisible(true);
 
+  // line
   foreach (QCPItemPosition *position, xpickerline_->positions()) {
     position->setAxes(curve_->getxaxis(), curve_->getyaxis());
   }

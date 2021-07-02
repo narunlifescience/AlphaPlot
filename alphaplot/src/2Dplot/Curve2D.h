@@ -82,7 +82,6 @@ class Curve2D : public QCPCurve {
   void setlinefillstatus_cplot(const bool value);
   void setlegendvisible_cplot(const bool value);
   void setlegendtext_cplot(const QString &text);
-  void setpicker_cplot(const Graph2DCommon::Picker picker);
 
   void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);
   bool load(XmlStreamReader *xmlreader);
@@ -103,10 +102,6 @@ class Curve2D : public QCPCurve {
   void dataRangePicker(QMouseEvent *event, const QVariant &details);
   void reloadIcon();
 
- signals:
-  void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
-                   Axis2D *yaxis);
-
  private:
   Axis2D *xAxis_;
   Axis2D *yAxis_;
@@ -121,7 +116,6 @@ class Curve2D : public QCPCurve {
   ErrorBar2D *yerrorbar_;
   bool xerroravailable_;
   bool yerroravailable_;
-  Graph2DCommon::Picker picker_;
   QPen splinePen_;
   QBrush splineBrush_;
   QVector<QPointF> *splinepoints_;

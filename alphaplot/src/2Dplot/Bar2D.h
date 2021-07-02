@@ -63,7 +63,6 @@ class Bar2D : public QCPBars {
   void setHistEnd(const double end);
   void setBarData(Table *table, Column *xcol, Column *ycol, int from, int to);
   void setBarData(Table *table, Column *col, int from, int to);
-  void setpicker_barplot(const Graph2DCommon::Picker picker);
 
   void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);
   bool load(XmlStreamReader *xmlreader);
@@ -76,10 +75,6 @@ class Bar2D : public QCPBars {
   void movepicker(QMouseEvent *event, const QVariant &details);
   void removepicker(QMouseEvent *, const QVariant &details);
   void reloadIcon();
-
- signals:
-  void showtooltip(QPointF position, double xval, double yval, Axis2D *xaxis,
-                   Axis2D *yaxis);
 
  private:
   double barwidth_;
@@ -95,7 +90,6 @@ class Bar2D : public QCPBars {
   QString layername_;
   bool xerroravailable_;
   bool yerroravailable_;
-  Graph2DCommon::Picker picker_;
   int stackposition_;
   QIcon icon_;
 };

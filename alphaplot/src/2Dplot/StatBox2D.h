@@ -143,7 +143,6 @@ class StatBox2D : public QCPStatisticalBox {
   void setscatterstrokecolor_statbox(const QColor &color);
   void setscatterstrokethickness_statbox(const double value);
   void reloaddata_statbox();
-  void setpicker_statbox(const Graph2DCommon::Picker picker);
   void setlegendtext_statbox(const QString name);
 
   void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);
@@ -157,9 +156,6 @@ class StatBox2D : public QCPStatisticalBox {
   void movepicker(QMouseEvent *, const QVariant &);
   void removepicker(QMouseEvent *, const QVariant &);
 
- signals:
-  void showtooltip(QPointF, double, double, Axis2D *xaxis, Axis2D *yaxis);
-
  private:
   Axis2D *xAxis_;
   Axis2D *yAxis_;
@@ -169,7 +165,6 @@ class StatBox2D : public QCPStatisticalBox {
   QCPScatterStyle *scatterstyle_;
   BoxWhiskerStyle boxstyle_;
   BoxWhiskerStyle whiskerstyle_;
-  Graph2DCommon::Picker picker_;
   QIcon icon_;
 };
 

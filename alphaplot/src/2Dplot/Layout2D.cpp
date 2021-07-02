@@ -726,7 +726,7 @@ AxisRect2D *Layout2D::addAxisRectItemAtRowCol(
     return nullptr;
   }
 
-  AxisRect2D *axisRect2d = new AxisRect2D(plot2dCanvas_);
+  AxisRect2D *axisRect2d = new AxisRect2D(plot2dCanvas_, picker_);
   Axis2D *xAxis = nullptr;
   switch (xcoldatatype) {
     case AlphaPlot::ColumnDataType::TypeDouble:
@@ -778,16 +778,6 @@ AxisRect2D *Layout2D::addAxisRectItemAtRowCol(
 
   connect(axisRect2d, &AxisRect2D::AxisRectClicked, this,
           &Layout2D::axisRectSetFocus);
-  // pickers
-  connect(axisRect2d, &AxisRect2D::showtooltip, picker_,
-          &PickerTool2D::showtooltip);
-  connect(axisRect2d, &AxisRect2D::datarangemousepress, picker_,
-          &PickerTool2D::datarangemousepress);
-  connect(axisRect2d, &AxisRect2D::datarangelinedrag, picker_,
-          &PickerTool2D::datarangelinedrag);
-  connect(axisRect2d, &AxisRect2D::datarangemouserelease, picker_,
-          &PickerTool2D::datarangemouserelease);
-  connect(axisRect2d, &AxisRect2D::datapoint, this, &Layout2D::datapoint);
 
   emit AxisRectCreated(axisRect2d, this);
   if (!currentAxisRect_) axisRectSetFocus(axisRect2d);
