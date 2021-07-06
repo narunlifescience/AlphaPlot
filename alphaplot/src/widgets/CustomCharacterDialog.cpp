@@ -12,7 +12,7 @@ CustomCharacterDialog::CustomCharacterDialog(QWidget *parent)
   QRegExp rxThreeHexAtTheEnd("(?:[0-9a-fA-F]{5})");
   QRegExpValidator *validator = new QRegExpValidator(rxThreeHexAtTheEnd, this);
   ui->lineEdit->setValidator(validator);
-  connect(ui->buttonBox, &QDialogButtonBox::accepted, [=]() {
+  connect(ui->buttonBox, &QDialogButtonBox::accepted, this, [=]() {
     if (!ui->lineEdit->text().trimmed().isEmpty()) {
       int value = ui->lineEdit->text().trimmed().toInt(0, 16);
       if (value && (QChar(value).category() != QChar::Other_NotAssigned)) {

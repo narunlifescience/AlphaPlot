@@ -18,7 +18,7 @@
 
 #include "Curve2D.h"
 #include "DataManager2D.h"
-#include "Legend2D.h"
+#include "LineSpecial2D.h"
 #include "Plot2D.h"
 
 const int PickerTool2D::ellipseradius_ = 10;
@@ -27,6 +27,8 @@ PickerTool2D::PickerTool2D(Layout2D *parent)
     : QObject(parent),
       layout_(parent),
       curve_(nullptr),
+      ls_(nullptr),
+      bar_(nullptr),
       picker_(Graph2DCommon::Picker::None),
       xpickerline_(nullptr),
       ypickerline_(nullptr),
@@ -71,7 +73,10 @@ void PickerTool2D::setPicker(const Graph2DCommon::Picker &picker) {
     } break;
     case Graph2DCommon::Picker::DataMove: {
       removePickerLinesAndEllipses();
-      layout_->getPlotCanwas()->setCursor(Qt::CursorShape::OpenHandCursor);
+      layout_->getPlotCanwas()->setCursor(Qt::CursorShape::PointingHandCursor);
+      xpickerellipse_ = new QCPItemEllipse(layout_->getPlotCanwas());
+      xpickerellipse_->setLayer("picker");
+      xpickerellipse_->setVisible(false);
       layout_->setAxisRangeDrag(false);
       layout_->setAxisRangeZoom(false);
     } break;
@@ -161,7 +166,114 @@ void PickerTool2D::showtooltip(const QPointF position, const double xval,
   layout_->streachLabelSetText(QString(" x=%1 y=%2").arg(xval).arg(yval));
 }
 
-void PickerTool2D::datarangemousepress(Curve2D *curve, const double xval,
+void PickerTool2D::movepickermouspresscurve(Curve2D *curve, const double xval,
+                                            const double yval, Axis2D *xaxis,
+                                            Axis2D *yaxis) {
+  curve_ = curve;
+  movepickermouspress(xval, yval, xaxis, yaxis);
+}
+
+void PickerTool2D::movepickermouspressls(LineSpecial2D *ls, const double xval,
+                                         const double yval, Axis2D *xaxis,
+                                         Axis2D *yaxis) {
+  ls_ = ls;
+  movepickermouspress(xval, yval, xaxis, yaxis);
+}
+
+void PickerTool2D::movepickermouspressbar(Bar2D *bar, const double xval,
+                                          const double yval, Axis2D *xaxis,
+                                          Axis2D *yaxis) {
+  bar_ = bar;
+  movepickermouspress(xval, yval, xaxis, yaxis);
+}
+
+void PickerTool2D::movepickermousedrag(const QPointF &position,
+                                       const double xval, const double yval) {
+  Q_UNUSED(position);
+  Axis2D *xaxis = nullptr;
+  Axis2D *yaxis = nullptr;
+  if (curve_) {
+    xaxis = curve_->getxaxis();
+    yaxis = curve_->getyaxis();
+  } else if (ls_) {
+    xaxis = ls_->getxaxis();
+    yaxis = ls_->getyaxis();
+  } else if (bar_) {
+    xaxis = bar_->getxaxis();
+    yaxis = bar_->getyaxis();
+  }
+  if (!xaxis || !yaxis) return;
+
+  double x = xaxis->coordToPixel(xval);
+  double y = yaxis->coordToPixel(yval);
+  xpickerellipse_->position("topLeft")->setPixelPosition(
+      QPointF(x - ellipseradius_, y - ellipseradius_));
+  xpickerellipse_->position("bottomRight")
+      ->setPixelPosition(QPointF(x + ellipseradius_, y + ellipseradius_));
+  QToolTip::showText(
+      layout_->mapToGlobal(QPoint(static_cast<int>(position.x()),
+                                  static_cast<int>(position.y()))),
+      QString::number(xval) + ", " + QString::number(yval));
+}
+
+void PickerTool2D::movepickermouserelease(const QPointF position) {
+  Axis2D *xaxis = nullptr;
+  Axis2D *yaxis = nullptr;
+  if (curve_) {
+    xaxis = curve_->getxaxis();
+    yaxis = curve_->getyaxis();
+  } else if (ls_) {
+    xaxis = ls_->getxaxis();
+    yaxis = ls_->getyaxis();
+  } else if (bar_) {
+    xaxis = bar_->getxaxis();
+    yaxis = bar_->getyaxis();
+  }
+  if (!xaxis || !yaxis) return;
+
+  double newxval = xaxis->pixelToCoord(position.x());
+  double newyval = yaxis->pixelToCoord(position.y());
+  bool status = false;
+  if (curve_)
+    status = curve_->getdatablock_cplot()->movedatafromtable(
+        movepicker_.xval, movepicker_.yval, newxval, newyval);
+  else if (ls_)
+    status = ls_->getdatablock_lsplot()->movedatafromtable(
+        movepicker_.xval, movepicker_.yval, newxval, newyval);
+  else if (bar_)
+    status = bar_->getdatablock_barplot()->movedatafromtable(
+        movepicker_.xval, movepicker_.yval, newxval, newyval);
+  if (status) {
+    double x = xaxis->coordToPixel(newxval);
+    double y = yaxis->coordToPixel(newyval);
+    xpickerellipse_->position("topLeft")->setPixelPosition(
+        QPointF(x - ellipseradius_, y - ellipseradius_));
+    xpickerellipse_->position("bottomRight")
+        ->setPixelPosition(QPointF(x + ellipseradius_, y + ellipseradius_));
+    QToolTip::showText(
+        layout_->mapToGlobal(QPoint(static_cast<int>(position.x()),
+                                    static_cast<int>(position.y()))),
+        QString::number(newxval) + ", " + QString::number(newyval));
+  } else {
+    double x = xaxis->coordToPixel(movepicker_.xval);
+    double y = yaxis->coordToPixel(movepicker_.yval);
+    xpickerellipse_->position("topLeft")->setPixelPosition(
+        QPointF(x - ellipseradius_, y - ellipseradius_));
+    xpickerellipse_->position("bottomRight")
+        ->setPixelPosition(QPointF(x + ellipseradius_, y + ellipseradius_));
+    QToolTip::showText(
+        layout_->mapToGlobal(QPoint(static_cast<int>(x), static_cast<int>(y))),
+        QString::number(movepicker_.xval) + ", " +
+            QString::number(movepicker_.yval));
+  }
+  layout_->getPlotCanwas()->replot(
+      QCustomPlot::RefreshPriority::rpQueuedReplot);
+  curve_ = nullptr;
+  ls_ = nullptr;
+  bar_ = nullptr;
+}
+
+void PickerTool2D::rangepickermousepress(Curve2D *curve, const double xval,
                                        const double yval) {
   if (curve == rangepicker_.curve &&
       ((xval == rangepicker_.lowerx && yval == rangepicker_.lowery) ||
@@ -176,14 +288,14 @@ void PickerTool2D::datarangemousepress(Curve2D *curve, const double xval,
     rangepicker_.active = false;
 }
 
-void PickerTool2D::datarangelinedrag(const QPointF &position, const double xval,
+void PickerTool2D::rangepickermousedrag(const QPointF &position, const double xval,
                                      const double yval) {
   Q_UNUSED(position);
   if (!rangepicker_.active || !rangepicker_.line) return;
   moveLineEllipseItenTo(xval, yval, false);
 }
 
-void PickerTool2D::datarangemouserelease(const QPointF position) {
+void PickerTool2D::rangepickermouserelease(const QPointF position) {
   if (!rangepicker_.active || !rangepicker_.line) return;
   QVariant variant;
   rangepicker_.curve->selectTest(position, false, &variant);
@@ -226,11 +338,39 @@ void PickerTool2D::datarangemouserelease(const QPointF position) {
   layout_->getPlotCanwas()->replot(
       QCustomPlot::RefreshPriority::rpQueuedReplot);
   rangepicker_.active = false;
+  curve_ = nullptr;
 }
 
 void PickerTool2D::datapoint(Curve2D *curve, const double xval,
                              const double yval) {
   emit layout_->datapoint(curve, xval, yval);
+}
+
+void PickerTool2D::movepickermouspress(const double xval, const double yval,
+                                       Axis2D *xaxis, Axis2D *yaxis) {
+  QPen pen = QPen(Qt::red, 1);
+  QColor color = Qt::yellow;
+  color.setAlpha(100);
+  QBrush brush = QBrush(color);
+  xpickerellipse_->setPen(pen);
+  xpickerellipse_->setBrush(brush);
+  xpickerellipse_->setAntialiased(true);
+  xpickerellipse_->setVisible(true);
+
+  // ellipse
+  foreach (QCPItemPosition *position, xpickerellipse_->positions()) {
+    position->setAxes(xaxis, yaxis);
+  }
+  xpickerellipse_->setClipAxisRect(xaxis->getaxisrect_axis());
+  xpickerellipse_->setClipToAxisRect(true);
+  double x = xaxis->coordToPixel(xval);
+  double y = yaxis->coordToPixel(yval);
+  xpickerellipse_->position("topLeft")->setPixelPosition(
+      QPointF(x - ellipseradius_, y - ellipseradius_));
+  xpickerellipse_->position("bottomRight")
+      ->setPixelPosition(QPointF(x + ellipseradius_, y + ellipseradius_));
+  movepicker_.xval = xval;
+  movepicker_.yval = yval;
 }
 
 void PickerTool2D::setupRangepicker() {
@@ -308,6 +448,8 @@ void PickerTool2D::setupRangepicker() {
   rangepicker_.upperx = stopx;
   rangepicker_.uppery = stopy;
 }
+
+void PickerTool2D::setupMovePicker() {}
 
 void PickerTool2D::removePickerLinesAndEllipses() {
   if (xpickerline_) {

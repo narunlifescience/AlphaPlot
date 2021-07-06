@@ -28,6 +28,8 @@ class DataBlockGraph {
   int getfrom() const { return associateddata_->from; }
   int getto() const { return associateddata_->to; }
 
+  bool movedatafromtable(const double key, const double value,
+                         const double newkey, const double newvalue);
   bool removedatafromtable(const double key, const double value);
   // Setters
   void settable(Table *table) { associateddata_->table = table; }
@@ -59,6 +61,8 @@ class DataBlockCurve {
   int getfrom() const { return associateddata_->from; }
   int getto() const { return associateddata_->to; }
 
+  bool movedatafromtable(const double key, const double value,
+                         const double newkey, const double newvalue);
   bool removedatafromtable(const double key, const double value);
   // Setters
   void settable(Table *table) { associateddata_->table = table; }
@@ -90,6 +94,8 @@ class DataBlockBar {
   int getfrom() const { return associateddata_->from; }
   int getto() const { return associateddata_->to; }
 
+  bool movedatafromtable(const double key, const double value,
+                         const double newkey, const double newvalue);
   bool removedatafromtable(const double key, const double value);
   // Setters
   void settable(Table *table) { associateddata_->table = table; }

@@ -78,6 +78,27 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
   }
 }
 
+bool DataBlockGraph::movedatafromtable(const double key, const double value,
+                                       const double newkey,
+                                       const double newvalue) {
+  for (int i = associateddata_->from; i < associateddata_->to + 1; i++) {
+    if (associateddata_->xcol->valueAt(i) == key) {
+      if (associateddata_->ycol->valueAt(i) == value) {
+        associateddata_->xcol->asStringColumn()->setTextAt(
+            i, QString::number(newkey));
+        associateddata_->ycol->asStringColumn()->setTextAt(
+            i, QString::number(newvalue));
+        return true;
+      }
+    }
+  }
+  qDebug() << "unable to move data point " << key << ", " << value
+           << " in column(s)" << associateddata_->xcol->name() << ", "
+           << associateddata_->ycol->name()
+           << " from associated table: " << associateddata_->table->name();
+  return false;
+}
+
 bool DataBlockGraph::removedatafromtable(const double key, const double value) {
   for (int i = associateddata_->from; i < associateddata_->to + 1; i++) {
     if (associateddata_->xcol->valueAt(i) == key) {
@@ -168,6 +189,27 @@ void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
   }
 }
 
+bool DataBlockCurve::movedatafromtable(const double key, const double value,
+                                       const double newkey,
+                                       const double newvalue) {
+  for (int i = associateddata_->from; i < associateddata_->to + 1; i++) {
+    if (associateddata_->xcol->valueAt(i) == key) {
+      if (associateddata_->ycol->valueAt(i) == value) {
+        associateddata_->xcol->asStringColumn()->setTextAt(
+            i, QString::number(newkey));
+        associateddata_->ycol->asStringColumn()->setTextAt(
+            i, QString::number(newvalue));
+        return true;
+      }
+    }
+  }
+  qDebug() << "unable to move data point " << key << ", " << value
+           << " in column(s)" << associateddata_->xcol->name() << ", "
+           << associateddata_->ycol->name()
+           << " from associated table: " << associateddata_->table->name();
+  return false;
+}
+
 bool DataBlockCurve::removedatafromtable(const double key, const double value) {
   for (int i = associateddata_->from; i < associateddata_->to + 1; i++) {
     if (associateddata_->xcol->valueAt(i) == key) {
@@ -255,6 +297,27 @@ void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
     }
     i++;
   }
+}
+
+bool DataBlockBar::movedatafromtable(const double key, const double value,
+                                     const double newkey,
+                                     const double newvalue) {
+  for (int i = associateddata_->from; i < associateddata_->to + 1; i++) {
+    if (associateddata_->xcol->valueAt(i) == key) {
+      if (associateddata_->ycol->valueAt(i) == value) {
+        associateddata_->xcol->asStringColumn()->setTextAt(
+            i, QString::number(newkey));
+        associateddata_->ycol->asStringColumn()->setTextAt(
+            i, QString::number(newvalue));
+        return true;
+      }
+    }
+  }
+  qDebug() << "unable to move data point " << key << ", " << value
+           << " in column(s)" << associateddata_->xcol->name() << ", "
+           << associateddata_->ycol->name()
+           << " from associated table: " << associateddata_->table->name();
+  return false;
 }
 
 bool DataBlockBar::removedatafromtable(const double key, const double value) {

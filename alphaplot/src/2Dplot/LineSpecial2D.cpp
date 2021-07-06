@@ -735,7 +735,7 @@ void LineSpecial2D::mousePressEvent(QMouseEvent *event,
 }
 
 void LineSpecial2D::datapicker(QMouseEvent *event, const QVariant &details) {
-  QCPGraphDataContainer::const_iterator it = data()->constEnd();
+  QCPGraphDataContainer::const_iterator it;
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
@@ -750,10 +750,25 @@ void LineSpecial2D::datapicker(QMouseEvent *event, const QVariant &details) {
   }
 }
 
-void LineSpecial2D::movepicker(QMouseEvent *event, const QVariant &details) {}
+void LineSpecial2D::movepicker(QMouseEvent *event, const QVariant &details) {
+  QCPGraphDataContainer::const_iterator it;
+  QCPDataSelection dataPoints = details.value<QCPDataSelection>();
+  if (dataPoints.dataPointCount() > 0) {
+    dataPoints.dataRange();
+    it = data()->at(dataPoints.dataRange().begin());
+    QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
+    if (point.x() > event->localPos().x() - 10 &&
+        point.x() < event->localPos().x() + 10 &&
+        point.y() > event->localPos().y() - 10 &&
+        point.y() < event->localPos().y() + 10) {
+      xAxis_->getaxisrect_axis()->getPickerTool()->movepickermouspressls(
+          this, it->mainKey(), it->mainValue(), getxaxis(), getyaxis());
+    }
+  }
+}
 
 void LineSpecial2D::removepicker(QMouseEvent *event, const QVariant &details) {
-  QCPGraphDataContainer::const_iterator it = data()->constEnd();
+  QCPGraphDataContainer::const_iterator it;
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();

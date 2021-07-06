@@ -2676,8 +2676,13 @@ void AxisRect2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
         gridpair_.first.second->pixelToCoord(event->localPos().x()),
         gridpair_.second.second->pixelToCoord(event->localPos().y()),
         gridpair_.first.second, gridpair_.second.second);
-  if (picker_->getPicker() == Graph2DCommon::Picker::DataRange)
-    picker_->datarangelinedrag(
+  else if (picker_->getPicker() == Graph2DCommon::Picker::DataRange)
+    picker_->rangepickermousedrag(
+        event->pos(),
+        gridpair_.first.second->pixelToCoord(event->localPos().x()),
+        gridpair_.second.second->pixelToCoord(event->localPos().y()));
+  else if (picker_->getPicker() == Graph2DCommon::Picker::DataMove)
+    picker_->movepickermousedrag(
         event->pos(),
         gridpair_.first.second->pixelToCoord(event->localPos().x()),
         gridpair_.second.second->pixelToCoord(event->localPos().y()));
@@ -2687,7 +2692,9 @@ void AxisRect2D::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) {
 
 void AxisRect2D::mouseReleaseEvent(QMouseEvent *event, const QPointF &) {
   if (picker_->getPicker() == Graph2DCommon::Picker::DataRange)
-    picker_->datarangemouserelease(event->localPos());
+    picker_->rangepickermouserelease(event->localPos());
+  else if (picker_->getPicker() == Graph2DCommon::Picker::DataMove)
+    picker_->movepickermouserelease(event->localPos());
 }
 
 void AxisRect2D::draw(QCPPainter *painter) {

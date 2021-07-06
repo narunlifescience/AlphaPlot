@@ -389,7 +389,7 @@ void Bar2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
 }
 
 void Bar2D::datapicker(QMouseEvent *, const QVariant &details) {
-  QCPBarsDataContainer::const_iterator it = data()->constEnd();
+  QCPBarsDataContainer::const_iterator it;
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
@@ -400,10 +400,25 @@ void Bar2D::datapicker(QMouseEvent *, const QVariant &details) {
   }
 }
 
-void Bar2D::movepicker(QMouseEvent *event, const QVariant &details) {}
+void Bar2D::movepicker(QMouseEvent *event, const QVariant &details) {
+  QCPBarsDataContainer::const_iterator it;
+  QCPDataSelection dataPoints = details.value<QCPDataSelection>();
+  if (dataPoints.dataPointCount() > 0) {
+    dataPoints.dataRange();
+    it = data()->at(dataPoints.dataRange().begin());
+    QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
+    if (point.x() > event->localPos().x() - 10 &&
+        point.x() < event->localPos().x() + 10 &&
+        point.y() > event->localPos().y() - 10 &&
+        point.y() < event->localPos().y() + 10) {
+      xaxis_->getaxisrect_axis()->getPickerTool()->movepickermouspressbar(
+          this, it->mainKey(), it->mainValue(), getxaxis(), getyaxis());
+    }
+  }
+}
 
 void Bar2D::removepicker(QMouseEvent *, const QVariant &details) {
-  QCPBarsDataContainer::const_iterator it = data()->constEnd();
+  QCPBarsDataContainer::const_iterator it;
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();

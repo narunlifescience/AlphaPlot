@@ -4703,9 +4703,9 @@ void ApplicationWindow::movePoints() {
     ui_->actionDisableGraphTools->setChecked(true);
     return;
   }
-  layout->setGraphTool(Graph2DCommon::Picker::None);
-  ui_->actionDisableGraphTools->setChecked(true);
-  QMessageBox::warning(this, tr("Warning"), tr("<h4>not implimented!</h4>"));
+  layout->setGraphTool(Graph2DCommon::Picker::DataMove);
+  //ui_->actionDisableGraphTools->setChecked(true);
+  //QMessageBox::warning(this, tr("Warning"), tr("<h4>not implimented!</h4>"));
 }
 
 void ApplicationWindow::exportPDF() {
@@ -6630,7 +6630,9 @@ void ApplicationWindow::addNestedLayout() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
   Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
   // layout->generateLayoutInset2D();
-  qDebug() << "not implimented";
+  QMessageBox::warning(
+      this, tr("Warning"),
+      tr("<h4>not implimented!</h4>"));
 }
 
 void ApplicationWindow::addLayout(

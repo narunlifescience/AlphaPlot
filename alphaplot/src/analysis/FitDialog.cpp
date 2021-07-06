@@ -27,22 +27,10 @@
  *                                                                         *
  ***************************************************************************/
 #include "FitDialog.h"
-#include <../3rdparty/muparser/muParserError.h>
-#include "2Dplot/AxisRect2D.h"
-#include "2Dplot/Plotcolumns.h"
-#include "ApplicationWindow.h"
-#include "ColorBox.h"
-#include "ExponentialFit.h"
-#include "Fit.h"
-#include "Matrix.h"
-#include "MultiPeakFit.h"
-#include "NonLinearFit.h"
-#include "PluginFit.h"
-#include "PolynomialFit.h"
-#include "SigmoidalFit.h"
-#include "scripting/MyParser.h"
 
+#include <../3rdparty/muparser/muParserError.h>
 #include <stdio.h>
+
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFileDialog>
@@ -62,6 +50,20 @@
 #include <QTableWidget>
 #include <QWidget>
 #include <QWidgetList>
+
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Plotcolumns.h"
+#include "ApplicationWindow.h"
+#include "ColorBox.h"
+#include "ExponentialFit.h"
+#include "Fit.h"
+#include "Matrix.h"
+#include "MultiPeakFit.h"
+#include "NonLinearFit.h"
+#include "PluginFit.h"
+#include "PolynomialFit.h"
+#include "SigmoidalFit.h"
+#include "scripting/MyParser.h"
 
 #define CONFS(string) \
   QString::number(QLocale().toDouble(string), 'g', boxPrecision->value())
@@ -534,6 +536,7 @@ void FitDialog::activateCurve(const QString &curveName) {
     if (xmin_ > value) xmin_ = value;
     if (xmax_ < value) xmax_ = value;
   }
+
   double start = xmin_;
   double end = xmax_;
   boxFrom->setText(QLocale().toString(std::min(start, end), 'g', 15));

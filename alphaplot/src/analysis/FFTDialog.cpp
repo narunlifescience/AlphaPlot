@@ -27,11 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "FFTDialog.h"
-#include "2Dplot/Plotcolumns.h"
-#include "ApplicationWindow.h"
-#include "FFT.h"
-#include "Table.h"
-#include "scripting/MyParser.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -42,6 +37,12 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRadioButton>
+
+#include "2Dplot/Plotcolumns.h"
+#include "ApplicationWindow.h"
+#include "FFT.h"
+#include "Table.h"
+#include "scripting/MyParser.h"
 
 FFTDialog::FFTDialog(int type, QWidget *parent, Qt::WindowFlags flag)
     : QDialog(parent, flag),
@@ -118,10 +119,9 @@ FFTDialog::FFTDialog(int type, QWidget *parent, Qt::WindowFlags flag)
   setFocusProxy(boxName);
 
   // signals and slots connections
-  connect(boxName, SIGNAL(activated(const QString &)), this,
-          SLOT(activateCurve(const QString &)));
-  connect(buttonOK, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+  connect(boxName, &QComboBox::textActivated, this, &FFTDialog::activateCurve);
+  connect(buttonOK, &QPushButton::clicked, this, &FFTDialog::accept);
+  connect(buttonCancel, &QPushButton::clicked, this, &FFTDialog::reject);
 }
 
 void FFTDialog::accept() {
@@ -212,10 +212,10 @@ void FFTDialog::setTable(Table *table) {
     boxReal->setItemText(boxReal->currentIndex(), QString());
     boxImaginary->setItemText(boxImaginary->currentIndex(), QString());
   } else if (selected == 1) {
-    boxReal->setCurrentIndex(table->colIndex(l[0]));
+    boxReal->setCurrentIndex(table->colIndex(l.at(0)));
     boxImaginary->setItemText(boxImaginary->currentIndex(), QString());
   } else {
-    boxReal->setCurrentIndex(table->colIndex(l[0]));
-    boxImaginary->setCurrentIndex(table->colIndex(l[1]));
+    boxReal->setCurrentIndex(table->colIndex(l.at(0)));
+    boxImaginary->setCurrentIndex(table->colIndex(l.at(1)));
   }
 }

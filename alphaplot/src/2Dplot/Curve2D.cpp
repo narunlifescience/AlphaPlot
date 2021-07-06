@@ -1051,7 +1051,7 @@ QVector<qreal> Curve2D::firstControlPoints(const QVector<qreal> &vector) {
 }
 
 void Curve2D::datapicker(QMouseEvent *event, const QVariant &details) {
-  QCPCurveDataContainer::const_iterator it = data()->constEnd();
+  QCPCurveDataContainer::const_iterator it;
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
@@ -1069,10 +1069,25 @@ void Curve2D::datapicker(QMouseEvent *event, const QVariant &details) {
   }
 }
 
-void Curve2D::movepicker(QMouseEvent *event, const QVariant &details) {}
+void Curve2D::movepicker(QMouseEvent *event, const QVariant &details) {
+  QCPCurveDataContainer::const_iterator it;
+  QCPDataSelection dataPoints = details.value<QCPDataSelection>();
+  if (dataPoints.dataPointCount() > 0) {
+    dataPoints.dataRange();
+    it = data()->at(dataPoints.dataRange().begin());
+    QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
+    if (point.x() > event->localPos().x() - 10 &&
+        point.x() < event->localPos().x() + 10 &&
+        point.y() > event->localPos().y() - 10 &&
+        point.y() < event->localPos().y() + 10) {
+      xAxis_->getaxisrect_axis()->getPickerTool()->movepickermouspresscurve(
+          this, it->mainKey(), it->mainValue(), getxaxis(), getyaxis());
+    }
+  }
+}
 
 void Curve2D::removepicker(QMouseEvent *event, const QVariant &details) {
-  QCPCurveDataContainer::const_iterator it = data()->constEnd();
+  QCPCurveDataContainer::const_iterator it;
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
@@ -1090,7 +1105,7 @@ void Curve2D::removepicker(QMouseEvent *event, const QVariant &details) {
 }
 
 void Curve2D::dataRangePicker(QMouseEvent *event, const QVariant &details) {
-  QCPCurveDataContainer::const_iterator it = data()->constEnd();
+  QCPCurveDataContainer::const_iterator it;
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
@@ -1100,7 +1115,7 @@ void Curve2D::dataRangePicker(QMouseEvent *event, const QVariant &details) {
         point.x() < event->localPos().x() + 10 &&
         point.y() > event->localPos().y() - 10 &&
         point.y() < event->localPos().y() + 10) {
-      xAxis_->getaxisrect_axis()->getPickerTool()->datarangemousepress(
+      xAxis_->getaxisrect_axis()->getPickerTool()->rangepickermousepress(
           this, it->mainKey(), it->mainValue());
     }
   }

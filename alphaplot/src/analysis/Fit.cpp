@@ -60,10 +60,10 @@ Fit::Fit(ApplicationWindow *parent, AxisRect2D *axisrect, QString name)
   d_points = 100;
   d_max_iterations = 1000;
   associateddata_ = nullptr;
-  d_formula = QString::null;
-  d_explanation = QString::null;
+  d_formula = QString();
+  d_explanation = QString();
   d_y_error_source = UnknownErrors;
-  d_y_error_dataset = QString::null;
+  d_y_error_dataset = QString();
   is_non_linear = true;
   d_results = nullptr;
   d_result_errors = nullptr;
@@ -206,7 +206,6 @@ double *Fit::fitGslMultimin(int &iterations, int &status) {
 void Fit::setDataCurve(PlotData::AssociatedData *associateddata, double start,
                        double end) {
   if (d_n > 0) delete[] d_y_errors;
-
   Filter::setDataCurve(associateddata, start, end);
 
   d_y_errors = new double[static_cast<size_t>(d_n)];
@@ -358,7 +357,7 @@ bool Fit::setYErrorSource(ErrorSource err, const QString &colName,
   d_y_error_source = err;
   switch (d_y_error_source) {
     case UnknownErrors: {
-      d_y_error_dataset = QString::null;
+      d_y_error_dataset = QString();
       // using 1.0 here is important for correct error estimates,
       // cmp. Fit::fitGslMultifit and Fit::fitGslMultimin
       for (int i = 0; i < d_n; i++) d_y_errors[i] = 1.0;
