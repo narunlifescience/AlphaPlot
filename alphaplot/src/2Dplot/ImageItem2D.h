@@ -31,6 +31,7 @@ class ImageItem2D : public QCPItemPixmap {
   bool load(XmlStreamReader *xmlreader);
 
  protected:
+  void draw(QCPPainter *painter);
   void mousePressEvent(QMouseEvent *event, const QVariant &details);
   void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
   void mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos);
@@ -39,8 +40,11 @@ class ImageItem2D : public QCPItemPixmap {
   const static int selectionpixelsize_;
   AxisRect2D *axisrect_;
   QString layername_;
+  bool imageitemclicked_ ;
+  QCPItemAnchor *dragginganchorimageitem_ ;
   bool draggingimageitem_;
-  QPointF dragimageitemorigin_;
+  QPointF dragimageitemorigintopleft_;
+  QPointF dragimageitemoriginbottomright_;
   QString imagefilename_;
   QPixmap *pixmap_;
   QCursor cursorshape_;

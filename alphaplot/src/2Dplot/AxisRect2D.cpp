@@ -717,6 +717,12 @@ ImageItem2D *AxisRect2D::addImageItem2D(const QString &filename) {
   foreach (QCPItemPosition *position, imageitem->positions()) {
     position->setAxes(gridpair_.first.second, gridpair_.second.second);
   }
+  imageitem->topLeft->setPixelPosition(rect().center());
+  // anchor point adjustment
+  imageitem->bottomRight->setPixelPosition(
+      QPointF(imageitem->topRight->pixelPosition().x(),
+              imageitem->bottomLeft->pixelPosition().y()));
+  imageitem->setScaled(true, Qt::AspectRatioMode::IgnoreAspectRatio);
   layers_.append(imageitem->layer());
   imagevec_.append(imageitem);
   emit ImageItem2DCreated(imageitem);
