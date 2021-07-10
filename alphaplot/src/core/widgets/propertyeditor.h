@@ -303,6 +303,7 @@ class PropertyEditor : public QDockWidget {
   // Image Item Properties
   QtProperty *itempropertyimagepixelpositionxitem_;
   QtProperty *itempropertyimagepixelpositionyitem_;
+  QtProperty *itempropertyimagerotationitem_;
   QtProperty *itempropertyimagesourceitem_;
   QtProperty *itempropertyimagestrokecoloritem_;
   QtProperty *itempropertyimagestrokethicknessitem_;

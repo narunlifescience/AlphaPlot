@@ -19,6 +19,7 @@ ImageItem2D::ImageItem2D(AxisRect2D *axisrect, Plot2D *plot,
       draggingimageitem_(false),
       imagefilename_(filename),
       pixmap_(new QPixmap()),
+      rotation_(0),
       cursorshape_(axisrect->getParentPlot2D()->cursor()) {
   // setting Layer
   if (axisrect_->getAxes2D().count() > 0) {
@@ -48,6 +49,8 @@ ImageItem2D::~ImageItem2D() {
 AxisRect2D *ImageItem2D::getaxisrect() const { return axisrect_; }
 
 QString ImageItem2D::getsource_imageitem() const { return imagefilename_; }
+
+int ImageItem2D::getrotation_imageitem() const { return rotation_; }
 
 QColor ImageItem2D::getstrokecolor_imageitem() const { return pen().color(); }
 
@@ -82,12 +85,28 @@ void ImageItem2D::setstrokestyle_imageitem(const Qt::PenStyle &style) {
 }
 
 void ImageItem2D::setposition_imageitem(const QPointF origin) {
-  position("topLeft")->setPixelPosition(origin);
+  QPointF posbottomRight =
+      bottomRight->pixelPosition() + (origin - topLeft->pixelPosition());
+  bottomRight->setPixelPosition(posbottomRight);
+  topLeft->setPixelPosition(origin);
 }
 
 void ImageItem2D::setpixmap_imageitem() {
   pixmap_->load(imagefilename_);
   setPixmap(*pixmap_);
+}
+
+void ImageItem2D::setrotation_imageitem(int degree) {
+  rotation_ = degree;
+  QTransform trans;
+  trans.rotate(degree);
+  int pxw = pixmap_->width();
+  int pxh = pixmap_->height();
+  QPixmap pix;
+  pix =
+      pixmap_->transformed(trans, Qt::TransformationMode::SmoothTransformation);
+  pix = pix.copy((pix.width() - pxw) / 2, (pix.height() - pxh) / 2, pxw, pxh);
+  setPixmap(pix);
 }
 
 void ImageItem2D::save(XmlStreamWriter *xmlwriter) {
@@ -101,6 +120,7 @@ void ImageItem2D::save(XmlStreamWriter *xmlwriter) {
       "bottomrightx", QString::number(position("bottomRight")->coords().x()));
   xmlwriter->writeAttribute(
       "bottomrighty", QString::number(position("bottomRight")->coords().y()));
+  xmlwriter->writeAttribute("rotation", QString::number(rotation_));
   xmlwriter->writePen(pen());
   xmlwriter->writeEndElement();
 }
@@ -132,6 +152,12 @@ bool ImageItem2D::load(XmlStreamReader *xmlreader) {
     } else
       xmlreader->raiseWarning(
           tr("ImageItem2D set position property bottomrightx setting error"));
+
+    // rotation
+    int rotation = xmlreader->readAttributeInt("rotation", &ok);
+    (ok)
+        ? setrotation_imageitem(rotation)
+        : xmlreader->raiseWarning(tr("ImageItem2D set rotation setting error"));
 
     // strokepen property
     while (!xmlreader->atEnd()) {
@@ -166,6 +192,14 @@ void ImageItem2D::draw(QCPPainter *painter) {
                    this->topLeft->pixelPosition().x() + selectionpixelsize_,
                    this->topLeft->pixelPosition().y() + selectionpixelsize_);
     painter->drawRect(rect);
+    rect.adjust(+2, +2, -3, -3);
+    painter->setBrush(QBrush(Qt::NoBrush));
+    painter->setPen(QColor(Qt::red));
+    painter->setAntialiasing(true);
+    painter->drawEllipse(rect);
+    painter->setBrush(QBrush(QColor(0, 0, 0, 50)));
+    painter->setPen(QPen(Qt::NoPen));
+    painter->setAntialiasing(false);
     rect.setCoords(this->top->pixelPosition().x() - selectionpixelsize_,
                    this->top->pixelPosition().y() - selectionpixelsize_,
                    this->top->pixelPosition().x() + selectionpixelsize_,
@@ -201,6 +235,12 @@ void ImageItem2D::draw(QCPPainter *painter) {
                    bottomRight->pixelPosition().x() + selectionpixelsize_,
                    bottomRight->pixelPosition().y() + selectionpixelsize_);
     painter->drawRect(rect);
+    rect.adjust(+2, +2, -3, -3);
+    painter->setBrush(QBrush(Qt::NoBrush));
+    painter->setPen(QColor(Qt::red));
+    painter->setAntialiasing(true);
+    painter->drawLine(rect.topLeft(), rect.bottomRight());
+    painter->drawLine(rect.topRight(), rect.bottomLeft());
   }
 }
 

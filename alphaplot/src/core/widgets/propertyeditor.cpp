@@ -440,6 +440,9 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
       doubleManager_->addProperty("Pixel Position X");
   itempropertyimagepixelpositionyitem_ =
       doubleManager_->addProperty("Pixel Position Y");
+  itempropertyimagerotationitem_ = intManager_->addProperty("Rotation");
+  intManager_->setMinimum(itempropertyimagerotationitem_, 0);
+  intManager_->setMaximum(itempropertyimagerotationitem_, 360);
   itempropertyimagesourceitem_ = stringManager_->addProperty("Source");
   itempropertyimagesourceitem_->setEnabled(false);
   itempropertyimagestrokecoloritem_ =
@@ -2529,14 +2532,14 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
         getgraph2dobject<ImageItem2D>(objectbrowser_->currentItem());
     QPointF point = imageitem->position("topLeft")->pixelPosition();
     point.setX(value);
-    imageitem->position("topLeft")->setPixelPosition(point);
+    imageitem->setposition_imageitem(point);
     imageitem->layer()->replot();
   } else if (prop->compare(itempropertyimagepixelpositionyitem_)) {
     ImageItem2D *imageitem =
         getgraph2dobject<ImageItem2D>(objectbrowser_->currentItem());
     QPointF point = imageitem->position("topLeft")->pixelPosition();
     point.setY(value);
-    imageitem->position("topLeft")->setPixelPosition(point);
+    imageitem->setposition_imageitem(point);
     imageitem->layer()->replot();
   } else if (prop->compare(itempropertyimagestrokethicknessitem_)) {
     ImageItem2D *imageitem =
@@ -3124,6 +3127,11 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
         getgraph2dobject<ColorMap2D>(objectbrowser_->currentItem());
     colormap->setlevelcount_colormap(value);
     colormap->layer()->replot();
+  } else if (prop->compare(itempropertyimagerotationitem_)) {
+    ImageItem2D *imageitem =
+        getgraph2dobject<ImageItem2D>(objectbrowser_->currentItem());
+    imageitem->setrotation_imageitem(value);
+    imageitem->layer()->replot();
   } else if (prop->compare(plot3dvalueaxistickcountitem_)) {
     QValue3DAxis *axis =
         getgraph2dobject<QValue3DAxis>(objectbrowser_->currentItem());
@@ -4425,6 +4433,7 @@ void PropertyEditor::ImageItem2DPropertyBlock(ImageItem2D *imageitem) {
   propertybrowser_->addProperty(itempropertyimagesourceitem_);
   propertybrowser_->addProperty(itempropertyimagepixelpositionxitem_);
   propertybrowser_->addProperty(itempropertyimagepixelpositionyitem_);
+  propertybrowser_->addProperty(itempropertyimagerotationitem_);
   propertybrowser_->addProperty(itempropertyimagestrokecoloritem_);
   propertybrowser_->addProperty(itempropertyimagestrokethicknessitem_);
   propertybrowser_->addProperty(itempropertyimagestroketypeitem_);
@@ -4433,6 +4442,8 @@ void PropertyEditor::ImageItem2DPropertyBlock(ImageItem2D *imageitem) {
                            imageitem->position("topLeft")->pixelPosition().x());
   doubleManager_->setValue(itempropertyimagepixelpositionyitem_,
                            imageitem->position("topLeft")->pixelPosition().y());
+  intManager_->setValue(itempropertyimagerotationitem_,
+                        imageitem->getrotation_imageitem());
   stringManager_->setValue(itempropertyimagesourceitem_,
                            imageitem->getsource_imageitem());
   colorManager_->setValue(itempropertyimagestrokecoloritem_,
@@ -7218,6 +7229,8 @@ void PropertyEditor::setObjectPropertyId() {
       "itempropertyimagepixelpositionxitem_");
   itempropertyimagepixelpositionyitem_->setPropertyId(
       "itempropertyimagepixelpositionyitem_");
+  itempropertyimagerotationitem_->setPropertyId(
+      "itempropertyimagerotationitem_");
   itempropertyimagesourceitem_->setPropertyId("itempropertyimagesourceitem_");
   itempropertyimagestrokecoloritem_->setPropertyId(
       "itempropertyimagestrokecoloritem_");

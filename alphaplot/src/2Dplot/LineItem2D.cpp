@@ -322,16 +322,30 @@ void LineItem2D::draw(QCPPainter *painter) {
     painter->setPen(QPen(Qt::NoPen));
     painter->setAntialiasing(false);
     QRectF rect;
-    rect.setCoords(this->end->pixelPosition().x() - selectionpixelsize_,
-                   this->end->pixelPosition().y() - selectionpixelsize_,
-                   this->end->pixelPosition().x() + selectionpixelsize_,
-                   this->end->pixelPosition().y() + selectionpixelsize_);
-    painter->drawRect(rect);
     rect.setCoords(this->start->pixelPosition().x() - selectionpixelsize_,
                    this->start->pixelPosition().y() - selectionpixelsize_,
                    this->start->pixelPosition().x() + selectionpixelsize_,
                    this->start->pixelPosition().y() + selectionpixelsize_);
     painter->drawRect(rect);
+    rect.adjust(+2, +2, -3, -3);
+    painter->setBrush(QBrush(Qt::NoBrush));
+    painter->setPen(QColor(Qt::red));
+    painter->setAntialiasing(true);
+    painter->drawEllipse(rect);
+    painter->setBrush(QBrush(QColor(0, 0, 0, 50)));
+    painter->setPen(QPen(Qt::NoPen));
+    painter->setAntialiasing(false);
+    rect.setCoords(this->end->pixelPosition().x() - selectionpixelsize_,
+                   this->end->pixelPosition().y() - selectionpixelsize_,
+                   this->end->pixelPosition().x() + selectionpixelsize_,
+                   this->end->pixelPosition().y() + selectionpixelsize_);
+    painter->drawRect(rect);
+    rect.adjust(+2, +2, -3, -3);
+    painter->setBrush(QBrush(Qt::NoBrush));
+    painter->setPen(QColor(Qt::red));
+    painter->setAntialiasing(true);
+    painter->drawLine(rect.topLeft(), rect.bottomRight());
+    painter->drawLine(rect.topRight(), rect.bottomLeft());
   }
 }
 
