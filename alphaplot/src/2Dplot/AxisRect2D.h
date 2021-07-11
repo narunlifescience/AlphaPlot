@@ -218,6 +218,7 @@ class AxisRect2D : public QCPAxisRect {
   void AxisRectClicked(AxisRect2D *);
   // created
   void Axis2DCreated(Axis2D *);
+  void Axis2DCloned(Axis2D *);
   void TextItem2DCreated(TextItem2D *);
   void LineItem2DCreated(LineItem2D *);
   void ImageItem2DCreated(ImageItem2D *);

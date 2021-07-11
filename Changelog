@@ -34,6 +34,7 @@
 * save/load grouped bars plot2D
 * enable move picker on plot2D
 * make image item resizable & rotatable plot2D
+* use Axis2D label as object browser item name
 
 === 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
 * multipeak fitting fixed

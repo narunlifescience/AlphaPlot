@@ -1468,7 +1468,7 @@ PropertyEditor::~PropertyEditor() { delete ui_; }
 MyTreeWidget *PropertyEditor::getObjectBrowser() { return objectbrowser_; }
 
 void PropertyEditor::myWidgetConnections(MyWidget *widget) {
-  connect(widget, &MyWidget::geometrychange, [=]() {
+  connect(widget, &MyWidget::geometrychange, this, [=]() {
     if (objectbrowser_->currentItem() &&
         static_cast<MyTreeWidget::PropertyItemType>(
             objectbrowser_->currentItem()
@@ -1484,7 +1484,7 @@ void PropertyEditor::myWidgetConnections(MyWidget *widget) {
 }
 
 void PropertyEditor::tableConnections(Table *table) {
-  connect(table, &Table::modifiedWindow, [=]() {
+  connect(table, &Table::modifiedWindow, this, [=]() {
     if (objectbrowser_->currentItem() &&
         static_cast<MyTreeWidget::PropertyItemType>(
             objectbrowser_->currentItem()
@@ -1500,7 +1500,7 @@ void PropertyEditor::tableConnections(Table *table) {
 }
 
 void PropertyEditor::matrixConnections(Matrix *matrix) {
-  connect(matrix, &Matrix::modifiedWindow, [=]() {
+  connect(matrix, &Matrix::modifiedWindow, this, [=]() {
     if (objectbrowser_->currentItem() &&
         static_cast<MyTreeWidget::PropertyItemType>(
             objectbrowser_->currentItem()
@@ -2887,6 +2887,8 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
   } else if (prop->compare(axispropertylabeltextitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setLabel(Utilities::splitstring(value));
+    objectbrowser_->currentItem()->setText(
+        0, axis->getname_axis() + QString::number(axis->getnumber_axis()));
     axis->layer()->replot();
   } else if (prop->compare(itempropertylegendtitletextitem_)) {
     Legend2D *legend =
@@ -4177,7 +4179,8 @@ void PropertyEditor::Grid2DPropertyBlock(AxisRect2D *axisrect) {
     int xcount = 0;
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
-      lsxaxislist << QString("X Axis %1").arg(i + 1);
+      lsxaxislist << xaxes.at(i)->getname_axis() +
+                         QString::number(xaxes.at(i)->getnumber_axis());
       if (xaxes.at(i) == gridpair.first.second) {
         currentxaxis = xcount;
       }
@@ -4222,7 +4225,8 @@ void PropertyEditor::Grid2DPropertyBlock(AxisRect2D *axisrect) {
     QList<Axis2D *> yaxes = axisrect->getYAxes2D();
 
     for (int i = 0; i < yaxes.size(); i++) {
-      lsyaxislist << QString("Y Axis %1").arg(i + 1);
+      lsyaxislist << yaxes.at(i)->getname_axis() +
+                         QString::number(yaxes.at(i)->getnumber_axis());
       if (yaxes.at(i) == gridpair.second.second) {
         currentyaxis = ycount;
       }
@@ -4483,7 +4487,8 @@ void PropertyEditor::LineSpecial2DPropertyBlock(LineSpecial2D *lsgraph,
     QList<Axis2D *> yaxes = axisrect->getYAxes2D();
 
     for (int i = 0; i < yaxes.size(); i++) {
-      lsyaxislist << QString("Y Axis %1").arg(i + 1);
+      lsyaxislist << yaxes.at(i)->getname_axis() +
+                         QString::number(yaxes.at(i)->getnumber_axis());
       if (yaxes.at(i) == lsgraph->getyaxis()) {
         currentyaxis = ycount;
       }
@@ -4499,7 +4504,8 @@ void PropertyEditor::LineSpecial2DPropertyBlock(LineSpecial2D *lsgraph,
     int xcount = 0;
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
-      lsxaxislist << QString("X Axis %1").arg(i + 1);
+      lsxaxislist << xaxes.at(i)->getname_axis() +
+                         QString::number(xaxes.at(i)->getnumber_axis());
       if (xaxes.at(i) == lsgraph->getxaxis()) {
         currentxaxis = xcount;
       }
@@ -4566,7 +4572,8 @@ void PropertyEditor::LineSpecialChannel2DPropertyBlock(LineSpecial2D *lsgraph1,
     QList<Axis2D *> yaxes = axisrect->getYAxes2D();
 
     for (int i = 0; i < yaxes.size(); i++) {
-      lsyaxislist << QString("Y Axis %1").arg(i + 1);
+      lsyaxislist << yaxes.at(i)->getname_axis() +
+                         QString::number(yaxes.at(i)->getnumber_axis());
       if (yaxes.at(i) == lsgraph1->getyaxis()) {
         currentyaxis = ycount;
       }
@@ -4582,7 +4589,8 @@ void PropertyEditor::LineSpecialChannel2DPropertyBlock(LineSpecial2D *lsgraph1,
     int xcount = 0;
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
-      lsxaxislist << QString("X Axis %1").arg(i + 1);
+      lsxaxislist << xaxes.at(i)->getname_axis() +
+                         QString::number(xaxes.at(i)->getnumber_axis());
       if (xaxes.at(i) == lsgraph1->getxaxis()) {
         currentxaxis = xcount;
       }
@@ -4685,7 +4693,8 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
     QList<Axis2D *> yaxes = axisrect->getYAxes2D();
 
     for (int i = 0; i < yaxes.size(); i++) {
-      cyaxislist << QString("Y Axis %1").arg(i + 1);
+      cyaxislist << yaxes.at(i)->getname_axis() +
+                        QString::number(yaxes.at(i)->getnumber_axis());
       if (yaxes.at(i) == curve->getyaxis()) {
         currentyaxis = ycount;
       }
@@ -4701,7 +4710,8 @@ void PropertyEditor::Curve2DPropertyBlock(Curve2D *curve,
     int xcount = 0;
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
-      cxaxislist << QString("X Axis %1").arg(i + 1);
+      cxaxislist << xaxes.at(i)->getname_axis() +
+                        QString::number(xaxes.at(i)->getnumber_axis());
       if (xaxes.at(i) == curve->getxaxis()) {
         currentxaxis = xcount;
       }
@@ -4776,7 +4786,8 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
           Axis2D::AxisOreantation::Bottom) {
     QList<Axis2D *> yaxes = axisrect->getYAxes2D();
     for (int i = 0; i < yaxes.size(); i++) {
-      baryaxislist << QString("Y Axis %1").arg(i + 1);
+      baryaxislist << yaxes.at(i)->getname_axis() +
+                          QString::number(yaxes.at(i)->getnumber_axis());
       if (yaxes.at(i) == bargraph->getyaxis()) {
         currentyaxis = ycount;
       }
@@ -4785,7 +4796,8 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
   } else {
     QList<Axis2D *> yaxes = axisrect->getXAxes2D();
     for (int i = 0; i < yaxes.size(); i++) {
-      baryaxislist << QString("X Axis %1").arg(i + 1);
+      baryaxislist << yaxes.at(i)->getname_axis() +
+                          QString::number(yaxes.at(i)->getnumber_axis());
       if (yaxes.at(i) == bargraph->getyaxis()) {
         currentyaxis = ycount;
       }
@@ -4804,7 +4816,8 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
           Axis2D::AxisOreantation::Bottom) {
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
-      barxaxislist << QString("X Axis %1").arg(i + 1);
+      barxaxislist << xaxes.at(i)->getname_axis() +
+                          QString::number(xaxes.at(i)->getnumber_axis());
       if (xaxes.at(i) == bargraph->getxaxis()) {
         currentxaxis = xcount;
       }
@@ -4813,7 +4826,8 @@ void PropertyEditor::Bar2DPropertyBlock(Bar2D *bargraph, AxisRect2D *axisrect) {
   } else {
     QList<Axis2D *> xaxes = axisrect->getYAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
-      barxaxislist << QString("Y Axis %1").arg(i + 1);
+      barxaxislist << xaxes.at(i)->getname_axis() +
+                          QString::number(xaxes.at(i)->getnumber_axis());
       if (xaxes.at(i) == bargraph->getxaxis()) {
         currentxaxis = xcount;
       }
@@ -4903,7 +4917,8 @@ void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
     QList<Axis2D *> yaxes = axisrect->getYAxes2D();
 
     for (int i = 0; i < yaxes.size(); i++) {
-      statboxyaxislist << QString("Y Axis %1").arg(i + 1);
+      statboxyaxislist << yaxes.at(i)->getname_axis() +
+                              QString::number(yaxes.at(i)->getnumber_axis());
       if (yaxes.at(i) == statbox->getyaxis()) {
         currentyaxis = ycount;
       }
@@ -4919,7 +4934,8 @@ void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
     int xcount = 0;
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
-      statboxxaxislist << QString("X Axis %1").arg(i + 1);
+      statboxxaxislist << xaxes.at(i)->getname_axis() +
+                              QString::number(xaxes.at(i)->getnumber_axis());
       if (xaxes.at(i) == statbox->getxaxis()) {
         currentxaxis = xcount;
       }
@@ -5013,7 +5029,8 @@ void PropertyEditor::Vector2DPropertyBlock(Vector2D *vectorgraph,
     QList<Axis2D *> yaxes = axisrect->getYAxes2D();
 
     for (int i = 0; i < yaxes.size(); i++) {
-      vectoryaxislist << QString("Y Axis %1").arg(i + 1);
+      vectoryaxislist << yaxes.at(i)->getname_axis() +
+                             QString::number(yaxes.at(i)->getnumber_axis());
       if (yaxes.at(i) == vectorgraph->getyaxis()) {
         currentyaxis = ycount;
       }
@@ -5029,7 +5046,8 @@ void PropertyEditor::Vector2DPropertyBlock(Vector2D *vectorgraph,
     int xcount = 0;
     QList<Axis2D *> xaxes = axisrect->getXAxes2D();
     for (int i = 0; i < xaxes.size(); i++) {
-      vectorxaxislist << QString("X Axis %1").arg(i + 1);
+      vectorxaxislist << xaxes.at(i)->getname_axis() +
+                             QString::number(xaxes.at(i)->getnumber_axis());
       if (xaxes.at(i) == vectorgraph->getxaxis()) {
         currentxaxis = xcount;
       }
@@ -5751,12 +5769,14 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
 
         switch (axis->getorientation_axis()) {
           case Axis2D::AxisOreantation::Bottom:
-            axistext = QString("X Axis: " + QString::number(j + 1));
+            axistext = QString(axis->getname_axis() +
+                               QString::number(axis->getnumber_axis()));
             axisitem->setIcon(0, IconLoader::load("graph2d-axis-bottom",
                                                   IconLoader::LightDark));
             break;
           case Axis2D::AxisOreantation::Top:
-            axistext = QString("X Axis: " + QString::number(j + 1));
+            axistext = QString(axis->getname_axis() +
+                               QString::number(axis->getnumber_axis()));
             axisitem->setIcon(
                 0, IconLoader::load("graph2d-axis-top", IconLoader::LightDark));
             break;
@@ -5783,12 +5803,14 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
 
         switch (axis->getorientation_axis()) {
           case Axis2D::AxisOreantation::Left:
-            axistext = QString("Y Axis: " + QString::number(j + 1));
+            axistext = QString(axis->getlabeltext_axis() + "(Y) :" +
+                               QString::number(axis->getnumber_axis()));
             axisitem->setIcon(0, IconLoader::load("graph2d-axis-left",
                                                   IconLoader::LightDark));
             break;
           case Axis2D::AxisOreantation::Right:
-            axistext = QString("Y Axis: " + QString::number(j + 1));
+            axistext = QString(axis->getlabeltext_axis() + "(Y) :" +
+                               QString::number(axis->getnumber_axis()));
             axisitem->setIcon(0, IconLoader::load("graph2d-axis-right",
                                                   IconLoader::LightDark));
             break;
@@ -6815,12 +6837,17 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
 
 void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
   // created
-  connect(axisrect, &AxisRect2D::Axis2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::Axis2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect->getLegend(), &Legend2D::legendMoved, [=]() {
+  connect(axisrect, &AxisRect2D::Axis2DCloned, this, [=]() {
+    axisrect->parentPlot()->replot(
+        QCustomPlot::RefreshPriority::rpQueuedRefresh);
+    objectschanged();
+  });
+  connect(axisrect->getLegend(), &Legend2D::legendMoved, this, [=]() {
     if (objectbrowser_->currentItem() &&
         static_cast<MyTreeWidget::PropertyItemType>(
             objectbrowser_->currentItem()
@@ -6838,7 +6865,7 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
       }
     }
   });
-  connect(axisrect, &AxisRect2D::TextItem2DMoved, [=]() {
+  connect(axisrect, &AxisRect2D::TextItem2DMoved, this, [=]() {
     if (objectbrowser_->currentItem() &&
         static_cast<MyTreeWidget::PropertyItemType>(
             objectbrowser_->currentItem()
@@ -6856,7 +6883,7 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
       }
     }
   });
-  connect(axisrect, &AxisRect2D::LineItem2DMoved, [=]() {
+  connect(axisrect, &AxisRect2D::LineItem2DMoved, this, [=]() {
     if (objectbrowser_->currentItem() &&
         static_cast<MyTreeWidget::PropertyItemType>(
             objectbrowser_->currentItem()
@@ -6879,7 +6906,7 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
       }
     }
   });
-  connect(axisrect, &AxisRect2D::ImageItem2DMoved, [=]() {
+  connect(axisrect, &AxisRect2D::ImageItem2DMoved, this, [=]() {
     if (objectbrowser_->currentItem() &&
         static_cast<MyTreeWidget::PropertyItemType>(
             objectbrowser_->currentItem()
@@ -6898,137 +6925,137 @@ void PropertyEditor::axisrectConnections(AxisRect2D *axisrect) {
     }
   });
 
-  connect(axisrect, &AxisRect2D::TextItem2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::TextItem2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::LineItem2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::LineItem2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::ImageItem2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::ImageItem2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::LineSpecial2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::LineSpecial2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::LineSpecialChannel2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::LineSpecialChannel2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
 
-  connect(axisrect, &AxisRect2D::Curve2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::Curve2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::StatBox2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::StatBox2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::Vector2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::Vector2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::Bar2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::Bar2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::Pie2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::Pie2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::ColorMap2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::ColorMap2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::ErrorBar2DCreated, [=]() {
+  connect(axisrect, &AxisRect2D::ErrorBar2DCreated, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
 
   // Removed
-  connect(axisrect, &AxisRect2D::Axis2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::Axis2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::TextItem2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::TextItem2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::LineItem2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::LineItem2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::ImageItem2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::ImageItem2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::LineSpecial2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::LineSpecial2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::LineSpecialChannel2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::LineSpecialChannel2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::Curve2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::Curve2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::StatBox2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::StatBox2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::Vector2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::Vector2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::Bar2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::Bar2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::Pie2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::Pie2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::ColorMap2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::ColorMap2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
-  connect(axisrect, &AxisRect2D::ErrorBar2DRemoved, [=]() {
+  connect(axisrect, &AxisRect2D::ErrorBar2DRemoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();
   });
 
   // Layer moved
-  connect(axisrect, &AxisRect2D::LayerMoved, [=]() {
+  connect(axisrect, &AxisRect2D::LayerMoved, this, [=]() {
     axisrect->parentPlot()->replot(
         QCustomPlot::RefreshPriority::rpQueuedRefresh);
     objectschanged();

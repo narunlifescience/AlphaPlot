@@ -71,7 +71,7 @@ double Axis2D::getfrom_axis() const { return range().lower; }
 
 double Axis2D::getto_axis() const { return range().upper; }
 
-Axis2D::AxisScaleType Axis2D::getscaletype_axis() {
+Axis2D::AxisScaleType Axis2D::getscaletype_axis() const {
   AxisScaleType scaletype;
   switch (scaleType()) {
     case QCPAxis::stLinear:
@@ -84,7 +84,7 @@ Axis2D::AxisScaleType Axis2D::getscaletype_axis() {
   return scaletype;
 }
 
-Axis2D::AxisOreantation Axis2D::getorientation_axis() {
+Axis2D::AxisOreantation Axis2D::getorientation_axis() const {
   AxisOreantation orientation;
   switch (axisType()) {
     case QCPAxis::atLeft:
@@ -213,6 +213,48 @@ Axis2D::AxisLabelFormat Axis2D::getticklabelformat_axis() const {
 }
 
 int Axis2D::getticklabelprecision_axis() const { return numberPrecision(); }
+
+QString Axis2D::getname_axis() const {
+  QString name;
+  name = label();
+  name = name.remove("\n");
+  if (name.length() > 15) {
+    name.truncate(15);
+    name = name + "***";
+  }
+  switch (getorientation_axis()) {
+    case Axis2D::AxisOreantation::Left:
+    case Axis2D::AxisOreantation::Right:
+      name = name + " (Y):";
+      break;
+    case Axis2D::AxisOreantation::Top:
+    case Axis2D::AxisOreantation::Bottom:
+      name = name + " (X):";
+      break;
+  }
+  return name;
+}
+
+uint Axis2D::getnumber_axis() const {
+  switch (getorientation_axis()) {
+    case Axis2D::AxisOreantation::Left:
+    case Axis2D::AxisOreantation::Right: {
+      QList<Axis2D *> yaxes = getaxisrect_axis()->getYAxes2D();
+      for (int i = 0; i < yaxes.size(); i++) {
+        if (yaxes.at(i) == this) return i + 1;
+      }
+    } break;
+    case Axis2D::AxisOreantation::Top:
+    case Axis2D::AxisOreantation::Bottom: {
+      QList<Axis2D *> xaxes = getaxisrect_axis()->getXAxes2D();
+      for (int i = 0; i < xaxes.size(); i++) {
+        if (xaxes.at(i) == this) return i + 1;
+      }
+    } break;
+  }
+
+  return 0;
+}
 
 QSharedPointer<QCPAxisTicker> Axis2D::getticker_axis() { return ticker_; }
 

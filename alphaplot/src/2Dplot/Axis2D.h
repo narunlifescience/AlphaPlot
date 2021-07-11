@@ -62,8 +62,8 @@ class Axis2D : public QCPAxis {
   int getoffset_axis() const;
   double getfrom_axis() const;
   double getto_axis() const;
-  Axis2D::AxisScaleType getscaletype_axis();
-  AxisOreantation getorientation_axis();
+  Axis2D::AxisScaleType getscaletype_axis() const;
+  AxisOreantation getorientation_axis() const;
   Axis2D::TickerType gettickertype_axis() const;
   bool getinverted_axis() const;
   QColor getstrokecolor_axis() const;
@@ -101,6 +101,8 @@ class Axis2D : public QCPAxis {
   AxisLabelFormat getticklabelformat_axis() const;
   int getticklabelprecision_axis() const;
 
+  QString getname_axis() const;
+  uint getnumber_axis() const;
   QSharedPointer<QCPAxisTicker> getticker_axis();
 
   // setters

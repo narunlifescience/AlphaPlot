@@ -530,6 +530,7 @@ void MyTreeWidget::cloneAxis2D() {
                                   axis->gettickertype_axis());
 
   axis->clone(newaxis);
+  emit axisrect->Axis2DCloned(axis);
   axisrect->parentPlot()->replot();
 }
 
