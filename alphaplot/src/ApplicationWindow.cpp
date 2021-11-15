@@ -3118,7 +3118,7 @@ void ApplicationWindow::openAproj() {
       break;
     }
     case OpenProjectDialog::NewFolder:
-      aprojhandler_->appendproject(openDialog->selectedFiles()[0]);
+      aprojhandler_->appendproject(openDialog->selectedFiles().at(0));
       break;
   }
 }
@@ -4704,8 +4704,8 @@ void ApplicationWindow::movePoints() {
     return;
   }
   layout->setGraphTool(Graph2DCommon::Picker::DataMove);
-  //ui_->actionDisableGraphTools->setChecked(true);
-  //QMessageBox::warning(this, tr("Warning"), tr("<h4>not implimented!</h4>"));
+  // ui_->actionDisableGraphTools->setChecked(true);
+  // QMessageBox::warning(this, tr("Warning"), tr("<h4>not implimented!</h4>"));
 }
 
 void ApplicationWindow::exportPDF() {
@@ -6630,9 +6630,7 @@ void ApplicationWindow::addNestedLayout() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
   Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
   // layout->generateLayoutInset2D();
-  QMessageBox::warning(
-      this, tr("Warning"),
-      tr("<h4>not implimented!</h4>"));
+  QMessageBox::warning(this, tr("Warning"), tr("<h4>not implimented!</h4>"));
 }
 
 void ApplicationWindow::addLayout(
@@ -7488,7 +7486,7 @@ void ApplicationWindow::appendProject() {
       open_dialog->selectedFiles().isEmpty())
     return;
   workingDir = open_dialog->directory().path();
-  aprojhandler_->appendproject(open_dialog->selectedFiles()[0]);
+  aprojhandler_->appendproject(open_dialog->selectedFiles().at(0));
 }
 
 void ApplicationWindow::saveAsProject() {
@@ -8277,7 +8275,7 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
       Layout2D *layout = qobject_cast<Layout2D *>(w);
       QList<MyWidget *> dependson = layout->dependentTableMatrix();
       foreach (QTreeWidgetItem *depitems, draggedItems) {
-        if (it->type() != FolderTreeWidget::ItemType::Folders) {
+        if (depitems->type() != FolderTreeWidget::ItemType::Folders) {
           MyWidget *depw =
               dynamic_cast<WindowTableWidgetItem *>(depitems)->window();
           if (depw) {
@@ -8290,7 +8288,7 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
       Layout3D *layout = qobject_cast<Layout3D *>(w);
       QList<MyWidget *> dependson = layout->dependentTableMatrix();
       foreach (QTreeWidgetItem *depitems, draggedItems) {
-        if (it->type() != FolderTreeWidget::ItemType::Folders) {
+        if (depitems->type() != FolderTreeWidget::ItemType::Folders) {
           MyWidget *depw =
               dynamic_cast<WindowTableWidgetItem *>(depitems)->window();
           if (depw) {
@@ -8388,13 +8386,87 @@ void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
   Folder *dest_f = dest->folder();
   Folder *src_f = src->folder();
 
+  QStringList lst = dest_f->subfolders();
+  QString name = src_f->name();
+  lst = lst.filter(name);
+  if (!lst.isEmpty()) {
+      QMessageBox::critical(
+          this, tr("AlphaPlot") + " - " + tr("Skipped moving folder"),
+          tr("The destination folder already contains a folder called '%1'! "
+             "Folder skipped!")
+              .arg(name));
+      return;
+    }
+
+  Folder *f = new Folder(dest_f, name);
+  f->setBirthDate(src_f->birthDate());
+  f->setModificationDate(src_f->modificationDate());
+  addFolderListViewItem(f);
+
+  FolderTreeWidgetItem *fi =
+      new FolderTreeWidgetItem(dest_f->folderTreeWidgetItem(), f);
+    f->setFolderTreeWidgetItem(fi);
+    fi->setActive(false);
+
+
+  QList<MyWidget *> list = QList<MyWidget *>(src_f->windowsList());
+  foreach (MyWidget *w, list) {
+    src_f->removeWindow(w);
+    w->hide();
+    f->addWindow(w);
+  }
+
+  if (!(src_f->children()).isEmpty()) {
+    FolderTreeWidgetItem *item = (FolderTreeWidgetItem *)src->child(0);
+    int initial_depth = item->depth();
+    QTreeWidgetItemIterator it(item);
+     dest_f = src_f;
+
+    while (item && item->depth() >= initial_depth) {
+      src_f = (Folder *)item->folder();
+
+      Folder *f = new Folder(dest_f, src_f->name());
+      f->setBirthDate(src_f->birthDate());
+      f->setModificationDate(src_f->modificationDate());
+      addFolderListViewItem(f);
+
+      FolderTreeWidgetItem *fi =
+          new FolderTreeWidgetItem(dest_f->folderTreeWidgetItem(), f);
+        f->setFolderTreeWidgetItem(fi);
+        fi->setActive(false);
+
+        dest_f = f;
+
+      /*dest_f = new Folder(dest_f, src_f->name());
+      dest_f->setBirthDate(src_f->birthDate());
+      dest_f->setModificationDate(src_f->modificationDate());
+
+      copy_item = new FolderTreeWidgetItem(copy_item, dest_f);
+      copy_item->setText(0, src_f->name());
+      dest_f->setFolderTreeWidgetItem(copy_item);*/
+
+
+      QList<MyWidget *> list = QList<MyWidget *>(src_f->windowsList());
+      foreach (MyWidget *w, list) {
+        src_f->removeWindow(w);
+        w->hide();
+        f->addWindow(w);
+      }
+
+      it++;
+      item = (FolderTreeWidgetItem *)(*it);
+    }
+  }
+  /*setCurrentFolderViewItem(dest);
+  addFolder();
+  des
   dest_f = new Folder(dest_f, src_f->name());
   dest_f->setBirthDate(src_f->birthDate());
   dest_f->setModificationDate(src_f->modificationDate());
 
-  // FolderTreeWidgetItem *copy_item = new FolderTreeWidgetItem(dest, dest_f);
-  // copy_item->setText(0, src_f->name());
-  // dest_f->setFolderTreeWidgetItem(copy_item);
+  FolderTreeWidgetItem *copy_item = new FolderTreeWidgetItem(dest, dest_f);
+  copy_item->setText(0, src_f->name());
+  src_f->setFolderTreeWidgetItem(copy_item);
 
   QList<MyWidget *> lst = QList<MyWidget *>(src_f->windowsList());
   foreach (MyWidget *w, lst) {
@@ -8415,9 +8487,9 @@ void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
       dest_f->setBirthDate(src_f->birthDate());
       dest_f->setModificationDate(src_f->modificationDate());
 
-      // copy_item = new FolderTreeWidgetItem(copy_item, dest_f);
-      // copy_item->setText(0, src_f->name());
-      // dest_f->setFolderTreeWidgetItem(copy_item);
+      copy_item = new FolderTreeWidgetItem(copy_item, dest_f);
+      copy_item->setText(0, src_f->name());
+      dest_f->setFolderTreeWidgetItem(copy_item);
 
       lst = QList<MyWidget *>(src_f->windowsList());
       foreach (MyWidget *w, lst) {
@@ -8429,7 +8501,7 @@ void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
       it++;
       item = (FolderTreeWidgetItem *)(*it);
     }
-  }
+  }*/
 
   src_f = src->folder();
   delete src_f;
@@ -8494,9 +8566,7 @@ void ApplicationWindow::receivedVersionFile(QNetworkReply *reply) {
                     tr("There is a newer version of AlphaPlot %1-%2 released "
                        "on %3 available for download. Would you like to "
                        "download it now?")
-                        .arg(version)
-                        .arg(extraversion)
-                        .arg(datestr),
+                        .arg(version, extraversion, datestr),
                     QMessageBox::Yes | QMessageBox::Default,
                     QMessageBox::No | QMessageBox::Escape) == QMessageBox::Yes)
               QDesktopServices::openUrl(QUrl(AlphaPlot::download_Uri));
@@ -8505,9 +8575,7 @@ void ApplicationWindow::receivedVersionFile(QNetworkReply *reply) {
                 this, versionString() + "-" + AlphaPlot::extraVersion(),
                 tr("No updates available. You are already "
                    "running the latest version %1-%2 released on %3.")
-                    .arg(version)
-                    .arg(extraversion)
-                    .arg(datestr));
+                    .arg(version, extraversion, datestr));
             autoSearchUpdatesRequest = false;
           }
         } else {
