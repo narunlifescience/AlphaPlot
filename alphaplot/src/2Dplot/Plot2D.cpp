@@ -67,7 +67,7 @@ void Plot2D::setBackgroundColor(const QColor &color, const bool backpixmap) {
     QBrush b(canvasBackground_);
     setBackground(b);
   }
-  backgroundColorChange(canvasBackground_);
+  emit backgroundColorChange(canvasBackground_);
 }
 
 QColor Plot2D::getBackgroundColor() const { return canvasBackground_; }

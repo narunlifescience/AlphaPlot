@@ -1753,7 +1753,11 @@ void Layout2D::print() {
             // painter.setMode(QCPPainter::pmNonCosmetic);
             // painter->scale(scale, scale);
             hideCurrentAxisRectIndicator(true);
+            plot2dCanvas_->setBackgroundColor(
+                plot2dCanvas_->getBackgroundColor(), false);
             plot2dCanvas_->toPainter(painter.get(), plotWidth, plotHeight);
+            plot2dCanvas_->setBackgroundColor(
+                plot2dCanvas_->getBackgroundColor(), true);
             hideCurrentAxisRectIndicator(false);
           });
   previewDialog->exec();

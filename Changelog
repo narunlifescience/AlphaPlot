@@ -35,7 +35,8 @@
 * enable move picker on plot2D
 * make image item resizable & rotatable plot2D
 * use Axis2D label as object browser item name
-* fix function plot line unable to set properties (color, style) 
+* fix function plot line unable to set properties (color, style)
+* fix print with transparent background issue (Plot 2D)
 
 === 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
 * multipeak fitting fixed
