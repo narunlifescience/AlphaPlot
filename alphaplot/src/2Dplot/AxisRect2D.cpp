@@ -484,14 +484,23 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
   switch (type) {
     case LineScatterType::Line2D:
     case LineScatterType::Scatter2D:
-    case LineScatterType::LineAndScatter2D:
+    case LineScatterType::LineAndScatter2D: {
       curve = new Curve2D(Curve2D::Curve2DType::Curve, table, xcol, ycol, from,
                           to, xAxis, yAxis);
-      break;
-    case LineScatterType::Spline2D:
+      LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, curve);
+      axisRectLegend_->addItem(legendItem);
+      connect(legendItem, &LegendItem2D::legendItemClicked, this,
+              &AxisRect2D::legendClick);
+    } break;
+    case LineScatterType::Spline2D: {
       curve = new Curve2D(Curve2D::Curve2DType::Spline, table, xcol, ycol, from,
                           to, xAxis, yAxis);
-      break;
+      SplineLegendItem2D *legendItem =
+          new SplineLegendItem2D(axisRectLegend_, curve);
+      axisRectLegend_->addItem(legendItem);
+      connect(legendItem, &LegendItem2D::legendItemClicked, this,
+              &AxisRect2D::legendClick);
+    } break;
   }
 
   switch (type) {
@@ -515,11 +524,6 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
       curve->setlinefillstatus_cplot(false);
       break;
   }
-  SplineLegendItem2D *legendItem =
-      new SplineLegendItem2D(axisRectLegend_, curve);
-  axisRectLegend_->addItem(legendItem);
-  connect(legendItem, &LegendItem2D::legendItemClicked, this,
-          &AxisRect2D::legendClick);
   curve->setName(table->name() + "_" + xcol->name() + "_" + ycol->name());
   curvevec_.append(curve);
   layers_.append(curve->layer());

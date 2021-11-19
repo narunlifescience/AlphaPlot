@@ -15,6 +15,7 @@
 #include "2Dplot/LineSpecial2D.h"
 #include "2Dplot/Pie2D.h"
 #include "2Dplot/TextItem2D.h"
+#include "2Dplot/widgets/ArrangeLegend2D.h"
 #include "2Dplot/widgets/AddPlot2DDialog.h"
 #include "2Dplot/widgets/Function2DDialog.h"
 #include "3Dplot/DataManager3D.h"
@@ -46,6 +47,7 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       selectdatacolumnspiegraph2d_(new QAction("Go To Data Columns...", this)),
       selectdatacolumnscolormapgraph2d_(
           new QAction("Go To Data Columns...", this)),
+      legendreorder_(new QAction("Legend Reorder", this)),
       removeaxis_(new QAction("Remove", this)),
       removels_(new QAction("Remove", this)),
       removechannel_(new QAction("Remove", this)),
@@ -149,12 +151,12 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
           &MyTreeWidget::CurrentItemChanged);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
           SLOT(showContextMenu(const QPoint &)));
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-          SLOT(showContextMenu(const QPoint &)));
   connect(showfunctiondetailscurve2d_, &QAction::triggered, this,
           &MyTreeWidget::showFunction2dDetails);
   connect(showfunctiondetailssurface3d_, &QAction::triggered, this,
           &MyTreeWidget::showFunction3dDetails);
+  connect(legendreorder_, &QAction::triggered, this,
+          &MyTreeWidget::reorderlegend);
   connect(clonetotopaxis_, &QAction::triggered, this,
           &MyTreeWidget::cloneAxis2D);
   connect(clonetobottomaxis_, &QAction::triggered, this,
@@ -380,6 +382,10 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       menu.addAction(removeaxis_);
       removeaxis_->setData(item->data(0, Qt::UserRole + 1));
     } break;
+    case PropertyItemType::Plot2DLegend:
+      menu.addAction(legendreorder_);
+      legendreorder_->setData(item->data(0, Qt::UserRole + 1));
+      break;
     case PropertyItemType::Plot2DLSGraph:
       menu.addAction(selectdatacolumnslsgraph2d_);
       menu.addAction(moveupls_);
@@ -507,6 +513,15 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       break;
   }
   menu.exec(globalPos);
+}
+
+void MyTreeWidget::reorderlegend() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+  void *ptr = action->data().value<void *>();
+  Legend2D *legend = static_cast<Legend2D *>(ptr);
+  std::unique_ptr<ArrangeLegend2D> about(new ArrangeLegend2D(this, legend));
+  about->exec();
 }
 
 void MyTreeWidget::cloneAxis2D() {

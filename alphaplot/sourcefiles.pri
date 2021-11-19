@@ -343,6 +343,7 @@ SOURCES     += src/plotcommon/widgets/ImageExportDialog.cpp \
 HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
                src/2Dplot/widgets/Function2DDialog.h \
                src/2Dplot/widgets/SwapLayout2DDialog.h \
+               src/2Dplot/widgets/ArrangeLegend2D.h \
                src/2Dplot/Axis2D.h \
                src/2Dplot/AxisRect2D.h \
                src/2Dplot/Bar2D.h \
@@ -372,6 +373,7 @@ HEADERS     += src/2Dplot/widgets/LayoutButton2D.h \
 SOURCES     += src/2Dplot/widgets/LayoutButton2D.cpp \
                src/2Dplot/widgets/Function2DDialog.cpp \
                src/2Dplot/widgets/SwapLayout2DDialog.cpp \
+               src/2Dplot/widgets/ArrangeLegend2D.cpp \
                src/2Dplot/Axis2D.cpp \
                src/2Dplot/AxisRect2D.cpp \
                src/2Dplot/Bar2D.cpp \

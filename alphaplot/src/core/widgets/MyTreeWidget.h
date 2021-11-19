@@ -60,6 +60,7 @@ class MyTreeWidget : public QTreeWidget {
  private slots:
   void CurrentItemChanged(QTreeWidgetItem *current);
   void showContextMenu(const QPoint &pos);
+  void reorderlegend();
   void cloneAxis2D();
   void removeAxis2D();
   void removeLineSpecial2D();
@@ -98,6 +99,8 @@ class MyTreeWidget : public QTreeWidget {
   QAction *selectdatacolumnserrorgraph2d_;
   QAction *selectdatacolumnspiegraph2d_;
   QAction *selectdatacolumnscolormapgraph2d_;
+  // legend order
+  QAction *legendreorder_;
   // Remove
   QAction *removeaxis_;
   QAction *removels_;
