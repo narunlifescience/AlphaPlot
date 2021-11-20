@@ -15,8 +15,8 @@
 #include "2Dplot/LineSpecial2D.h"
 #include "2Dplot/Pie2D.h"
 #include "2Dplot/TextItem2D.h"
-#include "2Dplot/widgets/ArrangeLegend2D.h"
 #include "2Dplot/widgets/AddPlot2DDialog.h"
+#include "2Dplot/widgets/ArrangeLegend2D.h"
 #include "2Dplot/widgets/Function2DDialog.h"
 #include "3Dplot/DataManager3D.h"
 #include "Matrix.h"
@@ -342,6 +342,11 @@ void MyTreeWidget::CurrentItemChanged(QTreeWidgetItem *current) {
 void MyTreeWidget::showContextMenu(const QPoint &pos) {
   QTreeWidgetItem *item = itemAt(pos);
   if (!item) return;
+
+  // this ensures that right click context menu will reflect property browser
+  // update
+  setCurrentItem(item);
+  emit itemClicked(item, currentColumn());
 
   QPoint globalPos = viewport()->mapToGlobal(pos);
   QMenu menu;
