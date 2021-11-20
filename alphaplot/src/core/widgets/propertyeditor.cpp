@@ -1416,7 +1416,8 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   // initiate property ID required for compare()
   setObjectPropertyId();
 
-  connect(objectbrowser_, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
+  connect(objectbrowser_,
+          SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
           SLOT(selectObjectItem(QTreeWidgetItem *)));
   connect(objectbrowser_, &MyTreeWidget::activate,
           [=](MyWidget *widget) { app_->activateWindow(widget); });
@@ -3857,6 +3858,7 @@ void PropertyEditor::valueChange(QtProperty *prop, const QSize &size) {
 }
 
 void PropertyEditor::selectObjectItem(QTreeWidgetItem *item) {
+  if (!item) return;
   switch (static_cast<MyTreeWidget::PropertyItemType>(
       item->data(0, Qt::UserRole).value<int>())) {
     case MyTreeWidget::PropertyItemType::MyWidgetWindow: {
@@ -5604,6 +5606,7 @@ void PropertyEditor::Plot2DPropertyBlock(Layout2D *layout2d,
 
 void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
   // delete all TreeWidgetItems
+  objectbrowser_->blockSignals(true);
   while (objectbrowser_->topLevelItemCount()) {
     QTreeWidgetItemIterator itr(objectbrowser_,
                                 QTreeWidgetItemIterator::NoChildren);
@@ -5615,6 +5618,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
   objectbrowser_->clear();
   objectitems_.clear();
   propertybrowser_->clear();
+  objectbrowser_->blockSignals(false);
 
   if (!widget) {
     objectbrowser_->setHeaderLabel("(none)");

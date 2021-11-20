@@ -147,7 +147,7 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   movedownimageitem_->setIcon(
       IconLoader::load("edit-down", IconLoader::LightDark));
   // connections;
-  connect(this, &MyTreeWidget::itemClicked, this,
+  connect(this, &MyTreeWidget::currentItemChanged, this,
           &MyTreeWidget::CurrentItemChanged);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
           SLOT(showContextMenu(const QPoint &)));
@@ -346,7 +346,6 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
   // this ensures that right click context menu will reflect property browser
   // update
   setCurrentItem(item);
-  emit itemClicked(item, currentColumn());
 
   QPoint globalPos = viewport()->mapToGlobal(pos);
   QMenu menu;
