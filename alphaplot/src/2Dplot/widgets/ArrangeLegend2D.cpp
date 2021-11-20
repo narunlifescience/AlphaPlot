@@ -65,7 +65,10 @@ ArrangeLegend2D::ArrangeLegend2D(QWidget *parent, Legend2D *legend,
   btnDown_->setEnabled(false);
   connect(plotlegendlist_, &QListWidget::itemSelectionChanged, this, [&]() {
     if (plotlegendlist_->selectedItems().count() > 0) {
-      if (plotlegendlist_->currentRow() == 0) {
+      if (plotlegendlist_->currentRow() == 0 && plotlegendlist_->count() == 1) {
+        btnUp_->setEnabled(false);
+        btnDown_->setEnabled(false);
+      } else if (plotlegendlist_->currentRow() == 0) {
         btnUp_->setEnabled(false);
         btnDown_->setEnabled(true);
       } else if (plotlegendlist_->currentRow() ==
@@ -89,7 +92,7 @@ ArrangeLegend2D::ArrangeLegend2D(QWidget *parent, Legend2D *legend,
       plotlegendlist_->insertItem(crow - 1, citem);
       abstactvec_.swapItemsAt(crow, crow - 1);
       plotlegendlist_->setCurrentRow(crow - 1);
-      //plotlegendlist_->itemSelectionChanged();
+      // plotlegendlist_->itemSelectionChanged();
     } else
       qDebug() << "unable to move up";
   });
@@ -101,7 +104,7 @@ ArrangeLegend2D::ArrangeLegend2D(QWidget *parent, Legend2D *legend,
       plotlegendlist_->insertItem(crow + 1, citem);
       abstactvec_.swapItemsAt(crow, crow + 1);
       plotlegendlist_->setCurrentRow(crow + 1);
-      //plotlegendlist_->itemSelectionChanged();
+      // plotlegendlist_->itemSelectionChanged();
     } else
       qDebug() << "unable to move down";
   });

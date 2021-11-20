@@ -190,6 +190,7 @@
     <addaction name="actionAddFunctionCurve"/>
     <addaction name="actionAddErrorBars"/>
     <addaction name="menuAddAxis"/>
+    <addaction name="actionLegendReorder"/>
     <addaction name="separator"/>
     <addaction name="actionAddText"/>
     <addaction name="actionAddTimeStamp"/>
@@ -1629,6 +1630,11 @@
   <action name="actionTopDateTime">
    <property name="text">
     <string>DateTime</string>
+   </property>
+  </action>
+  <action name="actionLegendReorder">
+   <property name="text">
+    <string>Legend Reorder</string>
    </property>
   </action>
  </widget>

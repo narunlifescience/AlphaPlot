@@ -520,8 +520,8 @@ void MyTreeWidget::reorderlegend() {
   if (!action) return;
   void *ptr = action->data().value<void *>();
   Legend2D *legend = static_cast<Legend2D *>(ptr);
-  std::unique_ptr<ArrangeLegend2D> about(new ArrangeLegend2D(this, legend));
-  about->exec();
+  std::unique_ptr<ArrangeLegend2D> arlegend(new ArrangeLegend2D(this, legend));
+  arlegend->exec();
 }
 
 void MyTreeWidget::cloneAxis2D() {

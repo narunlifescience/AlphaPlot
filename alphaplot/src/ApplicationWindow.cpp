@@ -129,6 +129,7 @@
 #include "2Dplot/widgets/AddPlot2DDialog.h"
 #include "2Dplot/widgets/Function2DDialog.h"
 #include "2Dplot/widgets/SwapLayout2DDialog.h"
+#include "2Dplot/widgets/ArrangeLegend2D.h"
 #include "3Dplot/Bar3D.h"
 #include "3Dplot/DataManager3D.h"
 #include "3Dplot/Graph3DCommon.h"
@@ -749,6 +750,8 @@ ApplicationWindow::ApplicationWindow()
           &ApplicationWindow::addGraph2DAxis);
   connect(ui_->actionTopDateTime, &QAction::triggered, this,
           &ApplicationWindow::addGraph2DAxis);
+  connect(ui_->actionLegendReorder, &QAction::triggered, this,
+          &ApplicationWindow::legendReorder);
   connect(ui_->actionAddText, SIGNAL(triggered()), this, SLOT(addText()));
   graphToolsGroup->setExclusive(true);
   ui_->actionDrawArrow->setActionGroup(graphToolsGroup);
@@ -1059,6 +1062,7 @@ void ApplicationWindow::makeToolBars() {
   menu_curves->addAction(ui_->actionAddRemoveCurve);
   menu_curves->addAction(ui_->actionAddErrorBars);
   menu_curves->addAction(ui_->actionAddFunctionCurve);
+  menu_curves->addAction(ui_->actionLegendReorder);
   QMenu *menu_plot_enrichments = new QMenu(this);
   btn_plot_enrichments_->setMenu(menu_plot_enrichments);
   graphToolsToolbar->addWidget(btn_plot_enrichments_);
@@ -6005,6 +6009,7 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.addAction(ui_->actionAddFunctionCurve);
     cm.addAction(ui_->actionAddErrorBars);
     cm.addMenu(ui_->menuAddAxis);
+    cm.addAction(ui_->actionLegendReorder);
     cm.addSeparator();
     itemsubmenu.setTitle(tr("Add Items ..."));
     itemsubmenu.addAction(ui_->actionAddText);
@@ -6049,6 +6054,7 @@ void ApplicationWindow::itemContextMenuRequested(Layout2D *layout,
   cm.addAction(ui_->actionAddFunctionCurve);
   cm.addAction(ui_->actionAddErrorBars);
   cm.addMenu(ui_->menuAddAxis);
+  cm.addAction(ui_->actionLegendReorder);
   cm.addSeparator();
   itemsubmenu.setTitle(tr("Add Items ..."));
   itemsubmenu.addAction(ui_->actionAddText);
@@ -6267,6 +6273,25 @@ void ApplicationWindow::addGraph2DAxis() {
   else if (action == ui_->actionTopDateTime)
     axisrect->addAxis2D(Axis2D::AxisOreantation::Top,
                         Axis2D::TickerType::DateTime);
+}
+
+void ApplicationWindow::legendReorder() {
+  QMdiSubWindow *subwindow = d_workspace->activeSubWindow();
+  if (!isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) return;
+
+  Layout2D *layout = qobject_cast<Layout2D *>(subwindow);
+  AxisRect2D *axisrect = layout->getCurrentAxisRect();
+  if (!axisrect) {
+    QMessageBox::warning(
+        this, tr("Warning"),
+        tr("<h4>There are no plot layout elements "
+           "selected/available in this window.</h4>"
+           "<p><h4>Please add/select a layout element and try again!</h4>"));
+    return;
+  }
+  std::unique_ptr<ArrangeLegend2D> arlegend(
+      new ArrangeLegend2D(this, axisrect->getLegend()));
+  arlegend->exec();
 }
 
 void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas) {
@@ -8390,13 +8415,13 @@ void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
   QString name = src_f->name();
   lst = lst.filter(name);
   if (!lst.isEmpty()) {
-      QMessageBox::critical(
-          this, tr("AlphaPlot") + " - " + tr("Skipped moving folder"),
-          tr("The destination folder already contains a folder called '%1'! "
-             "Folder skipped!")
-              .arg(name));
-      return;
-    }
+    QMessageBox::critical(
+        this, tr("AlphaPlot") + " - " + tr("Skipped moving folder"),
+        tr("The destination folder already contains a folder called '%1'! "
+           "Folder skipped!")
+            .arg(name));
+    return;
+  }
 
   Folder *f = new Folder(dest_f, name);
   f->setBirthDate(src_f->birthDate());
@@ -8405,9 +8430,8 @@ void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
 
   FolderTreeWidgetItem *fi =
       new FolderTreeWidgetItem(dest_f->folderTreeWidgetItem(), f);
-    f->setFolderTreeWidgetItem(fi);
-    fi->setActive(false);
-
+  f->setFolderTreeWidgetItem(fi);
+  fi->setActive(false);
 
   QList<MyWidget *> list = QList<MyWidget *>(src_f->windowsList());
   foreach (MyWidget *w, list) {
@@ -8420,7 +8444,7 @@ void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
     FolderTreeWidgetItem *item = (FolderTreeWidgetItem *)src->child(0);
     int initial_depth = item->depth();
     QTreeWidgetItemIterator it(item);
-     dest_f = src_f;
+    dest_f = src_f;
 
     while (item && item->depth() >= initial_depth) {
       src_f = (Folder *)item->folder();
@@ -8432,10 +8456,10 @@ void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
 
       FolderTreeWidgetItem *fi =
           new FolderTreeWidgetItem(dest_f->folderTreeWidgetItem(), f);
-        f->setFolderTreeWidgetItem(fi);
-        fi->setActive(false);
+      f->setFolderTreeWidgetItem(fi);
+      fi->setActive(false);
 
-        dest_f = f;
+      dest_f = f;
 
       /*dest_f = new Folder(dest_f, src_f->name());
       dest_f->setBirthDate(src_f->birthDate());
@@ -8444,7 +8468,6 @@ void ApplicationWindow::moveFolder(FolderTreeWidgetItem *src,
       copy_item = new FolderTreeWidgetItem(copy_item, dest_f);
       copy_item->setText(0, src_f->name());
       dest_f->setFolderTreeWidgetItem(copy_item);*/
-
 
       QList<MyWidget *> list = QList<MyWidget *>(src_f->windowsList());
       foreach (MyWidget *w, list) {
@@ -9472,6 +9495,8 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("graph2d-axis-left", IconLoader::LightDark));
   ui_->menuAddRightAxis->setIcon(
       IconLoader::load("graph2d-axis-right", IconLoader::LightDark));
+  ui_->actionLegendReorder->setIcon(
+      IconLoader::load("edit-legend", IconLoader::LightDark));
   ui_->actionAddText->setIcon(
       IconLoader::load("draw-text", IconLoader::LightDark));
   ui_->actionDrawArrow->setIcon(
