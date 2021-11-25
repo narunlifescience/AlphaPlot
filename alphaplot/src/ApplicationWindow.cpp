@@ -4338,12 +4338,12 @@ QList<QPair<Table *, Column *>> ApplicationWindow::columnList(
 QList<QPair<Table *, QPair<Column *, Column *>>>
 ApplicationWindow::columnList() {
   QList<QMdiSubWindow *> subwindowlist = subWindowsList();
-  QList<Column *> ylist;
-  QList<Column *> xlist;
   QList<QPair<Table *, QPair<Column *, Column *>>> columnpairlist;
   foreach (QMdiSubWindow *subwindow, subwindowlist) {
     if (!isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) continue;
 
+    QList<Column *> ylist;
+    QList<Column *> xlist;
     Table *t = qobject_cast<Table *>(subwindow);
     for (int i = 0; i < t->numCols(); i++) {
       if (t->colPlotDesignation(i) == AlphaPlot::PlotDesignation::Y)
@@ -4368,12 +4368,12 @@ ApplicationWindow::columnList() {
 QList<QPair<Table *, QPair<Column *, Column *>>> ApplicationWindow::columnList(
     Folder *folder) {
   QList<MyWidget *> subwindowlist = folder->windowsList();
-  QList<Column *> ylist;
-  QList<Column *> xlist;
   QList<QPair<Table *, QPair<Column *, Column *>>> columnpairlist;
   foreach (QMdiSubWindow *subwindow, subwindowlist) {
     if (!isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) continue;
 
+    QList<Column *> ylist;
+    QList<Column *> xlist;
     Table *t = qobject_cast<Table *>(subwindow);
     for (int i = 0; i < t->numCols(); i++) {
       if (t->colPlotDesignation(i) == AlphaPlot::PlotDesignation::Y)

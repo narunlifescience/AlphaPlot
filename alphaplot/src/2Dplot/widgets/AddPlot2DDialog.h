@@ -2,6 +2,7 @@
 #define ADDPLOT2DDIALOG_H
 
 #include <QDialog>
+
 #include "../AxisRect2D.h"
 
 class QComboBox;
@@ -51,19 +52,24 @@ the graph contents list, depending on the selected item in this list:
 
   ApplicationWindow* app_;
   AxisRect2D* axisrect_;
-  QList<QPair<Table*, Column*>> available_columns_;
-  QList<QPair<Table*, Column*>> plotted_columns_;
+  QList<QPair<Table*, QPair<Column*, Column*>>> available_columns_;
+  QList<QPair<Table*, QPair<Column*, Column*>>> plotted_columns_;
 
-  QPushButton* btnAdd;
-  QPushButton* btnOK;
-  QPushButton* btnCancel;
-  QPushButton* btnAssociations;
-  QPushButton* btnEditFunction;
-  QListWidget* available;
-  QListWidget* contents;
-  QComboBox* boxStyle;
-  QComboBox* boxMatrixStyle;
-  QCheckBox* boxShowCurrentFolder;
+  QPushButton* btnAdd_;
+  QPushButton* btnOK_;
+  QPushButton* btnCancel_;
+  QPushButton* btnAssociations_;
+  QPushButton* btnEditFunction_;
+  QListWidget* available_;
+  QListWidget* contents_;
+  QComboBox* boxStyle_;
+  QComboBox* boxMatrixStyle_;
+  QCheckBox* boxShowCurrentFolder_;
+  QGroupBox* groupBox_;
+  QLabel* rowFromLabel_;
+  QLabel* rowToLabel_;
+  QSpinBox* rowFromBox_;
+  QSpinBox* rowToBox_;
 };
 
-#endif // ADDPLOT2DDIALOG_H
+#endif  // ADDPLOT2DDIALOG_H
