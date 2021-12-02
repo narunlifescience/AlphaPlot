@@ -985,6 +985,7 @@ void Curve2D::loadSplineData() {
     splinepoints_->append(QPointF(curvedata_->data()->at(i)->mainKey(),
                                   curvedata_->data()->at(i)->mainValue()));
   }
+
   *splinecontrolpoints_ = calculateControlPoints(*splinepoints_);
 }
 

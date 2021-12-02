@@ -127,9 +127,9 @@
 #include "2Dplot/Plot2D.h"
 #include "2Dplot/Plotcolumns.h"
 #include "2Dplot/widgets/AddPlot2DDialog.h"
+#include "2Dplot/widgets/ArrangeLegend2D.h"
 #include "2Dplot/widgets/Function2DDialog.h"
 #include "2Dplot/widgets/SwapLayout2DDialog.h"
-#include "2Dplot/widgets/ArrangeLegend2D.h"
 #include "3Dplot/Bar3D.h"
 #include "3Dplot/DataManager3D.h"
 #include "3Dplot/Graph3DCommon.h"
@@ -4423,8 +4423,8 @@ void ApplicationWindow::showCurvesDialog() {
     return;
   }
 
-  std::unique_ptr<AddPlot2DDialog> addplot2d(
-      new AddPlot2DDialog(d_workspace, axisrect));
+  std::unique_ptr<AddPlot2DDialog> addplot2d(new AddPlot2DDialog(
+      d_workspace, axisrect, AddPlot2DDialog::Type::Table_X_Y));
   addplot2d->setModal(true);
   addplot2d->exec();
 }

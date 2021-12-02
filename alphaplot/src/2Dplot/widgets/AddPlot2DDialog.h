@@ -3,13 +3,13 @@
 
 #include <QDialog>
 
-#include "../AxisRect2D.h"
+#include "2Dplot/AxisRect2D.h"
+#include "ApplicationWindow.h"
 
 class QComboBox;
 class QListWidget;
 class QPushButton;
 class QCheckBox;
-class ApplicationWindow;
 class AxisRect2D;
 
 //! Add/remove curves dialog
@@ -17,43 +17,50 @@ class AddPlot2DDialog : public QDialog {
   Q_OBJECT
 
  public:
-  AddPlot2DDialog(QWidget* parent, AxisRect2D* axisrect,
+  enum class Type : int {
+    Table_Y = 0,
+    Table_X_Y = 1,
+    Table_X_Y_Y = 2,
+    Table_X_Y_Y_Y = 3
+  };
+  AddPlot2DDialog(QWidget* parent, AxisRect2D* axisrect, Type type,
                   Qt::WindowFlags fl = Qt::Widget);
 
  private slots:
-  void addCurves();
-  int curveStyle();
+  ApplicationWindow::Graph plotStyle();
+  void addPlots();
   void showPlotAssociations();
   void showFunctionDialog();
-
-  /**
-Enables ("yes")/disables ("no") the following buttons, which are on the right
-besides
-the graph contents list, depending on the selected item in this list:
-<table>
-<tr>  <td>Selected Item</td><td>btnEditFunction</td>  <td>btnAssociations</td>
-<td>btnRange</td> </tr>
-<tr>  <td>Spectrogram</td>  <td>no</td> <td>no</td> <td>no</td>   </tr>
-<tr>  <td>Function</td>     <td>yes</td> <td>no</td> <td>no</td>   </tr>
-<tr>  <td>ErrorBars</td>    <td>no</td> <td>yes</td> <td>no</td>   </tr>
-<tr>  <td>all others</td>   <td>no</td> <td>yes</td> <td>yes</td>   </tr>
-</table>
-  */
   void enableAddBtn();
-  void showCurrentFolder(bool);
 
  private:
   void closeEvent(QCloseEvent* event);
-
   void init();
-  void loadplotcontents();
+  void populatePlotted();
+  void populateAvailable();
   QSize sizeHint() const;
   void contextMenuEvent(QContextMenuEvent*);
 
+  struct Data {
+    Type type;
+    Table* table;
+    Column* xcol;
+    Column* ycol1;
+    Column* ycol2;
+    Column* ycol3;
+    Data()
+        : type(Type::Table_Y),
+          table(nullptr),
+          xcol(nullptr),
+          ycol1(nullptr),
+          ycol2(nullptr),
+          ycol3(nullptr) {}
+  };
   ApplicationWindow* app_;
   AxisRect2D* axisrect_;
-  QList<QPair<Table*, QPair<Column*, Column*>>> available_columns_;
-  QList<QPair<Table*, QPair<Column*, Column*>>> plotted_columns_;
+  Type type_;
+  QList<Data> available_columns_;
+  QList<Data> plotted_columns_;
 
   QPushButton* btnAdd_;
   QPushButton* btnOK_;
