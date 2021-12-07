@@ -186,9 +186,17 @@
      <addaction name="menuAddRightAxis"/>
      <addaction name="menuAddTopAxis"/>
     </widget>
+    <widget class="QMenu" name="menuAddRemoveHistogram">
+     <property name="title">
+      <string>Add/Remove Histogram...</string>
+     </property>
+    </widget>
     <addaction name="actionAddRemoveCurve"/>
     <addaction name="actionAddFunctionCurve"/>
     <addaction name="actionAddErrorBars"/>
+    <addaction name="actionAddRemovePloty"/>
+    <addaction name="actionAddRemoveVector"/>
+    <addaction name="menuAddRemoveHistogram"/>
     <addaction name="menuAddAxis"/>
     <addaction name="actionLegendReorder"/>
     <addaction name="separator"/>
@@ -821,7 +829,7 @@
   </action>
   <action name="actionAddRemoveCurve">
    <property name="text">
-    <string>&amp;Add/Remove Plot xy...</string>
+    <string>&amp;Add/Remove Plot xy/xyy...</string>
    </property>
    <property name="shortcut">
     <string>Alt+C</string>
@@ -1635,6 +1643,16 @@
   <action name="actionLegendReorder">
    <property name="text">
     <string>Legend Reorder</string>
+   </property>
+  </action>
+  <action name="actionAddRemovePloty">
+   <property name="text">
+    <string>Add/Remove Plot y...</string>
+   </property>
+  </action>
+  <action name="actionAddRemoveVector">
+   <property name="text">
+    <string>Add/Remove Vector Plot...</string>
    </property>
   </action>
  </widget>

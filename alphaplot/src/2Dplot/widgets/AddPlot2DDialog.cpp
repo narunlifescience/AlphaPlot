@@ -14,9 +14,9 @@
 #include <QPushButton>
 #include <QShortcut>
 
-#include "2Dplot/DataManager2D.h"
 #include "2Dplot/Bar2D.h"
 #include "2Dplot/Curve2D.h"
+#include "2Dplot/DataManager2D.h"
 #include "2Dplot/LineSpecial2D.h"
 #include "2Dplot/Pie2D.h"
 #include "2Dplot/Vector2D.h"
@@ -27,11 +27,13 @@
 #include "core/column/Column.h"
 
 AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
-                                 Type type, Qt::WindowFlags fl)
+                                 const Type &type, Qt::WindowFlags fl)
     : QDialog(parent, fl),
       app_(qobject_cast<ApplicationWindow *>(parent->parent())),
       axisrect_(axisrect),
-      type_(type) {
+      type_(type),
+      plotnos_(0),
+      xyorxyyplotnos_(0) {
   Q_ASSERT(app_);
   Q_ASSERT(axisrect_);
 
@@ -128,21 +130,22 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
   gl->addWidget(contents_, 1, 2);
 
   QVBoxLayout *vl2 = new QVBoxLayout();
-  btnAssociations_ = new QPushButton(tr("&Plot Associations..."));
+  btnAssociations_ = new QPushButton(tr("&Go to Plot Associations..."));
   btnAssociations_->setEnabled(false);
   vl2->addWidget(btnAssociations_);
 
-  btnEditFunction_ = new QPushButton(tr("&Edit Function..."));
+  btnEditFunction_ = new QPushButton(tr("&Function Details..."));
   btnEditFunction_->setEnabled(false);
   vl2->addWidget(btnEditFunction_);
 
-  btnOK_ = new QPushButton(tr("OK"));
-  btnOK_->setDefault(true);
-  vl2->addWidget(btnOK_);
-
-  btnCancel_ = new QPushButton(tr("Close"));
-  vl2->addWidget(btnCancel_);
-
+  xaxisLabel_ = new QLabel(tr("X axis:"));
+  boxXaxis_ = new QComboBox;
+  yaxisLabel_ = new QLabel(tr("Y axis:"));
+  boxYaxis_ = new QComboBox;
+  vl2->addWidget(xaxisLabel_);
+  vl2->addWidget(boxXaxis_);
+  vl2->addWidget(yaxisLabel_);
+  vl2->addWidget(boxYaxis_);
   groupBox_ = new QGroupBox(tr("Row Select"));
   vl2->addWidget(groupBox_);
   rowFromLabel_ = new QLabel("From");
@@ -160,6 +163,13 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
   gboxl->addLayout(tol);
   groupBox_->setLayout(gboxl);
 
+  btnOK_ = new QPushButton(tr("OK"));
+  btnOK_->setDefault(true);
+  vl2->addWidget(btnOK_);
+
+  btnCancel_ = new QPushButton(tr("Close"));
+  vl2->addWidget(btnCancel_);
+
   vl2->addStretch();
   gl->addLayout(vl2, 1, 3);
 
@@ -167,22 +177,34 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
   vl3->addLayout(hl);
   vl3->addLayout(gl);
 
-  boxShowCurrentFolder_ = new QCheckBox(tr("Show current &folder only"));
-  vl3->addWidget(boxShowCurrentFolder_);
-
   init();
-  boxShowCurrentFolder_->setChecked(true);
-  boxShowCurrentFolder_->setEnabled(false);
 
-  /*connect(btnAssociations, SIGNAL(clicked()), this,
-          SLOT(showPlotAssociations()));
-  connect(btnEditFunction, SIGNAL(clicked()), this,
-  SLOT(showFunctionDialog()));*/
   connect(btnAdd_, &QPushButton::clicked, this, &AddPlot2DDialog::addPlots);
   connect(btnOK_, &QPushButton::clicked, this, &AddPlot2DDialog::close);
   connect(btnCancel_, &QPushButton::clicked, this, &AddPlot2DDialog::close);
   connect(available_, &QListWidget::itemSelectionChanged, this,
           &AddPlot2DDialog::enableAddBtn);
+  connect(contents_, &QListWidget::itemSelectionChanged, this, [&]() {
+    if (contents_->selectedItems().count() && plotted_columns_.count()) {
+      QString string = contents_->currentItem()->text();
+      if (string.contains("_(XY)[", Qt::CaseSensitive) ||
+          string.contains("_(Parametric:", Qt::CaseSensitive) ||
+          string.contains("_(Polar:", Qt::CaseSensitive)) {
+        btnAssociations_->setEnabled(false);
+        btnEditFunction_->setEnabled(true);
+      } else {
+        btnAssociations_->setEnabled(true);
+        btnEditFunction_->setEnabled(false);
+      }
+    } else {
+      btnAssociations_->setEnabled(false);
+      btnEditFunction_->setEnabled(false);
+    }
+  });
+  connect(btnAssociations_, &QPushButton::pressed, this,
+          &AddPlot2DDialog::showPlotAssociations);
+  connect(btnEditFunction_, &QPushButton::clicked, this,
+          &AddPlot2DDialog::showFunctionDialog);
   connect(
       boxStyle_,
       static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
@@ -193,18 +215,18 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
 }
 
 void AddPlot2DDialog::showPlotAssociations() {
-  int curve = contents_->currentRow();
-  if (curve < 0) curve = 0;
-
+  Data data = plotted_columns_.at(contents_->currentRow());
+  app_->d_workspace->setActiveSubWindow(data.table);
+  if (data.xcol) data.table->selectColumn(data.xcol->index());
+  if (data.ycol1) data.table->selectColumn(data.ycol1->index());
+  if (data.ycol2) data.table->selectColumn(data.ycol2->index());
+  if (data.ycol3) data.table->selectColumn(data.ycol3->index());
   close();
-
-  app_->showPlotAssociations(curve);
 }
 
 void AddPlot2DDialog::showFunctionDialog() {
-  /*  int currentRow = contents->currentRow();
-    close();
-    app_->showFunctionDialog(d_graph, currentRow);*/
+  QMessageBox::information(this, tr("Function Plot details"),
+                           contents_->currentItem()->text());
 }
 
 QSize AddPlot2DDialog::sizeHint() const { return QSize(700, 400); }
@@ -240,9 +262,8 @@ void AddPlot2DDialog::contextMenuEvent(QContextMenuEvent *e) {
 
 void AddPlot2DDialog::init() {
   populatePlotted();
-  bool currentFolderOnly = app_->d_show_current_folder;
-  boxShowCurrentFolder_->setChecked(currentFolderOnly);
   populateAvailable();
+  populateAxes();
 
   QStringList matrices = app_->matrixNames();
   if (!matrices.isEmpty()) {
@@ -250,8 +271,24 @@ void AddPlot2DDialog::init() {
     available_->addItems(matrices);
   }
 
-  if (!available_->count()) btnAdd_->setDisabled(true);
   enableAddBtn();
+}
+
+void AddPlot2DDialog::populateAxes() {
+  xaxis_list_.clear();
+  yaxis_list_.clear();
+  boxXaxis_->clear();
+  boxYaxis_->clear();
+  xaxis_list_ = axisrect_->getXAxes2D();
+  yaxis_list_ = axisrect_->getYAxes2D();
+  foreach (Axis2D *axis, xaxis_list_) {
+    boxXaxis_->addItem(QString(axis->getname_axis() +
+                               QString::number(axis->getnumber_axis())));
+  }
+  foreach (Axis2D *axis, yaxis_list_) {
+    boxYaxis_->addItem(QString(axis->getname_axis() +
+                               QString::number(axis->getnumber_axis())));
+  }
 }
 
 void AddPlot2DDialog::populatePlotted() {
@@ -265,6 +302,11 @@ void AddPlot2DDialog::populatePlotted() {
   QVector<QPair<LineSpecial2D *, LineSpecial2D *>> channellist =
       axisrect_->getChannelVec();
   QVector<Vector2D *> veclist = axisrect_->getVectorVec();
+  plotnos_ = boxlist.count() + pielist.count() + lslist.count() +
+             curvelist.count() + barlist.count() + channellist.count() +
+             veclist.count();
+  xyorxyyplotnos_ = lslist.count() + curvelist.count() + barlist.count() +
+                    channellist.count();
 
   foreach (StatBox2D *box, boxlist) {
     Data boxdata;
@@ -329,6 +371,65 @@ void AddPlot2DDialog::populatePlotted() {
               QString::number(curvedata->getfrom() + 1) + ":" +
               QString::number(curvedata->getto() + 1) + "]",
           contents_);
+      contents_->addItem(item);
+    } else {
+      PlotData::FunctionData funcdata = curve->getfuncdata_cplot();
+      Data data;
+      data.type = Type::Table_X_Y;
+      QString string;
+      switch (funcdata.type) {
+        case 0: {
+          QString functype, func;
+          if (funcdata.functions.size() == 1) {
+            functype = QString(tr("XY"));
+            func = funcdata.functions.at(0);
+          } else {
+            functype = QString(tr("Unknown"));
+            func = QString(tr("unknown"));
+          }
+          string += func + "_(" + functype + ")" + "[" +
+                    QString::number(funcdata.points) + " ," +
+                    QString::number(funcdata.from) + ":" +
+                    QString::number(funcdata.to) + "]";
+        } break;
+        case 1: {
+          QString functype, func1, func2;
+          if (funcdata.functions.size() == 2) {
+            functype = QString(tr("Parametric"));
+            func1 = funcdata.functions.at(0);
+            func2 = funcdata.functions.at(1);
+          } else {
+            functype = QString(tr("Unknown"));
+            func1 = QString(tr("unknown"));
+            func2 = QString(tr("unknown"));
+          }
+          string += func1 + "_" + func2 + "_(" + functype + ":" +
+                    funcdata.parameter + ")" + "[" +
+                    QString::number(funcdata.points) + " ," +
+                    QString::number(funcdata.from) + ":" +
+                    QString::number(funcdata.to) + "]";
+        } break;
+        case 2: {
+          QString functype, func1, func2;
+          if (funcdata.functions.size() == 2) {
+            functype = QString(tr("Polar"));
+            func1 = funcdata.functions.at(0);
+            func2 = funcdata.functions.at(1);
+          } else {
+            functype = QString(tr("Unknown"));
+            func1 = QString(tr("unknown"));
+            func2 = QString(tr("unknown"));
+          }
+          string += func1 + "_" + func2 + "_(" + functype + ":" +
+                    funcdata.parameter + ")" + "[" +
+                    QString::number(funcdata.points) + " ," +
+                    QString::number(funcdata.from) + ":" +
+                    QString::number(funcdata.to) + "]";
+        } break;
+      }
+      plotted_columns_ << data;
+      QListWidgetItem *item =
+          new QListWidgetItem(curve->getIcon(), string, contents_);
       contents_->addItem(item);
     }
   }
@@ -405,6 +506,13 @@ void AddPlot2DDialog::populateAvailable() {
     if (!t) continue;
     tables << t;
   }
+
+  // dont populate for these plots
+  if ((type_ == Type::Table_X_Y_Y_Y || type_ == Type::Table_Y) && plotnos_ != 0)
+    return;
+  if ((type_ == Type::Table_X_Y || type_ == Type::Table_X_Y_Y) &&
+      plotnos_ - xyorxyyplotnos_ != 0)
+    return;
 
   switch (type_) {
     case Type::Table_Y:
@@ -588,29 +696,28 @@ void AddPlot2DDialog::populateAvailable() {
         Data data;
         data.type = Type::Table_X_Y_Y_Y;
         foreach (Column *xcol, xlist) {
-          int temp1 = 0;
-          int temp2 = 0;
           for (int i = 0; i < ylist.size(); i++) {
-            for (int j = temp1; j < ylist.size(); j++) {
-              for (int k = temp2; k < ylist.size(); k++) {
+            for (int j = 0; j < ylist.size(); j++) {
+              for (int k = 0; k < ylist.size(); k++) {
                 if (ylist.at(i) != ylist.at(j) && ylist.at(i) != ylist.at(k)) {
                   data.table = table;
                   data.xcol = xcol;
                   data.ycol1 = ylist.at(i);
                   data.ycol2 = ylist.at(j);
                   data.ycol3 = ylist.at(k);
-                  available_columns_ << data;
-                  QListWidgetItem *item = new QListWidgetItem(
-                      data.table->name() + "_" + data.xcol->name() + "_" +
-                          data.ycol1->name() + "_" + data.ycol2->name() + "_" +
-                          data.ycol3->name(),
-                      available_);
-                  available_->addItem(item);
+                  if (data.ycol1 != data.ycol2 && data.ycol1 != data.ycol3 &&
+                      data.ycol2 != data.ycol3) {
+                    available_columns_ << data;
+                    QListWidgetItem *item = new QListWidgetItem(
+                        data.table->name() + "_" + data.xcol->name() + "_" +
+                            data.ycol1->name() + "_" + data.ycol2->name() +
+                            "_" + data.ycol3->name(),
+                        available_);
+                    available_->addItem(item);
+                  }
                 }
               }
-              temp2++;
             }
-            temp1++;
           }
         }
       }
@@ -646,8 +753,17 @@ void AddPlot2DDialog::addPlots() {
       case Type::Table_Y:
         switch (plotStyle()) {
           case ApplicationWindow::Graph::Box:
+            // missing
             break;
           case ApplicationWindow::Graph::Pie:
+            if (boxStyle_->currentIndex() == 1 && plotnos_ == 0)
+              axisrect_->addPie2DPlot(
+                  Graph2DCommon::PieStyle::Pie, data.table, data.xcol,
+                  data.ycol1, rowFromBox_->value() - 1, rowToBox_->value() - 1);
+            else if (boxStyle_->currentIndex() == 2 && plotnos_ == 0)
+              axisrect_->addPie2DPlot(
+                  Graph2DCommon::PieStyle::HalfPie, data.table, data.xcol,
+                  data.ycol1, rowFromBox_->value() - 1, rowToBox_->value() - 1);
             break;
           default:
             qDebug() << "Unknown ApplicationWindow::Graph type";
@@ -661,27 +777,31 @@ void AddPlot2DDialog::addPlots() {
             axisrect_->addCurve2DPlot(
                 AxisRect2D::LineScatterType::Scatter2D, data.table, data.xcol,
                 data.ycol1, rowFromBox_->value() - 1, rowToBox_->value() - 1,
-                axisrect_->getXAxis(0), axisrect_->getYAxis(0));
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()));
           } break;
           case ApplicationWindow::Graph::Line: {
             axisrect_->addCurve2DPlot(
                 AxisRect2D::LineScatterType::Line2D, data.table, data.xcol,
                 data.ycol1, rowFromBox_->value() - 1, rowToBox_->value() - 1,
-                axisrect_->getXAxis(0), axisrect_->getYAxis(0));
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()));
           } break;
           case ApplicationWindow::Graph::LineSymbols: {
             axisrect_->addCurve2DPlot(
                 AxisRect2D::LineScatterType::LineAndScatter2D, data.table,
                 data.xcol, data.ycol1, rowFromBox_->value() - 1,
-                rowToBox_->value() - 1, axisrect_->getXAxis(0),
-                axisrect_->getYAxis(0));
+                rowToBox_->value() - 1,
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()));
           } break;
           case ApplicationWindow::Graph::VerticalDropLines: {
             axisrect_->addLineSpecial2DPlot(
                 AxisRect2D::LineScatterSpecialType::VerticalDropLine2D,
                 data.table, data.xcol, data.ycol1, rowFromBox_->value() - 1,
-                rowToBox_->value() - 1, axisrect_->getXAxis(0),
-                axisrect_->getYAxis(0));
+                rowToBox_->value() - 1,
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()));
           } break;
           case ApplicationWindow::Graph::Spline: {
             if (rowToBox_->value() - rowFromBox_->value() < 2) {
@@ -693,48 +813,55 @@ void AddPlot2DDialog::addPlots() {
             axisrect_->addCurve2DPlot(
                 AxisRect2D::LineScatterType::Spline2D, data.table, data.xcol,
                 data.ycol1, rowFromBox_->value() - 1, rowToBox_->value() - 1,
-                axisrect_->getXAxis(0), axisrect_->getYAxis(0));
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()));
           } break;
           case ApplicationWindow::Graph::VerticalSteps: {
             axisrect_->addLineSpecial2DPlot(
                 AxisRect2D::LineScatterSpecialType::VerticalStep2D, data.table,
                 data.xcol, data.ycol1, rowFromBox_->value() - 1,
-                rowToBox_->value() - 1, axisrect_->getXAxis(0),
-                axisrect_->getYAxis(0));
+                rowToBox_->value() - 1,
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()));
           } break;
           case ApplicationWindow::Graph::HorizontalSteps: {
             axisrect_->addLineSpecial2DPlot(
                 AxisRect2D::LineScatterSpecialType::HorizontalStep2D,
                 data.table, data.xcol, data.ycol1, rowFromBox_->value() - 1,
-                rowToBox_->value() - 1, axisrect_->getXAxis(0),
-                axisrect_->getYAxis(0));
+                rowToBox_->value() - 1,
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()));
           } break;
           case ApplicationWindow::Graph::Area: {
             axisrect_->addLineSpecial2DPlot(
                 AxisRect2D::LineScatterSpecialType::Area2D, data.table,
                 data.xcol, data.ycol1, rowFromBox_->value() - 1,
-                rowToBox_->value() - 1, axisrect_->getXAxis(0),
-                axisrect_->getYAxis(0));
+                rowToBox_->value() - 1,
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()));
           } break;
           case ApplicationWindow::Graph::VerticalBars: {
             axisrect_->addBox2DPlot(
                 AxisRect2D::BarType::VerticalBars, data.table, data.xcol,
                 data.ycol1, rowFromBox_->value() - 1, rowToBox_->value() - 1,
-                axisrect_->getXAxis(0), axisrect_->getYAxis(0),
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()),
                 Bar2D::BarStyle::Individual);
           } break;
           case ApplicationWindow::Graph::HorizontalBars: {
             axisrect_->addBox2DPlot(
                 AxisRect2D::BarType::HorizontalBars, data.table, data.xcol,
                 data.ycol1, rowFromBox_->value() - 1, rowToBox_->value() - 1,
-                axisrect_->getXAxis(0), axisrect_->getYAxis(0),
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()),
                 Bar2D::BarStyle::Individual);
           } break;
           case ApplicationWindow::Graph::Channel: {
             axisrect_->addLineSpecialChannel2DPlot(
                 data.table, data.xcol, data.ycol1, data.ycol2,
                 rowFromBox_->value() - 1, rowToBox_->value() - 1,
-                axisrect_->getXAxis(0), axisrect_->getYAxis(0));
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()));
           } break;
           default:
             qDebug() << "Unknown ApplicationWindow::Graph type";
@@ -744,8 +871,22 @@ void AddPlot2DDialog::addPlots() {
       case Type::Table_X_Y_Y_Y:
         switch (plotStyle()) {
           case ApplicationWindow::Graph::VectXYAM:
+            if (plotnos_ == 0)
+              axisrect_->addVectorPlot(
+                  Vector2D::VectorPlot::XYAM, data.table, data.xcol, data.ycol1,
+                  data.ycol2, data.ycol3, rowFromBox_->value() - 1,
+                  rowToBox_->value() - 1,
+                  xaxis_list_.at(boxXaxis_->currentIndex()),
+                  yaxis_list_.at(boxYaxis_->currentIndex()));
             break;
           case ApplicationWindow::Graph::VectXYXY:
+            if (plotnos_ == 0)
+              axisrect_->addVectorPlot(
+                  Vector2D::VectorPlot::XYXY, data.table, data.xcol, data.ycol1,
+                  data.ycol2, data.ycol3, rowFromBox_->value() - 1,
+                  rowToBox_->value() - 1,
+                  xaxis_list_.at(boxXaxis_->currentIndex()),
+                  yaxis_list_.at(boxYaxis_->currentIndex()));
             break;
           default:
             qDebug() << "Unknown ApplicationWindow::Graph type";
@@ -762,6 +903,10 @@ void AddPlot2DDialog::addPlots() {
 
 void AddPlot2DDialog::enableAddBtn() {
   if (available_->selectedItems().count() && available_columns_.count()) {
+    xaxisLabel_->setEnabled(true);
+    boxXaxis_->setEnabled(true);
+    yaxisLabel_->setEnabled(true);
+    boxYaxis_->setEnabled(true);
     groupBox_->setEnabled(true);
     btnAdd_->setEnabled(true);
     Data data = available_columns_.at(available_->currentRow());
@@ -807,6 +952,10 @@ void AddPlot2DDialog::enableAddBtn() {
       rowFromBox_->setValue(1);
       rowToBox_->setValue(data.ycol1->rowCount());
     } else {
+      xaxisLabel_->setEnabled(false);
+      boxXaxis_->setEnabled(false);
+      yaxisLabel_->setEnabled(false);
+      boxYaxis_->setEnabled(false);
       groupBox_->setEnabled(false);
       btnAdd_->setEnabled(false);
       rowFromBox_->setRange(0, 0);
@@ -815,6 +964,10 @@ void AddPlot2DDialog::enableAddBtn() {
       rowToBox_->setValue(0);
     }
   } else {
+    xaxisLabel_->setEnabled(false);
+    boxXaxis_->setEnabled(false);
+    yaxisLabel_->setEnabled(false);
+    boxYaxis_->setEnabled(false);
     groupBox_->setEnabled(false);
     btnAdd_->setEnabled(false);
     rowFromBox_->setRange(0, 0);

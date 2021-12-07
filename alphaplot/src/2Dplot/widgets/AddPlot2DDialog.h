@@ -23,7 +23,7 @@ class AddPlot2DDialog : public QDialog {
     Table_X_Y_Y = 2,
     Table_X_Y_Y_Y = 3
   };
-  AddPlot2DDialog(QWidget* parent, AxisRect2D* axisrect, Type type,
+  AddPlot2DDialog(QWidget* parent, AxisRect2D* axisrect, const Type& type,
                   Qt::WindowFlags fl = Qt::Widget);
 
  private slots:
@@ -36,6 +36,7 @@ class AddPlot2DDialog : public QDialog {
  private:
   void closeEvent(QCloseEvent* event);
   void init();
+  void populateAxes();
   void populatePlotted();
   void populateAvailable();
   QSize sizeHint() const;
@@ -61,6 +62,10 @@ class AddPlot2DDialog : public QDialog {
   Type type_;
   QList<Data> available_columns_;
   QList<Data> plotted_columns_;
+  QList<Axis2D*> xaxis_list_;
+  QList<Axis2D*> yaxis_list_;
+  int plotnos_;
+  int xyorxyyplotnos_;
 
   QPushButton* btnAdd_;
   QPushButton* btnOK_;
@@ -70,8 +75,11 @@ class AddPlot2DDialog : public QDialog {
   QListWidget* available_;
   QListWidget* contents_;
   QComboBox* boxStyle_;
+  QLabel *xaxisLabel_;
+  QLabel *yaxisLabel_;
+  QComboBox* boxXaxis_;
+  QComboBox* boxYaxis_;
   QComboBox* boxMatrixStyle_;
-  QCheckBox* boxShowCurrentFolder_;
   QGroupBox* groupBox_;
   QLabel* rowFromLabel_;
   QLabel* rowToLabel_;

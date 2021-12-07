@@ -696,12 +696,16 @@ ApplicationWindow::ApplicationWindow()
         ->setCameraPreset(Q3DCamera::CameraPreset::CameraPresetDirectlyAbove);
   });
   // Graph menu
-  connect(ui_->actionAddRemoveCurve, SIGNAL(triggered()), this,
-          SLOT(showCurvesDialog()));
-  connect(ui_->actionAddErrorBars, SIGNAL(triggered()), this,
-          SLOT(addErrorBars()));
-  connect(ui_->actionAddFunctionCurve, SIGNAL(triggered()), this,
-          SLOT(addFunctionCurve()));
+  connect(ui_->actionAddRemovePloty, &QAction::triggered, this,
+          &ApplicationWindow::showCurvesDialog);
+  connect(ui_->actionAddRemoveVector, &QAction::triggered, this,
+          &ApplicationWindow::showCurvesDialog);
+  connect(ui_->actionAddRemoveCurve, &QAction::triggered, this,
+          &ApplicationWindow::showCurvesDialog);
+  connect(ui_->actionAddErrorBars, &QAction::triggered, this,
+          &ApplicationWindow::addErrorBars);
+  connect(ui_->actionAddFunctionCurve, &QAction::triggered, this,
+          &ApplicationWindow::addFunctionCurve);
   connect(ui_->actionLeftValue, &QAction::triggered, this,
           &ApplicationWindow::addGraph2DAxis);
   connect(ui_->actionLeftLog, &QAction::triggered, this,
@@ -4411,6 +4415,16 @@ QStringList ApplicationWindow::columnsList() {
 }
 
 void ApplicationWindow::showCurvesDialog() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+  AddPlot2DDialog::Type type;
+  if (action == ui_->actionAddRemovePloty)
+    type = AddPlot2DDialog::Type::Table_Y;
+  else if (action == ui_->actionAddRemoveCurve)
+    type = AddPlot2DDialog::Type::Table_X_Y;
+  else if (action == ui_->actionAddRemoveVector)
+    type = AddPlot2DDialog::Type::Table_X_Y_Y_Y;
+
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
   Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
   AxisRect2D *axisrect = layout->getCurrentAxisRect();
@@ -4423,8 +4437,8 @@ void ApplicationWindow::showCurvesDialog() {
     return;
   }
 
-  std::unique_ptr<AddPlot2DDialog> addplot2d(new AddPlot2DDialog(
-      d_workspace, axisrect, AddPlot2DDialog::Type::Table_X_Y));
+  std::unique_ptr<AddPlot2DDialog> addplot2d(
+      new AddPlot2DDialog(d_workspace, axisrect, type));
   addplot2d->setModal(true);
   addplot2d->exec();
 }
@@ -6008,6 +6022,9 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.addAction(ui_->actionAddRemoveCurve);
     cm.addAction(ui_->actionAddFunctionCurve);
     cm.addAction(ui_->actionAddErrorBars);
+    cm.addAction(ui_->actionAddRemovePloty);
+    cm.addAction(ui_->actionAddRemoveVector);
+    cm.addMenu(ui_->menuAddRemoveHistogram);
     cm.addMenu(ui_->menuAddAxis);
     cm.addAction(ui_->actionLegendReorder);
     cm.addSeparator();
@@ -6053,6 +6070,9 @@ void ApplicationWindow::itemContextMenuRequested(Layout2D *layout,
   cm.addAction(ui_->actionAddRemoveCurve);
   cm.addAction(ui_->actionAddFunctionCurve);
   cm.addAction(ui_->actionAddErrorBars);
+  cm.addAction(ui_->actionAddRemovePloty);
+  cm.addAction(ui_->actionAddRemoveVector);
+  cm.addMenu(ui_->menuAddRemoveHistogram);
   cm.addMenu(ui_->menuAddAxis);
   cm.addAction(ui_->actionLegendReorder);
   cm.addSeparator();
