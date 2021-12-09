@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QPixmap>
 #include <QPushButton>
+#include <QSharedPointer>
 #include <QShortcut>
 
 #include "2Dplot/Bar2D.h"
@@ -49,6 +50,9 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
     case Type::Table_Y:
       boxStyle_->addItem(IconLoader::load("graph2d-box", IconLoader::LightDark),
                          tr(" Box"));
+      boxStyle_->addItem(
+          IconLoader::load("graph2d-histogram", IconLoader::LightDark),
+          tr(" Histogram"));
       boxStyle_->addItem(IconLoader::load("graph2d-pie", IconLoader::LightDark),
                          tr(" Pie"));
       boxStyle_->addItem(
@@ -450,6 +454,20 @@ void AddPlot2DDialog::populatePlotted() {
               QString::number(bardata->getto() + 1) + "]",
           contents_);
       contents_->addItem(item);
+    } else {
+      DataBlockHist *histdata = bar->getdatablock_histplot();
+      Data hdata;
+      hdata.type = Type::Table_Y;
+      hdata.table = histdata->gettable();
+      hdata.xcol = histdata->getcolumn();
+      plotted_columns_ << hdata;
+      QListWidgetItem *item = new QListWidgetItem(
+          bar->getIcon(),
+          hdata.table->name() + "_" + hdata.xcol->name() + "[" +
+              QString::number(histdata->getfrom() + 1) + ":" +
+              QString::number(histdata->getto() + 1) + "]",
+          contents_);
+      contents_->addItem(item);
     }
   }
   for (int i = 0; i < channellist.size(); i++) {
@@ -508,8 +526,17 @@ void AddPlot2DDialog::populateAvailable() {
   }
 
   // dont populate for these plots
-  if ((type_ == Type::Table_X_Y_Y_Y || type_ == Type::Table_Y) && plotnos_ != 0)
+  if (type_ == Type::Table_X_Y_Y_Y && plotnos_ != 0) return;
+  if (type_ == Type::Table_Y && plotnos_ != 0 &&
+      plotStyle() == ApplicationWindow::Graph::Box)
+    foreach (Data d, plotted_columns_) {
+      if (d.xcol != nullptr) return;
+    }
+
+  if (type_ == Type::Table_Y && plotnos_ != 0 &&
+      plotStyle() == ApplicationWindow::Graph::Pie)
     return;
+
   if ((type_ == Type::Table_X_Y || type_ == Type::Table_X_Y_Y) &&
       plotnos_ - xyorxyyplotnos_ != 0)
     return;
@@ -578,6 +605,31 @@ void AddPlot2DDialog::populateAvailable() {
               }
             }
             break;
+          case ApplicationWindow::Graph::Histogram: {
+            QList<Column *> tempcol;
+            tempcol.append(xlist);
+            tempcol.append(ylist);
+
+            foreach (Column *col, tempcol) {
+              data.table = table;
+              data.xcol = col;
+              bool isplotable = false;
+              foreach (Data dat, plotted_columns_) {
+                if (data.xcol == dat.xcol && !dat.ycol1) {
+                  isplotable = true;
+                  break;
+                }
+              }
+              if (!isplotable) {
+                available_columns_ << data;
+                QListWidgetItem *item = new QListWidgetItem(
+                    IconLoader::load("graph2d-histogram",
+                                     IconLoader::LightDark),
+                    table->name() + "_" + col->name(), available_);
+                available_->addItem(item);
+              }
+            }
+          } break;
           default:
             qDebug() << "unknown availabel_columns_(Type::Table_Y)";
             break;
@@ -725,6 +777,21 @@ void AddPlot2DDialog::populateAvailable() {
   }
 }
 
+bool AddPlot2DDialog::axisColumTypeCompatibilityCheck() {
+  bool comp = false;
+  // check axis colum type compatibility before adding plot(fix later)
+  switch (type_) {
+    case Type::Table_Y:
+      break;
+    case Type::Table_X_Y:
+    case Type::Table_X_Y_Y:
+      break;
+    case Type::Table_X_Y_Y_Y:
+      break;
+  }
+  return comp;
+}
+
 void AddPlot2DDialog::addPlots() {
   Data data;
   QList<QListWidgetItem *> lst = available_->selectedItems();
@@ -752,8 +819,31 @@ void AddPlot2DDialog::addPlots() {
     switch (type_) {
       case Type::Table_Y:
         switch (plotStyle()) {
-          case ApplicationWindow::Graph::Box:
-            // missing
+          case ApplicationWindow::Graph::Box: {
+            Axis2D *ax = xaxis_list_.at(boxXaxis_->currentIndex());
+            QSharedPointer<QCPAxisTickerText> textTicker =
+                qSharedPointerCast<QCPAxisTickerText>(ax->getticker_axis());
+            double datakey = 1;
+            foreach (StatBox2D *box, axisrect_->getStatBoxVec()) {
+              if (box->getboxwhiskerdata_statbox().key > datakey)
+                datakey = box->getboxwhiskerdata_statbox().key;
+            }
+            StatBox2D::BoxWhiskerData sboxdata;
+            sboxdata = axisrect_->generateBoxWhiskerData(
+                data.table, data.ycol1, rowFromBox_->value() - 1,
+                rowToBox_->value() - 1, datakey + 1);
+            axisrect_->addStatBox2DPlot(
+                sboxdata, xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()));
+            textTicker->addTick(sboxdata.key, sboxdata.name);
+            ax->setTicker(textTicker);
+          } break;
+          case ApplicationWindow::Graph::Histogram:
+            axisrect_->addHistogram2DPlot(
+                AxisRect2D::BarType::VerticalBars, data.table, data.xcol,
+                rowFromBox_->value() - 1, rowToBox_->value() - 1,
+                xaxis_list_.at(boxXaxis_->currentIndex()),
+                yaxis_list_.at(boxYaxis_->currentIndex()));
             break;
           case ApplicationWindow::Graph::Pie:
             if (boxStyle_->currentIndex() == 1 && plotnos_ == 0)
@@ -911,11 +1001,16 @@ void AddPlot2DDialog::enableAddBtn() {
     btnAdd_->setEnabled(true);
     Data data = available_columns_.at(available_->currentRow());
     bool nocolumnnull = false;
+    bool ishistogram = false;
     switch (data.type) {
       case Type::Table_Y:
         switch (plotStyle()) {
           case ApplicationWindow::Graph::Box:
             if (data.ycol1->rowCount()) nocolumnnull = true;
+            break;
+          case ApplicationWindow::Graph::Histogram:
+            if (data.xcol->rowCount()) nocolumnnull = true;
+            ishistogram = true;
             break;
           case ApplicationWindow::Graph::Pie:
             if (data.ycol1->rowCount() && data.xcol->rowCount())
@@ -946,11 +1041,19 @@ void AddPlot2DDialog::enableAddBtn() {
           nocolumnnull = true;
         break;
     }
-    if (nocolumnnull && data.ycol1) {
-      rowFromBox_->setRange(1, data.ycol1->rowCount());
-      rowToBox_->setRange(1, data.ycol1->rowCount());
-      rowFromBox_->setValue(1);
-      rowToBox_->setValue(data.ycol1->rowCount());
+    if ((nocolumnnull && data.ycol1) ||
+        (nocolumnnull && data.xcol && ishistogram)) {
+      if (!ishistogram) {
+        rowFromBox_->setRange(1, data.ycol1->rowCount());
+        rowToBox_->setRange(1, data.ycol1->rowCount());
+        rowFromBox_->setValue(1);
+        rowToBox_->setValue(data.ycol1->rowCount());
+      } else {
+        rowFromBox_->setRange(1, data.xcol->rowCount());
+        rowToBox_->setRange(1, data.xcol->rowCount());
+        rowFromBox_->setValue(1);
+        rowToBox_->setValue(data.xcol->rowCount());
+      }
     } else {
       xaxisLabel_->setEnabled(false);
       boxXaxis_->setEnabled(false);
@@ -986,9 +1089,12 @@ ApplicationWindow::Graph AddPlot2DDialog::plotStyle() {
           style = ApplicationWindow::Graph::Box;
           break;
         case 1:
-          style = ApplicationWindow::Graph::Pie;
+          style = ApplicationWindow::Graph::Histogram;
           break;
         case 2:
+          style = ApplicationWindow::Graph::Pie;
+          break;
+        case 3:
           style = ApplicationWindow::Graph::Pie;
           break;
       }

@@ -6022,9 +6022,7 @@ void ApplicationWindow::showWindowContextMenu() {
     cm.addAction(ui_->actionAddRemoveCurve);
     cm.addAction(ui_->actionAddFunctionCurve);
     cm.addAction(ui_->actionAddErrorBars);
-    cm.addAction(ui_->actionAddRemovePloty);
-    cm.addAction(ui_->actionAddRemoveVector);
-    cm.addMenu(ui_->menuAddRemoveHistogram);
+    cm.addMenu(ui_->menuAddRemoveOtherPlots);
     cm.addMenu(ui_->menuAddAxis);
     cm.addAction(ui_->actionLegendReorder);
     cm.addSeparator();
@@ -6070,9 +6068,7 @@ void ApplicationWindow::itemContextMenuRequested(Layout2D *layout,
   cm.addAction(ui_->actionAddRemoveCurve);
   cm.addAction(ui_->actionAddFunctionCurve);
   cm.addAction(ui_->actionAddErrorBars);
-  cm.addAction(ui_->actionAddRemovePloty);
-  cm.addAction(ui_->actionAddRemoveVector);
-  cm.addMenu(ui_->menuAddRemoveHistogram);
+  cm.addMenu(ui_->menuAddRemoveOtherPlots);
   cm.addMenu(ui_->menuAddAxis);
   cm.addAction(ui_->actionLegendReorder);
   cm.addSeparator();

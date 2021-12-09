@@ -168,11 +168,16 @@ void Vector2D::setGraphData(Table *table, Column *x1Data, Column *y1Data,
 void Vector2D::drawLine(double x1, double y1, double x2, double y2) {
   QCPItemLine *arrow = new QCPItemLine(parentPlot());
   // addItem(arrow);
+  foreach (QCPItemPosition *position, arrow->positions()) {
+    position->setAxes(xaxis_, yaxis_);
+  }
   arrow->start->setCoords(x1, y1);
   arrow->end->setCoords(x2, y2);
   arrow->setHead(*stop_);
   arrow->setTail(*start_);
   linelist_.append(arrow);
+  arrow->setLayer(layer());
+  arrow->clipToAxisRect();
 }
 
 Axis2D *Vector2D::getxaxis() { return xaxis_; }

@@ -67,6 +67,10 @@ class AxisRect2D : public QCPAxisRect {
                       bool setupDefaultAxis = false);
   ~AxisRect2D();
 
+  StatBox2D::BoxWhiskerData generateBoxWhiskerData(Table *table, Column *colData,
+                                                   const int from, const int to,
+                                                   const int key);
+
   void setAxisRectBackground(const QBrush &brush);
   Axis2D *addAxis2D(const Axis2D::AxisOreantation &orientation,
                     const Axis2D::TickerType &tickertype);

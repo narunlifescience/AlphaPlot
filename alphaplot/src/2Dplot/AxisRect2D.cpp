@@ -16,6 +16,9 @@
 
 #include "AxisRect2D.h"
 
+#include <gsl/gsl_sort.h>
+#include <gsl/gsl_statistics.h>
+
 #include <QMenu>
 
 #include "ColorMap2D.h"
@@ -66,6 +69,63 @@ AxisRect2D::AxisRect2D(Plot2D *parent, PickerTool2D *picker,
 AxisRect2D::~AxisRect2D() {
   insetLayout()->take(axisRectLegend_);
   delete axisRectLegend_;
+}
+
+StatBox2D::BoxWhiskerData AxisRect2D::generateBoxWhiskerData(Table *table,
+                                                             Column *colData,
+                                                             const int from,
+                                                             const int to,
+                                                             const int key) {
+  size_t size = static_cast<size_t>((to - from) + 1);
+
+  double *sbdata = new double[size];
+
+  for (int i = 0, j = from; j < to + 1; i++, j++) {
+    sbdata[i] = colData->valueAt(i);
+  }
+  // sort the data
+  gsl_sort(sbdata, 1, size);
+
+  StatBox2D::BoxWhiskerData statBoxData;
+  statBoxData.table_ = table;
+  statBoxData.column_ = colData;
+  statBoxData.from_ = from;
+  statBoxData.to_ = to;
+  statBoxData.key = key;
+  // basic stats
+  statBoxData.mean = gsl_stats_mean(sbdata, 1, size);
+  statBoxData.median = gsl_stats_median_from_sorted_data(sbdata, 1, size);
+  statBoxData.sd = gsl_stats_sd(sbdata, 1, size);
+  statBoxData.se = statBoxData.sd / sqrt(static_cast<double>(size));
+  // data bounds
+  statBoxData.boxWhiskerDataBounds.sd_lower = statBoxData.mean - statBoxData.sd;
+  statBoxData.boxWhiskerDataBounds.sd_upper = statBoxData.mean + statBoxData.sd;
+  statBoxData.boxWhiskerDataBounds.se_lower = statBoxData.mean - statBoxData.se;
+  statBoxData.boxWhiskerDataBounds.se_upper = statBoxData.mean + statBoxData.se;
+  statBoxData.boxWhiskerDataBounds.perc_1 =
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.01);
+  statBoxData.boxWhiskerDataBounds.perc_5 =
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.05);
+  statBoxData.boxWhiskerDataBounds.perc_10 =
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.10);
+  statBoxData.boxWhiskerDataBounds.perc_25 =
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.25);
+  statBoxData.boxWhiskerDataBounds.perc_75 =
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.75);
+  statBoxData.boxWhiskerDataBounds.perc_90 =
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.90);
+  statBoxData.boxWhiskerDataBounds.perc_95 =
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.95);
+  statBoxData.boxWhiskerDataBounds.perc_99 =
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.99);
+  statBoxData.boxWhiskerDataBounds.max = sbdata[size - 1];
+  statBoxData.boxWhiskerDataBounds.min = sbdata[0];
+  statBoxData.name = colData->name();
+
+  // delete the double data pointer
+  delete[] sbdata;
+
+  return statBoxData;
 }
 
 void AxisRect2D::setAxisRectBackground(const QBrush &brush) {
@@ -906,7 +966,18 @@ bool AxisRect2D::removeStatBox2D(StatBox2D *statbox) {
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(statbox));
   bool result = false;
+  Axis2D *ax = statbox->getxaxis();
+  QSharedPointer<QCPAxisTickerText> textTicker =
+      qSharedPointerCast<QCPAxisTickerText>(ax->getticker_axis());
   result = plot2d_->removePlottable(statbox);
+  textTicker->clear();
+  for (int i = 0; i < statboxvec_.count(); i++) {
+    StatBox2D::BoxWhiskerData sbdata =
+        statboxvec_.at(i)->getboxwhiskerdata_statbox();
+    sbdata.key = i + 1;
+    textTicker->addTick(sbdata.key, sbdata.name);
+    statboxvec_.at(i)->setboxwhiskerdata(sbdata);
+  }
   emit StatBox2DRemoved(this);
   return result;
 }
@@ -2624,18 +2695,15 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         if (!ok) xmlreader->raiseError(tr("StatBox2D key not found error"));
 
         if (table && column && xaxis && yaxis) {
-          Layout2D *lout =
-              qobject_cast<Layout2D *>(plot2d_->parent()->parent());
-          if (lout) {
-            StatBox2D::BoxWhiskerData sbdata =
-                lout->generateBoxWhiskerData(table, column, from, to, key);
-            QSharedPointer<QCPAxisTickerText> textTicker =
-                qSharedPointerCast<QCPAxisTickerText>(xaxis->getticker_axis());
-            StatBox2D *statbox = addStatBox2DPlot(sbdata, xaxis, yaxis);
-            textTicker->addTick(sbdata.key, sbdata.name);
-            xaxis->setTicker(textTicker);
-            statbox->load(xmlreader);
-          }
+          StatBox2D::BoxWhiskerData sbdata =
+              generateBoxWhiskerData(table, column, from, to, key);
+          QSharedPointer<QCPAxisTickerText> textTicker =
+              qSharedPointerCast<QCPAxisTickerText>(xaxis->getticker_axis());
+          StatBox2D *statbox = addStatBox2DPlot(sbdata, xaxis, yaxis);
+          textTicker->addTick(sbdata.key, sbdata.name);
+          xaxis->setTicker(textTicker);
+          statbox->load(xmlreader);
+          statbox->setlegendtext_statbox(legendtext);
         }
       } else
 

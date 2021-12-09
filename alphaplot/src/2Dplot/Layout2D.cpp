@@ -162,30 +162,30 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
 Layout2D::~Layout2D() { delete layout_; }
 
 StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Table *table,
-                                                           Column *colData,
+                                                           Column *xcolData,
                                                            const int from,
                                                            const int to,
                                                            const int key) {
   size_t size = static_cast<size_t>((to - from) + 1);
 
-  double *data = new double[size];
+  double *sbdata = new double[size];
 
   for (int i = 0, j = from; j < to + 1; i++, j++) {
-    data[i] = colData->valueAt(i);
+    sbdata[i] = xcolData->valueAt(i);
   }
   // sort the data
-  gsl_sort(data, 1, size);
+  gsl_sort(sbdata, 1, size);
 
   StatBox2D::BoxWhiskerData statBoxData;
   statBoxData.table_ = table;
-  statBoxData.column_ = colData;
+  statBoxData.column_ = xcolData;
   statBoxData.from_ = from;
   statBoxData.to_ = to;
   statBoxData.key = key;
   // basic stats
-  statBoxData.mean = gsl_stats_mean(data, 1, size);
-  statBoxData.median = gsl_stats_median_from_sorted_data(data, 1, size);
-  statBoxData.sd = gsl_stats_sd(data, 1, size);
+  statBoxData.mean = gsl_stats_mean(sbdata, 1, size);
+  statBoxData.median = gsl_stats_median_from_sorted_data(sbdata, 1, size);
+  statBoxData.sd = gsl_stats_sd(sbdata, 1, size);
   statBoxData.se = statBoxData.sd / sqrt(static_cast<double>(size));
   // data bounds
   statBoxData.boxWhiskerDataBounds.sd_lower = statBoxData.mean - statBoxData.sd;
@@ -193,27 +193,27 @@ StatBox2D::BoxWhiskerData Layout2D::generateBoxWhiskerData(Table *table,
   statBoxData.boxWhiskerDataBounds.se_lower = statBoxData.mean - statBoxData.se;
   statBoxData.boxWhiskerDataBounds.se_upper = statBoxData.mean + statBoxData.se;
   statBoxData.boxWhiskerDataBounds.perc_1 =
-      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.01);
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.01);
   statBoxData.boxWhiskerDataBounds.perc_5 =
-      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.05);
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.05);
   statBoxData.boxWhiskerDataBounds.perc_10 =
-      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.10);
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.10);
   statBoxData.boxWhiskerDataBounds.perc_25 =
-      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.25);
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.25);
   statBoxData.boxWhiskerDataBounds.perc_75 =
-      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.75);
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.75);
   statBoxData.boxWhiskerDataBounds.perc_90 =
-      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.90);
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.90);
   statBoxData.boxWhiskerDataBounds.perc_95 =
-      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.95);
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.95);
   statBoxData.boxWhiskerDataBounds.perc_99 =
-      gsl_stats_quantile_from_sorted_data(data, 1, size, 0.99);
-  statBoxData.boxWhiskerDataBounds.max = data[size - 1];
-  statBoxData.boxWhiskerDataBounds.min = data[0];
-  statBoxData.name = colData->name();
+      gsl_stats_quantile_from_sorted_data(sbdata, 1, size, 0.99);
+  statBoxData.boxWhiskerDataBounds.max = sbdata[size - 1];
+  statBoxData.boxWhiskerDataBounds.min = sbdata[0];
+  statBoxData.name = xcolData->name();
 
   // delete the double data pointer
-  delete[] data;
+  delete[] sbdata;
 
   return statBoxData;
 }
@@ -275,12 +275,6 @@ QList<StatBox2D *> Layout2D::generateStatBox2DPlot(Table *table,
                                                    QList<Column *> ycollist,
                                                    int from, const int to,
                                                    const int key) {
-  QList<StatBox2D *> statboxs;
-  QList<StatBox2D::BoxWhiskerData> statBoxData;
-  foreach (Column *col, ycollist) {
-    statBoxData << generateBoxWhiskerData(table, col, from, to, key);
-  }
-
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeString,
                                         AlphaPlot::ColumnDataType::TypeDouble,
                                         Graph2DCommon::AddLayoutElement::Right);
@@ -290,6 +284,12 @@ QList<StatBox2D *> Layout2D::generateStatBox2DPlot(Table *table,
   QList<Axis2D *> yAxis =
       element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
+
+  QList<StatBox2D *> statboxs;
+  QList<StatBox2D::BoxWhiskerData> statBoxData;
+  foreach (Column *col, ycollist) {
+    statBoxData << element->generateBoxWhiskerData(table, col, from, to, key);
+  }
 
   QSharedPointer<QCPAxisTickerText> textTicker =
       qSharedPointerCast<QCPAxisTickerText>(xAxis.at(0)->getticker_axis());
@@ -1645,8 +1645,10 @@ int Layout2D::getLayoutRectGridIndex(const QPair<int, int> coord) {
 
 QPair<int, int> Layout2D::getLayoutRectGridCoordinate(const int index) {
   QPair<int, int> pair;
-  pair.first = index / (layout_->columnCount());
-  pair.second = index % (layout_->columnCount());
+  if (layout_->columnCount() > 0) {
+    pair.first = index / (layout_->columnCount());
+    pair.second = index % (layout_->columnCount());
+  }
   return pair;
 }
 

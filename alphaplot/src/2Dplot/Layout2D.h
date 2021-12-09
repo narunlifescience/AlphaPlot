@@ -27,7 +27,8 @@ class Layout2D : public MyWidget {
 
   LayoutGrid2D *getLayoutGrid() const { return layout_; }
 
-  StatBox2D::BoxWhiskerData generateBoxWhiskerData(Table *table, Column *data,
+  StatBox2D::BoxWhiskerData generateBoxWhiskerData(Table *table,
+                                                   Column *xcolData,
                                                    const int from, const int to,
                                                    const int key);
 

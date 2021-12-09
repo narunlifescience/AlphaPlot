@@ -186,17 +186,17 @@
      <addaction name="menuAddRightAxis"/>
      <addaction name="menuAddTopAxis"/>
     </widget>
-    <widget class="QMenu" name="menuAddRemoveHistogram">
+    <widget class="QMenu" name="menuAddRemoveOtherPlots">
      <property name="title">
-      <string>Add/Remove Histogram...</string>
+      <string>Add/Remove Other Plots...</string>
      </property>
+     <addaction name="actionAddRemovePloty"/>
+     <addaction name="actionAddRemoveVector"/>
     </widget>
     <addaction name="actionAddRemoveCurve"/>
     <addaction name="actionAddFunctionCurve"/>
     <addaction name="actionAddErrorBars"/>
-    <addaction name="actionAddRemovePloty"/>
-    <addaction name="actionAddRemoveVector"/>
-    <addaction name="menuAddRemoveHistogram"/>
+    <addaction name="menuAddRemoveOtherPlots"/>
     <addaction name="menuAddAxis"/>
     <addaction name="actionLegendReorder"/>
     <addaction name="separator"/>
