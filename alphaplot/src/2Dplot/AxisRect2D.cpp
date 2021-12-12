@@ -441,6 +441,8 @@ int AxisRect2D::getYAxisNo(Axis2D *axis) {
 LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
     const LineScatterSpecialType &type, Table *table, Column *xData,
     Column *yData, int from, const int to, Axis2D *xAxis, Axis2D *yAxis) {
+  xAxis->settickertext(xData, from, to);
+  yAxis->settickertext(yData, from, to);
   LineSpecial2D *lineSpecial =
       new LineSpecial2D(table, xData, yData, from, to, xAxis, yAxis);
   lineSpecial->setlinefillcolor_lsplot(
@@ -500,6 +502,8 @@ LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
 QPair<LineSpecial2D *, LineSpecial2D *> AxisRect2D::addLineSpecialChannel2DPlot(
     Table *table, Column *xData, Column *yData1, Column *yData2, const int from,
     const int to, Axis2D *xAxis, Axis2D *yAxis) {
+  xAxis->settickertext(xData, from, to);
+  yAxis->settickertext(yData1, from, to);
   LineSpecial2D *lineSpecial1 =
       new LineSpecial2D(table, xData, yData1, from, to, xAxis, yAxis);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light);
@@ -541,6 +545,8 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
                                     const int from, const int to, Axis2D *xAxis,
                                     Axis2D *yAxis) {
   Curve2D *curve = nullptr;
+  xAxis->settickertext(xcol, from, to);
+  yAxis->settickertext(ycol, from, to);
   switch (type) {
     case LineScatterType::Line2D:
     case LineScatterType::Scatter2D:
@@ -617,6 +623,8 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
                                 const int to, Axis2D *xAxis, Axis2D *yAxis,
                                 const Bar2D::BarStyle &style,
                                 int stackposition) {
+  xAxis->settickertext(xData, from, to);
+  yAxis->settickertext(yData, from, to);
   Bar2D *bar;
   switch (type) {
     case AxisRect2D::BarType::HorizontalBars:
@@ -650,6 +658,8 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
                                     Column *y2Data, const int from,
                                     const int to, Axis2D *xAxis,
                                     Axis2D *yAxis) {
+  xAxis->settickertext(x1Data, from, to);
+  yAxis->settickertext(y1Data, from, to);
   Vector2D *vec = new Vector2D(vectorplot, table, x1Data, y1Data, x2Data,
                                y2Data, from, to, xAxis, yAxis);
   VectorLegendItem2D *legendItem = new VectorLegendItem2D(axisRectLegend_, vec);
@@ -931,8 +941,11 @@ bool AxisRect2D::removeLineSpecial2D(LineSpecial2D *ls) {
   bool result = false;
   ls->removeXerrorBar();
   ls->removeYerrorBar();
+  Axis2D *xaxis = ls->getxaxis();
+  Axis2D *yaxis = ls->getyaxis();
   result = plot2d_->removeGraph(ls);
-  // result = plot2d_->removePlottable(ls);
+  xaxis->removetickertext();
+  yaxis->removetickertext();
   if (!result) return result;
   emit LineSpecial2DRemoved(this);
   return result;
@@ -949,10 +962,14 @@ bool AxisRect2D::removeChannel2D(
   axisRectLegend_->removeItem(
       axisRectLegend_->itemWithPlottable(channel.first));
   bool result = false;
+  Axis2D *xaxis = channel.first->getxaxis();
+  Axis2D *yaxis = channel.first->getyaxis();
   result = plot2d_->removeGraph(channel.second);
   if (!result) return result;
   result = plot2d_->removeGraph(channel.first);
   if (!result) return result;
+  xaxis->removetickertext();
+  yaxis->removetickertext();
   emit LineSpecialChannel2DRemoved(this);
   return result;
 }
@@ -966,9 +983,10 @@ bool AxisRect2D::removeStatBox2D(StatBox2D *statbox) {
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(statbox));
   bool result = false;
-  Axis2D *ax = statbox->getxaxis();
+  Axis2D *xaxis = statbox->getxaxis();
+  Axis2D *yaxis = statbox->getyaxis();
   QSharedPointer<QCPAxisTickerText> textTicker =
-      qSharedPointerCast<QCPAxisTickerText>(ax->getticker_axis());
+      qSharedPointerCast<QCPAxisTickerText>(xaxis->getticker_axis());
   result = plot2d_->removePlottable(statbox);
   textTicker->clear();
   for (int i = 0; i < statboxvec_.count(); i++) {
@@ -978,6 +996,8 @@ bool AxisRect2D::removeStatBox2D(StatBox2D *statbox) {
     textTicker->addTick(sbdata.key, sbdata.name);
     statboxvec_.at(i)->setboxwhiskerdata(sbdata);
   }
+  xaxis->removetickertext();
+  yaxis->removetickertext();
   emit StatBox2DRemoved(this);
   return result;
 }
@@ -991,7 +1011,11 @@ bool AxisRect2D::removeVector2D(Vector2D *vector) {
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(vector));
   bool result = false;
+  Axis2D *xaxis = vector->getxaxis();
+  Axis2D *yaxis = vector->getyaxis();
   result = plot2d_->removePlottable(vector);
+  xaxis->removetickertext();
+  yaxis->removetickertext();
   emit Vector2DRemoved(this);
   return result;
 }
@@ -1005,9 +1029,13 @@ bool AxisRect2D::removeCurve2D(Curve2D *curve) {
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(curve));
   bool result = false;
+  Axis2D *xaxis = curve->getxaxis();
+  Axis2D *yaxis = curve->getyaxis();
   curve->removeXerrorBar();
   curve->removeYerrorBar();
   result = plot2d_->removePlottable(curve);
+  xaxis->removetickertext();
+  yaxis->removetickertext();
   emit Curve2DRemoved(this);
   return result;
 }
@@ -1021,6 +1049,8 @@ bool AxisRect2D::removeBar2D(Bar2D *bar) {
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(bar));
   bool result = false;
+  Axis2D *xaxis = bar->getxaxis();
+  Axis2D *yaxis = bar->getyaxis();
   bar->removeXerrorBar();
   bar->removeYerrorBar();
   result = plot2d_->removePlottable(bar);
@@ -1030,6 +1060,8 @@ bool AxisRect2D::removeBar2D(Bar2D *bar) {
       delete bargroup;
     }
   }
+  xaxis->removetickertext();
+  yaxis->removetickertext();
   emit Bar2DRemoved(this);
   return result;
 }
@@ -1040,6 +1072,11 @@ bool AxisRect2D::removePie2D(Pie2D *pie) {
       pievec_.remove(i);
       layers_.removeOne(pie->layer());
     }
+  }
+  axisRectLegend_->clear();
+  QList<Axis2D *> axes(getAxes2D());
+  for (int i = 0; i < axes.size(); i++) {
+    axes.at(i)->setshowhide_axis(true);
   }
   bool result = false;
   result = plot2d_->removeItem(pie);
@@ -1055,8 +1092,12 @@ bool AxisRect2D::removeColorMap2D(ColorMap2D *colormap) {
     }
   }
   bool result = false;
+  Axis2D *xaxis = colormap->getxaxis();
+  Axis2D *yaxis = colormap->getyaxis();
   result = plot2d_->removePlottable(colormap);
   emit ColorMap2DRemoved(this);
+  xaxis->removetickertext();
+  yaxis->removetickertext();
   return result;
 }
 

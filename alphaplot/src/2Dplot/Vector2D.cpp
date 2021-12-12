@@ -3,6 +3,7 @@
 #include "../core/Utilities.h"
 #include "../future/core/column/Column.h"
 #include "Axis2D.h"
+#include "AxisRect2D.h"
 #include "Table.h"
 #include "core/IconLoader.h"
 #include "future/lib/XmlStreamReader.h"
@@ -177,7 +178,8 @@ void Vector2D::drawLine(double x1, double y1, double x2, double y2) {
   arrow->setTail(*start_);
   linelist_.append(arrow);
   arrow->setLayer(layer());
-  arrow->clipToAxisRect();
+  arrow->setClipAxisRect(xaxis_->getaxisrect_axis());
+  arrow->setClipToAxisRect(true);
 }
 
 Axis2D *Vector2D::getxaxis() { return xaxis_; }

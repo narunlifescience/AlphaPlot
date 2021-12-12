@@ -67,7 +67,8 @@ class AxisRect2D : public QCPAxisRect {
                       bool setupDefaultAxis = false);
   ~AxisRect2D();
 
-  StatBox2D::BoxWhiskerData generateBoxWhiskerData(Table *table, Column *colData,
+  StatBox2D::BoxWhiskerData generateBoxWhiskerData(Table *table,
+                                                   Column *colData,
                                                    const int from, const int to,
                                                    const int key);
 

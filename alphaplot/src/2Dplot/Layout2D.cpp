@@ -84,6 +84,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   addlayoutmenu_->addAction(addLayoutdownaction);
   addlayoutmenu_->addAction(addLayoutleftaction);
   addlayoutmenu_->addAction(addLayoutrightaction);
+
   connect(addLayoutleftaction, &QAction::triggered, this, [&]() {
     addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                     AlphaPlot::ColumnDataType::TypeDouble,
@@ -1254,6 +1255,19 @@ void Layout2D::updateData(Table *table, const QString &name) {
                             pie->getto_pieplot());
           modified = true;
         }
+      }
+    }
+    foreach (Axis2D *axis, axisrect->getXAxes2D()) {
+      if (axis->gettickertype_axis() == Axis2D::TickerType::Text &&
+          axis->getTickerTextColumn() == col && col != nullptr) {
+        QSharedPointer<QCPAxisTickerText> textticker =
+            qSharedPointerCast<QCPAxisTickerText>(axis->getticker_axis());
+        textticker->clear();
+        for (int i = 0, row = axis->getTickerTextColumnFrom();
+             row <= axis->getTickerTextColumnTo(); row++, i++) {
+          textticker->addTick(i, Utilities::splitstring(col->textAt(row)));
+        }
+        axis->setTicker(textticker);
       }
     }
   }

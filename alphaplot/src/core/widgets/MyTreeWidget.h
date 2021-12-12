@@ -69,6 +69,7 @@ class MyTreeWidget : public QTreeWidget {
   void removeBar2D();
   void removeVector2D();
   void removeStatBox2D();
+  void removePie2D();
   void removeErrorBar2D();
   void removeTextItem2D();
   void removeLineItem2D();
@@ -109,6 +110,7 @@ class MyTreeWidget : public QTreeWidget {
   QAction *removebar_;
   QAction *removevector_;
   QAction *removestatbox_;
+  QAction *removepie_;
   QAction *removeerrorbar_;
   QAction *removetextitem_;
   QAction *removelineitem_;

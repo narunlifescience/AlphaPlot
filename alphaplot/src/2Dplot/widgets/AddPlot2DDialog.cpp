@@ -103,14 +103,6 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
       break;
   }
   hl->addWidget(boxStyle_);
-
-  boxMatrixStyle_ = new QComboBox();
-  boxMatrixStyle_->addItem(QPixmap(":/color_map.xpm"),
-                           tr("Contour - Color Fill"));
-  boxMatrixStyle_->addItem(QPixmap(":/contour_map.xpm"), tr("Contour Lines"));
-  boxMatrixStyle_->addItem(QPixmap(":/gray_map.xpm"), tr("Gray Scale Map"));
-  boxMatrixStyle_->hide();
-  hl->addWidget(boxMatrixStyle_);
   hl->addStretch();
 
   QGridLayout *gl = new QGridLayout();
@@ -236,28 +228,14 @@ void AddPlot2DDialog::showFunctionDialog() {
 QSize AddPlot2DDialog::sizeHint() const { return QSize(700, 400); }
 
 void AddPlot2DDialog::contextMenuEvent(QContextMenuEvent *e) {
-  QPoint pos = available_->viewport()->mapFromGlobal(QCursor::pos());
-  QRect rect = available_->visualItemRect(available_->currentItem());
-  if (rect.contains(pos)) {
-    QMenu contextMenu(this);
-    QList<QListWidgetItem *> lst = available_->selectedItems();
-    if (lst.size() > 1)
-      contextMenu.addAction(tr("&Plot Selection"), this, SLOT(addPlots()));
-    else if (lst.size() == 1)
-      contextMenu.addAction(tr("&Plot"), this, SLOT(addPlots()));
-    contextMenu.exec(QCursor::pos());
-  }
-
-  pos = contents_->viewport()->mapFromGlobal(QCursor::pos());
-  rect = contents_->visualItemRect(contents_->currentItem());
+  QPoint pos = contents_->viewport()->mapFromGlobal(QCursor::pos());
+  QRect rect = contents_->visualItemRect(contents_->currentItem());
   if (rect.contains(pos)) {
     QMenu contextMenu(this);
     QList<QListWidgetItem *> lst = contents_->selectedItems();
-    if (lst.size() > 1)
-      contextMenu.addAction(tr("&Delete Selection"), this,
-                            SLOT(removeCurves()));
-    else if (lst.size() == 1)
-      contextMenu.addAction(tr("&Delete Curve"), this, SLOT(removeCurves()));
+    if (lst.size() == 1)
+      contextMenu.addAction(tr("&Delete Plot"), this,
+                            &AddPlot2DDialog::removePlots);
     contextMenu.exec(QCursor::pos());
   }
 
@@ -268,13 +246,6 @@ void AddPlot2DDialog::init() {
   populatePlotted();
   populateAvailable();
   populateAxes();
-
-  QStringList matrices = app_->matrixNames();
-  if (!matrices.isEmpty()) {
-    boxMatrixStyle_->show();
-    available_->addItems(matrices);
-  }
-
   enableAddBtn();
 }
 
@@ -431,6 +402,12 @@ void AddPlot2DDialog::populatePlotted() {
                     QString::number(funcdata.to) + "]";
         } break;
       }
+      data.fd.type = funcdata.type;
+      data.fd.functions = funcdata.functions;
+      data.fd.parameter = funcdata.parameter;
+      data.fd.points = funcdata.points;
+      data.fd.from = funcdata.from;
+      data.fd.to = funcdata.to;
       plotted_columns_ << data;
       QListWidgetItem *item =
           new QListWidgetItem(curve->getIcon(), string, contents_);
@@ -777,19 +754,155 @@ void AddPlot2DDialog::populateAvailable() {
   }
 }
 
-bool AddPlot2DDialog::axisColumTypeCompatibilityCheck() {
-  bool comp = false;
+bool AddPlot2DDialog::axisColumTypeCompatibilityCheck(Data data) {
+  Axis2D::TickerType xtkr =
+      xaxis_list_.at(boxXaxis_->currentIndex())->gettickertype_axis();
+  Axis2D::TickerType ytkr =
+      yaxis_list_.at(boxYaxis_->currentIndex())->gettickertype_axis();
+
   // check axis colum type compatibility before adding plot(fix later)
   switch (type_) {
     case Type::Table_Y:
+      switch (plotStyle()) {
+        case ApplicationWindow::Graph::Box:
+          if (xtkr == Axis2D::TickerType::Text &&
+              (ytkr == Axis2D::TickerType::Value &&
+               data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble))
+            return true;
+          else if (xtkr == Axis2D::TickerType::Text &&
+                   (ytkr == Axis2D::TickerType::Log &&
+                    data.ycol1->dataType() ==
+                        AlphaPlot::ColumnDataType::TypeDouble))
+            return true;
+          else if (xtkr == Axis2D::TickerType::Text &&
+                   (ytkr == Axis2D::TickerType::Pi &&
+                    data.ycol1->dataType() ==
+                        AlphaPlot::ColumnDataType::TypeDouble))
+            return true;
+          else
+            return false;
+          break;
+
+        case ApplicationWindow::Graph::Histogram:
+          if ((xtkr == Axis2D::TickerType::Value ||
+               xtkr == Axis2D::TickerType::Pi ||
+               xtkr == Axis2D::TickerType::Log) &&
+              (ytkr == Axis2D::TickerType::Value &&
+               data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble))
+            return true;
+          else if ((xtkr == Axis2D::TickerType::Value ||
+                    xtkr == Axis2D::TickerType::Pi ||
+                    xtkr == Axis2D::TickerType::Log) &&
+                   (ytkr == Axis2D::TickerType::Pi &&
+                    data.xcol->dataType() ==
+                        AlphaPlot::ColumnDataType::TypeDouble))
+            return true;
+          else if ((xtkr == Axis2D::TickerType::Value ||
+                    xtkr == Axis2D::TickerType::Pi ||
+                    xtkr == Axis2D::TickerType::Log) &&
+                   (ytkr == Axis2D::TickerType::Log &&
+                    data.xcol->dataType() ==
+                        AlphaPlot::ColumnDataType::TypeDouble))
+            return true;
+          else
+            return false;
+          break;
+
+        case ApplicationWindow::Graph::Pie:
+          if (data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeString &&
+              data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble)
+            return true;
+          else
+            return false;
+          break;
+
+        default:
+          return false;
+      }
       break;
     case Type::Table_X_Y:
     case Type::Table_X_Y_Y:
+      if (((xtkr == Axis2D::TickerType::Text &&
+            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeString) ||
+           (xtkr == Axis2D::TickerType::Value &&
+            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (xtkr == Axis2D::TickerType::Pi &&
+            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (xtkr == Axis2D::TickerType::Log &&
+            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (xtkr == Axis2D::TickerType::DateTime &&
+            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDateTime) ||
+           (xtkr == Axis2D::TickerType::Time &&
+            data.xcol->dataType() ==
+                AlphaPlot::ColumnDataType::TypeDateTime)) &&
+          ((ytkr == Axis2D::TickerType::Text &&
+            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeString) ||
+           (ytkr == Axis2D::TickerType::Value &&
+            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (ytkr == Axis2D::TickerType::Pi &&
+            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (ytkr == Axis2D::TickerType::Log &&
+            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (ytkr == Axis2D::TickerType::DateTime &&
+            data.ycol1->dataType() ==
+                AlphaPlot::ColumnDataType::TypeDateTime) ||
+           (ytkr == Axis2D::TickerType::Time &&
+            data.ycol1->dataType() ==
+                AlphaPlot::ColumnDataType::TypeDateTime))) {
+        if (plotStyle() == ApplicationWindow::Graph::Channel) {
+          if (data.ycol1->dataType() == data.ycol2->dataType())
+            return true;
+          else
+            return false;
+        } else {
+          return true;
+        }
+      } else
+        return false;
       break;
     case Type::Table_X_Y_Y_Y:
+      if (((xtkr == Axis2D::TickerType::Text &&
+            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeString) ||
+           (xtkr == Axis2D::TickerType::Value &&
+            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (xtkr == Axis2D::TickerType::Pi &&
+            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (xtkr == Axis2D::TickerType::Log &&
+            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (xtkr == Axis2D::TickerType::DateTime &&
+            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDateTime) ||
+           (xtkr == Axis2D::TickerType::Time &&
+            data.xcol->dataType() ==
+                AlphaPlot::ColumnDataType::TypeDateTime)) &&
+          ((ytkr == Axis2D::TickerType::Text &&
+            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeString) ||
+           (ytkr == Axis2D::TickerType::Value &&
+            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (ytkr == Axis2D::TickerType::Pi &&
+            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (ytkr == Axis2D::TickerType::Log &&
+            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
+           (ytkr == Axis2D::TickerType::DateTime &&
+            data.ycol1->dataType() ==
+                AlphaPlot::ColumnDataType::TypeDateTime) ||
+           (ytkr == Axis2D::TickerType::Time &&
+            data.ycol1->dataType() ==
+                AlphaPlot::ColumnDataType::TypeDateTime))) {
+        if (plotStyle() == ApplicationWindow::Graph::VectXYAM ||
+            plotStyle() == ApplicationWindow::Graph::VectXYXY) {
+          if (data.ycol1->dataType() == data.ycol2->dataType() &&
+              data.ycol2->dataType() == data.ycol3->dataType())
+            return true;
+          else
+            return false;
+        } else {
+          return true;
+        }
+      } else
+        return false;
       break;
   }
-  return comp;
+  return false;
 }
 
 void AddPlot2DDialog::addPlots() {
@@ -813,6 +926,14 @@ void AddPlot2DDialog::addPlots() {
       QMessageBox::warning(
           this, tr("Error"),
           tr("From To row range error in table: ") + data.table->name() + "!");
+      return;
+    }
+
+    if (!axisColumTypeCompatibilityCheck(data)) {
+      QMessageBox::warning(
+          this, tr("Error"),
+          tr("Plot cannot be added due to column type -> axis type mismatch!") +
+              data.table->name() + "!");
       return;
     }
 
@@ -989,6 +1110,137 @@ void AddPlot2DDialog::addPlots() {
   populatePlotted();
   populateAvailable();
   enableAddBtn();
+}
+
+void AddPlot2DDialog::removePlots() {
+  QList<QListWidgetItem *> lst = contents_->selectedItems();
+  if (lst.size() != 1) return;
+  int row = contents_->currentRow();
+  Data data = plotted_columns_.at(row);
+
+  QVector<StatBox2D *> boxlist = axisrect_->getStatBoxVec();
+  QVector<Pie2D *> pielist = axisrect_->getPieVec();
+  QVector<LineSpecial2D *> lslist = axisrect_->getLsVec();
+  QVector<Curve2D *> curvelist = axisrect_->getCurveVec();
+  QVector<Bar2D *> barlist = axisrect_->getBarVec();
+  QVector<QPair<LineSpecial2D *, LineSpecial2D *>> channellist =
+      axisrect_->getChannelVec();
+  QVector<Vector2D *> veclist = axisrect_->getVectorVec();
+
+  switch (data.type) {
+    case Type::Table_Y:
+      foreach (StatBox2D *sbox, boxlist) {
+        if (sbox->getboxwhiskerdata_statbox().table_ == data.table &&
+            data.xcol == nullptr &&
+            sbox->getboxwhiskerdata_statbox().column_ == data.ycol1 &&
+            data.ycol2 == nullptr && data.ycol3 == nullptr) {
+          axisrect_->removeStatBox2D(sbox);
+          populatePlotted();
+          populateAvailable();
+          return;
+        }
+      }
+      foreach (Bar2D *bar, barlist) {
+        if (bar->ishistogram_barplot())
+          if (bar->getdatablock_histplot()->gettable() == data.table &&
+              bar->getdatablock_histplot()->getcolumn() == data.xcol &&
+              data.ycol1 == nullptr && data.ycol2 == nullptr &&
+              data.ycol3 == nullptr) {
+            axisrect_->removeBar2D(bar);
+            populatePlotted();
+            populateAvailable();
+            return;
+          }
+      }
+      foreach (Pie2D *pie, pielist) {
+        if (pie->gettable_pieplot() == data.table &&
+            pie->getxcolumn_pieplot() == data.xcol &&
+            pie->getycolumn_pieplot() == data.ycol1 && data.ycol2 == nullptr &&
+            data.ycol3 == nullptr) {
+          axisrect_->removePie2D(pie);
+          populatePlotted();
+          populateAvailable();
+          return;
+        }
+      }
+      break;
+    case Type::Table_X_Y:
+    case Type::Table_X_Y_Y:
+      foreach (LineSpecial2D *ls, lslist) {
+        if (ls->getdatablock_lsplot()->gettable() == data.table &&
+            ls->getdatablock_lsplot()->getxcolumn() == data.xcol &&
+            ls->getdatablock_lsplot()->getycolumn() == data.ycol1 &&
+            data.ycol2 == nullptr && data.ycol3 == nullptr) {
+          axisrect_->removeLineSpecial2D(ls);
+          populatePlotted();
+          populateAvailable();
+          return;
+        }
+      }
+      foreach (Curve2D *curve, curvelist) {
+        if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
+          if (curve->getdatablock_cplot()->gettable() == data.table &&
+              curve->getdatablock_cplot()->getxcolumn() == data.xcol &&
+              curve->getdatablock_cplot()->getycolumn() == data.ycol1 &&
+              data.ycol2 == nullptr && data.ycol3 == nullptr) {
+            axisrect_->removeCurve2D(curve);
+            populatePlotted();
+            populateAvailable();
+            return;
+          }
+        } else {
+          PlotData::FunctionData fd = curve->getfuncdata_cplot();
+          if (fd.type == data.fd.type && fd.functions == data.fd.functions &&
+              fd.parameter == data.fd.parameter &&
+              fd.points == data.fd.points && fd.from == data.fd.from &&
+              fd.to == data.fd.to) {
+            axisrect_->removeCurve2D(curve);
+            populatePlotted();
+            return;
+          }
+        }
+      }
+      foreach (Bar2D *bar, barlist) {
+        if (!bar->ishistogram_barplot())
+          if (bar->getdatablock_barplot()->gettable() == data.table &&
+              bar->getdatablock_barplot()->getxcolumn() == data.xcol &&
+              bar->getdatablock_barplot()->getycolumn() == data.ycol1 &&
+              data.ycol2 == nullptr && data.ycol3 == nullptr) {
+            axisrect_->removeBar2D(bar);
+            populatePlotted();
+            populateAvailable();
+            return;
+          }
+      }
+      for (int i = 0; i < channellist.size(); i++) {
+        QPair<LineSpecial2D *, LineSpecial2D *> pair = channellist.at(i);
+        if (pair.first->getdatablock_lsplot()->gettable() == data.table &&
+            pair.first->getdatablock_lsplot()->getxcolumn() == data.xcol &&
+            pair.first->getdatablock_lsplot()->getycolumn() == data.ycol1 &&
+            pair.second->getdatablock_lsplot()->getycolumn() == data.ycol2 &&
+            data.ycol3 == nullptr) {
+          axisrect_->removeChannel2D(pair);
+          populatePlotted();
+          populateAvailable();
+          return;
+        }
+      }
+      break;
+    case Type::Table_X_Y_Y_Y:
+      foreach (Vector2D *vec, veclist) {
+        if (vec->gettable_vecplot() == data.table &&
+            vec->getfirstcol_vecplot() == data.xcol &&
+            vec->getsecondcol_vecplot() == data.ycol1 &&
+            vec->getthirdcol_vecplot() == data.ycol2 &&
+            vec->getfourthcol_vecplot() == data.ycol3) {
+          axisrect_->removeVector2D(vec);
+          populatePlotted();
+          populateAvailable();
+          return;
+        }
+      }
+      break;
+  }
 }
 
 void AddPlot2DDialog::enableAddBtn() {

@@ -29,20 +29,12 @@ class AddPlot2DDialog : public QDialog {
  private slots:
   ApplicationWindow::Graph plotStyle();
   void addPlots();
+  void removePlots();
   void showPlotAssociations();
   void showFunctionDialog();
   void enableAddBtn();
 
  private:
-  void closeEvent(QCloseEvent* event);
-  void init();
-  void populateAxes();
-  void populatePlotted();
-  void populateAvailable();
-  bool axisColumTypeCompatibilityCheck();
-  QSize sizeHint() const;
-  void contextMenuEvent(QContextMenuEvent*);
-
   struct Data {
     Type type;
     Table* table;
@@ -50,6 +42,7 @@ class AddPlot2DDialog : public QDialog {
     Column* ycol1;
     Column* ycol2;
     Column* ycol3;
+    PlotData::FunctionData fd;
     Data()
         : type(Type::Table_Y),
           table(nullptr),
@@ -58,6 +51,15 @@ class AddPlot2DDialog : public QDialog {
           ycol2(nullptr),
           ycol3(nullptr) {}
   };
+  void closeEvent(QCloseEvent* event);
+  void init();
+  void populateAxes();
+  void populatePlotted();
+  void populateAvailable();
+  bool axisColumTypeCompatibilityCheck(Data data);
+  QSize sizeHint() const;
+  void contextMenuEvent(QContextMenuEvent*);
+
   ApplicationWindow* app_;
   AxisRect2D* axisrect_;
   Type type_;
@@ -80,7 +82,6 @@ class AddPlot2DDialog : public QDialog {
   QLabel *yaxisLabel_;
   QComboBox* boxXaxis_;
   QComboBox* boxYaxis_;
-  QComboBox* boxMatrixStyle_;
   QGroupBox* groupBox_;
   QLabel* rowFromLabel_;
   QLabel* rowToLabel_;

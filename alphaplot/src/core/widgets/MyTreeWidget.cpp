@@ -55,6 +55,7 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       removebar_(new QAction("Remove", this)),
       removevector_(new QAction("Remove", this)),
       removestatbox_(new QAction("Remove", this)),
+      removepie_(new QAction("Remove", this)),
       removeerrorbar_(new QAction("Remove", this)),
       removetextitem_(new QAction("Remove", this)),
       removelineitem_(new QAction("Remove", this)),
@@ -100,6 +101,8 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   removevector_->setIcon(
       IconLoader::load("clear-loginfo", IconLoader::General));
   removestatbox_->setIcon(
+      IconLoader::load("clear-loginfo", IconLoader::General));
+  removepie_->setIcon(
       IconLoader::load("clear-loginfo", IconLoader::General));
   removeerrorbar_->setIcon(
       IconLoader::load("clear-loginfo", IconLoader::General));
@@ -175,6 +178,7 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
   connect(removevector_, SIGNAL(triggered(bool)), this, SLOT(removeVector2D()));
   connect(removestatbox_, SIGNAL(triggered(bool)), this,
           SLOT(removeStatBox2D()));
+  connect(removepie_, &QAction::triggered, this, &MyTreeWidget::removePie2D);
   connect(removeerrorbar_, SIGNAL(triggered(bool)), this,
           SLOT(removeErrorBar2D()));
   connect(removetextitem_, SIGNAL(triggered(bool)), this,
@@ -492,6 +496,8 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       menu.addAction(selectdatacolumnspiegraph2d_);
       menu.addAction(moveuppie_);
       menu.addAction(movedownpie_);
+      menu.addAction(removepie_);
+      removepie_->setData(item->data(0, Qt::UserRole + 1));
       moveuppie_->setData(item->data(0, Qt::UserRole + 1));
       movedownpie_->setData(item->data(0, Qt::UserRole + 1));
       selectdatacolumnspiegraph2d_->setData(item->data(0, Qt::UserRole + 1));
@@ -561,7 +567,7 @@ void MyTreeWidget::removeAxis2D() {
   AxisRect2D *axisrect = axis->getaxisrect_axis();
   bool result = axisrect->removeAxis2D(axis);
   if (!result) {
-    qDebug() << "unable to remove line special 2d plot";
+    qDebug() << "unable to remove axis 2d plot";
     return;
   }
 }
@@ -603,7 +609,7 @@ void MyTreeWidget::removeCurve2D() {
   Curve2D *curve = static_cast<Curve2D *>(ptr);
   bool result = curve->getxaxis()->getaxisrect_axis()->removeCurve2D(curve);
   if (!result) {
-    qDebug() << "unable to remove line scatter 2d plot";
+    qDebug() << "unable to remove curve 2d plot";
     return;
   }
 }
@@ -615,7 +621,7 @@ void MyTreeWidget::removeBar2D() {
   Bar2D *bar = static_cast<Bar2D *>(ptr);
   bool result = bar->getxaxis()->getaxisrect_axis()->removeBar2D(bar);
   if (!result) {
-    qDebug() << "unable to remove line scatter 2d plot";
+    qDebug() << "unable to remove bar 2d plot";
     return;
   }
 }
@@ -627,7 +633,7 @@ void MyTreeWidget::removeVector2D() {
   Vector2D *vector = static_cast<Vector2D *>(ptr);
   bool result = vector->getxaxis()->getaxisrect_axis()->removeVector2D(vector);
   if (!result) {
-    qDebug() << "unable to remove line scatter 2d plot";
+    qDebug() << "unable to remove vector 2d plot";
     return;
   }
 }
@@ -640,9 +646,23 @@ void MyTreeWidget::removeStatBox2D() {
   bool result =
       statbox->getxaxis()->getaxisrect_axis()->removeStatBox2D(statbox);
   if (!result) {
-    qDebug() << "unable to remove line scatter 2d plot";
+    qDebug() << "unable to remove statbox 2d plot";
     return;
-  }
+    }
+}
+
+void MyTreeWidget::removePie2D()
+{
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action) return;
+  void *ptr = action->data().value<void *>();
+  Pie2D *pie = static_cast<Pie2D *>(ptr);
+  bool result =
+      pie->getaxisrect()->removePie2D(pie);
+  if (!result) {
+    qDebug() << "unable to remove pie 2d plot";
+    return;
+    }
 }
 
 void MyTreeWidget::removeErrorBar2D() {
@@ -675,7 +695,7 @@ void MyTreeWidget::removeTextItem2D() {
   TextItem2D *textitem = static_cast<TextItem2D *>(ptr);
   bool result = textitem->getaxisrect()->removeTextItem2D(textitem);
   if (!result) {
-    qDebug() << "unable to remove line special 2d plot";
+    qDebug() << "unable to remove text item 2d plot";
     return;
   }
 }
@@ -687,7 +707,7 @@ void MyTreeWidget::removeLineItem2D() {
   LineItem2D *lineitem = static_cast<LineItem2D *>(ptr);
   bool result = lineitem->getaxisrect()->removeLineItem2D(lineitem);
   if (!result) {
-    qDebug() << "unable to remove line special 2d plot";
+    qDebug() << "unable to remove line item 2d plot";
     return;
   }
 }
@@ -699,7 +719,7 @@ void MyTreeWidget::removeImageItem2D() {
   ImageItem2D *imageitem = static_cast<ImageItem2D *>(ptr);
   bool result = imageitem->getaxisrect()->removeImageItem2D(imageitem);
   if (!result) {
-    qDebug() << "unable to remove line special 2d plot";
+    qDebug() << "unable to remove image item 2d plot";
     return;
   }
 }

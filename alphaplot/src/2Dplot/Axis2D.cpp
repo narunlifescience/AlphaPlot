@@ -32,7 +32,8 @@ Axis2D::Axis2D(AxisRect2D *parent, const AxisType type,
       tickertype_(tickertype),
       ticker_(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker)),
       layername_(axisrect_->getParentPlot2D()->getAxis2DLayerName()),
-      tickertext_(new QVector<QString>()) {
+      tickertext_(new QVector<QString>()),
+      tickertextcol_(nullptr) {
   setLayer(layername_);
   switch (tickertype) {
     case Axis2D::TickerType::Value:
@@ -437,12 +438,31 @@ void Axis2D::setticklabelprecision_axis(const int value) {
 }
 
 void Axis2D::settickertext(Column *col, const int from, const int to) {
-  QSharedPointer<QCPAxisTickerText> textticker =
-      qSharedPointerCast<QCPAxisTickerText>(ticker_);
-  for (int i = 0, row = from; row <= to; row++, i++) {
-    textticker->addTick(i, Utilities::splitstring(col->textAt(row)));
-    tickertext_->append(col->textAt(row));
+  if (tickertype_ == Axis2D::TickerType::Text &&
+      col->dataType() == AlphaPlot::ColumnDataType::TypeString &&
+      tickertextcol_ == nullptr) {
+    QSharedPointer<QCPAxisTickerText> textticker =
+        qSharedPointerCast<QCPAxisTickerText>(ticker_);
+    textticker->clear();
+    for (int i = 0, row = from; row <= to; row++, i++) {
+      textticker->addTick(i, Utilities::splitstring(col->textAt(row)));
+    }
+    setTicker(textticker);
+    tickertextcol_ = col;
+    tickertextcolfrom_ = from;
+    tickertextcolto_ = to;
   }
+}
+
+void Axis2D::removetickertext() {
+  if (tickertype_ == Axis2D::TickerType::Text)
+    if (!plottables().count()) {
+      QSharedPointer<QCPAxisTickerText> textticker =
+          qSharedPointerCast<QCPAxisTickerText>(ticker_);
+      textticker->clear();
+      setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTickerText));
+      tickertextcol_ = nullptr;
+    }
 }
 
 void Axis2D::save(XmlStreamWriter *xmlwriter) {

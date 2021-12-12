@@ -104,6 +104,9 @@ class Axis2D : public QCPAxis {
   QString getname_axis() const;
   uint getnumber_axis() const;
   QSharedPointer<QCPAxisTicker> getticker_axis();
+  Column *getTickerTextColumn() const { return tickertextcol_; }
+  int getTickerTextColumnFrom() const { return tickertextcolfrom_; }
+  int getTickerTextColumnTo() const { return tickertextcolto_; }
 
   // setters
   // Axis properties
@@ -148,6 +151,7 @@ class Axis2D : public QCPAxis {
   void setticklabelformat_axis(const AxisLabelFormat &axisformat);
   void setticklabelprecision_axis(const int value);
   void settickertext(Column *col, const int from, const int to);
+  void removetickertext();
 
   void save(XmlStreamWriter *xmlwriter);
   bool load(XmlStreamReader *xmlreader);
@@ -159,6 +163,9 @@ class Axis2D : public QCPAxis {
   QSharedPointer<QCPAxisTicker> ticker_;
   QString layername_;
   std::unique_ptr<QVector<QString>> tickertext_;
+  Column *tickertextcol_;
+  int tickertextcolfrom_;
+  int tickertextcolto_;
 };
 
 #endif  // AXIS2D_H
