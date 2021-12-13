@@ -846,6 +846,19 @@ bool StatBox2D::load(XmlStreamReader *xmlreader) {
   return !xmlreader->hasError();
 }
 
+void StatBox2D::rescaleaxes_statbox() {
+  xAxis_->rescale();
+  yAxis_->rescale();
+  QCPRange keyRange = xAxis_->range();
+  QCPRange valueRange = yAxis_->range();
+  double keyRangeSpan = keyRange.upper - keyRange.lower;
+  double valueRangeSpan = valueRange.upper - valueRange.lower;
+  xAxis_->setRange(QCPRange(keyRange.lower - keyRangeSpan * 0.2,
+                            keyRange.upper + keyRangeSpan * 0.2));
+  yAxis_->setRange(QCPRange(valueRange.lower - valueRangeSpan * 0.2,
+                            valueRange.upper + valueRangeSpan * 0.2));
+}
+
 void StatBox2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
   if (event->button() == Qt::LeftButton) {
     switch (xAxis_->getaxisrect_axis()->getPickerTool()->getPicker()) {

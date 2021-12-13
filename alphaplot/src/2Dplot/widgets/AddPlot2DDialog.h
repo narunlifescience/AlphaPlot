@@ -56,7 +56,6 @@ class AddPlot2DDialog : public QDialog {
   void populateAxes();
   void populatePlotted();
   void populateAvailable();
-  bool axisColumTypeCompatibilityCheck(Data data);
   QSize sizeHint() const;
   void contextMenuEvent(QContextMenuEvent*);
 

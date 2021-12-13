@@ -754,157 +754,6 @@ void AddPlot2DDialog::populateAvailable() {
   }
 }
 
-bool AddPlot2DDialog::axisColumTypeCompatibilityCheck(Data data) {
-  Axis2D::TickerType xtkr =
-      xaxis_list_.at(boxXaxis_->currentIndex())->gettickertype_axis();
-  Axis2D::TickerType ytkr =
-      yaxis_list_.at(boxYaxis_->currentIndex())->gettickertype_axis();
-
-  // check axis colum type compatibility before adding plot(fix later)
-  switch (type_) {
-    case Type::Table_Y:
-      switch (plotStyle()) {
-        case ApplicationWindow::Graph::Box:
-          if (xtkr == Axis2D::TickerType::Text &&
-              (ytkr == Axis2D::TickerType::Value &&
-               data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble))
-            return true;
-          else if (xtkr == Axis2D::TickerType::Text &&
-                   (ytkr == Axis2D::TickerType::Log &&
-                    data.ycol1->dataType() ==
-                        AlphaPlot::ColumnDataType::TypeDouble))
-            return true;
-          else if (xtkr == Axis2D::TickerType::Text &&
-                   (ytkr == Axis2D::TickerType::Pi &&
-                    data.ycol1->dataType() ==
-                        AlphaPlot::ColumnDataType::TypeDouble))
-            return true;
-          else
-            return false;
-          break;
-
-        case ApplicationWindow::Graph::Histogram:
-          if ((xtkr == Axis2D::TickerType::Value ||
-               xtkr == Axis2D::TickerType::Pi ||
-               xtkr == Axis2D::TickerType::Log) &&
-              (ytkr == Axis2D::TickerType::Value &&
-               data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble))
-            return true;
-          else if ((xtkr == Axis2D::TickerType::Value ||
-                    xtkr == Axis2D::TickerType::Pi ||
-                    xtkr == Axis2D::TickerType::Log) &&
-                   (ytkr == Axis2D::TickerType::Pi &&
-                    data.xcol->dataType() ==
-                        AlphaPlot::ColumnDataType::TypeDouble))
-            return true;
-          else if ((xtkr == Axis2D::TickerType::Value ||
-                    xtkr == Axis2D::TickerType::Pi ||
-                    xtkr == Axis2D::TickerType::Log) &&
-                   (ytkr == Axis2D::TickerType::Log &&
-                    data.xcol->dataType() ==
-                        AlphaPlot::ColumnDataType::TypeDouble))
-            return true;
-          else
-            return false;
-          break;
-
-        case ApplicationWindow::Graph::Pie:
-          if (data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeString &&
-              data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble)
-            return true;
-          else
-            return false;
-          break;
-
-        default:
-          return false;
-      }
-      break;
-    case Type::Table_X_Y:
-    case Type::Table_X_Y_Y:
-      if (((xtkr == Axis2D::TickerType::Text &&
-            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeString) ||
-           (xtkr == Axis2D::TickerType::Value &&
-            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (xtkr == Axis2D::TickerType::Pi &&
-            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (xtkr == Axis2D::TickerType::Log &&
-            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (xtkr == Axis2D::TickerType::DateTime &&
-            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDateTime) ||
-           (xtkr == Axis2D::TickerType::Time &&
-            data.xcol->dataType() ==
-                AlphaPlot::ColumnDataType::TypeDateTime)) &&
-          ((ytkr == Axis2D::TickerType::Text &&
-            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeString) ||
-           (ytkr == Axis2D::TickerType::Value &&
-            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (ytkr == Axis2D::TickerType::Pi &&
-            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (ytkr == Axis2D::TickerType::Log &&
-            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (ytkr == Axis2D::TickerType::DateTime &&
-            data.ycol1->dataType() ==
-                AlphaPlot::ColumnDataType::TypeDateTime) ||
-           (ytkr == Axis2D::TickerType::Time &&
-            data.ycol1->dataType() ==
-                AlphaPlot::ColumnDataType::TypeDateTime))) {
-        if (plotStyle() == ApplicationWindow::Graph::Channel) {
-          if (data.ycol1->dataType() == data.ycol2->dataType())
-            return true;
-          else
-            return false;
-        } else {
-          return true;
-        }
-      } else
-        return false;
-      break;
-    case Type::Table_X_Y_Y_Y:
-      if (((xtkr == Axis2D::TickerType::Text &&
-            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeString) ||
-           (xtkr == Axis2D::TickerType::Value &&
-            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (xtkr == Axis2D::TickerType::Pi &&
-            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (xtkr == Axis2D::TickerType::Log &&
-            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (xtkr == Axis2D::TickerType::DateTime &&
-            data.xcol->dataType() == AlphaPlot::ColumnDataType::TypeDateTime) ||
-           (xtkr == Axis2D::TickerType::Time &&
-            data.xcol->dataType() ==
-                AlphaPlot::ColumnDataType::TypeDateTime)) &&
-          ((ytkr == Axis2D::TickerType::Text &&
-            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeString) ||
-           (ytkr == Axis2D::TickerType::Value &&
-            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (ytkr == Axis2D::TickerType::Pi &&
-            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (ytkr == Axis2D::TickerType::Log &&
-            data.ycol1->dataType() == AlphaPlot::ColumnDataType::TypeDouble) ||
-           (ytkr == Axis2D::TickerType::DateTime &&
-            data.ycol1->dataType() ==
-                AlphaPlot::ColumnDataType::TypeDateTime) ||
-           (ytkr == Axis2D::TickerType::Time &&
-            data.ycol1->dataType() ==
-                AlphaPlot::ColumnDataType::TypeDateTime))) {
-        if (plotStyle() == ApplicationWindow::Graph::VectXYAM ||
-            plotStyle() == ApplicationWindow::Graph::VectXYXY) {
-          if (data.ycol1->dataType() == data.ycol2->dataType() &&
-              data.ycol2->dataType() == data.ycol3->dataType())
-            return true;
-          else
-            return false;
-        } else {
-          return true;
-        }
-      } else
-        return false;
-      break;
-  }
-  return false;
-}
-
 void AddPlot2DDialog::addPlots() {
   Data data;
   QList<QListWidgetItem *> lst = available_->selectedItems();
@@ -929,35 +778,15 @@ void AddPlot2DDialog::addPlots() {
       return;
     }
 
-    if (!axisColumTypeCompatibilityCheck(data)) {
-      QMessageBox::warning(
-          this, tr("Error"),
-          tr("Plot cannot be added due to column type -> axis type mismatch!") +
-              data.table->name() + "!");
-      return;
-    }
-
     switch (type_) {
       case Type::Table_Y:
         switch (plotStyle()) {
           case ApplicationWindow::Graph::Box: {
-            Axis2D *ax = xaxis_list_.at(boxXaxis_->currentIndex());
-            QSharedPointer<QCPAxisTickerText> textTicker =
-                qSharedPointerCast<QCPAxisTickerText>(ax->getticker_axis());
-            double datakey = 1;
-            foreach (StatBox2D *box, axisrect_->getStatBoxVec()) {
-              if (box->getboxwhiskerdata_statbox().key > datakey)
-                datakey = box->getboxwhiskerdata_statbox().key;
-            }
-            StatBox2D::BoxWhiskerData sboxdata;
-            sboxdata = axisrect_->generateBoxWhiskerData(
-                data.table, data.ycol1, rowFromBox_->value() - 1,
-                rowToBox_->value() - 1, datakey + 1);
             axisrect_->addStatBox2DPlot(
-                sboxdata, xaxis_list_.at(boxXaxis_->currentIndex()),
+                data.table, data.ycol1, rowFromBox_->value() - 1,
+                rowToBox_->value() - 1,
+                xaxis_list_.at(boxXaxis_->currentIndex()),
                 yaxis_list_.at(boxYaxis_->currentIndex()));
-            textTicker->addTick(sboxdata.key, sboxdata.name);
-            ax->setTicker(textTicker);
           } break;
           case ApplicationWindow::Graph::Histogram:
             axisrect_->addHistogram2DPlot(

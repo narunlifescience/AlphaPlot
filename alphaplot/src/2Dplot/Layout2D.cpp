@@ -287,31 +287,12 @@ QList<StatBox2D *> Layout2D::generateStatBox2DPlot(Table *table,
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
 
   QList<StatBox2D *> statboxs;
-  QList<StatBox2D::BoxWhiskerData> statBoxData;
   foreach (Column *col, ycollist) {
-    statBoxData << element->generateBoxWhiskerData(table, col, from, to, key);
+    statboxs << element->addStatBox2DPlot(table, col, from, to, xAxis.at(0),
+                                          yAxis.at(0));
   }
 
-  QSharedPointer<QCPAxisTickerText> textTicker =
-      qSharedPointerCast<QCPAxisTickerText>(xAxis.at(0)->getticker_axis());
-  for (int i = 0; i < statBoxData.size(); i++) {
-    StatBox2D::BoxWhiskerData data = statBoxData.at(i);
-    data.key = i + 1;
-    statboxs << element->addStatBox2DPlot(data, xAxis.at(0), yAxis.at(0));
-    textTicker->addTick(data.key, data.name);
-  }
-  xAxis.at(0)->setTicker(textTicker);
-
-  xAxis.at(0)->rescale();
-  yAxis.at(0)->rescale();
-  QCPRange keyRange = xAxis.at(0)->range();
-  QCPRange valueRange = yAxis.at(0)->range();
-  double keyRangeSpan = keyRange.upper - keyRange.lower;
-  double valueRangeSpan = valueRange.upper - valueRange.lower;
-  xAxis.at(0)->setRange(QCPRange(keyRange.lower - keyRangeSpan * 0.2,
-                                 keyRange.upper + keyRangeSpan * 0.2));
-  yAxis.at(0)->setRange(QCPRange(valueRange.lower - valueRangeSpan * 0.2,
-                                 valueRange.upper + valueRangeSpan * 0.2));
+  if (!statboxs.isEmpty()) statboxs.at(0)->rescaleaxes_statbox();
   return statboxs;
 }
 

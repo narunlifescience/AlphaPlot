@@ -266,10 +266,54 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis, bool force) {
   }
 
   if (!status) {
-    QMessageBox::warning(nullptr, tr("Axis associated with grid"),
-                         tr("This axis is associated with axis grid! please "
-                            "change the associated grid to anothor axis"));
-    return false;
+    if (getXAxes2D().contains(axis) && getXAxes2D().count() > 1) {
+      QList<Axis2D *> xaxes = getXAxes2D();
+      xaxes.removeOne(axis);
+      QMessageBox::StandardButton reply;
+      reply = QMessageBox::question(
+          nullptr, tr("Grid associated with X axis!"),
+          tr("This X axis \"%1 :%2\" is associated with "
+             "horizontal grid. Do you want "
+             "to remove the axis \"%1 :%2\" anyway and "
+             "change the grid to another axis "
+             "\"%3 :%4\"?")
+              .arg(axis->getname_axis())
+              .arg(QString::number(axis->getnumber_axis()))
+              .arg(xaxes.at(0)->getname_axis())
+              .arg(QString::number(xaxes.at(0)->getnumber_axis())),
+          QMessageBox::Yes | QMessageBox::No);
+      if (reply == QMessageBox::Yes) {
+        bindGridTo(xaxes.at(0));
+      } else
+        return false;
+    } else if (getYAxes2D().contains(axis) && getYAxes2D().count() > 1) {
+      QList<Axis2D *> yaxes = getYAxes2D();
+      yaxes.removeOne(axis);
+      QMessageBox::StandardButton reply;
+      reply = QMessageBox::question(
+          nullptr, tr("Grid associated with Y axis!"),
+          tr("This Y axis \"%1 :%2\" is associated with vertical grid. Do you "
+             "want to remove the axis \"%1 :%2\" anyway and change the grid to "
+             "another axis \"%2 :\"?")
+              .arg(axis->getname_axis())
+              .arg(QString::number(axis->getnumber_axis()))
+              .arg(yaxes.at(0)->getname_axis())
+              .arg(QString::number(yaxes.at(0)->getnumber_axis())),
+          QMessageBox::Yes | QMessageBox::No);
+      if (reply == QMessageBox::Yes) {
+        bindGridTo(yaxes.at(0));
+      } else
+        return false;
+      bindGridTo(yaxes.at(0));
+    } else {
+      QMessageBox::critical(
+          nullptr, tr("Axis associated with grid!"),
+          tr("This axis \"%1 :%2\" is associated with axis grid. Please "
+             "change the associated grid to anothor axis!")
+              .arg(axis->getname_axis(),
+                   QString::number(axis->getnumber_axis())));
+      return false;
+    }
   }
 
   status = removeAxis(static_cast<QCPAxis *>(axis));
@@ -443,6 +487,8 @@ LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
     Column *yData, int from, const int to, Axis2D *xAxis, Axis2D *yAxis) {
   xAxis->settickertext(xData, from, to);
   yAxis->settickertext(yData, from, to);
+  if (!axisColumTypeCompatibilityCheck(xAxis, xData, from, to)) return nullptr;
+  if (!axisColumTypeCompatibilityCheck(yAxis, yData, from, to)) return nullptr;
   LineSpecial2D *lineSpecial =
       new LineSpecial2D(table, xData, yData, from, to, xAxis, yAxis);
   lineSpecial->setlinefillcolor_lsplot(
@@ -504,6 +550,12 @@ QPair<LineSpecial2D *, LineSpecial2D *> AxisRect2D::addLineSpecialChannel2DPlot(
     const int to, Axis2D *xAxis, Axis2D *yAxis) {
   xAxis->settickertext(xData, from, to);
   yAxis->settickertext(yData1, from, to);
+  if (!axisColumTypeCompatibilityCheck(xAxis, xData, from, to))
+    return QPair<LineSpecial2D *, LineSpecial2D *>(nullptr, nullptr);
+  if (!axisColumTypeCompatibilityCheck(yAxis, yData1, from, to))
+    return QPair<LineSpecial2D *, LineSpecial2D *>(nullptr, nullptr);
+  if (!axisColumTypeCompatibilityCheck(yAxis, yData2, from, to))
+    return QPair<LineSpecial2D *, LineSpecial2D *>(nullptr, nullptr);
   LineSpecial2D *lineSpecial1 =
       new LineSpecial2D(table, xData, yData1, from, to, xAxis, yAxis);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light);
@@ -547,6 +599,8 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
   Curve2D *curve = nullptr;
   xAxis->settickertext(xcol, from, to);
   yAxis->settickertext(ycol, from, to);
+  if (!axisColumTypeCompatibilityCheck(xAxis, xcol, from, to)) return nullptr;
+  if (!axisColumTypeCompatibilityCheck(yAxis, ycol, from, to)) return nullptr;
   switch (type) {
     case LineScatterType::Line2D:
     case LineScatterType::Scatter2D:
@@ -602,6 +656,18 @@ Curve2D *AxisRect2D::addFunction2DPlot(const PlotData::FunctionData funcdata,
                                        QVector<double> *xdata,
                                        QVector<double> *ydata, Axis2D *xAxis,
                                        Axis2D *yAxis, const QString &name) {
+  if (xAxis->gettickertype_axis() == Axis2D::TickerType::DateTime ||
+      xAxis->gettickertype_axis() == Axis2D::TickerType::Time ||
+      xAxis->gettickertype_axis() == Axis2D::TickerType::Text ||
+      yAxis->gettickertype_axis() == Axis2D::TickerType::DateTime ||
+      yAxis->gettickertype_axis() == Axis2D::TickerType::Time ||
+      yAxis->gettickertype_axis() == Axis2D::TickerType::Text) {
+    QMessageBox::warning(
+        nullptr, tr("Axis type not allowed!"),
+        tr("selected axes %1 and %2 must be Value, Log or Pi!")
+            .arg(xAxis->getname_axis(), yAxis->getname_axis()));
+    return nullptr;
+  }
   Curve2D *curve = new Curve2D(funcdata, xdata, ydata, xAxis, yAxis);
   curve->setlinetype_cplot(1);
   curve->setscattershape_cplot(Graph2DCommon::ScatterStyle::None);
@@ -625,6 +691,8 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
                                 int stackposition) {
   xAxis->settickertext(xData, from, to);
   yAxis->settickertext(yData, from, to);
+  if (!axisColumTypeCompatibilityCheck(xAxis, xData, from, to)) return nullptr;
+  if (!axisColumTypeCompatibilityCheck(yAxis, yData, from, to)) return nullptr;
   Bar2D *bar;
   switch (type) {
     case AxisRect2D::BarType::HorizontalBars:
@@ -660,6 +728,10 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
                                     Axis2D *yAxis) {
   xAxis->settickertext(x1Data, from, to);
   yAxis->settickertext(y1Data, from, to);
+  if (!axisColumTypeCompatibilityCheck(xAxis, x1Data, from, to)) return nullptr;
+  if (!axisColumTypeCompatibilityCheck(yAxis, y1Data, from, to)) return nullptr;
+  if (!axisColumTypeCompatibilityCheck(yAxis, x2Data, from, to)) return nullptr;
+  if (!axisColumTypeCompatibilityCheck(yAxis, y2Data, from, to)) return nullptr;
   Vector2D *vec = new Vector2D(vectorplot, table, x1Data, y1Data, x2Data,
                                y2Data, from, to, xAxis, yAxis);
   VectorLegendItem2D *legendItem = new VectorLegendItem2D(axisRectLegend_, vec);
@@ -675,16 +747,60 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
   return vec;
 }
 
-StatBox2D *AxisRect2D::addStatBox2DPlot(const StatBox2D::BoxWhiskerData data,
+StatBox2D *AxisRect2D::addStatBox2DPlot(Table *table, Column *ycol,
+                                        const int from, const int to,
                                         Axis2D *xAxis, Axis2D *yAxis) {
-  StatBox2D *statbox = new StatBox2D(data, xAxis, yAxis);
+  if (ycol->dataType() != AlphaPlot::ColumnDataType::TypeDouble) {
+    QMessageBox::warning(nullptr, tr("Column datatype not allowed!"),
+                         tr("selected columns %1 must be of datatype Numeric!")
+                             .arg(ycol->name()));
+    return nullptr;
+  }
+  if (xAxis->gettickertype_axis() != Axis2D::TickerType::Text ||
+      yAxis->gettickertype_axis() == Axis2D::TickerType::DateTime ||
+      yAxis->gettickertype_axis() == Axis2D::TickerType::Time ||
+      yAxis->gettickertype_axis() == Axis2D::TickerType::Text) {
+    QMessageBox::warning(
+        nullptr, tr("Axis type not allowed!"),
+        tr("selected axis %1 must be type Text and %2 must be type Value, Log!"
+           "or Pi!")
+            .arg(xAxis->getname_axis(), yAxis->getname_axis()));
+    return nullptr;
+  }
+  QList<QCPAbstractPlottable *> ptbles = xAxis->plottables();
+  foreach (StatBox2D *sbox, statboxvec_) {
+    QCPAbstractPlottable *sbptble = static_cast<QCPAbstractPlottable *>(sbox);
+    if (ptbles.contains(sbptble)) ptbles.removeOne(sbptble);
+  }
+
+  if (xAxis->getTickerTextColumn() != nullptr || !ptbles.isEmpty()) {
+    QMessageBox::warning(
+        nullptr, tr("X Axis already in use!"),
+        tr("X axis %1 is already in use associated with non statbox plots!")
+            .arg(ycol->name()));
+    return nullptr;
+  }
+
+  QSharedPointer<QCPAxisTickerText> textTicker =
+      qSharedPointerCast<QCPAxisTickerText>(xAxis->getticker_axis());
+  double datakey = 1;
+  foreach (StatBox2D *box, statboxvec_) {
+    if (box->getboxwhiskerdata_statbox().key > datakey)
+      datakey = box->getboxwhiskerdata_statbox().key;
+  }
+  StatBox2D::BoxWhiskerData sboxdata;
+  sboxdata = generateBoxWhiskerData(table, ycol, from, to, datakey + 1);
+  textTicker->addTick(sboxdata.key, sboxdata.name);
+  xAxis->setTicker(textTicker);
+  StatBox2D *statbox = new StatBox2D(sboxdata, xAxis, yAxis);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, statbox);
   axisRectLegend_->addItem(legendItem);
   connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
-  statbox->setName(data.name);
+  statbox->setName(sboxdata.name);
   getLegend()->setVisible(false);
   layers_.append(statbox->layer());
   statboxvec_.append(statbox);
+  statbox->rescaleaxes_statbox();
   emit StatBox2DCreated(statbox);
   return statbox;
 }
@@ -693,6 +809,24 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
                                       Table *table, Column *yData,
                                       const int from, const int to,
                                       Axis2D *xAxis, Axis2D *yAxis) {
+  if (yData->dataType() != AlphaPlot::ColumnDataType::TypeDouble) {
+    QMessageBox::warning(nullptr, tr("Column datatype not allowed!"),
+                         tr("selected columns %1 must be of datatype Numeric!")
+                             .arg(yData->name()));
+    return nullptr;
+  }
+  if (xAxis->gettickertype_axis() == Axis2D::TickerType::DateTime ||
+      xAxis->gettickertype_axis() == Axis2D::TickerType::Time ||
+      xAxis->gettickertype_axis() == Axis2D::TickerType::Text ||
+      yAxis->gettickertype_axis() == Axis2D::TickerType::DateTime ||
+      yAxis->gettickertype_axis() == Axis2D::TickerType::Time ||
+      yAxis->gettickertype_axis() == Axis2D::TickerType::Text) {
+    QMessageBox::warning(
+        nullptr, tr("Axis type not allowed!"),
+        tr("selected axes %1 and %2 must be Value, Log or Pi!")
+            .arg(xAxis->getname_axis(), yAxis->getname_axis()));
+    return nullptr;
+  }
   Bar2D *bar;
   switch (type) {
     case AxisRect2D::BarType::HorizontalBars:
@@ -717,6 +851,14 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
 Pie2D *AxisRect2D::addPie2DPlot(const Graph2DCommon::PieStyle &style,
                                 Table *table, Column *xData, Column *yData,
                                 const int from, const int to) {
+  if (xData->dataType() != AlphaPlot::ColumnDataType::TypeString ||
+      yData->dataType() != AlphaPlot::ColumnDataType::TypeDouble) {
+    QMessageBox::warning(
+        nullptr, tr("Column datatype not allowed!"),
+        tr("selected columns %1 and %2 must be Text and Numeric respectively!")
+            .arg(xData->name(), yData->name()));
+    return nullptr;
+  }
   Pie2D *pie = new Pie2D(this, style, table, xData, yData, from, to);
   pie->setGraphData(table, xData, yData, from, to);
   // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
@@ -806,6 +948,51 @@ ImageItem2D *AxisRect2D::addImageItem2D(const QString &filename) {
 LayoutInset2D *AxisRect2D::addLayoutInset2D() {
   LayoutInset2D *inset = new LayoutInset2D(this);
   return inset;
+}
+
+bool AxisRect2D::axisColumTypeCompatibilityCheck(Axis2D *axis, Column *col,
+                                                 int from, int to) {
+  if ((getXAxes2D().contains(axis) &&
+       col->plotDesignation() == AlphaPlot::PlotDesignation::X) ||
+      (getYAxes2D().contains(axis) &&
+       col->plotDesignation() == AlphaPlot::PlotDesignation::Y)) {
+    switch (axis->gettickertype_axis()) {
+      case Axis2D::TickerType::Text:
+        if (col->dataType() == AlphaPlot::ColumnDataType::TypeString &&
+            axis->getTickerTextColumn() == col &&
+            axis->getTickerTextColumnFrom() == from &&
+            axis->getTickerTextColumnTo() == to)
+          return true;
+        break;
+      case Axis2D::TickerType::Value:
+      case Axis2D::TickerType::Pi:
+      case Axis2D::TickerType::Log:
+        if (col->dataType() == AlphaPlot::ColumnDataType::TypeDouble)
+          return true;
+        break;
+      case Axis2D::TickerType::DateTime:
+      case Axis2D::TickerType::Time:
+        if (col->dataType() == AlphaPlot::ColumnDataType::TypeDateTime ||
+            col->dataType() == AlphaPlot::ColumnDataType::TypeDay ||
+            col->dataType() == AlphaPlot::ColumnDataType::TypeMonth)
+          return true;
+        break;
+    }
+    QMessageBox::warning(
+        nullptr, tr("Axis Column type mismatch!"),
+        tr("selected axis \"%1 :%2\" is of different datatype than the column "
+           "\"%3\"")
+            .arg(axis->getname_axis(), QString::number(axis->getnumber_axis()),
+                 col->name()));
+    return false;
+  }
+  QMessageBox::warning(
+      nullptr, tr("Axis Column orientation mismatch!"),
+      tr("selected axis \"%1 :%2\" is of different orientation than the column "
+         "\"%3\"")
+          .arg(axis->getname_axis(), QString::number(axis->getnumber_axis()),
+               col->name()));
+  return false;
 }
 
 // Should not use for other than populating axis map
@@ -998,6 +1185,7 @@ bool AxisRect2D::removeStatBox2D(StatBox2D *statbox) {
   }
   xaxis->removetickertext();
   yaxis->removetickertext();
+  if (!statboxvec_.isEmpty()) statboxvec_.at(0)->rescaleaxes_statbox();
   emit StatBox2DRemoved(this);
   return result;
 }
@@ -1848,6 +2036,17 @@ void AxisRect2D::save(XmlStreamWriter *xmlwriter, const QPair<int, int> rowcol,
           pie->save(xmlwriter);
           pvec.removeOne(pie);
           continue;
+        }
+      }
+      // sort statbox list based on increasing key value for proper save
+      for (int j = 0; j < stvec.count(); j++) {
+        for (int k = j + 1; k < stvec.count(); k++) {
+          if (stvec.at(j)->getboxwhiskerdata_statbox().key >
+              stvec.at(k)->getboxwhiskerdata_statbox().key) {
+            StatBox2D *tempst = stvec.at(j);
+            stvec.replace(j, stvec.at(k));
+            stvec.replace(k, tempst);
+          }
         }
       }
       foreach (StatBox2D *statbox, stvec) {
@@ -2732,17 +2931,10 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         if (!ok) xmlreader->raiseError(tr("StatBox2D from not found error"));
         int to = xmlreader->readAttributeInt("to", &ok);
         if (!ok) xmlreader->raiseError(tr("StatBox2D to not found error"));
-        int key = xmlreader->readAttributeInt("key", &ok);
-        if (!ok) xmlreader->raiseError(tr("StatBox2D key not found error"));
 
         if (table && column && xaxis && yaxis) {
-          StatBox2D::BoxWhiskerData sbdata =
-              generateBoxWhiskerData(table, column, from, to, key);
-          QSharedPointer<QCPAxisTickerText> textTicker =
-              qSharedPointerCast<QCPAxisTickerText>(xaxis->getticker_axis());
-          StatBox2D *statbox = addStatBox2DPlot(sbdata, xaxis, yaxis);
-          textTicker->addTick(sbdata.key, sbdata.name);
-          xaxis->setTicker(textTicker);
+          StatBox2D *statbox =
+              addStatBox2DPlot(table, column, from, to, xaxis, yaxis);
           statbox->load(xmlreader);
           statbox->setlegendtext_statbox(legendtext);
         }

@@ -148,8 +148,8 @@ class AxisRect2D : public QCPAxisRect {
                           Column *x1Data, Column *y1Data, Column *x2Data,
                           Column *y2Data, const int from, const int to,
                           Axis2D *xAxis, Axis2D *yAxis);
-  StatBox2D *addStatBox2DPlot(const StatBox2D::BoxWhiskerData data,
-                              Axis2D *xAxis, Axis2D *yAxis);
+  StatBox2D *addStatBox2DPlot(Table *table, Column *ycol, const int from,
+                              const int to, Axis2D *xAxis, Axis2D *yAxis);
   Bar2D *addHistogram2DPlot(const BarType &type, Table *table, Column *yData,
                             const int from, const int to, Axis2D *xAxis,
                             Axis2D *yAxis);
@@ -162,6 +162,8 @@ class AxisRect2D : public QCPAxisRect {
   LineItem2D *addArrowItem2D();
   ImageItem2D *addImageItem2D(const QString &filename);
   LayoutInset2D *addLayoutInset2D();
+  bool axisColumTypeCompatibilityCheck(Axis2D *axis, Column *col, int from,
+                                       int to);
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;

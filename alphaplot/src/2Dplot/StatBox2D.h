@@ -147,6 +147,7 @@ class StatBox2D : public QCPStatisticalBox {
 
   void save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis);
   bool load(XmlStreamReader *xmlreader);
+  void rescaleaxes_statbox();
 
  protected:
   void mousePressEvent(QMouseEvent *event, const QVariant &details);
