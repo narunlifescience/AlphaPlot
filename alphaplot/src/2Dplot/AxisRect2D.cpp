@@ -23,6 +23,7 @@
 
 #include "ColorMap2D.h"
 #include "Curve2D.h"
+#include "DataManager2D.h"
 #include "ErrorBar2D.h"
 #include "Grid2D.h"
 #include "ImageItem2D.h"
@@ -64,6 +65,17 @@ AxisRect2D::AxisRect2D(Plot2D *parent, PickerTool2D *picker,
   axisRectLegend_->setlayer_legend(plot2d_->getLegend2DLayerName());
   connect(axisRectLegend_, &Legend2D::legendClicked, this,
           &AxisRect2D::legendClick);
+  // messagebox warnings
+  connect(this, &AxisRect2D::NoMinimumDataPoints, this,
+          &AxisRect2D::noMinimumDataPoints);
+  connect(this, &AxisRect2D::NoPlotForSelectedColumns, this,
+          &AxisRect2D::noPlotForSelectedColumns);
+  connect(this, &AxisRect2D::AxisColumnTypeMismatch, this,
+          &AxisRect2D::axisColumnTypeMismatch);
+  connect(this, &AxisRect2D::AxisColumnOrientationMismatch, this,
+          &AxisRect2D::axisColumnOrientationMismatch);
+  connect(this, &AxisRect2D::NoMinimumDataPointsPlotRemoved, this,
+          &AxisRect2D::noMinimumDataPointsPlotRemoved);
 }
 
 AxisRect2D::~AxisRect2D() {
@@ -489,6 +501,9 @@ LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
   yAxis->settickertext(yData, from, to);
   if (!axisColumTypeCompatibilityCheck(xAxis, xData, from, to)) return nullptr;
   if (!axisColumTypeCompatibilityCheck(yAxis, yData, from, to)) return nullptr;
+  if (!hasMinimumDataPointsToPlot(1, xData, QList<Column *>() << yData, from,
+                                  to))
+    return nullptr;
   LineSpecial2D *lineSpecial =
       new LineSpecial2D(table, xData, yData, from, to, xAxis, yAxis);
   lineSpecial->setlinefillcolor_lsplot(
@@ -556,6 +571,9 @@ QPair<LineSpecial2D *, LineSpecial2D *> AxisRect2D::addLineSpecialChannel2DPlot(
     return QPair<LineSpecial2D *, LineSpecial2D *>(nullptr, nullptr);
   if (!axisColumTypeCompatibilityCheck(yAxis, yData2, from, to))
     return QPair<LineSpecial2D *, LineSpecial2D *>(nullptr, nullptr);
+  if (!hasMinimumDataPointsToPlot(
+          1, xData, QList<Column *>() << yData1 << yData2, from, to))
+    return QPair<LineSpecial2D *, LineSpecial2D *>(nullptr, nullptr);
   LineSpecial2D *lineSpecial1 =
       new LineSpecial2D(table, xData, yData1, from, to, xAxis, yAxis);
   QColor color = Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light);
@@ -601,6 +619,11 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
   yAxis->settickertext(ycol, from, to);
   if (!axisColumTypeCompatibilityCheck(xAxis, xcol, from, to)) return nullptr;
   if (!axisColumTypeCompatibilityCheck(yAxis, ycol, from, to)) return nullptr;
+  int datpoints = 1;
+  (type == LineScatterType::Spline2D) ? datpoints = 3 : datpoints = 1;
+  if (!hasMinimumDataPointsToPlot(datpoints, xcol, QList<Column *>() << ycol,
+                                  from, to))
+    return nullptr;
   switch (type) {
     case LineScatterType::Line2D:
     case LineScatterType::Scatter2D:
@@ -693,6 +716,9 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
   yAxis->settickertext(yData, from, to);
   if (!axisColumTypeCompatibilityCheck(xAxis, xData, from, to)) return nullptr;
   if (!axisColumTypeCompatibilityCheck(yAxis, yData, from, to)) return nullptr;
+  if (!hasMinimumDataPointsToPlot(1, xData, QList<Column *>() << yData, from,
+                                  to))
+    return nullptr;
   Bar2D *bar;
   switch (type) {
     case AxisRect2D::BarType::HorizontalBars:
@@ -732,6 +758,9 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
   if (!axisColumTypeCompatibilityCheck(yAxis, y1Data, from, to)) return nullptr;
   if (!axisColumTypeCompatibilityCheck(yAxis, x2Data, from, to)) return nullptr;
   if (!axisColumTypeCompatibilityCheck(yAxis, y2Data, from, to)) return nullptr;
+  if (!hasMinimumDataPointsToPlot(
+          1, x1Data, QList<Column *>() << y1Data << x2Data << y2Data, from, to))
+    return nullptr;
   Vector2D *vec = new Vector2D(vectorplot, table, x1Data, y1Data, x2Data,
                                y2Data, from, to, xAxis, yAxis);
   VectorLegendItem2D *legendItem = new VectorLegendItem2D(axisRectLegend_, vec);
@@ -781,6 +810,10 @@ StatBox2D *AxisRect2D::addStatBox2DPlot(Table *table, Column *ycol,
     return nullptr;
   }
 
+  if (!hasMinimumDataPointsToPlot(3, nullptr, QList<Column *>() << ycol, from,
+                                  to))
+    return nullptr;
+
   QSharedPointer<QCPAxisTickerText> textTicker =
       qSharedPointerCast<QCPAxisTickerText>(xAxis->getticker_axis());
   double datakey = 1;
@@ -827,6 +860,8 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
             .arg(xAxis->getname_axis(), yAxis->getname_axis()));
     return nullptr;
   }
+  if (!hasMinimumDataPointsToPlot(3, yData, QList<Column *>(), from, to))
+    return nullptr;
   Bar2D *bar;
   switch (type) {
     case AxisRect2D::BarType::HorizontalBars:
@@ -859,6 +894,9 @@ Pie2D *AxisRect2D::addPie2DPlot(const Graph2DCommon::PieStyle &style,
             .arg(xData->name(), yData->name()));
     return nullptr;
   }
+  if (!hasMinimumDataPointsToPlot(1, xData, QList<Column *>() << yData, from,
+                                  to))
+    return nullptr;
   Pie2D *pie = new Pie2D(this, style, table, xData, yData, from, to);
   pie->setGraphData(table, xData, yData, from, to);
   // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
@@ -950,8 +988,297 @@ LayoutInset2D *AxisRect2D::addLayoutInset2D() {
   return inset;
 }
 
+bool AxisRect2D::updateData(Table *table, const QString &name) {
+  if (!table) return false;
+  Column *col = table->column(table->colIndex(name));
+  if (!col) return false;
+  bool modified = false;
+  QString plotname;
+  foreach (LineSpecial2D *ls, lsvec_) {
+    PlotData::AssociatedData *data =
+        ls->getdatablock_lsplot()->getassociateddata();
+    if (ls->getxerrorbar_lsplot()) {
+      DataBlockError *xerror = ls->getxerrorbar_lsplot()->getdatablock_error();
+      if (xerror->gettable() == table) {
+        if (xerror->geterrorcolumn() == col) {
+          ls->getxerrorbar_lsplot()->setErrorData(
+              xerror->gettable(), xerror->geterrorcolumn(), xerror->getfrom(),
+              xerror->getto());
+          modified = true;
+        }
+      }
+    }
+    if (ls->getyerrorbar_lsplot()) {
+      DataBlockError *yerror = ls->getyerrorbar_lsplot()->getdatablock_error();
+      if (yerror->gettable() == table) {
+        if (yerror->geterrorcolumn() == col) {
+          ls->getyerrorbar_lsplot()->setErrorData(
+              yerror->gettable(), yerror->geterrorcolumn(), yerror->getfrom(),
+              yerror->getto());
+          modified = true;
+        }
+      }
+    }
+    if (data->table == table) {
+      if (data->xcol == col || data->ycol == col) {
+        if (!hasMinimumDataPointsToPlot(1, data->xcol,
+                                        QList<Column *>() << data->ycol,
+                                        data->from, data->to)) {
+          plotname = ls->name();
+          removeLineSpecial2D(ls);
+        } else {
+          ls->setGraphData(data->table, data->xcol, data->ycol, data->from,
+                           data->to);
+          modified = true;
+        }
+      }
+    }
+  }
+  for (int i = 0; i < channelvec_.count(); i++) {
+    QPair<LineSpecial2D *, LineSpecial2D *> channel = channelvec_.at(i);
+    PlotData::AssociatedData *data1 =
+        channel.first->getdatablock_lsplot()->getassociateddata();
+    PlotData::AssociatedData *data2 =
+        channel.second->getdatablock_lsplot()->getassociateddata();
+    if (data1->table == table && data2->table == table) {
+      if (data1->xcol == col || data1->ycol == col || data2->xcol == col ||
+          data2->ycol == col) {
+        if (!hasMinimumDataPointsToPlot(
+                1, data1->xcol, QList<Column *>() << data1->ycol << data2->ycol,
+                data1->from, data1->to)) {
+          plotname = channel.first->name() + "_" + data2->ycol->name();
+          removeChannel2D(channel);
+        } else {
+          channel.first->setGraphData(data1->table, data1->xcol, data1->ycol,
+                                      data1->from, data1->to);
+          channel.second->setGraphData(data2->table, data2->xcol, data2->ycol,
+                                       data2->from, data2->to);
+          modified = true;
+        }
+      }
+    }
+  }
+  foreach (Curve2D *curve, curvevec_) {
+    if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
+      PlotData::AssociatedData *data =
+          curve->getdatablock_cplot()->getassociateddata();
+      if (curve->getxerrorbar_curveplot()) {
+        DataBlockError *xerror =
+            curve->getxerrorbar_curveplot()->getdatablock_error();
+        if (xerror->gettable() == table) {
+          if (xerror->geterrorcolumn() == col) {
+            curve->getxerrorbar_curveplot()->setErrorData(
+                xerror->gettable(), xerror->geterrorcolumn(), xerror->getfrom(),
+                xerror->getto());
+            modified = true;
+          }
+        }
+      }
+      if (curve->getyerrorbar_curveplot()) {
+        DataBlockError *yerror =
+            curve->getyerrorbar_curveplot()->getdatablock_error();
+        if (yerror->gettable() == table) {
+          if (yerror->geterrorcolumn() == col) {
+            curve->getyerrorbar_curveplot()->setErrorData(
+                yerror->gettable(), yerror->geterrorcolumn(), yerror->getfrom(),
+                yerror->getto());
+            modified = true;
+          }
+        }
+      }
+      if (data->table == table) {
+        if (data->xcol == col || data->ycol == col) {
+          int no = 1;
+          (curve->getcurvetype_cplot() == Curve2D::Curve2DType::Spline)
+              ? no = 3
+              : no = 1;
+          if (!hasMinimumDataPointsToPlot(no, data->xcol,
+                                          QList<Column *>() << data->ycol,
+                                          data->from, data->to)) {
+            plotname = curve->name();
+            removeCurve2D(curve);
+          } else {
+            curve->setCurveData(data->table, data->xcol, data->ycol, data->from,
+                                data->to);
+            modified = true;
+          }
+        }
+      }
+    }
+  }
+  foreach (StatBox2D *statbox, statboxvec_) {
+    if (statbox->gettable_statbox() == table) {
+      if (statbox->getcolumn_statbox() == col) {
+        if (!hasMinimumDataPointsToPlot(
+                3, nullptr,
+                QList<Column *>()
+                    << statbox->getboxwhiskerdata_statbox().column_,
+                statbox->getboxwhiskerdata_statbox().from_,
+                statbox->getboxwhiskerdata_statbox().to_)) {
+          plotname = statbox->name();
+          removeStatBox2D(statbox);
+        } else {
+          int key = int(statbox->getboxwhiskerdata_statbox().key);
+          StatBox2D::BoxWhiskerData data = generateBoxWhiskerData(
+              statbox->getboxwhiskerdata_statbox().table_,
+              statbox->getboxwhiskerdata_statbox().column_,
+              statbox->getboxwhiskerdata_statbox().from_,
+              statbox->getboxwhiskerdata_statbox().to_, key);
+          statbox->setboxwhiskerdata(data);
+          modified = true;
+        }
+      }
+    }
+  }
+  foreach (Bar2D *bar, barvec_) {
+    if (!bar->ishistogram_barplot()) {
+      PlotData::AssociatedData *data =
+          bar->getdatablock_barplot()->getassociateddata();
+      if (bar->getxerrorbar_barplot()) {
+        DataBlockError *xerror =
+            bar->getxerrorbar_barplot()->getdatablock_error();
+        if (xerror->gettable() == table) {
+          if (xerror->geterrorcolumn() == col) {
+            bar->getxerrorbar_barplot()->setErrorData(
+                xerror->gettable(), xerror->geterrorcolumn(), xerror->getfrom(),
+                xerror->getto());
+            modified = true;
+          }
+        }
+      }
+      if (bar->getyerrorbar_barplot()) {
+        DataBlockError *yerror =
+            bar->getyerrorbar_barplot()->getdatablock_error();
+        if (yerror->gettable() == table) {
+          if (yerror->geterrorcolumn() == col) {
+            bar->getyerrorbar_barplot()->setErrorData(
+                yerror->gettable(), yerror->geterrorcolumn(), yerror->getfrom(),
+                yerror->getto());
+            modified = true;
+          }
+        }
+      }
+      if (data->table == table) {
+        if (data->xcol == col || data->ycol == col) {
+          if (!hasMinimumDataPointsToPlot(1, data->xcol,
+                                          QList<Column *>() << data->ycol,
+                                          data->from, data->to)) {
+            plotname = bar->name();
+            removeBar2D(bar);
+          } else {
+            bar->setBarData(data->table, data->xcol, data->ycol, data->from,
+                            data->to);
+            modified = true;
+          }
+        }
+      }
+    } else {
+      if (bar->getdatablock_histplot()->gettable() == table) {
+        if (bar->getdatablock_histplot()->getcolumn() == col) {
+          if (!hasMinimumDataPointsToPlot(
+                  3, bar->getdatablock_histplot()->getcolumn(),
+                  QList<Column *>(), bar->getdatablock_histplot()->getfrom(),
+                  bar->getdatablock_histplot()->getto())) {
+            plotname = bar->name();
+            removeBar2D(bar);
+          } else {
+            bar->setBarData(bar->getdatablock_histplot()->gettable(),
+                            bar->getdatablock_histplot()->getcolumn(),
+                            bar->getdatablock_histplot()->getfrom(),
+                            bar->getdatablock_histplot()->getto());
+            modified = true;
+          }
+        }
+      }
+    }
+  }
+  foreach (Vector2D *vector, vectorvec_) {
+    if (vector->gettable_vecplot() == table) {
+      if (vector->getfirstcol_vecplot() == col ||
+          vector->getsecondcol_vecplot() == col ||
+          vector->getthirdcol_vecplot() == col ||
+          vector->getfourthcol_vecplot() == col) {
+        if (!hasMinimumDataPointsToPlot(
+                1, vector->getfirstcol_vecplot(),
+                QList<Column *>() << vector->getsecondcol_vecplot()
+                                  << vector->getthirdcol_vecplot()
+                                  << vector->getfourthcol_vecplot(),
+                vector->getfrom_vecplot(), vector->getto_vecplot())) {
+          plotname = vector->name();
+          removeVector2D(vector);
+        } else {
+          vector->setGraphData(
+              vector->gettable_vecplot(), vector->getfirstcol_vecplot(),
+              vector->getsecondcol_vecplot(), vector->getthirdcol_vecplot(),
+              vector->getfourthcol_vecplot(), vector->getfrom_vecplot(),
+              vector->getto_vecplot());
+          modified = true;
+        }
+      }
+    }
+  }
+  foreach (Pie2D *pie, pievec_) {
+    if (pie->gettable_pieplot() == table) {
+      if (pie->getxcolumn_pieplot() == col) {
+        if (!hasMinimumDataPointsToPlot(
+                1, pie->getxcolumn_pieplot(),
+                QList<Column *>() << pie->getycolumn_pieplot(),
+                pie->getfrom_pieplot(), pie->getto_pieplot())) {
+          plotname = pie->gettable_pieplot()->name() + "_" +
+                     pie->getycolumn_pieplot()->name();
+          removePie2D(pie);
+        } else {
+          pie->setGraphData(pie->gettable_pieplot(), pie->getxcolumn_pieplot(),
+                            pie->getycolumn_pieplot(), pie->getfrom_pieplot(),
+                            pie->getto_pieplot());
+          modified = true;
+        }
+      }
+    }
+  }
+  foreach (Axis2D *axis, getXAxes2D()) {
+    if (axis->gettickertype_axis() == Axis2D::TickerType::Text &&
+        axis->getTickerTextColumn() == col && col != nullptr) {
+      QSharedPointer<QCPAxisTickerText> textticker =
+          qSharedPointerCast<QCPAxisTickerText>(axis->getticker_axis());
+      textticker->clear();
+      for (int i = 0, row = axis->getTickerTextColumnFrom();
+           row <= axis->getTickerTextColumnTo(); row++, i++) {
+        textticker->addTick(i, Utilities::splitstring(col->textAt(row)));
+      }
+      axis->setTicker(textticker);
+      modified = true;
+    }
+  }
+  if (!plotname.isEmpty()) emit noMinimumDataPointsPlotRemoved(plotname);
+  return modified;
+}
+
+bool AxisRect2D::updateDataCheck(Table *table, const QString &name) {
+  if (!table) return false;
+  Column *col = table->column(table->colIndex(name));
+  if (!col) return false;
+  bool modified = false;
+  QString plotname;
+  foreach (LineSpecial2D *ls, lsvec_) {
+    PlotData::AssociatedData *data =
+        ls->getdatablock_lsplot()->getassociateddata();
+    if (data->table == table) {
+      if (data->xcol == col || data->ycol == col) {
+        if (!hasMinimumDataPointsToPlot(1, data->xcol,
+                                        QList<Column *>() << data->ycol,
+                                        data->from, data->to)) {
+          plotname = ls->name();
+          removeLineSpecial2D(ls);
+        }
+      }
+    }
+  }
+  return modified;
+}
+
 bool AxisRect2D::axisColumTypeCompatibilityCheck(Axis2D *axis, Column *col,
-                                                 int from, int to) {
+                                                 const int from, const int to) {
   if ((getXAxes2D().contains(axis) &&
        col->plotDesignation() == AlphaPlot::PlotDesignation::X) ||
       (getYAxes2D().contains(axis) &&
@@ -978,20 +1305,60 @@ bool AxisRect2D::axisColumTypeCompatibilityCheck(Axis2D *axis, Column *col,
           return true;
         break;
     }
-    QMessageBox::warning(
-        nullptr, tr("Axis Column type mismatch!"),
-        tr("selected axis \"%1 :%2\" is of different datatype than the column "
-           "\"%3\"")
-            .arg(axis->getname_axis(), QString::number(axis->getnumber_axis()),
-                 col->name()));
+    emit AxisColumnTypeMismatch(axis->getname_axis(), axis->getnumber_axis(),
+                                col->name());
     return false;
   }
-  QMessageBox::warning(
-      nullptr, tr("Axis Column orientation mismatch!"),
-      tr("selected axis \"%1 :%2\" is of different orientation than the column "
-         "\"%3\"")
-          .arg(axis->getname_axis(), QString::number(axis->getnumber_axis()),
-               col->name()));
+  emit AxisColumnOrientationMismatch(axis->getname_axis(),
+                                     axis->getnumber_axis(), col->name());
+  return false;
+}
+
+bool AxisRect2D::hasMinimumDataPointsToPlot(const int noofpoints, Column *xcol,
+                                            QList<Column *> ycollist,
+                                            const int from, const int to) {
+  if ((to - from) + 1 < noofpoints) {
+    emit NoMinimumDataPoints(noofpoints);
+    return false;
+  }
+  if (xcol && ycollist.count() == 0 && to < xcol->rowCount()) {
+    for (int i = 0, row = from; row <= to; row++) {
+      if (!xcol->isInvalid(row)) i++;
+      if (i == noofpoints) return true;
+    }
+  } else if (xcol && ycollist.count() && to < xcol->rowCount()) {
+    if (ycollist.count() == 1 && ycollist.at(0)) {
+      for (int i = 0, row = from; row <= to; row++) {
+        if (!xcol->isInvalid(row) && !ycollist.at(0)->isInvalid(row)) i++;
+        if (i == noofpoints) return true;
+      }
+    } else if (ycollist.count() == 2) {
+      for (int i = 0, row = from; row <= to; row++) {
+        if (!xcol->isInvalid(row) && !ycollist.at(0)->isInvalid(row) &&
+            !ycollist.at(1)->isInvalid(row))
+          i++;
+        if (i == noofpoints) return true;
+      }
+    } else if (ycollist.count() == 3) {
+      for (int i = 0, row = from; row <= to; row++) {
+        if (!xcol->isInvalid(row) && !ycollist.at(0)->isInvalid(row) &&
+            !ycollist.at(1)->isInvalid(row) && !ycollist.at(2)->isInvalid(row))
+          i++;
+        if (i == noofpoints) return true;
+      }
+    }
+  } else if (!xcol && ycollist.count()) {
+    if (ycollist.count() == 1)
+      for (int i = 0, row = from; row <= to; row++) {
+        if (!ycollist.at(0)->isInvalid(row)) i++;
+        if (i == noofpoints) return true;
+      }
+  } else {
+    emit NoPlotForSelectedColumns();
+    return false;
+  }
+
+  emit NoMinimumDataPoints(noofpoints);
   return false;
 }
 
@@ -1934,6 +2301,46 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
   }
 
   return ok;
+}
+
+void AxisRect2D::noMinimumDataPoints(const int points) {
+  QMessageBox::warning(
+      nullptr, tr("No minimum number of data points!"),
+      tr("The plot needs a minimum of \"%1\" data points to plot!")
+          .arg(QString::number(points)));
+}
+
+void AxisRect2D::noPlotForSelectedColumns() {
+  QMessageBox::warning(
+      nullptr, tr("Colum(s) mismatch!"),
+      tr("Selected column(s) are incompatible to generate plot!"));
+}
+
+void AxisRect2D::axisColumnTypeMismatch(const QString &axisname,
+                                        const int axisno,
+                                        const QString &colname) {
+  QMessageBox::warning(
+      nullptr, tr("Axis Column type mismatch!"),
+      tr("selected axis \"%1 :%2\" is of different datatype than the column "
+         "\"%3\"")
+          .arg(axisname, QString::number(axisno), colname));
+}
+
+void AxisRect2D::axisColumnOrientationMismatch(const QString &axisname,
+                                               const int axisno,
+                                               const QString &colname) {
+  QMessageBox::warning(
+      nullptr, tr("Axis Column orientation mismatch!"),
+      tr("selected axis \"%1 :%2\" is of different orientation than the column "
+         "\"%3\"")
+          .arg(axisname, QString::number(axisno), colname));
+}
+
+void AxisRect2D::noMinimumDataPointsPlotRemoved(const QString &plotname) {
+  QMessageBox::warning(
+      nullptr, tr("Data points removed!"),
+      tr("Plot \"%1\" will be removed due to lack of minimum data points!")
+          .arg(plotname));
 }
 
 void AxisRect2D::save(XmlStreamWriter *xmlwriter, const QPair<int, int> rowcol,

@@ -162,8 +162,13 @@ class AxisRect2D : public QCPAxisRect {
   LineItem2D *addArrowItem2D();
   ImageItem2D *addImageItem2D(const QString &filename);
   LayoutInset2D *addLayoutInset2D();
-  bool axisColumTypeCompatibilityCheck(Axis2D *axis, Column *col, int from,
-                                       int to);
+  bool updateData(Table *table, const QString &name);
+  bool updateDataCheck(Table *table, const QString &name);
+  bool axisColumTypeCompatibilityCheck(Axis2D *axis, Column *col,
+                                       const int from, const int to);
+  bool hasMinimumDataPointsToPlot(const int noofpoints, Column *xcol,
+                                  QList<Column *> ycollist, const int from,
+                                  const int to);
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;
@@ -208,6 +213,15 @@ class AxisRect2D : public QCPAxisRect {
 
   bool loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
                                 QList<Table *> tabs);
+
+  // message boxes
+  void noMinimumDataPoints(const int points);
+  void noPlotForSelectedColumns();
+  void axisColumnTypeMismatch(const QString &axisname, const int axisno,
+                              const QString &colname);
+  void axisColumnOrientationMismatch(const QString &axisname, const int axisno,
+                                     const QString &colname);
+  void noMinimumDataPointsPlotRemoved(const QString &plotname);
 
  public slots:
   void save(XmlStreamWriter *xmlwriter, const QPair<int, int> rowcol,
@@ -257,6 +271,14 @@ class AxisRect2D : public QCPAxisRect {
   void TextItem2DMoved();
   void LineItem2DMoved();
   void ImageItem2DMoved();
+  // show messagebox
+  void NoMinimumDataPoints(const int points);
+  void NoPlotForSelectedColumns();
+  void AxisColumnTypeMismatch(const QString &axisname, const int axisno,
+                              const QString &colname);
+  void AxisColumnOrientationMismatch(const QString &axisname, const int axisno,
+                                     const QString &colname);
+  void NoMinimumDataPointsPlotRemoved(const QString &plotname);
 
  private slots:
   void legendClick();

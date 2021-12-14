@@ -73,9 +73,6 @@ class TableViewWidget : public QTableView {
   //! Overloaded function (cf. Qt documentation)
   virtual void keyPressEvent(QKeyEvent *event);
 
- signals:
-  void advanceCell();
-
  protected slots:
   //! Cause a repaint of the header
   void updateHeaderGeometry(Qt::Orientation o, int first, int last);
@@ -231,6 +228,7 @@ class TableView : public MyWidget {
 
   virtual void changeEvent(QEvent *event);
   virtual void resizeEvent(QResizeEvent *event);
+  virtual void keyPressEvent(QKeyEvent *event);
   void retranslateStrings();
   void setColumnForControlTabs(int col);
 

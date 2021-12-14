@@ -4689,6 +4689,9 @@ void ApplicationWindow::setAutoScale() {
 
   QList<Axis2D *> axes = axisrect->getAxes2D();
   foreach (Axis2D *axis, axes) { axis->rescale(); }
+  foreach (StatBox2D *statbox, axisrect->getStatBoxVec()) {
+    statbox->rescaleaxes_statbox();
+  }
   axisrect->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 

@@ -28,22 +28,6 @@
  ***************************************************************************/
 
 #include "table/TableView.h"
-#include "table/TableDoubleHeaderView.h"
-#include "table/TableItemDelegate.h"
-#include "table/TableModel.h"
-#include "table/future_Table.h"
-#include "table/tablecommands.h"
-
-#include "core/AbstractFilter.h"
-#include "core/column/Column.h"
-#include "core/datatypes/DateTime2StringFilter.h"
-#include "core/datatypes/Double2DateTimeFilter.h"
-#include "core/datatypes/Double2StringFilter.h"
-#include "core/datatypes/SimpleCopyThroughFilter.h"
-#include "core/datatypes/String2DateTimeFilter.h"
-#include "core/datatypes/String2DoubleFilter.h"
-
-#include "core/IconLoader.h"
 
 #include <QFont>
 #include <QFontMetrics>
@@ -54,8 +38,8 @@
 #include <QKeyEvent>
 #include <QMenu>
 #include <QModelIndex>
-#include <QPainterPath>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPoint>
 #include <QRect>
 #include <QResizeEvent>
@@ -66,8 +50,22 @@
 #include <QSize>
 #include <QTimer>
 #include <QtDebug>
-
 #include <cmath>
+
+#include "core/AbstractFilter.h"
+#include "core/IconLoader.h"
+#include "core/column/Column.h"
+#include "core/datatypes/DateTime2StringFilter.h"
+#include "core/datatypes/Double2DateTimeFilter.h"
+#include "core/datatypes/Double2StringFilter.h"
+#include "core/datatypes/SimpleCopyThroughFilter.h"
+#include "core/datatypes/String2DateTimeFilter.h"
+#include "core/datatypes/String2DoubleFilter.h"
+#include "table/TableDoubleHeaderView.h"
+#include "table/TableItemDelegate.h"
+#include "table/TableModel.h"
+#include "table/future_Table.h"
+#include "table/tablecommands.h"
 
 #ifndef LEGACY_CODE_0_2_x
 TableView::TableView(future::Table *table)
@@ -109,7 +107,6 @@ void TableView::init() {
   settings.endGroup();
   d_view_widget->verticalHeader()->setDefaultSectionSize(defaultRawHeight);
   d_view_widget->setModel(d_model);
-  connect(d_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
   d_main_layout->addWidget(d_view_widget);
 
   d_horizontal_header = new TableDoubleHeaderView();
@@ -311,6 +308,7 @@ void TableView::advanceCell() {
     int new_size = d_table->rowCount() + 1;
     d_table->setRowCount(new_size);
   }
+
   d_view_widget->setCurrentIndex(idx.sibling(idx.row() + 1, idx.column()));
 }
 
@@ -554,9 +552,8 @@ void TableView::updateTypeInfo() {
             ui.format_box->itemData(format_index).toString());
         break;
       case AlphaPlot::DateTime:
-        ui.formatLineEdit->setText(
-              ui.format_box->currentText());
-            //ui.format_box->itemData(format_index).toString());
+        ui.formatLineEdit->setText(ui.format_box->currentText());
+        // ui.format_box->itemData(format_index).toString());
         ui.date_time_0->setDisplayFormat(
             ui.format_box->itemData(format_index).toString());
         str += QDateTime(QDate(1900, 1, 1), QTime(23, 59, 59, 999))
@@ -959,8 +956,6 @@ void TableViewWidget::updateHeaderGeometry(Qt::Orientation o, int first,
 }
 
 void TableViewWidget::keyPressEvent(QKeyEvent *event) {
-  if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
-    emit advanceCell();
   QTableView::keyPressEvent(event);
 }
 
@@ -982,6 +977,12 @@ void TableView::toggleControlTabBar() {
 void TableView::resizeEvent(QResizeEvent *event) {
   moveFloatingButton();
   MyWidget::resizeEvent(event);
+}
+
+void TableView::keyPressEvent(QKeyEvent *event) {
+  if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+    advanceCell();
+  MyWidget::keyPressEvent(event);
 }
 
 // Move the floating show hide button.
