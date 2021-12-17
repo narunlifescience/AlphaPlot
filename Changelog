@@ -39,6 +39,7 @@
 * fix print with transparent background issue (Plot 2D)
 * impliment change order of plots-names in legend
 * fix object browser context menu request reflect property browser update
+* add multiple data checks for adding plots and additional controls
 
 === 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
 * multipeak fitting fixed

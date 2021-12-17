@@ -103,6 +103,7 @@ class Layout2D : public MyWidget {
   void loadIcons() const;
   void setLayoutButtonBoxVisible(const bool value);
   void copy(Layout2D *layout, QList<Table *> tables, QList<Matrix *> matrixs);
+  QList<Column *> getPlotColumns();
 
  public slots:
   bool exportGraph();

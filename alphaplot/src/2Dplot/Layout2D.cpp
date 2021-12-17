@@ -1752,6 +1752,17 @@ void Layout2D::copy(Layout2D *layout, QList<Table *> tables,
   file->close();
 }
 
+QList<Column *> Layout2D::getPlotColumns() {
+  QList<Column *> collist;
+  foreach (AxisRect2D *axisrect, getAxisRectList()) {
+    QList<Column *> axisrectcollist = axisrect->getPlotColumns();
+    foreach (Column *col, axisrectcollist) {
+      if (!collist.contains(col)) collist << col;
+    }
+  }
+  return collist;
+}
+
 AxisRect2D *Layout2D::addAxisRectWithAxis() {
   return addAxisRectItem(AlphaPlot::ColumnDataType::TypeDouble,
                          AlphaPlot::ColumnDataType::TypeDouble,

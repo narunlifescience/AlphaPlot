@@ -207,7 +207,6 @@ Axis2D *AxisRect2D::addAxis2DifNeeded(Column *col) {
       }
       (t < b) ? axis = addAxis2D(Axis2D::AxisOreantation::Top, tickertype)
               : axis = addAxis2D(Axis2D::AxisOreantation::Bottom, tickertype);
-      axis = addAxis2D(Axis2D::AxisOreantation::Bottom, tickertype);
     }
   } else if (col->plotDesignation() == AlphaPlot::Y) {
     QList<Axis2D *> vaxes = getAxes2D(Axis2D::AxisOreantation::Left);
@@ -1250,7 +1249,7 @@ bool AxisRect2D::updateData(Table *table, const QString &name) {
       modified = true;
     }
   }
-  if (!plotname.isEmpty()) emit noMinimumDataPointsPlotRemoved(plotname);
+  if (!plotname.isEmpty()) emit NoMinimumDataPointsPlotRemoved(plotname);
   return modified;
 }
 
@@ -2301,6 +2300,102 @@ bool AxisRect2D::loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
   }
 
   return ok;
+}
+
+QList<Column *> AxisRect2D::getPlotColumns() {
+  QList<Column *> collist;
+  foreach (LineSpecial2D *ls, lsvec_) {
+    PlotData::AssociatedData *data =
+        ls->getdatablock_lsplot()->getassociateddata();
+    if (!collist.contains(data->xcol)) collist << data->xcol;
+    if (!collist.contains(data->ycol)) collist << data->ycol;
+    if (ls->getxerrorbar_lsplot()) {
+      DataBlockError *xerror = ls->getxerrorbar_lsplot()->getdatablock_error();
+      if (!collist.contains(xerror->geterrorcolumn()))
+        collist << xerror->geterrorcolumn();
+    }
+    if (ls->getyerrorbar_lsplot()) {
+      DataBlockError *yerror = ls->getyerrorbar_lsplot()->getdatablock_error();
+      if (!collist.contains(yerror->geterrorcolumn()))
+        collist << yerror->geterrorcolumn();
+    }
+  }
+  for (int i = 0; i < channelvec_.count(); i++) {
+    QPair<LineSpecial2D *, LineSpecial2D *> channel = channelvec_.at(i);
+    PlotData::AssociatedData *data1 =
+        channel.first->getdatablock_lsplot()->getassociateddata();
+    PlotData::AssociatedData *data2 =
+        channel.second->getdatablock_lsplot()->getassociateddata();
+    if (!collist.contains(data1->xcol)) collist << data1->xcol;
+    if (!collist.contains(data1->ycol)) collist << data1->ycol;
+    if (!collist.contains(data2->xcol)) collist << data2->xcol;
+    if (!collist.contains(data2->ycol)) collist << data2->ycol;
+  }
+  foreach (Curve2D *curve, curvevec_) {
+    if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
+      PlotData::AssociatedData *data =
+          curve->getdatablock_cplot()->getassociateddata();
+      if (!collist.contains(data->xcol)) collist << data->xcol;
+      if (!collist.contains(data->ycol)) collist << data->ycol;
+      if (curve->getxerrorbar_curveplot()) {
+        DataBlockError *xerror =
+            curve->getxerrorbar_curveplot()->getdatablock_error();
+        if (!collist.contains(xerror->geterrorcolumn()))
+          collist << xerror->geterrorcolumn();
+      }
+      if (curve->getyerrorbar_curveplot()) {
+        DataBlockError *yerror =
+            curve->getyerrorbar_curveplot()->getdatablock_error();
+        if (!collist.contains(yerror->geterrorcolumn()))
+          collist << yerror->geterrorcolumn();
+      }
+    }
+  }
+  foreach (StatBox2D *statbox, statboxvec_) {
+    if (!collist.contains(statbox->getcolumn_statbox()))
+      collist << statbox->getcolumn_statbox();
+  }
+  foreach (Bar2D *bar, barvec_) {
+    if (!bar->ishistogram_barplot()) {
+      PlotData::AssociatedData *data =
+          bar->getdatablock_barplot()->getassociateddata();
+      if (!collist.contains(data->xcol)) collist << data->xcol;
+      if (!collist.contains(data->ycol)) collist << data->ycol;
+      if (bar->getxerrorbar_barplot()) {
+        DataBlockError *xerror =
+            bar->getxerrorbar_barplot()->getdatablock_error();
+        if (!collist.contains(xerror->geterrorcolumn()))
+          collist << xerror->geterrorcolumn();
+      }
+      if (bar->getyerrorbar_barplot()) {
+        DataBlockError *yerror =
+            bar->getyerrorbar_barplot()->getdatablock_error();
+        if (!collist.contains(yerror->geterrorcolumn()))
+          collist << yerror->geterrorcolumn();
+      }
+    } else {
+      DataBlockHist *data = bar->getdatablock_histplot();
+      if (!collist.contains(data->getcolumn())) collist << data->getcolumn();
+    }
+  }
+  foreach (Vector2D *vector, vectorvec_) {
+    if (!collist.contains(vector->getfirstcol_vecplot()))
+      collist << vector->getfirstcol_vecplot();
+    if (!collist.contains(vector->getsecondcol_vecplot()))
+      collist << vector->getsecondcol_vecplot();
+    if (!collist.contains(vector->getthirdcol_vecplot()))
+      collist << vector->getthirdcol_vecplot();
+    if (!collist.contains(vector->getfourthcol_vecplot()))
+      collist << vector->getfourthcol_vecplot();
+  }
+  foreach (Pie2D *pie, pievec_) {
+    if (!collist.contains(pie->getxcolumn_pieplot()))
+      collist << pie->getxcolumn_pieplot();
+    if (!collist.contains(pie->getycolumn_pieplot()))
+      collist << pie->getycolumn_pieplot();
+  }
+
+  return collist;
 }
 
 void AxisRect2D::noMinimumDataPoints(const int points) {

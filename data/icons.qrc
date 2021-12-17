@@ -280,6 +280,30 @@
     <file>icons/light/16/graph2d-axis-bottom.png</file>
     <file>icons/light/16/graph2d-axis-right.png</file>
     <file>icons/light/16/graph2d-axis-top.png</file>
+    <file>icons/light/16/graph2d-axis-left-datetime.png</file>
+    <file>icons/light/16/graph2d-axis-left-log.png</file>
+    <file>icons/light/16/graph2d-axis-left-symbol.png</file>
+    <file>icons/light/16/graph2d-axis-left-text.png</file>
+    <file>icons/light/16/graph2d-axis-left-time.png</file>
+    <file>icons/light/16/graph2d-axis-left-value.png</file>
+    <file>icons/light/16/graph2d-axis-bottom-datetime.png</file>
+    <file>icons/light/16/graph2d-axis-bottom-log.png</file>
+    <file>icons/light/16/graph2d-axis-bottom-symbol.png</file>
+    <file>icons/light/16/graph2d-axis-bottom-text.png</file>
+    <file>icons/light/16/graph2d-axis-bottom-time.png</file>
+    <file>icons/light/16/graph2d-axis-bottom-value.png</file>
+    <file>icons/light/16/graph2d-axis-right-datetime.png</file>
+    <file>icons/light/16/graph2d-axis-right-log.png</file>
+    <file>icons/light/16/graph2d-axis-right-symbol.png</file>
+    <file>icons/light/16/graph2d-axis-right-text.png</file>
+    <file>icons/light/16/graph2d-axis-right-time.png</file>
+    <file>icons/light/16/graph2d-axis-right-value.png</file>
+    <file>icons/light/16/graph2d-axis-top-datetime.png</file>
+    <file>icons/light/16/graph2d-axis-top-log.png</file>
+    <file>icons/light/16/graph2d-axis-top-symbol.png</file>
+    <file>icons/light/16/graph2d-axis-top-text.png</file>
+    <file>icons/light/16/graph2d-axis-top-time.png</file>
+    <file>icons/light/16/graph2d-axis-top-value.png</file>
     <file>icons/light/16/graph2d-layout.png</file>
     <file>icons/light/16/graph3d-bar.png</file>
     <file>icons/light/16/graph3d-ribbon.png</file>
@@ -424,6 +448,30 @@
     <file>icons/light/22/graph2d-axis-bottom.png</file>
     <file>icons/light/22/graph2d-axis-right.png</file>
     <file>icons/light/22/graph2d-axis-top.png</file>
+    <file>icons/light/22/graph2d-axis-left-datetime.png</file>
+    <file>icons/light/22/graph2d-axis-left-log.png</file>
+    <file>icons/light/22/graph2d-axis-left-symbol.png</file>
+    <file>icons/light/22/graph2d-axis-left-text.png</file>
+    <file>icons/light/22/graph2d-axis-left-time.png</file>
+    <file>icons/light/22/graph2d-axis-left-value.png</file>
+    <file>icons/light/22/graph2d-axis-bottom-datetime.png</file>
+    <file>icons/light/22/graph2d-axis-bottom-log.png</file>
+    <file>icons/light/22/graph2d-axis-bottom-symbol.png</file>
+    <file>icons/light/22/graph2d-axis-bottom-text.png</file>
+    <file>icons/light/22/graph2d-axis-bottom-time.png</file>
+    <file>icons/light/22/graph2d-axis-bottom-value.png</file>
+    <file>icons/light/22/graph2d-axis-right-datetime.png</file>
+    <file>icons/light/22/graph2d-axis-right-log.png</file>
+    <file>icons/light/22/graph2d-axis-right-symbol.png</file>
+    <file>icons/light/22/graph2d-axis-right-text.png</file>
+    <file>icons/light/22/graph2d-axis-right-time.png</file>
+    <file>icons/light/22/graph2d-axis-right-value.png</file>
+    <file>icons/light/22/graph2d-axis-top-datetime.png</file>
+    <file>icons/light/22/graph2d-axis-top-log.png</file>
+    <file>icons/light/22/graph2d-axis-top-symbol.png</file>
+    <file>icons/light/22/graph2d-axis-top-text.png</file>
+    <file>icons/light/22/graph2d-axis-top-time.png</file>
+    <file>icons/light/22/graph2d-axis-top-value.png</file>
     <file>icons/light/22/graph2d-layout.png</file>
     <file>icons/light/22/graph3d-bar.png</file>
     <file>icons/light/22/graph3d-ribbon.png</file>
@@ -567,6 +615,30 @@
     <file>icons/light/24/graph2d-axis-bottom.png</file>
     <file>icons/light/24/graph2d-axis-right.png</file>
     <file>icons/light/24/graph2d-axis-top.png</file>
+    <file>icons/light/24/graph2d-axis-left-datetime.png</file>
+    <file>icons/light/24/graph2d-axis-left-log.png</file>
+    <file>icons/light/24/graph2d-axis-left-symbol.png</file>
+    <file>icons/light/24/graph2d-axis-left-text.png</file>
+    <file>icons/light/24/graph2d-axis-left-time.png</file>
+    <file>icons/light/24/graph2d-axis-left-value.png</file>
+    <file>icons/light/24/graph2d-axis-bottom-datetime.png</file>
+    <file>icons/light/24/graph2d-axis-bottom-log.png</file>
+    <file>icons/light/24/graph2d-axis-bottom-symbol.png</file>
+    <file>icons/light/24/graph2d-axis-bottom-text.png</file>
+    <file>icons/light/24/graph2d-axis-bottom-time.png</file>
+    <file>icons/light/24/graph2d-axis-bottom-value.png</file>
+    <file>icons/light/24/graph2d-axis-right-datetime.png</file>
+    <file>icons/light/24/graph2d-axis-right-log.png</file>
+    <file>icons/light/24/graph2d-axis-right-symbol.png</file>
+    <file>icons/light/24/graph2d-axis-right-text.png</file>
+    <file>icons/light/24/graph2d-axis-right-time.png</file>
+    <file>icons/light/24/graph2d-axis-right-value.png</file>
+    <file>icons/light/24/graph2d-axis-top-datetime.png</file>
+    <file>icons/light/24/graph2d-axis-top-log.png</file>
+    <file>icons/light/24/graph2d-axis-top-symbol.png</file>
+    <file>icons/light/24/graph2d-axis-top-text.png</file>
+    <file>icons/light/24/graph2d-axis-top-time.png</file>
+    <file>icons/light/24/graph2d-axis-top-value.png</file>
     <file>icons/light/24/graph2d-layout.png</file>
     <file>icons/light/24/graph3d-bar.png</file>
     <file>icons/light/24/graph3d-ribbon.png</file>
@@ -726,6 +798,30 @@
     <file>icons/dark/16/graph2d-axis-bottom.png</file>
     <file>icons/dark/16/graph2d-axis-right.png</file>
     <file>icons/dark/16/graph2d-axis-top.png</file>
+    <file>icons/dark/16/graph2d-axis-left-datetime.png</file>
+    <file>icons/dark/16/graph2d-axis-left-log.png</file>
+    <file>icons/dark/16/graph2d-axis-left-symbol.png</file>
+    <file>icons/dark/16/graph2d-axis-left-text.png</file>
+    <file>icons/dark/16/graph2d-axis-left-time.png</file>
+    <file>icons/dark/16/graph2d-axis-left-value.png</file>
+    <file>icons/dark/16/graph2d-axis-bottom-datetime.png</file>
+    <file>icons/dark/16/graph2d-axis-bottom-log.png</file>
+    <file>icons/dark/16/graph2d-axis-bottom-symbol.png</file>
+    <file>icons/dark/16/graph2d-axis-bottom-text.png</file>
+    <file>icons/dark/16/graph2d-axis-bottom-time.png</file>
+    <file>icons/dark/16/graph2d-axis-bottom-value.png</file>
+    <file>icons/dark/16/graph2d-axis-right-datetime.png</file>
+    <file>icons/dark/16/graph2d-axis-right-log.png</file>
+    <file>icons/dark/16/graph2d-axis-right-symbol.png</file>
+    <file>icons/dark/16/graph2d-axis-right-text.png</file>
+    <file>icons/dark/16/graph2d-axis-right-time.png</file>
+    <file>icons/dark/16/graph2d-axis-right-value.png</file>
+    <file>icons/dark/16/graph2d-axis-top-datetime.png</file>
+    <file>icons/dark/16/graph2d-axis-top-log.png</file>
+    <file>icons/dark/16/graph2d-axis-top-symbol.png</file>
+    <file>icons/dark/16/graph2d-axis-top-text.png</file>
+    <file>icons/dark/16/graph2d-axis-top-time.png</file>
+    <file>icons/dark/16/graph2d-axis-top-value.png</file>
     <file>icons/dark/16/graph2d-layout.png</file>
     <file>icons/dark/16/graph3d-bar.png</file>
     <file>icons/dark/16/graph3d-ribbon.png</file>
@@ -870,6 +966,30 @@
     <file>icons/dark/22/graph2d-axis-bottom.png</file>
     <file>icons/dark/22/graph2d-axis-right.png</file>
     <file>icons/dark/22/graph2d-axis-top.png</file>
+    <file>icons/dark/22/graph2d-axis-left-datetime.png</file>
+    <file>icons/dark/22/graph2d-axis-left-log.png</file>
+    <file>icons/dark/22/graph2d-axis-left-symbol.png</file>
+    <file>icons/dark/22/graph2d-axis-left-text.png</file>
+    <file>icons/dark/22/graph2d-axis-left-time.png</file>
+    <file>icons/dark/22/graph2d-axis-left-value.png</file>
+    <file>icons/dark/22/graph2d-axis-bottom-datetime.png</file>
+    <file>icons/dark/22/graph2d-axis-bottom-log.png</file>
+    <file>icons/dark/22/graph2d-axis-bottom-symbol.png</file>
+    <file>icons/dark/22/graph2d-axis-bottom-text.png</file>
+    <file>icons/dark/22/graph2d-axis-bottom-time.png</file>
+    <file>icons/dark/22/graph2d-axis-bottom-value.png</file>
+    <file>icons/dark/22/graph2d-axis-right-datetime.png</file>
+    <file>icons/dark/22/graph2d-axis-right-log.png</file>
+    <file>icons/dark/22/graph2d-axis-right-symbol.png</file>
+    <file>icons/dark/22/graph2d-axis-right-text.png</file>
+    <file>icons/dark/22/graph2d-axis-right-time.png</file>
+    <file>icons/dark/22/graph2d-axis-right-value.png</file>
+    <file>icons/dark/22/graph2d-axis-top-datetime.png</file>
+    <file>icons/dark/22/graph2d-axis-top-log.png</file>
+    <file>icons/dark/22/graph2d-axis-top-symbol.png</file>
+    <file>icons/dark/22/graph2d-axis-top-text.png</file>
+    <file>icons/dark/22/graph2d-axis-top-time.png</file>
+    <file>icons/dark/22/graph2d-axis-top-value.png</file>
     <file>icons/dark/22/graph2d-layout.png</file>
     <file>icons/dark/22/graph3d-bar.png</file>
     <file>icons/dark/22/graph3d-ribbon.png</file>
@@ -1013,6 +1133,30 @@
     <file>icons/dark/24/graph2d-axis-bottom.png</file>
     <file>icons/dark/24/graph2d-axis-right.png</file>
     <file>icons/dark/24/graph2d-axis-top.png</file>
+    <file>icons/dark/24/graph2d-axis-left-datetime.png</file>
+    <file>icons/dark/24/graph2d-axis-left-log.png</file>
+    <file>icons/dark/24/graph2d-axis-left-symbol.png</file>
+    <file>icons/dark/24/graph2d-axis-left-text.png</file>
+    <file>icons/dark/24/graph2d-axis-left-time.png</file>
+    <file>icons/dark/24/graph2d-axis-left-value.png</file>
+    <file>icons/dark/24/graph2d-axis-bottom-datetime.png</file>
+    <file>icons/dark/24/graph2d-axis-bottom-log.png</file>
+    <file>icons/dark/24/graph2d-axis-bottom-symbol.png</file>
+    <file>icons/dark/24/graph2d-axis-bottom-text.png</file>
+    <file>icons/dark/24/graph2d-axis-bottom-time.png</file>
+    <file>icons/dark/24/graph2d-axis-bottom-value.png</file>
+    <file>icons/dark/24/graph2d-axis-right-datetime.png</file>
+    <file>icons/dark/24/graph2d-axis-right-log.png</file>
+    <file>icons/dark/24/graph2d-axis-right-symbol.png</file>
+    <file>icons/dark/24/graph2d-axis-right-text.png</file>
+    <file>icons/dark/24/graph2d-axis-right-time.png</file>
+    <file>icons/dark/24/graph2d-axis-right-value.png</file>
+    <file>icons/dark/24/graph2d-axis-top-datetime.png</file>
+    <file>icons/dark/24/graph2d-axis-top-log.png</file>
+    <file>icons/dark/24/graph2d-axis-top-symbol.png</file>
+    <file>icons/dark/24/graph2d-axis-top-text.png</file>
+    <file>icons/dark/24/graph2d-axis-top-time.png</file>
+    <file>icons/dark/24/graph2d-axis-top-value.png</file>
     <file>icons/dark/24/graph2d-layout.png</file>
     <file>icons/dark/24/graph3d-bar.png</file>
     <file>icons/dark/24/graph3d-ribbon.png</file>

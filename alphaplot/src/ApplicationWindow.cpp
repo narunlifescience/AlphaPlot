@@ -4690,7 +4690,7 @@ void ApplicationWindow::setAutoScale() {
   QList<Axis2D *> axes = axisrect->getAxes2D();
   foreach (Axis2D *axis, axes) { axis->rescale(); }
   foreach (StatBox2D *statbox, axisrect->getStatBoxVec()) {
-    statbox->rescaleaxes_statbox();
+    statbox->rescaleaxes_statbox(); break;
   }
   axisrect->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
@@ -9514,6 +9514,54 @@ void ApplicationWindow::loadIcons() {
       IconLoader::load("graph2d-axis-left", IconLoader::LightDark));
   ui_->menuAddRightAxis->setIcon(
       IconLoader::load("graph2d-axis-right", IconLoader::LightDark));
+  ui_->actionLeftValue->setIcon(
+      IconLoader::load("graph2d-axis-left-value", IconLoader::LightDark));
+  ui_->actionLeftLog->setIcon(
+      IconLoader::load("graph2d-axis-left-log", IconLoader::LightDark));
+  ui_->actionLeftPi->setIcon(
+      IconLoader::load("graph2d-axis-left-symbol", IconLoader::LightDark));
+  ui_->actionLeftText->setIcon(
+      IconLoader::load("graph2d-axis-left-text", IconLoader::LightDark));
+  ui_->actionLeftTime->setIcon(
+      IconLoader::load("graph2d-axis-left-time", IconLoader::LightDark));
+  ui_->actionLeftDateTime->setIcon(
+      IconLoader::load("graph2d-axis-left-datetime", IconLoader::LightDark));
+  ui_->actionTopValue->setIcon(
+      IconLoader::load("graph2d-axis-top-value", IconLoader::LightDark));
+  ui_->actionTopLog->setIcon(
+      IconLoader::load("graph2d-axis-top-log", IconLoader::LightDark));
+  ui_->actionTopPi->setIcon(
+      IconLoader::load("graph2d-axis-top-symbol", IconLoader::LightDark));
+  ui_->actionTopText->setIcon(
+      IconLoader::load("graph2d-axis-top-text", IconLoader::LightDark));
+  ui_->actionTopTime->setIcon(
+      IconLoader::load("graph2d-axis-top-time", IconLoader::LightDark));
+  ui_->actionTopDateTime->setIcon(
+      IconLoader::load("graph2d-axis-top-datetime", IconLoader::LightDark));
+  ui_->actionBottomValue->setIcon(
+      IconLoader::load("graph2d-axis-bottom-value", IconLoader::LightDark));
+  ui_->actionBottomLog->setIcon(
+      IconLoader::load("graph2d-axis-bottom-log", IconLoader::LightDark));
+  ui_->actionBottomPi->setIcon(
+      IconLoader::load("graph2d-axis-bottom-symbol", IconLoader::LightDark));
+  ui_->actionBottomText->setIcon(
+      IconLoader::load("graph2d-axis-bottom-text", IconLoader::LightDark));
+  ui_->actionBottomTime->setIcon(
+      IconLoader::load("graph2d-axis-bottom-time", IconLoader::LightDark));
+  ui_->actionBottomDateTime->setIcon(
+      IconLoader::load("graph2d-axis-bottom-datetime", IconLoader::LightDark));
+  ui_->actionRightValue->setIcon(
+      IconLoader::load("graph2d-axis-right-value", IconLoader::LightDark));
+  ui_->actionRightLog->setIcon(
+      IconLoader::load("graph2d-axis-right-log", IconLoader::LightDark));
+  ui_->actionRightPi->setIcon(
+      IconLoader::load("graph2d-axis-right-symbol", IconLoader::LightDark));
+  ui_->actionRightText->setIcon(
+      IconLoader::load("graph2d-axis-right-text", IconLoader::LightDark));
+  ui_->actionRightTime->setIcon(
+      IconLoader::load("graph2d-axis-right-time", IconLoader::LightDark));
+  ui_->actionRightDateTime->setIcon(
+      IconLoader::load("graph2d-axis-right-datetime", IconLoader::LightDark));
   ui_->actionLegendReorder->setIcon(
       IconLoader::load("edit-legend", IconLoader::LightDark));
   ui_->actionAddText->setIcon(

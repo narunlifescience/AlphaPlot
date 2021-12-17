@@ -102,8 +102,7 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       IconLoader::load("clear-loginfo", IconLoader::General));
   removestatbox_->setIcon(
       IconLoader::load("clear-loginfo", IconLoader::General));
-  removepie_->setIcon(
-      IconLoader::load("clear-loginfo", IconLoader::General));
+  removepie_->setIcon(IconLoader::load("clear-loginfo", IconLoader::General));
   removeerrorbar_->setIcon(
       IconLoader::load("clear-loginfo", IconLoader::General));
   removetextitem_->setIcon(
@@ -112,14 +111,6 @@ MyTreeWidget::MyTreeWidget(QWidget *parent)
       IconLoader::load("clear-loginfo", IconLoader::General));
   removeimageitem_->setIcon(
       IconLoader::load("clear-loginfo", IconLoader::General));
-  clonetotopaxis_->setIcon(
-      IconLoader::load("graph2d-axis-top", IconLoader::LightDark));
-  clonetobottomaxis_->setIcon(
-      IconLoader::load("graph2d-axis-bottom", IconLoader::LightDark));
-  clonetoleftaxis_->setIcon(
-      IconLoader::load("graph2d-axis-left", IconLoader::LightDark));
-  clonetorightaxis_->setIcon(
-      IconLoader::load("graph2d-axis-right", IconLoader::LightDark));
   moveupls_->setIcon(IconLoader::load("edit-up", IconLoader::LightDark));
   moveupchannel_->setIcon(IconLoader::load("edit-up", IconLoader::LightDark));
   moveupcurve_->setIcon(IconLoader::load("edit-up", IconLoader::LightDark));
@@ -375,6 +366,10 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       Axis2D *ax = static_cast<Axis2D *>(ptr);
       cloneaxismenu.setTitle(tr("Clone Axis..."));
       menu.addMenu(&cloneaxismenu);
+      clonetobottomaxis_->setIcon(ax->geticon_axis());
+      clonetotopaxis_->setIcon(ax->geticon_axis());
+      clonetoleftaxis_->setIcon(ax->geticon_axis());
+      clonetorightaxis_->setIcon(ax->geticon_axis());
       if (ax->getorientation_axis() == Axis2D::AxisOreantation::Top ||
           ax->getorientation_axis() == Axis2D::AxisOreantation::Bottom) {
         cloneaxismenu.addAction(clonetotopaxis_);
@@ -648,21 +643,19 @@ void MyTreeWidget::removeStatBox2D() {
   if (!result) {
     qDebug() << "unable to remove statbox 2d plot";
     return;
-    }
+  }
 }
 
-void MyTreeWidget::removePie2D()
-{
+void MyTreeWidget::removePie2D() {
   QAction *action = qobject_cast<QAction *>(sender());
   if (!action) return;
   void *ptr = action->data().value<void *>();
   Pie2D *pie = static_cast<Pie2D *>(ptr);
-  bool result =
-      pie->getaxisrect()->removePie2D(pie);
+  bool result = pie->getaxisrect()->removePie2D(pie);
   if (!result) {
     qDebug() << "unable to remove pie 2d plot";
     return;
-    }
+  }
 }
 
 void MyTreeWidget::removeErrorBar2D() {

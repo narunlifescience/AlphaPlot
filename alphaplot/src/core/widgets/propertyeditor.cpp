@@ -5775,20 +5775,17 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
           case Axis2D::AxisOreantation::Bottom:
             axistext = QString(axis->getname_axis() +
                                QString::number(axis->getnumber_axis()));
-            axisitem->setIcon(0, IconLoader::load("graph2d-axis-bottom",
-                                                  IconLoader::LightDark));
             break;
           case Axis2D::AxisOreantation::Top:
             axistext = QString(axis->getname_axis() +
                                QString::number(axis->getnumber_axis()));
-            axisitem->setIcon(
-                0, IconLoader::load("graph2d-axis-top", IconLoader::LightDark));
             break;
           case Axis2D::AxisOreantation::Left:
           case Axis2D::AxisOreantation::Right:
             qDebug() << "no left & right oriented X axis";
             break;
         }
+        axisitem->setIcon(0, axis->geticon_axis());
         axisitem->setText(0, axistext);
         axisitem->setToolTip(0, axistext);
         axisitem->setData(
@@ -5809,20 +5806,17 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
           case Axis2D::AxisOreantation::Left:
             axistext = QString(axis->getlabeltext_axis() + "(Y) :" +
                                QString::number(axis->getnumber_axis()));
-            axisitem->setIcon(0, IconLoader::load("graph2d-axis-left",
-                                                  IconLoader::LightDark));
             break;
           case Axis2D::AxisOreantation::Right:
             axistext = QString(axis->getlabeltext_axis() + "(Y) :" +
                                QString::number(axis->getnumber_axis()));
-            axisitem->setIcon(0, IconLoader::load("graph2d-axis-right",
-                                                  IconLoader::LightDark));
             break;
           case Axis2D::AxisOreantation::Top:
           case Axis2D::AxisOreantation::Bottom:
             qDebug() << "no top & bottom oriented Y axis";
             break;
         }
+        axisitem->setIcon(0, axis->geticon_axis());
         axisitem->setText(0, axistext);
         axisitem->setToolTip(0, axistext);
         axisitem->setData(

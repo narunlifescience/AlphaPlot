@@ -20,6 +20,7 @@
 
 #include "AxisRect2D.h"
 #include "Plot2D.h"
+#include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
@@ -57,6 +58,7 @@ Axis2D::Axis2D(AxisRect2D *parent, const AxisType type,
       break;
   }
   setTicker(ticker_);
+  reloadIcon();
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
 }
 
@@ -463,6 +465,123 @@ void Axis2D::removetickertext() {
       setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTickerText));
       tickertextcol_ = nullptr;
     }
+}
+
+void Axis2D::reloadIcon() {
+  switch (getorientation_axis()) {
+    case Axis2D::AxisOreantation::Left:
+      switch (gettickertype_axis()) {
+        case Axis2D::TickerType::Value:
+          icon_ = IconLoader::load("graph2d-axis-left-value",
+                                   IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Log:
+          icon_ =
+              IconLoader::load("graph2d-axis-left-log", IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Pi:
+          icon_ =
+              IconLoader::load("graph2d-axis-left-symbol", IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Time:
+          icon_ =
+              IconLoader::load("graph2d-axis-left-time", IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::DateTime:
+          icon_ = IconLoader::load("graph2d-axis-left-datetime",
+                                   IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Text:
+          icon_ =
+              IconLoader::load("graph2d-axis-left-text", IconLoader::LightDark);
+          break;
+      }
+      break;
+    case Axis2D::AxisOreantation::Bottom:
+      switch (gettickertype_axis()) {
+        case Axis2D::TickerType::Value:
+          icon_ = IconLoader::load("graph2d-axis-bottom-value",
+                                   IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Log:
+          icon_ = IconLoader::load("graph2d-axis-bottom-log",
+                                   IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Pi:
+          icon_ =
+              IconLoader::load("graph2d-axis-bottom-symbol", IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Time:
+          icon_ = IconLoader::load("graph2d-axis-bottom-time",
+                                   IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::DateTime:
+          icon_ = IconLoader::load("graph2d-axis-bottom-datetime",
+                                   IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Text:
+          icon_ = IconLoader::load("graph2d-axis-bottom-text",
+                                   IconLoader::LightDark);
+          break;
+      }
+      break;
+    case Axis2D::AxisOreantation::Right:
+      switch (gettickertype_axis()) {
+        case Axis2D::TickerType::Value:
+          icon_ = IconLoader::load("graph2d-axis-right-value",
+                                   IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Log:
+          icon_ =
+              IconLoader::load("graph2d-axis-right-log", IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Pi:
+          icon_ =
+              IconLoader::load("graph2d-axis-right-symbol", IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Time:
+          icon_ = IconLoader::load("graph2d-axis-right-time",
+                                   IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::DateTime:
+          icon_ = IconLoader::load("graph2d-axis-right-datetime",
+                                   IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Text:
+          icon_ = IconLoader::load("graph2d-axis-right-text",
+                                   IconLoader::LightDark);
+          break;
+      }
+      break;
+    case Axis2D::AxisOreantation::Top:
+      switch (gettickertype_axis()) {
+        case Axis2D::TickerType::Value:
+          icon_ =
+              IconLoader::load("graph2d-axis-top-value", IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Log:
+          icon_ =
+              IconLoader::load("graph2d-axis-top-log", IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Pi:
+          icon_ =
+              IconLoader::load("graph2d-axis-top-symbol", IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Time:
+          icon_ =
+              IconLoader::load("graph2d-axis-top-time", IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::DateTime:
+          icon_ = IconLoader::load("graph2d-axis-top-datetime",
+                                   IconLoader::LightDark);
+          break;
+        case Axis2D::TickerType::Text:
+          icon_ =
+              IconLoader::load("graph2d-axis-top-text", IconLoader::LightDark);
+          break;
+      }
+      break;
+  }
 }
 
 void Axis2D::save(XmlStreamWriter *xmlwriter) {

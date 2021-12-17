@@ -101,6 +101,7 @@ class Axis2D : public QCPAxis {
   AxisLabelFormat getticklabelformat_axis() const;
   int getticklabelprecision_axis() const;
 
+  QIcon geticon_axis() const { return icon_; }
   QString getname_axis() const;
   uint getnumber_axis() const;
   QSharedPointer<QCPAxisTicker> getticker_axis();
@@ -158,11 +159,15 @@ class Axis2D : public QCPAxis {
   void clone(Axis2D *axis);
 
  private:
+  void reloadIcon();
+
+ private:
   AxisRect2D *axisrect_;
   Axis2D::TickerType tickertype_;
   QSharedPointer<QCPAxisTicker> ticker_;
   QString layername_;
   std::unique_ptr<QVector<QString>> tickertext_;
+  QIcon icon_;
   Column *tickertextcol_;
   int tickertextcolfrom_;
   int tickertextcolto_;

@@ -318,13 +318,15 @@ SOURCES     += ../3rdparty/qcustomplot/qcustomplot.cpp
                ../3rdparty/propertybrowser/qtpropertymanager.cpp \
                ../3rdparty/propertybrowser/qteditorfactory.cpp \
                ../3rdparty/propertybrowser/qttreepropertybrowser.cpp \
-               ../3rdparty/propertybrowser/qtpropertybrowserutils.cpp
+               ../3rdparty/propertybrowser/qtpropertybrowserutils.cpp \
+               ../3rdparty/propertybrowser/QtxDoubleSpinBox.cpp
 
     HEADERS += ../3rdparty/propertybrowser/qtpropertybrowser.h \
                ../3rdparty/propertybrowser/qtpropertymanager.h \
                ../3rdparty/propertybrowser/qteditorfactory.h \
                ../3rdparty/propertybrowser/qttreepropertybrowser.h \
-               ../3rdparty/propertybrowser/qtpropertybrowserutils_p.h
+               ../3rdparty/propertybrowser/qtpropertybrowserutils_p.h \
+               ../3rdparty/propertybrowser/QtxDoubleSpinBox.h
 
     RESOURCES += ../3rdparty/propertybrowser/qtpropertybrowser.qrc
 

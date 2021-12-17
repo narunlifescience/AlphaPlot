@@ -213,6 +213,7 @@ class AxisRect2D : public QCPAxisRect {
 
   bool loadLineSpecialChannel2D(XmlStreamReader *xmlreader,
                                 QList<Table *> tabs);
+  QList<Column *> getPlotColumns();
 
   // message boxes
   void noMinimumDataPoints(const int points);
