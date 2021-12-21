@@ -56,6 +56,7 @@ class QtEnumPropertyManager;
 class QtGroupPropertyManager;
 class QtColorPropertyManager;
 class QtFontPropertyManager;
+class QtDateTimePropertyManager;
 class QtCheckBoxFactory;
 class QtSpinBoxFactory;
 class QtDoubleSpinBoxFactory;
@@ -63,6 +64,7 @@ class QtLineEditFactory;
 class QtEnumEditorFactory;
 class QtColorEditorFactory;
 class QtFontEditorFactory;
+class QtDateTimeEditFactory;
 
 namespace QtDataVisualization {
 class QAbstract3DGraph;
@@ -92,6 +94,7 @@ class PropertyEditor : public QDockWidget {
   void valueChange(QtProperty *prop, const int value);
   void enumValueChange(QtProperty *prop, const int value);
   void valueChange(QtProperty *prop, const QFont &font);
+  void datetimeValueChange(QtProperty *prop, const QDateTime &datetime);
   void valueChange(QtProperty *prop, const QSize &size);
 
   void selectObjectItem(QTreeWidgetItem *item);
@@ -170,6 +173,7 @@ class PropertyEditor : public QDockWidget {
   QtEnumPropertyManager *enumManager_;
   QtColorPropertyManager *colorManager_;
   QtFontPropertyManager *fontManager_;
+  QtDateTimePropertyManager *datetimeManager_;
   // Property Widget Factory
   QtCheckBoxFactory *checkBoxFactory_;
   QtSpinBoxFactory *spinBoxFactory_;
@@ -178,6 +182,7 @@ class PropertyEditor : public QDockWidget {
   QtEnumEditorFactory *comboBoxFactory_;
   QtColorEditorFactory *colorFactory_;
   QtFontEditorFactory *fontFactory_;
+  QtDateTimeEditFactory *datetimeFactory_;
   // window properties
   QtProperty *mywidgetwindowrectitem_;
   QtProperty *mywidgetwindownameitem_;
@@ -220,6 +225,20 @@ class PropertyEditor : public QDockWidget {
   QtProperty *axispropertylabelfontitem_;
   QtProperty *axispropertylabelcoloritem_;
   QtProperty *axispropertylabelpaddingitem_;
+  // Axis Properties Ticker
+  QtProperty *axispropertytickstepstrategy_;
+  //QtProperty *axispropertytickervaluetickstep_;
+  //QtProperty *axispropertytickervaluescalestrategy_;
+  QtProperty *axispropertytickersymbolsymbol_;
+  QtProperty *axispropertytickersymbolvalue_;
+  //QtProperty *axispropertytickersymbolperiodicity_;
+  QtProperty *axispropertytickersymbolfractionstyle_;
+  QtProperty *axispropertytickersubtickcount_;
+  QtProperty *axispropertytickerlogbase_;
+  QtProperty *axispropertytickertimeformat_;
+  //QtProperty *axispropertytickertimefieldwidth_;
+  QtProperty *axispropertytickerdatetimeformat_;
+  //QtProperty *axispropertytickerdatetimetickorigin_;
   // Axis Properties Ticks sub block
   QtProperty *axispropertytickvisibilityitem_;
   QtProperty *axispropertytickcountitem_;

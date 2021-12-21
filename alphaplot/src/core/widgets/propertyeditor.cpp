@@ -78,6 +78,7 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
       enumManager_(new QtEnumPropertyManager(propertybrowser_)),
       colorManager_(new QtColorPropertyManager(propertybrowser_)),
       fontManager_(new QtFontPropertyManager(propertybrowser_)),
+      datetimeManager_(new QtDateTimePropertyManager(propertybrowser_)),
       // Property Widget factory
       checkBoxFactory_(new QtCheckBoxFactory(propertybrowser_)),
       spinBoxFactory_(new QtSpinBoxFactory(propertybrowser_)),
@@ -85,7 +86,8 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
       lineEditFactory_(new QtLineEditFactory(propertybrowser_)),
       comboBoxFactory_(new QtEnumEditorFactory(propertybrowser_)),
       colorFactory_(new QtColorEditorFactory(propertybrowser_)),
-      fontFactory_(new QtFontEditorFactory(propertybrowser_)) {
+      fontFactory_(new QtFontEditorFactory(propertybrowser_)),
+      datetimeFactory_(new QtDateTimeEditFactory(propertybrowser_)) {
   Q_ASSERT(app_);
   ui_->setupUi(this);
   setWindowTitle(tr("Property Editor"));
@@ -154,7 +156,13 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
                   << tr("Line Arrow") << tr("Disc") << tr("Square")
                   << tr("Diamond") << tr("Bar") << tr("Half Bar")
                   << tr("Skewed Bar");
-
+  QStringList tickstepstrategy;
+  tickstepstrategy << tr("Readability") << tr("Meet Tick Count");
+  QStringList tickervaluescalestrategy;
+  tickervaluescalestrategy << tr("None") << tr("Multiples") << tr("Powers");
+  QStringList tickersymbolfractionstyle;
+  tickersymbolfractionstyle << tr("Floating Point") << tr("Ascii Fractions")
+                            << tr("Unicode Fractions");
   // Property browser set up appropriate widget factory
   propertybrowser_->setFactoryForManager(boolManager_, checkBoxFactory_);
   propertybrowser_->setFactoryForManager(intManager_, spinBoxFactory_);
@@ -167,6 +175,7 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   propertybrowser_->setFactoryForManager(enumManager_, comboBoxFactory_);
   propertybrowser_->setFactoryForManager(colorManager_, colorFactory_);
   propertybrowser_->setFactoryForManager(fontManager_, fontFactory_);
+  propertybrowser_->setFactoryForManager(datetimeManager_, datetimeFactory_);
 
   // MyWidget window Properties
   mywidgetwindowrectitem_ = rectManager_->addProperty(tr("Geometry"));
@@ -293,6 +302,53 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   // Axis Properties Ticks Label sub block
   axispropertyticklabelvisibilityitem_ =
       boolManager_->addProperty("Tick Label");
+  // axispropertytickervaluescalestrategy_ =
+  //    enumManager_->addProperty("Scale Strategy");
+  // enumManager_->setEnumNames(axispropertytickervaluescalestrategy_,
+  //                           tickervaluescalestrategy);
+  axispropertytickstepstrategy_ = enumManager_->addProperty("Step Strategy");
+  enumManager_->setEnumNames(axispropertytickstepstrategy_, tickstepstrategy);
+  // axispropertytickervaluetickstep_ = doubleManager_->addProperty("Step");
+  axispropertytickersymbolsymbol_ = stringManager_->addProperty("Symbol");
+  axispropertytickersymbolvalue_ = doubleManager_->addProperty("Symbol Value");
+  // axispropertytickersymbolperiodicity_ =
+  //    intManager_->addProperty("Periodicity");
+  axispropertytickersymbolfractionstyle_ =
+      enumManager_->addProperty("Fraction Style");
+  enumManager_->setEnumNames(axispropertytickersymbolfractionstyle_,
+                             tickersymbolfractionstyle);
+  axispropertytickersubtickcount_ = intManager_->addProperty("Count");
+  axispropertytickerlogbase_ = doubleManager_->addProperty("Log Base");
+  axispropertytickertimeformat_ = stringManager_->addProperty("Time Format");
+  // axispropertytickertimefieldwidth_ = stringManager_;
+  axispropertytickerdatetimeformat_ =
+      stringManager_->addProperty("Date Time Format");
+  // axispropertytickerdatetimetickorigin_ =
+  //    datetimeManager_->addProperty("Origin");
+  axispropertyticklabelvisibilityitem_->addSubProperty(
+      axispropertytickstepstrategy_);
+  /*axispropertyticklabelvisibilityitem_->addSubProperty(
+      axispropertytickervaluetickstep_);
+  axispropertyticklabelvisibilityitem_->addSubProperty(
+      axispropertytickervaluescalestrategy_);*/
+  axispropertyticklabelvisibilityitem_->addSubProperty(
+      axispropertytickersymbolvalue_);
+  axispropertyticklabelvisibilityitem_->addSubProperty(
+      axispropertytickersymbolsymbol_);
+  // axispropertyticklabelvisibilityitem_->addSubProperty(
+  //    axispropertytickersymbolperiodicity_);
+  axispropertyticklabelvisibilityitem_->addSubProperty(
+      axispropertytickersymbolfractionstyle_);
+  axispropertyticklabelvisibilityitem_->addSubProperty(
+      axispropertytickerlogbase_);
+  axispropertyticklabelvisibilityitem_->addSubProperty(
+      axispropertytickertimeformat_);
+  // axispropertyticklabelvisibilityitem_->addSubProperty(
+  //    axispropertytickertimefieldwidth_);
+  axispropertyticklabelvisibilityitem_->addSubProperty(
+      axispropertytickerdatetimeformat_);
+  // axispropertyticklabelvisibilityitem_->addSubProperty(
+  //    axispropertytickerdatetimetickorigin_);
   axispropertyticklabelfontitem_ = fontManager_->addProperty("Font");
   axispropertyticklabelvisibilityitem_->addSubProperty(
       axispropertyticklabelfontitem_);
@@ -1441,6 +1497,8 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
           SLOT(enumValueChange(QtProperty *, const int)));
   connect(fontManager_, SIGNAL(valueChanged(QtProperty *, QFont)), this,
           SLOT(valueChange(QtProperty *, const QFont &)));
+  connect(datetimeManager_, &QtDateTimePropertyManager::valueChanged, this,
+          &PropertyEditor::datetimeValueChange);
   connect(sizeManager_, SIGNAL(valueChanged(QtProperty *, QSize)), this,
           SLOT(valueChange(QtProperty *, const QSize &)));
   connect(this, &PropertyEditor::refreshCanvasRect, [=]() {
@@ -2424,10 +2482,34 @@ void PropertyEditor::valueChange(QtProperty *prop, const double &value) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setsubtickstrokethickness_axis(value);
     axis->layer()->replot();
+  }
+  // this seems to crash the application some how
+  /*else if (prop->compare(axispropertytickervaluetickstep_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    QSharedPointer<QCPAxisTickerFixed> valueticker =
+        qSharedPointerCast<QCPAxisTickerFixed>(axis->getticker_axis());
+    valueticker->setTickStep(value);
+    axis->setTicker(valueticker);
+    axis->layer()->replot();
+  }*/
+  else if (prop->compare(axispropertytickerlogbase_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    QSharedPointer<QCPAxisTickerLog> logticker =
+        qSharedPointerCast<QCPAxisTickerLog>(axis->getticker_axis());
+    logticker->setLogBase(value);
+    axis->setTicker(logticker);
+    axis->parentPlot()->replot();
+  } else if (prop->compare(axispropertytickersymbolvalue_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    QSharedPointer<QCPAxisTickerPi> piticker =
+        qSharedPointerCast<QCPAxisTickerPi>(axis->getticker_axis());
+    piticker->setPiValue(value);
+    axis->setTicker(piticker);
+    axis->parentPlot()->replot();
   } else if (prop->compare(axispropertyticklabelrotationitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelrotation_axis(value);
-    axis->layer()->replot();
+    axis->parentPlot()->replot();
   } else if (prop->compare(itempropertylegendoriginxitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
@@ -2891,6 +2973,28 @@ void PropertyEditor::valueChange(QtProperty *prop, const QString &value) {
     objectbrowser_->currentItem()->setText(
         0, axis->getname_axis() + QString::number(axis->getnumber_axis()));
     axis->layer()->replot();
+  } else if (prop->compare(axispropertytickersymbolsymbol_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    QSharedPointer<QCPAxisTickerPi> piticker =
+        qSharedPointerCast<QCPAxisTickerPi>(axis->getticker_axis());
+    piticker->setPiSymbol(Utilities::splitstring(value));
+    axis->setLabel(Utilities::splitstring(value));
+    axis->setTicker(piticker);
+    axis->parentPlot()->replot();
+  } else if (prop->compare(axispropertytickertimeformat_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    QSharedPointer<QCPAxisTickerTime> timeticker =
+        qSharedPointerCast<QCPAxisTickerTime>(axis->getticker_axis());
+    timeticker->setTimeFormat(Utilities::splitstring(value));
+    axis->setTicker(timeticker);
+    axis->parentPlot()->replot();
+  } else if (prop->compare(axispropertytickerdatetimeformat_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    QSharedPointer<QCPAxisTickerDateTime> datetimeticker =
+        qSharedPointerCast<QCPAxisTickerDateTime>(axis->getticker_axis());
+    datetimeticker->setDateTimeFormat(Utilities::splitstring(value));
+    axis->setTicker(datetimeticker);
+    axis->parentPlot()->replot();
   } else if (prop->compare(itempropertylegendtitletextitem_)) {
     Legend2D *legend =
         getgraph2dobject<Legend2D>(objectbrowser_->currentItem());
@@ -3047,6 +3151,27 @@ void PropertyEditor::valueChange(QtProperty *prop, const int value) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setsubticklengthout_axis(value);
     axis->layer()->replot();
+  } else if (prop->compare(axispropertytickersubtickcount_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    switch (axis->gettickertype_axis()) {
+      case Axis2D::TickerType::Log: {
+        QSharedPointer<QCPAxisTickerLog> logticker =
+            qSharedPointerCast<QCPAxisTickerLog>(axis->getticker_axis());
+        logticker->setSubTickCount(value);
+        axis->setTicker(logticker);
+      } break;
+      case Axis2D::TickerType::Text: {
+        QSharedPointer<QCPAxisTickerText> textticker =
+            qSharedPointerCast<QCPAxisTickerText>(axis->getticker_axis());
+        textticker->setSubTickCount(value);
+        axis->setTicker(textticker);
+      } break;
+      default:
+        qDebug()
+            << "axispropertytickersubtickcount_ unsupported for ticker type";
+        break;
+    }
+    axis->parentPlot()->replot();
   } else if (prop->compare(axispropertyticklabelpaddingitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelpadding_axis(value);
@@ -3250,6 +3375,46 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setsubtickstrokestyle_axis(static_cast<Qt::PenStyle>(value + 1));
     axis->layer()->replot();
+  } else if (prop->compare(axispropertytickstepstrategy_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    QSharedPointer<QCPAxisTicker> ticker = axis->getticker_axis();
+    (value == 0) ? ticker->setTickStepStrategy(
+                       QCPAxisTicker::TickStepStrategy::tssReadability)
+    : (value == 1) ? ticker->setTickStepStrategy(
+                         QCPAxisTicker::TickStepStrategy::tssMeetTickCount)
+                   : ticker->setTickStepStrategy(
+                         QCPAxisTicker::TickStepStrategy::tssReadability);
+    axis->setTicker(ticker);
+    axis->layer()->replot();
+  } /*else if (prop->compare(axispropertytickervaluescalestrategy_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    QSharedPointer<QCPAxisTickerFixed> valueticker =
+        qSharedPointerCast<QCPAxisTickerFixed>(axis->getticker_axis());
+    (value == 0) ? valueticker->setScaleStrategy(
+                       QCPAxisTickerFixed::ScaleStrategy::ssNone)
+    : (value == 1) ? valueticker->setScaleStrategy(
+                         QCPAxisTickerFixed::ScaleStrategy::ssMultiples)
+    : (value == 2) ? valueticker->setScaleStrategy(
+                         QCPAxisTickerFixed::ScaleStrategy::ssPowers)
+                   : valueticker->setScaleStrategy(
+                         QCPAxisTickerFixed::ScaleStrategy::ssNone);
+    axis->setTicker(valueticker);
+    axis->layer()->replot();
+  }*/
+  else if (prop->compare(axispropertytickersymbolfractionstyle_)) {
+    Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
+    QSharedPointer<QCPAxisTickerPi> piticker =
+        qSharedPointerCast<QCPAxisTickerPi>(axis->getticker_axis());
+    (value == 0) ? piticker->setFractionStyle(
+                       QCPAxisTickerPi::FractionStyle::fsFloatingPoint)
+    : (value == 1) ? piticker->setFractionStyle(
+                         QCPAxisTickerPi::FractionStyle::fsAsciiFractions)
+    : (value == 2) ? piticker->setFractionStyle(
+                         QCPAxisTickerPi::FractionStyle::fsUnicodeFractions)
+                   : piticker->setFractionStyle(
+                         QCPAxisTickerPi::FractionStyle::fsFloatingPoint);
+    axis->setTicker(piticker);
+    axis->parentPlot()->replot();
   } else if (prop->compare(axispropertyticklabelsideitem_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
     axis->setticklabelside_axis(static_cast<Axis2D::AxisLabelSide>(value));
@@ -3827,6 +3992,9 @@ void PropertyEditor::valueChange(QtProperty *prop, const QFont &font) {
   }
 }
 
+void PropertyEditor::datetimeValueChange(QtProperty *prop,
+                                         const QDateTime &datetime) {}
+
 void PropertyEditor::valueChange(QtProperty *prop, const QSize &size) {
   if (prop->compare(canvaspropertysizeitem_)) {
     Plot2D *plot = getgraph2dobject<Plot2D>(objectbrowser_->currentItem());
@@ -4148,6 +4316,142 @@ void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
                          axis->getsubtickstrokestyle_axis() - 1);
   boolManager_->setValue(axispropertyticklabelvisibilityitem_,
                          axis->getticklabelvisibility_axis());
+  QCPAxisTicker::TickStepStrategy tss =
+      axis->getticker_axis()->tickStepStrategy();
+  int tssno = 0;
+  (tss == QCPAxisTicker::TickStepStrategy::tssReadability)     ? tssno = 0
+  : (tss == QCPAxisTicker::TickStepStrategy::tssMeetTickCount) ? tssno = 1
+                                                               : tssno = 0;
+  enumManager_->setValue(axispropertytickstepstrategy_, tssno);
+
+  // axispropertyticklabelvisibilityitem_->removeSubProperty(
+  //    axispropertytickervaluetickstep_);
+  // axispropertyticklabelvisibilityitem_->removeSubProperty(
+  //    axispropertytickervaluescalestrategy_);
+  axispropertyticklabelvisibilityitem_->removeSubProperty(
+      axispropertytickersymbolvalue_);
+  axispropertyticklabelvisibilityitem_->removeSubProperty(
+      axispropertytickersymbolsymbol_);
+  // axispropertyticklabelvisibilityitem_->addSubProperty(
+  //    axispropertytickersymbolperiodicity_);
+  axispropertyticklabelvisibilityitem_->removeSubProperty(
+      axispropertytickersymbolfractionstyle_);
+  axispropertysubtickvisibilityitem_->removeSubProperty(
+      axispropertytickersubtickcount_);
+  axispropertyticklabelvisibilityitem_->removeSubProperty(
+      axispropertytickerlogbase_);
+  axispropertyticklabelvisibilityitem_->removeSubProperty(
+      axispropertytickertimeformat_);
+  // axispropertyticklabelvisibilityitem_->addSubProperty(
+  //    axispropertytickertimefieldwidth_);
+  axispropertyticklabelvisibilityitem_->removeSubProperty(
+      axispropertytickerdatetimeformat_);
+  // axispropertyticklabelvisibilityitem_->removeSubProperty(
+  //    axispropertytickerdatetimetickorigin_);
+
+  switch (axis->gettickertype_axis()) {
+    case Axis2D::TickerType::Value: {
+      QSharedPointer<QCPAxisTickerFixed> valueticker =
+          qSharedPointerCast<QCPAxisTickerFixed>(axis->getticker_axis());
+      // doubleManager_->setValue(axispropertytickervaluetickstep_,
+      //                         valueticker->tickStep());
+      if (valueticker) {
+        /*QCPAxisTickerFixed::ScaleStrategy tfss = valueticker->scaleStrategy();
+        int tfssno = 0;
+        (tfss == QCPAxisTickerFixed::ScaleStrategy::ssNone)        ? tfssno = 0
+        : (tfss == QCPAxisTickerFixed::ScaleStrategy::ssMultiples) ? tfssno = 1
+        : (tfss == QCPAxisTickerFixed::ScaleStrategy::ssPowers)    ? tfssno = 2
+                                                                   : tfssno =
+        0;*/
+        // axispropertyticklabelvisibilityitem_->addSubProperty(
+        //    axispropertytickervaluetickstep_);
+        // axispropertyticklabelvisibilityitem_->addSubProperty(
+        //    axispropertytickervaluescalestrategy_);
+        // enumManager_->setValue(axispropertytickervaluescalestrategy_,
+        // tfssno);
+      }
+    } break;
+    case Axis2D::TickerType::Log: {
+      QSharedPointer<QCPAxisTickerLog> logticker =
+          qSharedPointerCast<QCPAxisTickerLog>(axis->getticker_axis());
+      if (logticker) {
+        axispropertysubtickvisibilityitem_->insertSubProperty(
+            axispropertytickersubtickcount_,
+            axispropertysubtickvisibilityitem_);
+        axispropertyticklabelvisibilityitem_->insertSubProperty(
+            axispropertytickerlogbase_, axispropertytickstepstrategy_);
+        doubleManager_->setValue(axispropertytickerlogbase_,
+                                 logticker->logBase());
+        intManager_->setValue(axispropertytickersubtickcount_,
+                              logticker->subTickCount());
+      }
+    } break;
+    case Axis2D::TickerType::Pi: {
+      QSharedPointer<QCPAxisTickerPi> piticker =
+          qSharedPointerCast<QCPAxisTickerPi>(axis->getticker_axis());
+      if (piticker) {
+        axispropertyticklabelvisibilityitem_->insertSubProperty(
+            axispropertytickersymbolsymbol_, axispropertytickstepstrategy_);
+        axispropertyticklabelvisibilityitem_->insertSubProperty(
+            axispropertytickersymbolvalue_, axispropertytickersymbolsymbol_);
+        // axispropertyticklabelvisibilityitem_->addSubProperty(
+        //    axispropertytickersymbolperiodicity_);
+        axispropertyticklabelvisibilityitem_->insertSubProperty(
+            axispropertytickersymbolfractionstyle_,
+            axispropertytickersymbolvalue_);
+        doubleManager_->setValue(axispropertytickersymbolvalue_,
+                                 piticker->piValue());
+        stringManager_->setValue(axispropertytickersymbolsymbol_,
+                                 piticker->piSymbol());
+        // boolManager_->setValue(
+        //    axispropertytickersymbolperiodicity_, piticker->periodicity());
+        QCPAxisTickerPi::FractionStyle fs = piticker->fractionStyle();
+        int fsno = 0;
+        (fs == QCPAxisTickerPi::FractionStyle::fsFloatingPoint)      ? fsno = 0
+        : (fs == QCPAxisTickerPi::FractionStyle::fsAsciiFractions)   ? fsno = 1
+        : (fs == QCPAxisTickerPi::FractionStyle::fsUnicodeFractions) ? fsno = 2
+                                                                     : fsno = 0;
+        enumManager_->setValue(axispropertytickersymbolfractionstyle_, fsno);
+      }
+    } break;
+    case Axis2D::TickerType::Text: {
+      QSharedPointer<QCPAxisTickerText> textticker =
+          qSharedPointerCast<QCPAxisTickerText>(axis->getticker_axis());
+      if (textticker) {
+        intManager_->setValue(axispropertytickersubtickcount_,
+                              textticker->subTickCount());
+        axispropertysubtickvisibilityitem_->insertSubProperty(
+            axispropertytickersubtickcount_,
+            axispropertysubtickvisibilityitem_);
+      }
+    } break;
+    case Axis2D::TickerType::Time: {
+      QSharedPointer<QCPAxisTickerTime> timeticker =
+          qSharedPointerCast<QCPAxisTickerTime>(axis->getticker_axis());
+      if (timeticker) {
+        axispropertyticklabelvisibilityitem_->insertSubProperty(
+            axispropertytickertimeformat_, axispropertytickstepstrategy_);
+        // axispropertyticklabelvisibilityitem_->addSubProperty(
+        //    axispropertytickertimefieldwidth_);
+        stringManager_->setValue(axispropertytickertimeformat_,
+                                 timeticker->timeFormat());
+      }
+    } break;
+    case Axis2D::TickerType::DateTime: {
+      QSharedPointer<QCPAxisTickerDateTime> datetimeticker =
+          qSharedPointerCast<QCPAxisTickerDateTime>(axis->getticker_axis());
+      if (datetimeticker) {
+        axispropertyticklabelvisibilityitem_->insertSubProperty(
+            axispropertytickerdatetimeformat_, axispropertytickstepstrategy_);
+        // axispropertyticklabelvisibilityitem_->addSubProperty(
+        //    axispropertytickerdatetimetickorigin_);
+        stringManager_->setValue(axispropertytickerdatetimeformat_,
+                                 datetimeticker->dateTimeFormat());
+        // datetimeManager_->setValue(axispropertytickerdatetimetickorigin_,
+        // Utilities::doubleToDateTime(datetimeticker->tickOrigin()));
+      }
+    } break;
+  }
   fontManager_->setValue(axispropertyticklabelfontitem_,
                          axis->getticklabelfont_axis());
   colorManager_->setValue(axispropertyticklabelcoloritem_,
@@ -7116,6 +7420,29 @@ void PropertyEditor::setObjectPropertyId() {
   // Axis Properties Ticks sub block
   axispropertytickvisibilityitem_->setPropertyId(
       "axispropertytickvisibilityitem_");
+  axispropertytickstepstrategy_->setPropertyId("axispropertytickstepstrategy_");
+  // axispropertytickervaluetickstep_->setPropertyId(
+  //    "axispropertytickervaluetickstep_");
+  // axispropertytickervaluescalestrategy_->setPropertyId(
+  //    "axispropertytickervaluescalestrategy_");
+  axispropertytickersymbolsymbol_->setPropertyId(
+      "axispropertytickersymbolsymbol_");
+  axispropertytickersymbolvalue_->setPropertyId(
+      "axispropertytickersymbolvalue_");
+  // axispropertytickersymbolperiodicity_->setPropertyId(
+  //    "axispropertytickersymbolperiodicity_");
+  axispropertytickersymbolfractionstyle_->setPropertyId(
+      "axispropertytickersymbolfractionstyle_");
+  axispropertytickersubtickcount_->setPropertyId(
+      "axispropertytickersubtickcount_");
+  axispropertytickerlogbase_->setPropertyId("axispropertytickerlogbase_");
+  axispropertytickertimeformat_->setPropertyId("axispropertytickertimeformat_");
+  // axispropertytickertimefieldwidth_->setPropertyId(
+  //    "axispropertytickertimefieldwidth_");
+  axispropertytickerdatetimeformat_->setPropertyId(
+      "axispropertytickerdatetimeformat_");
+  // axispropertytickerdatetimetickorigin_->setPropertyId(
+  //    "axispropertytickerdatetimetickorigin_");
   axispropertytickcountitem_->setPropertyId("axispropertytickcountitem_");
   axispropertytickoriginitem_->setPropertyId("axispropertytickoriginitem_");
   axispropertyticklengthinitem_->setPropertyId("axispropertyticklengthinitem_");

@@ -18,6 +18,7 @@
 
 #include "core/Utilities.h"
 
+#include <QDateTime>
 #include <QDebug>
 #include <QProcess>
 #include <QStringList>
@@ -270,6 +271,14 @@ QString Utilities::joinstring(QString string) {
     final += "<|>" + stringlist.at(i);
   }
   return final;
+}
+
+double Utilities::dateTimeToDouble(const QDateTime& dateTime) {
+  return dateTime.toMSecsSinceEpoch() / 1000.0;
+}
+
+QDateTime Utilities::doubleToDateTime(double value) {
+  return QDateTime::fromMSecsSinceEpoch(qint64(value * 1000.0));
 }
 
 QImage Utilities::convertToGrayScale(const QImage& srcImage) {

@@ -480,8 +480,8 @@ void Axis2D::reloadIcon() {
               IconLoader::load("graph2d-axis-left-log", IconLoader::LightDark);
           break;
         case Axis2D::TickerType::Pi:
-          icon_ =
-              IconLoader::load("graph2d-axis-left-symbol", IconLoader::LightDark);
+          icon_ = IconLoader::load("graph2d-axis-left-symbol",
+                                   IconLoader::LightDark);
           break;
         case Axis2D::TickerType::Time:
           icon_ =
@@ -508,8 +508,8 @@ void Axis2D::reloadIcon() {
                                    IconLoader::LightDark);
           break;
         case Axis2D::TickerType::Pi:
-          icon_ =
-              IconLoader::load("graph2d-axis-bottom-symbol", IconLoader::LightDark);
+          icon_ = IconLoader::load("graph2d-axis-bottom-symbol",
+                                   IconLoader::LightDark);
           break;
         case Axis2D::TickerType::Time:
           icon_ = IconLoader::load("graph2d-axis-bottom-time",
@@ -536,8 +536,8 @@ void Axis2D::reloadIcon() {
               IconLoader::load("graph2d-axis-right-log", IconLoader::LightDark);
           break;
         case Axis2D::TickerType::Pi:
-          icon_ =
-              IconLoader::load("graph2d-axis-right-symbol", IconLoader::LightDark);
+          icon_ = IconLoader::load("graph2d-axis-right-symbol",
+                                   IconLoader::LightDark);
           break;
         case Axis2D::TickerType::Time:
           icon_ = IconLoader::load("graph2d-axis-right-time",
@@ -564,8 +564,8 @@ void Axis2D::reloadIcon() {
               IconLoader::load("graph2d-axis-top-log", IconLoader::LightDark);
           break;
         case Axis2D::TickerType::Pi:
-          icon_ =
-              IconLoader::load("graph2d-axis-top-symbol", IconLoader::LightDark);
+          icon_ = IconLoader::load("graph2d-axis-top-symbol",
+                                   IconLoader::LightDark);
           break;
         case Axis2D::TickerType::Time:
           icon_ =
@@ -709,24 +709,55 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
                           : xmlwriter->writeAttribute("antialias", "false");
   xmlwriter->writePen(basePen());
   xmlwriter->writeStartElement("ticker");
+  (ticker_->tickStepStrategy() ==
+   QCPAxisTicker::TickStepStrategy::tssReadability)
+      ? xmlwriter->writeAttribute("tickstepstrategy", "readability")
+      : xmlwriter->writeAttribute("tickstepstrategy", "meettickcount");
   switch (tickertype_) {
-    case Axis2D::TickerType::Pi:
+    case Axis2D::TickerType::Pi: {
       xmlwriter->writeAttribute("type", "symbol");
-      break;
+      QSharedPointer<QCPAxisTickerPi> piticker =
+          qSharedPointerCast<QCPAxisTickerPi>(ticker_);
+      if (piticker) {
+        xmlwriter->writeAttribute("symbol", piticker->piSymbol());
+        xmlwriter->writeAttribute("symbolvalue",
+                                  QString::number(piticker->piValue()));
+        (piticker->fractionStyle() ==
+         QCPAxisTickerPi::FractionStyle::fsFloatingPoint)
+            ? xmlwriter->writeAttribute("fractionstyle", "floatingpoint")
+        : (piticker->fractionStyle() ==
+           QCPAxisTickerPi::FractionStyle::fsAsciiFractions)
+            ? xmlwriter->writeAttribute("fractionstyle", "asciifractions")
+            : xmlwriter->writeAttribute("fractionstyle", "unicodefractions");
+      }
+    } break;
     case Axis2D::TickerType::Value:
       xmlwriter->writeAttribute("type", "value");
       break;
-    case Axis2D::TickerType::Log:
+    case Axis2D::TickerType::Log: {
       xmlwriter->writeAttribute("type", "log");
-      break;
-    case Axis2D::TickerType::Time:
+      QSharedPointer<QCPAxisTickerLog> logticker =
+          qSharedPointerCast<QCPAxisTickerLog>(ticker_);
+      if (logticker) {
+        xmlwriter->writeAttribute("logbase",
+                                  QString::number(logticker->logBase()));
+      }
+    } break;
+    case Axis2D::TickerType::Time: {
       xmlwriter->writeAttribute("type", "time");
-      break;
+      QSharedPointer<QCPAxisTickerTime> timeticker =
+          qSharedPointerCast<QCPAxisTickerTime>(ticker_);
+      if (timeticker) {
+        xmlwriter->writeAttribute("format", timeticker->timeFormat());
+      }
+    } break;
     case Axis2D::TickerType::DateTime: {
       xmlwriter->writeAttribute("type", "datetime");
-      xmlwriter->writeAttribute(
-          "format",
-          ticker_.staticCast<QCPAxisTickerDateTime>()->dateTimeFormat());
+      QSharedPointer<QCPAxisTickerDateTime> datetimeticker =
+          qSharedPointerCast<QCPAxisTickerDateTime>(ticker_);
+      if (datetimeticker) {
+        xmlwriter->writeAttribute("format", datetimeticker->dateTimeFormat());
+      }
     } break;
     case Axis2D::TickerType::Text: {
       xmlwriter->writeAttribute("type", "text");
@@ -756,6 +787,21 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
   xmlwriter->writeEndElement();
   // Subticks
   xmlwriter->writeStartElement("subticks");
+  if (tickertype_ == Axis2D::TickerType::Log) {
+    QSharedPointer<QCPAxisTickerLog> logticker =
+        qSharedPointerCast<QCPAxisTickerLog>(getticker_axis());
+    if (logticker) {
+      xmlwriter->writeAttribute("count",
+                                QString::number(logticker->subTickCount()));
+    }
+  } else if (tickertype_ == Axis2D::TickerType::Text) {
+    QSharedPointer<QCPAxisTickerText> textticker =
+        qSharedPointerCast<QCPAxisTickerText>(getticker_axis());
+    if (textticker) {
+      xmlwriter->writeAttribute("count",
+                                QString::number(textticker->subTickCount()));
+    }
+  }
   (getsubtickvisibility_axis()) ? xmlwriter->writeAttribute("visible", "true")
                                 : xmlwriter->writeAttribute("visible", "false");
   xmlwriter->writeAttribute("in", QString::number(getsubticklengthin_axis()));
@@ -932,10 +978,108 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
       if (xmlreader->isEndElement() && xmlreader->name() == "axis") break;
       // ticker
       if (xmlreader->isStartElement() && xmlreader->name() == "ticker") {
-        // Label text
-        QString tkrtype = xmlreader->readAttributeString("type", &ok);
+        // Tick step strategy
+        QString tickss =
+            xmlreader->readAttributeString("tickstepstrategy", &ok);
         if (ok) {
-          if (tkrtype == "text") {
+          if (tickss == "readability")
+            ticker_->setTickStepStrategy(
+                QCPAxisTicker::TickStepStrategy::tssReadability);
+          else if (tickss == "meettickcount")
+            ticker_->setTickStepStrategy(
+                QCPAxisTicker::TickStepStrategy::tssMeetTickCount);
+          else
+            xmlreader->raiseWarning(
+                tr("Axis2D tick step strategy property setting error"));
+          setTicker(ticker_);
+        } else
+          xmlreader->raiseWarning(
+              tr("Axis2D tick step strategy property setting error"));
+
+        QString tkrtype = xmlreader->readAttributeString("type", &ok);
+        Q_UNUSED(tkrtype)
+        switch (tickertype_) {
+          case Axis2D::TickerType::Log: {
+            QSharedPointer<QCPAxisTickerLog> logticker =
+                qSharedPointerCast<QCPAxisTickerLog>(ticker_);
+            if (logticker) {
+              // logbase
+              double lbase = xmlreader->readAttributeDouble("logbase", &ok);
+              if (ok)
+                logticker->setLogBase(lbase);
+              else
+                xmlreader->raiseWarning(
+                    tr("Axis2D log base property setting error"));
+              setTicker(logticker);
+            }
+          } break;
+          case Axis2D::TickerType::Pi: {
+            QSharedPointer<QCPAxisTickerPi> piticker =
+                qSharedPointerCast<QCPAxisTickerPi>(ticker_);
+            if (piticker) {
+              // symbol
+              QString symbol = xmlreader->readAttributeString("symbol", &ok);
+              if (ok)
+                piticker->setPiSymbol(symbol);
+              else
+                xmlreader->raiseWarning(
+                    tr("Axis2D piticker symbol property setting error"));
+              // symbol value
+              double svalue =
+                  xmlreader->readAttributeDouble("symbolvalue", &ok);
+              if (ok)
+                piticker->setPiValue(svalue);
+              else
+                xmlreader->raiseWarning(
+                    tr("Axis2D piticker pivalue property setting error"));
+              // Fraction style
+              QString fstyle =
+                  xmlreader->readAttributeString("fractionstyle", &ok);
+              if (ok) {
+                (fstyle == "floatingpoint")
+                    ? piticker->setFractionStyle(
+                          QCPAxisTickerPi::FractionStyle::fsFloatingPoint)
+                : (fstyle == "asciifractions")
+                    ? piticker->setFractionStyle(
+                          QCPAxisTickerPi::FractionStyle::fsAsciiFractions)
+                    : piticker->setFractionStyle(
+                          QCPAxisTickerPi::FractionStyle::fsUnicodeFractions);
+              } else
+                xmlreader->raiseWarning(
+                    tr("Axis2D piticker fractionstyle property setting error"));
+              setTicker(piticker);
+            }
+          } break;
+          case Axis2D::TickerType::Time: {
+            QSharedPointer<QCPAxisTickerTime> timeticker =
+                qSharedPointerCast<QCPAxisTickerTime>(ticker_);
+            if (timeticker) {
+              // time format
+              QString tformat = xmlreader->readAttributeString("format", &ok);
+              if (ok)
+                timeticker->setTimeFormat(Utilities::splitstring(tformat));
+              else
+                xmlreader->raiseWarning(
+                    tr("Axis2D time ticker format in property setting error"));
+              setTicker(timeticker);
+            }
+          } break;
+          case Axis2D::TickerType::DateTime: {
+            QSharedPointer<QCPAxisTickerDateTime> datetimeticker =
+                qSharedPointerCast<QCPAxisTickerDateTime>(ticker_);
+            if (datetimeticker) {
+              // datetime format
+              QString dtformat = xmlreader->readAttributeString("format", &ok);
+              if (ok)
+                datetimeticker->setDateTimeFormat(
+                    Utilities::splitstring(dtformat));
+              else
+                xmlreader->raiseWarning(tr(
+                    "Axis2D datetime ticker format in property setting error"));
+              setTicker(datetimeticker);
+            }
+          } break;
+          case Axis2D::TickerType::Text:
             while (!xmlreader->atEnd()) {
               if (xmlreader->isEndElement() && xmlreader->name() == "ticker")
                 break;
@@ -949,16 +1093,10 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
               }
               xmlreader->readNext();
             }
-          } else if (tkrtype == "datetime") {
-            QString format = xmlreader->readAttributeString("format", &ok);
-            (ok) ? ticker_.staticCast<QCPAxisTickerDateTime>()
-                       ->setDateTimeFormat(Utilities::splitstring(format))
-                 : xmlreader->raiseWarning(tr("Axis2D tickertype datetime "
-                                              "formatproperty setting error"));
-          }
-        } else
-          xmlreader->raiseWarning(
-              tr("Axis2D tickertype property setting error"));
+            break;
+          case Axis2D::TickerType::Value:
+            break;
+        }
       }
       // Label element
       if (xmlreader->isStartElement() && xmlreader->name() == "label") {
@@ -1043,6 +1181,31 @@ bool Axis2D::load(XmlStreamReader *xmlreader) {
         else
           xmlreader->raiseWarning(
               tr("Axis2D subtick visible property setting error"));
+        // subtick count
+        if (tickertype_ == Axis2D::TickerType::Log ||
+            tickertype_ == Axis2D::TickerType::Text) {
+          int sbtkcount = xmlreader->readAttributeInt("count", &ok);
+          if (ok) {
+            if (tickertype_ == Axis2D::TickerType::Log) {
+              QSharedPointer<QCPAxisTickerLog> logticker =
+                  qSharedPointerCast<QCPAxisTickerLog>(getticker_axis());
+              if (logticker) {
+                logticker->setSubTickCount(sbtkcount);
+              }
+            } else if (tickertype_ == Axis2D::TickerType::Text) {
+              QSharedPointer<QCPAxisTickerText> textticker =
+                  qSharedPointerCast<QCPAxisTickerText>(getticker_axis());
+              if (textticker) {
+                textticker->setSubTickCount(sbtkcount);
+              }
+            } else
+              xmlreader->raiseWarning(
+                  tr("subTick count in property setting error for unknown "
+                     "ticker type"));
+          } else
+            xmlreader->raiseWarning(
+                tr("Axis2D subTick count in property setting error"));
+        }
         // Ticks in
         int in = xmlreader->readAttributeInt("in", &ok);
         if (ok)

@@ -29,6 +29,8 @@ class Utilities {
   static QColor getRandColorGoldenRatio(ColorPal colpal);
   static QString splitstring(QString string);
   static QString joinstring(QString string);
+  static double dateTimeToDouble(const QDateTime &dateTime);
+  static QDateTime doubleToDateTime(double value);
   static QImage convertToGrayScale(const QImage &srcImage);
   static QImage convertToGrayScaleFast(const QImage &srcImage);
 
