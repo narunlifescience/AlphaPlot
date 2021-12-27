@@ -269,9 +269,11 @@ class QT_QTPROPERTYBROWSER_EXPORT QtDateTimePropertyManager
   ~QtDateTimePropertyManager();
 
   QDateTime value(const QtProperty *property) const;
+  QString format() const;
 
  public Q_SLOTS:
   void setValue(QtProperty *property, const QDateTime &val);
+  void setFormat(const QString &frmt);
  Q_SIGNALS:
   void valueChanged(QtProperty *property, const QDateTime &val);
 

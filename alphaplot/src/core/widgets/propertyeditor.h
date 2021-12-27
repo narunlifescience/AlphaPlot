@@ -140,6 +140,7 @@ class PropertyEditor : public QDockWidget {
 
  signals:
   void refreshCanvasRect();
+  void rescaleAxis2D(Axis2D *axis);
 
  public slots:
   void populateObjectBrowser(MyWidget *widget);
@@ -239,6 +240,8 @@ class PropertyEditor : public QDockWidget {
   //QtProperty *axispropertytickertimefieldwidth_;
   QtProperty *axispropertytickerdatetimeformat_;
   //QtProperty *axispropertytickerdatetimetickorigin_;
+  QtProperty *axispropertytickerdatetimefrom_;
+  QtProperty *axispropertytickerdatetimeto_;
   // Axis Properties Ticks sub block
   QtProperty *axispropertytickvisibilityitem_;
   QtProperty *axispropertytickcountitem_;

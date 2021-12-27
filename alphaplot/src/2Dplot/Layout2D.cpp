@@ -700,6 +700,8 @@ AxisRect2D *Layout2D::addAxisRectItemAtRowCol(
 
   connect(axisRect2d, &AxisRect2D::AxisRectClicked, this,
           &Layout2D::axisRectSetFocus);
+  connect(axisRect2d, &AxisRect2D::rescaleAxis2D, this,
+          &Layout2D::rescaleAxis2D);
 
   emit AxisRectCreated(axisRect2d, this);
   if (!currentAxisRect_) axisRectSetFocus(axisRect2d);

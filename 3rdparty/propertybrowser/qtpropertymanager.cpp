@@ -1963,6 +1963,8 @@ QDateTime QtDateTimePropertyManager::value(const QtProperty *property) const {
   return d_ptr->m_values.value(property, QDateTime());
 }
 
+QString QtDateTimePropertyManager::format() const { return d_ptr->m_format; }
+
 /*!
     \reimp
 */
@@ -1986,6 +1988,10 @@ void QtDateTimePropertyManager::setValue(QtProperty *property,
   setSimpleValue<const QDateTime &, QDateTime, QtDateTimePropertyManager>(
       d_ptr->m_values, this, &QtDateTimePropertyManager::propertyChanged,
       &QtDateTimePropertyManager::valueChanged, property, val);
+}
+
+void QtDateTimePropertyManager::setFormat(const QString &frmt) {
+  d_ptr->m_format = frmt;
 }
 
 /*!

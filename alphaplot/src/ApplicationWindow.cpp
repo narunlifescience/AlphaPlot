@@ -1945,6 +1945,9 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
           &ApplicationWindow::multipeakfitappendpoints);
   connect(layout2d, &Layout2D::showContextMenu, this,
           &ApplicationWindow::showWindowContextMenu);
+  // axis connection resize property update
+  connect(layout2d, &Layout2D::rescaleAxis2D, propertyeditor,
+          &PropertyEditor::rescaleAxis2D);
 
   return layout2d;
 }
@@ -4690,7 +4693,8 @@ void ApplicationWindow::setAutoScale() {
   QList<Axis2D *> axes = axisrect->getAxes2D();
   foreach (Axis2D *axis, axes) { axis->rescale(); }
   foreach (StatBox2D *statbox, axisrect->getStatBoxVec()) {
-    statbox->rescaleaxes_statbox(); break;
+    statbox->rescaleaxes_statbox();
+    break;
   }
   axisrect->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }

@@ -169,6 +169,7 @@ Axis2D *AxisRect2D::addAxis2D(const Axis2D::AxisOreantation &orientation,
 
   axes_.append(axis2D);
   emit Axis2DCreated(axis2D);
+  connect(axis2D, &Axis2D::rescaleAxis2D, this, &AxisRect2D::rescaleAxis2D);
   return axis2D;
 }
 

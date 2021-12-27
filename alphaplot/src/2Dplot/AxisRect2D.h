@@ -280,6 +280,8 @@ class AxisRect2D : public QCPAxisRect {
   void AxisColumnOrientationMismatch(const QString &axisname, const int axisno,
                                      const QString &colname);
   void NoMinimumDataPointsPlotRemoved(const QString &plotname);
+  // rescale
+  void rescaleAxis2D(Axis2D *axis);
 
  private slots:
   void legendClick();

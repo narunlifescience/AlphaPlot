@@ -192,6 +192,7 @@ class Layout2D : public MyWidget {
   void layout2DResized();
   void datapoint(Curve2D *curve, const double xval, const double yval);
   void showContextMenu();
+  void rescaleAxis2D(Axis2D *axis);
 };
 
 #endif  // LAYOUT2D_H

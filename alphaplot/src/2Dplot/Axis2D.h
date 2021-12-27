@@ -158,6 +158,9 @@ class Axis2D : public QCPAxis {
   bool load(XmlStreamReader *xmlreader);
   void clone(Axis2D *axis);
 
+ signals:
+  void rescaleAxis2D(Axis2D *axis);
+
  private:
   void reloadIcon();
 
