@@ -183,7 +183,7 @@ int Utilities::getWordSizeOfOS() {
 #endif
 }
 
-QColor Utilities::getRandColorGoldenRatio(const ColorPal &colpal) {
+QColor Utilities::getRandColorGoldenRatio(const ColorPal& colpal) {
   rgbCounter_++;
   // use golden ratio
   const double goldenRatioConjugate =
@@ -251,7 +251,7 @@ QColor Utilities::getRandColorGoldenRatio(const ColorPal &colpal) {
   return rgb;
 }
 
-QString Utilities::splitstring(const QString &string) {
+QString Utilities::splitstring(const QString& string) {
   if (string.isEmpty()) return string;
 
   QStringList stringlist = string.split("<|>");
@@ -262,7 +262,7 @@ QString Utilities::splitstring(const QString &string) {
   return final;
 }
 
-QString Utilities::joinstring(const QString &string) {
+QString Utilities::joinstring(const QString& string) {
   if (string.isEmpty()) return string;
 
   QStringList stringlist = string.split("\n");
@@ -273,7 +273,7 @@ QString Utilities::joinstring(const QString &string) {
   return final;
 }
 
-QString Utilities::timeFormatConvertor(const QString &string) {
+QString Utilities::timeFormatConvertor(const QString& string) {
   QString tmpstr = string;
   tmpstr = tmpstr.replace("%h", "hh");
   tmpstr = tmpstr.replace("%m", "mm");
@@ -285,8 +285,7 @@ QString Utilities::timeFormatConvertor(const QString &string) {
 
 QTime Utilities::intToTime(const int value) {
   if (value >= 86400000 || value <= -86400000) return QTime(0, 0, 0, 0);
-  bool isnegative = false;
-  (value < 0) ? isnegative = true : isnegative = false;
+  // this is a different way of doing the same
   /*double intpart;
   double temp = modf(double(value) / 1000, &intpart);
   double msec = temp * 1000;
@@ -297,7 +296,6 @@ QTime Utilities::intToTime(const int value) {
   double minutes = temp * 60;
   temp = modf(intpart / 24, &intpart);
   double hours = temp * 24;
-  qDebug() << hours << minutes << sec << msec;
   return QTime(hours, minutes, sec, msec);*/
 
   int msec = value % 1000;
@@ -311,7 +309,8 @@ QTime Utilities::intToTime(const int value) {
 }
 
 int Utilities::timeToInt(const QTime& time) {
-  qDebug() << time.msecsSinceStartOfDay();
+  // this is a different way of doing the same
+  // time.msecsSinceStartOfDay();
   return (time.hour() * 60 * 60 * 1000) + (time.minute() * 60 * 1000) +
          (time.second() * 1000) + (time.msec());
 }
