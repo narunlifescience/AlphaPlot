@@ -323,7 +323,7 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   // axispropertytickertimefieldwidth_ = stringManager_;
   axispropertytickerdatetimeformat_ =
       stringManager_->addProperty("Date Time Format");
-  //axispropertytickerdatetimetickorigin_ =
+  // axispropertytickerdatetimetickorigin_ =
   //    datetimeManager_->addProperty("Origin");
   axispropertytickerdatetimefrom_ = datetimeManager_->addProperty("from");
   axispropertytickerdatetimeto_ = datetimeManager_->addProperty("to");
@@ -349,7 +349,7 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   //    axispropertytickertimefieldwidth_);
   axispropertyticklabelvisibilityitem_->addSubProperty(
       axispropertytickerdatetimeformat_);
-  //axispropertyticklabelvisibilityitem_->addSubProperty(
+  // axispropertyticklabelvisibilityitem_->addSubProperty(
   //    axispropertytickerdatetimetickorigin_);
   axispropertyticklabelfontitem_ = fontManager_->addProperty("Font");
   axispropertyticklabelvisibilityitem_->addSubProperty(
@@ -1542,10 +1542,10 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
           case Axis2D::TickerType::DateTime:
             datetimeManager_->setValue(
                 axispropertytickerdatetimefrom_,
-                Utilities::doubleToDateTime(axis->getfrom_axis()));
+                QCPAxisTickerDateTime::keyToDateTime(axis->getfrom_axis()));
             datetimeManager_->setValue(
                 axispropertytickerdatetimeto_,
-                Utilities::doubleToDateTime(axis->getto_axis()));
+                QCPAxisTickerDateTime::keyToDateTime(axis->getto_axis()));
             break;
         }
       }
@@ -4034,13 +4034,14 @@ void PropertyEditor::datetimeValueChange(QtProperty *prop,
     axis->setTicker(datetimeticker);
     axis->parentPlot()->replot();
     Axis2DPropertyBlock(axis);
-  } else*/ if (prop->compare(axispropertytickerdatetimefrom_)) {
+  } else*/
+  if (prop->compare(axispropertytickerdatetimefrom_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
-    axis->setfrom_axis(Utilities::dateTimeToDouble(datetime));
+    axis->setfrom_axis(QCPAxisTickerDateTime::dateTimeToKey(datetime));
     axis->parentPlot()->replot();
   } else if (prop->compare(axispropertytickerdatetimeto_)) {
     Axis2D *axis = getgraph2dobject<Axis2D>(objectbrowser_->currentItem());
-    axis->setto_axis(Utilities::dateTimeToDouble(datetime));
+    axis->setto_axis(QCPAxisTickerDateTime::dateTimeToKey(datetime));
     axis->parentPlot()->replot();
   }
 }
@@ -4403,7 +4404,7 @@ void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
   //    axispropertytickertimefieldwidth_);
   axispropertyticklabelvisibilityitem_->removeSubProperty(
       axispropertytickerdatetimeformat_);
-  //axispropertyticklabelvisibilityitem_->removeSubProperty(
+  // axispropertyticklabelvisibilityitem_->removeSubProperty(
   //    axispropertytickerdatetimetickorigin_);
 
   switch (axis->gettickertype_axis()) {
@@ -4500,20 +4501,20 @@ void PropertyEditor::Axis2DPropertyBlock(Axis2D *axis) {
       if (datetimeticker) {
         axispropertyticklabelvisibilityitem_->insertSubProperty(
             axispropertytickerdatetimeformat_, axispropertytickstepstrategy_);
-        //axispropertyticklabelvisibilityitem_->addSubProperty(
+        // axispropertyticklabelvisibilityitem_->addSubProperty(
         //    axispropertytickerdatetimetickorigin_);
         datetimeManager_->setFormat(datetimeticker->dateTimeFormat());
         stringManager_->setValue(axispropertytickerdatetimeformat_,
                                  datetimeticker->dateTimeFormat());
-        //datetimeManager_->setValue(
+        // datetimeManager_->setValue(
         //    axispropertytickerdatetimetickorigin_,
         //    Utilities::doubleToDateTime(datetimeticker->tickOrigin()));
         datetimeManager_->setValue(
             axispropertytickerdatetimefrom_,
-            Utilities::doubleToDateTime(axis->getfrom_axis()));
+            QCPAxisTickerDateTime::keyToDateTime(axis->getfrom_axis()));
         datetimeManager_->setValue(
             axispropertytickerdatetimeto_,
-            Utilities::doubleToDateTime(axis->getto_axis()));
+            QCPAxisTickerDateTime::keyToDateTime(axis->getto_axis()));
       }
     } break;
   }
@@ -7506,7 +7507,7 @@ void PropertyEditor::setObjectPropertyId() {
   //    "axispropertytickertimefieldwidth_");
   axispropertytickerdatetimeformat_->setPropertyId(
       "axispropertytickerdatetimeformat_");
-  //axispropertytickerdatetimetickorigin_->setPropertyId(
+  // axispropertytickerdatetimetickorigin_->setPropertyId(
   //    "axispropertytickerdatetimetickorigin_");
   axispropertytickerdatetimefrom_->setPropertyId(
       "axispropertytickerdatetimefrom_");

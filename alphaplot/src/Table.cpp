@@ -626,8 +626,6 @@ int Table::numRows() { return d_future_table->rowCount(); }
 
 int Table::numCols() { return d_future_table->columnCount(); }
 
-int Table::rowCnt() { return d_future_table->rowCount(); }
-
 int Table::columnCount() { return d_future_table->columnCount(); }
 
 double Table::cell(int row, int col) {
@@ -926,8 +924,8 @@ void Table::applyFormula() {
   QString formula = ui.formula_box->toPlainText();
   for (int col = firstSelectedColumn(); col <= lastSelectedColumn(); col++) {
     Column *col_ptr = column(col);
-    col_ptr->insertRows(col_ptr->rowCount(), rowCnt() - col_ptr->rowCount());
-    col_ptr->setFormula(Interval<int>(0, rowCnt() - 1), formula);
+    col_ptr->insertRows(col_ptr->rowCount(), numRows() - col_ptr->rowCount());
+    col_ptr->setFormula(Interval<int>(0, numRows() - 1), formula);
     if (!recalculate(col, false)) break;
   }
 
@@ -1027,7 +1025,7 @@ int Table::rowCount() {
   if (context()->argumentCount() != 0) {
     context()->throwError(tr("rowCount() take no arguments!"));
   }
-  return rowCnt();
+  return numRows();
 }
 
 int Table::colCount() {
@@ -1045,7 +1043,7 @@ double Table::getCell() {
   } else if (context()->argument(0).toNumber() <= 0 ||
              context()->argument(1).toNumber() <= 0) {
     context()->throwError(tr("row/col index cannot be 0 or -ve"));
-  } else if (context()->argument(0).toNumber() > rowCnt()) {
+  } else if (context()->argument(0).toNumber() > numRows()) {
     context()->throwError(tr("row index out of range!"));
   } else if (context()->argument(1).toNumber() > numCols()) {
     context()->throwError(tr("col index out of range!"));
@@ -1064,7 +1062,7 @@ void Table::setCell() {
   } else if (context()->argument(0).toNumber() <= 0 ||
              context()->argument(1).toNumber() <= 0) {
     context()->throwError(tr("row/col index cannot be 0 or -ve!"));
-  } else if (context()->argument(0).toNumber() > rowCnt()) {
+  } else if (context()->argument(0).toNumber() > numRows()) {
     context()->throwError(tr("row index out of range!"));
   } else if (context()->argument(1).toNumber() > numCols()) {
     context()->throwError(tr("col index out of range!"));
@@ -1101,8 +1099,8 @@ void Table::applyFunction() {
   selectColumn(context()->argument(0).toInt32() - 1);
   for (int col = firstSelectedColumn(); col <= lastSelectedColumn(); col++) {
     Column *col_ptr = column(context()->argument(0).toInt32() - 1);
-    col_ptr->insertRows(col_ptr->rowCount(), rowCnt() - col_ptr->rowCount());
-    col_ptr->setFormula(Interval<int>(0, rowCnt() - 1),
+    col_ptr->insertRows(col_ptr->rowCount(), numRows() - col_ptr->rowCount());
+    col_ptr->setFormula(Interval<int>(0, numRows() - 1),
                         context()->argument(1).toString());
     if (!recalculate(col, false)) break;
   }

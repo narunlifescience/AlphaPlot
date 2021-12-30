@@ -183,7 +183,7 @@ int Utilities::getWordSizeOfOS() {
 #endif
 }
 
-QColor Utilities::getRandColorGoldenRatio(ColorPal colpal) {
+QColor Utilities::getRandColorGoldenRatio(const ColorPal &colpal) {
   rgbCounter_++;
   // use golden ratio
   const double goldenRatioConjugate =
@@ -251,7 +251,7 @@ QColor Utilities::getRandColorGoldenRatio(ColorPal colpal) {
   return rgb;
 }
 
-QString Utilities::splitstring(QString string) {
+QString Utilities::splitstring(const QString &string) {
   if (string.isEmpty()) return string;
 
   QStringList stringlist = string.split("<|>");
@@ -262,7 +262,7 @@ QString Utilities::splitstring(QString string) {
   return final;
 }
 
-QString Utilities::joinstring(QString string) {
+QString Utilities::joinstring(const QString &string) {
   if (string.isEmpty()) return string;
 
   QStringList stringlist = string.split("\n");
@@ -273,12 +273,47 @@ QString Utilities::joinstring(QString string) {
   return final;
 }
 
-double Utilities::dateTimeToDouble(const QDateTime& dateTime) {
-  return dateTime.toMSecsSinceEpoch() / 1000.0;
+QString Utilities::timeFormatConvertor(const QString &string) {
+  QString tmpstr = string;
+  tmpstr = tmpstr.replace("%h", "hh");
+  tmpstr = tmpstr.replace("%m", "mm");
+  tmpstr = tmpstr.replace("%s", "ss");
+  tmpstr = tmpstr.replace("%z", "zz");
+  qDebug() << tmpstr;
+  return tmpstr;
 }
 
-QDateTime Utilities::doubleToDateTime(double value) {
-  return QDateTime::fromMSecsSinceEpoch(qint64(value * 1000.0));
+QTime Utilities::intToTime(const int value) {
+  if (value >= 86400000 || value <= -86400000) return QTime(0, 0, 0, 0);
+  bool isnegative = false;
+  (value < 0) ? isnegative = true : isnegative = false;
+  /*double intpart;
+  double temp = modf(double(value) / 1000, &intpart);
+  double msec = temp * 1000;
+  qDebug() << temp << intpart;
+  temp = modf(intpart / 60, &intpart);
+  double sec = temp * 60;
+  temp = modf(intpart / 60, &intpart);
+  double minutes = temp * 60;
+  temp = modf(intpart / 24, &intpart);
+  double hours = temp * 24;
+  qDebug() << hours << minutes << sec << msec;
+  return QTime(hours, minutes, sec, msec);*/
+
+  int msec = value % 1000;
+  int temp = value / 1000;
+  int sec = temp % 60;
+  temp = temp / 60;
+  int minutes = temp % 60;
+  temp = temp / 60;
+  int hours = temp % 24;
+  return QTime(hours, minutes, sec, msec);
+}
+
+int Utilities::timeToInt(const QTime& time) {
+  qDebug() << time.msecsSinceStartOfDay();
+  return (time.hour() * 60 * 60 * 1000) + (time.minute() * 60 * 1000) +
+         (time.second() * 1000) + (time.msec());
 }
 
 QImage Utilities::convertToGrayScale(const QImage& srcImage) {

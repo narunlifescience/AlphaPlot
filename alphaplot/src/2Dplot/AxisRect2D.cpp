@@ -501,8 +501,8 @@ LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
   yAxis->settickertext(yData, from, to);
   if (!axisColumTypeCompatibilityCheck(xAxis, xData, from, to)) return nullptr;
   if (!axisColumTypeCompatibilityCheck(yAxis, yData, from, to)) return nullptr;
-  if (!hasMinimumDataPointsToPlot(1, xData, QList<Column *>() << yData, from,
-                                  to))
+  if (!hasMinimumDataPointsToPlot(1, table, xData, QList<Column *>() << yData,
+                                  from, to))
     return nullptr;
   LineSpecial2D *lineSpecial =
       new LineSpecial2D(table, xData, yData, from, to, xAxis, yAxis);
@@ -572,7 +572,7 @@ QPair<LineSpecial2D *, LineSpecial2D *> AxisRect2D::addLineSpecialChannel2DPlot(
   if (!axisColumTypeCompatibilityCheck(yAxis, yData2, from, to))
     return QPair<LineSpecial2D *, LineSpecial2D *>(nullptr, nullptr);
   if (!hasMinimumDataPointsToPlot(
-          1, xData, QList<Column *>() << yData1 << yData2, from, to))
+          1, table, xData, QList<Column *>() << yData1 << yData2, from, to))
     return QPair<LineSpecial2D *, LineSpecial2D *>(nullptr, nullptr);
   LineSpecial2D *lineSpecial1 =
       new LineSpecial2D(table, xData, yData1, from, to, xAxis, yAxis);
@@ -621,8 +621,8 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
   if (!axisColumTypeCompatibilityCheck(yAxis, ycol, from, to)) return nullptr;
   int datpoints = 1;
   (type == LineScatterType::Spline2D) ? datpoints = 3 : datpoints = 1;
-  if (!hasMinimumDataPointsToPlot(datpoints, xcol, QList<Column *>() << ycol,
-                                  from, to))
+  if (!hasMinimumDataPointsToPlot(datpoints, table, xcol,
+                                  QList<Column *>() << ycol, from, to))
     return nullptr;
   switch (type) {
     case LineScatterType::Line2D:
@@ -716,8 +716,8 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
   yAxis->settickertext(yData, from, to);
   if (!axisColumTypeCompatibilityCheck(xAxis, xData, from, to)) return nullptr;
   if (!axisColumTypeCompatibilityCheck(yAxis, yData, from, to)) return nullptr;
-  if (!hasMinimumDataPointsToPlot(1, xData, QList<Column *>() << yData, from,
-                                  to))
+  if (!hasMinimumDataPointsToPlot(1, table, xData, QList<Column *>() << yData,
+                                  from, to))
     return nullptr;
   Bar2D *bar;
   switch (type) {
@@ -759,7 +759,8 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
   if (!axisColumTypeCompatibilityCheck(yAxis, x2Data, from, to)) return nullptr;
   if (!axisColumTypeCompatibilityCheck(yAxis, y2Data, from, to)) return nullptr;
   if (!hasMinimumDataPointsToPlot(
-          1, x1Data, QList<Column *>() << y1Data << x2Data << y2Data, from, to))
+          1, table, x1Data, QList<Column *>() << y1Data << x2Data << y2Data,
+          from, to))
     return nullptr;
   Vector2D *vec = new Vector2D(vectorplot, table, x1Data, y1Data, x2Data,
                                y2Data, from, to, xAxis, yAxis);
@@ -810,8 +811,8 @@ StatBox2D *AxisRect2D::addStatBox2DPlot(Table *table, Column *ycol,
     return nullptr;
   }
 
-  if (!hasMinimumDataPointsToPlot(3, nullptr, QList<Column *>() << ycol, from,
-                                  to))
+  if (!hasMinimumDataPointsToPlot(3, table, nullptr, QList<Column *>() << ycol,
+                                  from, to))
     return nullptr;
 
   QSharedPointer<QCPAxisTickerText> textTicker =
@@ -860,7 +861,7 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
             .arg(xAxis->getname_axis(), yAxis->getname_axis()));
     return nullptr;
   }
-  if (!hasMinimumDataPointsToPlot(3, yData, QList<Column *>(), from, to))
+  if (!hasMinimumDataPointsToPlot(3, table, yData, QList<Column *>(), from, to))
     return nullptr;
   Bar2D *bar;
   switch (type) {
@@ -894,8 +895,8 @@ Pie2D *AxisRect2D::addPie2DPlot(const Graph2DCommon::PieStyle &style,
             .arg(xData->name(), yData->name()));
     return nullptr;
   }
-  if (!hasMinimumDataPointsToPlot(1, xData, QList<Column *>() << yData, from,
-                                  to))
+  if (!hasMinimumDataPointsToPlot(1, table, xData, QList<Column *>() << yData,
+                                  from, to))
     return nullptr;
   Pie2D *pie = new Pie2D(this, style, table, xData, yData, from, to);
   pie->setGraphData(table, xData, yData, from, to);
@@ -1021,7 +1022,7 @@ bool AxisRect2D::updateData(Table *table, const QString &name) {
     }
     if (data->table == table) {
       if (data->xcol == col || data->ycol == col) {
-        if (!hasMinimumDataPointsToPlot(1, data->xcol,
+        if (!hasMinimumDataPointsToPlot(1, table, data->xcol,
                                         QList<Column *>() << data->ycol,
                                         data->from, data->to)) {
           plotname = ls->name();
@@ -1044,8 +1045,9 @@ bool AxisRect2D::updateData(Table *table, const QString &name) {
       if (data1->xcol == col || data1->ycol == col || data2->xcol == col ||
           data2->ycol == col) {
         if (!hasMinimumDataPointsToPlot(
-                1, data1->xcol, QList<Column *>() << data1->ycol << data2->ycol,
-                data1->from, data1->to)) {
+                1, table, data1->xcol,
+                QList<Column *>() << data1->ycol << data2->ycol, data1->from,
+                data1->to)) {
           plotname = channel.first->name() + "_" + data2->ycol->name();
           removeChannel2D(channel);
         } else {
@@ -1092,7 +1094,7 @@ bool AxisRect2D::updateData(Table *table, const QString &name) {
           (curve->getcurvetype_cplot() == Curve2D::Curve2DType::Spline)
               ? no = 3
               : no = 1;
-          if (!hasMinimumDataPointsToPlot(no, data->xcol,
+          if (!hasMinimumDataPointsToPlot(no, table, data->xcol,
                                           QList<Column *>() << data->ycol,
                                           data->from, data->to)) {
             plotname = curve->name();
@@ -1110,7 +1112,7 @@ bool AxisRect2D::updateData(Table *table, const QString &name) {
     if (statbox->gettable_statbox() == table) {
       if (statbox->getcolumn_statbox() == col) {
         if (!hasMinimumDataPointsToPlot(
-                3, nullptr,
+                3, table, nullptr,
                 QList<Column *>()
                     << statbox->getboxwhiskerdata_statbox().column_,
                 statbox->getboxwhiskerdata_statbox().from_,
@@ -1160,7 +1162,7 @@ bool AxisRect2D::updateData(Table *table, const QString &name) {
       }
       if (data->table == table) {
         if (data->xcol == col || data->ycol == col) {
-          if (!hasMinimumDataPointsToPlot(1, data->xcol,
+          if (!hasMinimumDataPointsToPlot(1, table, data->xcol,
                                           QList<Column *>() << data->ycol,
                                           data->from, data->to)) {
             plotname = bar->name();
@@ -1176,7 +1178,7 @@ bool AxisRect2D::updateData(Table *table, const QString &name) {
       if (bar->getdatablock_histplot()->gettable() == table) {
         if (bar->getdatablock_histplot()->getcolumn() == col) {
           if (!hasMinimumDataPointsToPlot(
-                  3, bar->getdatablock_histplot()->getcolumn(),
+                  3, table, bar->getdatablock_histplot()->getcolumn(),
                   QList<Column *>(), bar->getdatablock_histplot()->getfrom(),
                   bar->getdatablock_histplot()->getto())) {
             plotname = bar->name();
@@ -1199,7 +1201,7 @@ bool AxisRect2D::updateData(Table *table, const QString &name) {
           vector->getthirdcol_vecplot() == col ||
           vector->getfourthcol_vecplot() == col) {
         if (!hasMinimumDataPointsToPlot(
-                1, vector->getfirstcol_vecplot(),
+                1, table, vector->getfirstcol_vecplot(),
                 QList<Column *>() << vector->getsecondcol_vecplot()
                                   << vector->getthirdcol_vecplot()
                                   << vector->getfourthcol_vecplot(),
@@ -1221,7 +1223,7 @@ bool AxisRect2D::updateData(Table *table, const QString &name) {
     if (pie->gettable_pieplot() == table) {
       if (pie->getxcolumn_pieplot() == col) {
         if (!hasMinimumDataPointsToPlot(
-                1, pie->getxcolumn_pieplot(),
+                1, table, pie->getxcolumn_pieplot(),
                 QList<Column *>() << pie->getycolumn_pieplot(),
                 pie->getfrom_pieplot(), pie->getto_pieplot())) {
           plotname = pie->gettable_pieplot()->name() + "_" +
@@ -1265,7 +1267,7 @@ bool AxisRect2D::updateDataCheck(Table *table, const QString &name) {
         ls->getdatablock_lsplot()->getassociateddata();
     if (data->table == table) {
       if (data->xcol == col || data->ycol == col) {
-        if (!hasMinimumDataPointsToPlot(1, data->xcol,
+        if (!hasMinimumDataPointsToPlot(1, table, data->xcol,
                                         QList<Column *>() << data->ycol,
                                         data->from, data->to)) {
           plotname = ls->name();
@@ -1314,19 +1316,20 @@ bool AxisRect2D::axisColumTypeCompatibilityCheck(Axis2D *axis, Column *col,
   return false;
 }
 
-bool AxisRect2D::hasMinimumDataPointsToPlot(const int noofpoints, Column *xcol,
+bool AxisRect2D::hasMinimumDataPointsToPlot(const int noofpoints, Table *table,
+                                            Column *xcol,
                                             QList<Column *> ycollist,
                                             const int from, const int to) {
   if ((to - from) + 1 < noofpoints) {
     emit NoMinimumDataPoints(noofpoints);
     return false;
   }
-  if (xcol && ycollist.count() == 0 && to < xcol->rowCount()) {
+  if (xcol && ycollist.count() == 0 && to < table->numRows()) {
     for (int i = 0, row = from; row <= to; row++) {
       if (!xcol->isInvalid(row)) i++;
       if (i == noofpoints) return true;
     }
-  } else if (xcol && ycollist.count() && to < xcol->rowCount()) {
+  } else if (xcol && ycollist.count() && to < table->numRows()) {
     if (ycollist.count() == 1 && ycollist.at(0)) {
       for (int i = 0, row = from; row <= to; row++) {
         if (!xcol->isInvalid(row) && !ycollist.at(0)->isInvalid(row)) i++;
@@ -1347,7 +1350,7 @@ bool AxisRect2D::hasMinimumDataPointsToPlot(const int noofpoints, Column *xcol,
         if (i == noofpoints) return true;
       }
     }
-  } else if (!xcol && ycollist.count()) {
+  } else if (!xcol && ycollist.count() && to < table->numRows()) {
     if (ycollist.count() == 1)
       for (int i = 0, row = from; row <= to; row++) {
         if (!ycollist.at(0)->isInvalid(row)) i++;
@@ -3037,50 +3040,53 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         if (table && xcolumn && ycolumn && xaxis && yaxis) {
           ls = addLineSpecial2DPlot(ltype, table, xcolumn, ycolumn, from, to,
                                     xaxis, yaxis);
-          ls->setName(legend);
+          if (ls) {
+            ls->setName(legend);
 
-          while (!xmlreader->atEnd()) {
-            xmlreader->readNextStartElement();
-            if (xmlreader->isStartElement() &&
-                xmlreader->name() != "errorbar") {
-              ls->load(xmlreader);
-              break;
-            }
-
-            if (xmlreader->isStartElement() &&
-                xmlreader->name() == "errorbar") {
-              Table *table = nullptr;
-              Column *column = nullptr;
-              QString type = xmlreader->readAttributeString("type", &ok);
-              if (!ok) {
-                xmlreader->raiseError(tr("ErrorBar2D type not found error"));
+            while (!xmlreader->atEnd()) {
+              xmlreader->readNextStartElement();
+              if (xmlreader->isStartElement() &&
+                  xmlreader->name() != "errorbar") {
+                ls->load(xmlreader);
+                break;
               }
-              QString tablename = xmlreader->readAttributeString("table", &ok);
-              if (ok) {
-                table = getTableByName(tabs, tablename);
-              } else
-                xmlreader->raiseError(tr("ErrorBar2D Table not found error"));
-              QString colname =
-                  xmlreader->readAttributeString("errcolumn", &ok);
-              if (ok) {
-                (table) ? column = table->column(colname) : column = nullptr;
-              } else
-                xmlreader->raiseError(
-                    tr("ErrorBar2D Table column not found error"));
-              int from = xmlreader->readAttributeInt("from", &ok);
-              if (!ok)
-                xmlreader->raiseError(tr("ErrorBar2D from not found error"));
-              int to = xmlreader->readAttributeInt("to", &ok);
-              if (!ok)
-                xmlreader->raiseError(tr("ErrorBar2D to not found error"));
 
-              if (table && column && !type.isEmpty()) {
-                if (type == "x") {
-                  ls->setXerrorBar(table, column, from, to);
-                  ls->getxerrorbar_lsplot()->load(xmlreader);
-                } else if (type == "y") {
-                  ls->setYerrorBar(table, column, from, to);
-                  ls->getyerrorbar_lsplot()->load(xmlreader);
+              if (xmlreader->isStartElement() &&
+                  xmlreader->name() == "errorbar") {
+                Table *table = nullptr;
+                Column *column = nullptr;
+                QString type = xmlreader->readAttributeString("type", &ok);
+                if (!ok) {
+                  xmlreader->raiseError(tr("ErrorBar2D type not found error"));
+                }
+                QString tablename =
+                    xmlreader->readAttributeString("table", &ok);
+                if (ok) {
+                  table = getTableByName(tabs, tablename);
+                } else
+                  xmlreader->raiseError(tr("ErrorBar2D Table not found error"));
+                QString colname =
+                    xmlreader->readAttributeString("errcolumn", &ok);
+                if (ok) {
+                  (table) ? column = table->column(colname) : column = nullptr;
+                } else
+                  xmlreader->raiseError(
+                      tr("ErrorBar2D Table column not found error"));
+                int from = xmlreader->readAttributeInt("from", &ok);
+                if (!ok)
+                  xmlreader->raiseError(tr("ErrorBar2D from not found error"));
+                int to = xmlreader->readAttributeInt("to", &ok);
+                if (!ok)
+                  xmlreader->raiseError(tr("ErrorBar2D to not found error"));
+
+                if (table && column && !type.isEmpty()) {
+                  if (type == "x") {
+                    ls->setXerrorBar(table, column, from, to);
+                    ls->getxerrorbar_lsplot()->load(xmlreader);
+                  } else if (type == "y") {
+                    ls->setYerrorBar(table, column, from, to);
+                    ls->getyerrorbar_lsplot()->load(xmlreader);
+                  }
                 }
               }
             }

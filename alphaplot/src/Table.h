@@ -121,7 +121,6 @@ class Table : public TableView, public scripted, public QScriptable {
   void copy(Table* m);
   int numRows();
   int numCols();
-  int rowCnt();
   int columnCount();
   void setNumRows(int rows);
   void setNumCols(int cols);

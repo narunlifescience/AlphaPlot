@@ -230,6 +230,7 @@ HEADERS     += src/future/core/AbstractAspect.h \
                src/future/core/ProjectConfigPage.h \
                src/future/core/PartMdiView.h \
                src/future/core/AbstractColumn.h \
+               src/future/core/ControlWidget.h \
                src/future/core/column/Column.h \
                src/future/core/column/ColumnPrivate.h \
                src/future/core/column/columncommands.h \
@@ -276,6 +277,7 @@ SOURCES     += src/future/core/AbstractAspect.cpp \
                src/future/core/future_Folder.cpp \
                src/future/core/PartMdiView.cpp \
                src/future/core/Project.cpp \
+               src/future/core/ControlWidget.cpp \
                src/future/core/column/Column.cpp \
                src/future/core/column/ColumnPrivate.cpp \
                src/future/core/column/columncommands.cpp \

@@ -166,9 +166,9 @@ class AxisRect2D : public QCPAxisRect {
   bool updateDataCheck(Table *table, const QString &name);
   bool axisColumTypeCompatibilityCheck(Axis2D *axis, Column *col,
                                        const int from, const int to);
-  bool hasMinimumDataPointsToPlot(const int noofpoints, Column *xcol,
-                                  QList<Column *> ycollist, const int from,
-                                  const int to);
+  bool hasMinimumDataPointsToPlot(const int noofpoints, Table *table,
+                                  Column *xcol, QList<Column *> ycollist,
+                                  const int from, const int to);
 
   QList<Axis2D *> getAxesOrientedTo(
       const Axis2D::AxisOreantation &orientation) const;

@@ -180,6 +180,8 @@ void MatrixView::init() {
           SLOT(updateCoordinatesTab()));
   connect(d_matrix, SIGNAL(formulaChanged()), this, SLOT(updateFormulaTab()));
   connect(d_matrix, SIGNAL(formatChanged()), this, SLOT(updateFormatTab()));
+  connect(ui.cwidget, &ControlWidget::widthChanged, this,
+          &MatrixView::moveFloatingButton);
 
   retranslateStrings();
 }

@@ -186,21 +186,21 @@ void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
   QString name = "f(" + xlabel + ") : " + ylabel;
   Curve2D *curve = element->addFunction2DPlot(funcdata, xdata, ydata,
                                               xAxis.at(0), yAxis.at(0), name);
-  curve->rescaleAxes();
+  if (curve) curve->rescaleAxes();
 }
 
 void Layout2D::generateScatterWithXerror2DPlot(Table *table, Column *xData,
                                                Column *yData, Column *xErr,
                                                int from, const int to) {
   Curve2D *curve = generateScatter2DPlot(table, xData, yData, from, to);
-  curve->setXerrorBar(table, xErr, from, to);
+  if (curve) curve->setXerrorBar(table, xErr, from, to);
 }
 
 void Layout2D::generateScatterWithYerror2DPlot(Table *table, Column *xData,
                                                Column *yData, Column *yErr,
                                                int from, const int to) {
   Curve2D *curve = generateScatter2DPlot(table, xData, yData, from, to);
-  curve->setYerrorBar(table, yErr, from, to);
+  if (curve) curve->setYerrorBar(table, yErr, from, to);
 }
 
 void Layout2D::generateScatterWithXYerror2DPlot(Table *table, Column *xData,
@@ -208,14 +208,15 @@ void Layout2D::generateScatterWithXYerror2DPlot(Table *table, Column *xData,
                                                 Column *yErr, const int from,
                                                 const int to) {
   Curve2D *curve = generateScatter2DPlot(table, xData, yData, from, to);
-  curve->setXerrorBar(table, xErr, from, to);
-  curve->setYerrorBar(table, yErr, from, to);
+  if (curve) {
+    curve->setXerrorBar(table, xErr, from, to);
+    curve->setYerrorBar(table, yErr, from, to);
+  }
 }
 
 QList<StatBox2D *> Layout2D::generateStatBox2DPlot(Table *table,
                                                    QList<Column *> ycollist,
-                                                   int from, const int to,
-                                                   const int key) {
+                                                   int from, const int to) {
   AxisRect2D *element = addAxisRectItem(AlphaPlot::ColumnDataType::TypeString,
                                         AlphaPlot::ColumnDataType::TypeDouble,
                                         Graph2DCommon::AddLayoutElement::Right);
@@ -228,8 +229,9 @@ QList<StatBox2D *> Layout2D::generateStatBox2DPlot(Table *table,
 
   QList<StatBox2D *> statboxs;
   foreach (Column *col, ycollist) {
-    statboxs << element->addStatBox2DPlot(table, col, from, to, xAxis.at(0),
-                                          yAxis.at(0));
+    StatBox2D *sbox = element->addStatBox2DPlot(table, col, from, to,
+                                                xAxis.at(0), yAxis.at(0));
+    if (sbox) statboxs << sbox;
   }
 
   if (!statboxs.isEmpty()) statboxs.at(0)->rescaleaxes_statbox();
@@ -252,10 +254,9 @@ void Layout2D::generateHistogram2DPlot(const AxisRect2D::BarType &barType,
       QList<Axis2D *> yAxis =
           element->getAxesOrientedTo(Axis2D::AxisOreantation::Left);
       yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
-      element->addHistogram2DPlot(barType, table, col, from, to, xAxis.at(0),
-                                  yAxis.at(0));
-      xAxis.at(0)->rescale();
-      yAxis.at(0)->rescale();
+      Bar2D *hist = element->addHistogram2DPlot(barType, table, col, from, to,
+                                                xAxis.at(0), yAxis.at(0));
+      if (hist) hist->rescaleAxes();
     }
   } else {
     AxisRect2D *element =
@@ -311,7 +312,7 @@ void Layout2D::generateBar2DPlot(const AxisRect2D::BarType &barType,
     Bar2D *bar =
         element->addBox2DPlot(barType, table, xData, col, from, to, xAxis.at(0),
                               yAxis.at(0), Bar2D::BarStyle::Individual);
-    bar->rescaleAxes();
+    if (bar) bar->rescaleAxes();
   }
 }
 
@@ -350,7 +351,7 @@ void Layout2D::generateStakedBar2DPlot(const AxisRect2D::BarType &barType,
     Bar2D *bar = element->addBox2DPlot(barType, table, xData, ycollist.at(i),
                                        from, to, xAxis.at(0), yAxis.at(0),
                                        Bar2D::BarStyle::Stacked, i);
-    bars.append(bar);
+    if (bar) bars.append(bar);
   }
 
   element->addBarsToStackGroup(bars);
@@ -391,7 +392,7 @@ void Layout2D::generateGroupedBar2DPlot(const AxisRect2D::BarType &barType,
     Bar2D *bar = element->addBox2DPlot(barType, table, xData, ycollist.at(i),
                                        from, to, xAxis.at(0), yAxis.at(0),
                                        Bar2D::BarStyle::Grouped, i);
-    bars.append(bar);
+    if (bar) bars.append(bar);
   }
 
   element->addBarsToBarsGroup(bars);
@@ -414,7 +415,7 @@ void Layout2D::generateVector2DPlot(const Vector2D::VectorPlot &vectorplot,
   Vector2D *vex =
       element->addVectorPlot(vectorplot, table, x1Data, y1Data, x2Data, y2Data,
                              from, to, xAxis.at(0), yAxis.at(0));
-  vex->rescaleAxes();
+  if (vex) vex->rescaleAxes();
 }
 
 void Layout2D::generatePie2DPlot(const Graph2DCommon::PieStyle &style,
@@ -441,6 +442,7 @@ void Layout2D::generateColorMap2DPlot(Matrix *matrix, const bool greyscale,
   yAxis << element->getAxesOrientedTo(Axis2D::AxisOreantation::Right);
   ColorMap2D *colormap =
       element->addColorMap2DPlot(matrix, xAxis.at(0), yAxis.at(0));
+  if (!colormap) return;
   if (greyscale)
     colormap->setgradient_colormap(ColorMap2D::Gradient::Grayscale);
   if (contour) {
@@ -486,7 +488,7 @@ void Layout2D::generateLineSpecial2DPlot(
   foreach (Column *col, ycollist) {
     LineSpecial2D *linescatter = element->addLineSpecial2DPlot(
         plotType, table, xData, col, from, to, xAxis.at(0), yAxis.at(0));
-    linescatter->rescaleAxes();
+    if (linescatter) linescatter->rescaleAxes();
   }
 }
 
@@ -530,7 +532,7 @@ void Layout2D::generateCurve2DPlot(const AxisRect2D::LineScatterType &plotType,
   foreach (Column *col, ycollist) {
     Curve2D *curve = element->addCurve2DPlot(plotType, table, xcol, col, from,
                                              to, xAxis.at(0), yAxis.at(0));
-    curve->rescaleAxes();
+    if (curve) curve->rescaleAxes();
   }
 }
 
@@ -824,6 +826,7 @@ Curve2D *Layout2D::generateScatter2DPlot(Table *table, Column *xcol,
   Curve2D *curve =
       element->addCurve2DPlot(AxisRect2D::LineScatterType::Scatter2D, table,
                               xcol, ycol, from, to, xAxis.at(0), yAxis.at(0));
+  if (!curve) return nullptr;
   curve->rescaleAxes();
   return curve;
 }

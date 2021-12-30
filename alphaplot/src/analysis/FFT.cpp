@@ -278,7 +278,7 @@ void FFT::output(QList<Column *> columns) {
 
   layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Line2D, table,
                               columns.at(0), QList<Column *>() << columns.at(3),
-                              0, table->rowCnt() - 1);
+                              0, table->numRows() - 1);
 }
 
 void FFT::setDataFromTable(Table *t, const QString &realColName,

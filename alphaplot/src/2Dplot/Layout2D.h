@@ -41,8 +41,7 @@ class Layout2D : public MyWidget {
                                         const int to);
   QList<StatBox2D *> generateStatBox2DPlot(Table *table,
                                            QList<Column *> ycollist,
-                                           const int from, const int to,
-                                           const int key);
+                                           const int from, const int to);
   void generateHistogram2DPlot(const AxisRect2D::BarType &barType,
                                const bool multilayout, Table *table,
                                QList<Column *> collist, const int from,

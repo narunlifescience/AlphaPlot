@@ -3035,8 +3035,8 @@ void ApplicationWindow::importASCII(const QStringList &files, int import_mode,
           table->d_future_table->addChild(new_col);
         }
         Q_ASSERT(table->columnCount() >= temp->columnCount());
-        int start_row = table->rowCnt();
-        table->d_future_table->setRowCount(table->rowCnt() + temp->rowCnt());
+        int start_row = table->numRows();
+        table->d_future_table->setRowCount(table->numRows() + temp->numRows());
         for (int col = 0; col < temp->columnCount(); col++) {
           Column *src_col = temp->column(col);
           Column *dst_col = table->column(col);
@@ -3047,14 +3047,14 @@ void ApplicationWindow::importASCII(const QStringList &files, int import_mode,
         break;
       }
       case ImportASCIIDialog::Overwrite: {
-        if (table->rowCnt() < temp->rowCnt())
-          table->d_future_table->setRowCount(temp->rowCnt());
+        if (table->numRows() < temp->numRows())
+          table->d_future_table->setRowCount(temp->numRows());
         for (int col = 0;
              col < table->columnCount() && col < temp->columnCount(); col++) {
           Column *src_col = temp->column(col);
           Column *dst_col = table->column(col);
           Q_ASSERT(src_col->dataType() == dst_col->dataType());
-          dst_col->copy(src_col, 0, 0, temp->rowCnt());
+          dst_col->copy(src_col, 0, 0, temp->numRows());
           if (local_rename_columns) dst_col->setName(src_col->name());
         }
         if (temp->columnCount() > table->columnCount()) {
@@ -9165,7 +9165,7 @@ void ApplicationWindow::selectPlotType(int value) {
     QStringList list = table->selectedColumns();
     foreach (QString colname, list)
       ycollist << table->column(table->colIndex(colname));
-    layout->generateStatBox2DPlot(table, ycollist, from, to, 1);
+    layout->generateStatBox2DPlot(table, ycollist, from, to);
     return;
   } else if (type == Graph::Histogram) {
     QList<Column *> collist;

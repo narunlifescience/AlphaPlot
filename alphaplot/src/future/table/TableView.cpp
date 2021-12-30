@@ -131,7 +131,6 @@ void TableView::init() {
   loadIcons();
   ui.verticalLayout->setContentsMargins(0, 0, 0, 0);
   ui.format_tab_layout->setContentsMargins(0, 0, 0, 0);
-  ui.formula_tab_layout->setContentsMargins(0, 0, 0, 0);
 
   d_main_layout->addWidget(d_control_tabs);
   d_control_tabs->setHidden(true);
@@ -162,6 +161,8 @@ void TableView::init() {
           SLOT(handleHorizontalSectionMoved(int, int, int)));
   connect(d_horizontal_header, SIGNAL(sectionDoubleClicked(int)), this,
           SLOT(handleHorizontalHeaderDoubleClicked(int)));
+  connect(ui.cwidget, &ControlWidget::widthChanged, this,
+          &TableView::moveFloatingButton);
 
   d_horizontal_header->setDefaultSectionSize(
       future::Table::defaultColumnWidth());
@@ -477,9 +478,15 @@ void TableView::updateFormatBox() {
                                .arg(date_stringlist.at(i))
                                .arg(time_stringlist.at(j)));
       }
-      ui.format_box->addItems(date_stringlist);
-      ui.format_box->addItems(time_stringlist);
-      ui.format_box->addItems(unionlist);
+      foreach (QString date, date_stringlist) {
+        ui.format_box->addItem(date, QVariant(date));
+      }
+      foreach (QString time, time_stringlist) {
+        ui.format_box->addItem(time, QVariant(time));
+      }
+      foreach (QString datetime, unionlist) {
+        ui.format_box->addItem(datetime, QVariant(datetime));
+      }
       ui.formatLineEdit->setEnabled(true);
       ui.date_time_interval->setEnabled(true);
       ui.date_time_0->setEnabled(true);

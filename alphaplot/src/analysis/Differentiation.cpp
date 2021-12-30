@@ -90,5 +90,5 @@ void Differentiation::output() {
 
   layout->generateCurve2DPlot(AxisRect2D::LineScatterType::Line2D, table, xcol,
                               QList<Column *>() << ycol, 0,
-                              table->rowCnt() - 1);
+                              table->numRows() - 1);
 }

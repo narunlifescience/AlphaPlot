@@ -26,11 +26,12 @@ class Utilities {
   static int getWordSizeApp();
   static QString getOperatingSystem();
   static int getWordSizeOfOS();
-  static QColor getRandColorGoldenRatio(ColorPal colpal);
-  static QString splitstring(QString string);
-  static QString joinstring(QString string);
-  static double dateTimeToDouble(const QDateTime &dateTime);
-  static QDateTime doubleToDateTime(double value);
+  static QColor getRandColorGoldenRatio(const ColorPal &colpal);
+  static QString splitstring(const QString &string);
+  static QString joinstring(const QString &string);
+  static QString timeFormatConvertor(const QString &string);
+  static QTime intToTime(const int value);
+  static int timeToInt(const QTime &time);
   static QImage convertToGrayScale(const QImage &srcImage);
   static QImage convertToGrayScaleFast(const QImage &srcImage);
 
