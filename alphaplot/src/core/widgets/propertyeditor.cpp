@@ -6174,11 +6174,11 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
 
         switch (axis->getorientation_axis()) {
           case Axis2D::AxisOreantation::Left:
-            axistext = QString(axis->getlabeltext_axis() + "(Y) :" +
+            axistext = QString(axis->getname_axis() +
                                QString::number(axis->getnumber_axis()));
             break;
           case Axis2D::AxisOreantation::Right:
-            axistext = QString(axis->getlabeltext_axis() + "(Y) :" +
+            axistext = QString(axis->getname_axis() +
                                QString::number(axis->getnumber_axis()));
             break;
           case Axis2D::AxisOreantation::Top:
