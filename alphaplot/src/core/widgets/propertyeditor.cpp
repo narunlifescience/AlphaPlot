@@ -23,6 +23,7 @@
 #include <QtDataVisualization/QBar3DSeries>
 #include <QtDataVisualization/QScatter3DSeries>
 #include <QtDataVisualization/QSurface3DSeries>
+#include <limits>
 
 #include "../3rdparty/propertybrowser/qteditorfactory.h"
 #include "../3rdparty/propertybrowser/qtpropertymanager.h"
@@ -228,6 +229,15 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   axispropertyoffsetitem_ = intManager_->addProperty(tr("Offset"));
   axispropertyfromitem_ = doubleManager_->addProperty(tr("From"));
   axispropertytoitem_ = doubleManager_->addProperty(tr("To"));
+  // setmaximum double limits
+  doubleManager_->setMaximum(axispropertyfromitem_,
+                             std::numeric_limits<double>::max());
+  doubleManager_->setMinimum(axispropertyfromitem_,
+                             std::numeric_limits<double>::min());
+  doubleManager_->setMaximum(axispropertytoitem_,
+                             std::numeric_limits<double>::max());
+  doubleManager_->setMinimum(axispropertytoitem_,
+                             std::numeric_limits<double>::min());
   axispropertyupperendingstyleitem_ =
       enumManager_->addProperty(tr("Upper Ending"));
   enumManager_->setEnumNames(axispropertyupperendingstyleitem_,
@@ -4691,6 +4701,15 @@ void PropertyEditor::Legend2DPropertyBlock(Legend2D *legend) {
                          legend->brush().style() - 1);
   boolManager_->setValue(itempropertylegendtitlevisibleitem_,
                          legend->istitle_legend());
+  if (legend->istitle_legend()) {
+    itempropertylegendtitletextitem_->setEnabled(true);
+    itempropertylegendtitlefontitem_->setEnabled(true);
+    itempropertylegendtitlecoloritem_->setEnabled(true);
+  } else {
+    itempropertylegendtitletextitem_->setEnabled(false);
+    itempropertylegendtitlefontitem_->setEnabled(false);
+    itempropertylegendtitlecoloritem_->setEnabled(false);
+  }
   stringManager_->setValue(itempropertylegendtitletextitem_,
                            legend->titletext_legend());
   fontManager_->setValue(itempropertylegendtitlefontitem_,
