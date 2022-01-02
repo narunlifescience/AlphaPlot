@@ -283,7 +283,21 @@ QString Utilities::timeFormatConvertor(const QString& string) {
   return tmpstr;
 }
 
-QTime Utilities::intToTime(const int value) {
+bool Utilities::isTimeFormat(const QString& format) {
+  bool status = false;
+  if (!format.contains("d", Qt::CaseSensitive) ||
+      !format.contains("M", Qt::CaseSensitive) ||
+      !format.contains("yy", Qt::CaseSensitive)) {
+    if (format.contains("h", Qt::CaseSensitive) ||
+        format.contains("m", Qt::CaseSensitive) ||
+        format.contains("s", Qt::CaseSensitive) ||
+        format.contains("z", Qt::CaseSensitive))
+      status = true;
+  }
+  return status;
+}
+
+QTime Utilities::intToTime(const int value, const QString &format) {
   if (value >= 86400000 || value <= -86400000) return QTime(0, 0, 0, 0);
   // this is a different way of doing the same
   /*double intpart;
@@ -310,9 +324,9 @@ QTime Utilities::intToTime(const int value) {
 
 int Utilities::timeToInt(const QTime& time) {
   // this is a different way of doing the same
-  // time.msecsSinceStartOfDay();
-  return (time.hour() * 60 * 60 * 1000) + (time.minute() * 60 * 1000) +
-         (time.second() * 1000) + (time.msec());
+  return time.msecsSinceStartOfDay();
+  //return (time.hour() * 60 * 60 * 1000) + (time.minute() * 60 * 1000) +
+  //       (time.second() * 1000) + (time.msec());
 }
 
 QImage Utilities::convertToGrayScale(const QImage& srcImage) {

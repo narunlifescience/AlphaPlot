@@ -30,7 +30,8 @@ class Utilities {
   static QString splitstring(const QString &string);
   static QString joinstring(const QString &string);
   static QString timeFormatConvertor(const QString &string);
-  static QTime intToTime(const int value);
+  static bool isTimeFormat(const QString &format);
+  static QTime intToTime(const int value, const QString &format);
   static int timeToInt(const QTime &time);
   static QImage convertToGrayScale(const QImage &srcImage);
   static QImage convertToGrayScaleFast(const QImage &srcImage);

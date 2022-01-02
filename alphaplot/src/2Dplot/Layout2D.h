@@ -93,6 +93,7 @@ class Layout2D : public MyWidget {
   LayoutButton2D *addLayoutButton(const QPair<int, int> rowcol,
                                   AxisRect2D *axisrect);
   void setBackground(const QColor &background);
+  void setBackgroundImage(const QString &filename);
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void streachLabelSetText(const QString &text);
   void print();
@@ -128,16 +129,17 @@ class Layout2D : public MyWidget {
 
  private slots:
   AxisRect2D *addAxisRectItem(
-      const AlphaPlot::ColumnDataType &xcoldatatype,
-      const AlphaPlot::ColumnDataType &ycoldatatype,
-      const Graph2DCommon::AddLayoutElement &addelement);
-  AxisRect2D *addAxisRectItemAtRowCol(
-      const AlphaPlot::ColumnDataType &xcoldatatype,
-      const AlphaPlot::ColumnDataType &ycoldatatype,
-      const QPair<int, int> rowcol);
+      const Axis2D::TickerType &xtype, const Axis2D::TickerType &ytype,
+      const Graph2DCommon::AddLayoutElement &addelement =
+          Graph2DCommon::AddLayoutElement::Right);
+  AxisRect2D *addAxisRectItemAtRowCol(const Axis2D::TickerType &xtype,
+                                      const Axis2D::TickerType &ytype,
+                                      const QPair<int, int> rowcol);
   void activateLayout(LayoutButton2D *button);
 
  private:
+  AxisRect2D *addAxisRectItemAsAppropriate(Column *xcol,
+                                           QList<Column *> ycollist);
   Curve2D *generateScatter2DPlot(Table *table, Column *xcol, Column *ycol,
                                  const int from, const int to);
   void addTextToAxisTicker(Column *col, Axis2D *axis, const int from,
@@ -174,6 +176,7 @@ class Layout2D : public MyWidget {
   static const int defaultlayout2dheight_;
   static const int minimumlayout2dwidth_;
   static const int minimumlayout2dheight_;
+  QString backgroundimagefilename_;
 
  private slots:
   void mouseMoveSignal(QMouseEvent *event);

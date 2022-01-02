@@ -42,6 +42,7 @@
 #include "TextItem2D.h"
 #include "core/Utilities.h"
 #include "future/core/column/Column.h"
+#include "future/core/datatypes/DateTime2StringFilter.h"
 #include "future/lib/XmlStreamWriter.h"
 
 AxisRect2D::AxisRect2D(Plot2D *parent, PickerTool2D *picker,
@@ -183,10 +184,16 @@ Axis2D *AxisRect2D::addAxis2DifNeeded(Column *col) {
     case AlphaPlot::ColumnDataType::TypeString:
       tickertype = Axis2D::TickerType::Text;
       break;
-    case AlphaPlot::ColumnDataType::TypeDateTime:
+    case AlphaPlot::ColumnDataType::TypeDateTime: {
+      QString fmt =
+          static_cast<DateTime2StringFilter *>(col->outputFilter())->format();
+      (Utilities::isTimeFormat(fmt))
+          ? tickertype = Axis2D::TickerType::Time
+          : tickertype = Axis2D::TickerType::DateTime;
+    } break;
+    case AlphaPlot::ColumnDataType::TypeMonth:
+    case AlphaPlot::ColumnDataType::TypeDay:
       tickertype = Axis2D::TickerType::DateTime;
-      break;
-    default:
       break;
   }
 
@@ -761,6 +768,10 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
   if (!hasMinimumDataPointsToPlot(
           1, table, x1Data, QList<Column *>() << y1Data << x2Data << y2Data,
           from, to))
+    return nullptr;
+  if (y1Data->dataType() != AlphaPlot::ColumnDataType::TypeDouble ||
+      x2Data->dataType() != AlphaPlot::ColumnDataType::TypeDouble ||
+      y2Data->dataType() != AlphaPlot::ColumnDataType::TypeDouble)
     return nullptr;
   Vector2D *vec = new Vector2D(vectorplot, table, x1Data, y1Data, x2Data,
                                y2Data, from, to, xAxis, yAxis);

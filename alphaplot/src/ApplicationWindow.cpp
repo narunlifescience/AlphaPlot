@@ -1888,11 +1888,11 @@ void ApplicationWindow::loadImage() {
 
 void ApplicationWindow::loadImage(const QString &fn) {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  QPixmap pixmap = QPixmap(fn);
-  Layout2D *layout = newGraph2D();
-  layout->getPlotCanwas()->setBackground(
-      pixmap, true, Qt::AspectRatioMode::IgnoreAspectRatio);
-  layout->setLayoutButtonBoxVisible(false);
+  if (!QPixmap(fn).isNull()) {
+    Layout2D *layout = newGraph2D();
+    layout->setBackgroundImage(fn);
+  } else
+    qDebug() << QString("unrecognised image file name %1").arg(fn);
   QApplication::restoreOverrideCursor();
 }
 
