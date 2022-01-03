@@ -2535,6 +2535,8 @@ void ApplicationWindow::showPreferencesDialog() {
           &ApplicationWindow::updateTableColorOptions);
   connect(settings_.get(), &SettingsDialog::tablefontsettingsupdates, this,
           &ApplicationWindow::updateTableFontOptions);
+  connect(settings_.get(), &SettingsDialog::fittingsettingsupdates, this,
+          &ApplicationWindow::updateFittingOptions);
   settings_->exec();
 }
 
@@ -2900,6 +2902,21 @@ void ApplicationWindow::updateTableFontOptions() {
     tableHeaderFont = ntableHeaderFont;
     customizeTables(Table::Custom::HeaderFont);
   }
+}
+
+void ApplicationWindow::updateFittingOptions() {
+  QSettings settings;
+  settings.beginGroup("Fitting");
+  fit_output_precision = settings.value("OutputPrecision", 15).toInt();
+  pasteFitResultsToPlot = settings.value("PasteResultsToPlot", false).toBool();
+  writeFitResultsToLog = settings.value("WriteResultsToLog", true).toBool();
+  generateUniformFitPoints = settings.value("GenerateFunction", true).toBool();
+  fitPoints = settings.value("Points", 100).toInt();
+  generatePeakCurves = settings.value("GeneratePeakCurves", true).toBool();
+  peakCurvesColor = settings.value("PeaksColor", 2).toInt();  // green color
+  fit_scale_errors = settings.value("ScaleErrors", false).toBool();
+  d_2_linear_fit_points = settings.value("TwoPointsLinearFit", true).toBool();
+  settings.endGroup();  // Fitting
 }
 
 ApplicationWindow *ApplicationWindow::plotFile(const QString &fn) {

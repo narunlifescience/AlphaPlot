@@ -884,7 +884,9 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
                              stroketypeiconslist);
   QStringList sshowlist;
   sshowlist << "Outlier"
-            << "All";
+            << "All"
+            << "Min Max"
+            << "None";
   statboxplotpropertyscattershowitem_ = enumManager_->addProperty("Show");
   enumManager_->setEnumNames(statboxplotpropertyscattershowitem_, sshowlist);
   statboxplotpropertyscatterantialiaseditem_ =

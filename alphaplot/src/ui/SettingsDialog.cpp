@@ -69,8 +69,8 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   // ui_->scrollAreaWidgetContents->setSpacing(0);
 
   // Setup search box.
-  ui_->searchBox->setMaximumWidth(300);
-  ui_->searchBox->setToolTip(tr("search"));
+  // ui_->searchBox->setMaximumWidth(300);
+  // ui_->searchBox->setToolTip(tr("search"));
 
   // Prepare buttons
   ui_->settingsButton->setIcon(
@@ -153,7 +153,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   connect(
       generalappearancesettings,
       &GeneralAppreanceSettings::generalappreancesettingsupdate, this, [=]() {
-        baseColor_ = ui_->searchBox->palette().color(QPalette::Base);
+        // baseColor_ = ui_->searchBox->palette().color(QPalette::Base);
         fontColor_ = palette().color(QPalette::Text);
         QString scrollbackcol =
             ".QScrollArea {border: 0; background-color: rgba(%1,%2,%3,%4);}";
@@ -169,8 +169,10 @@ SettingsDialog::SettingsDialog(QWidget* parent)
           this, &SettingsDialog::tablebasicsettingsupdates);
   connect(tablecolorsettings, &TableColorSettings::tablecolorsettingsupdate,
           this, &SettingsDialog::tablecolorsettingsupdates);
-  connect(tablefontsettings, &TableFontSettings::tablefontsettingsupdate,
-          this, &SettingsDialog::tablefontsettingsupdates);
+  connect(tablefontsettings, &TableFontSettings::tablefontsettingsupdate, this,
+          &SettingsDialog::tablefontsettingsupdates);
+  connect(fittingsettings, &FittingSettings::fittingsettingsupdate, this,
+          &SettingsDialog::fittingsettingsupdates);
 
   // Set model to the view
   ui_->generalListView->setModel(generalSettingsModel_);
@@ -301,7 +303,7 @@ void SettingsDialog::getBackToRootSettingsPage() {
   }
   if (result) {
     ui_->stackedWidget->setCurrentIndex(Page_RootSettings);
-    ui_->searchBox->show();
+    // ui_->searchBox->show();
     ui_->settingsButton->setEnabled(false);
   }
 }
@@ -312,7 +314,7 @@ void SettingsDialog::generalEnsureSelection(const QModelIndex& index) {
   clearAllSelection();
   ui_->generalListView->setCurrentIndex(index);
   ui_->stackedWidget->setCurrentIndex(index.row() + 1);
-  ui_->searchBox->hide();
+  // ui_->searchBox->hide();
   ui_->settingsButton->setEnabled(true);
 }
 
@@ -321,7 +323,7 @@ void SettingsDialog::tableEnsureSelection(const QModelIndex& index) {
   ui_->tableListView->setCurrentIndex(index);
   ui_->stackedWidget->setCurrentIndex(index.row() +
                                       generalSettingsModel_->rowCount() + 1);
-  ui_->searchBox->hide();
+  // ui_->searchBox->hide();
   ui_->settingsButton->setEnabled(true);
 }
 
@@ -331,7 +333,7 @@ void SettingsDialog::plot2dEnsureSelection(const QModelIndex& index) {
   ui_->stackedWidget->setCurrentIndex(index.row() +
                                       generalSettingsModel_->rowCount() +
                                       tableSettingsModel_->rowCount() + 1);
-  ui_->searchBox->hide();
+  // ui_->searchBox->hide();
   ui_->settingsButton->setEnabled(true);
 }
 
@@ -341,7 +343,7 @@ void SettingsDialog::plot3dEnsureSelection(const QModelIndex& index) {
   ui_->stackedWidget->setCurrentIndex(
       index.row() + generalSettingsModel_->rowCount() +
       tableSettingsModel_->rowCount() + plot2dSettingsModel_->rowCount() + 1);
-  ui_->searchBox->hide();
+  // ui_->searchBox->hide();
   ui_->settingsButton->setEnabled(true);
 }
 
@@ -352,7 +354,7 @@ void SettingsDialog::fittingEnsureSelection(const QModelIndex& index) {
       index.row() + generalSettingsModel_->rowCount() +
       tableSettingsModel_->rowCount() + plot2dSettingsModel_->rowCount() +
       plot3dSettingsModel_->rowCount() + 1);
-  ui_->searchBox->hide();
+  // ui_->searchBox->hide();
   ui_->settingsButton->setEnabled(true);
 }
 
@@ -363,6 +365,6 @@ void SettingsDialog::scriptingEnsureSelection(const QModelIndex& index) {
       index.row() + generalSettingsModel_->rowCount() +
       tableSettingsModel_->rowCount() + plot2dSettingsModel_->rowCount() +
       plot3dSettingsModel_->rowCount() + fittingSettingsModel_->rowCount() + 1);
-  ui_->searchBox->hide();
+  // ui_->searchBox->hide();
   ui_->settingsButton->setEnabled(true);
 }

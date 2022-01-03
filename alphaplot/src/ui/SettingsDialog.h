@@ -74,6 +74,7 @@ class SettingsDialog : public QDialog {
   void tablebasicsettingsupdates();
   void tablecolorsettingsupdates();
   void tablefontsettingsupdates();
+  void fittingsettingsupdates();
 
  protected:
   QSize sizeHint() const;

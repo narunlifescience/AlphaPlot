@@ -308,6 +308,11 @@ void StatBox2D::setOutliers() {
       }
       i++;
     }
+  } else if (scatter_ == Scatter::MinMax) {
+    sBoxdata_->outliers << boxwhiskerdata_.boxWhiskerDataBounds.min
+                        << boxwhiskerdata_.boxWhiskerDataBounds.max;
+  } else if (scatter_ == Scatter::None) {
+    sBoxdata_->outliers.clear();
   }
 }
 
@@ -356,16 +361,51 @@ void StatBox2D::setwhiskerstyle_statbox(
       sBoxdata_->maximum = boxwhiskerdata_.boxWhiskerDataBounds.constant_upper;
       break;
     case BoxWhiskerStyle::IQR_1_5_auto: {
-      sBoxdata_->minimum =
-          sBoxdata_->lowerQuartile -
-          ((sBoxdata_->upperQuartile - sBoxdata_->lowerQuartile) * 1.5);
-      if (sBoxdata_->minimum > boxwhiskerdata_.boxWhiskerDataBounds.min)
+      double q1 = sBoxdata_->lowerQuartile;
+      double q2 = sBoxdata_->upperQuartile;
+      double iqr = q2 - q1;
+      double lowerq_range = q1 - (iqr * 1.5);
+      double upperq_range = q2 + (iqr * 1.5);
+      if (lowerq_range <= boxwhiskerdata_.boxWhiskerDataBounds.min)
         sBoxdata_->minimum = boxwhiskerdata_.boxWhiskerDataBounds.min;
-      sBoxdata_->maximum =
-          sBoxdata_->upperQuartile +
-          ((sBoxdata_->upperQuartile - sBoxdata_->lowerQuartile) * 1.5);
-      if (sBoxdata_->maximum < boxwhiskerdata_.boxWhiskerDataBounds.max)
+      else {
+        qDebug() << "entering IQR";
+        double min = boxwhiskerdata_.boxWhiskerDataBounds.max;
+        Column *col = boxwhiskerdata_.column_;
+        int from = boxwhiskerdata_.from_;
+        int to = boxwhiskerdata_.to_;
+        for (int i = 0, row = from; row <= to; row++) {
+          if (!col->isInvalid(row)) {
+            double data = std::numeric_limits<double>::quiet_NaN();
+            data = col->valueAt(row);
+            if (data > lowerq_range)
+              if (data < min) {
+                min = data;
+              }
+          }
+          i++;
+        }
+        sBoxdata_->minimum = min;
+      }
+
+      if (upperq_range >= boxwhiskerdata_.boxWhiskerDataBounds.max)
         sBoxdata_->maximum = boxwhiskerdata_.boxWhiskerDataBounds.max;
+      else {
+        double max = boxwhiskerdata_.boxWhiskerDataBounds.min;
+        Column *col = boxwhiskerdata_.column_;
+        int from = boxwhiskerdata_.from_;
+        int to = boxwhiskerdata_.to_;
+        for (int i = 0, row = from; row <= to; row++) {
+          if (!col->isInvalid(row)) {
+            double data = std::numeric_limits<double>::quiet_NaN();
+            data = col->valueAt(row);
+            if (data < upperq_range)
+              if (data > max) max = data;
+          }
+          i++;
+        }
+        sBoxdata_->maximum = max;
+      }
     } break;
   }
   whiskerstyle_ = whiskerStyle;
@@ -654,7 +694,11 @@ void StatBox2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   // scatter
   xmlwriter->writeStartElement("scatter");
   (scatter_ == Scatter::All) ? xmlwriter->writeAttribute("show", "all")
-                             : xmlwriter->writeAttribute("show", "outlier");
+  : (scatter_ == Scatter::Outliers)
+      ? xmlwriter->writeAttribute("show", "outlier")
+  : (scatter_ == Scatter::MinMax) ? xmlwriter->writeAttribute("show", "minmax")
+  : (scatter_ == Scatter::None)   ? xmlwriter->writeAttribute("show", "none")
+                                : xmlwriter->writeAttribute("show", "outlier");
   switch (getscattershape_statbox()) {
     case Graph2DCommon::ScatterStyle::None:
       xmlwriter->writeAttribute("style", "none");
@@ -891,6 +935,8 @@ bool StatBox2D::load(XmlStreamReader *xmlreader) {
       if (ok) {
         (scattershow == "all")       ? setOutlierScatter(Scatter::All)
         : (scattershow == "outlier") ? setOutlierScatter(Scatter::Outliers)
+        : (scattershow == "minmax")  ? setOutlierScatter(Scatter::MinMax)
+        : (scattershow == "none")    ? setOutlierScatter(Scatter::None)
                                      : setOutlierScatter(Scatter::Outliers);
       } else
         xmlreader->raiseWarning(

@@ -51,31 +51,6 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QLineEdit" name="searchBox">
-       <property name="toolTip">
-        <string/>
-       </property>
-       <property name="statusTip">
-        <string/>
-       </property>
-       <property name="accessibleName">
-        <string/>
-       </property>
-       <property name="accessibleDescription">
-        <string/>
-       </property>
-       <property name="inputMethodHints">
-        <set>Qt::ImhNone</set>
-       </property>
-       <property name="inputMask">
-        <string/>
-       </property>
-       <property name="placeholderText">
-        <string>Search</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item row="1" column="0">

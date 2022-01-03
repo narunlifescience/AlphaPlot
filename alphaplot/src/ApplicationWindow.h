@@ -659,6 +659,7 @@ class ApplicationWindow : public QMainWindow,
   void updateTableBasicOptions();
   void updateTableColorOptions();
   void updateTableFontOptions();
+  void updateFittingOptions();
 
   //! \name Plot3D Tools
   //@{

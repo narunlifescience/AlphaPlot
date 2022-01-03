@@ -27,6 +27,8 @@ class StatBox2D : public QCPStatisticalBox {
   enum class Scatter : int {
     Outliers = 0,
     All = 1,
+    MinMax = 2,
+    None = 3,
   };
 
   struct BoxWhiskerDataBounds {
