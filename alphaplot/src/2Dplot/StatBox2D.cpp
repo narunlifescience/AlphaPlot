@@ -20,12 +20,15 @@ StatBox2D::StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
       layername_(QString("<StatBox2D>") + QDateTime::currentDateTime().toString(
                                               "yyyy:MM:dd:hh:mm:ss:zzz")),
       boxwhiskerdata_(boxWhiskerData),
+      sBoxdata_(
+          std::unique_ptr<QCPStatisticalBoxData>(new QCPStatisticalBoxData)),
+      scatter_(Scatter::Outliers),
       scatterstyle_(new QCPScatterStyle(
           QCPScatterStyle::ssDisc,
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark),
           Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Dark), 6.0)),
       boxstyle_(StatBox2D::BoxWhiskerStyle::Perc_25_75),
-      whiskerstyle_(StatBox2D::BoxWhiskerStyle::Perc_5_95) {
+      whiskerstyle_(StatBox2D::BoxWhiskerStyle::IQR_1_5_auto) {
   // setting icon
   icon_ = IconLoader::load("graph2d-box", IconLoader::LightDark);
 
@@ -39,16 +42,7 @@ StatBox2D::StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
   setOutlierStyle(*scatterstyle_);
   setfillcolor_statbox(
       Utilities::getRandColorGoldenRatio(Utilities::ColorPal::Light));
-  sBoxdata_.key = boxWhiskerData.key;
-  sBoxdata_.median = boxWhiskerData.median;
-  setboxstyle_statbox(Perc_25_75);
-  setwhiskerstyle_statbox(Perc_5_95);
-  sBoxdata_.outliers << boxWhiskerData.boxWhiskerDataBounds.min
-                     << boxWhiskerData.boxWhiskerDataBounds.max;
-  data().data()->clear();
-  addData(sBoxdata_.key, sBoxdata_.minimum, sBoxdata_.lowerQuartile,
-          sBoxdata_.median, sBoxdata_.upperQuartile, sBoxdata_.maximum,
-          sBoxdata_.outliers);
+  setboxwhiskerdata(boxWhiskerData);
 }
 
 StatBox2D::~StatBox2D() {
@@ -219,104 +213,166 @@ void StatBox2D::setyaxis_statbox(Axis2D *axis) {
 
 void StatBox2D::setboxwhiskerdata(const BoxWhiskerData boxWhiskerData) {
   boxwhiskerdata_ = boxWhiskerData;
-  sBoxdata_.key = boxWhiskerData.key;
-  sBoxdata_.median = boxWhiskerData.median;
-  setboxstyle_statbox(Perc_25_75);
-  setwhiskerstyle_statbox(Perc_5_95);
-  sBoxdata_.outliers << boxWhiskerData.boxWhiskerDataBounds.min
-                     << boxWhiskerData.boxWhiskerDataBounds.max;
+  sBoxdata_->key = boxWhiskerData.key;
+  sBoxdata_->median = boxWhiskerData.median;
+  setboxstyle_statbox(boxstyle_);
+  setwhiskerstyle_statbox(whiskerstyle_);
+  setOutliers();
   data().data()->clear();
-  addData(sBoxdata_.key, sBoxdata_.minimum, sBoxdata_.lowerQuartile,
-          sBoxdata_.median, sBoxdata_.upperQuartile, sBoxdata_.maximum,
-          sBoxdata_.outliers);
+  addData(sBoxdata_->key, sBoxdata_->minimum, sBoxdata_->lowerQuartile,
+          sBoxdata_->median, sBoxdata_->upperQuartile, sBoxdata_->maximum,
+          sBoxdata_->outliers);
 }
 
 void StatBox2D::setboxstyle_statbox(
     const StatBox2D::BoxWhiskerStyle &boxStyle) {
   switch (boxStyle) {
-    case SD:
-      sBoxdata_.lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.sd_lower;
-      sBoxdata_.upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.sd_upper;
+    case BoxWhiskerStyle::SD:
+      sBoxdata_->lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.sd_lower;
+      sBoxdata_->upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.sd_upper;
       break;
-    case SE:
-      sBoxdata_.lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.se_lower;
-      sBoxdata_.upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.se_upper;
+    case BoxWhiskerStyle::SE:
+      sBoxdata_->lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.se_lower;
+      sBoxdata_->upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.se_upper;
       break;
-    case Perc_25_75:
-      sBoxdata_.lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_25;
-      sBoxdata_.upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_75;
+    case BoxWhiskerStyle::Perc_25_75:
+      sBoxdata_->lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_25;
+      sBoxdata_->upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_75;
       break;
-    case Perc_10_90:
-      sBoxdata_.lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_10;
-      sBoxdata_.upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_90;
+    case BoxWhiskerStyle::Perc_10_90:
+      sBoxdata_->lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_10;
+      sBoxdata_->upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_90;
       break;
-    case Perc_5_95:
-      sBoxdata_.lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_5;
-      sBoxdata_.upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_95;
+    case BoxWhiskerStyle::Perc_5_95:
+      sBoxdata_->lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_5;
+      sBoxdata_->upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_95;
       break;
-    case Perc_1_99:
-      sBoxdata_.lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_1;
-      sBoxdata_.upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_99;
+    case BoxWhiskerStyle::Perc_1_99:
+      sBoxdata_->lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_1;
+      sBoxdata_->upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_99;
       break;
-    case MinMax:
-      sBoxdata_.lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.min;
-      sBoxdata_.upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.max;
+    case BoxWhiskerStyle::MinMax:
+      sBoxdata_->lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.min;
+      sBoxdata_->upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.max;
       break;
-    case Constant:
-      sBoxdata_.lowerQuartile =
+    case BoxWhiskerStyle::Constant:
+      sBoxdata_->lowerQuartile =
           boxwhiskerdata_.boxWhiskerDataBounds.constant_lower;
-      sBoxdata_.upperQuartile =
+      sBoxdata_->upperQuartile =
           boxwhiskerdata_.boxWhiskerDataBounds.constant_upper;
       break;
+    default:
+      sBoxdata_->lowerQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_25;
+      sBoxdata_->upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_75;
+      break;
   }
-  data().data()->clear();
-  addData(sBoxdata_.key, sBoxdata_.minimum, sBoxdata_.lowerQuartile,
-          sBoxdata_.median, sBoxdata_.upperQuartile, sBoxdata_.maximum,
-          sBoxdata_.outliers);
   boxstyle_ = boxStyle;
+  if (whiskerstyle_ == BoxWhiskerStyle::IQR_1_5_auto)
+    setwhiskerstyle_statbox(whiskerstyle_);
+  setOutliers();
+  data().data()->clear();
+  addData(sBoxdata_->key, sBoxdata_->minimum, sBoxdata_->lowerQuartile,
+          sBoxdata_->median, sBoxdata_->upperQuartile, sBoxdata_->maximum,
+          sBoxdata_->outliers);
+}
+
+void StatBox2D::setOutliers() {
+  double q1 = sBoxdata_->lowerQuartile;
+  double q2 = sBoxdata_->upperQuartile;
+  double iqr = q2 - q1;
+  double lowerq_range = q1 - (iqr * 1.5);
+  double upperq_range = q2 + (iqr * 1.5);
+  Column *col = boxwhiskerdata_.column_;
+  int from = boxwhiskerdata_.from_;
+  int to = boxwhiskerdata_.to_;
+  sBoxdata_->outliers.clear();
+  if (scatter_ == Scatter::Outliers) {
+    if (lowerq_range > boxwhiskerdata_.boxWhiskerDataBounds.min ||
+        upperq_range < boxwhiskerdata_.boxWhiskerDataBounds.max) {
+      for (int i = 0, row = from; row <= to; row++) {
+        if (!col->isInvalid(row)) {
+          double data = std::numeric_limits<double>::quiet_NaN();
+          data = col->valueAt(row);
+          if (lowerq_range > data || upperq_range < data)
+            sBoxdata_->outliers << data;
+        }
+        i++;
+      }
+    }
+  } else if (scatter_ == Scatter::All) {
+    for (int i = 0, row = from; row <= to; row++) {
+      if (!col->isInvalid(row)) {
+        double data = std::numeric_limits<double>::quiet_NaN();
+        data = col->valueAt(row);
+        sBoxdata_->outliers << data;
+      }
+      i++;
+    }
+  }
+}
+
+void StatBox2D::setOutlierScatter(const Scatter &scatter) {
+  scatter_ = scatter;
+  setOutliers();
+  data().data()->clear();
+  addData(sBoxdata_->key, sBoxdata_->minimum, sBoxdata_->lowerQuartile,
+          sBoxdata_->median, sBoxdata_->upperQuartile, sBoxdata_->maximum,
+          sBoxdata_->outliers);
 }
 
 void StatBox2D::setwhiskerstyle_statbox(
     const StatBox2D::BoxWhiskerStyle &whiskerStyle) {
   switch (whiskerStyle) {
-    case SD:
-      sBoxdata_.minimum = boxwhiskerdata_.boxWhiskerDataBounds.sd_lower;
-      sBoxdata_.maximum = boxwhiskerdata_.boxWhiskerDataBounds.sd_upper;
+    case BoxWhiskerStyle::SD:
+      sBoxdata_->minimum = boxwhiskerdata_.boxWhiskerDataBounds.sd_lower;
+      sBoxdata_->maximum = boxwhiskerdata_.boxWhiskerDataBounds.sd_upper;
       break;
-    case SE:
-      sBoxdata_.minimum = boxwhiskerdata_.boxWhiskerDataBounds.se_lower;
-      sBoxdata_.maximum = boxwhiskerdata_.boxWhiskerDataBounds.se_upper;
+    case BoxWhiskerStyle::SE:
+      sBoxdata_->minimum = boxwhiskerdata_.boxWhiskerDataBounds.se_lower;
+      sBoxdata_->maximum = boxwhiskerdata_.boxWhiskerDataBounds.se_upper;
       break;
-    case Perc_25_75:
-      sBoxdata_.minimum = boxwhiskerdata_.boxWhiskerDataBounds.perc_25;
-      sBoxdata_.maximum = boxwhiskerdata_.boxWhiskerDataBounds.perc_75;
+    case BoxWhiskerStyle::Perc_25_75:
+      sBoxdata_->minimum = boxwhiskerdata_.boxWhiskerDataBounds.perc_25;
+      sBoxdata_->maximum = boxwhiskerdata_.boxWhiskerDataBounds.perc_75;
       break;
-    case Perc_10_90:
-      sBoxdata_.minimum = boxwhiskerdata_.boxWhiskerDataBounds.perc_10;
-      sBoxdata_.maximum = boxwhiskerdata_.boxWhiskerDataBounds.perc_90;
+    case BoxWhiskerStyle::Perc_10_90:
+      sBoxdata_->minimum = boxwhiskerdata_.boxWhiskerDataBounds.perc_10;
+      sBoxdata_->maximum = boxwhiskerdata_.boxWhiskerDataBounds.perc_90;
       break;
-    case Perc_5_95:
-      sBoxdata_.minimum = boxwhiskerdata_.boxWhiskerDataBounds.perc_5;
-      sBoxdata_.maximum = boxwhiskerdata_.boxWhiskerDataBounds.perc_95;
+    case BoxWhiskerStyle::Perc_5_95:
+      sBoxdata_->minimum = boxwhiskerdata_.boxWhiskerDataBounds.perc_5;
+      sBoxdata_->maximum = boxwhiskerdata_.boxWhiskerDataBounds.perc_95;
       break;
-    case Perc_1_99:
-      sBoxdata_.minimum = boxwhiskerdata_.boxWhiskerDataBounds.perc_1;
-      sBoxdata_.maximum = boxwhiskerdata_.boxWhiskerDataBounds.perc_99;
+    case BoxWhiskerStyle::Perc_1_99:
+      sBoxdata_->minimum = boxwhiskerdata_.boxWhiskerDataBounds.perc_1;
+      sBoxdata_->maximum = boxwhiskerdata_.boxWhiskerDataBounds.perc_99;
       break;
-    case MinMax:
-      sBoxdata_.minimum = boxwhiskerdata_.boxWhiskerDataBounds.min;
-      sBoxdata_.maximum = boxwhiskerdata_.boxWhiskerDataBounds.max;
+    case BoxWhiskerStyle::MinMax:
+      sBoxdata_->minimum = boxwhiskerdata_.boxWhiskerDataBounds.min;
+      sBoxdata_->maximum = boxwhiskerdata_.boxWhiskerDataBounds.max;
       break;
-    case Constant:
-      sBoxdata_.minimum = boxwhiskerdata_.boxWhiskerDataBounds.constant_lower;
-      sBoxdata_.maximum = boxwhiskerdata_.boxWhiskerDataBounds.constant_upper;
+    case BoxWhiskerStyle::Constant:
+      sBoxdata_->minimum = boxwhiskerdata_.boxWhiskerDataBounds.constant_lower;
+      sBoxdata_->maximum = boxwhiskerdata_.boxWhiskerDataBounds.constant_upper;
       break;
+    case BoxWhiskerStyle::IQR_1_5_auto: {
+      sBoxdata_->minimum =
+          sBoxdata_->lowerQuartile -
+          ((sBoxdata_->upperQuartile - sBoxdata_->lowerQuartile) * 1.5);
+      if (sBoxdata_->minimum > boxwhiskerdata_.boxWhiskerDataBounds.min)
+        sBoxdata_->minimum = boxwhiskerdata_.boxWhiskerDataBounds.min;
+      sBoxdata_->maximum =
+          sBoxdata_->upperQuartile +
+          ((sBoxdata_->upperQuartile - sBoxdata_->lowerQuartile) * 1.5);
+      if (sBoxdata_->maximum < boxwhiskerdata_.boxWhiskerDataBounds.max)
+        sBoxdata_->maximum = boxwhiskerdata_.boxWhiskerDataBounds.max;
+    } break;
   }
-  data().data()->clear();
-  addData(sBoxdata_.key, sBoxdata_.minimum, sBoxdata_.lowerQuartile,
-          sBoxdata_.median, sBoxdata_.upperQuartile, sBoxdata_.maximum,
-          sBoxdata_.outliers);
   whiskerstyle_ = whiskerStyle;
+  data().data()->clear();
+  addData(sBoxdata_->key, sBoxdata_->minimum, sBoxdata_->lowerQuartile,
+          sBoxdata_->median, sBoxdata_->upperQuartile, sBoxdata_->maximum,
+          sBoxdata_->outliers);
 }
 
 void StatBox2D::setfillcolor_statbox(const QColor &color) {
@@ -544,6 +600,9 @@ void StatBox2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
     case StatBox2D::BoxWhiskerStyle::Perc_25_75:
       xmlwriter->writeAttribute("boxstyle", "perc_25_75");
       break;
+    case StatBox2D::BoxWhiskerStyle::IQR_1_5_auto:
+      xmlwriter->writeAttribute("boxstyle", "perc_25_75");
+      break;
   }
   xmlwriter->writePen(pen());
   xmlwriter->writeBrush(brush());
@@ -561,10 +620,41 @@ void StatBox2D::save(XmlStreamWriter *xmlwriter, int xaxis, int yaxis) {
   xmlwriter->writeEndElement();
   // whisker bar
   xmlwriter->writeStartElement("whiskerbar");
+  switch (getwhiskerstyle_statbox()) {
+    case StatBox2D::BoxWhiskerStyle::SE:
+      xmlwriter->writeAttribute("whiskerstyle", "se");
+      break;
+    case StatBox2D::BoxWhiskerStyle::SD:
+      xmlwriter->writeAttribute("whiskerstyle", "sd");
+      break;
+    case StatBox2D::BoxWhiskerStyle::MinMax:
+      xmlwriter->writeAttribute("whiskerstyle", "minmax");
+      break;
+    case StatBox2D::BoxWhiskerStyle::Constant:
+      xmlwriter->writeAttribute("whiskerstyle", "constant");
+      break;
+    case StatBox2D::BoxWhiskerStyle::Perc_1_99:
+      xmlwriter->writeAttribute("boxstyle", "perc_1_99");
+      break;
+    case StatBox2D::BoxWhiskerStyle::Perc_5_95:
+      xmlwriter->writeAttribute("whiskerstyle", "perc_5_95");
+      break;
+    case StatBox2D::BoxWhiskerStyle::Perc_10_90:
+      xmlwriter->writeAttribute("whiskerstyle", "perc_10_90");
+      break;
+    case StatBox2D::BoxWhiskerStyle::Perc_25_75:
+      xmlwriter->writeAttribute("whiskerstyle", "perc_25_75");
+      break;
+    case StatBox2D::BoxWhiskerStyle::IQR_1_5_auto:
+      xmlwriter->writeAttribute("whiskerstyle", "IQR_1_5_auto");
+      break;
+  }
   xmlwriter->writePen(whiskerBarPen());
   xmlwriter->writeEndElement();
   // scatter
   xmlwriter->writeStartElement("scatter");
+  (scatter_ == Scatter::All) ? xmlwriter->writeAttribute("show", "all")
+                             : xmlwriter->writeAttribute("show", "outlier");
   switch (getscattershape_statbox()) {
     case Graph2DCommon::ScatterStyle::None:
       xmlwriter->writeAttribute("style", "none");
@@ -725,7 +815,7 @@ bool StatBox2D::load(XmlStreamReader *xmlreader) {
       }
     }
 
-    // whiskerbar
+    // whisker
     if (xmlreader->isStartElement() && xmlreader->name() == "whisker") {
       // whisker antialias
       bool boxantialias = xmlreader->readAttributeBool("antialias", &ok);
@@ -755,6 +845,31 @@ bool StatBox2D::load(XmlStreamReader *xmlreader) {
 
     // whiskerbar
     if (xmlreader->isStartElement() && xmlreader->name() == "whiskerbar") {
+      // box style
+      QString wstyle = xmlreader->readAttributeString("whiskerstyle", &ok);
+      if (ok) {
+        if (wstyle == "sd") {
+          setwhiskerstyle_statbox(StatBox2D::BoxWhiskerStyle::SD);
+        } else if (wstyle == "se") {
+          setwhiskerstyle_statbox(StatBox2D::BoxWhiskerStyle::SE);
+        } else if (wstyle == "minmax") {
+          setwhiskerstyle_statbox(StatBox2D::BoxWhiskerStyle::MinMax);
+        } else if (wstyle == "constant") {
+          setwhiskerstyle_statbox(StatBox2D::BoxWhiskerStyle::Constant);
+        } else if (wstyle == "perc_1_99") {
+          setwhiskerstyle_statbox(StatBox2D::BoxWhiskerStyle::Perc_1_99);
+        } else if (wstyle == "perc_5_95") {
+          setwhiskerstyle_statbox(StatBox2D::BoxWhiskerStyle::Perc_5_95);
+        } else if (wstyle == "perc_10_90") {
+          setwhiskerstyle_statbox(StatBox2D::BoxWhiskerStyle::Perc_10_90);
+        } else if (wstyle == "perc_25_75") {
+          setwhiskerstyle_statbox(StatBox2D::BoxWhiskerStyle::Perc_25_75);
+        } else if (wstyle == "IQR_1_5_auto") {
+          setwhiskerstyle_statbox(StatBox2D::BoxWhiskerStyle::IQR_1_5_auto);
+        }
+      } else
+        xmlreader->raiseWarning(
+            tr("StatBox2D whisker style property setting error"));
       // pen property
       while (!xmlreader->atEnd()) {
         xmlreader->readNext();
@@ -770,7 +885,17 @@ bool StatBox2D::load(XmlStreamReader *xmlreader) {
     }
 
     // scatter
+    // scatter show
     if (xmlreader->isStartElement() && xmlreader->name() == "scatter") {
+      QString scattershow = xmlreader->readAttributeString("show", &ok);
+      if (ok) {
+        (scattershow == "all")       ? setOutlierScatter(Scatter::All)
+        : (scattershow == "outlier") ? setOutlierScatter(Scatter::Outliers)
+                                     : setOutlierScatter(Scatter::Outliers);
+      } else
+        xmlreader->raiseWarning(
+            tr("StatBox2D scatter show property setting error"));
+
       // scatter shape
       QString scattershape = xmlreader->readAttributeString("style", &ok);
       if (ok) {

@@ -807,27 +807,29 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   doubleManager_->setDecimals(barplotpropertyhistenditem_, 10);
 
   // StatBox Properties block
-  QStringList boxwhiskerstylelist;
-  boxwhiskerstylelist << "SD"
-                      << "SE"
-                      << "Perc_25_75"
-                      << "Perc_10_90"
-                      << "Perc_5_95"
-                      << "Perc_1_99"
-                      << "MinMax"
-                      << "Constant";
+  QStringList whiskerstylelist;
+  whiskerstylelist << "SD"
+                   << "SE"
+                   << "Perc_25_75"
+                   << "Perc_10_90"
+                   << "Perc_5_95"
+                   << "Perc_1_99"
+                   << "MinMax"
+                   << "Constant"
+                   << "IQR_1.5_auto";
+  QStringList boxstylelist = whiskerstylelist;
+  boxstylelist.removeLast();
   statboxplotpropertyxaxisitem_ = enumManager_->addProperty("X Axis");
   statboxplotpropertyyaxisitem_ = enumManager_->addProperty("Y Axis");
   statboxplotpropertywidthitem_ = doubleManager_->addProperty("Width");
   statboxplotpropertywhiskerwidthitem_ =
       doubleManager_->addProperty("Whisker Width");
   statboxplotpropertyboxstyleitem_ = enumManager_->addProperty("Box Style");
-  enumManager_->setEnumNames(statboxplotpropertyboxstyleitem_,
-                             boxwhiskerstylelist);
+  enumManager_->setEnumNames(statboxplotpropertyboxstyleitem_, boxstylelist);
   statboxplotpropertywhiskerstyleitem_ =
       enumManager_->addProperty("Whisker Style");
   enumManager_->setEnumNames(statboxplotpropertywhiskerstyleitem_,
-                             boxwhiskerstylelist);
+                             whiskerstylelist);
   statboxplotpropertyantialiaseditem_ =
       boolManager_->addProperty("Antialiased");
   statboxplotpropertyfillantialiaseditem_ =
@@ -880,6 +882,11 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
                              stroketypelist);
   enumManager_->setEnumIcons(statboxplotpropertymideanstrokestyleitem_,
                              stroketypeiconslist);
+  QStringList sshowlist;
+  sshowlist << "Outlier"
+            << "All";
+  statboxplotpropertyscattershowitem_ = enumManager_->addProperty("Show");
+  enumManager_->setEnumNames(statboxplotpropertyscattershowitem_, sshowlist);
   statboxplotpropertyscatterantialiaseditem_ =
       boolManager_->addProperty("Scatter Antialiased");
   statboxplotpropertyscatterstyleitem_ =
@@ -3819,6 +3826,11 @@ void PropertyEditor::enumValueChange(QtProperty *prop, const int value) {
     statbox->setmedianstrokestyle_statbox(static_cast<Qt::PenStyle>(value + 1));
     statbox->layer()->replot();
     statbox->getxaxis()->getaxisrect_axis()->getLegend()->layer()->replot();
+  } else if (prop->compare(statboxplotpropertyscattershowitem_)) {
+    StatBox2D *statbox =
+        getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
+    statbox->setOutlierScatter(static_cast<StatBox2D::Scatter>(value));
+    statbox->layer()->replot();
   } else if (prop->compare(statboxplotpropertyscatterstyleitem_)) {
     StatBox2D *statbox =
         getgraph2dobject<StatBox2D>(objectbrowser_->currentItem());
@@ -5292,6 +5304,7 @@ void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
   propertybrowser_->addProperty(statboxplotpropertymideanstrokethicknessitem_);
   propertybrowser_->addProperty(statboxplotpropertymideanstrokestyleitem_);
   propertybrowser_->addProperty(statboxplotpropertyscatterantialiaseditem_);
+  propertybrowser_->addProperty(statboxplotpropertyscattershowitem_);
   propertybrowser_->addProperty(statboxplotpropertyscatterstyleitem_);
   propertybrowser_->addProperty(statboxplotpropertyscattersizeitem_);
   propertybrowser_->addProperty(statboxplotpropertyscatterfillcoloritem_);
@@ -5341,9 +5354,9 @@ void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
   doubleManager_->setValue(statboxplotpropertywhiskerwidthitem_,
                            statbox->whiskerWidth());
   enumManager_->setValue(statboxplotpropertyboxstyleitem_,
-                         statbox->getboxstyle_statbox());
+                         static_cast<int>(statbox->getboxstyle_statbox()));
   enumManager_->setValue(statboxplotpropertywhiskerstyleitem_,
-                         statbox->getwhiskerstyle_statbox());
+                         static_cast<int>(statbox->getwhiskerstyle_statbox()));
   boolManager_->setValue(statboxplotpropertyantialiaseditem_,
                          statbox->antialiased());
   boolManager_->setValue(statboxplotpropertyfillantialiaseditem_,
@@ -5383,6 +5396,9 @@ void PropertyEditor::StatBox2DPropertyBlock(StatBox2D *statbox,
                          statbox->getmedianstrokestyle_statbox() - 1);
   boolManager_->setValue(statboxplotpropertyscatterantialiaseditem_,
                          statbox->antialiasedScatters());
+  enumManager_->setValue(
+      statboxplotpropertyscattershowitem_,
+      static_cast<int>(statbox->getOutlierScatter_statbox()));
   enumManager_->setValue(statboxplotpropertyscatterstyleitem_,
                          static_cast<int>(statbox->getscattershape_statbox()));
   doubleManager_->setValue(statboxplotpropertyscattersizeitem_,
@@ -7883,6 +7899,8 @@ void PropertyEditor::setObjectPropertyId() {
       "statboxplotpropertymideanstrokethicknessitem_");
   statboxplotpropertymideanstrokestyleitem_->setPropertyId(
       "statboxplotpropertymideanstrokestyleitem_");
+  statboxplotpropertyscattershowitem_->setPropertyId(
+      "statboxplotpropertyscattershowitem_");
   statboxplotpropertyscatterantialiaseditem_->setPropertyId(
       "statboxplotpropertyscatterantialiaseditem_");
   statboxplotpropertyscatterstyleitem_->setPropertyId(

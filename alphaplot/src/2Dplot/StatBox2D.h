@@ -12,7 +12,7 @@ class XmlStreamWriter;
 class StatBox2D : public QCPStatisticalBox {
   Q_OBJECT
  public:
-  enum BoxWhiskerStyle {
+  enum class BoxWhiskerStyle : int {
     SD = 0,
     SE = 1,
     Perc_25_75 = 2,
@@ -21,6 +21,12 @@ class StatBox2D : public QCPStatisticalBox {
     Perc_1_99 = 5,
     MinMax = 6,
     Constant = 7,
+    IQR_1_5_auto = 8,
+  };
+
+  enum class Scatter : int {
+    Outliers = 0,
+    All = 1,
   };
 
   struct BoxWhiskerDataBounds {
@@ -94,6 +100,7 @@ class StatBox2D : public QCPStatisticalBox {
   Axis2D *getyaxis() const;
   BoxWhiskerStyle getboxstyle_statbox() const;
   BoxWhiskerStyle getwhiskerstyle_statbox() const;
+  Scatter getOutlierScatter_statbox() const { return scatter_; }
   QColor getfillcolor_statbox() const;
   Qt::BrushStyle getfillstyle_statbox() const;
   bool getfillstatus_statbox() const;
@@ -123,6 +130,8 @@ class StatBox2D : public QCPStatisticalBox {
   void setyaxis_statbox(Axis2D *axis);
   void setboxwhiskerdata(const BoxWhiskerData boxWhiskerData);
   void setboxstyle_statbox(const BoxWhiskerStyle &boxStyle);
+  void setOutliers();
+  void setOutlierScatter(const Scatter &scatter);
   void setwhiskerstyle_statbox(const BoxWhiskerStyle &whiskerStyle);
   void setfillcolor_statbox(const QColor &color);
   void setfillstyle_statbox(const Qt::BrushStyle &style);
@@ -162,7 +171,8 @@ class StatBox2D : public QCPStatisticalBox {
   Axis2D *yAxis_;
   QString layername_;
   BoxWhiskerData boxwhiskerdata_;
-  QCPStatisticalBoxData sBoxdata_;
+  std::unique_ptr<QCPStatisticalBoxData> sBoxdata_;
+  Scatter scatter_;
   QCPScatterStyle *scatterstyle_;
   BoxWhiskerStyle boxstyle_;
   BoxWhiskerStyle whiskerstyle_;

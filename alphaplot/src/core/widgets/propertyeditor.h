@@ -450,6 +450,7 @@ class PropertyEditor : public QDockWidget {
   QtProperty *statboxplotpropertymedianstrokecoloritem_;
   QtProperty *statboxplotpropertymideanstrokethicknessitem_;
   QtProperty *statboxplotpropertymideanstrokestyleitem_;
+  QtProperty *statboxplotpropertyscattershowitem_;
   QtProperty *statboxplotpropertyscatterantialiaseditem_;
   QtProperty *statboxplotpropertyscatterstyleitem_;
   QtProperty *statboxplotpropertyscattersizeitem_;
