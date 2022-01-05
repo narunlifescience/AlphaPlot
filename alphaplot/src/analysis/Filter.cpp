@@ -60,7 +60,7 @@ void Filter::init() {
   d_n = 0;
   d_curveColorIndex = 1;
   d_tolerance = 1e-4;
-  d_points = 100;
+  d_points = app_->fitPoints;
   d_max_iterations = 1000;
   associateddata_ = nullptr;
   d_prec = app_->fit_output_precision;

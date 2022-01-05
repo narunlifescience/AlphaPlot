@@ -31,8 +31,9 @@
 #define COLUMNPRIVATE_H
 
 #include <QObject>
-#include "lib/IntervalAttribute.h"
+
 #include "core/column/Column.h"
+#include "lib/IntervalAttribute.h"
 class AbstractSimpleFilter;
 class QString;
 
@@ -63,6 +64,7 @@ class Column::Private {
    * the values in the column additional to the data type.
    */
   AlphaPlot::ColumnMode columnMode() const { return d_column_mode; }
+  bool columnModeLock() const;
   //! Set the column mode
   /**
    * This sets the column mode and, if
@@ -70,8 +72,9 @@ class Column::Private {
    * Remark: setting the mode back to undefined (the
    * initial value) is not supported.
    */
-  void setColumnMode(AlphaPlot::ColumnMode mode,
+  void setColumnMode(const AlphaPlot::ColumnMode mode,
                      AbstractFilter* conversion_filter);
+  void setColumnModeLock(const bool lock);
 
   //! Copy another column of the same type
   /**
@@ -143,9 +146,7 @@ class Column::Private {
     return d_plot_designation;
   }
   //! Return the column plot designation color
-  QColor plotDesignationColor() const {
-    return d_plot_designation_color;
-  }
+  QColor plotDesignationColor() const { return d_plot_designation_color; }
   //! Set the column plot designation
   void setPlotDesignation(AlphaPlot::PlotDesignation pd);
   //! Set the column plot designation
@@ -162,8 +163,9 @@ class Column::Private {
   /**
    * Replace column mode, data type, data pointer, validity and filters directly
    */
-  void replaceModeData(AlphaPlot::ColumnMode mode, AlphaPlot::ColumnDataType type,
-                       void* data, AbstractSimpleFilter* in_filter,
+  void replaceModeData(AlphaPlot::ColumnMode mode,
+                       AlphaPlot::ColumnDataType type, void* data,
+                       AbstractSimpleFilter* in_filter,
                        AbstractSimpleFilter* out_filter,
                        IntervalAttribute<bool> validity);
   //! Replace data pointer and validity
@@ -327,6 +329,7 @@ class Column::Private {
    * the values in the column additional to the data type.
    */
   AlphaPlot::ColumnMode d_column_mode;
+  int d_column_mode_lock;
   //! Pointer to the data vector
   /**
    * This will point to a QVector<double>, QStringList or

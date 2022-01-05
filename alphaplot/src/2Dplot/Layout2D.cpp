@@ -49,7 +49,8 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
       layout_(new LayoutGrid2D()),
       buttionlist_(QList<QPair<LayoutButton2D *, AxisRect2D *>>()),
       currentAxisRect_(nullptr),
-      backgroundimagefilename_(QString()) {
+      backgroundimagefilename_(QString()),
+      closewithoutcolumnmodelockchange_(false) {
   main_widget_->setContentsMargins(0, 0, 0, 0);
   if (name.isEmpty()) setObjectName("layout2d");
   QDateTime birthday = QDateTime::currentDateTime();
@@ -154,7 +155,11 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
           &Layout2D::setBackground);
 }
 
-Layout2D::~Layout2D() { delete layout_; }
+Layout2D::~Layout2D() {
+  if (!closewithoutcolumnmodelockchange_)
+    foreach (Column *col, getPlotColumns()) { col->setColumnModeLock(false); }
+  delete layout_;
+}
 
 void Layout2D::generateFunction2DPlot(QVector<double> *xdata,
                                       QVector<double> *ydata,
@@ -1794,6 +1799,10 @@ QList<Column *> Layout2D::getPlotColumns() {
     }
   }
   return collist;
+}
+
+void Layout2D::setCloseWithoutColumnModeLockChange(const bool value) {
+  closewithoutcolumnmodelockchange_ = value;
 }
 
 AxisRect2D *Layout2D::addAxisRectWithAxis() {

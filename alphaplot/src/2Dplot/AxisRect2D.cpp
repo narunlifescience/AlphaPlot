@@ -412,6 +412,13 @@ void AxisRect2D::setbarsstyle() {
                                       : addBarsToStackGroup(sortedbvec);
 }
 
+void AxisRect2D::lockColumnModeChange(QList<Column *> collist,
+                                      const bool lock) {
+  foreach (Column *col, collist) {
+    if (col) col->setColumnModeLock(lock);
+  }
+}
+
 QList<Axis2D *> AxisRect2D::getAxes2D() const { return axes_; }
 
 QList<Axis2D *> AxisRect2D::getAxes2D(
@@ -563,6 +570,7 @@ LineSpecial2D *AxisRect2D::addLineSpecial2DPlot(
   lsvec_.append(lineSpecial);
   layers_.append(lineSpecial->layer());
 
+  lockColumnModeChange(QList<Column *>() << xData << yData, true);
   emit LineSpecial2DCreated(lineSpecial);
   return lineSpecial;
 }
@@ -613,6 +621,7 @@ QPair<LineSpecial2D *, LineSpecial2D *> AxisRect2D::addLineSpecialChannel2DPlot(
       QPair<LineSpecial2D *, LineSpecial2D *>(lineSpecial1, lineSpecial2);
   channelvec_.append(pair);
   layers_.append(lineSpecial1->layer());
+  lockColumnModeChange(QList<Column *>() << xData << yData1 << yData2, true);
   emit LineSpecialChannel2DCreated(pair);
   return pair;
 }
@@ -677,7 +686,7 @@ Curve2D *AxisRect2D::addCurve2DPlot(const AxisRect2D::LineScatterType &type,
   curve->setName(table->name() + "_" + xcol->name() + "_" + ycol->name());
   curvevec_.append(curve);
   layers_.append(curve->layer());
-
+  lockColumnModeChange(QList<Column *>() << xcol << ycol, true);
   emit Curve2DCreated(curve);
   return curve;
 }
@@ -748,7 +757,7 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
   bar->setName(table->name() + "_" + xData->name() + "_" + yData->name());
   layers_.append(bar->layer());
   barvec_.append(bar);
-
+  lockColumnModeChange(QList<Column *>() << xData << yData, true);
   emit Bar2DCreated(bar);
   return bar;
 }
@@ -783,7 +792,8 @@ Vector2D *AxisRect2D::addVectorPlot(const Vector2D::VectorPlot &vectorplot,
                "_" + x2Data->name() + "_" + y2Data->name());
   layers_.append(vec->layer());
   vectorvec_.append(vec);
-
+  lockColumnModeChange(
+      QList<Column *>() << x1Data << y1Data << x2Data << y2Data, true);
   emit Vector2DCreated(vec);
   return vec;
 }
@@ -846,6 +856,7 @@ StatBox2D *AxisRect2D::addStatBox2DPlot(Table *table, Column *ycol,
   layers_.append(statbox->layer());
   statboxvec_.append(statbox);
   statbox->rescaleaxes_statbox();
+  lockColumnModeChange(QList<Column *>() << ycol, true);
   emit StatBox2DCreated(statbox);
   return statbox;
 }
@@ -891,6 +902,7 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
   bar->setName(table->name() + "_" + yData->name());
   layers_.append(bar->layer());
   barvec_.append(bar);
+  lockColumnModeChange(QList<Column *>() << yData, true);
   emit Bar2DCreated(bar);
   return bar;
 }
@@ -915,6 +927,7 @@ Pie2D *AxisRect2D::addPie2DPlot(const Graph2DCommon::PieStyle &style,
   layers_.append(pie->layer());
   pievec_.append(pie);
   emit Pie2DCreated(pie);
+  lockColumnModeChange(QList<Column *>() << xData << yData, true);
   return pie;
 }
 
@@ -1507,6 +1520,21 @@ bool AxisRect2D::removeLineSpecial2D(LineSpecial2D *ls) {
   }
   axisRectLegend_->removeItem(axisRectLegend_->itemWithPlottable(ls));
   bool result = false;
+
+  QList<Column *> collist;
+  PlotData::AssociatedData *data =
+      ls->getdatablock_lsplot()->getassociateddata();
+  collist << data->xcol << collist << data->ycol;
+  if (ls->getxerrorbar_lsplot()) {
+    DataBlockError *xerror = ls->getxerrorbar_lsplot()->getdatablock_error();
+    collist << xerror->geterrorcolumn();
+  }
+  if (ls->getyerrorbar_lsplot()) {
+    DataBlockError *yerror = ls->getyerrorbar_lsplot()->getdatablock_error();
+    collist << yerror->geterrorcolumn();
+  }
+  lockColumnModeChange(collist, false);
+
   ls->removeXerrorBar();
   ls->removeYerrorBar();
   Axis2D *xaxis = ls->getxaxis();
@@ -1532,6 +1560,15 @@ bool AxisRect2D::removeChannel2D(
   bool result = false;
   Axis2D *xaxis = channel.first->getxaxis();
   Axis2D *yaxis = channel.first->getyaxis();
+
+  QList<Column *> collist;
+  PlotData::AssociatedData *data1 =
+      channel.first->getdatablock_lsplot()->getassociateddata();
+  PlotData::AssociatedData *data2 =
+      channel.second->getdatablock_lsplot()->getassociateddata();
+  collist << data1->xcol << data1->ycol << data2->xcol << data2->ycol;
+  lockColumnModeChange(collist, false);
+
   result = plot2d_->removeGraph(channel.second);
   if (!result) return result;
   result = plot2d_->removeGraph(channel.first);
@@ -1555,6 +1592,11 @@ bool AxisRect2D::removeStatBox2D(StatBox2D *statbox) {
   Axis2D *yaxis = statbox->getyaxis();
   QSharedPointer<QCPAxisTickerText> textTicker =
       qSharedPointerCast<QCPAxisTickerText>(xaxis->getticker_axis());
+
+  QList<Column *> collist;
+  collist << statbox->getcolumn_statbox();
+  lockColumnModeChange(collist, false);
+
   result = plot2d_->removePlottable(statbox);
   textTicker->clear();
   for (int i = 0; i < statboxvec_.count(); i++) {
@@ -1582,6 +1624,12 @@ bool AxisRect2D::removeVector2D(Vector2D *vector) {
   bool result = false;
   Axis2D *xaxis = vector->getxaxis();
   Axis2D *yaxis = vector->getyaxis();
+
+  QList<Column *> collist;
+  collist << vector->getfirstcol_vecplot() << vector->getsecondcol_vecplot()
+          << vector->getthirdcol_vecplot() << vector->getfourthcol_vecplot();
+  lockColumnModeChange(collist, false);
+
   result = plot2d_->removePlottable(vector);
   xaxis->removetickertext();
   yaxis->removetickertext();
@@ -1600,6 +1648,25 @@ bool AxisRect2D::removeCurve2D(Curve2D *curve) {
   bool result = false;
   Axis2D *xaxis = curve->getxaxis();
   Axis2D *yaxis = curve->getyaxis();
+
+  QList<Column *> collist;
+  if (curve->getplottype_cplot() == Graph2DCommon::PlotType::Associated) {
+    PlotData::AssociatedData *data =
+        curve->getdatablock_cplot()->getassociateddata();
+    collist << data->xcol << data->ycol;
+    if (curve->getxerrorbar_curveplot()) {
+      DataBlockError *xerror =
+          curve->getxerrorbar_curveplot()->getdatablock_error();
+      collist << xerror->geterrorcolumn();
+    }
+    if (curve->getyerrorbar_curveplot()) {
+      DataBlockError *yerror =
+          curve->getyerrorbar_curveplot()->getdatablock_error();
+      collist << yerror->geterrorcolumn();
+    }
+    lockColumnModeChange(collist, false);
+  }
+
   curve->removeXerrorBar();
   curve->removeYerrorBar();
   result = plot2d_->removePlottable(curve);
@@ -1620,6 +1687,28 @@ bool AxisRect2D::removeBar2D(Bar2D *bar) {
   bool result = false;
   Axis2D *xaxis = bar->getxaxis();
   Axis2D *yaxis = bar->getyaxis();
+
+  QList<Column *> collist;
+  if (!bar->ishistogram_barplot()) {
+    PlotData::AssociatedData *data =
+        bar->getdatablock_barplot()->getassociateddata();
+    collist << data->xcol << data->ycol;
+    if (bar->getxerrorbar_barplot()) {
+      DataBlockError *xerror =
+          bar->getxerrorbar_barplot()->getdatablock_error();
+      collist << xerror->geterrorcolumn();
+    }
+    if (bar->getyerrorbar_barplot()) {
+      DataBlockError *yerror =
+          bar->getyerrorbar_barplot()->getdatablock_error();
+      collist << yerror->geterrorcolumn();
+    }
+  } else {
+    DataBlockHist *data = bar->getdatablock_histplot();
+    collist << data->getcolumn();
+  }
+  lockColumnModeChange(collist, false);
+
   bar->removeXerrorBar();
   bar->removeYerrorBar();
   result = plot2d_->removePlottable(bar);
@@ -1648,6 +1737,9 @@ bool AxisRect2D::removePie2D(Pie2D *pie) {
     axes.at(i)->setshowhide_axis(true);
   }
   bool result = false;
+  QList<Column *> collist;
+  collist << pie->getxcolumn_pieplot() << pie->getycolumn_pieplot();
+  lockColumnModeChange(collist, false);
   result = plot2d_->removeItem(pie);
   emit Pie2DRemoved(this);
   return result;
@@ -2707,710 +2799,888 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
           xmlreader->raiseWarning(tr("Axis2D unable to set Grid2D error"));
         axis->load(xmlreader);
       } else
-          // xgrid
-          if (xmlreader->isStartElement() && xmlreader->name() == "xgrid") {
-        gridpair_.first.first->load(xmlreader, "xgrid");
-      } else
+        // xgrid
+        if (xmlreader->isStartElement() && xmlreader->name() == "xgrid") {
+          gridpair_.first.first->load(xmlreader, "xgrid");
+        } else
           // ygrid
           if (xmlreader->isStartElement() && xmlreader->name() == "ygrid") {
-        gridpair_.second.first->load(xmlreader, "ygrid");
-      } else
-          // textitem
-          if (xmlreader->isStartElement() && xmlreader->name() == "textitem") {
-        TextItem2D *textitem = addTextItem2D("Text");
-        textitem->load(xmlreader);
-      } else
-          // lineitem
-          if (xmlreader->isStartElement() && xmlreader->name() == "lineitem") {
-        LineItem2D *lineitem = addLineItem2D();
-        lineitem->load(xmlreader);
-      } else
-          // imageitem
-          if (xmlreader->isStartElement() && xmlreader->name() == "imageitem") {
-        // source property
-        QString file = xmlreader->readAttributeString("file", &ok);
-        if (ok && QFile(file).exists()) {
-          ImageItem2D *imageitem = addImageItem2D(file);
-          imageitem->load(xmlreader);
-        } else
-          xmlreader->raiseWarning(
-              tr("ImageItem2D file property setting error"));
-      } else
-          // curve
-          if (xmlreader->isStartElement() && xmlreader->name() == "curve") {
-        Curve2D *curve = nullptr;
-        Axis2D *xaxis = nullptr;
-        Axis2D *yaxis = nullptr;
-        LineScatterType ctype = LineScatterType::Scatter2D;
-
-        int xax = xmlreader->readAttributeInt("xaxis", &ok);
-        if (ok) {
-          xaxis = getXAxis(xax);
-        } else
-          xmlreader->raiseError(tr("Curve2D X axis not found error"));
-        int yax = xmlreader->readAttributeInt("yaxis", &ok);
-        if (ok) {
-          yaxis = getYAxis(yax);
-        } else
-          xmlreader->raiseError(tr("Curve2D Y axis not found error"));
-
-        QString curvetype = xmlreader->readAttributeString("type", &ok);
-        if (curvetype == "curve" && ok) {
-          ctype = LineScatterType::Scatter2D;
-        } else if (curvetype == "spline" && ok) {
-          ctype = LineScatterType::Spline2D;
-        }
-
-        // legend
-        QString legend = xmlreader->readAttributeString("legend", &ok);
-        if (!ok) xmlreader->raiseWarning(tr("Curve2D legendtext not found"));
-
-        QString datatype = xmlreader->readAttributeString("data", &ok);
-        if (ok && datatype == "table") {
-          Table *table = nullptr;
-          Column *xcolumn = nullptr;
-          Column *ycolumn = nullptr;
-
-          QString tablename = xmlreader->readAttributeString("table", &ok);
-          if (ok) {
-            table = getTableByName(tabs, tablename);
+            gridpair_.second.first->load(xmlreader, "ygrid");
           } else
-            xmlreader->raiseError(tr("Curve2D Table not found error"));
-          QString xcolname = xmlreader->readAttributeString("xcolumn", &ok);
-          if (ok) {
-            (table) ? xcolumn = table->column(xcolname) : xcolumn = nullptr;
-          } else
-            xmlreader->raiseError(tr("Curve2D Table X column not found error"));
-          QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
-          if (ok) {
-            (table) ? ycolumn = table->column(ycolname) : ycolumn = nullptr;
-          } else
-            xmlreader->raiseError(tr("Curve2D Table Y column not found error"));
-          int from = xmlreader->readAttributeInt("from", &ok);
-          if (!ok) xmlreader->raiseError(tr("Curve2D from not found error"));
-          int to = xmlreader->readAttributeInt("to", &ok);
-          if (!ok) xmlreader->raiseError(tr("Curve2D to not found error"));
-
-          if (table && xcolumn && ycolumn && xaxis && yaxis) {
-            curve = addCurve2DPlot(ctype, table, xcolumn, ycolumn, from, to,
-                                   xaxis, yaxis);
-            curve->setlegendtext_cplot(legend);
-          }
-        } else if (ok && datatype == "function") {
-          PlotData::FunctionData funcdata;
-          int functiontype = 0;
-          // function type
-          QString functype =
-              xmlreader->readAttributeString("functiontype", &ok);
-          if (!ok)
-            xmlreader->raiseWarning(tr("Curve2D function type not found"));
-
-          (functype == "normal")       ? functiontype = 0
-          : (functype == "parametric") ? functiontype = 1
-          : (functype == "polar")      ? functiontype = 2
-                                       : functiontype = 0;
-
-          switch (functiontype) {
-            case 0: {
-              funcdata.type = 0;
-              // function function
-              QString funcfunc =
-                  xmlreader->readAttributeString("function", &ok);
-              if (ok)
-                funcdata.functions << funcfunc;
-              else
-                xmlreader->raiseWarning(
-                    tr("Curve2D function function not found"));
-            } break;
-            case 1: {
-              funcdata.type = 1;
-              // function functionx
-              QString funcfuncx =
-                  xmlreader->readAttributeString("functionx", &ok);
-              if (ok)
-                funcdata.functions << funcfuncx;
-              else
-                xmlreader->raiseWarning(
-                    tr("Curve2D function functionx not found"));
-              // function functiony
-              QString funcfuncy =
-                  xmlreader->readAttributeString("functiony", &ok);
-              if (ok)
-                funcdata.functions << funcfuncy;
-              else
-                xmlreader->raiseWarning(
-                    tr("Curve2D function functiony not found"));
-              // function parameter
-              QString funcparam =
-                  xmlreader->readAttributeString("parameter", &ok);
-              if (ok)
-                funcdata.parameter = funcparam;
-              else
-                xmlreader->raiseWarning(
-                    tr("Curve2D function parameter not found"));
-            } break;
-            case 2: {
-              funcdata.type = 2;
-              // function functionr
-              QString funcfuncr =
-                  xmlreader->readAttributeString("functionr", &ok);
-              if (ok)
-                funcdata.functions << funcfuncr;
-              else
-                xmlreader->raiseWarning(
-                    tr("Curve2D function functionr not found"));
-              // function functiontheta
-              QString funcfunctheta =
-                  xmlreader->readAttributeString("functiontheta", &ok);
-              if (ok)
-                funcdata.functions << funcfunctheta;
-              else
-                xmlreader->raiseWarning(
-                    tr("Curve2D function functiontheta not found"));
-              // function parameter
-              QString funcparam =
-                  xmlreader->readAttributeString("parameter", &ok);
-              if (ok)
-                funcdata.parameter = funcparam;
-              else
-                xmlreader->raiseWarning(
-                    tr("Curve2D function parameter not found"));
-            } break;
-          }
-
-          // Function from
-          double funcfrom = xmlreader->readAttributeDouble("from", &ok);
-          if (ok)
-            funcdata.from = funcfrom;
-          else
-            xmlreader->raiseWarning(tr("Curve2D function from not found"));
-
-          // Function to
-          double functo = xmlreader->readAttributeDouble("to", &ok);
-          if (ok)
-            funcdata.to = functo;
-          else
-            xmlreader->raiseWarning(tr("Curve2D function to not found"));
-
-          // Function points
-          int funcpoints = xmlreader->readAttributeInt("points", &ok);
-          if (ok)
-            funcdata.points = funcpoints;
-          else
-            xmlreader->raiseWarning(tr("Curve2D function points not found"));
-
-          QVector<double> *xdata = new QVector<double>();
-          QVector<double> *ydata = new QVector<double>();
-
-          while (!xmlreader->atEnd()) {
-            xmlreader->readNext();
-            if (xmlreader->isEndElement() &&
-                xmlreader->name() == "functiondata")
-              break;
-            // pen
-            if (xmlreader->isStartElement() && xmlreader->name() == "data") {
-              double xval = xmlreader->readAttributeDouble("xdata", &ok);
-              bool xok = ok;
-              double yval = xmlreader->readAttributeDouble("ydata", &ok);
-              if (xok && ok) {
-                xdata->append(xval);
-                ydata->append(yval);
+            // textitem
+            if (xmlreader->isStartElement() &&
+                xmlreader->name() == "textitem") {
+              TextItem2D *textitem = addTextItem2D("Text");
+              textitem->load(xmlreader);
+            } else
+              // lineitem
+              if (xmlreader->isStartElement() &&
+                  xmlreader->name() == "lineitem") {
+                LineItem2D *lineitem = addLineItem2D();
+                lineitem->load(xmlreader);
               } else
-                xmlreader->raiseWarning(tr("Curve2D data generation error"));
-            }
-          }
-          if (xdata->size() > 0 && ydata->size() > 0 &&
-              xdata->size() == ydata->size() && xaxis && yaxis) {
-            curve =
-                addFunction2DPlot(funcdata, xdata, ydata, xaxis, yaxis, legend);
-            curve->setlegendtext_cplot(legend);
-          } else {
-            xmlreader->raiseError(tr("Curve2D function skipped due to error"));
-            delete xdata;
-            delete ydata;
-          }
-
-        } else
-          xmlreader->raiseError(tr("Curve2D data not found error"));
-
-        bool legendvisible = xmlreader->readAttributeBool("legendvisible", &ok);
-        (ok) ? curve->setlegendvisible_cplot(legendvisible)
-             : xmlreader->raiseWarning(
-                   tr("Curve2D legend visible property setting error"));
-
-        while (!xmlreader->atEnd()) {
-          xmlreader->readNextStartElement();
-          if (xmlreader->isStartElement() && xmlreader->name() != "errorbar") {
-            curve->load(xmlreader);
-            break;
-          }
-
-          if (xmlreader->isStartElement() && xmlreader->name() == "errorbar") {
-            Table *table = nullptr;
-            Column *column = nullptr;
-            QString type = xmlreader->readAttributeString("type", &ok);
-            if (!ok) {
-              xmlreader->raiseError(tr("ErrorBar2D type not found error"));
-            }
-            QString tablename = xmlreader->readAttributeString("table", &ok);
-            if (ok) {
-              table = getTableByName(tabs, tablename);
-            } else
-              xmlreader->raiseError(tr("ErrorBar2D Table not found error"));
-            QString colname = xmlreader->readAttributeString("errcolumn", &ok);
-            if (ok) {
-              (table) ? column = table->column(colname) : column = nullptr;
-            } else
-              xmlreader->raiseError(
-                  tr("ErrorBar2D Table column not found error"));
-            int from = xmlreader->readAttributeInt("from", &ok);
-            if (!ok)
-              xmlreader->raiseError(tr("ErrorBar2D from not found error"));
-            int to = xmlreader->readAttributeInt("to", &ok);
-            if (!ok) xmlreader->raiseError(tr("ErrorBar2D to not found error"));
-
-            if (table && column && !type.isEmpty() &&
-                curve->getcurvetype_cplot() == Curve2D::Curve2DType::Curve) {
-              if (type == "x") {
-                curve->setXerrorBar(table, column, from, to);
-                curve->getxerrorbar_curveplot()->load(xmlreader);
-              } else if (type == "y") {
-                curve->setYerrorBar(table, column, from, to);
-                curve->getyerrorbar_curveplot()->load(xmlreader);
-              }
-            }
-          }
-        }
-      } else
-
-          // linespecial
-          if (xmlreader->isStartElement() &&
-              xmlreader->name() == "linespecial") {
-        LineSpecial2D *ls = nullptr;
-        Axis2D *xaxis = nullptr;
-        Axis2D *yaxis = nullptr;
-        AxisRect2D::LineScatterSpecialType ltype;
-
-        int xax = xmlreader->readAttributeInt("xaxis", &ok);
-        if (ok) {
-          xaxis = getXAxis(xax);
-        } else
-          xmlreader->raiseError(tr("LineSpecial2D X axis not found error"));
-        int yax = xmlreader->readAttributeInt("yaxis", &ok);
-        if (ok) {
-          yaxis = getYAxis(yax);
-        } else
-          xmlreader->raiseError(tr("LineSpecial2D Y axis not found error"));
-
-        QString lstype = xmlreader->readAttributeString("type", &ok);
-        if (lstype == "line" && ok) {
-          ltype = AxisRect2D::LineScatterSpecialType::Area2D;
-        } else if (lstype == "impulse" && ok) {
-          ltype = AxisRect2D::LineScatterSpecialType::VerticalDropLine2D;
-        } else if (lstype == "stepleft" && ok) {
-          ltype = AxisRect2D::LineScatterSpecialType::VerticalStep2D;
-        } else if (lstype == "stepright" && ok) {
-          ltype = AxisRect2D::LineScatterSpecialType::HorizontalStep2D;
-        } else if (lstype == "stepcenter" && ok) {
-          ltype = AxisRect2D::LineScatterSpecialType::CentralStepAndScatter2D;
-        } else
-          xmlreader->raiseWarning(tr("LineSpecial2D line type not found"));
-
-        // legend
-        QString legend = xmlreader->readAttributeString("legend", &ok);
-        if (!ok)
-          xmlreader->raiseWarning(tr("LineSpecial2D legendtext not found"));
-
-        Table *table = nullptr;
-        Column *xcolumn = nullptr;
-        Column *ycolumn = nullptr;
-
-        QString tablename = xmlreader->readAttributeString("table", &ok);
-        if (ok) {
-          table = getTableByName(tabs, tablename);
-        } else
-          xmlreader->raiseError(tr("LineSpecial2D Table not found error"));
-        QString xcolname = xmlreader->readAttributeString("xcolumn", &ok);
-        if (ok) {
-          (table) ? xcolumn = table->column(xcolname) : xcolumn = nullptr;
-        } else
-          xmlreader->raiseError(
-              tr("LineSpecial2D Table X column not found error"));
-        QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
-        if (ok) {
-          (table) ? ycolumn = table->column(ycolname) : ycolumn = nullptr;
-        } else
-          xmlreader->raiseError(
-              tr("LineSpecial2D Table Y column not found error"));
-        int from = xmlreader->readAttributeInt("from", &ok);
-        if (!ok)
-          xmlreader->raiseError(tr("LineSpecial2D from not found error"));
-        int to = xmlreader->readAttributeInt("to", &ok);
-        if (!ok) xmlreader->raiseError(tr("LineSpecial2D to not found error"));
-
-        if (table && xcolumn && ycolumn && xaxis && yaxis) {
-          ls = addLineSpecial2DPlot(ltype, table, xcolumn, ycolumn, from, to,
-                                    xaxis, yaxis);
-          if (ls) {
-            ls->setName(legend);
-
-            while (!xmlreader->atEnd()) {
-              xmlreader->readNextStartElement();
-              if (xmlreader->isStartElement() &&
-                  xmlreader->name() != "errorbar") {
-                ls->load(xmlreader);
-                break;
-              }
-
-              if (xmlreader->isStartElement() &&
-                  xmlreader->name() == "errorbar") {
-                Table *table = nullptr;
-                Column *column = nullptr;
-                QString type = xmlreader->readAttributeString("type", &ok);
-                if (!ok) {
-                  xmlreader->raiseError(tr("ErrorBar2D type not found error"));
-                }
-                QString tablename =
-                    xmlreader->readAttributeString("table", &ok);
-                if (ok) {
-                  table = getTableByName(tabs, tablename);
+                // imageitem
+                if (xmlreader->isStartElement() &&
+                    xmlreader->name() == "imageitem") {
+                  // source property
+                  QString file = xmlreader->readAttributeString("file", &ok);
+                  if (ok && QFile(file).exists()) {
+                    ImageItem2D *imageitem = addImageItem2D(file);
+                    imageitem->load(xmlreader);
+                  } else
+                    xmlreader->raiseWarning(
+                        tr("ImageItem2D file property setting error"));
                 } else
-                  xmlreader->raiseError(tr("ErrorBar2D Table not found error"));
-                QString colname =
-                    xmlreader->readAttributeString("errcolumn", &ok);
-                if (ok) {
-                  (table) ? column = table->column(colname) : column = nullptr;
-                } else
-                  xmlreader->raiseError(
-                      tr("ErrorBar2D Table column not found error"));
-                int from = xmlreader->readAttributeInt("from", &ok);
-                if (!ok)
-                  xmlreader->raiseError(tr("ErrorBar2D from not found error"));
-                int to = xmlreader->readAttributeInt("to", &ok);
-                if (!ok)
-                  xmlreader->raiseError(tr("ErrorBar2D to not found error"));
+                  // curve
+                  if (xmlreader->isStartElement() &&
+                      xmlreader->name() == "curve") {
+                    Curve2D *curve = nullptr;
+                    Axis2D *xaxis = nullptr;
+                    Axis2D *yaxis = nullptr;
+                    LineScatterType ctype = LineScatterType::Scatter2D;
 
-                if (table && column && !type.isEmpty()) {
-                  if (type == "x") {
-                    ls->setXerrorBar(table, column, from, to);
-                    ls->getxerrorbar_lsplot()->load(xmlreader);
-                  } else if (type == "y") {
-                    ls->setYerrorBar(table, column, from, to);
-                    ls->getyerrorbar_lsplot()->load(xmlreader);
-                  }
-                }
-              }
-            }
-          }
-        }
-      } else
+                    int xax = xmlreader->readAttributeInt("xaxis", &ok);
+                    if (ok) {
+                      xaxis = getXAxis(xax);
+                    } else
+                      xmlreader->raiseError(
+                          tr("Curve2D X axis not found error"));
+                    int yax = xmlreader->readAttributeInt("yaxis", &ok);
+                    if (ok) {
+                      yaxis = getYAxis(yax);
+                    } else
+                      xmlreader->raiseError(
+                          tr("Curve2D Y axis not found error"));
 
-          // channel
-          if (xmlreader->isStartElement() && xmlreader->name() == "channel") {
-        loadLineSpecialChannel2D(xmlreader, tabs);
-      } else
+                    QString curvetype =
+                        xmlreader->readAttributeString("type", &ok);
+                    if (curvetype == "curve" && ok) {
+                      ctype = LineScatterType::Scatter2D;
+                    } else if (curvetype == "spline" && ok) {
+                      ctype = LineScatterType::Spline2D;
+                    }
 
-          // bar
-          if (xmlreader->isStartElement() && xmlreader->name() == "bar") {
-        Bar2D *bar = nullptr;
-        Axis2D *xaxis = nullptr;
-        Axis2D *yaxis = nullptr;
-        AxisRect2D::BarType barorientation = AxisRect2D::BarType::VerticalBars;
+                    // legend
+                    QString legend =
+                        xmlreader->readAttributeString("legend", &ok);
+                    if (!ok)
+                      xmlreader->raiseWarning(
+                          tr("Curve2D legendtext not found"));
 
-        QString orientation =
-            xmlreader->readAttributeString("orientation", &ok);
-        if (ok) {
-          (orientation == "vertical")
-              ? barorientation = AxisRect2D::BarType::VerticalBars
-              : barorientation = AxisRect2D::BarType::HorizontalBars;
-        } else
-          xmlreader->raiseError(tr("Bar2D orientation not found error"));
+                    QString datatype =
+                        xmlreader->readAttributeString("data", &ok);
+                    if (ok && datatype == "table") {
+                      Table *table = nullptr;
+                      Column *xcolumn = nullptr;
+                      Column *ycolumn = nullptr;
 
-        int xax = xmlreader->readAttributeInt("xaxis", &ok);
-        if (ok) {
-          xaxis = getXAxis(xax);
-        } else
-          xmlreader->raiseError(tr("Bar2D X axis not found error"));
-        int yax = xmlreader->readAttributeInt("yaxis", &ok);
-        if (ok) {
-          yaxis = getYAxis(yax);
-        } else
-          xmlreader->raiseError(tr("Bar2D Y axis not found error"));
+                      QString tablename =
+                          xmlreader->readAttributeString("table", &ok);
+                      if (ok) {
+                        table = getTableByName(tabs, tablename);
+                      } else
+                        xmlreader->raiseError(
+                            tr("Curve2D Table not found error"));
+                      QString xcolname =
+                          xmlreader->readAttributeString("xcolumn", &ok);
+                      if (ok) {
+                        (table) ? xcolumn = table->column(xcolname)
+                                : xcolumn = nullptr;
+                      } else
+                        xmlreader->raiseError(
+                            tr("Curve2D Table X column not found error"));
+                      QString ycolname =
+                          xmlreader->readAttributeString("ycolumn", &ok);
+                      if (ok) {
+                        (table) ? ycolumn = table->column(ycolname)
+                                : ycolumn = nullptr;
+                      } else
+                        xmlreader->raiseError(
+                            tr("Curve2D Table Y column not found error"));
+                      int from = xmlreader->readAttributeInt("from", &ok);
+                      if (!ok)
+                        xmlreader->raiseError(
+                            tr("Curve2D from not found error"));
+                      int to = xmlreader->readAttributeInt("to", &ok);
+                      if (!ok)
+                        xmlreader->raiseError(tr("Curve2D to not found error"));
 
-        // legend
-        QString legend = xmlreader->readAttributeString("legend", &ok);
-        if (!ok) xmlreader->raiseWarning(tr("Bar2D legendtext not found"));
+                      if (table && xcolumn && ycolumn && xaxis && yaxis) {
+                        curve = addCurve2DPlot(ctype, table, xcolumn, ycolumn,
+                                               from, to, xaxis, yaxis);
+                        curve->setlegendtext_cplot(legend);
+                      }
+                    } else if (ok && datatype == "function") {
+                      PlotData::FunctionData funcdata;
+                      int functiontype = 0;
+                      // function type
+                      QString functype =
+                          xmlreader->readAttributeString("functiontype", &ok);
+                      if (!ok)
+                        xmlreader->raiseWarning(
+                            tr("Curve2D function type not found"));
 
-        QString bartype = xmlreader->readAttributeString("type", &ok);
-        if (!ok) xmlreader->raiseError(tr("Bar2D type not found"));
+                      (functype == "normal")       ? functiontype = 0
+                      : (functype == "parametric") ? functiontype = 1
+                      : (functype == "polar")      ? functiontype = 2
+                                                   : functiontype = 0;
 
-        if (bartype == "barxy") {
-          Table *table = nullptr;
-          Column *xcolumn = nullptr;
-          Column *ycolumn = nullptr;
+                      switch (functiontype) {
+                        case 0: {
+                          funcdata.type = 0;
+                          // function function
+                          QString funcfunc =
+                              xmlreader->readAttributeString("function", &ok);
+                          if (ok)
+                            funcdata.functions << funcfunc;
+                          else
+                            xmlreader->raiseWarning(
+                                tr("Curve2D function function not found"));
+                        } break;
+                        case 1: {
+                          funcdata.type = 1;
+                          // function functionx
+                          QString funcfuncx =
+                              xmlreader->readAttributeString("functionx", &ok);
+                          if (ok)
+                            funcdata.functions << funcfuncx;
+                          else
+                            xmlreader->raiseWarning(
+                                tr("Curve2D function functionx not found"));
+                          // function functiony
+                          QString funcfuncy =
+                              xmlreader->readAttributeString("functiony", &ok);
+                          if (ok)
+                            funcdata.functions << funcfuncy;
+                          else
+                            xmlreader->raiseWarning(
+                                tr("Curve2D function functiony not found"));
+                          // function parameter
+                          QString funcparam =
+                              xmlreader->readAttributeString("parameter", &ok);
+                          if (ok)
+                            funcdata.parameter = funcparam;
+                          else
+                            xmlreader->raiseWarning(
+                                tr("Curve2D function parameter not found"));
+                        } break;
+                        case 2: {
+                          funcdata.type = 2;
+                          // function functionr
+                          QString funcfuncr =
+                              xmlreader->readAttributeString("functionr", &ok);
+                          if (ok)
+                            funcdata.functions << funcfuncr;
+                          else
+                            xmlreader->raiseWarning(
+                                tr("Curve2D function functionr not found"));
+                          // function functiontheta
+                          QString funcfunctheta =
+                              xmlreader->readAttributeString("functiontheta",
+                                                             &ok);
+                          if (ok)
+                            funcdata.functions << funcfunctheta;
+                          else
+                            xmlreader->raiseWarning(
+                                tr("Curve2D function functiontheta not found"));
+                          // function parameter
+                          QString funcparam =
+                              xmlreader->readAttributeString("parameter", &ok);
+                          if (ok)
+                            funcdata.parameter = funcparam;
+                          else
+                            xmlreader->raiseWarning(
+                                tr("Curve2D function parameter not found"));
+                        } break;
+                      }
 
-          QString tablename = xmlreader->readAttributeString("table", &ok);
-          if (ok) {
-            table = getTableByName(tabs, tablename);
-          } else
-            xmlreader->raiseError(tr("Bar2D Table not found error"));
-          QString xcolname = xmlreader->readAttributeString("xcolumn", &ok);
-          if (ok) {
-            (table) ? xcolumn = table->column(xcolname) : xcolumn = nullptr;
-          } else
-            xmlreader->raiseError(tr("Bar2D Table X column not found error"));
-          QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
-          if (ok) {
-            (table) ? ycolumn = table->column(ycolname) : ycolumn = nullptr;
-          } else
-            xmlreader->raiseError(tr("Bar2D Table Y column not found error"));
-          int from = xmlreader->readAttributeInt("from", &ok);
-          if (!ok) xmlreader->raiseError(tr("Bar2D from not found error"));
-          int to = xmlreader->readAttributeInt("to", &ok);
-          if (!ok) xmlreader->raiseError(tr("Bar2D to not found error"));
+                      // Function from
+                      double funcfrom =
+                          xmlreader->readAttributeDouble("from", &ok);
+                      if (ok)
+                        funcdata.from = funcfrom;
+                      else
+                        xmlreader->raiseWarning(
+                            tr("Curve2D function from not found"));
 
-          Bar2D::BarStyle barstyleenum;
-          bool barstylstatus = false;
-          QString barstyle = xmlreader->readAttributeString("style", &ok);
-          if (ok) {
-            barstylstatus = true;
-            (barstyle == "individual")
-                ? barstyleenum = Bar2D::BarStyle::Individual
-            : (barstyle == "grouped") ? barstyleenum = Bar2D::BarStyle::Grouped
-            : (barstyle == "stacked")
-                ? barstyleenum = Bar2D::BarStyle::Stacked
-                : barstyleenum = Bar2D::BarStyle::Individual;
-          } else
-            xmlreader->raiseWarning(tr("Bar2D xy style not found error"));
+                      // Function to
+                      double functo = xmlreader->readAttributeDouble("to", &ok);
+                      if (ok)
+                        funcdata.to = functo;
+                      else
+                        xmlreader->raiseWarning(
+                            tr("Curve2D function to not found"));
 
-          int stackorder = xmlreader->readAttributeInt("stackorder", &ok);
-          if (!ok)
-            xmlreader->raiseWarning(tr("Bar2D stackorder not found error"));
+                      // Function points
+                      int funcpoints =
+                          xmlreader->readAttributeInt("points", &ok);
+                      if (ok)
+                        funcdata.points = funcpoints;
+                      else
+                        xmlreader->raiseWarning(
+                            tr("Curve2D function points not found"));
 
-          // compatibility with previous version
-          if (!barstylstatus)
-            (stackorder == -1) ? barstyleenum = Bar2D::BarStyle::Individual
-                               : barstyleenum = Bar2D::BarStyle::Stacked;
+                      QVector<double> *xdata = new QVector<double>();
+                      QVector<double> *ydata = new QVector<double>();
 
-          if (table && xcolumn && ycolumn && xaxis && yaxis)
-            bar = addBox2DPlot(barorientation, table, xcolumn, ycolumn, from,
-                               to, xaxis, yaxis, barstyleenum, stackorder);
+                      while (!xmlreader->atEnd()) {
+                        xmlreader->readNext();
+                        if (xmlreader->isEndElement() &&
+                            xmlreader->name() == "functiondata")
+                          break;
+                        // pen
+                        if (xmlreader->isStartElement() &&
+                            xmlreader->name() == "data") {
+                          double xval =
+                              xmlreader->readAttributeDouble("xdata", &ok);
+                          bool xok = ok;
+                          double yval =
+                              xmlreader->readAttributeDouble("ydata", &ok);
+                          if (xok && ok) {
+                            xdata->append(xval);
+                            ydata->append(yval);
+                          } else
+                            xmlreader->raiseWarning(
+                                tr("Curve2D data generation error"));
+                        }
+                      }
+                      if (xdata->size() > 0 && ydata->size() > 0 &&
+                          xdata->size() == ydata->size() && xaxis && yaxis) {
+                        curve = addFunction2DPlot(funcdata, xdata, ydata, xaxis,
+                                                  yaxis, legend);
+                        curve->setlegendtext_cplot(legend);
+                      } else {
+                        xmlreader->raiseError(
+                            tr("Curve2D function skipped due to error"));
+                        delete xdata;
+                        delete ydata;
+                      }
 
-        } else if (ok && bartype == "histogram") {
-          Table *table = nullptr;
-          Column *column = nullptr;
+                    } else
+                      xmlreader->raiseError(tr("Curve2D data not found error"));
 
-          QString tablename = xmlreader->readAttributeString("table", &ok);
-          if (ok) {
-            table = getTableByName(tabs, tablename);
-          } else
-            xmlreader->raiseError(tr("Bar2D Table not found error"));
-          QString colname = xmlreader->readAttributeString("column", &ok);
-          if (ok) {
-            (table) ? column = table->column(colname) : column = nullptr;
-          } else
-            xmlreader->raiseError(tr("Bar2D Table column not found error"));
-          // from
-          int from = xmlreader->readAttributeInt("from", &ok);
-          if (!ok) xmlreader->raiseError(tr("Bar2D from not found error"));
-          // to
-          int to = xmlreader->readAttributeInt("to", &ok);
-          if (!ok) xmlreader->raiseError(tr("Bar2D to not found error"));
+                    bool legendvisible =
+                        xmlreader->readAttributeBool("legendvisible", &ok);
+                    (ok)
+                        ? curve->setlegendvisible_cplot(legendvisible)
+                        : xmlreader->raiseWarning(tr(
+                              "Curve2D legend visible property setting error"));
 
-          if (table && column && xaxis && yaxis) {
-            bar = addHistogram2DPlot(barorientation, table, column, from, to,
-                                     xaxis, yaxis);
-            // autobin
-            bool autobin = xmlreader->readAttributeBool("autobin", &ok);
-            if (ok)
-              bar->setHistAutoBin(autobin);
-            else
-              xmlreader->raiseWarning(tr("Bar2D histogram auto bin not found"));
+                    while (!xmlreader->atEnd()) {
+                      xmlreader->readNextStartElement();
+                      if (xmlreader->isStartElement() &&
+                          xmlreader->name() != "errorbar") {
+                        curve->load(xmlreader);
+                        break;
+                      }
 
-            // binsize
-            double binsize = xmlreader->readAttributeDouble("binsize", &ok);
-            if (ok)
-              bar->setHistBinSize(binsize);
-            else
-              xmlreader->raiseWarning(tr("Bar2D histogram bin size not found"));
+                      if (xmlreader->isStartElement() &&
+                          xmlreader->name() == "errorbar") {
+                        Table *table = nullptr;
+                        Column *column = nullptr;
+                        QString type =
+                            xmlreader->readAttributeString("type", &ok);
+                        if (!ok) {
+                          xmlreader->raiseError(
+                              tr("ErrorBar2D type not found error"));
+                        }
+                        QString tablename =
+                            xmlreader->readAttributeString("table", &ok);
+                        if (ok) {
+                          table = getTableByName(tabs, tablename);
+                        } else
+                          xmlreader->raiseError(
+                              tr("ErrorBar2D Table not found error"));
+                        QString colname =
+                            xmlreader->readAttributeString("errcolumn", &ok);
+                        if (ok) {
+                          (table) ? column = table->column(colname)
+                                  : column = nullptr;
+                        } else
+                          xmlreader->raiseError(
+                              tr("ErrorBar2D Table column not found error"));
+                        int from = xmlreader->readAttributeInt("from", &ok);
+                        if (!ok)
+                          xmlreader->raiseError(
+                              tr("ErrorBar2D from not found error"));
+                        int to = xmlreader->readAttributeInt("to", &ok);
+                        if (!ok)
+                          xmlreader->raiseError(
+                              tr("ErrorBar2D to not found error"));
 
-            // begin
-            double begin = xmlreader->readAttributeDouble("begin", &ok);
-            if (ok)
-              bar->setHistBegin(begin);
-            else
-              xmlreader->raiseWarning(tr("Bar2D histogram begin not found"));
+                        if (table && column && !type.isEmpty() &&
+                            curve->getcurvetype_cplot() ==
+                                Curve2D::Curve2DType::Curve) {
+                          if (type == "x") {
+                            curve->setXerrorBar(table, column, from, to);
+                            curve->getxerrorbar_curveplot()->load(xmlreader);
+                          } else if (type == "y") {
+                            curve->setYerrorBar(table, column, from, to);
+                            curve->getyerrorbar_curveplot()->load(xmlreader);
+                          }
+                        }
+                      }
+                    }
+                  } else
 
-            // end
-            double end = xmlreader->readAttributeDouble("end", &ok);
-            if (ok)
-              bar->setHistEnd(end);
-            else
-              xmlreader->raiseWarning(tr("Bar2D histogram end not found"));
-          }
-        } else
-          xmlreader->raiseError(tr("Bar2D type not found error"));
-        bar->setName(legend);
+                    // linespecial
+                    if (xmlreader->isStartElement() &&
+                        xmlreader->name() == "linespecial") {
+                      LineSpecial2D *ls = nullptr;
+                      Axis2D *xaxis = nullptr;
+                      Axis2D *yaxis = nullptr;
+                      AxisRect2D::LineScatterSpecialType ltype;
 
-        // stackgap
-        double stackgap = xmlreader->readAttributeDouble("stackgap", &ok);
-        if (ok) {
-          bar->setStackingGap(stackgap);
-        } else
-          xmlreader->raiseWarning(tr("Bar2D Stacking Gap not found"));
+                      int xax = xmlreader->readAttributeInt("xaxis", &ok);
+                      if (ok) {
+                        xaxis = getXAxis(xax);
+                      } else
+                        xmlreader->raiseError(
+                            tr("LineSpecial2D X axis not found error"));
+                      int yax = xmlreader->readAttributeInt("yaxis", &ok);
+                      if (ok) {
+                        yaxis = getYAxis(yax);
+                      } else
+                        xmlreader->raiseError(
+                            tr("LineSpecial2D Y axis not found error"));
 
-        // error bars
-        while (!xmlreader->atEnd()) {
-          xmlreader->readNextStartElement();
-          if (xmlreader->isStartElement() && xmlreader->name() != "errorbar") {
-            bar->load(xmlreader);
-            break;
-          }
-          if (xmlreader->isStartElement() && xmlreader->name() == "errorbar") {
-            Table *table = nullptr;
-            Column *column = nullptr;
-            QString type = xmlreader->readAttributeString("type", &ok);
-            if (!ok) {
-              xmlreader->raiseError(tr("ErrorBar2D type not found error"));
-            }
-            QString tablename = xmlreader->readAttributeString("table", &ok);
-            if (ok) {
-              table = getTableByName(tabs, tablename);
-            } else
-              xmlreader->raiseError(tr("ErrorBar2D Table not found error"));
-            QString colname = xmlreader->readAttributeString("errcolumn", &ok);
-            if (ok) {
-              (table) ? column = table->column(colname) : column = nullptr;
-            } else
-              xmlreader->raiseError(
-                  tr("ErrorBar2D Table column not found error"));
-            int from = xmlreader->readAttributeInt("from", &ok);
-            if (!ok)
-              xmlreader->raiseError(tr("ErrorBar2D from not found error"));
-            int to = xmlreader->readAttributeInt("to", &ok);
-            if (!ok) xmlreader->raiseError(tr("ErrorBar2D to not found error"));
+                      QString lstype =
+                          xmlreader->readAttributeString("type", &ok);
+                      if (lstype == "line" && ok) {
+                        ltype = AxisRect2D::LineScatterSpecialType::Area2D;
+                      } else if (lstype == "impulse" && ok) {
+                        ltype = AxisRect2D::LineScatterSpecialType::
+                            VerticalDropLine2D;
+                      } else if (lstype == "stepleft" && ok) {
+                        ltype =
+                            AxisRect2D::LineScatterSpecialType::VerticalStep2D;
+                      } else if (lstype == "stepright" && ok) {
+                        ltype = AxisRect2D::LineScatterSpecialType::
+                            HorizontalStep2D;
+                      } else if (lstype == "stepcenter" && ok) {
+                        ltype = AxisRect2D::LineScatterSpecialType::
+                            CentralStepAndScatter2D;
+                      } else
+                        xmlreader->raiseWarning(
+                            tr("LineSpecial2D line type not found"));
 
-            if (table && column && !type.isEmpty() &&
-                !bar->ishistogram_barplot()) {
-              if (type == "x") {
-                bar->setXerrorBar(table, column, from, to);
-                bar->getxerrorbar_barplot()->load(xmlreader);
-              } else if (type == "y") {
-                bar->setYerrorBar(table, column, from, to);
-                bar->getyerrorbar_barplot()->load(xmlreader);
-              }
-            }
-          }
-        }
-      } else
+                      // legend
+                      QString legend =
+                          xmlreader->readAttributeString("legend", &ok);
+                      if (!ok)
+                        xmlreader->raiseWarning(
+                            tr("LineSpecial2D legendtext not found"));
 
-          // vector
-          if (xmlreader->isStartElement() && xmlreader->name() == "vector") {
-        Axis2D *xaxis = nullptr;
-        Axis2D *yaxis = nullptr;
-        Vector2D::VectorPlot type;
+                      Table *table = nullptr;
+                      Column *xcolumn = nullptr;
+                      Column *ycolumn = nullptr;
 
-        // axis
-        int xax = xmlreader->readAttributeInt("xaxis", &ok);
-        if (ok) {
-          xaxis = getXAxis(xax);
-        } else
-          xmlreader->raiseError(tr("Vector2D X axis not found error"));
-        int yax = xmlreader->readAttributeInt("yaxis", &ok);
-        if (ok) {
-          yaxis = getYAxis(yax);
-        } else
-          xmlreader->raiseError(tr("Vector2D Y axis not found error"));
+                      QString tablename =
+                          xmlreader->readAttributeString("table", &ok);
+                      if (ok) {
+                        table = getTableByName(tabs, tablename);
+                      } else
+                        xmlreader->raiseError(
+                            tr("LineSpecial2D Table not found error"));
+                      QString xcolname =
+                          xmlreader->readAttributeString("xcolumn", &ok);
+                      if (ok) {
+                        (table) ? xcolumn = table->column(xcolname)
+                                : xcolumn = nullptr;
+                      } else
+                        xmlreader->raiseError(
+                            tr("LineSpecial2D Table X column not found error"));
+                      QString ycolname =
+                          xmlreader->readAttributeString("ycolumn", &ok);
+                      if (ok) {
+                        (table) ? ycolumn = table->column(ycolname)
+                                : ycolumn = nullptr;
+                      } else
+                        xmlreader->raiseError(
+                            tr("LineSpecial2D Table Y column not found error"));
+                      int from = xmlreader->readAttributeInt("from", &ok);
+                      if (!ok)
+                        xmlreader->raiseError(
+                            tr("LineSpecial2D from not found error"));
+                      int to = xmlreader->readAttributeInt("to", &ok);
+                      if (!ok)
+                        xmlreader->raiseError(
+                            tr("LineSpecial2D to not found error"));
 
-        // vector type
-        QString vectortype = xmlreader->readAttributeString("type", &ok);
-        if (vectortype == "xyam" && ok) {
-          type = Vector2D::VectorPlot::XYAM;
-        } else if (vectortype == "xyxy" && ok) {
-          type = Vector2D::VectorPlot::XYXY;
-        } else {
-          xmlreader->raiseError(tr("Vector2D type not found error"));
-        }
+                      if (table && xcolumn && ycolumn && xaxis && yaxis) {
+                        ls =
+                            addLineSpecial2DPlot(ltype, table, xcolumn, ycolumn,
+                                                 from, to, xaxis, yaxis);
+                        if (ls) {
+                          ls->setName(legend);
 
-        Table *table = nullptr;
-        Column *x1column = nullptr;
-        Column *y1column = nullptr;
-        Column *x2column = nullptr;
-        Column *y2column = nullptr;
+                          while (!xmlreader->atEnd()) {
+                            xmlreader->readNextStartElement();
+                            if (xmlreader->isStartElement() &&
+                                xmlreader->name() != "errorbar") {
+                              ls->load(xmlreader);
+                              break;
+                            }
 
-        QString tablename = xmlreader->readAttributeString("table", &ok);
-        if (ok) {
-          table = getTableByName(tabs, tablename);
-        } else
-          xmlreader->raiseError(tr("Vector2D Table not found error"));
-        QString x1colname = xmlreader->readAttributeString("x1column", &ok);
-        if (ok) {
-          (table) ? x1column = table->column(x1colname) : x1column = nullptr;
-        } else
-          xmlreader->raiseError(tr("Vector2D Table X1 column not found error"));
-        QString y1colname = xmlreader->readAttributeString("y1column", &ok);
-        if (ok) {
-          (table) ? y1column = table->column(y1colname) : y1column = nullptr;
-        } else
-          xmlreader->raiseError(tr("Vector2D Table Y1 column not found error"));
+                            if (xmlreader->isStartElement() &&
+                                xmlreader->name() == "errorbar") {
+                              Table *table = nullptr;
+                              Column *column = nullptr;
+                              QString type =
+                                  xmlreader->readAttributeString("type", &ok);
+                              if (!ok) {
+                                xmlreader->raiseError(
+                                    tr("ErrorBar2D type not found error"));
+                              }
+                              QString tablename =
+                                  xmlreader->readAttributeString("table", &ok);
+                              if (ok) {
+                                table = getTableByName(tabs, tablename);
+                              } else
+                                xmlreader->raiseError(
+                                    tr("ErrorBar2D Table not found error"));
+                              QString colname = xmlreader->readAttributeString(
+                                  "errcolumn", &ok);
+                              if (ok) {
+                                (table) ? column = table->column(colname)
+                                        : column = nullptr;
+                              } else
+                                xmlreader->raiseError(tr(
+                                    "ErrorBar2D Table column not found error"));
+                              int from =
+                                  xmlreader->readAttributeInt("from", &ok);
+                              if (!ok)
+                                xmlreader->raiseError(
+                                    tr("ErrorBar2D from not found error"));
+                              int to = xmlreader->readAttributeInt("to", &ok);
+                              if (!ok)
+                                xmlreader->raiseError(
+                                    tr("ErrorBar2D to not found error"));
 
-        QString x2colname = xmlreader->readAttributeString("x2column", &ok);
-        if (ok) {
-          (table) ? x2column = table->column(x2colname) : x2column = nullptr;
-        } else
-          xmlreader->raiseError(tr("Vector2D Table X2 column not found error"));
-        QString y2colname = xmlreader->readAttributeString("y2column", &ok);
-        if (ok) {
-          (table) ? y2column = table->column(y2colname) : y2column = nullptr;
-        } else
-          xmlreader->raiseError(tr("Vector2D Table Y2 column not found error"));
+                              if (table && column && !type.isEmpty()) {
+                                if (type == "x") {
+                                  ls->setXerrorBar(table, column, from, to);
+                                  ls->getxerrorbar_lsplot()->load(xmlreader);
+                                } else if (type == "y") {
+                                  ls->setYerrorBar(table, column, from, to);
+                                  ls->getyerrorbar_lsplot()->load(xmlreader);
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    } else
 
-        int from = xmlreader->readAttributeInt("from", &ok);
-        if (!ok) xmlreader->raiseError(tr("Vector2D from not found error"));
-        int to = xmlreader->readAttributeInt("to", &ok);
-        if (!ok) xmlreader->raiseError(tr("Vector2D to not found error"));
+                      // channel
+                      if (xmlreader->isStartElement() &&
+                          xmlreader->name() == "channel") {
+                        loadLineSpecialChannel2D(xmlreader, tabs);
+                      } else
 
-        if (table && x1column && y1column && x2column && y2column && xaxis &&
-            yaxis) {
-          Vector2D *curve =
-              addVectorPlot(type, table, x1column, y1column, x2column, y2column,
-                            from, to, xaxis, yaxis);
-          curve->load(xmlreader);
-        }
-      } else
+                        // bar
+                        if (xmlreader->isStartElement() &&
+                            xmlreader->name() == "bar") {
+                          Bar2D *bar = nullptr;
+                          Axis2D *xaxis = nullptr;
+                          Axis2D *yaxis = nullptr;
+                          AxisRect2D::BarType barorientation =
+                              AxisRect2D::BarType::VerticalBars;
 
-          // pie
-          if (xmlreader->isStartElement() && xmlreader->name() == "pie") {
-        Table *table = nullptr;
-        Column *xcolumn = nullptr;
-        Column *ycolumn = nullptr;
-        QString tablename = xmlreader->readAttributeString("table", &ok);
-        if (ok) {
-          table = getTableByName(tabs, tablename);
-        } else
-          xmlreader->raiseError(tr("Pie2D Table not found error"));
-        QString xcolname = xmlreader->readAttributeString("xcolumn", &ok);
-        if (ok) {
-          (table) ? xcolumn = table->column(xcolname) : xcolumn = nullptr;
-        } else
-          xmlreader->raiseError(tr("Pie2D Table X column not found error"));
+                          QString orientation = xmlreader->readAttributeString(
+                              "orientation", &ok);
+                          if (ok) {
+                            (orientation == "vertical")
+                                ? barorientation =
+                                      AxisRect2D::BarType::VerticalBars
+                                : barorientation =
+                                      AxisRect2D::BarType::HorizontalBars;
+                          } else
+                            xmlreader->raiseError(
+                                tr("Bar2D orientation not found error"));
 
-        QString ycolname = xmlreader->readAttributeString("ycolumn", &ok);
-        if (ok) {
-          (table) ? ycolumn = table->column(ycolname) : ycolumn = nullptr;
-        } else
-          xmlreader->raiseError(tr("Pie2D Table Y column not found error"));
+                          int xax = xmlreader->readAttributeInt("xaxis", &ok);
+                          if (ok) {
+                            xaxis = getXAxis(xax);
+                          } else
+                            xmlreader->raiseError(
+                                tr("Bar2D X axis not found error"));
+                          int yax = xmlreader->readAttributeInt("yaxis", &ok);
+                          if (ok) {
+                            yaxis = getYAxis(yax);
+                          } else
+                            xmlreader->raiseError(
+                                tr("Bar2D Y axis not found error"));
 
-        int from = xmlreader->readAttributeInt("from", &ok);
-        if (!ok) xmlreader->raiseError(tr("Pie2D from not found error"));
-        int to = xmlreader->readAttributeInt("to", &ok);
-        if (!ok) xmlreader->raiseError(tr("Pie2D to not found error"));
-        if (table && xcolumn) {
-          Pie2D *pie = addPie2DPlot(Graph2DCommon::PieStyle::Pie, table,
+                          // legend
+                          QString legend =
+                              xmlreader->readAttributeString("legend", &ok);
+                          if (!ok)
+                            xmlreader->raiseWarning(
+                                tr("Bar2D legendtext not found"));
+
+                          QString bartype =
+                              xmlreader->readAttributeString("type", &ok);
+                          if (!ok)
+                            xmlreader->raiseError(tr("Bar2D type not found"));
+
+                          if (bartype == "barxy") {
+                            Table *table = nullptr;
+                            Column *xcolumn = nullptr;
+                            Column *ycolumn = nullptr;
+
+                            QString tablename =
+                                xmlreader->readAttributeString("table", &ok);
+                            if (ok) {
+                              table = getTableByName(tabs, tablename);
+                            } else
+                              xmlreader->raiseError(
+                                  tr("Bar2D Table not found error"));
+                            QString xcolname =
+                                xmlreader->readAttributeString("xcolumn", &ok);
+                            if (ok) {
+                              (table) ? xcolumn = table->column(xcolname)
+                                      : xcolumn = nullptr;
+                            } else
+                              xmlreader->raiseError(
+                                  tr("Bar2D Table X column not found error"));
+                            QString ycolname =
+                                xmlreader->readAttributeString("ycolumn", &ok);
+                            if (ok) {
+                              (table) ? ycolumn = table->column(ycolname)
+                                      : ycolumn = nullptr;
+                            } else
+                              xmlreader->raiseError(
+                                  tr("Bar2D Table Y column not found error"));
+                            int from = xmlreader->readAttributeInt("from", &ok);
+                            if (!ok)
+                              xmlreader->raiseError(
+                                  tr("Bar2D from not found error"));
+                            int to = xmlreader->readAttributeInt("to", &ok);
+                            if (!ok)
+                              xmlreader->raiseError(
+                                  tr("Bar2D to not found error"));
+
+                            Bar2D::BarStyle barstyleenum;
+                            bool barstylstatus = false;
+                            QString barstyle =
+                                xmlreader->readAttributeString("style", &ok);
+                            if (ok) {
+                              barstylstatus = true;
+                              (barstyle == "individual")
+                                  ? barstyleenum = Bar2D::BarStyle::Individual
+                              : (barstyle == "grouped")
+                                  ? barstyleenum = Bar2D::BarStyle::Grouped
+                              : (barstyle == "stacked")
+                                  ? barstyleenum = Bar2D::BarStyle::Stacked
+                                  : barstyleenum = Bar2D::BarStyle::Individual;
+                            } else
+                              xmlreader->raiseWarning(
+                                  tr("Bar2D xy style not found error"));
+
+                            int stackorder =
+                                xmlreader->readAttributeInt("stackorder", &ok);
+                            if (!ok)
+                              xmlreader->raiseWarning(
+                                  tr("Bar2D stackorder not found error"));
+
+                            // compatibility with previous version
+                            if (!barstylstatus)
+                              (stackorder == -1)
+                                  ? barstyleenum = Bar2D::BarStyle::Individual
+                                  : barstyleenum = Bar2D::BarStyle::Stacked;
+
+                            if (table && xcolumn && ycolumn && xaxis && yaxis)
+                              bar = addBox2DPlot(
+                                  barorientation, table, xcolumn, ycolumn, from,
+                                  to, xaxis, yaxis, barstyleenum, stackorder);
+
+                          } else if (ok && bartype == "histogram") {
+                            Table *table = nullptr;
+                            Column *column = nullptr;
+
+                            QString tablename =
+                                xmlreader->readAttributeString("table", &ok);
+                            if (ok) {
+                              table = getTableByName(tabs, tablename);
+                            } else
+                              xmlreader->raiseError(
+                                  tr("Bar2D Table not found error"));
+                            QString colname =
+                                xmlreader->readAttributeString("column", &ok);
+                            if (ok) {
+                              (table) ? column = table->column(colname)
+                                      : column = nullptr;
+                            } else
+                              xmlreader->raiseError(
+                                  tr("Bar2D Table column not found error"));
+                            // from
+                            int from = xmlreader->readAttributeInt("from", &ok);
+                            if (!ok)
+                              xmlreader->raiseError(
+                                  tr("Bar2D from not found error"));
+                            // to
+                            int to = xmlreader->readAttributeInt("to", &ok);
+                            if (!ok)
+                              xmlreader->raiseError(
+                                  tr("Bar2D to not found error"));
+
+                            if (table && column && xaxis && yaxis) {
+                              bar = addHistogram2DPlot(barorientation, table,
+                                                       column, from, to, xaxis,
+                                                       yaxis);
+                              // autobin
+                              bool autobin =
+                                  xmlreader->readAttributeBool("autobin", &ok);
+                              if (ok)
+                                bar->setHistAutoBin(autobin);
+                              else
+                                xmlreader->raiseWarning(
+                                    tr("Bar2D histogram auto bin not found"));
+
+                              // binsize
+                              double binsize = xmlreader->readAttributeDouble(
+                                  "binsize", &ok);
+                              if (ok)
+                                bar->setHistBinSize(binsize);
+                              else
+                                xmlreader->raiseWarning(
+                                    tr("Bar2D histogram bin size not found"));
+
+                              // begin
+                              double begin =
+                                  xmlreader->readAttributeDouble("begin", &ok);
+                              if (ok)
+                                bar->setHistBegin(begin);
+                              else
+                                xmlreader->raiseWarning(
+                                    tr("Bar2D histogram begin not found"));
+
+                              // end
+                              double end =
+                                  xmlreader->readAttributeDouble("end", &ok);
+                              if (ok)
+                                bar->setHistEnd(end);
+                              else
+                                xmlreader->raiseWarning(
+                                    tr("Bar2D histogram end not found"));
+                            }
+                          } else
+                            xmlreader->raiseError(
+                                tr("Bar2D type not found error"));
+                          bar->setName(legend);
+
+                          // stackgap
+                          double stackgap =
+                              xmlreader->readAttributeDouble("stackgap", &ok);
+                          if (ok) {
+                            bar->setStackingGap(stackgap);
+                          } else
+                            xmlreader->raiseWarning(
+                                tr("Bar2D Stacking Gap not found"));
+
+                          // error bars
+                          while (!xmlreader->atEnd()) {
+                            xmlreader->readNextStartElement();
+                            if (xmlreader->isStartElement() &&
+                                xmlreader->name() != "errorbar") {
+                              bar->load(xmlreader);
+                              break;
+                            }
+                            if (xmlreader->isStartElement() &&
+                                xmlreader->name() == "errorbar") {
+                              Table *table = nullptr;
+                              Column *column = nullptr;
+                              QString type =
+                                  xmlreader->readAttributeString("type", &ok);
+                              if (!ok) {
+                                xmlreader->raiseError(
+                                    tr("ErrorBar2D type not found error"));
+                              }
+                              QString tablename =
+                                  xmlreader->readAttributeString("table", &ok);
+                              if (ok) {
+                                table = getTableByName(tabs, tablename);
+                              } else
+                                xmlreader->raiseError(
+                                    tr("ErrorBar2D Table not found error"));
+                              QString colname = xmlreader->readAttributeString(
+                                  "errcolumn", &ok);
+                              if (ok) {
+                                (table) ? column = table->column(colname)
+                                        : column = nullptr;
+                              } else
+                                xmlreader->raiseError(tr(
+                                    "ErrorBar2D Table column not found error"));
+                              int from =
+                                  xmlreader->readAttributeInt("from", &ok);
+                              if (!ok)
+                                xmlreader->raiseError(
+                                    tr("ErrorBar2D from not found error"));
+                              int to = xmlreader->readAttributeInt("to", &ok);
+                              if (!ok)
+                                xmlreader->raiseError(
+                                    tr("ErrorBar2D to not found error"));
+
+                              if (table && column && !type.isEmpty() &&
+                                  !bar->ishistogram_barplot()) {
+                                if (type == "x") {
+                                  bar->setXerrorBar(table, column, from, to);
+                                  bar->getxerrorbar_barplot()->load(xmlreader);
+                                } else if (type == "y") {
+                                  bar->setYerrorBar(table, column, from, to);
+                                  bar->getyerrorbar_barplot()->load(xmlreader);
+                                }
+                              }
+                            }
+                          }
+                        } else
+
+                          // vector
+                          if (xmlreader->isStartElement() &&
+                              xmlreader->name() == "vector") {
+                            Axis2D *xaxis = nullptr;
+                            Axis2D *yaxis = nullptr;
+                            Vector2D::VectorPlot type;
+
+                            // axis
+                            int xax = xmlreader->readAttributeInt("xaxis", &ok);
+                            if (ok) {
+                              xaxis = getXAxis(xax);
+                            } else
+                              xmlreader->raiseError(
+                                  tr("Vector2D X axis not found error"));
+                            int yax = xmlreader->readAttributeInt("yaxis", &ok);
+                            if (ok) {
+                              yaxis = getYAxis(yax);
+                            } else
+                              xmlreader->raiseError(
+                                  tr("Vector2D Y axis not found error"));
+
+                            // vector type
+                            QString vectortype =
+                                xmlreader->readAttributeString("type", &ok);
+                            if (vectortype == "xyam" && ok) {
+                              type = Vector2D::VectorPlot::XYAM;
+                            } else if (vectortype == "xyxy" && ok) {
+                              type = Vector2D::VectorPlot::XYXY;
+                            } else {
+                              xmlreader->raiseError(
+                                  tr("Vector2D type not found error"));
+                            }
+
+                            Table *table = nullptr;
+                            Column *x1column = nullptr;
+                            Column *y1column = nullptr;
+                            Column *x2column = nullptr;
+                            Column *y2column = nullptr;
+
+                            QString tablename =
+                                xmlreader->readAttributeString("table", &ok);
+                            if (ok) {
+                              table = getTableByName(tabs, tablename);
+                            } else
+                              xmlreader->raiseError(
+                                  tr("Vector2D Table not found error"));
+                            QString x1colname =
+                                xmlreader->readAttributeString("x1column", &ok);
+                            if (ok) {
+                              (table) ? x1column = table->column(x1colname)
+                                      : x1column = nullptr;
+                            } else
+                              xmlreader->raiseError(tr(
+                                  "Vector2D Table X1 column not found error"));
+                            QString y1colname =
+                                xmlreader->readAttributeString("y1column", &ok);
+                            if (ok) {
+                              (table) ? y1column = table->column(y1colname)
+                                      : y1column = nullptr;
+                            } else
+                              xmlreader->raiseError(tr(
+                                  "Vector2D Table Y1 column not found error"));
+
+                            QString x2colname =
+                                xmlreader->readAttributeString("x2column", &ok);
+                            if (ok) {
+                              (table) ? x2column = table->column(x2colname)
+                                      : x2column = nullptr;
+                            } else
+                              xmlreader->raiseError(tr(
+                                  "Vector2D Table X2 column not found error"));
+                            QString y2colname =
+                                xmlreader->readAttributeString("y2column", &ok);
+                            if (ok) {
+                              (table) ? y2column = table->column(y2colname)
+                                      : y2column = nullptr;
+                            } else
+                              xmlreader->raiseError(tr(
+                                  "Vector2D Table Y2 column not found error"));
+
+                            int from = xmlreader->readAttributeInt("from", &ok);
+                            if (!ok)
+                              xmlreader->raiseError(
+                                  tr("Vector2D from not found error"));
+                            int to = xmlreader->readAttributeInt("to", &ok);
+                            if (!ok)
+                              xmlreader->raiseError(
+                                  tr("Vector2D to not found error"));
+
+                            if (table && x1column && y1column && x2column &&
+                                y2column && xaxis && yaxis) {
+                              Vector2D *curve = addVectorPlot(
+                                  type, table, x1column, y1column, x2column,
+                                  y2column, from, to, xaxis, yaxis);
+                              curve->load(xmlreader);
+                            }
+                          } else
+
+                            // pie
+                            if (xmlreader->isStartElement() &&
+                                xmlreader->name() == "pie") {
+                              Table *table = nullptr;
+                              Column *xcolumn = nullptr;
+                              Column *ycolumn = nullptr;
+                              QString tablename =
+                                  xmlreader->readAttributeString("table", &ok);
+                              if (ok) {
+                                table = getTableByName(tabs, tablename);
+                              } else
+                                xmlreader->raiseError(
+                                    tr("Pie2D Table not found error"));
+                              QString xcolname = xmlreader->readAttributeString(
+                                  "xcolumn", &ok);
+                              if (ok) {
+                                (table) ? xcolumn = table->column(xcolname)
+                                        : xcolumn = nullptr;
+                              } else
+                                xmlreader->raiseError(
+                                    tr("Pie2D Table X column not found error"));
+
+                              QString ycolname = xmlreader->readAttributeString(
+                                  "ycolumn", &ok);
+                              if (ok) {
+                                (table) ? ycolumn = table->column(ycolname)
+                                        : ycolumn = nullptr;
+                              } else
+                                xmlreader->raiseError(
+                                    tr("Pie2D Table Y column not found error"));
+
+                              int from =
+                                  xmlreader->readAttributeInt("from", &ok);
+                              if (!ok)
+                                xmlreader->raiseError(
+                                    tr("Pie2D from not found error"));
+                              int to = xmlreader->readAttributeInt("to", &ok);
+                              if (!ok)
+                                xmlreader->raiseError(
+                                    tr("Pie2D to not found error"));
+                              if (table && xcolumn) {
+                                Pie2D *pie = addPie2DPlot(
+                                    Graph2DCommon::PieStyle::Pie, table,
                                     xcolumn, ycolumn, from, to);
-          pie->load(xmlreader);
-        }
-      }
+                                pie->load(xmlreader);
+                              }
+                            }
 
       // statbox
       if (xmlreader->isStartElement() && xmlreader->name() == "statbox") {
@@ -3460,21 +3730,21 @@ bool AxisRect2D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         }
       } else
 
-          // colormap
-          if (xmlreader->isStartElement() && xmlreader->name() == "colormap") {
-        Matrix *matrix = nullptr;
-        QString matname = xmlreader->readAttributeString("matrix", &ok);
-        if (ok) {
-          matrix = getMatrixByName(mats, matname);
-        } else
-          xmlreader->raiseError(tr("ColorMap2D Matrix not found error"));
+        // colormap
+        if (xmlreader->isStartElement() && xmlreader->name() == "colormap") {
+          Matrix *matrix = nullptr;
+          QString matname = xmlreader->readAttributeString("matrix", &ok);
+          if (ok) {
+            matrix = getMatrixByName(mats, matname);
+          } else
+            xmlreader->raiseError(tr("ColorMap2D Matrix not found error"));
 
-        if (matrix) {
-          ColorMap2D *colmap =
-              addColorMap2DPlot(matrix, getXAxes2D().at(0), getYAxes2D().at(0));
-          colmap->load(xmlreader);
+          if (matrix) {
+            ColorMap2D *colmap = addColorMap2DPlot(matrix, getXAxes2D().at(0),
+                                                   getYAxes2D().at(0));
+            colmap->load(xmlreader);
+          }
         }
-      }
       if (xmlreader->isStartElement() && xmlreader->name() == "legend") {
         getLegend()->load(xmlreader);
       }

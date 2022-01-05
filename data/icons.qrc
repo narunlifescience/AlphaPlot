@@ -164,7 +164,9 @@
     <file>icons/light/16/edit-hide.png</file>
     <file>icons/light/16/edit-unhide.png</file>
     <file>icons/light/16/number-type.png</file>
+    <file>icons/light/16/number-type-locked.png</file>
     <file>icons/light/16/text-type.png</file>
+    <file>icons/light/16/text-type-locked.png</file>
     <file>icons/light/16/import-ascii-filter.png</file>
     <file>icons/light/16/project-open.png</file>
     <file>icons/light/16/template-open.png</file>
@@ -204,10 +206,12 @@
     <file>icons/light/16/view-calendar-day.png</file>
     <file>icons/light/16/view-calendar-month.png</file>
     <file>icons/light/16/view-calendar.png</file>
+    <file>icons/light/16/view-calendar-locked.png</file>
     <file>icons/light/16/edit-data-range.png</file>
     <file>icons/light/16/layer-arrange.png</file>
     <file>icons/light/16/edit-arrow.png</file>
     <file>icons/light/16/edit-help.png</file>
+    <file>icons/light/16/edit-equal.png</file>
     <file>icons/light/16/edit-note.png</file>
     <file>icons/light/16/layer-new.png</file>
     <file>icons/light/16/zoom-in.png</file>
@@ -372,6 +376,7 @@
     <file>icons/light/22/layer-arrange.png</file>
     <file>icons/light/22/edit-arrow.png</file>
     <file>icons/light/22/edit-help.png</file>
+    <file>icons/light/22/edit-equal.png</file>
     <file>icons/light/22/edit-note.png</file>
     <file>icons/light/22/layer-new.png</file>
     <file>icons/light/22/zoom-in.png</file>
@@ -539,6 +544,7 @@
     <file>icons/light/24/layer-arrange.png</file>
     <file>icons/light/24/edit-arrow.png</file>
     <file>icons/light/24/edit-help.png</file>
+    <file>icons/light/24/edit-equal.png</file>
     <file>icons/light/24/edit-note.png</file>
     <file>icons/light/24/layer-new.png</file>
     <file>icons/light/24/zoom-in.png</file>
@@ -682,7 +688,9 @@
     <file>icons/dark/16/edit-hide.png</file>
     <file>icons/dark/16/edit-unhide.png</file>
     <file>icons/dark/16/number-type.png</file>
+    <file>icons/dark/16/number-type-locked.png</file>
     <file>icons/dark/16/text-type.png</file>
+    <file>icons/dark/16/text-type-locked.png</file>
     <file>icons/dark/16/import-ascii-filter.png</file>
     <file>icons/dark/16/project-open.png</file>
     <file>icons/dark/16/template-open.png</file>
@@ -721,11 +729,13 @@
     <file>icons/dark/16/view-calendar-day.png</file>
     <file>icons/dark/16/view-calendar-month.png</file>
     <file>icons/dark/16/view-calendar.png</file>
+    <file>icons/dark/16/view-calendar-locked.png</file>
     <file>icons/dark/16/tools-wizard.png</file>
     <file>icons/dark/16/edit-data-range.png</file>
     <file>icons/dark/16/layer-arrange.png</file>
     <file>icons/dark/16/edit-arrow.png</file>
     <file>icons/dark/16/edit-help.png</file>
+    <file>icons/dark/16/edit-equal.png</file>
     <file>icons/dark/16/edit-note.png</file>
     <file>icons/dark/16/layer-new.png</file>
     <file>icons/dark/16/zoom-in.png</file>
@@ -890,6 +900,7 @@
     <file>icons/dark/22/layer-arrange.png</file>
     <file>icons/dark/22/edit-arrow.png</file>
     <file>icons/dark/22/edit-help.png</file>
+    <file>icons/dark/22/edit-equal.png</file>
     <file>icons/dark/22/edit-note.png</file>
     <file>icons/dark/22/layer-new.png</file>
     <file>icons/dark/22/zoom-in.png</file>
@@ -1057,6 +1068,7 @@
     <file>icons/dark/24/layer-arrange.png</file>
     <file>icons/dark/24/edit-arrow.png</file>
     <file>icons/dark/24/edit-help.png</file>
+    <file>icons/dark/24/edit-equal.png</file>
     <file>icons/dark/24/edit-note.png</file>
     <file>icons/dark/24/layer-new.png</file>
     <file>icons/dark/24/zoom-in.png</file>

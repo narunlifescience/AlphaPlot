@@ -38,9 +38,9 @@
 #include <QLocale>
 #include <QMessageBox>
 
+#include "2Dplot/AxisRect2D.h"
 #include "2Dplot/Curve2D.h"
 #include "2Dplot/Legend2D.h"
-#include "2Dplot/AxisRect2D.h"
 #include "ColorBox.h"
 #include "Matrix.h"
 #include "Table.h"
@@ -57,7 +57,7 @@ Fit::Fit(ApplicationWindow *parent, AxisRect2D *axisrect, QString name)
   d_solver = ScaledLevenbergMarquardt;
   d_tolerance = 1e-4;
   d_gen_function = true;
-  d_points = 100;
+  d_points = app_->fitPoints;
   d_max_iterations = 1000;
   associateddata_ = nullptr;
   d_formula = QString();
@@ -102,6 +102,7 @@ double *Fit::fitGslMultifit(int &iterations, int &status) {
       T = gsl_multifit_fdfsolver_lmder;
       break;
     default:
+      T = gsl_multifit_fdfsolver_lmsder;
       break;
   }
   gsl_multifit_fdfsolver *s = gsl_multifit_fdfsolver_alloc(
@@ -126,16 +127,15 @@ double *Fit::fitGslMultifit(int &iterations, int &status) {
 #else
   {
     gsl_matrix *J = gsl_matrix_alloc(d_n, d_p);
-    gsl_multifit_fdfsolver_jac(s,J);
-    gsl_multifit_covar (J, 0.0, covar);
-    gsl_matrix_free (J);
+    gsl_multifit_fdfsolver_jac(s, J);
+    gsl_multifit_covar(J, 0.0, covar);
+    gsl_matrix_free(J);
   }
 #endif
   if (d_y_error_source == UnknownErrors) {
     // multiply covar by variance of residuals, which is used as an estimate for
-    // the
-    // statistical errors (this relies on the Y errors being set to 1.0, so that
-    // s->f is properly normalized)
+    // the statistical errors (this relies on the Y errors being set to 1.0, so
+    // that s->f is properly normalized)
     gsl_matrix_scale(covar, chi_2 / (d_n - d_p));
   }
 
@@ -190,8 +190,7 @@ double *Fit::fitGslMultimin(int &iterations, int &status) {
   gsl_multifit_covar(J, 0.0, covar);
   if (d_y_error_source == UnknownErrors) {
     // multiply covar by variance of residuals, which is used as an estimate for
-    // the
-    // statistical errors (this relies on the Y errors being set to 1.0)
+    // the statistical errors (this relies on the Y errors being set to 1.0)
     gsl_matrix_scale(covar, chi_2 / (d_n - d_p));
   }
 
@@ -513,9 +512,9 @@ void Fit::fit() {
 
   int status, iterations;
   double *par;
+  status = false;
   d_script = scriptEnv->newScript(d_formula, this, metaObject()->className());
-  connect(d_script, SIGNAL(error(const QString &, const QString &, int)), this,
-          SLOT(scriptError(const QString &, const QString &, int)));
+  connect(d_script, &Script::error, this, &Fit::scriptError);
 
   if (d_solver == NelderMeadSimplex)
     par = fitGslMultimin(iterations, status);
@@ -636,6 +635,10 @@ void Fit::generateFitCurve(double *par) {
 
 void Fit::insertFitFunctionCurve(const QString &name, double *x, double *y,
                                  int penWidth) {
+  Q_UNUSED(name)
+  Q_UNUSED(x)
+  Q_UNUSED(y)
+  Q_UNUSED(penWidth)
   QString formula;
   for (int j = 0; j < d_p; j++)
     formula += QString("%1=%2\n")
@@ -646,9 +649,10 @@ void Fit::insertFitFunctionCurve(const QString &name, double *x, double *y,
   Curve2D *curve = app_->addFunctionPlot(
       0, QStringList() << formula, QString("x"),
       QList<double>() << d_x[0] << d_x[d_n - 1], d_points, axisrect_);
-  if (curve)
+  if (curve) {
     curve->setlinestrokecolor_cplot(ColorBox::color(d_curveColorIndex));
-  curve->layer()->replot();
+    curve->layer()->replot();
+  }
   axisrect_->getLegend()->layer()->replot();
 }
 

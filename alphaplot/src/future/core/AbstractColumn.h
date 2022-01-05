@@ -30,14 +30,15 @@
 #ifndef ABSTRACTCOLUMN_H
 #define ABSTRACTCOLUMN_H
 
+#include <QDate>
+#include <QDateTime>
 #include <QList>
 #include <QString>
-#include <QDateTime>
-#include <QDate>
 #include <QTime>
-#include "lib/Interval.h"
-#include "globals.h"
+
 #include "core/AbstractAspect.h"
+#include "globals.h"
+#include "lib/Interval.h"
 
 class Column;
 class AbstractSimpleFilter;
@@ -102,7 +103,9 @@ class AbstractColumn : public AbstractAspect {
    * This sets the column mode and, if
    * necessary, converts it to another datatype.
    */
-  virtual void setColumnMode(AlphaPlot::ColumnMode mode) { Q_UNUSED(mode) }
+  virtual void setColumnMode(const AlphaPlot::ColumnMode mode) {
+    Q_UNUSED(mode)
+  }
   //! Copy another column of the same type
   /**
    * This function will return false if the data type
@@ -111,7 +114,8 @@ class AbstractColumn : public AbstractAspect {
    * Use a filter to convert a column to another type.
    */
   virtual bool copy(const AbstractColumn* other) {
-    Q_UNUSED(other) return false;
+    Q_UNUSED(other)
+    return false;
   }
   //! Copies part of another column of the same type
   /**
@@ -136,15 +140,17 @@ class AbstractColumn : public AbstractAspect {
   virtual int rowCount() const = 0;
   //! Insert some empty (or initialized with zero) rows
   virtual void insertRows(int before, int count) {
-    Q_UNUSED(before) Q_UNUSED(count)
+    Q_UNUSED(before)
+    Q_UNUSED(count)
   }
   //! Remove 'count' rows starting from row 'first'
   virtual void removeRows(int first, int count) {
-    Q_UNUSED(first) Q_UNUSED(count)
+    Q_UNUSED(first)
+    Q_UNUSED(count)
   }
   //! Return the column plot designation
   virtual AlphaPlot::PlotDesignation plotDesignation() const = 0;
-  //virtual QColor plotDesignationColor() const = 0;
+  // virtual QColor plotDesignationColor() const = 0;
   //! Set the column plot designation
   // virtual void setPlotDesignation(AlphaPlot::PlotDesignation pd) {
   // Q_UNUSED(pd) };
@@ -263,7 +269,8 @@ class AbstractColumn : public AbstractAspect {
    * Use this only when dataType() is QString
    */
   virtual void replaceTexts(int first, const QStringList& new_values) {
-    Q_UNUSED(first) Q_UNUSED(new_values)
+    Q_UNUSED(first)
+    Q_UNUSED(new_values)
   }
   //! Return the date part of row 'row'
   /**
@@ -312,7 +319,8 @@ class AbstractColumn : public AbstractAspect {
    * Use this only when dataType() is QDateTime
    */
   virtual void replaceDateTimes(int first, const QList<QDateTime>& new_values) {
-    Q_UNUSED(first) Q_UNUSED(new_values)
+    Q_UNUSED(first)
+    Q_UNUSED(new_values)
   }
   //! Return the double value in row 'row'
   /**
@@ -333,7 +341,8 @@ class AbstractColumn : public AbstractAspect {
    * Use this only when dataType() is double
    */
   virtual void replaceValues(int first, const QVector<double>& new_values) {
-    Q_UNUSED(first) Q_UNUSED(new_values)
+    Q_UNUSED(first)
+    Q_UNUSED(new_values)
   }
   //@}
 

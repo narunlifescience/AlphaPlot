@@ -25,6 +25,9 @@ void Bar3D::settabledata(Table *table, Column *xcolumn, Column *ycolumn,
   data_ << block;
   block->setgradient(block->getdataseries(), Graph3DCommon::Gradient::BBRY);
   block->getdataseries()->setColorStyle(Q3DTheme::ColorStyleRangeGradient);
+  xcolumn->setColumnModeLock(true);
+  ycolumn->setColumnModeLock(true);
+  zcolumn->setColumnModeLock(true);
   emit dataAdded();
 }
 

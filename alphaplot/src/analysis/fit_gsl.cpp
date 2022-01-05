@@ -111,7 +111,7 @@ int expd3_df(const gsl_vector *x, void *params, gsl_matrix *J) {
   for (i = 0; i < n; i++) {
     /* Jacobian matrix J(i,j) = dfi / dxj, */
     /* where fi = (Yi - yi)/sigma[i],      */
-    /*       Yi = A1 * exp(-xi*l1) + A2 * exp(-xi*l2) +y0  */
+    /* Yi = A1 * exp(-xi*l1) + A2 * exp(-xi*l2) +y0  */
     /* and the xj are the parameters (A1,l1,A2,l2,y0) */
     double t = X[i];
     double s = sigma[i];
@@ -196,7 +196,7 @@ int expd2_df(const gsl_vector *x, void *params, gsl_matrix *J) {
   for (i = 0; i < n; i++) {
     /* Jacobian matrix J(i,j) = dfi / dxj, */
     /* where fi = (Yi - yi)/sigma[i],      */
-    /*       Yi = A1 * exp(-xi*l1) + A2 * exp(-xi*l2) +y0  */
+    /* Yi = A1 * exp(-xi*l1) + A2 * exp(-xi*l2) +y0  */
     /* and the xj are the parameters (A1,l1,A2,l2,y0) */
     double s = sigma[i];
     double t = X[i];
@@ -264,7 +264,7 @@ int exp_df(const gsl_vector *x, void *params, gsl_matrix *J) {
   for (i = 0; i < n; i++) {
     /* Jacobian matrix J(i,j) = dfi / dxj, */
     /* where fi = (Yi - yi)/sigma[i],      */
-    /*       Yi = A * exp(-lambda * i) + b  */
+    /* Yi = A * exp(-lambda * i) + b  */
     /* and the xj are the parameters (A,lambda,b) */
 
     double t = X[i];
@@ -338,9 +338,9 @@ int gauss_df(const gsl_vector *x, void *params, gsl_matrix *J) {
 
   size_t i;
   for (i = 0; i < n; i++) {
-    /* Jacobian matrix J(i,j) = dfi / dxj,	 */
-    /* where fi = Yi - yi,					*/
-    /* Yi = y=A*exp[-(Xi-xc)^2/(2*w*w)]+B		*/
+    /* Jacobian matrix J(i,j) = dfi / dxj,     */
+    /* where fi = Yi - yi,                     */
+    /* Yi = y=A*exp[-(Xi-xc)^2/(2*w*w)]+B      */
     /* and the xj are the parameters (B,A,C,w) */
 
     double s = sigma[i];
@@ -658,10 +658,10 @@ int boltzmann_df(const gsl_vector *x, void *params, gsl_matrix *J) {
   double dx = gsl_vector_get(x, 3);
   size_t i;
   for (i = 0; i < n; i++) {
-    /* Jacobian matrix J(i,j) = dfi / dxj,		*/
-    /* where fi = Yi - yi,						*/
-    /* Yi = (A1-A2)/(1+exp((X[i]-x0)/dx)) + A2	*/
-    /* and the xj are the parameters (A1,A2,x0,dx)*/
+    /* Jacobian matrix J(i,j) = dfi / dxj,         */
+    /* where fi = Yi - yi,                         */
+    /* Yi = (A1-A2)/(1+exp((X[i]-x0)/dx)) + A2     */
+    /* and the xj are the parameters (A1,A2,x0,dx) */
     double s = sigma[i];
     double diff = X[i] - x0;
     double e = exp(diff / dx);

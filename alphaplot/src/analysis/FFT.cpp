@@ -27,15 +27,16 @@
  *                                                                         *
  ***************************************************************************/
 #include "FFT.h"
-#include "2Dplot/Layout2D.h"
-#include "ColorBox.h"
-#include "core/column/Column.h"
+
+#include <gsl/gsl_fft_complex.h>
+#include <gsl/gsl_fft_halfcomplex.h>
 
 #include <QLocale>
 #include <QMessageBox>
 
-#include <gsl/gsl_fft_complex.h>
-#include <gsl/gsl_fft_halfcomplex.h>
+#include "2Dplot/Layout2D.h"
+#include "ColorBox.h"
+#include "core/column/Column.h"
 
 FFT::FFT(ApplicationWindow *parent, Table *table, const QString &realColName,
          const QString &imagColName)
@@ -95,6 +96,8 @@ QList<Column *> FFT::fftCurve() {
       QMessageBox::critical(
           app_, tr("AlphaPlot") + " - " + tr("Error"),
           tr("Could not allocate memory, operation aborted!"));
+      delete[] amp;
+      delete[] result;
       d_init_err = true;
       return QList<Column *>();
     }
@@ -122,6 +125,8 @@ QList<Column *> FFT::fftCurve() {
       QMessageBox::critical(
           app_, tr("AlphaPlot") + " - " + tr("Error"),
           tr("Could not allocate memory, operation aborted!"));
+      delete[] amp;
+      delete[] result;
       d_init_err = true;
       return QList<Column *>();
     }
@@ -152,8 +157,6 @@ QList<Column *> FFT::fftCurve() {
     amp[i] = a;
     if (a > aMax) aMax = a;
   }
-
-  //	ApplicationWindow *app = (ApplicationWindow *)parent();
 
   columns << new Column(tr("Real"), AlphaPlot::Numeric);
   columns << new Column(tr("Imaginary"), AlphaPlot::Numeric);
@@ -193,6 +196,7 @@ QList<Column *> FFT::fftTable() {
   if (!amp || !wavetable || !workspace) {
     QMessageBox::critical(app_, tr("AlphaPlot") + " - " + tr("Error"),
                           tr("Could not allocate memory, operation aborted!"));
+    delete[] amp;
     d_init_err = true;
     return QList<Column *>();
   }
@@ -288,6 +292,37 @@ void FFT::setDataFromTable(Table *t, const QString &realColName,
   d_real_col = d_table->colIndex(realColName);
 
   if (!imagColName.isEmpty()) d_imag_col = d_table->colIndex(imagColName);
+
+  if (d_real_col < 0) {
+    QMessageBox::warning(
+        qobject_cast<ApplicationWindow *>(parent()),
+        tr("AlphaPlot") + " - " + tr("Error"),
+        tr("The signal data set real %1 does not exist!").arg(realColName));
+    d_init_err = true;
+    return;
+  }
+  if (d_imag_col < 0) {
+    if (d_table->columnType(d_real_col) != AlphaPlot::ColumnMode::Numeric) {
+      QMessageBox::warning(qobject_cast<ApplicationWindow *>(parent()),
+                           tr("AlphaPlot") + " - " + tr("Error"),
+                           tr("The data set real %1 should be "
+                              "of column type numeric!")
+                               .arg(realColName));
+      d_init_err = true;
+      return;
+    }
+  } else {
+    if (d_table->columnType(d_real_col) != AlphaPlot::ColumnMode::Numeric ||
+        d_table->columnType(d_imag_col) != AlphaPlot::ColumnMode::Numeric) {
+      QMessageBox::warning(qobject_cast<ApplicationWindow *>(parent()),
+                           tr("AlphaPlot") + " - " + tr("Error"),
+                           tr("The data set real %1 and imaginary %2 should be "
+                              "of column type numeric!")
+                               .arg(realColName, imagColName));
+      d_init_err = true;
+      return;
+    }
+  }
 
   if (d_n > 0) {  // delete previousely allocated memory
     delete[] d_x;

@@ -28,10 +28,12 @@
  ***************************************************************************/
 
 #include "table/TableModel.h"
+
 #include <QBrush>
-#include <QIcon>
 #include <QPixmap>
 #include <QString>
+
+#include "core/IconLoader.h"
 #include "core/column/Column.h"
 #include "table/future_Table.h"
 
@@ -113,7 +115,8 @@ QVariant TableModel::data(const QModelIndex &index, int role) const {
     case FormulaRole:
       return QVariant(col_ptr->formula(row));
     case Qt::DecorationRole:
-      if (d_formula_mode) return QIcon(QPixmap(":/equals.png"));
+      if (d_formula_mode)
+        return IconLoader::load("edit-equal", IconLoader::LightDark);
       break;
   }
 

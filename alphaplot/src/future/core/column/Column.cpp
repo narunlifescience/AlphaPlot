@@ -29,7 +29,6 @@
 
 #include "core/column/Column.h"
 
-#include <QIcon>
 #include <QXmlStreamWriter>
 #include <QtDebug>
 
@@ -82,7 +81,7 @@ Column::~Column() {
   delete d_column_private;
 }
 
-void Column::setColumnMode(AlphaPlot::ColumnMode mode,
+void Column::setColumnMode(const AlphaPlot::ColumnMode mode,
                            AbstractFilter* conversion_filter) {
   if (mode == columnMode()) return;
   beginMacro(QObject::tr("%1: change column type").arg(name()));
@@ -100,6 +99,10 @@ void Column::setColumnMode(AlphaPlot::ColumnMode mode,
     outputFilter()->input(0, this);
   }
   endMacro();
+}
+
+void Column::setColumnModeLock(const bool lock) {
+  if (d_column_private) d_column_private->setColumnModeLock(lock);
 }
 
 bool Column::copy(const AbstractColumn* other) {
@@ -222,17 +225,30 @@ double Column::valueAt(int row) const { return d_column_private->valueAt(row); }
 QIcon Column::icon() const {
   switch (dataType()) {
     case AlphaPlot::TypeDouble:
-      return IconLoader::load("number-type", IconLoader::LightDark);
+      if (d_column_private->columnModeLock())
+        return IconLoader::load("number-type-locked", IconLoader::LightDark);
+      else
+        return IconLoader::load("number-type", IconLoader::LightDark);
     case AlphaPlot::TypeString:
-      return IconLoader::load("text-type", IconLoader::LightDark);
+      if (d_column_private->columnModeLock())
+        return IconLoader::load("text-type-locked", IconLoader::LightDark);
+      else
+        return IconLoader::load("text-type", IconLoader::LightDark);
     case AlphaPlot::TypeDay:
-      return QIcon(
-          IconLoader::load("view-calendar-day", IconLoader::LightDark));
+      if (d_column_private->columnModeLock())
+        return IconLoader::load("view-calendar-locked", IconLoader::LightDark);
+      else
+        return IconLoader::load("view-calendar-day", IconLoader::LightDark);
     case AlphaPlot::TypeMonth:
-      return QIcon(
-          IconLoader::load("view-calendar-month", IconLoader::LightDark));
+      if (d_column_private->columnModeLock())
+        return IconLoader::load("view-calendar-locked", IconLoader::LightDark);
+      else
+        return IconLoader::load("view-calendar-month", IconLoader::LightDark);
     case AlphaPlot::TypeDateTime:
-      return QIcon(IconLoader::load("view-calendar", IconLoader::LightDark));
+      if (d_column_private->columnModeLock())
+        return IconLoader::load("view-calendar-locked", IconLoader::LightDark);
+      else
+        return IconLoader::load("view-calendar", IconLoader::LightDark);
   }
   return QIcon();
 }
@@ -508,6 +524,10 @@ AlphaPlot::ColumnDataType Column::dataType() const {
 
 AlphaPlot::ColumnMode Column::columnMode() const {
   return d_column_private->columnMode();
+}
+
+bool Column::columnModeLock() const {
+  return d_column_private->columnModeLock();
 }
 int Column::rowCount() const { return d_column_private->rowCount(); }
 

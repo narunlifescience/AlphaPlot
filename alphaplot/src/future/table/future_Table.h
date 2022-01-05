@@ -412,6 +412,7 @@ class Table : public AbstractPart
   void rowsRemoved(int first, int count);
   void dataChanged(int top, int left, int bottom, int right);
   void headerDataChanged(Qt::Orientation orientation, int first, int last);
+  void columnModeLocked(const QString &colname);
 #ifdef LEGACY_CODE_0_2_x
   void recalculate();
   void requestRowStatistics();

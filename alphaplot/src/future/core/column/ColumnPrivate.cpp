@@ -28,12 +28,15 @@
  ***************************************************************************/
 
 #include "core/column/ColumnPrivate.h"
+
 #include <QSettings>
 #include <QString>
 #include <QStringList>
 #include <QtDebug>
 #include <cmath>
+
 #include "core/AbstractSimpleFilter.h"
+#include "core/AppearanceManager.h"
 #include "core/column/Column.h"
 #include "core/datatypes/DateTime2DoubleFilter.h"
 #include "core/datatypes/DateTime2StringFilter.h"
@@ -48,7 +51,6 @@
 #include "core/datatypes/String2DayOfWeekFilter.h"
 #include "core/datatypes/String2DoubleFilter.h"
 #include "core/datatypes/String2MonthFilter.h"
-#include "core/AppearanceManager.h"
 
 Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
     : d_owner(owner) {
@@ -56,6 +58,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
   // because the owner must become the parent aspect of the input and output
   // filters
   d_column_mode = mode;
+  d_column_mode_lock = 0;
   switch (mode) {
     case AlphaPlot::Numeric:
       d_input_filter = new String2DoubleFilter();
@@ -124,6 +127,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnDataType type,
     : d_owner(owner) {
   d_data_type = type;
   d_column_mode = mode;
+  d_column_mode_lock = 0;
   d_data = data;
   d_validity = validity;
 
@@ -179,6 +183,13 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnDataType type,
   d_output_filter->setName("OutputFilter");
 }
 
+bool Column::Private::columnModeLock() const {
+  if (d_column_mode_lock <= 0)
+    return false;
+  else
+    return true;
+}
+
 Column::Private::~Private() {
   if (!d_data) return;
 
@@ -199,9 +210,10 @@ Column::Private::~Private() {
   }  // switch(d_data_type)
 }
 
-void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
+void Column::Private::setColumnMode(const AlphaPlot::ColumnMode mode,
                                     AbstractFilter* filter) {
   if (mode == d_column_mode) return;
+  if (columnModeLock() == true) return;
 
   void* old_data = d_data;
   // remark: the deletion of the old data will be done in the dtor of a command
@@ -428,12 +440,19 @@ void Column::Private::setColumnMode(AlphaPlot::ColumnMode mode,
   emit d_owner->modeChanged(d_owner);
 }
 
+void Column::Private::setColumnModeLock(const bool lock) {
+  (lock) ? d_column_mode_lock = d_column_mode_lock + 1
+         : d_column_mode_lock = d_column_mode_lock - 1;
+}
+
 void Column::Private::replaceModeData(AlphaPlot::ColumnMode mode,
                                       AlphaPlot::ColumnDataType type,
                                       void* data,
                                       AbstractSimpleFilter* in_filter,
                                       AbstractSimpleFilter* out_filter,
                                       IntervalAttribute<bool> validity) {
+  if (d_column_mode_lock == true) return;
+
   emit d_owner->modeAboutToChange(d_owner);
   // disconnect formatChanged()
   switch (d_column_mode) {

@@ -233,7 +233,7 @@ class Table : public TableView, public scripted, public QScriptable {
 
   int numSelectedRows();
 
-  int columnType(int col);
+  AlphaPlot::ColumnMode columnType(int col);
 
   QList<int> columnTypes();
   void setColumnTypes(QList<int> ctl);

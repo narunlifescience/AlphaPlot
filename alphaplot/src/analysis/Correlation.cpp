@@ -27,12 +27,14 @@
  *                                                                         *
  ***************************************************************************/
 #include "Correlation.h"
-#include <QLocale>
-#include <QMessageBox>
-#include "core/column/Column.h"
 
 #include <gsl/gsl_fft_halfcomplex.h>
+
+#include <QLocale>
+#include <QMessageBox>
 #include <vector>
+
+#include "core/column/Column.h"
 
 Correlation::Correlation(ApplicationWindow *parent, Table *t,
                          const QString &colName1, const QString &colName2)
@@ -43,6 +45,10 @@ Correlation::Correlation(ApplicationWindow *parent, Table *t,
 
 void Correlation::setDataFromTable(Table *t, const QString &colName1,
                                    const QString &colName2) {
+  if (!t) {
+    d_init_err = true;
+    return;
+  }
   if (t && d_table != t) d_table = t;
 
   int col1 = d_table->colIndex(colName1);
@@ -58,6 +64,19 @@ void Correlation::setDataFromTable(Table *t, const QString &colName1,
     QMessageBox::warning(qobject_cast<ApplicationWindow *>(parent()),
                          tr("AlphaPlot") + " - " + tr("Error"),
                          tr("The data set %1 does not exist!").arg(colName2));
+    d_init_err = true;
+    return;
+  } else if (d_table->columnType(col1) != AlphaPlot::ColumnMode::Numeric ||
+             d_table->columnType(col2) != AlphaPlot::ColumnMode::Numeric) {
+    QString description;
+    (col1 == col2)
+        ? description = tr("The data set %1 should be of column type numeric!")
+                            .arg(colName1)
+        : description =
+              tr("The data set %1 and %2 should be of column type numeric!")
+                  .arg(colName1, colName2);
+    QMessageBox::warning(qobject_cast<ApplicationWindow *>(parent()),
+                         tr("AlphaPlot") + " - " + tr("Error"), description);
     d_init_err = true;
     return;
   }

@@ -849,7 +849,6 @@ class ApplicationWindow : public QMainWindow,
   void modified();
 
  private slots:
-
   void showHelp();          // Open help file index.html
   void chooseHelpFolder();  // Choose help folder
   void about();             // Show about dialog

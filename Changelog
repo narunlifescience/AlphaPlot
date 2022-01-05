@@ -41,6 +41,7 @@
 * fix object browser context menu request reflect property browser update
 * add multiple data checks for adding plots and additional controls
 * add more customization of symbol, value, date, datetime, log, text axis 2d
+* column type lock feature to prevent users form changing it while use in a plot2d or plot3d
 
 === 06-05-20 Forth release of AlphaPlot (Alpha stage) - major release ===
 * multipeak fitting fixed

@@ -112,6 +112,17 @@ void Table::init() {
   ui.add_function_combobox->addItems(scriptEnv->mathFunctions());
   updateFunctionDoc();
 
+  connect(
+      d_future_table, &future::Table::columnModeLocked, this,
+      [&](const QString &name) {
+        setColumnForControlTabs(colIndex(name));
+        QMessageBox::warning(
+            nullptr, tr("Column Type Change Locked"),
+            tr("This column %1 is associated with one or more plot(s). You "
+               "cannot change the column type while in use! Try removing the "
+               "plot and then changing the column type!")
+                .arg(name));
+      });
   connect(ui.add_function_combobox, SIGNAL(currentIndexChanged(int)), this,
           SLOT(updateFunctionDoc()));
   connect(ui.set_formula_button, SIGNAL(pressed()), this, SLOT(applyFormula()));
@@ -244,7 +255,8 @@ void Table::print(const QString &fileName) {
   p.setFont(hHeader->font());
   QString header_label =
       d_view_widget->model()->headerData(0, Qt::Horizontal).toString();
-  QRect br = p.boundingRect(br, Qt::AlignCenter, header_label);
+  QRect br = QRect();
+  br = p.boundingRect(br, Qt::AlignCenter, header_label);
   p.drawLine(right, height, right, height + br.height());
   QRect tr(br);
 
@@ -390,10 +402,8 @@ bool Table::recalculate(int col, bool only_selected_rows) {
 
     Script *colscript =
         scriptEnv->newScript(formula, this, QString("<%1>").arg(colName(col)));
-    connect(colscript, SIGNAL(error(const QString &, const QString &, int)),
-            scriptEnv, SIGNAL(error(const QString &, const QString &, int)));
-    connect(colscript, SIGNAL(print(const QString &)), scriptEnv,
-            SIGNAL(print(const QString &)));
+    connect(colscript, &Script::error, scriptEnv, &ScriptingEnv::error);
+    connect(colscript, &Script::print, scriptEnv, &ScriptingEnv::print);
 
     if (!colscript->compile()) {
       delete colscript;
@@ -851,7 +861,9 @@ QList<int> Table::columnTypes() {
   return list;
 }
 
-int Table::columnType(int col) { return column(col)->columnMode(); }
+AlphaPlot::ColumnMode Table::columnType(int col) {
+  return column(col)->columnMode();
+}
 
 void Table::setColumnTypes(QList<int> ctl) {
   Q_ASSERT(ctl.size() == d_future_table->columnCount());

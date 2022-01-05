@@ -649,7 +649,17 @@ void TableView::applyType() {
 
   AlphaPlot::ColumnMode new_mode = static_cast<AlphaPlot::ColumnMode>(
       ui.type_box->itemData(type_index).toInt());
-  QList<Column *> list = selectedColumns();
+
+  QList<Column *> collist = selectedColumns();
+  QList<Column *> list;
+  // check if column mode is locked
+  foreach (Column *col, collist) {
+    if (col->columnModeLock() == false || col->columnMode() == new_mode) {
+      list.append(col);
+    } else {
+      emit d_table->columnModeLocked(col->name());
+    }
+  }
   switch (new_mode) {
     case AlphaPlot::Numeric:
       foreach (Column *col, list) {

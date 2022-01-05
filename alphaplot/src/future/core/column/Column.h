@@ -110,13 +110,15 @@ class Column : public AbstractColumn {
    * the values in the column additional to the data type.
    */
   AlphaPlot::ColumnMode columnMode() const;
+  bool columnModeLock() const;
   //! Set the column mode
   /**
    * This sets the column mode and, if
    * necessary, converts it to another datatype.
    */
-  void setColumnMode(AlphaPlot::ColumnMode mode,
+  void setColumnMode(const AlphaPlot::ColumnMode mode,
                      AbstractFilter* conversion_filter = 0);
+  void setColumnModeLock(const bool lock);
   //! Copy another column of the same type
   /**
    * This function will return false if the data type

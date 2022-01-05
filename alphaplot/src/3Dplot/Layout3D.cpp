@@ -22,6 +22,7 @@
 #include "MyWidget.h"
 #include "Scatter3D.h"
 #include "Surface3D.h"
+#include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 #include "plotcommon/widgets/ImageExportDialog.h"
@@ -135,7 +136,34 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
           });
 }
 
-Layout3D::~Layout3D() {}
+Layout3D::~Layout3D() {
+  if (!closewithoutcolumnmodelockchange_) switch (plottype_) {
+      case Graph3DCommon::Plot3DType::Surface:
+        break;
+      case Graph3DCommon::Plot3DType::Bar: {
+        QVector<DataBlockBar3D *> datalist = barmodifier_->getData();
+        foreach (DataBlockBar3D *bardata, datalist) {
+          if (bardata->getxcolumn())
+            bardata->getxcolumn()->setColumnModeLock(false);
+          if (bardata->getycolumn())
+            bardata->getycolumn()->setColumnModeLock(false);
+          if (bardata->getzcolumn())
+            bardata->getzcolumn()->setColumnModeLock(false);
+        }
+      } break;
+      case Graph3DCommon::Plot3DType::Scatter: {
+        QVector<DataBlockScatter3D *> datalist = scattermodifier_->getData();
+        foreach (DataBlockScatter3D *scatterdata, datalist) {
+          if (scatterdata->getxcolumn())
+            scatterdata->getxcolumn()->setColumnModeLock(false);
+          if (scatterdata->getycolumn())
+            scatterdata->getycolumn()->setColumnModeLock(false);
+          if (scatterdata->getzcolumn())
+            scatterdata->getzcolumn()->setColumnModeLock(false);
+        }
+      } break;
+    }
+}
 
 Surface3D *Layout3D::getSurface3DModifier() const {
   if (plottype_ == Graph3DCommon::Plot3DType::Surface)
@@ -937,6 +965,10 @@ void Layout3D::saveCategoryAxis(XmlStreamWriter *xmlwriter,
   xmlwriter->writeEndElement();
 }
 
+void Layout3D::setCloseWithoutColumnModeLockChange(const bool value) {
+  closewithoutcolumnmodelockchange_ = value;
+}
+
 QList<MyWidget *> Layout3D::dependentTableMatrix() {
   QList<MyWidget *> dependeon;
   switch (plottype_) {
@@ -1001,6 +1033,31 @@ void Layout3D::copy(Layout3D *layout, QList<Table *> tables,
     }
   }
   file->close();
+}
+
+QList<Column *> Layout3D::getPlotColumns() {
+  QList<Column *> collist;
+  switch (plottype_) {
+    case Graph3DCommon::Plot3DType::Surface:
+      break;
+    case Graph3DCommon::Plot3DType::Bar: {
+      QVector<DataBlockBar3D *> bvec = barmodifier_->getData();
+      foreach (DataBlockBar3D *b, bvec) {
+        if (b->getxcolumn()) collist << b->getxcolumn();
+        if (b->getycolumn()) collist << b->getycolumn();
+        if (b->getzcolumn()) collist << b->getzcolumn();
+      }
+    } break;
+    case Graph3DCommon::Plot3DType::Scatter: {
+      QVector<DataBlockScatter3D *> svec = scattermodifier_->getData();
+      foreach (DataBlockScatter3D *s, svec) {
+        if (s->getxcolumn()) collist << s->getxcolumn();
+        if (s->getycolumn()) collist << s->getycolumn();
+        if (s->getzcolumn()) collist << s->getzcolumn();
+      }
+    } break;
+  }
+  return collist;
 }
 
 void Layout3D::print() {

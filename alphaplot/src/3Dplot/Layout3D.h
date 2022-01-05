@@ -8,6 +8,7 @@
 
 class Matrix;
 class Table;
+class Column;
 class Surface3D;
 class Bar3D;
 class Scatter3D;
@@ -55,9 +56,11 @@ class Layout3D : public MyWidget {
   void saveTheme(XmlStreamWriter *xmlwriter);
   void saveValueAxis(XmlStreamWriter *xmlwriter, QValue3DAxis *axis);
   void saveCategoryAxis(XmlStreamWriter *xmlwriter, QCategory3DAxis *axis);
+  void setCloseWithoutColumnModeLockChange(const bool value);
   QList<MyWidget *> dependentTableMatrix();
   void copy(Layout3D *layout, QList<Table *> tables, QList<Matrix *> matrixs,
             ApplicationWindow *app);
+  QList<Column *> getPlotColumns();
   void print();
   void copyToClipbord();
 
@@ -80,6 +83,7 @@ class Layout3D : public MyWidget {
   QSequentialAnimationGroup *m_animationCameraY_;
   QPropertyAnimation *upAnimation_;
   QPropertyAnimation *downAnimation_;
+  bool closewithoutcolumnmodelockchange_;
   static const int defaultlayout2dwidth_;
   static const int defaultlayout2dheight_;
   static const int minimumlayout2dwidth_;

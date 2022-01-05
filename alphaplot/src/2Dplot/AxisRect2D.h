@@ -288,6 +288,7 @@ class AxisRect2D : public QCPAxisRect {
 
  private:
   void setbarsstyle();
+  void lockColumnModeChange(QList<Column *> collist, const bool lock);
 
  private:
   Plot2D *plot2d_;

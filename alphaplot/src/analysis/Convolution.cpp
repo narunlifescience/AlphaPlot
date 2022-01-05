@@ -27,11 +27,13 @@
  *                                                                         *
  ***************************************************************************/
 #include "Convolution.h"
-#include "core/column/Column.h"
 
 #include <gsl/gsl_fft_halfcomplex.h>
+
 #include <QLocale>
 #include <QMessageBox>
+
+#include "core/column/Column.h"
 
 Convolution::Convolution(ApplicationWindow *parent, Table *t,
                          const QString &signalColName,
@@ -62,6 +64,17 @@ void Convolution::setDataFromTable(Table *t, const QString &signalColName,
         tr("The response data set %1 does not exist!").arg(responseColName));
     d_init_err = true;
     return;
+  } else if (d_table->columnType(signal_col) !=
+                 AlphaPlot::ColumnMode::Numeric ||
+             d_table->columnType(response_col) !=
+                 AlphaPlot::ColumnMode::Numeric) {
+    QMessageBox::warning(
+        qobject_cast<ApplicationWindow *>(parent()),
+        tr("AlphaPlot") + " - " + tr("Error"),
+        tr("The data set %1 and %2 should be of column type numeric!")
+            .arg(signalColName, responseColName));
+    d_init_err = true;
+    return;
   }
 
   if (d_n > 0) {  // delete previously allocated memory
@@ -79,8 +92,7 @@ void Convolution::setDataFromTable(Table *t, const QString &signalColName,
                          tr("AlphaPlot") + " - " + tr("Error"),
                          tr("The response dataset '%1' must be less then half "
                             "the size of the signal dataset '%2'!")
-                             .arg(responseColName)
-                             .arg(signalColName));
+                             .arg(responseColName, signalColName));
     d_init_err = true;
     return;
   } else if (d_n_response % 2 == 0) {
@@ -129,10 +141,10 @@ void Convolution::addResultCurve() {
 
   d_table->addCol();
   d_table->addCol();
-  //double x_temp[d_n];
+  // double x_temp[d_n];
   for (int i = 0; i < d_n; i++) {
     double x = i + 1;
-    //x_temp[i] = x;
+    // x_temp[i] = x;
 
     d_table->column(cols)->setValueAt(i, x);
     d_table->column(cols2)->setValueAt(i, d_x[i]);
@@ -190,7 +202,8 @@ void Convolution::convlv(double *sig, int n, double *dres, int m, int sign) {
     }
   }
   delete[] res;
-  gsl_fft_halfcomplex_radix2_inverse(sig, 1, static_cast<size_t>(n));  // inverse fft
+  gsl_fft_halfcomplex_radix2_inverse(sig, 1,
+                                     static_cast<size_t>(n));  // inverse fft
 }
 /**************************************************************************
  *             Class Deconvolution                                         *
