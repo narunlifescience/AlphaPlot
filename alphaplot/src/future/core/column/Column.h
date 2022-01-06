@@ -30,12 +30,13 @@
 #ifndef COLUMN_H
 #define COLUMN_H
 
+#include <memory>
+
 #include "core/AbstractAspect.h"
 #include "core/AbstractSimpleFilter.h"
+#include "core/datatypes/NumericDateTimeBaseFilter.h"
 #include "lib/IntervalAttribute.h"
 #include "lib/XmlStreamReader.h"
-
-#include <memory>
 
 class QString;
 
@@ -160,12 +161,15 @@ class Column : public AbstractColumn {
   void clear();
   //! This must be called before the column is replaced by another
   void notifyReplacement(const AbstractColumn* replacement);
+  //! Return the converter filter (for double <-> datetime  conversion)
+  NumericDateTimeBaseFilter *numericDateTimeBaseFilter() const;
   //! Return the output filter (for data type -> string  conversion)
   /**
    * This method is mainly used to get a filter that can convert
    * the column's data type to strings (usualy to display in a view).
    */
   AbstractSimpleFilter* outputFilter() const;
+  AbstractSimpleFilter* inputFilter() const;
   //! Return a wrapper column object used for String I/O.
   ColumnStringIO* asStringColumn() const { return d_string_io; }
 
@@ -305,6 +309,8 @@ class Column : public AbstractColumn {
   bool load(XmlStreamReader* reader);
 
  private:
+  //! Read XML numerical <-> date time filter element
+  bool XmlReadNumericDateTimeFilter(XmlStreamReader *reader);
   //! Read XML input filter element
   bool XmlReadInputFilter(XmlStreamReader* reader);
   //! Read XML output filter element

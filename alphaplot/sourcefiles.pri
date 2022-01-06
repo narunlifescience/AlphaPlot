@@ -241,6 +241,7 @@ HEADERS     += src/future/core/AbstractAspect.h \
                src/future/core/datatypes/DateTime2StringFilter.h \
                src/future/core/datatypes/DayOfWeek2DoubleFilter.h \
                src/future/core/datatypes/Double2DateTimeFilter.h \
+               src/future/core/datatypes/NumericDateTimeBaseFilter.h \
                src/future/core/datatypes/Double2DayOfWeekFilter.h \
                src/future/core/datatypes/Double2MonthFilter.h \
                src/future/core/datatypes/Double2StringFilter.h \
@@ -285,6 +286,7 @@ SOURCES     += src/future/core/AbstractAspect.cpp \
                src/future/core/datatypes/String2DateTimeFilter.cpp \
                src/future/core/datatypes/Double2StringFilter.cpp \
                src/future/core/datatypes/Double2DateTimeFilter.cpp \
+               src/future/core/datatypes/NumericDateTimeBaseFilter.cpp \
                src/future/core/AbstractSimpleFilter.cpp \
                src/future/core/AbstractFilter.cpp \
                src/future/core/ProjectConfigPage.cpp \

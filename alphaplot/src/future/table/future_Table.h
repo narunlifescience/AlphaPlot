@@ -164,6 +164,10 @@ class Table : public AbstractPart
   int columnCount(AlphaPlot::PlotDesignation pd) const;
   //! Return column number 'index'
   Column *column(int index) const;
+  //! Return current (i.e. last clicked) column
+  Column *currentColumn() const;
+  //! Set current (i.e. last clicked) column
+  bool setCurrentColumn(int index);
   //! Return the column determined by the given name
   /**
    * This method should not be used unless absolutely necessary.
@@ -518,7 +522,11 @@ class Table : public AbstractPart
   */
 class Table::Private {
  public:
-  Private(Table *owner) : d_owner(owner), d_column_count(0), d_row_count(0) {}
+  Private(Table *owner)
+      : d_owner(owner),
+        d_column_count(0),
+        d_row_count(0),
+        d_current_column{-1} {}
   //! Replace columns completely
   /**
    * \param first the first column to be replaced
@@ -561,6 +569,10 @@ class Table::Private {
   int numColsWithPD(AlphaPlot::PlotDesignation pd);
   //! Return column number 'index'
   Column *column(int index) const;
+  //! Return current (i.e. last clicked) column
+  Column *currentColumn() const;
+  //! Set current (i.e. last clicked) column
+  bool setCurrentColumn(int index);
   //! Return the index of the given column in the table.
   /**
    * \return the index or -1 if the column is not in the table
@@ -612,6 +624,8 @@ class Table::Private {
   void composeColumnHeader(int col, const QString &label);
   //! Columns widths
   QList<int> d_column_widths;
+  //! Index of last activated column
+  int d_current_column;
 };
 
 }  // namespace future

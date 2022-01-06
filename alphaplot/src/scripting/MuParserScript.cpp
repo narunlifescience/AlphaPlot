@@ -788,7 +788,7 @@ bool MuParserScript::compile(bool asFunction) {
     intermediate.remove(commentStart, intermediate.size() - commentStart);
 
   // simplify statement separators
-  intermediate.replace(QRegExp("([;\\n]\\s*)+"), "; ");
+  intermediate.replace(QRegExp("([;\\n]\\s*)+"), ", ");
 
   // recursively translate legacy functions col(), tablecol() and cell()
   if (Context && Context->inherits("Table"))

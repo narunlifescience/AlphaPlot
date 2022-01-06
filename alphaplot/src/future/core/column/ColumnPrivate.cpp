@@ -90,6 +90,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
     case AlphaPlot::DateTime:
       d_input_filter = new String2DateTimeFilter();
       d_output_filter = new DateTime2StringFilter();
+      d_numeric_datetime_filter.reset(new NumericDateTimeBaseFilter());
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
               SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
       d_data_type = AlphaPlot::TypeDateTime;
@@ -158,6 +159,7 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnDataType type,
     case AlphaPlot::DateTime:
       d_input_filter = new String2DateTimeFilter();
       d_output_filter = new DateTime2StringFilter();
+      d_numeric_datetime_filter.reset(new NumericDateTimeBaseFilter());
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
               SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
       break;
@@ -210,171 +212,29 @@ Column::Private::~Private() {
   }  // switch(d_data_type)
 }
 
-void Column::Private::setColumnMode(const AlphaPlot::ColumnMode mode,
-                                    AbstractFilter* filter) {
-  if (mode == d_column_mode) return;
-  if (columnModeLock() == true) return;
-
+void Column::Private::setColumnMode(const AlphaPlot::ColumnMode new_mode,
+                                    AbstractFilter* converter) {
+  const auto& old_mode = d_column_mode;
+  if (new_mode == old_mode) return;
   void* old_data = d_data;
   // remark: the deletion of the old data will be done in the dtor of a command
 
   AbstractSimpleFilter *new_in_filter, *new_out_filter;
-  bool filter_is_temporary;  // it can also become outputFilter(), which we may
-                             // not delete here
-  Column* temp_col = 0;
-  if (filter) filter_is_temporary = false;
+  bool filter_is_temporary{
+      true};  // it can also become outputFilter(), which we may not delete here
+  QScopedPointer<Column> temp_col;
+
+  if (nullptr != converter) filter_is_temporary = false;
 
   emit d_owner->modeAboutToChange(d_owner);
-
-  // determine the conversion filter and allocate the new data vector
-  switch (d_column_mode) {
-    case AlphaPlot::Numeric:
-      disconnect(static_cast<Double2StringFilter*>(d_output_filter),
-                 SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
-      switch (mode) {
-        case AlphaPlot::Numeric:
-          break;
-        case AlphaPlot::Text:
-          if (!filter) {
-            filter = outputFilter();
-            filter_is_temporary = false;
-          }
-          temp_col =
-              new Column("temp_col", *(static_cast<QVector<qreal>*>(old_data)),
-                         d_validity);
-          d_data = new QStringList();
-          d_data_type = AlphaPlot::TypeString;
-          break;
-        case AlphaPlot::DateTime:
-          if (!filter) {
-            filter = new Double2DateTimeFilter();
-            filter_is_temporary = true;
-          }
-          temp_col =
-              new Column("temp_col", *(static_cast<QVector<qreal>*>(old_data)),
-                         d_validity);
-          d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeDateTime;
-          break;
-        case AlphaPlot::Month:
-          if (!filter) {
-            filter = new Double2MonthFilter();
-            filter_is_temporary = true;
-          }
-          temp_col =
-              new Column("temp_col", *(static_cast<QVector<qreal>*>(old_data)),
-                         d_validity);
-          d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeDateTime;
-          break;
-        case AlphaPlot::Day:
-          if (!filter) {
-            filter = new Double2DayOfWeekFilter();
-            filter_is_temporary = true;
-          }
-          temp_col =
-              new Column("temp_col", *(static_cast<QVector<qreal>*>(old_data)),
-                         d_validity);
-          d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeDateTime;
-          break;
-      }  // switch(mode)
-      break;
-
-    case AlphaPlot::Text:
-      switch (mode) {
-        case AlphaPlot::Text:
-          break;
-        case AlphaPlot::Numeric:
-          if (!filter) {
-            filter = new String2DoubleFilter();
-            filter_is_temporary = true;
-          }
-          temp_col = new Column(
-              "temp_col", *(static_cast<QStringList*>(old_data)), d_validity);
-          d_data = new QVector<double>();
-          d_data_type = AlphaPlot::TypeDouble;
-          break;
-        case AlphaPlot::DateTime:
-          if (!filter) {
-            filter = new String2DateTimeFilter();
-            filter_is_temporary = true;
-          }
-          temp_col = new Column(
-              "temp_col", *(static_cast<QStringList*>(old_data)), d_validity);
-          d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeDateTime;
-          break;
-        case AlphaPlot::Month:
-          if (!filter) {
-            filter = new String2MonthFilter();
-            filter_is_temporary = true;
-          }
-          temp_col = new Column(
-              "temp_col", *(static_cast<QStringList*>(old_data)), d_validity);
-          d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeDateTime;
-          break;
-        case AlphaPlot::Day:
-          if (!filter) {
-            filter = new String2DayOfWeekFilter();
-            filter_is_temporary = true;
-          }
-          temp_col = new Column(
-              "temp_col", *(static_cast<QStringList*>(old_data)), d_validity);
-          d_data = new QList<QDateTime>();
-          d_data_type = AlphaPlot::TypeDateTime;
-          break;
-      }  // switch(mode)
-      break;
-
-    case AlphaPlot::DateTime:
-    case AlphaPlot::Month:
-    case AlphaPlot::Day:
-      disconnect(static_cast<DateTime2StringFilter*>(d_output_filter),
-                 SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
-      switch (mode) {
-        case AlphaPlot::DateTime:
-          break;
-        case AlphaPlot::Text:
-          if (!filter) {
-            filter = outputFilter();
-            filter_is_temporary = false;
-          }
-          temp_col = new Column("temp_col",
-                                *(static_cast<QList<QDateTime>*>(old_data)),
-                                d_validity);
-          d_data = new QStringList();
-          d_data_type = AlphaPlot::TypeString;
-          break;
-        case AlphaPlot::Numeric:
-          if (!filter) {
-            if (d_column_mode == AlphaPlot::Month)
-              filter = new Month2DoubleFilter();
-            else if (d_column_mode == AlphaPlot::Day)
-              filter = new DayOfWeek2DoubleFilter();
-            else
-              filter = new DateTime2DoubleFilter();
-            filter_is_temporary = true;
-          }
-          temp_col = new Column("temp_col",
-                                *(static_cast<QList<QDateTime>*>(old_data)),
-                                d_validity);
-          d_data = new QVector<double>();
-          d_data_type = AlphaPlot::TypeDouble;
-          break;
-        case AlphaPlot::Month:
-        case AlphaPlot::Day:
-          break;
-      }  // switch(mode)
-      break;
-  }
-
-  // determine the new input and output filters
-  switch (mode) {
-    case AlphaPlot::Numeric:
+  // prepare new d_data, d_data_type and filters
+  switch (new_mode) {
+    case AlphaPlot::ColumnMode::Numeric: {
+      d_data = new QVector<double>();
+      d_data_type = AlphaPlot::TypeDouble;
       new_in_filter = new String2DoubleFilter();
       new_out_filter = new Double2StringFilter();
+
 #ifdef LEGACY_CODE_0_2_x  // TODO: in a later version this must use the new
                           // global setting method
       {
@@ -386,39 +246,180 @@ void Column::Private::setColumnMode(const AlphaPlot::ColumnMode mode,
             ->setNumericFormat(settings.value("DefaultNumericFormat", 'f')
                                    .toChar()
                                    .toLatin1());
+        settings.endGroup();
       }
 #endif
       connect(static_cast<Double2StringFilter*>(new_out_filter),
               SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+      // if converter is not provided
+      if (nullptr == converter) {
+        switch (old_mode) {
+          case AlphaPlot::ColumnMode::Text:
+            converter = new String2DoubleFilter();
+            break;
+          case AlphaPlot::ColumnMode::Month:
+            converter = new Month2DoubleFilter();
+            break;
+          case AlphaPlot::ColumnMode::Day:
+            converter = new DayOfWeek2DoubleFilter();
+            break;
+          case AlphaPlot::ColumnMode::DateTime:
+            // use existing (or default) converter to get reciprocal converter
+            converter = new DateTime2DoubleFilter(*getNumericDateTimeFilter());
+            break;
+          case AlphaPlot::ColumnMode::Numeric:
+            throw("Unreachable line is reached in ColumnPrivate.cpp!");
+        }
+      }
       break;
-    case AlphaPlot::Text:
+    }
+    case AlphaPlot::ColumnMode::Text: {
+      d_data = new QStringList();
+      d_data_type = AlphaPlot::TypeString;
       new_in_filter = new SimpleCopyThroughFilter();
       new_out_filter = new SimpleCopyThroughFilter();
+      if (nullptr == converter) {
+        converter = outputFilter();
+        filter_is_temporary = false;
+      }
       break;
-    case AlphaPlot::DateTime:
+    }
+    case AlphaPlot::ColumnMode::DateTime: {
       new_in_filter = new String2DateTimeFilter();
       new_out_filter = new DateTime2StringFilter();
+      d_numeric_datetime_filter.reset(new NumericDateTimeBaseFilter());
+      if ((AlphaPlot::ColumnMode::DateTime != old_mode) &&
+          (AlphaPlot::ColumnMode::Month != old_mode) &&
+          (AlphaPlot::ColumnMode::Day != old_mode)) {
+        d_data = new QList<QDateTime>();
+        d_data_type = AlphaPlot::TypeDateTime;
+      }
       connect(static_cast<DateTime2StringFilter*>(new_out_filter),
               SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+      if (nullptr == converter) {
+        switch (old_mode) {
+          case AlphaPlot::ColumnMode::Numeric:
+            // use existing (or default) converter to get reciprocal converter
+            converter = new Double2DateTimeFilter(*getNumericDateTimeFilter());
+            break;
+          case AlphaPlot::ColumnMode::Text:
+            converter = new String2DateTimeFilter();
+            break;
+          case AlphaPlot::ColumnMode::Month:
+            break;
+          case AlphaPlot::ColumnMode::Day:
+            break;
+          case AlphaPlot::ColumnMode::DateTime:
+            throw("Unreachable line is reached in ColumnPrivate.cpp!");
+        }
+      }
+      // converter is provided, need to store for possible double -> datetime
+      // conversion later
+      else if (old_mode == AlphaPlot::ColumnMode::Numeric) {
+        auto numeric_datetime_converter =
+            reinterpret_cast<NumericDateTimeBaseFilter*>(converter);
+        if (nullptr != numeric_datetime_converter)
+          // the ownership of converter is not taken, copy is stored
+          setNumericDateTimeFilter(
+              new NumericDateTimeBaseFilter(*numeric_datetime_converter));
+      }
       break;
-    case AlphaPlot::Month:
+    }
+    case AlphaPlot::ColumnMode::Month: {
       new_in_filter = new String2MonthFilter();
       new_out_filter = new DateTime2StringFilter();
+      if ((AlphaPlot::ColumnMode::DateTime != old_mode) &&
+          (AlphaPlot::ColumnMode::Month != old_mode) &&
+          (AlphaPlot::ColumnMode::Day != old_mode)) {
+        d_data = new QList<QDateTime>();
+        d_data_type = AlphaPlot::TypeDateTime;
+      }
       static_cast<DateTime2StringFilter*>(new_out_filter)->setFormat("MMMM");
       connect(static_cast<DateTime2StringFilter*>(new_out_filter),
               SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+      if (nullptr == converter) {
+        switch (old_mode) {
+          case AlphaPlot::ColumnMode::Numeric:
+            converter = new Double2MonthFilter();
+            break;
+          case AlphaPlot::ColumnMode::Text:
+            converter = new String2MonthFilter();
+            break;
+          case AlphaPlot::ColumnMode::Month:
+            throw("Unreachable line is reached in ColumnPrivate.cpp!");
+          case AlphaPlot::ColumnMode::DateTime:
+            break;
+          case AlphaPlot::ColumnMode::Day:
+            break;
+        }
+      }
       break;
-    case AlphaPlot::Day:
+    }
+    case AlphaPlot::ColumnMode::Day: {
       new_in_filter = new String2DayOfWeekFilter();
       new_out_filter = new DateTime2StringFilter();
+      if ((AlphaPlot::ColumnMode::DateTime != old_mode) &&
+          (AlphaPlot::ColumnMode::Month != old_mode) &&
+          (AlphaPlot::ColumnMode::Day != old_mode)) {
+        d_data = new QList<QDateTime>();
+        d_data_type = AlphaPlot::TypeDateTime;
+      }
       static_cast<DateTime2StringFilter*>(new_out_filter)->setFormat("dddd");
       connect(static_cast<DateTime2StringFilter*>(new_out_filter),
               SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+      if (nullptr == converter) {
+        switch (old_mode) {
+          case AlphaPlot::ColumnMode::Numeric:
+            converter = new Double2DayOfWeekFilter();
+            break;
+          case AlphaPlot::ColumnMode::Text:
+            converter = new String2DayOfWeekFilter();
+            break;
+          case AlphaPlot::ColumnMode::Month:
+            break;
+          case AlphaPlot::ColumnMode::DateTime:
+            break;
+          case AlphaPlot::ColumnMode::Day:
+            throw("Unreachable line is reached in ColumnPrivate.cpp!");
+        }
+      }
       break;
-  }  // switch(mode)
+    }
+    default:
+      qDebug() << "Switching column to an invalid mode!";
+      return;
+  }
 
-  d_column_mode = mode;
+  // prepare temporary data
+  switch (old_mode) {
+    case AlphaPlot::ColumnMode::Numeric: {
+      disconnect(static_cast<Double2StringFilter*>(d_output_filter),
+                 SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+      temp_col.reset(new Column(
+          "temp_col", *(static_cast<QVector<qreal>*>(old_data)), d_validity));
+      break;
+    }
+    case AlphaPlot::ColumnMode::Text: {
+      temp_col.reset(new Column(
+          "temp_col", *(static_cast<QStringList*>(old_data)), d_validity));
+      break;
+    }
+    case AlphaPlot::ColumnMode::DateTime:  // fallthrough intended
+    case AlphaPlot::ColumnMode::Month:
+    case AlphaPlot::ColumnMode::Day: {
+      disconnect(static_cast<DateTime2StringFilter*>(d_output_filter),
+                 SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+      if ((AlphaPlot::ColumnMode::DateTime != new_mode) &&
+          (AlphaPlot::ColumnMode::Month != new_mode) &&
+          (AlphaPlot::ColumnMode::Day != new_mode))
+        temp_col.reset(new Column("temp_col",
+                                  *(static_cast<QList<QDateTime>*>(old_data)),
+                                  d_validity));
+      break;
+    }
+  }
 
+  d_column_mode = new_mode;
   new_in_filter->setName("InputFilter");
   new_out_filter->setName("OutputFilter");
   d_input_filter = new_in_filter;
@@ -430,14 +431,12 @@ void Column::Private::setColumnMode(const AlphaPlot::ColumnMode mode,
                  // changed
   {
     // copy the filtered, i.e. converted, column
-    filter->input(0, temp_col);
-    copy(filter->output(0));
-    delete temp_col;
-
-    if (filter_is_temporary) delete filter;
+    converter->input(0, temp_col.data());
+    copy(converter->output(0));
   }
 
   emit d_owner->modeChanged(d_owner);
+  if (filter_is_temporary) delete converter;
 }
 
 void Column::Private::setColumnModeLock(const bool lock) {
@@ -971,6 +970,15 @@ void Column::Private::replaceValues(int first,
   for (int i = 0; i < num_rows; i++) ptr[first + i] = new_values.at(i);
   d_validity.setValue(Interval<int>(first, first + num_rows - 1), false);
   emit d_owner->dataChanged(d_owner);
+}
+
+NumericDateTimeBaseFilter* Column::Private::getNumericDateTimeFilter() {
+  return d_numeric_datetime_filter.data();
+}
+
+void Column::Private::setNumericDateTimeFilter(
+    NumericDateTimeBaseFilter* const newFilter) {
+  d_numeric_datetime_filter.reset(newFilter);
 }
 
 void Column::Private::replaceMasking(IntervalAttribute<bool> masking) {

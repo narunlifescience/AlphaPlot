@@ -28,11 +28,13 @@
  *                                                                         *
  ***************************************************************************/
 #include "String2DateTimeFilter.h"
+
 #include <QStringList>
 #include <QXmlStreamWriter>
+
 #include "lib/XmlStreamReader.h"
 
-const char *String2DateTimeFilter::date_formats[] = {
+const QStringList String2DateTimeFilter::date_formats = {
     "yyyy-M-d",  // ISO 8601 w/ and w/o leading zeros
     "yyyy/M/d",
     "d/M/yyyy",  // European style day/month order (this order seems to be used
@@ -41,11 +43,11 @@ const char *String2DateTimeFilter::date_formats[] = {
     "d.M.yyyy",  // German style
     "d.M.yy", "M/yyyy",
     "d.M.",  // German form w/o year
-    "yyyyMMdd", 0};
+    "yyyyMMdd"};
 
-const char *String2DateTimeFilter::time_formats[] = {
+const QStringList String2DateTimeFilter::time_formats = {
     "h",           "h ap",        "h:mm",      "h:mm ap", "h:mm:ss",
-    "h:mm:ss.zzz", "h:mm:ss:zzz", "mm:ss.zzz", "hmmss",   0};
+    "h:mm:ss.zzz", "h:mm:ss:zzz", "mm:ss.zzz", "hmmss"};
 
 QDateTime String2DateTimeFilter::dateTimeAt(int row) const {
   if (!d_inputs.value(0)) return QDateTime();
@@ -78,13 +80,14 @@ QDateTime String2DateTimeFilter::dateTimeAt(int row) const {
     time_string = date_string;
 
   // try to find a valid date
-  for (const char **format = date_formats; *format != 0; format++) {
-    date_result = QDate::fromString(date_string, *format);
+  for (const auto &format : date_formats) {
+    date_result = QDate::fromString(date_string, format);
     if (date_result.isValid()) break;
   }
+
   // try to find a valid time
-  for (const char **format = time_formats; *format != 0; format++) {
-    time_result = QTime::fromString(time_string, *format);
+  for (const auto &format : time_formats) {
+    time_result = QTime::fromString(time_string, format);
     if (time_result.isValid()) break;
   }
 
@@ -121,8 +124,7 @@ String2DateTimeFilterSetFormatCmd::String2DateTimeFilterSetFormatCmd(
     : d_target(target), d_other_format(new_format) {
   if (d_target->parentAspect())
     setText(QObject::tr("%1: set date-time format to %2")
-                .arg(d_target->parentAspect()->name())
-                .arg(new_format));
+                .arg(d_target->parentAspect()->name(), new_format));
   else
     setText(QObject::tr("set date-time format to %1").arg(new_format));
 }

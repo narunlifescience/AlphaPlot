@@ -31,8 +31,10 @@
 #define COLUMNPRIVATE_H
 
 #include <QObject>
+#include <QScopedPointer>
 
 #include "core/column/Column.h"
+#include "future/core/datatypes/NumericDateTimeBaseFilter.h"
 #include "lib/IntervalAttribute.h"
 class AbstractSimpleFilter;
 class QString;
@@ -72,8 +74,8 @@ class Column::Private {
    * Remark: setting the mode back to undefined (the
    * initial value) is not supported.
    */
-  void setColumnMode(const AlphaPlot::ColumnMode mode,
-                     AbstractFilter* conversion_filter);
+  void setColumnMode(const AlphaPlot::ColumnMode new_mode,
+                     AbstractFilter* converter);
   void setColumnModeLock(const bool lock);
 
   //! Copy another column of the same type
@@ -314,6 +316,11 @@ class Column::Private {
    */
   void replaceValues(int first, const QVector<qreal>& new_values);
   //@}
+  //! Get current conversion filter from DateTime to double
+  NumericDateTimeBaseFilter* getNumericDateTimeFilter();
+  //! Set current conversion filter from DateTime to double with taking an
+  //! ownership
+  void setNumericDateTimeFilter(NumericDateTimeBaseFilter* const newFilter);
 
  private:
   //! \name data members
@@ -340,6 +347,8 @@ class Column::Private {
   AbstractSimpleFilter* d_input_filter;
   //! The output filter (for data type -> string conversion)
   AbstractSimpleFilter* d_output_filter;
+  //! The filter for numeric <-> datetime conversion
+  QScopedPointer<NumericDateTimeBaseFilter> d_numeric_datetime_filter;
   IntervalAttribute<bool> d_validity;
   IntervalAttribute<bool> d_masking;
   IntervalAttribute<QString> d_formulas;

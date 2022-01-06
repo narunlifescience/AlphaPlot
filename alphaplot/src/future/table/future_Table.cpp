@@ -143,6 +143,14 @@ Column *Table::column(int index) const {
   return d_table_private->column(index);
 }
 
+Column *Table::currentColumn() const {
+  return d_table_private->currentColumn();
+}
+
+bool Table::setCurrentColumn(int index) {
+  return d_table_private->setCurrentColumn(index);
+}
+
 Column *Table::column(const QString &name, bool legacy_kludge) const {
   // TODO for 0.3.0: remove all name concatenation with _ in favor of Column *
   // pointers
@@ -364,9 +372,15 @@ void Table::copySelection() {
         } else if (col_ptr->dataType() == AlphaPlot::TypeDouble) {
           Double2StringFilter *out_fltr =
               static_cast<Double2StringFilter *>(col_ptr->outputFilter());
-          output_str += QLocale().toString(col_ptr->valueAt(first_row + r),
-                                           out_fltr->numericFormat(),
-                                           16);  // copy with max. precision
+          // create a copy of current locale
+          QLocale noSeparators;
+          // we do not need separators on output!
+          noSeparators.setNumberOptions(noSeparators.numberOptions() |
+                                        QLocale::OmitGroupSeparator);
+          // convert using modified locale
+          output_str += noSeparators.toString(col_ptr->valueAt(first_row + r),
+                                              out_fltr->numericFormat(),
+                                              16);  // copy with max. precision
         } else {
           output_str += text(first_row + r, first_col + c);
         }
@@ -2411,6 +2425,21 @@ void Table::initActionManager() {
 
 Column *Table::Private::column(int index) const {
   return d_columns.value(index);
+}
+
+Column *Table::Private::currentColumn() const {
+  if ((-1 < d_current_column) && (d_current_column < d_columns.size()))
+    return d_columns.value(d_current_column);
+  return nullptr;
+}
+
+bool Table::Private::setCurrentColumn(int index) {
+  if ((-1 < index) && (index < d_columns.size())) {
+    d_current_column = index;
+    return true;
+  }
+  d_current_column = -1;
+  return false;
 }
 
 void Table::Private::replaceColumns(int first, QList<Column *> new_cols) {
