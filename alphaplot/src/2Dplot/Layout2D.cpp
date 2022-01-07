@@ -771,12 +771,9 @@ AxisRect2D *Layout2D::addAxisRectItemAsAppropriate(Column *xcol,
       case AlphaPlot::ColumnDataType::TypeString:
         xtype = Axis2D::TickerType::Text;
         break;
-      case AlphaPlot::ColumnDataType::TypeDateTime: {
-        QString fmt = static_cast<DateTime2StringFilter *>(xcol->outputFilter())
-                          ->format();
-        (Utilities::isTimeFormat(fmt)) ? xtype = Axis2D::TickerType::Time
-                                       : xtype = Axis2D::TickerType::DateTime;
-      } break;
+      case AlphaPlot::ColumnDataType::TypeDateTime:
+        xtype = Axis2D::TickerType::DateTime;
+        break;
       case AlphaPlot::ColumnDataType::TypeMonth:
       case AlphaPlot::ColumnDataType::TypeDay:
         xtype = Axis2D::TickerType::DateTime;
@@ -807,14 +804,9 @@ AxisRect2D *Layout2D::addAxisRectItemAsAppropriate(Column *xcol,
             case AlphaPlot::ColumnDataType::TypeString:
               ytype = Axis2D::TickerType::Text;
               break;
-            case AlphaPlot::ColumnDataType::TypeDateTime: {
-              QString fmt = static_cast<DateTime2StringFilter *>(
-                                ycollist.at(0)->outputFilter())
-                                ->format();
-              (Utilities::isTimeFormat(fmt))
-                  ? ytype = Axis2D::TickerType::Time
-                  : ytype = Axis2D::TickerType::DateTime;
-            } break;
+            case AlphaPlot::ColumnDataType::TypeDateTime:
+              ytype = Axis2D::TickerType::DateTime;
+              break;
             case AlphaPlot::ColumnDataType::TypeMonth:
             case AlphaPlot::ColumnDataType::TypeDay:
               ytype = Axis2D::TickerType::DateTime;

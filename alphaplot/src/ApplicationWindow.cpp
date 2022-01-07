@@ -396,6 +396,11 @@ ApplicationWindow::ApplicationWindow()
   // Set icons for QActions
   loadIcons();
 
+  // disable time axis as all the features are available in datetime axis
+  ui_->actionLeftTime->setVisible(false);
+  ui_->actionBottomTime->setVisible(false);
+  ui_->actionRightTime->setVisible(false);
+  ui_->actionTopTime->setVisible(false);
   // QAction Connections
   // File menu
   connect(ui_->actionNewProject, SIGNAL(triggered()), this, SLOT(newAproj()));
@@ -5083,7 +5088,7 @@ void ApplicationWindow::integrate() {
       std::unique_ptr<IntDialog>(new IntDialog(this));
   // id->setAttribute(Qt::WA_DeleteOnClose);
   id->setAxisrect(axisrect);
-  id->show();
+  id->exec();
 }
 
 void ApplicationWindow::fitBoltzmannSigmoid() { analysis("fitSigmoidal"); }

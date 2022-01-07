@@ -345,13 +345,12 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
   QPoint globalPos = viewport()->mapToGlobal(pos);
   QMenu menu;
   QMenu cloneaxismenu;
+  bool menuavailable = true;
 
   switch (static_cast<PropertyItemType>(item->data(0, Qt::UserRole).toInt())) {
     case PropertyItemType::MyWidgetWindow:
       emit itemRootContextMenuRequested();
       return;
-      break;
-    case PropertyItemType::Plot2DCanvas:
       break;
     case PropertyItemType::Plot2DLayout: {
       void *ptr1 = item->data(0, Qt::UserRole + 1).value<void *>();
@@ -515,9 +514,10 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       }
     } break;
     default:
+      menuavailable = false;
       break;
   }
-  menu.exec(globalPos);
+  if (menuavailable) menu.exec(globalPos);
 }
 
 void MyTreeWidget::reorderlegend() {

@@ -182,17 +182,16 @@ void IntDialog::accept() {
       if (stop > maxx) {
         // FIXME: I don't understand why this doesn't work for
         // FunctionCurves!!(Ion)
-        /*QMessageBox::warning((ApplicationWindow *)parent(), tr("Input error"),
-                tr("Please give a number smaller or equal to the maximum value
-        of X, for the upper limit.\n If you do not know that value, type max in
-        the box."));
+        QMessageBox::warning((ApplicationWindow *)parent(), tr("Input error"),
+                tr("Please give a number smaller or equal to the maximum value"
+        "of X, for the upper limit.\n If you do not know that value, type max "
+        "in the box."));
         boxEnd->clear();
         boxEnd->setFocus();
         return;
-        */
         boxEnd->setText(QString::number(maxx));
       }
-      if (stop < minx) {
+      if (start < minx) {
         QMessageBox::warning(
             app_, tr("Input error"),
             tr("Please give a number larger or equal to the minimum value of "

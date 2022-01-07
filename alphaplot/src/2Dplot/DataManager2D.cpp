@@ -55,10 +55,8 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
           QString fmt =
               static_cast<DateTime2StringFilter *>(xcol->outputFilter())
                   ->format();
-          (Utilities::isTimeFormat(fmt))
-              ? xdata = Utilities::timeToInt(xcol->dateTimeAt(row).time())
-              : xdata =
-                    QCPAxisTickerDateTime::dateTimeToKey(xcol->dateTimeAt(row));
+          xdata = QCPAxisTickerDateTime::dateTimeToKey(
+              Utilities::stripDateTimeToFormat(xcol->dateTimeAt(row), fmt));
         } break;
         case AlphaPlot::ColumnDataType::TypeString:
           xdata = i;
@@ -74,10 +72,8 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
           QString fmt =
               static_cast<DateTime2StringFilter *>(ycol->outputFilter())
                   ->format();
-          (Utilities::isTimeFormat(fmt))
-              ? ydata = Utilities::timeToInt(ycol->dateTimeAt(row).time())
-              : ydata =
-                    QCPAxisTickerDateTime::dateTimeToKey(ycol->dateTimeAt(row));
+          ydata = QCPAxisTickerDateTime::dateTimeToKey(
+              Utilities::stripDateTimeToFormat(ycol->dateTimeAt(row), fmt));
         } break;
         case AlphaPlot::ColumnDataType::TypeString:
           ydata = i;
@@ -177,10 +173,8 @@ void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
           QString fmt =
               static_cast<DateTime2StringFilter *>(xcol->outputFilter())
                   ->format();
-          (Utilities::isTimeFormat(fmt))
-              ? xdata = Utilities::timeToInt(xcol->dateTimeAt(row).time())
-              : xdata =
-                    QCPAxisTickerDateTime::dateTimeToKey(xcol->dateTimeAt(row));
+          xdata = QCPAxisTickerDateTime::dateTimeToKey(
+              Utilities::stripDateTimeToFormat(xcol->dateTimeAt(row), fmt));
         } break;
         case AlphaPlot::ColumnDataType::TypeString:
           xdata = i;
@@ -196,10 +190,8 @@ void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
           QString fmt =
               static_cast<DateTime2StringFilter *>(ycol->outputFilter())
                   ->format();
-          (Utilities::isTimeFormat(fmt))
-              ? ydata = Utilities::timeToInt(ycol->dateTimeAt(row).time())
-              : ydata =
-                    QCPAxisTickerDateTime::dateTimeToKey(ycol->dateTimeAt(row));
+          ydata = QCPAxisTickerDateTime::dateTimeToKey(
+              Utilities::stripDateTimeToFormat(ycol->dateTimeAt(row), fmt));
         } break;
         case AlphaPlot::ColumnDataType::TypeString:
           ydata = i;
@@ -298,10 +290,8 @@ void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
           QString fmt =
               static_cast<DateTime2StringFilter *>(xcolumn->outputFilter())
                   ->format();
-          (Utilities::isTimeFormat(fmt))
-              ? xdata = Utilities::timeToInt(xcolumn->dateTimeAt(row).time())
-              : xdata = QCPAxisTickerDateTime::dateTimeToKey(
-                    xcolumn->dateTimeAt(row));
+          xdata = QCPAxisTickerDateTime::dateTimeToKey(
+              Utilities::stripDateTimeToFormat(xcolumn->dateTimeAt(row), fmt));
         } break;
         case AlphaPlot::ColumnDataType::TypeString:
           xdata = i;
@@ -317,10 +307,8 @@ void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
           QString fmt =
               static_cast<DateTime2StringFilter *>(ycolumn->outputFilter())
                   ->format();
-          (Utilities::isTimeFormat(fmt))
-              ? ydata = Utilities::timeToInt(ycolumn->dateTimeAt(row).time())
-              : ydata = QCPAxisTickerDateTime::dateTimeToKey(
-                    ycolumn->dateTimeAt(row));
+          ydata = QCPAxisTickerDateTime::dateTimeToKey(
+              Utilities::stripDateTimeToFormat(ycolumn->dateTimeAt(row), fmt));
         } break;
         case AlphaPlot::ColumnDataType::TypeString:
           ydata = i;

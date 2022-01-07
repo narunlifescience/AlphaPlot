@@ -29,10 +29,14 @@ class Utilities {
   static QColor getRandColorGoldenRatio(const ColorPal &colpal);
   static QString splitstring(const QString &string);
   static QString joinstring(const QString &string);
-  static QString timeFormatConvertor(const QString &string);
-  static bool isTimeFormat(const QString &format);
-  static QTime intToTime(const int value, const QString &format);
-  static int timeToInt(const QTime &time);
+
+  static QDateTime stripDateTimeToFormat(const QDateTime &datetime,
+                                 const QString &format);
+  //static QString timeFormatConvertor(const QString &string);
+  //static bool isTimeFormat(const QString &format);
+  //static QTime intToTime(const int value, const QString &format);
+  //static int timeToInt(const QTime &time);
+
   static QImage convertToGrayScale(const QImage &srcImage);
   static QImage convertToGrayScaleFast(const QImage &srcImage);
 

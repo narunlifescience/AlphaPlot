@@ -185,11 +185,7 @@ Axis2D *AxisRect2D::addAxis2DifNeeded(Column *col) {
       tickertype = Axis2D::TickerType::Text;
       break;
     case AlphaPlot::ColumnDataType::TypeDateTime: {
-      QString fmt =
-          static_cast<DateTime2StringFilter *>(col->outputFilter())->format();
-      (Utilities::isTimeFormat(fmt))
-          ? tickertype = Axis2D::TickerType::Time
-          : tickertype = Axis2D::TickerType::DateTime;
+      tickertype = Axis2D::TickerType::DateTime;
     } break;
     case AlphaPlot::ColumnDataType::TypeMonth:
     case AlphaPlot::ColumnDataType::TypeDay:
