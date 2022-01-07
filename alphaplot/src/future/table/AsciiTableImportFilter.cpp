@@ -29,6 +29,7 @@
 
 #include "table/AsciiTableImportFilter.h"
 
+#include <QLocale>
 #include <QStringList>
 #include <QTextStream>
 #include <iostream>
@@ -88,14 +89,15 @@ struct AlphaPlotTextStream {
 };
 
 template <class C>
-C conv(const QString& x);
+C conv(const QString& x, const QLocale locale);
 template <>
-QString conv<QString>(const QString& x) {
+QString conv<QString>(const QString& x, const QLocale locale) {
+  Q_UNUSED(locale)
   return x;
 }
 template <>
-double conv<double>(const QString& x) {
-  return x.toDouble();
+double conv<double>(const QString& x, const QLocale locale) {
+  return locale.toDouble(x);
 }
 // we are not using float for now
 /*template <>
@@ -111,7 +113,7 @@ struct AP : public std::unique_ptr<T> {
 
 template <class C>
 void readCols(QList<Column*>& cols, AlphaPlotTextStream& stream,
-              bool readColNames) {
+              bool readColNames, QLocale locale) {
   QStringList row, column_names;
   int i = 0;
 
@@ -127,18 +129,21 @@ void readCols(QList<Column*>& cols, AlphaPlotTextStream& stream,
   else
     for (i = 0; i < row.size(); ++i) {
       column_names << QString::number(i + 1);
-      *data[i] << conv<typename C::value_type>(row[i]);
+      *data[i] << conv<typename C::value_type>(row[i], locale);
     }
 
   // read rest of data
   while (stream) {
     row = stream.readRow();
-    for (i = 0; i < row.size() && i < dataSize; ++i)
-      *data[i] << conv<typename C::value_type>(row[i]);
-    // some rows might have too few columns (re-use value of i from above loop)
-    for (; i < dataSize; ++i) {
-      invalid_cells[i].setValue(data[i]->size(), true);
-      *data[i] << conv<typename C::value_type>("");
+    if (stream || (row != QStringList(""))) {
+      for (i = 0; i < row.size() && i < dataSize; ++i)
+        *data[i] << conv<typename C::value_type>(row[i], locale);
+      // some rows might have too few columns (re-use value of i from above
+      // loop)
+      for (; i < dataSize; ++i) {
+        invalid_cells[i].setValue(data[i]->size(), true);
+        *data[i] << conv<typename C::value_type>("", locale);
+      }
     }
   }
 
@@ -167,9 +172,11 @@ AbstractAspect* AsciiTableImportFilter::importAspect(QIODevice& input) {
   // build a Table from the gathered data
   QList<Column*> cols;
   if (d_convert_to_numeric)
-    readCols<QVector<qreal> >(cols, stream, d_first_row_names_columns);
+    readCols<QVector<qreal> >(cols, stream, d_first_row_names_columns,
+                              d_numeric_locale);
   else
-    readCols<QStringList>(cols, stream, d_first_row_names_columns);
+    readCols<QStringList>(cols, stream, d_first_row_names_columns,
+                          d_numeric_locale);
 
   // renaming will be done by the kernel
   future::Table* result = new future::Table(0, 0, 0, tr("Table"));

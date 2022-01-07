@@ -2071,11 +2071,7 @@ void Table::sortColumns(Column *leading, QList<Column *> cols, bool ascending) {
 }  // end of sortColumns()
 
 QIcon Table::icon() const {
-  QIcon ico;
-  ico.addPixmap(QPixmap(":/16x16/table.png"));
-  ico.addPixmap(QPixmap(":/24x24/table.png"));
-  ico.addPixmap(QPixmap(":/32x32/table.png"));
-  return ico;
+  return IconLoader::load("table", IconLoader::LightDark);
 }
 
 QString Table::text(int row, int col) {

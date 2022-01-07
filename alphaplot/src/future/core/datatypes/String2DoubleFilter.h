@@ -29,58 +29,56 @@
 #ifndef STRING2DOUBLE_FILTER_H
 #define STRING2DOUBLE_FILTER_H
 
-#include "../AbstractSimpleFilter.h"
 #include <QLocale>
-#include "lib/XmlStreamReader.h"
 #include <QXmlStreamWriter>
 #include <QtDebug>
+#include <QSettings>
+
+#include "../AbstractSimpleFilter.h"
+#include "lib/XmlStreamReader.h"
 
 //! Locale-aware conversion filter QString -> double.
 class String2DoubleFilter : public AbstractSimpleFilter {
   Q_OBJECT
 
  public:
-  String2DoubleFilter() : d_use_default_locale(true) {}
-  void setNumericLocale(QLocale locale) {
-    d_numeric_locale = locale;
-    d_use_default_locale = false;
-  }
-  void setNumericLocaleToDefault() { d_use_default_locale = true; }
-
+  String2DoubleFilter() {}
   virtual double valueAt(int row) const {
     if (!d_inputs.value(0)) return 0;
-    if (d_use_default_locale)  // we need a new QLocale instance here in case
-                               // the default changed since the last call
-      return QLocale().toDouble(d_inputs.value(0)->textAt(row));
-    return d_numeric_locale.toDouble(d_inputs.value(0)->textAt(row));
+    double val = std::numeric_limits<double>::quiet_NaN();
+    convertToDouble(d_inputs.value(0)->textAt(row), val);
+    return val;
   }
   virtual bool isInvalid(int row) const {
     if (!d_inputs.value(0)) return false;
-    bool ok;
-    if (d_use_default_locale)
-      QLocale().toDouble(d_inputs.value(0)->textAt(row), &ok);
-    else
-      d_numeric_locale.toDouble(d_inputs.value(0)->textAt(row), &ok);
-    return !ok;
+    double val = std::numeric_limits<double>::quiet_NaN();
+    return !convertToDouble(d_inputs.value(0)->textAt(row), val);
   }
   virtual bool isInvalid(Interval<int> i) const {
     if (!d_inputs.value(0)) return false;
-    QLocale locale;
-    if (!d_use_default_locale) locale = d_numeric_locale;
+    double val = std::numeric_limits<double>::quiet_NaN();
+    QLocale locale = getLocale();
+    bool allowForeignSeparator = isAnyDecimalSeparatorAllowed();
     for (int row = i.start(); row <= i.end(); row++) {
-      bool ok;
-      locale.toDouble(d_inputs.value(0)->textAt(row), &ok);
-      if (ok) return false;
+      if (convertToDouble(d_inputs.value(0)->textAt(row), val, locale,
+                          allowForeignSeparator))
+        return false;
     }
     return true;
   }
-  virtual QList<Interval<int> > invalidIntervals() const {
+  virtual QList<Interval<int>> invalidIntervals() const {
     IntervalAttribute<bool> validity;
     if (d_inputs.value(0)) {
       int rows = d_inputs.value(0)->rowCount();
       for (int i = 0; i < rows; i++) validity.setValue(i, isInvalid(i));
     }
     return validity.intervals();
+  }
+
+  //! Checks if it is possible to convert an input QString to number
+  bool isInvalid(const QString &str) const {
+    double val = std::numeric_limits<double>::quiet_NaN();
+    return !convertToDouble(str, val);
   }
 
   //! Return the data type of the column
@@ -95,8 +93,42 @@ class String2DoubleFilter : public AbstractSimpleFilter {
   }
 
  private:
-  QLocale d_numeric_locale;
-  bool d_use_default_locale;
+  QLocale getLocale() const {
+    return QLocale();  // new QLocale instance in case it was changed between
+                       // calls
+  }
+
+  bool isAnyDecimalSeparatorAllowed() const {
+    QSettings settings;
+    settings.beginGroup("General");
+    return settings.value("LocaleUseGroupSeparator").toBool();
+  }
+
+  // convenience overload
+  bool convertToDouble(const QString &str, double &value) const {
+    return convertToDouble(str, value, getLocale(),
+                           isAnyDecimalSeparatorAllowed());
+  }
+
+  bool convertToDouble(const QString &str, double &value, const QLocale &locale,
+                       const bool accept_any_decimal_separator) const {
+    bool ok;
+    auto tstr = QString(str);
+    if (accept_any_decimal_separator) {
+      QChar decimalSeparator =
+          locale.decimalPoint();  // get the decimal separator for this locale
+      QChar foreignSeparator =
+          decimalSeparator;  // safeguard initialization just in case
+                             // there are other decimal separators.
+      if ('.' == decimalSeparator) foreignSeparator = ',';
+      if (',' == decimalSeparator) foreignSeparator = '.';
+
+      tstr.replace(foreignSeparator, decimalSeparator);
+    }
+    value = locale.toDouble(tstr, &ok);
+
+    return ok;
+  }
 };
 
 #endif  // STRING2DOUBLE_FILTER_H

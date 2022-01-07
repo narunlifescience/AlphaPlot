@@ -139,10 +139,31 @@ QPair<double, double> PickerTool2D::getRangePickerUpper() const {
 void PickerTool2D::showtooltip(const QPointF position, const double xval,
                                const double yval, Axis2D *xaxis,
                                Axis2D *yaxis) {
+  QString xvalstring, yvalstring;
+  switch (xaxis->gettickertype_axis()) {
+    case Axis2D::TickerType::DateTime: {
+      QSharedPointer<QCPAxisTickerDateTime> datetimeticker =
+          qSharedPointerCast<QCPAxisTickerDateTime>(xaxis->getticker_axis());
+      xvalstring = QCPAxisTickerDateTime::keyToDateTime(xval).toString(
+          datetimeticker->dateTimeFormat());
+    } break;
+    default:
+      xvalstring = QString::number(xval);
+  }
+  switch (yaxis->gettickertype_axis()) {
+    case Axis2D::TickerType::DateTime: {
+      QSharedPointer<QCPAxisTickerDateTime> datetimeticker =
+          qSharedPointerCast<QCPAxisTickerDateTime>(xaxis->getticker_axis());
+      yvalstring = QCPAxisTickerDateTime::keyToDateTime(yval).toString(
+          datetimeticker->dateTimeFormat());
+    } break;
+    default:
+      yvalstring = QString::number(yval);
+  }
   QToolTip::showText(
       layout_->mapToGlobal(QPoint(static_cast<int>(position.x()),
                                   static_cast<int>(position.y()))),
-      QString::number(xval) + ", " + QString::number(yval));
+      xvalstring + ", " + yvalstring);
   xpickerline_->setPen(QPen(Qt::red, 1));
   ypickerline_->setPen(QPen(Qt::red, 1));
   xpickerline_->setAntialiased(false);
@@ -163,7 +184,8 @@ void PickerTool2D::showtooltip(const QPointF position, const double xval,
   ypickerline_->setClipToAxisRect(true);
   ypickerline_->position("point1")->setCoords(xaxis->range().lower, yval);
   ypickerline_->position("point2")->setCoords(xaxis->range().upper, yval);
-  layout_->streachLabelSetText(QString(" x=%1 y=%2").arg(xval).arg(yval));
+  layout_->streachLabelSetText(
+      QString(" x=%1 y=%2").arg(xvalstring, yvalstring));
 }
 
 void PickerTool2D::movepickermouspresscurve(Curve2D *curve, const double xval,
@@ -274,7 +296,7 @@ void PickerTool2D::movepickermouserelease(const QPointF position) {
 }
 
 void PickerTool2D::rangepickermousepress(Curve2D *curve, const double xval,
-                                       const double yval) {
+                                         const double yval) {
   if (curve == rangepicker_.curve &&
       ((xval == rangepicker_.lowerx && yval == rangepicker_.lowery) ||
        (xval == rangepicker_.upperx && yval == rangepicker_.uppery))) {
@@ -288,8 +310,8 @@ void PickerTool2D::rangepickermousepress(Curve2D *curve, const double xval,
     rangepicker_.active = false;
 }
 
-void PickerTool2D::rangepickermousedrag(const QPointF &position, const double xval,
-                                     const double yval) {
+void PickerTool2D::rangepickermousedrag(const QPointF &position,
+                                        const double xval, const double yval) {
   Q_UNUSED(position);
   if (!rangepicker_.active || !rangepicker_.line) return;
   moveLineEllipseItenTo(xval, yval, false);

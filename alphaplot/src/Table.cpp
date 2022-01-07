@@ -71,10 +71,10 @@ Table::Table(ScriptingEnv *env, const QString &fname, const QString &sep,
   filter.set_simplify_whitespace(simplifySpaces);
   filter.set_convert_to_numeric(convertToNumeric);
   filter.set_numeric_locale(numericLocale);
-
+  qDebug() << ignoredLines << sep << convertToNumeric << numericLocale;
   QFile file(fname);
   if (file.open(QIODevice::ReadOnly)) {
-    d_future_table = static_cast<future::Table *>(filter.importAspect(file));
+    d_future_table = qobject_cast<future::Table *>(filter.importAspect(file));
     if (!d_future_table)
       d_future_table = new future::Table(0, 0, 0, label);
     else

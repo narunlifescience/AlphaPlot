@@ -2987,7 +2987,7 @@ void ApplicationWindow::importASCII(const QStringList &files, int import_mode,
     QStringList sorted_files = files;
     sorted_files.sort();
     for (int i = 0; i < sorted_files.size(); i++) {
-      Table *w = newTable(sorted_files[i], local_column_separator,
+      Table *w = newTable(sorted_files.at(i), local_column_separator,
                           local_ignored_lines, local_rename_columns,
                           local_strip_spaces, local_simplify_spaces,
                           local_convert_to_numeric, local_numeric_locale);
@@ -5839,6 +5839,7 @@ void ApplicationWindow::dragEnterEvent(QDragEnterEvent *event) {
 }
 
 void ApplicationWindow::closeEvent(QCloseEvent *event) {
+  saved = false;
   if (!saved) {
     switch (QMessageBox::information(
         this, tr("AlphaPlot"),

@@ -284,6 +284,7 @@ QString Utilities::timeFormatConvertor(const QString& string) {
 }
 
 bool Utilities::isTimeFormat(const QString& format) {
+  return false;
   bool status = false;
   if (!format.contains("d", Qt::CaseSensitive) ||
       !format.contains("M", Qt::CaseSensitive) ||
