@@ -233,11 +233,11 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   doubleManager_->setMaximum(axispropertyfromitem_,
                              std::numeric_limits<double>::max());
   doubleManager_->setMinimum(axispropertyfromitem_,
-                             std::numeric_limits<double>::min());
+                             -std::numeric_limits<double>::max());
   doubleManager_->setMaximum(axispropertytoitem_,
                              std::numeric_limits<double>::max());
   doubleManager_->setMinimum(axispropertytoitem_,
-                             std::numeric_limits<double>::min());
+                             -std::numeric_limits<double>::max());
   axispropertyupperendingstyleitem_ =
       enumManager_->addProperty(tr("Upper Ending"));
   enumManager_->setEnumNames(axispropertyupperendingstyleitem_,
