@@ -94,10 +94,10 @@ void Filter::setDataCurve(PlotData::AssociatedData *associateddata,
 
   d_init_err = false;
   associateddata_ = associateddata;
-  //if (d_sort_data)
-    d_n = sortedCurveData(start, end, &d_x, &d_y);
-  //else
-    //d_n = curveData(start, end, &d_x, &d_y);
+  // if (d_sort_data)
+  d_n = sortedCurveData(start, end, &d_x, &d_y);
+  // else
+  // d_n = curveData(start, end, &d_x, &d_y);
 
   if (!isDataAcceptable()) {
     d_init_err = true;
@@ -221,12 +221,17 @@ int Filter::sortedCurveData(double start, double end, double **x, double **y) {
           new std::vector<std::pair<double, double>>);
   temp->reserve(datasize);
   for (int i = 0; i < datasize; i++) {
-    temp->push_back(std::pair<double, double>(
-        associateddata_->xcol->valueAt(i), associateddata_->ycol->valueAt(i)));
+    if (!associateddata_->xcol->isInvalid(i) &&
+        !associateddata_->ycol->isInvalid(i)) {
+      temp->push_back(
+          std::pair<double, double>(associateddata_->xcol->valueAt(i),
+                                    associateddata_->ycol->valueAt(i)));
+    }
   }
 
+  QString delta = QString("1.0E-%1").arg(d_prec);
   auto inside_range = [&](const std::pair<double, double> &x) {
-    return (x.first < start || x.first > end);
+    return (x.first < start - delta.toDouble() || x.first > end + delta.toDouble());
   };
 
   temp->erase(std::remove_if(temp->begin(), temp->end(), inside_range),
@@ -248,29 +253,6 @@ int Filter::sortedCurveData(double start, double end, double **x, double **y) {
 
   return datasize;
 }
-
-/*int Filter::curveData(double start, double end, double **x, double **y) {
-  if (!associateddata_) return 0;
-
-  int from = start - 1;
-  int to = end - 1;
-  int datasize = (to - from) + 1;
-  int i_start = from, i_end = to;
-  //for (i_start = from; i_start < datasize; i_start++)
-  //  if (associateddata_->xcol->valueAt(i_start) >= start) break;
-  //for (i_end = datasize - 1; i_end >= 0; i_end--)
-  //  if (associateddata_->xcol->valueAt(i_end) <= end) break;
-
-  int n = i_end - i_start + 1;
-  (*x) = new double[n];
-  (*y) = new double[n];
-
-  for (int j = 0, i = i_start; i <= i_end; i++, j++) {
-    (*x)[j] = associateddata_->xcol->valueAt(i);
-    (*y)[j] = associateddata_->ycol->valueAt(i);
-  }
-  return n;
-}*/
 
 Curve2D *Filter::addResultCurve(double *xdata, double *ydata) {
   const QString tableName = app_->generateUniqueName(this->objectName());

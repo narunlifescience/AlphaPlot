@@ -6429,7 +6429,7 @@ Curve2D *ApplicationWindow::addFunctionPlot(
         xlabel = "x";
         ylabel = formulas.at(0);
       }
-      label = "f(" + xlabel + "): " + ylabel;
+      label = "f(" + xlabel + "): " + ylabel.split("\n").last();
       // func data
       PlotData::FunctionData funcdata;
       funcdata.type = type;

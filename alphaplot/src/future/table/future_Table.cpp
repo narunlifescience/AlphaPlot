@@ -847,8 +847,12 @@ void Table::setSelectionAs(AlphaPlot::PlotDesignation pd) {
   beginMacro(QObject::tr("%1: set plot designation(s)").arg(name()));
 
   QList<Column *> list = d_view->selectedColumns();
-  foreach (Column *ptr, list)
-    ptr->setPlotDesignation(pd);
+  foreach (Column *ptr, list) {
+    if (ptr->columnModeLock() == false)
+      ptr->setPlotDesignation(pd);
+    else
+      emit columnModeLocked(ptr->name());
+  }
 
   endMacro();
   RESET_CURSOR;

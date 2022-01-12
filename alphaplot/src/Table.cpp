@@ -91,7 +91,7 @@ Table::Table(ScriptingEnv *env, int r, int c, const QString &label,
 }
 
 void Table::init() {
-  if(!d_future_table) return;
+  if (!d_future_table) return;
   TableView::setTable(d_future_table);
   setMinimumSize(QSize(400, 300));
 
@@ -116,10 +116,10 @@ void Table::init() {
       [&](const QString &name) {
         setColumnForControlTabs(colIndex(name));
         QMessageBox::warning(
-            nullptr, tr("Column Type Change Locked"),
+            nullptr, tr("Column Type/Flag Change Locked"),
             tr("This column %1 is associated with one or more plot(s). You "
-               "cannot change the column type while in use! Try removing the "
-               "plot and then changing the column type!")
+               "cannot change the column type/flag while in use! Try removing "
+               "the plot and then changing the column type/flag!")
                 .arg(name));
       });
   connect(ui.add_function_combobox, SIGNAL(currentIndexChanged(int)), this,
