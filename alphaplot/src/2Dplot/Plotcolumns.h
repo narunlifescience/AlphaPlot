@@ -1,13 +1,14 @@
 #ifndef PLOTCOLUMNS_H
 #define PLOTCOLUMNS_H
 #include <QList>
+
 #include "2Dplot/AxisRect2D.h"
-#include "2Dplot/LineSpecial2D.h"
 #include "2Dplot/Bar2D.h"
 #include "2Dplot/Curve2D.h"
+#include "2Dplot/LineSpecial2D.h"
 #include "DataManager2D.h"
-#include "future/core/column/Column.h"
 #include "Table.h"
+#include "future/core/column/Column.h"
 
 namespace PlotColumns {
 static QList<PlotData::AssociatedData *> plottedcolumns(AxisRect2D *axisrect) {
@@ -68,6 +69,13 @@ static QStringList getstringlistfromassociateddata(AxisRect2D *axisrect) {
                     associateddata->ycol->name();
   }
   return namelist;
+}
+
+static QString getstringfromassociateddata(
+    PlotData::AssociatedData *associateddata) {
+  return associateddata->table->name() + "_" + associateddata->xcol->name() +
+         "_" + associateddata->ycol->name();
+  ;
 }
 
 }  // namespace PlotColumns

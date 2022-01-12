@@ -51,7 +51,6 @@ class PolynomFitDialog : public QDialog {
   void fit();
   void setAxisRect(AxisRect2D* axisrect);
   void activateCurve(const QString& curveName);
-  void changeDataRange();
 
  private:
   AxisRect2D* axisrect_;

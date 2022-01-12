@@ -254,11 +254,13 @@ QColor Utilities::getRandColorGoldenRatio(const ColorPal& colpal) {
 QString Utilities::splitstring(const QString& string) {
   if (string.isEmpty()) return string;
 
+  // line break
   QStringList stringlist = string.split("<|>");
   QString final = stringlist.at(0);
   for (int i = 1; i < stringlist.count(); i++) {
     final += "\n" + stringlist.at(i);
   }
+
   return final;
 }
 

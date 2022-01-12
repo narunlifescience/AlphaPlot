@@ -27,11 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "PolynomFitDialog.h"
-#include "2Dplot/AxisRect2D.h"
-#include "2Dplot/Plotcolumns.h"
-#include "ApplicationWindow.h"
-#include "ColorBox.h"
-#include "PolynomialFit.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -42,6 +37,13 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSpinBox>
+
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/PickerTool2D.h"
+#include "2Dplot/Plotcolumns.h"
+#include "ApplicationWindow.h"
+#include "ColorBox.h"
+#include "PolynomialFit.h"
 
 PolynomFitDialog::PolynomFitDialog(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl), app_(qobject_cast<ApplicationWindow *>(parent)) {
@@ -94,8 +96,8 @@ PolynomFitDialog::PolynomFitDialog(QWidget *parent, Qt::WindowFlags fl)
   hlayout->addWidget(gb1);
   hlayout->addLayout(vl);
 
-  connect(buttonFit, SIGNAL(clicked()), this, SLOT(fit()));
-  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+  connect(buttonFit, &QPushButton::clicked, this, &PolynomFitDialog::fit);
+  connect(buttonCancel, &QPushButton::clicked, this, &PolynomFitDialog::reject);
   connect(boxName, SIGNAL(activated(const QString &)), this,
           SLOT(activateCurve(const QString &)));
 }
@@ -130,34 +132,56 @@ void PolynomFitDialog::fit() {
 void PolynomFitDialog::setAxisRect(AxisRect2D *axisrect) {
   axisrect_ = axisrect;
   boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
+  PickerTool2D *picker = axisrect_->getPickerTool();
+  if (picker) {
+    if (picker->getPicker() == Graph2DCommon::Picker::DataRange) {
+      Curve2D *curve = picker->getRangePickerCurve();
+      if (curve) {
+        QString cname = PlotColumns::getstringfromassociateddata(
+            curve->getdatablock_cplot()->getassociateddata());
+        boxName->setCurrentText(cname);
+      }
+    }
+  }
   activateCurve(boxName->currentText());
 }
 
 void PolynomFitDialog::activateCurve(const QString &curveName) {
-  Q_UNUSED(curveName);
+  if (!axisrect_) return;
   double start = 0;
   double end = 0;
   PlotData::AssociatedData *associateddata;
   associateddata =
       PlotColumns::getassociateddatafromstring(axisrect_, curveName);
   if (!associateddata) return;
+  xmin_ = associateddata->minmax.minx;
+  xmax_ = associateddata->minmax.maxx;
 
-  Column *col = associateddata->xcol;
-  xmin_ = col->valueAt(associateddata->from);
-  xmax_ = col->valueAt(associateddata->from);
-  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
-    double value = col->valueAt(i);
-    if (xmin_ > value) xmin_ = value;
-    if (xmax_ < value) xmax_ = value;
+  PickerTool2D *picker = axisrect_->getPickerTool();
+  if (!picker) {
+    qDebug() << "unable to get picker handle";
+    return;
+  }
+
+  bool setminmaxasstartend = true;
+  if (picker->getPicker() == Graph2DCommon::Picker::DataRange) {
+    Curve2D *curve = picker->getRangePickerCurve();
+    if (curve) {
+      QString cname = PlotColumns::getstringfromassociateddata(
+          curve->getdatablock_cplot()->getassociateddata());
+      if (cname == curveName) {
+        start = picker->getRangePickerLower().first;
+        end = picker->getRangePickerUpper().first;
+        setminmaxasstartend = false;
+      }
+    }
+  }
+
+  if (setminmaxasstartend) {
+    start = xmin_;
+    end = xmax_;
   }
 
   boxStart->setText(QString::number(start, 'g', 15));
   boxEnd->setText(QString::number(end, 'g', 15));
-}
-
-void PolynomFitDialog::changeDataRange() {
-  double start = xmin_;
-  double end = xmax_;
-  boxStart->setText(QString::number(std::min(start, end), 'g', 15));
-  boxEnd->setText(QString::number(std::max(start, end), 'g', 15));
 }

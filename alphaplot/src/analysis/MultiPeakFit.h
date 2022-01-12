@@ -51,18 +51,18 @@ class MultiPeakFit : public Fit {
   static QStringList generateExplanationList(int order);
 
  private:
-  QString logFitInfo(double *par, int iterations, int status,
-                     const QString &plotName);
-  void generateFitCurve(double *par);
+  QString logFitInfo(const std::vector<double> &par, int iterations, int status,
+                     const QString &plotName) override;
+  void generateFitCurve(const std::vector<double> &par) override;
   static QString peakFormula(int peakIndex, PeakProfile profile);
   //! Inserts a peak function curve into the plot
   void insertPeakFunctionCurve(double *x, double *y, int peak);
-  void storeCustomFitResults(double *par);
+  void storeCustomFitResults(const std::vector<double> &par) override;
 
   //! Used by the GaussFit and LorentzFit derived classes to calculate initial
   //! values for the parameters
  protected:
-  void guessInitialValues();
+  void guessInitialValues() override;
 
  private:
   //! Number of peaks
@@ -87,8 +87,8 @@ class LorentzFit : public MultiPeakFit {
   LorentzFit(ApplicationWindow *parent, AxisRect2D *axisrect,
              PlotData::AssociatedData *associateddata);
   LorentzFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-             PlotData::AssociatedData *associateddata,
-             double start, double end);
+             PlotData::AssociatedData *associateddata, double start,
+             double end);
 
  private:
   void init();
@@ -102,8 +102,7 @@ class GaussFit : public MultiPeakFit {
   GaussFit(ApplicationWindow *parent, AxisRect2D *axisrect,
            PlotData::AssociatedData *associateddata);
   GaussFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-           PlotData::AssociatedData *associateddata,
-           double start, double end);
+           PlotData::AssociatedData *associateddata, double start, double end);
 
  private:
   void init();
@@ -117,12 +116,13 @@ class GaussAmpFit : public Fit {
   GaussAmpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
               PlotData::AssociatedData *associateddata);
   GaussAmpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-              PlotData::AssociatedData *associateddata,
-              double start, double end);
+              PlotData::AssociatedData *associateddata, double start,
+              double end);
 
  private:
   void init();
-  void calculateFitCurveData(double *par, double *X, double *Y);
+  void calculateFitCurveData(const std::vector<double> &par, double *X,
+                             double *Y) override;
 };
 
 #endif  // MULTIPEAKFIT_H

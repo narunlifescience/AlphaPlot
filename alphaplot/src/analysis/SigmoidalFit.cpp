@@ -27,9 +27,10 @@
  *                                                                         *
  ***************************************************************************/
 #include "SigmoidalFit.h"
-#include "fit_gsl.h"
 
 #include <QMessageBox>
+
+#include "fit_gsl.h"
 
 SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect)
     : Fit(parent, axisrect) {
@@ -62,7 +63,7 @@ void SigmoidalFit::init() {
   d_param_init = gsl_vector_alloc(d_p);
   gsl_vector_set_all(d_param_init, 1.0);
   covar = gsl_matrix_alloc(d_p, d_p);
-  d_results = new double[d_p];
+  d_results.resize(d_p);
   d_param_explain << tr("(init value)") << tr("(final value)") << tr("(center)")
                   << tr("(time constant)");
   d_param_names << "A1"
@@ -73,7 +74,8 @@ void SigmoidalFit::init() {
   d_formula = "(A1-A2)/(1+exp((x-x0)/dx))+A2";
 }
 
-void SigmoidalFit::calculateFitCurveData(double *par, double *X, double *Y) {
+void SigmoidalFit::calculateFitCurveData(const std::vector<double> &par,
+                                         double *X, double *Y) {
   if (d_gen_function) {
     double X0 = d_x[0];
     double step = (d_x[d_n - 1] - X0) / (d_points - 1);

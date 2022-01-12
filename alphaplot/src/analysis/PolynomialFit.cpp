@@ -65,7 +65,7 @@ void PolynomialFit::init() {
   d_min_points = d_p;
 
   covar = gsl_matrix_alloc(static_cast<size_t>(d_p), static_cast<size_t>(d_p));
-  d_results = new double[static_cast<size_t>(d_p)];
+  d_results.resize(d_p);
 
   d_formula = generateFormula(d_order);
   d_param_names = generateParameterList(d_order);
@@ -91,7 +91,7 @@ QStringList PolynomialFit::generateParameterList(int order) {
   return lst;
 }
 
-void PolynomialFit::calculateFitCurveData(double *par, double *X, double *Y) {
+void PolynomialFit::calculateFitCurveData(const std::vector<double> &par, double *X, double *Y) {
   if (d_gen_function) {
     double X0 = d_x[0];
     double step = (d_x[d_n - 1] - X0) / (d_points - 1);
@@ -213,7 +213,7 @@ void LinearFit::init() {
   d_min_points = d_p;
 
   covar = gsl_matrix_alloc(static_cast<size_t>(d_p), static_cast<size_t>(d_p));
-  d_results = new double[static_cast<size_t>(d_p)];
+  d_results.resize(d_p);
 
   is_non_linear = false;
   d_formula = "A*x+B";
@@ -266,7 +266,7 @@ void LinearFit::fit() {
   generateFitCurve(d_results);
 }
 
-void LinearFit::calculateFitCurveData(double *par, double *X, double *Y) {
+void LinearFit::calculateFitCurveData(const std::vector<double> &par, double *X, double *Y) {
   if (d_gen_function) {
     double X0 = d_x[0];
     double step = (d_x[d_n - 1] - X0) / (d_points - 1);

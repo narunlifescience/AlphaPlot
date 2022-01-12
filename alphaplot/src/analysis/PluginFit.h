@@ -48,7 +48,8 @@ class PluginFit : public Fit {
  private:
   void init();
   typedef double (*fitFunctionEval)(double, double *);
-  void calculateFitCurveData(double *par, double *X, double *Y);
+  void calculateFitCurveData(const std::vector<double> &par, double *X,
+                             double *Y) override;
   fitFunctionEval f_eval;
 };
 

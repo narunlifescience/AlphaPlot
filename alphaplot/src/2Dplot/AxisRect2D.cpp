@@ -743,7 +743,7 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
       break;
   }
 
-  bar->setWidth(1);
+  //bar->setWidth(1);
   bar->setAntialiased(false);
   bar->setAntialiasedFill(false);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, bar);

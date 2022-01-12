@@ -126,7 +126,7 @@ void PickerTool2D::setRangePickerCurve(Curve2D *curve) { curve_ = curve; }
 
 Graph2DCommon::Picker PickerTool2D::getPicker() const { return picker_; }
 
-Curve2D *PickerTool2D::getRangePickerCurve() { return curve_; }
+Curve2D *PickerTool2D::getRangePickerCurve() { return rangepicker_.curve; }
 
 QPair<double, double> PickerTool2D::getRangePickerLower() const {
   return QPair<double, double>(rangepicker_.lowerx, rangepicker_.lowery);

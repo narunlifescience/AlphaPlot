@@ -5053,10 +5053,10 @@ void ApplicationWindow::fitPolynomial() {
     return;
   }
 
+
   PolynomFitDialog *pfd = new PolynomFitDialog(this);
   pfd->setAttribute(Qt::WA_DeleteOnClose);
   pfd->setAxisRect(axisrect);
-  pfd->changeDataRange();
   pfd->show();
 }
 
@@ -5084,9 +5084,10 @@ void ApplicationWindow::integrate() {
     return;
   }
 
-  std::unique_ptr<IntDialog> id =
-      std::unique_ptr<IntDialog>(new IntDialog(this));
-  // id->setAttribute(Qt::WA_DeleteOnClose);
+  //std::unique_ptr<IntDialog> id =
+  //    std::unique_ptr<IntDialog>(new IntDialog(this));
+  IntDialog *id = new IntDialog(this);
+  id->setAttribute(Qt::WA_DeleteOnClose);
   id->setAxisrect(axisrect);
   id->exec();
 }
@@ -6801,6 +6802,7 @@ void ApplicationWindow::analysis(const QString &whichFit) {
         tr("<h4>There are no plot(s) available in this layout.</h4>"
            "<p><h4>Please add a plot and try again!</h4>"));
   }
+
   if (lst.count() == 1) {
     QString analyzablecurve = lst.at(0);
     if (!analyzablecurve.isEmpty()) analyzeCurve(axisrect, whichFit, lst.at(0));

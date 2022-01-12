@@ -39,13 +39,14 @@ class SigmoidalFit : public Fit {
   SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect,
                PlotData::AssociatedData *associateddata);
   SigmoidalFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-               PlotData::AssociatedData *associateddata,
-               double start, double end);
-  void guessInitialValues();
+               PlotData::AssociatedData *associateddata, double start,
+               double end);
+  void guessInitialValues() override;
 
  private:
   void init();
-  void calculateFitCurveData(double *par, double *X, double *Y);
+  void calculateFitCurveData(const std::vector<double> &par, double *X,
+                             double *Y) override;
 };
 
 #endif  // SIGMOIDALFIT_H

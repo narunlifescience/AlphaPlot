@@ -56,7 +56,6 @@ MultiPeakFit::MultiPeakFit(ApplicationWindow *parent, AxisRect2D *axisrect,
 
   d_param_init = nullptr;
   covar = nullptr;
-  d_results = nullptr;
 
   setNumPeaks(peaks);
 
@@ -82,8 +81,8 @@ void MultiPeakFit::setNumPeaks(int n) {
 
   if (covar) gsl_matrix_free(covar);
   covar = gsl_matrix_alloc(static_cast<size_t>(d_p), static_cast<size_t>(d_p));
-  if (d_results) delete[] d_results;
-  d_results = new double[static_cast<size_t>(d_p)];
+
+  d_results.resize(d_p);
 
   d_param_names = generateParameterList(d_peaks);
   d_param_explain = generateExplanationList(d_peaks);
@@ -177,11 +176,11 @@ void MultiPeakFit::guessInitialValues() {
   gsl_vector_set(d_param_init, 3, min_out);
 }
 
-void MultiPeakFit::storeCustomFitResults(double *par) {
-  for (int i = 0; i < d_p; i++) d_results[i] = par[i];
+void MultiPeakFit::storeCustomFitResults(const std::vector<double> &par) {
+  d_results = par;
 
   if (d_profile == Lorentz) {
-    for (int j = 0; j < d_peaks; j++)
+    for (int j = 0; j < d_peaks && unsigned(j) < d_results.size(); j++)
       d_results[3 * j] = M_PI_2 * d_results[3 * j];
   }
 }
@@ -205,7 +204,7 @@ void MultiPeakFit::insertPeakFunctionCurve(double *x, double *y, int peak) {
                         axisrect_);
 }
 
-void MultiPeakFit::generateFitCurve(double *par) {
+void MultiPeakFit::generateFitCurve(const std::vector<double> &par) {
   if (!d_gen_function) d_points = d_n;
 
   gsl_matrix *m = gsl_matrix_alloc(static_cast<size_t>(d_points),
@@ -334,8 +333,8 @@ for (i = 0; i < peaks_aux; i++) {  // add the peak curves
   gsl_matrix_free(m);
 }
 
-QString MultiPeakFit::logFitInfo(double *par, int iterations, int status,
-                                 const QString &plotName) {
+QString MultiPeakFit::logFitInfo(const std::vector<double> &par, int iterations,
+                                 int status, const QString &plotName) {
   QString info = Fit::logFitInfo(par, iterations, status, plotName);
   if (d_peaks == 1) return info;
 
@@ -471,7 +470,7 @@ void GaussAmpFit::init() {
   d_param_init = gsl_vector_alloc(static_cast<size_t>(d_p));
   gsl_vector_set_all(d_param_init, 1.0);
   covar = gsl_matrix_alloc(static_cast<size_t>(d_p), static_cast<size_t>(d_p));
-  d_results = new double[static_cast<size_t>(d_p)];
+  d_results.resize(d_p);
   d_param_explain << tr("(offset)") << tr("(height)") << tr("(center)")
                   << tr("(width)");
   d_param_names << "y0"
@@ -482,7 +481,8 @@ void GaussAmpFit::init() {
   d_formula = "y0+A*exp(-(x-xc)^2/(2*w^2))";
 }
 
-void GaussAmpFit::calculateFitCurveData(double *par, double *X, double *Y) {
+void GaussAmpFit::calculateFitCurveData(const std::vector<double> &par,
+                                        double *X, double *Y) {
   double w2 = par[3] * par[3];
   if (d_gen_function) {
     double X0 = d_x[0];

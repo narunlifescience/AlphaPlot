@@ -36,9 +36,13 @@ Bar2D::Bar2D(Table *table, Column *xcol, Column *ycol, int from, int to,
   color.setAlpha(100);
   setfillcolor_barplot(color);
   setData(bardata_->data());
-  if (bardata_ && bardata_->data()->size() > 1)
-    setWidth(bardata_->data()->at(1)->mainKey() -
-             bardata_->data()->at(0)->mainKey());
+  if (bardata_ && bardata_->data()->size() > 1) {
+    bool foundrange = false;
+    QCPRange range = bardata_->data()->keyRange(foundrange);
+    int size = bardata_->data()->size();
+    double width = (range.upper - range.lower) / size;
+    (foundrange) ? setWidth(width) : setWidth(1);
+  }
 }
 
 Bar2D::Bar2D(Table *table, Column *col, int from, int to, Axis2D *xAxis,

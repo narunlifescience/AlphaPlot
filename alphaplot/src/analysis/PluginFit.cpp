@@ -113,7 +113,7 @@ bool PluginFit::load(const QString &pluginName) {
     d_param_init = gsl_vector_alloc(static_cast<size_t>(d_p));
     covar =
         gsl_matrix_alloc(static_cast<size_t>(d_p), static_cast<size_t>(d_p));
-    d_results = new double[static_cast<size_t>(d_p)];
+    d_results.resize(d_p);
   } else
     return false;
 
@@ -135,18 +135,19 @@ bool PluginFit::load(const QString &pluginName) {
   return true;
 }
 
-void PluginFit::calculateFitCurveData(double *par, double *X, double *Y) {
+void PluginFit::calculateFitCurveData(const std::vector<double> &par, double *X,
+                                      double *Y) {
   if (d_gen_function) {
     double X0 = d_x[0];
     double step = (d_x[d_n - 1] - X0) / (d_points - 1);
     for (int i = 0; i < d_points; i++) {
       X[i] = X0 + i * step;
-      Y[i] = f_eval(X[i], par);
+      Y[i] = f_eval(X[i], const_cast<double*>(&par[0]));
     }
   } else {
     for (int i = 0; i < d_points; i++) {
       X[i] = d_x[i];
-      Y[i] = f_eval(X[i], par);
+      Y[i] = f_eval(X[i], const_cast<double*>(&par[0]));
     }
   }
 }

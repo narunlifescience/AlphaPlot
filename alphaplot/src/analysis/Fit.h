@@ -29,13 +29,14 @@
 #ifndef FIT_H
 #define FIT_H
 
+#include <gsl/gsl_multifit_nlin.h>
+#include <gsl/gsl_multimin.h>
+
 #include <QObject>
+#include <vector>
 
 #include "Filter.h"
 #include "scripting/Script.h"
-
-#include <gsl/gsl_multifit_nlin.h>
-#include <gsl/gsl_multimin.h>
 
 class Table;
 class Matrix;
@@ -67,7 +68,7 @@ class Fit : public Filter, public scripted {
 
   Fit(ApplicationWindow *parent, AxisRect2D *axisrect = nullptr,
       QString name = QString());
-  ~Fit();
+  virtual ~Fit();
 
   //! Actually does the fit. Should be reimplemented in derived classes.
   virtual void fit();
@@ -98,10 +99,10 @@ class Fit : public Filter, public scripted {
   virtual QString legendInfo();
 
   //! Returns a vector with the fit results
-  double *results() { return d_results; }
+  const std::vector<double> &results() const { return d_results; }
 
   //! Returns a vector with the standard deviations of the results
-  double *errors();
+  const std::vector<double> &errors();
 
   //! Returns the sum of squares of the residuals from the best-fit line
   double chiSquare() { return chi_2; }
@@ -127,15 +128,15 @@ class Fit : public Filter, public scripted {
  private:
   //! Execute the fit using GSL multidimensional minimization (Nelder-Mead
   //! Simplex).
-  double *fitGslMultimin(int &iterations, int &status);
+  std::vector<double> fitGslMultimin(int &iterations, int &status);
 
   //! Execute the fit using GSL non-linear least-squares fitting
   //! (Levenberg-Marquardt).
-  double *fitGslMultifit(int &iterations, int &status);
+  std::vector<double> fitGslMultifit(int &iterations, int &status);
 
   //! Customs and stores the fit results according to the derived class
   //! specifications. Used by exponential fits.
-  virtual void storeCustomFitResults(double *par);
+  virtual void storeCustomFitResults(const std::vector<double> &par);
 
  protected:
   //! Adds the result curve as a FunctionCurve to the plot, if d_gen_function =
@@ -144,36 +145,39 @@ class Fit : public Filter, public scripted {
                               int penWidth = 1);
 
   //! Adds the result curve to the plot
-  virtual void generateFitCurve(double *par);
+  virtual void generateFitCurve(const std::vector<double> &par);
 
   //! Calculates the data for the output fit curve and store itin the X an Y
   //! vectors
-  virtual void calculateFitCurveData(double *par, double *X, double *Y) {
-    Q_UNUSED(par) Q_UNUSED(X) Q_UNUSED(Y)
+  virtual void calculateFitCurveData(const std::vector<double> &par, double *X,
+                                     double *Y) {
+    Q_UNUSED(par)
+    Q_UNUSED(X)
+    Q_UNUSED(Y)
   }
 
   //! Output string added to the result log
-  virtual QString logFitInfo(double *par, int iterations, int status,
-                             const QString &plotName);
+  virtual QString logFitInfo(const std::vector<double> &par, int iterations,
+                             int status, const QString &plotName);
 
-  fit_function d_f;
-  fit_function_df d_df;
-  fit_function_fdf d_fdf;
-  fit_function_simplex d_fsimplex;
+  fit_function d_f = nullptr;
+  fit_function_df d_df = nullptr;
+  fit_function_fdf d_fdf = nullptr;
+  fit_function_simplex d_fsimplex = nullptr;
 
   //! Number of fit parameters
   int d_p;
 
   //! Initial guesses for the fit parameters
-  gsl_vector *d_param_init;
+  gsl_vector *d_param_init = nullptr;
 
   /*! \brief Tells whether the fitter uses non-linear/simplex fitting
    * with an initial parameters set, that must be freed in the destructor.
    */
-  bool is_non_linear;
+  bool is_non_linear = true;
 
   //! Standard deviations of Y input data.
-  double *d_y_errors;
+  std::vector<double> d_y_errors;
 
   //! Names of the fit parameters
   QStringList d_param_names;
@@ -193,7 +197,7 @@ class Fit : public Filter, public scripted {
   QString d_formula;
 
   //! Covariance matrix
-  gsl_matrix *covar;
+  gsl_matrix *covar = nullptr;
 
   //! Where standard errors of the input data are taken from.
   ErrorSource d_y_error_source;
@@ -202,10 +206,10 @@ class Fit : public Filter, public scripted {
   QString d_y_error_dataset;
 
   //! Stores the result parameters
-  double *d_results;
+  std::vector<double> d_results;
 
   //! Stores standard deviations of the result parameters
-  double *d_result_errors;
+  std::vector<double> d_result_errors;
 
   //! The sum of squares of the residuals from the best-fit line
   double chi_2;
@@ -214,7 +218,7 @@ class Fit : public Filter, public scripted {
   bool d_scale_errors;
 
   //! Script used to evaluate user-defined functions.
-  Script *d_script;
+  std::unique_ptr<Script> d_script;
 };
 
 #endif  // FIT_H

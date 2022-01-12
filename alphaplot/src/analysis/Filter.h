@@ -99,8 +99,8 @@ class Filter : public QObject {
    * arrays.
    * Memory will be allocated with new double[].
    */
-  int curveData(double start, double end, double **x,
-                double **y);
+  //int curveData(double start, double end, double **x,
+  //              double **y);
   //! Same as curveData, but sorts the points by their x value.
   int sortedCurveData(double start, double end, double **x,
                       double **y);
@@ -134,6 +134,7 @@ class Filter : public QObject {
   //! Size of the data arrays
   int d_n;
 
+  std::unique_ptr<std::vector<std::pair<double, double>>> data_;
   //! x data set to be analysed
   double *d_x;
 

@@ -27,15 +27,16 @@
  *                                                                         *
  ***************************************************************************/
 #include "Integration.h"
-#include "future/core/column/Column.h"
+
+#include <gsl/gsl_interp.h>
+#include <gsl/gsl_spline.h>
+#include <gsl/gsl_vector.h>
 
 #include <QDateTime>
 #include <QLocale>
 #include <QMessageBox>
 
-#include <gsl/gsl_interp.h>
-#include <gsl/gsl_spline.h>
-#include <gsl/gsl_vector.h>
+#include "future/core/column/Column.h"
 
 Integration::Integration(ApplicationWindow *parent, AxisRect2D *axisrect)
     : Filter(parent, axisrect) {
@@ -115,18 +116,18 @@ QString Integration::logInfo() {
       break;
   }
 
+  if (static_cast<size_t>(d_n) < gsl_interp_type_min_size(method_t)) {
+    QMessageBox::critical(
+        (ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
+        tr("You need at least %1 points in order to perform this operation!")
+            .arg(gsl_interp_type_min_size(method_t)));
+    d_init_err = true;
+    return QString("");
+  }
+
   gsl_interp *interpolation =
       gsl_interp_alloc(method_t, static_cast<size_t>(d_n));
   gsl_interp_init(interpolation, d_x, d_y, static_cast<size_t>(d_n));
-
-  if (static_cast<size_t>(d_n) < gsl_interp_min_size(interpolation)) {
-    QMessageBox::critical(
-        app_, tr("AlphaPlot") + " - " + tr("Error"),
-        tr("You need at least %1 points in order to perform this operation!")
-            .arg(gsl_interp_min_size(interpolation)));
-    d_init_err = true;
-    return "";
-  }
 
   QString curvename = associateddata_->table->name() + "_" +
                       associateddata_->xcol->name() + "_" +

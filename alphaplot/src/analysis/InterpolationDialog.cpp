@@ -38,6 +38,7 @@
 #include <QSpinBox>
 
 #include "2Dplot/AxisRect2D.h"
+#include "2Dplot/PickerTool2D.h"
 #include "2Dplot/Plotcolumns.h"
 #include "ColorBox.h"
 #include "Interpolation.h"
@@ -172,28 +173,58 @@ void InterpolationDialog::setAxisRect(AxisRect2D *axisrect) {
   if (!axisrect) return;
   axisrect_ = axisrect;
   boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
+  PickerTool2D *picker = axisrect_->getPickerTool();
+  if (picker) {
+    if (picker->getPicker() == Graph2DCommon::Picker::DataRange) {
+      Curve2D *curve = picker->getRangePickerCurve();
+      if (curve) {
+        QString cname = PlotColumns::getstringfromassociateddata(
+            curve->getdatablock_cplot()->getassociateddata());
+        boxName->setCurrentText(cname);
+      }
+    }
+  }
   activateCurve(boxName->currentText());
 }
 
 void InterpolationDialog::activateCurve(const QString &curveName) {
   if (!axisrect_) return;
+  double start = 0;
+  double end = 0;
   PlotData::AssociatedData *associateddata;
   associateddata =
       PlotColumns::getassociateddatafromstring(axisrect_, curveName);
   if (!associateddata) return;
+  xmin_ = associateddata->minmax.minx;
+  xmax_ = associateddata->minmax.maxx;
 
-  Column *col = associateddata->xcol;
-  xmin_ = col->valueAt(associateddata->from);
-  xmax_ = col->valueAt(associateddata->from);
-  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
-    double value = col->valueAt(i);
-    if (xmin_ > value) xmin_ = value;
-    if (xmax_ < value) xmax_ = value;
+  PickerTool2D *picker = axisrect_->getPickerTool();
+  if (!picker) {
+    qDebug() << "unable to get picker handle";
+    return;
   }
-  boxStart->setText(
-      QString::number(std::min(xmin_, xmax_), 'g', app_->d_decimal_digits));
-  boxEnd->setText(
-      QString::number(std::max(xmin_, xmax_), 'g', app_->d_decimal_digits));
+
+  bool setminmaxasstartend = true;
+  if (picker->getPicker() == Graph2DCommon::Picker::DataRange) {
+    Curve2D *curve = picker->getRangePickerCurve();
+    if (curve) {
+      QString cname = PlotColumns::getstringfromassociateddata(
+          curve->getdatablock_cplot()->getassociateddata());
+      if (cname == curveName) {
+        start = picker->getRangePickerLower().first;
+        end = picker->getRangePickerUpper().first;
+        setminmaxasstartend = false;
+      }
+    }
+  }
+
+  if (setminmaxasstartend) {
+    start = xmin_;
+    end = xmax_;
+  }
+
+  boxStart->setText(QString::number(start, 'g', app_->d_decimal_digits));
+  boxEnd->setText(QString::number(end, 'g', app_->d_decimal_digits));
 }
 
 void InterpolationDialog::changeDataRange() {

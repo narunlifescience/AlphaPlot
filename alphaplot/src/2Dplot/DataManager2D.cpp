@@ -86,6 +86,22 @@ void DataBlockGraph::regenerateDataBlock(Table *table, Column *xcolumn,
     }
     i++;
   }
+  // minmax adjust
+  bool available = false;
+  QCPRange xrange = data_.data()->keyRange(available);
+  if (!available) {
+    qDebug() << "xrange min max assignment failure";
+    xrange = QCPRange(0, 0);
+  }
+  QCPRange yrange = data_.data()->valueRange(available);
+  if (!available) {
+    qDebug() << "yrange min max assignment failure";
+    yrange = QCPRange(0, 0);
+  }
+  associateddata_->minmax.maxx = xrange.upper;
+  associateddata_->minmax.minx = xrange.lower;
+  associateddata_->minmax.maxy = yrange.upper;
+  associateddata_->minmax.miny = yrange.lower;
 }
 
 bool DataBlockGraph::movedatafromtable(const double key, const double value,
@@ -205,6 +221,23 @@ void DataBlockCurve::regenerateDataBlock(Table *table, Column *xcolumn,
     }
     i++;
   }
+
+  // minmax adjust
+  bool available = false;
+  QCPRange xrange = data_.data()->keyRange(available);
+  if (!available) {
+    qDebug() << "xrange min max assignment failure";
+    xrange = QCPRange(0, 0);
+  }
+  QCPRange yrange = data_.data()->valueRange(available);
+  if (!available) {
+    qDebug() << "yrange min max assignment failure";
+    yrange = QCPRange(0, 0);
+  }
+  associateddata_->minmax.maxx = xrange.upper;
+  associateddata_->minmax.minx = xrange.lower;
+  associateddata_->minmax.maxy = yrange.upper;
+  associateddata_->minmax.miny = yrange.lower;
 }
 
 bool DataBlockCurve::movedatafromtable(const double key, const double value,
@@ -321,6 +354,22 @@ void DataBlockBar::regenerateDataBlock(Table *table, Column *xcolumn,
     }
     i++;
   }
+  // minmax adjust
+  bool available = false;
+  QCPRange xrange = data_.data()->keyRange(available);
+  if (!available) {
+    qDebug() << "xrange min max assignment failure";
+    xrange = QCPRange(0, 0);
+  }
+  QCPRange yrange = data_.data()->valueRange(available);
+  if (!available) {
+    qDebug() << "yrange min max assignment failure";
+    yrange = QCPRange(0, 0);
+  }
+  associateddata_->minmax.maxx = xrange.upper;
+  associateddata_->minmax.minx = xrange.lower;
+  associateddata_->minmax.maxy = yrange.upper;
+  associateddata_->minmax.miny = yrange.lower;
 }
 
 bool DataBlockBar::movedatafromtable(const double key, const double value,

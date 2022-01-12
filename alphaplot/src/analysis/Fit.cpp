@@ -52,7 +52,6 @@ Fit::Fit(ApplicationWindow *parent, AxisRect2D *axisrect, QString name)
     : Filter(parent, axisrect, name),
       scripted(ScriptingLangManager::newEnv("muParser", parent)) {
   d_p = 0;
-  d_n = 0;
   d_curveColorIndex = 1;
   d_solver = ScaledLevenbergMarquardt;
   d_tolerance = 1e-4;
@@ -65,8 +64,6 @@ Fit::Fit(ApplicationWindow *parent, AxisRect2D *axisrect, QString name)
   d_y_error_source = UnknownErrors;
   d_y_error_dataset = QString();
   is_non_linear = true;
-  d_results = nullptr;
-  d_result_errors = nullptr;
   d_prec = parent->fit_output_precision;
   d_init_err = false;
   chi_2 = -1;
@@ -74,15 +71,15 @@ Fit::Fit(ApplicationWindow *parent, AxisRect2D *axisrect, QString name)
   d_sort_data = true;
 }
 
-double *Fit::fitGslMultifit(int &iterations, int &status) {
-  double *result = new double[static_cast<size_t>(d_p)];
+std::vector<double> Fit::fitGslMultifit(int &iterations, int &status) {
+  std::vector<double> result(d_p);
 
   // declare input data
   struct FitData data = {static_cast<size_t>(d_n),
                          static_cast<size_t>(d_p),
                          d_x,
                          d_y,
-                         d_y_errors,
+                         &d_y_errors[0],
                          this};
   gsl_multifit_function_fdf f;
   f.f = d_f;
@@ -145,15 +142,15 @@ double *Fit::fitGslMultifit(int &iterations, int &status) {
   return result;
 }
 
-double *Fit::fitGslMultimin(int &iterations, int &status) {
-  double *result = new double[static_cast<size_t>(d_p)];
+std::vector<double> Fit::fitGslMultimin(int &iterations, int &status) {
+  std::vector<double> result(d_p);
 
   // declare input data
   struct FitData data = {static_cast<size_t>(d_n),
                          static_cast<size_t>(d_p),
                          d_x,
                          d_y,
-                         d_y_errors,
+                         &d_y_errors[0],
                          this};
   gsl_multimin_function f;
   f.f = d_fsimplex;
@@ -204,10 +201,9 @@ double *Fit::fitGslMultimin(int &iterations, int &status) {
 
 void Fit::setDataCurve(PlotData::AssociatedData *associateddata, double start,
                        double end) {
-  if (d_n > 0) delete[] d_y_errors;
   Filter::setDataCurve(associateddata, start, end);
 
-  d_y_errors = new double[static_cast<size_t>(d_n)];
+  d_y_errors.resize(d_n);
   // if (!setYErrorSource(AssociatedErrors, QString::null, true))
   setYErrorSource(UnknownErrors);
 }
@@ -222,8 +218,8 @@ void Fit::generateFunction(bool yes, int points) {
   if (d_gen_function) d_points = points;
 }
 
-QString Fit::logFitInfo(double *par, int iterations, int status,
-                        const QString &plotName) {
+QString Fit::logFitInfo(const std::vector<double> &par, int iterations,
+                        int status, const QString &plotName) {
   QDateTime dt = QDateTime::currentDateTime();
   QString info = "[" + dt.toString(Qt::LocalDate) + "\t" + tr("Plot") + ": ''" +
                  plotName + "'']\n";
@@ -458,25 +454,22 @@ Matrix *Fit::covarianceMatrix(const QString &matrixName) {
   return m;
 }
 
-double *Fit::errors() {
-  if (!d_result_errors) {
-    d_result_errors = new double[static_cast<size_t>(d_p)];
+const std::vector<double> &Fit::errors() {
+  if (d_result_errors.empty()) {
+    d_result_errors.resize(d_p);
     double chi_2_dof = chi_2 / (d_n - d_p);
-    for (int i = 0; i < d_p; i++) {
+    for (unsigned i = 0; i < d_p; i++) {
       if (d_scale_errors)
-        d_result_errors[i] =
-            sqrt(chi_2_dof * gsl_matrix_get(covar, static_cast<size_t>(i),
-                                            static_cast<size_t>(i)));
+        d_result_errors[i] = sqrt(chi_2_dof * gsl_matrix_get(covar, i, i));
       else
-        d_result_errors[i] = sqrt(gsl_matrix_get(covar, static_cast<size_t>(i),
-                                                 static_cast<size_t>(i)));
+        d_result_errors[i] = sqrt(gsl_matrix_get(covar, i, i));
     }
   }
   return d_result_errors;
 }
 
-void Fit::storeCustomFitResults(double *par) {
-  for (int i = 0; i < d_p; i++) d_results[i] = par[i];
+void Fit::storeCustomFitResults(const std::vector<double> &par) {
+  d_results = par;
 }
 
 void Fit::fit() {
@@ -511,10 +504,11 @@ void Fit::fit() {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   int status, iterations;
-  double *par;
+  std::vector<double> par;
   status = false;
-  d_script = scriptEnv->newScript(d_formula, this, metaObject()->className());
-  connect(d_script, &Script::error, this, &Fit::scriptError);
+  d_script.reset(
+      scriptEnv->newScript(d_formula, this, metaObject()->className()));
+  connect(d_script.get(), &Script::error, this, &Fit::scriptError);
 
   if (d_solver == NelderMeadSimplex)
     par = fitGslMultimin(iterations, status);
@@ -523,9 +517,6 @@ void Fit::fit() {
 
   storeCustomFitResults(par);
   if (status == GSL_SUCCESS) generateFitCurve(par);
-
-  delete[] par;
-  delete d_script;
 
   if (app_->writeFitResultsToLog)
     app_->updateLog(logFitInfo(d_results, iterations, status,
@@ -598,7 +589,7 @@ int Fit::evaluate_df(const gsl_vector *x, gsl_matrix *J) {
   F.function = &evaluate_df_helper;
   DiffData data;
   F.params = &data;
-  data.script = d_script;
+  data.script = d_script.get();
   data.success = true;
   for (int i = 0; i < d_p; i++)
     d_script->setDouble(gsl_vector_get(x, static_cast<size_t>(i)),
@@ -617,7 +608,7 @@ int Fit::evaluate_df(const gsl_vector *x, gsl_matrix *J) {
   return GSL_SUCCESS;
 }
 
-void Fit::generateFitCurve(double *par) {
+void Fit::generateFitCurve(const std::vector<double> &par) {
   if (!d_gen_function) d_points = d_n;
 
   double *X = new double[static_cast<size_t>(d_points)];
@@ -661,7 +652,5 @@ Fit::~Fit() {
 
   if (is_non_linear) gsl_vector_free(d_param_init);
 
-  if (d_results) delete[] d_results;
-  if (d_result_errors) delete[] d_result_errors;
   gsl_matrix_free(covar);
 }

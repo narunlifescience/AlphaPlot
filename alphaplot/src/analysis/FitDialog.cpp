@@ -1170,7 +1170,7 @@ void FitDialog::accept() {
   }
 
   d_fitter->fit();
-  double *res = d_fitter->results();
+  std::vector<double> res = d_fitter->results();
   if (!boxParams->isColumnHidden(2)) {
     int j = 0;
     for (i = 0; i < rows; i++) {

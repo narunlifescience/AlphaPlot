@@ -1,7 +1,10 @@
 #ifndef GRAPH2DCOMMON_H
 #define GRAPH2DCOMMON_H
 
+#include <math.h>
+
 #include <QStringList>
+#include <limits>
 class Column;
 class Table;
 
@@ -71,12 +74,24 @@ struct FunctionData {
         points(0) {}
 };
 
+struct MinMax {
+  double minx;
+  double maxx;
+  double miny;
+  double maxy;
+  MinMax()
+      : minx(std::numeric_limits<double>::quiet_NaN()),
+        maxx(std::numeric_limits<double>::quiet_NaN()),
+        miny(std::numeric_limits<double>::quiet_NaN()),
+        maxy(std::numeric_limits<double>::quiet_NaN()) {}
+};
 struct AssociatedData {
   Table *table;
   Column *xcol;
   Column *ycol;
   int from;
   int to;
+  MinMax minmax;
   AssociatedData() : table(nullptr), xcol(nullptr), ycol(nullptr) {}
 };
 

@@ -36,8 +36,10 @@
 #include <algorithm>
 
 #include "2Dplot/AxisRect2D.h"
-#include "2Dplot/Legend2D.h"
 #include "2Dplot/Curve2D.h"
+#include "2Dplot/Legend2D.h"
+#include "2Dplot/PickerTool2D.h"
+#include "2Dplot/Plotcolumns.h"
 #include "ColorBox.h"
 #include "Table.h"
 #include "core/column/Column.h"
@@ -58,6 +60,8 @@ Filter::Filter(ApplicationWindow *parent, Table *table, QString name)
 
 void Filter::init() {
   d_n = 0;
+  data_ = std::unique_ptr<std::vector<std::pair<double, double>>>(
+      new std::vector<std::pair<double, double>>);
   d_curveColorIndex = 1;
   d_tolerance = 1e-4;
   d_points = app_->fitPoints;
@@ -90,10 +94,10 @@ void Filter::setDataCurve(PlotData::AssociatedData *associateddata,
 
   d_init_err = false;
   associateddata_ = associateddata;
-  if (d_sort_data)
+  //if (d_sort_data)
     d_n = sortedCurveData(start, end, &d_x, &d_y);
-  else
-    d_n = curveData(start, end, &d_x, &d_y);
+  //else
+    //d_n = curveData(start, end, &d_x, &d_y);
 
   if (!isDataAcceptable()) {
     d_init_err = true;
@@ -120,9 +124,32 @@ bool Filter::isDataAcceptable() {
 
 bool Filter::setDataFromCurve(PlotData::AssociatedData *associateddata,
                               AxisRect2D *axisrect) {
-  if (!associateddata) {
+  associateddata_ = associateddata;
+  if (!associateddata_) {
     d_init_err = true;
     return false;
+  }
+
+  bool setminmaxasfromto = true;
+  PickerTool2D *picker = axisrect_->getPickerTool();
+  if (picker) {
+    if (picker->getPicker() == Graph2DCommon::Picker::DataRange) {
+      Curve2D *curve = picker->getRangePickerCurve();
+      if (curve) {
+        QString cname = PlotColumns::getstringfromassociateddata(
+            curve->getdatablock_cplot()->getassociateddata());
+        if (cname == PlotColumns::getstringfromassociateddata(associateddata)) {
+          d_from = picker->getRangePickerLower().first;
+          d_to = picker->getRangePickerUpper().first;
+          setminmaxasfromto = false;
+        }
+      }
+    }
+  }
+
+  if (setminmaxasfromto) {
+    d_from = associateddata->minmax.minx;
+    d_to = associateddata->minmax.maxx;
   }
 
   setDataCurve(associateddata, d_from, d_to);
@@ -187,45 +214,52 @@ void Filter::output() {
 
 int Filter::sortedCurveData(double start, double end, double **x, double **y) {
   if (!associateddata_) return 0;
-
   // start/end finding only works on nondecreasing data, so sort first
-  int from = associateddata_->from;
-  int to = associateddata_->to;
-  int datasize = (to - from) + 1;
-
-  double *xtemp = new double[static_cast<size_t>(datasize)];
-  for (int i = 0, j = from; i < datasize; i++) {
-    xtemp[i] = associateddata_->xcol->valueAt(j);
-    j++;
+  int datasize = associateddata_->to - associateddata_->from;
+  std::unique_ptr<std::vector<std::pair<double, double>>> temp =
+      std::unique_ptr<std::vector<std::pair<double, double>>>(
+          new std::vector<std::pair<double, double>>);
+  temp->reserve(datasize);
+  for (int i = 0; i < datasize; i++) {
+    temp->push_back(std::pair<double, double>(
+        associateddata_->xcol->valueAt(i), associateddata_->ycol->valueAt(i)));
   }
 
-  size_t *p = new size_t[static_cast<size_t>(datasize)];
-  gsl_sort_index(p, xtemp, 1, static_cast<size_t>(datasize));
-  delete[] xtemp;
+  auto inside_range = [&](const std::pair<double, double> &x) {
+    return (x.first < start || x.first > end);
+  };
 
-  // make result arrays
-  int n = datasize;
-  (*x) = new double[n];
-  (*y) = new double[n];
-  for (int j = 0, i = from; i <= to; i++, j++) {
-    (*x)[j] = associateddata_->xcol->valueAt(p[j] + from);
-    (*y)[j] = associateddata_->ycol->valueAt(p[j] + from);
+  temp->erase(std::remove_if(temp->begin(), temp->end(), inside_range),
+              temp->end());
+  std::stable_sort(temp->begin(), temp->end());
+
+  datasize = temp->size();
+
+  data_->clear();
+  data_->reserve(datasize);
+  data_ = std::move(temp);
+
+  (*x) = new double[datasize];
+  (*y) = new double[datasize];
+  for (int i = 0; i < datasize; i++) {
+    (*x)[i] = data_->at(i).first;
+    (*y)[i] = data_->at(i).second;
   }
-  delete[] p;
-  return n;
+
+  return datasize;
 }
 
-int Filter::curveData(double start, double end, double **x, double **y) {
+/*int Filter::curveData(double start, double end, double **x, double **y) {
   if (!associateddata_) return 0;
 
-  int from = associateddata_->from;
-  int to = associateddata_->to;
+  int from = start - 1;
+  int to = end - 1;
   int datasize = (to - from) + 1;
   int i_start = from, i_end = to;
-  /*for (i_start = from; i_start < datasize; i_start++)
-    if (associateddata_->xcol->valueAt(i_start) >= start) break;
-  for (i_end = datasize - 1; i_end >= 0; i_end--)
-    if (associateddata_->xcol->valueAt(i_end) <= end) break;*/
+  //for (i_start = from; i_start < datasize; i_start++)
+  //  if (associateddata_->xcol->valueAt(i_start) >= start) break;
+  //for (i_end = datasize - 1; i_end >= 0; i_end--)
+  //  if (associateddata_->xcol->valueAt(i_end) <= end) break;
 
   int n = i_end - i_start + 1;
   (*x) = new double[n];
@@ -236,7 +270,7 @@ int Filter::curveData(double start, double end, double **x, double **y) {
     (*y)[j] = associateddata_->ycol->valueAt(i);
   }
   return n;
-}
+}*/
 
 Curve2D *Filter::addResultCurve(double *xdata, double *ydata) {
   const QString tableName = app_->generateUniqueName(this->objectName());

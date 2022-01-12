@@ -42,15 +42,16 @@ class PolynomialFit : public Fit {
                 PlotData::AssociatedData *associateddata, double start,
                 double end, int order = 2);
 
-  virtual QString legendInfo();
-  void fit();
+  QString legendInfo() override;
+  void fit() override;
 
   static QString generateFormula(int order);
   static QStringList generateParameterList(int order);
 
  private:
   void init();
-  void calculateFitCurveData(double *par, double *X, double *Y);
+  void calculateFitCurveData(const std::vector<double> &par, double *X,
+                             double *Y) override;
 
   int d_order;
 };
@@ -65,11 +66,12 @@ class LinearFit : public Fit {
   LinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
             PlotData::AssociatedData *associateddata, double start, double end);
 
-  void fit();
+  void fit() override;
 
  private:
   void init();
-  void calculateFitCurveData(double *par, double *X, double *Y);
+  void calculateFitCurveData(const std::vector<double> &par, double *X,
+                             double *Y) override;
 };
 
 #endif  // POLYNOMIALFIT_H

@@ -27,6 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "ExponentialFit.h"
+
+#include "assert.h"
 #include "fit_gsl.h"
 
 /*****************************************************************************
@@ -68,7 +70,7 @@ void ExponentialFit::init() {
   gsl_vector_set_all(d_param_init, 1.0);
 
   covar = gsl_matrix_alloc(d_p, d_p);
-  d_results = new double[d_p];
+  d_results.resize(d_p);
   d_param_names << "A"
                 << "t"
                 << "y0";
@@ -87,8 +89,9 @@ void ExponentialFit::init() {
   }
 }
 
-void ExponentialFit::storeCustomFitResults(double *par) {
-  for (int i = 0; i < d_p; i++) d_results[i] = par[i];
+void ExponentialFit::storeCustomFitResults(const std::vector<double> &par) {
+  d_results = par;
+  assert(d_results.size() >= 2);
 
   if (is_exp_growth)
     d_results[1] = -1.0 / d_results[1];
@@ -96,7 +99,8 @@ void ExponentialFit::storeCustomFitResults(double *par) {
     d_results[1] = 1.0 / d_results[1];
 }
 
-void ExponentialFit::calculateFitCurveData(double *par, double *X, double *Y) {
+void ExponentialFit::calculateFitCurveData(const std::vector<double> &par,
+                                           double *X, double *Y) {
   if (d_gen_function) {
     double X0 = d_x[0];
     double step = (d_x[d_n - 1] - X0) / (d_points - 1);
@@ -149,7 +153,7 @@ void TwoExpFit::init() {
   d_param_init = gsl_vector_alloc(d_p);
   gsl_vector_set_all(d_param_init, 1.0);
   covar = gsl_matrix_alloc(d_p, d_p);
-  d_results = new double[d_p];
+  d_results.resize(d_p);
   d_param_names << "A1"
                 << "t1"
                 << "A2"
@@ -162,14 +166,15 @@ void TwoExpFit::init() {
                   << tr("(offset)");
 }
 
-void TwoExpFit::storeCustomFitResults(double *par) {
-  for (int i = 0; i < d_p; i++) d_results[i] = par[i];
-
+void TwoExpFit::storeCustomFitResults(const std::vector<double> &par) {
+  d_results = par;
+  assert(d_results.size() > 3);
   d_results[1] = 1.0 / d_results[1];
   d_results[3] = 1.0 / d_results[3];
 }
 
-void TwoExpFit::calculateFitCurveData(double *par, double *X, double *Y) {
+void TwoExpFit::calculateFitCurveData(const std::vector<double> &par, double *X,
+                                      double *Y) {
   if (d_gen_function) {
     double X0 = d_x[0];
     double step = (d_x[d_n - 1] - X0) / (d_points - 1);
@@ -224,7 +229,7 @@ void ThreeExpFit::init() {
   d_param_init = gsl_vector_alloc(d_p);
   gsl_vector_set_all(d_param_init, 1.0);
   covar = gsl_matrix_alloc(d_p, d_p);
-  d_results = new double[d_p];
+  d_results.reserve(d_p);
   d_param_names << "A1"
                 << "t1"
                 << "A2"
@@ -240,15 +245,16 @@ void ThreeExpFit::init() {
                   << tr("(offset)");
 }
 
-void ThreeExpFit::storeCustomFitResults(double *par) {
-  for (int i = 0; i < d_p; i++) d_results[i] = par[i];
-
+void ThreeExpFit::storeCustomFitResults(const std::vector<double> &par) {
+  d_results = par;
+  assert(d_results.size() > 5);
   d_results[1] = 1.0 / d_results[1];
   d_results[3] = 1.0 / d_results[3];
   d_results[5] = 1.0 / d_results[5];
 }
 
-void ThreeExpFit::calculateFitCurveData(double *par, double *X, double *Y) {
+void ThreeExpFit::calculateFitCurveData(const std::vector<double> &par,
+                                        double *X, double *Y) {
   if (d_gen_function) {
     double X0 = d_x[0];
     double step = (d_x[d_n - 1] - X0) / (d_points - 1);

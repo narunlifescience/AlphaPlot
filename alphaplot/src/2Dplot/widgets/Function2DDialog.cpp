@@ -224,12 +224,12 @@ bool Function2DDialog::acceptParametric() {
   if (!axisrect_) {
     result = app->newFunctionPlot(type, formulas,
                                   ui_->paramparameterLineEdit->text(), ranges,
-                                  ui_->normpointsSpinBox->value());
+                                  ui_->parampointsSpinBox->value());
   } else {
     if (plottomodify_ == -1) {
       result = app->addFunctionPlot(type, formulas,
                                     ui_->paramparameterLineEdit->text(), ranges,
-                                    ui_->normpointsSpinBox->value(), axisrect_);
+                                    ui_->parampointsSpinBox->value(), axisrect_);
     } else {
       // result = app->editFunctionPlot();
     }

@@ -39,14 +39,15 @@ class NonLinearFit : public Fit {
   NonLinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
                PlotData::AssociatedData *associateddata);
   NonLinearFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-               PlotData::AssociatedData *associateddata,
-               double start, double end);
+               PlotData::AssociatedData *associateddata, double start,
+               double end);
 
   void setParametersList(const QStringList &lst);
   void setFormula(const QString &s);
 
  private:
-  void calculateFitCurveData(double *par, double *X, double *Y);
+  void calculateFitCurveData(const std::vector<double> &par, double *X,
+                             double *Y) override;
   void init();
 };
 

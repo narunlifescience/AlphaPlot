@@ -27,12 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "ExpDecayDialog.h"
-#include "2Dplot/AxisRect2D.h"
-#include "2Dplot/Plotcolumns.h"
-#include "ApplicationWindow.h"
-#include "ColorBox.h"
-#include "ExponentialFit.h"
-#include "Fit.h"
 
 #include <QComboBox>
 #include <QGroupBox>
@@ -41,6 +35,14 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
+
+#include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Plotcolumns.h"
+#include "2Dplot/PickerTool2D.h"
+#include "ApplicationWindow.h"
+#include "ColorBox.h"
+#include "ExponentialFit.h"
+#include "Fit.h"
 
 ExpDecayDialog::ExpDecayDialog(int type, QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl), app_(qobject_cast<ApplicationWindow *>(parent)) {
@@ -140,40 +142,62 @@ void ExpDecayDialog::setAxisRect(AxisRect2D *axisrect) {
 
   fitter = nullptr;
   axisrect_ = axisrect;
-
   boxName->addItems(PlotColumns::getstringlistfromassociateddata(axisrect_));
+  PickerTool2D *picker = axisrect_->getPickerTool();
+  if (picker) {
+    if (picker->getPicker() == Graph2DCommon::Picker::DataRange) {
+      Curve2D *curve = picker->getRangePickerCurve();
+      if (curve) {
+        QString cname = PlotColumns::getstringfromassociateddata(
+            curve->getdatablock_cplot()->getassociateddata());
+        boxName->setCurrentText(cname);
+      }
+    }
+  }
   activateCurve(boxName->currentText());
 }
 
 void ExpDecayDialog::activateCurve(const QString &curveName) {
   if (!axisrect_) return;
+  double start = 0;
+  double end = 0;
   PlotData::AssociatedData *associateddata;
   associateddata =
       PlotColumns::getassociateddatafromstring(axisrect_, curveName);
   if (!associateddata) return;
+  xmin_ = associateddata->minmax.minx;
+  xmax_ = associateddata->minmax.maxx;
 
-  Column *col = associateddata->xcol;
-  xmin_ = col->valueAt(associateddata->from);
-  xmax_ = col->valueAt(associateddata->from);
-  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
-    double value = col->valueAt(i);
-    if (xmin_ > value) xmin_ = value;
-    if (xmax_ < value) xmax_ = value;
+  PickerTool2D *picker = axisrect_->getPickerTool();
+  if (!picker) {
+    qDebug() << "unable to get picker handle";
+    return;
   }
 
-  Column *ycol = associateddata->ycol;
-  double ymin = ycol->valueAt(associateddata->from);
-  double ymax = ycol->valueAt(associateddata->from);
-  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
-    double value = ycol->valueAt(i);
-    if (ymin > value) ymin = value;
-    if (ymax < value) ymax = value;
+  bool setminmaxasstartend = true;
+  if (picker->getPicker() == Graph2DCommon::Picker::DataRange) {
+    Curve2D *curve = picker->getRangePickerCurve();
+    if (curve) {
+      QString cname = PlotColumns::getstringfromassociateddata(
+          curve->getdatablock_cplot()->getassociateddata());
+      if (cname == curveName) {
+        start = picker->getRangePickerLower().first;
+        end = picker->getRangePickerUpper().first;
+        setminmaxasstartend = false;
+      }
+    }
   }
+
+  if (setminmaxasstartend) {
+    start = xmin_;
+    end = xmax_;
+  }
+
+  double ymin = associateddata->minmax.miny;
+  double ymax = associateddata->minmax.maxy;
 
   int precision = app_->fit_output_precision;
-  double start = 0;
-  double end = 0;
-  boxStart->setText(QString::number(std::min(start, end)));
+  boxStart->setText(QString::number(start,'g', precision));
   boxYOffset->setText(QString::number(ymin, 'g', precision));
   if (slopes < 2)
     boxAmplitude->setText(QString::number(ymax - ymin, 'g', precision));
@@ -237,7 +261,7 @@ void ExpDecayDialog::fit() {
     fitter->generateFunction(app_->generateUniformFitPoints, app_->fitPoints);
     fitter->fit();
 
-    double *results = fitter->results();
+    std::vector<double> results = fitter->results();
     boxFirst->setText(QString::number(results[1], 'g', precision));
     if (slopes < 2) {
       boxAmplitude->setText(QString::number(results[0], 'g', precision));

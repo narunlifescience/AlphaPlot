@@ -41,13 +41,14 @@ class ExponentialFit : public Fit {
                  PlotData::AssociatedData *associateddata,
                  bool expGrowth = false);
   ExponentialFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-                 PlotData::AssociatedData *associateddata,
-                 double start, double end, bool expGrowth = false);
+                 PlotData::AssociatedData *associateddata, double start,
+                 double end, bool expGrowth = false);
 
  private:
   void init();
-  void storeCustomFitResults(double *par);
-  void calculateFitCurveData(double *par, double *X, double *Y);
+  void storeCustomFitResults(const std::vector<double> &par) override;
+  void calculateFitCurveData(const std::vector<double> &par, double *X,
+                             double *Y) override;
 
   bool is_exp_growth;
 };
@@ -60,13 +61,13 @@ class TwoExpFit : public Fit {
   TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
             PlotData::AssociatedData *associateddata);
   TwoExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-            PlotData::AssociatedData *associateddata,
-            double start, double end);
+            PlotData::AssociatedData *associateddata, double start, double end);
 
  private:
   void init();
-  void storeCustomFitResults(double *par);
-  void calculateFitCurveData(double *par, double *X, double *Y);
+  void storeCustomFitResults(const std::vector<double> &par) override;
+  void calculateFitCurveData(const std::vector<double> &par, double *X,
+                             double *Y) override;
 };
 
 class ThreeExpFit : public Fit {
@@ -77,13 +78,14 @@ class ThreeExpFit : public Fit {
   ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
               PlotData::AssociatedData *associateddata);
   ThreeExpFit(ApplicationWindow *parent, AxisRect2D *axisrect,
-              PlotData::AssociatedData *associateddata,
-              double start, double end);
+              PlotData::AssociatedData *associateddata, double start,
+              double end);
 
  private:
   void init();
-  void storeCustomFitResults(double *par);
-  void calculateFitCurveData(double *par, double *X, double *Y);
+  void storeCustomFitResults(const std::vector<double> &par) override;
+  void calculateFitCurveData(const std::vector<double> &par, double *X,
+                             double *Y) override;
 };
 
 #endif  // EXPONENTIALFIT_H

@@ -112,14 +112,8 @@ void IntDialog::accept() {
   PlotData::AssociatedData *associateddata =
       PlotColumns::getassociateddatafromstring(axisrect_,
                                                boxName->currentText());
-  Column *col = associateddata->xcol;
-  double minx = col->valueAt(associateddata->from);
-  double maxx = col->valueAt(associateddata->from);
-  for (int i = associateddata->from; i < associateddata->to + 1; i++) {
-    double value = col->valueAt(i);
-    if (minx > value) minx = value;
-    if (maxx < value) maxx = value;
-  }
+  double minx = associateddata->minmax.minx;
+  double maxx = associateddata->minmax.maxx;
   double start = 0;
   double stop = 0;
 
@@ -136,6 +130,7 @@ void IntDialog::accept() {
       MyParser parser;
       parser.SetExpr((boxStart->text()).toUtf8().constData());
       start = parser.Eval();
+      start = boxStart->text().toDouble();
 
       if (start < minx) {
         QMessageBox::warning(
@@ -179,19 +174,20 @@ void IntDialog::accept() {
       MyParser parser;
       parser.SetExpr((boxEnd->text()).toUtf8().constData());
       stop = parser.Eval();
+      stop = boxEnd->text().toDouble();
       if (stop > maxx) {
         // FIXME: I don't understand why this doesn't work for
         // FunctionCurves!!(Ion)
         QMessageBox::warning((ApplicationWindow *)parent(), tr("Input error"),
                 tr("Please give a number smaller or equal to the maximum value"
         "of X, for the upper limit.\n If you do not know that value, type max "
-        "in the box."));
+        "in the boxbb."));
         boxEnd->clear();
         boxEnd->setFocus();
         return;
         boxEnd->setText(QString::number(maxx));
       }
-      if (start < minx) {
+      if (stop < minx) {
         QMessageBox::warning(
             app_, tr("Input error"),
             tr("Please give a number larger or equal to the minimum value of "
@@ -200,6 +196,7 @@ void IntDialog::accept() {
         boxEnd->clear();
         boxEnd->setFocus();
         return;
+         boxEnd->setText(QString::number(minx));
       }
     } catch (mu::ParserError &e) {
       QMessageBox::critical(app_, tr("End limit error"),
@@ -210,6 +207,7 @@ void IntDialog::accept() {
     }
   }
 
+  // integrating
   Integration *i =
       new Integration(app_, axisrect_, associateddata,
                       boxStart->text().toDouble(), boxEnd->text().toDouble());

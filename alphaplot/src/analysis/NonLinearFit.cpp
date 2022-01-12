@@ -27,10 +27,11 @@
  *                                                                         *
  ***************************************************************************/
 #include "NonLinearFit.h"
-#include "fit_gsl.h"
-#include "scripting/MyParser.h"
 
 #include <QMessageBox>
+
+#include "fit_gsl.h"
+#include "scripting/MyParser.h"
 
 NonLinearFit::NonLinearFit(ApplicationWindow *parent, AxisRect2D *axisrect)
     : Fit(parent, axisrect) {
@@ -81,7 +82,6 @@ void NonLinearFit::setParametersList(const QStringList &lst) {
   if (d_p > 0) {  // free previously allocated memory
     gsl_vector_free(d_param_init);
     gsl_matrix_free(covar);
-    delete[] d_results;
   }
 
   d_p = lst.count();
@@ -90,12 +90,13 @@ void NonLinearFit::setParametersList(const QStringList &lst) {
   gsl_vector_set_all(d_param_init, 1.0);
 
   covar = gsl_matrix_alloc(static_cast<size_t>(d_p), static_cast<size_t>(d_p));
-  d_results = new double[static_cast<size_t>(d_p)];
+  d_results.resize(d_p);
 
   for (int i = 0; i < d_p; i++) d_param_explain << "";
 }
 
-void NonLinearFit::calculateFitCurveData(double *par, double *X, double *Y) {
+void NonLinearFit::calculateFitCurveData(const std::vector<double> &par,
+                                         double *X, double *Y) {
   for (int i = 0; i < d_p; i++)
     d_script->setDouble(par[i], d_param_names[i].toUtf8());
 
