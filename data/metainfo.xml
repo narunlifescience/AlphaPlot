@@ -51,7 +51,7 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="1.02" date="2021-12-16">
+    <release version="1.02" date="2022-01-16">
       <description>
         <p>Overview of changes in AlphaPlot 1.02</p>
         <ul>
@@ -93,8 +93,11 @@
           <li>use Axis2D label as object browser item name</li>
           <li>fix function plot line unable to set properties (color, style)</li>
           <li>fix print with transparent background issue (Plot 2D)</li>
-          <li>impliment change order of plots-names in legend</li>
+          <li>implement change order of plots-names in legend</li>
           <li>fix object browser context menu request reflect property browser update</li>
+          <li>add multiple data checks for adding plots and additional controls</li>
+          <li>add more customization of symbol, value, date, datetime, log, text axis 2d</li>
+          <li>column type lock feature to prevent users form changing it while use in a plot2d or plot3d</li>
         </ul>
       </description>
     </release>
