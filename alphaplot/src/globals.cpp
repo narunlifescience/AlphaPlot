@@ -37,8 +37,8 @@
 #include <QObject>
 #include <QtDebug>
 
-const int AlphaPlot::AlphaPlot_versionNo = 112020;
-const char* AlphaPlot::AlphaPlot_version = "1.012";
+const int AlphaPlot::AlphaPlot_versionNo = 1022022;
+const char* AlphaPlot::AlphaPlot_version = "1.02";
 const char* AlphaPlot::extra_version = "stable";
 const QDate AlphaPlot::release_date =
     QDate::fromString(QString("18-01-2022"), "dd-MM-yyyy");
