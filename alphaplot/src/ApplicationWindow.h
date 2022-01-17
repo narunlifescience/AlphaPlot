@@ -384,8 +384,8 @@ class ApplicationWindow : public QMainWindow,
 
   void connectTable(Table* table);
   void initTable(Table* table);
-  void customTable(Table* table, const Table::Custom &custom);
-  void customizeTables(const Table::Custom &custom);
+  void customTable(Table* table, const Table::Custom& custom);
+  void customizeTables(const Table::Custom& custom);
   void customizeCommentsTables();
 
   void importASCII();
@@ -444,7 +444,7 @@ class ApplicationWindow : public QMainWindow,
   //! \name MDI Windows
   //@{
   MyWidget* clone();
-  MyWidget* clone(MyWidget*widget);
+  MyWidget* clone(MyWidget* widget);
 
   //!  Called when the user presses F2 and an item is selected in lv.
   void renameWindow(QTreeWidgetItem* item, int, const QString& text);
@@ -608,7 +608,7 @@ class ApplicationWindow : public QMainWindow,
   void showPlotAssociations(int curve);
 
   void showWindowContextMenu();
-  void itemContextMenuRequested(Layout2D *layout, AxisRect2D *axisrect);
+  void itemContextMenuRequested(Layout2D* layout, AxisRect2D* axisrect);
   void showWindowTitleBarMenu();
   void showWindowPopupMenu(const QPoint& p);
 
@@ -721,7 +721,7 @@ class ApplicationWindow : public QMainWindow,
   //! Returns a to the current folder in the project
   Folder* currentFolder() { return current_folder; }
   //! Adds a new folder to the project
-  void addFolder();
+  Folder* addFolder();
   //! Deletes the current folder
   void deleteFolder();
 

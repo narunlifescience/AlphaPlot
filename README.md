@@ -10,11 +10,11 @@ Alpha Plot is a free application for <i>Sci</i>entific <i>D</i>ata <i>A</i>nalys
 
 | Web         | Link                                             |
 |:------------|:-------------------------------------------------|
-| Website     | http://alphaplot.sourceforge.net/                |
-| Wiki        | http://alphaplot.sourceforge.net/wiki                |
+| Website     | https://alphaplot.sourceforge.io/                |
+| Wiki        | https://alphaplot.sourceforge.io/wiki                |
 | Github      | https://github.com/narunlifescience/AlphaPlot    |
 | Sourceforge | https://sourceforge.net/projects/alphaplot/      |
-| Test builds | http://alphaplot.sourceforge.net/test-build.html |
+| Test builds | https://alphaplot.sourceforge.io/test-build.html |
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/alphaplot.svg)](https://repology.org/project/alphaplot/versions)
 <a href='https://flathub.org/apps/details/io.github.narunlifescience.AlphaPlot'><img width='120' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>

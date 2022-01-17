@@ -215,7 +215,7 @@ void Filter::output() {
 int Filter::sortedCurveData(double start, double end, double **x, double **y) {
   if (!associateddata_) return 0;
   // start/end finding only works on nondecreasing data, so sort first
-  int datasize = associateddata_->to - associateddata_->from;
+  int datasize = (associateddata_->to - associateddata_->from) + 1;
   std::unique_ptr<std::vector<std::pair<double, double>>> temp =
       std::unique_ptr<std::vector<std::pair<double, double>>>(
           new std::vector<std::pair<double, double>>);
@@ -228,18 +228,22 @@ int Filter::sortedCurveData(double start, double end, double **x, double **y) {
                                     associateddata_->ycol->valueAt(i)));
     }
   }
+  std::stable_sort(temp->begin(), temp->end());
 
-  QString delta = QString("1.0E-%1").arg(d_prec);
   auto inside_range = [&](const std::pair<double, double> &x) {
-    return (x.first < start - delta.toDouble() || x.first > end + delta.toDouble());
+    if (std::fabs(std::fabs(x.first) - std::fabs(start)) <
+            std::numeric_limits<double>::epsilon() ||
+        std::fabs(std::fabs(x.first) - std::fabs(end)) <
+            std::numeric_limits<double>::epsilon()) {
+      return false;
+    } else
+      return (x.first < start || x.first > end);
   };
 
   temp->erase(std::remove_if(temp->begin(), temp->end(), inside_range),
               temp->end());
-  std::stable_sort(temp->begin(), temp->end());
 
   datasize = temp->size();
-
   data_->clear();
   data_->reserve(datasize);
   data_ = std::move(temp);

@@ -219,9 +219,9 @@ PropertyEditor::PropertyEditor(QWidget *parent, ApplicationWindow *app)
   layoutpropertymargingroupitem_->addSubProperty(
       layoutpropertybottommarginitem_);
   layoutpropertyrowstreachfactoritem_ =
-      doubleManager_->addProperty(tr("Row Streach Factor"));
+      doubleManager_->addProperty(tr("Row Stretch Factor"));
   layoutpropertycolumnstreachfactoritem_ =
-      doubleManager_->addProperty(tr("Column Streach Factor"));
+      doubleManager_->addProperty(tr("Column Stretch Factor"));
   doubleManager_->setMinimum(layoutpropertyrowstreachfactoritem_, 0.0);
   doubleManager_->setMinimum(layoutpropertycolumnstreachfactoritem_, 0.0);
   // Axis Properties

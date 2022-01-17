@@ -114,7 +114,6 @@ ApplicationWindow *AprojHandler::openproject(const QString &filename) {
 
 void AprojHandler::appendproject(const QString &filename) {
   if (filename.isEmpty()) return;
-  QFile *file = nullptr;
 
   QFileInfo fi(filename);
   app_->workingDir = fi.absolutePath();
@@ -135,6 +134,27 @@ void AprojHandler::appendproject(const QString &filename) {
     return;
   }
 
+  QStringList conflictlist = checkbeforeappendproject(filename);
+  QStringList subfolderlist = app_->current_folder->subfolders();
+  QString chopfilename = fi.baseName();
+  if (subfolderlist.contains(chopfilename, Qt::CaseSensitive))
+    conflictlist.append(chopfilename);
+  if (!conflictlist.isEmpty()) {
+    QString conflictstring;
+    foreach (QString string, conflictlist)
+      conflictstring += string + "<br>";
+    QMessageBox::warning(
+        app_, tr("File Appending error"),
+        tr("The file: <b>%1</b> contains window names "
+           "conflicting with window/folder name(s) from current project. "
+           "change the conflicting names and try appending! <br>"
+           "Conflicting names:<br>"
+           "%2")
+            .arg(filename, conflictstring));
+    return;
+  }
+
+  QFile *file = nullptr;
   if (filename.endsWith(".gz", Qt::CaseInsensitive) ||
       filename.endsWith(".gz~", Qt::CaseInsensitive)) {
     file = openCompressedFile(filename);
@@ -150,30 +170,74 @@ void AprojHandler::appendproject(const QString &filename) {
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-  Folder *cfolder = app_->current_folder;
-  FolderTreeWidgetItem *item = static_cast<FolderTreeWidgetItem *>(
-      app_->current_folder->folderTreeWidgetItem());
+  Folder *cfolder = app_->addFolder();
+  app_->changeFolder(cfolder);
+  FolderTreeWidgetItem *item =
+      static_cast<FolderTreeWidgetItem *>(cfolder->folderTreeWidgetItem());
   app_->blockFolderviewsignals(true);
   app_->blockSignals(true);
-
-  QString baseName = fi.baseName();
-  QStringList lst = app_->current_folder->subfolders();
-  int n = lst.count(baseName);
-  if (n) {  // avoid identical subfolder names
-    while (lst.count(baseName + QString::number(n))) n++;
-    baseName += QString::number(n);
-  }
-
   readxmlstream(app_, file, filename, item);
+
   file->close();
   delete file;
 
   app_->blockFolderviewsignals(false);
-  // change folder to user defined current folder
-  app_->changeFolder(cfolder);
   app_->blockSignals(false);
+  app_->changeFolder(cfolder, true);
   app_->renamedTables = QStringList();
   QApplication::restoreOverrideCursor();
+}
+
+QStringList AprojHandler::checkbeforeappendproject(const QString &filename) {
+  QStringList conflictlist, windowlist;
+  QFile *file = nullptr;
+  if (filename.endsWith(".gz", Qt::CaseInsensitive) ||
+      filename.endsWith(".gz~", Qt::CaseInsensitive)) {
+    file = openCompressedFile(filename);
+    if (!file) return QStringList();
+  } else {
+    file = new QFile(filename);
+    file->open(QIODevice::ReadOnly);
+  }
+  std::unique_ptr<XmlStreamReader> xmlreader =
+      std::unique_ptr<XmlStreamReader>(new XmlStreamReader(file));
+  QXmlStreamReader::TokenType token;
+  bool ok;
+  while (!xmlreader->atEnd()) {
+    token = xmlreader->readNext();
+    if (token == QXmlStreamReader::StartElement &&
+        xmlreader->name() == "table") {
+      QString name = xmlreader->readAttributeString("name", &ok);
+      if (ok) windowlist << name;
+    } else if (token == QXmlStreamReader::StartElement &&
+               xmlreader->name() == "matrix") {
+      QString name = xmlreader->readAttributeString("name", &ok);
+      if (ok) windowlist << name;
+    } else if (token == QXmlStreamReader::StartElement &&
+               xmlreader->name() == "note") {
+      QString name = xmlreader->readAttributeString("name", &ok);
+      if (ok) windowlist << name;
+    } else if (token == QXmlStreamReader::StartElement &&
+               xmlreader->name() == "plot2d") {
+      QString name = xmlreader->readAttributeString("name", &ok);
+      if (ok) windowlist << name;
+    } else if (token == QXmlStreamReader::StartElement &&
+               xmlreader->name() == "plot3d") {
+      QString name = xmlreader->readAttributeString("name", &ok);
+      if (ok) windowlist << name;
+    }
+  }
+  file->close();
+
+  QList<QMdiSubWindow *> slist = app_->subWindowsList();
+  foreach (QMdiSubWindow *window, slist) {
+    MyWidget *widget = qobject_cast<MyWidget *>(window);
+    if (widget)
+      if (windowlist.contains(widget->name(), Qt::CaseSensitive))
+        conflictlist << widget->name();
+  }
+
+  return conflictlist;
 }
 
 MyWidget *AprojHandler::opentemplate(const QString &filename) {
@@ -232,8 +296,11 @@ MyWidget *AprojHandler::opentemplate(const QString &filename) {
           xmlreader->raiseError(tr("Layout3D PlotType unknown %1").arg(ptype));
       } else
         xmlreader->raiseError(tr("Layout3D PlotType missing or empty"));
-      plot->load(xmlreader.get(), tables(app_), matrixs(app_), app_);
-      mywidget = plot;
+      if (plot) {
+        plot->load(xmlreader.get(), tables(app_), matrixs(app_), app_);
+        mywidget = plot;
+      } else
+        return nullptr;
     } else if (token == QXmlStreamReader::StartElement && !istemplate) {
       QMessageBox::critical(
           app_, tr("File opening error"),
@@ -257,7 +324,6 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
                                     FolderTreeWidgetItem *rootitem) {
   Folder *cfolder = nullptr;
   QFileInfo fileinfo(filename);
-  QString baseName = fileinfo.fileName();
   std::unique_ptr<XmlStreamReader> xmlreader =
       std::unique_ptr<XmlStreamReader>(new XmlStreamReader(file));
   QXmlStreamReader::TokenType token;
@@ -275,8 +341,7 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
                  "language.\n\n Initializing support for this language FAILED; "
                  "I'm using default instead.\nVarious parts of this file may "
                  "not be displayed as expected.")
-                  .arg(filename)
-                  .arg(attributes.value("scripting").toString()));
+                  .arg(filename, attributes.value("scripting").toString()));
       }
       rootitem->setText(0, fileinfo.baseName());
       rootitem->folder()->setName(fileinfo.baseName());
@@ -350,7 +415,10 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
           xmlreader->raiseError(tr("Layout3D PlotType unknown %1").arg(ptype));
       } else
         xmlreader->raiseError(tr("Layout3D PlotType missing or empty"));
-      plot->load(xmlreader.get(), tables(app), matrixs(app), app);
+      if (plot)
+        plot->load(xmlreader.get(), tables(app), matrixs(app), app);
+      else
+        return nullptr;
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "log") {
       QXmlStreamAttributes attributes = xmlreader->attributes();
@@ -387,6 +455,7 @@ QFile *AprojHandler::openCompressedFile(const QString &filename) {
   std::unique_ptr<QFile> file = std::unique_ptr<QFile>(new QFile(filename));
   if (!file->open(QIODevice::ReadOnly) || !tempfile->open()) {
     qDebug() << "unable to open " << filename;
+    delete tempfile;
     return nullptr;
   }
   std::unique_ptr<QByteArray> bytearray =

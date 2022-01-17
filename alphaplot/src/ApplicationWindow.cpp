@@ -5053,7 +5053,6 @@ void ApplicationWindow::fitPolynomial() {
     return;
   }
 
-
   PolynomFitDialog *pfd = new PolynomFitDialog(this);
   pfd->setAttribute(Qt::WA_DeleteOnClose);
   pfd->setAxisRect(axisrect);
@@ -5084,8 +5083,8 @@ void ApplicationWindow::integrate() {
     return;
   }
 
-  //std::unique_ptr<IntDialog> id =
-  //    std::unique_ptr<IntDialog>(new IntDialog(this));
+  // std::unique_ptr<IntDialog> id =
+  //     std::unique_ptr<IntDialog>(new IntDialog(this));
   IntDialog *id = new IntDialog(this);
   id->setAttribute(Qt::WA_DeleteOnClose);
   id->setAxisrect(axisrect);
@@ -7816,7 +7815,7 @@ void ApplicationWindow::hideAllFolderWindows() {
 }
 
 // Add new folder (project explorer)
-void ApplicationWindow::addFolder() {
+Folder *ApplicationWindow::addFolder() {
   QStringList lst = current_folder->subfolders();
   QString name = tr("New Folder");
   lst = lst.filter(name);
@@ -7834,6 +7833,7 @@ void ApplicationWindow::addFolder() {
     if (parentFolder)
       ui_->folderView->setCurrentItem(parentFolder->folderTreeWidgetItem());
   }
+  return f;
 }
 
 // Delete selected folder & subfolders (project explorer)
@@ -8438,8 +8438,13 @@ void ApplicationWindow::dropFolderItems(QTreeWidgetItem *dest) {
             tr("The destination folder already contains a folder called '%1'! "
                "Folder skipped!")
                 .arg(f->name()));
-      } else
-        moveFolder(src, static_cast<FolderTreeWidgetItem *>(dest));
+      } else {
+        QMessageBox::critical(
+            this, tr("AlphaPlot") + " - " + tr("Skipped moving folder"),
+            tr("Currently alphaplot dont support drag n drop folder items!")
+                .arg(f->name()));
+        // moveFolder(src, static_cast<FolderTreeWidgetItem *>(dest));
+      }
     } else {
       if (dest_f == current_folder) return;
 

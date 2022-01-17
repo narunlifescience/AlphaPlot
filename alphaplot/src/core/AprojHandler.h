@@ -20,6 +20,7 @@ class AprojHandler : public QObject {
   ~AprojHandler();
   ApplicationWindow *openproject(const QString &filename);
   void appendproject(const QString &filename);
+  QStringList checkbeforeappendproject(const QString &filename);
   MyWidget *opentemplate(const QString &filename);
   Folder *readxmlstream(ApplicationWindow *app, QFile *file,
                         const QString &filename,
