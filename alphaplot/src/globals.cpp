@@ -38,10 +38,10 @@
 #include <QtDebug>
 
 const int AlphaPlot::AlphaPlot_versionNo = 112020;
-const char* AlphaPlot::AlphaPlot_version = "1.011A";
-const char* AlphaPlot::extra_version = "alpha";
+const char* AlphaPlot::AlphaPlot_version = "1.012";
+const char* AlphaPlot::extra_version = "stable";
 const QDate AlphaPlot::release_date =
-    QDate::fromString(QString("07-05-2020"), "dd-MM-yyyy");
+    QDate::fromString(QString("18-01-2022"), "dd-MM-yyyy");
 const char* AlphaPlot::homepage_Uri = "https://alphaplot.sourceforge.io/";
 const char* AlphaPlot::manual_Uri = "https://alphaplot.sourceforge.io/wiki";
 const char* AlphaPlot::forum_Uri =
