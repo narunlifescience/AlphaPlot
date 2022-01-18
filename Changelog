@@ -1,4 +1,4 @@
-== progress ==
+=== 18-01-22 Fifth release of AlphaPlot (Stable) - major release ===
 * project explorer drag n drop
 * add 2D legend visiblity per plot, legend margins and legend direction property
 * fixed multiple crash issues thus increasing the stability
