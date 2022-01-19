@@ -53,7 +53,7 @@ class AlphaPlot : public QObject {
 
   // Url links
   static const char* homepage_Uri;
-  static const char* manual_Uri;
+  static const char* wiki_Uri;
   static const char* forum_Uri;
   static const char* bugreport_Uri;
   static const char* download_Uri;

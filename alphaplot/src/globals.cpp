@@ -43,7 +43,7 @@ const char* AlphaPlot::extra_version = "stable";
 const QDate AlphaPlot::release_date =
     QDate::fromString(QString("18-01-2022"), "dd-MM-yyyy");
 const char* AlphaPlot::homepage_Uri = "https://alphaplot.sourceforge.io/";
-const char* AlphaPlot::manual_Uri = "https://alphaplot.sourceforge.io/wiki";
+const char* AlphaPlot::wiki_Uri = "https://alphaplot.sourceforge.io/wiki";
 const char* AlphaPlot::forum_Uri =
     "https://sourceforge.net/p/alphaplot/discussion/";
 const char* AlphaPlot::bugreport_Uri =

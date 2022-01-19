@@ -217,15 +217,13 @@
      <string>Help</string>
     </property>
     <addaction name="actionHelp"/>
-    <addaction name="actionChooseHelpFolder"/>
     <addaction name="separator"/>
     <addaction name="actionHomepage"/>
-    <addaction name="actionCheckUpdates"/>
-    <addaction name="actionDownloadManual"/>
-    <addaction name="separator"/>
+    <addaction name="actionWiki"/>
     <addaction name="actionVisitForum"/>
     <addaction name="actionReportBug"/>
     <addaction name="separator"/>
+    <addaction name="actionCheckUpdates"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuPlot">
@@ -933,7 +931,7 @@
   </action>
   <action name="actionHomepage">
    <property name="text">
-    <string>&amp;AlphaPlot Homepage</string>
+    <string>&amp;Homepage</string>
    </property>
   </action>
   <action name="actionChooseHelpFolder">
@@ -946,14 +944,14 @@
     <string>Check &amp;Updates</string>
    </property>
   </action>
-  <action name="actionDownloadManual">
+  <action name="actionWiki">
    <property name="text">
-    <string>&amp;Download Manual</string>
+    <string>Wiki</string>
    </property>
   </action>
   <action name="actionVisitForum">
    <property name="text">
-    <string>&amp;Visit AlphaPlot Forum</string>
+    <string>&amp;Forum</string>
    </property>
   </action>
   <action name="actionReportBug">

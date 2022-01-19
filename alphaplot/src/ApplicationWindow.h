@@ -72,7 +72,6 @@ class FolderTreeWidgetItem;
 class Plot3DDialog;
 class MyWidget;
 class TableStatistics;
-class CurveRangeDialog;
 class Project;
 class AbstractAspect;
 
@@ -603,8 +602,6 @@ class ApplicationWindow : public QMainWindow,
   void showResults(const QString& text, bool ok = false);
   void showExportASCIIDialog();
   void showCurvesDialog();
-  void showCurveRangeDialog();
-  CurveRangeDialog* showCurveRangeDialog(AxisRect2D* axisrect, int curve);
   void showPlotAssociations(int curve);
 
   void showWindowContextMenu();
@@ -679,17 +676,6 @@ class ApplicationWindow : public QMainWindow,
   void receivedVersionFile(QNetworkReply* reply);
   //!  called when the user presses the actionCheckUpdates
   void searchForUpdates();
-#endif
-
-  //! Open AlphaPlot homepage in external browser
-  void showHomePage();
-  //! Open forums page at SF.net in external browser
-  void showForums();
-  //! Open bug tracking system at SF.net in external browser
-  void showBugTracker();
-#ifdef DOWNLOAD_LINKS
-  //! Show download page in external browser
-  void downloadManual();
 #endif
 
   void parseCommandLineArguments(const QStringList& args);
@@ -849,9 +835,7 @@ class ApplicationWindow : public QMainWindow,
   void modified();
 
  private slots:
-  void showHelp();          // Open help file index.html
-  void chooseHelpFolder();  // Choose help folder
-  void about();             // Show about dialog
+  void about();     // Show about dialog
 
   // TODO: a lot of this stuff should be private
  public:
@@ -1081,8 +1065,6 @@ class ApplicationWindow : public QMainWindow,
 #endif
 
   QAction* actionCopyStatusBarText;
-  QAction* actionEditCurveRange;
-
   QAction* actionShowExportASCIIDialog;
   QAction* actionExportPDF;
   QAction* actionCloseAllWindows;

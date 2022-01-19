@@ -26,7 +26,6 @@
 #include "AssociationsDialog.h"
 #include "ColorBox.h"
 #include "ConfigDialog.h"
-#include "CurveRangeDialog.h"
 #include "DataSetDialog.h"
 #include "FindDialog.h"
 #include "Folder.h"
@@ -119,6 +118,7 @@
 #include <QUrl>
 #include <QVarLengthArray>
 #include <QtDebug>
+#include <QtGlobal>
 #include <iostream>
 
 #include "2Dplot/Graph2DCommon.h"
@@ -236,7 +236,6 @@ ApplicationWindow::ApplicationWindow()
   actionMatrixDeterminant = new QAction(tr("&Determinant"), this);
   actionConvertMatrix = new QAction(tr("&Convert to Table"), this);
   actionConvertTable = new QAction(tr("Convert to &Matrix"), this);
-  actionEditCurveRange = new QAction(tr("Edit &Range..."), this);
   actionCopyStatusBarText = new QAction(tr("&Copy status bar text"), this);
   actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
   // Load Style & color scheme here
@@ -883,67 +882,60 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->actionCloseWindow, SIGNAL(triggered()), this,
           SLOT(closeActiveWindow()));
   // Help menu
-  connect(ui_->actionHelp, SIGNAL(triggered()), this, SLOT(showHelp()));
-#ifdef DYNAMIC_MANUAL_PATH
-  connect(ui_->actionChooseHelpFolder, SIGNAL(triggered()), this,
-          SLOT(chooseHelpFolder()));
-  ui_->actionChooseHelpFolder->setVisible(true);
-#else
-  ui_->actionChooseHelpFolder->setVisible(false);
-#endif
-  connect(ui_->actionHomepage, SIGNAL(triggered()), this, SLOT(showHomePage()));
+  auto wiki = []() { QDesktopServices::openUrl(QUrl(AlphaPlot::wiki_Uri)); };
+  connect(ui_->actionHelp, &QAction::triggered, this, wiki);
+  connect(ui_->actionHomepage, &QAction::triggered, this,
+          []() { QDesktopServices::openUrl(QUrl(AlphaPlot::homepage_Uri)); });
 #ifdef SEARCH_FOR_UPDATES
-  connect(ui_->actionCheckUpdates, SIGNAL(triggered()), this,
-          SLOT(searchForUpdates()));
+  connect(ui_->actionCheckUpdates, &QAction::triggered, this,
+          &ApplicationWindow::searchForUpdates);
   ui_->actionCheckUpdates->setVisible(true);
 #else
   ui_->actionCheckUpdates->setVisible(false);
 #endif  // defined SEARCH_FOR_UPDATES
-#ifdef DOWNLOAD_LINKS
-  connect(ui_->actionDownloadManual, SIGNAL(triggered()), this,
-          SLOT(downloadManual()));
-  ui_->actionDownloadManual->setVisible(true);
-#else
-  ui_->actionDownloadManual->setVisible(false);
-#endif
-  connect(ui_->actionVisitForum, SIGNAL(triggered()), this, SLOT(showForums()));
-  connect(ui_->actionReportBug, SIGNAL(triggered()), this,
-          SLOT(showBugTracker()));
+  connect(ui_->actionWiki, &QAction::triggered, this, wiki);
+  connect(ui_->actionVisitForum, &QAction::triggered, this,
+          []() { QDesktopServices::openUrl(QUrl(AlphaPlot::forum_Uri)); });
+  connect(ui_->actionReportBug, &QAction::triggered, this,
+          []() { QDesktopServices::openUrl(QUrl(AlphaPlot::bugreport_Uri)); });
   connect(ui_->actionAbout, &QAction::triggered, this,
           &ApplicationWindow::about);
 
   // non main menu QAction Connections
-  connect(actionSaveNote, SIGNAL(triggered()), this, SLOT(saveNoteAs()));
-  connect(actionExportPDF, SIGNAL(triggered()), this, SLOT(exportPDF()));
-  connect(actionHideActiveWindow, SIGNAL(triggered()), this,
-          SLOT(hideActiveWindow()));
-  connect(actionShowMoreWindows, SIGNAL(triggered()), this,
-          SLOT(showMoreWindows()));
-  connect(actionPixelLineProfile, SIGNAL(triggered()), this,
-          SLOT(pixelLineProfile()));
-  connect(actionIntensityTable, SIGNAL(triggered()), this,
-          SLOT(intensityTable()));
-  connect(actionActivateWindow, SIGNAL(triggered()), this,
-          SLOT(activateWindow()));
-  connect(actionMinimizeWindow, SIGNAL(triggered()), this,
-          SLOT(minimizeWindow()));
-  connect(actionMaximizeWindow, SIGNAL(triggered()), this,
-          SLOT(maximizeWindow()));
-  connect(actionPrintWindow, SIGNAL(triggered()), this, SLOT(printWindow()));
-  connect(actionEditSurfacePlot, SIGNAL(triggered()), this,
-          SLOT(editSurfacePlot()));
-  connect(actionAdd3DData, SIGNAL(triggered()), this, SLOT(add3DData()));
-  connect(actionInvertMatrix, SIGNAL(triggered()), this, SLOT(invertMatrix()));
-  connect(actionMatrixDeterminant, SIGNAL(triggered()), this,
-          SLOT(matrixDeterminant()));
-  connect(actionConvertMatrix, SIGNAL(triggered()), this,
-          SLOT(convertMatrixToTable()));
-  connect(actionConvertTable, SIGNAL(triggered()), this,
-          SLOT(convertTableToMatrix()));
-  connect(actionEditCurveRange, SIGNAL(triggered()), this,
-          SLOT(showCurveRangeDialog()));
-  connect(actionCopyStatusBarText, SIGNAL(triggered()), this,
-          SLOT(copyStatusBarText()));
+  connect(actionSaveNote, &QAction::triggered, this,
+          &ApplicationWindow::saveNoteAs);
+  connect(actionExportPDF, &QAction::triggered, this,
+          &ApplicationWindow::exportPDF);
+  connect(actionHideActiveWindow, &QAction::triggered, this,
+          &ApplicationWindow::hideActiveWindow);
+  connect(actionShowMoreWindows, &QAction::triggered, this,
+          &ApplicationWindow::showMoreWindows);
+  connect(actionPixelLineProfile, &QAction::triggered, this,
+          &ApplicationWindow::pixelLineProfile);
+  connect(actionIntensityTable, &QAction::triggered, this,
+          &ApplicationWindow::intensityTable);
+  connect(actionActivateWindow, &QAction::triggered, this,
+          qOverload<>(&ApplicationWindow::activateWindow));
+  connect(actionMinimizeWindow, &QAction::triggered, this,
+          &ApplicationWindow::minimizeWindow);
+  connect(actionMaximizeWindow, &QAction::triggered, this,
+          qOverload<>(&ApplicationWindow::maximizeWindow));
+  connect(actionPrintWindow, &QAction::triggered, this,
+          &ApplicationWindow::printWindow);
+  connect(actionEditSurfacePlot, &QAction::triggered, this,
+          &ApplicationWindow::editSurfacePlot);
+  connect(actionAdd3DData, &QAction::triggered, this,
+          &ApplicationWindow::add3DData);
+  connect(actionInvertMatrix, &QAction::triggered, this,
+          &ApplicationWindow::invertMatrix);
+  connect(actionMatrixDeterminant, &QAction::triggered, this,
+          &ApplicationWindow::matrixDeterminant);
+  connect(actionConvertMatrix, &QAction::triggered, this,
+          &ApplicationWindow::convertMatrixToTable);
+  connect(actionConvertTable, &QAction::triggered, this,
+          &ApplicationWindow::convertTableToMatrix);
+  connect(actionCopyStatusBarText, &QAction::triggered, this,
+          &ApplicationWindow::copyStatusBarText);
 
   // Make toolbars
   makeToolBars();
@@ -951,8 +943,8 @@ ApplicationWindow::ApplicationWindow()
   // Initiate statusbar
   statusBarInfo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   statusBarInfo->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(statusBarInfo, SIGNAL(customContextMenuRequested(const QPoint &)),
-          this, SLOT(showStatusBarContextMenu(const QPoint &)));
+  connect(statusBarInfo, &QLabel::customContextMenuRequested, this,
+          &ApplicationWindow::showStatusBarContextMenu);
   statusBar()->addWidget(statusBarInfo, 1);
 
   // Create central MdiArea
@@ -967,18 +959,19 @@ ApplicationWindow::ApplicationWindow()
   setAppColors();
   createLanguagesList();
 
-  connect(scriptEnv, SIGNAL(error(const QString &, const QString &, int)), this,
-          SLOT(scriptError(const QString &, const QString &, int)));
-  connect(scriptEnv, SIGNAL(print(const QString &)), this,
-          SLOT(scriptPrint(const QString &)));
+  connect(scriptEnv, &ScriptingEnv::error, this,
+          &ApplicationWindow::scriptError);
+  connect(scriptEnv, &ScriptingEnv::print, this,
+          &ApplicationWindow::scriptPrint);
   // this has to be done after connecting scriptEnv
   scriptEnv->initialize();
 
 #ifdef SEARCH_FOR_UPDATES
-  connect(&http, SIGNAL(finished(QNetworkReply *)), this,
-          SLOT(receivedVersionFile(QNetworkReply *)));
+  connect(&http, &QNetworkAccessManager::finished, this,
+          &ApplicationWindow::receivedVersionFile);
 #endif
-  connect(this, SIGNAL(modified()), this, SLOT(modifiedProject()));
+  connect(this, qOverload<>(&ApplicationWindow::modified), this,
+          qOverload<>(&ApplicationWindow::modifiedProject));
 }
 
 // Distructor
@@ -6131,43 +6124,6 @@ void ApplicationWindow::showWindowTitleBarMenu() {
   showWindowMenu(qobject_cast<MyWidget *>(d_workspace->activeSubWindow()));
 }
 
-void ApplicationWindow::chooseHelpFolder() {
-// TODO: move all paths & location handling to anothor class
-#if defined(Q_OS_WIN)
-  const QString locateDefaultHelp =
-      qApp->applicationDirPath() +
-      QDir::toNativeSeparators("/manual/index.html");
-#else
-  const QString locateDefaultHelp =
-      QDir::toNativeSeparators("/usr/share/doc/AlphaPlot/manual/index.html");
-#endif
-  if (QFile(locateDefaultHelp).exists()) {
-    helpFilePath = locateDefaultHelp;
-  } else {
-    const QString dir = QFileDialog::getExistingDirectory(
-        this, tr("Choose the location of the AlphaPlot help folder!"),
-        qApp->applicationDirPath());
-
-    if (!dir.isEmpty()) {
-      const QFile helpFile(dir + QDir::toNativeSeparators("/index.html"));
-      // TODO: Probably some kind of validity check to make sure that the
-      // index.html file belongs to AlphaPlot
-      if (!helpFile.exists()) {
-        QMessageBox::information(
-            this, tr("index.html File Not Found!"),
-            tr("There is no file called <b>index.html</b> in this folder."
-               "<br>Please choose another folder!"));
-      } else {
-        helpFilePath = dir + QDir::toNativeSeparators("/index.html");
-      }
-    }
-  }
-}
-
-void ApplicationWindow::showHelp() {
-  QDesktopServices::openUrl(QUrl(AlphaPlot::manual_Uri));
-}
-
 void ApplicationWindow::showPlotWizard() {
   if (tableWindows().count() < 1) {
     QMessageBox::warning(
@@ -6186,28 +6142,6 @@ void ApplicationWindow::showPlotWizard() {
   plotwizard->setColumnsList(columnsList());
   plotwizard->changeColumnsList(tableWindows()[0]);
   plotwizard->exec();
-}
-
-void ApplicationWindow::showCurveRangeDialog() {
-  /* if (!isActiveSubwindow(SubWindowType::MultiLayerSubWindow)) return;
-
-   Graph *graph =
-       qobject_cast<MultiLayer
-   *>(d_workspace->activeSubWindow())->activeGraph(); if (!graph) return;
-
-   int curveKey = actionEditCurveRange->data().toInt();
-   showCurveRangeDialog(graph, graph->curveIndex(curveKey));*/
-}
-
-CurveRangeDialog *ApplicationWindow::showCurveRangeDialog(AxisRect2D *axisrect,
-                                                          int curve) {
-  if (!axisrect) return nullptr;
-
-  CurveRangeDialog *crd = new CurveRangeDialog(this);
-  crd->setAttribute(Qt::WA_DeleteOnClose);
-  // crd->setCurveToModify(g, curve);
-  crd->show();
-  return crd;
 }
 
 Function2DDialog *ApplicationWindow::functionDialog() {
@@ -7270,24 +7204,6 @@ void ApplicationWindow::multipeakfitappendpoints(Curve2D *curve, double x,
     pickGraphTool(ui_->actionDisableGraphTools);
     ui_->statusBar->clearMessage();
   }
-}
-
-#ifdef DOWNLOAD_LINKS
-void ApplicationWindow::downloadManual() {
-  QDesktopServices::openUrl(QUrl(AlphaPlot::manual_Uri));
-}
-#endif  // defined DOWNLOAD_LINKS
-
-void ApplicationWindow::showHomePage() {
-  QDesktopServices::openUrl(QUrl(AlphaPlot::homepage_Uri));
-}
-
-void ApplicationWindow::showForums() {
-  QDesktopServices::openUrl(QUrl(AlphaPlot::forum_Uri));
-}
-
-void ApplicationWindow::showBugTracker() {
-  QDesktopServices::openUrl(QUrl(AlphaPlot::bugreport_Uri));
 }
 
 void ApplicationWindow::parseCommandLineArguments(const QStringList &args) {
@@ -9703,11 +9619,10 @@ void ApplicationWindow::loadIcons() {
   // Help menu
   ui_->actionHelp->setIcon(
       IconLoader::load("edit-help", IconLoader::LightDark));
-  ui_->actionChooseHelpFolder->setIcon(QIcon());
   ui_->actionHomepage->setIcon(
       IconLoader::load("go-home", IconLoader::LightDark));
   ui_->actionCheckUpdates->setIcon(QIcon());
-  ui_->actionDownloadManual->setIcon(QIcon());
+  ui_->actionWiki->setIcon(QIcon());
   ui_->actionVisitForum->setIcon(
       IconLoader::load("edit-help-forum", IconLoader::LightDark));
   ui_->actionReportBug->setIcon(
