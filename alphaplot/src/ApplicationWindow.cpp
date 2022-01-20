@@ -25,17 +25,14 @@
 #include "About.h"
 #include "AssociationsDialog.h"
 #include "ColorBox.h"
-#include "ConfigDialog.h"
 #include "DataSetDialog.h"
 #include "FindDialog.h"
 #include "Folder.h"
 #include "ImageExportDlg.h"
 #include "ImportASCIIDialog.h"
-#include "LayerDialog.h"
 #include "Note.h"
 #include "OpenProjectDialog.h"
 #include "PlotWizard.h"
-#include "Spectrogram.h"
 #include "TableStatistics.h"
 #include "analysis/Convolution.h"
 #include "analysis/Correlation.h"
@@ -67,7 +64,6 @@
 #include "ui_ApplicationWindow.h"
 
 // TODO: move tool-specific code to an extension manager
-#include "TranslateCurveTool.h"
 #include "analysis/MultiPeakFitTool.h"
 #include "ui/SettingsDialog.h"
 

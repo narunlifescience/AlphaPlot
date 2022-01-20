@@ -280,63 +280,6 @@ QDateTime Utilities::stripDateTimeToFormat(const QDateTime& datetime,
   return QDateTime::fromString(datetime.toString(format), format);
 }
 
-/*QString Utilities::timeFormatConvertor(const QString& string) {
-  QString tmpstr = string;
-  tmpstr = tmpstr.replace("%h", "hh");
-  tmpstr = tmpstr.replace("%m", "mm");
-  tmpstr = tmpstr.replace("%s", "ss");
-  tmpstr = tmpstr.replace("%z", "zz");
-  qDebug() << tmpstr;
-  return tmpstr;
-}
-
-bool Utilities::isTimeFormat(const QString& format) {
-  return false;
-  bool status = false;
-  if (!format.contains("d", Qt::CaseSensitive) ||
-      !format.contains("M", Qt::CaseSensitive) ||
-      !format.contains("yy", Qt::CaseSensitive)) {
-    if (format.contains("h", Qt::CaseSensitive) ||
-        format.contains("m", Qt::CaseSensitive) ||
-        format.contains("s", Qt::CaseSensitive) ||
-        format.contains("z", Qt::CaseSensitive))
-      status = true;
-  }
-  return status;
-}
-
-QTime Utilities::intToTime(const int value, const QString& format) {
-  if (value >= 86400000 || value <= -86400000) return QTime(0, 0, 0, 0);
-  // this is a different way of doing the same
-  // double intpart;
-  // double temp = modf(double(value) / 1000, &intpart);
-  // double msec = temp * 1000;
-  // qDebug() << temp << intpart;
-  // temp = modf(intpart / 60, &intpart);
-  // double sec = temp * 60;
-  // temp = modf(intpart / 60, &intpart);
-  // double minutes = temp * 60;
-  // temp = modf(intpart / 24, &intpart);
-  // double hours = temp * 24;
-  // return QTime(hours, minutes, sec, msec);
-
-  int msec = value % 1000;
-  int temp = value / 1000;
-  int sec = temp % 60;
-  temp = temp / 60;
-  int minutes = temp % 60;
-  temp = temp / 60;
-  int hours = temp % 24;
-  return QTime(hours, minutes, sec, msec);
-}
-
-int Utilities::timeToInt(const QTime& time) {
-  // this is a different way of doing the same
-  return time.msecsSinceStartOfDay();
-  // return (time.hour() * 60 * 60 * 1000) + (time.minute() * 60 * 1000) +
-  //        (time.second() * 1000) + (time.msec());
-}*/
-
 QImage Utilities::convertToGrayScale(const QImage& srcImage) {
   // Convert to 32bit pixel format
   QImage dstImage = srcImage.convertToFormat(srcImage.hasAlphaChannel()

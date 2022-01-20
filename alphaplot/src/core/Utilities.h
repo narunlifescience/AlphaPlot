@@ -32,10 +32,6 @@ class Utilities {
 
   static QDateTime stripDateTimeToFormat(const QDateTime &datetime,
                                  const QString &format);
-  //static QString timeFormatConvertor(const QString &string);
-  //static bool isTimeFormat(const QString &format);
-  //static QTime intToTime(const int value, const QString &format);
-  //static int timeToInt(const QTime &time);
 
   static QImage convertToGrayScale(const QImage &srcImage);
   static QImage convertToGrayScaleFast(const QImage &srcImage);

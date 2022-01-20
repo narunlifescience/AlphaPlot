@@ -60,20 +60,20 @@ QIcon IconLoader::load(const QString& name, const IconMode& iconMode) {
   const QString locate(filename + "/%1/%2.%3");
   for (int i = 0; i < sizes_.size(); i++) {
     const QString filename_custom_png(
-        locate.arg(sizes_.at(i)).arg(name).arg("png"));
+        locate.arg(QString::number(sizes_.at(i)), name, "png"));
 
     // First check if a png file is available
     if (QFile::exists(filename_custom_png)) {
       ret.addFile(filename_custom_png, QSize(sizes_.at(i), sizes_.at(i)));
     } else {
       const QString filename_custom_svg(
-          locate.arg(sizes_.at(i)).arg(name).arg("svg"));
+          locate.arg(QString::number(sizes_.at(i)), name, "svg"));
       // Then check if an svg file is available
       if (QFile::exists(filename_custom_svg)) {
         ret.addFile(filename_custom_svg, QSize(sizes_.at(i), sizes_.at(i)));
       } else {
         const QString filename_custom_xpm(
-            locate.arg(sizes_.at(i)).arg(name).arg("xpm"));
+            locate.arg(QString::number(sizes_.at(i)), name, "xpm"));
         // Then check if an xpm file is available
         if (QFile::exists(filename_custom_xpm)) {
           ret.addFile(filename_custom_xpm, QSize(sizes_.at(i), sizes_.at(i)));

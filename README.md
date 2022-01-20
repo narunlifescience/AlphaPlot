@@ -94,7 +94,6 @@ The following people have made installing AlphaPlot easier by providing speciali
 In alphabetical order.
 
 - [Filipe](https://github.com/filipestevao) ([Flatpak stable](https://flathub.org/apps/details/io.github.narunlifescience.AlphaPlot) / [Flatpak beta](https://github.com/narunlifescience/AlphaPlot/issues/20#issuecomment-808984764))
-- [Filipe](https://github.com/filipestevao) ([Linux AppImage](https://github.com/filipestevao/AlphaPlot-AppImage/releases/download/v1.011/AlphaPlot-1.011.glibc2.29-x86_64.AppImage)) - *Archived repository*
 - [devacom](https://github.com/devacom) ([Ubuntu package](https://launchpad.net/~devacom/+archive/ubuntu/science))
 
 ```
@@ -143,7 +142,6 @@ We thank all the tools and library developers & contributors used by AlphaPlot(i
 - Git (https://git-scm.com/),
 - Breeze Icons (https://github.com/KDE/breeze-icons),
 - Inno Setup (https://jrsoftware.org/isinfo.php),
-- AppImage (https://appimage.org/)
 - Flatpak (https://flatpak.org/)
 
 ... and many more we just forgot to mention.

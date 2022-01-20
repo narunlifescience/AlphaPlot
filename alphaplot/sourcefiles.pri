@@ -18,8 +18,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/scripting/MyParser.h \
             src/Table.h \
             src/PlotWizard.h \
-            src/LayerDialog.h \
-            src/ConfigDialog.h \
             src/Matrix.h \
             src/DataSetDialog.h \
             src/ColorBox.h \
@@ -41,7 +39,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/scripting/ScriptingLangDialog.h\
             src/TextFormatButtons.h\
             src/TableStatistics.h\
-            src/Spectrogram.h\
             src/analysis/Filter.h\
             src/analysis/FFTFilter.h\
             src/analysis/FFT.h\
@@ -66,11 +63,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/analysis/MultiPeakFitTool.h\
             src/analysis/NonLinearFit.h\
             src/analysis/FitDialog.h\
-            src/TranslateCurveTool.h\
-            src/CurveRangeDialog.h\
             src/OpenProjectDialog.h\
             src/TeXTableSettings.h \
-            src/SymbolDialog.h \
             src/TeXTableSettingsWidget.h \
             src/TeXTableExportDialog.h \
             src/scripting/widgets/Console.h \
@@ -113,9 +107,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/scripting/MyParser.cpp\
             src/Table.cpp \
             src/PlotWizard.cpp \
-            src/LayerDialog.cpp \
             src/DataSetDialog.cpp \
-            src/ConfigDialog.cpp \
             src/Matrix.cpp \
             src/ColorBox.cpp \
             src/PatternBox.cpp \
@@ -136,7 +128,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/scripting/Script.cpp\
             src/scripting/ScriptingLangDialog.cpp\
             src/TableStatistics.cpp\
-            src/Spectrogram.cpp\
             src/analysis/Filter.cpp\
             src/analysis/FFTFilter.cpp\
             src/analysis/FFT.cpp\
@@ -161,12 +152,9 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/analysis/MultiPeakFitTool.cpp\
             src/analysis/NonLinearFit.cpp\
             src/analysis/FitDialog.cpp\
-            src/TranslateCurveTool.cpp\
-            src/CurveRangeDialog.cpp\
             src/OpenProjectDialog.cpp\
             src/globals.cpp \
             src/TeXTableSettings.cpp \
-            src/SymbolDialog.cpp \
             src/TeXTableSettingsWidget.cpp \
             src/TeXTableExportDialog.cpp \
             src/scripting/widgets/Console.cpp \

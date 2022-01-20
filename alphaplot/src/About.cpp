@@ -42,6 +42,6 @@ About::About(QWidget* parent) : QDialog(parent) {
   ui_.buildLabelCaption->setVisible(false);
   ui_.originalAuthorLabel->setText(AlphaPlot::originalAuthor());
   ui_.osLabel->setText(QString("%1 %2-bit")
-                           .arg(QSysInfo::prettyProductName())
-                           .arg(QSysInfo::currentCpuArchitecture()));
+                           .arg(QSysInfo::prettyProductName(),
+                                QSysInfo::currentCpuArchitecture()));
 }
