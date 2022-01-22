@@ -227,10 +227,10 @@ FolderTreeWidget::FolderTreeWidget(QWidget *parent, const QString name)
   viewport()->setAcceptDrops(true);
   setObjectName(name.toLocal8Bit());
   setItemDelegate(tableWidgetDeligate);
-  connect(tableWidgetDeligate, SIGNAL(emptyFolderName()), this,
-          SLOT(emptyFolderNameMsgBox()));
-  connect(tableWidgetDeligate, SIGNAL(invalidFolderName(const QString &)), this,
-          SLOT(invalidFolderNameMsgBox(const QString &)));
+  connect(tableWidgetDeligate, &TableWidgetDelegate::emptyFolderName, this,
+          &FolderTreeWidget::emptyFolderNameMsgBox);
+  connect(tableWidgetDeligate, &TableWidgetDelegate::invalidFolderName, this,
+          &FolderTreeWidget::invalidFolderNameMsgBox);
 }
 
 FolderTreeWidget::~FolderTreeWidget() { delete tableWidgetDeligate; }

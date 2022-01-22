@@ -28,6 +28,7 @@
  ***************************************************************************/
 
 #include "ExtensibleFileDialog.h"
+
 #include <QGridLayout>
 
 ExtensibleFileDialog::ExtensibleFileDialog(QWidget *parent, bool extended,
@@ -56,16 +57,22 @@ ExtensibleFileDialog::ExtensibleFileDialog(QWidget *parent, bool extended,
     layout()->addWidget(d_extension_toggle);
   }
 
-  connect(d_extension_toggle, SIGNAL(toggled(bool)), this, SLOT(resize(bool)));
-  connect(this, SIGNAL(accepted()), this, SLOT(close()));
-  connect(this, SIGNAL(rejected()), this, SLOT(close()));
+  connect(d_extension_toggle, &QPushButton::toggled, this,
+          &ExtensibleFileDialog::resize);
+  connect(this, &ExtensibleFileDialog::accepted, this,
+          &ExtensibleFileDialog::close);
+  connect(this, &ExtensibleFileDialog::rejected, this,
+          &ExtensibleFileDialog::close);
 }
 
 void ExtensibleFileDialog::setExtensionWidget(QWidget *extension) {
   if (d_extension == extension) return;
   if (d_extension) {
     d_extension->hide();
-    disconnect(d_extension_toggle, SIGNAL(toggled(bool)));
+    disconnect(d_extension_toggle, &QPushButton::toggled, d_extension,
+               &QWidget::setVisible);
+    disconnect(d_extension_toggle, &QPushButton::toggled, this,
+               &ExtensibleFileDialog::resize);
   }
   d_extension = extension;
   if (!d_extension) {
@@ -82,8 +89,8 @@ void ExtensibleFileDialog::setExtensionWidget(QWidget *extension) {
     layout()->addWidget(d_extension);
 
   d_extension->setVisible(d_extension_toggle->isChecked());
-  connect(d_extension_toggle, SIGNAL(toggled(bool)), d_extension,
-          SLOT(setVisible(bool)));
+  connect(d_extension_toggle, &QPushButton::toggled, d_extension,
+          &QWidget::setVisible);
 }
 
 void ExtensibleFileDialog::resize(bool extension_on) {

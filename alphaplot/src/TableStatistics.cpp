@@ -28,18 +28,20 @@
  *                                                                         *
  ***************************************************************************/
 #include "TableStatistics.h"
+
+#include <gsl/gsl_statistics.h>
+#include <gsl/gsl_vector.h>
+
+#include <QContextMenuEvent>
+#include <QList>
+#include <QMenu>
+
+#include "core/column/Column.h"
+#include "core/datatypes/Double2StringFilter.h"
+#include "table/TableDoubleHeaderView.h"
 #include "table/TableModel.h"
 #include "table/TableView.h"
 #include "table/future_Table.h"
-#include "table/TableDoubleHeaderView.h"
-#include "core/column/Column.h"
-#include "core/datatypes/Double2StringFilter.h"
-
-#include <QList>
-#include <QMenu>
-#include <QContextMenuEvent>
-#include <gsl/gsl_vector.h>
-#include <gsl/gsl_statistics.h>
 
 TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent,
                                  Table *base, Type t, QList<int> targets)
@@ -94,7 +96,6 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent,
     setColName(7, tr("Max"));
     setColName(8, tr("Min"));
     setColName(9, "N");
-
 
     for (int i = 0; i < 10; i++) setColumnType(i, AlphaPlot::Numeric);
 
@@ -190,9 +191,8 @@ void TableStatistics::update(Table *t, const QString &colName) {
           gsl_vector_minmax(y, &min, &max);
 
           column(2)->setValueAt(destRow, mean);
-          column(3)
-              ->setValueAt(destRow, sd);
-          column(4)->setValueAt(destRow, sd/sqrt(validCells.count()));
+          column(3)->setValueAt(destRow, sd);
+          column(4)->setValueAt(destRow, sd / sqrt(validCells.count()));
           column(5)->setValueAt(
               destRow, gsl_stats_variance(data, 1, validCells.count()));
           column(6)->setValueAt(destRow, mean * validCells.count());
@@ -210,9 +210,8 @@ void TableStatistics::update(Table *t, const QString &colName) {
     }
   } else if (d_type == TableStatistics::StatColumn) {
     for (int destRow = 0; destRow < d_targets.size(); destRow++) {
-      if (colName ==
-          QString(d_base->name()) + "_" +
-              d_base->colLabel(d_targets[destRow])) {
+      if (colName == QString(d_base->name()) + "_" +
+                         d_base->colLabel(d_targets[destRow])) {
         int colIndex = d_base->colIndex(colName);
         Column *col = d_base->column(colIndex);
 
@@ -260,7 +259,7 @@ void TableStatistics::update(Table *t, const QString &colName) {
         column(1)->setTextAt(destRow, "[1:" + QString::number(rows) + "]");
         column(2)->setValueAt(destRow, mean);
         column(3)->setValueAt(destRow, sd);
-        column(4)->setValueAt(destRow, sd/sqrt(validCells.count()));
+        column(4)->setValueAt(destRow, sd / sqrt(validCells.count()));
         column(5)->setValueAt(destRow,
                               gsl_stats_variance(data, 1, validCells.count()));
         column(6)->setValueAt(destRow, mean * validCells.count());
@@ -330,8 +329,8 @@ bool TableStatistics::eventFilter(QObject *watched, QEvent *event) {
       context_menu.addMenu(submenu);
       context_menu.addSeparator();
 
-      connect(&context_menu, SIGNAL(aboutToShow()), d_future_table,
-              SLOT(adjustActionNames()));
+      connect(&context_menu, &QMenu::aboutToShow, d_future_table,
+              &future::Table::adjustActionNames);
       context_menu.addAction(d_future_table->action_toggle_comments);
 
       context_menu.exec(global_pos);
@@ -347,8 +346,8 @@ bool TableStatistics::eventFilter(QObject *watched, QEvent *event) {
       context_menu.addSeparator();
       context_menu.addSeparator();
 
-      connect(&context_menu, SIGNAL(aboutToShow()), d_future_table,
-              SLOT(adjustActionNames()));
+      connect(&context_menu, &QMenu::aboutToShow, d_future_table,
+              &future::Table::adjustActionNames);
       context_menu.addAction(d_future_table->action_toggle_comments);
       context_menu.addSeparator();
       context_menu.addAction(d_future_table->action_select_all);

@@ -28,12 +28,13 @@
  *                                                                         *
  ***************************************************************************/
 #include "ScriptingLangDialog.h"
-#include "ApplicationWindow.h"
 
 #include <QLayout>
 #include <QListWidget>
 #include <QMessageBox>
 #include <QPushButton>
+
+#include "ApplicationWindow.h"
 
 ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env,
                                          ApplicationWindow *parent,
@@ -55,10 +56,10 @@ ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env,
   vl->addWidget(langList);
   vl->addLayout(hbox1);
 
-  connect(btnOK, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(btnCancel, SIGNAL(clicked()), this, SLOT(close()));
-  connect(langList, SIGNAL(itemActivated(QListWidgetItem *)), this,
-          SLOT(accept()));
+  connect(btnOK, &QPushButton::clicked, this, &ScriptingLangDialog::accept);
+  connect(btnCancel, &QPushButton::clicked, this, &ScriptingLangDialog::close);
+  connect(langList, &QListWidget::itemActivated, this,
+          &ScriptingLangDialog::accept);
 
   updateLangList();
 }

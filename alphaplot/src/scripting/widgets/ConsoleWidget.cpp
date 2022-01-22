@@ -15,14 +15,15 @@
    Description : AlphaPlot Console dock widget
 */
 #include "ConsoleWidget.h"
+
 #include <QDebug>
 #include <QPainter>
 #include <QStandardItem>
 #include <QStandardItemModel>
-#include "ui_ConsoleWidget.h"
 
 #include "../ScriptingFunctions.h"
 #include "scripting/widgets/Console.h"
+#include "ui_ConsoleWidget.h"
 
 ConsoleWidget::ConsoleWidget(QWidget *parent)
     : QDockWidget(parent),
@@ -43,7 +44,7 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   ui_->tableView->horizontalHeader()->setSelectionMode(
       QAbstractItemView::SingleSelection);
   ui_->tableView->horizontalHeader()->setSectionResizeMode(
-      (0, QHeaderView::Stretch));
+      QHeaderView::Stretch);
   scriptGlobalObjectsModel->setColumnCount(2);
   ui_->tableView->setModel(scriptGlobalObjectsModel);
   ui_->tableView->setItemDelegate(new Delegate(this));
@@ -52,8 +53,7 @@ ConsoleWidget::ConsoleWidget(QWidget *parent)
   ui_->tableView->setAlternatingRowColors(true);
   addScriptGlobalsToTableView();
 
-  connect(ui_->console, SIGNAL(command(QString)), this,
-          SLOT(evaluate(QString)));
+  connect(ui_->console, &Console::command, this, &ConsoleWidget::evaluate);
 
   engine->setProcessEventsInterval(50);  // 1 sec process interval
   // Basic console functions

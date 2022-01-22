@@ -30,8 +30,8 @@
  ***************************************************************************/
 #include "ColorBox.h"
 
-#include <QPixmap>
 #include <QPainter>
+#include <QPixmap>
 #include <algorithm>
 
 const QColor ColorBox::colors[] = {
@@ -39,10 +39,10 @@ const QColor ColorBox::colors[] = {
     QColor(Qt::blue),        QColor(Qt::cyan),       QColor(Qt::magenta),
     QColor(Qt::yellow),      QColor(Qt::darkYellow), QColor(Qt::darkBlue),
     QColor(Qt::darkMagenta), QColor(Qt::darkRed),    QColor(Qt::darkGreen),
-    QColor(Qt::darkCyan),    QColor("#0000A0"),      QColor("#FF8000"),
-    QColor("#8000FF"),       QColor("#FF0080"),      QColor(Qt::white),
-    QColor(Qt::lightGray),   QColor(Qt::gray),       QColor("#FFFF80"),
-    QColor("#80FFFF"),       QColor("#FF80FF"),      QColor(Qt::darkGray),
+    QColor(Qt::darkCyan),    QColor(0, 0, 160),      QColor(255, 128, 0),
+    QColor(128, 0, 255),     QColor(255, 0, 128),    QColor(Qt::white),
+    QColor(Qt::lightGray),   QColor(Qt::gray),       QColor(255, 255, 128),
+    QColor(128, 255, 255),   QColor(255, 128, 255),  QColor(Qt::darkGray),
 };
 
 ColorBox::ColorBox(QWidget* parent) : QComboBox(parent) {

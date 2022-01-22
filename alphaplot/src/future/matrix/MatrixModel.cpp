@@ -38,27 +38,28 @@
 
 MatrixModel::MatrixModel(future::Matrix *matrix)
     : QAbstractItemModel(0), d_matrix(matrix) {
-  connect(d_matrix, SIGNAL(columnsAboutToBeInserted(int, int)), this,
-          SLOT(handleColumnsAboutToBeInserted(int, int)));
-  connect(d_matrix, SIGNAL(columnsInserted(int, int)), this,
-          SLOT(handleColumnsInserted(int, int)));
-  connect(d_matrix, SIGNAL(columnsAboutToBeRemoved(int, int)), this,
-          SLOT(handleColumnsAboutToBeRemoved(int, int)));
-  connect(d_matrix, SIGNAL(columnsRemoved(int, int)), this,
-          SLOT(handleColumnsRemoved(int, int)));
-  connect(d_matrix, SIGNAL(rowsAboutToBeInserted(int, int)), this,
-          SLOT(handleRowsAboutToBeInserted(int, int)));
-  connect(d_matrix, SIGNAL(rowsInserted(int, int)), this,
-          SLOT(handleRowsInserted(int, int)));
-  connect(d_matrix, SIGNAL(rowsAboutToBeRemoved(int, int)), this,
-          SLOT(handleRowsAboutToBeRemoved(int, int)));
-  connect(d_matrix, SIGNAL(rowsRemoved(int, int)), this,
-          SLOT(handleRowsRemoved(int, int)));
-  connect(d_matrix, SIGNAL(dataChanged(int, int, int, int)), this,
-          SLOT(handleDataChanged(int, int, int, int)));
-  connect(d_matrix, SIGNAL(coordinatesChanged()), this,
-          SLOT(handleCoordinatesChanged()));
-  connect(d_matrix, SIGNAL(formatChanged()), this, SLOT(handleFormatChanged()));
+  connect(d_matrix, &future::Matrix::columnsAboutToBeInserted, this,
+          &MatrixModel::handleColumnsAboutToBeInserted);
+  connect(d_matrix, &future::Matrix::columnsInserted, this,
+          &MatrixModel::handleColumnsInserted);
+  connect(d_matrix, &future::Matrix::columnsAboutToBeRemoved, this,
+          &MatrixModel::handleColumnsAboutToBeRemoved);
+  connect(d_matrix, &future::Matrix::columnsRemoved, this,
+          &MatrixModel::handleColumnsRemoved);
+  connect(d_matrix, &future::Matrix::rowsAboutToBeInserted, this,
+          &MatrixModel::handleRowsAboutToBeInserted);
+  connect(d_matrix, &future::Matrix::rowsInserted, this,
+          &MatrixModel::handleRowsInserted);
+  connect(d_matrix, &future::Matrix::rowsAboutToBeRemoved, this,
+          &MatrixModel::handleRowsAboutToBeRemoved);
+  connect(d_matrix, &future::Matrix::rowsRemoved, this,
+          &MatrixModel::handleRowsRemoved);
+  connect(d_matrix, &future::Matrix::dataChanged, this,
+          &MatrixModel::handleDataChanged);
+  connect(d_matrix, &future::Matrix::coordinatesChanged, this,
+          &MatrixModel::handleCoordinatesChanged);
+  connect(d_matrix, &future::Matrix::formatChanged, this,
+          &MatrixModel::handleFormatChanged);
 }
 
 MatrixModel::~MatrixModel() {}

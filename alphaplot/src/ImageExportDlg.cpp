@@ -29,19 +29,20 @@
  *                                                                         *
  ***************************************************************************/
 #include "ImageExportDlg.h"
+
+#include <QComboBox>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QImageWriter>
+#include <QLabel>
+#include <QPrinter>
+#include <QPushButton>
+#include <QStackedWidget>
+
 #include "ApplicationWindow.h"
 
-#include <QStackedWidget>
-#include <QImageWriter>
-#include <QGroupBox>
-#include <QPushButton>
-#include <QGridLayout>
-#include <QPrinter>
-#include <QLabel>
-#include <QComboBox>
-
 ImageExportDlg::ImageExportDlg(QWidget *parent, bool vector_options,
-                                     bool extended, Qt::WindowFlags flags)
+                               bool extended, Qt::WindowFlags flags)
     : ExtensibleFileDialog(parent, extended, flags) {
   setWindowTitle(tr("Choose a filename to save under"));
   setAcceptMode(QFileDialog::AcceptSave);
@@ -63,8 +64,8 @@ ImageExportDlg::ImageExportDlg(QWidget *parent, bool vector_options,
   d_vector_options->setEnabled(vector_options);
   setExtensionWidget(d_advanced_options);
 
-  connect(this, SIGNAL(filterSelected(const QString &)), this,
-          SLOT(updateAdvancedOptions(const QString &)));
+  connect(this, &ImageExportDlg::filterSelected, this,
+          &ImageExportDlg::updateAdvancedOptions);
   updateAdvancedOptions(selectedNameFilter());
 }
 
@@ -146,10 +147,10 @@ void ImageExportDlg::initAdvancedOptions() {
                                      QPrinter::Custom);
   vector_layout->addWidget(d_box_page_orientation, 5, 1, 1, 2);
 
-  connect(d_standard_page, SIGNAL(toggled(bool)), d_box_page_size,
-          SLOT(setEnabled(bool)));
-  connect(d_standard_page, SIGNAL(toggled(bool)), d_box_page_orientation,
-          SLOT(setEnabled(bool)));
+  connect(d_standard_page, &QCheckBox::toggled, d_box_page_size,
+          &QComboBox::setEnabled);
+  connect(d_standard_page, &QCheckBox::toggled, d_box_page_orientation,
+          &QComboBox::setEnabled);
 
   d_keep_aspect = new QCheckBox();
   d_keep_aspect->setText(tr("&Keep aspect ratio"));
@@ -208,9 +209,9 @@ QPrinter::PageSize ImageExportDlg::pageSize() const {
       size = QPrinter::A4;
       break;
     default:
-      size = (QPrinter::PageSize)
-                 d_box_page_size->itemData(d_box_page_size->currentIndex())
-                     .toInt();
+      size = (QPrinter::PageSize)d_box_page_size
+                 ->itemData(d_box_page_size->currentIndex())
+                 .toInt();
       break;
   }
   return size;

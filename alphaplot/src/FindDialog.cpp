@@ -27,8 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "FindDialog.h"
-#include "ApplicationWindow.h"
-#include "Folder.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -39,6 +37,9 @@
 #include <QPushButton>
 #include <QRegExp>
 #include <QVBoxLayout>
+
+#include "ApplicationWindow.h"
+#include "Folder.h"
 
 FindDialog::FindDialog(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
@@ -111,9 +112,9 @@ FindDialog::FindDialog(QWidget *parent, Qt::WindowFlags fl)
   setStartPath();
 
   // signals and slots connections
-  connect(buttonFind, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(buttonReset, SIGNAL(clicked()), this, SLOT(setStartPath()));
-  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+  connect(buttonFind, &QPushButton::clicked, this, &FindDialog::accept);
+  connect(buttonReset, &QPushButton::clicked, this, &FindDialog::setStartPath);
+  connect(buttonCancel, &QPushButton::clicked, this, &FindDialog::reject);
 }
 
 void FindDialog::setStartPath() {

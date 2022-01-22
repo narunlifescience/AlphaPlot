@@ -77,10 +77,10 @@ SortDialog::SortDialog(QWidget* parent, Qt::WindowFlags fl)
   mainlayout->addWidget(group_box1);
   mainlayout->addLayout(hl);
 
-  connect(ui.button_ok, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(ui.button_close, SIGNAL(clicked()), this, SLOT(close()));
-  connect(ui.box_type, SIGNAL(currentIndexChanged(int)), this,
-          SLOT(changeType(int)));
+  connect(ui.button_ok, &QPushButton::clicked, this, &SortDialog::accept);
+  connect(ui.button_close, &QPushButton::clicked, this, &SortDialog::close);
+  connect(ui.box_type, qOverload<int>(&QComboBox::currentIndexChanged), this,
+          &SortDialog::changeType);
 }
 
 void SortDialog::accept() {

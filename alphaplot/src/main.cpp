@@ -171,6 +171,6 @@ int main(int argc, char** argv) {
   mw->activateWindow();
   splash->finish(mw);
 
-  app->connect(app, SIGNAL(lastWindowClosed()), app, SLOT(quit()));
+  app->connect(app, &Application::lastWindowClosed, app, &Application::quit);
   return app->exec();
 }

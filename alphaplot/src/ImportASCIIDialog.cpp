@@ -30,15 +30,16 @@
  ***************************************************************************/
 
 #include "ImportASCIIDialog.h"
-#include "ApplicationWindow.h"
 
 #include <QGridLayout>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QGroupBox>
+#include <QHBoxLayout>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QRegExp>
-#include <QMessageBox>
+#include <QVBoxLayout>
+
+#include "ApplicationWindow.h"
 
 ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget *parent,
                                      bool extended, Qt::WindowFlags flags)
@@ -76,8 +77,8 @@ ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget *parent,
   boxDecimalSeparator->setEnabled(app->d_convert_to_numeric);
   d_convert_to_numeric->setChecked(app->d_convert_to_numeric);
 
-  connect(d_import_mode, SIGNAL(currentIndexChanged(int)), this,
-          SLOT(updateImportMode(int)));
+  connect(d_import_mode, qOverload<int>(&QComboBox::currentIndexChanged), this,
+          &ImportASCIIDialog::updateImportMode);
 }
 
 void ImportASCIIDialog::initAdvancedOptions() {
@@ -188,15 +189,16 @@ void ImportASCIIDialog::initAdvancedOptions() {
       QLocale(QLocale::German).toString(1000.0, 'f', 1));
   boxDecimalSeparator->addItem(
       QLocale(QLocale::French).toString(1000.0, 'f', 1));
-  connect(d_convert_to_numeric, SIGNAL(toggled(bool)), boxDecimalSeparator,
-          SLOT(setEnabled(bool)));
+  connect(d_convert_to_numeric, &QCheckBox::toggled, boxDecimalSeparator,
+          &QComboBox::setEnabled);
   advanced_layout->addWidget(boxDecimalSeparator, 3, 2);
 
   QHBoxLayout *meta_options_layout = new QHBoxLayout();
   d_remember_options = new QCheckBox(tr("Re&member the above options"));
   meta_options_layout->addWidget(d_remember_options);
   d_help_button = new QPushButton(tr("&Help"));
-  connect(d_help_button, SIGNAL(clicked()), this, SLOT(displayHelp()));
+  connect(d_help_button, &QPushButton::clicked, this,
+          &ImportASCIIDialog::displayHelp);
   meta_options_layout->addStretch();
   meta_options_layout->addWidget(d_help_button);
   main_layout->addLayout(meta_options_layout);

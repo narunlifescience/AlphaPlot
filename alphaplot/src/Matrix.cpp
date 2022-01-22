@@ -102,32 +102,36 @@ void Matrix::init(int rows, int cols) {
   ui.add_function_combobox->addItems(scriptEnv->mathFunctions());
   updateFunctionDoc();
 
-  connect(ui.add_function_combobox, SIGNAL(currentIndexChanged(int)), this,
-          SLOT(updateFunctionDoc()));
-  connect(ui.button_set_formula, SIGNAL(pressed()), this, SLOT(applyFormula()));
-  connect(ui.add_function_button, SIGNAL(pressed()), this, SLOT(addFunction()));
-  connect(ui.add_cell_button, SIGNAL(pressed()), this, SLOT(addCell()));
+  connect(ui.add_function_combobox,
+          qOverload<int>(&QComboBox::currentIndexChanged), this,
+          &Matrix::updateFunctionDoc);
+  connect(ui.button_set_formula, &QPushButton::pressed, this,
+          &Matrix::applyFormula);
+  connect(ui.add_function_button, &QPushButton::pressed, this,
+          &Matrix::addFunction);
+  connect(ui.add_cell_button, &QPushButton::pressed, this, &Matrix::addCell);
 
-  connect(d_future_matrix, SIGNAL(columnsInserted(int, int)), this,
-          SLOT(handleChange()));
-  connect(d_future_matrix, SIGNAL(columnsRemoved(int, int)), this,
-          SLOT(handleChange()));
-  connect(d_future_matrix, SIGNAL(rowsInserted(int, int)), this,
-          SLOT(handleChange()));
-  connect(d_future_matrix, SIGNAL(rowsRemoved(int, int)), this,
-          SLOT(handleChange()));
-  connect(d_future_matrix, SIGNAL(dataChanged(int, int, int, int)), this,
-          SLOT(handleChange()));
-  connect(d_future_matrix, SIGNAL(coordinatesChanged()), this,
-          SLOT(handleChange()));
-  connect(d_future_matrix, SIGNAL(formulaChanged()), this,
-          SLOT(handleChange()));
-  connect(d_future_matrix, SIGNAL(formatChanged()), this, SLOT(handleChange()));
-  connect(d_future_matrix, SIGNAL(recalculate()), this, SLOT(recalculate()));
+  connect(d_future_matrix, &future::Matrix::columnsInserted, this,
+          &Matrix::handleChange);
+  connect(d_future_matrix, &future::Matrix::columnsRemoved, this,
+          &Matrix::handleChange);
+  connect(d_future_matrix, &future::Matrix::rowsInserted, this,
+          &Matrix::handleChange);
+  connect(d_future_matrix, &future::Matrix::rowsRemoved, this,
+          &Matrix::handleChange);
+  connect(d_future_matrix, &future::Matrix::dataChanged, this,
+          &Matrix::handleChange);
+  connect(d_future_matrix, &future::Matrix::coordinatesChanged, this,
+          &Matrix::handleChange);
+  connect(d_future_matrix, &future::Matrix::formulaChanged, this,
+          &Matrix::handleChange);
+  connect(d_future_matrix, &future::Matrix::formatChanged, this,
+          &Matrix::handleChange);
+  connect(d_future_matrix, &future::Matrix::recalculate, this,
+          &Matrix::recalculate);
 
-  connect(d_future_matrix,
-          SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), this,
-          SLOT(handleAspectDescriptionChange(const AbstractAspect *)));
+  connect(d_future_matrix, &future::Matrix::aspectDescriptionChanged, this,
+          &Matrix::handleAspectDescriptionChange);
 }
 
 Matrix::~Matrix() {}
@@ -158,8 +162,7 @@ void Matrix::setText(int row, int col, const QString &new_text) {
   else {
     Script *script = scriptEnv->newScript(
         new_text, this, QString("<%1_%2_%3>").arg(name()).arg(row).arg(col));
-    connect(script, SIGNAL(error(const QString &, const QString &, int)),
-            scriptEnv, SIGNAL(error(const QString &, const QString &, int)));
+    connect(script, &Script::error, scriptEnv, &ScriptingEnv::error);
 
     script->setInt(row + 1, "row");
     script->setInt(row + 1, "i");
@@ -302,10 +305,8 @@ bool Matrix::recalculate() {
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
   Script *script =
       scriptEnv->newScript(formula(), this, QString("<%1>").arg(name()));
-  connect(script, SIGNAL(error(const QString &, const QString &, int)),
-          scriptEnv, SIGNAL(error(const QString &, const QString &, int)));
-  connect(script, SIGNAL(print(const QString &)), scriptEnv,
-          SIGNAL(print(const QString &)));
+  connect(script, &Script::error, scriptEnv, &ScriptingEnv::error);
+  connect(script, &Script::error, scriptEnv, &ScriptingEnv::print);
   if (!script->compile()) {
     QApplication::restoreOverrideCursor();
     return false;
@@ -466,7 +467,7 @@ void Matrix::print(const QString &fileName) {
   p.setFont(QFont());
   QString header_label =
       d_view_widget->model()->headerData(0, Qt::Horizontal).toString();
-  QRect br = p.boundingRect(br, Qt::AlignCenter, header_label);
+  QRect br = p.boundingRect(QRect(), Qt::AlignCenter, header_label);
   p.drawLine(right, height, right, height + br.height());
   QRect tr(br);
 

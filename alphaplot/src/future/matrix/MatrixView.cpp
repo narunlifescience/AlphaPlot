@@ -27,15 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <limits>
-
-#include "matrix/MatrixModel.h"
 #include "matrix/MatrixView.h"
-#include "matrix/future_Matrix.h"
-#include "matrix/matrixcommands.h"
-
-#include "../core/IconLoader.h"
-#include "core/AbstractFilter.h"
 
 #include <QFont>
 #include <QFontMetrics>
@@ -53,6 +45,13 @@
 #include <QShortcut>
 #include <QSize>
 #include <QtDebug>
+#include <limits>
+
+#include "../core/IconLoader.h"
+#include "core/AbstractFilter.h"
+#include "matrix/MatrixModel.h"
+#include "matrix/future_Matrix.h"
+#include "matrix/matrixcommands.h"
 
 #ifndef LEGACY_CODE_0_2_x
 MatrixView::MatrixView(future::Matrix *matrix)
@@ -90,7 +89,8 @@ void MatrixView::init() {
 
   d_view_widget = new MatrixViewWidget(d_main_widget);
   d_view_widget->setModel(d_model);
-  connect(d_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
+  connect(d_view_widget, &MatrixViewWidget::advanceCell, this,
+          &MatrixView::advanceCell);
   d_main_layout->addWidget(d_view_widget);
 
   d_hide_button = new QToolButton(d_main_widget);
@@ -102,7 +102,8 @@ void MatrixView::init() {
   d_hide_button->setStyleSheet(
       "QToolButton {background-color : rgba(0, 0, 0, 0); "
       "border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0);}");
-  connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
+  connect(d_hide_button, &QToolButton::pressed, this,
+          &MatrixView::toggleControlTabBar);
 
   d_control_tabs = new QWidget(d_main_widget);
   ui.setupUi(d_control_tabs);
@@ -162,24 +163,28 @@ void MatrixView::init() {
   // keyboard shortcuts
   QShortcut *sel_all = new QShortcut(
       QKeySequence(tr("Ctrl+A", "Matrix: select all")), d_view_widget);
-  connect(sel_all, SIGNAL(activated()), d_view_widget, SLOT(selectAll()));
+  connect(sel_all, &QShortcut::activated, d_view_widget,
+          &MatrixViewWidget::selectAll);
 #endif
 
-  connect(ui.button_set_coordinates, SIGNAL(pressed()), this,
-          SLOT(applyCoordinates()));
+  connect(ui.button_set_coordinates, &QPushButton::pressed, this,
+          &MatrixView::applyCoordinates);
 #ifndef LEGACY_CODE_0_2_x
-  connect(ui.button_set_formula, SIGNAL(pressed()), this, SLOT(applyFormula()));
+  connect(ui.button_set_formula, &QPushButton::pressed, this,
+          &MatrixView::applyFormula);
 #endif
-  connect(ui.button_set_format, SIGNAL(pressed()), this, SLOT(applyFormat()));
-  connect(ui.format_box, SIGNAL(currentIndexChanged(int)), this,
-          SLOT(updateTypeInfo()));
-  connect(ui.digits_box, SIGNAL(valueChanged(int)), this,
-          SLOT(updateTypeInfo()));
-
-  connect(d_matrix, SIGNAL(coordinatesChanged()), this,
-          SLOT(updateCoordinatesTab()));
-  connect(d_matrix, SIGNAL(formulaChanged()), this, SLOT(updateFormulaTab()));
-  connect(d_matrix, SIGNAL(formatChanged()), this, SLOT(updateFormatTab()));
+  connect(ui.button_set_format, &QPushButton::pressed, this,
+          &MatrixView::applyFormat);
+  connect(ui.format_box, qOverload<int>(&QComboBox::currentIndexChanged), this,
+          &MatrixView::updateTypeInfo);
+  connect(ui.digits_box, qOverload<int>(&QSpinBox::valueChanged), this,
+          &MatrixView::updateTypeInfo);
+  connect(d_matrix, &future::Matrix::coordinatesChanged, this,
+          &MatrixView::updateCoordinatesTab);
+  connect(d_matrix, &future::Matrix::formulaChanged, this,
+          &MatrixView::updateFormulaTab);
+  connect(d_matrix, &future::Matrix::formatChanged, this,
+          &MatrixView::updateFormatTab);
   connect(ui.cwidget, &ControlWidget::widthChanged, this,
           &MatrixView::moveFloatingButton);
 
@@ -209,10 +214,10 @@ void MatrixView::rereadSectionSizes() {
   QHeaderView *h_header = d_view_widget->horizontalHeader();
   QHeaderView *v_header = d_view_widget->verticalHeader();
 
-  disconnect(v_header, SIGNAL(sectionResized(int, int, int)), this,
-             SLOT(handleVerticalSectionResized(int, int, int)));
-  disconnect(h_header, SIGNAL(sectionResized(int, int, int)), this,
-             SLOT(handleHorizontalSectionResized(int, int, int)));
+  disconnect(v_header, &QHeaderView::sectionResized, this,
+             &MatrixView::handleVerticalSectionResized);
+  disconnect(h_header, &QHeaderView::sectionResized, this,
+             &MatrixView::handleHorizontalSectionResized);
 
   int cols = d_matrix->columnCount();
   for (int i = 0; i < cols; i++)
@@ -221,10 +226,10 @@ void MatrixView::rereadSectionSizes() {
   for (int i = 0; i < rows; i++)
     v_header->resizeSection(i, d_matrix->rowHeight(i));
 
-  connect(v_header, SIGNAL(sectionResized(int, int, int)), this,
-          SLOT(handleVerticalSectionResized(int, int, int)));
-  connect(h_header, SIGNAL(sectionResized(int, int, int)), this,
-          SLOT(handleHorizontalSectionResized(int, int, int)));
+  connect(v_header, &QHeaderView::sectionResized, this,
+          &MatrixView::handleVerticalSectionResized);
+  connect(h_header, &QHeaderView::sectionResized, this,
+          &MatrixView::handleHorizontalSectionResized);
 }
 
 void MatrixView::changeEvent(QEvent *event) {

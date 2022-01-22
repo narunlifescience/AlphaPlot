@@ -58,8 +58,8 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended,
   advanced_layout->addWidget(d_open_mode);
   setExtensionWidget(advanced_options);
 
-  connect(this, SIGNAL(filterSelected(const QString &)), this,
-          SLOT(updateAdvancedOptions(const QString &)));
+  connect(this, &OpenProjectDialog::filterSelected, this,
+          &OpenProjectDialog::updateAdvancedOptions);
   updateAdvancedOptions(selectedNameFilter());
 }
 

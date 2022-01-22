@@ -18,15 +18,15 @@ void ColorLabel::setColor(const QColor &color) {
       "QLabel:!disabled{background : rgba(%1,%2, %3, %4); border: %5px solid "
       "rgba(%6, %7, %8, %9);}";
   QColor bordercolor = qApp->palette().windowText().color();
-  setStyleSheet(stylesheetstring.arg(color.red())
-                    .arg(color_.green())
-                    .arg(color_.blue())
-                    .arg(color_.alpha())
-                    .arg(lbl_line_width)
-                    .arg(bordercolor.red())
-                    .arg(bordercolor.green())
-                    .arg(bordercolor.blue())
-                    .arg(bordercolor.alpha()));
+  setStyleSheet(stylesheetstring.arg(QString::number(color_.red()),
+                    QString::number(color_.green()),
+                    QString::number(color_.blue()),
+                    QString::number(color_.alpha()),
+                    QString::number(lbl_line_width),
+                    QString::number(bordercolor.red()),
+                    QString::number(bordercolor.green()),
+                    QString::number(bordercolor.blue()),
+                    QString::number(bordercolor.alpha())));
 }
 
 QColor ColorLabel::getColor() const { return color_; }

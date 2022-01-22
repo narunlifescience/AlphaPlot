@@ -62,7 +62,7 @@ void Note::init(ScriptingEnv* env) {
   setWidget(textedit_);
 
   setGeometry(0, 0, 500, 200);
-  connect(textedit_, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
+  connect(textedit_, &ScriptEdit::textChanged, this, &Note::modifiedNote);
 }
 
 QString Note::getText() { return textedit_->toPlainText().trimmed(); }

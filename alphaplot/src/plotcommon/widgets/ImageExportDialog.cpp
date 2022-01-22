@@ -78,8 +78,8 @@ ImageExportDialog::ImageExportDialog(QWidget *parent, bool vector_options,
   d_vector_options->setEnabled(vector_options);
   setExtensionWidget(d_advanced_options);
 
-  connect(this, SIGNAL(filterSelected(const QString &)), this,
-          SLOT(updateAdvancedOptions(const QString &)));
+  connect(this, &ImageExportDialog::filterSelected, this,
+          &ImageExportDialog::updateAdvancedOptions);
   updateAdvancedOptions(selectedNameFilter());
 }
 

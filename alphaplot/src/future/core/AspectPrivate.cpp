@@ -26,10 +26,12 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "AbstractAspect.h"
 #include "AspectPrivate.h"
+
 #include <QRegExp>
 #include <QStringList>
+
+#include "AbstractAspect.h"
 
 QSettings *AbstractAspect::Private::g_settings = new QSettings();
 QHash<QString, QVariant> AbstractAspect::Private::g_defaults;
@@ -58,25 +60,36 @@ void AbstractAspect::Private::insertChild(int index, AbstractAspect *child) {
   // Can't handle this case here since two undo commands have to be created.
   Q_ASSERT(child->d_aspect_private->d_parent == 0);
   child->d_aspect_private->d_parent = d_owner;
-  connect(child, SIGNAL(aspectDescriptionAboutToChange(const AbstractAspect *)),
+  connect(child, &AbstractAspect::aspectDescriptionAboutToChange, d_owner,
+          &AbstractAspect::aspectDescriptionAboutToChange);
+  connect(child, &AbstractAspect::aspectDescriptionChanged, d_owner,
+          &AbstractAspect::aspectDescriptionChanged);
+  connect(child, &AbstractAspect::aspectAboutToBeAdded, d_owner,
+          &AbstractAspect::aspectAboutToBeAdded);
+  connect(child,
+          qOverload<const AbstractAspect *, int>(
+              &AbstractAspect::aspectAboutToBeRemoved),
           d_owner,
-          SIGNAL(aspectDescriptionAboutToChange(const AbstractAspect *)));
-  connect(child, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)),
-          d_owner, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)));
-  connect(child, SIGNAL(aspectAboutToBeAdded(const AbstractAspect *, int)),
-          d_owner, SIGNAL(aspectAboutToBeAdded(const AbstractAspect *, int)));
-  connect(child, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)),
-          d_owner, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)));
-  connect(child, SIGNAL(aspectAdded(const AbstractAspect *, int)), d_owner,
-          SIGNAL(aspectAdded(const AbstractAspect *, int)));
-  connect(child, SIGNAL(aspectRemoved(const AbstractAspect *, int)), d_owner,
-          SIGNAL(aspectRemoved(const AbstractAspect *, int)));
-  connect(child, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *)),
-          d_owner, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *)));
-  connect(child, SIGNAL(aspectAdded(const AbstractAspect *)), d_owner,
-          SIGNAL(aspectAdded(const AbstractAspect *)));
-  connect(child, SIGNAL(statusInfo(const QString &)), d_owner,
-          SIGNAL(statusInfo(const QString &)));
+          qOverload<const AbstractAspect *, int>(
+              &AbstractAspect::aspectAboutToBeRemoved));
+  connect(child,
+          qOverload<const AbstractAspect *, int>(&AbstractAspect::aspectAdded),
+          d_owner,
+          qOverload<const AbstractAspect *, int>(&AbstractAspect::aspectAdded));
+  connect(child, &AbstractAspect::aspectRemoved, d_owner,
+          &AbstractAspect::aspectRemoved);
+  connect(child,
+          qOverload<const AbstractAspect *, int>(
+              &AbstractAspect::aspectAboutToBeRemoved),
+          d_owner,
+          qOverload<const AbstractAspect *, int>(
+              &AbstractAspect::aspectAboutToBeRemoved));
+  connect(child,
+          qOverload<const AbstractAspect *, int>(&AbstractAspect::aspectAdded),
+          d_owner,
+          qOverload<const AbstractAspect *, int>(&AbstractAspect::aspectAdded));
+  connect(child, &AbstractAspect::statusInfo, d_owner,
+          &AbstractAspect::statusInfo);
   emit d_owner->aspectAdded(d_owner, index);
   emit child->aspectAdded(child);
 }
@@ -146,8 +159,8 @@ QString AbstractAspect::Private::caption() const {
   QRegExp magic("%(.)");
   for (int pos = magic.indexIn(result, 0); pos >= 0;
        pos = magic.indexIn(result, pos)) {
-    QString replacement;
-    int length;
+    QString replacement = QString();
+    int length = 0;
     switch (magic.cap(1).at(0).toLatin1()) {
       case '%':
         replacement = "%";
@@ -200,10 +213,9 @@ QString AbstractAspect::Private::uniqueNameFor(
       base[last_non_digit].category() != QChar::Separator_Space)
     base.append(" ");
 
-  int new_nr = current_name.right(current_name.size() - base.size()).toInt();
+  int new_nr = current_name.rightRef(current_name.size() - base.size()).toInt();
   QString new_name;
-  do
-    new_name = base + QString::number(++new_nr);
+  do new_name = base + QString::number(++new_nr);
   while (child_names.contains(new_name));
 
   return new_name;

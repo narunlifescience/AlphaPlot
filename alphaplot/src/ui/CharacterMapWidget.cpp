@@ -58,13 +58,11 @@ CharacterMapWidget::CharacterMapWidget(QDialog *parent)
           &CharacterWidget::updateFont);
   connect(characterWidget_, &CharacterWidget::characterSelected, this,
           &CharacterMapWidget::insertCharacter);
-  connect(
-      charlist_,
-      static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-      [&](int index) {
-        characterWidget_->updateChars(
-            static_cast<CharacterWidget::Chars>(index));
-      });
+  connect(charlist_, qOverload<int>(&QComboBox::currentIndexChanged),
+          [&](int index) {
+            characterWidget_->updateChars(
+                static_cast<CharacterWidget::Chars>(index));
+          });
   connect(addCustomSymbolButton, &QPushButton::clicked, [=]() {
     std::unique_ptr<CustomCharacterDialog> customchar =
         std::unique_ptr<CustomCharacterDialog>(new CustomCharacterDialog);

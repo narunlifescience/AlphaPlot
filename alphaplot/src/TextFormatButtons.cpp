@@ -29,10 +29,11 @@
  ***************************************************************************/
 
 #include "TextFormatButtons.h"
-#include <QTextEdit>
-#include <QPushButton>
+
 #include <QHBoxLayout>
+#include <QPushButton>
 #include <QString>
+#include <QTextEdit>
 
 TextFormatButtons::TextFormatButtons(QTextEdit *textEdit, QWidget *parent)
     : QWidget(parent) {
@@ -112,31 +113,34 @@ TextFormatButtons::TextFormatButtons(QTextEdit *textEdit, QWidget *parent)
   layout->addWidget(buttonUnderline);
   layout->addStretch();
 
-  connect(buttonCurve, SIGNAL(clicked()), this, SLOT(addCurve()));
-  connect(buttonSuperscript, SIGNAL(clicked()), this, SLOT(addSuperscript()));
-  connect(buttonSubscript, SIGNAL(clicked()), this, SLOT(addSubscript()));
-  connect(buttonUnderline, SIGNAL(clicked()), this, SLOT(addUnderline()));
-  connect(buttonItalics, SIGNAL(clicked()), this, SLOT(addItalics()));
-  connect(buttonBold, SIGNAL(clicked()), this, SLOT(addBold()));
-  connect(buttonLowerGreek, SIGNAL(clicked()), this, SLOT(showLowerGreek()));
-  connect(buttonUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()));
-  connect(buttonMathSymbols, SIGNAL(clicked()), this, SLOT(showMathSymbols()));
-  connect(buttonArrowSymbols, SIGNAL(clicked()), this,
-          SLOT(showArrowSymbols()));
+  connect(buttonCurve, &QPushButton::clicked, this,
+          &TextFormatButtons::addCurve);
+  connect(buttonSuperscript, &QPushButton::clicked, this,
+          &TextFormatButtons::addSuperscript);
+  connect(buttonSubscript, &QPushButton::clicked, this,
+          &TextFormatButtons::addSubscript);
+  connect(buttonUnderline, &QPushButton::clicked, this,
+          &TextFormatButtons::addUnderline);
+  connect(buttonItalics, &QPushButton::clicked, this,
+          &TextFormatButtons::addItalics);
+  connect(buttonBold, &QPushButton::clicked, this, &TextFormatButtons::addBold);
+  connect(buttonLowerGreek, &QPushButton::clicked, this,
+          &TextFormatButtons::showLowerGreek);
+  connect(buttonUpperGreek, &QPushButton::clicked, this,
+          &TextFormatButtons::showUpperGreek);
+  connect(buttonMathSymbols, &QPushButton::clicked, this,
+          &TextFormatButtons::showMathSymbols);
+  connect(buttonArrowSymbols, &QPushButton::clicked, this,
+          &TextFormatButtons::showArrowSymbols);
 }
 
-void TextFormatButtons::showLowerGreek() {
+void TextFormatButtons::showLowerGreek() {}
 
-}
+void TextFormatButtons::showUpperGreek() {}
 
-void TextFormatButtons::showUpperGreek() {
-}
+void TextFormatButtons::showMathSymbols() {}
 
-void TextFormatButtons::showMathSymbols() {
-}
-
-void TextFormatButtons::showArrowSymbols() {
-}
+void TextFormatButtons::showArrowSymbols() {}
 
 void TextFormatButtons::addSymbol(const QString &letter) {
   connectedTextEdit->textCursor().insertText(letter);

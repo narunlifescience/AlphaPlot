@@ -77,7 +77,8 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
       }
 #endif
       connect(static_cast<Double2StringFilter*>(d_output_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &Double2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       d_data_type = AlphaPlot::TypeDouble;
       d_data = new QVector<double>();
       break;
@@ -92,7 +93,8 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
       d_output_filter = new DateTime2StringFilter();
       d_numeric_datetime_filter.reset(new NumericDateTimeBaseFilter());
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &DateTime2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       d_data_type = AlphaPlot::TypeDateTime;
       d_data = new QList<QDateTime>();
       break;
@@ -101,7 +103,8 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
       d_output_filter = new DateTime2StringFilter();
       static_cast<DateTime2StringFilter*>(d_output_filter)->setFormat("MMMM");
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &DateTime2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       d_data_type = AlphaPlot::TypeDateTime;
       d_data = new QList<QDateTime>();
       break;
@@ -110,7 +113,8 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnMode mode)
       d_output_filter = new DateTime2StringFilter();
       static_cast<DateTime2StringFilter*>(d_output_filter)->setFormat("dddd");
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &DateTime2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       d_data_type = AlphaPlot::TypeDateTime;
       d_data = new QList<QDateTime>();
       break;
@@ -150,7 +154,8 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnDataType type,
       }
 #endif
       connect(static_cast<Double2StringFilter*>(d_output_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &Double2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       break;
     case AlphaPlot::Text:
       d_input_filter = new SimpleCopyThroughFilter();
@@ -161,21 +166,24 @@ Column::Private::Private(Column* owner, AlphaPlot::ColumnDataType type,
       d_output_filter = new DateTime2StringFilter();
       d_numeric_datetime_filter.reset(new NumericDateTimeBaseFilter());
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &DateTime2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       break;
     case AlphaPlot::Month:
       d_input_filter = new String2MonthFilter();
       d_output_filter = new DateTime2StringFilter();
       static_cast<DateTime2StringFilter*>(d_output_filter)->setFormat("MMMM");
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &DateTime2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       break;
     case AlphaPlot::Day:
       d_input_filter = new String2DayOfWeekFilter();
       d_output_filter = new DateTime2StringFilter();
       static_cast<DateTime2StringFilter*>(d_output_filter)->setFormat("dddd");
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &DateTime2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       break;
   }  // switch(mode)
 
@@ -250,7 +258,8 @@ void Column::Private::setColumnMode(const AlphaPlot::ColumnMode new_mode,
       }
 #endif
       connect(static_cast<Double2StringFilter*>(new_out_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &Double2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       // if converter is not provided
       if (nullptr == converter) {
         switch (old_mode) {
@@ -295,7 +304,8 @@ void Column::Private::setColumnMode(const AlphaPlot::ColumnMode new_mode,
         d_data_type = AlphaPlot::TypeDateTime;
       }
       connect(static_cast<DateTime2StringFilter*>(new_out_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &DateTime2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       if (nullptr == converter) {
         switch (old_mode) {
           case AlphaPlot::ColumnMode::Numeric:
@@ -336,7 +346,8 @@ void Column::Private::setColumnMode(const AlphaPlot::ColumnMode new_mode,
       }
       static_cast<DateTime2StringFilter*>(new_out_filter)->setFormat("MMMM");
       connect(static_cast<DateTime2StringFilter*>(new_out_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &DateTime2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       if (nullptr == converter) {
         switch (old_mode) {
           case AlphaPlot::ColumnMode::Numeric:
@@ -366,7 +377,8 @@ void Column::Private::setColumnMode(const AlphaPlot::ColumnMode new_mode,
       }
       static_cast<DateTime2StringFilter*>(new_out_filter)->setFormat("dddd");
       connect(static_cast<DateTime2StringFilter*>(new_out_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &DateTime2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       if (nullptr == converter) {
         switch (old_mode) {
           case AlphaPlot::ColumnMode::Numeric:
@@ -394,7 +406,8 @@ void Column::Private::setColumnMode(const AlphaPlot::ColumnMode new_mode,
   switch (old_mode) {
     case AlphaPlot::ColumnMode::Numeric: {
       disconnect(static_cast<Double2StringFilter*>(d_output_filter),
-                 SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+                 &Double2StringFilter::formatChanged, d_owner,
+                 &Column::notifyDisplayChange);
       temp_col.reset(new Column(
           "temp_col", *(static_cast<QVector<qreal>*>(old_data)), d_validity));
       break;
@@ -408,7 +421,8 @@ void Column::Private::setColumnMode(const AlphaPlot::ColumnMode new_mode,
     case AlphaPlot::ColumnMode::Month:
     case AlphaPlot::ColumnMode::Day: {
       disconnect(static_cast<DateTime2StringFilter*>(d_output_filter),
-                 SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+                 &DateTime2StringFilter::formatChanged, d_owner,
+                 &Column::notifyDisplayChange);
       if ((AlphaPlot::ColumnMode::DateTime != new_mode) &&
           (AlphaPlot::ColumnMode::Month != new_mode) &&
           (AlphaPlot::ColumnMode::Day != new_mode))
@@ -457,13 +471,15 @@ void Column::Private::replaceModeData(AlphaPlot::ColumnMode mode,
   switch (d_column_mode) {
     case AlphaPlot::Numeric:
       disconnect(static_cast<Double2StringFilter*>(d_output_filter),
-                 SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+                 &Double2StringFilter::formatChanged, d_owner,
+                 &Column::notifyDisplayChange);
       break;
     case AlphaPlot::DateTime:
     case AlphaPlot::Month:
     case AlphaPlot::Day:
       disconnect(static_cast<DateTime2StringFilter*>(d_output_filter),
-                 SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+                 &DateTime2StringFilter::formatChanged, d_owner,
+                 &Column::notifyDisplayChange);
       break;
     default:
       break;
@@ -484,13 +500,15 @@ void Column::Private::replaceModeData(AlphaPlot::ColumnMode mode,
   switch (d_column_mode) {
     case AlphaPlot::Numeric:
       connect(static_cast<Double2StringFilter*>(d_output_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &Double2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       break;
     case AlphaPlot::DateTime:
     case AlphaPlot::Month:
     case AlphaPlot::Day:
       connect(static_cast<DateTime2StringFilter*>(d_output_filter),
-              SIGNAL(formatChanged()), d_owner, SLOT(notifyDisplayChange()));
+              &DateTime2StringFilter::formatChanged, d_owner,
+              &Column::notifyDisplayChange);
       break;
     default:
       break;

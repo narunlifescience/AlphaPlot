@@ -17,13 +17,13 @@
 */
 
 #include "RandomDistributionDialog.h"
-#include "../core/IconLoader.h"
-#include "ui_RandomDistributionDialog.h"
 
 #include <QDebug>
 #include <QSettings>
-
 #include <cmath>
+
+#include "../core/IconLoader.h"
+#include "ui_RandomDistributionDialog.h"
 
 RandomDistributionDialog::Distribution RandomDistributionDialog::distribution;
 QVector<double> RandomDistributionDialog::parameters;
@@ -109,10 +109,12 @@ RandomDistributionDialog::RandomDistributionDialog(QWidget *parent)
   ui_->parameter3DbleSpinBox->setMaximum(std::numeric_limits<double>::max());
 
   // Slot connections
-  connect(ui_->distComboBox, SIGNAL(currentIndexChanged(int)),
-          SLOT(distributionChanged(int)));
-  connect(ui_->randomDistributionButtonBox, SIGNAL(accepted()), SLOT(ok()));
-  connect(ui_->randomDistributionButtonBox, SIGNAL(rejected()), SLOT(cancel()));
+  connect(ui_->distComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+          this, &RandomDistributionDialog::distributionChanged);
+  connect(ui_->randomDistributionButtonBox, &QDialogButtonBox::accepted, this,
+          &RandomDistributionDialog::ok);
+  connect(ui_->randomDistributionButtonBox, &QDialogButtonBox::rejected, this,
+          &RandomDistributionDialog::cancel);
 }
 
 RandomDistributionDialog::~RandomDistributionDialog() { delete ui_; }
@@ -300,8 +302,8 @@ void RandomDistributionDialog::distributionChanged(int index) {
     case Weibull:
     case Gumbel1:
     case Gumbel2: {
-        ui_->distFormulaLabel->setPixmap(
-            QPixmap(distFormulaPath + "dist-gamma.png"));
+      ui_->distFormulaLabel->setPixmap(
+          QPixmap(distFormulaPath + "dist-gamma.png"));
       ui_->parameter1DbleSpinBox->show();
       ui_->parameter1Label->show();
       ui_->parameter2DbleSpinBox->show();

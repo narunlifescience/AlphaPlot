@@ -30,9 +30,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "ScriptEdit.h"
-#include "Note.h"
-#include "SyntaxHighlighter.h"
-#include "core/IconLoader.h"
 
 #include <QAction>
 #include <QFileDialog>
@@ -44,14 +41,16 @@
 #include <QTextCodec>
 #include <QTextStream>
 
+#include "Note.h"
+#include "SyntaxHighlighter.h"
+#include "core/IconLoader.h"
+
 ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, QString name)
     : QTextEdit(parent), scripted(env), d_error(false), d_changing_fmt(false) {
   setObjectName(name);
   myScript = scriptEnv->newScript("", this, name);
-  connect(myScript, SIGNAL(error(const QString &, const QString &, int)), this,
-          SLOT(insertErrorMsg(const QString &)));
-  connect(myScript, SIGNAL(print(const QString &)), this,
-          SLOT(scriptPrint(const QString &)));
+  connect(myScript, &Script::error, this, &ScriptEdit::insertErrorMsg);
+  connect(myScript, &Script::print, this, &ScriptEdit::scriptPrint);
 
   setLineWrapMode(NoWrap);
   setAcceptRichText(false);
@@ -67,34 +66,33 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, QString name)
 
   actionExecute = new QAction(tr("E&xecute"), this);
   actionExecute->setShortcut(tr("Ctrl+J"));
-  connect(actionExecute, SIGNAL(triggered()), this, SLOT(execute()));
+  connect(actionExecute, &QAction::triggered, this, &ScriptEdit::execute);
 
   actionExecuteAll = new QAction(tr("Execute &All"), this);
   actionExecuteAll->setShortcut(tr("Ctrl+Shift+J"));
-  connect(actionExecuteAll, SIGNAL(triggered()), this, SLOT(executeAll()));
+  connect(actionExecuteAll, &QAction::triggered, this, &ScriptEdit::executeAll);
 
   actionEval = new QAction(tr("&Evaluate Expression"), this);
   actionEval->setShortcut(tr("Ctrl+Return"));
-  connect(actionEval, SIGNAL(triggered()), this, SLOT(evaluate()));
+  connect(actionEval, &QAction::triggered, this, &ScriptEdit::evaluate);
 
   actionPrint =
       new QAction(IconLoader::load("edit-print", IconLoader::LightDark),
                   tr("&Print"), this);
-  connect(actionPrint, SIGNAL(triggered()), this, SLOT(print()));
+  connect(actionPrint, &QAction::triggered, this, &ScriptEdit::print);
 
   actionImport = new QAction(tr("&Import"), this);
-  connect(actionImport, SIGNAL(triggered()), this, SLOT(importASCII()));
+  connect(actionImport, &QAction::triggered, this, [=]() { importASCII(); });
 
   actionExport = new QAction(tr("&Export"), this);
-  connect(actionExport, SIGNAL(triggered()), this, SLOT(exportASCII()));
+  connect(actionExport, &QAction::triggered, this, [=]() { exportASCII(); });
 
   functionsMenu = new QMenu(this);
   Q_CHECK_PTR(functionsMenu);
-  connect(functionsMenu, SIGNAL(triggered(QAction *)), this,
-          SLOT(insertFunction(QAction *)));
-
-  connect(document(), SIGNAL(contentsChange(int, int, int)), this,
-          SLOT(handleContentsChange(int, int, int)));
+  connect(functionsMenu, &QMenu::triggered, this,
+          qOverload<QAction *>(&ScriptEdit::insertFunction));
+  connect(document(), &QTextDocument::contentsChange, this,
+          &ScriptEdit::handleContentsChange);
 }
 
 void ScriptEdit::customEvent(QEvent *e) {
@@ -102,10 +100,8 @@ void ScriptEdit::customEvent(QEvent *e) {
     scriptingChangeEvent(dynamic_cast<ScriptingChangeEvent *>(e));
     delete myScript;
     myScript = scriptEnv->newScript("", this, objectName());
-    connect(myScript, SIGNAL(error(const QString &, const QString &, int)),
-            this, SLOT(insertErrorMsg(const QString &)));
-    connect(myScript, SIGNAL(print(const QString &)), this,
-            SLOT(scriptPrint(const QString &)));
+    connect(myScript, &Script::error, this, &ScriptEdit::insertErrorMsg);
+    connect(myScript, &Script::print, this, &ScriptEdit::scriptPrint);
   }
 }
 
@@ -132,7 +128,7 @@ void ScriptEdit::contextMenuEvent(QContextMenuEvent *e) {
     QAction *actionAutoexec = new QAction(tr("Auto&exec"), menu);
     actionAutoexec->setCheckable(true);
     actionAutoexec->setChecked(sp->autoexec());
-    connect(actionAutoexec, SIGNAL(toggled(bool)), sp, SLOT(setAutoexec(bool)));
+    connect(actionAutoexec, &QAction::toggled, sp, &Note::setAutoexec);
     menu->addAction(actionAutoexec);
   }
 
@@ -155,7 +151,7 @@ void ScriptEdit::contextMenuEvent(QContextMenuEvent *e) {
         (i == flist.size() - 1 || flist[i + 1][0] != flist[i][0]))
       menupart = "";
     else
-      menupart = flist[i].left(1);
+      menupart = flist[i].at(0);
     if (!menupart.isEmpty()) {
       if (!submenu || menupart != submenu->title())
         submenu = functionsMenu->addMenu(menupart);
@@ -325,12 +321,12 @@ QString ScriptEdit::importASCII(const QString &filename) {
                                      objectName(), filter, 0);
   else
     f = filename;
-  if (f.isEmpty()) return QString::null;
+  if (f.isEmpty()) return QString();
   QFile file(f);
   if (!file.open(QIODevice::ReadOnly)) {
     QMessageBox::critical(this, tr("Error Opening File"),
                           tr("Could not open file \"%1\" for reading.").arg(f));
-    return QString::null;
+    return QString();
   }
   QTextStream s(&file);
   s.setCodec(QTextCodec::codecForName("UTF-8"));
@@ -366,11 +362,11 @@ QString ScriptEdit::exportASCII(const QString &filename) {
     QFile f(fn);
     if (!f.open(QIODevice::WriteOnly)) {
       QMessageBox::critical(
-            nullptr, tr("File Save Error"),
+          nullptr, tr("File Save Error"),
           tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that "
              "you have the right to write to this location!")
               .arg(fn));
-      return QString::null;
+      return QString();
     }
 
     QTextStream t(&f);

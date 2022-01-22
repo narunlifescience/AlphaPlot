@@ -183,20 +183,20 @@ SettingsDialog::SettingsDialog(QWidget* parent)
   ui_->scriptingListView->setModel(scriptingSettingsModel_);
 
   // Signals & slot connections
-  connect(ui_->settingsButton, SIGNAL(clicked()), this,
-          SLOT(getBackToRootSettingsPage()));
-  connect(ui_->generalListView, SIGNAL(clicked(const QModelIndex&)), this,
-          SLOT(generalEnsureSelection(const QModelIndex&)));
-  connect(ui_->tableListView, SIGNAL(clicked(const QModelIndex&)), this,
-          SLOT(tableEnsureSelection(const QModelIndex&)));
-  connect(ui_->plot2dListView, SIGNAL(clicked(const QModelIndex&)), this,
-          SLOT(plot2dEnsureSelection(const QModelIndex&)));
-  connect(ui_->plot3dListView, SIGNAL(clicked(const QModelIndex&)), this,
-          SLOT(plot3dEnsureSelection(const QModelIndex&)));
-  connect(ui_->fittingListView, SIGNAL(clicked(const QModelIndex&)), this,
-          SLOT(fittingEnsureSelection(const QModelIndex&)));
-  connect(ui_->scriptingListView, SIGNAL(clicked(const QModelIndex&)), this,
-          SLOT(scriptingEnsureSelection(const QModelIndex&)));
+  connect(ui_->settingsButton, &QPushButton::clicked, this,
+          &SettingsDialog::getBackToRootSettingsPage);
+  connect(ui_->generalListView, &aSettingsListView::clicked, this,
+          &SettingsDialog::generalEnsureSelection);
+  connect(ui_->tableListView, &aSettingsListView::clicked, this,
+          &SettingsDialog::tableEnsureSelection);
+  connect(ui_->plot2dListView, &aSettingsListView::clicked, this,
+          &SettingsDialog::plot2dEnsureSelection);
+  connect(ui_->plot3dListView, &aSettingsListView::clicked, this,
+          &SettingsDialog::plot3dEnsureSelection);
+  connect(ui_->fittingListView, &aSettingsListView::clicked, this,
+          &SettingsDialog::fittingEnsureSelection);
+  connect(ui_->scriptingListView, &aSettingsListView::clicked, this,
+          &SettingsDialog::scriptingEnsureSelection);
 }
 
 SettingsDialog::~SettingsDialog() { delete ui_; }

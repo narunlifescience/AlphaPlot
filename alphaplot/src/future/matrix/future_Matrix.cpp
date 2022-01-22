@@ -102,8 +102,8 @@ Matrix::~Matrix() {}
 void Matrix::setView(MatrixView *view) {
   d_view = view;
   addActionsToView();
-  connect(d_view, SIGNAL(controlTabBarStatusChanged(bool)), this,
-          SLOT(adjustTabBarAction(bool)));
+  connect(d_view, &MatrixView::controlTabBarStatusChanged, this,
+          &Matrix::adjustTabBarAction);
   adjustTabBarAction(true);
 }
 
@@ -112,8 +112,8 @@ QWidget *Matrix::view() {
   if (!d_view) {
     d_view = new MatrixView(this);
     addActionsToView();
-    connect(d_view, SIGNAL(controlTabBarStatusChanged(bool)), this,
-            SLOT(adjustTabBarAction(bool)));
+    connect(d_view, &MatrixView::controlTabBarStatusChanged, this,
+            &Matrix::adjustTabBarAction);
     adjustTabBarAction(true);
   }
 #else
@@ -626,52 +626,52 @@ void Matrix::createActions() {
 }
 
 void Matrix::connectActions() {
-  connect(action_cut_selection, SIGNAL(triggered()), this,
-          SLOT(cutSelection()));
-  connect(action_copy_selection, SIGNAL(triggered()), this,
-          SLOT(copySelection()));
-  connect(action_paste_into_selection, SIGNAL(triggered()), this,
-          SLOT(pasteIntoSelection()));
-  connect(action_set_formula, SIGNAL(triggered()), this, SLOT(editFormula()));
-  connect(action_edit_coordinates, SIGNAL(triggered()), this,
-          SLOT(editCoordinates()));
-  connect(action_edit_format, SIGNAL(triggered()), this, SLOT(editFormat()));
-  connect(action_clear_selection, SIGNAL(triggered()), this,
-          SLOT(clearSelectedCells()));
+  connect(action_cut_selection, &QAction::triggered, this,
+          &Matrix::cutSelection);
+  connect(action_copy_selection, &QAction::triggered, this,
+          &Matrix::copySelection);
+  connect(action_paste_into_selection, &QAction::triggered, this,
+          &Matrix::pasteIntoSelection);
+  connect(action_set_formula, &QAction::triggered, this, &Matrix::editFormula);
+  connect(action_edit_coordinates, &QAction::triggered, this,
+          &Matrix::editCoordinates);
+  connect(action_edit_format, &QAction::triggered, this, &Matrix::editFormat);
+  connect(action_clear_selection, &QAction::triggered, this,
+          &Matrix::clearSelectedCells);
 #ifdef LEGACY_CODE_0_2_x
-  connect(action_recalculate, SIGNAL(triggered()), this,
-          SLOT(recalculateSelectedCells()));
+  connect(action_recalculate, &QAction::triggered, this,
+          &Matrix::recalculateSelectedCells);
 #endif
-  connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
-  connect(action_clear_matrix, SIGNAL(triggered()), this, SLOT(clear()));
-  connect(action_transpose, SIGNAL(triggered()), this, SLOT(transpose()));
-  connect(action_mirror_horizontally, SIGNAL(triggered()), this,
-          SLOT(mirrorHorizontally()));
-  connect(action_mirror_vertically, SIGNAL(triggered()), this,
-          SLOT(mirrorVertically()));
-  connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
-  connect(action_import_image, SIGNAL(triggered()), this,
-          SLOT(importImageDialog()));
-  connect(action_duplicate, SIGNAL(triggered()), this, SLOT(duplicate()));
-  connect(action_insert_columns, SIGNAL(triggered()), this,
-          SLOT(insertEmptyColumns()));
-  connect(action_remove_columns, SIGNAL(triggered()), this,
-          SLOT(removeSelectedColumns()));
-  connect(action_clear_columns, SIGNAL(triggered()), this,
-          SLOT(clearSelectedColumns()));
-  connect(action_insert_rows, SIGNAL(triggered()), this,
-          SLOT(insertEmptyRows()));
-  connect(action_remove_rows, SIGNAL(triggered()), this,
-          SLOT(removeSelectedRows()));
-  connect(action_clear_rows, SIGNAL(triggered()), this,
-          SLOT(clearSelectedRows()));
-  connect(action_add_columns, SIGNAL(triggered()), this, SLOT(addColumns()));
-  connect(action_add_rows, SIGNAL(triggered()), this, SLOT(addRows()));
+  connect(action_select_all, &QAction::triggered, this, &Matrix::selectAll);
+  connect(action_clear_matrix, &QAction::triggered, this, &Matrix::clear);
+  connect(action_transpose, &QAction::triggered, this, &Matrix::transpose);
+  connect(action_mirror_horizontally, &QAction::triggered, this,
+          &Matrix::mirrorHorizontally);
+  connect(action_mirror_vertically, &QAction::triggered, this,
+          &Matrix::mirrorVertically);
+  connect(action_go_to_cell, &QAction::triggered, this, &Matrix::goToCell);
+  connect(action_import_image, &QAction::triggered, this,
+          &Matrix::importImageDialog);
+  connect(action_duplicate, &QAction::triggered, this, &Matrix::duplicate);
+  connect(action_insert_columns, &QAction::triggered, this,
+          &Matrix::insertEmptyColumns);
+  connect(action_remove_columns, &QAction::triggered, this,
+          &Matrix::removeSelectedColumns);
+  connect(action_clear_columns, &QAction::triggered, this,
+          &Matrix::clearSelectedColumns);
+  connect(action_insert_rows, &QAction::triggered, this,
+          &Matrix::insertEmptyRows);
+  connect(action_remove_rows, &QAction::triggered, this,
+          &Matrix::removeSelectedRows);
+  connect(action_clear_rows, &QAction::triggered, this,
+          &Matrix::clearSelectedRows);
+  connect(action_add_columns, &QAction::triggered, this, &Matrix::addColumns);
+  connect(action_add_rows, &QAction::triggered, this, &Matrix::addRows);
 }
 
 void Matrix::addActionsToView() {
-  connect(action_toggle_tabbar, SIGNAL(triggered()), d_view,
-          SLOT(toggleControlTabBar()));
+  connect(action_toggle_tabbar, &QAction::triggered, d_view,
+          &MatrixView::toggleControlTabBar);
 
   d_view->addAction(action_cut_selection);
   d_view->addAction(action_copy_selection);

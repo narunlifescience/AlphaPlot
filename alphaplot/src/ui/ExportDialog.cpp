@@ -28,12 +28,12 @@
  ***************************************************************************/
 #include "ExportDialog.h"
 
-#include <QLayout>
-#include <QLabel>
-#include <QMessageBox>
-#include <QPushButton>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QLabel>
+#include <QLayout>
+#include <QMessageBox>
+#include <QPushButton>
 
 ExportDialog::ExportDialog(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
@@ -107,11 +107,11 @@ ExportDialog::ExportDialog(QWidget *parent, Qt::WindowFlags fl)
   vl->addLayout(hbox3);
 
   // signals and slots connections
-  connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
-  connect(buttonHelp, SIGNAL(clicked()), this, SLOT(help()));
-  connect(boxAllTables, SIGNAL(toggled(bool)), this,
-          SLOT(enableTableName(bool)));
+  connect(buttonOk, &QPushButton::clicked, this, &ExportDialog::accept);
+  connect(buttonCancel, &QPushButton::clicked, this, &ExportDialog::reject);
+  connect(buttonHelp, &QPushButton::clicked, this, &ExportDialog::help);
+  connect(boxAllTables, &QCheckBox::toggled, this,
+          &ExportDialog::enableTableName);
 }
 
 void ExportDialog::help() {

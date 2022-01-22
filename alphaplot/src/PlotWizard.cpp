@@ -27,9 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "PlotWizard.h"
-#include "3Dplot/Layout3D.h"
-#include "ApplicationWindow.h"
-#include "Table.h"
 
 #include <QApplication>
 #include <QComboBox>
@@ -42,6 +39,10 @@
 #include <QPushButton>
 #include <QSizePolicy>
 #include <QVBoxLayout>
+
+#include "3Dplot/Layout3D.h"
+#include "ApplicationWindow.h"
+#include "Table.h"
 
 PlotWizard::PlotWizard(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
@@ -118,17 +119,17 @@ PlotWizard::PlotWizard(QWidget *parent, Qt::WindowFlags fl)
   vlayout->addLayout(bottomLayout);
 
   // signals and slots connections
-  connect(boxTables, SIGNAL(activated(const QString &)), this,
-          SLOT(changeColumnsList(const QString &)));
-  connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
-  connect(buttonNew, SIGNAL(clicked()), this, SLOT(addCurve()));
-  connect(buttonDelete, SIGNAL(clicked()), this, SLOT(removeCurve()));
-  connect(buttonX, SIGNAL(clicked()), this, SLOT(addXCol()));
-  connect(buttonY, SIGNAL(clicked()), this, SLOT(addYCol()));
-  connect(buttonXErr, SIGNAL(clicked()), this, SLOT(addXErrCol()));
-  connect(buttonYErr, SIGNAL(clicked()), this, SLOT(addYErrCol()));
-  connect(buttonZ, SIGNAL(clicked()), this, SLOT(addZCol()));
+  connect(boxTables, &QComboBox::textActivated, this,
+          &PlotWizard::changeColumnsList);
+  connect(buttonOk, &QPushButton::clicked, this, &PlotWizard::accept);
+  connect(buttonCancel, &QPushButton::clicked, this, &PlotWizard::reject);
+  connect(buttonNew, &QPushButton::clicked, this, &PlotWizard::addCurve);
+  connect(buttonDelete, &QPushButton::clicked, this, &PlotWizard::removeCurve);
+  connect(buttonX, &QPushButton::clicked, this, &PlotWizard::addXCol);
+  connect(buttonY, &QPushButton::clicked, this, &PlotWizard::addYCol);
+  connect(buttonXErr, &QPushButton::clicked, this, &PlotWizard::addXErrCol);
+  connect(buttonYErr, &QPushButton::clicked, this, &PlotWizard::addYErrCol);
+  connect(buttonZ, &QPushButton::clicked, this, &PlotWizard::addZCol);
 }
 
 QSize PlotWizard::sizeHint() const { return QSize(350, 400); }
@@ -151,7 +152,11 @@ void PlotWizard::accept() {
       else if (!text.contains("(Y)") && !ribbons.contains(text))
         ribbons << text;
     } else if (text.contains("(xErr)") || text.contains("(yErr)")) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+      QStringList lst = text.split(",", Qt::SkipEmptyParts);
+#else
       QStringList lst = text.split(",", QString::SkipEmptyParts);
+#endif
       lst.pop_back();
       QString master_curve = lst.join(",");
 
@@ -304,6 +309,7 @@ bool PlotWizard::noCurves() {
 }
 
 void PlotWizard::plot3DRibbon(const QStringList &lst) {
+  Q_UNUSED(lst)
   /*ApplicationWindow *app = (ApplicationWindow *)this->parent();
   if (!app) return;
 
@@ -333,6 +339,7 @@ void PlotWizard::plot3DRibbon(const QStringList &lst) {
 }
 
 void PlotWizard::plot3D(const QStringList &lst) {
+  Q_UNUSED(lst)
   /*ApplicationWindow *app = (ApplicationWindow *)this->parent();
   if (!app) return;
 
