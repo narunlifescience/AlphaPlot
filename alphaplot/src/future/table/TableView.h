@@ -73,10 +73,9 @@ class TableViewWidget : public QTableView {
   //! Overloaded function (cf. Qt documentation)
   virtual void keyPressEvent(QKeyEvent *event);
 
- protected slots:
+ public slots:
   //! Cause a repaint of the header
   void updateHeaderGeometry(Qt::Orientation o, int first, int last);
- public slots:
   void selectAll();
 };
 

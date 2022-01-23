@@ -52,11 +52,11 @@ void TableCommentsHeaderView::setModel(QAbstractItemModel *model) {
       new TableCommentsHeaderModel(static_cast<TableModel *>(model));
   QHeaderView::setModel(new_model);
   QObject::disconnect(
-      new_model, SIGNAL(columnsInserted(QModelIndex, int, int)), this,
-      SLOT(sectionsInserted(QModelIndex, int, int)));  // We have to make sure
-                                                       // sectionsInserted is
-                                                       // called in the right
-                                                       // order
+      new_model, &TableCommentsHeaderModel::columnsInserted, this,
+      &TableCommentsHeaderView::sectionsInserted);  // We have to make sure
+                                                    // sectionsInserted is
+                                                    // called in the right
+                                                    // order
   delete old_model;
 }
 
@@ -93,8 +93,8 @@ void TableDoubleHeaderView::setModel(QAbstractItemModel *model) {
   Q_ASSERT(model->inherits("TableModel"));
   d_slave->setModel(model);
   QHeaderView::setModel(model);
-  connect(model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)), this,
-          SLOT(headerDataChanged(Qt::Orientation, int, int)));
+  connect(model, &QAbstractItemModel::headerDataChanged, this,
+          &TableDoubleHeaderView::headerDataChanged);
 }
 
 void TableDoubleHeaderView::paintSection(QPainter *painter, const QRect &rect,

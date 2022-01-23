@@ -99,11 +99,6 @@ template <>
 double conv<double>(const QString& x, const QLocale locale) {
   return locale.toDouble(x);
 }
-// we are not using float for now
-/*template <>
-float conv<float>(const QString& x) {
-  return x.toFloat();
-}*/
 
 template <class T>
 struct AP : public std::unique_ptr<T> {

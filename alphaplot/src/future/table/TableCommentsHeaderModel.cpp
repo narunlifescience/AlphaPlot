@@ -33,20 +33,18 @@
 TableCommentsHeaderModel::TableCommentsHeaderModel(TableModel *table_model,
                                                    QObject *parent)
     : QAbstractTableModel(parent), d_table_model(table_model) {
-  connect(d_table_model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
-          this, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
-  connect(d_table_model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
-          this, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
-  connect(d_table_model,
-          SIGNAL(columnsAboutToBeInserted(const QModelIndex &, int, int)), this,
-          SIGNAL(columnsAboutToBeInserted(const QModelIndex &, int, int)));
-  connect(d_table_model,
-          SIGNAL(columnsAboutToBeRemoved(const QModelIndex &, int, int)), this,
-          SIGNAL(columnsAboutToBeRemoved(const QModelIndex &, int, int)));
-  connect(d_table_model, SIGNAL(columnsInserted(const QModelIndex &, int, int)),
-          this, SIGNAL(columnsInserted(const QModelIndex &, int, int)));
-  connect(d_table_model, SIGNAL(columnsRemoved(const QModelIndex &, int, int)),
-          this, SIGNAL(columnsRemoved(const QModelIndex &, int, int)));
+  connect(d_table_model, &TableModel::headerDataChanged, this,
+          &TableCommentsHeaderModel::headerDataChanged);
+  connect(d_table_model, &TableModel::headerDataChanged, this,
+          &TableCommentsHeaderModel::headerDataChanged);
+  connect(d_table_model, &TableModel::columnsAboutToBeInserted, this,
+          &TableCommentsHeaderModel::columnsAboutToBeInserted);
+  connect(d_table_model, &TableModel::columnsAboutToBeRemoved, this,
+          &TableCommentsHeaderModel::columnsAboutToBeRemoved);
+  connect(d_table_model, &TableModel::columnsInserted, this,
+          &TableCommentsHeaderModel::columnsInserted);
+  connect(d_table_model, &TableModel::columnsRemoved, this,
+          &TableCommentsHeaderModel::columnsRemoved);
 }
 
 TableCommentsHeaderModel::~TableCommentsHeaderModel() {}

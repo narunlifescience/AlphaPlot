@@ -44,26 +44,26 @@ TableModel::TableModel(future::Table *table)
       d_read_only(false),
 #endif
       d_formula_mode(false) {
-  connect(d_table, SIGNAL(columnsAboutToBeInserted(int, QList<Column *>)), this,
-          SLOT(handleColumnsAboutToBeInserted(int, QList<Column *>)));
-  connect(d_table, SIGNAL(columnsInserted(int, int)), this,
-          SLOT(handleColumnsInserted(int, int)));
-  connect(d_table, SIGNAL(columnsAboutToBeRemoved(int, int)), this,
-          SLOT(handleColumnsAboutToBeRemoved(int, int)));
-  connect(d_table, SIGNAL(columnsRemoved(int, int)), this,
-          SLOT(handleColumnsRemoved(int, int)));
-  connect(d_table, SIGNAL(rowsAboutToBeInserted(int, int)), this,
-          SLOT(handleRowsAboutToBeInserted(int, int)));
-  connect(d_table, SIGNAL(rowsInserted(int, int)), this,
-          SLOT(handleRowsInserted(int, int)));
-  connect(d_table, SIGNAL(rowsAboutToBeRemoved(int, int)), this,
-          SLOT(handleRowsAboutToBeRemoved(int, int)));
-  connect(d_table, SIGNAL(rowsRemoved(int, int)), this,
-          SLOT(handleRowsRemoved(int, int)));
-  connect(d_table, SIGNAL(dataChanged(int, int, int, int)), this,
-          SLOT(handleDataChanged(int, int, int, int)));
-  connect(d_table, SIGNAL(headerDataChanged(Qt::Orientation, int, int)), this,
-          SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
+  connect(d_table, &future::Table::columnsAboutToBeInserted, this,
+          &TableModel::handleColumnsAboutToBeInserted);
+  connect(d_table, &future::Table::columnsInserted, this,
+          &TableModel::handleColumnsInserted);
+  connect(d_table, &future::Table::columnsAboutToBeRemoved, this,
+          &TableModel::handleColumnsAboutToBeRemoved);
+  connect(d_table, &future::Table::columnsRemoved, this,
+          &TableModel::handleColumnsRemoved);
+  connect(d_table, &future::Table::rowsAboutToBeInserted, this,
+          &TableModel::handleRowsAboutToBeInserted);
+  connect(d_table, &future::Table::rowsInserted, this,
+          &TableModel::handleRowsInserted);
+  connect(d_table, &future::Table::rowsAboutToBeRemoved, this,
+          &TableModel::handleRowsAboutToBeRemoved);
+  connect(d_table, &future::Table::rowsRemoved, this,
+          &TableModel::handleRowsRemoved);
+  connect(d_table, &future::Table::dataChanged, this,
+          &TableModel::handleDataChanged);
+  connect(d_table, &future::Table::headerDataChanged, this,
+          &TableModel::headerDataChanged);
 }
 
 TableModel::~TableModel() {}
@@ -97,8 +97,10 @@ QVariant TableModel::data(const QModelIndex &index, int role) const {
         return QVariant(tr("invalid cell (ignored in all operations)",
                            "tooltip string for invalid rows") +
                         postfix);
+      break;
     case Qt::EditRole:
       if (!d_formula_mode && col_ptr->isInvalid(row)) return QVariant();
+      break;
     case Qt::DisplayRole: {
       if (d_formula_mode) return QVariant(col_ptr->formula(row));
       if (col_ptr->isInvalid(row))
@@ -106,14 +108,18 @@ QVariant TableModel::data(const QModelIndex &index, int role) const {
 
       return QVariant(col_ptr->asStringColumn()->textAt(row) + postfix);
     }
+      break;
     case Qt::ForegroundRole: {
       if (col_ptr->isInvalid(index.row()))
         return QVariant(QBrush(QColor(Qt::red)));  // invalid -> red letters
     }
+      break;
     case MaskingRole:
       return QVariant(col_ptr->isMasked(row));
+      break;
     case FormulaRole:
       return QVariant(col_ptr->formula(row));
+      break;
     case Qt::DecorationRole:
       if (d_formula_mode)
         return IconLoader::load("edit-equal", IconLoader::LightDark);

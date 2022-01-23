@@ -543,7 +543,7 @@ void DataBlockHist::regenerateDataBlock(Table *table, Column *col,
 
   for (int i = 0; i < size; i++) gsl_histogram_increment(h, Y[i]);
 
-  double X[n];  // stores ranges (x) and bins (y)
+  //double X[n];  // stores ranges (x) and bins (y)
   Y.resize(n);
   QSharedPointer<QCPBarsDataContainer> cont =
       QSharedPointer<QCPBarsDataContainer>(new QCPBarsDataContainer);
@@ -553,7 +553,7 @@ void DataBlockHist::regenerateDataBlock(Table *table, Column *col,
     dat.value = gsl_histogram_get(h, i);
     double lower, upper;
     gsl_histogram_get_range(h, i, &lower, &upper);
-    X[i] = lower;
+    //X[i] = lower;
     dat.key = lower;
     cont.data()->add(dat);
   }
