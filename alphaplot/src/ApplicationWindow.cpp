@@ -595,9 +595,9 @@ ApplicationWindow::ApplicationWindow()
           qOverload<>(&QSignalMapper::map));
   d_plot_mapper->setMapping(ui_->actionPlot2DChannelFill,
                             static_cast<int>(Graph::Channel));
-  connect(ui_->actionPlot2DPie, &QAction::triggered,
+  connect(ui_->actionPlot2DPie, &QAction::triggered, this,
           [&]() { plotPie(Graph2DCommon::PieStyle::Pie); });
-  connect(ui_->actionPlot2DHalfPie, &QAction::triggered,
+  connect(ui_->actionPlot2DHalfPie, &QAction::triggered, this,
           [&]() { plotPie(Graph2DCommon::PieStyle::HalfPie); });
   connect(ui_->actionPlot2DVectorsXYAM, &QAction::triggered, this,
           &ApplicationWindow::plotVectXYAM);
@@ -613,17 +613,17 @@ ApplicationWindow::ApplicationWindow()
                             static_cast<int>(Graph::Histogram));
   connect(ui_->actionPlot2DStatStackedHistogram, &QAction::triggered, this,
           &ApplicationWindow::plotStackedHistograms);
-  connect(ui_->actionPanelVertical2Layouts, &QAction::triggered, [&]() {
+  connect(ui_->actionPanelVertical2Layouts, &QAction::triggered, this, [&]() {
     Layout2D *layout = newGraph2D();
     layout->addAxisRectWithAxis(QPair<int, int>(0, 0));
     layout->addAxisRectWithAxis(QPair<int, int>(1, 0));
   });
-  connect(ui_->actionPanelHorizontal2Layouts, &QAction::triggered, [&]() {
+  connect(ui_->actionPanelHorizontal2Layouts, &QAction::triggered, this, [&]() {
     Layout2D *layout = newGraph2D();
     layout->addAxisRectWithAxis(QPair<int, int>(0, 0));
     layout->addAxisRectWithAxis(QPair<int, int>(0, 1));
   });
-  connect(ui_->actionPanel4Layouts, &QAction::triggered, [&]() {
+  connect(ui_->actionPanel4Layouts, &QAction::triggered, this, [&]() {
     Layout2D *layout = newGraph2D();
     layout->addAxisRectWithAxis(QPair<int, int>(0, 0));
     layout->addAxisRectWithAxis(QPair<int, int>(0, 1));
@@ -641,19 +641,19 @@ ApplicationWindow::ApplicationWindow()
   connect(ui_->actionPlot3DTrajectory, &QAction::triggered, this,
           &ApplicationWindow::plot3DTrajectory);
   // 3D Plot menu
-  connect(ui_->action3DWireFrame, &QAction::triggered, [=]() {
+  connect(ui_->action3DWireFrame, &QAction::triggered, this, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
           QSurface3DSeries::DrawFlag::DrawWireframe);
   });
-  connect(ui_->action3DSurface, &QAction::triggered, [=]() {
+  connect(ui_->action3DSurface, &QAction::triggered, this, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
           QSurface3DSeries::DrawFlag::DrawSurface);
   });
-  connect(ui_->action3DWireSurface, &QAction::triggered, [=]() {
+  connect(ui_->action3DWireSurface, &QAction::triggered, this, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
@@ -669,33 +669,33 @@ ApplicationWindow::ApplicationWindow()
           &ApplicationWindow::plotContour);
   connect(ui_->action3DGreyScaleMap, &QAction::triggered, this,
           &ApplicationWindow::plotGrayScale);
-  connect(ui_->action3DWireFramePolar, &QAction::triggered, [=]() {
+  connect(ui_->action3DWireFramePolar, &QAction::triggered, this, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
           QSurface3DSeries::DrawFlag::DrawWireframe);
     layout->getSurface3DModifier()->getGraph()->setPolar(true);
   });
-  connect(ui_->action3DSurfacePolar, &QAction::triggered, [=]() {
+  connect(ui_->action3DSurfacePolar, &QAction::triggered, this, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
           QSurface3DSeries::DrawFlag::DrawSurface);
     layout->getSurface3DModifier()->getGraph()->setPolar(true);
   });
-  connect(ui_->action3DWireFrameSurfacePolar, &QAction::triggered, [=]() {
+  connect(ui_->action3DWireFrameSurfacePolar, &QAction::triggered, this, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
           QSurface3DSeries::DrawFlag::DrawSurfaceAndWireframe);
     layout->getSurface3DModifier()->getGraph()->setPolar(true);
   });
-  connect(ui_->action3DScatterPolar, &QAction::triggered, [=]() {
+  connect(ui_->action3DScatterPolar, &QAction::triggered, this, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Scatter);
     if (layout && layout->getScatter3DModifier())
       layout->getScatter3DModifier()->getGraph()->setPolar(true);
   });
-  connect(ui_->action3DPolarSpectrogram, &QAction::triggered, [=]() {
+  connect(ui_->action3DPolarSpectrogram, &QAction::triggered, this, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
@@ -1963,15 +1963,15 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
           &ApplicationWindow::showWindowTitleBarMenu);
   connect(layout2d, &Layout2D::AxisRectRemoved, propertyeditor,
           &PropertyEditor::populateObjectBrowser);
-  connect(layout2d, &Layout2D::AxisRectSwap, [=]() {
+  connect(layout2d, &Layout2D::AxisRectSwap, this, [=]() {
     propertyeditor->populateObjectBrowser(static_cast<MyWidget *>(layout2d));
   });
-  connect(layout2d, &Layout2D::mousepressevent, [=](MyWidget *widget) {
+  connect(layout2d, &Layout2D::mousepressevent, this, [=](MyWidget *widget) {
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
   });
-  connect(layout2d, &Layout2D::ResetPicker, [&]() {
+  connect(layout2d, &Layout2D::ResetPicker, this, [&]() {
     pickGraphTool(ui_->actionDisableGraphTools);
     ui_->actionDisableGraphTools->setChecked(true);
   });
@@ -2152,8 +2152,7 @@ Table *ApplicationWindow::newTable(const QString &caption, int r, int c) {
     QMessageBox::warning(
         this, tr("Renamed Window"),
         tr("The table '%1' already exists. It has been renamed '%2'.")
-            .arg(caption)
-            .arg(table->name()));
+            .arg(caption, table->name()));
   }
   return table;
 }
@@ -2278,7 +2277,7 @@ void ApplicationWindow::initNote(Note *note, const QString &caption) {
           &ApplicationWindow::updateWindowStatus);
   connect(note, &Note::showTitleBarMenu, this,
           &ApplicationWindow::showWindowTitleBarMenu);
-  connect(note, &Note::mousepressevent, [=](MyWidget *widget) {
+  connect(note, &Note::mousepressevent, this, [=](MyWidget *widget) {
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
@@ -2385,7 +2384,7 @@ void ApplicationWindow::initMatrix(Matrix *matrix) {
           &ApplicationWindow::updateWindowStatus);
   connect(matrix, &Matrix::showContextMenu, this,
           &ApplicationWindow::showWindowContextMenu);
-  connect(matrix, &Matrix::mousepressevent, [=](MyWidget *widget) {
+  connect(matrix, &Matrix::mousepressevent, this, [=](MyWidget *widget) {
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
@@ -3119,7 +3118,7 @@ void ApplicationWindow::importASCII(const QStringList &files, int import_mode,
 
   table->setWindowLabel(files.join("; "));
   table->notifyChanges();
-  emit modifiedProject(table);
+  modifiedProject(table);
   modifiedProject();
 }
 
@@ -3134,7 +3133,7 @@ void ApplicationWindow::openAproj() {
 
   switch (openDialog->openMode()) {
     case OpenProjectDialog::NewProject: {
-      QString fileName = openDialog->selectedFiles()[0];
+      QString fileName = openDialog->selectedFiles().at(0);
       QFileInfo fi(fileName);
 
       if (projectname != "untitled") {
@@ -4021,7 +4020,7 @@ void ApplicationWindow::exportAllGraphs() {
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-  QString output_dir = ied->selectedFiles()[0];
+  QString output_dir = ied->selectedFiles().at(0);
   QString file_suffix = ied->selectedNameFilter();
   file_suffix = file_suffix.toLower();
   file_suffix.remove("*");
@@ -5684,7 +5683,7 @@ void ApplicationWindow::closeActiveWindow() {
 void ApplicationWindow::removeWindowFromLists(MyWidget *widgrt) {
   if (!widgrt) return;
 
-  QString caption = widgrt->name();
+  // QString caption = widgrt->name();
   if (isActiveSubwindow(SubWindowType::TableSubWindow)) {
     Table *table = qobject_cast<Table *>(widgrt);
     for (int i = 0; i < table->numCols(); i++) {
@@ -6161,7 +6160,7 @@ void ApplicationWindow::showPlotWizard() {
   plotwizard->insertTablesList(tableWindows());
   // TODO: string list -> Column * list
   plotwizard->setColumnsList(columnsList());
-  plotwizard->changeColumnsList(tableWindows()[0]);
+  plotwizard->changeColumnsList(tableWindows().at(0));
   plotwizard->exec();
 }
 
@@ -6816,7 +6815,7 @@ void ApplicationWindow::connectTable(Table *table) {
           &ApplicationWindow::showRowStatistics);
   connect(table->d_future_table, &future::Table::requestColumnStatistics, this,
           &ApplicationWindow::showColumnStatistics);
-  connect(table, &Table::mousepressevent, [=](MyWidget *widget) {
+  connect(table, &Table::mousepressevent, this, [=](MyWidget *widget) {
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
@@ -6842,7 +6841,7 @@ void ApplicationWindow::setAppColors() {
     palet.setColor(QPalette::ButtonText, panelsTextColor);
     palet.setColor(QPalette::BrightText, panelsTextColor);
     qApp->setPalette(palet);
-    QPalette pal = d_workspace->palette();
+    // QPalette pal = d_workspace->palette();
     d_workspace->setBackground(QBrush(workspaceColor));
   } else {
     qApp->setStyle(appStyle);
@@ -8128,8 +8127,8 @@ void ApplicationWindow::windowProperties() {
                           .arg(static_cast<Note *>(window)->size().width());
     properties.content =
         QString(tr("%1 Characters,\n%2 Lines"))
-            .arg(QString::number(static_cast<Note *>(window)->text().count()))
-            .arg("(unavailable)");
+            .arg(QString::number(static_cast<Note *>(window)->text().count()),
+                 "(unavailable)");
     properties.description = tr("This is an AlphaPlot Note");
   } else if (isActiveSubWindow(window, SubWindowType::Plot2DSubWindow)) {
     properties.icon = QPixmap(":icons/common/64/graph2D-properties.png");
@@ -8138,7 +8137,7 @@ void ApplicationWindow::windowProperties() {
                           .arg(static_cast<Layout2D *>(window)->size().height())
                           .arg(static_cast<Layout2D *>(window)->size().width());
     properties.content =
-        QString(tr("%1 Layers,\n%2x%3 Layout")).arg("").arg("").arg("");
+        QString(tr("%1 Layers,\n%2x%3 Layout")).arg("", "", "");
     properties.description = tr("This is an AlphaPlot 2D Graph");
   } else if (isActiveSubWindow(window, SubWindowType::Plot3DSubWindow)) {
     properties.icon = QPixmap(":icons/common/64/graph3D-properties.png");
