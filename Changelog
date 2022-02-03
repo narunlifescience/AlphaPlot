@@ -1,6 +1,6 @@
 === Progress ===
 * move to c++ 14
-* use updated classes & drop deprecated ones
+* use QRandomGenerator class for random number generation
 
 === 18-01-22 Fifth release of AlphaPlot (Stable) - major release ===
 * project explorer drag n drop

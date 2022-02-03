@@ -61,7 +61,7 @@ Axis2D::Axis2D(AxisRect2D *parent, const AxisType type,
   reloadIcon();
   layer()->setMode(QCPLayer::LayerMode::lmBuffered);
 
-  connect(this, QOverload<const QCPRange &>::of(&Axis2D::rangeChanged), this,
+  connect(this, qOverload<const QCPRange &>(&Axis2D::rangeChanged), this,
           [=]() { emit rescaleAxis2D(this); });
 }
 
