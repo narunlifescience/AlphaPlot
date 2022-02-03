@@ -1,11 +1,10 @@
 #include "Function2DDialog.h"
-
-#include <QMessageBox>
-
 #include "../AxisRect2D.h"
 #include "ApplicationWindow.h"
 #include "scripting/MyParser.h"
 #include "ui_Function2DDialog.h"
+
+#include <QMessageBox>
 
 Function2DDialog::Function2DDialog(QWidget *parent)
     : QDialog(parent),
@@ -39,14 +38,14 @@ Function2DDialog::Function2DDialog(QWidget *parent)
   ui_->dialogButtonBox->button(QDialogButtonBox::Ok)->setDefault(true);
   setFocusProxy(ui_->normfofxTextEdit);
 
-  connect(ui_->functionComboBox, qOverload<int>(&QComboBox::activated), this,
-          &Function2DDialog::raiseWidget);
-  connect(ui_->dialogButtonBox->button(QDialogButtonBox::Ok),
-          &QPushButton::clicked, this, &Function2DDialog::accept);
+  connect(ui_->functionComboBox, SIGNAL(activated(int)), this,
+          SLOT(raiseWidget(int)));
+  connect(ui_->dialogButtonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()),
+          this, SLOT(accept()));
   connect(ui_->dialogButtonBox->button(QDialogButtonBox::Close),
-          &QPushButton::clicked, this, &Function2DDialog::close);
-  connect(ui_->clearfunction_pushButton, &QPushButton::clicked, this,
-          &Function2DDialog::clearList);
+          SIGNAL(clicked()), this, SLOT(close()));
+  connect(ui_->clearfunction_pushButton, SIGNAL(clicked()), this,
+          SLOT(clearList()));
 }
 
 Function2DDialog::~Function2DDialog() { delete ui_; }
@@ -94,7 +93,7 @@ void Function2DDialog::accept() {
 bool Function2DDialog::acceptFunction() {
   QString from = ui_->normfromxLineEdit->text().toLower();
   QString to = ui_->normtoxLineEdit->text().toLower();
-  //QString points = ui_->normpointsSpinBox->text().toLower();
+  QString points = ui_->normpointsSpinBox->text().toLower();
 
   double start, end;
   try {
@@ -145,7 +144,7 @@ bool Function2DDialog::acceptFunction() {
   }
   app->updateFunctionLists(type, formulas);
 
-  bool result = false;
+  bool result;
 
   if (!axisrect_) {
     result = app->newFunctionPlot(type, formulas, "x", ranges,
@@ -160,13 +159,13 @@ bool Function2DDialog::acceptFunction() {
   }
 
   emit updateFunctionLists(type, formulas);
-  return result;
+  return true;
 }
 
 bool Function2DDialog::acceptParametric() {
   QString from = ui_->paramfromLineEdit->text().toLower();
   QString to = ui_->paramtoLineEdit->text().toLower();
-  //QString points = ui_->parampointsSpinBox->text().toLower();
+  QString points = ui_->parampointsSpinBox->text().toLower();
 
   double start, end;
   try {
@@ -228,9 +227,9 @@ bool Function2DDialog::acceptParametric() {
                                   ui_->parampointsSpinBox->value());
   } else {
     if (plottomodify_ == -1) {
-      result = app->addFunctionPlot(
-          type, formulas, ui_->paramparameterLineEdit->text(), ranges,
-          ui_->parampointsSpinBox->value(), axisrect_);
+      result = app->addFunctionPlot(type, formulas,
+                                    ui_->paramparameterLineEdit->text(), ranges,
+                                    ui_->parampointsSpinBox->value(), axisrect_);
     } else {
       // result = app->editFunctionPlot();
     }

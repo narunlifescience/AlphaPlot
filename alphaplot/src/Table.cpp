@@ -122,50 +122,48 @@ void Table::init() {
                "the plot and then changing the column type/flag!")
                 .arg(name));
       });
-  connect(ui.add_function_combobox,
-          qOverload<int>(&QComboBox::currentIndexChanged), this,
-          &Table::updateFunctionDoc);
-  connect(ui.set_formula_button, &QPushButton::pressed, this,
-          &Table::applyFormula);
-  connect(ui.add_function_button, &QPushButton::pressed, this,
-          &Table::addFunction);
-  connect(ui.add_reference_button, &QPushButton::pressed, this,
-          &Table::addReference);
+  connect(ui.add_function_combobox, SIGNAL(currentIndexChanged(int)), this,
+          SLOT(updateFunctionDoc()));
+  connect(ui.set_formula_button, SIGNAL(pressed()), this, SLOT(applyFormula()));
+  connect(ui.add_function_button, SIGNAL(pressed()), this, SLOT(addFunction()));
+  connect(ui.add_reference_button, SIGNAL(pressed()), this,
+          SLOT(addReference()));
 
-  connect(d_future_table, &future::Table::columnsAboutToBeRemoved, this,
-          &Table::handleColumnsAboutToBeRemoved);
-  connect(d_future_table, &future::Table::columnsRemoved, this,
-          &Table::handleColumnsRemoved);
-  connect(d_future_table, &future::Table::rowsInserted, this,
-          &Table::handleRowChange);
-  connect(d_future_table, &future::Table::rowsRemoved, this,
-          &Table::handleRowChange);
-  connect(d_future_table, &future::Table::dataChanged, this,
-          qOverload<int, int, int, int>(&Table::handleColumnChange));
-  connect(d_future_table, &future::Table::columnsReplaced, this,
-          qOverload<int, int>(&Table::handleColumnChange));
+  connect(d_future_table, SIGNAL(columnsAboutToBeRemoved(int, int)), this,
+          SLOT(handleColumnsAboutToBeRemoved(int, int)));
+  connect(d_future_table, SIGNAL(columnsRemoved(int, int)), this,
+          SLOT(handleColumnsRemoved(int, int)));
+  connect(d_future_table, SIGNAL(rowsInserted(int, int)), this,
+          SLOT(handleRowChange()));
+  connect(d_future_table, SIGNAL(rowsRemoved(int, int)), this,
+          SLOT(handleRowChange()));
+  connect(d_future_table, SIGNAL(dataChanged(int, int, int, int)), this,
+          SLOT(handleColumnChange(int, int, int, int)));
+  connect(d_future_table, SIGNAL(columnsReplaced(int, int)), this,
+          SLOT(handleColumnChange(int, int)));
 
-  connect(d_future_table, &future::Table::columnsInserted, this,
-          &Table::handleChange);
-  connect(d_future_table, &future::Table::columnsReplaced, this,
-          &Table::handleChange);
-  connect(d_future_table, &future::Table::columnsRemoved, this,
-          &Table::handleChange);
-  connect(d_future_table, &future::Table::rowsInserted, this,
-          &Table::handleChange);
-  connect(d_future_table, &future::Table::rowsRemoved, this,
-          &Table::handleChange);
-  connect(d_future_table, &future::Table::dataChanged, this,
-          &Table::handleChange);
-  connect(d_future_table, &future::Table::headerDataChanged, this,
-          &Table::handleChange);
-  connect(d_future_table, &future::Table::recalculate, this,
-          qOverload<>(&Table::recalculate));
+  connect(d_future_table, SIGNAL(columnsInserted(int, int)), this,
+          SLOT(handleChange()));
+  connect(d_future_table, SIGNAL(columnsReplaced(int, int)), this,
+          SLOT(handleChange()));
+  connect(d_future_table, SIGNAL(columnsRemoved(int, int)), this,
+          SLOT(handleChange()));
+  connect(d_future_table, SIGNAL(rowsInserted(int, int)), this,
+          SLOT(handleChange()));
+  connect(d_future_table, SIGNAL(rowsRemoved(int, int)), this,
+          SLOT(handleChange()));
+  connect(d_future_table, SIGNAL(dataChanged(int, int, int, int)), this,
+          SLOT(handleChange()));
+  connect(d_future_table, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
+          this, SLOT(handleChange()));
+  connect(d_future_table, SIGNAL(recalculate()), this, SLOT(recalculate()));
 
-  connect(d_future_table, &future::Table::aspectDescriptionChanged, this,
-          &Table::handleAspectDescriptionChange);
-  connect(d_future_table, &future::Table::aspectDescriptionAboutToChange, this,
-          &Table::handleAspectDescriptionAboutToChange);
+  connect(d_future_table,
+          SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), this,
+          SLOT(handleAspectDescriptionChange(const AbstractAspect *)));
+  connect(d_future_table,
+          SIGNAL(aspectDescriptionAboutToChange(const AbstractAspect *)), this,
+          SLOT(handleAspectDescriptionAboutToChange(const AbstractAspect *)));
 }
 
 void Table::handleChange() { emit modifiedWindow(this); }

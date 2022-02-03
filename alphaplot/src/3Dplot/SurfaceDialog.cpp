@@ -27,17 +27,16 @@
  *                                                                         *
  ***************************************************************************/
 #include "SurfaceDialog.h"
-
-#include <QComboBox>
-#include <QGroupBox>
-#include <QLabel>
-#include <QLayout>
-#include <QLineEdit>
-#include <QMessageBox>
-#include <QPushButton>
-
-#include "ApplicationWindow.h"
 #include "scripting/MyParser.h"
+#include "ApplicationWindow.h"
+
+#include <QMessageBox>
+#include <QLayout>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
 
 SurfaceDialog::SurfaceDialog(QWidget *parent, Qt::WindowFlags fl)
     : QDialog(parent, fl) {
@@ -122,9 +121,9 @@ SurfaceDialog::SurfaceDialog(QWidget *parent, Qt::WindowFlags fl)
   resize(vl->minimumSize());
   setFocusProxy(boxFunction);
 
-  connect(buttonClear, &QPushButton::clicked, this, &SurfaceDialog::clearList);
-  connect(buttonOk, &QPushButton::clicked, this, &SurfaceDialog::accept);
-  connect(buttonCancel, &QPushButton::clicked, this, &SurfaceDialog::reject);
+  connect(buttonClear, SIGNAL(clicked()), this, SLOT(clearList()));
+  connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
+  connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 void SurfaceDialog::clearList() {

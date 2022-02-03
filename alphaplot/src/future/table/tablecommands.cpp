@@ -29,14 +29,12 @@
  ***************************************************************************/
 
 #include "table/tablecommands.h"
-
+#include "table/future_Table.h"
+#include "core/column/Column.h"
+#include "lib/Interval.h"
+#include "core/datatypes/Double2StringFilter.h"
 #include <QObject>
 #include <QtDebug>
-
-#include "core/column/Column.h"
-#include "core/datatypes/Double2StringFilter.h"
-#include "lib/Interval.h"
-#include "table/future_Table.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // class TableInsertColumnsCmd
@@ -130,8 +128,10 @@ TableMoveColumnCmd::TableMoveColumnCmd(future::Table::Private* private_obj,
                                        int from, int to, QUndoCommand* parent)
     : QUndoCommand(parent), d_private_obj(private_obj), d_from(from), d_to(to) {
   setText(QObject::tr("%1: move column %2 from position %3 to %4")
-              .arg(d_private_obj->name(), d_private_obj->column(from)->name(),
-                   QString::number(d_from + 1), QString::number(d_to + 1)));
+              .arg(d_private_obj->name())
+              .arg(d_private_obj->column(from)->name())
+              .arg(d_from + 1)
+              .arg(d_to + 1));
 }
 
 TableMoveColumnCmd::~TableMoveColumnCmd() {}

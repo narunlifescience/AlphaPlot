@@ -126,8 +126,7 @@ void TableView::init() {
   d_hide_button->setStyleSheet(
       "QToolButton {background-color : rgba(0, 0, 0, 0); "
       "border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0);}");
-  connect(d_hide_button, &QToolButton::pressed, this,
-          &TableView::toggleControlTabBar);
+  connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
 
   d_control_tabs = new QWidget(d_main_widget);
   ui.setupUi(d_control_tabs);
@@ -161,10 +160,10 @@ void TableView::init() {
   v_header->setSectionsMovable(false);
   d_horizontal_header->setSectionResizeMode(QHeaderView::Interactive);
   d_horizontal_header->setSectionsMovable(true);
-  connect(d_horizontal_header, &TableDoubleHeaderView::sectionMoved, this,
-          &TableView::handleHorizontalSectionMoved);
-  connect(d_horizontal_header, &TableDoubleHeaderView::sectionDoubleClicked,
-          this, &TableView::handleHorizontalHeaderDoubleClicked);
+  connect(d_horizontal_header, SIGNAL(sectionMoved(int, int, int)), this,
+          SLOT(handleHorizontalSectionMoved(int, int, int)));
+  connect(d_horizontal_header, SIGNAL(sectionDoubleClicked(int)), this,
+          SLOT(handleHorizontalHeaderDoubleClicked(int)));
   connect(ui.cwidget, &ControlWidget::widthChanged, this,
           &TableView::moveFloatingButton);
 
@@ -175,68 +174,70 @@ void TableView::init() {
   d_horizontal_header->installEventFilter(this);
   d_view_widget->installEventFilter(this);
 
-  connect(d_model, &TableModel::headerDataChanged, d_view_widget,
-          &TableViewWidget::updateHeaderGeometry);
-  connect(d_model, &TableModel::headerDataChanged, this,
-          &TableView::handleHeaderDataChanged);
-  connect(d_table, &future::Table::aspectDescriptionChanged, this,
-          &TableView::handleAspectDescriptionChanged);
-  connect(d_table,
-          qOverload<const AbstractAspect *>(&future::Table::aspectAdded), this,
-          &TableView::handleAspectAdded);
-  connect(d_table,
-          qOverload<const AbstractAspect *, int>(
-              &future::Table::aspectAboutToBeRemoved),
-          this, &TableView::handleAspectAboutToBeRemoved);
-  connect(d_table, &future::Table::rowsInserted, this,
-          &TableView::moveFloatingButtonTimerSlingshot);
-  connect(d_table, &future::Table::rowsRemoved, this,
-          &TableView::moveFloatingButtonTimerSlingshot);
+  connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
+          d_view_widget, SLOT(updateHeaderGeometry(Qt::Orientation, int, int)));
+  connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)), this,
+          SLOT(handleHeaderDataChanged(Qt::Orientation, int, int)));
+  connect(d_table, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)),
+          this, SLOT(handleAspectDescriptionChanged(const AbstractAspect *)));
+  connect(d_table, SIGNAL(aspectAdded(const AbstractAspect *)), this,
+          SLOT(handleAspectAdded(const AbstractAspect *)));
+  connect(d_table, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)),
+          this,
+          SLOT(handleAspectAboutToBeRemoved(const AbstractAspect *, int)));
+  connect(d_table, SIGNAL(rowsInserted(int, int)), this,
+          SLOT(moveFloatingButtonTimerSlingshot()));
+  connect(d_table, SIGNAL(rowsRemoved(int, int)), this,
+          SLOT(moveFloatingButtonTimerSlingshot()));
 
   rereadSectionSizes();
 
   // keyboard shortcuts
   QShortcut *sel_all = new QShortcut(
       QKeySequence(tr("Ctrl+A", "Table: select all")), d_view_widget);
-  connect(sel_all, &QShortcut::activated, d_view_widget,
-          &TableViewWidget::selectAll);
+  connect(sel_all, SIGNAL(activated()), d_view_widget, SLOT(selectAll()));
 
-  connect(ui.type_box, qOverload<int>(&QComboBox::currentIndexChanged), this,
-          &TableView::updateFormatBox);
-  connect(ui.format_box, qOverload<int>(&QComboBox::currentIndexChanged), this,
-          &TableView::updateTypeInfo);
-  connect(ui.formatLineEdit, &QLineEdit::textEdited, this,
-          &TableView::handleFormatLineEditChange);
-  connect(ui.digits_box, qOverload<int>(&QSpinBox::valueChanged), this,
-          &TableView::updateTypeInfo);
-  connect(ui.previous_column_button, &QToolButton::clicked, this,
-          &TableView::goToPreviousColumn);
-  connect(ui.next_column_button, &QToolButton::clicked, this,
-          &TableView::goToNextColumn);
+  connect(ui.type_box, SIGNAL(currentIndexChanged(int)), this,
+          SLOT(updateFormatBox()));
+  connect(ui.format_box, SIGNAL(currentIndexChanged(int)), this,
+          SLOT(updateTypeInfo()));
+  connect(ui.formatLineEdit, SIGNAL(textEdited(const QString)), this,
+          SLOT(handleFormatLineEditChange()));
+  connect(ui.digits_box, SIGNAL(valueChanged(int)), this,
+          SLOT(updateTypeInfo()));
+  connect(ui.previous_column_button, SIGNAL(clicked()), this,
+          SLOT(goToPreviousColumn()));
+  connect(ui.next_column_button, SIGNAL(clicked()), this,
+          SLOT(goToNextColumn()));
   retranslateStrings();
 
   QItemSelectionModel *sel_model = d_view_widget->selectionModel();
 
-  connect(sel_model, &QItemSelectionModel::currentColumnChanged, this,
-          &TableView::currentColumnChanged);
-  connect(sel_model, &QItemSelectionModel::selectionChanged, this,
-          &TableView::selectionChanged);
-  connect(ui.button_set_description, &QPushButton::pressed, this,
-          &TableView::applyDescription);
-  connect(ui.button_set_type, &QPushButton::pressed, this,
-          &TableView::applyType);
+  connect(
+      sel_model,
+      SIGNAL(currentColumnChanged(const QModelIndex &, const QModelIndex &)),
+      this,
+      SLOT(currentColumnChanged(const QModelIndex &, const QModelIndex &)));
+  connect(
+      sel_model,
+      SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+      this,
+      SLOT(selectionChanged(const QItemSelection &, const QItemSelection &)));
+  connect(ui.button_set_description, SIGNAL(pressed()), this,
+          SLOT(applyDescription()));
+  connect(ui.button_set_type, SIGNAL(pressed()), this, SLOT(applyType()));
 }
 
 void TableView::rereadSectionSizes() {
-  disconnect(d_horizontal_header, &TableDoubleHeaderView::sectionResized, this,
-             &TableView::handleHorizontalSectionResized);
+  disconnect(d_horizontal_header, SIGNAL(sectionResized(int, int, int)), this,
+             SLOT(handleHorizontalSectionResized(int, int, int)));
 
   int cols = d_table->columnCount();
   for (int i = 0; i < cols; i++)
     d_horizontal_header->resizeSection(i, d_table->columnWidth(i));
 
-  connect(d_horizontal_header, &TableDoubleHeaderView::sectionResized, this,
-          &TableView::handleHorizontalSectionResized);
+  connect(d_horizontal_header, SIGNAL(sectionResized(int, int, int)), this,
+          SLOT(handleHorizontalSectionResized(int, int, int)));
 }
 
 void TableView::setColumnWidth(int col, int width) {
@@ -375,8 +376,9 @@ void TableView::setColumnForControlTabs(int col) {
   if (col < 0 || col >= d_table->columnCount()) return;
   Column *col_ptr = d_table->column(col);
 
-  //QString str = tr("Current column:\nName: %1\nPosition: %2")
-  //                  .arg(col_ptr->name(), QString::number(col + 1));
+  QString str = tr("Current column:\nName: %1\nPosition: %2")
+                    .arg(col_ptr->name())
+                    .arg(col + 1);
 
   ui.name_edit->setText(col_ptr->name());
   ui.comment_box->document()->setPlainText(col_ptr->comment());
@@ -490,8 +492,9 @@ void TableView::updateFormatBox() {
       QStringList unionlist;
       for (int i = 0; i < date_stringlist.size(); i++) {
         for (int j = 0; j < time_stringlist.size(); j++)
-          unionlist.append(QString("%1 %2").arg(date_stringlist.at(i),
-                                                time_stringlist.at(j)));
+          unionlist.append(QString("%1 %2")
+                               .arg(date_stringlist.at(i))
+                               .arg(time_stringlist.at(j)));
       }
       foreach (QString date, date_stringlist) {
         ui.format_box->addItem(date, QVariant(date));
@@ -843,12 +846,9 @@ int TableView::lastSelectedRow(bool full) {
 
 IntervalAttribute<bool> TableView::selectedRows(bool full) {
   IntervalAttribute<bool> result;
-  if (d_table) {
-      int rows = d_table->rowCount();
-      for (int i = 0; i < rows; i++)
-          if (isRowSelected(i, full))
-              result.setValue(i, true);
-  }
+  int rows = d_table->rowCount();
+  for (int i = 0; i < rows; i++)
+    if (isRowSelected(i, full)) result.setValue(i, true);
   return result;
 }
 
@@ -977,7 +977,7 @@ void TableView::selectColumn(int col) { d_view_widget->selectColumn(col); }
 void TableView::moveFloatingButtonTimerSlingshot() {
   // QTableview draws the widget after emitting rowInserted() or rowRemoved()
   // signal so lets use a timer delay.
-  QTimer::singleShot(50, this, &TableView::moveFloatingButton);
+  QTimer::singleShot(50, this, SLOT(moveFloatingButton()));
 }
 
 /* ================== TableViewWidget ================ */

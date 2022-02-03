@@ -292,10 +292,10 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis, bool force) {
              "to remove the axis \"%1 :%2\" anyway and "
              "change the grid to another axis "
              "\"%3 :%4\"?")
-              .arg(axis->getname_axis(),
-                   QString::number(axis->getnumber_axis()),
-                   xaxes.at(0)->getname_axis(),
-                   QString::number(xaxes.at(0)->getnumber_axis())),
+              .arg(axis->getname_axis())
+              .arg(QString::number(axis->getnumber_axis()))
+              .arg(xaxes.at(0)->getname_axis())
+              .arg(QString::number(xaxes.at(0)->getnumber_axis())),
           QMessageBox::Yes | QMessageBox::No);
       if (reply == QMessageBox::Yes) {
         bindGridTo(xaxes.at(0));
@@ -310,10 +310,10 @@ bool AxisRect2D::removeAxis2D(Axis2D *axis, bool force) {
           tr("This Y axis \"%1 :%2\" is associated with vertical grid. Do you "
              "want to remove the axis \"%1 :%2\" anyway and change the grid to "
              "another axis \"%2 :\"?")
-              .arg(axis->getname_axis(),
-                   QString::number(axis->getnumber_axis()),
-                   yaxes.at(0)->getname_axis(),
-                   QString::number(yaxes.at(0)->getnumber_axis())),
+              .arg(axis->getname_axis())
+              .arg(QString::number(axis->getnumber_axis()))
+              .arg(yaxes.at(0)->getname_axis())
+              .arg(QString::number(yaxes.at(0)->getnumber_axis())),
           QMessageBox::Yes | QMessageBox::No);
       if (reply == QMessageBox::Yes) {
         bindGridTo(yaxes.at(0));
@@ -743,7 +743,7 @@ Bar2D *AxisRect2D::addBox2DPlot(const AxisRect2D::BarType &type, Table *table,
       break;
   }
 
-  // bar->setWidth(1);
+  //bar->setWidth(1);
   bar->setAntialiased(false);
   bar->setAntialiasedFill(false);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, bar);
@@ -846,8 +846,7 @@ StatBox2D *AxisRect2D::addStatBox2DPlot(Table *table, Column *ycol,
   StatBox2D *statbox = new StatBox2D(sboxdata, xAxis, yAxis);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, statbox);
   axisRectLegend_->addItem(legendItem);
-  connect(legendItem, &LegendItem2D::legendItemClicked, this,
-          &AxisRect2D::legendClick);
+  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   statbox->setName(sboxdata.name);
   getLegend()->setVisible(false);
   layers_.append(statbox->layer());
@@ -895,8 +894,7 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
   bar->setAntialiasedFill(false);
   LegendItem2D *legendItem = new LegendItem2D(axisRectLegend_, bar);
   axisRectLegend_->addItem(legendItem);
-  connect(legendItem, &LegendItem2D::legendItemClicked, this,
-          &AxisRect2D::legendClick);
+  connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   bar->setName(table->name() + "_" + yData->name());
   layers_.append(bar->layer());
   barvec_.append(bar);
@@ -908,8 +906,6 @@ Bar2D *AxisRect2D::addHistogram2DPlot(const AxisRect2D::BarType &type,
 Pie2D *AxisRect2D::addPie2DPlot(const Graph2DCommon::PieStyle &style,
                                 Table *table, Column *xData, Column *yData,
                                 const int from, const int to) {
-  if (!xData || !yData || !table) return nullptr;
-
   if (xData->dataType() != AlphaPlot::ColumnDataType::TypeString ||
       yData->dataType() != AlphaPlot::ColumnDataType::TypeDouble) {
     QMessageBox::warning(
@@ -923,8 +919,7 @@ Pie2D *AxisRect2D::addPie2DPlot(const Graph2DCommon::PieStyle &style,
     return nullptr;
   Pie2D *pie = new Pie2D(this, style, table, xData, yData, from, to);
   pie->setGraphData(table, xData, yData, from, to);
-  //   connect(legendItem, &LegendItem2D::legendItemClicked, this,
-  // &AxisRect2D::legendClick);
+  // connect(legendItem, SIGNAL(legendItemClicked()), SLOT(legendClick()));
   layers_.append(pie->layer());
   pievec_.append(pie);
   emit Pie2DCreated(pie);

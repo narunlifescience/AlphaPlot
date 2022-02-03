@@ -540,7 +540,7 @@ void Table::fillSelectedCellsWithRowNumbers() {
   foreach (Column *col_ptr, d_view->selectedColumns()) {
     int col = columnIndex(col_ptr);
     switch (col_ptr->columnMode()) {
-      case AlphaPlot::ColumnMode::Numeric: {
+      case AlphaPlot::Numeric: {
         QVector<qreal> results(last - first + 1);
         for (int row = first; row <= last; row++)
           if (d_view->isCellSelected(row, col))
@@ -550,7 +550,7 @@ void Table::fillSelectedCellsWithRowNumbers() {
         col_ptr->replaceValues(first, results);
         break;
       }
-      case AlphaPlot::ColumnMode::Text: {
+      case AlphaPlot::Text: {
         QStringList results;
         for (int row = first; row <= last; row++)
           if (d_view->isCellSelected(row, col))
@@ -577,68 +577,46 @@ void Table::fillSelectedCellsWithRandomNumbers() {
 
   WAIT_CURSOR;
   beginMacro(tr("%1: fill cells with random values").arg(name()));
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-  QRandomGenerator(QTime::currentTime().msec());
-#else
-  qsrand(QTime::currentTime().msec());
-#endif
+  qsrand(static_cast<uint>(QTime::currentTime().msec()));
   foreach (Column *col_ptr, d_view->selectedColumns()) {
     int col = columnIndex(col_ptr);
     switch (col_ptr->columnMode()) {
-      case AlphaPlot::ColumnMode::Numeric: {
+      case AlphaPlot::Numeric: {
         QVector<qreal> results(last - first + 1);
         for (int row = first; row <= last; row++)
           if (d_view->isCellSelected(row, col))
-            results[row - first] =
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-                QRandomGenerator::global()->generateDouble();
-#else
-                double(qrand()) / double(RAND_MAX);
-#endif
+            results[row - first] = double(qrand()) / double(RAND_MAX);
           else
             results[row - first] = col_ptr->valueAt(row);
         col_ptr->replaceValues(first, results);
         break;
       }
-      case AlphaPlot::ColumnMode::Text: {
+      case AlphaPlot::Text: {
         QStringList results;
         for (int row = first; row <= last; row++)
           if (d_view->isCellSelected(row, col))
-            results << QString::number(
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-                QRandomGenerator::global()->generateDouble());
-#else
-                double(qrand()) / double(RAND_MAX));
-#endif
+            results << QString::number(double(qrand()) / double(RAND_MAX));
           else
             results << col_ptr->textAt(row);
         col_ptr->replaceTexts(first, results);
         break;
       }
-      case AlphaPlot::ColumnMode::DateTime:
-      case AlphaPlot::ColumnMode::Month:
-      case AlphaPlot::ColumnMode::Day: {
+      case AlphaPlot::DateTime:
+      case AlphaPlot::Month:
+      case AlphaPlot::Day: {
         QList<QDateTime> results;
         QDate earliestDate(1, 1, 1);
         QDate latestDate(2999, 12, 31);
         QTime midnight(0, 0, 0, 0);
         for (int row = first; row <= last; row++)
           if (d_view->isCellSelected(row, col))
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
             results << QDateTime(
                 earliestDate.addDays(
-                    QRandomGenerator::global()->generateDouble() *
-                    ((double)earliestDate.daysTo(latestDate))),
-                midnight.addMSecs(QRandomGenerator::global()->generate64() *
-                                  1000 * 60 * 60 * 24 / RAND_MAX));
-#else
-            results << QDateTime(
-                earliestDate.addDays(((double)qrand()) *
-                                     ((double)earliestDate.daysTo(latestDate)) /
-                                     ((double)RAND_MAX)),
-                midnight.addMSecs(((qint64)qrand()) * 1000 * 60 * 60 * 24 /
-                                  RAND_MAX));
-#endif
+                    (static_cast<double>(qrand())) *
+                    (static_cast<double>(earliestDate.daysTo(latestDate))) /
+                    (static_cast<double>(RAND_MAX))),
+                midnight.addMSecs((static_cast<qint64>(qrand())) * 1000 * 60 *
+                                  60 * 24 / RAND_MAX));
           else
             results << col_ptr->dateTimeAt(row);
         col_ptr->replaceDateTimes(first, results);
@@ -666,9 +644,13 @@ void Table::fillSelectedCellsWithCustomRandomNumbers() {
   // Random nunber distibution generator dialog
   std::unique_ptr<RandomDistributionDialog> randomDistributionDialog(
       new RandomDistributionDialog());
-  connect(randomDistributionDialog.get(),
-          &RandomDistributionDialog::randomDistribution, this,
-          &Table::generateRandomDistribution);
+  connect(
+      randomDistributionDialog.get(),
+      SIGNAL(randomDistribution(const RandomDistributionDialog::Distribution &,
+                                const QVector<double> &)),
+      SLOT(generateRandomDistribution(
+          const RandomDistributionDialog::Distribution &,
+          const QVector<double> &)));
   randomDistributionDialog->exec();
 }
 
@@ -1073,7 +1055,7 @@ bool Table::fillProjectMenu(QMenu *menu) {
   menu->addMenu(submenu);
   menu->addSeparator();
 
-  connect(menu, &QMenu::aboutToShow, this, &Table::adjustActionNames);
+  connect(menu, SIGNAL(aboutToShow()), this, SLOT(adjustActionNames()));
   menu->addAction(action_toggle_comments);
   menu->addAction(action_toggle_tabbar);
   menu->addAction(action_formula_mode);
@@ -1350,92 +1332,92 @@ void Table::createActions() {
 }
 
 void Table::connectActions() {
-  connect(action_cut_selection, &QAction::triggered, this,
-          &Table::cutSelection);
-  connect(action_copy_selection, &QAction::triggered, this,
-          &Table::copySelection);
-  connect(action_paste_into_selection, &QAction::triggered, this,
-          &Table::pasteIntoSelection);
+  connect(action_cut_selection, SIGNAL(triggered()), this,
+          SLOT(cutSelection()));
+  connect(action_copy_selection, SIGNAL(triggered()), this,
+          SLOT(copySelection()));
+  connect(action_paste_into_selection, SIGNAL(triggered()), this,
+          SLOT(pasteIntoSelection()));
 #ifndef LEGACY_CODE_0_2_x
-  connect(action_mask_selection, &QAction::triggered, this,
-          &Table::maskSelection);
-  connect(action_unmask_selection, &QAction::triggered, this,
-          &Table::unmaskSelection);
+  connect(action_mask_selection, SIGNAL(triggered()), this,
+          SLOT(maskSelection()));
+  connect(action_unmask_selection, SIGNAL(triggered()), this,
+          SLOT(unmaskSelection()));
 #endif
-  connect(action_set_formula, &QAction::triggered, this,
-          &Table::setFormulaForSelection);
-  connect(action_clear_selection, &QAction::triggered, this,
-          &Table::clearSelectedCells);
-  connect(action_recalculate, &QAction::triggered, this,
-          &Table::recalculateSelectedCells);
-  connect(action_fill_row_numbers, &QAction::triggered, this,
-          &Table::fillSelectedCellsWithRowNumbers);
-  connect(action_fill_random, &QAction::triggered, this,
-          &Table::fillSelectedCellsWithRandomNumbers);
-  connect(action_fill_random_distribution, &QAction::triggered, this,
-          &Table::fillSelectedCellsWithCustomRandomNumbers);
-  connect(action_select_all, &QAction::triggered, this, &Table::selectAll);
-  connect(action_add_column, &QAction::triggered, this, &Table::addColumn);
-  connect(action_clear_table, &QAction::triggered, this, &Table::clear);
+  connect(action_set_formula, SIGNAL(triggered()), this,
+          SLOT(setFormulaForSelection()));
+  connect(action_clear_selection, SIGNAL(triggered()), this,
+          SLOT(clearSelectedCells()));
+  connect(action_recalculate, SIGNAL(triggered()), this,
+          SLOT(recalculateSelectedCells()));
+  connect(action_fill_row_numbers, SIGNAL(triggered()), this,
+          SLOT(fillSelectedCellsWithRowNumbers()));
+  connect(action_fill_random, SIGNAL(triggered()), this,
+          SLOT(fillSelectedCellsWithRandomNumbers()));
+  connect(action_fill_random_distribution, SIGNAL(triggered()), this,
+          SLOT(fillSelectedCellsWithCustomRandomNumbers()));
+  connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
+  connect(action_add_column, SIGNAL(triggered()), this, SLOT(addColumn()));
+  connect(action_clear_table, SIGNAL(triggered()), this, SLOT(clear()));
 
   // Export to TeX
-  connect(action_export_to_TeX, &QAction::triggered, this,
-          &Table::showTeXTableExportDialog);
+  connect(action_export_to_TeX, SIGNAL(triggered()), this,
+          SLOT(showTeXTableExportDialog()));
 
 #ifndef LEGACY_CODE_0_2_x
-  connect(action_clear_masks, &QAction::triggered, this, &Table::clearMasks);
+  connect(action_clear_masks, SIGNAL(triggered()), this, SLOT(clearMasks()));
 #endif
-  connect(action_sort_table, &QAction::triggered, this, &Table::sortTable);
-  connect(action_go_to_cell, &QAction::triggered, this, &Table::goToCell);
-  connect(action_insert_columns, &QAction::triggered, this,
-          &Table::insertEmptyColumns);
-  connect(action_remove_columns, &QAction::triggered, this,
-          &Table::removeSelectedColumns);
-  connect(action_clear_columns, &QAction::triggered, this,
-          &Table::clearSelectedColumns);
-  connect(action_add_columns, &QAction::triggered, this, &Table::addColumns);
-  connect(action_set_as_x, &QAction::triggered, this,
-          &Table::setSelectedColumnsAsX);
-  connect(action_set_as_y, &QAction::triggered, this,
-          &Table::setSelectedColumnsAsY);
-  connect(action_set_as_z, &QAction::triggered, this,
-          &Table::setSelectedColumnsAsZ);
-  connect(action_set_as_xerr, &QAction::triggered, this,
-          &Table::setSelectedColumnsAsXError);
-  connect(action_set_as_yerr, &QAction::triggered, this,
-          &Table::setSelectedColumnsAsYError);
-  connect(action_set_as_none, &QAction::triggered, this,
-          &Table::setSelectedColumnsAsNone);
-  connect(action_normalize_columns, &QAction::triggered, this,
-          &Table::normalizeSelectedColumns);
-  connect(action_normalize_selection, &QAction::triggered, this,
-          &Table::normalizeSelection);
-  connect(action_sort_columns, &QAction::triggered, this,
-          &Table::sortSelectedColumns);
-  connect(action_statistics_columns, &QAction::triggered, this,
-          &Table::statisticsOnSelectedColumns);
-  connect(action_type_format, &QAction::triggered, this,
-          &Table::editTypeAndFormatOfSelectedColumns);
-  connect(action_edit_description, &QAction::triggered, this,
-          &Table::editDescriptionOfCurrentColumn);
-  connect(action_insert_rows, &QAction::triggered, this,
-          &Table::insertEmptyRows);
-  connect(action_remove_rows, &QAction::triggered, this,
-          &Table::removeSelectedRows);
-  connect(action_clear_rows, &QAction::triggered, this,
-          &Table::clearSelectedCells);
-  connect(action_add_rows, &QAction::triggered, this, &Table::addRows);
-  connect(action_statistics_rows, &QAction::triggered, this,
-          &Table::statisticsOnSelectedRows);
+  connect(action_sort_table, SIGNAL(triggered()), this, SLOT(sortTable()));
+  connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
+  connect(action_insert_columns, SIGNAL(triggered()), this,
+          SLOT(insertEmptyColumns()));
+  connect(action_remove_columns, SIGNAL(triggered()), this,
+          SLOT(removeSelectedColumns()));
+  connect(action_clear_columns, SIGNAL(triggered()), this,
+          SLOT(clearSelectedColumns()));
+  connect(action_add_columns, SIGNAL(triggered()), this, SLOT(addColumns()));
+  connect(action_set_as_x, SIGNAL(triggered()), this,
+          SLOT(setSelectedColumnsAsX()));
+  connect(action_set_as_y, SIGNAL(triggered()), this,
+          SLOT(setSelectedColumnsAsY()));
+  connect(action_set_as_z, SIGNAL(triggered()), this,
+          SLOT(setSelectedColumnsAsZ()));
+  connect(action_set_as_xerr, SIGNAL(triggered()), this,
+          SLOT(setSelectedColumnsAsXError()));
+  connect(action_set_as_yerr, SIGNAL(triggered()), this,
+          SLOT(setSelectedColumnsAsYError()));
+  connect(action_set_as_none, SIGNAL(triggered()), this,
+          SLOT(setSelectedColumnsAsNone()));
+  connect(action_normalize_columns, SIGNAL(triggered()), this,
+          SLOT(normalizeSelectedColumns()));
+  connect(action_normalize_selection, SIGNAL(triggered()), this,
+          SLOT(normalizeSelection()));
+  connect(action_sort_columns, SIGNAL(triggered()), this,
+          SLOT(sortSelectedColumns()));
+  connect(action_statistics_columns, SIGNAL(triggered()), this,
+          SLOT(statisticsOnSelectedColumns()));
+  connect(action_type_format, SIGNAL(triggered()), this,
+          SLOT(editTypeAndFormatOfSelectedColumns()));
+  connect(action_edit_description, SIGNAL(triggered()), this,
+          SLOT(editDescriptionOfCurrentColumn()));
+  connect(action_insert_rows, SIGNAL(triggered()), this,
+          SLOT(insertEmptyRows()));
+  connect(action_remove_rows, SIGNAL(triggered()), this,
+          SLOT(removeSelectedRows()));
+  connect(action_clear_rows, SIGNAL(triggered()), this,
+          SLOT(clearSelectedCells()));
+  connect(action_add_rows, SIGNAL(triggered()), this, SLOT(addRows()));
+  connect(action_statistics_rows, SIGNAL(triggered()), this,
+          SLOT(statisticsOnSelectedRows()));
 }
 
 void Table::addActionsToView() {
-  connect(action_toggle_comments, &QAction::triggered, d_view,
-          &TableView::toggleComments);
-  connect(action_toggle_tabbar, &QAction::triggered, d_view,
-          &TableView::toggleControlTabBar);
-  connect(action_formula_mode, &QAction::toggled, d_view,
-          &TableView::activateFormulaMode);
+  connect(action_toggle_comments, SIGNAL(triggered()), d_view,
+          SLOT(toggleComments()));
+  connect(action_toggle_tabbar, SIGNAL(triggered()), d_view,
+          SLOT(toggleControlTabBar()));
+  connect(action_formula_mode, SIGNAL(toggled(bool)), d_view,
+          SLOT(activateFormulaMode(bool)));
 
   d_view->addAction(action_cut_selection);
   d_view->addAction(action_copy_selection);
@@ -1716,7 +1698,7 @@ QMenu *Table::createColumnMenu(QMenu *append_to) {
 
   menu->addAction(action_edit_description);
   menu->addAction(action_type_format);
-  connect(menu, &QMenu::aboutToShow, this, &Table::adjustActionNames);
+  connect(menu, SIGNAL(aboutToShow()), this, SLOT(adjustActionNames()));
   menu->addAction(action_toggle_comments);
   menu->addSeparator();
 
@@ -1729,7 +1711,7 @@ QMenu *Table::createTableMenu(QMenu *append_to) {
   QMenu *menu = append_to;
   if (!menu) menu = new QMenu();
 
-  connect(menu, &QMenu::aboutToShow, this, &Table::adjustActionNames);
+  connect(menu, SIGNAL(aboutToShow()), this, SLOT(adjustActionNames()));
   menu->addAction(action_toggle_comments);
   menu->addAction(action_toggle_tabbar);
   menu->addAction(action_formula_mode);
@@ -1867,7 +1849,8 @@ void Table::sortDialog(QList<Column *> cols) {
 
   SortDialog *sortd = new future::SortDialog();
   sortd->setAttribute(Qt::WA_DeleteOnClose);
-  connect(sortd, &SortDialog::sort, this, &Table::sortColumns);
+  connect(sortd, SIGNAL(sort(Column *, QList<Column *>, bool)), this,
+          SLOT(sortColumns(Column *, QList<Column *>, bool)));
   sortd->setColumnsList(cols);
   sortd->exec();
 }
@@ -2162,20 +2145,28 @@ void Table::handleRowsRemoved(const AbstractColumn *col, int first, int count) {
 }
 
 void Table::connectColumn(const Column *col) {
-  connect(col, &Column::aspectDescriptionChanged, this,
-          &Table::handleDescriptionChange);
-  connect(col, &Column::plotDesignationChanged, this,
-          &Table::handlePlotDesignationChange);
-  connect(col, &Column::modeChanged, this, &Table::handleDataChange);
-  connect(col, &Column::dataChanged, this, &Table::handleDataChange);
-  connect(col, &Column::modeChanged, this, &Table::handleModeChange);
-  connect(col, &Column::rowsAboutToBeInserted, this,
-          &Table::handleRowsAboutToBeInserted);
-  connect(col, &Column::rowsInserted, this, &Table::handleRowsInserted);
-  connect(col, &Column::rowsAboutToBeRemoved, this,
-          &Table::handleRowsAboutToBeRemoved);
-  connect(col, &Column::rowsRemoved, this, &Table::handleRowsRemoved);
-  connect(col, &Column::maskingChanged, this, &Table::handleDataChange);
+  connect(col, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), this,
+          SLOT(handleDescriptionChange(const AbstractAspect *)));
+  connect(col, SIGNAL(plotDesignationChanged(const AbstractColumn *)), this,
+          SLOT(handlePlotDesignationChange(const AbstractColumn *)));
+  connect(col, SIGNAL(modeChanged(const AbstractColumn *)), this,
+          SLOT(handleDataChange(const AbstractColumn *)));
+  connect(col, SIGNAL(dataChanged(const AbstractColumn *)), this,
+          SLOT(handleDataChange(const AbstractColumn *)));
+  connect(col, SIGNAL(modeChanged(const AbstractColumn *)), this,
+          SLOT(handleModeChange(const AbstractColumn *)));
+  connect(col, SIGNAL(rowsAboutToBeInserted(const AbstractColumn *, int, int)),
+          this,
+          SLOT(handleRowsAboutToBeInserted(const AbstractColumn *, int, int)));
+  connect(col, SIGNAL(rowsInserted(const AbstractColumn *, int, int)), this,
+          SLOT(handleRowsInserted(const AbstractColumn *, int, int)));
+  connect(col, SIGNAL(rowsAboutToBeRemoved(const AbstractColumn *, int, int)),
+          this,
+          SLOT(handleRowsAboutToBeRemoved(const AbstractColumn *, int, int)));
+  connect(col, SIGNAL(rowsRemoved(const AbstractColumn *, int, int)), this,
+          SLOT(handleRowsRemoved(const AbstractColumn *, int, int)));
+  connect(col, SIGNAL(maskingChanged(const AbstractColumn *)), this,
+          SLOT(handleDataChange(const AbstractColumn *)));
 }
 
 void Table::disconnectColumn(const Column *col) { disconnect(col, 0, this, 0); }

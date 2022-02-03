@@ -203,7 +203,7 @@ AddPlot2DDialog::AddPlot2DDialog(QWidget *parent, AxisRect2D *axisrect,
           &AddPlot2DDialog::showFunctionDialog);
   connect(
       boxStyle_,
-      qOverload<int>(&QComboBox::currentIndexChanged),
+      static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
       this, &AddPlot2DDialog::populateAvailable);
 
   QShortcut *shortcut = new QShortcut(QKeySequence("-"), this);

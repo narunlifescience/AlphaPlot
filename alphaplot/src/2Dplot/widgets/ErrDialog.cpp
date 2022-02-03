@@ -158,8 +158,8 @@ ErrDialog::ErrDialog(QWidget *parent, AxisRect2D *axisrect, Qt::WindowFlags fl)
   connect(percentBox, &QRadioButton::toggled, valueBox, &QLineEdit::setEnabled);
   connect(columnBox, &QRadioButton::toggled, tableNamesBox,
           &QComboBox::setEnabled);
-  connect(buttonGroup2, &QButtonGroup::idClicked, this,
-          &ErrDialog::errorColumnNames);
+  connect(buttonGroup2, SIGNAL(buttonClicked(int)), this,
+          SLOT(errorColumnNames()));
 }
 
 void ErrDialog::plotNames() {

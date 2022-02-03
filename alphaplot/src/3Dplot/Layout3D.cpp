@@ -1065,7 +1065,7 @@ void Layout3D::print() {
   std::unique_ptr<QPrintPreviewDialog> previewDialog =
       std::unique_ptr<QPrintPreviewDialog>(
           new QPrintPreviewDialog(printer.get(), this));
-  connect(previewDialog.get(), &QPrintPreviewDialog::paintRequested, this,
+  connect(previewDialog.get(), &QPrintPreviewDialog::paintRequested,
           [=](QPrinter *printer) {
             printer->setColorMode(QPrinter::Color);
             std::unique_ptr<QPainter> painter =

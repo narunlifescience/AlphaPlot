@@ -290,13 +290,11 @@ ApplicationWindow::ApplicationWindow()
 
   // Initiate projects & set connections
   d_project = new Project();
+  connect(d_project, SIGNAL(aspectAdded(const AbstractAspect *, int)), this,
+          SLOT(handleAspectAdded(const AbstractAspect *, int)));
   connect(d_project,
-          qOverload<const AbstractAspect *, int>(&Project::aspectAdded), this,
-          &ApplicationWindow::handleAspectAdded);
-  connect(
-      d_project,
-      qOverload<const AbstractAspect *, int>(&Project::aspectAboutToBeRemoved),
-      this, &ApplicationWindow::handleAspectAboutToBeRemoved);
+          SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)), this,
+          SLOT(handleAspectAboutToBeRemoved(const AbstractAspect *, int)));
   connect(d_project->undoStack(), &QUndoStack::canUndoChanged, ui_->actionUndo,
           &QAction::setEnabled);
   connect(d_project->undoStack(), &QUndoStack::canRedoChanged, ui_->actionRedo,
@@ -321,12 +319,11 @@ ApplicationWindow::ApplicationWindow()
   // Explorer Window folder view connections
   connect(ui_->folderView, &FolderTreeWidget::currentItemChanged, this,
           &ApplicationWindow::folderItemChanged);
-  connect(ui_->folderView, &FolderTreeWidget::customContextMenuRequested, this,
-          qOverload<const QPoint &>(&ApplicationWindow::showFolderPopupMenu));
-  connect(ui_->folderView, &FolderTreeWidget::addFolderItem, this,
-          &ApplicationWindow::addFolder);
-  connect(ui_->folderView, &FolderTreeWidget::deleteSelection, this,
-          &ApplicationWindow::deleteSelectedItems);
+  connect(ui_->folderView, SIGNAL(customContextMenuRequested(const QPoint &)),
+          this, SLOT(showFolderPopupMenu(const QPoint &)));
+  connect(ui_->folderView, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
+  connect(ui_->folderView, SIGNAL(deleteSelection()), this,
+          SLOT(deleteSelectedItems()));
   connect(ui_->folderView, &FolderTreeWidget::dragItems, this,
           &ApplicationWindow::dragFolderItems);
   connect(ui_->folderView, &FolderTreeWidget::dropItems, this,
@@ -347,14 +344,13 @@ ApplicationWindow::ApplicationWindow()
   ui_->listView->setContextMenuPolicy(Qt::CustomContextMenu);
 
   // Explorer Window list view connections
-  connect(ui_->listView, &FolderTreeWidget::itemDoubleClicked, this,
-          &ApplicationWindow::folderItemDoubleClicked);
-  connect(ui_->listView, &FolderTreeWidget::customContextMenuRequested, this,
-          &ApplicationWindow::showWindowPopupMenu);
-  connect(ui_->listView, &FolderTreeWidget::addFolderItem, this,
-          &ApplicationWindow::addFolder);
-  connect(ui_->listView, &FolderTreeWidget::deleteSelection, this,
-          &ApplicationWindow::deleteSelectedItems);
+  connect(ui_->listView, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)),
+          this, SLOT(folderItemDoubleClicked(QTreeWidgetItem *)));
+  connect(ui_->listView, SIGNAL(customContextMenuRequested(const QPoint &)),
+          this, SLOT(showWindowPopupMenu(const QPoint &)));
+  connect(ui_->listView, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
+  connect(ui_->listView, SIGNAL(deleteSelection()), this,
+          SLOT(deleteSelectedItems()));
   connect(ui_->listView, &FolderTreeWidget::dragItems, this,
           &ApplicationWindow::dragFolderItems);
   connect(ui_->listView, &FolderTreeWidget::dropItems, this,
@@ -402,89 +398,81 @@ ApplicationWindow::ApplicationWindow()
   ui_->actionTopTime->setVisible(false);
   // QAction Connections
   // File menu
-  connect(ui_->actionNewProject, &QAction::triggered, this,
-          &ApplicationWindow::newAproj);
-  connect(ui_->actionNewGraph, &QAction::triggered, this,
-          [&]() { newGraph2D(); });
-  connect(ui_->actionNewNote, &QAction::triggered, this, [&]() { newNote(); });
-  connect(ui_->actionNewTable, &QAction::triggered, this,
-          qOverload<>(&ApplicationWindow::newTable));
-  connect(ui_->actionNewMatrix, &QAction::triggered, this,
-          [&]() { newMatrix(); });
-  connect(ui_->actionNewFunctionPlot, &QAction::triggered, this,
-          &ApplicationWindow::functionDialog);
-  connect(ui_->actionNew3DSurfacePlot, &QAction::triggered, this,
-          &ApplicationWindow::newSurfacePlot);
-  connect(ui_->actionOpenAproj, &QAction::triggered, this,
-          qOverload<>(&ApplicationWindow::openAproj));
-  connect(ui_->actionOpenImage, &QAction::triggered, this,
-          qOverload<>(&ApplicationWindow::loadImage));
-  connect(ui_->actionImportImage, &QAction::triggered, this,
-          qOverload<>(&ApplicationWindow::importImage));
-  connect(ui_->actionSaveProject, &QAction::triggered, this,
-          &ApplicationWindow::saveProject);
-  connect(ui_->actionSaveProjectAs, &QAction::triggered, this,
-          &ApplicationWindow::saveProjectAs);
-  connect(ui_->actionOpenTemplate, &QAction::triggered, this,
-          &ApplicationWindow::openTemplate);
-  connect(ui_->actionSaveAsTemplate, &QAction::triggered, this,
-          &ApplicationWindow::saveAsTemplate);
-  connect(ui_->actionExportCurrentGraph, &QAction::triggered, this,
-          &ApplicationWindow::exportGraph);
-  connect(ui_->actionExportAllGraphs, &QAction::triggered, this,
-          &ApplicationWindow::exportAllGraphs);
-  connect(ui_->actionPrint, &QAction::triggered, this,
-          qOverload<>(&ApplicationWindow::print));
-  connect(ui_->actionPrintAllPlots, &QAction::triggered, this,
-          &ApplicationWindow::printAllPlots);
-  connect(ui_->actionExportASCII, &QAction::triggered, this,
-          &ApplicationWindow::showExportASCIIDialog);
-  connect(ui_->actionImportASCII, &QAction::triggered, this,
-          qOverload<>(&ApplicationWindow::importASCII));
-  connect(ui_->actionQuit, &QAction::triggered, qApp,
-          &QApplication::closeAllWindows);
+  connect(ui_->actionNewProject, SIGNAL(triggered()), this, SLOT(newAproj()));
+  connect(ui_->actionNewGraph, SIGNAL(triggered()), this, SLOT(newGraph2D()));
+  connect(ui_->actionNewNote, SIGNAL(triggered()), this, SLOT(newNote()));
+  connect(ui_->actionNewTable, SIGNAL(triggered()), this, SLOT(newTable()));
+  connect(ui_->actionNewMatrix, SIGNAL(triggered()), this, SLOT(newMatrix()));
+  connect(ui_->actionNewFunctionPlot, SIGNAL(triggered()), this,
+          SLOT(functionDialog()));
+  connect(ui_->actionNew3DSurfacePlot, SIGNAL(triggered()), this,
+          SLOT(newSurfacePlot()));
+  connect(ui_->actionOpenAproj, SIGNAL(triggered()), this, SLOT(openAproj()));
+  connect(ui_->actionOpenImage, SIGNAL(triggered()), this, SLOT(loadImage()));
+  connect(ui_->actionImportImage, SIGNAL(triggered()), this,
+          SLOT(importImage()));
+  connect(ui_->actionSaveProject, SIGNAL(triggered()), this,
+          SLOT(saveProject()));
+  connect(ui_->actionSaveProjectAs, SIGNAL(triggered()), this,
+          SLOT(saveProjectAs()));
+  connect(ui_->actionOpenTemplate, SIGNAL(triggered()), this,
+          SLOT(openTemplate()));
+  connect(ui_->actionSaveAsTemplate, SIGNAL(triggered()), this,
+          SLOT(saveAsTemplate()));
+  connect(ui_->actionExportCurrentGraph, SIGNAL(triggered()), this,
+          SLOT(exportGraph()));
+  connect(ui_->actionExportAllGraphs, SIGNAL(triggered()), this,
+          SLOT(exportAllGraphs()));
+  connect(ui_->actionPrint, SIGNAL(triggered()), this, SLOT(print()));
+  connect(ui_->actionPrintAllPlots, SIGNAL(triggered()), this,
+          SLOT(printAllPlots()));
+  connect(ui_->actionExportASCII, SIGNAL(triggered()), this,
+          SLOT(showExportASCIIDialog()));
+  connect(ui_->actionImportASCII, SIGNAL(triggered()), this,
+          SLOT(importASCII()));
+  connect(ui_->actionQuit, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
   // Edit menu
-  connect(ui_->actionUndo, &QAction::triggered, this, &ApplicationWindow::undo);
+  connect(ui_->actionUndo, SIGNAL(triggered()), this, SLOT(undo()));
   ui_->actionUndo->setEnabled(false);
-  connect(ui_->actionRedo, &QAction::triggered, this, &ApplicationWindow::redo);
+  connect(ui_->actionRedo, SIGNAL(triggered()), this, SLOT(redo()));
   ui_->actionRedo->setEnabled(false);
-  connect(ui_->actionCutSelection, &QAction::triggered, this,
-          &ApplicationWindow::cutSelection);
-  connect(ui_->actionCopySelection, &QAction::triggered, this,
-          &ApplicationWindow::copySelection);
-  connect(ui_->actionPasteSelection, &QAction::triggered, this,
-          &ApplicationWindow::pasteSelection);
-  connect(ui_->actionClearSelection, &QAction::triggered, this,
-          &ApplicationWindow::clearSelection);
-  connect(ui_->actionClearLogInfo, &QAction::triggered, this,
-          &ApplicationWindow::clearLogInfo);
-  connect(ui_->actionDeleteFitTables, &QAction::triggered, this,
-          &ApplicationWindow::deleteFitTables);
+  connect(ui_->actionCutSelection, SIGNAL(triggered()), this,
+          SLOT(cutSelection()));
+  connect(ui_->actionCopySelection, SIGNAL(triggered()), this,
+          SLOT(copySelection()));
+  connect(ui_->actionPasteSelection, SIGNAL(triggered()), this,
+          SLOT(pasteSelection()));
+  connect(ui_->actionClearSelection, SIGNAL(triggered()), this,
+          SLOT(clearSelection()));
+  connect(ui_->actionClearLogInfo, SIGNAL(triggered()), this,
+          SLOT(clearLogInfo()));
+  connect(ui_->actionDeleteFitTables, SIGNAL(triggered()), this,
+          SLOT(deleteFitTables()));
   connect(ui_->actionAddGlyphs, &QAction::triggered, this,
           &ApplicationWindow::showAddGlyphs);
-  connect(ui_->actionPreferences, &QAction::triggered, this,
-          &ApplicationWindow::showPreferencesDialog);
+  connect(ui_->actionPreferences, SIGNAL(triggered()), this,
+          SLOT(showPreferencesDialog()));
   // View menu
-  connect(ui_->actionPlotWizard, &QAction::triggered, this,
-          &ApplicationWindow::showPlotWizard);
-  connect(ui_->actionShowUndoRedoHistory, &QAction::triggered, this,
-          &ApplicationWindow::showUndoRedoHistory);
-  connect(ui_->actionShowFileToolbar, &QAction::toggled, fileToolbar,
-          &QToolBar::setVisible);
-  connect(ui_->actionShowEditToolbar, &QAction::toggled, editToolbar,
-          &QToolBar::setVisible);
-  connect(ui_->actionShowGraphToolbar, &QAction::toggled, graphToolsToolbar,
-          &QToolBar::setVisible);
-  connect(ui_->actionShowPlotToolbar, &QAction::toggled, plot2DToolbar,
-          &QToolBar::setVisible);
-  connect(ui_->actionShowTableToolbar, &QAction::toggled, tableToolbar,
-          &QToolBar::setVisible);
-  connect(ui_->actionShowMatrixPlotToolbar, &QAction::toggled,
-          matrix3DPlotToolbar, &QToolBar::setVisible);
-  connect(ui_->actionShow3DSurfacePlotToolbar, &QAction::toggled,
-          graph3DToolbar, &QToolBar::setVisible);
-  connect(ui_->actionLockToolbars, &QAction::toggled, this,
-          &ApplicationWindow::lockToolbars);
+  connect(ui_->actionPlotWizard, SIGNAL(triggered()), this,
+          SLOT(showPlotWizard()));
+  connect(ui_->actionShowUndoRedoHistory, SIGNAL(triggered(bool)), this,
+          SLOT(showUndoRedoHistory()));
+  connect(ui_->actionShowFileToolbar, SIGNAL(toggled(bool)), fileToolbar,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowEditToolbar, SIGNAL(toggled(bool)), editToolbar,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowGraphToolbar, SIGNAL(toggled(bool)), graphToolsToolbar,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowPlotToolbar, SIGNAL(toggled(bool)), plot2DToolbar,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowTableToolbar, SIGNAL(toggled(bool)), tableToolbar,
+          SLOT(setVisible(bool)));
+  connect(ui_->actionShowMatrixPlotToolbar, SIGNAL(toggled(bool)),
+          matrix3DPlotToolbar, SLOT(setVisible(bool)));
+  connect(ui_->actionShow3DSurfacePlotToolbar, SIGNAL(toggled(bool)),
+          graph3DToolbar, SLOT(setVisible(bool)));
+  connect(ui_->actionLockToolbars, SIGNAL(toggled(bool)), this,
+          SLOT(lockToolbars(bool)));
   actionShowPropertyEditor->setText(tr("Property Editor"));
   actionShowProjectExplorer->setText(tr("Project Explorer"));
   actionShowResultsLog->setText(tr("Result Log"));
@@ -512,118 +500,117 @@ ApplicationWindow::ApplicationWindow()
 
 // Scripting menu
 #ifdef SCRIPTING_DIALOG
-  connect(ui_->actionScriptingLanguage, &QAction::triggered, this,
-          &ApplicationWindow::showScriptingLangDialog);
+  connect(ui_->actionScriptingLanguage, SIGNAL(triggered()), this,
+          SLOT(showScriptingLangDialog()));
   ui_->actionScriptingLanguage->setVisible(true);
 #else
   ui_->actionScriptingLanguage->setVisible(false);
 #endif
-  connect(ui_->actionRestartScripting, &QAction::triggered, this,
-          &ApplicationWindow::restartScriptingEnv);
+  connect(ui_->actionRestartScripting, SIGNAL(triggered()), this,
+          SLOT(restartScriptingEnv()));
   // Plot menu
-  connect(d_plot_mapper, &QSignalMapper::mappedInt, this,
-          &ApplicationWindow::selectPlotType);
-  connect(ui_->actionPlot2DLine, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(d_plot_mapper, SIGNAL(mapped(int)), this, SLOT(selectPlotType(int)));
+  connect(ui_->actionPlot2DLine, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DLine,
                             static_cast<int>(Graph::Line));
-  connect(ui_->actionPlot2DScatter, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DScatter, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DScatter,
                             static_cast<int>(Graph::Scatter));
-  connect(ui_->actionPlot2DScatterXErr, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DScatterXErr, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DScatterXErr,
                             static_cast<int>(Graph::ScatterXError));
-  connect(ui_->actionPlot2DScatterYErr, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DScatterYErr, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DScatterYErr,
                             static_cast<int>(Graph::ScatterYError));
-  connect(ui_->actionPlot2DScatterXYErr, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DScatterXYErr, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DScatterXYErr,
                             static_cast<int>(Graph::ScatterXYError));
-  connect(ui_->actionPlot2DLineSymbol, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DLineSymbol, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DLineSymbol,
                             static_cast<int>(Graph::LineSymbols));
-  connect(ui_->actionPlot2DVerticalDropLines, &QAction::triggered,
-          d_plot_mapper, qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DVerticalDropLines, SIGNAL(triggered()),
+          d_plot_mapper, SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalDropLines,
                             static_cast<int>(Graph::VerticalDropLines));
-  connect(ui_->actionPlot2DSpline, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DSpline, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DSpline,
                             static_cast<int>(Graph::Spline));
-  connect(ui_->actionPlot2DVerticalSteps, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DVerticalSteps, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalSteps,
                             static_cast<int>(Graph::VerticalSteps));
-  connect(ui_->actionPlot2DHorizontalSteps, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DHorizontalSteps, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalSteps,
                             static_cast<int>(Graph::HorizontalSteps));
-  connect(ui_->actionPlot2DVerticalBars, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DVerticalBars, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalBars,
                             static_cast<int>(Graph::VerticalBars));
-  connect(ui_->actionPlot2DVerticalStackedBars, &QAction::triggered,
-          d_plot_mapper, qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DVerticalStackedBars, SIGNAL(triggered()),
+          d_plot_mapper, SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalStackedBars,
                             static_cast<int>(Graph::VerticalStackedBars));
-  connect(ui_->actionPlot2DVerticalGroupedBars, &QAction::triggered,
-          d_plot_mapper, qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DVerticalGroupedBars, SIGNAL(triggered()),
+          d_plot_mapper, SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DVerticalGroupedBars,
                             static_cast<int>(Graph::VerticalGroupedBars));
-  connect(ui_->actionPlot2DHorizontalBars, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DHorizontalBars, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalBars,
                             static_cast<int>(Graph::HorizontalBars));
-  connect(ui_->actionPlot2DHorizontalStackedBars, &QAction::triggered,
-          d_plot_mapper, qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DHorizontalStackedBars, SIGNAL(triggered()),
+          d_plot_mapper, SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalStackedBars,
                             static_cast<int>(Graph::HorizontalStackedBars));
-  connect(ui_->actionPlot2DHorizontalGroupedBars, &QAction::triggered,
-          d_plot_mapper, qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DHorizontalGroupedBars, SIGNAL(triggered()),
+          d_plot_mapper, SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DHorizontalGroupedBars,
                             static_cast<int>(Graph::HorizontalGroupedBars));
-  connect(ui_->actionPlot2DArea, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DArea, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DArea,
                             static_cast<int>(Graph::Area));
-  connect(ui_->actionPlot2DChannelFill, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DChannelFill, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DChannelFill,
                             static_cast<int>(Graph::Channel));
-  connect(ui_->actionPlot2DPie, &QAction::triggered, this,
+  connect(ui_->actionPlot2DPie, &QAction::triggered,
           [&]() { plotPie(Graph2DCommon::PieStyle::Pie); });
-  connect(ui_->actionPlot2DHalfPie, &QAction::triggered, this,
+  connect(ui_->actionPlot2DHalfPie, &QAction::triggered,
           [&]() { plotPie(Graph2DCommon::PieStyle::HalfPie); });
-  connect(ui_->actionPlot2DVectorsXYAM, &QAction::triggered, this,
-          &ApplicationWindow::plotVectXYAM);
-  connect(ui_->actionPlot2DVectorsXYXY, &QAction::triggered, this,
-          &ApplicationWindow::plotVectXYXY);
-  connect(ui_->actionPlot2DStatBox, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DVectorsXYAM, SIGNAL(triggered()), this,
+          SLOT(plotVectXYAM()));
+  connect(ui_->actionPlot2DVectorsXYXY, SIGNAL(triggered()), this,
+          SLOT(plotVectXYXY()));
+  connect(ui_->actionPlot2DStatBox, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DStatBox,
                             static_cast<int>(Graph::Box));
-  connect(ui_->actionPlot2DStatHistogram, &QAction::triggered, d_plot_mapper,
-          qOverload<>(&QSignalMapper::map));
+  connect(ui_->actionPlot2DStatHistogram, SIGNAL(triggered()), d_plot_mapper,
+          SLOT(map()));
   d_plot_mapper->setMapping(ui_->actionPlot2DStatHistogram,
                             static_cast<int>(Graph::Histogram));
-  connect(ui_->actionPlot2DStatStackedHistogram, &QAction::triggered, this,
-          &ApplicationWindow::plotStackedHistograms);
-  connect(ui_->actionPanelVertical2Layouts, &QAction::triggered, this, [&]() {
+  connect(ui_->actionPlot2DStatStackedHistogram, SIGNAL(triggered()), this,
+          SLOT(plotStackedHistograms()));
+  connect(ui_->actionPanelVertical2Layouts, &QAction::triggered, [&]() {
     Layout2D *layout = newGraph2D();
     layout->addAxisRectWithAxis(QPair<int, int>(0, 0));
     layout->addAxisRectWithAxis(QPair<int, int>(1, 0));
   });
-  connect(ui_->actionPanelHorizontal2Layouts, &QAction::triggered, this, [&]() {
+  connect(ui_->actionPanelHorizontal2Layouts, &QAction::triggered, [&]() {
     Layout2D *layout = newGraph2D();
     layout->addAxisRectWithAxis(QPair<int, int>(0, 0));
     layout->addAxisRectWithAxis(QPair<int, int>(0, 1));
   });
-  connect(ui_->actionPanel4Layouts, &QAction::triggered, this, [&]() {
+  connect(ui_->actionPanel4Layouts, &QAction::triggered, [&]() {
     Layout2D *layout = newGraph2D();
     layout->addAxisRectWithAxis(QPair<int, int>(0, 0));
     layout->addAxisRectWithAxis(QPair<int, int>(0, 1));
@@ -631,71 +618,70 @@ ApplicationWindow::ApplicationWindow()
     layout->addAxisRectWithAxis(QPair<int, int>(1, 1));
   });
   ui_->actionPlot3DRibbon->setVisible(false);
-  connect(ui_->actionPlot3DRibbon, &QAction::triggered, this,
-          &ApplicationWindow::plot3DRibbon);
-  connect(ui_->actionPlot3DBar, &QAction::triggered, this,
-          &ApplicationWindow::plot3DBars);
-  connect(ui_->actionPlot3DScatter, &QAction::triggered, this,
-          &ApplicationWindow::plot3DScatter);
+  connect(ui_->actionPlot3DRibbon, SIGNAL(triggered()), this,
+          SLOT(plot3DRibbon()));
+  connect(ui_->actionPlot3DBar, SIGNAL(triggered()), this, SLOT(plot3DBars()));
+  connect(ui_->actionPlot3DScatter, SIGNAL(triggered()), this,
+          SLOT(plot3DScatter()));
   ui_->actionPlot3DTrajectory->setVisible(false);
-  connect(ui_->actionPlot3DTrajectory, &QAction::triggered, this,
-          &ApplicationWindow::plot3DTrajectory);
+  connect(ui_->actionPlot3DTrajectory, SIGNAL(triggered()), this,
+          SLOT(plot3DTrajectory()));
   // 3D Plot menu
-  connect(ui_->action3DWireFrame, &QAction::triggered, this, [=]() {
+  connect(ui_->action3DWireFrame, &QAction::triggered, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
           QSurface3DSeries::DrawFlag::DrawWireframe);
   });
-  connect(ui_->action3DSurface, &QAction::triggered, this, [=]() {
+  connect(ui_->action3DSurface, &QAction::triggered, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
           QSurface3DSeries::DrawFlag::DrawSurface);
   });
-  connect(ui_->action3DWireSurface, &QAction::triggered, this, [=]() {
+  connect(ui_->action3DWireSurface, &QAction::triggered, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
           QSurface3DSeries::DrawFlag::DrawSurfaceAndWireframe);
   });
-  connect(ui_->action3DBar, &QAction::triggered, ui_->actionPlot3DBar,
-          &QAction::triggered);
-  connect(ui_->action3DScatter, &QAction::triggered, ui_->actionPlot3DScatter,
-          &QAction::triggered);
-  connect(ui_->action3DCountourColorFill, &QAction::triggered, this,
-          &ApplicationWindow::plotColorMap);
-  connect(ui_->action3DCountourLines, &QAction::triggered, this,
-          &ApplicationWindow::plotContour);
-  connect(ui_->action3DGreyScaleMap, &QAction::triggered, this,
-          &ApplicationWindow::plotGrayScale);
-  connect(ui_->action3DWireFramePolar, &QAction::triggered, this, [=]() {
+  connect(ui_->action3DBar, SIGNAL(triggered()), ui_->actionPlot3DBar,
+          SIGNAL(triggered()));
+  connect(ui_->action3DScatter, SIGNAL(triggered()), ui_->actionPlot3DScatter,
+          SIGNAL(triggered()));
+  connect(ui_->action3DCountourColorFill, SIGNAL(triggered()), this,
+          SLOT(plotColorMap()));
+  connect(ui_->action3DCountourLines, SIGNAL(triggered()), this,
+          SLOT(plotContour()));
+  connect(ui_->action3DGreyScaleMap, SIGNAL(triggered()), this,
+          SLOT(plotGrayScale()));
+  connect(ui_->action3DWireFramePolar, &QAction::triggered, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
           QSurface3DSeries::DrawFlag::DrawWireframe);
     layout->getSurface3DModifier()->getGraph()->setPolar(true);
   });
-  connect(ui_->action3DSurfacePolar, &QAction::triggered, this, [=]() {
+  connect(ui_->action3DSurfacePolar, &QAction::triggered, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
           QSurface3DSeries::DrawFlag::DrawSurface);
     layout->getSurface3DModifier()->getGraph()->setPolar(true);
   });
-  connect(ui_->action3DWireFrameSurfacePolar, &QAction::triggered, this, [=]() {
+  connect(ui_->action3DWireFrameSurfacePolar, &QAction::triggered, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
           QSurface3DSeries::DrawFlag::DrawSurfaceAndWireframe);
     layout->getSurface3DModifier()->getGraph()->setPolar(true);
   });
-  connect(ui_->action3DScatterPolar, &QAction::triggered, this, [=]() {
+  connect(ui_->action3DScatterPolar, &QAction::triggered, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Scatter);
     if (layout && layout->getScatter3DModifier())
       layout->getScatter3DModifier()->getGraph()->setPolar(true);
   });
-  connect(ui_->action3DPolarSpectrogram, &QAction::triggered, this, [=]() {
+  connect(ui_->action3DPolarSpectrogram, &QAction::triggered, [=]() {
     Layout3D *layout = plot3DMatrix(Graph3DCommon::Plot3DType::Surface);
     if (layout && layout->getSurface3DModifier())
       layout->getSurface3DModifier()->setSurfaceMeshType(
@@ -770,21 +756,18 @@ ApplicationWindow::ApplicationWindow()
           &ApplicationWindow::addGraph2DAxis);
   connect(ui_->actionLegendReorder, &QAction::triggered, this,
           &ApplicationWindow::legendReorder);
-  connect(ui_->actionAddText, &QAction::triggered, this,
-          &ApplicationWindow::addText);
+  connect(ui_->actionAddText, SIGNAL(triggered()), this, SLOT(addText()));
   graphToolsGroup->setExclusive(true);
   ui_->actionDrawArrow->setActionGroup(graphToolsGroup);
   // ui_->actionDrawLine->setActionGroup(graphToolsGroup);
-  connect(ui_->actionDrawLine, &QAction::triggered, this,
-          &ApplicationWindow::drawLine);
-  connect(ui_->actionAddTimeStamp, &QAction::triggered, this,
-          &ApplicationWindow::addTimeStamp);
-  connect(ui_->actionAddImage, &QAction::triggered, this,
-          &ApplicationWindow::addImage);
-  connect(ui_->actionDrawEllipse, &QAction::triggered, this,
-          &ApplicationWindow::drawEllipse);
-  connect(ui_->actionAddNestedLayout, &QAction::triggered, this,
-          &ApplicationWindow::addNestedLayout);
+  connect(ui_->actionDrawLine, SIGNAL(triggered()), this, SLOT(drawLine()));
+  connect(ui_->actionAddTimeStamp, SIGNAL(triggered()), this,
+          SLOT(addTimeStamp()));
+  connect(ui_->actionAddImage, SIGNAL(triggered()), this, SLOT(addImage()));
+  connect(ui_->actionDrawEllipse, SIGNAL(triggered()), this,
+          SLOT(drawEllipse()));
+  connect(ui_->actionAddNestedLayout, SIGNAL(triggered()), this,
+          SLOT(addNestedLayout()));
   connect(ui_->actionAddLayoutUp, &QAction::triggered, this,
           [&]() { addLayout(Graph2DCommon::AddLayoutElement::Top); });
   connect(ui_->actionAddLayoutDown, &QAction::triggered, this,
@@ -800,8 +783,8 @@ ApplicationWindow::ApplicationWindow()
   // Tools menu
   ui_->actionDisableGraphTools->setActionGroup(graphToolsGroup);
   ui_->actionDisableGraphTools->setCheckable(true);
-  connect(ui_->actionGraphRescaleShowAll, &QAction::triggered, this,
-          &ApplicationWindow::setAutoScale);
+  connect(ui_->actionGraphRescaleShowAll, SIGNAL(triggered()), this,
+          SLOT(setAutoScale()));
   ui_->actionGraphDragRange->setActionGroup(graphToolsGroup);
   ui_->actionGraphDragRange->setCheckable(true);
   ui_->actionGraphZoomRange->setActionGroup(graphToolsGroup);
@@ -816,89 +799,84 @@ ApplicationWindow::ApplicationWindow()
   ui_->actionGraphMoveDataPoints->setCheckable(true);
   ui_->actionGraphRemoveBadDataPoints->setActionGroup(graphToolsGroup);
   ui_->actionGraphRemoveBadDataPoints->setCheckable(true);
-  connect(graphToolsGroup, &QActionGroup::triggered, this,
-          &ApplicationWindow::pickGraphTool);
+  connect(graphToolsGroup, SIGNAL(triggered(QAction *)), this,
+          SLOT(pickGraphTool(QAction *)));
   // Table Analysis menu
-  connect(ui_->actionStatisticsOnColumns, &QAction::triggered, this,
-          &ApplicationWindow::showColumnStatistics);
-  connect(ui_->actionStatisticsOnRows, &QAction::triggered, this,
-          &ApplicationWindow::showRowStatistics);
-  connect(ui_->actionTableFFT, &QAction::triggered, this,
-          &ApplicationWindow::showFFTDialog);
-  connect(ui_->actionCorrelate, &QAction::triggered, this,
-          &ApplicationWindow::correlate);
-  connect(ui_->actionAutocorrelate, &QAction::triggered, this,
-          &ApplicationWindow::autoCorrelate);
-  connect(ui_->actionConvolute, &QAction::triggered, this,
-          &ApplicationWindow::convolute);
-  connect(ui_->actionDeconvolute, &QAction::triggered, this,
-          &ApplicationWindow::deconvolute);
+  connect(ui_->actionStatisticsOnColumns, SIGNAL(triggered()), this,
+          SLOT(showColumnStatistics()));
+  connect(ui_->actionStatisticsOnRows, SIGNAL(triggered()), this,
+          SLOT(showRowStatistics()));
+  connect(ui_->actionTableFFT, SIGNAL(triggered()), this,
+          SLOT(showFFTDialog()));
+  connect(ui_->actionCorrelate, SIGNAL(triggered()), this, SLOT(correlate()));
+  connect(ui_->actionAutocorrelate, SIGNAL(triggered()), this,
+          SLOT(autoCorrelate()));
+  connect(ui_->actionConvolute, SIGNAL(triggered()), this, SLOT(convolute()));
+  connect(ui_->actionDeconvolute, SIGNAL(triggered()), this,
+          SLOT(deconvolute()));
   // Graph Analysis menu
-  connect(ui_->actionHorizontalTranslate, &QAction::triggered, this,
-          &ApplicationWindow::horizontalTranslate);
-  connect(ui_->actionVerticalTranslate, &QAction::triggered, this,
-          &ApplicationWindow::verticalTranslate);
-  connect(ui_->actionDifferentiate, &QAction::triggered, this,
-          &ApplicationWindow::differentiate);
-  connect(ui_->actionIntegrate, &QAction::triggered, this,
-          &ApplicationWindow::integrate);
-  connect(ui_->actionSavitzkySmooth, &QAction::triggered, this,
-          &ApplicationWindow::savitzkySmooth);
-  connect(ui_->actionMovingWindowAverageSmooth, &QAction::triggered, this,
-          &ApplicationWindow::movingWindowAverageSmooth);
-  connect(ui_->actionFFTFilterSmooth, &QAction::triggered, this,
-          &ApplicationWindow::fFTFilterSmooth);
-  connect(ui_->actionLowPassFFTFilter, &QAction::triggered, this,
-          &ApplicationWindow::lowPassFilter);
-  connect(ui_->actionHighPassFFTFilter, &QAction::triggered, this,
-          &ApplicationWindow::highPassFilter);
-  connect(ui_->actionBandPassFFTFilter, &QAction::triggered, this,
-          &ApplicationWindow::bandPassFilter);
-  connect(ui_->actionBandBlockFFTFilter, &QAction::triggered, this,
-          &ApplicationWindow::bandBlockFilter);
-  connect(ui_->actionInterpolate, &QAction::triggered, this,
-          &ApplicationWindow::interpolate);
-  connect(ui_->actionGraph2DFFT, &QAction::triggered, this,
-          &ApplicationWindow::showFFTDialog);
-  connect(ui_->actionFitLinear, &QAction::triggered, this,
-          &ApplicationWindow::fitLinear);
-  connect(ui_->actionFitPolynomial, &QAction::triggered, this,
-          &ApplicationWindow::fitPolynomial);
-  connect(ui_->actionFirstOrderExponentialDecay, &QAction::triggered, this,
-          &ApplicationWindow::fitFirstOrderExponentialDecay);
-  connect(ui_->actionSecondOrderExponentialDecay, &QAction::triggered, this,
-          &ApplicationWindow::fitSecondOrderExponentialDecay);
-  connect(ui_->actionThirdOrderExponentialDecay, &QAction::triggered, this,
-          &ApplicationWindow::fitThirdOrderExponentialDecay);
-  connect(ui_->actionFitExponentialGrowth, &QAction::triggered, this,
-          &ApplicationWindow::fitExponentialGrowth);
-  connect(ui_->actionFitBoltzmannSigmoid, &QAction::triggered, this,
-          &ApplicationWindow::fitBoltzmannSigmoid);
-  connect(ui_->actionFitGaussian, &QAction::triggered, this,
-          &ApplicationWindow::fitGaussian);
-  connect(ui_->actionFitLorentzian, &QAction::triggered, this,
-          &ApplicationWindow::fitLorentzian);
-  connect(ui_->actionMultiPeakGaussian, &QAction::triggered, this,
-          &ApplicationWindow::fitMultiPeakGaussian);
-  connect(ui_->actionMultiPeakLorentzian, &QAction::triggered, this,
-          &ApplicationWindow::fitMultiPeakLorentzian);
-  connect(ui_->actionGraph2DFitWizard, &QAction::triggered, this,
-          &ApplicationWindow::showFitDialog);
+  connect(ui_->actionHorizontalTranslate, SIGNAL(triggered()), this,
+          SLOT(horizontalTranslate()));
+  connect(ui_->actionVerticalTranslate, SIGNAL(triggered()), this,
+          SLOT(verticalTranslate()));
+  connect(ui_->actionDifferentiate, SIGNAL(triggered()), this,
+          SLOT(differentiate()));
+  connect(ui_->actionIntegrate, SIGNAL(triggered()), this, SLOT(integrate()));
+  connect(ui_->actionSavitzkySmooth, SIGNAL(triggered()), this,
+          SLOT(savitzkySmooth()));
+  connect(ui_->actionMovingWindowAverageSmooth, SIGNAL(triggered()), this,
+          SLOT(movingWindowAverageSmooth()));
+  connect(ui_->actionFFTFilterSmooth, SIGNAL(triggered()), this,
+          SLOT(fFTFilterSmooth()));
+  connect(ui_->actionLowPassFFTFilter, SIGNAL(triggered()), this,
+          SLOT(lowPassFilter()));
+  connect(ui_->actionHighPassFFTFilter, SIGNAL(triggered()), this,
+          SLOT(highPassFilter()));
+  connect(ui_->actionBandPassFFTFilter, SIGNAL(triggered()), this,
+          SLOT(bandPassFilter()));
+  connect(ui_->actionBandBlockFFTFilter, SIGNAL(triggered()), this,
+          SLOT(bandBlockFilter()));
+  connect(ui_->actionInterpolate, SIGNAL(triggered()), this,
+          SLOT(interpolate()));
+  connect(ui_->actionGraph2DFFT, SIGNAL(triggered()), this,
+          SLOT(showFFTDialog()));
+  connect(ui_->actionFitLinear, SIGNAL(triggered()), this, SLOT(fitLinear()));
+  connect(ui_->actionFitPolynomial, SIGNAL(triggered()), this,
+          SLOT(fitPolynomial()));
+  connect(ui_->actionFirstOrderExponentialDecay, SIGNAL(triggered()), this,
+          SLOT(fitFirstOrderExponentialDecay()));
+  connect(ui_->actionSecondOrderExponentialDecay, SIGNAL(triggered()), this,
+          SLOT(fitSecondOrderExponentialDecay()));
+  connect(ui_->actionThirdOrderExponentialDecay, SIGNAL(triggered()), this,
+          SLOT(fitThirdOrderExponentialDecay()));
+  connect(ui_->actionFitExponentialGrowth, SIGNAL(triggered()), this,
+          SLOT(fitExponentialGrowth()));
+  connect(ui_->actionFitBoltzmannSigmoid, SIGNAL(triggered()), this,
+          SLOT(fitBoltzmannSigmoid()));
+  connect(ui_->actionFitGaussian, SIGNAL(triggered()), this,
+          SLOT(fitGaussian()));
+  connect(ui_->actionFitLorentzian, SIGNAL(triggered()), this,
+          SLOT(fitLorentzian()));
+  connect(ui_->actionMultiPeakGaussian, SIGNAL(triggered()), this,
+          SLOT(fitMultiPeakGaussian()));
+  connect(ui_->actionMultiPeakLorentzian, SIGNAL(triggered()), this,
+          SLOT(fitMultiPeakLorentzian()));
+  connect(ui_->actionGraph2DFitWizard, SIGNAL(triggered()), this,
+          SLOT(showFitDialog()));
   // Windows menu
-  connect(ui_->actionCascadeWindow, &QAction::triggered, d_workspace,
-          &QMdiArea::cascadeSubWindows);
-  connect(ui_->actionTileWindow, &QAction::triggered, d_workspace,
-          &QMdiArea::tileSubWindows);
-  connect(ui_->actionNextWindow, &QAction::triggered, d_workspace,
-          &QMdiArea::activateNextSubWindow);
-  connect(ui_->actionPreviousWindow, &QAction::triggered, d_workspace,
-          &QMdiArea::activatePreviousSubWindow);
-  connect(ui_->actionDuplicateWindow, &QAction::triggered, this,
-          qOverload<>(&ApplicationWindow::clone));
-  connect(ui_->actionHideWindow, &QAction::triggered, this,
-          &ApplicationWindow::hideActiveWindow);
-  connect(ui_->actionCloseWindow, &QAction::triggered, this,
-          &ApplicationWindow::closeActiveWindow);
+  connect(ui_->actionCascadeWindow, SIGNAL(triggered()), d_workspace,
+          SLOT(cascadeSubWindows()));
+  connect(ui_->actionTileWindow, SIGNAL(triggered()), d_workspace,
+          SLOT(tileSubWindows()));
+  connect(ui_->actionNextWindow, SIGNAL(triggered()), d_workspace,
+          SLOT(activateNextSubWindow()));
+  connect(ui_->actionPreviousWindow, SIGNAL(triggered()), d_workspace,
+          SLOT(activatePreviousSubWindow()));
+  connect(ui_->actionDuplicateWindow, SIGNAL(triggered()), this, SLOT(clone()));
+  connect(ui_->actionHideWindow, SIGNAL(triggered()), this,
+          SLOT(hideActiveWindow()));
+  connect(ui_->actionCloseWindow, SIGNAL(triggered()), this,
+          SLOT(closeActiveWindow()));
   // Help menu
   auto wiki = []() { QDesktopServices::openUrl(QUrl(AlphaPlot::wiki_Uri)); };
   connect(ui_->actionHelp, &QAction::triggered, this, wiki);
@@ -1207,16 +1185,16 @@ void ApplicationWindow::makeToolBars() {
   graph3DToolbar->setEnabled(false);
 
   // Graph 3D orentation actions
-  connect(actionResetCameraFront_, &QAction::triggered, this,
-          &ApplicationWindow::setCameraPresetFront);
-  connect(actionResetZoomfactor_, &QAction::triggered, this,
-          &ApplicationWindow::resetZoomfactor);
+  connect(actionResetCameraFront_, SIGNAL(triggered()), this,
+          SLOT(setCameraPresetFront()));
+  connect(actionResetZoomfactor_, SIGNAL(triggered()), this,
+          SLOT(resetZoomfactor()));
   // Graph 3D floor Actions
-  connect(groupplot3dselectionmode_, &QActionGroup::triggered, this,
-          &ApplicationWindow::pickSelectionType);
+  connect(groupplot3dselectionmode_, SIGNAL(triggered(QAction *)), this,
+          SLOT(pickSelectionType(QAction *)));
   // Graph 3D animation actions
-  connect(actionplot3dAnimate_, &QAction::toggled, this,
-          &ApplicationWindow::toggle3DAnimation);
+  connect(actionplot3dAnimate_, SIGNAL(toggled(bool)), this,
+          SLOT(toggle3DAnimation(bool)));
 }
 
 // Lock/unlock toolbar move
@@ -1310,31 +1288,17 @@ void ApplicationWindow::customMenu(QMdiSubWindow *subwindow) {
 
       // Active window is a note
     } else if (isActiveSubWindow(subwindow, SubWindowType::NoteSubWindow)) {
-      Note *note = qobject_cast<Note *>(subwindow);
       ui_->actionSaveAsTemplate->setEnabled(false);
       ui_->actionEvaluateExpression->setEnabled(true);
-
-      QList<Note *> notelst;
-      QList<QMdiSubWindow *> windows = subWindowsList();
-      for (int i = 0; i < int(windows.count()); i++) {
-        if (isActiveSubWindow(windows.at(i), SubWindowType::NoteSubWindow)) {
-          Note *n = qobject_cast<Note *>(windows.at(i));
-          if (n) notelst.append(n);
-        }
-      }
-      foreach (Note *n, notelst) {
-        disconnect(ui_->actionExecute, &QAction::triggered, n, &Note::execute);
-        disconnect(ui_->actionExecuteAll, &QAction::triggered, n,
-                   &Note::executeAll);
-        disconnect(ui_->actionEvaluateExpression, &QAction::triggered, n,
-                   &Note::evaluate);
-      }
-
-      connect(ui_->actionExecute, &QAction::triggered, note, &Note::execute);
-      connect(ui_->actionExecuteAll, &QAction::triggered, note,
-              &Note::executeAll);
-      connect(ui_->actionEvaluateExpression, &QAction::triggered, note,
-              &Note::evaluate);
+      ui_->actionExecute->disconnect(SIGNAL(triggered()));
+      ui_->actionExecuteAll->disconnect(SIGNAL(triggered()));
+      ui_->actionEvaluateExpression->disconnect(SIGNAL(triggered()));
+      connect(ui_->actionExecute, SIGNAL(triggered()), subwindow,
+              SLOT(execute()));
+      connect(ui_->actionExecuteAll, SIGNAL(triggered()), subwindow,
+              SLOT(executeAll()));
+      connect(ui_->actionEvaluateExpression, SIGNAL(triggered()), subwindow,
+              SLOT(evaluate()));
     } else
       disableActions();  // None of the above
 
@@ -1675,8 +1639,8 @@ void ApplicationWindow::add3DData() {
 void ApplicationWindow::change3DData() {
   DataSetDialog *ad = new DataSetDialog(tr("Column") + " : ", this);
   ad->setAttribute(Qt::WA_DeleteOnClose);
-  connect(ad, &DataSetDialog::options, this,
-          qOverload<const QString &>(&ApplicationWindow::change3DData));
+  connect(ad, SIGNAL(options(const QString &)), this,
+          SLOT(change3DData(const QString &)));
 
   ad->setWindowTitle(tr("Choose data set"));
   // TODO: string list -> Column * list
@@ -1687,8 +1651,8 @@ void ApplicationWindow::change3DData() {
 void ApplicationWindow::change3DMatrix() {
   DataSetDialog *ad = new DataSetDialog(tr("Matrix") + " : ", this);
   ad->setAttribute(Qt::WA_DeleteOnClose);
-  connect(ad, &DataSetDialog::options, this,
-          qOverload<const QString &>(&ApplicationWindow::change3DMatrix));
+  connect(ad, SIGNAL(options(const QString &)), this,
+          SLOT(change3DMatrix(const QString &)));
 
   ad->setWindowTitle(tr("Choose matrix to plot"));
   ad->setCurveNames(matrixNames());
@@ -1739,11 +1703,14 @@ void ApplicationWindow::editSurfacePlot() {
 void ApplicationWindow::newSurfacePlot() {
   SurfaceDialog *sd = new SurfaceDialog(this);
   sd->setAttribute(Qt::WA_DeleteOnClose);
-  connect(sd, &SurfaceDialog::options, this,
-          qOverload<const QString &, double, double, double, double, double,
-                    double>(&ApplicationWindow::newPlot3D));
-  connect(sd, &SurfaceDialog::clearFunctionsList, this,
-          &ApplicationWindow::clearSurfaceFunctionsList);
+  connect(sd,
+          SIGNAL(options(const QString &, double, double, double, double,
+                         double, double)),
+          this,
+          SLOT(newPlot3D(const QString &, double, double, double, double,
+                         double, double)));
+  connect(sd, SIGNAL(clearFunctionsList()), this,
+          SLOT(clearSurfaceFunctionsList()));
 
   sd->insertFunctionsList(surfaceFunc);
   sd->exec();
@@ -1963,15 +1930,15 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
           &ApplicationWindow::showWindowTitleBarMenu);
   connect(layout2d, &Layout2D::AxisRectRemoved, propertyeditor,
           &PropertyEditor::populateObjectBrowser);
-  connect(layout2d, &Layout2D::AxisRectSwap, this, [=]() {
+  connect(layout2d, &Layout2D::AxisRectSwap, [=]() {
     propertyeditor->populateObjectBrowser(static_cast<MyWidget *>(layout2d));
   });
-  connect(layout2d, &Layout2D::mousepressevent, this, [=](MyWidget *widget) {
+  connect(layout2d, &Layout2D::mousepressevent, [=](MyWidget *widget) {
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
   });
-  connect(layout2d, &Layout2D::ResetPicker, this, [&]() {
+  connect(layout2d, &Layout2D::ResetPicker, [&]() {
     pickGraphTool(ui_->actionDisableGraphTools);
     ui_->actionDisableGraphTools->setChecked(true);
   });
@@ -2042,8 +2009,9 @@ QList<QPair<QPair<double, double>, double>>
   Q_ASSERT(!formula.isEmpty());
   QString name = "3d-surface-function";
   std::unique_ptr<Script> script(scriptEnv->newScript(formula, 0, name));
-  QObject::connect(script.get(), &Script::error, this,
-                   &ApplicationWindow::scriptError);
+  QObject::connect(script.get(),
+                   SIGNAL(error(const QString &, const QString &, int)), this,
+                   SLOT(scriptError(const QString &, const QString &, int)));
 
   const int points = 1000;
   const double xstep = (xr - xl) / static_cast<double>(points - 1);
@@ -2152,7 +2120,8 @@ Table *ApplicationWindow::newTable(const QString &caption, int r, int c) {
     QMessageBox::warning(
         this, tr("Renamed Window"),
         tr("The table '%1' already exists. It has been renamed '%2'.")
-            .arg(caption, table->name()));
+            .arg(caption)
+            .arg(table->name()));
   }
   return table;
 }
@@ -2216,14 +2185,15 @@ TableStatistics *ApplicationWindow::newTableStatistics(Table *base, int type,
   if (!caption.isEmpty()) statTable->setName(caption);
 
   d_project->addChild(statTable->d_future_table);
-  connect(base, &Table::modifiedData, statTable, &TableStatistics::update);
-  connect(base, &Table::changedColHeader, statTable,
-          &TableStatistics::renameCol);
-  connect(base, &Table::removedCol, statTable, &TableStatistics::removeCol);
-  connect(
-      base->d_future_table,
-      qOverload<const AbstractAspect *>(&future::Table::aspectAboutToBeRemoved),
-      this, &ApplicationWindow::removeDependentTableStatistics);
+  connect(base, SIGNAL(modifiedData(Table *, const QString &)), statTable,
+          SLOT(update(Table *, const QString &)));
+  connect(base, SIGNAL(changedColHeader(const QString &, const QString &)),
+          statTable, SLOT(renameCol(const QString &, const QString &)));
+  connect(base, SIGNAL(removedCol(const QString &)), statTable,
+          SLOT(removeCol(const QString &)));
+  connect(base->d_future_table,
+          SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *)), this,
+          SLOT(removeDependentTableStatistics(const AbstractAspect *)));
   return statTable;
 }
 
@@ -2269,15 +2239,17 @@ void ApplicationWindow::initNote(Note *note, const QString &caption) {
   d_workspace->addSubWindow(note);
   addListViewItem(note);
 
-  connect(note, &Note::modifiedWindow, this,
-          qOverload<MyWidget *>(&ApplicationWindow::modifiedProject));
-  connect(note, &Note::closedWindow, this, &ApplicationWindow::closeWindow);
-  connect(note, &Note::hiddenWindow, this, &ApplicationWindow::hideWindow);
-  connect(note, &Note::statusChanged, this,
-          &ApplicationWindow::updateWindowStatus);
-  connect(note, &Note::showTitleBarMenu, this,
-          &ApplicationWindow::showWindowTitleBarMenu);
-  connect(note, &Note::mousepressevent, this, [=](MyWidget *widget) {
+  connect(note, SIGNAL(modifiedWindow(MyWidget *)), this,
+          SLOT(modifiedProject(MyWidget *)));
+  connect(note, SIGNAL(closedWindow(MyWidget *)), this,
+          SLOT(closeWindow(MyWidget *)));
+  connect(note, SIGNAL(hiddenWindow(MyWidget *)), this,
+          SLOT(hideWindow(MyWidget *)));
+  connect(note, SIGNAL(statusChanged(MyWidget *)), this,
+          SLOT(updateWindowStatus(MyWidget *)));
+  connect(note, SIGNAL(showTitleBarMenu()), this,
+          SLOT(showWindowTitleBarMenu()));
+  connect(note, &Note::mousepressevent, [=](MyWidget *widget) {
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
@@ -2375,16 +2347,17 @@ void ApplicationWindow::initMatrix(Matrix *matrix) {
   addListViewItem(matrix);
   matrix->showNormal();
 
-  connect(matrix, &Matrix::showTitleBarMenu, this,
-          &ApplicationWindow::showWindowTitleBarMenu);
-  connect(matrix, &Matrix::modifiedWindow, this,
-          qOverload<MyWidget *>(&ApplicationWindow::modifiedProject));
-  connect(matrix, &Matrix::hiddenWindow, this, &ApplicationWindow::hideWindow);
-  connect(matrix, &Matrix::statusChanged, this,
-          &ApplicationWindow::updateWindowStatus);
-  connect(matrix, &Matrix::showContextMenu, this,
-          &ApplicationWindow::showWindowContextMenu);
-  connect(matrix, &Matrix::mousepressevent, this, [=](MyWidget *widget) {
+  connect(matrix, SIGNAL(showTitleBarMenu()), this,
+          SLOT(showWindowTitleBarMenu()));
+  connect(matrix, SIGNAL(modifiedWindow(MyWidget *)), this,
+          SLOT(modifiedProject(MyWidget *)));
+  connect(matrix, SIGNAL(hiddenWindow(MyWidget *)), this,
+          SLOT(hideWindow(MyWidget *)));
+  connect(matrix, SIGNAL(statusChanged(MyWidget *)), this,
+          SLOT(updateWindowStatus(MyWidget *)));
+  connect(matrix, SIGNAL(showContextMenu()), this,
+          SLOT(showWindowContextMenu()));
+  connect(matrix, &Matrix::mousepressevent, [=](MyWidget *widget) {
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
@@ -3118,7 +3091,7 @@ void ApplicationWindow::importASCII(const QStringList &files, int import_mode,
 
   table->setWindowLabel(files.join("; "));
   table->notifyChanges();
-  modifiedProject(table);
+  emit modifiedProject(table);
   modifiedProject();
 }
 
@@ -3133,7 +3106,7 @@ void ApplicationWindow::openAproj() {
 
   switch (openDialog->openMode()) {
     case OpenProjectDialog::NewProject: {
-      QString fileName = openDialog->selectedFiles().at(0);
+      QString fileName = openDialog->selectedFiles()[0];
       QFileInfo fi(fileName);
 
       if (projectname != "untitled") {
@@ -3276,8 +3249,10 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force) {
     return false;
   }
 
-  connect(newEnv, &ScriptingEnv::error, this, &ApplicationWindow::scriptError);
-  connect(newEnv, &ScriptingEnv::print, this, &ApplicationWindow::scriptPrint);
+  connect(newEnv, SIGNAL(error(const QString &, const QString &, int)), this,
+          SLOT(scriptError(const QString &, const QString &, int)));
+  connect(newEnv, SIGNAL(print(const QString &)), this,
+          SLOT(scriptPrint(const QString &)));
   if (!newEnv->initialize()) {
     delete newEnv;
     QApplication::restoreOverrideCursor();
@@ -4020,7 +3995,7 @@ void ApplicationWindow::exportAllGraphs() {
 
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-  QString output_dir = ied->selectedFiles().at(0);
+  QString output_dir = ied->selectedFiles()[0];
   QString file_suffix = ied->selectedNameFilter();
   file_suffix = file_suffix.toLower();
   file_suffix.remove("*");
@@ -4521,10 +4496,11 @@ void ApplicationWindow::showExportASCIIDialog() {
   if (table) {
     ExportDialog *ed = new ExportDialog(this, Qt::WindowContextHelpButtonHint);
     ed->setAttribute(Qt::WA_DeleteOnClose);
-    connect(ed, &ExportDialog::exportTable, this,
-            &ApplicationWindow::exportASCII);
-    connect(ed, &ExportDialog::exportAllTables, this,
-            &ApplicationWindow::exportAllTables);
+    connect(
+        ed, SIGNAL(exportTable(const QString &, const QString &, bool, bool)),
+        this, SLOT(exportASCII(const QString &, const QString &, bool, bool)));
+    connect(ed, SIGNAL(exportAllTables(const QString &, bool, bool)), this,
+            SLOT(exportAllTables(const QString &, bool, bool)));
 
     ed->setTableNames(tableWindows());
     ed->setActiveTableName(table->name());
@@ -4874,7 +4850,7 @@ void ApplicationWindow::printAllPlots() {
   }
 
   connect(
-      previewDialog.get(), &QPrintPreviewDialog::paintRequested, this,
+      previewDialog.get(), &QPrintPreviewDialog::paintRequested,
       [=](QPrinter *printer) {
         printer->setColorMode(QPrinter::Color);
         std::unique_ptr<QCPPainter> painter =
@@ -4945,11 +4921,11 @@ void ApplicationWindow::showFitDialog() {
 
   FitDialog *fd = new FitDialog(this);
   fd->setAttribute(Qt::WA_DeleteOnClose);
-  connect(fd, &FitDialog::clearFunctionsList, this,
-          &ApplicationWindow::clearFitFunctionsList);
-  connect(fd, &FitDialog::saveFunctionsList, this,
-          &ApplicationWindow::saveFitFunctionsList);
-  connect(plot, &Layout2D::destroyed, fd, &FitDialog::close);
+  connect(fd, SIGNAL(clearFunctionsList()), this,
+          SLOT(clearFitFunctionsList()));
+  connect(fd, SIGNAL(saveFunctionsList(const QStringList &)), this,
+          SLOT(saveFitFunctionsList(const QStringList &)));
+  connect(plot, SIGNAL(destroyed()), fd, SLOT(close()));
 
   fd->addUserFunctions(fitFunctions);
   fd->setAxisRect(axisrect);
@@ -5683,7 +5659,7 @@ void ApplicationWindow::closeActiveWindow() {
 void ApplicationWindow::removeWindowFromLists(MyWidget *widgrt) {
   if (!widgrt) return;
 
-  // QString caption = widgrt->name();
+  QString caption = widgrt->name();
   if (isActiveSubwindow(SubWindowType::TableSubWindow)) {
     Table *table = qobject_cast<Table *>(widgrt);
     for (int i = 0; i < table->numCols(); i++) {
@@ -5897,10 +5873,10 @@ void ApplicationWindow::customEvent(QEvent *event) {
     // an event; which means that we don't know for sure at this point whether
     // scriptEnv is connected or not.
     scriptEnv->disconnect(this);
-    connect(scriptEnv, &ScriptingEnv::error, this,
-            &ApplicationWindow::scriptError);
-    connect(scriptEnv, &ScriptingEnv::print, this,
-            &ApplicationWindow::scriptPrint);
+    connect(scriptEnv, SIGNAL(error(const QString &, const QString &, int)),
+            this, SLOT(scriptError(const QString &, const QString &, int)));
+    connect(scriptEnv, SIGNAL(print(const QString &)), this,
+            SLOT(scriptPrint(const QString &)));
   }
 }
 
@@ -5932,8 +5908,8 @@ void ApplicationWindow::deleteSelectedItems() {
 
 void ApplicationWindow::showListViewSelectionMenu(const QPoint &p) {
   QMenu cm(this);
-  cm.addAction(tr("&Delete Selection"), this,
-               &ApplicationWindow::deleteSelectedItems, Qt::Key_F8);
+  cm.addAction(tr("&Delete Selection"), this, SLOT(deleteSelectedItems()),
+               Qt::Key_F8);
   cm.exec(p);
 }
 
@@ -5951,11 +5927,9 @@ void ApplicationWindow::showListViewPopupMenu(const QPoint &p) {
   cm.addMenu(&window);
 
   cm.addAction(IconLoader::load("folder-explorer", IconLoader::LightDark),
-               tr("New F&older"), this, &ApplicationWindow::addFolder,
-               Qt::Key_F7);
+               tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
   cm.addSeparator();
-  cm.addAction(tr("Auto &Column Width"), ui_->listView,
-               &FolderTreeWidget::adjustColumns);
+  cm.addAction(tr("Auto &Column Width"), ui_->listView, SLOT(adjustColumns()));
   cm.exec(p);
 }
 
@@ -6047,25 +6021,25 @@ void ApplicationWindow::showWindowContextMenu() {
   if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow)) {
     Matrix *matrix = qobject_cast<Matrix *>(subwindow);
     cm.addAction(IconLoader::load("edit-cut", IconLoader::LightDark),
-                 tr("Cu&t"), matrix, &Matrix::cutSelection);
+                 tr("Cu&t"), matrix, SLOT(cutSelection()));
     cm.addAction(IconLoader::load("edit-copy", IconLoader::LightDark),
-                 tr("&Copy"), matrix, &Matrix::copySelection);
+                 tr("&Copy"), matrix, SLOT(copySelection()));
     cm.addAction(IconLoader::load("edit-paste", IconLoader::LightDark),
-                 tr("&Paste"), matrix, &Matrix::pasteSelection);
+                 tr("&Paste"), matrix, SLOT(pasteSelection()));
     cm.addSeparator();
-    cm.addAction(tr("&Insert Row"), matrix, &Matrix::insertRow);
-    cm.addAction(tr("&Insert Column"), matrix, &Matrix::insertColumn);
+    cm.addAction(tr("&Insert Row"), matrix, SLOT(insertRow()));
+    cm.addAction(tr("&Insert Column"), matrix, SLOT(insertColumn()));
     if (matrix->rowsSelected()) {
       cm.addAction(IconLoader::load("edit-delete", IconLoader::General),
-                   tr("&Delete Rows"), matrix, &Matrix::deleteSelectedRows);
+                   tr("&Delete Rows"), matrix, SLOT(deleteSelectedRows()));
     } else if (matrix->columnsSelected()) {
       cm.addAction(IconLoader::load("edit-delete", IconLoader::General),
                    tr("&Delete Columns"), matrix,
-                   &Matrix::deleteSelectedColumns);
+                   SLOT(deleteSelectedColumns()));
     }
     cm.addAction(
         IconLoader::load("edit-delete-selection", IconLoader::LightDark),
-        tr("Clea&r"), matrix, &Matrix::clearSelection);
+        tr("Clea&r"), matrix, SLOT(clearSelection()));
   } else if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
     Layout2D *layout = qobject_cast<Layout2D *>(subwindow);
     cm.addAction(IconLoader::load("edit-recalculate", IconLoader::LightDark),
@@ -6156,21 +6130,23 @@ void ApplicationWindow::showPlotWizard() {
   }
 
   auto plotwizard = std::unique_ptr<PlotWizard>(new PlotWizard(this));
+  // connect(pw, SIGNAL(plot(const QStringList &)), this,
+  //         SLOT(multilayerPlot(const QStringList &)));
 
   plotwizard->insertTablesList(tableWindows());
   // TODO: string list -> Column * list
   plotwizard->setColumnsList(columnsList());
-  plotwizard->changeColumnsList(tableWindows().at(0));
+  plotwizard->changeColumnsList(tableWindows()[0]);
   plotwizard->exec();
 }
 
 Function2DDialog *ApplicationWindow::functionDialog() {
   Function2DDialog *fd = new Function2DDialog(d_workspace);
   fd->setAttribute(Qt::WA_DeleteOnClose);
-  connect(fd, &Function2DDialog::clearParamFunctionsList, this,
-          &ApplicationWindow::clearParamFunctionsList);
-  connect(fd, &Function2DDialog::clearPolarFunctionsList, this,
-          &ApplicationWindow::clearPolarFunctionsList);
+  connect(fd, SIGNAL(clearParamFunctionsList()), this,
+          SLOT(clearParamFunctionsList()));
+  connect(fd, SIGNAL(clearPolarFunctionsList()), this,
+          SLOT(clearPolarFunctionsList()));
 
   fd->insertParamFunctionsList(xFunctions, yFunctions);
   fd->insertPolarFunctionsList(rFunctions, thetaFunctions);
@@ -6417,8 +6393,9 @@ ApplicationWindow::generateFunctiondata(const int type,
       QString name = "normal-function";
       std::unique_ptr<Script> script(
           scriptEnv->newScript(formulas.at(0), 0, name));
-      QObject::connect(script.get(), &Script::error, this,
-                       &ApplicationWindow::scriptError);
+      QObject::connect(
+          script.get(), SIGNAL(error(const QString &, const QString &, int)),
+          this, SLOT(scriptError(const QString &, const QString &, int)));
 
       QVector<double> *xData = new QVector<double>();
       QVector<double> *yData = new QVector<double>();
@@ -6461,10 +6438,12 @@ ApplicationWindow::generateFunctiondata(const int type,
           scriptEnv->newScript(formulas.at(0), 0, name));
       std::unique_ptr<Script> script_y(
           scriptEnv->newScript(formulas.at(1), 0, name));
-      QObject::connect(script_x.get(), &Script::error, this,
-                       &ApplicationWindow::scriptError);
-      QObject::connect(script_y.get(), &Script::error, this,
-                       &ApplicationWindow::scriptError);
+      QObject::connect(
+          script_x.get(), SIGNAL(error(const QString &, const QString &, int)),
+          this, SLOT(scriptError(const QString &, const QString &, int)));
+      QObject::connect(
+          script_y.get(), SIGNAL(error(const QString &, const QString &, int)),
+          this, SLOT(scriptError(const QString &, const QString &, int)));
 
       QVector<double> *xData = new QVector<double>();
       QVector<double> *yData = new QVector<double>();
@@ -6519,8 +6498,9 @@ QList<QPair<QPair<double, double>, double>>
   QString name = "surface3d";
   std::unique_ptr<Script> script(
       scriptEnv->newScript(funcdata.function, 0, name));
-  QObject::connect(script.get(), &Script::error, this,
-                   &ApplicationWindow::scriptError);
+  QObject::connect(script.get(),
+                   SIGNAL(error(const QString &, const QString &, int)), this,
+                   SLOT(scriptError(const QString &, const QString &, int)));
   const double points = funcdata.xpoints;
   const double xstep =
       (funcdata.xu - funcdata.xl) / static_cast<double>(points - 1);
@@ -6800,22 +6780,25 @@ void ApplicationWindow::pickGraphTool(QAction *action) {
 }
 
 void ApplicationWindow::connectTable(Table *table) {
-  connect(table, &Table::showTitleBarMenu, this,
-          &ApplicationWindow::showWindowTitleBarMenu);
-  connect(table, &Table::statusChanged, this,
-          &ApplicationWindow::updateWindowStatus);
-  connect(table, &Table::hiddenWindow, this, &ApplicationWindow::hideWindow);
-  connect(table, &Table::closedWindow, this, &ApplicationWindow::closeWindow);
-  connect(table, &Table::aboutToRemoveCol, this,
-          &ApplicationWindow::removeCurves);
-  connect(table, &Table::modifiedData, this, &ApplicationWindow::updateCurves);
-  connect(table, &Table::modifiedWindow, this,
-          qOverload<MyWidget *>(&ApplicationWindow::modifiedProject));
-  connect(table->d_future_table, &future::Table::requestRowStatistics, this,
-          &ApplicationWindow::showRowStatistics);
-  connect(table->d_future_table, &future::Table::requestColumnStatistics, this,
-          &ApplicationWindow::showColumnStatistics);
-  connect(table, &Table::mousepressevent, this, [=](MyWidget *widget) {
+  connect(table, SIGNAL(showTitleBarMenu()), this,
+          SLOT(showWindowTitleBarMenu()));
+  connect(table, SIGNAL(statusChanged(MyWidget *)), this,
+          SLOT(updateWindowStatus(MyWidget *)));
+  connect(table, SIGNAL(hiddenWindow(MyWidget *)), this,
+          SLOT(hideWindow(MyWidget *)));
+  connect(table, SIGNAL(closedWindow(MyWidget *)), this,
+          SLOT(closeWindow(MyWidget *)));
+  connect(table, SIGNAL(aboutToRemoveCol(Table *, const QString &)), this,
+          SLOT(removeCurves(Table *, const QString &)));
+  connect(table, SIGNAL(modifiedData(Table *, const QString &)), this,
+          SLOT(updateCurves(Table *, const QString &)));
+  connect(table, SIGNAL(modifiedWindow(MyWidget *)), this,
+          SLOT(modifiedProject(MyWidget *)));
+  connect(table->d_future_table, SIGNAL(requestRowStatistics()), this,
+          SLOT(showRowStatistics()));
+  connect(table->d_future_table, SIGNAL(requestColumnStatistics()), this,
+          SLOT(showColumnStatistics()));
+  connect(table, &Table::mousepressevent, [=](MyWidget *widget) {
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
@@ -6841,7 +6824,7 @@ void ApplicationWindow::setAppColors() {
     palet.setColor(QPalette::ButtonText, panelsTextColor);
     palet.setColor(QPalette::BrightText, panelsTextColor);
     qApp->setPalette(palet);
-    // QPalette pal = d_workspace->palette();
+    QPalette pal = d_workspace->palette();
     d_workspace->setBackground(QBrush(workspaceColor));
   } else {
     qApp->setStyle(appStyle);
@@ -6972,7 +6955,7 @@ void ApplicationWindow::updateRecentProjectsList() {
   for (int i = 0; i < static_cast<int>(recentProjects.size()); i++)
     connect(ui_->menuRecentProjects->addAction("&" + QString::number(i + 1) +
                                                " " + recentProjects[i]),
-            &QAction::triggered, this, &ApplicationWindow::openRecentAproj);
+            SIGNAL(triggered()), this, SLOT(openRecentAproj()));
 }
 
 void ApplicationWindow::horizontalTranslate() {
@@ -7000,6 +6983,9 @@ void ApplicationWindow::horizontalTranslate() {
     return;
   } else if (graph->validCurvesDataSize()) {
     ui_->actionDisableGraphTools->setChecked(true);
+    graph->setActiveTool(
+        new TranslateCurveTool(graph, this, TranslateCurveTool::Horizontal,
+                               statusBarInfo, SLOT(setText(const QString &))));
   }*/
 }
 
@@ -7029,6 +7015,9 @@ void ApplicationWindow::verticalTranslate() {
     return;
   } else if (graph->validCurvesDataSize()) {
     ui_->actionDisableGraphTools->setChecked(true);
+    graph->setActiveTool(
+        new TranslateCurveTool(graph, this, TranslateCurveTool::Vertical,
+                               statusBarInfo, SLOT(setText(const QString &))));
   }*/
 }
 
@@ -7534,32 +7523,25 @@ void ApplicationWindow::showFolderPopupMenu(QTreeWidgetItem *it,
   QMenu viewWindowsMenu(this);
 
   cm.addAction(tr("&Find..."), this,
-               &ApplicationWindow::findWindowOrFolderFromProjectExplorer);
+               SLOT(findWindowOrFolderFromProjectExplorer()));
   cm.addSeparator();
-  cm.addAction(tr("App&end Project..."), this,
-               &ApplicationWindow::appendProject);
+  cm.addAction(tr("App&end Project..."), this, SLOT(appendProject()));
   if (static_cast<FolderTreeWidgetItem *>(it)->folder()->parent())
-    cm.addAction(tr("Save &As Project..."), this,
-                 &ApplicationWindow::saveAsProject);
+    cm.addAction(tr("Save &As Project..."), this, SLOT(saveAsProject()));
   else
-    cm.addAction(tr("Save Project &As..."), this,
-                 &ApplicationWindow::saveProjectAs);
+    cm.addAction(tr("Save Project &As..."), this, SLOT(saveProjectAs()));
   cm.addSeparator();
 
   if (fromFolders && show_windows_policy != HideAll) {
-    cm.addAction(tr("&Show All Windows"), this,
-                 &ApplicationWindow::showAllFolderWindows);
-    cm.addAction(tr("&Hide All Windows"), this,
-                 &ApplicationWindow::hideAllFolderWindows);
+    cm.addAction(tr("&Show All Windows"), this, SLOT(showAllFolderWindows()));
+    cm.addAction(tr("&Hide All Windows"), this, SLOT(hideAllFolderWindows()));
     cm.addSeparator();
   }
 
   if (!fromFolders || it->parent()) {
     cm.addAction(IconLoader::load("edit-delete", IconLoader::General),
-                 tr("&Delete Folder"), this,
-                 qOverload<>(&ApplicationWindow::deleteFolder), Qt::Key_F8);
-    cm.addAction(tr("&Rename"), this, &ApplicationWindow::renameFolderFromMenu,
-                 Qt::Key_F2);
+                 tr("&Delete Folder"), this, SLOT(deleteFolder()), Qt::Key_F8);
+    cm.addAction(tr("&Rename"), this, SLOT(renameFolderFromMenu()), Qt::Key_F2);
     cm.addSeparator();
   }
 
@@ -7575,8 +7557,7 @@ void ApplicationWindow::showFolderPopupMenu(QTreeWidgetItem *it,
   }
 
   cm.addAction(IconLoader::load("folder-explorer", IconLoader::LightDark),
-               tr("New F&older"), this, &ApplicationWindow::addFolder,
-               Qt::Key_F7);
+               tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
   cm.addSeparator();
 
   viewWindowsMenu.setTitle(tr("&View Windows"));
@@ -7613,19 +7594,15 @@ void ApplicationWindow::showFolderPopupMenu(QTreeWidgetItem *it,
       break;
   }
 
-  connect(&windowsNone, &QAction::triggered, &mapper,
-          qOverload<>(&QSignalMapper::map));
-  connect(&windowsInActiveFolder, &QAction::triggered, &mapper,
-          qOverload<>(&QSignalMapper::map));
-  connect(&windowsInActiveFoldersAndSubs, &QAction::triggered, &mapper,
-          qOverload<>(&QSignalMapper::map));
-  connect(&mapper, &QSignalMapper::mappedInt, this,
-          &ApplicationWindow::setShowWindowsPolicy);
+  connect(&windowsNone, SIGNAL(triggered()), &mapper, SLOT(map()));
+  connect(&windowsInActiveFolder, SIGNAL(triggered()), &mapper, SLOT(map()));
+  connect(&windowsInActiveFoldersAndSubs, SIGNAL(triggered()), &mapper,
+          SLOT(map()));
+  connect(&mapper, SIGNAL(mapped(int)), this, SLOT(setShowWindowsPolicy(int)));
 
   cm.addMenu(&viewWindowsMenu);
   cm.addSeparator();
-  cm.addAction(tr("&Properties..."), this,
-               &ApplicationWindow::folderProperties);
+  cm.addAction(tr("&Properties..."), this, SLOT(folderProperties()));
   cm.exec(p);
 }
 
@@ -7676,14 +7653,14 @@ void ApplicationWindow::startRenameFolder(FolderTreeWidgetItem *fi) {
   ui_->folderView->setCurrentItem(fi);
   fi->treeWidget()->editItem(fi, 0);
 
-  connect(ui_->folderView, &FolderTreeWidget::itemChanged, this,
-          &ApplicationWindow::renameFolder);
+  connect(ui_->folderView, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
+          SLOT(renameFolder(QTreeWidgetItem *)));
 }
 
 // Rename selected folder item (project explorer)
 void ApplicationWindow::renameFolder(QTreeWidgetItem *item) {
-  disconnect(ui_->folderView, &FolderTreeWidget::itemChanged, this,
-             &ApplicationWindow::renameFolder);
+  disconnect(ui_->folderView, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
+             SLOT(renameFolder(QTreeWidgetItem *)));
 
   if (!item) return;
 
@@ -8127,8 +8104,8 @@ void ApplicationWindow::windowProperties() {
                           .arg(static_cast<Note *>(window)->size().width());
     properties.content =
         QString(tr("%1 Characters,\n%2 Lines"))
-            .arg(QString::number(static_cast<Note *>(window)->text().count()),
-                 "(unavailable)");
+            .arg(QString::number(static_cast<Note *>(window)->text().count()))
+            .arg("(unavailable)");
     properties.description = tr("This is an AlphaPlot Note");
   } else if (isActiveSubWindow(window, SubWindowType::Plot2DSubWindow)) {
     properties.icon = QPixmap(":icons/common/64/graph2D-properties.png");
@@ -8137,7 +8114,7 @@ void ApplicationWindow::windowProperties() {
                           .arg(static_cast<Layout2D *>(window)->size().height())
                           .arg(static_cast<Layout2D *>(window)->size().width());
     properties.content =
-        QString(tr("%1 Layers,\n%2x%3 Layout")).arg("", "", "");
+        QString(tr("%1 Layers,\n%2x%3 Layout")).arg("").arg("").arg("");
     properties.description = tr("This is an AlphaPlot 2D Graph");
   } else if (isActiveSubWindow(window, SubWindowType::Plot3DSubWindow)) {
     properties.icon = QPixmap(":icons/common/64/graph3D-properties.png");
@@ -8739,8 +8716,7 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
     cm.addAction(actionMinimizeWindow);
     cm.addAction(actionMaximizeWindow);
     cm.addSeparator();
-    cm.addAction(tr("&Properties..."), this,
-                 &ApplicationWindow::windowProperties);
+    cm.addAction(tr("&Properties..."), this, SLOT(windowProperties()));
   }
 
   int n;
@@ -8751,7 +8727,7 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
       cm.addSeparator();
       for (int i = 0; i < n; i++)
         depend_menu.addAction(graphs[i], this,
-                              &ApplicationWindow::setActiveWindowFromAction);
+                              SLOT(setActiveWindowFromAction()));
 
       depend_menu.setTitle(tr("D&epending Graphs"));
       cm.addMenu(&depend_menu);
@@ -8763,7 +8739,7 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
       cm.addSeparator();
       for (int i = 0; i < n; i++)
         depend_menu.addAction(graphs[i], this,
-                              &ApplicationWindow::setActiveWindowFromAction);
+                              SLOT(setActiveWindowFromAction()));
 
       depend_menu.setTitle(tr("D&epending 3D Graphs"));
       cm.addMenu(&depend_menu);
@@ -8774,7 +8750,7 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
       depend_menu.setTitle(tr("D&epends on"));
       foreach (MyWidget *widget, layout->dependentTableMatrix()) {
         depend_menu.addAction(widget->name(), this,
-                              &ApplicationWindow::setActiveWindowFromAction);
+                              SLOT(setActiveWindowFromAction()));
       }
       cm.addMenu(&depend_menu);
     }
@@ -8805,12 +8781,12 @@ void ApplicationWindow::showWindowMenu(MyWidget *widget) {
         QStringList tl = formula.split("_", QString::SkipEmptyParts);
 #endif
         depend_menu.addAction(tl.at(0), this,
-                              &ApplicationWindow::setActiveWindowFromAction);
+                              SLOT(setActiveWindowFromAction()));
         depend_menu.setTitle(tr("D&epends on"));
         cm.addMenu(&depend_menu);
       } else if (matrix) {
         depend_menu.addAction(matrix->name(), this,
-                              &ApplicationWindow::setActiveWindowFromAction);
+                              SLOT(setActiveWindowFromAction()));
         depend_menu.setTitle(tr("D&epends on"));
         cm.addMenu(&depend_menu);
       }
@@ -9299,10 +9275,8 @@ void ApplicationWindow::showUndoRedoHistory() {
   button_box.setStandardButtons(QDialogButtonBox::Cancel |
                                 QDialogButtonBox::NoButton |
                                 QDialogButtonBox::Ok);
-  QObject::connect(&button_box, &QDialogButtonBox::accepted, &dialog,
-                   &QDialog::accept);
-  QObject::connect(&button_box, &QDialogButtonBox::rejected, &dialog,
-                   &QDialog::reject);
+  QObject::connect(&button_box, SIGNAL(accepted()), &dialog, SLOT(accept()));
+  QObject::connect(&button_box, SIGNAL(rejected()), &dialog, SLOT(reject()));
 
   int index = d_project->undoStack()->index();
   QUndoView undo_view(d_project->undoStack());
