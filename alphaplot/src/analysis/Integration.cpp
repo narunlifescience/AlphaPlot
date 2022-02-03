@@ -36,6 +36,7 @@
 #include <QLocale>
 #include <QMessageBox>
 
+#include "core/Utilities.h"
 #include "future/core/column/Column.h"
 
 Integration::Integration(ApplicationWindow *parent, AxisRect2D *axisrect)
@@ -118,7 +119,7 @@ QString Integration::logInfo() {
 
   if (static_cast<size_t>(d_n) < gsl_interp_type_min_size(method_t)) {
     QMessageBox::critical(
-        (ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
+        (ApplicationWindow *)parent(), tr("AlphaPlot") + " - " + tr("Error"),
         tr("You need at least %1 points in order to perform this operation!")
             .arg(gsl_interp_type_min_size(method_t)));
     d_init_err = true;
@@ -132,15 +133,21 @@ QString Integration::logInfo() {
   QString curvename = associateddata_->table->name() + "_" +
                       associateddata_->xcol->name() + "_" +
                       associateddata_->ycol->name();
-  QString logInfo = "[" + QDateTime::currentDateTime().toString(Qt::LocalDate) +
-                    "\t" + tr("Plot") + ": ''" + curvename + "'']\n";
-  logInfo += "\n" + tr("Numerical integration of") + ": " + curvename +
-             tr(" using ") + method_name + tr("Interpolation") + "\n";
+  QString logInfo = "<b>[" +
+                    QDateTime::currentDateTime().toString(Qt::LocalDate) +
+                    "&emsp;" + tr("Plot") + ": ''" + curvename + "'']</b><hr>";
+  logInfo += tr("Numerical integration of") + ": " + curvename + tr(" using ") +
+             method_name + tr("Interpolation") + ": <br>" +
+             "Table: " + associateddata_->table->name() + "<br>" +
+             "X-Col: " + associateddata_->xcol->name() + "<br>" +
+             "Y-Col: " + associateddata_->ycol->name();
 
   int prec = app_->d_decimal_digits;
-  logInfo += tr("Points") + ": " + QString::number(d_n) + " " + tr("from") +
-             " x = " + QLocale().toString(d_from, 'g', prec) + " ";
-  logInfo += tr("to") + " x = " + QLocale().toString(d_to, 'g', prec) + "\n";
+  QString tab = Utilities::makeHtmlTable(6, 2, false,
+                                         Utilities::TableColorProfile::Success);
+  tab = tab.arg(tr("Points"), QString::number(d_n), tr("from") + " x ",
+                QLocale().toString(d_from, 'g', prec),
+                tr("to") + " x ", QLocale().toString(d_to, 'g', prec));
 
   // using GSL to find maximum value of data set
   gsl_vector *aux = gsl_vector_alloc(static_cast<size_t>(d_n));
@@ -153,14 +160,11 @@ QString Integration::logInfo() {
   d_result =
       gsl_interp_eval_integ(interpolation, d_x, d_y, d_from, d_to, nullptr);
 
-  logInfo += tr("Peak at") +
-             " x = " + QLocale().toString(d_x[maxID], 'g', prec) + "\t";
-  logInfo += "y = " + QLocale().toString(d_y[maxID], 'g', prec) + "\n";
-
-  logInfo += tr("Area") + "=";
-  logInfo += QLocale().toString(d_result, 'g', prec);
-  logInfo +=
-      "\n-------------------------------------------------------------\n";
+  tab =
+      tab.arg(tr("Peak at") + " x", QLocale().toString(d_x[maxID], 'g', prec),
+              tr("Peak at ") + "y", QLocale().toString(d_y[maxID], 'g', prec),
+              tr("Area"), QLocale().toString(d_result, 'g', prec));
+  logInfo += tab + "<br>";
 
   gsl_interp_free(interpolation);
 

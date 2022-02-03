@@ -2289,10 +2289,9 @@ void ApplicationWindow::matrixDeterminant() {
   if (!matrix) return;
 
   QDateTime dt = QDateTime::currentDateTime();
-  QString info = dt.toString(Qt::LocalDate);
-  info += "\n" + tr("Determinant of ") + QString(matrix->name()) + ":\t";
-  info += "det = " + QString::number(matrix->determinant()) + "\n";
-  info += "-------------------------------------------------------------\n";
+  QString info = "<b>[" + dt.toString(Qt::LocalDate);
+  info += tr("Determinant of ''") + QString(matrix->name()) + "'']</b><hr>";
+  info += "<p>det = " + QString::number(matrix->determinant()) + "</p><br>";
 
   logInfo += info;
 
@@ -5108,7 +5107,7 @@ void ApplicationWindow::differentiate() {
 
 void ApplicationWindow::showResults(bool ok) {
   if (ok) {
-    if (!logInfo.isEmpty()) ui_->resultLog->setText(logInfo);
+    if (!logInfo.isEmpty()) ui_->resultLog->setHtml(logInfo);
 
     ui_->logWindow->show();
     QTextCursor cursor = ui_->resultLog->textCursor();
@@ -5120,7 +5119,7 @@ void ApplicationWindow::showResults(bool ok) {
 
 void ApplicationWindow::showResults(const QString &text, bool ok) {
   logInfo += text;
-  if (!logInfo.isEmpty()) ui_->resultLog->setText(logInfo);
+  if (!logInfo.isEmpty()) ui_->resultLog->setHtml(logInfo);
   showResults(ok);
 }
 
@@ -6531,8 +6530,8 @@ QList<QPair<QPair<double, double>, double>>
 
 void ApplicationWindow::clearLogInfo() {
   if (!logInfo.isEmpty()) {
-    logInfo = "";
-    ui_->resultLog->setText(logInfo);
+    logInfo = QString();
+    ui_->resultLog->setHtml(logInfo);
     emit modified();
   }
 }

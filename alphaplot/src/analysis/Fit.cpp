@@ -44,6 +44,7 @@
 #include "ColorBox.h"
 #include "Matrix.h"
 #include "Table.h"
+#include "core/Utilities.h"
 #include "core/column/Column.h"
 #include "fit_gsl.h"
 #include "scripting/Script.h"
@@ -221,80 +222,89 @@ void Fit::generateFunction(bool yes, int points) {
 QString Fit::logFitInfo(const std::vector<double> &par, int iterations,
                         int status, const QString &plotName) {
   QDateTime dt = QDateTime::currentDateTime();
-  QString info = "[" + dt.toString(Qt::LocalDate) + "\t" + tr("Plot") + ": ''" +
-                 plotName + "'']\n";
-  info += d_explanation + " " + tr("fit of dataset") + ": " +
-          associateddata_->table->name() + "_" + associateddata_->xcol->name() +
-          "_" + associateddata_->ycol->name();
-  if (!d_formula.isEmpty())
-    info += ", " + tr("using function") + ": " + d_formula + "\n";
-  else
-    info += "\n";
+  QString info = "<b>[" + dt.toString(Qt::LocalDate) + "&emsp;" + tr("Plot") +
+                 ": ''" + plotName + "'']</b><hr>";
+  info += d_explanation + " " + tr("fit of dataset") + ": <br>" +
+          "Table: " + associateddata_->table->name() + "<br>" +
+          "X-Col: " + associateddata_->xcol->name() + "<br>" +
+          "Y-Col: " + associateddata_->ycol->name();
 
-  info += tr("Y standard errors") + ": ";
+  QString formulatext;
+  QString yerrortext;
+  QString solvertext;
+  (!d_formula.isEmpty()) ? formulatext = d_formula
+                         : formulatext += "no function";
   switch (d_y_error_source) {
     case UnknownErrors:
-      info += tr("Unknown");
+      yerrortext = tr("Unknown");
       break;
     case AssociatedErrors:
-      info += tr("Associated dataset (%1)").arg(d_y_error_dataset);
+      yerrortext = tr("Associated dataset (%1)").arg(d_y_error_dataset);
       break;
     case PoissonErrors:
-      info += tr("Statistical (assuming Poisson distribution)");
+      yerrortext = tr("Statistical (assuming Poisson distribution)");
       break;
     case CustomErrors:
-      info += tr("Arbitrary Dataset") + ": " + d_y_error_dataset;
+      yerrortext = tr("Arbitrary Dataset") + ": " + d_y_error_dataset;
       break;
   }
-  info += "\n";
-
   if (is_non_linear) {
-    if (d_solver == NelderMeadSimplex)
-      info += tr("Nelder-Mead Simplex");
-    else if (d_solver == UnscaledLevenbergMarquardt)
-      info += tr("Unscaled Levenberg-Marquardt");
-    else
-      info += tr("Scaled Levenberg-Marquardt");
+    (d_solver == NelderMeadSimplex) ? solvertext = tr("Nelder-Mead Simplex")
+    : (d_solver == UnscaledLevenbergMarquardt)
+        ? solvertext = tr("Unscaled Levenberg-Marquardt")
+        : solvertext = tr("Scaled Levenberg-Marquardt");
+  }
+  Utilities::TableColorProfile profile = Utilities::TableColorProfile::Success;
+  if (status != 0)
+    profile = Utilities::TableColorProfile::Failure;
 
-    info += tr(" algorithm with tolerance = ") +
-            QLocale().toString(d_tolerance) + "\n";
+  QString table;
+  if (is_non_linear) {
+    table =
+        Utilities::makeHtmlTable(10 + d_param_names.count(), 2, false, profile);
+  } else {
+    table =
+        Utilities::makeHtmlTable(6 + d_param_names.count(), 2, false, profile);
   }
 
-  info += tr("From x") + " = " + QLocale().toString(d_x[0], 'g', 15) + " " +
-          tr("to x") + " = " + QLocale().toString(d_x[d_n - 1], 'g', 15) + "\n";
+  table = table.arg(tr("using function"), "<b>" + formulatext + "</b>",
+                    tr("Y standard errors"), yerrortext);
+
+  if (is_non_linear) {
+    table = table.arg(tr("Solver"), solvertext, tr("Algorithm with tolerance"),
+                      QLocale().toString(d_tolerance));
+  }
+
+  table = table.arg(tr("From x"), QLocale().toString(d_x[0], 'g', d_prec),
+                    tr("to x"), QLocale().toString(d_x[d_n - 1], 'g', d_prec));
+
   double chi_2_dof = chi_2 / (d_n - d_p);
   for (int i = 0; i < d_p; i++) {
-    info += d_param_names[i] + " " + d_param_explain[i] + " = " +
-            QLocale().toString(par[i], 'g', d_prec) + " +/- ";
+    table = table.arg(d_param_names[i] + " " + d_param_explain[i] + " = " +
+                      QLocale().toString(par[i], 'g', d_prec));
     if (d_scale_errors)
-      info += QLocale().toString(
-                  sqrt(chi_2_dof * gsl_matrix_get(covar, static_cast<size_t>(i),
-                                                  static_cast<size_t>(i))),
-                  'g', d_prec) +
-              "\n";
+      table = table.arg(
+          "+/- " +
+          QLocale().toString(
+              sqrt(chi_2_dof * gsl_matrix_get(covar, static_cast<size_t>(i),
+                                              static_cast<size_t>(i))),
+              'g', d_prec));
     else
-      info +=
+      table = table.arg(
+          "+/- " +
           QLocale().toString(sqrt(gsl_matrix_get(covar, static_cast<size_t>(i),
                                                  static_cast<size_t>(i))),
-                             'g', d_prec) +
-          "\n";
+                             'g', d_prec));
   }
-  info +=
-      "------------------------------------------------------------------------"
-      "--------------\n";
-  info += "Chi^2/doF = " + QLocale().toString(chi_2_dof, 'g', d_prec) + "\n";
 
-  info += tr("R^2") + " = " + QLocale().toString(rSquare(), 'g', d_prec) + "\n";
-  info +=
-      "------------------------------------------------------------------------"
-      "---------------\n";
+  table = table.arg(tr("Chi^2/doF"), QLocale().toString(chi_2_dof, 'g', d_prec),
+                    tr("R^2"), QLocale().toString(rSquare(), 'g', d_prec));
+
   if (is_non_linear) {
-    info += tr("Iterations") + " = " + QString::number(iterations) + "\n";
-    info += tr("Status") + " = " + gsl_strerror(status) + "\n";
-    info +=
-        "----------------------------------------------------------------------"
-        "-----------------\n";
+    table = table.arg(tr("Iterations"), QString::number(iterations),
+                      tr("Status"), gsl_strerror(status));
   }
+  info += table + "<br>";
   return info;
 }
 
@@ -458,7 +468,7 @@ const std::vector<double> &Fit::errors() {
   if (d_result_errors.empty()) {
     d_result_errors.resize(d_p);
     double chi_2_dof = chi_2 / (d_n - d_p);
-    for (unsigned i = 0; i < d_p; i++) {
+    for (int i = 0; i < d_p; i++) {
       if (d_scale_errors)
         d_result_errors[i] = sqrt(chi_2_dof * gsl_matrix_get(covar, i, i));
       else

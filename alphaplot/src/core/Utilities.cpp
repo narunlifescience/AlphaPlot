@@ -276,7 +276,7 @@ QString Utilities::joinstring(const QString& string) {
 }
 
 QDateTime Utilities::stripDateTimeToFormat(const QDateTime& datetime,
-                                   const QString& format) {
+                                           const QString& format) {
   return QDateTime::fromString(datetime.toString(format), format);
 }
 
@@ -310,4 +310,60 @@ QImage Utilities::convertToGrayScaleFast(const QImage& srcImage) {
     }
   }
   return image;
+}
+
+QString Utilities::makeHtmlTable(const int row, const int column,
+                                 const bool hasheader,
+                                 const TableColorProfile& profile) {
+  QString strokecolor;
+  QString fillcolor;
+  QString headerfillcolor;
+  switch (profile) {
+    case TableColorProfile::Success:
+      strokecolor = "rgba(0,180,0,0.8)";
+      headerfillcolor = "#00de6c";
+      fillcolor = "#00ffa9";
+      break;
+    case TableColorProfile::Failure:
+      strokecolor = "rgba(255,0,0,0.8)";
+      headerfillcolor = "#ff5b5b";
+      fillcolor = "#ffa9a9";
+      break;
+    case TableColorProfile::Generic:
+      strokecolor = "trnsparent";
+      headerfillcolor = "transparent";
+      fillcolor = "transparent";
+      break;
+  }
+
+  QString string =
+      "<p><table style = \"border-collapse:collapse;width:100%;\"> ";
+  QString thstyle = "style = \"border:1px solid " + strokecolor +
+                    ";background-color:" + headerfillcolor +
+                    ";text-align:left;padding:5px;color:black;\"";
+  QString tdstyle = "style = \"border:1px solid " + strokecolor +
+                    ";background-color:" + fillcolor +
+                    ";text-align:left;padding:5px;color:black;\"";
+  QString rowcolumnstring;
+  int count = 1;
+  // title
+  if (hasheader) {
+    rowcolumnstring += "<tr>";
+    for (int j = 0; j < column; j++) {
+      rowcolumnstring +=
+          "<th " + thstyle + ">%" + QString::number(count++) + "</th>";
+    }
+    rowcolumnstring += "</tr>";
+  }
+  // rows
+  for (int i = 0; i < row; i++) {
+    rowcolumnstring += "<tr>";
+    for (int j = 0; j < column; j++) {
+      rowcolumnstring +=
+          "<td " + tdstyle + ">%" + QString::number(count++) + "</td>";
+    }
+    rowcolumnstring += "</tr>";
+  }
+  rowcolumnstring += "</table></p>";
+  return string + rowcolumnstring;
 }

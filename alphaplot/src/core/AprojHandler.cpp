@@ -424,7 +424,7 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
       QXmlStreamAttributes attributes = xmlreader->attributes();
       if (attributes.hasAttribute("value")) {
         QString loginfo = attributes.value("value").toString();
-        app->showResults(loginfo);
+        if (!loginfo.isEmpty()) app->showResults(loginfo, true);
       } else
         xmlreader->raiseWarning(tr("Invalid attribute '%1' log element. "
                                    "skipping the attribute now.")
