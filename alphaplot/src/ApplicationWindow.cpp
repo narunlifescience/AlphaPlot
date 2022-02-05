@@ -248,9 +248,9 @@ ApplicationWindow::ApplicationWindow()
   btn_new_aspect_->setPopupMode(QToolButton::InstantPopup);
   btn_new_aspect_->setToolTip(tr("New Aspect"));
   btn_layout_->setPopupMode(QToolButton::InstantPopup);
-  btn_layout_->setToolTip(tr("Manage layers"));
+  btn_layout_->setToolTip(tr("Manage Layouts"));
   btn_curves_->setPopupMode(QToolButton::InstantPopup);
-  btn_curves_->setToolTip(tr("Add curves / error bars"));
+  btn_curves_->setToolTip(tr("Add Plots/error bars"));
   btn_plot_enrichments_->setPopupMode(QToolButton::InstantPopup);
   btn_plot_enrichments_->setToolTip(tr("Enrichments"));
   btn_plot_scatters_->setPopupMode(QToolButton::InstantPopup);
@@ -1069,6 +1069,8 @@ void ApplicationWindow::makeToolBars() {
   menu_curves->addAction(ui_->actionAddRemoveCurve);
   menu_curves->addAction(ui_->actionAddErrorBars);
   menu_curves->addAction(ui_->actionAddFunctionCurve);
+  menu_curves->addMenu(ui_->menuAddRemoveOtherPlots);
+  menu_curves->addMenu(ui_->menuAddAxis);
   menu_curves->addAction(ui_->actionLegendReorder);
   QMenu *menu_plot_enrichments = new QMenu(this);
   btn_plot_enrichments_->setMenu(menu_plot_enrichments);
