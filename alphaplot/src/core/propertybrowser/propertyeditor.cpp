@@ -54,6 +54,7 @@
 #include "Table.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
+#include "core/propertybrowser/ObjectBrowserTreeItemModel.h"
 #include "future/core/column/Column.h"
 #include "ui_propertyeditor.h"
 
@@ -6192,7 +6193,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             qDebug() << "no left & right oriented X axis";
             break;
         }
-        axisitem->setIcon(0, axis->geticon_axis());
+        axisitem->setIcon(0, axis->getItemIcon());
         axisitem->setText(0, axistext);
         axisitem->setToolTip(0, axistext);
         axisitem->setData(
@@ -6223,7 +6224,7 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
             qDebug() << "no top & bottom oriented Y axis";
             break;
         }
-        axisitem->setIcon(0, axis->geticon_axis());
+        axisitem->setIcon(0, axis->getItemIcon());
         axisitem->setText(0, axistext);
         axisitem->setToolTip(0, axistext);
         axisitem->setData(
@@ -7197,7 +7198,8 @@ void PropertyEditor::populateObjectBrowser(MyWidget *widget) {
     }
     tableConnections(table);
   } else if (qobject_cast<Note *>(widget)) {
-    objectbrowser_->setHeaderLabel(qobject_cast<Note *>(widget)->name());
+      Note *note = qobject_cast<Note*>(widget);
+    objectbrowser_->setHeaderLabel(note->name());
     objectbrowser_->headerItem()->setIcon(
         0, IconLoader::load("edit-note", IconLoader::LightDark));
   } else if (qobject_cast<Matrix *>(widget)) {

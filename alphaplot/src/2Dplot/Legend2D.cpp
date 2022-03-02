@@ -4,11 +4,16 @@
 #include "Curve2D.h"
 #include "LineSpecial2D.h"
 #include "Plot2D.h"
+#include "core/IconLoader.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
-Legend2D::Legend2D(AxisRect2D *axisrect)
+Legend2D::Legend2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *axisrect)
     : QCPLegend(),
+      ObjectBrowserTreeItem(QVariant::fromValue<Legend2D *>(this),
+                            ObjectBrowserTreeItem::ObjectType::Plot2DLegend,
+                            parentitem),
+      parentitem_(parentitem),
       axisrect_(axisrect),
       draggingLegend_(false),
       cursorshape_(axisrect->getParentPlot2D()->cursor()),
@@ -17,7 +22,15 @@ Legend2D::Legend2D(AxisRect2D *axisrect)
       title_color_(this->textColor()),
       title_font_(this->font()) {}
 
-Legend2D::~Legend2D() {}
+Legend2D::~Legend2D() { parentitem_->removeChild(this); }
+
+QString Legend2D::getItemName() { return tr("Legend"); }
+
+QIcon Legend2D::getItemIcon() {
+  return IconLoader::load("edit-legend", IconLoader::LightDark);
+}
+
+QString Legend2D::getItemTooltip() { return getItemName(); }
 
 bool Legend2D::gethidden_legend() const { return visible(); }
 
@@ -28,6 +41,7 @@ int Legend2D::getdirection_legend() const {
     case foColumnsFirst:
       return 1;
   }
+  return 0;
 }
 
 QColor Legend2D::getborderstrokecolor_legend() const {

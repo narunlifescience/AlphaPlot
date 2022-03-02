@@ -2,16 +2,23 @@
 #define TEXTITEM2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
+#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 
 class AxisRect2D;
 class Plot2D;
 class XmlStreamReader;
 class XmlStreamWriter;
 
-class TextItem2D : public QCPItemText {
+class TextItem2D : public QCPItemText, public ObjectBrowserTreeItem {
+  Q_OBJECT
  public:
-  TextItem2D(AxisRect2D *axisrect, Plot2D *plot);
+  TextItem2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *axisrect,
+             Plot2D *plot);
   ~TextItem2D();
+
+  virtual QString getItemName() override;
+  virtual QIcon getItemIcon() override;
+  virtual QString getItemTooltip() override;
 
   enum class TextAlignment : int {
     TopLeft = 0,
@@ -41,11 +48,12 @@ class TextItem2D : public QCPItemText {
   bool load(XmlStreamReader *xmlreader);
 
  protected:
-  void mousePressEvent(QMouseEvent *event, const QVariant &details);
-  void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
-  void mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos);
+  void mousePressEvent(QMouseEvent *event, const QVariant &details) override;
+  void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) override;
+  void mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos) override;
 
  private:
+  ObjectBrowserTreeItem *parentitem_;
   AxisRect2D *axisrect_;
   QString layername_;
   bool draggingtextitem_;
@@ -54,4 +62,5 @@ class TextItem2D : public QCPItemText {
   QCursor cursorshape_;
 };
 
+Q_DECLARE_METATYPE(TextItem2D *);
 #endif  // TEXTITEM2D_H

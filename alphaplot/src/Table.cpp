@@ -48,10 +48,13 @@
 #include <QTextStream>
 #include <cmath>
 
+#include "core/IconLoader.h"
 #include "core/column/Column.h"
 #include "core/datatypes/DateTime2StringFilter.h"
 #include "core/datatypes/Double2StringFilter.h"
 #include "core/datatypes/String2DoubleFilter.h"
+#include "core/propertybrowser/DummyWindow.h"
+#include "core/propertybrowser/ObjectBrowserTreeItemModel.h"
 #include "lib/Interval.h"
 #include "scripting/ScriptEdit.h"
 #include "table/AsciiTableImportFilter.h"
@@ -62,7 +65,11 @@ Table::Table(ScriptingEnv *env, const QString &fname, const QString &sep,
              bool simplifySpaces, bool convertToNumeric, QLocale numericLocale,
              const QString &label, QWidget *parent, const char *name,
              Qt::WindowFlags f)
-    : TableView(label, parent, name, f), scripted(env) {
+    : TableView(label, parent, name, f),
+      scripted(env),
+      ObjectBrowserTreeItem(QVariant::fromValue<Table *>(this),
+                            ObjectBrowserTreeItem::ObjectType::TableWindow,
+                            nullptr) {
   AsciiTableImportFilter filter;
   filter.set_ignored_lines(ignoredLines);
   filter.set_separator(sep);
@@ -85,15 +92,33 @@ Table::Table(ScriptingEnv *env, const QString &fname, const QString &sep,
 
 Table::Table(ScriptingEnv *env, int r, int c, const QString &label,
              QWidget *parent, const char *name, Qt::WindowFlags f)
-    : TableView(label, parent, name, f), scripted(env) {
+    : TableView(label, parent, name, f),
+      scripted(env),
+      ObjectBrowserTreeItem(QVariant::fromValue<Table *>(this),
+                            ObjectBrowserTreeItem::ObjectType::TableWindow,
+                            nullptr) {
   d_future_table = new future::Table(0, r, c, label);
   init();
 }
+
+Table::~Table() { delete dummywindow_; }
+
+QString Table::getItemName() { return name(); }
+
+QIcon Table::getItemIcon() {
+  return IconLoader::load("table", IconLoader::LightDark);
+}
+
+QString Table::getItemTooltip() { return name(); }
 
 void Table::init() {
   if (!d_future_table) return;
   TableView::setTable(d_future_table);
   setMinimumSize(QSize(400, 300));
+  MyWidget *mywidget = qobject_cast<MyWidget *>(this);
+  Q_ASSERT(mywidget != nullptr);
+  dummywindow_ = new DummyWindow(this, mywidget);
+  model_ = new ObjectBrowserTreeItemModel(this, this);
 
   birthdate = d_future_table->creationTime().toString(Qt::LocalDate);
   ui.formula_tab_layout->removeWidget(ui.formula_box);

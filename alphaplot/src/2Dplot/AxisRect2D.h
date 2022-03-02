@@ -23,6 +23,7 @@
 #include "Graph2DCommon.h"
 #include "StatBox2D.h"
 #include "Vector2D.h"
+#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 
 class Legend2D;
 class Table;
@@ -45,7 +46,7 @@ class StatBox2D;
 class LayoutInset2D;
 class PickerTool2D;
 
-class AxisRect2D : public QCPAxisRect {
+class AxisRect2D : public QCPAxisRect, public ObjectBrowserTreeItem {
   Q_OBJECT
  private:
   typedef QPair<QPair<Grid2D *, Axis2D *>, QPair<Grid2D *, Axis2D *>> GridPair;
@@ -64,8 +65,13 @@ class AxisRect2D : public QCPAxisRect {
 
  public:
   explicit AxisRect2D(Plot2D *parent, PickerTool2D *picker,
+                      ObjectBrowserTreeItem *parentitem,
                       bool setupDefaultAxis = false);
   ~AxisRect2D();
+
+  virtual QString getItemName() override;
+  virtual QIcon getItemIcon() override;
+  virtual QString getItemTooltip() override;
 
   StatBox2D::BoxWhiskerData generateBoxWhiskerData(Table *table,
                                                    Column *colData,
@@ -231,10 +237,10 @@ class AxisRect2D : public QCPAxisRect {
             QList<Matrix *> mats);
 
  protected:
-  void mousePressEvent(QMouseEvent *, const QVariant &variant);
-  void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
-  void mouseReleaseEvent(QMouseEvent *event, const QPointF &);
-  void draw(QCPPainter *painter);
+  void mousePressEvent(QMouseEvent *, const QVariant &variant) override;
+  void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) override;
+  void mouseReleaseEvent(QMouseEvent *event, const QPointF &) override;
+  void draw(QCPPainter *painter) override;
 
  signals:
   void AxisRectClicked(AxisRect2D *);
@@ -291,6 +297,7 @@ class AxisRect2D : public QCPAxisRect {
   void lockColumnModeChange(QList<Column *> collist, const bool lock);
 
  private:
+  ObjectBrowserTreeItem *rootitem_;
   Plot2D *plot2d_;
   QBrush axisRectBackGround_;
   Legend2D *axisRectLegend_;
@@ -314,4 +321,5 @@ class AxisRect2D : public QCPAxisRect {
   PickerTool2D *picker_;
 };
 
+Q_DECLARE_METATYPE(AxisRect2D *);
 #endif  // AXISRECT2D_H

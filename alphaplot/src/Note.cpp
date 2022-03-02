@@ -41,16 +41,34 @@
 #include <QVBoxLayout>
 #include <QXmlStreamWriter>
 
+#include "core/IconLoader.h"
+#include "core/propertybrowser/DummyWindow.h"
+#include "core/propertybrowser/ObjectBrowserTreeItemModel.h"
 #include "future/lib/XmlStreamReader.h"
 #include "scripting/ScriptEdit.h"
 
 Note::Note(ScriptingEnv* env, const QString& label, QWidget* parent,
            const char* name, Qt::WindowFlags f)
-    : MyWidget(label, parent, name, f) {
+    : MyWidget(label, parent, name, f),
+      ObjectBrowserTreeItem(QVariant::fromValue<Note*>(this),
+                            ObjectBrowserTreeItem::ObjectType::NoteWindow,
+                            nullptr) {
+  MyWidget* mywidget = qobject_cast<MyWidget*>(this);
+  Q_ASSERT(mywidget != nullptr);
+  dummywindow_ = new DummyWindow(this, mywidget);
+  model_ = new ObjectBrowserTreeItemModel(this, this);
   init(env);
 }
 
-Note::~Note() {}
+Note::~Note() { delete dummywindow_; }
+
+QString Note::getItemName() { return name(); }
+
+QIcon Note::getItemIcon() {
+  return IconLoader::load("edit-note", IconLoader::LightDark);
+}
+
+QString Note::getItemTooltip() { return name(); }
 
 void Note::init(ScriptingEnv* env) {
   autoExec = false;

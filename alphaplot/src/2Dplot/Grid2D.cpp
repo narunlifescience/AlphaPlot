@@ -19,11 +19,16 @@
 #include "Axis2D.h"
 #include "AxisRect2D.h"
 #include "Plot2D.h"
+#include "core/IconLoader.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
-Grid2D::Grid2D(Axis2D *parent)
+Grid2D::Grid2D(ObjectBrowserTreeItem *parentitem, Axis2D *parent)
     : QCPGrid(parent),
+      ObjectBrowserTreeItem(QVariant::fromValue<Grid2D *>(this),
+                            ObjectBrowserTreeItem::ObjectType::Plot2DGrid,
+                            parentitem),
+      parentitem_(parentitem),
       axis_(parent),
       layername_(
           parent->getaxisrect_axis()->getParentPlot2D()->getGrid2DLayerName()) {
@@ -38,7 +43,15 @@ Grid2D::Grid2D(Axis2D *parent)
   zerolinethickness_ = zeroLinePen().widthF();
 }
 
-Grid2D::~Grid2D() {}
+Grid2D::~Grid2D() { parentitem_->removeChild(this); }
+
+QString Grid2D::getItemName() { return tr("Grid"); }
+
+QIcon Grid2D::getItemIcon() {
+  return IconLoader::load("graph3d-cross", IconLoader::LightDark);
+}
+
+QString Grid2D::getItemTooltip() { return getItemName(); }
 
 void Grid2D::setMajorGridColor(const QColor &color) {
   majorgridcolor_ = color;

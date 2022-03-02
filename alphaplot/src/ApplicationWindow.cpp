@@ -132,7 +132,10 @@
 #include "3Dplot/Layout3D.h"
 #include "3Dplot/Scatter3D.h"
 #include "3Dplot/Surface3D.h"
-#include "core/widgets/propertyeditor.h"
+#include "core/propertybrowser/DummyWindow.h"
+#include "core/propertybrowser/ObjectBrowserTreeItemModel.h"
+#include "core/propertybrowser/propertybrowser.h"
+#include "core/propertybrowser/propertyeditor.h"
 #include "future/lib/XmlStreamWriter.h"
 #include "scripting/ScriptingFunctions.h"
 #include "scripting/ScriptingLangDialog.h"
@@ -151,10 +154,9 @@ ApplicationWindow::ApplicationWindow()
 #ifdef SCRIPTING_CONSOLE
       consoleWindow(new ConsoleWidget(this)),
 #endif
+      //propertybrowser(new PropertyBrowser(this, this)),
       propertyeditor(new PropertyEditor(this, this)),
       d_workspace(new QMdiArea(this)),
-      hiddenWindows(new QList<QWidget *>()),
-      outWindows(new QList<QWidget *>()),
       lastModified(nullptr),
       fileToolbar(new QToolBar(tr("File"), this)),
       editToolbar(new QToolBar(tr("Edit"), this)),
@@ -215,6 +217,8 @@ ApplicationWindow::ApplicationWindow()
       glowyoffset_(0),
       glowradius_(8) {
   ui_->setupUi(this);
+  none_ = new DummyNone();
+  model_ = new ObjectBrowserTreeItemModel(none_, this);
   // non menu qactions
   actionSaveNote = new QAction(tr("Save Note As..."), this);
   actionExportPDF = new QAction(tr("&Export PDF") + "...", this);
@@ -269,6 +273,7 @@ ApplicationWindow::ApplicationWindow()
 
   // Show/hide toggle Project Explorer, Result Log & Scripting Console
   actionShowPropertyEditor = propertyeditor->toggleViewAction();
+  //actionShowPropertyEditor = propertybrowser->toggleViewAction();
   actionShowProjectExplorer = ui_->explorerWindow->toggleViewAction();
   actionShowResultsLog = ui_->logWindow->toggleViewAction();
 #ifdef SCRIPTING_CONSOLE
@@ -382,6 +387,9 @@ ApplicationWindow::ApplicationWindow()
   addDockWidget(Qt::TopDockWidgetArea, consoleWindow);
   consoleWindow->hide();
 #endif
+  //propertybrowser->setObjectName("propertybrowserWindow");
+  //addDockWidget(Qt::RightDockWidgetArea, propertybrowser);
+  //propertybrowser->hide();
   propertyeditor->setObjectName("propertyeditorWindow");
   addDockWidget(Qt::RightDockWidgetArea, propertyeditor);
   propertyeditor->show();
@@ -982,9 +990,8 @@ ApplicationWindow::~ApplicationWindow() {
     }
   }
   delete ui_;
-  delete hiddenWindows;
-  delete outWindows;
-  delete d_project;
+  // delete d_project;
+  // delete none_;
   QApplication::clipboard()->clear(QClipboard::Clipboard);
 }
 
@@ -2441,6 +2448,7 @@ Matrix *ApplicationWindow::matrix(const QString &name) {
 void ApplicationWindow::windowActivated(QMdiSubWindow *subwindow) {
   if (!subwindow || !qobject_cast<MyWidget *>(subwindow)) {
     propertyeditor->populateObjectBrowser(nullptr);
+    //propertybrowser->populateObjectBrowser(nullptr);
     return;
   }
 
@@ -2477,6 +2485,7 @@ void ApplicationWindow::windowActivated(QMdiSubWindow *subwindow) {
   Folder *f = mywidget->folder();
   if (f) f->setActiveWindow(mywidget);
   propertyeditor->populateObjectBrowser(mywidget);
+  //propertybrowser->populateObjectBrowser(mywidget);
   emit modified();
 }
 
@@ -5553,8 +5562,8 @@ void ApplicationWindow::redo() {
   QApplication::restoreOverrideCursor();
 }
 
-bool ApplicationWindow::hidden(QWidget *window) {
-  if (hiddenWindows->contains(window) || outWindows->contains(window))
+bool ApplicationWindow::hidden(MyWidget *window) {
+  if (hiddenWindows.contains(window) || outWindows.contains(window))
     return true;
 
   return false;
@@ -5580,7 +5589,7 @@ void ApplicationWindow::hideActiveWindow() {
 }
 
 void ApplicationWindow::hideWindow(MyWidget *w) {
-  hiddenWindows->append(w);
+  hiddenWindows.append(w);
   w->setHidden();
   emit modified();
 }
@@ -5643,10 +5652,10 @@ void ApplicationWindow::minimizeWindow() {
 void ApplicationWindow::updateWindowLists(MyWidget *w) {
   if (!w) return;
 
-  if (hiddenWindows->contains(w))
-    hiddenWindows->takeAt(hiddenWindows->indexOf(w));
-  else if (outWindows->contains(w)) {
-    outWindows->takeAt(outWindows->indexOf(w));
+  if (hiddenWindows.contains(w))
+    hiddenWindows.takeAt(hiddenWindows.indexOf(w));
+  else if (outWindows.contains(w)) {
+    outWindows.takeAt(outWindows.indexOf(w));
     d_workspace->addSubWindow(w);
     w->setAttribute(Qt::WA_DeleteOnClose);
   }
@@ -5673,10 +5682,10 @@ void ApplicationWindow::removeWindowFromLists(MyWidget *widgrt) {
     }
   }
 
-  if (hiddenWindows->contains(widgrt))
-    hiddenWindows->takeAt(hiddenWindows->indexOf(widgrt));
-  else if (outWindows->contains(widgrt))
-    outWindows->takeAt(outWindows->indexOf(widgrt));
+  if (hiddenWindows.contains(widgrt))
+    hiddenWindows.takeAt(hiddenWindows.indexOf(widgrt));
+  else if (outWindows.contains(widgrt))
+    outWindows.takeAt(outWindows.indexOf(widgrt));
 }
 
 void ApplicationWindow::closeWindow(MyWidget *window) {
@@ -5735,7 +5744,7 @@ void ApplicationWindow::windowsMenuActivated(int id) {
     w->showNormal();
     w->setFocus();
     if (hidden(w)) {
-      hiddenWindows->takeAt(hiddenWindows->indexOf(w));
+      hiddenWindows.takeAt(hiddenWindows.indexOf(w));
       setListViewView(w->name(), tr("Normal"));
     }
   }
@@ -6654,7 +6663,7 @@ void ApplicationWindow::addLayout(
 void ApplicationWindow::deleteLayout() {
   if (!isActiveSubwindow(SubWindowType::Plot2DSubWindow)) return;
   Layout2D *layout = qobject_cast<Layout2D *>(d_workspace->activeSubWindow());
-  layout->removeAxisRectItem();
+  layout->removeCurrentAxisRectItem();
 }
 
 void ApplicationWindow::copyActiveLayer() {
@@ -7617,7 +7626,7 @@ void ApplicationWindow::setShowWindowsPolicy(int policy) {
     foreach (QMdiSubWindow *subwindow, subwindowlist) {
       MyWidget *widget = qobject_cast<MyWidget *>(subwindow);
       if (!widget) continue;
-      hiddenWindows->append(widget);
+      hiddenWindows.append(widget);
       widget->hide();
       setListViewView(widget->name(), tr("Hidden"));
     }
@@ -7885,7 +7894,7 @@ bool ApplicationWindow::changeFolder(Folder *newFolder, bool force) {
 
   QList<MyWidget *> lst = newFolder->windowsList();
   foreach (MyWidget *w, lst) {
-    if (!hiddenWindows->contains(w) && !outWindows->contains(w) &&
+    if (!hiddenWindows.contains(w) && !outWindows.contains(w) &&
         show_windows_policy != HideAll) {
       // show only windows in the current folder not hidden by the user
       if (w->status() == MyWidget::Normal)
@@ -7939,7 +7948,7 @@ void ApplicationWindow::refreshFolderTreeWidgetItemsRecursive(
       QList<MyWidget *> list =
           static_cast<Folder *>(tempItem->folder())->windowsList();
       foreach (MyWidget *widget, list) {
-        if (!hiddenWindows->contains(widget) && !outWindows->contains(widget)) {
+        if (!hiddenWindows.contains(widget) && !outWindows.contains(widget)) {
           if (show_windows_policy == SubFolders) {
             if (widget->status() == MyWidget::Normal ||
                 widget->status() == MyWidget::Maximized)

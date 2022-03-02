@@ -365,10 +365,10 @@ void MyTreeWidget::showContextMenu(const QPoint &pos) {
       Axis2D *ax = static_cast<Axis2D *>(ptr);
       cloneaxismenu.setTitle(tr("Clone Axis..."));
       menu.addMenu(&cloneaxismenu);
-      clonetobottomaxis_->setIcon(ax->geticon_axis());
-      clonetotopaxis_->setIcon(ax->geticon_axis());
-      clonetoleftaxis_->setIcon(ax->geticon_axis());
-      clonetorightaxis_->setIcon(ax->geticon_axis());
+      clonetobottomaxis_->setIcon(ax->getItemIcon());
+      clonetotopaxis_->setIcon(ax->getItemIcon());
+      clonetoleftaxis_->setIcon(ax->getItemIcon());
+      clonetorightaxis_->setIcon(ax->getItemIcon());
       if (ax->getorientation_axis() == Axis2D::AxisOreantation::Top ||
           ax->getorientation_axis() == Axis2D::AxisOreantation::Bottom) {
         cloneaxismenu.addAction(clonetotopaxis_);

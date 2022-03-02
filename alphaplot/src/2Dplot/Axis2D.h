@@ -18,6 +18,7 @@
 #define AXIS2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
+#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 #include "memory"
 
 class Column;
@@ -25,7 +26,7 @@ class AxisRect2D;
 class XmlStreamWriter;
 class XmlStreamReader;
 
-class Axis2D : public QCPAxis {
+class Axis2D : public QCPAxis, public ObjectBrowserTreeItem {
   Q_OBJECT
  public:
   enum class TickerType : int {
@@ -36,9 +37,13 @@ class Axis2D : public QCPAxis {
     Time = 5,
     DateTime = 6
   };
-  Axis2D(AxisRect2D *parent, const AxisType type,
-         const Axis2D::TickerType tickertype);
+  Axis2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *parent,
+         const AxisType type, const Axis2D::TickerType tickertype);
   ~Axis2D();
+
+  virtual QString getItemName();
+  virtual QIcon getItemIcon();
+  virtual QString getItemTooltip();
 
   enum class AxisOreantation { Left = 0, Bottom = 1, Right = 2, Top = 3 };
   enum class AxisScaleType { Linear = 0, Logarithmic = 1 };
@@ -101,7 +106,6 @@ class Axis2D : public QCPAxis {
   AxisLabelFormat getticklabelformat_axis() const;
   int getticklabelprecision_axis() const;
 
-  QIcon geticon_axis() const { return icon_; }
   QString getname_axis() const;
   uint getnumber_axis() const;
   QSharedPointer<QCPAxisTicker> getticker_axis();
@@ -165,6 +169,7 @@ class Axis2D : public QCPAxis {
   void reloadIcon();
 
  private:
+  ObjectBrowserTreeItem *parentitem_;
   AxisRect2D *axisrect_;
   Axis2D::TickerType tickertype_;
   QSharedPointer<QCPAxisTicker> ticker_;
@@ -176,4 +181,5 @@ class Axis2D : public QCPAxis {
   int tickertextcolto_;
 };
 
+Q_DECLARE_METATYPE(Axis2D *);
 #endif  // AXIS2D_H

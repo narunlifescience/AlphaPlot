@@ -18,8 +18,14 @@
 
 #include <QSvgGenerator>
 
-Plot2D::Plot2D(QWidget *parent)
+#include "core/IconLoader.h"
+
+Plot2D::Plot2D(ObjectBrowserTreeItem *parentitem, QWidget *parent)
     : QCustomPlot(parent),
+      ObjectBrowserTreeItem(QVariant::fromValue<Plot2D *>(this),
+                            ObjectBrowserTreeItem::ObjectType::Plot2DCanvas,
+                            parentitem),
+      rootitem_(parentitem),
       canvasBackground_(Qt::white),
       layernamebackground2d_("background"),
       layernamegrid2d_("grid"),
@@ -50,7 +56,16 @@ Plot2D::Plot2D(QWidget *parent)
   if (!removeLayer(layer("main"))) qDebug() << "unable to delete main layer";
 }
 
-Plot2D::~Plot2D() {}
+Plot2D::~Plot2D() {  // rootitem_->removeChild(this);
+}
+
+QString Plot2D::getItemName() { return tr("Canvas"); }
+
+QIcon Plot2D::getItemIcon() {
+  return IconLoader::load("view-image", IconLoader::LightDark);
+}
+
+QString Plot2D::getItemTooltip() { return getItemName(); }
 
 void Plot2D::setBackgroundColor(const QColor &color, const bool backpixmap) {
   canvasBackground_ = color;

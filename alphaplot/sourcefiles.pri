@@ -8,8 +8,12 @@ HEADERS  += src/ApplicationWindow.h \
             src/core/AppearanceManager.h \
             src/core/IconLoader.h \
             src/core/Utilities.h \
-            src/core/widgets/MyTreeWidget.h \
-            src/core/widgets/propertyeditor.h \
+            src/core/propertybrowser/ObjectBrowserTreeItem.h \
+            src/core/propertybrowser/ObjectBrowserTreeItemModel.h \
+            src/core/propertybrowser/MyTreeWidget.h \
+            src/core/propertybrowser/DummyWindow.h \
+            src/core/propertybrowser/propertyeditor.h \
+            src/core/propertybrowser/propertybrowser.h \
             src/widgets/ColorLabel.h \
             src/globals.h\
             src/scripting/MuParserScript.h \
@@ -99,8 +103,12 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/core/AppearanceManager.cpp \
             src/core/IconLoader.cpp \
             src/core/Utilities.cpp \
-            src/core/widgets/MyTreeWidget.cpp \
-            src/core/widgets/propertyeditor.cpp \
+            src/core/propertybrowser/ObjectBrowserTreeItem.cpp \
+            src/core/propertybrowser/ObjectBrowserTreeItemModel.cpp \
+            src/core/propertybrowser/MyTreeWidget.cpp \
+            src/core/propertybrowser/DummyWindow.cpp \
+            src/core/propertybrowser/propertyeditor.cpp \
+            src/core/propertybrowser/propertybrowser.cpp \
             src/widgets/ColorLabel.cpp \
             src/scripting/MuParserScript.cpp \
             src/scripting/MuParserScripting.cpp \
@@ -185,7 +193,8 @@ SOURCES  += src/ApplicationWindow.cpp \
 
 ###################### FORMS ##############################################
 FORMS        += src/ApplicationWindow.ui \
-                src/core/widgets/propertyeditor.ui \
+                src/core/propertybrowser/propertyeditor.ui \
+                src/core/propertybrowser/propertybrowser.ui \
                 src/scripting/widgets/ConsoleWidget.ui \
                 src/widgets/CustomCharacterDialog.ui \
                 src/ui/GeneralApplicationSettings.ui \

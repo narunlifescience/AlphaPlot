@@ -46,14 +46,14 @@ void ActionManager::addAction(QAction *action, const QString &internal_name) {
     list->append(action);
     d_action_registry.insert(internal_name, list);
     d_action_shortcuts.insert(internal_name, action->shortcuts());
-    connect(action, &QObject::destroyed, this,
-            qOverload<QObject *>(&ActionManager::removeAction));
+    connect(action, SIGNAL(destroyed(QObject *)), this,
+            SLOT(removeAction(QObject *)));
   } else {
     QList<QAction *> *list = d_action_registry.value(internal_name);
     if (!list->contains(action)) {
       list->append(action);
-      connect(action, &QObject::destroyed, this,
-              qOverload<QObject *>(&ActionManager::removeAction));
+      connect(action, SIGNAL(destroyed(QObject *)), this,
+              SLOT(removeAction(QObject *)));
     }
     QList<QKeySequence> sequences = d_action_shortcuts.value(internal_name);
     action->setShortcuts(sequences);
@@ -106,9 +106,8 @@ void ActionManager::removeAction(QObject *action) {
 
 void ActionManager::removeAction(QAction *action) {
   if (!action) return;
-
-  disconnect(action, &QObject::destroyed, this,
-             qOverload<QObject *>(&ActionManager::removeAction));
+  disconnect(action, SIGNAL(destroyed(QObject *)), this,
+             SLOT(removeAction(QObject *)));
 
   QMutableMapIterator<QString, QList<QAction *> *> it(d_action_registry);
   while (it.hasNext()) {

@@ -36,36 +36,48 @@
 #include <QEvent>
 #include <QHeaderView>
 #include <QTableWidget>
+
 #include "MyWidget.h"
+#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 #include "future/matrix/MatrixView.h"
 #include "future/matrix/future_Matrix.h"
 #include "scripting/Script.h"
 #include "scripting/ScriptingEnv.h"
+
+class ObjectBrowserTreeItemModel;
+class DummyWindow;
 
 // (maximum) initial matrix size
 #define _Matrix_initial_rows_ 10
 #define _Matrix_initial_columns_ 3
 
 //! Matrix worksheet class
-class Matrix : public MatrixView, public scripted {
+class Matrix : public MatrixView,
+               public scripted,
+               public ObjectBrowserTreeItem {
   Q_OBJECT
 
  public:
   future::Matrix *d_future_matrix;
 
+  virtual QString getItemName() override;
+  virtual QIcon getItemIcon() override;
+  virtual QString getItemTooltip() override;
   //! Return the window name
-  virtual QString name() { return d_future_matrix->name(); }
+  virtual QString name() override { return d_future_matrix->name(); }
   //! Set the window name
-  virtual void setName(const QString &s) { d_future_matrix->setName(s); }
+  virtual void setName(const QString &s) override {
+    d_future_matrix->setName(s);
+  }
   //! Return the window label
-  virtual QString windowLabel() { return d_future_matrix->comment(); }
+  virtual QString windowLabel() override { return d_future_matrix->comment(); }
   //! Set the window label
-  virtual void setWindowLabel(const QString &s) {
+  virtual void setWindowLabel(const QString &s) override {
     d_future_matrix->setComment(s);
     updateCaption();
   }
   //! Set the caption policy
-  void setCaptionPolicy(CaptionPolicy policy) {
+  void setCaptionPolicy(CaptionPolicy policy) override {
     caption_policy = policy;
     updateCaption();
     switch (policy) {
@@ -81,7 +93,7 @@ class Matrix : public MatrixView, public scripted {
     }
   }
   //! Set the creation date
-  virtual void setBirthDate(const QString &s) {
+  virtual void setBirthDate(const QString &s) override {
     birthdate = s;
     d_future_matrix->importV0x0001XXCreationTime(s);
   }
@@ -116,18 +128,19 @@ class Matrix : public MatrixView, public scripted {
   /**
    * Currently handles SCRIPTING_CHANGE_EVENT only.
    */
-  void customEvent(QEvent *e);
-  void closeEvent(QCloseEvent *);
+  void customEvent(QEvent *e) override;
+  void closeEvent(QCloseEvent *) override;
 
   void updateDecimalSeparators();
 
   virtual QWidget *view() { return d_future_matrix->view(); }
   QAbstractItemModel *getmodel() { return d_view_widget->model(); }
+  ObjectBrowserTreeItemModel *getObjectModel() { return model_; }
 
  public slots:
-  void exportPDF(const QString &fileName);
+  void exportPDF(const QString &fileName) override;
   //! Print the Matrix
-  void print();
+  void print() override;
   //! Print the Matrix to fileName
   void print(const QString &fileName);
   void handleChange();
@@ -281,7 +294,7 @@ class Matrix : public MatrixView, public scripted {
   void copy(Matrix *m);
 
   //! Return the creation date
-  virtual QString birthDate() {
+  virtual QString birthDate() override {
     return d_future_matrix->creationTime().toString(Qt::LocalDate);
   }
 
@@ -297,6 +310,8 @@ class Matrix : public MatrixView, public scripted {
   void handleAspectDescriptionChange(const AbstractAspect *aspect);
 
  private:
+  DummyWindow *dummywindow_;
+  ObjectBrowserTreeItemModel *model_;
   //! Initialize the matrix
   void init(int rows, int cols);
 
@@ -309,4 +324,5 @@ class Matrix : public MatrixView, public scripted {
          Qt::WindowFlags f = Qt::SubWindow);
 };
 
+Q_DECLARE_METATYPE(Matrix *);
 #endif  // MATRIX_H

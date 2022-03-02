@@ -60,36 +60,25 @@ void AbstractAspect::Private::insertChild(int index, AbstractAspect *child) {
   // Can't handle this case here since two undo commands have to be created.
   Q_ASSERT(child->d_aspect_private->d_parent == 0);
   child->d_aspect_private->d_parent = d_owner;
-  connect(child, &AbstractAspect::aspectDescriptionAboutToChange, d_owner,
-          &AbstractAspect::aspectDescriptionAboutToChange);
-  connect(child, &AbstractAspect::aspectDescriptionChanged, d_owner,
-          &AbstractAspect::aspectDescriptionChanged);
-  connect(child, &AbstractAspect::aspectAboutToBeAdded, d_owner,
-          &AbstractAspect::aspectAboutToBeAdded);
-  connect(child,
-          qOverload<const AbstractAspect *, int>(
-              &AbstractAspect::aspectAboutToBeRemoved),
+  connect(child, SIGNAL(aspectDescriptionAboutToChange(const AbstractAspect *)),
           d_owner,
-          qOverload<const AbstractAspect *, int>(
-              &AbstractAspect::aspectAboutToBeRemoved));
-  connect(child,
-          qOverload<const AbstractAspect *, int>(&AbstractAspect::aspectAdded),
-          d_owner,
-          qOverload<const AbstractAspect *, int>(&AbstractAspect::aspectAdded));
-  connect(child, &AbstractAspect::aspectRemoved, d_owner,
-          &AbstractAspect::aspectRemoved);
-  connect(child,
-          qOverload<const AbstractAspect *, int>(
-              &AbstractAspect::aspectAboutToBeRemoved),
-          d_owner,
-          qOverload<const AbstractAspect *, int>(
-              &AbstractAspect::aspectAboutToBeRemoved));
-  connect(child,
-          qOverload<const AbstractAspect *, int>(&AbstractAspect::aspectAdded),
-          d_owner,
-          qOverload<const AbstractAspect *, int>(&AbstractAspect::aspectAdded));
-  connect(child, &AbstractAspect::statusInfo, d_owner,
-          &AbstractAspect::statusInfo);
+          SIGNAL(aspectDescriptionAboutToChange(const AbstractAspect *)));
+  connect(child, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)),
+          d_owner, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)));
+  connect(child, SIGNAL(aspectAboutToBeAdded(const AbstractAspect *, int)),
+          d_owner, SIGNAL(aspectAboutToBeAdded(const AbstractAspect *, int)));
+  connect(child, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)),
+          d_owner, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)));
+  connect(child, SIGNAL(aspectAdded(const AbstractAspect *, int)), d_owner,
+          SIGNAL(aspectAdded(const AbstractAspect *, int)));
+  connect(child, SIGNAL(aspectRemoved(const AbstractAspect *, int)), d_owner,
+          SIGNAL(aspectRemoved(const AbstractAspect *, int)));
+  connect(child, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *)),
+          d_owner, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *)));
+  connect(child, SIGNAL(aspectAdded(const AbstractAspect *)), d_owner,
+          SIGNAL(aspectAdded(const AbstractAspect *)));
+  connect(child, SIGNAL(statusInfo(const QString &)), d_owner,
+          SIGNAL(statusInfo(const QString &)));
   emit d_owner->aspectAdded(d_owner, index);
   emit child->aspectAdded(child);
 }

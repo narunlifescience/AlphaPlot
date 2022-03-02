@@ -81,9 +81,12 @@ class AprojHandler;
 class SettingsDialog;
 class PropertiesDialog;
 class PropertyEditor;
+class PropertyBrowser;
 class AxisRect2D;
 class Curve2D;
 class Function2DDialog;
+class ObjectBrowserTreeItemModel;
+class DummyNone;
 
 #ifndef TS_PATH
 #define TS_PATH (qApp->applicationDirPath() + "/translations")
@@ -183,11 +186,12 @@ class ApplicationWindow : public QMainWindow,
 #ifdef SCRIPTING_CONSOLE
   ConsoleWidget* consoleWindow;
 #endif
+  PropertyBrowser* propertybrowser;
   PropertyEditor* propertyeditor;
   QMdiArea* d_workspace;
   QToolButton* btnResults;
-  QWidgetList* hiddenWindows;
-  QWidgetList* outWindows;
+  QList<MyWidget*> hiddenWindows;
+  QList<MyWidget*> outWindows;
   MyWidget* lastModified;
 
   // Toolbars
@@ -209,6 +213,7 @@ class ApplicationWindow : public QMainWindow,
   FolderTreeWidgetItem* getProjectRootItem();
   QString getLogInfoText() const;
   void setCurrentFolderViewItem(FolderTreeWidgetItem* item);
+  ObjectBrowserTreeItemModel* getObjectModel() { return model_; }
 
  public slots:
   //! Copy the status bar text to the clipboard
@@ -459,7 +464,7 @@ class ApplicationWindow : public QMainWindow,
 
   void updateWindowStatus(MyWidget*);
 
-  bool hidden(QWidget* window);
+  bool hidden(MyWidget* window);
   void closeActiveWindow();
   void closeWindow(MyWidget* window);
 
@@ -835,7 +840,7 @@ class ApplicationWindow : public QMainWindow,
   void modified();
 
  private slots:
-  void about();     // Show about dialog
+  void about();  // Show about dialog
 
   // TODO: a lot of this stuff should be private
  public:
@@ -1051,6 +1056,8 @@ class ApplicationWindow : public QMainWindow,
   bool isActiveSubWindow(QMdiSubWindow* subwindow,
                          const SubWindowType& subwindowtype);
 
+  DummyNone* none_;
+  ObjectBrowserTreeItemModel* model_;
   // Stores the pointers to the dragged items from the FolderListViews objects
   QList<QTreeWidgetItem*> draggedItems;
 
@@ -1104,7 +1111,7 @@ class ApplicationWindow : public QMainWindow,
 
   QLabel* statusBarInfo;
 
-  Project* d_project;
+  Project *d_project;
   // SettingsDialog* settings_;
 
   bool was_maximized_;

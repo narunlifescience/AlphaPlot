@@ -2,16 +2,23 @@
 #define LINEITEM2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
+#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 
 class AxisRect2D;
 class Plot2D;
 class XmlStreamReader;
 class XmlStreamWriter;
 
-class LineItem2D : public QCPItemLine {
+class LineItem2D : public QCPItemLine, public ObjectBrowserTreeItem {
+  Q_OBJECT
  public:
-  LineItem2D(AxisRect2D *axisrect, Plot2D *plot);
+  LineItem2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *axisrect,
+             Plot2D *plot);
   ~LineItem2D();
+
+  virtual QString getItemName() override;
+  virtual QIcon getItemIcon() override;
+  virtual QString getItemTooltip() override;
 
   enum class LineEndLocation : int {
     Start = 0,
@@ -44,12 +51,13 @@ class LineItem2D : public QCPItemLine {
   bool load(XmlStreamReader *xmlreader);
 
  protected:
-  void draw(QCPPainter *painter);
-  void mousePressEvent(QMouseEvent *event, const QVariant &details);
-  void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos);
-  void mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos);
+  void draw(QCPPainter *painter) override;
+  void mousePressEvent(QMouseEvent *event, const QVariant &details) override;
+  void mouseMoveEvent(QMouseEvent *event, const QPointF &startPos) override;
+  void mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos) override;
 
  private:
+  ObjectBrowserTreeItem *parentitem_;
   static const int selectionpixelsize_;
   AxisRect2D *axisrect_;
   QCPLineEnding *ending_;
@@ -64,4 +72,5 @@ class LineItem2D : public QCPItemLine {
   QCursor cursorshape_;
 };
 
+Q_DECLARE_METATYPE(LineItem2D *);
 #endif  // LINEITEM2D_H

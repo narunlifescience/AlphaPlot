@@ -26,9 +26,13 @@
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
-Axis2D::Axis2D(AxisRect2D *parent, const AxisType type,
-               const TickerType tickertype)
+Axis2D::Axis2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *parent,
+               const AxisType type, const TickerType tickertype)
     : QCPAxis(parent, type),
+      ObjectBrowserTreeItem(QVariant::fromValue<Axis2D *>(this),
+                            ObjectBrowserTreeItem::ObjectType::Plot2DAxis,
+                            parentitem),
+      parentitem_(parentitem),
       axisrect_(parent),
       tickertype_(tickertype),
       ticker_(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker)),
@@ -65,7 +69,15 @@ Axis2D::Axis2D(AxisRect2D *parent, const AxisType type,
           [=]() { emit rescaleAxis2D(this); });
 }
 
-Axis2D::~Axis2D() {}
+Axis2D::~Axis2D() { parentitem_->removeChild(this); }
+
+QString Axis2D::getItemName() {
+  return getname_axis() + QString::number(getnumber_axis());
+}
+
+QIcon Axis2D::getItemIcon() { return icon_; }
+
+QString Axis2D::getItemTooltip() { return getItemName(); }
 
 AxisRect2D *Axis2D::getaxisrect_axis() const { return axisrect_; }
 

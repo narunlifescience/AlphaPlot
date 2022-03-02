@@ -6,6 +6,7 @@
 
 #include "AxisRect2D.h"
 #include "MyWidget.h"
+#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 #include "globals.h"
 
 class QLabel;
@@ -16,14 +17,20 @@ class PickerTool2D;
 class ToolButton;
 class LayoutButton2D;
 class XmlStreamWriter;
+class DummyWindow;
+class ObjectBrowserTreeItemModel;
 
-class Layout2D : public MyWidget {
+class Layout2D : public MyWidget, public ObjectBrowserTreeItem {
   Q_OBJECT
 
  public:
   Layout2D(const QString &label, QWidget *parent = nullptr,
            const QString name = QString(), Qt::WindowFlags f = Qt::SubWindow);
   ~Layout2D();
+
+  virtual QString getItemName() override;
+  virtual QIcon getItemIcon() override;
+  virtual QString getItemTooltip() override;
 
   LayoutGrid2D *getLayoutGrid() const { return layout_; }
 
@@ -96,7 +103,7 @@ class Layout2D : public MyWidget {
   void setBackgroundImage(const QString &filename);
   void setGraphTool(const Graph2DCommon::Picker &picker);
   void streachLabelSetText(const QString &text);
-  void print();
+  void print() override;
   void save(XmlStreamWriter *xmlwriter, const bool saveastemplate = false);
   bool load(XmlStreamReader *xmlreader, QList<Table *> tabs,
             QList<Matrix *> mats, bool setname = true);
@@ -122,11 +129,12 @@ class Layout2D : public MyWidget {
       const Graph2DCommon::AddLayoutElement &position);
   AxisRect2D *addAxisRectWithAxis(const QPair<int, int> rowcol);
   void swapAxisRect(AxisRect2D *axisrect1, AxisRect2D *axisrect2);
-  void removeAxisRectItem();
+  void removeCurrentAxisRectItem();
   void refresh() const;
   void copyToClipbord();
   void hideCurrentAxisRectIndicator(const bool status);
   void axisRectSetFocus(AxisRect2D *rect);
+  ObjectBrowserTreeItemModel *getObjectModel() { return model_; }
 
  private slots:
   AxisRect2D *addAxisRectItem(
@@ -137,6 +145,7 @@ class Layout2D : public MyWidget {
                                       const Axis2D::TickerType &ytype,
                                       const QPair<int, int> rowcol);
   void activateLayout(LayoutButton2D *button);
+  void handleObjectTreeItemAddOrDelete();
 
  private:
   AxisRect2D *addAxisRectItemAsAppropriate(Column *xcol,
@@ -145,12 +154,15 @@ class Layout2D : public MyWidget {
                                  const int from, const int to);
   void addTextToAxisTicker(Column *col, Axis2D *axis, const int from,
                            const int to);
+  void removeAxisRectItem(AxisRect2D *axisrect);
   void arrangeLayoutButtons();
 
  protected:
-  void resizeEvent(QResizeEvent *event);
+  void resizeEvent(QResizeEvent *event) override;
 
  private:
+  DummyWindow *dummywindow_;
+  ObjectBrowserTreeItemModel *model_;
   PickerTool2D *picker_;
   QWidget *main_widget_;
   Plot2D *plot2dCanvas_;
@@ -186,7 +198,7 @@ class Layout2D : public MyWidget {
   void mouseReleaseSignal(QMouseEvent *event);
   void mouseWheel();
   void beforeReplot();
-  void exportPDF(const QString &filename);
+  void exportPDF(const QString &filename) override;
 
  signals:
   void AxisRectCreated(AxisRect2D *, MyWidget *);
@@ -199,4 +211,5 @@ class Layout2D : public MyWidget {
   void rescaleAxis2D(Axis2D *axis);
 };
 
+Q_DECLARE_METATYPE(Layout2D *);
 #endif  // LAYOUT2D_H

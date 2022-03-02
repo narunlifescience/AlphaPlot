@@ -57,12 +57,19 @@
 #include <QtDebug>
 #include <QtGlobal>
 
+#include "core/IconLoader.h"
+#include "core/propertybrowser/DummyWindow.h"
+#include "core/propertybrowser/ObjectBrowserTreeItemModel.h"
 #include "future/matrix/MatrixView.h"
 #include "scripting/ScriptEdit.h"
 
 Matrix::Matrix(ScriptingEnv *env, int r, int c, const QString &label,
                QWidget *parent, const char *name, Qt::WindowFlags f)
-    : MatrixView(label, parent, name, f), scripted(env) {
+    : MatrixView(label, parent, name, f),
+      scripted(env),
+      ObjectBrowserTreeItem(QVariant::fromValue<Matrix *>(this),
+                            ObjectBrowserTreeItem::ObjectType::MatrixWindow,
+                            nullptr) {
   d_future_matrix = new future::Matrix(0, r, c, label);
   init(r, c);
 }
@@ -70,7 +77,11 @@ Matrix::Matrix(ScriptingEnv *env, int r, int c, const QString &label,
 Matrix::Matrix(future::Matrix *future_matrix, ScriptingEnv *env, int r, int c,
                const QString &label, QWidget *parent, const char *name,
                Qt::WindowFlags f)
-    : MatrixView(label, parent, name, f), scripted(env) {
+    : MatrixView(label, parent, name, f),
+      scripted(env),
+      ObjectBrowserTreeItem(QVariant::fromValue<Matrix *>(this),
+                            ObjectBrowserTreeItem::ObjectType::MatrixWindow,
+                            nullptr) {
   d_future_matrix = future_matrix;
   init(r, c);
 }
@@ -81,6 +92,10 @@ void Matrix::init(int rows, int cols) {
   d_future_matrix->showOnlyValues(true);
   MatrixView::setMatrix(d_future_matrix);
   d_future_matrix->setView(this);
+  MyWidget *mywidget = qobject_cast<MyWidget *>(this);
+  Q_ASSERT(mywidget != nullptr);
+  dummywindow_ = new DummyWindow(this, mywidget);
+  model_ = new ObjectBrowserTreeItemModel(this, this);
   d_future_matrix->setNumericFormat('f');
   d_future_matrix->setDisplayedDigits(6);
   d_future_matrix->setCoordinates(1.0, 10.0, 1.0, 10.0);
@@ -134,7 +149,15 @@ void Matrix::init(int rows, int cols) {
           &Matrix::handleAspectDescriptionChange);
 }
 
-Matrix::~Matrix() {}
+QString Matrix::getItemName() { return name(); }
+
+QIcon Matrix::getItemIcon() {
+  return IconLoader::load("matrix", IconLoader::LightDark);
+}
+
+QString Matrix::getItemTooltip() { return name(); }
+
+Matrix::~Matrix() { delete dummywindow_; }
 
 void Matrix::handleChange() { emit modifiedWindow(this); }
 

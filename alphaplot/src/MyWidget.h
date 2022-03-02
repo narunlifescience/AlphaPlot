@@ -61,6 +61,7 @@ class MyWidget : public QMdiSubWindow {
    */
   MyWidget(const QString &label = QString(), QWidget *parent = nullptr,
            const QString name = QString(), Qt::WindowFlags f = Qt::SubWindow);
+  virtual ~MyWidget();
 
   //! Possible window captions.
   enum CaptionPolicy {
@@ -180,4 +181,5 @@ class MyWidget : public QMdiSubWindow {
   bool askOnClose;
 };
 
+Q_DECLARE_METATYPE(MyWidget *);
 #endif  // WIDGET_H

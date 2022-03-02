@@ -30,19 +30,23 @@
 #define NOTE_H
 
 #include <qtextedit.h>
+
 #include "MyWidget.h"
+#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 #include "scripting/ScriptEdit.h"
 
 class ScriptingEnv;
 class QXmlStreamWriter;
 class XmlStreamReader;
+class ObjectBrowserTreeItemModel;
+class DummyWindow;
 
 /*!\brief Notes window class.
  *
  * \section future_plans Future Plans
  * - Search and replace
  */
-class Note : public MyWidget {
+class Note : public MyWidget, public ObjectBrowserTreeItem {
   Q_OBJECT
 
  public:
@@ -50,8 +54,13 @@ class Note : public MyWidget {
        const char *name = 0, Qt::WindowFlags f = Qt::SubWindow);
   ~Note();
 
+  virtual QString getItemName();
+  virtual QIcon getItemIcon();
+  virtual QString getItemTooltip();
+
   void init(ScriptingEnv *env);
   QString getText();
+  ObjectBrowserTreeItemModel *getObjectModel() {return model_;}
 
  public slots:
   QTextEdit *textWidget() { return qobject_cast<QTextEdit *>(textedit_); }
@@ -77,8 +86,11 @@ class Note : public MyWidget {
   void evaluate() { textedit_->evaluate(); }
 
  private:
+  DummyWindow *dummywindow_;
+  ObjectBrowserTreeItemModel* model_;
   ScriptEdit *textedit_;
   bool autoExec;
 };
 
+Q_DECLARE_METATYPE(Note *);
 #endif  // NOTE_H

@@ -49,6 +49,8 @@ MyWidget::MyWidget(const QString &label, QWidget *parent, const QString name,
   setObjectName(QString(name));
 }
 
+MyWidget::~MyWidget() {}
+
 void MyWidget::updateCaption() {
   switch (caption_policy) {
     case Name:
@@ -149,8 +151,7 @@ void MyWidget::moveEvent(QMoveEvent *moveEvent) {
   QMdiSubWindow::moveEvent(moveEvent);
 }
 
-void MyWidget::mousePressEvent(QMouseEvent *event)
-{
+void MyWidget::mousePressEvent(QMouseEvent *event) {
   emit mousepressevent(this);
   QMdiSubWindow::mousePressEvent(event);
 }

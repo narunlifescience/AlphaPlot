@@ -2,18 +2,15 @@
 #define SCRIPTINGFUNCTIONS_H
 
 #include <QScriptEngine>
-#include <../Table.h>
-#include <../Note.h>
-#include <../Matrix.h>
-#include <../future/core/column/Column.h>
+#include <Table.h>
+#include <Note.h>
+#include <Matrix.h>
+#include <future/core/column/Column.h>
 
 class QScriptEngine;
 class Table;
 
 // Register types
-Q_DECLARE_METATYPE(Table *)
-Q_DECLARE_METATYPE(Note *)
-Q_DECLARE_METATYPE(Matrix *)
 Q_DECLARE_METATYPE(Column *)
 Q_DECLARE_METATYPE(QVector<int>)
 Q_DECLARE_METATYPE(QVector<float>)

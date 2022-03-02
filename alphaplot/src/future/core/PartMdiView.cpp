@@ -40,12 +40,10 @@ PartMdiView::PartMdiView(AbstractPart *part, QWidget *embedded_view)
     : QMdiSubWindow(0), d_part(part), d_closing(false), d_status(Closed) {
   setWindowIcon(d_part->icon());
   handleAspectDescriptionChanged(d_part);
-  connect(d_part, &AbstractPart::aspectDescriptionChanged, this,
-          &PartMdiView::handleAspectDescriptionChanged);
-  connect(
-      d_part,
-      qOverload<const AbstractAspect *>(&AbstractPart::aspectAboutToBeRemoved),
-      this, &PartMdiView::handleAspectAboutToBeRemoved);
+  connect(d_part, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)),
+          this, SLOT(handleAspectDescriptionChanged(const AbstractAspect *)));
+  connect(d_part, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *)), this,
+          SLOT(handleAspectAboutToBeRemoved(const AbstractAspect *)));
   setWidget(embedded_view);
 }
 

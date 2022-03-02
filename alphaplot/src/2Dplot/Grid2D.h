@@ -18,16 +18,22 @@
 #define GRID2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
+#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 
 class Axis2D;
 class XmlStreamReader;
 class XmlStreamWriter;
 
-class Grid2D : public QCPGrid {
+class Grid2D : public QCPGrid, public ObjectBrowserTreeItem {
   Q_OBJECT
  public:
-  explicit Grid2D(Axis2D *parent);
+  explicit Grid2D(ObjectBrowserTreeItem *parentitem, Axis2D *parent);
   ~Grid2D();
+
+  virtual QString getItemName() override;
+  virtual QIcon getItemIcon() override;
+  virtual QString getItemTooltip() override;
+
   // Grid & Zeroline
   void setMajorGridColor(const QColor &color);
   void setMajorGridStyle(const Qt::PenStyle &penstyle);
@@ -59,6 +65,7 @@ class Grid2D : public QCPGrid {
 
  private:
   // Grid & zeroline settings
+  ObjectBrowserTreeItem *parentitem_;
   Axis2D *axis_;
   QString layername_;
   QColor majorgridcolor_;
@@ -70,4 +77,5 @@ class Grid2D : public QCPGrid {
 
 };
 
+Q_DECLARE_METATYPE(Grid2D *);
 #endif  // GRID2D_H

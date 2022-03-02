@@ -44,13 +44,18 @@
 #include "future/core/column/Column.h"
 #include "future/core/datatypes/DateTime2StringFilter.h"
 #include "future/lib/XmlStreamWriter.h"
+#include "core/IconLoader.h"
 
 AxisRect2D::AxisRect2D(Plot2D *parent, PickerTool2D *picker,
-                       bool setupDefaultAxis)
+                       ObjectBrowserTreeItem *parentitem, bool setupDefaultAxis)
     : QCPAxisRect(parent, setupDefaultAxis),
+      ObjectBrowserTreeItem(QVariant::fromValue<AxisRect2D *>(this),
+                            ObjectBrowserTreeItem::ObjectType::Plot2DLayout,
+                            parentitem),
+      rootitem_(parentitem),
       plot2d_(parent),
       axisRectBackGround_(Qt::white),
-      axisRectLegend_(new Legend2D(this)),
+      axisRectLegend_(new Legend2D(this, this)),
       isAxisRectSelected_(false),
       printorexportjob_(false),
       picker_(picker) {
@@ -82,7 +87,18 @@ AxisRect2D::AxisRect2D(Plot2D *parent, PickerTool2D *picker,
 AxisRect2D::~AxisRect2D() {
   insetLayout()->take(axisRectLegend_);
   delete axisRectLegend_;
+  rootitem_->removeChild(this);
 }
+
+QString AxisRect2D::getItemName() {
+  return QString(QObject::tr("Layout") + QString(" : %1 (%2x%3)"));
+}
+
+QIcon AxisRect2D::getItemIcon() {
+  return IconLoader::load("graph2d-layout", IconLoader::LightDark);
+}
+
+QString AxisRect2D::getItemTooltip() { return getItemName(); }
 
 StatBox2D::BoxWhiskerData AxisRect2D::generateBoxWhiskerData(Table *table,
                                                              Column *colData,
@@ -151,19 +167,19 @@ Axis2D *AxisRect2D::addAxis2D(const Axis2D::AxisOreantation &orientation,
   Axis2D *axis2D = nullptr;
   switch (orientation) {
     case Axis2D::AxisOreantation::Left:
-      axis2D = new Axis2D(this, QCPAxis::atLeft, tickertype);
+      axis2D = new Axis2D(this, this, QCPAxis::atLeft, tickertype);
       addAxis(QCPAxis::atLeft, axis2D);
       break;
     case Axis2D::AxisOreantation::Bottom:
-      axis2D = new Axis2D(this, QCPAxis::atBottom, tickertype);
+      axis2D = new Axis2D(this, this, QCPAxis::atBottom, tickertype);
       addAxis(QCPAxis::atBottom, axis2D);
       break;
     case Axis2D::AxisOreantation::Right:
-      axis2D = new Axis2D(this, QCPAxis::atRight, tickertype);
+      axis2D = new Axis2D(this, this, QCPAxis::atRight, tickertype);
       addAxis(QCPAxis::atRight, axis2D);
       break;
     case Axis2D::AxisOreantation::Top:
-      axis2D = new Axis2D(this, QCPAxis::atTop, tickertype);
+      axis2D = new Axis2D(this, this, QCPAxis::atTop, tickertype);
       addAxis(QCPAxis::atTop, axis2D);
       break;
   }
@@ -352,7 +368,7 @@ Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
       if (gridpair_.first.first != nullptr) delete gridpair_.first.first;
       gridpair_.first.first = nullptr;
       gridpair_.first.second = nullptr;
-      gridpair_.first.first = new Grid2D(axis);
+      gridpair_.first.first = new Grid2D(this, axis);
       gridpair_.first.second = axis;
       grid = gridpair_.first.first;
       break;
@@ -362,7 +378,7 @@ Grid2D *AxisRect2D::bindGridTo(Axis2D *axis) {
       if (gridpair_.second.first != nullptr) delete gridpair_.second.first;
       gridpair_.second.first = nullptr;
       gridpair_.second.second = nullptr;
-      gridpair_.second.first = new Grid2D(axis);
+      gridpair_.second.first = new Grid2D(this, axis);
       gridpair_.second.second = axis;
       grid = gridpair_.second.first;
       break;
@@ -945,7 +961,7 @@ ColorMap2D *AxisRect2D::addColorMap2DPlot(Matrix *matrix, Axis2D *xAxis,
 }
 
 TextItem2D *AxisRect2D::addTextItem2D(const QString text) {
-  TextItem2D *textitem = new TextItem2D(this, plot2d_);
+  TextItem2D *textitem = new TextItem2D(this, this, plot2d_);
   textitem->position->setAxes(gridpair_.first.second, gridpair_.second.second);
   textitem->setText(text);
   textitem->setpixelposition_textitem(this->rect().center());
@@ -956,7 +972,7 @@ TextItem2D *AxisRect2D::addTextItem2D(const QString text) {
 }
 
 LineItem2D *AxisRect2D::addLineItem2D() {
-  LineItem2D *lineitem = new LineItem2D(this, plot2d_);
+  LineItem2D *lineitem = new LineItem2D(this, this, plot2d_);
   foreach (QCPItemPosition *position, lineitem->positions()) {
     position->setAxes(gridpair_.first.second, gridpair_.second.second);
   }
@@ -973,7 +989,7 @@ LineItem2D *AxisRect2D::addLineItem2D() {
 }
 
 LineItem2D *AxisRect2D::addArrowItem2D() {
-  LineItem2D *lineitem = new LineItem2D(this, plot2d_);
+  LineItem2D *lineitem = new LineItem2D(this, this, plot2d_);
   lineitem->setendstyle_lineitem(LineItem2D::LineEndLocation::Stop,
                                  QCPLineEnding::EndingStyle::esFlatArrow);
   foreach (QCPItemPosition *position, lineitem->positions()) {
@@ -992,7 +1008,7 @@ LineItem2D *AxisRect2D::addArrowItem2D() {
 }
 
 ImageItem2D *AxisRect2D::addImageItem2D(const QString &filename) {
-  ImageItem2D *imageitem = new ImageItem2D(this, plot2d_, filename);
+  ImageItem2D *imageitem = new ImageItem2D(this, this, plot2d_, filename);
   foreach (QCPItemPosition *position, imageitem->positions()) {
     position->setAxes(gridpair_.first.second, gridpair_.second.second);
   }

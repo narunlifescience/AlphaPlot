@@ -89,8 +89,8 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, QString name)
 
   functionsMenu = new QMenu(this);
   Q_CHECK_PTR(functionsMenu);
-  connect(functionsMenu, &QMenu::triggered, this,
-          qOverload<QAction *>(&ScriptEdit::insertFunction));
+  connect(functionsMenu, SIGNAL(triggered(QAction *)), this,
+            SLOT(insertFunction(QAction *)));
   connect(document(), &QTextDocument::contentsChange, this,
           &ScriptEdit::handleContentsChange);
 }

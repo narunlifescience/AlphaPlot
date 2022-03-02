@@ -2,13 +2,20 @@
 
 #include "AxisRect2D.h"
 #include "Plot2D.h"
+#include "core/IconLoader.h"
+#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
 const int LineItem2D::selectionpixelsize_ = 10;
 
-LineItem2D::LineItem2D(AxisRect2D *axisrect, Plot2D *plot)
+LineItem2D::LineItem2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *axisrect,
+                       Plot2D *plot)
     : QCPItemLine(plot),
+      ObjectBrowserTreeItem(QVariant::fromValue<LineItem2D *>(this),
+                            ObjectBrowserTreeItem::ObjectType::Plot2DLineItem,
+                            parentitem),
+      parentitem_(parentitem),
       axisrect_(axisrect),
       ending_(new QCPLineEnding),
       starting_(new QCPLineEnding),
@@ -33,10 +40,19 @@ LineItem2D::LineItem2D(AxisRect2D *axisrect, Plot2D *plot)
 }
 
 LineItem2D::~LineItem2D() {
+  parentitem_->removeChild(this);
   delete starting_;
   delete ending_;
   parentPlot()->removeLayer(layer());
 }
+
+QString LineItem2D::getItemName() { return tr("Line Item"); }
+
+QIcon LineItem2D::getItemIcon() {
+  return IconLoader::load("draw-line", IconLoader::LightDark);
+}
+
+QString LineItem2D::getItemTooltip() { return getItemName(); }
 
 AxisRect2D *LineItem2D::getaxisrect() const { return axisrect_; }
 

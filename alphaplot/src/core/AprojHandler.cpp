@@ -13,7 +13,7 @@
 #include "Table.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
-#include "widgets/propertyeditor.h"
+#include "propertybrowser/propertyeditor.h"
 
 const QString AprojHandler::xmlschemafile_ = ":xmlschema/aproj.xsd";
 

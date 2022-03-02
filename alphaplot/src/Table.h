@@ -38,6 +38,7 @@
 #include <QtScript>
 
 #include "MyWidget.h"
+#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 
 // Scripting
 #include "future/table/TableView.h"
@@ -47,7 +48,13 @@
 #include "scripting/ScriptingEnv.h"
 /*!\brief MDI window providing a spreadsheet table with column logic.
  */
-class Table : public TableView, public scripted, public QScriptable {
+class ObjectBrowserTreeItemModel;
+class DummyWindow;
+
+class Table : public TableView,
+              public scripted,
+              public QScriptable,
+              public ObjectBrowserTreeItem {
   Q_OBJECT
 
  public:
@@ -79,6 +86,11 @@ class Table : public TableView, public scripted, public QScriptable {
   Table(ScriptingEnv* env, int r, int c, const QString& label,
         QWidget* parent = nullptr, const char* name = 0,
         Qt::WindowFlags f = Qt::SubWindow);
+  ~Table();
+
+  virtual QString getItemName();
+  virtual QIcon getItemIcon();
+  virtual QString getItemTooltip();
 
   //! Sets the number of significant digits
   void setNumericPrecision(int prec);
@@ -117,6 +129,8 @@ class Table : public TableView, public scripted, public QScriptable {
   }
 
   void closeEvent(QCloseEvent*);
+  ObjectBrowserTreeItemModel *getObjectModel() {return model_;}
+
  public slots:
   void copy(Table* m);
   int numRows();
@@ -279,6 +293,8 @@ class Table : public TableView, public scripted, public QScriptable {
   void handleAspectDescriptionAboutToChange(const AbstractAspect* aspect);
 
  private:
+  DummyWindow *dummywindow_;
+  ObjectBrowserTreeItemModel* model_;
   QHash<const AbstractAspect*, QString> d_stored_column_labels;
 
   // Scripting Functions
@@ -292,4 +308,5 @@ class Table : public TableView, public scripted, public QScriptable {
   void applyFunction();
 };
 
+Q_DECLARE_METATYPE(Table *);
 #endif  // TABLE_H

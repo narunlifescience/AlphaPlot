@@ -2,14 +2,20 @@
 
 #include "2Dplot/AxisRect2D.h"
 #include "2Dplot/Plot2D.h"
+#include "core/IconLoader.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
 const int ImageItem2D::selectionpixelsize_ = 10;
 
-ImageItem2D::ImageItem2D(AxisRect2D *axisrect, Plot2D *plot,
+ImageItem2D::ImageItem2D(ObjectBrowserTreeItem *parentitem,
+                         AxisRect2D *axisrect, Plot2D *plot,
                          const QString &filename)
     : QCPItemPixmap(plot),
+      ObjectBrowserTreeItem(QVariant::fromValue<ImageItem2D *>(this),
+                            ObjectBrowserTreeItem::ObjectType::Plot2DImageItem,
+                            parentitem),
+      parentitem_(parentitem),
       axisrect_(axisrect),
       layername_(
           QString("<Image2DItem>") +
@@ -42,9 +48,18 @@ ImageItem2D::ImageItem2D(AxisRect2D *axisrect, Plot2D *plot,
 }
 
 ImageItem2D::~ImageItem2D() {
+  parentitem_->removeChild(this);
   parentPlot()->removeLayer(layer());
   delete pixmap_;
 }
+
+QString ImageItem2D::getItemName() { return tr("Image Item"); }
+
+QIcon ImageItem2D::getItemIcon() {
+  return IconLoader::load("view-image", IconLoader::LightDark);
+}
+
+QString ImageItem2D::getItemTooltip() { return getItemName(); }
 
 AxisRect2D *ImageItem2D::getaxisrect() const { return axisrect_; }
 
