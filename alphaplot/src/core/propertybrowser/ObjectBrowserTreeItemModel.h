@@ -35,11 +35,17 @@
 #include <QVariant>
 
 class ObjectBrowserTreeItem;
+class QItemSelectionModel;
+class Table;
+class Matrix;
+class Note;
+class Layout2D;
+class Layout3D;
 
 class ObjectBrowserTreeItemModel : public QAbstractItemModel {
+  Q_OBJECT
  public:
-  ObjectBrowserTreeItemModel(ObjectBrowserTreeItem *item,
-                             QObject *parent = nullptr);
+  ObjectBrowserTreeItemModel(QObject *parent);
   ~ObjectBrowserTreeItemModel();
 
   QVariant data(const QModelIndex &index, int role) const override;
@@ -52,6 +58,22 @@ class ObjectBrowserTreeItemModel : public QAbstractItemModel {
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   int columnCount(const QModelIndex &parent = QModelIndex()) const override;
   void resetModel() { emit endResetModel(); }
+  void updateProperty(ObjectBrowserTreeItem *item);
+  void updateChildren(ObjectBrowserTreeItem *item, int column,
+                      const QModelIndex &parent);
+  bool setHeaderData(int section, Qt::Orientation orientation,
+                     const QVariant &value, int role = Qt::EditRole) override;
+  ObjectBrowserTreeItem *rootItem() { return rootItem_; }
+
+  void buildUpNone();
+  void buildUpTable(Table *table);
+  void buildUpMatrix(Matrix *matrix);
+  void buildUpNote(Note *note);
+  void buildUpGraph2D(Layout2D *layout);
+  void buildUpGraph3D(Layout3D *layout);
+
+ signals:
+  void modelResetComplete();
 
  private:
   ObjectBrowserTreeItem *rootItem_;

@@ -6,6 +6,7 @@
 #include "DataManager2D.h"
 #include "LineSpecial2D.h"
 #include "Table.h"
+#include "core/IconLoader.h"
 #include "core/Utilities.h"
 #include "core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
@@ -19,6 +20,7 @@ ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
       xAxis_(xAxis),
       yAxis_(yAxis),
       errortype_(errortype),
+      gtype_(GraphType::LineSpecial),
       linespecial_(linespecial),
       curve_(nullptr),
       bar_(nullptr),
@@ -39,6 +41,7 @@ ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
       xAxis_(xAxis),
       yAxis_(yAxis),
       errortype_(errortype),
+      gtype_(GraphType::Curve),
       linespecial_(nullptr),
       curve_(curve),
       bar_(nullptr),
@@ -59,6 +62,7 @@ ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
       xAxis_(xAxis),
       yAxis_(yAxis),
       errortype_(errortype),
+      gtype_(GraphType::Bar),
       linespecial_(nullptr),
       curve_(nullptr),
       bar_(bar),
@@ -72,6 +76,29 @@ ErrorBar2D::ErrorBar2D(Table *table, Column *errorcol, int from, int to,
 }
 
 ErrorBar2D::~ErrorBar2D() { delete errordata_; }
+
+QString ErrorBar2D::getItemName() {
+  return errordata_->gettable()->name() + "_" +
+         errordata_->geterrorcolumn()->name() + "[" +
+         QString::number(errordata_->getfrom() + 1) + ":" +
+         QString::number(errordata_->getto() + 1) + "]";
+}
+
+QIcon ErrorBar2D::getItemIcon() {
+  if (errortype_ == QCPErrorBars::ErrorType::etKeyError)
+    return IconLoader::load("graph-x-error", IconLoader::LightDark);
+  else
+    return IconLoader::load("graph-y-error", IconLoader::LightDark);
+}
+
+QString ErrorBar2D::getItemTooltip() {
+  QString tooltip = Utilities::getTooltipText(Utilities::TooltipType::x);
+  tooltip = tooltip.arg(errordata_->gettable()->name(),
+                        errordata_->geterrorcolumn()->name(),
+                        QString::number(errordata_->getfrom() + 1),
+                        QString::number(errordata_->getto() + 1));
+  return tooltip;
+}
 
 void ErrorBar2D::setErrorData(Table *table, Column *errorcol, int from,
                               int to) {

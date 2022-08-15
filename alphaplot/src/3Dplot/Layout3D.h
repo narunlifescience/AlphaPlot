@@ -5,7 +5,6 @@
 
 #include "3Dplot/Graph3DCommon.h"
 #include "MyWidget.h"
-#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 
 class Matrix;
 class Table;
@@ -17,11 +16,9 @@ class XmlStreamReader;
 class XmlStreamWriter;
 class Custom3DInteractions;
 class ApplicationWindow;
-class ObjectBrowserTreeItemModel;
-class DummyWindow;
 using namespace QtDataVisualization;
 
-class Layout3D : public MyWidget, public ObjectBrowserTreeItem {
+class Layout3D : public MyWidget {
   Q_OBJECT
  public:
   Layout3D(const Graph3DCommon::Plot3DType &plottype, const QString &label,
@@ -29,9 +26,9 @@ class Layout3D : public MyWidget, public ObjectBrowserTreeItem {
            Qt::WindowFlags flag = Qt::SubWindow);
   ~Layout3D();
 
-  virtual QString getItemName() override;
-  virtual QIcon getItemIcon() override;
-  virtual QString getItemTooltip() override;
+  QString getItemName() override;
+  QIcon getItemIcon() override;
+  QString getItemTooltip() override;
 
   Surface3D *getSurface3DModifier() const;
   Bar3D *getBar3DModifier() const;
@@ -70,15 +67,12 @@ class Layout3D : public MyWidget, public ObjectBrowserTreeItem {
   QList<Column *> getPlotColumns();
   void print() override;
   void copyToClipbord();
-  ObjectBrowserTreeItemModel *getObjectModel() {return model_;}
 
  signals:
   void dataAdded(MyWidget *mywidget);
   void showContextMenu();
 
  private:
-   DummyWindow *dummywindow_;
-  ObjectBrowserTreeItemModel *model_;
   const Graph3DCommon::Plot3DType plottype_;
   QWidget *main_widget_;
   Q3DSurface *graph3dsurface_;
@@ -100,5 +94,9 @@ class Layout3D : public MyWidget, public ObjectBrowserTreeItem {
   static const int minimumlayout2dheight_;
 };
 
+Q_DECLARE_METATYPE(QCategory3DAxis *);
+Q_DECLARE_METATYPE(QValue3DAxis *);
+Q_DECLARE_METATYPE(Q3DTheme *);
+Q_DECLARE_METATYPE(QAbstract3DGraph *);
 Q_DECLARE_METATYPE(Layout3D *);
 #endif  // LAYOUT3D_H

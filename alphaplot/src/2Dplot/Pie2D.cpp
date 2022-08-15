@@ -81,6 +81,24 @@ Pie2D::~Pie2D() {
   parentPlot()->removeLayer(layer());
 }
 
+QString Pie2D::getItemName() {
+  return QString(gettable_pieplot()->name() + "_" +
+                 getxcolumn_pieplot()->name() + "[" +
+                 QString::number(getfrom_pieplot() + 1) + ":" +
+                 QString::number(getto_pieplot() + 1) + "]");
+}
+
+QIcon Pie2D::getItemIcon() { return icon_; }
+
+QString Pie2D::getItemTooltip() {
+  QString tooltip = Utilities::getTooltipText(Utilities::TooltipType::x);
+  tooltip =
+      tooltip.arg(gettable_pieplot()->name(), getxcolumn_pieplot()->name(),
+                  QString::number(getfrom_pieplot() + 1),
+                  QString::number(getto_pieplot() + 1));
+  return tooltip;
+}
+
 void Pie2D::setGraphData(Table *table, Column *xData, Column *yData, int from,
                          int to) {
   foreach (PieLegendItem2D *item, *pieLegendItems_) {

@@ -7,9 +7,14 @@
 class Matrix;
 
 class ColorMap2D : public QCPColorMap {
+  Q_OBJECT
  public:
   ColorMap2D(Matrix *matrix, Axis2D *xAxis, Axis2D *yAxis);
   ~ColorMap2D();
+
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
 
   void setColorMapData(Matrix *matrix);
 
@@ -68,4 +73,5 @@ class ColorMap2D : public QCPColorMap {
   bool invertgradient_;
 };
 
+Q_DECLARE_METATYPE(ColorMap2D *);
 #endif  // COLORMAP2D_H

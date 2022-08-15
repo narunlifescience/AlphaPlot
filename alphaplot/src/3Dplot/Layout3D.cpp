@@ -23,8 +23,6 @@
 #include "Scatter3D.h"
 #include "Surface3D.h"
 #include "core/IconLoader.h"
-#include "core/propertybrowser/DummyWindow.h"
-#include "core/propertybrowser/ObjectBrowserTreeItemModel.h"
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
@@ -39,9 +37,6 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
                    const QString &label, QWidget *parent, const QString name,
                    Qt::WindowFlags flag)
     : MyWidget(label, parent, name, flag),
-      ObjectBrowserTreeItem(QVariant::fromValue<Layout3D *>(this),
-                            ObjectBrowserTreeItem::ObjectType::Plot3DWindow,
-                            nullptr),
       plottype_(plottype),
       graph3dsurface_(nullptr),
       graph3dbars_(nullptr),
@@ -50,10 +45,6 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
       barmodifier_(nullptr),
       scattermodifier_(nullptr),
       custominter_(new Custom3DInteractions) {
-  MyWidget *mywidget = qobject_cast<MyWidget *>(this);
-  Q_ASSERT(mywidget != nullptr);
-  dummywindow_ = new DummyWindow(this, mywidget);
-  model_ = new ObjectBrowserTreeItemModel(this, this);
   switch (plottype_) {
     case Graph3DCommon::Plot3DType::Surface: {
       graph3dsurface_ = new Q3DSurface();
@@ -173,7 +164,6 @@ Layout3D::~Layout3D() {
         }
       } break;
     }
-  delete dummywindow_;
 }
 
 QString Layout3D::getItemName() { return name(); }

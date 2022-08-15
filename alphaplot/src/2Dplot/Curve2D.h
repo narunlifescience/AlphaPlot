@@ -14,12 +14,18 @@ class Curve2D : public QCPCurve {
   Q_OBJECT
  public:
   enum class Curve2DType { Curve, Spline };
-  Curve2D(Curve2DType curve2dtype, Table *table, Column *xcol, Column *ycol,
-          int from, int to, Axis2D *xAxis, Axis2D *yAxis);
-  Curve2D(const PlotData::FunctionData funcdata, QVector<double> *xdata,
-          QVector<double> *ydata, Axis2D *xAxis, Axis2D *yAxis);
+  explicit Curve2D(Curve2DType curve2dtype, Table *table, Column *xcol,
+                   Column *ycol, int from, int to, Axis2D *xAxis,
+                   Axis2D *yAxis);
+  explicit Curve2D(const PlotData::FunctionData funcdata,
+                   QVector<double> *xdata, QVector<double> *ydata,
+                   Axis2D *xAxis, Axis2D *yAxis);
   void init();
   ~Curve2D();
+
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
 
   void setXerrorBar(Table *table, Column *errorcol, int from, int to);
   void setYerrorBar(Table *table, Column *errorcol, int from, int to);
@@ -42,6 +48,7 @@ class Curve2D : public QCPCurve {
   bool getlinefillstatus_cplot() const;
   Graph2DCommon::ScatterStyle getscattershape_cplot() const;
   QColor getscatterfillcolor_cplot() const;
+  Qt::BrushStyle getscatterfillstyle_cplot() const;
   QBrush getscatterbrush_cplot() const;
   double getscattersize_cplot() const;
   Qt::PenStyle getscatterstrokestyle_cplot() const;
@@ -61,7 +68,6 @@ class Curve2D : public QCPCurve {
   QBrush getSplineBrush() { return splineBrush_; }
   ErrorBar2D *getxerrorbar_curveplot() { return xerrorbar_; }
   ErrorBar2D *getyerrorbar_curveplot() { return yerrorbar_; }
-  QIcon getIcon() const { return icon_; }
   // Setters
   void setxaxis_cplot(Axis2D *axis);
   void setyaxis_cplot(Axis2D *axis);
@@ -74,6 +80,7 @@ class Curve2D : public QCPCurve {
   void setlineantialiased_cplot(const bool value);
   void setscattershape_cplot(const Graph2DCommon::ScatterStyle &shape);
   void setscatterfillcolor_cplot(const QColor &color);
+  void setscatterfillstyle_cplot(const Qt::BrushStyle &style);
   void setscattersize_cplot(const double value);
   void setscatterstrokestyle_cplot(const Qt::PenStyle &style);
   void setscatterstrokecolor_cplot(const QColor &color);
@@ -123,4 +130,5 @@ class Curve2D : public QCPCurve {
   QIcon icon_;
 };
 
+Q_DECLARE_METATYPE(Curve2D *);
 #endif  // CURVE2D_H

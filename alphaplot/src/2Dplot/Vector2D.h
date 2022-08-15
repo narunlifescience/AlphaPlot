@@ -1,5 +1,6 @@
 #ifndef VECTOR2D_H
 #define VECTOR2D_H
+
 #include "../3rdparty/qcustomplot/qcustomplot.h"
 
 class Axis2D;
@@ -16,6 +17,10 @@ class Vector2D : public QCPGraph {
            Column *y1Data, Column *x2Data, Column *y2Data, int from, int to,
            Axis2D *xAxis, Axis2D *yAxis);
   ~Vector2D();
+
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
 
   enum class Position : int { Tail = 0, Middle = 1, Head = 2 };
   enum class LineEnd : int {
@@ -58,7 +63,6 @@ class Vector2D : public QCPGraph {
   Column *getfourthcol_vecplot() const { return y2col_; }
   int getfrom_vecplot() const { return from_; }
   int getto_vecplot() const { return to_; }
-  QIcon getIcon() const { return icon_; }
 
   // Setters
   void setxaxis_vecplot(Axis2D *axis);
@@ -81,10 +85,10 @@ class Vector2D : public QCPGraph {
 
  private:
   void reloadendings(const LineEndLocation &location);
- void datapicker(QMouseEvent *, const QVariant &);
- void graphpicker(QMouseEvent *, const QVariant &);
- void movepicker(QMouseEvent *, const QVariant &);
- void removepicker(QMouseEvent *, const QVariant &);
+  void datapicker(QMouseEvent *, const QVariant &);
+  void graphpicker(QMouseEvent *, const QVariant &);
+  void movepicker(QMouseEvent *, const QVariant &);
+  void removepicker(QMouseEvent *, const QVariant &);
 
  private:
   VectorPlot vectorplot_;
@@ -105,4 +109,5 @@ class Vector2D : public QCPGraph {
   QIcon icon_;
 };
 
+Q_DECLARE_METATYPE(Vector2D *);
 #endif  // VECTOR2D_H

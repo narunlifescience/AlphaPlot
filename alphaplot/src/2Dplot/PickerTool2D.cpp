@@ -325,7 +325,9 @@ void PickerTool2D::rangepickermouserelease(const QPointF position) {
   QCPDataSelection dataPoints = variant.value<QCPDataSelection>();
   bool sucess = false;
   if (dataPoints.dataPointCount() > 0) {
-    it = rangepicker_.curve->data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPCurve *>(rangepicker_.curve)
+             ->data()
+             ->at(dataPoints.dataRange().begin());
     QPointF point =
         rangepicker_.curve->coordsToPixels(it->mainKey(), it->mainValue());
     if (point.x() > position.x() - 10 && point.x() < position.x() + 10 &&
@@ -422,8 +424,8 @@ void PickerTool2D::setupRangepicker() {
   }
   xpickerline_->setClipAxisRect(axisrect);
   xpickerline_->setClipToAxisRect(true);
-  double startx = curve_->data()->at(0)->mainKey();
-  double starty = curve_->data()->at(0)->mainValue();
+  double startx = static_cast<QCPCurve *>(curve_)->data()->at(0)->mainKey();
+  double starty = static_cast<QCPCurve *>(curve_)->data()->at(0)->mainValue();
   xpickerline_->position("point1")->setCoords(
       startx, curve_->getyaxis()->range().lower);
   xpickerline_->position("point2")->setCoords(
@@ -433,8 +435,14 @@ void PickerTool2D::setupRangepicker() {
   }
   ypickerline_->setClipAxisRect(axisrect);
   ypickerline_->setClipToAxisRect(true);
-  double stopx = curve_->data()->at(curve_->data()->size() - 1)->mainKey();
-  double stopy = curve_->data()->at(curve_->data()->size() - 1)->mainValue();
+  double stopx = static_cast<QCPCurve *>(curve_)
+                     ->data()
+                     ->at(static_cast<QCPCurve *>(curve_)->data()->size() - 1)
+                     ->mainKey();
+  double stopy = static_cast<QCPCurve *>(curve_)
+                     ->data()
+                     ->at(static_cast<QCPCurve *>(curve_)->data()->size() - 1)
+                     ->mainValue();
   ypickerline_->position("point1")->setCoords(
       stopx, curve_->getyaxis()->range().lower);
   ypickerline_->position("point2")->setCoords(

@@ -19,6 +19,7 @@
 #include <QVector>
 
 #include "AxisRect2D.h"
+#include "GridPair2D.h"
 #include "Plot2D.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
@@ -26,13 +27,9 @@
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
-Axis2D::Axis2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *parent,
-               const AxisType type, const TickerType tickertype)
+Axis2D::Axis2D(AxisRect2D *parent, const AxisType type,
+               const TickerType tickertype)
     : QCPAxis(parent, type),
-      ObjectBrowserTreeItem(QVariant::fromValue<Axis2D *>(this),
-                            ObjectBrowserTreeItem::ObjectType::Plot2DAxis,
-                            parentitem),
-      parentitem_(parentitem),
       axisrect_(parent),
       tickertype_(tickertype),
       ticker_(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker)),
@@ -69,7 +66,7 @@ Axis2D::Axis2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *parent,
           [=]() { emit rescaleAxis2D(this); });
 }
 
-Axis2D::~Axis2D() { parentitem_->removeChild(this); }
+Axis2D::~Axis2D() {}
 
 QString Axis2D::getItemName() {
   return getname_axis() + QString::number(getnumber_axis());
@@ -77,7 +74,7 @@ QString Axis2D::getItemName() {
 
 QIcon Axis2D::getItemIcon() { return icon_; }
 
-QString Axis2D::getItemTooltip() { return getItemName(); }
+QString Axis2D::getItemTooltip() { return label(); }
 
 AxisRect2D *Axis2D::getaxisrect_axis() const { return axisrect_; }
 
@@ -637,8 +634,8 @@ void Axis2D::save(XmlStreamWriter *xmlwriter) {
       xmlwriter->writeAttribute("tickertype", "text");
       break;
   }
-  (axisrect_->getGridPair().first.second == this ||
-   axisrect_->getGridPair().second.second == this)
+  (axisrect_->getGridPair()->getXgridAxis() == this ||
+   axisrect_->getGridPair()->getYgridAxis() == this)
       ? xmlwriter->writeAttribute("grid", "true")
       : xmlwriter->writeAttribute("grid", "false");
   xmlwriter->writeAttribute("offset", QString::number(getoffset_axis()));

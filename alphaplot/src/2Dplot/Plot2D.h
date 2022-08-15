@@ -18,17 +18,16 @@
 #define PLOT2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 
-class Plot2D : public QCustomPlot, public ObjectBrowserTreeItem {
+class Plot2D : public QCustomPlot {
   Q_OBJECT
  public:
-  explicit Plot2D(ObjectBrowserTreeItem *parentitem, QWidget *parent = nullptr);
+  explicit Plot2D(QWidget *parent = nullptr);
   ~Plot2D();
 
-  virtual QString getItemName() override;
-  virtual QIcon getItemIcon() override;
-  virtual QString getItemTooltip() override;
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
 
   void setBackgroundColor(const QColor &color, const bool backpixmap = true);
   QColor getBackgroundColor() const;
@@ -49,7 +48,6 @@ class Plot2D : public QCustomPlot, public ObjectBrowserTreeItem {
   void backgroundColorChange(QColor color);
 
  private:
-  ObjectBrowserTreeItem *rootitem_;
   QColor canvasBackground_;
   // Layers
   QString layernamebackground2d_;

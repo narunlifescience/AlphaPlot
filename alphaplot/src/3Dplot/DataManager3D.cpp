@@ -12,6 +12,8 @@
 
 #include "Matrix.h"
 #include "Table.h"
+#include "core/IconLoader.h"
+#include "core/Utilities.h"
 #include "future/core/column/Column.h"
 
 using namespace QtDataVisualization;
@@ -178,6 +180,32 @@ DataBlockSurface3D::DataBlockSurface3D(
 
 DataBlockSurface3D::~DataBlockSurface3D() {}
 
+QString DataBlockSurface3D::getItemName() {
+  QString n;
+  (ismatrix()) ? n = getmatrix()->name() : n = getfunction();
+
+  return n;
+}
+
+QIcon DataBlockSurface3D::getItemIcon() {
+  return IconLoader::load("graph3d-polygon-mesh", IconLoader::LightDark);
+}
+
+QString DataBlockSurface3D::getItemTooltip() {
+  QString tooltip;
+  if (ismatrix()) {
+    tooltip = getmatrix()->name();
+  } else {
+    tooltip = Utilities::getTooltipText(Utilities::TooltipType::funcsurface);
+    tooltip = tooltip.arg(
+        getfunction(), QString::number(getxlower()),
+        QString::number(getxupper()), QString::number(getylower()),
+        QString::number(getyupper()), QString::number(getzlower()),
+        QString::number(getzupper()), QString::number(getxpoints()));
+  }
+  return tooltip;
+}
+
 void DataBlockSurface3D::regenerateDataBlockModel() {
   modelDataProxy_->setItemModel(matrix_->getmodel());
   modelDataProxy_->setUseModelCategories(true);
@@ -318,6 +346,19 @@ DataBlockBar3D::DataBlockBar3D(Table *table, Column *xcolumn, Column *ycolumn,
 
 DataBlockBar3D::~DataBlockBar3D() {}
 
+QString DataBlockBar3D::getItemName() {
+  QString n;
+  (ismatrix()) ? n = tr("%1").arg(getmatrix()->name())
+               : n = tr("%1_%2").arg(gettable()->name(), getzcolumn()->name());
+  return n;
+}
+
+QIcon DataBlockBar3D::getItemIcon() {
+  return IconLoader::load("graph3d-bar", IconLoader::LightDark);
+}
+
+QString DataBlockBar3D::getItemTooltip() { return getItemName(); }
+
 void DataBlockBar3D::regenerateDataBlockModel() {
   modelDataProxy_->setItemModel(matrix_->getmodel());
   modelDataProxy_->setUseModelCategories(true);
@@ -367,6 +408,19 @@ DataBlockScatter3D::DataBlockScatter3D(Table *table, Column *xcolumn,
 }
 
 DataBlockScatter3D::~DataBlockScatter3D() {}
+
+QString DataBlockScatter3D::getItemName() {
+  QString n;
+  (ismatrix()) ? n = tr("%1").arg(getmatrix()->name())
+               : n = tr("%1_%2").arg(gettable()->name(), getzcolumn()->name());
+  return n;
+}
+
+QIcon DataBlockScatter3D::getItemIcon() {
+  return IconLoader::load("graph3d-point-mesh", IconLoader::LightDark);
+}
+
+QString DataBlockScatter3D::getItemTooltip() { return getItemName(); }
 
 void DataBlockScatter3D::regenerateDataBlockModel() {
   valueDataArray_->resize((matrix_->numRows()) * (matrix_->numCols()));

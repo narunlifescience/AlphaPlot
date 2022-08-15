@@ -19,6 +19,10 @@ class LineSpecial2D : public QCPGraph {
                 Axis2D *xAxis, Axis2D *yAxis);
   ~LineSpecial2D();
 
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
+
   void setXerrorBar(Table *table, Column *errorcol, int from, int to);
   void setYerrorBar(Table *table, Column *errorcol, int from, int to);
   void setGraphData(Table *table, Column *xcol, Column *ycol, int from, int to);
@@ -35,6 +39,7 @@ class LineSpecial2D : public QCPGraph {
   bool getlineantialiased_lsplot() const;
   Graph2DCommon::ScatterStyle getscattershape_lsplot() const;
   QColor getscatterfillcolor_lsplot() const;
+  Qt::BrushStyle getscatterfillstyle_lsplot() const;
   double getscattersize_lsplot() const;
   Qt::PenStyle getscatterstrokestyle_lsplot() const;
   QColor getscatterstrokecolor_lsplot() const;
@@ -47,7 +52,6 @@ class LineSpecial2D : public QCPGraph {
   DataBlockGraph *getdatablock_lsplot() const { return graphdata_; }
   ErrorBar2D *getxerrorbar_lsplot() { return xerrorbar_; }
   ErrorBar2D *getyerrorbar_lsplot() { return yerrorbar_; }
-  QIcon getIcon() const { return icon_; }
   // Setters
   void setlinetype_lsplot(const Graph2DCommon::LineStyleType &line);
   void setlinestrokestyle_lsplot(const Qt::PenStyle &style);
@@ -59,6 +63,7 @@ class LineSpecial2D : public QCPGraph {
   void setlineantialiased_lsplot(const bool value);
   void setscattershape_lsplot(const Graph2DCommon::ScatterStyle &shape);
   void setscatterfillcolor_lsplot(const QColor &color);
+  void setscatterfillstyle_lsplot(const Qt::BrushStyle &style);
   void setscattersize_lsplot(const double value);
   void setscatterstrokestyle_lsplot(const Qt::PenStyle &style);
   void setscatterstrokecolor_lsplot(const QColor &color);
@@ -73,7 +78,7 @@ class LineSpecial2D : public QCPGraph {
   bool load(XmlStreamReader *xmlreader);
 
  protected:
-  void mousePressEvent(QMouseEvent *event, const QVariant &details);
+  void mousePressEvent(QMouseEvent *event, const QVariant &details) override;
 
  private:
   void datapicker(QMouseEvent *event, const QVariant &details);
@@ -95,4 +100,5 @@ class LineSpecial2D : public QCPGraph {
   QIcon icon_;
 };
 
+Q_DECLARE_METATYPE(LineSpecial2D *);
 #endif  // LINESCATTER2D_H

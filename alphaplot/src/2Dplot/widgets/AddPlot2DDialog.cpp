@@ -16,6 +16,7 @@
 #include <QShortcut>
 
 #include "2Dplot/Bar2D.h"
+#include "2Dplot/Channel2D.h"
 #include "2Dplot/Curve2D.h"
 #include "2Dplot/DataManager2D.h"
 #include "2Dplot/LineSpecial2D.h"
@@ -272,8 +273,7 @@ void AddPlot2DDialog::populatePlotted() {
   QVector<LineSpecial2D *> lslist = axisrect_->getLsVec();
   QVector<Curve2D *> curvelist = axisrect_->getCurveVec();
   QVector<Bar2D *> barlist = axisrect_->getBarVec();
-  QVector<QPair<LineSpecial2D *, LineSpecial2D *>> channellist =
-      axisrect_->getChannelVec();
+  QVector<Channel2D *> channellist = axisrect_->getChannelVec();
   QVector<Vector2D *> veclist = axisrect_->getVectorVec();
   plotnos_ = boxlist.count() + pielist.count() + lslist.count() +
              curvelist.count() + barlist.count() + channellist.count() +
@@ -288,7 +288,7 @@ void AddPlot2DDialog::populatePlotted() {
     boxdata.ycol1 = box->getboxwhiskerdata_statbox().column_;
     plotted_columns_ << boxdata;
     QListWidgetItem *item = new QListWidgetItem(
-        box->getIcon(),
+        box->getItemIcon(),
         boxdata.table->name() + "_" + boxdata.ycol1->name() + "[" +
             QString::number(box->getboxwhiskerdata_statbox().from_ + 1) + ":" +
             QString::number(box->getboxwhiskerdata_statbox().to_ + 1) + "]",
@@ -303,7 +303,7 @@ void AddPlot2DDialog::populatePlotted() {
     pdata.ycol1 = pie->getycolumn_pieplot();
     plotted_columns_ << pdata;
     QListWidgetItem *item = new QListWidgetItem(
-        pie->getIcon(),
+        pie->getItemIcon(),
         pdata.table->name() + "_" + pdata.ycol1->name() +
             "(Label: " + pdata.xcol->name() + ")[" +
             QString::number(pie->getfrom_pieplot() + 1) + ":" +
@@ -319,13 +319,8 @@ void AddPlot2DDialog::populatePlotted() {
     gdata.xcol = graphdata->getxcolumn();
     gdata.ycol1 = graphdata->getycolumn();
     plotted_columns_ << gdata;
-    QListWidgetItem *item = new QListWidgetItem(
-        ls->getIcon(),
-        gdata.table->name() + "_" + gdata.xcol->name() + "_" +
-            gdata.ycol1->name() + "[" +
-            QString::number(graphdata->getfrom() + 1) + ":" +
-            QString::number(graphdata->getto() + 1) + "]",
-        contents_);
+    QListWidgetItem *item =
+        new QListWidgetItem(ls->getItemIcon(), ls->getItemName(), contents_);
     contents_->addItem(item);
   }
   foreach (Curve2D *curve, curvelist) {
@@ -338,68 +333,13 @@ void AddPlot2DDialog::populatePlotted() {
       cdata.ycol1 = curvedata->getycolumn();
       plotted_columns_ << cdata;
       QListWidgetItem *item = new QListWidgetItem(
-          curve->getIcon(),
-          cdata.table->name() + "_" + cdata.xcol->name() + "_" +
-              cdata.ycol1->name() + "[" +
-              QString::number(curvedata->getfrom() + 1) + ":" +
-              QString::number(curvedata->getto() + 1) + "]",
-          contents_);
+          curve->getItemIcon(), curve->getItemName(), contents_);
       contents_->addItem(item);
     } else {
       PlotData::FunctionData funcdata = curve->getfuncdata_cplot();
       Data data;
       data.type = Type::Table_X_Y;
-      QString string;
-      switch (funcdata.type) {
-        case 0: {
-          QString functype, func;
-          if (funcdata.functions.size() == 1) {
-            functype = QString(tr("XY"));
-            func = funcdata.functions.at(0);
-          } else {
-            functype = QString(tr("Unknown"));
-            func = QString(tr("unknown"));
-          }
-          string += func + "_(" + functype + ")" + "[" +
-                    QString::number(funcdata.points) + " ," +
-                    QString::number(funcdata.from) + ":" +
-                    QString::number(funcdata.to) + "]";
-        } break;
-        case 1: {
-          QString functype, func1, func2;
-          if (funcdata.functions.size() == 2) {
-            functype = QString(tr("Parametric"));
-            func1 = funcdata.functions.at(0);
-            func2 = funcdata.functions.at(1);
-          } else {
-            functype = QString(tr("Unknown"));
-            func1 = QString(tr("unknown"));
-            func2 = QString(tr("unknown"));
-          }
-          string += func1 + "_" + func2 + "_(" + functype + ":" +
-                    funcdata.parameter + ")" + "[" +
-                    QString::number(funcdata.points) + " ," +
-                    QString::number(funcdata.from) + ":" +
-                    QString::number(funcdata.to) + "]";
-        } break;
-        case 2: {
-          QString functype, func1, func2;
-          if (funcdata.functions.size() == 2) {
-            functype = QString(tr("Polar"));
-            func1 = funcdata.functions.at(0);
-            func2 = funcdata.functions.at(1);
-          } else {
-            functype = QString(tr("Unknown"));
-            func1 = QString(tr("unknown"));
-            func2 = QString(tr("unknown"));
-          }
-          string += func1 + "_" + func2 + "_(" + functype + ":" +
-                    funcdata.parameter + ")" + "[" +
-                    QString::number(funcdata.points) + " ," +
-                    QString::number(funcdata.from) + ":" +
-                    QString::number(funcdata.to) + "]";
-        } break;
-      }
+      QString string = curve->getItemName();
       data.fd.type = funcdata.type;
       data.fd.functions = funcdata.functions;
       data.fd.parameter = funcdata.parameter;
@@ -408,7 +348,7 @@ void AddPlot2DDialog::populatePlotted() {
       data.fd.to = funcdata.to;
       plotted_columns_ << data;
       QListWidgetItem *item =
-          new QListWidgetItem(curve->getIcon(), string, contents_);
+          new QListWidgetItem(curve->getItemIcon(), string, contents_);
       contents_->addItem(item);
     }
   }
@@ -422,12 +362,7 @@ void AddPlot2DDialog::populatePlotted() {
       bdata.ycol1 = bardata->getycolumn();
       plotted_columns_ << bdata;
       QListWidgetItem *item = new QListWidgetItem(
-          bar->getIcon(),
-          bdata.table->name() + "_" + bdata.xcol->name() + "_" +
-              bdata.ycol1->name() + "[" +
-              QString::number(bardata->getfrom() + 1) + ":" +
-              QString::number(bardata->getto() + 1) + "]",
-          contents_);
+          bar->getItemIcon(), bar->getItemName(), contents_);
       contents_->addItem(item);
     } else {
       DataBlockHist *histdata = bar->getdatablock_histplot();
@@ -437,16 +372,13 @@ void AddPlot2DDialog::populatePlotted() {
       hdata.xcol = histdata->getcolumn();
       plotted_columns_ << hdata;
       QListWidgetItem *item = new QListWidgetItem(
-          bar->getIcon(),
-          hdata.table->name() + "_" + hdata.xcol->name() + "[" +
-              QString::number(histdata->getfrom() + 1) + ":" +
-              QString::number(histdata->getto() + 1) + "]",
-          contents_);
+          bar->getItemIcon(), bar->getItemName(), contents_);
       contents_->addItem(item);
     }
   }
   for (int i = 0; i < channellist.size(); i++) {
-    QPair<LineSpecial2D *, LineSpecial2D *> pair = channellist.at(i);
+    QPair<LineSpecial2D *, LineSpecial2D *> pair =
+        channellist.at(i)->getChannelPair();
     // 1st
     DataBlockGraph *graphdata1 = pair.first->getdatablock_lsplot();
     DataBlockGraph *graphdata2 = pair.second->getdatablock_lsplot();
@@ -477,7 +409,7 @@ void AddPlot2DDialog::populatePlotted() {
     vdata.ycol3 = vec->getfourthcol_vecplot();
     plotted_columns_ << vdata;
     QListWidgetItem *item = new QListWidgetItem(
-        vec->getIcon(),
+        vec->getItemIcon(),
         vdata.table->name() + "_" + vdata.xcol->name() + "_" +
             vdata.ycol1->name() + "_" + vdata.ycol2->name() + "_" +
             vdata.ycol3->name() + "[" +
@@ -950,8 +882,7 @@ void AddPlot2DDialog::removePlots() {
   QVector<LineSpecial2D *> lslist = axisrect_->getLsVec();
   QVector<Curve2D *> curvelist = axisrect_->getCurveVec();
   QVector<Bar2D *> barlist = axisrect_->getBarVec();
-  QVector<QPair<LineSpecial2D *, LineSpecial2D *>> channellist =
-      axisrect_->getChannelVec();
+  QVector<Channel2D *> channellist = axisrect_->getChannelVec();
   QVector<Vector2D *> veclist = axisrect_->getVectorVec();
 
   switch (data.type) {
@@ -1040,13 +971,14 @@ void AddPlot2DDialog::removePlots() {
           }
       }
       for (int i = 0; i < channellist.size(); i++) {
-        QPair<LineSpecial2D *, LineSpecial2D *> pair = channellist.at(i);
+        QPair<LineSpecial2D *, LineSpecial2D *> pair =
+            channellist.at(i)->getChannelPair();
         if (pair.first->getdatablock_lsplot()->gettable() == data.table &&
             pair.first->getdatablock_lsplot()->getxcolumn() == data.xcol &&
             pair.first->getdatablock_lsplot()->getycolumn() == data.ycol1 &&
             pair.second->getdatablock_lsplot()->getycolumn() == data.ycol2 &&
             data.ycol3 == nullptr) {
-          axisrect_->removeChannel2D(pair);
+          axisrect_->removeChannel2D(channellist.at(i));
           populatePlotted();
           populateAvailable();
           return;

@@ -84,6 +84,38 @@ Bar2D::~Bar2D() {
   parentPlot()->removeLayer(layer());
 }
 
+QString Bar2D::getItemName() {
+  QString name;
+  (!ishistogram_) ? name = bardata_->gettable()->name() + "_" +
+                           bardata_->getxcolumn()->name() + "_" +
+                           bardata_->getycolumn()->name() + "[" +
+                           QString::number(bardata_->getfrom() + 1) + ":" +
+                           QString::number(bardata_->getto() + 1) + "]"
+                  : name = histdata_->gettable()->name() + "_" +
+                           histdata_->getcolumn()->name();
+  return name;
+}
+
+QIcon Bar2D::getItemIcon() { return icon_; }
+
+QString Bar2D::getItemTooltip() {
+  QString tooltip;
+  (!ishistogram_)
+      ? tooltip = Utilities::getTooltipText(Utilities::TooltipType::xy)
+      : tooltip = Utilities::getTooltipText(Utilities::TooltipType::x);
+  (!ishistogram_)
+      ? tooltip = tooltip.arg(bardata_->gettable()->name(),
+                              bardata_->getxcolumn()->name(),
+                              bardata_->getycolumn()->name(),
+                              QString::number(bardata_->getfrom() + 1),
+                              QString::number(bardata_->getto() + 1))
+      : tooltip = tooltip.arg(histdata_->gettable()->name(),
+                              histdata_->getcolumn()->name(),
+                              QString::number(histdata_->getfrom() + 1),
+                              QString::number(histdata_->getto() + 1));
+  return tooltip;
+}
+
 void Bar2D::setXerrorBar(Table *table, Column *errorcol, int from, int to) {
   if (xerroravailable_ || ishistogram_) {
     qDebug() << "X error bar already defined or unsupported plot type";
@@ -143,6 +175,12 @@ double Bar2D::getstrokethickness_barplot() const { return pen().widthF(); }
 QColor Bar2D::getfillcolor_barplot() const { return brush().color(); }
 
 Qt::BrushStyle Bar2D::getfillstyle_barplot() const { return brush().style(); }
+
+bool Bar2D::getlegendvisible_barplot() const {
+  return mParentPlot->legend->hasItemWithPlottable(this);
+}
+
+QString Bar2D::getlegendtext_barplot() const { return name(); }
 
 DataBlockBar *Bar2D::getdatablock_barplot() const { return bardata_; }
 
@@ -204,6 +242,12 @@ void Bar2D::setfillstyle_barplot(const Qt::BrushStyle &style) {
   b.setStyle(style);
   setBrush(b);
 }
+
+void Bar2D::setlegendvisible_barplot(const bool value) {
+  (value) ? addToLegend() : removeFromLegend();
+}
+
+void Bar2D::setlegendtext_barplot(const QString &text) { setName(text); }
 
 void Bar2D::setHistAutoBin(const bool status) {
   if (histdata_->getautobin() == status) return;
@@ -397,7 +441,8 @@ void Bar2D::datapicker(QMouseEvent *, const QVariant &details) {
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
-    it = data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPBars *>(this)->data()->at(
+        dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
     xaxis_->getaxisrect_axis()->getPickerTool()->showtooltip(
         point, it->mainKey(), it->mainValue(), getxaxis(), getyaxis());
@@ -409,7 +454,8 @@ void Bar2D::movepicker(QMouseEvent *event, const QVariant &details) {
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
-    it = data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPBars *>(this)->data()->at(
+        dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
     if (point.x() > event->localPos().x() - 10 &&
         point.x() < event->localPos().x() + 10 &&
@@ -426,7 +472,8 @@ void Bar2D::removepicker(QMouseEvent *, const QVariant &details) {
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
-    it = data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPBars *>(this)->data()->at(
+        dataPoints.dataRange().begin());
     bardata_->removedatafromtable(it->mainKey(), it->mainValue());
   }
 }

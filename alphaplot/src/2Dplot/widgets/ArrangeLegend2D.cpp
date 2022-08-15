@@ -5,6 +5,7 @@
 
 #include "2Dplot/AxisRect2D.h"
 #include "2Dplot/Bar2D.h"
+#include "2Dplot/Channel2D.h"
 #include "2Dplot/ColorMap2D.h"
 #include "2Dplot/Curve2D.h"
 #include "2Dplot/Legend2D.h"
@@ -141,10 +142,10 @@ ArrangeLegend2D::ArrangeLegend2D(QWidget *parent, Legend2D *legend,
     if (once)
       for (int j = 0; j < lspecialvec_.count(); j++) {
         if (dynamic_cast<QCPAbstractLegendItem *>(legend_->item(i)) ==
-            legend_->itemWithPlottable(lspecialvec_.at(j).first)) {
+            legend_->itemWithPlottable(lspecialvec_.at(j)->getChannelFirst())) {
           abstactvec_ << QPair<QCPAbstractLegendItem *, QString>(
               legend_->item(i),
-              lspecialvec_.at(j).first->getlegendtext_lsplot());
+              lspecialvec_.at(j)->getChannelFirst()->getlegendtext_lsplot());
           once = false;
           break;
         }
@@ -246,11 +247,13 @@ void ArrangeLegend2D::remakeLegendItem2D(QCPAbstractLegendItem *item) {
   }
   // channelplot
   for (int j = 0; j < lspecialvec_.count(); j++) {
-    if (item == legend_->itemWithPlottable(lspecialvec_.at(j).first)) {
+    if (item ==
+        legend_->itemWithPlottable(lspecialvec_.at(j)->getChannelFirst())) {
       QFont fnt = item->font();
       QColor clr = item->textColor();
       legend_->removeItem(item);
-      LegendItem2D *nitem = new LegendItem2D(legend_, lspecialvec_.at(j).first);
+      LegendItem2D *nitem =
+          new LegendItem2D(legend_, lspecialvec_.at(j)->getChannelFirst());
       nitem->setFont(fnt);
       nitem->setTextColor(clr);
       legend_->addItem(nitem);

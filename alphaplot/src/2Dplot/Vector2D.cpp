@@ -44,6 +44,27 @@ Vector2D::~Vector2D() {
   parentPlot()->removeLayer(layer());
 }
 
+QString Vector2D::getItemName() {
+  return QString(
+      gettable_vecplot()->name() + "_" + getfirstcol_vecplot()->name() + "_" +
+      getsecondcol_vecplot()->name() + "_" + getthirdcol_vecplot()->name() +
+      "_" + getfourthcol_vecplot()->name() + "[" +
+      QString::number(getfrom_vecplot() + 1) + ":" +
+      QString::number(getto_vecplot() + 1) + "]");
+}
+
+QIcon Vector2D::getItemIcon() { return icon_; }
+
+QString Vector2D::getItemTooltip() {
+  QString tooltip = Utilities::getTooltipText(Utilities::TooltipType::xyyy);
+  tooltip = tooltip.arg(
+      gettable_vecplot()->name(), getfirstcol_vecplot()->name(),
+      getsecondcol_vecplot()->name(), getthirdcol_vecplot()->name(),
+      getfourthcol_vecplot()->name(), QString::number(getfrom_vecplot() + 1),
+      QString::number(getto_vecplot() + 1));
+  return tooltip;
+}
+
 void Vector2D::setGraphData(Table *table, Column *x1Data, Column *y1Data,
                             Column *x2Data, Column *y2Data, int from, int to) {
   table_ = table;

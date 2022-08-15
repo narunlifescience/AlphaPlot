@@ -14,7 +14,13 @@ class XmlStreamWriter;
 class XmlStreamReader;
 
 class ErrorBar2D : public QCPErrorBars {
+  Q_OBJECT
  public:
+  enum class GraphType {
+    LineSpecial,
+    Curve,
+    Bar,
+  };
   ErrorBar2D(Table *table, Column *errorcol, int from, int to, Axis2D *xAxis,
              Axis2D *yAxis, QCPErrorBars::ErrorType errortype,
              LineSpecial2D *linespecial);
@@ -24,6 +30,10 @@ class ErrorBar2D : public QCPErrorBars {
              Axis2D *yAxis, QCPErrorBars::ErrorType errortype, Bar2D *bar);
   ~ErrorBar2D();
 
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
+
   void setErrorData(Table *table, Column *errorcol, int from, int to);
   bool getfillstatus_errorbar() const;
   QCPErrorBars::ErrorType geterrortype_errorbar() { return errortype_; }
@@ -31,6 +41,7 @@ class ErrorBar2D : public QCPErrorBars {
   Curve2D *getcurve2d_errorbar() { return curve_; }
   Bar2D *getbar2d_errorbar() { return bar_; }
   DataBlockError *getdatablock_error() { return errordata_; }
+  GraphType getGraphType() const { return gtype_; }
   void setfillstatus_errorbar(const bool status);
 
   void save(XmlStreamWriter *xmlwriter);
@@ -40,10 +51,12 @@ class ErrorBar2D : public QCPErrorBars {
   Axis2D *xAxis_;
   Axis2D *yAxis_;
   QCPErrorBars::ErrorType errortype_;
+  GraphType gtype_;
   LineSpecial2D *linespecial_;
   Curve2D *curve_;
   Bar2D *bar_;
   DataBlockError *errordata_;
 };
 
+Q_DECLARE_METATYPE(ErrorBar2D *);
 #endif  // ERRORBAR2D_H

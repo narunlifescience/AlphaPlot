@@ -38,7 +38,6 @@
 #include <QtScript>
 
 #include "MyWidget.h"
-#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 
 // Scripting
 #include "future/table/TableView.h"
@@ -48,13 +47,10 @@
 #include "scripting/ScriptingEnv.h"
 /*!\brief MDI window providing a spreadsheet table with column logic.
  */
-class ObjectBrowserTreeItemModel;
-class DummyWindow;
 
 class Table : public TableView,
               public scripted,
-              public QScriptable,
-              public ObjectBrowserTreeItem {
+              public QScriptable {
   Q_OBJECT
 
  public:
@@ -88,26 +84,28 @@ class Table : public TableView,
         Qt::WindowFlags f = Qt::SubWindow);
   ~Table();
 
-  virtual QString getItemName();
-  virtual QIcon getItemIcon();
-  virtual QString getItemTooltip();
+  virtual QString getItemName() override;
+  virtual QIcon getItemIcon() override;
+  virtual QString getItemTooltip() override;
 
   //! Sets the number of significant digits
   void setNumericPrecision(int prec);
 
   //! Return the window name
-  virtual QString name() { return d_future_table->name(); }
+  virtual QString name() override { return d_future_table->name(); }
   //! Set the window name
-  virtual void setName(const QString& s) { d_future_table->setName(s); }
+  virtual void setName(const QString& s) override {
+    d_future_table->setName(s);
+  }
   //! Return the window label
-  virtual QString windowLabel() { return d_future_table->comment(); }
+  virtual QString windowLabel() override { return d_future_table->comment(); }
   //! Set the window label
-  virtual void setWindowLabel(const QString& s) {
+  virtual void setWindowLabel(const QString& s) override {
     d_future_table->setComment(s);
     updateCaption();
   }
   //! Set the caption policy
-  void setCaptionPolicy(CaptionPolicy policy) {
+  void setCaptionPolicy(CaptionPolicy policy) override {
     caption_policy = policy;
     updateCaption();
     switch (policy) {
@@ -123,13 +121,12 @@ class Table : public TableView,
     }
   }
   //! Set the creation date
-  virtual void setBirthDate(const QString& s) {
+  virtual void setBirthDate(const QString& s) override {
     birthdate = s;
     d_future_table->importV0x0001XXCreationTime(s);
   }
 
-  void closeEvent(QCloseEvent*);
-  ObjectBrowserTreeItemModel *getObjectModel() {return model_;}
+  void closeEvent(QCloseEvent*) override;
 
  public slots:
   void copy(Table* m);
@@ -182,10 +179,10 @@ class Table : public TableView,
 
   void clearCell(int row, int col);
 
-  void print();
+  void print() override;
   void print(const QString& fileName);
-  void exportPDF(const QString& fileName);
-  void customEvent(QEvent* e);
+  void exportPDF(const QString& fileName) override;
+  void customEvent(QEvent* e) override;
 
   //! \name Column Operations
   //@{
@@ -283,6 +280,8 @@ class Table : public TableView,
   void modifiedData(Table*, const QString&);
   void resizedTable(QWidget*);
   void showContextMenu(bool selection);
+  void rowcountchange();
+  void columncountchange();
 
  protected slots:
   void applyFormula();
@@ -293,8 +292,6 @@ class Table : public TableView,
   void handleAspectDescriptionAboutToChange(const AbstractAspect* aspect);
 
  private:
-  DummyWindow *dummywindow_;
-  ObjectBrowserTreeItemModel* model_;
   QHash<const AbstractAspect*, QString> d_stored_column_labels;
 
   // Scripting Functions
@@ -308,5 +305,5 @@ class Table : public TableView,
   void applyFunction();
 };
 
-Q_DECLARE_METATYPE(Table *);
+Q_DECLARE_METATYPE(Table*);
 #endif  // TABLE_H

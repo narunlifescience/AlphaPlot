@@ -7,7 +7,7 @@ DEFINES += QCUSTOMPLOT_USE_OPENGL
 QT += core gui widgets opengl network svg
 QT += script scripttools printsupport datavisualization
 
-# enable C++11 support
+# enable C++14 support
 CONFIG += c++14
 CONFIG += qt warn_on exceptions opengl thread
 

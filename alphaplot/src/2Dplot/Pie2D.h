@@ -36,11 +36,15 @@ class Pie2D : public QCPAbstractItem {
         Table *table, Column *xData, Column *yData, int from, int to);
   ~Pie2D();
 
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
+
   void setGraphData(Table *table, Column *xData, Column *yData, int from,
                     int to);
   // reimplemented virtual methods:
   double selectTest(const QPointF &pos, bool onlySelectable,
-                    QVariant *details = nullptr) const;
+                    QVariant *details = nullptr) const override;
 
   AxisRect2D *getaxisrect() const;
   Qt::PenStyle getstrokestyle_pieplot() const;
@@ -53,7 +57,6 @@ class Pie2D : public QCPAbstractItem {
   Column *getycolumn_pieplot() { return ycolumn_; }
   int getfrom_pieplot() const { return from_; }
   int getto_pieplot() const { return to_; }
-  QIcon getIcon() const { return icon_; }
 
   void setstrokestyle_pieplot(const Qt::PenStyle &style);
   void setstrokecolor_pieplot(const QColor &color);
@@ -70,7 +73,7 @@ class Pie2D : public QCPAbstractItem {
   bool load(XmlStreamReader *xmlreader);
 
  protected:
-  void draw(QCPPainter *painter);
+  void draw(QCPPainter *painter) override;
 
  private:
   AxisRect2D *axisrect_;
@@ -90,4 +93,5 @@ class Pie2D : public QCPAbstractItem {
   QIcon icon_;
 };
 
+Q_DECLARE_METATYPE(Pie2D *);
 #endif  // PIE2D_H

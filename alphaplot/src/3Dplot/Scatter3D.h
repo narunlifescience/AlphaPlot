@@ -21,6 +21,10 @@ class Scatter3D : public QObject {
   Scatter3D(Q3DScatter *scatter);
   ~Scatter3D();
 
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
+
   void settabledata(Table *table, Column *xcolumn, Column *ycolumn,
                     Column *zcolumn);
   void setmatrixdatamodel(Matrix *matrix);
@@ -42,4 +46,6 @@ class Scatter3D : public QObject {
   QVector<DataBlockScatter3D *> data_;
   int counter_;
 };
+
+Q_DECLARE_METATYPE(Scatter3D *);
 #endif  // SCATTER3D_H

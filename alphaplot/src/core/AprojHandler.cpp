@@ -13,7 +13,6 @@
 #include "Table.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
-#include "propertybrowser/propertyeditor.h"
 
 const QString AprojHandler::xmlschemafile_ = ":xmlschema/aproj.xsd";
 
@@ -274,11 +273,6 @@ MyWidget *AprojHandler::opentemplate(const QString &filename) {
                xmlreader->name() == "plot2d" && istemplate) {
       Layout2D *plot2d = app_->newGraph2D();
       plot2d->load(xmlreader.get(), tables(app_), matrixs(app_));
-      // (hack) for some unknown reason this connection need to be manually set
-      // here
-      foreach (AxisRect2D *axisrect, plot2d->getAxisRectList()) {
-        app_->propertyeditor->axisrectConnections(axisrect);
-      }
       mywidget = plot2d;
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "plot3d" && istemplate) {
@@ -394,11 +388,6 @@ Folder *AprojHandler::readxmlstream(ApplicationWindow *app, QFile *file,
                xmlreader->name() == "plot2d") {
       Layout2D *plot2d = app->newGraph2D();
       plot2d->load(xmlreader.get(), tables(app), matrixs(app));
-      // (hack) for some unknown reason this connection need to be manually set
-      // here
-      foreach (AxisRect2D *axisrect, plot2d->getAxisRectList()) {
-        app->propertyeditor->axisrectConnections(axisrect);
-      }
     } else if (token == QXmlStreamReader::StartElement &&
                xmlreader->name() == "plot3d") {
       bool ok = false;

@@ -38,14 +38,10 @@
 #include <QTableWidget>
 
 #include "MyWidget.h"
-#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 #include "future/matrix/MatrixView.h"
 #include "future/matrix/future_Matrix.h"
 #include "scripting/Script.h"
 #include "scripting/ScriptingEnv.h"
-
-class ObjectBrowserTreeItemModel;
-class DummyWindow;
 
 // (maximum) initial matrix size
 #define _Matrix_initial_rows_ 10
@@ -53,8 +49,7 @@ class DummyWindow;
 
 //! Matrix worksheet class
 class Matrix : public MatrixView,
-               public scripted,
-               public ObjectBrowserTreeItem {
+               public scripted {
   Q_OBJECT
 
  public:
@@ -135,7 +130,6 @@ class Matrix : public MatrixView,
 
   virtual QWidget *view() { return d_future_matrix->view(); }
   QAbstractItemModel *getmodel() { return d_view_widget->model(); }
-  ObjectBrowserTreeItemModel *getObjectModel() { return model_; }
 
  public slots:
   void exportPDF(const QString &fileName) override;
@@ -301,6 +295,8 @@ class Matrix : public MatrixView,
  signals:
   //! Show the context menu
   void showContextMenu();
+  void rowcountchange();
+  void columncountchange();
 
  protected slots:
   void applyFormula();
@@ -310,8 +306,6 @@ class Matrix : public MatrixView,
   void handleAspectDescriptionChange(const AbstractAspect *aspect);
 
  private:
-  DummyWindow *dummywindow_;
-  ObjectBrowserTreeItemModel *model_;
   //! Initialize the matrix
   void init(int rows, int cols);
 

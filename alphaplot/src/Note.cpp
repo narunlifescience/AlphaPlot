@@ -42,25 +42,16 @@
 #include <QXmlStreamWriter>
 
 #include "core/IconLoader.h"
-#include "core/propertybrowser/DummyWindow.h"
-#include "core/propertybrowser/ObjectBrowserTreeItemModel.h"
 #include "future/lib/XmlStreamReader.h"
 #include "scripting/ScriptEdit.h"
 
 Note::Note(ScriptingEnv* env, const QString& label, QWidget* parent,
            const char* name, Qt::WindowFlags f)
-    : MyWidget(label, parent, name, f),
-      ObjectBrowserTreeItem(QVariant::fromValue<Note*>(this),
-                            ObjectBrowserTreeItem::ObjectType::NoteWindow,
-                            nullptr) {
-  MyWidget* mywidget = qobject_cast<MyWidget*>(this);
-  Q_ASSERT(mywidget != nullptr);
-  dummywindow_ = new DummyWindow(this, mywidget);
-  model_ = new ObjectBrowserTreeItemModel(this, this);
+    : MyWidget(label, parent, name, f) {
   init(env);
 }
 
-Note::~Note() { delete dummywindow_; }
+Note::~Note() {}
 
 QString Note::getItemName() { return name(); }
 

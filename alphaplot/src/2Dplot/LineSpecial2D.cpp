@@ -49,6 +49,26 @@ LineSpecial2D::~LineSpecial2D() {
   parentPlot()->removeLayer(layer());
 }
 
+QString LineSpecial2D::getItemName() {
+  return QString(graphdata_->gettable()->name() + "_" +
+                 graphdata_->getxcolumn()->name() + "_" +
+                 graphdata_->getycolumn()->name() + "[" +
+                 QString::number(graphdata_->getfrom() + 1) + ":" +
+                 QString::number(graphdata_->getto() + 1) + "]");
+}
+
+QIcon LineSpecial2D::getItemIcon() { return icon_; }
+
+QString LineSpecial2D::getItemTooltip() {
+  QString tooltip = Utilities::getTooltipText(Utilities::TooltipType::xy);
+  tooltip = tooltip.arg(graphdata_->gettable()->name(),
+                        graphdata_->getxcolumn()->name(),
+                        graphdata_->getycolumn()->name(),
+                        QString::number(graphdata_->getfrom() + 1),
+                        QString::number(graphdata_->getto() + 1));
+  return tooltip;
+}
+
 void LineSpecial2D::setXerrorBar(Table *table, Column *errorcol, int from,
                                  int to) {
   if (xerroravailable_) {
@@ -219,6 +239,10 @@ QColor LineSpecial2D::getscatterfillcolor_lsplot() const {
   return scatterStyle().brush().color();
 }
 
+Qt::BrushStyle LineSpecial2D::getscatterfillstyle_lsplot() const {
+  return scatterStyle().brush().style();
+}
+
 double LineSpecial2D::getscattersize_lsplot() const {
   return scatterStyle().size();
 }
@@ -310,10 +334,8 @@ void LineSpecial2D::setlinefillcolor_lsplot(const QColor &color) {
 
 void LineSpecial2D::setlinefillstyle_lsplot(const Qt::BrushStyle &style) {
   QBrush b = brush();
-  if (b.style() != Qt::BrushStyle::NoBrush) {
-    b.setStyle(style);
-    setBrush(b);
-  }
+  b.setStyle(style);
+  setBrush(b);
 }
 
 void LineSpecial2D::setlineantialiased_lsplot(const bool value) {
@@ -378,6 +400,13 @@ void LineSpecial2D::setscattershape_lsplot(
 void LineSpecial2D::setscatterfillcolor_lsplot(const QColor &color) {
   QBrush b = scatterstyle_->brush();
   b.setColor(color);
+  scatterstyle_->setBrush(b);
+  setScatterStyle(*scatterstyle_);
+}
+
+void LineSpecial2D::setscatterfillstyle_lsplot(const Qt::BrushStyle &style) {
+  QBrush b = scatterstyle_->brush();
+  b.setStyle(style);
   scatterstyle_->setBrush(b);
   setScatterStyle(*scatterstyle_);
 }
@@ -739,7 +768,8 @@ void LineSpecial2D::datapicker(QMouseEvent *event, const QVariant &details) {
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
-    it = data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPGraph *>(this)->data()->at(
+        dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
     if (point.x() > event->localPos().x() - 10 &&
         point.x() < event->localPos().x() + 10 &&
@@ -755,7 +785,8 @@ void LineSpecial2D::movepicker(QMouseEvent *event, const QVariant &details) {
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
-    it = data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPGraph *>(this)->data()->at(
+        dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
     if (point.x() > event->localPos().x() - 10 &&
         point.x() < event->localPos().x() + 10 &&
@@ -772,7 +803,8 @@ void LineSpecial2D::removepicker(QMouseEvent *event, const QVariant &details) {
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
-    it = data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPGraph *>(this)->data()->at(
+        dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
     if (point.x() > event->localPos().x() - 10 &&
         point.x() < event->localPos().x() + 10 &&

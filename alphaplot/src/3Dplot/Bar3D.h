@@ -21,6 +21,10 @@ class Bar3D : public QObject {
   Bar3D(Q3DBars *bar);
   ~Bar3D();
 
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
+
   void settabledata(Table *table, Column *xcolumn, Column *ycolumn,
                     Column *zcolumn);
   void setmatrixdatamodel(Matrix *matrix);
@@ -45,4 +49,5 @@ class Bar3D : public QObject {
   int counter_;
 };
 
+Q_DECLARE_METATYPE(Bar3D *);
 #endif  // BAR3D_H

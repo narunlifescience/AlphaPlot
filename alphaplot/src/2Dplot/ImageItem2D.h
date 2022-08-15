@@ -2,23 +2,21 @@
 #define IMAGEITEM2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 
 class AxisRect2D;
 class Plot2D;
 class XmlStreamWriter;
 class XmlStreamReader;
 
-class ImageItem2D : public QCPItemPixmap, public ObjectBrowserTreeItem {
+class ImageItem2D : public QCPItemPixmap {
   Q_OBJECT
  public:
-  ImageItem2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *axisrect,
-              Plot2D *plot, const QString &filename);
+  ImageItem2D(AxisRect2D *axisrect, Plot2D *plot, const QString &filename);
   ~ImageItem2D();
 
-  virtual QString getItemName() override;
-  virtual QIcon getItemIcon() override;
-  virtual QString getItemTooltip() override;
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
 
   AxisRect2D *getaxisrect() const;
   QString getsource_imageitem() const;
@@ -39,6 +37,9 @@ class ImageItem2D : public QCPItemPixmap, public ObjectBrowserTreeItem {
   void save(XmlStreamWriter *xmlwriter);
   bool load(XmlStreamReader *xmlreader);
 
+ signals:
+  void positionChanged();
+
  protected:
   void draw(QCPPainter *painter) override;
   void mousePressEvent(QMouseEvent *event, const QVariant &details) override;
@@ -46,7 +47,6 @@ class ImageItem2D : public QCPItemPixmap, public ObjectBrowserTreeItem {
   void mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos) override;
 
  private:
-  ObjectBrowserTreeItem *parentitem_;
   const static int selectionpixelsize_;
   AxisRect2D *axisrect_;
   QString layername_;

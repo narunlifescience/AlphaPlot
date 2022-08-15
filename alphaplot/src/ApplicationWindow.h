@@ -80,13 +80,10 @@ class IconLoader;
 class AprojHandler;
 class SettingsDialog;
 class PropertiesDialog;
-class PropertyEditor;
 class PropertyBrowser;
 class AxisRect2D;
 class Curve2D;
 class Function2DDialog;
-class ObjectBrowserTreeItemModel;
-class DummyNone;
 
 #ifndef TS_PATH
 #define TS_PATH (qApp->applicationDirPath() + "/translations")
@@ -187,7 +184,6 @@ class ApplicationWindow : public QMainWindow,
   ConsoleWidget* consoleWindow;
 #endif
   PropertyBrowser* propertybrowser;
-  PropertyEditor* propertyeditor;
   QMdiArea* d_workspace;
   QToolButton* btnResults;
   QList<MyWidget*> hiddenWindows;
@@ -213,7 +209,6 @@ class ApplicationWindow : public QMainWindow,
   FolderTreeWidgetItem* getProjectRootItem();
   QString getLogInfoText() const;
   void setCurrentFolderViewItem(FolderTreeWidgetItem* item);
-  ObjectBrowserTreeItemModel* getObjectModel() { return model_; }
 
  public slots:
   //! Copy the status bar text to the clipboard
@@ -1056,8 +1051,6 @@ class ApplicationWindow : public QMainWindow,
   bool isActiveSubWindow(QMdiSubWindow* subwindow,
                          const SubWindowType& subwindowtype);
 
-  DummyNone* none_;
-  ObjectBrowserTreeItemModel* model_;
   // Stores the pointers to the dragged items from the FolderListViews objects
   QList<QTreeWidgetItem*> draggedItems;
 

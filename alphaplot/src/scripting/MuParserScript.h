@@ -48,7 +48,7 @@ class MuParserScript : public Script {
   bool compile(bool asFunction = true);
   QVariant eval();
   bool exec() { return eval().isValid(); }
-  bool setQObject(QObject *value, const char *name) {
+  bool setQObject(const QObject *value, const char *name) {
     Q_UNUSED(value);
     Q_UNUSED(name);
     return false;
@@ -57,6 +57,7 @@ class MuParserScript : public Script {
   bool setInt(int value, const char *name) {
     return setDouble(static_cast<double>(value), name);
   }
+
 
  private:
   static double *variableFactory(const char *name, void *self);

@@ -30,55 +30,76 @@
 #ifndef OBJECTBROWSERTREEITEM_H
 #define OBJECTBROWSERTREEITEM_H
 
+#include <QDebug>
+#include <QIcon>
 #include <QVariant>
 
 class ObjectBrowserTreeItem {
  public:
   enum class ObjectType : int {
     None = 0,
-    TableWindow = 1,
-    MatrixWindow = 2,
-    NoteWindow = 3,
-    Plot2DWindow = 4,
-    Plot3DWindow = 5,
-    BaseWindow = 6,
-    Plot2DCanvas = 7,
-    Plot2DLayout = 8,
-    Plot2DLegend = 9,
-    Plot2DAxis = 10,
-    Plot2DGrid = 11,
-    Plot2DTextItem = 12,
-    Plot2DLineItem = 13,
-    Plot2DImageItem = 14,
-    Plot2DLSGraph = 15,
-    Plot2DChannelGraph = 16,
-    Plot2DCurve = 17,
-    Plot2DStatBox = 18,
-    Plot2DVector = 19,
-    Plot2DBarGraph = 20,
-    Plot2DPieGraph = 21,
-    Plot2DColorMap = 22,
-    Plot2DErrorBar = 23,
-    Plot3DCanvas = 24,
-    Plot3DTheme = 25,
-    Plot3DAxisValue = 26,
-    Plot3DAxisCatagory = 27,
-    Plot3DSurface = 28,
-    Plot3DBar = 29,
-    Plot3DScatter = 30,
-    Plot3DSurfaceDataBlock = 31,
-    Plot3DBarDataBlock = 32,
-    Plot3DScatterDataBlock = 33,
+    BaseWindow = 1,
+    TableWindow = 2,
+    TableDimension = 3,
+    MatrixWindow = 4,
+    MatrixDimension = 5,
+    NoteWindow = 6,
+    Plot2DWindow = 7,
+    Plot2DCanvas = 8,
+    Plot2DLayout = 9,
+    Plot2DLegend = 10,
+    Plot2DAxis = 11,
+    Plot2DGrid = 12,
+    Plot2DTextItem = 13,
+    Plot2DLineItem = 14,
+    Plot2DImageItem = 15,
+    Plot2DLSGraph = 16,
+    Plot2DChannelGraph = 17,
+    Plot2DCurve = 18,
+    Plot2DStatBox = 19,
+    Plot2DVector = 20,
+    Plot2DBarGraph = 21,
+    Plot2DPieGraph = 22,
+    Plot2DColorMap = 23,
+    Plot2DErrorBar = 24,
+    Plot3DWindow = 25,
+    Plot3DCanvas = 26,
+    Plot3DTheme = 27,
+    Plot3DAxisValueX = 28,
+    Plot3DAxisValueY = 29,
+    Plot3DAxisValueZ = 30,
+    Plot3DAxisCatagoryX = 31,
+    Plot3DAxisCatagoryY = 32,
+    Plot3DSurface = 33,
+    Plot3DBar = 34,
+    Plot3DScatter = 35,
+    Plot3DSurfaceDataBlock = 36,
+    Plot3DBarDataBlock = 37,
+    Plot3DScatterDataBlock = 38,
   };
-  ObjectBrowserTreeItem(QVariant data, const ObjectType &type,
-                        ObjectBrowserTreeItem *parentItem = nullptr);
-  virtual ~ObjectBrowserTreeItem();
 
-  virtual QString getItemName() = 0;
-  virtual QIcon getItemIcon() = 0;
-  virtual QString getItemTooltip() = 0;
+  struct RoleData {
+    QString name;
+    QString tooltip;
+    QIcon icon;
+    RoleData() : name(QString()), tooltip(QString()), icon(QIcon()) {}
+  };
 
-  void addChildAppropriately();
+  static ObjectBrowserTreeItem *create(QVariant data, const ObjectType &type,
+                                       ObjectBrowserTreeItem *parentItem);
+  ~ObjectBrowserTreeItem();
+
+  template <class T>
+  T *getObjectTreeItem(bool *value) const {
+    T *object = itemData_.value<T *>();
+    if (!object) {
+      *value = false;
+      qDebug() << "Null object variant: " << typeid(object).name();
+    } else
+      *value = true;
+    return object;
+  }
+
   bool removeChild(ObjectBrowserTreeItem *item);
   ObjectBrowserTreeItem *child(int row);
   int childCount() const;
@@ -87,6 +108,11 @@ class ObjectBrowserTreeItem {
   ObjectType dataType() const;
   int row() const;
   ObjectBrowserTreeItem *parentItem();
+
+ private:
+  ObjectBrowserTreeItem(QVariant data, const ObjectType &type,
+                        ObjectBrowserTreeItem *parentItem = nullptr);
+  RoleData value() const;
 
  private:
   QVariant itemData_;

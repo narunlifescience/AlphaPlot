@@ -50,6 +50,23 @@ StatBox2D::~StatBox2D() {
   parentPlot()->removeLayer(layer());
 }
 
+QString StatBox2D::getItemName() {
+  return QString(gettable_statbox()->name() + "_" +
+                 getcolumn_statbox()->name() + "[" +
+                 QString::number(getfrom_statbox() + 1) + ":" +
+                 QString::number(getto_statbox() + 1) + "]");
+}
+
+QIcon StatBox2D::getItemIcon() { return icon_; }
+
+QString StatBox2D::getItemTooltip() {
+  QString tooltip = Utilities::getTooltipText(Utilities::TooltipType::x);
+  tooltip = tooltip.arg(gettable_statbox()->name(), getcolumn_statbox()->name(),
+                        QString::number(getfrom_statbox() + 1),
+                        QString::number(getto_statbox() + 1));
+  return tooltip;
+}
+
 Axis2D *StatBox2D::getxaxis() const { return xAxis_; }
 
 Axis2D *StatBox2D::getyaxis() const { return yAxis_; }
@@ -177,6 +194,10 @@ QColor StatBox2D::getscatterfillcolor_statbox() const {
   return outlierStyle().brush().color();
 }
 
+Qt::BrushStyle StatBox2D::getscatterfillstyle_statbox() const {
+  return outlierStyle().brush().style();
+}
+
 double StatBox2D::getscattersize_statbox() const {
   return outlierStyle().size();
 }
@@ -218,7 +239,7 @@ void StatBox2D::setboxwhiskerdata(const BoxWhiskerData boxWhiskerData) {
   setboxstyle_statbox(boxstyle_);
   setwhiskerstyle_statbox(whiskerstyle_);
   setOutliers();
-  data().data()->clear();
+  static_cast<QCPStatisticalBox *>(this)->data().data()->clear();
   addData(sBoxdata_->key, sBoxdata_->minimum, sBoxdata_->lowerQuartile,
           sBoxdata_->median, sBoxdata_->upperQuartile, sBoxdata_->maximum,
           sBoxdata_->outliers);
@@ -266,11 +287,14 @@ void StatBox2D::setboxstyle_statbox(
       sBoxdata_->upperQuartile = boxwhiskerdata_.boxWhiskerDataBounds.perc_75;
       break;
   }
-  boxstyle_ = boxStyle;
+  // this is only applicable to whiskers
+  (boxStyle == BoxWhiskerStyle::IQR_1_5_auto)
+      ? boxstyle_ = BoxWhiskerStyle::Perc_25_75
+      : boxstyle_ = boxStyle;
   if (whiskerstyle_ == BoxWhiskerStyle::IQR_1_5_auto)
     setwhiskerstyle_statbox(whiskerstyle_);
   setOutliers();
-  data().data()->clear();
+  static_cast<QCPStatisticalBox *>(this)->data().data()->clear();
   addData(sBoxdata_->key, sBoxdata_->minimum, sBoxdata_->lowerQuartile,
           sBoxdata_->median, sBoxdata_->upperQuartile, sBoxdata_->maximum,
           sBoxdata_->outliers);
@@ -319,7 +343,7 @@ void StatBox2D::setOutliers() {
 void StatBox2D::setOutlierScatter(const Scatter &scatter) {
   scatter_ = scatter;
   setOutliers();
-  data().data()->clear();
+  static_cast<QCPStatisticalBox *>(this)->data().data()->clear();
   addData(sBoxdata_->key, sBoxdata_->minimum, sBoxdata_->lowerQuartile,
           sBoxdata_->median, sBoxdata_->upperQuartile, sBoxdata_->maximum,
           sBoxdata_->outliers);
@@ -409,7 +433,7 @@ void StatBox2D::setwhiskerstyle_statbox(
     } break;
   }
   whiskerstyle_ = whiskerStyle;
-  data().data()->clear();
+  static_cast<QCPStatisticalBox *>(this)->data().data()->clear();
   addData(sBoxdata_->key, sBoxdata_->minimum, sBoxdata_->lowerQuartile,
           sBoxdata_->median, sBoxdata_->upperQuartile, sBoxdata_->maximum,
           sBoxdata_->outliers);
@@ -423,10 +447,8 @@ void StatBox2D::setfillcolor_statbox(const QColor &color) {
 
 void StatBox2D::setfillstyle_statbox(const Qt::BrushStyle &style) {
   QBrush b = brush();
-  if (b.style() != Qt::BrushStyle::NoBrush) {
-    b.setStyle(style);
-    setBrush(b);
-  }
+  b.setStyle(style);
+  setBrush(b);
 }
 
 void StatBox2D::setfillstatus_statbox(const bool status) {
@@ -553,6 +575,13 @@ void StatBox2D::setscattershape_statbox(
 void StatBox2D::setscatterfillcolor_statbox(const QColor &color) {
   QBrush b = scatterstyle_->brush();
   b.setColor(color);
+  scatterstyle_->setBrush(b);
+  setOutlierStyle(*scatterstyle_);
+}
+
+void StatBox2D::setscatterfillstyle_statbox(const Qt::BrushStyle &style) {
+  QBrush b = scatterstyle_->brush();
+  b.setStyle(style);
   scatterstyle_->setBrush(b);
   setOutlierStyle(*scatterstyle_);
 }
@@ -838,7 +867,7 @@ bool StatBox2D::load(XmlStreamReader *xmlreader) {
           QBrush boxbrush = xmlreader->readBrush(&ok);
           (ok) ? setBrush(boxbrush)
                : xmlreader->raiseWarning(
-                     tr("Curve2D linebrush property setting error"));
+                     tr("StatBox2D linebrush property setting error"));
         }
       }
     }
@@ -1054,11 +1083,13 @@ void StatBox2D::mousePressEvent(QMouseEvent *event, const QVariant &details) {
 }
 
 void StatBox2D::datapicker(QMouseEvent *event, const QVariant &details) {
-  QCPStatisticalBoxDataContainer::const_iterator it = data()->constEnd();
+  QCPStatisticalBoxDataContainer::const_iterator it =
+      static_cast<QCPStatisticalBox *>(this)->data()->constEnd();
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
-    it = data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPStatisticalBox *>(this)->data()->at(
+        dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
     if (point.x() > event->localPos().x() - 10 &&
         point.x() < event->localPos().x() + 10 &&

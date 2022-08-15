@@ -3,6 +3,7 @@
 #include "3Dplot/DataManager3D.h"
 #include "Matrix.h"
 #include "Table.h"
+#include "core/IconLoader.h"
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
@@ -15,6 +16,14 @@ Scatter3D::Scatter3D(Q3DScatter *scatter)
 }
 
 Scatter3D::~Scatter3D() {}
+
+QString Scatter3D::getItemName() { return tr("Scatter"); }
+
+QIcon Scatter3D::getItemIcon() {
+  return IconLoader::load("graph3d-scatter", IconLoader::LightDark);
+}
+
+QString Scatter3D::getItemTooltip() { return getItemName(); }
 
 void Scatter3D::settabledata(Table *table, Column *xcolumn, Column *ycolumn,
                              Column *zcolumn) {

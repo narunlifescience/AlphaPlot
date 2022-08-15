@@ -94,9 +94,14 @@ class StatBox2D : public QCPStatisticalBox {
     }
   };
 
-  explicit StatBox2D(BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
+  explicit StatBox2D(
+                     BoxWhiskerData boxWhiskerData, Axis2D *xAxis,
                      Axis2D *yAxis);
   ~StatBox2D();
+
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
 
   Axis2D *getxaxis() const;
   Axis2D *getyaxis() const;
@@ -117,6 +122,7 @@ class StatBox2D : public QCPStatisticalBox {
   double getmedianstrokethickness_statbox() const;
   Graph2DCommon::ScatterStyle getscattershape_statbox() const;
   QColor getscatterfillcolor_statbox() const;
+  Qt::BrushStyle getscatterfillstyle_statbox() const;
   double getscattersize_statbox() const;
   Qt::PenStyle getscatterstrokestyle_statbox() const;
   QColor getscatterstrokecolor_statbox() const;
@@ -126,7 +132,6 @@ class StatBox2D : public QCPStatisticalBox {
   Column *getcolumn_statbox() { return boxwhiskerdata_.column_; }
   int getfrom_statbox() const { return boxwhiskerdata_.from_; }
   int getto_statbox() const { return boxwhiskerdata_.to_; }
-  QIcon getIcon() const { return icon_; }
 
   void setxaxis_statbox(Axis2D *axis);
   void setyaxis_statbox(Axis2D *axis);
@@ -149,6 +154,7 @@ class StatBox2D : public QCPStatisticalBox {
   void setmedianstrokethickness_statbox(const double value);
   void setscattershape_statbox(const Graph2DCommon::ScatterStyle &shape);
   void setscatterfillcolor_statbox(const QColor &color);
+  void setscatterfillstyle_statbox(const Qt::BrushStyle &style);
   void setscattersize_statbox(const double value);
   void setscatterstrokestyle_statbox(const Qt::PenStyle &style);
   void setscatterstrokecolor_statbox(const QColor &color);
@@ -161,7 +167,7 @@ class StatBox2D : public QCPStatisticalBox {
   void rescaleaxes_statbox();
 
  protected:
-  void mousePressEvent(QMouseEvent *event, const QVariant &details);
+  void mousePressEvent(QMouseEvent *event, const QVariant &details) override;
 
  private:
   void datapicker(QMouseEvent *event, const QVariant &details);
@@ -181,4 +187,5 @@ class StatBox2D : public QCPStatisticalBox {
   QIcon icon_;
 };
 
+Q_DECLARE_METATYPE(StatBox2D *);
 #endif  // STATBOX2D_H

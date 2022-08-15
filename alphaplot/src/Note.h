@@ -32,21 +32,18 @@
 #include <qtextedit.h>
 
 #include "MyWidget.h"
-#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 #include "scripting/ScriptEdit.h"
 
 class ScriptingEnv;
 class QXmlStreamWriter;
 class XmlStreamReader;
-class ObjectBrowserTreeItemModel;
-class DummyWindow;
 
 /*!\brief Notes window class.
  *
  * \section future_plans Future Plans
  * - Search and replace
  */
-class Note : public MyWidget, public ObjectBrowserTreeItem {
+class Note : public MyWidget {
   Q_OBJECT
 
  public:
@@ -54,13 +51,12 @@ class Note : public MyWidget, public ObjectBrowserTreeItem {
        const char *name = 0, Qt::WindowFlags f = Qt::SubWindow);
   ~Note();
 
-  virtual QString getItemName();
-  virtual QIcon getItemIcon();
-  virtual QString getItemTooltip();
+  virtual QString getItemName() override;
+  virtual QIcon getItemIcon() override;
+  virtual QString getItemTooltip() override;
 
   void init(ScriptingEnv *env);
   QString getText();
-  ObjectBrowserTreeItemModel *getObjectModel() {return model_;}
 
  public slots:
   QTextEdit *textWidget() { return qobject_cast<QTextEdit *>(textedit_); }
@@ -73,8 +69,10 @@ class Note : public MyWidget, public ObjectBrowserTreeItem {
   void setText(const QString &s) { textedit_->setText(s); }
   void save(QXmlStreamWriter *xmlwriter);
   bool load(XmlStreamReader *xmlreader);
-  void print() { textedit_->print(); }
-  void exportPDF(const QString &fileName) { textedit_->exportPDF(fileName); }
+  void print() override { textedit_->print(); }
+  void exportPDF(const QString &fileName) override {
+    textedit_->exportPDF(fileName);
+  }
   QString exportASCII(const QString &file = QString()) {
     return textedit_->exportASCII(file);
   }
@@ -86,8 +84,6 @@ class Note : public MyWidget, public ObjectBrowserTreeItem {
   void evaluate() { textedit_->evaluate(); }
 
  private:
-  DummyWindow *dummywindow_;
-  ObjectBrowserTreeItemModel* model_;
   ScriptEdit *textedit_;
   bool autoExec;
 };

@@ -8,14 +8,9 @@
 
 const int ImageItem2D::selectionpixelsize_ = 10;
 
-ImageItem2D::ImageItem2D(ObjectBrowserTreeItem *parentitem,
-                         AxisRect2D *axisrect, Plot2D *plot,
+ImageItem2D::ImageItem2D(AxisRect2D *axisrect, Plot2D *plot,
                          const QString &filename)
     : QCPItemPixmap(plot),
-      ObjectBrowserTreeItem(QVariant::fromValue<ImageItem2D *>(this),
-                            ObjectBrowserTreeItem::ObjectType::Plot2DImageItem,
-                            parentitem),
-      parentitem_(parentitem),
       axisrect_(axisrect),
       layername_(
           QString("<Image2DItem>") +
@@ -48,7 +43,6 @@ ImageItem2D::ImageItem2D(ObjectBrowserTreeItem *parentitem,
 }
 
 ImageItem2D::~ImageItem2D() {
-  parentitem_->removeChild(this);
   parentPlot()->removeLayer(layer());
   delete pixmap_;
 }
@@ -104,6 +98,7 @@ void ImageItem2D::setposition_imageitem(const QPointF origin) {
       bottomRight->pixelPosition() + (origin - topLeft->pixelPosition());
   bottomRight->setPixelPosition(posbottomRight);
   topLeft->setPixelPosition(origin);
+  // emit positionChanged();
 }
 
 void ImageItem2D::setpixmap_imageitem() {
@@ -433,5 +428,6 @@ void ImageItem2D::mouseReleaseEvent(QMouseEvent *event,
     draggingimageitem_ = false;
     axisrect_->getParentPlot2D()->setCursor(cursorshape_);
     emit axisrect_->ImageItem2DMoved();
+    emit positionChanged();
   }
 }

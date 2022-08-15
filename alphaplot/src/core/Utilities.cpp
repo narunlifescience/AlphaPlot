@@ -24,6 +24,10 @@
 #include <QStringList>
 #include <QSysInfo>
 #include <cmath>
+#include <QPalette>
+#include <QSettings>
+#include <QApplication>
+#include <QStyle>
 
 #ifdef Q_OS_WIN
 #include <assert.h>
@@ -251,6 +255,81 @@ QColor Utilities::getRandColorGoldenRatio(const ColorPal& colpal) {
   return rgb;
 }
 
+QPalette Utilities::getApplicationPalette()
+{
+  QPalette pal;
+  QSettings settings;
+  settings.beginGroup("General");
+  QString appstyle =
+      settings.value("Style", qApp->style()->objectName()).toString();
+  int colorscheme = settings.value("ColorScheme", 0).toInt();
+  settings.beginGroup("Colors");
+  bool ncustomcolors_ = settings.value("Custom", false).toBool();
+  QColor nworkspacecolor_ =
+      settings.value("Workspace", "darkGray").value<QColor>();
+  QColor npanelcolor_ =
+      settings.value("Panels", qApp->palette().window().color()).value<QColor>();
+  QColor npaneltextcolor_ =
+      settings.value("PanelsText", qApp->palette().windowText().color())
+          .value<QColor>();
+  settings.endGroup();
+  settings.endGroup();
+  switch (colorscheme) {
+    case 0: {
+        pal = qApp->palette();
+        pal.setBrush(QPalette::NoRole, pal.color(QPalette::Active, QPalette::Base));
+    } break;
+    case 1: {
+      // QFile schemefile(":style/alpha/dark.qss");
+      pal.setBrush(QPalette::Window, qApp->palette().base());
+      pal.setBrush(QPalette::WindowText, qApp->palette().windowText());
+      pal.setBrush(QPalette::NoRole, QBrush(QColor(32, 31, 31)));
+    } break;
+    case 2: {
+      //QFile schemefile(":style/smooth/dark-blue.qss");
+      pal.setBrush(QPalette::Window, qApp->palette().base());
+      pal.setBrush(QPalette::WindowText, qApp->palette().windowText());
+      pal.setBrush(QPalette::NoRole, QBrush(QColor(200, 200, 200)));
+    } break;
+    case 3: {
+      //QFile schemefile(":style/smooth/dark-green.qss");
+      pal.setBrush(QPalette::Window, qApp->palette().base());
+      pal.setBrush(QPalette::WindowText, qApp->palette().windowText());
+      pal.setBrush(QPalette::NoRole, QBrush(QColor(200, 200, 200)));
+    } break;
+    case 4: {
+      //QFile schemefile(":style/smooth/dark-orange.qss");
+      pal.setBrush(QPalette::Window, qApp->palette().base());
+      pal.setBrush(QPalette::WindowText, qApp->palette().windowText());
+      pal.setBrush(QPalette::NoRole, QBrush(QColor(200, 200, 200)));
+    } break;
+    case 5: {
+      //QFile schemefile(":style/smooth/light-blue.qss");
+      pal.setBrush(QPalette::Window, qApp->palette().base());
+      pal.setBrush(QPalette::WindowText, qApp->palette().windowText());
+      pal.setBrush(QPalette::NoRole, QBrush(QColor(230, 230, 230)));
+    } break;
+    case 6: {
+      //QFile schemefile(":style/smooth/light-green.qss");
+      pal.setBrush(QPalette::Window, qApp->palette().base());
+      pal.setBrush(QPalette::WindowText, qApp->palette().windowText());
+      pal.setBrush(QPalette::NoRole, QBrush(QColor(230, 230, 230)));
+    } break;
+    case 7: {
+      //QFile schemefile(":style/smooth/light-orange.qss");
+      pal.setBrush(QPalette::Window, qApp->palette().base());
+      pal.setBrush(QPalette::WindowText, qApp->palette().windowText());
+      pal.setBrush(QPalette::NoRole, QBrush(QColor(230, 230, 230)));
+    } break;
+    default:
+      // should not reach
+      qDebug() << "color scheme index out of range";
+      break;
+  }
+
+  return pal;
+}
+
 QString Utilities::splitstring(const QString& string) {
   if (string.isEmpty()) return string;
 
@@ -366,4 +445,96 @@ QString Utilities::makeHtmlTable(const int row, const int column,
   }
   rowcolumnstring += "</table></p>";
   return string + rowcolumnstring;
+}
+
+bool Utilities::isSameDouble(const double value1, const double value2) {
+  if (std::fabs(value1 - value2) > std::numeric_limits<double>::epsilon())
+    return false;
+  else
+    return true;
+}
+
+QString Utilities::getTooltipText(const TooltipType& type) {
+  switch (type) {
+    case Utilities::TooltipType::x:
+      return QString(
+          "<tr> <td align=\"right\">Table :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">Column :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">From :</td><td>%4</td></tr>"
+          "<tr> <td align=\"right\">To :</td><td>%5</td></tr>");
+      break;
+    case Utilities::TooltipType::xy:
+      return QString(
+          "<tr> <td align=\"right\">Table :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">Column X :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">Column Y :</td><td>%3</td></tr>"
+          "<tr> <td align=\"right\">From :</td><td>%4</td></tr>"
+          "<tr> <td align=\"right\">To :</td><td>%5</td></tr>");
+      break;
+    case Utilities::TooltipType::xyy:
+      return QString(
+          "<tr> <td align=\"right\">Table :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">Column X :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">Column Y1 :</td><td>%3</td></tr>"
+          "<tr> <td align=\"right\">Column Y2 :</td><td>%4</td></tr>"
+          "<tr> <td align=\"right\">From :</td><td>%6</td></tr>"
+          "<tr> <td align=\"right\">To :</td><td>%7</td></tr>");
+      break;
+    case Utilities::TooltipType::xyyy:
+      return QString(
+          "<tr> <td align=\"right\">Table :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">Column :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">Column :</td><td>%3</td></tr>"
+          "<tr> <td align=\"right\">Column :</td><td>%4</td></tr>"
+          "<tr> <td align=\"right\">Column :</td><td>%5</td></tr>"
+          "<tr> <td align=\"right\">From :</td><td>%6</td></tr>"
+          "<tr> <td align=\"right\">To :</td><td>%7</td></tr>");
+      break;
+    case Utilities::TooltipType::matrix:
+      return QString(
+          "<tr> <td align=\"right\">Matrix :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">Rows :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">Columns :</td><td>%4</td></tr>");
+      break;
+    case Utilities::TooltipType::funcxy:
+      return QString(
+          "<tr> <td align=\"right\">Type :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">Function :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">From :</td><td>%3</td></tr>"
+          "<tr> <td align=\"right\">To :</td><td>%4</td></tr>"
+          "<tr> <td align=\"right\">Points :</td><td>%5</td></tr>");
+      break;
+    case Utilities::TooltipType::funcparam:
+      return QString(
+          "<tr> <td align=\"right\">Type :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">Function X :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">Function Y :</td><td>%3</td></tr>"
+          "<tr> <td align=\"right\">Parameter :</td><td>%4</td></tr>"
+          "<tr> <td align=\"right\">From :</td><td>%5</td></tr>"
+          "<tr> <td align=\"right\">To :</td><td>%6</td></tr>"
+          "<tr> <td align=\"right\">Points :</td><td>%7</td></tr>");
+      break;
+    case Utilities::TooltipType::funcpolar:
+      return QString(
+          "<tr> <td align=\"right\">Type :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">Function R :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">Function Theta :</td><td>%3</td></tr>"
+          "<tr> <td align=\"right\">Parameter :</td><td>%4</td></tr>"
+          "<tr> <td align=\"right\">From :</td><td>%5</td></tr>"
+          "<tr> <td align=\"right\">To :</td><td>%6</td></tr>"
+          "<tr> <td align=\"right\">Points :</td><td>%7</td></tr>");
+      break;
+    case Utilities::TooltipType::funcsurface:
+      return QString(
+          "<tr> <td align=\"right\">Function :</td><td>%1</td></tr>"
+          "<tr> <td align=\"right\">xl :</td><td>%2</td></tr>"
+          "<tr> <td align=\"right\">xu :</td><td>%3</td></tr>"
+          "<tr> <td align=\"right\">yl :</td><td>%4</td></tr>"
+          "<tr> <td align=\"right\">yu :</td><td>%5</td></tr>"
+          "<tr> <td align=\"right\">zl :</td><td>%6</td></tr>"
+          "<tr> <td align=\"right\">zu :</td><td>%7</td></tr>"
+          "<tr> <td align=\"right\">Points :</td><td>%8</td></tr>");
+      break;
+  }
+  return QString();
 }

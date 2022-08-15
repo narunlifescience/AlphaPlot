@@ -6,7 +6,6 @@
 
 #include "AxisRect2D.h"
 #include "MyWidget.h"
-#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 #include "globals.h"
 
 class QLabel;
@@ -17,10 +16,8 @@ class PickerTool2D;
 class ToolButton;
 class LayoutButton2D;
 class XmlStreamWriter;
-class DummyWindow;
-class ObjectBrowserTreeItemModel;
 
-class Layout2D : public MyWidget, public ObjectBrowserTreeItem {
+class Layout2D : public MyWidget {
   Q_OBJECT
 
  public:
@@ -134,7 +131,6 @@ class Layout2D : public MyWidget, public ObjectBrowserTreeItem {
   void copyToClipbord();
   void hideCurrentAxisRectIndicator(const bool status);
   void axisRectSetFocus(AxisRect2D *rect);
-  ObjectBrowserTreeItemModel *getObjectModel() { return model_; }
 
  private slots:
   AxisRect2D *addAxisRectItem(
@@ -145,7 +141,6 @@ class Layout2D : public MyWidget, public ObjectBrowserTreeItem {
                                       const Axis2D::TickerType &ytype,
                                       const QPair<int, int> rowcol);
   void activateLayout(LayoutButton2D *button);
-  void handleObjectTreeItemAddOrDelete();
 
  private:
   AxisRect2D *addAxisRectItemAsAppropriate(Column *xcol,
@@ -161,8 +156,6 @@ class Layout2D : public MyWidget, public ObjectBrowserTreeItem {
   void resizeEvent(QResizeEvent *event) override;
 
  private:
-  DummyWindow *dummywindow_;
-  ObjectBrowserTreeItemModel *model_;
   PickerTool2D *picker_;
   QWidget *main_widget_;
   Plot2D *plot2dCanvas_;
@@ -201,6 +194,7 @@ class Layout2D : public MyWidget, public ObjectBrowserTreeItem {
   void exportPDF(const QString &filename) override;
 
  signals:
+  void addedOrRemoved();
   void AxisRectCreated(AxisRect2D *, MyWidget *);
   void AxisRectRemoved(MyWidget *);
   void AxisRectSwap(AxisRect2D *, AxisRect2D *);

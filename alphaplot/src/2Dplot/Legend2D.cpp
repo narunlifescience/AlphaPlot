@@ -8,12 +8,8 @@
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
-Legend2D::Legend2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *axisrect)
+Legend2D::Legend2D(AxisRect2D *axisrect)
     : QCPLegend(),
-      ObjectBrowserTreeItem(QVariant::fromValue<Legend2D *>(this),
-                            ObjectBrowserTreeItem::ObjectType::Plot2DLegend,
-                            parentitem),
-      parentitem_(parentitem),
       axisrect_(axisrect),
       draggingLegend_(false),
       cursorshape_(axisrect->getParentPlot2D()->cursor()),
@@ -22,7 +18,7 @@ Legend2D::Legend2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *axisrect)
       title_color_(this->textColor()),
       title_font_(this->font()) {}
 
-Legend2D::~Legend2D() { parentitem_->removeChild(this); }
+Legend2D::~Legend2D() {}
 
 QString Legend2D::getItemName() { return tr("Legend"); }
 
@@ -113,6 +109,7 @@ void Legend2D::addtitle_legend() {
   if (this->hasElement(0, 0)) this->insertRow(0);
   this->addElement(0, 0, title_element_);
   this->simplify();
+  emit legendTitleStatusChange(true);
 }
 
 void Legend2D::removetitle_legend() {
@@ -125,6 +122,7 @@ void Legend2D::removetitle_legend() {
   status = this->removeAt(0);
   if (status) title_element_ = nullptr;
   this->simplify();
+  emit legendTitleStatusChange(false);
 }
 
 bool Legend2D::istitle_legend() const {

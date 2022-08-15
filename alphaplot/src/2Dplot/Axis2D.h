@@ -18,7 +18,6 @@
 #define AXIS2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 #include "memory"
 
 class Column;
@@ -26,7 +25,7 @@ class AxisRect2D;
 class XmlStreamWriter;
 class XmlStreamReader;
 
-class Axis2D : public QCPAxis, public ObjectBrowserTreeItem {
+class Axis2D : public QCPAxis {
   Q_OBJECT
  public:
   enum class TickerType : int {
@@ -37,18 +36,18 @@ class Axis2D : public QCPAxis, public ObjectBrowserTreeItem {
     Time = 5,
     DateTime = 6
   };
-  Axis2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *parent,
-         const AxisType type, const Axis2D::TickerType tickertype);
+  Axis2D(AxisRect2D *parent, const AxisType type,
+         const Axis2D::TickerType tickertype);
   ~Axis2D();
 
-  virtual QString getItemName();
-  virtual QIcon getItemIcon();
-  virtual QString getItemTooltip();
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
 
-  enum class AxisOreantation { Left = 0, Bottom = 1, Right = 2, Top = 3 };
-  enum class AxisScaleType { Linear = 0, Logarithmic = 1 };
-  enum class AxisLabelSide { Inside = 0, Outside = 1 };
-  enum class AxisLabelFormat {
+  enum class AxisOreantation : int { Left = 0, Bottom = 1, Right = 2, Top = 3 };
+  enum class AxisScaleType : int { Linear = 0, Logarithmic = 1 };
+  enum class AxisLabelSide : int { Inside = 0, Outside = 1 };
+  enum class AxisLabelFormat : int {
     e = 0,
     eb = 1,
     ebc = 2,
@@ -169,7 +168,6 @@ class Axis2D : public QCPAxis, public ObjectBrowserTreeItem {
   void reloadIcon();
 
  private:
-  ObjectBrowserTreeItem *parentitem_;
   AxisRect2D *axisrect_;
   Axis2D::TickerType tickertype_;
   QSharedPointer<QCPAxisTicker> ticker_;

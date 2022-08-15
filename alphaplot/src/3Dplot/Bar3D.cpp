@@ -5,6 +5,7 @@
 #include "DataManager3D.h"
 #include "Matrix.h"
 #include "Table.h"
+#include "core/IconLoader.h"
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
@@ -17,6 +18,14 @@ Bar3D::Bar3D(Q3DBars *bar)
 }
 
 Bar3D::~Bar3D() {}
+
+QString Bar3D::getItemName() { return tr("Bar"); }
+
+QIcon Bar3D::getItemIcon() {
+  return IconLoader::load("graph3d-bar", IconLoader::LightDark);
+}
+
+QString Bar3D::getItemTooltip() { return getItemName(); }
 
 void Bar3D::settabledata(Table *table, Column *xcolumn, Column *ycolumn,
                          Column *zcolumn) {
@@ -210,8 +219,7 @@ void Bar3D::load(XmlStreamReader *xmlreader, QList<Table *> tabs,
         graph_->scene()->activeCamera()->setCameraPosition(xrotation, yrotation,
                                                            zoomlevel);
       else
-        xmlreader->raiseWarning(
-            "Bar3D cameraposition property setting error");
+        xmlreader->raiseWarning("Bar3D cameraposition property setting error");
 
       // aspect ratio
       double aspectratio = xmlreader->readAttributeDouble("aspectratio", &ok);

@@ -6,6 +6,7 @@
 #include "DataManager3D.h"
 #include "Matrix.h"
 #include "Table.h"
+#include "core/IconLoader.h"
 #include "future/core/column/Column.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
@@ -25,6 +26,14 @@ Surface3D::Surface3D(Q3DSurface *surface)
 }
 
 Surface3D::~Surface3D() {}
+
+QString Surface3D::getItemName() { return tr("Scatter"); }
+
+QIcon Surface3D::getItemIcon() {
+  return IconLoader::load("graph3d-ribbon", IconLoader::LightDark);
+}
+
+QString Surface3D::getItemTooltip() { return getItemName(); }
 
 void Surface3D::setfunctiondata(
     QList<QPair<QPair<double, double>, double>> *data,

@@ -26,6 +26,10 @@ class Bar2D : public QCPBars {
   void init();
   ~Bar2D();
 
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
+
   void setXerrorBar(Table *table, Column *errorcol, int from, int to);
   void setYerrorBar(Table *table, Column *errorcol, int from, int to);
   void removeXerrorBar();
@@ -33,20 +37,21 @@ class Bar2D : public QCPBars {
 
   Axis2D *getxaxis() const;
   Axis2D *getyaxis() const;
-  BarStyle getBarStyle() const {return style_;}
+  BarStyle getBarStyle() const { return style_; }
   QCPBarsGroup *getBarGroup() { return group_; }
   Qt::PenStyle getstrokestyle_barplot() const;
   QColor getstrokecolor_barplot() const;
   double getstrokethickness_barplot() const;
   QColor getfillcolor_barplot() const;
   Qt::BrushStyle getfillstyle_barplot() const;
+  bool getlegendvisible_barplot() const;
+  QString getlegendtext_barplot() const;
   DataBlockBar *getdatablock_barplot() const;
   bool ishistogram_barplot() const;
   ErrorBar2D *getxerrorbar_barplot() { return xerrorbar_; }
   ErrorBar2D *getyerrorbar_barplot() { return yerrorbar_; }
   int getstackposition_barplot() const { return stackposition_; }
   DataBlockHist *getdatablock_histplot() const;
-  QIcon getIcon() const { return icon_; }
 
   void setxaxis_barplot(Axis2D *axis, bool override = false);
   void setyaxis_barplot(Axis2D *axis, bool override = false);
@@ -56,6 +61,8 @@ class Bar2D : public QCPBars {
   void setstrokethickness_barplot(const double value);
   void setfillcolor_barplot(const QColor &color);
   void setfillstyle_barplot(const Qt::BrushStyle &style);
+  void setlegendvisible_barplot(const bool value);
+  void setlegendtext_barplot(const QString &text);
 
   void setHistAutoBin(const bool status);
   void setHistBinSize(const double binsize);
@@ -68,7 +75,7 @@ class Bar2D : public QCPBars {
   bool load(XmlStreamReader *xmlreader);
 
  protected:
-  void mousePressEvent(QMouseEvent *event, const QVariant &details);
+  void mousePressEvent(QMouseEvent *event, const QVariant &details) override;
 
  private:
   void datapicker(QMouseEvent *, const QVariant &details);
@@ -94,4 +101,5 @@ class Bar2D : public QCPBars {
   QIcon icon_;
 };
 
+Q_DECLARE_METATYPE(Bar2D *);
 #endif  // BAR2D_H

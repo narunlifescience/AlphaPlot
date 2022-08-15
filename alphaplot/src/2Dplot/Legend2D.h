@@ -2,7 +2,6 @@
 #define LEGEND2D_H
 
 #include "../3rdparty/qcustomplot/qcustomplot.h"
-#include "core/propertybrowser/ObjectBrowserTreeItem.h"
 
 class AxisRect2D;
 class Curve2D;
@@ -11,15 +10,15 @@ class Vector2D;
 class XmlStreamReader;
 class XmlStreamWriter;
 
-class Legend2D : public QCPLegend, public ObjectBrowserTreeItem {
+class Legend2D : public QCPLegend {
   Q_OBJECT
  public:
-  Legend2D(ObjectBrowserTreeItem *parentitem, AxisRect2D *axisrect);
+  Legend2D(AxisRect2D *axisrect);
   ~Legend2D();
 
-  virtual QString getItemName();
-  virtual QIcon getItemIcon();
-  virtual QString getItemTooltip();
+  QString getItemName();
+  QIcon getItemIcon();
+  QString getItemTooltip();
 
   bool gethidden_legend() const;
   int getdirection_legend() const;
@@ -54,6 +53,7 @@ class Legend2D : public QCPLegend, public ObjectBrowserTreeItem {
  signals:
   void legendClicked();
   void legendMoved();
+  void legendTitleStatusChange(const bool status);
 
  protected:
   void mousePressEvent(QMouseEvent *event, const QVariant &details);
@@ -61,7 +61,6 @@ class Legend2D : public QCPLegend, public ObjectBrowserTreeItem {
   void mouseReleaseEvent(QMouseEvent *event, const QPointF &startPos);
 
  private:
-  ObjectBrowserTreeItem *parentitem_;
   AxisRect2D *axisrect_;
   QIcon icon_;
   bool draggingLegend_;

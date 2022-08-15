@@ -11,11 +11,13 @@
 #include <QVBoxLayout>
 
 #include "Bar2D.h"
+#include "Channel2D.h"
 #include "ColorMap2D.h"
 #include "Curve2D.h"
 #include "DataManager2D.h"
 #include "ErrorBar2D.h"
 #include "Grid2D.h"
+#include "GridPair2D.h"
 #include "LayoutGrid2D.h"
 #include "Legend2D.h"
 #include "LineSpecial2D.h"
@@ -27,8 +29,6 @@
 #include "TextItem2D.h"
 #include "core/IconLoader.h"
 #include "core/Utilities.h"
-#include "core/propertybrowser/DummyWindow.h"
-#include "core/propertybrowser/ObjectBrowserTreeItemModel.h"
 #include "future/core/column/Column.h"
 #include "future/core/datatypes/DateTime2StringFilter.h"
 #include "future/lib/XmlStreamReader.h"
@@ -45,10 +45,6 @@ const int Layout2D::minimumlayout2dheight_ = 100;
 Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
                    Qt::WindowFlags f)
     : MyWidget(label, parent, name, f),
-      ObjectBrowserTreeItem(QVariant::fromValue<Layout2D *>(this),
-                            ObjectBrowserTreeItem::ObjectType::Plot2DWindow,
-                            nullptr),
-      dummywindow_(new DummyWindow(this, static_cast<MyWidget *>(this))),
       picker_(new PickerTool2D(this)),
       main_widget_(new QWidget(this)),
       layout_(new LayoutGrid2D()),
@@ -57,10 +53,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
       backgroundimagefilename_(QString()),
       closewithoutcolumnmodelockchange_(false) {
   main_widget_->setContentsMargins(0, 0, 0, 0);
-  MyWidget *mywidget = qobject_cast<MyWidget *>(this);
-  Q_ASSERT(mywidget != nullptr);
   plot2dCanvas_ = new Plot2D(this);
-  model_ = new ObjectBrowserTreeItemModel(this, this);
 
   if (name.isEmpty()) setObjectName("layout2d");
   QDateTime birthday = QDateTime::currentDateTime();
@@ -163,9 +156,9 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
   connect(plot2dCanvas_, &Plot2D::beforeReplot, this, &Layout2D::beforeReplot);
   connect(plot2dCanvas_, &Plot2D::backgroundColorChange, this,
           &Layout2D::setBackground);
-  connect(
-      this, &Layout2D::AxisRectCreated, this,
-      [=](AxisRect2D *axis2d, MyWidget *) { axis2d->addChildAppropriately(); });
+  connect(this, &Layout2D::AxisRectCreated, this, &Layout2D::addedOrRemoved);
+  connect(this, &Layout2D::AxisRectRemoved, this, &Layout2D::addedOrRemoved);
+  connect(this, &Layout2D::AxisRectSwap, this, &Layout2D::addedOrRemoved);
 }
 
 Layout2D::~Layout2D() {
@@ -179,7 +172,6 @@ Layout2D::~Layout2D() {
   }
   delete layout_;
   delete plot2dCanvas_;
-  delete dummywindow_;
 }
 
 QString Layout2D::getItemName() { return name(); }
@@ -654,7 +646,7 @@ AxisRect2D *Layout2D::addAxisRectItemAtRowCol(const Axis2D::TickerType &xtype,
     return nullptr;
   }
 
-  AxisRect2D *axisRect2d = new AxisRect2D(plot2dCanvas_, picker_, this);
+  AxisRect2D *axisRect2d = new AxisRect2D(plot2dCanvas_, picker_);
   Axis2D *xAxis = axisRect2d->addAxis2D(Axis2D::AxisOreantation::Bottom, xtype);
   Axis2D *yAxis = axisRect2d->addAxis2D(Axis2D::AxisOreantation::Left, ytype);
 
@@ -675,7 +667,6 @@ AxisRect2D *Layout2D::addAxisRectItemAtRowCol(const Axis2D::TickerType &xtype,
     rootitem_->moveChild(axisRect2d->getObjectBrowserTreeItem(),
                          axrectlist.at(index - 1)->getObjectBrowserTreeItem());
   }*/
-  handleObjectTreeItemAddOrDelete();
 
   plot2dCanvas_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
   addLayoutButton(rowcol, axisRect2d);
@@ -684,6 +675,8 @@ AxisRect2D *Layout2D::addAxisRectItemAtRowCol(const Axis2D::TickerType &xtype,
           &Layout2D::axisRectSetFocus);
   connect(axisRect2d, &AxisRect2D::rescaleAxis2D, this,
           &Layout2D::rescaleAxis2D);
+  connect(axisRect2d, &AxisRect2D::addedOrRemoved, this,
+          &Layout2D::addedOrRemoved);
 
   emit AxisRectCreated(axisRect2d, this);
   if (!currentAxisRect_) axisRectSetFocus(axisRect2d);
@@ -750,8 +743,6 @@ void Layout2D::activateLayout(LayoutButton2D *button) {
     }
   }
 }
-
-void Layout2D::handleObjectTreeItemAddOrDelete() { model_->resetModel(); }
 
 AxisRect2D *Layout2D::addAxisRectItemAsAppropriate(Column *xcol,
                                                    QList<Column *> ycollist) {
@@ -879,10 +870,10 @@ void Layout2D::removeAxisRectItem(AxisRect2D *axisrect) {
   }
   foreach (Pie2D *pie, axisrect->getPieVec()) { axisrect->removePie2D(pie); }
   auto gridpair = axisrect->getGridPair();
-  delete gridpair.first.first;
-  delete gridpair.second.first;
-  gridpair.first.first = nullptr;
-  gridpair.second.first = nullptr;
+  delete gridpair->getXgrid();
+  delete gridpair->getYgrid();
+  gridpair->setXgrid(nullptr);
+  gridpair->setYgrid(nullptr);
   foreach (Axis2D *axis, axisrect->getAxes2D()) {
     axisrect->removeAxis2D(axis, true);
   }
@@ -1067,8 +1058,7 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
   bool removed = false;
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
     QVector<LineSpecial2D *> lslist = axisrect->getLsVec();
-    QVector<QPair<LineSpecial2D *, LineSpecial2D *>> channellist =
-        axisrect->getChannelVec();
+    QVector<Channel2D *> channellist = axisrect->getChannelVec();
     QVector<Curve2D *> curvelist = axisrect->getCurveVec();
     QVector<Bar2D *> barlist = axisrect->getBarVec();
     QVector<StatBox2D *> statboxlist = axisrect->getStatBoxVec();
@@ -1105,7 +1095,8 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
       }
     }
     for (int i = 0; i < channellist.count(); i++) {
-      QPair<LineSpecial2D *, LineSpecial2D *> channel = channellist.at(i);
+      QPair<LineSpecial2D *, LineSpecial2D *> channel =
+          channellist.at(i)->getChannelPair();
       PlotData::AssociatedData *data1 =
           channel.first->getdatablock_lsplot()->getassociateddata();
       PlotData::AssociatedData *data2 =
@@ -1115,7 +1106,7 @@ void Layout2D::removeColumn(Table *table, const QString &name) {
             data2->ycol == col) {
           channel.first->setGraphData(data1->table, data1->xcol, data1->ycol,
                                       data1->from, data1->to);
-          axisrect->removeChannel2D(channel);
+          axisrect->removeChannel2D(channellist.at(i));
           removed = true;
         }
       }
@@ -1227,8 +1218,7 @@ QList<MyWidget *> Layout2D::dependentTableMatrix() {
   QList<MyWidget *> dependeon;
   foreach (AxisRect2D *axisrect, getAxisRectList()) {
     QVector<LineSpecial2D *> lslist = axisrect->getLsVec();
-    QVector<QPair<LineSpecial2D *, LineSpecial2D *>> channellist =
-        axisrect->getChannelVec();
+    QVector<Channel2D *> channellist = axisrect->getChannelVec();
     QVector<Curve2D *> curvelist = axisrect->getCurveVec();
     QVector<Bar2D *> barlist = axisrect->getBarVec();
     QVector<StatBox2D *> statboxlist = axisrect->getStatBoxVec();
@@ -1253,7 +1243,8 @@ QList<MyWidget *> Layout2D::dependentTableMatrix() {
       }
     }
     for (int i = 0; i < channellist.count(); i++) {
-      QPair<LineSpecial2D *, LineSpecial2D *> channel = channellist.at(i);
+      QPair<LineSpecial2D *, LineSpecial2D *> channel =
+          channellist.at(i)->getChannelPair();
       PlotData::AssociatedData *data1 =
           channel.first->getdatablock_lsplot()->getassociateddata();
       PlotData::AssociatedData *data2 =
@@ -1416,7 +1407,6 @@ void Layout2D::removeAxisRect(const QPair<int, int> rowcol) {
 
   // remove the element & adjust layout accordingly
   layout_->remove(axrecttoremove);
-  handleObjectTreeItemAddOrDelete();
   layout_->simplify();
   if (axrect) axisRectSetFocus(axrect);
 

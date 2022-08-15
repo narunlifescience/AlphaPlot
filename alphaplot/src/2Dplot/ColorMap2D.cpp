@@ -2,6 +2,8 @@
 
 #include "AxisRect2D.h"
 #include "Matrix.h"
+#include "core/IconLoader.h"
+#include "core/Utilities.h"
 #include "future/lib/XmlStreamReader.h"
 #include "future/lib/XmlStreamWriter.h"
 
@@ -43,6 +45,24 @@ ColorMap2D::~ColorMap2D() {
   delete colorScale_;
   delete margingroup_;
   parentPlot()->removeLayer(layer());
+}
+
+QString ColorMap2D::getItemName() {
+  return getmatrix_colormap()->name() + "[" +
+         QString::number(getrows_colormap()) + "x" +
+         QString::number(getcolumns_colormap()) + "]";
+}
+
+QIcon ColorMap2D::getItemIcon() {
+  return IconLoader::load("edit-colormap3d", IconLoader::General);
+}
+
+QString ColorMap2D::getItemTooltip() {
+  QString tooltip = Utilities::getTooltipText(Utilities::TooltipType::matrix);
+  tooltip = tooltip.arg(getmatrix_colormap()->name(),
+                        QString::number(getrows_colormap()),
+                        QString::number(getcolumns_colormap()));
+  return tooltip;
 }
 
 void ColorMap2D::setColorMapData(Matrix *matrix) {

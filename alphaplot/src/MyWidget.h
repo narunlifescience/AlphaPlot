@@ -32,6 +32,7 @@
 #define WIDGET_H
 
 #include <QMdiSubWindow>
+
 class QEvent;
 class QCloseEvent;
 class QString;
@@ -63,6 +64,10 @@ class MyWidget : public QMdiSubWindow {
            const QString name = QString(), Qt::WindowFlags f = Qt::SubWindow);
   virtual ~MyWidget();
 
+  virtual QString getItemName();
+  virtual QIcon getItemIcon();
+  virtual QString getItemTooltip();
+
   //! Possible window captions.
   enum CaptionPolicy {
     Name = 0,   //!< caption determined by the window name
@@ -85,6 +90,7 @@ class MyWidget : public QMdiSubWindow {
   virtual void setName(const QString &s) {
     setObjectName(s);
     updateCaption();
+    emit nameChanged(s);
   }
 
   //! Return the caption policy
@@ -119,7 +125,7 @@ class MyWidget : public QMdiSubWindow {
    * Ask the user "delete, hide, or cancel?" if the
    * "ask on close" flag is set.
    */
-  void closeEvent(QCloseEvent *);
+  void closeEvent(QCloseEvent *) override;
   //! Toggle the "ask on close" flag
   void askOnCloseEvent(bool ask) { askOnClose = ask; }
 
@@ -148,18 +154,19 @@ class MyWidget : public QMdiSubWindow {
   //! Emitted when the title bar recieves a QContextMenuEvent
   void showTitleBarMenu();
   void mousepressevent(MyWidget *);
+  void nameChanged(const QString &s);
 
  protected slots:
   //! Set caption according to current CaptionPolicy, name and label
   void updateCaption();
 
  protected:
-  virtual void changeEvent(QEvent *event);
+  virtual void changeEvent(QEvent *event) override;
   //! Catches parent changes (in order to gain access to the title bar)
-  virtual void contextMenuEvent(QContextMenuEvent *event);
-  virtual void resizeEvent(QResizeEvent *resizeEvent);
-  virtual void moveEvent(QMoveEvent *moveEvent);
-  virtual void mousePressEvent(QMouseEvent *event);
+  virtual void contextMenuEvent(QContextMenuEvent *event) override;
+  virtual void resizeEvent(QResizeEvent *resizeEvent) override;
+  virtual void moveEvent(QMoveEvent *moveEvent) override;
+  virtual void mousePressEvent(QMouseEvent *event) override;
 
   //! Pointer to the parent folder of the window
   Folder *parentFolder;

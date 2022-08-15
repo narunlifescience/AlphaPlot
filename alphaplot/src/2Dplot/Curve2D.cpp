@@ -109,6 +109,134 @@ Curve2D::~Curve2D() {
   parentPlot()->removeLayer(layer());
 }
 
+QString Curve2D::getItemName() {
+  QString name;
+  if (type_ == Graph2DCommon::PlotType::Associated) {
+    name = curvedata_->gettable()->name() + "_" +
+           curvedata_->getxcolumn()->name() + "_" +
+           curvedata_->getycolumn()->name() + "[" +
+           QString::number(curvedata_->getfrom() + 1) + ":" +
+           QString::number(curvedata_->getto() + 1) + "]";
+  } else {
+    switch (funcdata_.type) {
+      case 0: {
+        QString functype, func;
+        if (funcdata_.functions.size() == 1) {
+          functype = QString(tr("XY"));
+          func = funcdata_.functions.at(0);
+        } else {
+          functype = QString(tr("Unknown"));
+          func = QString(tr("unknown"));
+        }
+        name += func + "_(" + functype + ")" + "[" +
+                QString::number(funcdata_.points) + " ," +
+                QString::number(funcdata_.from) + ":" +
+                QString::number(funcdata_.to) + "]";
+      } break;
+      case 1: {
+        QString functype, func1, func2;
+        if (funcdata_.functions.size() == 2) {
+          functype = QString(tr("Parametric"));
+          func1 = funcdata_.functions.at(0);
+          func2 = funcdata_.functions.at(1);
+        } else {
+          functype = QString(tr("Unknown"));
+          func1 = QString(tr("unknown"));
+          func2 = QString(tr("unknown"));
+        }
+        name += func1 + "_" + func2 + "_(" + functype + ":" +
+                funcdata_.parameter + ")" + "[" +
+                QString::number(funcdata_.points) + " ," +
+                QString::number(funcdata_.from) + ":" +
+                QString::number(funcdata_.to) + "]";
+      } break;
+      case 2: {
+        QString functype, func1, func2;
+        if (funcdata_.functions.size() == 2) {
+          functype = QString(tr("Polar"));
+          func1 = funcdata_.functions.at(0);
+          func2 = funcdata_.functions.at(1);
+        } else {
+          functype = QString(tr("Unknown"));
+          func1 = QString(tr("unknown"));
+          func2 = QString(tr("unknown"));
+        }
+        name += func1 + "_" + func2 + "_(" + functype + ":" +
+                funcdata_.parameter + ")" + "[" +
+                QString::number(funcdata_.points) + " ," +
+                QString::number(funcdata_.from) + ":" +
+                QString::number(funcdata_.to) + "]";
+      } break;
+    }
+  }
+  return name;
+}
+
+QIcon Curve2D::getItemIcon() { return icon_; }
+
+QString Curve2D::getItemTooltip() {
+  QString tooltip = Utilities::getTooltipText(Utilities::TooltipType::xy);
+  if (type_ == Graph2DCommon::PlotType::Associated) {
+    tooltip = tooltip.arg(curvedata_->gettable()->name(),
+                          curvedata_->getxcolumn()->name(),
+                          curvedata_->getycolumn()->name(),
+                          QString::number(curvedata_->getfrom() + 1),
+                          QString::number(curvedata_->getto() + 1));
+  } else {
+    switch (funcdata_.type) {
+      case 0: {
+        tooltip = Utilities::getTooltipText(Utilities::TooltipType::funcxy);
+        QString functype, func;
+        if (funcdata_.functions.size() == 1) {
+          functype = QString(tr("XY"));
+          func = funcdata_.functions.at(0);
+        } else {
+          functype = QString(tr("Unknown"));
+          func = QString(tr("unknown"));
+        }
+        tooltip = tooltip.arg(functype, func, QString::number(funcdata_.from),
+                              QString::number(funcdata_.to),
+                              QString::number(funcdata_.points));
+      } break;
+      case 1: {
+        tooltip = Utilities::getTooltipText(Utilities::TooltipType::funcparam);
+        QString functype, func1, func2;
+        if (funcdata_.functions.size() == 2) {
+          functype = QString(tr("Parametric"));
+          func1 = funcdata_.functions.at(0);
+          func2 = funcdata_.functions.at(1);
+        } else {
+          functype = QString(tr("Unknown"));
+          func1 = QString(tr("unknown"));
+          func2 = QString(tr("unknown"));
+        }
+        tooltip = tooltip.arg(functype, func1, func2, funcdata_.parameter,
+                              QString::number(funcdata_.from),
+                              QString::number(funcdata_.to),
+                              QString::number(funcdata_.points));
+      } break;
+      case 2: {
+        tooltip = Utilities::getTooltipText(Utilities::TooltipType::funcpolar);
+        QString functype, func1, func2;
+        if (funcdata_.functions.size() == 2) {
+          functype = QString(tr("Polar"));
+          func1 = funcdata_.functions.at(0);
+          func2 = funcdata_.functions.at(1);
+        } else {
+          functype = QString(tr("Unknown"));
+          func1 = QString(tr("unknown"));
+          func2 = QString(tr("unknown"));
+        }
+        tooltip = tooltip.arg(functype, func1, func2, funcdata_.parameter,
+                              QString::number(funcdata_.from),
+                              QString::number(funcdata_.to),
+                              QString::number(funcdata_.points));
+      } break;
+    }
+  }
+  return tooltip;
+}
+
 void Curve2D::setXerrorBar(Table *table, Column *errorcol, int from, int to) {
   if (xerroravailable_ || type_ == Graph2DCommon::PlotType::Function) {
     qDebug() << "X error bar already defined or unsupported plot type";
@@ -348,6 +476,10 @@ QColor Curve2D::getscatterfillcolor_cplot() const {
   return scatterStyle().brush().color();
 }
 
+Qt::BrushStyle Curve2D::getscatterfillstyle_cplot() const {
+  return scatterStyle().brush().style();
+}
+
 QBrush Curve2D::getscatterbrush_cplot() const { return scatterStyle().brush(); }
 
 double Curve2D::getscattersize_cplot() const { return scatterStyle().size(); }
@@ -461,10 +593,8 @@ void Curve2D::setlinefillcolor_cplot(const QColor &color) {
 void Curve2D::setlinefillstyle_cplot(const Qt::BrushStyle &style) {
   if (curve2dtype_ == Curve2D::Curve2DType::Curve) {
     QBrush b = brush();
-    if (b.style() != Qt::BrushStyle::NoBrush) {
-      b.setStyle(style);
-      setBrush(b);
-    }
+    b.setStyle(style);
+    setBrush(b);
   } else {
     if (splineBrush_.style() != Qt::BrushStyle::NoBrush)
       splineBrush_.setStyle(style);
@@ -533,6 +663,13 @@ void Curve2D::setscattershape_cplot(const Graph2DCommon::ScatterStyle &shape) {
 void Curve2D::setscatterfillcolor_cplot(const QColor &color) {
   QBrush b = scatterstyle_->brush();
   b.setColor(color);
+  scatterstyle_->setBrush(b);
+  setScatterStyle(*scatterstyle_);
+}
+
+void Curve2D::setscatterfillstyle_cplot(const Qt::BrushStyle &style) {
+  QBrush b = scatterstyle_->brush();
+  b.setStyle(style);
   scatterstyle_->setBrush(b);
   setScatterStyle(*scatterstyle_);
 }
@@ -1057,7 +1194,8 @@ void Curve2D::datapicker(QMouseEvent *event, const QVariant &details) {
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
-    it = data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPCurve *>(this)->data()->at(
+        dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
     if (point.x() > event->localPos().x() - 10 &&
         point.x() < event->localPos().x() + 10 &&
@@ -1076,7 +1214,8 @@ void Curve2D::movepicker(QMouseEvent *event, const QVariant &details) {
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
-    it = data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPCurve *>(this)->data()->at(
+        dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
     if (point.x() > event->localPos().x() - 10 &&
         point.x() < event->localPos().x() + 10 &&
@@ -1093,7 +1232,8 @@ void Curve2D::removepicker(QMouseEvent *event, const QVariant &details) {
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
-    it = data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPCurve *>(this)->data()->at(
+        dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
     if (point.x() > event->localPos().x() - 10 &&
         point.x() < event->localPos().x() + 10 &&
@@ -1111,7 +1251,8 @@ void Curve2D::dataRangePicker(QMouseEvent *event, const QVariant &details) {
   QCPDataSelection dataPoints = details.value<QCPDataSelection>();
   if (dataPoints.dataPointCount() > 0) {
     dataPoints.dataRange();
-    it = data()->at(dataPoints.dataRange().begin());
+    it = static_cast<QCPCurve *>(this)->data()->at(
+        dataPoints.dataRange().begin());
     QPointF point = coordsToPixels(it->mainKey(), it->mainValue());
     if (point.x() > event->localPos().x() - 10 &&
         point.x() < event->localPos().x() + 10 &&

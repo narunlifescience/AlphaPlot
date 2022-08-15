@@ -29,52 +29,345 @@
 
 #include "ObjectBrowserTreeItem.h"
 
+#include "2Dplot/Axis2D.h"
 #include "2Dplot/AxisRect2D.h"
+#include "2Dplot/Bar2D.h"
+#include "2Dplot/Channel2D.h"
+#include "2Dplot/ColorMap2D.h"
+#include "2Dplot/Curve2D.h"
+#include "2Dplot/ErrorBar2D.h"
+#include "2Dplot/GridPair2D.h"
+#include "2Dplot/ImageItem2D.h"
 #include "2Dplot/Layout2D.h"
+#include "2Dplot/Legend2D.h"
+#include "2Dplot/LineItem2D.h"
+#include "2Dplot/LineSpecial2D.h"
+#include "2Dplot/Pie2D.h"
+#include "2Dplot/Plot2D.h"
+#include "2Dplot/StatBox2D.h"
+#include "2Dplot/TextItem2D.h"
+#include "2Dplot/Vector2D.h"
+#include "3Dplot/Bar3D.h"
+#include "3Dplot/DataManager3D.h"
+#include "3Dplot/Layout3D.h"
+#include "3Dplot/Scatter3D.h"
+#include "3Dplot/Surface3D.h"
+#include "Matrix.h"
+#include "Note.h"
+#include "Table.h"
+#include "core/IconLoader.h"
 
 ObjectBrowserTreeItem::ObjectBrowserTreeItem(QVariant data,
                                              const ObjectType &type,
                                              ObjectBrowserTreeItem *parentItem)
-    : itemData_(data),
-      itemDataType_(type),
-      parentItem_(parentItem),
-      childItems_(QVector<ObjectBrowserTreeItem *>()) {
-  if (parentItem_ &&
-      itemDataType_ != ObjectBrowserTreeItem::ObjectType::Plot2DLayout)
-    parentItem_->childItems_.append(this);
+    : itemData_(data), itemDataType_(type), parentItem_(parentItem) {
+  if (parentItem_) parentItem_->childItems_.append(this);
 }
 
-ObjectBrowserTreeItem::~ObjectBrowserTreeItem() {
-  // qDebug() << "destroying" << static_cast<int>(itemDataType_);
-}
-
-void ObjectBrowserTreeItem::addChildAppropriately() {
-  if (!parentItem_) return;
-  if (parentItem_->childItems_.contains(this)) return;
+ObjectBrowserTreeItem::RoleData ObjectBrowserTreeItem::value() const {
+  bool status = false;
+  ObjectBrowserTreeItem::RoleData roledata;
   switch (itemDataType_) {
+    case ObjectBrowserTreeItem::ObjectType::None: {
+      roledata.name = QObject::tr("(None)");
+      roledata.tooltip = QObject::tr("(None)");
+      roledata.icon = IconLoader::load("clear-loginfo", IconLoader::General);
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::BaseWindow: {
+      roledata.name = QObject::tr("Window");
+      roledata.tooltip = QObject::tr("Window");
+      roledata.icon = IconLoader::load("view-console", IconLoader::LightDark);
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::TableWindow: {
+      Table *table = getObjectTreeItem<Table>(&status);
+      if (status) {
+        roledata.name = table->getItemName();
+        roledata.tooltip = table->getItemTooltip();
+        roledata.icon = table->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::TableDimension:
+    case ObjectBrowserTreeItem::ObjectType::MatrixDimension: {
+      roledata.name = QObject::tr("Rows X Cols");
+      roledata.tooltip = QObject::tr("Rows X Cols");
+      roledata.icon = IconLoader::load("goto-cell", IconLoader::LightDark);
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::MatrixWindow: {
+      Matrix *matrix = getObjectTreeItem<Matrix>(&status);
+      if (status) {
+        roledata.name = matrix->getItemName();
+        roledata.tooltip = matrix->getItemTooltip();
+        roledata.icon = matrix->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::NoteWindow: {
+      Note *note = getObjectTreeItem<Note>(&status);
+      if (status) {
+        roledata.name = note->getItemName();
+        roledata.tooltip = note->getItemTooltip();
+        roledata.icon = note->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DWindow: {
+      Layout2D *layout = getObjectTreeItem<Layout2D>(&status);
+      if (status) {
+        roledata.name = layout->getItemName();
+        roledata.tooltip = layout->getItemTooltip();
+        roledata.icon = layout->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DWindow: {
+      Layout3D *layout = getObjectTreeItem<Layout3D>(&status);
+      if (status) {
+        roledata.name = layout->getItemName();
+        roledata.tooltip = layout->getItemTooltip();
+        roledata.icon = layout->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DCanvas: {
+      Plot2D *plot = getObjectTreeItem<Plot2D>(&status);
+      if (status) {
+        roledata.name = plot->getItemName();
+        roledata.tooltip = plot->getItemTooltip();
+        roledata.icon = plot->getItemIcon();
+      }
+    } break;
     case ObjectBrowserTreeItem::ObjectType::Plot2DLayout: {
       Layout2D *layout = parentItem_->itemData_.value<Layout2D *>();
       AxisRect2D *axisrect = itemData_.value<AxisRect2D *>();
-      // extract axisrect items
-      ObjectBrowserTreeItem *successoritem = nullptr;
       if (layout && axisrect) {
-        QList<AxisRect2D *> axisrectlist = layout->getAxisRectList();
-        for (int i = 0; i < axisrectlist.count(); i++) {
-          if (axisrectlist.at(i) == axisrect && axisrect != axisrectlist.last())
-            successoritem = axisrectlist.at(i + 1);
-        }
+        QPair<int, int> rowcol = layout->getAxisRectRowCol(axisrect);
+        int index = layout->getLayoutRectGridIndex(rowcol) + 1;
+        QString text = axisrect->getItemName().arg(
+            QString::number(index), QString::number(rowcol.first + 1),
+            QString::number(rowcol.second + 1));
+        roledata.name = text;
+        roledata.tooltip = text;
+        roledata.icon = axisrect->getItemIcon();
       }
-      // insert child in order
-      (successoritem == nullptr)
-          ? parentItem_->childItems_.append(this)
-          : parentItem_->childItems_.insert(
-                parentItem_->childItems_.indexOf(successoritem), this);
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DLegend: {
+      Legend2D *legend = getObjectTreeItem<Legend2D>(&status);
+      if (status) {
+        roledata.name = legend->getItemName();
+        roledata.tooltip = legend->getItemTooltip();
+        roledata.icon = legend->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DAxis: {
+      Axis2D *axis = getObjectTreeItem<Axis2D>(&status);
+      if (status) {
+        roledata.name = axis->getItemName();
+        roledata.tooltip = axis->getItemTooltip();
+        roledata.icon = axis->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DTextItem: {
+      TextItem2D *textitem = getObjectTreeItem<TextItem2D>(&status);
+      if (status) {
+        roledata.name = textitem->getItemName();
+        roledata.tooltip = textitem->getItemTooltip();
+        roledata.icon = textitem->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DLineItem: {
+      LineItem2D *lineitem = getObjectTreeItem<LineItem2D>(&status);
+      if (status) {
+        roledata.name = lineitem->getItemName();
+        roledata.tooltip = lineitem->getItemTooltip();
+        roledata.icon = lineitem->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DImageItem: {
+      ImageItem2D *imageitem = getObjectTreeItem<ImageItem2D>(&status);
+      if (status) {
+        roledata.name = imageitem->getItemName();
+        roledata.tooltip = imageitem->getItemTooltip();
+        roledata.icon = imageitem->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DLSGraph: {
+      LineSpecial2D *ls = getObjectTreeItem<LineSpecial2D>(&status);
+      if (status) {
+        roledata.name = ls->getItemName();
+        roledata.tooltip = ls->getItemTooltip();
+        roledata.icon = ls->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DErrorBar: {
+      ErrorBar2D *err = getObjectTreeItem<ErrorBar2D>(&status);
+      if (status) {
+        roledata.name = err->getItemName();
+        roledata.tooltip = err->getItemTooltip();
+        roledata.icon = err->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DCurve: {
+      Curve2D *curve = getObjectTreeItem<Curve2D>(&status);
+      if (status) {
+        roledata.name = curve->getItemName();
+        roledata.tooltip = curve->getItemTooltip();
+        roledata.icon = curve->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DStatBox: {
+      StatBox2D *statbox = getObjectTreeItem<StatBox2D>(&status);
+      if (status) {
+        roledata.name = statbox->getItemName();
+        roledata.tooltip = statbox->getItemTooltip();
+        roledata.icon = statbox->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DVector: {
+      Vector2D *vec = getObjectTreeItem<Vector2D>(&status);
+      if (status) {
+        roledata.name = vec->getItemName();
+        roledata.tooltip = vec->getItemTooltip();
+        roledata.icon = vec->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DChannelGraph: {
+      Channel2D *channel = getObjectTreeItem<Channel2D>(&status);
+      if (status) {
+        roledata.name = channel->getItemName();
+        roledata.tooltip = channel->getItemTooltip();
+        roledata.icon = channel->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DBarGraph: {
+      Bar2D *bar = getObjectTreeItem<Bar2D>(&status);
+      if (status) {
+        roledata.name = bar->getItemName();
+        roledata.tooltip = bar->getItemTooltip();
+        roledata.icon = bar->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DPieGraph: {
+      Pie2D *pie = getObjectTreeItem<Pie2D>(&status);
+      if (status) {
+        roledata.name = pie->getItemName();
+        roledata.tooltip = pie->getItemTooltip();
+        roledata.icon = pie->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DColorMap: {
+      ColorMap2D *cmap = getObjectTreeItem<ColorMap2D>(&status);
+      if (status) {
+        roledata.name = cmap->getItemName();
+        roledata.tooltip = cmap->getItemTooltip();
+        roledata.icon = cmap->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot2DGrid: {
+      GridPair2D *grid = getObjectTreeItem<GridPair2D>(&status);
+      if (status) {
+        roledata.name = grid->getItemName();
+        roledata.tooltip = grid->getItemTooltip();
+        roledata.icon = grid->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DCanvas: {
+      roledata.name = QObject::tr("Canvas");
+      roledata.tooltip = QObject::tr("Canvas");
+      roledata.icon = IconLoader::load("view-image", IconLoader::LightDark);
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DTheme: {
+      roledata.name = QObject::tr("Theme");
+      roledata.tooltip = QObject::tr("Theme");
+      roledata.icon = IconLoader::load("theme", IconLoader::General);
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueX: {
+      roledata.name = QObject::tr("X Axis(Val)");
+      roledata.tooltip = QObject::tr("X Axis(Val)");
+      roledata.icon =
+          IconLoader::load("graph2d-axis-bottom", IconLoader::LightDark);
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueY: {
+      roledata.name = QObject::tr("Y Axis(Val)");
+      roledata.tooltip = QObject::tr("Y Axis(Val)");
+      roledata.icon =
+          IconLoader::load("graph2d-axis-left", IconLoader::LightDark);
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueZ: {
+      roledata.name = QObject::tr("Z Axis(Val)");
+      roledata.tooltip = QObject::tr("Z Axis(Val)");
+      roledata.icon =
+          IconLoader::load("graph2d-axis-right", IconLoader::LightDark);
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisCatagoryX: {
+      roledata.name = QObject::tr("X Axis(Cat)");
+      roledata.tooltip = QObject::tr("X Axis(Cat)");
+      roledata.icon =
+          IconLoader::load("graph2d-axis-bottom", IconLoader::LightDark);
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisCatagoryY: {
+      roledata.name = QObject::tr("Y Axis(Cat)");
+      roledata.tooltip = QObject::tr("Y Axis(Cat)");
+      roledata.icon =
+          IconLoader::load("graph2d-axis-left", IconLoader::LightDark);
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DBar: {
+      Bar3D *bar = getObjectTreeItem<Bar3D>(&status);
+      if (status) {
+        roledata.name = bar->getItemName();
+        roledata.tooltip = bar->getItemTooltip();
+        roledata.icon = bar->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DScatter: {
+      Scatter3D *scatter = getObjectTreeItem<Scatter3D>(&status);
+      if (status) {
+        roledata.name = scatter->getItemName();
+        roledata.tooltip = scatter->getItemTooltip();
+        roledata.icon = scatter->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DSurface: {
+      Surface3D *surface = getObjectTreeItem<Surface3D>(&status);
+      if (status) {
+        roledata.name = surface->getItemName();
+        roledata.tooltip = surface->getItemTooltip();
+        roledata.icon = surface->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DBarDataBlock: {
+      DataBlockBar3D *data = getObjectTreeItem<DataBlockBar3D>(&status);
+      if (status) {
+        roledata.name = data->getItemName();
+        roledata.tooltip = data->getItemTooltip();
+        roledata.icon = data->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DScatterDataBlock: {
+      DataBlockScatter3D *data = getObjectTreeItem<DataBlockScatter3D>(&status);
+      if (status) {
+        roledata.name = data->getItemName();
+        roledata.tooltip = data->getItemTooltip();
+        roledata.icon = data->getItemIcon();
+      }
+    } break;
+    case ObjectBrowserTreeItem::ObjectType::Plot3DSurfaceDataBlock: {
+      DataBlockSurface3D *data = getObjectTreeItem<DataBlockSurface3D>(&status);
+      if (status) {
+        roledata.name = data->getItemName();
+        roledata.tooltip = data->getItemTooltip();
+        roledata.icon = data->getItemIcon();
+      }
     } break;
     default:
-      qDebug() << "AppendChildAppropriately() called but with no effect!";
+      qDebug() << "Object Tree Item not handled "
+               << static_cast<int>(itemDataType_);
       break;
   }
+  return roledata;
 }
+
+ObjectBrowserTreeItem *ObjectBrowserTreeItem::create(
+    QVariant data, const ObjectType &type, ObjectBrowserTreeItem *parentItem) {
+  return new ObjectBrowserTreeItem(data, type, parentItem);
+}
+
+ObjectBrowserTreeItem::~ObjectBrowserTreeItem() { qDeleteAll(childItems_); }
 
 bool ObjectBrowserTreeItem::removeChild(ObjectBrowserTreeItem *item) {
   if (!childItems_.contains(item)) return false;
@@ -94,44 +387,21 @@ int ObjectBrowserTreeItem::columnCount() const { return 1; }
 
 QVariant ObjectBrowserTreeItem::data(const Qt::ItemDataRole &role) {
   if (role == Qt::ItemDataRole::UserRole) return itemData_;
-  switch (itemDataType_) {
-    case ObjectBrowserTreeItem::ObjectType::Plot2DLayout: {
-      Layout2D *layout = parentItem_->itemData_.value<Layout2D *>();
-      AxisRect2D *axisrect = itemData_.value<AxisRect2D *>();
-      if (!layout || !axisrect) return QVariant();
-      QPair<int, int> rowcol = layout->getAxisRectRowCol(axisrect);
-      int index = layout->getLayoutRectGridIndex(rowcol) + 1;
-      switch (role) {
-        case Qt::ItemDataRole::DisplayRole:
-        case Qt::ItemDataRole::ToolTipRole:
-          return QVariant(getItemName().arg(
-              QString::number(index), QString::number(rowcol.first + 1),
-              QString::number(rowcol.second + 1)));
-          break;
-        case Qt::ItemDataRole::DecorationRole:
-          return getItemIcon();
-          break;
-        default:
-          return QVariant();
-      }
-    } break;
-    default: {
-      switch (role) {
-        case Qt::ItemDataRole::DisplayRole:
-          return getItemName();
-          break;
-        case Qt::ItemDataRole::ToolTipRole:
-          return getItemTooltip();
-          break;
-        case Qt::ItemDataRole::DecorationRole:
-          return getItemIcon();
-          break;
-        default:
-          return QVariant();
-      }
-    } break;
-  }
 
+  ObjectBrowserTreeItem::RoleData datarole = value();
+  switch (role) {
+    case Qt::ItemDataRole::DisplayRole:
+      return datarole.name;
+      break;
+    case Qt::ItemDataRole::ToolTipRole:
+      return datarole.tooltip;
+      break;
+    case Qt::ItemDataRole::DecorationRole:
+      return datarole.icon;
+      break;
+    default:
+      return QVariant();
+  }
   return QVariant();
 }
 
@@ -144,7 +414,7 @@ int ObjectBrowserTreeItem::row() const {
     return parentItem_->childItems_.indexOf(
         const_cast<ObjectBrowserTreeItem *>(this));
 
-  return -1;
+  return 0;
 }
 
 ObjectBrowserTreeItem *ObjectBrowserTreeItem::parentItem() {

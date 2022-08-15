@@ -132,10 +132,7 @@
 #include "3Dplot/Layout3D.h"
 #include "3Dplot/Scatter3D.h"
 #include "3Dplot/Surface3D.h"
-#include "core/propertybrowser/DummyWindow.h"
-#include "core/propertybrowser/ObjectBrowserTreeItemModel.h"
 #include "core/propertybrowser/propertybrowser.h"
-#include "core/propertybrowser/propertyeditor.h"
 #include "future/lib/XmlStreamWriter.h"
 #include "scripting/ScriptingFunctions.h"
 #include "scripting/ScriptingLangDialog.h"
@@ -154,8 +151,7 @@ ApplicationWindow::ApplicationWindow()
 #ifdef SCRIPTING_CONSOLE
       consoleWindow(new ConsoleWidget(this)),
 #endif
-      //propertybrowser(new PropertyBrowser(this, this)),
-      propertyeditor(new PropertyEditor(this, this)),
+      propertybrowser(new PropertyBrowser(this, this)),
       d_workspace(new QMdiArea(this)),
       lastModified(nullptr),
       fileToolbar(new QToolBar(tr("File"), this)),
@@ -217,8 +213,6 @@ ApplicationWindow::ApplicationWindow()
       glowyoffset_(0),
       glowradius_(8) {
   ui_->setupUi(this);
-  none_ = new DummyNone();
-  model_ = new ObjectBrowserTreeItemModel(none_, this);
   // non menu qactions
   actionSaveNote = new QAction(tr("Save Note As..."), this);
   actionExportPDF = new QAction(tr("&Export PDF") + "...", this);
@@ -272,8 +266,7 @@ ApplicationWindow::ApplicationWindow()
   QPixmapCache::setCacheLimit(20 * QPixmapCache::cacheLimit());
 
   // Show/hide toggle Project Explorer, Result Log & Scripting Console
-  actionShowPropertyEditor = propertyeditor->toggleViewAction();
-  //actionShowPropertyEditor = propertybrowser->toggleViewAction();
+  actionShowPropertyEditor = propertybrowser->toggleViewAction();
   actionShowProjectExplorer = ui_->explorerWindow->toggleViewAction();
   actionShowResultsLog = ui_->logWindow->toggleViewAction();
 #ifdef SCRIPTING_CONSOLE
@@ -387,12 +380,9 @@ ApplicationWindow::ApplicationWindow()
   addDockWidget(Qt::TopDockWidgetArea, consoleWindow);
   consoleWindow->hide();
 #endif
-  //propertybrowser->setObjectName("propertybrowserWindow");
-  //addDockWidget(Qt::RightDockWidgetArea, propertybrowser);
-  //propertybrowser->hide();
-  propertyeditor->setObjectName("propertyeditorWindow");
-  addDockWidget(Qt::RightDockWidgetArea, propertyeditor);
-  propertyeditor->show();
+  propertybrowser->setObjectName("propertybrowserWindow");
+  addDockWidget(Qt::RightDockWidgetArea, propertybrowser);
+  propertybrowser->show();
 
   disableActions();
   // After initialization of QDockWidget, for toggleViewAction() to work
@@ -991,7 +981,6 @@ ApplicationWindow::~ApplicationWindow() {
   }
   delete ui_;
   // delete d_project;
-  // delete none_;
   QApplication::clipboard()->clear(QClipboard::Clipboard);
 }
 
@@ -1937,11 +1926,6 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
           &ApplicationWindow::updateWindowStatus);
   connect(layout2d, &Layout2D::showTitleBarMenu, this,
           &ApplicationWindow::showWindowTitleBarMenu);
-  connect(layout2d, &Layout2D::AxisRectRemoved, propertyeditor,
-          &PropertyEditor::populateObjectBrowser);
-  connect(layout2d, &Layout2D::AxisRectSwap, [=]() {
-    propertyeditor->populateObjectBrowser(static_cast<MyWidget *>(layout2d));
-  });
   connect(layout2d, &Layout2D::mousepressevent, [=](MyWidget *widget) {
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
@@ -1951,15 +1935,10 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
     pickGraphTool(ui_->actionDisableGraphTools);
     ui_->actionDisableGraphTools->setChecked(true);
   });
-  connect(layout2d, &Layout2D::layout2DResized, propertyeditor,
-          &PropertyEditor::refreshCanvasRect);
   connect(layout2d, &Layout2D::datapoint, this,
           &ApplicationWindow::multipeakfitappendpoints);
   connect(layout2d, &Layout2D::showContextMenu, this,
           &ApplicationWindow::showWindowContextMenu);
-  // axis connection resize property update
-  connect(layout2d, &Layout2D::rescaleAxis2D, propertyeditor,
-          &PropertyEditor::rescaleAxis2D);
 
   return layout2d;
 }
@@ -1994,8 +1973,6 @@ Layout3D *ApplicationWindow::newGraph3D(const Graph3DCommon::Plot3DType &type,
           &ApplicationWindow::updateWindowStatus);
   connect(layout3d, &MyWidget::showTitleBarMenu, this,
           &ApplicationWindow::showWindowTitleBarMenu);
-  connect(layout3d, &Layout3D::dataAdded, propertyeditor,
-          &PropertyEditor::populateObjectBrowser);
   connect(layout3d, &Layout3D::showContextMenu, this,
           &ApplicationWindow::showWindowContextMenu);
   // QWindow doesnt pass mousepressevent to the container widget
@@ -2447,8 +2424,7 @@ Matrix *ApplicationWindow::matrix(const QString &name) {
 
 void ApplicationWindow::windowActivated(QMdiSubWindow *subwindow) {
   if (!subwindow || !qobject_cast<MyWidget *>(subwindow)) {
-    propertyeditor->populateObjectBrowser(nullptr);
-    //propertybrowser->populateObjectBrowser(nullptr);
+    propertybrowser->populateObjectBrowser(nullptr);
     return;
   }
 
@@ -2484,8 +2460,7 @@ void ApplicationWindow::windowActivated(QMdiSubWindow *subwindow) {
 
   Folder *f = mywidget->folder();
   if (f) f->setActiveWindow(mywidget);
-  propertyeditor->populateObjectBrowser(mywidget);
-  //propertybrowser->populateObjectBrowser(mywidget);
+  propertybrowser->populateObjectBrowser(mywidget);
   emit modified();
 }
 
@@ -5715,7 +5690,7 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
   if (subwindowlist.isEmpty()) {
     customMenu(nullptr);
     customToolBars(nullptr);
-    propertyeditor->populateObjectBrowser(nullptr);
+    propertybrowser->populateObjectBrowser(nullptr);
   }
 
   emit modified();

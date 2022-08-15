@@ -18,9 +18,14 @@
 #define PROPERTYBROWSER_H
 
 #include <QDockWidget>
-#include "ApplicationWindow.h"
 
 class Ui_PropertyBrowser;
+class PropertyItemModel;
+class ObjectBrowserTreeItemModel;
+class ApplicationWindow;
+class MyWidget;
+class QItemSelectionModel;
+class QMenu;
 
 class PropertyBrowser : public QDockWidget {
   Q_OBJECT
@@ -31,12 +36,19 @@ class PropertyBrowser : public QDockWidget {
  public slots:
   void populateObjectBrowser(MyWidget *widget);
 
-private slots:
+ private slots:
+  void MyWidgetNameChange(MyWidget *widget, const QString &string);
+  void MyWidgetLabelChange(MyWidget *widget, const QString &string);
   void showObjectContextMenu(const QPoint &point);
+  void selectObjectItem(const QModelIndex &current,
+                        const QModelIndex &previous);
 
  private:
   ApplicationWindow *app_;
   Ui_PropertyBrowser *ui_;
+  ObjectBrowserTreeItemModel *objectItemModel_;
+  QItemSelectionModel *objectSelectionModel_;
+  PropertyItemModel *propItemModel_;
 };
 
 #endif  // PROPERTYBROWSER_H

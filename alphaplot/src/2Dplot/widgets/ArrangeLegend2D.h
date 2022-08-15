@@ -13,6 +13,7 @@ class Bar2D;
 class StatBox2D;
 class Pie2D;
 class ColorMap2D;
+class Channel2D;
 class QCPAbstractLegendItem;
 
 //! Add/remove curves dialog
@@ -38,7 +39,7 @@ class ArrangeLegend2D : public QDialog {
   // plottables
   QVector<Curve2D *> cvec_;
   QVector<LineSpecial2D *> lsvec_;
-  QVector<QPair<LineSpecial2D *, LineSpecial2D *>> lspecialvec_;
+  QVector<Channel2D *> lspecialvec_;
   QVector<Vector2D *> vvec_;
   QVector<Bar2D *> bvec_;
   QVector<StatBox2D *> svec_;

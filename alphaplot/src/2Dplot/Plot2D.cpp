@@ -20,12 +20,8 @@
 
 #include "core/IconLoader.h"
 
-Plot2D::Plot2D(ObjectBrowserTreeItem *parentitem, QWidget *parent)
+Plot2D::Plot2D(QWidget *parent)
     : QCustomPlot(parent),
-      ObjectBrowserTreeItem(QVariant::fromValue<Plot2D *>(this),
-                            ObjectBrowserTreeItem::ObjectType::Plot2DCanvas,
-                            parentitem),
-      rootitem_(parentitem),
       canvasBackground_(Qt::white),
       layernamebackground2d_("background"),
       layernamegrid2d_("grid"),
@@ -56,8 +52,7 @@ Plot2D::Plot2D(ObjectBrowserTreeItem *parentitem, QWidget *parent)
   if (!removeLayer(layer("main"))) qDebug() << "unable to delete main layer";
 }
 
-Plot2D::~Plot2D() {  // rootitem_->removeChild(this);
-}
+Plot2D::~Plot2D() {}
 
 QString Plot2D::getItemName() { return tr("Canvas"); }
 
