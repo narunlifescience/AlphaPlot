@@ -134,6 +134,7 @@ void PropertyItemDelegate::paintBoolProperty(
       QStyle::SE_CheckBoxIndicator,
       &buttonOption);  // Only used to get size of native checkbox widget.
   buttonOption.text = property->toString();
+  buttonOption.palette = option.palette;
   buttonOption.rect =
       QStyle::alignedRect(option.direction, Qt::AlignLeft, checkBoxRect.size(),
                           option.rect);  // Our checkbox rect.

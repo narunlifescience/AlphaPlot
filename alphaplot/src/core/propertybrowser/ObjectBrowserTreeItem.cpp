@@ -133,8 +133,10 @@ ObjectBrowserTreeItem::RoleData ObjectBrowserTreeItem::value() const {
       }
     } break;
     case ObjectBrowserTreeItem::ObjectType::Plot2DLayout: {
-      Layout2D *layout = parentItem_->itemData_.value<Layout2D *>();
-      AxisRect2D *axisrect = itemData_.value<AxisRect2D *>();
+      Layout2D *layout = parentItem_->getObjectTreeItem<Layout2D>(&status);
+      if (!status) break;
+      AxisRect2D *axisrect = getObjectTreeItem<AxisRect2D>(&status);
+      if (!status) break;
       if (layout && axisrect) {
         QPair<int, int> rowcol = layout->getAxisRectRowCol(axisrect);
         int index = layout->getLayoutRectGridIndex(rowcol) + 1;
@@ -276,35 +278,86 @@ ObjectBrowserTreeItem::RoleData ObjectBrowserTreeItem::value() const {
       roledata.tooltip = QObject::tr("Theme");
       roledata.icon = IconLoader::load("theme", IconLoader::General);
     } break;
-    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueX: {
-      roledata.name = QObject::tr("X Axis(Val)");
-      roledata.tooltip = QObject::tr("X Axis(Val)");
-      roledata.icon =
-          IconLoader::load("graph2d-axis-bottom", IconLoader::LightDark);
+    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisValue: {
+      Layout3D *layout = parentItem_->getObjectTreeItem<Layout3D>(&status);
+      if (!status) break;
+      QValue3DAxis *axis = getObjectTreeItem<QValue3DAxis>(&status);
+      if (!status) break;
+      switch (layout->getPlotType()) {
+        case Graph3DCommon::Plot3DType::Surface: {
+          if (axis == layout->getSurface3DModifier()->getGraph()->axisX()) {
+            roledata.name = QObject::tr("X Axis(Val)");
+            roledata.tooltip = QObject::tr("X Axis(Val)");
+            roledata.icon =
+                IconLoader::load("graph2d-axis-bottom", IconLoader::LightDark);
+          } else if (axis ==
+                     layout->getSurface3DModifier()->getGraph()->axisY()) {
+            roledata.name = QObject::tr("Y Axis(Val)");
+            roledata.tooltip = QObject::tr("Y Axis(Val)");
+            roledata.icon =
+                IconLoader::load("graph2d-axis-left", IconLoader::LightDark);
+          } else if (axis ==
+                     layout->getSurface3DModifier()->getGraph()->axisZ()) {
+            roledata.name = QObject::tr("Z Axis(Val)");
+            roledata.tooltip = QObject::tr("Z Axis(Val)");
+            roledata.icon =
+                IconLoader::load("graph2d-axis-right", IconLoader::LightDark);
+          }
+        } break;
+        case Graph3DCommon::Plot3DType::Scatter: {
+          if (axis == layout->getScatter3DModifier()->getGraph()->axisX()) {
+            roledata.name = QObject::tr("X Axis(Val)");
+            roledata.tooltip = QObject::tr("X Axis(Val)");
+            roledata.icon =
+                IconLoader::load("graph2d-axis-bottom", IconLoader::LightDark);
+          } else if (axis ==
+                     layout->getScatter3DModifier()->getGraph()->axisY()) {
+            roledata.name = QObject::tr("Y Axis(Val)");
+            roledata.tooltip = QObject::tr("Y Axis(Val)");
+            roledata.icon =
+                IconLoader::load("graph2d-axis-left", IconLoader::LightDark);
+          } else if (axis ==
+                     layout->getScatter3DModifier()->getGraph()->axisZ()) {
+            roledata.name = QObject::tr("Z Axis(Val)");
+            roledata.tooltip = QObject::tr("Z Axis(Val)");
+            roledata.icon =
+                IconLoader::load("graph2d-axis-right", IconLoader::LightDark);
+          }
+        } break;
+        case Graph3DCommon::Plot3DType::Bar: {
+          if (axis == layout->getBar3DModifier()->getGraph()->valueAxis()) {
+            roledata.name = QObject::tr("Z Axis(Val)");
+            roledata.tooltip = QObject::tr("Z Axis(Val)");
+            roledata.icon =
+                IconLoader::load("graph2d-axis-right", IconLoader::LightDark);
+          }
+        } break;
+      }
     } break;
-    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueY: {
-      roledata.name = QObject::tr("Y Axis(Val)");
-      roledata.tooltip = QObject::tr("Y Axis(Val)");
-      roledata.icon =
-          IconLoader::load("graph2d-axis-left", IconLoader::LightDark);
-    } break;
-    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueZ: {
-      roledata.name = QObject::tr("Z Axis(Val)");
-      roledata.tooltip = QObject::tr("Z Axis(Val)");
-      roledata.icon =
-          IconLoader::load("graph2d-axis-right", IconLoader::LightDark);
-    } break;
-    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisCatagoryX: {
-      roledata.name = QObject::tr("X Axis(Cat)");
-      roledata.tooltip = QObject::tr("X Axis(Cat)");
-      roledata.icon =
-          IconLoader::load("graph2d-axis-bottom", IconLoader::LightDark);
-    } break;
-    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisCatagoryY: {
-      roledata.name = QObject::tr("Y Axis(Cat)");
-      roledata.tooltip = QObject::tr("Y Axis(Cat)");
-      roledata.icon =
-          IconLoader::load("graph2d-axis-left", IconLoader::LightDark);
+    case ObjectBrowserTreeItem::ObjectType::Plot3DAxisCatagory: {
+      Layout3D *layout = parentItem_->getObjectTreeItem<Layout3D>(&status);
+      if (!status) break;
+      QCategory3DAxis *axis = getObjectTreeItem<QCategory3DAxis>(&status);
+      if (!status) break;
+      switch (layout->getPlotType()) {
+        case Graph3DCommon::Plot3DType::Surface:
+        case Graph3DCommon::Plot3DType::Scatter:
+          break;
+        case Graph3DCommon::Plot3DType::Bar: {
+          if (axis == layout->getBar3DModifier()->getGraph()->rowAxis()) {
+            roledata.name = QObject::tr("X Axis(Cat)");
+            roledata.tooltip = QObject::tr("X Axis(Cat)");
+            roledata.icon =
+                IconLoader::load("graph2d-axis-bottom", IconLoader::LightDark);
+          } else if (axis ==
+                     layout->getBar3DModifier()->getGraph()->columnAxis()) {
+            roledata.name = QObject::tr("Y Axis(Cat)");
+            roledata.tooltip = QObject::tr("Y Axis(Cat)");
+            roledata.icon =
+                IconLoader::load("graph2d-axis-left", IconLoader::LightDark);
+          }
+        } break;
+      }
     } break;
     case ObjectBrowserTreeItem::ObjectType::Plot3DBar: {
       Bar3D *bar = getObjectTreeItem<Bar3D>(&status);

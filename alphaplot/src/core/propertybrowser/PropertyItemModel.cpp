@@ -1944,6 +1944,56 @@ void PropertyItemModel::buildUp(ObjectBrowserTreeItem *item) {
         connect(plot, &Layout3D::geometrychange, this,
                 [=]() { updateProperty(dim); });
     } break;
+    // Plot3D Canvas
+    case ObjectBrowserTreeItem::ObjectType::Plot3DTheme: {
+      PropertyItem::create(rootItem_, item,
+                           PropertyItem::Property::Plot3DTheme_Base_Separator);
+      PropertyItem::create(
+          rootItem_, item,
+          PropertyItem::Property::Plot3DTheme_Canvas_Background_Color);
+      PropertyItem::create(rootItem_, item,
+                           PropertyItem::Property::Plot3DTheme_Canvas_Font);
+      PropertyItem::create(rootItem_, item,
+                           PropertyItem::Property::Plot3DTheme_Graph_Separator);
+      PropertyItem::create(
+          rootItem_, item,
+          PropertyItem::Property::Plot3DTheme_Graph_Background_Visible);
+      PropertyItem::create(
+          rootItem_, item,
+          PropertyItem::Property::Plot3DTheme_Graph_Background_Color);
+      PropertyItem::create(rootItem_, item,
+                           PropertyItem::Property::Plot3DTheme_Light_Separator);
+      auto ls = PropertyItem::create(
+          rootItem_, item, PropertyItem::Property::Plot3DTheme_Light_Strength);
+      ls->setLowerLimitDouble(0);
+      ls->setPrecision(4);
+      PropertyItem::create(rootItem_, item,
+                           PropertyItem::Property::Plot3DTheme_Light_Color);
+      auto als = PropertyItem::create(
+          rootItem_, item,
+          PropertyItem::Property::Plot3DTheme_AmbientLight_Strength);
+      als->setLowerLimitDouble(0);
+      als->setPrecision(4);
+      PropertyItem::create(rootItem_, item,
+                           PropertyItem::Property::Plot3DTheme_Grid_Separator);
+      PropertyItem::create(rootItem_, item,
+                           PropertyItem::Property::Plot3DTheme_Grid_Visible);
+      PropertyItem::create(rootItem_, item,
+                           PropertyItem::Property::Plot3DTheme_Grid_Color);
+      PropertyItem::create(rootItem_, item,
+                           PropertyItem::Property::Plot3DTheme_Label_Separator);
+      PropertyItem::create(
+          rootItem_, item,
+          PropertyItem::Property::Plot3DTheme_Label_Background_Visible);
+      PropertyItem::create(
+          rootItem_, item,
+          PropertyItem::Property::Plot3DTheme_Label_Background_Color);
+      PropertyItem::create(rootItem_, item,
+                           PropertyItem::Property::Plot3DTheme_Label_Color);
+      PropertyItem::create(
+          rootItem_, item,
+          PropertyItem::Property::Plot3DTheme_Label_Border_Visible);
+    } break;
   }
 
   endResetModel();

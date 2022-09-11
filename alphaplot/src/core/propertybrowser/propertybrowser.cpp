@@ -73,7 +73,7 @@ PropertyBrowser::PropertyBrowser(QWidget *parent, ApplicationWindow *app)
   ui_->propertyView->setAlternatingRowColors(true);
   ui_->propertyView->setUniformRowHeights(true);
   ui_->propertyView->setEditTriggers(
-      QAbstractItemView::EditTrigger::CurrentChanged);
+      QAbstractItemView::EditTrigger::AllEditTriggers);
   ui_->propertyView->setAnimated(true);
   ui_->propertyView->setSelectionMode(QAbstractItemView::SingleSelection);
   ui_->propertyView->setItemsExpandable(false);

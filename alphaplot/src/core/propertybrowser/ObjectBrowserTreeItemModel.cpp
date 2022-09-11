@@ -517,15 +517,15 @@ void ObjectBrowserTreeItemModel::buildUpGraph3D(Layout3D *layout) {
       ObjectBrowserTreeItem::create(
           QVariant::fromValue<QCategory3DAxis *>(
               layout->getBar3DModifier()->getGraph()->rowAxis()),
-          ObjectBrowserTreeItem::ObjectType::Plot3DAxisCatagoryX, rootItem_);
+          ObjectBrowserTreeItem::ObjectType::Plot3DAxisCatagory, rootItem_);
       ObjectBrowserTreeItem::create(
           QVariant::fromValue<QCategory3DAxis *>(
               layout->getBar3DModifier()->getGraph()->columnAxis()),
-          ObjectBrowserTreeItem::ObjectType::Plot3DAxisCatagoryY, rootItem_);
+          ObjectBrowserTreeItem::ObjectType::Plot3DAxisCatagory, rootItem_);
       ObjectBrowserTreeItem::create(
           QVariant::fromValue<QValue3DAxis *>(
               layout->getBar3DModifier()->getGraph()->valueAxis()),
-          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueZ, rootItem_);
+          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValue, rootItem_);
       ObjectBrowserTreeItem *item = ObjectBrowserTreeItem::create(
           QVariant::fromValue<Bar3D *>(layout->getBar3DModifier()),
           ObjectBrowserTreeItem::ObjectType::Plot3DBar, rootItem_);
@@ -547,15 +547,15 @@ void ObjectBrowserTreeItemModel::buildUpGraph3D(Layout3D *layout) {
       ObjectBrowserTreeItem::create(
           QVariant::fromValue<QValue3DAxis *>(
               layout->getScatter3DModifier()->getGraph()->axisX()),
-          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueX, rootItem_);
+          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValue, rootItem_);
       ObjectBrowserTreeItem::create(
           QVariant::fromValue<QValue3DAxis *>(
               layout->getScatter3DModifier()->getGraph()->axisY()),
-          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueY, rootItem_);
+          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValue, rootItem_);
       ObjectBrowserTreeItem::create(
           QVariant::fromValue<QValue3DAxis *>(
               layout->getScatter3DModifier()->getGraph()->axisZ()),
-          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueZ, rootItem_);
+          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValue, rootItem_);
       ObjectBrowserTreeItem *item = ObjectBrowserTreeItem::create(
           QVariant::fromValue<Scatter3D *>(layout->getScatter3DModifier()),
           ObjectBrowserTreeItem::ObjectType::Plot3DScatter, rootItem_);
@@ -578,15 +578,15 @@ void ObjectBrowserTreeItemModel::buildUpGraph3D(Layout3D *layout) {
       ObjectBrowserTreeItem::create(
           QVariant::fromValue<QValue3DAxis *>(
               layout->getSurface3DModifier()->getGraph()->axisX()),
-          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueX, rootItem_);
+          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValue, rootItem_);
       ObjectBrowserTreeItem::create(
           QVariant::fromValue<QValue3DAxis *>(
               layout->getSurface3DModifier()->getGraph()->axisY()),
-          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueY, rootItem_);
+          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValue, rootItem_);
       ObjectBrowserTreeItem::create(
           QVariant::fromValue<QValue3DAxis *>(
               layout->getSurface3DModifier()->getGraph()->axisZ()),
-          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValueZ, rootItem_);
+          ObjectBrowserTreeItem::ObjectType::Plot3DAxisValue, rootItem_);
       ObjectBrowserTreeItem *item = ObjectBrowserTreeItem::create(
           QVariant::fromValue<Surface3D *>(layout->getSurface3DModifier()),
           ObjectBrowserTreeItem::ObjectType::Plot3DSurface, rootItem_);

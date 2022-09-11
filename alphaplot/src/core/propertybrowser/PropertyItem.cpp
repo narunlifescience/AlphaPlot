@@ -126,6 +126,16 @@ PropertyItem::PropertyItem(PropertyItem *parent, ObjectBrowserTreeItem *item,
     case PropertyItem::Property::Plot2DCM_Axis_TickLabel_Separator:
     case PropertyItem::Property::Plot2DErrBar_Basic_Separator:
     case PropertyItem::Property::Plot3DCanvas_Base_Separator:
+    case PropertyItem::Property::Plot3DTheme_Base_Separator:
+    case PropertyItem::Property::Plot3DTheme_Graph_Separator:
+    case PropertyItem::Property::Plot3DTheme_Light_Separator:
+    case PropertyItem::Property::Plot3DTheme_Grid_Separator:
+    case PropertyItem::Property::Plot3DTheme_Label_Separator:
+    case PropertyItem::Property::Plot3DAxisVal_Base_Separator:
+    case PropertyItem::Property::Plot3DAxisVal_Tick_Separator:
+    case PropertyItem::Property::Plot3DAxisVal_Label_Separator:
+    case PropertyItem::Property::Plot3DAxisCat_Base_Separator:
+    case PropertyItem::Property::Plot3DAxisCat_Label_Separator:
       propertytype_ = PropertyItem::PropertyType::Separator;
       break;
     case PropertyItem::Property::None:
@@ -144,6 +154,9 @@ PropertyItem::PropertyItem(PropertyItem *parent, ObjectBrowserTreeItem *item,
     case PropertyItem::Property::Plot2DVector_Legend_Text:
     case PropertyItem::Property::Plot2DBar_Legend_Text:
     case PropertyItem::Property::Plot2DCM_Axis_Label_Text:
+    case PropertyItem::Property::Plot3DAxisVal_TickLabel_Format:
+    case PropertyItem::Property::Plot3DAxisVal_Label_Text:
+    case PropertyItem::Property::Plot3DAxisCat_Label_Text:
       propertytype_ = PropertyItem::PropertyType::String;
       break;
     case PropertyItem::Property::BaseWindow_Geometry_X:
@@ -199,6 +212,8 @@ PropertyItem::PropertyItem(PropertyItem *parent, ObjectBrowserTreeItem *item,
     case PropertyItem::Property::Plot2DCM_Axis_TickLabel_Precision_Double:
     case PropertyItem::Property::Plot3DCanvas_Dimension_Width:
     case PropertyItem::Property::Plot3DCanvas_Dimension_Height:
+    case PropertyItem::Property::Plot3DAxisVal_Tick_Count:
+    case PropertyItem::Property::Plot3DAxisVal_SubTick_Count:
       propertytype_ = PropertyItem::PropertyType::Int;
       break;
     case PropertyItem::Property::Plot2DCanvas_DPR:
@@ -276,12 +291,20 @@ PropertyItem::PropertyItem(PropertyItem *parent, ObjectBrowserTreeItem *item,
     case PropertyItem::Property::Plot2DErrBar_Whisker_Width:
     case PropertyItem::Property::Plot2DErrBar_Symbol_Gap:
     case PropertyItem::Property::Plot2DErrBar_Stroke_Thickness:
+    case PropertyItem::Property::Plot3DTheme_Light_Strength:
+    case PropertyItem::Property::Plot3DTheme_AmbientLight_Strength:
+    case PropertyItem::Property::Plot3DAxisVal_TickLabel_Rotation:
+    case PropertyItem::Property::Plot3DAxisCat_TickLabel_Rotation:
+    case PropertyItem::Property::Plot3DAxisCat_From:
+    case PropertyItem::Property::Plot3DAxisCat_To:
       propertytype_ = PropertyItem::PropertyType::Double;
       break;
     case PropertyItem::Property::Plot2DAxis_From_Double:
     case PropertyItem::Property::Plot2DAxis_To_Double:
     case PropertyItem::Property::Plot2DCM_Axis_From_Double:
     case PropertyItem::Property::Plot2DCM_Axis_To_Double:
+    case PropertyItem::Property::Plot3DAxisVal_From:
+    case PropertyItem::Property::Plot3DAxisVal_To:
       propertytype_ = PropertyItem::PropertyType::ScientificDouble;
       break;
     case PropertyItem::Property::Plot2DCanvas_OpenGL:
@@ -338,6 +361,18 @@ PropertyItem::PropertyItem(PropertyItem *parent, ObjectBrowserTreeItem *item,
     case PropertyItem::Property::Plot2DCM_Axis_SubTicks_Visible:
     case PropertyItem::Property::Plot2DCM_Axis_TickLabel_Visible:
     case PropertyItem::Property::Plot2DErrBar_Antialiased:
+    case PropertyItem::Property::Plot3DTheme_Graph_Background_Visible:
+    case PropertyItem::Property::Plot3DTheme_Grid_Visible:
+    case PropertyItem::Property::Plot3DTheme_Label_Background_Visible:
+    case PropertyItem::Property::Plot3DTheme_Label_Border_Visible:
+    case PropertyItem::Property::Plot3DAxisVal_AutoRange:
+    case PropertyItem::Property::Plot3DAxisVal_Inverted:
+    case PropertyItem::Property::Plot3DAxisVal_Label_Visible:
+    case PropertyItem::Property::Plot3DAxisVal_Label_Fixed:
+    case PropertyItem::Property::Plot3DAxisCat_AutoRange:
+    case PropertyItem::Property::Plot3DAxisCat_Inverted:
+    case PropertyItem::Property::Plot3DAxisCat_Label_Visible:
+    case PropertyItem::Property::Plot3DAxisCat_Label_Fixed:
       propertytype_ = PropertyItem::PropertyType::Bool;
       break;
     case PropertyItem::Property::Plot2DLayout_FillStyle:
@@ -488,6 +523,12 @@ PropertyItem::PropertyItem(PropertyItem *parent, ObjectBrowserTreeItem *item,
     case PropertyItem::Property::Plot2DCM_Axis_TickLabel_Color:
     case PropertyItem::Property::Plot2DErrBar_Stroke_Color:
     case PropertyItem::Property::Plot2DErrBar_Fill_Color:
+    case PropertyItem::Property::Plot3DTheme_Canvas_Background_Color:
+    case PropertyItem::Property::Plot3DTheme_Graph_Background_Color:
+    case PropertyItem::Property::Plot3DTheme_Light_Color:
+    case PropertyItem::Property::Plot3DTheme_Grid_Color:
+    case PropertyItem::Property::Plot3DTheme_Label_Background_Color:
+    case PropertyItem::Property::Plot3DTheme_Label_Color:
       propertytype_ = PropertyItem::PropertyType::Color;
       break;
     case PropertyItem::Property::Plot2DLegend_Font:
@@ -497,6 +538,7 @@ PropertyItem::PropertyItem(PropertyItem *parent, ObjectBrowserTreeItem *item,
     case PropertyItem::Property::Plot2DTextItem_Text_Font:
     case PropertyItem::Property::Plot2DCM_Axis_Label_Font:
     case PropertyItem::Property::Plot2DCM_Axis_TickLabel_Font:
+    case PropertyItem::Property::Plot3DTheme_Canvas_Font:
       propertytype_ = PropertyItem::PropertyType::Font;
       break;
     case PropertyItem::Property::Plot2DCanvas_Dimension:
@@ -2697,6 +2739,73 @@ PropertyItem::Pair PropertyItem::value() const {
           break;
       }
     } break;
+    // Plot3D Theme
+    case ObjectBrowserTreeItem::ObjectType::Plot3DTheme: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (!status) break;
+      switch (property_) {
+        case PropertyItem::Property::Plot3DTheme_Base_Separator:
+          return Pair(tr("Base"), QString());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Canvas_Background_Color:
+          return Pair(tr("Canvas Background"), theme->windowColor());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Canvas_Font:
+          return Pair(tr("Base Font"), theme->font());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Graph_Separator:
+          return Pair(tr("Graph"), QString());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Graph_Background_Visible:
+          return Pair(tr("Background Visible"), theme->isBackgroundEnabled());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Graph_Background_Color:
+          return Pair(tr("Background Color"), theme->backgroundColor());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Light_Separator:
+          return Pair(tr("Light"), QString());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Light_Strength:
+          return Pair(tr("Light Strength"), theme->lightStrength());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Light_Color:
+          return Pair(tr("Light Color"), theme->lightColor());
+          break;
+        case PropertyItem::Property::Plot3DTheme_AmbientLight_Strength:
+          return Pair(tr("Ambient Light Strength"),
+                      theme->ambientLightStrength());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Grid_Separator:
+          return Pair(tr("Grid"), QString());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Grid_Visible:
+          return Pair(tr("Grid Visible"), theme->isGridEnabled());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Grid_Color:
+          return Pair(tr("Grid Color"), theme->gridLineColor());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Label_Separator:
+          return Pair(tr("Label"), QString());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Label_Background_Visible:
+          return Pair(tr("Label Background Visible"),
+                      theme->isLabelBackgroundEnabled());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Label_Background_Color:
+          return Pair(tr("Label Background Color"),
+                      theme->labelBackgroundColor());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Label_Color:
+          return Pair(tr("Label Text Color"), theme->labelTextColor());
+          break;
+        case PropertyItem::Property::Plot3DTheme_Label_Border_Visible:
+          return Pair(tr("Label Border Visible"),
+                      theme->isLabelBorderEnabled());
+          break;
+        default:
+          break;
+      }
+    } break;
   }
   return Pair(QString(), QVariant());
 }
@@ -3896,6 +4005,17 @@ void PropertyItem::setDoubleValue(const double &val) {
         err->layer()->replot();
       }
     } break;
+    // Plot3D Theme
+    case PropertyItem::Property::Plot3DTheme_Light_Strength: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (!Utilities::isSameDouble(val, PropertyData<double>()) && status)
+        theme->setLightStrength(val);
+    } break;
+    case PropertyItem::Property::Plot3DTheme_AmbientLight_Strength: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (!Utilities::isSameDouble(val, PropertyData<double>()) && status)
+        theme->setAmbientLightStrength(val);
+    } break;
     default:
       break;
   }
@@ -4355,6 +4475,26 @@ void PropertyItem::setBoolValue(const bool &val) {
         err->setAntialiased(val);
         err->layer()->replot();
       }
+    } break;
+    // Plot3D Theme
+    case PropertyItem::Property::Plot3DTheme_Graph_Background_Visible: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (val != PropertyData<bool>() && status)
+        theme->setBackgroundEnabled(val);
+    } break;
+    case PropertyItem::Property::Plot3DTheme_Grid_Visible: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (val != PropertyData<bool>() && status) theme->setGridEnabled(val);
+    } break;
+    case PropertyItem::Property::Plot3DTheme_Label_Background_Visible: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (val != PropertyData<bool>() && status)
+        theme->setLabelBackgroundEnabled(val);
+    } break;
+    case PropertyItem::Property::Plot3DTheme_Label_Border_Visible: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (val != PropertyData<bool>() && status)
+        theme->setLabelBorderEnabled(val);
     } break;
     default:
       break;
@@ -5629,6 +5769,34 @@ void PropertyItem::setColorValue(const QColor &val) {
         err->layer()->replot();
       }
     } break;
+    // Plot3D Theme
+    case PropertyItem::Property::Plot3DTheme_Canvas_Background_Color: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (val != PropertyData<QColor>() && status) theme->setWindowColor(val);
+    } break;
+    case PropertyItem::Property::Plot3DTheme_Graph_Background_Color: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (val != PropertyData<QColor>() && status)
+        theme->setBackgroundColor(val);
+    } break;
+    case PropertyItem::Property::Plot3DTheme_Light_Color: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (val != PropertyData<QColor>() && status) theme->setLightColor(val);
+    } break;
+    case PropertyItem::Property::Plot3DTheme_Grid_Color: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (val != PropertyData<QColor>() && status) theme->setGridLineColor(val);
+    } break;
+    case PropertyItem::Property::Plot3DTheme_Label_Background_Color: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (val != PropertyData<QColor>() && status)
+        theme->setLabelBackgroundColor(val);
+    } break;
+    case PropertyItem::Property::Plot3DTheme_Label_Color: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (val != PropertyData<QColor>() && status)
+        theme->setLabelTextColor(val);
+    } break;
     default:
       break;
   }
@@ -5689,6 +5857,11 @@ void PropertyItem::setFontValue(const QFont &val) {
         cm->getcolormapscale_colormap()->axis()->setTickLabelFont(val);
         cm->parentPlot()->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
       }
+    } break;
+    // Plot3D Theme
+    case PropertyItem::Property::Plot3DTheme_Canvas_Font: {
+      Q3DTheme *theme = item_->getObjectTreeItem<Q3DTheme>(&status);
+      if (val != PropertyData<QFont>() && status) theme->setFont(val);
     } break;
     default:
       break;
