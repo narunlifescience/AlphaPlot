@@ -97,10 +97,10 @@ contains(PRESET, osx_dist) {
   # Uses HomeBrew supplied versions of the dependencies
   message(Build configuration: OSX Distro)
 
-  #INCLUDEPATH  += /opt/homebrew/include
-  #QMAKE_LIBDIR += /opt/homebrew/lib
-  INCLUDEPATH  += /usr/local/homebrew/include
-  QMAKE_LIBDIR += /usr/local/homebrew/lib
+  INCLUDEPATH  += /opt/homebrew/include
+  QMAKE_LIBDIR += /opt/homebrew/lib
+  #INCLUDEPATH  += /usr/local/homebrew/include
+  #QMAKE_LIBDIR += /usr/local/homebrew/lib
   LIBS         += -lgsl -lgslcblas
 }
 
