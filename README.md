@@ -144,4 +144,4 @@ We thank all the tools and library developers & contributors used by AlphaPlot(i
 - Inno Setup (https://jrsoftware.org/isinfo.php),
 - Flatpak (https://flatpak.org/)
 
-... and many more we just forgot to mention.
+... and many more we just forgot to mention!
