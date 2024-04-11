@@ -31,12 +31,37 @@ SwapLayout2DDialog::SwapLayout2DDialog(Layout2D *parent)
             .arg(layout_->getAxisRectRowCol(axisrect).second + 1),
         QVariant::fromValue(pair));
   }
+
   connect(ui_->buttonBox, &QDialogButtonBox::accepted, this,
           &SwapLayout2DDialog::swap);
   connect(ui_->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+  connect(ui_->swap1comboBox, &QComboBox::currentTextChanged, this, [=](){swapComboboxIndexChanged(SwapLayout::Swap1);});
+  connect(ui_->swap2comboBox, &QComboBox::currentTextChanged, this, [=](){swapComboboxIndexChanged(SwapLayout::Swap2);});
+  swapComboboxIndexChanged(SwapLayout::Swap1);
 }
 
 SwapLayout2DDialog::~SwapLayout2DDialog() { delete ui_; }
+
+void SwapLayout2DDialog::swapComboboxIndexChanged(const SwapLayout &s) {
+   switch (s) {
+   case SwapLayout::Swap1:{
+     if(ui_->swap1comboBox->currentData(Qt::UserRole) == ui_->swap2comboBox->currentData(Qt::UserRole)) {
+       (ui_->swap2comboBox->currentIndex() == ui_->swap2comboBox->count() - 1) ?
+       ui_->swap2comboBox->setCurrentIndex(ui_->swap2comboBox->currentIndex() - 1):
+       ui_->swap2comboBox->setCurrentIndex(ui_->swap2comboBox->currentIndex() + 1);
+     }
+   }
+   break;
+   case SwapLayout::Swap2: {
+       if(ui_->swap2comboBox->currentData(Qt::UserRole) == ui_->swap1comboBox->currentData(Qt::UserRole)) {
+         (ui_->swap1comboBox->currentIndex() == ui_->swap1comboBox->count() - 1) ?
+         ui_->swap1comboBox->setCurrentIndex(ui_->swap1comboBox->currentIndex() - 1):
+         ui_->swap1comboBox->setCurrentIndex(ui_->swap1comboBox->currentIndex() + 1);
+       }
+   }
+   break;
+   }
+}
 
 void SwapLayout2DDialog::swap() {
   Pair rowcol1 = ui_->swap1comboBox->currentData(Qt::UserRole).value<Pair>();

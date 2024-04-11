@@ -14,7 +14,14 @@ class SwapLayout2DDialog : public QDialog {
   explicit SwapLayout2DDialog(Layout2D *parent = nullptr);
   ~SwapLayout2DDialog();
 
+ private:
+   enum class SwapLayout: int {
+     Swap1 = 0,
+     Swap2 = 1
+   };
+
  private slots:
+  void swapComboboxIndexChanged(const SwapLayout &s);
   void swap();
 
  private:

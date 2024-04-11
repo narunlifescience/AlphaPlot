@@ -138,7 +138,7 @@ Layout3D::Layout3D(const Graph3DCommon::Plot3DType &plottype,
 }
 
 Layout3D::~Layout3D() {
-  if (!closewithoutcolumnmodelockchange_) switch (plottype_) {
+   switch (plottype_) {
       case Graph3DCommon::Plot3DType::Surface:
         break;
       case Graph3DCommon::Plot3DType::Bar: {
@@ -974,10 +974,6 @@ void Layout3D::saveCategoryAxis(XmlStreamWriter *xmlwriter,
                          : xmlwriter->writeAttribute("labelfixed", "false");
   xmlwriter->writeAttribute("label", axis->title());
   xmlwriter->writeEndElement();
-}
-
-void Layout3D::setCloseWithoutColumnModeLockChange(const bool value) {
-  closewithoutcolumnmodelockchange_ = value;
 }
 
 QList<MyWidget *> Layout3D::dependentTableMatrix() {

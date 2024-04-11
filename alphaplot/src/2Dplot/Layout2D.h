@@ -108,7 +108,6 @@ class Layout2D : public MyWidget {
   void setLayoutButtonBoxVisible(const bool value);
   void copy(Layout2D *layout, QList<Table *> tables, QList<Matrix *> matrixs);
   QList<Column *> getPlotColumns();
-  void setCloseWithoutColumnModeLockChange(const bool value);
 
  public slots:
   bool exportGraph();
@@ -183,7 +182,6 @@ class Layout2D : public MyWidget {
   static const int minimumlayout2dwidth_;
   static const int minimumlayout2dheight_;
   QString backgroundimagefilename_;
-  bool closewithoutcolumnmodelockchange_;
 
  private slots:
   void mouseMoveSignal(QMouseEvent *event);

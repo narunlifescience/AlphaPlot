@@ -970,15 +970,6 @@ ApplicationWindow::ApplicationWindow()
 
 // Distructor
 ApplicationWindow::~ApplicationWindow() {
-  foreach (QMdiSubWindow *window, subWindowsList()) {
-    if (qobject_cast<Layout2D *>(window)) {
-      qobject_cast<Layout2D *>(window)->setCloseWithoutColumnModeLockChange(
-          true);
-    } else if (qobject_cast<Layout3D *>(window)) {
-      qobject_cast<Layout3D *>(window)->setCloseWithoutColumnModeLockChange(
-          true);
-    }
-  }
   delete ui_;
   // delete d_project;
   QApplication::clipboard()->clear(QClipboard::Clipboard);

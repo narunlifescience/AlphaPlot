@@ -50,8 +50,7 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
       layout_(new LayoutGrid2D()),
       buttionlist_(QList<QPair<LayoutButton2D *, AxisRect2D *>>()),
       currentAxisRect_(nullptr),
-      backgroundimagefilename_(QString()),
-      closewithoutcolumnmodelockchange_(false) {
+      backgroundimagefilename_(QString()) {
   main_widget_->setContentsMargins(0, 0, 0, 0);
   plot2dCanvas_ = new Plot2D(this);
 
@@ -162,8 +161,6 @@ Layout2D::Layout2D(const QString &label, QWidget *parent, const QString name,
 }
 
 Layout2D::~Layout2D() {
-  if (!closewithoutcolumnmodelockchange_)
-    foreach (Column *col, getPlotColumns()) { col->setColumnModeLock(false); }
   // destroy in order to be in line with ObjectBrowserTreeItem destruction
   // dont change the order unless you know what you are doing (may crash the
   // application)
@@ -1821,10 +1818,6 @@ QList<Column *> Layout2D::getPlotColumns() {
     }
   }
   return collist;
-}
-
-void Layout2D::setCloseWithoutColumnModeLockChange(const bool value) {
-  closewithoutcolumnmodelockchange_ = value;
 }
 
 AxisRect2D *Layout2D::addAxisRectWithAxis() {
