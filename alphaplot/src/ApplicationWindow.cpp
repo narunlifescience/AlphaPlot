@@ -5557,6 +5557,9 @@ void ApplicationWindow::hideActiveWindow() {
 void ApplicationWindow::hideWindow(MyWidget *w) {
   hiddenWindows.append(w);
   w->setHidden();
+  propertybrowser->populateObjectBrowser(nullptr);
+  customMenu(nullptr);
+  customToolBars(nullptr);
   emit modified();
 }
 
@@ -5573,7 +5576,7 @@ void ApplicationWindow::activateWindow() {
   raise();
   show();
   WindowTableWidgetItem *it =
-      static_cast<WindowTableWidgetItem *>(ui_->listView->currentItem());
+      dynamic_cast<WindowTableWidgetItem *>(ui_->listView->currentItem());
   if (it) activateWindow(it->window());
 }
 
@@ -5638,6 +5641,7 @@ void ApplicationWindow::removeWindowFromLists(MyWidget *widgrt) {
   QString caption = widgrt->name();
   if (isActiveSubwindow(SubWindowType::TableSubWindow)) {
     Table *table = qobject_cast<Table *>(widgrt);
+    if(!table) return;
     for (int i = 0; i < table->numCols(); i++) {
       QString name = table->colName(i);
       removeCurves(table, name);
@@ -5681,9 +5685,9 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
   if (subwindowlist.isEmpty()) {
     customMenu(nullptr);
     customToolBars(nullptr);
-    propertybrowser->populateObjectBrowser(nullptr);
   }
 
+  propertybrowser->populateObjectBrowser(nullptr);
   emit modified();
 }
 
