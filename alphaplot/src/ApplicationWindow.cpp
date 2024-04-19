@@ -1290,10 +1290,12 @@ void ApplicationWindow::customMenu(QMdiSubWindow *subwindow) {
               SLOT(evaluate()));
     } else
       disableActions();  // None of the above
-
+    propertybrowser->populateObjectBrowser(qobject_cast<MyWidget *>(subwindow));
     menuBar()->addMenu(ui_->menuWindow);
-  } else
+  } else {
     disableActions();  // No active Window
+    propertybrowser->populateObjectBrowser(nullptr);
+  }
 
   menuBar()->addMenu(ui_->menuHelp);
 }
@@ -1918,6 +1920,7 @@ Layout2D *ApplicationWindow::newGraph2D(const QString &caption) {
   connect(layout2d, &Layout2D::showTitleBarMenu, this,
           &ApplicationWindow::showWindowTitleBarMenu);
   connect(layout2d, &Layout2D::mousepressevent, [=](MyWidget *widget) {
+    propertybrowser->populateObjectBrowser(widget);
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
@@ -1969,6 +1972,7 @@ Layout3D *ApplicationWindow::newGraph3D(const Graph3DCommon::Plot3DType &type,
   // QWindow doesnt pass mousepressevent to the container widget
   // so do it here manually
   connect(layout3d, &Layout3D::mousepressevent, this, [=]() {
+    propertybrowser->populateObjectBrowser(layout3d);
     if (d_workspace->activeSubWindow() == layout3d) return;
     d_workspace->setActiveSubWindow(layout3d);
   });
@@ -2227,6 +2231,7 @@ void ApplicationWindow::initNote(Note *note, const QString &caption) {
   connect(note, SIGNAL(showTitleBarMenu()), this,
           SLOT(showWindowTitleBarMenu()));
   connect(note, &Note::mousepressevent, [=](MyWidget *widget) {
+    propertybrowser->populateObjectBrowser(widget);
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
@@ -2334,6 +2339,7 @@ void ApplicationWindow::initMatrix(Matrix *matrix) {
   connect(matrix, SIGNAL(showContextMenu()), this,
           SLOT(showWindowContextMenu()));
   connect(matrix, &Matrix::mousepressevent, [=](MyWidget *widget) {
+    propertybrowser->populateObjectBrowser(widget);
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
@@ -5414,9 +5420,9 @@ void ApplicationWindow::cutSelection() {
   QMdiSubWindow *subwindow = d_workspace->activeSubWindow();
   if (!subwindow) return;
 
-  if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow))
+  if (isActiveSubWindow(subwindow, SubWindowType::TableSubWindow)) {
     qobject_cast<Table *>(subwindow)->cutSelection();
-  else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
+  } else if (isActiveSubWindow(subwindow, SubWindowType::MatrixSubWindow))
     qobject_cast<Matrix *>(subwindow)->cutSelection();
   else if (isActiveSubWindow(subwindow, SubWindowType::Plot2DSubWindow)) {
     // QMessageBox::warning(this, tr("Error"), tr("Cannot use this on
@@ -5435,9 +5441,9 @@ void ApplicationWindow::pasteSelection() {
   MyWidget *widget = qobject_cast<MyWidget *>(d_workspace->activeSubWindow());
   if (!widget) return;
 
-  if (isActiveSubWindow(widget, SubWindowType::TableSubWindow))
+  if (isActiveSubWindow(widget, SubWindowType::TableSubWindow)) {
     qobject_cast<Table *>(widget)->pasteSelection();
-  else if (isActiveSubWindow(widget, SubWindowType::MatrixSubWindow))
+  } else if (isActiveSubWindow(widget, SubWindowType::MatrixSubWindow))
     qobject_cast<Matrix *>(widget)->pasteSelection();
   else if (isActiveSubWindow(widget, SubWindowType::NoteSubWindow))
     qobject_cast<Note *>(widget)->textWidget()->paste();
@@ -5557,7 +5563,6 @@ void ApplicationWindow::hideActiveWindow() {
 void ApplicationWindow::hideWindow(MyWidget *w) {
   hiddenWindows.append(w);
   w->setHidden();
-  propertybrowser->populateObjectBrowser(nullptr);
   customMenu(nullptr);
   customToolBars(nullptr);
   emit modified();
@@ -5584,6 +5589,7 @@ void ApplicationWindow::activateWindow(MyWidget *w) {
   if (!w) return;
   w->setNormal();
   d_workspace->setActiveSubWindow(w);
+  propertybrowser->populateObjectBrowser(w);
 
   updateWindowLists(w);
   emit modified();
@@ -5685,9 +5691,9 @@ void ApplicationWindow::closeWindow(MyWidget *window) {
   if (subwindowlist.isEmpty()) {
     customMenu(nullptr);
     customToolBars(nullptr);
-  }
+  } else
+    propertybrowser->populateObjectBrowser(nullptr);
 
-  propertybrowser->populateObjectBrowser(nullptr);
   emit modified();
 }
 
@@ -6779,9 +6785,11 @@ void ApplicationWindow::connectTable(Table *table) {
   connect(table->d_future_table, SIGNAL(requestColumnStatistics()), this,
           SLOT(showColumnStatistics()));
   connect(table, &Table::mousepressevent, [=](MyWidget *widget) {
+    propertybrowser->populateObjectBrowser(widget);
     if (d_workspace->activeSubWindow() == widget) return;
     widget->setNormal();
     d_workspace->setActiveSubWindow(widget);
+
   });
   table->askOnCloseEvent(confirmCloseTable);
 }
@@ -7799,10 +7807,13 @@ void ApplicationWindow::folderItemDoubleClicked(QTreeWidgetItem *it) {
     if (d_workspace->activeSubWindow() != widget)
       activateWindow(widget);
     else {
-      if (!widget->isMaximized())
+      if (!widget->isMaximized()) {
         widget->setMaximized();
-      else
+        propertybrowser->populateObjectBrowser(widget);
+      } else {
         widget->setNormal();
+        propertybrowser->populateObjectBrowser(widget);
+      }
     }
   }
 }

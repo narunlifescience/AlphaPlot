@@ -164,11 +164,11 @@ Layout2D::~Layout2D() {
   // destroy in order to be in line with ObjectBrowserTreeItem destruction
   // dont change the order unless you know what you are doing (may crash the
   // application)
-  foreach (AxisRect2D *axisrect, getAxisRectList()) {
+  /*foreach (AxisRect2D *axisrect, getAxisRectList()) {
     removeAxisRectItem(axisrect);
-  }
-  delete layout_;
-  delete plot2dCanvas_;
+  }*/
+  //delete layout_;
+  //delete plot2dCanvas_;
 }
 
 QString Layout2D::getItemName() { return name(); }

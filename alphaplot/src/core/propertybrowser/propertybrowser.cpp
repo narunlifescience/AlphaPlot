@@ -114,7 +114,7 @@ void PropertyBrowser::populateObjectBrowser(MyWidget *widget) {
   } else if (qobject_cast<Layout2D *>(widget)) {
     Layout2D *gd = qobject_cast<Layout2D *>(widget);
     objectItemModel_->buildUpGraph2D(gd);
-    connect(gd, &Layout2D::addedOrRemoved, this, [&]() {
+    connect(gd, &Layout2D::addedOrRemoved, this, [=]() {
       MyWidget *active =
           qobject_cast<MyWidget *>(app_->d_workspace->activeSubWindow());
       if (active == widget) {
